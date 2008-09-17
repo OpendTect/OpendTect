@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcoastline.cc,v 1.2 2008-08-20 05:26:09 cvsraman Exp $
+ RCS:		$Id: gmtcoastline.cc,v 1.3 2008-09-17 10:09:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,13 +70,15 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     fp.setExtension( "llr" );
     makeLLRangeFile( fp.fullPath() );
 
-    StreamData sd = StreamProvider( fp.fullPath() ).makeIStream();
+    StreamProvider sp( fp.fullPath() );
+    StreamData sd = sp.makeIStream();
     if ( !sd.usable() )
 	mErrStrmRet("Cannot read Lat/Long range file")
 
     char buf[80];
     sd.istrm->getline( buf, 40, ' ' );
     BufferString rangestr = buf;
+    sd.close(); sp.remove();
     *( rangestr.buf() + rangestr.size() - 1 ) = '\0';
     BufferString comm = "pscoast "; comm += rangestr;
     comm += " -JM"; comm += mapdim.start; comm += "c -D";

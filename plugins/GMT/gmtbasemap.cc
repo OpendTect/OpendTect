@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.7 2008-09-12 11:32:25 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.8 2008-09-17 10:09:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    if ( system(colbarcomm) )
 		mErrStrmRet("Failed to post color bar")
 
+            StreamProvider( fp.fullPath() ).remove();
 	    if ( !par->find(ODGMT::sKeyLineStyle) )
 		continue;
 	}
