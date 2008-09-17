@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.13 2008-04-30 04:02:52 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.14 2008-09-17 11:33:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
 
 uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 {
-    cleanUp();
 }
 
 
