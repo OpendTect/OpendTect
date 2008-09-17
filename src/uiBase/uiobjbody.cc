@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.20 2008-08-11 12:03:51 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.21 2008-09-17 12:17:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -475,6 +475,18 @@ void uiObjectBody::setToolTip( const char* txt )
 {
     qwidget()->setToolTip( txt );
 }
+
+
+void uiObjectBody::getToolTipBGColor( Color& col )
+{ col = Color( QToolTip::palette().color(QPalette::Window).rgb() ); }
+
+
+void uiObjectBody::setToolTipBGColor( const Color& col )
+{
+    QPalette palette;
+    palette.setColor( QPalette::Window, QColor(col.r(),col.g(),col.b()) );
+    QToolTip::setPalette( palette );
+} 
 
 
 void uiObjectBody::uisetCaption( const char* str )

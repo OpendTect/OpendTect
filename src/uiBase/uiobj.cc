@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.78 2008-07-09 05:25:11 cvsnanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.79 2008-09-17 12:17:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,7 @@ void uiParentBody::clearChildren()
 
 
 bool uiObject::nametooltipactive_ = false;
+Color uiObject::normaltooltipcolor_;
 
 static ObjectSet<uiObject> uiobjectlist_;
 
@@ -406,6 +407,12 @@ mDefSzFn(baseFld,"dTect.Field.size",10)
 
 void uiObject::useNameToolTip( bool yn ) 
 {
+    if ( !nametooltipactive_ )
+	uiObjectBody::getToolTipBGColor( normaltooltipcolor_ );
+
+    const Color& ttcolor( yn ? Color(220,255,255) : normaltooltipcolor_ );
+    uiObjectBody::setToolTipBGColor( ttcolor );
+
     nametooltipactive_ = yn;
 
     for ( int idx=uiobjectlist_.size()-1; idx>=0; idx-- )

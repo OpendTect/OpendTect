@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.58 2008-08-11 12:03:51 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.59 2008-09-17 12:17:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,10 @@ ________________________________________________________________________
 #include "uihandle.h"
 #include "uigeom.h"
 #include "uilayout.h"
+#include "color.h"
 
 #include <stdlib.h>
 
-class Color;
 class MouseCursor;
 class uiFont;
 class uiObjectBody;
@@ -157,6 +157,7 @@ protected:
     
     void		doSetToolTip();
     static bool		nametooltipactive_;
+    static Color	normaltooltipcolor_;
     BufferString	normaltooltiptxt_;
 
 private:

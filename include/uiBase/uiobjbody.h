@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.46 2008-08-11 12:03:51 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.47 2008-09-17 12:17:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,8 @@ public:
     virtual		~uiObjectBody();
 
     void		setToolTip(const char*);
+    static void		getToolTipBGColor( Color& );
+    static void		setToolTipBGColor(const Color&);
 
     void 		display(bool yn,bool shrink=false,
 				bool maximised=false);
