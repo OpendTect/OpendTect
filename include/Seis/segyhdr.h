@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.18 2008-09-15 10:10:35 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.19 2008-09-18 14:55:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,17 +123,15 @@ public:
 
     void		use(const SeisTrcInfo&);
     void		fill(SeisTrcInfo&,float) const;
+    void		setNeedSwap( bool yn=true )	{ needswap = yn; }
 
     float		postScale(int numbfmt) const;
     Coord		getCoord(bool rcv,float extcoordsc);
 
     unsigned char*	buf;
-    bool		needswap;
     const TrcHeaderDef&	hdef;
     bool		isrev1;
-    int			seqnr;
-    int			lineseqnr;
-    int			previnl;
+    bool		isusable; // trid < 2 ; mostly ignored but not always
 
     void		dump(std::ostream&) const;
 
@@ -149,7 +147,13 @@ public:
     static int		nrStdVals()		{ return 41; }
     Val			getVal(int) const;
 
+
 protected:
+
+    bool		needswap;
+    int			previnl;
+    int			seqnr;
+    int			lineseqnr;
 
     double		getCoordScale(float extcoordsc) const;
 

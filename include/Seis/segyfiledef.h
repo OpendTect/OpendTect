@@ -7,29 +7,36 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.2 2008-09-17 15:27:00 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.3 2008-09-18 14:55:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
 #include "bufstring.h"
+#include "position.h"
+#include "samplingdata.h"
+#include "seistype.h"
 class IOPar;
+class DataPointSet;
  
 
 namespace SEGY
 {
 
-struct TrcFileIdx
+class TrcFileIdx
 {
+public:
 		TrcFileIdx( int fnr=-1, int tnr=0 )
 		    : filenr_(fnr), trcnr_(tnr) {}
 
     bool	isValid() const			{ return filenr_ >= 0; }
+    void	toNextFile()			{ filenr_++; trcnr_ = 0; }
 
     int		filenr_;
     int		trcnr_;
 };
+
 
 /*\brief Input and output file(s)  */
 
@@ -46,6 +53,9 @@ public:
     int			zeropad_;	//!< pad zeros to this length
 
     bool		isMultiFile() const	{ return !mIsUdf(nrs_.start); }
+    int			nrFiles() const	
+    			{ return isMultiFile() ? nrs_.nrSteps()+1 : 1; }
+    const char*		getFileName(int nr=0) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -82,6 +92,35 @@ public:
 protected:
 
     bool		forread_;
+
+};
+
+
+/*\brief Data usually obtained by scanning file  */
+
+class FileData
+{
+public:
+    			FileData(const char* fnm,Seis::GeomType);
+    			FileData(const FileData&);
+			~FileData();
+
+    BufferString	fname_;
+    Seis::GeomType	geom_;
+    int			trcsz_;
+    SamplingData<float>	sampling_;
+    int			segyfmt_;
+    bool		isrev1_;
+    int			nrstanzas_;
+    DataPointSet&	data_;
+
+    int			nrTraces() const;
+    BinID		binID(int) const;
+    Coord		coord(int) const;
+    int			trcNr(int) const;
+    float		offset(int) const;
+    bool		isNull(int) const;
+    bool		isUsable(int) const;
 
 };
 

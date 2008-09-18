@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.64 2008-09-15 10:10:36 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.65 2008-09-18 14:55:52 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -26,9 +26,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.64 2008-09-15 10:10:36 cvsbert Ex
 #include "keystrs.h"
 #include <math.h>
 #include <ctype.h>
-# include <sstream>
 
-const char* SEGY::FileSpec::sKeyFileNrs = "File numbers";
 const char* SEGYSeisTrcTranslator::sNumberFormat = "Number format";
 const char* SEGYSeisTrcTranslator::sExternalNrSamples = "Nr samples overrule";
 const char* SEGYSeisTrcTranslator::sExternalTimeShift = "Start time overrule";
@@ -46,84 +44,9 @@ static const char* allsegyfmtoptions[] = {
     "8 - Signed char (1 byte)",
     0
 };
-const char** SEGY::FilePars::getFmts( bool forread )
+const char** SEGYSeisTrcTranslator::getFmts( bool forread )
 {
     return forread ? allsegyfmtoptions : allsegyfmtoptions+1;
-}
-
-
-void SEGY::FileSpec::fillPar( IOPar& iop ) const
-{
-    iop.set( sKey::FileName, fname_ );
-    if ( mIsUdf(nrs_.start) )
-	iop.removeWithKey( sKeyFileNrs );
-    else
-    {
-	FileMultiString fms;
-	fms += nrs_.start; fms += nrs_.stop; fms += nrs_.step;
-	if ( zeropad_ )
-	    fms += zeropad_;
-	iop.set( sKeyFileNrs, fms );
-    }
-}
-
-
-void SEGY::FileSpec::usePar( const IOPar& iop )
-{
-    iop.get( sKey::FileName, fname_ );
-    getMultiFromString( iop.find(sKeyFileNrs) );
-}
-
-
-void SEGY::FileSpec::getMultiFromString( const char* str )
-{
-    FileMultiString fms( str );
-    const int len = fms.size();
-    nrs_.start = len > 0 ? atoi( fms[0] ) : mUdf(int);
-    if ( len > 1 )
-	nrs_.stop = atoi( fms[1] );
-    if ( len > 2 )
-	nrs_.step = atoi( fms[2] );
-    if ( len > 3 )
-	zeropad_ = atoi( fms[3] );
-}
-
-
-void SEGY::FilePars::fillPar( IOPar& iop ) const
-{
-    iop.set( SEGYSeisTrcTranslator::sExternalNrSamples, ns_ );
-    iop.set( SEGYSeisTrcTranslator::sNumberFormat, nameOfFmt(fmt_,forread_) );
-    iop.setYN( SegylikeSeisTrcTranslator::sKeyBytesSwapped, byteswapped_ );
-}
-
-
-void SEGY::FilePars::usePar( const IOPar& iop )
-{
-    iop.get( SEGYSeisTrcTranslator::sExternalNrSamples, ns_ );
-    iop.getYN( SegylikeSeisTrcTranslator::sKeyBytesSwapped, byteswapped_ );
-    fmt_ = fmtOf( iop.find(SEGYSeisTrcTranslator::sNumberFormat), forread_ );
-}
-
-
-const char* SEGY::FilePars::nameOfFmt( int fmt, bool forread )
-{
-    if ( fmt > 0 && fmt < 4 )
-	return allsegyfmtoptions[fmt];
-    if ( fmt == 5 )
-	return allsegyfmtoptions[4];
-    if ( fmt == 8 )
-	return allsegyfmtoptions[5];
-
-    return forread ? allsegyfmtoptions[0] : nameOfFmt( 1, false );
-}
-
-
-int SEGY::FilePars::fmtOf( const char* str, bool forread )
-{
-    if ( !str || !*str || !isdigit(*str) )
-	return forread ? 0 : 1;
-
-    return (int)(*str - '0');
 }
 
 
@@ -176,7 +99,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	mErrRet( "Cannot read EBCDIC header" )
     binhead.getFrom( binheaderbuf );
 
-    trchead.needswap = bytesswapped;
+    trchead.setNeedSwap( bytesswapped );
     trchead.isrev1 = force_rev0 ? false : binhead.isrev1;
     if ( trchead.isrev1 )
     {

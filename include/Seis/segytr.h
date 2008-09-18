@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.22 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.23 2008-09-18 14:55:52 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -40,6 +40,7 @@ public:
     static const char*	sExternalSampleRate;
     static const char*	sUseOffset;
     static const char*	sForceRev0;
+    static const char**	getFmts(bool forread);
 
     bool		isRev1() const;
     int			numbfmt;
