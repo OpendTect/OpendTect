@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.106 2008-05-28 14:44:46 cvshelene Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.107 2008-09-18 08:42:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,11 +227,10 @@ void uiImportHorizon::formatSel( CallBacker* cb )
 
 void uiImportHorizon::addAttrib( CallBacker* cb )
 {
-    uiGenInputDlg* dlg = new uiGenInputDlg( this, "Add Attribute",
-	    				    "Name", new StringInpSpec() );
-    if ( !dlg->go() ) return;
+    uiGenInputDlg dlg( this, "Add Attribute", "Name", new StringInpSpec() );
+    if ( !dlg.go() ) return;
 
-    const char* attrnm = dlg->text();
+    const char* attrnm = dlg.text();
     attrlistfld_->box()->addItem( attrnm );
     const int idx = attrlistfld_->box()->size() - 1;
     attrlistfld_->box()->setSelected( idx, true );
