@@ -22,7 +22,7 @@ Input "Inline start" 320
 Input "Inline stop" 320
 Ok
 Button "Select Output Cube"
-Input "Name" "test-zone"
+Input "Name" "Test-zone"
 Ok
 
 Button "Proceed"
@@ -30,17 +30,13 @@ Ok
 Sleep 8
 
 TreeMenu "Inline" "Add"
-TreeMenu "Inline`425" "Position"
+TreeMenu "Inline`*" "Position"
 Window "Positioning"
 Input "Inl nr" 320
-#Input "Crl Start" 400
-#Input "Crl Stop" 1200
-#Input "Z Start" 0
-#Input "Z Stop" 1000
 Ok
 
 Button "Stored"
-ListClick "Select Data" "test-zone" Double
+ListClick "Select Data" "Test-zone" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
@@ -48,5 +44,15 @@ Input "Select filename"  "$SNAPSHOTSDIR$/betHor-testzone_1.jpg"
 Ok
 
 TreeMenu "Inline`*" "Remove"
+Menu "Survey`Manage`Seismics"
+ListClick "Objects list" "Test-zone"
+Button "Remove this object"
+Sleep 3
+Button "Yes"
+Button "Dismiss"
+
+Menu "Survey`Select/Setup"
+Sleep 3
+Ok
 
 End
