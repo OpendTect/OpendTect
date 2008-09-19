@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.1 2008-09-18 14:55:52 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.2 2008-09-19 14:58:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 
     Seis::GeomType	geomType() const	{ return geom_; }
     const IOPar&	pars() const		{ return pars_; }
+    void		setMaxNrtraces( int n )	{ nrtrcs_ = n; }
 
     int			nextStep();
     const char*		message() const		{ return msg_.buf(); }
@@ -66,6 +67,7 @@ protected:
     const IOPar&	pars_;
     ObjectSet<FileData>	fd_;
     SEGYSeisTrcTranslator* tr_;
+    int			nrtrcs_;
 
     SeisTrc&		trc_;
     int			curfidx_;

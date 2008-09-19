@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.1 2008-09-18 14:55:52 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.2 2008-09-19 14:58:33 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledef.h"
@@ -27,6 +27,7 @@ SEGY::Scanner::Scanner( const FileSpec& fs, Seis::GeomType gt, const IOPar& i )
     , curfidx_(-1)
     , msg_("Opening first file")
     , nrdone_(0)
+    , nrtrcs_(0)
 {
     const int nrfiles = fs.nrFiles();
     for ( int idx=0; idx<nrfiles; idx++ )
@@ -44,6 +45,8 @@ SEGY::Scanner::~Scanner()
 
 int SEGY::Scanner::nextStep()
 {
+    if ( nrtrcs_ > 0 && nrdone_ >= nrtrcs_ )
+	return Executor::Finished;
     return tr_ ? readNext() : openNext();
 }
 
