@@ -47,12 +47,16 @@ TreeMenu "Inline`*" "Remove"
 Menu "Survey`Manage`Seismics"
 ListClick "Objects list" "Test-zone"
 Button "Remove this object"
-Sleep 3
+Sleep 2
 Button "Yes"
 Button "Dismiss"
 
+#Parameter id is not correct error
+# is coming After running this script second time 
+# to rectify this problem select same survey again
+ 
 Menu "Survey`Select/Setup"
-Sleep 3
+Sleep 2
 Ok
 
 End
