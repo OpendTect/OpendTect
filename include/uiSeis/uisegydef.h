@@ -6,19 +6,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.2 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.3 2008-09-19 14:28:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seistype.h"
 #include "uigroup.h"
+#include "uisegyio.h"
 #include "segyfiledef.h"
 class IOObj;
 class uiLabel;
 class uiGenInput;
-class uiFileInput;
 class uiCheckBox;
+class uiTabStack;
+class uiFileInput;
 namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 
 
@@ -30,14 +32,14 @@ public:
     			uiSEGYDefGroup( uiParent* p, const char* grpnm,
 					bool forread )
 			    : uiGroup(p,grpnm)
-			    , forread_(forread)		{}
+			    , forread_(forread)				{}
 
-    virtual bool	fillPar(IOPar&) const		= 0;
-    virtual void	usePar(const IOPar&)		= 0;
-    virtual void	use(const IOObj*,bool force)	= 0;
+    virtual bool	fillPar(IOPar&,bool permissive=false) const	= 0;
+    virtual void	usePar(const IOPar&)				= 0;
+    virtual void	use(const IOObj*,bool force)			= 0;
 
     virtual void	getReport( IOPar& iop ) const
-			{ fillPar( iop ); }
+			{ fillPar( iop, true ); }
 
 protected:
 
@@ -52,7 +54,7 @@ class uiSEGYFileSpec : public uiSEGYDefGroup
 public:
     			uiSEGYFileSpec(uiParent*,bool forread,IOPar* iop=0);
 
-    bool		fillPar(IOPar&) const;
+    bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
     void		use(const IOObj*,bool force);
 
@@ -76,7 +78,7 @@ class uiSEGYFilePars : public uiSEGYDefGroup
 public:
     			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0);
 
-    bool		fillPar(IOPar&) const;
+    bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
     void		use(const IOObj*,bool force);
 
@@ -92,32 +94,52 @@ protected:
 };
 
 
-/*!\brief UI for Specification of SEG-Y fields needed for proper im/export */
+/*!\brief UI for Specification of SEG-Y fields needed for proper im/export
+
+  The idea is that you know beforehand whether the file is Rev.1 or not.
+  If it's Rev. 1, the positioning part can be dumped.
+ 
+ */
 
 class uiSEGYFileOpts : public uiSEGYDefGroup
 {
 public:
 
-    enum Purpose	{ Read, Scan, Write };
+    class Setup
+    {
+    public:
+				Setup( Seis::GeomType gt,
+					uiSEGYIO::Operation op=uiSEGYIO::Read,
+					bool isr1=false )
+				    : geom_(gt)
+				    , operation_(op)
+				    , isrev1_(isr1)	{}
 
-			uiSEGYFileOpts(uiParent*,Purpose,Seis::GeomType,
-				  const IOPar* iop=0);
+	mDefSetupMemb(Seis::GeomType,geom)
+	mDefSetupMemb(uiSEGYIO::Operation,operation)
+	mDefSetupMemb(bool,isrev1) //!< Note: write is always Rev.1
+    };
+
+			uiSEGYFileOpts(uiParent*,const Setup&,const IOPar* i=0);
 			~uiSEGYFileOpts();
 
-    Purpose		purpose() const		{ return purpose_; }
-    Seis::GeomType	geomType() const	{ return geom_; }
+    const Setup&	setup() const		{ return setup_; }
 
-    bool		fillPar(IOPar&) const;
+    bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
     void		getReport(IOPar&) const;
     void		use(const IOObj*,bool force);
 
 protected:
 
-    Purpose		purpose_;
-    Seis::GeomType	geom_;
+    Setup		setup_;
     bool		is2d_;
     bool		isps_;
+    bool		permissive_;
+
+    uiTabStack*		ts_;
+    uiGroup*		posgrp_;
+    uiGroup*		orulegrp_;
 
     uiGenInput*		positioningfld_;
     uiGenInput*		inlbytefld_;

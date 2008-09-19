@@ -3,8 +3,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
- Date:          Aug 2001
- RCS:		$Id: uisegydef.cc,v 1.2 2008-09-15 10:10:36 cvsbert Exp $
+ Date:          Sep 2008
+ RCS:		$Id: uisegydef.cc,v 1.3 2008-09-19 14:28:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimainwin.h"
 #include "uibutton.h"
+#include "uitabstack.h"
+#include "uilineedit.h"
 #include "uimsg.h"
 
 static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
@@ -183,6 +185,8 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, bool forread, IOPar* iop )
     : uiSEGYDefGroup(p,"SEGY::FileSpec group",forread)
     , multifld_(0)
 {
+    SEGY::FileSpec spec; if ( iop ) spec.usePar( *iop );
+
     BufferString disptxt( forread ? "Input" : "Output" );
     disptxt += " SEG-Y file";
     if ( forread ) disptxt += "(s)";
@@ -192,12 +196,14 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, bool forread, IOPar* iop )
 
     if ( forread )
     {
-	multifld_ = new uiGenInput( this, "Multiple files",
-				    IntInpSpec(1).setName("Files") );
+	IntInpIntervalSpec inpspec( true );
+	inpspec.setName( "File number start", 0 );
+	inpspec.setName( "File number stop", 1 );
+	inpspec.setName( "File number step", 2 );
+	inpspec.setValue( StepInterval<int>(1,2,1) );
+	multifld_ = new uiGenInput( this, "Multiple files; Numbers", inpspec );
 	multifld_->setWithCheck( true ); multifld_->setChecked( false );
 	multifld_->attach( alignedBelow, fnmfld_ );
-	uiLabel* lbl = new uiLabel( this, "(# files or start-stop/step)" );
-	lbl->attach( rightOf, multifld_ );
     }
 
     if ( iop ) usePar( *iop );
@@ -208,36 +214,14 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, bool forread, IOPar* iop )
 SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 {
     SEGY::FileSpec spec( fnmfld_->fileName() );
-    BufferString inp( !multifld_ || !multifld_->isChecked() ? ""
-			: multifld_->text() );
-    if ( inp.isEmpty() )
+    if ( multifld_ && multifld_->isChecked() )
     {
-	spec.nrs_ = StepInterval<int>( mUdf(int), 0, 1 );
-	spec.zeropad_ = 0;
-    }
-    else
-    {
-	char* startptr = inp.buf();
-	char* stopptr = strchr( startptr, '-' );
-	if ( stopptr ) *stopptr++ = '\0';
-	char* stepptr = strchr( startptr, '/' );
-	if ( stepptr ) *stepptr++ = '\0';
-	char* padptr = strchr( startptr, '~' );
-	if ( padptr ) *padptr++ = '\0';
-
-	spec.nrs_ = StepInterval<int>( 1, 1, 1 );
-	if ( !stopptr )
-	    spec.nrs_.stop = atoi( startptr );
-	else
-	{
-	    spec.nrs_.start = atoi( startptr );
-	    spec.nrs_.stop = atoi( stopptr );
-	    if ( stepptr && *stepptr )
-		spec.nrs_.step = atoi( stepptr );
-	}
-	if ( spec.nrs_.step == 0 ) spec.nrs_.step = 1;
-	if ( padptr )
-	    spec.zeropad_ = atoi( padptr );
+	spec.nrs_ = multifld_->getIStepInterval();
+	const char* txt = multifld_->text();
+	mSkipBlanks(txt);
+	if ( *txt == '0' )
+	    spec.zeropad_ = strlen(txt);
+	if ( spec.zeropad_ == 1 ) spec.zeropad_ = 0;
     }
     return spec;
 }
@@ -245,21 +229,25 @@ SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
-bool uiSEGYFileSpec::fillPar( IOPar& iop ) const
+bool uiSEGYFileSpec::fillPar( IOPar& iop, bool perm ) const
 {
     SEGY::FileSpec spec( getSpec() );
-    if ( spec.fname_.isEmpty() )
-	mErrRet("No file name specified")
 
-    if ( forread_ )
+    if ( !perm )
     {
-	if ( spec.isMultiFile() )
+	    if ( spec.fname_.isEmpty() )
+	    mErrRet("No file name specified")
+
+	if ( forread_ )
 	{
-	    if ( !strchr(spec.fname_.buf(),'*') )
-		mErrRet("Please put a wildcard ('*') in the file name")
+	    if ( spec.isMultiFile() )
+	    {
+		if ( !strchr(spec.fname_.buf(),'*') )
+		    mErrRet("Please put a wildcard ('*') in the file name")
+	    }
+	    else if ( !File_exists(spec.fname_) )
+		mErrRet("Selected input file does not exist")
 	}
-	else if ( !File_exists(spec.fname_) )
-	    mErrRet("Selected input file does not exist")
     }
 
     spec.fillPar( iop );
@@ -276,12 +264,26 @@ void uiSEGYFileSpec::setMultiInput( const StepInterval<int>& nrs, int zp )
     else
     {
 	multifld_->setChecked( true );
-	BufferString txt;
-	txt += nrs.start; txt += "-"; txt += nrs.stop;
-	txt += "/"; txt += nrs.step;
-	if ( zp > 0 )
-	    { txt += "~"; txt += zp; }
-	multifld_->setText( txt );
+	multifld_->setValue( nrs );
+
+	if ( zp > 1 )
+	{
+	    UserInputObj* inpobj = multifld_->element( 0 );
+	    mDynamicCastGet(uiLineEdit*,le,inpobj)
+	    if ( le )
+	    {
+		BufferString txt( nrs.start );
+		const int nrzeros = zp - txt.size();
+		if ( nrzeros > 0 )
+		{
+		    txt = "0";
+		    for ( int idx=1; idx<nrzeros; idx++ )
+			txt += "0";
+		    txt += nrs.start;
+		}
+		le->setText( txt );
+	    }
+	}
     }
 }
 
@@ -362,7 +364,7 @@ SEGY::FilePars uiSEGYFilePars::getPars() const
 }
 
 
-bool uiSEGYFilePars::fillPar( IOPar& iop ) const
+bool uiSEGYFilePars::fillPar( IOPar& iop, bool ) const
 {
     getPars().fillPar( iop );
     return true;
@@ -404,9 +406,10 @@ void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 
 
 
-uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, uiSEGYFileOpts::Purpose purp,
-		      Seis::GeomType gt, const IOPar* iop )
-	: uiSEGYDefGroup(p,"SEG-Y Opts group",purp!=Write)
+uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
+				const IOPar* iop )
+	: uiSEGYDefGroup(p,"SEG-Y Opts group",su.operation_!=uiSEGYIO::Write)
+    	, setup_(su)
 	, xcoordbytefld_(0)
 	, scalcofld_(0)
 	, inlbytefld_(0)
@@ -417,12 +420,20 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, uiSEGYFileOpts::Purpose purp,
         , timeshiftfld_(0)
 	, sampleratefld_(0)
 	, ensurepsxylbl_(0)
-    	, purpose_(purp)
-    	, geom_(gt)
-    	, isps_(Seis::isPS(gt))
-    	, is2d_(Seis::is2D(gt))
+    	, isps_(Seis::isPS(su.geom_))
+    	, is2d_(Seis::is2D(su.geom_))
+    	, ts_(0)
 {
-    buildUI( iop );
+    if ( forread_ && !setup_.isrev1_ )
+	ts_ = new uiTabStack( this, "SEG-Y opts tab stack" );
+
+    posgrp_ = mkPosGrp( iop );
+    orulegrp_ = mkORuleGrp( iop );
+    if ( posgrp_ && orulegrp_ )
+    {
+	ts_->addTab( posgrp_, "Locations" );
+	ts_->addTab( orulegrp_, "Overrules" );
+    }
     mainwin()->finaliseStart.notify( mCB(this,uiSEGYFileOpts,positioningChg) );
 }
 
@@ -434,6 +445,8 @@ uiSEGYFileOpts::~uiSEGYFileOpts()
 
 void uiSEGYFileOpts::getReport( IOPar& iop ) const
 {
+    if ( !posgrp_ ) return;
+
     const bool useic = haveIC();
     BufferString tmp;
 #define mGetIndexNrByteRep(s,dir) { \
@@ -484,18 +497,17 @@ void uiSEGYFileOpts::getReport( IOPar& iop ) const
 }
 
 
-void uiSEGYFileOpts::buildUI( const IOPar* iop )
-{
-    uiGroup* posgrp = mkPosGrp( iop );
-    uiGroup* orulegrp = mkORuleGrp( iop );
-    orulegrp->attach( forread_ ? alignedBelow : centeredBelow, posgrp );
-}
-
-
 uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar* iop )
 {
+    if ( forread_ && setup_.isrev1_ ) return 0;
+
     SEGY::TrcHeaderDef thdef; thdef.fromSettings();
-    uiGroup* grp = new uiGroup( this, "Position group" );
+    uiGroup* maingrp;
+    if ( ts_ )
+	maingrp = new uiGroup( ts_->tabGroup(), "Position group" );
+    else
+	maingrp = new uiGroup( this, "Position group" );
+    uiGroup* grp = new uiGroup( maingrp, "Main position group" );
 
     if ( forread_ && !is2d_ )
 	mkBinIDFlds( grp, iop, thdef );
@@ -513,7 +525,15 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar* iop )
     if ( positioningfld_ )
 	positioningfld_->valuechanged.notify( 
 			mCB(this,uiSEGYFileOpts,positioningChg) );
-    return grp;
+
+    if ( !forread_ )
+    {
+	uiLabel* lbl = new uiLabel( maingrp,
+			"(*) additional to required SEG-Y Rev. 1 fields" );
+	lbl->attach( centeredBelow, grp );
+    }
+
+    return maingrp;
 }
 
 
@@ -531,7 +551,7 @@ void uiSEGYFileOpts::mkTrcNrFlds( uiGroup* grp, const IOPar* iop,
 void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar* iop,
 				   const SEGY::TrcHeaderDef& thdef )
 {
-    if ( purpose_ != Scan && !isps_ )
+    if ( setup_.operation_ != uiSEGYIO::Scan && !isps_ )
 	positioningfld_ = new uiGenInput( grp, "Positioning is defined by",
 		    BoolInpSpec(true,"Inline/Crossline","Coordinates") );
 
@@ -617,7 +637,7 @@ void uiSEGYFileOpts::attachPosFlds( uiGroup* grp )
     {
 	if ( trnrbytefld_ )
 	    xcoordbytefld_->attach( alignedBelow, trnrbytefld_ );
-	else if ( purpose_ == Scan )
+	else if ( setup_.operation_ == uiSEGYIO::Scan )
 	    xcoordbytefld_->attach( alignedBelow, crlbytefld_ );
 	return;
     }
@@ -639,25 +659,17 @@ void uiSEGYFileOpts::attachPosFlds( uiGroup* grp )
 
 uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar* iop )
 {
-    uiGroup* grp = new uiGroup( this, "Overrule" );
+    if ( !forread_ ) return 0;
 
-    if ( !forread_ )
-    {
-	uiLabel* lbl = new uiLabel( grp,
-			"(*) additional to required SEG-Y Rev. 1 fields" );
-	lbl->attach( hCentered );
-	return grp;
-    }
-
-    forcerev0fld_ = new uiCheckBox( grp,
-	    		"Use (*) fields even if input is SEG-Y Rev. 1" );
-    forcerev0fld_->setName( "SEG-Y Rev.1" );
-    forcerev0fld_->attach( hCentered );
+    uiGroup* grp;
+    if ( ts_ )
+	grp = new uiGroup( ts_->tabGroup(), "Overrule" );
+    else
+	grp = new uiGroup( this, "Overrule" );
 
     scalcofld_ = mkOverruleFld( grp,
 		    "Overrule SEG-Y coordinate scaling", iop,
 		    SEGYSeisTrcTranslator::sExternalCoordScaling, false );
-    scalcofld_->attach( ensureBelow, forcerev0fld_ );
     BufferString overrulestr = "Overrule SEG-Y start ";
     overrulestr += SI().zIsTime() ? "time" : "depth";
     timeshiftfld_ = mkOverruleFld( grp, overrulestr, iop,
@@ -678,6 +690,8 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 {
     int icopt = 0, oaopt = 0;
 
+    if ( posgrp_ )
+    {
     if ( positioningfld_ )
     {
 	if ( !isps_ )
@@ -728,17 +742,19 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	setByteNrFld( azimbytefld_, iop, SEGY::TrcHeaderDef::sAzimByte );
 	setByteSzFld( azimbyteszfld_, iop, SEGY::TrcHeaderDef::sAzimByteSz );
     }
+    }
 
+    if ( orulegrp_ )
+    {
     if ( scalcofld_ )
     {
-	forcerev0fld_->setChecked(
-			iop.isTrue(SEGYSeisTrcTranslator::sForceRev0) );
 	setToggledFld( scalcofld_, iop,
 		       SEGYSeisTrcTranslator::sExternalCoordScaling );
 	setToggledFld( timeshiftfld_, iop,
 		       SEGYSeisTrcTranslator::sExternalTimeShift, true );
 	setToggledFld( sampleratefld_, iop,
 		       SEGYSeisTrcTranslator::sExternalSampleRate, true );
+    }
     }
 }
 
@@ -753,14 +769,14 @@ void uiSEGYFileOpts::use( const IOObj* ioobj, bool force )
 
 bool uiSEGYFileOpts::haveIC() const
 {
-    if ( purpose_ == Scan ) return true;
+    if ( setup_.operation_ == uiSEGYIO::Scan ) return true;
     return is2d_ ? false : (isps_ ? true : posType()==1);
 }
 
 
 bool uiSEGYFileOpts::haveXY() const
 {
-    if ( purpose_ == Scan ) return true;
+    if ( setup_.operation_ == uiSEGYIO::Scan ) return true;
     return is2d_ ? true : (isps_ ? false : posType()==0);
 }
 
@@ -773,7 +789,7 @@ int uiSEGYFileOpts::posType() const
 
 void uiSEGYFileOpts::positioningChg( CallBacker* c )
 {
-    if ( !forread_ ) return;
+    if ( !forread_ || !posgrp_ ) return;
     const bool havexy = haveXY();
     const int postyp = posType();
 
@@ -809,11 +825,13 @@ void uiSEGYFileOpts::positioningChg( CallBacker* c )
 }
 
 
-bool uiSEGYFileOpts::fillPar( IOPar& iop ) const
+bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 {
     iop.setYN( SeisTrcTranslator::sKeyIs2D, is2d_ );
     iop.setYN( SeisTrcTranslator::sKeyIsPS, isps_ );
 
+    if ( posgrp_ )
+    {
     const bool haveic = haveIC();
 
     if ( !positioningfld_ )
@@ -833,13 +851,13 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop ) const
 	iop.set( SegylikeSeisTrcTranslator::sKeyIC2XYOpt, haveic ? 1 : -1 );
     }
 
-    const bool iswrite = purpose_ == Write;
+    const bool iswrite = setup_.operation_ == uiSEGYIO::Write;
 #define mSetByteIf(yn,key,fld) \
-    if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,iswrite,geom_) ) \
-         return false
+    if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,iswrite,setup_.geom_) \
+	&& !perm ) return false
 #define mSetSzIf(yn,key,fld) \
-    if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,false,geom_) ) \
-         return false
+    if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,false,setup_.geom_) \
+	&& !perm ) return false
 
     if ( inlbytefld_ )
     {
@@ -876,17 +894,19 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop ) const
 	    iop.set( SegylikeSeisTrcTranslator::sKeyOffsDef,
 		regoffsfld_->getIntValue(0), regoffsfld_->getIntValue(1) );
     }
+    }
 
+    if ( orulegrp_ )
+    {
     if ( scalcofld_ )
     {
-	iop.setYN( SEGYSeisTrcTranslator::sForceRev0,
-			forcerev0fld_->isChecked() );
 	setToggled( iop, SEGYSeisTrcTranslator::sExternalCoordScaling,
 			   scalcofld_ );
 	setToggled( iop, SEGYSeisTrcTranslator::sExternalTimeShift,
 			   timeshiftfld_, true );
 	setToggled( iop, SEGYSeisTrcTranslator::sExternalSampleRate,
 			   sampleratefld_, true );
+    }
     }
 
     return true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.94 2008-09-09 08:36:49 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.95 2008-09-19 14:28:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,9 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
     {
 	if ( GetEnvVarYN("OD_NEW_SEGY_HANDLING") )
 	{
-	    uiSEGYIO::Setup su( forread );
-	    dlg = new uiSEGYIO( appserv().parent(), forread );
+	    uiSEGYIO::Setup su( uiSEGYIO::Read, uiSEGYIO::ImpExp );
+	    uiSEGYIO uisio( appserv().parent(), su );
+	    return uisio.go();
 	}
 	else
 	{

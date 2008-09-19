@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.56 2008-09-18 14:55:52 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.57 2008-09-19 14:28:44 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -661,6 +661,13 @@ static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf,
     ti.coord.y = IbmFormat::asInt( mGetBytes(184,4) );
     ti.binid.inl = IbmFormat::asInt( mGetBytes(188,4) );
     ti.binid.crl = IbmFormat::asInt( mGetBytes(192,4) );
+    ti.nr = IbmFormat::asInt( mGetBytes(196,4) );
+    short scalnr = IbmFormat::asShort( mGetBytes(200,2) );
+    if ( scalnr )
+    {
+	const float fnr = ti.nr * (scalnr > 0 ? scalnr : -1./scalnr);
+	ti.nr = mNINT(fnr + .5);
+    }
 }
 
 
