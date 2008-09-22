@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uiseismulticubeps.cc,v 1.3 2008-09-09 08:41:21 cvsbert Exp $
+ RCS:           $Id: uiseismulticubeps.cc,v 1.4 2008-09-22 11:55:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,8 +205,21 @@ void uiSeisMultiCubePS::fullUpdate()
 
 bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 {
+    recordEntryOffs();
     if ( !outfld_->commitInput(true) )
 	mErrRet("Please enter the output name")
+
+    for ( int idx=0; idx<selentries_.size(); idx++ )
+    {
+	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
+	if ( mIsUdf(entry.offs_) )
+	{
+	    uiMSG().error("Please provide the offset for '",
+		    	  entry.ioobj_->name(),
+			  "'");
+	    return false;
+	}
+    }
 
     ObjectSet<MultiID> mids; TypeSet<float> offs;
     for ( int idx=0; idx<selentries_.size(); idx++ )
