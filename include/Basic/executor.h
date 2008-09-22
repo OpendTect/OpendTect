@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.22 2007-11-14 17:54:32 cvskris Exp $
+ RCS:		$Id: executor.h,v 1.23 2008-09-22 12:51:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,8 @@ public:
     			/*!< You will become mine!! */
 
     virtual const char*	message() const;
-    virtual int		totalNr() const;
-    virtual int		nrDone() const;
+    virtual od_int64	totalNr() const;
+    virtual od_int64	nrDone() const;
     virtual const char*	nrDoneText() const;
     
     int			nrExecutors() { return executors_.size(); }

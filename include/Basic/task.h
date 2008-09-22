@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.11 2008-06-24 19:00:11 cvskris Exp $
+ RCS:		$Id: task.h,v 1.12 2008-09-22 12:51:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ public:
 			    the class. If not, nrDone() will return -1.
 			    must be called before execute(). */
 
-    virtual int		nrDone() const			{ return -1; }
-    virtual int		totalNr() const			{ return -1; }
+    virtual od_int64	nrDone() const			{ return -1; }
+    virtual od_int64	totalNr() const			{ return -1; }
     virtual const char*	message() const			{ return "Working"; }
     virtual const char*	nrDoneText() const		{ return "Nr Done"; }
 
@@ -116,8 +116,8 @@ could be made parallel by adding the class:
 class CalcClass : public ParallelTask
 {
 public:
-    int		totalNr() const { return N; }
-    int		doWork( int start, int stop, int threadid )
+    od_int64	totalNr() const { return N; }
+    int		doWork( od_int64 start, od_int64 stop, int threadid )
     		{
 		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
 		    {
@@ -152,7 +152,7 @@ public:
 			     A small number will give a large overhead for when
 			     each step is quick and totalNr is small. */
 
-    virtual int		totalNr() const					= 0;
+    virtual od_int64	totalNr() const					= 0;
     			/*!<\returns the number of times the process should be
 			    run. */
     bool		execute() { return execute(true); }
@@ -173,13 +173,13 @@ public:
     			/*<!It is not guaranteed that it's implemented by
 			    the class. If not, nrDone() will return -1. */
 
-    int			nrDone() const;
+    od_int64		nrDone() const;
     			//!<May be -1, i.e. class does not report nrdone.
     
 protected:
 			ParallelTask(const char* nm=0);
-    int			calculateThreadSize(int totalnr,int nrthreads,
-	    				    int idx) const;
+    od_int64		calculateThreadSize(od_int64 totalnr,int nrthreads,
+	    				    int thread) const;
 
     void		reportNrDone( int nrdone=1 );
     			/*!<Call this from within your thread to say
@@ -188,7 +188,7 @@ protected:
     static Threads::ThreadWorkManager&	twm();
 private:
 
-    virtual bool	doWork( int start, int stop, int threadid )	= 0;
+    virtual bool	doWork(od_int64 start,od_int64 stop,int threadid) = 0;
     			/*!<The functions that does the job. The function
 			    will be called with all intervals from 0 to 
 			    ParallelTask::totalNr()-1. The function must
@@ -206,8 +206,8 @@ private:
     friend class			ParallelTaskRunner;
     ProgressMeter*			progressmeter_;
     Threads::Mutex*			nrdonemutex_;
-    int					nrdone_;
-    int					totalnrcache_;
+    od_int64				nrdone_;
+    od_int64				totalnrcache_;
 };
 
 

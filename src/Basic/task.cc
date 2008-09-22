@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.12 2008-06-24 19:00:11 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.13 2008-09-22 12:51:51 cvskris Exp $";
 
 #include "task.h"
 
@@ -135,7 +135,8 @@ public:
     		ParallelTaskRunner()
 		    : task_( 0 )					{}
 
-    void	set( ParallelTask* task, int start, int stop, int threadid )
+    void	set( ParallelTask* task, od_int64 start, od_int64 stop,
+	    	     int threadid )
     		{
 		    task_ = task;
 		    start_ = start;
@@ -151,8 +152,8 @@ public:
 		}
 
 protected:
-    int			start_;
-    int			stop_;
+    od_int64		start_;
+    od_int64		stop_;
     int			threadid_;
     ParallelTask*	task_;
 };
@@ -226,12 +227,12 @@ void ParallelTask::reportNrDone( int nr )
 }
 
 
-int ParallelTask::nrDone() const
+od_int64 ParallelTask::nrDone() const
 {
     if ( nrdonemutex_ )
     {
 	 nrdonemutex_->lock();
-	 const int res = nrdone_;
+	 const od_int64 res = nrdone_;
 	 nrdonemutex_->unLock();
 	 return res;
     }
@@ -280,19 +281,19 @@ bool ParallelTask::execute( bool parallel )
     }
 
     const int nrthreads = mMIN(twm().nrThreads(),maxnrthreads);
-    const int size = totalnrcache_;
+    const od_int64 size = totalnrcache_;
     if ( !size ) return true;
 
     mVariableLengthArr( ParallelTaskRunner, runners, nrthreads );
 
-    int start = 0;
+    od_int64 start = 0;
     ObjectSet<SequentialTask> tasks;
     for ( int idx=nrthreads-1; idx>=0; idx-- )
     {
 	if ( start>=size )
 	    break;
 
-	const int threadsize = calculateThreadSize( size, nrthreads, idx );
+	const od_int64 threadsize = calculateThreadSize( size, nrthreads, idx );
 	if ( threadsize==0 )
 	    continue;
 
@@ -315,18 +316,18 @@ bool ParallelTask::execute( bool parallel )
 }
 
 
-int ParallelTask::calculateThreadSize( int totalnr, int nrthreads,
-				       int idx ) const
+od_int64 ParallelTask::calculateThreadSize( od_int64 totalnr, int nrthreads,
+				            int idx ) const
 {
     if ( nrthreads==1 ) return totalnr;
 
-    const int idealnrperthread = mNINT((float) totalnr/nrthreads);
-    const int nrperthread = idealnrperthread<minThreadSize()
+    const od_int64 idealnrperthread = mNINT((float) totalnr/nrthreads);
+    const od_int64 nrperthread = idealnrperthread<minThreadSize()
 	?  minThreadSize()
 	: idealnrperthread;
 
-    const int start = idx*nrperthread;
-    int nextstart = start + nrperthread;
+    const od_int64 start = idx*nrperthread;
+    od_int64 nextstart = start + nrperthread;
 
     if ( nextstart>totalnr )
 	nextstart = totalnr;
