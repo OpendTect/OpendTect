@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.3 2008-09-19 14:28:44 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "survinfo.h"
 #include "oddirs.h"
+#include "envvars.h"
 #include "filegen.h"
 #include "seisioobjinfo.h"
 
@@ -332,21 +333,24 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     : uiSEGYDefGroup(p,"SEGY::FilePars group",forread)
+    , nrsamplesfld_(0)
 {
-    nrsamplesfld_ = mkOverruleFld( this, "Overrule SEG-Y number of samples",
-	    			  iop,
-				  SEGYSeisTrcTranslator::sExternalNrSamples,
-	   			  false, true );
+    if ( forread )
+	nrsamplesfld_ = mkOverruleFld( this, "Overrule SEG-Y number of samples",
+				      iop,
+				      SEGYSeisTrcTranslator::sExternalNrSamples,
+				      false, true );
 
     fmtfld_ = new uiGenInput( this, "SEG-Y 'format'",
 	    	StringListInpSpec(SEGY::FilePars::getFmts(forread)) );
-    fmtfld_->attach( alignedBelow, nrsamplesfld_ );
+    if ( nrsamplesfld_ )
+	fmtfld_->attach( alignedBelow, nrsamplesfld_ );
 
-    const bool isswpd =
-		iop && iop->isTrue(SegylikeSeisTrcTranslator::sKeyBytesSwapped);
-    bytesswappedfld_ = new uiGenInput( this, "Bytes are swapped",
-	    			   BoolInpSpec(isswpd) );
-    bytesswappedfld_->attach( alignedBelow, fmtfld_ );
+    const bool isswpd = iop
+		&& iop->isTrue( SegylikeSeisTrcTranslator::sKeyBytesSwapped );
+    const char* txt = forread ? "Bytes are swapped" : "Swap bytes";
+    byteswapfld_ = new uiGenInput( this, txt, BoolInpSpec(isswpd) );
+    byteswapfld_->attach( alignedBelow, fmtfld_ );
 
     if ( iop ) usePar( *iop );
     setHAlignObj( fmtfld_ );
@@ -356,10 +360,10 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
 SEGY::FilePars uiSEGYFilePars::getPars() const
 {
     SEGY::FilePars fp( forread_ );
-    if ( nrsamplesfld_->isChecked() )
+    if ( nrsamplesfld_ && nrsamplesfld_->isChecked() )
 	fp.ns_ = nrsamplesfld_->getIntValue();
     fp.fmt_ = SEGY::FilePars::fmtOf( fmtfld_->text(), forread_ );
-    fp.byteswapped_ = bytesswappedfld_->getBoolValue();
+    fp.byteswapped_ = byteswapfld_->getBoolValue();
     return fp;
 }
 
@@ -381,11 +385,14 @@ void uiSEGYFilePars::usePar( const IOPar& iop )
 void uiSEGYFilePars::setPars( const SEGY::FilePars& fp )
 {
     const bool havens = fp.ns_ > 0;
-    nrsamplesfld_->setChecked( havens );
-    if ( havens ) nrsamplesfld_->setValue( fp.ns_ );
+    if ( nrsamplesfld_ )
+    {
+	nrsamplesfld_->setChecked( havens );
+	if ( havens ) nrsamplesfld_->setValue( fp.ns_ );
+    }
 
     fmtfld_->setText( SEGY::FilePars::nameOfFmt(fp.fmt_,forread_) );
-    bytesswappedfld_->setValue( fp.byteswapped_ );
+    byteswapfld_->setValue( fp.byteswapped_ );
 }
 
 
@@ -408,7 +415,7 @@ void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 
 uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 				const IOPar* iop )
-	: uiSEGYDefGroup(p,"SEG-Y Opts group",su.operation_!=uiSEGYIO::Write)
+	: uiSEGYDefGroup(p,"SEG-Y Opts group",false)
     	, setup_(su)
 	, xcoordbytefld_(0)
 	, scalcofld_(0)
@@ -499,6 +506,7 @@ void uiSEGYFileOpts::getReport( IOPar& iop ) const
 
 uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar* iop )
 {
+    if ( !forread_ && !GetEnvVarYN("OD_SEGY_WRITE_INCL_OLD_FLDS") ) return 0;
     if ( forread_ && setup_.isrev1_ ) return 0;
 
     SEGY::TrcHeaderDef thdef; thdef.fromSettings();
@@ -551,7 +559,7 @@ void uiSEGYFileOpts::mkTrcNrFlds( uiGroup* grp, const IOPar* iop,
 void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar* iop,
 				   const SEGY::TrcHeaderDef& thdef )
 {
-    if ( setup_.operation_ != uiSEGYIO::Scan && !isps_ )
+    if ( !forScan() && !isps_ )
 	positioningfld_ = new uiGenInput( grp, "Positioning is defined by",
 		    BoolInpSpec(true,"Inline/Crossline","Coordinates") );
 
@@ -637,7 +645,7 @@ void uiSEGYFileOpts::attachPosFlds( uiGroup* grp )
     {
 	if ( trnrbytefld_ )
 	    xcoordbytefld_->attach( alignedBelow, trnrbytefld_ );
-	else if ( setup_.operation_ == uiSEGYIO::Scan )
+	else if ( forScan() )
 	    xcoordbytefld_->attach( alignedBelow, crlbytefld_ );
 	return;
     }
@@ -769,14 +777,14 @@ void uiSEGYFileOpts::use( const IOObj* ioobj, bool force )
 
 bool uiSEGYFileOpts::haveIC() const
 {
-    if ( setup_.operation_ == uiSEGYIO::Scan ) return true;
+    if ( forScan() ) return true;
     return is2d_ ? false : (isps_ ? true : posType()==1);
 }
 
 
 bool uiSEGYFileOpts::haveXY() const
 {
-    if ( setup_.operation_ == uiSEGYIO::Scan ) return true;
+    if ( forScan() ) return true;
     return is2d_ ? true : (isps_ ? false : posType()==0);
 }
 
@@ -851,7 +859,7 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 	iop.set( SegylikeSeisTrcTranslator::sKeyIC2XYOpt, haveic ? 1 : -1 );
     }
 
-    const bool iswrite = setup_.operation_ == uiSEGYIO::Write;
+    const bool iswrite = false;
 #define mSetByteIf(yn,key,fld) \
     if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,iswrite,setup_.geom_) \
 	&& !perm ) return false

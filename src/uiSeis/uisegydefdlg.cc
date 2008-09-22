@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.1 2008-09-19 14:28:44 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.2 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,8 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 
 
-uiSEGYBasic::Setup::Setup( bool fr )
+uiSEGYBasic::Setup::Setup()
     : uiDialog::Setup("SEG-Y tool","Specify basic properties",mTODOHelpID)
-    , forread_(fr)
 {
 }
 
@@ -41,14 +40,14 @@ uiSEGYBasic::uiSEGYBasic( uiParent* p, const uiSEGYBasic::Setup& su,
     , geomfld_(0)
     , geomtype_(Seis::Vol)
 {
-    filespecfld_ = new uiSEGYFileSpec( this, setup_.forread_, &iop );
+    filespecfld_ = new uiSEGYFileSpec( this, true, &iop );
     uiGroup* lastgrp = filespecfld_;
     if ( su.geoms_.size() == 1 )
 	    geomtype_ = su.geoms_[0];
     else
     {
 	if ( su.geoms_.isEmpty() )
-	    uiSEGYIO::Setup::getDefaultTypes( setup_.geoms_, setup_.forread_ );
+	    uiSEGYRead::Setup::getDefaultTypes( setup_.geoms_ );
 
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "File type" );
 	geomfld_ = lcb->box();
@@ -68,7 +67,7 @@ uiSEGYBasic::uiSEGYBasic( uiParent* p, const uiSEGYBasic::Setup& su,
     nrtrcexfld_->attach( ensureBelow, sep );
     uiLabel* lbl = new uiLabel( this, "traces" );
     lbl->attach( rightOf, nrtrcexfld_ );
-    fileparsfld_ = new uiSEGYFilePars( this, setup_.forread_, &iop );
+    fileparsfld_ = new uiSEGYFilePars( this, true, &iop );
     fileparsfld_->attach( alignedBelow, nrtrcexfld_ );
 
     finaliseDone.notify( mCB(this,uiSEGYBasic,initFlds) );
@@ -153,8 +152,7 @@ uiSEGYFileOptsDlg::uiSEGYFileOptsDlg( uiParent* p,
     , setup_(su)
     , pars_(iop)
 {
-    uiSEGYFileOpts::Setup osu( setup_.geom_, setup_.operation_,
-	   		       setup_.isrev1_ );
+    uiSEGYFileOpts::Setup osu( setup_.geom_, setup_.purpose_, setup_.isrev1_ );
     optsfld_ = new uiSEGYFileOpts( this, osu, &iop );
 }
 

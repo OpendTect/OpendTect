@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.3 2008-09-19 14:28:44 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seistype.h"
 #include "uigroup.h"
-#include "uisegyio.h"
+#include "uisegyread.h"
 #include "segyfiledef.h"
 class IOObj;
 class uiLabel;
@@ -89,15 +89,15 @@ protected:
 
     uiGenInput*		nrsamplesfld_;
     uiGenInput*		fmtfld_;
-    uiGenInput*		bytesswappedfld_;
+    uiGenInput*		byteswapfld_;
 
 };
 
 
-/*!\brief UI for Specification of SEG-Y fields needed for proper im/export
+/*!\brief UI for Specification of SEG-Y fields needed for proper import
 
   The idea is that you know beforehand whether the file is Rev.1 or not.
-  If it's Rev. 1, the positioning part can be dumped.
+  If it's Rev. 1, the positioning part will not be present.
  
  */
 
@@ -108,15 +108,15 @@ public:
     class Setup
     {
     public:
-				Setup( Seis::GeomType gt,
-					uiSEGYIO::Operation op=uiSEGYIO::Read,
-					bool isr1=false )
+				Setup(	Seis::GeomType gt,
+				    uiSEGYRead::Purpose pp=uiSEGYRead::Import,
+				    bool isr1=false )
 				    : geom_(gt)
-				    , operation_(op)
+				    , purpose_(pp)
 				    , isrev1_(isr1)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(uiSEGYIO::Operation,operation)
+	mDefSetupMemb(uiSEGYRead::Purpose,purpose)
 	mDefSetupMemb(bool,isrev1) //!< Note: write is always Rev.1
     };
 
@@ -124,6 +124,8 @@ public:
 			~uiSEGYFileOpts();
 
     const Setup&	setup() const		{ return setup_; }
+    bool		forScan() const
+    			{ return setup_.purpose_ != uiSEGYRead::Import; }
 
     bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);

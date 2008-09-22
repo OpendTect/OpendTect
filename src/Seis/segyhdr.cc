@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.57 2008-09-19 14:28:44 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.58 2008-09-22 15:09:01 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -260,6 +260,7 @@ static const unsigned char* getBytes( const unsigned char* inpbuf,
     SwapBytes( swpbuf, nrbytes );
     return swpbuf;
 }
+
 
 #define mGetBytes(bnr,nrb) getBytes( buf, needswap, bnr, nrb )
 
@@ -533,90 +534,90 @@ unsigned short SEGY::TrcHeader::nrSamples() const
 }
 
 
+#define mSTHPut(memb,b,typ,nb) { \
+    IbmFormat::put##typ( memb, buf+b ); \
+    if ( needswap ) SwapBytes( buf+b, nb ); }
+#define mSTHPutShort(memb,b) mSTHPut(memb,b,Short,2)
+#define mSTHPutUnsignedShort(memb,b) mSTHPut(memb,b,UnsignedShort,2)
+#define mSTHPutInt(memb,b) mSTHPut(memb,b,Int,4)
+
 void SEGY::TrcHeader::putSampling( SamplingData<float> sd, unsigned short ns )
 {
     const float zfac = SI().zFactor();
     float drt = sd.start * zfac;
     short delrt = (short)mNINT(drt);
-    IbmFormat::putShort( -delrt, buf+104 ); // HRS and Petrel
-    IbmFormat::putShort( delrt, buf+108 );
-    IbmFormat::putUnsignedShort( (unsigned short)
-	    			 (sd.step*1e3*zfac+.5), buf+116 );
+    mSTHPutShort(-delrt,104); // For HRS and Petrel
+    mSTHPutShort(delrt,108);
+    unsigned short sr_us = (unsigned short)( sd.step * 1e3 * zfac + .5 );
+    mSTHPutUnsignedShort(sr_us,116);
     if ( ns != 0 )
-	IbmFormat::putUnsignedShort( ns, buf+114 );
+	mSTHPutUnsignedShort(ns,114);
 }
 
 
-static void putRev1Flds( const SeisTrcInfo& ti, unsigned char* buf )
+static void putRev1Flds( const SeisTrcInfo& ti, unsigned char* buf,
+			 bool needswap )
 {
-    IbmFormat::putInt( mNINT(ti.coord.x*10), buf+180 );
-    IbmFormat::putInt( mNINT(ti.coord.y*10), buf+184 );
-    IbmFormat::putInt( ti.binid.inl, buf+188 );
-    IbmFormat::putInt( ti.binid.crl, buf+192 );
-    IbmFormat::putInt( ti.nr, buf+196 );
+    const int icx = mNINT(ti.coord.x*10); const int icy = mNINT(ti.coord.y*10);
+    mSTHPutInt(icx,180);
+    mSTHPutInt(icy,184);
+    mSTHPutInt(ti.binid.inl,188);
+    mSTHPutInt(ti.binid.crl,192);
+    mSTHPutInt(ti.nr,196);
 }
 
 
 void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 {
     if ( !isrev1 ) // starting default
-	putRev1Flds( ti, buf );
+	putRev1Flds( ti, buf, needswap );
 
-    IbmFormat::putShort( 1, buf+28 ); // trid
-    IbmFormat::putShort( 1, buf+34 ); // duse
-    IbmFormat::putShort( 1, buf+88 ); // counit
+    mSTHPutShort(1,28); // trid
+    mSTHPutShort(1,34); // duse
+    mSTHPutShort(1,38); // counit
 
     const bool is2d = SEGY::TxtHeader::info2d;
     if ( !is2d && ti.binid.inl != previnl )
 	lineseqnr = 1;
     previnl = ti.binid.inl;
-    IbmFormat::putInt( is2d ? seqnr : lineseqnr, buf );
-    IbmFormat::putInt( seqnr, buf+4 );
+    int nr2put = is2d ? seqnr : lineseqnr;
+    mSTHPutInt(nr2put,0);
+    mSTHPutInt(seqnr,4);
     seqnr++; lineseqnr++;
+    nr2put = is2d ? ti.nr : ti.binid.crl; mSTHPutInt(nr2put,16);
+    nr2put = is2d ? ti.binid.crl : ti.nr; mSTHPutInt(nr2put,20);
 
-    // Now the more general standards
-    IbmFormat::putInt( is2d ? ti.nr : ti.binid.crl, buf+16 ); // ep
-    IbmFormat::putInt( is2d ? ti.binid.crl : ti.nr, buf+20 ); // cdp
-    IbmFormat::putShort( -10, buf+70 ); // scalco
-    if ( mIsUdf(ti.coord.x) )
-    {
-	if ( hdef.xcoord != 255 )
-	    IbmFormat::putInt( 0, buf+hdef.xcoord-1 );
-	if ( hdef.ycoord != 255 )
-	    IbmFormat::putInt( 0, buf+hdef.ycoord-1 );
-    }
-    else
-    {
-	if ( hdef.xcoord != 255 )
-	    IbmFormat::putInt( mNINT(ti.coord.x * 10), buf+hdef.xcoord-1 );
-	if ( hdef.ycoord != 255 )
-	    IbmFormat::putInt( mNINT(ti.coord.y * 10), buf+hdef.ycoord-1 );
-    }
+    mSTHPutShort(-10,70); // scalco
+    Coord crd( ti.coord );
+    if ( mIsUdf(crd.x) ) crd.x = crd.y = 0;
+    const int icx = mNINT(ti.coord.x*10); const int icy = mNINT(ti.coord.y*10);
+    mSTHPutInt(icx,hdef.xcoord-1);
+    mSTHPutInt(icy,hdef.ycoord-1);
 
-#define mPutIntVal(timemb,hdmemb) \
+#define mSTHPutIntMemb(timemb,hdmemb) \
     if ( timemb > 0 && hdef.hdmemb != 255 ) \
     { \
 	if ( hdef.hdmemb##bytesz == 2 ) \
-	    IbmFormat::putShort( timemb, buf+hdef.hdmemb-1 ); \
+	    mSTHPutShort(timemb,hdef.hdmemb-1) \
 	else \
-	    IbmFormat::putInt( timemb, buf+hdef.hdmemb-1 ); \
+	    mSTHPutInt(timemb,hdef.hdmemb-1) \
     }
 
-    mPutIntVal(ti.binid.inl,inl);
-    mPutIntVal(ti.binid.crl,crl);
-    mPutIntVal(ti.nr,trnr);
-    int iv = mNINT( ti.offset ); mPutIntVal(iv,offs);
-    iv = mNINT( ti.azimuth * 360 / M_PI ); mPutIntVal(iv,azim);
+    mSTHPutIntMemb(ti.binid.inl,inl);
+    mSTHPutIntMemb(ti.binid.crl,crl);
+    mSTHPutIntMemb(ti.nr,trnr);
+    int iv = mNINT( ti.offset ); mSTHPutIntMemb(iv,offs);
+    iv = mNINT( ti.azimuth * 360 / M_PI ); mSTHPutIntMemb(iv,azim);
 
     const float zfac = SI().zFactor();
     if ( !mIsUdf(ti.pick) && hdef.pick != 255 )
-	IbmFormat::putInt( mNINT(ti.pick*zfac), buf+hdef.pick-1 );
+	{ nr2put = mNINT(ti.pick*zfac); mSTHPutInt(nr2put,hdef.pick-1) }
 
     // Absolute priority, therefore possibly overwriting previous
-    putSampling( ti.sampling, 0 );
+    putSampling( ti.sampling, 0 ); // 0=ns must be set elsewhere
 
     if ( isrev1 ) // Now this overrules everything
-	putRev1Flds( ti, buf );
+	putRev1Flds( ti, buf, needswap );
 }
 
 

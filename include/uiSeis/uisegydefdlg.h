@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.1 2008-09-19 14:28:44 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.2 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uisegyio.h"
+#include "uisegyread.h"
 #include "uidialog.h"
 #include "ranges.h"
 class uiSEGYFileOpts;
@@ -31,10 +31,9 @@ public:
 
     struct Setup : public uiDialog::Setup
     {
-			Setup(bool forrd);
+			Setup();
 
-	mDefSetupMemb(bool,forread)
-	TypeSet<Seis::GeomType> geoms_; // empty=get uiSEGYIO default
+	TypeSet<Seis::GeomType> geoms_; // empty=get uiSEGYRead default
     };
 
 			uiSEGYBasic(uiParent*,const Setup&,IOPar&);
@@ -64,7 +63,7 @@ protected:
 };
 
 
-/*!\brief Dialog to set further SEG-Y I/O parameters. */
+/*!\brief Dialog to set SEG-Y Read parameters. */
 
 class uiSEGYFileOptsDlg : public uiDialog
 {
@@ -75,18 +74,15 @@ public :
     public:
 
     			Setup( Seis::GeomType gt,
-				uiSEGYIO::Operation op=uiSEGYIO::Scan,
-				uiSEGYIO::Purpose pp=uiSEGYIO::ImpExp )
+				uiSEGYRead::Purpose pp=uiSEGYRead::Import )
 			    : uiDialog::Setup("SEG-Y information content",
 				    	      mNoDlgTitle, "103.1.5")
 			    , geom_(gt)	
-			    , operation_(op)	
 			    , purpose_(pp)	
 			    , isrev1_(false)		{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(uiSEGYIO::Operation,operation)
-	mDefSetupMemb(uiSEGYIO::Purpose,purpose)
+	mDefSetupMemb(uiSEGYRead::Purpose,purpose)
 	mDefSetupMemb(bool,isrev1)
     };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.3 2008-09-22 13:46:28 cvskris Exp $
+ RCS:		$Id: segyscanner.h,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,14 +46,7 @@ public:
     const char*		nrDoneText() const	{ return "Traces scanned"; }
 
     const ObjectSet<FileData>& fileData() const	{ return fd_; }
-
     bool		toNext(TrcFileIdx&) const;
-    BinID		binID(const TrcFileIdx&) const;
-    Coord		coord(const TrcFileIdx&) const;
-    int			trcNr(const TrcFileIdx&) const;
-    float		offset(const TrcFileIdx&) const;
-    bool		isNull(const TrcFileIdx&) const;
-    bool		isUsable(const TrcFileIdx&) const;
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read

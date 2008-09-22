@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.95 2008-09-19 14:28:44 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.96 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,14 +37,15 @@ ________________________________________________________________________
 #include "uimenu.h"
 #include "uimergeseis.h"
 #include "uimsg.h"
-#include "uisegysip.h"
 #include "uiseiscbvsimp.h"
 #include "uiseisiosimple.h"
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
 #include "uiseisrandto2dline.h"
 #include "uiseissegyimpexp.h"
-#include "uisegyio.h"
+#include "uisegyread.h"
+#include "uisegyexp.h"
+#include "uisegysip.h"
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltman.h"
@@ -69,27 +70,30 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
     else if ( opt < 4 )
     {
-	if ( GetEnvVarYN("OD_NEW_SEGY_HANDLING") )
+	const Seis::GeomType gt =  opt == 0 ? Seis::Vol
+				: (opt == 1 ? Seis::Line
+				: (opt == 2 ? Seis::VolPS : Seis::LinePS));
+	if ( !forread )
+	    dlg = new uiSEGYExp( appserv().parent(), gt );
+	else if ( GetEnvVarYN("OD_NEW_SEGY_HANDLING") )
 	{
-	    uiSEGYIO::Setup su( uiSEGYIO::Read, uiSEGYIO::ImpExp );
-	    uiSEGYIO uisio( appserv().parent(), su );
-	    return uisio.go();
+	    uiSEGYRead::Setup su( uiSEGYRead::Import );
+	    uiSEGYRead uisrd( appserv().parent(), su );
+	    return uisrd.go();
 	}
 	else
 	{
-	    Seis::GeomType gt = opt == 0 ? Seis::Vol
-			     : (opt == 1 ? Seis::Line
-			     : (opt == 2 ? Seis::VolPS : Seis::LinePS));
-	    if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
+	    if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) )
+		return true;
 	    dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid_,
 		    			gt );
 	}
     }
     else
     {
-	Seis::GeomType gt = opt == 5 ? Seis::Vol
-	    		 : (opt == 6 ? Seis::Line
-			 : (opt == 7 ? Seis::VolPS : Seis::LinePS));
+	const Seis::GeomType gt =  opt == 5 ? Seis::Vol
+				: (opt == 6 ? Seis::Line
+				: (opt == 7 ? Seis::VolPS : Seis::LinePS));
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisIOSimple( appserv().parent(), gt, forread );
     }

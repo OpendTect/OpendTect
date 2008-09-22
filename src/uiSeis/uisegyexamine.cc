@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.3 2008-09-16 08:24:44 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "uiseistrcbufviewer.h"
 #include "pixmap.h"
 #include "filepath.h"
-#include "iostrm.h"
+#include "ioobj.h"
 #include "ptrman.h"
 #include "msgh.h"
 #include "seistrc.h"
@@ -133,22 +133,13 @@ void uiSEGYExamine::updateInput( CallBacker* )
 
 void uiSEGYExamine::openInput()
 {
-    MultiID tmpid( "100010." ); tmpid += BufferString(IOObj::tmpID);
-    IOStream iostrm( setup_.fs_.fname_, tmpid.buf() );
-    iostrm.setFileName( setup_.fs_.fname_ );
-    iostrm.setGroup( "Seismic Data" );
-    iostrm.setTranslator( "SEG-Y" );
-    const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
-    if ( ismulti )
-    {
-	iostrm.fileNumbers() = setup_.fs_.nrs_;
-	iostrm.setZeroPadding( setup_.fs_.zeropad_ );
-    }
-    setup_.fp_.fillPar( iostrm.pars() );
+    IOObj* ioobj = setup_.fs_.getIOObj( true );
+    setup_.fp_.fillPar( ioobj->pars() );
 
     toStatusBar( setup_.fs_.fname_, 1 );
     outInfo( "Opening input" );
-    rdr_ = new SeisTrcReader( &iostrm );
+    rdr_ = new SeisTrcReader( ioobj );
+    delete ioobj;
     if ( *rdr_->errMsg() || !rdr_->prepareWork(Seis::PreScan) )
 	{ txtinfo_ = rdr_->errMsg(); delete rdr_; rdr_ = 0; return; }
 

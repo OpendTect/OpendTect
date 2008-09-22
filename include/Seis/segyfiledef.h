@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.3 2008-09-18 14:55:52 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "seistype.h"
 class IOPar;
+class IOObj;
 class DataPointSet;
  
 
@@ -56,6 +57,7 @@ public:
     int			nrFiles() const	
     			{ return isMultiFile() ? nrs_.nrSteps()+1 : 1; }
     const char*		getFileName(int nr=0) const;
+    IOObj*		getIOObj(bool temporary=true) const;
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);

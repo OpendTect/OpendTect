@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.2 2008-09-19 14:58:33 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.3 2008-09-22 15:09:01 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledef.h"
@@ -143,4 +143,20 @@ void SEGY::Scanner::initFileData()
     newfd->nrstanzas_ = tr_->binHeader().nrstzs;
 
     fd_ += newfd;
+}
+
+
+bool SEGY::Scanner::toNext( SEGY::TrcFileIdx& tfi ) const
+{
+    if ( tfi.filenr_ < 0 )
+	{ tfi.trcnr_ = -1; tfi.filenr_= 0; }
+
+    if ( fd_.isEmpty() || tfi.filenr_ >= fd_.size() )
+	{ tfi.filenr_ = -1; tfi.trcnr_ = 0; return false; }
+
+    tfi.trcnr_++;
+    if ( tfi.trcnr_ >= fd_[tfi.filenr_]->nrTraces() )
+	{ tfi.filenr_++; tfi.trcnr_ = -1; return toNext( tfi ); }
+
+    return true;
 }

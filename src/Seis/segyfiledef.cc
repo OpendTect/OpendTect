@@ -4,11 +4,12 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.1 2008-09-18 14:55:52 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.2 2008-09-22 15:09:01 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "segytr.h"
 #include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -37,6 +38,33 @@ const char* SEGY::FileSpec::getFileName( int nr ) const
     static FileNameString ret( fname_ );
     replaceString( ret.buf(), "*", replstr.buf() );
     return ret.buf();
+}
+
+
+IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
+{
+    IOStream* iostrm;
+    if ( tmp )
+    {
+	MultiID tmpid( "100010." ); tmpid += BufferString(IOObj::tmpID);
+	iostrm = new IOStream( fname_, tmpid.buf() );
+    }
+    else
+    {
+	iostrm = new IOStream( fname_ );
+	iostrm->acquireNewKey();
+    }
+    iostrm->setFileName( fname_ );
+    iostrm->setGroup( "Seismic Data" );
+    iostrm->setTranslator( "SEG-Y" );
+    const bool ismulti = !mIsUdf(nrs_.start);
+    if ( ismulti )
+    {   
+	iostrm->fileNumbers() = nrs_;
+	iostrm->setZeroPadding( zeropad_ );
+    }
+
+    return iostrm;
 }
 
 
