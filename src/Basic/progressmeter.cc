@@ -104,7 +104,7 @@ void TextStreamProgressMeter::operator++()
 }
 	
 
-void TextStreamProgressMeter::setNrDone( int nrdone )
+void TextStreamProgressMeter::setNrDone( od_int64 nrdone )
 {
     Threads::MutexLocker lock( lock_ );
     if ( nrdone<=nrdone_ )
