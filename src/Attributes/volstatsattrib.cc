@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.40 2008-08-27 02:13:58 cvskris Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.41 2008-09-22 12:37:05 cvsnageswara Exp $";
 
 #include "volstatsattrib.h"
 
@@ -242,15 +242,21 @@ const BinID* VolStats::desStepout( int inp, int out ) const
     
 void VolStats::prepPriorToBoundsCalc()
 {
-    bool chgstartr = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstartd = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstopd = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+    const int truestep = mNINT( refstep*zFactor() );
+    if ( truestep == 0 )
+	return Provider::prepPriorToBoundsCalc();
+
+    bool chgstartr = mNINT(reqgate_.start*zFactor()) % truestep;
+    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % truestep;
+    bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
+    bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
 
     mAdjustGate( chgstartr, reqgate_.start, false )
     mAdjustGate( chgstopr, reqgate_.stop, true )
     mAdjustGate( chgstartd, desgate_.start, false )
     mAdjustGate( chgstopd, desgate_.stop, true )
+
+    Provider::prepPriorToBoundsCalc();
 }
 
 
