@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.6 2007-07-05 05:55:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.7 2008-09-22 13:26:52 cvskris Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 
@@ -471,29 +471,53 @@ SbBool SoIndexedTriangleFanSet::generateDefaultNormals( SoState* state,
     {
 	case SoNormalBindingElement::PER_VERTEX:
 	case SoNormalBindingElement::PER_VERTEX_INDEXED:
+#if COIN_MAJOR_VERSION >= 3
 	    nc->generatePerVertex(coords,
-//				    vp->vertex.getNum(),
+				    vp->vertex.getNum(),
 				    coordIndex.getValues(0),
 				    coordIndex.getNum(),
 				    SoCreaseAngleElement::get(state),
 				    0, ccw, true);
+#else
+	    nc->generatePerVertex(coords,
+				    coordIndex.getValues(0),
+				    coordIndex.getNum(),
+				    SoCreaseAngleElement::get(state),
+				    0, ccw, true);
+#endif
+
 	    break;
 	case SoNormalBindingElement::PER_FACE:
 	case SoNormalBindingElement::PER_FACE_INDEXED:
+#if COIN_MAJOR_VERSION >= 3
 	    nc->generatePerFaceStrip(coords,
-//				    vp->vertex.getNum(),
+				    vp->vertex.getNum(),
 				    coordIndex.getValues(0),
 				    coordIndex.getNum(),
 				    ccw);
+#else
+	    nc->generatePerFaceStrip(coords,
+				    vp->vertex.getNum(),
+				    coordIndex.getValues(0),
+				    coordIndex.getNum(),
+				    ccw);
+#endif
 	break;
 
 	case SoNormalBindingElement::PER_PART:
 	case SoNormalBindingElement::PER_PART_INDEXED:
+#if COIN_MAJOR_VERSION >= 3
 	    nc->generatePerStrip(coords,
-//				    vp->vertex.getNum(),
+				    vp->vertex.getNum(),
 				    coordIndex.getValues(0),
 				    coordIndex.getNum(),
 				    ccw);
+#else
+	    nc->generatePerStrip(coords,
+				    coordIndex.getValues(0),
+				    coordIndex.getNum(),
+				    ccw);
+#endif
 	    break;
 	default:
 	    break;
