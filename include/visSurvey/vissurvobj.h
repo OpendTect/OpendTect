@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.88 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:		$Id: vissurvobj.h,v 1.89 2008-09-22 12:54:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,8 @@ class LineStyle;
 class NotifierAccess;
 class SeisTrcBuf;
 class ZAxisTransform;
+
+namespace ColTab  { class MapperSetup; class Sequence; }
 
 namespace visBase { class Transformation; class EventInfo; };
 namespace Attrib  { class SelSpec; class DataCubes; }
@@ -157,6 +159,11 @@ public:
     virtual bool		swapAttribs(int a0,int a1) { return false; }
     virtual void		setAttribTransparency(int,unsigned char) {}	
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
+    virtual const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
+    virtual void		setColTabMapperSetup(int,
+						 const ColTab::MapperSetup&);
+    virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
+    virtual void		setColTabSequence(int,const ColTab::Sequence&);
     virtual int			getColTabID(int attrib) const	 { return -1; }
     virtual bool 		isClassification(int attr) const {return false;}
     virtual void		setClassification(int attrib,bool yn)	{}
