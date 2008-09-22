@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.44 2008-04-09 09:04:12 cvssatyaki Exp $
+ RCS:           $Id: viscolortab.cc,v 1.45 2008-09-22 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ VisColorTab::VisColorTab()
     , autoscalechange(this)
     , viscolseq_(0)
     , indextable_(0)
-    , ctmapper_(new ColTab::Mapper())
+    , ctmapper_( new ColTab::Mapper )
     , autoscale_(true)
 {
     setColorSeq( ColorSequence::create() );
@@ -77,26 +77,26 @@ void VisColorTab::setAutoScale( bool yn )
 
 void VisColorTab::setSymMidval( float symmidval )
 {
-    if (  mIsEqual(symmidval,ctmapper_->symmidval_,mDefEps) ) return;
+    if (  mIsEqual(symmidval,ctmapper_->setup_.symmidval_,mDefEps) ) return;
 
-    ctmapper_->symmidval_ = symmidval;
+    ctmapper_->setup_.symmidval_ = symmidval;
     ctmapper_->update( true );
 }
 
 
 float VisColorTab::symMidval() const
-{ return ctmapper_->symmidval_; }
+{ return ctmapper_->setup_.symmidval_; }
 
 
 float VisColorTab::clipRate() const
-{ return ctmapper_->cliprate_; }
+{ return ctmapper_->setup_.cliprate_; }
 
 
 void VisColorTab::setClipRate( float ncr )
 {
-    if ( mIsEqual(ncr,ctmapper_->cliprate_,mDefEps) ) return;
+    if ( mIsEqual(ncr,ctmapper_->setup_.cliprate_,mDefEps) ) return;
 
-    ctmapper_->cliprate_ = ncr;
+    ctmapper_->setup_.cliprate_ = ncr;
     ctmapper_->update( false );
 }
 
@@ -271,9 +271,9 @@ void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyColorSeqID(), viscolseq_->id() );
     if ( saveids.indexOf(viscolseq_->id())==-1 ) saveids += viscolseq_->id();
     par.set( sKeyRange(), ctmapper_->range() );
-    par.set( sKeyClipRate(), ctmapper_->cliprate_ );
+    par.set( sKeyClipRate(), ctmapper_->setup_.cliprate_ );
     par.setYN( sKeyAutoScale(), autoscale_ );
-    par.set( sKeySymMidval(), ctmapper_->symmidval_ );
+    par.set( sKeySymMidval(), ctmapper_->setup_.symmidval_ );
 }
 
 }; // namespace visBase

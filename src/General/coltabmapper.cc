@@ -4,11 +4,12 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.7 2008-06-04 06:11:06 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.8 2008-09-22 13:00:45 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
 #include "settings.h"
+#include "math2.h"
 #include "errh.h"
 
 namespace ColTab
@@ -65,17 +66,19 @@ void ColTab::setMapperDefaults( float cr, float sm )
 }
 
 
-ColTab::Mapper::Mapper()
+ColTab::MapperSetup::MapperSetup()
     : type_(Auto)
-    , clipper_(*new DataClipper)
     , cliprate_(defClipRate())
     , symmidval_(defSymMidval())
     , maxpts_(2000)
     , nrsegs_(0)
-    , start_(0), width_(1)
-    , vs_(0)
-{
-}
+{}
+
+
+ColTab::Mapper::Mapper()
+    : start_(0), width_(1) , vs_(0)
+    , clipper_(*new DataClipper)
+{ }
 
 
 ColTab::Mapper::~Mapper()
@@ -84,8 +87,9 @@ ColTab::Mapper::~Mapper()
 }
 
 
+
 #define mWarnHistEqNotImpl \
-    if ( type_ == HistEq ) \
+    if ( setup_.type_ == MapperSetup::HistEq ) \
     { \
 	static bool msgdone = false; \
 	if ( !msgdone ) \
@@ -99,15 +103,28 @@ float ColTab::Mapper::position( float val ) const
 {
     mWarnHistEqNotImpl
     float ret = (val-start_) / width_;
-    if ( nrsegs_ > 0 )
+    if ( setup_.nrsegs_ > 0 )
     {
-	ret *= nrsegs_;
-	ret = (0.5 + ((int)ret)) / nrsegs_;
+	ret *= setup_.nrsegs_;
+	ret = (0.5 + ((int)ret)) / setup_.nrsegs_;
     }
 
     if ( ret > 1 ) ret = 1;
     else if ( ret < 0 ) ret = 0;
     return ret;
+}
+
+
+int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
+	float v, int nrsteps, int udfval )
+{
+    if ( !Math::IsNormalNumber(v) || mIsUdf(v) ) return udfval;udfval;
+
+    float ret = mapper ? mapper->position( v ) : v;
+    ret *= nrsteps;
+    if ( ret > nrsteps- 0.9 ) ret = nrsteps- 0.9;
+    else if ( ret < 0 ) ret = 0;
+    return (int)ret;
 }
 
 
@@ -120,7 +137,7 @@ void ColTab::Mapper::setData( const ValueSeries<float>* vs, int sz )
 
 void ColTab::Mapper::update( bool full )
 {
-    if ( type_ == Fixed || !vs_ || vssz_ < 1 )
+    if ( setup_.type_ == MapperSetup::Fixed || !vs_ || vssz_ < 1 )
 	return;
     if ( vssz_ == 1 )
 	{ start_ = vs_->value(0) - 1; width_ = 2; return; }
@@ -130,15 +147,16 @@ void ColTab::Mapper::update( bool full )
     if ( full || clipper_.isEmpty() )
     {
 	clipper_.reset();
-	clipper_.setApproxNrValues( vssz_, maxpts_ ) ;
+	clipper_.setApproxNrValues( vssz_, setup_.maxpts_ ) ;
 	clipper_.putData( *vs_, vssz_ );
 	clipper_.fullSort();
     }
 
     Interval<float> intv( -1, 1 );
-    bool res = mIsUdf(symmidval_) ?
-	       clipper_.getRange( cliprate_, intv )
-	     : clipper_.getSymmetricRange( cliprate_, symmidval_, intv );
+    bool res = mIsUdf(setup_.symmidval_) ?
+	       clipper_.getRange( setup_.cliprate_, intv )
+	     : clipper_.getSymmetricRange( setup_.cliprate_,
+		     			   setup_.symmidval_, intv );
     if ( mIsZero(intv.width(),mDefEps) )
 	intv += Interval<float>(-1,1);
     setRange( intv );

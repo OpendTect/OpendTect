@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.3 2007-09-26 11:15:38 cvsbert Exp $
+ RCS:		$Id: coltabmapper.h,v 1.4 2008-09-22 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "coltab.h"
 #include "ranges.h"
 #include "valseries.h"
-class DataClipper;
 
+class DataClipper;
 
 namespace ColTab
 {
@@ -27,18 +27,31 @@ namespace ColTab
   example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
  
  */
+struct MapperSetup {
+		    MapperSetup();
+    enum Type	{ Fixed, Auto, HistEq };
+
+
+    mDefSetupClssMemb(MapperSetup,Type,type);
+    mDefSetupClssMemb(MapperSetup,float,cliprate);	//!< Auto
+    mDefSetupClssMemb(MapperSetup,float,symmidval);	//!< Auto and HistEq.
+    							//!< Usually mUdf(float)
+    mDefSetupClssMemb(MapperSetup,int,maxpts);		//!< Auto and HistEq
+    mDefSetupClssMemb(MapperSetup,int,nrsegs);		//!< All
+};
+
 
 class Mapper
 {
 public:
-
-    enum Type		{ Fixed, Auto, HistEq };
 
 			Mapper(); //!< defaults maps from [0,1] to [0,1]
 			~Mapper();
 
     float		position(float val) const;
     			//!< returns position in ColorTable
+    static int		snappedPosition(const Mapper*,float val,int nrsteps,
+	    				int udfval);
     Interval<float>	range() const
 			{ return Interval<float>( start_, start_ + width_ ); }
     const ValueSeries<float>* data() const
@@ -53,12 +66,8 @@ public:
 
     void		update(bool full=true);
     			//!< If !full, will assume data is unchanged
-
-    Type		type_;
-    float		cliprate_;	// Auto
-    float		symmidval_;	// Auto and HistEq. Usually mUdf(float)
-    int			maxpts_;	// Auto and HistEq
-    int			nrsegs_;	// All
+			//
+    MapperSetup		setup_;
 
 protected:
 

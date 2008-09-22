@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.7 2008-04-14 14:58:17 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.8 2008-09-22 13:00:45 cvskris Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
@@ -25,14 +25,14 @@ public:
 			    l.cols_.setSize( nrcols_, l.seq_.undefColor() );
 			}
 
-    bool		doWork( int start, int stop, int threadid )
+    bool		doWork( od_int64 start, od_int64 stop, int threadid )
     			{
 			    for ( int idx=start; idx<=stop;idx++,reportNrDone())
 				ilut_.cols_[idx] = ilut_.seq_.color( dx_*idx );
 			    return true;
 			}
 
-    int			totalNr() const { return nrcols_; }
+    od_int64		totalNr() const { return nrcols_; }
 
 protected:
 
@@ -72,11 +72,5 @@ Color ColTab::IndexedLookUpTable::colorForIndex( int idx ) const
 
 int ColTab::IndexedLookUpTable::indexForValue( float v ) const
 {
-    if ( !Math::IsNormalNumber(v) || mIsUdf(v) ) return -1;
-
-    float ret = mapper_ ? mapper_->position( v ) : v;
-    ret *= nrcols_;
-    if ( ret > nrcols_- 0.9 ) ret = nrcols_- 0.9;
-    else if ( ret < 0 ) ret = 0;
-    return (int)ret;
+    return ColTab::Mapper::snappedPosition( mapper_, v, nrcols_, -1 );
 }

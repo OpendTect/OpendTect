@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.20 2008-04-09 09:03:22 cvssatyaki Exp $
+ RCS:		$Id: viscolortab.h,v 1.21 2008-09-22 13:00:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,8 @@ public:
     void			setColorSeq(ColorSequence*);
     const ColorSequence&	colorSeq() const;
     ColorSequence&		colorSeq();
+    const ColTab::Mapper&	colorMapper() const	{ return *ctmapper_; }
+    ColTab::Mapper&		colorMapper()		{ return *ctmapper_; }
 
     Notifier<VisColorTab>	rangechange;
     Notifier<VisColorTab>	sequencechange;
