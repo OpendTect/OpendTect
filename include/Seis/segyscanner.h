@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.2 2008-09-19 14:58:33 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.3 2008-09-22 13:46:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
 
     int			nextStep();
     const char*		message() const		{ return msg_.buf(); }
-    int			nrDone() const		{ return nrdone_; }
+    od_int64		nrDone() const		{ return nrdone_; }
     const char*		nrDoneText() const	{ return "Traces scanned"; }
 
     const ObjectSet<FileData>& fileData() const	{ return fd_; }
