@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.12 2008-06-05 05:17:25 cvsraman Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.13 2008-09-22 13:17:03 cvskris Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -108,8 +108,8 @@ const char* message() const
 }
 
 const char*	nrDoneText() const	{ return "Files scanned"; }
-int		nrDone() const		{ return curnr_; }
-int		totalNr() const		{ return totnr_; }
+od_int64	nrDone() const		{ return curnr_; }
+od_int64	totalNr() const		{ return totnr_; }
 
 int nextStep()
 {

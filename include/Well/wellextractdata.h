@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.18 2008-05-27 11:50:48 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.19 2008-09-22 13:13:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,8 +43,8 @@ public:
     int			nextStep();
     const char*		message() const		{ return curmsg_.buf(); }
     const char*		nrDoneText() const	{ return "Wells inspected"; }
-    int			nrDone() const		{ return curidx_; }
-    int			totalNr() const		{ return totalnr_; }
+    od_int64		nrDone() const		{ return curidx_; }
+    od_int64		totalNr() const		{ return totalnr_; }
 
     typedef ObjectSet<Marker>	MarkerSet;
 
@@ -99,8 +99,8 @@ public:
     int			nextStep();
     const char*		message() const	   { return "Scanning well tracks"; }
     const char*		nrDoneText() const { return "Wells inspected"; }
-    int			nrDone() const	   { return curid; }
-    int			totalNr() const	   { return ids.size(); }
+    od_int64		nrDone() const	   { return curid; }
+    od_int64		totalNr() const	   { return ids.size(); }
 
     const BufferStringSet&	ioObjIds() const	{ return ids; }
     ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss; }
@@ -157,8 +157,8 @@ public:
     int			nextStep();
     const char*		message() const	   { return msg_.buf(); }
     const char*		nrDoneText() const { return "Wells handled"; }
-    int			nrDone() const	   { return curid_; }
-    int			totalNr() const	   { return ids_.size(); }
+    od_int64		nrDone() const	   { return curid_; }
+    od_int64		totalNr() const	   { return ids_.size(); }
 
     const BufferStringSet&	ioObjIds() const	{ return ids_; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.4 2008-04-01 18:20:14 cvskris Exp $
+ RCS:		$Id: prestackagc.h,v 1.5 2008-09-22 13:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ public:
     static const char*		sKeyMuteFraction()	{return "Mutefraction";}
 
 protected:
-    bool			doWork(int,int,int);
+    bool			doWork(od_int64,od_int64,int);
 
     Interval<float>		window_;
     Interval<int>		samplewindow_;

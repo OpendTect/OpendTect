@@ -88,8 +88,8 @@ public:
 
     int			nextStep();
     const char*		message() const;
-    int			nrDone() const;
-    int			totalNr() const;
+    od_int64		nrDone() const;
+    od_int64		totalNr() const;
     const char*		nrDoneText() const;
 
 protected:

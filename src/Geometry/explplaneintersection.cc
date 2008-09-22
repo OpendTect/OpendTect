@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.5 2008-08-13 15:51:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.6 2008-09-22 13:15:13 cvskris Exp $";
 
 #include "explplaneintersection.h"
 
@@ -121,7 +121,7 @@ ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )
 }
 
     
-int totalNr() const
+od_int64 totalNr() const
 {
     return explsurf_.getShape()->getGeometry().size();
 }
@@ -130,7 +130,7 @@ int totalNr() const
 #define mStick	0
 #define mKnot	1
 
-bool doWork( int start, int stop, int )
+bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( int idx=start; idx<=stop; idx++, reportNrDone() )
     {

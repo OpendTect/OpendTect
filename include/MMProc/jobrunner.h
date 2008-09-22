@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.19 2005-05-11 09:19:47 cvsarend Exp $
+ RCS:		$Id: jobrunner.h,v 1.20 2008-09-22 13:09:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,8 +81,8 @@ public:
     JobInfo*			currentJob(const HostNFailInfo*) const;
 
     int				nextStep()	{ return doCycle(); }
-    int				nrDone() const	{ return jobsDone(); }
-    int				totalNr() const	{ return totalJobs(); }
+    od_int64			nrDone() const	{ return jobsDone(); }
+    od_int64			totalNr() const	{ return totalJobs(); }
     const char*			message() const;
     const char*			nrDoneMessage() const;
 

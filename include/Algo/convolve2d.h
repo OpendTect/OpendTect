@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.6 2008-04-09 21:04:22 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.7 2008-09-22 13:05:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -39,8 +39,8 @@ public:
     			//!<Default is false
 
 protected:
-    inline bool		doWork( int, int, int );
-    int			totalNr() const { return z_->info().getSize( 0 ); }
+    inline bool		doWork( od_int64, od_int64, int );
+    od_int64		totalNr() const { return z_->info().getSize( 0 ); }
     const Array2D<T>*	x_;
     int			xshift0_;
     int			xshift1_;
@@ -88,7 +88,7 @@ void Convolver2D<T>::setY( const Array2D<T>& y, int first0, int first1 )
 
 
 template <class T> inline
-bool Convolver2D<T>::doWork( int start, int stop, int )
+bool Convolver2D<T>::doWork( od_int64 start, od_int64 stop, int )
 {
     const int xsz0 = x_->info().getSize( 0 );
     const int xsz1 = x_->info().getSize( 1 );

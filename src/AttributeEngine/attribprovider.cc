@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.107 2008-05-21 10:44:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.108 2008-09-22 13:06:42 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -53,10 +53,10 @@ void setVars( const DataHolder* res, const BinID& relpos, int z0,
 }
 
 
-int totalNr() const { return nrsamples_; }
+od_int64 totalNr() const { return nrsamples_; }
 
 
-bool doWork( int start, int stop, int threadid )
+bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
     if ( !res_ ) return true;
     return provider_.computeData( *res_, relpos_, start+z0_, stop-start+1,

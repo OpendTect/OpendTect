@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.28 2008-08-05 05:01:06 cvsraman Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.29 2008-09-22 13:07:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -96,9 +96,9 @@ public:
 
     const IOPar*		pars() const;
 
-    virtual int			nrDone() const;
+    virtual od_int64		nrDone() const;
     virtual const char*		nrDoneText() const;
-    virtual int			totalNr() const;
+    virtual od_int64		totalNr() const;
 
     virtual int			nextStep();
 
@@ -262,9 +262,9 @@ public:
     void			setWriteOnlyZ(bool yn);
     IOPar*			pars();
 
-    virtual int			nrDone() const;
+    virtual od_int64		nrDone() const;
     virtual const char*		nrDoneText() const;
-    virtual int			totalNr() const;
+    virtual od_int64		totalNr() const;
 
     virtual int			nextStep();
 

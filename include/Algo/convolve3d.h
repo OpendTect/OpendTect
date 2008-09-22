@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.5 2008-04-09 21:04:22 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.6 2008-09-22 13:05:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,8 +46,8 @@ protected:
     inline bool		shouldFFT() const;
 
     bool		doFFT();
-    inline bool		doWork( int, int, int );
-    int			totalNr() const { return z_->info().getTotalSz(); }
+    inline bool		doWork( od_int64, od_int64, int );
+    od_int64		totalNr() const { return z_->info().getTotalSz(); }
     const Array3D<T>*	x_;
     int			xshift0_;
     int			xshift1_;
@@ -105,7 +105,7 @@ void Convolver3D<T>::setY( const Array3D<T>& y, int first0, int first1,
 
 
 template <class T> inline
-bool Convolver3D<T>::doWork( int start, int stop, int )
+bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 {
     const int xsz0 = x_->info().getSize( 0 );
     const int xsz1 = x_->info().getSize( 1 );

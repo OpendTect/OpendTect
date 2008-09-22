@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.15 2008-05-15 18:41:01 cvsyuancheng Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.16 2008-09-22 13:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -93,13 +93,13 @@ public:
 
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;
-    virtual bool		doWork(int start, int stop, int)	= 0;
+    virtual bool		doWork(od_int64 start,od_int64 stop,int)= 0;
     				/*!<If totalNr is not overridden, start and
 				    stop will refer to offsets that should
 				    be processed. */
 
     int				nrOffsets() const;
-    virtual int			totalNr() const { return nrOffsets(); }
+    virtual od_int64		totalNr() const { return nrOffsets(); }
     				/*!<If algorithms cannot be done in parallel
 				    with regards to offsets, override function
 				    and return 1. doWork() will then be called

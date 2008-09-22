@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: seiseventsnapper.h,v 1.3 2007-04-24 16:38:21 cvsbert Exp $
+ RCS:           $Id: seiseventsnapper.h,v 1.4 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ public:
 				{ searchgate_ = gate; }
     const Interval<float>&	getSearchGate() const	{ return searchgate_; }
 
-    virtual int			totalNr() const		{ return totalnr_; }
-    virtual int			nrDone() const		{ return nrdone_; }
+    virtual od_int64		totalNr() const		{ return totalnr_; }
+    virtual od_int64		nrDone() const		{ return nrdone_; }
 
 protected:
 

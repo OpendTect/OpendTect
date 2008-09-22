@@ -6,7 +6,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tuthortools.cc,v 1.5 2007-06-08 06:15:27 cvsraman Exp $";
+static const char* rcsID = "$Id: tuthortools.cc,v 1.6 2008-09-22 13:17:03 cvskris Exp $";
 
 #include "tuthortools.h"
 #include "ioobj.h"
@@ -33,7 +33,7 @@ void Tut::HorTools::setHorizons( EM::Horizon3D* hor1, EM::Horizon3D* hor2 )
 }
 
 
-int Tut::HorTools::totalNr() const
+od_int64 Tut::HorTools::totalNr() const
 {
     return hs_.totalNr();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: attribdatacubeswriter.h,v 1.1 2008-02-25 17:04:17 cvskris Exp $
+ RCS:		$Id: attribdatacubeswriter.h,v 1.2 2008-09-22 13:06:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ public:
 				       const TypeSet<int>& cubeindices);
 			~DataCubesWriter();
 
-    int			nrDone() const;
-    int			totalNr() const;		
+    od_int64		nrDone() const;
+    od_int64		totalNr() const;		
     const char*		message() const		{ return "Writing out data!"; }
     const char*		nrDoneText() const	{ return "Traces written:"; }
     int			nextStep();

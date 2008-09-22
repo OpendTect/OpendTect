@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.1 2008-01-28 16:38:58 cvsbert Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.2 2008-09-22 13:17:03 cvskris Exp $";
 
 #include "madprocexec.h"
 #include "madprocflow.h"
@@ -46,7 +46,7 @@ const char* ODMad::ProcExec::nrDoneText() const
 }
 
 
-int ODMad::ProcExec::totalNr() const
+od_int64 ODMad::ProcExec::totalNr() const
 {
     return -1;
 }

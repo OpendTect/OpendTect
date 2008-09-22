@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.26 2008-09-05 19:04:47 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.27 2008-09-22 13:05:33 cvskris Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -25,7 +25,7 @@ void ParallelDTriangulator::setCalcScope(const Interval<int>& rg)
 }
 
 
-int ParallelDTriangulator::totalNr() const                
+od_int64 ParallelDTriangulator::totalNr() const                
 { return calcscope_.width()+1; }
 
 
@@ -49,7 +49,7 @@ bool ParallelDTriangulator::doPrepare( int nrthreads )
 }
 
 
-bool ParallelDTriangulator::doWork( int start, int stop, int threadid )
+bool ParallelDTriangulator::doWork( od_int64 start, od_int64 stop,int threadid )
 {
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone(1) )
     {

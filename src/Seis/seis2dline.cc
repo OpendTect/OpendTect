@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.63 2008-07-31 09:29:47 cvsumesh Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.64 2008-09-22 13:11:25 cvskris Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -849,8 +849,8 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
 
 const char* message() const	{ return curmsg.buf(); }
 const char* nrDoneText() const	{ return "Lines handled"; }
-int nrDone() const		{ return lnshandled; }
-int totalNr() const		{ return totalnr; }
+od_int64 nrDone() const		{ return lnshandled; }
+od_int64 totalNr() const	{ return totalnr; }
 
 int nextStep()
 {

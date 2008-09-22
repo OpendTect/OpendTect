@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2008
- RCS:		$Id: seismerge.h,v 1.2 2008-03-07 10:47:34 cvsbert Exp $
+ RCS:		$Id: seismerge.h,v 1.3 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ public:
     virtual		~SeisMerger();
 
     const char*		message() const;
-    int			nrDone() const		{ return nrpos_; }
-    int			totalNr() const		{ return totnrpos_; }
+    od_int64		nrDone() const		{ return nrpos_; }
+    od_int64		totalNr() const		{ return totnrpos_; }
     const char*		nrDoneText() const	{ return "Positions handled"; }
     int			nextStep();
 

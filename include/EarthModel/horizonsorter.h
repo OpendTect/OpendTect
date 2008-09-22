@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonsorter.h,v 1.3 2006-05-02 14:21:43 cvsnanne Exp $
+ RCS:		$Id: horizonsorter.h,v 1.4 2008-09-22 13:07:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,8 @@ public:
 	    				       const MultiID&) const;
 
     const char*			message() const;
-    int				totalNr() const;
-    int				nrDone() const;
+    od_int64			totalNr() const;
+    od_int64			nrDone() const;
     const char*			nrDoneText() const;
 
 protected:

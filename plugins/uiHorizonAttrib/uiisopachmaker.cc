@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.2 2008-06-03 08:50:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.3 2008-09-22 13:17:03 cvskris Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -102,8 +102,8 @@ uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
 
 const char* message() const	{ return msg_.buf(); }
 const char* nrDoneText() const	{ return "Positions handled"; }
-int nrDone() const		{ return dps_.size(); }
-int totalNr() const		{ return totnr_; }
+od_int64 nrDone() const		{ return dps_.size(); }
+od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
 {

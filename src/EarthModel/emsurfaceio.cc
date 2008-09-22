@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.104 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.105 2008-09-22 13:07:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -393,7 +393,7 @@ const IOPar* dgbSurfaceReader::pars() const
 }
 
 
-int dgbSurfaceReader::nrDone() const
+od_int64 dgbSurfaceReader::nrDone() const
 {
     return (executors_.size() ? ExecutorGroup::nrDone() : 0) + nrdone_;
 }
@@ -405,7 +405,7 @@ const char* dgbSurfaceReader::nrDoneText() const
 }
 
 
-int dgbSurfaceReader::totalNr() const
+od_int64 dgbSurfaceReader::totalNr() const
 {
     int ownres =
 	(readrowrange_?readrowrange_->nrSteps():rowrange_.nrSteps()) *
@@ -1295,7 +1295,7 @@ IOPar* dgbSurfaceWriter::pars()
 }
 
 
-int dgbSurfaceWriter::nrDone() const
+od_int64 dgbSurfaceWriter::nrDone() const
 {
     return (executors_.size() ? ExecutorGroup::nrDone() : 0) + nrdone_;
 }
@@ -1307,7 +1307,7 @@ const char* dgbSurfaceWriter::nrDoneText() const
 }
 
 
-int dgbSurfaceWriter::totalNr() const
+od_int64 dgbSurfaceWriter::totalNr() const
 {
     return (executors_.size() ? ExecutorGroup::totalNr() : 0) + 
 	   (writerowrange_?writerowrange_->nrSteps():rowrange_.nrSteps()) *

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.11 2008-08-22 13:28:41 cvsbert Exp $
+ RCS:		$Id: seisscanner.h,v 1.12 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ public:
 			~SeisScanner();
 
     const char*		message() const;
-    int			totalNr() const;
-    int			nrDone() const;
+    od_int64		totalNr() const;
+    od_int64		nrDone() const;
     const char*		nrDoneText() const;
 
     bool		getSurvInfo(CubeSampling&,Coord crd[3]) const;

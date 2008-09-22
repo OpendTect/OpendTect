@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2006
- RCS:           $Id: horizonsorter.cc,v 1.6 2006-05-10 21:26:48 cvskris Exp $
+ RCS:           $Id: horizonsorter.cc,v 1.7 2008-09-22 13:07:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,9 +136,9 @@ const char* HorizonSorter::message() const	{ return "Sorting"; }
 
 const char* HorizonSorter::nrDoneText() const	{ return "Positions done"; }
 
-int HorizonSorter::nrDone() const		{ return nrdone_; }
+od_int64 HorizonSorter::nrDone() const		{ return nrdone_; }
 
-int HorizonSorter::totalNr() const		{ return totalnr_; }
+od_int64 HorizonSorter::totalNr() const		{ return totalnr_; }
 
 int HorizonSorter::nextStep()
 {

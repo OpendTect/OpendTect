@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.5 2007-10-08 10:13:43 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.6 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,9 +54,9 @@ public:
     virtual		~SeisImporter();
 
     const char*		message() const;
-    int			nrDone() const;
+    od_int64		nrDone() const;
     const char*		nrDoneText() const;
-    int			totalNr() const;
+    od_int64		totalNr() const;
     int			nextStep();
 
     int			nrSkipped() const	{ return nrskipped_; }

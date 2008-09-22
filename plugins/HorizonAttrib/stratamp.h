@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nageswara Rao
  Date:		March 2008
- RCS:		$Id: stratamp.h,v 1.3 2008-06-04 06:54:03 cvsnanne Exp $
+ RCS:		$Id: stratamp.h,v 1.4 2008-09-22 13:17:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ public:
 
     void                clear();
     int                 nextStep();
-    int			totalNr() const		{ return totnr_; }
-    int			nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const		{ return totnr_; }
+    od_int64		nrDone() const		{ return nrdone_; }
     const char*		message() const		{ return "Computing..."; }
     const char*		nrDoneText() const	{ return "Points done"; }    
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2008
- RCS:           $Id: sampledextremefindernd.h,v 1.2 2008-07-22 15:38:53 cvskris Exp $
+ RCS:           $Id: sampledextremefindernd.h,v 1.3 2008-09-22 13:05:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,10 +38,10 @@ public:
 		//!<ptr[0] ... ptr[ndim-1] is one position.
 
 protected:
-    inline int	totalNr() const;
-    inline bool	doWork(int,int,int);
-    inline bool	findExtreme(int*) const;
-    inline int	indexOf(const int*) const;
+    inline od_int64	totalNr() const;
+    inline bool		doWork(od_int64,od_int64,int);
+    inline bool		findExtreme(int*) const;
+    inline int		indexOf(const int*) const;
 
     const ArrayND<T>&		array_;
     ArrayNDInfoImpl		relcube_;
@@ -52,7 +52,7 @@ protected:
 
 
 template <class T> inline
-int SampledExtremeFinderND<T>::totalNr() const
+od_int64 SampledExtremeFinderND<T>::totalNr() const
 { return array_.info().getTotalSz(); }
 
 
@@ -65,7 +65,7 @@ int SampledExtremeFinderND<T>::nrExtremes() const
 
 
 template <class T> inline
-bool SampledExtremeFinderND<T>::doWork( int start, int stop, int )
+bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
 {
     const int ndim = array_.info().getNDim();
     mVariableLengthArr( int, pos, ndim );

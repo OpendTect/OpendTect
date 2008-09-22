@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.h,v 1.1 2008-05-16 11:33:19 cvsraman Exp $
+ RCS:		$Id: seisrandlineto2d.h,v 1.2 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ public:
 
     const char*		message() const;
     const char*		nrDoneText() const;
-    int			totalNr() const;
-    int			nrDone() const;
+    od_int64		totalNr() const;
+    od_int64		nrDone() const;
     int			nextStep();
 
 protected:

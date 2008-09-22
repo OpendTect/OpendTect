@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.3 2008-08-04 22:31:16 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.4 2008-09-22 13:12:03 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -25,7 +25,7 @@ public:
 		    : step_( ro ), totalnr_( -1 )			{}
 
 protected:
-    bool	doWork(int start, int stop, int threadid )
+    bool	doWork(od_int64 start, od_int64 stop, int threadid )
 		{
 		    const HorSampling hrg( step_.output_->cubeSampling().hrg );
 		    BinID curbid = hrg.start;
@@ -64,7 +64,7 @@ protected:
 		    return true;
 		}
 
-    int		totalNr() const
+    od_int64	totalNr() const
     		{ 
 		    if ( totalnr_==-1 )
 		    {
@@ -256,7 +256,7 @@ void ChainExecutor::controlWork( Task::Control ctrl )
 }
 
 
-int ChainExecutor::nrDone() const
+od_int64 ChainExecutor::nrDone() const
 {
     Threads::MutexLocker lock( curtasklock_ );
     if ( curtask_ )
@@ -266,7 +266,7 @@ int ChainExecutor::nrDone() const
 }
 
 
-int ChainExecutor::totalNr() const
+od_int64 ChainExecutor::totalNr() const
 {
     Threads::MutexLocker lock( curtasklock_ );
     if ( curtask_ )

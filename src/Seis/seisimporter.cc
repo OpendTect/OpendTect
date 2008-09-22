@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.14 2007-11-06 16:49:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.15 2008-09-22 13:11:25 cvskris Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -69,7 +69,7 @@ const char* SeisImporter::message() const
 }
 
 
-int SeisImporter::nrDone() const
+od_int64 SeisImporter::nrDone() const
 {
     if ( postproc_ ) return postproc_->nrDone();
     return state_ == ReadBuf ? nrread_ : nrwritten_;
@@ -83,7 +83,7 @@ const char* SeisImporter::nrDoneText() const
 }
 
 
-int SeisImporter::totalNr() const
+od_int64 SeisImporter::totalNr() const
 {
     if ( postproc_ ) return postproc_->totalNr();
     return rdr_->totalNr();
@@ -314,8 +314,8 @@ const char* message() const
     return errmsg_.isEmpty() ? "Re-sorting traces" : ((const char*)errmsg_);
 }
 const char* nrDoneText() const	{ return "Traces handled"; }
-int nrDone() const		{ return nrdone_; }
-int totalNr() const		{ return totnr_; }
+od_int64 nrDone() const		{ return nrdone_; }
+od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
 {

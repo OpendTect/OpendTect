@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.6 2008-08-15 12:21:00 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.7 2008-09-22 13:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,7 @@ protected:
     MultiID			id_;
     BufferString		errmsg_;
 
-    bool			doWork(int,int,int);
+    bool			doWork(od_int64,od_int64,int);
 
     bool			tail_;
     float			taperlen_;

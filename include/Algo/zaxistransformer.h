@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: zaxistransformer.h,v 1.4 2008-02-13 12:25:34 cvsnanne Exp $
+ RCS:           $Id: zaxistransformer.h,v 1.5 2008-09-22 13:05:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,8 @@ public:
 
 protected:
     bool		doPrepare(int);
-    int			totalNr() const;
-    bool		doWork( int, int, int );
+    od_int64		totalNr() const;
+    bool		doWork( od_int64, od_int64, int );
 
     ZAxisTransform&		transform_;
     int				voiid_;

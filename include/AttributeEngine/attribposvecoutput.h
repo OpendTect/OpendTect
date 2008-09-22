@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.h,v 1.3 2005-10-20 13:58:50 cvshelene Exp $
+ RCS:           $Id: attribposvecoutput.h,v 1.4 2008-09-22 13:06:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,9 @@ public:
     const char*	message() const;
     const char*	nrDoneText() const
 		{ return outex_ ? outex_->nrDoneText() : "Positions handled"; }
-    int		nrDone() const
+    od_int64	nrDone() const
 		{ return outex_ ? outex_->nrDone() : 0; }
-    int		totalNr() const
+    od_int64	totalNr() const
 		{ return outex_ ? outex_->totalNr() : -1; }
 
 protected:

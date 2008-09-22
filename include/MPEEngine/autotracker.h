@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.5 2006-11-06 10:38:34 cvsjaap Exp $
+ RCS:           $Id: autotracker.h,v 1.6 2008-09-22 13:10:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ public:
     int				nextStep();
     void			setTrackBoundary(const CubeSampling&);
     void			unsetTrackBoundary();
-    int				nrDone() const		{ return nrdone_; }
-    int				totalNr() const		{ return totalnr_; }
+    od_int64			nrDone() const		{ return nrdone_; }
+    od_int64			totalNr() const		{ return totalnr_; }
 
 protected:
     bool			addSeed(const EM::PosID&);

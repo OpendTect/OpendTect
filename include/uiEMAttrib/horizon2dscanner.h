@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.3 2008-07-02 08:54:36 cvsraman Exp $
+ RCS:		$Id: horizon2dscanner.h,v 1.4 2008-09-22 13:13:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ public:
 					 Table::FormatDesc& fd);
 
     virtual const char*	message() const;
-    virtual int		totalNr() const;
-    virtual int		nrDone() const;
+    virtual od_int64	totalNr() const;
+    virtual od_int64	nrDone() const;
     virtual const char*	nrDoneText() const;
 
     bool		getLineNames(BufferStringSet&) const;

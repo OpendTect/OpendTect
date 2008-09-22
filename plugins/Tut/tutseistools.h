@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.5 2008-03-14 09:15:35 cvsnageswara Exp $
+ * ID       : $Id: tutseistools.h,v 1.6 2008-09-22 13:17:03 cvskris Exp $
 -*/
 
 #include "executor.h"
@@ -48,8 +48,8 @@ public:
 
 			// Executor compliance functions
     const char*		message() const;
-    int			nrDone() const		{ return nrdone_; }
-    int			totalNr() const;
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const;
     const char*		nrDoneText() const	{ return "Traces handled"; }
 			// This is where it actually happens
     int			nextStep();

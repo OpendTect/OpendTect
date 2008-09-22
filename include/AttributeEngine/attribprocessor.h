@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.22 2008-03-21 14:04:40 cvskris Exp $
+ RCS:           $Id: attribprocessor.h,v 1.23 2008-09-22 13:06:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ public:
 
     int				nextStep();
     void			init();
-    int				totalNr() const;
-    int 			nrDone() const;
+    od_int64			totalNr() const;
+    od_int64			nrDone() const;
     const char*         	message() const;
 
     void			addOutputInterest(int sel);

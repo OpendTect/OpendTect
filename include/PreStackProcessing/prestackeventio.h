@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.2 2008-07-18 14:24:11 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.3 2008-09-22 13:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -116,8 +116,8 @@ public:
     			EventDuplicator(IOObj* from,IOObj* to);
     			~EventDuplicator();
 
-    int			totalNr() const { return totalnr_; }
-    int			nrDone() const { return totalnr_ - filestocopy_.size();}
+    od_int64		totalNr() const { return totalnr_; }
+    od_int64		nrDone() const { return totalnr_ - filestocopy_.size();}
     const char*		message() const { return message_.buf(); }
     const char*		nrDoneText() const { return "Files copied"; }
 

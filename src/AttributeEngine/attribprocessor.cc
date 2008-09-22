@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.59 2008-04-10 14:08:18 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.60 2008-09-22 13:06:42 cvskris Exp $";
 
 #include "attribprocessor.h"
 
@@ -393,13 +393,13 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 }
 
 
-int Processor::totalNr() const
+od_int64 Processor::totalNr() const
 {
     return provider_ ? provider_->getTotalNrPos(is2d_) : 0;
 }
 
 
-int Processor::nrDone() const
+od_int64 Processor::nrDone() const
 { return nrdone_; }
 
 

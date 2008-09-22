@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2007
- RCS:           $Id: emhor2dto3d.cc,v 1.7 2008-02-13 13:11:49 cvsbert Exp $
+ RCS:           $Id: emhor2dto3d.cc,v 1.8 2008-09-22 13:07:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,7 +199,7 @@ const char* Hor2DTo3D::nrDoneText() const
 }
 
 
-int Hor2DTo3D::nrDone() const
+od_int64 Hor2DTo3D::nrDone() const
 {
     return curinterp_ ? curinterp_->nrDone() : -1;
 }

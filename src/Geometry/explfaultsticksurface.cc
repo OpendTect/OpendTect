@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.24 2008-09-09 17:22:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.25 2008-09-22 13:15:13 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -43,7 +43,7 @@ ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
 }
 
     
-int totalNr() const
+od_int64 totalNr() const
 {
     return explsurf_.getTextureSize().col;
 }
@@ -52,7 +52,7 @@ int totalNr() const
 int minThreadSize() const { return 100; }
 
 
-bool doWork( int start, int stop, int )
+bool doWork( od_int64 start, od_int64 stop, int )
 {
     const TypeSet<int>& texturerows = explsurf_.texturerowcoords_;
     for ( int stickpos= start; stickpos<=stop; stickpos++, reportNrDone() )
@@ -308,7 +308,7 @@ public:
 {}
 
 
-int totalNr() const
+od_int64 totalNr() const
 {
     return updatesticksnotpanels_
 	? explsurf_.sticks_.size()
@@ -319,7 +319,7 @@ int totalNr() const
 int minThreadSize() const { return 1; }
 
 
-bool doWork( int start, int stop, int )
+bool doWork( od_int64 start, od_int64 stop, int )
 {
     for ( int idx=start; idx<=stop; idx++, reportNrDone() )
     {

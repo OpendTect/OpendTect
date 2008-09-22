@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.7 2008-01-23 12:29:52 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.8 2008-09-22 13:11:25 cvskris Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -257,13 +257,13 @@ const char* SeisIOSimple::message() const
 }
 
 
-int SeisIOSimple::nrDone() const
+od_int64 SeisIOSimple::nrDone() const
 {
     return importer_ ? importer_->nrDone() : nrdone_;
 }
 
 
-int SeisIOSimple::totalNr() const
+od_int64 SeisIOSimple::totalNr() const
 {
     return importer_ ? importer_->totalNr() : -1;
 }

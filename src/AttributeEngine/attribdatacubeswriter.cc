@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.1 2008-02-25 17:04:17 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.2 2008-09-22 13:06:42 cvskris Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -53,11 +53,11 @@ DataCubesWriter::~DataCubesWriter()
 }    
 
 
-int DataCubesWriter::nrDone() const
+od_int64 DataCubesWriter::nrDone() const
 { return nrdone_; }    
 
 
-int DataCubesWriter::totalNr() const
+od_int64 DataCubesWriter::totalNr() const
 { return totalnr_; }
 
 

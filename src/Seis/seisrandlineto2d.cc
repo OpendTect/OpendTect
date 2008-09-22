@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.cc,v 1.2 2008-05-19 06:25:43 cvsraman Exp $
+ RCS:		$Id: seisrandlineto2d.cc,v 1.3 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,8 +157,8 @@ const char* SeisRandLineTo2D::message() const
 const char* SeisRandLineTo2D::nrDoneText() const
 { return "Traces written"; }
 
-int SeisRandLineTo2D::nrDone() const
+od_int64 SeisRandLineTo2D::nrDone() const
 { return nrdone_; }
 
-int SeisRandLineTo2D::totalNr() const
+od_int64 SeisRandLineTo2D::totalNr() const
 { return totnr_; }

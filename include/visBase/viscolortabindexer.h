@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		January 2007
- RCS:		$Id: viscolortabindexer.h,v 1.3 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: viscolortabindexer.h,v 1.4 2008-09-22 13:14:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,8 +48,9 @@ public:
     int			nrHistogramSteps() const;
 
 protected:
-    bool			doWork(int start,int stop,int threadid);
-    int				totalNr() const;
+    bool			doWork(od_int64 start,od_int64 stop,
+	    			       int threadid);
+    od_int64			totalNr() const;
 
     unsigned char*		indexcache_;
     const ValueSeries<float>*	datacache_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: array2dresample.h,v 1.3 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: array2dresample.h,v 1.4 2008-09-22 13:09:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,10 +45,10 @@ public:
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
 
-    inline int		totalNr() const;
+    inline od_int64	totalNr() const;
 
 private:
-    inline bool		doWork( int start, int stop, int );
+    inline bool		doWork( od_int64 start, od_int64 stop, int );
 
     const Array2D<T>*		from_;
     Array2D<TT>*		to_;
@@ -99,7 +99,7 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, Array2D<TT>& to,
 
 
 template <class T, class TT> inline
-int Array2DReSampler<T,TT>::totalNr() const
+od_int64 Array2DReSampler<T,TT>::totalNr() const
 {
     return to_->info().getSize( mXDim );
 }
@@ -107,7 +107,7 @@ int Array2DReSampler<T,TT>::totalNr() const
 
 
 template <class T, class TT> inline
-bool Array2DReSampler<T,TT>::doWork( int start, int stop, int )
+bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 {
     const int ysize = to_->info().getSize( mYDim );
 

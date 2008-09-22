@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackstacker.h,v 1.3 2007-11-14 17:54:32 cvskris Exp $
+ RCS:		$Id: prestackstacker.h,v 1.4 2008-09-22 13:10:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -46,8 +46,8 @@ public:
 protected:
     static const char*		sKeyOffsetRange() { return "Offset Range"; }
     Gather*			createOutputArray(const Gather&) const;
-    int				totalNr() const;
-    bool			doWork(int,int,int);
+    od_int64			totalNr() const;
+    bool			doWork(od_int64,od_int64,int);
 
     BufferString		errmsg_;
     Interval<float>*		offsetrg_;

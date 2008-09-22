@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.5 2008-08-27 16:53:13 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.6 2008-09-22 13:05:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,8 +135,8 @@ public:
 protected:
 
     int			maxNrThreads() const 	{ return 1; }
-    int			totalNr() const;
-    bool		doWork(int,int,int);
+    od_int64		totalNr() const;
+    bool		doWork(od_int64,od_int64,int);
     bool		doPrepare(int);
 
     TypeSet<int>	permutation_;

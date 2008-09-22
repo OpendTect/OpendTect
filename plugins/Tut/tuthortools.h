@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.6 2007-06-21 11:45:10 cvsraman Exp $
+ * ID       : $Id: tuthortools.h,v 1.7 2008-09-22 13:17:03 cvskris Exp $
 -*/
 
 #include "executor.h"
@@ -38,8 +38,8 @@ public:
     virtual		~HorTools();
 
     void		setHorizons(EM::Horizon3D* hor1,EM::Horizon3D* hor2=0);
-    int			totalNr() const;
-    int			nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const;
+    od_int64		nrDone() const		{ return nrdone_; }
     void		setHorSamp(StepInterval<int>,StepInterval<int>);
     const char*		message() const		{ return "Computing..."; }
     const char*		nrDoneText() const	{ return "Points done"; }    

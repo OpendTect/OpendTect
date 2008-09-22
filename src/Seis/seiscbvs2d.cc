@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.38 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.39 2008-09-22 13:11:25 cvskris Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -210,8 +210,8 @@ int nextStep()
 
 const char*		message() const		{ return msg; }
 const char*		nrDoneText() const	{ return "Traces read"; }
-int			nrDone() const		{ return curnr; }
-int			totalNr() const		{ return totnr; }
+od_int64		nrDone() const		{ return curnr; }
+od_int64		totalNr() const		{ return totnr; }
 
     int			curnr;
     int			totnr;

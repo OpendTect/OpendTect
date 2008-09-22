@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.34 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.35 2008-09-22 13:07:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,11 +219,11 @@ bool dgbSurfDataWriter::writeFloat( float val )
 }
 
 
-int dgbSurfDataWriter::nrDone() const 
+od_int64 dgbSurfDataWriter::nrDone() const 
 { return nrdone_; }
 
 
-int dgbSurfDataWriter::totalNr() const
+od_int64 dgbSurfDataWriter::totalNr() const
 { return totalnr_; }
 
 
@@ -411,11 +411,11 @@ bool dgbSurfDataReader::readFloat( float& res )
 { mReadData(floatinterpreter_,sizeoffloat) }
 
 
-int dgbSurfDataReader::nrDone() const 
+od_int64 dgbSurfDataReader::nrDone() const 
 { return nrdone_; }
 
 
-int dgbSurfDataReader::totalNr() const
+od_int64 dgbSurfDataReader::totalNr() const
 { return totalnr_; }
 
 

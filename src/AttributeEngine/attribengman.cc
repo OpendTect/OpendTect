@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.87 2008-07-21 09:05:49 cvsumesh Exp $
+ RCS:           $Id: attribengman.cc,v 1.88 2008-09-22 13:06:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -662,8 +662,8 @@ AEMFeatureExtracter( EngineMan& aem, const BufferStringSet& inputs,
 
 ~AEMFeatureExtracter()		{ delete proc; }
 
-int totalNr() const		{ return proc ? proc->totalNr() : -1; }
-int nrDone() const		{ return proc ? proc->nrDone() : 0; }
+od_int64 totalNr() const	{ return proc ? proc->totalNr() : -1; }
+od_int64 nrDone() const		{ return proc ? proc->nrDone() : 0; }
 const char* nrDoneText() const	{ return proc ? proc->nrDoneText() : ""; }
 
 const char* message() const
@@ -815,8 +815,8 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 
 ~AEMTableExtractor()		{ delete proc; }
 
-int totalNr() const		{ return proc ? proc->totalNr() : -1; }
-int nrDone() const		{ return proc ? proc->nrDone() : 0; }
+od_int64 totalNr() const	{ return proc ? proc->totalNr() : -1; }
+od_int64 nrDone() const		{ return proc ? proc->nrDone() : 0; }
 const char* nrDoneText() const	{ return proc ? proc->nrDoneText() : ""; }
 
 const char* message() const

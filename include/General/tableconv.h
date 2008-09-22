@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.5 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:		$Id: tableconv.h,v 1.6 2008-09-22 13:09:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ public:
     virtual int		nextStep();
     const char*		message() const		{ return msg_.buf(); }
     const char*		nrDoneText() const	{ return "Records read"; }
-    int			nrDone() const		{ return rowsdone_; }
+    od_int64		nrDone() const		{ return rowsdone_; }
 
     struct RowManipulator
     {

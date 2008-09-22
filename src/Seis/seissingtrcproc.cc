@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.49 2008-08-27 14:26:42 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.50 2008-09-22 13:11:25 cvskris Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -237,10 +237,8 @@ const char* SeisSingleTraceProc::message() const
 }
 
 
-int SeisSingleTraceProc::nrDone() const
-{
-    return nrwr_;
-}
+od_int64 SeisSingleTraceProc::nrDone() const
+{ return nrwr_; }
 
 
 const char* SeisSingleTraceProc::nrDoneText() const
@@ -249,7 +247,7 @@ const char* SeisSingleTraceProc::nrDoneText() const
 }
 
 
-int SeisSingleTraceProc::totalNr() const
+od_int64 SeisSingleTraceProc::totalNr() const
 {
     return totnr_-nrskipped_ < 0 ? -1 : totnr_-nrskipped_;
 }

@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.5 2008-08-27 16:53:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.6 2008-09-22 13:05:33 cvskris Exp $";
 
 #include "delaunay3d.h"
 #include "trigonometry.h"
@@ -17,7 +17,7 @@ ParallelDTetrahedralator::ParallelDTetrahedralator( DAGTetrahedraTree& dagt )
 {}
 
 
-int ParallelDTetrahedralator::totalNr() const
+od_int64 ParallelDTetrahedralator::totalNr() const
 { return tree_.coordList().size(); }
 
 
@@ -41,7 +41,8 @@ bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 }
 
 
-bool ParallelDTetrahedralator::doWork( int start, int stop, int threadid )
+bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
+				       int threadid )
 {
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone(1))
     {

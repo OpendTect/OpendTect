@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Jan 2008
- * ID       : $Id: madprocexec.h,v 1.1 2008-01-28 16:38:58 cvsbert Exp $
+ * ID       : $Id: madprocexec.h,v 1.2 2008-09-22 13:17:03 cvskris Exp $
 -*/
 
 #include "executor.h"
@@ -27,8 +27,8 @@ public:
 
     const char*		message() const;
     const char*		nrDoneText() const;
-    int			nrDone() const		{ return nrdone_; }
-    int			totalNr() const;
+    od_int64		nrDone() const		{ return nrdone_; }
+    od_int64		totalNr() const;
     int			nextStep();
 
 protected:

@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.8 2008-03-14 09:15:35 cvsnageswara Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.9 2008-09-22 13:17:03 cvskris Exp $";
 
 #include "cubesampling.h"
 #include "tutseistools.h"
@@ -68,7 +68,7 @@ const char* Tut::SeisTools::message() const
 }
 
 
-int Tut::SeisTools::totalNr() const
+od_int64 Tut::SeisTools::totalNr() const
 {
     if ( inioobj_ && totnr_ == -1 )
     {

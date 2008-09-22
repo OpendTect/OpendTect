@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.104 2008-06-23 06:42:43 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.105 2008-09-22 13:07:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,8 @@ int nextStep()
 
 
 const char*	message() const		{ return "Importing aux data"; }
-int		totalNr() const		{ return totalnr; }
-int		nrDone() const		{ return nrdone; }
+od_int64	totalNr() const		{ return totalnr; }
+od_int64	nrDone() const		{ return nrdone; }
 const char*	nrDoneText() const	{ return "Nr positions imported"; }
 
 protected:
@@ -164,8 +164,8 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 
 
 const char*	message() const		{ return "Importing ..."; }
-int		totalNr() const		{ return totalnr_; }
-int		nrDone() const		{ return nrdone_; }
+od_int64	totalNr() const		{ return totalnr_; }
+od_int64	nrDone() const		{ return nrdone_; }
 const char*	nrDoneText() const	{ return "Nr positions imported"; }
 
 int nextStep()

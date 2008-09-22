@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.32 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.33 2008-09-22 13:11:25 cvskris Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -79,13 +79,13 @@ const char* SeisScanner::nrDoneText() const
 }
 
 
-int SeisScanner::nrDone() const
+od_int64 SeisScanner::nrDone() const
 {
     return geomdtector.nrpositions;
 }
 
 
-int SeisScanner::totalNr() const
+od_int64 SeisScanner::totalNr() const
 {
     if ( totalnr == -2 )
     {

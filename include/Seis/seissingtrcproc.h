@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.19 2008-05-15 15:31:56 cvshelene Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.20 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,8 +61,8 @@ public:
 
     virtual const char*	message() const;
     virtual const char*	nrDoneText() const;
-    virtual int		nrDone() const;
-    virtual int		totalNr() const;
+    virtual od_int64	nrDone() const;
+    virtual od_int64	totalNr() const;
     virtual int		nextStep();
 
     int			nrSkipped() const	{ return nrskipped_; }

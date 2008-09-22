@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.8 2008-07-31 11:41:11 cvsnageswara Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.9 2008-09-22 13:13:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,13 +61,13 @@ Horizon2DImporter( const BufferStringSet& lnms,
 const char* message() const
 { return "Horizon Import"; }
 
-int totalNr() const
+od_int64 totalNr() const
 { return bvalset_ ? bvalset_->totalSize() : 0; }
 
 const char* nrDoneText() const
 { return "Positions written:"; }
 
-int nrDone() const
+od_int64 nrDone() const
 { return nrdone_; }
 
 int nextStep()

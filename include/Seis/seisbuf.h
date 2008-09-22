@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.19 2008-08-27 12:40:56 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.20 2008-09-22 13:11:24 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -93,8 +93,8 @@ public:
 
     const char*		message() const		{ return msg_.buf(); }
     const char*		nrDoneText() const	{ return "Traces read"; }
-    int			nrDone() const		{ return buf_.size(); }
-    int			totalNr() const		{ return totnr_; }
+    od_int64		nrDone() const		{ return buf_.size(); }
+    od_int64		totalNr() const		{ return totnr_; }
     int			nextStep();
 
 protected:

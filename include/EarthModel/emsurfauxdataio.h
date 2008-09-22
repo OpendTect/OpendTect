@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.18 2008-02-28 12:18:56 cvsnanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.19 2008-09-22 13:07:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,8 @@ public:
 				~dgbSurfDataWriter();
 
     virtual int			nextStep();
-    virtual int			nrDone() const;
-    virtual int			totalNr() const;
+    virtual od_int64		nrDone() const;
+    virtual od_int64		totalNr() const;
     virtual const char*		message() const;
 
     static const char*		sKeyAttrName();
@@ -98,8 +98,8 @@ public:
     void			setSurface(EM::Horizon3D&);
 
     virtual int			nextStep();
-    virtual int			nrDone() const;
-    virtual int			totalNr() const;
+    virtual od_int64		nrDone() const;
+    virtual od_int64		totalNr() const;
     virtual const char*		message() const;
 
 protected:

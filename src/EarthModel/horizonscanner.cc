@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.23 2008-06-18 06:22:21 cvsraman Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.24 2008-09-22 13:07:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,13 +67,13 @@ const char* HorizonScanner::nrDoneText() const
 }
 
 
-int HorizonScanner::nrDone() const
+od_int64 HorizonScanner::nrDone() const
 {
     return geomdetector_.nrpositions;
 }
 
 
-int HorizonScanner::totalNr() const
+od_int64 HorizonScanner::totalNr() const
 {
     if ( totalnr_ > 0 ) return totalnr_;
 

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.15 2008-06-24 18:16:56 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.16 2008-09-22 13:15:13 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -45,44 +45,44 @@ public:
 	    	idx_[2] = -1;
 	    }
 
-    int	    totalNr() const { return totalnr_; }
-    int     nrDone() const { return nrdone_; }
-    int     nextStep()
-    	    {
-		if ( !nrdone_ )
-	    	    writeInt32( totalnr_, '\n' );
+    od_int64    totalNr() const { return totalnr_; }
+    od_int64	nrDone() const { return nrdone_; }
+    int     	nextStep()
+		{
+		    if ( !nrdone_ )
+			writeInt32( totalnr_, '\n' );
 
-	    	const MultiDimStorage<MarchingCubesModel>& models =
-		    surface_.models_;
-		for ( int idx=0; idx<mWriteChunkSize; idx++ )
-	    	{
-	    	    if ( !models.next( idx_ ) )
-	    		return Finished;
-	    	    
-	    	    int pos[3];
-	    	    if ( !models.getPos( idx_, pos ) )
-	    		return ErrorOccurred;
-	    	    
-	    	    writeInt32( pos[mX], '\t' );
-	    	    writeInt32( pos[mY], '\t' );
-	    	    writeInt32( pos[mZ], '\t' );
-	    	    
-	    	    if ( !models.getRef(idx_,0).writeTo(strm_,binary_))
-	    		return ErrorOccurred;
+		    const MultiDimStorage<MarchingCubesModel>& models =
+			surface_.models_;
+		    for ( int idx=0; idx<mWriteChunkSize; idx++ )
+		    {
+			if ( !models.next( idx_ ) )
+			    return Finished;
+			
+			int pos[3];
+			if ( !models.getPos( idx_, pos ) )
+			    return ErrorOccurred;
+			
+			writeInt32( pos[mX], '\t' );
+			writeInt32( pos[mY], '\t' );
+			writeInt32( pos[mZ], '\t' );
+			
+			if ( !models.getRef(idx_,0).writeTo(strm_,binary_))
+			    return ErrorOccurred;
 
-		    nrdone_++;
-	    	}
-	    	
-	    	return MoreToDo;
-	    }
+			nrdone_++;
+		    }
+		    
+		    return MoreToDo;
+		}
 
-    void    writeInt32( int val, char post )
-    	    {
-	    	if ( binary_ )
-	    	    strm_.write((const char*)&val,sizeof(val));
-	    	else
-	    	    strm_ << val << post;
-	    }
+	void    writeInt32( int val, char post )
+		{
+		    if ( binary_ )
+			strm_.write((const char*)&val,sizeof(val));
+		    else
+			strm_ << val << post;
+		}
 
 protected:
     int                 	idx_[3];
@@ -108,8 +108,8 @@ MarchingCubesSurfaceReader( std::istream& strm, MarchingCubesSurface& s,
     , totalnr_( -1 )
 {}
 
-int totalNr() const { return totalnr_; }
-int nrDone() const { return nrdone_; }
+od_int64 totalNr() const { return totalnr_; }
+od_int64 nrDone() const { return nrdone_; }
 int nextStep()
 {
     if ( !nrdone_ )
@@ -437,13 +437,13 @@ Implicit2MarchingCubes:: Implicit2MarchingCubes( int posx, int posy, int posz,
 Implicit2MarchingCubes::~Implicit2MarchingCubes() {}
 
 
-int Implicit2MarchingCubes::totalNr() const
+od_int64 Implicit2MarchingCubes::totalNr() const
 {
     return array_.info().getTotalSz();
 }   
 
 
-bool Implicit2MarchingCubes::doWork( int start, int stop, int )
+bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
 {
     int arraypos[3];
     array_.info().getArrayPos( start, arraypos );
@@ -676,10 +676,10 @@ public:
 	} while ( iter.next() );
     }
 
-    int	totalNr() const { return totalnr_; }
+    od_int64	totalNr() const { return totalnr_; }
 
 protected:
-    bool doWork( int start, int stop, int )
+    bool doWork( od_int64 start, od_int64 stop, int )
     {
 	const int nrtimes = stop-start+1;
 	int surfaceidxs[3];

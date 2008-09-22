@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.2 2008-08-04 11:42:12 cvsnanne Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.3 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -41,8 +41,8 @@ public:
     bool		isOK() const;
 
     int			nextStep();
-    int			nrDone() const			{ return nrdone_; }
-    int			totalNr() const			{ return totalnr_; }
+    od_int64		nrDone() const			{ return nrdone_; }
+    od_int64		totalNr() const			{ return totalnr_; }
 
     void		setLineKey(const char*);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.4 2008-03-31 08:22:51 cvsbert Exp $
+ RCS:		$Id: seispsmerge.h,v 1.5 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,8 @@ public:
 
     virtual const char*	message() const		{ return msg_.buf(); }
     virtual const char*	nrDoneText() const	{ return "Gathers written"; }
-    virtual int		nrDone() const		{ return nrdone_; }
-    virtual int		totalNr() const		{ return totnr_; }
+    virtual od_int64	nrDone() const		{ return nrdone_; }
+    virtual od_int64	totalNr() const		{ return totnr_; }
     virtual int		nextStep();
 
 protected:

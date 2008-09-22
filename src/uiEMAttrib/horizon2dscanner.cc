@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizon2dscanner.cc,v 1.5 2008-07-02 08:58:04 cvsraman Exp $
+ RCS:           $Id: horizon2dscanner.cc,v 1.6 2008-09-22 13:13:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,13 +58,13 @@ const char* Horizon2DScanner::nrDoneText() const
 }
 
 
-int Horizon2DScanner::nrDone() const
+od_int64 Horizon2DScanner::nrDone() const
 {
     return bvalset_ ? bvalset_->totalSize() : 0;
 }
 
 
-int Horizon2DScanner::totalNr() const
+od_int64 Horizon2DScanner::totalNr() const
 {
     if ( totalnr_ > 0 ) return totalnr_;
 

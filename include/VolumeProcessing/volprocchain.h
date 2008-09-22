@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.3 2008-08-04 22:31:16 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.4 2008-09-22 13:12:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -150,8 +150,8 @@ public:
 protected:
     bool			prepareNewStep();
     void			controlWork(Task::Control);
-    int				nrDone() const;
-    int				totalNr() const;
+    od_int64			nrDone() const;
+    od_int64			totalNr() const;
     const char*			message() const;
 
     mutable Threads::Mutex	curtasklock_;

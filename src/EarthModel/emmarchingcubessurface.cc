@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Aug 2007
- RCS:           $Id: emmarchingcubessurface.cc,v 1.6 2008-09-08 17:41:28 cvskris Exp $
+ RCS:           $Id: emmarchingcubessurface.cc,v 1.7 2008-09-22 13:07:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,8 +110,8 @@ public:
 	return res;
     }
 
-    int	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
-    int	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
+    od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
+    od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
     const char*	nrDoneText() const { return exec_ ? exec_->nrDoneText() : 0; }
 protected:
 
@@ -184,8 +184,8 @@ int nextStep()
     return res;
 }
 
-int totalNr() const { return exec_ ? exec_->totalNr() : -1; }
-int nrDone() const { return exec_ ? exec_->nrDone() : -1; }
+od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
+od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
 const char* nrDoneText() const { return exec_ ? exec_->nrDoneText() : 0; }
 
 protected:

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.5 2008-01-23 20:56:59 cvskris Exp $";
+static const char* rcsID = "$Id: prestackstacker.cc,v 1.6 2008-09-22 13:10:42 cvskris Exp $";
 
 #include "prestackstacker.h"
 
@@ -78,7 +78,7 @@ bool Stack::usePar( const IOPar& par )
 #undef mErrRet
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool Stack::doWork( int start, int stop, int )
+bool Stack::doWork( od_int64 start, od_int64 stop, int )
 {
     for ( int idz=start; idz<=stop; idz++, reportNrDone() )
     {
@@ -134,7 +134,7 @@ Gather* Stack::createOutputArray( const Gather& input ) const
 }
 
 
-int Stack::totalNr() const
+od_int64 Stack::totalNr() const
 {
     int max = 0;
     for ( int idx=inputs_.size()-1; idx>=0; idx-- )

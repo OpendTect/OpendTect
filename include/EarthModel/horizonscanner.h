@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.10 2008-06-18 06:21:57 cvsraman Exp $
+ RCS:		$Id: horizonscanner.h,v 1.11 2008-09-22 13:07:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ public:
 			~HorizonScanner();
 
     virtual const char*	message() const;
-    virtual int		totalNr() const;
-    virtual int		nrDone() const;
+    virtual od_int64	totalNr() const;
+    virtual od_int64	nrDone() const;
     virtual const char*	nrDoneText() const;
 
     bool		reInitAscIO(const char*);

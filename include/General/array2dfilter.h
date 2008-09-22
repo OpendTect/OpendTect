@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.5 2006-11-24 13:44:36 cvsbert Exp $
+ RCS:           $Id: array2dfilter.h,v 1.6 2008-09-22 13:09:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -72,9 +72,9 @@ public:
 
     inline int		nextStep();
     inline const char*	message() const		{ return "Filtering data"; }
-    inline int		nrDone() const		{ return nrcolsdone_; }
+    inline od_int64	nrDone() const		{ return nrcolsdone_; }
     inline const char*	nrDoneText() const	{ return "Columns handled";}
-    inline int		totalNr() const		{ return colsize_; }
+    inline od_int64	totalNr() const		{ return colsize_; }
 
 protected:
 

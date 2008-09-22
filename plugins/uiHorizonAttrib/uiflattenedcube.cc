@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.4 2008-06-03 16:12:42 cvshelene Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.5 2008-09-22 13:17:03 cvskris Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -132,8 +132,8 @@ uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
 
 const char* message() const	{ return msg_.buf(); }
 const char* nrDoneText() const	{ return "Traces written"; }
-int nrDone() const		{ return nrdone_; }
-int totalNr() const		{ return totnr_; }
+od_int64 nrDone() const		{ return nrdone_; }
+od_int64 totalNr() const	{ return totnr_; }
 
 int nextStep()
 {

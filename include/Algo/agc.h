@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2008
- RCS:		$Id: agc.h,v 1.5 2008-08-18 13:32:23 cvsyuancheng Exp $
+ RCS:		$Id: agc.h,v 1.6 2008-09-22 13:02:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,12 +40,12 @@ public:
 
 protected:
     void		computeEnergyMute();
-    bool		doWork(int,int,int);
+    bool		doWork(od_int64,od_int64,int);
     int			minThreadSize() const { return 200; }
-    int			totalNr() const { return size_; }
+    od_int64		totalNr() const { return size_; }
 
     const ValueSeries<T>*	input_;
-    int				size_;
+    od_int64			size_;
     ValueSeries<T>*		output_;
     Interval<int>		samplerg_;
     float			mutefraction_;
@@ -133,7 +133,7 @@ void AGC<T>::computeEnergyMute()
 
 
 template <class T> inline
-bool AGC<T>::doWork( int start, int stop, int threadidx )
+bool AGC<T>::doWork( od_int64 start, od_int64 stop, int threadidx )
 {
     for ( int idx=0; idx<=stop; idx++ )
     {

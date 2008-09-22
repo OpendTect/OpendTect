@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.10 2008-08-15 12:20:59 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.11 2008-09-22 13:10:42 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -121,7 +121,7 @@ bool Mute::usePar( const IOPar& par )
 #undef mErrRet
 #define mErrRet(s) { errmsg_ = s; return false; }
 
-bool Mute::doWork( int start, int stop, int )
+bool Mute::doWork( od_int64 start, od_int64 stop, int )
 {
     if ( !muter_ )
 	return false;

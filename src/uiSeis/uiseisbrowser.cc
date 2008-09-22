@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.31 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.32 2008-09-22 13:15:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -583,8 +583,8 @@ bool init()
 }
 
 
-    int			totalNr() const		{ return totalnr_; }
-    int                 nrDone() const          { return nrdone_; }
+    od_int64		totalNr() const		{ return totalnr_; }
+    od_int64		nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Traces done"; }
 

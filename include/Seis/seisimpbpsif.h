@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.7 2008-01-14 12:06:47 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.8 2008-09-22 13:11:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ public:
     void		setMaxInlOffset(int);
 
     const char*		message() const;
-    int			nrDone() const		{ return nrshots_; }
+    od_int64		nrDone() const		{ return nrshots_; }
     const char*		nrDoneText() const	{ return "Shots handled"; }
     int			nextStep();
 

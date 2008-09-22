@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.6 2007-11-08 18:18:11 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.7 2008-09-22 13:05:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,9 +49,9 @@ protected:
     static const char*		sKeyWinParam() { return "Window parameter"; }
     static const char*		sKeyWinLen() { return "Window length"; }
 
-    inline int			totalNr() const	{ return size_; }
+    inline od_int64		totalNr() const	{ return size_; }
     inline bool			doPrepare(int);
-    inline bool			doWork(int start,int stop,int);
+    inline bool			doWork(od_int64 start,od_int64 stop,int);
 
     TypeSet<T>			window_;
     BufferString		windowname_;
@@ -59,7 +59,7 @@ protected:
 
     const T*			input_;
     T*				output_;
-    int				size_;
+    od_int64			size_;
 
     int				firstdefined_;
     int				lastdefined_;
@@ -189,7 +189,7 @@ bool Smoother1D<T>::doPrepare(int)
 
 
 template <class T> inline
-bool Smoother1D<T>::doWork(int start,int stop,int)
+bool Smoother1D<T>::doWork(od_int64 start,od_int64 stop,int)
 {
     const float* window = window_.arr();
     const int windowsize = window_.size();
