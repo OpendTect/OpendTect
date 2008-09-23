@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.23 2008-05-19 13:04:49 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.24 2008-09-23 06:19:31 cvsnageswara Exp $";
 
 
 #include "coherencyattrib.h"
@@ -179,8 +179,12 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 
 void Coherency::prepPriorToBoundsCalc()
 {
-    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+    const int truestep = mNINT( refstep*zFactor() );
+    if ( truestep == 0 )
+	return Provider::prepPriorToBoundsCalc();
+
+    bool chgstart = mNINT(desgate_.start*zFactor()) % truestep;
+    bool chgstop = mNINT(desgate_.stop*zFactor()) % truestep;
 
     if ( chgstart )
     {
@@ -192,6 +196,8 @@ void Coherency::prepPriorToBoundsCalc()
 	int minstop = (int)(desgate_.stop / refstep);
 	desgate_.stop = (minstop+1) * refstep;
     }
+
+    Provider::prepPriorToBoundsCalc();
 }
 
 
