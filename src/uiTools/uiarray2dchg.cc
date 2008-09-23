@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.cc,v 1.5 2008-06-05 15:56:24 cvsbert Exp $
+ RCS:		$Id: uiarray2dchg.cc,v 1.6 2008-09-23 15:46:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uistepoutsel.h"
 
+static const char* extrapolstrs[] =
+{ "To outer border", "To convex hull", "No", 0 };
 
 uiArr2DInterpolPars::uiArr2DInterpolPars( uiParent* p,
 					  const Array2DInterpolatorPars* prs )
@@ -20,9 +22,9 @@ uiArr2DInterpolPars::uiArr2DInterpolPars( uiParent* p,
 {
     Array2DInterpolatorPars pars; if ( prs ) pars = *prs;
 
-    extrapolatefld_ = new uiGenInput( this, "Extrapolate outward",
-	    			      BoolInpSpec(true) );
-    extrapolatefld_->setValue( pars.extrapolate_ );
+    extrapolatefld_ = new uiGenInput( this, "Fill outward",
+	    			      StringListInpSpec(extrapolstrs) );
+    extrapolatefld_->setValue( (int)pars.filltype_ );
 
     bool isdef = pars.maxholesize_ > 0;
     maxholefld_ = new uiGenInput( this, "Maximum fill size (nodes)",
@@ -65,7 +67,8 @@ Array2DInterpolatorPars uiArr2DInterpolPars::getInput() const
 {
     Array2DInterpolatorPars pars;
 
-    pars.extrapolate_ = extrapolatefld_->getBoolValue();
+    pars.filltype_ = (Array2DInterpolatorPars::FillType)
+	    		extrapolatefld_->getIntValue();
     pars.useextension_ = doextendfld_->getBoolValue();
 
     pars.maxholesize_ = maxholefld_->isChecked()

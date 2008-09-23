@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.107 2008-09-18 08:42:39 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.108 2008-09-23 15:46:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,10 @@ BufferString getSummary() const
     const bool havemaxsteps = pars_.maxnrsteps_ > 0;
 
     if ( !havemaxsz && !havemaxsteps )
-	ret = pars_.extrapolate_ ? "Fill all" : "No extrapolation";
+	ret = pars_.filltype_ == Array2DInterpolatorPars::FullOutward
+	    ? "Fill all"
+	    : (pars_.filltype_ == Array2DInterpolatorPars::HolesOnly ?
+		   "No extrapolation" : "Within convex hull");
     else
     {
 	if ( havemaxsz )
@@ -79,7 +82,10 @@ BufferString getSummary() const
 	    ret += pars_.maxnrsteps_; ret += " iteration";
 	    if ( pars_.maxnrsteps_ > 1 ) ret += "s"; ret += "; ";
 	}
-	ret += pars_.extrapolate_ ? "everywhere" : "inside";
+	ret += pars_.filltype_ == Array2DInterpolatorPars::FullOutward
+	    	? "everywhere" : "inside";
+	if ( pars_.filltype_ == Array2DInterpolatorPars::ConvexHull )
+	    ret += " convex hull";
     }
     return ret;
 }
