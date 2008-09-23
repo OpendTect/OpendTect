@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.9 2008-06-05 05:17:25 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.10 2008-09-23 11:00:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "madstream.h"
 #include "batchprog.h"
+#include "envvars.h"
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
@@ -36,15 +37,17 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
     if ( !readpar || !readpar->size() )
     { errmsg = "No Input parameters"; return 0; }
 
+    const char* rsfroot = GetEnvVar( "RSFROOT" );
     BufferStringSet procs;
     pars.get( sKeyProc, procs );
     const bool hasprocessing = procs.size() && !procs.get(0).isEmpty();
     for ( int pidx=0; pidx<procs.size(); pidx++ )
     {
-	BufferString proc = procs.get( pidx );
+	FilePath fp( rsfroot ); fp.add( "bin" );
+	fp.add( procs.get(pidx) );
 	if ( pidx ) ret += " | ";
 
-	ret += proc;
+	ret += fp.fullPath();
     }
 
     IOPar* outpar = pars.subselect( sKeyOutput );
