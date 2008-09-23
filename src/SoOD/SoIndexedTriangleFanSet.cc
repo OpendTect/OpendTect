@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.7 2008-09-22 13:26:52 cvskris Exp $";
+static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.8 2008-09-23 04:10:13 cvsnageswara Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 
@@ -497,7 +497,6 @@ SbBool SoIndexedTriangleFanSet::generateDefaultNormals( SoState* state,
 				    ccw);
 #else
 	    nc->generatePerFaceStrip(coords,
-				    vp->vertex.getNum(),
 				    coordIndex.getValues(0),
 				    coordIndex.getNum(),
 				    ccw);
