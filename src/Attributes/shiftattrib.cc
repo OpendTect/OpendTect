@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.26 2008-05-19 13:14:13 cvsbert Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.27 2008-09-23 06:03:16 cvsnageswara Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -174,15 +174,21 @@ const BinID* Shift::reqStepout( int inp, int out ) const
 
 void Shift::prepPriorToBoundsCalc()
 {
-    bool chstartr = mNINT(interval_.start*zFactor())%mNINT(refstep*zFactor());
-    bool chstopr = mNINT(interval_.stop*zFactor())%mNINT(refstep*zFactor());
-    bool chstartd =mNINT(desinterval_.start*zFactor())%mNINT(refstep*zFactor());
-    bool chstopd = mNINT(desinterval_.stop*zFactor())%mNINT(refstep*zFactor());
+    const int truestep = mNINT( refstep*zFactor() );
+    if ( truestep == 0 )
+	return Provider::prepPriorToBoundsCalc();
+
+    bool chstartr = mNINT(interval_.start*zFactor()) % truestep;
+    bool chstopr = mNINT(interval_.stop*zFactor()) % truestep;
+    bool chstartd =mNINT(desinterval_.start*zFactor()) % truestep;
+    bool chstopd = mNINT(desinterval_.stop*zFactor()) % truestep;
 
     mAdjustGate( chstartr, interval_.start, false )
     mAdjustGate( chstopr, interval_.stop, true )
     mAdjustGate( chstartd, desinterval_.start, false )
     mAdjustGate( chstopd, desinterval_.stop, true )
+
+    Provider::prepPriorToBoundsCalc();
 }
 
 

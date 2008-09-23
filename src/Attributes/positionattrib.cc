@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.25 2008-05-19 13:04:49 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.26 2008-09-23 06:03:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,15 +256,21 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
 void Position::prepPriorToBoundsCalc()
 {
-    bool chgstartr = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstartd = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstopd = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+    const int truestep = mNINT( refstep*zFactor() );
+    if( truestep == 0 )
+	return Provider::prepPriorToBoundsCalc();
+
+    bool chgstartr = mNINT(reqgate_.start*zFactor()) % truestep;
+    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % truestep;
+    bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
+    bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
 
     mAdjustGate( chgstartr, reqgate_.start, false )
     mAdjustGate( chgstopr, reqgate_.stop, true )
     mAdjustGate( chgstartd, desgate_.start, false )
     mAdjustGate( chgstopd, desgate_.stop, true )
+
+    Provider::prepPriorToBoundsCalc();
 }
 
 

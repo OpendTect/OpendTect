@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.35 2008-05-19 13:04:49 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.36 2008-09-23 06:03:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -339,15 +339,21 @@ const BinID* Similarity::reqStepout( int inp, int out ) const
 
 void Similarity::prepPriorToBoundsCalc()
 {
-    bool chgstartr = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstartd = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstopd = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+     const int truestep = mNINT( refstep*zFactor() );
+     if ( truestep == 0 )
+       	 return Provider::prepPriorToBoundsCalc();
+
+    bool chgstartr = mNINT(reqgate_.start*zFactor()) % truestep ; 
+    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % truestep;
+    bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
+    bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
 
     mAdjustGate( chgstartr, reqgate_.start, false )
     mAdjustGate( chgstopr, reqgate_.stop, true )
     mAdjustGate( chgstartd, desgate_.start, false )
     mAdjustGate( chgstopd, desgate_.stop, true )
+
+    Provider::prepPriorToBoundsCalc();
 }
 
 
