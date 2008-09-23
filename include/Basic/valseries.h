@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.19 2008-09-23 10:40:08 cvshelene Exp $
+ RCS:           $Id: valseries.h,v 1.20 2008-09-23 14:47:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,28 +307,7 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 	    ? chunksize_ : lefttoalloc;
 
 	AT* ptr;
-//	mTryAlloc( ptr, AT[allocsize] );
-	bool isthrow = false;
-	ptr = 0;
-	try { ptr = new AT[allocsize]; }
-	catch ( std::bad_alloc )
-	{
-	    isthrow = true;
-	    ptr = 0;
-	}
-	catch ( std::exception& e )
-	{
-	    isthrow = true;
-	    std::cerr << e.what() << std::endl;
-	    ptr = 0;
-	}
-	catch ( ... )
-	{
-	    isthrow = true;
-	    std::cerr << "Unknown throw" << std::endl;
-	    ptr = 0;
-	}
-	// end add on
+	mTryAlloc( ptr, AT[allocsize] );
 	if ( !ptr )
 	{
 	    cursize_ = -1;
