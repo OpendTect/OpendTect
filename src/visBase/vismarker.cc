@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.26 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: vismarker.cc,v 1.27 2008-09-23 12:16:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,6 +189,14 @@ void Marker::setScreenSize( const float sz )
 {
     markerscale->screenSize.setValue( sz );
     markerstyle.size_ = (int)sz;
+}
+
+
+void Marker::setDirection( const ::Sphere& d )
+{
+    direction = d;
+    if ( markerstyle.type_ == MarkerStyle3D::Arrow )
+	setArrowDir( direction );
 }
 
 

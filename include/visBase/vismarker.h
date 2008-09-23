@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.18 2006-02-23 14:46:34 cvskris Exp $
+ RCS:		$Id: vismarker.h,v 1.19 2008-09-23 12:16:08 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -77,7 +77,7 @@ public:
     bool		restoresProportions() const;		
 
     void		setRotation(const Coord3&,float);
-    void		setDirection(const ::Sphere& d)	{ direction = d; }
+    void		setDirection(const ::Sphere&);
     const ::Sphere&	getDirection() const		{ return direction; }
 
     void		setDisplayTransformation( Transformation* );
