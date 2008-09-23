@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.10 2008-08-11 12:11:41 cvsdgb Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.11 2008-09-23 11:07:59 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -46,28 +46,8 @@ bool checkEnvVars( BufferString& msg )
 	msg = "RSFROOT is either not set or invalid";
 	return false;
     }
-
-    FilePath fp( rsfdir );
-    fp.add( "bin" );
-    rsfdir = fp.fullPath();
-    BufferString pathvar = GetEnvVar( "PATH" );
-    if ( pathvar.isEmpty() )
-    {
-	msg = "Could not retrieve environment variable PATH";
-	return false;
-    }
-
-    SeparString pathstr( pathvar, GetEnvSeparChar() );
-    const int nrpaths = pathstr.size();
-    for ( int idx=0; idx<pathstr.size(); idx++ )
-    {
-	if ( !strcasecmp(rsfdir.buf(),pathstr[idx]) )
-	    return true;
-    }
-
-    msg = "RSF bin directory is not included in PATH. ";
-    msg += "Please add $RSFROOT/bin to your PATH variable and try again.";
-    return false;
+    
+    return true;
 }
 
 
