@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.14 2008-09-01 07:09:28 cvshelene Exp $
+ RCS:		$Id: polygon.h,v 1.15 2008-09-23 14:07:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
     void	removeZeroLengths();
     bool	isUTurn(int idx) const;
     bool	isSelfIntersecting() const;
+
+    void	convexHull();
     
     		// not for self-intersecting polygons
     float	area() const			{ return fabs(sgnArea()); } 	
@@ -432,6 +434,71 @@ float ODPolygon<T>::sgnArea() const
     }
 
     return 0.5*area2;
+}
+
+
+template <class T> inline
+void ODPolygon<T>::convexHull()
+{
+    // Code based on the Graham scan algorithm (1972)
+
+    setClosed( true );
+    if ( size()<2 )
+	return;
+
+    // Find guaranteed vertex of the convex hull to become pivot
+    Geom::Point2D<T> pivot = getVertex( 0 );
+    for ( int idx=1; idx<size(); idx++ )
+    {
+	const Geom::Point2D<T>& vtx = getVertex( idx );
+	if ( vtx.x<pivot.x || (vtx.x==pivot.x && vtx.y<pivot.y) )
+	    pivot = vtx;
+    }	
+
+    // Remove all pivot copies
+    for ( int idx=size()-1; idx>=0; idx-- )
+    {
+	if ( pivot == getVertex(idx) )
+	    poly_.removeFast( idx );
+    }
+
+    // Angular sort of all pivot-to-point segments
+    for ( int idx=size()-2; idx>=0; idx-- )
+    {
+	const Geom::Point2D<T>& vtx = getVertex( idx );
+	for ( int idy=size()-1; idy>idx; idy-- )
+	{
+	    const Geom::Point2D<T>& vty = getVertex( idy );
+	    const double dist = sgnDistToLine( vty, vtx-pivot, pivot );
+
+	    if ( dist > 0 )
+		continue;
+
+	    if ( dist < 0 )
+		poly_.insert( idy+1, vtx );
+	    else if ( pivot.sqDistTo(vtx) > pivot.sqDistTo(vty) )
+		poly_[idy] = vtx;
+
+	    poly_.remove( idx );
+	    break;
+	}
+    }
+
+    // Expand convex hull incrementally by backward removal of inner points
+    for ( int idx=size()-3; idx>=0; idx-- )
+    {
+	const Geom::Point2D<T>& vtx = getVertex( idx );
+	while ( idx<size()-2 )
+	{
+	    const Geom::Point2D<T>& vty = getVertex( idx+1 );
+	    const Geom::Point2D<T>& vtz = getVertex( idx+2 );
+	    if ( isRightOfLine(vtz, vty-vtx, vtx) )
+		break;
+
+	    poly_.remove( idx+1 );
+	}
+    }
+    poly_ += pivot;
 }
 
 
