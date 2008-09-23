@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.6 2008-09-22 13:05:33 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.7 2008-09-23 19:25:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,8 +32,8 @@ public:
 	    		     int first0=0,int first1=0, int first2=0);
     inline void		setZ(Array3D<T>& z )		{ z_ = &z; }
     void		setNormalize( bool n )		{ normalize_ = n; }
-    			/*!<If true, the sum will be divided with the number
-			    of valid samples. */
+    			/*!<If true, the sum will be divided by
+			    the sum of Y.*/
     void		setCorrelate( bool yn )		{ correlate_ = yn; }
     			/*!<If true, the convolution will be replaced by a
 			   correllation. */
@@ -126,6 +126,7 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
     {
 	const int* zvar = iterator.getPos();
 	T sum = 0;
+	T ysum = 0;
 	int nrsamples = 0;
 	for ( int idx0=0; idx0<xsz0; idx0++ )
 	{
@@ -162,13 +163,14 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 			continue;
 
 		    sum += xval * yval;
+		    ysum += yval;
 		    nrsamples++;
 		}
 	    }
 	}
 
 	if ( !nrsamples ) z_->set( zvar, 0 );
-	else if ( normalize_ ) z_->set( zvar, sum/nrsamples );
+	else if ( normalize_ && !mIsZero(ysum,1e-8) ) z_->set( zvar, sum/ysum );
 	else z_->set( zvar, sum );
 
 	if ( !iterator.next() && idx!=stop )
