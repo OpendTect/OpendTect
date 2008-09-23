@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.21 2008-09-22 13:00:45 cvskris Exp $
+ RCS:		$Id: viscolortab.h,v 1.22 2008-09-23 10:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -47,10 +47,10 @@ public:
     float			symMidval() const;
     void			setSymMidval(float);
     void			scaleTo(const Interval<float>& rg);
-    void			scaleTo(const float* values, int nrvalues);
+    void			scaleTo(const float* values, od_int64 nrvalues);
     				/*!< Does only work if autoscale is true */
     void			scaleTo(const ValueSeries<float>* values,
-	    				int nrvalues);
+	    				od_int64 nrvalues);
     				/*!< Does only work if autoscale is true */
     Interval<float>		getInterval() const;
 

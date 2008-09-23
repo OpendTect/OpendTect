@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.8 2008-09-22 13:00:45 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.9 2008-09-23 10:40:08 cvshelene Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -128,7 +128,7 @@ int ColTab::Mapper::snappedPosition( const ColTab::Mapper* mapper,
 }
 
 
-void ColTab::Mapper::setData( const ValueSeries<float>* vs, int sz )
+void ColTab::Mapper::setData( const ValueSeries<float>* vs, od_int64 sz )
 {
     vs_ = vs; vssz_ = sz;
     update( true );

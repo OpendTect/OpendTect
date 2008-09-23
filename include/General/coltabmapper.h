@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.4 2008-09-22 13:00:45 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.5 2008-09-23 10:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ public:
 
     void		setRange( const Interval<float>& rg )
 			{ start_ = rg.start; width_ = rg.stop - rg.start; }
-    void		setData(const ValueSeries<float>*,int sz);
+    void		setData(const ValueSeries<float>*,od_int64 sz);
     			//!< If data changes, call update()
 
     void		update(bool full=true);
@@ -76,7 +76,7 @@ protected:
     DataClipper&	clipper_;
 
     const ValueSeries<float>* vs_;
-    int			vssz_;
+    od_int64		vssz_;
 
 };
 

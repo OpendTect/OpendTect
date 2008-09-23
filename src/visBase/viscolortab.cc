@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.45 2008-09-22 13:00:45 cvskris Exp $
+ RCS:           $Id: viscolortab.cc,v 1.46 2008-09-23 10:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ void VisColorTab::setClipRate( float ncr )
 }
 
 
-void VisColorTab::scaleTo( const float* values, int nrvalues )
+void VisColorTab::scaleTo( const float* values, od_int64 nrvalues )
 {
     float* valuesnc = const_cast<float*>(values);
     const ArrayValueSeries<float,float>* arrvs =
@@ -110,7 +110,7 @@ void VisColorTab::scaleTo( const float* values, int nrvalues )
 }
 
 
-void VisColorTab::scaleTo( const ValueSeries<float>* values, int nrvalues )
+void VisColorTab::scaleTo( const ValueSeries<float>* values, od_int64 nrvalues )
 {
     ctmapper_->setData( values, nrvalues );
     rangechange.trigger();

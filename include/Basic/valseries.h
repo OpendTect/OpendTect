@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.18 2008-01-04 20:59:55 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.19 2008-09-23 10:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,7 @@ class MultiArrayValueSeries : public ValueSeries<RT>
 {
 public:
     		MultiArrayValueSeries(od_int64);
+    		MultiArrayValueSeries(const MultiArrayValueSeries<RT, AT>&);
     		~MultiArrayValueSeries();
 
     bool	isOK() const			{ return cursize_>=0; }
@@ -217,7 +218,7 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 
     delete [] ptr_;
     mTryAlloc( ptr_, AT[sz] )
-    cursize_ = sz;
+    cursize_ = ptr_ ? sz : -1;
     return ptr_;
 }
 
@@ -229,6 +230,21 @@ MultiArrayValueSeries<RT,AT>::MultiArrayValueSeries( od_int64 sz )
 {
     ptrs_.allowNull( true );
     setSize( sz );
+}
+
+
+template <class RT, class AT> inline
+MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries( 
+				const MultiArrayValueSeries<RT, AT>& mavs )
+    : cursize_( -1 )
+    , chunksize_( mavs.chunksize_ )
+{
+    ptrs_.allowNull( true );
+    if ( setSize( mavs.cursize_ ) && ptrs_.size() == mavs.ptrs_.size() )
+    {
+	for ( int idx=0; idx<ptrs_.size(); idx++ )
+	    memcpy( ptrs_[idx], mavs.ptrs_[idx], sizeof(float)*chunksize_ );
+    }
 }
 
 
@@ -291,7 +307,28 @@ bool MultiArrayValueSeries<RT,AT>::setSize( od_int64 sz )
 	    ? chunksize_ : lefttoalloc;
 
 	AT* ptr;
-	mTryAlloc( ptr, AT[allocsize] );
+//	mTryAlloc( ptr, AT[allocsize] );
+	bool isthrow = false;
+	ptr = 0;
+	try { ptr = new AT[allocsize]; }
+	catch ( std::bad_alloc )
+	{
+	    isthrow = true;
+	    ptr = 0;
+	}
+	catch ( std::exception& e )
+	{
+	    isthrow = true;
+	    std::cerr << e.what() << std::endl;
+	    ptr = 0;
+	}
+	catch ( ... )
+	{
+	    isthrow = true;
+	    std::cerr << "Unknown throw" << std::endl;
+	    ptr = 0;
+	}
+	// end add on
 	if ( !ptr )
 	{
 	    cursize_ = -1;

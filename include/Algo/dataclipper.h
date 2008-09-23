@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.10 2007-09-07 11:22:03 cvsbert Exp $
+ RCS:		$Id: dataclipper.h,v 1.11 2008-09-23 10:40:08 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ public:
 				     cliprate0 */
     inline bool			isEmpty() const	{ return samples_.isEmpty(); }
 
-    void			setApproxNrValues(int nrsamples,
+    void			setApproxNrValues(od_int64 nrsamples,
 						  int statsize=2000);
     				/*!< Will make it faster if large amount
 				     (>10000 samples) of data is used. The
@@ -92,8 +92,8 @@ public:
 				     to do the stats on.
 				*/
     void			putData(float);
-    void			putData(const float*, int sz );
-    void			putData(const ValueSeries<float>&, int sz );
+    void			putData(const float*,od_int64 sz);
+    void			putData(const ValueSeries<float>&,od_int64 sz);
     void			putData(const ArrayND<float>&);
 
     bool			calculateRange(float cliprate,Interval<float>&);
@@ -104,7 +104,7 @@ public:
 					       Interval<float>&);
     				/*!<Does not do a full sort. Also performes
 				    reset */
-    static bool			calculateRange(float* vals, int nrvals,
+    static bool			calculateRange(float* vals, od_int64 nrvals,
 	    				       float lowcliprate,
 	    				       float highcliprate,
 					       Interval<float>&);

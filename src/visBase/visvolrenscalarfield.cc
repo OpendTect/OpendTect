@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.17 2008-08-21 10:35:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.18 2008-09-23 10:40:08 cvshelene Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -135,10 +135,10 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
 
     ownsdatacache_ = mine;
     datacache_ = sc->getStorage();
-    if ( !datacache_ )
+    if ( !datacache_ || !datacache_->arr() )
     {
-	ValueSeries<float>* myvalser =
-	    new ArrayValueSeries<float,float>( totalsz );
+	MultiArrayValueSeries<float,float>* myvalser =
+	    new MultiArrayValueSeries<float,float>( totalsz );
 	if ( !myvalser || !myvalser->isOK() )
 	    delete myvalser;
 	else
@@ -341,7 +341,11 @@ void VolumeRenderScalarField::makeIndices( bool doset )
 
 void VolumeRenderScalarField::clipData()
 {
-    if ( datacache_ ) ctab_->scaleTo( datacache_->arr(), sz0_*sz1_*sz2_ );
+    const od_int64 nrsamples = sz0_*sz1_*sz2_;
+    if ( datacache_ && datacache_->arr() )
+	ctab_->scaleTo( datacache_->arr(), nrsamples );
+    else if ( datacache_ )
+	ctab_->scaleTo( datacache_ , nrsamples );
 }
 
 
