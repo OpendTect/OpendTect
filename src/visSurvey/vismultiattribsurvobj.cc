@@ -4,13 +4,15 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.14 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.15 2008-09-23 21:38:50 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
 #include "attribsel.h"
 #include "visdataman.h"
 #include "vismaterial.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "viscolortab.h"
 #include "vismultitexture2.h"
 #include "iopar.h"
@@ -258,6 +260,42 @@ MultiTextureSurveyObject::getHistogram( int attrib ) const
 int MultiTextureSurveyObject::getColTabID( int attrib ) const
 {
     return texture_->getColorTab( attrib ).id();
+}
+
+
+void MultiTextureSurveyObject::setColTabSequence( int attrib,
+						  ColTab::Sequence const& seq )
+{
+    visBase::VisColorTab& vt = texture_->getColorTab( attrib );
+    vt.colorSeq().colors() = seq;
+
+    //Trigger something?
+}
+
+
+const ColTab::Sequence*
+MultiTextureSurveyObject::getColTabSequence( int attrib ) const
+{
+    const visBase::VisColorTab& vt = texture_->getColorTab( attrib );
+    return &vt.colorSeq().colors();
+}
+
+
+void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
+					  ColTab::MapperSetup const& mapper )
+{
+    visBase::VisColorTab& vt = texture_->getColorTab( attrib );
+    vt.colorMapper().setup_ = mapper;
+
+    //Trigger something?
+}
+
+
+const ColTab::MapperSetup*
+MultiTextureSurveyObject::getColTabMapperSetup( int attrib ) const
+{
+    const visBase::VisColorTab& vt = texture_->getColorTab( attrib );
+    return &vt.colorMapper().setup_;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.12 2008-05-14 05:32:57 cvsnanne Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.13 2008-09-23 21:38:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,12 @@ public:
     bool			isAttribEnabled(int attrib) const;
     const TypeSet<float>*	getHistogram(int) const;
     int				getColTabID(int) const;
+
+    const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
+    void			setColTabMapperSetup(int,
+	    				const ColTab::MapperSetup&);
+    const ColTab::Sequence*	getColTabSequence(int) const;
+    void			setColTabSequence(int,const ColTab::Sequence&);
 
     bool			canHaveMultipleTextures() const { return true; }
     int				nrTextures(int attrib) const;

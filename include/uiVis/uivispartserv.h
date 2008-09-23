@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.207 2008-08-28 12:28:56 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.208 2008-09-23 21:35:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ namespace Threads   { class Mutex; };
 namespace Tracking  { class TrackManager; };
 namespace visBase   { class DataObject; };
 namespace visSurvey { class Scene; };
+namespace ColTab { class Sequence; struct MapperSetup; };
 
 
 
@@ -234,10 +235,17 @@ public:
     static const int	evViewAll;
     static const int	evToHomePos;
 
-    			// ColorTable stuff
+    				// ColorTable stuff
     int				getColTabId(int id,int attrib ) const;
     void			fillDispPars(int id,int attrib,
 	    				     FlatView::DataDispPars&) const;
+    const ColTab::MapperSetup*	getColTabMapperSetup(int id,int) const;
+    void			setColTabMapperSetup(int id,int attrib,
+						    const ColTab::MapperSetup&);
+    const ColTab::Sequence*	getColTabSequence(int id,int attrib) const;
+    void			setColTabSequence(int id,int attrib,
+	    					  const ColTab::Sequence&);
+
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
     void			displaySceneColorbar(bool);
 

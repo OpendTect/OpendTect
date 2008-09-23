@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.374 2008-08-28 12:28:57 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.375 2008-09-23 21:35:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -710,6 +710,41 @@ int uiVisPartServer::getColTabId( int id, int attrib ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getColTabID( attrib ) : -1;
+}
+
+
+const ColTab::MapperSetup*
+uiVisPartServer::getColTabMapperSetup( int id, int attrib ) const
+{
+    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->getColTabMapperSetup( attrib ) : 0;
+}
+
+
+void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
+					    const ColTab::MapperSetup& ms ) 
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( !so ) return;
+
+    so->setColTabMapperSetup( attrib, ms );
+}
+
+
+const ColTab::Sequence* uiVisPartServer::getColTabSequence( int id, int attrib ) const
+{
+    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
+    return so ? so->getColTabSequence( attrib ) : 0;
+}
+
+
+void uiVisPartServer::setColTabSequence( int id, int attrib,
+					 const ColTab::Sequence& seq )
+{
+    mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
+    if ( !so ) return;
+
+    so->setColTabSequence( attrib, seq );
 }
 
 
