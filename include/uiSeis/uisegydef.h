@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.5 2008-09-23 12:16:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
 
     SEGY::FileSpec	getSpec() const;
     void		setSpec(const SEGY::FileSpec&);
+
+    static const char*	sKeyLineNmToken;
 
 protected:
 

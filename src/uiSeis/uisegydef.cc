@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.5 2008-09-23 12:17:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uimsg.h"
 
+const char* uiSEGYFileSpec::sKeyLineNmToken = "#L";
 static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
 
 //--- tools for building the UIs ----
