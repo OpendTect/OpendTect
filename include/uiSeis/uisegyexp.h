@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyexp.h,v 1.1 2008-09-22 15:10:42 cvsbert Exp $
+ RCS:           $Id: uisegyexp.h,v 1.2 2008-09-23 12:17:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "seistype.h"
 class uiSeisSel;
+class uiCheckBox;
 class uiSeisTransfer;
 class uiSEGYFilePars;
 class uiSEGYFileSpec;
@@ -35,18 +36,14 @@ protected:
     uiSeisTransfer*	transffld_;
     uiSEGYFilePars*	fpfld_;
     uiSEGYFileSpec*	fsfld_;
+    uiCheckBox*		morebut_;
 
     void		inpSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
+    friend class	uiSEGYExpMore;
     bool		doWork(const IOObj&,const IOObj&,
 	    			const char*,const char*);
-
-private:
-
-    void		mkImpExpSel();
-    void		mkSeisSel();
-    void		mkTransf();
 
 };
 
