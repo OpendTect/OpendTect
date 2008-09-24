@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.3 2008-09-24 14:01:56 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.4 2008-09-24 15:15:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,15 @@ ________________________________________________________________________
 #include "uisegyexamine.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
+#include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "survinfo.h"
 #include "segytr.h"
 #include "segyscanner.h"
 #include "seisioobjinfo.h"
+
+static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
 
 void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms )
@@ -122,6 +125,52 @@ static const char* rev1txts[] =
     0
 };
 
+class uiSEGYReadRev1Question : public uiDialog
+{
+public:
+
+uiSEGYReadRev1Question( uiParent* p, int pol )
+    : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,mNoHelpID) )
+    , initialpol_(pol)
+{
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "" );
+    for ( int idx=0; rev1txts[idx]; idx++ )
+	buts_ += new uiRadioButton( bgrp, rev1txts[idx] );
+    bgrp->setRadioButtonExclusive( true );
+    buts_[pol-1]->setChecked( true );
+
+    dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );
+    dontaskfld_->attach( alignedBelow, bgrp );
+}
+
+bool acceptOK( CallBacker* )
+{
+    pol_ = 3;
+    for ( int idx=0; idx<buts_.size(); idx++ )
+    {
+	if ( buts_[idx]->isChecked() )
+	    { pol_ = idx + 1; break; }
+    }
+    int storepol = dontaskfld_->isChecked() ? -pol_ : pol_;
+    if ( storepol != initialpol_ )
+    {
+	SI().getPars().set( sKeySEGYRev1Pol, storepol );
+	SI().savePars();
+    }
+    return true;
+}
+
+bool isGoBack() const
+{
+    return pol_ == buts_.size();
+}
+
+    ObjectSet<uiRadioButton>	buts_;
+    uiCheckBox*			dontaskfld_;
+    int				pol_, initialpol_;
+
+};
+
 void uiSEGYRead::getBasicOpts()
 {
     uiSEGYDefDlg::Setup bsu; bsu.geoms_ = setup_.geoms_;
@@ -139,20 +188,19 @@ void uiSEGYRead::getBasicOpts()
     specincomplete_ = true;
     if ( rev_ > 0 )
     {
-	uiDialog dlg( parent_, uiDialog::Setup("Determine SEG-Y revision",
-						rev1info,mNoHelpID) );
-	uiButtonGroup* bgrp = new uiButtonGroup( &dlg, "" );
-	uiRadioButton* allok = new uiRadioButton( bgrp, rev1txts[0] );
-	uiRadioButton* rev1except = new uiRadioButton( bgrp, rev1txts[1] );
-	uiRadioButton* notrev1 = new uiRadioButton( bgrp, rev1txts[2] );
-	uiRadioButton* goback = new uiRadioButton( bgrp, rev1txts[3] );
-	bgrp->setRadioButtonExclusive( true );
-	rev1except->setChecked( true );
-	if ( !dlg.go() || goback->isChecked() )
-	    { state_ = cGetBasicOpts; return; }
-	else if ( allok->isChecked() )
+	int pol = 2; SI().pars().get( sKeySEGYRev1Pol, pol );
+	if ( pol < 0 )
+	    pol = -pol;
+	else
+	{
+	    uiSEGYReadRev1Question dlg( parent_, pol );
+	    if ( !dlg.go() || dlg.isGoBack() )
+		{ state_ = cGetBasicOpts; return; }
+	    pol = dlg.pol_;
+	}
+	if ( pol == 1 )
 	    specincomplete_ = false;
-	else if ( notrev1->isChecked() )
+	else if ( pol == 3 )
 	    rev_ = 0;
     }
 
@@ -185,5 +233,5 @@ void uiSEGYRead::doImport()
     uiSEGYImpDlg::Setup su( geom_ );
     su.isrev1( rev_ != 0 ).nrexamine( nrexamine_ );
     uiSEGYImpDlg dlg( parent_, su, pars_ );
-    state_ = dlg.go() ? targetState() : cGetBasicOpts;
+    state_ = dlg.go() ? cFinished : cGetBasicOpts;
 }
