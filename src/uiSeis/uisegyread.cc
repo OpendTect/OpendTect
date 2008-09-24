@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.2 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.3 2008-09-24 14:01:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uisegyread.h"
 #include "uisegydef.h"
 #include "uisegydefdlg.h"
+#include "uisegyimpdlg.h"
 #include "uisegyexamine.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -40,9 +41,9 @@ void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms )
 static const int cCancel = -1;
 static const int cFinished = 0;
 static const int cGetBasicOpts = 1;
-static const int cGetFileOpts = 2;
-static const int cScanFiles = 3;
-static const int cImport = 4;
+static const int cImport = 2;
+static const int cSetupScan = 3;
+static const int cScanFiles = 4;
 
 
 uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
@@ -50,7 +51,7 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
     , parent_(p)
     , geom_(Seis::Vol)
     , state_(cGetBasicOpts)
-    , needsetupdlg_(false)
+    , specincomplete_(false)
     , scanner_(0)
     , rev_(0)
     , nrexamine_(0)
@@ -96,12 +97,12 @@ bool uiSEGYRead::go()
     {
 	if ( state_ == cGetBasicOpts )
 	    getBasicOpts();
-	else if ( state_ == cGetFileOpts )
-	    getFileOpts();
-	else if ( state_ == cScanFiles )
-	    doScan();
 	else if ( state_ == cImport )
 	    doImport();
+	else if ( state_ == cSetupScan )
+	    setupScan();
+	else if ( state_ == cScanFiles )
+	    doScan();
     }
 
     return state_ == 0;
@@ -123,8 +124,8 @@ static const char* rev1txts[] =
 
 void uiSEGYRead::getBasicOpts()
 {
-    uiSEGYBasic::Setup bsu; bsu.geoms_ = setup_.geoms_;
-    uiSEGYBasic dlg( parent_, bsu, pars_ );
+    uiSEGYDefDlg::Setup bsu; bsu.geoms_ = setup_.geoms_;
+    uiSEGYDefDlg dlg( parent_, bsu, pars_ );
     if ( !dlg.go() )
 	{ state_ = cCancel; return; }
     geom_ = dlg.geomType();
@@ -135,7 +136,7 @@ void uiSEGYRead::getBasicOpts()
     if ( rev_ < 0 )
 	{ state_ = cGetBasicOpts; return; }
 
-    needsetupdlg_ = true;
+    specincomplete_ = true;
     if ( rev_ > 0 )
     {
 	uiDialog dlg( parent_, uiDialog::Setup("Determine SEG-Y revision",
@@ -150,27 +151,18 @@ void uiSEGYRead::getBasicOpts()
 	if ( !dlg.go() || goback->isChecked() )
 	    { state_ = cGetBasicOpts; return; }
 	else if ( allok->isChecked() )
-	    needsetupdlg_ = false;
+	    specincomplete_ = false;
 	else if ( notrev1->isChecked() )
 	    rev_ = 0;
     }
 
-    state_ = needsetupdlg_ ? cGetFileOpts : targetState();
+    state_ = setup_.purpose_ == Import ? cImport
+	   : (specincomplete_ ? cSetupScan : cScanFiles);
 }
 
 
-int uiSEGYRead::targetState() const
+void uiSEGYRead::setupScan()
 {
-    return setup_.purpose_ == Import ? cImport : cScanFiles;
-}
-
-
-void uiSEGYRead::getFileOpts()
-{
-    uiSEGYFileOptsDlg::Setup su( geom_, setup_.purpose_ );
-    su.isrev1( rev_ != 0 ).nrexamine( nrexamine_ );
-    uiSEGYFileOptsDlg dlg( parent_, su, pars_ );
-    state_ = dlg.go() ? targetState() : cGetBasicOpts;
 }
 
 
@@ -182,7 +174,7 @@ void uiSEGYRead::doScan()
     scanner_ = new SEGY::Scanner( fs, geom_, pars_ );
     uiTaskRunner tr( parent_ );
     if ( !tr.execute(*scanner_) )
-	state_ = needsetupdlg_ ? cGetFileOpts : cGetBasicOpts;
+	state_ = specincomplete_ ? cSetupScan : cGetBasicOpts;
 
     state_ = cFinished;
 }
@@ -190,5 +182,8 @@ void uiSEGYRead::doScan()
 
 void uiSEGYRead::doImport()
 {
-    state_ = cCancel;
+    uiSEGYImpDlg::Setup su( geom_ );
+    su.isrev1( rev_ != 0 ).nrexamine( nrexamine_ );
+    uiSEGYImpDlg dlg( parent_, su, pars_ );
+    state_ = dlg.go() ? targetState() : cGetBasicOpts;
 }

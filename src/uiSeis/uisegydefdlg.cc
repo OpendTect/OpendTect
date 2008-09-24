@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.3 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.4 2008-09-24 14:01:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,13 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 
 
-uiSEGYBasic::Setup::Setup()
+uiSEGYDefDlg::Setup::Setup()
     : uiDialog::Setup("SEG-Y tool","Specify basic properties",mTODOHelpID)
 {
 }
 
 
-uiSEGYBasic::uiSEGYBasic( uiParent* p, const uiSEGYBasic::Setup& su,
+uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 			  IOPar& iop )
     : uiDialog( p, su )
     , setup_(su)
@@ -71,23 +71,23 @@ uiSEGYBasic::uiSEGYBasic( uiParent* p, const uiSEGYBasic::Setup& su,
     fileparsfld_ = new uiSEGYFilePars( this, true, &iop );
     fileparsfld_->attach( alignedBelow, nrtrcexfld_ );
 
-    finaliseDone.notify( mCB(this,uiSEGYBasic,initFlds) );
+    finaliseDone.notify( mCB(this,uiSEGYDefDlg,initFlds) );
     	// Need this to get zero padding right
 }
 
 
-void uiSEGYBasic::initFlds( CallBacker* )
+void uiSEGYDefDlg::initFlds( CallBacker* )
 {
     usePar( pars_ );
 }
 
 
-uiSEGYBasic::~uiSEGYBasic()
+uiSEGYDefDlg::~uiSEGYDefDlg()
 {
 }
 
 
-Seis::GeomType uiSEGYBasic::geomType() const
+Seis::GeomType uiSEGYDefDlg::geomType() const
 {
     if ( !geomfld_ )
 	return geomtype_;
@@ -96,13 +96,13 @@ Seis::GeomType uiSEGYBasic::geomType() const
 }
 
 
-int uiSEGYBasic::nrTrcExamine() const
+int uiSEGYDefDlg::nrTrcExamine() const
 {
     return nrtrcexfld_->getIntValue();
 }
 
 
-void uiSEGYBasic::use( const IOObj* ioobj, bool force )
+void uiSEGYDefDlg::use( const IOObj* ioobj, bool force )
 {
     filespecfld_->use( ioobj, force );
     fileparsfld_->use( ioobj, force );
@@ -112,7 +112,7 @@ void uiSEGYBasic::use( const IOObj* ioobj, bool force )
 }
 
 
-void uiSEGYBasic::fillPar( IOPar& iop ) const
+void uiSEGYDefDlg::fillPar( IOPar& iop ) const
 {
     iop.merge( pars_ );
     filespecfld_->fillPar( iop );
@@ -122,7 +122,7 @@ void uiSEGYBasic::fillPar( IOPar& iop ) const
 }
 
 
-void uiSEGYBasic::usePar( const IOPar& iop )
+void uiSEGYDefDlg::usePar( const IOPar& iop )
 {
     pars_.merge( iop );
     filespecfld_->usePar( pars_ );
@@ -136,7 +136,7 @@ void uiSEGYBasic::usePar( const IOPar& iop )
 }
 
 
-bool uiSEGYBasic::acceptOK( CallBacker* )
+bool uiSEGYDefDlg::acceptOK( CallBacker* )
 {
     IOPar tmp;
     if ( !filespecfld_->fillPar(tmp) || !fileparsfld_->fillPar(tmp) )
@@ -145,52 +145,3 @@ bool uiSEGYBasic::acceptOK( CallBacker* )
     fillPar( pars_ );
     return true;
 }
-
-
-uiSEGYFileOptsDlg::uiSEGYFileOptsDlg( uiParent* p,
-			const uiSEGYFileOptsDlg::Setup& su, IOPar& iop )
-    : uiDialog(p,su)
-    , setup_(su)
-    , pars_(iop)
-{
-    uiSEGYFileOpts::Setup osu( setup_.geom_, setup_.purpose_, setup_.isrev1_ );
-    optsfld_ = new uiSEGYFileOpts( this, osu, &iop );
-
-    finaliseDone.notify( mCB(this,uiSEGYFileOptsDlg,setupWin) );
-}
-
-
-void uiSEGYFileOptsDlg::setupWin( CallBacker* )
-{
-    if ( setup_.nrexamine_ < 1 ) return;
-
-    uiSEGYExamine::Setup exsu( setup_.nrexamine_ );
-    exsu.modal( false ); exsu.usePar( pars_ );
-    uiSEGYExamine* dlg = new uiSEGYExamine( this, exsu );
-    dlg->go();
-}
-
-
-uiSEGYFileOptsDlg::~uiSEGYFileOptsDlg()
-{
-}
-
-
-bool uiSEGYFileOptsDlg::getFromScreen( bool permissive )
-{
-    return optsfld_->fillPar( pars_, permissive );
-}
-
-
-bool uiSEGYFileOptsDlg::rejectOK( CallBacker* )
-{
-    getFromScreen( true );
-    return true;
-}
-
-
-bool uiSEGYFileOptsDlg::acceptOK( CallBacker* )
-{
-    return getFromScreen( false );
-}
-

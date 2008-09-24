@@ -7,15 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.3 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.4 2008-09-24 14:01:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uisegyread.h"
 #include "uidialog.h"
-#include "ranges.h"
-class uiSEGYFileOpts;
+#include "seistype.h"
 class uiSEGYFileSpec;
 class uiSEGYFilePars;
 class uiComboBox;
@@ -25,7 +23,7 @@ class IOObj;
 
 /*!\brief Initial dialog for SEG-Y I/O. */
 
-class uiSEGYBasic : public uiDialog
+class uiSEGYDefDlg : public uiDialog
 {
 public:
 
@@ -36,8 +34,8 @@ public:
 	TypeSet<Seis::GeomType> geoms_; // empty=get uiSEGYRead default
     };
 
-			uiSEGYBasic(uiParent*,const Setup&,IOPar&);
-			~uiSEGYBasic();
+			uiSEGYDefDlg(uiParent*,const Setup&,IOPar&);
+			~uiSEGYDefDlg();
 
     void		use(const IOObj*,bool force);
     void		usePar(const IOPar&);
@@ -58,50 +56,6 @@ protected:
     uiComboBox*		geomfld_;
 
     void		initFlds(CallBacker*);
-    bool		acceptOK(CallBacker*);
-
-};
-
-
-/*!\brief Dialog to set SEG-Y Read parameters. */
-
-class uiSEGYFileOptsDlg : public uiDialog
-{
-public :
-
-    class Setup : public uiDialog::Setup
-    {
-    public:
-
-    			Setup( Seis::GeomType gt,
-				uiSEGYRead::Purpose pp=uiSEGYRead::Import )
-			    : uiDialog::Setup("SEG-Y information content",
-				    	      mNoDlgTitle, "103.1.5")
-			    , geom_(gt)	
-			    , purpose_(pp)	
-			    , nrexamine_(0)	
-			    , isrev1_(false)		{}
-
-	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(uiSEGYRead::Purpose,purpose)
-	mDefSetupMemb(int,nrexamine)
-	mDefSetupMemb(bool,isrev1)
-    };
-
-			uiSEGYFileOptsDlg(uiParent*,const Setup&,IOPar&);
-			~uiSEGYFileOptsDlg();
-
-protected:
-
-    const Setup		setup_;
-    IOPar&		pars_;
-
-    uiSEGYFileOpts*	optsfld_;
-    uiToolBar*		uitb_;
-
-    bool		getFromScreen(bool);
-    void		setupWin(CallBacker*);
-    bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };

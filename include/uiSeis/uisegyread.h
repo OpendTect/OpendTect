@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.2 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.3 2008-09-24 14:01:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,11 +64,11 @@ protected:
     int			nrexamine_;
 
     mutable int		state_;
-    bool		needsetupdlg_;
+    bool		specincomplete_;
     SEGY::Scanner*	scanner_;
 
     void		getBasicOpts();
-    void		getFileOpts();
+    void		setupScan();
     void		doScan();
     void		doImport();
 
