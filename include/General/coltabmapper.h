@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.5 2008-09-23 10:40:08 cvshelene Exp $
+ RCS:		$Id: coltabmapper.h,v 1.6 2008-09-24 20:03:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,10 @@ struct MapperSetup {
     							//!< Usually mUdf(float)
     mDefSetupClssMemb(MapperSetup,int,maxpts);		//!< Auto and HistEq
     mDefSetupClssMemb(MapperSetup,int,nrsegs);		//!< All
+    mDefSetupClssMemb(MapperSetup,float,start);
+    mDefSetupClssMemb(MapperSetup,float,width);
+
+    bool operator==( const MapperSetup& ) const;
 };
 
 
@@ -52,15 +56,13 @@ public:
     			//!< returns position in ColorTable
     static int		snappedPosition(const Mapper*,float val,int nrsteps,
 	    				int udfval);
-    Interval<float>	range() const
-			{ return Interval<float>( start_, start_ + width_ ); }
+    Interval<float>	range() const;
     const ValueSeries<float>* data() const
 			{ return vs_; }
     int			dataSize() const
 			{ return vssz_; }
 
-    void		setRange( const Interval<float>& rg )
-			{ start_ = rg.start; width_ = rg.stop - rg.start; }
+    void		setRange( const Interval<float>& rg );
     void		setData(const ValueSeries<float>*,od_int64 sz);
     			//!< If data changes, call update()
 
@@ -71,12 +73,10 @@ public:
 
 protected:
 
-    float		start_;
-    float		width_;
-    DataClipper&	clipper_;
+    DataClipper&		clipper_;
 
-    const ValueSeries<float>* vs_;
-    od_int64		vssz_;
+    const ValueSeries<float>*	vs_;
+    od_int64			vssz_;
 
 };
 
