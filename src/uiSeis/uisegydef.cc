@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.5 2008-09-23 12:17:10 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.6 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -416,7 +416,7 @@ void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 
 uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 				const IOPar* iop )
-	: uiSEGYDefGroup(p,"SEG-Y Opts group",false)
+	: uiSEGYDefGroup(p,"SEG-Y Opts group",true)
     	, setup_(su)
 	, xcoordbytefld_(0)
 	, scalcofld_(0)

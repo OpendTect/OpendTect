@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.5 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "timer.h"
 #include "envvars.h"
 #include "separstr.h"
+#include "strmprov.h"
 #include <sstream>
 
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Number of traces";
@@ -86,8 +87,14 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     splitter->addGroup( txtgrp );
     splitter->addGroup( tblgrp );
 
-    openInput();
+    toStatusBar( setup_.fs_.fname_, 1 );
+    outInfo( "Opening input" );
+    rdr_ = getReader( setup_, txtinfo_ );
     txtfld_->setText( txtinfo_ );
+
+    BufferString str( "Reading first " );
+    str += su.nrtrcs_; str += " traces ...";
+    outInfo( str );
 
     finaliseDone.notify( mCB(this,uiSEGYExamine,onStartUp) );
 }
@@ -131,35 +138,72 @@ void uiSEGYExamine::updateInput( CallBacker* )
 }
 
 
-void uiSEGYExamine::openInput()
+SeisTrcReader* uiSEGYExamine::getReader( const uiSEGYExamine::Setup& su,
+       					 BufferString& emsg )
 {
-    IOObj* ioobj = setup_.fs_.getIOObj( true );
-    setup_.fp_.fillPar( ioobj->pars() );
+    IOObj* ioobj = su.fs_.getIOObj( true );
+    su.fp_.fillPar( ioobj->pars() );
 
-    toStatusBar( setup_.fs_.fname_, 1 );
-    outInfo( "Opening input" );
-    rdr_ = new SeisTrcReader( ioobj );
+    SeisTrcReader* rdr = new SeisTrcReader( ioobj );
     delete ioobj;
-    if ( *rdr_->errMsg() || !rdr_->prepareWork(Seis::PreScan) )
-	{ txtinfo_ = rdr_->errMsg(); delete rdr_; rdr_ = 0; return; }
+    if ( *rdr->errMsg() || !rdr->prepareWork(Seis::PreScan) )
+	{ emsg = rdr->errMsg(); delete rdr; return 0; }
 
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
+    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr->translator())
     if ( !tr )
-	{ txtinfo_ = "Internal: cannot obtain SEG-Y Translator";
-	    	delete rdr_; rdr_ = 0; return; }
+	{ emsg = "Internal: cannot obtain SEG-Y Translator";
+	    	delete rdr; return 0; }
 
-    BufferString str( "Reading first " );
-    str += setup_.nrtrcs_; str += " traces ...";
-    outInfo( str );
+    return rdr;
 }
 
 
 int uiSEGYExamine::getRev() const
 {
-    if ( !rdr_ ) return -1;
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
+    return rdr_ ? getRev( *rdr_ ) : -1;
+}
+
+
+int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su )
+{
+    BufferString emsg;
+    PtrMan<SeisTrcReader> rdr = getReader( su, emsg );
+    return rdr ? getRev( *rdr ) : -1;
+}
+
+
+int uiSEGYExamine::getRev( const SeisTrcReader& rdr )
+{
+    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr.translator())
     if ( !tr ) return -1;
     return tr->isRev1() ? 1 : 0;
+}
+
+
+bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
+{
+    BufferString cmd( "SEGYExaminer --nrtrcs " );
+    cmd += su.nrtrcs_;
+    if ( su.fp_.ns_ > 0 )
+	{ cmd += " --ns "; cmd += su.fp_.ns_; }
+    if ( su.fp_.fmt_ > 0 )
+	{ cmd += " --fmt "; cmd += su.fp_.fmt_; }
+    if ( su.fp_.byteswapped_ )
+	cmd += " --swapbytes ";
+    if ( su.fs_.isMultiFile() )
+    {
+	FileMultiString fms;
+	fms += su.fs_.nrs_.start;
+	fms += su.fs_.nrs_.stop;
+	fms += su.fs_.nrs_.step;
+	if ( su.fs_.zeropad_ > 1 )
+	    fms += su.fs_.zeropad_;
+	cmd += " --filenrs '"; cmd += fms; cmd += "'";
+    }
+
+    BufferString fnm( su.fs_.fname_ );
+    replaceString( fnm.buf(), "*", "+x+" );
+    return ExecuteScriptCommand( cmd, fnm );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.1 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.2 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
     , state_(cGetBasicOpts)
     , needsetupdlg_(false)
     , scanner_(0)
+    , rev_(0)
+    , nrexamine_(0)
 {
 }
 
@@ -106,16 +108,6 @@ bool uiSEGYRead::go()
 }
 
 
-void uiSEGYRead::launchExaminer( int nrtrcs )
-{
-    uiSEGYExamine::Setup su( nrtrcs );
-    su.usePar( pars_ );
-    uiSEGYExamine* exdlg = new uiSEGYExamine( 0, su );
-    exdlg->go();
-    rev_ = exdlg->getRev();
-}
-
-
 static const char* rev1info =
     "The file was marked as SEG-Y Revision 1 by the producer."
     "\nUnfortunately, not all files are correct in this respect."
@@ -123,21 +115,23 @@ static const char* rev1info =
 static const char* rev1txts[] =
 {
     "Yes - I know the file is 100% correct SEG-Y Rev.1",
-    "Yes - but I may need to overrule some things",
+    "Yes - It's Rev. 1 but I may need to overrule some things",
     "No - the file is not SEG-Y Rev.1 - treat as legacy SEG-Y Rev. 0",
-    "Cancel - Something's wrong - take me back",
+    "Cancel - Something must be wrong - take me back",
     0
 };
 
 void uiSEGYRead::getBasicOpts()
 {
-    uiSEGYBasic::Setup su; su.geoms_ = setup_.geoms_;
-    uiSEGYBasic dlg( parent_, su, pars_ );
+    uiSEGYBasic::Setup bsu; bsu.geoms_ = setup_.geoms_;
+    uiSEGYBasic dlg( parent_, bsu, pars_ );
     if ( !dlg.go() )
 	{ state_ = cCancel; return; }
     geom_ = dlg.geomType();
+    nrexamine_ =  dlg.nrTrcExamine();
 
-    launchExaminer( dlg.nrTrcExamine() );
+    uiSEGYExamine::Setup exsu( nrexamine_ ); exsu.usePar( pars_ );
+    rev_ = uiSEGYExamine::getRev( exsu );
     if ( rev_ < 0 )
 	{ state_ = cGetBasicOpts; return; }
 
@@ -152,7 +146,7 @@ void uiSEGYRead::getBasicOpts()
 	uiRadioButton* notrev1 = new uiRadioButton( bgrp, rev1txts[2] );
 	uiRadioButton* goback = new uiRadioButton( bgrp, rev1txts[3] );
 	bgrp->setRadioButtonExclusive( true );
-	allok->setChecked( true );
+	rev1except->setChecked( true );
 	if ( !dlg.go() || goback->isChecked() )
 	    { state_ = cGetBasicOpts; return; }
 	else if ( allok->isChecked() )
@@ -174,7 +168,7 @@ int uiSEGYRead::targetState() const
 void uiSEGYRead::getFileOpts()
 {
     uiSEGYFileOptsDlg::Setup su( geom_, setup_.purpose_ );
-    su.isrev1( rev_ != 0 );
+    su.isrev1( rev_ != 0 ).nrexamine( nrexamine_ );
     uiSEGYFileOptsDlg dlg( parent_, su, pars_ );
     state_ = dlg.go() ? targetState() : cGetBasicOpts;
 }

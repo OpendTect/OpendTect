@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.2 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.3 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,10 +79,12 @@ public :
 				    	      mNoDlgTitle, "103.1.5")
 			    , geom_(gt)	
 			    , purpose_(pp)	
+			    , nrexamine_(0)	
 			    , isrev1_(false)		{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(uiSEGYRead::Purpose,purpose)
+	mDefSetupMemb(int,nrexamine)
 	mDefSetupMemb(bool,isrev1)
     };
 
@@ -98,6 +100,7 @@ protected:
     uiToolBar*		uitb_;
 
     bool		getFromScreen(bool);
+    void		setupWin(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 

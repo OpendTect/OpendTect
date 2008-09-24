@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.3 2008-09-16 08:24:44 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.4 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,12 @@ public:
 
     int			getRev() const; // -1 = err, 1 = Rev 1
 
+    static SeisTrcReader* getReader(const Setup&,BufferString& errmsg);
+    static int		getRev(const SeisTrcReader&); // -1 = err, 1 = Rev 1
+    static int		getRev(const Setup&); // -1 = err, 1 = Rev 1
+
+    static bool		launch(const Setup&);
+
 protected:
 
     Setup		setup_;
@@ -60,7 +66,6 @@ protected:
     void		updateInput(CallBacker*);
     void		vwrClose(CallBacker*);
 
-    void		openInput();
     void		updateInp();
     void		handleFirstTrace(const SeisTrc&,
 	    				 const SEGYSeisTrcTranslator&);

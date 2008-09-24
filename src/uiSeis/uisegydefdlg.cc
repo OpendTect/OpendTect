@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.2 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.3 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uisegydefdlg.h"
 
 #include "uisegydef.h"
+#include "uisegyexamine.h"
 #include "uisegyexamine.h"
 #include "uitoolbar.h"
 #include "uicombobox.h"
@@ -154,6 +155,19 @@ uiSEGYFileOptsDlg::uiSEGYFileOptsDlg( uiParent* p,
 {
     uiSEGYFileOpts::Setup osu( setup_.geom_, setup_.purpose_, setup_.isrev1_ );
     optsfld_ = new uiSEGYFileOpts( this, osu, &iop );
+
+    finaliseDone.notify( mCB(this,uiSEGYFileOptsDlg,setupWin) );
+}
+
+
+void uiSEGYFileOptsDlg::setupWin( CallBacker* )
+{
+    if ( setup_.nrexamine_ < 1 ) return;
+
+    uiSEGYExamine::Setup exsu( setup_.nrexamine_ );
+    exsu.modal( false ); exsu.usePar( pars_ );
+    uiSEGYExamine* dlg = new uiSEGYExamine( this, exsu );
+    dlg->go();
 }
 
 

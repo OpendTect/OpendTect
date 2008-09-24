@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.1 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.2 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ protected:
     Seis::GeomType	geom_;
     IOPar		pars_;
     int			rev_;
+    int			nrexamine_;
 
     mutable int		state_;
     bool		needsetupdlg_;
@@ -71,7 +72,6 @@ protected:
     void		doScan();
     void		doImport();
 
-    void		launchExaminer(int);
     int			targetState() const;
 };
 

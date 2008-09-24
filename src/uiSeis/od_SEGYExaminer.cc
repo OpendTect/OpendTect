@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.15 2008-09-24 08:14:03 cvsdgb Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.16 2008-09-24 11:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,13 @@ int main( int argc, char ** argv )
 	ExitProgram( 1 );
     }
 
+#ifdef __debug__
+    std::cerr << argv[0] << " started with args:";
+    for ( int idx=1; idx<argc; idx++ )
+	std::cerr << ' ' << argv[idx];
+    std::cerr << std::endl;
+#endif
+
 #if !defined( __mac__ ) && !defined( __win__ )
     const int forkres = dofork ? fork() : 0;
     switch ( forkres )
@@ -72,17 +79,17 @@ int main( int argc, char ** argv )
     }
 #endif
 
-    char* fnm = argv[argidx];
-    replaceCharacter( fnm, (char)128, ' ' );
+    su.fs_.fname_ = argv[argidx];
+    replaceCharacter( su.fs_.fname_.buf(), (char)128, ' ' );
+    replaceString( su.fs_.fname_.buf(), "+x+", "*" );
 
     uiMain app( argc, argv );
 
 #ifdef __win__
-    if ( File_isLink( fnm ) )
-	fnm = const_cast<char*>(File_linkTarget(fnm));
+    if ( File_isLink( su.fs_.fname_.buf() ) )
+	su.fs_.fname_ = File_linkTarget( su.fs_.fname_.buf() );
 #endif
 
-    su.fs_.fname_ = fnm;
     uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
     app.setTopLevel( sgyex );
     sgyex->show();
