@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.9 2008-09-09 18:24:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.10 2008-09-24 19:39:20 cvskris Exp $";
 
 
 #include "initvisbase.h"
@@ -19,8 +19,6 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.9 2008-09-09 18:24:24 cvsyua
 #include "viscoltabmod.h"
 #include "viscoord.h"
 #include "viscube.h"
-#include "viscubicbeziercurve.h"
-#include "viscubicbeziersurface.h"
 #include "visdatagroup.h"
 #include "visdepthtabplanedragger.h"
 #include "visdragger.h"
@@ -89,8 +87,6 @@ void initStdClasses()
     VisColTabMod::initClass();
     Coordinates::initClass();
     Cube::initClass();
-    CubicBezierCurve::initClass();
-    CubicBezierSurface::initClass();
     DataObjectGroup::initClass();
     DepthTabPlaneDragger::initClass();
     Dragger::initClass();
