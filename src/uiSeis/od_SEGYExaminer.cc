@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.14 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.15 2008-09-24 08:14:03 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,7 @@ ________________________________________________________________________
 
 int main( int argc, char ** argv )
 {
-    bool dofork = !__ismac__ && !__iswin__;
-
+    bool dofork = true;
     uiSEGYExamine::Setup su;
     int argidx = 1;
     while ( argc > argidx
@@ -60,6 +59,7 @@ int main( int argc, char ** argv )
 	ExitProgram( 1 );
     }
 
+#if !defined( __mac__ ) && !defined( __win__ )
     const int forkres = dofork ? fork() : 0;
     switch ( forkres )
     {
@@ -70,6 +70,7 @@ int main( int argc, char ** argv )
     case 0:	break;
     default:	return 0;
     }
+#endif
 
     char* fnm = argv[argidx];
     replaceCharacter( fnm, (char)128, ' ' );
