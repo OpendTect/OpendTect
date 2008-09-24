@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:		$Id: uisegyexp.cc,v 1.2 2008-09-23 12:17:36 cvsbert Exp $
+ RCS:		$Id: uisegyexp.cc,v 1.3 2008-09-24 07:39:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 
     if ( Seis::is2D(geom_) )
     {
-	morebut_ = new uiCheckBox( this, "Export more from same Line set" );
+	morebut_ = new uiCheckBox( this, "Export more from same Line Set" );
 	morebut_->attach( alignedBelow, fsfld_ );
     }
 }
@@ -78,7 +78,7 @@ public:
 
 uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
 	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-export",
-		    		     "Specify file details",""))
+		    		     "Specify file details","103.0.7"))
 	, inioobj_(ii)
 	, outioobj_(oi)
 	, segyexp_(p)
@@ -157,14 +157,10 @@ bool acceptOK( CallBacker* )
 }
 
 
-IOObj* getSubstIOObj( const char* lnm, const char* fullfnm )
+IOObj* getSubstIOObj( const char* fullfnm )
 {
-    BufferString newentrynm( fullfnm );
-    replaceString( newentrynm.buf(), uiSEGYFileSpec::sKeyLineNmToken, lnm );
-
     IOObj* newioobj = outioobj_.clone();
-    newioobj->setName( newentrynm );
-
+    newioobj->setName( fullfnm );
     mDynamicCastGet(IOStream*,iostrm,newioobj)
     iostrm->setFileName( fullfnm );
     return newioobj;
@@ -205,7 +201,7 @@ bool doExp( const FilePath& fp )
 	const BufferString& lnm = *lnms[idx];
 	BufferString filenm( fp.fullPath() );
 	replaceString( filenm.buf(), uiSEGYFileSpec::sKeyLineNmToken, lnm );
-	IOObj* newioobj = getSubstIOObj( lnm, filenm );
+	IOObj* newioobj = getSubstIOObj( filenm );
 	if ( !doWork( newioobj, lnm, idx > lnms.size()-2, nofails ) )
 	    return false;
     }

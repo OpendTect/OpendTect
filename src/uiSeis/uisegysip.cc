@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.11 2008-03-14 11:59:11 cvsnageswara Exp $
+ RCS:		$Id: uisegysip.cc,v 1.12 2008-09-24 07:39:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ uiSEGYSurvInfoProvider::uiSEGYSurvInfoProvider( MultiID& mid )
 uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
 {
     PtrMan<IOObj> ioobj = IOM().get( segyid );
-    return new uiSeisSEGYEntry( p, ioobj, uiSeisSEGYEntry::Scan, Seis::Vol );
+    return new uiSeisSEGYEntry( p, ioobj, true, Seis::Vol );
 }
 
 

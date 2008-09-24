@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.96 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.97 2008-09-24 07:39:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,20 +73,20 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	const Seis::GeomType gt =  opt == 0 ? Seis::Vol
 				: (opt == 1 ? Seis::Line
 				: (opt == 2 ? Seis::VolPS : Seis::LinePS));
-	if ( !forread )
-	    dlg = new uiSEGYExp( appserv().parent(), gt );
-	else if ( GetEnvVarYN("OD_NEW_SEGY_HANDLING") )
+	if ( GetEnvVarYN("OD_NEW_SEGY_HANDLING") )
 	{
 	    uiSEGYRead::Setup su( uiSEGYRead::Import );
 	    uiSEGYRead uisrd( appserv().parent(), su );
 	    return uisrd.go();
 	}
+
+	if ( !forread )
+	    dlg = new uiSEGYExp( appserv().parent(), gt );
 	else
 	{
 	    if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) )
 		return true;
-	    dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid_,
-		    			gt );
+	    dlg = new uiSeisSegYImp( appserv().parent(), segyid_, gt );
 	}
     }
     else
