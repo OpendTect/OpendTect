@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.1 2008-09-24 19:35:38 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.2 2008-09-24 20:00:18 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -87,6 +87,12 @@ void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
 	clipData();
 
     reMapData();
+}
+
+
+const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup() const
+{
+    return mapper_.setup_;
 }
 
 
