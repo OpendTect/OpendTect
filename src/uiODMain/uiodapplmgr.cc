@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.262 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.263 2008-09-25 18:55:15 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "attribdatacubes.h"
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
+#include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emseedpicker.h"
@@ -632,8 +633,10 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    BufferStringSet nms;
 	    DataPointSet data( pts, nms, false, true );
 	    visserv_->getRandomPos( visid, data );
+	    const int firstcol = data.nrCols();
+	    data.dataSet().add( new DataColDef(myas.userRef()) );
 	    attrserv_->setTargetSelSpec( myas );
-	    if ( !attrserv_->createOutput(data) )
+	    if ( !attrserv_->createOutput(data,firstcol) )
 		return false;
 
 	    //Use the first value stored in the set, what else? (0 stands for Z)
