@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.43 2008-07-17 13:07:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.44 2008-09-25 16:19:48 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -536,20 +536,20 @@ bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
     res.gamma_ = dir.z;
 
     double deter;
-    if ( mIsZero(dir.x,mDefEps) && mIsZero(dir.z,mDefEps) )
-    {
-	deter = -dir.y;
-	res.x0_ = (-D_*b.C_+C_*b.D_)/deter; 
-	res.y0_ = 0;
-	res.z0_ = (-A_*b.D_+D_*b.A_)/deter;
-	return true;
-    }
-    else if ( mIsZero(dir.y,mDefEps) && mIsZero(dir.z,mDefEps) )
+    if ( !mIsZero(dir.x,mDefEps) )
     {
 	deter = dir.x;
-	res.x0_ = 0; 
-	res.y0_ = (-D_*b.C_+C_*b.D_)/deter;
-	res.z0_ = (-B_*b.D_+D_*b.B_)/deter;;
+	res.x0_ = 0;
+	res.y0_ = (-D_*b.C_+C_*b.D_)/deter; 
+	res.z0_ = (-B_*b.D_+D_*b.B_)/deter;
+	return true;
+    }
+    else if ( !mIsZero(dir.y,mDefEps) )
+    {
+	deter = -dir.y;
+	res.y0_ = 0; 
+	res.x0_ = (-D_*b.C_+C_*b.D_)/deter;
+	res.z0_ = (-A_*b.D_+D_*b.A_)/deter;;
 	return true;
     }
     else
