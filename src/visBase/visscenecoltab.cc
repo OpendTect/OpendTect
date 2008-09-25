@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: visscenecoltab.cc,v 1.4 2008-09-03 10:57:37 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.cc,v 1.5 2008-09-25 09:44:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,13 @@ namespace visBase
 
 SceneColTab::SceneColTab()
     : VisualObjectImpl()
+    , viscoltab_(0)
     , legendkit_(new LegendKit)
 {
     addChild( legendkit_ );
     legendkit_->ref();
     legendkit_->setDiscreteMode( true );
     legendkit_->enableBackground( false );
-    legendkit_->description.setValue( 0 );
     legendkit_->setTickAndLinesColor( SbColor(170./255,170./255,170./255) );
     setColTabSequence( ColTab::Sequence("") );
 }
@@ -43,13 +43,15 @@ SceneColTab::~SceneColTab()
 {
     removeChild( legendkit_ );
     legendkit_->unref();
+
+    setColTabID( -1 );
 }
 
 
 void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 {
     const int nrcols = 256;
-    legendkit_->clearData();
+    legendkit_->clearColors();
     ColTab::IndexedLookUpTable table( ctseq, nrcols );
     for ( int idx=0; idx<nrcols; idx++ )
     {
@@ -80,17 +82,41 @@ void SceneColTab::setRange( const Interval<float>& rg )
 	    legendkit_->addBigTick( normval, val );
 	idx++;
     }
+
+    legendkit_->minvalue = BufferString(rg.start).buf();
+    legendkit_->maxvalue = BufferString(rg.stop).buf();
 }
 
 
 void SceneColTab::setColTabID( int id )
 {
     mDynamicCastGet(VisColorTab*,coltab,DM().getObject(id))
-    if ( coltab )
+    if ( coltab == viscoltab_ )
+	return;
+
+    if ( viscoltab_ )
     {
-	setColTabSequence( coltab->colorSeq().colors() );
-	setRange( coltab->getInterval() );
+	viscoltab_->rangechange.remove( mCB(this,SceneColTab,rangeChg) );
+	viscoltab_->sequencechange.remove( mCB(this,SceneColTab,seqChg) );
+	viscoltab_->unRef();
+    }
+
+    viscoltab_ = coltab;
+    if ( viscoltab_ )
+    {
+	viscoltab_->ref();
+	viscoltab_->rangechange.notify( mCB(this,SceneColTab,rangeChg) );
+	viscoltab_->sequencechange.notify( mCB(this,SceneColTab,seqChg) );
+	seqChg(0);
+	rangeChg(0);
     }
 }
+
+
+void SceneColTab::seqChg( CallBacker* )
+{ setColTabSequence( viscoltab_->colorSeq().colors() ); }
+
+void SceneColTab::rangeChg( CallBacker* )
+{ setRange( viscoltab_->getInterval() ); }
 
 } // namespace visBase

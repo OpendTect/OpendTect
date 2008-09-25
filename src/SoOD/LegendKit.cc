@@ -157,17 +157,15 @@
 */
 
 /*!
-  \var SoSFString LegendKit::description
-  The description/title for the legend. Default value is an empty string.
-  If you specify several strings, they will be printed one string per line.
+  \var SoSFString LegendKit::minvalue
+  The minimum value for the legend. Default value is an empty string.
 */
-
 
 /*!
-  \var SoSFBool LegendKit::descriptionOnTop
-  Specifies whether description should be on top or at the bottom.
-  Default value is TRUE.
+  \var SoSFString LegendKit::maxvalue
+  The maximum value for the legend. Default value is an empty string.
 */
+
 
 /*!
   \var SoSFBool LegendKit::delayedRender
@@ -318,13 +316,13 @@ LegendKit::LegendKit(void)
 
   SO_KIT_ADD_FIELD(on, (TRUE));
   SO_KIT_ADD_FIELD(imageWidth, (32.0f));
-  SO_KIT_ADD_FIELD(space, (6.0f));
+  SO_KIT_ADD_FIELD(space, (4.0f));
   SO_KIT_ADD_FIELD(smallTickSize, (3.0f));
   SO_KIT_ADD_FIELD(bigTickSize, (6.0f));
   SO_KIT_ADD_FIELD(tickValueFormat, ("%g"));
   SO_KIT_ADD_FIELD(tickValueOffset, (2.0f));
-  SO_KIT_ADD_FIELD(description, ("1000"));
-  SO_KIT_ADD_FIELD(descriptionOnTop, (TRUE));
+  SO_KIT_ADD_FIELD(minvalue, (""));
+  SO_KIT_ADD_FIELD(maxvalue, (""));
   SO_KIT_ADD_FIELD(delayedRender, (TRUE));
   SO_KIT_ADD_FIELD(topSpace, (0.0f));
   SO_KIT_ADD_FIELD(discreteUseLower, (FALSE));
@@ -865,22 +863,6 @@ LegendKit::renderLines(SoGLRenderAction * action)
     glVertex3f(PRIVATE(this)->imageoffset[0], PRIVATE(this)->imageoffset[1]+PRIVATE(this)->imagesize[1], 0.0f);
     glEnd();
   }
-
-  // render lines around description
-  int numtext = this->description.getNum();
-  if (numtext > 1) {
-    float border = this->space.getValue();
-    float ypos = this->descriptionOnTop.getValue() ? 
-      PRIVATE(this)->size[1] - border :
-      numtext*(FONT_HEIGHT+FONT_SPACE) + border * 2.0f;
-    float ysize = float(numtext) * float(FONT_HEIGHT+FONT_SPACE) + FONT_SPACE;
-    glBegin(GL_LINE_LOOP);
-    glVertex3f(border, ypos, 0.0f);
-    glVertex3f(PRIVATE(this)->size[0] - border, ypos, 0.0f);
-    glVertex3f(PRIVATE(this)->size[0] - border, ypos - ysize, 0.0f);
-    glVertex3f(border, ypos - ysize, 0.0f);
-    glEnd();
-  }
 }
 
 /*!
@@ -920,19 +902,31 @@ LegendKit::renderText(SoGLRenderAction * action)
       this->renderString(str, xpos, ypos);
     }
   }
+
+   // then, the minvalue
+  int numtext = this->minvalue.getNum();
+  ypos = (numtext-1)*(FONT_HEIGHT+FONT_SPACE) +
+      int(4.0f*this->space.getValue());
   
-  // then, the description
-  int numtext = this->description.getNum();
-  ypos = this->descriptionOnTop.getValue() ? 
-    int(PRIVATE(this)->size[1]) - (FONT_HEIGHT+FONT_SPACE) - int(this->space.getValue()) :
-    (numtext-1)*(FONT_HEIGHT+FONT_SPACE) + int(2.0f*this->space.getValue());
+  for ( i=0; i<numtext; i++ )
+  {
+    if (this->minvalue[i].getLength()) {
+      const char * s = this->minvalue[i].getString();
+      this->renderString(s, int(this->space.getValue() * 2.0f), ypos);
+      ypos -= FONT_HEIGHT + FONT_SPACE; 
+    }
+  }
+ 
+  // then, the maxvalue
+  numtext = this->maxvalue.getNum();
+  ypos =  int(PRIVATE(this)->size[1]) - (FONT_HEIGHT+FONT_SPACE) -
+      int(this->space.getValue());
+  ypos =  int(PRIVATE(this)->size[1]);
   
   for (i = 0; i < numtext; i++) {
-    if (this->description[i].getLength()) {
-      const char * s = this->description[i].getString();
-      this->renderString(s, 
-                         int(this->space.getValue() * 2.0f),
-                         ypos);
+    if (this->maxvalue[i].getLength()) {
+      const char * s = this->maxvalue[i].getString();
+      this->renderString(s, int(this->space.getValue() * 2.0f), ypos);
       ypos -= FONT_HEIGHT + FONT_SPACE; 
     }
   }
@@ -1123,6 +1117,14 @@ LegendKit::addDiscreteColor(double uppernval)
 }
 
 
+void LegendKit::clearColors(void)
+{
+  PRIVATE(this)->discretelist.truncate(0);
+  PRIVATE(this)->recalcsize = TRUE;
+  this->touch(); // trigger redraw
+}
+
+
 /*!
   Clears all data in this kit.
 */
@@ -1204,8 +1206,8 @@ LegendKit::notify(SoNotList * list)
 {
   if (PRIVATE(this)) {
     SoField *f = list->getLastField();
-    if (f == &this->description || 
-        f == &this->descriptionOnTop || 
+    if (f == &this->minvalue || 
+        f == &this->maxvalue || 
         f == &this->imageWidth ||
         f == &this->bigTickSize ||
         f == &this->tickValueFormat ||
@@ -1227,9 +1229,9 @@ LegendKit::recalcSize(SoState * state)
   
   PRIVATE(this)->needimageinit = TRUE; // ok, need to init image again
   float border = this->space.getValue();
-  SbVec2f descsize(0.0f, 4.0f * border + this->description.getNum()*(FONT_HEIGHT+FONT_SPACE)+FONT_SPACE);
-  for (i = 0; i < this->description.getNum(); i++) {
-    float len = float(this->description[i].getLength()) * FONT_WIDTH;
+  SbVec2f descsize(0.0f, 4.0f * border + this->minvalue.getNum()*(FONT_HEIGHT+FONT_SPACE)+FONT_SPACE);
+  for (i = 0; i < this->minvalue.getNum(); i++) {
+    float len = float(this->minvalue[i].getLength()) * FONT_WIDTH;
     if (len > descsize[0]) descsize[0] = len;
   }
   descsize[0] += border*4.0f;
@@ -1276,10 +1278,9 @@ LegendKit::recalcSize(SoState * state)
     this->setSwitchValue("imageSwitch", 0);
   }
 
-  PRIVATE(this)->imageoffset = this->descriptionOnTop.getValue() ?
-    SbVec2f(this->space.getValue(),
-            this->space.getValue()) :
-    SbVec2f(this->space.getValue(), descsize[1]);
+  PRIVATE(this)->imageoffset = // this->descriptionOnTop.getValue() ?
+//    SbVec2f(this->space.getValue(), this->space.getValue()) :
+    SbVec2f(2*this->space.getValue(), descsize[1]);
 
   // transform image to offset position
   SoTransform * trans = (SoTransform*) this->getAnyPart("imageTransform", TRUE);

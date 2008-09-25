@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.3 2008-08-29 10:48:53 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.4 2008-09-25 09:44:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ template<class T> class Interval;
 
 namespace visBase
 {
+
+class VisColorTab;
 
 class SceneColTab : public VisualObjectImpl
 {
@@ -37,7 +39,11 @@ public:
 protected:
 				~SceneColTab();
 
+    void			rangeChg(CallBacker*);
+    void			seqChg(CallBacker*);
+
     LegendKit*			legendkit_;
+    VisColorTab*		viscoltab_;
 };
 
 } // class visBase

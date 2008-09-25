@@ -91,8 +91,8 @@ public:
   SoSFFloat smallTickSize;
   SoSFString tickValueFormat;
   SoSFFloat tickValueOffset;
-  SoMFString description;
-  SoSFBool descriptionOnTop;
+  SoMFString minvalue;
+  SoMFString maxvalue;
   SoSFBool delayedRender;
   SoSFFloat topSpace;
   SoSFBool discreteUseLower;
@@ -110,6 +110,7 @@ public:
   void addBigTick(double nval, double tickvalue, const SbString * discretestring = NULL);
   void addBigTick(double nval, const SbString & string, const SbString * discretestring = NULL);
 
+  void clearColors(void);
   void setDiscreteMode(const SbBool onoff);
   void addDiscreteColor(double uppernval, uint32_t color);
   void addDiscreteColor(double uppernval);
