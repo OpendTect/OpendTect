@@ -4,10 +4,11 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.4 2008-09-10 21:36:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.5 2008-09-25 17:17:37 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
+#include "cubicbeziercurve.h"
 #include "polygon.h"
 #include "trigonometry.h"
 
@@ -182,6 +183,38 @@ bool PolygonSurface::getPolygonCrds( int polygonnr, TypeSet<Coord3>& pts ) const
     	pts += (*polygons_[polygonidx])[idx];
 
     return pts.size();
+}
+
+
+void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts, 
+					  int nrknotsonedge ) const
+{
+    TypeSet<Coord3> knots;
+    getPolygonCrds( plg, knots );
+
+    if ( knots.size()<3 )
+    {
+	for ( int idx=0; idx<knots.size(); idx++ )
+	    pts += knots[idx];
+
+	return;
+    }
+
+    CubicBezierCurve curve( knots[0], knots[1], 0, 1 );
+    for( int knot=2; knot<knots.size(); knot++ )
+	curve.insertPosition(knot, knots[knot]);
+  
+    curve.setCircular( true ); 
+    for ( int knot=0; knot<knots.size(); knot++ )
+    {
+	const Coord3 prvpos = knots[knot==0 ? knots.size()-1 : knot-1];
+	const Coord3 nexpos = knots[knot==knots.size()-1 ? 0 : knot+1];
+	curve.setTangentInfluence( ((prvpos-nexpos).abs())/4.0 );
+
+        pts += knots[knot];	
+	for ( int nr=1; nr<nrknotsonedge; nr++ )
+	    pts += curve.computePosition( knot+nr*1.0/(float)nrknotsonedge);
+    }
 }
 
 
