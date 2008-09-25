@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTextureChannelSetElement.h,v 1.1 2008-09-16 16:17:01 cvskris Exp $
+ RCS:		$Id: SoTextureChannelSetElement.h,v 1.2 2008-09-25 18:38:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,8 +35,8 @@ private:
 				~SoTextureChannelSetElement();
     void			setElt(const SbImage*, const int nrchannels);
 
-    const SbImage*			channels_;
-    int					nrchannels_;
+    const SbImage*		channels_;
+    int				nrchannels_;
 };
 
 #endif

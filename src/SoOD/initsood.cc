@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initsood.cc,v 1.3 2008-08-28 12:20:49 cvsnanne Exp $
+ RCS:           $Id: initsood.cc,v 1.4 2008-09-25 18:38:16 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@
 #include "SoCameraInfoElement.h"
 #include "SoCameraFacingZAxisRotation.h"
 #include "SoColTabMultiTexture2.h"
+#include "SoColTabTextureChannel2RGBA.h"
 #include "SoDepthTabPlaneDragger.h"
 #include "SoForegroundTranslation.h"
 #include "SoIndexedTriangleFanSet.h"
@@ -62,6 +63,7 @@ void SoOD::initStdClasses()
     SoCameraInfo::initClass();
     SoCameraFacingZAxisRotation::initClass();
     SoColTabMultiTexture2::initClass();
+    SoColTabTextureChannel2RGBA::initClass();
     SoDepthTabPlaneDragger::initClass();
     SoForegroundTranslation::initClass();
     SoIndexedTriangleFanSet::initClass();

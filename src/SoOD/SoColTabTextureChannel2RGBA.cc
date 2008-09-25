@@ -1,0 +1,266 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        K. Tingdahl
+ Date:          September 2008
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.1 2008-09-25 18:38:16 cvskris Exp $
+________________________________________________________________________
+
+-*/
+
+
+#include "SoColTabTextureChannel2RGBA.h"
+
+#include "Inventor/actions/SoGLRenderAction.h"
+#include "Inventor/fields/SoSFImage.h"
+#include "Inventor/sensors/SoFieldSensor.h"
+#include "SoTextureChannelSetElement.h"
+
+SO_NODE_SOURCE( SoColTabTextureChannel2RGBA );
+
+void SoColTabTextureChannel2RGBA::initClass()
+{
+    SO_NODE_INIT_CLASS(SoColTabTextureChannel2RGBA, SoNode, "Node");
+
+    SO_ENABLE(SoGLRenderAction, SoTextureChannelSetElement );
+}
+
+
+SoColTabTextureChannel2RGBA::SoColTabTextureChannel2RGBA()
+    : needsregeneration_( true )
+    , matchinfo_( 0 )
+{
+    SO_NODE_CONSTRUCTOR( SoColTabTextureChannel2RGBA );
+    SO_NODE_ADD_FIELD( colorsequences, (SbImage(0, SbVec2s(0,0), 0)) );
+    SO_NODE_ADD_FIELD( opacity, (255) );
+    SO_NODE_ADD_FIELD( enabled, (true) );
+
+    sequencesensor_ = new SoFieldSensor( fieldChangeCB, this );
+    sequencesensor_->attach( &colorsequences );
+
+    opacitysensor_ = new SoFieldSensor( fieldChangeCB, this );
+    opacitysensor_->attach( &opacity );
+
+    enabledsensor_ = new SoFieldSensor( fieldChangeCB, this );
+    enabledsensor_->attach( &enabled );
+}
+
+
+SoColTabTextureChannel2RGBA::~SoColTabTextureChannel2RGBA()
+{
+    delete sequencesensor_;
+    delete opacitysensor_;
+    delete enabledsensor_;
+
+    delete matchinfo_;
+}
+
+
+void SoColTabTextureChannel2RGBA::fieldChangeCB( void* data, SoSensor* )
+{
+    SoColTabTextureChannel2RGBA* ptr = (SoColTabTextureChannel2RGBA*) data;
+    ptr->needsregeneration_ = true;
+}
+
+
+void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
+{
+    SoState* state = action->getState();
+    const SoElement* elem = state->getConstElement(
+	                SoTextureChannelSetElement::getClassStackIndex() );
+
+    if ( !needsregeneration_ && matchinfo_ && elem &&
+	 !elem->matches( matchinfo_ ) )
+    {
+	needsregeneration_ = true;
+    }
+
+    if ( !needsregeneration_ )
+    {
+	sendRGBA( state );
+	return;
+    }
+
+    int nrchannels = SoTextureChannelSetElement::getNrChannels( state );
+    if ( nrchannels>=colorsequences.getNum() )
+	nrchannels = colorsequences.getNum();
+
+    if ( nrchannels>=enabled.getNum() )
+	nrchannels = enabled.getNum();
+
+    if ( !nrchannels )
+    {
+	for ( int idx=0; idx<4; idx++ )
+	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
+	sendRGBA( state );
+	return;
+    }
+
+    const SbImage* channels = SoTextureChannelSetElement::getChannels( state );
+    const SbVec3s size3 = channels[0].getSize();
+    long size = size3[0]; size *= size3[1]; size *= size3[2];
+
+
+    int lastchannel = -1;
+    int firstchannel = -1;
+    for ( int channel=nrchannels-1; channel>=0; channel-- )
+    {
+	if ( !enabled[channel] )
+	    continue;
+
+	bool fullyopaque, fullytransparent;
+	if ( opacity[channel]>=255 )
+	{
+	    fullyopaque = true;
+	    fullytransparent = false;
+	}
+	else if ( opacity[channel]<=0 )
+	{
+	    fullytransparent = true;
+	    fullyopaque = false;
+	}
+	else
+	{
+	    if ( !getTransparencyStatus( channels, size, channel, fullyopaque,
+				        fullytransparent ) )
+	    {
+		continue;
+	    }
+	}
+
+
+	if ( lastchannel==-1 && !fullytransparent )
+	    lastchannel = channel;
+
+	if ( firstchannel==-1 && fullyopaque )
+	    firstchannel==channel;
+
+	if ( lastchannel!=-1 && firstchannel!=-1 )
+	    break;
+    }
+
+    if ( lastchannel!=-1 && firstchannel!=-1 )
+    {
+	for ( int idx=0; idx<4; idx++ )
+	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
+	sendRGBA( state );
+	return;
+    }
+
+    //Set size of outputS
+    for ( int idx=0; idx<4; idx++ )
+	rgba_[idx].setValue( size3, 1, 0 );
+
+    computeRGBA( channels, 0, size-1, firstchannel, lastchannel );
+    sendRGBA( state );
+}
+
+
+void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
+	int start, int stop, int firstchannel, int lastchannel )
+{
+    SbVec3s size; int bytesperpixel;
+    unsigned char* red = rgba_[0].getValue( size, bytesperpixel ) + start;
+    unsigned char* green = rgba_[1].getValue( size, bytesperpixel )+start;
+    unsigned char* blue = rgba_[2].getValue( size, bytesperpixel )+ start;
+    unsigned char* alpha = rgba_[3].getValue( size, bytesperpixel )+start;
+
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	bool inited = false;
+	for ( int channelidx=firstchannel;channelidx<=lastchannel;channelidx++ )
+	{
+	    if ( !enabled[channelidx] )
+		continue;
+
+	    int layeropacity = opacity[channelidx];
+	    if ( layeropacity<=0 )
+		continue;
+
+	    if ( layeropacity>255 )
+		layeropacity=255;
+
+	    const unsigned char* channel =
+		channels[channelidx].getValue( size, bytesperpixel );
+	    if ( bytesperpixel!=1 )
+		continue;
+
+	    const unsigned int coltabindex = channel[idx];
+	    const unsigned char* color =
+		colorsequences[channelidx].getValue( size, bytesperpixel ) +
+		coltabindex * bytesperpixel;
+
+	    const unsigned char invtrans = (int) (color[3]*layeropacity)/255;
+	    if ( !invtrans )
+		continue;
+
+	    if ( !inited )
+	    {
+		*red = color[0];
+		*green = color[1];
+		*blue = color[2];
+		*alpha = invtrans;
+		inited = true;
+	    }
+	    else
+	    {
+		const unsigned char trans = 255-invtrans;
+		*red = (int)((int) *red * trans + (int)color[0]*invtrans)/255;
+		*green = (int)((int) *green*trans + (int)color[1]*invtrans)/255;
+		*blue = (int)((int) *blue * trans + (int)color[2]*invtrans)/255;
+		if ( color[3]>*alpha )
+		    *alpha = color[3];
+	    }
+	}
+
+	red++;
+	green++;
+	blue++;
+	alpha++;
+    }
+}
+
+
+void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state )
+{
+    SoTextureChannelSetElement::set( state, this, rgba_, 4 );
+}
+
+
+bool SoColTabTextureChannel2RGBA::getTransparencyStatus(
+	const SbImage* channels, long size, int channelidx,
+	bool& fullopacity, bool& fulltranparency ) const
+{
+    SbVec3s seqsize; int seqbytesperpixel;
+    unsigned const char* channel =
+	channels[channelidx].getValue( seqsize, seqbytesperpixel );
+
+    const unsigned char* colseq =
+	colorsequences[channelidx].getValue( seqsize, seqbytesperpixel );
+    if ( seqbytesperpixel<4 )
+    {
+	fullopacity = true;
+	fulltranparency = false;
+	return true;
+    }
+
+    fullopacity = true;
+    fulltranparency = true;
+
+    for ( int idx=0; idx<size; idx++ )
+    {
+	const unsigned int coltabindex = channel[idx];
+	const unsigned opacity = colseq[coltabindex*seqbytesperpixel+3];
+
+	if ( opacity!=255 )
+	    fullopacity = false;
+	if ( opacity )
+	    fullopacity = false;
+
+	if ( !fullopacity && !fulltranparency )
+	    break;
+    }
+
+    return true;
+}
