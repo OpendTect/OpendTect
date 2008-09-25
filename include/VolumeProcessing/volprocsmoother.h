@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volprocsmoother.h,v 1.3 2008-08-12 19:22:30 cvskris Exp $
+ RCS:		$Id: volprocsmoother.h,v 1.4 2008-09-25 18:47:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
 
     const char*		type() const			{ return sKeyType(); }
     bool		needsInput(const HorSampling&) const { return true; }
+    HorSampling		getInputHRg(const HorSampling&) const;
+    StepInterval<int>	getInputZRg(const StepInterval<int>&) const;
 
     bool		setOperator(const char*,float param,
 	    			    int inlsz,int crlsz,int zsz);

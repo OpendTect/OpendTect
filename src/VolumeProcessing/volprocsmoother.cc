@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volprocsmoother.cc,v 1.4 2008-08-12 19:22:30 cvskris Exp $";
+static const char* rcsID = "$Id: volprocsmoother.cc,v 1.5 2008-09-25 18:47:27 cvskris Exp $";
 
 #include "volprocsmoother.h"
 
@@ -35,6 +35,31 @@ Smoother::~Smoother()
 {
     delete smoother_;
 }    
+
+
+HorSampling Smoother::getInputHRg( const HorSampling& hrg ) const
+{
+    HorSampling res = hrg;
+    const int inlstepout = smoother_->getWindowSize( 0 ) / 2;
+    const int crlstepout = smoother_->getWindowSize( 1 ) / 2;
+
+    res.start.inl = hrg.start.inl - res.step.inl * inlstepout;
+    res.start.crl = hrg.start.crl - res.step.crl * crlstepout;
+    res.stop.inl = hrg.stop.inl + res.step.inl * inlstepout;
+    res.stop.crl = hrg.stop.crl + res.step.crl * crlstepout;
+    return res;
+}
+
+
+StepInterval<int> Smoother::getInputZRg( const StepInterval<int>& inrg ) const
+{
+    StepInterval<int> res = inrg;
+    const int zstepout =  smoother_->getWindowSize( 2 ) / 2;
+    res.start -= res.step*zstepout;
+    res.stop += res.step*zstepout;
+
+    return res;
+}
 
 
 Step*  Smoother::create( Chain& pc )
