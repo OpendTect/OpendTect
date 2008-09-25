@@ -4,10 +4,10 @@
 /*+
 ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
-Author:        A.H. Bril
-Date:          23-10-1996
+Author:        K. Tingdahl
+Date:          2005
 Contents:      Ranges
-RCS:           $Id: cubicbeziercurve.h,v 1.5 2005-03-18 11:21:27 cvskris Exp $
+RCS:           $Id: cubicbeziercurve.h,v 1.6 2008-09-25 18:46:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
