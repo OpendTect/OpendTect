@@ -4,11 +4,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.8 2008-09-17 10:09:04 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.9 2008-09-25 12:00:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "bufstringset.h"
 #include "color.h"
 #include "draw.h"
 #include "filepath.h"
@@ -17,6 +18,9 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+
+
+static const int cTitleBoxHeight = 4;
 
 int GMTBaseMap::factoryid_ = -1;
 
@@ -44,8 +48,6 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyClosePS, closeps );
     getYN( ODGMT::sKeyDrawGridLines, dogrid );
 
-    bool dotitlebox = false;
-    getYN( ODGMT::sKeyPostTitleBox, dotitlebox );
     BufferString comm = "psbasemap ";
     BufferString str; mGetRangeProjString( str, "X" );
     comm += str; comm += " -Ba";
@@ -59,12 +61,10 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm += " --X_ORIGIN="; comm += xmargin;
     comm += "c --Y_ORIGIN="; comm += ymargin;
     comm += "c --PAPER_MEDIA=Custom_";
-    float pagewidth = mapdim.start + 2 * xmargin;
-    if ( !closeps || dotitlebox ) pagewidth += 3 * xmargin;
+    float pagewidth = mapdim.start + 5 * xmargin;
     const float pageheight = mapdim.stop + 3 * ymargin;
     comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
-    comm += pagewidth < 21 ? 21 : pagewidth; comm += "c ";
-    if ( !closeps || dotitlebox ) comm += "-K ";
+    comm += pagewidth < 21 ? 21 : pagewidth; comm += "c -K ";
 
     comm += "> "; comm += fnm;
     if ( system(comm) )
@@ -72,15 +72,12 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
 
     strm << "Done" << std::endl;
 
-    if ( !dotitlebox )
-	return true;
-
     strm << "Posting title box ...  ";
     comm = "@pslegend -R -J -F -O -Dx";
     comm += mapdim.start + xmargin; comm += "c/";
     comm += 0; comm += "c/";
-    comm += 2 * xmargin; comm += "c/";
-    comm += ymargin; comm += "c/BL ";
+    comm += 8; comm += "c/";
+    comm += cTitleBoxHeight; comm += "c/BL ";
     if ( !closeps ) comm += "-K ";
 
     comm += "-UBL/0/0 ";    
@@ -94,9 +91,10 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     get( ODGMT::sKeyMapScale, scaleval );
     *sd.ostrm << "L 10 4 C Scale  1:" << scaleval << std::endl;
     *sd.ostrm << "D 0 1p" << std::endl;
-    const char* remarks = find( ODGMT::sKeyRemarks );
-    *sd.ostrm << "> - - 10 - 4 - - - c" << std::endl;
-    *sd.ostrm << "T " << remarks << std::endl;
+    BufferStringSet remset;
+    get( ODGMT::sKeyRemarks, remset );
+    for ( int idx=0; idx<remset.size(); idx++ )
+	*sd.ostrm << "L 12 4 C " << remset.get(idx) << std::endl;
 
     *sd.ostrm << std::endl;
     sd.close();
@@ -142,9 +140,9 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    fp.setExtension( "cpt" );
 	    BufferString colbarcomm = "psscale --LABEL_FONT_SIZE=14 -D";
 	    colbarcomm += mapdim.start + xmargin; colbarcomm += "c/";
-	    colbarcomm += 2.5 * ymargin; colbarcomm += "c/";
-	    colbarcomm += mapdim.stop / 2; colbarcomm += "c/";
-	    colbarcomm += mapdim.start / 10; colbarcomm += "c -O -C";
+	    colbarcomm += 1.2 * ymargin + cTitleBoxHeight; colbarcomm += "c/";
+	    colbarcomm += 2 * ymargin; colbarcomm += "c/";
+	    colbarcomm += xmargin / 2; colbarcomm += "c -O -C";
 	    colbarcomm += fp.fullPath(); colbarcomm += " -B";
 	    colbarcomm += rg.step * 5; colbarcomm += ":\"";
 	    colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
@@ -164,8 +162,8 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     const int nritems = parset.size();
     BufferString comm = "@pslegend -R -J -O -Dx";
     comm += mapdim.start + xmargin; comm += "c/";
-    comm += 1.5 * ymargin + ( hascolbar ? mapdim.stop / 2 : 0 ); comm += "c/";
-    comm += 10; comm += "c/";
+    comm += ymargin / 2 + cTitleBoxHeight + ( hascolbar ? 2 * ymargin : 0 );
+    comm += "c/"; comm += 10; comm += "c/";
     comm += nritems ? nritems : 1; comm += "c/BL ";
     
     comm += ">> "; comm += fnm;
