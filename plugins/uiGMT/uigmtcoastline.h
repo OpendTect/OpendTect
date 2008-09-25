@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtcoastline.h,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
+ RCS:		$Id: uigmtcoastline.h,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ public:
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		reset();
+
 protected:
 
     			uiGMTCoastlineGrp(uiParent*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.7 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.8 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ ________________________________________________________________________
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
-    : uiFullBatchDialog(p,uiFullBatchDialog::Setup("Create PostScript Map")
+    : uiFullBatchDialog(p,uiFullBatchDialog::Setup("GMT Mapping Tool")
 					     .procprognm("odgmtexec")
 					     .modal(false))
     , addbut_(0)
@@ -67,10 +67,16 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     addbut_ = new uiPushButton( rightgrp, "&Add",
 	    			mCB(this,uiGMTMainWin,addCB), true );
+    addbut_->setToolTip( "Add to current flow" );
     addbut_->attach( alignedBelow, tabstack_ ); 
     editbut_ = new uiPushButton( rightgrp, "&Replace",
 	    			mCB(this,uiGMTMainWin,editCB), true );
+    editbut_->setToolTip( "Update current item in flow" );
     editbut_->attach( rightOf, addbut_ );
+    resetbut_ = new uiPushButton( rightgrp, "Re&set",
+	    			mCB(this,uiGMTMainWin,resetCB), true );
+    resetbut_->setToolTip( "Reset input fields" );
+    resetbut_->attach( rightOf, editbut_ );
 
     uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", false );
     sep->attach( stretchedLeftTo, rightgrp );
@@ -164,6 +170,10 @@ void uiGMTMainWin::newFlow( CallBacker* )
     filefld_->clear();
     pars_.erase();
     flowfld_->empty();
+    basemapgrp_->reset();
+    for ( int idx=0; idx<overlaygrps_.size(); idx++ )
+	overlaygrps_[idx]->reset();
+
     needsave_ = false;
 }
 
@@ -336,6 +346,26 @@ void uiGMTMainWin::editCB( CallBacker* )
 }
 
 
+void uiGMTMainWin::resetCB( CallBacker* )
+{
+    uiGroup* grp = tabstack_->currentPage();
+    if ( !grp ) return;
+
+    mDynamicCastGet( uiGMTBaseMapGrp*, basegrp, grp );
+    if ( basegrp )
+    {
+	basemapgrp_->reset();
+	return;
+    }
+
+    mDynamicCastGet( uiGMTOverlayGrp*, gmtgrp, grp );
+    if ( !gmtgrp )
+	return;
+
+    gmtgrp->reset();
+}
+
+
 void uiGMTMainWin::createPush( CallBacker* )
 {
     viewbut_->setSensitive( false );
@@ -387,8 +417,16 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 	mErrRet("Please specify an output file name")
 
     FilePath fp( fnm );
+    BufferString dirnm = fp.pathOnly();
+    if ( !File_isDirectory(dirnm.buf()) || !File_isWritable(dirnm.buf()) )
+	mErrRet("Output directory is not writable")
+
     fp.setExtension( "ps" );
-    par.set( sKey::FileName, fp.fullPath() );
+    fnm = fp.fullPath();
+    if ( File_exists(fnm.buf()) && !File_isWritable(fnm.buf()) )
+	mErrRet("Output file already exists and is read only")
+
+    par.set( sKey::FileName, fnm );
     int idx = 0;
     Interval<float> mapdim, xrg, yrg;
     IOPar basemappar;

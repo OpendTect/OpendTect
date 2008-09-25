@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtwells.cc,v 1.4 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtwells.cc,v 1.5 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,17 @@ void uiGMTWellsGrp::fillItems()
 	BufferString alignkey = eString( ODGMT::Alignment, idx );
 	lebelalignfld_->addItem( alignkey );
     }
+}
+
+
+void uiGMTWellsGrp::reset()
+{
+    welllistfld_->clear();
+    namefld_->setValue( "Wells" );
+    symbfld_->reset();
+    lebelfld_->setChecked( false );
+    labelfontszfld_->setValue( 10 );
+    choiceSel( 0 );
 }
 
 

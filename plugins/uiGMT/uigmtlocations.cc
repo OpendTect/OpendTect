@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtlocations.cc,v 1.3 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtlocations.cc,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,14 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
 
     symbfld_ = new uiGMTSymbolPars( this );
     symbfld_->attach( alignedBelow, namefld_ );
+}
+
+
+void uiGMTLocationsGrp::reset()
+{
+    inpfld_->clear();
+    namefld_->clear();
+    symbfld_->reset();
 }
 
 

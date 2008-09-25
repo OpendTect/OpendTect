@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.h,v 1.3 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.h,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ public:
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		reset();
+
 protected:
 
     			uiGMTContourGrp(uiParent*);
@@ -54,7 +56,6 @@ protected:
     uiCheckBox*		linefld_;
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		fillfld_;
-    uiCheckBox*		clipfld_;
     uiComboBox*		colseqfld_;
 
     void		readCB(CallBacker*);

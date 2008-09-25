@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Sept 2008
- RCS:		$Id: uigmtsymbolpars.cc,v 1.1 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtsymbolpars.cc,v 1.2 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,16 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p )
 	    			    uiColorInput::Setup(Color::White) );
     fillcolfld_->attach( rightOf, fillfld_ );
     fillSel(0);
+}
+
+
+void uiGMTSymbolPars::reset()
+{
+    shapefld_->setCurrentItem( 0 );
+    sizefld_->setValue( 0.2 );
+    outcolfld_->setColor( Color::Black );
+    fillfld_->setChecked( false );
+    fillcolfld_->setColor( Color::White );
 }
 
 

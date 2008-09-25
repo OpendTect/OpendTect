@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.cc,v 1.3 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.cc,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,21 @@ uiGMTContourGrp::~uiGMTContourGrp()
 {
     delete &sd_; delete &ctio_;
     if ( hor_ ) hor_->unRef();
+}
+
+
+void uiGMTContourGrp::reset()
+{
+    if ( hor_ ) hor_->unRef();
+    hor_ = 0;
+    inpfld_->clear();
+    subselfld_->setToAll();
+    rgfld_->clear();
+    nrcontourfld_->clear();
+    linefld_->setChecked( true );
+    lsfld_->setStyle( LineStyle() );
+    fillfld_->setChecked( false );
+    drawSel( 0 );
 }
 
 

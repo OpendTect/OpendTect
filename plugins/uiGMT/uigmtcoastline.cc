@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtcoastline.cc,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
+ RCS:		$Id: uigmtcoastline.cc,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,14 +46,12 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     utmfld_ = lsb->box();
     utmfld_->setInterval( 1, 60 );
     utmfld_->setPrefix( "Zone " );
-    utmfld_->setValue( 31 );
     utmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
     cmfld_ = new uiSpinBox( this );
     cmfld_->setInterval( 3, 177 );
     cmfld_->setStep( 6, true );
     cmfld_->attach( rightTo, lsb );
     cmfld_->setSuffix( " deg" );
-    cmfld_->setValue( 3 );
     cmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
     ewfld_ = new uiGenInput( this, 0, BoolInpSpec(true,"East","West") );
     ewfld_->attach( rightTo, cmfld_ );
@@ -83,7 +81,23 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     drycolfld_ = new uiColorInput( this,
 	    			   uiColorInput::Setup(Color::DgbColor) );
     drycolfld_->attach( rightOf, filldryfld_ );
+    reset();
     fillSel(0);
+}
+
+
+void uiGMTCoastlineGrp::reset()
+{
+    utmfld_->setValue( 31 );
+    cmfld_->setValue( 3 );
+    ewfld_->setValue( true );
+    resolutionfld_->setCurrentItem( 0 );
+    lsfld_->setStyle( LineStyle() );
+    fillwetfld_->setChecked( false );
+    filldryfld_->setChecked( false );
+    wetcolfld_->setColor( Color(170,255,255) );
+    drycolfld_->setColor( Color(170,170,127) );
+    fillSel( 0 );
 }
 
 

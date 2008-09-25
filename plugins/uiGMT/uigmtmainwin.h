@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.h,v 1.2 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.h,v 1.3 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ protected:
 
     uiPushButton*	addbut_;
     uiPushButton*	editbut_;
+    uiPushButton*	resetbut_;
 
     uiTabStack*		tabstack_;
     ObjectSet<uiGMTOverlayGrp> overlaygrps_;
@@ -63,6 +64,7 @@ protected:
     void		tabSel(CallBacker*);
     void		addCB(CallBacker*);
     void		editCB(CallBacker*);
+    void		resetCB(CallBacker*);
     void		checkFileCB(CallBacker*);
     void		newFlow(CallBacker*);
     void		openFlow(CallBacker*);

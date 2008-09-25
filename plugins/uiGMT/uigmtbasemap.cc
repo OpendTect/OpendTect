@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.6 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.7 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,9 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
+#include "uitextedit.h"
 
 uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     : uiDlgGroup(p,"Basemap")
@@ -60,15 +62,15 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     gridlinesfld_ = new uiCheckBox( this, "Draw Gridlines" );
     gridlinesfld_->attach( rightTo, lebelintvfld_ );
 
-    titleboxfld_ = new uiCheckBox( this, "Post title box",
-	   			   mCB(this,uiGMTBaseMapGrp,titleSel) );
-    titleboxfld_->attach( alignedBelow, lebelintvfld_ );
+    uiLabel* lbl = new uiLabel( this, "Remarks (4 lines max)" );
+    lbl->attach( alignedBelow, lebelintvfld_ );
 
-    remarkfld_ = new uiGenInput( this, "Remarks" );
-    remarkfld_->attach( alignedBelow, titleboxfld_ );
+    remarkfld_ = new uiTextEdit( this, "Remarks" );
+    remarkfld_->setPrefHeightInChar( 3 );
+    remarkfld_->setPrefWidthInChar( 20 );
+    remarkfld_->attach( alignedBelow, lbl );
 
     updateFlds( true );
-    titleSel(0);
 }
 
 
@@ -78,6 +80,14 @@ void uiGMTBaseMapGrp::xyrgChg( CallBacker* cb )
 	return;
 
     updateFlds( false );
+}
+
+
+void uiGMTBaseMapGrp::reset()
+{
+    titlefld_->setText( "Basemap" );
+    updateFlds( true );
+    remarkfld_->setText( "" );
 }
 
 
@@ -127,12 +137,6 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
 void uiGMTBaseMapGrp::resetCB( CallBacker* )
 {
     updateFlds( true );
-}
-
-
-void uiGMTBaseMapGrp::titleSel( CallBacker* )
-{
-    remarkfld_->setSensitive( titleboxfld_->isChecked() );
 }
 
 
@@ -225,10 +229,28 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
     const Interval<float> lblintv = lebelintvfld_->getFInterval();
     par.set( ODGMT::sKeyLabelIntv, lblintv );
     par.setYN( ODGMT::sKeyDrawGridLines, gridlinesfld_->isChecked() );
-    const bool dotitle = titleboxfld_->isChecked();
-    par.setYN( ODGMT::sKeyPostTitleBox, dotitle );
-    if ( dotitle )
-	par.set( ODGMT::sKeyRemarks, remarkfld_->text() );
+    const char* remarks = remarkfld_->text();
+    if ( !remarks || !*remarks )
+	return true;
+
+    SeparString sepstr( remarks, '\n' );
+    BufferStringSet remset;
+    int idx = 0;
+    while ( idx < sepstr.size() && remset.size() < 4 )
+    {
+	BufferString str = sepstr[idx++];
+	const int nrstr = str.size() / 20;
+	for ( int sdx=0; sdx<=nrstr && remset.size()<4; sdx++ )
+	{
+	    BufferString linestr( str.buf() + 20 * sdx );
+	    if ( sdx < nrstr )
+		*( linestr.buf() + 20 ) = '\0';
+
+	    remset.add( linestr );
+	}
+    }
+
+    par.set( ODGMT::sKeyRemarks, remset );
 
     return true;
 }
@@ -261,14 +283,16 @@ bool uiGMTBaseMapGrp::usePar( const IOPar& par )
     bool dogrdlines = false;
     par.getYN( ODGMT::sKeyDrawGridLines, dogrdlines );
     gridlinesfld_->setChecked( dogrdlines );
-    
-    bool dotitlebox = false;
-    par.getYN( ODGMT::sKeyPostTitleBox, dotitlebox );
-    titleboxfld_->setChecked( dotitlebox );
+    BufferStringSet remset;
+    par.get( ODGMT::sKeyRemarks, remset );
+    BufferString remarks;
+    for ( int idx=0; idx<remset.size(); idx++ )
+    {
+	remarks += remset.get( idx );
+	remarks += "\n";
+    }
 
-    if ( dotitlebox )
-	remarkfld_->setText( par.find(ODGMT::sKeyRemarks) );
+    remarkfld_->setText( remarks.buf() );
     
-    titleSel(0);
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtbasemap.h,v 1.5 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.h,v 1.6 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiGenInput;
 class uiPushButton;
+class uiTextEdit;
 
 class uiGMTBaseMapGrp : public uiDlgGroup
 {
@@ -26,6 +27,7 @@ public:
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		reset();
 
 protected:
 
@@ -38,12 +40,10 @@ protected:
     uiPushButton*	resetbut_;
     uiGenInput*		lebelintvfld_;
     uiCheckBox*		gridlinesfld_;
-    uiCheckBox*		titleboxfld_;
-    uiGenInput*		remarkfld_;
+    uiTextEdit*		remarkfld_;
 
     float		aspectratio_;
 
-    void		titleSel(CallBacker*);
     void		resetCB(CallBacker*);
     void		xyrgChg(CallBacker*);
     void		dimChg(CallBacker*);

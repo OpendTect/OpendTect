@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmt2dlines.cc,v 1.3 2008-09-02 11:07:59 cvsraman Exp $
+ RCS:		$Id: uigmt2dlines.cc,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, llb );
 
-    labelfld_ = new uiCheckBox( this, "Post label",
+    labelfld_ = new uiCheckBox( this, "Post Line names",
 	   			mCB(this,uiGMT2DLinesGrp,labelSel) );
     labelfld_->attach( alignedBelow, lsfld_ );
 
@@ -87,6 +87,20 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
 uiGMT2DLinesGrp::~uiGMT2DLinesGrp()
 {
     delete &ctio_;
+}
+
+
+void uiGMT2DLinesGrp::reset()
+{
+    inpfld_->clear();
+    namefld_->clear();
+    linelistfld_->empty();
+    lsfld_->setStyle( LineStyle() );
+    labelfld_->setChecked( false );
+    labelfontfld_->setValue( 10 );
+    trclabelfld_->setChecked( false );
+    trcstepfld_->setValue( 100 );
+    labelSel( 0 );
 }
 
 

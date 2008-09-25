@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		September 2008
- RCS:		$Id: uigmtrandlines.cc,v 1.1 2008-09-02 11:08:27 cvsraman Exp $
+ RCS:		$Id: uigmtrandlines.cc,v 1.2 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,18 @@ uiGMTRandLinesGrp::~uiGMTRandLinesGrp()
 {
     delete &ctio_;
     delete &linenms_;
+}
+
+
+void uiGMTRandLinesGrp::reset()
+{
+    inpfld_->clear();
+    namefld_->clear();
+    lsfld_->setStyle( LineStyle() );
+    labelfld_->setChecked( false );
+    labelfontfld_->setValue( 10 );
+    linenms_.erase();
+    labelSel( 0 );
 }
 
 

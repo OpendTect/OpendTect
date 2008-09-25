@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmt2dlines.h,v 1.2 2008-09-02 11:07:59 cvsraman Exp $
+ RCS:		$Id: uigmt2dlines.h,v 1.3 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		reset();
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtoverlay.h,v 1.1 2008-08-01 08:31:21 cvsraman Exp $
+ RCS:		$Id: uigmtoverlay.h,v 1.2 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ public:
 
     virtual bool	fillPar(IOPar&) const			=0;
     virtual bool	usePar(const IOPar&)			=0;
+    virtual void	reset()					=0;
 
 protected:
 

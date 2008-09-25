@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		September 2008
- RCS:		$Id: uigmtadv.cc,v 1.1 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtadv.cc,v 1.2 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,12 @@ uiGMTAdvGrp::uiGMTAdvGrp( uiParent* p )
     inpfld_ = new uiLineEdit( this, "GMT Command" );
     inpfld_->setHSzPol( uiObject::WideMax );
     inpfld_->attach( alignedBelow, lbl );
+}
+
+
+void uiGMTAdvGrp::reset()
+{
+    inpfld_->setvalue_( "" );
 }
 
 

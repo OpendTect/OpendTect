@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtlocations.h,v 1.2 2008-09-12 11:32:30 cvsraman Exp $
+ RCS:		$Id: uigmtlocations.h,v 1.3 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ public:
 
     bool		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
+    void		reset();
+
 protected:
 
     			uiGMTLocationsGrp(uiParent*);
