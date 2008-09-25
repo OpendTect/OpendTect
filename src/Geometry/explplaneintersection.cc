@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.6 2008-09-22 13:15:13 cvskris Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.7 2008-09-25 17:23:15 cvsyuancheng Exp $";
 
 #include "explplaneintersection.h"
 
@@ -211,6 +211,10 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	const int planeid = explsurf_.planeID( planeidx );
 	const Coord3 ptonplane = explsurf_.planePolygon( planeid )[0];
 	const Plane3 plane( explsurf_.planeNormal( planeid ), ptonplane, false);
+	if ( mIsZero( plane.distanceToPoint(c0), 1e-3 ) && 
+	     mIsZero( plane.distanceToPoint(c1), 1e-3 ) && 
+	     mIsZero( plane.distanceToPoint(c2), 1e-3 ) ) 
+	    continue;
 
 	Line3 intersectionline;
 	if ( !triangleplane.intersectWith( plane, intersectionline ) )
@@ -221,9 +225,9 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 
 	double testt;
 	const bool t0ok = getNearestT(c0,c1,intersectionline,t[0],testt) &&
-	    		  testt>=0 && testt<=1;
+			  testt<=1+1e-3 && testt+1e-3>=0;
 	const bool t1ok = getNearestT(c1,c2,intersectionline,t[1],testt) &&
-	    		  testt>=0 && testt<=1;
+			  testt<=1+1e-3 && testt+1e-3>=0;
 
 	if ( !t0ok && !t1ok ) 
 	    continue;
@@ -236,9 +240,10 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	else
 	{
 	    const bool t2ok = getNearestT(c2,c0,intersectionline,t[2],testt) &&
-			      testt>=0 && testt<=1;
+			  testt<=1+1e-3 && testt+1e-3>=0;
+
 	    if ( !t2ok )
-	    	pErrMsg( "hmm" );
+		pErrMsg( "hmm" );
 	    else
 	    {
 		startidx = t0ok ? 0 : 1;
@@ -350,7 +355,7 @@ bool getNearestT( const Coord3& c0, const Coord3& c1,
 		  const Line3& intersectionline, double& t0, double& t1 ) const
 {
     const Line3 line( c0, c1-c0 );
-    return intersectionline.closestPoint( line, t0, t1 );
+    return intersectionline.closestPoint(line,t0,t1);
 }
 
 
