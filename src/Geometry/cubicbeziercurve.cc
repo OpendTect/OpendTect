@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.9 2007-01-29 20:36:34 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.10 2008-09-25 17:19:17 cvsyuancheng Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -23,7 +23,7 @@ CubicBezierCurve::CubicBezierCurve( const Coord3& c0, const Coord3& c1,
 				    int fp, int step_ )
     : firstparam( fp )
     , paramstep( step_ )
-    , directioninfluence( step_/3.0 )
+    , directioninfluence ( step_/4.0 )
     , iscircular(false)
 {
     if ( !c0.isDefined() || !c1.isDefined() )
@@ -79,8 +79,35 @@ IntervalND<float> CubicBezierCurve::boundingBox(bool approx) const
 
 Coord3 CubicBezierCurve::computePosition(float param) const
 {
-    cubicDeCasteljauPrep;
-    return cubicDeCasteljau( temppos, 0, 1, u );
+    const StepInterval<int> range = parameterRange();
+    int previdx = range.getIndex(param);
+    int nextidx = previdx+1;
+
+    if ( previdx<0 || previdx>positions.size()-1 )
+	return Coord3::udf();
+    else if ( previdx==positions.size()-1 )
+    {
+	if ( range.atIndex(previdx)<=param )
+	{
+	    if ( !isCircular() )
+	    {
+		previdx--;
+		nextidx--;
+	    }
+	    else
+		nextidx = 0;
+	}
+	else
+	    return Coord3::udf();
+    }
+
+    const GeomPosID prevparam = range.atIndex(previdx);
+    const GeomPosID nextparam = range.atIndex(nextidx);
+    Coord3 temppos[] = { positions[previdx], getBezierVertex(prevparam,false),
+			 getBezierVertex(nextparam,true),
+			 positions[nextidx] };
+
+    return cubicDeCasteljau( temppos, 0, 1, (param-prevparam)/range.step );
 }
 
 
@@ -229,8 +256,7 @@ Coord3 CubicBezierCurve::getBezierVertex( GeomPosID pid, bool before ) const
 }
 
 
-Coord3 CubicBezierCurve::getTangent(	GeomPosID param,
-					bool computeifudf ) const
+Coord3 CubicBezierCurve::getTangent( GeomPosID param, bool computeifudf ) const
 {
     const int idx = getIndex(param);
 
@@ -286,7 +312,8 @@ bool CubicBezierCurve::isCircular() const
 bool CubicBezierCurve::setCircular(bool yn)
 {
     if ( positions.size()<3 ) return false;
-    if ( iscircular!=yn )
+
+    if ( iscircular != yn )
     {
 	iscircular=yn;
 	TypeSet<GeomPosID> affectedpids;
@@ -320,6 +347,9 @@ Coord3 CubicBezierCurve::computeTangent( GeomPosID param ) const
 	idx1 = isCircular() ? 0 : positions.size()-1;
 	diff--;
     }
+
+    if ( positions.size()==3 )
+	diff = 1;
    
     const Coord3& c0 = positions[idx0];
     const Coord3& c1 = positions[idx1];
