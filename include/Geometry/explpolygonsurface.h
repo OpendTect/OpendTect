@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: explpolygonsurface.h,v 1.2 2008-09-05 21:23:05 cvsyuancheng Exp $
+ RCS:           $Id: explpolygonsurface.h,v 1.3 2008-09-25 17:15:59 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,6 @@ public:
 protected:
 
     void		updateGeometries();
-    void		updatePolygonDisplay();
     bool		updateBodyDisplay(const TypeSet<Coord3>& allpoints);
     void		removeAll();
     void		addToGeometries(IndexedGeometry*);

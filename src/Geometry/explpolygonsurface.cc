@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.5 2008-09-10 13:48:00 cvskris Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.6 2008-09-25 17:15:59 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -71,11 +71,25 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
     if ( !surface_ || !needsupdate_ )
 	return true;
 
-    TypeSet<Coord3> pts; 
     const StepInterval<int> rrg = surface_->rowRange();
     
+    TypeSet<Coord3> pts;
+    TypeSet<int> plgcrdindices; 
+    int prevnrknots = 0;
     for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
-	surface_->getPolygonCrds( plg, pts );
+    {
+	prevnrknots = pts.size();
+	surface_->getCubicBezierCurve( plg, pts );
+
+	if ( displaypolygons_ )
+	{
+    	    for ( int knotidx=prevnrknots; knotidx<pts.size(); knotidx++ )
+    		plgcrdindices += knotidx;
+	    
+    	    plgcrdindices += prevnrknots;
+    	    plgcrdindices += -1;
+	}
+    }
 
     for ( int idx=0; idx<pts.size(); idx++ )
 	coordlist_->set( idx, pts[idx] );
@@ -83,16 +97,16 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
     updateGeometries();
 
     if ( displaypolygons_ )
-	updatePolygonDisplay();
-  
-    if ( displaybody_ )
     {
-	if ( pts.size()<4 || surface_->nrPolygons()<2 )
-    	    return true;
+	polygondisplay_->coordindices_.erase();
+	for ( int idx=0; idx<plgcrdindices.size(); idx++ )
+    	    polygondisplay_->coordindices_ += plgcrdindices[idx];
 
-	if ( !updateBodyDisplay( pts ) )
-	    return false;
+	polygondisplay_->ischanged_ = true;
     }
+  
+    if ( displaybody_ && !updateBodyDisplay(pts) )
+	return false;
 
     setRightHandedNormals( true );
     needsupdate_ = true;
@@ -100,13 +114,47 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
 }
 
 
-void ExplPolygonSurface::display( bool ynpolygons, bool ynbody )
+bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
 {
-    if ( displaypolygons_==ynpolygons && displaybody_==ynbody )
+    if ( pts.size()<4 || surface_->nrPolygons()<2 )
+	return true;
+
+    if ( !tetrahedratree_ ) 
+      tetrahedratree_ = new DAGTetrahedraTree;	
+   
+    if ( !tetrahedratree_->setCoordList( pts, false ) )
+	return false;
+
+    ParallelDTetrahedralator triangulator( *tetrahedratree_ );
+    triangulator.dataIsRandom( true );
+    if ( !triangulator.execute(true) )
+	return false;
+
+    TypeSet<int> triangles;
+    tetrahedratree_->getSurfaceTriangles( triangles );
+    //tetrahedratree_->getTetrahedraTriangles( triangles );
+   
+    bodytriangle_->coordindices_.erase();
+    for ( int idx=0; idx<triangles.size()/3; idx++ )
+    {
+	bodytriangle_->coordindices_ += triangles[3*idx];
+	bodytriangle_->coordindices_ += triangles[3*idx+1];
+	bodytriangle_->coordindices_ += triangles[3*idx+2];
+	bodytriangle_->coordindices_ += -1;
+    }
+
+    bodytriangle_->ischanged_ = true;
+    return true;
+}
+
+
+void ExplPolygonSurface::display( bool polygons, bool body )
+{
+    if ( displaypolygons_==polygons && displaybody_==body )
 	return;
 
-    displaypolygons_ = ynpolygons;
-    displaybody_ = ynbody;
+    displaypolygons_ = polygons;
+    displaybody_ = body;
     update( false, 0 );
 }
 
@@ -184,103 +232,6 @@ void ExplPolygonSurface::updateGeometries()
 
 	addToGeometries( polygondisplay_ );
     }
-}
-
-
-void ExplPolygonSurface::updatePolygonDisplay()
-{
-    const StepInterval<int> rrg = surface_->rowRange();
-    polygondisplay_->coordindices_.erase();
-
-    int previousknots = 0;
-    for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
-    {
-	const int nrknots = surface_->colRange( plg ).nrSteps()+1;
-	for ( int knot=0; knot<nrknots; knot++ )
-	    polygondisplay_->coordindices_ +=  knot+previousknots;
-
-	polygondisplay_->coordindices_ += previousknots;
-	polygondisplay_->coordindices_ += -1;
-	previousknots += nrknots;
-    }
-
-    polygondisplay_->ischanged_ = true;
-}
-
-
-bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
-{
-    const StepInterval<int> rrg = surface_->rowRange();
-
-    if ( !tetrahedratree_ ) 
-      tetrahedratree_ = new DAGTetrahedraTree;	
-   
-    if ( !tetrahedratree_->setCoordList( pts, false ) )
-	return false;
-
-    ParallelDTetrahedralator triangulator( *tetrahedratree_ );
-    triangulator.dataIsRandom( true );
-    if ( !triangulator.execute(true) )
-	return false;
-
-    TypeSet<int> triangles;
-    tetrahedratree_->getTetrahedraTriangles( triangles );
-   // TypeSet<int> tetrahedras;
-   // tetrahedratree_->getTetrahedras( tetrahedras );
-   
-    TypeSet<int> plgknots[rrg.nrSteps()+1];
-    TypeSet<int> concaveedges;
-    int usednrknots = 0;
-    for ( int plgidx=0; plgidx<rrg.nrSteps()+1; plgidx++ )
-    {
-	const StepInterval<int> colrg = surface_->colRange(rrg.atIndex(plgidx));
-	if ( colrg.isUdf() )
-	    continue;
-	
-	const int nrknots = colrg.nrSteps()+1;
-	for ( int idx=0; idx<nrknots; idx++ )
-	    plgknots[plgidx] += idx+usednrknots;
-
-	TypeSet<int> edges;
-	surface_->getExceptionEdges( plgidx, edges );
-	for ( int vidx=0; vidx<edges.size(); vidx++ )
-	    concaveedges += edges[vidx]+usednrknots;
-	
-	usednrknots += nrknots;
-    }
-
-    notetrahedras_.erase();
-    bodytriangle_->coordindices_.erase();
-    
-    for ( int idx=0; idx<triangles.size()/3; idx++ )
-    {
-	 const int v0 = triangles[3*idx]; 
-	 const int v1 = triangles[3*idx+1]; 
-	 const int v2 = triangles[3*idx+2]; 
-
-	bool isconcaveedge = false;
-	for (int ti=0; ti<concaveedges.size()/2; ti++ )
-	{
-	    if ( (concaveedges[2*ti]==v0 || concaveedges[2*ti]==v1 ||
-		  concaveedges[2*ti]==v2) && (concaveedges[2*ti+1]==v0 || 
-		  concaveedges[2*ti+1]==v1 || concaveedges[2*ti+1]==v2) )
-	    {
-		isconcaveedge = true;
-		break;
-	    }
-	}
-
-	if ( !isconcaveedge )
-	{
-	    bodytriangle_->coordindices_ += v0;
-	    bodytriangle_->coordindices_ += v1;
-	    bodytriangle_->coordindices_ += v2;
-	    bodytriangle_->coordindices_ += -1;
-	}
-    }
-
-    bodytriangle_->ischanged_ = true;
-    return true;
 }
 
 }; // namespace Geometry
