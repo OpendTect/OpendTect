@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.16 2008-09-22 13:15:13 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.17 2008-09-25 17:25:00 cvsyuancheng Exp $";
 
 #include "marchingcubes.h"
 
@@ -638,9 +638,7 @@ void SeedBasedImplicit2MarchingCubes::addMarchingCube( int idx, int idy,
          idz<0 || idz>=array_->info().getSize(mZ) )	 
 	return;
 
-    const bool willcontinue =
-	docontinue && array_->get(idx,idy,idz)>threshold_;
-
+    const bool willcontinue = docontinue && array_->get(idx,idy,idz)>threshold_;
     unsigned char oldproc = visitedlocations_->get( idx, idy, idz );
     if ( oldproc==2 )
         return;
@@ -697,8 +695,7 @@ protected:
 
 	    const MarchingCubesModel& model =
 		mc2i_.surface_.models_.getRef( surfaceidxs, 0 );
-	    const bool originsign =
-		model.getCornerSign( model.model_, 0 );
+	    const bool originsign = model.getCornerSign( model.model_, 0 );
 	    const bool neighborsign = !originsign;
 
 	    int mindist;
