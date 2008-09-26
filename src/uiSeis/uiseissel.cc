@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.58 2008-09-04 14:06:20 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.59 2008-09-26 13:36:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "seistrctr.h"
+#include "seispsioprov.h"
 
 
 static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
@@ -219,6 +221,14 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& setup )
 uiSeisSel::~uiSeisSel()
 {
     delete &dlgiopar;
+}
+
+
+CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt )
+{
+    return !Seis::isPS(gt) ?	mMkCtxtIOObj(SeisTrc)
+	:  (Seis::is2D(gt) ?	mGetCtxtIOObj(SeisPS2D,Seis)
+			   :	mGetCtxtIOObj(SeisPS3D,Seis));
 }
 
 
