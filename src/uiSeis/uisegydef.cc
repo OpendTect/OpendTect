@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.6 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.7 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,156 +28,11 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uitabstack.h"
 #include "uilineedit.h"
+#include "pixmap.h"
 #include "uimsg.h"
 
 const char* uiSEGYFileSpec::sKeyLineNmToken = "#L";
 static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
-
-//--- tools for building the UIs ----
-
-static uiGenInput* mkPosFld( uiGroup* grp, const char* key, const IOPar* iop,
-			     int def, bool inrev1, const char* dispnm=0 )
-{
-    if ( iop ) iop->get( key, def );
-    if ( def > 239 ) def = mUdf(int);
-    IntInpSpec inpspec( def );
-    inpspec.setLimits( Interval<int>( 1, 239 ) );
-    BufferString txt;
-    if ( inrev1 ) txt = "(*) ";
-    txt += dispnm ? dispnm : key;
-    return new uiGenInput( grp, txt, inpspec.setName(key) );
-}
-
-
-static uiGenInput* mkByteSzFld( uiGroup* grp, const char* key,
-				const IOPar* iop, int nrbytes )
-{
-    if ( iop ) iop->get( key, nrbytes );
-    BoolInpSpec bszspec( nrbytes != 2, "4", "2" );
-    return new uiGenInput( grp, "Size",  bszspec
-	    				.setName(BufferString("4",key),0)
-	   				.setName(BufferString("2",key),1) );
-}
-
-static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
-				  const IOPar* iop, const char* key,
-				  bool isz, bool isint=false )
-{
-    float val = mUdf(float);
-    const bool ispresent = iop && iop->get( key, val );
-    uiGenInput* inp;
-    if ( isint )
-    {
-	IntInpSpec iis( ispresent ? mNINT(val)
-				  : SI().zRange(false).nrSteps() + 1 );
-	inp = new uiGenInput( grp, txt, iis );
-    }
-    else
-    {
-	if ( !mIsUdf(val) && isz ) val *= SI().zFactor();
-	FloatInpSpec fis( val );
-	BufferString fldtxt( txt );
-	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnit(); }
-	inp = new uiGenInput( grp, fldtxt, fis );
-    }
-
-    inp->setWithCheck( true ); inp->setChecked( ispresent );
-    return inp;
-}
-
-
-static bool setIf( IOPar& iop, bool yn, const char* key, uiGenInput* inp,
-		   bool chkbyte, Seis::GeomType gt )
-{
-    if ( !yn )
-	{ iop.removeWithKey( key ); return true; }
-
-    if ( !chkbyte )
-	{ iop.set( key, inp->text() ); return true; }
-
-    int bytenr = inp->getIntValue();
-    if ( mIsUdf(bytenr) || bytenr < 1 || bytenr > 239 )
-	bytenr = 255;
-
-    if ( bytenr > 111 && bytenr < 119 )
-    {
-	uiMSG().error( "Bytes 115-118 (number of samples and sample rate)\n"
-			"should never be redefined" );
-	return false;
-    }
-    else if ( bytenr > 177 && bytenr < 201 )
-    {
-#define mHndlByte(stdkey,b,geomyn,fldfill) \
-	if ( !strcmp(key,SEGY::TrcHeaderDef::stdkey) && bytenr != b && geomyn )\
-	    fld = fldfill
-
-	const char* fld = 0;
-	const bool is2d = Seis::is2D( gt );
-	mHndlByte(sXCoordByte,181,true,"X-coord");
-	else mHndlByte(sYCoordByte,185,true,"Y-coord");
-	else mHndlByte(sInlByte,189,!is2d,"In-line");
-	else mHndlByte(sCrlByte,193,!is2d,"Cross-line");
-	else mHndlByte(sTrNrByte,197,is2d,"Trace number");
-	if ( fld )
-	{
-	    BufferString msg( "Please note that the byte for the " );
-	    msg += fld;
-	    msg += " may not be applied:\nIt clashes with standard SEG-Y "
-		   "revision 1 contents\nContinue?";
-	    if ( !uiMSG().askGoOn(msg) )
-		return false;
-	}
-    }
-    iop.set( key, bytenr );
-    return true;
-}
-
-
-static void setToggled( IOPar& iop, const char* key, uiGenInput* inp,
-       			bool isz=false )
-{
-    bool isdef = inp->isChecked() && *inp->text();
-    if ( !isdef )
-	iop.removeWithKey( key );
-    else
-    {
-	if ( !isz )
-	    iop.set( key, inp->text() );
-	else
-	    iop.set( key, inp->getfValue() / SI().zFactor() );
-    }
-}
-
-
-static void setByteNrFld( uiGenInput* inp, const IOPar& iop, const char* key )
-{
-    int bnr = inp->getIntValue();
-    if ( iop.get(key,bnr) )
-	inp->setValue( bnr );
-}
-
-
-static void setByteSzFld( uiGenInput* inp, const IOPar& iop, const char* key )
-{
-    int nr = inp->getBoolValue() ? 4 : 2;
-    if ( iop.get(key,nr) )
-	inp->setValue( nr != 2 );
-}
-
-
-static void setToggledFld( uiGenInput* inp, const IOPar& iop, const char* key,
-			   bool isz=false )
-{
-    float val = mUdf(float);
-    const bool ispresent = iop.get( key, val );
-    inp->setChecked( ispresent );
-    if ( ispresent )
-    {
-	if ( !mIsUdf(val) && isz )
-	    val *= SI().zFactor();
-	inp->setValue( val );
-    }
-}
 
 
 //--- uiSEGYFileSpec ----
@@ -332,17 +187,52 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
 //--- uiSEGYFilePars ----
 
 
+static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
+				  const IOPar* iop, const char* key,
+				  bool isz, bool isint=false )
+{
+    float val = mUdf(float);
+    const bool ispresent = iop && iop->get( key, val );
+    uiGenInput* inp;
+    if ( isint )
+    {
+	IntInpSpec iis( ispresent ? mNINT(val)
+				  : SI().zRange(false).nrSteps() + 1 );
+	inp = new uiGenInput( grp, txt, iis );
+    }
+    else
+    {
+	if ( !mIsUdf(val) && isz ) val *= SI().zFactor();
+	FloatInpSpec fis( val );
+	BufferString fldtxt( txt );
+	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnit(); }
+	inp = new uiGenInput( grp, fldtxt, fis );
+    }
+
+    inp->setWithCheck( true ); inp->setChecked( ispresent );
+    return inp;
+}
+
+
+#define mDefTB(clss,fld) \
+    uiToolButton* tb = new uiToolButton( this, "Retrieve setup", \
+	    ioPixmap("openset.png"), mCB(this,clss,readParsPush) ); \
+    tb->attach( rightOf, fld ); \
+    tb->setToolTip( "Retrieve saved setup" )
+
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     : uiSEGYDefGroup(p,"SEGY::FilePars group",forread)
     , nrsamplesfld_(0)
+    , readParsReq(this)
 {
+    uiGroup* grp = new uiGroup( this, "Main uiSEGYFilePars group" );
     if ( forread )
-	nrsamplesfld_ = mkOverruleFld( this, "Overrule SEG-Y number of samples",
+	nrsamplesfld_ = mkOverruleFld( grp, "Overrule SEG-Y number of samples",
 				      iop,
 				      SEGYSeisTrcTranslator::sExternalNrSamples,
 				      false, true );
 
-    fmtfld_ = new uiGenInput( this, "SEG-Y 'format'",
+    fmtfld_ = new uiGenInput( grp, "SEG-Y 'format'",
 	    	StringListInpSpec(SEGY::FilePars::getFmts(forread)) );
     if ( nrsamplesfld_ )
 	fmtfld_->attach( alignedBelow, nrsamplesfld_ );
@@ -350,11 +240,20 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     const bool isswpd = iop
 		&& iop->isTrue( SegylikeSeisTrcTranslator::sKeyBytesSwapped );
     const char* txt = forread ? "Bytes are swapped" : "Swap bytes";
-    byteswapfld_ = new uiGenInput( this, txt, BoolInpSpec(isswpd) );
+    byteswapfld_ = new uiGenInput( grp, txt, BoolInpSpec(isswpd) );
     byteswapfld_->attach( alignedBelow, fmtfld_ );
 
+    mDefTB( uiSEGYFilePars, grp );
+
     if ( iop ) usePar( *iop );
-    setHAlignObj( fmtfld_ );
+    grp->setHAlignObj( fmtfld_ );
+    setHAlignObj( grp );
+}
+
+
+void uiSEGYFilePars::readParsPush( CallBacker* )
+{
+    readParsReq.trigger();
 }
 
 
@@ -410,8 +309,134 @@ void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 }
 
 
+//--- tools for building the uiSEGYFileOpts UI ----
+
+static uiGenInput* mkPosFld( uiGroup* grp, const char* key, const IOPar* iop,
+			     int def, bool inrev1, const char* dispnm=0 )
+{
+    if ( iop ) iop->get( key, def );
+    if ( def > 239 ) def = mUdf(int);
+    IntInpSpec inpspec( def );
+    inpspec.setLimits( Interval<int>( 1, 239 ) );
+    BufferString txt;
+    if ( inrev1 ) txt = "(*) ";
+    txt += dispnm ? dispnm : key;
+    return new uiGenInput( grp, txt, inpspec.setName(key) );
+}
+
+
+static uiGenInput* mkByteSzFld( uiGroup* grp, const char* key,
+				const IOPar* iop, int nrbytes )
+{
+    if ( iop ) iop->get( key, nrbytes );
+    BoolInpSpec bszspec( nrbytes != 2, "4", "2" );
+    return new uiGenInput( grp, "Size",  bszspec
+	    				.setName(BufferString("4",key),0)
+	   				.setName(BufferString("2",key),1) );
+}
+
+
+static bool setIf( IOPar& iop, bool yn, const char* key, uiGenInput* inp,
+		   bool chkbyte, Seis::GeomType gt )
+{
+    if ( !yn )
+	{ iop.removeWithKey( key ); return true; }
+
+    if ( !chkbyte )
+	{ iop.set( key, inp->text() ); return true; }
+
+    int bytenr = inp->getIntValue();
+    if ( mIsUdf(bytenr) || bytenr < 1 || bytenr > 239 )
+	bytenr = 255;
+
+    if ( bytenr > 111 && bytenr < 119 )
+    {
+	uiMSG().error( "Bytes 115-118 (number of samples and sample rate)\n"
+			"should never be redefined" );
+	return false;
+    }
+    else if ( bytenr > 177 && bytenr < 201 )
+    {
+#define mHndlByte(stdkey,b,geomyn,fldfill) \
+	if ( !strcmp(key,SEGY::TrcHeaderDef::stdkey) && bytenr != b && geomyn )\
+	    fld = fldfill
+
+	const char* fld = 0;
+	const bool is2d = Seis::is2D( gt );
+	mHndlByte(sXCoordByte,181,true,"X-coord");
+	else mHndlByte(sYCoordByte,185,true,"Y-coord");
+	else mHndlByte(sInlByte,189,!is2d,"In-line");
+	else mHndlByte(sCrlByte,193,!is2d,"Cross-line");
+	else mHndlByte(sTrNrByte,197,is2d,"Trace number");
+	if ( fld )
+	{
+	    BufferString msg( "Please note that the byte for the " );
+	    msg += fld;
+	    msg += " may not be applied:\nIt clashes with standard SEG-Y "
+		   "revision 1 contents\nContinue?";
+	    if ( !uiMSG().askGoOn(msg) )
+		return false;
+	}
+    }
+    iop.set( key, bytenr );
+    return true;
+}
+
+
+static void setToggled( IOPar& iop, const char* key, uiGenInput* inp,
+       			bool isz=false )
+{
+    bool isdef = inp->isChecked() && *inp->text();
+    if ( !isdef )
+	iop.removeWithKey( key );
+    else
+    {
+	if ( !isz )
+	    iop.set( key, inp->text() );
+	else
+	    iop.set( key, inp->getfValue() / SI().zFactor() );
+    }
+}
+
+
+static void setByteNrFld( uiGenInput* inp, const IOPar& iop, const char* key )
+{
+    int bnr = inp->getIntValue();
+    if ( iop.get(key,bnr) )
+	inp->setValue( bnr );
+}
+
+
+static void setByteSzFld( uiGenInput* inp, const IOPar& iop, const char* key )
+{
+    int nr = inp->getBoolValue() ? 4 : 2;
+    if ( iop.get(key,nr) )
+	inp->setValue( nr != 2 );
+}
+
+
+static void setToggledFld( uiGenInput* inp, const IOPar& iop, const char* key,
+			   bool isz=false )
+{
+    float val = mUdf(float);
+    const bool ispresent = iop.get( key, val );
+    inp->setChecked( ispresent );
+    if ( ispresent )
+    {
+	if ( !mIsUdf(val) && isz )
+	    val *= SI().zFactor();
+	inp->setValue( val );
+    }
+}
+
+
 //--- uiSEGYFileOpts ----
 
+#define mDefObjs(fld) \
+{ \
+    mDefTB(uiSEGYFileOpts,fld); \
+    setHAlignObj( fld ); \
+}
 
 
 uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
@@ -431,6 +456,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     	, isps_(Seis::isPS(su.geom_))
     	, is2d_(Seis::is2D(su.geom_))
     	, ts_(0)
+    	, readParsReq(this)
 {
     if ( forread_ && !setup_.isrev1_ )
 	ts_ = new uiTabStack( this, "SEG-Y opts tab stack" );
@@ -441,13 +467,26 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     {
 	ts_->addTab( posgrp_, "Locations" );
 	ts_->addTab( orulegrp_, "Overrules" );
+	ts_->tabGroup()->setHAlignObj( posgrp_ );
+	ts_->setHAlignObj( ts_->tabGroup() );
+	mDefObjs( ts_ )
     }
+    else if ( posgrp_ )
+	mDefObjs( posgrp_ )
+    else if ( orulegrp_ )
+	mDefObjs( orulegrp_ )
     mainwin()->finaliseStart.notify( mCB(this,uiSEGYFileOpts,positioningChg) );
 }
 
 
 uiSEGYFileOpts::~uiSEGYFileOpts()
 {
+}
+
+
+void uiSEGYFileOpts::readParsPush( CallBacker* )
+{
+    readParsReq.trigger();
 }
 
 
@@ -542,6 +581,7 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar* iop )
 	lbl->attach( centeredBelow, grp );
     }
 
+    maingrp->setHAlignObj( grp ); \
     return maingrp;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.4 2008-09-24 14:01:56 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.5 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ public:
     int			nrTrcExamine() const;
     void		fillPar(IOPar&) const;
 
+    Notifier<uiSEGYDefDlg> readParsReq;
+
 protected:
 
     Setup		setup_;
@@ -56,6 +58,7 @@ protected:
     uiComboBox*		geomfld_;
 
     void		initFlds(CallBacker*);
+    void		readParsCB(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };

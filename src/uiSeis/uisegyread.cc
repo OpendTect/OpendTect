@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.4 2008-09-24 15:15:53 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.5 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
     , state_(cGetBasicOpts)
     , specincomplete_(false)
     , scanner_(0)
-    , rev_(0)
+    , rev_(Rev0)
     , nrexamine_(0)
 {
 }
@@ -81,14 +81,20 @@ void uiSEGYRead::use( const IOObj* ioobj, bool force )
 void uiSEGYRead::fillPar( IOPar& iop ) const
 {
     iop.merge( pars_ );
-    iop.setYN( SEGYSeisTrcTranslator::sForceRev0, rev_ == 0 );
+    iop.setYN( SEGYSeisTrcTranslator::sForceRev0, rev_ == Rev0 );
 }
 
 
 void uiSEGYRead::usePar( const IOPar& iop )
 {
     pars_.merge( iop );
-    if ( iop.isTrue( SEGYSeisTrcTranslator::sForceRev0 ) ) rev_ = 0;
+    if ( iop.isTrue( SEGYSeisTrcTranslator::sForceRev0 ) ) rev_ = Rev0;
+}
+
+
+void uiSEGYRead::readReq( CallBacker* )
+{
+    uiMSG().error( "Not impl yet: read pars" );
 }
 
 
@@ -171,22 +177,25 @@ bool isGoBack() const
 
 };
 
+#define mSetreadReqCB() readParsReq.notify( mCB(this,uiSEGYRead,readReq) )
+
 void uiSEGYRead::getBasicOpts()
 {
     uiSEGYDefDlg::Setup bsu; bsu.geoms_ = setup_.geoms_;
     uiSEGYDefDlg dlg( parent_, bsu, pars_ );
+    dlg.mSetreadReqCB();
     if ( !dlg.go() )
 	{ state_ = cCancel; return; }
     geom_ = dlg.geomType();
     nrexamine_ =  dlg.nrTrcExamine();
 
     uiSEGYExamine::Setup exsu( nrexamine_ ); exsu.usePar( pars_ );
-    rev_ = uiSEGYExamine::getRev( exsu );
-    if ( rev_ < 0 )
-	{ state_ = cGetBasicOpts; return; }
+    int exrev = uiSEGYExamine::getRev( exsu );
+    if ( exrev < 0 )
+	{ rev_ = Rev0; state_ = cGetBasicOpts; return; }
 
-    specincomplete_ = true;
-    if ( rev_ > 0 )
+    rev_ = exrev ? WeakRev1 : Rev0;
+    if ( rev_ != Rev0 )
     {
 	int pol = 2; SI().pars().get( sKeySEGYRev1Pol, pol );
 	if ( pol < 0 )
@@ -198,14 +207,12 @@ void uiSEGYRead::getBasicOpts()
 		{ state_ = cGetBasicOpts; return; }
 	    pol = dlg.pol_;
 	}
-	if ( pol == 1 )
-	    specincomplete_ = false;
-	else if ( pol == 3 )
-	    rev_ = 0;
+
+	rev_ = pol == 1 ? Rev1 : (pol == 2 ? WeakRev1 : Rev0);
     }
 
     state_ = setup_.purpose_ == Import ? cImport
-	   : (specincomplete_ ? cSetupScan : cScanFiles);
+	   : (rev_ != Rev1 ? cSetupScan : cScanFiles);
 }
 
 
@@ -231,7 +238,8 @@ void uiSEGYRead::doScan()
 void uiSEGYRead::doImport()
 {
     uiSEGYImpDlg::Setup su( geom_ );
-    su.isrev1( rev_ != 0 ).nrexamine( nrexamine_ );
+    su.rev( rev_ ).nrexamine( nrexamine_ );
     uiSEGYImpDlg dlg( parent_, su, pars_ );
+    dlg.mSetreadReqCB();
     state_ = dlg.go() ? cFinished : cGetBasicOpts;
 }

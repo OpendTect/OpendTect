@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.5 2008-09-23 12:16:44 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.6 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,11 +87,15 @@ public:
     SEGY::FilePars	getPars() const;
     void		setPars(const SEGY::FilePars&);
 
+    Notifier<uiSEGYFilePars> readParsReq;
+
 protected:
 
     uiGenInput*		nrsamplesfld_;
     uiGenInput*		fmtfld_;
     uiGenInput*		byteswapfld_;
+
+    void		readParsPush(CallBacker*);
 
 };
 
@@ -133,6 +137,8 @@ public:
     void		usePar(const IOPar&);
     void		getReport(IOPar&) const;
     void		use(const IOObj*,bool force);
+
+    Notifier<uiSEGYFileOpts> readParsReq;
 
 protected:
 
@@ -181,6 +187,7 @@ protected:
     void		attachPosFlds(uiGroup*);
 
     void		positioningChg(CallBacker*);
+    void		readParsPush(CallBacker*);
 
     int			posType() const;
     bool		haveIC() const;

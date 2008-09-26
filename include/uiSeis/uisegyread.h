@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.3 2008-09-24 14:01:56 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.4 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,12 @@ namespace SEGY { class Scanner; }
 
 /*!\brief 'Server' for SEG-Y Reading */
 
-class uiSEGYRead
+class uiSEGYRead : public CallBacker
 {
 public:
 
     enum Purpose	{ Import, SurvSetup, DirectDef };
+    enum RevType	{ Rev0, WeakRev1, Rev1 };
 
     struct Setup
     {
@@ -60,7 +61,7 @@ protected:
     uiParent*		parent_;
     Seis::GeomType	geom_;
     IOPar		pars_;
-    int			rev_;
+    RevType		rev_;
     int			nrexamine_;
 
     mutable int		state_;
@@ -71,6 +72,8 @@ protected:
     void		setupScan();
     void		doScan();
     void		doImport();
+
+    void		readReq(CallBacker*);
 
     int			targetState() const;
 };

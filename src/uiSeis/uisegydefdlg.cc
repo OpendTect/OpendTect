@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.4 2008-09-24 14:01:56 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.5 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     , pars_(iop)
     , geomfld_(0)
     , geomtype_(Seis::Vol)
+    , readParsReq(this)
 {
     filespecfld_ = new uiSEGYFileSpec( this, true, &iop );
     uiGroup* lastgrp = filespecfld_;
@@ -70,6 +71,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     lbl->attach( rightOf, nrtrcexfld_ );
     fileparsfld_ = new uiSEGYFilePars( this, true, &iop );
     fileparsfld_->attach( alignedBelow, nrtrcexfld_ );
+    fileparsfld_->readParsReq.notify( mCB(this,uiSEGYDefDlg,readParsCB) );
 
     finaliseDone.notify( mCB(this,uiSEGYDefDlg,initFlds) );
     	// Need this to get zero padding right
@@ -133,6 +135,12 @@ void uiSEGYDefDlg::usePar( const IOPar& iop )
     const char* res = iop.find( sKey::Geometry );
     if ( res && *res )
 	geomfld_->setCurrentItem( res );
+}
+
+
+void uiSEGYDefDlg::readParsCB( CallBacker* )
+{
+    readParsReq.trigger();
 }
 
 

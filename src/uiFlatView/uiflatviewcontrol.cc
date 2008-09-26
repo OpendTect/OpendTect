@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.36 2008-07-16 17:57:13 cvsnanne Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.37 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiflatviewpropdlg.h"
 #include "uirgbarraycanvas.h"
 #include "uiworld2ui.h"
+#include "uiobjdisposer.h"
 #include "datapackbase.h"
 #include "bufstringset.h"
 
@@ -254,6 +255,8 @@ void uiFlatViewControl::propDlgClosed( CallBacker* )
     if ( propdlg_->saveButtonChecked() )
 	saveProperties( propdlg_->viewer() );
 
+    uiOBJDISP()->go( propdlg_ );
+    propdlg_ = 0;
 }
 
 

@@ -7,13 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.1 2008-09-24 19:48:37 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.2 2008-09-26 13:38:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "seistype.h"
+#include "uisegyread.h"
+class uiSeisSel;
+class CtxtIOObj;
+class uiGenInput;
+class uiSeisTransfer;
 class uiSEGYFileOpts;
 
 
@@ -27,31 +31,34 @@ public :
     {
     public:
 
-    			Setup( Seis::GeomType gt )
-			    : uiDialog::Setup("SEG-Y Import",
-				    	      mNoDlgTitle, "103.1.5")
-			    , geom_(gt)	
-			    , nrexamine_(0)	
-			    , isrev1_(false)		{}
+    			Setup(Seis::GeomType);
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(int,nrexamine)
-	mDefSetupMemb(bool,isrev1)
+	mDefSetupMemb(int,nrexamine)		// default 0=no examine
+	mDefSetupMemb(uiSEGYRead::RevType,rev)	// default Rev0
     };
 
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);
 			~uiSEGYImpDlg();
 
+    Notifier<uiSEGYImpDlg> readParsReq;
+
+    static CtxtIOObj*	getCtxtIOObj(Seis::GeomType);
+
 protected:
 
     const Setup		setup_;
     IOPar&		pars_;
+    CtxtIOObj&		ctio_;
 
     uiSEGYFileOpts*	optsfld_;
-    uiToolBar*		uitb_;
+    uiGenInput*		savesetupfld_;
+    uiSeisTransfer*	transffld_;
+    uiSeisSel*		seissel_;
 
-    bool		getFromScreen(bool);
+    bool		getParsFromScreen(bool);
     void		setupWin(CallBacker*);
+    void		readParsCB(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
 
