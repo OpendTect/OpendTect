@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.2 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.3 2008-09-26 13:40:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,6 @@ public :
 			~uiSEGYImpDlg();
 
     Notifier<uiSEGYImpDlg> readParsReq;
-
-    static CtxtIOObj*	getCtxtIOObj(Seis::GeomType);
 
 protected:
 
