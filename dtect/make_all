@@ -38,7 +38,7 @@ goto parse_args
 do_it:
 
 set hostnm=`hostname`
-if ( $hostnm == dgb3 ) then
+if ( $USER == dgb && ($hostnm == dgb3 || $hostnm == dgbindia10) ) then
     cdw
     cd ..
     set oddir=$WORK:t
