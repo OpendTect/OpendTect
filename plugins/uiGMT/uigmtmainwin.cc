@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.8 2008-09-25 12:01:13 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.9 2008-09-26 09:54:10 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uitoolbar.h"
 
+#include "dtect.xpm"
+
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
     : uiFullBatchDialog(p,uiFullBatchDialog::Setup("GMT Mapping Tool")
@@ -46,6 +48,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 {
     setTitleText( "" );
     setCtrlStyle( LeaveOnly );
+    setIcon( dtect_xpm_data, "GMT Mapping Tool" );
 
     uiGroup* rightgrp = new uiGroup( uppgrp_, "Right group" );
     tabstack_ = new uiTabStack( rightgrp, "Tab" );

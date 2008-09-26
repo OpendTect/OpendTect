@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		September 2008
- RCS:		$Id: uigmtadv.cc,v 1.2 2008-09-25 12:01:13 cvsraman Exp $
+ RCS:		$Id: uigmtadv.cc,v 1.3 2008-09-26 09:54:10 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 #include "uilabel.h"
 #include "uilineedit.h"
+#include "uimsg.h"
 
 
 int uiGMTAdvGrp::factoryid_ = -1;
@@ -53,6 +54,9 @@ void uiGMTAdvGrp::reset()
 bool uiGMTAdvGrp::fillPar( IOPar& par ) const
 {
     const char* comm = inpfld_->getvalue_();
+    if ( !comm || !*comm )
+	mErrRet("Please enter a valid GMT command")
+
     par.set( ODGMT::sKeyCustomComm, comm );
     return true;
 }
