@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initsood.cc,v 1.4 2008-09-25 18:38:16 cvskris Exp $
+ RCS:           $Id: initsood.cc,v 1.5 2008-09-26 14:31:37 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@
 #include "SoShaderTexture2.h"
 #include "SoSplitTexture2.h"
 #include "SoSplitTexture2Element.h"
+#include "SoTextureChannelSet.h"
+#include "SoTextureChannelSetElement.h"
 #include "SoRandomTrackLineDragger.h"
 #include "SoGridSurfaceDragger.h"
 #include "UTMCamera.h"
@@ -54,6 +56,7 @@ void SoOD::initStdClasses()
     SoCameraInfoElement::initClass();
     UTMElement::initClass();
     SoSplitTexture2Element::initClass();
+    SoTextureChannelSetElement::initClass();
 
     //Then fields
     SoMFImage::initClass();
@@ -76,6 +79,7 @@ void SoOD::initStdClasses()
     SoIndexedLineSet3D::initClass();
     SoShapeScale::initClass();
     SoText2Set::initClass();
+    SoTextureChannelSet::initClass();
     SoTranslateRectangleDragger::initClass();
     SoRandomTrackLineDragger::initClass();
     SoScale3Dragger::initClass();
