@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.8 2008-07-16 17:59:59 cvsnanne Exp $
+ RCS:           $Id: convert.h,v 1.9 2008-09-26 07:39:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,9 @@ inline void set( const char*& _to, const double& d )
     { _to = toString(d); }
 
 
-#define mSetFromStrTo(type,function) \
+#ifndef __sol32__
+
+#define mConvDefFromStrToFn(type,function) \
 template <> \
 inline void set( type& _to, const char* const& s ) \
 { \
@@ -105,12 +107,29 @@ inline void set( type& _to, const char* const& s ) \
 	    Values::setUdf( _to ); \
 } 
 
-mSetFromStrTo( int, strtol(s,&endptr,0) );
-mSetFromStrTo( od_uint32, strtoul(s,&endptr,0) );
-mSetFromStrTo( od_int64, strtoll(s,&endptr,0) );
-mSetFromStrTo( od_uint64, strtoull(s,&endptr,0) );
-mSetFromStrTo( double, strtod(s,&endptr) );
-mSetFromStrTo( float, strtof(s,&endptr) );
+mConvDefFromStrToFn( int, strtol(s,&endptr,0) )
+mConvDefFromStrToFn( od_uint32, strtoul(s,&endptr,0) )
+mConvDefFromStrToFn( od_int64, strtoll(s,&endptr,0) )
+mConvDefFromStrToFn( od_uint64, strtoull(s,&endptr,0) )
+mConvDefFromStrToFn( double, strtod(s,&endptr) )
+mConvDefFromStrToFn( float, strtof(s,&endptr) )
+
+
+#else
+
+#define mConvDefFromStrToFn(type,fn) \
+template <> \
+inline void set( type& _to, const char* const& s ) \
+    { _to = (type)fn(s); }
+
+mConvDefFromStrToFn( int, atoi )
+mConvDefFromStrToFn( od_uint32, atoi )
+mConvDefFromStrToFn( od_int64, atoll )
+mConvDefFromStrToFn( od_uint64, atoll )
+mConvDefFromStrToFn( double, atof )
+mConvDefFromStrToFn( float, atof )
+
+#endif
 
     
 template <>
