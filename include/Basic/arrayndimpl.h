@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.58 2008-09-05 19:05:30 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.59 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -280,7 +280,7 @@ ArrayNDFileStor<T>::~ArrayNDFileStor()
 {
     Threads::MutexLocker mlock( mutex_ );
     if ( strm_ ) close();
-    File_remove( name_.buf(), false );
+    File_remove( name_.buf(), mFile_NotRecursive );
 }
 
 
@@ -288,7 +288,7 @@ template <class T> inline
 void ArrayNDFileStor<T>::setTempStorageDir( const char* dir )
 {
     close();
-    File_remove( name_.buf(), false );
+    File_remove( name_.buf(), mFile_NotRecursive );
     FilePath fp( name_.buf() );
     fp.setPath( File_isDirectory(dir) && File_isWritable(dir) ? dir : "/tmp/" );
     name_ = fp.fullPath();

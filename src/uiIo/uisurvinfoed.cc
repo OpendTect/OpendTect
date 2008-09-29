@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.97 2008-07-31 05:51:39 cvsnanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.98 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,11 +139,11 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	BufferString dirnm = FilePath( orgstorepath )
 	    		    .add( orgdirname ).fullPath();
 	if ( File_exists(dirnm) )
-	    File_remove( dirnm, YES );
+	    File_remove( dirnm, mFile_Recursive );
 	if ( !copySurv(mGetSetupFileName("BasicSurvey"),0,
 		       orgstorepath,orgdirname) )
 	    return;
-	File_makeWritable( dirnm, YES, YES );
+	File_makeWritable( dirnm, mFile_Recursive, mC_True );
 
 	fulldirpath = dirnm;
     }
@@ -436,7 +436,7 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 	return false;
     }
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    File_copy( fnmin, fnmout, YES );
+    File_copy( fnmin, fnmout, mFile_Recursive );
     MouseCursorManager::restoreOverride();
     if ( !File_exists(fnmout) )
     {
@@ -527,7 +527,7 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
     {
 	BufferString dirnm = FilePath(orgstorepath).add(orgdirname).fullPath();
 	if ( File_exists(dirnm) )
-	    File_remove( dirnm, YES );
+	    File_remove( dirnm, mFile_Recursive );
     }
     return true;
 }
@@ -541,7 +541,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	return false;
     }
     BufferString newdirnm = newdirnminp;
-    cleanupString( newdirnm.buf(), NO, YES, YES );
+    cleanupString( newdirnm.buf(), mC_False, mC_True, mC_True );
     if ( newdirnm != newdirnminp )
 	dirnmfld->setText( newdirnm );
 
@@ -577,7 +577,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	    else if ( !copySurv(orgstorepath,orgdirname,newstorepath,newdirnm) )
 		return false;
 	    else if ( !uiMSG().askGoOn("Keep the survey at the old location?") )
-		File_remove( olddir, YES );
+		File_remove( olddir, mFile_Recursive );
 	}
 	else if ( dirnamechanged )
 	{
@@ -598,7 +598,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	{
 	    if ( !copySurv(orgstorepath,orgdirname,newstorepath,newdirnm) )
 		return false;
-	    File_remove( olddir, YES );
+	    File_remove( olddir, mFile_Recursive );
 	}
 	else if ( !renameSurv(newstorepath,orgdirname,newdirnm) )
 	    return false;
@@ -609,7 +609,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
     if ( File_exists(linkpos) )
     {
        if ( File_isLink(linkpos) )
-	   File_remove( linkpos, NO );
+	   File_remove( linkpos, mFile_NotRecursive );
     }
 
     if ( !File_exists(linkpos) )
@@ -636,7 +636,7 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 const char* uiSurveyInfoEditor::dirName()
 {
     orgdirname = dirnmfld->text();
-    cleanupString( orgdirname.buf(), NO, NO, YES );
+    cleanupString( orgdirname.buf(), mC_False, mC_False, mC_True );
     return orgdirname;
 }
 

@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.4 2008-06-11 11:40:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.5 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -30,9 +30,9 @@ static const char* lostinspace = "C:\\";
 #endif
 
 static FileNameString surveyname;
-static int surveynamedirty = YES;
+static int surveynamedirty = mC_True;
 static const char* dirsep = sDirSep;
-static char tmpbuf[PATH_LENGTH+1];
+static char dbgstrbuf[mMaxFilePathLength+1];
 
 
 static const char* mkFullPath( const char* path, const char* filename )
@@ -79,7 +79,7 @@ void SetSurveyNameDirty()
 const char* GetSurveyFileName()
 {
     static FileNameString sfname;
-    static int inited = NO;
+    static int inited = mC_False;
     const char* ptr;
 
     if ( !inited )
@@ -92,13 +92,13 @@ const char* GetSurveyFileName()
 	    strcat( sfname, "." );
 	    strcat( sfname, ptr );
 	}
-	inited = YES;
+	inited = mC_True;
     }
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( tmpbuf, "GetSurveyFileName: '%s'", sfname );
-	od_debug_message( tmpbuf );
+	sprintf( dbgstrbuf, "GetSurveyFileName: '%s'", sfname );
+	od_debug_message( dbgstrbuf );
     }
 
     return sfname;
@@ -122,20 +122,21 @@ const char* GetSurveyName()
     fp = fopen( GetSurveyFileName(), "r" );
     if ( !fp ) return 0;
 
-    ptr = tmpbuf; *ptr = '\0';		/* Don't use tmpbuf between here ... */
-    fgets( ptr, PATH_LENGTH, fp );
+    static char tmpbuf[mMaxFilePathLength];
+    ptr = tmpbuf; *ptr = '\0';
+    fgets( ptr, mMaxFilePathLength, fp );
     fclose( fp );
 
     mTrimBlanks( ptr );
     if ( !*ptr ) return 0;
 
-    strcpy( surveyname, ptr );		/* ... and here */
+    strcpy( surveyname, ptr );
     surveynamedirty = 0;
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( tmpbuf, "GetSurveyName: %s", surveyname );
-	od_debug_message( tmpbuf );
+	sprintf( dbgstrbuf, "GetSurveyName: %s", surveyname );
+	od_debug_message( dbgstrbuf );
     }
 
     return surveyname;
@@ -186,8 +187,8 @@ const char* GetDataDir()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( tmpbuf, "GetDataDir: '%s'", filenamebuf );
-	od_debug_message( tmpbuf );
+	sprintf( dbgstrbuf, "GetDataDir: '%s'", filenamebuf );
+	od_debug_message( dbgstrbuf );
     }
 
     return filenamebuf;
@@ -305,8 +306,8 @@ const char* GetSoftwareDir()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( tmpbuf, "GetSoftwareDir: '%s'", dir );
-	od_debug_message( tmpbuf );
+	sprintf( dbgstrbuf, "GetSoftwareDir: '%s'", dir );
+	od_debug_message( dbgstrbuf );
     }
 
     if ( dir != dirnm )
@@ -451,8 +452,8 @@ const char* GetSoftwareUser()
 	if ( !ptr ) ptr = GetEnvVar( "DTECT_USER" );
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	{
-	    sprintf( tmpbuf, "GetSoftwareUser: '%s'", ptr ? ptr : "<None>" );
-	    od_debug_message( tmpbuf );
+	    sprintf( dbgstrbuf, "GetSoftwareUser: '%s'", ptr ? ptr : "<None>" );
+	    od_debug_message( dbgstrbuf );
 	}
 	ret = ptr ? ptr : "";
     }
@@ -536,8 +537,8 @@ const char* GetPersonalDir( void )
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	{
-	    sprintf( tmpbuf, "GetPersonalDir: '%s'", dirnm );
-	    od_debug_message( tmpbuf );
+	    sprintf( dbgstrbuf, "GetPersonalDir: '%s'", dirnm );
+	    od_debug_message( dbgstrbuf );
 	}
 
 	ret = dirnm;
@@ -573,7 +574,7 @@ const char* GetSettingsDir(void)
 	if ( !File_isDirectory(dirnm) )
 	{
 	    if ( File_exists(dirnm) )
-		File_remove( dirnm, NO );
+		File_remove( dirnm, mFile_NotRecursive );
 	    if ( !File_createDir(dirnm,0) )
 	    {
 		fprintf( stderr, "Fatal: Cannot create '.od' directory in home "
@@ -582,15 +583,15 @@ const char* GetSettingsDir(void)
 	    }
 	    if ( od_debug_isOn(DBG_SETTINGS) )
 	    {
-		sprintf( tmpbuf, "Had to create SettingsDir: '%s'", dirnm );
-		od_debug_message( tmpbuf );
+		sprintf( dbgstrbuf, "Had to create SettingsDir: '%s'", dirnm );
+		od_debug_message( dbgstrbuf );
 	    }
 	}
 
 	if ( od_debug_isOn(DBG_SETTINGS) )
 	{
-	    sprintf( tmpbuf, "GetSettingsDir: '%s'", dirnm );
-	    od_debug_message( tmpbuf );
+	    sprintf( dbgstrbuf, "GetSettingsDir: '%s'", dirnm );
+	    od_debug_message( dbgstrbuf );
 	}
 
 	ret = dirnm;
@@ -638,9 +639,9 @@ const char* SearchODFile( const char* fname )
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( tmpbuf, "SearchODFile for '%s': '%s'",
+	sprintf( dbgstrbuf, "SearchODFile for '%s': '%s'",
 			 fname ? fname : "(null)", nm ? nm : "<none>");
-	od_debug_message( tmpbuf );
+	od_debug_message( dbgstrbuf );
     }
 
     return nm;

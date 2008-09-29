@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.29 2008-08-18 13:32:23 cvsyuancheng Exp $
+ RCS:		$Id: simpnumer.h,v 1.30 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -156,7 +156,7 @@ bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
     if ( lowpos  >= sz || lowpos  < 0 ||
          highpos >= sz || highpos < 0 ||
 	 highpos == lowpos )
-	return NO;
+	return false;
 
     int pos = lowpos < highpos ? 0 : sz - 1 ;
     int inc = lowpos < highpos ? 1 : -1 ;
@@ -180,7 +180,7 @@ bool taperArray( T* array, int sz, int lowpos, int highpos, Taper::Type type )
 	taperfactor += taperfactorinc;
     }
 
-    return YES;
+    return true;
 }
 
 

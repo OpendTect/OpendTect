@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.22 2008-05-13 14:00:38 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.23 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,9 +127,9 @@ protected:
 			IOObj(const char* nm=0,const char* ky=0);
 			IOObj(IOObj*,const char* ky=0);
     static IOObj*	get(ascistream&,const char*,const char*);
-    int			put(ascostream&) const;
-    virtual int		getFrom(ascistream&)		= 0;
-    virtual int		putTo(ascostream&) const	= 0;
+    bool		put(ascostream&) const;
+    virtual bool	getFrom(ascistream&)		= 0;
+    virtual bool	putTo(ascostream&) const	= 0;
     void		setKey( const char* nm )	{ key_ = nm; }
 
 private:

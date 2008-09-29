@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.67 2008-09-09 10:52:11 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.68 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ static void getProcFilename( const char* basnm, const char* altbasnm,
 {
     if ( !basnm || !*basnm ) basnm = altbasnm;
     tfname = basnm;
-    cleanupString( tfname.buf(), NO, NO, YES );
+    cleanupString( tfname.buf(), mC_False, mC_False, mC_True );
     tfname += ".par";
     tfname = GetProcFileName( tfname );
 }
@@ -342,7 +342,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    StreamData sd = StreamProvider( fnm ).makeIStream();
 	    if ( !sd.usable() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
-	    ascistream aistrm( *sd.istrm, YES );
+	    ascistream aistrm( *sd.istrm, true );
 	    if ( strcmp(aistrm.fileType(),sKey::Pars) )
 	    {
 		sd.close();

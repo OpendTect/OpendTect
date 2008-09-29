@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.36 2007-06-14 17:25:11 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.37 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -122,7 +122,7 @@ bool Settings::doRead( bool ext )
 	bool okaftercopy = false;
 	if ( File_exists(tmplfname) )
 	{
-	    File_copy( tmplfname, fname, NO );
+	    File_copy( tmplfname, fname, mC_False );
 	    if ( sfio.open(true) )
 		okaftercopy = true;
 	}

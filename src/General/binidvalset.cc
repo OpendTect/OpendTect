@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.24 2008-09-26 20:04:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.25 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -248,13 +248,13 @@ Interval<float> BinIDValueSet::valRange( int valnr ) const
     while ( next(pos) )
     {
 	const float val = getVals(pos)[valnr];
-	if ( Math::IsNormalNumber(val) && !mIsUdf(val) )
+	if ( !mIsUdf(val) )
 	    { ret.start = ret.stop = val; break; }
     }
     while ( next(pos) )
     {
 	const float val = getVals(pos)[valnr];
-	if ( Math::IsNormalNumber(val) && !mIsUdf(val) )
+	if ( !mIsUdf(val) )
 	    ret.include( val, false );
     }
 

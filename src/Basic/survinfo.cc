@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.99 2008-08-26 12:15:03 cvsraman Exp $
+ RCS:           $Id: survinfo.cc,v 1.100 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,9 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "iopar.h"
 #include "errh.h"
-
 #include <math.h>
+#include <iostream>
+
 
 static const char* sKeySI = "Survey Info";
 static const char* sKeyXTransf = "Coord-X-BinID";

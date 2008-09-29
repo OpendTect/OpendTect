@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.15 2008-09-22 13:11:25 cvskris Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.16 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -366,11 +366,12 @@ int doFinal()
     {
 	errmsg_ = "No traces written during re-sorting.\n";
 	errmsg_ += "The imported cube remains to have swapped in/crosslines";
-	File_remove( tmpfnm, NO );
+	File_remove( tmpfnm, mFile_NotRecursive );
 	return Executor::ErrorOccurred;
     }
 
-    if ( !File_remove(targetfnm_,NO) || !File_rename(tmpfnm,targetfnm_) )
+    if ( !File_remove(targetfnm_,mFile_NotRecursive)
+      || !File_rename(tmpfnm,targetfnm_) )
     {
 	errmsg_ = "Cannot rename the swapped in/crossline cube";
 	errmsg_ += "Please rename (by hand):\n";

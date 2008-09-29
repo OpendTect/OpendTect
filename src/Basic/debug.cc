@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.25 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.26 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.25 2007-06-14 11:22:37 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.26 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -19,11 +19,32 @@ static const char* rcsID = "$Id: debug.cc,v 1.25 2007-06-14 11:22:37 cvsbert Exp
 #include "filepath.h"
 #include "envvars.h"
 #include "sighndl.h"
+#include "undefval.h"
+#include "math2.h"
+#include "errh.h"
 
 #include <iostream>
 #include <fstream>
 
 static std::ostream* dbglogstrm = 0;
+
+#ifdef __debug__
+static bool doisudfmsgs = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" );
+bool dbgIsUdf( float val )
+{
+    if ( !Math::IsNormalNumber(val) )
+	{ if ( doisudfmsgs ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(f)");
+			     return true; }
+    return Values::isUdf( val );
+}
+bool dbgIsUdf( double val )
+{
+    if ( !Math::IsNormalNumber(val) )
+	{ if ( doisudfmsgs ) pFreeFnErrMsg("Bad fp value found","dbgIsUdf(d)");
+			     return true; }
+    return Values::isUdf( val );
+}
+#endif
 
 
 namespace DBG

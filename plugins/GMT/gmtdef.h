@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.8 2008-09-12 11:32:25 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.9 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "settings.h"
+#include "enums.h"
 
 namespace ODGMT
 {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.48 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.49 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
 	    SurfaceAuxData::getAuxDataFileName( *curioobj_, attrnms.get(ida) );
 	if ( filenm.isEmpty() ) continue;
 
-	File_remove( filenm, NO );
+	File_remove( filenm, mFile_NotRecursive );
     }
 
     selChg( this );
@@ -218,7 +218,7 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
     BufferString tmpfnm( filename ); tmpfnm += "_old";
     if ( !writeok )
     {
-	File_remove( ofilename, NO );
+	File_remove( ofilename, mFile_NotRecursive );
 	mErrRet( "Error during write. Reverting to old name" )
     }
 
@@ -226,12 +226,12 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 	File_rename(ofilename,filename);
     else
     {
-	File_remove( ofilename, NO );
+	File_remove( ofilename, mFile_NotRecursive );
 	mErrRet( "Cannot rename file(s). Reverting to old name" )
     }
 
     if ( File_exists(tmpfnm) )
-	File_remove( tmpfnm, NO );
+	File_remove( tmpfnm, mFile_NotRecursive );
 
     selChg( this );
 }

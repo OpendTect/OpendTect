@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.30 2008-09-22 13:09:19 cvskris Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.31 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: array2dbitmap.cc,v 1.30 2008-09-22 13:09:19 cvs
 #include "statrand.h"
 #include "envvars.h"
 #include <math.h>
+#include <iostream>
 
 const char A2DBitMapGenPars::cNoFill		= -127;
 const char WVAA2DBitMapGenPars::cZeroLineFill	= -126;

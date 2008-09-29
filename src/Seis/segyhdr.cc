@@ -5,11 +5,10 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.58 2008-09-22 15:09:01 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.59 2008-09-29 13:23:48 cvsbert Exp $";
 
 
 #include "segyhdr.h"
-#include "fixstring.h"
 #include "string2.h"
 #include "survinfo.h"
 #include "ibmformat.h"

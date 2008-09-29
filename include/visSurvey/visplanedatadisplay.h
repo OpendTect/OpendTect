@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.108 2008-07-01 09:13:24 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.109 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "vismultiattribsurvobj.h"
 #include "mousecursor.h"
 #include "ranges.h"
+#include "enums.h"
 
 template <class T> class Array2DImpl;
 namespace visBase

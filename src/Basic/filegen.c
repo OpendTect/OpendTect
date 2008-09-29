@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.73 2007-10-05 09:20:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.74 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -67,19 +67,19 @@ int File_exists( const char* fname )
 #ifdef __win__
     return fname && *fname && PathFileExists( fname );
 #else
-    return fname && *fname && stat(fname,&statbuf) >= 0 ? YES : NO;
+    return fname && *fname && stat(fname,&statbuf) >= 0 ? mC_True : mC_False;
 #endif
 }
 
 
 int File_isEmpty( const char* fname )
 {
-    if( !File_exists( fname ) ) return YES;
+    if( !File_exists( fname ) ) return mC_True;
 #ifdef __msvc__
     pErrMsg("File_isEmpty not fully implemented!");
-    return NO;
+    return mC_False;
 #else
-    return stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? YES : NO;
+    return stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? mC_True : mC_False;
 #endif
 }
 
@@ -98,11 +98,11 @@ int File_isDirectory( const char* dirname )
 int File_isRemote( const char* fname )
 {
 #ifdef __win__
-    return NO;
+    return mC_False;
 #else
     if ( !File_exists(fname)
       || mStatFS(fname,&fsstatbuf) )
-	return NO;
+	return mC_False;
 
 # ifdef lux
     /* return fsstatbuf.f_type == NFS_SUPER_MAGIC
@@ -223,7 +223,7 @@ int File_isWritable( const char* fnm )
 
 int File_createDir( const char* dirname, int mode )
 {
-    if ( !dirname || !*dirname ) return NO;
+    if ( !dirname || !*dirname ) return mC_False;
     if ( mode == 0 ) mode = 0755;
 
 #ifdef __win__
@@ -232,7 +232,7 @@ int File_createDir( const char* dirname, int mode )
 
 #else
 
-    return mkdir( dirname, (mode_t)mode ) < 0 ? NO : YES;
+    return mkdir( dirname, (mode_t)mode ) < 0 ? mC_False : mC_True;
 
 #endif
 }
@@ -245,8 +245,8 @@ int File_rename( const char* from, const char* to )
     int rv, len;
     char* cmd = 0;
 
-    if ( !from || !*from || !to || !*to ) return NO;
-    if ( !File_exists(from) ) return YES;
+    if ( !from || !*from || !to || !*to ) return mC_False;
+    if ( !File_exists(from) ) return mC_True;
 
 #ifdef __win__
 
@@ -287,9 +287,9 @@ int File_rename( const char* from, const char* to )
     if ( !rename(from,to) )
     {
 	if ( File_exists(to) )
-	    return YES;
+	    return mC_True;
 	else if ( !File_exists(from) )
-	    return NO;
+	    return mC_False;
     }
 
     // Failed. May be to other disk. Let's try again via shell.
@@ -302,7 +302,7 @@ int File_rename( const char* from, const char* to )
     strcat( cmd, to );
     strcat( cmd, "'" );
 
-    rv = system( cmd ) != -1 ? YES : NO;
+    rv = system( cmd ) != -1 ? mC_True : mC_False;
     if ( rv )
 	rv = File_exists( to );
     mRet( rv )
@@ -317,14 +317,14 @@ int File_copy( const char* from, const char* to, int recursive )
     char* cmd = 0;
     int len, retval;
 
-    if ( !from || !*from || !to || !*to ) return NO;
-    if ( !File_exists(from) ) return YES;
+    if ( !from || !*from || !to || !*to ) return mC_False;
+    if ( !File_exists(from) ) return mC_True;
 
     if ( recursive )
     { 
-	if ( !from || !*from || !to || !*to ) return NO;
-	if ( !File_exists(from) ) return YES;
-	if ( File_exists(to) ) return NO;
+	if ( !from || !*from || !to || !*to ) return mC_False;
+	if ( !File_exists(from) ) return mC_True;
+	if ( File_exists(to) ) return mC_False;
 
 	len = strlen( from ) + strlen( to ) + 128;
 	cmd = mMALLOC(len,char);
@@ -336,7 +336,7 @@ int File_copy( const char* from, const char* to, int recursive )
 	strcat( cmd, to );
 	strcat( cmd, "\"" );
 
-	retval = system( cmd ) != -1 ? YES : NO;
+	retval = system( cmd ) != -1 ? mC_True : mC_False;
 	if ( retval ) retval = File_exists( to );
 	mFREE(cmd);
 	return retval;
@@ -348,8 +348,8 @@ int File_copy( const char* from, const char* to, int recursive )
 
     char* cmd = 0;
     int len, retval;
-    if ( !from || !*from || !to || !*to ) return NO;
-    if ( !File_exists(from) ) return YES;
+    if ( !from || !*from || !to || !*to ) return mC_False;
+    if ( !File_exists(from) ) return mC_True;
 
     len = strlen( from ) + strlen( to ) + 25;
     cmd = mMALLOC(len,char);
@@ -362,7 +362,7 @@ int File_copy( const char* from, const char* to, int recursive )
     strcat( cmd, to );
     strcat( cmd, "'" );
 
-    retval = system( cmd ) != -1 ? YES : NO;
+    retval = system( cmd ) != -1 ? mC_True : mC_False;
     if ( retval ) retval = File_exists( to );
     mRet( retval )
 
@@ -376,7 +376,7 @@ int File_remove( const char* fname, int recursive )
 #ifdef __win__
 	
     if ( !File_exists(fname) )
-	return YES;
+	return mC_True;
 
     if ( recursive )
     { 
@@ -390,9 +390,9 @@ int File_remove( const char* fname, int recursive )
 	strcat( cmd, fname );
 	strcat( cmd, "\"" );
 
-	retval = system( cmd ) ? NO : YES;
+	retval = system( cmd ) ? mC_False : mC_True;
 
-	if ( retval && File_exists( fname ) ) retval = NO;
+	if ( retval && File_exists( fname ) ) retval = mC_False;
 	mFREE(cmd);
 	return retval;
     }
@@ -407,10 +407,10 @@ int File_remove( const char* fname, int recursive )
     FileNameString targ_fname;
 
     if ( !File_exists(fname) )
-	return YES;
+	return mC_True;
 
     if ( !recursive )
-	return unlink((char*)fname) ? NO : YES;
+	return unlink((char*)fname) ? mC_False : mC_True;
 
     len = strlen( fname ) + 30;
     cmd = mMALLOC(len,char);
@@ -425,15 +425,15 @@ int File_remove( const char* fname, int recursive )
 	    strcat( cmd, targ_fname );
 	    strcat( cmd, "'" );
 	    if ( system(cmd)<0 || File_exists(targ_fname) )
-		mRet(NO)
+		mRet(mC_False)
 	    *ptr = '\0';
 	}
     }
 
     strcat( cmd, fname );
     strcat( cmd, "'" );
-    retval = system( cmd ) ? NO : YES;
-    if ( retval && File_exists( fname ) ) retval = NO;
+    retval = system( cmd ) ? mC_False : mC_True;
+    if ( retval && File_exists( fname ) ) retval = mC_False;
     mRet( retval )
 
 #endif
@@ -452,7 +452,7 @@ int File_makeWritable( const char* fname, int recursive, int yn )
     strcat( cmd, fname );
     strcat( cmd, "\"" );
     if ( recursive && File_isDirectory(fname) ) strcat( cmd, "\\*.* /S ");
-    return system( cmd ) != -1 ? YES : NO;
+    return system( cmd ) != -1 ? mC_True : mC_False;
 
 #else
 
@@ -462,7 +462,7 @@ int File_makeWritable( const char* fname, int recursive, int yn )
     strcat( cmd, yn ? "ug+w '" : "a-w '" );
     strcat( cmd, fname );
     strcat( cmd, "'" );
-    return system( cmd ) != -1 ? YES : NO;
+    return system( cmd ) != -1 ? mC_True : mC_False;
 
 #endif
 }
@@ -475,16 +475,16 @@ int File_isLink( const char* fname )
     FileNameString fnm;
     if ( !fname || !*fname ) return 0;
     if ( strstr(fname,".lnk") || strstr(fname,".LNK") )
-	return YES;
+	return mC_True;
 
     strcpy( fnm, fname ); strcat( fnm, ".lnk" );
-    if ( File_exists(fnm) ) return YES;
+    if ( File_exists(fnm) ) return mC_True;
     strcpy( fnm, fname ); strcat( fnm, ".LNK" );
     return File_exists(fnm);
 
 #else
     return fname && lstat(fname,&statbuf) >= 0 && S_ISLNK(statbuf.st_mode)
-	 ? YES : NO;
+	 ? mC_True : mC_False;
 #endif
 }
 
@@ -492,10 +492,10 @@ int File_isLink( const char* fname )
 int File_createLink( const char* from, const char* to )
 {
 #ifdef __win__
-    return NO;
+    return mC_False;
 #else
     char cmd[512];
-    if ( !from || !to || !*from || !*to ) return NO;
+    if ( !from || !to || !*from || !*to ) return mC_False;
 
     strcpy( cmd, "ln -s '" );
     strcat( cmd, from );
@@ -527,6 +527,6 @@ const char* File_linkTarget( const char* fname )
 const char* File_getCurrentDir()
 {
     static FileNameString pathbuf;
-    getcwd( pathbuf, PATH_LENGTH );
+    getcwd( pathbuf, mMaxFilePathLength );
     return pathbuf;
 }

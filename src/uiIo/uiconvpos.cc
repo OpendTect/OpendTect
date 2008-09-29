@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.27 2007-11-27 05:51:45 cvsnanne Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.28 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+#include <iostream>
 
 #define mMaxLineBuf 32000
 static BufferString lastinpfile;

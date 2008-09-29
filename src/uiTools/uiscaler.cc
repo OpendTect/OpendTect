@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.20 2008-09-11 09:58:14 cvsjaap Exp $
+ RCS:           $Id: uiscaler.cc,v 1.21 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,12 +121,12 @@ void uiScaler::setInput( const Scaler& sc )
 	if ( !strcmp(typ,sLogScaler) )
 	{
 	    typnr = 1;
-	    basefld->setValue( ((const LogScaler&)sc).ten );
+	    basefld->setValue( ((const LogScaler&)sc).ten_ );
 	}
 	else if ( !strcmp(typ,sExpScaler) )
 	{
 	    typnr = 2;
-	    basefld->setValue( ((const ExpScaler&)sc).ten );
+	    basefld->setValue( ((const ExpScaler&)sc).ten_ );
 	}
 	else return;
     }

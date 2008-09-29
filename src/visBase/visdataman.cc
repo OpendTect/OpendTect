@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.38 2007-10-12 19:14:34 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.39 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: visdataman.cc,v 1.38 2007-10-12 19:14:34 cvskri
 #include "errh.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include <iostream>
 
 #include <Inventor/SoPath.h>
 

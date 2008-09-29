@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.86 2008-09-01 16:12:15 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.87 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -128,7 +128,7 @@ void IOMan::init()
 		BufferString msg( "Corrupt survey: missing directory: " );
 		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
 	    }
-	    else if ( !File_copy(basicdirnm,dirnm,YES) )
+	    else if ( !File_copy(basicdirnm,dirnm,mFile_Recursive) )
 	    {
 		BufferString msg( "Cannot create directory: " );
 		msg += dirnm; ErrMsg( msg ); state_ = Bad; return;
@@ -248,7 +248,7 @@ static bool validOmf( const char* dir )
 	if ( File_isEmpty(fp.fullPath()) )
 	    return false;
 	else
-	    File_copy( fname, fp.fullPath(), NO );
+	    File_copy( fname, fp.fullPath(), mFile_NotRecursive );
     }
     return true;
 }
@@ -310,7 +310,7 @@ bool IOMan::validSurveySetup( BufferString& errmsg )
 
     // Survey in ~/.od/survey[.$DTECT_USER] is invalid. Remove it if necessary
     BufferString survfname = GetSurveyFileName();
-    if ( File_exists(survfname) && !File_remove( survfname, NO ) )
+    if ( File_exists(survfname) && !File_remove(survfname,mFile_NotRecursive) )
     {
 	errmsg = "The file "; errmsg += survfname;
 	errmsg += " contains an invalid survey.\n";
@@ -623,7 +623,7 @@ void IOMan::getEntry( CtxtIOObj& ctio )
 
     if ( !ioobj )
     {
-	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newKey(), NO );
+	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newKey(), false );
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
 	const Translator* tr = ctio.ctxt.trgroup->templates().size() ?
@@ -663,7 +663,8 @@ const char* IOMan::generateFileName( Translator* tr, const char* fname )
 {
     BufferString cleanname( fname );
     char* ptr = cleanname.buf();
-    cleanupString( ptr, NO, *ptr == *FilePath::dirSep(FilePath::Local), YES );
+    cleanupString( ptr, mC_False, *ptr == *FilePath::dirSep(FilePath::Local),
+	    	   mC_True );
     static BufferString fnm;
     for ( int subnr=0; ; subnr++ )
     {
@@ -791,7 +792,7 @@ bool SurveyDataTreePreparer::prepDirData()
     IOMan::CustomDirData* dd = const_cast<IOMan::CustomDirData*>( &dirdata_ );
 
     replaceCharacter( dd->desc_.buf(), ':', ';' );
-    cleanupString( dd->dirname_.buf(), NO, NO, NO );
+    cleanupString( dd->dirname_.buf(), mC_False, mC_False, mC_False );
 
     int nr = dd->selkey_.ID( 0 );
     if ( nr <= 200000 )
@@ -849,7 +850,7 @@ bool SurveyDataTreePreparer::createDataTree()
     if ( !sd.usable() )
     {
 	if ( dircreated )
-	    File_remove( thedirnm, YES );
+	    File_remove( thedirnm, mFile_Recursive );
 	mErrRet( "Could not create '.omf' file in ", dirdata_.dirname_,
 		 " directory" );
     }
@@ -874,9 +875,9 @@ bool SurveyDataTreePreparer::createRootEntry()
     parentry += "\n!\n";
     std::string parentrystr( parentry.buf() );
     std::istringstream parstrm( parentrystr );
-    ascistream ascstrm( parstrm, NO ); ascstrm.next();
+    ascistream ascstrm( parstrm, false ); ascstrm.next();
     IOLink* iol = IOLink::get( ascstrm, 0 );
-    if ( !IOM().dirPtr()->addObj(iol,YES) )
+    if ( !IOM().dirPtr()->addObj(iol,true) )
 	mErrRet( "Couldn't add ", dirdata_.dirname_, " directory to root .omf" )
     return true;
 }

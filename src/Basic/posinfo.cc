@@ -4,12 +4,13 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.8 2008-09-02 10:54:47 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.9 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
 #include "survinfo.h"
 #include "position.h"
+#include <iostream>
 
 static const float cThresholdDist = 25;
 

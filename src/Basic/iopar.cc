@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.69 2008-09-19 12:14:19 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.70 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -1115,7 +1115,7 @@ bool IOPar::read( const char* fnm, const char* typ, bool chktyp )
 void IOPar::read( std::istream& strm, const char* typ, bool chktyp )
 {
     const bool havetyp = typ && *typ;
-    ascistream astream( strm, havetyp ? YES : NO );
+    ascistream astream( strm, havetyp ? true : false );
     if ( havetyp && chktyp && !astream.isOfFileType(typ) )
     {
 	BufferString msg( "File has wrong file type: '" );

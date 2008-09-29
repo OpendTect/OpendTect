@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.6 2008-07-03 05:46:55 cvsnanne Exp $
+ RCS:		$Id: odver.h,v 1.7 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ extern "C" {
 
 class BufferString;
 void GetSpecificODVersion(const char* typ,BufferString&);
-/*!< 'typ' can be "doc" or other like vendor name. */
+/*!< 'typ' can be "doc" or other like vendor name. if null -> platform */
 
 #endif
 
@@ -46,7 +46,7 @@ void GetSpecificODVersion(const char* typ,BufferString&);
   utilities could in principle be insteresting outside OpendTect. This
   distinction is not enforced (see e.g. the survey info class). We place
   things in Basic that feel more basic than General. Note that General depends
-  on Basic, not vice versa.
+  on Basic, not vice versa. Basic algorithm-type things go in Algo.
 
   You'll find that many of these tools can be found in other packages in some
   form or another. But, the problems of management of dependencies are usually
@@ -75,7 +75,8 @@ void GetSpecificODVersion(const char* typ,BufferString&);
        OpendTect with a guaranteed minimum buffer size. That makes them ideal
        as bridge to C strings.
    <li>compoundkey.h and multiid.h : dot-separated keys.
-   <li>fixstring.h: fixed length strings but with tools like '+=' .
+   <li>separstr.h : arbitrary char-separated keys, in files the FileMultiString
+       based on the back-quote.
   </ul>
  <li>System-wide service objects
   <ul>
@@ -86,8 +87,6 @@ void GetSpecificODVersion(const char* typ,BufferString&);
  <li>Positions (coordinates, inlines/crosslines=BinIDs)
   <ul>
    <li>position.h and posgeom.h : basic map position tools
-   <li>binidvalset.h : A set of binids optionally accompanied by values.
-       Searching a specific BinID is fast.
   </ul>
  <li>File and stream handling
   <ul>
@@ -100,10 +99,6 @@ void GetSpecificODVersion(const char* typ,BufferString&);
  <li>CallBacks
   <ul>
    <li>callback.h : our (simple but powerful) event system
-  </ul>
- <li>Template floating-point algorithms
-  <ul>
-   <li>simpnumer.h, sorting.h, periodicvalue.h, genericnumer.h, extremefinder.h
   </ul>
 </ul>
 

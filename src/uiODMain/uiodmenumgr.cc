@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.134 2008-08-28 12:28:57 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.135 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -738,8 +738,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	    }
 
 	    const BufferString targetdir( GetSettingsFileName("icons") );
-	    File_remove( targetdir, YES );
-	    File_copy( sourcedir, targetdir, YES );
+	    File_remove( targetdir, mFile_Recursive );
+	    File_copy( sourcedir, targetdir, mFile_Recursive );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )
 		uiToolBar::toolBars()[idx]->reLoadPixMaps();
 	}

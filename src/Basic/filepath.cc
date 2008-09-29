@@ -4,11 +4,12 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.22 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.23 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
 #include "msgh.h"
+#include "string2.h"
 #include <iostream>
 #include <time.h>
 
@@ -325,7 +326,7 @@ void FilePath::addPart( const char* fnm )
 
     mSkipBlanks( fnm );
     char prev = ' ';
-    char buf[PATH_LENGTH];
+    char buf[mMaxFilePathLength];
     char* bufptr = buf;
     bool remdblsep = false;
 

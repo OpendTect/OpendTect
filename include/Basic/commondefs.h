@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.12 2008-09-09 08:37:10 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.13 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -25,14 +25,8 @@ ________________________________________________________________________
 				      : mIsZero(x,e) )
 #define mDefEps			(1e-10)
 
-#undef	YES
-#undef	NO
-#undef PATH_LENGTH
-#undef mMaxUserIDLength
-
-#define	YES 1
-#define	NO 0
-#define mMaxUserIDLength 127
+# define mC_True	1
+# define mC_False	0
 
 #ifndef M_PI
 # define M_PI		3.14159265358979323846
@@ -63,11 +57,14 @@ ________________________________________________________________________
 # undef small
 #endif
 
+
+#define mMaxUserIDLength 127
+
 #ifdef __msvc__
 # include "msvcdefs.h"
 #else
 
-# define PATH_LENGTH		255
+# define mMaxFilePathLength	255
 
 # define mPolyRet(base,clss)	clss
 # define mTFriend(T,clss)	template <class T> friend class clss

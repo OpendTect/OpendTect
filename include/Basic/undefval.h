@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.11 2008-07-03 13:11:31 cvskris Exp $
+ RCS:           $Id: undefval.h,v 1.12 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,14 +24,6 @@ ________________________________________________________________________
 
 
 #ifdef __cpp__
-
-
-//! Use this macro to get the undefined for simple types
-#define mUdf(type) Values::Undef<type>::val()
-//! Use this macro to check for undefinedness of simple types
-#define mIsUdf(val) Values::isUdf(val)
-//! Use this macro to set simple types to undefined
-#define mSetUdf(val) Values::setUdf(val)
 
 
 /*!  \brief Templatized undefined and initialisation (i.e. null) values.  
@@ -208,6 +200,29 @@ T& setUdf( T& u )
 }
 
 }
+
+
+//! Use this macro to get the undefined for simple types
+#define mUdf(type) Values::Undef<type>::val()
+//! Use this macro to set simple types to undefined
+#define mSetUdf(val) Values::setUdf(val)
+
+#ifdef __debug__
+
+    template <class T>
+    inline bool dbgIsUdf( T val )
+	{ return Values::isUdf( val ); }
+    bool dbgIsUdf(float);
+    bool dbgIsUdf(double);
+
+# define mIsUdf(val) dbgIsUdf(val)
+
+#else
+
+//! Use mIsUdf to check for undefinedness of simple types
+# define mIsUdf(val) Values::isUdf(val)
+
+#endif
 
 
 #else

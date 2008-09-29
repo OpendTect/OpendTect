@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.95 2008-06-27 12:04:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.96 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -80,7 +80,7 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     static int nrfns = 0;
     static PtrAllVoidFn fns[100];
     int idx;
-    if ( (int)fn == -1 )
+    if ( ((od_int64)fn) == ((od_int64)(-1)) )
     {
 	for ( idx=0; idx<nrfns; idx++ )
 	    (*(fns[idx]))();
@@ -255,7 +255,7 @@ double GetEnvVarDVal( const char* env, double defltval )
 int SetEnvVar( const char* env, const char* val )
 {
     char* buf;
-    if ( !env || !*env ) return NO;
+    if ( !env || !*env ) return mC_False;
     if ( !val ) val = "";
 
     buf = mMALLOC( strlen(env)+strlen(val) + 2, char );
@@ -264,7 +264,7 @@ int SetEnvVar( const char* env, const char* val )
     strcat( buf, val );
 
     putenv( buf );
-    return YES;
+    return mC_True;
 }
 
 

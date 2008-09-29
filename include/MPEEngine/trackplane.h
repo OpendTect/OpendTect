@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.7 2006-09-08 09:38:34 cvsjaap Exp $
+ RCS:		$Id: trackplane.h,v 1.8 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "cubesampling.h"
 #include "mathfunc.h"
+#include "enums.h"
 
 class Plane3;
 

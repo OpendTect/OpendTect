@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.25 2008-06-17 10:31:06 cvsnanne Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.26 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 
 	if ( uiMSG().askGoOn(msg) )
 	{
-	    File_remove( workdirnm, true );
+	    File_remove( workdirnm, mFile_Recursive );
 	    workdirnm = oldworkdir.fullPath();
 	}
     }
@@ -229,7 +229,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	if ( !uiMSG().askGoOn(msg) )
 	    return;
 
-	File_remove( workdirnm, true );
+	File_remove( workdirnm, mFile_Recursive );
     }
 
 

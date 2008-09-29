@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: safefileio.cc,v 1.4 2005-08-26 18:19:28 cvsbert Exp $";
+static const char* rcsID = "$Id: safefileio.cc,v 1.5 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "safefileio.h"
 #include "filegen.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: safefileio.cc,v 1.4 2005-08-26 18:19:28 cvsbert
 #include "timefun.h"
 #include "oddirs.h"
 #include "errh.h"
+#include <iostream>
 
 
 SafeFileIO::SafeFileIO( const char* fnm, bool l )
@@ -99,7 +100,7 @@ bool SafeFileIO::openWrite( bool ignorelock )
     mkLock( false );
 
     if ( File_exists( newfnm_.buf() ) )
-	File_remove( newfnm_.buf(), NO );
+	File_remove( newfnm_.buf(), mFile_NotRecursive );
 
     sd_ = StreamProvider( newfnm_.buf() ).makeOStream();
     if ( !sd_.usable() )
@@ -124,7 +125,7 @@ bool SafeFileIO::commitWrite()
     }
 
     if ( File_exists( bakfnm_ ) )
-	File_remove( bakfnm_, NO );
+	File_remove( bakfnm_, mFile_NotRecursive );
 
     if ( !File_rename( filenm_, bakfnm_ ) )
     {
@@ -140,7 +141,7 @@ bool SafeFileIO::commitWrite()
 	return false;
     }
     if ( removebakonsuccess_ )
-	File_remove( bakfnm_, NO );
+	File_remove( bakfnm_, mFile_NotRecursive );
 
     return true;
 }
@@ -154,7 +155,7 @@ bool SafeFileIO::doClose( bool keeplock, bool docommit )
     if ( isread || !docommit )
     {
 	if ( !isread && File_exists(newfnm_) )
-	    File_remove( newfnm_, NO );
+	    File_remove( newfnm_, mFile_NotRecursive );
     }
     else
 	res = commitWrite();
@@ -190,7 +191,7 @@ bool SafeFileIO::waitForLock() const
 
     if ( allowlockremove_ )
     {
-	File_remove( lockfnm_, NO );
+	File_remove( lockfnm_, mFile_NotRecursive );
 	return true;
     }
 
@@ -225,5 +226,5 @@ void SafeFileIO::mkLock( bool forread )
 void SafeFileIO::rmLock()
 {
     if ( locked_ && File_exists(lockfnm_) )
-	File_remove( lockfnm_, NO );
+	File_remove( lockfnm_, mFile_NotRecursive );
 }

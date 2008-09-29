@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.4 2007-10-04 12:03:49 cvsnanne Exp $
+ RCS:		$Id: msvcdefs.h,v 1.5 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 5.0 and 6.0
@@ -28,7 +28,7 @@ ________________________________________________________________________
 // Index variable's scope is non-ANSI. This corrects that idiocy.
 #define for				if (0) ; else for
 
-# define PATH_LENGTH			_MAX_PATH
+# define mMaxFilePathLength		_MAX_PATH
 
 # define mPolyRet(base,clss)		base
 # define mTFriend(T,clss)

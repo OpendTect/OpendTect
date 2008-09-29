@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.17 2008-04-11 13:22:25 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.18 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -17,8 +17,7 @@ static const char* rcsID = "$Id: posvecdataset.cc,v 1.17 2008-04-11 13:22:25 cvs
 #include "strmprov.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-
-#include <iosfwd>
+#include <iostream>
 
 
 const DataColDef& DataColDef::unknown()
@@ -317,7 +316,7 @@ bool PosVecDataSet::getColNames( const char* fnm, BufferStringSet& bss,
     }
     else
     {
-	ascistream strm( *sd.istrm, NO );
+	ascistream strm( *sd.istrm, false );
 	while ( !atEndOfSection(strm.next()) )
 	{
 	    if ( strm.type() == ascistream::Keyword )
@@ -361,7 +360,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     }
     else
     {
-	ascistream strm( *sd.istrm, NO );
+	ascistream strm( *sd.istrm, false );
 	while ( !atEndOfSection(strm.next()) )
 	{
 	    if ( strm.type() == ascistream::Keyword )

@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.2 2008-07-18 14:24:11 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.3 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "prestackeventio.h"
 
@@ -456,7 +456,7 @@ int EventWriter::nextStep()
 	{
 	    if ( !File_isDirectory( fnm.buf() ) )
 	    {
-		if ( !File_remove( fnm.buf(), 0 ) )
+		if ( !File_remove( fnm.buf(), mFile_NotRecursive ) )
 		{
 		    errmsg_ = "Cannot remove ";
 		    errmsg_ += fnm;
@@ -630,7 +630,7 @@ EventDuplicator::EventDuplicator( IOObj* from, IOObj* to )
     const BufferString tonm( to_->fullUserExpr(true) );
     if ( File_exists( tonm.buf() ) )
     {
-	File_remove( tonm.buf(), 1 );
+	File_remove( tonm.buf(), mFile_Recursive );
 	if ( File_exists( tonm.buf() ) )
 	{
 	    errmsg_ = "Cannot overwrite ";
@@ -690,7 +690,8 @@ int EventDuplicator::nextStep()
     message_ += targetfile.fileName();
     message_ += ".";
 
-    if ( !File_copy( filestocopy_[idx]->buf(), targetfile.fullPath().buf(), 0) )
+    if ( !File_copy( filestocopy_[idx]->buf(), targetfile.fullPath().buf(),
+			mFile_NotRecursive) )
     {
 	errmsg_ = "Cannot copy ";
 	errmsg_ = filestocopy_[idx]->buf();
@@ -710,7 +711,7 @@ void EventDuplicator::errorCleanup()
 
     const BufferString tonm( to_->fullUserExpr(true) );
     if ( File_exists( tonm.buf() ) )
-	File_remove( tonm.buf(), 1 );
+	File_remove( tonm.buf(), mFile_Recursive );
 }
 
 
@@ -1272,7 +1273,7 @@ int EventPatchWriter::nextStep()
 	    if ( File_exists( filename_.buf() ) &&
 		 File_isWritable( filename_.buf() ) )
 	    {
-		return File_remove( filename_.buf(), false )
+		return File_remove( filename_.buf(), mFile_NotRecursive )
 		    ? cFinished()
 		    : cErrorOccurred();
 	    }

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.30 2008-05-27 11:49:38 cvshelene Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.31 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -381,5 +381,5 @@ bool SeisJobExecProv::removeTempSeis()
 
     if ( fp.fileName() == "i.*" )
 	fp.setFileName(0);
-    return File_remove(fp.fullPath().buf(),YES);
+    return File_remove(fp.fullPath().buf(),mFile_Recursive);
 }

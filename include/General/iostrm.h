@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.20 2008-09-08 15:14:47 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.21 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,8 @@ class StreamProvider;
 class IOStream : public IOObject
 {
 public:
-			IOStream(const char* nm=0,const char* id=0,bool =0);
+			IOStream(const char* nm=0,const char* id=0,
+				 bool =false);
     virtual		~IOStream();
     bool		bad() const;
     StreamConn::Type	type() const			{ return type_; }
@@ -96,14 +97,14 @@ public:
 
 protected:
 
-    int			getFrom(ascistream&);
-    int			putTo(ascostream&) const;
+    bool		getFrom(ascistream&);
+    bool		putTo(ascostream&) const;
 
-    FixedString<32>	hostname;
+    BufferString	hostname;
     int			nrfiles;
     FileNameString	fname;
 
-    FixedString<7>	extension;
+    BufferString	extension;
     FileNameString*	readcmd;
     FileNameString*	writecmd;
     int			blocksize;
@@ -117,7 +118,7 @@ protected:
 
     StreamConn::Type	type_;
 
-    bool		getDev(ascistream&);
+    void		getDev(ascistream&);
     bool		validNr() const
 			{ return curfnr*fnrs.step <= fnrs.stop*fnrs.step; }
     bool		implDo(bool,bool) const;

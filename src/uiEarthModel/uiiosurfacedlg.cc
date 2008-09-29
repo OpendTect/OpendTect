@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.32 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.33 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,7 +218,7 @@ bool uiCopySurface::acceptOK( CallBacker* )
     const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
     const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);
     if ( File_exists(oldsetupname) ) 
-	File_copy( oldsetupname, newsetupname, false );
+	File_copy( oldsetupname, newsetupname, mFile_NotRecursive );
 
     return true;
 }

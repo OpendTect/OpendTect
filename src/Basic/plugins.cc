@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.55 2008-07-15 18:46:44 cvsnanne Exp $
+ RCS:           $Id: plugins.cc,v 1.56 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ extern "C" {
 
     int LoadPlugin( const char* libnm )
     {
-	return PIM().load( libnm ) ? YES : NO;
+	return PIM().load( libnm ) ? mC_True : mC_False;
     }
 };
 

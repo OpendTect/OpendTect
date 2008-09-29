@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: property.cc,v 1.11 2007-01-10 19:00:40 cvsbert Exp $";
+static const char* rcsID = "$Id: property.cc,v 1.12 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "propertyimpl.h"
 #include "mathexpression.h"
@@ -145,7 +145,7 @@ bool PropertyRefRepository::write( Repos::Source src ) const
 	    { havesrc = true; break; }
     }
     if ( !havesrc )
-	return !File_exists(fnm) || File_remove( fnm, NO );
+	return !File_exists(fnm) || File_remove( fnm, mFile_NotRecursive );
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() )

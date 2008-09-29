@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.30 2008-03-10 12:32:41 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.31 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,8 +278,8 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     BufferString targetex = GetProcFileName( bpi.exampleinput );
     if ( !File_exists(targetex) )
     {
-	File_copy( sourceex, targetex, NO );
-	File_makeWritable( targetex, NO, YES );
+	File_copy( sourceex, targetex, mFile_NotRecursive );
+	File_makeWritable( targetex, mFile_NotRecursive, mC_True );
     }
 
     if ( browser )

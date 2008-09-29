@@ -5,7 +5,7 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.7 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.8 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
@@ -102,50 +102,50 @@ void LinScaler::fromString( const char* str )
 double LogScaler::scale( double v ) const
 {
     if ( v <= 0 || mIsUdf(v) ) return Values::udfVal(v);
-    return ten ? Math::Log10(v) : Math::Log(v);
+    return ten_ ? Math::Log10(v) : Math::Log(v);
 }
 
 
 double LogScaler::unScale( double v ) const
 {
-    return ExpScaler(ten).scale(v);
+    return ExpScaler(ten_).scale(v);
 }
 
 
 const char* LogScaler::toString() const
 {
-    return getYesNoString( ten );
+    return getYesNoString( ten_ );
 }
 
 
 void LogScaler::fromString( const char* str )
 {
-    ten = yesNoFromString( str );
+    ten_ = yesNoFromString( str );
 }
 
 
 double ExpScaler::scale( double v ) const
 {
     if ( mIsUdf(v) ) return Values::udfVal(v);
-    return ten ? Math::PowerOf(10,v) : Math::Exp(v);
+    return ten_ ? Math::PowerOf(10,v) : Math::Exp(v);
 }
 
 
 double ExpScaler::unScale( double v ) const
 {
-    return LogScaler(ten).scale(v);
+    return LogScaler(ten_).scale(v);
 }
 
 
 const char* ExpScaler::toString() const
 {
-    return getYesNoString( ten );
+    return getYesNoString( ten_ );
 }
 
 
 void ExpScaler::fromString( const char* str )
 {
-    ten = yesNoFromString( str );
+    ten_ = yesNoFromString( str );
 }
 
 

@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.1 2007-03-13 11:39:30 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.2 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.1 2007-03-13 11:39:30 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.2 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: odver.cc,v 1.1 2007-03-13 11:39:30 cvsbert Exp 
 #include "filegen.h"
 #include "strmprov.h"
 #include "bufstring.h"
+#include <iostream>
 
 
 extern "C" const char* GetFullODVersion()

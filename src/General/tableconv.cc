@@ -4,9 +4,10 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.12 2007-01-22 16:39:19 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.13 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "tableconvimpl.h"
+#include "string2.h"
 
 const GlobExpr Table::RecordMatcher::emptyge_;
 
@@ -27,7 +28,7 @@ void Table::ImportHandler::addToCol( char c )
 
 bool Table::ExportHandler::isNumber( const char* str )
 {
-    return isNumberString( str, NO );
+    return isNumberString( str, mC_False );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.32 2008-08-19 09:31:52 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.33 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -101,7 +101,7 @@ void SeisCBVSPSIO::close()
 BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 {
     BufferString fnm( lnm );
-    cleanupString( fnm.buf(), NO, NO, NO );
+    cleanupString( fnm.buf(), mC_False, mC_False, mC_False );
 
     FilePath fp( dirnm_ );
     fp.add( fnm ).setExtension( "cbvs" );
@@ -136,7 +136,7 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
     if ( nms.isEmpty() )
     {
 	if ( File_exists(fnm) )
-	    File_remove( fnm, NO );
+	    File_remove( fnm, mFile_NotRecursive );
 	return true;
     }
 
@@ -254,7 +254,7 @@ static const char* posdataFileName( const char* dirnm )
     return ret.buf();
 }
 
-#define mRemoveCache(fnm) File_remove( fnm, NO )
+#define mRemoveCache(fnm) File_remove( fnm, mFile_NotRecursive )
 
 
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )

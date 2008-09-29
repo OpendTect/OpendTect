@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.15 2008-06-16 19:42:19 cvskris Exp $
+ RCS:		$Id: general.h,v 1.16 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,10 @@ ________________________________________________________________________
 
 #ifdef __cpp__
 
-#include "fixstring.h"
 #include "bufstring.h"
 
-typedef BufferString			UserIDString;
-typedef FixedString<PATH_LENGTH>	FileNameString;
+#define UserIDString	BufferString
+#define FileNameString	BufferString
 
 template <class T>
 inline void Swap( T& a, T& b ) { T tmp = a; a = b; b = tmp; }

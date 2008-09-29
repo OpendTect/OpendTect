@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.17 2008-08-18 13:42:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.18 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -38,12 +38,12 @@ void SeisTrcPropChg::stack( const SeisTrc& trc2, bool alongpick, float wght )
 {
     float pick = trc2.info().pick;
     if ( alongpick && (mIsUdf(pick) || mIsUdf(trc.info().pick)) )
-	alongpick = NO;
+	alongpick = false;
     float diff;
     if ( alongpick )
     {
 	diff = trc.info().pick - pick;
-	if ( mIsZero(diff,mDefEps) ) alongpick = NO;
+	if ( mIsZero(diff,mDefEps) ) alongpick = false;
     }
 
     mStartCompLoop

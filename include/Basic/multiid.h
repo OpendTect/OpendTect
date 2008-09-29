@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.5 2008-03-20 21:39:30 cvskris Exp $
+ RCS:		$Id: multiid.h,v 1.6 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <compoundkey.h>
+#include "compoundkey.h"
+#include "string2.h"
 
 /*!\brief Compound key consisting of ints */
 

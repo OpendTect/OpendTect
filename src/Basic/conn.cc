@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.27 2008-01-08 11:53:52 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.28 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -18,15 +18,13 @@ static const char* rcsID = "$Id: conn.cc,v 1.27 2008-01-08 11:53:52 cvsbert Exp 
 #include <iostream>
 #include <fstream>
 
+
 bool ErrMsgClass::printProgrammerErrs =
 # ifdef __debug__
     true;
 # else
     false;
 # endif
-
-DefineEnumNames(MsgClass,Type,1,"Message type")
-	{ "Information", "Message", "Warning", "Error", "PE", 0 };
 
 static BufferString logmsgfnm;
 
@@ -134,6 +132,14 @@ CallBack& MsgClass::theCB( const CallBack* cb )
     static CallBack thecb;
     if ( cb ) thecb = *cb;
     return thecb;
+}
+
+
+const char* MsgClass::nameOf( MsgClass::Type typ )
+{
+    static const char* strs[] =
+    	{ "Information", "Message", "Warning", "Error", "PE", 0 };
+    return strs[ (int)typ ];
 }
 
 

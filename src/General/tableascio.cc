@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.20 2008-06-18 06:32:26 cvsraman Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.21 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -146,7 +146,7 @@ bool FileFormatRepository::write( Repos::Source src ) const
 	    { havesrc = true; break; }
     }
     if ( !havesrc )
-	return !File_exists(fnm) || File_remove( fnm, NO );
+	return !File_exists(fnm) || File_remove( fnm, mFile_NotRecursive );
 
     StreamData sd = StreamProvider( fnm ).makeOStream();
     if ( !sd.usable() )
@@ -637,7 +637,7 @@ const char* Table::AscIO::text( int ifld ) const
 static const char* trimmedNumbStr( const char* sval, bool isint )
 {
     if ( !*sval ) return 0;
-    const int flg = isint ? YES : NO;
+    const int flg = isint ? mC_True : mC_False;
     if ( isNumberString(sval,flg) )
 	return sval;
 

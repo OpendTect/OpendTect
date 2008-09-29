@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.89 2008-08-04 12:19:14 cvsraman Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.90 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -50,7 +50,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, stillok(false)
 	, fullpath(av[0])
 	, finishmsg_("Finished batch processing.")
-	, inbg(NO)
+	, inbg(false)
 	, sdout(*new StreamData)
 	, iopar(new IOPar)
 	, comm(0)
@@ -64,7 +64,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
     while ( fn && *fn == '-' )
     {
 	if ( !strcmp(fn,"-bg") )
-	    inbg = YES;
+	    inbg = true;
 	else if ( !strncmp(fn,"-masterhost",11) )
 	{
 	    argshift++;
@@ -127,7 +127,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	return;
     }
  
-    ascistream aistrm( *sd.istrm, YES );
+    ascistream aistrm( *sd.istrm, true );
     if ( strcmp(aistrm.fileType(),sKey::Pars) )
     {
 	errorMsg( BufferString("Input file ",fn," is not a parameter file") );

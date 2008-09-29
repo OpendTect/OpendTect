@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.29 2007-03-06 11:42:39 cvsbert Exp $
+ RCS:           $Id: sighndl.cc,v 1.30 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.29 2007-03-06 11:42:39 cvsbert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.30 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: sighndl.cc,v 1.29 2007-03-06 11:42:39 cvsbert E
 #include "errh.h"
 
 #include <signal.h>
+#include <iostream>
 
 #ifndef __win__
 # include <unistd.h>

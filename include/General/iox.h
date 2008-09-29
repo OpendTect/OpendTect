@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.13 2007-05-04 11:40:49 cvsnanne Exp $
+ RCS:		$Id: iox.h,v 1.14 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,8 @@ protected:
 
     MultiID		ownkey_;
 
-    int			getFrom(ascistream&);
-    int			putTo(ascostream&) const;
+    bool		getFrom(ascistream&);
+    bool		putTo(ascostream&) const;
 
     static int		prodid; //!< for factory implementation
 };

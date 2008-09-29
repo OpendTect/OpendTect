@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.25 2008-01-16 16:16:30 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.26 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -32,7 +32,7 @@ IOStream::IOStream( const char* nm, const char* uid, bool mkdef )
 	, writecmd(0)
 	, blocksize(0)
 	, skipfiles(0)
-	, rew(NO)
+	, rew(false)
 	, padzeros(0)
 	, fnrs(0,0,1)
 	, type_(StreamConn::File)
@@ -56,7 +56,7 @@ const char* IOStream::connType() const
 
 bool IOStream::bad() const
 {
-    return type_ == StreamConn::Command || *(const char*)fname ? NO : YES;
+    return type_ != StreamConn::Command && fname.isEmpty();
 }
 
 
@@ -132,7 +132,7 @@ bool IOStream::implSetReadOnly( bool yn ) const
 
 bool IOStream::implDo( bool dorem, bool yn ) const
 {
-    if ( type_ != StreamConn::File ) return NO;
+    if ( type_ != StreamConn::File ) return false;
 
     int curnrfiles = isMulti() ? fnrs.nrSteps() + 1 : 1;
     int kpcurfnr = curfnr;
@@ -201,8 +201,8 @@ Conn* IOStream::getConn( Conn::State rw ) const
 void IOStream::genFileName()
 {
     fname = name();
-    cleanupString( fname.buf(), NO, YES, YES );
-    if ( *(const char*)extension )
+    cleanupString( fname.buf(), mC_False, mC_True, mC_True );
+    if ( !extension.isEmpty() )
     {
         fname += ".";
         fname += extension;
@@ -260,7 +260,7 @@ void IOStream::setDevName( const char* str )
 }
 
 
-int IOStream::getFrom( ascistream& stream )
+bool IOStream::getFrom( ascistream& stream )
 {
     const char* kw = stream.keyWord() + 1;
     if ( !strcmp(kw,"Hostname") )
@@ -298,23 +298,23 @@ int IOStream::getFrom( ascistream& stream )
 	else *writecmd = stream.value();
     }
     else if ( !strcmp("Device", kw) )
-	return getDev(stream);
+	{ getDev(stream); return true; }
     else
-	return NO;
+	return false;
 
     stream.next();
-    return YES;
+    return true;
 }
 
 
 bool IOStream::directNumberMultiConn() const
 {
-    if ( !isMulti() ) return NO;
+    if ( !isMulti() ) return false;
     return strchr(fname,'*') || (writecmd && strchr(*writecmd,'*'));
 }
 
 
-bool IOStream::getDev( ascistream& stream )
+void IOStream::getDev( ascistream& stream )
 {
     const char* kw = stream.keyWord() + 1;
     type_ = StreamConn::Device;
@@ -328,15 +328,14 @@ bool IOStream::getDev( ascistream& stream )
 	else if ( !strcmp(kw,"Rewind") )
 	    rew = yesNoFromString(stream.value());
     }
-    return YES;
 }
 
 
-int IOStream::putTo( ascostream& stream ) const
+bool IOStream::putTo( ascostream& stream ) const
 {
-    if ( hostname[0] )
+    if ( !hostname.isEmpty() )
 	stream.put( "$Hostname", hostname );
-    if ( extension[0] )
+    if ( !extension.isEmpty() )
 	stream.put( "$Extension", extension );
     if ( isMulti() )
     {
@@ -364,12 +363,12 @@ int IOStream::putTo( ascostream& stream ) const
 	}
 
 	stream.put( "$Name", cleanfnm.buf() + offs );
-	return YES;
+	return true;
     }
     case StreamConn::Command:
 	stream.put( "$Reader", fname );
 	stream.put( "$Writer", writecmd ? *writecmd : fname );
-	return YES;
+	return true;
     case StreamConn::Device:
 	stream.put( "$Device", fname );
 	if ( blocksize )
@@ -378,10 +377,10 @@ int IOStream::putTo( ascostream& stream ) const
 	    stream.put( "$Fileskips", skipfiles );
 	if ( rew )
 	    stream.put( "$Rewind", getYesNoString(rew) );
-	return YES;
+	return true;
     }
 
-    return NO;
+    return false;
 }
 
 
@@ -410,7 +409,7 @@ StreamProvider* IOStream::streamProvider( bool fr ) const
     StreamProvider* sp = new StreamProvider( hostname, nm, type_ );
     if ( sp->bad() )
 	{ delete sp; return 0; }
-    if ( !hostname[0] && type_ == StreamConn::File )
+    if ( hostname.isEmpty() && type_ == StreamConn::File )
 	sp->addPathIfNecessary( dirName() );
     if ( blocksize ) sp->setBlockSize( blocksize );
 

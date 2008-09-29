@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:		$Id: uisegyexp.cc,v 1.3 2008-09-24 07:39:18 cvsbert Exp $
+ RCS:		$Id: uisegyexp.cc,v 1.4 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     {
 	setupnm += " ("; setupnm += attrnm_; setupnm += ")";
 	BufferString clnattrnm( attrnm_ );
-	cleanupString( clnattrnm.buf(), NO, NO, YES );
+	cleanupString( clnattrnm.buf(), mC_False, mC_False, mC_True );
 	newfnm += "_"; newfnm += clnattrnm;
     }
     newfnm += "."; newfnm += ext;

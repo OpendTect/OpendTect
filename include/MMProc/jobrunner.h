@@ -1,5 +1,5 @@
-#ifndef jobman_h
-#define jobman_h
+#ifndef jobrunner_h
+#define jobrunner_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.20 2008-09-22 13:09:19 cvskris Exp $
+ RCS:		$Id: jobrunner.h,v 1.21 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

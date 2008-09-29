@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.91 2008-09-10 05:52:16 cvssatyaki Exp $
+ RCS:           $Id: uisurvey.cc,v 1.92 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,13 +118,13 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
     const BufferString fromdir = getTrueDir( FilePath(from).fullPath() );
 
     MouseCursorChanger cc( MouseCursor::Wait );
-    if ( !File_copy( fromdir, todir, YES ) )
+    if ( !File_copy( fromdir, todir, mFile_Recursive ) )
     {
         uiMSG().error( "Cannot copy the survey data" );
         return false;
     }
 
-    File_makeWritable( todir, YES, YES );
+    File_makeWritable( todir, mFile_Recursive, mC_True );
     return true;
 }
 
@@ -337,7 +337,7 @@ bool acceptOK( CallBacker* )
     newdirnm = newdirnmfld->text();
     if ( newdirnm.isEmpty() )
 	{ inpSel(0); newdirnm = newdirnmfld->text(); }
-    cleanupString( newdirnm.buf(), NO, NO, YES );
+    cleanupString( newdirnm.buf(), mC_False, mC_False, mC_True );
 
     return true;
 }
@@ -412,7 +412,7 @@ void uiSurvey::rmButPushed( CallBacker* )
 
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
-    bool rmres = File_remove( truedirnm, YES );
+    bool rmres = File_remove( truedirnm, mFile_Recursive );
     MouseCursorManager::restoreOverride();
     if ( !rmres )
     {
@@ -421,7 +421,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     }
 
     if ( seldirnm != truedirnm ) // must have been a link
-	File_remove( seldirnm, NO );
+	File_remove( seldirnm, mFile_NotRecursive );
 
     updateSvyList();
     const char* ptr = GetSurveyName();

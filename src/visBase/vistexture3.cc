@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture3.cc,v 1.26 2006-03-14 14:58:51 cvsbert Exp $
+ RCS:           $Id: vistexture3.cc,v 1.27 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "interpol3d.h"
 #include "envvars.h"
+#include "string2.h"
 
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTexture3.h>

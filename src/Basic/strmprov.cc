@@ -41,9 +41,9 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.72 2008-07-16 05:13:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.73 2008-09-29 13:23:48 cvsbert Exp $";
 
-static FixedString<1024> oscommand;
+static BufferString oscommand( 2048 );
 
 const char* StreamProvider::sStdIO = "Std-IO";
 const char* StreamProvider::sStdErr = "Std-Err";
@@ -709,7 +709,7 @@ bool StreamProvider::setReadOnly( bool yn ) const
 
     if ( !hostname[0] )
 	return fname == sStdIO || fname == sStdErr ? false :
-		File_makeWritable( (const char*)fname, NO, !yn );
+	       File_makeWritable( (const char*)fname, mFile_NotRecursive, !yn );
 
     sprintf( oscommand.buf(), "%s %s 'chmod %s %s && echo 1'",
 	      (const char*)rshcomm,

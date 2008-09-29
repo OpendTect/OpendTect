@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.16 2006-07-07 15:00:23 cvskris Exp $
+ RCS:		$Id: scaler.h,v 1.17 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,20 +94,20 @@ class LogScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
-			LogScaler( bool t = YES )
-			: ten(t)			{}
+			LogScaler( bool powerof10=true )
+			: ten_(powerof10)		{}
     const char*		type() const			{ return sLogScaler; }
     virtual cloneTp*	clone() const
-			{ return new LogScaler(ten); }
+			{ return new LogScaler(ten_); }
 
     double		scale(double) const;
     double		unScale(double) const;
     const char*		toString() const;
     void		fromString(const char*);
     bool		operator==( const LogScaler& b ) const
-			{ return ten==b.ten; }
+			{ return ten_==b.ten_; }
     
-    bool		ten;
+    bool		ten_;
 #undef cloneTp
 };
 
@@ -119,11 +119,11 @@ class ExpScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,ExpScaler)
 public:
-			ExpScaler( bool t = YES )
-			: ten(t)			{}
+			ExpScaler( bool powerof10=true )
+			: ten_(powerof10)		{}
     const char*		type() const			{ return sExpScaler; }
     virtual cloneTp*	clone() const
-			{ return new ExpScaler(ten); }
+			{ return new ExpScaler(ten_); }
 
     double		scale(double) const;
     double		unScale(double) const;
@@ -131,9 +131,9 @@ public:
     void		fromString(const char*);
 
     bool		operator==( const ExpScaler& b ) const
-			{ return ten==b.ten; }
+			{ return ten_==b.ten_; }
     
-    bool		ten;
+    bool		ten_;
 #undef cloneTp
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.8 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.9 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,8 @@ public:
 
     ValueSeriesEvent<float,float>
 		find(VSEvent::Type,Interval<float>,int occ=1) const;
-    double	corr(const SeisTrc&,const SampleGate&,bool alpick=NO) const;
-    double	dist(const SeisTrc&,const SampleGate&,bool alpick=NO) const;
+    double	corr(const SeisTrc&,const SampleGate&,bool alpick=false) const;
+    double	dist(const SeisTrc&,const SampleGate&,bool alpick=false) const;
     float	getFreq(int isamp) const;
     float	getPhase(int isamp) const;
 

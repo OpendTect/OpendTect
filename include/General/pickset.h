@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.37 2008-05-22 12:04:45 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.38 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "namedobj.h"
 #include "sets.h"
+#include "enums.h"
 #include "tableascio.h"
 #include "trigonometry.h"
 

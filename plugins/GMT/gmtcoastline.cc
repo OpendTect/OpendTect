@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcoastline.cc,v 1.3 2008-09-17 10:09:04 cvsraman Exp $
+ RCS:		$Id: gmtcoastline.cc,v 1.4 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include <iostream>
 
 
 DefineNameSpaceEnumNames(ODGMT,Resolution,2,"Resolutions")

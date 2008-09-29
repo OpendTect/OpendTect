@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.26 2008-05-13 14:10:36 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.27 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -133,7 +133,7 @@ IOObj* IOObj::get( ascistream& astream, const char* dirnm, const char* dirky )
 	delete tr;
     }
 
-    IOObj* objptr = produce( _typ, _name, mykey, NO );
+    IOObj* objptr = produce( _typ, _name, mykey, false );
     if ( !objptr ) return 0;
 
     objptr->setParentKey( parkey );
@@ -199,7 +199,8 @@ Translator* IOObj::getTranslator() const
 IOObj* IOObj::clone() const
 {
     const IOObj* dataobj = isLink() ? ((IOLink*)this)->link() : this;
-    IOObj* newioobj = produce( dataobj->connType(), name(), dataobj->key(), NO);
+    IOObj* newioobj = produce( dataobj->connType(), name(), dataobj->key(),
+	    			false);
     if ( !newioobj )
 	{ pErrMsg("Cannot produce IOObj of my own type"); return 0; }
     newioobj->copyFrom( dataobj );
@@ -247,7 +248,7 @@ void IOObj::setStandAlone( const char* dirname )
 }
 
 
-int IOObj::put( ascostream& astream ) const
+bool IOObj::put( ascostream& astream ) const
 {
     if ( !isLink() )
     {
@@ -266,14 +267,14 @@ int IOObj::put( ascostream& astream ) const
     }
 
     if ( !putTo( astream ) )
-	return NO;
+	return false;
     for ( int idx=0; idx<pars_.size(); idx++ )
     {
 	astream.stream() << '#';
 	astream.put( pars_.getKey(idx), pars_.getValue(idx) );
     }
     astream.newParagraph();
-    return YES;
+    return true;
 }
 
 
@@ -297,8 +298,8 @@ bool IOObj::isReadDefault() const
 
 bool areEqual( const IOObj* o1, const IOObj* o2 )
 {
-    if ( !o1 && !o2 ) return YES;
-    if ( !o1 || !o2 ) return NO;
+    if ( !o1 && !o2 ) return true;
+    if ( !o1 || !o2 ) return false;
 
     return equalIOObj(o1->key(),o2->key());
 }

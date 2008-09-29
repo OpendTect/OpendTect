@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.54 2008-06-05 12:02:19 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.55 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ static void initGF( std::ostream& strm, const char* hornm, bool inmeter,
     char gfbuf[mHdr1GFLineLen+2];
     gfbuf[mHdr1GFLineLen] = '\0';
     BufferString hnm( hornm );
-    cleanupString( hnm.buf(), NO, NO, NO );
+    cleanupString( hnm.buf(), mC_False, mC_False, mC_False );
     sprintf( gfbuf, "PROFILE %17sTYPE 1  4 %45s3d_ci7m.ifdf     %s ms\n",
 		    "", "", inmeter ? "m " : "ft" );
     int sz = hnm.size(); if ( sz > 17 ) sz = 17;

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.11 2008-03-29 11:15:51 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.12 2008-09-29 13:23:47 cvsbert Exp $";
 
 #include "bufstring.h"
 
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: bufstring.cc,v 1.11 2008-03-29 11:15:51 cvsbert
 #include <string.h>
 
 
-#define mDeclMinlen : minlen_(mMaxUserIDLength+1), buf_( 0 ), len_( 0 )
+#define mDeclMinlen : minlen_(mMaxFilePathLength+1), buf_( 0 ), len_( 0 )
 #define mSimpConstrImpl(pars,impl) \
     BufferString::BufferString pars mDeclMinlen { impl; }
 

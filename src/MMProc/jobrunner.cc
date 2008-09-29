@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.36 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: jobrunner.cc,v 1.37 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ JobRunner::JobRunner( JobDescProv* p, const char* cmd )
     tmpfile_nr++;
 
     if ( File_exists(procdir_) && !File_isDirectory(procdir_) )
-	File_remove(procdir_,NO);
+	File_remove(procdir_,mFile_NotRecursive);
     if ( !File_exists(procdir_) )
 	File_createDir(procdir_,0);
 

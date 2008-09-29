@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.115 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.116 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -321,7 +321,7 @@ void uiSeisMMProc::startWork( CallBacker* )
 	if ( !File_isDirectory(tmpstordir) )
 	{
 	    if ( File_exists(tmpstordir) )
-		File_remove( tmpstordir, NO );
+		File_remove( tmpstordir, mFile_NotRecursive );
 	    File_createDir( tmpstordir, 0 );
 	}
 	if ( !File_isDirectory(tmpstordir) )

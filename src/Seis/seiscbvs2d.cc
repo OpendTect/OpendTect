@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.39 2008-09-22 13:11:25 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.40 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -108,7 +108,7 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 {
     if ( !isUsable(iop) ) return;
     BufferString fnm = getFileName(iop);
-    File_remove( fnm.buf(), NO );
+    File_remove( fnm.buf(), mFile_NotRecursive );
 }
 
 
@@ -413,7 +413,7 @@ Seis2DLinePutter* SeisCBVS2DLineIOProvider::getAdder( IOPar& iop,
 	    else
 		fnm = iop.name();
 	    fnm += ".cbvs";
-	    cleanupString( fnm.buf(), NO, YES, YES );
+	    cleanupString( fnm.buf(), mC_False, mC_True, mC_True );
 	}
 	const char* prevfnm = previop ? previop->find(sKey::FileName) : 0;
 	const int prevlnr = CBVSIOMgr::getFileNr( prevfnm );

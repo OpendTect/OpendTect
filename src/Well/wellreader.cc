@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.24 2008-02-26 09:17:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.25 2008-09-29 13:23:48 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -76,7 +76,7 @@ bool Well::IO::removeAll( const char* ext ) const
 	BufferString fnm( getFileName(ext,idx) );
 	if ( !File_exists(fnm) )
 	    break;
-	else if ( !File_remove(fnm,NO) )
+	else if ( !File_remove(fnm,mFile_NotRecursive) )
 	    return false;
     }
     return true;
@@ -92,7 +92,7 @@ Well::Reader::Reader( const char* f, Well::Data& w )
 
 const char* Well::Reader::rdHdr( std::istream& strm, const char* fileky ) const
 {
-    ascistream astrm( strm, YES );
+    ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(fileky) )
     {
 	BufferString msg( "Opened file has type '" );
@@ -142,7 +142,7 @@ bool Well::Reader::getInfo( std::istream& strm ) const
     if ( !strcmp(ver,"dGB-dTect") )
 	return getOldTimeWell(strm);
 
-    ascistream astrm( strm, NO );
+    ascistream astrm( strm, false );
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(Well::Info::sKeyuwid) )
@@ -288,7 +288,7 @@ bool Well::Reader::getLogs() const
 Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int idx ) const
 {
     Well::Log* newlog = new Well::Log;
-    ascistream astrm( strm, NO );
+    ascistream astrm( strm, false );
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(sKey::Name) )
@@ -341,7 +341,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyMarkers) ) return false;
 
-    ascistream astrm( strm, NO );
+    ascistream astrm( strm, false );
     IOPar iopar( astrm );
     if ( iopar.isEmpty() ) return false;
 
@@ -391,7 +391,7 @@ bool Well::Reader::getD2T( std::istream& strm ) const
 {
     if ( !rdHdr(strm,sKeyD2T) ) return false;
 
-    ascistream astrm( strm, NO );
+    ascistream astrm( strm, false );
     Well::D2TModel* d2t = new Well::D2TModel;
     while ( !atEndOfSection(astrm.next()) )
     {

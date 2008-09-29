@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: namedobj.h,v 1.1 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: namedobj.h,v 1.2 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
-#include "general.h"
+#include "bufstring.h"
 
 
 /*!\brief object with a name

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.14 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: iodir.h,v 1.15 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
     const IOObj*	operator[]( int idx ) const	{ return objs_[idx]; }
     const IOObj*	operator[]( IOObj* o ) const	{ return objs_[o]; }
 
-    bool		addObj(IOObj*,bool immediate_store=YES);
+    bool		addObj(IOObj*,bool immediate_store=true);
 			// after call, IOObj is mine!
     bool		commitChanges(const IOObj*);
 			// after call, pointer may dangle!

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.42 2008-01-29 13:51:10 cvshelene Exp $
+ RCS:           $Id: mathexpression.cc,v 1.43 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1016,8 +1016,8 @@ void MathExpression::getPrefixAndShift( const char* str,
 	    ArrPtrMan<char> shiftstr = new char [nrchars+1];
 	    strncpy( shiftstr, &str[startbracketidx+1], nrchars );
 	    shiftstr[nrchars] = 0;
-	    shift = isNumberString( shiftstr, NO ) ? atoi( shiftstr )
-						   : mUdf(int);
+	    shift = isNumberString(shiftstr,mC_False)
+		  ? atoi( shiftstr ) : mUdf(int);
 	}
     }
     

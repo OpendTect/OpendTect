@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.35 2008-09-22 13:07:33 cvskris Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.36 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,8 @@ dgbSurfDataWriter::~dgbSurfDataWriter()
 
 
 #define mErrRetWrite(msg) \
-{ errmsg_ = msg; File_remove(filename_.buf(),0); return ErrorOccurred; }
+{ errmsg_ = msg; File_remove(filename_.buf(),mFile_NotRecursive); \
+    return ErrorOccurred; }
 
 
 int dgbSurfDataWriter::nextStep()

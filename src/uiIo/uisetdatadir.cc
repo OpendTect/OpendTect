@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.23 2008-08-04 08:42:47 cvsnanne Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.24 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,7 +143,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	if ( !File_createDir( datadir, 0 ) )
 	    mErrRet( "Cannot create the new directory.\n"
 		     "Please check if you have the required write permissions" )
-	File_copy( stdomf, omffnm, NO );
+	File_copy( stdomf, omffnm, mFile_NotRecursive );
 	if ( !File_exists(omffnm) )
 	    mErrRet( "Cannot copy a file to the new directory!" )
 
@@ -158,7 +158,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	    if ( !uiMSG().askGoOn( "This is not an OpendTect data directory.\n"
 				  "Do you want it to be converted into one?" ) )
 		return false;
-	    File_copy( stdomf, omffnm, NO );
+	    File_copy( stdomf, omffnm, mFile_NotRecursive );
 	    if ( !File_exists(omffnm) )
 		mErrRet( "Could not convert the directory.\n"
 			 "Most probably you have no write permissions." )
@@ -204,7 +204,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 		if ( uiMSG().askGoOn( 
 			"Do you want to install the demo survey\n"
 			"in your OpendTect Data Root directory?" ) )
-		    File_copy( demosurvnm.fullPath(), todir, YES );
+		    File_copy( demosurvnm.fullPath(), todir, mFile_Recursive );
 	    }
 	}
     }

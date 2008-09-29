@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.9 2008-09-25 12:00:47 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.10 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include <iostream>
 
 
 static const int cTitleBoxHeight = 4;

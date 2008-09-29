@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.23 2008-03-19 15:57:48 cvskris Exp $
+ RCS:		$Id: vectoraccess.h,v 1.24 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <general.h>
+#include "general.h"
 #include <algorithm>
 #include <vector>
 
@@ -76,7 +76,7 @@ public:
     inline void		remove( unsigned int i1, unsigned int i2 )
 			{
 			    if ( i1 == i2 ) { remove( i1 ); return; }
-			    if ( i1 > i2 ) ::Swap( i1, i2 );
+			    if ( i1 > i2 ) std::swap( i1, i2 );
 			    const unsigned int sz = size();
 			    if ( i1 >= sz ) return;
 

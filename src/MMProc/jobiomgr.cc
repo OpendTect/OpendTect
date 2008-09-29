@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.26 2007-11-15 13:17:32 cvskris Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.27 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -450,8 +450,8 @@ bool JobIOMgr::mkIOParFile( FilePath& iopfp, const FilePath& basefp,
 
     newiop.set( sKey::Survey, IOM().surveyName() );
 
-    if ( File_exists(iopfnm) ) File_remove( iopfnm, NO );
-    if ( File_exists(logfnm) ) File_remove( logfnm, NO );
+    if ( File_exists(iopfnm) ) File_remove( iopfnm, mFile_NotRecursive );
+    if ( File_exists(logfnm) ) File_remove( logfnm, mFile_NotRecursive );
 
     StreamData iopsd = StreamProvider(iopfnm).makeOStream();
     if ( !iopsd.usable() )

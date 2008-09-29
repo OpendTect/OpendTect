@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.33 2008-06-19 08:25:28 cvsraman Exp $
+ RCS:		$Id: genc.h,v 1.34 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -59,7 +59,7 @@ int		InSysAdmMode();
 #else
 /* C only */
 
-typedef char	FileNameString[PATH_LENGTH+1];
+typedef char	FileNameString[mMaxFilePathLength+1];
 typedef char	UserIDString[mMaxUserIDLength+1];
 
 #endif
