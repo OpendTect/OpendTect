@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.25 2008-09-22 13:15:13 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.26 2008-09-29 17:17:53 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -384,9 +384,7 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 			mCB(this,ExplFaultStickSurface,surfaceMovement) );
 
 	if ( coordlist_ )
-	{
 	    insertAll();
-	}
     }
 }
 
@@ -471,7 +469,7 @@ void ExplFaultStickSurface::updateTextureCoords()
 	    if ( ci==-1 )
 		continue;
 
-	    const float rowcoord = 
+	    const float rowcoord =
 		(texturerowcoords_[stickidx]+0.5)/texturesize_.col;
 
 	    const float knotpos = 
@@ -617,13 +615,10 @@ int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point,
 			   (lp1bid.crl-ptbid.crl)/texturesampling_.binid.crl,
 			   (linept1.z-point.z)/texturesampling_.value);
 
-
     const Coord3 dir = lp0relpos-lp1relpos;
-    const Coord3 diff = -lp1relpos;
-    const float u = ( diff.x*dir.x+diff.y*dir.y+ diff.z*dir.z )/
-	(dir.x*dir.x+dir.y*dir.y+dir.z*dir.z);
-		
+    const float u = -lp1relpos.dot(dir)/dir.sqAbs();
     const float nrsamples = (lp1relpos+u*dir).abs();
+    
     return mNINT( nrsamples );
 }
 
@@ -669,8 +664,7 @@ bool ExplFaultStickSurface::updateTextureSize()
 		    (bid0.value-bid1.value)/texturesampling_.value;
 
 		const float nrsamples = Math::Sqrt( inlsamples*inlsamples +
-					      crlsamples*crlsamples +
-					      zsamples*zsamples );
+			crlsamples*crlsamples + zsamples*zsamples );
 
 		const int sz = mNINT( nrsamples );
 		sticktexturerowsz += sz;
@@ -735,6 +729,8 @@ bool ExplFaultStickSurface::updateTextureSize()
 	float sticklength = 0;
 	for ( int idy=0; idy<(*sticksegments[idx]).size(); idy++ )
 	    sticklength += (*sticksegments[idx])[idy];
+
+	sticklength *= rowfactor;
 
 	const float st0 = (po2rowsz-sticklength)/2;
 	const int start = mNINT( st0 );
