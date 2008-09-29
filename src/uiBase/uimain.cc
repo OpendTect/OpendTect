@@ -4,28 +4,28 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.46 2008-08-08 08:48:20 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.47 2008-09-29 16:51:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimain.h"
+
+#include "uifont.h"
 #include "uimainwin.h"
 #include "uiobjbody.h"
-#include "uifont.h"
-#include "errh.h"
-#include "debugmasks.h"
-#include "settings.h"
+
 #include "bufstringset.h"
-#include "qapplication.h"
+#include "debugmasks.h"
+#include "errh.h"
+#include "settings.h"
 #include "uimsg.h"
 
-#include "qstyle.h"
-#include "qcdestyle.h"
-
-#include "qiconset.h"
-
+#include <QApplication>
 #include <QCleanlooksStyle>
+#include <QIcon>
+
+#include "dtect.xpm"
 
 #ifdef __win__
 # include <QWindowsXPStyle>
@@ -85,7 +85,6 @@ uiMain::uiMain( int& argc, char **argv )
     : mainobj_( 0 )
 {
 #ifdef __machack__
-
         ProcessSerialNumber psn;
         CPSProcessSerNum PSN;
 
@@ -103,7 +102,8 @@ uiMain::uiMain( int& argc, char **argv )
 #endif
 
     initQApplication();
-    init(0,argc,argv);
+    init( 0, argc, argv );
+    app_->setWindowIcon( QIcon(dtect_xpm_data) );
 }
 
 
@@ -112,6 +112,7 @@ uiMain::uiMain( QApplication* qapp )
 { 
     initQApplication();
     app_ = qapp;
+    app_->setWindowIcon( QIcon(dtect_xpm_data) );
 }
 
 

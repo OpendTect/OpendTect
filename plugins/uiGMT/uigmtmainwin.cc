@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.9 2008-09-26 09:54:10 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.10 2008-09-29 16:51:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,6 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 {
     setTitleText( "" );
     setCtrlStyle( LeaveOnly );
-    setIcon( dtect_xpm_data, "GMT Mapping Tool" );
 
     uiGroup* rightgrp = new uiGroup( uppgrp_, "Right group" );
     tabstack_ = new uiTabStack( rightgrp, "Tab" );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.156 2008-09-29 15:19:56 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.157 2008-09-29 16:51:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,15 +45,13 @@ ________________________________________________________________________
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QFontDialog>
+#include <QIcon>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPixmap>
 #include <QSettings>
 #include <QStatusBar>
 #include <QWidget>
-
-#include "dtect.xpm"
-
 
 
 class uiMainWinBody : public uiParentBody
@@ -587,8 +585,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     body_ = new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
     body_->construct( nrstatusflds, wantMBar );
-    if ( !parnt )
-	setIcon( dtect_xpm_data, "OpendTect" );
+    body_->setWindowIconText( nm && *nm ? nm : "OpendTect" );
 }
 
 
@@ -830,19 +827,11 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 }
 
 
-void uiMainWin::setIcon( const char* img[], const char* icntxt )
-{
-    if ( icntxt )
-	body_->setIconText( icntxt );
-    if ( img )
-    {
-	QPixmap imgpm( img );
-	body_->setIcon( imgpm );
-	if ( menuBar() )
-	    menuBar()->setIcon( imgpm );
-    }
-}
+void uiMainWin::setIcon( const ioPixmap& pm )
+{ body_->setWindowIcon( *pm.qpixmap() ); }
 
+void uiMainWin::setIconText( const char* txt)
+{ body_->setWindowIconText( txt ); }
 
 void uiMainWin::saveSettings()
 { body_->saveSettings(); }

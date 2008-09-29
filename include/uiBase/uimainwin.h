@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.60 2008-07-16 11:16:54 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.61 2008-09-29 16:51:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,11 @@ public:
 
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
     
-    void		setCaption( const char* txt );
-    void		setIcon(const char* img[],const char* icntxt); //!< XPM
+    void		setCaption(const char*);
+    void		setIcon(const ioPixmap&);
+			//!< Default icon is set in uiMain
+    void		setIconText(const char*);
+
     virtual void        show();
     void                close();
 

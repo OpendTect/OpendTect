@@ -4,45 +4,45 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.105 2008-08-08 08:52:05 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.106 2008-09-29 16:51:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
 
-#include "oddatadirmanip.h"
 #include "uiattribpartserv.h"
 #include "uicmain.h"
-#include "mousecursor.h"
 #include "uidockwin.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
+#include "uimpepartserv.h"
 #include "uimsg.h"
 #include "uinlapartserv.h"
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodscenemgr.h"
 #include "uipluginsel.h"
+#include "uisetdatadir.h"
+#include "uisplashscreen.h"
+#include "uisurvey.h"
+#include "uisurvinfoed.h"
+#include "uitoolbar.h"
+#include "ui2dsip.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
-#include "uimpepartserv.h"
-#include "uipluginsel.h"
-#include "uisetdatadir.h"
-#include "uisurvey.h"
-#include "uitoolbar.h"
-#include "uisurvinfoed.h"
-#include "ui2dsip.h"
-#include "uisplashscreen.h"
 
 #include "ctxtioobj.h"
 #include "envvars.h"
 #include "filegen.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "odsessionfact.h"
+#include "mousecursor.h"
+#include "oddatadirmanip.h"
 #include "oddirs.h"
+#include "odsessionfact.h"
+#include "odver.h"
 #include "pixmap.h"
 #include "plugins.h"
 #include "ptrman.h"
@@ -184,7 +184,8 @@ uiODMain::uiODMain( uicMain& a )
     , justBeforeGo(this)
     , applicationClosing(this)
 {
-    //uiMSG().setMainWin( this );
+    BufferString icntxt( "OpendTect V", GetFullODVersion() );
+    setIconText( icntxt.buf() );
     uiapp_.setTopLevel( this );
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
 
