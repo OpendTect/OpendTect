@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.15 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.16 2008-09-30 12:34:18 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ static const char* scalingtypestr[] =
 {
     "T^n",
     "Window",
+    "AGC",
     0
 };
 
@@ -84,6 +85,17 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     table->setStretch( 2, 0 );
     table->setToolTip( "Right-click to add, insert or remove a gate" );
 
+    // for AGC
+    BufferString label = "Window width ";
+    label += SI().getZUnit( true );
+    windowfld = new uiGenInput( this, label.buf(), FloatInpSpec() );
+    windowfld->attach( alignedBelow, typefld );
+
+    lowenergymute = new uiGenInput( this, "Low energy mute (%)",
+	    			    FloatInpSpec() );
+    lowenergymute->attach( alignedBelow, windowfld );
+    lowenergymute->setValue( 0 );
+
     typeSel(0);
     statsSel(0);
 
@@ -98,6 +110,9 @@ void uiScalingAttrib::typeSel( CallBacker* )
 
     statsfld->display( typeval==1 );
     table->display( typeval==1 );
+
+    windowfld->display( typeval==2);
+    lowenergymute->display( typeval==2);
 }
 
 
@@ -118,6 +133,10 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
     mIfGetFloat( Scaling::powervalStr(), powerval, nfld->setValue(powerval) );
     mIfGetEnum( Scaling::statsTypeStr(), statstype, 
 	    			statsfld->setValue(statstype) );
+    mIfGetFloat( Scaling::widthStr(), wndwidthval, 
+	    			windowfld->setValue(wndwidthval) );
+    mIfGetFloat( Scaling::mutefractionStr(), mutefactor,
+				lowenergymute->setValue(mutefactor) );    
 
     table->clearTable();
 
@@ -176,6 +195,8 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     mSetEnum( Scaling::scalingTypeStr(), typefld->getIntValue() );
     mSetFloat( Scaling::powervalStr(), nfld->getfValue() );
     mSetEnum( Scaling::statsTypeStr(), statsfld->getIntValue() );
+    mSetFloat( Scaling::widthStr(), windowfld->getfValue() );
+    mSetFloat( Scaling::mutefractionStr(), lowenergymute->getfValue() );
 
     TypeSet<ZGate> tgs;
     TypeSet<float> factors;

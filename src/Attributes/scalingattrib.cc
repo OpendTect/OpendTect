@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.22 2007-11-09 16:53:52 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.23 2008-09-30 12:31:21 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "scalingattrib.h"
+
+#include "agc.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
@@ -24,6 +26,7 @@ ________________________________________________________________________
 
 #define mScalingTypeTPower   0
 #define mScalingTypeWindow   1
+#define mScalingTypeAGC	     2			
 
 static inline float interpolator( float fact1, float fact2, 
 				  float t1, float t2, float curt )
@@ -49,6 +52,7 @@ void Scaling::initClass()
     EnumParam* scalingtype = new EnumParam( scalingTypeStr() );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeTPower) );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeWindow) );
+    scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeAGC) );
     desc->addParam( scalingtype );
 
     FloatParam* powerval = new FloatParam( powervalStr() );
@@ -78,6 +82,18 @@ void Scaling::initClass()
     statstype->setDefaultValue( mStatsTypeRMS );
     desc->addParam( statstype );
 
+    FloatParam* widthval = new FloatParam( widthStr() );
+    widthval->setLimits( Interval<float>(0,mUdf(float)) );
+    desc->setParamEnabled( widthStr(), false );
+    desc->addParam( widthval );
+    widthval->setDefaultValue(200 );
+
+    FloatParam* mutefractionval = new FloatParam( mutefractionStr() );
+    mutefractionval->setLimits( Interval<float>(0,mUdf(float)) );
+    desc->setParamEnabled( mutefractionStr(), false );
+    desc->addParam( mutefractionval );
+    mutefractionval->setDefaultValue( 0 );
+
     desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Input data",true) );
 
@@ -88,10 +104,31 @@ void Scaling::initClass()
 void Scaling::updateDesc( Desc& desc )
 {
     BufferString type = desc.getValParam( scalingTypeStr() )->getStringValue();
-    const bool ispow = type == scalingTypeNamesStr(mScalingTypeTPower);
-    desc.setParamEnabled( powervalStr(), ispow );
-    desc.setParamEnabled( statsTypeStr(), !ispow );
-    desc.setParamEnabled( gateStr(), !ispow );
+    
+    if ( type == scalingTypeNamesStr(mScalingTypeTPower) )
+    {
+	desc.setParamEnabled( powervalStr(), true );
+	desc.setParamEnabled( statsTypeStr(), false );
+	desc.setParamEnabled( gateStr(), false );
+	desc.setParamEnabled( widthStr(), false );
+	desc.setParamEnabled( mutefractionStr(), false );
+    }
+    else if ( type == scalingTypeNamesStr(mScalingTypeWindow) )
+    {
+	desc.setParamEnabled( powervalStr(), false );
+	desc.setParamEnabled( statsTypeStr(), true );
+	desc.setParamEnabled( gateStr(), true );
+	desc.setParamEnabled( widthStr(), false );
+	desc.setParamEnabled( mutefractionStr(), false );
+    }
+    else if ( type == scalingTypeNamesStr(mScalingTypeAGC) )
+    {
+	desc.setParamEnabled( powervalStr(), false );
+	desc.setParamEnabled( statsTypeStr(), false );
+	desc.setParamEnabled( gateStr(), false );
+	desc.setParamEnabled( widthStr(), true );
+	desc.setParamEnabled( mutefractionStr(), true );
+    }
 
     const int statstype = desc.getValParam(statsTypeStr())->getIntValue();
     desc.setParamEnabled( factorStr(), statstype==mStatsTypeUser );
@@ -110,6 +147,7 @@ const char* Scaling::statsTypeNamesStr( int type )
 const char* Scaling::scalingTypeNamesStr( int type )
 {
     if ( type==mScalingTypeTPower ) return "T^n";
+    if ( type==mScalingTypeAGC ) return "AGC";
     return "Window";
 }
 
@@ -121,6 +159,8 @@ Scaling::Scaling( Desc& desc_ )
 
     mGetEnum( scalingtype_, scalingTypeStr() );
     mGetFloat( powerval_, powervalStr() );
+    mGetFloat( width_, widthStr() );
+    mGetFloat( mutefraction_, mutefractionStr() );
 
     mDescGetParamGroup(ZGateParam,gateset,desc,gateStr())
     for ( int idx=0; idx<gateset->size(); idx++ )
@@ -140,6 +180,16 @@ Scaling::Scaling( Desc& desc_ )
     }
     
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
+    window_ = Interval<float>( -width_/2, width_/2 );
+}
+
+
+bool Scaling::allowParallelComputation() const
+{
+    if ( scalingtype_ == mScalingTypeAGC )
+	return false;
+    else 
+	return true;
 }
 
 
@@ -199,6 +249,11 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	return true;
     }
 
+    if ( scalingtype_ == mScalingTypeAGC )
+    {
+	scaleAGC( output, z0, nrsamples );
+    }
+
     TypeSet< Interval<int> > samplegates;
     getSampleGates( gates_, samplegates, z0, nrsamples );
 
@@ -250,6 +305,31 @@ void Scaling::scaleTimeN( const DataHolder& output, int z0, int nrsamples) const
 	    		     getInputValue( *inputdata_, dataidx_, idx, z0 );
        	setOutputValue( output, 0, idx, z0, result );
     }
+}
+
+
+void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
+{
+    Interval<int> samplewindow;
+    samplewindow.start = mNINT( window_.start/refstep );
+    samplewindow.stop = mNINT( window_.stop/refstep );
+
+    if ( nrsamples <= samplewindow.width() )
+    {
+	for ( int idx=0; idx<inputdata_->nrsamples_; idx++ )
+	{
+	    const float result = getInputValue( *inputdata_, dataidx_, idx, z0 );
+	    setOutputValue( output, dataidx_, idx, z0, result );
+	}
+	return;
+    }
+    
+    ::AGC<float> agc;
+    agc.setMuteFraction( mutefraction_ );
+    agc.setSampleGate( samplewindow );
+    agc.setInput( *inputdata_->series(dataidx_), inputdata_->nrsamples_ );
+    agc.setOutput( *output.series(dataidx_) ); 
+    agc.execute( false );
 }
 
 

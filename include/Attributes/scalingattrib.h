@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.13 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.14 2008-09-30 12:30:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,8 @@ public:
     static const char*	powervalStr()		{ return "powerval"; }
     static const char*	gateStr()		{ return "timegate"; }
     static const char*	factorStr()		{ return "scalefactor"; }
+    static const char*	widthStr()		{ return "width"; }
+    static const char*	mutefractionStr()	{ return "mutefraction"; }
     static const char*	statsTypeStr()		{ return "statstype"; }
     static const char*	statsTypeNamesStr(int type);
     static const char*	scalingTypeNamesStr(int type);
@@ -52,7 +54,7 @@ protected:
     static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
-    bool		allowParallelComputation() const	{ return true; }
+    bool		allowParallelComputation() const;
 
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&,int zintv);
@@ -63,6 +65,7 @@ protected:
 				       TypeSet< Interval<int> >& newsampgates,
 				       int z0,int nrsamples) const;
     void		scaleTimeN(const DataHolder&, int, int) const;
+    void		scaleAGC(const DataHolder&,int z0,int nrsamples) const;
     void		getScaleFactorsFromStats(
 	    			const TypeSet<Interval<int> >& gates,
 				TypeSet<float>& factors) const;
@@ -76,6 +79,11 @@ protected:
     const DataHolder*	inputdata_;
     int			dataidx_;
     Interval<int>	desgate_;
+
+    // for AGC
+    float		width_;
+    Interval<float>     window_;
+    float          	mutefraction_;
 };
 
 }; // namespace Attrib

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.7 2008-09-30 12:33:12 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ protected:
     uiGenInput*		nfld;
     uiGenInput*		statsfld;
     uiTable*		table;
+    uiGenInput*         windowfld;
+    uiGenInput*         lowenergymute;
 
     void		typeSel(CallBacker*);
     void		statsSel(CallBacker*);
