@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.18 2006-06-30 11:46:50 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.19 2008-09-30 08:31:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ int LoadPlugin(const char* libnm);
 
 /*!\brief Plugin manager - loads plugins: shared libs or DLLs.
  
- For shared libs things to be in any way useful, an init function
+ For shared libs to be in any way useful, an init function
  must be called. The name of that function should predictable.
  It is constructed as follows:
  InitxxxPlugin
@@ -49,7 +49,7 @@ int LoadPlugin(const char* libnm);
  const char* InitxxxPlugin(int,char**);
  }
 
- Optional extras.
+ Optional extras:
 
  1) If you want the plugin to be loaded automatically at
  startup define:
@@ -59,15 +59,11 @@ int LoadPlugin(const char* libnm);
  if not defined, PI_AUTO_INIT_NONE is assumed, which means it will not be loaded
  if not explicitly done so.
 
- Loading from startup is done from $HOME/.od/plugins/$PLFSUBDIR or $dGB_APPL/...
- Plugins can always be put in these directory (for all) or in a subdirectory
- with the name of the program (e.g. dtectmain).
- From OpendTect V1.0.3 we also support the '.alo' files with the names of
- the plugins (e.g. DipSteer), and the plugins themeselves in the 'libs'
- subdirectory.
- The non-alo plugins will be loaded in alphabetical order, for .alo files the
- order specified in the file. The alo files themselves are handled in
- alphabetical order.
+ Loading from startup is done from $HOME/.od/plugins/$PLFSUBDIR/libs or
+ $dGB_APPL/plugins/$PLFSUBDIR/libs. The plguniins in these directories will
+ be loaded only if they are mentioned in a .alo file in the parent directory,
+ $HOME/.od/plugins/$PLFSUBDIR or $dGB_APPL/plugins/$PLFSUBDIR.
+ The alo files are handled in alphabetical order.
 
  2) It may be a good idea to define a function:
 
