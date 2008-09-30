@@ -4,9 +4,10 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: globexpr.cc,v 1.6 2007-07-04 11:11:39 cvsbert Exp $";
+static const char* rcsID = "$Id: globexpr.cc,v 1.7 2008-09-30 12:08:38 cvshelene Exp $";
 
 #include "globexpr.h"
+#include <ctype.h>
 
 
 void GlobExpr::set( const char* str )
