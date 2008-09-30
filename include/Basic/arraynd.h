@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.30 2008-09-16 10:01:46 cvsbert Exp $
+ RCS:		$Id: arraynd.h,v 1.31 2008-09-30 11:59:41 cvsbert Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -22,6 +22,7 @@ to the constructor.
 #include "valseries.h"
 #include "arrayndinfo.h"
 #include "ptrman.h"
+#include <string.h>
 
 #define mPolyArray1DInfoTp mPolyRet(ArrayNDInfo,Array1DInfo)
 #define mPolyArray2DInfoTp mPolyRet(ArrayNDInfo,Array2DInfo)
