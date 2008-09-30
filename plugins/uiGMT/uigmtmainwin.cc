@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.10 2008-09-29 16:51:00 cvsnanne Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.11 2008-09-30 10:16:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,16 +209,32 @@ void uiGMTMainWin::saveFlow( CallBacker* )
 {
     ctio_.ctxt.forread = false;
     uiIOObjSelDlg dlg( this, ctio_ );
-    if ( dlg.go() )
+    if ( !dlg.go() ) return;
+
+    ctio_.setObj( dlg.ioObj()->clone() );
+    BufferString emsg; ODGMT::ProcFlow pf;
+    IOPar& par = pf.pars();
+
+    BufferString fnm = filefld_->fileName();
+    if ( !fnm.isEmpty() )
+    par.set( sKey::FileName, fnm );
+    IOPar basemappar;
+    basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
+    if ( !basemapgrp_->fillPar(basemappar) )
+	 return;
+
+    BufferString numkey = "0";
+    par.mergeComp( basemappar, numkey );
+    for ( int ldx=0; ldx<pars_.size(); ldx++ )
     {
-	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg; ODGMT::ProcFlow pf;
-	fillPar( pf.pars() );
-	if ( !ODGMTProcFlowTranslator::store(pf,ctio_.ioobj,emsg) )
-	    uiMSG().error( emsg );
-	else
-	    needsave_ = false;
+	numkey = ldx + 1;
+	par.mergeComp( *pars_[ldx], numkey );
     }
+
+    if ( !ODGMTProcFlowTranslator::store(pf,ctio_.ioobj,emsg) )
+	uiMSG().error( emsg );
+    else
+	needsave_ = false;
 }
 
 
