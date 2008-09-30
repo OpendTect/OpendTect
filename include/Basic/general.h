@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.16 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: general.h,v 1.17 2008-09-30 11:48:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ template <class T>
 inline const char* className( const T& t )
 {	//!< Also works for gcc that returns the size first e.g. 4Clss
     const char* nm = typeid(t).name();
-    while ( isdigit(*nm) ) nm++;
+    while ( *nm >= '0' && *nm <= '9' ) nm++;
     return nm;
 }
 
