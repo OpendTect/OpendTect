@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.21 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.22 2008-09-30 12:08:20 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "gendefs.h"
 #include "plftypes.h"
+#include <string.h>
 
 #ifdef __cpp__
 extern "C" {

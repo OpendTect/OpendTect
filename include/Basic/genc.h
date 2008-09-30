@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.34 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.35 2008-09-30 12:08:20 cvshelene Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -17,6 +17,8 @@ Some general utilities, that need to be accessible in many places:
 #ifndef gendefs_H
 #include "gendefs.h"
 #endif
+
+#include "string2.h"
 
 #ifdef __cpp__
 extern "C" {
