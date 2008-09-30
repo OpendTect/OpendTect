@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.40 2008-05-26 13:14:58 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.41 2008-09-30 10:20:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -510,7 +510,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
     uiGetObjectName dlg( this, listsetup );
     static const char* strs[] = { "All surveys",
 				  "This survey only",
-				  "My user ID only" };
+				  "My user ID only", 0 };
     uiGenInput* srcfld = new uiGenInput( &dlg, "Store for",
 	    				 StringListInpSpec(strs) );
     srcfld->attach( alignedBelow, dlg.inpFld() );
