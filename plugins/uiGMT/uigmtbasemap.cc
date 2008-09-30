@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.7 2008-09-25 12:01:13 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.8 2008-09-30 05:17:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,10 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitextedit.h"
+
+
+static const int cTitleBoxHeight = 4;
+static const int cTitleBoxWidth = 36;
 
 uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     : uiDlgGroup(p,"Basemap")
@@ -66,8 +70,9 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     lbl->attach( alignedBelow, lebelintvfld_ );
 
     remarkfld_ = new uiTextEdit( this, "Remarks" );
-    remarkfld_->setPrefHeightInChar( 3 );
-    remarkfld_->setPrefWidthInChar( 20 );
+    remarkfld_->setPrefHeightInChar( cTitleBoxHeight );
+    remarkfld_->setPrefWidthInChar( cTitleBoxWidth );
+    remarkfld_->setStretch( 0, 0 );
     remarkfld_->attach( alignedBelow, lbl );
 
     updateFlds( true );
@@ -236,15 +241,15 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
     SeparString sepstr( remarks, '\n' );
     BufferStringSet remset;
     int idx = 0;
-    while ( idx < sepstr.size() && remset.size() < 4 )
+    while ( idx < sepstr.size() && remset.size() < cTitleBoxHeight )
     {
 	BufferString str = sepstr[idx++];
-	const int nrstr = str.size() / 20;
-	for ( int sdx=0; sdx<=nrstr && remset.size()<4; sdx++ )
+	const int nrstr = str.size() / cTitleBoxWidth;
+	for ( int sdx=0; sdx<=nrstr && remset.size()<cTitleBoxHeight; sdx++ )
 	{
-	    BufferString linestr( str.buf() + 20 * sdx );
+	    BufferString linestr( str.buf() + cTitleBoxWidth * sdx );
 	    if ( sdx < nrstr )
-		*( linestr.buf() + 20 ) = '\0';
+		*( linestr.buf() + cTitleBoxWidth ) = '\0';
 
 	    remset.add( linestr );
 	}

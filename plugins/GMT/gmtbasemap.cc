@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.10 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.11 2008-09-30 05:19:41 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 
 static const int cTitleBoxHeight = 4;
+static const int cTitleBoxWidth = 8;
 
 int GMTBaseMap::factoryid_ = -1;
 
@@ -77,7 +78,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm = "@pslegend -R -J -F -O -Dx";
     comm += mapdim.start + xmargin; comm += "c/";
     comm += 0; comm += "c/";
-    comm += 8; comm += "c/";
+    comm += cTitleBoxWidth; comm += "c/";
     comm += cTitleBoxHeight; comm += "c/BL ";
     if ( !closeps ) comm += "-K ";
 
