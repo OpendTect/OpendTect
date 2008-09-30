@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.18 2008-09-23 10:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.19 2008-09-30 08:31:46 cvsbert Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -18,8 +18,6 @@ static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.18 2008-09-23 10:40
 #include "viscolortabindexer.h"
 #include "settings.h"
 
-#undef YES
-#undef NO
 #include <Inventor/nodes/SoGroup.h>
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
