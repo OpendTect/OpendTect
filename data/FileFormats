@@ -103,3 +103,41 @@ Body.Z.Unit: Seconds
 Body.Selection.Z: P`-1/2
 Group: Fault3D
 !
+X Y Z(ms) Vel
+Header.Size: 0
+Header.Token: -1`
+Body.Selection.X/Y: P`-1/0`P`-1/1
+Body.Z Values.Unit: Milliseconds
+Body.Selection.Z Values: P`-1/2
+Body.Selection.Velocity: P`-1/3
+Group: Velocity
+!
+X Y Z(s) Vel
+Header.Size: 0
+Header.Token: -1`
+Body.Selection.X/Y: P`-1/0`P`-1/1
+Body.Z Values.Unit: Seconds
+Body.Selection.Z Values: P`-1/2
+Body.Selection.Velocity: P`-1/3
+Group: Velocity
+!
+Inl Crl Z(ms) Vel
+Header.Size: 0
+Header.Token: -1`
+Body.X/Y.Form: Inl/Crl
+Body.Selection.X/Y: P`-1/0`P`-1/1
+Body.Z Values.Unit: Milliseconds
+Body.Selection.Z Values: P`-1/2
+Body.Selection.Velocity: P`-1/3
+Group: Velocity
+!
+Inl Crl Z(s) Vel
+Header.Size: 0
+Header.Token: -1`
+Body.X/Y.Form: Inl/Crl
+Body.Selection.X/Y: P`-1/0`P`-1/1
+Body.Z Values.Unit: Seconds
+Body.Selection.Z Values: P`-1/2
+Body.Selection.Velocity: P`-1/3
+Group: Velocity
+!
