@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.3 2008-09-26 13:40:01 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.4 2008-09-30 16:18:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "uisegyread.h"
 class uiSeisSel;
+class IOObj;
 class CtxtIOObj;
 class uiGenInput;
 class uiSeisTransfer;
@@ -41,7 +42,12 @@ public :
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);
 			~uiSEGYImpDlg();
 
+    void		use(const IOObj*,bool force);
+    void		updatePars()		{ getParsFromScreen(true); }
+    const char*		saveObjName() const;
+
     Notifier<uiSEGYImpDlg> readParsReq;
+    Notifier<uiSEGYImpDlg> writeParsReq;
 
 protected:
 

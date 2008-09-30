@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.4 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.5 2008-09-30 16:18:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "iopar.h"
 class IOObj;
 class uiParent;
+class CtxtIOObj;
 namespace SEGY { class Scanner; }
 
 
@@ -74,8 +75,10 @@ protected:
     void		doImport();
 
     void		readReq(CallBacker*);
+    void		writeReq(CallBacker*);
 
-    int			targetState() const;
+    void		setGeomType(const IOObj&);
+    CtxtIOObj*		getCtio(bool) const;
 };
 
 

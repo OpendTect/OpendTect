@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.5 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.6 2008-09-30 16:18:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include <sstream>
 
-const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Number of traces";
+const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
 
 
 uiSEGYExamine::Setup::Setup( int nrtraces )

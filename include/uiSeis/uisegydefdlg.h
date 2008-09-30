@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.5 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.6 2008-09-30 16:18:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,11 @@ public:
 
     struct Setup : public uiDialog::Setup
     {
-			Setup();
+					Setup();
 
-	TypeSet<Seis::GeomType> geoms_; // empty=get uiSEGYRead default
+	mDefSetupMemb(Seis::GeomType,	defgeom)
+	TypeSet<Seis::GeomType>		geoms_;
+					//!< empty=get uiSEGYRead default
     };
 
 			uiSEGYDefDlg(uiParent*,const Setup&,IOPar&);

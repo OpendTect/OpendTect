@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.5 2008-09-30 16:18:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
     void		getMultiFromString(const char*);
     static const char*	sKeyFileNrs;
 
+    static void		ensureWellDefined(IOObj&);
+    static void		fillParFromIOObj(const IOObj&,IOPar&);
 };
 
 

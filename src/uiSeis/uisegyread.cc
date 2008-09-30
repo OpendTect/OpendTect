@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.5 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.6 2008-09-30 16:18:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uisegydefdlg.h"
 #include "uisegyimpdlg.h"
 #include "uisegyexamine.h"
+#include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uigeninput.h"
@@ -23,6 +24,10 @@ ________________________________________________________________________
 #include "segytr.h"
 #include "segyscanner.h"
 #include "seisioobjinfo.h"
+#include "ptrman.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "ctxtioobj.h"
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
@@ -67,6 +72,15 @@ uiSEGYRead::~uiSEGYRead()
 }
 
 
+void uiSEGYRead::setGeomType( const IOObj& ioobj )
+{
+    bool is2d = false; bool isps = false;
+    ioobj.pars().getYN( SeisTrcTranslator::sKeyIs2D, is2d );
+    ioobj.pars().getYN( SeisTrcTranslator::sKeyIsPS, isps );
+    geom_ = Seis::geomTypeOf( is2d, isps );
+}
+
+
 void uiSEGYRead::use( const IOObj* ioobj, bool force )
 {
     if ( !ioobj ) return;
@@ -74,7 +88,7 @@ void uiSEGYRead::use( const IOObj* ioobj, bool force )
     pars_.merge( ioobj->pars() );
     SeisIOObjInfo oinf( ioobj );
     if ( oinf.isOK() )
-	geom_ = oinf.geomType();
+	setGeomType( *ioobj );
 }
 
 
@@ -92,9 +106,60 @@ void uiSEGYRead::usePar( const IOPar& iop )
 }
 
 
-void uiSEGYRead::readReq( CallBacker* )
+void uiSEGYRead::writeReq( CallBacker* cb )
 {
-    uiMSG().error( "Not impl yet: read pars" );
+    mDynamicCastGet(uiSEGYImpDlg*,impdlg,cb)
+    if ( !impdlg ) return;
+
+    PtrMan<CtxtIOObj> ctio = getCtio( true );
+    ctio->ctxt.setName( impdlg->saveObjName() );
+    if ( !ctio->fillObj() )
+	return;
+
+    impdlg->updatePars();
+    ctio->ioobj->pars() = pars_;
+    SEGY::FileSpec::ensureWellDefined( *ctio->ioobj );
+    IOM().commitChanges( *ctio->ioobj );
+    delete ctio->ioobj;
+}
+
+
+void uiSEGYRead::readReq( CallBacker* cb )
+{
+    mDynamicCastGet(uiSEGYDefDlg*,defdlg,cb)
+    mDynamicCastGet(uiSEGYImpDlg*,impdlg,cb)
+    uiDialog* parnt = defdlg;
+    if ( parnt )
+	geom_ = defdlg->geomType();
+    else if ( !impdlg )
+	return;
+    else
+	parnt = impdlg;
+
+    PtrMan<CtxtIOObj> ctio = getCtio( true );
+    uiIOObjSelDlg dlg( parnt, *ctio, "Select SEG-Y setup" );
+    PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
+    if ( !ioobj ) return;
+
+    SEGY::FileSpec::fillParFromIOObj( *ioobj, pars_ );
+    if ( defdlg )
+	defdlg->use( ioobj, false );
+    else
+	impdlg->use( ioobj, false );
+}
+
+
+CtxtIOObj* uiSEGYRead::getCtio( bool forread ) const
+{
+    CtxtIOObj* ret = mMkCtxtIOObj( SeisTrc );
+    IOObjContext& ctxt = ret->ctxt;
+    ctxt.trglobexpr = "SEG-Y";
+    ctxt.forread = forread;
+    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIs2D, Seis::is2D(geom_) );
+    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIsPS, Seis::isPS(geom_) );
+    ctxt.includeconstraints = ctxt.allownonreaddefault = true;
+    ctxt.allowcnstrsabsent = false;
+    return ret;
 }
 
 
@@ -178,10 +243,12 @@ bool isGoBack() const
 };
 
 #define mSetreadReqCB() readParsReq.notify( mCB(this,uiSEGYRead,readReq) )
+#define mSetwriteReqCB() writeParsReq.notify( mCB(this,uiSEGYRead,writeReq) )
 
 void uiSEGYRead::getBasicOpts()
 {
     uiSEGYDefDlg::Setup bsu; bsu.geoms_ = setup_.geoms_;
+    bsu.defgeom( geom_ );
     uiSEGYDefDlg dlg( parent_, bsu, pars_ );
     dlg.mSetreadReqCB();
     if ( !dlg.go() )
@@ -241,5 +308,6 @@ void uiSEGYRead::doImport()
     su.rev( rev_ ).nrexamine( nrexamine_ );
     uiSEGYImpDlg dlg( parent_, su, pars_ );
     dlg.mSetreadReqCB();
+    dlg.mSetwriteReqCB();
     state_ = dlg.go() ? cFinished : cGetBasicOpts;
 }

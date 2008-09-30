@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.5 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.6 2008-09-30 16:18:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 
 uiSEGYDefDlg::Setup::Setup()
     : uiDialog::Setup("SEG-Y tool","Specify basic properties",mTODOHelpID)
+    , defgeom_(Seis::Vol)
 {
 }
 
@@ -50,12 +51,14 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     {
 	if ( su.geoms_.isEmpty() )
 	    uiSEGYRead::Setup::getDefaultTypes( setup_.geoms_ );
+	if ( setup_.geoms_.indexOf( setup_.defgeom_ ) < 0 )
+	    setup_.defgeom_ = setup_.geoms_[0];
 
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "File type" );
 	geomfld_ = lcb->box();
 	for ( int idx=0; idx<su.geoms_.size(); idx++ )
 	    geomfld_->addItem( Seis::nameOf( (Seis::GeomType)su.geoms_[idx] ) );
-	geomfld_->setCurrentItem( 0 );
+	geomfld_->setCurrentItem( setup_.geoms_.indexOf(setup_.defgeom_) );
 	lcb->attach( alignedBelow, filespecfld_ );
 	lastgrp = lcb;
     }
@@ -109,8 +112,12 @@ void uiSEGYDefDlg::use( const IOObj* ioobj, bool force )
     filespecfld_->use( ioobj, force );
     fileparsfld_->use( ioobj, force );
     SeisIOObjInfo oinf( ioobj );
-    if ( geomfld_ && oinf.isOK() )
-	geomfld_->setCurrentItem( Seis::nameOf(oinf.geomType()) );
+    if ( oinf.isOK() )
+    {
+	if ( geomfld_ )
+	    geomfld_->setCurrentItem( Seis::nameOf(oinf.geomType()) );
+	usePar( ioobj->pars() );
+    }
 }
 
 

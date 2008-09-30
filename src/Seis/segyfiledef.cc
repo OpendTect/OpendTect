@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.2 2008-09-22 15:09:01 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.3 2008-09-30 16:18:40 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "segytr.h"
@@ -102,6 +102,45 @@ void SEGY::FileSpec::getMultiFromString( const char* str )
 	nrs_.step = atoi( fms[2] );
     if ( len > 3 )
 	zeropad_ = atoi( fms[3] );
+}
+
+
+void SEGY::FileSpec::ensureWellDefined( IOObj& ioobj )
+{
+    mDynamicCastGet(IOStream*,iostrm,&ioobj)
+    if ( !iostrm ) return;
+    iostrm->setTranslator( "SEG-Y" );
+    IOPar& iop = ioobj.pars();
+    if ( !iop.find( sKey::FileName ) ) return;
+
+    SEGY::FileSpec fs; fs.usePar( iop );
+    iop.removeWithKey( sKey::FileName );
+    iop.removeWithKey( sKeyFileNrs );
+
+    iostrm->setFileName( fs.fname_ );
+    if ( !fs.isMultiFile() )
+	iostrm->fileNumbers().start = iostrm->fileNumbers().stop = 1;
+    else
+    {
+	iostrm->fileNumbers() = fs.nrs_;
+	iostrm->setZeroPadding( fs.zeropad_ );
+    }
+}
+
+
+void SEGY::FileSpec::fillParFromIOObj( const IOObj& ioobj, IOPar& iop )
+{
+    mDynamicCastGet(const IOStream*,iostrm,&ioobj)
+    if ( !iostrm ) return;
+
+    SEGY::FileSpec fs; fs.fname_ = iostrm->fileName();
+    if ( iostrm->isMulti() )
+    {
+	fs.nrs_ = iostrm->fileNumbers();
+	fs.zeropad_ = iostrm->zeroPadding();
+    }
+
+    fs.fillPar( iop );
 }
 
 

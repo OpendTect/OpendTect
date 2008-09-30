@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.2 2008-09-26 13:37:09 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.3 2008-09-30 16:18:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     , optsfld_(0)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
     , readParsReq(this)
+    , writeParsReq(this)
 {
     ctio_.ctxt.forread = false;
 
@@ -109,9 +110,24 @@ uiSEGYImpDlg::~uiSEGYImpDlg()
 }
 
 
+void uiSEGYImpDlg::use( const IOObj* ioobj, bool force )
+{
+    if ( optsfld_ )
+	optsfld_->use( ioobj, force );
+    if ( ioobj )
+	transffld_->updateFrom( *ioobj );
+}
+
+
 bool uiSEGYImpDlg::getParsFromScreen( bool permissive )
 {
     return optsfld_ ? optsfld_->fillPar( pars_, permissive ) : true;
+}
+
+
+const char* uiSEGYImpDlg::saveObjName() const
+{
+    return savesetupfld_ ? savesetupfld_->text() : "";
 }
 
 
@@ -126,6 +142,14 @@ bool uiSEGYImpDlg::acceptOK( CallBacker* )
 {
     if ( !getParsFromScreen(false) )
 	return false;
+    if ( *saveObjName() )
+	writeParsReq.trigger();
+
+    if ( !seissel_->commitInput(true) )
+    {
+	uiMSG().error( "Please select the output data" );
+	return false;
+    }
 
     return true;
 }

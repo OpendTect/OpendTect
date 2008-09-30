@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.59 2008-09-26 13:36:29 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.60 2008-09-30 16:18:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,12 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     allowcnstrsabsent_ = setup.allowcnstrsabsent_;
     include_ = setup.include_;
 
-    setTitleText( isps ? "Select Data Store"
-	    	: (is2d ? "Select Line Set" : "Select Cube") );
+    BufferString titletxt( "Setup " );
+    if ( setup.seltxt_ )
+	titletxt += setup.seltxt_;
+    else
+	titletxt += isps ? "Data Store" : (is2d ? "Line Set" : "Cube");
+    setTitleText( titletxt );
 
     uiGroup* topgrp = selgrp->getTopGroup();
 
