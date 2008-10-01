@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.24 2008-06-22 03:11:37 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.25 2008-10-01 03:44:37 cvsnanne Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.24 2008-06-22 03:11:37 c
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emeditor.h"
-#include "emfault.h"
+#include "emfault3d.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "explfaultsticksurface.h"
@@ -164,7 +164,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     if ( viseditor_ ) viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
-    mDynamicCastGet( EM::Fault*, emfault, emobject.ptr() );
+    mDynamicCastGet(EM::Fault3D*,emfault,emobject.ptr());
     if ( !emfault )
     {
 	if ( paneldisplay_ ) paneldisplay_->turnOn( false );

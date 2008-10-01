@@ -8,20 +8,19 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultextender.cc,v 1.6 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: faultextender.cc,v 1.7 2008-10-01 03:44:37 cvsnanne Exp $";
 
 #include "faultextender.h"
 
 #include "cubicbeziersurface.h"
-#include "emfault.h"
+#include "emfault3d.h"
 #include "survinfo.h"
 
 namespace MPE 
 {
 
 
-FaultExtender::FaultExtender( EM::Fault& flt,
-			    const EM::SectionID& sid )
+FaultExtender::FaultExtender( EM::Fault3D& flt, const EM::SectionID& sid )
     : SectionExtender(sid)
     , fault(flt)
     , maxdistance(Coord3::udf())

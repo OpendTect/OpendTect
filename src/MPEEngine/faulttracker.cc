@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulttracker.cc,v 1.4 2008-02-05 22:01:21 cvskris Exp $";
+static const char* rcsID = "$Id: faulttracker.cc,v 1.5 2008-10-01 03:44:37 cvsnanne Exp $";
 
 #include "faulttracker.h"
 
 #include "cubicbeziercurve.h"
-#include "emfault.h"
+#include "emfault3d.h"
 #include "emmanager.h"
 #include "faultseedpicker.h"
 #include "mpeengine.h"
@@ -31,7 +31,7 @@ namespace MPE
 
 EMTracker* FaultTracker::create( EM::EMObject* emo )
 {
-    mDynamicCastGet( EM::Fault*, fault, emo );
+    mDynamicCastGet(EM::Fault3D*,fault,emo)
     if ( emo && !fault )
 	return 0;
 
@@ -40,11 +40,11 @@ EMTracker* FaultTracker::create( EM::EMObject* emo )
 
 
 void FaultTracker::initClass()
-{ MPE::TrackerFactory().addCreator( create, EM::Fault::typeStr() ); }
+{ MPE::TrackerFactory().addCreator( create, EM::Fault3D::typeStr() ); }
 
 
-FaultTracker::FaultTracker( EM::Fault* fault_ )
-    : EMTracker( fault_ )
+FaultTracker::FaultTracker( EM::Fault3D* fault )
+    : EMTracker( fault )
     , seedpicker( 0 )
 { }
 
@@ -89,15 +89,15 @@ EMSeedPicker* FaultTracker::getSeedPicker(bool createifnotpresent)
 }
 
 
-EM::Fault* FaultTracker::getFault()
+EM::Fault3D* FaultTracker::getFault()
 {
-    mDynamicCastGet( EM::Fault*, fault, emObject() );
+    mDynamicCastGet(EM::Fault3D*,fault,emObject());
     return fault;
 }
 
 
-const EM::Fault* FaultTracker::getFault() const 
+const EM::Fault3D* FaultTracker::getFault() const 
 { return const_cast<FaultTracker*>(this)->getFault(); }
 
 
-};  //namespace
+} // namespace MPE

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.5 2008-06-22 03:11:37 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.6 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-namespace visSurvey { class FaultDisplay; }
+namespace visSurvey { class FaultDisplay; class Fault2DDisplay; }
 
 
 mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu );
@@ -61,6 +61,44 @@ protected:
     MenuItem			singlecolmnuitem_;
     MenuItem			removeselectedmnuitem_;
     visSurvey::FaultDisplay*	faultdisplay_;
+};
+
+
+mDefineItem( Fault2DParent, TreeItem, TreeTop, mShowMenu );
+
+
+class uiODFault2DTreeItemFactory : public uiODTreeItemFactory
+{
+public:
+    const char*		name() const { return typeid(*this).name(); }
+    uiTreeItem*		create() const
+    			{ return new uiODFault2DParentTreeItem; }
+    uiTreeItem*		create(int visid,uiTreeItem*) const;
+};
+
+
+class uiODFault2DTreeItem : public uiODDisplayTreeItem
+{
+public:
+    			uiODFault2DTreeItem(int,bool dummy);
+    			uiODFault2DTreeItem(const EM::ObjectID&);
+    			~uiODFault2DTreeItem();
+
+protected:
+    void		prepareForShutdown();
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
+    void		colorChCB(CallBacker*);
+
+    bool		init();
+    const char*		parentType() const
+			{return typeid(uiODFault2DParentTreeItem).name();}
+
+    EM::ObjectID		emid_;
+    MenuItem			savemnuitem_;
+    MenuItem			saveasmnuitem_;
+    MenuItem			removeselectedmnuitem_;
+    visSurvey::Fault2DDisplay*	fault2ddisplay_;
 };
 
 

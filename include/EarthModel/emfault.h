@@ -7,92 +7,45 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.35 2008-06-22 02:54:47 cvskris Exp $
+ RCS:		$Id: emfault.h,v 1.36 2008-10-01 03:44:36 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
+
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "faultsticksurface.h"
-#include "tableascio.h"
-
-namespace Table { class FormatDesc; }
-template <class T> class SortedList;
 
 namespace EM
 {
 class Fault;
 
+/*!\brief FaultGeometry base class */
+
 class FaultGeometry : public SurfaceGeometry
 {
-public:
-    			FaultGeometry(Fault&);
-			~FaultGeometry();
-
-    int			nrSticks(const SectionID&) const;
-    int			nrKnots(const SectionID&,int sticknr) const;
-
-    bool		insertStick(const SectionID&,int sticknr,int firstcol,
-	    			    const Coord3& pos,const Coord3& editnormal,
-				    bool addtohistory);
-    bool		removeStick(const SectionID&,int sticknr,
-				    bool addtohistory);
-    bool		insertKnot(const SectionID&,const SubID&,
-	    			   const Coord3& pos,bool addtohistory);
-    bool		removeKnot(const SectionID&,const SubID&,
-	    			   bool addtohistory);
-    
-    bool		areSticksVertical(const SectionID&) const;
-    const Coord3&	getEditPlaneNormal(const SectionID&,int sticknr) const;
-
-    Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&);
-    const Geometry::FaultStickSurface*
-			sectionGeometry(const SectionID&) const;
-
-    EMObjectIterator*	createIterator(const SectionID&,
-	    			       const CubeSampling* =0) const;
-
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-
 protected:
-    Geometry::FaultStickSurface*	createSectionGeometry() const;
+    			FaultGeometry( Surface& surf )
+			    : SurfaceGeometry(surf)	{}
 };
 
 
 
-/*!\brief
+/*!\brief Fault base class */
 
-*/
 class Fault : public Surface
-{ mDefineEMObjFuncs( Fault );
-public:
-    FaultGeometry&		geometry();
-    const FaultGeometry&	geometry() const;
-
-protected:
-    const IOObjContext&		getIOObjContext() const;
-
-
-    friend class		EMManager;
-    friend class		EMObject;
-    FaultGeometry		geometry_;
-};
-
-
-class FaultAscIO : public Table::AscIO
 {
 public:
-    				FaultAscIO( const Table::FormatDesc& fd )
-				    : Table::AscIO(fd)		{}
-    static Table::FormatDesc*	getDesc();
-
-    bool			get(std::istream&,EM::Fault&) const;
+    virtual FaultGeometry&	geometry()			= 0;
+    virtual const FaultGeometry& geometry() const
+				{ return const_cast<Fault*>(this)->geometry(); }
 
 protected:
-    bool			isXY() const;
+    				Fault( EMManager& em )
+				    : Surface(em)		{}
+
+    const IOObjContext&		getIOObjContext() const		= 0;
 };
 
 

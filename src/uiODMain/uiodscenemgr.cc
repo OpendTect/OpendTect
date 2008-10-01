@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.149 2008-09-09 19:03:07 cvsyuancheng Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.150 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 6500,
 		       SurveyInfo::Only2D );
     tifs_->addFactory( new uiODFaultTreeItemFactory, 7000, SurveyInfo::No2D );
+    tifs_->addFactory( new uiODFault2DTreeItemFactory, 7100,
+	    	       SurveyInfo::Only2D );
     tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 7500,
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.17 2008-02-15 07:38:23 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.18 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ protected:
 
     CtxtIOObj&		ctio_;
     
-    CtxtIOObj&		mkCtxtIOObj(const IOObj&);
+    CtxtIOObj*		mkCtxtIOObj(const IOObj&);
     bool		acceptOK(CallBacker*);
 };
 

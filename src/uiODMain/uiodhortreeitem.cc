@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodhortreeitem.cc,v 1.6 2008-07-17 10:59:20 cvssatyaki Exp $
+ RCS:		$Id: uiodhortreeitem.cc,v 1.7 2008-10-01 03:44:37 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     if ( mnuid == 0 )
     {
 	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->selectHorizons( emids );
+	applMgr()->EMServer()->selectHorizons( emids, false );
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx] < 0 ) continue;
@@ -260,7 +260,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     if ( mnuid == 0 )
     {
 	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->select2DHorizons( emids ); 
+	applMgr()->EMServer()->selectHorizons( emids, true ); 
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx] < 0 ) continue;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.131 2008-07-30 11:56:34 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.132 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -950,7 +950,8 @@ void uiMPEMan::updateSeedPickState()
     const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     mAddSeedConModeItems( seedconmodefld, Horizon3D );
     mAddSeedConModeItems( seedconmodefld, Horizon2D );
-    mAddSeedConModeItems( seedconmodefld, Fault );
+//    mAddSeedConModeItems( seedconmodefld, Fault3D );
+//    mAddSeedConModeItems( seedconmodefld, Fault2D );
 
     seedconmodefld->setCurrentItem( seedpicker->getSeedConnectMode() );
 }

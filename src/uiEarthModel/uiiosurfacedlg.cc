@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.33 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.34 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,9 +13,10 @@ ________________________________________________________________________
 #include "uiiosurface.h"
 
 #include "ctxtioobj.h"
-#include "emfault.h"
-#include "emhorizon3d.h"
+#include "emfault2d.h"
+#include "emfault3d.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -151,7 +152,7 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,Setup("Copy surface",mNoDlgTitle,"104.0.0"))
-    , ctio_(mkCtxtIOObj(ioobj))
+    , ctio_(*mkCtxtIOObj(ioobj))
 {
     inpfld = new uiSurfaceRead( this,
 	    uiSurfaceRead::Setup(ioobj.group()).withattribfld(true)
@@ -171,12 +172,17 @@ uiCopySurface::~uiCopySurface()
 }
 
 
-CtxtIOObj& uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
+CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 {
-    return !strcmp(ioobj.group(),EM::Horizon3D::typeStr()) ? 
-			*mMkCtxtIOObj(EMHorizon3D) : 
-	 ( !strcmp(ioobj.group(),EM::Horizon2D::typeStr()) ? 
-	   		*mMkCtxtIOObj(EMHorizon2D) : *mMkCtxtIOObj(EMFault) );
+    if ( !strcmp(ioobj.group(),EM::Horizon2D::typeStr()) )
+	return mMkCtxtIOObj( EMHorizon2D );
+    if ( !strcmp(ioobj.group(),EM::Horizon3D::typeStr()) )
+	return mMkCtxtIOObj( EMHorizon3D );
+    if ( !strcmp(ioobj.group(),EM::Fault2D::typeStr()) )
+	return mMkCtxtIOObj( EMFault2D );
+    if ( !strcmp(ioobj.group(),EM::Fault3D::typeStr()) )
+	return mMkCtxtIOObj( EMFault3D );
+    return 0;
 }
 
 

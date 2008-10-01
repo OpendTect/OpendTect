@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: faultadjuster.h,v 1.1 2005-12-12 17:52:19 cvskris Exp $
+ RCS:           $Id: faultadjuster.h,v 1.2 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sectionadjuster.h"
 
-namespace EM { class Fault; };
+namespace EM { class Fault3D; };
 
 namespace MPE
 {
@@ -22,7 +22,8 @@ namespace MPE
 class FaultAdjuster : public SectionAdjuster
 {
 public:
-    				FaultAdjuster(EM::Fault&,const EM::SectionID&);
+    				FaultAdjuster(EM::Fault3D&,
+					      const EM::SectionID&);
     				~FaultAdjuster();
 
     void			reset();
@@ -48,7 +49,7 @@ protected:
 	    					   TypeSet<BinID>&) const;
     float			computeScore(const Coord3&);
 
-    EM::Fault&			fault_;
+    EM::Fault3D&		fault_;
     bool			trackmaximum;
     Attrib::SelSpec&		attribsel;
 

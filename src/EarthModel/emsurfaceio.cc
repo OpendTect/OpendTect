@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.105 2008-09-22 13:07:33 cvskris Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.106 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,10 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "datachar.h"
 #include "datainterp.h"
-#include "emfault.h"
-#include "emhorizon3d.h"
+#include "emfault2d.h"
+#include "emfault3d.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "empolygonbody.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
@@ -603,11 +604,19 @@ int dgbSurfaceReader::nextStep()
 						firstcol+nrcols-1, colstep );
     }
 
-    mDynamicCastGet(Fault*,flt,surface_);
-    if ( flt )
+    mDynamicCastGet(Fault3D*,flt3d,surface_);
+    if ( flt3d )
     {
-	flt->geometry().sectionGeometry( sectionid )->
+	flt3d->geometry().sectionGeometry( sectionid )->
 	    addUdfRow( currentRow(), firstcol, nrcols );
+    }
+
+    mDynamicCastGet(Fault2D*,flt2d,surface_);
+    if ( flt2d )
+    {
+// TODO: implement
+//	flt2d->geometry().sectionGeometry( sectionid )->
+//	    addUdfRow( currentRow(), firstcol, nrcols );
     }
 
     mDynamicCastGet(PolygonBody*,polygon,surface_);

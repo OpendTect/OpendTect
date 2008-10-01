@@ -4,16 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki	
  Date:          December 2007
- RCS:           $Id: initearthmodel.cc,v 1.4 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: initearthmodel.cc,v 1.5 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "initearthmodel.h"
-#include "emfault.h"
-#include "emhorizon3d.h"
+#include "emfault2d.h"
+#include "emfault3d.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emmarchingcubessurface.h"
 #include "emhorizonztransform.h"
 #include "emobject.h"
@@ -25,7 +26,8 @@ ________________________________________________________________________
 
 void EarthModel::initStdClasses()
 {
-    EM::Fault::initClass();
+    EM::Fault2D::initClass();
+    EM::Fault3D::initClass();
     EM::Horizon2D::initClass();
     EM::Horizon3D::initClass();
     EM::HorizonZTransform::initClass();

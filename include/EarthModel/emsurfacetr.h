@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.12 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.13 2008-10-01 03:44:36 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -22,17 +22,19 @@ class IOObj;
 namespace EM
 {
     class dgbSurfaceReader;
-    class Fault;
-    class Horizon3D;
-    class Horizon2D;
+    class Fault2D;
+    class Fault3D;
     class Horizon;
+    class Horizon2D;
+    class Horizon3D;
     class Surface;
 }
 
 typedef EM::Horizon3D 	EMHorizon3D;
 typedef EM::Horizon2D	EMHorizon2D;
 typedef EM::Horizon	EMAnyHorizon;
-typedef EM::Fault	EMFault;
+typedef EM::Fault3D	EMFault3D;
+typedef EM::Fault2D	EMFault2D;
 
 
 /*!\brief Read/write EM::Horizon to storage */
@@ -64,19 +66,29 @@ class EMAnyHorizonTranslatorGroup : public TranslatorGroup
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
 
-static const char*	    keyword;
+    static const char*	    keyword;
 };
 
 
-class EMFaultTranslatorGroup : public TranslatorGroup
-{			       isTranslatorGroup(EMFault)
+class EMFault3DTranslatorGroup : public TranslatorGroup
+{			       isTranslatorGroup(EMFault3D)
 public:
-    			mDefEmptyTranslatorGroupConstructor(EMFault)
+    			mDefEmptyTranslatorGroupConstructor(EMFault3D)
 
     const char*		defExtension() const { return "flt"; }
 
     static const char*	keyword;
+};
 
+
+class EMFault2DTranslatorGroup : public TranslatorGroup
+{			         isTranslatorGroup(EMFault2D)
+public:
+    			mDefEmptyTranslatorGroupConstructor(EMFault2D)
+
+    const char*		defExtension() const { return "2df"; }
+
+    static const char*	keyword;
 };
 
 
@@ -170,7 +182,7 @@ protected:
 
 
 class dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
-{				isTranslator(dgb,EMHorizon2D)
+{				 isTranslator(dgb,EMHorizon2D)
 public:
     				dgbEMHorizon2DTranslator(const char* unm,
 						       const char* nm)
@@ -184,13 +196,28 @@ protected:
 };
 
 
-class dgbEMFaultTranslator : public dgbEMSurfaceTranslator
-{				isTranslator(dgb,EMFault)
+class dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
+{			       isTranslator(dgb,EMFault3D)
 public:
-    				dgbEMFaultTranslator(const char* unm,
-						     const char* nm)
+    				dgbEMFault3DTranslator(const char* unm,
+						       const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMFaultTranslator()			{}
+    virtual			~dgbEMFault3DTranslator()		{}
+
+protected:
+    virtual bool		readOnlyZ() const		{ return false;}
+    virtual bool		writeOnlyZ() const		{ return false;}
+    virtual bool		hasRangeSelection() const	{ return false;}
+};
+
+
+class dgbEMFault2DTranslator : public dgbEMSurfaceTranslator
+{			       isTranslator(dgb,EMFault2D)
+public:
+    				dgbEMFault2DTranslator(const char* unm,
+						       const char* nm)
+				    : dgbEMSurfaceTranslator(unm,nm)	{}
+    virtual			~dgbEMFault2DTranslator()		{}
 
 protected:
     virtual bool		readOnlyZ() const		{ return false;}

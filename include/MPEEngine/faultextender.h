@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: faultextender.h,v 1.1 2005-12-12 17:52:19 cvskris Exp $
+ RCS:           $Id: faultextender.h,v 1.2 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include "position.h"
 
-namespace EM { class Fault; };
+namespace EM { class Fault3D; };
 
 namespace MPE
 {
@@ -24,7 +24,7 @@ namespace MPE
 class FaultExtender : public SectionExtender
 {
 public:
-			FaultExtender(EM::Fault&,const EM::SectionID& =-1);
+			FaultExtender(EM::Fault3D&,const EM::SectionID& =-1);
 
     const Coord3&	maxDistance() const;
     void		setMaxDistance(const Coord3&);
@@ -36,7 +36,7 @@ public:
 
 protected:
     BinIDValue		direction;
-    EM::Fault&		fault;
+    EM::Fault3D&	fault;
 
     Coord3		maxdistance;
 };

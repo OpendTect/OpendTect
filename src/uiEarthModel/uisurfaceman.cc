@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.49 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.50 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,24 +40,26 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 
-#define mGet( typ, hor2d, hor3d, anyhor, flt ) \
+#define mGet( typ, hor2d, hor3d, anyhor, flt2d, flt3d ) \
     !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? hor2d : \
     (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? hor3d : \
-    (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword) ? anyhor : flt) )
+    (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword) ? anyhor : \
+    (!strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? flt2d : flt3d) ) )
 
 #define mGetIoContext(typ) \
     mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
 	       EMHorizon3DTranslatorGroup::ioContext(), \
 	       EMAnyHorizonTranslatorGroup::ioContext(), \
-	       EMFaultTranslatorGroup::ioContext() )
+	       EMFault2DTranslatorGroup::ioContext(), \
+	       EMFault3DTranslatorGroup::ioContext() )
 
 #define mGetManageStr(typ) \
     mGet( typ, "Manage 2D horizons", "Manage 3D horizons", "Manage horizons", \
-	       "Manage faults" )
+	       "Manage 2D faults", "Manage 3D faults" )
 
 #define mGetCopyStr(typ) \
     mGet( typ, "Copy 2D horizon", "Copy 3D horizon", "Copy horizon", \
-	       "Copy fault" )
+	       "Copy 2D fault", "Copy 3D fault" )
 
 using namespace EM;
 
@@ -74,7 +76,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     manipgrp->addButton( ioPixmap("copyobj.png"), mCB(this,uiSurfaceMan,copyCB),
 			 mGetCopyStr(typ) );
 
-    if ( mGet(typ,true,true,true,false) )
+    if ( mGet(typ,true,true,true,false,false) )
     {
 	attribfld = new uiListBox( this, "Calculated attributes", true );
 	attribfld->attach( rightOf, selgrp );
@@ -118,8 +120,9 @@ bool uiSurfaceMan::isCur2D() const
 
 bool uiSurfaceMan::isCurFault() const
 {
-    return curioobj_ &&
-	!strcmp(curioobj_->group(),EMFaultTranslatorGroup::keyword);
+    return curioobj_ && 
+	( !strcmp(curioobj_->group(),EMFault2DTranslatorGroup::keyword) ||
+	  !strcmp(curioobj_->group(),EMFault3DTranslatorGroup::keyword) );
 }
 
 

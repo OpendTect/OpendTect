@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.11 2008-06-22 03:11:37 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.12 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ namespace visBase
     class IndexedPolyLine3D;
 };
 
-namespace EM { class Fault; }
+namespace EM { class Fault3D; }
 namespace MPE { class FaultEditor; }
 namespace Geometry { class ExplFaultStickSurface; class ExplPlaneIntersection; }
 
@@ -145,7 +145,7 @@ protected:
     visBase::IndexedPolyLine3D*		neareststickmarker_;
     int					neareststick_;
 
-    EM::Fault*				emfault_;
+    EM::Fault3D*			emfault_;
     MPE::FaultEditor*			faulteditor_;
     visSurvey::MPEEditor*		viseditor_;
 

@@ -8,11 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.7 2008-06-20 16:27:26 cvskris Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.8 2008-10-01 03:44:37 cvsnanne Exp $";
 
 #include "faulteditor.h"
 
-#include "emfault.h"
+#include "emfault3d.h"
 #include "emmanager.h"
 #include "faultsticksurfedit.h"
 #include "mpeengine.h"
@@ -23,21 +23,21 @@ static const char* rcsID = "$Id: faulteditor.cc,v 1.7 2008-06-20 16:27:26 cvskri
 namespace MPE
 {
 
-FaultEditor::FaultEditor( EM::Fault& fault )
+FaultEditor::FaultEditor( EM::Fault3D& fault )
     : ObjectEditor(fault)
 {}
 
 
 ObjectEditor* FaultEditor::create( EM::EMObject& emobj )
 {
-    mDynamicCastGet(EM::Fault*,fault,&emobj);
+    mDynamicCastGet(EM::Fault3D*,fault,&emobj);
     if ( !fault ) return 0;
     return new FaultEditor(*fault);
 }
 
 
 void FaultEditor::initClass()
-{ MPE::EditorFactory().addCreator( create, EM::Fault::typeStr() ); }
+{ MPE::EditorFactory().addCreator( create, EM::Fault3D::typeStr() ); }
 
 
 Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )
@@ -122,7 +122,7 @@ void FaultEditor::getInteractionInfo( EM::PosID& nearestpid0,
 
 bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet(EM::Fault*,fault,&emobject);
+    mDynamicCastGet(EM::Fault3D*,fault,&emobject);
     bool change = false;
     for ( int sectionidx=fault->nrSections()-1; sectionidx>=0; sectionidx--)
     {
@@ -154,7 +154,7 @@ bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
 		if ( !pos.isDefined() || !selector.includes(pos) )
 		    continue;
 
-		EM::FaultGeometry& fg = fault->geometry();
+		EM::Fault3DGeometry& fg = fault->geometry();
 		const bool res = fg.nrKnots( currentsid,curstick)==1
 		   ? fg.removeStick( currentsid, curstick, true )
 		   : fg.removeKnot( currentsid, rc.getSerialized(), true );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.cc,v 1.4 2008-05-27 12:11:37 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.cc,v 1.5 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiexpfault.h"
 
 #include "ctxtioobj.h"
-#include "emfault.h"
+#include "emfault3d.h"
 #include "emfaulttransl.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -35,7 +35,7 @@ ________________________________________________________________________
 uiExportFault::uiExportFault( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Fault",
 				 "Specify output format","104.1.1"))
-    , ctio_(*mMkCtxtIOObj(EMFault))
+    , ctio_(*mMkCtxtIOObj(EMFault3D))
 {
     infld_ = new uiIOObjSel( this, ctio_, "Input Fault" );
 
@@ -76,7 +76,7 @@ bool uiExportFault::writeAscii()
     if ( !emobj ) mErrRet("Cannot add fault to EarthModel")
 
     emobj->setMultiID( ioobj->key() );
-    mDynamicCastGet(EM::Fault*,fault,emobj.ptr())
+    mDynamicCastGet(EM::Fault3D*,fault,emobj.ptr())
     PtrMan<Executor> loader = fault->geometry().loader();
     if ( !loader ) mErrRet("Cannot read fault")
 

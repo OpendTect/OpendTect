@@ -8,13 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultadjuster.cc,v 1.6 2008-09-09 17:22:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: faultadjuster.cc,v 1.7 2008-10-01 03:44:37 cvsnanne Exp $";
 
 #include "faultadjuster.h"
 
 #include "attribsel.h"
 #include "cubicbeziercurve.h"
-#include "emfault.h"
+#include "emfault3d.h"
 #include "iopar.h"
 #include "parametricsurface.h"
 #include "survinfo.h"
@@ -26,7 +26,7 @@ namespace MPE
 const char* FaultAdjuster::sKeyTrackMax() { return "Track Maximum"; }
 
 
-FaultAdjuster::FaultAdjuster( EM::Fault& flt, const EM::SectionID& sid )
+FaultAdjuster::FaultAdjuster( EM::Fault3D& flt, const EM::SectionID& sid )
     : SectionAdjuster(sid)
     , fault_(flt)
     , attribsel( *new Attrib::SelSpec )

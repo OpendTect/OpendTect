@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.84 2008-06-05 08:39:51 cvsjaap Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.85 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,8 +134,11 @@ static const char* sLineManualInfo( const BufferString& trackertype )
 
 static const IOObjContext* getContext( const char* type )
 {
-    if ( !strcmp(type,EMFaultTranslatorGroup::keyword ) )
-	return &EMFaultTranslatorGroup::ioContext();
+    if ( !strcmp(type,EMFault2DTranslatorGroup::keyword ) )
+	return &EMFault2DTranslatorGroup::ioContext();
+
+    if ( !strcmp(type,EMFault3DTranslatorGroup::keyword ) )
+	return &EMFault3DTranslatorGroup::ioContext();
 
     if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword ) )
 	return &EMHorizon2DTranslatorGroup::ioContext();
@@ -183,7 +186,7 @@ uiIOObjSelGrp* Wizard::createNamePage()
     // TODO: Make nice for Horizon(2D) & Fault (trackertype not yet set here!!)
     const IOObjContext* ctxttemplate = getContext( trackertype );
     if ( !ctxttemplate )
-	ctxttemplate = &EMFaultTranslatorGroup::ioContext();
+	ctxttemplate = &EMFault3DTranslatorGroup::ioContext();
 
     PtrMan<IOObjContext> ctxt = new IOObjContext( *ctxttemplate );
     ctxt->forread = false;

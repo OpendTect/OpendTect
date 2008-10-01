@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.146 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.147 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "datainpspec.h"
 #include "datapointset.h"
-#include "emfault.h"
+#include "emfault2d.h"
+#include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -297,16 +298,18 @@ void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 }
 
 
-void uiEMPartServer::selectHorizons( TypeSet<EM::ObjectID>& ids )
-{ selectSurfaces( ids, EMHorizon3DTranslatorGroup::keyword ); }
+void uiEMPartServer::selectHorizons( TypeSet<EM::ObjectID>& ids, bool is2d )
+{
+    selectSurfaces( ids, is2d ? EMHorizon2DTranslatorGroup::keyword
+	    		      : EMHorizon3DTranslatorGroup::keyword );
+}
 
 
-void uiEMPartServer::select2DHorizons( TypeSet<EM::ObjectID>& ids )
-{ selectSurfaces( ids, EMHorizon2DTranslatorGroup::keyword ); }
-
-
-void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids )
-{ selectSurfaces( ids, EMFaultTranslatorGroup::keyword ); }
+void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids, bool is2d )
+{
+    selectSurfaces( ids, is2d ? EMFault2DTranslatorGroup::keyword
+	    		      : EMFault3DTranslatorGroup::keyword );
+}
 
 
 void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )

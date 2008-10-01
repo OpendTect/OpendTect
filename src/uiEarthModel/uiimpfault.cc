@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.25 2008-05-28 14:44:46 cvshelene Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.26 2008-10-01 03:44:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiimpfault.h"
 
 #include "ctxtioobj.h"
-#include "emfault.h"
+#include "emfault3d.h"
 #include "emfaulttransl.h"
 #include "emmanager.h"
 #include "filegen.h"
@@ -35,8 +35,8 @@ ________________________________________________________________________
 uiImportFault::uiImportFault( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Faults","Specify fault parameters",
 				 "104.1.0"))
-    , ctio_(*mMkCtxtIOObj(EMFault))
-    , fd_(*EM::FaultAscIO::getDesc())
+    , ctio_(*mMkCtxtIOObj(EMFault3D))
+    , fd_(*EM::Fault3DAscIO::getDesc())
 {
     setCtrlStyle( DoAndStay );
 
@@ -85,25 +85,26 @@ void uiImportFault::typeSel( CallBacker* )
     if ( fault ) fault->unRef(); \
     return false; }
 
-EM::Fault* uiImportFault::createFault() const
+EM::Fault3D* uiImportFault::createFault() const
 {
-    const char* faultnm = outfld_->getInput();
+    const char* fltnm = outfld_->getInput();
     EM::EMManager& em = EM::EMM();
-    const EM::ObjectID emid = em.createObject( EM::Fault::typeStr(), faultnm );
-    mDynamicCastGet(EM::Fault*,fault,em.getObject(emid))
+    const EM::ObjectID emid = em.createObject( EM::Fault3D::typeStr(), fltnm );
+    mDynamicCastGet(EM::Fault3D*,fault,em.getObject(emid))
     return fault;
 }
 
 
 bool uiImportFault::handleLMKAscii()
 {
-    EM::Fault* fault = createFault();
+    EM::Fault3D* fault = createFault();
     if ( !fault )
 	mErrRet( "Cannot create fault" );
 
     fault->ref();
 
-    PtrMan<lmkEMFaultTranslator> transl = lmkEMFaultTranslator::getInstance();
+    PtrMan<lmkEMFault3DTranslator> transl =
+	lmkEMFault3DTranslator::getInstance();
     StreamData sd = StreamProvider( infld_->fileName() ).makeIStream();
     Conn* conn = new StreamConn( sd.istrm );
 
@@ -124,7 +125,7 @@ bool uiImportFault::handleLMKAscii()
 
 bool uiImportFault::handleAscii()
 {
-    EM::Fault* fault = createFault();
+    EM::Fault3D* fault = createFault();
     if ( !fault )
 	mErrRet( "Cannot create fault" )
 
@@ -134,7 +135,7 @@ bool uiImportFault::handleAscii()
     if ( !sd.usable() )
 	mErrRet( "Cannot open input file" )
 
-    EM::FaultAscIO ascio( fd_ );
+    EM::Fault3DAscIO ascio( fd_ );
     bool res = ascio.get( *sd.istrm, *fault );
     if ( !res )
 	mErrRet( "Cannot import fault" )
@@ -187,4 +188,3 @@ bool uiImportFault::checkInpFlds()
 
     return true;
 }
-
