@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.cc,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.cc,v 1.5 2008-10-01 05:20:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,9 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     colseqfld_->attach( rightOf, fillfld_ );
     fillColSeqs();
 
+    flipfld_ = new uiCheckBox( this, "Flip" );
+    flipfld_->attach( rightOf, colseqfld_ );
+
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, linefld_ );
     drawSel( 0 );
@@ -142,7 +145,11 @@ void uiGMTContourGrp::drawSel( CallBacker* )
     if ( !lsfld_ ) return;
 
     lsfld_->setSensitive( linefld_->isChecked() );
-    colseqfld_->setSensitive( fillfld_->isChecked() );
+    const bool dofill = fillfld_->isChecked();
+    colseqfld_->setSensitive( dofill );
+    flipfld_->setSensitive( dofill );
+    if ( !dofill )
+	flipfld_->setChecked( false );
 }
 
 
@@ -348,6 +355,7 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 
     par.setYN( ODGMT::sKeyFill, dofill );
     par.set( ODGMT::sKeyColSeq, colseqfld_->text() );
+    par.setYN( ODGMT::sKeyFlipColTab, flipfld_->isChecked() );
 
     return true;
 }
@@ -378,7 +386,12 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
 
     fillfld_->setChecked( dofill );
     if ( dofill )
+    {
 	colseqfld_->setCurrentItem( par.find(ODGMT::sKeyColSeq) );
+	bool doflip;
+	par.getYN( ODGMT::sKeyFlipColTab, doflip );
+	flipfld_->setChecked( doflip );
+    }
 
     drawSel( 0 );
     return true;

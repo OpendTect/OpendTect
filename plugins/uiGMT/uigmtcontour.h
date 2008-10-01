@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.h,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.h,v 1.5 2008-10-01 05:20:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ protected:
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		fillfld_;
     uiComboBox*		colseqfld_;
+    uiCheckBox*		flipfld_;
 
     void		readCB(CallBacker*);
     void		resetCB(CallBacker*);
