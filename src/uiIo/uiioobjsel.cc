@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.121 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.122 2008-10-01 11:58:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -432,7 +432,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	, selgrp( 0 )
 {
     const bool ismultisel = multisel && c.ctxt.forread;
-    selgrp = new uiIOObjSelGrp( this, c, seltxt, multisel );
+    selgrp = new uiIOObjSelGrp( this, c, 0, multisel );
     selgrp->getListField()->setHSzPol( uiObject::Wide );
     if ( !ismultisel )
     {
@@ -440,24 +440,32 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	selgrp->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
     }
 
-    BufferString nm( "Select " );
-    nm += c.ctxt.forread ? "input " : "output ";
-    if ( c.ctxt.name().isEmpty() )
-	nm += c.ctxt.trgroup->userName();
-    else
-	nm += c.ctxt.name();
-    if ( ismultisel ) nm += "(s)";
+    BufferString nm( seltxt );
+    if ( nm.isEmpty() )
+    {
+	nm = "Select ";
+	nm += c.ctxt.forread ? "input " : "output ";
+	if ( c.ctxt.name().isEmpty() )
+	    nm += c.ctxt.trgroup->userName();
+	else
+	    nm += c.ctxt.name();
+	if ( ismultisel ) nm += "(s)";
+    }
     setTitleText( nm );
 
-    BufferString caption = c.ctxt.forread ? "Load " : "Save ";
-    if ( c.ctxt.name().isEmpty() )
-	caption += c.ctxt.trgroup->userName();
-    else
-	caption += c.ctxt.name();
-    if ( !c.ctxt.forread ) caption += " as";
-    else if ( ismultisel ) caption += "(s)";
-
+    BufferString caption( seltxt );
+    if ( caption.isEmpty() )
+    {
+	caption = c.ctxt.forread ? "Load " : "Save ";
+	if ( c.ctxt.name().isEmpty() )
+	    caption += c.ctxt.trgroup->userName();
+	else
+	    caption += c.ctxt.name();
+	if ( !c.ctxt.forread ) caption += " as";
+	else if ( ismultisel ) caption += "(s)";
+    }
     setCaption( caption );
+
     setOkText( "&Ok (Select)" );
     finaliseDone.notify( mCB(this,uiIOObjSelDlg,setInitial) );
     selgrp->getListField()->doubleClicked.notify(
