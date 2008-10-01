@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.18 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.19 2008-10-01 03:37:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -395,28 +395,26 @@ void uiWell2RandomLineDlg::ptsSel( CallBacker* cb )
 
 bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 {
-    if ( !outfld_->getInput() || !outctio_.ioobj )
+    if ( !outfld_->commitInput(true) || !outctio_.ioobj )
     {
 	uiMSG().error( " Please specify the output " );
 	return false;
     }
+
     Geometry::RandomLine* rl = new Geometry::RandomLine;
     TypeSet<Coord> wellcoord;
     getCoordinates( wellcoord );
-    BinID wellbid;
     for ( int idx=0; idx<wellcoord.size(); idx++ )
-    {
-	wellbid = SI().transform( wellcoord[idx] );
-	rl->addNode( wellbid );
-    }
+	rl->addNode( SI().transform(wellcoord[idx]) );
 
-    BufferString msg;
     Geometry::RandomLineSet outrls;
     outrls.addLine( rl );
-    if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
+    BufferString msg;
+    const bool  res = RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg);
+    if ( !res )
 	uiMSG().error(msg);
 
-    return true;
+    return res;
 }
 
 
