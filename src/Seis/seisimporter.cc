@@ -4,13 +4,16 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.16 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.17 2008-10-01 10:27:03 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
 #include "seistrc.h"
 #include "seiscbvs.h"
+#include "seisread.h"
 #include "seiswrite.h"
+#include "seisresampler.h"
+#include "scaler.h"
 #include "cbvsreadmgr.h"
 #include "iostrm.h"
 #include "conn.h"
@@ -422,4 +425,76 @@ Executor* SeisImporter::mkPostProc()
 	return new SeisInlCrlSwapper( targetfnm, tmpiostrm, nrwritten_ );
     }
     return 0;
+}
+
+
+SeisStdImporterReader::SeisStdImporterReader( const IOObj& ioobj,
+					      const char* nm )
+    : rdr_(*new SeisTrcReader(&ioobj))
+    , name_(nm)
+    , remnull_(false)
+    , resampler_(0)
+    , scaler_(0)
+{
+}
+
+
+SeisStdImporterReader::~SeisStdImporterReader()
+{
+    delete resampler_;
+    delete scaler_;
+    delete &rdr_;
+}
+
+
+void SeisStdImporterReader::setResampler( SeisResampler* r )
+{
+    delete resampler_; resampler_ = r;
+}
+
+
+void SeisStdImporterReader::setScaler( Scaler* s )
+{
+    delete scaler_; scaler_ = s;
+}
+
+
+bool SeisStdImporterReader::fetch( SeisTrc& trc )
+{
+    while ( true )
+    {
+	int rv = 2;
+	while ( rv != 1 )
+	{
+	    rv = rdr_.get(trc.info());
+	    if ( rv < 1 )
+	    {
+		if ( rv < 0 ) errmsg_ = rdr_.errMsg();
+		return false;
+	    }
+	}
+	if ( !rdr_.get(trc) )
+	{
+	    errmsg_ = rdr_.errMsg();
+	    return false;
+	}
+
+	if ( remnull_ && trc.isNull() )
+	    continue;
+	else if ( resampler_ )
+	{
+	    SeisTrc* outtrc = resampler_->get( trc );
+	    if ( !outtrc )
+		continue;
+	    if ( outtrc != &trc )
+		trc = *outtrc;
+	}
+
+	if ( scaler_ )
+	    trc.data().scale( *scaler_ );
+
+	break;
+    }
+
+    return true;
 }

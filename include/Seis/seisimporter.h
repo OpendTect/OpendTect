@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.6 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seisimporter.h,v 1.7 2008-10-01 10:27:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,13 @@ ________________________________________________________________________
 #include "bufstring.h"
 class IOObj;
 class BinID;
+class Scaler;
 class SeisTrc;
 class SeisTrcBuf;
 class BinIDSorting;
+class SeisTrcReader;
 class SeisTrcWriter;
+class SeisResampler;
 class BinIDSortingAnalyser;
 
 
@@ -34,6 +37,8 @@ public:
 
       fetch() must return false at end or when an error occurs.
       On error, the errmsg_ must be filled.
+
+      A SeisStdImporterReader based on SeisTrcReader is available.
 
       */
 
@@ -89,6 +94,32 @@ protected:
 
     mutable BufferString errmsg_;
     mutable BufferString hndlmsg_;
+
+};
+
+
+class SeisStdImporterReader : public SeisImporter::Reader
+{
+public:
+			SeisStdImporterReader(const IOObj&,const char* nm);
+			~SeisStdImporterReader();
+
+    SeisTrcReader&	reader()		{ return rdr_; }
+
+    const char*		name() const		{ return name_; }
+    bool		fetch(SeisTrc&);
+
+    void		removeNull( bool yn )	{ remnull_ = yn; }
+    void		setResampler(SeisResampler*);
+    void		setScaler(Scaler*);
+
+protected:
+
+    const BufferString	name_;
+    SeisTrcReader&	rdr_;
+    bool		remnull_;
+    SeisResampler*	resampler_;
+    Scaler*		scaler_;
 
 };
 
