@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcontour.cc,v 1.3 2008-08-14 10:52:47 cvsraman Exp $
+ RCS:		$Id: gmtcontour.cc,v 1.4 2008-10-01 05:20:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,6 +224,8 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     ColTab::Sequence seq;
     if ( !ColTab::SM().get(seqname,seq) ) return false;
 
+    bool doflip = false;
+    getYN( ODGMT::sKeyFlipColTab, doflip );
     StreamData sd = StreamProvider(cptfnm).makeOStream();
     if ( !sd.usable() ) return false;
 
@@ -233,7 +235,7 @@ bool GMTContour::makeCPT( const char* cptfnm ) const
     {
 	const float val = rg.start + rg.step * idx;
 	const float frac = (float)idx / (float)nrsteps;
-	const Color col = seq.color( frac );
+	const Color col = seq.color( doflip ? 1 - frac : frac );
 	if ( idx )
 	{
 	    *sd.ostrm << val << "\t";

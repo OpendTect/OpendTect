@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: od_gmtexec.cc,v 1.4 2008-08-25 09:59:52 cvsraman Exp $
+ RCS:		$Id: od_gmtexec.cc,v 1.5 2008-10-01 05:20:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "timefun.h"
 #include "strmdata.h"
 #include "strmprov.h"
+
+#include <iostream>
 
 bool BatchProgram::go( std::ostream& strm )
 {

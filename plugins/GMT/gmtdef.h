@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.9 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: gmtdef.h,v 1.10 2008-10-01 05:20:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ namespace ODGMT
     static const char*	sKeyDryFillColor = "Fill Color Dry";
     static const char*	sKeyFill = "Fill";
     static const char*	sKeyFillColor = "Fill Color";
+    static const char*	sKeyFlipColTab = "Flip color table";
     static const char*	sKeyFontSize = "Font size";
     static const char*	sKeyGMT = "GMT";
     static const char*	sKeyGMTSelKey = "808080";
