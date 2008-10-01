@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.59 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.60 2008-10-01 09:38:04 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -271,7 +271,8 @@ SEGY::BinHeader::BinHeader( bool rev1 )
     	, fixdsz(1)
 {
     memset( &jobid, 0, SegyBinHeaderLength );
-    mfeet = format = 1;
+    format = 1;
+    mfeet = SI().xyInFeet() ? 2 : 1;
     float fhdt = SeisTrcInfo::defaultSampleInterval() * 1000;
     if ( SI().zIsTime() && fhdt < 32.768 )
 	fhdt *= 1000;
