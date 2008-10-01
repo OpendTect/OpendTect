@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.7 2008-10-01 10:27:03 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.8 2008-10-01 10:51:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;
 class BinIDSortingAnalyser;
-
+namespace Seis { class SelData; }
 
 /*!\brief Helps import or export of seismic data. */
 
@@ -110,8 +110,9 @@ public:
     bool		fetch(SeisTrc&);
 
     void		removeNull( bool yn )	{ remnull_ = yn; }
-    void		setResampler(SeisResampler*);
-    void		setScaler(Scaler*);
+    void		setResampler(SeisResampler*);	//!< becomes mine
+    void		setScaler(Scaler*);		//!< becomes mine
+    void		setSelData(Seis::SelData*);	//!< becomes mine
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.21 2008-05-16 12:34:53 cvshelene Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.22 2008-10-01 10:51:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,16 +229,20 @@ void uiSeisFmtScale::updateFrom( const IOObj& ioobj )
 }
 
 
-void uiSeisFmtScale::updateIOObj( IOObj* ioobj ) const
+void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
 {
     if ( !ioobj || Seis::is2D(gt_) ) return;
 
     const int tp = getFormat();
     ioobj->pars().set( "Data storage", DataCharacteristics::UserTypeNames[tp] );
-    ioobj->pars().removeWithKey( "Optimized direction" );
     if ( horOptim() )
 	ioobj->pars().set( "Optimized direction", "Horizontal" );
+    else
+	ioobj->pars().removeWithKey( "Optimized direction" );
 
-    IOM().to( ioobj->key() );
-    IOM().commitChanges( *ioobj );
+    if ( commit )
+    {
+	IOM().to( ioobj->key() );
+	IOM().commitChanges( *ioobj );
+    }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.4 2008-09-30 16:18:40 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.5 2008-10-01 10:51:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,8 +63,12 @@ protected:
     bool		getParsFromScreen(bool);
     void		setupWin(CallBacker*);
     void		readParsCB(CallBacker*);
+
+    friend class	uiSEGYImpSimilarDlg;
     bool		rejectOK(CallBacker*);
     bool		acceptOK(CallBacker*);
+    bool		doWork(const IOObj&,const IOObj&,
+	    			const char*,const char*);
 
 };
 

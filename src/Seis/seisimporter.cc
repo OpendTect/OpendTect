@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.17 2008-10-01 10:27:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.18 2008-10-01 10:51:39 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -456,6 +456,12 @@ void SeisStdImporterReader::setResampler( SeisResampler* r )
 void SeisStdImporterReader::setScaler( Scaler* s )
 {
     delete scaler_; scaler_ = s;
+}
+
+
+void SeisStdImporterReader::setSelData( Seis::SelData* sd )
+{
+    rdr_.setSelData( sd );
 }
 
 

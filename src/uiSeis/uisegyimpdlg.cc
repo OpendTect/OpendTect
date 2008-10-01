@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.3 2008-09-30 16:18:41 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.4 2008-10-01 10:51:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,10 @@ ________________________________________________________________________
 #include "uisegydef.h"
 #include "uisegyexamine.h"
 #include "uiseistransf.h"
+#include "uiseisfmtscale.h"
 #include "uiseissel.h"
+#include "uiseissubsel.h"
+#include "uiseisioobjinfo.h"
 #include "uitoolbar.h"
 #include "uicombobox.h"
 #include "uibutton.h"
@@ -24,9 +27,13 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
 #include "keystrs.h"
 #include "segytr.h"
+#include "segyhdr.h"
 #include "seisioobjinfo.h"
+#include "seisimporter.h"
+#include "seiswrite.h"
 #include "ctxtioobj.h"
 
 
@@ -47,6 +54,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     , setup_(su)
     , pars_(iop)
     , optsfld_(0)
+    , savesetupfld_(0)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
     , readParsReq(this)
     , writeParsReq(this)
@@ -151,5 +159,74 @@ bool uiSEGYImpDlg::acceptOK( CallBacker* )
 	return false;
     }
 
-    return true;
+    SEGY::FileSpec fs; fs.usePar( pars_ );
+    PtrMan<IOObj> inioobj = fs.getIOObj();
+    if ( !inioobj )
+    {
+	uiMSG().error( "Internal: cannot create SEG-Y object" );
+	return false;
+    }
+
+    const IOObj& outioobj = *ctio_.ioobj;
+    const bool is2d = Seis::is2D( setup_.geom_ );
+    const char* attrnm = seissel_->attrNm();
+    const char* lnm = is2d && transffld_->selFld2D() ?
+		      transffld_->selFld2D()->selectedLine() : 0;
+
+    return doWork( *inioobj, outioobj, lnm, attrnm );
+}
+
+
+bool uiSEGYImpDlg::doWork( const IOObj& inioobj, const IOObj& outioobj,
+				const char* linenm, const char* attrnm )
+{
+    const bool isps = Seis::isPS( setup_.geom_ );
+    const bool is2d = Seis::is2D( setup_.geom_ );
+    PtrMan<uiSeisIOObjInfo> ioobjinfo;
+    if ( !isps )
+    {
+	ioobjinfo = new uiSeisIOObjInfo( outioobj, true );
+	if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
+	    return false;
+    }
+
+    SEGY::TxtHeader::info2d = is2d;
+    transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(&outioobj), true );
+    PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
+    SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
+    rdr->removeNull( transffld_->removeNull() );
+    rdr->setResampler( transffld_->getResampler() );
+    rdr->setScaler( transffld_->scfmtfld->getScaler() );
+    Seis::SelData* sd = transffld_->getSelData();
+    if ( is2d )
+    {
+	if ( linenm && *linenm )
+	    sd->lineKey().setLineName( linenm );
+	if ( !isps )
+	    sd->lineKey().setAttrName( attrnm );
+	wrr->setSelData( sd->clone() );
+    }
+    rdr->setSelData( sd );
+
+    PtrMan<SeisImporter> imp = new SeisImporter( rdr, *wrr, setup_.geom_ );
+    bool rv = false;
+    if ( linenm && *linenm )
+    {
+	BufferString nm( imp->name() );
+	nm += " ("; nm += linenm; nm += ")";
+	imp->setName( nm );
+    }
+
+    uiTaskRunner dlg( this );
+    rv = dlg.execute( *imp );
+    if ( imp && imp->nrSkipped() > 0 )
+	uiMSG().warning( BufferString("During import, ",
+				      imp->nrSkipped(),
+				      " traces were rejected") );
+    imp.erase(); wrr.erase(); // closes output cube
+    if ( rv && !is2d && ioobjinfo )
+	rv = ioobjinfo->provideUserInfo();
+
+    SEGY::TxtHeader::info2d = false;
+    return rv;
 }
