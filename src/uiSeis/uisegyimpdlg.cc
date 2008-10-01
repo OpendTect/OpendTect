@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.4 2008-10-01 10:51:39 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.5 2008-10-01 11:41:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uiseparator.h"
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "uiseparator.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -35,6 +35,11 @@ ________________________________________________________________________
 #include "seisimporter.h"
 #include "seiswrite.h"
 #include "ctxtioobj.h"
+#include "filepath.h"
+#include "filegen.h"
+#include "dirlist.h"
+#include "ioman.h"
+#include "iostrm.h"
 
 
 uiSEGYImpDlg::Setup::Setup( Seis::GeomType gt )
@@ -55,6 +60,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     , pars_(iop)
     , optsfld_(0)
     , savesetupfld_(0)
+    , morebut_(0)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
     , readParsReq(this)
     , writeParsReq(this)
@@ -91,6 +97,12 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
     seissel_ = new uiSeisSel( outgrp, ctio_, uiSeisSel::Setup(setup_.geom_) );
     seissel_->attach( alignedBelow, transffld_ );
+
+    if ( setup_.geom_ == Seis::Line )
+    {
+	morebut_ = new uiCheckBox( outgrp, "Import more, similar files" );
+	morebut_->attach( alignedBelow, seissel_ );
+    }
 
     finaliseDone.notify( mCB(this,uiSEGYImpDlg,setupWin) );
 }
@@ -146,6 +158,131 @@ bool uiSEGYImpDlg::rejectOK( CallBacker* )
 }
 
 
+class uiSEGYImpSimilarDlg : public uiDialog
+{
+public:
+
+uiSEGYImpSimilarDlg( uiSEGYImpDlg* p, const IOObj& iio, const IOObj& oio,
+		     const char* anm )
+	: uiDialog(p,uiDialog::Setup("2D SEG-Y multi-import",
+		    		     "Specify file details","103.0.6"))
+	, inioobj_(iio)
+	, outioobj_(oio)
+	, impdlg_(p)
+	, attrnm_(anm)
+{
+    const BufferString fnm( inioobj_.fullUserExpr(true) );
+    FilePath fp( fnm );
+    BufferString ext = fp.extension();
+    if ( ext.isEmpty() ) ext = "sgy";
+    BufferString setupnm( "Imp "); setupnm += uiSEGYFileSpec::sKeyLineNmToken;
+
+    BufferString newfnm( uiSEGYFileSpec::sKeyLineNmToken );
+    newfnm += "."; newfnm += ext;
+    fp.setFileName( newfnm );
+    BufferString txt( "Input ('" ); txt += uiSEGYFileSpec::sKeyLineNmToken;
+    txt += "' will become line name)";
+    fnmfld_ = new uiFileInput( this, txt,
+		    uiFileInput::Setup(fp.fullPath()).forread(true) );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    BufferString fnm = fnmfld_->fileName();
+    FilePath fp( fnm );
+    BufferString dirnm( fp.pathOnly() );
+    if ( !File_isDirectory(dirnm) )
+    {
+	uiMSG().error( "Directory provided not usable" );
+	return false;
+    }
+    if ( !strstr(fp.fullPath().buf(),uiSEGYFileSpec::sKeyLineNmToken) )
+    {
+	BufferString msg( "The file name has to contain at least one '" );
+	msg += uiSEGYFileSpec::sKeyLineNmToken; msg += "'\n";
+	msg += "That will then become the line name";
+	uiMSG().error( msg );
+	return false;
+    }
+
+    IOM().to( outioobj_.key() );
+    return doImp( fp );
+}
+
+
+IOObj* getSubstIOObj( const char* fullfnm )
+{
+    IOObj* newioobj = inioobj_.clone();
+    newioobj->setName( fullfnm );
+    mDynamicCastGet(IOStream*,iostrm,newioobj)
+    iostrm->setFileName( fullfnm );
+    return newioobj;
+}
+
+
+bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
+{
+    bool res = impdlg_->doWork( *newioobj, outioobj_, lnm, attrnm_ );
+    delete newioobj;
+    if ( !res )
+    {
+	nofails = false;
+	if ( !islast && !uiMSG().askGoOn("Continue with next?") )
+	    return false;
+    }
+    return true;
+}
+
+
+bool doImp( const FilePath& fp )
+{
+    BufferString mask( fp.fileName() );
+    replaceString( mask.buf(), uiSEGYFileSpec::sKeyLineNmToken, "*" );
+    FilePath maskfp( fp ); maskfp.setFileName( mask );
+    const int nrtok = countCharacter( mask.buf(), '*' );
+    DirList dl( fp.pathOnly(), DirList::FilesOnly, mask );
+    if ( dl.size() < 1 )
+    {
+	uiMSG().error( "Cannot find any match for file name" );
+	return false;
+    }
+
+    BufferString fullmaskfnm( maskfp.fullPath() );
+    int lnmoffs = strstr( fullmaskfnm.buf(), "*" ) - fullmaskfnm.buf();
+    const int orglen = fullmaskfnm.size();
+    bool nofails = true;
+
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	const BufferString dirlistfnm( dl.get(idx) );
+	FilePath newfp( maskfp );
+	newfp.setFileName( dirlistfnm );
+	const BufferString fullfnm( newfp.fullPath() );
+	const int newlen = fullfnm.size();
+	const int lnmlen = (newlen - orglen + 1) / nrtok;
+	BufferString lnm( fullfnm.buf() + lnmoffs );
+	*(lnm.buf() + lnmlen) = '\0';
+
+	IOObj* newioobj = getSubstIOObj( fullfnm );
+	if ( !doWork( newioobj, lnm, idx > dl.size()-2, nofails ) )
+	    return false;
+    }
+
+    return nofails;
+}
+
+    uiFileInput*	fnmfld_;
+    uiSEGYImpDlg*	impdlg_;
+
+    const IOObj&	inioobj_;
+    const IOObj&	outioobj_;
+    const char*		attrnm_;
+
+};
+
+
+
 bool uiSEGYImpDlg::acceptOK( CallBacker* )
 {
     if ( !getParsFromScreen(false) )
@@ -173,7 +310,11 @@ bool uiSEGYImpDlg::acceptOK( CallBacker* )
     const char* lnm = is2d && transffld_->selFld2D() ?
 		      transffld_->selFld2D()->selectedLine() : 0;
 
-    return doWork( *inioobj, outioobj, lnm, attrnm );
+    if ( !morebut_ || !morebut_->isChecked() )
+	return doWork( *inioobj, outioobj, lnm, attrnm );
+
+    uiSEGYImpSimilarDlg dlg( this, *inioobj, outioobj, attrnm );
+    return dlg.go();
 }
 
 

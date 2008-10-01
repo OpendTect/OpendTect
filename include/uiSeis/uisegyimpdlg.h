@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.5 2008-10-01 10:51:39 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.6 2008-10-01 11:41:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiSeisSel;
 class IOObj;
 class CtxtIOObj;
+class uiCheckBox;
 class uiGenInput;
 class uiSeisTransfer;
 class uiSEGYFileOpts;
@@ -59,6 +60,7 @@ protected:
     uiGenInput*		savesetupfld_;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		seissel_;
+    uiCheckBox*		morebut_;
 
     bool		getParsFromScreen(bool);
     void		setupWin(CallBacker*);
