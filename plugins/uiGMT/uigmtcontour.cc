@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.cc,v 1.5 2008-10-01 05:20:28 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.cc,v 1.6 2008-10-01 05:37:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -373,7 +373,7 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     par.get( ODGMT::sKeyDataRange, rg );
     rgfld_->setValue( rg );
     nrcontourfld_->setValue( rg.nrSteps() + 1 );
-    bool drawcontour, dofill;
+    bool drawcontour=false, dofill=false;
     par.getYN( ODGMT::sKeyDrawContour, drawcontour );
     par.getYN( ODGMT::sKeyFill, dofill );
     linefld_->setChecked( drawcontour );
@@ -388,7 +388,7 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     if ( dofill )
     {
 	colseqfld_->setCurrentItem( par.find(ODGMT::sKeyColSeq) );
-	bool doflip;
+	bool doflip = false;
 	par.getYN( ODGMT::sKeyFlipColTab, doflip );
 	flipfld_->setChecked( doflip );
     }
