@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.100 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.101 2008-10-02 14:37:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,13 @@ SurveyInfo::SurveyInfo()
 {
     rdxtr.b = rdytr.c = 1;
     set3binids[2].crl = 0;
+
+    // To get a 'reasonable' transform even when no proper SI is yet defined
+    // Then, DataPointSets need to work
+    RCol2Coord::RCTransform xtr, ytr;
+    xtr.b = 1000; xtr.c = 0;
+    ytr.b = 0; ytr.c = 1000;
+    b2c_.setTransforms( xtr, ytr );
 }
 
 
