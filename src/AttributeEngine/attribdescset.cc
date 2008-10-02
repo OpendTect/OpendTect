@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.67 2008-04-18 14:56:22 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.68 2008-10-02 08:40:12 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -810,7 +810,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 
 void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 {
-    Attrib::SelInfo attrinf( this, 0, is2D() );
+    Attrib::SelInfo attrinf( this, 0, is2D(), DescID::undef(), true );
     for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
     {
 	BufferString defstr;

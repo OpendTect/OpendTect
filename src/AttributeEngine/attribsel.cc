@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.29 2008-07-21 09:03:47 cvsumesh Exp $
+ RCS:           $Id: attribsel.cc,v 1.30 2008-10-02 08:40:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,9 +200,10 @@ bool SelSpec::usePar( const IOPar& par )
 
 
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
-		  bool is2d, const DescID& ignoreid )
+		  bool is2d, const DescID& ignoreid, bool usesteering )
 {
     is2d_ = is2d;
+    usesteering_ = usesteering;
     fillStored();
 
     if ( attrset )
@@ -255,7 +256,7 @@ void SelInfo::fillStored( const char* filter )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
-	if ( res && !strcmp(res,sKey::Steering) ) continue;
+	if ( !usesteering_ && res && !strcmp(res,sKey::Steering) ) continue;
 
 	const char* ioobjnm = ioobj.name().buf();
 	if ( ge && !ge->matches(ioobjnm) )
@@ -285,6 +286,7 @@ SelInfo::SelInfo( const SelInfo& asi )
 	, attrids(asi.attrids)
 	, nlaoutnms(asi.nlaoutnms)
 	, is2d_(asi.is2d_)
+	, usesteering_(asi.usesteering_)
 {
 }
 
@@ -297,6 +299,7 @@ SelInfo& SelInfo::operator=( const SelInfo& asi )
     attrids = asi.attrids;
     nlaoutnms = asi.nlaoutnms;
     is2d_ = asi.is2d_;
+    usesteering_ = asi.usesteering_;
     return *this;
 }
 
