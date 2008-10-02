@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.5 2008-09-30 16:18:40 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.6 2008-10-02 14:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ protected:
 
     void		readReq(CallBacker*);
     void		writeReq(CallBacker*);
+    void		preScanReq(CallBacker*);
 
     void		setGeomType(const IOObj&);
     CtxtIOObj*		getCtio(bool) const;

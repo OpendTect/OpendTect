@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.3 2008-09-22 15:09:01 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.4 2008-10-02 14:40:06 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledef.h"
@@ -18,16 +18,31 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.3 2008-09-22 15:09:01 cvsber
 #include "executor.h"
 #include "iopar.h"
 
+#define mDefMembInit \
+      Executor("SEG-Y file scan") \
+    , trc_(*new SeisTrc) \
+    , pars_(*new IOPar(i)) \
+    , tr_(0) \
+    , geom_(gt) \
+    , curfidx_(-1) \
+    , msg_("Opening first file") \
+    , nrdone_(0) \
+    , nrtrcs_(0)
 
 SEGY::Scanner::Scanner( const FileSpec& fs, Seis::GeomType gt, const IOPar& i )
-    : Executor("SEG-Y file scan")
-    , trc_(*new SeisTrc)
-    , pars_(*new IOPar(i))
-    , geom_(gt)
-    , curfidx_(-1)
-    , msg_("Opening first file")
-    , nrdone_(0)
-    , nrtrcs_(0)
+    : mDefMembInit
+{
+    init( fs );
+}
+SEGY::Scanner::Scanner( const IOPar& i, Seis::GeomType gt )
+    : mDefMembInit
+{
+    FileSpec fs; fs.usePar( pars_ );
+    init( fs );
+}
+
+
+void SEGY::Scanner::init( const FileSpec& fs )
 {
     const int nrfiles = fs.nrFiles();
     for ( int idx=0; idx<nrfiles; idx++ )
@@ -40,6 +55,38 @@ SEGY::Scanner::~Scanner()
     deepErase( fd_ );
     delete &trc_;
     delete const_cast<IOPar*>(&pars_);
+}
+
+
+void SEGY::Scanner::getReport( IOPar& iop ) const
+{
+    const bool is2d = Seis::is2D( geom_ );
+    const bool isps = Seis::isPS( geom_ );
+    iop.set( "->", "Provided information" );
+    FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop );
+    FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop );
+
+    if ( fd_.isEmpty() )
+    {
+	if ( failedfnms_.isEmpty() )
+	    iop.set( "->", "No matching files found" );
+	else
+	    addErrReport( iop );
+	return;
+    }
+
+    bool forecrev0 = false;
+    pars_.getYN( SEGYSeisTrcTranslator::sForceRev0, forecrev0 );
+
+    int icopt = 0;
+    pars_.get( SegylikeSeisTrcTranslator::sKeyIC2XYOpt, icopt );
+
+    addErrReport( iop );
+}
+
+
+void SEGY::Scanner::addErrReport( IOPar& iop ) const
+{
 }
 
 
@@ -56,24 +103,21 @@ int SEGY::Scanner::readNext()
     SEGY::FileData& fd = *fd_[curfidx_];
     if ( !tr_->read(trc_) )
     {
-	fd.data_.dataChanged();
+	fd.addEnded();
 
 	const char* emsg = tr_->errMsg();
-	if ( !emsg || !*emsg )
-	    emsg = "Unknown error during read";
-	scanerrfnms_.add( fnms_.get(curfidx_) );
-	scanerrmsgs_.add( emsg );
+	if ( emsg && *emsg )
+	{
+	    scanerrfnms_.add( fnms_.get(curfidx_) );
+	    scanerrmsgs_.add( emsg );
+	}
 	delete tr_; tr_ = 0;
 	return Executor::MoreToDo;
     }
 
-    DataPointSet::DataRow dr;
-    dr.pos_.binid_ = trc_.info().binid;
-    dr.pos_.nr_ = trc_.info().nr;
-    dr.pos_.z_ = trc_.info().offset;
-    dr.setSel( trc_.isNull() );
-    dr.setGroup( tr_->trcHeader().isusable ? 1 : 2 );
-    fd.data_.addRow( dr );
+    fd.add( trc_.info().binid, trc_.info().coord, trc_.info().nr,
+	    trc_.info().offset, trc_.isNull(), tr_->trcHeader().isusable );
+    nrdone_++;
     return Executor::MoreToDo;
 }
 

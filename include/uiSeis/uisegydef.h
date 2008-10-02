@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.6 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.7 2008-10-02 14:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,7 @@ public:
     void		use(const IOObj*,bool force);
 
     Notifier<uiSEGYFileOpts> readParsReq;
+    Notifier<uiSEGYFileOpts> preScanReq;
 
 protected:
 
@@ -188,6 +189,7 @@ protected:
 
     void		positioningChg(CallBacker*);
     void		readParsPush(CallBacker*);
+    void		preScanPush(CallBacker*);
 
     int			posType() const;
     bool		haveIC() const;

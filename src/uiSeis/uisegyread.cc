@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.6 2008-09-30 16:18:41 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.7 2008-10-02 14:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "survinfo.h"
@@ -28,6 +28,8 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
+#include "oddirs.h"
+#include "filepath.h"
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
@@ -113,7 +115,7 @@ void uiSEGYRead::writeReq( CallBacker* cb )
 
     PtrMan<CtxtIOObj> ctio = getCtio( true );
     ctio->ctxt.setName( impdlg->saveObjName() );
-    if ( !ctio->fillObj() )
+    if ( !ctio->fillObj(false) )
 	return;
 
     impdlg->updatePars();
@@ -146,6 +148,90 @@ void uiSEGYRead::readReq( CallBacker* cb )
 	defdlg->use( ioobj, false );
     else
 	impdlg->use( ioobj, false );
+}
+
+
+class uiSEGYReadScanner : public uiDialog
+{
+public:
+
+uiSEGYReadScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
+    : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0,mNoHelpID))
+    , pars_(pars)
+    , geom_(gt)
+    , scanner_(0)
+    , res_(false)
+    , rep_("SEG-Y scan report")
+{
+    nrtrcsfld_ = new uiGenInput( this, "Limit to number of traces",
+	    			 IntInpSpec(1000) );
+    nrtrcsfld_->setWithCheck( true );
+    nrtrcsfld_->setChecked( false );
+
+    SEGY::FileSpec fs; fs.usePar( pars );
+    BufferString fnm( fs.fname_ );
+    replaceCharacter( fnm.buf(), '*', 'x' );
+    FilePath fp( fnm );
+    fp.setExtension( "txt" );
+    saveasfld_ = new uiFileInput( this, "Save report as",
+	    			  GetProcFileName(fp.fileName()) );
+    saveasfld_->setWithCheck( true );
+    saveasfld_->attach( alignedBelow, nrtrcsfld_ );
+    saveasfld_->setChecked( true );
+}
+
+~uiSEGYReadScanner()
+{
+    delete scanner_;
+}
+
+bool acceptOK( CallBacker* )
+{
+    const int nrtrcs = nrtrcsfld_->isChecked() ? nrtrcsfld_->getIntValue() : 0;
+    const char* fnm = saveasfld_->isChecked() ? saveasfld_->fileName() : "";
+
+    scanner_= new SEGY::Scanner( pars_, geom_ );
+    scanner_->setMaxNrtraces( nrtrcs );
+    uiTaskRunner uitr( this );
+    uitr.execute( *scanner_ );
+    res_ = true;
+    if ( scanner_->fileData().isEmpty() )
+    {
+	uiMSG().error( "No traces found" );
+	res_ = false;
+    }
+    else
+    {
+	scanner_->getReport( rep_ );
+	if ( *fnm && ! rep_.write(fnm,IOPar::sKeyDumpPretty) )
+	    uiMSG().warning( "Cannot write report to specified file" );
+    }
+
+
+    return true;
+}
+
+    const Seis::GeomType geom_;
+    const IOPar&	pars_;
+
+    uiGenInput*		nrtrcsfld_;
+    uiFileInput*	saveasfld_;
+
+    bool		res_;
+    IOPar		rep_;
+    SEGY::Scanner*	scanner_;
+
+};
+
+
+void uiSEGYRead::preScanReq( CallBacker* cb )
+{
+    mDynamicCastGet(uiSEGYImpDlg*,impdlg,cb)
+    if ( !impdlg ) return;
+    impdlg->updatePars();
+
+    uiSEGYReadScanner dlg( impdlg, geom_, pars_ );
+    if ( !dlg.go() || !dlg.res_ ) return;
 }
 
 
@@ -244,6 +330,7 @@ bool isGoBack() const
 
 #define mSetreadReqCB() readParsReq.notify( mCB(this,uiSEGYRead,readReq) )
 #define mSetwriteReqCB() writeParsReq.notify( mCB(this,uiSEGYRead,writeReq) )
+#define mSetpreScanReqCB() preScanReq.notify( mCB(this,uiSEGYRead,preScanReq) )
 
 void uiSEGYRead::getBasicOpts()
 {
@@ -309,5 +396,6 @@ void uiSEGYRead::doImport()
     uiSEGYImpDlg dlg( parent_, su, pars_ );
     dlg.mSetreadReqCB();
     dlg.mSetwriteReqCB();
+    dlg.mSetpreScanReqCB();
     state_ = dlg.go() ? cFinished : cGetBasicOpts;
 }

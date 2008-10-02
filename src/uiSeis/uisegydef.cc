@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.7 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.8 2008-10-02 14:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 #include "uifileinput.h"
 #include "uilabel.h"
+#include "uiseparator.h"
 #include "uimainwin.h"
 #include "uibutton.h"
 #include "uitabstack.h"
@@ -214,11 +215,15 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 }
 
 
-#define mDefTB(clss,fld) \
-    uiToolButton* tb = new uiToolButton( this, "Retrieve setup", \
-	    ioPixmap("openset.png"), mCB(this,clss,readParsPush) ); \
-    tb->attach( rightOf, fld ); \
-    tb->setToolTip( "Retrieve saved setup" )
+#define mDefRetrTB(clss,grp) \
+    uiSeparator* sep = new uiSeparator( grp->attachObj()->parent(), \
+	    		"Vert sep", false );\
+    sep->attach( rightOf, grp ); \
+    sep->attach( heightSameAs, grp ); \
+    uiToolButton* rtb = new uiToolButton( grp->attachObj()->parent(), \
+      "Retrieve setup", ioPixmap("openset.png"), mCB(this,clss,readParsPush) );\
+    rtb->attach( rightOf, sep ); \
+    rtb->setToolTip( "Retrieve saved setup" )
 
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     : uiSEGYDefGroup(p,"SEGY::FilePars group",forread)
@@ -243,7 +248,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     byteswapfld_ = new uiGenInput( grp, txt, BoolInpSpec(isswpd) );
     byteswapfld_->attach( alignedBelow, fmtfld_ );
 
-    mDefTB( uiSEGYFilePars, grp );
+    mDefRetrTB( uiSEGYFilePars, grp );
 
     if ( iop ) usePar( *iop );
     grp->setHAlignObj( fmtfld_ );
@@ -432,10 +437,16 @@ static void setToggledFld( uiGenInput* inp, const IOPar& iop, const char* key,
 
 //--- uiSEGYFileOpts ----
 
-#define mDefObjs(fld) \
+#define mDefObjs(grp) \
 { \
-    mDefTB(uiSEGYFileOpts,fld); \
-    setHAlignObj( fld ); \
+    mDefRetrTB(uiSEGYFileOpts,grp); \
+\
+    uiToolButton* stb = new uiToolButton( grp->attachObj()->parent(), \
+     "Pre-scan",ioPixmap("prescan.png"),mCB(this,uiSEGYFileOpts,preScanPush) );\
+    stb->attach( alignedBelow, rtb ); \
+    stb->setToolTip( "Pre-scan the file(s)" ); \
+\
+    setHAlignObj( grp ); \
 }
 
 
@@ -457,6 +468,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     	, is2d_(Seis::is2D(su.geom_))
     	, ts_(0)
     	, readParsReq(this)
+    	, preScanReq(this)
 {
     if ( forread_ && !setup_.isrev1_ )
 	ts_ = new uiTabStack( this, "SEG-Y opts tab stack" );
@@ -487,6 +499,12 @@ uiSEGYFileOpts::~uiSEGYFileOpts()
 void uiSEGYFileOpts::readParsPush( CallBacker* )
 {
     readParsReq.trigger();
+}
+
+
+void uiSEGYFileOpts::preScanPush( CallBacker* )
+{
+    preScanReq.trigger();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.4 2008-09-22 15:09:01 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.5 2008-10-02 14:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ class Scanner : public Executor
 {
 public:
 
+    			Scanner(const IOPar&,Seis::GeomType);
     			Scanner(const FileSpec&,Seis::GeomType,const IOPar&);
 			~Scanner();
 
@@ -54,6 +55,8 @@ public:
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
     BufferStringSet	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
+    void		getReport(IOPar&) const;
+
 protected:
 
     Seis::GeomType	geom_;
@@ -69,8 +72,11 @@ protected:
 
     int			openNext();
     int			readNext();
+
+    void		init(const FileSpec&);
     void		addFailed(const char*);
     void		initFileData();
+    void		addErrReport(IOPar&) const;
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.5 2008-10-01 11:41:18 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.6 2008-10-02 14:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
     , readParsReq(this)
     , writeParsReq(this)
+    , preScanReq(this)
 {
     ctio_.ctxt.forread = false;
 
@@ -75,10 +76,13 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 				    setup_.rev_ == uiSEGYRead::WeakRev1 );
 	optsfld_ = new uiSEGYFileOpts( optsgrp, osu, &iop );
 	optsfld_->readParsReq.notify( mCB(this,uiSEGYImpDlg,readParsCB) );
+	optsfld_->preScanReq.notify( mCB(this,uiSEGYImpDlg,preScanCB) );
 
 	savesetupfld_ = new uiGenInput( optsgrp, "On OK, save setup as" );
 	savesetupfld_->attach( alignedBelow, optsfld_ );
 	optsgrp->setHAlignObj( savesetupfld_ );
+	uiLabel* lbl = new uiLabel( optsgrp, "(optional)" );
+	lbl->attach( rightOf, savesetupfld_ );
     }
 
     uiSeparator* sep = optsgrp ? new uiSeparator( this, "Hor sep" ) : 0;
@@ -122,6 +126,12 @@ void uiSEGYImpDlg::setupWin( CallBacker* )
 void uiSEGYImpDlg::readParsCB( CallBacker* )
 {
     readParsReq.trigger();
+}
+
+
+void uiSEGYImpDlg::preScanCB( CallBacker* )
+{
+    preScanReq.trigger();
 }
 
 

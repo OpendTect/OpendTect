@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.6 2008-10-01 11:41:18 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.7 2008-10-02 14:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public :
 
     Notifier<uiSEGYImpDlg> readParsReq;
     Notifier<uiSEGYImpDlg> writeParsReq;
+    Notifier<uiSEGYImpDlg> preScanReq;
 
 protected:
 
@@ -65,6 +66,7 @@ protected:
     bool		getParsFromScreen(bool);
     void		setupWin(CallBacker*);
     void		readParsCB(CallBacker*);
+    void		preScanCB(CallBacker*);
 
     friend class	uiSEGYImpSimilarDlg;
     bool		rejectOK(CallBacker*);
