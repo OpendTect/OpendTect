@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.48 2008-08-05 10:04:48 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.49 2008-10-02 12:29:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,9 +226,11 @@ public:
 	    			bool chktype=false);
     bool		write(const char* filename,const char* filetype) const;
     			//!< If filetype is set to null no ascstream header
-    			//!< If filetype is set to "_pretty", calls dumpPretty.
+    			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(std::ostream&,const char* filetyp) const;
     void		dumpPretty(std::ostream&) const;
+
+    static const char*	sKeyDumpPretty;
 
 protected:
 
