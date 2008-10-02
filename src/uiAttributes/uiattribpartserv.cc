@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.95 2008-08-06 07:48:33 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.96 2008-10-02 08:38:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -365,8 +365,8 @@ Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
     const int nr2d = ds2d->nrDescs( false );
     if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
-    int res = uiMSG().askGoOnAfter( "Do you want to use 3D attributes (Yes)\n"
-				    "or 2D attributes (No)?" );
+    int res = uiMSG().askGoOnAfter( "Which Attributes set do you want to use?",
+	   			    0, "&3D", "&2D" );
     if ( res == 2 ) return 0;
     return res == 0 ? ds3d : ds2d;
 }
@@ -696,12 +696,11 @@ bool uiAttribPartServer::createAttributeSet( const BufferStringSet& inps,
 }
 
 
-//TODO check what is the exact role of the descset
 bool uiAttribPartServer::setPickSetDirs( Pick::Set& ps, const NLAModel* nlamod )
 {
-//    uiSetPickDirs dlg( parent(), ps, curDescSet(), nlamod );
-//	return dlg.go();
-    return true;
+    Attrib::DescSet* ds = getUserPrefDescSet();
+    uiSetPickDirs dlg( parent(), ps, ds, nlamod );
+    return dlg.go();
 }
 
 

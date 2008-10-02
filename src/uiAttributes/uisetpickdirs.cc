@@ -4,35 +4,39 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.11 2008-08-18 13:42:58 cvsyuancheng Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.12 2008-10-02 08:38:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uisetpickdirs.h"
-#include "attribsel.h"
-#include "ctxtioobj.h"
-#include "seistrctr.h"
-#include "pickset.h"
-#include "uigeninput.h"
-#include "uiattrsel.h"
-#include "uisteeringsel.h"
-#include "uilabel.h"
-#include "uimsg.h"
-#include "sorting.h"
-#include "scaler.h"
-#include "binidvalset.h"
 
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
-//#include "attribdescsetproc.h"
-//#include "attriboutputimpl.h"
-//#include "attribexecutor.h"
-#include "uitaskrunner.h"
-#include "survinfo.h"
+#include "attribfactory.h"
+#include "attribparam.h"
+#include "attribstorprovider.h"
+#include "attribsel.h"
+#include "ctxtioobj.h"
+#include "datacoldef.h"
+#include "datapointset.h"
+#include "executor.h"
+#include "mousecursor.h"
+#include "pickset.h"
 #include "rcol2coord.h"
+#include "seistrctr.h"
+#include "separstr.h"
+#include "survinfo.h"
+#include "undefval.h"
+
+#include "uiattrsel.h"
+#include "uigeninput.h"
+#include "uilabel.h"
+#include "uimsg.h"
+#include "uisteeringsel.h"
+#include "uitaskrunner.h"
 
 #include <math.h>
 
@@ -44,49 +48,49 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	: uiDialog(p,uiDialog::Setup("Add direction to Pick Set",
 				     "Specify directions for picks",
 				     "105.1.1"))
-	, ps(s)
-	, ads(a?a->clone():new DescSet(false) )//TODO verify for 2D
-	, nlamdl(n)
-	, dirinpfld(0)
-	, phifld(0)
-	, steerfld(0)
-	, steerctio(0)
-	, usesteering(true)
-	, createdset(0)
+	, ps_( s )
+	, ads_( a ? a->clone() : new DescSet(false) )
+	, nlamdl_( n )
+	, dirinpfld_( 0 )
+	, phifld_( 0 )
+	, steerfld_( 0 )
+	, steerctio_( 0 )
+	, usesteering_( true )
+	, createdset_( 0 )
 {
-    SelInfo attrselinfo( ads, nlamdl );
+    SelInfo attrselinfo( ads_, nlamdl_ );
     if ( attrselinfo.ioobjids.size() == 0 )
     {
 	new uiLabel( this, "Please import a seismic cube first" );
 	return;
     }
 
-//  const bool havesteer = AF().forms(true).size() > 0;
     const bool havesteer = true;
     if ( havesteer )
     {
-	dirinpfld = new uiGenInput( this, "Direction from", 
+	dirinpfld_ = new uiGenInput( this, "Direction from", 
 			BoolInpSpec(true,"Steering cube","Attributes") );
-	dirinpfld->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
-    	steerctio = mMkCtxtIOObj( SeisTrc );
-	steerctio->ctxt.forread = true;
-	steerfld = new uiSteerCubeSel( this, *steerctio, ads, "Steering cube" );
-	steerfld->attach( alignedBelow, dirinpfld );
+	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
+    	steerctio_ = mMkCtxtIOObj( SeisTrc );
+	steerctio_->ctxt.parconstraints.set( sKey::Type, sKey::Steering );
+	steerctio_->ctxt.includeconstraints = true;
+	steerctio_->ctxt.allowcnstrsabsent = false;
+	steerctio_->ctxt.forread = true;
+	steerfld_ = new uiSteerCubeSel( this, *steerctio_, ads_, ads_->is2D(),
+					"Steering cube" );
+	steerfld_->attach( alignedBelow, dirinpfld_ );
     }
 
-    uiAttrSelData ad( ads );
-    ad.nlamodel = nlamdl;
-    const bool is2d = ads ? ads->is2D() : false;
-    phifld = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])",
+    uiAttrSelData ad( ads_ );
+    ad.nlamodel = nlamdl_;
+    const bool is2d = ads_ ? ads_->is2D() : false;
+    phifld_ = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])",
 	    		    ad, is2d );
-    if ( dirinpfld )
-	phifld->attach( alignedBelow, dirinpfld );
-    thetafld = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])", 
+    if ( dirinpfld_ )
+	phifld_->attach( alignedBelow, dirinpfld_ );
+    thetafld_ = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])", 
 	    		      ad, is2d );
-    thetafld->attach( alignedBelow, phifld );
-
-    rfld = new uiAttrSel( this, "Vector length (R)", ad, is2d );
-    rfld->attach( alignedBelow, thetafld );
+    thetafld_->attach( alignedBelow, phifld_ );
 
     finaliseDone.notify( mCB(this,uiSetPickDirs,dirinpSel) );
 }
@@ -94,22 +98,22 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 
 uiSetPickDirs::~uiSetPickDirs()
 {
-    delete ads;
-    delete createdset;
-    if ( steerctio )
-	{ steerctio->destroyAll(); delete steerctio; }
+    delete ads_;
+    delete createdset_;
+    if ( steerctio_ )
+	{ steerctio_->destroyAll(); delete steerctio_; }
 }
 
 
 void uiSetPickDirs::dirinpSel( CallBacker* )
 {
-    if ( !phifld ) return;
+    if ( !phifld_ ) return;
 
-    usesteering = dirinpfld && dirinpfld->getBoolValue();
-    if ( steerfld )
-	steerfld->display( usesteering );
-    phifld->display( !usesteering );
-    thetafld->display( !usesteering );
+    usesteering_ = dirinpfld_ && dirinpfld_->getBoolValue();
+    if ( steerfld_ )
+	steerfld_->display( usesteering_ );
+    phifld_->display( !usesteering_ );
+    thetafld_->display( !usesteering_ );
 }
 
 
@@ -118,49 +122,45 @@ void uiSetPickDirs::dirinpSel( CallBacker* )
 
 bool uiSetPickDirs::acceptOK( CallBacker* )
 {
-    pErrMsg( "Not implemented yet" );
-    return false;
-/*
-    if ( !phifld ) return true;
-
-    if ( usesteering && !*steerfld->getInput() )
+    if ( usesteering_ && !*steerfld_->getInput() )
 	mErrRet( "Please, select Steering Cube" )
-    if ( !usesteering && ( !*phifld->getInput() || !*thetafld->getInput() ) )
-	mErrRet( "Please, select input attribute(s)" )
+    if ( !usesteering_ && ( !*phifld_->getInput() || !*thetafld_->getInput() ) )
+	mErrRet( "Please, select input attribute(s) for Phi and Theta" )
 
-    BinIDValueSet locations( 1, true );
-    for ( int idx=0; idx<ps.size(); idx++ )
+    TypeSet<DataPointSet::DataRow> pts;
+    ObjectSet<DataColDef> dcds;
+    dcds += new DataColDef( usesteering_ ? "inline dip"
+	    				 : phifld_->getAttrName() );
+    dcds += new DataColDef( usesteering_ ? "crossline dip"
+	    				 : thetafld_->getAttrName() );
+
+    DataPointSet locations( pts, dcds, ads_->is2D() );
+    for ( int idx=0; idx<ps_.size(); idx++ )
     {
-	Pick::Location pl( ps[idx] );
-	locations.add( SI().transform(pl.pos), pl.z );
+	Pick::Location pl( ps_[idx] );
+	DataPointSet::DataRow dtrow( DataPointSet::Pos( pl.pos ) );
+	locations.addRow( dtrow );
     }
 
-    BoolTypeSet issel;
-    TypeSet<int> idxs;
-    if ( !getAttribSelection(issel,idxs) )
+    locations.dataChanged();
+    if ( !getAndCheckAttribSelection( locations ) )
 	return false;
 
-    FeatureSet* fs = calcAttribs( locations, issel );
-    if ( !fs ) 
+    bool success = extractDipOrAngl( locations );
+    if ( !success ) 
 	mErrRet( "Cannot calculate attributes at these positions" );
 
     TypeSet<float> thetas, phis;
-    RunningStatistics<float> radia;
-    BinIDValueSet::Pos pos; BinIDValue biv;
-    while ( locations.next(pos) )
+    //remark: removed possibility of variable vector length (radius = 1) 
+    for ( DataPointSet::RowID rid=0; rid<locations.size(); rid++ )
     {
-	locations.get( pos, biv );
-	const FVPos pos( biv.binid.inl, biv.binid.crl, biv.value );
-	FeatureVec* fvec = fs->getVec( pos );
-	if ( !fvec ) continue;
-
 	float phi = 0;
 	float theta = 0;
-	if ( usesteering )
+	if ( usesteering_ )
 	{
-	    const float inldip = (*fvec)[ idxs[0] ];
-	    const float crldip = (*fvec)[ idxs[1] ];
-	    if ( !mIsUndefined(inldip) && !mIsUndefined(crldip) )
+	    const float inldip = locations.value( 0, rid );
+	    const float crldip = locations.value( 1, rid );
+	    if ( !mIsUdf(inldip) && !mIsUdf(crldip) )
 	    {
 		phi = calcPhi( inldip, crldip );
 		theta = calcTheta( inldip, crldip );
@@ -168,9 +168,9 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	}
 	else
 	{
-	    phi = (*fvec)[ idxs[0] ] * M_PI / 180;
-	    theta = (*fvec)[ idxs[1] ] * M_PI / 180;
-	    if ( !mIsUndefined(phi) && !mIsUndefined(theta) )
+	    phi = locations.value( 0, rid ) * M_PI / 180;
+	    theta = locations.value( 1, rid ) * M_PI / 180;
+	    if ( !mIsUdf(phi) && !mIsUdf(theta) )
 	    {
 		wrapPhi( phi );
 		wrapTheta( theta );
@@ -179,122 +179,107 @@ bool uiSetPickDirs::acceptOK( CallBacker* )
 	    { phi = 0; theta = 0; }
 	}
 
-	float radius = idxs.size()>2 ? (*fvec)[ idxs[2] ] : 1;
-	if ( mIsUndefined(radius) ) radius = 0;
 	thetas += theta;
 	phis += phi;
-	radia += radius;
     }
 
-    float rmin = radia.min();
-    float rmax = radia.max();
-    LinScaler scaler( 0, 1 );
-    if ( mIsEqual(rmax,rmin,mDefEps) )
-    {
-	scaler.factor = 1.0 / rmin;
-	scaler.constant = 0;
-    }
-    else
-    {
-	scaler.factor = 1.0 / ( rmax-rmin );
-	scaler.constant = -rmin * scaler.factor;
-    }
-    
     for ( int idx=0; idx<phis.size(); idx++ )
-    {
-	float radius = radia.getData()[idx];
-	ps[idx].dir = Sphere( scaler.scale(radius), thetas[idx], phis[idx] );
-    }
+	ps_[idx].dir = Sphere( 1, thetas[idx], phis[idx] );
 
     return true;
-    */
 }
 
 
-bool uiSetPickDirs::getAttribSelection( BoolTypeSet& issel, TypeSet<int>& idxs )
+#define mSetColDef( nr ) \
+    const Desc* tmpdesc##nr = createdset_->getDesc( ids[nr] );\
+    if ( tmpdesc##nr ) \
+    { \
+	BufferString tmpdefstr##nr; \
+	tmpdesc##nr->getDefStr( tmpdefstr##nr ); \
+	FileMultiString fms( tmpdefstr##nr ); \
+	fms += createdset_->getID(*tmpdesc##nr).asInt(); \
+	loc.colDef(nr).ref_ = fms;\
+    }
+
+bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 {
     TypeSet<DescID> nlaids;
     if ( !getNLAIds(nlaids) )
 	return false;
 
     TypeSet<DescID> ids;
-    if ( usesteering )
+    if ( usesteering_ )
     {
-	if ( createdset )
-	    steerfld->setDescSet( createdset );
+	if ( createdset_ )
+	    steerfld_->setDescSet( createdset_ );
 
-	const DescID inldipid = steerfld->inlDipID();
+	const DescID inldipid = steerfld_->inlDipID();
 	if ( inldipid < 0 ) mErrRet( "Cannot read Steering Cube" )
 
 	ids += inldipid;
-	ids += steerfld->crlDipID();
+	ids += steerfld_->crlDipID();
     }
     else
     {
-	const DescID phiid = getAttribID( phifld, nlaids );
+	const DescID phiid = getAttribID( phifld_, nlaids );
 	if ( phiid < 0 ) mErrRet( "No valid attribute selected for Phi" )
 	ids += phiid;
-	const DescID thetaid = getAttribID( thetafld, nlaids );
+	const DescID thetaid = getAttribID( thetafld_, nlaids );
 	if ( thetaid < 0 ) mErrRet( "No valid attribute selected for Theta" );
 	ids += thetaid;
     }
-  
-    ids += getAttribID( rfld, nlaids );
 
-    const DescSet* curset = createdset ? createdset : ads;
-    issel = BoolTypeSet( curset->nrDescs(), false );
-    TypeSet<DescID> allids;
-    curset->getIds( allids );
-    TypeSet<int> descnrs, sorted;
-    for ( int idx=0; idx<ids.size(); idx++ )
+    if ( !createdset_ )
+	createdset_ = ads_->nrDescs() ? ads_->clone()
+	    			      : new DescSet( ads_->is2D() );
+
+    if ( !createdset_->getDesc( ids[0] ) && usesteering_ )
     {
-	const int descidx = allids.indexOf( ids[idx] );
-	issel[descidx] = true;
-	descnrs += descidx;
-	sorted += descidx;
+	createSteeringDesc( 0, ids[0] );
+	createSteeringDesc( 1, ids[1] );
     }
 
-    sort_array( sorted.arr(), sorted.size() );
-    for ( int idx=0; idx<sorted.size(); idx++ )
-	idxs += sorted.indexOf( descnrs[idx] );
-
+    mSetColDef(0)
+    mSetColDef(1)
+  
     return true;
 }
 
 
 bool uiSetPickDirs::getNLAIds( TypeSet<DescID>& ids )
 {
-    if ( !nlamdl ) return true;
+    if ( !nlamdl_ ) return true;
 
-/*
     EngineMan aem;
-    aem.setNLAModel( nlamdl );
+    aem.setNLAModel( nlamdl_ );
 
-    SelInfo selinfo( 0, nlamdl );
+    SelInfo selinfo( 0, nlamdl_ );
     const int nrnlaouts = selinfo.nlaoutnms.size();
     for ( int idx=0; idx<nrnlaouts; idx++ )
     {
 	if ( !idx )
 	{
-	    aem.setAttribSpec( SelSpec("",idx,true) );
-	    DescID nlaid; BufferString errmsg;
-	    createdset = aem.createNLAADS( nlaid, errmsg, ads );
+	    SelSpec tmpspec( selinfo.nlaoutnms.get( idx ) );
+	    tmpspec.setIDFromRef(nlamdl_);
+	    aem.setAttribSpec( tmpspec );
+	    DescID nlaid(-1, true);
+	    BufferString errmsg;
+	    createdset_ = aem.createNLAADS( nlaid, errmsg, ads_ );
 	    if ( errmsg.size() ) mErrRet( errmsg );
 	    ids += nlaid;
 	    continue;
 	}
 
-	Desc* desc0 = createdset->getDesc( ids[0] );
+	Desc* desc0 = createdset_->getDesc( ids[0] );
 	if ( !desc0 ) continue;
-	Desc* ad = desc0->clone();
-	ad->setDescSet( createdset );
+	Desc* ad = new Desc( *desc0 );
+	ad->setDescSet( createdset_ );
 	BufferString usrref( ad->userRef() ); usrref += "__"; usrref += idx;
 	ad->setUserRef( usrref );
 	ad->selectOutput( idx );
-	DescID nlaid  = createdset->addDesc( ad );
+	DescID nlaid  = createdset_->addDesc( ad );
 	ids += nlaid;
     }
-*/
 
     return true;
 }
@@ -315,45 +300,32 @@ DescID uiSetPickDirs::getAttribID( uiAttrSel* attrfld,
 }
 
 
-void uiSetPickDirs::calcAttribs( const BinIDValueSet& locations,
-       					const BoolTypeSet& issel )
+bool uiSetPickDirs::extractDipOrAngl( DataPointSet& locations )
 {
-    /*
-    BufferString errmsg;
-    const DescSet* curset = createdset ? createdset : ads;
-    DescSetProcessor* processor = new DescSetProcessor( *curset );
-    OutputExecutor* outexec = new OutputExecutor( *processor );
-    FeatureSetAttribOutput* output = new FeatureSetAttribOutput(*processor,0);
-    output->setLocations( locations );
-    output->isselected = issel;
-
-    FeatureSet* fs = new FeatureSet;
-    output->setFeatureSet( fs );
-    outexec->addOutput( output );
-    if ( !outexec->init() )
-    {
-	errmsg = outexec->message();
-	delete outexec;
-	return 0;
-    }
+    BufferString errmsg; Attrib::EngineMan aem;
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    PtrMan<Executor> tabextr =
+		    aem.getTableExtractor( locations, *createdset_, errmsg );
+    MouseCursorManager::restoreOverride();
+    if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*outexec) ) return 0;
+    if ( !taskrunner.execute(*tabextr) )
+	return false;
 
-    return fs;
-*/
+    return true;
 }
 
 
 float uiSetPickDirs::calcPhi( float inldip, float crldip )
 {
-    const float azi = atan(inldip/crldip);
+    const float azi = mIsZero(crldip,1e-3) ? M_PI/2 : atan(inldip/crldip);
 
     const RCol2Coord& b2c = SI().binID2Coord();
     const float xcrl = b2c.getTransform(true).c;
-    const float ycrl = b2c.getTransform(false).c;
+    float ycrl = b2c.getTransform(false).c;
 
-    const float angN = atan(xcrl/ycrl);
+    const float angN = mIsZero(ycrl,1e-3) ? M_PI/2 : atan(xcrl/ycrl);
 
     float phi;
     if ( SI().isClockWise() )
@@ -390,4 +362,24 @@ void uiSetPickDirs::wrapTheta( float& theta )
 	theta = atan( val );
     else
 	theta = M_PI/2;
+}
+
+
+void uiSetPickDirs::createSteeringDesc( int dipnr, const DescID& did )
+{
+    Desc* desc = PF().createDescCopy( StorageProvider::attribName() );
+    desc->setHidden( true );
+    desc->selectOutput( dipnr );
+    LineKey linekey( steerctio_->ioobj->key() );
+    if ( createdset_->is2D() )
+	linekey.setAttrName( "Steering" );
+    ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
+    keypar->setValue( linekey );
+
+    BufferString userref = steerctio_->ioobj->name();
+    userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
+    desc->setUserRef( userref );
+    desc->updateParams();
+
+    createdset_->addDesc( desc, did );
 }
