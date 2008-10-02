@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.87 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.88 2008-10-02 14:35:32 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -609,7 +609,7 @@ bool IOMan::setDir( const char* dirname )
 }
 
 
-void IOMan::getEntry( CtxtIOObj& ctio )
+void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
 {
     ctio.setObj( 0 );
     if ( ctio.ctxt.name().isEmpty() )
@@ -623,7 +623,10 @@ void IOMan::getEntry( CtxtIOObj& ctio )
 
     if ( !ioobj )
     {
-	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newKey(), false );
+	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : newKey() );
+	if ( mktmp )
+	    newkey.add( IOObj::tmpID );
+	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newkey, false );
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
 	const Translator* tr = ctio.ctxt.trgroup->templates().size() ?

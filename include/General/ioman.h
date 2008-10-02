@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.34 2008-01-17 14:34:43 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.35 2008-10-02 14:35:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
     bool		to(const MultiID&);
     void		back();
 
-    void		getEntry(CtxtIOObj&);
+    void		getEntry(CtxtIOObj&,bool newistmp=false);
 			//!< will create a new entry if necessary
     bool		haveEntries(const MultiID& dirid,const char* trgrpnm=0,
 				     const char* trnm=0) const;

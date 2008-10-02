@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.30 2008-05-15 12:40:14 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.31 2008-10-02 14:35:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,8 @@ public:
     void		setObj(IOObj*); //!< destroys previous
     void		setObj(const MultiID&); //!< destroys previous
     void		setPar(IOPar*); //!< destroys previous
-    int			fillObj();
+    int			fillObj(bool mktmpifnew=false);
+			//!< If ioobj not valid, fills using ctxt.name()
 			//!< 0 = fail, 1=existing found, 2=new made
     void		fillIfOnlyOne(IOObjContext::StdSelType);
 				//!< replaces ioobj if there's only one
