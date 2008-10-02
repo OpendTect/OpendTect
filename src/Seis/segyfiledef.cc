@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.3 2008-09-30 16:18:40 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.4 2008-10-02 14:39:49 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "segytr.h"
@@ -23,7 +23,7 @@ const char* SEGY::FileSpec::getFileName( int nr ) const
     if ( !isMultiFile() )
 	return fname_.buf();
 
-    BufferString numbstr( nr );
+    BufferString numbstr( nrs_.atIndex(nr) );
     BufferString replstr;
     if ( zeropad_ < 2 )
 	replstr = numbstr;
@@ -88,6 +88,20 @@ void SEGY::FileSpec::usePar( const IOPar& iop )
 {
     iop.get( sKey::FileName, fname_ );
     getMultiFromString( iop.find(sKeyFileNrs) );
+}
+
+
+void SEGY::FileSpec::getReport( IOPar& iop ) const
+{
+    iop.set( sKey::FileName, fname_ );
+    if ( mIsUdf(nrs_.start) ) return;
+
+    BufferString str;
+    str += nrs_.start; str += "-"; str += nrs_.stop;
+    str += " step "; str += nrs_.step;
+    if ( zeropad_ )
+	{ str += "(pad to "; str += zeropad_; str += " zeros)"; }
+    iop.set( "Replace '*' with", str );
 }
 
 
@@ -166,6 +180,18 @@ void SEGY::FilePars::usePar( const IOPar& iop )
 }
 
 
+void SEGY::FilePars::getReport( IOPar& iop ) const
+{
+    if ( ns_ > 0 )
+	iop.set( "Number of samples used", ns_ );
+    if ( fmt_ > 0 )
+	iop.set( forread_ ? "SEG-Y 'format' used" : "SEG-Y 'format'",
+		nameOfFmt(fmt_,forread_) );
+    if ( byteswapped_ )
+	iop.set( forread_ ? "Bytes are swapped" : "Bytes will be swapped", "" );
+}
+
+
 const char* SEGY::FilePars::nameOfFmt( int fmt, bool forread )
 {
     const char** fmts = getFmts(true);
@@ -235,7 +261,9 @@ BinID SEGY::FileData::binID( int nr ) const
 
 Coord SEGY::FileData::coord( int nr ) const
 {
-    return data_.coord( nr );
+    Coord ret( data_.coord( nr ) );
+    ret.x += data_.value(0,nr); ret.y += data_.value(1,nr);
+    return ret;
 }
 
 
@@ -260,4 +288,33 @@ bool SEGY::FileData::isNull( int nr ) const
 bool SEGY::FileData::isUsable( int nr ) const
 {
     return data_.group( nr ) != 2;
+}
+
+
+void SEGY::FileData::add( const BinID& bid, const Coord& c, int nr, float offs,
+			  bool isnull, bool isusable )
+{
+    DataPointSet::DataRow dr;
+    dr.pos_.nr_ = nr;
+    dr.pos_.z_ = offs;
+    dr.setSel( isnull );
+    dr.setGroup( isusable ? 1 : 2 );
+
+    dr.pos_.set( bid, c );
+    const Coord poscoord( dr.pos_.coord() );
+    dr.data_ += (float)(c.x - poscoord.x);
+    dr.data_ += (float)(c.y - poscoord.y);
+
+    data_.addRow( dr );
+}
+
+
+void SEGY::FileData::addEnded()
+{
+    data_.dataChanged();
+}
+
+
+void SEGY::FileData::getReport( IOPar& iop ) const
+{
 }

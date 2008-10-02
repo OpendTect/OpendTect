@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.5 2008-09-30 16:18:40 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.6 2008-10-02 14:39:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
+    void		getReport(IOPar&) const;
 
     void		getMultiFromString(const char*);
     static const char*	sKeyFileNrs;
@@ -87,6 +88,7 @@ public:
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
+    void		getReport(IOPar&) const;
 
     static int		nrFmts( bool forread )	{ return forread ? 6 : 5; }
     static const char**	getFmts(bool forread);
@@ -100,7 +102,13 @@ protected:
 };
 
 
-/*\brief Data usually obtained by scanning file  */
+/*\brief Data usually obtained by scanning file.
+
+  The data is stored in a DataPointSet, and we have to take measures against
+  the SI() not being well defined. Thus, we add 2 extra columns for residual
+  X and Y offset.
+ 
+ */
 
 class FileData
 {
@@ -116,7 +124,6 @@ public:
     int			segyfmt_;
     bool		isrev1_;
     int			nrstanzas_;
-    DataPointSet&	data_;
 
     int			nrTraces() const;
     BinID		binID(int) const;
@@ -126,6 +133,15 @@ public:
     bool		isNull(int) const;
     bool		isUsable(int) const;
 
+    void		add(const BinID&,const Coord&,int,float,bool,bool);
+    			//!< params are as in access functions above
+    void		addEnded(); //!< causes dataChange() for DataPointSet
+
+    void		getReport(IOPar&) const;
+
+protected:
+
+    DataPointSet&	data_;
 };
 
 } // namespace
