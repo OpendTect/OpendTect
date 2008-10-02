@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.20 2008-04-17 09:44:00 cvsbert Exp $
+ RCS:           $Id: uimsg.h,v 1.21 2008-10-02 08:36:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ public:
     		//!<\retval 0=Don't save 1=Save -1=Cancel
     bool	askGoOn(const char*,bool withyesno=true);
     		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
-    int		askGoOnAfter(const char*,const char* cnclmsg=0);
+    int		askGoOnAfter(const char*,const char* cnclmsg=0,
+	    		     const char* textyes=0,const char* textno=0);
     		//!< 0=yes, 1=no, 2=cancel
     bool	showMsgNextTime(const char*,const char* msg=0);
     		//!< The msg must be negative, like "Don't show msg again"

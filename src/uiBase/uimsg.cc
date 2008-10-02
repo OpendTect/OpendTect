@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.35 2008-04-14 21:52:07 cvskris Exp $
+ RCS:           $Id: uimsg.cc,v 1.36 2008-10-02 08:36:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,14 +169,19 @@ bool uiMsg::askGoOn( const char* text, bool yn )
 
 
 
-int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg )
+int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
+			 const char* textyes, const char* textno )
 {
     mPrepCursor();
     if ( !cnclmsg || !*cnclmsg )
 	cnclmsg = "&Cancel";
+    if ( !textyes || !*textyes )
+	textyes = "&Yes";
+    if ( !textno || !*textno )
+	textno = "&No";
     return QMessageBox::warning( popParnt(), mCapt("Please specify"),
 	    			 QString(text),
-				 QString("&Yes"), QString("&No"),
+				 QString(textyes), QString(textno),
 				 QString(cnclmsg), 0, 2 );
 }
 
