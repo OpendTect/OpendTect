@@ -12,6 +12,7 @@ Slider "Zoom Slider" 8
 Comment "----------Assigning Values to Tree item Volume----------"
 
 TreeMenu "Volume" "Add"
+Button "Cancel"
 TreeMenu "Volume`<right-click>" "Position"
 Input "Inl Start" 400
 Input "Inl Stop" 405
