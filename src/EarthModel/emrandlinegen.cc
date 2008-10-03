@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.12 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.13 2008-10-03 12:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ EM::RandomLineSetByContourGenerator::Setup::Setup( bool rel )
     , isrel_(rel)
     , sectionnr_(-1)
     , selpoly_(0)
+    , nrlargestonly_(-1)
+    , minnrvertices_(2)
 {
     if ( !isrel_ )
 	assign( linezrg_, contzrg_ );
@@ -63,6 +65,8 @@ void EM::RandomLineSetByContourGenerator::createLines(
 	IsoContourTracer ict( *arr );
 	ict.setSampling( inlrg, crlrg );
 	ict.selectPolyROI( setup_.selpoly_ );
+	ict.setMinNrVertices( setup_.minnrvertices_ );
+	ict.setNrLargestOnly( setup_.nrlargestonly_ );
 	const float zeps = 0.0001 * setup_.contzrg_.step;
 
 	for ( float z = setup_.contzrg_.start;

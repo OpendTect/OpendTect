@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: emrandlinegen.h,v 1.4 2008-01-02 16:57:30 cvsjaap Exp $
+ RCS:		$Id: emrandlinegen.h,v 1.5 2008-10-03 12:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,8 @@ public:
 	mDefSetupMemb(int,sectionnr)		//!< default -1: all sections
 	mDefSetupMemb(const ODPolygon<float>*,selpoly)
 						//!< default null: entire survey
+	mDefSetupMemb(int,nrlargestonly)	//!< default -1: all contours
+	mDefSetupMemb(int,minnrvertices)	//!< default 2
     };
 
 			RandomLineSetByContourGenerator(const Horizon3D&,

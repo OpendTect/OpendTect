@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: isocontourtracer.cc,v 1.3 2008-07-16 17:52:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: isocontourtracer.cc,v 1.4 2008-10-03 12:22:42 cvsjaap Exp $";
 
 #include "isocontourtracer.h"
 
@@ -18,6 +18,8 @@ IsoContourTracer::IsoContourTracer( const Array2D<float>& field )
     , xrange_( 0, field.info().getSize(0)-1 )
     , yrange_( 0, field.info().getSize(1)-1 )
     , polyroi_( 0 )
+    , minnrvertices_( 2 )
+    , nrlargestonly_( -1 )
 {}
 
 
@@ -44,6 +46,14 @@ void IsoContourTracer::selectRectROI( const Interval<int>& xintv,
 
 void IsoContourTracer::selectPolyROI( const ODPolygon<float>* poly )
 { polyroi_ = poly; }
+
+
+void IsoContourTracer::setMinNrVertices( int nr )
+{ minnrvertices_ = nr>2 ? nr : 2; }
+
+
+void IsoContourTracer::setNrLargestOnly( int nr )
+{ nrlargestonly_ = nr>0 ? nr : -1; }
 
 
 #define mFieldX(idx) xsampling_.atIndex( xrange_.start+idx )
@@ -214,14 +224,19 @@ void IsoContourTracer::traceContours( Array3DImpl<float>& crossings,
 		}
 
 		const int sz = contour->size();
-		if ( sz<2 || (closedonly && !contour->isClosed()) )
+		if ( sz<minnrvertices_ || (closedonly && !contour->isClosed()) )
 		    delete contour;
 		else
 		{
+		    const int oldnrcontours = contours.size();
+
 		    int idx = 0;
-		    while ( idx<contours.size() && contours[idx]->size()>=sz )
+		    while ( idx<oldnrcontours && contours[idx]->size()>=sz )
 			idx++;
 		    contours.insertAt( contour, idx );
+
+		    if ( oldnrcontours == nrlargestonly_ )
+			delete contours.remove( oldnrcontours );
 		}
 	    }
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		November 2007	
- RCS:		$Id: isocontourtracer.h,v 1.1 2007-11-12 14:24:25 cvsjaap Exp $
+ RCS:		$Id: isocontourtracer.h,v 1.2 2008-10-03 12:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,9 @@ public:
 			      const Interval<int>& yintv);
     void	selectPolyROI(const ODPolygon<float>*); 
 
+    void	setMinNrVertices(int);
+    void	setNrLargestOnly(int);
+
     bool	getContours(ObjectSet<ODPolygon<float> >&,
 	    		    float z,bool closedonly=false) const;
 
@@ -54,6 +57,9 @@ protected:
     StepInterval<int>		ysampling_;
     Interval<int>		xrange_;
     Interval<int>		yrange_;
+
+    int				minnrvertices_;
+    int				nrlargestonly_;
 
     const ODPolygon<float>*	polyroi_;
 };

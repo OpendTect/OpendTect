@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: uirandlinegen.h,v 1.4 2008-05-22 11:05:54 cvssatyaki Exp $
+ RCS:           $Id: uirandlinegen.h,v 1.5 2008-10-03 12:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,9 @@ class uiGenInput;
 class uiIOObjSel;
 class uiCheckBox;
 class uiSelZRange;
+class uiLabeledSpinBox;
+class uiSpinBox;
+class uiLabel;
 
 
 /*! \brief Generate random lines from contours of a horizon */
@@ -46,7 +49,12 @@ protected:
     uiGenInput*		abszrgfld_;
     uiCheckBox*		isrelfld_;
     uiCheckBox*		dispfld_;
+    uiLabeledSpinBox*	vtxthreshfld_;
+    uiCheckBox*		largestfld_;
+    uiSpinBox*		nrlargestfld_;
+    uiLabel*		largestendfld_;
 
+    void		largestOnlyChg(CallBacker*);
     void		isrelChg(CallBacker*);
 
     bool		acceptOK(CallBacker*);

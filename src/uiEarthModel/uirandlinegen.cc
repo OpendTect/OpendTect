@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.11 2008-06-03 14:00:27 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.12 2008-10-03 12:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,10 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitaskrunner.h"
 #include "uiselsimple.h"
+#include "uispinbox.h"
+#include "uilabel.h"
 
+#include <limits.h>
 
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
@@ -59,14 +62,29 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 			FloatInpIntervalSpec(suggestedzrg) );
     contzrgfld_->attach( alignedBelow, polyfld_ );
 
+    const CallBack locb( mCB(this,uiGenRanLinesByContour,largestOnlyChg) );
+    largestfld_ = new uiCheckBox( this, "Only use largest", locb );
+    largestfld_->setChecked( false );
+    largestfld_->attach( alignedBelow, contzrgfld_ );
+    nrlargestfld_ = new uiSpinBox( this, 0, "Number of largest" );
+    nrlargestfld_->setInterval( 1, INT_MAX );
+    nrlargestfld_->attach( rightOf, largestfld_ );
+    largestendfld_ = new uiLabel( this, "Z-contour(s)" );
+    largestendfld_->attach( rightOf, nrlargestfld_ );
+    largestOnlyChg( 0 );
+
+    vtxthreshfld_ = new uiLabeledSpinBox( this, "Vertex threshold" );
+    vtxthreshfld_->box()->setInterval( 2, INT_MAX );
+    vtxthreshfld_->attach( alignedBelow, largestfld_ );
+
     static const char* fldnm = "Random line Z range";
     const float wdth = 50 * sizrg.step;
     relzrgfld_ = new uiGenInput( this, fldnm,
 			FloatInpIntervalSpec(Interval<float>(-wdth,wdth)) );
-    relzrgfld_->attach( alignedBelow, contzrgfld_ );
+    relzrgfld_->attach( alignedBelow, vtxthreshfld_ );
     Interval<float> abszrg; assign( abszrg, sizrg );
     abszrgfld_ = new uiGenInput( this, fldnm, FloatInpIntervalSpec(abszrg) );
-    abszrgfld_->attach( alignedBelow, contzrgfld_ );
+    abszrgfld_->attach( alignedBelow, vtxthreshfld_ );
     const CallBack cb( mCB(this,uiGenRanLinesByContour,isrelChg) );
     isrelfld_ = new uiCheckBox( this, "Relative to horizon", cb );
     isrelfld_->setChecked( true );
@@ -101,6 +119,10 @@ const char* uiGenRanLinesByContour::getNewSetID() const
     BufferString* multid = new BufferString( rlsctio_.ioobj->key().buf() );
     return rlsctio_.ioobj ? multid->buf() : 0;
 }
+
+
+void uiGenRanLinesByContour::largestOnlyChg( CallBacker* )
+{ nrlargestfld_->setSensitive( largestfld_->isChecked() ); }
 
 
 void uiGenRanLinesByContour::isrelChg( CallBacker* )
@@ -146,6 +168,9 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     EM::RandomLineSetByContourGenerator::Setup setup( isrel );
     setup.contzrg( contzrg ).linezrg( linezrg );
     if ( poly ) setup.selpoly_ = poly;
+    setup.minnrvertices_ = vtxthreshfld_->box()->getValue();
+    if ( largestfld_->isChecked() )
+	setup.nrlargestonly_ = nrlargestfld_->getValue();
     EM::RandomLineSetByContourGenerator gen( *hor, setup );
     Geometry::RandomLineSet rls;
     gen.createLines( rls );
