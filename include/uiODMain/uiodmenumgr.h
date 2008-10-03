@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.37 2008-08-28 12:28:56 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.38 2008-10-03 07:03:24 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     // Remove in version 3.2
     uiPopupMenu*	fileMnu()		{ return surveymnu_; }
     uiPopupMenu*	surveyMnu()		{ return surveymnu_; }
+    uiPopupMenu*	analMnu()		{ return analmnu_; }
     uiPopupMenu*	procMnu()		{ return procmnu_; }
     uiPopupMenu*	winMnu()		{ return winmnu_; }
     uiPopupMenu*	viewMnu()		{ return viewmnu_; }
@@ -84,6 +85,7 @@ protected:
     uiODHelpMenuMgr*	helpmgr_;
 
     uiPopupMenu*	surveymnu_;
+    uiPopupMenu*	analmnu_;
     uiPopupMenu*	procmnu_;
     uiPopupMenu*	winmnu_;
     uiPopupMenu*	viewmnu_;
@@ -104,6 +106,7 @@ protected:
     void		fillImportMenu();
     void		fillExportMenu();
     void		fillManMenu();
+    void		fillAnalMenu();
     void		fillProcMenu();
     void		fillWinMenu();
     void		fillViewMenu();
