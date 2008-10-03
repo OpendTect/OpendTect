@@ -19,7 +19,7 @@ Input "Name" "SeismicOutputCreate"
 Ok
 Button "Proceed"
 Ok
-Sleep 7
+Sleep 10
 
 TreeMenu "Inline" "Add"
 TreeMenu "Inline`*" "Position"
