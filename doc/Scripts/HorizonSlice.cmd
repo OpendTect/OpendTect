@@ -6,9 +6,6 @@ Mon Jan 28 11:36:39 2008
 Comment "----------Creating Output Using HorizonSlice---------"
 Case Insensitive
 
-Menu "Survey`Select/Setup"
-Ok
-
 Menu "processing`Create output using Horizon`Horizon slice"
 Button "Select Quantity*"
 Button "Stored"
@@ -44,5 +41,19 @@ Input "Select filename" "$SNAPSHOTSDIR$/Mediandip_HorSlice.jpg"
 Ok
 
 TreeMenu "Inline`*" "Remove"
+Menu "Survey`Manage`Seismics"
+ListClick "Objects list" "Mediandip_HorSlice_Demo0"
+Button "Remove this Object"
+Sleep 2
+Button "Yes"
+Button "Dismiss"
+
+#"Parameter id is not correct" error
+# is coming After running this script second time
+# to rectify this problem select same survey again
+
+Menu "Survey`Select/Setup"
+Sleep 2
+Ok
 
 End
