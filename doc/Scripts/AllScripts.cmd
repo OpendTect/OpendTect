@@ -34,6 +34,7 @@ Include "$SCRIPTSDIR$/Horizon-Isopach.cmd"
 Include "$SCRIPTSDIR$/HorizonFillHoles.cmd"
 Include "$SCRIPTSDIR$/StratalAmp.cmd"
 
+Include "$SCRIPTSDIR$/rgb-Array-Canvas.cmd"
 Include "$SCRIPTSDIR$/ManageWavelet.cmd"
 Include "$SCRIPTSDIR$/ChronoStratigraphy.cmd"
 Include "$SCRIPTSDIR$/CreateChronoStratigraphy.cmd"
@@ -43,8 +44,8 @@ Include "$SCRIPTSDIR$/ExportData.cmd"
 Include "$SCRIPTSDIR$/ImportData.cmd"
 Include "$SCRIPTSDIR$/SEGY-Load.cmd"
 
-#Getting Error while running these Scripts TODO
-#Include "$SCRIPTSDIR$/CreateChimneyCube.cmd"
-#Include "$SCRIPTSDIR$/CreateFaultCube.cmd"
+Include "$SCRIPTSDIR$/CreateSeismicOutput.cmd"
+Include "$SCRIPTSDIR$/CreateChimneyCube.cmd"
+Include "$SCRIPTSDIR$/CreateFaultCube.cmd"
 
 End
