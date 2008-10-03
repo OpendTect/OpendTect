@@ -51,7 +51,7 @@ Sleep 2
 Button "Yes"
 Button "Dismiss"
 
-#Parameter id is not correct error
+#"Parameter id is not correct" error
 # is coming After running this script second time 
 # to rectify this problem select same survey again
  
