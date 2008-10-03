@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.9 2008-06-04 06:54:03 cvsnanne Exp $
+ RCS:		$Id: uihorattribpi.cc,v 1.10 2008-10-03 07:16:21 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,14 +80,14 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 void uiHorAttribPIMgr::updateMenu( CallBacker* )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
-    MenuItemSeparString horprocstr( "Create output using &Horizon" );
-    uiMenuItem* itm = mnumgr.procMnu()->find( horprocstr );
+    MenuItemSeparString gridprocstr( "Create Grid output" );
+    uiMenuItem* itm = mnumgr.procMnu()->find( gridprocstr );
     if ( !itm ) return;
 
-    mDynamicCastGet(uiPopupItem*,horpocitm,itm)
-    if ( !horpocitm ) return;
+    mDynamicCastGet(uiPopupItem*,gridpocitm,itm)
+    if ( !gridpocitm ) return;
 
-    horpocitm->menu().insertItem( new uiMenuItem("&Stratal Amplitude ...",
+    gridpocitm->menu().insertItem( new uiMenuItem("&Stratal Amplitude ...",
 	       			  mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
 }
 
