@@ -21,6 +21,8 @@ Comment "------Adding MedianDipFilteredSeismic to Trree item Inline----"
 TreeMenu "Inline" "Add"
 Input "Slice position" 320
 Button "Stored"
+
+
 ListClick "Select Data" "Median Dip*" Double
 #Color_Apply
 Combo "Table selection" "Grey scales" Double
@@ -38,7 +40,9 @@ Comment "------Adding MedianDipFilteredSeismic to Trree item Crossline----"
 TreeMenu "Crossline" "Add"
 Input "Slice position" 825
 Button "Stored"
+#Change Seismic cube
 ListClick "Select Data" "Median Dip*" Double
+
 Combo "Table selection" "Altimetric"
 TreeMenu "Crossline`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
@@ -68,7 +72,9 @@ Close
 Comment "------Adding MedianDipFilteredSeismic to Trree item Volume----"
 
 TreeMenu "Volume" "Add"
+Button "Cancel"
 TreeMenu "Volume`<right-click>" "Position"
+
 Input "Inl Start" 300
 Input "Inl Stop" 400
 Input "Crl Start" 750
@@ -189,13 +195,12 @@ TreeMenu "Horizon`*" "Remove"
 TreeMenu "Well`*" "Remove"
 TreeButton "Annotations`Arrows`*" Off
 
-#RandomLine Create from Wells
 Comment "-----------RandomLine Create From wells-----------------"
 
 TreeMenu "Random line" "Generate`From Wells"
-Window "Random line*"
+Window "Create Random*"
 ListSelect "Available Wells" 1 4 On
-Button "Move Right"
+Button "Move right"
 Button "Select Output Random*"
 Input "Name" "RanLineOnWells"
 Ok
