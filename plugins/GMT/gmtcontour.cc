@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcontour.cc,v 1.4 2008-10-01 05:20:18 cvsraman Exp $
+ RCS:		$Id: gmtcontour.cc,v 1.5 2008-10-03 12:17:59 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioobj.h"
 #include "keystrs.h"
+#include "pickset.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -160,12 +161,47 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	mErrStrmRet("Failed")
 
     strm << "Done" << std::endl;
+
+    mDynamicCastGet(EM::Horizon3D*,hor,obj)
+    Pick::Set ps;
+    BufferString finalgrd = fp.fullPath();
+    if ( hor->geometry().getBoundingPolygon(hor->sectionID(0),ps) )
+    {
+	strm << "Clipping the grid ... ";
+	fp.setExtension( "gd3" );
+	BufferString maskgrd = fp.fullPath();
+	comm = "@grdmask -R -NNaN/NaN/1 -I25 -G";
+	comm += maskgrd;
+	sdata = StreamProvider(comm).makeOStream();
+	if ( !sdata.usable() )
+	    mErrStrmRet("Failed")
+
+	for ( int pdx=0; pdx<ps.size(); pdx++ )
+	    *sdata.ostrm << ps[pdx].pos.x << " " << ps[pdx].pos.y << std::endl;
+
+	sdata.close();
+	fp.setExtension( "gd2" );
+	comm = "grdmath ";
+	comm += fp.fullPath();
+	comm += " "; comm += maskgrd;
+	comm += " OR = ";
+	fp.setExtension( "gd4" );
+	comm += fp.fullPath();
+	if ( system(comm) )
+	    mErrStrmRet("Failed")
+
+	strm << "Done" << std::endl;
+	StreamProvider( maskgrd ).remove();
+	StreamProvider( finalgrd ).remove();
+	finalgrd = fp.fullPath();
+    }
+
     BufferString mapprojstr;
     mGetRangeProjString( mapprojstr, "X" );
     if ( dofill )
     {
 	strm << "Filling colors ...  ";
-	comm = "grdimage "; comm += fp.fullPath();
+	comm = "grdimage "; comm += finalgrd;
 	comm += " "; comm += mapprojstr;
 	comm += " -O -Q -C"; comm += cptfnm;
 	if ( !closeps || drawcontour )
@@ -185,7 +221,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	LineStyle ls; ls.fromString( lskey.buf() );
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );
-	comm = "grdcontour "; comm += fp.fullPath();
+	comm = "grdcontour "; comm += finalgrd;
 	comm += " "; comm += mapprojstr;
 	comm += " -O -C"; comm += cptfnm;
 	BufferString colstr; mGetColorString( ls.color_, colstr );
@@ -203,7 +239,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     strm << "Removing temporary grid files ...  ";
     StreamProvider( grd100fnm ).remove();
-    StreamProvider( fp.fullPath() ).remove();
+    StreamProvider( finalgrd ).remove();
     strm << "Done" << std::endl;
     return true;
 }
