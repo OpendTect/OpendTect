@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.135 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.136 2008-10-03 07:08:05 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , helpmgr_(0)
 {
     surveymnu_ = new uiPopupMenu( &appl_, "&Survey" );
+    analmnu_ = new uiPopupMenu( &appl_, "&Analysis" );
     procmnu_ = new uiPopupMenu( &appl_, "&Processing" );
     winmnu_ = new uiPopupMenu( &appl_, "&Windows" );
     viewmnu_ = new uiPopupMenu( &appl_, "&View" );
@@ -74,6 +75,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
 {
     uiMenuBar* menubar = appl_.menuBar();
     fillSurveyMenu();	menubar->insertItem( surveymnu_ );
+    fillAnalMenu();	menubar->insertItem( analmnu_ );
     fillProcMenu();	menubar->insertItem( procmnu_ );
     fillWinMenu();	menubar->insertItem( winmnu_ );
     fillViewMenu();	menubar->insertItem( viewmnu_ );
@@ -279,48 +281,95 @@ void uiODMenuMgr::fillManMenu()
 }
 
 
-#define mCreateHorMnu( mnu, nm, dim )\
-if ( SI().has##dim() )\
-{\
-    uiPopupMenu* mnu = hasboth ? new uiPopupMenu( &appl_, nm ) :horitm;\
-    mInsertItem( mnu, "&Horizon grid...", mCreateSurf##dim##MnuItm );\
-    mInsertItem( mnu, "&Between horizons ...", mCompBetweenHor##dim##MnuItm );\
-    mInsertItem( mnu, "&Horizon slice...", mCompAlongHor##dim##MnuItm );\
-    if ( hasboth )\
-	horitm->insertItem( mnu );\
-}
+#define mCreateHorMnu( hor, nm )\
+    BufferString hor##nm( "&" #nm);\
+    hor##nm += " horizons ...";\
+    if ( !hasboth )\
+    {\
+	if ( SI().has2D() )\
+	{ mInsertItem( voitm, hor##nm.buf(), mComp##nm##Hor2DMnuItm ); }\
+	else if ( SI().has3D() )\
+	{ mInsertItem( voitm, hor##nm.buf(), mComp##nm##Hor3DMnuItm ); }\
+    }\
+    else\
+    {\
+	uiPopupMenu* nm = new uiPopupMenu( &appl_, hor##nm.buf() );\
+	if ( SI().has2D() )\
+	{ mInsertItem( nm, "&2D ...", mComp##nm##Hor2DMnuItm ); }\
+	if ( SI().has3D() )\
+	{ mInsertItem( nm, "&3D ...", mComp##nm##Hor3DMnuItm ); }\
+	voitm->insertItem( nm );\
+    }
+    
 
 void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
+
+    uiPopupMenu* voitm = new uiPopupMenu( &appl_, "&Create Volume output" );
+
+    if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
+    {
+	uiPopupMenu* sitm = new uiPopupMenu( &appl_, "&Cube ..." );
+	mInsertItem( sitm, "&2D ...", mSeisOut2DMnuItm );
+	mInsertItem( sitm, "&3D ...", mSeisOut3DMnuItm );
+	voitm->insertItem( sitm );
+    }
+    else
+    {
+	mInsertItem( voitm, "&Cube ...", mSeisOutMnuItm );
+    }
+
+    bool hasboth = SI().has2D() && SI().has3D();
+    mCreateHorMnu( hor, Between );
+    mCreateHorMnu( hor, Along );
+    mInsertItem( voitm, "&Re-Start ...", mReStartMnuItm );
+
+    procmnu_->insertItem( voitm );
+
+    uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create Grid output");
+
+    if ( !hasboth )
+    {
+	if ( SI().has2D() )
+	    mInsertItem( grditm, "&Grid ...", mCreateSurf2DMnuItm );
+	else if ( SI().has3D() )
+	    mInsertItem( grditm, "&Grid ...", mCreateSurf3DMnuItm );
+    }
+    else
+    {
+	uiPopupMenu* nm = new uiPopupMenu( &appl_, "Grid" );
+	if ( SI().has2D() )
+	    mInsertItem( nm, "&2D ...", mCreateSurf2DMnuItm );
+	if ( SI().has3D() )
+	    mInsertItem( nm, "&3D ...", mCreateSurf3DMnuItm );
+	grditm->insertItem( nm );
+    }
+    procmnu_->insertItem( grditm );
+}
+
+
+void uiODMenuMgr::fillAnalMenu()
+{
+    analmnu_->clear();
     if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
     {
 	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "Attributes" );
 	mInsertItem( aitm, "&2D ...", mEdit2DAttrMnuItm );
 	mInsertItem( aitm, "&3D ...", mEdit3DAttrMnuItm );
-	procmnu_->insertItem( aitm );
-	procmnu_->insertSeparator();
-	uiPopupMenu* sitm = new uiPopupMenu( &appl_, "&Create Seismic output" );
-	mInsertItem( sitm, "&2D ...", mSeisOut2DMnuItm );
-	mInsertItem( sitm, "&3D ...", mSeisOut3DMnuItm );
-	procmnu_->insertItem( sitm );
+
+	analmnu_->insertItem( aitm );
+	analmnu_->insertSeparator();
     }
     else
     {
-	mInsertItem( procmnu_, "&Attributes ...", mEditAttrMnuItm );
-	procmnu_->insertSeparator();
-	mInsertItem( procmnu_, "&Create Seismic output ...", mSeisOutMnuItm );
+       	mInsertItem( analmnu_, "&Attributes ...", mEditAttrMnuItm );
+	analmnu_->insertSeparator();
     }
 
-    uiPopupMenu* horitm = 
-		new uiPopupMenu( &appl_, "Create output using &Horizon");
-    bool hasboth = SI().has2D() && SI().has3D();
-    mCreateHorMnu( mnu2d, "&2D", 2D );
-    mCreateHorMnu( mnu3d, "&3D", 3D );
-    procmnu_->insertItem( horitm );
-    
-    mInsertItem( procmnu_, "&Cross-plot ...", mXplotMnuItm );
-    mInsertItem( procmnu_, "&Re-Start ...", mReStartMnuItm );
+    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "Cross-plot" );
+    mInsertItem( crsplot, "&Well <--> Attr ...", mXplotMnuItm );
+    analmnu_->insertItem( crsplot );
 }
 
 
@@ -785,6 +834,7 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillExportMenu();
     fillManMenu();
 
+    fillAnalMenu();
     fillProcMenu();
     dTectMnuChanged.trigger();
 }
