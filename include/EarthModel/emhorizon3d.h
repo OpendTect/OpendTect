@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.58 2008-06-23 06:41:14 cvsraman Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.59 2008-10-03 12:09:58 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ class HorSampling;
 class Scaler;
 class ZAxisTransform;
 namespace Table { class FormatDesc; }
+namespace Pick { class Set; }
 
 namespace EM
 {
@@ -59,6 +60,8 @@ public:
     int				getConnectedPos(const PosID&,
 	    					TypeSet<PosID>*) const;
 
+    bool			getBoundingPolygon(const SectionID&,
+	    					   Pick::Set&) const;
     void			fillBinIDValueSet(const SectionID&,
 	    					  BinIDValueSet&) const;
 

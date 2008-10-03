@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.105 2008-09-22 13:07:32 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.106 2008-10-03 12:10:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "ioobj.h"
+#include "pickset.h"
 #include "ptrman.h"
 #include "scaler.h"
 #include "survinfo.h"
@@ -549,6 +550,81 @@ Geometry::BinIDSurface* Horizon3DGeometry::createSectionGeometry() const
     res->checkSupport( checksupport_ );
 
     return res;
+}
+
+
+bool Horizon3DGeometry::getBoundingPolygon( const SectionID& sid,
+					    Pick::Set& set ) const
+{
+    set.erase();
+    const Geometry::BinIDSurface* surf = sectionGeometry( sid );
+    if ( !surf ) return false;
+
+    StepInterval<int> rowrg = rowRange( sid );
+    StepInterval<int> colrg = colRange( sid, rowrg.start );
+    SubID subid; PosID posid;
+    bool nodefound = false;
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    subid = RowCol( row, col ).getSerialized();
+	    posid = PosID( surface_.id(), sid, subid );
+	    if ( isNodeOK(posid) && isAtEdge(posid) )
+	    {
+		nodefound = true;
+		break;
+	    }
+	}
+
+	if ( nodefound ) break;
+    }
+
+    if ( !nodefound ) return false;
+
+    const PosID firstposid = posid;
+    while ( true )
+    {
+	Coord3 pos = surf->getKnot( RowCol(posid.subID()), false );
+	set += Pick::Location( pos );
+
+	nodefound = false;
+	const TypeSet<RowCol>& dirs = RowCol::clockWiseSequence();
+	if ( dirs.size() != 8 ) return false;
+
+	for ( int idx=0; idx<dirs.size(); idx++ )
+	{
+	    PosID curposid, leftposid, rightposid;
+	    curposid = leftposid = rightposid = posid;
+	    RowCol rcol( curposid.subID() );
+	    RowCol currcol = rcol + dirs[idx];
+	    int leftidx = idx ? idx - 1 : 7;
+	    int rightidx = idx < 7 ? idx + 1 : 0;
+	    RowCol leftrcol = rcol + dirs[leftidx];
+	    RowCol rightrcol = rcol + dirs[rightidx];
+	    curposid.setSubID( currcol.getSerialized() );
+	    leftposid.setSubID( leftrcol.getSerialized() );
+	    rightposid.setSubID( rightrcol.getSerialized() );
+	    if ( !isAtEdge(curposid) )
+		continue;
+
+	    if ( !surface_.isDefined(leftposid) || !isNodeOK(leftposid) )
+		continue;
+
+	    if ( !surface_.isDefined(rightposid) || !isNodeOK(rightposid) )
+	    {
+		posid = curposid;
+		nodefound = true;
+		break;
+	    }
+	}
+	
+	if ( posid == firstposid || !nodefound || set.size() > 100000 )
+	    break;
+    }
+
+    set.disp_.connect_ = Pick::Set::Disp::Close;
+    return set.size() ? true : false;
 }
 
 
