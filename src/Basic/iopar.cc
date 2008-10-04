@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.71 2008-10-02 12:29:26 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.72 2008-10-04 10:03:40 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: iopar.cc,v 1.71 2008-10-02 12:29:26 cvsbert Exp
 #include "position.h"
 #include "separstr.h"
 #include "ascstream.h"
+#include "samplingdata.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "convert.h"
@@ -923,6 +924,21 @@ void IOPar::set( const char* s, const MultiID& mid )
 }
 
 
+bool IOPar::get( const char* s, SamplingData<int>& sd ) const
+{
+    return get( s, sd.start, sd.step );
+}
+
+bool IOPar::get( const char* s, SamplingData<float>& sd ) const
+{
+    return get( s, sd.start, sd.step );
+}
+
+bool IOPar::get( const char* s, SamplingData<double>& sd ) const
+{
+    return get( s, sd.start, sd.step );
+}
+
 bool IOPar::get( const char* s, Interval<int>& rg ) const
 {
     mDynamicCastGet(StepInterval<int>*,si,&rg)
@@ -976,6 +992,22 @@ void IOPar::set( const char* s, const Interval<double>& rg )
     else
 	set( s, rg.start, rg.stop );
 }
+
+void IOPar::set( const char* s, const SamplingData<double>& sd )
+{
+    set( s, sd.start, sd.step );
+}
+
+void IOPar::set( const char* s, const SamplingData<float>& sd )
+{
+    set( s, sd.start, sd.step );
+}
+
+void IOPar::set( const char* s, const SamplingData<int>& sd )
+{
+    set( s, sd.start, sd.step );
+}
+
 
 
 bool IOPar::get( const char* s, Color& c ) const

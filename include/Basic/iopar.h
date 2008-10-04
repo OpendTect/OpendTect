@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.49 2008-10-02 12:29:26 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.50 2008-10-04 10:03:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class Coord3;
 class MultiID;
 class ascistream;
 class ascostream;
+template <class T> class SamplingData;
 
 /*\brief generalised set of parameters of the keyword-value type.
 
@@ -160,6 +161,9 @@ public:
     bool		get(const char*,Interval<int>&) const;
     bool		get(const char*,Interval<float>&) const;
     bool		get(const char*,Interval<double>&) const;
+    bool		get(const char*,SamplingData<int>&) const;
+    bool		get(const char*,SamplingData<float>&) const;
+    bool		get(const char*,SamplingData<double>&) const;
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
@@ -195,6 +199,9 @@ public:
     void		set(const char*,const Interval<int>&);
     void		set(const char*,const Interval<float>&);
     void		set(const char*,const Interval<double>&);
+    void		set(const char*,const SamplingData<int>&);
+    void		set(const char*,const SamplingData<float>&);
+    void		set(const char*,const SamplingData<double>&);
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);
