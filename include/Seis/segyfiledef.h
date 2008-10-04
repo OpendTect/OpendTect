@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.6 2008-10-02 14:39:49 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.7 2008-10-04 10:04:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,29 +17,45 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 #include "seistype.h"
+#include "segythdef.h"
 class IOPar;
 class IOObj;
-class DataPointSet;
+class Scaler;
  
 
 namespace SEGY
 {
 
-class TrcFileIdx
+
+/*\brief Base class for SEG-Y parameter classes  */
+
+class FileDef
 {
 public:
-		TrcFileIdx( int fnr=-1, int tnr=0 )
-		    : filenr_(fnr), trcnr_(tnr) {}
+    			FileDef()		{}
 
-    bool	isValid() const			{ return filenr_ >= 0; }
-    void	toNextFile()			{ filenr_++; trcnr_ = 0; }
+    struct TrcIdx
+    {
+			TrcIdx( int fnr=-1, int tnr=0 )
+			    : filenr_(fnr), trcnr_(tnr)	{}
+	bool		isValid() const			{ return filenr_>=0; }
+	void		toNextFile()			{ filenr_++; trcnr_=0; }
 
-    int		filenr_;
-    int		trcnr_;
+	int		filenr_;
+	int		trcnr_;
+    };
+
+    virtual void	fillPar(IOPar&) const		= 0;
+    virtual void	usePar(const IOPar&)		= 0;
+    virtual void	getReport(IOPar&) const		= 0;
+
+    static const char*	sKeySEGYRev;
+    static const char*	sKeyForceRev0;
+
 };
 
 
-/*\brief Input and output file(s)  */
+/*\brief Definition of input and output file(s)  */
 
 class FileSpec
 {
@@ -59,24 +75,25 @@ public:
     const char*		getFileName(int nr=0) const;
     IOObj*		getIOObj(bool temporary=true) const;
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
-    void		getReport(IOPar&) const;
-
     void		getMultiFromString(const char*);
     static const char*	sKeyFileNrs;
 
     static void		ensureWellDefined(IOObj&);
     static void		fillParFromIOObj(const IOObj&,IOPar&);
+
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+    virtual void	getReport(IOPar&) const;
+
 };
 
 
-/*\brief Parameters that control the primary read process */
+/*\brief Parameters that control the primary read/write process */
 
 class FilePars
 {
 public:
-    			FilePars( bool forread )
+    			FilePars( bool forread=true )
 			    : ns_(0)
 			    , fmt_(forread?0:1)
 			    , byteswapped_(false)
@@ -86,14 +103,20 @@ public:
     int			fmt_;
     bool		byteswapped_;
 
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
-    void		getReport(IOPar&) const;
-
     static int		nrFmts( bool forread )	{ return forread ? 6 : 5; }
     static const char**	getFmts(bool forread);
     static const char*	nameOfFmt(int fmt,bool forread);
     static int		fmtOf(const char*,bool forread);
+
+    static const char*	sKeyNrSamples;
+    static const char*	sKeyNumberFormat;
+    static const char*	sKeyBytesSwapped;
+
+    void		setForRead(bool);
+
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+    virtual void	getReport(IOPar&) const;
 
 protected:
 
@@ -102,46 +125,55 @@ protected:
 };
 
 
-/*\brief Data usually obtained by scanning file.
+/*\brief Options that control the actual read process */
 
-  The data is stored in a DataPointSet, and we have to take measures against
-  the SI() not being well defined. Thus, we add 2 extra columns for residual
-  X and Y offset.
- 
- */
-
-class FileData
+class FileReadOpts
 {
 public:
-    			FileData(const char* fnm,Seis::GeomType);
-    			FileData(const FileData&);
-			~FileData();
+    			FileReadOpts( Seis::GeomType gt=Seis::Vol )
+			    : forread_(true)
+			    , offsdef_(0,1)
+			    , coordscale_(mUdf(float))
+			    , timeshift_(mUdf(float))
+			    , sampleintv_(mUdf(float))
+			    , psdef_(InFile)
+			    , icdef_(Both)
+			{ setGeomType(gt); thdef_.fromSettings(); }
 
-    BufferString	fname_;
-    Seis::GeomType	geom_;
-    int			trcsz_;
-    SamplingData<float>	sampling_;
-    int			segyfmt_;
-    bool		isrev1_;
-    int			nrstanzas_;
+    Seis::GeomType	geomType() const	{ return geom_; }
+    void		setGeomType(Seis::GeomType);
 
-    int			nrTraces() const;
-    BinID		binID(int) const;
-    Coord		coord(int) const;
-    int			trcNr(int) const;
-    float		offset(int) const;
-    bool		isNull(int) const;
-    bool		isUsable(int) const;
+    enum ICvsXYType	{ Both=0, ICOnly=1, XYOnly=2 };
+    enum PSDefType	{ InFile=0, SrcRcvCoords=1, UsrDef=2 };
 
-    void		add(const BinID&,const Coord&,int,float,bool,bool);
-    			//!< params are as in access functions above
-    void		addEnded(); //!< causes dataChange() for DataPointSet
+    TrcHeaderDef	thdef_;
+    ICvsXYType		icdef_;
+    PSDefType		psdef_;
+    SamplingData<int>	offsdef_;
+    float		coordscale_;
+    float		timeshift_;
+    float		sampleintv_;
+    bool		forread_;
 
-    void		getReport(IOPar&) const;
+    void		scaleCoord(Coord&,const Scaler* s=0) const;
+    float		timeShift(float) const;
+    float		sampleIntv(float) const;
+
+    static const char*	sKeyICOpt;
+    static const char*	sKeyPSOpt;
+    static const char*	sKeyOffsDef;
+    static const char*	sKeyCoordScale;
+    static const char*	sKeyTimeShift;
+    static const char*	sKeySampleIntv;
+
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+    virtual void	getReport(IOPar&) const;
 
 protected:
 
-    DataPointSet&	data_;
+    Seis::GeomType	geom_;
+
 };
 
 } // namespace

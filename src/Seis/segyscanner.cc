@@ -4,10 +4,10 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.4 2008-10-02 14:40:06 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.5 2008-10-04 10:04:04 cvsbert Exp $";
 
 #include "segyscanner.h"
-#include "segyfiledef.h"
+#include "segyfiledata.h"
 #include "segyhdr.h"
 #include "seistrc.h"
 #include "segytr.h"
@@ -58,10 +58,18 @@ SEGY::Scanner::~Scanner()
 }
 
 
+static void setIntByte( IOPar& iop, const char* nm,
+			unsigned char bytenr, unsigned char bytesz )
+{
+    BufferString keyw( nm ); keyw += " byte";
+    BufferString val; val = bytenr;
+    val += " (size "; val += bytesz; val += ")";
+    iop.set( keyw.buf(), val.buf() );
+}
+
+
 void SEGY::Scanner::getReport( IOPar& iop ) const
 {
-    const bool is2d = Seis::is2D( geom_ );
-    const bool isps = Seis::isPS( geom_ );
     iop.set( "->", "Provided information" );
     FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop );
     FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop );
@@ -75,18 +83,52 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 	return;
     }
 
-    bool forecrev0 = false;
-    pars_.getYN( SEGYSeisTrcTranslator::sForceRev0, forecrev0 );
-
-    int icopt = 0;
-    pars_.get( SegylikeSeisTrcTranslator::sKeyIC2XYOpt, icopt );
-
     addErrReport( iop );
+
+    bool forecrev0 = false;
+    pars_.getYN( SEGY::FileDef::sKeyForceRev0, forecrev0 );
+
+    SEGY::TrcHeaderDef thdef; thdef.fromSettings(); thdef.usePar( pars_ );
+    const bool is2d = Seis::is2D( geom_ );
+    const bool isps = Seis::isPS( geom_ );
+    const bool isrev1 = !forecrev0 && fd_[0]->isrev1_;
+
+    if ( !isrev1 )
+    {
+	if ( is2d )
+	    setIntByte( iop, "Trace number", thdef.trnr, thdef.trnrbytesz );
+	else
+	{
+	    setIntByte( iop, "Inline", thdef.inl, thdef.inlbytesz );
+	    setIntByte( iop, "Crossline", thdef.crl, thdef.crlbytesz );
+	}
+    }
+
 }
 
 
 void SEGY::Scanner::addErrReport( IOPar& iop ) const
 {
+    for ( int idx=0; idx<fnms_.size(); idx++ )
+    {
+	const char* fnm = fnms_.get( idx );
+	if ( scanerrfnms_.indexOf(fnm) < 0 )
+	    iop.set( "Successfully scanned", fnm );
+	else
+	{
+	    BufferString keyw( "Error during read of " );
+	    keyw += fnm;
+	    iop.set( keyw, scanerrmsgs_.get(idx) );
+	}
+    }
+
+    for ( int idx=0; idx<failedfnms_.size(); idx++ )
+    {
+	BufferString keyw( "Failed to read " );
+	keyw += scanerrfnms_.get( idx );
+	iop.set( keyw, failerrmsgs_.get(idx) );
+    }
+
 }
 
 
@@ -182,7 +224,7 @@ void SEGY::Scanner::initFileData()
 
     newfd->trcsz_ = tr_->inpNrSamples();
     newfd->sampling_ = tr_->inpSD();
-    newfd->segyfmt_ = tr_->numbfmt;
+    newfd->segyfmt_ = tr_->filePars().fmt_;
     newfd->isrev1_ = tr_->isRev1();
     newfd->nrstanzas_ = tr_->binHeader().nrstzs;
 
@@ -190,7 +232,7 @@ void SEGY::Scanner::initFileData()
 }
 
 
-bool SEGY::Scanner::toNext( SEGY::TrcFileIdx& tfi ) const
+bool SEGY::Scanner::toNext( SEGY::FileDef::TrcIdx& tfi ) const
 {
     if ( tfi.filenr_ < 0 )
 	{ tfi.trcnr_ = -1; tfi.filenr_= 0; }

@@ -7,64 +7,94 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.23 2008-09-18 14:55:52 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.24 2008-10-04 10:04:04 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
 
 -*/
 
-#include <segylike.h>
+#include "segyfiledef.h"
+#include "seistrctr.h"
+#include "tracedata.h"
 class LinScaler;
 namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 
+#define mSEGYTraceHeaderBytes	240
 
-class SEGYSeisTrcTranslator : public SegylikeSeisTrcTranslator
+
+class SEGYSeisTrcTranslator : public SeisTrcTranslator
 {			      isTranslator(SEGY,SeisTrc)
 public:
 
 			SEGYSeisTrcTranslator(const char*,const char*);
 			~SEGYSeisTrcTranslator();
+    virtual const char*	defExtension() const	{ return "sgy"; }
 
-    virtual int		dataBytes() const;
+    bool		readInfo(SeisTrcInfo&);
+    bool		read(SeisTrc&);
+    bool		skip(int);
+    bool		goToTrace(int);
+
+    bool		isRev1() const;
+    int			numberFormat() const	{ return filepars_.fmt_; }
 
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&);
 
-    virtual const char*	defExtension() const		{ return "sgy"; }
+    const SEGY::TxtHeader& txtHeader() const	{ return txthead_; }
+    const SEGY::BinHeader& binHeader() const	{ return binhead_; }
+    const SEGY::TrcHeader& trcHeader() const	{ return trchead_; }
 
-    static const char*	sNumberFormat;
-    static const char*	sExternalNrSamples;
-    static const char*	sExternalCoordScaling;
-    static const char*	sExternalTimeShift;
-    static const char*	sExternalSampleRate;
-    static const char*	sUseOffset;
-    static const char*	sForceRev0;
-    static const char**	getFmts(bool forread);
-
-    bool		isRev1() const;
-    int			numbfmt;
-
-    const SEGY::TxtHeader&	txtHeader() const	{ return txthead; }
-    const SEGY::BinHeader&	binHeader() const	{ return binhead; }
-    const SEGY::TrcHeader&	trcHeader() const	{ return trchead; }
+    int			dataBytes() const;
+    bool		rev0Forced() const	{ return force_rev0; }
+    SEGY::FilePars&	filePars()		{ return filepars_; }
+    SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
 
 protected:
 
-    SEGY::TxtHeader&	txthead;
-    SEGY::BinHeader&	binhead;
-    SEGY::TrcHeader&	trchead;
-    int			itrc;
-    short		binhead_ns;
-    float		binhead_dpos;
-    LinScaler*		trcscale;
-    const LinScaler*	curtrcscale;
-    int			ext_nr_samples;
-    float		ext_coord_scaling;
-    float		ext_time_shift;
-    float		ext_sample_rate;
+    SEGY::FilePars	filepars_;
+    SEGY::FileReadOpts	fileopts_;
+    SEGY::TxtHeader&	txthead_;
+    SEGY::BinHeader&	binhead_;
+    SEGY::TrcHeader&	trchead_; // must be *after* fileopts_
+    short		binhead_ns_;
+    float		binhead_dpos_;
+    LinScaler*		trcscale_;
+    const LinScaler*	curtrcscale_;
     bool		force_rev0;
 
+    bool		useinpsd;
+    TraceDataInterpreter* storinterp;
+    unsigned char	headerbuf[mSEGYTraceHeaderBytes];
+    bool		headerdone;
+    bool		headerbufread;
+    bool		bytesswapped;
+
+    // Following variables are inited by commitSelections
+    bool		userawdata;
+    unsigned char*	blockbuf;
+    ComponentData*	inpcd;
+    TargetComponentData* outcd;
+    StreamConn::Type	iotype;
+    int			maxmbperfile;
+    int			ic2xyopt;
+    int			offsazimopt;
+    int			curoffs;
+    SamplingData<int>	offsdef;
+    BinID		prevbid;
+
+    inline StreamConn&	sConn()		{ return *(StreamConn*)conn; }
+
+    bool		commitSelections_();
+    bool		initRead_();
+    bool		initWrite_(const SeisTrc&);
+    bool		writeTrc_(const SeisTrc&);
+
+    bool		readTraceHeadBuffer();
+    bool		readDataToBuf(unsigned char*);
+    bool		readData(SeisTrc&);
+    bool		writeData(const SeisTrc&);
     bool		readTapeHeader();
     void		updateCDFromBuf();
     int			nrSamplesRead() const;
@@ -72,8 +102,8 @@ protected:
     bool		writeTapeHeader();
     void		fillHeaderBuf(const SeisTrc&);
     void		toPreSelected(DataCharacteristics&) const;
-    const LinScaler*	getTraceScaler() const		{ return curtrcscale; }
     virtual void	toPreferred(DataCharacteristics&) const;
+    void		fillErrMsg(const char*);
 
     DataCharacteristics	getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;

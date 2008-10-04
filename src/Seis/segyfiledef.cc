@@ -4,18 +4,36 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.4 2008-10-02 14:39:49 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.5 2008-10-04 10:04:04 cvsbert Exp $";
 
 #include "segyfiledef.h"
-#include "segytr.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
 #include "separstr.h"
-#include "survinfo.h"
-#include "datapointset.h"
 
+const char* SEGY::FileDef::sKeyForceRev0 = "Force Rev0";
+const char* SEGY::FilePars::sKeyNrSamples = "Nr samples overrule";
+const char* SEGY::FilePars::sKeyNumberFormat = "Number format";
+const char* SEGY::FilePars::sKeyBytesSwapped = "Bytes swapped";
 const char* SEGY::FileSpec::sKeyFileNrs = "File numbers";
+const char* SEGY::FileReadOpts::sKeyCoordScale = "Coordinate scaling overrule";
+const char* SEGY::FileReadOpts::sKeyTimeShift = "Start time overrule";
+const char* SEGY::FileReadOpts::sKeySampleIntv = "Sample rate overrule";
+const char* SEGY::FileReadOpts::sKeyICOpt = "IC -> XY";
+const char* SEGY::FileReadOpts::sKeyPSOpt = "Offset source";
+const char* SEGY::FileReadOpts::sKeyOffsDef = "Generate offsets";
+
+
+static const char* allsegyfmtoptions[] = {
+	"From file header",
+	"1 - Floating point",
+	"2 - Integer (4 byte)",
+	"3 - Integer (2 byte)",
+	"5 - IEEE float (4 byte)",
+	"8 - Signed char (1 byte)",
+	0
+};
 
 
 const char* SEGY::FileSpec::getFileName( int nr ) const
@@ -160,23 +178,34 @@ void SEGY::FileSpec::fillParFromIOObj( const IOObj& ioobj, IOPar& iop )
 
 const char** SEGY::FilePars::getFmts( bool fr )
 {
-    return SEGYSeisTrcTranslator::getFmts( fr );
+    return fr ? allsegyfmtoptions : allsegyfmtoptions+1;
+}
+
+
+void SEGY::FilePars::setForRead( bool fr )
+{
+    forread_ = fr;
+    if ( !forread_ )
+    {
+	ns_ = 0;
+	if ( fmt_ == 0 ) fmt_ = 1;
+    }
 }
 
 
 void SEGY::FilePars::fillPar( IOPar& iop ) const
 {
-    iop.set( SEGYSeisTrcTranslator::sExternalNrSamples, ns_ );
-    iop.set( SEGYSeisTrcTranslator::sNumberFormat, nameOfFmt(fmt_,forread_) );
-    iop.setYN( SegylikeSeisTrcTranslator::sKeyBytesSwapped, byteswapped_ );
+    iop.set( sKeyNrSamples, ns_ );
+    iop.set( sKeyNumberFormat, nameOfFmt(fmt_,forread_) );
+    iop.setYN( sKeyBytesSwapped, byteswapped_ );
 }
 
 
 void SEGY::FilePars::usePar( const IOPar& iop )
 {
-    iop.get( SEGYSeisTrcTranslator::sExternalNrSamples, ns_ );
-    iop.getYN( SegylikeSeisTrcTranslator::sKeyBytesSwapped, byteswapped_ );
-    fmt_ = fmtOf( iop.find(SEGYSeisTrcTranslator::sNumberFormat), forread_ );
+    iop.get( sKeyNrSamples, ns_ );
+    iop.getYN( sKeyBytesSwapped, byteswapped_ );
+    fmt_ = fmtOf( iop.find(sKeyNumberFormat), forread_ );
 }
 
 
@@ -188,7 +217,7 @@ void SEGY::FilePars::getReport( IOPar& iop ) const
 	iop.set( forread_ ? "SEG-Y 'format' used" : "SEG-Y 'format'",
 		nameOfFmt(fmt_,forread_) );
     if ( byteswapped_ )
-	iop.set( forread_ ? "Bytes are swapped" : "Bytes will be swapped", "" );
+	iop.set( forread_ ? "Bytes are" : "Bytes will be", "swapped" );
 }
 
 
@@ -215,106 +244,78 @@ int SEGY::FilePars::fmtOf( const char* str, bool forread )
 }
 
 
-SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
-    : fname_(fnm)
-    , geom_(gt)
-    , data_(*new DataPointSet(Seis::is2D(gt),false))
-    , trcsz_(-1)
-    , sampling_(SI().zRange(false).start,SI().zRange(false).step)
-    , segyfmt_(0)
-    , isrev1_(true)
-    , nrstanzas_(0)
+void SEGY::FileReadOpts::setGeomType( Seis::GeomType gt )
 {
+    geom_ = gt;
+    if ( Seis::is2D(geom_) )
+	icdef_ = XYOnly;
+}
+
+static int getICOpt( SEGY::FileReadOpts::ICvsXYType opt )
+{
+    return opt == SEGY::FileReadOpts::XYOnly ? -1
+	: (opt == SEGY::FileReadOpts::ICOnly ? 1 : 0);
+}
+static SEGY::FileReadOpts::ICvsXYType getICType( int opt )
+{
+    return opt < 0 ? SEGY::FileReadOpts::XYOnly
+	: (opt > 0 ? SEGY::FileReadOpts::ICOnly
+	 	   : SEGY::FileReadOpts::Both);
+}
+
+#define mFillIf(cond,key,val) \
+    if ( cond ) \
+	iop.set( key, val ); \
+    else \
+	iop.removeWithKey( key )
+
+
+void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
+{
+    iop.set( sKeyICOpt, getICOpt( icdef_ ) );
+
+    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByte,thdef_.inl);
+    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByteSz,thdef_.inlbytesz);
+    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sXCoordByte,thdef_.xcoord);
+    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sYCoordByte,thdef_.ycoord);
+
+    const bool is2d = Seis::is2D( geom_ );
+    mFillIf(is2d,TrcHeaderDef::sTrNrByte,thdef_.trnr);
+    mFillIf(is2d,TrcHeaderDef::sTrNrByteSz,thdef_.trnrbytesz);
+
+    mFillIf(!mIsUdf(coordscale_),sKeyCoordScale,coordscale_);
+    mFillIf(!mIsUdf(timeshift_),sKeyTimeShift,timeshift_);
+    mFillIf(!mIsUdf(sampleintv_),sKeySampleIntv,sampleintv_);
+
+    if ( !Seis::isPS(geom_) ) return;
+
+    mFillIf(true,sKeyPSOpt,(int)psdef_);
+    mFillIf(psdef_==UsrDef,sKeyOffsDef,offsdef_);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByte,thdef_.offs);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByteSz,thdef_.offsbytesz);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByte,thdef_.azim);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByteSz,thdef_.azimbytesz);
+
 }
 
 
-SEGY::FileData::FileData( const SEGY::FileData& fd )
-    : fname_(fd.fname_)
-    , geom_(fd.geom_)
-    , data_(*new DataPointSet(fd.data_))
-    , trcsz_(fd.trcsz_)
-    , sampling_(fd.sampling_)
-    , segyfmt_(fd.segyfmt_)
-    , isrev1_(fd.isrev1_)
-    , nrstanzas_(fd.nrstanzas_)
+void SEGY::FileReadOpts::usePar( const IOPar& iop )
 {
+    thdef_.usePar( iop );
+    int icopt = getICOpt( icdef_ );
+    iop.get( sKeyICOpt, icopt );
+    icdef_ = getICType( icopt );
+    int psopt = (int)psdef_;
+    iop.get( sKeyPSOpt, psopt );
+    psdef_ = (PSDefType)psopt;
+    iop.get( sKeyOffsDef, offsdef_ );
+    iop.get( sKeyCoordScale, coordscale_ );
+    iop.get( sKeyTimeShift, timeshift_ );
+    iop.get( sKeySampleIntv, sampleintv_ );
 }
 
 
-SEGY::FileData::~FileData()
+void SEGY::FileReadOpts::getReport( IOPar& iop ) const
 {
-    delete &data_;
-}
-
-
-int SEGY::FileData::nrTraces() const
-{
-    return data_.size();
-}
-
-
-BinID SEGY::FileData::binID( int nr ) const
-{
-    return data_.binID( nr );
-}
-
-
-Coord SEGY::FileData::coord( int nr ) const
-{
-    Coord ret( data_.coord( nr ) );
-    ret.x += data_.value(0,nr); ret.y += data_.value(1,nr);
-    return ret;
-}
-
-
-float SEGY::FileData::offset( int nr ) const
-{
-    return data_.z( nr );
-}
-
-
-int SEGY::FileData::trcNr( int nr ) const
-{
-    return data_.trcNr( nr );
-}
-
-
-bool SEGY::FileData::isNull( int nr ) const
-{
-    return data_.isSelected( nr );
-}
-
-
-bool SEGY::FileData::isUsable( int nr ) const
-{
-    return data_.group( nr ) != 2;
-}
-
-
-void SEGY::FileData::add( const BinID& bid, const Coord& c, int nr, float offs,
-			  bool isnull, bool isusable )
-{
-    DataPointSet::DataRow dr;
-    dr.pos_.nr_ = nr;
-    dr.pos_.z_ = offs;
-    dr.setSel( isnull );
-    dr.setGroup( isusable ? 1 : 2 );
-
-    dr.pos_.set( bid, c );
-    const Coord poscoord( dr.pos_.coord() );
-    dr.data_ += (float)(c.x - poscoord.x);
-    dr.data_ += (float)(c.y - poscoord.y);
-
-    data_.addRow( dr );
-}
-
-
-void SEGY::FileData::addEnded()
-{
-    data_.dataChanged();
-}
-
-
-void SEGY::FileData::getReport( IOPar& iop ) const
-{
+    fillPar( iop );
 }

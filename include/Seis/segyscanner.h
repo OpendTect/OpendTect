@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.5 2008-10-02 14:40:06 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.6 2008-10-04 10:04:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "bufstringset.h"
 #include "position.h"
+#include "segyfiledef.h"
 class IOPar;
 class SeisTrc;
 class DataPointSet;
@@ -25,8 +26,6 @@ class SEGYSeisTrcTranslator;
 namespace SEGY
 {
 class FileData;
-class FileSpec;
-class TrcFileIdx;
 
 
 class Scanner : public Executor
@@ -47,7 +46,7 @@ public:
     const char*		nrDoneText() const	{ return "Traces scanned"; }
 
     const ObjectSet<FileData>& fileData() const	{ return fd_; }
-    bool		toNext(TrcFileIdx&) const;
+    bool		toNext(SEGY::FileDef::TrcIdx&) const;
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read

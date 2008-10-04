@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.7 2008-10-02 14:40:06 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.8 2008-10-04 10:04:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "survinfo.h"
-#include "segytr.h"
+#include "seistrctr.h"
 #include "segyscanner.h"
 #include "seisioobjinfo.h"
 #include "ptrman.h"
@@ -97,14 +97,14 @@ void uiSEGYRead::use( const IOObj* ioobj, bool force )
 void uiSEGYRead::fillPar( IOPar& iop ) const
 {
     iop.merge( pars_ );
-    iop.setYN( SEGYSeisTrcTranslator::sForceRev0, rev_ == Rev0 );
+    iop.setYN( SEGY::FileDef::sKeyForceRev0, rev_ == Rev0 );
 }
 
 
 void uiSEGYRead::usePar( const IOPar& iop )
 {
     pars_.merge( iop );
-    if ( iop.isTrue( SEGYSeisTrcTranslator::sForceRev0 ) ) rev_ = Rev0;
+    if ( iop.isTrue( SEGY::FileDef::sKeyForceRev0 ) ) rev_ = Rev0;
 }
 
 

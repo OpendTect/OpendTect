@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.8 2008-10-02 14:40:06 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.9 2008-10-04 10:04:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisegydef.h"
 #include "segythdef.h"
-#include "segytr.h"
+#include "seistrctr.h"
 #include "ptrman.h"
 #include "iostrm.h"
 #include "ioman.h"
@@ -233,8 +233,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     uiGroup* grp = new uiGroup( this, "Main uiSEGYFilePars group" );
     if ( forread )
 	nrsamplesfld_ = mkOverruleFld( grp, "Overrule SEG-Y number of samples",
-				      iop,
-				      SEGYSeisTrcTranslator::sExternalNrSamples,
+				      iop, SEGY::FilePars::sKeyNrSamples,
 				      false, true );
 
     fmtfld_ = new uiGenInput( grp, "SEG-Y 'format'",
@@ -243,7 +242,7 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
 	fmtfld_->attach( alignedBelow, nrsamplesfld_ );
 
     const bool isswpd = iop
-		&& iop->isTrue( SegylikeSeisTrcTranslator::sKeyBytesSwapped );
+		&& iop->isTrue( SEGY::FilePars::sKeyBytesSwapped );
     const char* txt = forread ? "Bytes are swapped" : "Swap bytes";
     byteswapfld_ = new uiGenInput( grp, txt, BoolInpSpec(isswpd) );
     byteswapfld_->attach( alignedBelow, fmtfld_ );
@@ -736,15 +735,15 @@ uiGroup* uiSEGYFileOpts::mkORuleGrp( const IOPar* iop )
 
     scalcofld_ = mkOverruleFld( grp,
 		    "Overrule SEG-Y coordinate scaling", iop,
-		    SEGYSeisTrcTranslator::sExternalCoordScaling, false );
+		    SEGY::FileReadOpts::sKeyCoordScale, false );
     BufferString overrulestr = "Overrule SEG-Y start ";
     overrulestr += SI().zIsTime() ? "time" : "depth";
     timeshiftfld_ = mkOverruleFld( grp, overrulestr, iop,
-			    SEGYSeisTrcTranslator::sExternalTimeShift,
+			    SEGY::FileReadOpts::sKeyTimeShift,
 			    true );
     timeshiftfld_->attach( alignedBelow, scalcofld_ );
     sampleratefld_ = mkOverruleFld( grp, "Overrule SEG-Y sample rate", iop,
-			    SEGYSeisTrcTranslator::sExternalSampleRate,
+			    SEGY::FileReadOpts::sKeySampleIntv,
 			    true );
     sampleratefld_->attach( alignedBelow, timeshiftfld_ );
 
@@ -764,20 +763,19 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	if ( !isps_ )
 	{
 	    icopt = positioningfld_->getBoolValue() ? 1 : -1;
-	    iop.get( SegylikeSeisTrcTranslator::sKeyIC2XYOpt, icopt );
+	    iop.get( SEGY::FileReadOpts::sKeyICOpt, icopt );
 	    positioningfld_->setValue( icopt > 0 );
 	}
 	else
 	{
 	    oaopt = positioningfld_->getIntValue();
-	    iop.get( SegylikeSeisTrcTranslator::sKeyOffsAzimOpt, oaopt );
+	    iop.get( SEGY::FileReadOpts::sKeyPSOpt, oaopt );
 	    positioningfld_->setValue( oaopt );
 	    if ( oaopt == 2 )
 	    {
 		int start = regoffsfld_->getIntValue(0);
 		int step = regoffsfld_->getIntValue(1);
-		iop.get( SegylikeSeisTrcTranslator::sKeyOffsDef,
-			    start, step );
+		iop.get( SEGY::FileReadOpts::sKeyOffsDef, start, step );
 		regoffsfld_->setValue( start, 0 );
 		regoffsfld_->setValue( step, 1 );
 	    }
@@ -816,11 +814,11 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
     if ( scalcofld_ )
     {
 	setToggledFld( scalcofld_, iop,
-		       SEGYSeisTrcTranslator::sExternalCoordScaling );
+		       SEGY::FileReadOpts::sKeyCoordScale );
 	setToggledFld( timeshiftfld_, iop,
-		       SEGYSeisTrcTranslator::sExternalTimeShift, true );
+		       SEGY::FileReadOpts::sKeyTimeShift, true );
 	setToggledFld( sampleratefld_, iop,
-		       SEGYSeisTrcTranslator::sExternalSampleRate, true );
+		       SEGY::FileReadOpts::sKeySampleIntv, true );
     }
     }
 }
@@ -902,10 +900,7 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     const bool haveic = haveIC();
 
     if ( !positioningfld_ )
-    {
-	iop.setYN( SegylikeSeisTrcTranslator::sKeyUseHdrCoords, true );
-	iop.set( SegylikeSeisTrcTranslator::sKeyIC2XYOpt, is2d_ ? -1 : 0 );
-    }
+	iop.set( SEGY::FileReadOpts::sKeyICOpt, is2d_ ? -1 : 0 );
     else
     {
 	if ( !haveic )
@@ -913,9 +908,8 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 	    // Just to be sure
 	    iop.set( SEGY::TrcHeaderDef::sInlByte, -1 );
 	    iop.set( SEGY::TrcHeaderDef::sCrlByte, -1 );
-	    iop.setYN( SegylikeSeisTrcTranslator::sKeyUseHdrCoords, true );
 	}
-	iop.set( SegylikeSeisTrcTranslator::sKeyIC2XYOpt, haveic ? 1 : -1 );
+	iop.set( SEGY::FileReadOpts::sKeyICOpt, haveic ? 1 : -1 );
     }
 
     const bool iswrite = false;
@@ -949,7 +943,7 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     if ( isps_ )
     {
 	const int postyp = posType();
-	iop.set( SegylikeSeisTrcTranslator::sKeyOffsAzimOpt, postyp );
+	iop.set( SEGY::FileReadOpts::sKeyPSOpt, postyp );
 	if ( postyp == 0 )
 	{
 	    mSetByteIf( isps_, sOffsByte, offsbytefld_ );
@@ -958,7 +952,7 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 	    mSetSzIf( isps_, sAzimByteSz, azimbyteszfld_ );
 	}
 	else if ( postyp == 2 )
-	    iop.set( SegylikeSeisTrcTranslator::sKeyOffsDef,
+	    iop.set( SEGY::FileReadOpts::sKeyOffsDef,
 		regoffsfld_->getIntValue(0), regoffsfld_->getIntValue(1) );
     }
     }
@@ -967,11 +961,10 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     {
     if ( scalcofld_ )
     {
-	setToggled( iop, SEGYSeisTrcTranslator::sExternalCoordScaling,
-			   scalcofld_ );
-	setToggled( iop, SEGYSeisTrcTranslator::sExternalTimeShift,
+	setToggled( iop, SEGY::FileReadOpts::sKeyCoordScale, scalcofld_ );
+	setToggled( iop, SEGY::FileReadOpts::sKeyTimeShift,
 			   timeshiftfld_, true );
-	setToggled( iop, SEGYSeisTrcTranslator::sExternalSampleRate,
+	setToggled( iop, SEGY::FileReadOpts::sKeySampleIntv,
 			   sampleratefld_, true );
     }
     }
