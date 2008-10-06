@@ -4,11 +4,11 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.28 2008-02-27 08:35:55 cvsnanne Exp $
+  - RCS:        $Id: windows.html,v 1.29 2008-10-06 04:28:32 cvsnanne Exp $
   -->
 
 <body background="backg.png"><title>Windows development [OpendTect
-Programmer's manual V3.0]</title>
+Programmer's manual V3.2]</title>
 
 <center>
 <h1>OpendTect development on MS Windows</h1>
@@ -364,7 +364,7 @@ href="http://www.jrsoftware.org/isinfo.php">jrsoftware.org</a>. </p>
 
 <p> Because we internally treat Windows as much like Unix as we can, we
 actually make a .tar.gz file for our windows plugins too, which is
-extracted to "d:\users\admin\rel\plugins\opendtect-3.0\", which forms
+extracted to "d:\users\admin\rel\plugins\opendtect-3.2\", which forms
 the "Source" for Inno-Setup. </p>
 
 <p> As an example, here is the Inno-setup file "dgbsetup.iss" that we
@@ -374,7 +374,7 @@ directory is stored in the registry and used as 'DefaultDirName':</p>
 <pre>
 [Setup]
 AppName=OpendTect
-AppVerName=OpendTect 3.0
+AppVerName=OpendTect 3.2
 AppPublisher=De Groot-Bril Earth Sciences
 AppPublisherURL=http://www.opendtect.org
 AppSupportURL=http://www.opendtect.org
@@ -384,11 +384,11 @@ DisableDirPage=yes
 DefaultGroupName=OpendTect
 AllowNoIcons=yes
 OutputBaseFilename=dgb-opendtect-1_0_5
-LicenseFile=d:\users\admin\rel\opendtect-3.0\LICENSE.txt
+LicenseFile=d:\users\admin\rel\opendtect-3.2\LICENSE.txt
 
 
 [Files]
-Source: d:\users\admin\rel\plugins\opendtect-3.0\*; DestDir: {app}; Flags: recursesubdirs
+Source: d:\users\admin\rel\plugins\opendtect-3.2\*; DestDir: {app}; Flags: recursesubdirs
 </pre>
 
 <a name=buildod><h2>Building OpendTect</h2>
