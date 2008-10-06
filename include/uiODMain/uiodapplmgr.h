@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.63 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.64 2008-10-06 08:43:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,9 @@ public:
     bool			editNLA(bool);
     void			createVol(bool);
     void			doXPlot();
+    				//!< This plots between well and attrib
+    void			crossPlot();
+    				//!< This plots between attribs.
     void			createHorOutput(int,bool);
     void			reStartProc();
 

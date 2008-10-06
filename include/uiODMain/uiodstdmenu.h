@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.46 2008-08-08 10:17:17 cvsumesh Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.47 2008-10-06 08:43:25 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #define mWinMnu			3000
 #define mViewMnu		4000
 #define mUtilMnu		5000
+#define mAppMnu			6000
 #define mHelpMnu		1000000000
 
 /* 'File' menu */
@@ -101,6 +102,7 @@ ________________________________________________________________________
 #define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
 #define mXplotMnuItm		(mProcMnu + 40)
+#define mAXplotMnuItm		(mAppMnu + 60)
 #define mReStartMnuItm		(mProcMnu + 50)
 
 
