@@ -7,15 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.61 2008-04-18 10:49:40 cvsnanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.62 2008-10-06 22:00:48 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 
-#include "visobject.h"
-#include "vissurvobj.h"
+#include "vismultiattribsurvobj.h"
 #include "ranges.h"
 
 class CubeSampling;
@@ -45,8 +44,8 @@ class Scene;
     line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
-class RandomTrackDisplay :  public visBase::VisualObjectImpl,
-			    public visSurvey::SurveyObject
+class RandomTrackDisplay : public MultiTextureSurveyObject
+			    
 {
 public:
     static RandomTrackDisplay*	create()
@@ -56,6 +55,10 @@ public:
 				     this rtd, and is present in its name. */
 
     bool			isInlCrl() const { return true; }
+
+
+    int				nrResolutions() const 	{ return 1;  }
+    void			setResolution( int )	{}
 
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
@@ -71,25 +74,6 @@ public:
     bool			allowMaterialEdit() const { return true; }
 
     SurveyObject::AttribFormat	getAttributeFormat() const;
-    bool			canHaveMultipleAttribs() const;
-    bool			swapAttribs(int,int);
-    void			setAttribTransparency(int,unsigned char);
-    unsigned char		getAttribTransparency(int) const;
-    int				nrAttribs() const;
-    bool			addAttrib();
-    bool			isAttribEnabled(int attrib) const;
-    void			enableAttrib(int attrib,bool yn);
-    bool			isAngle(int attrib) const;
-    void			setAngleFlag(int attrib,bool yn);
-    void			allowShading(bool);
-
-    bool			removeAttrib(int);
-    const Attrib::SelSpec*	getSelSpec(int) const;
-    void			setSelSpec( int, const Attrib::SelSpec& );
-
-    int				nrTextures(int)const;
-    void			selectTexture(int,int);
-    int				selectedTexture(int)const;
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
@@ -130,9 +114,8 @@ public:
     Interval<float>		getDepthInterval() const;
 
     void			getMousePosInfo(const visBase::EventInfo&,
-	    					const Coord3&,
-	    					BufferString& val,
-	    					BufferString& info) const;
+				    const Coord3&, BufferString&,
+				    BufferString&) const;
 
     int				getColTabID(int) const;
     const TypeSet<float>*	getHistogram(int) const;
@@ -158,6 +141,15 @@ public:
 protected:
 				~RandomTrackDisplay();
 
+    bool			getCacheValue(int attrib,int version,
+					      const Coord3&,float&) const;
+
+    void			addCache();
+    void			removeCache(int);
+    void			swapCache(int,int);
+    void			emptyCache(int);
+    bool			hasCache(int) const;
+
     void			getDataTraceBids(TypeSet<BinID>&,
 	    					 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int knot) const;
@@ -174,8 +166,6 @@ protected:
 
     visBase::SplitTextureRandomLine* triangles_;
     visBase::RandomTrackDragger* dragger_;
-    visBase::MultiTexture2*	texture_;
-    ObjectSet<Attrib::SelSpec>	as_;
     ObjectSet<SeisTrcBuf>	cache_;
     int				selknotidx_;
     TypeSet<DataPack::ID>	datapackids_;

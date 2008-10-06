@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.102 2008-06-12 12:57:57 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.103 2008-10-06 22:00:48 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@
 #include "seistrc.h"
 #include "interpol1d.h"
 #include "scaler.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "visdataman.h"
 #include "vismaterial.h"
@@ -47,9 +48,7 @@ const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
 const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
-    : VisualObjectImpl(true)
-    , texture_( visBase::MultiTexture2::create() )
-    , triangles_( visBase::SplitTextureRandomLine::create() )
+    : triangles_( visBase::SplitTextureRandomLine::create() )
     , dragger_( visBase::RandomTrackDragger::create() )
     , knotmoving_(this)
     , moving_(this)
@@ -81,11 +80,10 @@ RandomTrackDisplay::RandomTrackDisplay()
     material_->setDiffIntensity( 0.2 );
 
     dragger_->ref();
-    addChild( dragger_->getInventorNode() );
+    insertChild( childIndex(texture_->getInventorNode()),
+	        
+	         dragger_->getInventorNode() );
     dragger_->motion.notify( mCB(this,visSurvey::RandomTrackDisplay,knotMoved));
-
-    texture_->ref();
-    addChild( texture_->getInventorNode() );
 
     triangles_->ref();
     addChild( triangles_->getInventorNode() );
@@ -115,48 +113,19 @@ RandomTrackDisplay::RandomTrackDisplay()
     const int baselen = mNINT((inlrange.width()+crlrange.width())/2);
     
     dragger_->setSize( Coord3(baselen/50,baselen/50,survinterval.width()/50) );
-				   
-    as_ += new Attrib::SelSpec;
-    cache_.allowNull();
-    cache_ += 0;
-    datapackids_ += -1;
 }
 
 
 RandomTrackDisplay::~RandomTrackDisplay()
 {
     triangles_->unRef();
-    texture_->unRef();
     dragger_->unRef();
 
-    deepErase( as_ );
     deepErase( cache_ );
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
-}
-
-
-const Attrib::SelSpec* RandomTrackDisplay::getSelSpec( int attrib ) const
-{
-    return attrib>=0 && attrib<as_.size() ? as_[attrib] : 0;
-}
-
-
-void RandomTrackDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
-{
-    if ( attrib>=0 && attrib<as_.size() )
-    {
-	*as_[attrib] = as;
-
-        if ( cache_[attrib] ) delete cache_[attrib];
-	    cache_.replace( attrib, 0 );
-	                            
-	const char* usrref = as.userRef();
-	if ( !usrref || !*usrref )
-	    texture_->turnOn( false );
-    }
 }
 
 
@@ -491,92 +460,6 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 }
 
 
-#define mFindTrc(inladd,crladd) \
-    if ( trcidx < 0 ) \
-    { \
-	bid.inl = reqbid.inl + step.inl * (inladd); \
-	bid.crl = reqbid.crl + step.crl * (crladd); \
-	trcidx = cache_[idx]->find( bid ); \
-    }
-
-
-void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
-					  const Coord3& pos,
-					  BufferString& val,
-					  BufferString& info ) const
-{
-    info = name(); val = "undef";
-    for ( int idx=as_.size()-1; idx>=0; idx-- )
-    {
-	if ( !cache_[idx] || !cache_[idx]->size() || !isAttribEnabled(idx) ||
-		texture_->getTextureTransparency(idx)==255 )
-	    continue;
-
-	const int version = texture_->currentVersion(idx);
-
-	BinID reqbid( SI().transform(pos) );
-	int trcidx = cache_[idx]->find( reqbid );
-	if ( trcidx<0 )
-	{
-	    const BinID step( SI().inlStep(), SI().crlStep() );
-	    BinID bid;
-	    mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
-	    if ( trcidx<0 )
-	    {
-		mFindTrc(1,1) mFindTrc(-1,1) mFindTrc(1,-1) mFindTrc(-1,-1)
-	    }
-
-	    if ( trcidx<0 ) continue;
-	}
-
-	const SeisTrc& trc = *cache_[idx]->get( trcidx );
-	const int sampidx = trc.nearestSample( pos.z );
-	if ( sampidx>=0 && sampidx<trc.size() )
-	{
-	    const float fval = trc.get( sampidx, 0 );
-
-	    bool islowest = true;
-	    for ( int idy=idx-1; idy>=0; idy-- )
-	    {
-		if ( !cache_[idy] || !cache_[idy]->size() ||
-		     !isAttribEnabled(idy) ||
-		     texture_->getTextureTransparency(idy)==255 )
-		    continue;
-
-		islowest = false;
-		break;
-	    }
-
-	    if ( !islowest )
-	    {
-		const Color col = texture_->getColorTab(idx).color(fval);
-		if ( col.t()==255 )
-		    continue;
-	    }
-
-	    if ( !mIsUdf(fval) )
-	    {
-		val = fval;
-	    }
-
-	    if ( cache_.size()>1 )
-	    {
-
-		BufferString attribstr = "(";
-		attribstr += as_[idx]->userRef();
-		attribstr += ")";
-
-		val.replaceAt( cValNameOffset(), (const char*)attribstr);
-	    }
-
-	    return;
-	}
-    }
-}
-
-#undef mFindTrc
-
-
 bool RandomTrackDisplay::canAddKnot( int knotnr ) const
 {
     if ( lockgeometry_ ) return false;
@@ -758,122 +641,8 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 }
 
 
-void RandomTrackDisplay::allowShading( bool yn )
-{
-    if ( texture_ )
-	texture_->allowShading( yn );
-}
-
-
 SurveyObject::AttribFormat RandomTrackDisplay::getAttributeFormat() const
 { return SurveyObject::Traces; }
-
-
-bool RandomTrackDisplay::canHaveMultipleAttribs() const
-{ return true; }
-
-
-bool RandomTrackDisplay::swapAttribs( int a0, int a1 )
-{
-    if ( a0<0 || a1<0 || a0>=as_.size() || a1>=as_.size() )
-	return false;
-
-    texture_->swapTextures( a0, a1 );
-    as_.swap( a0, a1 );
-    cache_.swap( a0, a1 );
-    datapackids_.swap( a0, a1 );
-
-    return true;
-}
-
-
-void RandomTrackDisplay::setAttribTransparency( int attrib, unsigned char nt )
-{
-    texture_->setTextureTransparency( attrib, nt );
-}
-
-
-unsigned char RandomTrackDisplay::getAttribTransparency( int attrib ) const
-{
-    return texture_->getTextureTransparency( attrib );
-}
-
-
-int RandomTrackDisplay::nrAttribs() const
-{ return as_.size(); }
-
-
-bool RandomTrackDisplay::addAttrib()
-{
-    as_ += new Attrib::SelSpec;
-    cache_ += 0;
-    datapackids_ += -1;
-
-    texture_->addTexture("");
-    return true;
-}
-
-
-bool RandomTrackDisplay::removeAttrib( int attrib )
-{
-    if ( as_.size()<2 || attrib<0 || attrib>=as_.size() )
-	return false;
-
-    delete as_[attrib];
-    as_.remove( attrib );
-    delete cache_[attrib];
-    cache_.remove( attrib );
-
-    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
-    datapackids_.remove( attrib );
-		    
-    texture_->removeTexture( attrib );
-			        
-    return true;
-}   
-
-
-bool RandomTrackDisplay::isAttribEnabled( int attrib ) const
-{
-    return texture_->isTextureEnabled( attrib );
-}
-
-
-void RandomTrackDisplay::enableAttrib( int attrib, bool yn )
-{
-    texture_->enableTexture( attrib, yn );
-}
-
-
-int RandomTrackDisplay::nrTextures( int attrib ) const
-{
-    return texture_->nrVersions( attrib );
-}
-
-
-void RandomTrackDisplay::selectTexture( int attrib, int idx )
-{
-    if ( attrib<0 || attrib>=nrAttribs() ||
-	 idx<0 || idx>=texture_->nrVersions(attrib) ) return;
-
-    texture_->setCurrentVersion( attrib, idx );
-}
-
-
-int RandomTrackDisplay::selectedTexture( int attrib ) const
-{ 
-    if ( attrib<0 || attrib>=nrAttribs() ) return 0;
-
-    return texture_->currentVersion( attrib );
-}
-
-
-bool RandomTrackDisplay::isAngle( int attrib ) const
-{ return texture_->isAngle( attrib ); }
-
-
-void RandomTrackDisplay::setAngleFlag( int attrib, bool yn )
-{ texture_->setAngleFlag( attrib, yn ); }
 
 
 #define mFindTrc(inladd,crladd) \
@@ -975,7 +744,7 @@ SurveyObject* RandomTrackDisplay::duplicate() const
 
 void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-    visBase::VisualObjectImpl::fillPar( par, saveids );
+    visSurvey::MultiTextureSurveyObject::fillPar( par, saveids );
 
     const Interval<float> depthrg = getDataTraceRange();
     par.set( sKeyDepthInterval(), depthrg );
@@ -989,91 +758,95 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	par.set( key, getKnotPos(idx) );
     }
 
-    par.set( sKeyNrAttribs(), as_.size() );
+    par.set( sKey::Version, 3 );
     par.setYN( sKeyLockGeometry(), lockgeometry_ );
-
-    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
-    {
-	IOPar attribpar;
-	as_[attrib]->fillPar( attribpar );
-	const int coltabid = getColTabID(attrib);
-	attribpar.set( sKeyColTabID(), coltabid );
-	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
-
-	attribpar.setYN( sKeyIsOn(), texture_->isTextureEnabled(attrib) );
-
-	BufferString key = sKeyAttribs();
-	key += attrib;
-	par.mergeComp( attribpar, key );
-    }
-
-    fillSOPar( par );
 }
 
 
 int RandomTrackDisplay::usePar( const IOPar& par )
 {
-    const int res =  visBase::VisualObjectImpl::usePar( par );
-    if ( res != 1 ) return res;
+    int version;
+    if ( !par.get( sKey::Version, version ) )
+	version = 2;
 
-    int nrattribs;
-    if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
+    if ( version==2 )
     {
-	par.getYN( sKeyLockGeometry(), lockgeometry_ );
-	bool firstattrib = true;
-	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	const int res =  visBase::VisualObjectImpl::usePar( par );
+	if ( res != 1 ) return res;
+
+	int nrattribs;
+	if ( par.get(sKeyNrAttribs(),nrattribs) ) //version 2
 	{
-	    BufferString key = sKeyAttribs();
-	    key += attrib;
-	    PtrMan<const IOPar> attribpar = par.subselect( key );
-	    if ( !attribpar )
-		continue;
-
-	    int coltabid = -1;
-	    if ( attribpar->get(sKeyColTabID(),coltabid) )
+	    par.getYN( sKeyLockGeometry(), lockgeometry_ );
+	    bool firstattrib = true;
+	    for ( int attrib=0; attrib<nrattribs; attrib++ )
 	    {
-		visBase::DataObject* dataobj= visBase::DM().getObject(coltabid);
-		if ( !dataobj ) return 0;
-		mDynamicCastGet( const visBase::VisColorTab*, coltab, dataobj );
-		if ( !coltab ) coltabid=-1;
+		BufferString key = sKeyAttribs();
+		key += attrib;
+		PtrMan<const IOPar> attribpar = par.subselect( key );
+		if ( !attribpar )
+		    continue;
+
+		int coltabid = -1;
+		if ( attribpar->get(sKeyColTabID(),coltabid) )
+		{
+		    visBase::DataObject* dataobj =
+			visBase::DM().getObject(coltabid);
+		    if ( !dataobj ) return 0;
+		    mDynamicCastGet( const visBase::VisColorTab*, coltab,
+			    	     dataobj );
+		    if ( !coltab ) coltabid=-1;
+		}
+
+		if ( !firstattrib )
+		    addAttrib();
+		else
+		    firstattrib = false;
+
+		Attrib::SelSpec as;
+		const int attribnr = nrAttribs()-1;
+		as.usePar( *attribpar );
+		setSelSpec( attribnr, as );
+
+		if ( coltabid!=-1 )
+		{
+		    mDynamicCastGet( visBase::VisColorTab*, coltab,
+		    visBase::DM().getObject(coltabid) );
+		    texture_->setColorTab( attribnr, *coltab );
+		}
+
+		bool ison = true;
+		attribpar->getYN( sKeyIsOn(), ison );
+		texture_->enableTexture( attribnr, ison );
 	    }
+	}
+	else //For old pars
+	{
+	    int trackid;
+	    if ( !par.get(sKeyTrack(),trackid) ) return -1;
+	    mDynamicCastGet(visBase::RandomTrack*,rt,
+			    visBase::DM().getObject(trackid));
+	    
+	    if ( !rt )
+		return 0;
 
-	    if ( !firstattrib )
-		addAttrib();
-	    else
-		firstattrib = false;
+	    rt->ref();
 
-	    const int attribnr = as_.size()-1;
+	    Attrib::SelSpec as;
+	    as.usePar( par );
+	    setSelSpec( 0, as );
 
-	    as_[attribnr]->usePar( *attribpar );
-	    if ( coltabid!=-1 )
-	    {
-		mDynamicCastGet( visBase::VisColorTab*, coltab,
-		visBase::DM().getObject(coltabid) );
-		texture_->setColorTab( attribnr, *coltab );
-	    }
-
-	    bool ison = true;
-	    attribpar->getYN( sKeyIsOn(), ison );
-	    texture_->enableTexture( attribnr, ison );
+	    texture_->setColorTab( 0, rt->getColorTab() );
+	    rt->unRef();
+	    setMaterial( rt->getMaterial() );
+	    turnOn( rt->isOn() );
 	}
     }
-    else //For old pars
+    else
     {
-	int trackid;
-	if ( !par.get(sKeyTrack(),trackid) ) return -1;
-	mDynamicCastGet(visBase::RandomTrack*,rt,
-			visBase::DM().getObject(trackid));
-	
-	if ( !rt )
-	    return 0;
-
-	rt->ref();
-	as_[0]->usePar( par );
-	texture_->setColorTab( 0, rt->getColorTab() );
-	rt->unRef();
-	setMaterial( rt->getMaterial() );
-	turnOn( rt->isOn() );
+	par.getYN( sKeyLockGeometry(), lockgeometry_ );
+	const int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
+	if ( res != 1 ) return res;
     }
 
     Interval<float> intv;
@@ -1094,8 +867,105 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    addKnot( pos );
     }
 
-    useSOPar( par );
+    if ( version<3 )
+	useSOPar( par );
+
     return 1;
+}
+
+
+void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo&,
+					  const Coord3& pos, BufferString& val,
+					  BufferString& info ) const
+{
+    info = name();
+    getValueString( pos, val );
+}
+
+
+#define mFindTrc(inladd,crladd) \
+    if ( trcidx < 0 ) \
+    { \
+	bid.inl = reqbid.inl + step.inl * (inladd); \
+	bid.crl = reqbid.crl + step.crl * (crladd); \
+	trcidx = cache_[attrib]->find( bid ); \
+    }
+
+
+bool RandomTrackDisplay::getCacheValue( int attrib,int version,
+					const Coord3& pos,float& val ) const
+{
+    if ( !cache_[attrib] )
+	return false;
+
+    BinID reqbid( SI().transform(pos) );
+    int trcidx = cache_[attrib]->find( reqbid );
+    if ( trcidx<0 )
+    {
+	const BinID step( SI().inlStep(), SI().crlStep() );
+	BinID bid;
+	mFindTrc(1,0) mFindTrc(-1,0) mFindTrc(0,1) mFindTrc(0,-1)
+	if ( trcidx<0 )
+	{
+	    mFindTrc(1,1) mFindTrc(-1,1) mFindTrc(1,-1) mFindTrc(-1,-1)
+	}
+
+    }
+
+    if ( trcidx<0 ) return false;
+
+    const SeisTrc& trc = *cache_[attrib]->get( trcidx );
+    const int sampidx = trc.nearestSample( pos.z );
+    if ( sampidx>=0 && sampidx<trc.size() )
+    {
+	val = trc.get( sampidx, 0 );
+	return true;
+    }
+
+    return false;
+}
+
+#undef mFindTrc
+
+
+void RandomTrackDisplay::addCache()
+{
+    cache_.allowNull();
+    cache_ += 0;
+    datapackids_ += -1;
+}
+
+
+void RandomTrackDisplay::removeCache( int attrib )
+{
+    delete cache_[attrib];
+    cache_.remove( attrib );
+
+    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    datapackids_.remove( attrib );
+}
+
+
+void RandomTrackDisplay::swapCache( int a0, int a1 )
+{
+    cache_.swap( a0, a1 );
+    datapackids_.swap( a0, a1 );
+}
+
+
+void RandomTrackDisplay::emptyCache( int attrib )
+{
+    if ( cache_[attrib] ) delete cache_[attrib];
+	cache_.replace( attrib, 0 );
+
+    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    datapackids_[attrib] = DataPack::cNoID;
+}
+
+
+bool RandomTrackDisplay::hasCache( int attrib ) const
+{
+    return cache_[attrib];
 }
 
 } // namespace visSurvey
