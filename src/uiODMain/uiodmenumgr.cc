@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.136 2008-10-03 07:08:05 cvsumesh Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.137 2008-10-06 08:44:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -369,6 +369,7 @@ void uiODMenuMgr::fillAnalMenu()
 
     uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "Cross-plot" );
     mInsertItem( crsplot, "&Well <--> Attr ...", mXplotMnuItm );
+    mInsertItem( crsplot, "Attr <--> Attr ...", mAXplotMnuItm );
     analmnu_->insertItem( crsplot );
 }
 
@@ -715,6 +716,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mXplotMnuItm:		applMgr().doXPlot(); break;
+    case mAXplotMnuItm:		applMgr().crossPlot(); break;			
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;

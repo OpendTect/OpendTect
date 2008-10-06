@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.264 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.265 2008-10-06 08:44:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "survinfo.h"
 
+#include "uiattribcrossplot.h"
 #include "uibatchlaunch.h"
 #include "uibatchprogs.h"
 #include "uifiledlg.h"
@@ -410,6 +411,17 @@ void uiODApplMgr::doXPlot()
 
     wellattrserv_->setAttribSet( *ads );
     wellattrserv_->doXPlot();
+}
+
+
+void uiODApplMgr::crossPlot()
+{
+    Attrib::DescSet* ads = attrserv_->getUserPrefDescSet();
+    if ( !ads ) return;
+
+    uiAttribCrossPlot* dlg = new uiAttribCrossPlot( 0, *ads );
+    dlg->setDeleteOnClose( true );
+    dlg->show();
 }
 
 
