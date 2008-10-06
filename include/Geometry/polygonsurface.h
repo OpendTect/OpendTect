@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.5 2008-09-25 17:17:37 cvsyuancheng Exp $
+RCS:           $Id: polygonsurface.h,v 1.6 2008-10-06 18:20:15 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,9 +52,8 @@ public:
 	    				    int nrknotsinsert=8) const;
     			/*<The Bezier Curve smoothes the polygon, nrknotsinsert
 			   on each edge will affect the smoothness. */
-    bool		getPolygonCrds(int polygon,TypeSet<Coord3>& pts) const;
-    bool		getSurfaceCrds(TypeSet<Coord3>& pts) const;
     const Coord3&	getPolygonNormal(int polygonnr) const;
+    const Coord3&	getPolygonConcaveDir(int polygonnr) const;
 
     void		getExceptionEdges(int plg,TypeSet<int>& edges) const;   
     void		getPolygonConcaveTriangles(int plg,TypeSet<int>&) const;
@@ -78,6 +77,7 @@ protected:
     				/*<assume each polygon is made by connecting 
 				   the pts in order. */
     TypeSet<Coord3>		polygonnormals_;
+    TypeSet<Coord3>		concavedirs_;
 };
 
 };
