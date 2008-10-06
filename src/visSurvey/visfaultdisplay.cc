@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.25 2008-10-01 03:44:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.26 2008-10-06 17:27:21 cvsyuancheng Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -230,7 +230,6 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 		BinIDValue( BinID(SI().inlRange(true).step,
 				  SI().crlRange(true).step),
 				  SI().zStep() ) );
-
 
 	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
 	explicitsticks_->display( true, false );
@@ -724,7 +723,10 @@ int FaultDisplay::nrResolutions() const
 void FaultDisplay::getRandomPos( DataPointSet& dpset ) const
 {
     if ( explicitpanels_ )
+    {
 	explicitpanels_->setTexturePositions( dpset );
+	paneldisplay_->touch( true );
+    }
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.26 2008-09-29 17:17:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.27 2008-10-06 17:27:21 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -54,27 +54,27 @@ int minThreadSize() const { return 100; }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {
-    const TypeSet<int>& texturerows = explsurf_.texturerowcoords_;
+    const TypeSet<int>& texturecols = explsurf_.texturecolcoords_;
     for ( int stickpos= start; stickpos<=stop; stickpos++, reportNrDone() )
     {
 	int stickidx = -1;
 	int panelidx = -1;
-	for ( int idy=0; idy<texturerows.size()-1; idy++ )
+	for ( int idy=0; idy<texturecols.size()-1; idy++ )
 	{
-	    if ( texturerows[idy]==stickpos )
+	    if ( texturecols[idy]==stickpos )
 	    {
 		stickidx = idy;
 		panelidx = -1;
 		break;
 	    }
-	    else if ( texturerows[idy]<stickpos && texturerows[idy+1]>stickpos )
+	    else if ( texturecols[idy]<stickpos && texturecols[idy+1]>stickpos )
 	    {
 		panelidx = idy;
 		break;
 	    }
-	    else if ( texturerows[texturerows.size()-1]==stickpos )
+	    else if ( texturecols[texturecols.size()-1]==stickpos )
 	    {
-		stickidx = texturerows.size()-1;
+		stickidx = texturecols.size()-1;
 		panelidx = -1;
 		break;
 	    }
@@ -167,8 +167,8 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
     if ( !triangles )
 	return false;
     
-    const int lpos = explsurf_.texturerowcoords_[panelidx];
-    const int rpos = explsurf_.texturerowcoords_[panelidx+1];
+    const int lpos = explsurf_.texturecolcoords_[panelidx];
+    const int rpos = explsurf_.texturecolcoords_[panelidx+1];
     if ( stickpos<lpos || stickpos>rpos )
 	return false;
     
@@ -345,6 +345,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , displaypanels_( true )
     , scalefacs_( 1, 1, zscale )
     , needsupdate_( true )
+    , needsupdatetexture_( false )			  
     , maximumtexturesize_( 1024 )
     , texturesize_( mUdf(int), mUdf(int) )
     , texturepot_( true )
@@ -444,10 +445,6 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
     if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
 	return false;
 
-    if ( !updateTextureSize() )
-	return false;
-
-    updateTextureCoords();
     needsupdate_ = false;
     return true;
 }
@@ -470,7 +467,7 @@ void ExplFaultStickSurface::updateTextureCoords()
 		continue;
 
 	    const float rowcoord =
-		(texturerowcoords_[stickidx]+0.5)/texturesize_.col;
+		(texturecolcoords_[stickidx]+0.5)/texturesize_.col;
 
 	    const float knotpos = 
 		((*textureknotcoords_[stickidx])[idx]+0.5)/ texturesize_.row;
@@ -506,6 +503,8 @@ void ExplFaultStickSurface::updateTextureCoords()
 
 	    triangles->texturecoordindices_ += tci;
 	}
+    
+	triangles->ischanged_ = true;
     }
 }
 
@@ -591,7 +590,7 @@ int ExplFaultStickSurface::textureColSz( const int panelidx )
 
     	const int sz = point2LineSampleSz( coordlist_->get(checkpt),
 		coordlist_->get(lp0), coordlist_->get(lp1) );
-
+	
 	if ( res<sz )
 	    res = sz;
     }
@@ -607,20 +606,34 @@ int ExplFaultStickSurface::point2LineSampleSz( const Coord3& point,
     const BinID lp0bid = SI().transform(linept0.coord());
     const BinID lp1bid = SI().transform(linept1.coord());
 
-    const Coord3 lp0relpos((lp0bid.inl-ptbid.inl)/texturesampling_.binid.inl,
-			   (lp0bid.crl-ptbid.crl)/texturesampling_.binid.crl,
-			   (linept0.z-point.z)/texturesampling_.value);
+    const Coord3 lp0relpos(
+	    (float)(lp0bid.inl-ptbid.inl)/texturesampling_.binid.inl,
+	    (float)(lp0bid.crl-ptbid.crl)/texturesampling_.binid.crl,
+	    (linept0.z-point.z)/texturesampling_.value);
 
-    const Coord3 lp1relpos((lp1bid.inl-ptbid.inl)/texturesampling_.binid.inl,
-			   (lp1bid.crl-ptbid.crl)/texturesampling_.binid.crl,
-			   (linept1.z-point.z)/texturesampling_.value);
+    const Coord3 lp1relpos(
+	    (float)(lp1bid.inl-ptbid.inl)/texturesampling_.binid.inl,
+	    (float)(lp1bid.crl-ptbid.crl)/texturesampling_.binid.crl,
+	    (linept1.z-point.z)/texturesampling_.value);
 
     const Coord3 dir = lp0relpos-lp1relpos;
     const float u = -lp1relpos.dot(dir)/dir.sqAbs();
     const float nrsamples = (lp1relpos+u*dir).abs();
-    
+
     return mNINT( nrsamples );
 }
+
+
+int ExplFaultStickSurface::sampleSize( const Coord3& p0, const Coord3& p1 )
+{
+    const BinID bid = SI().transform(p0.coord()) - SI().transform(p1.coord());
+    const Coord3 sampl( (float)bid.inl/texturesampling_.binid.inl,
+	    		(float)bid.crl/texturesampling_.binid.crl,
+			(p0.z-p1.z)/texturesampling_.value );
+    const float nrsamples =  sampl.abs();
+    return mNINT( nrsamples );
+}
+
 
 
 bool ExplFaultStickSurface::updateTextureSize()
@@ -634,7 +647,7 @@ bool ExplFaultStickSurface::updateTextureSize()
     {
 	const int sticknr = surface_->rowRange().atIndex( stickidx );
 	const StepInterval<int> colrg = surface_->colRange( sticknr );
-	
+
 	int sticktexturerowsz = 0;
 	TypeSet<int>& segmentsizes = *new TypeSet<int>;
 	sticksegments += &segmentsizes;
@@ -687,7 +700,7 @@ bool ExplFaultStickSurface::updateTextureSize()
 
     if ( !texturerowsz || !texturecolsz )
 	return false;
-    
+   
     int po2rowsz = texturerowsz;
     int po2colsz = texturecolsz;
     if ( texturepot_ )
@@ -701,20 +714,19 @@ bool ExplFaultStickSurface::updateTextureSize()
 
     texturesize_ = RowCol( po2rowsz, po2colsz );
 
-    texturerowcoords_.erase();
-    texturerowcoords_ +=0;
+    texturecolcoords_.erase();
+    texturecolcoords_ +=0;
     int sum = 0;
     const float colfactor = (float)po2colsz/texturecolsz;
     for ( int idx=0; idx<coldists.size()-1; idx++ )
     {
 	sum += coldists[idx];
-	texturerowcoords_ += mNINT( colfactor*sum );
+	texturecolcoords_ += mNINT( colfactor*sum );
     }
 
-    texturerowcoords_ += po2colsz-1;
-
-    deepErase( textureknotcoords_ );
+    texturecolcoords_ += po2colsz-1;
     const float rowfactor = (float)po2rowsz/texturerowsz;
+    deepErase( textureknotcoords_ );
     for ( int idx=0; idx<sticksegments.size(); idx++ )
     {
     	TypeSet<int>& segmentpositions = *new TypeSet<int>;
@@ -726,38 +738,273 @@ bool ExplFaultStickSurface::updateTextureSize()
 	    continue; 
 	}
 
-	float sticklength = 0;
+	int sticklength = 0;
 	for ( int idy=0; idy<(*sticksegments[idx]).size(); idy++ )
 	    sticklength += (*sticksegments[idx])[idy];
+	
+	const float st0 = (po2rowsz-sticklength*rowfactor)/2; 
+	int startpos = mNINT( st0 );
+	if ( startpos<0 ) 
+	    startpos = 0;
 
-	sticklength *= rowfactor;
-
-	const float st0 = (po2rowsz-sticklength)/2;
-	const int start = mNINT( st0 );
-	segmentpositions += start;
+	segmentpositions += startpos;
 
 	int pos = 0;
 	for ( int idy=0; idy<(*sticksegments[idx]).size()-1; idy++ )
 	{
 	    pos += (*sticksegments[idx])[idy];
-	    segmentpositions += mNINT( rowfactor*pos )+start;
+	    segmentpositions += mNINT( rowfactor*pos )+startpos;
 	}
 
-	segmentpositions += po2rowsz-1-start;
+	segmentpositions += po2rowsz-1-startpos;
     }
-   
+
+    updateStickShifting();
+    updateTextureCoords(); 
     deepErase( sticksegments );
     return true;
 }
 
 
-void ExplFaultStickSurface::needUpdateTextureSize( bool yn )
+void ExplFaultStickSurface::updateStickShifting()
 {
-    if ( !yn )
+    const int sticksz = sticks_.size();
+    TypeSet<float> prevavgdist( sticksz, mUdf(float) );
+    TypeSet<float> avgdist( sticksz, mUdf(float) );
+    TypeSet<float> nextavgdist( sticksz, mUdf(float) );
+    TypeSet<int> curshift( sticksz, 0 );
+    const int shiftunit = 2;
+
+    float totaldist = 0;
+    for ( int idx=0; idx<sticksz; idx++ )
+    {
+	prevavgdist[idx] = getAvgDistance( idx, curshift, -shiftunit );
+	avgdist[idx] = getAvgDistance( idx, curshift, 0 );
+	nextavgdist[idx] = getAvgDistance( idx, curshift, shiftunit );
+
+	if ( !mIsUdf(avgdist[idx] ) )
+	    totaldist += avgdist[idx];
+	else
+	{
+	    pErrMsg("Hmm");
+	    return;
+	}
+    }
+
+    while ( true )
+    {
+	int largestprevshiftidx = -1;
+	float largestprevshiftdiff = mUdf(float);
+	int largestnextshiftidx = -1;
+	float largestnextshiftdiff = mUdf(float);
+	for ( int idx=0; idx<sticksz; idx++ )
+	{
+	    if ( !mIsUdf(prevavgdist[idx] ) )
+	    {
+		const float diff = avgdist[idx]-prevavgdist[idx];
+		if ( largestprevshiftidx==-1 || largestprevshiftdiff<diff )
+		{
+		    largestprevshiftidx = idx;
+		    largestprevshiftdiff = diff;
+		}
+	    }
+
+	    if ( !mIsUdf(nextavgdist[idx] ) )
+	    {
+		const float diff = avgdist[idx]-nextavgdist[idx];
+		if ( largestnextshiftidx==-1 || largestnextshiftdiff<diff )
+		{
+		    largestnextshiftidx = idx;
+		    largestnextshiftdiff = diff;
+		}
+	    }
+	}
+
+	if ( largestprevshiftidx==-1 && largestnextshiftidx==-1 )
+	    break;
+
+	int shift = 0;
+	int shiftstick;
+	if ( largestprevshiftidx==-1 || (largestnextshiftidx != -1 &&
+	     largestnextshiftdiff>largestprevshiftdiff) )
+	{
+	    shift = shiftunit;
+	    shiftstick = largestnextshiftidx;
+	    curshift[shiftstick] += shiftunit;
+	    prevavgdist[shiftstick] = avgdist[shiftstick];
+	    avgdist[shiftstick] = nextavgdist[shiftstick];
+	    nextavgdist[shiftstick] =
+		getAvgDistance( shiftstick, curshift, shiftunit );
+	}
+	else if ( largestprevshiftidx!=-1 )
+	{
+	    shift = -shiftunit;
+	    shiftstick = largestprevshiftidx;
+	    curshift[shiftstick] -= shiftunit;
+	    nextavgdist[shiftstick] = avgdist[shiftstick];
+	    avgdist[shiftstick] = prevavgdist[shiftstick];
+	    prevavgdist[shiftstick] =
+		getAvgDistance( shiftstick, curshift, -shiftunit );
+	}
+
+	if ( shiftstick )
+	{
+	    prevavgdist[shiftstick-1] =
+		getAvgDistance( shiftstick-1, curshift, -shiftunit);
+	    avgdist[shiftstick-1] = 
+		getAvgDistance( shiftstick-1, curshift, 0 );
+	    nextavgdist[shiftstick-1] = 
+		getAvgDistance( shiftstick-1, curshift, shiftunit );
+	}
+
+	if ( shiftstick!=sticksz-1 )
+	{
+	    prevavgdist[shiftstick+1] = 
+		getAvgDistance( shiftstick+1, curshift, -shiftunit);
+	    avgdist[shiftstick+1] = 
+		getAvgDistance( shiftstick+1, curshift, 0 );
+	    nextavgdist[shiftstick+1] = 
+		getAvgDistance( shiftstick+1, curshift, shiftunit );
+	}
+
+	float newsum = 0;
+	for ( int idx=0; idx<sticksz; idx++ )
+	    newsum += avgdist[idx];
+    
+	if ( newsum>=totaldist )
+	{
+	    curshift[shiftstick] -= shift;
+	    break;
+	}
+	else
+	    totaldist = newsum;
+    }
+
+    for ( int idx=0; idx<sticksz; idx++ )
+       shiftStick( idx, curshift[idx] );	
+}
+
+
+Coord3 ExplFaultStickSurface::getCoord( int stickidx, int texturerow ) const
+{
+    if ( stickidx<0 || stickidx>=sticks_.size() || 
+	 texturerow<0 || texturerow>texturesize_.r() )
+	return Coord3::udf();
+    
+    const int sticknr = surface_->rowRange().atIndex( stickidx );
+    const StepInterval<int> colrg = surface_->colRange( sticknr );
+    const TypeSet<int>& knotpos = *textureknotcoords_[stickidx];
+    
+    if ( texturerow<=knotpos[0] )
+	return surface_->getKnot( RowCol(sticknr, colrg.start) );
+    if ( texturerow>knotpos[knotpos.size()-1] )
+	return surface_->getKnot( RowCol(sticknr, colrg.stop) );
+    else
+    {
+	for ( int knot=0; knot<knotpos.size()-1; knot++ )
+	{
+	    const float t = (float)(texturerow-knotpos[knot])/
+		(knotpos[knot+1]-knotpos[knot]);
+	    if ( texturerow>=knotpos[knot] && texturerow<=knotpos[knot+1] )
+	    {
+		const Coord3 p0 = surface_->getKnot(
+			RowCol(sticknr,colrg.start+knot*colrg.step) );
+		const Coord3 p1 = surface_->getKnot(
+			RowCol(sticknr,colrg.start+(knot+1)*colrg.step) );
+		return p0+(p1-p0)*t;
+	    }
+	}
+    }
+
+    return Coord3::udf();
+}
+
+
+float ExplFaultStickSurface::getAvgDistance( int stickidx,
+			    const TypeSet<int>& shift, int extrashift ) const
+{
+    const int sticknr = surface_->rowRange().atIndex( stickidx );
+    const StepInterval<int> colrg = surface_->colRange( sticknr );
+    const TypeSet<int>& knotpos = *textureknotcoords_[stickidx];
+
+    float dist = 0;
+    int nrposused = 0;
+
+    const int firstrow = knotpos[0] + shift[stickidx] + extrashift;
+    if ( firstrow<0 )
+	return mUdf(float);
+
+    const int lastrow =
+	knotpos[knotpos.size()-1] + shift[stickidx] + extrashift;
+    if ( lastrow>=texturesize_.row )
+	return mUdf(float);
+
+    for ( int row=firstrow; row<=lastrow; row++ )
+    {
+	const Coord3 pos = getCoord( stickidx, row-shift[stickidx]-extrashift ).
+	    scaleBy(scalefacs_ );
+
+	if ( stickidx )
+	{
+	    const Coord3 prevpos =
+	     getCoord( stickidx-1, row-shift[stickidx-1] ).scaleBy(scalefacs_);
+	    if ( prevpos.isDefined() )
+	    {
+		dist += prevpos.distTo( pos );
+		nrposused++;
+	    }
+	}
+
+	if ( stickidx<sticks_.size()-1 )
+	{
+	    const Coord3 nextpos =
+	     getCoord( stickidx+1, row-shift[stickidx+1] ).scaleBy(scalefacs_);
+
+	    if ( nextpos.isDefined() )
+	    {
+		dist += nextpos.distTo( pos );
+		nrposused++;
+	    }
+	}
+    }
+
+    if ( !nrposused )
+	return mUdf(float);
+
+    return dist/nrposused;
+}
+
+
+void ExplFaultStickSurface::shiftStick( int stickidx, int nrunits )
+{
+    if ( stickidx<0 || stickidx>textureknotcoords_.size()-1 )
 	return;
 
-    updateTextureSize();
+    TypeSet<int>& knots = *textureknotcoords_[stickidx];
+    if ( nrunits+knots[knots.size()-1]>texturesize_.row )
+	return;
+
+    for ( int idx=0; idx<knots.size(); idx++ )
+	knots[idx] += nrunits;
 }
+
+
+void ExplFaultStickSurface::needUpdateTexture( bool yn )
+{
+    if ( yn== needsupdatetexture_ )
+	return;
+ 
+    needsupdatetexture_ = yn;
+    if ( needsupdatetexture_ )
+    {
+	updateTextureSize();
+	needsupdatetexture_ = false;
+    }
+}
+
+
+bool ExplFaultStickSurface::needsUpdateTexture() const
+{ return needsupdatetexture_; }
 
 
 void ExplFaultStickSurface::setMaximumTextureSize( int sz )
@@ -777,7 +1024,8 @@ const RowCol& ExplFaultStickSurface::getTextureSize() const
 
 
 bool ExplFaultStickSurface::setTexturePositions( DataPointSet& dpset )
-{ 
+{
+    updateTextureSize();
     const DataColDef texture_i( sKeyTextureI() );
     if ( dpset.dataSet().findColDef(texture_i,PosVecDataSet::NameExact)==-1 )
     {

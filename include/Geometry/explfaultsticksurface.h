@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.9 2008-06-06 16:32:27 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.10 2008-10-06 17:27:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,8 @@ public:
     void		setTexturePowerOfTwo(bool yn);
     void		setTextureSampling(const BinIDValue&);
     const RowCol&	getTextureSize() const;
-    void		needUpdateTextureSize(bool yn);
+    void		needUpdateTexture(bool yn);
+    bool		needsUpdateTexture() const;
     void		setRightHandedNormals(bool yn);
 
 
@@ -92,9 +93,15 @@ protected:
     void		updateTextureCoords();
     bool		updateTextureSize();
     int			textureColSz(const int panelidx);
+    int			sampleSize(const Coord3& p0,const Coord3& p1);
     int			point2LineSampleSz(const Coord3& point,
 	    				   const Coord3& linept0,
 					   const Coord3& linept1);
+    Coord3		getCoord(int stickidx,int texturerow) const;
+    float		getAvgDistance(int stickidx,
+	    			const TypeSet<int>& shift,int extra) const;
+    void		shiftStick(int stickidx,int nrunits);
+    void		updateStickShifting();
 
     bool		displaysticks_;
     bool		displaypanels_;
@@ -103,12 +110,14 @@ protected:
     Coord3		scalefacs_;
 
     bool					needsupdate_;
+    bool					needsupdatetexture_;
 
     ObjectSet<IndexedGeometry>			sticks_;
     ObjectSet<IndexedGeometry>			paneltriangles_;
     ObjectSet<IndexedGeometry>			panellines_;
 
-    TypeSet<int>				texturerowcoords_;
+    TypeSet<int>				stickshift_;
+    TypeSet<int>				texturecolcoords_;
     ObjectSet< TypeSet<int> >			textureknotcoords_;	
     int						maximumtexturesize_;
     RowCol					texturesize_;
