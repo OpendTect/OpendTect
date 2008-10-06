@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.265 2008-10-06 08:44:33 cvsumesh Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.266 2008-10-06 09:57:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -570,14 +570,17 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 		if ( !calc )
 		{
-		    BufferString errstr = "Selected attribute is not ";
-		    errstr += "present in the set\n and cannot be created";
+		    BufferString errstr = "Selected attribute '";
+		    errstr += myas.userRef();
+		    errstr += "' is not present in the set\n";
+		    errstr += "and cannot be created";
 		    uiMSG().error( errstr );
 		    return false;
 		}
 
 		uiTaskRunner progm( &appl_ );
-		const DataPack::ID dpid = calc->createAttrib( cs, cacheid, &progm );
+		const DataPack::ID dpid =
+		    calc->createAttrib( cs, cacheid, &progm );
 		if ( dpid==DataPack::cNoID && !calc->errmsg_.isEmpty() )
 		{
 		    uiMSG().error( calc->errmsg_ );
