@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.15 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.16 2008-10-06 17:26:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,11 +151,11 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* )
     BinIDValueSet bivs( 1, false );
     horizon_->geometry().fillBinIDValueSet( sid, bivs );
 
-    SeisEventSnapper snapper( *seisctio_.ioobj, bivs );
-    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
     Interval<float> rg = gatefld_->getFInterval();
     rg.scale( 1 / SI().zFactor() );
-    snapper.setSearchGate( rg );
+
+    SeisEventSnapper snapper( *seisctio_.ioobj, bivs, rg );
+    snapper.setEvent( VSEvent::Type(eventfld_->getIntValue()+1) );
    
     uiTaskRunner dlg( this );
     if ( !dlg.execute(snapper) )

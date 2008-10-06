@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: seiseventsnapper.h,v 1.4 2008-09-22 13:11:25 cvskris Exp $
+ RCS:           $Id: seiseventsnapper.h,v 1.5 2008-10-06 17:26:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ class SeisTrc;
 class SeisEventSnapper : public Executor
 {
 public:
-				SeisEventSnapper(const IOObj&,BinIDValueSet&);
+				SeisEventSnapper(const IOObj&,BinIDValueSet&,
+						 const Interval<float>& gate);
 				~SeisEventSnapper();
 
     void			setEvent( VSEvent::Type tp )

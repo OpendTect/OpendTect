@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: seiseventsnapper.cc,v 1.5 2008-05-13 10:38:45 cvsjaap Exp $
+ RCS:		$Id: seiseventsnapper.cc,v 1.6 2008-10-06 17:26:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,23 +19,17 @@ ________________________________________________________________________
 #include "binidvalset.h"
 
 
-SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs )
+SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs,
+       				    const Interval<float>& gate	)
     : Executor("Snapping to nearest event")
     , positions_(bvs)
+    , searchgate_(gate)
 {
-    SeisIOObjInfo info( ioobj );
-    CubeSampling cs;
-    info.getRanges( cs );
-    sd_.start = cs.zrg.start;
-    sd_.step = cs.zrg.step;
-    nrsamples_ = cs.nrZ();
-
     mscprov_ = new SeisMSCProvider( ioobj );
     mscprov_->prepareWork();
 
     const Interval<float> zrg = bvs.valRange( 0 );
-    const Interval<float> extraz( cs.zrg.start-zrg.start, cs.zrg.stop-zrg.stop);
-    mscprov_->setSelData( new Seis::TableSelData(bvs,&zrg) );
+    mscprov_->setSelData( new Seis::TableSelData(bvs,&gate) );
     totalnr_ = bvs.totalSize();
     nrdone_ = 0;
 }
@@ -78,7 +72,8 @@ int SeisEventSnapper::nextStep()
 float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 {
     SeisTrcValueSeries valseries( trc, 0 );
-    ValueSeriesEvFinder<float,float> evfinder( valseries, nrsamples_, sd_ );
+    ValueSeriesEvFinder<float,float> evfinder( valseries, trc.size(),
+					       trc.info().sampling );
     if ( eventtype_ == VSEvent::GateMax || eventtype_ == VSEvent::GateMin )
     {
 	Interval<float> gate( searchgate_ );
@@ -86,7 +81,7 @@ float SeisEventSnapper::findNearestEvent( const SeisTrc& trc, float tarz ) const
 	return evfinder.find( eventtype_, gate ).pos;
     }
 
-    Interval<float> gateabove( tarz, tarz+searchgate_.start );
+    Interval<float> gateabove( tarz+searchgate_.start, tarz );
     Interval<float> gatebelow( tarz, tarz+searchgate_.stop );
     const float eventposabove = evfinder.find( eventtype_, gateabove ).pos;
     const float eventposbelow = evfinder.find( eventtype_, gatebelow ).pos;
