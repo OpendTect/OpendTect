@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.8 2008-09-30 05:17:22 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.9 2008-10-06 04:38:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     yrgfld_->attach( alignedBelow, xrgfld_ );
 
     resetbut_ = new uiPushButton( this, "&Reset to Survey",
-	    			  mCB(this,uiGMTBaseMapGrp,resetCB), false );
+	    			  mCB(this,uiGMTBaseMapGrp,resetCB), true );
     resetbut_->attach( rightTo, yrgfld_ );
 
     xdimfld_ = new uiGenInput( this, "Map Width (cm)", FloatInpSpec() );

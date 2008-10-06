@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.13 2008-10-03 08:24:31 cvsumesh Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.14 2008-10-06 04:38:26 cvsnanne Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -116,10 +116,9 @@ void uiGMTMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
     const CallBack cb( mCB(this,uiGMTMgr,createMap) );
-    uiMenuItem* newitem = new uiMenuItem( "GMT Mapping Tool", cb );
+    uiMenuItem* newitem = new uiMenuItem( "GMT Mapping Tool ...", cb );
     appl_->menuMgr().procMnu()->insertItem( newitem );
-    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png",
-	    				   cb,
+    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png", cb,
 					   "GMT Mapping Tool" );
 }
 
