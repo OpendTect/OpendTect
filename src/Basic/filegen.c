@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.74 2008-09-29 13:23:47 cvsbert Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.75 2008-10-07 07:29:45 cvsumesh Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -191,17 +191,43 @@ int File_getKbSize( const char* fnm )
 const char* File_getTime( const char* fnm )
 {
     static char buf[64];
-#ifdef __msvc__
-    return 0;
-#else
-
     if ( !File_exists(fnm) )
 	return 0;
+
 #ifdef __win__
-    stat((char*)fnm,&statbuf);
-    // TODO: make this work on win32 (now undefined reference to ctime_r)
-    return 0;
-#endif
+
+    HANDLE hfile;
+    FILETIME ftCreate, ftAccess, ftWrite;
+    SYSTEMTIME stUTC, stLocal;
+
+    // get the file from string
+    const int len = strlen( fnm );
+    TCHAR* fname1 = (TCHAR*) malloc( (len+1) * sizeof(TCHAR) );
+    int i;
+    for ( i=0; i<len; i++ )
+	fname1[i] = (TCHAR)fnm[i];
+
+    fname1[len] = (TCHAR) '\0';
+
+    // Opening the existing file
+    hfile = CreateFile(fname1, GENERIC_READ, FILE_SHARE_READ, NULL,
+	    		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if ( hfile == INVALID_HANDLE_VALUE )
+	return 0;
+
+    if ( !GetFileTime(hfile,&ftCreate,&ftAccess,&ftWrite) )
+	return 0;
+
+    // convert the created time to local time
+    FileTimeToSystemTime( &ftWrite, &stUTC );
+    SystemTimeToTzSpecificLocalTime( NULL, &stUTC, &stLocal);
+
+    sprintf( buf, "%02d-%02d-%d %02d:%02d", stLocal.wDay, stLocal.wMonth,
+	     stLocal.wYear, stLocal.wHour, stLocal.wMinute );
+
+    return buf;
+
+#else
 
     (void)ctime_r( &statbuf.st_mtime, buf );
     return buf;
