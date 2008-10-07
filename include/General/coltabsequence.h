@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.5 2008-04-09 11:09:08 cvsnanne Exp $
+ RCS:		$Id: coltabsequence.h,v 1.6 2008-10-07 18:45:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ public:
     enum Type		{ System, User, Edited };
 
     Sequence&		operator=(const Sequence&);
-    bool		operator==(const Sequence&);
+    bool		operator==(const Sequence&) const;
+    bool		operator!=(const Sequence&) const;
 
     bool		isSys() const
     			{ return type_==System; }

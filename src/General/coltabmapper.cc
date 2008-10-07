@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.10 2008-09-24 20:03:59 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.11 2008-10-07 18:45:07 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -106,6 +106,10 @@ bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
 
     return true;
 }
+
+
+bool ColTab::MapperSetup::operator!=( const ColTab::MapperSetup& b ) const
+{ return !(*this==b); }
 
 
 ColTab::Mapper::Mapper()

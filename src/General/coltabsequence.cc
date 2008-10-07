@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.10 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.11 2008-10-07 18:45:07 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -93,7 +93,7 @@ ColTab::Sequence& ColTab::Sequence::operator=( const ColTab::Sequence& ctab )
 }
 
 
-bool ColTab::Sequence::operator==( const ColTab::Sequence& ctab )
+bool ColTab::Sequence::operator==( const ColTab::Sequence& ctab ) const
 {
    if ( ctab.name() != name() ||
 	ctab.size() != size() ||
@@ -116,6 +116,10 @@ bool ColTab::Sequence::operator==( const ColTab::Sequence& ctab )
 
    return true;
 }
+
+
+bool ColTab::Sequence::operator!=( const ColTab::Sequence& ctab ) const
+{ return !(*this==ctab); }
 
 
 Color ColTab::Sequence::color( float x ) const

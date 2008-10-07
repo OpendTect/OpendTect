@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.6 2008-09-24 20:03:59 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.7 2008-10-07 18:45:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ struct MapperSetup {
     mDefSetupClssMemb(MapperSetup,float,width);
 
     bool operator==( const MapperSetup& ) const;
+    bool operator!=( const MapperSetup& ) const;
 };
 
 
