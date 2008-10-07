@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.30 2008-07-11 09:33:21 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.31 2008-10-07 19:12:49 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ___________________________________________________________________
 #include "uiamplspectrum.h"
 #include "attribsel.h"
 #include "pixmap.h"
-#include "viscolortab.h"
 
 //TODO:remove when Flattened scene ok for 2D Viewer
 #include "emhorizonztransform.h"
@@ -364,18 +363,15 @@ void uiODDataTreeItem::updateColumnText( int col )
 }
 
 
-void uiODDataTreeItem::displayMiniCtab( int ctabid )
+void uiODDataTreeItem::displayMiniCtab( const ColTab::Sequence* seq )
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
-    mDynamicCastGet( const visBase::VisColorTab*,coltab,
-	    	     visserv->getObject( ctabid ) );
-    if ( !coltab )
+    if ( !seq )
     {
 	uiTreeItem::updateColumnText( uiODSceneMgr::cColorColumn() );
 	return;
     }
 
-    PtrMan<ioPixmap> pixmap = new ioPixmap( coltab->colorSeq().colors(),
+    PtrMan<ioPixmap> pixmap = new ioPixmap( *seq,
 	    				    cPixmapWidth(), cPixmapHeight() );
     uilistviewitem_->setPixmap( uiODSceneMgr::cColorColumn(), *pixmap );
 }

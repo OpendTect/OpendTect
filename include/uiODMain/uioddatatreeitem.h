@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.11 2008-02-04 07:09:58 cvsraman Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.12 2008-10-07 19:12:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class uiMenuHandler;
 namespace Attrib { class SelSpec; };
+namespace ColTab { class Sequence; };
 
 
 /*!Base class for a data treeitem. */
@@ -65,7 +66,7 @@ protected:
     void			updateColumnText(int col);
     virtual BufferString	createDisplayName() const		= 0;
 
-    void			displayMiniCtab( int ctabid );
+    void			displayMiniCtab( const ColTab::Sequence* );
 
     uiMenuHandler*		menu_;
     MenuItem			movemnuitem_;
