@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.13 2008-09-17 11:33:53 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.cc,v 1.14 2008-10-07 10:19:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
     : uiMainWin(p,setup.wintitle_,setup.nrstatusfields_,setup.menubar_)
 {
     createViewers( setup.nrviewers_ );
-    setDeleteOnClose( true );
+    setDeleteOnClose( setup.deleteonclose_ );
 }
 
 
