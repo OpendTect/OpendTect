@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.72 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:		$Id: emobject.h,v 1.73 2008-10-07 10:17:02 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,17 +15,17 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "callback.h"
+#include "draw.h"
 #include "emposid.h"
 #include "multiid.h"
 #include "position.h"
 #include "refcount.h"
-#include "draw.h"
 
-class IOObj;
-class Executor;
-struct CubeSampling;
-class IOObjContext;
 class Color;
+class CubeSampling;
+class Executor;
+class IOObj;
+class IOObjContext;
 
 namespace Geometry { class Element; }
 
