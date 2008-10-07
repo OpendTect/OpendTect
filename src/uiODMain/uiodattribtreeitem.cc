@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.18 2008-08-12 12:13:10 cvsnanne Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.19 2008-10-07 19:18:07 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -240,7 +240,7 @@ void uiODAttribTreeItem::updateColumnText( int col )
 	    return;
 	}
 	
-	displayMiniCtab( so->getColTabID(attribNr()) );
+	displayMiniCtab( so->getColTabSequence(attribNr()) );
     }
 
     uiODDataTreeItem::updateColumnText( col );

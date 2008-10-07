@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: externalattribrandom.cc,v 1.2 2008-07-16 17:00:28 cvskris Exp $";
+static const char* rcsID = "$Id: externalattribrandom.cc,v 1.3 2008-10-07 19:18:01 cvskris Exp $";
 
 #include "externalattribrandom.h"
 
@@ -236,7 +236,7 @@ bool uiRandomTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !select() ) return false;
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    if ( visserv->getColTabId(displayID(),attribNr()) < 0 )
+    if ( !visserv->getColTabSequence(displayID(),attribNr()) )
 	return false;
 
     ODMainWin()->applMgr().modifyColorTable( displayID(), attribNr() );
@@ -258,7 +258,8 @@ void uiRandomTreeItem::updateColumnText( int col )
 	    return;
 	}
 
-	if ( !so->hasColor() ) displayMiniCtab(so->getColTabID(attribNr()));
+	if ( !so->hasColor() )
+	    displayMiniCtab(so->getColTabSequence(attribNr()));
     }
 
     uiODDataTreeItem::updateColumnText( col );
