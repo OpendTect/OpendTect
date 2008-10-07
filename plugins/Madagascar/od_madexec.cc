@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.10 2008-09-23 11:00:52 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.11 2008-10-07 10:22:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 #include "progressmeter.h"
 #include "seistype.h"
 #include "strmprov.h"
+
+#include <iostream>
 
 
 static const char* sKeyRSFEndOfHeader = "\014\014\004";
