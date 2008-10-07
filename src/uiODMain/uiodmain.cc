@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.106 2008-09-29 16:51:00 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.107 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,7 +279,8 @@ bool uiODMain::buildUI()
     {
 	ctabwin_ = new uiDockWin( this, "Color Table" );
 	ctabed_ = new uiVisColTabEd( 0, true );
-	ctabed_->coltabChange.notify( mCB(applmgr_,uiODApplMgr,coltabChg) );
+	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
+	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
 //	ctabed_->colTabGrp()->attach( hCentered );
 	ctabwin_->setGroup( ctabed_->colTabGrp() );
 	addDockWindow( *ctabwin_, uiMainWin::Left );
@@ -288,7 +289,8 @@ bool uiODMain::buildUI()
     {
 	uiToolBar* tb = new uiToolBar( this, "Color Table" );
 	ctabed_ = new uiVisColTabEd( 0, false );
-	ctabed_->coltabChange.notify( mCB(applmgr_,uiODApplMgr,coltabChg) );
+	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
+	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
 	tb->addObject( ctabed_->colTabGrp()->attachObj() );
     }
 
@@ -490,7 +492,7 @@ void uiODMain::restoreSession( const IOObj* ioobj )
     cursession_ = &sess;
     doRestoreSession();
     cursession_ = &lastsession_; lastsession_.clear();
-    ctabed_->updateColTabList();
+    //ctabed_->updateColTabList();
     timer_.start( 200, true );
     sceneMgr().setToViewMode( true );
 }

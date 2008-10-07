@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.22 2008-08-07 03:49:30 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.23 2008-10-07 21:49:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "coltab.h"
 #include "color.h"
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "datainpspec.h"
 #include "flatview.h"
 #include "iopar.h"
@@ -39,16 +40,17 @@ ________________________________________________________________________
 	, scaleChanged(this) \
 	, minfld_(0) \
 	, maxfld_(0) \
-	, enabmanage_(true) \
-	, autoscale_(true) \
-	, symmidval_(mUdf(float)) \
-	, cliprate_(ColTab::defClipRate())
+	, enabmanage_(true)
 
 
-uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
+uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool vert )
     : uiGroup(p,"Color table display/edit")
     , mStdInitList
-    , coltabseq_(*new ColTab::Sequence(colseq))
+    , coltabseq_( *new ColTab::Sequence(colseq) )
+    , mapsetup_ ( *new ColTab::MapperSetup(ColTab::MapperSetup().
+	    type( ColTab::MapperSetup::Auto ).
+	    symmidval( mUdf(float) ).
+	    cliprate( ColTab::defClipRate() ) ))
 {
     minfld_ = new uiLineEdit( this, "Min" );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
@@ -95,7 +97,11 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
     : uiGroup(p,"Color table display")
     , mStdInitList
-    , coltabseq_(*new ColTab::Sequence())
+    , coltabseq_( *new ColTab::Sequence )
+    , mapsetup_ ( *new ColTab::MapperSetup(ColTab::MapperSetup().
+	    type( ColTab::MapperSetup::Auto ).
+	    symmidval( mUdf(float) ).
+	    cliprate( ColTab::defClipRate() ) ))
 {
     ColTab::SM().get( ctnm, coltabseq_ );
     canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
@@ -113,51 +119,79 @@ uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
 uiColorTable::~uiColorTable()
 {
     delete &coltabseq_;
+    delete &mapsetup_;
 }
 
 
 void uiColorTable::setDispPars( const FlatView::DataDispPars::VD& disppar )
 {
-    setAutoScale( disppar.autoscale_ );
-    setClipRate( disppar.clipperc_.start * 0.01 );
-    setSymMidval( disppar.symmidvalue_ );
-    setInterval( disppar.rg_ );
+    mapsetup_.type_ = disppar.autoscale_ ? ColTab::MapperSetup::Auto
+					 : ColTab::MapperSetup::Fixed;
+    mapsetup_.cliprate_ = disppar.clipperc_.start * 0.01;
+    mapsetup_.symmidval_ = disppar.symmidvalue_;
+    mapsetup_.start_ =  disppar.rg_.start;
+    mapsetup_.width_ =  disppar.rg_.width( false );
 }
 
 
 void uiColorTable::getDispPars( FlatView::DataDispPars::VD& disppar ) const
 {
-    disppar.autoscale_ = autoScale();
-    disppar.clipperc_ = Interval<float>( getClipRate() * 100, mUdf(float) );
-    disppar.symmidvalue_ = getSymMidval();
+    disppar.autoscale_ = mapsetup_.type_!=ColTab::MapperSetup::Fixed;
+    disppar.clipperc_ = Interval<float>(mapsetup_.cliprate_* 100, mUdf(float) );
+    disppar.symmidvalue_ = mapsetup_.symmidval_;
     if ( !disppar.autoscale_ )
-	disppar.rg_ = getInterval();
+    {
+	disppar.rg_ =
+	    Interval<float>(mapsetup_.start_,mapsetup_.start_+mapsetup_.width_);
+    }
 }
 
 
 void uiColorTable::setInterval( const Interval<float>& range )
 {
-    if ( !minfld_ ) return;
-    coltabrg_ = range;
+    mapsetup_.start_ =  range.start;
+    mapsetup_.width_ =  range.width( false );
 
-    minfld_->setValue( coltabrg_.start );
-    maxfld_->setValue( coltabrg_.stop );
+    updateRgFld();
 }
 
 
-void uiColorTable::setTable( const char* tblnm, bool emitnotif )
+void uiColorTable::updateRgFld()
+{
+    if ( !minfld_ ) return;
+
+    minfld_->setValue( mapsetup_.start_ );
+    maxfld_->setValue( mapsetup_.start_ + mapsetup_.width_ );
+}
+
+
+void uiColorTable::setSequence( const char* tblnm, bool emitnotif )
 {
     ColTab::Sequence colseq( tblnm );
-    setTable( colseq );
+    setSequence( colseq, emitnotif );
 }
 
 
-void uiColorTable::setTable( const ColTab::Sequence& ctseq, bool emitnotif )
+void uiColorTable::setSequence( const ColTab::Sequence& ctseq, bool emitnotif )
 {
     coltabseq_ = ctseq;
     selfld_->setCurrentItem( coltabseq_.name() );
     canvas_->forceNewFill();
+    if ( !emitnotif )
+	seqChanged.trigger();
 }
+
+
+void uiColorTable::setMapperSetup( const ColTab::MapperSetup& ms,
+				   bool emitnotif )
+{
+    mapsetup_ = ms;
+    updateRgFld();
+
+    if ( !emitnotif )
+	scaleChanged.trigger();
+}
+
 
 
 void uiColorTable::setHistogram( const TypeSet<float>* hist )
@@ -192,7 +226,7 @@ void uiColorTable::tabSel( CallBacker* )
 {
     const int cbidx = selfld_->currentItem();
     const char* seqnm = selfld_->textOfItem( cbidx );
-    setTable( seqnm );
+    setSequence( seqnm );
     seqChanged.trigger();
 }
 
@@ -226,9 +260,9 @@ void uiColorTable::canvasClick( CallBacker* )
 
 void uiColorTable::rangeEntered( CallBacker* )
 {
-    coltabrg_.start = minfld_->getfValue();
-    coltabrg_.stop = maxfld_->getfValue();
-    autoscale_ = false;
+    mapsetup_.start_ = minfld_->getfValue();
+    mapsetup_.width_ = maxfld_->getfValue() - mapsetup_.start_;
+    mapsetup_.type_ = ColTab::MapperSetup::Fixed;
     scaleChanged.trigger();
 }
 
@@ -299,36 +333,57 @@ bool saveDef()
 
 void uiColorTable::editScaling( CallBacker* )
 {
-    uiAutoRangeClipDlg dlg( this, autoscale_, cliprate_, symmidval_ );
+    uiAutoRangeClipDlg dlg( this, mapsetup_.type_!=ColTab::MapperSetup::Fixed,
+	    		    mapsetup_.cliprate_, mapsetup_.symmidval_ );
     if ( dlg.go() )
     {
-	autoscale_ = dlg.doclipfld->getBoolValue();
-	cliprate_ = dlg.clipfld->getfValue() * 0.01;
+	mapsetup_.type_ = dlg.doclipfld->getBoolValue()
+	    ? ColTab::MapperSetup::Auto
+	    : ColTab::MapperSetup::Fixed;
+
+	mapsetup_.cliprate_ = dlg.clipfld->getfValue() * 0.01;
 	const bool symmetry = dlg.symmfld->getBoolValue();
-	symmidval_ = symmetry ? dlg.midvalfld->getfValue() : mUdf(float);
+	mapsetup_.symmidval_ = symmetry
+	    ? dlg.midvalfld->getfValue()
+	    : mUdf(float);
 	if ( dlg.saveDef() )
-	    ColTab::setMapperDefaults( cliprate_, symmidval_ );
+	{
+	    ColTab::setMapperDefaults( mapsetup_.cliprate_,
+		    		       mapsetup_.symmidval_ );
+	}
+
 	scaleChanged.trigger();
     }
 }
 
 
 void uiColorTable::doFlip( CallBacker* )
-{
-    Swap( coltabrg_.start, coltabrg_.stop );
-    autoscale_ = false;
+{ 
+    mapsetup_.start_ += mapsetup_.width_;
+    mapsetup_.width_ *= -1;
+    mapsetup_.type_ = ColTab::MapperSetup::Fixed;
+
+    updateRgFld();
     scaleChanged.trigger();
-    setInterval( coltabrg_ );
 }
 
 
 void uiColorTable::makeSymmetrical( CallBacker* )
 {
-    float maxval = fabs(coltabrg_.start) > fabs(coltabrg_.stop)
-		 ? fabs(coltabrg_.start) : fabs(coltabrg_.stop);
-    bool flipped = coltabrg_.stop < coltabrg_.start;
-    coltabrg_.start = flipped ? maxval : -maxval;
-    coltabrg_.stop = flipped ? -maxval : maxval;
+    Interval<float> rg( mapsetup_.start_, mapsetup_.start_ + mapsetup_.width_ );
+    const float maxval = fabs(rg.start) > fabs(rg.stop)
+		     ? fabs(rg.start) : fabs(rg.stop);
+    bool flipped = rg.stop < rg.start;
+    rg.start = flipped ? maxval : -maxval;
+    rg.stop = flipped ? -maxval : maxval;
+
+    mapsetup_.start_ =  rg.start;
+    mapsetup_.width_ =  rg.width( false );
+    mapsetup_.type_ = ColTab::MapperSetup::Fixed;
+
+    updateRgFld();
+
+    scaleChanged.trigger();
 }
 
 

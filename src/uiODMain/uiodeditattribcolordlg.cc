@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.10 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.11 2008-10-07 21:49:01 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ___________________________________________________________________
 
 #include "coltab.h"
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "uicolortable.h"
 #include "uibutton.h"
 #include "mousecursor.h"
@@ -29,6 +30,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     : uiDialog(p,uiDialog::Setup("Color Settings",mNoDlgTitle,mTODOHelpID))
     , items_(set)
     , itemusedineditor_(-1)
+    , uicoltab_( 0 )
 {
     setCtrlStyle( LeaveOnly );
 
@@ -39,61 +41,76 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 	setTitleText( titletext );
     }
 
-    visBase::VisColorTab* ctabobj = 0;
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+
+    const ColTab::Sequence* colseq = 0;
+    const ColTab::MapperSetup* colmapsetup = 0;
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODAttribTreeItem*,item,items_[idx])
 	if ( !item ) continue;
 
-	const int id =
-	    ODMainWin()->applMgr().visServer()->getColTabId( item->displayID(),
-							    item->attribNr() );
-	if ( id < 0 ) continue;
-	mDynamicCastGet(visBase::VisColorTab*,obj,visBase::DM().getObject(id))
-	if ( !obj ) continue;
+	colseq =
+	    visserv->getColTabSequence( item->displayID(), item->attribNr() );
 
-	ctabobj = obj;
+	if ( !colseq )
+	    continue;
+
+	colmapsetup =
+	    visserv->getColTabMapperSetup( item->displayID(), item->attribNr());
+
+	if ( !colmapsetup )
+	    continue;
+
 	itemusedineditor_ = idx;
 	break;
     }
 
-    ColTab::Sequence ctab = ctabobj->colorSeq().colors();
-    uicoltab_ = new uiColorTable( this, ctab, true );
-    uicoltab_->setAutoScale( ctabobj->autoScale() );
-    uicoltab_->setClipRate( ctabobj->clipRate() );
-    uicoltab_->setSymMidval( ctabobj->symMidval() );
-    uicoltab_->setInterval( ctabobj->getInterval() );
-    uicoltab_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,doApply) );
-    uicoltab_->scaleChanged.notify( mCB(this,uiODEditAttribColorDlg,doApply) );
+    if ( !colseq || !colmapsetup )
+    {
+	pErrMsg( "Something is not as it should" );
+	return;
+    }
+
+    uicoltab_ = new uiColorTable( this, *colseq, true );
+    uicoltab_->setMapperSetup( *colmapsetup );
 }
 
 
 void uiODEditAttribColorDlg::doApply( CallBacker* )
 {
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    ColTab::Sequence coltab = uicoltab_->colTabSeq();
-    const bool autoscale = uicoltab_->autoScale();
-    const Interval<float> intv = uicoltab_->getInterval();
-    const float cliprate = uicoltab_->getClipRate();
-    const float symval = uicoltab_->getSymMidval();
+    const ColTab::Sequence& newcoltab = uicoltab_->colTabSeq();
+    const ColTab::MapperSetup& newcolmapsetup = uicoltab_->colTabMapperSetup();
+
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODAttribTreeItem*,item,items_[idx])
 	if ( !item ) continue;
 
-	const int id = 
-	    ODMainWin()->applMgr().visServer()->getColTabId( item->displayID(),
-							    item->attribNr() );
-	if ( id < 0 ) continue;
-	mDynamicCastGet(visBase::VisColorTab*,obj,visBase::DM().getObject(id))
-	if ( !obj ) continue;
+	const int did = item->displayID();
+	const int anr = item->attribNr();
 
-	if ( !(coltab == obj->colorSeq().colors()) )
-	{
-	    obj->colorSeq().colors() = coltab;
-	    obj->colorSeq().colorsChanged();
-	    obj->triggerSeqChange();
-	}
+	const ColTab::Sequence* colseq = visserv->getColTabSequence( did, anr );
+
+	if ( !colseq )
+	    continue;
+
+	const ColTab::MapperSetup* colmapsetup =
+	    visserv->getColTabMapperSetup( did, anr );
+
+	if ( !colmapsetup )
+	    continue;
+
+	if ( *colseq!=newcoltab )
+	    visserv->setColTabSequence( did, anr, newcoltab );
+
+	if ( *colmapsetup!=newcolmapsetup )
+	    visserv->setColTabMapperSetup( did, anr, newcolmapsetup );
+
+	/*TODO: Raman I don't really understand what's happening here
 	if ( obj->autoScale()!=autoscale || obj->clipRate()!=cliprate
 	  				 || obj->symMidval()!=symval )
 	{
@@ -109,8 +126,7 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
 		uicoltab_->setTable( newcoltab );
 	    }
 	}
-	if ( !autoscale && obj->getInterval() != intv )
-	    obj->scaleTo( intv );
+	*/
 
 	items_[idx]->updateColumnText( uiODSceneMgr::cColorColumn() );
     }

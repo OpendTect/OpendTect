@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.19 2008-10-07 19:18:07 cvskris Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.20 2008-10-07 21:49:01 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !select() ) return false;
 
     uiVisPartServer* visserv = applMgr()->visServer();
-    if ( visserv->getColTabId(displayID(),attribNr()) < 0 )
+    if ( !visserv->getColTabSequence(displayID(),attribNr()) )
 	return false;
 //  if ( !visserv->isClassification( displayID(), attribNr() ) )
     applMgr()->modifyColorTable( displayID(), attribNr() );

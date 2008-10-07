@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.34 2008-09-09 10:52:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.35 2008-10-07 21:49:02 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -33,36 +33,36 @@ const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
 const char* uiVisColTabEd::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
-    : viscoltab_(0)
-    , colseq_(*new ColTab::Sequence(""))
-    , coltabcb(mCB(this,uiVisColTabEd,colTabChangedCB))
-    , sequenceChange(this)
-    , coltabChange(this)
 {
-    uicoltab_ = new uiColorTable( p, colseq_, vert );
+    const ColTab::Sequence colseq("");
+    uicoltab_ = new uiColorTable( p, colseq, vert );
     if ( !vert ) uicoltab_->setStretch( 0, 0 );
-    uicoltab_->seqChanged.notify( mCB(this,uiVisColTabEd,colTabEdChangedCB) );
-    uicoltab_->scaleChanged.notify( mCB(this,uiVisColTabEd,colTabEdChangedCB) );
-    visBase::DM().removeallnotify.notify( mCB(this,uiVisColTabEd,delColTabCB) );
-    setColTab( -1 );
-    coltabChange.trigger();
 }
 
 
 uiVisColTabEd::~uiVisColTabEd()
 {
-    visBase::DM().removeallnotify.remove( mCB(this,uiVisColTabEd,delColTabCB) );
-    setColTab( -1 );
     delete uicoltab_;
 }
 
 
-int uiVisColTabEd::getColTab() const
-{ return viscoltab_ ? viscoltab_->id() : -1; }
-
-
-void uiVisColTabEd::setColTab( int id )
+void uiVisColTabEd::setColTab( const ColTab::Sequence* seq,
+			       const ColTab::MapperSetup* setup )
 {
+    bool enabled;
+    if ( seq && setup )
+    {
+	uicoltab_->setSequence( *seq, true );
+	uicoltab_->setMapperSetup( *setup, true );
+
+	enabled = true;
+    }
+    else
+    {
+	enabled = false;
+    }
+    /*TODO trigger something
+
     if ( viscoltab_&& viscoltab_->id()==id ) return;
 
     visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
@@ -87,8 +87,26 @@ void uiVisColTabEd::setColTab( int id )
 	uicoltab_->setTable( viscoltab_->colorSeq().colors() );
         uicoltab_->setInterval( viscoltab_->getInterval() );
     }
-    uicoltab_->setSensitive( viscoltab_ );
+    */
+    uicoltab_->setSensitive( enabled );
+
 }
+
+
+const ColTab::Sequence& uiVisColTabEd::getColTabSequence() const
+{ return uicoltab_->colTabSeq(); }
+
+
+const ColTab::MapperSetup& uiVisColTabEd::getColTabMapperSetup() const
+{ return uicoltab_->colTabMapperSetup(); }
+
+
+NotifierAccess& uiVisColTabEd::seqChange()
+{ return uicoltab_->seqChanged; }
+
+
+NotifierAccess& uiVisColTabEd::mapperChange()
+{ return uicoltab_->scaleChanged; }
 
 
 void uiVisColTabEd::setHistogram( const TypeSet<float>* hist )
@@ -105,7 +123,7 @@ void uiVisColTabEd::setPrefHeight( int height )
 void uiVisColTabEd::setPrefWidth( int width )
 { uicoltab_->setPrefWidth( width ); }
 
-
+/*
 void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 {
     if ( !viscoltab_ ) return;
@@ -174,14 +192,11 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 }
 
 
+
 void uiVisColTabEd::colTabChangedCB( CallBacker* cb )
 {
     updateEditor(); 
 }
-
-
-void uiVisColTabEd::delColTabCB( CallBacker* )
-{ setColTab( -1 ); }
 
 
 void uiVisColTabEd::updateEditor()
@@ -217,13 +232,13 @@ void uiVisColTabEd::disableCallBacks()
 }
 
 
-void uiVisColTabEd::updateColTabList()
-{ //coltabed_->updateColTabList();
-}
-
+*/
 
 bool uiVisColTabEd::usePar( const IOPar& par )
 {
+    return true;
+    /*
+    
     BufferString coltabname;
     if ( !par.get(sKeyColorSeq(),coltabname) ) return false;
 
@@ -255,11 +270,13 @@ bool uiVisColTabEd::usePar( const IOPar& par )
 
     colTabEdChangedCB( 0 );
     return true;
+    */
 }
 
 
 void uiVisColTabEd::fillPar( IOPar& par )
 {
+    /*
     par.set( sKeyColorSeq(), colseq_.name() );
     par.setYN( sKeyAutoScale(), coltabautoscale_ );
     if ( coltabautoscale_ )
@@ -269,6 +286,7 @@ void uiVisColTabEd::fillPar( IOPar& par )
     }
     else
 	par.set( sKeyScaleFactor(), coltabinterval_ );
+    */
 }
 
 /*void uiVisColTabEd::setDefaultColTab()
@@ -289,14 +307,14 @@ uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid,
 	, winClosing( this )
 	, coltabed_( new uiVisColTabEd(this,true) )
 {
-    coltabed_->setColTab( coltabid );
+    //coltabed_->setColTab( coltabid );
     //coltabed_->setPrefHeight( 320 );
 }
 
 
 void uiColorBarDialog::setColTab( int id )
 {
-    coltabed_->setColTab( id );
+    //coltabed_->setColTab( id );
 }
 
 

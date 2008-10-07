@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.89 2008-09-22 12:54:23 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.90 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -164,7 +164,6 @@ public:
 						 const ColTab::MapperSetup&);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
     virtual void		setColTabSequence(int,const ColTab::Sequence&);
-    virtual int			getColTabID(int attrib) const	 { return -1; }
     virtual bool 		isClassification(int attr) const {return false;}
     virtual void		setClassification(int attrib,bool yn)	{}
     virtual bool 		isAngle(int attrib) const	 {return false;}

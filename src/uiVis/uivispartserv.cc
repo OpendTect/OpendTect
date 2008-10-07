@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.375 2008-09-23 21:35:34 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.376 2008-10-07 21:49:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "attribsel.h"
 #include "binidvalset.h"
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "flatview.h"
 #include "iopar.h"
 #include "oddirs.h"
@@ -391,10 +392,15 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     sendEvent( evSelection );
     sendEvent( evPickingStatusChange );
 
-    mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id))
-    if ( so && so->getScene() && selattrib_>=0 )
-	so->getScene()->getSceneColTab()->setColTabID(
-		so->getColTabID(selattrib_) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
+
+
+    if ( so && so->getScene() )
+    {
+	const ColTab::Sequence* seq = so->getColTabSequence(selattrib_);
+	if ( seq )
+	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
+    }
 }
 
 
@@ -706,13 +712,6 @@ void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
 }
 
 
-int uiVisPartServer::getColTabId( int id, int attrib ) const
-{
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    return so ? so->getColTabID( attrib ) : -1;
-}
-
-
 const ColTab::MapperSetup*
 uiVisPartServer::getColTabMapperSetup( int id, int attrib ) const
 {
@@ -748,19 +747,22 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
 }
 
 
-void uiVisPartServer::fillDispPars( int id, int attr,
+void uiVisPartServer::fillDispPars( int id, int attrib,
 				    FlatView::DataDispPars& pars ) const
 {
-    const int ctid = getColTabId( id, attr );
-    mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(ctid))
-    if ( !coltab ) return;
+    const ColTab::MapperSetup* mapper = getColTabMapperSetup( id, attrib );
+    const ColTab::Sequence* seq = getColTabSequence( id, attrib );
+    if ( !mapper || !seq )
+	return;
 
-    pars.vd_.ctab_ = coltab->colorSeq().colors().name();
+    pars.vd_.ctab_ = seq->name();
     pars.vd_.clipperc_ = pars.wva_.clipperc_ =
-	Interval<float>( coltab->clipRate()*100, mUdf(float) );
-    pars.vd_.autoscale_ = pars.wva_.autoscale_ = coltab->autoScale();
-    pars.vd_.rg_ = pars.wva_.rg_ = coltab->getInterval();
-    pars.vd_.symmidvalue_ = pars.wva_.symmidvalue_ = coltab->symMidval();
+	Interval<float>( mapper->cliprate_, mUdf(float) );
+    pars.vd_.autoscale_ = pars.wva_.autoscale_ =
+	mapper->type_!=ColTab::MapperSetup::Fixed;
+    pars.vd_.rg_ = pars.wva_.rg_ = Interval<float>( mapper->start_,
+	    mapper->start_+mapper->width_ );
+    pars.vd_.symmidvalue_ = pars.wva_.symmidvalue_ = mapper->symmidval_;
 }
 
 
@@ -1400,6 +1402,7 @@ void uiVisPartServer::setUpConnections( int id )
 
     if ( so )
     {
+	/*
 	for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
 	{
 	    mDynamicCastGet(visBase::VisColorTab*,coltab,
@@ -1408,6 +1411,7 @@ void uiVisPartServer::setUpConnections( int id )
 		coltab->sequencechange.notify(mCB(this,uiVisPartServer,
 						  colTabChangeCB));
 	}
+	*/
     }
 }
 
@@ -1425,6 +1429,7 @@ void uiVisPartServer::removeConnections( int id )
 	vo->rightClicked()->remove( mCB(this,uiVisPartServer,rightClickCB) );
     if ( !so ) return;
 
+	/*
     for ( int attrib=so->nrAttribs()-1; attrib>=0; attrib-- )
     {
 	mDynamicCastGet(visBase::VisColorTab*,coltab,
@@ -1433,6 +1438,7 @@ void uiVisPartServer::removeConnections( int id )
 	    coltab->sequencechange.remove(
 				    mCB(this,uiVisPartServer,colTabChangeCB) );
     }
+				    */
 }
 
 

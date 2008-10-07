@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.9 2008-05-29 11:55:19 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.h,v 1.10 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,14 +19,14 @@ class uiColorTableCanvas;
 class uiComboBox;
 class uiLineEdit;
 
-namespace ColTab { class Sequence; }
+namespace ColTab { class Sequence; class MapperSetup; }
 //namespace FlatView { class DataDispPars::VD; }
 
 class uiColorTable : public uiGroup
 {
 public:
 
-			uiColorTable(uiParent*,ColTab::Sequence& colseq,
+			uiColorTable(uiParent*,const ColTab::Sequence& colseq,
 				     bool vertical);
 			   //!< Editable
 			uiColorTable(uiParent*,const char*,bool vertical );
@@ -34,21 +34,17 @@ public:
 			~uiColorTable();
 
     const ColTab::Sequence&	colTabSeq() const	{ return coltabseq_;}
-    ColTab::Sequence&		colTabSeq()    		{ return coltabseq_;}
+    const ColTab::MapperSetup&	colTabMapperSetup() const { return mapsetup_; }
 
-    void		setTable(const char*,bool emitnotif=true);
-    void		setTable(const ColTab::Sequence&,bool emitnotif=true);
+    void		setSequence(const char*,bool emitnotif=true);
+    void		setSequence(const ColTab::Sequence&,
+	    			    bool emitnotif=true);
+    void		setMapperSetup(const ColTab::MapperSetup&,
+	    			       bool emitnotif=true);
     void		setHistogram(const TypeSet<float>*);
     void		setInterval(const Interval<float>&);
-    const Interval<float> getInterval()	const		{ return coltabrg_; }
 
     void                setEnabManage( bool yn )	{ enabmanage_ = yn; }
-    void                setAutoScale( bool yn )		{ autoscale_ = yn; }
-    bool                autoScale() const		{ return autoscale_; }
-    void                setClipRate( float r )		{ cliprate_ = r; }
-    float               getClipRate() const		{ return cliprate_; }
-    void                setSymMidval( float val )	{ symmidval_ = val; }
-    float               getSymMidval() const		{ return symmidval_; }
 
     void		setDispPars(const FlatView::DataDispPars::VD&);
     void		getDispPars(FlatView::DataDispPars::VD&) const;
@@ -58,13 +54,10 @@ public:
 
 protected:
 
-    bool		autoscale_;
-    float		cliprate_;
-    float		symmidval_;
     bool		enabmanage_;
 
+    ColTab::MapperSetup& mapsetup_;
     ColTab::Sequence&	coltabseq_;
-    Interval<float> 	coltabrg_;
 
     TypeSet<float>	histogram_;
     uiColorTableCanvas*	canvas_;
@@ -72,6 +65,7 @@ protected:
     uiLineEdit*		maxfld_;
     uiComboBox*		selfld_;
 
+    void		updateRgFld();
     void		canvasClick(CallBacker*);
     void		tabSel(CallBacker*);
     void		tableAdded(CallBacker*);

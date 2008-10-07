@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.16 2008-04-08 09:23:43 cvsnanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.17 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 namespace visBase { class VisColorTab; }
-namespace ColTab { class Sequence; }
+namespace ColTab { class Sequence; class MapperSetup; }
 class uiColorTable;
 class uiGroup;
 class IOPar;
@@ -28,21 +28,22 @@ public:
     				uiVisColTabEd(uiParent*,bool vert=true);
 				~uiVisColTabEd();
 
-    int				getColTab() const;
-    visBase::VisColorTab*	getColTab() 		{ return viscoltab_; }
-    void			setColTab(int coltabid);
+    void			setColTab(const ColTab::Sequence*,
+	    				  const ColTab::MapperSetup*);
+    const ColTab::Sequence&	getColTabSequence() const;
+    const ColTab::MapperSetup&	getColTabMapperSetup() const;
+
+    NotifierAccess&		seqChange();
+    NotifierAccess&		mapperChange();
+    
     void			setHistogram(const TypeSet<float>*);
     void			setPrefHeight(int);
     void			setPrefWidth(int);
-    void			updateColTabList();
     uiGroup*			colTabGrp()	{ return (uiGroup*)uicoltab_; }
 
     bool			usePar(const IOPar&);
     void                        fillPar(IOPar&);
     void			setDefaultColTab();
-
-    Notifier<uiVisColTabEd>	sequenceChange;
-    Notifier<uiVisColTabEd>	coltabChange;
 
     static const char*          sKeyColorSeq();
     static const char*          sKeyScaleFactor();
@@ -50,29 +51,13 @@ public:
     static const char*          sKeyAutoScale();
     static const char*          sKeySymmetry();
     static const char*          sKeySymMidval();
-    void			colTabEdChangedCB(CallBacker*);
     void			colseqChanged(CallBacker*);
     void			colorTabChgdCB(CallBacker*);
-    void			colTabChangedCB(CallBacker*);
     void			clipperChanged(CallBacker*);
 
 protected:
 
-    void			delColTabCB(CallBacker*);
-    void			updateEditor();
-    void			enableCallBacks();
-    void			disableCallBacks();
-
-    const CallBack		coltabcb;
-
-    visBase::VisColorTab*	viscoltab_;
     uiColorTable*		uicoltab_;
-
-    ColTab::Sequence&		colseq_;
-    Interval<float>		coltabinterval_;
-    bool			coltabautoscale_;
-    float			coltabcliprate_;
-    float			coltabsymidval_;
 };
 
 

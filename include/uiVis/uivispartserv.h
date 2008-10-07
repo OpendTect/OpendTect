@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.208 2008-09-23 21:35:34 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.209 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,7 +236,6 @@ public:
     static const int	evToHomePos;
 
     				// ColorTable stuff
-    int				getColTabId(int id,int attrib ) const;
     void			fillDispPars(int id,int attrib,
 	    				     FlatView::DataDispPars&) const;
     const ColTab::MapperSetup*	getColTabMapperSetup(int id,int) const;

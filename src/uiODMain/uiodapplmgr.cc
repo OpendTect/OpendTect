@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.266 2008-10-06 09:57:55 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.267 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -511,8 +511,8 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
 {
     if ( appl_.isRestoringSession() ) return;
 
-    const int coltabid = visserv_->getColTabId( visid, attrib );
-    appl_.colTabEd().setColTab( coltabid );
+    appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
+				visserv_->getColTabMapperSetup(visid,attrib) );
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as ) return;
 
@@ -1302,24 +1302,47 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
     if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	return;
 
-    appl_.colTabEd().setColTab( visserv_->getColTabId(visid,attrib) );
+    coltabvisid_ = visid;
+    coltabattribnr_ = attrib;
+
+    appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
+				visserv_->getColTabMapperSetup(visid,attrib) );
     setHistogram( visid, attrib );
 }
 
 
-void uiODApplMgr::coltabChg( CallBacker* )
+void uiODApplMgr::colSeqChg( CallBacker* )
 {
     const int visid = visserv_->getEventObjId();
     int attrib = visserv_->getSelAttribNr();
     if ( attrib == -1 ) attrib = 0;
     setHistogram( visid, attrib );
     sceneMgr().updateSelectedTreeItem();
+
+    visserv_->setColTabSequence( visid, attrib,
+	    appl_.colTabEd().getColTabSequence() );
+}
+
+
+void uiODApplMgr::colMapperChg( CallBacker* )
+{
+    const int visid = visserv_->getEventObjId();
+    int attrib = visserv_->getSelAttribNr();
+    if ( attrib == -1 ) attrib = 0;
+
+    visserv_->setColTabMapperSetup( visid, attrib,
+	    appl_.colTabEd().getColTabMapperSetup() );
+    setHistogram( visid, attrib );
+
+    //Autoscale may have changed ranges, so update.
+    appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
+				visserv_->getColTabMapperSetup(visid,attrib) );
 }
 
 
 NotifierAccess* uiODApplMgr::colorTableSeqChange()
 {
-    return &appl_.colTabEd().sequenceChange;
+    return &appl_.colTabEd().seqChange();
 }
 
 

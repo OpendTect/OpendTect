@@ -3,7 +3,7 @@ ___________________________________________________________________
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Satyaki Maitra
  * DATE     : May 2008
- * RCS	    : $Id: uiflatviewcoltabed.cc,v 1.2 2008-08-07 03:51:21 cvsnanne Exp $
+ * RCS	    : $Id: uiflatviewcoltabed.cc,v 1.3 2008-10-07 21:49:01 cvskris Exp $
 ___________________________________________________________________
 -*/
 
@@ -41,7 +41,7 @@ uiFlatViewColTabEd::~uiFlatViewColTabEd()
 
 void uiFlatViewColTabEd::setColTab()
 {
-    uicoltab_->setTable( ddpars_.vd_.ctab_ );
+    uicoltab_->setSequence( ddpars_.vd_.ctab_ );
     uicoltab_->setDispPars( ddpars_.vd_ );
 }
 

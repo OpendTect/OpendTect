@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.33 2008-08-07 04:54:23 cvsnanne Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.34 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -414,7 +414,7 @@ void uiFVVDPropTab::handleFieldDisplay( bool dodisp )
 void uiFVVDPropTab::putToScreen()
 {
     ColTab::SM().get( pars_.ctab_, ctab_ );
-    uicoltab_->setTable( ctab_ );
+    uicoltab_->setSequence( ctab_ );
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();
     const bool udfrg = mIsUdf( pars.rg_.start ) && mIsUdf( pars.rg_.stop );
