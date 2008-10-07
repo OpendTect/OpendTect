@@ -4,13 +4,14 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.6 2008-10-06 18:20:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.7 2008-10-07 21:48:00 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
 #include "cubicbeziercurve.h"
 #include "polygon.h"
 #include "trigonometry.h"
+#include "survinfo.h"
 
 namespace Geometry
 {
@@ -188,13 +189,15 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	return;
 
     TypeSet<Coord3> knots;
+    const Coord3 scale( 1, 1, SI().zFactor() );
+    const Coord3 scaleback( 1, 1, 1.0/SI().zFactor() );
     for ( int idx=0; idx<(*polygons_[polygonidx]).size(); idx++ )
-    	knots += (*polygons_[polygonidx])[idx];
+    	knots += (*polygons_[polygonidx])[idx].scaleBy( scale );
 
     if ( knots.size()<3 )
     {
 	for ( int idx=0; idx<knots.size(); idx++ )
-	    pts += knots[idx];
+	    pts += knots[idx].scaleBy(scaleback);
 
 	return;
     }
@@ -210,9 +213,12 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	const Coord3 nexpos = knots[knot==knots.size()-1 ? 0 : knot+1];
 	curve.setTangentInfluence( ((prvpos-nexpos).abs())/4.0 );
 
-        pts += knots[knot];	
+        pts += knots[knot].scaleBy(scaleback);	
 	for ( int nr=1; nr<nrknotsonedge; nr++ )
-	    pts += curve.computePosition( knot+nr*1.0/(float)nrknotsonedge);
+	{
+	    Coord3 pt = curve.computePosition(knot+nr*1.0/(float)nrknotsonedge);
+	    pts += pt.scaleBy(scaleback);
+	}
     }
 }
 

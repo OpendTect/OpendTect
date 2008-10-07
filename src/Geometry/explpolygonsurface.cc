@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.7 2008-10-07 14:17:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.8 2008-10-07 21:48:00 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -169,9 +169,9 @@ char ExplPolygonSurface::locationToSurface( const Coord3 pt )
     Coord3 intersectpt0 = Coord3::udf(), intersectpt1 = Coord3::udf();
     for ( int idx=0; idx<sampleindices_.size()/3; idx++ )
     {
-	const Coord3 v0 = samples_[sampleindices_[3*idx]];
-	const Coord3 v1 = samples_[sampleindices_[3*idx+1]];
-	const Coord3 v2 = samples_[sampleindices_[3*idx+2]];
+	const Coord3 v0 = samples_[sampleindices_[3*idx]].scaleBy(scalefacs_);
+	const Coord3 v1 = samples_[sampleindices_[3*idx+1]].scaleBy(scalefacs_);
+	const Coord3 v2 = samples_[sampleindices_[3*idx+2]].scaleBy(scalefacs_);
 
 	if ( mIsZero((v0-scaledpt).sqAbs(),1e-6) || 
 	     mIsZero((v1-scaledpt).sqAbs(),1e-6) ||

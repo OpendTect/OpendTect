@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.10 2008-09-25 17:19:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: cubicbeziercurve.cc,v 1.11 2008-10-07 21:48:00 cvsyuancheng Exp $";
 
 #include "cubicbeziercurve.h"
 
@@ -251,8 +251,10 @@ Coord3 CubicBezierCurve::getBezierVertex( GeomPosID pid, bool before ) const
     const Coord3 dir = getTangent(pid,true);
     if ( !dir.isDefined() ) return dir;
     
-    if ( before ) return basepos-dir.normalize()*directioninfluence;
-    return basepos+dir.normalize()*directioninfluence;
+    if ( before ) 
+	return basepos-dir.normalize()*directioninfluence;
+    else
+    	return basepos+dir.normalize()*directioninfluence;
 }
 
 
@@ -357,7 +359,7 @@ Coord3 CubicBezierCurve::computeTangent( GeomPosID param ) const
     if ( c0.distTo(c1)<mEPS )
 	return Coord3::udf();
 
-    return (c1-c0)/(diff)*directioninfluence;
+    return (c1-c0)/diff;
 }
 
 
