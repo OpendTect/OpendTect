@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: explpolygonsurface.h,v 1.3 2008-09-25 17:15:59 cvsyuancheng Exp $
+ RCS:           $Id: explpolygonsurface.h,v 1.4 2008-10-07 14:17:38 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,19 +28,29 @@ class PolygonSurface;
 class ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
 {
 public:
-			ExplPolygonSurface(const PolygonSurface*);
+			ExplPolygonSurface(const PolygonSurface*,
+					   float zscale=1);
     			~ExplPolygonSurface();
 
     void		display(bool polygons,bool body);
     void		setSurface(const PolygonSurface*);
     const PolygonSurface* getSurface() const	     { return surface_; }
 
+    void		setZScale(float);
+
     bool		arePolygonsDisplayed() const { return displaypolygons_;}
     bool		isBodyDisplayed() const	     { return displaybody_; }
 
     bool		needsUpdate() const	     { return needsupdate_; }
     DAGTetrahedraTree*	getTetrahedraTree() const    { return tetrahedratree_; }
-    TypeSet<int>	getExcludeTetragedras()	     { return notetrahedras_; }	
+
+    TypeSet<Coord3>	getSurfaceSamples() const    { return samples_; }
+    TypeSet<int>	getSampleIndices() const     { return sampleindices_; }
+    			/*<The indices are corresponding to the samples_. */
+    char		locationToSurface(const Coord3 point);
+    			/*<Check point is inside, on, or outside a triangulated 
+			   body surface, ret 1, 0, -1 respectively. */
+
     bool		createsNormals() const       { return true; }
     
     bool		update(bool forceall,TaskRunner*);
@@ -49,7 +59,7 @@ public:
 protected:
 
     void		updateGeometries();
-    bool		updateBodyDisplay(const TypeSet<Coord3>& allpoints);
+    bool		updateBodyDisplay();
     void		removeAll();
     void		addToGeometries(IndexedGeometry*);
     void		removeFromGeometries(const IndexedGeometry*);
@@ -57,9 +67,11 @@ protected:
     bool		displaypolygons_;
     bool		displaybody_;
     bool		needsupdate_;
+    Coord3		scalefacs_;
 
     DAGTetrahedraTree*		tetrahedratree_; 
-    TypeSet<int>		notetrahedras_;   
+    TypeSet<Coord3>		samples_;
+    TypeSet<int>		sampleindices_;
     const PolygonSurface*	surface_;
     IndexedGeometry*		bodytriangle_;
     IndexedGeometry*		polygondisplay_;

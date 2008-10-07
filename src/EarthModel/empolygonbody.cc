@@ -4,24 +4,29 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: empolygonbody.cc,v 1.3 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: empolygonbody.cc,v 1.4 2008-10-07 14:17:38 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "empolygonbody.h"
 
-#include "emsurfacetr.h"
+#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "embodytr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
-#include "undo.h"
+#include "emsurfacetr.h"
 #include "errh.h"
+#include "explpolygonsurface.h"
+#include "indexedshape.h"
 #include "ioman.h"
 #include "rowcol.h"
+#include "positionlist.h"
 #include "survinfo.h"
 #include "sortedtable.h"
-#include "embodytr.h"
 #include "tabledef.h"
+#include "undo.h"
 #include "unitofmeasure.h"
 
 namespace EM {
@@ -176,28 +181,28 @@ PolygonBody::~PolygonBody()
 
 ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
 {
-    return 0;
-}
-/*
     const EM::SectionID sid = sectionID( 0 );
     const Geometry::PolygonSurface* surf = geometry().sectionGeometry( sid );
     
     if ( !surf )
 	return 0;
 
-    Geometry::ExplPolygonSurface explpoly( surf );
+    Geometry::ExplPolygonSurface explpoly( surf, 1 ); //zScale =1 ?
     explpoly.display( false, true );
 
-    if ( !update( true, tr ) )
+    if ( !explpoly.update(true,tr) ) 
 	return 0;
 
-    const ObjectSet<IndexedGeometry> indexedgeoms = explpoly.getGeometry();
+    const ObjectSet<Geometry::IndexedGeometry> indexedgeoms = 
+	explpoly.getGeometry();
     const Coord3List* xyzcoords = explpoly.coordList();
     if ( !indexedgeoms.size() || !xyzcoords )
 	return 0;
 
     SortedTable<BinIDValue> bidvals;
 
+    Interval<int> inlrg, crlrg;
+    Interval<float> zrg;
     int curid = xyzcoords->nextID( -1 );
     while ( curid>=0 )
     {
@@ -205,18 +210,65 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
 	if ( !crd.isDefined() )
 	    return 0;
 
-	bidvals.set( curid, BinIDValue( SI().transform(crd), crd.z ) );
+	const BinID bid = SI().transform(crd);
+	if ( !inlrg.width() )
+	{
+	    inlrg.start = bid.inl; inlrg.stop = bid.inl;
+	    crlrg.start = bid.crl; crlrg.stop = bid.crl;
+	    zrg.start = crd.z;     zrg.stop = crd.z;
+	}
+	else
+	{
+	    inlrg.include( bid.inl ); 
+	    crlrg.include( bid.crl );
+	    zrg.include( crd.z );
+	}
+
+	bidvals.set( curid, BinIDValue( bid, crd.z ) );
 	curid = xyzcoords->nextID( curid );
     }
 
+    const int inlsz = inlrg.width()+1;
+    const int crlsz = crlrg.width()+1;
+    const int zsz = mNINT(zrg.width()/SI().zStep())+1;
+
+    mDeclareAndTryAlloc(Array3D<int>*,intarr,Array3DImpl<int>(inlsz,crlsz,zsz));
+    if ( !intarr )
+	return 0;
+    
+    mDeclareAndTryAlloc( ImplicitBody*, res, ImplicitBody );
+    if ( !res )
+    {
+ 	delete intarr;
+	return 0;
+    }
+
+    Array3D<float>* arr = new Array3DConv<float,int>(intarr);
+    if ( !arr )
+    {
+	delete intarr;
+	delete res;
+	return 0;
+    }
+
+    res->arr_ = arr;
+    res->inlsampling_.start = inlrg.start;
+    res->inlsampling_.step = SI().inlStep();
+    
+    res->crlsampling_.start = crlrg.start;
+    res->crlsampling_.step = SI().crlStep();    
+
+    res->zsampling_.start = zrg.start;
+    res->zsampling_.step = SI().zStep();
+
+    res->threshold_ = 0;
+    //set value on each pos.
     for ( int idx=0; idx<indexedgeoms.size(); idx++ )
     {
     }
 
-    return 0;
+    return res;
 }
-
-*/
 
 
 PolygonBodyGeometry& PolygonBody::geometry()
