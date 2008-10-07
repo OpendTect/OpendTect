@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.23 2008-09-30 12:31:21 cvsumesh Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.24 2008-10-07 11:38:09 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "scalingattrib.h"
 
 #include "agc.h"
+#include "arrayndimpl.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
@@ -186,10 +187,7 @@ Scaling::Scaling( Desc& desc_ )
 
 bool Scaling::allowParallelComputation() const
 {
-    if ( scalingtype_ == mScalingTypeAGC )
-	return false;
-    else 
-	return true;
+    return scalingtype_ != mScalingTypeAGC;
 }
 
 
@@ -252,6 +250,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
     if ( scalingtype_ == mScalingTypeAGC )
     {
 	scaleAGC( output, z0, nrsamples );
+	return true;
     }
 
     TypeSet< Interval<int> > samplegates;
@@ -318,8 +317,8 @@ void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
     {
 	for ( int idx=0; idx<inputdata_->nrsamples_; idx++ )
 	{
-	    const float result = getInputValue( *inputdata_, dataidx_, idx, z0 );
-	    setOutputValue( output, dataidx_, idx, z0, result );
+	    const float result = getInputValue( *inputdata_, dataidx_, idx, z0);
+	    setOutputValue( output, 0, idx, z0, result );
 	}
 	return;
     }
@@ -328,8 +327,14 @@ void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
     agc.setMuteFraction( mutefraction_ );
     agc.setSampleGate( samplewindow );
     agc.setInput( *inputdata_->series(dataidx_), inputdata_->nrsamples_ );
-    agc.setOutput( *output.series(dataidx_) ); 
+    Array1DImpl<float> outarr( inputdata_->nrsamples_ );
+    agc.setOutput( outarr );
     agc.execute( false );
+
+    for ( int idx=0; idx<output.nrsamples_ 
+	  && idx<inputdata_->nrsamples_- (inputdata_->z0_ - output.z0_); idx++ )
+	setOutputValue( output, 0, idx, z0, 
+			outarr.get(idx+(inputdata_->z0_ - output.z0_)) );
 }
 
 
