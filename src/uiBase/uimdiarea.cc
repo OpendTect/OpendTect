@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.cc,v 1.1 2008-08-11 18:22:16 cvsnanne Exp $
+ RCS:           $Id: uimdiarea.cc,v 1.2 2008-10-07 10:15:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,6 +144,7 @@ void uiMdiArea::addGroup( uiMdiAreaGroup* grp )
     grp->closed().notify( mCB(this,uiMdiArea,grpClosed) );
     grp->changed.notify( mCB(this,uiMdiArea,grpChanged) );
     grps_ += grp;
+    body_->setActiveSubWindow( grp->qWidget() );
     windowActivated.trigger();
 }
 
@@ -183,7 +184,7 @@ void uiMdiArea::closeAll()
 
 void uiMdiArea::setActiveWin( uiMdiAreaGroup* grp )
 {
-    if ( !grp || !grp->pbody() ) return;
+    if ( !grp ) return;
     body_->setActiveSubWindow( grp->qWidget() );
 }
 
