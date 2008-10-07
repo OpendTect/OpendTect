@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.33 2008-02-06 10:16:49 cvsbert Exp $
+ RCS:           $Id: cubesampling.h,v 1.34 2008-10-07 10:12:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ ________________________________________________________________________
 
  */
 
-struct CubeSampling
+class CubeSampling
 {
 public:
 
@@ -68,7 +68,7 @@ public:
 						{ return zrg.atIndex(idx); }
     inline bool		isEmpty() const		{ return hrg.isEmpty(); }
     bool		isDefined() const;
-    bool		includes( const CubeSampling& ) const;
+    bool		includes(const CubeSampling&) const;
     bool		getIntersection(const CubeSampling&,
 	    				CubeSampling&) const;
     			//!< Returns false if intersection is empty

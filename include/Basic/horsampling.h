@@ -7,20 +7,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.1 2008-02-06 10:16:49 cvsbert Exp $
+ RCS:           $Id: horsampling.h,v 1.2 2008-10-07 10:12:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
 #include "position.h"
+
 class IOPar;
 
 
 /*\brief Horizontal sampling (inline and crossline range and steps) */
 
-struct HorSampling
+class HorSampling
 {
+public:
 			HorSampling( bool settoSI=true ) { init(settoSI); }
     HorSampling&	set(const Interval<int>& inlrg,
 	    		    const Interval<int>& crlrg);
