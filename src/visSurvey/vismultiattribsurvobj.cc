@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.15 2008-09-23 21:38:50 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.16 2008-10-07 21:44:59 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -266,34 +266,51 @@ int MultiTextureSurveyObject::getColTabID( int attrib ) const
 void MultiTextureSurveyObject::setColTabSequence( int attrib,
 						  ColTab::Sequence const& seq )
 {
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return;
+
     visBase::VisColorTab& vt = texture_->getColorTab( attrib );
     vt.colorSeq().colors() = seq;
-
-    //Trigger something?
+    vt.colorSeq().colorsChanged();
 }
 
 
 const ColTab::Sequence*
 MultiTextureSurveyObject::getColTabSequence( int attrib ) const
 {
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return 0;
+
     const visBase::VisColorTab& vt = texture_->getColorTab( attrib );
     return &vt.colorSeq().colors();
 }
 
 
 void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
-					  ColTab::MapperSetup const& mapper )
+					  const ColTab::MapperSetup& mapper )
 {
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return;
+
     visBase::VisColorTab& vt = texture_->getColorTab( attrib );
+    const bool autoscalechange = mapper.type_!=vt.colorMapper().setup_.type_ &&
+			         mapper.type_!=ColTab::MapperSetup::Fixed;
+
     vt.colorMapper().setup_ = mapper;
 
-    //Trigger something?
+    if ( autoscalechange )
+	vt.autoscalechange.trigger();
+    else
+	vt.rangechange.trigger();
 }
 
 
 const ColTab::MapperSetup*
 MultiTextureSurveyObject::getColTabMapperSetup( int attrib ) const
 {
+    if ( attrib<0 || attrib>=nrAttribs() )
+	return 0;
+
     const visBase::VisColorTab& vt = texture_->getColorTab( attrib );
     return &vt.colorMapper().setup_;
 }
@@ -420,7 +437,9 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 	}
     }
 
-    useSOPar( par );
+    if ( !useSOPar( par ) )
+	return -1;
+
     return 1;
 }
 
