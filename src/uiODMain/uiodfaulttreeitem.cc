@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.15 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.16 2008-10-07 10:21:24 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -297,7 +297,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 
 
 uiODFault2DParentTreeItem::uiODFault2DParentTreeItem()
-   : uiODTreeItem( "Fault" )
+   : uiODTreeItem( "2D Fault" )
 {}
 
 
