@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.1 2008-09-25 18:38:16 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.2 2008-10-08 15:34:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,9 +98,21 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     }
 
     const SbImage* channels = SoTextureChannelSetElement::getChannels( state );
+
+    processChannels( channels, nrchannels );
+
+
+    sendRGBA( state );
+}
+
+
+void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
+	int nrchannels )
+{
+    if ( !nrchannels ) return;
+
     const SbVec3s size3 = channels[0].getSize();
     long size = size3[0]; size *= size3[1]; size *= size3[2];
-
 
     int lastchannel = -1;
     int firstchannel = -1;
@@ -144,7 +156,6 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     {
 	for ( int idx=0; idx<4; idx++ )
 	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
-	sendRGBA( state );
 	return;
     }
 
@@ -153,7 +164,6 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 	rgba_[idx].setValue( size3, 1, 0 );
 
     computeRGBA( channels, 0, size-1, firstchannel, lastchannel );
-    sendRGBA( state );
 }
 
 

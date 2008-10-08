@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.1 2008-09-25 18:38:16 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.2 2008-10-08 15:34:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,12 @@ public:
 			     0 is completely transperant, 255 is completely
 			     opaque. */
 
+    const SbImage&	getRGBA(int rgba) const;
+			/*!<\param rgba is 0 for red, 1 for green, 2 for
+			           blue and 3 for opacity. */
 
+    void		processChannels( const SbImage* channels,
+	    				 int nrchannels);
 protected:
 			~SoColTabTextureChannel2RGBA();
     void		sendRGBA(SoState*);
