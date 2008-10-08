@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.66 2008-10-04 10:04:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.67 2008-10-08 15:57:32 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -525,7 +525,12 @@ bool SEGYSeisTrcTranslator::readTraceHeadBuffer()
 {
     if ( !sConn().doIO( headerbuf, mSEGYTraceHeaderBytes )
 	    || sConn().iStream().eof() )
-	mErrRet("Error reading trace header")
+    {
+	if ( !sConn().iStream().eof() )
+	    mErrRet("Error reading trace header")
+	errmsg = "";
+	return false;
+    }
 
     return (headerbufread = true);
 }

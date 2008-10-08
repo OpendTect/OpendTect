@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.5 2008-10-04 10:04:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.6 2008-10-08 15:57:32 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.5 2008-10-04 10:04:04 cvsber
 #include "seistrc.h"
 #include "segytr.h"
 #include "datapointset.h"
+#include "posinfodetector.h"
 #include "strmprov.h"
 #include "dirlist.h"
 #include "filepath.h"
@@ -22,6 +23,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.5 2008-10-04 10:04:04 cvsber
       Executor("SEG-Y file scan") \
     , trc_(*new SeisTrc) \
     , pars_(*new IOPar(i)) \
+    , dtctor_(*new PosInfo::Detector(Seis::is2D(gt),Seis::isPS(gt))) \
     , tr_(0) \
     , geom_(gt) \
     , curfidx_(-1) \
@@ -58,75 +60,58 @@ SEGY::Scanner::~Scanner()
 }
 
 
-static void setIntByte( IOPar& iop, const char* nm,
-			unsigned char bytenr, unsigned char bytesz )
-{
-    BufferString keyw( nm ); keyw += " byte";
-    BufferString val; val = bytenr;
-    val += " (size "; val += bytesz; val += ")";
-    iop.set( keyw.buf(), val.buf() );
-}
-
-
 void SEGY::Scanner::getReport( IOPar& iop ) const
 {
-    iop.set( "->", "Provided information" );
-    FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop );
-    FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop );
+    bool forecrev0 = false;
+    pars_.getYN( SEGY::FileDef::sKeyForceRev0, forecrev0 );
+    const bool isrev1 = !forecrev0 && fd_[0]->isrev1_;
+
+    iop.add( "->", "Provided information" );
+    FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev1 );
+    FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop, isrev1 );
+    FileReadOpts fro(geom_); fro.usePar( pars_ ); fro.getReport( iop, isrev1 );
 
     if ( fd_.isEmpty() )
     {
 	if ( failedfnms_.isEmpty() )
-	    iop.set( "->", "No matching files found" );
+	    iop.add( "->", "No matching files found" );
 	else
 	    addErrReport( iop );
 	return;
     }
 
+    int firstfd = 0;
+    while ( firstfd < fd_.size() && fd_[firstfd]->nrTraces() < 1 )
+	firstfd++;
+    if ( firstfd < fd_.size() )
+	fd_[firstfd]->getReport( iop );
+
+    dtctor_.report( iop );
     addErrReport( iop );
-
-    bool forecrev0 = false;
-    pars_.getYN( SEGY::FileDef::sKeyForceRev0, forecrev0 );
-
-    SEGY::TrcHeaderDef thdef; thdef.fromSettings(); thdef.usePar( pars_ );
-    const bool is2d = Seis::is2D( geom_ );
-    const bool isps = Seis::isPS( geom_ );
-    const bool isrev1 = !forecrev0 && fd_[0]->isrev1_;
-
-    if ( !isrev1 )
-    {
-	if ( is2d )
-	    setIntByte( iop, "Trace number", thdef.trnr, thdef.trnrbytesz );
-	else
-	{
-	    setIntByte( iop, "Inline", thdef.inl, thdef.inlbytesz );
-	    setIntByte( iop, "Crossline", thdef.crl, thdef.crlbytesz );
-	}
-    }
-
 }
 
 
 void SEGY::Scanner::addErrReport( IOPar& iop ) const
 {
+    iop.add( "->",  "File info" );
     for ( int idx=0; idx<fnms_.size(); idx++ )
     {
 	const char* fnm = fnms_.get( idx );
 	if ( scanerrfnms_.indexOf(fnm) < 0 )
-	    iop.set( "Successfully scanned", fnm );
+	    iop.add( "Successfully scanned", fnm );
 	else
 	{
 	    BufferString keyw( "Error during read of " );
 	    keyw += fnm;
-	    iop.set( keyw, scanerrmsgs_.get(idx) );
+	    iop.add( keyw, scanerrmsgs_.get(idx) );
 	}
     }
 
     for ( int idx=0; idx<failedfnms_.size(); idx++ )
     {
 	BufferString keyw( "Failed to read " );
-	keyw += scanerrfnms_.get( idx );
-	iop.set( keyw, failerrmsgs_.get(idx) );
+	keyw += failedfnms_.get( idx );
+	iop.add( keyw, failerrmsgs_.get(idx) );
     }
 
 }
@@ -135,7 +120,7 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
 int SEGY::Scanner::nextStep()
 {
     if ( nrtrcs_ > 0 && nrdone_ >= nrtrcs_ )
-	return Executor::Finished;
+	return finish( true );
     return tr_ ? readNext() : openNext();
 }
 
@@ -145,8 +130,6 @@ int SEGY::Scanner::readNext()
     SEGY::FileData& fd = *fd_[curfidx_];
     if ( !tr_->read(trc_) )
     {
-	fd.addEnded();
-
 	const char* emsg = tr_->errMsg();
 	if ( emsg && *emsg )
 	{
@@ -157,8 +140,11 @@ int SEGY::Scanner::readNext()
 	return Executor::MoreToDo;
     }
 
+    dtctor_.add( trc_.info().coord, trc_.info().binid, trc_.info().nr,
+	    	 trc_.info().offset );
     fd.add( trc_.info().binid, trc_.info().coord, trc_.info().nr,
 	    trc_.info().offset, trc_.isNull(), tr_->trcHeader().isusable );
+
     nrdone_++;
     return Executor::MoreToDo;
 }
@@ -173,9 +159,9 @@ int SEGY::Scanner::openNext()
 	if ( fnms_.isEmpty() )
 	{
 	    msg_ = "No valid file found";
-	    return Executor::ErrorOccurred;
+	    return finish( false );
 	}
-	return Executor::Finished;
+	return finish( true );
     }
 
     StreamData sd = StreamProvider(fnms_.get(curfidx_)).makeIStream();
@@ -197,6 +183,15 @@ int SEGY::Scanner::openNext()
 
     initFileData();
     return Executor::MoreToDo;
+}
+
+
+int SEGY::Scanner::finish( bool allok )
+{
+    for ( int idx=0; idx<fd_.size(); idx++ )
+	fd_[idx]->addEnded();
+    dtctor_.finish();
+    return allok ? Executor::Finished : Executor::ErrorOccurred;
 }
 
 

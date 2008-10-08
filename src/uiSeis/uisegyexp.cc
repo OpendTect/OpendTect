@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:		$Id: uisegyexp.cc,v 1.4 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:		$Id: uisegyexp.cc,v 1.5 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,8 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     fpfld_ = new uiSEGYFilePars( this, false );
     fpfld_->attach( alignedBelow, transffld_ );
 
-    fsfld_ = new uiSEGYFileSpec( this, false );
+    uiSEGYFileSpec::Setup su; su.forread(false).canbe3d(!Seis::is2D(geom_));
+    fsfld_ = new uiSEGYFileSpec( this, su );
     fsfld_->attach( alignedBelow, fpfld_ );
 
     if ( Seis::is2D(geom_) )

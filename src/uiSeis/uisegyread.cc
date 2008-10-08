@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.8 2008-10-04 10:04:04 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.9 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "survinfo.h"
 #include "seistrctr.h"
+#include "seisscanner.h"
 #include "segyscanner.h"
 #include "seisioobjinfo.h"
 #include "ptrman.h"
@@ -151,11 +152,11 @@ void uiSEGYRead::readReq( CallBacker* cb )
 }
 
 
-class uiSEGYReadScanner : public uiDialog
+class uiSEGYReadPreScanner : public uiDialog
 {
 public:
 
-uiSEGYReadScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
+uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     : uiDialog(p,uiDialog::Setup("SEG-Y Scan",0,mNoHelpID))
     , pars_(pars)
     , geom_(gt)
@@ -166,7 +167,7 @@ uiSEGYReadScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     nrtrcsfld_ = new uiGenInput( this, "Limit to number of traces",
 	    			 IntInpSpec(1000) );
     nrtrcsfld_->setWithCheck( true );
-    nrtrcsfld_->setChecked( false );
+    nrtrcsfld_->setChecked( true );
 
     SEGY::FileSpec fs; fs.usePar( pars );
     BufferString fnm( fs.fname_ );
@@ -180,7 +181,7 @@ uiSEGYReadScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     saveasfld_->setChecked( true );
 }
 
-~uiSEGYReadScanner()
+~uiSEGYReadPreScanner()
 {
     delete scanner_;
 }
@@ -230,7 +231,7 @@ void uiSEGYRead::preScanReq( CallBacker* cb )
     if ( !impdlg ) return;
     impdlg->updatePars();
 
-    uiSEGYReadScanner dlg( impdlg, geom_, pars_ );
+    uiSEGYReadPreScanner dlg( impdlg, geom_, pars_ );
     if ( !dlg.go() || !dlg.res_ ) return;
 }
 

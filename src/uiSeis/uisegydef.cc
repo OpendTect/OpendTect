@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.9 2008-10-04 10:04:04 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.10 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,20 +39,22 @@ static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
 //--- uiSEGYFileSpec ----
 
 
-uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, bool forread, IOPar* iop )
-    : uiSEGYDefGroup(p,"SEGY::FileSpec group",forread)
+uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, const uiSEGYFileSpec::Setup& su )
+    : uiSEGYDefGroup(p,"SEGY::FileSpec group",su.forread_)
     , multifld_(0)
+    , is2d_(!su.canbe3d_)
 {
-    SEGY::FileSpec spec; if ( iop ) spec.usePar( *iop );
+    SEGY::FileSpec spec; if ( su.pars_ ) spec.usePar( *su.pars_ );
+    const bool canbemulti = forread_ && su.canbe3d_;
 
-    BufferString disptxt( forread ? "Input" : "Output" );
+    BufferString disptxt( forread_ ? "Input" : "Output" );
     disptxt += " SEG-Y file";
-    if ( forread ) disptxt += "(s)";
+    if ( canbemulti ) disptxt += "(s)";
     fnmfld_ = new uiFileInput( this, disptxt,
-		uiFileInput::Setup().forread(forread).filter(sgyfileflt) );
+		uiFileInput::Setup().forread(forread_).filter(sgyfileflt) );
     fnmfld_->setDefaultSelectionDir( GetDataDir() );
 
-    if ( forread )
+    if ( canbemulti )
     {
 	IntInpIntervalSpec inpspec( true );
 	inpspec.setName( "File number start", 0 );
@@ -64,7 +66,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, bool forread, IOPar* iop )
 	multifld_->attach( alignedBelow, fnmfld_ );
     }
 
-    if ( iop ) usePar( *iop );
+    if ( su.pars_ ) usePar( *su.pars_ );
     setHAlignObj( fnmfld_ );
 }
 
@@ -72,7 +74,7 @@ uiSEGYFileSpec::uiSEGYFileSpec( uiParent* p, bool forread, IOPar* iop )
 SEGY::FileSpec uiSEGYFileSpec::getSpec() const
 {
     SEGY::FileSpec spec( fnmfld_->fileName() );
-    if ( multifld_ && multifld_->isChecked() )
+    if ( !is2d_ && multifld_ && multifld_->isChecked() )
     {
 	spec.nrs_ = multifld_->getIStepInterval();
 	const char* txt = multifld_->text();
@@ -143,6 +145,8 @@ void uiSEGYFileSpec::setMultiInput( const StepInterval<int>& nrs, int zp )
 	    }
 	}
     }
+
+    multifld_->display( !is2d_ );
 }
 
 
@@ -182,6 +186,15 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
     fnmfld_->setFileName( iostrm->fullUserExpr(forread_) );
     if ( iostrm->isMulti() )
 	setMultiInput( iostrm->fileNumbers(), iostrm->zeroPadding() );
+
+    setInp2D( SeisTrcTranslator::is2D(*iostrm) );
+}
+
+
+void uiSEGYFileSpec::setInp2D( bool yn )
+{
+    is2d_ = yn;
+    if ( multifld_ ) multifld_->display( is2d_ );
 }
 
 
@@ -658,8 +671,9 @@ void uiSEGYFileOpts::mkPreStackPosFlds( uiGroup* grp, const IOPar* iop,
     ensurepsxylbl_ = new uiLabel( grp,"Please be sure that bytes 73-88 actually"
 			       " contain\nthe shot- and receiver locations" );
 
+    const float inldist = SI().inlDistance();
     regoffsfld_ = new uiGenInput( grp, "Set offsets to: start/step",
-	    		FloatInpSpec(0), FloatInpSpec(SI().inlDistance()) );
+	    		IntInpSpec(0), IntInpSpec(mNINT(inldist)) );
 }
 
 

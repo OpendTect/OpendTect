@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.12 2008-09-24 07:39:18 cvsbert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.13 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,14 +46,14 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
     const IOObj* ioobj = dlg->ioObj();
     if ( !ioobj ) return false;
 
-    SeisScanner scanner( *ioobj );
+    SeisScanner scanner( *ioobj, Seis::Vol );
     uiTaskRunner ex( d );
     bool res = ex.execute( scanner );
     if ( scanner.nrDone() < 2 )
 	return false;
 
     IOPar rep; dlg->getEntryReport( rep );
-    scanner.launchBrowser( rep, scanFile() );
+    scanner.launchBrowser( rep, 0 );
 
     if ( !scanner.getSurvInfo(cs,crd) )
     {
@@ -63,10 +63,4 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
 
     segyid = ioobj->key();
     return true;
-}
-
-
-const char* uiSEGYSurvInfoProvider::scanFile() const
-{
-    return SeisScanner::defaultUserInfoFile( "SEG-Y" );
 }

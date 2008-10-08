@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.6 2008-10-04 10:04:04 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.7 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class IOPar;
 class SeisTrc;
 class DataPointSet;
 class SEGYSeisTrcTranslator;
+namespace PosInfo { class Detector; }
 
 
 namespace SEGY
@@ -68,11 +69,13 @@ protected:
     int			curfidx_;
     BufferString	msg_;
     int			nrdone_;
+    PosInfo::Detector&	dtctor_;
 
     int			openNext();
     int			readNext();
 
     void		init(const FileSpec&);
+    int			finish(bool);
     void		addFailed(const char*);
     void		initFileData();
     void		addErrReport(IOPar&) const;

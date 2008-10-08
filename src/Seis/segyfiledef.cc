@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.5 2008-10-04 10:04:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.6 2008-10-08 15:57:32 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -53,7 +53,7 @@ const char* SEGY::FileSpec::getFileName( int nr ) const
 	replstr += numbstr;
     }
 
-    static FileNameString ret( fname_ );
+    static FileNameString ret; ret = fname_;
     replaceString( ret.buf(), "*", replstr.buf() );
     return ret.buf();
 }
@@ -109,7 +109,7 @@ void SEGY::FileSpec::usePar( const IOPar& iop )
 }
 
 
-void SEGY::FileSpec::getReport( IOPar& iop ) const
+void SEGY::FileSpec::getReport( IOPar& iop, bool ) const
 {
     iop.set( sKey::FileName, fname_ );
     if ( mIsUdf(nrs_.start) ) return;
@@ -209,7 +209,7 @@ void SEGY::FilePars::usePar( const IOPar& iop )
 }
 
 
-void SEGY::FilePars::getReport( IOPar& iop ) const
+void SEGY::FilePars::getReport( IOPar& iop, bool ) const
 {
     if ( ns_ > 0 )
 	iop.set( "Number of samples used", ns_ );
@@ -315,7 +315,30 @@ void SEGY::FileReadOpts::usePar( const IOPar& iop )
 }
 
 
-void SEGY::FileReadOpts::getReport( IOPar& iop ) const
+static void setIntByte( IOPar& iop, const char* nm,
+			unsigned char bytenr, unsigned char bytesz )
 {
+    BufferString keyw( nm ); keyw += " byte";
+    BufferString val; val = bytenr;
+    val += " (size "; val += bytesz; val += ")";
+    iop.set( keyw.buf(), val.buf() );
+}
+
+
+void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
+{
+    const bool is2d = Seis::is2D( geom_ );
+    const bool isps = Seis::isPS( geom_ );
+    if ( !rev1 )
+    {
+	if ( is2d )
+	    setIntByte( iop, "Trace number", thdef_.trnr, thdef_.trnrbytesz );
+	else
+	{
+	    setIntByte( iop, "Inline", thdef_.inl, thdef_.inlbytesz );
+	    setIntByte( iop, "Crossline", thdef_.crl, thdef_.crlbytesz );
+	}
+    }
+
     fillPar( iop );
 }

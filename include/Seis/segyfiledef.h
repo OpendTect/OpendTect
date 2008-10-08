@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.7 2008-10-04 10:04:04 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.8 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,9 +45,9 @@ public:
 	int		trcnr_;
     };
 
-    virtual void	fillPar(IOPar&) const		= 0;
-    virtual void	usePar(const IOPar&)		= 0;
-    virtual void	getReport(IOPar&) const		= 0;
+    virtual void	fillPar(IOPar&) const				= 0;
+    virtual void	usePar(const IOPar&)				= 0;
+    virtual void	getReport(IOPar&,bool isrev1=true) const	= 0;
 
     static const char*	sKeySEGYRev;
     static const char*	sKeyForceRev0;
@@ -83,7 +83,7 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
-    virtual void	getReport(IOPar&) const;
+    virtual void	getReport(IOPar&,bool) const;
 
 };
 
@@ -116,7 +116,7 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
-    virtual void	getReport(IOPar&) const;
+    virtual void	getReport(IOPar&,bool) const;
 
 protected:
 
@@ -168,7 +168,7 @@ public:
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
-    virtual void	getReport(IOPar&) const;
+    virtual void	getReport(IOPar&,bool) const;
 
 protected:
 

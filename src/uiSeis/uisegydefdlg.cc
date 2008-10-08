@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.6 2008-09-30 16:18:40 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.7 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,11 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     , geomtype_(Seis::Vol)
     , readParsReq(this)
 {
-    filespecfld_ = new uiSEGYFileSpec( this, true, &iop );
+    uiSEGYFileSpec::Setup sgyfssu; sgyfssu.forread(true).pars(&iop);
+    sgyfssu.canbe3d( su.geoms_.indexOf( Seis::Line ) < 0
+	    	  && su.geoms_.indexOf( Seis::LinePS ) < 0 );
+    filespecfld_ = new uiSEGYFileSpec( this, sgyfssu );
+
     uiGroup* lastgrp = filespecfld_;
     if ( su.geoms_.size() == 1 )
 	    geomtype_ = su.geoms_[0];
@@ -59,6 +63,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 	for ( int idx=0; idx<su.geoms_.size(); idx++ )
 	    geomfld_->addItem( Seis::nameOf( (Seis::GeomType)su.geoms_[idx] ) );
 	geomfld_->setCurrentItem( setup_.geoms_.indexOf(setup_.defgeom_) );
+	geomfld_->selectionChanged.notify( mCB(this,uiSEGYDefDlg,geomChg) );
 	lcb->attach( alignedBelow, filespecfld_ );
 	lastgrp = lcb;
     }
@@ -84,6 +89,7 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 void uiSEGYDefDlg::initFlds( CallBacker* )
 {
     usePar( pars_ );
+    geomChg( 0 );
 }
 
 
@@ -115,7 +121,10 @@ void uiSEGYDefDlg::use( const IOObj* ioobj, bool force )
     if ( oinf.isOK() )
     {
 	if ( geomfld_ )
+	{
 	    geomfld_->setCurrentItem( Seis::nameOf(oinf.geomType()) );
+	    geomChg( 0 );
+	}
 	usePar( ioobj->pars() );
     }
 }
@@ -141,13 +150,22 @@ void uiSEGYDefDlg::usePar( const IOPar& iop )
     nrtrcexfld_->setValue( nrex );   
     const char* res = iop.find( sKey::Geometry );
     if ( res && *res )
+    {
 	geomfld_->setCurrentItem( res );
+	geomChg( 0 );
+    }
 }
 
 
 void uiSEGYDefDlg::readParsCB( CallBacker* )
 {
     readParsReq.trigger();
+}
+
+
+void uiSEGYDefDlg::geomChg( CallBacker* )
+{
+    filespecfld_->setInp2D( Seis::is2D(geomType()) );
 }
 
 

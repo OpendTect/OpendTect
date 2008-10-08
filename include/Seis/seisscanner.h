@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.12 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seisscanner.h,v 1.13 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,80 +15,71 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 #include "executor.h"
+#include "seistype.h"
 class IOPar;
 class IOObj;
 class SeisTrc;
 class CubeSampling;
 class SeisTrcReader;
 class PosGeomDetector;
+namespace PosInfo { class Detector; }
 
-#define mMaxNrDistribVals 50000
+#define mSeisScanMaxNrDistribVals 50000
 
 
 class SeisScanner : public Executor
 {
 public:
 
-			SeisScanner(const IOObj&,int maxnroftrcs=-1);
+    			SeisScanner(const IOObj&,Seis::GeomType,
+				    int max_nr_trcs=-1);
 			~SeisScanner();
 
     const char*		message() const;
     od_int64		totalNr() const;
     od_int64		nrDone() const;
     const char*		nrDoneText() const;
+    int			nextStep();
 
+    void		report(IOPar&) const;
     bool		getSurvInfo(CubeSampling&,Coord crd[3]) const;
     			//!< Z range will be exclusive start/end null samples
-    void		report(IOPar&) const;
 
-    const float*	distribVals() const	{ return distribvals; }
-    int			nrDistribVals() const	{ return nrdistribvals; }
-    Interval<float>	zRange() const
-    			{ return Interval<float>( sampling.start,
-					 sampling.atIndex(nrsamples-1) ); }
-    unsigned int	nrNullTraces() const	{ return nrnulltraces; }
+    const float*	distribVals() const	{ return distribvals_; }
+    int			nrDistribVals() const	{ return nrdistribvals_; }
+    Interval<float>	zRange() const		{ return Interval<float>
+			( sampling_.start, sampling_.atIndex(nrsamples_-1) ); }
+    Interval<float>	valRange() const	{ return valrg_; }
+    unsigned int	nrNullTraces() const	{ return nrnulltraces_; }
 
-    static const char*	defaultUserInfoFile(const char* translnm=0);
-    void		launchBrowser(const IOPar& startpar,
-	    			      const char* fnm=0) const;
-    			//!< If null or empty fnm uses default file name
-    			//!< for the current translator
+    void		launchBrowser(const IOPar&,const char* fnm) const;
+    			//!< Passed IOPar will be the start of the display
 
 protected:
 
-    int			nextStep();
+    SeisTrc&		trc_;
+    SeisTrcReader&	rdr_;
+    mutable BufferString curmsg_;
+    Seis::GeomType	geom_;
+    int			maxnrtrcs_;
+    int			totalnr_;
+    PosInfo::Detector&	dtctor_;
 
-    bool		is3d;
-    bool		first_trace;
-    int			chnksz;
-    mutable int		totalnr;
-    int			expectedcrls;
-    int			nrcrlsthisline;
-    int			maxnrtrcs;
-    SeisTrc&		trc;
-    SeisTrcReader&	reader;
-    PosGeomDetector&	geomdtector;
-    mutable BufferString curmsg;
+    SamplingData<float>	sampling_;
+    int			nrsamples_;
+    int			nrnulltraces_;
+    int			nrdistribvals_;
+    float		distribvals_[mSeisScanMaxNrDistribVals];
+    Interval<int>	nonnullsamplerg_;
+    Interval<float>	valrg_;
+    BinID		invalidsamplebid_;
+    int			invalidsamplenr_;
 
-    SamplingData<float>	sampling;
-    unsigned int	nrsamples;
-    unsigned int	nrnulltraces;
-    unsigned int	nrdistribvals;
-    float		distribvals[mMaxNrDistribVals];
-    Interval<int>	nonnullsamplerg;
-    Interval<float>	valrg;
-    BinID		invalidsamplebid;
-    int			invalidsamplenr;
-
-    void		init();
     void		wrapUp();
-    void		handleFirstTrc();
-    void		handleTrc();
-    void		handleBinIDChange();
     bool		doValueWork();
+    bool		addTrc();
 
     const char*		getClipRgStr(float) const;
-
 };
 
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.7 2008-10-02 14:40:06 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.8 2008-10-08 15:57:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,20 @@ protected:
 class uiSEGYFileSpec : public uiSEGYDefGroup
 {
 public:
-    			uiSEGYFileSpec(uiParent*,bool forread,IOPar* iop=0);
+    class Setup
+    {
+    public:
+			Setup()
+			    : forread_(true)
+			    , canbe3d_(true)
+			    , pars_(0)		{}
+
+	mDefSetupMemb(bool,forread)
+	mDefSetupMemb(bool,canbe3d)
+	mDefSetupMemb(const IOPar*,pars)
+    };
+
+    			uiSEGYFileSpec(uiParent*,const Setup&);
 
     bool		fillPar(IOPar&,bool permissive=false) const;
     void		usePar(const IOPar&);
@@ -61,12 +74,15 @@ public:
     SEGY::FileSpec	getSpec() const;
     void		setSpec(const SEGY::FileSpec&);
 
+    void		setInp2D(bool);
+
     static const char*	sKeyLineNmToken;
 
 protected:
 
     uiFileInput*	fnmfld_;
     uiGenInput*		multifld_;
+    bool		is2d_;
 
     void		setMultiInput(const StepInterval<int>&,int);
 

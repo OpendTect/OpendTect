@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.34 2008-10-02 14:37:02 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.35 2008-10-08 15:57:32 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.34 2008-10-02 14:37:02 cvsbe
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "cubesampling.h"
-#include "posgeomdetector.h"
+#include "posinfodetector.h"
 #include "strmprov.h"
 #include "sorting.h"
 #include "oddirs.h"
@@ -28,48 +28,37 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.34 2008-10-02 14:37:02 cvsbe
 #endif
 
 
-SeisScanner::SeisScanner( const IOObj& ioobj, int mtr )
-    	: Executor( "Scan seismic volume file(s)" )
-    	, reader(*new SeisTrcReader(&ioobj))
-    	, geomdtector(*new PosGeomDetector(
-		    	!SeisTrcTranslator::is2D(ioobj,false)))
-	, trc(*new SeisTrc)
-    	, chnksz(10)
-    	, totalnr(mtr < 0 ? -2 : mtr)
-    	, maxnrtrcs(mtr)
+SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
+    	: Executor( "Scan seismic data" )
+    	, rdr_(*new SeisTrcReader(&ioobj))
+	, trc_(*new SeisTrc)
+    	, dtctor_(*new PosInfo::Detector(Seis::is2D(gt),Seis::isPS(gt)))
+	, curmsg_("Scanning")
+    	, totalnr_(mtr < 0 ? -2 : mtr)
+    	, maxnrtrcs_(mtr)
+	, nrnulltraces_(0)
+	, nrdistribvals_(0)
+	, invalidsamplenr_(-1)
 {
-    is3d = geomdtector.is3D();
-    init();
+    dtctor_.reInit();
+    valrg_.start = mUdf(float);
+    nonnullsamplerg_.stop = 0;
+    nonnullsamplerg_.start = invalidsamplebid_.inl = mUdf(int);
     Stats::RandGen::init();
 }
 
 
 SeisScanner::~SeisScanner()
 {
-    delete &trc;
-    delete &geomdtector;
-    delete &reader;
-}
-
-
-void SeisScanner::init()
-{
-    geomdtector.reInit();
-    curmsg = "Scanning";
-    nrnulltraces = 0;
-    nrdistribvals = nrcrlsthisline = expectedcrls = 0;
-    invalidsamplenr = -1;
-    nonnullsamplerg.start = INT_MAX;
-    nonnullsamplerg.stop = 0;
-    invalidsamplebid.inl = mUdf(int);
-    valrg.start = mUdf(float);
-    first_trace = true;
+    delete &dtctor_;
+    delete &trc_;
+    delete &rdr_;
 }
 
 
 const char* SeisScanner::message() const
 {
-    return *reader.errMsg() ? reader.errMsg() : curmsg.buf();
+    return *rdr_.errMsg() ? rdr_.errMsg() : curmsg_.buf();
 }
 
 
@@ -81,72 +70,71 @@ const char* SeisScanner::nrDoneText() const
 
 od_int64 SeisScanner::nrDone() const
 {
-    return geomdtector.nrpositions;
+    return dtctor_.nrPositions( false );
 }
 
 
 od_int64 SeisScanner::totalNr() const
 {
-    if ( totalnr == -2 )
+    if ( totalnr_ == -2 )
     {
-	totalnr = -1;
-	if ( reader.ioObj() )
+	SeisScanner& self = *(const_cast<SeisScanner*>(this));
+	self.totalnr_ = -1;
+	if ( maxnrtrcs_ )
+	    self.totalnr_ = maxnrtrcs_;
+	else if ( rdr_.ioObj() )
 	{
 	    CubeSampling cs;
-	    if ( SeisTrcTranslator::getRanges(*reader.ioObj(),cs) )
-	    {
-		totalnr = cs.hrg.nrInl() * cs.hrg.nrCrl();
-		((SeisScanner*)this)->expectedcrls = cs.hrg.nrCrl();
-	    }
+	    if ( SeisTrcTranslator::getRanges(*rdr_.ioObj(),cs) )
+		self.totalnr_ = cs.hrg.nrInl() * cs.hrg.nrCrl();
 	}
     }
-    return totalnr;
+    return totalnr_;
 }
 
 
 bool SeisScanner::getSurvInfo( CubeSampling& cs, Coord crd[3] ) const
 {
-    const char* msg = geomdtector.getSurvInfo( cs.hrg, crd );
+    const char* msg = dtctor_.getSurvInfo( cs.hrg, crd );
     if ( msg )
-	{ curmsg = msg; return false; }
+	{ curmsg_ = msg; return false; }
 
-    cs.zrg.start = sampling.atIndex( nonnullsamplerg.start );
-    cs.zrg.stop = sampling.atIndex( nonnullsamplerg.stop );
-    cs.zrg.step = sampling.step;
-
+    cs.zrg.start = sampling_.atIndex( nonnullsamplerg_.start );
+    cs.zrg.stop = sampling_.atIndex( nonnullsamplerg_.stop );
+    cs.zrg.step = sampling_.step;
     return true;
 }
 
 
 void SeisScanner::report( IOPar& iopar ) const
 {
-    if ( !reader.ioObj() )
+    if ( !rdr_.ioObj() )
     {
 	iopar.clear();
 	iopar.setName( "No scan executed" );
 	return;
     }
 
-    BufferString str = "Report for "; str += reader.ioObj()->translator();
-    str += is3d ? " cube '" : " line set '";
-    str += reader.ioObj()->name(); str += "'\n\n";
+    BufferString str = "Report for "; str += rdr_.ioObj()->translator();
+    str += dtctor_.is2D() ? " line set '" : " cube '";
+    str += rdr_.ioObj()->name(); str += "'\n\n";
     iopar.setName( str );
 
     iopar.add( "->", "Sampling info" );
-    iopar.set( "Z step", sampling.step );
-    iopar.set( "Z start in file", sampling.start );
+    iopar.set( "Z step", sampling_.step );
+    iopar.set( "Z start in file", sampling_.start );
     iopar.set( "Z stop in file", zRange().stop );
 
-    iopar.set( "Number of samples in file", (int)nrsamples );
-    if ( nonnullsamplerg.start != 0 )
-	iopar.set( "First non-zero sample", nonnullsamplerg.start + 1 );
-    if ( nonnullsamplerg.stop != nrsamples-1 )
-	iopar.set( "Last non-zero sample", nonnullsamplerg.stop + 1 );
+    iopar.set( "Number of samples in file", (int)nrsamples_ );
+    if ( nonnullsamplerg_.start != 0 )
+	iopar.set( "First non-zero sample", nonnullsamplerg_.start + 1 );
+    if ( nonnullsamplerg_.stop != nrsamples_-1 )
+	iopar.set( "Last non-zero sample", nonnullsamplerg_.stop + 1 );
 
     iopar.add( "->", "Global stats" );
-    iopar.set( "Number of null traces", (int)nrnulltraces );
-    geomdtector.report( iopar );
-    if ( is3d )
+    iopar.set( "Number of null traces", (int)nrnulltraces_ );
+    dtctor_.report( iopar );
+    if ( !dtctor_.is2D() )
     {
 	CubeSampling cs; Coord crd[3];
 	getSurvInfo(cs,crd);
@@ -155,18 +143,18 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.set( "Z.step", cs.zrg.step );
     }
 
-    if ( !mIsUdf(valrg.start) )
+    if ( !mIsUdf(valrg_.start) )
     {
 	iopar.add( "->", "Data values" );
-	iopar.set( "Minimum value", valrg.start );
-	iopar.set( "Maximum value", valrg.stop );
-	iopar.set( "Median value", distribvals[nrdistribvals/2] );
-	iopar.set( "1/4 value", distribvals[nrdistribvals/4] );
-	iopar.set( "3/4 value", distribvals[3*nrdistribvals/4] );
-	if ( !mIsUdf(invalidsamplebid.inl) )
+	iopar.set( "Minimum value", valrg_.start );
+	iopar.set( "Maximum value", valrg_.stop );
+	iopar.set( "Median value", distribvals_[nrdistribvals_/2] );
+	iopar.set( "1/4 value", distribvals_[nrdistribvals_/4] );
+	iopar.set( "3/4 value", distribvals_[3*nrdistribvals_/4] );
+	if ( !mIsUdf(invalidsamplebid_.inl) )
 	{
-	    iopar.set( "First invalid value at", invalidsamplebid );
-	    iopar.set( "First invalid value sample number", invalidsamplenr );
+	    iopar.set( "First invalid value at", invalidsamplebid_ );
+	    iopar.set( "First invalid value sample number", invalidsamplenr_ );
 	}
 	iopar.add( "0.1% clip range", getClipRgStr(0.1) );
 	iopar.add( "0.2% clip range", getClipRgStr(0.2) );
@@ -188,26 +176,13 @@ void SeisScanner::report( IOPar& iopar ) const
 
 const char* SeisScanner::getClipRgStr( float pct ) const
 {
-    const float ratio = nrdistribvals * .005 * pct;
+    const float ratio = nrdistribvals_ * .005 * pct;
     int idx0 = mNINT(ratio);
-    int idx1 = nrdistribvals - idx0 - 1;
+    int idx1 = nrdistribvals_ - idx0 - 1;
     if ( idx0 > idx1 ) Swap( idx0, idx1 );
 
     static BufferString ret;
-    ret = distribvals[idx0]; ret += " - "; ret += distribvals[idx1];
-    return ret.buf();
-}
-
-
-const char* SeisScanner::defaultUserInfoFile( const char* trnm )
-{
-    static BufferString ret;
-    ret = GetProcFileName( "scan_seis" );
-    if ( trnm && *trnm )
-	{ ret += "_"; ret += trnm; }
-    if ( GetSoftwareUser() )
-	{ ret += "_"; ret += GetSoftwareUser(); }
-    ret += ".txt";
+    ret = distribvals_[idx0]; ret += " - "; ret += distribvals_[idx1];
     return ret.buf();
 }
 
@@ -215,8 +190,8 @@ const char* SeisScanner::defaultUserInfoFile( const char* trnm )
 void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 {
     if ( !fnm || !*fnm )
-	fnm = defaultUserInfoFile( reader.ioObj()
-				 ? reader.ioObj()->translator() : "" );
+	fnm = GetProcFileName( "seisscan_tmp.txt" );
+
     IOPar iopar( startpar ); report( iopar );
     iopar.write( fnm, IOPar::sKeyDumpPretty );
 
@@ -226,64 +201,52 @@ void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 
 int SeisScanner::nextStep()
 {
-    if ( *reader.errMsg() )
+    if ( *rdr_.errMsg() )
 	return Executor::ErrorOccurred;
 
-    for ( int itrc=0; itrc<chnksz; itrc++ )
+    int res = rdr_.get( trc_.info() );
+    if ( res < 1 )
     {
-	int res = reader.get( trc.info() );
-	if ( res < 1 )
+	dtctor_.finish();
+	curmsg_ = "Done";
+	if ( res != 0 )
 	{
-	    curmsg = "Done";
-	    if ( res != 0 )
+	    curmsg_ = "Error during read of trace header after ";
+	    if ( dtctor_.nrPositions(false) == 0 )
+		curmsg_ += "opening file";
+	    else
 	    {
-		curmsg = "Error during read of trace header after ";
-		if ( geomdtector.atFirstPos() )
-		    curmsg += "opening file";
-		else if ( is3d )
-		{
-		    curmsg += geomdtector.prevbid.inl; curmsg += "/";
-		    curmsg += geomdtector.prevbid.crl;
-		}
+		const BinID& bid( dtctor_.lastPosition().binid_ );
+		if ( dtctor_.is2D() )
+		    { curmsg_ += "trace number "; curmsg_ += bid.crl; }
 		else
-		{
-		    curmsg += "trace number ";
-		    curmsg += geomdtector.prevbid.crl;
-		}
+		    { curmsg_ += bid.inl; curmsg_+="/"; curmsg_+=bid.crl; }
 	    }
-	    wrapUp();
-	    return res;
 	}
-	if ( res > 1 ) continue;
-
-	if ( !reader.get( trc ) )
-	{
-	    curmsg = "Error during read of trace data at ";
-	    if ( is3d )
-	    {
-		curmsg += trc.info().binid.inl; curmsg += "/";
-		curmsg += trc.info().binid.crl;
-	    }
-	    else
-	    {
-		curmsg += "trace number ";
-		curmsg += trc.info().binid.crl;
-	    }
-	    wrapUp();
-	    return Executor::ErrorOccurred;
-	}
-
-	if ( doValueWork() )
-	{
-	    if ( first_trace )
-		handleFirstTrc();
-	    else
-		handleTrc();
-	}
-
-	if ( maxnrtrcs > -1 && geomdtector.nrpositions >= maxnrtrcs )
-	    return Executor::Finished;
+	wrapUp();
+	return res;
     }
+    if ( res > 1 )
+	return Executor::MoreToDo;
+
+    if ( !rdr_.get( trc_ ) )
+    {
+	dtctor_.finish();
+	curmsg_ = "Error during read of trace data at ";
+	const BinID& bid( trc_.info().binid );
+	if ( dtctor_.is2D() )
+	    { curmsg_ += "trace number "; curmsg_ += bid.crl; }
+	else
+	    { curmsg_ += bid.inl; curmsg_ += "/"; curmsg_ += bid.crl; }
+	wrapUp();
+	return Executor::ErrorOccurred;
+    }
+
+    if ( doValueWork() && !addTrc() )
+	{ dtctor_.finish(); wrapUp(); return Executor::ErrorOccurred; }
+
+    if ( maxnrtrcs_ > -1 && dtctor_.nrPositions(false) >= maxnrtrcs_ )
+	{ dtctor_.finish(); wrapUp(); return Executor::Finished; }
 
     return Executor::MoreToDo;
 }
@@ -291,104 +254,96 @@ int SeisScanner::nextStep()
 
 void SeisScanner::wrapUp()
 {
-    reader.close();
-    sort_array( distribvals, nrdistribvals );
-}
-
-
-void SeisScanner::handleFirstTrc()
-{
-    first_trace = false;
-    sampling = trc.info().sampling;
-    nrsamples = trc.size();
-    nrcrlsthisline = 1;
-    geomdtector.add( trc.info().binid, trc.info().coord, trc.info().nr );
-}
-
-
-void SeisScanner::handleTrc()
-{
-    if ( geomdtector.add(trc.info().binid,trc.info().coord,trc.info().nr)
-	    		!= mInlChange )
-	nrcrlsthisline++;
-    else
-    {
-	if ( expectedcrls > 0 && expectedcrls != nrcrlsthisline )
-	{
-	    totalnr -= expectedcrls - nrcrlsthisline;
-	    if ( totalnr < nrDone() )
-		totalnr = nrDone() + expectedcrls;
-	}
-	nrcrlsthisline = 1;
-    }
+    dtctor_.finish();
+    rdr_.close();
+    sort_array( distribvals_, nrdistribvals_ );
 }
 
 
 bool SeisScanner::doValueWork()
 {
-    const bool adddistribvals = nrdistribvals < mMaxNrDistribVals;
-    float thresh = 1. / (1. + 0.01 * geomdtector.nrpositions);
-    const bool selected_trc = !adddistribvals
-			   && Stats::RandGen::get() < 0.01;
-    unsigned int selsieve = (unsigned int)(1. + 0.01 * geomdtector.nrpositions);
+    const bool adddistribvals = nrdistribvals_ < mSeisScanMaxNrDistribVals;
+    const int nrpos = dtctor_.nrPositions( false );
+    float thresh = 1. / (1. + 0.01 * nrpos);
+    const bool selected_trc = !adddistribvals && Stats::RandGen::get() < 0.01;
+    unsigned int selsieve = (unsigned int)(1. + 0.01 * nrpos);
     if ( selsieve > 10 ) selsieve = 10;
     float sievethresh = 1. / selsieve;
 
     bool nonnull_seen = false;
-    int nullstart = trc.size();
+    int nullstart = trc_.size();
     for ( int idx=nullstart-1; idx!=-1; idx-- )
     {
-	float val = trc.get(idx,0);
+	float val = trc_.get(idx,0);
 	if ( !mIsZero(val,mDefEps) ) break;
 	nullstart = idx;
     }
-   if ( nullstart-1 > nonnullsamplerg.stop )
-       nonnullsamplerg.stop = nullstart - 1;
+   if ( nullstart-1 > nonnullsamplerg_.stop )
+       nonnullsamplerg_.stop = nullstart - 1;
 
-    bool needinitvalrg = mIsUdf(valrg.start);
+    bool needinitvalrg = mIsUdf(valrg_.start);
     for ( int idx=0; idx<nullstart; idx++ )
     {
-	float val = trc.get(idx,0);
+	float val = trc_.get(idx,0);
 	bool iszero = mIsZero(val,mDefEps);
 	if ( !nonnull_seen )
 	{
 	   if ( iszero ) continue;
-	   else if ( nonnullsamplerg.start > idx )
-	       nonnullsamplerg.start = idx;
+	   else if ( nonnullsamplerg_.start > idx )
+	       nonnullsamplerg_.start = idx;
 	   nonnull_seen = true;
 	}
 
 	if ( !Math::IsNormalNumber(val) || val > 1e30 || val < -1e30 )
 	{
-	    if ( invalidsamplenr < 0 )
+	    if ( invalidsamplenr_ < 0 )
 	    {
-		invalidsamplenr = idx;
-		invalidsamplebid = trc.info().binid;
+		invalidsamplenr_ = idx;
+		invalidsamplebid_ = trc_.info().binid;
 	    }
 	    continue;
 	}
 
 	if ( !needinitvalrg )
-	    valrg.include( val );
+	    valrg_.include( val );
 	else
 	{
-	    valrg.start = valrg.stop = val;
+	    valrg_.start = valrg_.stop = val;
 	    needinitvalrg = false;
 	}
 
-	if ( nrdistribvals < mMaxNrDistribVals )
-	    distribvals[nrdistribvals++] = val;
+	if ( nrdistribvals_ < mSeisScanMaxNrDistribVals )
+	    distribvals_[nrdistribvals_++] = val;
 	else if ( selected_trc && Stats::RandGen::get() < sievethresh )
 	{
-	    int arrnr = Stats::RandGen::getIndex(nrdistribvals);
-	    distribvals[ arrnr ] = val;
+	    int arrnr = Stats::RandGen::getIndex(nrdistribvals_);
+	    distribvals_[ arrnr ] = val;
 	}
     }
 
     if ( !nonnull_seen )
     {
-	nrnulltraces++;
+	nrnulltraces_++;
 	return false;
     }
+    return true;
+}
+
+
+bool SeisScanner::addTrc()
+{
+    if ( nrsamples_ < 1 )
+    {
+	nrsamples_ = trc_.size();
+	sampling_ = trc_.info().sampling;
+    }
+
+    if ( !dtctor_.add(trc_.info().coord,trc_.info().binid,
+		      trc_.info().nr,trc_.info().offset) )
+    {
+	curmsg_ = dtctor_.errMsg();
+	return false;
+    }
+
     return true;
 }
