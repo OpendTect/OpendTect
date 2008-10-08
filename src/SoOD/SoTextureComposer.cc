@@ -3,14 +3,15 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
- Date:          December 2006
- RCS:           $Id: SoTextureComposer.cc,v 1.1 2008-09-16 16:19:30 cvskris Exp $
+ Date:          October 2008
+ RCS:           $Id: SoTextureComposer.cc,v 1.2 2008-10-08 16:41:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "SoTextureComposer.h"
+#include "SoTextureComposerElement.h"
 
 #include <Inventor/misc/SoGLImage.h>
 #include <Inventor/C/glue/gl.h>
@@ -42,6 +43,7 @@ void SoTextureComposer::initClass()
     SO_ENABLE( SoGLRenderAction, SoTextureImageElement );
     SO_ENABLE( SoGLRenderAction, SoGLTexture3EnabledElement );
     SO_ENABLE( SoGLRenderAction, SoGLTextureEnabledElement );
+    SO_ENABLE( SoGLRenderAction, SoTextureComposerElement );
 
     SO_ENABLE( SoCallbackAction, SoTexture3EnabledElement );
     SO_ENABLE( SoCallbackAction, SoTextureImageElement );
@@ -49,6 +51,7 @@ void SoTextureComposer::initClass()
     SO_ENABLE( SoCallbackAction, SoTextureOverrideElement );
     SO_ENABLE( SoCallbackAction, SoMultiTextureImageElement );
     SO_ENABLE( SoCallbackAction, SoMultiTextureEnabledElement );
+    SO_ENABLE( SoCallbackAction, SoTextureComposerElement );
 
     SO_ENABLE( SoRayPickAction, SoTexture3EnabledElement );
     SO_ENABLE( SoRayPickAction, SoTextureImageElement );
@@ -56,8 +59,8 @@ void SoTextureComposer::initClass()
     SO_ENABLE( SoRayPickAction, SoTextureOverrideElement );
     SO_ENABLE( SoRayPickAction, SoMultiTextureImageElement );
     SO_ENABLE( SoRayPickAction, SoMultiTextureEnabledElement );
+    SO_ENABLE( SoRayPickAction, SoTextureComposerElement );
 }
-
 
 
 SoTextureComposer::SoTextureComposer()
@@ -67,7 +70,6 @@ SoTextureComposer::SoTextureComposer()
     SO_NODE_CONSTRUCTOR( SoTextureComposer );
     SO_NODE_ADD_FIELD( origin, (SbVec3i32(0,0,0) ) );
     SO_NODE_ADD_FIELD( size, (SbVec3i32(-1,-1,-1) ) );
-    SO_NODE_ADD_FIELD( textureunits, (0) );
 
     originsensor_ = new SoFieldSensor( fieldChangeCB, this );
     originsensor_->attach( &origin );
@@ -112,9 +114,12 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
     const int prevunit = SoTextureUnitElement::get( state );
 
     int firstchannel = 0;
-    const int nrunits = textureunits.getNum();
+
+    const SbList<int> units = SoTextureComposerElement::getUnits( state );
+    const int nrunits = units.getLength();
+
     for ( int idx=0; idx<nrunits; idx++, firstchannel+=4 )
-	GLRenderUnit( textureunits[idx], state, firstchannel );
+	GLRenderUnit( units[idx], state, firstchannel );
 
     if ( needregenration_ )
     {
@@ -133,9 +138,11 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
 void SoTextureComposer::doAction( SoAction* action )
 {
     SoState * state = action->getState();
+    const SbList<int> units = SoTextureComposerElement::getUnits( state );
+    const int nrunits = units.getLength();
 
-    for ( int idx=textureunits.getNum()-1; idx>=0; idx-- )
-	doActionUnit( textureunits[idx], state );
+    for ( int idx=nrunits-1; idx>=0; idx-- )
+	doActionUnit( units[idx], state );
 }
 
 

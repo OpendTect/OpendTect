@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureComposer.h,v 1.1 2008-09-16 16:17:01 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.h,v 1.2 2008-10-08 16:41:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,8 @@ class SoSensor;
 class SoGLImage;
 class SoState;
 class SoElement;
+class SbImage;
+
 
 /*!  */
 
@@ -38,7 +40,9 @@ public:
 
     SoSFVec3i32		origin;
     SoSFVec3i32		size; //-1,-1,-1 means to the end of the channel
-    SoMFUShort		textureunits;
+
+    static void		cutImage(const SbImage&,SbImage&,const SbVec3s& origin,
+	    			 const SbVec3s& size);
 
 protected:
     			~SoTextureComposer();	
