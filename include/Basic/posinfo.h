@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.6 2008-08-29 13:51:44 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.7 2008-10-08 15:54:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,9 @@ namespace PosInfo
 /*!\brief Position info for a line - in a 3D cube, that would be an inline.
 	  Stored as (crossline-)number segments. */
 
-struct LineData
+class LineData
 {
+public:
     typedef StepInterval<int>	Segment;
 
 				LineData( int i ) : linenr_(i)	{}
