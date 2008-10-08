@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uituthortools.cc,v 1.7 2008-02-18 05:57:35 cvsraman Exp $";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.8 2008-10-08 06:16:52 cvsraman Exp $";
 
 #include "uituthortools.h"
 #include "ctxtioobj.h"
@@ -134,11 +134,11 @@ EM::Horizon3D* uiTutHorTools::loadHor( const IOObj* ioobj )
 
 void uiTutHorTools::saveData(bool geom)
 {
-    PtrMan<Executor> exec;
-    if ( geom )
-	exec = smoothnr_->dataSaver( outctio_.ioobj->key() );
-    else
-	exec = thickcalc_->dataSaver();
+    PtrMan<Executor> exec = geom ? smoothnr_->dataSaver(outctio_.ioobj->key())
+				 : thickcalc_->dataSaver();
+
+    if ( !exec )
+    { uiMSG().error( "Cannot save Horizon" ); return; }
 
     uiTaskRunner taskrunner( this );
     taskrunner.execute( *exec );
