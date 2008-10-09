@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.5 2008-10-09 06:35:33 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.6 2008-10-09 17:43:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -350,3 +350,6 @@ double uiGraphicsScene::width() const
 
 double uiGraphicsScene::height() const
 { return odgraphicsscene_->height(); }
+
+void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
+{ odgraphicsscene_->setSceneRect( x, y, w, h ); }
