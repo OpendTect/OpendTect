@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.2 2008-10-08 15:34:56 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.3 2008-10-09 21:41:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,12 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 
 
     sendRGBA( state );
+}
+
+
+const SbImage& SoColTabTextureChannel2RGBA::getRGBA(int rgba) const
+{
+    return rgba_[rgba];
 }
 
 
