@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.93 2008-10-09 06:46:57 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.94 2008-10-09 17:43:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,7 @@ uiSurvey::uiSurvey( uiParent* p )
     survmap_->setStretch( 0, 0 );
     survmap_->setPrefWidth( mMapWidth );
     survmap_->setPrefHeight( mMapHeight );
+    survmap_->reSize.notify( mCB(this,uiSurvey,selChange) );
 
     uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
     listbox_ = new uiListBox( leftgrp, dirlist_, "Surveys" );
@@ -248,7 +249,7 @@ uiSurvey::uiSurvey( uiParent* p )
     mkInfo();
     setOkText( "&Ok (Select)" );
 
-    finaliseDone.notify( mCB(this,uiSurvey,doDrawMap) );
+    finaliseDone.notify( mCB(this,uiSurvey,selChange) );
 }
 
 
@@ -565,7 +566,7 @@ void uiSurvey::mkInfo()
 }
 
 
-void uiSurvey::selChange()
+void uiSurvey::selChange( CallBacker* )
 {
     writeComments();
     updateInfo(0);
@@ -579,9 +580,7 @@ void uiSurvey::updateInfo( CallBacker* cb )
 	getSurvInfo();
 
     mkInfo();
-    survmap_->removeItems();
     survmap_->drawMap( survinfo_ );
-    //mapcanvas_->update();
 }
 
 
@@ -593,12 +592,6 @@ void uiSurvey::writeComments()
     survinfo_->setComment( txt );
     if ( !survinfo_->write( GetBaseDataDir() ) )
         ErrMsg( "Failed to write survey info.\nNo changes committed." );
-}
-
-
-void uiSurvey::doDrawMap( CallBacker* )
-{
-    survmap_->drawMap( survinfo_ );
 }
 
 

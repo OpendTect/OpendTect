@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.28 2008-09-10 05:52:33 cvssatyaki Exp $
+ RCS:           $Id: uisurvey.h,v 1.29 2008-10-09 17:43:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,6 @@ protected:
     uiTextEdit*		notes_;
 
     bool		acceptOK(CallBacker*);  
-    void		doDrawMap(CallBacker*);  
     bool		rejectOK(CallBacker*);  
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
@@ -99,7 +98,7 @@ protected:
     void		writeComments();
     bool		updateSvyFile();
     bool		writeSurveyName(const char*);
-    void		selChange();
+    void		selChange(CallBacker*);
     void		newSurvey();
     void		mkDirList();
 
