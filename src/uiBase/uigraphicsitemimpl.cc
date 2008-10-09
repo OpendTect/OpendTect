@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.cc,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.cc,v 1.4 2008-10-09 06:39:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,6 +270,7 @@ void uiTextItem::setAlignment( const Alignment& al )
     QFontMetrics qfm( qtextitem_->font() );
     float movex = textrect->width();//qfm.width( qtextitem_->toPlainText() );
     float movey = textrect->height();
+    /*
     switch ( al.hor_ )
     {
 	case Alignment::Right:
@@ -293,6 +294,7 @@ void uiTextItem::setAlignment( const Alignment& al )
 	case Alignment::Top:
 	    break;
     }
+    */
     qtextitem_->moveBy( movex, movey );
 }
 
