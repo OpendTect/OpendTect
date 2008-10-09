@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.10 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.11 2008-10-09 09:09:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,7 +194,7 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
 void uiSEGYFileSpec::setInp2D( bool yn )
 {
     is2d_ = yn;
-    if ( multifld_ ) multifld_->display( is2d_ );
+    if ( multifld_ ) multifld_->display( !is2d_ );
 }
 
 

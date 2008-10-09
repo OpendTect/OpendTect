@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.7 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.8 2008-10-09 09:09:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,8 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     , readParsReq(this)
 {
     uiSEGYFileSpec::Setup sgyfssu; sgyfssu.forread(true).pars(&iop);
-    sgyfssu.canbe3d( su.geoms_.indexOf( Seis::Line ) < 0
-	    	  && su.geoms_.indexOf( Seis::LinePS ) < 0 );
+    sgyfssu.canbe3d( su.geoms_.indexOf( Seis::Vol ) >= 0
+	    	  && su.geoms_.indexOf( Seis::VolPS ) >= 0 );
     filespecfld_ = new uiSEGYFileSpec( this, sgyfssu );
 
     uiGroup* lastgrp = filespecfld_;
