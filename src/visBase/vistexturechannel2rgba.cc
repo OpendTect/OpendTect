@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.1 2008-10-09 21:45:23 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.2 2008-10-09 21:57:22 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -141,6 +141,8 @@ bool ColTabTextureChannel2RGBA::useShading( bool yn )
     }
 
     shaderswitch_->whichChild = yn ? 1 : 0;
+
+    return true;
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.4 2008-10-09 21:45:23 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.5 2008-10-09 21:57:22 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -280,6 +280,8 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	mappeddata_.replace( version, newdata );
 	ownsmappeddata_[version] = true;
     }
+
+    return true;
 }
 
 
