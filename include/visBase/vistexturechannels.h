@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.1 2008-09-24 19:35:38 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.2 2008-10-09 21:27:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class SoTextureChannelSet;
 class SoSwitch;
+class SbImage;
 
 template <class T> class Array2D;
 
@@ -25,6 +26,7 @@ namespace ColTab { class MapperSetup; };
 namespace visBase
 {
 
+class TextureChannel2RGBA;
 class ChannelInfo;
 
 class TextureChannels : public DataObject
@@ -60,9 +62,13 @@ public:
     bool			setMappedData(int channel,int version,
 	    				      unsigned char*, CachePolicy);
 
+    bool			setChannels2RGBA(TextureChannel2RGBA*);
+
     SoNode*			getInventorNode();
+    const SbImage*		getChannels() const;
 
 protected:
+    friend			class ChannelInfo;
     void			update( int channel );
     				TextureChannels();
     				~TextureChannels();
@@ -71,8 +77,8 @@ protected:
     ObjectSet<ChannelInfo>	channelinfo_;
     SoTextureChannelSet*	tc_;
     SoSwitch*			onoff_;
+    TextureChannel2RGBA*	tc2rgba_;
 
-    friend			class ChannelInfo;
 };
 
 

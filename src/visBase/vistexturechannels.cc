@@ -8,10 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.2 2008-09-24 20:00:18 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.3 2008-10-09 21:27:27 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
+#include "vistexturechannel2rgba.h"
 #include "SoTextureChannelSet.h"
 #include "Inventor/nodes/SoSwitch.h"
 #include "coltabmapper.h"
@@ -296,6 +297,7 @@ void ChannelInfo::setCurrentVersion( int nidx )
 TextureChannels::TextureChannels()
     : tc_( new SoTextureChannelSet )
     , onoff_ ( new SoSwitch )
+    , tc2rgba_( 0 )
 {
     onoff_->ref();
     onoff_->addChild( tc_ );
@@ -307,6 +309,7 @@ TextureChannels::TextureChannels()
 TextureChannels::~TextureChannels()
 {
     deepErase( channelinfo_ );
+    setChannels2RGBA( 0 );
     onoff_->unref();
 }
 
@@ -470,8 +473,34 @@ bool TextureChannels::setMappedData( int channel, int version,
 }
 
 
+bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
+{
+    if ( tc2rgba_ )
+    {
+	onoff_->removeChild( tc2rgba_->getInventorNode() );
+	tc2rgba_->unRef();
+    }
+
+    tc2rgba_ = nt;
+
+    if ( tc2rgba_ )
+    {
+	onoff_->addChild( tc2rgba_->getInventorNode() );
+	tc2rgba_->ref();
+    }
+
+    return true;
+}
+
+
 SoNode* TextureChannels::getInventorNode()
 { return onoff_; }
+
+
+const SbImage* TextureChannels::getChannels() const
+{
+    return tc_->channels.getValues( 0 );
+}
 
 
 void TextureChannels::update( int channel )
