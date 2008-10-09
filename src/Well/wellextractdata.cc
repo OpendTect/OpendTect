@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.47 2008-06-20 13:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.48 2008-10-09 15:15:00 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -280,7 +280,8 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
 	if ( mIsUdf(pos.z) )
 	    return false;
     }
-    biv.value = pos.z; SI().snapZ( biv.value );
+    const int nearidx = SI().zRange(false).nearestIndex( pos.z );
+    biv.value = SI().zRange(false).atIndex( nearidx );
     return true;
 }
 
