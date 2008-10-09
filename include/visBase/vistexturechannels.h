@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.2 2008-10-09 21:27:27 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.3 2008-10-09 21:45:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,9 @@ class ChannelInfo;
 class TextureChannels : public DataObject
 {
 public:
+    static TextureChannels*	create()
+				mCreateDataObj(TextureChannels);
+
     void			setSize(int,int,int=1);
     int				getSize(int dim) const;
 
@@ -70,7 +73,6 @@ public:
 protected:
     friend			class ChannelInfo;
     void			update( int channel );
-    				TextureChannels();
     				~TextureChannels();
 
     int				size_[3];

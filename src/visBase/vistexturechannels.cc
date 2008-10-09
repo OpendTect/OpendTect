@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.3 2008-10-09 21:27:27 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.4 2008-10-09 21:45:23 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -19,6 +19,10 @@ static const char* rcsID = "$Id: vistexturechannels.cc,v 1.3 2008-10-09 21:27:27
 
 #define mNrColors	255
 #define mUndefColIdx	255
+
+
+mCreateFactoryEntry( visBase::TextureChannels );
+
 
 namespace visBase
 {

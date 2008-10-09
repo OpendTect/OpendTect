@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.10 2008-09-24 19:39:20 cvskris Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.11 2008-10-09 21:45:23 cvskris Exp $";
 
 
 #include "initvisbase.h"
@@ -62,6 +62,8 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.10 2008-09-24 19:39:20 cvskr
 #include "vistexture3viewer.h"
 #include "vistexturecoords.h"
 #include "vistexturerect.h"
+#include "vistexturechannel2rgba.h"
+#include "vistexturechannels.h"
 #include "visthread.h"
 #include "vistransform.h"
 #include "vistristripset.h"
@@ -138,6 +140,8 @@ void initStdClasses()
     MovableTextureSlice::initClass();
     Texture3Slice::initClass();
     TextureCoords::initClass();
+    TextureChannels::initClass();
+    ColTabTextureChannel2RGBA::initClass();
     TextureRect::initClass();
     ThreadWorker::initClass();
     Transformation::initClass();
