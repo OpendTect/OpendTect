@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.2 2008-09-01 07:41:24 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "uigraphicsitem.h"
 #include "uigeom.h"
 
-class uiFont;
-class LineStyle;
-class ioPixmap;
-class ArrowStyle;
-class MarkerStyle2D;
 class Alignment;
+class ArrowStyle;
 class Color;
+class LineStyle;
+class MarkerStyle2D;
+class ioPixmap;
+class uiFont;
 class uiRect;
 
 class QGraphicsItem;
@@ -32,9 +32,10 @@ class QGraphicsPolygonItem;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
 
-class ODGraphicsPointItem;
-class ODGraphicsMarkerItem;
 class ODGraphicsArrowItem;
+class ODGraphicsMarkerItem;
+class ODGraphicsPixmapItem;
+class ODGraphicsPointItem;
 
 
 class uiEllipseItem : public uiGraphicsItem
@@ -66,6 +67,7 @@ public:
     void 		setPenStyle(const LineStyle&);
     void		setPenColor(const Color&);
     void		setLine(float x1,float y1,float x2,float y2);
+    uiRect*		lineRect();
 
 protected:
 
@@ -77,18 +79,19 @@ protected:
 class uiPixmapItem : public uiGraphicsItem
 {
 public:
-    			uiPixmapItem();
-    			uiPixmapItem(QGraphicsPixmapItem*);
-			~uiPixmapItem();
+    				uiPixmapItem();
+    				uiPixmapItem(ODGraphicsPixmapItem*);
+				~uiPixmapItem();
 
-    QGraphicsPixmapItem* qPixmapItem()	{ return qpixmapitem_; }
-    void		setOffset(int left,int top);
-    void		setPixmap(const ioPixmap&);
+    ODGraphicsPixmapItem*	qPixmapItem()	{ return qpixmapitem_; }
+    void			setOffset(int left,int top);
+    void			setPixmap(const ioPixmap&);
+    const uiPoint&		transformToScene( float x, float y );
 
 protected:
 
-    QGraphicsItem*	mkQtObj();
-    QGraphicsPixmapItem* qpixmapitem_;
+    QGraphicsItem*		mkQtObj();
+    ODGraphicsPixmapItem*	qpixmapitem_;
 };
 
 
@@ -137,6 +140,7 @@ public:
     QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
     void 		setFont(const uiFont&);
     int			getTextWidth();
+    const uiRect*	getTextRect();
     void 		setAlignment(const Alignment&);
     void 		setText(const char*); 
     void		setTextColor(const Color&);
@@ -151,7 +155,7 @@ protected:
 class uiMarkerItem : public uiGraphicsItem
 {
 public:
-				uiMarkerItem();
+				uiMarkerItem(const MarkerStyle2D&);
 				uiMarkerItem(ODGraphicsMarkerItem*);
 				~uiMarkerItem();
 

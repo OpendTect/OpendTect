@@ -4,35 +4,21 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.cc,v 1.2 2008-09-01 07:41:19 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.cc,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 #include "uigraphicsitemimpl.h"
 
-#include "draw.h"
-#include "geometry.h"
-#include "color.h"
-#include "math.h"
-#include "pixmap.h"
 #include "odgraphicsitem.h"
+#include "pixmap.h"
 #include "uifont.h"
 
-#include "qgraphicsitem.h"
-#include "qglobal.h"
-#include "qstyleoption.h"
-#include "qpoint.h"
-#include "qpainter.h"
-
-#include <QRectF>
-#include <QPointF>
-#include <QPolygon>
-#include <QPolygonF>
-#include <QPen>
-#include <QRgb>
 #include <QBrush>
-#include <QString>
-#include <QColor>
+#include <QFont>
+#include <QFontMetrics>
+#include <QPen>
+
 
 uiEllipseItem::uiEllipseItem()
     : uiGraphicsItem(mkQtObj())
@@ -94,6 +80,12 @@ void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
     qlineitem_->setLine( x1, y1, x2, y2 );
 }
 
+uiRect* uiLineItem::lineRect()
+{
+    return new uiRect( (int)qlineitem_->line().x1(),(int)qlineitem_->line().y1(),
+	    	       (int)qlineitem_->line().x2(),(int)qlineitem_->line().y2() );
+}
+
 
 void uiLineItem::setPenColor( const Color& col )
 {
@@ -115,7 +107,7 @@ uiPixmapItem::uiPixmapItem()
 {}
 
 
-uiPixmapItem::uiPixmapItem( QGraphicsPixmapItem* qtobj )
+uiPixmapItem::uiPixmapItem( ODGraphicsPixmapItem* qtobj )
     : uiGraphicsItem(qtobj)
     , qpixmapitem_(qtobj)
 {}
@@ -129,7 +121,7 @@ uiPixmapItem::~uiPixmapItem()
 
 QGraphicsItem* uiPixmapItem::mkQtObj()
 {
-    qpixmapitem_ = new QGraphicsPixmapItem();
+    qpixmapitem_ = new ODGraphicsPixmapItem();
     return qpixmapitem_;
 }
 
@@ -143,6 +135,13 @@ void uiPixmapItem::setOffset( int left, int top )
 void uiPixmapItem::setPixmap( const ioPixmap& pixmap )
 {
     qpixmapitem_->setPixmap( *pixmap.qpixmap());
+}
+
+
+const uiPoint& uiPixmapItem::transformToScene( float x, float y )
+{
+    return *new uiPoint( (int)qpixmapitem_->mapToScene(x,y).x(),
+	    		(int)qpixmapitem_->mapToScene(x,y).y() );
 }
 
 
@@ -178,9 +177,9 @@ void uiPolygonItem::fill()
 
 void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist )
 {
-    QPolygon qpolygon;
+    QPolygon qpolygon( ptlist.size() );
     for ( int idx=0; idx<ptlist.size(); idx++ )
-	qpolygon.setPoint( idx, ptlist[idx].x, ptlist[idx].y );
+	qpolygon.setPoint( (unsigned int)idx, ptlist[idx].x, ptlist[idx].y );
     qpolygonitem_->setPolygon( QPolygonF(qpolygon) );
 }
 
@@ -238,6 +237,14 @@ QGraphicsItem* uiTextItem::mkQtObj()
     return qtextitem_;
 }
 
+const uiRect* uiTextItem::getTextRect()
+{
+    QRect rect( qtextitem_->boundingRect().toRect().topLeft(),
+	    	qtextitem_->boundingRect().toRect().bottomRight() );
+    return new uiRect( rect.topLeft().x(), rect.topLeft().y(),
+	    	       rect.bottomRight().x(), rect.bottomRight().y() );
+}
+
 
 void uiTextItem::setText( const char* txt )
 {
@@ -259,30 +266,31 @@ int uiTextItem::getTextWidth()
 
 void uiTextItem::setAlignment( const Alignment& al )
 {
+    const uiRect* textrect = getTextRect();
     QFontMetrics qfm( qtextitem_->font() );
-    float movex = qfm.width( qtextitem_->toPlainText() );
-    float movey = 0;
+    float movex = textrect->width();//qfm.width( qtextitem_->toPlainText() );
+    float movey = textrect->height();
     switch ( al.hor_ )
     {
-	case Alignment::Start:
+	case Alignment::Right:
 	    movex = -movex;
 	    break;
 	case Alignment::Middle:
 	    movex = -movex/2;
 	    break;
-	case Alignment::Stop:
+	case Alignment::Left:
 	    break;
     }
     
     switch ( al.ver_ )
     {
-	case Alignment::Start:
+	case Alignment::Bottom:
 	    movey = -(float)qfm.height();
 	    break;
 	case Alignment::Middle:
 	    movey = -(float)qfm.height()/2;
 	    break;
-	case Alignment::Stop:
+	case Alignment::Top:
 	    break;
     }
     qtextitem_->moveBy( movex, movey );
@@ -295,20 +303,16 @@ void uiTextItem::setTextColor( const Color& col )
 }
 
     
-uiMarkerItem::uiMarkerItem()
-    : uiGraphicsItem(mkQtObj())
-{}
-
-
 uiMarkerItem::uiMarkerItem( ODGraphicsMarkerItem* qtobj )
     : uiGraphicsItem(qtobj)
     , qmarkeritem_(qtobj)
 {}
 
 
-uiMarkerItem::~uiMarkerItem()
+uiMarkerItem::uiMarkerItem( const MarkerStyle2D& mstyle )
+    : uiGraphicsItem( mkQtObj() )
 {
-    delete qmarkeritem_;
+    qmarkeritem_->setMarkerStyle( mstyle );
 }
 
 
@@ -316,6 +320,12 @@ QGraphicsItem* uiMarkerItem::mkQtObj()
 {
     qmarkeritem_ = new ODGraphicsMarkerItem();
     return qmarkeritem_;
+}
+
+
+uiMarkerItem::~uiMarkerItem()
+{
+    delete qmarkeritem_;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsitem.cc,v 1.4 2008-09-01 07:41:19 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.cc,v 1.5 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uigraphicsitem.h"
 
-#include "color.h"
 #include "draw.h"
 
 #include <QBrush>
@@ -25,6 +24,17 @@ void uiGraphicsItem::hide()	{ qgraphicsitem_->hide(); }
 
 bool uiGraphicsItem::isVisible() const
 { return qgraphicsitem_->isVisible(); }
+
+void uiGraphicsItem::setVisible( bool yn )
+{ qgraphicsitem_->setVisible( yn ); }
+
+
+uiPoint* uiGraphicsItem::getPos() const
+{
+    return new uiPoint( (int)qgraphicsitem_->pos().x(),
+	    		(int)qgraphicsitem_->pos().y() );
+}
+
 
 void uiGraphicsItem::setPos( float x, float y )
 { qgraphicsitem_->setPos( x, y ); }
@@ -41,12 +51,34 @@ void uiGraphicsItem::scale( float x, float y )
 void uiGraphicsItem::setZValue( int x )
 { qgraphicsitem_->setZValue( x ); }
 
+
 void uiGraphicsItem::setPenColor( const Color& col )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
     if ( !agsitm ) return;
 
-    agsitm->pen().setColor( QColor(QRgb(col.rgb())) );
+    QPen qpen( QColor(QRgb(col.rgb())) );
+    agsitm->setPen( qpen );
+}
+
+
+bool uiGraphicsItem::isSelectable()
+{
+    return qgraphicsitem_->flags().testFlag( QGraphicsItem::ItemIsSelectable );
+}
+
+
+void uiGraphicsItem::setSelectable( bool yn )
+{
+    if ( yn )
+	qgraphicsitem_->setFlags( QGraphicsItem::ItemIsSelectable );
+//  else ???
+}
+
+
+void uiGraphicsItem::setParent( uiGraphicsItem* item )
+{
+    qgraphicsitem_->setParentItem( item->qgraphicsitem_ );
 }
 
 
@@ -84,6 +116,16 @@ uiGraphicsItemGroup::uiGraphicsItemGroup( QGraphicsItemGroup* qtobj )
 {}
 
 
+uiGraphicsItemGroup::uiGraphicsItemGroup( const ObjectSet<uiGraphicsItem>& grp )
+    : uiGraphicsItem(mkQtObj())
+{
+    ObjectSet<uiGraphicsItem>& itms =
+				const_cast<ObjectSet<uiGraphicsItem>&>(grp);
+    for ( int idx=0; idx<itms.size(); idx++ )
+	add( itms[idx] );
+}
+
+
 uiGraphicsItemGroup::~uiGraphicsItemGroup()
 {
     delete qgraphicsitemgrp_;
@@ -117,4 +159,4 @@ void uiGraphicsItemGroup::removeAll( bool withdelete )
 {
     while ( !items_.isEmpty() )
 	remove( items_[0], withdelete );
-} 
+}

@@ -4,32 +4,29 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: odgraphicsitem.cc,v 1.2 2008-09-01 07:41:19 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.cc,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 #include "odgraphicsitem.h"
 
-#include "color.h"
-#include "draw.h"
+#include "enums.h"
 #include "geometry.h"
-#include "math.h"
-#include "sets.h"
-#include "uienums.h"
+#include "pixmap.h"
 #include "uifont.h"
 
-#include "qgraphicsitem.h"
-#include "qglobal.h"
-#include "qstyleoption.h"
-#include "qpoint.h"
-#include "qpainter.h"
+#include <math.h>
 
-#include <QRectF>
-#include <QTextOption>
-#include <QString>
-#include <QPen>
-#include <QRgb>
 #include <QColor>
+#include <QPainter>
+#include <QPen>
+#include <QPoint>
+#include <QRectF>
+#include <QRgb>
+#include <QString>
+#include <QStyleOption>
+#include <QTextOption>
+
 
 QRectF ODGraphicsPointItem::boundingRect() const
 {
@@ -39,22 +36,26 @@ QRectF ODGraphicsPointItem::boundingRect() const
 
 
 void ODGraphicsPointItem::paint( QPainter* painter,
-				 const QStyleOptionGraphicsItem *option,
+				 const QStyleOptionGraphicsItem* option,
 				 QWidget *widget )
 {
+    painter->setClipRect( option->exposedRect );
     drawPoint( painter );
 
-    if (option->state & QStyle::State_Selected)
+    if ( option->state & QStyle::State_Selected )
     {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+	painter->setPen( QPen(option->palette.text(),1.0,Qt::DashLine) );
+	painter->setBrush( Qt::NoBrush );
+	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
 }
 	
 
 void ODGraphicsPointItem::drawPoint( QPainter* painter )
 {
+    /*QBrush qbrush( QColor(QRgb(pencolor_.rgb())) );
+    QPen qpen( qbrush, penwidth_, Qt::SolidLine );
+    painter->setPen( qpen );*/
     QPoint pts[13]; int ptnr = 0;
     #define mSetPt(ox,oy) pts[ptnr].setX(ox); pts[ptnr++].setY(oy)
     mSetPt( 0, 0 );
@@ -67,35 +68,51 @@ void ODGraphicsPointItem::drawPoint( QPainter* painter )
 	mSetPt( 2, 0 ); mSetPt( -2, 0 );
 	mSetPt( 0, 2 ); mSetPt( 0, -2 );
     }
+
     for ( int idx=0; idx<13; idx++ )	
 	painter->drawPoint( pts[idx] );
 }
 
 
-QRectF ODGraphicsMarkerItem::boundingRect() const
+
+ODGraphicsMarkerItem::ODGraphicsMarkerItem()
+    : QAbstractGraphicsShapeItem()
+    , mstyle_( new MarkerStyle2D() )
+{}
+
+
+void ODGraphicsMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 {
-    qreal penWidth = pen().widthF();
-    return QRectF( -penWidth, -penWidth, penWidth, penWidth );
+    const char* typestr = eString( MarkerStyle2D::Type, mstyle.type_ );
+    if ( mstyle.isVisible() || mstyle.size_ != 0 || !typestr || !*typestr )
+	*mstyle_ = mstyle;
 }
 
 
-void ODGraphicsMarkerItem::paint( QPainter *painter,
-				 const QStyleOptionGraphicsItem *option,
-				 QWidget *widget )
+QRectF ODGraphicsMarkerItem::boundingRect() const
 {
-    
+    return QRectF( -mstyle_->size_, -mstyle_->size_, 
+	    	   2*mstyle_->size_, 2*mstyle_->size_ );
+}
+
+
+void ODGraphicsMarkerItem::paint( QPainter* painter,
+				  const QStyleOptionGraphicsItem* option,
+				  QWidget* widget )
+{
    /* if ( side_ != 0 )
     pErrMsg( "TODO: implement single-sided markers" );
     if ( !mIsZero(angle_,1e-3) )
     pErrMsg( "TODO: implement tilted markers" );*/
-    
+
+    painter->setPen( QColor(QRgb(mstyle_->color_.rgb())) );
     drawMarker( *painter );
 
-    if (option->state & QStyle::State_Selected)
+    if ( option->state & QStyle::State_Selected )
     {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+	painter->setPen( QPen(option->palette.text(),1.0,Qt::DashLine) );
+	painter->setBrush( Qt::NoBrush );
+	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
 }
 
@@ -107,9 +124,9 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 	case MarkerStyle2D::Square:
 	{
 	    painter.drawRect( -mstyle_->size_, -mstyle_->size_,
-		      2*mstyle_->size_, 2*mstyle_->size_ );
+		      	      2*mstyle_->size_, 2*mstyle_->size_ );
 	    boundingrect_ = QRectF( -mstyle_->size_, -mstyle_->size_,
-		    		     2*mstyle_->size_, 2*mstyle_->size_ );
+		    		    2*mstyle_->size_, 2*mstyle_->size_ );
 	    break;
 	}
 	
@@ -132,7 +149,7 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 
 
 ODGraphicsArrowItem::ODGraphicsArrowItem()
-    : boundingrect_(new QRectF() )
+    : boundingrect_(new QRectF())
 {
 }
 
@@ -145,16 +162,17 @@ QRectF ODGraphicsArrowItem::boundingRect() const
 
 
 void ODGraphicsArrowItem::paint( QPainter* painter,
-				 const QStyleOptionGraphicsItem *option,
-				 QWidget *widget )
+				 const QStyleOptionGraphicsItem* option,
+				 QWidget* widget )
 {
+    painter->setClipRect( option->exposedRect );
     drawArrow( *painter );
 
     if (option->state & QStyle::State_Selected)
     {
-	painter->setPen(QPen(option->palette.text(), 1.0, Qt::DashLine));
-	painter->setBrush(Qt::NoBrush);
-	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
+	painter->setPen( QPen(option->palette.text(),1.0,Qt::DashLine) );
+	painter->setBrush( Qt::NoBrush );
+	painter->drawRect( boundingRect().adjusted(2,2,-2,-2) );
     }
 }
 
@@ -178,7 +196,7 @@ void ODGraphicsArrowItem::drawArrow( QPainter& painter )
 void ODGraphicsArrowItem::setLineStyle( QPainter& painter, const LineStyle& ls )
 {
     pen().setStyle( (Qt::PenStyle)ls.type_ );
-    pen().setColor( QColor( QRgb( ls.color_.rgb() )));
+    pen().setColor( QColor(QRgb(ls.color_.rgb())) );
     pen().setWidth( ls.width_ );
 
     painter.setPen( pen() );
@@ -297,6 +315,7 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 				 const QStyleOptionGraphicsItem *option,
 				 QWidget *widget )
 {
+    painter->setClipRect( option->exposedRect );
     painter->drawText( boundingRect(), *text_, *alignoption_ );
 
     if (option->state & QStyle::State_Selected)
@@ -305,4 +324,24 @@ void ODGraphicsTextItem::paint( QPainter* painter,
 	painter->setBrush(Qt::NoBrush);
 	painter->drawRect(boundingRect().adjusted(2, 2, -2, -2));
     }
+}
+
+
+
+ODGraphicsPixmapItem::ODGraphicsPixmapItem()
+    : QGraphicsPixmapItem()
+{}
+
+
+ODGraphicsPixmapItem::ODGraphicsPixmapItem( const ioPixmap& pm )
+    : QGraphicsPixmapItem(*pm.qpixmap())
+{}
+
+
+void ODGraphicsPixmapItem::paint( QPainter* painter,
+				  const QStyleOptionGraphicsItem* option,
+				  QWidget* widget )
+{
+    painter->setClipRect( option->exposedRect );
+    QGraphicsPixmapItem::paint( painter, option, widget );
 }

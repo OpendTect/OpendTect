@@ -7,31 +7,26 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.2 2008-09-05 11:11:27 cvsnanne Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "qgraphicsitem.h"
+#include <QGraphicsItem>
+
 #include "uienums.h"
 #include "draw.h"
 
-class QStyleOptionGraphicsItem;
-class QWidget;
-class QPoint;
-class QPainter;
-class QString;
 class QTextOption;
-
-class Color;
-class MarkerStyle2D;
-class LineStyle;
+class ioPixmap;
 
 class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
     				ODGraphicsPointItem()
-				    : highlight_(false)	{}
+				    : highlight_(false)
+				    , penwidth_(2)
+				    , pencolor_(Color::Black)	{}
 
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
@@ -42,6 +37,8 @@ public:
 
 protected:
     bool			highlight_;
+    int				penwidth_;
+    Color			pencolor_;
 };
 
 
@@ -49,21 +46,32 @@ protected:
 class ODGraphicsMarkerItem : public QAbstractGraphicsShapeItem
 {
 public:
+    				ODGraphicsMarkerItem();
+
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
     void 			drawMarker(QPainter&);
-    void			setMarkerStyle( const MarkerStyle2D& mstyle )
-    				{ mstyle_ = &mstyle ; }
+    void			setMarkerStyle(const MarkerStyle2D&);
     void			setAngle( float angle )	  { angle_ = angle; }
     void			setSideLength( int side ) { side_ = side; }
 
 protected:
     QRectF			boundingrect_;
-    const MarkerStyle2D*	mstyle_;	
+    MarkerStyle2D*		mstyle_;	
     float			angle_;	
     int 			side_;	
     const QPoint* 		qpoint_;	
+};
+
+
+class ODGraphicsPixmapItem : public QGraphicsPixmapItem
+{
+public:
+    				ODGraphicsPixmapItem();
+    				ODGraphicsPixmapItem(const ioPixmap&);
+    void                        paint(QPainter*,const QStyleOptionGraphicsItem*,
+				      QWidget*);
 };
 
 
@@ -110,4 +118,3 @@ protected:
 };
 
 #endif
-

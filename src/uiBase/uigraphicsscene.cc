@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.4 2008-09-02 12:48:57 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.5 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,26 +12,15 @@ ________________________________________________________________________
 
 #include "uigraphicsscene.h"
 
-#include "color.h"
-#include "keyboardevent.h"
-#include "math.h"
-#include "mouseevent.h"
 #include "odgraphicsitem.h"
-#include "pixmap.h"
-#include "uigeom.h"
-#include "uigraphicsitem.h"
 #include "uigraphicsitemimpl.h"
 
-#include <QBrush>
-#include <QColor>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
-#include <QList>
 #include <QPainter>
 #include <QPoint>
-#include <QPointF>
-#include <QPolygonF>
-#include <QVector>
+
+#include <math.h>
 
 
 class ODGraphicsScene : public QGraphicsScene
@@ -39,7 +28,8 @@ class ODGraphicsScene : public QGraphicsScene
 public:
     			ODGraphicsScene( uiGraphicsScene& scene )
 			    : uiscene_(scene)
-			    , bgopaque_(false)	{}
+			    , bgopaque_(false)
+			    , startpos_( *new QPoint() )	{}
 
     void		setBackgroundOpaque( bool yn )	{ bgopaque_ = yn; }
 protected:
@@ -54,6 +44,7 @@ private:
 
     bool		bgopaque_;
 
+    QPoint&		startpos_;
     uiGraphicsScene&	uiscene_;
 };
 
@@ -78,6 +69,8 @@ void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
+    if ( bs == OD::LeftButton )
+	startpos_ = QPoint( (int)qev->scenePos().x(),(int)qev->scenePos().y() );
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     uiscene_.getMouseEventHandler().triggerButtonPressed( mev );
     QGraphicsScene::mousePressEvent( qev );
@@ -87,6 +80,15 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
+    if ( bs == OD::LeftButton )
+    {
+	const QPoint& stoppos = QPoint( (int)qev->scenePos().x(),
+					(int)qev->scenePos().y() );
+	const QRectF selrect( startpos_, stoppos );
+	QPainterPath selareapath;
+	selareapath.addRect( selrect );
+	setSelectionArea( selareapath );
+    }
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     uiscene_.getMouseEventHandler().triggerButtonReleased( mev );
     QGraphicsScene::mouseReleaseEvent( qev );
@@ -105,59 +107,57 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
-    , qgraphicsscene_(new ODGraphicsScene(*this))
     , odgraphicsscene_(new ODGraphicsScene(*this))
 {
-    qgraphicsscene_->setObjectName( nm );
+    odgraphicsscene_->setObjectName( nm );
 }
 
 
 uiGraphicsScene::~uiGraphicsScene()
 {
-    delete qgraphicsscene_;
+    delete odgraphicsscene_;
+}
+
+
+int uiGraphicsScene::nrItems() const
+{
+    return odgraphicsscene_->items().size();
 }
 
 
 void uiGraphicsScene::addItem( uiGraphicsItem* itm )
 {
-   qgraphicsscene_->addItem( itm->qGraphicsItem() );
+    odgraphicsscene_->addItem( itm->qGraphicsItem() );
+    items_ += itm;
 }
 
 
 void uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
 {
-   qgraphicsscene_->addItem( itmgrp->qGraphicsItemGroup() );
+    odgraphicsscene_->addItem( itmgrp->qGraphicsItemGroup() );
+    items_ += itmgrp;
 }
 
 
 void uiGraphicsScene::removeItem( uiGraphicsItem* itm )
 {
-    qgraphicsscene_->removeItem( itm->qGraphicsItem() );
-}
-
-
-uiGraphicsItemGroup* uiGraphicsScene::addItemGrp( ObjectSet<uiGraphicsItem> grp)
-{
-    QList<QGraphicsItem*> qitmlist;
-    for ( int idx=0; idx<grp.size(); idx++ )
-	qitmlist += grp[idx]->qGraphicsItem();
-    uiGraphicsItemGroup* itemgrp = new uiGraphicsItemGroup(
-	qgraphicsscene_->createItemGroup(qitmlist) );
-    return itemgrp;
+    odgraphicsscene_->removeItem( itm->qGraphicsItem() );
+    items_ -= itm;
 }
 
 
 uiPixmapItem* uiGraphicsScene::addPixmap( const ioPixmap& pm )
 {
-    uiPixmapItem* uipixitem =  new uiPixmapItem(
-	qgraphicsscene_->addPixmap( *pm.qpixmap() ) );
+    uiPixmapItem* uipixitem = new uiPixmapItem( new ODGraphicsPixmapItem(pm) );
+    addItem( uipixitem );
     return uipixitem;
 }
 
 
 uiTextItem* uiGraphicsScene::addText( const char* txt )
 { 
-    uiTextItem* uitextitem = new uiTextItem( qgraphicsscene_->addText(txt) );
+    uiTextItem* uitextitem = new uiTextItem( odgraphicsscene_->addText(txt) );
+    items_ += uitextitem;
     return uitextitem;
 }
 
@@ -165,18 +165,20 @@ uiTextItem* uiGraphicsScene::addText( const char* txt )
 uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
 { 
     uiRectItem* uirectitem =
-	new uiRectItem( qgraphicsscene_->addRect(x,y,w,h) );
+	new uiRectItem( odgraphicsscene_->addRect(x,y,w,h) );
     uirectitem->moveBy( -w/2, -h/2 );
+    items_ += uirectitem;
     return uirectitem;
 }
 
 
 uiEllipseItem* uiGraphicsScene::addEllipse( float x, float y, float w, float h )
 {
-    uiEllipseItem* uieclipseitem =
-	new uiEllipseItem( qgraphicsscene_->addEllipse(x,y,w,h) );
-    uieclipseitem->moveBy( -w/2, -h/2 );
-    return uieclipseitem;
+    uiEllipseItem* uiellipseitem =
+	new uiEllipseItem( odgraphicsscene_->addEllipse(x,y,w,h) );
+    uiellipseitem->moveBy( -w/2, -h/2 );
+    items_ += uiellipseitem;
+    return uiellipseitem;
 }
 
 
@@ -187,7 +189,6 @@ uiEllipseItem* uiGraphicsScene::addEllipse( const uiPoint& center,
 }
 
 
-inline
 static uiPoint getEndPoint( const uiPoint& pt, double angle, double len )
 {
     uiPoint endpt( pt );
@@ -203,7 +204,8 @@ static uiPoint getEndPoint( const uiPoint& pt, double angle, double len )
 uiLineItem* uiGraphicsScene::addLine( float x, float y, float w, float h )
 {
     uiLineItem* uilineitem =
-	new uiLineItem( qgraphicsscene_->addLine(x,y,w,h) );
+	new uiLineItem( odgraphicsscene_->addLine(x,y,w,h) );
+    items_ += uilineitem;
     return uilineitem;
 }    
 
@@ -233,9 +235,10 @@ uiPolygonItem* uiGraphicsScene::addPolygon( const TypeSet<uiPoint>& pts,
     }
 
     uiPolygonItem* uipolyitem = new uiPolygonItem(
-	qgraphicsscene_->addPolygon(QPolygonF(qpts)) );
+	odgraphicsscene_->addPolygon(QPolygonF(qpts)) );
     if ( fill )
 	uipolyitem->fill();
+    items_ += uipolyitem;
     return uipolyitem;
 }
 
@@ -244,15 +247,16 @@ uiPointItem* uiGraphicsScene::addPoint( bool hl )
 {
     uiPointItem* uiptitem = new uiPointItem();
     uiptitem->qPointItem()->setHighLight( hl );
+    items_ += uiptitem;
     return uiptitem;
 }
 
 
 uiMarkerItem* uiGraphicsScene::addMarker( const MarkerStyle2D& mstyl, int side )
 {
-    uiMarkerItem* markeritem = new uiMarkerItem();
-    markeritem->qMarkerItem()->setMarkerStyle( mstyl );
+    uiMarkerItem* markeritem = new uiMarkerItem( mstyl );
     markeritem->qMarkerItem()->setSideLength( side );
+    items_ += markeritem;
     return markeritem;
 }
 
@@ -267,6 +271,7 @@ uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
     const uiPoint relvec( head.x - tail.x, tail.y - head.y );
     const double ang( atan2(relvec.y,relvec.x) );
     arritem->rotate( ang );
+    items_ += arritem;
     return arritem;
 }
 
@@ -274,22 +279,54 @@ uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
 void uiGraphicsScene::setBackGroundColor( const Color& color )
 {
     QBrush brush( QColor(color.r(),color.g(),color.b()) );
-    qgraphicsscene_->setBackgroundBrush( brush );
+    odgraphicsscene_->setBackgroundBrush( brush );
 }
 
 
 const Color uiGraphicsScene::backGroundColor() const
 {
-    QColor color( qgraphicsscene_->backgroundBrush().color() ); 
+    QColor color( odgraphicsscene_->backgroundBrush().color() ); 
     return Color( color.red() , color.green(), color.blue() );
 }
 
 
 void uiGraphicsScene::removeAllItems()
 {
-    QList<QGraphicsItem *> items = qgraphicsscene_->items();
+    QList<QGraphicsItem *> items = odgraphicsscene_->items();
     for ( int idx=0; idx<items.size(); idx++ )
-	qgraphicsscene_->removeItem( items[idx] );
+	odgraphicsscene_->removeItem( items[idx] );
+    deepErase( items_ );
+}
+
+/*uiGraphicsItemGroup* uiGraphicsScene::getSelectedItems()
+{
+    uiGraphicsItemGroup* selitemgrp = new uiGraphicsItemGroup();
+    QList<QGraphicsItem*> items = odgraphicsscene_->selectedItems();
+    for ( int idx=0; idx<items.size(); idx++ )
+    {
+	uiGraphicsItem selecteditm( items[idx] );
+	selecteditm.setParent( selitemgrp );
+	selitemgrp->add( &selecteditm );
+    }
+    return selitemgrp;
+    //change parent from scene_ to a Item Group
+}*/
+
+uiRect* uiGraphicsScene::getSelectedArea()
+{
+    QRectF selarea( odgraphicsscene_->selectionArea().boundingRect().toRect() );
+    return new uiRect( (int)selarea.topLeft().x(), (int)selarea.topLeft().y(),
+	   	       (int)selarea.bottomRight().x(),
+		       (int)selarea.bottomRight().y() );
+}
+
+void uiGraphicsScene::setSelectionArea( const uiRect& rect )
+{
+    const QRectF selrect( rect.topLeft().x, rect.topLeft().y, rect.width(),
+	    		  rect.height() );
+    QPainterPath selareapath;
+    selareapath.addRect( selrect );
+    odgraphicsscene_->setSelectionArea( selareapath );
 }
 
 
@@ -302,14 +339,14 @@ void uiGraphicsScene::useBackgroundPattern( bool usebgpattern )
 	QBrush brush;
 	brush.setColor( QColor(0,0,0) );
 	brush.setStyle( Qt::DiagCrossPattern );
-	qgraphicsscene_->setBackgroundBrush( brush );
+	odgraphicsscene_->setBackgroundBrush( brush );
     }
 }
 
 
 double uiGraphicsScene::width() const
-{ return qgraphicsscene_->width(); }
+{ return odgraphicsscene_->width(); }
+
 
 double uiGraphicsScene::height() const
-{ return qgraphicsscene_->height(); }
-
+{ return odgraphicsscene_->height(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.4 2008-09-02 12:48:57 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.5 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "namedobj.h"
 #include "uigeom.h"
-#include "uigraphicsitem.h"
+
 
 class QGraphicsScene;
 class ODGraphicsScene;
@@ -28,11 +28,14 @@ class MarkerStyle2D;
 
 class uiArrowItem;
 class uiEllipseItem;
+class uiGraphicsItem;
+class uiGraphicsItemGroup;
 class uiLineItem;
 class uiMarkerItem;
+class uiPixmapItem;
 class uiPointItem;
 class uiPolygonItem;
-class uiPixmapItem;
+class uiRect;
 class uiRectItem;
 class uiTextItem;
 
@@ -42,10 +45,13 @@ public:
 				uiGraphicsScene(const char*);
 				~uiGraphicsScene();
 
-    void			addItem(uiGraphicsItem*);
+    void			removeAllItems();
     void			removeItem(uiGraphicsItem*);
+
+    void			addItem(uiGraphicsItem*);
     void			addItemGrp(uiGraphicsItemGroup*);
-    uiGraphicsItemGroup*	addItemGrp(ObjectSet<uiGraphicsItem>);
+    int				nrItems() const;
+
     uiTextItem*			addText(const char*);
     uiPixmapItem*		addPixmap(const ioPixmap&);
     uiRectItem*			addRect(float x,float y,float w,float h);
@@ -67,9 +73,12 @@ public:
 					 const ArrowStyle&);
 
     void			useBackgroundPattern(bool);
-    void			removeAllItems();
     void 			setBackGroundColor(const Color&);
     const Color			backGroundColor() const;
+
+    uiGraphicsItemGroup*	getSelectedItems();
+    uiRect*			getSelectedArea();
+    void			setSelectionArea(const uiRect&);
 
     MouseEventHandler&		getMouseEventHandler()	
     				{ return mousehandler_; }
@@ -79,13 +88,12 @@ public:
     double			width() const;
     double			height() const;
 
-
     QGraphicsScene*		qGraphicsScene()
-    				{ return qgraphicsscene_; }
+    				{ return (QGraphicsScene*)odgraphicsscene_; }
 
 protected:
 
-    QGraphicsScene*		qgraphicsscene_;
+    ObjectSet<uiGraphicsItem>	items_;
     ODGraphicsScene*		odgraphicsscene_;
 
     MouseEventHandler		mousehandler_;

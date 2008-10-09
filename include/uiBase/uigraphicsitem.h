@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.4 2008-09-01 07:41:24 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.5 2008-10-09 06:35:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
+#include "uigeom.h"
 
 class Color;
 class LineStyle;
@@ -31,7 +32,11 @@ public:
     void		show();
     void		hide();
     bool		isVisible() const;
+    void		setVisible(bool);
+    void		setSelectable(bool);
+    bool		isSelectable();
 
+    uiPoint*		getPos() const;
     void		setPos(float x,float y);
     void		moveBy(float x,float y);
     void		rotate(float angle);
@@ -41,6 +46,8 @@ public:
     virtual void	setPenStyle(const LineStyle&);
     virtual void	setPenColor(const Color&);
     void		setFillColor(const Color&);
+
+    void		setParent(uiGraphicsItem*);
 
 protected:
     			uiGraphicsItem( QGraphicsItem* itm )
@@ -57,11 +64,16 @@ class uiGraphicsItemGroup : public uiGraphicsItem
 public:
     			uiGraphicsItemGroup();
 			uiGraphicsItemGroup(QGraphicsItemGroup*);
+			uiGraphicsItemGroup(const ObjectSet<uiGraphicsItem>&);
 			~uiGraphicsItemGroup();
 
     void		add(uiGraphicsItem*);
     void		remove(uiGraphicsItem*,bool);
     void		removeAll(bool);
+    int			getSize()	{ return items_.size(); }
+    uiGraphicsItem* 	getUiItem( int idx )	
+			{ if ( items_.validIdx(idx) ) return items_[idx];
+		          else return 0; }
 
     QGraphicsItemGroup*	qGraphicsItemGroup()	{ return qgraphicsitemgrp_; }
 
@@ -72,5 +84,6 @@ protected:
     QGraphicsItemGroup*	qgraphicsitemgrp_;
     ObjectSet<uiGraphicsItem>	items_;
 };
+
 
 #endif
