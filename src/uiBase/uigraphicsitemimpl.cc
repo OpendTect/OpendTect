@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.cc,v 1.4 2008-10-09 06:39:23 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.cc,v 1.5 2008-10-09 12:29:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,35 +266,34 @@ int uiTextItem::getTextWidth()
 
 void uiTextItem::setAlignment( const Alignment& al )
 {
-    const uiRect* textrect = getTextRect();
     QFontMetrics qfm( qtextitem_->font() );
-    float movex = textrect->width();//qfm.width( qtextitem_->toPlainText() );
-    float movey = textrect->height();
-    /*
+    const float txtwidth = qfm.width( qtextitem_->toPlainText() );
+    const float txtheight = qfm.height();
+    float movex = 0, movey = 0;
     switch ( al.hor_ )
     {
-	case Alignment::Right:
-	    movex = -movex;
+	case Alignment::Stop:
+	    movex = -txtwidth;
 	    break;
 	case Alignment::Middle:
-	    movex = -movex/2;
+	    movex = -txtwidth/2;
 	    break;
-	case Alignment::Left:
+	case Alignment::Start:
 	    break;
     }
     
     switch ( al.ver_ )
     {
-	case Alignment::Bottom:
-	    movey = -(float)qfm.height();
+	case Alignment::Stop:
+	    movey = -txtheight;
 	    break;
 	case Alignment::Middle:
-	    movey = -(float)qfm.height()/2;
+	    movey = -txtheight/2;
 	    break;
-	case Alignment::Top:
+	case Alignment::Start:
 	    break;
     }
-    */
+
     qtextitem_->moveBy( movex, movey );
 }
 
