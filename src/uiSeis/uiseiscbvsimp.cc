@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.47 2008-08-22 06:59:00 cvsnanne Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.48 2008-10-09 09:34:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ IOObj* uiSeisImpCBVS::getfInpIOObj( const char* inp ) const
 {
     IOStream* iostrm = new IOStream( "_tmp", tmpid_ );
     iostrm->setGroup( outctio_.ctxt.trgroup->userName() );
-    iostrm->setTranslator( outctio_.ctxt.trglobexpr );
+    iostrm->setTranslator( "CBVS" );
     iostrm->setFileName( inp );
     return iostrm;
 }
@@ -247,10 +247,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 
 	outctio_.ioobj->setTranslator( "CBVS" );
 	if ( !dolink )
-	{
 	    inctio_.setObj( getfInpIOObj(fname) );
-	    IOM().commitChanges( *inctio_.ioobj );
-	}
 	else
 	{
 	    mDynamicCastGet(IOStream*,iostrm,outctio_.ioobj);
