@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.18 2008-06-25 12:17:27 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.19 2008-10-09 14:34:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,7 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
 {
     wellsfld_->empty(); logsfld_->empty();
     topmarkfld_->empty(); botmarkfld_->empty();
+    deepErase( wellobjs_ );
 
     Well::InfoCollector wic;
     uiTaskRunner tr( this );
