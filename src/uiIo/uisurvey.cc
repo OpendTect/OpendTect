@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.92 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.93 2008-10-09 06:46:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,8 +151,8 @@ uiSurvey::uiSurvey( uiParent* p )
 
     survmap_ = new uiSurveyMap( rightgrp );
     survmap_->setStretch( 0, 0 );
-    survmap_->setWidth( mMapWidth );
-    survmap_->setHeight( mMapHeight );
+    survmap_->setPrefWidth( mMapWidth );
+    survmap_->setPrefHeight( mMapHeight );
 
     uiGroup* leftgrp = new uiGroup( this, "Survey selection left" );
     listbox_ = new uiListBox( leftgrp, dirlist_, "Surveys" );
@@ -598,8 +598,6 @@ void uiSurvey::writeComments()
 
 void uiSurvey::doDrawMap( CallBacker* )
 {
-    survmap_->setWidth( mMapWidth );
-    survmap_->setHeight( mMapHeight );
     survmap_->drawMap( survinfo_ );
 }
 
