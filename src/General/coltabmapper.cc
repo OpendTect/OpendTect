@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.11 2008-10-07 18:45:07 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.12 2008-10-10 21:13:05 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -66,6 +66,10 @@ void ColTab::setMapperDefaults( float cr, float sm )
 }
 
 
+DefineEnumNames( ColTab::MapperSetup, Type, 1, "Types" )
+{ "Fixed", "Auto", "HistEq", 0 };
+
+
 ColTab::MapperSetup::MapperSetup()
     : type_(Auto)
     , cliprate_(defClipRate())
@@ -110,6 +114,32 @@ bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
 
 bool ColTab::MapperSetup::operator!=( const ColTab::MapperSetup& b ) const
 { return !(*this==b); }
+
+
+void ColTab::MapperSetup::fillPar( IOPar& par ) const
+{
+    par.set( sKeyType(), TypeNames[(int) type_] );
+    par.set( sKeyClipRate(), cliprate_ );
+    par.set( sKeySymMidVal(), symmidval_ );
+    par.set( sKeyMaxPts(), maxpts_ );
+    par.set( sKeyRange(), start_, width_ );
+}
+
+
+bool ColTab::MapperSetup::usePar( const IOPar& par )
+{
+    const char* typestr = par.find( sKeyType() );
+    const int typeidx = TypeDef().convert( typestr );
+    if ( typeidx==-1 )
+	return false;
+
+    type_ = (Type) typeidx;
+
+    return par.get( sKeyClipRate(), cliprate_ ) &&
+	   par.get( sKeySymMidVal(), symmidval_ ) &&
+	   par.get( sKeyMaxPts(), maxpts_ ) &&
+	   par.get( sKeyRange(), start_, width_ );
+}
 
 
 ColTab::Mapper::Mapper()

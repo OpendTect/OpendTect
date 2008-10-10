@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.7 2008-10-07 18:45:07 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.8 2008-10-10 21:13:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "enums.h"
 #include "coltab.h"
 #include "ranges.h"
 #include "valseries.h"
 
 class DataClipper;
+class IOPar;
 
 namespace ColTab
 {
@@ -27,9 +29,11 @@ namespace ColTab
   example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
  
  */
-struct MapperSetup {
-		    MapperSetup();
-    enum Type	{ Fixed, Auto, HistEq };
+struct MapperSetup
+{
+			MapperSetup();
+    enum Type		{ Fixed, Auto, HistEq };
+    			DeclareEnumUtils(Type);
 
 
     mDefSetupClssMemb(MapperSetup,Type,type);
@@ -41,8 +45,16 @@ struct MapperSetup {
     mDefSetupClssMemb(MapperSetup,float,start);
     mDefSetupClssMemb(MapperSetup,float,width);
 
-    bool operator==( const MapperSetup& ) const;
-    bool operator!=( const MapperSetup& ) const;
+    bool 		operator==(const MapperSetup&) const;
+    bool		operator!=(const MapperSetup&) const;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+    static const char*	sKeyType()		{ return "Type"; }
+    static const char*	sKeyClipRate()		{ return "Clip Rate"; }
+    static const char*	sKeySymMidVal()		{ return "Sym Mid Value"; }
+    static const char*	sKeyMaxPts()		{ return "Max Pts"; }
+    static const char*	sKeyRange()		{ return "Start_Width"; }
 };
 
 
