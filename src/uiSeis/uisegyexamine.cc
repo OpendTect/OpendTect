@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.6 2008-09-30 16:18:41 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.7 2008-10-10 14:08:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -253,7 +253,7 @@ void uiSEGYExamine::updateInp()
 void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 				      const SEGYSeisTrcTranslator& tr )
 {
-    const SEGY::TxtHeader& txthead = tr.txtHeader();
+    const SEGY::TxtHeader& txthead = *tr.txtHeader();
     const SEGY::BinHeader& binhead = tr.binHeader();
     std::ostringstream thstrm, bhstrm;
     txthead.dump( thstrm );

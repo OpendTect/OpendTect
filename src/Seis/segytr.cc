@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.67 2008-10-08 15:57:32 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.68 2008-10-10 14:08:28 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.67 2008-10-08 15:57:32 cvsbert Ex
 #include "envvars.h"
 #include "separstr.h"
 #include "keystrs.h"
+#include "settings.h"
 #include <math.h>
 #include <ctype.h>
 
@@ -32,7 +33,7 @@ static const char* rcsID = "$Id: segytr.cc,v 1.67 2008-10-08 15:57:32 cvsbert Ex
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	: SeisTrcTranslator(nm,unm)
 	, trchead_(*new SEGY::TrcHeader(headerbuf,true,fileopts_.thdef_))
-	, txthead_(*new SEGY::TxtHeader)
+	, txthead_(0)
 	, binhead_(*new SEGY::BinHeader)
 	, trcscale_(0)
 	, curtrcscale_(0)
@@ -60,7 +61,7 @@ SEGYSeisTrcTranslator::~SEGYSeisTrcTranslator()
     delete [] blockbuf; blockbuf = 0;
     headerbufread = headerdone = false;
 
-    delete &txthead_;
+    delete txthead_;
     delete &binhead_;
     delete &trchead_;
 }
@@ -78,9 +79,11 @@ int SEGYSeisTrcTranslator::dataBytes() const
 
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
-    if ( !sConn().doIO(txthead_.txt,SegyTxtHeaderLength) )
+    if ( !txthead_ )
+	txthead_ = new SEGY::TxtHeader;
+    if ( !sConn().doIO(txthead_->txt_,SegyTxtHeaderLength) )
 	mErrRet( "Cannot read EBCDIC header" )
-    txthead_.setAscii();
+    txthead_->setAscii();
 
     binhead_.needswap = filepars_.byteswapped_;
     unsigned char binheaderbuf[400];
@@ -96,7 +99,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	    binhead_.nrstzs = 0;
 	for ( int idx=0; idx<binhead_.nrstzs; idx++ )
 	{
-	    if ( !sConn().doIO(txthead_.txt,SegyTxtHeaderLength) )
+	    if ( !sConn().doIO(txthead_->txt_,SegyTxtHeaderLength) )
 		mErrRet( "No traces found in the SEG-Y file" )
 	}
     }
@@ -115,7 +118,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	}
     }
 
-    txthead_.getText( pinfo.usrinfo );
+    txthead_->getText( pinfo.usrinfo );
     pinfo.nr = binhead_.lino;
     pinfo.zrg.step = binhead_.hdt * (0.001 / SI().zFactor());
     insd.step = binhead_dpos_ = pinfo.zrg.step;
@@ -191,6 +194,12 @@ void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 }
 
 
+void SEGYSeisTrcTranslator::setTxtHeader( SEGY::TxtHeader* th )
+{
+    delete txthead_; txthead_ = th;
+}
+
+
 bool SEGYSeisTrcTranslator::writeTapeHeader()
 {
     if ( filepars_.fmt_ == 0 )
@@ -199,15 +208,18 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
     trchead_.isrev1 = !force_rev0;
 
-    SEGY::TxtHeader txthead_( trchead_.isrev1 );
-    txthead_.setUserInfo( pinfo.usrinfo );
-    fileopts_.thdef_.linename = curlinekey.buf();
-    fileopts_.thdef_.pinfo = &pinfo;
-    txthead_.setPosInfo( fileopts_.thdef_ );
-    txthead_.setStartPos( outsd.start );
-    if ( GetEnvVarYN("OD_WRITE_EBCDIC_SEGY_HDR" ) )
-	txthead_.setEbcdic();
-    if ( !sConn().doIO( txthead_.txt, SegyTxtHeaderLength ) )
+    if ( !txthead_ )
+    {
+	txthead_ = new SEGY::TxtHeader( trchead_.isrev1 );
+	txthead_->setUserInfo( pinfo.usrinfo );
+	fileopts_.thdef_.linename = curlinekey.buf();
+	fileopts_.thdef_.pinfo = &pinfo;
+	txthead_->setPosInfo( fileopts_.thdef_ );
+	txthead_->setStartPos( outsd.start );
+	if ( Settings::common().isTrue("SEGY.Text Header EBCDIC") )
+	    txthead_->setEbcdic();
+    }
+    if ( !sConn().doIO( txthead_->txt_, SegyTxtHeaderLength ) )
 	mErrRet("Cannot write SEG-Y textual header")
 
     SEGY::BinHeader binhead( trchead_.isrev1 );

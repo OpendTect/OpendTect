@@ -1,10 +1,11 @@
 /*+
+
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:		$Id: uisegyexp.cc,v 1.5 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:		$Id: uisegyexp.cc,v 1.6 2008-10-10 14:08:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,19 +17,142 @@ ________________________________________________________________________
 #include "uiseistransf.h"
 #include "uiseisioobjinfo.h"
 #include "segyhdr.h"
+#include "segytr.h"
+#include "seiswrite.h"
+#include "seissingtrcproc.h"
 #include "uimsg.h"
 #include "uibutton.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uitaskrunner.h"
 #include "uifileinput.h"
+#include "uifiledlg.h"
+#include "uitextedit.h"
 #include "executor.h"
 #include "ctxtioobj.h"
 #include "iostrm.h"
 #include "ioman.h"
+#include "oddirs.h"
+#include "pixmap.h"
 #include "filepath.h"
 #include "filegen.h"
-#include "seistrctr.h"
+
+static const char* txtheadtxt =
+"Define the SEG-Y text header. Note that:"
+"\n- The Cnn line start and Rev.1 indicators will always be retained"
+"\n- You can only define 40 lines of 80 characters";
+
+class uiSEGYExpTxtHeaderDlg : public uiDialog
+{
+public:
+
+uiSEGYExpTxtHeaderDlg( uiParent* p, BufferString& hdr, bool& ag )
+    : uiDialog(p,Setup("Define SEG-Y Text Header",txtheadtxt,mTODOHelpID))
+    , hdr_(hdr)
+    , autogen_(ag)
+{
+    const CallBack cb( mCB(this,uiSEGYExpTxtHeaderDlg,agSel) );
+    autogenfld_ = new uiGenInput( this, "Automatically generate",
+	    			  BoolInpSpec(false) );
+    autogenfld_->valuechanged.notify( cb );
+    uiToolButton* wtb = new uiToolButton( this, "Write to file",
+	    ioPixmap("saveset.png"), mCB(this,uiSEGYExpTxtHeaderDlg,writePush));
+    wtb->attach( rightBorder );
+    uiToolButton* rtb = new uiToolButton( this, "Read file",
+	    ioPixmap("openset.png"), mCB(this,uiSEGYExpTxtHeaderDlg,readPush) );
+    rtb->attach( leftOf, wtb );
+
+    edfld_ = new uiTextEdit( this, "Hdr edit" );
+    edfld_->setPrefWidthInChar( 81 );
+    edfld_->setPrefHeightInChar( 24 );
+    if ( hdr_.isEmpty() )
+    {
+	SEGY::TxtHeader th; th.clear();
+	th.getText( hdr_ );
+    }
+    edfld_->setText( hdr_ );
+    edfld_->attach( ensureBelow, autogenfld_ );
+    finaliseDone.notify( cb );
+}
+
+void agSel( CallBacker* )
+{
+    edfld_->display( !autogenfld_->getBoolValue() );
+}
+
+void readPush( CallBacker* )
+{
+    FilePath fp( GetDataDir() ); fp.add( "Seismics" );
+    uiFileDialog dlg( this, true, fp.fullPath() );
+    if ( !dlg.go() ) return;
+
+    if ( !File_exists(dlg.fileName()) )
+	{ uiMSG().error("Cannot open file"); return; }
+
+    edfld_->readFromFile( dlg.fileName() );
+}
+
+void writePush( CallBacker* )
+{
+    FilePath fp( GetDataDir() ); fp.add( "Seismics" );
+    uiFileDialog dlg( this, false, fp.fullPath() );
+    if ( !dlg.go() ) return;
+
+    fp.set( dlg.fileName() );
+    if ( !File_isWritable(fp.pathOnly()) )
+	{ uiMSG().error("Cannot write to this directory"); return; }
+    const BufferString fnm( fp.fullPath() );
+    if ( File_exists(fnm) && !File_isWritable(fnm) )
+	{ uiMSG().error("Cannot write to this file"); return; }
+
+    if ( !edfld_->saveToFile(fnm) )
+	{ uiMSG().error("Failed to write to this file"); return; }
+}
+
+bool acceptOK( CallBacker* )
+{
+    autogen_ = autogenfld_->getBoolValue();
+    if ( !autogen_ )
+	hdr_ = edfld_->text();
+    return true;
+}
+
+    BufferString&	hdr_;
+    bool&		autogen_;
+
+    uiGenInput*		autogenfld_;
+    uiTextEdit*		edfld_;
+
+};
+
+class uiSEGYExpTxtHeader : public uiCompoundParSel
+{
+public:
+
+uiSEGYExpTxtHeader( uiSEGYExp* se )
+    : uiCompoundParSel(se,"Text header","Define")
+    , se_(se)
+{
+    butPush.notify( mCB(this,uiSEGYExpTxtHeader,butPushed) );
+}
+
+void butPushed( CallBacker* )
+{
+    uiSEGYExpTxtHeaderDlg dlg( this, se_->hdrtxt_, se_->autogentxthead_ );
+    dlg.go();
+}
+
+BufferString getSummary() const
+{
+    if ( se_->autogentxthead_ )
+	return BufferString( "<generate>" );
+    else
+	return BufferString( "<user-defined>" );
+}
+
+    uiSEGYExp*	se_;
+
+};
 
 
 uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
@@ -36,6 +160,7 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
 	, ctio_(*mMkCtxtIOObj(SeisTrc))
     	, geom_(gt)
     	, morebut_(0)
+    	, autogentxthead_(true)
 {
     seissel_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_) );
     seissel_->selectiondone.notify( mCB(this,uiSEGYExp,inpSel) );
@@ -48,9 +173,12 @@ uiSEGYExp::uiSEGYExp( uiParent* p, Seis::GeomType gt )
     fpfld_ = new uiSEGYFilePars( this, false );
     fpfld_->attach( alignedBelow, transffld_ );
 
+    txtheadfld_ = new uiSEGYExpTxtHeader( this );
+    txtheadfld_->attach( alignedBelow, fpfld_ );
+
     uiSEGYFileSpec::Setup su; su.forread(false).canbe3d(!Seis::is2D(geom_));
     fsfld_ = new uiSEGYFileSpec( this, su );
-    fsfld_->attach( alignedBelow, fpfld_ );
+    fsfld_->attach( alignedBelow, txtheadfld_ );
 
     if ( Seis::is2D(geom_) )
     {
@@ -261,11 +389,27 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 	return false;
 
     SEGY::TxtHeader::info2d = is2d;
-    PtrMan<Executor> exec = transffld_->getTrcProc( inioobj, outioobj,
-					"Export seismic data", "Putting traces",
-					attrnm, linenm );
+    Executor* exec = transffld_->getTrcProc( inioobj, outioobj,
+				    "Export seismic data", "Putting traces",
+				    attrnm, linenm );
     if ( !exec )
 	return false;
+    PtrMan<Executor> execptrman = exec;
+
+    mDynamicCastGet(SeisSingleTraceProc*,sstp,exec)
+    if ( sstp && !autogentxthead_ && !hdrtxt_.isEmpty() )
+    {
+	const SeisTrcWriter* wrr = sstp->writer();
+	SeisTrcTranslator* tr =
+	    	const_cast<SeisTrcTranslator*>(wrr->seisTranslator());
+	mDynamicCastGet(SEGYSeisTrcTranslator*,segytr,tr)
+	if ( segytr )
+	{
+	    SEGY::TxtHeader* th = new SEGY::TxtHeader;
+	    th->setText( hdrtxt_ );
+	    segytr->setTxtHeader( th );
+	}
+    }
 
     bool rv = false;
     if ( linenm && *linenm )
@@ -277,7 +421,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     rv = dlg.execute( *exec );
-    exec.erase();
+    execptrman.erase();
 
     SEGY::TxtHeader::info2d = false;
     return rv;

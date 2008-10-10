@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.60 2008-10-01 09:38:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.61 2008-10-10 14:08:28 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -45,24 +45,20 @@ bool SEGY::TxtHeader::info2d = false;
 static void Ebcdic2Ascii(unsigned char*,int);
 static void Ascii2Ebcdic(unsigned char*,int);
 
+static const int cTxtHeadNrLines = 40;
+static const int cTxtHeadCharsPerLine = 80;
+
 
 SEGY::TxtHeader::TxtHeader( bool rev1 )
+    : rev1_(rev1)
 {
-    char cbuf[3];
-    int nrlines = SegyTxtHeaderLength / 80;
-
-    memset( txt, ' ', SegyTxtHeaderLength );
-    for ( int i=0; i<nrlines; i++ )
-    {
-	int i80 = i*80; txt[i80] = 'C';
-	sprintf( cbuf, "%02d", i+1 );
-	txt[i80+1] = cbuf[0]; txt[i80+2] = cbuf[1];
-    }
+    clear();
 
     FileNameString buf;
-    buf = "Created by: ";
-    buf += Settings::common()[ "Company" ]; buf += " (";
-    buf += Time_getFullDateString(); buf += ")";
+    const char* res = Settings::common().find( "Company" );
+    if ( !res ) res = "OpendTect";
+    buf = "Created by: "; buf += res;
+    buf += "     ("; buf += Time_getFullDateString(); buf += ")";
     putAt( 1, 6, 75, buf );
     putAt( 2, 6, 75, SI().name() );
     BinID bid = SI().sampling(false).hrg.start;
@@ -94,24 +90,43 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
 	buf += SI().getZUnit(false);
 	putAt( 18, 6, 75, buf.buf() );
     }
+}
+
+
+void SEGY::TxtHeader::clearText()
+{
+    memset( txt_, ' ', SegyTxtHeaderLength );
+}
+
+
+void SEGY::TxtHeader::setLineStarts()
+{
+    char cbuf[3];
+    for ( int iln=0; iln<cTxtHeadNrLines; iln++ )
+    {
+	int i80 = iln*cTxtHeadCharsPerLine; txt_[i80] = 'C';
+	sprintf( cbuf, "%02d", iln+1 );
+	txt_[i80+1] = cbuf[0]; txt_[i80+2] = cbuf[1];
+    }
+
     BufferString rvstr( "SEG Y REV" );
-    rvstr += rev1 ? 1 : 0;
-    putAt( 39, 6, 75, rvstr.buf() );
-    putAt( 40, 6, 75, "END TEXTUAL HEADER" );
+    rvstr += rev1_ ? 1 : 0;
+    putAt( cTxtHeadNrLines-1, 6, 75, rvstr.buf() );
+    putAt( cTxtHeadNrLines, 6, 75, "END TEXTUAL HEADER" );
 }
 
 
 void SEGY::TxtHeader::setAscii()
-{ if ( txt[0] != 'C' ) Ebcdic2Ascii( txt, SegyTxtHeaderLength ); }
+{ if ( txt_[0] != 'C' ) Ebcdic2Ascii( txt_, SegyTxtHeaderLength ); }
 void SEGY::TxtHeader::setEbcdic()
-{ if ( txt[0] == 'C' ) Ascii2Ebcdic( txt, SegyTxtHeaderLength ); }
+{ if ( txt_[0] == 'C' ) Ascii2Ebcdic( txt_, SegyTxtHeaderLength ); }
 
 
 void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 {
     if ( !infotxt || !*infotxt ) return;
 
-    FileNameString buf;
+    BufferString buf;
     int lnr = 16;
     while ( lnr < 35 )
     {
@@ -120,7 +135,7 @@ void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 	while ( *infotxt && *infotxt != '\n' && ++idx < 75 )
 	    *ptr++ = *infotxt++;
 	*ptr = '\0';
-	putAt( lnr, 5, 80, buf );
+	putAt( lnr, 5, cTxtHeadCharsPerLine, buf );
 
 	if ( !*infotxt ) break;
 	lnr++;
@@ -191,17 +206,37 @@ void SEGY::TxtHeader::setStartPos( float sp )
 }
 
 
-void SEGY::TxtHeader::getText( BufferString& bs )
+void SEGY::TxtHeader::getText( BufferString& bs ) const
 {
-    char buf[80];
-    bs = "";
-    for ( int idx=0; idx<40; idx++ )
+    char buf[cTxtHeadCharsPerLine];
+    getFrom( 1, 1, cTxtHeadCharsPerLine, buf );
+    bs = buf;
+    for ( int iln=2; iln<=cTxtHeadNrLines; iln++ )
     {
-	getFrom( idx, 3, 80, buf );
-	if ( !buf[0] ) continue;
-	if ( *(const char*)bs ) bs += "\n";
+	bs += "\n";
+	getFrom( iln, 1, cTxtHeadCharsPerLine, buf );
 	bs += buf;
     }
+}
+
+
+void SEGY::TxtHeader::setText( const char* txt )
+{
+    clearText();
+
+    BufferString bs( txt );
+    char* ptr = bs.buf();
+    for ( int iln=1; iln<=cTxtHeadNrLines; iln++ )
+    {
+	char* endptr = strchr( ptr, '\n' );
+	if ( !endptr ) break;
+	*endptr = '\0';
+
+	putAt( iln, 1, cTxtHeadCharsPerLine, ptr );
+	ptr = endptr + 1; if ( !*ptr ) break;
+    }
+
+    setLineStarts();
 }
 
 
@@ -209,12 +244,12 @@ void SEGY::TxtHeader::getFrom( int line, int pos, int endpos, char* str ) const
 {
     if ( !str ) return;
 
-    int charnr = (line-1)*80 + pos - 1;
-    if ( endpos > 80 ) endpos = 80;
-    int maxcharnr = (line-1)*80 + endpos;
+    int charnr = (line-1)*cTxtHeadCharsPerLine + pos - 1;
+    if ( endpos > cTxtHeadCharsPerLine ) endpos = cTxtHeadCharsPerLine;
+    int maxcharnr = (line-1)*cTxtHeadCharsPerLine + endpos;
 
-    while ( isspace(txt[charnr]) && charnr < maxcharnr ) charnr++;
-    while ( charnr < maxcharnr ) *str++ = txt[charnr++];
+    while ( isspace(txt_[charnr]) && charnr < maxcharnr ) charnr++;
+    while ( charnr < maxcharnr ) *str++ = txt_[charnr++];
     *str = '\0';
     removeTrailingBlanks( str );
 }
@@ -224,13 +259,13 @@ void SEGY::TxtHeader::putAt( int line, int pos, int endpos, const char* str )
 {
     if ( !str || !*str ) return;
 
-    int charnr = (line-1)*80 + pos - 1;
-    if ( endpos > 80 ) endpos = 80;
-    int maxcharnr = (line-1)*80 + endpos;
+    int charnr = (line-1)*cTxtHeadCharsPerLine + pos - 1;
+    if ( endpos > cTxtHeadCharsPerLine ) endpos = cTxtHeadCharsPerLine;
+    int maxcharnr = (line-1)*cTxtHeadCharsPerLine + endpos;
 
     while ( charnr < maxcharnr && *str )
     {
-	txt[charnr] = *str;
+	txt_[charnr] = *str;
 	charnr++; str++;
     }
 }
@@ -238,14 +273,8 @@ void SEGY::TxtHeader::putAt( int line, int pos, int endpos, const char* str )
 
 void SEGY::TxtHeader::dump( std::ostream& stream ) const
 {
-    char buf[81];
-    buf[80] = '\0';
-
-    for ( int line=0; line<40; line++ )
-    {
-	memcpy( buf, &txt[80*line], 80 );
-	stream << buf << std::endl;
-    }
+    BufferString buf; getText( buf );
+    stream << buf << std::endl;
 }
 
 

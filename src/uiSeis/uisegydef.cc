@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.11 2008-10-09 09:09:47 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.12 2008-10-10 14:08:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "oddirs.h"
 #include "envvars.h"
+#include "settings.h"
 #include "filegen.h"
 #include "seisioobjinfo.h"
 
@@ -34,6 +35,8 @@ ________________________________________________________________________
 
 const char* uiSEGYFileSpec::sKeyLineNmToken = "#L";
 static const char* sgyfileflt = "SEG-Y files (*.sgy *.SGY *.segy)";
+static const char* sKeyEnableByteSwapWrite = "Enable SEG-Y byte swap writing";
+static int enabbyteswapwrite = -1;
 
 
 //--- uiSEGYFileSpec ----
@@ -241,8 +244,16 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     : uiSEGYDefGroup(p,"SEGY::FilePars group",forread)
     , nrsamplesfld_(0)
+    , byteswapfld_(0)
     , readParsReq(this)
 {
+    if ( enabbyteswapwrite == -1 )
+    {
+	bool enab = false;
+	Settings::common().getYN( sKeyEnableByteSwapWrite, enab );
+	enabbyteswapwrite = enab ? 1 : 0;
+    }
+
     uiGroup* grp = new uiGroup( this, "Main uiSEGYFilePars group" );
     if ( forread )
 	nrsamplesfld_ = mkOverruleFld( grp, "Overrule SEG-Y number of samples",
@@ -254,11 +265,14 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
     if ( nrsamplesfld_ )
 	fmtfld_->attach( alignedBelow, nrsamplesfld_ );
 
-    const bool isswpd = iop
-		&& iop->isTrue( SEGY::FilePars::sKeyBytesSwapped );
-    const char* txt = forread ? "Bytes are swapped" : "Swap bytes";
-    byteswapfld_ = new uiGenInput( grp, txt, BoolInpSpec(isswpd) );
-    byteswapfld_->attach( alignedBelow, fmtfld_ );
+    if ( forread || enabbyteswapwrite )
+    {
+	const bool isswpd = iop
+		    && iop->isTrue( SEGY::FilePars::sKeyBytesSwapped );
+	const char* txt = forread ? "Bytes are swapped" : "Swap bytes";
+	byteswapfld_ = new uiGenInput( grp, txt, BoolInpSpec(isswpd) );
+	byteswapfld_->attach( alignedBelow, fmtfld_ );
+    }
 
     mDefRetrTB( uiSEGYFilePars, grp );
 
@@ -280,7 +294,7 @@ SEGY::FilePars uiSEGYFilePars::getPars() const
     if ( nrsamplesfld_ && nrsamplesfld_->isChecked() )
 	fp.ns_ = nrsamplesfld_->getIntValue();
     fp.fmt_ = SEGY::FilePars::fmtOf( fmtfld_->text(), forread_ );
-    fp.byteswapped_ = byteswapfld_->getBoolValue();
+    fp.byteswapped_ = byteswapfld_ && byteswapfld_->getBoolValue();
     return fp;
 }
 
@@ -309,7 +323,7 @@ void uiSEGYFilePars::setPars( const SEGY::FilePars& fp )
     }
 
     fmtfld_->setText( SEGY::FilePars::nameOfFmt(fp.fmt_,forread_) );
-    byteswapfld_->setValue( fp.byteswapped_ );
+    if ( byteswapfld_ ) byteswapfld_->setValue( fp.byteswapped_ );
 }
 
 

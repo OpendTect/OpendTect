@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.19 2008-09-18 14:55:52 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.20 2008-10-10 14:08:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,25 +34,34 @@ namespace SEGY
 class TxtHeader
 {
 public:
-    		TxtHeader(bool rev1=true); //!< rev1 relevant when writing
+    		TxtHeader(bool rev1=true); //!< rev1 only relevant when writing
+    void	clear()			{ clearText(); setLineStarts(); }
  
     void	setUserInfo(const char*);
     void	setPosInfo(const TrcHeaderDef&);
     void	setStartPos(float);
-    void	getText(BufferString&);
 
-    void	putAt(int,int,int,const char*);
-    void	getFrom(int,int,int,char*) const;
+    void	getText(BufferString&) const;
+    void	setText(const char*);
  
     void        setAscii();
     void        setEbcdic();
 
-    unsigned char txt[SegyTxtHeaderLength];
+    unsigned char txt_[SegyTxtHeaderLength];
 
     static bool	info2d;
 
     void	dump(std::ostream&) const;
 
+protected:
+
+    bool	rev1_;
+
+    void	putAt(int,int,int,const char*);
+    void	getFrom(int,int,int,char*) const;
+
+    void	setLineStarts();
+    void	clearText();
 };
 
 

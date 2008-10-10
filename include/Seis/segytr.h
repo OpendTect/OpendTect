@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.24 2008-10-04 10:04:04 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.25 2008-10-10 14:08:28 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -42,9 +42,10 @@ public:
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&);
 
-    const SEGY::TxtHeader& txtHeader() const	{ return txthead_; }
+    const SEGY::TxtHeader* txtHeader() const	{ return txthead_; }
     const SEGY::BinHeader& binHeader() const	{ return binhead_; }
     const SEGY::TrcHeader& trcHeader() const	{ return trchead_; }
+    void		setTxtHeader(SEGY::TxtHeader*);	//!< write; becomes mine
 
     int			dataBytes() const;
     bool		rev0Forced() const	{ return force_rev0; }
@@ -55,7 +56,7 @@ protected:
 
     SEGY::FilePars	filepars_;
     SEGY::FileReadOpts	fileopts_;
-    SEGY::TxtHeader&	txthead_;
+    SEGY::TxtHeader*	txthead_;
     SEGY::BinHeader&	binhead_;
     SEGY::TrcHeader&	trchead_; // must be *after* fileopts_
     short		binhead_ns_;
