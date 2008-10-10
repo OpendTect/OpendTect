@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.5 2008-10-09 21:57:22 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.6 2008-10-10 22:01:47 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -497,6 +497,14 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
 
     return true;
 }
+
+
+const TextureChannel2RGBA* TextureChannels::getChannels2RGBA() const
+{ return tc2rgba_; }
+
+
+TextureChannel2RGBA* TextureChannels::getChannels2RGBA()
+{ return tc2rgba_; }
 
 
 SoNode* TextureChannels::getInventorNode()

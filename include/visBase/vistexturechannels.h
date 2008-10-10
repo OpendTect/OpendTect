@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.3 2008-10-09 21:45:23 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.4 2008-10-10 22:01:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,8 @@ public:
 	    				      unsigned char*, CachePolicy);
 
     bool			setChannels2RGBA(TextureChannel2RGBA*);
+    TextureChannel2RGBA*	getChannels2RGBA();
+    const TextureChannel2RGBA*	getChannels2RGBA() const;
 
     SoNode*			getInventorNode();
     const SbImage*		getChannels() const;
