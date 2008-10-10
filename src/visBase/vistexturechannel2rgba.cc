@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.2 2008-10-09 21:57:22 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.3 2008-10-10 22:00:08 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -89,9 +89,11 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
 }
 
 
-bool ColTabTextureChannel2RGBA::useShading( bool yn )
+bool ColTabTextureChannel2RGBA::allowShading( bool yn )
 {
-    if ( yn && !shadinggroup_ )
+    const bool douseshading = yn && canUseShading();
+
+    if ( douseshading && !shadinggroup_ )
     {
 	shadinggroup_ = new SoGroup;
 	shaderswitch_->addChild( shadinggroup_ );
@@ -140,7 +142,7 @@ bool ColTabTextureChannel2RGBA::useShading( bool yn )
 	//Update?
     }
 
-    shaderswitch_->whichChild = yn ? 1 : 0;
+    shaderswitch_->whichChild = douseshading ? 1 : 0;
 
     return true;
 }

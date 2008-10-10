@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vistexturechannel2rgba.h,v 1.1 2008-10-09 21:45:23 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.2 2008-10-10 22:00:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,7 +42,7 @@ class TextureChannel2RGBA : public DataObject
 public:
     virtual void		setChannels(TextureChannels*);
     virtual bool		createRGBA(SbImage&) const		= 0;
-    virtual bool		useShading(bool)			= 0;
+    virtual bool		allowShading(bool)			= 0;
     virtual bool		usesShading() const			= 0;
     virtual int			maxNrChannels() const			= 0;
 
@@ -60,11 +60,17 @@ public:
     static ColTabTextureChannel2RGBA*	create()
 			mCreateDataObj(ColTabTextureChannel2RGBA);
 
-    virtual void	setSequence( int channel, const ColTab::Sequence& );
+    virtual void		setSequence(int ch,const ColTab::Sequence&);
+    const ColTab::Sequence&	getSequence(int ch) const;
 
+    virtual void		setEnabled(int ch,bool yn);
+    bool			isEnabled(int ch) const;
+
+    virtual void		setTransparency(int ch,unsigned char yn);
+    unsigned char		getTransparency(int ch) const;
 
     bool		canUseShading() const;
-    bool		useShading(bool);
+    bool		allowShading(bool);
     bool		usesShading() const;
     int			maxNrChannels() const;
 
