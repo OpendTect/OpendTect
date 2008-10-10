@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.4 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.5 2008-10-10 14:40:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ protected:
     uiTable*		tbl_;
 
     void		onStartUp(CallBacker*);
+    void		saveHdr(CallBacker*);
     void		dispSeis(CallBacker*);
     void		updateInput(CallBacker*);
     void		vwrClose(CallBacker*);

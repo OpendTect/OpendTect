@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.7 2008-10-10 14:08:28 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.8 2008-10-10 14:40:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigroup.h"
 #include "uiflatviewer.h"
+#include "uifiledlg.h"
+#include "uimsg.h"
 #include "uiseistrcbufviewer.h"
 #include "pixmap.h"
 #include "filepath.h"
@@ -32,6 +34,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "separstr.h"
 #include "strmprov.h"
+#include "oddirs.h"
 #include <sstream>
 
 const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Examine.Number of traces";
@@ -64,6 +67,11 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* txtgrp = new uiGroup( 0, "Txt fld group" );
     uiLabel* lbl = new uiLabel( txtgrp, "File header information" );
+    uiToolButton* tb = new uiToolButton( txtgrp, "Save text header to file",
+	    				 ioPixmap("saveset.png"),
+				         mCB(this,uiSEGYExamine,saveHdr) );
+    tb->setToolTip( "Save text header to file" );
+    tb->attach( rightBorder );
     txtfld_ = new uiTextEdit( txtgrp, "", true );
     txtfld_->setPrefHeightInChar( 14 );
     txtfld_->setPrefWidthInChar( 80 );
@@ -71,8 +79,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 
     uiGroup* tblgrp = new uiGroup( 0, "Table group" );
     lbl = new uiLabel( tblgrp, "Trace header information" );
-    uiToolButton* tb = new uiToolButton( tblgrp, "Preview data",
-	    				 ioPixmap("viewflat.png"),
+    tb = new uiToolButton( tblgrp, "Preview data", ioPixmap("viewflat.png"),
 				         mCB(this,uiSEGYExamine,dispSeis) );
     tb->setToolTip( "Display traces" );
     tb->attach( rightBorder );
@@ -112,6 +119,25 @@ void uiSEGYExamine::onStartUp( CallBacker* )
 {
     timer_.tick.notify( mCB(this,uiSEGYExamine,updateInput) );
     timer_.start( 100, true );
+}
+
+
+void uiSEGYExamine::saveHdr( CallBacker* )
+{
+    if ( !rdr_ ) return;
+    FilePath fp( GetDataDir() ); fp.add( "Seismics" );
+    uiFileDialog dlg( this, false, fp.fullPath() );
+    if ( !dlg.go() ) return;
+
+    StreamData sd = StreamProvider(dlg.fileName()).makeOStream();
+    if ( !sd.usable() )
+	{ uiMSG().error("Cannot open file for writing"); return; }
+
+    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
+    const SEGY::TxtHeader& th = *tr->txtHeader();
+    BufferString buf; th.getText( buf );
+    *sd.ostrm << buf << std::endl;
+    sd.close();
 }
 
 
