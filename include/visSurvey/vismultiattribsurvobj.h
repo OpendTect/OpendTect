@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.13 2008-09-23 21:38:50 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.14 2008-10-10 22:16:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "visobject.h"
 
-namespace visBase { class MultiTexture2; }
+namespace visBase { class MultiTexture2; class TextureChannels; }
 
 namespace visSurvey
 {
@@ -79,7 +79,9 @@ public:
     virtual bool                canBDispOn2DViewer() const	{ return true; }
     
 protected:
-    				MultiTextureSurveyObject();
+
+    				MultiTextureSurveyObject(
+					bool usechannels = false );
 				~MultiTextureSurveyObject();
     void			getValueString(const Coord3&,
 	    				       BufferString&) const;
@@ -96,6 +98,8 @@ protected:
     virtual bool		_init();
 
     visBase::MultiTexture2*	texture_;
+    visBase::TextureChannels*	channels_;
+
     int				resolution_;
 
 private:
