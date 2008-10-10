@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.9 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.10 2008-10-10 16:58:19 cvsnanne Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -28,13 +28,13 @@ int PosInfo::LineData::nearestSegment( double x ) const
     if ( segments_.size() < 1 )
 	return -1;
 
-    int ret = 0; float mindist = 1e30;
+    int ret = 0; float mindist = mUdf(float);
     for ( int iseg=0; iseg<segments_.size(); iseg++ )
     {
 	const PosInfo::LineData::Segment& seg = segments_[iseg];
 
 	const bool isrev = seg.step < 0;
-	const float hstep = seg.step * 0.5;
+	const float hstep = (float)seg.step * 0.5f;
 	float dist;
 	if ( (isrev && x > seg.start+hstep) || (!isrev && x < seg.start-hstep) )
 	    dist = x - seg.start;
