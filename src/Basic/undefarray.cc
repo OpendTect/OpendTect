@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefarray.cc,v 1.5 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: undefarray.cc,v 1.6 2008-10-10 17:00:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,5 +130,5 @@ mImplFuncs( od_uint32, mUdf(od_uint32), INT_MAX, UInt32 )
 mImplFuncs( od_int32, mUdf(od_int32), INT_MAX, Int32 )
 mImplFuncs( od_uint64, mUdf(od_uint64), INT_MAX, UInt64 )
 mImplFuncs( od_int64, mUdf(od_int64), mUdf(od_int64)+1, Int64 )
-mImplFloatFuncs( float, mUdf(float), 1e29, Float )
+mImplFloatFuncs( float, mUdf(float), 1e29f, Float )
 mImplFloatFuncs( double, mUdf(double), 1e29, Double )
