@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.10 2008-10-03 07:16:21 cvsumesh Exp $
+ RCS:		$Id: uihorattribpi.cc,v 1.11 2008-10-13 05:22:31 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uihorizonattrib.h"
+#include "uiempartserv.h"
 #include "uistratamp.h"
 #include "uiflattenedcube.h"
 #include "uiisopachmaker.h"
@@ -21,6 +22,8 @@ ________________________________________________________________________
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
 #include "attribsel.h"
+#include "emobject.h"
+#include "emmanager.h"
 #include "plugins.h"
 
 extern "C" int GetuiHorizonAttribPluginType()
@@ -53,6 +56,7 @@ public:
     void		makeStratAmp(CallBacker*);
     void		doFlattened(CallBacker*);
     void		doIsopach(CallBacker*);
+    void		doIsopachThruMenu(CallBacker*);
 
     uiODMain*		appl_;
     uiVisMenuItemHandler flattenmnuitemhndlr_;
@@ -89,6 +93,9 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 
     gridpocitm->menu().insertItem( new uiMenuItem("&Stratal Amplitude ...",
 	       			  mCB(this,uiHorAttribPIMgr,makeStratAmp)) );
+
+    gridpocitm->menu().insertItem( new uiMenuItem("&Isopach ...", mCB(this,
+		    			 uiHorAttribPIMgr,doIsopachThruMenu)) );
 }
 
 
@@ -134,6 +141,14 @@ void uiHorAttribPIMgr::doIsopach( CallBacker* )
     parent->addChild( itm, false );
     parent->updateColumnText( uiODSceneMgr::cNameColumn() );
     parent->updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+void uiHorAttribPIMgr::doIsopachThruMenu( CallBacker* )
+{
+    uiIsopachMaker dlg( appl_, -1 );
+    if ( !dlg.go() )
+	return;
 }
 
 

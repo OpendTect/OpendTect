@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.3 2008-09-22 13:17:03 cvskris Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.4 2008-10-13 05:22:31 cvsumesh Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.3 2008-09-22 13:17:03 cvs
 #include "datapointset.h"
 #include "posvecdataset.h"
 #include "datacoldef.h"
+#include "survinfo.h"
 
 #include "uiioobjsel.h"
 #include "uigeninput.h"
@@ -30,18 +31,40 @@ static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.3 2008-09-22 13:17:03 cvs
 
 
 uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
-	: uiDialog(p,Setup("Create isopach",
-			    BufferString("Create isopach from '",
-					 getHorNm(horid),"'"), "104.4.4"))
+	: uiDialog(p,Setup("Create isopach",mNoDlgTitle, "104.4.4"))
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
+	, basectio_(*mMkCtxtIOObj(EMHorizon3D))
+	, baseemobj_(0)    				       
 	, horid_(horid)
+	, basesel_(0)	       
 	, dps_(*new DataPointSet(false,true))
+	, saveattr_(false)
 {
+    BufferString title( "Create isopach" );
+    baseemobj_ = EM::EMM().getObject( horid_ );
+
+    if ( !baseemobj_ )
+    {
+	basectio_.ctxt.forread = true;
+	basesel_ = new uiIOObjSel( this, basectio_, "Horizon" );
+	saveattr_ = true;
+    }
+    else
+    {
+	title += " '";
+	title += getHorNm( horid );
+	title += "'";
+    }
+
+    setTitleText( title.buf() );
     ctio_.ctxt.forread = true;
     horsel_ = new uiIOObjSel( this, ctio_, "Calculate to" );
+    horsel_->selectiondone.notify( mCB(this,uiIsopachMaker,toHorSel) );
 
-    attrnmfld_ = new uiGenInput( this, "Attribute name",
-	    			 StringInpSpec("<auto>") );
+    if ( !baseemobj_ )
+	horsel_->attach( alignedBelow, basesel_ );
+
+    attrnmfld_ = new uiGenInput( this, "Attribute name", StringInpSpec() );
     attrnmfld_->attach( alignedBelow, horsel_ );
 }
 
@@ -56,7 +79,14 @@ BufferString uiIsopachMaker::getHorNm( EM::ObjectID horid )
 uiIsopachMaker::~uiIsopachMaker()
 {
     delete ctio_.ioobj; delete &ctio_;
+    delete basectio_.ioobj; delete &basectio_;
     delete &dps_;
+}
+
+
+void uiIsopachMaker::toHorSel( CallBacker* )
+{
+    attrnmfld_->setText( BufferString("I: ",ctio_.ioobj->name()) );
 }
 
 
@@ -81,11 +111,12 @@ class uiIsopachMakerCreater : public Executor
 public:
 
 uiIsopachMakerCreater( const EM::Horizon3D& hor1, const EM::Horizon3D& hor2,
-       		     const char* attrnm, DataPointSet& dps )
+       		     const char* attrnm, DataPointSet& dps, int dataidx )
     : Executor("Create isopach")
     , hor1_(hor1)
     , hor2_(hor2)
     , msg_("Creating isopach")
+    , dataidx_(dataidx)
     , dps_(dps)
     , sectid1_(hor1.sectionID(0))
     , sectid2_(hor2.sectionID(0))
@@ -119,9 +150,17 @@ int nextStep()
 	const float z1 = pos1.z;
 	const float z2 = hor2_.getPos( sectid2_, subid ).z;
 	if ( mIsUdf(z1) || mIsUdf(z2) )
+	{
+	    if ( dataidx_ != -1 )
+		hor1_.auxdata.setAuxDataVal( dataidx_, posid, mUdf(float) );
 	    continue;
+	}
 
 	const float th = z1 > z2 ? z1 - z2 : z2 - z1;
+
+	if ( dataidx_ != -1 )
+	    hor1_.auxdata.setAuxDataVal( dataidx_, posid, th*SI().zFactor() );
+
 	const DataPointSet::Pos dpspos( pos1 );
 	DataPointSet::DataRow dr( dpspos );
 	dr.data_ += th;
@@ -147,6 +186,7 @@ int finishWork()
     const EM::Horizon3D& hor2_;
     DataPointSet&	dps_;
     EM::EMObjectIterator* iter_;
+    int                 dataidx_;
     int			totnr_;
     BufferString	msg_;
     const EM::SectionID	sectid1_;
@@ -158,23 +198,54 @@ int finishWork()
 
 bool uiIsopachMaker::doWork()
 {
+    if ( saveattr_ && !basesel_->commitInput(false) )
+	mErrRet("Please select base horizon" )
+
     if ( !horsel_->commitInput(false) )
 	mErrRet("Please select the horizon")
     uiTaskRunner tr( this );
+    
+    if ( !baseemobj_ )
+    {
+	baseemobj_ = EM::EMM().loadIfNotFullyLoaded( basectio_.ioobj->key(),
+						     &tr );
+	baseemobj_->ref();
+    }
+    else baseemobj_->ref();
+
     EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( ctio_.ioobj->key(),
 	    						  &tr );
     mDynamicCastGet(EM::Horizon3D*,h2,emobj)
     if ( !h2 )
 	mErrRet("Cannot load selected horizon")
     h2->ref();
-    emobj = EM::EMM().getObject( horid_ );
-    mDynamicCastGet(EM::Horizon3D*,h1,emobj)
+    
+    //emobj = EM::EMM().getObject( horid_ );
+    mDynamicCastGet(EM::Horizon3D*,h1,baseemobj_)
     if ( !h1 )
 	{ h2->unRef(); mErrRet("Cannot find base horizon") }
 
-    h1->ref();
-    uiIsopachMakerCreater mc( *h1, *h2, attrnm_, dps_ );
+    int dataidx_ = -1;
+
+    if ( saveattr_ )
+    {
+	if ( h1->auxdata.auxDataIndex( attrnm_ ) != -1 ) 
+	    mErrRet( "Attribute with this name for selected horizon "
+		     "already exits" )
+	else
+	    dataidx_ = h1->auxdata.addAuxData( attrnm_ );
+    }
+
+    uiIsopachMakerCreater mc( *h1, *h2, attrnm_, dps_, dataidx_ );
     bool rv = tr.execute( mc );
+   
+    if ( saveattr_ )
+    {
+	PtrMan<Executor> saver = h1->auxdata.auxDataSaver();
+	if ( saver )
+	    rv = tr.execute( *saver );
+    }
+
     h1->unRef(); h2->unRef();
     return rv;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2008
- RCS:           $Id: uiisopachmaker.h,v 1.1 2008-06-03 08:47:12 cvsbert Exp $
+ RCS:           $Id: uiisopachmaker.h,v 1.2 2008-10-13 05:22:31 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,11 @@ class uiIOObjSel;
 class uiGenInput;
 class CtxtIOObj;
 class DataPointSet;
-namespace EM { class Horizon3D; }
+namespace EM 
+{ 
+    class Horizon3D; 
+    class EMObject;
+}
 
 
 /*! \brief Create isopach as attribute of horizon */
@@ -35,16 +39,21 @@ public:
 
 protected:
 
+    uiIOObjSel*		basesel_;
     uiIOObjSel*		horsel_;
     uiGenInput*		attrnmfld_;
     DataPointSet&	dps_;
 
+    CtxtIOObj&		basectio_;
     CtxtIOObj&		ctio_;
     EM::ObjectID	horid_;
     BufferString	attrnm_;
-
+    EM::EMObject*	baseemobj_;
+    bool		saveattr_;
+    
     bool		acceptOK(CallBacker*);
     BufferString	getHorNm(EM::ObjectID);
+    void		toHorSel(CallBacker*);
 
     bool		doWork();
 
