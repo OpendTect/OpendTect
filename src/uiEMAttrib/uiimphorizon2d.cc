@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.9 2008-09-22 13:13:46 cvskris Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.10 2008-10-13 09:34:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -345,44 +345,42 @@ bool uiImportHorizon2D::doImport()
     {
 	BufferString nm = hornms.get( idx );
 	PtrMan<IOObj> ioobj = IOM().getLocal( nm );
-	if ( !ioobj )
+	PtrMan<Executor> exec = ioobj ? em.objectLoader( ioobj->key() ) : 0;
+	EM::ObjectID id = -1;
+	if ( !ioobj || !exec || !exec->execute() )
 	{
-	    EM::ObjectID id = em.createObject( EM::Horizon2D::typeStr(), nm );
+	    id = em.createObject( EM::Horizon2D::typeStr(), nm );
 	    mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
+	    if ( ioobj ) 
+		hor->setMultiID( ioobj->key() );
+
 	    hor->ref();
 	    horizons += hor;
 	    continue;
 	}
 
-	EM::EMObject* obj = em.getObject( em.getObjectID(ioobj->key()) );
-	if ( !obj )
-	{
-	    PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
-	    if ( !exec ) continue;
+	id = em.getObjectID(ioobj->key());
+	mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
+	if ( !hor )
+	    mErrRet("Could not load horizon") 
 
-	    obj = em.getObject( em.getObjectID(ioobj->key()) );
-	    if ( !exec->execute() )
+	for ( int ldx=0; ldx<linenms.size(); ldx++ )
+	{
+	    BufferString linenm = linenms.get( ldx );
+	    if ( hor->geometry().lineIndex(linenm) < 0 )
 		continue;
 
-	    mDynamicCastGet(EM::Horizon2D*,hor,obj);
-	    for ( int ldx=0; ldx<linenms.size(); ldx++ )
-	    {
-		BufferString linenm = linenms.get( ldx );
-		if ( hor->geometry().lineIndex(linenm) < 0 )
-		    continue;
-
-		BufferString msg = "Horizon ";
-		msg += nm;
-		msg += " already exists for line ";
-		msg += linenm;
-		msg += ". Overwrite?";
-		if ( !uiMSG().askGoOn(msg) )
-		    return false;
-	    }
-
-	    obj->ref();
-	    horizons += hor;
+	    BufferString msg = "Horizon ";
+	    msg += nm;
+	    msg += " already exists for line ";
+	    msg += linenm;
+	    msg += ". Overwrite?";
+	    if ( !uiMSG().askGoOn(msg) )
+		return false;
 	}
+
+	hor->ref();
+	horizons += hor;
     }
 
     const char* setnm = linesetfld_->text();
