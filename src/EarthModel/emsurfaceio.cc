@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.106 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.107 2008-10-13 09:13:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -1596,7 +1596,9 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	if ( colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
 
-	zrange_.include( pos.z, false );
+	if ( !mIsUdf(pos.z) )
+	    zrange_.include( pos.z, false );
+
 	if ( colcoords.isEmpty() )
 	    firstcol = col;
 
