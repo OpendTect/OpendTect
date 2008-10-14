@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.51 2008-08-01 20:35:51 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.52 2008-10-14 20:39:56 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -170,9 +170,9 @@ bool MultiTexture2::canUseShading() const
 }
 
 
-bool MultiTexture2::splitsTexture()
+bool MultiTexture2::splitsTexture() const
 {
-    return dosplittexture_;
+    return dosplittexture_ && useshading_;
 }
 
 
