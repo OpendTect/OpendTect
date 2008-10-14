@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.33 2008-09-03 14:50:34 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.34 2008-10-14 15:19:06 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -334,16 +334,19 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     const Coord3 c11( stoppos, zrg_.stop );
     const Coord3 c10( startpos, zrg_.stop );
 
-
     flatviewer_->setPosition( c00, c01, c10, c11 );
     if ( section_ )
     {
-	planedragger_->setDim( section_->getOrientation() 
-		==visSurvey::PlaneDataDisplay::Inline ? 1:0 );
+	bool isinline = 
+	    section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline;
+	planedragger_->setDim( isinline ? 1 : 0 );
+
+	const float xwidth = 
+	    isinline ? fabs(stoppos.x-startpos.x) : SI().inlDistance();
+	const float ywidth = 
+	    isinline ?  SI().crlDistance() : fabs(stoppos.y-startpos.y);
     
-	const Coord3 width( fabs(stoppos.x-startpos.x),
-		fabs(stoppos.y-startpos.y), zrg_.width(true) );
-    	planedragger_->setSize( width );
+    	planedragger_->setSize( Coord3(xwidth,ywidth,zrg_.width(true)) );
 	
     	const Coord3 center( (startpos+stoppos)/2, (zrg_.start+zrg_.stop)/2 );
     	planedragger_->setCenter( center );
