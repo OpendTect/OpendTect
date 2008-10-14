@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.1 2008-10-08 15:55:41 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.2 2008-10-14 08:50:45 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -236,7 +236,7 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
 	    { errmsg_ += "(offset "; errmsg_ += cbo.offset_; errmsg_ += ")"; }
 	errmsg_ += ".\n\nIt violates '";
 	errmsg_ += sorting_.description();
-	errmsg_ += "'";
+	errmsg_ += "'\n";
 	return false;
     }
 
@@ -468,7 +468,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	    iop.set( "Number of traces per gather", nroffsperpos_ );
 	else
 	{
-	    const char* varstr = "Variable number of traces/gather, first at";
+	    const char* varstr = "First alternate #traces/gather at";
 	    const CrdBidOffs fao( userCBO(firstaltnroffs_) );
 	    if ( is2d_ )
 		iop.set( varstr, fao.binid_.crl );
