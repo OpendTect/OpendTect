@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.108 2008-09-23 15:46:36 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.109 2008-10-14 12:11:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
 
-    scanbut_ = new uiPushButton( this, "Scan Input Files",
+    scanbut_ = new uiPushButton( this, "Scan Input File",
 	    			 mCB(this,uiImportHorizon,scanPush), false );
     scanbut_->attach( alignedBelow, dataselfld_);
 

@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.3 2008-10-14 10:19:40 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.4 2008-10-14 12:11:14 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -14,11 +14,10 @@ static const char* rcsID = "$Id: posinfodetector.cc,v 1.3 2008-10-14 10:19:40 cv
 #include "iopar.h"
 
 
-PosInfo::Detector::Detector( bool is2d, bool isps )
-    	: sorting_(*new BinIDSorting(is2d))
+PosInfo::Detector::Detector( const Setup& su )
+    	: sorting_(*new BinIDSorting(su.is2d_))
 	, sortanal_(0)
-    	, is2d_(is2d)
-	, isps_(isps)
+    	, setup_(su)
 	, errmsg_("No positions found")
 {
     reInit();
@@ -28,10 +27,10 @@ PosInfo::Detector::Detector( bool is2d, bool isps )
 void PosInfo::Detector::reInit()
 {
     delete sortanal_;
-    sortanal_ = new BinIDSortingAnalyser( is2d_ );
+    sortanal_ = new BinIDSortingAnalyser( setup_.is2d_ );
     cbobuf_.erase();
     deepErase( lds_ );
-    allstd_ = false;
+    allstd_ = inlirreg_ = crlirreg_ = false;
     curline_ = curseg_ = -1;
     nrpos_ = nruniquepos_ = 0;
     offsrg_.start = offsrg_.stop = 0;
@@ -54,9 +53,9 @@ bool PosInfo::Detector::add( const Coord& c, int nr, float o )
 bool PosInfo::Detector::add( const Coord& c, const BinID& b, int nr, float o )
 {
     CrdBidOffs cbo( c, b, o );
-    if ( !isps_ )
+    if ( !setup_.isps_ )
 	cbo.offset_ = 0;
-    if ( is2d_ )
+    if ( setup_.is2d_ )
 	 { cbo.binid_.inl = 1; cbo.binid_.crl = nr; }
     return add( cbo );
 }
@@ -79,13 +78,13 @@ bool PosInfo::Detector::finish()
 
 bool PosInfo::Detector::crlSorted() const
 {
-    return is2d_ ? false : !sorting_.inlSorted();
+    return setup_.is2d_ ? false : !sorting_.inlSorted();
 }
 
 
 bool PosInfo::Detector::inlSorted() const
 {
-    return is2d_ ? true : sorting_.inlSorted();
+    return setup_.is2d_ ? true : sorting_.inlSorted();
 }
 
 
@@ -135,7 +134,7 @@ const char* PosInfo::Detector::getSurvInfo( HorSampling& hs,
 					    Coord crd[3] ) const
 {
     static BufferString errmsg;
-    if ( is2d_ )
+    if ( setup_.is2d_ )
 	mErrRet( "Cannot determine survey setup from 2D line scan" )
     if ( nruniquepos_ < 3 )
 	mErrRet( "Not enough unique positions found" )
@@ -184,7 +183,7 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
     if ( !sortanal_->add(cbo.binid_) )
 	return true;
 
-    if ( *sortanal_->errMsg() )
+    if ( setup_.reqsorting_ && *sortanal_->errMsg() )
     {
 	errmsg_ = sortanal_->errMsg();
 	return false;
@@ -194,12 +193,19 @@ bool PosInfo::Detector::add( const PosInfo::CrdBidOffs& cbo )
 }
 
 
+StepInterval<int> PosInfo::Detector::getRange( bool inldir ) const
+{
+    return inldir ? StepInterval<int>( start_.inl, stop_.inl, step_.inl )
+		  : StepInterval<int>( start_.crl, stop_.crl, step_.crl );
+}
+
+
 bool PosInfo::Detector::applySortAnal()
 {
     sorting_ = sortanal_->getSorting();
     delete sortanal_; sortanal_ = 0;
     allstd_ = sorting_.crlUpward();
-    if ( !is2d_ )
+    if ( !setup_.is2d_ )
 	allstd_ = allstd_ && sorting_.inlUpward() && inlSorted();
 
     addFirst( cbobuf_[0] );
@@ -216,12 +222,12 @@ bool PosInfo::Detector::applySortAnal()
 void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 {
     setCur( cbo );
-    if ( is2d_ ) curcbo_.binid_.inl = 1;
+    if ( setup_.is2d_ ) curcbo_.binid_.inl = 1;
     firstcbo_ = prevcbo_ = curcbo_;
     llnstart_ = llnstop_ = curlnstart_ = curcbo_;
     mincoord_.x = maxcoord_.x = curcbo_.coord_.x;
     mincoord_.y = maxcoord_.y = curcbo_.coord_.y;
-    if ( isps_ )
+    if ( setup_.isps_ )
 	offsrg_.start = offsrg_.stop = cbo.offset_;
     nrpos_ = nruniquepos_ = nroffsthispos_ = 1;
     addLine();
@@ -231,14 +237,14 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 
 bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
 {
-    if ( !sorting_.isValid(prevcbo_.binid_,cbo.binid_) )
+    if ( !sorting_.isValid(prevcbo_.binid_,cbo.binid_) && setup_.reqsorting_ )
     {
 	errmsg_ = "Sorting violation at ";
-	errmsg_ += is2d_ ? "trace number " : "inl/crl ";
-	if ( !is2d_ )
+	errmsg_ += setup_.is2d_ ? "trace number " : "inl/crl ";
+	if ( !setup_.is2d_ )
 	    { errmsg_ += cbo.binid_.inl; errmsg_ == "/"; }
 	errmsg_ += cbo.binid_.crl;
-	if ( isps_ )
+	if ( setup_.isps_ )
 	    { errmsg_ += "(offset "; errmsg_ += cbo.offset_; errmsg_ += ")"; }
 	errmsg_ += ".\n\nIt violates '";
 	errmsg_ += sorting_.description();
@@ -253,7 +259,7 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
     if ( curcbo_.coord_.x > maxcoord_.x ) maxcoord_.x = curcbo_.coord_.x;
     if ( curcbo_.coord_.y < mincoord_.y ) mincoord_.y = curcbo_.coord_.y;
     if ( curcbo_.coord_.y > maxcoord_.y ) maxcoord_.y = curcbo_.coord_.y;
-    if ( isps_ )
+    if ( setup_.isps_ )
 	offsrg_.include( cbo.offset_ );
 
     return true;
@@ -294,7 +300,7 @@ void PosInfo::Detector::addPos()
     int stp = curcbo_.binid_.crl - prevcbo_.binid_.crl;
     if ( stp == 0 )
     {
-	if ( isps_ )
+	if ( setup_.isps_ )
 	    nroffsthispos_++;
 	else if ( mIsUdf(firstduppos_.binid_.inl) )
 	    firstduppos_ = curcbo_;
@@ -302,7 +308,7 @@ void PosInfo::Detector::addPos()
     else
     {
 	nruniquepos_++;
-	if ( isps_ )
+	if ( setup_.isps_ )
 	{
 	    if ( nroffsperpos_ < 1 )
 		nroffsperpos_ = nroffsthispos_;
@@ -323,7 +329,7 @@ void PosInfo::Detector::addPos()
 	    if ( curseg.step == 0 )
 		curseg.step = curseg.stop - curseg.start;
 	}
-	if ( is2d_ )
+	if ( setup_.is2d_ )
 	{
 	    const float sqdist = curcbo_.coord_.sqDistTo( prevcbo_.coord_ );
 	    if ( mIsUdf(distrg_.start) )
@@ -347,19 +353,36 @@ void PosInfo::Detector::getBinIDRanges()
 {
     Interval<int> inlrg( firstcbo_.binid_.inl, firstcbo_.binid_.inl );
     Interval<int> crlrg( firstcbo_.binid_.crl, firstcbo_.binid_.crl );
+    int lnstep, trcstep;
     for ( int iln=0; iln<lds_.size(); iln++ )
     {
 	const LineData& ld = *lds_[iln];
 	inlrg.include( ld.linenr_ );
-	for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
+	if ( iln == 0 )
+	    trcstep = ld.segments_[0].step;
+
+	const int nrseg = ld.segments_.size();
+	if ( nrseg > 1 ) crlirreg_ = true;
+	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
 	    const LineData::Segment& seg = ld.segments_[iseg];
 	    crlrg.include( seg.start );
 	    crlrg.include( seg.stop );
+	    if ( seg.step != trcstep )
+		crlirreg_ = true;
 	}
+
+	if ( iln == 1 )
+	    lnstep = ld.linenr_ - lds_[0]->linenr_;
+	else if ( iln > 1 && ld.linenr_ - lds_[iln-1]->linenr_ != lnstep )
+	    inlirreg_ = true;
     }
 
-    if ( crlSorted() ) Swap( inlrg, crlrg );
+    if ( crlSorted() )
+    {
+	Swap( inlrg, crlrg );
+	Swap( inlirreg_, crlirreg_ );
+    }
     if ( !sorting_.inlUpward() )
     {
 	inlrg.start = -inlrg.start; inlrg.stop = -inlrg.stop;
@@ -410,10 +433,10 @@ PosInfo::CrdBidOffs PosInfo::Detector::workCBO(
 			const PosInfo::CrdBidOffs& usrcbo ) const
 {
     PosInfo::CrdBidOffs workcbo( usrcbo );
-    if ( is2d_ ) workcbo.binid_.inl = 1;
+    if ( setup_.is2d_ ) workcbo.binid_.inl = 1;
     if ( allstd_ ) return workcbo;
 
-    if ( is2d_ )
+    if ( setup_.is2d_ )
 	workcbo.binid_.crl = -workcbo.binid_.crl;
     else
     {
@@ -436,7 +459,7 @@ PosInfo::CrdBidOffs PosInfo::Detector::userCBO(
 
     PosInfo::CrdBidOffs usrcbo( internalcbo );
 
-    if ( is2d_ )
+    if ( setup_.is2d_ )
 	usrcbo.binid_.crl = -usrcbo.binid_.crl;
     else
     {
@@ -454,35 +477,40 @@ PosInfo::CrdBidOffs PosInfo::Detector::userCBO(
 
 void PosInfo::Detector::report( IOPar& iop ) const
 {
-    iop.add( "Sorting", errmsg_.isEmpty() ? sorting_.description()
-	    				  : errmsg_.buf() );
+    if ( setup_.reqsorting_ )
+	iop.add( "Sorting", errmsg_.isEmpty() ? sorting_.description()
+					      : errmsg_.buf() );
     iop.set( "Total number of positions", nrpos_ );
     iop.set( "Number of unique positions", nruniquepos_ );
     iop.set( "X-Coordinate range", mincoord_.x, maxcoord_.x );
     iop.set( "Y-Coordinate range", mincoord_.y, maxcoord_.y );
-    if ( is2d_ )
+    if ( setup_.is2d_ )
     {
 	iop.set( "Trace number range/step", start_.crl, stop_.crl, step_.crl );
-	iop.set( isps_ ? "Distance range between gathers"
+	iop.set( setup_.isps_ ? "Distance range between gathers"
 			: "Trace distance range", distrg_ );
-	iop.set( isps_ ? "Average gather distance" : "Average trace distance",
-			avgdist_ );
+	iop.set( setup_.isps_ ? "Average gather distance"
+			: "Average trace distance", avgdist_ );
+	iop.setYN( "Gaps in trace numbers", crlirreg_ );
     }
     else
     {
 	iop.set( "Inline range/step", start_.inl, stop_.inl, step_.inl );
 	iop.set( "Crossline range/step", start_.crl, stop_.crl, step_.crl );
+	iop.setYN( "Gaps in inlines", inlirreg_ );
+	iop.setYN( "Gaps in crosslines", crlirreg_ );
     }
-    if ( isps_ )
+    if ( setup_.isps_ )
     {
 	iop.set( "Offset range", offsrg_ );
 	if ( mIsUdf(firstaltnroffs_.binid_.inl) )
 	    iop.set( "Number of traces per gather", nroffsperpos_ );
 	else
 	{
-	    const char* varstr = "First alternate #traces/gather at";
+	    iop.setYN( "Varying traces/gather", true );
+	    const char* varstr = "First different traces/gather at";
 	    const CrdBidOffs fao( userCBO(firstaltnroffs_) );
-	    if ( is2d_ )
+	    if ( setup_.is2d_ )
 		iop.set( varstr, fao.binid_.crl );
 	    else
 		iop.set( varstr, fao.binid_ );
@@ -496,7 +524,7 @@ void PosInfo::Detector::report( IOPar& iop ) const
 	{
 	    const char* fdupstr = "First duplicate position at";
 	    const CrdBidOffs fdp( userCBO(firstduppos_) );
-	    if ( is2d_ )
+	    if ( setup_.is2d_ )
 		iop.set( fdupstr, fdp.binid_.crl );
 	    else
 		iop.set( fdupstr, fdp.binid_ );

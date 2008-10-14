@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.2 2008-10-14 10:19:29 cvsbert Exp $
+ RCS:		$Id: posinfodetector.h,v 1.3 2008-10-14 12:11:14 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -50,9 +50,19 @@ class Detector
 {
 public:
 
-    			Detector(bool is2d,bool isps);
-    bool		is2D() const		{ return is2d_; }
-    bool		isPS() const		{ return isps_; }
+    struct Setup
+    {
+			Setup( bool istwod )
+			    : is2d_(istwod), isps_(false)
+			    , reqsorting_(false)		{}
+	mDefSetupMemb(bool,is2d)
+	mDefSetupMemb(bool,isps)
+	mDefSetupMemb(bool,reqsorting)
+    };
+
+    			Detector(const Setup&);
+    bool		is2D() const		{ return setup_.is2d_; }
+    bool		isPS() const		{ return setup_.isps_; }
     void		reInit();
 
     bool		add(const Coord&,const BinID&);
@@ -79,6 +89,8 @@ public:
     float		avgDist() const		{ return avgdist_; }
     CrdBidOffs		firstPosition() const	{ return userCBO(firstcbo_); }
     CrdBidOffs		lastPosition() const	{ return userCBO(lastcbo_); }
+    bool		haveGaps( bool inldir=false ) const
+			{ return inldir ? inlirreg_ : crlirreg_; }
 
     void		report(IOPar&) const;
 
@@ -89,12 +101,12 @@ public:
     			//!< if crlSorted(), inl and crl are swapped
     const char*		getSurvInfo(HorSampling&,Coord crd[3]) const;
 
+    StepInterval<int>	getRange(bool inldir=false) const;
+
 protected:
 
-    const bool		is2d_;
-    const bool		isps_;
+    Setup		setup_;
     BinIDSorting&	sorting_;
-
     ObjectSet<LineData>	lds_;
     int			nruniquepos_;
     int			nrpos_;
@@ -106,6 +118,7 @@ protected:
     BinID		start_;
     BinID		stop_;
     BinID		step_;
+    bool		inlirreg_, crlirreg_;
     Interval<float>	distrg_;	//!< 2D
     float		avgdist_;	//!< 2D
     CrdBidOffs		firstcbo_;

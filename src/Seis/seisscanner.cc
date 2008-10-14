@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.35 2008-10-08 15:57:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.36 2008-10-14 12:11:14 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -32,7 +32,9 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
     	: Executor( "Scan seismic data" )
     	, rdr_(*new SeisTrcReader(&ioobj))
 	, trc_(*new SeisTrc)
-    	, dtctor_(*new PosInfo::Detector(Seis::is2D(gt),Seis::isPS(gt)))
+    	, dtctor_(*new PosInfo::Detector(
+		    PosInfo::Detector::Setup(Seis::is2D(gt))
+			    .isps(Seis::isPS(gt)).reqsorting(true) ) )
 	, curmsg_("Scanning")
     	, totalnr_(mtr < 0 ? -2 : mtr)
     	, maxnrtrcs_(mtr)

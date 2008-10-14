@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.25 2008-10-02 14:37:02 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.26 2008-10-14 12:11:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "horizonscanner.h"
 #include "binidvalset.h"
 #include "emhorizon3d.h"
-#include "posgeomdetector.h"
+#include "posinfodetector.h"
 #include "iopar.h"
 #include "strmprov.h"
 #include "survinfo.h"
@@ -25,7 +25,7 @@ ________________________________________________________________________
 HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 				Table::FormatDesc& fd, bool isgeom )
     : Executor("Scan horizon file(s)")
-    , geomdetector_(*new PosGeomDetector(true))
+    , dtctor_(*new PosInfo::Detector(PosInfo::Detector::Setup(false)))
     , fd_(fd)
     , isgeom_(isgeom)
     , ascio_(0)
@@ -41,7 +41,7 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
 
 HorizonScanner::~HorizonScanner()
 {
-    delete &geomdetector_;
+    delete &dtctor_;
 }
 
 
@@ -50,7 +50,7 @@ void HorizonScanner::init()
     totalnr_ = -1;
     firsttime_ = true;
     valranges_.erase();
-    geomdetector_.reInit();
+    dtctor_.reInit();
     analyzeData();
 }
 
@@ -69,7 +69,7 @@ const char* HorizonScanner::nrDoneText() const
 
 od_int64 HorizonScanner::nrDone() const
 {
-    return geomdetector_.nrpositions;
+    return dtctor_.nrPositions(false);
 }
 
 
@@ -103,11 +103,10 @@ void HorizonScanner::report( IOPar& iopar ) const
     iopar.clear();
 
     const int firstattribidx = isgeom_ ? 1 : 0;
-    BufferString str = "Report for horizon file(s):\n";
+    BufferString str = "Report for horizon file";
+    str += filenames_.size() > 1 ? "s:\n" : ": ";
     for ( int idx=0; idx<filenames_.size(); idx++ )
-    {
-	str += filenames_.get(idx).buf(); str += "\n";
-    }
+	{ str += filenames_.get(idx).buf(); str += "\n"; }
     str += "\n\n";
     iopar.setName( str.buf() );
 
@@ -124,14 +123,9 @@ void HorizonScanner::report( IOPar& iopar ) const
     }
 
     iopar.add( "->", "Geometry" );
-    HorSampling hs;
-    hs.set( geomdetector_.inlrg, geomdetector_.crlrg );
-    hs.fillPar( iopar );
+    dtctor_.report( iopar );
     if ( isgeom_ && valranges_.size() > 0 )
-	iopar.set( sKey::ZRange, valranges_[0].start, valranges_[0].stop );
-    iopar.set( "Nr. of  positions", nrPositions() );
-    iopar.setYN( "Inline gaps found", gapsFound(true) );
-    iopar.setYN( "Crossline gaps found", gapsFound(false) );
+	iopar.set( SI().zIsTime() ? "Time range (s)" : "Z Range",valranges_[0]);
 
     if ( valranges_.size() > firstattribidx )
     {
@@ -268,7 +262,7 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 int HorizonScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
-	return Executor::Finished;
+	{ dtctor_.finish(); return Executor::Finished; }
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
 	return Executor::ErrorOccurred;
@@ -334,7 +328,7 @@ int HorizonScanner::nextStep()
 
     if ( validpos )
     {
-	geomdetector_.add( bid, crd );
+	dtctor_.add( crd, bid );
 	bvalset_->add( bid, data.arr()+2 );
     }
 
@@ -354,14 +348,13 @@ int HorizonScanner::nextStep()
 
 
 int HorizonScanner::nrPositions() const
-{ return geomdetector_.nrpositions; }
+{ return dtctor_.nrPositions(); }
 
 StepInterval<int> HorizonScanner::inlRg() const
-{ return geomdetector_.inlrg; }
+{ return dtctor_.getRange(true); }
 
 StepInterval<int> HorizonScanner::crlRg() const
-{ return geomdetector_.crlrg; }
+{ return dtctor_.getRange(false); }
 
 bool HorizonScanner::gapsFound( bool inl ) const
-{ return inl ? geomdetector_.inlgapsfound : geomdetector_.crlgapsfound; }
-
+{ return dtctor_.haveGaps(inl); }

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.7 2008-10-14 10:22:47 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.8 2008-10-14 12:11:14 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -23,7 +23,8 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.7 2008-10-14 10:22:47 cvsber
       Executor("SEG-Y file scan") \
     , trc_(*new SeisTrc) \
     , pars_(*new IOPar(i)) \
-    , dtctor_(*new PosInfo::Detector(Seis::is2D(gt),Seis::isPS(gt))) \
+    , dtctor_(*new PosInfo::Detector( PosInfo::Detector::Setup(Seis::is2D(gt)) \
+			.isps(Seis::isPS(gt)).reqsorting(true) ) ) \
     , tr_(0) \
     , geom_(gt) \
     , forcerev0_(false) \

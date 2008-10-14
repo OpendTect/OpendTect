@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.11 2008-09-22 13:07:32 cvskris Exp $
+ RCS:		$Id: horizonscanner.h,v 1.12 2008-10-14 12:11:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,10 @@ ________________________________________________________________________
 #include "ranges.h"
 
 class IOPar;
-class PosGeomDetector;
 class BinIDValueSet;
 namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
+namespace PosInfo { class Detector; }
 
 class HorizonScanner : public Executor
 {
@@ -57,7 +57,7 @@ protected:
     void		init();
 
     mutable int		totalnr_;
-    PosGeomDetector&	geomdetector_;
+    PosInfo::Detector&	dtctor_;
     EM::Horizon3DAscIO*	ascio_;
     BufferStringSet	filenames_;
     int			fileidx_;
