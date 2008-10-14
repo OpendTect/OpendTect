@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.1 2008-10-08 15:55:41 cvsbert Exp $
+ RCS:		$Id: posinfodetector.h,v 1.2 2008-10-14 10:19:29 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -83,7 +83,8 @@ public:
     void		report(IOPar&) const;
 
     const BinIDSorting&	sorting() const		{ return sorting_; }
-    bool		crlSorted() const;	//!< !sorting_.inlSorted();
+    bool		inlSorted() const;
+    bool		crlSorted() const;
     void		getCubeData(CubeData&) const;
     			//!< if crlSorted(), inl and crl are swapped
     const char*		getSurvInfo(HorSampling&,Coord crd[3]) const;
