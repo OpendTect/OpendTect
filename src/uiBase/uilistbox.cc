@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.92 2008-07-22 06:49:28 cvsraman Exp $
+ RCS:           $Id: uilistbox.cc,v 1.93 2008-10-14 11:16:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -558,6 +558,19 @@ void uiListBox::setCurrentItem( int idx )
 }
 
 
+int uiListBox::indexOf( const char* txt ) const
+{
+    BufferString str( txt );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( str == textOfItem(idx) )
+	    return idx;
+    }
+
+    return -1;
+}
+
+
 void uiListBox::setItemCheckable( int idx, bool yn )
 {
     Qt::ItemFlags flags = body_->item(idx)->flags();
@@ -604,28 +617,58 @@ void uiListBox::setItemText( int idx, const char* txt )
 }
 
 
-void uiListBox::getSelectedItems( BufferStringSet& items )
+void uiListBox::setSelectedItems( const BufferStringSet& itms )
+{
+    body_->setCurrentRow( -1 );
+    for ( int idx=0; idx<size(); idx++ )
+	setSelected( idx, itms.indexOf(textOfItem(idx))>=0 );
+}
+
+
+void uiListBox::setSelectedItems( const TypeSet<int>& itms )
+{
+    body_->setCurrentRow( -1 );
+    for ( int idx=0; idx<size(); idx++ )
+	setSelected( idx, itms.indexOf(idx)>=0 );
+}
+
+
+void uiListBox::setCheckedItems( const BufferStringSet& itms )
+{
+    for ( int idx=0; idx<size(); idx++ )
+	setItemChecked( idx, itms.indexOf(textOfItem(idx))>=0 );
+}
+
+
+void uiListBox::setCheckedItems( const TypeSet<int>& itms )
+{
+    for ( int idx=0; idx<size(); idx++ )
+	setItemChecked( idx, itms.indexOf(idx)>=0 );
+}
+
+
+void uiListBox::getSelectedItems( BufferStringSet& items ) const
 {
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isSelected(idx) ) items.add( textOfItem(idx) );
 }
 
 
-void uiListBox::getSelectedItems( TypeSet<int>& items )
+void uiListBox::getSelectedItems( TypeSet<int>& items ) const
 {
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isSelected(idx) ) items += idx;
 }
 
 
-void uiListBox::getCheckedItems( BufferStringSet& items )
+void uiListBox::getCheckedItems( BufferStringSet& items ) const
 {
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isItemChecked(idx) ) items.add( textOfItem(idx) );
 }
 
 
-void uiListBox::getCheckedItems( TypeSet<int>& items )
+void uiListBox::getCheckedItems( TypeSet<int>& items ) const
 {
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isItemChecked(idx) ) items += idx;

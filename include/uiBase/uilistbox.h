@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.42 2008-07-22 07:07:40 cvsraman Exp $
+ RCS:           $Id: uilistbox.h,v 1.43 2008-10-14 11:16:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ public:
     			//!< check for [...] around text
     void                setCurrentItem(int);
     void                setCurrentItem(const char*); //!< First match
+    int			indexOf(const char*) const; //!< First match
 
     void		setItemCheckable(int,bool);
     void		setItemChecked(int,bool);
@@ -99,10 +100,14 @@ public:
     bool		isItemChecked(int) const;
     int			nrChecked() const;
 
-    void		getSelectedItems(BufferStringSet&);
-    void		getSelectedItems(TypeSet<int>&);
-    void		getCheckedItems(BufferStringSet&);
-    void		getCheckedItems(TypeSet<int>&);
+    void		setSelectedItems(const BufferStringSet&);
+    void		setSelectedItems(const TypeSet<int>&);
+    void		setCheckedItems(const BufferStringSet&);
+    void		setCheckedItems(const TypeSet<int>&);
+    void		getSelectedItems(BufferStringSet&) const;
+    void		getSelectedItems(TypeSet<int>&) const;
+    void		getCheckedItems(BufferStringSet&) const;
+    void		getCheckedItems(TypeSet<int>&) const;
 
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
