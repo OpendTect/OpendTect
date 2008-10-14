@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.2 2008-10-14 08:50:45 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.3 2008-10-14 10:19:40 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -79,7 +79,13 @@ bool PosInfo::Detector::finish()
 
 bool PosInfo::Detector::crlSorted() const
 {
-    return !sorting_.inlSorted();
+    return is2d_ ? false : !sorting_.inlSorted();
+}
+
+
+bool PosInfo::Detector::inlSorted() const
+{
+    return is2d_ ? true : sorting_.inlSorted();
 }
 
 
@@ -194,7 +200,7 @@ bool PosInfo::Detector::applySortAnal()
     delete sortanal_; sortanal_ = 0;
     allstd_ = sorting_.crlUpward();
     if ( !is2d_ )
-	allstd_ = allstd_ && sorting_.inlUpward() && sorting_.inlSorted();
+	allstd_ = allstd_ && sorting_.inlUpward() && inlSorted();
 
     addFirst( cbobuf_[0] );
     for ( int idx=1; idx<cbobuf_.size(); idx++ )
@@ -312,7 +318,11 @@ void PosInfo::Detector::addPos()
 	    curseg_++;
 	}
 	else
+	{
 	    curseg.stop = curcbo_.binid_.crl;
+	    if ( curseg.step == 0 )
+		curseg.step = curseg.stop - curseg.start;
+	}
 	if ( is2d_ )
 	{
 	    const float sqdist = curcbo_.coord_.sqDistTo( prevcbo_.coord_ );
@@ -349,8 +359,7 @@ void PosInfo::Detector::getBinIDRanges()
 	}
     }
 
-    const bool swpd = crlSorted();
-    if ( swpd ) Swap( inlrg, crlrg );
+    if ( crlSorted() ) Swap( inlrg, crlrg );
     if ( !sorting_.inlUpward() )
     {
 	inlrg.start = -inlrg.start; inlrg.stop = -inlrg.stop;
@@ -412,7 +421,7 @@ PosInfo::CrdBidOffs PosInfo::Detector::workCBO(
 	    workcbo.binid_.inl = -workcbo.binid_.inl;
 	if ( !sorting_.crlUpward() )
 	    workcbo.binid_.crl = -workcbo.binid_.crl;
-	if ( !sorting_.inlSorted() )
+	if ( !inlSorted() )
 	    Swap( workcbo.binid_.inl, workcbo.binid_.crl );
     }
 
@@ -431,7 +440,7 @@ PosInfo::CrdBidOffs PosInfo::Detector::userCBO(
 	usrcbo.binid_.crl = -usrcbo.binid_.crl;
     else
     {
-	if ( !sorting_.inlSorted() )
+	if ( !inlSorted() )
 	    Swap( usrcbo.binid_.inl, usrcbo.binid_.crl );
 	if ( !sorting_.crlUpward() )
 	    usrcbo.binid_.crl = -usrcbo.binid_.crl;
@@ -453,8 +462,11 @@ void PosInfo::Detector::report( IOPar& iop ) const
     iop.set( "Y-Coordinate range", mincoord_.y, maxcoord_.y );
     if ( is2d_ )
     {
-	iop.set( "Trace distance range", distrg_ );
-	iop.set( "Average trace distance", avgdist_ );
+	iop.set( "Trace number range/step", start_.crl, stop_.crl, step_.crl );
+	iop.set( isps_ ? "Distance range between gathers"
+			: "Trace distance range", distrg_ );
+	iop.set( isps_ ? "Average gather distance" : "Average trace distance",
+			avgdist_ );
     }
     else
     {
