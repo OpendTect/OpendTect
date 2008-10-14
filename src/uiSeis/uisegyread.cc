@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.9 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.10 2008-10-14 10:22:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uifileinput.h"
 #include "uitaskrunner.h"
+#include "uitextedit.h"
 #include "uimsg.h"
 #include "survinfo.h"
 #include "seistrctr.h"
@@ -31,6 +32,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "oddirs.h"
 #include "filepath.h"
+#include <sstream>
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
@@ -208,7 +210,13 @@ bool acceptOK( CallBacker* )
 	    uiMSG().warning( "Cannot write report to specified file" );
     }
 
-
+    uiDialog* dlg = new uiDialog( parent(), uiDialog::Setup("SEG-Y Scan Report",
+				  mNoDlgTitle,mNoHelpID).modal(false) );
+    dlg->setCtrlStyle( uiDialog::LeaveOnly );
+    std::ostringstream strstrm; rep_.dumpPretty( strstrm );
+    uiTextEdit* te = new uiTextEdit( dlg, "SEG-Y Scan Report" );
+    te->setText( strstrm.str().c_str() );
+    dlg->setDeleteOnClose( true ); dlg->go();
     return true;
 }
 
@@ -230,6 +238,7 @@ void uiSEGYRead::preScanReq( CallBacker* cb )
     mDynamicCastGet(uiSEGYImpDlg*,impdlg,cb)
     if ( !impdlg ) return;
     impdlg->updatePars();
+    fillPar( pars_ );
 
     uiSEGYReadPreScanner dlg( impdlg, geom_, pars_ );
     if ( !dlg.go() || !dlg.res_ ) return;
@@ -382,6 +391,8 @@ void uiSEGYRead::doScan()
 
     SEGY::FileSpec fs; fs.usePar( pars_ );
     scanner_ = new SEGY::Scanner( fs, geom_, pars_ );
+    if ( rev_ == Rev0 )
+	scanner_->setForceRev0( true );
     uiTaskRunner tr( parent_ );
     if ( !tr.execute(*scanner_) )
 	state_ = specincomplete_ ? cSetupScan : cGetBasicOpts;

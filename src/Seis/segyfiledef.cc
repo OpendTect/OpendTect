@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.6 2008-10-08 15:57:32 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.7 2008-10-14 10:22:47 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -327,18 +327,48 @@ static void setIntByte( IOPar& iop, const char* nm,
 
 void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
 {
+    if ( !mIsUdf(coordscale_) )
+	iop.set( sKeyCoordScale, coordscale_ );
+    if ( !mIsUdf(timeshift_) )
+	iop.set( sKeyTimeShift, timeshift_ );
+    if ( !mIsUdf(sampleintv_) )
+	iop.set( sKeySampleIntv, sampleintv_ );
+
     const bool is2d = Seis::is2D( geom_ );
     const bool isps = Seis::isPS( geom_ );
+
     if ( !rev1 )
     {
 	if ( is2d )
 	    setIntByte( iop, "Trace number", thdef_.trnr, thdef_.trnrbytesz );
 	else
 	{
-	    setIntByte( iop, "Inline", thdef_.inl, thdef_.inlbytesz );
-	    setIntByte( iop, "Crossline", thdef_.crl, thdef_.crlbytesz );
+	    iop.set( "Positioning defined by",
+		    icdef_ == XYOnly ? "Coordinates" : "Inline/Crossline" );
+	    if ( icdef_ != XYOnly )
+	    {
+		setIntByte( iop, "Inline", thdef_.inl, thdef_.inlbytesz );
+		setIntByte( iop, "Crossline", thdef_.crl, thdef_.crlbytesz );
+	    }
+	    else
+	    {
+		iop.set( TrcHeaderDef::sXCoordByte, thdef_.xcoord );
+		iop.set( TrcHeaderDef::sYCoordByte, thdef_.ycoord );
+	    }
 	}
     }
 
-    fillPar( iop );
+    if ( !isps )
+	return;
+
+    iop.set( "Offsets", psdef_ == UsrDef ? "User defined"
+	    : (psdef_ == InFile ? "In file" : "Source/Receiver coordinates") );
+    if ( psdef_ == UsrDef )
+	iop.set( sKeyOffsDef, offsdef_ );
+    else if ( psdef_ != SrcRcvCoords )
+    {
+	setIntByte( iop, "Offset", thdef_.offs, thdef_.offsbytesz );
+	if ( thdef_.azim < 255 )
+	    setIntByte( iop, "Azimuth", thdef_.azim, thdef_.azimbytesz );
+    }
 }

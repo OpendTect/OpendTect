@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.6 2008-10-08 15:57:32 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.7 2008-10-14 10:22:47 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.6 2008-10-08 15:57:32 cvsber
     , dtctor_(*new PosInfo::Detector(Seis::is2D(gt),Seis::isPS(gt))) \
     , tr_(0) \
     , geom_(gt) \
+    , forcerev0_(false) \
     , curfidx_(-1) \
     , msg_("Opening first file") \
     , nrdone_(0) \
@@ -49,6 +50,7 @@ void SEGY::Scanner::init( const FileSpec& fs )
     const int nrfiles = fs.nrFiles();
     for ( int idx=0; idx<nrfiles; idx++ )
 	fnms_.add( fs.getFileName(idx) );
+    pars_.getYN( FileDef::sKeyForceRev0, forcerev0_ );
 }
 
 
@@ -62,9 +64,7 @@ SEGY::Scanner::~Scanner()
 
 void SEGY::Scanner::getReport( IOPar& iop ) const
 {
-    bool forecrev0 = false;
-    pars_.getYN( SEGY::FileDef::sKeyForceRev0, forecrev0 );
-    const bool isrev1 = !forecrev0 && fd_[0]->isrev1_;
+    const bool isrev1 = !forcerev0_ && (fd_.isEmpty() || fd_[0]->isrev1_);
 
     iop.add( "->", "Provided information" );
     FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev1 );
@@ -93,7 +93,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 
 void SEGY::Scanner::addErrReport( IOPar& iop ) const
 {
-    iop.add( "->",  "File info" );
+    iop.add( "->",  "Status" );
     for ( int idx=0; idx<fnms_.size(); idx++ )
     {
 	const char* fnm = fnms_.get( idx );
@@ -174,6 +174,7 @@ int SEGY::Scanner::openNext()
 
     tr_ = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
     tr_->usePar( pars_ );
+    tr_->setForceRev0( forcerev0_ );
     if ( !tr_->initRead(new StreamConn(sd),Seis::Scan) )
     {
 	addFailed( tr_->errMsg() );

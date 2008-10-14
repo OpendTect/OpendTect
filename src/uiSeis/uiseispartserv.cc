@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.98 2008-10-10 14:08:17 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.99 2008-10-14 10:22:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,6 @@ ________________________________________________________________________
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
 #include "uiseisrandto2dline.h"
-#include "uiseissegyimpexp.h"
 #include "uisegyread.h"
 #include "uisegyexp.h"
 #include "uisegysip.h"
@@ -66,36 +65,31 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
     PtrMan<uiDialog> dlg = 0;
-    if ( opt == 4 )
+    if ( opt == 6 )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
-    else if ( opt < 4 )
+    else if ( opt < 2 )
     {
-	const Seis::GeomType gt =  opt == 0 ? Seis::Vol
-				: (opt == 1 ? Seis::Line
-				: (opt == 2 ? Seis::VolPS : Seis::LinePS));
 	if ( !forread )
+	{
+	    const Seis::GeomType gt = opt == 0 ? Seis::Vol : Seis::Line;
 	    dlg = new uiSEGYExp( appserv().parent(), gt );
+	}
 	else
 	{
-	    if ( GetEnvVarYN("OD_NEW_SEGY_HANDLING") )
-	    {
-		uiSEGYRead::Setup su( uiSEGYRead::Import );
-		uiSEGYRead uisrd( appserv().parent(), su );
-		return uisrd.go();
-	    }
-	    if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) )
-		return true;
-	    dlg = new uiSeisSegYImp( appserv().parent(), segyid_, gt );
+	    uiSEGYRead::Setup su( uiSEGYRead::Import );
+	    uiSEGYRead uisrd( appserv().parent(), su );
+	    return uisrd.go();
 	}
     }
     else
     {
-	const Seis::GeomType gt =  opt == 5 ? Seis::Vol
-				: (opt == 6 ? Seis::Line
-				: (opt == 7 ? Seis::VolPS : Seis::LinePS));
+	const Seis::GeomType gt =  opt == 2 ? Seis::Vol
+				: (opt == 3 ? Seis::Line
+				: (opt == 4 ? Seis::VolPS : Seis::LinePS));
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisIOSimple( appserv().parent(), gt, forread );
     }
+
     return dlg->go();
 }
 

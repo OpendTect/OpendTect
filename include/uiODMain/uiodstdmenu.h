@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.47 2008-10-06 08:43:25 cvsumesh Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.48 2008-10-14 10:22:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -43,10 +43,7 @@ ________________________________________________________________________
 #define mSessSaveMnuItm		(mFileSessMnu + 10)
 #define mSessRestMnuItm		(mFileSessMnu + 20)
 #define mSessAutoMnuItm		(mFileSessMnu + 30)
-#define mImpSeisSEGY3DMnuItm	(mFileImpMnu + 10)
-#define mImpSeisSEGY2DMnuItm	(mFileImpMnu + 11)
-#define mImpSeisSEGYPS3DMnuItm	(mFileImpMnu + 12)
-#define mImpSeisSEGYPS2DMnuItm	(mFileImpMnu + 13)
+#define mImpSeisSEGYMnuItm	(mFileImpMnu + 10)
 #define mImpSeisSimple3DMnuItm	(mFileImpMnu + 14)
 #define mImpSeisSimple2DMnuItm	(mFileImpMnu + 15)
 #define mImpSeisSimplePS3DMnuItm (mFileImpMnu + 16)

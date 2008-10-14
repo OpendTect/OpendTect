@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.8 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.9 2008-10-14 10:22:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 class IOObj;
 class uiLabel;
 class uiGenInput;
-class uiCheckBox;
 class uiTabStack;
 class uiFileInput;
 namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
@@ -130,16 +129,16 @@ public:
     class Setup
     {
     public:
-				Setup(	Seis::GeomType gt,
+				Setup( Seis::GeomType gt,
 				    uiSEGYRead::Purpose pp=uiSEGYRead::Import,
-				    bool isr1=false )
+				    uiSEGYRead::RevType rt=uiSEGYRead::Rev0 )
 				    : geom_(gt)
 				    , purpose_(pp)
-				    , isrev1_(isr1)	{}
+				    , revtype_(rt)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(uiSEGYRead::Purpose,purpose)
-	mDefSetupMemb(bool,isrev1) //!< Note: write is always Rev.1
+	mDefSetupMemb(uiSEGYRead::RevType,revtype)
     };
 
 			uiSEGYFileOpts(uiParent*,const Setup&,const IOPar* i=0);
@@ -162,19 +161,20 @@ protected:
     Setup		setup_;
     bool		is2d_;
     bool		isps_;
-    bool		permissive_;
 
     uiTabStack*		ts_;
     uiGroup*		posgrp_;
+    uiGroup*		psgrp_;
     uiGroup*		orulegrp_;
 
-    uiGenInput*		positioningfld_;
+    uiGenInput*		posfld_;
     uiGenInput*		inlbytefld_;
     uiGenInput*		inlbyteszfld_;
     uiGenInput*		crlbytefld_;
     uiGenInput*		crlbyteszfld_;
     uiGenInput*		trnrbytefld_;
     uiGenInput*		trnrbyteszfld_;
+    uiGenInput*		psposfld_;
     uiGenInput*		offsbytefld_;
     uiGenInput*		offsbyteszfld_;
     uiGenInput*		azimbytefld_;
@@ -187,27 +187,24 @@ protected:
     uiGenInput*		scalcofld_;
     uiGenInput*		timeshiftfld_;
     uiGenInput*		sampleratefld_;
-    uiCheckBox*		forcerev0fld_;
 
-    void		buildUI(const IOPar*);
-    uiGroup*		mkPosGrp(const IOPar*);
     uiGroup*		mkORuleGrp(const IOPar*);
+    uiGroup*		mkPosGrp(const IOPar*,const SEGY::TrcHeaderDef&);
+    uiGroup*		mkPSGrp(const IOPar*,const SEGY::TrcHeaderDef&);
 
     void		mkTrcNrFlds(uiGroup*,const IOPar*,
 	    			    const SEGY::TrcHeaderDef&);
     void		mkBinIDFlds(uiGroup*,const IOPar*,
 	    			    const SEGY::TrcHeaderDef&);
-    void		mkPreStackPosFlds(uiGroup*,const IOPar*,
-					  const SEGY::TrcHeaderDef&);
     void		mkCoordFlds(uiGroup*,const IOPar*,
 	    			    const SEGY::TrcHeaderDef&);
-    void		attachPosFlds(uiGroup*);
 
-    void		positioningChg(CallBacker*);
+    void		posChg(CallBacker*);
     void		readParsPush(CallBacker*);
     void		preScanPush(CallBacker*);
 
     int			posType() const;
+    int			psPosType() const;
     bool		haveIC() const;
     bool		haveXY() const;
 

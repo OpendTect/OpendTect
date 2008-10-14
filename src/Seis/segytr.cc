@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.68 2008-10-10 14:08:28 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.69 2008-10-14 10:22:47 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -37,7 +37,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, binhead_(*new SEGY::BinHeader)
 	, trcscale_(0)
 	, curtrcscale_(0)
-	, force_rev0(false)
+	, forcerev0(false)
 	, storinterp(0)
 	, blockbuf(0)
 	, headerbufread(false)
@@ -92,7 +92,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     binhead_.getFrom( binheaderbuf );
 
     trchead_.setNeedSwap( filepars_.byteswapped_ );
-    trchead_.isrev1 = force_rev0 ? false : binhead_.isrev1;
+    trchead_.isrev1 = forcerev0 ? false : binhead_.isrev1;
     if ( trchead_.isrev1 )
     {
 	if ( binhead_.nrstzs > 100 ) // protect against wild values
@@ -206,7 +206,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	// Auto-detect
 	filepars_.fmt_ = nrFormatFor( storinterp->dataChar() );
 
-    trchead_.isrev1 = !force_rev0;
+    trchead_.isrev1 = !forcerev0;
 
     if ( !txthead_ )
     {
@@ -258,7 +258,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     fileopts_.usePar( iopar );
     fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 
-    iopar.getYN( SEGY::FileDef::sKeyForceRev0, force_rev0 );
+    iopar.getYN( SEGY::FileDef::sKeyForceRev0, forcerev0 );
 }
 
 

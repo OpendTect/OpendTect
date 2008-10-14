@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.6 2008-10-02 14:40:06 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.7 2008-10-14 10:22:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,11 +69,11 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     ctio_.ctxt.forread = false;
 
     uiGroup* optsgrp = 0;
-    if ( setup_.rev_ != uiSEGYRead::Rev1 )
+    if ( Seis::isPS(setup_.geom_) || setup_.rev_ != uiSEGYRead::Rev1 )
     {
 	optsgrp = new uiGroup( this, "Opts group" );
 	uiSEGYFileOpts::Setup osu( setup_.geom_, uiSEGYRead::Import,
-				    setup_.rev_ == uiSEGYRead::WeakRev1 );
+				   setup_.rev_ );
 	optsfld_ = new uiSEGYFileOpts( optsgrp, osu, &iop );
 	optsfld_->readParsReq.notify( mCB(this,uiSEGYImpDlg,readParsCB) );
 	optsfld_->preScanReq.notify( mCB(this,uiSEGYImpDlg,preScanCB) );
