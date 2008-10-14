@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.7 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.8 2008-10-14 13:17:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ protected:
     void		readParsCB(CallBacker*);
     void		geomChg(CallBacker*);
     bool		acceptOK(CallBacker*);
+
+    void		useSpecificPars(const IOPar&);
 
 };
 

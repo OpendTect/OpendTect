@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.8 2008-10-09 09:09:47 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.9 2008-10-14 13:17:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ void uiSEGYDefDlg::use( const IOObj* ioobj, bool force )
 	    geomfld_->setCurrentItem( Seis::nameOf(oinf.geomType()) );
 	    geomChg( 0 );
 	}
-	usePar( ioobj->pars() );
+	useSpecificPars( ioobj->pars() );
     }
 }
 
@@ -145,6 +145,12 @@ void uiSEGYDefDlg::usePar( const IOPar& iop )
     pars_.merge( iop );
     filespecfld_->usePar( pars_ );
     fileparsfld_->usePar( pars_ );
+    useSpecificPars( iop );
+}
+
+
+void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
+{
     int nrex = nrTrcExamine();
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrex );
     nrtrcexfld_->setValue( nrex );   
