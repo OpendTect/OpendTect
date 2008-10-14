@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.34 2008-10-14 15:19:06 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.35 2008-10-14 16:46:44 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -350,11 +350,18 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	
     	const Coord3 center( (startpos+stoppos)/2, (zrg_.start+zrg_.stop)/2 );
     	planedragger_->setCenter( center );
+
+        Interval<float> xlim( SI().inlRange( true ).start,
+			      SI().inlRange( true ).stop );
+        Interval<float> ylim( SI().crlRange( true ).start,
+			      SI().crlRange( true ).stop );
+#define mBigNumber 1e15
 	
-    	const Interval<float> xlim = Interval<float>( 
-		SI().inlRange( true ).start, SI().inlRange( true ).stop );
-    	const Interval<float> ylim = Interval<float>( 
-		SI().crlRange( true ).start, SI().crlRange( true ).stop );
+	if ( isinline )
+	    xlim.widen( mBigNumber );
+	else
+	    ylim.widen( mBigNumber );
+
 	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange( true ) );    
     }
     
