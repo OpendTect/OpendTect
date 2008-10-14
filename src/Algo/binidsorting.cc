@@ -4,7 +4,7 @@
  * DATE     : Dec 2006
 -*/
 
-static const char* rcsID = "$Id: binidsorting.cc,v 1.3 2006-12-11 10:45:40 cvsbert Exp $";
+static const char* rcsID = "$Id: binidsorting.cc,v 1.4 2008-10-14 10:21:54 cvsbert Exp $";
 
 #include "binidsorting.h"
 #include "undefval.h"
@@ -49,12 +49,15 @@ const char* BinIDSorting::description( bool is2d,
     }
     else
     {
-	ret = inlsort ? "In-" : "Cross-";
-	ret += "line sorted; In-lines ";
-	ret += inlupw ? "in" : "de";
-	ret += "crease; Cross-lines ";
-	ret += crlupw ? "in" : "de";
-	ret += "crease";
+	if ( inlsort )
+	    { ret = "In-line sorted ("; ret += inlupw ? "in" : "de"; }
+	else
+	    { ret = "Cross-line sorted ("; ret += crlupw ? "in" : "de"; }
+	ret += "creasing); ";
+	if ( inlsort )
+	    ret += crlupw ? "Cross-lines go up" : "Cross-lines go down";
+	else
+	    ret += inlupw ? "In-lines go up" : "In-lines go down";
     }
     return ret;
 }
