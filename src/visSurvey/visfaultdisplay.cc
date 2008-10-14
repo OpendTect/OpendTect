@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.26 2008-10-06 17:27:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.27 2008-10-14 05:18:47 cvsnanne Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -408,7 +408,7 @@ void FaultDisplay::display( bool sticks, bool panels )
     if ( neareststickmarker_ )
 	neareststickmarker_->turnOn( sticks );
 
-    viseditor_->turnOn( sticks && showmanipulator_ );
+    if ( viseditor_ ) viseditor_->turnOn( sticks && showmanipulator_ );
 
     if ( paneldisplay_ )
 	paneldisplay_->turnOn( panels );
@@ -524,7 +524,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     EM::PosID nearestpid0, nearestpid1, insertpid;
     const float zscale = SI().zFactor()* (scene_ ? scene_->getZScale() : 1);
     faulteditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
-	    			      pos, zscale );
+				      pos, zscale );
 
     const int neareststick = nearestpid0.isUdf()
 	? mUdf(int)
@@ -539,8 +539,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( !pos.isDefined() )
 	return;
 
-    const EM::PosID pid =
-	viseditor_->mouseClickDragger( eventinfo.pickedobjids );
+    const EM::PosID pid = viseditor_ ?
+       viseditor_->mouseClickDragger(eventinfo.pickedobjids) : EM::PosID::udf();
     if ( !pid.isUdf() )
     {
 	if ( eventinfo.type==visBase::MouseClick &&
@@ -616,7 +616,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	if ( emfault_->geometry().insertKnot( insertpid.sectionID(),
 		insertpid.subID(), pos, true ) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
+	    EM::EMM().undo().setUserInteractionEnd(
+		    EM::EMM().undo().currentEventID() );
 	    faulteditor_->editpositionchange.trigger();
 	}
     }
@@ -707,7 +708,7 @@ void FaultDisplay::updateManipulator()
 {
     const bool show = showmanipulator_ &&
     		      (areSticksDisplayed() || arePanelsDisplayed() );
-    viseditor_->turnOn( show );
+    if ( viseditor_ ) viseditor_->turnOn( show );
     neareststickmarker_->turnOn( show );
 }
 
