@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.147 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.148 2008-10-14 11:19:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -467,7 +467,9 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     uiSelectFromList::Setup setup( "Surface data", sd.valnames );
     setup.dlgtitle( "Select one or more attributes to be displayed\n"
 	    	    "on the horizon. After loading, use 'Page Up'\n"
-		    "and 'Page Down' buttons to scroll." );
+		    "and 'Page Down' buttons to scroll.\n"
+	   	    "Make sure the attribute treeitem is selected\n"
+		    "and that the mouse pointer is in the scene." );
     uiSelectFromList dlg( parent(), setup );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiSelect( true );
