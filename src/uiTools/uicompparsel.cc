@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2006
- RCS:           $Id: uicompparsel.cc,v 1.4 2008-05-26 06:22:27 cvsnanne Exp $
+ RCS:           $Id: uicompparsel.cc,v 1.5 2008-10-14 11:17:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,17 +19,17 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
     : uiGroup(p,seltxt)
     , butPush(this)
 {
-    txtfld = new uiGenInput( this, seltxt, "" );
-    txtfld->setReadOnly( true );
+    txtfld_ = new uiGenInput( this, seltxt, "" );
+    txtfld_->setReadOnly( true );
 
     const char* buttxt = btxt ? btxt : "Select";
-    uiPushButton* but = new uiPushButton( this, buttxt, false );
-    but->setName( BufferString(buttxt," ",seltxt).buf() );
-    but->activated.notify( mCB(this,uiCompoundParSel,doSel) );
-    but->attach( rightOf, txtfld );
+    selbut_ = new uiPushButton( this, buttxt, false );
+    selbut_->setName( BufferString(buttxt," ",seltxt).buf() );
+    selbut_->activated.notify( mCB(this,uiCompoundParSel,doSel) );
+    selbut_->attach( rightOf, txtfld_ );
 
-    setHAlignObj( txtfld );
-    setHCentreObj( txtfld );
+    setHAlignObj( txtfld_ );
+    setHCentreObj( txtfld_ );
 
     mainObject()->finaliseDone.notify( mCB(this,uiCompoundParSel,updSummary) );
 }
@@ -44,11 +44,11 @@ void uiCompoundParSel::doSel( CallBacker* )
 
 void uiCompoundParSel::updSummary( CallBacker* )
 {
-    txtfld->setText( getSummary() );
+    txtfld_->setText( getSummary() );
 }
 
 
 void uiCompoundParSel::setSelText( const char* txt )
 {
-    txtfld->setTitleText( txt );
+    txtfld_->setTitleText( txt );
 }

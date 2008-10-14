@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2006
- RCS:           $Id: uicompoundparsel.h,v 1.1 2006-05-08 11:05:15 cvsbert Exp $
+ RCS:           $Id: uicompoundparsel.h,v 1.2 2008-10-14 11:17:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+
 class uiGenInput;
+class uiPushButton;
 
 
 /*!\brief Single-line element allowing multi-parameter to be set via a dialog.
@@ -42,7 +44,8 @@ protected:
     void			doSel(CallBacker*);
     void			updSummary(CallBacker*);
 
-    uiGenInput*			txtfld;
+    uiGenInput*			txtfld_;
+    uiPushButton*		selbut_;
 
 };
 
