@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.10 2008-10-10 16:58:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.11 2008-10-15 10:16:59 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -433,7 +433,7 @@ bool PosInfo::CubeData::haveCrlStepInfo() const
 
     for ( int ilnr=0; ilnr<sz; ilnr++ )
     {
-	const PosInfo::LineData& ld = *(*this)[0];
+	const PosInfo::LineData& ld = *(*this)[ilnr];
 	for ( int icrl=0; icrl<ld.segments_.size(); icrl++ )
 	{
 	    const PosInfo::LineData::Segment& seg = ld.segments_[icrl];
