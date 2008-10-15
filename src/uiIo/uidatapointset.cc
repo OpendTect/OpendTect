@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.24 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.25 2008-10-15 12:25:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -670,7 +670,7 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid, bool foruser ) const
 }
 
 
-#define mRetErr fillPos( TRowID(drid) ); return
+#define mRetErr fillPos( cell.row ); return
 
 void uiDataPointSet::valChg( CallBacker* )
 {
@@ -696,7 +696,7 @@ void uiDataPointSet::valChg( CallBacker* )
 	const char* txt = tbl_->text( cell );
 	if ( !txt || !*txt )
 	{
-	    uiMSG().error( "Positioning values cannot be undefined" );
+	    uiMSG().error( "Positioning values must be filled" );
 	    mRetErr;
 	}
 	DataPointSet::Pos& pos( afterchgdr_.pos_ );
