@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.10 2008-10-14 10:22:47 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.11 2008-10-15 11:22:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,8 @@ void uiSEGYRead::use( const IOObj* ioobj, bool force )
 void uiSEGYRead::fillPar( IOPar& iop ) const
 {
     iop.merge( pars_ );
-    iop.setYN( SEGY::FileDef::sKeyForceRev0, rev_ == Rev0 );
+    if ( rev_ == Rev0 )
+	iop.setYN( SEGY::FileDef::sKeyForceRev0, true );
 }
 
 
@@ -122,7 +123,9 @@ void uiSEGYRead::writeReq( CallBacker* cb )
 	return;
 
     impdlg->updatePars();
-    ctio->ioobj->pars() = pars_;
+    fillPar( ctio->ioobj->pars() );
+    ctio->ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
+    ctio->ioobj->pars().removeWithKey( sKey::Geometry );
     SEGY::FileSpec::ensureWellDefined( *ctio->ioobj );
     IOM().commitChanges( *ctio->ioobj );
     delete ctio->ioobj;
@@ -146,11 +149,13 @@ void uiSEGYRead::readReq( CallBacker* cb )
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;
 
-    SEGY::FileSpec::fillParFromIOObj( *ioobj, pars_ );
-    if ( defdlg )
-	defdlg->use( ioobj, false );
-    else
+    if ( impdlg )
 	impdlg->use( ioobj, false );
+    else
+    {
+	pars_.merge( ioobj->pars() );
+	defdlg->use( ioobj, false );
+    }
 }
 
 

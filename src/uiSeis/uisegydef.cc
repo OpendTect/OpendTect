@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.13 2008-10-14 10:22:47 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.14 2008-10-15 11:22:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,16 +343,13 @@ void uiSEGYFilePars::use( const IOObj* ioobj, bool force )
 //--- tools for building the file opts UI ----
 
 static uiGenInput* mkPosFld( uiGroup* grp, const char* key, const IOPar* iop,
-			     int def, bool inrev1, const char* dispnm=0 )
+			     int def, const char* dispnm=0 )
 {
     if ( iop ) iop->get( key, def );
     if ( def > 239 ) def = mUdf(int);
     IntInpSpec inpspec( def );
     inpspec.setLimits( Interval<int>( 1, 239 ) );
-    BufferString txt;
-    if ( inrev1 ) txt = "(*) ";
-    txt += dispnm ? dispnm : key;
-    return new uiGenInput( grp, txt, inpspec.setName(key) );
+    return new uiGenInput( grp, dispnm ? dispnm : key, inpspec.setName(key) );
 }
 
 
@@ -606,7 +603,7 @@ void uiSEGYFileOpts::mkTrcNrFlds( uiGroup* grp, const IOPar* iop,
 				   const SEGY::TrcHeaderDef& thdef )
 {
     trnrbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sTrNrByte, iop,
-			     thdef.trnr, false );
+			     thdef.trnr );
     trnrbyteszfld_ = mkByteSzFld( grp, SEGY::TrcHeaderDef::sTrNrByteSz,
 				iop, thdef.trnrbytesz );
     trnrbyteszfld_->attach( rightOf, trnrbytefld_ );
@@ -618,20 +615,22 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar* iop,
 {
     if ( !forScan() )
     {
+	int icopt = 0;
+	if ( iop ) iop->get( SEGY::FileReadOpts::sKeyICOpt, icopt );
 	posfld_ = new uiGenInput( grp, "Positioning is defined by",
-		    BoolInpSpec(true,"Inline/Crossline","Coordinates") );
+		    BoolInpSpec(icopt>=0,"Inline/Crossline","Coordinates") );
 	posfld_->valuechanged.notify( 
 			mCB(this,uiSEGYFileOpts,posChg) );
     }
 
     inlbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sInlByte, iop,
-			   thdef.inl, true );
+			   thdef.inl );
     if ( posfld_ ) inlbytefld_->attach( alignedBelow, posfld_ );
     inlbyteszfld_ = mkByteSzFld( grp, SEGY::TrcHeaderDef::sInlByteSz,
 				iop, thdef.inlbytesz );
     inlbyteszfld_->attach( rightOf, inlbytefld_ );
     crlbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sCrlByte, iop,
-			   thdef.crl, true );
+			   thdef.crl );
     crlbytefld_->attach( alignedBelow, inlbytefld_ );
     crlbyteszfld_ = mkByteSzFld( grp, SEGY::TrcHeaderDef::sCrlByteSz,
 				iop, thdef.crlbytesz );
@@ -643,9 +642,9 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar* iop,
 				   const SEGY::TrcHeaderDef& thdef )
 {
     xcoordbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sXCoordByte,
-				iop, thdef.xcoord, true );
+				iop, thdef.xcoord );
     ycoordbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sYCoordByte,
-			      iop, thdef.ycoord, true );
+			      iop, thdef.ycoord );
     ycoordbytefld_->attach( alignedBelow, xcoordbytefld_ );
     if ( posfld_ )
 	xcoordbytefld_->attach( alignedBelow, posfld_ );
@@ -719,13 +718,13 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar* iop,
     }
 
     offsbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sOffsByte, iop,
-			    thdef.offs, false );
+			    thdef.offs );
     if ( psposfld_ ) offsbytefld_->attach( alignedBelow, psposfld_ );
     offsbyteszfld_ = mkByteSzFld( grp, SEGY::TrcHeaderDef::sOffsByteSz,
 				iop, thdef.offsbytesz );
     offsbyteszfld_->attach( rightOf, offsbytefld_ );
     azimbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sAzimByte, iop,
-			    thdef.azim, false, "Azimuth byte (empty=none)" );
+			    thdef.azim, "Azimuth byte (empty=none)" );
     azimbyteszfld_ = mkByteSzFld( grp, SEGY::TrcHeaderDef::sAzimByteSz,
 				iop, thdef.azimbytesz );
     azimbyteszfld_->attach( rightOf, azimbytefld_ );
@@ -758,7 +757,7 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
     {
 	icopt = posfld_->getBoolValue() ? 1 : -1;
 	iop.get( SEGY::FileReadOpts::sKeyICOpt, icopt );
-	posfld_->setValue( icopt > 0 );
+	posfld_->setValue( icopt >= 0 );
     }
     if ( psposfld_ )
     {

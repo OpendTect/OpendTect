@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.7 2008-10-14 10:22:47 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.8 2008-10-15 11:22:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ ________________________________________________________________________
 
 
 uiSEGYImpDlg::Setup::Setup( Seis::GeomType gt )
-    : uiDialog::Setup("SEG-Y Import",0,"103.1.5")
+    : uiDialog::Setup("SEG-Y Import",mNoDlgTitle,"103.1.5")
     , geom_(gt) 
     , nrexamine_(0)     
     , rev_(uiSEGYRead::Rev0)
@@ -67,6 +67,14 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     , preScanReq(this)
 {
     ctio_.ctxt.forread = false;
+    if ( setup().dlgtitle_.isEmpty() )
+    {
+	BufferString ttl( "Import " );
+	ttl += Seis::nameOf( setup_.geom_ );
+	SEGY::FileSpec fs; fs.usePar( iop );
+	ttl += " '"; ttl += fs.fname_; ttl += "'";
+	setTitleText( ttl );
+    }
 
     uiGroup* optsgrp = 0;
     if ( Seis::isPS(setup_.geom_) || setup_.rev_ != uiSEGYRead::Rev1 )
