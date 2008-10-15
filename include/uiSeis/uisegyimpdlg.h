@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.7 2008-10-02 14:40:06 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.8 2008-10-15 15:47:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,6 @@ public :
     			Setup(Seis::GeomType);
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(int,nrexamine)		// default 0=no examine
 	mDefSetupMemb(uiSEGYRead::RevType,rev)	// default Rev0
     };
 

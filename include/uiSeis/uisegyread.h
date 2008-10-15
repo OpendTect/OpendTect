@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.6 2008-10-02 14:40:06 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.7 2008-10-15 15:47:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,10 @@ class IOObj;
 class uiParent;
 class CtxtIOObj;
 namespace SEGY { class Scanner; }
+class uiSEGYDefDlg;
+class uiSEGYExamine;
+class uiSEGYImpDlg;
+class uiSEGYReadRev1Question;
 
 
 /*!\brief 'Server' for SEG-Y Reading */
@@ -56,27 +60,44 @@ public:
     SEGY::Scanner*	getScanner()		//!< Becomes yours
 			{ SEGY::Scanner* s = scanner_; scanner_ = 0; return s; }
 
+    Notifier<uiSEGYRead> processEnded;
+    enum State		{ Cancelled, Finished, BasicOpts, Wait4Dialog,
+			  SetupImport, SetupScan };
+    State		state() const		{ return state_; }
+
 protected:
+
+    State		state_;
 
     Setup		setup_;
     uiParent*		parent_;
     Seis::GeomType	geom_;
     IOPar		pars_;
     RevType		rev_;
-    int			nrexamine_;
-
-    mutable int		state_;
-    bool		specincomplete_;
+    int			revpolnr_;
     SEGY::Scanner*	scanner_;
 
+    uiSEGYDefDlg*	defdlg_;
+    uiSEGYExamine*	examdlg_;
+    uiSEGYImpDlg*	impdlg_;
+    uiSEGYReadRev1Question* rev1qdlg_;
+
+    void		nextAction();
+    void		closeDown();
     void		getBasicOpts();
+    void		basicOptsGot();
+    void		determineRevPol();
+    void		setupImport();
     void		setupScan();
-    void		doScan();
-    void		doImport();
 
     void		readReq(CallBacker*);
     void		writeReq(CallBacker*);
     void		preScanReq(CallBacker*);
+
+    void		defDlgClose(CallBacker*);
+    void		impDlgClose(CallBacker*);
+    void		examDlgClose(CallBacker*);
+    void		rev1qDlgClose(CallBacker*);
 
     void		setGeomType(const IOObj&);
     CtxtIOObj*		getCtio(bool) const;

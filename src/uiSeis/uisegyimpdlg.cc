@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.8 2008-10-15 11:22:44 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.9 2008-10-15 15:47:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uisegyimpdlg.h"
 
 #include "uisegydef.h"
-#include "uisegyexamine.h"
 #include "uiseistransf.h"
 #include "uiseisfmtscale.h"
 #include "uiseissel.h"
@@ -45,7 +44,6 @@ ________________________________________________________________________
 uiSEGYImpDlg::Setup::Setup( Seis::GeomType gt )
     : uiDialog::Setup("SEG-Y Import",mNoDlgTitle,"103.1.5")
     , geom_(gt) 
-    , nrexamine_(0)     
     , rev_(uiSEGYRead::Rev0)
 {
 }
@@ -122,12 +120,6 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 
 void uiSEGYImpDlg::setupWin( CallBacker* )
 {
-    if ( setup_.nrexamine_ < 1 ) return;
-
-    uiSEGYExamine::Setup exsu( setup_.nrexamine_ );
-    exsu.modal( false ); exsu.usePar( pars_ );
-    uiSEGYExamine* dlg = new uiSEGYExamine( this, exsu );
-    dlg->go();
 }
 
 

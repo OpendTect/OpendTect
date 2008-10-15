@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.11 2008-10-15 11:22:44 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.12 2008-10-15 15:47:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
+#include "uiobjdisposer.h"
 #include "uimsg.h"
 #include "survinfo.h"
 #include "seistrctr.h"
@@ -32,9 +33,12 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "oddirs.h"
 #include "filepath.h"
+#include "timefun.h"
 #include <sstream>
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
+
+#define mSetState(st) { state_ = st; nextAction(); return; }
 
 
 void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms )
@@ -51,29 +55,54 @@ void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms )
     }
 }
 
-static const int cCancel = -1;
-static const int cFinished = 0;
-static const int cGetBasicOpts = 1;
-static const int cImport = 2;
-static const int cSetupScan = 3;
-static const int cScanFiles = 4;
-
 
 uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
     : setup_(su)
     , parent_(p)
-    , geom_(Seis::Vol)
-    , state_(cGetBasicOpts)
-    , specincomplete_(false)
+    , geom_(SI().has3D()?Seis::Vol:Seis::Line)
+    , state_(BasicOpts)
     , scanner_(0)
     , rev_(Rev0)
-    , nrexamine_(0)
+    , revpolnr_(2)
+    , defdlg_(0)
+    , examdlg_(0)
+    , impdlg_(0)
+    , rev1qdlg_(0)
+    , processEnded(this)
 {
+    nextAction();
+}
+
+// Destructor at end of file (deleting local class)
+
+
+void uiSEGYRead::closeDown()
+{
+    processEnded.trigger();
+    uiOBJDISP()->go( this );
 }
 
 
-uiSEGYRead::~uiSEGYRead()
+void uiSEGYRead::nextAction()
 {
+    if ( state_ <= Finished )
+	{ closeDown(); return; }
+
+    switch ( state_ )
+    {
+    case Wait4Dialog:
+	return;
+    break;
+    case BasicOpts:
+	getBasicOpts();
+    break;
+    case SetupImport:
+	setupImport();
+    break;
+    case SetupScan:
+	setupScan();
+    break;
+    }
 }
 
 
@@ -114,15 +143,14 @@ void uiSEGYRead::usePar( const IOPar& iop )
 
 void uiSEGYRead::writeReq( CallBacker* cb )
 {
-    mDynamicCastGet(uiSEGYImpDlg*,impdlg,cb)
-    if ( !impdlg ) return;
+    if ( cb != impdlg_ ) return;
 
     PtrMan<CtxtIOObj> ctio = getCtio( true );
-    ctio->ctxt.setName( impdlg->saveObjName() );
+    ctio->ctxt.setName( impdlg_->saveObjName() );
     if ( !ctio->fillObj(false) )
 	return;
 
-    impdlg->updatePars();
+    impdlg_->updatePars();
     fillPar( ctio->ioobj->pars() );
     ctio->ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
     ctio->ioobj->pars().removeWithKey( sKey::Geometry );
@@ -134,27 +162,25 @@ void uiSEGYRead::writeReq( CallBacker* cb )
 
 void uiSEGYRead::readReq( CallBacker* cb )
 {
-    mDynamicCastGet(uiSEGYDefDlg*,defdlg,cb)
-    mDynamicCastGet(uiSEGYImpDlg*,impdlg,cb)
-    uiDialog* parnt = defdlg;
+    uiDialog* parnt = defdlg_;
     if ( parnt )
-	geom_ = defdlg->geomType();
-    else if ( !impdlg )
+	geom_ = defdlg_->geomType();
+    else if ( !impdlg_ )
 	return;
     else
-	parnt = impdlg;
+	parnt = impdlg_;
 
     PtrMan<CtxtIOObj> ctio = getCtio( true );
     uiIOObjSelDlg dlg( parnt, *ctio, "Select SEG-Y setup" );
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;
 
-    if ( impdlg )
-	impdlg->use( ioobj, false );
+    if ( impdlg_ )
+	impdlg_->use( ioobj, false );
     else
     {
 	pars_.merge( ioobj->pars() );
-	defdlg->use( ioobj, false );
+	defdlg_->use( ioobj, false );
     }
 }
 
@@ -240,12 +266,11 @@ bool acceptOK( CallBacker* )
 
 void uiSEGYRead::preScanReq( CallBacker* cb )
 {
-    mDynamicCastGet(uiSEGYImpDlg*,impdlg,cb)
-    if ( !impdlg ) return;
-    impdlg->updatePars();
+    if ( !impdlg_ ) return;
+    impdlg_->updatePars();
     fillPar( pars_ );
 
-    uiSEGYReadPreScanner dlg( impdlg, geom_, pars_ );
+    uiSEGYReadPreScanner dlg( impdlg_, geom_, pars_ );
     if ( !dlg.go() || !dlg.res_ ) return;
 }
 
@@ -261,26 +286,6 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread ) const
     ctxt.includeconstraints = ctxt.allownonreaddefault = true;
     ctxt.allowcnstrsabsent = false;
     return ret;
-}
-
-
-#define mErrRet(s) { uiMSG().error( s ); return false; }
-
-bool uiSEGYRead::go()
-{
-    while ( state_ > 0 )
-    {
-	if ( state_ == cGetBasicOpts )
-	    getBasicOpts();
-	else if ( state_ == cImport )
-	    doImport();
-	else if ( state_ == cSetupScan )
-	    setupScan();
-	else if ( state_ == cScanFiles )
-	    doScan();
-    }
-
-    return state_ == 0;
 }
 
 
@@ -302,7 +307,8 @@ class uiSEGYReadRev1Question : public uiDialog
 public:
 
 uiSEGYReadRev1Question( uiParent* p, int pol )
-    : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,mNoHelpID) )
+    : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,mNoHelpID)
+	    	.modal(false) )
     , initialpol_(pol)
 {
     uiButtonGroup* bgrp = new uiButtonGroup( this, "" );
@@ -346,73 +352,131 @@ bool isGoBack() const
 #define mSetreadReqCB() readParsReq.notify( mCB(this,uiSEGYRead,readReq) )
 #define mSetwriteReqCB() writeParsReq.notify( mCB(this,uiSEGYRead,writeReq) )
 #define mSetpreScanReqCB() preScanReq.notify( mCB(this,uiSEGYRead,preScanReq) )
+#define mLaunchDlg(dlg,fn) \
+	dlg->windowClosed.notify( mCB(this,uiSEGYRead,fn) ); \
+	dlg->setDeleteOnClose( true ); dlg->go()
 
 void uiSEGYRead::getBasicOpts()
 {
+    delete defdlg_;
     uiSEGYDefDlg::Setup bsu; bsu.geoms_ = setup_.geoms_;
-    bsu.defgeom( geom_ );
-    uiSEGYDefDlg dlg( parent_, bsu, pars_ );
-    dlg.mSetreadReqCB();
-    if ( !dlg.go() )
-	{ state_ = cCancel; return; }
-    geom_ = dlg.geomType();
-    nrexamine_ =  dlg.nrTrcExamine();
+    bsu.defgeom( geom_ ).modal( false );
+    defdlg_ = new uiSEGYDefDlg( parent_, bsu, pars_ );
+    defdlg_->mSetreadReqCB();
+    mLaunchDlg(defdlg_,defDlgClose);
+    mSetState(Wait4Dialog);
+}
 
-    uiSEGYExamine::Setup exsu( nrexamine_ ); exsu.usePar( pars_ );
-    int exrev = uiSEGYExamine::getRev( exsu );
+
+void uiSEGYRead::basicOptsGot()
+{
+    if ( !defdlg_->uiResult() )
+	{ delete defdlg_; defdlg_ = 0; mSetState(Cancelled); }
+    geom_ = defdlg_->geomType();
+
+    uiSEGYExamine::Setup exsu( defdlg_->nrTrcExamine() );
+    exsu.modal( false ); exsu.usePar( pars_ );
+    delete examdlg_; examdlg_ = new uiSEGYExamine( parent_, exsu );
+    mLaunchDlg(examdlg_,examDlgClose);
+    const int exrev = examdlg_->getRev();
     if ( exrev < 0 )
-	{ rev_ = Rev0; state_ = cGetBasicOpts; return; }
+	{ rev_ = Rev0; mSetState(BasicOpts); }
 
     rev_ = exrev ? WeakRev1 : Rev0;
     if ( rev_ != Rev0 )
     {
-	int pol = 2; SI().pars().get( sKeySEGYRev1Pol, pol );
-	if ( pol < 0 )
-	    pol = -pol;
+	SI().pars().get( sKeySEGYRev1Pol, revpolnr_ );
+	if ( revpolnr_ < 0 )
+	    revpolnr_ = -revpolnr_;
 	else
 	{
-	    uiSEGYReadRev1Question dlg( parent_, pol );
-	    if ( !dlg.go() || dlg.isGoBack() )
-		{ state_ = cGetBasicOpts; return; }
-	    pol = dlg.pol_;
+	    delete rev1qdlg_;
+	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_ );
+	    mLaunchDlg(rev1qdlg_,rev1qDlgClose);
+	    mSetState(Wait4Dialog);
 	}
-
-	rev_ = pol == 1 ? Rev1 : (pol == 2 ? WeakRev1 : Rev0);
     }
 
-    state_ = setup_.purpose_ == Import ? cImport
-	   : (rev_ != Rev1 ? cSetupScan : cScanFiles);
+    determineRevPol();
 }
+
+
+
+void uiSEGYRead::determineRevPol()
+{
+    if ( rev1qdlg_ )
+    {
+	if ( !rev1qdlg_->uiResult() || rev1qdlg_->isGoBack() )
+	    mSetState(BasicOpts)
+	revpolnr_ = rev1qdlg_->pol_;
+    }
+    rev_ = revpolnr_ == 1 ? Rev1 : (revpolnr_ == 2 ? WeakRev1 : Rev0);
+    mSetState( setup_.purpose_ == Import ? SetupImport : SetupScan );
+}
+
 
 
 void uiSEGYRead::setupScan()
 {
-}
-
-
-void uiSEGYRead::doScan()
-{
-    delete scanner_;
+    //TODO get ReadOpts and scan pars
 
     SEGY::FileSpec fs; fs.usePar( pars_ );
-    scanner_ = new SEGY::Scanner( fs, geom_, pars_ );
+    delete scanner_; scanner_ = new SEGY::Scanner( fs, geom_, pars_ );
     if ( rev_ == Rev0 )
 	scanner_->setForceRev0( true );
     uiTaskRunner tr( parent_ );
     if ( !tr.execute(*scanner_) )
-	state_ = specincomplete_ ? cSetupScan : cGetBasicOpts;
+	mSetState( SetupScan )
 
-    state_ = cFinished;
+    mSetState( Finished );
 }
 
 
-void uiSEGYRead::doImport()
+void uiSEGYRead::setupImport()
 {
-    uiSEGYImpDlg::Setup su( geom_ );
-    su.rev( rev_ ).nrexamine( nrexamine_ );
-    uiSEGYImpDlg dlg( parent_, su, pars_ );
-    dlg.mSetreadReqCB();
-    dlg.mSetwriteReqCB();
-    dlg.mSetpreScanReqCB();
-    state_ = dlg.go() ? cFinished : cGetBasicOpts;
+    delete impdlg_;
+    uiSEGYImpDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
+    impdlg_ = new uiSEGYImpDlg( parent_, su, pars_ );
+    impdlg_->mSetreadReqCB();
+    impdlg_->mSetwriteReqCB();
+    impdlg_->mSetpreScanReqCB();
+    mLaunchDlg(impdlg_,impDlgClose);
+    mSetState( Wait4Dialog );
+}
+
+
+void uiSEGYRead::defDlgClose( CallBacker* )
+{
+    basicOptsGot();
+    defdlg_ = 0;
+}
+
+
+void uiSEGYRead::examDlgClose( CallBacker* )
+{
+    examdlg_ = 0;
+}
+
+
+void uiSEGYRead::impDlgClose( CallBacker* )
+{
+    State newstate = impdlg_->uiResult() ? Finished : BasicOpts;
+    impdlg_ = 0;
+    mSetState( newstate );
+}
+
+
+void uiSEGYRead::rev1qDlgClose( CallBacker* )
+{
+    determineRevPol();
+    rev1qdlg_ = 0;
+}
+
+
+uiSEGYRead::~uiSEGYRead()
+{
+    delete defdlg_;
+    delete examdlg_;
+    delete impdlg_;
+    delete rev1qdlg_;
 }
