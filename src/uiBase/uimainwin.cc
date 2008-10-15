@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.157 2008-09-29 16:51:00 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.158 2008-10-15 16:39:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -859,7 +859,10 @@ public:
     void		reject( CallBacker* s )	
 			{
 			    mHandle.cancelpushed_ = s == cnclbut;
-			    if ( mHandle.rejectOK(s) ) done_(0);
+			    if ( mHandle.rejectOK(s) )
+				done_(0);
+			    else
+				uiSetResult( -1 );
 			}
                         //!< to be called by a 'cancel' button
     void		accept( CallBacker* s )	
@@ -1076,6 +1079,10 @@ void uiDialogBody::done_( int v )
 void uiDialogBody::closeEvent( QCloseEvent* ce )
 {
     reject(0);
+    if ( reslt == -1 )
+	ce->ignore();
+    else
+	ce->accept();
 }
 
 
