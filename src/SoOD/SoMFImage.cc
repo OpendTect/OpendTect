@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMFImage.cc,v 1.1 2005-12-16 17:57:43 cvskris Exp $
+ RCS:           $Id: SoMFImage.cc,v 1.2 2008-10-15 22:28:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,34 +27,35 @@ void SoMFImage::initClass()
 
 SbBool SoMFImage::read1Value( SoInput* in, int index )
 {
-    SbVec2s size;
+    SbVec3s size;
     int nc;
 
     static const char* prematuremsg = "Premature end of file";
 
-    if ( !in->read(size[0]) || !in->read(size[1]) || !in->read(nc))
+    if ( !in->read(size[0]) || !in->read(size[1]) || !in->read(size[2]) ||
+         !in->read(nc) )
 	mErrRet;
 
-    if ( size[0]<0 || size[1]<0 || nc<0 || nc>4 )
+    if ( size[0]<0 || size[1]<0 || size[2]<0 || nc<0 || nc>4 )
     {
-	SoReadError::post( in, "Invalid image specification %dx%dx%d",
-			   size[0], size[1], nc);
+	SoReadError::post( in, "Invalid image specification %dx%dx%dx%d",
+			   size[0], size[1], size[2], nc);
 	return false;
     }
 
-    const int buffersize = size[1] * size[1] * nc;
+    const int buffersize = size[1] * size[1] * size[2] * nc;
 
-    if ( !buffersize && (size[0] || size[1] || nc) )
+    if ( !buffersize && (size[0] || size[1] || size[2] || nc) )
     {
-	SoReadError::post( in, "Invalid image specification %dx%dx%d",
-			   size[0], size[1], nc);
+	SoReadError::post( in, "Invalid image specification %dx%dx%dx%d",
+			   size[0], size[1], size[2], nc);
 	return false;
     }
 
 
     if ( !buffersize ) 
     {
-	values[index].setValue( SbVec2s(0,0), 0, NULL );
+	values[index].setValue( SbVec3s(0,0,0), 0, NULL );
 	return true;
     }
 
@@ -91,19 +92,20 @@ SbBool SoMFImage::read1Value( SoInput* in, int index )
 void SoMFImage::write1Value( SoOutput* out, int index ) const
 {
     int nc;
-    SbVec2s size;
+    SbVec3s size;
     unsigned char * pixblock = values[index].getValue(size, nc);
 
     const bool binary = out->isBinary();
 
     out->write( size[0] ); mWriteSpace;
     out->write( size[1] ); mWriteSpace;
+    out->write( size[2] ); mWriteSpace;
     out->write( nc );
 
 
     if ( out->isBinary() )
     {
-	int buffersize = size[0] * size[1] * nc;
+	int buffersize = size[0] * size[1] * size[2] * nc;
 	if ( buffersize )
 	{
 	    out->writeBinaryArray( pixblock, buffersize );
@@ -120,7 +122,7 @@ void SoMFImage::write1Value( SoOutput* out, int index ) const
 	out->write('\n');
 	out->indent();
 
-	int numpixels = size[0] * size[1];
+	int numpixels = size[0] * size[1] * size[2];
 	for ( int i=0; i<numpixels; i++ )
 	{
 	    unsigned int data = 0;
