@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.25 2008-10-15 12:25:07 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.26 2008-10-15 15:47:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,7 +161,7 @@ void uiDataPointSet::mkToolBars()
     mAddButton( "axis-x.png", selXCol, "Set data for X" );
     mAddButton( "axis-add-y.png", selYCol, "Select as Y data" );
     mAddButton( "axis-rm-y.png", unSelCol, "UnSelect as Y data" );
-    mAddButton( "delselrows.png", delSelRows, "Remove selected columns" );
+    mAddButton( "delselrows.png", delSelRows, "Remove selected rows" );
     mAddButton( "axis-prev.png", colStepL, "Set Y one column left" );
     mAddButton( "axis-next.png", colStepR, "Set Y one column right" );
     mAddButton( "sortcol.png", setSortCol, "Set sorted column to current" );
