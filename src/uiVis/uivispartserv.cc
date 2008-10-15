@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.376 2008-10-07 21:49:02 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.377 2008-10-15 15:06:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -660,6 +660,15 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->setRandomPosData( attrib, dtps );
+}
+
+
+void uiVisPartServer::createAndDispDataPack( int id, int attrib, const char* nm,
+					     const DataPointSet* dtps )
+{
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->createAndDispDataPack( attrib, nm, dtps );
 }
 
 

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.34 2008-07-11 11:20:35 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.35 2008-10-15 15:06:36 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -236,7 +236,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	BufferString attrnm = attrnms.size() ? attrnms.get(0) : "";
 	visserv->setSelSpec( displayID(), attribNr(),
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
-	visserv->setRandomPosData( displayID(), attribNr(), &vals );
+	visserv->createAndDispDataPack( displayID(), attribNr(), attrnm,&vals );
+
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }

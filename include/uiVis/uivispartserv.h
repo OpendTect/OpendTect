@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.209 2008-10-07 21:49:01 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.210 2008-10-15 15:06:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,6 +142,8 @@ public:
     bool		setDataPackID(int id,int attrib,DataPack::ID);
     DataPack::ID	getDataPackID(int id,int attrib) const;
     DataPackMgr::ID	getDataPackMgrID(int id) const;
+    void		createAndDispDataPack(int id,int attrib,const char*,
+	    				      const DataPointSet*);
 
     			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;

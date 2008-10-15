@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.55 2008-07-25 12:39:25 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.56 2008-10-15 15:06:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -627,10 +627,19 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 	    vals[1] = vals[0];
     }
 
+    createAndDispDataPack( attrib, "Depth", &positions );
+}
+
+
+void HorizonDisplay::createAndDispDataPack( int attrib, const char* nm,
+					    const DataPointSet* positions )
+{
+    bool isz = !strcmp(nm,"Depth");
     mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
-	    		 BIDValSetArrAdapter(positions.bivSet(),0) );
+	    		 BIDValSetArrAdapter(positions->bivSet(), isz? 0 : 1) );
+    const char* categorynm = isz ? "Surface Data" : "Geometry";
     mDeclareAndTryAlloc( MapDataPack*, newpack,
-	    		 MapDataPack( "Geometry", "Depth", bvsarr) );
+	    		 MapDataPack( categorynm, nm, bvsarr) );
     StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
 				SI().inlStep() );
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
@@ -641,7 +650,7 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     dpman.add( newpack );
     setDataPackID( attrib, newpack->id() );
-    setRandomPosData( attrib, &positions );
+    setRandomPosData( attrib, positions );
 }
 
 

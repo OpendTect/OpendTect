@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.24 2008-07-25 12:39:25 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.25 2008-10-15 15:06:36 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -74,6 +74,8 @@ public:
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
+    void			createAndDispDataPack(int,const char*,
+	    					      const DataPointSet*);
     bool                        setDataPackID(int attrib,DataPack::ID);
     DataPack::ID                getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const

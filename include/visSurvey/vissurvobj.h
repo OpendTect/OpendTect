@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.90 2008-10-07 21:49:01 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.91 2008-10-15 15:06:36 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -200,6 +200,8 @@ public:
     				{ return false; }
     virtual DataPack::ID	getDataPackID(int attrib) const { return -1; }
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
+    virtual void		createAndDispDataPack(int,const char*,
+	    					      const DataPointSet*) {}
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling( int attrib ) const
