@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.2 2008-10-08 16:41:36 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.3 2008-10-16 21:55:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,9 +91,9 @@ void SoTextureComposer::fieldChangeCB( void* data, SoSensor* )
 }
 
 
-#define mFastDim	0
+#define mFastDim	2
 #define mMidDim		1
-#define mSlowDim	2
+#define mSlowDim	0
 
 void SoTextureComposer::GLRender( SoGLRenderAction* action )
 {
@@ -230,7 +230,7 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 
 	    for ( int idy=0; idy<sz[mMidDim]; idy++ )
 	    {
-		int srcmididx = start[mMidDim]+idx;
+		int srcmididx = start[mMidDim]+idy;
 		if ( srcmididx<0 )
 		    srcmididx = 0;
 		else if ( srcmididx>=channelsize[mMidDim] )
@@ -259,7 +259,7 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 			const int ressample = 
 			    (firstdstsample+idz)*nrcomponents+idc;
 			const int sourcesample =
-			    firstsourcesample*bytesperpixel[idc];
+			    (firstsourcesample+idz)*bytesperpixel[idc];
 
 			texturedata->imagedata_[ressample] =
 					    channels[idc][sourcesample];
@@ -269,9 +269,18 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	    }
 	}
 
-	texturedata->glimage_->setData( texturedata->imagedata_, sz,
-	    nrcomponents,SoGLImage::CLAMP,SoGLImage::CLAMP,
-	    SoGLImage::CLAMP,quality,false,0 );
+	if ( sz[0]==1 )
+	{
+	    texturedata->glimage_->setData( texturedata->imagedata_,
+		SbVec2s(sz[1],sz[2]),nrcomponents,SoGLImage::CLAMP,SoGLImage::CLAMP,
+		quality,false,0 );
+	}
+	else
+	{
+	    texturedata->glimage_->setData( texturedata->imagedata_, sz,
+		nrcomponents,SoGLImage::CLAMP,SoGLImage::CLAMP,
+		SoGLImage::CLAMP,quality,false,0 );
+	}
     }
 
     const SoTextureImageElement::Model glmodel =
