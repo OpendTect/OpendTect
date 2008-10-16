@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.7 2008-10-15 15:47:38 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.8 2008-10-16 16:31:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ namespace SEGY { class Scanner; }
 class uiSEGYDefDlg;
 class uiSEGYExamine;
 class uiSEGYImpDlg;
+class uiSEGYScanDlg;
 class uiSEGYReadRev1Question;
 
 
@@ -80,6 +81,7 @@ protected:
     uiSEGYDefDlg*	defdlg_;
     uiSEGYExamine*	examdlg_;
     uiSEGYImpDlg*	impdlg_;
+    uiSEGYScanDlg*	scandlg_;
     uiSEGYReadRev1Question* rev1qdlg_;
 
     void		nextAction();
@@ -95,9 +97,10 @@ protected:
     void		preScanReq(CallBacker*);
 
     void		defDlgClose(CallBacker*);
-    void		impDlgClose(CallBacker*);
     void		examDlgClose(CallBacker*);
     void		rev1qDlgClose(CallBacker*);
+    void		impDlgClose(CallBacker*);
+    void		scanDlgClose(CallBacker*);
 
     void		setGeomType(const IOObj&);
     CtxtIOObj*		getCtio(bool) const;

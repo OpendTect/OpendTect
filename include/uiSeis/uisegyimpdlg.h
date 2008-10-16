@@ -7,70 +7,42 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.8 2008-10-15 15:47:38 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.9 2008-10-16 16:31:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
-#include "uisegyread.h"
+#include "uisegyreaddlg.h"
 class uiSeisSel;
-class IOObj;
 class CtxtIOObj;
 class uiCheckBox;
-class uiGenInput;
 class uiSeisTransfer;
-class uiSEGYFileOpts;
 
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-class uiSEGYImpDlg : public uiDialog
+class uiSEGYImpDlg : public uiSEGYReadDlg
 {
 public :
-
-    class Setup : public uiDialog::Setup
-    {
-    public:
-
-    			Setup(Seis::GeomType);
-
-	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(uiSEGYRead::RevType,rev)	// default Rev0
-    };
 
 			uiSEGYImpDlg(uiParent*,const Setup&,IOPar&);
 			~uiSEGYImpDlg();
 
     void		use(const IOObj*,bool force);
-    void		updatePars()		{ getParsFromScreen(true); }
-    const char*		saveObjName() const;
 
-    Notifier<uiSEGYImpDlg> readParsReq;
-    Notifier<uiSEGYImpDlg> writeParsReq;
-    Notifier<uiSEGYImpDlg> preScanReq;
 
 protected:
 
-    const Setup		setup_;
-    IOPar&		pars_;
     CtxtIOObj&		ctio_;
 
-    uiSEGYFileOpts*	optsfld_;
-    uiGenInput*		savesetupfld_;
     uiSeisTransfer*	transffld_;
     uiSeisSel*		seissel_;
     uiCheckBox*		morebut_;
 
-    bool		getParsFromScreen(bool);
-    void		setupWin(CallBacker*);
-    void		readParsCB(CallBacker*);
-    void		preScanCB(CallBacker*);
+    virtual bool	doWork(const IOObj&);
 
     friend class	uiSEGYImpSimilarDlg;
-    bool		rejectOK(CallBacker*);
-    bool		acceptOK(CallBacker*);
-    bool		doWork(const IOObj&,const IOObj&,
+    bool		impFile(const IOObj&,const IOObj&,
 	    			const char*,const char*);
 
 };

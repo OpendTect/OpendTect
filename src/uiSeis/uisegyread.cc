@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.12 2008-10-15 15:47:38 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.13 2008-10-16 16:31:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uisegydef.h"
 #include "uisegydefdlg.h"
 #include "uisegyimpdlg.h"
+#include "uisegyscandlg.h"
 #include "uisegyexamine.h"
 #include "uiioobjsel.h"
 #include "uibutton.h"
@@ -24,7 +25,6 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "survinfo.h"
 #include "seistrctr.h"
-#include "seisscanner.h"
 #include "segyscanner.h"
 #include "seisioobjinfo.h"
 #include "ptrman.h"
@@ -371,7 +371,7 @@ void uiSEGYRead::getBasicOpts()
 void uiSEGYRead::basicOptsGot()
 {
     if ( !defdlg_->uiResult() )
-	{ delete defdlg_; defdlg_ = 0; mSetState(Cancelled); }
+	mSetState(Cancelled);
     geom_ = defdlg_->geomType();
 
     uiSEGYExamine::Setup exsu( defdlg_->nrTrcExamine() );
@@ -418,17 +418,15 @@ void uiSEGYRead::determineRevPol()
 
 void uiSEGYRead::setupScan()
 {
-    //TODO get ReadOpts and scan pars
-
-    SEGY::FileSpec fs; fs.usePar( pars_ );
-    delete scanner_; scanner_ = new SEGY::Scanner( fs, geom_, pars_ );
-    if ( rev_ == Rev0 )
-	scanner_->setForceRev0( true );
-    uiTaskRunner tr( parent_ );
-    if ( !tr.execute(*scanner_) )
-	mSetState( SetupScan )
-
-    mSetState( Finished );
+    delete scanner_; scanner_ = 0;
+    delete scandlg_;
+    uiSEGYReadDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
+    scandlg_ = new uiSEGYScanDlg( parent_, su, pars_ );
+    scandlg_->mSetreadReqCB();
+    scandlg_->mSetwriteReqCB();
+    scandlg_->mSetpreScanReqCB();
+    mLaunchDlg(scandlg_,scanDlgClose);
+    mSetState( Wait4Dialog );
 }
 
 
@@ -455,6 +453,17 @@ void uiSEGYRead::defDlgClose( CallBacker* )
 void uiSEGYRead::examDlgClose( CallBacker* )
 {
     examdlg_ = 0;
+}
+
+
+void uiSEGYRead::scanDlgClose( CallBacker* )
+{
+    if ( !scandlg_->uiResult() )
+	mSetState( BasicOpts );
+
+    scanner_ = scandlg_->getScanner();
+    scandlg_ = 0;
+    mSetState( Finished );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.9 2008-10-15 15:47:38 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.10 2008-10-16 16:31:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,18 +17,12 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseisioobjinfo.h"
-#include "uitoolbar.h"
-#include "uicombobox.h"
-#include "uibutton.h"
-#include "uibuttongroup.h"
 #include "uiseparator.h"
 #include "uifileinput.h"
-#include "uiseparator.h"
 #include "uilabel.h"
+#include "uibutton.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
-#include "keystrs.h"
-#include "segytr.h"
 #include "segyhdr.h"
 #include "seisioobjinfo.h"
 #include "seisimporter.h"
@@ -41,28 +35,12 @@ ________________________________________________________________________
 #include "iostrm.h"
 
 
-uiSEGYImpDlg::Setup::Setup( Seis::GeomType gt )
-    : uiDialog::Setup("SEG-Y Import",mNoDlgTitle,"103.1.5")
-    , geom_(gt) 
-    , rev_(uiSEGYRead::Rev0)
-{
-}
-
-#define mAddButton(fnm,func,tip,toggle) \
-	tb_->addButton( fnm, mCB(this,uiSEGYImpDlg,func), tip, toggle )
 
 uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
-			const uiSEGYImpDlg::Setup& su, IOPar& iop )
-    : uiDialog(p,su)
-    , setup_(su)
-    , pars_(iop)
-    , optsfld_(0)
-    , savesetupfld_(0)
+			const uiSEGYReadDlg::Setup& su, IOPar& iop )
+    : uiSEGYReadDlg(p,su,iop)
     , morebut_(0)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
-    , readParsReq(this)
-    , writeParsReq(this)
-    , preScanReq(this)
 {
     ctio_.ctxt.forread = false;
     if ( setup().dlgtitle_.isEmpty() )
@@ -74,24 +52,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 	setTitleText( ttl );
     }
 
-    uiGroup* optsgrp = 0;
-    if ( Seis::isPS(setup_.geom_) || setup_.rev_ != uiSEGYRead::Rev1 )
-    {
-	optsgrp = new uiGroup( this, "Opts group" );
-	uiSEGYFileOpts::Setup osu( setup_.geom_, uiSEGYRead::Import,
-				   setup_.rev_ );
-	optsfld_ = new uiSEGYFileOpts( optsgrp, osu, &iop );
-	optsfld_->readParsReq.notify( mCB(this,uiSEGYImpDlg,readParsCB) );
-	optsfld_->preScanReq.notify( mCB(this,uiSEGYImpDlg,preScanCB) );
-
-	savesetupfld_ = new uiGenInput( optsgrp, "On OK, save setup as" );
-	savesetupfld_->attach( alignedBelow, optsfld_ );
-	optsgrp->setHAlignObj( savesetupfld_ );
-	uiLabel* lbl = new uiLabel( optsgrp, "(optional)" );
-	lbl->attach( rightOf, savesetupfld_ );
-    }
-
-    uiSeparator* sep = optsgrp ? new uiSeparator( this, "Hor sep" ) : 0;
+    uiSeparator* sep = optsgrp_ ? new uiSeparator( this, "Hor sep" ) : 0;
 
     uiGroup* outgrp = new uiGroup( this, "Output group" );
     transffld_ = new uiSeisTransfer( outgrp, uiSeisTransfer::Setup(setup_.geom_)
@@ -100,8 +61,8 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     outgrp->setHAlignObj( transffld_ );
     if ( sep )
     {
-	sep->attach( stretchedBelow, optsgrp );
-	outgrp->attach( alignedBelow, optsgrp );
+	sep->attach( stretchedBelow, optsgrp_ );
+	outgrp->attach( alignedBelow, optsgrp_ );
 	outgrp->attach( ensureBelow, sep );
     }
 
@@ -113,58 +74,20 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 	morebut_ = new uiCheckBox( outgrp, "Import more, similar files" );
 	morebut_->attach( alignedBelow, seissel_ );
     }
-
-    finaliseDone.notify( mCB(this,uiSEGYImpDlg,setupWin) );
-}
-
-
-void uiSEGYImpDlg::setupWin( CallBacker* )
-{
-}
-
-
-void uiSEGYImpDlg::readParsCB( CallBacker* )
-{
-    readParsReq.trigger();
-}
-
-
-void uiSEGYImpDlg::preScanCB( CallBacker* )
-{
-    preScanReq.trigger();
 }
 
 
 uiSEGYImpDlg::~uiSEGYImpDlg()
 {
+    delete ctio_.ioobj; delete &ctio_;
 }
 
 
 void uiSEGYImpDlg::use( const IOObj* ioobj, bool force )
 {
-    if ( optsfld_ )
-	optsfld_->use( ioobj, force );
+    uiSEGYReadDlg::use( ioobj, force );
     if ( ioobj )
 	transffld_->updateFrom( *ioobj );
-}
-
-
-bool uiSEGYImpDlg::getParsFromScreen( bool permissive )
-{
-    return optsfld_ ? optsfld_->fillPar( pars_, permissive ) : true;
-}
-
-
-const char* uiSEGYImpDlg::saveObjName() const
-{
-    return savesetupfld_ ? savesetupfld_->text() : "";
-}
-
-
-bool uiSEGYImpDlg::rejectOK( CallBacker* )
-{
-    getParsFromScreen( true );
-    return true;
 }
 
 
@@ -233,7 +156,7 @@ IOObj* getSubstIOObj( const char* fullfnm )
 
 bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
 {
-    bool res = impdlg_->doWork( *newioobj, outioobj_, lnm, attrnm_ );
+    bool res = impdlg_->impFile( *newioobj, outioobj_, lnm, attrnm_ );
     delete newioobj;
     if ( !res )
     {
@@ -293,24 +216,11 @@ bool doImp( const FilePath& fp )
 
 
 
-bool uiSEGYImpDlg::acceptOK( CallBacker* )
+bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 {
-    if ( !getParsFromScreen(false) )
-	return false;
-    if ( *saveObjName() )
-	writeParsReq.trigger();
-
     if ( !seissel_->commitInput(true) )
     {
 	uiMSG().error( "Please select the output data" );
-	return false;
-    }
-
-    SEGY::FileSpec fs; fs.usePar( pars_ );
-    PtrMan<IOObj> inioobj = fs.getIOObj();
-    if ( !inioobj )
-    {
-	uiMSG().error( "Internal: cannot create SEG-Y object" );
 	return false;
     }
 
@@ -321,14 +231,14 @@ bool uiSEGYImpDlg::acceptOK( CallBacker* )
 		      transffld_->selFld2D()->selectedLine() : 0;
 
     if ( !morebut_ || !morebut_->isChecked() )
-	return doWork( *inioobj, outioobj, lnm, attrnm );
+	return impFile( inioobj, outioobj, lnm, attrnm );
 
-    uiSEGYImpSimilarDlg dlg( this, *inioobj, outioobj, attrnm );
+    uiSEGYImpSimilarDlg dlg( this, inioobj, outioobj, attrnm );
     return dlg.go();
 }
 
 
-bool uiSEGYImpDlg::doWork( const IOObj& inioobj, const IOObj& outioobj,
+bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 				const char* linenm, const char* attrnm )
 {
     const bool isps = Seis::isPS( setup_.geom_ );
