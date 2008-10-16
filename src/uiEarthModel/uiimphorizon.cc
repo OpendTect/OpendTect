@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.109 2008-10-14 12:11:14 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.110 2008-10-16 05:19:33 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,13 +117,13 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , fd_(*EM::Horizon3DAscIO::getDesc())
     , scanner_(0)
 {
+    setCtrlStyle( DoAndStay );
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
 					    .withexamine(true)
 					    .forread(true) );
     inpfld_->setDefaultSelectionDir( 
 			    IOObjContext::getDataDirName(IOObjContext::Surf) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
-    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,formatSel) );
 
     ctio_.ctxt.forread = !isgeom_;
     ctio_.ctxt.maychdir = false;
@@ -385,7 +385,8 @@ bool uiImportHorizon::acceptOK( CallBacker* )
 {
     if ( !checkInpFlds() ) return false;
 
-    return doImport();
+    doImport();
+    return false;
 }
 
 
