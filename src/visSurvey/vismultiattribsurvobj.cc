@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.17 2008-10-10 22:16:32 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.18 2008-10-16 21:58:01 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -42,7 +42,9 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     else
     {
 	channels_->ref();
-	addChild( texture_->getInventorNode() );
+	addChild( channels_->getInventorNode() );
+	channels_->setChannels2RGBA( 
+		visBase::ColTabTextureChannel2RGBA::create() );
     }
 	
     material_->setColor( Color::White );
@@ -435,7 +437,8 @@ MultiTextureSurveyObject::getColTabMapperSetup( int attrib ) const
 	return &vt.colorMapper().setup_;
     }
 
-    return &channels_->getColTabMapperSetup( attrib );
+    return &channels_->getColTabMapperSetup( attrib,
+	    channels_->currentVersion( attrib ) );
 }
 
 
@@ -589,13 +592,35 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
     val = "undef";
     BufferString valname;
 
+    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, ctab,
+	    channels_ ? channels_->getChannels2RGBA() : 0 );
+
     for ( int idx=nrAttribs()-1; idx>=0; idx-- )
     {
-	if ( !isAttribEnabled(idx) ||
-		texture_->getTextureTransparency(idx)==255 )
+	if ( !isAttribEnabled(idx) )
 	    continue;
 
-	const int version = texture_->currentVersion(idx);
+	int version;
+	if ( texture_ )
+	{
+	    if ( texture_->getTextureTransparency(idx)==255 )
+		continue;
+
+	    version = texture_->currentVersion(idx);
+	}
+	else if ( ctab )
+	{
+	    if ( ctab->getTransparency(idx)==255 )
+		continue;
+	    version = channels_->currentVersion( idx );
+	}
+	else
+	{
+	    continue;
+	}
+
+
+
 	float fval;
 	if ( !getCacheValue(idx, version, pos, fval ) )
 	    continue;
@@ -617,7 +642,26 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 
 	if ( !islowest )
 	{
-	    const Color col = texture_->getColorTab(idx).color(fval);
+	    Color col;
+	    if ( texture_ )
+	    {
+		col = texture_->getColorTab(idx).color(fval);
+	    }
+	    else if ( ctab )
+	    {
+		const ColTab::Sequence& seq = ctab->getSequence( idx );
+		const ColTab::Mapper& map = channels_->getColTabMapper(idx,
+			channels_->currentVersion( idx ) );
+
+		col = mIsUdf(fval)
+		    ? seq.undefColor()
+		    : seq.color( map.position(fval) );
+	    }
+	    else
+	    {
+		continue;
+	    }
+
 	    if ( col.t()==255 )
 		continue;
 	}
