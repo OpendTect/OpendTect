@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.8 2008-05-30 09:49:52 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.9 2008-10-16 12:17:21 cvsraman Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -27,7 +27,7 @@ Pos::PolyProvider3D::PolyProvider3D()
 }
 
 
-Pos::PolyProvider3D::PolyProvider3D( const PolyProvider3D::PolyProvider3D& pp )
+Pos::PolyProvider3D::PolyProvider3D( const Pos::PolyProvider3D& pp )
     : poly_(*new ODPolygon<float>(pp.poly_))
     , hs_(pp.hs_)
     , zrg_(pp.zrg_)
