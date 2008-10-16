@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.3 2008-10-09 21:41:39 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.4 2008-10-16 21:59:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "Inventor/fields/SoSFImage.h"
 #include "Inventor/sensors/SoFieldSensor.h"
 #include "SoTextureChannelSetElement.h"
+#include "SoTextureComposerElement.h"
 
 SO_NODE_SOURCE( SoColTabTextureChannel2RGBA );
 
@@ -24,6 +25,7 @@ void SoColTabTextureChannel2RGBA::initClass()
     SO_NODE_INIT_CLASS(SoColTabTextureChannel2RGBA, SoNode, "Node");
 
     SO_ENABLE(SoGLRenderAction, SoTextureChannelSetElement );
+    SO_ENABLE(SoGLRenderAction, SoTextureComposerElement );
 }
 
 
@@ -83,10 +85,10 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     }
 
     int nrchannels = SoTextureChannelSetElement::getNrChannels( state );
-    if ( nrchannels>=colorsequences.getNum() )
+    if ( nrchannels>colorsequences.getNum() )
 	nrchannels = colorsequences.getNum();
 
-    if ( nrchannels>=enabled.getNum() )
+    if ( nrchannels>enabled.getNum() )
 	nrchannels = enabled.getNum();
 
     if ( !nrchannels )
@@ -152,13 +154,13 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 	    lastchannel = channel;
 
 	if ( firstchannel==-1 && fullyopaque )
-	    firstchannel==channel;
+	    firstchannel = channel;
 
 	if ( lastchannel!=-1 && firstchannel!=-1 )
 	    break;
     }
 
-    if ( lastchannel!=-1 && firstchannel!=-1 )
+    if ( lastchannel==-1 || firstchannel==-1 )
     {
 	for ( int idx=0; idx<4; idx++ )
 	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
@@ -207,8 +209,9 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 		colorsequences[channelidx].getValue( size, bytesperpixel ) +
 		coltabindex * bytesperpixel;
 
-	    const unsigned char invtrans = (int) (color[3]*layeropacity)/255;
-	    if ( !invtrans )
+	    const unsigned char curopacity = (int) ((255-color[3])*layeropacity)/255;
+	    const unsigned char trans = 255-curopacity;
+	    if ( !curopacity )
 		continue;
 
 	    if ( !inited )
@@ -216,16 +219,15 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 		*red = color[0];
 		*green = color[1];
 		*blue = color[2];
-		*alpha = invtrans;
+		*alpha = trans;
 		inited = true;
 	    }
 	    else
 	    {
-		const unsigned char trans = 255-invtrans;
-		*red = (int)((int) *red * trans + (int)color[0]*invtrans)/255;
-		*green = (int)((int) *green*trans + (int)color[1]*invtrans)/255;
-		*blue = (int)((int) *blue * trans + (int)color[2]*invtrans)/255;
-		if ( color[3]>*alpha )
+		*red = (int)((int) *red * trans + (int)color[0]*curopacity)/255;
+		*green = (int)((int) *green*trans + (int)color[1]*curopacity)/255;
+		*blue = (int)((int) *blue * trans + (int)color[2]*curopacity)/255;
+		if ( color[3]<*alpha )
 		    *alpha = color[3];
 	    }
 	}
@@ -241,6 +243,9 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state )
 {
     SoTextureChannelSetElement::set( state, this, rgba_, 4 );
+    SbList<int> units;
+    units.append( 0 );
+    SoTextureComposerElement::set( state, this, units );
 }
 
 
