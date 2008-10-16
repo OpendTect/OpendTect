@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMFImage.cc,v 1.2 2008-10-15 22:28:01 cvskris Exp $
+ RCS:           $Id: SoMFImage.cc,v 1.3 2008-10-16 21:54:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ SbBool SoMFImage::read1Value( SoInput* in, int index )
     else
     {
 	int byte = 0;
-	const int numpixels = size[0] * size[1];
+	const int numpixels = size[0] * size[1] * size[2];
 	for ( int i=0; i<numpixels; i++ )
 	{
 	    unsigned int l;
