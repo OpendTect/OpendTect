@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.4 2008-10-10 22:14:46 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.5 2008-10-16 21:56:53 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
 #include "vistexturechannels.h"
 #include "color.h"
 #include "coltabsequence.h"
+#include "coltab.h"
 
 #include "SoColTabTextureChannel2RGBA.h"
 #include "Inventor/nodes/SoComplexity.h"
@@ -37,12 +38,19 @@ namespace visBase
 
 TextureChannel2RGBA::TextureChannel2RGBA()
     : channels_( 0 )
+    , shadingallowed_( true )
 {}
 
 
 void TextureChannel2RGBA::setChannels( TextureChannels* ch )
 {
     channels_ = ch;
+}
+
+
+void TextureChannel2RGBA::allowShading( bool yn )
+{
+    shadingallowed_ = yn;
 }
 
 
@@ -75,12 +83,33 @@ ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
 }
 
 
+void ColTabTextureChannel2RGBA::setChannels( TextureChannels* ch )
+{
+    TextureChannel2RGBA::setChannels( ch );
+    const int nr = ch ? ch->nrChannels() : 0;
+
+    while ( coltabs_.size()<nr )
+    {
+	coltabs_ += ColTab::Sequence( ColTab::defSeqName() );
+	enabled_ += true;
+	opacity_ += 255;
+    }
+
+    while ( coltabs_.size()>nr )
+    {
+	coltabs_.remove( nr );
+	enabled_.remove( nr );
+	opacity_.remove( nr );
+    }
+}
+
+
 void ColTabTextureChannel2RGBA::setSequence( int channel,
 	const ColTab::Sequence& seq )
 {
     while ( coltabs_.size()<=channel )
     {
-	coltabs_ += ColTab::Sequence();
+	coltabs_ += ColTab::Sequence( ColTab::defSeqName() );
     }
 
     coltabs_[channel] = seq;
@@ -117,69 +146,18 @@ unsigned char ColTabTextureChannel2RGBA::getTransparency(int ch) const
 { return 255-opacity_[ch]; }
 
 
-
-bool ColTabTextureChannel2RGBA::allowShading( bool yn )
+void ColTabTextureChannel2RGBA::allowShading( bool yn )
 {
-    const bool douseshading = yn && canUseShading();
+    TextureChannel2RGBA::allowShading( yn );
+    update();
 
-    if ( douseshading && !shadinggroup_ )
-    {
-	shadinggroup_ = new SoGroup;
-	shaderswitch_->addChild( shadinggroup_ );
-
-	SoComplexity* complexity = new SoComplexity;
-	complexity->textureQuality.setValue( 0.1 );
-	shadinggroup_->addChild( complexity );
-
-	SoTextureUnit* ctabunit = new SoTextureUnit;
-	shadinggroup_->addChild( ctabunit );
-	ctabunit->unit = 0;
-
-	shaderctab_ = new SoTexture2;
-	shadinggroup_->addChild( shaderctab_ );
-
-	SoShaderProgram* shaderprogram = new SoShaderProgram;
-
-	SoVertexShader* vertexshader = new SoVertexShader;
-	vertexshader->sourceType = SoShaderObject::GLSL_PROGRAM;
-	vertexshader->sourceProgram.setValue( sVertexShaderProgram() );
-
-	shaderprogram->shaderObject.addNode( vertexshader );
-
-	SoFragmentShader* fragmentshader = new SoFragmentShader;
-	fragmentshader->sourceType = SoShaderObject::GLSL_PROGRAM;
-	BufferString shadingprog;
-	createFragShadingProgram( maxNrChannels(), shadingprog );
-	fragmentshader->sourceProgram.setValue( shadingprog.buf() );
-
-	numlayers_ = new SoShaderParameter1i;
-	numlayers_->name.setValue("numlayers");
-	fragmentshader->parameter.addNode( numlayers_ );
-
-	startlayer_ = new SoShaderParameter1i;
-	startlayer_->name.setValue("startlayer");
-	fragmentshader->parameter.addNode( startlayer_ );
-	startlayer_->value.setValue( 0 );
-
-	layeropacity_ = new SoShaderParameterArray1f;
-	layeropacity_->name.setValue("trans");
-	fragmentshader->parameter.addNode( layeropacity_ );
-
-	shaderprogram->shaderObject.addNode( fragmentshader );
-	shadinggroup_->addChild( shaderprogram );
-
-	//Update?
-    }
-
-    shaderswitch_->whichChild = douseshading ? 1 : 0;
-
-    return true;
+    shaderswitch_->whichChild = yn && shadinggroup_ ? 1 : 0;
 }
 
 
 bool ColTabTextureChannel2RGBA::usesShading() const
 {
-    return shaderswitch_->whichChild.getValue()==0;
+    return shaderswitch_->whichChild.getValue()==1;
 }
 
 
@@ -237,6 +215,55 @@ void ColTabTextureChannel2RGBA::update()
 
 void ColTabTextureChannel2RGBA::setShadingVars()
 {
+    const bool douseshading = shadingallowed_ && canUseShading();
+
+    if ( douseshading && !shadinggroup_ )
+    {
+	shadinggroup_ = new SoGroup;
+	shaderswitch_->addChild( shadinggroup_ );
+
+	SoComplexity* complexity = new SoComplexity;
+	complexity->textureQuality.setValue( 0.1 );
+	shadinggroup_->addChild( complexity );
+
+	SoTextureUnit* ctabunit = new SoTextureUnit;
+	shadinggroup_->addChild( ctabunit );
+	ctabunit->unit = 0;
+
+	shaderctab_ = new SoTexture2;
+	shadinggroup_->addChild( shaderctab_ );
+
+	SoShaderProgram* shaderprogram = new SoShaderProgram;
+
+	SoVertexShader* vertexshader = new SoVertexShader;
+	vertexshader->sourceType = SoShaderObject::GLSL_PROGRAM;
+	vertexshader->sourceProgram.setValue( sVertexShaderProgram() );
+
+	shaderprogram->shaderObject.addNode( vertexshader );
+
+	SoFragmentShader* fragmentshader = new SoFragmentShader;
+	fragmentshader->sourceType = SoShaderObject::GLSL_PROGRAM;
+	BufferString shadingprog;
+	createFragShadingProgram( maxNrChannels(), shadingprog );
+	fragmentshader->sourceProgram.setValue( shadingprog.buf() );
+
+	numlayers_ = new SoShaderParameter1i;
+	numlayers_->name.setValue("numlayers");
+	fragmentshader->parameter.addNode( numlayers_ );
+
+	startlayer_ = new SoShaderParameter1i;
+	startlayer_->name.setValue("startlayer");
+	fragmentshader->parameter.addNode( startlayer_ );
+	startlayer_->value.setValue( 0 );
+
+	layeropacity_ = new SoShaderParameterArray1f;
+	layeropacity_->name.setValue("trans");
+	fragmentshader->parameter.addNode( layeropacity_ );
+
+	shaderprogram->shaderObject.addNode( fragmentshader );
+	shadinggroup_->addChild( shaderprogram );
+    }
+
     const int nrchannels = coltabs_.size();
     shaderctab_->image.setValue( SbVec2s( nrchannels, 256 ), 4, 0 );
     //Set to POT size?
@@ -410,8 +437,8 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 	TypeSet<unsigned char>& cols ) const
 {
     const ColTab::Sequence& seq = coltabs_[channelidx];
-    if ( cols.size()!=(mNrColors+1*4) )
-	cols.setSize( (mNrColors+1*4), 0 );
+    if ( cols.size()!=((mNrColors+1)*4) )
+	cols.setSize( ((mNrColors+1)*4), 0 );
 
     unsigned char* arr = cols.arr();
     for ( int idx=0; idx<mNrColors; idx++ )

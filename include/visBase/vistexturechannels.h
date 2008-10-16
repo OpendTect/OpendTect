@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.4 2008-10-10 22:01:47 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.5 2008-10-16 21:56:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class SbImage;
 
 template <class T> class Array2D;
 
-namespace ColTab { class MapperSetup; };
+namespace ColTab { class Mapper; class MapperSetup; };
 
 namespace visBase
 {
@@ -35,7 +35,7 @@ public:
     static TextureChannels*	create()
 				mCreateDataObj(TextureChannels);
 
-    void			setSize(int,int,int=1);
+    void			setSize(int,int,int);
     int				getSize(int dim) const;
 
     virtual bool		turnOn(bool yn);
@@ -50,7 +50,9 @@ public:
     void			setColTabMapperSetup(int channel,
 	    					const ColTab::MapperSetup&);
     				//!<Will not trigger a remap, use reMapData
-    const ColTab::MapperSetup&	getColTabMapperSetup(int channel) const;
+    const ColTab::MapperSetup&	getColTabMapperSetup(int channel,
+	    					     int version) const;
+    const ColTab::Mapper&	getColTabMapper(int channel,int version) const;
     void			reMapData(int channel);
 
     void			setNrVersions(int channel,int nrvers);
@@ -74,7 +76,8 @@ public:
 
 protected:
     friend			class ChannelInfo;
-    void			update( int channel );
+    void			update(int channel);
+    void			update(ChannelInfo*);
     				~TextureChannels();
 
     int				size_[3];

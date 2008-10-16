@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.6 2008-10-10 22:01:47 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.7 2008-10-16 21:56:53 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -35,13 +35,14 @@ public:
     			~ChannelInfo();
 
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
-    const ColTab::MapperSetup& getColTabMapperSetup() const;
+    const ColTab::MapperSetup& getColTabMapperSetup(int version) const;
+    const ColTab::Mapper& getColTabMapper(int version) const;
     bool		reMapData();
 
     void		setNrVersions(int);
     int			nrVersions() const;
 
-    bool		removeCaches();
+    void		removeCaches();
 
     bool		setUnMappedData(int version,const float*,
 	    				 TextureChannels::CachePolicy);
@@ -53,13 +54,14 @@ public:
     int			getCurrentVersion() const;
     void		setCurrentVersion( int );
 
-    bool		mapData( const float*, unsigned char* ) const;
+    static bool		mapData(const ColTab::Mapper&,const float*,
+	    			unsigned char*, od_int64 sz);
 
     ObjectSet<unsigned char>			mappeddata_;
     BoolTypeSet					ownsmappeddata_;
     ObjectSet<const float>			unmappeddata_;
     BoolTypeSet					ownsunmappeddata_;
-    mutable ColTab::Mapper			mapper_;
+    ObjectSet<ColTab::Mapper>			mappers_;
     int						currentversion_;
     TextureChannels&				owner_;
 };
@@ -81,23 +83,34 @@ ChannelInfo::~ChannelInfo()
 }
 
 
+const ColTab::Mapper& ChannelInfo::getColTabMapper( int version ) const
+{ return *mappers_[version]; }
+
+
 void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
 {
-    if ( mapper_.setup_==setup )
+    if ( !mappers_.size() )
+    {
+	pErrMsg("No mappers");
+	return;
+    }
+
+    if ( mappers_[0]->setup_==setup )
 	return;
 
-    mapper_.setup_ = setup;
+    for ( int idx=0; idx<mappers_.size(); idx++ )
+	mappers_[idx]->setup_ = setup;
 
-    if ( mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+    if ( setup.type_!=ColTab::MapperSetup::Fixed )
 	clipData();
 
     reMapData();
 }
 
 
-const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup() const
+const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup( int channel ) const
 {
-    return mapper_.setup_;
+    return mappers_[channel]->setup_;
 }
 
 
@@ -114,7 +127,7 @@ void ChannelInfo::clipData()
 
 	const ArrayValueSeries<float,float> valseries(
 		(float*) unmappeddata_[idx], false, sz );
-	mapper_.setData( &valseries, sz );
+	mappers_[idx]->setData( &valseries, sz );
 	break;
     }
 }
@@ -131,6 +144,22 @@ bool ChannelInfo::reMapData()
     return true;
 }
 
+
+void ChannelInfo::removeCaches()
+{
+    for ( int idx=0; idx<ownsmappeddata_.size(); idx++ )
+    {
+	if ( ownsmappeddata_[idx] )
+	    delete [] mappeddata_[idx];
+	if ( ownsunmappeddata_[idx] )
+	    delete [] unmappeddata_[idx];
+
+	mappeddata_.replace( idx, 0 );
+	unmappeddata_.replace( idx, 0 );
+    }
+}
+
+
 void ChannelInfo::setNrVersions( int nsz )
 {
     while ( nsz<mappeddata_.size() )
@@ -140,8 +169,11 @@ void ChannelInfo::setNrVersions( int nsz )
 	if ( ownsunmappeddata_[nsz] )
 	    delete [] unmappeddata_[nsz];
 
+	mappeddata_.remove( nsz );
+	unmappeddata_.remove( nsz );
 	ownsmappeddata_.remove( nsz );
-	ownsmappeddata_.remove( nsz );
+	ownsunmappeddata_.remove( nsz );
+	delete mappers_.remove( nsz );
     }
 
     while ( mappeddata_.size()<nsz )
@@ -150,6 +182,7 @@ void ChannelInfo::setNrVersions( int nsz )
 	unmappeddata_ += 0;
 	ownsmappeddata_ += false;
 	ownsunmappeddata_ += false;
+	mappers_ += new ColTab::Mapper;
     }
 
     if ( currentversion_>=nsz )
@@ -197,6 +230,9 @@ bool ChannelInfo::setUnMappedData(int version, const float* data,
 	ownsunmappeddata_[version] = true;
     }
 
+    if ( mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
+	clipData();
+
     return mapData( version );
 }
 
@@ -223,22 +259,28 @@ bool ChannelInfo::mapData( int version )
 	if ( !mappeddata ) return false;
 
 	mappeddata_.replace( version, mappeddata );
+	ownsmappeddata_[version] = true;
     }
 
-    return mapData( unmappeddata_[version], mappeddata_[version] );
+    if ( mapData( *mappers_[version],
+		  unmappeddata_[version], mappeddata_[version], sz ) )
+    {
+	owner_.update( this );
+	return true;
+    }
+
+    return false;
 }
 
 
-bool ChannelInfo::mapData( const float* unmapped, unsigned char* mapped ) const
+bool ChannelInfo::mapData( const ColTab::Mapper& mapper,
+			   const float* unmapped, unsigned char* mapped,
+			   od_int64 sz)
 {
-    od_int64 sz = owner_.size_[0];
-    sz *= owner_.size_[1];
-    sz *= owner_.size_[2];
-
     unsigned char* stopptr = mapped+sz;
     while ( mapped!=stopptr )
     {
-	*mapped = ColTab::Mapper::snappedPosition(&mapper_,*unmapped,
+	*mapped = ColTab::Mapper::snappedPosition(&mapper,*unmapped,
 						   mNrColors,mUndefColIdx);
 	mapped++; unmapped++;
     }
@@ -281,6 +323,7 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	ownsmappeddata_[version] = true;
     }
 
+    owner_.update( this );
     return true;
 }
 
@@ -305,6 +348,10 @@ TextureChannels::TextureChannels()
     , onoff_ ( new SoSwitch )
     , tc2rgba_( 0 )
 {
+    size_[0] = 0;
+    size_[1] = 0;
+    size_[2] = 0;
+
     onoff_->ref();
     onoff_->addChild( tc_ );
     addChannel();
@@ -318,6 +365,24 @@ TextureChannels::~TextureChannels()
     setChannels2RGBA( 0 );
     onoff_->unref();
 }
+
+
+void TextureChannels::setSize( int s0, int s1, int s2 )
+{
+    if ( size_[0]==s0 && size_[1]==s1 && size_[2]==s2 )
+	return;
+
+    size_[0]=s0;
+    size_[1]=s1;
+    size_[2]=s2;
+
+    for ( int idx=0; idx<nrChannels(); idx++)
+	channelinfo_[idx]->removeCaches();
+}
+
+
+int TextureChannels::getSize( int dim ) const
+{ return size_[dim]; }
 
 
 bool TextureChannels::turnOn( bool yn )
@@ -410,9 +475,13 @@ void TextureChannels::setColTabMapperSetup( int channel,
 
 
 const ColTab::MapperSetup&
-TextureChannels::getColTabMapperSetup(int channel) const
-{ return channelinfo_[channel]->getColTabMapperSetup(); }
+TextureChannels::getColTabMapperSetup( int channel, int version ) const
+{ return channelinfo_[channel]->getColTabMapperSetup( version ); }
 
+
+const ColTab::Mapper&
+TextureChannels::getColTabMapper( int channel, int version ) const
+{ return channelinfo_[channel]->getColTabMapper( version ); }
 
 
 int TextureChannels::nrVersions( int idx ) const 
@@ -484,6 +553,7 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
     if ( tc2rgba_ )
     {
 	onoff_->removeChild( tc2rgba_->getInventorNode() );
+	tc2rgba_->setChannels( 0 );
 	tc2rgba_->unRef();
     }
 
@@ -492,6 +562,7 @@ bool TextureChannels::setChannels2RGBA( TextureChannel2RGBA* nt )
     if ( tc2rgba_ )
     {
 	onoff_->addChild( tc2rgba_->getInventorNode() );
+	tc2rgba_->setChannels( this );
 	tc2rgba_->ref();
     }
 
@@ -514,6 +585,16 @@ SoNode* TextureChannels::getInventorNode()
 const SbImage* TextureChannels::getChannels() const
 {
     return tc_->channels.getValues( 0 );
+}
+
+
+void TextureChannels::update( ChannelInfo* ti )
+{
+    const int idx= channelinfo_.indexOf( ti );
+    if ( idx==-1 )
+	return;
+
+    update( idx );
 }
 
 
