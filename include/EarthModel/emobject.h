@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.73 2008-10-07 10:17:02 cvsnanne Exp $
+ RCS:		$Id: emobject.h,v 1.74 2008-10-17 16:06:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -265,7 +265,10 @@ void clss::initClass() \
 EMObject* clss::create( EM::EMManager& emm ) \
 { \
     EMObject* obj = new clss( emm ); \
+    if ( !obj ) return 0; \
+    obj->ref();         \
     emm.addObject( obj ); \
+    obj->unRefNoDelete(); \
     return obj; \
 } \
  \
