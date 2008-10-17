@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: semblanceattrib.cc,v 1.1 2008-10-17 05:42:10 cvsnanne Exp $
+ RCS:		$Id: semblanceattrib.cc,v 1.2 2008-10-17 06:00:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,18 +27,18 @@ void Semblance::initClass()
 {
     mAttrStartInitClass
     IntParam* inlsz = new IntParam( inlszStr() );
-    inlsz->setLimits( Interval<int>(0,mUdf(int)) );
-    inlsz->setDefaultValue( 1 );
+    inlsz->setLimits( Interval<int>(1,mUdf(int)) );
+    inlsz->setDefaultValue( 3 );
     desc->addParam( inlsz );
 
     IntParam* crlsz = new IntParam( crlszStr() );
-    crlsz->setLimits( Interval<int>(0,mUdf(int)) );
-    crlsz->setDefaultValue( 1 );
+    crlsz->setLimits( Interval<int>(1,mUdf(int)) );
+    crlsz->setDefaultValue( 3 );
     desc->addParam( crlsz );
 
     IntParam* zsz = new IntParam( zszStr() );
-    zsz->setLimits( Interval<int>(0,mUdf(int)) );
-    zsz->setDefaultValue( 1 );
+    zsz->setLimits( Interval<int>(1,mUdf(int)) );
+    zsz->setDefaultValue( 3 );
     desc->addParam( zsz );
     desc->addOutputDataType( Seis::UnknowData );
     desc->addInput( InputSpec("Input data",true) );
