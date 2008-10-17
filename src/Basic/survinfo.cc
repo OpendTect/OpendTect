@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.101 2008-10-02 14:37:26 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.102 2008-10-17 13:05:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -534,9 +534,9 @@ const char* SurveyInfo::set3Pts( const Coord c[3], const BinID b[2],
     if ( !b2c_.set3Pts( c[0], c[1], c[2], b[0], b[1], xline ) )
 	return "Cannot construct a valid transformation matrix from this input";
 
-    set3coords[0].x = c[0].x; set3coords[0].y = c[0].y;
-    set3coords[1].x = c[1].x; set3coords[1].y = c[1].y;
-    set3coords[2].x = c[2].x; set3coords[2].y = c[2].y;
+    set3coords[0] = c[0];
+    set3coords[1] = c[1];
+    set3coords[2] = c[2];
     set3binids[0] = transform( set3coords[0] );
     set3binids[1] = transform( set3coords[1] );
     set3binids[2] = transform( set3coords[2] );
