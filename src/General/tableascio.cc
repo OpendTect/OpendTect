@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.21 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.22 2008-10-17 11:33:42 cvsraman Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -218,7 +218,16 @@ void TargetInfo::usePar( const IOPar& iopar )
     selection_.unit_ = UoMR().get( iopar.find(IOPar::compKey(nm,"Unit")) );
     const char* res = iopar.find( IOPar::compKey("Selection",nm) );
     if ( !res || !*res )
+    {
+	const int nrspecs = form( selection_.form_ ).specs_.size();
+	for ( int idx=0; idx<nrspecs; idx++ )
+	{
+	    TargetInfo::Selection::Elem elem;
+	    selection_.elems_ += elem;
+	}
+
 	return;
+    }
 
     FileMultiString fms( res );
     int curfmsidx = 0;
@@ -378,8 +387,8 @@ AscIOImp_ExportHandler( const AscIO& aio, bool hdr )
     , rownr_(0)
 {
     if ( ishdr_ )
-    for ( int itar=0; itar<aio_.fd_.headerinfos_.size(); itar++ )
     {
+	for ( int itar=0; itar<aio_.fd_.headerinfos_.size(); itar++ )
 	{
 	    const TargetInfo& tarinf = *aio_.fd_.headerinfos_[itar];
 	    TargetInfo::Selection& sel = tarinf.selection_;
