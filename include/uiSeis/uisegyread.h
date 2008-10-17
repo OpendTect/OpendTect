@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.8 2008-10-16 16:31:59 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.9 2008-10-17 13:35:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,13 +37,15 @@ public:
     struct Setup
     {
 			Setup( Purpose pp=Import )
-			    : purpose_(pp)	{ getDefaultTypes(geoms_);}
+			    : purpose_(pp)
+			{ getDefaultTypes(geoms_,pp==SurvSetup);}
 
 	mDefSetupMemb(Purpose,	purpose)
 	TypeSet<Seis::GeomType>	geoms_;	//!< Default all
 
 	bool		forScan() const		{ return purpose_ != Import; }
-	static void	getDefaultTypes(TypeSet<Seis::GeomType>&);
+	static void	getDefaultTypes(TypeSet<Seis::GeomType>&,
+					bool forsurvsetup=false);
 
     };
 

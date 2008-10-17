@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.14 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.15 2008-10-17 13:35:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,14 +41,15 @@ static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 #define mSetState(st) { state_ = st; nextAction(); return; }
 
 
-void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms )
+void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms,
+       					 bool forsisetup )
 {
-    if ( SI().has3D() )
+    if ( forsisetup || SI().has3D() )
     {
 	geoms += Seis::Vol;
 	geoms += Seis::VolPS;
     }
-    if ( SI().has2D() )
+    if ( forsisetup || SI().has2D() )
     {
 	geoms += Seis::Line;
 	geoms += Seis::LinePS;
