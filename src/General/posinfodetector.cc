@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.4 2008-10-14 12:11:14 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.5 2008-10-17 13:06:33 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -71,6 +71,18 @@ bool PosInfo::Detector::finish()
     step_.inl = getStep(true);
     step_.crl = getStep(false);
     avgdist_ /= nruniquepos_;
+
+    // Get rid of 0 step (for segments with one position)
+    const int nrstep = crlSorted() ? step_.inl : step_.crl;
+    for ( int iln=0; iln<lds_.size(); iln++ )
+    {
+	LineData& ld = *lds_[iln];
+	for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
+	{
+	    int& curstep = ld.segments_[iseg].step;
+	    if ( curstep < 1 ) curstep = nrstep;
+	}
+    }
 
     return true;
 }
@@ -416,8 +428,11 @@ int PosInfo::Detector::getStep( bool inldir ) const
 	else
 	{
 	    for ( int iseg=0; iseg<ld.segments_.size(); iseg++ )
-		if ( ld.segments_[iseg].step < stp )
+	    {
+		const int curstep = ld.segments_[iseg].step;
+		if ( curstep && curstep < stp )
 		    stp = ld.segments_[iseg].step;
+	    }
 	}
     }
 
