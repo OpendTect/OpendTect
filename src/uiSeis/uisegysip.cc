@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.14 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.15 2008-10-17 13:34:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ioobj.h"
 #include "errh.h"
+#include "oddirs.h"
+#include "strmprov.h"
 
 
 class uiSEGYSIPMgrDlg : public uiDialog
@@ -54,6 +56,21 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
     return new uiSEGYSIPMgrDlg( p, su );
 }
 
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+static void showReport( const SEGY::Scanner& scanner )
+{
+    const BufferString fnm( GetProcFileName("SEGY_survey_scan.txt" ) );
+    StreamData sd( StreamProvider(fnm).makeOStream() );
+    if ( !sd.usable() )
+	mErrRet("Cannot open temporary file in Proc directory")
+    IOPar iop; scanner.getReport( iop );
+    if ( iop.write(fnm,IOPar::sKeyDumpPretty) )
+	mErrRet("Cannot write to temporary file in Proc directory")
+
+    ExecuteScriptCommand( "FileBrowser", fnm );
+}
+
 
 bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
 				      Coord crd[3] )
@@ -64,6 +81,11 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
 
     PtrMan<SEGY::Scanner> scanner = dlg->sr_->getScanner();
     if ( !scanner ) { pErrMsg("Huh?"); return false; }
+
+    showReport( *scanner );
+
+    if ( Seis::is2D(scanner->geomType()) )
+	return false;
 
     const char* errmsg = scanner->posInfoDetector().getSurvInfo(cs.hrg,crd);
     if ( errmsg && *errmsg )
