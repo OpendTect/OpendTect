@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.44 2008-08-18 14:44:51 cvsyuancheng Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.45 2008-10-17 15:09:34 cvsjaap Exp $
  ________________________________________________________________________
 
 -*/
@@ -626,6 +626,96 @@ int Seis2DDisplay::getNearestTraceNr( Coord3& pos ) const
     return  geometry_.posns[trcidx].nr_;
 }
 
+Coord3 Seis2DDisplay::getNearestSubPos( const Coord3& pos,
+					bool usemaxrange ) const
+{
+    int trcnr1st, trcnr2nd;
+    float frac;
+    if ( getNearestSegment(pos, usemaxrange, trcnr1st, trcnr2nd, frac) < 0.0 )
+	return Coord3::udf();
+
+    const Coord subpos = getCoord(trcnr1st)*(1-frac) + getCoord(trcnr2nd)*frac;
+    const Interval<float> zrg = usemaxrange ? getMaxZRange(false) :
+					      getZRange(false);
+    return Coord3( subpos, zrg.limitValue(pos.z) );
+}
+
+
+float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
+					int& trcnr1st, int& trcnr2nd,
+					float& frac ) const
+{
+    float mindist2 = MAXFLOAT;
+    const Interval<int>& trcrg = usemaxrange ? getMaxTraceNrRange() :
+					       getTraceNrRange();
+
+    for ( int aidx=0; aidx<geometry_.posns.size()-1; aidx++ )
+    {
+	const Coord posa = geometry_.posns[aidx].coord_;
+	if ( !posa.isDefined() || !trcrg.includes(geometry_.posns[aidx].nr_) )
+	    continue;
+
+	Coord posb = Coord::udf();
+	int bidx = aidx;
+
+	while ( !posb.isDefined() && bidx<geometry_.posns.size()-1 &&
+		trcrg.includes(geometry_.posns[bidx+1].nr_) )
+	{
+	    bidx++;
+	    posb = geometry_.posns[bidx].coord_;
+	}
+
+	if ( !posb.isDefined() )
+	{
+	    bidx = aidx;
+	    posb = posa;
+	}
+
+	const float dist2a = posa.sqDistTo( pos );
+	const float dist2b = posb.sqDistTo( pos );
+	const float dist2c = posa.sqDistTo( posb );
+
+	if ( dist2b >= dist2a+dist2c )
+	{
+	    if ( mindist2 > dist2a )
+	    {
+		mindist2 = dist2a;
+		trcnr1st = geometry_.posns[aidx].nr_;
+		trcnr2nd = geometry_.posns[bidx].nr_;
+		frac = 0.0;
+	    }
+	    continue;
+	}
+
+	if ( dist2a >= dist2b+dist2c )
+	{
+	    if ( mindist2 > dist2b )
+	    {
+		mindist2 = dist2b;
+		trcnr1st = geometry_.posns[aidx].nr_;
+		trcnr2nd = geometry_.posns[bidx].nr_;
+		frac = 1.0;
+	    }
+	    continue;
+	}
+
+	const float dista = sqrt( dist2a );
+	const float distb = sqrt( dist2b );
+	const float distc = sqrt( dist2c );
+	const float sp = (dista + distb + distc) / 2;
+	const float height2 = 4*sp*(sp-dista)*(sp-distb)*(sp-distc) / dist2c;
+
+	if ( mindist2 > height2 )
+	{
+	    mindist2 = height2;
+	    trcnr1st = geometry_.posns[aidx].nr_;
+	    trcnr2nd = geometry_.posns[bidx].nr_;
+	    frac = sqrt( dist2a - height2 ) / distc;
+	}
+    }
+    return mindist2!=MAXFLOAT ? sqrt(mindist2) : -1.0;
+}
+
 
 void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 {
@@ -775,6 +865,21 @@ void Seis2DDisplay::clearTexture( int attribnr )
     Attrib::SelSpec as;
     as.set2DFlag(true);
     setSelSpec( attribnr, as );
+}
+
+
+Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
+						const char* linenm )
+{
+    for ( int idx=0; idx<=visBase::DM().highestID(); idx++ )
+    {
+	DataObject* dataobj = visBase::DM().getObject( idx );
+	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
+	if (s2dd && lineset==s2dd->lineSetID() && !strcmp(linenm,s2dd->name()) )
+	    return s2dd;
+    }
+
+    return 0;
 }
 
 

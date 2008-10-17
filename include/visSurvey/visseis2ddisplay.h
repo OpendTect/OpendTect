@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.22 2008-07-04 04:08:35 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.23 2008-10-17 15:09:34 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -92,6 +92,12 @@ public:
     void			snapToTracePos(Coord3&) const;
     int				getNearestTraceNr(Coord3&) const;
 
+    Coord3			getNearestSubPos(const Coord3& pos,
+						 bool usemaxrange) const;
+    float			getNearestSegment(const Coord3& pos,
+					    bool usemaxrange,int& trcnr1st,
+					    int& trcnr2nd,float& frac ) const;
+
     void			setLineSetID(const MultiID& mid);
     const MultiID&		lineSetID() const;
 
@@ -105,6 +111,8 @@ public:
 
     NotifierAccess*		getMovementNotifier()
     				{ return &geomchanged_; }
+
+    static Seis2DDisplay*	getSeis2DDisplay(const MultiID&,const char*);
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
