@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.4 2008-09-25 09:44:45 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.5 2008-10-17 05:05:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class LegendKit;
-namespace ColTab { class Sequence; }
-
-template<class T> class Interval;
+namespace ColTab { class MapperSetup; class Sequence; }
 
 namespace visBase
 {
@@ -27,23 +25,18 @@ class VisColorTab;
 class SceneColTab : public VisualObjectImpl
 {
 public:
-    static SceneColTab*		create()
-				mCreateDataObj(SceneColTab);
+    static SceneColTab*	create()
+			mCreateDataObj(SceneColTab);
 
-    void			setColTabID(int);
-    void			setColTabSequence(const ColTab::Sequence&);
-    void			setRange(const Interval<float>&);
+    void		setColTabSequence(const ColTab::Sequence&);
+    void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
-    void			setDisplayTransformation(Transformation*) {}
+    void		setDisplayTransformation(Transformation*) {}
 
 protected:
-				~SceneColTab();
+			~SceneColTab();
 
-    void			rangeChg(CallBacker*);
-    void			seqChg(CallBacker*);
-
-    LegendKit*			legendkit_;
-    VisColorTab*		viscoltab_;
+    LegendKit*		legendkit_;
 };
 
 } // class visBase

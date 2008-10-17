@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.377 2008-10-15 15:06:36 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.378 2008-10-17 05:05:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -393,13 +393,14 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     sendEvent( evPickingStatusChange );
 
     mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
-
-
     if ( so && so->getScene() )
     {
-	const ColTab::Sequence* seq = so->getColTabSequence(selattrib_);
+	const ColTab::Sequence* seq = so->getColTabSequence( selattrib_ );
+	const ColTab::MapperSetup* ms = so->getColTabMapperSetup( selattrib_ );
 	if ( seq )
 	    so->getScene()->getSceneColTab()->setColTabSequence( *seq );
+	if ( ms )
+	    so->getScene()->getSceneColTab()->setColTabMapperSetup( *ms );
     }
 }
 
@@ -722,7 +723,7 @@ void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
 
 
 const ColTab::MapperSetup*
-uiVisPartServer::getColTabMapperSetup( int id, int attrib ) const
+    uiVisPartServer::getColTabMapperSetup( int id, int attrib ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->getColTabMapperSetup( attrib ) : 0;
@@ -736,10 +737,13 @@ void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
     if ( !so ) return;
 
     so->setColTabMapperSetup( attrib, ms );
+    if ( so->getScene() )
+	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
 }
 
 
-const ColTab::Sequence* uiVisPartServer::getColTabSequence( int id, int attrib ) const
+const ColTab::Sequence*
+    uiVisPartServer::getColTabSequence( int id, int attrib ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getColTabSequence( attrib ) : 0;
@@ -753,6 +757,8 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
     if ( !so ) return;
 
     so->setColTabSequence( attrib, seq );
+    if ( so->getScene() )
+	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 }
 
 
