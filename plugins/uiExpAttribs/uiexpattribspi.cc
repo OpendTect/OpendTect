@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		March 2008
- RCS:		$Id: uiexpattribspi.cc,v 1.1 2008-10-17 05:42:10 cvsnanne Exp $
+ RCS:		$Id: uiexpattribspi.cc,v 1.2 2008-10-17 06:00:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,10 +24,10 @@ extern "C" int GetuiExpAttribsPluginType()
 extern "C" PluginInfo* GetuiExpAttribsPluginInfo()
 {
     static PluginInfo retpi = {
-	"uiExpAttribs plugin",
 	"Experimental Attributes (UI)",
 	"dGB (Nanne)",
-	"=od" };
+	"=od",
+   	"" };
     return &retpi;
 }
 
