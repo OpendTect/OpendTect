@@ -6,12 +6,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Oct 2004
- RCS:           $Id: ui2dsip.h,v 1.2 2004-10-22 14:38:05 bert Exp $
+ RCS:           $Id: ui2dsip.h,v 1.3 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uisurvinfoed.h"
+#include "uisip.h"
 
 
 class ui2DSurvInfoProvider : public uiSurvInfoProvider

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.8 2008-10-10 14:40:22 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.9 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,14 +263,20 @@ void uiSEGYExamine::updateInp()
 	tbuf_.add( new SeisTrc(trc) );
     }
 
-    BufferString str( "\n\n" );
-    const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
-    str += nrdone < 1 ? "No traces found"
-	   : (stoppedatend ? (ismulti ? "Number of traces in first file: "
-		       		      : "Total traces present in file: ")
-			   : "Traces displayed: ");
-    if ( nrdone > 0 ) str += nrdone;
-    txtinfo_ += str;
+    if ( stoppedatend || nrdone < 1 )
+    {
+	BufferString str( "\n\n" );
+	const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
+	if ( nrdone < 1 )
+	    str += "No traces found";
+	else
+	{
+	    str += "Total number of traces present in file";
+	    if ( ismulti ) str += "s";
+	    str += ":"; str += nrdone;
+	}
+	txtinfo_ += str;
+    }
     outInfo( "" );
     txtfld_->setText( txtinfo_ );
 }

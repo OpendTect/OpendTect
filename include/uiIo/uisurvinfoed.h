@@ -7,50 +7,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.26 2008-07-17 15:10:48 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.27 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "uigroup.h"
 #include "ranges.h"
-
-class Coord;
-class CubeSampling;
 class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;
 class uiGenInput;
 class uiLabel;
+class uiGroup;
 class uiPushButton;
 class uiLabeledComboBox;
-
-
-/*\brief Interface for survey info provider
-
-  The survey setup can be delivered by scanning files (SEG-Y) or by querying
-  data stores like SeisWorks and GeoFrame. Another idea not implemented may be
-  to read a simple ascii file. In any case, this is the interface. The
-  implementation should be added to the factory using 
-  uiSurveyInfoEditor::addInfoProvider.
- 
- */
-
-class uiSurvInfoProvider
-{
-public:
-
-    virtual const char*		usrText() const		= 0;
-    virtual uiDialog*		dialog(uiParent*)	= 0;
-    virtual bool		getInfo(uiDialog*,CubeSampling&,
-					Coord crd[3])	= 0;
-
-    virtual const char*		scanFile() const	{ return 0; }
-
-    enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
-    virtual TDInfo		tdInfo() const		{ return Uknown; }
-};
+class uiSurvInfoProvider;
 
 
 /*\brief The survey info editor */
@@ -66,7 +38,6 @@ public:
     Notifier<uiSurveyInfoEditor> survparchanged;
 
     static int		addInfoProvider(uiSurvInfoProvider*);
-    			//!< See uiSurvInfoProvider class comments
     static bool		copySurv(const char* frompath,const char* fromdirnm,
 	    			 const char* topath,const char* todirnm);
     static bool		renameSurv(const char* path,const char* fromdirnm,

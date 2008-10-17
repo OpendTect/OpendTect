@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.13 2008-10-16 16:31:59 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.14 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
     , defdlg_(0)
     , examdlg_(0)
     , impdlg_(0)
+    , scandlg_(0)
     , rev1qdlg_(0)
     , processEnded(this)
 {
@@ -78,8 +79,8 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
 
 void uiSEGYRead::closeDown()
 {
-    processEnded.trigger();
     uiOBJDISP()->go( this );
+    processEnded.trigger();
 }
 
 
@@ -143,14 +144,31 @@ void uiSEGYRead::usePar( const IOPar& iop )
 
 void uiSEGYRead::writeReq( CallBacker* cb )
 {
-    if ( cb != impdlg_ ) return;
+    mDynamicCastGet(uiSEGYReadDlg*,rddlg,cb)
+    if ( !rddlg ) { pErrMsg("Huh"); return; }
 
     PtrMan<CtxtIOObj> ctio = getCtio( true );
-    ctio->ctxt.setName( impdlg_->saveObjName() );
-    if ( !ctio->fillObj(false) )
-	return;
+    BufferString objnm( rddlg->saveObjName() );
+    ctio->ctxt.setName( objnm );
+    if ( !ctio->fillObj(false) ) return;
+    else
+    {
+	BufferString translnm = ctio->ioobj->translator();
+	if ( translnm != "SEG-Y" )
+	{
+	    ctio->setObj( 0 );
+	    objnm += " SGY";
+	    if ( !ctio->fillObj(false) ) return;
+	    translnm = ctio->ioobj->translator();
+	    if ( translnm != "SEG-Y" )
+	    {
+		uiMSG().error( "Cannot write setup under this name - sorry" );
+		return;
+	    }
+	}
+    }
 
-    impdlg_->updatePars();
+    rddlg->updatePars();
     fillPar( ctio->ioobj->pars() );
     ctio->ioobj->pars().removeWithKey( uiSEGYExamine::Setup::sKeyNrTrcs );
     ctio->ioobj->pars().removeWithKey( sKey::Geometry );
@@ -163,20 +181,24 @@ void uiSEGYRead::writeReq( CallBacker* cb )
 void uiSEGYRead::readReq( CallBacker* cb )
 {
     uiDialog* parnt = defdlg_;
+    uiSEGYReadDlg* rddlg = 0;
     if ( parnt )
 	geom_ = defdlg_->geomType();
-    else if ( !impdlg_ )
-	return;
     else
-	parnt = impdlg_;
+    {
+	mDynamicCastGet(uiSEGYReadDlg*,dlg,cb)
+	if ( !dlg ) { pErrMsg("Huh"); return; }
+	rddlg = dlg;
+    }
 
     PtrMan<CtxtIOObj> ctio = getCtio( true );
     uiIOObjSelDlg dlg( parnt, *ctio, "Select SEG-Y setup" );
+    dlg.setModal( true );
     PtrMan<IOObj> ioobj = dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
     if ( !ioobj ) return;
 
-    if ( impdlg_ )
-	impdlg_->use( ioobj, false );
+    if ( rddlg )
+	rddlg->use( ioobj, false );
     else
     {
 	pars_.merge( ioobj->pars() );
@@ -212,6 +234,8 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
     saveasfld_->setWithCheck( true );
     saveasfld_->attach( alignedBelow, nrtrcsfld_ );
     saveasfld_->setChecked( true );
+
+    setModal( true );
 }
 
 ~uiSEGYReadPreScanner()
@@ -266,11 +290,12 @@ bool acceptOK( CallBacker* )
 
 void uiSEGYRead::preScanReq( CallBacker* cb )
 {
-    if ( !impdlg_ ) return;
-    impdlg_->updatePars();
+    mDynamicCastGet(uiSEGYReadDlg*,rddlg,cb)
+    if ( !rddlg ) { pErrMsg("Huh"); return; }
+    rddlg->updatePars();
     fillPar( pars_ );
 
-    uiSEGYReadPreScanner dlg( impdlg_, geom_, pars_ );
+    uiSEGYReadPreScanner dlg( rddlg, geom_, pars_ );
     if ( !dlg.go() || !dlg.res_ ) return;
 }
 
@@ -421,6 +446,12 @@ void uiSEGYRead::setupScan()
     delete scanner_; scanner_ = 0;
     delete scandlg_;
     uiSEGYReadDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
+    if ( setup_.purpose_ == SurvSetup && Seis::is2D(geom_) )
+	uiMSG().warning(
+	"Scanning a 2D file can only provide some info on your survey.\n"
+	"To actually set up your survey, you need to select\n"
+	"'Set for 2D only'\n"
+	"In the survey setup window" );
     scandlg_ = new uiSEGYScanDlg( parent_, su, pars_ );
     scandlg_->mSetreadReqCB();
     scandlg_->mSetwriteReqCB();
@@ -485,7 +516,7 @@ void uiSEGYRead::rev1qDlgClose( CallBacker* )
 uiSEGYRead::~uiSEGYRead()
 {
     delete defdlg_;
-    delete examdlg_;
     delete impdlg_;
+    delete scandlg_;
     delete rev1qdlg_;
 }

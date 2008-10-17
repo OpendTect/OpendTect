@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.8 2008-10-14 10:22:47 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.9 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,9 @@ public:
     BufferStringSet	scanerrfnms_;	//!< Error during scan (but in fnms_)
     BufferStringSet	scanerrmsgs_;	//!< Err Msgs for 'Error during scan'
 
-    void		getReport(IOPar&) const;
+    void			getReport(IOPar&) const;
+    StepInterval<float>		zRange() const;
+    const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
 
 protected:
 

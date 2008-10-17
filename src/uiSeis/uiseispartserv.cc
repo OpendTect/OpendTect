@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.100 2008-10-15 15:47:38 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.101 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ ________________________________________________________________________
 #include "uisegyread.h"
 #include "uisegyexp.h"
 #include "uisegysip.h"
+#include "uisurvinfoed.h"
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltman.h"
@@ -56,7 +57,7 @@ ________________________________________________________________________
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     : uiApplPartServer(a)
 {
-    uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid_ );
+    uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider();
     uiSurveyInfoEditor::addInfoProvider( sip );
     SeisIOObjInfo::initDefault( sKey::Steering );
 }

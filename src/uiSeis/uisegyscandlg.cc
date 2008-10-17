@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.1 2008-10-16 16:31:59 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.2 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,8 +23,9 @@ ________________________________________________________________________
 uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 				IOPar& iop )
     : uiSEGYReadDlg(p,su,iop)
+    , scanner_(0)
 {
-    if ( setup().dlgtitle_.isEmpty() )
+    if ( setup_.dlgtitle_.isEmpty() )
     {
 	BufferString ttl( "Scanning " );
 	ttl += Seis::nameOf( setup_.geom_ );
@@ -32,6 +33,8 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	ttl += " '"; ttl += fs.fname_; ttl += "'";
 	setTitleText( ttl );
     }
+    if ( !optsgrp_ )
+	new uiLabel( this, "Press OK or hit enter to start SEG-Y scan" );
 }
 
 

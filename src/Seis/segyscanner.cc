@@ -4,13 +4,14 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.8 2008-10-14 12:11:14 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.9 2008-10-17 13:06:53 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
 #include "segyhdr.h"
 #include "seistrc.h"
 #include "segytr.h"
+#include "survinfo.h"
 #include "datapointset.h"
 #include "posinfodetector.h"
 #include "strmprov.h"
@@ -204,6 +205,21 @@ void SEGY::Scanner::addFailed( const char* errmsg )
     failedfnms_ += bs;
     fnms_ -= bs;
     curfidx_--;
+}
+
+
+StepInterval<float> SEGY::Scanner::zRange() const
+{
+    if ( fd_.isEmpty() )
+	return SI().zRange( false );
+
+    const FileData& fd = *fd_[0];
+    StepInterval<float> ret;
+    ret.start = fd.sampling_.start;
+    ret.step = fd.sampling_.step;
+    ret.stop = ret.start + (fd.trcsz_-1) * ret.step;
+
+    return ret;
 }
 
 

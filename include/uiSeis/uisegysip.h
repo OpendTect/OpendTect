@@ -4,28 +4,23 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        A.H.Bril
+ Author:        Bert
  Date:          Feb 2004
- RCS:           $Id: uisegysip.h,v 1.4 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:           $Id: uisegysip.h,v 1.5 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uisurvinfoed.h"
-class MultiID;
+#include "uisip.h"
 
 
 class uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 
-			uiSEGYSurvInfoProvider(MultiID&);
-
     const char*		usrText() const		{ return "Scan SEG-Y file(s)"; }
     uiDialog*		dialog(uiParent*);
     bool		getInfo(uiDialog*,CubeSampling&,Coord crd[3]);
-
-    MultiID&		segyid;
 
 };
 

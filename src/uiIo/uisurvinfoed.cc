@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.98 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.99 2008-10-17 13:06:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvinfoed.h"
+#include "uisip.h"
 
 #include "bufstringset.h"
 #include "cubesampling.h"
