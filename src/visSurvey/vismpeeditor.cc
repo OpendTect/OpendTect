@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.27 2008-09-15 10:10:36 cvsbert Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.28 2008-10-17 21:43:04 cvsyuancheng Exp $";
 
 #include "vismpeeditor.h"
 
@@ -212,7 +212,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 
     if ( !translate1D && !translate2D && !translate3D )
 	return;
-	         
+	        
     visBase::Dragger* dragger = visBase::Dragger::create();
     dragger->ref();
     dragger->setDisplayTransformation( transformation );
@@ -230,11 +230,20 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     {
 	dragger->setDraggerType( visBase::Dragger::Translate2D );
 	const Coord3 defnormal( 0, 0, 1 );
-	const Coord3 desnormal = 
-	    emeditor->translation2DNormal( pid ).normalize().normalize();
-	const float angle = Math::ACos( defnormal.dot(desnormal) );
-	const Coord3 axis = defnormal.cross(desnormal);
-	dragger->setRotation( axis, angle );
+	const Coord3 desnormal = emeditor->translation2DNormal(pid).normalize();
+	const float dotproduct = defnormal.dot(desnormal);
+	
+	Coord3 rotationaxis( 0, 0, 1 );
+	float angle = 0;
+	if ( !mIsEqual( dotproduct, 1, 1e-3 ) )
+	{
+	    const float zaxisangle = atan2( desnormal.y, desnormal.x ); 
+	    Quaternion rotation( defnormal, zaxisangle );
+	    rotation *= Quaternion( Coord3(0,1,0), -Math::ACos(dotproduct) );
+	    rotation.getRotation( rotationaxis, angle );
+	}
+
+	dragger->setRotation( rotationaxis, angle );
     }
     else 
     {
