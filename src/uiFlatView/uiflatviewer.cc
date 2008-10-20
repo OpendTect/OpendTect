@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.60 2008-08-22 12:02:05 cvshelene Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.61 2008-10-20 20:18:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,7 +143,7 @@ uiWorldRect uiFlatViewer::boundingBox() const
 }
 
 
-void uiFlatViewer::setView( uiWorldRect wr )
+void uiFlatViewer::setView( const uiWorldRect& wr )
 {
     anysetviewdone_ = true;
 

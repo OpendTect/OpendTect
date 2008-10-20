@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.22 2008-05-26 04:11:52 cvsnanne Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.23 2008-10-20 20:18:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
     uiRGBArray&		rgbArray();
     uiRGBArrayCanvas&	rgbCanvas()			{ return canvas_; }
 
-    void		setView(uiWorldRect);
+    void		setView(const uiWorldRect&);
     const uiWorldRect&	curView() const			{ return wr_; }
     uiWorldRect		boundingBox() const;
     void		getWorld2Ui(uiWorld2Ui&) const;
