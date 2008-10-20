@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.11 2008-10-17 14:54:24 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.12 2008-10-20 07:35:17 cvsjaap Exp $";
 
 #include "faultsticksurface.h"
 
@@ -156,8 +156,8 @@ bool FaultStickSurface::removeKnot( const RCol& rc )
 
     sticks_[stickidx]->remove( knotidx );
 
-   // if ( !knotidx )
-//	firstcols_[stickidx]++;
+    if ( !knotidx )
+	firstcols_[stickidx]++;
 
     triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
     
