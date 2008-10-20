@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.10 2008-05-22 09:15:16 cvshelene Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.11 2008-10-20 09:58:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,7 +124,7 @@ void Horizon::prepareForComputeData()
     BufferStringSet loadedauxdatanms;
     if ( objid > -1 )
     {
-	mDynamicCastGet(EM::Horizon3D*,hor,em.getObject(objid))
+	mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
 	if ( hor && hor->isFullyLoaded() )
 	{
 	    if ( outtype_!=mOutTypeSurfData )
@@ -133,11 +133,12 @@ void Horizon::prepareForComputeData()
 		horizon_->ref();
 		return;
 	    }
-	    else
+	    else if ( !desc.is2D() )
 	    {
-		for ( int idx=0; idx<hor->auxdata.nrAuxData(); idx++ )
+		mDynamicCastGet(EM::Horizon3D*,hor3d,hor)
+		for ( int idx=0; hor3d && idx<hor3d->auxdata.nrAuxData(); idx++)
 		{
-		    const char* auxnm = hor->auxdata.auxDataName(idx);
+		    const char* auxnm = hor3d->auxdata.auxDataName(idx);
 		    if ( !strcmp( auxnm, surfdatanm_ ) )
 		    {
 			horizon_ = hor;
@@ -174,7 +175,7 @@ void Horizon::prepareForComputeData()
 
     loader->execute();
     objid = em.getObjectID( horid_ );
-    mDynamicCastGet(EM::Horizon3D*,hor,em.getObject(objid))
+    mDynamicCastGet(EM::Horizon*,hor,em.getObject(objid))
     if ( hor )
     {
 	horizon_ = hor;
@@ -198,10 +199,14 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
     float outputvalue = mUdf(float);
     if ( outtype_ == mOutTypeZ )
 	outputvalue = zval;
-    else
+    else if ( !desc.is2D() )
     {
-	int auxindex = horizon_->auxdata.auxDataIndex( surfdatanm_ );
-	outputvalue = horizon_->auxdata.getAuxDataVal( auxindex, posid );
+	mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
+	if ( hor3d )
+	{
+	    int auxindex = hor3d->auxdata.auxDataIndex( surfdatanm_ );
+	    outputvalue = hor3d->auxdata.getAuxDataVal( auxindex, posid );
+	}
     }
     
     for ( int idx=0; idx<nrsamples; idx++ )
