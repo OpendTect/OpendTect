@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2007
- RCS:		$Id: hilberttransform.h,v 1.1 2008-07-09 12:19:55 cvsnanne Exp $
+ RCS:		$Id: hilberttransform.h,v 1.2 2008-10-20 06:15:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "transform.h"
+#include "bufstring.h"
 
 class ArrayNDInfo;
+template <class T> class ValueSeries;
 template <class T> class ArrayND;
 
 typedef std::complex<float> float_complex;
@@ -36,18 +38,33 @@ public:
     bool		getDir() const			{ return forward_; }
 
     bool		init();
+    void		setHalfLen( int hl )		{ halflen_ = hl; }
+    void		setCalcRange(int, int);
 
+    bool		transform(const ValueSeries<float>&,int szin,
+	    			  ValueSeries<float>&,int szout) const;
     bool		transform(const ArrayND<float>&,ArrayND<float>&) const;
     bool		transform(const ArrayND<float_complex>&,
 				  ArrayND<float_complex>&) const;
+    bool		transform(const ArrayND<float>&,
+				  ArrayND<float_complex>&) const;
+
+    const char*		errMsg() const		{ return errmsg_.buf(); }
 
 protected:
 
+    float*		makeHilbWindow(int);
     bool		isPossible(int) const;
     bool		isFast( int ) const		{ return true; }
 
     bool		forward_;
+    int			startidx_;
+    int			nrsamples_;
+    int			halflen_;
+    float*		hilbwindow_;
     ArrayNDInfo*	info_;
+
+    mutable BufferString errmsg_;
 };
 
 
