@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.38 2008-10-03 07:03:24 cvsumesh Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.39 2008-10-20 10:58:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,13 +40,14 @@ class uiODMenuMgr : public CallBacker
 
 public:
 
-    // TODO: fileMnu() only here for backward compatibility
-    // Remove in version 3.2
+    // TODO: winMnu() only here for backward compatibility
+    // Remove in version 3.4
     uiPopupMenu*	fileMnu()		{ return surveymnu_; }
     uiPopupMenu*	surveyMnu()		{ return surveymnu_; }
     uiPopupMenu*	analMnu()		{ return analmnu_; }
     uiPopupMenu*	procMnu()		{ return procmnu_; }
-    uiPopupMenu*	winMnu()		{ return winmnu_; }
+    uiPopupMenu*	winMnu()		{ return scenemnu_; }
+    uiPopupMenu*	sceneMnu()		{ return scenemnu_; }
     uiPopupMenu*	viewMnu()		{ return viewmnu_; }
     uiPopupMenu*	utilMnu()		{ return utilmnu_; }
     uiPopupMenu*	helpMnu()		{ return helpmnu_; }
@@ -70,7 +71,9 @@ public:
     void		enableMenuBar(bool);
     void		enableActButton(bool);
     void		setCameraPixmap(bool isperspective);
-    void		updateWindowsMenu();
+    void		updateSceneMenu();
+//    void		updateWindowsMenu() { updateSceneMenu(); }
+    			// Backward compatibility, remove in od3.4
 
     Notifier<uiODMenuMgr> dTectTBChanged;
     Notifier<uiODMenuMgr> dTectMnuChanged;
@@ -87,7 +90,7 @@ protected:
     uiPopupMenu*	surveymnu_;
     uiPopupMenu*	analmnu_;
     uiPopupMenu*	procmnu_;
-    uiPopupMenu*	winmnu_;
+    uiPopupMenu*	scenemnu_;
     uiPopupMenu*	viewmnu_;
     uiPopupMenu*	utilmnu_;
     uiPopupMenu*	impmnu_;
@@ -108,7 +111,7 @@ protected:
     void		fillManMenu();
     void		fillAnalMenu();
     void		fillProcMenu();
-    void		fillWinMenu();
+    void		fillSceneMenu();
     void		fillViewMenu();
     void		fillUtilMenu();
     void		fillDtectTB(uiODApplMgr*);

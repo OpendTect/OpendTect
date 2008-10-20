@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.138 2008-10-14 10:22:47 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.139 2008-10-20 10:58:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     surveymnu_ = new uiPopupMenu( &appl_, "&Survey" );
     analmnu_ = new uiPopupMenu( &appl_, "&Analysis" );
     procmnu_ = new uiPopupMenu( &appl_, "&Processing" );
-    winmnu_ = new uiPopupMenu( &appl_, "&Windows" );
+    scenemnu_ = new uiPopupMenu( &appl_, "S&cenes" );
     viewmnu_ = new uiPopupMenu( &appl_, "&View" );
     utilmnu_ = new uiPopupMenu( &appl_, "&Utilities" );
     helpmnu_ = new uiPopupMenu( &appl_, "&Help" );
@@ -77,7 +77,7 @@ void uiODMenuMgr::initSceneMgrDepObjs( uiODApplMgr* appman,
     fillSurveyMenu();	menubar->insertItem( surveymnu_ );
     fillAnalMenu();	menubar->insertItem( analmnu_ );
     fillProcMenu();	menubar->insertItem( procmnu_ );
-    fillWinMenu();	menubar->insertItem( winmnu_ );
+    fillSceneMenu();	menubar->insertItem( scenemnu_ );
     fillViewMenu();	menubar->insertItem( viewmnu_ );
     fillUtilMenu();	menubar->insertItem( utilmnu_ );
     menubar->insertSeparator();
@@ -362,40 +362,40 @@ void uiODMenuMgr::fillAnalMenu()
 	analmnu_->insertSeparator();
     }
 
-    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "Cross-plot" );
-    mInsertItem( crsplot, "&Well <--> Attr ...", mXplotMnuItm );
-    mInsertItem( crsplot, "Attr <--> Attr ...", mAXplotMnuItm );
+    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot" );
+    mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
+    mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
     analmnu_->insertItem( crsplot );
 }
 
 
-void uiODMenuMgr::fillWinMenu()
+void uiODMenuMgr::fillSceneMenu()
 {
-    mInsertItem( winmnu_, "&New", mAddSceneMnuItm );
-    mInsertItem( winmnu_, "&Cascade", mCascadeMnuItm );
+    mInsertItem( scenemnu_, "&New", mAddSceneMnuItm );
+    mInsertItem( scenemnu_, "&Cascade", mCascadeMnuItm );
     uiPopupMenu* tileitm = new uiPopupMenu( &appl_, "&Tile" );
-    winmnu_->insertItem( tileitm );
+    scenemnu_->insertItem( tileitm );
 
     mInsertItem( tileitm, "&Auto", mTileAutoMnuItm );
     mInsertItem( tileitm, "&Horizontal", mTileHorMnuItm );
     mInsertItem( tileitm, "&Vertical", mTileVerMnuItm );
-    winmnu_->insertSeparator();
+    scenemnu_->insertSeparator();
 }
 
 
-void uiODMenuMgr::updateWindowsMenu()
+void uiODMenuMgr::updateSceneMenu()
 {
     BufferStringSet scenenms;
     int activescene = 0;
     sceneMgr().getSceneNames( scenenms, activescene );
 
     for ( int id=mSceneSelMnuItm; id<mSceneSelMnuItm+scenenms.size()+1; id++ )
-	winmnu_->removeItem( id );
+	scenemnu_->removeItem( id );
 
 #define mInsertSceneItem(txt,docheck,id) \
     uiMenuItem* itm = new uiMenuItem( txt, \
 	    			      mCB(this,uiODMenuMgr,handleClick) ); \
-    winmnu_->insertItem( itm, id ); \
+    scenemnu_->insertItem( itm, id ); \
     itm->setCheckable( true ); \
     itm->setChecked( docheck );
 

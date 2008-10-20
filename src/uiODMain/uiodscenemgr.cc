@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.151 2008-10-07 12:34:13 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.152 2008-10-20 10:58:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -736,7 +736,7 @@ int uiODSceneMgr::getActiveSceneID() const
 
 void uiODSceneMgr::wspChanged( CallBacker* )
 {
-    menuMgr().updateWindowsMenu();
+    menuMgr().updateSceneMenu();
     activeSceneChanged.trigger();
 }
 
