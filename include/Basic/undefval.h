@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.12 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:           $Id: undefval.h,v 1.13 2008-10-20 07:21:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,6 @@ public:
     static bool		isUdf( od_uint32 i )	{ return i == 65534; }
     static void		setUdf( od_uint32& i )	{ i = 65534; }
 };
-
-template<>
 
 template<>
 class Undef<od_int32>
