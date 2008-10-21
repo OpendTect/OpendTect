@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.5 2008-10-10 14:40:22 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.6 2008-10-21 14:14:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,12 @@ public:
 			uiSEGYExamine(uiParent*,const Setup&);
 			~uiSEGYExamine();
 
-    int			getRev() const; // -1 = err, 1 = Rev 1
+    int			getRev() const;		//!< -1 = err, 1 = Rev 1
+    const char*		errMsg() const		{ return txtinfo_; }
 
     static SeisTrcReader* getReader(const Setup&,BufferString& errmsg);
     static int		getRev(const SeisTrcReader&); // -1 = err, 1 = Rev 1
-    static int		getRev(const Setup&); // -1 = err, 1 = Rev 1
+    static int		getRev(const Setup&,BufferString& emsg);
 
     static bool		launch(const Setup&);
 

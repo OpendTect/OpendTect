@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.9 2008-10-17 13:35:24 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.10 2008-10-21 14:14:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,8 @@ protected:
 
     void		setGeomType(const IOObj&);
     CtxtIOObj*		getCtio(bool) const;
+
+    uiSEGYDefDlg*	newdefdlg_;
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.9 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.10 2008-10-21 14:14:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,9 +190,8 @@ int uiSEGYExamine::getRev() const
 }
 
 
-int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su )
+int uiSEGYExamine::getRev( const uiSEGYExamine::Setup& su, BufferString& emsg )
 {
-    BufferString emsg;
     PtrMan<SeisTrcReader> rdr = getReader( su, emsg );
     return rdr ? getRev( *rdr ) : -1;
 }

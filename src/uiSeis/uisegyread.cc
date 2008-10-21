@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.15 2008-10-17 13:35:24 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.16 2008-10-21 14:14:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
     , rev_(Rev0)
     , revpolnr_(2)
     , defdlg_(0)
+    , newdefdlg_(0)
     , examdlg_(0)
     , impdlg_(0)
     , scandlg_(0)
@@ -384,7 +385,6 @@ bool isGoBack() const
 
 void uiSEGYRead::getBasicOpts()
 {
-    delete defdlg_;
     uiSEGYDefDlg::Setup bsu; bsu.geoms_ = setup_.geoms_;
     bsu.defgeom( geom_ ).modal( false );
     defdlg_ = new uiSEGYDefDlg( parent_, bsu, pars_ );
@@ -402,13 +402,20 @@ void uiSEGYRead::basicOptsGot()
 
     uiSEGYExamine::Setup exsu( defdlg_->nrTrcExamine() );
     exsu.modal( false ); exsu.usePar( pars_ );
+    BufferString emsg;
+    const int exrev = uiSEGYExamine::getRev( exsu, emsg );
+    if ( exrev < 0 )
+    {
+	rev_ = Rev0; uiMSG().error( emsg );
+	getBasicOpts(); newdefdlg_ = defdlg_;
+	return;
+    }
+
     delete examdlg_; examdlg_ = new uiSEGYExamine( parent_, exsu );
     mLaunchDlg(examdlg_,examDlgClose);
-    const int exrev = examdlg_->getRev();
-    if ( exrev < 0 )
-	{ rev_ = Rev0; mSetState(BasicOpts); }
 
     rev_ = exrev ? WeakRev1 : Rev0;
+    revpolnr_ = exrev;
     if ( rev_ != Rev0 )
     {
 	SI().pars().get( sKeySEGYRev1Pol, revpolnr_ );
@@ -416,7 +423,6 @@ void uiSEGYRead::basicOptsGot()
 	    revpolnr_ = -revpolnr_;
 	else
 	{
-	    delete rev1qdlg_;
 	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_ );
 	    mLaunchDlg(rev1qdlg_,rev1qDlgClose);
 	    mSetState(Wait4Dialog);
@@ -445,7 +451,6 @@ void uiSEGYRead::determineRevPol()
 void uiSEGYRead::setupScan()
 {
     delete scanner_; scanner_ = 0;
-    delete scandlg_;
     uiSEGYReadDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
     if ( setup_.purpose_ == SurvSetup && Seis::is2D(geom_) )
 	uiMSG().warning(
@@ -464,7 +469,6 @@ void uiSEGYRead::setupScan()
 
 void uiSEGYRead::setupImport()
 {
-    delete impdlg_;
     uiSEGYImpDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
     impdlg_ = new uiSEGYImpDlg( parent_, su, pars_ );
     impdlg_->mSetreadReqCB();
@@ -478,7 +482,8 @@ void uiSEGYRead::setupImport()
 void uiSEGYRead::defDlgClose( CallBacker* )
 {
     basicOptsGot();
-    defdlg_ = 0;
+    defdlg_ = newdefdlg_ ? newdefdlg_ : 0;
+    newdefdlg_ = 0;
 }
 
 
