@@ -4,15 +4,18 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.8 2008-02-07 20:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.9 2008-10-21 13:31:53 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
 #include "ptrman.h"
 #include "prestackprocessor.h"
+#include "prestackprocessortransl.h"
 #include "uibutton.h"
+#include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uilistbox.h"
+#include "uimsg.h"
 
 
 namespace PreStack
@@ -45,6 +48,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 
     processorlist_ = new uiListBox( this );
     processorlist_->attach( rightOf, addprocessorbutton_ );
+    processorlist_->attach( heightSameAs, factorylist_ );
     processorlist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,processorClickCB) );
     processorlist_->doubleClicked.notify(
@@ -64,6 +68,13 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     propertiesbutton_ = new uiPushButton( this, "Properties",
 	    mCB(this,uiProcessorManager,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
+
+    loadbutton_ = new uiPushButton( this, "Load",
+	    mCB(this, uiProcessorManager,loadCB), false );
+    loadbutton_->attach( alignedBelow, factorylist_ );
+    saveasbutton_ = new uiPushButton( this, "Save as",
+	    mCB(this, uiProcessorManager,saveAsCB), false );
+    saveasbutton_->attach( rightOf, loadbutton_ );
 
     updateList();
     updateButtons();
@@ -111,6 +122,8 @@ void uiProcessorManager::updateButtons()
 
     propertiesbutton_->setSensitive( processorsel!=-1 &&
 	    hasPropDialog(processorsel) );
+
+    saveasbutton_->setSensitive( manager_.nrProcessors() );
 }
 
 
@@ -236,5 +249,48 @@ void uiProcessorManager::propertiesCB( CallBacker* )
 
     showPropDialog( idx );
 }
+
+
+void uiProcessorManager::loadCB( CallBacker* )
+{
+    CtxtIOObj selcontext = PreStackProcTranslatorGroup::ioContext();
+    selcontext.ctxt.forread = true;
+
+    uiIOObjSelDlg dlg( this, selcontext );
+    if ( dlg.go() && dlg.ioObj() )
+    {
+	BufferString errmsg;
+	if ( !PreStackProcTranslator::retrieve( manager_, dlg.ioObj(), errmsg) )
+	    uiMSG().error( errmsg.buf() );
+	else
+	{
+	    updateList();
+	    updateButtons();
+	}
+    }
+
+    if ( selcontext.ioobj )
+	delete selcontext.ioobj;
+}
+
+
+void uiProcessorManager::saveAsCB( CallBacker* )
+{
+    CtxtIOObj selcontext = PreStackProcTranslatorGroup::ioContext();
+    selcontext.ctxt.forread = false;
+
+    uiIOObjSelDlg dlg( this, selcontext );
+    if ( dlg.go() && dlg.ioObj() )
+    {
+	BufferString errmsg;
+	if ( !PreStackProcTranslator::store( manager_, dlg.ioObj(), errmsg) )
+	    uiMSG().error( errmsg.buf() );
+    }
+
+    if ( selcontext.ioobj )
+	delete selcontext.ioobj;
+}
+
+
 
 }; //namespace

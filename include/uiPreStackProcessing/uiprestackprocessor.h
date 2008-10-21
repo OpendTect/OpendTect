@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackprocessor.h,v 1.5 2007-12-06 20:05:45 cvskris Exp $
+ RCS:		$Id: uiprestackprocessor.h,v 1.6 2008-10-21 13:31:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,8 @@ protected:
     void			moveUpCB(CallBacker*);
     void			moveDownCB(CallBacker*);
     void			propertiesCB(CallBacker*);
+    void			loadCB(CallBacker*);
+    void			saveAsCB(CallBacker*);
 
     IOPar			restorepar_;
 
@@ -60,6 +62,8 @@ protected:
     uiButton*			moveupbutton_;
     uiButton*			movedownbutton_;
     uiButton*			propertiesbutton_;
+    uiButton*			saveasbutton_;
+    uiButton*			loadbutton_;
 };
 
 
