@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.3 2008-10-16 21:55:06 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.4 2008-10-21 21:09:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,7 +179,6 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	channels[idx] =
 	    channelsimages[idx].getValue( channelsize, bytesperpixel[idx] );
     }
-
     
     const SbVec3i32 origstart = origin.getValue();
     SbVec3i32 origsz = size.getValue();
@@ -213,6 +212,28 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	    return;
 
 	needregenration_ = true;
+    }
+
+    const SoTextureComposer::ForceTransparency ft =
+	SoTextureComposerElement::getForceTrans( state );
+
+    if ( texturedata->ft_!=ft )
+    {
+	texturedata->ft_ = ft;
+	uint32_t flags = texturedata->glimage_->getFlags();
+	if ( ft==SoTextureComposer::DONT_FORCE )
+	{
+	    uint32_t mask = 0xFFFFFFFF;
+	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	    flags &= mask;
+	}
+	else if ( ft==SoTextureComposer::FORCE_ON )
+	    flags &= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	else
+	    flags &= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+
+	texturedata->glimage_->setFlags( flags );
     }
 
     const float quality = SoTextureQualityElement::get(state);
@@ -261,9 +282,8 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 			const int sourcesample =
 			    (firstsourcesample+idz)*bytesperpixel[idc];
 
-			texturedata->imagedata_[ressample] =
+			texturedata->imagedata_[ressample] = 
 					    channels[idc][sourcesample];
-
 		    }
 		}
 	    }
@@ -290,7 +310,14 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 
     const int maxunits = cc_glglue_max_texture_units(glue);
 
-    if ( unit<maxunits )
+    if ( unit==0 )
+    {
+	SoGLTextureImageElement::set( state, this, texturedata->glimage_, glmodel,
+				      SbColor(1,1,1) );
+	SoGLTexture3EnabledElement::set(state, this, false );
+	SoGLTextureEnabledElement::set(state, this, true );
+    }
+    else if ( unit<maxunits )
     {
 	SoGLMultiTextureImageElement::set( state, this, unit,
 					   texturedata->glimage_, glmodel,
@@ -312,7 +339,7 @@ void SoTextureComposer::doActionUnit( int unit, SoState* state )
 	return;
 
     SoTextureUnitElement::set( state, this, unit );
-    SbVec2s sz( size.getValue()[0], size.getValue()[1] );
+    SbVec3s sz( size.getValue()[0], size.getValue()[1], size.getValue()[2] );
 
     TextureData* texturedata = (TextureData*) texturedata_[unit];
     const unsigned char* bytes = texturedata->imagedata_;
@@ -320,20 +347,30 @@ void SoTextureComposer::doActionUnit( int unit, SoState* state )
 
     if ( !bytes )
     {
-	static const unsigned char dummytex[] = {0xff,0xff,0xff,0xff};
+	static const unsigned char dummytex[] = {0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff};
 	bytes = dummytex;
-	sz = SbVec2s(2,2);
+	sz = SbVec3s(2,2,2);
 	nc = 1;
     } 
 
     if ( !unit )
     {
 	SoTexture3EnabledElement::set(state, this, false );
-	if ( sz!=SbVec2s(0,0) )
+	if ( sz!=SbVec3s(0,0,0) )
 	{
-	    SoTextureImageElement::set(state, this, sz, nc, bytes,
-				    0, 0, SoTextureImageElement::MODULATE,
-				    SbColor( 1, 1, 1 ) );
+	    if ( sz[0]==1 )
+	    {
+		SoTextureImageElement::set(state, this, SbVec2s(sz[1],sz[2]),
+			nc, bytes, 0, 0, SoTextureImageElement::MODULATE,
+			SbColor( 1, 1, 1 ) );
+	    }
+	    else
+	    {
+		SoTextureImageElement::set(state, this, sz,
+			nc, bytes, 0, 0, 0, SoTextureImageElement::MODULATE,
+			SbColor( 1, 1, 1 ) );
+	    }
+
 	    SoTextureEnabledElement::set(state, this, true );
 	}
 	else
@@ -341,20 +378,36 @@ void SoTextureComposer::doActionUnit( int unit, SoState* state )
 	    SoTextureImageElement::setDefault(state, this);
 	    SoTextureEnabledElement::set(state, this, false );
 	}
+
 	if ( isOverride() )
 	{
-		SoTextureOverrideElement::setImageOverride(state, true );
+	    SoTextureOverrideElement::setImageOverride(state, true );
 	}
     }
     else
     {
-	if ( sz!=SbVec2s(0,0) )
+	if ( sz!=SbVec3s(0,0,0) )
 	{
-	    SoMultiTextureImageElement::set(state, this, unit,
-		sz, nc, bytes, SoTextureImageElement::CLAMP,
-		SoTextureImageElement::CLAMP,
-		SoTextureImageElement::MODULATE,
-		SbColor( 1, 1, 1 ) );
+	    if ( sz[0]==1 )
+	    {
+		SoMultiTextureImageElement::set(state, this, unit,
+		    SbVec2s(sz[1],sz[2]), nc, bytes,
+		    SoTextureImageElement::CLAMP,
+		    SoTextureImageElement::CLAMP,
+		    SoTextureImageElement::MODULATE,
+		    SbColor( 1, 1, 1 ) );
+	    }
+	    else
+	    {
+		SoMultiTextureImageElement::set(state, this, unit,
+		    sz, nc, bytes,
+		    SoTextureImageElement::CLAMP,
+		    SoTextureImageElement::CLAMP,
+		    SoTextureImageElement::CLAMP,
+		    SoTextureImageElement::MODULATE,
+		    SbColor( 1, 1, 1 ) );
+	    }
+
 	    SoMultiTextureEnabledElement::set(state, this, unit, true );
 	}
 	else
@@ -378,6 +431,7 @@ void SoTextureComposer::removeTextureData()
 SoTextureComposer::TextureData::TextureData()
     : imagedata_( 0 )
     , glimage_( new SoGLImage )
+    , ft_( SoTextureComposer::DONT_FORCE )
 { }
 
 

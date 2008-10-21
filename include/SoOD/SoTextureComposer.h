@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureComposer.h,v 1.2 2008-10-08 16:41:36 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.h,v 1.3 2008-10-21 21:09:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,8 @@ public:
     static		void initClass();
 			SoTextureComposer();
 
+    enum ForceTransparency      { DONT_FORCE, FORCE_ON, FORCE_OFF };
+
     SoSFVec3i32		origin;
     SoSFVec3i32		size; //-1,-1,-1 means to the end of the channel
 
@@ -63,6 +65,7 @@ protected:
 	int			imagesize_;
 	int			numcomp_;
 	SoGLImage*		glimage_;
+	ForceTransparency	ft_;
     };
 
     SbPList			texturedata_;
