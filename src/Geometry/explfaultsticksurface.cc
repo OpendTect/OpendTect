@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.27 2008-10-06 17:27:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.28 2008-10-21 11:42:24 cvsdgb Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.27 2008-10-06 17:2
 #include "survinfo.h"
 #include "task.h"
 #include "trigonometry.h"
+#include "varlenarray.h"
 
 namespace Geometry {
 
@@ -1248,7 +1249,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	if ( displaypanels_ ) addToGeometries( triangles );
     }
 
-    float sqdists[lsize*rsize];
+    mVariableLengthArr( float, sqdists, lsize*rsize );
     for ( int idx=0; idx<lsize; idx++ )
     {
 	for ( int idy=0; idy<rsize; idy++ )
