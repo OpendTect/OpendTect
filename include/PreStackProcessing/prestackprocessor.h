@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.16 2008-09-22 13:10:42 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.17 2008-10-21 13:20:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -158,11 +158,14 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 
+    const char*			errMsg() const	{ return errmsg_.buf(); }
+
 protected:
 
     static const char*	sKeyNrProcessors()	{ return "Nr processors"; }
 
     ObjectSet<Processor>	processors_;
+    BufferString		errmsg_;
 };
 
 
