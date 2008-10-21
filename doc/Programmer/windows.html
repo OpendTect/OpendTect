@@ -4,7 +4,7 @@
   - Author:     A.H. Lammertink / A.H. Bril
   - Date:       Nov 2003
   - Contents:   Windows specific stuff for programmers
-  - RCS:        $Id: windows.html,v 1.29 2008-10-06 04:28:32 cvsnanne Exp $
+  - RCS:        $Id: windows.html,v 1.30 2008-10-21 07:49:40 cvsnanne Exp $
   -->
 
 <body background="backg.png"><title>Windows development [OpendTect
@@ -124,48 +124,6 @@ mc, but one of the other editors in (editors) should also do.<br>
 <p>After the installation, make sure you run the Cygwin (bash) shell
 at least once to make sure that you have a Cygwin home directory to
 put your development environment on.</p>
-
-<h4>Updating gcc to version 3.4</h4>
-
-<p>In order to  finally get rid of the 2GB file size limit, we have
-switched to gcc version 3.4. This has as consequence that development
-will also have to be done with gcc 3.4, which is unfortunately an
-experimental package under cygwin.</p>
-
-<p>It can be a bit confusing if you try to install this. What worked
-for us is to update gcc after the normal cygwin installation has
-finished. Fire up the cygwin installer and then once you get to the
-package selection part, select "Keep" on the radio buttons on top.
-Then go to the devel packages and select gcc, gcc-core and gcc-g++ as
-version 3.4, which is currently 3.4.1-1. Once you have selected these, 
-you can just continue to let the installer download and install the
-latest gcc packages.</p>
-
-<h4>Building gdb from source</h4>
-
-<p> Unfortunately, the gdb delivered with cygwin does not work with
-gcc 3.4. As said, gcc 3.4 is at experimental stage within cygwin, but
-we really wanted to use it because it gets rid of the 2GB file size
-limit. Fortunately, gdb can quite easily be built from source and
-installed. That works,  although not without some quircks. </p>
-
-<p>You can download the gdb (6.3) sources at:</p>
-
-<a href="http://www.gnu.org/software/gdb/download/">
-http://www.gnu.org/software/gdb/download/</a>
-
-<p>After unpacking, it's a matter of 'configure --disable-nls' and
-make install. Without the '--disable-nls' you will get a complaint:
-</p>
-
-<pre>
-
- make[1]: *** No rule to make target `../intl/libintl.a',
-  needed by `gdb.exe'.
-
-</pre>
-
-<p>We un-installed the standard gdb debugger before installing the new one and that worked.</p>
 
 <a name=setup><h2>Setting up the environment</h2></a>
 
@@ -420,14 +378,7 @@ compilers and there is also no need for a separate pthread library. </p>
 some guidelines. </p>
 
 <h3>Qt</h3>
-
-<p> Qt does not officialy support <u>MinGW</u>, but as of version 3.2.1
-it should build out of the box. Since Qt has its own make-system, it
-cannot be compiled with cygwin's mingw compiler, so we have to use a
-native MinGW compiler, which can be downloaded at <a
-href="http://mingw.org/download.shtml">http://mingw.org/download.shtml</a>.
-Make sure that the version number of the gcc compiler you use is the
-same as  the one included in cygwin (i.e. test with gcc --version). </p>
+Download Windows MinGW package from the <a href="http://trolltech.com/products/appdev/platform/qt-for-windows"> Qt website </a>. Our development and stable release are build using <a href="ftp://ftp.trolltech.com/qt/source/qt-win-opensource-4.3.5-mingw.exe"> Qt 4.3.5 </a>. Follow the step in the installer. If you don't have a MinGW installation yet, tick 'Download and install minimal MinGW installation' in one of the installer steps. 
 
 
 <h3>Pthreads</h3>
