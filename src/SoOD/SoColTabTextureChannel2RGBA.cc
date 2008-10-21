@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.4 2008-10-16 21:59:04 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.5 2008-10-21 21:11:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,12 +124,12 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 
     int lastchannel = -1;
     int firstchannel = -1;
+    bool fullyopaque, fullytransparent;
     for ( int channel=nrchannels-1; channel>=0; channel-- )
     {
 	if ( !enabled[channel] )
 	    continue;
 
-	bool fullyopaque, fullytransparent;
 	if ( opacity[channel]>=255 )
 	{
 	    fullyopaque = true;
@@ -142,13 +142,9 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 	}
 	else
 	{
-	    if ( !getTransparencyStatus( channels, size, channel, fullyopaque,
-				        fullytransparent ) )
-	    {
-		continue;
-	    }
+	    getTransparencyStatus( channels, size, channel, fullyopaque,
+				   fullytransparent );
 	}
-
 
 	if ( lastchannel==-1 && !fullytransparent )
 	    lastchannel = channel;
@@ -166,6 +162,10 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
 	return;
     }
+
+    ft_ = fullyopaque
+	? SoTextureComposer::FORCE_OFF
+	: SoTextureComposer::FORCE_ON;
 
     //Set size of outputS
     for ( int idx=0; idx<4; idx++ )
@@ -211,7 +211,7 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 
 	    const unsigned char curopacity = (int) ((255-color[3])*layeropacity)/255;
 	    const unsigned char trans = 255-curopacity;
-	    if ( !curopacity )
+	    if ( inited && !curopacity )
 		continue;
 
 	    if ( !inited )
@@ -219,7 +219,7 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 		*red = color[0];
 		*green = color[1];
 		*blue = color[2];
-		*alpha = trans;
+		*alpha = curopacity;
 		inited = true;
 	    }
 	    else
@@ -227,7 +227,7 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 		*red = (int)((int) *red * trans + (int)color[0]*curopacity)/255;
 		*green = (int)((int) *green*trans + (int)color[1]*curopacity)/255;
 		*blue = (int)((int) *blue * trans + (int)color[2]*curopacity)/255;
-		if ( color[3]<*alpha )
+		if ( color[3]>*alpha )
 		    *alpha = color[3];
 	    }
 	}
@@ -245,11 +245,11 @@ void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state )
     SoTextureChannelSetElement::set( state, this, rgba_, 4 );
     SbList<int> units;
     units.append( 0 );
-    SoTextureComposerElement::set( state, this, units );
+    SoTextureComposerElement::set( state, this, units, ft_ );
 }
 
 
-bool SoColTabTextureChannel2RGBA::getTransparencyStatus(
+void SoColTabTextureChannel2RGBA::getTransparencyStatus(
 	const SbImage* channels, long size, int channelidx,
 	bool& fullopacity, bool& fulltranparency ) const
 {
@@ -263,7 +263,7 @@ bool SoColTabTextureChannel2RGBA::getTransparencyStatus(
     {
 	fullopacity = true;
 	fulltranparency = false;
-	return true;
+	return;
     }
 
     fullopacity = true;
@@ -282,6 +282,4 @@ bool SoColTabTextureChannel2RGBA::getTransparencyStatus(
 	if ( !fullopacity && !fulltranparency )
 	    break;
     }
-
-    return true;
 }
