@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.139 2008-10-20 10:58:52 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.140 2008-10-21 10:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -349,7 +349,7 @@ void uiODMenuMgr::fillAnalMenu()
     analmnu_->clear();
     if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
     {
-	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "Attributes" );
+	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "&Attributes" );
 	mInsertItem( aitm, "&2D ...", mEdit2DAttrMnuItm );
 	mInsertItem( aitm, "&3D ...", mEdit3DAttrMnuItm );
 
