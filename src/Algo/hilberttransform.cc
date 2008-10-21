@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		June 2008
- RCS:		$Id: hilberttransform.cc,v 1.2 2008-10-20 06:13:38 cvsnageswara Exp $
+ RCS:		$Id: hilberttransform.cc,v 1.3 2008-10-21 10:18:38 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,11 +191,11 @@ bool HilbertTransform::transform( const ArrayND<float>& real,
     const bool trans = transform( real, imgout );
     if ( !trans ) return false;
 
-    mDynamicCastGet( const Array1D<float>&, realarr, real );
-    mDynamicCastGet( Array1D<float_complex>&, imgarr, img );
+    mDynamicCastGet( const Array1D<float>*, realarr, &real );
+    mDynamicCastGet( Array1D<float_complex>*, imgarr, &img );
 
     for ( int idx=0; idx<insize; idx++ )
-	imgarr.set( idx, float_complex(realarr.get(idx),imgout.get(idx)) );
+	imgarr->set( idx, float_complex(realarr->get(idx),imgout.get(idx)) );
 
     return true;
 }
