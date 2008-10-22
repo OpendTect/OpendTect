@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.107 2008-10-13 09:13:36 cvsraman Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.108 2008-10-22 15:45:20 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -614,9 +614,8 @@ int dgbSurfaceReader::nextStep()
     mDynamicCastGet(Fault2D*,flt2d,surface_);
     if ( flt2d )
     {
-// TODO: implement
-//	flt2d->geometry().sectionGeometry( sectionid )->
-//	    addUdfRow( currentRow(), firstcol, nrcols );
+	flt2d->geometry().sectionGeometry( sectionid )->
+	    addUdfRow( currentRow(), firstcol, nrcols );
     }
 
     mDynamicCastGet(PolygonBody*,polygon,surface_);
