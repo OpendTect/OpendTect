@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.4 2008-10-21 21:09:55 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.5 2008-10-22 21:46:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -269,6 +269,11 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 		//texturedata->imagedata_ + (sz[mFastDim] * idx) * nrcomponents;
 		for ( int idz=0; idz<sz[mFastDim]; idz++ )
 		{
+		    int srcfastidx = start[mFastDim]+idz;
+		    if ( srcfastidx<0 )
+			srcfastidx = 0;
+		    else if ( srcfastidx>=channelsize[mFastDim] )
+			srcfastidx = channelsize[mFastDim]-1;
 		    //if ( nrchannels==nrcomponents )
 			//We can copy
 
@@ -280,7 +285,7 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 			const int ressample = 
 			    (firstdstsample+idz)*nrcomponents+idc;
 			const int sourcesample =
-			    (firstsourcesample+idz)*bytesperpixel[idc];
+			    (firstsourcesample+srcfastidx)*bytesperpixel[idc];
 
 			texturedata->imagedata_[ressample] = 
 					    channels[idc][sourcesample];
