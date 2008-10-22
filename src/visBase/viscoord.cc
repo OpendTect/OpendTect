@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.30 2008-05-27 19:47:24 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.31 2008-10-22 18:35:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,7 @@ int Coordinates::addPos( const Coord3& pos )
     Threads::MutexLocker lock( mutex_ );
     int res;
     const int nrunused = unusedcoords_.size();
-    if ( unusedcoords_.size() )
+    if ( nrunused )
     {
 	res = unusedcoords_[nrunused-1];
 	unusedcoords_.remove( nrunused-1 );
