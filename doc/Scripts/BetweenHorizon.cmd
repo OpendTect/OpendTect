@@ -9,7 +9,7 @@ Comment "----------Creating Output Using BetweenHorizons-------------"
 #Ok
 
 Case Insensitive
-Menu "processing`Create output using Horizon`Between horizons"
+Menu "processing`Create Volume output`Between horizons"
 Button "Select Quantity*"
 Button "Stored"
 ListClick "Select Data" "Median Dip Filtered*" Double

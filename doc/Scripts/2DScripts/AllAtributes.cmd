@@ -5,7 +5,7 @@ Mon Jun 19 10:36:39 2008
 
 Case Insensitive
 
-Menu "Processing`Attributes"
+Menu "Analysis`Attributes"
 Window "Attribute Set*"
 Button "New attribute set"
 Combo "Attribute group" "<All>"

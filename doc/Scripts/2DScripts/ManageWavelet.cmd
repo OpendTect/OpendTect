@@ -17,7 +17,7 @@ Ok
 Button "Dismiss"
 
 Comment "------------Adding ConvolveAttribute---------"
-Menu "Processing`Attributes"
+Menu "Analysis`Attributes"
 Window "Attribute Set 2D"
 Combo "Attribute group" "<All>"
 Button "Save on OK" Off

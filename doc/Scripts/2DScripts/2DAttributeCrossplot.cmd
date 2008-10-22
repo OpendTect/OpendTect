@@ -7,11 +7,13 @@ Comment "----------Script for Attribute Crossplot---------------"
 
 Case Insensitive
 Include "$SCRIPTSDIR$/2DScripts/AllAtributes.cmd"
-Menu "Processing`Attributes"
+Menu "Analysis`Attributes"
 Window "Attribute Set 2D"
 Button "Cross-Plot attributes"
 Window "Attribute cross-plotting"
-ListSelect "Attributes to calculate" 1 4 On
+ListSelect "Attributes to calculate" "ConvolveAttrib" On
+ListSelect "Attributes to calculate" "EnergyAttrib" On
+ListSelect "Attributes to calculate" "EventAttrib" On
 Combo "Line name" "i5007"
 Button "Select Location filters"
 ListButton "Filter selection" "Subsample" On
@@ -42,20 +44,20 @@ Close
 Window "Attribute data"
 TableClick "Data Table" ColHead "[Y]ConvolveAttr*"
 Button "UnSelect as Y Data"
-TableClick "Data Table" ColHead "CurvatureAttr*"
+TableClick "Data Table" ColHead "EnergyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/2d_curvatureattr_crossplot.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/2d_Energyattr_crossplot.png" CurWin
 Window "[all] step*"
 Close
 
 Window "Attribute data"
-TableClick "Data Table" ColHead "[Y]Curvature*"
+TableClick "Data Table" ColHead "[Y]Energy*"
 Button "UnSelect as Y Data"
-TableClick "Data Table" ColHead "DipAttr*"
+TableClick "Data Table" ColHead "EventAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/2d_dipattr_crossplot.png"
+Snapshot "$SNAPSHOTSDIR$/2d_EVentattr_crossplot.png"
 Window "[all] step*"
 Close
 

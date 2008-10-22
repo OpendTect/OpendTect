@@ -14,15 +14,14 @@ ListClick "Sel*" "Demo 1*"
 Button "Select*" 
 Combo "Area sub*" "Range"
 Input "Inline start" 110
-Input "Inline stop" 300
+Input "Inline stop" 150
 Input "Crossline start" 850
-Input "Crossline stop"  1050
+Input "Crossline stop"  1000
 Ok
 Ok
 
 TreeMenu "Horizon`Demo 1*" "Add attribute"
 TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Coherency*"
-Combo "Table selection" "Brown 4grades"
 Button "Make snapshot"
 Button "Scene"
 Ok

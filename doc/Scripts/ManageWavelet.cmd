@@ -20,8 +20,9 @@ Button "Dismiss"
 
 Comment "------------Adding ConvolveAttribute---------"
 
-Menu "Processing`Attributes"
+Menu "Analysis`Attributes"
 Window "Attribute Set 3D"
+Combo "Attribute group" "<All>"
 Combo "Attribute Type" "Convolve"
 Button "Select Input Data"
 Button "Stored"

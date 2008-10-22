@@ -6,7 +6,7 @@ Mon Jan 28 11:36:39 2008
 Comment "----------Script for Attribute/Well Crossplot---------------"
 
 Case Insensitive
-Menu "processing`Attributes"
+Menu "Analysis`Attributes"
 Window "Attribute Set 3D"
 Button "New attribute set"
 OnError Continue
@@ -20,7 +20,7 @@ Include "$SCRIPTSDIR$/energy.cmd"
 Include "$SCRIPTSDIR$/frequency.cmd"
 Ok
 
-Menu "processing`Cross-plot"
+Menu "Analysis`Cross-plot`Well logs*"
 Window "Attribute/Well cross-plotting"
 ListSelect "Attributes" 1 4 On
 ListSelect "Wells" 1 On

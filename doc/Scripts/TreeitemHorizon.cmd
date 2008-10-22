@@ -12,16 +12,26 @@ TreeMenu "Horizon`*" "Add attribute"
 TreeMenu "Horizon`*`<right-click>" "Select Att*`Stored*`Median Dip*"
 TreeMenu "Horizon`*`Median*" "Show Histogram"
 Window "Data statistics"
-Snapshot "$SCRIPTSDIR$/Snapshots/Hor-histogram.png"
+Snapshot "$SNAPSHOTSDIR$/Hor-histogram.png"
 Sleep 2
 Close
 TreeMenu "Horizon`*`Median*" "Show Amplitude*"
 Window "Amplitude Spectrum"
-Snapshot "$SCRIPTSDIR$/Snapshots/Hor-Amplitudespectrum.png"
+Snapshot "$SNAPSHOTSDIR$/Hor-Amplitudespectrum.png"
 Sleep 2
 Close
 TreeMenu "Horizon`*" "Tracking`Wireframe"
 Sleep 2
+
+TreeMenu "Horizon`*" "Shift"
+Slider "Horizon slider" 0
+sleep 2
+Slider "Horizon slider" 100
+sleep 2
+Slider "Horizon slider" 50
+sleep 2
+Ok
+
 Wheel "vRotate" -45
 
 TreeMenu "Inline" "Add"
@@ -33,6 +43,7 @@ TreeMenu "Tree scene 2" "Inline" "Add"
 TreeMenu "Tree scene 2" "Inline`*`<right-click>" "Select Att*`Stored*`Median Dip*"
 
 Menu "Survey`Select/Setup"
+Button "No"
 Ok
 
 End

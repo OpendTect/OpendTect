@@ -6,10 +6,10 @@ Mon Jan 28 11:36:39 2008
 Comment "--------------Create Seismic output---------------"
 
 Case Insensitive
-Menu "Processing`Create Seismic output"
+Menu "Processing`Create Volume output`Cube"
 Button "Select Quantity to output"
 Button "Stored"
-ListClick "Select Data" 5 Double
+ListClick "Select Data" "Median Dip Filtered*"  Double
 Button "Select Volume subsel*"
 Input "Inline start" 320
 Input "Inline stop" 320

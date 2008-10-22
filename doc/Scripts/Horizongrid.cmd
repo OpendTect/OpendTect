@@ -7,13 +7,13 @@ Comment "----------Creating Output using HorizonGrid-------------"
 
 Case Insensitive
 Wheel "vRotate" 45
-Menu "processing`Create output using Horizon`Horizon grid"
+Menu "processing`Create Grid output`Grid"
 Button "Select Quantity*"
 Button "Stored"
 ListClick "Select Data" "Median Dip Filtered Seismics" Double
 Button "Select Calculate on surface"
 ListClick "Objects list" 1  Double
-Input "Attribute name" "MedianDip-FS4"
+Input "Attribute name" "MedianDipFiltSeis-FS4"
 Button "Proceed"
 Ok
 Sleep 180 
@@ -22,11 +22,11 @@ Window "OpendTect*"
 TreeMenu "Horizon" "Load"
 ListClick "Select Horizon*" 1 Double
 TreeMenu "Horizon`Demo 0*`Z values" "Select Attribute`Surface data*"
-ListClick "Select Data from List" "MedianDip-FS4" Double
+ListClick "Select Data from List" "MedianDipFiltSeis-FS4" Double
 Button "Make Snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/Horizongrid"
+Input "Select filename" "$SNAPSHOTSDIR$/Horizongrid-mediandip-FS4"
 Ok
 
 Wheel "vRotate" -45

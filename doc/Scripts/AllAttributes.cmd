@@ -8,7 +8,7 @@ Comment "----------Applying Attributes on all Tree items------------"
 
 Case Insensitive
 
-Menu "processing`Attributes"
+Menu "Analysis`Attributes"
 Window "Attribute Set*"
 Button "New attribute set" 
 Combo "Attribute group" "<All>"

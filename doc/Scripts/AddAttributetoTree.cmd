@@ -178,7 +178,7 @@ Sleep 8
 Menu "Survey`Session`Save"
 Input "Name" "DemoTreeItems"
 Ok
-Snapshot "$SNAPSHOTSDIR$/TreeItems.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/AllTreeItems.png" ODMain
 Sleep 4
 
 Wheel "hRotate" -20
@@ -214,7 +214,7 @@ Ok
 
 Wheel "hRotate" 30
 Wheel "vRotate" 40
-Snapshot "$SNAPSHOTSDIR$/TreeItems.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/wells-atRandomLine.png" ODMain
 Sleep 3
 Wheel "vRotate" -40
 Wheel "hRotate" -30

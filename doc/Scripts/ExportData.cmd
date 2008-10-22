@@ -8,12 +8,14 @@ Comment "----------Exporting Seismics----------"
 
 Menu "Survey`Export`Seismics`SEG-Y`3D"
 Button "Select Input Cube"
-ListClick "Objects list" "Median Dip*" Double
+ListClick "Objects list" "Median Dip Filtered*" Double
 Button "Select Volume subsel*"
+Input "Inline start" 320
+Input "Inline stop" 320
 Ok
-Button "define SEG-Y Output"
-Input "Output file" "$EXPORTDIR$/SeisExport.sgy"
+Button "define Text header"
 Ok
+Input "Output SEG-Y file" "$EXPORTDIR$/SeisExport.sgy"
 Ok
 
 Comment "----------Exporting Horizons---------------"

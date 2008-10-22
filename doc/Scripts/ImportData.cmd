@@ -6,10 +6,14 @@ Mon Jun 28 11:36:39 2008
 Case Insensitive
 Comment "----------Importing Seismic Data--------------"
 
-Menu "Survey`Import`Seismics`SEG-Y`3D"
-Button "Define SEG-Y Input" 
-Input "Input file" "$EXPORTDIR$/SeisExport.sgy"
+Menu "Survey`Import`Seismics`SEG-Y"
+Window "SEG-Y tool"
+Input "Input SEG-Y*" "$EXPORTDIR$/SeisExport.sgy"
 Ok
+Window "Determine SEG-Y*"
+Ok
+
+Window "SEG-Y Scan"
 Button "Select Volume sub*"
 Input "Inline start" 320
 Input "Inline stop" 320
@@ -19,6 +23,8 @@ Input "Name" "SeisImport"
 Ok
 Ok
 Ok
+#Window "SEG-Y Examiner""
+#Button "Dismiss"
 Comment "---------Displaying Above imported Seismics---------"
 TreeMenu "Inline" "Add"
 TreeMenu "Inline`*" "Position"
@@ -35,12 +41,14 @@ Input "Input ASCII File" "$EXPORTDIR$/HorizonExport.asc"
 Button "Define Format Def*" 
 Ok
 Button "Select Horizon" 
-Input "Name" "Horozon-Import"
+Input "Name" "Horizon-Import"
 Ok
-Ok
+Button "Go"
+Button "Dismiss"
+
 Comment "-----------Displaying Above Imported Horizon-------"
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" "Horozon-Import" Double
+ListClick "Select Horizon*" "Horizon-Import" Double
 
 
 Comment "----------------Importing Pickset------------"
@@ -107,5 +115,29 @@ TreeMenu "Horizon`*" "Remove"
 Treemenu "Well`*" "Remove"
 Wheel "vRotate" -45
 Wheel "hRotate" -45
+
+Button "Manage seismic data"
+ListClick "Objects list" "SeisImport"
+Button "Remove this object"
+Button "Yes"
+Button "Dismiss"
+
+Button "Manage horizons"
+ListClick "Objects list" "Horizon-Import"
+Button "Remove this object"
+Button "Yes"
+Button "Dismiss"
+
+Button "Manage well data"
+ListClick "Objects list" "F02-1-Import"
+Button "Remove this object"
+Button "Yes"
+Button "Dismiss"
+
+Button "Manage Pick Sets"
+ListClick "Objects list" "Pickset-Import"
+Button "Remove this object"
+Button "Yes"
+Button "Dismiss"
 
 End

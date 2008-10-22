@@ -6,7 +6,7 @@ Mon Jan 28 11:36:39 2008
 Comment "----------Script for Attribute Crossplot---------------"
 
 Case Insensitive
-Menu "processing`Attributes"
+Menu "Analysis`Attributes"
 Window "Attribute Set 3D"
 Button "New attribute set"
 OnError Continue
@@ -42,7 +42,7 @@ TableClick "Data Table" ColHead "CoherencyAttrib"
 Button "Select as Y data"
 Button "Show crossplot"
 Snapshot "$SNAPSHOTSDIR$/CoherencyAttrCrossplot.png" CurWin
-Sleep 5
+Sleep 2
 Window "300/500*"
 Close
 
@@ -52,7 +52,7 @@ TableClick "Data Table" ColHead "ConvolveAtt*"
 Button "Select as Y data"
 Button "Show crossplot"
 Snapshot "$SNAPSHOTSDIR$/ConvAttrCrossplot.png"
-Sleep 5
+Sleep 2
 Window "300/500*"
 Close
 
@@ -62,7 +62,7 @@ TableClick "Data Table" ColHead "EnergyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
 Snapshot "$SNAPSHOTSDIR$/EnergyAttrCrossplot.png"
-Sleep 5
+Sleep 2
 Window "300/500*"
 Close
 
@@ -72,10 +72,31 @@ TableClick "Data Table" ColHead "FrequencyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
 Snapshot "$SNAPSHOTSDIR$/FreqAttrCrossplot.png"
-Sleep 5
+Sleep 2
 Window "300/500*"
 Close
 
+Window "Attribute data"
+Button "Dismiss"
+
+#--------CrossPlot using PickSet------
+
+Window "Attribute cross-plotting"
+Combo "Select locations*" "Table"
+Button "Pick Set"
+Button "Select Pickset Group"
+ListClick "Objects list" 1 Double
+Ok
+Window "Attribute data"
+TableClick "Data Table" ColHead "Z*"
+Button "Set data for X"
+TableClick "Data Table" ColHead "CoherencyAtt*"
+Button "Select as Y data"
+Button "Show crossplot"
+Sleep 2
+#-------------------------------
+Window "1000 points*"
+Close
 Window "Attribute data"
 Button "Dismiss"
 
@@ -84,5 +105,10 @@ Button "Cancel"
 
 Window "Attribute Set 3D"
 Ok
+
+Menu "Survey`Select/Setup"
+Ok
+Button "No"
+
 
 End

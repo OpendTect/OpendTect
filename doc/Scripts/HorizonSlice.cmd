@@ -6,7 +6,7 @@ Mon Jan 28 11:36:39 2008
 Comment "----------Creating Output Using HorizonSlice---------"
 Case Insensitive
 
-Menu "processing`Create output using Horizon`Horizon slice"
+Menu "processing`Create Volume output`Along horizons"
 Button "Select Quantity*"
 Button "Stored"
 ListClick "Select Data" "Median Dip Filtered*" Double
@@ -37,7 +37,7 @@ ListClick "Select Data" "Mediandip_HorSlice_Demo0" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/Mediandip_HorSlice.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/MediandipFilt_AlongHor.jpg"
 Ok
 
 TreeMenu "Inline`*" "Remove"
