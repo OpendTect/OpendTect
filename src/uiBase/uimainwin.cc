@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.158 2008-10-15 16:39:15 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.159 2008-10-22 04:16:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -574,8 +574,24 @@ void uiMainWinBody::readSettings()
 
 
 // ----- uiMainWin -----
+uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
+    : uiParent(setup.caption_,0)
+    , body_(0)
+    , parent_(p)
+    , windowClosed(this)
+    , activatedone(this)
+{ 
+    body_ = new uiMainWinBody( *this, p, setup.caption_, setup.modal_ ); 
+    setBody( body_ );
+    body_->construct( setup.nrstatusflds_, setup.withmenubar_ );
+    body_->setWindowIconText(
+	    setup.caption_.isEmpty() ? "OpendTect" : setup.caption_.buf() );
+    body_->setAttribute( Qt::WA_DeleteOnClose, setup.deleteonclose_ );
+}
+
+
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
-		      int nrstatusflds, bool wantMBar, bool modal )
+		      int nrstatusflds, bool withmenubar, bool modal )
     : uiParent(nm,0)
     , body_(0)
     , parent_(parnt)			
@@ -584,7 +600,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 { 
     body_ = new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
-    body_->construct( nrstatusflds, wantMBar );
+    body_->construct( nrstatusflds, withmenubar );
     body_->setWindowIconText( nm && *nm ? nm : "OpendTect" );
 }
 

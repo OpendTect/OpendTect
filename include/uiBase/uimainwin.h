@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.61 2008-09-29 16:51:00 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.62 2008-10-22 04:16:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,20 +29,30 @@ class uiMainWin : public uiParent
 {
 friend class uiMainWinBody;
 public:
-			/*!
-			    nrStatusFlds == 0	: no statysbar
-			    nrStatusFlds < 0	: creates empty statusbar.
-				Add status fields yourself in that case.
+    class Setup
+    {
+    public:
+			Setup( const char* capt )
+			: caption_(capt)
+			, icontxt_(capt)
+			, modal_(false)
+			, withmenubar_(true)
+			, deleteonclose_(true)
+			, nrstatusflds_(1)
+			{}
 
-			    if no parent, then modal is ignored
-			     (always non-modal).
-			*/
-			uiMainWin(uiParent* parnt=0, 
-				  const char* nm="uiMainWin",
-				  int nrStatusFlds=1, 
-				  bool wantMenuBar=true,
+	mDefSetupMemb(BufferString,caption)
+	mDefSetupMemb(BufferString,icontxt)
+	mDefSetupMemb(bool,modal)
+	mDefSetupMemb(bool,withmenubar)
+	mDefSetupMemb(bool,deleteonclose)
+	mDefSetupMemb(int,nrstatusflds)
+    };
+
+    			uiMainWin(uiParent*,const uiMainWin::Setup&);
+			uiMainWin(uiParent*,const char* nm="uiMainWin",
+				  int nrstatusflds=1,bool withmenubar=true,
 				  bool modal=false);
-
     virtual		~uiMainWin();
 
     //! Dock Selector
