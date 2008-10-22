@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.6 2008-10-22 13:24:44 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.7 2008-10-22 21:39:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,10 +151,10 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 	if ( lastchannel==-1 && fullytransparent==-1 )
 	    lastchannel = channel;
 
-	if ( firstchannel==-1 && fullyopaque==1 )
+	if ( fullytransparent==-1 )
 	    firstchannel = channel;
 
-	if ( lastchannel!=-1 && firstchannel!=-1 )
+	if ( fullyopaque==1 )
 	    break;
     }
 
