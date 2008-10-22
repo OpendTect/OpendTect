@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.51 2008-09-15 10:10:35 cvsbert Exp $
+ RCS:		$Id: sets.h,v 1.52 2008-10-22 12:33:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,11 @@ public:
 
     inline virtual T&		operator[]( int idx );
     inline virtual const T&	operator[]( int idx ) const;
+
+    inline T&			first();
+    inline const T&		first() const;
+    inline T&			last();
+    inline const T&		last() const;
 
     inline virtual int		indexOf( const T& typ, bool forward=true,
 	    				 int start=-1 ) const;
@@ -374,6 +379,19 @@ const T& TypeSet<T>::operator[]( int idx ) const
 
 
 template <class T> inline
+T& TypeSet<T>::first()			{ return tvec_[0]; }
+
+template <class T> inline
+const T& TypeSet<T>::first() const	{ return tvec_[0]; }
+
+template <class T> inline
+T& TypeSet<T>::last()			{ return tvec_[size()-1]; }
+
+template <class T> inline
+const T& TypeSet<T>::last() const	{ return tvec_[size()-1]; }
+
+
+template <class T> inline
 int TypeSet<T>::indexOf( const T& typ, bool forward, int start ) const
 {
     const T* ptr = arr();
@@ -479,10 +497,10 @@ inline void TypeSet<T>::createDifference( const TypeSet<T>& ts, bool kporder )
 template <class T>
 inline void TypeSet<T>::removeFast( int idx )
 {
-    const int last = size()-1;
-    if ( idx!=last )
-	tvec_[idx]=tvec_[last];
-    tvec_.remove(last);
+    const int lastidx = size()-1;
+    if ( idx!=lastidx )
+	tvec_[idx] = tvec_[lastidx];
+    tvec_.remove( lastidx );
 }
 
 
@@ -711,10 +729,10 @@ template <class T> inline
 T* ObjectSet<T>::removeFast(int idx)
 {
     T* res = (T*)ovec_[idx];
-    const int last = size()-1;
-    if ( idx!=last )
-	ovec_[idx]=ovec_[last];
-    ovec_.remove(last);
+    const int lastidx = size()-1;
+    if ( idx!=lastidx )
+	ovec_[idx] = ovec_[lastidx];
+    ovec_.remove( lastidx );
     return res;
 }
 
