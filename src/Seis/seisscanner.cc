@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.36 2008-10-14 12:11:14 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.37 2008-10-22 11:02:40 cvsumesh Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -22,10 +22,6 @@ static const char* rcsID = "$Id: seisscanner.cc,v 1.36 2008-10-14 12:11:14 cvsbe
 #include "conn.h"
 #include "errh.h"
 #include "math2.h"
-
-#ifndef mac
-#include <values.h>
-#endif
 
 
 SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
