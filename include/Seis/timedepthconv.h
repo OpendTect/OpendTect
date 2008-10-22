@@ -1,5 +1,5 @@
-#ifndef timedepthsconv_h
-#define timedepthsconv_h
+#ifndef timedepthconv_h
+#define timedepthconv_h
 
 /*
 ________________________________________________________________________
@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.4 2008-02-13 12:25:58 cvsnanne Exp $
+ RCS:		$Id: timedepthconv.h,v 1.5 2008-10-22 10:36:30 cvsnanne Exp $
 ________________________________________________________________________
 
 */
 
 
-#include "datapack.h"
-#include "veldesc.h"
 #include "zaxistransform.h"
+
+#include "cubesampling.h"
+#include "datapack.h"
 #include "multidimstorage.h"
+#include "veldesc.h"
 
 class CubeDataPack;
 class SeisTrc;
