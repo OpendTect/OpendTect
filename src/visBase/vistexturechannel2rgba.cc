@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.5 2008-10-16 21:56:53 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.6 2008-10-22 13:25:50 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -86,7 +86,13 @@ ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()
 void ColTabTextureChannel2RGBA::setChannels( TextureChannels* ch )
 {
     TextureChannel2RGBA::setChannels( ch );
-    const int nr = ch ? ch->nrChannels() : 0;
+    adjustNrChannels();
+}
+
+
+void ColTabTextureChannel2RGBA::adjustNrChannels() const
+{
+    const int nr = channels_ ? channels_->nrChannels() : 0;
 
     while ( coltabs_.size()<nr )
     {
@@ -120,30 +126,50 @@ void ColTabTextureChannel2RGBA::setSequence( int channel,
 
 const ColTab::Sequence&
 ColTabTextureChannel2RGBA::getSequence( int channel ) const
-{ return coltabs_[channel]; }
+{
+    if ( channel>=coltabs_.size() )
+	adjustNrChannels();
+
+    return coltabs_[channel];
+}
 
 
 void ColTabTextureChannel2RGBA::setEnabled(int ch,bool yn)
 {
+    if ( ch>=coltabs_.size() )
+	adjustNrChannels();
+
     enabled_[ch] = yn;
     update();
 }
 
 
 bool ColTabTextureChannel2RGBA::isEnabled(int ch) const
-{ return enabled_[ch]; }
+{
+    if ( ch>=enabled_.size() )
+	adjustNrChannels();
 
+    return enabled_[ch];
+}
 
 
 void ColTabTextureChannel2RGBA::setTransparency(int ch,unsigned char t)
 {
+    if ( ch>=opacity_.size() )
+	adjustNrChannels();
+
     opacity_[ch] = 255-t;
     update();
 }
 
 
 unsigned char ColTabTextureChannel2RGBA::getTransparency(int ch) const
-{ return 255-opacity_[ch]; }
+{
+    if ( ch>=opacity_.size() )
+	adjustNrChannels();
+
+    return 255-opacity_[ch];
+}
 
 
 void ColTabTextureChannel2RGBA::allowShading( bool yn )
@@ -449,7 +475,7 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 	(*arr++) = col.r();
 	(*arr++) = col.g();
 	(*arr++) = col.b();
-	(*arr++) = col.t();
+	(*arr++) = 255-col.t();
     }
 
     const Color col = seq.undefColor();

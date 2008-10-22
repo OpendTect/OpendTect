@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vistexturechannel2rgba.h,v 1.3 2008-10-16 21:56:53 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.4 2008-10-22 13:25:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,7 @@ public:
     bool			createRGBA(SbImage&) const;
 
 protected:
+    void			adjustNrChannels() const;
     void			setChannels(TextureChannels*);
 
     					~ColTabTextureChannel2RGBA();
@@ -87,9 +88,9 @@ protected:
     void				getColors(int channel,
 					      TypeSet<unsigned char>&) const;
 
-    TypeSet<ColTab::Sequence>		coltabs_;
-    BoolTypeSet				enabled_;
-    TypeSet<unsigned char>		opacity_;
+    mutable TypeSet<ColTab::Sequence>	coltabs_;
+    mutable BoolTypeSet			enabled_;
+    mutable TypeSet<unsigned char>	opacity_;
 
     SoSwitch*				shaderswitch_;
 
