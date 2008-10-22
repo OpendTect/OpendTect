@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.16 2008-08-25 11:20:09 cvssatyaki Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.17 2008-10-22 12:20:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,10 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     inpfld_ = new uiSeisSel( this, ctio_,
 			uiSeisSel::Setup( is2d ? Seis::Line : Seis::Vol )
 			.seltxt( issteer ? "Input Steering cube" 
-					 : "Input Seismics") ); 
+					 : "Input Seismics") 
+	   		.datatype(sKey::Steering)
+			.allowcnstrsabsent(!issteer)
+	   		.include(issteer) ); 
     inpfld_->attach( alignedBelow, txtfld );
 }
 
@@ -79,12 +82,18 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool issteer, bool is2d )
     setCtxtIO();
     seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(
 				 is2d ? Seis::Line : Seis::Vol)
-				 .seltxt("Input Seismics Cube") ); 
+				 .seltxt("Input Seismics Cube")
+	   			 .datatype(sKey::Steering)
+				 .allowcnstrsabsent(true)
+	   			 .include(false) ); 
     if ( issteer )
     {
 	steerinpfld_ = new uiSeisSel( this, ctiosteer_, uiSeisSel::Setup(
 				      is2d ? Seis::Line : Seis::Vol )
-				      .seltxt( "Input Steering cube" ) ); 
+				      .seltxt("Input Steering cube")
+	       			      .datatype(sKey::Steering)
+				      .allowcnstrsabsent(false)
+	       			      .include(true) );
 	steerinpfld_->attach( alignedBelow, seisinpfld_ );
     }
 }
@@ -102,6 +111,8 @@ void uiAttrInpDlg::setCtxtIO()
     IOM().to( ctiosteer_.ctxt.getSelKey() ); 
     ctiosteer_.ctxt.forread = true;
     ctiosteer_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
+    ctiosteer_.ctxt.includeconstraints = true;
+    ctiosteer_.ctxt.allowcnstrsabsent = false;
 }
 
 
