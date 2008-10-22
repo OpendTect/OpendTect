@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.6 2008-09-22 13:05:33 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.7 2008-10-22 17:50:55 cvsyuancheng Exp $";
 
 #include "delaunay3d.h"
 #include "trigonometry.h"
@@ -168,16 +168,17 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	return false;
 
     center_ = Coord3( xrg.center(), yrg.center(), zrg.center() );
-    const double r = Math::Sqrt(
-	    xlength*xlength+ylength*ylength+zlength*zlength )/2;
-    epsilon_ = r*(1e-5);
+    const double diagdist = 
+	Math::Sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
+    epsilon_ = diagdist*(1e-5);
 
-    initialcoords_[0] = Coord3( center_.x, center_.y, center_.z+3*r );
-    initialcoords_[1] = Coord3( center_.x, center_.y+2*r*sqrt(2), center_.z-r );
-    initialcoords_[2] = Coord3( center_.x-r*sqrt(6), center_.y-r*sqrt(2), 
-	    			center_.z-r );
-    initialcoords_[3] = Coord3( center_.x+r*sqrt(6), center_.y-r*sqrt(2), 
-	    			center_.z-r );
+    initialcoords_[0] = Coord3( center_.x, center_.y, center_.z+3*diagdist );
+    initialcoords_[1] = Coord3( center_.x, center_.y+2*diagdist*sqrt(2), 
+	    			center_.z-diagdist );
+    initialcoords_[2] = Coord3( center_.x-diagdist*sqrt(6), 
+	    			center_.y-diagdist*sqrt(2), center_.z-diagdist);
+    initialcoords_[3] = Coord3( center_.x+diagdist*sqrt(6), 
+	    			center_.y-diagdist*sqrt(2), center_.z-diagdist);
 
     DAGTetrahedra initnode;
     initnode.coordindices_[0] = cInitVertex0();
