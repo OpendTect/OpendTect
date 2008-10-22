@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.8 2008-10-07 21:48:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.9 2008-10-22 18:48:45 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.8 2008-10-07 21:48:00
 #include "polygonsurface.h"
 #include "positionlist.h"
 #include "trigonometry.h"
-
 
 namespace Geometry {
 
@@ -79,6 +78,8 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
 	return true;
 
     const StepInterval<int> rrg = surface_->rowRange();
+    if ( rrg.isUdf() )
+	return true;
     
     samples_.erase();
     TypeSet<int> plgcrdindices; 
@@ -86,7 +87,7 @@ bool ExplPolygonSurface::update( bool forceall, TaskRunner* tr )
     for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
     {
 	prevnrknots = samples_.size();
-	surface_->getCubicBezierCurve( plg, samples_ );
+	surface_->getCubicBezierCurve( plg, samples_, (float)scalefacs_.z );
 
 	if ( displaypolygons_ )
 	{
@@ -137,7 +138,6 @@ bool ExplPolygonSurface::updateBodyDisplay()
 	return false;
 
     ParallelDTetrahedralator triangulator( *tetrahedratree_ );
-    triangulator.dataIsRandom( true );
     if ( !triangulator.execute(true) )
 	return false;
 

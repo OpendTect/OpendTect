@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.7 2008-10-07 21:48:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.8 2008-10-22 18:48:45 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -33,6 +33,7 @@ namespace Geometry
     
 PolygonSurface::PolygonSurface()
     : firstpolygon_( 0 )
+    , beziernrpts_( 8 )  
 {}
 
 
@@ -50,6 +51,7 @@ Element* PolygonSurface::clone() const
     res->firstpolygon_ = firstpolygon_;
     res->polygonnormals_ = polygonnormals_;
     res->concavedirs_ = concavedirs_;
+    res->beziernrpts_ = beziernrpts_;
 
     return res;
 }
@@ -181,16 +183,22 @@ StepInterval<int> PolygonSurface::colRange( int polygonnr ) const
 }
 
 
+void PolygonSurface::setBezierCurveSmoothness( int nrpoints_on_segment )
+{
+    beziernrpts_ = nrpoints_on_segment;
+}
+
+
 void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts, 
-					  int nrknotsonedge ) const
+					  const float zscale ) const
 {
     const int polygonidx = plg - firstpolygon_; 
     if ( polygonidx<0 || polygonidx>polygons_.size() ) 
 	return;
 
     TypeSet<Coord3> knots;
-    const Coord3 scale( 1, 1, SI().zFactor() );
-    const Coord3 scaleback( 1, 1, 1.0/SI().zFactor() );
+    const Coord3 scale( 1, 1, zscale );
+    const Coord3 scaleback( 1, 1, 1.0/zscale );
     for ( int idx=0; idx<(*polygons_[polygonidx]).size(); idx++ )
     	knots += (*polygons_[polygonidx])[idx].scaleBy( scale );
 
@@ -214,9 +222,9 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	curve.setTangentInfluence( ((prvpos-nexpos).abs())/4.0 );
 
         pts += knots[knot].scaleBy(scaleback);	
-	for ( int nr=1; nr<nrknotsonedge; nr++ )
+	for ( int nr=1; nr<beziernrpts_; nr++ )
 	{
-	    Coord3 pt = curve.computePosition(knot+nr*1.0/(float)nrknotsonedge);
+	    Coord3 pt = curve.computePosition(knot+nr*1.0/(float)beziernrpts_);
 	    pts += pt.scaleBy(scaleback);
 	}
     }

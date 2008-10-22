@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.6 2008-10-06 18:20:15 cvsyuancheng Exp $
+RCS:           $Id: polygonsurface.h,v 1.7 2008-10-22 18:48:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,9 @@ public:
     Coord3		getKnot(const RCol&) const;
     bool		isKnotDefined(const RCol&) const;
 
+    void		setBezierCurveSmoothness(int nrpoints_on_segment);
     void		getCubicBezierCurve(int plg,TypeSet<Coord3>& pts,
-	    				    int nrknotsinsert=8) const;
+					    const float zscale) const;
     			/*<The Bezier Curve smoothes the polygon, nrknotsinsert
 			   on each edge will affect the smoothness. */
     const Coord3&	getPolygonNormal(int polygonnr) const;
@@ -78,6 +79,7 @@ protected:
 				   the pts in order. */
     TypeSet<Coord3>		polygonnormals_;
     TypeSet<Coord3>		concavedirs_;
+    int				beziernrpts_;
 };
 
 };

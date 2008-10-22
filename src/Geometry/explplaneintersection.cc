@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.7 2008-09-25 17:23:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.8 2008-10-22 18:48:45 cvsyuancheng Exp $";
 
 #include "explplaneintersection.h"
 
@@ -195,7 +195,6 @@ bool doWork( od_int64 start, od_int64 stop, int )
 void intersectTriangle( int lci0, int lci1, int lci2 ) 
 {
     RefMan<const Coord3List> coordlist = explsurf_.getShape()->coordList();
-
     const float zscale = explsurf_.getZScale();
 
     Coord3 c0 = coordlist->get( lci0 ); c0.z *= zscale;
@@ -203,17 +202,16 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     Coord3 c2 = coordlist->get( lci2 ); c2.z *= zscale;
 
     const Coord3 trianglenormal = ((c1-c0).cross(c2-c0)).normalize();
-
     const Plane3 triangleplane( trianglenormal, c0, false );
 
     for ( int planeidx=explsurf_.nrPlanes()-1; planeidx>=0; planeidx-- )
     {
 	const int planeid = explsurf_.planeID( planeidx );
 	const Coord3 ptonplane = explsurf_.planePolygon( planeid )[0];
-	const Plane3 plane( explsurf_.planeNormal( planeid ), ptonplane, false);
-	if ( mIsZero( plane.distanceToPoint(c0), 1e-3 ) && 
-	     mIsZero( plane.distanceToPoint(c1), 1e-3 ) && 
-	     mIsZero( plane.distanceToPoint(c2), 1e-3 ) ) 
+	const Coord3 planenormal = explsurf_.planeNormal( planeid );
+	const Plane3 plane( planenormal, ptonplane, false);
+
+	if ( mIsEqual( fabs(planenormal.dot(trianglenormal)), 1, 1e-3 ) )
 	    continue;
 
 	Line3 intersectionline;
@@ -228,22 +226,49 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 			  testt<=1+1e-3 && testt+1e-3>=0;
 	const bool t1ok = getNearestT(c1,c2,intersectionline,t[1],testt) &&
 			  testt<=1+1e-3 && testt+1e-3>=0;
-
-	if ( !t0ok && !t1ok ) 
+	const bool t2ok = getNearestT(c2,c0,intersectionline,t[2],testt) &&
+			  testt<=1+1e-3 && testt+1e-3>=0;
+	const int nrintersections = t0ok + t1ok + t2ok;
+	if ( !nrintersections )
 	    continue;
-
-	if ( t0ok && t1ok )
+	else if ( nrintersections==1 )
 	{
-	    startidx = 0;
-	    stopidx = 1;
+	    BufferString msg = "Triangle( ";
+	    msg += lci0; msg +=", "; 
+	    msg += lci1; msg +=", ";  
+	    msg += lci2; msg += " ) "; msg += "Intersects 1 time.";
+	    pErrMsg( msg );
+	    continue;
+	}
+	else if ( nrintersections==3 )//Round error case handle
+	{
+	    const float d0 = plane.distanceToPoint(c0);
+    	    const float d1 = plane.distanceToPoint(c1);
+    	    const float d2 = plane.distanceToPoint(c2);
+
+	    if ( d0>d1 && d0>d2 )
+	    {
+		startidx = 0;
+		stopidx = 2;
+	    }
+	    else if ( d1>d0 && d1>d2 )
+	    {
+		startidx = 0;
+		stopidx = 1;
+	    }
+	    else if ( d2>d0 && d2>d1 )
+	    {
+		startidx = 1;               
+		stopidx = 2;
+	    }
 	}
 	else
 	{
-	    const bool t2ok = getNearestT(c2,c0,intersectionline,t[2],testt) &&
-			  testt<=1+1e-3 && testt+1e-3>=0;
-
-	    if ( !t2ok )
-		pErrMsg( "hmm" );
+	    if ( t0ok && t1ok )
+	    {
+		startidx = 0;
+		stopidx = 1;
+	    }
 	    else
 	    {
 		startidx = t0ok ? 0 : 1;
@@ -533,7 +558,7 @@ bool ExplPlaneIntersection::update( bool forceall, TaskRunner* tr )
 
     PtrMan<Task> updater = new ExplPlaneIntersectionExtractor( *this );
 
-    if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
+    if ( (tr && !tr->execute( *updater ) ) || (!tr && !updater->execute()) )
 	return false;
 
     shapeversion_ = shape_->getVersion();
