@@ -3,6 +3,7 @@
 set mods=.mods
 set shallow=no
 set dodeps=yes
+set docpdeps=yes
 set doupd=yes
 set dodoc=no
 
@@ -13,6 +14,9 @@ if ( "$1" == "--shallow" ) then
     set shallow=yes
 else if ( "$1" == "--nodep" ) then
     set dodeps=no
+else if ( "$1" == "--mkdep" ) then
+    set dodeps=yes
+    set docpdeps=no
 else if ( "$1" == "--noupd" ) then
     set doupd=no
 else if ( "$1" == "--od" ) then
@@ -44,8 +48,12 @@ if ( $USER == dgb && ($hostnm == dgb3 || $hostnm == dgbindia10) ) then
     set oddir=$WORK:t
     set dgbdir=`echo $oddir | sed 's/od/dgb/'`
     if ( $doupd == yes ) then
-	echo "dvs update $oddir $dgbdir"
-	dvs update $oddir $dgbdir
+	echo "dvs update $oddir"
+	cd $oddir; dvs update
+	echo ""
+	echo "dvs update $dgbdir"
+	sleep 2;
+	cd ../$dgbdir; dvs update
     endif
     cdw
     goto programmer_doc
@@ -61,9 +69,6 @@ endif
 if ( ! -d $WORK/dtect/build ) then
     mkdir $WORK/dtect/build
 endif
-
-set makedonefile="$WORK/dtect/build/make_done"
-if ( -e $makedonefile ) rm $makedonefile
 
 if ( $shallow == no ) then
     cdl
@@ -87,8 +92,12 @@ if ( $doupd == yes ) then
     set oddir=$WORK:t
     set dgbdir=`echo $oddir | sed 's/od/dgb/'`
     cd ..
-    echo "dvs update $oddir $dgbdir"
-    dvs update $oddir $dgbdir
+    echo "dvs update $oddir"
+    cd $oddir; dvs update
+    echo ""
+    echo "dvs update $dgbdir"
+    sleep 2;
+    cd ../$dgbdir; dvs update
     cdw
 endif
 
@@ -117,4 +126,3 @@ if ( $dodoc == yes ) then
 endif
 
 if ( $hostnm == dgb3 ) exit 0
-touch $makedonefile
