@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.18 2008-10-16 21:58:01 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.19 2008-10-22 13:26:54 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -619,8 +619,6 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	    continue;
 	}
 
-
-
 	float fval;
 	if ( !getCacheValue(idx, version, pos, fval ) )
 	    continue;
@@ -633,7 +631,8 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	{
 	    if ( !hasCache(idy) ||
 		 !isAttribEnabled(idy) ||
-		 texture_->getTextureTransparency(idy)==255 )
+		 (texture_ && texture_->getTextureTransparency(idy)==255 ) ||
+		 (ctab && ctab->getTransparency(idx)==255 ) )
 		continue;
 
 	    islowest = false;
