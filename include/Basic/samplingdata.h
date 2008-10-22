@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.11 2007-10-19 05:16:56 cvskris Exp $
+ RCS:		$Id: samplingdata.h,v 1.12 2008-10-22 11:31:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ int SamplingData<T>::nearestIndex( IT x ) const
 template <class T>
 template <class IT> inline
 T SamplingData<T>::atIndex( IT idx ) const
-{ return start + step * idx; }
+{ return start + step * (T)idx; }
 
 
 #endif
