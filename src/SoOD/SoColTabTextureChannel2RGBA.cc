@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.5 2008-10-21 21:11:00 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.6 2008-10-22 13:24:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     const SbImage* channels = SoTextureChannelSetElement::getChannels( state );
 
     processChannels( channels, nrchannels );
+    needsregeneration_ = false;
 
 
     sendRGBA( state );
@@ -124,32 +125,33 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 
     int lastchannel = -1;
     int firstchannel = -1;
-    bool fullyopaque, fullytransparent;
+    char fullyopaque = 0, fullytransparent = 0; //-1 = false, 1 = true;
     for ( int channel=nrchannels-1; channel>=0; channel-- )
     {
+	fullyopaque = 0; fullytransparent = 0;
 	if ( !enabled[channel] )
 	    continue;
 
-	if ( opacity[channel]>=255 )
+	if ( opacity[channel]<255 )
 	{
-	    fullyopaque = true;
-	    fullytransparent = false;
+	    fullyopaque = -1;
+	    if ( opacity[channel]<=0 )
+	    {
+		fullytransparent = 1;
+		fullyopaque = -1;
+	    }
 	}
-	else if ( opacity[channel]<=0 )
-	{
-	    fullytransparent = true;
-	    fullyopaque = false;
-	}
-	else
+
+	if ( !fullyopaque || !fullytransparent )
 	{
 	    getTransparencyStatus( channels, size, channel, fullyopaque,
 				   fullytransparent );
 	}
 
-	if ( lastchannel==-1 && !fullytransparent )
+	if ( lastchannel==-1 && fullytransparent==-1 )
 	    lastchannel = channel;
 
-	if ( firstchannel==-1 && fullyopaque )
+	if ( firstchannel==-1 && fullyopaque==1 )
 	    firstchannel = channel;
 
 	if ( lastchannel!=-1 && firstchannel!=-1 )
@@ -163,7 +165,7 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 	return;
     }
 
-    ft_ = fullyopaque
+    ft_ = fullyopaque==1
 	? SoTextureComposer::FORCE_OFF
 	: SoTextureComposer::FORCE_ON;
 
@@ -209,7 +211,7 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 		colorsequences[channelidx].getValue( size, bytesperpixel ) +
 		coltabindex * bytesperpixel;
 
-	    const unsigned char curopacity = (int) ((255-color[3])*layeropacity)/255;
+	    const unsigned char curopacity = (int) (color[3]*layeropacity)/255;
 	    const unsigned char trans = 255-curopacity;
 	    if ( inited && !curopacity )
 		continue;
@@ -251,7 +253,7 @@ void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state )
 
 void SoColTabTextureChannel2RGBA::getTransparencyStatus(
 	const SbImage* channels, long size, int channelidx,
-	bool& fullopacity, bool& fulltranparency ) const
+	char& fullopacity, char& fulltransparency ) const
 {
     SbVec3s seqsize; int seqbytesperpixel;
     unsigned const char* channel =
@@ -261,25 +263,30 @@ void SoColTabTextureChannel2RGBA::getTransparencyStatus(
 	colorsequences[channelidx].getValue( seqsize, seqbytesperpixel );
     if ( seqbytesperpixel<4 )
     {
-	fullopacity = true;
-	fulltranparency = false;
+	if ( !fullopacity )
+	    fullopacity = 1;
+	if ( !fulltransparency )
+	    fulltransparency = -1;
 	return;
     }
-
-    fullopacity = true;
-    fulltranparency = true;
 
     for ( int idx=0; idx<size; idx++ )
     {
 	const unsigned int coltabindex = channel[idx];
 	const unsigned opacity = colseq[coltabindex*seqbytesperpixel+3];
 
-	if ( opacity!=255 )
-	    fullopacity = false;
-	if ( opacity )
-	    fullopacity = false;
+	if ( !fullopacity && opacity!=255 )
+	    fullopacity = -1;
 
-	if ( !fullopacity && !fulltranparency )
-	    break;
+	if ( !fulltransparency && opacity )
+	    fulltransparency = -1;
+
+	if ( fullopacity && fulltransparency )
+	    return;
     }
+
+    if ( !fulltransparency )
+	fulltransparency = 1;
+    if ( !fullopacity )
+	fullopacity = 1;
 }

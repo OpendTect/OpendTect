@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.3 2008-10-21 21:11:00 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.4 2008-10-22 13:24:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,8 +58,8 @@ protected:
 			~SoColTabTextureChannel2RGBA();
     void		sendRGBA(SoState*);
     void		getTransparencyStatus( const SbImage* channels,
-	    		    long size, int channelidx, bool& fullyopaque,
-			    bool& fullytrans) const;
+	    		    long size, int channelidx, char& fullyopaque,
+			    char& fullytrans) const;
     void		computeRGBA( const SbImage* channels,
 	    			     int start, int stop,
 				     int firstchannel, int lastchannel );
