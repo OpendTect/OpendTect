@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.16 2008-10-06 17:26:16 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.17 2008-10-22 05:42:28 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
 
     BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnit();
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
+    gatefld_->setValues( -SI().zStep() * SI().zFactor(), 
+	    		  SI().zStep() * SI().zFactor() );
     gatefld_->attach( alignedBelow, eventfld_ );
 
     savefld_ = new uiGenInput( this, "Save snapped horizon",
