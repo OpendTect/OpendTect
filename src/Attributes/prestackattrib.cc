@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.11 2008-08-26 09:57:00 cvshelene Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.12 2008-10-23 18:56:06 cvskris Exp $";
 
 #include "prestackattrib.h"
 
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: prestackattrib.cc,v 1.11 2008-08-26 09:57:00 cv
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "prestackprocessortransl.h"
+#include "prestackprocessor.h"
 
 #include "seispsprop.h"
 #include "seispsioprov.h"
@@ -54,6 +56,8 @@ void PreStack::initClass()
     desc->addParam( new FloatParam( offStartStr(), 0, false ) );
     desc->addParam( new FloatParam( offStopStr(), mUdf(float), false ) );
 
+    desc->addParam( new StringParam( preProcessStr(), "", false ) );
+
     desc->addOutputDataType( Seis::UnknowData );
 
     mAttrEndInitClass
@@ -64,6 +68,7 @@ PreStack::PreStack( Desc& ds )
     : Provider(ds)
     , psrdr_(0)
     , propcalc_(0)
+    , preprocessor_( 0 )
 {
     if ( !isOK() ) return;
 
@@ -71,6 +76,7 @@ PreStack::PreStack( Desc& ds )
     float offstart, offstop;
     mGetFloat( offstart, offStartStr() );
     mGetFloat( offstop, offStopStr() );
+
     setup_.offsrg_ = Interval<float>( offstart, offstop );
 
 #define mGetSetupEnumPar(var,typ) \
@@ -88,6 +94,21 @@ PreStack::PreStack( Desc& ds )
     mGetBool( useazim, useazimStr() ); setup_.useazim_ = useazim;
     mGetInt( setup_.component_, componentStr() );
     mGetInt( setup_.aperture_, apertureStr() );
+
+    BufferString preprocessstr;
+    mGetString( preprocessstr, preProcessStr() );
+    const MultiID preprocessmid( preprocessstr );
+    PtrMan<IOObj> preprociopar = IOM().get( preprocessmid );
+    if ( preprociopar )
+    {
+	preprocessor_ = new ::PreStack::ProcessManager;
+	if ( !PreStackProcTranslator::retrieve( *preprocessor_,preprociopar,
+					       errmsg ) )
+	{
+	    delete preprocessor_;
+	    preprocessor_ = 0;
+	}
+    }
 }
 
 
@@ -95,6 +116,7 @@ PreStack::~PreStack()
 {
     delete propcalc_;
     delete psrdr_;
+    delete preprocessor_;
 }
 
 

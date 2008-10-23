@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.5 2008-08-26 09:57:00 cvshelene Exp $
+ RCS:           $Id: prestackattrib.h,v 1.6 2008-10-23 18:56:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "seispsprop.h"
 #include "multiid.h"
+
 class SeisPSReader;
+namespace PreStack { class ProcessManager; }
 
 
 namespace Attrib
@@ -47,6 +49,7 @@ public:
     static const char*  attribName()		{ return "PreStack"; }
     static const char*  offStartStr()		{ return "offstart"; }
     static const char*  offStopStr()		{ return "offstop"; }
+    static const char*  preProcessStr()		{ return "preprocessor"; }
     static const char*  calctypeStr()		{ return "calctype"; }
     static const char*  stattypeStr()		{ return "stattype"; }
     static const char*  lsqtypeStr()		{ return "lsqtype"; }
@@ -71,13 +74,15 @@ protected:
 				    int t0,int nrsamples,int threadid) const;
     void		prepPriorToBoundsCalc();
 
-    MultiID		psid_;
-    Interval<float>	offsrg_;
-    SeisPSPropCalc::Setup setup_;
-    SeisPSReader*	psrdr_;
-    SeisPSPropCalc*	propcalc_;
-    int			dataidx_;
-    const DataHolder*	inputdata_;
+    MultiID			psid_;
+    Interval<float>		offsrg_;
+    SeisPSPropCalc::Setup 	setup_;
+    SeisPSReader*		psrdr_;
+    SeisPSPropCalc*		propcalc_;
+
+    ::PreStack::ProcessManager*	preprocessor_;
+    int				dataidx_;
+    const DataHolder*		inputdata_;
 };
 
 }; // namespace Attrib
