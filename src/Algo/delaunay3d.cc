@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.7 2008-10-22 17:50:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.8 2008-10-23 20:59:57 cvsyuancheng Exp $";
 
 #include "delaunay3d.h"
 #include "trigonometry.h"
@@ -44,12 +44,28 @@ bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
 				       int threadid )
 {
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone(1))
+    TypeSet<int> delayedpts;
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	const int insertptid = permutation_.size() ? permutation_[idx] : idx;
 	int dupid;
-	if ( !tree_.insertPoint( insertptid, dupid ) )
-	    return false;
+	const int insertptid = permutation_.size() ? permutation_[idx] : idx;
+	if ( !tree_.insertPoint(insertptid,dupid) )
+	    delayedpts += insertptid; //If failed, we delay the point.
+	else
+	    reportNrDone(1);
+    }
+
+    for ( int idx=0; idx<delayedpts.size() && shouldContinue(); idx++ )
+    {
+	int dupid;
+	if ( !tree_.insertPoint(delayedpts[idx],dupid) )
+	{
+	    BufferString msg = "\n Point "; 
+	    msg += delayedpts[idx]; msg += " is skipped!";
+    	    pErrMsg( msg ); //If failed again, we skip the point.
+	}
+
+	reportNrDone(1);
     }
     
     return true;
@@ -61,6 +77,7 @@ DAGTetrahedraTree::DAGTetrahedraTree()
     , center_( Coord3(0,0,0) )  
     , epsilon_( 1e-5 )
     , ownscoordlist_( true )
+    , initsizefactor_( 1 )			    
 {}
 
 
@@ -69,6 +86,7 @@ DAGTetrahedraTree::DAGTetrahedraTree( const DAGTetrahedraTree& b )
     , center_( Coord3(0,0,0) )  
     , epsilon_( 1e-5 )
     , ownscoordlist_( true )
+    , initsizefactor_( 1 )			    
 {
     *this = b;
 }
@@ -87,6 +105,7 @@ DAGTetrahedraTree& DAGTetrahedraTree::operator=( const DAGTetrahedraTree& b )
 
     ownscoordlist_ = b.ownscoordlist_;
     tetrahedras_ = b.tetrahedras_;
+    initsizefactor_ = b.initsizefactor_;
 
     initialcoords_[0] = b.initialcoords_[0];
     initialcoords_[1] = b.initialcoords_[1];
@@ -168,17 +187,14 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	return false;
 
     center_ = Coord3( xrg.center(), yrg.center(), zrg.center() );
-    const double diagdist = 
+    const double k = initsizefactor_ * 
 	Math::Sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
-    epsilon_ = diagdist*(1e-5);
+    epsilon_ = k*(1e-5);
 
-    initialcoords_[0] = Coord3( center_.x, center_.y, center_.z+3*diagdist );
-    initialcoords_[1] = Coord3( center_.x, center_.y+2*diagdist*sqrt(2), 
-	    			center_.z-diagdist );
-    initialcoords_[2] = Coord3( center_.x-diagdist*sqrt(6), 
-	    			center_.y-diagdist*sqrt(2), center_.z-diagdist);
-    initialcoords_[3] = Coord3( center_.x+diagdist*sqrt(6), 
-	    			center_.y-diagdist*sqrt(2), center_.z-diagdist);
+    initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
+    initialcoords_[1] = center_ + Coord3( 0, 6*sqrt(2)*k, -6*k );
+    initialcoords_[2] = center_ + Coord3( -3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
+    initialcoords_[3] = center_ + Coord3( 3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
 
     DAGTetrahedra initnode;
     initnode.coordindices_[0] = cInitVertex0();
@@ -188,6 +204,25 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
     tetrahedras_ +=initnode;
 
     return true;
+}
+
+
+void DAGTetrahedraTree::setInitSizeFactor( float newfactor )
+{
+    if ( newfactor<0.2 )
+	return; //Make sure it is not too small
+
+    if ( initialcoords_[0].isDefined() )
+    {
+	double k = (initialcoords_[0].z-center_.z)/2;
+	k = k * newfactor/initsizefactor_;
+	initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
+	initialcoords_[1] = center_ + Coord3( 0, 6*sqrt(2)*k, -6*k );
+	initialcoords_[2] = center_ + Coord3(-3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
+	initialcoords_[3] = center_ + Coord3( 3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
+    }
+    
+    initsizefactor_ = newfactor;
 }
 
 
@@ -243,13 +278,7 @@ bool DAGTetrahedraTree::insertPoint( int ci, int& dupid )
     else if ( res==cIsDuplicate() )
 	return true;
     else  
-    {
-	BufferString msg = "\n Insert point ";
-	msg += ci;
-	msg += " failed!";
-	pErrMsg( msg );
 	return false;
-    }
 
     return true;
 }
@@ -271,10 +300,7 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
 	const char mode = location( ci, curchild, firstface, dupid, v0, v1 );
 	if ( mode==cIsOutside() ) continue;
 	if ( mode==cError() || mode==cIsDuplicate() ) 
-	{
-	    if ( mode==cError() ) pErrMsg("Hmm");
 	    return mode;
-	}
 
 	tis[0] = curchild;
 	children =  tetrahedras_[curchild].childindices_;
@@ -283,13 +309,10 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
     }
 
     if ( tetrahedras_[tis[0]].childindices_[0]!=cNoTetrahedra() ||
-         tetrahedras_[tis[0]].childindices_[1]!=cNoTetrahedra() ||
-         tetrahedras_[tis[0]].childindices_[2]!=cNoTetrahedra() ||
-         tetrahedras_[tis[0]].childindices_[3]!=cNoTetrahedra() )
-    {
-	pErrMsg("Hmm");
-	return cError();
-    }
+	 tetrahedras_[tis[0]].childindices_[1]!=cNoTetrahedra() ||
+	 tetrahedras_[tis[0]].childindices_[2]!=cNoTetrahedra() ||
+	 tetrahedras_[tis[0]].childindices_[3]!=cNoTetrahedra() )
+	return cError(); //It is a round off problem.
 
     if ( res==cIsOnFace() )
     {
@@ -323,7 +346,7 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
 	    }
 	}
     }
-
+   
     return res;
 }
 
@@ -365,7 +388,10 @@ char DAGTetrahedraTree::location( int ci, int ti, char& face, int& dupid,
 
     const char nrfaces = onface0 + onface1 + onface2 + onface3;
     if ( nrfaces==4 ) 
+    {
+	pErrMsg("Point on four faces");
 	return cError();
+    }
     else if ( !nrfaces ) 
     {
 	const double d =  determinent44(v0,v1,v2,v3);
@@ -382,36 +408,33 @@ char DAGTetrahedraTree::location( int ci, int ti, char& face, int& dupid,
 	
 	if ( mIsZero(d, 1e-4) )
 	{
-	    pErrMsg("Hmm");
+	    pErrMsg("Flat tetrahedra");
 	    return cError(); //i.e. vo, v1, v2, v3 are coplanar.
 	}
     }
 
     if ( nrfaces==3 )
     {
-	if ( onface1 && onface2 && onface3 )
+	if ( !onface0 )
 	{
 	    dupid = crds[0];
 	    return cIsDuplicate();
 	} 
-	else if ( onface0 && onface2 && onface3 )
+	else if ( !onface1 )
 	{
 	    dupid = crds[1];
 	    return cIsDuplicate();
 	}
-	else if ( onface0 && onface1 && onface3 )
+	else if ( !onface2 )
 	{
 	    dupid = crds[2];
 	    return cIsDuplicate();
 	}
-	else if ( onface0 && onface1 && onface2 )
+	else if ( !onface3 )
 	{
 	    dupid = crds[3];
 	    return cIsDuplicate();
 	}
-	
-	pErrMsg("Hmm");
-	return cError(); 
     }
     else if ( nrfaces==2 )
     {
@@ -506,7 +529,7 @@ char DAGTetrahedraTree::location( int ci, int ti, char& face, int& dupid,
 	}
     }
 
-    pErrMsg("Hmm");
+    pErrMsg("Impossible location");
     return cError();
 }
 
@@ -588,7 +611,7 @@ void DAGTetrahedraTree::splitTetrahedraOnFace( int ci, int ti0, int ti1,
 {
     if ( ti0==cNoTetrahedra() || ti1==cNoTetrahedra() || face==cNoFace() )
     {
-	pErrMsg("Not right!");
+	pErrMsg("Could not split on face");
 	return;
     }
     
@@ -867,7 +890,7 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	if ( checkti==cNoTetrahedra() ) continue;
 	if ( checkti==ti )
 	{
-	    pErrMsg("Hmm");
+	    pErrMsg("Checkti duplicate");
 	    continue;
 	}
 
@@ -892,10 +915,7 @@ void DAGTetrahedraTree::legalizeTetrahedras( TypeSet<int>& v0s,
 	    continue;
 
 	if ( checkpt==newpt || checkpt==cNoVertex() )
-	{
-	    pErrMsg("Hmm");
 	    continue;
-	}
 
 	const Coord3 p = mCrd(checkpt);
 	const Coord3 q = mCrd(newpt);
@@ -1179,7 +1199,7 @@ char DAGTetrahedraTree::isIntersect( const Coord3& p, const Coord3& q,
 	const Coord3& a, const Coord3& b, const Coord3& c, char& onedge ) const
 {
     onedge = cNotOnEdge();
-    const Coord3 normal = (a-b).cross(b-c);
+    const Coord3 normal = (a-b).cross(b-c).normalize();
     const double t = -normal.dot(p-a)/normal.dot(q-p);
     const Coord3 intersectpt = p+t*(q-p);
     if ( mIsZero( (intersectpt-a).sqAbs(), 1e-3 ) ||
@@ -1203,7 +1223,8 @@ char DAGTetrahedraTree::isIntersect( const Coord3& p, const Coord3& q,
 }
 
 
-void DAGTetrahedraTree::addTriangle( int v0, int v1, int v2, TypeSet<int>& res )const
+void DAGTetrahedraTree::addTriangle( int v0, int v1, int v2, 
+				     TypeSet<int>& res ) const
 {
     for ( int t=0; t<res.size()/3; t++ )
     {
@@ -1219,7 +1240,7 @@ void DAGTetrahedraTree::addTriangle( int v0, int v1, int v2, TypeSet<int>& res )
 }
 
 
-bool DAGTetrahedraTree::getTetrahedras( TypeSet<int>& result) const
+bool DAGTetrahedraTree::getTetrahedras( TypeSet<int>& result ) const
 {
     for ( int idx=tetrahedras_.size()-1; idx>=0; idx-- )
     {
@@ -1241,7 +1262,7 @@ bool DAGTetrahedraTree::getTetrahedras( TypeSet<int>& result) const
 }
 
 
-bool DAGTetrahedraTree::getTetrahedraTriangles( TypeSet<int>& result) const
+bool DAGTetrahedraTree::getTetrahedraTriangles( TypeSet<int>& result ) const
 {
     for ( int idx=tetrahedras_.size()-1; idx>=0; idx-- )
     {

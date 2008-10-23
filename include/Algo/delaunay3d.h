@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.6 2008-09-22 13:05:33 cvskris Exp $
+ RCS:           $Id: delaunay3d.h,v 1.7 2008-10-23 20:59:57 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,11 @@ public:
     const TypeSet<Coord3>& coordList() const { return *coordlist_; }
     
     bool		init();
+    void		setInitSizeFactor(float);
+    			/*<If the triangulation is not good enough because of 
+			   the init tetrahedra, we may abjust the size of it.*/
+    float		getInitSizeFactor() const { return initsizefactor_; }
+
     bool		isOK() const	{ return tetrahedras_.size(); }
     static bool		computeCoordRanges(const TypeSet<Coord3>&,
 	    				   Interval<double>& xrg,
@@ -122,6 +127,7 @@ protected:
     					/*!<-2,-3,-4, -5 are their indices.*/
     bool				ownscoordlist_;
     double				epsilon_;
+    float				initsizefactor_;
 };
 
 
