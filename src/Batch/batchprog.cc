@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.90 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.91 2008-10-24 09:24:35 cvsdgb Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -147,7 +147,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
     const char* res = iopar->find( sKey::LogFile );
     if ( !res )
-	iopar->set( sKey::LogFile, StreamProvider::sStdErr );
+	iopar->set( sKey::LogFile, StreamProvider::sStdErr() );
     res = iopar->find( sKey::Survey );
     if ( !res || !*res )
 	IOMan::newSurvey();
