@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.6 2008-10-23 18:56:06 cvskris Exp $
+ RCS:           $Id: prestackattrib.h,v 1.7 2008-10-24 04:34:24 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 
 class SeisPSReader;
 namespace PreStack { class ProcessManager; }
+
+using PreStack::ProcessManager;
 
 
 namespace Attrib
@@ -38,7 +40,7 @@ Output:
 */
     
 
-class PreStack: public Provider
+class PreStack : public Provider
 {
 public:
 
@@ -80,7 +82,7 @@ protected:
     SeisPSReader*		psrdr_;
     SeisPSPropCalc*		propcalc_;
 
-    ::PreStack::ProcessManager*	preprocessor_;
+    ProcessManager*		preprocessor_;
     int				dataidx_;
     const DataHolder*		inputdata_;
 };
