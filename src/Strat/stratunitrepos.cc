@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.24 2008-04-18 14:37:28 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.25 2008-10-24 11:39:13 cvshelene Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -119,6 +119,15 @@ void RefTree::removeEmptyNodes()
 }
 
 
+void RefTree::addLevel( Level* l )
+{
+    if ( l->id_ < 0 )
+	l->id_ = getFreeLevelID();
+
+    lvls_ += l;
+}
+
+
 const Level* RefTree::getLevel( const char* nm ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
@@ -228,6 +237,16 @@ void RefTree::untieLvlsFromUnit( const UnitRef* ur, bool freechildren )
 	    if ( baselvl ) baselvl->unit_ = 0;
 	}
     }
+}
+
+
+int RefTree::getFreeLevelID() const
+{
+    int freeid = 0;
+    while ( levelFromID( freeid ) )
+	freeid++;
+
+    return freeid;
 }
 
 

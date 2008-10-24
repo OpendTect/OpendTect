@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.5 2008-02-26 09:17:39 cvsnanne Exp $
+ RCS:		$Id: stratreftree.h,v 1.6 2008-10-24 11:39:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ public:
 	    			bool rev=false);
     void		removeEmptyNodes(); //!< recommended after add
 
-    void		addLevel( Level* l )		{ lvls_ += l; }
+    void		addLevel(Level*);
     int			nrLevels() const		{ return lvls_.size(); }
     const Level*	levelFromIdx( int idx ) const	{ return lvls_[idx]; }
     const Level*	levelFromID(int id) const;
@@ -61,6 +61,8 @@ public:
     				//!< otherwise, use UnitRepository::write()
 
 protected:
+
+    int			getFreeLevelID() const;
 
     Repos::Source	src_;
     BufferString	treename_;
