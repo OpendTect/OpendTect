@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.67 2008-07-17 08:09:22 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.68 2008-10-24 05:58:37 cvsumesh Exp $";
 
 #include "attribdesc.h"
 
@@ -663,7 +663,7 @@ bool Desc::isIdentifiedBy( const char* str ) const
 	if ( *str == '[' && *(str+lk.size()-1) == ']' )
 	{
 	    lk = str + 1;
-	    lk[ lk.size()-1 ] = '\0';
+	    lk.buf()[ lk.size()-1 ] = '\0';
 	    if ( userref_ == lk )
 		return true;
 	}
