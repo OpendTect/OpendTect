@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.11 2008-08-26 09:57:00 cvshelene Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.12 2008-10-24 04:33:24 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 
 
-mInitAttribUI(uiPreStackAttrib,PreStack,"PreStack",sKeyBasicGrp)
+mInitAttribUI(uiPreStackAttrib,Attrib::PreStack,"PreStack",sKeyBasicGrp)
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
