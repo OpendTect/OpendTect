@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.1 2008-10-24 05:38:53 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.2 2008-10-24 12:38:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "cubesampling.h"
 #include "multiid.h"
 #include "position.h"
@@ -53,7 +53,7 @@ protected:
 };
 
 
-class FaultHorizon2DLocationField : public Array2D<char>
+class FaultHorizon2DLocationField : public Array2DImpl<char>
 {
 public:
     			FaultHorizon2DLocationField(const EM::Fault2D&,

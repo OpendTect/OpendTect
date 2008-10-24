@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.1 2008-10-24 05:38:53 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.2 2008-10-24 12:38:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,8 @@ bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
 FaultHorizon2DLocationField::FaultHorizon2DLocationField(
 	const EM::Fault2D& flt, const EM::Horizon2D& h1,
 	const EM::Horizon2D& h2, const IOObj& lsioobj, const char* lnm )
-    : fault_(flt)
+    : Array2DImpl<char>(1,1)
+    , fault_(flt)
     , tophor_(h1)
     , bothor_(h2)
     , lsioobj_(lsioobj)
@@ -140,8 +141,26 @@ bool FaultHorizon2DLocationField::calculate()
 
     PosInfo::Line2DPos firstpos, lastpos;
     if ( !lineposinfo.getPos(crds.first(),firstpos) ||
-	 !lineposinfo.getPos(crds.last(),firstpos) )
+	 !lineposinfo.getPos(crds.last(),lastpos) )
 	return false;
+
+    Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
+    CubeSampling cs; cs.hrg.set( Interval<int>(0,0), trcrg );
+// TODO: cs.zrg
+    setSize( cs.nrCrl(), cs.nrZ() );
+
+    const int lidxtop = tophor_.geometry().lineIndex( linename_ );
+    const int lidxbot = bothor_.geometry().lineIndex( linename_ );
+
+    for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
+    {
+	const int crl = trcrg.atIndex( crlidx, 1 );
+	for ( int zidx=0; zidx<cs.nrZ(); zidx++ )
+	{
+	    const float zval = cs.zAtIndex( zidx );
+	    set( crlidx, zidx, sOutside() );
+	}
+    }
 
     return true;
 }
