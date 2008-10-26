@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.14 2008-06-23 06:41:14 cvsraman Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.15 2008-10-26 18:25:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -93,6 +93,10 @@ public:
     bool			unSetPos(const EM::PosID&,bool addtohistory);
     bool			unSetPos(const EM::SectionID&,const EM::SubID&,
 					 bool addtohistory);
+    Coord3			getPos(const EM::PosID&) const;
+    Coord3			getPos(const EM::SectionID&,const EM::SubID&) const;
+    TypeSet<Coord3>		getPositions(int lineidx,int trcnr) const;
+    Coord3			getPos(EM::SectionID,int lidx,int trcnr) const;
 
     Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }

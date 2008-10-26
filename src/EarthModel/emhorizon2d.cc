@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.22 2008-06-23 06:42:43 cvsraman Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.23 2008-10-26 18:25:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -325,6 +325,27 @@ bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
     Coord3 pos = getPos( sid, subid );
     pos.z = mUdf(float);
     return setPos( sid, subid, pos, addtoundo );
+}
+
+Coord3 Horizon2D::getPos( const EM::PosID& pid ) const
+{ return EMObject::getPos(pid); }
+
+Coord3 Horizon2D::getPos( const EM::SectionID& sid, const EM::SubID& sub ) const
+{ return EMObject::getPos(sid,sub); }
+
+
+Coord3 Horizon2D::getPos( EM::SectionID sid, int lineidx, int trcnr ) const
+{
+    return getPos( sid, RowCol(lineidx,trcnr).getSerialized() );
+}
+
+
+TypeSet<Coord3> Horizon2D::getPositions( int lineidx, int trcnr ) const
+{
+    TypeSet<Coord3> crds;
+    for ( int idx=0; idx<nrSections(); idx++ )
+	crds += getPos( sectionID(idx), RowCol(lineidx,trcnr).getSerialized() );
+    return crds;
 }
 
 
