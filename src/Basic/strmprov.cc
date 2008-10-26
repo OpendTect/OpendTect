@@ -41,12 +41,12 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.73 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.74 2008-10-26 17:41:02 cvsnanne Exp $";
 
 static BufferString oscommand( 2048 );
 
-const char* StreamProvider::sStdIO = "Std-IO";
-const char* StreamProvider::sStdErr = "Std-Err";
+const char* StreamProvider::sStdIO()	{ return "Std-IO"; }
+const char* StreamProvider::sStdErr()	{ return "Std-Err"; }
 
 bool ExecOSCmd( const char* comm, bool inbg )
 {
@@ -212,7 +212,7 @@ StreamProvider::StreamProvider( const char* hostnm, const char* fnm,
 	: isbad(false)
 	, type_(typ)
 	, hostname(hostnm)
-	, fname(fnm?fnm:sStdIO)
+	, fname(fnm?fnm:sStdIO())
     	, rshcomm("rsh")
 {
     if ( fname.isEmpty() ) isbad = true;
@@ -226,10 +226,10 @@ void StreamProvider::set( const char* devname )
     blocksize = 0;
     hostname = "";
 
-    if ( !devname || !strcmp(devname,sStdIO) || !strcmp(devname,sStdErr) )
+    if ( !devname || !strcmp(devname,sStdIO()) || !strcmp(devname,sStdErr()) )
     {
 	type_ = StreamConn::File;
-	fname = devname ? devname : sStdIO;
+	fname = devname ? devname : sStdIO();
 	return;
     }
     else if ( !*devname )
@@ -365,7 +365,7 @@ void StreamProvider::addPathIfNecessary( const char* path )
 
     if ( type_ != StreamConn::File
       || !path || ! *path
-      || fname == sStdIO || fname == sStdErr )
+      || fname == sStdIO() || fname == sStdErr() )
 	return;
 
     FilePath fp( fname );
@@ -382,7 +382,7 @@ StreamData StreamProvider::makeIStream( bool binary ) const
     StreamData sd; sd.setFileName( fname );
     if ( isbad || !*(const char*)fname )
 	return sd;
-    if ( fname == sStdIO || fname == sStdErr )
+    if ( fname == sStdIO() || fname == sStdErr() )
     {
 	sd.istrm = &std::cin;
 	return sd;
@@ -435,12 +435,12 @@ StreamData StreamProvider::makeOStream( bool binary ) const
     if ( isbad ||  !*(const char*)fname )
 	return sd;
 
-    else if ( fname == sStdIO )
+    else if ( fname == sStdIO() )
     {
 	sd.ostrm = &std::cout;
 	return sd;
     }
-    else if ( fname == sStdErr )
+    else if ( fname == sStdErr() )
     {
 	sd.ostrm = &std::cerr;
 	return sd;
@@ -676,7 +676,7 @@ bool StreamProvider::exists( int fr ) const
 	return fr;
 
     if ( !hostname[0] )
-	return fname == sStdIO || fname == sStdErr ? true
+	return fname == sStdIO() || fname == sStdErr() ? true
 	     : File_exists( (const char*)fname );
 
     sprintf( oscommand.buf(), "%s %s 'test -%c %s && echo 1'",
@@ -691,7 +691,7 @@ bool StreamProvider::remove( bool recursive ) const
     if ( isbad || type_ != StreamConn::File ) return false;
 
     if ( !hostname[0] )
-	return fname == sStdIO || fname == sStdErr ? false :
+	return fname == sStdIO() || fname == sStdErr() ? false :
 		File_remove( (const char*)fname, recursive );
 
     sprintf( oscommand.buf(), "%s %s '/bin/rm -%s %s && echo 1'",
@@ -708,7 +708,7 @@ bool StreamProvider::setReadOnly( bool yn ) const
     if ( isbad || type_ != StreamConn::File ) return false;
 
     if ( !hostname[0] )
-	return fname == sStdIO || fname == sStdErr ? false :
+	return fname == sStdIO() || fname == sStdErr() ? false :
 	       File_makeWritable( (const char*)fname, mFile_NotRecursive, !yn );
 
     sprintf( oscommand.buf(), "%s %s 'chmod %s %s && echo 1'",
@@ -725,7 +725,7 @@ bool StreamProvider::isReadOnly() const
     if ( isbad || type_ != StreamConn::File ) return true;
 
     if ( !hostname[0] )
-	return fname == sStdIO || fname == sStdErr ? false :
+	return fname == sStdIO() || fname == sStdErr() ? false :
 		!File_isWritable( (const char*)fname );
 
     sprintf( oscommand.buf(), "%s %s 'test -w %s && echo 1'",
@@ -779,7 +779,7 @@ bool StreamProvider::rename( const char* newnm, const CallBack* cb )
     if ( issane )
     {
 	if ( !hostname[0] )
-	    rv = fname == sStdIO || fname == sStdErr ? true :
+	    rv = fname == sStdIO() || fname == sStdErr() ? true :
 		    File_rename( (const char*)fname, newnm );
 	else
 	{

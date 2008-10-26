@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.54 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreadmgr.cc,v 1.55 2008-10-26 17:41:02 cvsnanne Exp $";
 
 #include "cbvsreadmgr.h"
 #include "cbvsreader.h"
@@ -43,7 +43,7 @@ CBVSReadMgr::CBVSReadMgr( const char* fnm, const CubeSampling* cs,
 {
     bool foundone = false;
 
-    if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO) )
+    if ( !fnm || !strcmp(fnm,StreamProvider::sStdIO()) )
     {
 	addReader( &std::cin, cs, glob_info_only );
 	if ( readers_.isEmpty() )

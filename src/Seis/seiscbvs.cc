@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.78 2008-09-03 10:46:51 cvshelene Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.79 2008-10-26 17:41:02 cvsnanne Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -151,7 +151,7 @@ bool CBVSSeisTrcTranslator::getFileName( BufferString& fnm )
     StreamProvider sp;
     fnm = iostrm->getExpandedName(true);
     if ( fnm == sp.fullName() )
-	fnm = StreamProvider::sStdIO;
+	fnm = StreamProvider::sStdIO();
 
     conn->close();
     return true;

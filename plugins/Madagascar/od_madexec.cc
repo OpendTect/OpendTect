@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.11 2008-10-07 10:22:32 cvsnanne Exp $
+ RCS:		$Id: od_madexec.cc,v 1.12 2008-10-26 17:41:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
 	if ( hasprocessing )
 	    return ret.buf();
 	else
-	    return StreamProvider::sStdIO;
+	    return StreamProvider::sStdIO();
     }
     else if ( outptyp == sKeyMadagascar )
     {
@@ -83,7 +83,7 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
     {
 	const bool dowrite = true;
 	pars.setYN( sKeyWrite, dowrite );
-	pars.set( "Log file", StreamProvider::sStdErr );
+	pars.set( "Log file", StreamProvider::sStdErr() );
 	BufferString fname = FilePath::getTempName( "par" );
 	pars.write( fname, sKey::Pars );
 	if ( hasprocessing ) ret += " | ";
@@ -128,7 +128,7 @@ bool processMad( IOPar& pars, std::ostream& strm )
 	mErrRet( errmsg );
 
     StreamData sd;
-    if ( !strcmp(comm,StreamProvider::sStdIO) )
+    if ( !strcmp(comm,StreamProvider::sStdIO()) )
 	sd.ostrm = &std::cout;
     else
 	sd = StreamProvider( comm ).makeOStream();

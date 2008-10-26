@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.23 2008-10-07 04:22:02 cvsnanne Exp $
+ RCS:		$Id: strmprov.h,v 1.24 2008-10-26 17:41:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,8 +86,8 @@ public:
     StreamConn::Type	type()				{ return type_; }
     bool		isNormalFile() const;
 
-    static const char*	sStdIO;
-    static const char*	sStdErr;
+    static const char*	sStdIO();
+    static const char*	sStdErr();
 
     static void	sendCBMsg(const CallBack*,const char*);
     		//!< The callback will be called with a const char* capsule
