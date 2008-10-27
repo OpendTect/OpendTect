@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.2 2008-10-24 12:38:47 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.3 2008-10-27 06:58:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,20 @@ namespace SSIS
 class Fault2DSubSampler
 {
 public:
-    			Fault2DSubSampler(const EM::Fault2D&);
+    			Fault2DSubSampler(const EM::Fault2D&,float zstep);
 			~Fault2DSubSampler();
 
-    void		getCoordList(float zstep,TypeSet<Coord3>&) const;
+    bool		execute();
+
+    Coord3		getCoord(float zval) const;
+    const TypeSet<Coord3>& getCoordList() const;
+    void		setZStep( float zs )	{ zstep_ = zs; }
 
 protected:
      const EM::Fault2D&	fault_;
+
+     float		zstep_;
+     TypeSet<Coord3>	crds_;
 };
 
 

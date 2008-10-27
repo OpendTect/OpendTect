@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.2 2008-10-24 12:38:47 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.3 2008-10-27 06:58:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,9 @@ ________________________________________________________________________
 namespace SSIS
 {
 
-Fault2DSubSampler::Fault2DSubSampler( const EM::Fault2D& flt )
+Fault2DSubSampler::Fault2DSubSampler( const EM::Fault2D& flt, float zstep )
     : fault_(flt)
+    , zstep_(zstep)
 {
     fault_.ref();
 }
@@ -39,8 +40,9 @@ Fault2DSubSampler::~Fault2DSubSampler()
 }
 
 
-void Fault2DSubSampler::getCoordList( float zstep, TypeSet<Coord3>& crds ) const
+bool Fault2DSubSampler::execute()
 {
+    crds_.erase();
     EM::SectionID fltsid( 0 );
     const int sticknr = 0;
     const int nrknots = fault_.geometry().nrKnots( fltsid, sticknr );
@@ -48,25 +50,40 @@ void Fault2DSubSampler::getCoordList( float zstep, TypeSet<Coord3>& crds ) const
 	fault_.geometry().sectionGeometry( fltsid );
     const Coord3 firstknot = fltgeom->getKnot( RowCol(sticknr,0) );
     const Coord3 lastknot = fltgeom->getKnot( RowCol(sticknr,nrknots-1) );
-    const int nrzvals = (lastknot.z-firstknot.z) / zstep;
+    const int nrzvals = (lastknot.z-firstknot.z) / zstep_;
 
     for ( int idx=0; idx<nrzvals; idx++ )
     {
-	const float curz = firstknot.z + idx*zstep;
+	const float curz = firstknot.z + idx*zstep_;
 	for ( int knotidx=0; knotidx<nrknots-1; knotidx++ )
 	{
 	    const Coord3 knot1 = fltgeom->getKnot( RowCol(sticknr,knotidx) );
 	    const Coord3 knot2 = fltgeom->getKnot( RowCol(sticknr,knotidx+1) );
 	    if ( mIsEqual(curz,knot1.z,1e-3) )
-		crds += knot1;
+		crds_ += knot1;
 	    else if ( mIsEqual(curz,knot2.z,1e-3) )
-		crds += knot2;
+		crds_ += knot2;
 	    else
-		crds += knot1 + (knot2-knot1)*(curz-knot1.z)/(knot2.z-knot1.z);
+		crds_ += knot1 + (knot2-knot1)*(curz-knot1.z)/(knot2.z-knot1.z);
 	}
-//	std::cout << idx << '\t' << crds[idx].x << '\t' << crds[idx].y << '\t' << crds[idx].z << std::endl;
+//	std::cout << idx << '\t' << crds_[idx].x << '\t' << crds_[idx].y << '\t' << crds_[idx].z << std::endl;
     }
+
+    return crds_.size() > 0;
 }
+
+
+Coord3 Fault2DSubSampler::getCoord( float zval ) const
+{
+    const float diff = zval - crds_[0].z;
+    const float fidx = diff / zstep_;
+    const int idx = mNINT( fidx );
+    return crds_.validIdx( idx ) ? crds_[idx] : Coord3::udf();
+}
+
+
+const TypeSet<Coord3>& Fault2DSubSampler::getCoordList() const
+{ return crds_; }
 
 
 FaultHorizon2DIntersectionFinder::FaultHorizon2DIntersectionFinder(
@@ -94,9 +111,9 @@ bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
     if ( !flt2d ) return false;
     flt2d->ref();
 
-    Fault2DSubSampler sampler( *flt2d );
-    TypeSet<Coord3> crds;
-    sampler.getCoordList( SI().zStep(), crds );
+    Fault2DSubSampler sampler( *flt2d, SI().zStep() );
+    sampler.execute();
+    TypeSet<Coord3> crds = sampler.getCoordList();
 
     return true;
 }
@@ -129,9 +146,9 @@ FaultHorizon2DLocationField::~FaultHorizon2DLocationField()
 
 bool FaultHorizon2DLocationField::calculate()
 {
-    Fault2DSubSampler sampler( fault_ );
-    TypeSet<Coord3> crds;
-    sampler.getCoordList( SI().zStep(), crds );
+    Fault2DSubSampler sampler( fault_, SI().zStep() );
+    sampler.execute();
+    TypeSet<Coord3> crds = sampler.getCoordList();
 
     Seis2DLineSet ls( lsioobj_ );
     const int lineidx = ls.indexOf( linename_.buf() );
@@ -152,13 +169,31 @@ bool FaultHorizon2DLocationField::calculate()
     const int lidxtop = tophor_.geometry().lineIndex( linename_ );
     const int lidxbot = bothor_.geometry().lineIndex( linename_ );
 
+    EM::SectionID sid( 0 );
     for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
     {
 	const int crl = trcrg.atIndex( crlidx, 1 );
+	const float topz = tophor_.getPos( sid, lidxtop, crl ).z;
+	const float botz = bothor_.getPos( sid, lidxbot, crl ).z;
 	for ( int zidx=0; zidx<cs.nrZ(); zidx++ )
 	{
 	    const float zval = cs.zAtIndex( zidx );
-	    set( crlidx, zidx, sOutside() );
+	    if ( topz < zval || zval>botz )
+		set( crlidx, zidx, sOutside() );
+	    else
+	    {
+		const Coord3 fltcrd = sampler.getCoord( zval );
+		PosInfo::Line2DPos fltpos;
+		const bool res = lineposinfo.getPos( fltcrd, fltpos );
+		if ( !res )
+		    set( crlidx, zidx, sOutside() );
+		else if ( fltpos.nr_>crl )
+		    set( crlidx, zidx, sInsideNeg() );
+		else if ( fltpos.nr_<=crl )
+		    set( crlidx, zidx, sInsidePos() );
+		else
+		    set( crlidx, zidx, sOutside() );
+	    }
 	}
     }
 
