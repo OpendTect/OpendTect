@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.39 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.40 2008-10-27 20:33:11 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: visdataman.cc,v 1.39 2008-09-29 13:23:48 cvsber
 #include <iostream>
 
 #include <Inventor/SoPath.h>
+#include <Inventor/SoDB.h>
 
 namespace visBase
 {
@@ -47,6 +48,22 @@ DataManager::~DataManager()
     removeAll();
     delete &selman_;
 }
+
+
+void DataManager::readLockDB()
+{ SoDB::readlock(); }
+    
+
+void DataManager::readUnLockDB()
+{ SoDB::readunlock(); }
+
+
+void DataManager::writeLockDB()
+{ SoDB::writeunlock(); }
+
+    
+void DataManager::writeUnLockDB()
+{ SoDB::writeunlock(); }
 
 
 void DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const

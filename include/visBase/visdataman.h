@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.17 2007-10-12 19:14:34 cvskris Exp $
+ RCS:		$Id: visdataman.h,v 1.18 2008-10-27 20:33:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,11 @@ class DataManager : public CallBacker
 public:
     			DataManager();
     virtual		~DataManager();
+
+    static void		readLockDB();
+    static void		readUnLockDB();
+    static void		writeLockDB();
+    static void		writeUnLockDB();
 
     bool		removeAll(int nriterations=1000);
     			/*!< Will remove everything.  */
