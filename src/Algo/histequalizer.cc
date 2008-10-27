@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2008
- RCS:           $Id: histequalizer.cc,v 1.1 2008-10-27 11:38:39 cvssatyaki Exp $
+ RCS:           $Id: histequalizer.cc,v 1.2 2008-10-27 11:58:55 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,13 +57,6 @@ void HistEqualizer::update()
 	index = stopindex;
     }
     TypeSet< Interval<float> > testprint( *histeqdatarg_ );
-    BufferString test;
-    for ( int idx=0; idx<testprint.size(); idx++ )
-    {
-	test += "Range :"; test += idx; test += " : ";
-	test += testprint[idx].start; test += " , ";
-	test += testprint[idx].stop; test += "\n";
-    }
 }
 
 
@@ -112,7 +105,7 @@ void HistEqualizer::getSegmentSizes( TypeSet<int>& segszs )
     const int numberofa = bindexlength*nrseg_ - datasz;
     const int numberofb = nrseg_ - numberofa;
 
-    segszs = TypeSet<int>( nrseg_, aindexlength );
+    segszs.setSize( nrseg_, aindexlength );
     int count = 0;
     while ( true )
     {
