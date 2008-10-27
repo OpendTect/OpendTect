@@ -4,21 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.8 2008-08-25 06:07:34 cvsraman Exp $
+ RCS:           $Id: flatviewaxesdrawer.cc,v 1.9 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "flatviewaxesdrawer.h"
-#include "flatposdata.h"
 #include "flatview.h"
+#include "flatposdata.h"
 #include "datapackbase.h"
 #include "iodraw.h"
-#include "iodrawtool.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsview.h"
 
 
-FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, ioDrawArea& da )
-    : DrawAxis2D(&da)
+FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, uiGraphicsView& view )
+    : DrawAxis2D( *new DrawAxis2D(&view) )
     , vwr_(vwr)
     , altdim0_(mUdf(int))
 {
@@ -33,7 +34,7 @@ void FlatView::AxesDrawer::draw( uiRect uir, uiWorldRect wr )
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
 
-    drawarea_->drawTool().setPenColor( annot.color_ );
+    //drawarea_->drawTool().setPenColor( annot.color_ );
 
     drawAxes( ad1.showannot_, ad2.showannot_, true, true );
     drawGridLines( ad1.showgridlines_, ad2.showgridlines_ );

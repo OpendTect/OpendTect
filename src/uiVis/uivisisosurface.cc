@@ -4,17 +4,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.10 2008-04-04 04:11:02 cvsnanne Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.11 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uivisisosurface.h"
 
-#include "iodrawtool.h"
 #include "mouseevent.h"
 #include "uistatsdisplay.h"
 #include "uifunctiondisplay.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "uiaxishandler.h"
 #include "mousecursor.h"
 #include "uigeninput.h"
@@ -37,12 +38,10 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );
-    funcDisp().getMouseEventHandler().buttonPressed.notify(
+    funcDisp().getScene()->getMouseEventHandler().buttonPressed.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,mousePressed) );
-    funcDisp().getMouseEventHandler().doubleClick.notify(
+    funcDisp().getScene()->getMouseEventHandler().doubleClick.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,doubleClick) );
-    funcDisp().postDraw.notify(
-	    mCB(this,uiVisIsoSurfaceThresholdDlg,updateHistogramDisplay) );
     statsdisplay_->setHistogram( histogram, rg );
 
     thresholdfld_ = new uiGenInput( this, "Iso value",
@@ -51,6 +50,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     updatebutton_ = new uiPushButton( this, "Update",
 	    mCB( this, uiVisIsoSurfaceThresholdDlg, updatePressed ), false );
     updatebutton_->attach( rightOf, thresholdfld_ );
+    drawHistogram();
 }
 
 
@@ -120,7 +120,8 @@ uiAxisHandler& uiVisIsoSurfaceThresholdDlg::xAxis()
 
 void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 {
-    MouseEventHandler& eventhandler = funcDisp().getMouseEventHandler();
+    MouseEventHandler& eventhandler = 
+	funcDisp().getScene()->getMouseEventHandler();
     if ( eventhandler.isHandled() )
 	return;
 
@@ -135,7 +136,6 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
     const float val = xAxis().getVal( pt.x );
     thresholdfld_->setValue( val );
     if ( isdouble )	updateIsoDisplay( val );
-    else		funcDisp().update();
 }
 
 
@@ -143,35 +143,36 @@ void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 {
     MouseCursorChanger changer( MouseCursor::Wait );
     vd_->setIsoValue( isosurfacedisplay_, nv );
-    funcDisp().update();
 }
 
 
-void uiVisIsoSurfaceThresholdDlg::updateHistogramDisplay( CallBacker* cb )
+void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 {
-    ioDrawTool& dt = funcDisp().drawTool();
-
-    dt.setPenWidth( 2 );
+    LineStyle ls;
+    ls.width_ = 2;
+    uiLineItem* lineitem = new uiLineItem();
     if ( !mIsUdf(initialvalue_) )
     {
-	dt.setPenColor( Color(0,150,0) );
+	ls.color_ = Color(0,150,0);
 	const int val = xAxis().getPix(initialvalue_);
-	dt.drawLine( val, 0, val, dt.getDevHeight() );
+	lineitem = funcDisp().getScene()->addLine( 
+	    val, 0, val, funcDisp().width() );
+	lineitem->setPenStyle( ls );
     }
 
     if ( !mIsUdf(thresholdfld_->getfValue() ) )
     {
-	dt.setPenColor( Color(0,255,0,0) );
+	ls.color_ = Color(0,255,0,0); 
 	const int val = xAxis().getPix(thresholdfld_->getfValue());
-	dt.drawLine( val, 0, val, dt.getDevHeight() );
+	lineitem = funcDisp().getScene()->addLine( 
+	    val, 0, val, funcDisp().width() );
     }
 
     if ( !mIsUdf(vd_->isoValue( isosurfacedisplay_ ) ) )
     {
-	dt.setPenColor( Color(255,0,0,0) );
+	ls.color_ = Color(255,0,0,0);
 	const int val = xAxis().getPix( vd_->isoValue( isosurfacedisplay_) );
-	dt.drawLine( val, 0, val, dt.getDevHeight() );
+	lineitem = funcDisp().getScene()->addLine( 
+	    val, 0, val, funcDisp().width() );
     }
-
-    dt.setPenWidth( 1 );
 }

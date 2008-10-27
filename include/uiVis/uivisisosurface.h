@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.4 2008-04-01 15:43:03 cvsbert Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.5 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,7 @@ public:
     bool	acceptOK();
     bool	rejectOK();
     bool	revertChanges();
+    void	drawHistogram();
 
 protected:
 
@@ -45,7 +46,6 @@ protected:
     void		doubleClick(CallBacker*);
     void		handleClick(CallBacker*,bool isdouble );
     void		updateIsoDisplay(float nv);
-    void		updateHistogramDisplay(CallBacker* = 0);
 
     uiStatsDisplay*	statsdisplay_;
     uiGenInput*		thresholdfld_;

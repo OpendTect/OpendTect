@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.23 2008-10-20 20:18:21 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.24 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,13 @@ class uiRGBArrayCanvas;
 class uiRGBArray;
 class uiWorld2Ui;
 class uiFlatViewControl;
+class uiArrowItem;
+class uiEllipseItem;
+class uiLineItem;
+class uiMarkerItem;
+class uiPolygonItem;
+class uiRectItem;
+class uiTextItem;
 
 
 /*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
@@ -50,6 +57,7 @@ public:
     uiWorldRect		boundingBox() const;
     void		getWorld2Ui(uiWorld2Ui&) const;
     void		setExtraBorders( uiRect r )	{ extraborders_ = r; }
+    void		setRubberBandingOn(bool);
     void		setDim0ExtFac( float f )	{ dim0extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
@@ -62,6 +70,8 @@ public:
 
     uiFlatViewControl*	control()	{ return control_; }
     Interval<float>     getDataRange(bool) const;
+    void			drawBitMaps();
+    void			drawAnnot();
 
 
     static float	bufextendratio_;
@@ -88,14 +98,24 @@ protected:
     FlatView::BitMapMgr*	vdbmpmgr_;
     FlatView::BitMap2RGB*	bmp2rgb_;
 
+    uiTextItem*			titletxtitem_;
+    uiTextItem*			axis1nm_;
+    uiTextItem*			axis2nm_;
+    uiTextItem*			addatanm_;
+    uiRectItem*			rectitem_;
+    uiArrowItem*		arrowitem1_;
+    uiArrowItem*		arrowitem2_;
+    uiPolygonItem*		polyitem_;
+    uiLineItem*			lineitem_;
+    uiMarkerItem*		marketitem_;
     void			onFinalise(CallBacker*);
     void			canvasNewFill(CallBacker*);
     void			canvasPostDraw(CallBacker*);
+    void			reDraw(CallBacker*);
+    void			rubberBandZoom(CallBacker*);
     uiWorldRect			getBoundingBox(bool) const;
     Color			color(bool foreground) const;
 
-    void			drawBitMaps();
-    void			drawAnnot();
     void			drawGridAnnot();
     void			drawAux(const FlatView::Annotation::AuxData&);
 

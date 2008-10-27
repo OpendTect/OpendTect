@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.20 2008-08-22 12:02:05 cvshelene Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.21 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "coltabsequence.h"
 #include "coltabindex.h"
+#include "histequalizer.h"
 #include "uirgbarray.h"
 
 
@@ -72,10 +73,10 @@ void FlatView::BitMapMgr::setupChg()
     }
     const DataDispPars::Common* pars = &app.ddpars_.wva_;
     if ( !wva_ ) pars = &app.ddpars_.vd_;
-    gen_->pars().clipratio_.start = pars->clipperc_.start * 0.01;
+    gen_->pars().clipratio_.start = pars->clipperc_.start;
     gen_->pars().clipratio_.stop = mIsUdf(pars->clipperc_.stop)
 	? mUdf(float)
-	: pars->clipperc_.stop * 0.01;
+	: pars->clipperc_.stop;
     gen_->pars().midvalue_ = pars->symmidvalue_;
 
     gen_->pars().nointerpol_ = pars->blocky_;
@@ -165,6 +166,8 @@ FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
 				  uiRGBArray& arr )
     : app_(a)
     , arr_(arr)
+    , histequalizer_(0)
+    , clipperdata_(*new TypeSet<float>())
 {
 }
 
@@ -172,6 +175,7 @@ FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
 void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
        				 const Geom::Point2D<int>& offs )
 {
+    arr_.clear( Color::White );
     if ( vd )
 	drawVD( *vd, offs );
     if ( wva )
@@ -191,6 +195,18 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill;
     ColTab::IndexedLookUpTable ctindex( ctab, maxfill-minfill+1 );
 
+    if ( pars.histeq_ && !clipperdata_.isEmpty() )
+    {
+	TypeSet<float> datapts;
+	for ( int idx=0; idx<bmp.info().getSize(0); idx++ )
+	{
+	    for ( int idy=0; idy<bmp.info().getSize(1); idy++ )
+		datapts += (float)bmp.get( idx, idy );
+	}
+	delete histequalizer_;
+	histequalizer_ = new HistEqualizer( maxfill-minfill+1 );
+	histequalizer_->setRawData( datapts );
+    }
     for ( int ix=0; ix<arrsz.width(); ix++ )
     {
 	if ( ix >= bmpsz.width() ) break;
@@ -201,7 +217,12 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 	    if ( bmpval == A2DBitMapGenPars::cNoFill )
 		continue;
 
-	    Color col = ctindex.colorForIndex( (int)bmpval-minfill );
+	    Color col;
+	    /*if ( pars.histeq_ )
+		col = ctindex.color(
+			histequalizer_->position((float)bmpval-minfill) );
+	    else */
+	    col = ctindex.colorForIndex( (int)bmpval-minfill );
 	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
 	}

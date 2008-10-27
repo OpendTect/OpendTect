@@ -4,10 +4,11 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.12 2008-10-10 21:13:05 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.13 2008-10-27 11:21:08 cvssatyaki Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
+#include "histequalizer.h"
 #include "settings.h"
 #include "math2.h"
 #include "errh.h"
@@ -17,7 +18,9 @@ namespace ColTab
 static float defcliprate_ = mUdf(float);
 static const char* sKeyDefClipPerc = "dTect.Disp.Default clip perc";
 static float defsymmidval_ = mUdf(float);
+static bool defhisteq_ = false;
 static const char* sKeyDefSymmZero = "dTect.Disp.Default symmetry zero";
+static const char* sKeyDefHistEq = "dTect.Disp.Default histogram equalisation";
 static BufferString defcoltabnm_ = "Seismics";
 static const char* sKeyDefName = "dTect.Disp.Default Color table";
 static const char* sKeyDefNameOld = "dTect.Color table.Name";
@@ -48,6 +51,12 @@ float ColTab::defClipRate()
 }
 
 
+bool ColTab::defHistEq()
+{
+    return defhisteq_;
+}
+
+
 float ColTab::defSymMidval()
 {
     if ( mIsUdf(defcliprate_) )
@@ -56,12 +65,13 @@ float ColTab::defSymMidval()
 }
 
 
-void ColTab::setMapperDefaults( float cr, float sm )
+void ColTab::setMapperDefaults( float cr, float sm, bool histeq )
 {
     defcliprate_ = cr;
     defsymmidval_ = sm;
     Settings::common().set( sKeyDefClipPerc, cr*100 );
     Settings::common().set( sKeyDefSymmZero, sm );
+    Settings::common().set( sKeyDefHistEq, histeq );
     Settings::common().write();
 }
 
@@ -74,7 +84,9 @@ ColTab::MapperSetup::MapperSetup()
     : type_(Auto)
     , cliprate_(defClipRate())
     , symmidval_(defSymMidval())
-    , maxpts_(2000)
+    //, histeq_(defHistEq())
+    //, histequalizer_(0)
+    , maxpts_(2560)
     , nrsegs_(0)
     , start_(0), width_(1)
 {}
@@ -169,6 +181,11 @@ ColTab::Mapper::~Mapper()
 float ColTab::Mapper::position( float val ) const
 {
     mWarnHistEqNotImpl
+    /*if ( histeq_ )
+    {
+	return histequalizer_->position( val );
+    }*/
+    
     float ret = (val-setup_.start_) / setup_.width_;
     if ( setup_.nrsegs_ > 0 )
     {
@@ -223,6 +240,14 @@ void ColTab::Mapper::update( bool full )
 	{ setup_.start_ = vs_->value(0) - 1; setup_.width_ = 2; return; }
 
     mWarnHistEqNotImpl
+    /*if ( histeq_ )
+    {
+	delete histequalizer_;
+	histequalizer_ = new HistEqualizer();
+	histequalizer_->setData( clipper_.statPts() );
+	return;
+    }*/
+
 
     if ( full || clipper_.isEmpty() )
     {

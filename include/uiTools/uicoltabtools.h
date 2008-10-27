@@ -16,15 +16,16 @@ public:
 						   bool withalpha,
 						   bool vertical);
 				~uiColorTableCanvas();
+    void			setRGB();
 
 protected:
 
     bool			vertical_;
     const ColTab::Sequence&	ctseq_;
     uiRGBArray*			rgbarr_;
+    void			reDraw(CallBacker*);
 
     uiRGBArray&			mkRGBArr(bool wa);
-    void			reFill(CallBacker*);
 };
 
 #endif

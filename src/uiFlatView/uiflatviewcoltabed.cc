@@ -3,7 +3,7 @@ ___________________________________________________________________
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Satyaki Maitra
  * DATE     : May 2008
- * RCS	    : $Id: uiflatviewcoltabed.cc,v 1.3 2008-10-07 21:49:01 cvskris Exp $
+ * RCS	    : $Id: uiflatviewcoltabed.cc,v 1.4 2008-10-27 11:21:08 cvssatyaki Exp $
 ___________________________________________________________________
 -*/
 
@@ -20,16 +20,16 @@ ___________________________________________________________________
 
 uiFlatViewColTabEd::uiFlatViewColTabEd( uiParent* p, FlatView::Viewer& vwr )
     : ddpars_(vwr.appearance().ddpars_)
+    , vwr_( &vwr )
     , colseq_(*new ColTab::Sequence())
     , colTabChgd(this)
 {
     ColTab::SM().get( ddpars_.vd_.ctab_.buf(), colseq_ );
     uicoltab_ = new uiColorTable( p, colseq_, false );
     uicoltab_->setEnabManage( false );
-    uicoltab_->setInterval( vwr.getDataRange(false) );
     uicoltab_->seqChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
     uicoltab_->scaleChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged));
-    setColTab();
+    setColTab( vwr );
 }
 
 
@@ -39,10 +39,11 @@ uiFlatViewColTabEd::~uiFlatViewColTabEd()
 }
 
 
-void uiFlatViewColTabEd::setColTab()
+void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr)
 {
-    uicoltab_->setSequence( ddpars_.vd_.ctab_ );
-    uicoltab_->setDispPars( ddpars_.vd_ );
+    uicoltab_->setInterval( vwr.getDataRange(false) );
+    uicoltab_->setSequence( vwr.appearance().ddpars_.vd_.ctab_ );
+    uicoltab_->setDispPars( vwr.appearance().ddpars_.vd_ );
 }
 
 

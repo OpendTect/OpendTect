@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
 Date:		Aug 2007
- RCS:           $Id: uicoltabtools.cc,v 1.9 2008-07-16 09:30:39 cvsnanne Exp $
+ RCS:           $Id: uicoltabtools.cc,v 1.10 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,18 +19,19 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "coltabindex.h"
+#include "pixmap.h"
+#include "bufstringset.h"
 
 
 uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
        					bool withalpha, bool vert )
-    : uiRGBArrayCanvas(p,mkRGBArr(withalpha))
+    : uiRGBArrayCanvas(p, uiRGBArrayCanvas::Setup(false), mkRGBArr(withalpha))
     , vertical_(vert)
     , ctseq_(ct)
 {
-    setPrefHeight( vert ? 160 : 25 );
-    setPrefWidth( vert ? 30 : 80 );
-    drawTool().useBackgroundPattern( withalpha );
-    newFillNeeded.notify( mCB(this,uiColorTableCanvas,reFill) );
+    setBackgroundQpaque( withalpha );
+    setRGB();
+    reSize.notify( mCB(this,uiRGBArrayCanvas,reDraw) );
 }
 
 
@@ -46,12 +47,18 @@ uiRGBArray& uiColorTableCanvas::mkRGBArr( bool withalpha )
     return *rgbarr_;
 }
 
+void uiColorTableCanvas::reDraw( CallBacker* )
+{
+    setRGB();
+}
 
-void uiColorTableCanvas::reFill( CallBacker* )
+
+void uiColorTableCanvas::setRGB()
 {
     if ( ctseq_.name().isEmpty() )
 	return;
 
+    beforeDraw();
     const int sz0 = rgbarr_->getSize( !vertical_ );
     const int sz1 = rgbarr_->getSize( vertical_ );
     const ColTab::IndexedLookUpTable indextable( ctseq_, sz0 );
@@ -66,4 +73,9 @@ void uiColorTableCanvas::reFill( CallBacker* )
 		rgbarr_->set( idx, idy, color );
 	}
     }
+
+    ioPixmap* pixmap = new ioPixmap( sz0, sz1 );
+    pixmap->convertFromRGBArray( *rgbarr_ );
+    setPixmap( *pixmap );
+    draw();
 }

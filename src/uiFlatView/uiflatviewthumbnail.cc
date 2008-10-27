@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.cc,v 1.8 2008-04-04 04:29:05 cvsnanne Exp $
+ RCS:           $Id: uiflatviewthumbnail.cc,v 1.9 2008-10-27 11:21:08 cvssatyaki Exp $
  ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@
 #include "uiflatviewcontrol.h"
 #include "uiflatviewer.h"
 #include "uiworld2ui.h"
-#include "iodrawtool.h"
 
 uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
     	: uiCanvas(p,Color::White,"Flatview thumbnail canvas")

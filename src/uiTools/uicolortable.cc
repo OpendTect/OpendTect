@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.23 2008-10-07 21:49:02 cvskris Exp $
+ RCS:           $Id: uicolortable.cc,v 1.24 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "iopar.h"
 #include "pixmap.h"
+#include "mouseevent.h"
 #include "settings.h"
 
 #include "uibutton.h"
@@ -63,7 +64,9 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool ve
     canvas_->setDrawArr( true );
     if ( !vert )
     {
-	canvas_->setPrefHeight( minfld_->prefVNrPics()-2 );
+	canvas_->setPrefHeight( vert ? 160 : 25 );
+	canvas_->setPrefWidth( vert ? 30 : 80 );
+	//canvas_->setPrefHeight( minfld_->prefVNrPics()-2 );
 	canvas_->setStretch( 0, 0 );
     }
 
@@ -176,7 +179,7 @@ void uiColorTable::setSequence( const ColTab::Sequence& ctseq, bool emitnotif )
 {
     coltabseq_ = ctseq;
     selfld_->setCurrentItem( coltabseq_.name() );
-    canvas_->forceNewFill();
+    canvas_->setRGB();
     if ( !emitnotif )
 	seqChanged.trigger();
 }
@@ -271,7 +274,8 @@ class uiAutoRangeClipDlg : public uiDialog
 {
 public:
 
-uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmidval)
+uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmidval )
+   // bool histeq ) disabled
     : uiDialog(p,uiDialog::Setup("Ranges/Clipping","Auto-range and clipping",
 				 "50.1.3"))
 {
@@ -295,8 +299,12 @@ uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmidval)
     midvalfld->setElemSzPol( uiObject::Small );
     midvalfld->attach( alignedBelow, symmfld );
 
+    histeqfld = new uiGenInput( this, "Set Histogram Equalise",
+	    			BoolInpSpec(true) );
+    histeqfld->attach( alignedBelow, midvalfld );
+
     storfld = new uiCheckBox( this, "Save as default" );
-    storfld->attach( alignedBelow, midvalfld );
+    storfld->attach( alignedBelow, histeqfld );
 
     clipPush(0);
     symPush(0);
@@ -326,6 +334,7 @@ bool saveDef()
     uiGenInput*         clipfld;
     uiGenInput*         symmfld;
     uiGenInput*         midvalfld;
+    uiGenInput*         histeqfld;
     uiCheckBox*		storfld;
 };
 
@@ -400,7 +409,7 @@ void uiColorTable::doManage( CallBacker* )
 void uiColorTable::colTabManChgd( CallBacker* )
 {
     selfld_->setCurrentItem( coltabseq_.name() );
-    canvas_->forceNewFill();
+    canvas_->setRGB();
     seqChanged.trigger();
 }
 

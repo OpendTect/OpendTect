@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		May 2008
- RCS:		$Id: uiflatviewcoltabed.h,v 1.2 2008-08-07 03:51:21 cvsnanne Exp $
+ RCS:		$Id: uiflatviewcoltabed.h,v 1.3 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ public:
 				~uiFlatViewColTabEd();
 
     uiGroup*			colTabGrp()	{ return (uiGroup*)uicoltab_; }
-    void			setColTab();
+    void			setColTab( const FlatView::Viewer& );
 
     Notifier<uiFlatViewColTabEd> colTabChgd;
 
@@ -38,6 +38,7 @@ protected:
     FlatView::DataDispPars&	ddpars_;
     ColTab::Sequence&		colseq_;
     uiColorTable*		uicoltab_;
+    FlatView::Viewer*		vwr_;
 
     void			colTabChanged(CallBacker*);
 };

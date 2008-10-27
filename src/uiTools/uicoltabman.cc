@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.18 2008-09-11 09:33:49 cvsnageswara Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.19 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,26 +72,28 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     su.annotx(false).annoty(false).border(uiBorder(0,0,0,2))
       .xrg(Interval<float>(0,1)).yrg(Interval<float>(0,255))
       .canvaswidth(mTransWidth).canvasheight(mTransHeight)
-      .ycol(Color(255,0,0)).y2col(Color(190,190,190))
+      .ycol(Color(255,0,0)).y2col(Color(190,190,190)).handdrag(false)
       .fillbelowy2(true).editable(true).pointsz(3).ptsnaptol(0.08);
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
     cttranscanvas_->pointChanged.notify( mCB(this,uiColorTableMan,transptChg) );
     cttranscanvas_->pointSelected.notify( mCB(this,uiColorTableMan,transptSel));
+    cttranscanvas_->setStretch( 0, 0 );
 
     markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
     markercanvas_->setPrefWidth( mTransWidth );
     markercanvas_->setPrefHeight( mTransWidth/15 );
-    markercanvas_->setStretch( 2, 0 );
+    markercanvas_->setStretch( 0, 0 );
     markercanvas_->attach( alignedBelow, cttranscanvas_ );
 
     ctabcanvas_ = new uiColorTableCanvas( rightgrp, ctab_, false, false );
-    ctabcanvas_->setStretch( 2, 0 );
+    ctabcanvas_->setStretch( 0, 0 );
     ctabcanvas_->getMouseEventHandler().buttonPressed.notify( 
         	    mCB(this,uiColorTableMan,rightClick) );
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
 	         uiSize(mTransWidth,mTransWidth/10) );
     ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
     ctabcanvas_->attach( widthSameAs, markercanvas_ );
+    ctabcanvas_->setPrefWidth( mTransWidth/10 );
 
     BufferString lbl = "Segmentize";
     segmentfld_ = new uiCheckBox( rightgrp, lbl );
@@ -148,6 +150,8 @@ uiColorTableMan::~uiColorTableMan()
 
 void uiColorTableMan::doFinalise( CallBacker* )
 {
+    ctabcanvas_->setPrefWidth( mTransWidth );
+    ctabcanvas_->setPrefHeight( mTransWidth/10 );
     refreshColTabList( ctab_.name() );
     selChg(0);
     toStatusBar( "", 1 );
@@ -197,7 +201,6 @@ void uiColorTableMan::selChg( CallBacker* cb )
     removebut_->setSensitive( selstatus_ != sKeyDefault );
 
     markercanvas_->update();
-    ctabcanvas_->forceNewFill();
     undefcolfld_->setColor( ctab_.undefColor() );
 
     TypeSet<float> xvals;
@@ -208,7 +211,7 @@ void uiColorTableMan::selChg( CallBacker* cb )
 	yvals += ctab_.transparency(idx).y;
     }
     cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
-    cttranscanvas_->update();
+    //cttranscanvas_->update();
 
     delete orgctab_;
     orgctab_ = new ColTab::Sequence( ctab_ );
@@ -354,6 +357,7 @@ bool uiColorTableMan::rejectOK( CallBacker* )
 void uiColorTableMan::undefColSel( CallBacker* )
 {
     ctab_.setUndefColor( undefcolfld_->color() );
+    ctabcanvas_->setRGB();
     tableChanged.trigger();
 }
 
@@ -410,7 +414,6 @@ void uiColorTableMan::doSegmentize()
     {
 	ColTab::SM().get( orgctab_->name(), ctab_ );
 	markercanvas_->update();
-	ctabcanvas_->forceNewFill();
 	tableChanged.trigger();
 	return;
     }
@@ -433,7 +436,7 @@ void uiColorTableMan::doSegmentize()
     mAddColor( nrseg-1, 1 );
 
     markercanvas_->update();
-    ctabcanvas_->forceNewFill();
+    ctabcanvas_->setRGB();
     tableChanged.trigger();
 }
 
@@ -475,14 +478,15 @@ void uiColorTableMan::rightClick( CallBacker* )
 void uiColorTableMan::markerChange( CallBacker* )
 {
     updateSegmentFields();
+    ctabcanvas_->setRGB();
     sequenceChange( 0 );
 }
 
 
 void uiColorTableMan::sequenceChange( CallBacker* )
 {
-    ctabcanvas_->forceNewFill();
-    tableChanged.trigger();
+    ctabcanvas_->setRGB();
+    //tableChanged.trigger();
 }
 
 

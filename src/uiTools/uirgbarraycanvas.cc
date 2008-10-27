@@ -4,43 +4,49 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.10 2008-05-28 06:31:09 cvsnanne Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.11 2008-10-27 11:21:08 cvssatyaki Exp $
  ________________________________________________________________________
 
 -*/
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "iodrawtool.h"
 #include "pixmap.h"
 
-uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
-    	: uiCanvas(p,Color::White,"RGB Array canvas")
-	, rgbarr_(a)
-	, newFillNeeded(this)
-	, rubberBandUsed(this)
-	, border_(0,0,0,0)
-	, bgcolor_(Color::NoColor)
-	, dodraw_(true)
-	, pixmap_(0)
+uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p,
+				    const uiRGBArrayCanvas::Setup& setup,
+				    uiRGBArray& a )
+    	: uiGraphicsView( p,"RGB Array view" )
+	, pixmapitm_( 0 )
+	, rgbarr_( a ) 
+	, newFillNeeded( this )
+	, border_( 0,0,0,0 )
+	, bgcolor_( Color::NoColor ) 
+	, dodraw_( true )
+	, pixmap_( 0 )
+	, arrarea_( uiRect(0,0,0,0) )
+	, width_( setup.width_ )
+	, height_( setup.height_ )
 {
-    preDraw.notify( mCB(this,uiRGBArrayCanvas,beforeDraw) );
+    setStretch( 2, 2 );
+    setScrollBar( setup.scrollbar_ );
 }
 
 
 uiRGBArrayCanvas::~uiRGBArrayCanvas()
 {
     delete pixmap_;
+    delete pixmapitm_;
 }
 
 
 void uiRGBArrayCanvas::setBorder( const uiBorder& newborder )
 {
     if ( border_ != newborder )
-    {
 	border_ = newborder;
-	setupChg();
-    }
 }
 
 
@@ -50,37 +56,26 @@ void uiRGBArrayCanvas::setBGColor( const Color& c )
     {
 	bgcolor_ = c;
 	setBackgroundColor( bgcolor_ );
-	setupChg();
     }
+}
+
+
+void uiRGBArrayCanvas::setBackgroundQpaque( bool withalpha )
+{
+    scene().useBackgroundPattern( withalpha );
 }
 
 
 void uiRGBArrayCanvas::setDrawArr( bool yn )
 {
     if ( dodraw_ != yn )
-    {
 	dodraw_ = yn;
-	setupChg();
-    }
 }
 
 
-void uiRGBArrayCanvas::forceNewFill()
+void uiRGBArrayCanvas::beforeDraw()
 {
-    delete pixmap_; pixmap_ = 0;
-    update(); // Force redraw
-}
-
-
-void uiRGBArrayCanvas::setupChg()
-{
-    update(); // Force redraw
-}
-
-
-void uiRGBArrayCanvas::beforeDraw( CallBacker* )
-{
-    const uiSize totsz( width(), height() );
+    const uiSize totsz( width(), height() ); 
     const int unusedpix = 1;
     arrarea_ = border_.getRect( totsz, unusedpix );
     const int xsz = arrarea_.width() + 1;
@@ -100,10 +95,16 @@ void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 }
 
 
-void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
+void uiRGBArrayCanvas::setPixmap( const ioPixmap& pixmap )
 {
-    ioDrawTool& dt = drawTool();
-    updarea_ = updarea;
+    if ( pixmap_ )
+	delete pixmap_;
+    pixmap_ = new ioPixmap( pixmap );
+}
+
+
+void uiRGBArrayCanvas::draw()
+{
     if ( !dodraw_ )
 	return;
 
@@ -120,14 +121,23 @@ void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
     if ( pixrect.right() < 1 && pixrect.bottom() < 1 )
 	return;
 
-    dt.drawPixmap( arrarea_.topLeft(), pixmap_, pixrect );
+    if ( !pixmapitm_ )
+	pixmapitm_ = scene().addPixmap(*pixmap_);
+    else
+	pixmapitm_->setPixmap( *pixmap_ );
+    pixmapitm_->setOffset( arrarea_.left(), arrarea_.top() );
+}
+
+
+void uiRGBArrayCanvas::setPixMapPos( int x, int y )
+{
+    pixmapitm_->setOffset( x, y );
 }
 
 
 void uiRGBArrayCanvas::rubberBandHandler( uiRect r )
 {
     CBCapsule<uiRect> caps( r, this );
-    rubberBandUsed.trigger( &caps );
 }
 
 

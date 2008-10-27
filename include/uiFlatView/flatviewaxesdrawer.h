@@ -6,13 +6,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.h,v 1.3 2007-03-12 10:59:35 cvsbert Exp $
+ RCS:           $Id: flatviewaxesdrawer.h,v 1.4 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "drawaxis2d.h"
 
+class uiGraphicsView;
+class uiGraphicsScene;
 namespace FlatView
 {
 
@@ -23,7 +25,7 @@ class Viewer;
 class AxesDrawer : public ::DrawAxis2D
 {
 public:
-    			AxesDrawer(Viewer&,ioDrawArea&);
+    			AxesDrawer(Viewer&,uiGraphicsView&);
 
     void		draw(uiRect,uiWorldRect);
 

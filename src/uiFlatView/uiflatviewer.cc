@@ -4,33 +4,52 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.61 2008-10-20 20:18:21 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.62 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewer.h"
+#include "uiflatviewcontrol.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
 #include "flatposdata.h"
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
 #include "flatviewaxesdrawer.h"
+#include "pixmap.h"
 #include "datapackbase.h"
 #include "bufstringset.h"
-#include "iodrawtool.h"
+#include "draw.h"
 #include "drawaxis2d.h"
+#include "geometry.h"
 #include "uiworld2ui.h"
 #include "uimsg.h"
 #include "linerectangleclipper.h"
 #include "debugmasks.h"
+
+#define mStdInitItem \
+      titletxtitem_(0) \
+    , axis1nm_(0) \
+    , axis2nm_(0) \
+    , addatanm_(0) \
+    , rectitem_(0) \
+    , arrowitem1_(0) \
+    , arrowitem2_(0) \
+    , polyitem_(0) \
+    , lineitem_(0) \
+    , marketitem_(0)
 
 
 float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
-    , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray(false)))
+    , mStdInitItem
+    , canvas_(*new uiRGBArrayCanvas( this,uiRGBArrayCanvas::Setup(true),
+				     *new uiRGBArray(false)) )
     , axesdrawer_(*new FlatView::AxesDrawer(*this,canvas_))
     , dim0extfac_(0.5)
     , wvabmpmgr_(0)
@@ -44,8 +63,10 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , control_(0)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
-    canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
-    canvas_.postDraw.notify( mCB(this,uiFlatViewer,canvasPostDraw) );
+    //canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
+    //canvas_.postDraw.notify( mCB(this,uiFlatViewer,canvasPostDraw) );
+    canvas_.reSize.notify( mCB(this,uiFlatViewer,reDraw) );
+    //canvas_.rubberBandUsed.notify( mCB(this,uiFlatViewer,rubberBandZoom) );
     reportedchanges_ += All;
 
     mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
@@ -59,6 +80,29 @@ uiFlatViewer::~uiFlatViewer()
     delete vdbmpmgr_;
     delete &canvas_.rgbArray();
     delete &axesdrawer_;
+}
+
+
+void uiFlatViewer::rubberBandZoom( CallBacker* )
+{
+    const uiRect* selarea = canvas_.getSelectedArea();
+    Geom::Point2D<double> centre( (double)selarea->centre().x,
+	    			  (double)selarea->centre().y );
+    Geom::Size2D<double> viewarea( selarea->width(), selarea->height() );
+    control_->setNewView( centre, viewarea );
+}
+
+
+void uiFlatViewer::reDraw( CallBacker* )
+{
+    drawBitMaps();
+    drawAnnot();
+}
+
+
+void uiFlatViewer::setRubberBandingOn( bool yn )
+{
+    canvas_.setRubberBandingOn( yn );
 }
 
 
@@ -154,7 +198,6 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 	wr_.swapVer();
 
     viewChanged.trigger();
-    canvas_.forceNewFill();
 }
 
 
@@ -178,7 +221,6 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
 
     canvas_.setBorder( uiBorder(l,t,r,b) );
-    canvas_.forceNewFill();
 
 }
 
@@ -193,13 +235,13 @@ void uiFlatViewer::reset()
 
 void uiFlatViewer::drawBitMaps()
 {
+    canvas_.beforeDraw();
     if ( !anysetviewdone_ )
 	setView( boundingBox() );
 
     canvas_.setBGColor( color(false) );
 
     bool datachgd = false;
-    bool parschgd = false;
     for ( int idx=0; idx<reportedchanges_.size(); idx++ )
     {
 	DataChangeType dct = reportedchanges_[idx];
@@ -207,10 +249,8 @@ void uiFlatViewer::drawBitMaps()
 	{ 
 	    datachgd = true;
 	    dispParsChanged.trigger();
-	    continue;
+	    break;
 	}
-	if ( dct == WVAPars || dct == VDPars )
-	    parschgd = true;
     }
     reportedchanges_.erase();
     if ( datachgd )
@@ -234,7 +274,7 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
-    if ( hasdata && (datachgd || mIsUdf(offs.x) || parschgd) )
+    if ( hasdata && (datachgd || mIsUdf(offs.x)) )
     {
 	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
 	if ( !mkBitmaps(offs) )
@@ -261,7 +301,16 @@ void uiFlatViewer::drawBitMaps()
 	return;
     }
 
+   /* if ( appearance().ddpars_.vd_.histeq_ )
+	bmp2rgb_->setClipperData( vdbmpmgr_->bitMapGen()->data().
+				  clipperDataPts() );*/
+    bmp2rgb_->setRGBArr( canvas_.rgbArray() );
     bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
+    ioPixmap* pixmap = new ioPixmap( canvas_.arrArea().width(),
+	    			     canvas_.arrArea().height() );
+    pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
+    canvas_.setPixmap( *pixmap );
+    canvas_.draw();
 }
 
 
@@ -307,11 +356,9 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
 void uiFlatViewer::drawAnnot()
 {
     const FlatView::Annotation& annot = appearance().annot_;
-    ioDrawTool& dt = canvas_.drawTool();
 
     if ( annot.color_.isVisible() )
     {
-	dt.setLineStyle( LineStyle(LineStyle::Solid, 2, annot.color_) );
 	drawGridAnnot();
     }
 
@@ -320,9 +367,15 @@ void uiFlatViewer::drawAnnot()
 
     if ( !annot.title_.isEmpty() )
     {
-	dt.setPenColor( color(true) );
-	dt.drawText( uiPoint(canvas_.arrArea().centre().x,2), annot.title_,
-		     mAlign(Middle,Start) );
+	if ( !titletxtitem_ )
+	    titletxtitem_ = canvas_.scene().addText( annot.title_ );
+	else
+	    titletxtitem_->setText( annot.title_ );
+	titletxtitem_->setZValue(1);
+	titletxtitem_->setPos( canvas_.arrArea().centre().x, 2 );
+	titletxtitem_->setPenColor( color(true) );
+	Alignment al( OD::AlignHCenter, OD::AlignTop );
+	titletxtitem_->setAlignment( al );
     }
 }
 
@@ -370,35 +423,61 @@ void uiFlatViewer::drawGridAnnot()
     if ( !showanyx1annot && !showanyx2annot )
 	return;
 
-    ioDrawTool& dt = canvas_.drawTool();
     const uiRect datarect( canvas_.arrArea() );
-    dt.drawRect( datarect );
     axesdrawer_.draw( datarect, wr_ );
+    if ( !rectitem_ )
+	rectitem_ = canvas_.scene().addRect( datarect.left(),
+						datarect.top(),
+						datarect.width(),
+						datarect.height() );
+    else
+	rectitem_->setRect( datarect.left(), datarect.top(),
+			    datarect.width(), datarect.height() );
+    rectitem_->setPenStyle( LineStyle(LineStyle::Solid, 3, Color::Black) );
+    rectitem_->setZValue(1);
 
     const uiSize totsz( canvas_.width(), canvas_.height() );
-    const int ynameannpos = totsz.height() - 2;
+    const int ynameannpos = datarect.bottom() - 2;
     ArrowStyle arrowstyle( 1 );
     arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
     if ( showanyx1annot && !ad1.name_.isEmpty() )
     {
-	uiPoint from( totsz.width()-12, ynameannpos-6 );
-	uiPoint to( totsz.width()-2, ynameannpos-6 );
+	uiPoint from( datarect.right()-12, ynameannpos + 15 );
+	uiPoint to( datarect.right()-2, ynameannpos  + 15);
 	if ( ad1.reversed_ ) Swap( from, to );
-	dt.drawArrow( from, to, arrowstyle );
-	dt.drawText( uiPoint(totsz.width()-14,ynameannpos), ad1.name_,
-		     mAlign(Stop,Stop) );
+	if ( arrowitem1_ )
+	    delete arrowitem1_;
+	arrowitem1_ = canvas_.scene().addArrow( from, to, arrowstyle );
+	arrowitem1_->setZValue(1);
+	if ( !axis1nm_ )
+	    axis1nm_ = canvas_.scene().addText( ad1.name_ );
+	else
+	    axis1nm_->setText( ad1.name_ );
+	axis1nm_->setZValue(1);
+	Alignment al( OD::AlignRight, OD::AlignVCenter );
+	axis1nm_->setAlignment( al );
+	axis1nm_->setPos( datarect.right() - 20, ynameannpos );
     }
     if ( showanyx2annot && !ad2.name_.isEmpty() )
     {
 	const int left = datarect.left();
-	uiPoint from( left, ynameannpos-1 );
-	uiPoint to( left, ynameannpos-13 );
+	uiPoint from( left , ynameannpos + 15 );
+	uiPoint to( left, ynameannpos + 25 );
 	if ( ad2.reversed_ ) Swap( from, to );
-	dt.drawArrow( from, to, arrowstyle );
-	dt.drawText( uiPoint(left+10,ynameannpos), ad2.name_,
-		     mAlign(Start,Stop) );
+	if ( arrowitem2_ )
+	    delete arrowitem2_;
+	arrowitem2_ = canvas_.scene().addArrow(
+		from, to, arrowstyle );
+	arrowitem2_->setZValue(1); 
+	if ( !axis2nm_ )
+	    axis2nm_ = canvas_.scene().addText( ad2.name_ );
+	else
+	    axis2nm_->setText( ad2.name_ );
+	axis2nm_->setZValue(1);
+	Alignment al( OD::AlignLeft, OD::AlignVCenter );
+	axis2nm_->setAlignment( al );
+	axis2nm_->setPos( left+10, ynameannpos );
     }
-
 }
 
 
@@ -423,7 +502,6 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 
     const uiWorld2Ui w2u( auxwr, canvas_.arrArea().size() );
 
-    ioDrawTool& dt = canvas_.drawTool();
     TypeSet<uiPoint> ptlist;
     const int nrpoints = ad.poly_.size();
     for ( int idx=0; idx<nrpoints; idx++ )
@@ -432,13 +510,17 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
     const bool drawfill = ad.close_ && ad.fillcolor_.isVisible();
     if ( ad.linestyle_.isVisible() || drawfill )
     {
-	dt.setLineStyle( ad.linestyle_ );
 
 	if ( drawfill )
 	{
-	    dt.setFillColor( ad.fillcolor_ );
+	    if ( !polyitem_ )
+		polyitem_ = canvas_.scene().addPolygon( ptlist, true );
+	    else
+		polyitem_->setPolygon( ptlist );
+	    polyitem_->setZValue(1);
+	    polyitem_->setFillColor(  ad.fillcolor_ );
+	    polyitem_->setPenStyle( ad.linestyle_ );
 	    //TODO clip polygon
-	    dt.drawLine( ptlist, true );
 	}
 	else
 	{
@@ -448,8 +530,19 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	    ObjectSet<TypeSet<uiPoint> > lines;
 	    clipPolyLine( datarect, ptlist, lines );
 
-	    for ( int idx=lines.size()-1; idx>=0; idx-- )
-		dt.drawLine( *lines[idx], false );
+	    for ( int idx=0; idx<ptlist.size()-1; idx++ )
+	    {
+		if ( !lineitem_ )
+		    lineitem_ = canvas_.scene().addLine( ptlist[idx],
+			    				    ptlist[idx+1] );
+		else
+		    lineitem_->setLine( ptlist[idx].x, ptlist[idx].y,
+			    		ptlist[idx+1].x, ptlist[idx+1].y );
+		lineitem_->setZValue(1);
+		lineitem_->setPenStyle( ad.linestyle_ );
+	    }
+	    //for ( int idx=lines.size()-1; idx>=0; idx-- )
+		//dt.drawLine( *lines[idx], false );
 
 	    deepErase( lines );
 	}
@@ -465,7 +558,13 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 		 datarect.isOutside(ptlist[idx] ) )
 		continue;
 
-	    dt.drawMarker( ptlist[idx], ad.markerstyles_[styleidx] );
+	    if ( !marketitem_ )
+		marketitem_ =
+		    canvas_.scene().addMarker( ad.markerstyles_[styleidx] );
+	    else
+		marketitem_->setMarkerStyle( ad.markerstyles_[styleidx] );
+	    marketitem_->setZValue(1);
+	    marketitem_->setPos( ptlist[idx].x, ptlist[idx].y );
 	}
     }
 
@@ -475,7 +574,13 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	if ( listpos < 0 ) listpos=0;
 	if ( listpos > nrpoints ) listpos = nrpoints-1;
 
-	dt.drawText( ptlist[listpos], ad.name_.buf(), ad.namealignment_ );
+	if ( !addatanm_ )
+	    addatanm_ = canvas_.scene().addText( ad.name_.buf() );
+	else
+	    addatanm_->setText( ad.name_.buf() );
+	addatanm_->setZValue(1);
+	//ad.namealignment_ );
+	addatanm_->setPos( ptlist[listpos].x, ptlist[listpos].y );
     }
 }
 
@@ -485,7 +590,8 @@ Interval<float> uiFlatViewer::getDataRange( bool iswva ) const
     Interval<float> rg( mUdf(float), mUdf(float) );
     FlatView::BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
     if ( mgr && mgr->bitMapGen() )
-	rg = mgr->bitMapGen()->data().scale( Interval<float>(0,0), mUdf(float));
+	rg = mgr->bitMapGen()->data().scale( appearance().ddpars_.vd_.clipperc_
+					     , mUdf(float));
 
     return rg;
 }

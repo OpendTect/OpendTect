@@ -6,15 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.4 2008-05-28 06:31:09 cvsnanne Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.5 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicanvas.h"
+#include "uigraphicsview.h"
+#include "pixmap.h"
 #include "color.h"
+class uiPixmapItem;
+class MouseEventHandler;
 class uiRGBArray;
-class ioPixmap;
 
 
 /*!\brief Provides a canvas where a uiRGBArray is pre-drawn.
@@ -29,21 +31,33 @@ class ioPixmap;
 
  */
 
-class uiRGBArrayCanvas : public uiCanvas
+class uiRGBArrayCanvas : public uiGraphicsView
 {
 public:
-    			uiRGBArrayCanvas(uiParent*,uiRGBArray&);
+    class Setup
+    {
+    public:
+			Setup( bool sb = true, int w=0, int h=0 )
+			    : scrollbar_(sb)
+			    , width_(w)
+			    , height_(h)	{}
+	mDefSetupMemb	(bool,scrollbar)
+	mDefSetupMemb	(int,width)
+	mDefSetupMemb	(int,height)
+    };
+    			uiRGBArrayCanvas(uiParent*,
+					 const uiRGBArrayCanvas::Setup&,
+					 uiRGBArray&);
 			~uiRGBArrayCanvas();
 
     void		setBorder(const uiBorder&);
     void		setBGColor(const Color&); //!< everything
     void		setDrawArr(bool);	//!< Draw the arr or not?
+    void		setPixmap(const ioPixmap&);
 
     uiRect		arrArea() const		{ return arrarea_; }
     uiRGBArray&		rgbArray()		{ return rgbarr_; }
     const uiRGBArray&	rgbArray() const	{ return rgbarr_; }
-
-    void		forceNewFill();
 
     const uiRect&	updateArea()		{ return updarea_; }
     			//!< In this area the 'rest' needs to be drawn
@@ -53,24 +67,31 @@ public:
     inline const Color&	bgColor() const		{ return bgcolor_; }
     inline bool		arrDrawn() const	{ return dodraw_; }
 
+    void			setBackgroundQpaque(bool);
+    void			setWidth( int w ) 	{ width_ = w ; } 
+    void			setHeight( int h )	{ height_ = h ; }
+    void			beforeDraw();
+    void 			setPixMapPos(int x,int y);
+    void			draw();
+
     Notifier<uiRGBArrayCanvas>	newFillNeeded;
-    Notifier<uiRGBArrayCanvas>	rubberBandUsed;	// CallBacker: CBCapsule<uiRect>
+    //Notifier<uiRGBArrayCanvas>	rubberBandUsed;	// CallBacker: CBCapsule<uiRect>
         
 protected:
 
+    uiPixmapItem*	pixmapitm_;
     uiRGBArray&		rgbarr_;
     uiBorder		border_;
     Color		bgcolor_;
     bool		dodraw_;
+    int			width_;
+    int			height_;
 
     uiRect		arrarea_;
     uiRect		updarea_;
     ioPixmap*		pixmap_;
 
     virtual void	mkNewFill()		{}
-    void		setupChg();
-    void		beforeDraw(CallBacker*);
-    void		reDrawHandler(uiRect);
     void		rubberBandHandler(uiRect);
     bool		createPixmap();
 

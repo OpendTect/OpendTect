@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.33 2008-08-22 12:02:05 cvshelene Exp $
+ RCS:           $Id: flatview.h,v 1.34 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,6 +155,7 @@ public:
 				   // stop=undef
 	bool		blocky_;   // default=false
 	float		symmidvalue_; //!< undef => auto data mid
+	bool		histeq_; //!< undef => auto data mid
     };
 
     //!\brief Variable Density (=color-bar driven) parameters

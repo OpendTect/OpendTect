@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.39 2008-08-22 12:02:05 cvshelene Exp $
+ RCS:           $Id: flatview.cc,v 1.40 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,7 +216,7 @@ FlatView::Annotation::AuxData::EditPermissions::EditPermissions()
 FlatView::Annotation::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
-    , namealignment_( Alignment::Middle, Alignment::Middle )
+    , namealignment_( Alignment(OD::AlignHCenter,OD::AlignVCenter) )
     , linestyle_( LineStyle::None, 1, Color::NoColor )
     , fillcolor_( Color::NoColor )
     , close_( false )

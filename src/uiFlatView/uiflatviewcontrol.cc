@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.37 2008-09-26 13:38:00 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.38 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
+#include "mouseevent.h"
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uirgbarraycanvas.h"
@@ -55,12 +56,9 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 
     uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
-    {
-	cnvs.setRubberBandingOn( OD::LeftButton );
 	cnvs.rubberBandUsed.notify( mCB(this,uiFlatViewControl,rubBandCB));
-    }
 
-    cnvs.setMouseTracking( true );
+    //cnvs.setMouseTracking( true );
     MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1 );
     mevh.movement.notify( mCB( this, uiFlatViewControl, mouseMoveCB ) );
     mevh.buttonReleased.notify( mCB(this,uiFlatViewControl,usrClickCB) );
@@ -99,7 +97,11 @@ void uiFlatViewControl::onFinalise( CallBacker* )
     }
 
     for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
 	vwrs_[idx]->setView( viewrect );
+	vwrs_[idx]->drawBitMaps();
+	vwrs_[idx]->drawAnnot();
+    }
 
     finalPrepare();
 }
@@ -156,7 +158,11 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 {
     const uiWorldRect wr = getNewWorldRect( centre, sz, getBoundingBox() );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
 	vwrs_[idx]->setView( wr );
+	vwrs_[idx]->drawBitMaps();
+	vwrs_[idx]->drawAnnot();
+    }
 }
 
 
@@ -209,6 +215,8 @@ void uiFlatViewControl::flip( bool hor )
 				  : vwrs_[idx]->appearance().annot_.x2_;
 	ad.reversed_ = !ad.reversed_;
 	vwrs_[idx]->setView( newview );
+	vwrs_[idx]->drawBitMaps();
+	vwrs_[idx]->drawAnnot();
     }
 }
 
@@ -216,11 +224,15 @@ void uiFlatViewControl::flip( bool hor )
 void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
     //TODO handle when zoom is disabled
-    mCBCapsuleUnpack(uiRect,r,cb);
+    //mCBCapsuleUnpack(uiRect,r,cb);
+    const uiRect* selarea = vwrs_[0]->rgbCanvas().getSelectedArea();
+    /*Geom::Point2D<double> centre( (double)selarea->centre().x,
+				  (double)selarea->centre().y );
+    Geom::Size2D<double> viewarea( selarea->width(), selarea->height() );a*/
 
     uiWorld2Ui w2u;
     vwrs_[0]->getWorld2Ui(w2u);
-    uiWorldRect wr = w2u.transform(r);
+    uiWorldRect wr = w2u.transform(*selarea);
     Geom::Point2D<double> centre = wr.centre();
     Geom::Size2D<double> newsz = wr.size();
 
@@ -281,6 +293,8 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
     vwr->handleChange( FlatView::Viewer::Annot );
     vwr->handleChange( FlatView::Viewer::WVAPars );
     vwr->handleChange( FlatView::Viewer::VDPars );
+    vwr->drawBitMaps();
+    vwr->drawAnnot();
 }
 
 

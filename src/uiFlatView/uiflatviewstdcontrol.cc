@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.11 2008-08-07 03:51:21 cvsnanne Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.12 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ void uiFlatViewStdControl::updatePosButtonStates()
 
 void uiFlatViewStdControl::setColTab( CallBacker* )
 {
-    ctabed_->setColTab();
+    ctabed_->setColTab( vwr_ );
 }
 
 
@@ -205,6 +205,7 @@ void uiFlatViewStdControl::stateCB( CallBacker* but )
 	drawbut_->setOn( !ismanip );
     else
 	manipbut_->setOn( ismanip );
+    vwr_.setRubberBandingOn( !manipbut_->isOn() );
 }
 
 
@@ -258,4 +259,6 @@ void uiFlatViewStdControl::coltabChg( CallBacker* )
 {
     vwr_.handleChange( FlatView::Viewer::VDPars );
     vwr_.handleChange( FlatView::Viewer::VDData );
+    vwr_.drawBitMaps();
+    vwr_.drawAnnot();
 }

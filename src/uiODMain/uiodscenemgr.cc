@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.152 2008-10-20 10:58:52 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.153 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -1003,6 +1003,8 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     appl_.applMgr().visServer()->fillDispPars( visid, attribid,
 	    curvwr->viewwin_->viewer().appearance().ddpars_ );
     curvwr->viewwin_->viewer().handleChange( FlatView::Viewer::All );
+    curvwr->viewwin_->viewer().drawBitMaps();
+    curvwr->viewwin_->viewer().drawAnnot();
 }
 
 
@@ -1113,6 +1115,8 @@ void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
     vwr.appearance().setDarkBG( wantdock );
     vwr.appearance().setGeoDefaults(isvert);
     vwr.appearance().annot_.setAxesAnnot(true);
+    vwr.drawBitMaps();
+    vwr.drawAnnot();
     viewwin_->addControl( new uiFlatViewStdControl( vwr,
 		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
 }
