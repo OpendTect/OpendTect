@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltab.h,v 1.2 2008-04-08 06:33:48 cvsnanne Exp $
+ RCS:		$Id: coltab.h,v 1.3 2008-10-27 11:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace ColTab
     const char*		defSeqName();
     float		defClipRate();
     float		defSymMidval();
-    void		setMapperDefaults(float cr,float sm);
+    void		setMapperDefaults(float cr,float sm,bool histeq=false);
 
 }
 
