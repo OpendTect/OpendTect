@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.21 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.22 2008-10-27 12:25:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,10 +218,6 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 		continue;
 
 	    Color col;
-	    /*if ( pars.histeq_ )
-		col = ctindex.color(
-			histequalizer_->position((float)bmpval-minfill) );
-	    else */
 	    col = ctindex.colorForIndex( (int)bmpval-minfill );
 	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
