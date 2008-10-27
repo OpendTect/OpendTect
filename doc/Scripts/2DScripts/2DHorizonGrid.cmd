@@ -16,20 +16,20 @@ Input "Name" "TestHorizon"
 Ok
 Ok
 
-Menu "Processing`Create output using Horizon`Horizon grid"
+Menu "Processing`Create Grid output`Grid"
 Button "Select Quantity to output"
 Button "Stored"
 ListClick "Select Data" "LS 5k" Double
 Input "Attribute name" "LS5k-2dHorGrid"
 Button "Select Calculate*"
-ListClick "Objects list" 1 Double
+ListClick "Objects list" "TestHorizon" Double
 Button "Proceed"
 Ok
 Sleep 65
 
 Window "OpendTect*"
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" 1 Double
+ListClick "Select Horizon*" "TestHorizon" Double
 TreeMenu "Horizon`*`Z values" "Select Attribute`Surface data*"
 ListClick "Select Data*" "LS5k-2dHorGrid" Double
 
@@ -41,5 +41,10 @@ Ok
 
 TreeMenu "Horizon`*" "Remove"
 TreeMenu "2D Horizon`*" "Remove"
+Button  "Manage horizons"
+ListClick "Objects list" "TestHorizon"
+Button "Remove this object"
+Button "Yes"
+Button "Dismiss"
 
 End

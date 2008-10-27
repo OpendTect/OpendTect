@@ -42,7 +42,7 @@ Ok
 Input "Select filename" "$SNAPSHOTSDIR$/2d_TreeItems"
 Ok
 
-Menu "Survey`Select\Setup"
+Menu "Survey`Select/Setup"
 Ok
 Button "No"
 

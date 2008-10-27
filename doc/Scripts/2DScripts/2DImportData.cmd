@@ -26,17 +26,18 @@ Input "Input ASCII File" "$EXPORTDIR$/Horizon2D-Export.asc"
 Combo "Select Line Set" "LS 5k"
 Button "Add new"
 Input "Name" "Horizon2D-Import"
-ListClick "Select Data" "Top hor" 
+ListClick "Select Data" "Horizon2D-Import" 
 Button "Define Format*"
-Input "Top hor" "col:5"
+Input "Horizon2D-Import" "col:5"
 Ok
 Button "Import"
 
 Comment "----------Importing 2D Seismic Dat---------------"
 
-Menu "Survey`Import`Seismics`SEG-Y`2D"
-Button "Define SEG-Y input"
-Input "Input file" "$EXPORTDIR$/Seis2D-Export.sgy" 
+Menu "Survey`Import`Seismics`SEG-Y"
+Input "Input SEG-Y file" "$EXPORTDIR$/Seis2D-Export.sgy" 
+Ok
+Window "Determine SEG-Y*"
 Ok
 Input "Line name" "Seis2D"
 Button "Select Store in Line Set" 

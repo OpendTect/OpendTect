@@ -5,10 +5,10 @@ Mon May 28 11:36:39 2008
 
 Comment "--------NeuralNetwork Train----------"
 
-Menu "Processing`Neural Networks"
+Menu "Analysis`Neural Networks"
 Button "Pattern recognition*"
 Button "Unsupervised"
-ListSelect "Select input attributes" 1 On
+ListSelect "Select input attributes" "[LS 5k]" On
 ListSelect "Select output nodes" 1 On
 Ok
 Ok
@@ -18,8 +18,8 @@ Ok
 Button "Dismiss"
 
 Comment "---------Displaying trained Data-----------"
-Menu "Windows`New"
-Menu "Windows`Tile`Horizontal"
+Menu "Scenes`New"
+Menu "Scenes`Tile`Horizontal"
 
 TreeMenu "Tree scene 1" "2D Seismics" "Add"
 ListClick "Objects list" "LS 5k" Double

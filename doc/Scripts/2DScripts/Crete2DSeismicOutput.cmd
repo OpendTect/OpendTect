@@ -5,7 +5,7 @@ Mon Jan 28 11:36:39 2008
 
 Comment "--------------Create Seismic output---------------"
 Case Insensitive
-Menu "Processing`Create Seismic output"
+Menu "Processing`Create Volume output`Cube"
 Button "Select Quantity to output"
 Button "Stored"
 ListClick "Select Data" "LS 5k" Double

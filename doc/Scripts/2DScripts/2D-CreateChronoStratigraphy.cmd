@@ -12,7 +12,7 @@ Window "ChronoStrati*"
 Button "Select LineSet*"
 Button "Select Input Line Set"
 ListClick "Objects list" "LS 5k" Double
-ListClick "Line names" "i5007"
+ListButton "Line names" "i5007" On
 Ok
 
 Button "Read horizons"

@@ -33,8 +33,8 @@ Ok
 #Button "Add as new"
 
 Comment "----------Apply Attibute On data----------"
-Menu "Windows`New"
-Menu "Windows`Tile`Horizontal"
+Menu "Scenes`New"
+Menu "Scenes`Tile`Horizontal"
 
 TreeMenu "Tree Scene 1" "2d Seismics" "Add"
 ListClick "Objects list" "LS 5k" Double
