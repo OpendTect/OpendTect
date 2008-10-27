@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.3 2008-10-27 06:58:40 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.4 2008-10-27 12:07:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,12 +122,12 @@ bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
 
 FaultHorizon2DLocationField::FaultHorizon2DLocationField(
 	const EM::Fault2D& flt, const EM::Horizon2D& h1,
-	const EM::Horizon2D& h2, const IOObj& lsioobj, const char* lnm )
+	const EM::Horizon2D& h2, const MultiID& lsid, const char* lnm )
     : Array2DImpl<char>(1,1)
     , fault_(flt)
     , tophor_(h1)
     , bothor_(h2)
-    , lsioobj_(lsioobj)
+    , linesetid_(lsid)
     , linename_(lnm)
 {
     fault_.ref();
@@ -150,7 +150,7 @@ bool FaultHorizon2DLocationField::calculate()
     sampler.execute();
     TypeSet<Coord3> crds = sampler.getCoordList();
 
-    Seis2DLineSet ls( lsioobj_ );
+    Seis2DLineSet ls( linesetid_ );
     const int lineidx = ls.indexOf( linename_.buf() );
     PosInfo::Line2DData lineposinfo;
     if ( !ls.getGeometry(lineidx,lineposinfo) )

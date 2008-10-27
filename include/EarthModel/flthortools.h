@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.3 2008-10-27 06:58:40 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.4 2008-10-27 12:07:47 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ class FaultHorizon2DLocationField : public Array2DImpl<char>
 public:
     			FaultHorizon2DLocationField(const EM::Fault2D&,
 				const EM::Horizon2D&,const EM::Horizon2D&,
-				const IOObj& lsioobj,const char* linenm);
+				const MultiID& lsid,const char* linenm);
 			~FaultHorizon2DLocationField();
 
     bool		calculate();
@@ -81,7 +81,7 @@ protected:
     const EM::Horizon2D& tophor_;
     const EM::Horizon2D& bothor_;
 
-    const IOObj&	lsioobj_;
+    const MultiID&	linesetid_;
     BufferString	linename_;
 };
 
