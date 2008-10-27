@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.6 2008-10-27 21:46:27 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.7 2008-10-27 21:48:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,26 +214,29 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	needregenration_ = true;
     }
 
-    const SoTextureComposer::ForceTransparency ft =
-	SoTextureComposerElement::getForceTrans( state );
-
-    if ( texturedata->ft_!=ft )
+    if ( !unit )
     {
-	texturedata->ft_ = ft;
-	uint32_t flags = texturedata->glimage_->getFlags();
-	if ( ft==SoTextureComposer::DONT_FORCE )
-	{
-	    uint32_t mask = 0xFFFFFFFF;
-	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
-	    flags &= mask;
-	}
-	else if ( ft==SoTextureComposer::FORCE_ON )
-	    flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	else
-	    flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	const SoTextureComposer::ForceTransparency ft =
+	    SoTextureComposerElement::getForceTrans( state );
 
-	texturedata->glimage_->setFlags( flags );
+	if ( texturedata->ft_!=ft )
+	{
+	    texturedata->ft_ = ft;
+	    uint32_t flags = texturedata->glimage_->getFlags();
+	    if ( ft==SoTextureComposer::DONT_FORCE )
+	    {
+		uint32_t mask = 0xFFFFFFFF;
+		mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
+		mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
+		flags &= mask;
+	    }
+	    else if ( ft==SoTextureComposer::FORCE_ON )
+		flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	    else
+		flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+
+	    texturedata->glimage_->setFlags( flags );
+	}
     }
 
     const float quality = SoTextureQualityElement::get(state);
