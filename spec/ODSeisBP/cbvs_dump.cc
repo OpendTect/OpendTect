@@ -54,7 +54,7 @@ static void prBidCoord( std::ostream& strm, const RCol2Coord& b2c,
 
 bool BatchProgram::go( std::ostream& logstrm )
 {
-    BufferString fname( StreamProvider::sStdIO );
+    BufferString fname( StreamProvider::sStdIO() );
     pars().get( "Input", fname );
     StreamProvider sp( fname );
     sp.addPathIfNecessary( File_getCurrentDir() );
@@ -77,7 +77,7 @@ bool BatchProgram::go( std::ostream& logstrm )
     const float zstep = datacs.zrg.step;
     const BinID icstep( datacs.hrg.step );
 
-    fname = StreamProvider::sStdIO;
+    fname = StreamProvider::sStdIO();
     pars().get( "Output", fname );
     sp.set( fname );
     sp.addPathIfNecessary( File_getCurrentDir() );
