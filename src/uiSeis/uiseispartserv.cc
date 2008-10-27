@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.101 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.102 2008-10-27 07:30:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,14 +154,18 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
     uiSeisIOObjInfo objinfo( mid );
     objinfo.getLineNames( linenames );
 
-    uiSelectFromList::Setup setup( "Lines", linenames );
+    uiSelectFromList::Setup setup( "Select 2D Lines", linenames );
     uiSelectFromList dlg( appserv().parent(), setup );
-    dlg.selFld()->setMultiSelect();
-    dlg.selFld()->selectAll( true );
+    if ( dlg.selFld() )
+    {
+	dlg.selFld()->setMultiSelect();
+	dlg.selFld()->selectAll( true );
+    }
     if ( !dlg.go() )
 	return false;
 
-    dlg.selFld()->getSelectedItems( res );
+    if ( dlg.selFld() )
+	dlg.selFld()->getSelectedItems( res );
     return res.size();
 }
 
