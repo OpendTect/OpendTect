@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.20 2008-03-25 10:20:28 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.21 2008-10-27 10:49:18 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,23 +15,36 @@ ________________________________________________________________________
 #include "color.h"
 #include "geometry.h"
 
+namespace OD
+{
+    enum Alignment
+    {
+	AlignLeft = 0x0001,
+	AlignRight = 0x0002,
+	AlignHCenter = 0x0004,
+	AlignJustify = 0x0008,
+	AlignAbsolute = 0x0010,
+	AlignTop = 0x0020,
+	AlignBottom = 0x0040,
+	AlignVCenter = 0x0080,
+	AlignCenter = AlignVCenter | AlignHCenter
+    };
+}
+
 
 class Alignment
 {
 public:
-
-    enum Pos		{ Start, Middle, Stop };
-			DeclareEnumUtils(Pos)
-
-			Alignment( Pos h=Start, Pos v=Start )
+			Alignment( OD::Alignment h=OD::AlignLeft,
+				   OD::Alignment v=OD::AlignBottom )
 			: hor_(h), ver_(v)	{}
 
-    Pos			hor_;
-    Pos			ver_;
-
+    OD::Alignment	hor_;
+    OD::Alignment	ver_;
 };
 
-#define mAlign(h,v) Alignment(Alignment::h,Alignment::v)
+
+#define mAlign(h,v) Alignment(OD::h,OD::v)
 
 
 class MarkerStyle2D
@@ -48,6 +61,11 @@ public:
     bool		operator==(const MarkerStyle2D& a) const
 			{ return a.type_==type_ && a.size_==size_ &&
 			         a.color_==color_; }
+    MarkerStyle2D&	operator=(const MarkerStyle2D& a) 
+			{ type_ = a.type_ ;
+			  size_ = a.size_;
+			  color_ = a.color_;
+		          return *this;	}
 
     Type		type_;
     int			size_;
