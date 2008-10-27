@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.18 2008-07-31 16:07:03 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.19 2008-10-27 11:12:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "mouseevent.h"
 #include "linear.h"
 
@@ -18,13 +20,16 @@ static const int cBoundarySz = 10;
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
-    : uiCanvas(p,su.bgcol_,"Function display canvas" )
+    : uiGraphicsView(p,"Function display viewer", su.handdrag_ )
     , setup_(su)
     , xax_(0)
     , yax_(0)
     , xmarkval_(mUdf(float))
     , ymarkval_(mUdf(float))
     , selpt_(0)
+    , ypolyitem_(0)
+    , y2polyitem_(0)
+    , markeritems_(0)
     , pointSelected(this)
     , pointChanged(this)
     , mousedown_(this)
@@ -32,16 +37,18 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     setPrefWidth( setup_.canvaswidth_ );
     setPrefHeight( setup_.canvasheight_ );
     setStretch( 2, 2 );
-    preDraw.notify( mCB(this,uiFunctionDisplay,gatherInfo) );
-    uiAxisHandler::Setup asu( uiRect::Bottom );
+    gatherInfo();
+    //preDraw.notify( mCB(this,uiFunctionDisplay,gatherInfo) );
+    uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
+	    		      setup_.canvasheight_ );
     asu.noannot( !setup_.annotx_ );
     asu.border_ = setup_.border_;
-    xax_ = new uiAxisHandler( drawTool(), asu );
+    xax_ = new uiAxisHandler( &scene(), asu );
     asu.side( uiRect::Left ).noannot( !setup_.annoty_ );
-    yax_ = new uiAxisHandler( drawTool(), asu );
+    yax_ = new uiAxisHandler( &scene(), asu );
     xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
     asu.side( uiRect::Right ).noannot( !setup_.annoty_ );
-    y2ax_ = new uiAxisHandler( drawTool(), asu );
+    y2ax_ = new uiAxisHandler( &scene(), asu );
 
     if ( setup_.editable_ )
     {
@@ -54,6 +61,9 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 	getMouseEventHandler().doubleClick.notify(
 				mCB(this,uiFunctionDisplay,mouseDClick) );
     }
+    reSize.notify( mCB(this,uiFunctionDisplay,reSized) );
+    setScrollBar( false );
+    draw();
 }
 
 
@@ -62,6 +72,14 @@ uiFunctionDisplay::~uiFunctionDisplay()
     delete xax_;
     delete yax_;
     delete y2ax_;
+    if ( ypolyitem_ ) scene().removeItem( ypolyitem_ );
+    if ( y2polyitem_ ) scene().removeItem( y2polyitem_ );
+    if ( markeritems_ ) scene().removeItem( markeritems_ );
+}
+
+void uiFunctionDisplay::reSized( CallBacker* )
+{
+    draw();
 }
 
 
@@ -74,7 +92,7 @@ void uiFunctionDisplay::setVals( const float* xvals, const float* yvals,
     for ( int idx=0; idx<sz; idx++ )
 	{ xvals_ += xvals[idx]; yvals_ += yvals[idx]; }
 
-    gatherInfo(); update();
+    gatherInfo(); draw();
 }
 
 
@@ -88,7 +106,7 @@ void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
     for ( int idx=0; idx<sz; idx++ )
 	{ xvals_ += xrg.start + idx * dx; yvals_ += yvals[idx]; }
 
-    gatherInfo(); update();
+    gatherInfo(); draw();
 }
 
 
@@ -104,7 +122,7 @@ void uiFunctionDisplay::setY2Vals( const float* xvals, const float* yvals,
 	y2yvals_ += yvals[idx];
     }
 
-    gatherInfo(); update();
+    gatherInfo(); draw();
 }
 
 
@@ -171,14 +189,14 @@ void uiFunctionDisplay::getRanges(
 }
 
 
-void uiFunctionDisplay::reDrawHandler( uiRect )
+void uiFunctionDisplay::draw()
 {
     if ( yvals_.isEmpty() ) return;
     const bool havey2 = !y2xvals_.isEmpty();
 
-    xax_->newDevSize();
-    yax_->newDevSize();
-    if ( havey2 ) y2ax_->newDevSize();
+    xax_->setNewDevSize( width(), height() );
+    yax_->setNewDevSize( height(), width() );
+    if ( havey2 ) y2ax_->setNewDevSize( height(), width() );
 
     if ( setup_.annotx_ )
 	xax_->plotAxis();
@@ -225,48 +243,63 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	    y2ptlist += uiPoint( xpixintv.stop, closept.y );
     }
 
-    ioDrawTool& dt = drawTool();
-    dt.setLineStyle( LineStyle() );
     if ( havey2 )
-	dt.setPenColor( setup_.y2col_ );
-    dt.setFillColor( havey2 && setup_.fillbelowy2_ ? setup_.y2col_ 
-	    					   : Color::NoColor );
-    if ( setup_.fillbelowy2_ )
-	dt.drawPolygon( y2ptlist );
-    else if ( setup_.drawline_ )
-	dt.drawPolyline( y2ptlist );
+    {
+	if ( !y2polyitem_ )
+	    y2polyitem_ = scene().addPolygon( y2ptlist, setup_.fillbelowy2_ );
+	else
+	    y2polyitem_->setPolygon( y2ptlist );
+	y2polyitem_->setPenColor( setup_.y2col_ );
+	y2polyitem_->setFillColor( setup_.fillbelowy2_ ? setup_.y2col_ :
+						        Color::NoColor );
+	y2polyitem_->setZValue( 0 );
+    }
 
-    dt.setPenColor( setup_.ycol_ );
-    dt.setFillColor( setup_.fillbelow_ ? setup_.ycol_ : Color::NoColor );
+    if ( !ypolyitem_ )
+	ypolyitem_ = scene().addPolygon( yptlist, setup_.fillbelowy2_ );
+    else
+	ypolyitem_->setPolygon( yptlist );
+    ypolyitem_->setPenColor( setup_.ycol_ );
     if ( setup_.fillbelow_ )
-	dt.drawPolygon( yptlist );
-    else if ( setup_.drawline_ )
-	dt.drawPolyline( yptlist );
-
-    dt.setFillColor( Color::NoColor );
+	ypolyitem_->setFillColor( setup_.ycol_ );
+    ypolyitem_->setZValue( 1 );
     if ( setup_.pointsz_ > 0 )
     {
+	if ( !markeritems_ )
+	{
+	    markeritems_ = new uiGraphicsItemGroup();
+	    scene().addItemGrp( markeritems_ );
+	}
+	else
+	    markeritems_->removeAll( true );
+
 	const MarkerStyle2D mst( MarkerStyle2D::Square, setup_.pointsz_,
 				 setup_.ycol_ );
 	for ( int idx=0; idx<nrpts; idx++ )
 	{
 	    const int xpix = xax_->getPix( xvals_[idx] );
 	    const uiPoint pt( xpix, yax_->getPix(yvals_[idx]) );
-	    dt.drawMarker( pt, mst );
+	    uiMarkerItem* markeritem = new uiMarkerItem( mst );
+	    markeritem->setPos( pt.x, pt.y );
+	    markeritems_->add( markeritem );
 	}
+	markeritems_->setZValue( 1 );
     }
 
-    dt.setLineStyle( LineStyle() );
+    LineStyle ls;
     if ( !mIsUdf(xmarkval_) )
     {
-	dt.setPenColor( setup_.xmarkcol_ );
+	ls.color_ = setup_.xmarkcol_;
+	xax_->setup().style_ = ls;
 	xax_->drawGridLine( xax_->getPix(xmarkval_) );
     }
     if ( !mIsUdf(ymarkval_) )
     {
-	dt.setPenColor( setup_.ymarkcol_ );
+	ls.color_ = setup_.ymarkcol_;
+	yax_->setup().style_ = ls;
 	yax_->drawGridLine( yax_->getPix(ymarkval_) );
     }
+    setViewArea( 0, 5, width()+10, height()+10 );
 }
 
 
@@ -327,7 +360,7 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 
     selpt_ = -1;
     pointChanged.trigger();
-    update();
+    draw();
 }
 
 
@@ -358,7 +391,7 @@ void uiFunctionDisplay::mouseMove( CallBacker* )
     xvals_[selpt_] = xval; yvals_[selpt_] = yval;
 
     pointChanged.trigger();
-    update();
+    draw();
 }
 
 
@@ -396,5 +429,5 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
     }
 
     pointSelected.trigger();
-    update();
+    draw();
 }

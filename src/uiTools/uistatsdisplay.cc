@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.14 2008-08-13 03:56:16 cvsnanne Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.15 2008-10-27 11:12:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 
 #include "uiaxishandler.h"
 #include "uifunctiondisplay.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
@@ -85,7 +87,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     }
 
     if ( putcountinplot )
-	funcdisp_->postDraw.notify( mCB(this,uiStatsDisplay,putN) );
+	putN();
 }
 
 
@@ -186,6 +188,7 @@ void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
     avgstdfld_->setValue( rc.stdDev(), 1 );
     medrmsfld_->setValue( rc.median(), 0 );
     medrmsfld_->setValue( rc.rms(), 1 );
+    funcdisp_->draw();
 }
 
 
@@ -226,19 +229,21 @@ void uiStatsDisplay::setMarkValue( float val, bool forx )
     if ( funcdisp_ )
     {
 	funcdisp_->setMarkValue( val, forx );
-	funcdisp_->update();
+	//funcdisp_->update();
     }
 }
 
 
-void uiStatsDisplay::putN( CallBacker* cb )
+void uiStatsDisplay::putN()
 {
     if ( !setup_.countinplot_ || !funcdisp_ || nrinpvals_ < 1 ) return;
 
-    ioDrawTool& dt = funcdisp_->drawTool();
-    dt.setPenColor( Color::Black );
+
     BufferString str = "N="; str += nrinpvals_;
-    dt.drawText( dt.getDevWidth()/2, 0, str, mAlign(Middle,Start) );
+    uiTextItem* textitem = funcdisp_->getScene()->addText( str );
+    textitem->setPos( funcdisp_->width()/2, 0 );
+    textitem->setPenColor( Color::Black );
+    funcdisp_->draw();
 }
 
 

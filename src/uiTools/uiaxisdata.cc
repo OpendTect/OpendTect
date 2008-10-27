@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          Jul 2008
- RCS:           $Id: uiaxisdata.cc,v 1.1 2008-07-31 10:45:49 cvshelene Exp $
+ RCS:           $Id: uiaxisdata.cc,v 1.2 2008-10-27 11:12:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,11 +46,14 @@ void uiAxisData::stop()
 }
 
 
-void uiAxisData::renewAxis( const char* newname, ioDrawTool& iodrawt,
+void uiAxisData::renewAxis( const char* newname, uiGraphicsScene* scene,
+			    int width, int height,
 			    const Interval<float>* newrg )
 {
     stop();
-    axis_ = new uiAxisHandler( iodrawt, defaxsu_ );
+    defaxsu_.width_ = width;
+    defaxsu_.height_ = height; 
+    axis_ = new uiAxisHandler( scene, defaxsu_ );
     axis_->setName( newname );
     needautoscale_ = true;
     isreset_ = false;

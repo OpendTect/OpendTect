@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2007
- RCS:           $Id: uiwindowfuncseldlg.cc,v 1.9 2008-09-09 10:52:11 cvsbert Exp $
+ RCS:           $Id: uiwindowfuncseldlg.cc,v 1.10 2008-10-27 11:12:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "uicanvas.h"
 #include "uigeninput.h"
+#include "uigraphicsview.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
 #include "uilistbox.h"
 #include "uiworld2ui.h"
 #include "iodraw.h"
@@ -29,6 +32,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     : uiDialog( p, uiDialog::Setup("Window/Taper display",0,mNoHelpID) )
     , transform_(new uiWorld2Ui())
     , variable_(variable)
+    , polyitemgrp_(0)
 {
     setCtrlStyle( LeaveOnly );
     
@@ -54,12 +58,12 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     varinpfld_->valuechanged.notify(
 	    mCB(this,uiWindowFuncSelDlg,taperSelChg) );
 
-    canvas_ = new uiCanvas( this, Color::White, "Window/Taper canvas" );
-    canvas_->setPrefHeight( mTransHeight );
-    canvas_->setPrefWidth( mTransWidth );
-    canvas_->setStretch(0,0);
-    canvas_->attach( rightOf, taperlistfld_ );
-    canvas_->postDraw.notify( mCB(this,uiWindowFuncSelDlg,reDraw) );
+    view_ = new uiGraphicsView( this, "Window/Taper view" );
+    view_->setPrefHeight( mTransHeight );
+    view_->setPrefWidth( mTransWidth );
+    view_->setStretch(0,0);
+    view_->attach( rightOf, taperlistfld_ );
+    //canvas_->postDraw.notify( mCB(this,uiWindowFuncSelDlg,reDraw) );
     taperlistfld_->selectionChanged.notify( 
 	mCB(this,uiWindowFuncSelDlg,taperSelChg) );
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
@@ -67,14 +71,14 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
 
     uiBorder border(5,5,5,5);
     
-    uiAxisHandler::Setup asu( uiRect::Bottom );
+    uiAxisHandler::Setup asu( uiRect::Bottom, view_->width(), view_->height() );
     asu.style( LineStyle::None );
     asu.border_ = border;
 
-    xax_ = new uiAxisHandler( canvas_->drawTool(), asu );
+    xax_ = new uiAxisHandler( &view_->scene(), asu );
 
     asu.side( uiRect::Left );
-    yax_ = new uiAxisHandler( canvas_->drawTool(), asu );
+    yax_ = new uiAxisHandler( &view_->scene(), asu );
     xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
     float annotstart = -1;
     xax_->setRange( StepInterval<float>(-1.2,1.2,0.25), &annotstart );
@@ -121,30 +125,41 @@ void uiWindowFuncSelDlg::createLine(const WindowFunction& winfunc,bool replace)
 }
 
 
-void uiWindowFuncSelDlg::reDraw( CallBacker* )
+void uiWindowFuncSelDlg::draw()
 {
-    xax_->newDevSize();
-    yax_->newDevSize();
+    xax_->setNewDevSize( mTransWidth, mTransHeight );
+    yax_->setNewDevSize( mTransHeight, mTransWidth );
     xax_->plotAxis();
     yax_->plotAxis();
     const int selsz = pointlistset_.size();
     TypeSet<int> selecteditems;
+    if ( !polyitemgrp_ )
+    {
+	polyitemgrp_ = new uiGraphicsItemGroup();
+	view_->scene().addItemGrp( polyitemgrp_ );
+    }
+    else
+	polyitemgrp_->removeAll( true );
     taperlistfld_->getSelectedItems( selecteditems );
-    ioDrawTool& dt = canvas_->drawTool();
     for ( int idx=0; idx<pointlistset_.size(); idx++ )
     {
+	uiPolygonItem* polyitem = new uiPolygonItem();
+	polyitem->setPolygon( pointlistset_[idx] );
+	LineStyle ls;
+	ls.width_ = 2;
 	if ( selsz == 1 )
 	{
 	    Color col( linesetcolor_[taperlistfld_->currentItem()] );
-	    dt.setPenColor( col );
+	    ls.color_ = col;
+	    polyitem->setPenStyle( ls );
 	}
 	else
 	{
 	    Color col( linesetcolor_[selecteditems[idx]] );
-	    dt.setPenColor( col );
+	    ls.color_ = col;
+	    polyitem->setPenStyle( ls );
 	}
-	dt.setPenWidth( 2 );
-	dt.drawPolyline( pointlistset_[idx] );
+	polyitemgrp_->add( polyitem );
     }
 }
 
@@ -212,7 +227,8 @@ void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
 
     isvartappresent ? varinpfld_->display( true ) :
 		      varinpfld_->display( false );
-    canvas_->update();
+    //canvas_->update();
+    draw();
 }
 
 
@@ -226,12 +242,3 @@ void uiWindowFuncSelDlg::setVariable( float variable )
 	variable_ = prevvariable; 
     taperSelChg(0);
 }
-/*
-
-bool uiWindowFuncSelDlg::rejectOK( CallBacker* )
-{
-    varinpfld_->valuechanged.remove( mCB(this,uiWindowFuncSelDlg,taperSelChg) );
-    taperlistfld_->selectionChanged.remove( mCB(this,uiWindowFuncSelDlg,
-						taperSelChg) );
-    return true;
-}*/

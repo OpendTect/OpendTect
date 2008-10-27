@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.9 2008-07-04 04:25:13 cvsnanne Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.10 2008-10-27 11:12:56 cvssatyaki Exp $
 _______________________________________________________________________
                    
 -*/   
@@ -158,4 +158,5 @@ void uiAmplSpectrum::putDispData()
     if ( SI().zIsTime() )
 	maxfreq = mNINT( maxfreq );
     disp_->setVals( Interval<float>(0,maxfreq), vals.arr(), fftsz );
+    disp_->draw();
 }
