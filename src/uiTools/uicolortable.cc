@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.24 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.cc,v 1.25 2008-10-27 12:12:43 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,6 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool ve
     {
 	canvas_->setPrefHeight( vert ? 160 : 25 );
 	canvas_->setPrefWidth( vert ? 30 : 80 );
-	//canvas_->setPrefHeight( minfld_->prefVNrPics()-2 );
 	canvas_->setStretch( 0, 0 );
     }
 
@@ -275,7 +274,6 @@ class uiAutoRangeClipDlg : public uiDialog
 public:
 
 uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmidval )
-   // bool histeq ) disabled
     : uiDialog(p,uiDialog::Setup("Ranges/Clipping","Auto-range and clipping",
 				 "50.1.3"))
 {
@@ -299,12 +297,8 @@ uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmidval )
     midvalfld->setElemSzPol( uiObject::Small );
     midvalfld->attach( alignedBelow, symmfld );
 
-    histeqfld = new uiGenInput( this, "Set Histogram Equalise",
-	    			BoolInpSpec(true) );
-    histeqfld->attach( alignedBelow, midvalfld );
-
     storfld = new uiCheckBox( this, "Save as default" );
-    storfld->attach( alignedBelow, histeqfld );
+    storfld->attach( alignedBelow, midvalfld );
 
     clipPush(0);
     symPush(0);
@@ -334,7 +328,6 @@ bool saveDef()
     uiGenInput*         clipfld;
     uiGenInput*         symmfld;
     uiGenInput*         midvalfld;
-    uiGenInput*         histeqfld;
     uiCheckBox*		storfld;
 };
 
