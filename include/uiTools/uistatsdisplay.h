@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.8 2008-05-28 07:18:21 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.9 2008-10-27 11:13:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ public:
 
     int				nrInpVals() const	{ return nrinpvals_; }
     int				nrClasses() const	{ return nrclasses_; }
+    void			putN();
 
 protected:
 
@@ -68,7 +69,6 @@ protected:
     int				nrinpvals_;
 
     void			updateHistogram(const Stats::RunCalc<float>&);
-    void			putN(CallBacker*);
 };
 
 

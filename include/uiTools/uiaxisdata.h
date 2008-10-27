@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          Jul 2008
- RCS:           $Id: uiaxisdata.h,v 1.1 2008-07-31 10:45:49 cvshelene Exp $
+ RCS:           $Id: uiaxisdata.h,v 1.2 2008-10-27 11:13:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiaxishandler.h"
 #include "statruncalc.h"
-#include "iodrawtool.h"
 
 class DataClipper;
+class uiGraphicsScene;
 
 /*!\brief convenient base class to carry axis data:
   	# the AxisHandler which handles the behaviour and positioning of
@@ -59,8 +59,8 @@ public:
     void			handleAutoScale(const Stats::RunCalc<float>&);
     void			handleAutoScale(const DataClipper&);
     void			newDevSize();
-    void			renewAxis(const char*,ioDrawTool&,
-	    				  const Interval<float>*);
+    void			renewAxis(const char*,uiGraphicsScene*,int w,
+	    				  int h,const Interval<float>*);
 };
 
 #endif

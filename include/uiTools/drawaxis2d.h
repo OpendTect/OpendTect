@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.7 2007-03-09 12:28:11 cvsbert Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.8 2008-10-27 11:13:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,11 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "uigeom.h"
 
-class ioDrawArea;
+class uiGraphicsScene;
+class uiGraphicsView;
+class uiGraphicsItemGroup;
+class uiRectItem;
+class uiLineItem;
 template <class T> class StepInterval;
 
 /*\!Draw simple axis for 2D axis.
@@ -45,8 +49,8 @@ template <class T> class StepInterval;
 class DrawAxis2D
 {
 public:
-			DrawAxis2D(ioDrawArea* = 0);
-    void		setDrawArea(ioDrawArea*);
+			DrawAxis2D(uiGraphicsView*);
+    void		setDrawScene(uiGraphicsScene*);
     void		setDrawRectangle(const uiRect*);
     			/*!<Specifies a rectangle on the canvas where the
 			    axis should be drawn. If set to zero, drawer will
@@ -59,10 +63,11 @@ public:
     void		drawAxisLine( bool yn )	{ drawaxisline_ = yn; }
 
     void		drawAxes(bool xdir,bool ydir,
-	    			 bool topside,bool leftside) const;
-    void		drawXAxis(bool topside) const;
-    void		drawYAxis(bool leftside) const;
-    void		drawGridLines(bool xdir,bool ydir) const;
+	    			 bool topside,bool leftside);
+    void		drawXAxis(bool topside);
+    void		drawYAxis(bool leftside);
+    void		drawGridLines(bool xdir,bool ydir);
+    void		setZvalue( int z )	{ zValue_ = z; }
 
 protected:
 
@@ -81,7 +86,16 @@ protected:
 			    \returns 		the actual display pos is
 			 */
 
-    ioDrawArea*		drawarea_;
+    uiGraphicsScene*	drawscene_;
+    uiGraphicsView*	drawview_;
+    uiGraphicsItemGroup* xaxlineitmgrp_;
+    uiGraphicsItemGroup* yaxlineitmgrp_;
+    uiGraphicsItemGroup* xaxgriditmgrp_;
+    uiGraphicsItemGroup* yaxgriditmgrp_;
+    uiGraphicsItemGroup* xaxtxtitmgrp_;
+    uiGraphicsItemGroup* yaxtxtitmgrp_;
+    uiRectItem*		xaxrectitem_;
+    uiLineItem*		yaxlineitem_;
 
     Interval<double>	xrg_;
     Interval<double>	yrg_;
@@ -94,6 +108,7 @@ protected:
 
     bool		inside_;
     bool		drawaxisline_;
+    int			zValue_;
 };
 
 

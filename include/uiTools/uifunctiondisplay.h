@@ -7,14 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.10 2008-07-31 16:07:03 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.11 2008-10-27 11:13:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicanvas.h"
+#include "uigraphicsview.h"
 #include "draw.h"
+class uiGraphicsScene;
 class uiAxisHandler;
+class uiPolygonItem;
+class uiGraphicsItemGroup;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
 
@@ -25,7 +28,7 @@ class uiAxisHandler;
  
  */
 
-class uiFunctionDisplay : public uiCanvas
+class uiFunctionDisplay : public uiGraphicsView
 {
 public:
 
@@ -50,6 +53,7 @@ public:
 				    , editable_(false)
 				    , fillbelow_(false)
 				    , fillbelowy2_(false)
+				    , handdrag_(true)
 				    , drawline_(true)	{}
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
@@ -69,6 +73,7 @@ public:
 	mDefSetupMemb(bool,editable)		//!< Add/remove/change Y1 pts
 	mDefSetupMemb(bool,fillbelow)		//!< Y1 will get fill
 	mDefSetupMemb(bool,fillbelowy2)		//!< Y2 will get fill
+	mDefSetupMemb(bool,handdrag)
 	mDefSetupMemb(bool,drawline)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
     };
@@ -96,13 +101,20 @@ public:
     Notifier<uiFunctionDisplay>	pointChanged;
     int				selPt() const	{ return selpt_; }
 
+    uiGraphicsScene*		getScene()	{ return funcscene_; }
+    void			gatherInfo();
+    void			draw();
 
 protected:
 
     Setup			setup_;
+    uiGraphicsScene*		funcscene_;
     uiAxisHandler*		xax_;
     uiAxisHandler*		yax_;
     uiAxisHandler*		y2ax_;
+    uiPolygonItem*		ypolyitem_;
+    uiPolygonItem*		y2polyitem_;
+    uiGraphicsItemGroup*	markeritems_;
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;
     TypeSet<float>		y2yvals_;
@@ -112,8 +124,6 @@ protected:
     int				selpt_;
     bool			mousedown_;
 
-    void			gatherInfo();
-    virtual void		reDrawHandler(uiRect);
 
     void			mousePress(CallBacker*);
     void			mouseRelease(CallBacker*);
@@ -121,6 +131,7 @@ protected:
     void			mouseDClick(CallBacker*);
 
     bool			setSelPt();
+    void			reSized( CallBacker* );
     void			getRanges(const TypeSet<float>&,
 	    				  const TypeSet<float>&,
 					  const Interval<float>&,

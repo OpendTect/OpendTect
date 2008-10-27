@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.10 2008-08-01 15:50:20 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.11 2008-10-27 11:13:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,11 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "namedobj.h"
 #include "uigeom.h"
-class ioDrawTool;
+class uiGraphicsScene;
+class uiGraphicsItemGroup;
 class LinePars;
+class uiLineItem;
+class uiTextItem;
 
 /*!\brief Handles an axis on a plot
 
@@ -48,12 +51,16 @@ public:
 
     struct Setup
     {
-			Setup( uiRect::Side s )
+			Setup( uiRect::Side s, int w=0, int h=0 )
 			    : side_(s)
 			    , noannot_(false)
+			    , width_(w)
+			    , height_(h)
 			    , islog_(false)	{}
 
 	mDefSetupMemb(uiRect::Side,side)
+	mDefSetupMemb(int, width)
+	mDefSetupMemb(int, height)
 	mDefSetupMemb(bool,islog)
 	mDefSetupMemb(bool,noannot)
 	mDefSetupMemb(uiBorder,border)
@@ -61,7 +68,8 @@ public:
 	mDefSetupMemb(BufferString,name)
     };
 
-			uiAxisHandler(ioDrawTool&,const Setup&);
+			uiAxisHandler(uiGraphicsScene*,const Setup&);
+			~uiAxisHandler();
     void		setRange(const StepInterval<float>&,float* axstart=0);
     void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
@@ -75,37 +83,46 @@ public:
     float		getRelPos(float absval) const;
     int			getPix(float absval) const;
 
-    void		plotAxis() const; //!< draws gridlines if appropriate
-    void		annotAtEnd(const char*) const;
+    void		plotAxis(); //!< draws gridlines if appropriate
+    void		annotAtEnd(const char*);
 
     const Setup&	setup() const	{ return setup_; }
+    Setup&		setup() 	{ return setup_; }
     StepInterval<float>	range() const	{ return rg_; }
     bool		isHor() const	{ return uiRect::isHor(setup_.side_); }
-
     int			pixToEdge() const;
     int			pixBefore() const;
     int			pixAfter() const;
     Interval<int>	pixRange() const;
 
     void		newDevSize(); //!< Call this when appropriate
+    void		setNewDevSize(int devsz, int anotherdim ); //!< Call this when appropriate
 
-    void		drawGridLine(int) const; //!< Already called by plotAxis
-
-    ioDrawTool&		drawTool()		{ return dt_; }
-    const ioDrawTool&	drawTool() const	{ return dt_; }
+    void		drawGridLine(int); //!< Already called by plotAxis
 
 protected:
 
-    ioDrawTool&		dt_;
+    uiGraphicsScene*	scene_;
+    uiGraphicsItemGroup* gridlineitngrp_;
+    uiGraphicsItemGroup* annotpostxtitemgrp_;
+    uiGraphicsItemGroup* annotposlineitmgrp_;
+
     Setup		setup_;
     bool		islog_;
     StepInterval<float>	rg_;
     float		annotstart_;
     uiBorder		border_;
     int			ticsz_;
+    int			height_;
+    int			width_;
     const uiAxisHandler* beghndlr_;
     const uiAxisHandler* endhndlr_;
 
+    uiLineItem*		axisline_;
+    uiTextItem*		annottextitem_;
+    uiTextItem*		annotpostxtitem_;
+    uiTextItem*		nameitem_;
+    uiLineItem*		annotposlineitm_;
     void		reCalc();
     int			wdthx_;
     int			wdthy_;
@@ -115,18 +132,19 @@ protected:
     int			devsz_;
     int			axsz_;
     bool		rgisrev_;
+    bool		ynmtxtvertical_;
     float		rgwidth_;
 
     int			getRelPosPix(float) const;
-    void		drawAxisLine() const;
-    void		annotPos(int,const char*) const;
-    void		drawName() const;
+    void		drawAxisLine();
+    void		annotPos(int,const char*,const LineStyle&);
+    void		drawName();
 
 };
 
 //! draws line not outside box defined by X and Y value ranges
-void drawLine(const LinePars&,const uiAxisHandler& xah,const uiAxisHandler& yah,
-	      const Interval<float>* xvalrg = 0);
+void drawLine(uiGraphicsScene&,const LinePars&,const uiAxisHandler& xah,
+	      const uiAxisHandler& yah,const Interval<float>* xvalrg = 0);
 
 
 #endif

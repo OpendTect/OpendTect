@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.4 2008-05-22 10:46:27 cvssatyaki Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.5 2008-10-27 11:13:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ ________________________________________________________________________
 #include "color.h"
 
 class uiAxisHandler;
-class uiCanvas;
+class uiGraphicsItemGroup;
+class uiGraphicsView;
 class uiGenInput;
 class uiListBox;
 class uiWorld2Ui;
@@ -41,12 +42,13 @@ public:
 
 protected:
 				
-    void		reDraw(CallBacker*);
+    void		draw();
     void		taperSelChg(CallBacker*);
     void		variableChanged(CallBacker*);
     //bool		rejectOK(CallBacker*);
 
-    uiCanvas*		canvas_;
+    uiGraphicsItemGroup* polyitemgrp_;
+    uiGraphicsView*	view_;
     uiGenInput*		varinpfld_;
     uiListBox*		taperlistfld_;
     uiWorld2Ui*		transform_;
