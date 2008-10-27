@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.40 2008-10-27 20:33:11 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.41 2008-10-27 22:03:09 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -59,7 +59,7 @@ void DataManager::readUnLockDB()
 
 
 void DataManager::writeLockDB()
-{ SoDB::writeunlock(); }
+{ SoDB::writelock(); }
 
     
 void DataManager::writeUnLockDB()
