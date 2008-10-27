@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.cc,v 1.5 2008-10-09 12:29:32 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.cc,v 1.6 2008-10-27 10:41:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,8 @@ QGraphicsItem* uiRectItem::mkQtObj()
 
 void uiRectItem::setRect( int x, int y, int width, int height )
 {
-    qrectitem_->setRect( x, y, width, height );
+    qrectitem_->setRect( 0, 0, width, height );
+    qrectitem_->setPos( x, y );
 }
 
 
@@ -272,25 +273,25 @@ void uiTextItem::setAlignment( const Alignment& al )
     float movex = 0, movey = 0;
     switch ( al.hor_ )
     {
-	case Alignment::Stop:
+	case OD::AlignRight:
 	    movex = -txtwidth;
 	    break;
-	case Alignment::Middle:
+	case OD::AlignHCenter:
 	    movex = -txtwidth/2;
 	    break;
-	case Alignment::Start:
+	case OD::AlignLeft:
 	    break;
     }
     
     switch ( al.ver_ )
     {
-	case Alignment::Stop:
+	case OD::AlignBottom:
 	    movey = -txtheight;
 	    break;
-	case Alignment::Middle:
+	case OD::AlignVCenter:
 	    movey = -txtheight/2;
 	    break;
-	case Alignment::Start:
+	case OD::AlignTop:
 	    break;
     }
 
@@ -390,7 +391,7 @@ void uiArrowItem::setArrowStyle( const ArrowStyle& arrowstyle )
 }
 
 
-void uiArrowItem::setArrowSize( const int arrowsz )
+void uiArrowItem::setArrowSize( int arrowsz )
 {
     qarrowitem_->setArrowSize( arrowsz );
 }

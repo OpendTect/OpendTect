@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.4 2008-10-27 10:41:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <QGraphicsItem>
 
-#include "uienums.h"
 #include "draw.h"
 
 class QTextOption;
@@ -109,7 +108,7 @@ public:
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
-    void 			setTextAlignment(OD::Alignment);
+    void 			setTextAlignment(Alignment);
     void			setText(const char*);
 protected:
     QRectF			boundingrect_;

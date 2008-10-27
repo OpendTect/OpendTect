@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.6 2008-10-09 17:43:16 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.7 2008-10-27 10:41:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
     void 			setBackGroundColor(const Color&);
     const Color			backGroundColor() const;
 
-    uiGraphicsItemGroup*	getSelectedItems();
+    int				getSelItemSize();
     uiRect*			getSelectedArea();
     void			setSelectionArea(const uiRect&);
 

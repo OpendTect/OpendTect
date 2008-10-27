@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsitem.cc,v 1.5 2008-10-09 06:35:33 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.cc,v 1.6 2008-10-27 10:41:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,11 +68,15 @@ bool uiGraphicsItem::isSelectable()
 }
 
 
+bool uiGraphicsItem::isSelected()
+{
+    return qgraphicsitem_->isSelected();
+}
+
+
 void uiGraphicsItem::setSelectable( bool yn )
 {
-    if ( yn )
-	qgraphicsitem_->setFlags( QGraphicsItem::ItemIsSelectable );
-//  else ???
+    qgraphicsitem_->setFlag( QGraphicsItem::ItemIsSelectable, yn );
 }
 
 

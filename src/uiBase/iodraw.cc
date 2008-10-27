@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.46 2008-09-04 13:29:36 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.47 2008-10-27 10:41:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,13 +72,13 @@ void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al )
 
     uiPoint bl( x, y );
     const uiSize sz( font_->width(txt), font_->ascent() );
-    if ( al.hor_ == Alignment::Middle )
+    if ( al.hor_ == OD::AlignHCenter )
 	bl.x -= sz.width() / 2;
-    else if ( al.hor_ == Alignment::Stop )
+    else if ( al.hor_ == OD::AlignRight )
 	bl.x -= sz.width();
-    if ( al.ver_ == Alignment::Middle )
+    if ( al.ver_ == OD::AlignVCenter )
 	bl.y += sz.height() / 2;
-    else if ( al.ver_ == Alignment::Start )
+    else if ( al.ver_ == OD::AlignBottom )
 	bl.y += sz.height();
 
     qpainter_->drawText( bl.x, bl.y, QString(txt) );

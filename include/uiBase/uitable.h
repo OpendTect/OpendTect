@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.46 2008-05-29 14:14:49 cvsjaap Exp $
+ RCS:           $Id: uitable.h,v 1.47 2008-10-27 10:41:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "keyenum.h"
 #include "rowcol.h"
-#include "uienums.h"
+#include "draw.h"
 
 class BufferStringSet;
 class ioPixmap;

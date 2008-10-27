@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.26 2008-10-15 15:47:25 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.27 2008-10-27 10:41:58 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,7 +340,7 @@ void uiDataPointSet::handleAxisColChg()
     updColNames();
     if ( xplotwin_ )
 	xplotwin_->plotter().setCols( dColID(xcol_), dColID(ycol_),
-					dColID(y2col_) );
+				      dColID(y2col_) );
     if ( ycol_ >= 0 && statswin_ )
 	showStats( dColID(ycol_) );
 }

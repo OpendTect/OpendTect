@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.6 2008-10-09 17:43:16 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.7 2008-10-27 10:41:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 #include <math.h>
 
+#define PI 3.14159265
 
 class ODGraphicsScene : public QGraphicsScene
 {
@@ -107,6 +108,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
+    , mousehandler_(MouseEventHandler())
     , odgraphicsscene_(new ODGraphicsScene(*this))
 {
     odgraphicsscene_->setObjectName( nm );
@@ -247,6 +249,7 @@ uiPointItem* uiGraphicsScene::addPoint( bool hl )
 {
     uiPointItem* uiptitem = new uiPointItem();
     uiptitem->qPointItem()->setHighLight( hl );
+    addItem( uiptitem );
     items_ += uiptitem;
     return uiptitem;
 }
@@ -256,6 +259,7 @@ uiMarkerItem* uiGraphicsScene::addMarker( const MarkerStyle2D& mstyl, int side )
 {
     uiMarkerItem* markeritem = new uiMarkerItem( mstyl );
     markeritem->qMarkerItem()->setSideLength( side );
+    addItem( markeritem );
     items_ += markeritem;
     return markeritem;
 }
@@ -267,10 +271,14 @@ uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
 {
     uiArrowItem* arritem = new uiArrowItem();
     arritem->setArrowStyle( arrstyle );
+    const int arrsz = (int)sqrt( (head.x - tail.x)*(head.x - tail.x) +
+		      	         (tail.y - head.y)*(tail.y - head.y) );
+    arritem->setArrowSize( arrsz );
     arritem->setPos( head.x, head.y );
     const uiPoint relvec( head.x - tail.x, tail.y - head.y );
-    const double ang( atan2(relvec.y,relvec.x) );
+    const double ang = atan2(relvec.y,relvec.x) *180/PI;
     arritem->rotate( ang );
+    addItem( arritem );
     items_ += arritem;
     return arritem;
 }
@@ -298,19 +306,19 @@ void uiGraphicsScene::removeAllItems()
     deepErase( items_ );
 }
 
-/*uiGraphicsItemGroup* uiGraphicsScene::getSelectedItems()
+int uiGraphicsScene::getSelItemSize()
 {
     uiGraphicsItemGroup* selitemgrp = new uiGraphicsItemGroup();
     QList<QGraphicsItem*> items = odgraphicsscene_->selectedItems();
-    for ( int idx=0; idx<items.size(); idx++ )
+    /*for ( int idx=0; idx<items.size(); idx++ )
     {
 	uiGraphicsItem selecteditm( items[idx] );
 	selecteditm.setParent( selitemgrp );
 	selitemgrp->add( &selecteditm );
-    }
-    return selitemgrp;
+    }*/
+    return items.size();
     //change parent from scene_ to a Item Group
-}*/
+}
 
 uiRect* uiGraphicsScene::getSelectedArea()
 {

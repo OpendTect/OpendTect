@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: odgraphicsitem.cc,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.cc,v 1.4 2008-10-27 10:41:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,8 +125,6 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 	{
 	    painter.drawRect( -mstyle_->size_, -mstyle_->size_,
 		      	      2*mstyle_->size_, 2*mstyle_->size_ );
-	    boundingrect_ = QRectF( -mstyle_->size_, -mstyle_->size_,
-		    		    2*mstyle_->size_, 2*mstyle_->size_ );
 	    break;
 	}
 	
@@ -149,15 +147,13 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 
 
 ODGraphicsArrowItem::ODGraphicsArrowItem()
-    : boundingrect_(new QRectF())
 {
 }
 
 
 QRectF ODGraphicsArrowItem::boundingRect() const
 {
-    qreal penWidth = pen().widthF();
-    return QRectF( -penWidth, -penWidth, penWidth, penWidth );
+    return QRectF( -arrowsz_, -arrowsz_/2, arrowsz_, arrowsz_ );
 }
 
 
@@ -181,11 +177,9 @@ void ODGraphicsArrowItem::drawArrow( QPainter& painter )
 {
     setLineStyle( painter, arrowstyle_.linestyle_ );
 
-    qpointhead_->setX(0);
-    qpointhead_->setY(0);
-    qpointtail_->setX( arrowsz_);
-    qpointtail_->setY(0);
-    painter.drawLine( *qpointtail_, *qpointhead_ ); 
+    qpointtail_ = new QPoint( -arrowsz_, 0 );
+    qpointhead_ = new QPoint( 0, 0 );
+    painter.drawLine( qpointtail_->x(), qpointtail_->y(), qpointhead_->x(), qpointhead_->y() ); 
     if ( arrowstyle_.hasHead() )
 	drawArrowHead( painter, *qpointhead_, *qpointtail_ );
     if ( arrowstyle_.hasTail() )
@@ -223,8 +217,6 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& pos,
 		polypts += pos;
 	        const QPoint pt1 = getEndPoint(pos,M_PI,headstyle.sz_);
 	        const QPoint pt2 = getEndPoint(pos,-(M_PI),headstyle.sz_);
-		boundingrect_->setRect( pt1.x(), pt1.y() , pt1.x() + arrowsz_ ,
-					2*pt1.y() );
 		polypts += pt1;
 		polypts += pt2;
 		painter.drawPolygon( polypts.arr(), 3 );
@@ -289,9 +281,10 @@ ODGraphicsTextItem::ODGraphicsTextItem()
 }
 
 
-void ODGraphicsTextItem::setTextAlignment( OD::Alignment alignment )
+void ODGraphicsTextItem::setTextAlignment( Alignment alignment )
 {
-    alignoption_->setAlignment( (Qt::Alignment)int(alignment) );
+    alignoption_->setAlignment( (Qt::Alignment)int(alignment.hor_ |
+						   alignment.ver_ ) );
 }
 
 

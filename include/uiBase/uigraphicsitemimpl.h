@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.3 2008-10-09 06:35:33 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.4 2008-10-27 10:41:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,7 @@ public:
 				~uiArrowItem();
 
     void                        setArrowStyle(const ArrowStyle&);
-    void 			setArrowSize(const int);
+    void 			setArrowSize(int);
 
     ODGraphicsArrowItem*  	qArrowItem()	{ return qarrowitem_; }
 

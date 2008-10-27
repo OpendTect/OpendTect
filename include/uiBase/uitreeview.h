@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.32 2008-09-15 11:39:25 cvsjaap Exp $
+ RCS:           $Id: uitreeview.h,v 1.33 2008-10-27 10:41:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "bufstringset.h"
 #include "keyenum.h"
-#include "uienums.h"
+#include "draw.h"
 
 
 class QTreeWidget;

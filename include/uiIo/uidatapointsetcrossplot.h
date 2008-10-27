@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.9 2008-07-31 10:45:49 cvshelene Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.10 2008-10-27 10:41:49 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,16 +15,21 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "uidatapointset.h"
 #include "datapointset.h"
-#include "uirgbarraycanvas.h"
+#include "uigraphicsview.h"
 #include "uiaxisdata.h"
+class Coord;
 class ioDrawTool;
+class uiComboBox;
+class uiParent;
 class MouseEvent;
 class LinStats2D;
 class uiDataPointSet;
+class uiGraphicsItemGroup;
+class uiGraphicsItem;
 
 /*!\brief Data Point Set Cross Plotter */
 
-class uiDataPointSetCrossPlotter : public uiRGBArrayCanvas
+class uiDataPointSetCrossPlotter : public uiGraphicsView
 {
 public:
 
@@ -80,10 +85,14 @@ public:
     AxisData			y_;
     AxisData			y2_;
     int				getRow(const AxisData&,uiPoint) const;
-    void 			drawData(const AxisData&);
-    void 			drawRegrLine(const uiAxisHandler&,
+    void 			drawData(const AxisData&,bool y2);
+    void 			drawRegrLine(uiAxisHandler&,
 	    				     const Interval<int>&);
 
+    ObjectSet<Coord>		getSelPtCoordinates()	{ return selcoordset_; }
+    void			setSceneSelectable( bool yn )	
+				{ selectable_ = yn; }
+    void			setSelectable( bool y1, bool y2 );	
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
@@ -97,31 +106,65 @@ public:
     friend class		uiDataPointSetCrossPlotWin;
     friend class		AxisData;
 
+    int				width_;
+    int				height_;
+    void			showY2(bool);
+    void 			drawContent( bool withaxis = true );
+    bool                        isy1selectable_;
+    bool                        isy2selectable_;
 protected:
 
+    uiParent*			parent_;
+    uiPoint*                    selstartpos_;
     uiDataPointSet&		uidps_;
     const DataPointSet&		dps_;
     Setup			setup_;
     MouseEventHandler&		meh_;
+    uiGraphicsItemGroup*	yptitems_;
+    uiGraphicsItemGroup*	y2ptitems_;
+    uiGraphicsItemGroup*	selecteditems_;
+    BoolTypeSet*		selectedypts_;
+    BoolTypeSet*		selectedy2pts_;
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
     bool			doy2_;
     bool			dobd_;
+    bool			selectable_;
     int				eachrow_;
     int				curgrp_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
     bool			selrowisy2_;
 
-    void 			initDraw(CallBacker*);
+    ObjectSet<uiGraphicsItem>	y1itemset_;
+    ObjectSet<uiGraphicsItem>	y2itemset_;
+    ObjectSet<uiGraphicsItem>	selitemset_;
+
+    ObjectSet<Coord>		y1coordset_;
+    ObjectSet<Coord>		y2coordset_;
+    ObjectSet<Coord>		selcoordset_;
+    
+    void 			initDraw();
+    void 			setDraw();
     virtual void		mkNewFill();
-    void 			drawContent(CallBacker*);
     void 			calcStats();
 
     bool			selNearest(const MouseEvent&);
+    void 			reDraw(CallBacker*);
     void 			mouseClick(CallBacker*);
     void 			mouseRel(CallBacker*);
+    void                        getSelStarPos(CallBacker*);
+    void                        itemsSelected(CallBacker*);
 };
 
-
+class uiAskDlg : public uiDialog
+{
+public : 
+    			uiAskDlg( uiParent* );
+    bool                        selcty1_;
+    bool                        selcty2_;
+protected :
+    uiComboBox*		slefld_;
+    bool		acceptOK(CallBacker*);
+};
 #endif

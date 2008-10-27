@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.5 2008-10-09 06:35:33 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.6 2008-10-27 10:41:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
     void		setVisible(bool);
     void		setSelectable(bool);
     bool		isSelectable();
+    bool		isSelected();
 
     uiPoint*		getPos() const;
     void		setPos(float x,float y);
