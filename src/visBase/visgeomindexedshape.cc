@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.13 2008-06-10 19:44:33 cvsyuancheng Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.14 2008-10-27 19:49:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,6 +202,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 		geom->coordindices_.size(), geom->coordindices_.arr() );
 	    shape->coordIndex.setNum( geom->coordindices_.size() );
 	    shape->coordIndex.enableNotify( oldstatus );
+	    shape->coordIndex.touch();
 
 	    if ( shape_->createsNormals() )
 	    {
@@ -211,6 +212,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 			geom->normalindices_.arr() );
     		shape->normalIndex.setNum( geom->normalindices_.size() );
     		shape->normalIndex.enableNotify( oldstatus );
+		shape->normalIndex.touch();
 	    }
 	    else
 		shape->normalIndex.setNum( 0 );
@@ -224,6 +226,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 		shape->textureCoordIndex.setNum(
 			geom->texturecoordindices_.size() );    
 		shape->textureCoordIndex.enableNotify( oldstatus );
+		shape->textureCoordIndex.touch();
 	    }
 	    else
 		shape->textureCoordIndex.setNum( 0 );
