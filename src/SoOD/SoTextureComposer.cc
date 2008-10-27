@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.5 2008-10-22 21:46:53 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.6 2008-10-27 21:46:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,9 +229,9 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	    flags &= mask;
 	}
 	else if ( ft==SoTextureComposer::FORCE_ON )
-	    flags &= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	    flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
 	else
-	    flags &= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	    flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
 
 	texturedata->glimage_->setFlags( flags );
     }
@@ -321,6 +321,8 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 				      SbColor(1,1,1) );
 	SoGLTexture3EnabledElement::set(state, this, false );
 	SoGLTextureEnabledElement::set(state, this, true );
+	if ( isOverride() )
+	    SoTextureOverrideElement::setImageOverride( state, true );
     }
     else if ( unit<maxunits )
     {
@@ -329,8 +331,6 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 					   SbColor(1,1,1) );
 	SoGLMultiTextureEnabledElement::set( state, this, unit,
 				!needregenration_ && quality > 0.0f);
-	if ( !unit && isOverride() )
-	    SoTextureOverrideElement::setImageOverride( state, true );
     }
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.13 2008-09-22 13:35:51 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.14 2008-10-27 21:44:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,9 +238,9 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 	    flags &= mask;
 	}
 	else if ( ft==SoSplitTexture2::FORCE_ON )
-	    flags &= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	    flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
 	else
-	    flags &= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	    flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
 
 	imagedata->glimage_->setFlags( flags );
     }
@@ -302,15 +302,24 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
     const int maxunits = cc_glglue_max_texture_units(glue);
 
 
-    if ( unit<maxunits )
+    if ( !unit )
+    {
+	SoGLTextureImageElement::set( state, this, 
+					   imagedata->glimage_, glmodel,
+					   SbColor(1,1,1) );
+	SoGLTexture3EnabledElement::set(state, this, false );
+	SoGLTextureEnabledElement::set( state, this, 
+				!needregenration_ && quality > 0.0f);
+	if ( isOverride() )
+	    SoTextureOverrideElement::setImageOverride( state, true );
+    }
+    else if ( unit<maxunits )
     {
 	SoGLMultiTextureImageElement::set( state, this, unit,
 					   imagedata->glimage_, glmodel,
 					   SbColor(1,1,1) );
 	SoGLMultiTextureEnabledElement::set( state, this, unit,
 				!needregenration_ && quality > 0.0f);
-	if ( !unit && isOverride() )
-	    SoTextureOverrideElement::setImageOverride( state, true );
     }
 }
 
