@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.52 2008-10-14 20:39:56 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.53 2008-10-28 21:04:55 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -693,16 +693,19 @@ void MultiTexture2::updateShadingVars()
     if ( layeropacity_->value.getNum()>nrtextures )
 	layeropacity_->value.deleteValues( nrtextures, -1 );
 
-    int firstlayer = -1;
 
     numlayers_->value.setValue( nrtextures );
+
+    int firstlayer = -1;
+    bool firstlayerhastrans;
 
     for ( int idx=nrtextures-1; idx>=0; idx-- )
     {
 	if ( isTextureEnabled(idx) && getCurrentTextureIndexData(idx) )
 	{
 	    firstlayer = idx;
-	    if ( !hasTransparency(idx) )
+	    firstlayerhastrans = hasTransparency( idx );
+	    if ( !firstlayerhastrans )
 		break;
 	}
     }
@@ -711,6 +714,17 @@ void MultiTexture2::updateShadingVars()
     {
 	for ( int idx=0; idx<nrtextures; idx++ )
 	{
+	    if ( dosplittexture_ )
+	    {
+		const int unit = idx/mLayersPerUnit;
+		mDynamicCastGet( SoSplitTexture2*, texture,
+				datatexturegrp_->getChild( unit*2+1 ) );
+		if ( texture )
+		    texture->transparencyInfo = firstlayerhastrans
+			? SoSplitTexture2::cHasTransparency()
+			: SoSplitTexture2::cHasNoTransparency();
+	    }
+
 	    layeropacity_->value.set1Value( idx,
 		    isTextureEnabled(idx) && getCurrentTextureIndexData(idx)
 		    ? opacity_[idx] : 0 );
