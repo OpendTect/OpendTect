@@ -5,7 +5,7 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id: GenModDeps.cc,v 1.14 2008-01-12 10:25:24 cvsbert Exp $";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.15 2008-10-28 13:06:43 cvskris Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -77,7 +77,7 @@ int main( int argc, char** argv )
 
 	char* nextptr = (char*)getNextWord(bufptr,wordbuf);
 	if ( ! wordbuf[0] ) continue;
-	int l = strlen( wordbuf );
+	od_int64 l = strlen( wordbuf );
 	if ( wordbuf[l-1] == ':' ) wordbuf[l-1] = '\0';
 	if ( ! wordbuf[0] ) continue;
 
