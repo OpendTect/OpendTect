@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.53 2008-10-28 21:04:55 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.54 2008-10-28 21:34:36 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -761,6 +761,12 @@ void MultiTexture2::createShadingVars()
 {
     if ( !ctabtexture_ )
     {
+	const int ctabunit = MultiTexture2::maxNrTextures()-1;
+
+	SoTextureUnit* unit = new SoTextureUnit;
+	unit->unit = ctabunit;
+	shadinggroup_->addChild( unit );
+
 	SoComplexity* complexity = new SoComplexity;
 	complexity->textureQuality.setValue( 0.1 );
 	shadinggroup_->addChild( complexity );
@@ -805,7 +811,7 @@ void MultiTexture2::createShadingVars()
 
 	ctabunit_ = new SoShaderParameter1i;
 	ctabunit_->name.setValue("ctabunit");
-	ctabunit_->value.setValue( 0 );
+	ctabunit_->value.setValue( ctabunit );
 	fragmentshader_->parameter.addNode( ctabunit_ );
 
 	layersize0_ = new SoShaderParameter1i;
@@ -828,8 +834,8 @@ void MultiTexture2::createShadingVars()
 	    BufferString nm = "dataunit";
 	    nm += idx;
 	    dataunit->name.setValue( nm.buf() );
-	    dataunit->value.setValue( idx+1 );
-	    usedtextureunits_ += idx+1;
+	    dataunit->value.setValue( idx );
+	    usedtextureunits_ += idx;
 	    fragmentshader_->parameter.addNode( dataunit );
 	}
 
@@ -838,7 +844,7 @@ void MultiTexture2::createShadingVars()
 
 	//Reset the texture unit so the shape's
 	//tcoords come in the right unit.
-	SoTextureUnit* unit = new SoTextureUnit;
+	unit = new SoTextureUnit;
 	unit->unit = 0;
 	shadinggroup_->addChild( unit );
     }
@@ -847,7 +853,7 @@ void MultiTexture2::createShadingVars()
     for ( int idx=datatexturegrp_->getNumChildren()/2; idx<nrunits; idx++ )
     {
 	SoTextureUnit* u1 = new SoTextureUnit;
-	u1->unit = idx+1;
+	u1->unit = idx;
 	datatexturegrp_->addChild( u1 );
 	datatexturegrp_->addChild( dosplittexture_ 
 		? (SoNode*) new SoSplitTexture2 
