@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          November 2007
- RCS:           $Id: SoSplitTexture2Element.cc,v 1.4 2008-09-22 13:35:51 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2Element.cc,v 1.5 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,40 +26,37 @@ SoSplitTexture2Element::~SoSplitTexture2Element()
 void SoSplitTexture2Element::set( SoState* const state, SoNode* node,
 				  int unit, const SbVec2s& size,
 				  const int numcomponents,
-				  const unsigned char* bytes,
-       				  SoSplitTexture2::ForceTransparency ft)
+				  const unsigned char* bytes, char ti)
 {
     SoSplitTexture2Element * elem =
 	(SoSplitTexture2Element *) getElement( state, classStackIndex, node );
 
     if ( elem )
-	elem->setElt(unit, size, numcomponents, bytes, ft );
+	elem->setElt(unit, size, numcomponents, bytes, ti );
 }
 
 
 void SoSplitTexture2Element::setElt( int unit, const SbVec2s & size,
 				  const int numcomponents,
-				  const unsigned char* bytes,
-       				   SoSplitTexture2::ForceTransparency ft )
+				  const unsigned char* bytes, char ti )
 {
     while ( numcomps_.getLength()<=unit )
     {
 	numcomps_.append(0);
 	bytes_.append(0);
-	forcetrans_.append( SoSplitTexture2::DISABLE );
+	ti_.append( 0 );
 	sizes_.append( SbVec2s(0,0) );
     }
 
     numcomps_[unit] = numcomponents;
     bytes_[unit] = bytes;
     sizes_[unit] = size;
-    forcetrans_[unit] = ft;
+    ti_[unit] = ti;
 }
 
 
 const unsigned char* SoSplitTexture2Element::get( SoState* state,
-	int unit, SbVec2s& size, int& numcomponents,
-        SoSplitTexture2::ForceTransparency& ft )
+	int unit, SbVec2s& size, int& numcomponents, char& ti )
 {
     const SoSplitTexture2Element* elem = (SoSplitTexture2Element*)
 	getConstElement(state,classStackIndex);
@@ -69,6 +66,6 @@ const unsigned char* SoSplitTexture2Element::get( SoState* state,
 
     size = elem->sizes_[unit];
     numcomponents = elem->numcomps_[unit];
-    ft = elem->forcetrans_[unit];
+    ti = elem->ti_[unit];
     return elem->bytes_[unit];
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.8 2008-09-22 13:44:29 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.9 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec2i32.h>
 #include <Inventor/fields/SoSFBool.h>
-#include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/fields/SoMFUShort.h>
+#include <Inventor/fields/SoSFShort.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
 
@@ -45,9 +45,10 @@ public:
 
     SoSFImage		image;
 
-    enum ForceTransparency	{ DISABLE, FORCE_ON, FORCE_OFF };
-    SoSFEnum			forceTransparency;
-
+    SoSFShort		transparencyInfo;
+    static char		cHasTransparency();
+    static char		cHasNoTransparency();
+    static char		cHasNoIntermediateTransparency();
 
 protected:
     void		GLRender(SoGLRenderAction*);
@@ -88,7 +89,7 @@ protected:
 	unsigned char*				imagedata_;
 	int					imagesize_;
 	int					numcomp_;
-	SoSplitTexture2::ForceTransparency	ft_;
+	char					ti_;
 	SoGLImage*				glimage_;
     };
 

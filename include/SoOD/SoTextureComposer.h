@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureComposer.h,v 1.3 2008-10-21 21:09:55 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.h,v 1.4 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec3i32.h>
 #include <Inventor/fields/SoSFBool.h>
+#include <Inventor/fields/SoSFShort.h>
 #include <Inventor/fields/SoMFUShort.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
@@ -38,7 +39,10 @@ public:
     static		void initClass();
 			SoTextureComposer();
 
-    enum ForceTransparency      { DONT_FORCE, FORCE_ON, FORCE_OFF };
+    SoSFShort		transparencyInfo;
+    static char		cHasTransparency();
+    static char		cHasNoTransparency();
+    static char		cHasNoIntermediateTransparency();
 
     SoSFVec3i32		origin;
     SoSFVec3i32		size; //-1,-1,-1 means to the end of the channel
@@ -65,10 +69,10 @@ protected:
 	int			imagesize_;
 	int			numcomp_;
 	SoGLImage*		glimage_;
-	ForceTransparency	ft_;
+	char			ti_;
     };
 
-    SbPList			texturedata_;
+    SbPList		texturedata_;
 
     SoFieldSensor*	originsensor_;
     bool		needregenration_;

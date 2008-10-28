@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.4 2008-10-22 13:24:44 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.5 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,6 @@ ________________________________________________________________________
 #include <Inventor/fields/SoMFShort.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
-#include "SoTextureComposer.h"
 
 class SoFieldSensor;
 class SoSensor;
@@ -73,7 +72,7 @@ protected:
     SoFieldSensor*				enabledsensor_;
 
     SbImage					rgba_[4];
-    SoTextureComposer::ForceTransparency	ft_;
+    char					ti_;
     SoElement*					matchinfo_;
 
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          November 2007
- RCS:           $Id: SoTextureComposerElement.cc,v 1.2 2008-10-21 21:09:55 cvskris Exp $
+ RCS:           $Id: SoTextureComposerElement.cc,v 1.3 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,21 +24,19 @@ SoTextureComposerElement::~SoTextureComposerElement()
 
 
 void SoTextureComposerElement::set( SoState* const state, SoNode* node,
-       				    const SbList<int>& units,
-				    SoTextureComposer::ForceTransparency ft )
+       				    const SbList<int>& units, char ti )
 {
     SoTextureComposerElement * elem = (SoTextureComposerElement *)
 	getElement( state, classStackIndex, node );
 
-    if ( elem ) elem->setElt( units, ft );
+    if ( elem ) elem->setElt( units, ti );
 }
 
 
-void SoTextureComposerElement::setElt( const SbList<int>& units,
-				       SoTextureComposer::ForceTransparency ft )
+void SoTextureComposerElement::setElt( const SbList<int>& units, char ti )
 {
     units_ = units;
-    ft_ = ft;
+    ti_ = ti;
 }
 
 
@@ -51,11 +49,11 @@ const SbList<int>& SoTextureComposerElement::getUnits( SoState* state )
 }
 
 
-SoTextureComposer::ForceTransparency
-SoTextureComposerElement::getForceTrans( SoState* state )
+char
+SoTextureComposerElement::getTransparencyInfo( SoState* state )
 {
     const SoTextureComposerElement* elem = (SoTextureComposerElement*)
 	    getConstElement(state,classStackIndex);
 
-    return elem->ft_;
+    return elem->ti_;
 }

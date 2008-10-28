@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.7 2008-10-27 21:48:18 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.8 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,18 @@ SoTextureComposer::~SoTextureComposer()
     delete originsensor_;
     delete matchinfo_;
 }
+
+
+char SoTextureComposer::cHasTransparency()
+{ return 1; }
+
+
+char SoTextureComposer::cHasNoTransparency()
+{ return 2; }
+
+
+char SoTextureComposer::cHasNoIntermediateTransparency()
+{ return 3; }
 
 
 void SoTextureComposer::fieldChangeCB( void* data, SoSensor* )
@@ -216,24 +228,36 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 
     if ( !unit )
     {
-	const SoTextureComposer::ForceTransparency ft =
-	    SoTextureComposerElement::getForceTrans( state );
+	const char ti = SoTextureComposerElement::getTransparencyInfo( state );
 
-	if ( texturedata->ft_!=ft )
+	if ( texturedata->ti_!=ti )
 	{
-	    texturedata->ft_ = ft;
+	    texturedata->ti_ = ti;
+
 	    uint32_t flags = texturedata->glimage_->getFlags();
-	    if ( ft==SoTextureComposer::DONT_FORCE )
+
+	    uint32_t mask = 0xFFFFFFFF;
+	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	    mask = mask^SoGLImage::FORCE_ALPHA_TEST_TRUE;
+	    mask = mask^SoGLImage::FORCE_ALPHA_TEST_FALSE;
+	    flags &= mask;
+
+	    if ( ti==cHasTransparency() )
 	    {
-		uint32_t mask = 0xFFFFFFFF;
-		mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
-		mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
-		flags &= mask;
-	    }
-	    else if ( ft==SoTextureComposer::FORCE_ON )
 		flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	    else
+		flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
+	    }
+	    else if ( ti==cHasNoIntermediateTransparency() )
+	    {
+		flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+		flags |= SoGLImage::FORCE_ALPHA_TEST_TRUE;
+	    }
+	    else if ( ti==cHasNoTransparency() )
+	    {
 		flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+		flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
+	    }
 
 	    texturedata->glimage_->setFlags( flags );
 	}
@@ -439,7 +463,7 @@ void SoTextureComposer::removeTextureData()
 SoTextureComposer::TextureData::TextureData()
     : imagedata_( 0 )
     , glimage_( new SoGLImage )
-    , ft_( SoTextureComposer::DONT_FORCE )
+    , ti_( 0 )
 { }
 
 

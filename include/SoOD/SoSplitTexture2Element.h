@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.5 2008-09-22 13:44:29 cvskris Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.6 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,25 +26,22 @@ class SoSplitTexture2Element : public SoReplacedElement
 public:
     static void			set(SoState*,SoNode*,int unit,const SbVec2s&,
 				    const int numcomponents,
-				    const unsigned char* bytes,
-				    SoSplitTexture2::ForceTransparency);
+				    const unsigned char* bytes, char ti);
 
     static const unsigned char*	get(SoState*, int unit, SbVec2s& size,
-				    int& numcomponents,
-				    SoSplitTexture2::ForceTransparency&);
+				    int& numcomponents, char& ti );
 	
     static void			initClass();
 private:
 				~SoSplitTexture2Element();
     void			setElt(int unit,const SbVec2s&,
 	    			       const int numcomponents,
-				       const unsigned char* bytes,
-				       SoSplitTexture2::ForceTransparency);
+				       const unsigned char* bytes, char ti);
 
-    SbList<int>					numcomps_;
-    SbList<const unsigned char*>		bytes_;
-    SbList<SbVec2s>				sizes_;
-    SbList<SoSplitTexture2::ForceTransparency>	forcetrans_;
+    SbList<int>				numcomps_;
+    SbList<const unsigned char*>	bytes_;
+    SbList<SbVec2s>			sizes_;
+    SbList<char>			ti_;
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.14 2008-10-27 21:44:46 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.15 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,19 +45,25 @@ SoSplitTexture2::SoSplitTexture2()
 {
     SO_NODE_CONSTRUCTOR( SoSplitTexture2 );
     SO_NODE_ADD_FIELD( image, (SbVec2s(0,0),0,0,SoSFImage::COPY));
-    SO_NODE_ADD_FIELD( forceTransparency, (DISABLE) );
-
-    SO_NODE_DEFINE_ENUM_VALUE( ForceTransparency, DISABLE );
-    SO_NODE_DEFINE_ENUM_VALUE( ForceTransparency, FORCE_ON );
-    SO_NODE_DEFINE_ENUM_VALUE( ForceTransparency, FORCE_OFF );
-
-    SO_NODE_SET_SF_ENUM_TYPE( forceTransparency, ForceTransparency );
+    SO_NODE_ADD_FIELD( transparencyInfo, (0) );
 }
 
 
 SoSplitTexture2::~SoSplitTexture2()
 {
 }
+
+
+char SoSplitTexture2::cHasTransparency()
+{ return 1; }
+
+
+char SoSplitTexture2::cHasNoTransparency()
+{ return 2; }
+
+
+char SoSplitTexture2::cHasNoIntermediateTransparency()
+{ return 3; }
 
 
 void SoSplitTexture2::GLRender( SoGLRenderAction* action )
@@ -69,7 +75,7 @@ void SoSplitTexture2::GLRender( SoGLRenderAction* action )
     SoState* state = action->getState();
     const int unit = SoTextureUnitElement::get( state );
     SoSplitTexture2Element::set( state, this, unit, sz, nrcomp, values,
-			     (ForceTransparency) forceTransparency.getValue() );
+			     transparencyInfo.getValue() );
     SoCacheElement::setInvalid( true );
     if ( state->isCacheOpen() )
 	SoCacheElement::invalidate(state);
@@ -200,9 +206,9 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 
     SbVec2s sourcesize;
     int numcomponents;
-    SoSplitTexture2::ForceTransparency ft;
+    char ti;
     const unsigned char* sourcedata =
-      SoSplitTexture2Element::get( state, unit, sourcesize, numcomponents, ft );
+      SoSplitTexture2Element::get( state, unit, sourcesize, numcomponents, ti );
 
     if ( !sourcedata )
 	return;
@@ -226,21 +232,33 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 	needregenration_ = true;
     }
 
-    if ( imagedata->ft_!=ft )
+    if ( imagedata->ti_!=ti )
     {
-	imagedata->ft_ = ft;
+	imagedata->ti_ = ti;
 	uint32_t flags = imagedata->glimage_->getFlags();
-	if ( ft==SoSplitTexture2::DISABLE )
+
+	uint32_t mask = 0xFFFFFFFF;
+	mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	mask = mask^SoGLImage::FORCE_ALPHA_TEST_TRUE;
+	mask = mask^SoGLImage::FORCE_ALPHA_TEST_FALSE;
+	flags &= mask;
+
+	if ( ti==SoSplitTexture2::cHasTransparency() )
 	{
-	    uint32_t mask = 0xFFFFFFFF;
-	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	    mask = mask^SoGLImage::FORCE_TRANSPARENCY_FALSE;
-	    flags &= mask;
-	}
-	else if ( ft==SoSplitTexture2::FORCE_ON )
 	    flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
-	else
+	    flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
+	}
+	else if ( ti==SoSplitTexture2::cHasNoIntermediateTransparency() )
+	{
+	    flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
+	    flags |= SoGLImage::FORCE_ALPHA_TEST_TRUE;
+	}
+	else if ( ti==SoSplitTexture2::cHasNoTransparency() )
+	{
 	    flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
+	    flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
+	}
 
 	imagedata->glimage_->setFlags( flags );
     }
@@ -399,7 +417,7 @@ void SoSplitTexture2Part::removeImageData()
 SoSplitTexture2Part::ImageData::ImageData()
     : imagedata_( 0 )
     , glimage_( new SoGLImage )
-    , ft_( SoSplitTexture2::DISABLE )
+    , ti_( 0 )
 { }
 
 

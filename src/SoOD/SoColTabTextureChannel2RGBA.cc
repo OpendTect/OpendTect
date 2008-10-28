@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.7 2008-10-22 21:39:25 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.8 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,13 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 
     int lastchannel = -1;
     int firstchannel = -1;
-    char fullyopaque = 0, fullytransparent = 0; //-1 = false, 1 = true;
+
+    char fullyopaque = 0;
+    //-1 = false, -2 = all non-opaque samples are fully transparent 1 = true;
+
+    char fullytransparent = 0;
+    //-1 = false, 1 = true
+
     for ( int channel=nrchannels-1; channel>=0; channel-- )
     {
 	fullyopaque = 0; fullytransparent = 0;
@@ -138,11 +144,11 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 	    if ( opacity[channel]<=0 )
 	    {
 		fullytransparent = 1;
-		fullyopaque = -1;
+		fullyopaque = -2;
 	    }
 	}
 
-	if ( !fullyopaque || !fullytransparent )
+	if ( fullyopaque!=-2 || fullyopaque!=1 || !fullytransparent )
 	{
 	    getTransparencyStatus( channels, size, channel, fullyopaque,
 				   fullytransparent );
@@ -165,9 +171,12 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
 	return;
     }
 
-    ft_ = fullyopaque==1
-	? SoTextureComposer::FORCE_OFF
-	: SoTextureComposer::FORCE_ON;
+    if ( fullyopaque==1 )
+	ti_ = SoTextureComposer::cHasNoTransparency();
+    else if ( fullyopaque==-1 )
+	ti_ = SoTextureComposer::cHasTransparency();
+    else
+	ti_ = SoTextureComposer::cHasNoIntermediateTransparency();
 
     //Set size of outputS
     for ( int idx=0; idx<4; idx++ )
@@ -247,7 +256,7 @@ void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state )
     SoTextureChannelSetElement::set( state, this, rgba_, 4 );
     SbList<int> units;
     units.append( 0 );
-    SoTextureComposerElement::set( state, this, units, ft_ );
+    SoTextureComposerElement::set( state, this, units, ti_ );
 }
 
 
@@ -275,18 +284,27 @@ void SoColTabTextureChannel2RGBA::getTransparencyStatus(
 	const unsigned int coltabindex = channel[idx];
 	const unsigned opacity = colseq[coltabindex*seqbytesperpixel+3];
 
-	if ( !fullopacity && opacity!=255 )
-	    fullopacity = -1;
-
+	if ( opacity!=255 )
+	{
+	    if ( !opacity )
+	    {
+		if ( !fullopacity  )
+		    fullopacity = -2;
+	    }
+	    else 
+		fullopacity = -1;
+	}
+	    
 	if ( !fulltransparency && opacity )
 	    fulltransparency = -1;
 
-	if ( fullopacity && fulltransparency )
+	if ( (fullopacity==1 || fullopacity==-1) && fulltransparency )
 	    return;
     }
 
     if ( !fulltransparency )
 	fulltransparency = 1;
+
     if ( !fullopacity )
 	fullopacity = 1;
 }

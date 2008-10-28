@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTextureComposerElement.h,v 1.2 2008-10-21 21:09:55 cvskris Exp $
+ RCS:		$Id: SoTextureComposerElement.h,v 1.3 2008-10-28 13:03:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,21 +27,18 @@ class SoTextureComposerElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureComposerElement);
 public:
-    static void			set(SoState*,SoNode*,const SbList<int>&,
-				    SoTextureComposer::ForceTransparency);
+    static void			set(SoState*,SoNode*,const SbList<int>&,char);
 
-    static const SbList<int>&			getUnits(SoState*);
-    static SoTextureComposer::ForceTransparency	getForceTrans(SoState*);
+    static const SbList<int>&	getUnits(SoState*);
+    static char			getTransparencyInfo(SoState*);
 	
     static void			initClass();
 private:
 				~SoTextureComposerElement();
-    void			setElt(const SbList<int>&,
-	    			       SoTextureComposer::ForceTransparency);
+    void			setElt(const SbList<int>&, char );
 
-    SbList<int>					units_;
-    SoTextureComposer::ForceTransparency	ft_;
+    SbList<int>			units_;
+    char			ti_;
 };
 
 #endif
-
