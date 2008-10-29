@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.4 2008-10-27 12:07:47 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.5 2008-10-29 04:31:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,10 @@ bool FaultHorizon2DLocationField::calculate()
     sampler.execute();
     TypeSet<Coord3> crds = sampler.getCoordList();
 
-    Seis2DLineSet ls( linesetid_ );
+    PtrMan<IOObj> lsioobj = IOM().get( linesetid_ );
+    if ( !lsioobj ) return false;
+
+    Seis2DLineSet ls( *lsioobj );
     const int lineidx = ls.indexOf( linename_.buf() );
     PosInfo::Line2DData lineposinfo;
     if ( !ls.getGeometry(lineidx,lineposinfo) )
@@ -161,15 +164,19 @@ bool FaultHorizon2DLocationField::calculate()
 	 !lineposinfo.getPos(crds.last(),lastpos) )
 	return false;
 
-    Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
-    CubeSampling cs; cs.hrg.set( Interval<int>(0,0), trcrg );
-// TODO: cs.zrg
-    setSize( cs.nrCrl(), cs.nrZ() );
-
     const int lidxtop = tophor_.geometry().lineIndex( linename_ );
     const int lidxbot = bothor_.geometry().lineIndex( linename_ );
 
     EM::SectionID sid( 0 );
+    Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
+    CubeSampling cs; cs.hrg.set( Interval<int>(0,0), trcrg );
+    Interval<float> zrg =
+	tophor_.geometry().sectionGeometry(sid)->zRange(lidxtop);
+    zrg.include( bothor_.geometry().sectionGeometry(sid)->zRange(lidxbot) );
+    SI().snapZ( zrg.start, -1 ); SI().snapZ( zrg.stop, 1 );
+    cs.zrg.setFrom( zrg );
+    setSize( cs.nrCrl(), cs.nrZ() );
+
     for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
     {
 	const int crl = trcrg.atIndex( crlidx, 1 );
