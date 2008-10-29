@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.29 2008-10-29 17:06:51 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.30 2008-10-29 20:03:49 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -30,7 +30,8 @@ namespace visSurvey
 {
 
 MPEEditor::MPEEditor()
-    : noderightclick( this )
+    : visBase::VisualObjectImpl( false )
+    , noderightclick( this )
     , emeditor( 0 )
     , eventcatcher( 0 )
     , transformation( 0 )

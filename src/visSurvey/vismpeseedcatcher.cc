@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.30 2008-10-01 03:44:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.31 2008-10-29 20:03:49 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -33,7 +33,8 @@ namespace visSurvey
 {
 
 MPEClickCatcher::MPEClickCatcher()
-    : click( this )
+    : visBase::VisualObjectImpl( false )
+    , click( this )
     , eventcatcher_( 0 )
     , transformation_( 0 )
     , trackertype_( 0 )
