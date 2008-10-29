@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.9 2008-05-15 20:27:27 cvskris Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.10 2008-10-29 17:06:51 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,8 @@ public:
 				    continue to process the event.
 				*/
     EM::PosID			mouseClickDragger(const TypeSet<int>&) const;
+
+    bool			isDragging() const	{ return isdragging; }
 			
 protected:
     				~MPEEditor();
