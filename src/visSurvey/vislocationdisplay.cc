@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.40 2008-08-04 07:41:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.41 2008-10-29 19:16:20 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -325,7 +325,10 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		waitsfordirectionid_ = selfpickidx;
 	    }
 
-	    eventcatcher_->setHandled();
+	    //Only set handled if clicked on marker. Otherwise
+	    //we may interfere with draggers.
+	    if ( selfdirpickidx!=-1 || selfpickidx!=-1 )
+		eventcatcher_->setHandled();
 	}
     }
     else 
