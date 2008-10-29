@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.23 2008-10-17 15:09:34 cvsjaap Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.24 2008-10-29 17:05:19 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -140,6 +140,8 @@ protected:
 						float& sqdist) const;
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool trc,bool z);
+
+    mutable int			prevtrcidx_;
 
     visBase::SplitTextureSeis2D*		triangles_;
     ObjectSet<const Attrib::Data2DHolder>	cache_;

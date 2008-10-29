@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.45 2008-10-17 15:09:34 cvsjaap Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.46 2008-10-29 17:05:19 cvsjaap Exp $
  ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ Seis2DDisplay::Seis2DDisplay()
     , trcnrrg_(-1,-1)
     , datatransform_(0)
     , voiidx_(-1)
+    , prevtrcidx_(0)
 {
     geometry_.zrg.start = geometry_.zrg.stop = mUdf(float);
     cache_.allowNull();
@@ -762,12 +763,27 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 
 Coord Seis2DDisplay::getCoord( int trcnr ) const
 {
-    for ( int idx=0; idx<geometry_.posns.size(); idx++ )
+    const int sz = geometry_.posns.size();
+    if ( !sz )
+	return Coord::udf();
+    if ( prevtrcidx_ >= sz )
+	prevtrcidx_ = sz-1;
+
+    const int prevnr = geometry_.posns[prevtrcidx_].nr_;
+    int dir = (geometry_.posns[0].nr_-prevnr)*(trcnr-prevnr)<0 ? 1 : -1;
+
+    for ( int cnt=0; cnt<=1; cnt++ )
     {
-	if ( geometry_.posns[idx].nr_ == trcnr )
-	    return geometry_.posns[idx].coord_;
+	for ( int idx=prevtrcidx_+cnt*dir; idx>=0 && idx<sz; idx+=dir )
+	{
+	    if ( geometry_.posns[idx].nr_ == trcnr )
+	    {
+		prevtrcidx_ = idx;
+		return geometry_.posns[idx].coord_;
+	    }
+	}
+	dir = -dir;
     }
-    
     return Coord::udf();
 }
 
