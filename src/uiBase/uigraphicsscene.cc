@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.8 2008-10-29 05:58:50 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.9 2008-10-29 06:16:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,7 +275,7 @@ uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
     const uiPoint relvec( head.x - tail.x, tail.y - head.y );
     const double ang = atan2(relvec.y,relvec.x) *180/M_PI;
     arritem->rotate( ang );
-    items_ += arritem;
+    addItem( arritem );
     return arritem;
 }
 
@@ -303,19 +303,19 @@ void uiGraphicsScene::removeAllItems()
 }
 
 
-int uiGraphicsScene::getSelItemSize()
+int uiGraphicsScene::getSelItemSize() const
 {
     QList<QGraphicsItem*> items = odgraphicsscene_->selectedItems();
     return items.size();
 }
 
 
-uiRect* uiGraphicsScene::getSelectedArea()
+uiRect uiGraphicsScene::getSelectedArea() const
 {
     QRectF selarea( odgraphicsscene_->selectionArea().boundingRect().toRect() );
-    return new uiRect( (int)selarea.topLeft().x(), (int)selarea.topLeft().y(),
-	   	       (int)selarea.bottomRight().x(),
-		       (int)selarea.bottomRight().y() );
+    return uiRect( (int)selarea.topLeft().x(), (int)selarea.topLeft().y(),
+	   	   (int)selarea.bottomRight().x(),
+		   (int)selarea.bottomRight().y() );
 }
 
 
