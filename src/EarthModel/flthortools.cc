@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.5 2008-10-29 04:31:23 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.6 2008-10-29 12:35:41 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,23 +50,34 @@ bool Fault2DSubSampler::execute()
 	fault_.geometry().sectionGeometry( fltsid );
     const Coord3 firstknot = fltgeom->getKnot( RowCol(sticknr,0) );
     const Coord3 lastknot = fltgeom->getKnot( RowCol(sticknr,nrknots-1) );
-    const int nrzvals = (lastknot.z-firstknot.z) / zstep_;
+    const int nrzvals = mNINT( (lastknot.z-firstknot.z) / zstep_ );
 
     for ( int idx=0; idx<nrzvals; idx++ )
     {
 	const float curz = firstknot.z + idx*zstep_;
-	for ( int knotidx=0; knotidx<nrknots-1; knotidx++ )
+	bool found = false;
+	for ( int knotidx=0; knotidx<nrknots-1 && !found; knotidx++ )
 	{
 	    const Coord3 knot1 = fltgeom->getKnot( RowCol(sticknr,knotidx) );
 	    const Coord3 knot2 = fltgeom->getKnot( RowCol(sticknr,knotidx+1) );
 	    if ( mIsEqual(curz,knot1.z,1e-3) )
+	    {
 		crds_ += knot1;
+		found = true;
+	    }
 	    else if ( mIsEqual(curz,knot2.z,1e-3) )
+	    {
 		crds_ += knot2;
+		found = true;
+	    }
 	    else
-		crds_ += knot1 + (knot2-knot1)*(curz-knot1.z)/(knot2.z-knot1.z);
+	    {
+		Coord newcrd = knot1.coord() + (knot2.coord()-knot1.coord())*
+					    (curz-knot1.z)/(knot2.z-knot1.z);
+		crds_ += Coord3( newcrd, curz );
+		found = true;
+	    }
 	}
-//	std::cout << idx << '\t' << crds_[idx].x << '\t' << crds_[idx].y << '\t' << crds_[idx].z << std::endl;
     }
 
     return crds_.size() > 0;
@@ -75,6 +86,11 @@ bool Fault2DSubSampler::execute()
 
 Coord3 Fault2DSubSampler::getCoord( float zval ) const
 {
+    if ( zval < crds_.first().z )
+	return crds_.first();
+    if ( zval > crds_.last().z )
+	return crds_.last();
+
     const float diff = zval - crds_[0].z;
     const float fidx = diff / zstep_;
     const int idx = mNINT( fidx );
@@ -185,7 +201,7 @@ bool FaultHorizon2DLocationField::calculate()
 	for ( int zidx=0; zidx<cs.nrZ(); zidx++ )
 	{
 	    const float zval = cs.zAtIndex( zidx );
-	    if ( topz < zval || zval>botz )
+	    if ( zval<topz || zval>botz )
 		set( crlidx, zidx, sOutside() );
 	    else
 	    {
@@ -201,6 +217,15 @@ bool FaultHorizon2DLocationField::calculate()
 		else
 		    set( crlidx, zidx, sOutside() );
 	    }
+	}
+
+	if ( GetEnvVarYN("OD_PRINT_FAULTFIELD") )
+	{
+	    PosInfo::Line2DPos pos; lineposinfo.getPos( crl, pos );
+	    std::cout << crl << '\t' << pos.coord_.x << '\t' << pos.coord_.y;
+	    for ( int zidx=0; zidx<cs.nrZ(); zidx++ )
+		std::cout << '\t' << get(crlidx,zidx);
+	    std::cout << std::endl;
 	}
     }
 
