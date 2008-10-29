@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.7 2008-10-27 10:41:32 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.8 2008-10-29 05:58:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ ________________________________________________________________________
 
 #include <math.h>
 
-#define PI 3.14159265
 
 class ODGraphicsScene : public QGraphicsScene
 {
@@ -250,7 +249,6 @@ uiPointItem* uiGraphicsScene::addPoint( bool hl )
     uiPointItem* uiptitem = new uiPointItem();
     uiptitem->qPointItem()->setHighLight( hl );
     addItem( uiptitem );
-    items_ += uiptitem;
     return uiptitem;
 }
 
@@ -260,7 +258,6 @@ uiMarkerItem* uiGraphicsScene::addMarker( const MarkerStyle2D& mstyl, int side )
     uiMarkerItem* markeritem = new uiMarkerItem( mstyl );
     markeritem->qMarkerItem()->setSideLength( side );
     addItem( markeritem );
-    items_ += markeritem;
     return markeritem;
 }
 
@@ -276,9 +273,8 @@ uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
     arritem->setArrowSize( arrsz );
     arritem->setPos( head.x, head.y );
     const uiPoint relvec( head.x - tail.x, tail.y - head.y );
-    const double ang = atan2(relvec.y,relvec.x) *180/PI;
+    const double ang = atan2(relvec.y,relvec.x) *180/M_PI;
     arritem->rotate( ang );
-    addItem( arritem );
     items_ += arritem;
     return arritem;
 }
@@ -306,19 +302,13 @@ void uiGraphicsScene::removeAllItems()
     deepErase( items_ );
 }
 
+
 int uiGraphicsScene::getSelItemSize()
 {
-    uiGraphicsItemGroup* selitemgrp = new uiGraphicsItemGroup();
     QList<QGraphicsItem*> items = odgraphicsscene_->selectedItems();
-    /*for ( int idx=0; idx<items.size(); idx++ )
-    {
-	uiGraphicsItem selecteditm( items[idx] );
-	selecteditm.setParent( selitemgrp );
-	selitemgrp->add( &selecteditm );
-    }*/
     return items.size();
-    //change parent from scene_ to a Item Group
 }
+
 
 uiRect* uiGraphicsScene::getSelectedArea()
 {
@@ -327,6 +317,7 @@ uiRect* uiGraphicsScene::getSelectedArea()
 	   	       (int)selarea.bottomRight().x(),
 		       (int)selarea.bottomRight().y() );
 }
+
 
 void uiGraphicsScene::setSelectionArea( const uiRect& rect )
 {
@@ -354,7 +345,6 @@ void uiGraphicsScene::useBackgroundPattern( bool usebgpattern )
 
 double uiGraphicsScene::width() const
 { return odgraphicsscene_->width(); }
-
 
 double uiGraphicsScene::height() const
 { return odgraphicsscene_->height(); }
