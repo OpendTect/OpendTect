@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolobliqueslice.cc,v 1.2 2007-05-14 12:21:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolobliqueslice.cc,v 1.3 2008-10-29 19:49:41 cvskris Exp $";
 
 
 #include "visvolobliqueslice.h"
@@ -22,7 +22,8 @@ namespace visBase
 {
 
 ObliqueSlice::ObliqueSlice()
-    : slice_( new SoObliqueSlice )
+    : VisualObjectImpl( false )
+    , slice_( new SoObliqueSlice )
 {
     addChild( slice_ );
 }

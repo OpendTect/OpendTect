@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: vistexturerect.cc,v 1.45 2005-10-30 23:40:25 cvskris Exp $
+ RCS:           $Id: vistexturerect.cc,v 1.46 2008-10-29 19:49:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,8 @@ const char* TextureRect::rectangleidstr = "Rectangle ID";
 const char* TextureRect::textureidstr = "Texture ID";
 
 TextureRect::TextureRect()
-    : rectangle( 0 )
+    : VisualObjectImpl( false )
+    , rectangle( 0 )
     , manipstartnotifier( this )
     , manipchnotifier( this )
     , manipendsnotifier( this )

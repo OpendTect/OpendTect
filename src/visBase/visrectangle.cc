@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visrectangle.cc,v 1.46 2008-02-05 09:24:17 cvsbert Exp $
+ RCS:           $Id: visrectangle.cc,v 1.47 2008-10-29 19:49:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -468,7 +468,8 @@ const char* Rectangle::draggersizestr = "DraggerSize";
 const char* Rectangle::snappingstr = "Snapping";
 
 Rectangle::Rectangle()
-    : origotrans( new SoTranslation )
+    : VisualObjectImpl( false )
+    , origotrans( new SoTranslation )
     , orientationrot( new SoRotation )
     , orientation_( Rectangle::XY )
     , localorigotrans( new SoTranslation )

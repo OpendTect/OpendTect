@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.7 2007-10-12 19:14:34 cvskris Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.8 2008-10-29 19:49:41 cvskris Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -28,7 +28,8 @@ const char* OrthogonalSlice::dimstr = "Dim";
 const char* OrthogonalSlice::slicestr = "Slice";
 
 OrthogonalSlice::OrthogonalSlice()
-    : slice(new SoOrthoSlice)
+    : VisualObjectImpl( false )
+    , slice(new SoOrthoSlice)
     , dragger(DepthTabPlaneDragger::create())
     , pickstyle(PickStyle::create())
     , motion(this)

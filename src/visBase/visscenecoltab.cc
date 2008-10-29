@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: visscenecoltab.cc,v 1.6 2008-10-17 05:05:26 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.cc,v 1.7 2008-10-29 19:49:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace visBase
 {
 
 SceneColTab::SceneColTab()
-    : VisualObjectImpl()
+    : VisualObjectImpl( false )
     , legendkit_(new LegendKit)
 {
     addChild( legendkit_ );

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.24 2008-01-22 08:05:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.25 2008-10-29 19:49:41 cvskris Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -31,7 +31,8 @@ const char* Annotation::showtextstr = "Show Text";
 const char* Annotation::showscalestr = "Show Scale";
 
 Annotation::Annotation()
-    : coords(new SoCoordinate3)
+    : VisualObjectImpl( false )
+    , coords(new SoCoordinate3)
     , textswitch(new SoSwitch)
     , scaleswitch(new SoSwitch)
     , pickstyle(PickStyle::create())

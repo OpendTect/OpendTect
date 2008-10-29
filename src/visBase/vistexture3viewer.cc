@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: vistexture3viewer.cc,v 1.20 2005-05-17 09:29:06 cvskris Exp $
+ RCS:           $Id: vistexture3viewer.cc,v 1.21 2008-10-29 19:49:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ namespace visBase
 const char* Texture3Viewer::textureidstr = "Texture ID";
 
 Texture3Viewer::Texture3Viewer()
-    : texture( 0 )
+    : VisualObjectImpl( false )
+    , texture( 0 )
 {
     setTexture( *Texture3::create() );
     textureobjects.allowNull();

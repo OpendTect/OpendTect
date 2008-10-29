@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.30 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: viswell.cc,v 1.31 2008-10-29 19:49:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ const char* Well::logwidthstr 	= "Screen width";
 
 
 Well::Well()
-    : showmarkers(true)
+    : VisualObjectImpl( false )
+    , showmarkers(true)
     , markersize(sDefaultMarkerSize)
     , transformation(0)
 {
