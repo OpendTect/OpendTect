@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.8 2008-10-22 18:48:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.9 2008-10-30 19:13:43 cvsyuancheng Exp $";
 
 #include "explplaneintersection.h"
 
@@ -229,17 +229,8 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	const bool t2ok = getNearestT(c2,c0,intersectionline,t[2],testt) &&
 			  testt<=1+1e-3 && testt+1e-3>=0;
 	const int nrintersections = t0ok + t1ok + t2ok;
-	if ( !nrintersections )
+	if ( nrintersections<2 )
 	    continue;
-	else if ( nrintersections==1 )
-	{
-	    BufferString msg = "Triangle( ";
-	    msg += lci0; msg +=", "; 
-	    msg += lci1; msg +=", ";  
-	    msg += lci2; msg += " ) "; msg += "Intersects 1 time.";
-	    pErrMsg( msg );
-	    continue;
-	}
 	else if ( nrintersections==3 )//Round error case handle
 	{
 	    const float d0 = plane.distanceToPoint(c0);
