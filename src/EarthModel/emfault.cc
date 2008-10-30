@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.52 2008-07-24 07:27:42 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.53 2008-10-30 05:27:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,6 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 namespace EM {
-
-mImplementEMObjFuncs( Fault, EMFaultTranslatorGroup::keyword ) 
 
 class FaultStickUndoEvent : public UndoEvent
 {
@@ -157,7 +155,9 @@ protected:
     bool	remove_;
 };
 
-    
+
+// ***** Fault *****
+
 Fault::Fault( EMManager& em )
     : Surface(em)
     , geometry_( *this )
@@ -178,9 +178,7 @@ const FaultGeometry& Fault::geometry() const
 { return geometry_; }
 
 
-const IOObjContext& Fault::getIOObjContext() const
-{ return EMFaultTranslatorGroup::ioContext(); }
-
+// ***** FaultGeometry *****
 
 FaultGeometry::FaultGeometry( Fault& flt )
     : SurfaceGeometry(flt)
