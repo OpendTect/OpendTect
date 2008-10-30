@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.42 2007-09-07 18:24:22 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.43 2008-10-30 13:02:02 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visdata.h"
 
 class SoSeparator;
+class SoLockableSeparator;
 class SoNode;
 class SoSwitch;
 class Coord3;
@@ -84,6 +85,16 @@ public:
     void		setRightHandSystem(bool yn) { righthandsystem_=yn; }
     bool		isRightHandSystem() const { return righthandsystem_; }
 
+    void		setLockable();
+    			/*!<Will enable lock functionality.
+			   \note Must be done before giving away the SoNode with
+			   getInventorNode() to take effect */
+    void		readLock();
+    void		readUnLock();
+    bool		tryReadLock();
+    void		writeLock();
+    void		writeUnLock();
+    bool		tryWriteLock();
 
     void		setMaterial(Material*);
     const Material*	getMaterial() const { return material_; }
@@ -105,7 +116,7 @@ protected:
     SoNode*		getChild(int);
 
 
-			VisualObjectImpl(bool selectable=false);
+			VisualObjectImpl(bool selectable);
     virtual		~VisualObjectImpl();
 
     SoSwitch*		onoff_;
@@ -113,7 +124,8 @@ protected:
     bool		righthandsystem_;
 
 private:
-    SoSeparator*	root_;
+    SoSeparator*		root_;
+    SoLockableSeparator*	lockableroot_;
 
 };
 

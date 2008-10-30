@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visobject.cc,v 1.43 2007-09-07 18:24:23 cvskris Exp $";
+static const char* rcsID = "$Id: visobject.cc,v 1.44 2008-10-30 13:02:02 cvskris Exp $";
 
 #include "visobject.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: visobject.cc,v 1.43 2007-09-07 18:24:23 cvskris
 #include <Inventor/actions/SoGetBoundingBoxAction.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
+#include "SoLockableSeparator.h"
 
 namespace visBase
 {
@@ -42,6 +43,7 @@ VisualObject::~VisualObject()
 VisualObjectImpl::VisualObjectImpl( bool issel )
     : VisualObject( issel )
     , root_( new SoSeparator )
+    , lockableroot_( 0 )
     , onoff_( new SoSwitch )
     , material_( 0 )
     , righthandsystem_( true )
@@ -58,6 +60,76 @@ VisualObjectImpl::~VisualObjectImpl()
     getInventorNode()->unref();
     if ( material_ ) material_->unRef();
 }
+
+
+void VisualObjectImpl::setLockable()
+{
+    if ( lockableroot_ )
+	return;
+
+    lockableroot_ = new SoLockableSeparator;
+    lockableroot_->ref();
+
+    for ( int idx=0; idx<root_->getNumChildren(); idx++ )
+	lockableroot_->addChild( root_->getChild(idx) );
+
+    if ( onoff_ )
+    {
+	onoff_->removeChild( root_ );
+	onoff_->addChild( lockableroot_ );
+	root_ = lockableroot_;
+	lockableroot_->unref();
+    }
+    else
+    {
+	root_->unref();
+	root_ = lockableroot_;
+	root_->ref();
+    }
+}
+
+
+void VisualObjectImpl::readLock()
+{
+    if ( lockableroot_ ) lockableroot_->lock.readLock();
+}
+	
+
+void VisualObjectImpl::readUnLock()
+{
+    if ( lockableroot_ ) lockableroot_->lock.readUnlock();
+}
+
+
+bool VisualObjectImpl::tryReadLock()
+{
+    if ( !lockableroot_ )
+	return false;
+
+    return lockableroot_->lock.tryReadLock();
+}
+
+
+void VisualObjectImpl::writeLock()
+{
+    if ( lockableroot_ ) lockableroot_->lock.writeLock();
+}
+	
+
+void VisualObjectImpl::writeUnLock()
+{
+    if ( lockableroot_ ) lockableroot_->lock.writeUnlock();
+}
+
+
+bool VisualObjectImpl::tryWriteLock()
+{
+    if ( !lockableroot_ )
+	return false;
+
+    return lockableroot_->lock.tryWriteLock();
+}
+
 
 
 void VisualObjectImpl::turnOn( bool yn )
