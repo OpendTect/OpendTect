@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.30 2008-10-08 21:13:24 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.31 2008-10-30 13:00:40 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ SRC.cc	:=	initsood.cc \
 		SoForegroundTranslation.cc \
 		SoIndexedTriangleFanSet.cc \
 		SoLODMeshSurface.cc \
+		SoLockableSeparator.cc \
 		SoManLevelOfDetail.cc \
 		SoMFImage.cc \
 		SoColTabMultiTexture2.cc \
