@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.7 2008-10-23 20:59:57 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.8 2008-10-30 18:54:26 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ protected:
     static char		cIsDuplicate()	{ return 3; }
     static char		cIsOutside()	{ return 4; }
     static char		cNotOnEdge() 	{ return 5; }
+    static char		cNotOnPlane() 	{ return 6; }
     static char		cError()	{ return -1; }
 
     static int		cNoTetrahedra()	{ return -1; }
@@ -101,7 +102,14 @@ protected:
     int		searchFaceOnList(int ci,int v0,int v1,int rep,
 	    			 const TypeSet<int>& tis) const;
     char	location(int ci,int ti,char& face,int& dupid,
-	    		 int&edgeend0,int&edgeend1) const;
+	    		 int& edgeend0,int& edgeend1,double& dist) const;
+    char	isOnEdge(const Coord3& p,const Coord3& a,const Coord3& b, 
+	    		 const Coord3 planenormal,bool& duponfirst, 
+			 double& signedsqdist) const;
+    char	locationToTriangle(const Coord3& pt,const Coord3& a,
+	    		const Coord3& b,const Coord3& c,double& signedsqdist,
+			char& dupid,char& edgeidx) const;
+
     char	isIntersect(const Coord3& p,const Coord3& q,const Coord3& a,
 	   		const Coord3& b,const Coord3& c,char& edge) const;
     		/*!<ret inside, outside, on edge, or duplicate. edge will be

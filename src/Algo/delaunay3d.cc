@@ -4,16 +4,18 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.8 2008-10-23 20:59:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.9 2008-10-30 18:54:26 cvsyuancheng Exp $";
 
 #include "delaunay3d.h"
 #include "trigonometry.h"
 #include "varlenarray.h"
 
+#include <iostream>
+
 
 ParallelDTetrahedralator::ParallelDTetrahedralator( DAGTetrahedraTree& dagt )
     : tree_( dagt )
-    , israndom_( true )
+    , israndom_( false )
 {}
 
 
@@ -58,12 +60,8 @@ bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
     for ( int idx=0; idx<delayedpts.size() && shouldContinue(); idx++ )
     {
 	int dupid;
-	if ( !tree_.insertPoint(delayedpts[idx],dupid) )
-	{
-	    BufferString msg = "\n Point "; 
-	    msg += delayedpts[idx]; msg += " is skipped!";
-    	    pErrMsg( msg ); //If failed again, we skip the point.
-	}
+	if ( !tree_.insertPoint( delayedpts[idx], dupid ) )
+	    pErrMsg("Hmm");
 
 	reportNrDone(1);
     }
@@ -187,7 +185,7 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	return false;
 
     center_ = Coord3( xrg.center(), yrg.center(), zrg.center() );
-    const double k = initsizefactor_ * 
+    const double k = initsizefactor_ * 2 * 
 	Math::Sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
     epsilon_ = k*(1e-5);
 
@@ -209,12 +207,12 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 
 void DAGTetrahedraTree::setInitSizeFactor( float newfactor )
 {
-    if ( newfactor<0.2 )
-	return; //Make sure it is not too small
+    if ( newfactor<0.2 || mIsZero(initsizefactor_-newfactor,1e-5) )
+	return; 
 
     if ( initialcoords_[0].isDefined() )
     {
-	double k = (initialcoords_[0].z-center_.z)/2;
+	double k = (initialcoords_[0].z-center_.z)/6;
 	k = k * newfactor/initsizefactor_;
 	initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
 	initialcoords_[1] = center_ + Coord3( 0, 6*sqrt(2)*k, -6*k );
@@ -284,21 +282,34 @@ bool DAGTetrahedraTree::insertPoint( int ci, int& dupid )
 }
 
 
+#define mCrd( idx ) \
+	(idx>=0 ? (*coordlist_)[idx]-center_ : initialcoords_[-idx-2]-center_)
+
+
 char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
-       char& firstface, int& v0, int& v1, int& dupid ) const
+	char& firstface, int& v0, int& v1, int& dupid ) const
 {    
     tis.erase();
     tis += start;
     char res = cIsInside();
 
     const int* children = tetrahedras_[start].childindices_;
+    double dist[4]; //The min face projection dist of each child tetrahedra;
+    char face[4]; //The face with min projection dist in tetrahedra;
     for ( int childidx = 0; childidx<4; childidx++ )
     {
+	face[childidx] = -1;
 	const int curchild = children[childidx];
 	if ( curchild==cNoTetrahedra() ) continue;
 	
-	const char mode = location( ci, curchild, firstface, dupid, v0, v1 );
-	if ( mode==cIsOutside() ) continue;
+	const char mode = location( ci, curchild, firstface, dupid, v0, v1, 
+				    dist[childidx] );
+	if ( mode==cIsOutside() ) 
+	{
+	    face[childidx] = firstface;
+	    continue;
+	}
+
 	if ( mode==cError() || mode==cIsDuplicate() ) 
 	    return mode;
 
@@ -308,11 +319,55 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
 	res = mode;
     }
 
-    if ( tetrahedras_[tis[0]].childindices_[0]!=cNoTetrahedra() ||
-	 tetrahedras_[tis[0]].childindices_[1]!=cNoTetrahedra() ||
-	 tetrahedras_[tis[0]].childindices_[2]!=cNoTetrahedra() ||
-	 tetrahedras_[tis[0]].childindices_[3]!=cNoTetrahedra() )
-	return cError(); //It is a round off problem.
+    //Selected tetrahedra should not have leaves!! Check.
+    while ( tetrahedras_[tis[0]].childindices_[0]!=cNoTetrahedra() ||
+	    tetrahedras_[tis[0]].childindices_[1]!=cNoTetrahedra() ||
+   	    tetrahedras_[tis[0]].childindices_[2]!=cNoTetrahedra() ||
+   	    tetrahedras_[tis[0]].childindices_[3]!=cNoTetrahedra() )
+    {
+	double mindist;
+	int child = -1;
+	for ( int idx=0; idx<4; idx++ )
+	{
+	    const int childid = tetrahedras_[tis[0]].childindices_[idx];
+	    if ( mIsUdf(dist[idx]) || childid==cNoTetrahedra() )
+		continue;
+
+	    if ( child==-1 || mindist>dist[idx] )
+	    {
+		 mindist = dist[idx];
+		 child = childid;
+    		 firstface = face[idx];
+	    }
+	}
+
+	tis[0] = child;
+	children = tetrahedras_[tis[0]].childindices_;
+	res = cIsOnFace();
+
+	for ( int childidx = 0; childidx<4; childidx++ )
+	{
+	    face[childidx] = -1;
+	    const int curchild = children[childidx];
+	    if ( curchild==cNoTetrahedra() ) continue;
+	    
+	    const char mode = location( ci, curchild, firstface, dupid, v0, 
+		    			v1, dist[childidx] );
+	    if ( mode==cIsOutside() ) 
+	    {
+		face[childidx] = firstface;
+		continue;
+	    }
+
+	    if ( mode==cError() || mode==cIsDuplicate() )
+		return mode;
+	    
+	    tis[0] = curchild;
+	    children =  tetrahedras_[curchild].childindices_;
+	    childidx = -1;
+	    res = mode;
+	}
+    }
 
     if ( res==cIsOnFace() )
     {
@@ -351,12 +406,97 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
 }
 
 
-#define mCrd( idx ) \
-	(idx>=0 ? (*coordlist_)[idx]-center_ : initialcoords_[-idx-2]-center_)
+char DAGTetrahedraTree::locationToTriangle( const Coord3& pt, const Coord3& a, 
+	const Coord3& b, const Coord3& c, double& signedsqdist, char& dupidx, 
+	char& edgeidx ) const
+{
+    const Coord3 normal = (b-a).cross(c-b).normalize();
+    const double t = (a-pt).dot(normal);
+    const Coord3 projection = pt + t*normal;
+
+    const double sqdist =(projection-pt).sqAbs(); 
+    signedsqdist = t>0 ? sqdist : -sqdist;
+    
+    if ( !mIsZero(sqdist,epsilon_*epsilon_) || !mIsZero(t, 2e-3) )
+	return cNotOnPlane();
+    
+    char bestedge = -1;
+    double nearestedgedist;
+    double edgesqdist[3];
+    for ( int idx=0; idx<3; idx++ )
+    {
+	const Coord3& v0 = idx==0 ? a : (idx==1 ? b : c);
+	const Coord3& v1 = idx==0 ? b : (idx==1 ? c : a);
+	bool duponfirst;
+	const char res = 
+	    isOnEdge( projection, v0, v1, normal, duponfirst, edgesqdist[idx] );
+	
+	if ( res==cIsDuplicate() )
+    	{
+	    if ( !idx )
+    		dupidx = duponfirst ? 0 : 1;
+	    else if ( idx==1 )
+		dupidx = duponfirst ? 1 : 2;
+	    else
+		dupidx = duponfirst ? 2 : 0;
+
+    	    return res;
+    	}
+    	else if ( res==cIsOnEdge() )
+    	{
+	    const double dist = Math::Sqrt(fabs(edgesqdist[idx]));
+    	    if ( bestedge==-1 || dist<nearestedgedist )
+	    {
+		bestedge = idx;
+    		nearestedgedist = dist;
+	    }
+    	}
+    }
+
+    if ( (edgesqdist[0]>0 && edgesqdist[1]>0 && edgesqdist[2]>0) ||
+	 (edgesqdist[0]<0 && edgesqdist[1]<0 && edgesqdist[2]<0) )
+        return cIsInside();
+
+    if ( bestedge!=-1 )
+    {
+	edgeidx = bestedge;
+        return cIsOnEdge();
+    }
+
+    return cIsOutside();
+}
 
 
-char DAGTetrahedraTree::location( int ci, int ti, char& face, int& dupid, 
-				  int& edgeend0, int&edgeend1 ) const 
+char DAGTetrahedraTree::isOnEdge( const Coord3& p, const Coord3& a, 
+				  const Coord3& b, const Coord3 planenormal,
+       				  bool& duponfirst, double& signedsqdist ) const
+{
+    const Coord3 dir = (b-a).normalize();
+    const double t = (p-a).dot( dir );
+    
+    const double sqdist = (p-(a+t*dir)).sqAbs();
+    const bool sign = planenormal.dot( dir.cross(p-b) ) > 0;
+    signedsqdist = sign ? sqdist : -sqdist;
+    if ( t<0 || t>1 || sqdist>epsilon_*epsilon_ )
+	return cNotOnEdge();
+    
+    if ( mIsZero(t,1e-3) )
+    {
+	duponfirst = true;
+	return cIsDuplicate();
+    }
+    else if ( mIsEqual(t,1,1e-3) )
+    {
+	duponfirst = false;
+	return cIsDuplicate();
+    }
+    
+    return cIsOnEdge();
+}
+
+
+char DAGTetrahedraTree::location( int ci, int ti, char& face, int& dupid,
+	int& edgeend0, int&edgeend1, double& mindist ) const 
 {
     face = cNoVertex();
     dupid = cNoVertex();
@@ -367,175 +507,105 @@ char DAGTetrahedraTree::location( int ci, int ti, char& face, int& dupid,
 	return cIsOutside();
 
     const int* crds = tetrahedras_[ti].coordindices_;
-    const Coord3& pt = mCrd(ci);
-    const Coord3& v0 = mCrd(crds[0]);
-    const Coord3& v1 = mCrd(crds[1]);
-    const Coord3& v2 = mCrd(crds[2]);
-    const Coord3& v3 = mCrd(crds[3]);
-   
-    //Here we calculate the distance between the point and the face. 
-    const Coord3 n0 = ((v2-v1).cross(v3-v1)).normalize();
-    const bool onface0 = mIsZero(n0.dot(pt-v1), 1e-3);
+    const Coord3 pt = mCrd(ci);
+    const Coord3 v0 = mCrd(crds[0]);
+    const Coord3 v1 = mCrd(crds[1]);
+    const Coord3 v2 = mCrd(crds[2]);
+    const Coord3 v3 = mCrd(crds[3]);
 
-    const Coord3 n1 = ((v2-v0).cross(v3-v0)).normalize();
-    const bool onface1 = mIsZero(n1.dot(pt-v0), 1e-3);
+    char edgeidx, dupidx;
+    double signedsqdist[4];
+    char res[4];
 
-    const Coord3 n2 = ((v0-v1).cross(v3-v1)).normalize();
-    const bool onface2 = mIsZero(n2.dot(pt-v1), 1e-3);
-
-    const Coord3 n3 = ((v2-v1).cross(v0-v1)).normalize();
-    const bool onface3 = mIsZero(n3.dot(pt-v1), 1e-3);
-
-    const char nrfaces = onface0 + onface1 + onface2 + onface3;
-    if ( nrfaces==4 ) 
+    res[0] = locationToTriangle( pt,v1,v3,v2,signedsqdist[0],dupidx,edgeidx );
+    if ( res[0]==cIsDuplicate() )
     {
-	pErrMsg("Point on four faces");
-	return cError();
+	dupid = crds[ dupidx==0 ? 1 : (dupidx==1 ? 3 : 2) ];
+	return res[0];
     }
-    else if ( !nrfaces ) 
+    else if ( res[0]==cIsOnEdge() )
     {
-	const double d =  determinent44(v0,v1,v2,v3);
-	const double d0 = determinent44(pt,v1,v2,v3);
-	const double d1 = determinent44(v0,pt,v2,v3);
-	const double d2 = determinent44(v0,v1,pt,v3);
-	const double d3 = determinent44(v0,v1,v2,pt);
-
-	if ( (d>0 && d0>0 && d1>0 && d2>0 && d3>0) || 
-	     (d<0 && d0<0 && d1<0 && d2<0 && d3<0) )
-	    return cIsInside();
-	else 
-	    return cIsOutside();
-	
-	if ( mIsZero(d, 1e-4) )
-	{
-	    pErrMsg("Flat tetrahedra");
-	    return cError(); //i.e. vo, v1, v2, v3 are coplanar.
-	}
+	edgeend0 = edgeidx==0 ? crds[1] : (edgeidx==1 ? crds[3] : crds[2] );
+	edgeend1 = edgeidx==0 ? crds[3] : (edgeidx==1 ? crds[2] : crds[1] );
+	return cIsOnEdge();
     }
 
-    if ( nrfaces==3 )
+    res[1] = locationToTriangle( pt,v0,v2,v3,signedsqdist[1],dupidx,edgeidx );
+    if ( res[1]==cIsDuplicate() )
     {
-	if ( !onface0 )
-	{
-	    dupid = crds[0];
-	    return cIsDuplicate();
-	} 
-	else if ( !onface1 )
-	{
-	    dupid = crds[1];
-	    return cIsDuplicate();
-	}
-	else if ( !onface2 )
-	{
-	    dupid = crds[2];
-	    return cIsDuplicate();
-	}
-	else if ( !onface3 )
-	{
-	    dupid = crds[3];
-	    return cIsDuplicate();
-	}
+	dupid = crds[ dupidx==0 ? 0 : (dupidx==1 ? 2 : 3) ];
+	return res[1];
     }
-    else if ( nrfaces==2 )
+    else if ( res[1]==cIsOnEdge() )
     {
-	if ( onface0 && onface1 )
-	{
-	    if ( !pointOnEdge3D(pt,v2,v3,epsilon_) )
-		return cIsOutside();
-
-	    edgeend0 = crds[2];
-	    edgeend1 = crds[3];
-	    return cIsOnEdge();
-	}
-	else if ( onface0 && onface2 )
-	{
-	    if ( !pointOnEdge3D(pt,v1,v3,epsilon_) )
-		return cIsOutside();
-
-	    edgeend0 = crds[1];
-	    edgeend1 = crds[3];
-	    return cIsOnEdge();
-	}
-	else if ( onface0 && onface3 )
-	{
-	    if ( !pointOnEdge3D(pt,v1,v2,epsilon_) )
-		return cIsOutside();
-
-	    edgeend0 = crds[1];
-	    edgeend1 = crds[2];
-	    return cIsOnEdge();
-	}
-	else if ( onface1 && onface2 )
-	{
-	    if ( !pointOnEdge3D(pt,v0,v3,epsilon_) )
-		return cIsOutside();
-
-	    edgeend0 = crds[0];
-	    edgeend1 = crds[3];
-	    return cIsOnEdge();
-	}
-	else if ( onface1 && onface3 )
-	{
-	    if ( !pointOnEdge3D(pt,v0,v2,epsilon_) )
-		return cIsOutside();
-
-	    edgeend0 = crds[0];
-	    edgeend1 = crds[2];
-	    return cIsOnEdge();
-	}
-	else if ( onface2 && onface3 )
-	{
-	    if ( !pointOnEdge3D(pt,v0,v1,epsilon_) )
-		return cIsOutside();
-
-	    edgeend0 = crds[0];
-	    edgeend1 = crds[1];
-	    return cIsOnEdge();
-	}
+	edgeend0 = edgeidx==0 ? crds[0] : (edgeidx==1 ? crds[2] : crds[3] );
+	edgeend1 = edgeidx==0 ? crds[2] : (edgeidx==1 ? crds[3] : crds[0] );
+	return cIsOnEdge();
     }
-    else if ( nrfaces==1 )
+
+    res[2] = locationToTriangle( pt,v1,v0,v3,signedsqdist[2],dupidx,edgeidx );
+    if ( res[2]==cIsDuplicate() )
     {
-	if ( onface0 )
-	{
-	    if ( !pointInTriangle3D(pt,v1,v2,v3,epsilon_) )
-		return cIsOutside();
+	dupid = crds[ dupidx==0 ? 1 : (dupidx==1 ? 0 : 3) ];
+	return res[2];
+    }
+    else if ( res[2]==cIsOnEdge() )
+    {
+	edgeend0 = edgeidx==0 ? crds[1] : (edgeidx==1 ? crds[0] : crds[3] );
+	edgeend1 = edgeidx==0 ? crds[0] : (edgeidx==1 ? crds[3] : crds[1] );
+	return cIsOnEdge();
+    }
 
-	    face = 0;
-	    return cIsOnFace();
+    res[3] = locationToTriangle( pt,v0,v1,v2,signedsqdist[3],dupidx,edgeidx );
+    if ( res[3]==cIsDuplicate() )
+    {
+	dupid = crds[ dupidx ];
+	return res[3];
+    }
+    else if ( res[3]==cIsOnEdge() )
+    {
+	edgeend0 = edgeidx==0 ? crds[0] : (edgeidx==1 ? crds[1] : crds[2] );
+	edgeend1 = edgeidx==0 ? crds[1] : (edgeidx==1 ? crds[2] : crds[0] );
+	return cIsOnEdge();
+    }
+ 
+    double minfacedist;
+    char tempface = cNoFace();
+    for ( int idx=0; idx<4; idx++ )
+    {
+	const double dist = Math::Sqrt(fabs(signedsqdist[idx]));
+	if ( res[idx]==cIsInside() && (face==cNoFace() || dist<minfacedist) )
+	{
+	    face = idx;
+	    minfacedist = dist;
 	}
-	else if ( onface1 )
-	{
-	    if ( !pointInTriangle3D(pt,v0,v2,v3,epsilon_) )
-		return cIsOutside();
 
-	    face = 1;
-	    return cIsOnFace();
-	}
-	else if ( onface2 )
+	if ( (res[idx]==cIsOutside() || res[idx]==cNotOnPlane()) && 
+	     (tempface==cNoFace() || dist<mindist) )
 	{
-	    if ( !pointInTriangle3D(pt,v1,v0,v3,epsilon_) )
-		return cIsOutside();
-
-	    face = 2;
-	    return cIsOnFace();
-	}
-	else if ( onface3 )
-	{
-	    if ( !pointInTriangle3D(pt,v1,v2,v0,epsilon_) )
-		return cIsOutside();
-
-	    face = 3;
-	    return cIsOnFace();
+	    tempface = idx;
+	    mindist = dist;
 	}
     }
 
-    pErrMsg("Impossible location");
-    return cError();
+    if ( face!=cNoFace() )
+	return cIsOnFace();
+
+    if ( (signedsqdist[0]>0 && signedsqdist[1]>0 && signedsqdist[2]>0 && 
+	  signedsqdist[3]>0) || (signedsqdist[0]<0 && signedsqdist[1]<0 && 
+	  signedsqdist[2]<0 && signedsqdist[3]<0) )
+	return cIsInside();
+
+    face = tempface;
+    return cIsOutside();
 }
 
 
 void DAGTetrahedraTree::splitTetrahedraInside( int ci, int ti )
 {
+    if ( ti<0 || ti>=tetrahedras_.size() )
+	return;
+
     const int crds[] = { tetrahedras_[ti].coordindices_[0],
       			 tetrahedras_[ti].coordindices_[1],
    			 tetrahedras_[ti].coordindices_[2],
@@ -609,7 +679,8 @@ void DAGTetrahedraTree::splitTetrahedraInside( int ci, int ti )
 void DAGTetrahedraTree::splitTetrahedraOnFace( int ci, int ti0, int ti1, 
 					       char face )
 {
-    if ( ti0==cNoTetrahedra() || ti1==cNoTetrahedra() || face==cNoFace() )
+    if ( ti0<0 || ti0>=tetrahedras_.size() || 
+	 ti1<0 || ti1>=tetrahedras_.size() || face<0 )
     {
 	pErrMsg("Could not split on face");
 	return;
