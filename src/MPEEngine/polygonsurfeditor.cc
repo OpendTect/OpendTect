@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.6 2008-09-11 17:47:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.7 2008-10-30 19:07:13 cvsyuancheng Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.6 2008-09-11 17:47:03 
 #include "polygonsurfaceedit.h"
 #include "mpeengine.h"
 #include "selector.h"
+#include "survinfo.h"
 #include "trigonometry.h"
 
 #include "undo.h"
@@ -253,6 +254,12 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 {
     if ( !mpos.isDefined() ) return false;
+    
+    const BinID bid = SI().transform( mpos );
+    if ( !SI().inlRange( true ).includes(bid.inl) || 
+	 !SI().crlRange( true ).includes(bid.crl) || 
+	 !SI().zRange( true ).includes(mpos.z) )
+	return false;
 
     const Geometry::Element* ge = emObject().sectionGeometry(pid.sectionID());
     mDynamicCastGet( const Geometry::PolygonSurface*, surface, ge );
@@ -268,48 +275,42 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 
     if ( colrg.nrSteps()<3 )
 	return emobject.setPos( pid, mpos, addtoundo );
-   
+
+    const float zscale =  SI().zFactor();   
     const int previdx = rc.c()==colrg.start ? colrg.stop : rc.c()-colrg.step;
     const int nextidx = rc.c()<colrg.stop ? rc.c()+colrg.step : colrg.start;
-    const Coord3 prevpos = surface->getKnot( RowCol(rc.r(), previdx) );
-    const Coord3 nextpos = surface->getKnot( RowCol(rc.r(), nextidx) );
+    
+    Coord3 curpos = mpos; curpos.z *= zscale;
+    Coord3 prevpos = surface->getKnot( RowCol(rc.r(), previdx) );
+    prevpos.z *= zscale; 
+    Coord3 nextpos = surface->getKnot( RowCol(rc.r(), nextidx) );
+    nextpos.z *= zscale;
 
     for ( int knot=colrg.start; knot<=colrg.stop; knot += colrg.step )
     {
 	const int nextknot = knot<colrg.stop ? knot+colrg.step : colrg.start;
-	if ( (knot==previdx && nextknot==rc.c()) ||
-	     (knot==rc.c() && nextknot==nextidx) )
+	if ( knot==previdx || knot==rc.c() )
 	    continue;
 
-	const Coord3 v0 = surface->getKnot( RowCol(rc.r(), knot) );
-	const Coord3 v1 = surface->getKnot( RowCol(rc.r(), nextknot) );
-	if ( (!sameSide3D(mpos, prevpos, v0, v1, 0) && 
-	     !sameSide3D(v0, v1, mpos, prevpos, 0)) ||
-	     (!sameSide3D(mpos, nextpos, v0, v1, 0) &&
-	     !sameSide3D(v0, v1, mpos, nextpos, 0)) )
-	    return false;
-
-	if ( knot==nextidx ) 
+	Coord3 v0 = surface->getKnot( RowCol(rc.r(), knot) ); v0.z *= zscale;
+	Coord3 v1 = surface->getKnot( RowCol(rc.r(),nextknot)); v1.z *= zscale;
+	if ( previdx==nextknot )
 	{
-	    const Coord3 planenorm = surface->getPolygonNormal( rc.r() );
-	    const Coord3 nexttov1 = surface->getKnot( RowCol(rc.r(), 
-			nextknot<colrg.stop ? nextknot+colrg.step 
-					    : colrg.start) );		
-	    const Coord3 midpt = ( v0+nexttov1 )/2;
-	    const Coord3 trinorm = (v1-v0).cross(nexttov1-v1);
-    	    if ( planenorm.dot(trinorm)>0 )
-	    {
-		if ( !sameSide3D(mpos, midpt, v1, nexttov1, 0) &&
-		     !sameSide3D(mpos, midpt, v1, v0, 0) )
-		    return false;
-	    }
-	    else
-	    {
-		if ( sameSide3D(mpos, midpt, v1, nexttov1, 0) &&
-		     sameSide3D(mpos, midpt, v1, v0, 0) )
-		    return false;
-	    }
+	    if ( !sameSide3D(curpos, nextpos, v0, v1, 0) &&
+		 !sameSide3D(v0, v1,curpos, nextpos, 0) )
+		return false;
+	}
+	else if ( knot==nextidx ) 
+	{
+	    if ( !sameSide3D(curpos, prevpos, v0, v1, 0) &&
+		 !sameSide3D(v0, v1, curpos, prevpos, 0) )
+		return false;
 	} 
+	else if ( (!sameSide3D(curpos, prevpos, v0, v1, 0) && 
+       		   !sameSide3D(v0, v1, curpos, prevpos, 0)) ||
+   		  (!sameSide3D(curpos, nextpos, v0, v1, 0) &&
+      		   !sameSide3D(v0, v1, curpos, nextpos, 0)) )
+	    return false;
     }
 
     return emobject.setPos( pid, mpos, addtoundo );
