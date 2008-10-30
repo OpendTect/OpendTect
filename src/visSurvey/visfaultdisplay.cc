@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.27 2008-10-14 05:18:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.28 2008-10-30 13:15:59 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -40,9 +40,6 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.27 2008-10-14 05:18:47 c
 #include "vistransform.h"
 
 mCreateFactoryEntry( visSurvey::FaultDisplay );
-
-#define mNearestKnotSize 4
-#define mDefaultKnotSize 2
 
 namespace visSurvey
 {
@@ -114,6 +111,7 @@ FaultDisplay::~FaultDisplay()
     {
 	emfault_->change.remove( mCB(this,FaultDisplay,emChangeCB) );
        	emfault_->unRef();
+	emfault_ = 0;
     }
 
     if ( displaytransform_ ) displaytransform_->unRef();
@@ -491,15 +489,11 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	 !isSelected() )
 	return;
 
-    //if ( viseditor_ && !viseditor_->clickCB( cb ) )
-	//return;
-
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
    
     CubeSampling mouseplanecs; 
     mouseplanecs.setEmpty();
     EM::PosID mousepid( EM::PosID::udf() );
-    bool mouseondragger = false;
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -536,7 +530,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	updateNearestStickMarker();
     }
 
-    if ( !pos.isDefined() )
+    if ( !pos.isDefined() || viseditor_->isDragging() )
 	return;
 
     const EM::PosID pid = viseditor_ ?
@@ -595,7 +589,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    : RowCol(insertpid.subID()).row;
 
 	if (  mouseplanecs.defaultDir()==CubeSampling::Inl )
-	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0);
+	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0 );
 	else if ( mouseplanecs.defaultDir()==CubeSampling::Crl ) 
 	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
@@ -710,6 +704,7 @@ void FaultDisplay::updateManipulator()
     		      (areSticksDisplayed() || arePanelsDisplayed() );
     if ( viseditor_ ) viseditor_->turnOn( show );
     neareststickmarker_->turnOn( show );
+    if ( scene_ ) scene_->blockMouseSelection( show );
 }
 
 
