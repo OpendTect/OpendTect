@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodbodydisplaytreeitem.cc,v 1.1 2008-09-09 17:23:58 cvsyuancheng Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.cc,v 1.2 2008-10-30 19:05:52 cvsyuancheng Exp $
 ___________________________________________________________________
 
 -*/
@@ -114,6 +114,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , saveasmnuitem_("Save as ...")
     , displaymnuitem_( "Display ..." )				   
     , displaybodymnuitem_ ( "Body" )
+    , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
     , newellipsoidmnuitem_("Create body")				   
@@ -121,6 +122,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , plg_( 0 )	       
 {
     displaybodymnuitem_.checkable = true;
+    displaypolygonmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
 }
 
@@ -132,6 +134,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , saveasmnuitem_("Save as ...")
     , displaymnuitem_( "Display ..." )				   
     , displaybodymnuitem_ ( "Body" )
+    , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
     , newellipsoidmnuitem_("Make body")				   
@@ -140,6 +143,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
 {
     displayid_ = id;
     displaybodymnuitem_.checkable = true;
+    displaypolygonmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
 }
 
@@ -292,6 +296,8 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
     {
 	mAddMenuItem( &displaymnuitem_, &displaybodymnuitem_, true,
 		      plg_->isBodyDisplayed() );
+	mAddMenuItem( &displaymnuitem_, &displaypolygonmnuitem_, true,
+		      plg_->arePolygonsDisplayed() );
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		      plg_->areIntersectionsDisplayed() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
@@ -356,10 +362,16 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	plg_->display( true, true );
 	plg_->displayIntersections( false );
     }
-    else if ( mnuid==displayintersectionmnuitem_.id )
+    else if ( mnuid==displaypolygonmnuitem_.id )
     {
 	menu->setIsHandled(true);
 	plg_->display( true, false );
+	plg_->displayIntersections( false );
+    }
+    else if ( mnuid==displayintersectionmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	plg_->display( false, false );
 	plg_->displayIntersections( true );
     }
     else if ( mnuid==removeselectedmnuitem_.id )
