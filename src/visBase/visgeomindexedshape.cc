@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.14 2008-10-27 19:49:30 cvsyuancheng Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.15 2008-10-30 19:03:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ GeomIndexedShape::GeomIndexedShape()
     , lineconstantonscreen_( false )
     , linemaxsize_( -1 )
 {
+    setLockable();
     coords_->ref();
     addChild( coords_->getInventorNode() );
 
@@ -139,7 +140,13 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
 
 void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 {
-    //SoDB::writelock();
+    const bool didlock = tryWriteLock();
+    if ( !didlock )
+    {
+	pErrMsg("Could not lock");
+	return;
+    }
+
     if ( shape_ && shape_->needsUpdate() )
 	shape_->update( forall, tr );
 
@@ -157,6 +164,8 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 	mRemoveOld( strip );
 	mRemoveOld( fan );
 	mRemoveOld( line );
+	
+	writeUnLock();
 	return;
     }
 
@@ -230,8 +239,6 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 	    }
 	    else
 		shape->textureCoordIndex.setNum( 0 );
-
-	    shape->touch();
 	}
 
 	const int idy = childIndex( shape );
@@ -259,7 +266,8 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
     mRemoveOld( strip );
     mRemoveOld( fan );
     mRemoveOld( line );
-    //SoDB::writeunlock();
+
+    writeUnLock();
 }
 
 }; // namespace visBase
