@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.8 2008-10-22 18:48:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.9 2008-10-30 19:10:32 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -33,7 +33,7 @@ namespace Geometry
     
 PolygonSurface::PolygonSurface()
     : firstpolygon_( 0 )
-    , beziernrpts_( 8 )  
+    , beziernrpts_( 10 )  
 {}
 
 
@@ -196,18 +196,20 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
     if ( polygonidx<0 || polygonidx>polygons_.size() ) 
 	return;
 
-    TypeSet<Coord3> knots;
-    const Coord3 scale( 1, 1, zscale );
-    const Coord3 scaleback( 1, 1, 1.0/zscale );
-    for ( int idx=0; idx<(*polygons_[polygonidx]).size(); idx++ )
-    	knots += (*polygons_[polygonidx])[idx].scaleBy( scale );
-
-    if ( knots.size()<3 )
+    const int nrknots = (*polygons_[polygonidx]).size();
+    if ( nrknots<3 )
     {
-	for ( int idx=0; idx<knots.size(); idx++ )
-	    pts += knots[idx].scaleBy(scaleback);
+	for ( int idx=0; idx<nrknots; idx++ )
+	    pts += (*polygons_[polygonidx])[idx];
 
 	return;
+    }
+
+    TypeSet<Coord3> knots;
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	Coord3 pos = (*polygons_[polygonidx])[idx]; pos.z *= zscale;
+	knots += pos;
     }
 
     CubicBezierCurve curve( knots[0], knots[1], 0, 1 );
@@ -215,17 +217,17 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
 	curve.insertPosition(knot, knots[knot]);
   
     curve.setCircular( true ); 
-    for ( int knot=0; knot<knots.size(); knot++ )
+    for ( int knot=0; knot<nrknots; knot++ )
     {
-	const Coord3 prvpos = knots[knot==0 ? knots.size()-1 : knot-1];
-	const Coord3 nexpos = knots[knot==knots.size()-1 ? 0 : knot+1];
-	curve.setTangentInfluence( ((prvpos-nexpos).abs())/4.0 );
+	const Coord3 prvpos = knots[knot==0 ? nrknots-1 : knot-1];
+	const Coord3 nexpos = knots[knot==nrknots-1 ? 0 : knot+1];
+	curve.setTangentInfluence( ((prvpos-nexpos).abs())/5.0 );
 
-        pts += knots[knot].scaleBy(scaleback);	
-	for ( int nr=1; nr<beziernrpts_; nr++ )
+	for ( int nr=0; nr<beziernrpts_; nr++ )
 	{
 	    Coord3 pt = curve.computePosition(knot+nr*1.0/(float)beziernrpts_);
-	    pts += pt.scaleBy(scaleback);
+	    pt.z /= zscale;
+	    pts += pt;
 	}
     }
 }
