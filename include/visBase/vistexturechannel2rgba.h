@@ -5,9 +5,9 @@
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	Nanne Hemstra
- Date:		July 2002
- RCS:		$Id: vistexturechannel2rgba.h,v 1.4 2008-10-22 13:25:50 cvskris Exp $
+ Author:	K. Tingdahl
+ Date:		Sep 2008
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.5 2008-10-31 18:44:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ class SoShaderProgram;
 class SoFragmentShader;
 class SoShaderParameter1i;
 class SoShaderParameterArray1f;
+class SoRGBATextureChannel2RGBA;
 
 namespace ColTab { class Sequence; }
 
@@ -32,9 +33,11 @@ namespace visBase
 { 
 
 class TextureChannels;
-/*!\brief
+/*!
 
-
+Interface for classes that can take one or more texture channels in an
+TextureChannels class and convert them to RGBA textures in OpenGL, optionally
+with shaders. There should always be a non-shading way to fall back on.
 */
 
 class TextureChannel2RGBA : public DataObject
@@ -42,11 +45,14 @@ class TextureChannel2RGBA : public DataObject
 public:
     virtual void		setChannels(TextureChannels*);
     virtual bool		createRGBA(SbImage&) const		= 0;
+				/*!<Fill the image with the output, using
+				    current settings. */
+
+    virtual bool		canUseShading() const			= 0;
     virtual void		allowShading(bool);
     virtual bool		usesShading() const			= 0;
     virtual int			maxNrChannels() const			= 0;
 
-    virtual bool		canUseShading() const			= 0;
 protected:
     				TextureChannel2RGBA();
 
@@ -55,19 +61,23 @@ protected:
 };
 
 
+/*! Implementation of TextureChannel2RGBA that takes a ColorSequence for each
+channel and blends it into an RGBA image. */
+
+
 class ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static ColTabTextureChannel2RGBA*	create()
-			mCreateDataObj(ColTabTextureChannel2RGBA);
+				mCreateDataObj(ColTabTextureChannel2RGBA);
 
-    virtual void		setSequence(int ch,const ColTab::Sequence&);
+    void			setSequence(int ch,const ColTab::Sequence&);
     const ColTab::Sequence&	getSequence(int ch) const;
 
-    virtual void		setEnabled(int ch,bool yn);
+    void			setEnabled(int ch,bool yn);
     bool			isEnabled(int ch) const;
 
-    virtual void		setTransparency(int ch,unsigned char yn);
+    void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
     bool			canUseShading() const;
@@ -111,8 +121,8 @@ protected:
     void				doFill(
 	    				    SoColTabTextureChannel2RGBA*) const;
     SoColTabTextureChannel2RGBA*	converter_;
-
 };
+
 
 }; //namespace
 
