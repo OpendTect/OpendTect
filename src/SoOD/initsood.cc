@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initsood.cc,v 1.7 2008-10-30 13:00:40 cvskris Exp $
+ RCS:           $Id: initsood.cc,v 1.8 2008-10-31 18:28:50 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@
 #include "SoPolygonSelect.h"
 #include "SoIndexedLineSet3D.h"
 #include "SoLockableSeparator.h"
+#include "SoRGBATextureChannel2RGBA.h"
 #include "SoScale3Dragger.h"
 #include "SoShapeScale.h"
 #include "SoText2Set.h"
@@ -87,6 +88,7 @@ void SoOD::initStdClasses()
     SoTextureChannelSet::initClass();
     SoTranslateRectangleDragger::initClass();
     SoRandomTrackLineDragger::initClass();
+    SoRGBATextureChannel2RGBA::initClass();
     SoScale3Dragger::initClass();
     SoShaderTexture2::initClass();
     SoSplitTexture2::initClass();
