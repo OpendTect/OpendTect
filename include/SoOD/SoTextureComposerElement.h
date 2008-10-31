@@ -6,8 +6,8 @@ ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
- Date:		4-11-2002
- RCS:		$Id: SoTextureComposerElement.h,v 1.4 2008-10-31 18:27:54 cvskris Exp $
+ Date:		September 2008
+ RCS:		$Id: SoTextureComposerElement.h,v 1.5 2008-10-31 22:20:33 cvskris Exp $
 ________________________________________________________________________
 
 
