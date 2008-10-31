@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.8 2008-10-28 13:03:17 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.9 2008-10-31 22:21:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,18 +82,6 @@ SoTextureComposer::~SoTextureComposer()
     delete originsensor_;
     delete matchinfo_;
 }
-
-
-char SoTextureComposer::cHasTransparency()
-{ return 1; }
-
-
-char SoTextureComposer::cHasNoTransparency()
-{ return 2; }
-
-
-char SoTextureComposer::cHasNoIntermediateTransparency()
-{ return 3; }
 
 
 void SoTextureComposer::fieldChangeCB( void* data, SoSensor* )
@@ -243,17 +231,17 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	    mask = mask^SoGLImage::FORCE_ALPHA_TEST_FALSE;
 	    flags &= mask;
 
-	    if ( ti==cHasTransparency() )
+	    if ( ti==SoTextureComposerInfo::cHasTransparency() )
 	    {
 		flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
 		flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
 	    }
-	    else if ( ti==cHasNoIntermediateTransparency() )
+	    else if(ti==SoTextureComposerInfo::cHasNoIntermediateTransparency())
 	    {
 		flags |= SoGLImage::FORCE_TRANSPARENCY_TRUE;
 		flags |= SoGLImage::FORCE_ALPHA_TEST_TRUE;
 	    }
-	    else if ( ti==cHasNoTransparency() )
+	    else if ( ti==SoTextureComposerInfo::cHasNoTransparency() )
 	    {
 		flags |= SoGLImage::FORCE_TRANSPARENCY_FALSE;
 		flags |= SoGLImage::FORCE_ALPHA_TEST_FALSE;
@@ -471,4 +459,60 @@ SoTextureComposer::TextureData::~TextureData()
 {
     delete [] imagedata_;
     if ( glimage_ ) glimage_->unref();
+}
+
+
+SO_NODE_SOURCE( SoTextureComposerInfo );
+
+void SoTextureComposerInfo::initClass()
+{
+    SO_NODE_INIT_CLASS(SoTextureComposerInfo, SoNode, "Node");
+    SO_ENABLE( SoGLRenderAction, SoTextureComposerElement );
+    SO_ENABLE( SoCallbackAction, SoTextureComposerElement );
+    SO_ENABLE( SoRayPickAction, SoTextureComposerElement );
+}
+
+
+SoTextureComposerInfo::SoTextureComposerInfo()
+{
+    SO_NODE_CONSTRUCTOR( SoTextureComposerInfo );
+    SO_NODE_ADD_FIELD( transparencyInfo, (0) );
+    SO_NODE_ADD_FIELD( units, (0) );
+}
+
+
+char SoTextureComposerInfo::cHasTransparency()
+{ return 1; }
+
+
+char SoTextureComposerInfo::cHasNoTransparency()
+{ return 2; }
+
+
+char SoTextureComposerInfo::cHasNoIntermediateTransparency()
+{ return 3; }
+
+
+void SoTextureComposerInfo::GLRender( SoGLRenderAction* a )
+{ doAction( a ); }
+
+
+void SoTextureComposerInfo::callback( SoCallbackAction* a )
+{ doAction( a ); }
+
+
+void SoTextureComposerInfo::rayPick( SoRayPickAction* a )
+{ doAction( a ); }
+
+
+void SoTextureComposerInfo::doAction( SoAction* action )
+{
+    SoState* state = action->getState();
+
+    SbList<int> unitlist;
+    for ( int idx=0; idx<units.getNum(); idx++ )
+	unitlist.append( units[idx] );
+
+    SoTextureComposerElement::set( state, this, unitlist,
+	    			   transparencyInfo.getValue() );
 }

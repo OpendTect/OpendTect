@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.8 2008-10-28 13:03:17 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.9 2008-10-31 22:21:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,11 +172,11 @@ void SoColTabTextureChannel2RGBA::processChannels( const SbImage* channels,
     }
 
     if ( fullyopaque==1 )
-	ti_ = SoTextureComposer::cHasNoTransparency();
+	ti_ = SoTextureComposerInfo::cHasNoTransparency();
     else if ( fullyopaque==-1 )
-	ti_ = SoTextureComposer::cHasTransparency();
+	ti_ = SoTextureComposerInfo::cHasTransparency();
     else
-	ti_ = SoTextureComposer::cHasNoIntermediateTransparency();
+	ti_ = SoTextureComposerInfo::cHasNoIntermediateTransparency();
 
     //Set size of outputS
     for ( int idx=0; idx<4; idx++ )

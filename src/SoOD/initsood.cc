@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initsood.cc,v 1.8 2008-10-31 18:28:50 cvskris Exp $
+ RCS:           $Id: initsood.cc,v 1.9 2008-10-31 22:21:27 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -100,4 +100,5 @@ void SoOD::initStdClasses()
     DepthBuffer::initClass();
     LegendKit::initClass();
     SoTextureComposer::initClass();
+    SoTextureComposerInfo::initClass();
 }

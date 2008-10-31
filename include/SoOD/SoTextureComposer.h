@@ -6,8 +6,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
- Date:          Dec 2006
- RCS:           $Id: SoTextureComposer.h,v 1.4 2008-10-28 13:03:17 cvskris Exp $
+ Date:          Sep 2008
+ RCS:           $Id: SoTextureComposer.h,v 1.5 2008-10-31 22:21:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,11 +38,6 @@ class SoTextureComposer: public SoNode
 public:
     static		void initClass();
 			SoTextureComposer();
-
-    SoSFShort		transparencyInfo;
-    static char		cHasTransparency();
-    static char		cHasNoTransparency();
-    static char		cHasNoIntermediateTransparency();
 
     SoSFVec3i32		origin;
     SoSFVec3i32		size; //-1,-1,-1 means to the end of the channel
@@ -77,6 +72,27 @@ protected:
     SoFieldSensor*	originsensor_;
     bool		needregenration_;
     SoElement*		matchinfo_;
+};
+
+
+class SoTextureComposerInfo : public SoNode
+{ SO_NODE_HEADER(SoTextureComposerInfo );
+public:
+    static		void initClass();
+			SoTextureComposerInfo();
+
+    SoSFShort		transparencyInfo;
+    static char		cHasTransparency();
+    static char		cHasNoTransparency();
+    static char		cHasNoIntermediateTransparency();
+
+    SoMFUShort		units;
+
+protected:
+    void		GLRender(SoGLRenderAction*);
+    void		callback(SoCallbackAction*);
+    void		rayPick(SoRayPickAction*);
+    void		doAction(SoAction*);
 };
 
 #endif
