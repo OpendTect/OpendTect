@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.15 2008-10-28 13:03:17 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.16 2008-11-03 20:36:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,8 +326,7 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 					   imagedata->glimage_, glmodel,
 					   SbColor(1,1,1) );
 	SoGLTexture3EnabledElement::set(state, this, false );
-	SoGLTextureEnabledElement::set( state, this, 
-				!needregenration_ && quality > 0.0f);
+	SoGLTextureEnabledElement::set( state, this, quality > 0.0f);
 	if ( isOverride() )
 	    SoTextureOverrideElement::setImageOverride( state, true );
     }
@@ -337,7 +336,7 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 					   imagedata->glimage_, glmodel,
 					   SbColor(1,1,1) );
 	SoGLMultiTextureEnabledElement::set( state, this, unit,
-				!needregenration_ && quality > 0.0f);
+					     quality > 0.0f);
     }
 }
 
