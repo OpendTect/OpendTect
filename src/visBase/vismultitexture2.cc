@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.54 2008-10-28 21:34:36 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.55 2008-11-03 16:36:55 cvsyuancheng Exp $";
 
 
 #include "vismultitexture2.h"
@@ -761,7 +761,7 @@ void MultiTexture2::createShadingVars()
 {
     if ( !ctabtexture_ )
     {
-	const int ctabunit = MultiTexture2::maxNrTextures()-1;
+	const int ctabunit = SoTextureUnit::getMaxTextureUnit()-1;
 
 	SoTextureUnit* unit = new SoTextureUnit;
 	unit->unit = ctabunit;
