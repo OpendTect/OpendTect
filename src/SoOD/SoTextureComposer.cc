@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.9 2008-10-31 22:21:27 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.10 2008-11-03 23:37:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,8 +176,11 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
     int bytesperpixel[4];
     for ( int idx=0; idx<nrchannels; idx++ )
     {
+	SbVec3s thischannelsize;
 	channels[idx] =
-	    channelsimages[idx].getValue( channelsize, bytesperpixel[idx] );
+	    channelsimages[idx].getValue( thischannelsize, bytesperpixel[idx] );
+	if ( channels[idx] )
+	    channelsize = thischannelsize;
     }
     
     const SbVec3i32 origstart = origin.getValue();
@@ -294,11 +297,15 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 
 		    for ( int idc=0; idc<nrcomponents; idc++ )
 		    {
-			if ( idc>=nrchannels )
-			    continue; //set dummy value?
-
 			const int ressample = 
 			    (firstdstsample+idz)*nrcomponents+idc;
+
+			if ( idc>=nrchannels || !channels[idc] )
+			{
+			    texturedata->imagedata_[ressample] = 0;
+			    continue; 
+			}
+
 			const int sourcesample =
 			    (firstsourcesample+srcfastidx)*bytesperpixel[idc];
 
@@ -332,10 +339,10 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 
     if ( unit==0 )
     {
-	SoGLTextureImageElement::set( state, this, texturedata->glimage_, glmodel,
-				      SbColor(1,1,1) );
+	SoGLTextureImageElement::set( state, this, texturedata->glimage_,
+				      glmodel, SbColor(1,1,1) );
 	SoGLTexture3EnabledElement::set(state, this, false );
-	SoGLTextureEnabledElement::set(state, this, true );
+	SoGLTextureEnabledElement::set(state, this, quality > 0.0f );
 	if ( isOverride() )
 	    SoTextureOverrideElement::setImageOverride( state, true );
     }
@@ -344,8 +351,7 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	SoGLMultiTextureImageElement::set( state, this, unit,
 					   texturedata->glimage_, glmodel,
 					   SbColor(1,1,1) );
-	SoGLMultiTextureEnabledElement::set( state, this, unit,
-				!needregenration_ && quality > 0.0f);
+	SoGLMultiTextureEnabledElement::set( state, this, unit, quality > 0.0f);
     }
 }
 

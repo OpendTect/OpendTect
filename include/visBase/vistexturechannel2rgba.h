@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.5 2008-10-31 18:44:29 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.6 2008-11-03 23:40:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ class SoFragmentShader;
 class SoShaderParameter1i;
 class SoShaderParameterArray1f;
 class SoRGBATextureChannel2RGBA;
+class SoTextureComposerInfo;
 
 namespace ColTab { class Sequence; }
 
@@ -116,6 +117,7 @@ protected:
     SoShaderParameter1i*		numlayers_;
     SoShaderParameter1i*		startlayer_;
     SoShaderParameterArray1f*		layeropacity_;
+    SoTextureComposerInfo*		tci_;
 
 					//Non shading
     void				doFill(

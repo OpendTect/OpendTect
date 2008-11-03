@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.7 2008-10-31 22:22:40 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.8 2008-11-03 23:40:12 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.7 2008-10-31 22:2
 #include "color.h"
 #include "coltabsequence.h"
 #include "coltab.h"
+#include "simpnumer.h"
 
 #include "SoColTabTextureChannel2RGBA.h"
 #include "SoTextureComposer.h"
@@ -249,21 +250,19 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	shadinggroup_ = new SoGroup;
 	shaderswitch_->addChild( shadinggroup_ );
 
-	SoTextureComposerInfo* tci = new SoTextureComposerInfo;
-	shadinggroup_->addChild( tci );
-	tci->units.set1Value( 0, 0 );
-	tci->units.set1Value( 1, 1 );
-
-	//TODO: Add transparency info
-
-	SoComplexity* complexity = new SoComplexity;
-	complexity->textureQuality.setValue( 0.1 );
-	shadinggroup_->addChild( complexity );
+	tci_ = new SoTextureComposerInfo;
+	shadinggroup_->addChild( tci_ );
+	tci_->units.set1Value( 0, 0 );
+	tci_->units.set1Value( 1, 1 );
 
 	const int ctabunitnr = SoTextureUnit::getMaxTextureUnit()-1;
 	SoTextureUnit* ctabunit = new SoTextureUnit;
 	shadinggroup_->addChild( ctabunit );
 	ctabunit->unit = ctabunitnr;
+
+	SoComplexity* complexity = new SoComplexity;
+	complexity->textureQuality.setValue( 0.1 );
+	shadinggroup_->addChild( complexity );
 
 	shaderctab_ = new SoTexture2;
 	shadinggroup_->addChild( shaderctab_ );
@@ -307,7 +306,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	startlayer_->value.setValue( 0 );
 
 	layeropacity_ = new SoShaderParameterArray1f;
-	layeropacity_->name.setValue("trans");
+	layeropacity_->name.setValue("layeropacity");
 	fragmentshader->parameter.addNode( layeropacity_ );
 
 	shaderprogram->shaderObject.addNode( fragmentshader );
@@ -319,9 +318,9 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	ctabunit->unit = 0;
     }
 
-    const int nrchannels = coltabs_.size();
-    shaderctab_->image.setValue( SbVec2s( nrchannels, 256 ), 4, 0 );
-    //Set to POT size?
+    const int nrchannels = coltabs_.size()>1
+	? getPow2Sz( coltabs_.size() ) : 1;
+    shaderctab_->image.setValue( SbVec2s( 256, nrchannels ), 4, 0 );
     
     SbVec2s dummy;
     int dummy2;
@@ -340,15 +339,20 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	layeropacity_->value.deleteValues( nrchannels, -1 );
 
     int firstlayer = -1;
+    bool firstlayerhastrans;
 
     numlayers_->value.setValue( nrchannels );
 
     for ( int idx=nrchannels-1; idx>=0; idx-- )
     {
-	if ( enabled_[idx] ) //&& getCurrentTextureIndexData(idx) )
+	const SbImage& channel = channels_->getChannels()[idx];
+	SbVec3s size; int dummy2;
+	const unsigned char* vals = channel.getValue( size, dummy2 );
+	if ( enabled_[idx] && vals )
 	{
 	    firstlayer = idx;
-	    if ( !hasTransparency(idx) )
+	    firstlayerhastrans = hasTransparency(idx);
+	    if ( !firstlayerhastrans )
 		break;
 	}
     }
@@ -357,10 +361,16 @@ void ColTabTextureChannel2RGBA::setShadingVars()
     {
 	for ( int idx=0; idx<nrchannels; idx++ )
 	{
+	    const SbImage& channel = channels_->getChannels()[idx];
+	    SbVec3s size; int dummy2;
+	    const unsigned char* vals = channel.getValue( size, dummy2 );
 	    layeropacity_->value.set1Value( idx,
-		enabled_[idx] //&& getCurrentTextureIndexData(idx)
-		? opacity_[idx] : 0 );
+		enabled_[idx] && vals ? (float) opacity_[idx]/255 : 0.0 );
 	}
+
+	tci_->transparencyInfo = firstlayerhastrans
+	    ? SoTextureComposerInfo::cHasTransparency()
+	    : SoTextureComposerInfo::cHasNoTransparency();
     }
 
     startlayer_->value.setValue( firstlayer );
@@ -371,49 +381,46 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 						BufferString& res ) const
 {
     const char* variables =
-	"#extension GL_ARB_texture_rectangle : enable			\n\
-	uniform sampler2D   ctabunit;				\n\
-	uniform int	    startlayer;				\n\
-	varying vec3	    ecPosition3;				\n\
-	varying vec3	    fragmentNormal;				\n\
-	uniform int	    numlayers;\n";
+	"uniform sampler2D   ctabunit;				\n"
+	"uniform int	    startlayer;				\n"
+	"varying vec3	    ecPosition3;			\n"
+	"varying vec3	    fragmentNormal;			\n"
+	"uniform int	    numlayers;\n";
 
     const char* functions =
-	"void processLayer( in float val, in float layeropacity,in int layer)\n"
+	"void processLayer( in float val, in float layeropacity, in float ctab, in int layer)\n"
 	"{								\n"
-	"if ( layer==startlayer )					\n"
-	"{								\n"
-	    "gl_FragColor = texture2D( ctabunit,			\n"
-	    "vec2( 0.5, val ) );			\n"
-	    "gl_FragColor.a *= layeropacity;				\n"
-	"}								\n"
-	"else if ( layeropacity>0.0 )					\n"
-	"{								\n"
-	    "vec4 col = texture2D( ctabunit,			\n"
-			"vec2( 0.5, val) );		\n"
-	    "layeropacity *= col.a;					\n"
-	    "gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity); \n"
-	    "if ( layeropacity>gl_FragColor.a )				\n"
-	    "gl_FragColor.a = layeropacity;				\n"
-	"}								\n"
-    "}\n\n";
+	"    if ( layer==startlayer )					\n"
+	"    {								\n"
+	"	gl_FragColor = texture2D( ctabunit, vec2( val, ctab ) );\n"
+	"	gl_FragColor.a *= layeropacity;				\n"
+	"    }								\n"
+	"    else if ( layeropacity>0.0 )				\n"
+	"    {								\n"
+	"	vec4 col = texture2D( ctabunit,	vec2( val, ctab ) );	\n"
+	"	layeropacity *= col.a;					\n"
+	"	gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity); \n"
+	"	if ( layeropacity>gl_FragColor.a )				\n"
+	"	    gl_FragColor.a = layeropacity;				\n"
+	"    }								\n"
+	"}\n\n";
 
     BufferString mainprogstart =
-	"void main()							\n\
-	{								\n\
-	if ( gl_FrontMaterial.diffuse.a<=0.0 )				\n\
-	    discard;							\n\
-	if ( startlayer<0 )						\n\
-	    gl_FragColor = vec4(1,1,1,1);				\n\
-	else								\n\
-	{								\n\
-	    vec2 tcoord = gl_TexCoord[0].st;				\n\
-	    vec4 data;\n";
+	"void main()							\n"
+	"{								\n"
+	"    if ( gl_FrontMaterial.diffuse.a<=0.0 )			\n"
+	"	discard;						\n"
+	"    if ( startlayer<0 )					\n"
+	"	gl_FragColor = vec4(1,1,1,1);				\n"
+	"    else							\n"
+	"    {								\n"
+	"	vec2 tcoord = gl_TexCoord[0].st;			\n"
+	"	vec4 data;\n";
 
 
     res = variables;
 
-    res += "uniform float	   trans["; res += nrchannels; res += "];\n";
+    res += "uniform float	   layeropacity["; res += nrchannels; res += "];\n";
 
     const int nrunits = nrchannels ? (nrchannels-1)/mLayersPerUnit+1 : 0;
     for ( int idx=0; idx<nrunits; idx++ )
@@ -444,9 +451,12 @@ void ColTabTextureChannel2RGBA::createFragShadingProgram(int nrchannels,
 	{
 	    res += "\t    if ( startlayer<="; res += layer;
 	    res += " && numlayers>"; res += layer; res += " )\n";
-	    res += "\t\tprocessLayer( data["; res +=
-	    idx; res += "], trans[";
-	    res += layer; res += "], "; res += layer; res += ");\n";
+	    res += "\t    {\n\t\tfloat ctab= (";
+	    res += layer;
+	    res += ".5)/numlayers;\n";
+	    res += "\t\tprocessLayer( data["; res += idx; res += "], layeropacity[";
+	    res += layer; res += "], ctab, "; res += layer; res += ");\n";
+	    res += "\t    }\n";
 	}
 
 	res += "\t}\n";
