@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.55 2008-11-03 16:36:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.56 2008-11-03 23:42:37 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -42,39 +42,6 @@ mCreateFactoryEntry( visBase::MultiTexture2 );
 
 namespace visBase
 {
-
-inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
-		      int maxsz=INT_MAX )
-{
-    char npow = 0; char npowextra = actsz == 1 ? 1 : 0;
-    int sz = actsz;
-    while ( sz>1 )
-    {
-	if ( above && !npowextra && sz % 2 )
-	npowextra = 1;
-	sz /= 2; npow++;
-    }
-
-    sz = intpow( 2, npow + npowextra );
-    if ( sz<minsz ) sz = minsz;
-    if ( sz>maxsz ) sz = maxsz;
-    return sz;
-}
-
-
-inline int nextPower2( int nr, int minnr, int maxnr )
-{
-    if ( nr>maxnr )
-	return maxnr;
-
-    int newnr = minnr;
-    while ( nr > newnr )
-	newnr *= 2;
-
-    return newnr;
-}
-
-
 
 MultiTexture2::MultiTexture2()
     : switch_( new SoSwitch )
