@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.7 2007-11-21 09:58:08 cvsraman Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.8 2008-11-04 23:10:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ public:
 
     int			displayID() const		{ return displayid_; }
 
-    void		addAttribItem();
+    uiODDataTreeItem*	addAttribItem();
 
 protected:
 

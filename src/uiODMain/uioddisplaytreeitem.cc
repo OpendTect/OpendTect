@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.22 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.23 2008-11-04 23:10:18 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -103,14 +103,16 @@ uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
 }
 
 
-void uiODDisplayTreeItem::addAttribItem()
+uiODDataTreeItem* uiODDisplayTreeItem::addAttribItem()
 {
     uiODDataTreeItem* newitem = createAttribItem(0);
     visserv_->addAttrib( displayid_ );
     addChild( newitem, false );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
+    return newitem;
 }
+
 
 bool uiODDisplayTreeItem::init()
 {
@@ -297,11 +299,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==addattribmnuitem_.id )
     {
-	uiODDataTreeItem* newitem = createAttribItem(0);
-	visserv_->addAttrib( displayid_ );
-	addChild( newitem, false );
-	updateColumnText( uiODSceneMgr::cNameColumn() );
-	updateColumnText( uiODSceneMgr::cColorColumn() );
+	uiODDataTreeItem* newitem = addAttribItem();
 	newitem->select();
 	menu->setIsHandled(true);
     }
