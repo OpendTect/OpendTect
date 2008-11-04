@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoRGBATextureChannel2RGBA.cc,v 1.1 2008-10-31 18:28:49 cvskris Exp $
+ RCS:           $Id: SoRGBATextureChannel2RGBA.cc,v 1.2 2008-11-04 13:58:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,9 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 
 	SbVec3s size;
 	int nc;
-	unsigned const char* data = inputchannels[idx].getValue( size, nc );
+	unsigned const char* data = idx<nrinputchannels
+	    ? inputchannels[idx].getValue( size, nc )
+	    : 0;
 
 	rgba_[idx].setValuePtr( size, nc, isenab ? data : 0 );
 	if ( !isenab )
