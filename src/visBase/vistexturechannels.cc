@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.7 2008-10-16 21:56:53 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.8 2008-11-04 21:27:44 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -246,6 +246,12 @@ bool ChannelInfo::mapData( int version )
     {
 	delete [] mappeddata_[version];
 	mappeddata_.replace( version, 0 );
+    }
+
+    if ( !unmappeddata_[version] )
+    {
+	owner_.update( this );
+	return true;
     }
 
     od_int64 sz = owner_.size_[0];
