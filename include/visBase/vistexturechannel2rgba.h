@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.6 2008-11-03 23:40:12 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.7 2008-11-04 21:18:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,10 +49,14 @@ public:
 				/*!<Fill the image with the output, using
 				    current settings. */
 
+    virtual void		setEnabled(int ch,bool yn)	{}
+    virtual bool		isEnabled(int ch) const		{ return true; }
+
     virtual bool		canUseShading() const			= 0;
     virtual void		allowShading(bool);
     virtual bool		usesShading() const			= 0;
     virtual int			maxNrChannels() const			= 0;
+    virtual int			minNrChannels() const		{ return 1; }
 
 protected:
     				TextureChannel2RGBA();
