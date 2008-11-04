@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.159 2008-10-22 04:16:20 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.160 2008-11-04 14:34:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,7 @@ public:
     void		activateQDlg( int retval ); 
     void		activateGrab( const char* filenm, int zoom=1,
 				      const char* format=0, int quality=-1 );
+    void		activateCmdCursor(MouseCursor::Shape);
 
     bool		poppedUp() const { return popped_up; }
     bool		touch()
@@ -161,10 +162,13 @@ protected:
     bool		exitapponclose_;
     int			qdlgretval_;
 
-    const char*		grabfilenm;
-    const char*		grabformat;
-    int			grabzoom;
-    int			grabquality;
+    const char*		grabfilenm_;
+    const char*		grabformat_;
+    int			grabzoom_;
+    int			grabquality_;
+
+    MouseCursor::Shape	actcursor_;
+    static QCursor*	actqcursor_;
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
@@ -367,9 +371,12 @@ bool uiMainWinBody::grabAndSave( const char* filenm, int zoom,
 }
 
 
-static const QEvent::Type sQEventActClose = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActQDlg  = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActGrab  = (QEvent::Type) (QEvent::User+2);
+QCursor* uiMainWinBody::actqcursor_ = 0;
+
+static const QEvent::Type sQEventActClose  = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActQDlg   = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActGrab   = (QEvent::Type) (QEvent::User+2);
+static const QEvent::Type sQEventActCursor = (QEvent::Type) (QEvent::User+3);
 
 bool uiMainWinBody::event( QEvent* ev )
 {
@@ -380,7 +387,41 @@ bool uiMainWinBody::event( QEvent* ev )
 	// Using parentcheck=true would be neat, but it turns out that
 	// QDialogs not always have their parent set correctly (yet).
     else if ( ev->type() == sQEventActGrab )
-	grabAndSave( grabfilenm, grabzoom, grabformat, grabquality );
+	grabAndSave( grabfilenm_, grabzoom_, grabformat_, grabquality_ );
+    else if ( ev->type() == sQEventActCursor )
+    {
+	if ( actcursor_ != MouseCursor::NotSet )
+	{
+	    if ( !actqcursor_ )
+	    {
+		MouseCursorManager::setOverride( actcursor_ );
+		actqcursor_ = qApp->overrideCursor();
+	    }
+	}
+	else if ( actqcursor_ )
+	{
+	    // CmdCursor is not necessarily top of stack when CmdDriver ends!
+	    ObjectSet<const QCursor> stacktopstore;
+	    while ( true )
+	    {
+		const QCursor* qcursor =  qApp->overrideCursor();
+		if ( qcursor == actqcursor_ )
+		    MouseCursorManager::restoreOverride();
+
+		if ( !qcursor || qcursor==actqcursor_ )
+		{
+		    for ( int idx=stacktopstore.size()-1; idx>=0; idx-- )
+			qApp->setOverrideCursor( *stacktopstore[idx] );
+		    break;
+		}
+
+		stacktopstore += new QCursor( *qcursor );
+		qApp->restoreOverrideCursor();
+	    }
+	    deepErase( stacktopstore );
+	    actqcursor_ = 0;
+	}
+    }
     else
 	return QMainWindow::event( ev );
     
@@ -406,11 +447,19 @@ void uiMainWinBody::activateQDlg( int retval )
 void uiMainWinBody::activateGrab( const char* filenm, int zoom,
 				  const char* format, int quality )
 {
-    grabfilenm = filenm;
-    grabzoom = zoom;
-    grabformat = format;
-    grabquality = quality;
+    grabfilenm_ = filenm;
+    grabzoom_ = zoom;
+    grabformat_ = format;
+    grabquality_ = quality;
     QEvent* actgrabevent = new QEvent( sQEventActGrab );
+    QApplication::postEvent( this, actgrabevent );
+}
+
+
+void uiMainWinBody::activateCmdCursor( MouseCursor::Shape mcs )
+{ 
+    actcursor_ = mcs;
+    QEvent* actgrabevent = new QEvent( sQEventActCursor );
     QApplication::postEvent( this, actgrabevent );
 }
 
@@ -660,6 +709,10 @@ void uiMainWin::setDeleteOnClose( bool yn )
 void uiMainWin::activateGrab( const char* filenm, int zoom,
 			      const char* format, int quality )
 { body_->activateGrab( filenm, zoom, format, quality ); }
+
+
+void uiMainWin::activateCmdCursor( MouseCursor::Shape mcs )
+{ body_->activateCmdCursor( mcs ); }
 
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )

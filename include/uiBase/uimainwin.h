@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.62 2008-10-22 04:16:20 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.63 2008-11-04 14:34:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
 #include "uihandle.h"
+#include "mousecursor.h"
 
 class uiDockWin;
 class uiGroup;
@@ -92,10 +93,13 @@ public:
     virtual void        show();
     void                close();
 
-    void		activateClose();    //! Force activation in GUI thread
+    			 //! Force activation in GUI thread
+    void		activateClose();
     void		activateQDlg(int retval);
     void		activateGrab(const char* filenm,int zoom=1,
 				     const char* format=0,int quality=-1);
+    void		activateCmdCursor(MouseCursor::Shape);
+
     Notifier<uiMainWin> activatedone;
 
     bool		isHidden() const;
