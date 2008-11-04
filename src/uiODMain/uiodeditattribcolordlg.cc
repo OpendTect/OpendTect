@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.11 2008-10-07 21:49:01 cvskris Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.12 2008-11-04 23:12:37 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     }
 
     uicoltab_ = new uiColorTable( this, *colseq, true );
-    uicoltab_->setMapperSetup( *colmapsetup );
+    uicoltab_->setMapperSetup( colmapsetup );
 }
 
 
@@ -95,16 +95,11 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
 
 	const ColTab::Sequence* colseq = visserv->getColTabSequence( did, anr );
 
-	if ( !colseq )
-	    continue;
-
 	const ColTab::MapperSetup* colmapsetup =
 	    visserv->getColTabMapperSetup( did, anr );
 
-	if ( !colmapsetup )
-	    continue;
-
-	if ( *colseq!=newcoltab )
+	if ( colseq && *colseq!=newcoltab &&
+	     visserv->canSetColTabSequence(did) )
 	    visserv->setColTabSequence( did, anr, newcoltab );
 
 	if ( *colmapsetup!=newcolmapsetup )
