@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.35 2008-10-07 21:49:02 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.36 2008-11-04 22:52:11 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -50,17 +50,9 @@ void uiVisColTabEd::setColTab( const ColTab::Sequence* seq,
 			       const ColTab::MapperSetup* setup )
 {
     bool enabled;
-    if ( seq && setup )
-    {
-	uicoltab_->setSequence( *seq, true );
-	uicoltab_->setMapperSetup( *setup, true );
+    uicoltab_->setSequence( seq, true );
+    uicoltab_->setMapperSetup( setup, true );
 
-	enabled = true;
-    }
-    else
-    {
-	enabled = false;
-    }
     /*TODO trigger something
 
     if ( viscoltab_&& viscoltab_->id()==id ) return;
@@ -88,8 +80,6 @@ void uiVisColTabEd::setColTab( const ColTab::Sequence* seq,
         uicoltab_->setInterval( viscoltab_->getInterval() );
     }
     */
-    uicoltab_->setSensitive( enabled );
-
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.25 2008-10-27 12:12:43 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.cc,v 1.26 2008-11-04 22:52:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,28 +170,39 @@ void uiColorTable::updateRgFld()
 void uiColorTable::setSequence( const char* tblnm, bool emitnotif )
 {
     ColTab::Sequence colseq( tblnm );
-    setSequence( colseq, emitnotif );
+    setSequence( &colseq, emitnotif );
 }
 
 
-void uiColorTable::setSequence( const ColTab::Sequence& ctseq, bool emitnotif )
+void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool emitnotif )
 {
-    coltabseq_ = ctseq;
-    selfld_->setCurrentItem( coltabseq_.name() );
-    canvas_->setRGB();
-    if ( !emitnotif )
-	seqChanged.trigger();
+    if ( ctseq )
+    {
+	coltabseq_ = *ctseq;
+	selfld_->setCurrentItem( coltabseq_.name() );
+	canvas_->setRGB();
+	if ( !emitnotif )
+	    seqChanged.trigger();
+    }
+
+    selfld_->setSensitive( ctseq );
 }
 
 
-void uiColorTable::setMapperSetup( const ColTab::MapperSetup& ms,
+void uiColorTable::setMapperSetup( const ColTab::MapperSetup* ms,
 				   bool emitnotif )
 {
-    mapsetup_ = ms;
-    updateRgFld();
+    if ( ms )
+    {
+	mapsetup_ = *ms;
+	updateRgFld();
 
-    if ( !emitnotif )
-	scaleChanged.trigger();
+	if ( !emitnotif )
+	    scaleChanged.trigger();
+    }
+
+    minfld_->setSensitive( ms );
+    maxfld_->setSensitive( ms );
 }
 
 
@@ -242,18 +253,26 @@ void uiColorTable::canvasClick( CallBacker* )
     if ( OD::RightButton != ev.buttonState() )
 	return;
 
+    const bool hasseq = selfld_->sensitive();
+    const bool hasmapper = minfld_->sensitive();
+    if ( !hasseq && !hasmapper )
+	return;
+
     PtrMan<uiPopupMenu> mnu = new uiPopupMenu( this, "Action" );
-    mnu->insertItem( new uiMenuItem("Flip",
-	mCB(this,uiColorTable,doFlip)), 0 );
-    mnu->insertItem( new uiMenuItem("Ranges/Clipping ...",
-	mCB(this,uiColorTable,editScaling)), 1 );
-    if ( enabmanage_ )
+    if ( hasseq ) 
+	mnu->insertItem( new uiMenuItem("Flip",
+	    mCB(this,uiColorTable,doFlip)), 0 );
+    if ( hasmapper )
+	mnu->insertItem( new uiMenuItem("Ranges/Clipping ...",
+	    mCB(this,uiColorTable,editScaling)), 1 );
+    if ( enabmanage_ && hasseq )
     {
 	mnu->insertItem( new uiMenuItem("Manage ...",
 	    mCB(this,uiColorTable,doManage)), 2 );
 	mnu->insertItem( new uiMenuItem("Set as default",
 	    mCB(this,uiColorTable,setAsDefault)), 3 );
     }
+
     mnu->exec();
 
     canvas_->getMouseEventHandler().setHandled( true );
