@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.267 2008-10-07 21:49:01 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.268 2008-11-04 23:08:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -512,6 +512,7 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
     if ( appl_.isRestoringSession() ) return;
 
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
+	    			visserv_->canSetColTabSequence( visid ),
 				visserv_->getColTabMapperSetup(visid,attrib) );
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as ) return;
@@ -1306,6 +1307,7 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
     coltabattribnr_ = attrib;
 
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
+	    			visserv_->canSetColTabSequence( visid ),
 				visserv_->getColTabMapperSetup(visid,attrib) );
     setHistogram( visid, attrib );
 }
@@ -1336,6 +1338,7 @@ void uiODApplMgr::colMapperChg( CallBacker* )
 
     //Autoscale may have changed ranges, so update.
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
+	    			visserv_->canSetColTabSequence( visid ),
 				visserv_->getColTabMapperSetup(visid,attrib) );
 }
 

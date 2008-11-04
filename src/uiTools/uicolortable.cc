@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.26 2008-11-04 22:52:11 cvskris Exp $
+ RCS:           $Id: uicolortable.cc,v 1.27 2008-11-04 23:08:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,11 +170,12 @@ void uiColorTable::updateRgFld()
 void uiColorTable::setSequence( const char* tblnm, bool emitnotif )
 {
     ColTab::Sequence colseq( tblnm );
-    setSequence( &colseq, emitnotif );
+    setSequence( &colseq, true, emitnotif );
 }
 
 
-void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool emitnotif )
+void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool edit,
+				bool emitnotif )
 {
     if ( ctseq )
     {
@@ -185,7 +186,7 @@ void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool emitnotif )
 	    seqChanged.trigger();
     }
 
-    selfld_->setSensitive( ctseq );
+    selfld_->setSensitive( ctseq && edit );
 }
 
 

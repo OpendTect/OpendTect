@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.11 2008-11-04 22:52:11 cvskris Exp $
+ RCS:           $Id: uicolortable.h,v 1.12 2008-11-04 23:08:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
     const ColTab::MapperSetup&	colTabMapperSetup() const { return mapsetup_; }
 
     void		setSequence(const char*,bool emitnotif=true);
-    void		setSequence(const ColTab::Sequence*,
+    void		setSequence(const ColTab::Sequence*,bool allowedit,
 	    			    bool emitnotif=true);
     			/*!If ptr is null, sequence edit will be disabled. */
     void		setMapperSetup(const ColTab::MapperSetup*,
