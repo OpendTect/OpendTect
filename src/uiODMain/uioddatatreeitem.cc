@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.31 2008-10-07 19:12:49 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.32 2008-11-04 23:17:15 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -219,7 +219,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     }
 
     mAddMenuItem( menu, &removemnuitem_,
-		  !islocked && visserv->getNrAttribs( displayID())>1, false );
+		  !islocked && visserv->canRemoveAttrib( displayID()), false );
     if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
 	mAddMenuItem( menu, &changetransparencyitem_, true, false )
     else
