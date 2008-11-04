@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.14 2008-10-15 11:22:44 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.15 2008-11-04 13:45:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -267,10 +267,11 @@ uiSEGYFilePars::uiSEGYFilePars( uiParent* p, bool forread, IOPar* iop )
 
     if ( forread || enabbyteswapwrite )
     {
-	const bool isswpd = iop
-		    && iop->isTrue( SEGY::FilePars::sKeyBytesSwapped );
-	const char* txt = forread ? "Bytes are swapped" : "Swap bytes";
-	byteswapfld_ = new uiGenInput( grp, txt, BoolInpSpec(isswpd) );
+	int bs = 0; iop->get( SEGY::FilePars::sKeyByteSwap, bs );
+	const char* strs[] = { "No", "Only data", "All", 0 };
+	const char* txt = forread ? "Bytes swapped" : "Swap bytes";
+	byteswapfld_ = new uiGenInput( grp, txt, StringListInpSpec(strs) );
+	byteswapfld_->setValue( bs );
 	byteswapfld_->attach( alignedBelow, fmtfld_ );
     }
 
@@ -294,7 +295,7 @@ SEGY::FilePars uiSEGYFilePars::getPars() const
     if ( nrsamplesfld_ && nrsamplesfld_->isChecked() )
 	fp.ns_ = nrsamplesfld_->getIntValue();
     fp.fmt_ = SEGY::FilePars::fmtOf( fmtfld_->text(), forread_ );
-    fp.byteswapped_ = byteswapfld_ && byteswapfld_->getBoolValue();
+    fp.byteswap_ = byteswapfld_ ? byteswapfld_->getIntValue() : 0;
     return fp;
 }
 
@@ -323,7 +324,7 @@ void uiSEGYFilePars::setPars( const SEGY::FilePars& fp )
     }
 
     fmtfld_->setText( SEGY::FilePars::nameOfFmt(fp.fmt_,forread_) );
-    if ( byteswapfld_ ) byteswapfld_->setValue( fp.byteswapped_ );
+    if ( byteswapfld_ ) byteswapfld_->setValue( fp.byteswap_ );
 }
 
 

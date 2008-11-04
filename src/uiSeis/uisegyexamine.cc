@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.10 2008-10-21 14:14:15 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.11 2008-11-04 13:45:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,8 +213,8 @@ bool uiSEGYExamine::launch( const uiSEGYExamine::Setup& su )
 	{ cmd += " --ns "; cmd += su.fp_.ns_; }
     if ( su.fp_.fmt_ > 0 )
 	{ cmd += " --fmt "; cmd += su.fp_.fmt_; }
-    if ( su.fp_.byteswapped_ )
-	cmd += " --swapbytes ";
+    if ( su.fp_.byteswap_ )
+	{ cmd += " --swapbytes "; cmd += su.fp_.byteswap_; }
     if ( su.fs_.isMultiFile() )
     {
 	FileMultiString fms;

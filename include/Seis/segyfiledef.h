@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.8 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.9 2008-11-04 13:45:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,12 +96,12 @@ public:
     			FilePars( bool forread=true )
 			    : ns_(0)
 			    , fmt_(forread?0:1)
-			    , byteswapped_(false)
+			    , byteswap_(0)
 			    , forread_(forread)		{}
 
     int			ns_;
     int			fmt_;
-    bool		byteswapped_;
+    int			byteswap_;	//!, 0=no 1=data only 2=all
 
     static int		nrFmts( bool forread )	{ return forread ? 6 : 5; }
     static const char**	getFmts(bool forread);
@@ -110,7 +110,7 @@ public:
 
     static const char*	sKeyNrSamples;
     static const char*	sKeyNumberFormat;
-    static const char*	sKeyBytesSwapped;
+    static const char*	sKeyByteSwap;
 
     void		setForRead(bool);
 

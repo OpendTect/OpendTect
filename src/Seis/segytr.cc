@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.69 2008-10-14 10:22:47 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.70 2008-11-04 13:45:04 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -85,13 +85,13 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	mErrRet( "Cannot read EBCDIC header" )
     txthead_->setAscii();
 
-    binhead_.needswap = filepars_.byteswapped_;
+    binhead_.needswap = filepars_.byteswap_ > 1;
     unsigned char binheaderbuf[400];
     if ( !sConn().doIO( binheaderbuf, SegyBinHeaderLength ) )
 	mErrRet( "Cannot read EBCDIC header" )
     binhead_.getFrom( binheaderbuf );
 
-    trchead_.setNeedSwap( filepars_.byteswapped_ );
+    trchead_.setNeedSwap( filepars_.byteswap_ > 1 );
     trchead_.isrev1 = forcerev0 ? false : binhead_.isrev1;
     if ( trchead_.isrev1 )
     {
@@ -310,7 +310,7 @@ DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 {
     DataCharacteristics dc( true, true, BinDataDesc::N4,
 			DataCharacteristics::Ibm,
-			filepars_.byteswapped_ ? !__islittle__ : __islittle__ );
+			filepars_.byteswap_ ? !__islittle__ : __islittle__ );
 
     switch ( nf )
     {

@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.8 2008-10-15 11:22:44 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.9 2008-11-04 13:45:04 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: segyfiledef.cc,v 1.8 2008-10-15 11:22:44 cvsber
 const char* SEGY::FileDef::sKeyForceRev0 = "Force Rev0";
 const char* SEGY::FilePars::sKeyNrSamples = "Nr samples overrule";
 const char* SEGY::FilePars::sKeyNumberFormat = "Number format";
-const char* SEGY::FilePars::sKeyBytesSwapped = "Bytes swapped";
+const char* SEGY::FilePars::sKeyByteSwap = "Byte swapping";
 const char* SEGY::FileSpec::sKeyFileNrs = "File numbers";
 const char* SEGY::FileReadOpts::sKeyCoordScale = "Coordinate scaling overrule";
 const char* SEGY::FileReadOpts::sKeyTimeShift = "Start time overrule";
@@ -203,17 +203,14 @@ void SEGY::FilePars::fillPar( IOPar& iop ) const
 	iop.set( sKeyNumberFormat, nameOfFmt(fmt_,forread_) );
     else
 	iop.removeWithKey( sKeyNumberFormat );
-    if ( byteswapped_ )
-	iop.setYN( sKeyBytesSwapped, true );
-    else
-	iop.removeWithKey( sKeyBytesSwapped );
+    iop.set( sKeyByteSwap, byteswap_ );
 }
 
 
 void SEGY::FilePars::usePar( const IOPar& iop )
 {
     iop.get( sKeyNrSamples, ns_ );
-    iop.getYN( sKeyBytesSwapped, byteswapped_ );
+    iop.get( sKeyByteSwap, byteswap_ );
     fmt_ = fmtOf( iop.find(sKeyNumberFormat), forread_ );
 }
 
@@ -225,8 +222,13 @@ void SEGY::FilePars::getReport( IOPar& iop, bool ) const
     if ( fmt_ > 0 )
 	iop.set( forread_ ? "SEG-Y 'format' used" : "SEG-Y 'format'",
 		nameOfFmt(fmt_,forread_) );
-    if ( byteswapped_ )
-	iop.set( forread_ ? "Bytes are" : "Bytes will be", "swapped" );
+    if ( byteswap_ )
+    {
+	const char* str = byteswap_ > 1
+	    		? (forread_ ? "All bytes are" : "All bytes will be")
+			: (forread_ ? "Data bytes are" : "Data bytes will be");
+	iop.set( str, "swapped" );
+    }
 }
 
 

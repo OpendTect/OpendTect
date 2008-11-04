@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.16 2008-09-24 11:21:38 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.17 2008-11-04 13:45:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ int main( int argc, char ** argv )
 	else if ( !strcmp(argv[argidx],"--filenrs") )
 	    { argidx++; su.fs_.getMultiFromString( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--swapbytes") )
-	    { su.fp_.byteswapped_ = true; }
+	    { argidx++; su.fp_.byteswap_ = atoi( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--fg") )
 	    dofork = false;
 	else
@@ -53,7 +53,7 @@ int main( int argc, char ** argv )
 		  << "\n\t[--ns #samples]""\n\t[--nrtrcs #traces]"
 		     "\n\t[--fmt segy_format_number]"
 	    	     "\n\t[--filenrs start`stop`step[`nrzeropad]]"
-		     "\n\t[--swapbytes]"
+		     "\n\t[--swapbytes 0_1_or_2]"
 		     "\n\tfilename\n"
 	     << "Note: filename must be with FULL path." << std::endl;
 	ExitProgram( 1 );
