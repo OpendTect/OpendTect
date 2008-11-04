@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.5 2007-03-15 16:19:52 cvsbert Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.6 2008-11-04 23:15:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,11 +21,13 @@ class CubeSampling;
 class uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 {
 public:
-    			uiODPlaneDataTreeItem( int displayid, int dim );
+    			uiODPlaneDataTreeItem(int displayid,int dim,
+					      bool rgba);
 			~uiODPlaneDataTreeItem();
     bool		init();
 
 protected:
+    //uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
     BufferString	createDisplayName() const;
 
     void		createMenuCB(CallBacker*);
@@ -41,7 +43,8 @@ protected:
     void		posChange(CallBacker*);
     void		movePlaneAndCalcAttribs(const CubeSampling&);
 
-    int			dim_;
+    const int		dim_;
+    const bool		rgba_;
     MenuItem		positionmnuitem_;
     MenuItem		gridlinesmnuitem_;
     uiSliceSel*		positiondlg_;
@@ -65,7 +68,7 @@ public:
 class uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODInlineTreeItem( int displayid );
+    			uiODInlineTreeItem( int displayid, bool rgba );
 
 protected:
     const char*		parentType() const
@@ -89,7 +92,7 @@ public:
 class uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODCrosslineTreeItem( int displayid );
+    			uiODCrosslineTreeItem( int displayid, bool rgba );
 
 protected:
     const char*		parentType() const
@@ -113,7 +116,7 @@ public:
 class uiODTimesliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODTimesliceTreeItem( int displayid );
+    			uiODTimesliceTreeItem( int displayid, bool rgba );
 
 protected:
     const char*		parentType() const

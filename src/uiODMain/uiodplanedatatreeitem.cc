@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.21 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.22 2008-11-04 23:15:51 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ___________________________________________________________________
 #include "uishortcutsmgr.h"
 #include "visplanedatadisplay.h"
 #include "vissurvscene.h"
+#include "visrgbatexturechannel2rgba.h"
 
 #include "settings.h"
 #include "survinfo.h"
@@ -36,19 +37,21 @@ static const int sGridLinesIdx = 980;
 
 #define mParentShowSubMenu( creation ) \
     uiPopupMenu mnu( getUiParent(), "Action" ); \
-    mnu.insertItem( new uiMenuItem("&Add"), 0 ); \
+    mnu.insertItem( new uiMenuItem("&Add layer-based"), 0 ); \
+    mnu.insertItem( new uiMenuItem("&Add RGBA"), 1 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
-    if ( mnuid == 0 ) creation; \
+    if ( mnuid==0 || mnuid==1 ) creation; \
     handleStandardItems( mnuid ); \
     return true
 
 
-uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim )
+uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim, bool rgba )
     : dim_(dim)
     , positiondlg_(0)
     , positionmnuitem_("P&osition ...",sPositionIdx)
     , gridlinesmnuitem_("&Gridlines ...",sGridLinesIdx)
+    , rgba_( rgba )
 {
     displayid_ = did;
 }
@@ -78,9 +81,16 @@ bool uiODPlaneDataTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	visSurvey::PlaneDataDisplay* pdd =
+	RefMan<visSurvey::PlaneDataDisplay> pdd =
 			visSurvey::PlaneDataDisplay::create();
 	displayid_ = pdd->id();
+	if ( rgba_ )
+	{
+	    pdd->setChannel2RGBA( visBase::RGBATextureChannel2RGBA::create() );
+	    pdd->addAttrib();
+	    pdd->addAttrib();
+	    pdd->addAttrib();
+	}
 	pdd->setOrientation( (visSurvey::PlaneDataDisplay::Orientation)dim_ );
 	visserv_->addObject( pdd, sceneID(), true );
 
@@ -317,9 +327,15 @@ void uiODPlaneDataTreeItem::movePlane( bool forward )
 uiTreeItem* uiODInlineTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd, 
-	    	    ODMainWin()->applMgr().visServer()->getObject(visid))
-    return pdd && pdd->getOrientation()==visSurvey::PlaneDataDisplay::Inline
-    	   ? new uiODInlineTreeItem(visid) : 0;
+	    	    ODMainWin()->applMgr().visServer()->getObject(visid));
+
+    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Inline )
+	return 0;
+
+    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
+	    	     pdd->getChannel2RGBA() );
+
+    return new uiODInlineTreeItem( visid, rgba );
 }
 
 
@@ -330,12 +346,12 @@ uiODInlineParentTreeItem::uiODInlineParentTreeItem()
 
 bool uiODInlineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild(new uiODInlineTreeItem(-1),false) );
+    mParentShowSubMenu( addChild(new uiODInlineTreeItem(-1,mnuid==1),false) );
 }
 
 
-uiODInlineTreeItem::uiODInlineTreeItem( int id )
-    : uiODPlaneDataTreeItem( id, 0 )
+uiODInlineTreeItem::uiODInlineTreeItem( int id, bool rgba )
+    : uiODPlaneDataTreeItem( id, 0, rgba )
 {}
 
 
@@ -343,8 +359,14 @@ uiTreeItem* uiODCrosslineTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
-    return pdd && pdd->getOrientation()==visSurvey::PlaneDataDisplay::Crossline
-	? new uiODCrosslineTreeItem(visid) : 0;
+
+    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Crossline )
+	return 0;
+
+    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
+	    	     pdd->getChannel2RGBA() );
+
+    return new uiODCrosslineTreeItem(visid,rgba);
 }
 
 
@@ -355,12 +377,12 @@ uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild(new uiODCrosslineTreeItem(-1),false) );
+    mParentShowSubMenu( addChild(new uiODCrosslineTreeItem(-1,mnuid==1),false));
 }
 
 
-uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id )
-    : uiODPlaneDataTreeItem( id, 1 )
+uiODCrosslineTreeItem::uiODCrosslineTreeItem( int id, bool rgba )
+    : uiODPlaneDataTreeItem( id, 1, rgba )
 {}
 
 
@@ -368,8 +390,15 @@ uiTreeItem* uiODTimesliceTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, 
 	    	     ODMainWin()->applMgr().visServer()->getObject(visid));
-    return pdd && pdd->getOrientation()==visSurvey::PlaneDataDisplay::Timeslice
-	? new uiODTimesliceTreeItem(visid) : 0;
+
+    if ( !pdd || pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice )
+	return 0;
+
+    mDynamicCastGet( visBase::RGBATextureChannel2RGBA*, rgba,
+	    	     pdd->getChannel2RGBA() );
+
+
+    return new uiODTimesliceTreeItem( visid, rgba );
 }
 
 
@@ -380,11 +409,11 @@ uiODTimesliceParentTreeItem::uiODTimesliceParentTreeItem()
 
 bool uiODTimesliceParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild(new uiODTimesliceTreeItem(-1),false) );
+    mParentShowSubMenu( addChild(new uiODTimesliceTreeItem(-1,mnuid==1),false));
 }
 
 
-uiODTimesliceTreeItem::uiODTimesliceTreeItem( int id )
-    : uiODPlaneDataTreeItem( id, 2 )
+uiODTimesliceTreeItem::uiODTimesliceTreeItem( int id, bool rgba )
+    : uiODPlaneDataTreeItem( id, 2, rgba )
 {
 }
