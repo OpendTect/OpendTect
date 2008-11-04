@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.378 2008-10-17 05:05:26 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.379 2008-11-04 21:16:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -482,6 +482,13 @@ bool uiVisPartServer::canAddAttrib( int id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->canAddAttrib() : false;
+}
+
+
+bool uiVisPartServer::canRemoveAttrib( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->canRemoveAttrib() : false;
 }
 
 
