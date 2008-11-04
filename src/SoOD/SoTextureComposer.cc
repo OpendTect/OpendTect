@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.10 2008-11-03 23:37:43 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.11 2008-11-04 14:08:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,7 +302,8 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 
 			if ( idc>=nrchannels || !channels[idc] )
 			{
-			    texturedata->imagedata_[ressample] = 0;
+			    texturedata->imagedata_[ressample] = 
+				idc==3 ? 255 : 0; //Default opacity to 1.
 			    continue; 
 			}
 
