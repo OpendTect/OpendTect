@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.379 2008-11-04 21:16:39 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.380 2008-11-04 22:54:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -754,6 +754,13 @@ const ColTab::Sequence*
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getColTabSequence( attrib ) : 0;
+}
+
+
+bool uiVisPartServer::canSetColTabSequence( int id ) const
+{
+    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
+    return so ? so->canSetColTabSequence() : false;
 }
 
 

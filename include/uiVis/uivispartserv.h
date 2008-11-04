@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.211 2008-11-04 21:16:39 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.212 2008-11-04 22:54:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,6 +245,7 @@ public:
     void			setColTabMapperSetup(int id,int attrib,
 						    const ColTab::MapperSetup&);
     const ColTab::Sequence*	getColTabSequence(int id,int attrib) const;
+    bool			canSetColTabSequence(int id) const;
     void			setColTabSequence(int id,int attrib,
 	    					  const ColTab::Sequence&);
 
