@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.14 2008-10-10 22:16:32 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.15 2008-11-04 13:45:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,13 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "visobject.h"
 
-namespace visBase { class MultiTexture2; class TextureChannels; }
+namespace visBase
+{
+    class MultiTexture2;
+    class TextureChannels;
+    class TextureChannel2RGBA;
+};
+
 
 namespace visSurvey
 {
@@ -39,6 +45,9 @@ public:
     virtual int			nrResolutions() const			= 0;
     virtual void		setResolution(int)			= 0;
     int				getResolution() const;
+
+    void			setChannel2RGBA(visBase::TextureChannel2RGBA*);
+    visBase::TextureChannel2RGBA* getChannel2RGBA();
 
     bool			canHaveMultipleAttribs() const;
     bool			canAddAttrib() const;
