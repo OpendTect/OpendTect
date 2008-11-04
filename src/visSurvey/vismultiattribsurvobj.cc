@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.20 2008-11-04 13:45:12 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.21 2008-11-04 21:29:38 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -97,6 +97,7 @@ int MultiTextureSurveyObject::getResolution() const
 void
 MultiTextureSurveyObject::setChannel2RGBA( visBase::TextureChannel2RGBA* t )
 {
+    RefMan<visBase::TextureChannel2RGBA> dummy( t );
     if ( !channels_ ) return;
 
     channels_->setChannels2RGBA( t );
@@ -147,6 +148,18 @@ bool MultiTextureSurveyObject::canAddAttrib() const
     if ( !maxnr ) return true;
 
     return nrAttribs()<maxnr;
+}
+
+
+bool MultiTextureSurveyObject::canRemoveAttrib() const
+{
+    if ( texture_ )
+	return SurveyObject::canRemoveAttrib();
+    const int newnrattribs = nrAttribs()-1;
+    if ( newnrattribs<channels_->getChannels2RGBA()->minNrChannels() )
+	return false;
+
+    return true;
 }
 
 
@@ -274,12 +287,7 @@ void MultiTextureSurveyObject::setSelSpec( int attrib,
 	if ( texture_ )
 	    texture_->enableTexture( attrib, false );
 	else
-	{
-	    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		    channels_->getChannels2RGBA() );
-	    if ( cttc2rgba )
-		cttc2rgba->setEnabled( attrib, false );
-	}
+	    channels_->getChannels2RGBA()->setEnabled( attrib, false );
     }
 }
 
@@ -326,12 +334,7 @@ bool MultiTextureSurveyObject::isAttribEnabled( int attrib ) const
     if ( texture_ )
 	return texture_->isTextureEnabled( attrib );
 
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-	    channels_->getChannels2RGBA() );
-    if ( cttc2rgba )
-	return cttc2rgba->isEnabled( attrib );
-
-    return true;
+    return channels_->getChannels2RGBA()->isEnabled( attrib );
 }
 
 
@@ -343,12 +346,7 @@ void MultiTextureSurveyObject::enableAttrib( int attrib, bool yn )
 	updateMainSwitch();
     }
     else
-    {
-	mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		channels_->getChannels2RGBA() );
-	if ( cttc2rgba )
-	    cttc2rgba->setEnabled( attrib, yn );
-    }
+	channels_->getChannels2RGBA()->setEnabled( attrib, yn );
 }
 
 
@@ -387,6 +385,16 @@ void MultiTextureSurveyObject::setColTabSequence( int attrib,
 	    cttc2rgba->setSequence( attrib, seq );
     }
 }
+
+
+bool MultiTextureSurveyObject::canSetColTabSequence() const
+{
+    if ( texture_ ) return true;
+    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
+		     channels_->getChannels2RGBA() );
+    return cttc2rgba;
+}
+
 
 
 const ColTab::Sequence*

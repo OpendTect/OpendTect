@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.15 2008-11-04 13:45:12 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.16 2008-11-04 21:29:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,7 @@ public:
 
     bool			canHaveMultipleAttribs() const;
     bool			canAddAttrib() const;
+    bool			canRemoveAttrib() const;
     int				nrAttribs() const;
     bool			addAttrib();
     bool			removeAttrib(int attrib);
@@ -76,6 +77,7 @@ public:
     void			setColTabMapperSetup(int,
 	    				const ColTab::MapperSetup&);
     const ColTab::Sequence*	getColTabSequence(int) const;
+    bool			canSetColTabSequence() const;
     void			setColTabSequence(int,const ColTab::Sequence&);
 
     bool			canHaveMultipleTextures() const { return true; }
