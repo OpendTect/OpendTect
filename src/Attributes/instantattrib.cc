@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.15 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:           $Id: instantattrib.cc,v 1.16 2008-11-04 13:42:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,7 +172,7 @@ float Instantaneous::calcBandWidth( int cursample ) const
 {
     const float denv_dt = calcAmplitude1Der( cursample );
     const float env = calcAmplitude( cursample );
-    return denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env ) );
+    return fabs(denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env ) ));
 }
 
 
