@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.1 2008-10-31 18:03:36 cvskris Exp $
+ RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.2 2008-11-04 21:27:01 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,9 +33,10 @@ public:
     void			setEnabled(int ch,bool yn);
     bool			isEnabled(int ch) const;
 
-    bool			canUseShading() const { return false; }
-    bool			usesShading() const { return false; }
-    int				maxNrChannels() const { return 4; }
+    bool			canUseShading() const	{ return false; }
+    bool			usesShading() const	{ return false; }
+    int				maxNrChannels() const	{ return 4; }
+    int				minNrChannels() const	{ return 4; }
 
     bool			createRGBA(SbImage&) const;
 
