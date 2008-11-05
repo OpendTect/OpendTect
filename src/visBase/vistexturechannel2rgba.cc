@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.8 2008-11-03 23:40:12 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.9 2008-11-05 20:06:45 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -316,6 +316,11 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	ctabunit = new SoTextureUnit;
 	shadinggroup_->addChild( ctabunit );
 	ctabunit->unit = 0;
+
+	complexity = new SoComplexity;
+	complexity->textureQuality.setValue( 0.8 );
+	shadinggroup_->addChild( complexity );
+
     }
 
     const int nrchannels = coltabs_.size()>1
