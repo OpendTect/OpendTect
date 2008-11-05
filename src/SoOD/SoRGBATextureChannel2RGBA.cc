@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoRGBATextureChannel2RGBA.cc,v 1.2 2008-11-04 13:58:56 cvskris Exp $
+ RCS:           $Id: SoRGBATextureChannel2RGBA.cc,v 1.3 2008-11-05 14:30:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "SoRGBATextureChannel2RGBA.h"
 
+#include "Inventor/elements/SoCacheElement.h"
 #include "Inventor/actions/SoGLRenderAction.h"
 #include "Inventor/fields/SoSFImage.h"
 #include "SoTextureChannelSetElement.h"
@@ -66,7 +67,13 @@ void SoRGBATextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     }
 
     if ( ismissing )
+    {
 	SoTextureChannelSetElement::set( state, this, rgba_, 4 );
+
+	SoCacheElement::setInvalid( true );
+	if ( state->isCacheOpen() )
+	    SoCacheElement::invalidate(state);
+    }
 
     SbList<int> units;
     units.append( 0 );
