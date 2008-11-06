@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.15 2008-10-17 13:34:28 cvsbert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.16 2008-11-06 10:49:19 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,9 @@ static void showReport( const SEGY::Scanner& scanner )
     StreamData sd( StreamProvider(fnm).makeOStream() );
     if ( !sd.usable() )
 	mErrRet("Cannot open temporary file in Proc directory")
-    IOPar iop; scanner.getReport( iop );
-    if ( iop.write(fnm,IOPar::sKeyDumpPretty) )
+    IOPar iop; 
+    scanner.getReport( iop );
+    if ( !iop.write(fnm,IOPar::sKeyDumpPretty) )
 	mErrRet("Cannot write to temporary file in Proc directory")
 
     ExecuteScriptCommand( "FileBrowser", fnm );
