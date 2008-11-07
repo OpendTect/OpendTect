@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.19 2008-10-15 07:10:59 cvsbert Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.20 2008-11-07 18:27:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,7 @@ public:
 					     const Array2D<unsigned char>*);
 
     SoNode*			getInventorNode();
+    RowCol			getSize() const		{ return size_; }
 protected:
 
     			~MultiTexture2();
