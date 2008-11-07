@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.22 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.23 2008-11-07 14:33:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,7 +132,7 @@ bool uiChangeSurfaceDlg::doProcessing()
 	const StepInterval<int> rowrg = horizon_->geometry().rowRange( sid );
 	const StepInterval<int> colrg = horizon_->geometry().colRange( sid );
 
-	Array2D<float>* arr = horizon_->createArray2D( sid );
+	PtrMan<Array2D<float> > arr = horizon_->createArray2D( sid );
 	if ( !arr )
 	{
 	    BufferString msg( "Not enough horizon data for section " );
@@ -147,10 +147,7 @@ bool uiChangeSurfaceDlg::doProcessing()
 
 	uiTaskRunner dlg( this );
 	if ( !dlg.execute(*worker) )
-	{
-	    delete arr;
 	    return false;
-	}
 
 	if ( !savefld_ )
 	{
@@ -159,8 +156,12 @@ bool uiChangeSurfaceDlg::doProcessing()
 		uiMSG().message( msg );
 	}
 
-	horizon_->setArray2D( *arr, sid, fillUdfsOnly() );
-	delete arr;
+	if ( !horizon_->setArray2D( *arr, sid, fillUdfsOnly() ) )
+	{
+	    BufferString msg( "Cannot set new data to section " );
+	    msg += sid;
+	    ErrMsg( msg ); continue;
+        }
     }
 
     return true;
