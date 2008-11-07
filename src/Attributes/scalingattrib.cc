@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.24 2008-10-07 11:38:09 cvsumesh Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.25 2008-11-07 11:07:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #define mStatsTypeMax 	2
 #define mStatsTypeUser 	3
 
-#define mScalingTypeTPower   0
+#define mScalingTypeZPower   0
 #define mScalingTypeWindow   1
 #define mScalingTypeAGC	     2			
 
@@ -51,13 +51,12 @@ void Scaling::initClass()
     mAttrStartInitClassWithUpdate
 
     EnumParam* scalingtype = new EnumParam( scalingTypeStr() );
-    scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeTPower) );
+    scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeZPower) );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeWindow) );
     scalingtype->addEnum( scalingTypeNamesStr(mScalingTypeAGC) );
     desc->addParam( scalingtype );
 
     FloatParam* powerval = new FloatParam( powervalStr() );
-    powerval->setLimits( Interval<float>(0,mUdf(float)) );
     desc->setParamEnabled( powervalStr(), false );
     desc->addParam( powerval );
     
@@ -106,7 +105,7 @@ void Scaling::updateDesc( Desc& desc )
 {
     BufferString type = desc.getValParam( scalingTypeStr() )->getStringValue();
     
-    if ( type == scalingTypeNamesStr(mScalingTypeTPower) )
+    if ( type == scalingTypeNamesStr(mScalingTypeZPower) )
     {
 	desc.setParamEnabled( powervalStr(), true );
 	desc.setParamEnabled( statsTypeStr(), false );
@@ -147,7 +146,8 @@ const char* Scaling::statsTypeNamesStr( int type )
 
 const char* Scaling::scalingTypeNamesStr( int type )
 {
-    if ( type==mScalingTypeTPower ) return "T^n";
+    //still T in parfile for backward compatibility
+    if ( type==mScalingTypeZPower ) return "T^n";
     if ( type==mScalingTypeAGC ) return "AGC";
     return "Window";
 }
@@ -241,9 +241,9 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 			   int z0, int nrsamples, int threadid ) const
 {
-    if ( scalingtype_ == mScalingTypeTPower )
+    if ( scalingtype_ == mScalingTypeZPower )
     {
-	scaleTimeN( output, z0, nrsamples );
+	scaleZN( output, z0, nrsamples );
 	return true;
     }
 
@@ -295,7 +295,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 }
 
 
-void Scaling::scaleTimeN( const DataHolder& output, int z0, int nrsamples) const
+void Scaling::scaleZN( const DataHolder& output, int z0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -362,7 +362,7 @@ void Scaling::getSampleGates( const TypeSet< Interval<float> >& oldtgs,
 
 const Interval<int>* Scaling::desZSampMargin( int inp, int ) const
 {
-    return scalingtype_ == mScalingTypeTPower ? 0 : &desgate_;
+    return scalingtype_ == mScalingTypeZPower ? 0 : &desgate_;
 }
 
 } // namespace Attrib

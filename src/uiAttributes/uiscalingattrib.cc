@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.16 2008-09-30 12:34:18 cvsumesh Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.17 2008-11-07 11:07:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ static const char* statstypestr[] =
 
 static const char* scalingtypestr[] =
 {
-    "T^n",
+    "Z^n",
     "Window",
     "AGC",
     0

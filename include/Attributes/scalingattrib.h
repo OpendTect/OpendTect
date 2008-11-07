@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.14 2008-09-30 12:30:25 cvsumesh Exp $
+ RCS:           $Id: scalingattrib.h,v 1.15 2008-11-07 11:07:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ protected:
     void		getSampleGates(const TypeSet<Interval<float> >& oldtgs,
 				       TypeSet< Interval<int> >& newsampgates,
 				       int z0,int nrsamples) const;
-    void		scaleTimeN(const DataHolder&, int, int) const;
+    void		scaleZN(const DataHolder&, int, int) const;
     void		scaleAGC(const DataHolder&,int z0,int nrsamples) const;
     void		getScaleFactorsFromStats(
 	    			const TypeSet<Interval<int> >& gates,
