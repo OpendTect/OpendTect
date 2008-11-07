@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.cc,v 1.5 2008-06-10 19:26:49 cvskris Exp $
+ RCS:		$Id: vissplittexture2rectangle.cc,v 1.6 2008-11-07 17:49:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,12 @@ SplitTexture2Rectangle::~SplitTexture2Rectangle()
 void SplitTexture2Rectangle::enableSpliting( bool yn )
 {
     dosplit_ = yn;
+    if ( !dosplit_ )
+    {
+	nrrowblocks_ = 1;
+	nrcolblocks_ = 1;
+    }
+
     updateFaceSets();
 }
 
