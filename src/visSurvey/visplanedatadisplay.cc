@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.201 2008-08-18 14:46:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.202 2008-11-07 18:29:07 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -861,8 +861,13 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 
 	const Array2D<float>& dparr = fdp->data();
 	if ( !texture_->usesShading() && resolution_ )
+	{
 	    texture_->setDataOversample( attrib, idx, resolution_, 
 		    !isClassification( attrib ), &dparr, true );
+	    rectangle_->enableSpliting( false );
+	    const RowCol texturesz = texture_->getSize();
+	    rectangle_->setOriginalTextureSize( texturesz.col, texturesz.row );
+	}
 	else
 	{
 	    texture_->splitTexture( true );
