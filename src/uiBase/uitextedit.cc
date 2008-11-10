@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.35 2007-12-26 07:09:43 cvsnanne Exp $
+ RCS:           $Id: uitextedit.cc,v 1.36 2008-11-10 15:29:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ bool uiTextEditBase::isModified() const
 { return qte().isModified(); }
 
 
-void uiTextEditBase::readFromFile( const char* src )
+void uiTextEditBase::readFromFile( const char* src, int wraplen )
 {
     StreamData sd = StreamProvider( src ).makeIStream();
     if ( !sd.usable() )
@@ -58,12 +58,12 @@ void uiTextEditBase::readFromFile( const char* src )
     BufferString contents;
     BufferString newcontents;
 
-#define mMaxLineLength 8192
+#define mMaxLineLength 32768
     char buf[mMaxLineLength];
     int lines_left = maxLines();
     if ( lines_left < 0 ) lines_left = mUdf(int);
     int nrnewlines = 0;
-    while ( 1 )
+    while ( true )
     {
 	if ( !sd.istrm->getline(buf,mMaxLineLength) )
 	    break;
@@ -74,8 +74,32 @@ void uiTextEditBase::readFromFile( const char* src )
 	    newcontents += "\n-------- More lines follow -----";
 	    break;
 	}
+	else
 	{
-	    newcontents += buf;
+	    const int buflen = strlen( buf );
+	    if ( wraplen < 1 || buflen < wraplen )
+		newcontents += buf;
+	    else
+	    {
+		char* ptr = buf;
+		int lenleft = buflen;
+		while ( lenleft > 0 )
+		{
+		    if ( lenleft <= wraplen )
+			newcontents += ptr;
+		    else
+		    {
+			const char kp = ptr[wraplen];
+			ptr[wraplen] = '\0';
+			newcontents += ptr;
+			newcontents += "\n";
+			nrnewlines++;
+			ptr += wraplen;
+			*ptr = kp;
+		    }
+		    lenleft -= wraplen;
+		}
+	    }
 	    newcontents += "\n";
 	}
 	nrnewlines++;
@@ -95,13 +119,37 @@ void uiTextEditBase::readFromFile( const char* src )
 }
 
 
-bool uiTextEditBase::saveToFile( const char* src )
+bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 {
     StreamData sd = StreamProvider( src ).makeOStream();
     if ( !sd.usable() )
 	{ sd.close(); return false; }
 
-    *sd.ostrm << text();
+    if ( linelen < 1 && newlns )
+	*sd.ostrm << text();
+    else
+    {
+	BufferString inptxt( text() );
+	char* ptr = inptxt.buf();
+	while ( *ptr )
+	{
+	    char* startptr = ptr;
+	    ptr = strchr( ptr, '\n' );
+	    if ( ptr )
+	    {
+		*ptr++ = '\0';
+		if ( linelen > 0 )
+		{
+		    const int lnlen = strlen( startptr );
+		    if ( lnlen > linelen )
+			startptr[linelen] = '\0';
+		}
+	    }
+	    *sd.ostrm << startptr;
+	    if ( newlns ) *sd.ostrm << '\n';
+	}
+    }
+
     sd.close();
 
     qte().setModified( false );

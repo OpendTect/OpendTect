@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.19 2007-12-26 07:09:43 cvsnanne Exp $
+ RCS:           $Id: uitextedit.h,v 1.20 2008-11-10 15:29:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,8 @@ public:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
 
     void		setText(const char*);
-    void		readFromFile(const char*);
-    bool		saveToFile(const char*);
+    void		readFromFile(const char*,int linecutlen=0);
+    bool		saveToFile(const char*,int linelen=0,bool newlns=true);
 
     const char*		text() const;
     int			nrLines() const;
