@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.87 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.88 2008-11-10 22:50:11 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,7 +340,14 @@ bool VolumeDisplay::isVolRenShown() const
 { return volren_ && volren_->isOn(); }
 
 
-int VolumeDisplay::addIsoSurface( TaskRunner* tr )
+float VolumeDisplay::defaultIsoValue() const
+{
+    return  cache_ ? scalarfield_->getColorTab().getInterval().center()
+		   : mUdf(float);
+}
+
+
+int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
 {
     visBase::MarchingCubesSurface* isosurface =
 				    visBase::MarchingCubesSurface::create();
@@ -352,10 +359,10 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr )
     isosurface->setName( "Iso surface" );
 
     isosurfaces_ += isosurface;
-    isovalues_ += cache_ ? scalarfield_->getColorTab().getInterval().center()
-			 : mUdf(float);
+    isovalues_ += defaultIsoValue();
 
-    updateIsoSurface( isosurfaces_.size()-1, tr );
+    if ( updateisosurface )   
+       	updateIsoSurface( isosurfaces_.size()-1, tr );
 
     //Insert before the volume transform
     insertChild( childIndex(voltrans_->getInventorNode()),

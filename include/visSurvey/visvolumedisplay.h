@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.56 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.57 2008-11-10 22:50:11 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -62,7 +62,8 @@ public:
     bool			isVolRenShown() const;
     int				volRenID() const;
 
-    int				addIsoSurface(TaskRunner* = 0);
+    int				addIsoSurface(TaskRunner* = 0,
+	    				      bool updateisosurface = true);
     				/*!\note return with removeChild(displayid). */
     void			removeChild(int displayid);
     
@@ -88,6 +89,7 @@ public:
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
     float			getValue(const Coord3&) const;
+    float			defaultIsoValue() const;
     float			isoValue(
 	    			    const visBase::MarchingCubesSurface*) const;
     void			setIsoValue(
