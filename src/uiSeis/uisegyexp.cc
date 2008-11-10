@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:		$Id: uisegyexp.cc,v 1.6 2008-10-10 14:08:28 cvsbert Exp $
+ RCS:		$Id: uisegyexp.cc,v 1.7 2008-11-10 15:29:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ void readPush( CallBacker* )
     if ( !File_exists(dlg.fileName()) )
 	{ uiMSG().error("Cannot open file"); return; }
 
-    edfld_->readFromFile( dlg.fileName() );
+    edfld_->readFromFile( dlg.fileName(), 80 );
 }
 
 void writePush( CallBacker* )
@@ -105,7 +105,7 @@ void writePush( CallBacker* )
     if ( File_exists(fnm) && !File_isWritable(fnm) )
 	{ uiMSG().error("Cannot write to this file"); return; }
 
-    if ( !edfld_->saveToFile(fnm) )
+    if ( !edfld_->saveToFile(fnm,80,false) )
 	{ uiMSG().error("Failed to write to this file"); return; }
 }
 
