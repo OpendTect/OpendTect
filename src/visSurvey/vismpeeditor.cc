@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.30 2008-10-29 20:03:49 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.31 2008-11-10 11:17:12 cvsjaap Exp $";
 
 #include "vismpeeditor.h"
 
@@ -42,6 +42,7 @@ MPEEditor::MPEEditor()
     , activenodematerial( 0 )
     , nodematerial( 0 )
     , isdragging( false )
+    , draggerinmotion( false )
 {
     nodematerial = visBase::Material::create();
     nodematerial->ref();
@@ -315,7 +316,7 @@ void MPEEditor::nodeMovement(CallBacker* cb)
 
 void MPEEditor::updateNodePos( int idx, const Coord3& pos )
 {
-    if ( isdragging && posids[idx]==activedragger )
+    if ( draggerinmotion && posids[idx]==activedragger )
 	return;
 
     draggers[idx]->setPos( pos );
@@ -403,7 +404,9 @@ void MPEEditor::dragMotion( CallBacker* cb )
 {
     const int idx = draggers.indexOf( (visBase::Dragger*) cb );
     const Coord3 np = draggers[idx]->getPos();
+    draggerinmotion = true;
     if ( emeditor ) emeditor->setPosition( np );
+    draggerinmotion = false;
 }
 
 

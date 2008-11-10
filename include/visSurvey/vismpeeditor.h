@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.10 2008-10-29 17:06:51 cvsjaap Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.11 2008-11-10 11:17:12 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -114,6 +114,7 @@ protected:
     visBase::Transformation*	transformation;
     EM::PosID			activedragger;
 
+    bool			draggerinmotion;
     bool			isdragging;
 
     EdgeLineSetDisplay*		interactionlinedisplay;
