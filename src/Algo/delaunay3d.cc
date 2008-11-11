@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.9 2008-10-30 18:54:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.10 2008-11-11 22:42:51 cvsyuancheng Exp $";
 
 #include "delaunay3d.h"
 #include "trigonometry.h"
@@ -333,13 +333,16 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
 	    if ( mIsUdf(dist[idx]) || childid==cNoTetrahedra() )
 		continue;
 
-	    if ( child==-1 || mindist>dist[idx] )
+	    if ( child==-1 || mIsUdf(mindist) || mindist>dist[idx] )
 	    {
 		 mindist = dist[idx];
 		 child = childid;
     		 firstface = face[idx];
 	    }
 	}
+
+	if ( mIsUdf(child) || child<0 || child>tetrahedras_.size()-1 )
+	    return cError();
 
 	tis[0] = child;
 	children = tetrahedras_[tis[0]].childindices_;
