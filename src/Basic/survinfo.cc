@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.102 2008-10-17 13:05:45 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.103 2008-11-11 10:24:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "filepath.h"
 #include "cubesampling.h"
-#include "keystrs.h"
 #include "latlong.h"
 #include "undefval.h"
 #include "safefileio.h"
@@ -23,6 +22,9 @@ ________________________________________________________________________
 #include "errh.h"
 #include <math.h>
 #include <iostream>
+
+#define KEYSTRS_IMPL 1
+#include "keystrs.h"
 
 
 static const char* sKeySI = "Survey Info";
