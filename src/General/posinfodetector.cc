@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.5 2008-10-17 13:06:33 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.6 2008-11-11 12:02:16 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -343,12 +343,12 @@ void PosInfo::Detector::addPos()
 	}
 	if ( setup_.is2d_ )
 	{
-	    const float sqdist = curcbo_.coord_.sqDistTo( prevcbo_.coord_ );
+	    const float dist = curcbo_.coord_.distTo( prevcbo_.coord_ );
 	    if ( mIsUdf(distrg_.start) )
-		distrg_.start = distrg_.stop = sqdist;
+		distrg_.start = distrg_.stop = dist;
 	    else
-		distrg_.include( sqdist );
-	    avgdist_ += sqdist;
+		distrg_.include( dist );
+	    avgdist_ += dist;
 	}
     }
 }
