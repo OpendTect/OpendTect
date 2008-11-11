@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.16 2008-10-21 14:14:15 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.17 2008-11-11 14:18:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,7 +306,7 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread ) const
 {
     CtxtIOObj* ret = mMkCtxtIOObj( SeisTrc );
     IOObjContext& ctxt = ret->ctxt;
-    ctxt.trglobexpr = "SEG-Y";
+    ctxt.deftransl = ctxt.trglobexpr = "SEG-Y";
     ctxt.forread = forread;
     ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIs2D, Seis::is2D(geom_) );
     ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIsPS, Seis::isPS(geom_) );
