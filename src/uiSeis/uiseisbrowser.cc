@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.32 2008-09-22 13:15:59 cvskris Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.33 2008-11-11 17:56:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,6 +340,8 @@ void uiSeisBrowser::fillTable()
 	else
 	    fillTableColumn( *(tbufchgdtrcs_.get(chidx)), idx );
     }
+
+    tbl_->resizeRowsToContents();
 }
 
 

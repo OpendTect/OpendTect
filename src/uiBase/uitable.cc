@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.72 2008-06-30 09:38:42 cvsjaap Exp $
+ RCS:           $Id: uitable.cc,v 1.73 2008-11-11 17:56:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,9 @@ uiTableBody::uiTableBody( uiTable& handle, uiParent* parnt, const char* nm,
     if ( ncols >= 0 ) setColumnCount( ncols );
 
     QHeaderView* vhdr = verticalHeader();
-    vhdr->setResizeMode( QHeaderView::ResizeToContents );
+// TODO: Causes tremendous performance delay in Qt 4.4.1;
+//       For now use uiTable::resizeRowsToContents() in stead.
+//    vhdr->setResizeMode( QHeaderView::ResizeToContents );
 
     QHeaderView* hhdr = horizontalHeader();
     hhdr->setResizeMode( QHeaderView::Stretch );
@@ -775,6 +777,18 @@ bool uiTable::isTopHeaderHidden() const
 
 bool uiTable::isLeftHeaderHidden() const
 { return !body_->verticalHeader()->isVisible(); }
+
+void uiTable::resizeColumnToContents( int col )
+{ body_->resizeColumnToContents( col ); }
+
+void uiTable::resizeColumnsToContents()
+{ body_->resizeColumnsToContents(); }
+
+void uiTable::resizeRowToContents( int row )
+{ body_->resizeRowToContents( row ); }
+
+void uiTable::resizeRowsToContents()
+{ body_->resizeRowsToContents(); }
 
 
 void uiTable::setColumnResizeMode( ResizeMode mode )

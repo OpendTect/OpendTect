@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.27 2008-10-27 10:41:58 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.28 2008-11-11 17:56:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -549,6 +549,7 @@ void uiDataPointSet::redoAll()
     }
 
     updColNames();
+    tbl_->resizeRowsToContents();
 
     if ( statswin_ )
 	showStats( dColID(statscol_) );

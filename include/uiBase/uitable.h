@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.47 2008-10-27 10:41:42 cvssatyaki Exp $
+ RCS:           $Id: uitable.h,v 1.48 2008-11-11 17:56:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,10 @@ public:
     void		setRowHeight(int row,int h);
     void		setRowHeightInChar(int row,float h);
 
+    void		resizeColumnToContents(int);
+    void		resizeColumnsToContents();
+    void		resizeRowToContents(int);
+    void		resizeRowsToContents();
     void		setColumnResizeMode(ResizeMode);
     			//!<Default is Stretch
     void		setRowResizeMode(ResizeMode);
