@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.10 2008-10-16 16:31:59 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.11 2008-11-12 12:28:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ ________________________________________________________________________
 #include "segyhdr.h"
 #include "seisioobjinfo.h"
 #include "seisimporter.h"
+#include "seisread.h"
+#include "seistrctr.h"
 #include "seiswrite.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
@@ -280,11 +282,26 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 
     uiTaskRunner dlg( this );
     rv = dlg.execute( *imp );
+    BufferStringSet warns;
     if ( imp && imp->nrSkipped() > 0 )
-	uiMSG().warning( BufferString("During import, ",
-				      imp->nrSkipped(),
-				      " traces were rejected") );
+	warns += new BufferString("During import, ", imp->nrSkipped(),
+				  " traces were rejected" );
+    SeisTrcTranslator* tr = rdr->reader().seisTranslator();
+    if ( tr && tr->haveWarnings() )
+	warns.add( tr->warnings(), false );
     imp.erase(); wrr.erase(); // closes output cube
+
+    if ( !warns.isEmpty() )
+    {
+	BufferString msg( "Warning" ); if ( warns.size() > 1 ) msg += "s";
+	msg += " during read:";
+	for ( int idx=0; idx<warns.size(); idx++ )
+	{
+	    msg += "\n\n";
+	    msg += warns.get( idx );
+	}
+	uiMSG().warning( msg );
+    }
     if ( rv && !is2d && ioobjinfo )
 	rv = ioobjinfo->provideUserInfo();
 

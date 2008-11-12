@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyreaddlg.cc,v 1.1 2008-10-16 16:31:59 cvsbert Exp $
+ RCS:           $Id: uisegyreaddlg.cc,v 1.2 2008-11-12 12:28:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,8 @@ bool uiSEGYReadDlg::acceptOK( CallBacker* )
 	uiMSG().error( "Internal: cannot create SEG-Y object" );
 	return false;
     }
+    inioobj->pars() = pars_;
+    SEGY::FileSpec::ensureWellDefined( *inioobj );
 
     return doWork( *inioobj );
 }

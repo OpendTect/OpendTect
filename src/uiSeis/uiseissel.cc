@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.60 2008-09-30 16:18:41 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.61 2008-11-12 12:28:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,8 +105,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	}
 	else
 	{
-	    attrfld_ = new uiGenInput( selgrp, "Attribute",
-		    		       StringInpSpec(sKey::Steering) );
+	    attrfld_ = new uiGenInput( selgrp, "Attribute" );
 	    attrlistfld_ = new uiListBox( selgrp, "Existing List" );
 
 	    if ( selgrp->getNameField() )

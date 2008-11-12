@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.51 2008-09-03 10:46:50 cvshelene Exp $
+ RCS:		$Id: seistrctr.h,v 1.52 2008-11-12 12:28:03 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -227,9 +227,12 @@ public:
     void		setCurLineKey( const LineKey& lk )
     			{ curlinekey = lk; }
 
-    virtual bool	isReadDefault() const		{ return false; }
+    virtual bool	isReadDefault() const	{ return false; }
 
     void		setComponentNames(const BufferStringSet&);
+
+    bool		haveWarnings() const;
+    const BufferStringSet& warnings() const	{ return warnings_; }
 
 protected:
 
@@ -277,6 +280,10 @@ protected:
     			// Buffer written when writeBlock() is called
     SeisTrcBuf&		trcblock_;
     virtual bool	writeTrc_(const SeisTrc&)	{ return false; }
+
+    TypeSet<int>	warnnrs_;
+    BufferStringSet&	warnings_;
+    virtual void	addWarn(int,const char*);
 
 private:
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.85 2008-09-03 10:46:51 cvshelene Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.86 2008-11-12 12:28:03 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -66,6 +66,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
     	, enforce_survinfo_write( // default false
 		GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE"))
 	, compnms_(0)
+	, warnings_(*new BufferStringSet)
 {
 }
 
@@ -74,6 +75,7 @@ SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
     delete &trcblock_;
+    delete &warnings_;
 }
 
 
@@ -531,4 +533,18 @@ void SeisTrcTranslator::usePar( const IOPar& iop )
     iop.getYN( sKeyIsPS, is_prestack );
     iop.getYN( sKeyRegWrite, enforce_regular_write );
     iop.getYN( sKeySIWrite, enforce_survinfo_write );
+}
+
+
+bool SeisTrcTranslator::haveWarnings() const
+{
+    return !warnings_.isEmpty();
+}
+
+
+void SeisTrcTranslator::addWarn( int nr, const char* msg )
+{
+    if ( !msg || !*msg || warnnrs_.indexOf(nr) >= 0 ) return;
+    warnnrs_ += nr;
+    warnings_.add( msg );
 }

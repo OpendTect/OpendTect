@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.26 2008-10-14 10:22:47 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.27 2008-11-12 12:28:03 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -82,9 +82,7 @@ protected:
     int			maxmbperfile;
     int			ic2xyopt;
     int			offsazimopt;
-    int			curoffs;
     SamplingData<int>	offsdef;
-    BinID		prevbid;
 
     inline StreamConn&	sConn()		{ return *(StreamConn*)conn; }
 
@@ -105,10 +103,17 @@ protected:
     void		fillHeaderBuf(const SeisTrc&);
     void		toPreSelected(DataCharacteristics&) const;
     virtual void	toPreferred(DataCharacteristics&) const;
-    void		fillErrMsg(const char*);
+    void		fillErrMsg(const char*,bool);
+    bool		noErrMsg();
 
     DataCharacteristics	getDataChar(int) const;
     int			nrFormatFor(const DataCharacteristics&) const;
+    void		addWarn(int,const char*);
+    const char*		getTrcPosStr() const;
+
+    int			curtrcnr, prevtrcnr;
+    BinID		curbinid, prevbinid;
+    float		curoffs, prevoffs;
 
 };
 
