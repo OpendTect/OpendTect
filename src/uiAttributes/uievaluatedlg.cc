@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.18 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.19 2008-11-12 14:49:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,6 +316,7 @@ void uiEvaluateDlg::calcPush( CallBacker* )
     AttribParamGroup* pargrp = grps_[sel];
 
     Desc& srcad = *attrset_->getDesc( srcid_ );
+    BufferString userchosenref = srcad.userRef();
     const int nrsteps = nrstepsfld->box()->getValue();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
@@ -341,6 +342,11 @@ void uiEvaluateDlg::calcPush( CallBacker* )
 
 	lbls_ += new BufferString( lbl );
 	SelSpec as; as.set( *newad );
+
+	// trick : use as -> objectRef to store the userref;
+	// possible since objref_ is only used for NN which cannot be evaluated
+	as.setObjectRef( userchosenref.buf() );
+		
 	specs_ += as;
     }
 

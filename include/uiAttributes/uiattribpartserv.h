@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.40 2008-05-28 16:50:44 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.41 2008-11-12 14:49:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,8 @@ public:
     			//!< Display slice
     static const int	evEvalStoreSlices;
     			//!< Store slices
+    static const int	evEvalUpdateName;
+    			//!< Update name in tree after evaluation dlg closed
     static const int	objNLAModel2D;
     			//!< Request current 2D NLAModel* via getObject()
     static const int	objNLAModel3D;

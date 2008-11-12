@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.96 2008-10-02 08:38:04 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.97 2008-11-12 14:49:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ const int uiAttribPartServer::evEvalAttrInit 	 = 3;
 const int uiAttribPartServer::evEvalCalcAttr	 = 4;
 const int uiAttribPartServer::evEvalShowSlice	 = 5;
 const int uiAttribPartServer::evEvalStoreSlices	 = 6;
+const int uiAttribPartServer::evEvalUpdateName	 = 7;
 const int uiAttribPartServer::objNLAModel2D	 = 100;
 const int uiAttribPartServer::objNLAModel3D	 = 101;
 
@@ -1090,9 +1091,11 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 	BufferString defstr;
 	evad->getDefStr( defstr );
 	curdesc->parseDefStr( defstr );
+	curdesc->setUserRef( curusrref );
 	attrsetdlg_->updateCurDescEd();
     }
 
+    sendEvent( evEvalUpdateName );
     attrsetdlg_->setSensitive( true );
 }
 

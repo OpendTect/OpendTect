@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.268 2008-11-04 23:08:37 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.269 2008-11-12 14:49:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1219,6 +1219,10 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const int visid = visserv_->getEventObjId();
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
+
+	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
+	BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
+	as.setObjectRef( savedusrref );
 	const int attrib = visserv_->getSelAttribNr();
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
@@ -1271,6 +1275,16 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
+    }
+    else if ( evid==uiAttribPartServer::evEvalUpdateName )
+    {
+	const int visid = visserv_->getEventObjId();
+	const int attrib = visserv_->getSelAttribNr();
+	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
+					visserv_->getSelSpec( visid, attrib ));
+	//set user chosen name stocked in objectRef during evaluation process
+	as->setUserRef( as->objectRef() );
+	sceneMgr().updateTrees();
     }
     else
 	pErrMsg("Unknown event from attrserv");
