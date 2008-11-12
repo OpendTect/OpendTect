@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyreaddlg.cc,v 1.2 2008-11-12 12:28:03 cvsbert Exp $
+ RCS:           $Id: uisegyreaddlg.cc,v 1.3 2008-11-12 15:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,21 @@ bool uiSEGYReadDlg::getParsFromScreen( bool permissive )
 const char* uiSEGYReadDlg::saveObjName() const
 {
     return savesetupfld_ ? savesetupfld_->text() : "";
+}
+
+
+void uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns )
+{
+    if ( warns.isEmpty() ) return;
+
+    BufferString msg( "Warning" ); if ( warns.size() > 1 ) msg += "s";
+    msg += " during read:";
+    for ( int idx=0; idx<warns.size(); idx++ )
+    {
+	msg += "\n\n";
+	msg += warns.get( idx );
+    }
+    uiMSG().warning( msg );
 }
 
 

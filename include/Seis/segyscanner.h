@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.9 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.10 2008-11-12 15:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
     StepInterval<float>		zRange() const;
     const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
 
+    const BufferStringSet&	warnings() const	{ return trwarns_; }
+
 protected:
 
     Seis::GeomType	geom_;
@@ -74,9 +76,11 @@ protected:
     BufferString	msg_;
     int			nrdone_;
     PosInfo::Detector&	dtctor_;
+    BufferStringSet	trwarns_;
 
     int			openNext();
     int			readNext();
+    void		closeTr();
 
     void		init(const FileSpec&);
     int			finish(bool);

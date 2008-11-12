@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.11 2008-11-12 12:28:03 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.12 2008-11-12 15:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -291,17 +291,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	warns.add( tr->warnings(), false );
     imp.erase(); wrr.erase(); // closes output cube
 
-    if ( !warns.isEmpty() )
-    {
-	BufferString msg( "Warning" ); if ( warns.size() > 1 ) msg += "s";
-	msg += " during read:";
-	for ( int idx=0; idx<warns.size(); idx++ )
-	{
-	    msg += "\n\n";
-	    msg += warns.get( idx );
-	}
-	uiMSG().warning( msg );
-    }
+    displayWarnings( warns );
     if ( rv && !is2d && ioobjinfo )
 	rv = ioobjinfo->provideUserInfo();
 

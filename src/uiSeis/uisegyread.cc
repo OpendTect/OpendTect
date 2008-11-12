@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.18 2008-11-12 14:28:19 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.19 2008-11-12 15:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,6 +263,11 @@ bool acceptOK( CallBacker* )
     else
     {
 	scanner_->getReport( rep_ );
+	for ( int idx=0; idx<scanner_->warnings().size(); idx++ )
+	{
+	    if ( !idx ) rep_.add( "->", "Warnings" );
+	    rep_.add( BufferString(idx+1), scanner_->warnings().get(idx) );
+	}
 	if ( *fnm && ! rep_.write(fnm,IOPar::sKeyDumpPretty) )
 	    uiMSG().warning( "Cannot write report to specified file" );
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyreaddlg.h,v 1.1 2008-10-16 16:31:59 cvsbert Exp $
+ RCS:           $Id: uisegyreaddlg.h,v 1.2 2008-11-12 15:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ protected:
     bool		acceptOK(CallBacker*);
 
     bool		getParsFromScreen(bool);
+    void		displayWarnings(const BufferStringSet&);
     virtual bool	doWork(const IOObj&)		= 0;
 
 };

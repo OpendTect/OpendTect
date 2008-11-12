@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.9 2008-10-17 13:06:53 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.10 2008-11-12 15:06:40 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -58,9 +58,18 @@ void SEGY::Scanner::init( const FileSpec& fs )
 
 SEGY::Scanner::~Scanner()
 {
+    closeTr();
     deepErase( fd_ );
     delete &trc_;
     delete const_cast<IOPar*>(&pars_);
+}
+
+
+void SEGY::Scanner::closeTr()
+{
+    if ( !tr_ ) return;
+    trwarns_.add( tr_->warnings(), true );
+    delete tr_; tr_ = 0;
 }
 
 
@@ -138,7 +147,7 @@ int SEGY::Scanner::readNext()
 	    scanerrfnms_.add( fnms_.get(curfidx_) );
 	    scanerrmsgs_.add( emsg );
 	}
-	delete tr_; tr_ = 0;
+	closeTr();
 	return Executor::MoreToDo;
     }
 
@@ -180,7 +189,7 @@ int SEGY::Scanner::openNext()
     if ( !tr_->initRead(new StreamConn(sd),Seis::Scan) )
     {
 	addFailed( tr_->errMsg() );
-	delete tr_; tr_ = 0;
+	closeTr();
 	return Executor::MoreToDo;
     }
 
@@ -231,7 +240,7 @@ void SEGY::Scanner::initFileData()
 	BufferString emsg( "Wrong #samples: " ); tr_->inpNrSamples();
 	emsg += "(should be "; emsg += fd_[0]->trcsz_; emsg += ")";
 	addFailed( tr_->errMsg() );
-	delete newfd; delete tr_; tr_ = 0;
+	delete newfd; closeTr();
 	return;
     }
 

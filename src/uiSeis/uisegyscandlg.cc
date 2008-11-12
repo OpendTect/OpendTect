@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.2 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.3 2008-11-12 15:06:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,5 +59,9 @@ bool uiSEGYScanDlg::doWork( const IOObj& ioobj )
     if ( setup_.rev_ == uiSEGYRead::Rev0 )
 	scanner_->setForceRev0( true );
     uiTaskRunner tr( parent_ );
-    return tr.execute(*scanner_);
+    bool rv = tr.execute(*scanner_);
+    if ( !rv ) return false;
+
+    displayWarnings( scanner_->warnings() );
+    return true;
 }
