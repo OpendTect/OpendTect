@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.9 2008-10-14 13:17:32 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.10 2008-11-12 14:28:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,10 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "segytr.h"
 #include "seisioobjinfo.h"
+#include "settings.h"
+
+#define sKeySettNrTrcExamine \
+    IOPar::compKey("SEG-Y",uiSEGYExamine::Setup::sKeyNrTrcs)
 
 
 uiSEGYDefDlg::Setup::Setup()
@@ -71,12 +75,13 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
     uiSeparator* sep = new uiSeparator( this, "hor sep", true, false );
     sep->attach( stretchedBelow, lastgrp );
 
-    nrtrcexfld_ = new uiGenInput( this, "Examine first",
-			      IntInpSpec(100).setName("Traces to Examine") );
+    int nrex = 100; Settings::common().get( sKeySettNrTrcExamine, nrex );
+    nrtrcexfld_ = new uiGenInput( this, "Number of traces to examine",
+			      IntInpSpec(nrex).setName("Traces to Examine") );
     nrtrcexfld_->attach( alignedBelow, lastgrp );
     nrtrcexfld_->attach( ensureBelow, sep );
-    uiLabel* lbl = new uiLabel( this, "traces" );
-    lbl->attach( rightOf, nrtrcexfld_ );
+    savenrtrcsbox_ = new uiCheckBox( this, "Save as default" );
+    savenrtrcsbox_->attach( rightOf, nrtrcexfld_ );
     fileparsfld_ = new uiSEGYFilePars( this, true, &iop );
     fileparsfld_->attach( alignedBelow, nrtrcexfld_ );
     fileparsfld_->readParsReq.notify( mCB(this,uiSEGYDefDlg,readParsCB) );
@@ -177,6 +182,13 @@ void uiSEGYDefDlg::geomChg( CallBacker* )
 
 bool uiSEGYDefDlg::acceptOK( CallBacker* )
 {
+    if ( savenrtrcsbox_->isChecked() )
+    {
+	const int nrex = nrTrcExamine();
+	Settings::common().set( sKeySettNrTrcExamine, nrex );
+	Settings::common().write();
+    }
+
     IOPar tmp;
     if ( !filespecfld_->fillPar(tmp) || !fileparsfld_->fillPar(tmp) )
 	return false;

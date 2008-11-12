@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.17 2008-11-11 14:18:09 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.18 2008-11-12 14:28:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -411,8 +411,12 @@ void uiSEGYRead::basicOptsGot()
 	return;
     }
 
-    delete examdlg_; examdlg_ = new uiSEGYExamine( parent_, exsu );
-    mLaunchDlg(examdlg_,examDlgClose);
+    delete examdlg_; examdlg_ = 0;
+    if ( exsu.nrtrcs_ > 0 )
+    {
+	examdlg_ = new uiSEGYExamine( parent_, exsu );
+	mLaunchDlg(examdlg_,examDlgClose);
+    }
 
     rev_ = exrev ? WeakRev1 : Rev0;
     revpolnr_ = exrev;

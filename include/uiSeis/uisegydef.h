@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.9 2008-10-14 10:22:47 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.10 2008-11-12 14:28:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,6 +166,7 @@ protected:
     uiGroup*		posgrp_;
     uiGroup*		psgrp_;
     uiGroup*		orulegrp_;
+    uiGroup*		coordgrp_;
 
     uiGenInput*		posfld_;
     uiGenInput*		inlbytefld_;
@@ -191,6 +192,7 @@ protected:
     uiGroup*		mkORuleGrp(const IOPar*);
     uiGroup*		mkPosGrp(const IOPar*,const SEGY::TrcHeaderDef&);
     uiGroup*		mkPSGrp(const IOPar*,const SEGY::TrcHeaderDef&);
+    uiGroup*		mkCoordGrp(const IOPar*,const SEGY::TrcHeaderDef&);
 
     void		mkTrcNrFlds(uiGroup*,const IOPar*,
 	    			    const SEGY::TrcHeaderDef&);
@@ -199,14 +201,11 @@ protected:
     void		mkCoordFlds(uiGroup*,const IOPar*,
 	    			    const SEGY::TrcHeaderDef&);
 
-    void		posChg(CallBacker*);
+    void		psPosChg(CallBacker*);
     void		readParsPush(CallBacker*);
     void		preScanPush(CallBacker*);
 
-    int			posType() const;
     int			psPosType() const;
-    bool		haveIC() const;
-    bool		haveXY() const;
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.15 2008-11-04 13:45:04 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.16 2008-11-12 14:28:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -498,9 +498,11 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     const bool mkpsgrp = isps_;
     const bool mkorulegrp = forread_ && setup_.revtype_ != uiSEGYRead::Rev1;
     const bool mkposgrp = setup_.revtype_ == uiSEGYRead::Rev0;
+    const bool mkcoordgrp = mkposgrp && !is2d_;
     if ( mkpsgrp ) nrtabs++;
     if ( mkorulegrp ) nrtabs++;
     if ( mkposgrp ) nrtabs++;
+    if ( mkcoordgrp ) nrtabs++;
     if ( nrtabs < 1 )
 	return;
     else if ( nrtabs > 1 )
@@ -510,6 +512,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     posgrp_ = mkposgrp ? mkPosGrp( iop, thdef ) : 0;
     psgrp_ = mkpsgrp ? mkPSGrp( iop, thdef ) : 0;
     orulegrp_ = mkorulegrp ? mkORuleGrp( iop ) : 0;
+    coordgrp_ = mkcoordgrp ? mkCoordGrp( iop, thdef ) : 0;
 
     if ( ts_ )
     {
@@ -524,8 +527,10 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
 	mDefObjs( psgrp_ )
     else if ( orulegrp_ )
 	mDefObjs( orulegrp_ )
+    else if ( coordgrp_ )
+	mDefObjs( coordgrp_ )
 
-    mainwin()->finaliseStart.notify( mCB(this,uiSEGYFileOpts,posChg) );
+    mainwin()->finaliseStart.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
 }
 
 
@@ -556,12 +561,15 @@ void uiSEGYFileOpts::getReport( IOPar& iop ) const
 
     if ( psgrp_ )
     {
-	if ( psPosType() == 0 )
+	const int pspostyp = psPosType();
+	if ( psposfld_ )
+	    iop.set( "Offsets/azimuths", psposfld_->text() );
+	if ( pspostyp == 0 )
 	{
 	    mGetIndexNrByteRep("Offset byte",offs);
 	    mGetIndexNrByteRep("Azimuth byte",azim);
 	}
-	else if ( psPosType() == 2 )
+	else if ( pspostyp == 2 )
 	{
 	    tmp = "Start at ";
 	    tmp += regoffsfld_->text(0); tmp += " then step ";
@@ -578,25 +586,18 @@ void uiSEGYFileOpts::getReport( IOPar& iop ) const
 	mGetOverruleRep("Overrule.sample interval",samplerate);
     }
 
-    if ( !posgrp_ ) return;
-
-    const bool useic = haveIC();
-
-    if ( useic )
+    if ( trnrbytefld_ )
+	mGetIndexNrByteRep("Trace number byte",trnr)
+    else if ( inlbytefld_ )
     {
 	mGetIndexNrByteRep("In-line byte",inl)
 	mGetIndexNrByteRep("Cross-line byte",crl)
     }
-
-    if ( trnrbytefld_ )
-	mGetIndexNrByteRep("Trace number byte",trnr);
-
-    if ( !useic && xcoordbytefld_ )
+    if ( xcoordbytefld_ )
     {
 	iop.set( "X-coord byte", xcoordbytefld_->getIntValue() );
 	iop.set( "Y-coord byte", ycoordbytefld_->getIntValue() );
     }
-
 }
 
 
@@ -614,19 +615,8 @@ void uiSEGYFileOpts::mkTrcNrFlds( uiGroup* grp, const IOPar* iop,
 void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar* iop,
 				   const SEGY::TrcHeaderDef& thdef )
 {
-    if ( !forScan() )
-    {
-	int icopt = 0;
-	if ( iop ) iop->get( SEGY::FileReadOpts::sKeyICOpt, icopt );
-	posfld_ = new uiGenInput( grp, "Positioning is defined by",
-		    BoolInpSpec(icopt>=0,"Inline/Crossline","Coordinates") );
-	posfld_->valuechanged.notify( 
-			mCB(this,uiSEGYFileOpts,posChg) );
-    }
-
     inlbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sInlByte, iop,
 			   thdef.inl );
-    if ( posfld_ ) inlbytefld_->attach( alignedBelow, posfld_ );
     inlbyteszfld_ = mkByteSzFld( grp, SEGY::TrcHeaderDef::sInlByteSz,
 				iop, thdef.inlbytesz );
     inlbyteszfld_->attach( rightOf, inlbytefld_ );
@@ -636,6 +626,15 @@ void uiSEGYFileOpts::mkBinIDFlds( uiGroup* grp, const IOPar* iop,
     crlbyteszfld_ = mkByteSzFld( grp, SEGY::TrcHeaderDef::sCrlByteSz,
 				iop, thdef.crlbytesz );
     crlbyteszfld_->attach( rightOf, crlbytefld_ );
+
+    if ( !forScan() )
+    {
+	int icopt = 0;
+	if ( iop ) iop->get( SEGY::FileReadOpts::sKeyICOpt, icopt );
+	posfld_ = new uiGenInput( grp, "Base positioning on",
+		    BoolInpSpec(icopt>=0,"Inline/Crossline","Coordinates") );
+	posfld_->attach( alignedBelow, crlbytefld_ );
+    }
 }
 
 
@@ -647,12 +646,8 @@ void uiSEGYFileOpts::mkCoordFlds( uiGroup* grp, const IOPar* iop,
     ycoordbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sYCoordByte,
 			      iop, thdef.ycoord );
     ycoordbytefld_->attach( alignedBelow, xcoordbytefld_ );
-    if ( posfld_ )
-	xcoordbytefld_->attach( alignedBelow, posfld_ );
-    else if ( is2d_ )
+    if ( is2d_ )
 	xcoordbytefld_->attach( alignedBelow, trnrbytefld_ );
-    else
-	xcoordbytefld_->attach( alignedBelow, inlbytefld_ );
 }
 
 
@@ -669,13 +664,32 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar* iop,
     mDeclGroup( "Position group" );
 
     if ( !is2d_ )
+    {
 	mkBinIDFlds( grp, iop, thdef );
+	grp->setHAlignObj( inlbytefld_ );
+    }
     else
+    {
 	mkTrcNrFlds( grp, iop, thdef );
+	mkCoordFlds( grp, iop, thdef );
+	grp->setHAlignObj( xcoordbytefld_ );
+    }
+
+    if ( ts_ ) ts_->addTab( grp, "Locations" );
+    return grp;
+}
+
+
+uiGroup* uiSEGYFileOpts::mkCoordGrp( const IOPar* iop,
+				     const SEGY::TrcHeaderDef& thdef )
+{
+    if ( is2d_ ) return 0;
+    mDeclGroup( "Coordinates group" );
+
     mkCoordFlds( grp, iop, thdef );
     grp->setHAlignObj( xcoordbytefld_ );
 
-    if ( ts_ ) ts_->addTab( grp, "Locations" );
+    if ( ts_ ) ts_->addTab( grp, "Coordinates" );
     return grp;
 }
 
@@ -715,7 +729,7 @@ uiGroup* uiSEGYFileOpts::mkPSGrp( const IOPar* iop,
     {
 	psposfld_ = new uiGenInput( grp, "Offsets/azimuths",
 				    StringListInpSpec(choices) );
-	psposfld_->valuechanged.notify( mCB(this,uiSEGYFileOpts,posChg) );
+	psposfld_->valuechanged.notify( mCB(this,uiSEGYFileOpts,psPosChg) );
     }
 
     offsbytefld_ = mkPosFld( grp, SEGY::TrcHeaderDef::sOffsByte, iop,
@@ -767,17 +781,17 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	psposfld_->setValue( psopt );
     }
 
-    if ( icopt >= 0 && inlbytefld_ )
+    if ( xcoordbytefld_ )
+    {
+	setByteNrFld( xcoordbytefld_, iop, SEGY::TrcHeaderDef::sXCoordByte );
+	setByteNrFld( ycoordbytefld_, iop, SEGY::TrcHeaderDef::sYCoordByte );
+    }
+    if ( inlbytefld_ )
     {
 	setByteNrFld( inlbytefld_, iop, SEGY::TrcHeaderDef::sInlByte );
 	setByteSzFld( inlbyteszfld_, iop, SEGY::TrcHeaderDef::sInlByteSz );
 	setByteNrFld( crlbytefld_, iop, SEGY::TrcHeaderDef::sCrlByte );
 	setByteSzFld( crlbyteszfld_, iop, SEGY::TrcHeaderDef::sCrlByteSz );
-    }
-    if ( icopt <= 0 && xcoordbytefld_ )
-    {
-	setByteNrFld( xcoordbytefld_, iop, SEGY::TrcHeaderDef::sXCoordByte );
-	setByteNrFld( ycoordbytefld_, iop, SEGY::TrcHeaderDef::sYCoordByte );
     }
     if ( trnrbytefld_ )
     {
@@ -813,8 +827,8 @@ void uiSEGYFileOpts::usePar( const IOPar& iop )
 	}
     }
 
-    if ( psgrp_ || posgrp_ )
-	posChg(0);
+    if ( psgrp_ )
+	psPosChg(0);
 }
 
 
@@ -826,61 +840,23 @@ void uiSEGYFileOpts::use( const IOObj* ioobj, bool force )
 }
 
 
-bool uiSEGYFileOpts::haveIC() const
-{
-    if ( forScan() ) return true;
-    return is2d_ ? false : posType() != -1;
-}
-
-
-bool uiSEGYFileOpts::haveXY() const
-{
-    if ( forScan() ) return true;
-    return is2d_ ? true : posType() != 1;
-}
-
-
-int uiSEGYFileOpts::posType() const
-{
-    return !posfld_ ? 0 : (posfld_->getBoolValue() ? 1 : -1);
-}
-
-
 int uiSEGYFileOpts::psPosType() const
 {
     return psposfld_ ? psposfld_->getIntValue() : 0;
 }
 
 
-void uiSEGYFileOpts::posChg( CallBacker* c )
+void uiSEGYFileOpts::psPosChg( CallBacker* c )
 {
-    const bool havexy = haveXY();
-    const int pspostyp = psPosType();
+    if ( !psgrp_ ) return;
 
-    if ( inlbytefld_ )
-    {
-	const bool haveic = haveIC();
-	inlbytefld_->display( haveic );
-	inlbyteszfld_->display( haveic );
-	crlbytefld_->display( haveic );
-	crlbyteszfld_->display( haveic );
-    }
-    if ( xcoordbytefld_ )
-    {
-	xcoordbytefld_->display( havexy );
-	ycoordbytefld_->display( havexy );
-    }
-    if ( orulegrp_ )
-	scalcofld_->display( havexy || (isps_ && pspostyp==1) );
-    if ( psgrp_ )
-    {
-	offsbytefld_->display( pspostyp == 0 );
-	offsbyteszfld_->display( pspostyp == 0 );
-	azimbytefld_->display( pspostyp == 0 );
-	azimbyteszfld_->display( pspostyp == 0 );
-	ensurepsxylbl_->display( pspostyp == 1 );
-	regoffsfld_->display( pspostyp == 2 );
-    }
+    const int pspostyp = psPosType();
+    offsbytefld_->display( pspostyp == 0 );
+    offsbyteszfld_->display( pspostyp == 0 );
+    azimbytefld_->display( pspostyp == 0 );
+    azimbyteszfld_->display( pspostyp == 0 );
+    ensurepsxylbl_->display( pspostyp == 1 );
+    regoffsfld_->display( pspostyp == 2 );
 }
 
 
@@ -889,65 +865,38 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
     iop.setYN( SeisTrcTranslator::sKeyIs2D, is2d_ );
     iop.setYN( SeisTrcTranslator::sKeyIsPS, isps_ );
 
-    if ( posgrp_ )
-    {
-	const bool haveic = haveIC();
-
-	if ( !posfld_ )
-	    iop.set( SEGY::FileReadOpts::sKeyICOpt, is2d_ ? -1 : 0 );
-	else
-	{
-	    if ( !haveic )
-	    {
-		// Just to be sure
-		iop.set( SEGY::TrcHeaderDef::sInlByte, -1 );
-		iop.set( SEGY::TrcHeaderDef::sCrlByte, -1 );
-	    }
-	    iop.set( SEGY::FileReadOpts::sKeyICOpt, haveic ? 1 : -1 );
-	}
+    iop.set( SEGY::FileReadOpts::sKeyICOpt,
+	     !posfld_ ? 0 : (posfld_->getBoolValue() ? 1 : -1) );
 
 #define mSetByteIf(yn,key,fld) \
-	if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,!forread_,setup_.geom_) \
-	    && !perm ) return false
+    if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,!forread_,setup_.geom_) \
+	&& !perm ) return false
 #define mSetSzIf(yn,key,fld) \
-	if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,false,setup_.geom_) \
-	    && !perm ) return false
+    if ( !setIf(iop,yn,SEGY::TrcHeaderDef::key,fld,false,setup_.geom_) \
+	&& !perm ) return false
 
-	if ( inlbytefld_ )
-	{
-	    mSetByteIf( haveic, sInlByte, inlbytefld_ );
-	    mSetSzIf( haveic, sInlByteSz, inlbyteszfld_ );
-	    mSetByteIf( haveic, sCrlByte, crlbytefld_ );
-	    mSetSzIf( haveic, sCrlByteSz, crlbyteszfld_ );
-	}
-
-	if ( xcoordbytefld_ )
-	{
-	    const bool havexy = haveXY();
-	    mSetByteIf( havexy, sXCoordByte, xcoordbytefld_ );
-	    mSetByteIf( havexy, sYCoordByte, ycoordbytefld_ );
-	}
-	if ( trnrbytefld_ )
-	{
-	    mSetByteIf( is2d_, sTrNrByte, trnrbytefld_ );
-	    mSetSzIf( is2d_, sTrNrByteSz, trnrbyteszfld_ );
-	}
-    }
+    mSetByteIf( inlbytefld_, sInlByte, inlbytefld_ );
+    mSetSzIf( inlbytefld_, sInlByteSz, inlbyteszfld_ );
+    mSetByteIf( crlbytefld_, sCrlByte, crlbytefld_ );
+    mSetSzIf( crlbytefld_, sCrlByteSz, crlbyteszfld_ );
+    mSetByteIf( xcoordbytefld_, sXCoordByte, xcoordbytefld_ );
+    mSetByteIf( xcoordbytefld_, sYCoordByte, ycoordbytefld_ );
+    mSetByteIf( trnrbytefld_, sTrNrByte, trnrbytefld_ );
+    mSetSzIf( trnrbytefld_, sTrNrByteSz, trnrbyteszfld_ );
 
     if ( psgrp_ )
     {
 	const int pspostyp = psPosType();
 	iop.set( SEGY::FileReadOpts::sKeyPSOpt, pspostyp );
-	if ( pspostyp == 0 )
-	{
-	    mSetByteIf( isps_, sOffsByte, offsbytefld_ );
-	    mSetSzIf( isps_, sOffsByteSz, offsbyteszfld_ );
-	    mSetByteIf( isps_, sAzimByte, azimbytefld_ );
-	    mSetSzIf( isps_, sAzimByteSz, azimbyteszfld_ );
-	}
-	else if ( pspostyp == 2 )
+	    mSetByteIf( pspostyp == 0, sOffsByte, offsbytefld_ );
+	    mSetSzIf( pspostyp == 0, sOffsByteSz, offsbyteszfld_ );
+	    mSetByteIf( pspostyp == 0, sAzimByte, azimbytefld_ );
+	    mSetSzIf( pspostyp == 0, sAzimByteSz, azimbyteszfld_ );
+	if ( pspostyp == 2 )
 	    iop.set( SEGY::FileReadOpts::sKeyOffsDef,
 		regoffsfld_->getIntValue(0), regoffsfld_->getIntValue(1) );
+	else
+	    iop.removeWithKey( SEGY::FileReadOpts::sKeyOffsDef );
     }
 
     if ( orulegrp_ )
@@ -957,6 +906,12 @@ bool uiSEGYFileOpts::fillPar( IOPar& iop, bool perm ) const
 			   timeshiftfld_, true );
 	setToggled( iop, SEGY::FileReadOpts::sKeySampleIntv,
 			   sampleratefld_, true );
+    }
+    else
+    {
+	iop.removeWithKey( SEGY::FileReadOpts::sKeyCoordScale );
+	iop.removeWithKey( SEGY::FileReadOpts::sKeyTimeShift );
+	iop.removeWithKey( SEGY::FileReadOpts::sKeySampleIntv );
     }
 
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.8 2008-10-14 13:17:32 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.9 2008-11-12 14:28:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiSEGYFileSpec;
 class uiSEGYFilePars;
 class uiComboBox;
+class uiCheckBox;
 class uiGenInput;
 class IOObj;
 
@@ -58,6 +59,7 @@ protected:
     uiSEGYFilePars*	fileparsfld_;
     uiGenInput*		nrtrcexfld_;
     uiComboBox*		geomfld_;
+    uiCheckBox*		savenrtrcsbox_;
 
     void		initFlds(CallBacker*);
     void		readParsCB(CallBacker*);
