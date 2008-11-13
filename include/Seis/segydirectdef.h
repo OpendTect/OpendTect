@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.2 2008-09-18 14:55:52 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.3 2008-11-13 11:33:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,8 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "iopar.h"
 #include "bufstringset.h"
-#include "position.h"
 #include "samplingdata.h"
+#include "segyfiledata.h"
 class SeisTrc;
 class Executor;
 class TaskRunner;
@@ -46,6 +46,7 @@ protected:
 
     Seis::GeomType	geom_;
     const IOPar		pars_;
+    FileDataSet		fds_;
 
     int			curfidx_;
     SEGYSeisTrcTranslator* tr_;

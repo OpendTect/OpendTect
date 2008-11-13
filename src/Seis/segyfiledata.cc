@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.2 2008-10-08 15:57:32 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.3 2008-11-13 11:33:21 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -88,19 +88,18 @@ bool SEGY::FileData::isUsable( int nr ) const
 }
 
 
-void SEGY::FileData::add( const BinID& bid, const Coord& c, int nr, float offs,
-			  bool isnull, bool isusable )
+void SEGY::FileData::add( const SEGY::TraceInfo& ti )
 {
     DataPointSet::DataRow dr;
-    dr.pos_.nr_ = nr;
-    dr.pos_.z_ = offs;
-    dr.setSel( isnull );
-    dr.setGroup( isusable ? 1 : 2 );
+    dr.pos_.nr_ = ti.nr_;
+    dr.pos_.z_ = ti.offset_;
+    dr.setSel( ti.isnull_ );
+    dr.setGroup( ti.isusable_ ? 1 : 2 );
 
-    dr.pos_.set( bid, c );
+    dr.pos_.set( ti.binid_, ti.coord_ );
     const Coord poscoord( dr.pos_.coord() );
-    dr.data_ += (float)(c.x - poscoord.x);
-    dr.data_ += (float)(c.y - poscoord.y);
+    dr.data_ += (float)(ti.coord_.x - poscoord.x);
+    dr.data_ += (float)(ti.coord_.y - poscoord.y);
 
     data_.addRow( dr );
 }
@@ -115,12 +114,48 @@ void SEGY::FileData::addEnded()
 void SEGY::FileData::getReport( IOPar& iop ) const
 {
     BufferString str( "Global info for '" ); str += fname_; str += "'";
-    iop.add( "->", str );
-    iop.set( "Number of traces found", nrTraces() );
-    iop.set( "Number of samples in file", trcsz_ );
-    iop.set( "Start position in file", sampling_.start );
-    iop.set( "Step position in file", sampling_.step );
-    iop.setYN( "REV. 1", isrev1_ );
+    iop.add( "->->", str );
+    iop.add( "Number of traces found", nrTraces() );
+    iop.add( "Number of samples in file", trcsz_ );
+    iop.add( "Start position in file", sampling_.start );
+    iop.add( "Step position in file", sampling_.step );
+    iop.addYN( "REV. 1", isrev1_ );
     if ( isrev1_ && nrstanzas_ > 0 )
-	iop.set( "Number of REV.1 extra stanzas", nrstanzas_ );
+	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
+}
+
+
+SEGY::FileDataSet& SEGY::FileDataSet::operator =( const SEGY::FileDataSet& fds )
+{
+    if ( this != &fds )
+    {
+	deepErase( *this );
+	deepCopy( *this, fds );
+    }
+    return *this;
+}
+
+
+bool SEGY::FileDataSet::toNext( SEGY::FileDataSet::TrcIdx& ti, bool nll,
+				bool unu ) const
+{
+    if ( ti.filenr_ < 0 )
+	{ ti.trcnr_ = -1; ti.filenr_= 0; }
+
+    if ( isEmpty() || ti.filenr_ >= size() )
+	{ ti.filenr_ = -1; ti.trcnr_ = 0; return false; }
+
+    ti.trcnr_++;
+    if ( ti.trcnr_ >= (*this)[ti.filenr_]->nrTraces() )
+	{ ti.filenr_++; ti.trcnr_ = -1; return toNext( ti, nll, unu ); }
+
+    if ( nll && unu )
+	return true;
+
+    const FileData& fd = *(*this)[ti.filenr_];
+    if ( (!nll && fd.isNull(ti.trcnr_))
+      || (!unu && !fd.isUsable(ti.trcnr_)) )
+	return toNext( ti, nll, unu );
+
+    return true;
 }

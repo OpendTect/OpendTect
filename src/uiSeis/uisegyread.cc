@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.19 2008-11-12 15:06:40 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.20 2008-11-13 11:33:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "seistrctr.h"
 #include "segyscanner.h"
+#include "segyfiledata.h"
 #include "seisioobjinfo.h"
 #include "ptrman.h"
 #include "ioman.h"
@@ -255,7 +256,7 @@ bool acceptOK( CallBacker* )
     uiTaskRunner uitr( this );
     uitr.execute( *scanner_ );
     res_ = true;
-    if ( scanner_->fileData().isEmpty() )
+    if ( scanner_->fileDataSet().isEmpty() )
     {
 	uiMSG().error( "No traces found" );
 	res_ = false;

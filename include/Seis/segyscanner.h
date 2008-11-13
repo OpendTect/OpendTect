@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.10 2008-11-12 15:06:40 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.11 2008-11-13 11:33:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace PosInfo { class Detector; }
 
 namespace SEGY
 {
-class FileData;
+class FileDataSet;
 
 
 class Scanner : public Executor
@@ -47,8 +47,7 @@ public:
     od_int64		nrDone() const		{ return nrdone_; }
     const char*		nrDoneText() const	{ return "Traces scanned"; }
 
-    const ObjectSet<FileData>& fileData() const	{ return fd_; }
-    bool		toNext(SEGY::FileDef::TrcIdx&) const;
+    const FileDataSet&	fileDataSet() const	{ return fds_; }
 
     BufferStringSet	fnms_;		//!< Actually used, possibly with errs
     BufferStringSet	failedfnms_;	//!< Failed to open or read
@@ -66,7 +65,7 @@ protected:
 
     Seis::GeomType	geom_;
     const IOPar&	pars_;
-    ObjectSet<FileData>	fd_;
+    FileDataSet&	fds_;
     SEGYSeisTrcTranslator* tr_;
     int			nrtrcs_;
     bool		forcerev0_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.9 2008-11-04 13:45:04 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.10 2008-11-13 11:33:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,17 +33,6 @@ class FileDef
 {
 public:
     			FileDef()		{}
-
-    struct TrcIdx
-    {
-			TrcIdx( int fnr=-1, int tnr=0 )
-			    : filenr_(fnr), trcnr_(tnr)	{}
-	bool		isValid() const			{ return filenr_>=0; }
-	void		toNextFile()			{ filenr_++; trcnr_=0; }
-
-	int		filenr_;
-	int		trcnr_;
-    };
 
     virtual void	fillPar(IOPar&) const				= 0;
     virtual void	usePar(const IOPar&)				= 0;

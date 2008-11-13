@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.71 2008-11-12 12:28:03 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.72 2008-11-13 11:33:21 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -502,27 +502,42 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 {
     if ( !storinterp ) commitSelections();
     if ( headerdone ) return true;
-    mSetUdf(curbinid.inl); mSetUdf(curtrcnr);
+
+    if ( read_mode != Seis::Scan )
+	{ mSetUdf(curbinid.inl); mSetUdf(curtrcnr); }
 
     if ( !headerbufread && !readTraceHeadBuffer() )
 	return false;
     interpretBuf( ti );
 
-    if ( read_mode == Seis::Prod )
+    bool canuse = true;
+    if ( fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
     {
-	if ( fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
+	if ( read_mode == Seis::Scan )
+	    canuse = !mBadCoord(ti);
+	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadCoord(ti) )
 		mGetNextTrcHdr(ti)
-	    ti.binid = SI().transform( ti.coord );
 	}
-	else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
+	ti.binid = SI().transform( ti.coord );
+    }
+    else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
+    {
+	if ( read_mode == Seis::Scan )
+	    canuse = !mBadBid(ti);
+	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) )
 		mGetNextTrcHdr(ti)
-	    ti.coord = SI().transform( ti.binid );
 	}
-	else
+	ti.coord = SI().transform( ti.binid );
+    }
+    else
+    {
+	if ( read_mode == Seis::Scan )
+	    canuse = !mBadBid(ti) || !mBadCoord(ti);
+	if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) && mBadCoord(ti) )
 		mGetNextTrcHdr(ti)
@@ -532,6 +547,9 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 		ti.coord = SI().transform( ti.binid );
 	}
     }
+
+    if ( trchead_.isusable )
+	trchead_.isusable = canuse;
 
     if ( !useinpsd ) ti.sampling = outsd;
 
@@ -549,9 +567,12 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	ti.offset = curoffs;
     }
 
-    prevtrcnr = curtrcnr; curtrcnr = ti.nr;
-    prevbinid = curbinid; curbinid = ti.binid;
-    prevoffs = curoffs; curoffs = ti.offset;
+    if ( canuse )
+    {
+	prevtrcnr = curtrcnr; curtrcnr = ti.nr;
+	prevbinid = curbinid; curbinid = ti.binid;
+	prevoffs = curoffs; curoffs = ti.offset;
+    }
 
     if ( mIsZero(ti.sampling.step,mDefEps) )
     {

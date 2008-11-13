@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.10 2008-11-12 15:06:40 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.11 2008-11-13 11:33:21 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.10 2008-11-12 15:06:40 cvsbe
       Executor("SEG-Y file scan") \
     , trc_(*new SeisTrc) \
     , pars_(*new IOPar(i)) \
+    , fds_(*new FileDataSet) \
     , dtctor_(*new PosInfo::Detector( PosInfo::Detector::Setup(Seis::is2D(gt)) \
 			.isps(Seis::isPS(gt)).reqsorting(true) ) ) \
     , tr_(0) \
@@ -59,7 +60,7 @@ void SEGY::Scanner::init( const FileSpec& fs )
 SEGY::Scanner::~Scanner()
 {
     closeTr();
-    deepErase( fd_ );
+    delete &fds_;
     delete &trc_;
     delete const_cast<IOPar*>(&pars_);
 }
@@ -75,14 +76,14 @@ void SEGY::Scanner::closeTr()
 
 void SEGY::Scanner::getReport( IOPar& iop ) const
 {
-    const bool isrev1 = !forcerev0_ && (fd_.isEmpty() || fd_[0]->isrev1_);
+    const bool isrev1 = !forcerev0_ && (fds_.isEmpty() || fds_[0]->isrev1_);
 
     iop.add( "->", "Provided information" );
     FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev1 );
     FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop, isrev1 );
     FileReadOpts fro(geom_); fro.usePar( pars_ ); fro.getReport( iop, isrev1 );
 
-    if ( fd_.isEmpty() )
+    if ( fds_.isEmpty() )
     {
 	if ( failedfnms_.isEmpty() )
 	    iop.add( "->", "No matching files found" );
@@ -92,10 +93,10 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
     }
 
     int firstfd = 0;
-    while ( firstfd < fd_.size() && fd_[firstfd]->nrTraces() < 1 )
+    while ( firstfd < fds_.size() && fds_[firstfd]->nrTraces() < 1 )
 	firstfd++;
-    if ( firstfd < fd_.size() )
-	fd_[firstfd]->getReport( iop );
+    if ( firstfd < fds_.size() )
+	fds_[firstfd]->getReport( iop );
 
     dtctor_.report( iop );
     addErrReport( iop );
@@ -138,7 +139,7 @@ int SEGY::Scanner::nextStep()
 
 int SEGY::Scanner::readNext()
 {
-    SEGY::FileData& fd = *fd_[curfidx_];
+    SEGY::FileData& fd = *fds_[curfidx_];
     if ( !tr_->read(trc_) )
     {
 	const char* emsg = tr_->errMsg();
@@ -151,10 +152,17 @@ int SEGY::Scanner::readNext()
 	return Executor::MoreToDo;
     }
 
-    dtctor_.add( trc_.info().coord, trc_.info().binid, trc_.info().nr,
-	    	 trc_.info().offset );
-    fd.add( trc_.info().binid, trc_.info().coord, trc_.info().nr,
-	    trc_.info().offset, trc_.isNull(), tr_->trcHeader().isusable );
+    const SeisTrcInfo& ti = trc_.info();
+    dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
+
+    SEGY::TraceInfo sgyti;
+    sgyti.nr_ = ti.nr;
+    sgyti.binid_ = ti.binid;
+    sgyti.coord_ = ti.coord;
+    sgyti.offset_ = ti.offset;
+    sgyti.isnull_ = trc_.isNull();
+    sgyti.isusable_ = tr_->trcHeader().isusable;
+    fd.add( sgyti );
 
     nrdone_++;
     return Executor::MoreToDo;
@@ -200,8 +208,8 @@ int SEGY::Scanner::openNext()
 
 int SEGY::Scanner::finish( bool allok )
 {
-    for ( int idx=0; idx<fd_.size(); idx++ )
-	fd_[idx]->addEnded();
+    for ( int idx=0; idx<fds_.size(); idx++ )
+	fds_[idx]->addEnded();
     dtctor_.finish();
     return allok ? Executor::Finished : Executor::ErrorOccurred;
 }
@@ -219,10 +227,10 @@ void SEGY::Scanner::addFailed( const char* errmsg )
 
 StepInterval<float> SEGY::Scanner::zRange() const
 {
-    if ( fd_.isEmpty() )
+    if ( fds_.isEmpty() )
 	return SI().zRange( false );
 
-    const FileData& fd = *fd_[0];
+    const FileData& fd = *fds_[0];
     StepInterval<float> ret;
     ret.start = fd.sampling_.start;
     ret.step = fd.sampling_.step;
@@ -235,10 +243,10 @@ StepInterval<float> SEGY::Scanner::zRange() const
 void SEGY::Scanner::initFileData()
 {
     FileData* newfd = new FileData( fnms_.get(curfidx_), geom_ );
-    if ( !fd_.isEmpty() && tr_->inpNrSamples() != fd_[0]->trcsz_ )
+    if ( !fds_.isEmpty() && tr_->inpNrSamples() != fds_[0]->trcsz_ )
     {
 	BufferString emsg( "Wrong #samples: " ); tr_->inpNrSamples();
-	emsg += "(should be "; emsg += fd_[0]->trcsz_; emsg += ")";
+	emsg += "(should be "; emsg += fds_[0]->trcsz_; emsg += ")";
 	addFailed( tr_->errMsg() );
 	delete newfd; closeTr();
 	return;
@@ -250,21 +258,5 @@ void SEGY::Scanner::initFileData()
     newfd->isrev1_ = tr_->isRev1();
     newfd->nrstanzas_ = tr_->binHeader().nrstzs;
 
-    fd_ += newfd;
-}
-
-
-bool SEGY::Scanner::toNext( SEGY::FileDef::TrcIdx& tfi ) const
-{
-    if ( tfi.filenr_ < 0 )
-	{ tfi.trcnr_ = -1; tfi.filenr_= 0; }
-
-    if ( fd_.isEmpty() || tfi.filenr_ >= fd_.size() )
-	{ tfi.filenr_ = -1; tfi.trcnr_ = 0; return false; }
-
-    tfi.trcnr_++;
-    if ( tfi.trcnr_ >= fd_[tfi.filenr_]->nrTraces() )
-	{ tfi.filenr_++; tfi.trcnr_ = -1; return toNext( tfi ); }
-
-    return true;
+    fds_ += newfd;
 }
