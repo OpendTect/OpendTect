@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.103 2008-11-11 10:24:19 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.104 2008-11-13 10:59:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -354,10 +354,10 @@ bool SurveyInfo::isReasonable( const BinID& b ) const
 {
     BinID w( cs_.hrg.stop.inl - cs_.hrg.start.inl,
              cs_.hrg.stop.crl - cs_.hrg.start.crl );
-    return b.inl > cs_.hrg.start.inl - w.inl
-	&& b.inl < cs_.hrg.stop.inl  + w.crl
-	&& b.crl > cs_.hrg.start.crl - w.crl
-	&& b.crl < cs_.hrg.stop.crl  + w.crl;
+    return b.inl > cs_.hrg.start.inl - 3 * w.inl
+	&& b.inl < cs_.hrg.stop.inl  + 3 * w.crl
+	&& b.crl > cs_.hrg.start.crl - 3 * w.crl
+	&& b.crl < cs_.hrg.stop.crl  + 3 * w.crl;
 }
 
 

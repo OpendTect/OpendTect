@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.72 2008-10-04 10:03:40 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.73 2008-11-13 10:59:01 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -312,23 +312,236 @@ void IOPar::add( const char* nm, const char* val )
 }
 
 
-#define get1Val( type, convfunc ) \
-bool IOPar::get( const char* s, type& res ) const \
+#define mDefYNFns(fnnm) \
+void IOPar::fnnm##YN( const char* keyw, bool yn ) \
+{ \
+    fnnm( keyw, getYesNoString(yn) ); \
+} \
+void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2 ) \
+{ \
+    FileMultiString fms( getYesNoString(yn1) ); \
+    fms.add( getYesNoString(yn2) ); \
+    fnnm( keyw, fms ); \
+} \
+void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2, bool yn3 ) \
+{ \
+    FileMultiString fms( getYesNoString(yn1) ); \
+    fms.add( getYesNoString(yn2) ); \
+    fms.add( getYesNoString(yn3) ); \
+    fnnm( keyw, fms ); \
+} \
+void IOPar::fnnm##YN( const char* keyw, bool yn1, bool yn2, bool yn3, bool yn4 ) \
+{ \
+    FileMultiString fms( getYesNoString(yn1) ); \
+    fms.add( getYesNoString(yn2) ); \
+    fms.add( getYesNoString(yn3) ); \
+    fms.add( getYesNoString(yn4) ); \
+    fnnm( keyw, fms ); \
+}
+
+mDefYNFns(set)
+mDefYNFns(add)
+
+
+#define mDefSet1Val( type ) \
+void IOPar::set( const char* keyw, type val ) \
+{\
+    set( keyw, Conv::to<const char*>(val) );\
+}
+#define mDefSet2Val( type ) \
+void IOPar::set( const char* s, type v1, type v2 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    set( s, fms ); \
+}
+#define mDefSet3Val( type ) \
+void IOPar::set( const char* s, type v1, type v2, type v3 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    fms.add( Conv::to<const char*>(v3) ); \
+    set( s, fms ); \
+}
+#define mDefSet4Val( type ) \
+void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    fms.add( Conv::to<const char*>(v3) ); \
+    fms.add( Conv::to<const char*>(v4) ); \
+    set( s, fms ); \
+}
+
+#define mDefAdd1Val(type) \
+void IOPar::add( const char* keyw, type val ) \
+{\
+    add( keyw, Conv::to<const char*>(val) );\
+}
+#define mDefAdd2Val( type ) \
+void IOPar::add( const char* s, type v1, type v2 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    add( s, fms ); \
+}
+#define mDefAdd3Val( type ) \
+void IOPar::add( const char* s, type v1, type v2, type v3 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    fms.add( Conv::to<const char*>(v3) ); \
+    add( s, fms ); \
+}
+#define mDefAdd4Val( type ) \
+void IOPar::add( const char* s, type v1, type v2, type v3, type v4 ) \
+{ \
+    FileMultiString fms = Conv::to<const char*>(v1); \
+    fms.add( Conv::to<const char*>(v2) ); \
+    fms.add( Conv::to<const char*>(v3) ); \
+    fms.add( Conv::to<const char*>(v4) ); \
+    add( s, fms ); \
+}
+
+mDefSet1Val(int)	mDefSet2Val(int)
+mDefSet3Val(int)	mDefSet4Val(int)
+mDefSet1Val(od_uint32)	mDefSet2Val(od_uint32)
+mDefSet3Val(od_uint32)	mDefSet4Val(od_uint32)
+mDefSet1Val(od_int64)	mDefSet2Val(od_int64)
+mDefSet3Val(od_int64)	mDefSet4Val(od_int64)
+mDefSet1Val(od_uint64)	mDefSet2Val(od_uint64)
+mDefSet3Val(od_uint64)	mDefSet4Val(od_uint64)
+mDefSet1Val(float)	mDefSet2Val(float)
+mDefSet3Val(float)	mDefSet4Val(float)
+mDefSet1Val(double)	mDefSet2Val(double)
+mDefSet3Val(double)	mDefSet4Val(double)
+
+mDefAdd1Val(int)	mDefAdd2Val(int)
+mDefAdd3Val(int)	mDefAdd4Val(int)
+mDefAdd1Val(od_uint32)	mDefAdd2Val(od_uint32)
+mDefAdd3Val(od_uint32)	mDefAdd4Val(od_uint32)
+mDefAdd1Val(od_int64)	mDefAdd2Val(od_int64)
+mDefAdd3Val(od_int64)	mDefAdd4Val(od_int64)
+mDefAdd1Val(od_uint64)	mDefAdd2Val(od_uint64)
+mDefAdd3Val(od_uint64)	mDefAdd4Val(od_uint64)
+mDefAdd1Val(float)	mDefAdd2Val(float)
+mDefAdd3Val(float)	mDefAdd4Val(float)
+mDefAdd1Val(double)	mDefAdd2Val(double)
+mDefAdd3Val(double)	mDefAdd4Val(double)
+
+
+#define mDefGetI1Val( type, convfunc ) \
+bool IOPar::get( const char* s, type& v1 ) const \
 { \
     const char* ptr = find(s); \
     if ( !ptr || !*ptr ) return false; \
 \
     char* endptr; \
     type tmpval = convfunc; \
-    if ( ptr==endptr) return false; \
-    res = tmpval; \
+    if ( ptr==endptr ) return false; \
+    v1 = tmpval; \
     return true; \
 }
 
-get1Val(int,strtol(ptr, &endptr, 0));
-get1Val(od_uint32,strtoul(ptr, &endptr, 0));
-get1Val(od_int64,strtoll(ptr, &endptr, 0));
-get1Val(od_uint64,strtoull(ptr, &endptr, 0));
+#define mDefGetI2Val( type, convfunc ) \
+bool IOPar::get( const char* s, type& v1, type& v2 ) const \
+{ \
+    const char* ptr = find(s); \
+    if ( !ptr || !*ptr ) return false; \
+    FileMultiString fms( ptr ); \
+    if ( fms.size() < 2 ) return false; \
+    char* endptr; \
+\
+    ptr = fms[0]; \
+    type tmpval = convfunc; \
+    if ( ptr == endptr ) return false; \
+    v1 = tmpval; \
+\
+    ptr = fms[1]; tmpval = convfunc; \
+    if ( ptr != endptr ) v2 = tmpval; \
+\
+    return true; \
+}
+
+#define mDefGetI3Val( type, convfunc ) \
+bool IOPar::get( const char* s, type& v1, type& v2, type& v3 ) const \
+{ \
+    const char* ptr = find(s); \
+    if ( !ptr || !*ptr ) return false; \
+    FileMultiString fms( ptr ); \
+    if ( fms.size() < 3 ) return false; \
+    char* endptr; \
+\
+    ptr = fms[0]; \
+    type tmpval = convfunc; \
+    if ( ptr == endptr ) return false; \
+    v1 = tmpval; \
+\
+    ptr = fms[1]; tmpval = convfunc; \
+    if ( ptr != endptr ) v2 = tmpval; \
+\
+    ptr = fms[2]; tmpval = convfunc; \
+    if ( ptr != endptr ) v3 = tmpval; \
+\
+    return true; \
+}
+
+#define mDefGetI4Val( type, convfunc ) \
+bool IOPar::get( const char* s, type& v1, type& v2, type& v3, type& v4 ) const \
+{ \
+    const char* ptr = find(s); \
+    if ( !ptr || !*ptr ) return false; \
+    FileMultiString fms( ptr ); \
+    if ( fms.size() < 4 ) return false; \
+    char* endptr; \
+\
+    ptr = fms[0]; \
+    type tmpval = convfunc; \
+    if ( ptr == endptr ) return false; \
+    v1 = tmpval; \
+\
+    ptr = fms[1]; tmpval = convfunc; \
+    if ( ptr != endptr ) v2 = tmpval; \
+\
+    ptr = fms[2]; tmpval = convfunc; \
+    if ( ptr != endptr ) v3 = tmpval; \
+\
+    ptr = fms[3]; tmpval = convfunc; \
+    if ( ptr != endptr ) v3 = tmpval; \
+\
+    return true; \
+}
+
+mDefGetI1Val(int,strtol(ptr, &endptr, 0));
+mDefGetI2Val(int,strtol(ptr, &endptr, 0));
+mDefGetI3Val(int,strtol(ptr, &endptr, 0));
+mDefGetI4Val(int,strtol(ptr, &endptr, 0));
+mDefGetI1Val(od_uint32,strtoul(ptr, &endptr, 0));
+mDefGetI2Val(od_uint32,strtoul(ptr, &endptr, 0));
+mDefGetI3Val(od_uint32,strtoul(ptr, &endptr, 0));
+mDefGetI4Val(od_uint32,strtoul(ptr, &endptr, 0));
+mDefGetI1Val(od_int64,strtoll(ptr, &endptr, 0));
+mDefGetI2Val(od_int64,strtoll(ptr, &endptr, 0));
+mDefGetI3Val(od_int64,strtoll(ptr, &endptr, 0));
+mDefGetI4Val(od_int64,strtoll(ptr, &endptr, 0));
+mDefGetI1Val(od_uint64,strtoull(ptr, &endptr, 0));
+mDefGetI2Val(od_uint64,strtoull(ptr, &endptr, 0));
+mDefGetI3Val(od_uint64,strtoull(ptr, &endptr, 0));
+mDefGetI4Val(od_uint64,strtoull(ptr, &endptr, 0));
+
+
+#define mDefGetFVals(typ) \
+bool IOPar::get( const char* k, typ& v ) const \
+{ return getSc(k,v,1,false); } \
+bool IOPar::get( const char* k, typ& v1, typ& v2 ) const \
+{ return getSc(k,v1,v2,1,false); } \
+bool IOPar::get( const char* k, typ& v1, typ& v2, typ& v3 ) const \
+{ return getSc(k,v1,v2,v3,1,false); } \
+bool IOPar::get( const char* k, typ& v1, typ& v2, typ& v3, typ& v4 ) const \
+{ return getSc(k,v1,v2,v3,v4,1,false); }
+
+mDefGetFVals(float)
+mDefGetFVals(double)
 
 
 template <class T>
@@ -390,22 +603,6 @@ bool IOPar::get( const char* s, TypeSet<double>& res ) const
 bool IOPar::get( const char* s, TypeSet<float>& res ) const
 {
     return iopget_typeset( *this, s, res );
-}
-
-
-bool IOPar::get( const char* s, int& i1, int& i2 ) const
-{
-    const char* ptr = find( s );
-    bool havedata = false;
-    if ( ptr && *ptr )
-    {
-	FileMultiString fms = ptr;
-	ptr = fms[0];
-	if ( *ptr ) { i1 = atoi( ptr ); havedata = true; }
-	ptr = fms[1];
-	if ( *ptr ) { i2 = atoi( ptr ); havedata = true; }
-    }
-    return havedata;
 }
 
 
@@ -601,24 +798,6 @@ bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
 }
 
 
-bool IOPar::get( const char* s, int& i1, int& i2, int& i3 ) const
-{
-    const char* ptr = find( s );
-    bool havedata = false;
-    if ( ptr && *ptr )
-    {
-	FileMultiString fms = ptr;
-	ptr = fms[0];
-	if ( *ptr ) { i1 = atoi( ptr ); havedata = true; }
-	ptr = fms[1];
-	if ( *ptr ) { i2 = atoi( ptr ); havedata = true; }
-	ptr = fms[2];
-	if ( *ptr ) { i3 = atoi( ptr ); havedata = true; }
-    }
-    return havedata;
-}
-
-
 bool IOPar::get( const char* s, int& i1, int& i2, float& f ) const
 {
     const char* ptr = find( s );
@@ -655,6 +834,33 @@ bool IOPar::getYN( const char* s, bool& i1, bool& i2 ) const
     FileMultiString fms( ptr );
     i1 = yesNoFromString(fms[0]);
     i2 = yesNoFromString(fms[1]);
+    return true;
+}
+
+
+bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3 ) const
+{
+    const char* ptr = find( s );
+    if ( !ptr || !*ptr ) return false;
+
+    FileMultiString fms( ptr );
+    i1 = yesNoFromString(fms[0]);
+    i2 = yesNoFromString(fms[1]);
+    i3 = yesNoFromString(fms[2]);
+    return true;
+}
+
+
+bool IOPar::getYN( const char* s, bool& i1, bool& i2, bool& i3, bool& i4 ) const
+{
+    const char* ptr = find( s );
+    if ( !ptr || !*ptr ) return false;
+
+    FileMultiString fms( ptr );
+    i1 = yesNoFromString(fms[0]);
+    i2 = yesNoFromString(fms[1]);
+    i3 = yesNoFromString(fms[2]);
+    i4 = yesNoFromString(fms[3]);
     return true;
 }
 
@@ -744,88 +950,12 @@ void IOPar::set( const char* keyw, const TypeSet<double>& vals )
 { return iopset_typeset( *this, keyw, vals ); }
 
 
-#define mSet1Val( type ) \
-void IOPar::set( const char* keyw, type val ) \
-{\
-    set( keyw, Conv::to<const char*>(val) );\
-}
-
-mSet1Val( int );
-mSet1Val( od_uint32 );
-mSet1Val( od_int64 );
-mSet1Val( od_uint64 );
-mSet1Val( float );
-mSet1Val( double );
-
-#define mSet2Val( type ) \
-void IOPar::set( const char* s, type v1, type v2 ) \
-{ \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
-    set( s, fms ); \
-}
-
-mSet2Val( int );
-mSet2Val( od_uint32 );
-mSet2Val( od_int64 );
-mSet2Val( od_uint64 );
-mSet2Val( float );
-mSet2Val( double );
-
-#define mSet3Val( type ) \
-void IOPar::set( const char* s, type v1, type v2, type v3 ) \
-{ \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
-    fms.add( Conv::to<const char*>(v3) ); \
-    set( s, fms ); \
-}
-
-mSet3Val( int );
-mSet3Val( od_uint32 );
-mSet3Val( od_int64 );
-mSet3Val( od_uint64 );
-mSet3Val( float );
-mSet3Val( double );
-
-#define mSet4Val( type ) \
-void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
-{ \
-    FileMultiString fms = Conv::to<const char*>(v1); \
-    fms.add( Conv::to<const char*>(v2) ); \
-    fms.add( Conv::to<const char*>(v3) ); \
-    fms.add( Conv::to<const char*>(v4) ); \
-    set( s, fms ); \
-}
-
-mSet4Val( int );
-mSet4Val( od_uint32 );
-mSet4Val( od_int64 );
-mSet4Val( od_uint64 );
-mSet4Val( float );
-mSet4Val( double );
-
-
 void IOPar::set( const char* s, int i1, int i2, float f )
 {
     FileMultiString fms = Conv::to<const char*>( i1 );
     fms.add( Conv::to<const char*>(i2) );
     fms.add( Conv::to<const char*>(f) );
     set( s, fms );
-}
-
-
-void IOPar::setYN( const char* keyw, bool i )
-{
-    set( keyw, getYesNoString(i) );
-}
-
-
-void IOPar::setYN( const char* keyw, bool i1, bool i2 )
-{
-    FileMultiString fms( getYesNoString(i1) );
-    fms.add( getYesNoString(i2) );
-    set( keyw, fms );
 }
 
 
