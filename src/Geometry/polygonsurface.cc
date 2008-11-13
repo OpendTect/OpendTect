@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.9 2008-10-30 19:10:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.10 2008-11-13 17:13:34 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -192,6 +192,9 @@ void PolygonSurface::setBezierCurveSmoothness( int nrpoints_on_segment )
 void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts, 
 					  const float zscale ) const
 {
+    if ( beziernrpts_<0 )
+	return;
+
     const int polygonidx = plg - firstpolygon_; 
     if ( polygonidx<0 || polygonidx>polygons_.size() ) 
 	return;
@@ -220,14 +223,20 @@ void PolygonSurface::getCubicBezierCurve( int plg, TypeSet<Coord3>& pts,
     for ( int knot=0; knot<nrknots; knot++ )
     {
 	const Coord3 prvpos = knots[knot==0 ? nrknots-1 : knot-1];
-	const Coord3 nexpos = knots[knot==nrknots-1 ? 0 : knot+1];
-	curve.setTangentInfluence( ((prvpos-nexpos).abs())/5.0 );
+	const Coord3 nextpos = knots[knot==nrknots-1 ? 0 : knot+1];
+	curve.setTangentInfluence( ((prvpos-nextpos).abs())/5.0 );
 
-	for ( int nr=0; nr<beziernrpts_; nr++ )
+	const double distsqr = (knots[knot]-nextpos).sqAbs();
+
+	for ( int nr=0; nr<beziernrpts_+1; nr++ )
 	{
-	    Coord3 pt = curve.computePosition(knot+nr*1.0/(float)beziernrpts_);
-	    pt.z /= zscale;
-	    pts += pt;
+	    Coord3 pt = curve.computePosition(
+		    knot+nr*1.0/(float)(beziernrpts_+1) );
+	    if ( (knots[knot]-pt).sqAbs()<distsqr )
+	    {
+    		pt.z /= zscale;
+    		pts += pt;
+	    }
 	}
     }
 }

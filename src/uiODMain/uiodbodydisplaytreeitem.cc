@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodbodydisplaytreeitem.cc,v 1.2 2008-10-30 19:05:52 cvsyuancheng Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.cc,v 1.3 2008-11-13 17:13:34 cvsyuancheng Exp $
 ___________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uipolygonsurfbezierdlg.h"
 #include "uivispartserv.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "vispolygonsurfdisplay.h"
@@ -112,7 +113,8 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , emid_( oid )
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
-    , displaymnuitem_( "Display ..." )				   
+    , displaymnuitem_( "Display ..." )
+    , beziernrmnuitem_( "Polygon smooth" )			      
     , displaybodymnuitem_ ( "Body" )
     , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
@@ -133,6 +135,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
     , displaymnuitem_( "Display ..." )				   
+    , beziernrmnuitem_( "Polygon smooth" )			      
     , displaybodymnuitem_ ( "Body" )
     , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
@@ -223,9 +226,10 @@ bool uiODBodyDisplayTreeItem::init()
     }
 
     if ( plg_ )
+    {
 	plg_->materialChange()->notify(
-		mCB(this,uiODBodyDisplayTreeItem,colorChCB));
-
+		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+    }
     
     return uiODDisplayTreeItem::init();
 }
@@ -301,6 +305,7 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		      plg_->areIntersectionsDisplayed() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
+	mAddMenuItem( menu, &beziernrmnuitem_, true, true );
 	
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	mAddMenuItem( menu, &removeselectedmnuitem_, sel && sel->isOK(), true );
@@ -378,6 +383,19 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	plg_->removeSelection( *visserv_->getCoordSelector(sceneID()) );
+    }
+    else if ( mnuid==beziernrmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	Geometry::PolygonSurface* body = !plg_->getEMPolygonBody() ? 0 :
+	    plg_->getEMPolygonBody()->geometry().sectionGeometry( 0 );
+	if ( body )
+	{
+    	    uiPolygonSurfBezierDlg dlg( getUiParent(), body );
+    	    dlg.go();
+	
+	    plg_->touchAll( false, true );
+	}
     }
 }
 
