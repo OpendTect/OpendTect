@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.50 2008-10-04 10:03:40 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.51 2008-11-13 11:29:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,37 +96,34 @@ public:
 				//!< removes all entries with key matching
 				//!< this glob expression
 
-    const char*		operator[](const char*) const;
-			//!< returns empty string if not found
+// GET functions
+
     const char*		find(const char*) const;
 			//!< returns null if not found
+    const char*		operator[](const char*) const;
+			//!< returns empty string if not found
 
-    bool		get(const char*,int&) const;
-    bool		get(const char*,od_uint32&) const;
-    bool		get(const char*,od_int64&) const;
-    bool		get(const char*,od_uint64&) const;
-    bool		get(const char*,int&,int&) const;
-    inline bool		get( const char* k, float& v ) const
-			{ return getSc(k,v,1,false); }
-    inline bool		get( const char* k, double& v ) const
-			{ return getSc(k,v,1,false); }
-    inline bool		get( const char* k, float& v1, float& v2 ) const
-			{ return getSc(k,v1,v2,1,false); }
-    inline bool		get( const char* k, float& v1,
-	    		     float& v2, float& v3 ) const
-			{ return getSc(k,v1,v2,v3,1,false); }
-    inline bool		get( const char* k, float& v1,
-	    		     float& v2, float& v3, float& v4 ) const
-			{ return getSc(k,v1,v2,v3,v4,1,false); }
-    inline bool		get( const char* k, double& v1, double& v2 ) const
-			{ return getSc(k,v1,v2,1,false); }
-    inline bool		get( const char* k, double& v1,
-	    		     double& v2, double& v3 ) const
-			{ return getSc(k,v1,v2,v3,1,false); }
-    inline bool		get( const char* k, double& v1,
-	    		     double& v2, double& v3, double& v4 ) const
-			{ return getSc(k,v1,v2,v3,v4,1,false); }
-    bool		get(const char*,int&,int&,int&) const;
+    			// Functions for getting 1,2,3 and 4 of the same type
+#define mIOParDeclFns(type) \
+    bool		get(const char*,type&) const; \
+    bool		get(const char*,type&,type&) const; \
+    bool		get(const char*,type&,type&,type&) const; \
+    bool		get(const char*,type&,type&,type&,type&) const
+
+    			mIOParDeclFns(int);
+    			mIOParDeclFns(od_uint32);
+    			mIOParDeclFns(od_int64);
+    			mIOParDeclFns(od_uint64);
+    			mIOParDeclFns(float);
+    			mIOParDeclFns(double);
+#undef mIOParDeclFns
+    bool		getYN(const char*,bool&) const;
+    bool		getYN(const char*,bool&,bool&) const;
+    bool		getYN(const char*,bool&,bool&,bool&) const;
+    bool		getYN(const char*,bool&,bool&,bool&,bool&) const;
+    inline bool		isTrue( const char* key ) const
+			{ bool b = false; return getYN(key,b) && b; }
+
     bool		get(const char*,int&,int&,float&) const;
 
     bool		get(const char*,TypeSet<int>&) const;
@@ -136,28 +133,6 @@ public:
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
 
-    bool		getSc(const char*,float&,float sc,
-			      bool set_undef_if_not_found) const;
-			//!< get with a scale applied
-    bool		getSc(const char*,double&,double sc,
-			      bool set_undef_if_not_found) const;
-    bool		getSc(const char*,float&,float&,float sc,
-			      bool set_undef_if_not_found) const;
-    bool		getSc(const char*,float&,float&,float&,float sc,
-			      bool set_undef_if_not_found) const;
-    bool		getSc(const char*,float&,float&,float&,float&,float sc,
-			      bool set_undef_if_not_found) const;
-    bool		getSc(const char*,double&,double&,double sc,
-			      bool set_undef_if_not_found) const;
-    bool		getSc(const char*,double&,double&,double&,double sc,
-			      bool set_undef_if_not_found) const;
-    bool		getSc(const char*,double&,double&,double&,double&,
-	    			double sc, bool set_undef_if_not_found) const;
-    bool		getYN(const char*,bool&) const;
-    bool		getYN(const char*,bool&,bool&) const;
-    bool		getPtr(const char*,void*&) const;
-    inline bool		isTrue( const char* key ) const
-			{ bool b = false; return getYN(key,b) && b; }
     bool		get(const char*,Interval<int>&) const;
     bool		get(const char*,Interval<float>&) const;
     bool		get(const char*,Interval<double>&) const;
@@ -173,29 +148,60 @@ public:
     bool		get(const char*,BufferString&,BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
 
+    bool		getPtr(const char*,void*&) const;
 
-#define mSet(type) \
-    void		set(const char*,type); \
-    void		set(const char*,type,type); \
-    void		set(const char*,type,type,type); \
-    void		set(const char*,type,type,type,type);
+#define mIOParDeclFns(type) \
+    bool		getSc(const char*,type&,type applied_scale, \
+	    		      bool set_to_undef_if_not_found) const; \
+    bool		getSc(const char*,type&,type&,type,bool) const; \
+    bool		getSc(const char*,type&,type&,type&,type,bool) const;\
+    bool		getSc(const char*,type&,type&,type&,type&,type, \
+	    		      bool) const
+    			mIOParDeclFns(float);
+    			mIOParDeclFns(double);
+#undef mIOParDeclFns
 
-			mSet(int);
-			mSet(od_uint32);
-			mSet(od_int64);
-			mSet(od_uint64);
-			mSet(float);
-			mSet(double);
-#undef mSet
-    
+
+// SET functions
+
     void		set(const char*,const char*);
-    void		set(const char*,const char*,const char*);
-    void		set(const char*,int,int,float);
+			/*!< Set replaces when key already exists */
+    void		add(const char*,const char*);
+			/*!< Add does not check for duplicate keys */
 
-    void		setYN(const char*,bool);
-    void		setYN(const char*,bool,bool);
+    			// Functions for 1,2,3 and 4 of the same type
+#define mIOParDeclFns(fnnm,type) \
+    void		fnnm(const char*,type); \
+    void		fnnm(const char*,type,type); \
+    void		fnnm(const char*,type,type,type); \
+    void		fnnm(const char*,type,type,type,type)
+
+			mIOParDeclFns(set,int);
+			mIOParDeclFns(set,od_uint32);
+			mIOParDeclFns(set,od_int64);
+			mIOParDeclFns(set,od_uint64);
+			mIOParDeclFns(set,float);
+			mIOParDeclFns(set,double);
+			mIOParDeclFns(add,int);
+			mIOParDeclFns(add,od_uint32);
+			mIOParDeclFns(add,od_int64);
+			mIOParDeclFns(add,od_uint64);
+			mIOParDeclFns(add,float);
+			mIOParDeclFns(add,double);
+#undef mIOParDeclFns
+#define mIOParDeclYNFns(fnnm) \
+    void		fnnm##YN(const char*,bool); \
+    void		fnnm##YN(const char*,bool,bool); \
+    void		fnnm##YN(const char*,bool,bool,bool); \
+    void		fnnm##YN(const char*,bool,bool,bool,bool)
+			mIOParDeclYNFns(set);
+			mIOParDeclYNFns(add);
+#undef mIOParDeclYNFns
+
+    void		set(const char*,int,int,float);
     void		setPtr(const char*,void*);
 
+    void		set(const char*,const char*,const char*);
     void		set(const char*,const Interval<int>&);
     void		set(const char*,const Interval<float>&);
     void		set(const char*,const Interval<double>&);
@@ -219,11 +225,7 @@ public:
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
 
-    void		add(const char*,const char*);
-			/*!< Only to save performance: responsibility for
-			     caller to avoid duplicate keys! */
-
-    const char*		mkKey(int) const;
+// I/O  functions
 
     bool		read(const char* filename,const char* filetype,
 	    			bool chktype=false);
@@ -236,6 +238,8 @@ public:
     			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(std::ostream&,const char* filetyp) const;
     void		dumpPretty(std::ostream&) const;
+
+    const char*		mkKey(int) const;
 
     static const char*	sKeyDumpPretty;
 
