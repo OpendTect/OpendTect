@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.11 2008-09-30 10:16:52 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.12 2008-11-13 11:19:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,7 +217,8 @@ void uiGMTMainWin::saveFlow( CallBacker* )
 
     BufferString fnm = filefld_->fileName();
     if ( !fnm.isEmpty() )
-    par.set( sKey::FileName, fnm );
+	par.set( sKey::FileName, fnm );
+
     IOPar basemappar;
     basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
     if ( !basemapgrp_->fillPar(basemappar) )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.cc,v 1.6 2008-10-01 05:37:07 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.cc,v 1.7 2008-11-13 11:19:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,6 +224,9 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	{
 	    uiMSG().warning( "Step is either too small or too large" );
 	    nrcontours = nrcontourfld_->getIntValue();
+	    if ( nrcontours == 1 )
+		nrcontours = 2;
+
 	    datarg.step = ( datarg.stop - datarg.start ) / ( nrcontours - 1 );
 	    rgfld_->setValue( datarg );
 	    rgfld_->valuechanged.enable();
@@ -238,6 +241,9 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	if ( nrcontours < 2 || nrcontours > 100 )
 	{
 	    uiMSG().warning( "Too many or too few contours" );
+	    if ( mIsZero(datarg.step,mDefEps) )
+		datarg.step = datarg.width();
+
 	    nrcontours = datarg.nrSteps() + 1;
 	    nrcontourfld_->setValue( nrcontours );
 	    rgfld_->valuechanged.enable();
