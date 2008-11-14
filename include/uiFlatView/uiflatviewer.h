@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.24 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.25 2008-11-14 04:43:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ class uiFlatViewer : public uiGroup
 		   , public FlatView::Viewer
 {
 public:
-    			uiFlatViewer(uiParent*);
+    			uiFlatViewer( uiParent*, bool cnvshanddrag = true );
 			~uiFlatViewer();
 
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
@@ -109,10 +109,7 @@ protected:
     uiLineItem*			lineitem_;
     uiMarkerItem*		marketitem_;
     void			onFinalise(CallBacker*);
-    void			canvasNewFill(CallBacker*);
-    void			canvasPostDraw(CallBacker*);
     void			reDraw(CallBacker*);
-    void			rubberBandZoom(CallBacker*);
     uiWorldRect			getBoundingBox(bool) const;
     Color			color(bool foreground) const;
 

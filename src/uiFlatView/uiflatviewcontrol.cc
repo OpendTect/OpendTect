@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.38 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.39 2008-11-14 04:43:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,8 +99,6 @@ void uiFlatViewControl::onFinalise( CallBacker* )
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	vwrs_[idx]->setView( viewrect );
-	vwrs_[idx]->drawBitMaps();
-	vwrs_[idx]->drawAnnot();
     }
 
     finalPrepare();
@@ -224,12 +222,7 @@ void uiFlatViewControl::flip( bool hor )
 void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
     //TODO handle when zoom is disabled
-    //mCBCapsuleUnpack(uiRect,r,cb);
     const uiRect* selarea = vwrs_[0]->rgbCanvas().getSelectedArea();
-    /*Geom::Point2D<double> centre( (double)selarea->centre().x,
-				  (double)selarea->centre().y );
-    Geom::Size2D<double> viewarea( selarea->width(), selarea->height() );a*/
-
     uiWorld2Ui w2u;
     vwrs_[0]->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(*selarea);
@@ -293,8 +286,6 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
     vwr->handleChange( FlatView::Viewer::Annot );
     vwr->handleChange( FlatView::Viewer::WVAPars );
     vwr->handleChange( FlatView::Viewer::VDPars );
-    vwr->drawBitMaps();
-    vwr->drawAnnot();
 }
 
 

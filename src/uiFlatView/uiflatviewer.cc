@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.62 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.63 2008-11-14 04:43:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,11 @@ ________________________________________________________________________
 
 float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
 
-uiFlatViewer::uiFlatViewer( uiParent* p )
+uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
     : uiGroup(p,"Flat viewer")
     , mStdInitItem
-    , canvas_(*new uiRGBArrayCanvas( this,uiRGBArrayCanvas::Setup(true),
-				     *new uiRGBArray(false)) )
+    , canvas_(*new uiRGBArrayCanvas(this,uiRGBArrayCanvas::Setup(true,handdrag),
+				    *new uiRGBArray(false)) )
     , axesdrawer_(*new FlatView::AxesDrawer(*this,canvas_))
     , dim0extfac_(0.5)
     , wvabmpmgr_(0)
@@ -63,10 +63,8 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , control_(0)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
-    //canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
-    //canvas_.postDraw.notify( mCB(this,uiFlatViewer,canvasPostDraw) );
     canvas_.reSize.notify( mCB(this,uiFlatViewer,reDraw) );
-    //canvas_.rubberBandUsed.notify( mCB(this,uiFlatViewer,rubberBandZoom) );
+    canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
     reportedchanges_ += All;
 
     mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
@@ -80,16 +78,6 @@ uiFlatViewer::~uiFlatViewer()
     delete vdbmpmgr_;
     delete &canvas_.rgbArray();
     delete &axesdrawer_;
-}
-
-
-void uiFlatViewer::rubberBandZoom( CallBacker* )
-{
-    const uiRect* selarea = canvas_.getSelectedArea();
-    Geom::Point2D<double> centre( (double)selarea->centre().x,
-	    			  (double)selarea->centre().y );
-    Geom::Size2D<double> viewarea( selarea->width(), selarea->height() );
-    control_->setNewView( centre, viewarea );
 }
 
 
@@ -140,18 +128,6 @@ void uiFlatViewer::setInitialSize( uiSize sz )
 }
 
 
-void uiFlatViewer::canvasNewFill( CallBacker* )
-{
-    drawBitMaps();
-}
-
-
-void uiFlatViewer::canvasPostDraw( CallBacker* )
-{
-    drawAnnot();
-}
-
-
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
     const FlatDataPack* dp = pack( wva );
@@ -197,6 +173,7 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
     if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
 
+    canvas_.reDrawNeeded.trigger();
     viewChanged.trigger();
 }
 
@@ -221,6 +198,7 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
 
     canvas_.setBorder( uiBorder(l,t,r,b) );
+    canvas_.newfillneeded_ =  true;
 
 }
 
@@ -242,6 +220,7 @@ void uiFlatViewer::drawBitMaps()
     canvas_.setBGColor( color(false) );
 
     bool datachgd = false;
+    bool parschanged = false;
     for ( int idx=0; idx<reportedchanges_.size(); idx++ )
     {
 	DataChangeType dct = reportedchanges_[idx];
@@ -251,6 +230,8 @@ void uiFlatViewer::drawBitMaps()
 	    dispParsChanged.trigger();
 	    break;
 	}
+	else if ( dct == WVAPars || dct == VDPars )
+	    parschanged = true;
     }
     reportedchanges_.erase();
     if ( datachgd )
@@ -274,7 +255,7 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
-    if ( hasdata && (datachgd || mIsUdf(offs.x)) )
+    if ( hasdata && (datachgd || mIsUdf(offs.x)) || parschanged  )
     {
 	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
 	if ( !mkBitmaps(offs) )
@@ -301,9 +282,6 @@ void uiFlatViewer::drawBitMaps()
 	return;
     }
 
-   /* if ( appearance().ddpars_.vd_.histeq_ )
-	bmp2rgb_->setClipperData( vdbmpmgr_->bitMapGen()->data().
-				  clipperDataPts() );*/
     bmp2rgb_->setRGBArr( canvas_.rgbArray() );
     bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
     ioPixmap* pixmap = new ioPixmap( canvas_.arrArea().width(),
@@ -454,9 +432,9 @@ void uiFlatViewer::drawGridAnnot()
 	else
 	    axis1nm_->setText( ad1.name_ );
 	axis1nm_->setZValue(1);
-	Alignment al( OD::AlignRight, OD::AlignVCenter );
-	axis1nm_->setAlignment( al );
+	Alignment al( OD::AlignRight, OD::AlignTop );
 	axis1nm_->setPos( datarect.right() - 20, ynameannpos );
+	axis1nm_->setAlignment( al );
     }
     if ( showanyx2annot && !ad2.name_.isEmpty() )
     {
@@ -474,9 +452,9 @@ void uiFlatViewer::drawGridAnnot()
 	else
 	    axis2nm_->setText( ad2.name_ );
 	axis2nm_->setZValue(1);
-	Alignment al( OD::AlignLeft, OD::AlignVCenter );
-	axis2nm_->setAlignment( al );
+	Alignment al( OD::AlignLeft, OD::AlignTop );
 	axis2nm_->setPos( left+10, ynameannpos );
+	axis2nm_->setAlignment( al );
     }
 }
 
@@ -541,8 +519,6 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 		lineitem_->setZValue(1);
 		lineitem_->setPenStyle( ad.linestyle_ );
 	    }
-	    //for ( int idx=lines.size()-1; idx>=0; idx-- )
-		//dt.drawLine( *lines[idx], false );
 
 	    deepErase( lines );
 	}
@@ -579,19 +555,26 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	else
 	    addatanm_->setText( ad.name_.buf() );
 	addatanm_->setZValue(1);
-	//ad.namealignment_ );
 	addatanm_->setPos( ptlist[listpos].x, ptlist[listpos].y );
     }
+    canvas_.draw();
 }
 
 
 Interval<float> uiFlatViewer::getDataRange( bool iswva ) const
 {
     Interval<float> rg( mUdf(float), mUdf(float) );
+    if ( !mIsUdf(appearance().ddpars_.vd_.rg_.start) )
+	return appearance().ddpars_.vd_.rg_;
+    const float clipstop = mIsUdf(appearance().ddpars_.vd_.clipperc_.stop) ? 
+		           mUdf(float) :
+			   appearance().ddpars_.vd_.clipperc_.stop * 0.01;
+    Interval<float> cliprate( appearance().ddpars_.vd_.clipperc_.start * 0.01,
+	    		      clipstop );
+
     FlatView::BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
     if ( mgr && mgr->bitMapGen() )
-	rg = mgr->bitMapGen()->data().scale( appearance().ddpars_.vd_.clipperc_
-					     , mUdf(float));
+	rg = mgr->bitMapGen()->data().scale( cliprate, mUdf(float));
 
     return rg;
 }

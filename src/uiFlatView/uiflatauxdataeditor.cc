@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdataeditor.cc,v 1.4 2007-10-17 05:34:14 cvsnanne Exp $
+ RCS:           $Id: uiflatauxdataeditor.cc,v 1.5 2008-11-14 04:43:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& vw )
     : FlatView::AuxDataEditor(vw,vw.rgbCanvas().getMouseEventHandler())
 {
-    vw.rgbCanvas().newFillNeeded.notify(
+    vw.rgbCanvas().reDrawNeeded.notify(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
     vw.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
 
@@ -29,7 +29,7 @@ uiFlatViewAuxDataEditor::~uiFlatViewAuxDataEditor()
 {
     mDynamicCastGet(uiFlatViewer*,uivw,&viewer_);
     uivw->viewChanged.remove( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
-    uivw->rgbCanvas().newFillNeeded.remove(
+    uivw->rgbCanvas().reDrawNeeded.remove(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
 }
 

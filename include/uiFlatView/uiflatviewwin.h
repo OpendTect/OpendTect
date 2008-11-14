@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.6 2007-03-02 14:28:02 cvshelene Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.7 2008-11-14 04:43:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include <iostream>
 class uiParent;
 class uiMainWin;
 class uiFlatViewer;
@@ -29,7 +30,7 @@ class uiFlatViewWin
 {
 public:
 
-    virtual		~uiFlatViewWin()	{}
+    virtual		~uiFlatViewWin()	{ std::cout<<"uiFlatViewWin deleted ...................................."<<std::endl;}
 
     uiFlatViewer&	viewer( int idx=0 )	{ return *vwrs_[idx]; }
     int			nrViewers() const	{ return vwrs_.size(); }
