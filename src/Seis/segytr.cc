@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.72 2008-11-13 11:33:21 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.73 2008-11-14 13:54:10 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -33,6 +33,8 @@ static const int cSEGYWarnBadFmt = 1;
 static const int cSEGYWarnPos = 2;
 static const int cSEGYWarnZeroSampIntv = 3;
 static const int cSEGYWarnDataReadIncomplete = 4;
+static int maxnrconsecutivebadtrcs = -1;
+static const char* sKeyMaxConsBadTrcs = "SEGY.Max Bad Trace Block";
 
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
@@ -42,7 +44,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, binhead_(*new SEGY::BinHeader)
 	, trcscale_(0)
 	, curtrcscale_(0)
-	, forcerev0(false)
+	, forcerev0_(false)
 	, storinterp(0)
 	, blockbuf(0)
 	, headerbufread(false)
@@ -56,6 +58,11 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, offsdef(0,1)
 	, iotype(StreamConn::File)
 {
+    if ( maxnrconsecutivebadtrcs < 0 )
+    {
+	maxnrconsecutivebadtrcs = 50;
+	Settings::common().get( sKeyMaxConsBadTrcs, maxnrconsecutivebadtrcs );
+    }
     curtrcnr = prevtrcnr = -1;
     mSetUdf(curbinid.inl); mSetUdf(prevbinid.inl);
 }
@@ -101,7 +108,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     binhead_.getFrom( binheaderbuf );
 
     trchead_.setNeedSwap( filepars_.byteswap_ > 1 );
-    trchead_.isrev1 = forcerev0 ? false : binhead_.isrev1;
+    trchead_.isrev1 = forcerev0_ ? false : binhead_.isrev1;
     if ( trchead_.isrev1 )
     {
 	if ( binhead_.nrstzs > 100 ) // protect against wild values
@@ -121,8 +128,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	else if ( filepars_.fmt_<1 || filepars_.fmt_>8
 		|| filepars_.fmt_==6 || filepars_.fmt_==7 )
 	{
-	    BufferString nrstr = filepars_.fmt_;
-	    addWarn( cSEGYWarnBadFmt, nrstr );
+	    addWarn( cSEGYWarnBadFmt, getStringFromInt(filepars_.fmt_) );
 	    filepars_.fmt_ = 1;
 	}
     }
@@ -145,6 +151,8 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     {
 	msg = "SEG-Y format '"; msg += detail;
 	msg += "' found.\n\tReplaced with '1' (4-byte floating point)";
+	if ( atoi(detail) > 254 )
+	    msg += "\n-> The file may not be SEG-Y, or byte-swapped";
     }
     else if ( nr == cSEGYWarnPos )
     {
@@ -245,7 +253,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	// Auto-detect
 	filepars_.fmt_ = nrFormatFor( storinterp->dataChar() );
 
-    trchead_.isrev1 = !forcerev0;
+    trchead_.isrev1 = !forcerev0_;
 
     if ( !txthead_ )
     {
@@ -297,7 +305,7 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     fileopts_.usePar( iopar );
     fileopts_.setGeomType( Seis::geomTypeOf(is_2d,is_prestack) );
 
-    iopar.getYN( SEGY::FileDef::sKeyForceRev0, forcerev0 );
+    iopar.getYN( SEGY::FileDef::sKeyForceRev0, forcerev0_ );
 }
 
 
@@ -466,7 +474,7 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 
     msg = usecur ? "at " : "after ";
     if ( usecur < 0 )
-	{ msg += "first trace"; return msg.buf(); }
+	{ msg += "start of data"; return msg.buf(); }
 
     if ( is2d )
 	{ msg += "trace number "; msg += usecur ? curtrcnr : prevtrcnr; }
@@ -484,13 +492,20 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 
 
 #define mBadCoord(ti) \
-	( mIsZero(ti.coord.x,0.01) && mIsZero(ti.coord.y,0.01) \
-	  && !SI().isReasonable(ti.coord) )
+	(ti.coord.x < 0.01 && ti.coord.y < 0.01)
 #define mBadBid(ti) \
-    ( ti.binid.inl == 0 && ti.binid.crl == 0 )
+	(ti.binid.inl <= 0 && ti.binid.crl <= 0)
 #define mGetNextTrcHdr(ti) \
 	{ \
 	    addWarn(cSEGYWarnPos,getTrcPosStr()); \
+	    nrbadtrcs++; \
+	    if ( nrbadtrcs >= maxnrconsecutivebadtrcs ) \
+	    { \
+		BufferString str( "More than " ); \
+		str += maxnrconsecutivebadtrcs; \
+		str += " traces with invalid position found."; \
+		mPosErrRet(str); \
+	    } \
 	    sConn().iStream().seekg( nrSamplesRead() * mBPS(inpcd), \
 		    		     std::ios::cur ); \
 	    if ( !readTraceHeadBuffer() ) \
@@ -510,11 +525,12 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	return false;
     interpretBuf( ti );
 
-    bool canuse = true;
+    bool goodpos = true;
+    int nrbadtrcs = 0;
     if ( fileopts_.icdef_ == SEGY::FileReadOpts::XYOnly )
     {
 	if ( read_mode == Seis::Scan )
-	    canuse = !mBadCoord(ti);
+	    goodpos = !mBadCoord(ti);
 	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadCoord(ti) )
@@ -525,7 +541,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     else if ( fileopts_.icdef_ == SEGY::FileReadOpts::ICOnly )
     {
 	if ( read_mode == Seis::Scan )
-	    canuse = !mBadBid(ti);
+	    goodpos = !mBadBid(ti);
 	else if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) )
@@ -536,7 +552,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     else
     {
 	if ( read_mode == Seis::Scan )
-	    canuse = !mBadBid(ti) || !mBadCoord(ti);
+	    goodpos = !mBadBid(ti) || !mBadCoord(ti);
 	if ( read_mode == Seis::Prod )
 	{
 	    while ( mBadBid(ti) && mBadCoord(ti) )
@@ -549,7 +565,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
     }
 
     if ( trchead_.isusable )
-	trchead_.isusable = canuse;
+	trchead_.isusable = goodpos;
 
     if ( !useinpsd ) ti.sampling = outsd;
 
@@ -567,7 +583,7 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	ti.offset = curoffs;
     }
 
-    if ( canuse )
+    if ( goodpos )
     {
 	prevtrcnr = curtrcnr; curtrcnr = ti.nr;
 	prevbinid = curbinid; curbinid = ti.binid;
