@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyreaddlg.cc,v 1.3 2008-11-12 15:06:40 cvsbert Exp $
+ RCS:           $Id: uisegyreaddlg.cc,v 1.4 2008-11-14 14:46:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,9 +95,10 @@ const char* uiSEGYReadDlg::saveObjName() const
 }
 
 
-void uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns )
+bool uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns,
+				     bool withstop )
 {
-    if ( warns.isEmpty() ) return;
+    if ( warns.isEmpty() ) return true;
 
     BufferString msg( "Warning" ); if ( warns.size() > 1 ) msg += "s";
     msg += " during read:";
@@ -106,7 +107,12 @@ void uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns )
 	msg += "\n\n";
 	msg += warns.get( idx );
     }
-    uiMSG().warning( msg );
+
+    if ( !withstop )
+	{ uiMSG().warning( msg ); return true; }
+
+    msg += "\n\nContinue?";
+    return uiMSG().askGoOn( msg );
 }
 
 

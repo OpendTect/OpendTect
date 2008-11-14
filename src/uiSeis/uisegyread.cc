@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.20 2008-11-13 11:33:21 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.21 2008-11-14 14:46:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -464,11 +464,12 @@ void uiSEGYRead::setupScan()
     uiSEGYReadDlg::Setup su( geom_ ); su.rev( rev_ ).modal(false);
     if ( setup_.purpose_ == SurvSetup && Seis::is2D(geom_) )
 	uiMSG().warning(
-	"Scanning a 2D file can only provide some info on your survey.\n"
-	"To actually set up your survey, you need to select\n"
-	"'Set for 2D only'\n"
+	"Scanning a 2D file can provide valuable info on your survey.\n"
+	"But to actually set up your survey, you need to select\n"
+	"'Set for 2D only' and press 'Go'\n"
 	"In the survey setup window" );
-    scandlg_ = new uiSEGYScanDlg( parent_, su, pars_ );
+    scandlg_ = new uiSEGYScanDlg( parent_, su, pars_,
+	    			  setup_.purpose_ == SurvSetup );
     scandlg_->mSetreadReqCB();
     scandlg_->mSetwriteReqCB();
     scandlg_->mSetpreScanReqCB();

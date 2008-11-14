@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.3 2008-11-13 11:33:21 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.4 2008-11-14 14:46:17 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -114,7 +114,7 @@ void SEGY::FileData::addEnded()
 void SEGY::FileData::getReport( IOPar& iop ) const
 {
     BufferString str( "Global info for '" ); str += fname_; str += "'";
-    iop.add( "->->", str );
+    iop.add( "->", str );
     iop.add( "Number of traces found", nrTraces() );
     iop.add( "Number of samples in file", trcsz_ );
     iop.add( "Start position in file", sampling_.start );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.3 2008-11-12 15:06:40 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.4 2008-11-14 14:46:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uisegyscandlg.h"
 
 #include "uisegydef.h"
+#include "uiseissel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
@@ -21,26 +22,39 @@ ________________________________________________________________________
 
 
 uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
-				IOPar& iop )
+				IOPar& iop, bool ss )
     : uiSEGYReadDlg(p,su,iop)
     , scanner_(0)
+    , forsurvsetup_(ss)
+    , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
 {
     if ( setup_.dlgtitle_.isEmpty() )
     {
-	BufferString ttl( "Scanning " );
+	BufferString ttl( "Parameters for scan of " );
 	ttl += Seis::nameOf( setup_.geom_ );
 	SEGY::FileSpec fs; fs.usePar( iop );
 	ttl += " '"; ttl += fs.fname_; ttl += "'";
 	setTitleText( ttl );
     }
-    if ( !optsgrp_ )
-	new uiLabel( this, "Press OK or hit enter to start SEG-Y scan" );
+    if ( forsurvsetup_ )
+    {
+	if ( !optsgrp_ )
+	    new uiLabel( this, "Press OK or hit enter to start SEG-Y scan" );
+	return;
+    }
+
+    uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
+    outfld_ = new uiSeisSel( this, ctio_, sssu );
+    if ( optsgrp_ )
+	outfld_->attach( alignedBelow, optsgrp_ );
 }
 
 
 uiSEGYScanDlg::~uiSEGYScanDlg()
 {
+    delete ctio_.ioobj;
     delete scanner_;
+    delete &ctio_;
 }
 
 
@@ -62,6 +76,9 @@ bool uiSEGYScanDlg::doWork( const IOObj& ioobj )
     bool rv = tr.execute(*scanner_);
     if ( !rv ) return false;
 
-    displayWarnings( scanner_->warnings() );
+    if ( !displayWarnings(scanner_->warnings(),outfld_) )
+	return false;
+    if ( !outfld_ ) return true;
+
     return true;
 }
