@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.cc,v 1.8 2008-04-30 04:01:02 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribpartserv.cc,v 1.9 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "welllog.h"
 #include "uimsg.h"
 
-
+const int uiWellAttribPartServer::evShowPickSet	= 0;
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -37,6 +37,7 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , nlamodel(0)
     , xplotwin2d_(0)
     , xplotwin3d_(0)
+    , selpickset_(0)
 {
 }
 
@@ -72,7 +73,17 @@ void uiWellAttribPartServer::doXPlot()
     else
 	xplotwin->setDescSet( *attrset );
 
+    xplotwin->pointsSelected.notify(
+	    mCB(this,uiWellAttribPartServer,showPickSet) );
     xplotwin->show();
+}
+
+
+void uiWellAttribPartServer::showPickSet( CallBacker* )
+{
+    selpickset_ = attrset->is2D() ? xplotwin2d_->getSelectedPts() :
+			 	    xplotwin3d_->getSelectedPts();
+    sendEvent( evShowPickSet );
 }
 
 

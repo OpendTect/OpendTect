@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.4 2008-05-28 15:09:58 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.5 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,16 +21,23 @@ class uiGenInput;
 class DataPointSet;
 class BufferStringSet;
 class uiPosFilterSetSel;
+class uiDataPointSet;
 namespace Attrib { class DescSet; }
+namespace Pick { class Set; }
 
 
 class uiWellAttribCrossPlot : public uiDialog
 {
 public:
-			uiWellAttribCrossPlot(uiParent*,const Attrib::DescSet&);
-			~uiWellAttribCrossPlot();
+					uiWellAttribCrossPlot(uiParent*,
+						const Attrib::DescSet&);
+					~uiWellAttribCrossPlot();
 
-    void		setDescSet(const Attrib::DescSet&);
+    void				setDescSet(const Attrib::DescSet&);
+    Notifier<uiWellAttribCrossPlot>	pointsSelected;
+
+    const Pick::Set*			getSelectedPts() const	
+    					{ return selptps_; }
 
 protected:
 
@@ -46,7 +53,9 @@ protected:
     uiGenInput*		abovefld_;
     uiGenInput*		belowfld_;
     uiGenInput*		logresamplfld_;
-    uiPosFilterSetSel*		posfiltfld_;
+    uiPosFilterSetSel*	posfiltfld_;
+    uiDataPointSet*	uidps_;
+    Pick::Set*		selptps_;
 
     void		adsChg();
     bool		extractWellData(const BufferStringSet&,
@@ -55,6 +64,7 @@ protected:
     bool		extractAttribData(DataPointSet&,int);
 
     void		initWin(CallBacker*);
+    void		createPickSet(CallBacker*);
 
     bool		acceptOK(CallBacker*);
 };

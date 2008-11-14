@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.10 2008-10-27 10:41:49 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.11 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ public:
     void 			drawRegrLine(uiAxisHandler&,
 	    				     const Interval<int>&);
 
-    ObjectSet<Coord>		getSelPtCoordinates()	{ return selcoordset_; }
+    const ObjectSet<Coord3>&	getSelCoords() const	{ return selcoords_; }
     void			setSceneSelectable( bool yn )	
 				{ selectable_ = yn; }
     void			setSelectable( bool y1, bool y2 );	
@@ -140,9 +140,9 @@ protected:
     ObjectSet<uiGraphicsItem>	y2itemset_;
     ObjectSet<uiGraphicsItem>	selitemset_;
 
-    ObjectSet<Coord>		y1coordset_;
-    ObjectSet<Coord>		y2coordset_;
-    ObjectSet<Coord>		selcoordset_;
+    ObjectSet<Coord3>		y1coords_;
+    ObjectSet<Coord3>		y2coords_;
+    ObjectSet<Coord3>		selcoords_;
     
     void 			initDraw();
     void 			setDraw();

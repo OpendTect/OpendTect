@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.41 2008-11-12 14:49:54 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.42 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ class DataPointSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class uiAttribDescSetEd;
+class uiAttribCrossPlot;
 namespace Pick { class Set; }
 template <class T> class Interval;
 template <class T> class Array3D;
@@ -77,6 +78,8 @@ public:
     			//!< Display slice
     static const int	evEvalStoreSlices;
     			//!< Store slices
+    static const int	evShowSelPtPickSet;
+    			//!< Show Selected Points from CrossPlot in Workspace
     static const int	evEvalUpdateName;
     			//!< Update name in tree after evaluation dlg closed
     static const int	objNLAModel2D;
@@ -153,6 +156,8 @@ public:
     			//!< 0 = 2D, 1 = 3D, -1 = user cancel
     Attrib::DescSet*	getUserPrefDescSet() const;
     			//!< For services that can work on 2D or 3D
+    const Pick::Set&	getSelPickSet()			{ return *selptps_; }
+    void		showXPlot(CallBacker*);
 
 protected:
 
@@ -168,6 +173,8 @@ protected:
 
     Attrib::DescSetMan*	adsman2d_;
     Attrib::DescSetMan*	adsman3d_;
+    uiAttribCrossPlot*	uiattrxplot_;
+    Pick::Set*		selptps_;
     const Attrib::Desc*	dirshwattrdesc_;
     uiAttribDescSetEd*	attrsetdlg_;
     Timer		attrsetclosetim_;
@@ -178,6 +185,7 @@ protected:
 
     void		directShowAttr(CallBacker*);
 
+    void		sendPickEvent(CallBacker*);
     void		showEvalDlg(CallBacker*);
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);

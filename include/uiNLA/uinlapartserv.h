@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.21 2008-04-04 12:39:55 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.22 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,10 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "nlamodel.h"
 #include "bufstringset.h"
+#include "pickset.h"
 class IOPar;
 class DataPointSet;
+class uiDataPointSet;
 class PosVecDataSet;
 class NLACreationDesc;
 
@@ -69,6 +71,8 @@ public:
     			//!< use misclass analysis VDS; user wants it.
     static const int	evCreateAttrSet;
     			//!< create attributeset from GDI NN
+    static const int	evShowSelPts;
+    			//!< create attributeset from GDI NN
     static const char*	sKeyUsrCancel;
     			//!< Returned when operation must stop without error
 
@@ -88,16 +92,21 @@ public:
     void		set2DEvent( bool is2d )		{ is2devent = is2d; }
     bool		is2DEvent()			{ return is2devent; }
 
+    const Pick::Set&	getSelectedPts() const		{ return *selptps_; }
+
 protected:
 
     DataPointSet*	traindps;
     DataPointSet*	testdps;
     DataPointSet*	mcdps;
+    uiDataPointSet*	uidps_;
+    Pick::Set*		selptps_;
     BufferStringSet	inpnms;
     IOPar&		storepars;
     bool		is2devent;
 
     void		writeSets(CallBacker*);
+    void		showPickSet(CallBacker*);
 
     bool		extractDirectData(ObjectSet<DataPointSet>&);
     const char*		convertToClasses(const ObjectSet<DataPointSet>&,int);

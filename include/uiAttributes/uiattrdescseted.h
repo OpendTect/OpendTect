@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.17 2008-08-04 12:12:11 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.18 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,9 @@ namespace Attrib
     class DescSetMan;
 };
 
+namespace Pick { class Set; }
 class uiAttrDescEd;
+class uiAttribCrossPlot;
 class uiAttrTypeSel;
 class uiGenInput;
 class uiLineEdit;
@@ -62,6 +64,7 @@ public:
 
     Notifier<uiAttribDescSetEd>		dirshowcb;
     Notifier<uiAttribDescSetEd>		evalattrcb;
+    Notifier<uiAttribDescSetEd>		xplotcb;
 
     static const char* 	sKeyUseAutoAttrSet;
     static const char* 	sKeyAuto2DAttrSetID;
@@ -91,6 +94,7 @@ protected:
     uiLineEdit*		attrnmfld;
     uiGenInput*		attrsetfld;
     uiToolButton*       helpbut;
+    uiAttribCrossPlot*	uiattrxplot_;
 
     void		attrTypSel(CallBacker*);
     void		selChg(CallBacker*);

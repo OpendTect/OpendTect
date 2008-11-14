@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.55 2008-05-28 14:44:47 cvshelene Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.56 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "posvecdatasettr.h"
 #include "datapointset.h"
 #include "ptrman.h"
+#include "pickset.h"
 #include "linekey.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -40,6 +41,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 
+#include <iostream>
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -49,6 +51,7 @@ const int uiNLAPartServer::evGetStoredInput	= 4;
 const int uiNLAPartServer::evGetData		= 5;
 const int uiNLAPartServer::evSaveMisclass	= 6;
 const int uiNLAPartServer::evCreateAttrSet	= 7;
+const int uiNLAPartServer::evShowSelPts		= 8;
 const char* uiNLAPartServer::sKeyUsrCancel	= "User cancel";
 
 #define mDestroySets \
@@ -63,6 +66,8 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	, traindps(0)
 	, testdps(0)
 	, mcdps(0)
+	, uidps_(0)
+	, selptps_(0)
 	, storepars(*new IOPar)
 {
 }
@@ -73,6 +78,8 @@ uiNLAPartServer::~uiNLAPartServer()
     deepErase( inpnms );
     mDestroySets
     delete &storepars;
+    if ( selptps_ )
+	delete selptps_;
 }
 
 
@@ -486,17 +493,37 @@ bool uiNLAPartServer::doDPSDlg( const char* wtitle, DataPointSet& dps )
 {
     uiDataPointSet::Setup su( wtitle, true );
     su.isconst(false).allowretrieve(false);
-    uiDataPointSet uidps( appserv().parent(), dps, su );
-    uidps.setCtrlStyle( uiDialog::DoAndLeave );
-    uidps.storePars() = storepars;
-    uidps.storePars().set( sKey::Type, "MVA Data" );
-    return uidps.go();
+    uidps_ = new uiDataPointSet( appserv().parent(), dps, su );
+    uidps_->setCtrlStyle( uiDialog::DoAndStay );
+    uidps_->storePars() = storepars;
+    uidps_->storePars().set( sKey::Type, "MVA Data" );
+    uidps_->showSelectedPts.notify( mCB(this,uiNLAPartServer,showPickSet) );
+    return uidps_->go();
 }
 
 
 #undef mErrRet
 #define mErrRet(rv) \
 { mDestroySets; return rv; }
+
+void uiNLAPartServer::showPickSet( CallBacker* )
+{
+    if ( selptps_ )
+	delete selptps_;
+    selptps_ = 0;
+    selptps_ = new Pick::Set( "Selected Points from NN " );
+    selptps_->disp_.color_ = Color::DgbColor;
+    for ( int idx=0; idx<uidps_->selptcoord_.size(); idx++ )
+    {
+	Pick::Location pickloc( uidps_->selptcoord_[idx]->x,
+				uidps_->selptcoord_[idx]->y,
+				uidps_->selptcoord_[idx]->z );
+	*selptps_ += pickloc;
+    }
+    sendEvent( evShowSelPts );
+
+}
+
 
 const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 {

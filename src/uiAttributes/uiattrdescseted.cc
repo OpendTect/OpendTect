@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.75 2008-08-08 11:00:44 cvssatyaki Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.76 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
+#include "pickset.h"
 #include "seistype.h"
 #include "survinfo.h"
 #include "settings.h"
@@ -87,7 +88,9 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , attrset(0)
     , dirshowcb(this)
     , evalattrcb(this)
+    , xplotcb(this)
     , adsman(0)
+    , uiattrxplot_(0)
     , updating_fields(false)
 {
     createMenuBar();
@@ -1000,10 +1003,7 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
 void uiAttribDescSetEd::crossPlot( CallBacker* )
 {
     if ( !adsman || !adsman->descSet() ) return;
-
-    uiAttribCrossPlot* dlg = new uiAttribCrossPlot( 0, *adsman->descSet() );
-    dlg->setDeleteOnClose( true );
-    dlg->show();
+    xplotcb.trigger();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.12 2008-05-29 07:38:39 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.13 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,7 @@ public:
 
     IOPar&			storePars()	{ return storepars_; }
     Notifier<uiDataPointSet>	valueChanged;
+    Notifier<uiDataPointSet>	showSelectedPts;
     void			getChanges(DataPointSet::DataRow& before,
 	    				   DataPointSet::DataRow& after) const
 				{ before = beforechgdr_; after = afterchgdr_; }
@@ -99,6 +100,8 @@ public:
     void			setGroupType( const char* nm )
 							{ grptype_ = nm; }
     const char*			groupType() const	{ return grptype_; }
+
+    ObjectSet<Coord3>		selptcoord_;
 
 protected:
 
@@ -170,6 +173,7 @@ protected:
     void			retrieve(CallBacker*);
     void			save(CallBacker*);
     void			delSelRows(CallBacker*);
+    void			getSelPts(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

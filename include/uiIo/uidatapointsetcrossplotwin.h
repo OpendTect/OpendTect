@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.5 2008-10-27 10:41:49 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.6 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ public:
 
     static uiDataPointSetCrossPlotter::Setup	defsetup_;
 
+    Notifier<uiDataPointSetCrossPlotWin>	showSelPts;
+
 protected:
 
     uiDataPointSet&		uidps_;
@@ -43,10 +45,12 @@ protected:
     uiComboBox*			selfld_;
 
     int				showy2tbid_;
+    int				showselptswsbid_;
     int				setselecttbid_;
 
     void			closeNotif(CallBacker*);
     void			showY2(CallBacker*);
+    void			showPtsInWorkSpace(CallBacker*);
     void			setSelectable(CallBacker*);
     void			eachChg(CallBacker*);
     void			grpChg(CallBacker*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.97 2008-11-12 14:49:54 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.98 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "nlacrdesc.h"
 #include "nlamodel.h"
 #include "posvecdataset.h"
+#include "pickset.h"
 #include "datapointset.h"
 #include "ptrman.h"
 #include "seisbuf.h"
@@ -52,8 +53,8 @@ ________________________________________________________________________
 #include "uiattrdescseted.h"
 #include "uiattrsel.h"
 #include "uiattrvolout.h"
-#include "uievaluatedlg.h"
 #include "uiattribcrossplot.h"
+#include "uievaluatedlg.h"
 #include "uitaskrunner.h"
 #include "uiioobjsel.h"
 #include "uimenu.h"
@@ -72,6 +73,7 @@ const int uiAttribPartServer::evEvalAttrInit 	 = 3;
 const int uiAttribPartServer::evEvalCalcAttr	 = 4;
 const int uiAttribPartServer::evEvalShowSlice	 = 5;
 const int uiAttribPartServer::evEvalStoreSlices	 = 6;
+const int uiAttribPartServer::evShowSelPtPickSet = 7;
 const int uiAttribPartServer::evEvalUpdateName	 = 7;
 const int uiAttribPartServer::objNLAModel2D	 = 100;
 const int uiAttribPartServer::objNLAModel3D	 = 101;
@@ -85,6 +87,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     	, adsman3d_(new DescSetMan(false))
 	, dirshwattrdesc_(0)
         , attrsetdlg_(0)
+        , selptps_(0)
     	, attrsetclosetim_("Attrset dialog close")
 	, stored2dmnuitem_("&Stored 2D Data")
 	, stored3dmnuitem_("Stored &Cubes")
@@ -106,6 +109,7 @@ uiAttribPartServer::~uiAttribPartServer()
     delete adsman2d_;
     delete adsman3d_;
     delete attrsetdlg_;
+    delete selptps_;
     deepErase( linesets2dmnuitem_ );
 }
 
@@ -207,12 +211,30 @@ bool uiAttribPartServer::editSet( bool is2d )
     attrsetdlg_ = new uiAttribDescSetEd( parent(), adsman );
     attrsetdlg_->dirshowcb.notify( mCB(this,uiAttribPartServer,directShowAttr));
     attrsetdlg_->evalattrcb.notify( mCB(this,uiAttribPartServer,showEvalDlg) );
+    attrsetdlg_->xplotcb.notify( mCB(this,uiAttribPartServer,showXPlot) );
+
     attrsetdlg_->windowClosed.notify( 
 	    			mCB(this,uiAttribPartServer,attrsetDlgClosed) );
     return attrsetdlg_->go();
 }
 
 
+void uiAttribPartServer::sendPickEvent( CallBacker* )
+{
+    selptps_ = new Pick::Set( uiattrxplot_->getSelectedPts() );
+    sendEvent( evShowSelPtPickSet );
+}
+
+
+void uiAttribPartServer::showXPlot( CallBacker* )
+{
+    uiattrxplot_ = new uiAttribCrossPlot( 0, *curDescSet(is2DEvent()) );
+    uiattrxplot_->setDeleteOnClose( true );
+    uiattrxplot_->pointsSelected.notify(
+	    mCB(this,uiAttribPartServer,sendPickEvent) );
+    uiattrxplot_->show();
+
+}
 void uiAttribPartServer::attrsetDlgClosed( CallBacker* )
 {
     attrsetclosetim_.start( 10, true );

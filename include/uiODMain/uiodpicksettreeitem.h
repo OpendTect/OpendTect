@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.10 2008-06-19 16:07:55 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.11 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,7 @@ public:
     virtual bool	actModeWhenSelected() const	{ return true; }
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
+
 
 protected:
 

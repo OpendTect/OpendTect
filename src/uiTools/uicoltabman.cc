@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.19 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.20 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,6 @@ void uiColorTableMan::selChg( CallBacker* cb )
 	yvals += ctab_.transparency(idx).y;
     }
     cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
-    //cttranscanvas_->update();
 
     delete orgctab_;
     orgctab_ = new ColTab::Sequence( ctab_ );
@@ -486,7 +485,6 @@ void uiColorTableMan::markerChange( CallBacker* )
 void uiColorTableMan::sequenceChange( CallBacker* )
 {
     ctabcanvas_->setRGB();
-    //tableChanged.trigger();
 }
 
 

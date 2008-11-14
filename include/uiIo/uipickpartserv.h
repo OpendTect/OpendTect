@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.37 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.38 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     bool			createEmptySet(bool aspolygon);
     bool			createRandomSet(bool is2d);
     void			setMisclassSet(const BinIDValueSet&);
+    void			setPickSet(const Pick::Set&);
     void			fillZValsFrmHor(Pick::Set*,int);
 
     static const int		evGetHorInfo2D;

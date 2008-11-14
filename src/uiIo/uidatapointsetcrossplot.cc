@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.18 2008-10-27 10:41:58 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.19 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "settings.h"
 #include "envvars.h"
 #include "uimsg.h"
-#include <iostream>
 
 static const int cMaxPtsForMarkers = 20000;
 static const int cMaxPtsForDisplay = 100000;
@@ -136,6 +135,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     drawContent();
 
     reSize.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
+    reDrawNeeded.notify( mCB(this,uiDataPointSetCrossPlotter,reDraw) );
     mousePressed.notify( mCB(this,uiDataPointSetCrossPlotter,getSelStarPos) );
     mouseReleased.notify( mCB(this,uiDataPointSetCrossPlotter,itemsSelected) );
     setStretch( 2, 2 );
@@ -149,6 +149,8 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
     delete &lsy2_;
     if( selectedypts_ ) delete selectedypts_;
     if( selectedy2pts_ ) delete selectedy2pts_;
+    deepErase( y1coords_ );
+    deepErase( y2coords_ );
 }
 
 #define mHandleAxisAutoScale(axis) \
@@ -197,27 +199,22 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     if ( !selectable_ )
 	return;
     uiRect selectedarea( *selstartpos_, *getCursorPos() );
-    //scene().setSelectionArea( selectedarea );
     selitemset_.erase();
+    selcoords_.erase();
     if ( isy1selectable_ )
     {
 	for ( int idx=0; idx<yptitems_->getSize(); idx++ )
 	{
 	    uiGraphicsItem* itm = yptitems_->getUiItem(idx);
 	    const uiPoint* itempos = itm->getPos();
-	    mDynamicCastGet(uiMarkerItem*,markeritem,itm)
-	    if ( !markeritem )
-		continue;
-	    MarkerStyle2D mstyle( setup_.markerstyle_ );
 	    if ( selectedarea.contains(*itempos) )
 	    {
 		selitemset_ += itm;
-		selcoordset_ += y1coordset_[idx];
-		mstyle.color_ = Color::DgbColor;
+		selcoords_ += y1coords_[idx];
+		itm->setPenColor( Color::DgbColor );
 	    }
 	    else
-		mstyle.color_ = setup_.ystyle_.color_;
-	    markeritem->setMarkerStyle( mstyle );
+		itm->setPenColor( axisHandler(1)->setup().style_.color_ );
 	}
     }
     if ( isy2selectable_ && y2ptitems_ )
@@ -226,22 +223,17 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	{
 	    uiGraphicsItem* itm = y2ptitems_->getUiItem(idx);
 	    const uiPoint* itempos = itm->getPos();
-	    mDynamicCastGet(uiMarkerItem*,markeritem,itm)
-	    if ( !markeritem )
-		continue;
-	    MarkerStyle2D mstyle( setup_.markerstyle_ );
 	    if ( selectedarea.contains(*itempos) )
 	    {
 		selitemset_ += itm;
-		selcoordset_ += y2coordset_[idx];
-		mstyle.color_ = Color::DgbColor;
+		selcoords_ += y2coords_[idx];
+		itm->setPenColor( Color(100,230,220) );
 	    }
 	    else
-		mstyle.color_ = setup_.y2style_.color_;
-	    markeritem->setMarkerStyle( mstyle );
+		itm->setPenColor( axisHandler(2)->setup().style_.color_ );
 	}
     }
-    rePaintRect( &selectedarea );
+    reDrawNeeded.trigger();
 }
 
 
@@ -440,7 +432,6 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     calcStats();
     setDraw();
     drawContent();
-
 }
 
 
@@ -454,8 +445,10 @@ void uiDataPointSetCrossPlotter::initDraw()
 
 void uiDataPointSetCrossPlotter::setDraw()
 {
-    x_.axis_->setNewDevSize( width(), height() );
-    y_.axis_->setNewDevSize( height(), width() );
+    if ( x_.axis_ )
+	x_.axis_->setNewDevSize( width(), height() );
+    if ( y_.axis_ )
+	y_.axis_->setNewDevSize( height(), width() );
     if ( doy2_ && y2_.axis_ )
 	y2_.axis_->setNewDevSize( height(), width() );
 }
@@ -487,7 +480,6 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 	drawData( y2_, true );
     else if ( y2ptitems_ )
 	y2ptitems_->removeAll( true );
-    //setViewArea( 0, 0, scene_->width(), scene_->height() );
 }
 
 
@@ -497,6 +489,8 @@ void uiDataPointSetCrossPlotter::drawData(
     const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2 )
 {
     selecteditems_->removeAll( true );
+    y1coords_.erase();
+    y2coords_.erase();
     uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
 
@@ -530,8 +524,7 @@ void uiDataPointSetCrossPlotter::drawData(
     int itmidx = 0;
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
-	if ( dps_.isInactive(rid)
-	  || (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
+	if ( dps_.isInactive(rid) || (curgrp_>0 && dps_.group(rid)!=curgrp_) )
 	    continue;
 
 	const float xval = uidps_.getVal( x_.colid_, rid, true );
@@ -539,29 +532,30 @@ void uiDataPointSetCrossPlotter::drawData(
 	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
 
 	const uiPoint pt( xah.getPix(xval), yah.getPix(yval) );
+	
 	if ( !xpixrg.includes(pt.x) || !ypixrg.includes(pt.y) )
 	    continue;
 
 	if ( itmidx >= curitmgrp->getSize() )
 	{
+	    isy2 ? y2coords_ += new Coord3( dps_.coord(rid), dps_.z(rid) )
+		 : y1coords_ += new Coord3( dps_.coord(rid), dps_.z(rid) );
+
 	    uiGraphicsItem* itm = 0;
-	    isy2 ? y2coordset_ += new Coord( dps_.coord(rid) ):
-		   y1coordset_ += new Coord( dps_.coord(rid) );
 	    if ( mstyle.type_ == MarkerStyle2D::None )
-	    {
 		itm = new uiPointItem();
-		isy2 ? y2itemset_ += itm : y1itemset_ += itm;
-	    }
 	    else
 	    {
 		mstyle.size_ = dps_.isSelected(rid) ? 4 : 2;
 		itm = new uiMarkerItem( mstyle );
-		isy2 ? y2itemset_ += itm : y1itemset_ += itm;
 	    }
+
+	    isy2 ? y2itemset_ += itm : y1itemset_ += itm;
+	    itm->setPenColor( yah.setup().style_.color_ );
 	    curitmgrp->add( itm );
 	}
+
 	curitmgrp->getUiItem( itmidx )->setPos( pt.x, pt.y ); 
-	curitmgrp->getUiItem(itmidx)->setPenColor( yah.setup().style_.color_ ); 
 	if ( rid % eachrow_ )
 	    curitmgrp->getUiItem(itmidx)->setVisible( false ); 
 	else
@@ -627,6 +621,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , disptb_(*new uiToolBar(this,"Crossplot display toolbar"))
     , maniptb_(*new uiToolBar(this,"Crossplot manipulation toolbar"))
     , grpfld_(0)
+    , showSelPts(this)
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
 
@@ -659,6 +654,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 		  "Toggle show Y2", true );
     disptb_.turnOn( setselecttbid_, plotter_.isrubberbandingon_ );
 
+
+    showselptswsbid_ = disptb_.addButton( "picks.png",
+	    	  mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
+		  "Show selected points in WorkSpace", false );
+    disptb_.turnOn( setselecttbid_, true );
 /*
     maniptb_.addButton( "delsel.png",
 			mCB(this,uiDataPointSetCrossPlotWin,delSel),
@@ -705,6 +705,12 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* )
 void uiDataPointSetCrossPlotWin::showY2( CallBacker* )
 {
     plotter_.showY2( disptb_.isOn(showy2tbid_) );
+}
+
+
+void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
+{
+    showSelPts.trigger();
 }
 
 

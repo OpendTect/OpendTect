@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.380 2008-11-04 22:54:05 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.381 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -786,7 +786,7 @@ void uiVisPartServer::fillDispPars( int id, int attrib,
 
     pars.vd_.ctab_ = seq->name();
     pars.vd_.clipperc_ = pars.wva_.clipperc_ =
-	Interval<float>( mapper->cliprate_, mUdf(float) );
+	Interval<float>( mapper->cliprate_*100, mUdf(float) );
     pars.vd_.autoscale_ = pars.wva_.autoscale_ =
 	mapper->type_!=ColTab::MapperSetup::Fixed;
     pars.vd_.rg_ = pars.wva_.rg_ = Interval<float>( mapper->start_,

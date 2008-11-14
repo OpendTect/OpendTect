@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.28 2008-11-11 17:56:10 cvsnanne Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.29 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "uiobjdisposer.h"
 #include "uimsg.h"
 
+#include <iostream>
 static const int cNrPosCols = 3;
 static const char* sKeyGroups = "Groups";
 
@@ -81,6 +82,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, unsavedchgs_(false)
     	, fillingtable_(true)
     	, valueChanged(this)
+    	, showSelectedPts(this)
 	, xplotwin_(0)
 	, statswin_(0)
 	, iotb_(0)
@@ -110,6 +112,14 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     eachrow_ = -1; // force refill
     finaliseDone.notify( mCB(this,uiDataPointSet,eachChg) );
     creationCBS().doCall( this );
+}
+
+void uiDataPointSet::getSelPts( CallBacker* )
+{
+    if ( selptcoord_.size() > 0 )
+	selptcoord_.erase();
+    selptcoord_ = xplotwin_->plotter().getSelCoords();
+    showSelectedPts.trigger();
 }
 
 
@@ -471,6 +481,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 
     disptb_->setSensitive( xplottbid_, false );
     handleAxisColChg();
+    xplotwin_->showSelPts.notify( mCB(this,uiDataPointSet,getSelPts) );
     xplotwin_->show();
 }
 

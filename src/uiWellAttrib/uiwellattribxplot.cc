@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.19 2008-10-09 14:34:41 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.20 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "posinfo.h"
 #include "posvecdataset.h"
 #include "posfilterset.h"
+#include "pickset.h"
 #include "seisioobjinfo.h"
 #include "wellextractdata.h"
 #include "wellmarker.h"
@@ -49,6 +50,9 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 		     ,"107.3.1").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, posfiltfld_(0)
+    	, uidps_(0)
+    	, selptps_(0)
+    	, pointsSelected(this)
 {
     uiLabeledListBox* llba = new uiLabeledListBox( this, "Attributes", true );
     attrsfld_ = llba->box();
@@ -324,9 +328,29 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     }
 
     dps->setName( dpsnm );
-    uiDataPointSet* dlg = new uiDataPointSet( this, *dps,
-			uiDataPointSet::Setup("Well attribute data") );
-    dlg->setGroupType( "well" );
-    dlg->setGroupNames( wellnms );
-    return dlg->go() ? true : false;
+    uidps_ = new uiDataPointSet(
+		this, *dps, uiDataPointSet::Setup("Well attribute data") );
+    uidps_->setGroupType( "well" );
+    uidps_->setGroupNames( wellnms );
+    uidps_->showSelectedPts.notify(
+	    mCB(this,uiWellAttribCrossPlot,createPickSet) );
+    return uidps_->go() ? true : false;
+}
+
+
+void uiWellAttribCrossPlot::createPickSet( CallBacker* )
+{
+    if ( selptps_ )
+	delete selptps_;
+    selptps_ = 0;
+    selptps_ = new Pick::Set( "Selected Points from Well " );
+    selptps_->disp_.color_ = Color(255,120,20);
+    for ( int idx=0; idx<uidps_->selptcoord_.size(); idx++ )
+    {
+	Pick::Location pickloc( uidps_->selptcoord_[idx]->x,
+				uidps_->selptcoord_[idx]->y,
+				uidps_->selptcoord_[idx]->z );
+	*selptps_ += pickloc;
+    }
+    pointsSelected.trigger();
 }

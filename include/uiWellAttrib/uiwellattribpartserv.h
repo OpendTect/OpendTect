@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.6 2008-04-30 04:01:02 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.7 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class NLAModel;
 class uiWellAttribCrossPlot;
 
 namespace Attrib { class DescSet; }
+namespace Pick { class Set; }
 
 /*! \brief Part Server for Wells */
 
@@ -27,6 +28,8 @@ class uiWellAttribPartServer : public uiApplPartServer
 public:
 				uiWellAttribPartServer(uiApplService&);
 				~uiWellAttribPartServer();
+
+    static const int		evShowPickSet;
 
     void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
@@ -38,13 +41,17 @@ public:
     bool			createAttribLog(const MultiID&,int);
     void			doXPlot();
 
+    const Pick::Set&		getSelPickSet() const	{ return *selpickset_; }
+
 protected:
 
     Attrib::DescSet*		attrset;
     const NLAModel*		nlamodel;
 
+    void 			showPickSet(CallBacker*);
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
+    const Pick::Set*		selpickset_;
 };
 
 /*!\mainpage WellAttrib User Interface

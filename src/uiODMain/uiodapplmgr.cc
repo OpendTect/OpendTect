@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.269 2008-11-12 14:49:54 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.270 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uiviscoltabed.h"
 
+#include <iostream>
 
 static BufferString retstr;
 
@@ -416,12 +417,7 @@ void uiODApplMgr::doXPlot()
 
 void uiODApplMgr::crossPlot()
 {
-    Attrib::DescSet* ads = attrserv_->getUserPrefDescSet();
-    if ( !ads ) return;
-
-    uiAttribCrossPlot* dlg = new uiAttribCrossPlot( 0, *ads );
-    dlg->setDeleteOnClose( true );
-    dlg->show();
+    attrserv_->showXPlot(0);
 }
 
 
@@ -512,7 +508,7 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
     if ( appl_.isRestoringSession() ) return;
 
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	    			visserv_->canSetColTabSequence( visid ),
+	    			true,
 				visserv_->getColTabMapperSetup(visid,attrib) );
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as ) return;
@@ -763,6 +759,8 @@ bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 	return handleEMServEv(evid);
     else if ( aps == wellserv_ )
 	return handleWellServEv(evid);
+    else if ( aps == wellattrserv_ )
+	return handleWellAttribServEv(evid);
     else if ( aps == mpeserv_ )
 	return handleMPEServEv(evid);
 
@@ -895,6 +893,14 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	enableMenusAndToolBars( true );
     }
     
+    return true;
+}
+
+
+bool uiODApplMgr::handleWellAttribServEv( int evid )
+{
+    if ( evid == uiWellAttribPartServer::evShowPickSet )
+	pickserv_->setPickSet( wellattrserv_->getSelPickSet() );
     return true;
 }
 
@@ -1177,8 +1183,9 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	attrset.fillPar( nlaserv_->modelPars() );
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
     }
+    else if ( evid == uiNLAPartServer::evShowSelPts )
+	pickserv_->setPickSet( nlaserv_->getSelectedPts() );
     else
-
 	pErrMsg("Unknown event from nlaserv");
 
     return true;
@@ -1276,6 +1283,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
+    else if ( evid == uiAttribPartServer::evShowSelPtPickSet )
+	pickserv_->setPickSet( attrserv_->getSelPickSet() );
     else if ( evid==uiAttribPartServer::evEvalUpdateName )
     {
 	const int visid = visserv_->getEventObjId();
@@ -1321,7 +1330,7 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
     coltabattribnr_ = attrib;
 
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	    			visserv_->canSetColTabSequence( visid ),
+	    			true,
 				visserv_->getColTabMapperSetup(visid,attrib) );
     setHistogram( visid, attrib );
 }
@@ -1352,7 +1361,7 @@ void uiODApplMgr::colMapperChg( CallBacker* )
 
     //Autoscale may have changed ranges, so update.
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	    			visserv_->canSetColTabSequence( visid ),
+	    			true,
 				visserv_->getColTabMapperSetup(visid,attrib) );
 }
 

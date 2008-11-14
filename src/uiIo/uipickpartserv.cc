@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.53 2008-03-19 09:14:21 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.54 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,6 +259,33 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     }
 
     return true;
+}
+
+
+void uiPickPartServer::setPickSet( const Pick::Set& pickset )
+{
+    const int setidx = setmgr_.indexOf( pickset.name() );
+    const bool isnew = setidx < 0;
+    Pick::Set* ps = isnew ? 0 : &setmgr_.get( setidx );
+    if ( ps )
+	ps->erase();
+    else
+    {
+	ps = new Pick::Set( pickset.name() );
+	ps->disp_.color_.set( 240, 0, 0 );
+    }
+
+    *ps = pickset;
+
+    if ( isnew )
+	storeNewSet( ps );
+    else
+    {
+	PtrMan<IOObj> ioobj = getSetIOObj( *ps );
+	if ( ioobj )
+	    doStore( *ps, *ioobj );
+	setmgr_.reportChange( 0, *ps );
+    }
 }
 
 
