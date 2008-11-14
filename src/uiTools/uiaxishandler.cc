@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.13 2008-10-27 11:12:56 cvssatyaki Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.14 2008-11-14 05:38:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -386,11 +386,11 @@ void uiAxisHandler::annotAtEnd( const char* txt )
     }
     else
     {
-	xpix = setup_.side_ == uiRect::Left  ? edgepix + 2 
-	    				     : width_ - edgepix - 2;
+	xpix = setup_.side_ == uiRect::Left  ? edgepix + 5 
+	    				     : width_ - edgepix - 5;
 	ypix = pixBefore() + 5;
-	al.hor_ = setup_.side_ == uiRect::Left ? OD::AlignRight
-	    				       : OD::AlignLeft;
+	al.hor_ = setup_.side_ == uiRect::Left ? OD::AlignLeft
+	    				       : OD::AlignRight;
 	al.ver_ = OD::AlignVCenter;
     }
 
