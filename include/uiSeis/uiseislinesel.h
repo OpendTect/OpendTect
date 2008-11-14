@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.1 2008-11-14 06:43:15 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.2 2008-11-14 11:28:39 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,23 +27,27 @@ class uiSpinBox;
 class uiLabeledSpinBox;
 class IOObj;
 
+class BufferStringSet;
 class CtxtIOObj;
 
 
 class uiLineSel : public uiDialog
 {
 public:
-    					uiLineSel(uiParent*);
+    					uiLineSel(uiParent*,
+						  BufferStringSet& selln,
+						  CtxtIOObj* lsctio);
 					~uiLineSel();
-    BufferString			getSummary() const;				
-    const BufferStringSet&		getSelLines()	{ return sellines_; }
-    MultiID				getLineSetKey(); 
-    IOObj*                      	getIOObj();   
+    BufferString			getSummary() const;
+
+    const BufferStringSet&		getSelLines() const { return sellines_;}
+    MultiID				getLineSetKey();
+    IOObj*                      	getIOObj();
 
 protected:
 
     int					nroflines_;				
-    BufferStringSet 			sellines_;				
+    BufferStringSet& 			sellines_;				
     uiSeisSel*  			linesetfld_;
     uiListBox*  			lnmsfld_;
     uiLabeledSpinBox*          	        lsb_;
