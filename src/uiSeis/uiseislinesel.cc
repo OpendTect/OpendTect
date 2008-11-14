@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.1 2008-11-14 06:45:49 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.2 2008-11-14 11:31:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uispinbox.h"
 
-
+#include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "linekey.h"
 #include "seisioobjinfo.h"
@@ -24,11 +24,13 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "transl.h"
 
-uiLineSel::uiLineSel( uiParent* p )
+uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines, 
+	              CtxtIOObj* lsctio )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
 				   mNoDlgTitle,mNoHelpID) )
-    , lsctio_(mMkCtxtIOObj(SeisTrc))
+    , lsctio_(lsctio)
     , nroflines_(0)
+    , sellines_(sellines)		   
 {
     linesetfld_ = new uiSeisSel( this, *lsctio_,
 	    			 uiSeisSel::Setup(Seis::Line).selattr(false) );
@@ -38,6 +40,7 @@ uiLineSel::uiLineSel( uiParent* p )
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", false );
     llb->attach( alignedBelow, linesetfld_ );
     lnmsfld_ = llb->box();
+    lnmsfld_->setCheckedItems( sellines );
 
     lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
     trc0fld_ = lsb_->box();
@@ -147,6 +150,7 @@ MultiID uiLineSel::getLineSetKey()
 
 bool uiLineSel::acceptOK( CallBacker* )
 {
+    sellines_.erase();
     nroflines_ = lnmsfld_->size();
     lnmsfld_->getCheckedItems( sellines_ );
     return true;
