@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.9 2008-10-29 06:16:42 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.10 2008-11-14 04:31:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uigraphicsscene.h"
 
+#include "draw.h"
 #include "odgraphicsitem.h"
 #include "uigraphicsitemimpl.h"
 
@@ -158,6 +159,16 @@ uiPixmapItem* uiGraphicsScene::addPixmap( const ioPixmap& pm )
 uiTextItem* uiGraphicsScene::addText( const char* txt )
 { 
     uiTextItem* uitextitem = new uiTextItem( odgraphicsscene_->addText(txt) );
+    items_ += uitextitem;
+    return uitextitem;
+}
+
+uiTextItem* uiGraphicsScene::addText( int x, int y, const char* text,
+       				      const Alignment& al )
+{
+    uiTextItem* uitextitem = new uiTextItem( odgraphicsscene_->addText(text) );
+    uitextitem->setPos( x, y );
+    uitextitem->setAlignment( al );
     items_ += uitextitem;
     return uitextitem;
 }

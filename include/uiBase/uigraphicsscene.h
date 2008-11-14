@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.8 2008-10-29 06:16:36 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.9 2008-11-14 04:31:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class QGraphicsScene;
 class ODGraphicsScene;
 
 class ArrowStyle;
+class Alignment;
 class ioPixmap;
 class MarkerStyle2D;
 
@@ -53,6 +54,8 @@ public:
     int				nrItems() const;
 
     uiTextItem*			addText(const char*);
+    uiTextItem*                 addText(int x,int y,const char*,
+	                                const Alignment&);
     uiPixmapItem*		addPixmap(const ioPixmap&);
     uiRectItem*			addRect(float x,float y,float w,float h);
     uiEllipseItem*		addEllipse(float x,float y,float w,float h);
