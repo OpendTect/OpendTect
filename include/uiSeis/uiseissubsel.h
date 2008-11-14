@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.23 2008-07-17 10:12:10 cvssatyaki Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.24 2008-11-14 11:32:34 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiPosSubSel;
 class uiSeis2DSubSel;
 class uiSeisSel;
 class uiSelSubline;
+class uiLineSel;
 
 
 class uiSeisSubSel : public uiGroup
@@ -122,17 +123,14 @@ public:
 
     BufferString		getSummary() const;
     void			doDlg(CallBacker*);
-    void			lineSetSel(CallBacker*);
     IOObj*			getIOObj();
     const BufferStringSet&	getSelLines() const	{ return sellines_; }
 
 protected:
-    int			        nroflines_;
+    
     BufferStringSet 		sellines_;
-
-    uiSeisSel*			linesetfld_;
-    uiListBox*			lnmsfld_;
     CtxtIOObj*			lsctio_;
+    uiLineSel*                  linesel_;
 };
 
 #endif
