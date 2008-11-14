@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.55 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.56 2008-11-14 11:34:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
+#include "uiseislinesel.h"
 #include "uicompoundparsel.h"
 #include "uipossubsel.h"
 #include "uiposprovider.h"
@@ -341,9 +342,7 @@ void uiSeis2DSubSel::singLineChg( CallBacker* )
 uiSelection2DParSel::uiSelection2DParSel( uiParent* p )
     : uiCompoundParSel(p,"LineSet/LineName","Select")
     , lsctio_(mMkCtxtIOObj(SeisTrc))
-    , linesetfld_(0)
-    , lnmsfld_(0)
-    , nroflines_(0)
+    , linesel_(0)				    
 {
     butPush.notify( mCB(this,uiSelection2DParSel,doDlg) );
 }
@@ -358,57 +357,16 @@ uiSelection2DParSel::~uiSelection2DParSel()
 
 BufferString uiSelection2DParSel::getSummary() const
 {
-    BufferString ret;
-    if ( !linesetfld_ || !lsctio_->ioobj ) return ret;
-
-    ret = lsctio_->ioobj->name();
-    const int nrsel = sellines_.size();
-    if ( nroflines_==1 )
-	ret += " (1 line)";
-    else
-    {
-	ret += " (";
-	if ( nroflines_ == nrsel ) ret += "all";
-	else { ret += nrsel; ret += "/"; ret += nroflines_; }
-	ret += " lines)";
-    }
-
-    return ret;
+    if ( !linesel_ )
+	return BufferString();
+    return linesel_->getSummary();
 }
 
 
 void uiSelection2DParSel::doDlg( CallBacker* )
 {
-    sellines_.erase();
-
-    uiDialog dlg( this, uiDialog::Setup("Select 2D LineSet/LineName",
-					mNoDlgTitle,mNoHelpID) );
-    linesetfld_ = new uiSeisSel( &dlg, *lsctio_,
-				 uiSeisSel::Setup(Seis::Line).selattr(false) );
-    linesetfld_->selectiondone.notify(
-    mCB(this,uiSelection2DParSel,lineSetSel) );
-
-    uiLabeledListBox* llb = new uiLabeledListBox( &dlg, "Line names", true );
-    llb->attach( alignedBelow, linesetfld_ );
-    lnmsfld_ = llb->box();
-    lineSetSel( 0 );
-    if ( dlg.go() )
-    {
-	nroflines_ = lnmsfld_->size();
-	lnmsfld_->getSelectedItems( sellines_ );
-    }
-}
-
-
-void uiSelection2DParSel::lineSetSel( CallBacker* )
-{
-    if ( !lsctio_->ioobj ) return;
-
-    SeisIOObjInfo oinf( lsctio_->ioobj );
-    BufferStringSet lnms;
-    oinf.getLineNames( lnms );
-    lnmsfld_->empty();
-    lnmsfld_->addItems( lnms );
+    linesel_ = new uiLineSel( this, sellines_, lsctio_ );
+    linesel_->go();
 }
 
 
