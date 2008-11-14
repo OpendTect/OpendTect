@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.13 2008-10-27 11:12:56 cvssatyaki Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.14 2008-11-14 04:35:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,6 +174,15 @@ void DrawAxis2D::drawXAxis( bool topside )
 }
 
 
+void DrawAxis2D::setXLineStyle( const LineStyle& xls )
+{
+    if ( xaxlineitmgrp_ )
+	xaxlineitmgrp_->setPenStyle( xls );
+    if ( xaxtxtitmgrp_ )
+	xaxtxtitmgrp_->setPenStyle( xls );
+}
+
+
 void DrawAxis2D::drawYAxis( bool leftside )
 {
     const uiRect drawarea = getDrawArea();
@@ -243,6 +252,15 @@ void DrawAxis2D::drawYAxis( bool leftside )
 }
 
 
+void DrawAxis2D::setYLineStyle( const LineStyle& yls )
+{
+    if ( yaxlineitmgrp_ )
+	yaxlineitmgrp_->setPenStyle( yls );
+    if ( yaxtxtitmgrp_ )
+	yaxtxtitmgrp_->setPenStyle( yls );
+}
+
+
 void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 {
     const uiRect drawarea = getDrawArea();
@@ -292,6 +310,15 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	
 	yaxgriditmgrp_->setZValue( zValue_ );
     }
+}
+
+
+void DrawAxis2D::setGridLineStyle( const LineStyle& gls )
+{
+    if ( yaxgriditmgrp_ )
+	yaxgriditmgrp_->setPenStyle( gls );
+    if ( xaxgriditmgrp_ )
+	xaxgriditmgrp_->setPenStyle( gls );
 }
 
 

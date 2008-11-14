@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.8 2008-10-27 11:13:07 cvssatyaki Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.9 2008-11-14 04:35:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class uiGraphicsView;
 class uiGraphicsItemGroup;
 class uiRectItem;
 class uiLineItem;
+class LineStyle;
 template <class T> class StepInterval;
 
 /*\!Draw simple axis for 2D axis.
@@ -67,6 +68,11 @@ public:
     void		drawXAxis(bool topside);
     void		drawYAxis(bool leftside);
     void		drawGridLines(bool xdir,bool ydir);
+
+    void		setXLineStyle(const LineStyle&);
+    void		setYLineStyle(const LineStyle&);
+    void		setGridLineStyle(const LineStyle&);
+
     void		setZvalue( int z )	{ zValue_ = z; }
 
 protected:
