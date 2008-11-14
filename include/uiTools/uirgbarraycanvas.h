@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.5 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.6 2008-11-14 04:50:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,11 +37,13 @@ public:
     class Setup
     {
     public:
-			Setup( bool sb = true, int w=0, int h=0 )
+			Setup( bool sb = true, bool hd = true,int w=0, int h=0 )
 			    : scrollbar_(sb)
+			    , handdrag_(hd)
 			    , width_(w)
 			    , height_(h)	{}
 	mDefSetupMemb	(bool,scrollbar)
+	mDefSetupMemb	(bool,handdrag)
 	mDefSetupMemb	(int,width)
 	mDefSetupMemb	(int,height)
     };
@@ -54,6 +56,7 @@ public:
     void		setBGColor(const Color&); //!< everything
     void		setDrawArr(bool);	//!< Draw the arr or not?
     void		setPixmap(const ioPixmap&);
+    void		removePixmap();
 
     uiRect		arrArea() const		{ return arrarea_; }
     uiRGBArray&		rgbArray()		{ return rgbarr_; }
@@ -74,8 +77,6 @@ public:
     void 			setPixMapPos(int x,int y);
     void			draw();
 
-    Notifier<uiRGBArrayCanvas>	newFillNeeded;
-    //Notifier<uiRGBArrayCanvas>	rubberBandUsed;	// CallBacker: CBCapsule<uiRect>
         
 protected:
 

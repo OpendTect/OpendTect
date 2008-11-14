@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.11 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.12 2008-11-14 04:50:45 cvssatyaki Exp $
  ________________________________________________________________________
 
 -*/
@@ -19,10 +19,9 @@
 uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p,
 				    const uiRGBArrayCanvas::Setup& setup,
 				    uiRGBArray& a )
-    	: uiGraphicsView( p,"RGB Array view" )
+    	: uiGraphicsView( p,"RGB Array view", setup.handdrag_ )
 	, pixmapitm_( 0 )
 	, rgbarr_( a ) 
-	, newFillNeeded( this )
 	, border_( 0,0,0,0 )
 	, bgcolor_( Color::NoColor ) 
 	, dodraw_( true )
@@ -103,6 +102,13 @@ void uiRGBArrayCanvas::setPixmap( const ioPixmap& pixmap )
 }
 
 
+void uiRGBArrayCanvas::removePixmap()
+{
+    if ( pixmapitm_ )
+	scene().removeItem( pixmapitm_ );
+}
+
+
 void uiRGBArrayCanvas::draw()
 {
     if ( !dodraw_ )
@@ -111,7 +117,6 @@ void uiRGBArrayCanvas::draw()
     if ( !pixmap_ )
     {
 	rgbarr_.clear( bgcolor_ );
-	newFillNeeded.trigger();
 	mkNewFill();
 	if ( !createPixmap() )
 	    return;
@@ -132,12 +137,6 @@ void uiRGBArrayCanvas::draw()
 void uiRGBArrayCanvas::setPixMapPos( int x, int y )
 {
     pixmapitm_->setOffset( x, y );
-}
-
-
-void uiRGBArrayCanvas::rubberBandHandler( uiRect r )
-{
-    CBCapsule<uiRect> caps( r, this );
 }
 
 
