@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: odgraphicsitem.cc,v 1.4 2008-10-27 10:41:32 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.cc,v 1.5 2008-11-14 04:33:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,7 @@ ________________________________________________________________________
 
 QRectF ODGraphicsPointItem::boundingRect() const
 {
-    qreal penWidth = pen().widthF();
-    return QRectF( -penWidth, -penWidth, 2*penWidth, 2*penWidth );
+    return highlight_ ? QRectF( -2, -2, 4, 4 ) : QRectF( -1,-1, 2, 2 );
 }
 
 
@@ -53,11 +52,9 @@ void ODGraphicsPointItem::paint( QPainter* painter,
 
 void ODGraphicsPointItem::drawPoint( QPainter* painter )
 {
-    /*QBrush qbrush( QColor(QRgb(pencolor_.rgb())) );
-    QPen qpen( qbrush, penwidth_, Qt::SolidLine );
-    painter->setPen( qpen );*/
+    painter->setPen( pen() );
     QPoint pts[13]; int ptnr = 0;
-    #define mSetPt(ox,oy) pts[ptnr].setX(ox); pts[ptnr++].setY(oy)
+    #define mSetPt(ox,oy) pts[ptnr].setX(ox); pts[ptnr].setY(oy); ptnr++;
     mSetPt( 0, 0 );
     mSetPt( -1, 0 ); mSetPt( 1, 0 );
     mSetPt( 0, -1 ); mSetPt( 0, 1 );
@@ -105,7 +102,7 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
     if ( !mIsZero(angle_,1e-3) )
     pErrMsg( "TODO: implement tilted markers" );*/
 
-    painter->setPen( QColor(QRgb(mstyle_->color_.rgb())) );
+    painter->setPen( pen() );
     drawMarker( *painter );
 
     if ( option->state & QStyle::State_Selected )

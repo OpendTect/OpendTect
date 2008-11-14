@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.4 2008-10-27 10:41:42 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.5 2008-11-14 04:33:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
     void 			drawPoint(QPainter*);
     void			setHighLight( bool hl )
 				{ highlight_ = hl ; }
+    void			setColor( const Color& col )
+				{ pencolor_ = col ; }
 
 protected:
     bool			highlight_;
