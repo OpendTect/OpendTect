@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.98 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.99 2008-11-14 15:36:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uimultcompdlg.h"
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
 
@@ -974,12 +975,16 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     DescID attribid = SelSpec::cAttribNotSel();
     int outputnr = -1;
     bool isnla = false;
+    bool isstored = false;
+    LineKey idlkey;
 
     if ( stored3dmnuitem_.findItem(mnuid) )
     {
 	const MenuItem* item = stored3dmnuitem_.findItem(mnuid);
 	int idx = attrinf.ioobjnms.indexOf(item->text);
 	attribid = adsman->descSet()->getStoredID( attrinf.ioobjids.get(idx) );
+	idlkey = LineKey( attrinf.ioobjids.get(idx) );
+	isstored = true;
     }
     else if ( stored2dmnuitem_.findItem(mnuid) )
     {
@@ -987,8 +992,9 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 	{
 	    const MenuItem* item = stored2dmnuitem_.findItem(mnuid);
 	    const MultiID mid( attrinf.ioobjids.get(0) );
-	    LineKey idlkey( mid, item->text );
+	    idlkey = LineKey( mid, item->text );
 	    attribid = adsman->descSet()->getStoredID( idlkey );
+	    isstored = true;
 	}
 	else
 	{
@@ -999,8 +1005,9 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 		    const MenuItem* item =
 				    linesets2dmnuitem_[idx]->findItem(mnuid);
 		    const MultiID mid( attrinf.ioobjids.get(idx) );
-		    LineKey idlkey( mid, item->text );
+		    idlkey = LineKey( mid, item->text );
 		    attribid = adsman->descSet()->getStoredID( idlkey );
+		    isstored = true;
 		}
 	    }
 	}
@@ -1043,6 +1050,13 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 	as.setRefFromID( *attrdata.nlamodel );
     else
 	as.setRefFromID( *adsman->descSet() );
+
+    if ( isstored )
+    {
+	uiMultCompDlg dlg( parent(), idlkey );
+	if ( dlg.needDisplay() && dlg.go() )
+	    outputnr = dlg.getCompNr();
+    }
     
     as.set2DFlag( is2d );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.11 2008-05-30 07:05:21 cvsnageswara Exp $
+ RCS:           $Id: uiattrsel.h,v 1.12 2008-11-14 15:36:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class uiButtonGroup;
 class uiGenInput;
 class uiListBox;
 class uiRadioButton;
+class uiLabeledSpinBox;
 
 
 class uiAttrSelData
@@ -33,13 +34,14 @@ class uiAttrSelData
 public:
 				uiAttrSelData( const Attrib::DescSet* a )
 				: attrset(a), attribid(-1,true)
-				, nlamodel(0), outputnr(-1)
+				, nlamodel(0), outputnr(-1), compnr(-1)
 				, shwcubes(true)	{}
 
     const Attrib::DescSet*	attrset;
     Attrib::DescID		attribid;
     const NLAModel*		nlamodel;
     int				outputnr;
+    int				compnr;
     bool			shwcubes;
     BufferString		zdomainkey;
 
@@ -94,6 +96,7 @@ protected:
     uiListBox*		zdomoutfld_;
     uiGenInput*		filtfld_;
     uiGenInput*		attr2dfld_;
+    uiLabeledSpinBox*	compfld_;
 
     void		createSelectionButtons();
     void		createSelectionFields();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.29 2008-05-30 07:05:21 cvsnageswara Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.30 2008-11-14 15:36:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "datainpspec.h"
 #include "ptrman.h"
+#include "seisread.h"
 #include "seistrctr.h"
 #include "linekey.h"
 #include "cubesampling.h"
@@ -40,6 +41,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uispinbox.h"
 
 using namespace Attrib;
 
@@ -193,6 +195,10 @@ void uiAttrSelDlg::createSelectionFields()
 	filtfld_ = new uiGenInput( this, "Filter", "*" );
 	filtfld_->attach( alignedBelow, storoutfld_ );
 	filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
+	compfld_ = new uiLabeledSpinBox( this, "Component", 0, "Compfld" );
+	compfld_->box()->setInterval( StepInterval<int>(1,1,1) );
+	compfld_->box()->setSensitive( false );
+	compfld_->attach( rightTo, filtfld_ );
     }
 
     if ( haveattribs )
@@ -258,6 +264,7 @@ void uiAttrSelDlg::selDone( CallBacker* c )
     {
 	storoutfld_->display( seltyp == 0 );
 	filtfld_->display( seltyp == 0 );
+	compfld_->display( seltyp == 0 );
     }
 
     cubeSel(0);
@@ -305,6 +312,18 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	SelInfo::getAttrNames( ioobjkey.buf(), nms );
 	attr2dfld_->newSpec( StringListInpSpec(nms), 0 );
     }
+
+    compfld_->box()->setValue(1);
+    compfld_->box()->setSensitive( false );
+    const MultiID key( ioobjkey.buf() );
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    SeisTrcReader rdr( ioobj );
+    if ( !rdr.prepareWork(Seis::PreScan) ) return;
+
+    SeisTrcTranslator* transl = rdr.seisTranslator();
+    if ( !transl ) return;
+    compfld_->box()->setMaxValue( transl->componentInfo().size() );
+    compfld_->box()->setSensitive( true );
 }
 
 
@@ -343,6 +362,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     }
     else
     {
+	attrdata_.compnr = compfld_->box()->getValue() - 1;
 	const char* ioobjkey = attrinf_->ioobjids.get(selidx);
 	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
@@ -449,6 +469,9 @@ void uiAttrSel::updateInput()
     bs = attrdata_.attribid.asInt();
     bs += ":";
     bs += attrdata_.outputnr;
+    if ( attrdata_.compnr > -1 )
+	bs += attrdata_.compnr;
+
     setInput( bs );
 }
 
