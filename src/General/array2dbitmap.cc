@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.31 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.32 2008-11-14 04:47:31 cvssatyaki Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -201,7 +201,8 @@ void A2DBitMapGenerator::fill()
     dim0perpix_ = 1. / setup_.getPixPerDim(0);
     dim1perpix_ = 1. / setup_.getPixPerDim(1);
 
-    scalerg_ = pars_.autoscale_ ? data_.scale( pars_.clipratio_, pars_.midvalue_ )
+    scalerg_ = pars_.autoscale_ ? data_.scale( pars_.clipratio_,
+	    				       pars_.midvalue_ )
 				: pars_.scale_;
     scalewidth_ = scalerg_.stop - scalerg_.start;
     if ( mIsZero(scalewidth_,1e-8) )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.22 2008-10-27 12:25:31 cvssatyaki Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.23 2008-11-14 04:47:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,8 @@ void FlatView::BitMapMgr::setupChg()
     }
     const DataDispPars::Common* pars = &app.ddpars_.wva_;
     if ( !wva_ ) pars = &app.ddpars_.vd_;
-    gen_->pars().clipratio_.start = pars->clipperc_.start;
-    gen_->pars().clipratio_.stop = mIsUdf(pars->clipperc_.stop)
+    gen_->pars().clipratio_.start = pars->clipperc_.start * 0.01;
+    gen_->pars().clipratio_.stop = mIsUdf(pars->clipperc_.stop * 0.01)
 	? mUdf(float)
 	: pars->clipperc_.stop;
     gen_->pars().midvalue_ = pars->symmidvalue_;

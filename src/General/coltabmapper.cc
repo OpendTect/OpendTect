@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.13 2008-10-27 11:21:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.14 2008-11-14 04:47:31 cvssatyaki Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -84,8 +84,6 @@ ColTab::MapperSetup::MapperSetup()
     : type_(Auto)
     , cliprate_(defClipRate())
     , symmidval_(defSymMidval())
-    //, histeq_(defHistEq())
-    //, histequalizer_(0)
     , maxpts_(2560)
     , nrsegs_(0)
     , start_(0), width_(1)
@@ -181,10 +179,6 @@ ColTab::Mapper::~Mapper()
 float ColTab::Mapper::position( float val ) const
 {
     mWarnHistEqNotImpl
-    /*if ( histeq_ )
-    {
-	return histequalizer_->position( val );
-    }*/
     
     float ret = (val-setup_.start_) / setup_.width_;
     if ( setup_.nrsegs_ > 0 )
@@ -240,14 +234,6 @@ void ColTab::Mapper::update( bool full )
 	{ setup_.start_ = vs_->value(0) - 1; setup_.width_ = 2; return; }
 
     mWarnHistEqNotImpl
-    /*if ( histeq_ )
-    {
-	delete histequalizer_;
-	histequalizer_ = new HistEqualizer();
-	histequalizer_->setData( clipper_.statPts() );
-	return;
-    }*/
-
 
     if ( full || clipper_.isEmpty() )
     {
