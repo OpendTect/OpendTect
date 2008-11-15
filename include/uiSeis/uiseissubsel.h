@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.24 2008-11-14 11:32:34 cvsumesh Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.25 2008-11-15 16:01:39 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "seisselection.h"
 #include "uidialog.h"
 #include "ranges.h"
+#include "sets.h"
 class IOPar;
 class IOObj;
 class CtxtIOObj;
@@ -131,6 +132,7 @@ protected:
     BufferStringSet 		sellines_;
     CtxtIOObj*			lsctio_;
     uiLineSel*                  linesel_;
+    BoolTypeSet			linechksum_;
 };
 
 #endif
