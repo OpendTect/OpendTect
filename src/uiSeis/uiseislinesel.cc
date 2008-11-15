@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.2 2008-11-14 11:31:28 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.3 2008-11-15 16:02:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,13 @@ ________________________________________________________________________
 #include "transl.h"
 
 uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines, 
-	              CtxtIOObj* lsctio )
+	              CtxtIOObj* lsctio, BoolTypeSet& linechksum )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
 				   mNoDlgTitle,mNoHelpID) )
     , lsctio_(lsctio)
     , nroflines_(0)
     , sellines_(sellines)		   
+    , linechksum_(linechksum)					   
 {
     linesetfld_ = new uiSeisSel( this, *lsctio_,
 	    			 uiSeisSel::Setup(Seis::Line).selattr(false) );
@@ -41,6 +42,8 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
     llb->attach( alignedBelow, linesetfld_ );
     lnmsfld_ = llb->box();
     lnmsfld_->setCheckedItems( sellines );
+    for ( int lineidx = 0; lineidx<linechksum.size(); lineidx++)
+	lnmsfld_->setItemChecked( lineidx, linechksum[lineidx] );
 
     lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
     trc0fld_ = lsb_->box();
@@ -153,6 +156,11 @@ bool uiLineSel::acceptOK( CallBacker* )
     sellines_.erase();
     nroflines_ = lnmsfld_->size();
     lnmsfld_->getCheckedItems( sellines_ );
+    
+    linechksum_.erase();
+    for ( int sellineidx = 0; sellineidx<nroflines_; sellineidx++ )
+	linechksum_ += lnmsfld_->isItemChecked( sellineidx );
+    
     return true;
 }
 

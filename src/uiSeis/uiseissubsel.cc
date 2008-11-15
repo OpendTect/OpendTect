@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.56 2008-11-14 11:34:17 cvsumesh Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.57 2008-11-15 16:02:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -365,7 +365,7 @@ BufferString uiSelection2DParSel::getSummary() const
 
 void uiSelection2DParSel::doDlg( CallBacker* )
 {
-    linesel_ = new uiLineSel( this, sellines_, lsctio_ );
+    linesel_ = new uiLineSel( this, sellines_, lsctio_, linechksum_ );
     linesel_->go();
 }
 
