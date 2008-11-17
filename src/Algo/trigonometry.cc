@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.44 2008-09-25 16:19:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.45 2008-11-17 21:32:00 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -317,26 +317,82 @@ bool Line3::closestPoint( const Line3& line, double& t_this,
 {
     const Coord3 dir0 = direction( false );
     const Coord3 dir1 = line.direction( false );
-    const double cosalpha =  dir0.normalize().dot( dir1.normalize() );
-    if ( mIsEqual(cosalpha,1,mDefEps) )
+    const double cosalpha = dir0.normalize().dot( dir1.normalize() );
+    if ( mIsZero(fabs(cosalpha)-1,1e-4) )
 	return false;
 
     const Coord3 diff(line.x0_-x0_,line.y0_-y0_,line.z0_-z0_);
     double deter = dir1.x*dir0.y-dir1.y*dir0.x;
-    t_line = -(diff.x*dir0.y-diff.y*dir0.x)/deter;
-    t_this = (dir1.x*diff.y-dir1.y*diff.x)/deter;
+    if ( !mIsZero(deter, 1e-3) )
+    {
+    	t_line = -(diff.x*dir0.y-diff.y*dir0.x)/deter;
+    	t_this = (dir1.x*diff.y-dir1.y*diff.x)/deter;
     
-    if ( mIsEqual(t_this*dir0.z-t_line*dir1.z, diff.z, mDefEps) )
-	return true;
-
+	if ( mIsEqual(t_this*dir0.z-t_line*dir1.z, diff.z, mDefEps) )
+    	    return true;
+    }
+    else
+    {
+	deter = dir1.x*dir0.z-dir1.z*dir0.x;
+	if ( !mIsZero(deter, 1e-3) )
+	{    
+    	    t_line = -(diff.x*dir0.z-diff.z*dir0.x)/deter;    
+    	    t_this = (dir1.x*diff.z-dir1.z*diff.x)/deter;
+    	    
+    	    if ( mIsEqual(t_this*dir0.y-t_line*dir1.y, diff.y, mDefEps) )   
+    		return true;
+	}
+	else
+	{
+	    deter = dir1.y*dir0.z-dir1.z*dir0.y;
+	    if ( mIsZero(deter, 1e-3) )
+	    {
+		pErrMsg("How could be?");
+		return false;
+	    }
+	    
+	    t_line = -(diff.y*dir0.z-diff.z*dir0.y)/deter;      
+	    t_this = (dir1.y*diff.z-dir1.z*diff.y)/deter;
+	    
+	    if ( mIsEqual(t_this*dir0.x-t_line*dir1.x, diff.x, mDefEps) )                       return true;
+	}
+    }
+    
     const Coord3 crs = dir0.cross( dir1 );
     const Coord3 v2 = -diff.cross(crs);
     const Coord3 v0 = dir0.cross(crs);
     const Coord3 v1 = dir1.cross(crs);
     
     deter = v1.x*v0.y-v0.x*v1.y;
-    t_this = (v2.x*v1.y-v1.x*v2.y)/deter;
-    t_line = (v2.x*v0.y-v0.x*v2.y)/deter;
+    if ( !mIsZero(deter, 1e-3) )
+    {
+    	t_this = (v2.x*v1.y-v1.x*v2.y)/deter;
+    	t_line = (v2.x*v0.y-v0.x*v2.y)/deter;
+    }
+    else 
+    {
+	deter = v1.x*v0.z-v0.x*v1.z;
+	if ( !mIsZero(deter, 1e-3) )
+	{    
+	    t_this = (v2.x*v1.z-v1.x*v2.z)/deter;    
+	    t_line = (v2.x*v0.z-v0.x*v2.z)/deter;
+	}
+	else
+	{
+	    deter = v1.y*v0.z-v0.y*v1.z;
+	    if ( !mIsZero(deter, 1e-3) )
+	    {
+		t_this = (v2.y*v1.z-v1.y*v2.z)/deter;
+		t_line = (v2.y*v0.z-v0.y*v2.z)/deter;
+	    }
+	    else
+	    {
+		pErrMsg("How could be?");
+		return false;
+	    }
+	}
+    }
+
     return true;
 }
 
