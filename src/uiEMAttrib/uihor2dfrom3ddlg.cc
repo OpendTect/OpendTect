@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: uihor2dfrom3ddlg.cc,v 1.2 2008-07-17 11:42:17 cvssatyaki Exp $
+ RCS:		$Id: uihor2dfrom3ddlg.cc,v 1.3 2008-11-17 17:18:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,14 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "seisioobjinfo.h"
 #include "survinfo.h"
+
 #include "uiioobjsel.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
-#include "uiseissubsel.h"
+#include "uiseislinesel.h"
 #include "uiseispartserv.h"
 #include "uitaskrunner.h"
+
 
 uiHor2DFrom3DDlg::uiHor2DFrom3DDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Create 2D horizon from 3D",
@@ -103,7 +105,7 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
     const BufferStringSet sellinenames = linesetinpsel_->getSelLines();
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.getObjectID( hor3dsel_->selIOObj()->key() );
-    mDynamicCastGet( EM::Horizon3D*, horizon3d, em.getObject(objid) );
+    mDynamicCastGet(EM::Horizon3D*,horizon3d,em.getObject(objid));
     for ( int idx=0; idx<sellinenames.size(); idx++ )
     {
 	PosInfo::Line2DData posdata;
