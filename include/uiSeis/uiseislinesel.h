@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.3 2008-11-15 16:01:39 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.4 2008-11-17 05:56:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,10 +56,13 @@ protected:
     uiSpinBox*                  	trc1fld_;
     CtxtIOObj*				lsctio_;
     TypeSet< StepInterval<int> > 	linetrcrgs_;
+    TypeSet< StepInterval<int> >	linetrcflrgs_;
     BoolTypeSet&                 	linechksum_;
 
     void 				lineSetSel(CallBacker*);
     void 				trcRangeSel(CallBacker*);
+    void				trc0Changed(CallBacker*);
+    void				trc1Changed(CallBacker*);
 
     virtual bool        		acceptOK(CallBacker*);
 };

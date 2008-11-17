@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.3 2008-11-15 16:02:28 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.4 2008-11-17 06:00:03 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,7 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
 {
     linesetfld_ = new uiSeisSel( this, *lsctio_,
 	    			 uiSeisSel::Setup(Seis::Line).selattr(false) );
-    linesetfld_->selectiondone.notify(
-	    			mCB(this,uiLineSel,lineSetSel) );
+    linesetfld_->selectiondone.notify( mCB(this,uiLineSel,lineSetSel) );
 
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", false );
     llb->attach( alignedBelow, linesetfld_ );
@@ -47,8 +46,10 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
 
     lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
     trc0fld_ = lsb_->box();
+    trc0fld_->valueChanged.notify( mCB(this,uiLineSel,trc0Changed) );
     trc1fld_ = new uiSpinBox( this, 0, "Trc Stop" );
     trc1fld_->attach( rightTo, lsb_ );
+    trc1fld_->valueChanged.notify( mCB(this,uiLineSel,trc1Changed) );
     
     lsb_->attach( alignedBelow, llb );
 
@@ -113,7 +114,9 @@ void uiLineSel::lineSetSel( CallBacker* )
 	LineKey lk( lnmsfld_->getText(),
 		    (attrbnms.size() > 0 ? attrbnms.get(0) : 0) );
 	oinf.getRanges( lk, trcrg, zrg );
+
 	linetrcrgs_ += trcrg;
+	linetrcflrgs_ += trcrg;
     }
 
     if ( lnms.size() && lsb_->box()->isDisplayed() && 
@@ -149,6 +152,18 @@ void uiLineSel::trcRangeSel( CallBacker* )
 
 MultiID uiLineSel::getLineSetKey()
 { return getIOObj()->key(); }
+
+
+void uiLineSel::trc0Changed( CallBacker* )
+{
+    linetrcflrgs_[ lnmsfld_->currentItem() ].start = trc0fld_->getValue();
+}
+
+
+void uiLineSel::trc1Changed( CallBacker* )
+{
+    linetrcflrgs_[ lnmsfld_->currentItem() ].stop = trc1fld_->getValue();
+}
 
 
 bool uiLineSel::acceptOK( CallBacker* )
