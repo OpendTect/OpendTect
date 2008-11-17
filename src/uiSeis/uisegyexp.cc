@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:		$Id: uisegyexp.cc,v 1.7 2008-11-10 15:29:59 cvsbert Exp $
+ RCS:		$Id: uisegyexp.cc,v 1.8 2008-11-17 13:04:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uisegydef.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
+#include "uicompoundparsel.h"
 #include "uiseistransf.h"
 #include "uiseisioobjinfo.h"
 #include "segyhdr.h"

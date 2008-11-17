@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.5 2008-11-17 12:02:36 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.6 2008-11-17 13:04:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,4 +181,37 @@ bool uiLineSel::acceptOK( CallBacker* )
 
 
 IOObj* uiLineSel::getIOObj()
+{ return lsctio_->ioobj; }
+
+
+uiSelection2DParSel::uiSelection2DParSel( uiParent* p )
+    : uiCompoundParSel(p,"LineSet/LineName","Select")
+    , lsctio_(mMkCtxtIOObj(SeisTrc))
+    , linesel_(0)
+{ butPush.notify( mCB(this,uiSelection2DParSel,doDlg) ); }
+
+
+uiSelection2DParSel::~uiSelection2DParSel()
+{
+    if ( lsctio_ ) delete lsctio_->ioobj;
+    delete lsctio_;
+}
+
+
+BufferString uiSelection2DParSel::getSummary() const
+{
+    if ( !linesel_ )
+	return BufferString();
+    return linesel_->getSummary();
+}
+
+
+void uiSelection2DParSel::doDlg( CallBacker* )
+{
+    linesel_ = new uiLineSel( this, sellines_, lsctio_, linechksum_ );
+    linesel_->go();
+}
+
+
+IOObj* uiSelection2DParSel::getIOObj()
 { return lsctio_->ioobj; }
