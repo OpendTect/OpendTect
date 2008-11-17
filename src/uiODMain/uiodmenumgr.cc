@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.140 2008-10-21 10:23:43 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.141 2008-11-17 12:26:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,6 +200,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impseissimple, "&Pre-Stack 2D ...", mImpSeisSimplePS2DMnuItm );
     impseis->insertItem( impseissimple );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
+    mInsertItem( impseis, "SEG-&Y (in-place) ...", mImpSeisSEGYDirectMnuItm );
 
     uiPopupMenu* imphorasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
@@ -659,6 +660,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpSeisSimplePS3DMnuItm: mDoOp(Imp,Seis,4); break;
     case mImpSeisSimplePS2DMnuItm: mDoOp(Imp,Seis,5); break;
     case mImpSeisCBVSMnuItm: 	mDoOp(Imp,Seis,6); break;
+    case mImpSeisSEGYDirectMnuItm: mDoOp(Imp,Seis,7); break;
     case mExpSeisSEGY3DMnuItm: 	mDoOp(Exp,Seis,0); break;
     case mExpSeisSEGY2DMnuItm: 	mDoOp(Exp,Seis,1); break;
     case mExpSeisSimple3DMnuItm: mDoOp(Exp,Seis,2); break;

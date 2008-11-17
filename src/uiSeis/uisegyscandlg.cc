@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.4 2008-11-14 14:46:17 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.5 2008-11-17 12:26:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,9 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uibutton.h"
 #include "uitaskrunner.h"
+#include "pixmap.h"
 
 #include "segyfiledef.h"
 #include "segyscanner.h"
@@ -28,6 +30,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     , forsurvsetup_(ss)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
 {
+    uiObject* attobj = 0;
     if ( setup_.dlgtitle_.isEmpty() )
     {
 	BufferString ttl( "Parameters for scan of " );
@@ -36,17 +39,33 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	ttl += " '"; ttl += fs.fname_; ttl += "'";
 	setTitleText( ttl );
     }
+
     if ( forsurvsetup_ )
     {
 	if ( !optsgrp_ )
-	    new uiLabel( this, "Press OK or hit enter to start SEG-Y scan" );
-	return;
+	    attobj = new uiLabel( this,
+		    		  "Press OK or hit enter to start SEG-Y scan" );
+    }
+    else
+    {
+	IOObjContext& ctxt = ctio_.ctxt;
+	ctxt.forread = false;
+	ctxt.deftransl = ctxt.trglobexpr = "DA-SEG-Y";
+	uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
+	outfld_ = new uiSeisSel( this, ctio_, sssu );
+	attobj = outfld_->attachObj();
+	if ( optsgrp_ )
+	    outfld_->attach( alignedBelow, optsgrp_ );
     }
 
-    uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
-    outfld_ = new uiSeisSel( this, ctio_, sssu );
-    if ( optsgrp_ )
-	outfld_->attach( alignedBelow, optsgrp_ );
+    if ( attobj )
+    {
+	uiToolButton* tb = new uiToolButton( this, "Pre-scan",
+			   ioPixmap("prescan.png"),
+			   mCB(this,uiSEGYScanDlg,preScanCB) );
+	tb->attach( rightTo, attobj ); tb->attach( rightBorder );
+	tb->setToolTip( "Limited Pre-scan" );
+    }
 }
 
 

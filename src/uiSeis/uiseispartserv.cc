@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.102 2008-10-27 07:30:20 cvsnanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.103 2008-11-17 12:26:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
     PtrMan<uiDialog> dlg = 0;
     if ( opt == 6 )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
-    else if ( opt < 2 )
+    else if ( opt < 2 || opt == 7 )
     {
 	if ( !forread )
 	{
@@ -77,7 +77,8 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	}
 	else
 	{
-	    uiSEGYRead::Setup su( uiSEGYRead::Import );
+	    uiSEGYRead::Setup su( opt == 7 ? uiSEGYRead::DirectDef
+		    			   : uiSEGYRead::Import );
 	    new uiSEGYRead( appserv().parent(), su );
 	}
     }

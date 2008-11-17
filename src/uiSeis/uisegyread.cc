@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.21 2008-11-14 14:46:17 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.22 2008-11-17 12:26:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -507,7 +507,7 @@ void uiSEGYRead::examDlgClose( CallBacker* )
 void uiSEGYRead::scanDlgClose( CallBacker* )
 {
     if ( !scandlg_->uiResult() )
-	mSetState( BasicOpts );
+	{ scandlg_ = 0; mSetState( BasicOpts ); }
 
     scanner_ = scandlg_->getScanner();
     scandlg_ = 0;
