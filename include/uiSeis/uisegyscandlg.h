@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyscandlg.h,v 1.2 2008-11-14 14:46:17 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.h,v 1.3 2008-11-17 15:50:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ protected:
     uiSeisSel*		outfld_;
 
     virtual bool	doWork(const IOObj&);
+    bool		mkOutput();
 
 };
 

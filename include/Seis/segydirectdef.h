@@ -7,50 +7,46 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.3 2008-11-13 11:33:21 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.4 2008-11-17 15:50:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seistype.h"
-#include "iopar.h"
-#include "bufstringset.h"
-#include "samplingdata.h"
-#include "segyfiledata.h"
-class SeisTrc;
-class Executor;
-class TaskRunner;
-class PosGeomDetector;
-class SEGYSeisTrcTranslator;
+
 
 namespace SEGY {
 
 class Scanner;
+class FileDataSet;
 
 
 class DirectDef
 {
 public:
 
-    			DirectDef(const Scanner&);
-    			DirectDef(const char*); // read from file
+    			DirectDef(Seis::GeomType); // Create empty
+    			DirectDef(const char*);	// read from file
 			~DirectDef();
+
+    void		setData(FileDataSet*);
+    void		setData(const FileDataSet&,bool no_copy=false);
 
     bool		readFromFile(const char*);
     bool		writeToFile(const char*) const;
 
     Seis::GeomType	geomType() const	{ return geom_; }   
-    const IOPar&	pars() const		{ return pars_; }
 
 protected:
 
     Seis::GeomType	geom_;
-    const IOPar		pars_;
-    FileDataSet		fds_;
+    const FileDataSet*	fds_;
 
     int			curfidx_;
-    SEGYSeisTrcTranslator* tr_;
 
+private:
+
+    FileDataSet*	myfds_;
 };
 
 }

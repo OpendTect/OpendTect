@@ -4,18 +4,17 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.4 2008-11-14 14:46:17 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.5 2008-11-17 15:50:12 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
-#include "datapointset.h"
 #include "survinfo.h"
+#include "horsampling.h"
 
 
 SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
     : fname_(fnm)
     , geom_(gt)
-    , data_(*new DataPointSet(Seis::is2D(gt),false))
     , trcsz_(-1)
     , sampling_(SI().zRange(false).start,SI().zRange(false).step)
     , segyfmt_(0)
@@ -25,103 +24,84 @@ SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
 }
 
 
-SEGY::FileData::FileData( const SEGY::FileData& fd )
-    : fname_(fd.fname_)
-    , geom_(fd.geom_)
-    , data_(*new DataPointSet(fd.data_))
-    , trcsz_(fd.trcsz_)
-    , sampling_(fd.sampling_)
-    , segyfmt_(fd.segyfmt_)
-    , isrev1_(fd.isrev1_)
-    , nrstanzas_(fd.nrstanzas_)
+int SEGY::FileData::nrNullTraces() const
 {
+    int nr = 0;
+    for ( int idx=0; idx<size(); idx++ )
+	if ( isNull(idx) ) nr++;
+    return nr;
 }
 
 
-SEGY::FileData::~FileData()
+int SEGY::FileData::nrUsableTraces() const
 {
-    delete &data_;
-}
-
-
-int SEGY::FileData::nrTraces() const
-{
-    return data_.size();
-}
-
-
-BinID SEGY::FileData::binID( int nr ) const
-{
-    return data_.binID( nr );
-}
-
-
-Coord SEGY::FileData::coord( int nr ) const
-{
-    Coord ret( data_.coord( nr ) );
-    ret.x += data_.value(0,nr); ret.y += data_.value(1,nr);
-    return ret;
-}
-
-
-float SEGY::FileData::offset( int nr ) const
-{
-    return data_.z( nr );
-}
-
-
-int SEGY::FileData::trcNr( int nr ) const
-{
-    return data_.trcNr( nr );
-}
-
-
-bool SEGY::FileData::isNull( int nr ) const
-{
-    return data_.isSelected( nr );
-}
-
-
-bool SEGY::FileData::isUsable( int nr ) const
-{
-    return data_.group( nr ) != 2;
-}
-
-
-void SEGY::FileData::add( const SEGY::TraceInfo& ti )
-{
-    DataPointSet::DataRow dr;
-    dr.pos_.nr_ = ti.nr_;
-    dr.pos_.z_ = ti.offset_;
-    dr.setSel( ti.isnull_ );
-    dr.setGroup( ti.isusable_ ? 1 : 2 );
-
-    dr.pos_.set( ti.binid_, ti.coord_ );
-    const Coord poscoord( dr.pos_.coord() );
-    dr.data_ += (float)(ti.coord_.x - poscoord.x);
-    dr.data_ += (float)(ti.coord_.y - poscoord.y);
-
-    data_.addRow( dr );
-}
-
-
-void SEGY::FileData::addEnded()
-{
-    data_.dataChanged();
+    int nr = 0;
+    for ( int idx=0; idx<size(); idx++ )
+	if ( isUsable(idx) ) nr++;
+    return nr;
 }
 
 
 void SEGY::FileData::getReport( IOPar& iop ) const
 {
-    BufferString str( "Global info for '" ); str += fname_; str += "'";
+    BufferString str( "Info for '" ); str += fname_; str += "'";
     iop.add( "->", str );
-    iop.add( "Number of traces found", nrTraces() );
+    const int nrtrcs = size();
+    if ( nrtrcs < 1 )
+	{ iop.add( "Number of traces found", "0" ); return; }
+
+    int nr = nrNullTraces();
+    str = nrtrcs;
+    if ( nr < 1 )
+	str += " (none null; ";
+    else
+	{ str += " ("; str += nr; str += " null; "; }
+    nr = nrUsableTraces();
+    if ( nr == nrtrcs )
+	str += "all usable)";
+    else
+	{ str += nr; str += " usable)"; }
+    iop.add( "Number of traces found", str );
     iop.add( "Number of samples in file", trcsz_ );
-    iop.add( "Start position in file", sampling_.start );
-    iop.add( "Step position in file", sampling_.step );
-    iop.addYN( "REV. 1", isrev1_ );
+    const Interval<float> zrg( sampling_.start,
+	    		       sampling_.start + (trcsz_-1)*sampling_.step );
+    iop.add( "Z range in file", zrg.start, zrg.stop );
+    iop.add( "Z step in file", sampling_.step );
+    iop.addYN( "File marked as REV. 1", isrev1_ );
     if ( isrev1_ && nrstanzas_ > 0 )
 	iop.add( "Number of REV.1 extra stanzas", nrstanzas_ );
+
+    int firstok = 0;
+    for ( ; firstok<nrtrcs; firstok++ )
+	if ( isUsable(firstok) ) break;
+    if ( firstok >= nrtrcs ) return;
+
+    HorSampling hs( false ); hs.start = hs.stop = binID(firstok);
+    Interval<int> nrrg( trcNr(firstok), trcNr(firstok) );
+    const Coord c0( coord(firstok) );
+    Interval<double> xrg( c0.x, c0.x ), yrg( c0.y, c0.y );
+    Interval<double> offsrg( offset(firstok), offset(firstok) );
+    for ( int idx=1; idx<size(); idx++ )
+    {
+	if ( !isUsable(idx) ) continue;
+	hs.include( binID(idx) );
+	nrrg.include( trcNr(idx) );
+	const Coord c( coord(idx) );
+	xrg.include( c.x ); yrg.include( c.y );
+	offsrg.include( offset(idx) );
+    }
+
+    if ( Seis::is2D(geom_) )
+	iop.add( "Trace number range", nrrg.start, nrrg.stop );
+    else
+    {
+	iop.add( "Inline range", hs.start.inl, hs.stop.inl );
+	iop.add( "Crossline range", hs.start.crl, hs.stop.crl );
+    }
+    iop.add( "X range", xrg.start, xrg.stop );
+    iop.add( "Y range", yrg.start, yrg.stop );
+    if ( Seis::isPS(geom_) )
+	iop.add( "Offset range", offsrg.start, offsrg.stop );
 }
 
 
@@ -131,6 +111,7 @@ SEGY::FileDataSet& SEGY::FileDataSet::operator =( const SEGY::FileDataSet& fds )
     {
 	deepErase( *this );
 	deepCopy( *this, fds );
+	pars_ = fds.pars_;
     }
     return *this;
 }
@@ -146,7 +127,7 @@ bool SEGY::FileDataSet::toNext( SEGY::FileDataSet::TrcIdx& ti, bool nll,
 	{ ti.filenr_ = -1; ti.trcnr_ = 0; return false; }
 
     ti.trcnr_++;
-    if ( ti.trcnr_ >= (*this)[ti.filenr_]->nrTraces() )
+    if ( ti.trcnr_ >= (*this)[ti.filenr_]->size() )
 	{ ti.filenr_++; ti.trcnr_ = -1; return toNext( ti, nll, unu ); }
 
     if ( nll && unu )

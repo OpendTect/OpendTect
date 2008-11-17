@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.cc,v 1.12 2008-11-12 15:06:40 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.cc,v 1.13 2008-11-17 15:50:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "dirlist.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "pixmap.h"
 
 
 
@@ -75,6 +76,15 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
     {
 	morebut_ = new uiCheckBox( outgrp, "Import more, similar files" );
 	morebut_->attach( alignedBelow, seissel_ );
+    }
+
+    if ( !optsgrp_ )
+    {
+	uiToolButton* tb = new uiToolButton( this, "Pre-scan",
+		ioPixmap("prescan.png"),
+		mCB(this,uiSEGYImpDlg,preScanCB) );
+	tb->attach( rightOf, outgrp->attachObj() );
+	tb->setToolTip( "Pre-scan file(s)" );
     }
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.5 2008-11-17 12:26:24 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.6 2008-11-17 15:50:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,9 @@ ________________________________________________________________________
 #include "pixmap.h"
 
 #include "segyfiledef.h"
+#include "segyfiledata.h"
 #include "segyscanner.h"
+#include "segydirectdef.h"
 
 
 uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
@@ -33,7 +35,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     uiObject* attobj = 0;
     if ( setup_.dlgtitle_.isEmpty() )
     {
-	BufferString ttl( "Parameters for scan of " );
+	BufferString ttl( "Scan " );
 	ttl += Seis::nameOf( setup_.geom_ );
 	SEGY::FileSpec fs; fs.usePar( iop );
 	ttl += " '"; ttl += fs.fname_; ttl += "'";
@@ -53,9 +55,10 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	ctxt.deftransl = ctxt.trglobexpr = "DA-SEG-Y";
 	uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
 	outfld_ = new uiSeisSel( this, ctio_, sssu );
-	attobj = outfld_->attachObj();
 	if ( optsgrp_ )
 	    outfld_->attach( alignedBelow, optsgrp_ );
+	else
+	    attobj = outfld_->attachObj();
     }
 
     if ( attobj )
@@ -85,8 +88,11 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 }
 
 
-bool uiSEGYScanDlg::doWork( const IOObj& ioobj )
+bool uiSEGYScanDlg::doWork( const IOObj& )
 {
+    if ( !outfld_ && !outfld_->commitInput(true) )
+	return false;
+
     SEGY::FileSpec fs; fs.usePar( pars_ );
     delete scanner_; scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
     if ( setup_.rev_ == uiSEGYRead::Rev0 )
@@ -97,7 +103,36 @@ bool uiSEGYScanDlg::doWork( const IOObj& ioobj )
 
     if ( !displayWarnings(scanner_->warnings(),outfld_) )
 	return false;
-    if ( !outfld_ ) return true;
+
+    return outfld_ ? mkOutput() : true;
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
+bool uiSEGYScanDlg::mkOutput()
+{
+    const SEGY::FileDataSet& fds = scanner_->fileDataSet();
+    if ( fds.isEmpty() )
+	mErrRet("No files found")
+    bool anydata = false;
+    for ( int idx=0; idx<fds.size() ; idx++ )
+    {
+	if ( !fds[idx]->isEmpty() )
+	    { anydata = true; break; }
+    }
+    if ( !anydata )
+	mErrRet(fds.size() > 1 ? "No traces found in any of the files"
+				: "No traces found in file")
+
+    SEGY::DirectDef dd( scanner_->geomType() );
+    dd.setData( fds, true );
+    if ( !dd.writeToFile( ctio_.ioobj->fullUserExpr(Conn::Read) ) )
+    {
+	uiMSG().error( "Cannot write data definition file to disk" );
+	return false;
+    }
 
     return true;
 }

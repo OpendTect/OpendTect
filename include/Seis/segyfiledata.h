@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.2 2008-11-13 11:33:21 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.3 2008-11-17 15:50:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "seistype.h"
 #include "samplingdata.h"
-class IOPar;
-class DataPointSet;
+#include "iopar.h"
  
 
 namespace SEGY
@@ -27,32 +26,27 @@ struct TraceInfo
 {
 		TraceInfo()
 		    : nr_(0), offset_(0)
-		    , isnull_(false), isusable_(true)		{}
+		    , null_(false), usable_(true)		{}
+    bool	operator ==( const TraceInfo& ti ) const
+			{ return nr_ == ti.nr_ && binid_ == ti.binid_
+			    			&& offset_ == ti.offset_; }
 
     int		nr_;
     BinID	binid_;
     Coord	coord_;
     float	offset_;
-    bool	isnull_;
-    bool	isusable_;
+    bool	null_;
+    bool	usable_;
 };
 
 
-/*\brief Data usually obtained by scanning a SEG-Y file.
+/*\brief Data usually obtained by scanning a SEG-Y file. */
 
-  The data is stored in a DataPointSet, and we have to take measures against
-  the SI() not being well defined. Thus, we add 2 extra columns for residual
-  X and Y offset.
- 
- */
-
-class FileData
+class FileData : public TypeSet<TraceInfo>
 {
 public:
 
     			FileData(const char* fnm,Seis::GeomType);
-    			FileData(const FileData&);
-			~FileData();
 
     BufferString	fname_;
     Seis::GeomType	geom_;
@@ -62,24 +56,18 @@ public:
     bool		isrev1_;
     int			nrstanzas_;
 
-    int			nrTraces() const;
+    inline BinID	binID( int i ) const	{ return (*this)[i].binid_; }
+    inline Coord	coord( int i ) const	{ return (*this)[i].coord_; }
+    inline int		trcNr( int i ) const	{ return (*this)[i].nr_; }
+    inline float	offset( int i ) const	{ return (*this)[i].offset_; }
+    inline bool		isNull( int i ) const	{ return (*this)[i].null_; }
+    inline bool		isUsable( int i ) const	{ return (*this)[i].usable_; }
 
-    TraceInfo		traceData(int) const;
-    BinID		binID(int) const;
-    Coord		coord(int) const;
-    int			trcNr(int) const;
-    float		offset(int) const;
-    bool		isNull(int) const;
-    bool		isUsable(int) const;
-
-    void		add(const TraceInfo&);
-    void		addEnded(); //!< causes dataChange() for DataPointSet
+    int			nrNullTraces() const;
+    int			nrUsableTraces() const;
 
     void		getReport(IOPar&) const;
 
-protected:
-
-    DataPointSet&	data_;
 };
 
 
@@ -98,7 +86,7 @@ public:
 	int		trcnr_;
     };
 
-    			FileDataSet()			{}
+    			FileDataSet( const IOPar& iop )	{ pars_ = iop; }
     			FileDataSet( const FileDataSet& fds )
 			    				{ *this = fds; }
     			~FileDataSet()			{ deepErase(*this); }
@@ -107,7 +95,11 @@ public:
     bool		toNext(TrcIdx&,bool allownull=true,
 	    			bool allownotusable=false) const;
 
-    void		getReport(IOPar&) const;
+    const IOPar&	pars() const			{ return pars_; }
+
+protected:
+
+    IOPar		pars_;
 
 };
 

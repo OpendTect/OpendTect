@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.11 2008-11-13 11:33:21 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.12 2008-11-17 15:50:12 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.11 2008-11-13 11:33:21 cvsbe
       Executor("SEG-Y file scan") \
     , trc_(*new SeisTrc) \
     , pars_(*new IOPar(i)) \
-    , fds_(*new FileDataSet) \
+    , fds_(*new FileDataSet(i)) \
     , dtctor_(*new PosInfo::Detector( PosInfo::Detector::Setup(Seis::is2D(gt)) \
 			.isps(Seis::isPS(gt)).reqsorting(true) ) ) \
     , tr_(0) \
@@ -92,14 +92,13 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 	return;
     }
 
-    int firstfd = 0;
-    while ( firstfd < fds_.size() && fds_[firstfd]->nrTraces() < 1 )
-	firstfd++;
-    if ( firstfd < fds_.size() )
-	fds_[firstfd]->getReport( iop );
-
+    iop.add( "->", "Position scanning results" );
     dtctor_.report( iop );
     addErrReport( iop );
+
+    for ( int idx=0; idx<fds_.size(); idx++ )
+	fds_[idx]->getReport( iop );
+
 }
 
 
@@ -160,9 +159,9 @@ int SEGY::Scanner::readNext()
     sgyti.binid_ = ti.binid;
     sgyti.coord_ = ti.coord;
     sgyti.offset_ = ti.offset;
-    sgyti.isnull_ = trc_.isNull();
-    sgyti.isusable_ = tr_->trcHeader().isusable;
-    fd.add( sgyti );
+    sgyti.null_ = trc_.isNull();
+    sgyti.usable_ = tr_->trcHeader().isusable;
+    fd += sgyti;
 
     nrdone_++;
     return Executor::MoreToDo;
@@ -208,8 +207,6 @@ int SEGY::Scanner::openNext()
 
 int SEGY::Scanner::finish( bool allok )
 {
-    for ( int idx=0; idx<fds_.size(); idx++ )
-	fds_[idx]->addEnded();
     dtctor_.finish();
     return allok ? Executor::Finished : Executor::ErrorOccurred;
 }
