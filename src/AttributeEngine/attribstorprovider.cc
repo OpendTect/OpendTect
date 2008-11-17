@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.78 2008-09-05 19:08:47 cvskris Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.79 2008-11-17 15:42:39 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -432,7 +432,10 @@ bool StorageProvider::set2DRangeSelData()
     SeisTrcReader& reader = mscprov_->reader();
     Seis2DLineSet* lset = reader.lineSet();
     if ( !lset )
+    {
+	if ( !rsd && seldata ) delete seldata;
 	return false;
+    }
 
     seldata->lineKey().setAttrName( curlinekey_.attrName() );
     if ( !curlinekey_.lineName().isEmpty() )
@@ -460,6 +463,8 @@ bool StorageProvider::set2DRangeSelData()
 	}
 	reader.setSelData( seldata );
     }
+    else if ( !rsd && seldata )
+	delete seldata;
 
     return true;
 }

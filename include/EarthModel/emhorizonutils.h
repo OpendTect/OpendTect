@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.8 2008-02-19 15:19:38 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.9 2008-11-17 15:42:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,8 @@ public:
     static void 	getPositions(std::ostream&,const MultiID&,
 				     ObjectSet<BinIDValueSet>&);
     static void 	getExactCoords(std::ostream&,const MultiID&,
-				     ObjectSet<DataPointSet>&);
+	    			       const BufferString&,const HorSampling&,
+				       ObjectSet<DataPointSet>&);
     static void 	getWantedPositions(std::ostream&,ObjectSet<MultiID>&,
 					   BinIDValueSet&,const HorSampling&,
 					   const Interval<float>& extraz,
@@ -51,7 +52,8 @@ public:
 					   float extrawidth);
     static void 	getWantedPos2D(std::ostream&,ObjectSet<MultiID>&,
 				       DataPointSet*,const HorSampling&,
-				       const Interval<float>& extraz);
+				       const Interval<float>& extraz,
+				       const BufferString&);
     static bool		getZInterval(int idi,int idc,Surface*,Surface*,
 	    			     float& topz,float& botz,int nrinterpsamp,
 				     int mainhoridx,float& lastzinterval,

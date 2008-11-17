@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.41 2008-05-27 11:49:38 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.42 2008-11-17 15:42:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,6 +200,9 @@ void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true) );
     seissubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
 	    					       : (uiGroup*)obj2fld_ );
+    mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
+    if ( seis2dsubsel )
+	seis2dsubsel->singLineSel.notify(mCB(this,uiAttrTrcSelOut,singLineSel));
 }
 
 
@@ -551,4 +554,17 @@ CtxtIOObj& uiAttrTrcSelOut::mkCtxtIOObjHor( bool is2d )
     else
 	return *mMkCtxtIOObj( EMHorizon3D );
 }
+
+
+void uiAttrTrcSelOut::singLineSel( CallBacker* )
+{
+    if ( !ads_.is2D() ) return;
+
+    mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
+    if ( singmachfld_ && seis2dsubsel )
+	singmachfld_->setValue( seis2dsubsel->isSingLine() );
+    singTogg( 0 );
+    if ( singmachfld_ ) singmachfld_->display( false );
+}
+
 

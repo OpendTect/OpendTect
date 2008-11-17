@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.20 2008-07-28 09:09:10 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.21 2008-11-17 15:42:39 cvshelene Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -150,6 +150,8 @@ int Seis::SelData::tracesInSI() const
 Seis::RangeSelData::RangeSelData( bool initsi )
     : cs_(*new CubeSampling(initsi))
 {
+    if ( initsi )
+	setIsAll();
 }
 
 

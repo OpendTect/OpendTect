@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.11 2008-02-26 12:56:45 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.12 2008-11-17 15:42:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ protected:
     void                cubeBoundsSel(CallBacker*);
     void                extraParsCB(CallBacker*);
     void                extraDlgDone(CallBacker*);
+    void                singLineSel(CallBacker*);
 
     void		createSingleHorUI();
     void		createTwoHorUI();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.49 2008-05-27 11:49:38 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.50 2008-11-17 15:42:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -340,6 +340,8 @@ bool BatchProgram::go( std::ostream& strm )
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
     HorSampling hsamp;
+    BufferString linename;
+    geompar->get( sKey::LineKey, linename );
     if ( iscubeoutp && geompar )
 	hsamp = getHorSamp( geompar );
 
@@ -469,7 +471,8 @@ bool BatchProgram::go( std::ostream& strm )
 	valnms.add("z2");
 	DataPointSet* dtps = new DataPointSet( startset, valnms, true );
 	if ( is2d )
-	    HorizonUtils::getWantedPos2D( strm, midset, dtps, hsamp, extraz);
+	    HorizonUtils::getWantedPos2D( strm, midset, dtps, hsamp, 
+		    			  extraz, linename );
 	else
 	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
 		    			      extraz, nrinterpsamp, mainhoridx,

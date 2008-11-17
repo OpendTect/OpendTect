@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.18 2008-05-16 15:12:40 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.19 2008-11-17 15:42:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,8 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
 
 
 void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
+				   const BufferString& linenm,
+				   const HorSampling& hsamp,
 				   ObjectSet<DataPointSet>& data )
 {
     Surface* surface = getSurface(id);
@@ -169,30 +171,50 @@ void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
     TextStreamProgressMeter pm( strm );
     deepErase( data );
 
-    PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
-    SectionID sid = -1;
-    //multiple sections not used!!
     DataPointSet* res = 0;
-    while ( iterator )
+
+    if ( hor2d && !linenm.isEmpty() )
     {
-	const EM::PosID pid = iterator->next();
-	if ( pid.objectID()==-1 )
-	    break;
-
-	if ( pid.sectionID() != sid )
+	int lineidx = hor2d->geometry().lineIndex( linenm.buf() );
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	res = new DataPointSet( pts, nms, true );
+	data += res;
+	SectionID sid = 0; 		//multiple sections not used here
+	for ( int idx=hsamp.start.crl; idx<=hsamp.stop.crl; idx++ )
 	{
-	    TypeSet<DataPointSet::DataRow> pts;
-	    BufferStringSet nms;
-	    res = new DataPointSet( pts, nms, true );
-	    data += res;
-	    sid = pid.sectionID();
+	    Coord3 coords = hor2d->getPos( sid, lineidx, idx);
+	    DataPointSet::Pos newpos( coords );
+	    DataPointSet::DataRow dtrow( newpos );
+	    res->addRow( dtrow );
 	}
+    }
+    else
+    {
+	PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
+	SectionID sid = -1;
+	//multiple sections not used!!
+	while ( iterator )
+	{
+	    const EM::PosID pid = iterator->next();
+	    if ( pid.objectID()==-1 )
+		break;
 
-	const Coord3 crd = surface->getPos( pid );
-	DataPointSet::Pos newpos( crd );
-	DataPointSet::DataRow dtrow( newpos );
-	res->addRow( dtrow );
-	++pm;
+	    if ( pid.sectionID() != sid )
+	    {
+		TypeSet<DataPointSet::DataRow> pts;
+		BufferStringSet nms;
+		res = new DataPointSet( pts, nms, true );
+		data += res;
+		sid = pid.sectionID();
+	    }
+
+	    const Coord3 crd = surface->getPos( pid );
+	    DataPointSet::Pos newpos( crd );
+	    DataPointSet::DataRow dtrow( newpos );
+	    res->addRow( dtrow );
+	    ++pm;
+	}
     }
 
     if ( res ) res->dataChanged();
@@ -364,15 +386,16 @@ void HorizonUtils::getWantedPos2D( std::ostream& strm,
 				   ObjectSet<MultiID>& midset, 
 				   DataPointSet* dtps,
 				   const HorSampling& horsamp,
-				   const Interval<float>& extraz )
+				   const Interval<float>& extraz,
+       				   const BufferString& linenm )
 {
     ObjectSet<DataPointSet> possurf0;
     ObjectSet<DataPointSet> possurf1;
-    getExactCoords( strm, *(midset[0]), possurf0 );
+    getExactCoords( strm, *(midset[0]), linenm, horsamp, possurf0 );
     bool use2hor = midset.size() == 2;
 
     if ( use2hor )
-	getExactCoords( strm, *(midset[1]), possurf1 );
+	getExactCoords( strm, *(midset[1]), linenm, horsamp, possurf1 );
 
     mIsEmptyErr( possurf0.isEmpty(), *(midset[0]) )
     mIsEmptyErr( use2hor && possurf1.isEmpty(), *(midset[1]) )
@@ -384,9 +407,6 @@ void HorizonUtils::getWantedPos2D( std::ostream& strm,
     {
 	for (int ptsurf0=0; ptsurf0<possurf0[secsurf0]->size(); ptsurf0++)
 	{
-	    if ( !horsamp.includes( possurf0[secsurf0]->binID(ptsurf0) ) )
-		continue;
-
 	    const Coord coordsurf0 = possurf0[secsurf0]->coord( ptsurf0 );
 	    if ( use2hor )
 	    {
