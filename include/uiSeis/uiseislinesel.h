@@ -8,11 +8,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.4 2008-11-17 05:56:52 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.5 2008-11-17 13:04:40 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uicompoundparsel.h"
 #include "uidialog.h"
 #include "bufstring.h"
 #include "bufstringset.h"
@@ -67,5 +68,24 @@ protected:
     virtual bool        		acceptOK(CallBacker*);
 };
 
+
+class uiSelection2DParSel : public uiCompoundParSel
+{
+public:
+    				uiSelection2DParSel(uiParent*);
+				~uiSelection2DParSel();
+
+    BufferString                getSummary() const;
+    void                        doDlg(CallBacker*);
+    IOObj*                      getIOObj();
+    const BufferStringSet&      getSelLines() const     { return sellines_; }
+
+protected:
+
+    BufferStringSet             sellines_;
+    CtxtIOObj*                  lsctio_;
+    uiLineSel*                  linesel_;
+    BoolTypeSet                 linechksum_;
+};   
 
 #endif
