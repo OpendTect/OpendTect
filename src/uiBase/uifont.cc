@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.22 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uifont.cc,v 1.23 2008-11-18 11:09:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,25 +252,29 @@ void uiFontList::use( const Settings& settings )
 {
     initialise();
     IOPar* fontpar = settings.subselect( fDefKey );
-    if ( fontpar && fontpar->size() == 0 ) { delete fontpar; fontpar = 0; }
+    if ( fontpar && fontpar->isEmpty() ) { delete fontpar; fontpar = 0; }
 
     bool haveguessed = false;
     int ikey=0;
-    while( const char* key = FontData::defaultKeys()[ikey++] )
+    while ( const char* key = FontData::defaultKeys()[ikey++] )
     {
 	const char* res = fontpar ? (*fontpar)[key] : 0;
 	if ( res && *res )
 	    add( key, FontData(res) );
-	else
+	else if ( strcmp(key,"Fixed width") )
 	    { addOldGuess( settings, key, ikey ); haveguessed = true; }
+	else
+	{
+	    FontData fd = get(FontData::defaultKeys()[0]).fontData();
+	    add( key, FontData( fd.pointSize(), "Courier", fd.weight(),
+				fd.isItalic() ) );
+	}
     }
 
     if ( haveguessed )
     {
 	Settings& s = const_cast<Settings&>(settings);
-	/* For next release:
 	removeOldEntries( s );
-	*/
 	update( s );
     }
 
