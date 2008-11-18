@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.7 2008-11-18 07:10:22 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.8 2008-11-18 10:00:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,9 +40,6 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", false );
     llb->attach( alignedBelow, linesetfld_ );
     lnmsfld_ = llb->box();
-    lnmsfld_->setCheckedItems( sellines );
-    for ( int lineidx = 0; lineidx<linechksum.size(); lineidx++)
-	lnmsfld_->setItemChecked( lineidx, linechksum[lineidx] );
 
     lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
     trc0fld_ = lsb_->box();
@@ -54,6 +51,8 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
     lsb_->attach( alignedBelow, llb );
 
     lineSetSel( 0 );
+    for ( int lineidx = 0; lineidx<linechksum.size(); lineidx++)
+	lnmsfld_->setItemChecked( lineidx, linechksum[lineidx] );
 }   
 
 
