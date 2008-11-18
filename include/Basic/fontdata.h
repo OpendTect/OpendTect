@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.9 2003-11-10 16:02:01 arend Exp $
+ RCS:           $Id: fontdata.h,v 1.10 2008-11-18 10:59:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
 
     enum StdSz		{ Control=0, 
 			  GraphicsMed, GraphicsSmall, GraphicsLarge,
-			  ControlSmall, ControlLarge };
+			  ControlSmall, ControlLarge, Fixed };
     static const char* key( StdSz ss );
  
 protected:
