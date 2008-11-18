@@ -1,5 +1,16 @@
 #!/bin/csh
 
+set update=no
+
+if ( "$1" == "--upd" ) then
+    set update=yes
+endif
+
+if ( $update == yes ) then
+    shift
+    dvs update $*
+endif
+
 dvs_ed $*
 
 vi $*
