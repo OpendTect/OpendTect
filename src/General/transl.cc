@@ -14,7 +14,7 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.22 2006-08-28 09:28:32 cvskris Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.23 2008-11-18 17:25:15 cvsbert Exp $";
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
@@ -259,6 +259,11 @@ bool Translator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     return ioobj->implRemove();
+}
+bool Translator::implShouldRemove( const IOObj* ioobj ) const
+{
+    if ( !ioobj ) return false;
+    return ioobj->implShouldRemove();
 }
 bool Translator::implRename( const IOObj* ioobj, const char* newnm,
 			     const CallBack* cb ) const

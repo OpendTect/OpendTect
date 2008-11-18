@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiioobj.cc,v 1.4 2007-08-29 09:46:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobj.cc,v 1.5 2008-11-18 17:25:15 cvsbert Exp $";
 
 #include "uiioobj.h"
 #include "uimsg.h"
@@ -19,8 +19,9 @@ static const char* rcsID = "$Id: uiioobj.cc,v 1.4 2007-08-29 09:46:39 cvsbert Ex
 #include "filepath.h"
 
 
-bool uiIOObj::removeImpl( bool rmentry )
+bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 {
+    bool dorm = true;
     if ( !silent_ )
     {
 	BufferString mess = "Remove ";
@@ -38,10 +39,14 @@ bool uiIOObj::removeImpl( bool rmentry )
 	    mess += "'\n- and everything in it! - ?";
 	}
 	if ( !uiMSG().askGoOn(mess) )
-	    return false;
+	{
+	    if ( mustrm )
+		return false;
+	    dorm = false;
+	}
     }
 
-    if ( !fullImplRemove(ioobj_) )
+    if ( dorm && !fullImplRemove(ioobj_) )
     {
 	if ( !silent_ )
 	{

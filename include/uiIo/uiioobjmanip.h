@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.12 2008-01-07 10:55:30 cvsnanne Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.13 2008-11-18 17:25:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ protected:
     void		tbPush(CallBacker*);
     void		relocCB(CallBacker*);
 
-    bool		rmEntry(IOObj*,bool);
+    bool		rmEntry(IOObj*,bool,bool);
     bool		renameEntry(IOObj*,Translator*);
     bool		relocEntry(IOObj*,Translator*);
     bool		readonlyEntry(IOObj*,Translator*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2006
- RCS:           $Id: uiioobj.h,v 1.1 2006-05-29 09:19:59 cvsbert Exp $
+ RCS:           $Id: uiioobj.h,v 1.2 2008-11-18 17:25:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
 				uiIOObj( IOObj& i, bool silent=false )
 				    : ioobj_(i), silent_(silent)	{}
 
-    bool			removeImpl(bool remove_entry);
+    bool			removeImpl(bool remove_entry,bool mustrmimpl);
     //!< Removes the underlying file(s) that an IOObj describes, with warnings
     //!< if !remove_entry, the entry is kept in the omf
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.33 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.34 2008-11-18 17:25:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,14 +203,21 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 	chgd = renameEntry( ioobj, tr );
     else if ( tb == rembut )
     {
-	bool exists = tr ? tr->implExists(ioobj,true) : ioobj->implExists(true);
-	bool readonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
-	if ( exists && readonly )
+	const bool exists = tr ? tr->implExists(ioobj,true)
+	    			: ioobj->implExists(true);
+	const bool readonly = tr ? tr->implReadOnly(ioobj)
+	    			: ioobj->implReadOnly();
+	bool shldrm = tr ? tr->implShouldRemove(ioobj)
+				: ioobj->implShouldRemove();
+	if ( exists && readonly && shldrm )
 	{
-	    uiMSG().error( "Entry is not writable.\nPlease change this first.");
-	    return; 
+	    if ( !uiMSG().askGoOn(
+	    "This entry is not writable; the actual data will not be removed.\n"
+	    "The entry will only disappear from the list.\nContinue?") )
+		return;
+	    shldrm = false;
 	}
-	chgd = rmEntry( ioobj, exists );
+	chgd = rmEntry( ioobj, exists, shldrm );
     }
 
     if ( chgd )
@@ -298,9 +305,9 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 }
 
 
-bool uiIOObjManipGroup::rmEntry( IOObj* ioobj, bool rmabl )
+bool uiIOObjManipGroup::rmEntry( IOObj* ioobj, bool rmabl, bool mustrm )
 {
-    return rmabl ? uiIOObj(*ioobj).removeImpl( true )
+    return rmabl ? uiIOObj(*ioobj).removeImpl( true, mustrm )
 		 : IOM().permRemove( ioobj->key() );
 }
 
@@ -374,7 +381,7 @@ bool uiIOObjManipGroup::doReloc( Translator* tr, IOStream& iostrm,
     {
 	const bool newimplexist = tr ? tr->implExists(&chiostrm,true)
 				     : chiostrm.implExists(true);
-	if ( newimplexist && !uiIOObj(chiostrm).removeImpl(false) )
+	if ( newimplexist && !uiIOObj(chiostrm).removeImpl(false,true) )
 	    return false;
 
 	CallBack cb( mCB(this,uiIOObjManipGroup,relocCB) );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.23 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.24 2008-11-18 17:25:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,7 @@ public:
     virtual bool	implExists(bool forread) const	= 0;
     virtual bool	implReadOnly() const		{ return true; }
     virtual bool	implRemove() const		{ return false; }
+    virtual bool	implShouldRemove() const	{ return true; }
     virtual bool	implRename(const char*,const CallBack* cb=0)
     							{ return false; }
     virtual bool	implSetReadOnly(bool) const	{ return false; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.21 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.22 2008-11-18 17:25:15 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ public:
     bool		implExists(bool forread) const;
     bool		implReadOnly() const;
     bool		implRemove() const;
+    bool		implShouldRemove() const;
     bool		implSetReadOnly(bool) const;
     bool		implRename(const char*,const CallBack* cb=0);
 
