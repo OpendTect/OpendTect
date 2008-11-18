@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.141 2008-11-17 12:26:24 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.142 2008-11-18 11:08:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,7 +200,8 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impseissimple, "&Pre-Stack 2D ...", mImpSeisSimplePS2DMnuItm );
     impseis->insertItem( impseissimple );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
-    mInsertItem( impseis, "SEG-&Y (in-place) ...", mImpSeisSEGYDirectMnuItm );
+    mInsertItem( impseis, "SEG-&Y (Pre-stack,in-place) ...",
+	    		mImpSeisSEGYDirectMnuItm );
 
     uiPopupMenu* imphorasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
