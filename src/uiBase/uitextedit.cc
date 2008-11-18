@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.36 2008-11-10 15:29:41 cvsbert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.37 2008-11-18 11:09:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 #include "uiobjbody.h"
+#include "uifont.h"
 #include "i_qtxtbrowser.h"
 
 #include "ascstream.h"
@@ -25,12 +26,12 @@ ________________________________________________________________________
 
 int uiTextEditBase::defaultwidth_ = 600;
 int uiTextEditBase::defaultheight_ = 450;
-// mMaxLineLength defined in ascstream.h
 
 
 uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
 {
+    setFont( uiFontList::get(FontData::key(FontData::Fixed)) );
 }
 
 
