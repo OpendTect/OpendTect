@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.12 2008-11-17 15:50:12 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.13 2008-11-18 11:07:37 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -109,7 +109,12 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
     {
 	const char* fnm = fnms_.get( idx );
 	if ( scanerrfnms_.indexOf(fnm) < 0 )
-	    iop.add( "Successfully scanned", fnm );
+	{
+	    if ( idx < fds_.size() )
+		iop.add( "Successfully scanned", fnm );
+	    else
+		iop.add( "Not scanned", fnm );
+	}
 	else
 	{
 	    BufferString keyw( "Error during read of " );
