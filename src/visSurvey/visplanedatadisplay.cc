@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.202 2008-11-07 18:29:07 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.203 2008-11-18 17:29:03 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.202 2008-11-07 18:29
 #include "visgridlines.h"
 #include "vismaterial.h"
 #include "vismultitexture2.h"
+#include "vistexturechannels.h"
 #include "vispickstyle.h"
 #include "vissplittexture2rectangle.h"
 #include "vistexturecoords.h"
@@ -47,7 +48,8 @@ DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 { "Inline", "Crossline", "Timeslice", 0 };
 
 PlaneDataDisplay::PlaneDataDisplay()
-    : rectangle_( visBase::SplitTexture2Rectangle::create() )
+    : MultiTextureSurveyObject( true )
+    , rectangle_( visBase::SplitTexture2Rectangle::create() )
     , rectanglepickstyle_( visBase::PickStyle::create() )
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
@@ -63,8 +65,12 @@ PlaneDataDisplay::PlaneDataDisplay()
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
     dragger_->ref();
-    insertChild( childIndex(texture_->getInventorNode()),
-		 dragger_->getInventorNode() );
+
+    int channelidx = texture_
+	? childIndex(texture_->getInventorNode() )
+	: childIndex( channels_->getInventorNode() );
+
+    insertChild( channelidx++, dragger_->getInventorNode() );
     dragger_->motion.notify( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.notify( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->notify(
@@ -116,8 +122,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     material_->setDiffIntensity( 0.2 );
 
     gridlines_->ref();
-    insertChild( childIndex(texture_->getInventorNode()),
-		 gridlines_->getInventorNode() );
+    insertChild( channelidx, gridlines_->getInventorNode() );
 
     updateRanges( true, true );
 
@@ -469,13 +474,16 @@ NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 
 int PlaneDataDisplay::nrResolutions() const
 {
+    if ( !texture_ )
+	return 1;
+
     return texture_->canUseShading() ? 1 : 3;
 }
 
 
 void PlaneDataDisplay::setResolution( int res )
 {
-    if ( texture_->canUseShading() )
+    if ( !texture_ || texture_->canUseShading() )
 	return;
 
     if ( res==resolution_ )
@@ -519,7 +527,7 @@ void PlaneDataDisplay::removeCache( int attrib )
 
     delete displaycache_.remove( attrib );
     
-    if ( texture_->splitsTexture() )
+    if ( !texture_ || texture_->splitsTexture() )
     {
 	for ( int idx=0; idx<displaycache_.size(); idx++ )
     	    updateFromDisplayIDs( idx );
@@ -532,7 +540,7 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
     volumecache_.swap( a0, a1 );
     rposcache_.swap( a0, a1 );
     displaycache_.swap( a0, a1 );
-    if ( texture_->splitsTexture() )
+    if ( !texture_ || texture_->splitsTexture() )
     {
 	for ( int idx=0; idx<displaycache_.size(); idx++ )
     	    updateFromDisplayIDs( idx );
@@ -629,8 +637,8 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     {
 	rectangle_->setPosition(
 		Coord3( hrg.start.inl, hrg.start.crl, cs.zrg.start ),
-		Coord3( hrg.stop.inl,  hrg.stop.crl,  cs.zrg.start ),
-		Coord3( hrg.start.inl, hrg.start.crl, cs.zrg.stop ),
+		Coord3( hrg.start.inl,  hrg.start.crl,  cs.zrg.stop ),
+		Coord3( hrg.stop.inl, hrg.stop.crl, cs.zrg.start ),
 		Coord3( hrg.stop.inl,  hrg.stop.crl,  cs.zrg.stop ) );
     }
     else 
@@ -648,7 +656,8 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     curicstep_ = hrg.step;
     curzstep_ = cs.zrg.step;
 
-    texture_->clearAll();
+    if ( texture_ ) texture_->clearAll();
+    //else channels_->clearAll();
     movefinished_.trigger();
 }
 
@@ -841,12 +850,25 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
     int sz = dpids.size();
     if ( sz<1 )
     {
-	texture_->setData( attrib, 0, 0 );
-	texture_->turnOn( false );
+	if ( texture_ )
+	{
+	    texture_->setData( attrib, 0, 0 );
+	    texture_->turnOn( false );
+	}
+	else
+	{
+	    channels_->setUnMappedData( attrib, 0, 0,
+		    visBase::TextureChannels::None );
+	    channels_->turnOn( false );
+	}
 	return;
     }
 
-    texture_->setNrVersions( attrib, sz );
+    if ( texture_ )
+	texture_->setNrVersions( attrib, sz );
+    else
+	channels_->setNrVersions( attrib, sz );
+
     for ( int idx=0; idx<sz; idx++ )
     {
 	int dpid = dpids[idx];
@@ -854,34 +876,71 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	mDynamicCastGet( const FlatDataPack*, fdp, datapack );
 	if ( !fdp )
 	{
-	    texture_->turnOn( false );
+	    if ( texture_ )
+		texture_->turnOn( false );
+	    else
+		channels_->turnOn( false );
 	    DPM(DataPackMgr::FlatID).release( dpid );
 	    continue;
 	}
 
 	const Array2D<float>& dparr = fdp->data();
-	if ( !texture_->usesShading() && resolution_ )
+
+	if ( texture_ )
 	{
-	    texture_->setDataOversample( attrib, idx, resolution_, 
-		    !isClassification( attrib ), &dparr, true );
-	    rectangle_->enableSpliting( false );
-	    const RowCol texturesz = texture_->getSize();
-	    rectangle_->setOriginalTextureSize( texturesz.col, texturesz.row );
+	    if ( !texture_->usesShading() && resolution_ )
+		texture_->setDataOversample( attrib, idx, resolution_, 
+			!isClassification( attrib ), &dparr, true );
+	    else
+	    {
+		texture_->splitTexture( true );
+		texture_->setData( attrib, idx, &dparr, true );
+	    }
 	}
 	else
 	{
-	    texture_->splitTexture( true );
-	    texture_->setData( attrib, idx, &dparr, true );
-	    rectangle_->enableSpliting( texture_->canUseShading() );
-	    rectangle_->setUsedTextureUnits( texture_->getUsedTextureUnits() );
-	    rectangle_->setOriginalTextureSize( dparr.info().getSize(1),
-		    				dparr.info().getSize(0) );
+	    const float* arr = dparr.getData();
+	    visBase::TextureChannels::CachePolicy cp =
+		visBase::TextureChannels::Cache;
+
+	    if ( !arr )
+	    {
+		const od_int64 totalsz =
+		    dparr.info().getSize(0) * dparr.info().getSize(1);
+		mDeclareAndTryAlloc( float*, tmparr, float[totalsz] );
+
+		if ( !tmparr )
+		{
+		    DPM(DataPackMgr::FlatID).release( dpid );
+		    continue;
+		}
+
+		ArrayNDIter iter( dparr.info() );
+		int idy=0;
+		do
+		{
+		    tmparr[idy++] = dparr.get( iter.getPos() );
+		} while ( iter.next() );
+
+		arr = tmparr;
+		cp = visBase::TextureChannels::TakeOver;
+	    }
+
+	    channels_->setSize( 1, dparr.info().getSize(0),
+				   dparr.info().getSize(1) );
+	    channels_->setUnMappedData( attrib, idx, arr, cp );
 	}
+
+	rectangle_->setOriginalTextureSize( dparr.info().getSize(0),
+					    dparr.info().getSize(1) );
 	
 	DPM(DataPackMgr::FlatID).release( dpid );
     }
    
-    texture_->turnOn( true );
+    if ( texture_ )
+	texture_->turnOn( true );
+    else
+	channels_->turnOn( true );
 }
 
 
@@ -1026,7 +1085,10 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
     const BinIDValue bidv( SI().transform(pos), pos.z );
     if ( attrib<volumecache_.size() && volumecache_[attrib] )
     {
-	const int ver = texture_->currentVersion(attrib);
+	const int ver = texture_
+	    ? texture_->currentVersion(attrib)
+	    : channels_->currentVersion(attrib);
+
 	const Attrib::DataCubes& vc = volumecache_[attrib]->cube();
 	return vc.getValue( ver, bidv, &res, false );
     }
@@ -1117,7 +1179,7 @@ SurveyObject* PlaneDataDisplay::duplicate() const
 	const int ctid = pdd->getColTabID( idx );
 	visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
 	mDynamicCastGet(visBase::VisColorTab*,vct,obj);
-	if ( vct )
+	if ( vct && texture_ )
 	    vct->colorSeq().loadFromStorage(
 		    texture_->getColorTab(idx).colorSeq().colors().name() );
     }
@@ -1167,8 +1229,10 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 	gridlines_ = gl;
 	gridlines_->ref();
 	gridlines_->setPlaneCubeSampling( cs );
-	insertChild( childIndex(texture_->getInventorNode()),
-		     gridlines_->getInventorNode() );
+	int childidx = texture_ 
+	    ? childIndex(texture_->getInventorNode())
+	    : childIndex( channels_->getInventorNode() );
+	insertChild( childidx, gridlines_->getInventorNode() );
     }
 
     return 1;

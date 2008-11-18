@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.4 2008-06-10 19:26:47 cvskris Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.5 2008-11-18 17:29:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class SoSeparator;
 class SoIndexedFaceSet;
 class SoTextureCoordinate2;
-class SoSplitTexture2Part;
+class SoTextureComposer;
 
 namespace visBase
 {
@@ -35,13 +35,6 @@ public:
     static SplitTexture2Rectangle* create()
 			mCreateDataObj(SplitTexture2Rectangle);
 
-    void		enableSpliting(bool yn);
-    bool		isSplitingEnabled() const  { return dosplit_; }
-    
-    void		setUsedTextureUnits(const TypeSet<int>&);
-    			/*!<only necessary for splitting. get it from
-			    your texture with getUsedTextureUnits(). */
-
     void		setOriginalTextureSize(int sz0,int sz1);
 
     void		setPosition(const Coord3& c00,const Coord3& c01,
@@ -56,16 +49,14 @@ protected:
     void		updateFaceSets(); 
     void		updateCoordinates(); 
     void		updateSeparator(SoSeparator*, SoIndexedFaceSet*&,
-			    SoTextureCoordinate2*&,SoSplitTexture2Part*&) const;
+			    SoTextureCoordinate2*&,SoTextureComposer*&) const;
     void		updateSeparator(SoSeparator*, SoIndexedFaceSet*&) const;
 
     TypeSet<float>	c00factors_;
     TypeSet<float>	c01factors_;
     TypeSet<float>	c10factors_;
     TypeSet<float>	c11factors_;
-    TypeSet<int>	usedunits_;
 
-    bool 		dosplit_;
     int			rowsz_;
     int			colsz_;
     int			nrrowblocks_;

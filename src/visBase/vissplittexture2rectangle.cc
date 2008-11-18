@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.cc,v 1.6 2008-11-07 17:49:16 cvskris Exp $
+ RCS:		$Id: vissplittexture2rectangle.cc,v 1.7 2008-11-18 17:29:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "visfaceset.h"
 #include "vismaterial.h"
 #include "vistexturecoords.h"
-#include "SoSplitTexture2.h"
+#include "SoTextureComposer.h"
 
 #include <Inventor/nodes/SoIndexedFaceSet.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -34,7 +34,6 @@ namespace visBase
    
 SplitTexture2Rectangle::SplitTexture2Rectangle()
     : VisualObjectImpl( false )
-    , dosplit_( false )
     , rowsz_( 0 )
     , colsz_( 0 )
     , nrrowblocks_( 0 )
@@ -63,25 +62,12 @@ SplitTexture2Rectangle::~SplitTexture2Rectangle()
 }
 
 
-void SplitTexture2Rectangle::enableSpliting( bool yn )
-{
-    dosplit_ = yn;
-    if ( !dosplit_ )
-    {
-	nrrowblocks_ = 1;
-	nrcolblocks_ = 1;
-    }
-
-    updateFaceSets();
-}
-
-
 void SplitTexture2Rectangle::setOriginalTextureSize( int rowsz, int colsz )
 {
     rowsz_ = rowsz;
     colsz_ = colsz;
-    nrrowblocks_ = dosplit_ ? nrBlocks( rowsz_, mMaxRowSz, 1 ) : 1;
-    nrcolblocks_ = dosplit_ ? nrBlocks( colsz_, mMaxColSz, 1 ) : 1;
+    nrrowblocks_ = nrBlocks( rowsz_, mMaxRowSz, 1 );
+    nrcolblocks_ = nrBlocks( colsz_, mMaxColSz, 1 );
 
     updateFaceSets();
 }
@@ -109,7 +95,7 @@ void SplitTexture2Rectangle::updateSeparator( SoSeparator* sep,
 
 void SplitTexture2Rectangle::updateSeparator( SoSeparator* sep,
 	SoIndexedFaceSet*& fs, SoTextureCoordinate2*& tc,
-	SoSplitTexture2Part*& sp ) const
+	SoTextureComposer*& sp ) const
 {
     updateSeparator( sep, fs );
 	    
@@ -129,24 +115,19 @@ void SplitTexture2Rectangle::updateSeparator( SoSeparator* sep,
 	}
     }
 	
-    if ( dosplit_ )
+    if ( sep->getNumChildren()>2 )
+	sp = (SoTextureComposer*) sep->getChild( sep->getNumChildren()-3);
+    else
     {
-	if ( sep->getNumChildren()>2 )
-	    sp = (SoSplitTexture2Part*) sep->getChild( sep->getNumChildren()-3);
-	else
+	sp = new SoTextureComposer;
+	sep->insertChild( sp, 0 );
+	
+	if ( sep->findChild(sp)!=sep->findChild(tc)-1 )
 	{
-	    sp = new SoSplitTexture2Part;
-	    sep->insertChild( sp, 0 );
-	    
-	    if ( sep->findChild(sp)!=sep->findChild(tc)-1 )
-	    {
-		sep->removeChild( sp );
-		sep->insertChild( sp, sep->findChild( tc ) );
-	    }
+	    sep->removeChild( sp );
+	    sep->insertChild( sp, sep->findChild( tc ) );
 	}
     }
-    else while ( sep->getNumChildren()>2 )
-	sep->removeChild( 0 );
 }
 
 
@@ -158,8 +139,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
     c10factors_.erase();
     c11factors_.erase();
 
-    if ( nrrowblocks_==0 || nrcolblocks_==0 ||
-	 ( dosplit_ && usedunits_.size()<0 ) )
+    if ( nrrowblocks_==0 || nrcolblocks_==0 )
     {
 	c00factors_ += 1; c01factors_ += 0; c10factors_ += 0; c11factors_ += 0;
 	c00factors_ += 0; c01factors_ += 1; c10factors_ += 0; c11factors_ += 0;
@@ -201,7 +181,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
 		SoSeparator* sep = 0;
 		SoIndexedFaceSet* fs = 0;
 		SoTextureCoordinate2* tc = 0;
-		SoSplitTexture2Part* sp = 0;
+		SoTextureComposer* sp = 0;
 
 		if ( unusedseparators.size() )
 		    sep = unusedseparators.remove( 0 );
@@ -217,19 +197,13 @@ void SplitTexture2Rectangle::updateFaceSets( )
 
 		const int rowsz = lastrow-firstrow+1;
 		const int colsz = lastcol-firstcol+1;
-		const int texturerowsz = dosplit_ ? nextPower( rowsz, 2 ) : rowsz; 
-		const int texturecolsz = dosplit_ ? nextPower( colsz, 2 ) : colsz;
+		const int texturerowsz = nextPower( rowsz, 2 ); 
+		const int texturecolsz = nextPower( colsz, 2 );
 
 		if ( sp )
 		{
-		    sp->origin.setValue( firstrow, firstcol );
-		    sp->size.setValue( texturerowsz, texturecolsz );
-
-		    const int unitssz = usedunits_.size();
-		    for ( int idx=0; idx<unitssz; idx++ )
-			sp->textureunits.set1Value( idx, usedunits_[idx] );
-
-		    sp->textureunits.deleteValues( unitssz );
+		    sp->origin.setValue( 0, firstrow, firstcol );
+		    sp->size.setValue( 1, texturerowsz, texturecolsz );
 		}
 
 		const float rowstartmargin = 0.5/texturerowsz;
@@ -237,10 +211,10 @@ void SplitTexture2Rectangle::updateFaceSets( )
 		const float rowendmargin = (float)rowsz/texturerowsz-rowstartmargin;
 		const float colendmargin = (float)colsz/texturecolsz-colstartmargin;
 
-		tc->point.set1Value( 0, SbVec2f(rowstartmargin,colstartmargin) );
-		tc->point.set1Value( 1, SbVec2f(rowstartmargin,colendmargin) );
-		tc->point.set1Value( 2, SbVec2f(rowendmargin,colstartmargin) );
-		tc->point.set1Value( 3, SbVec2f(rowendmargin,colendmargin) );
+		tc->point.set1Value( 0, SbVec2f(colstartmargin,rowstartmargin) );
+		tc->point.set1Value( 1, SbVec2f(colendmargin,rowstartmargin) );
+		tc->point.set1Value( 2, SbVec2f(colstartmargin,rowendmargin) );
+		tc->point.set1Value( 3, SbVec2f(colendmargin,rowendmargin) );
 
 		fs->coordIndex.set1Value( 0, row*(nrcolblocks_+1) + col );
 		fs->coordIndex.set1Value( 1, row*(nrcolblocks_+1) + col + 1 );
@@ -276,14 +250,6 @@ void SplitTexture2Rectangle::updateFaceSets( )
     }
 
     updateCoordinates();
-}
-
-
-void SplitTexture2Rectangle::setUsedTextureUnits( const TypeSet<int>& units )
-{ 
-    usedunits_ = units;
-    if ( dosplit_ )
-       updateFaceSets();	
 }
 
 
