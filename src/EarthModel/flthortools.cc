@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.6 2008-10-29 12:35:41 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.7 2008-11-18 07:26:43 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,10 @@ ________________________________________________________________________
 namespace SSIS
 {
 
-Fault2DSubSampler::Fault2DSubSampler( const EM::Fault2D& flt, float zstep )
+Fault2DSubSampler::Fault2DSubSampler( const EM::Fault2D& flt, int sticknr,
+				      float zstep )
     : fault_(flt)
+    , sticknr_(sticknr)
     , zstep_(zstep)
 {
     fault_.ref();
@@ -44,12 +46,11 @@ bool Fault2DSubSampler::execute()
 {
     crds_.erase();
     EM::SectionID fltsid( 0 );
-    const int sticknr = 0;
-    const int nrknots = fault_.geometry().nrKnots( fltsid, sticknr );
+    const int nrknots = fault_.geometry().nrKnots( fltsid, sticknr_ );
     const Geometry::FaultStickSurface* fltgeom =
 	fault_.geometry().sectionGeometry( fltsid );
-    const Coord3 firstknot = fltgeom->getKnot( RowCol(sticknr,0) );
-    const Coord3 lastknot = fltgeom->getKnot( RowCol(sticknr,nrknots-1) );
+    const Coord3 firstknot = fltgeom->getKnot( RowCol(sticknr_,0) );
+    const Coord3 lastknot = fltgeom->getKnot( RowCol(sticknr_,nrknots-1) );
     const int nrzvals = mNINT( (lastknot.z-firstknot.z) / zstep_ );
 
     for ( int idx=0; idx<nrzvals; idx++ )
@@ -58,8 +59,8 @@ bool Fault2DSubSampler::execute()
 	bool found = false;
 	for ( int knotidx=0; knotidx<nrknots-1 && !found; knotidx++ )
 	{
-	    const Coord3 knot1 = fltgeom->getKnot( RowCol(sticknr,knotidx) );
-	    const Coord3 knot2 = fltgeom->getKnot( RowCol(sticknr,knotidx+1) );
+	    const Coord3 knot1 = fltgeom->getKnot( RowCol(sticknr_,knotidx) );
+	    const Coord3 knot2 = fltgeom->getKnot( RowCol(sticknr_,knotidx+1) );
 	    if ( mIsEqual(curz,knot1.z,1e-3) )
 	    {
 		crds_ += knot1;
@@ -102,75 +103,43 @@ const TypeSet<Coord3>& Fault2DSubSampler::getCoordList() const
 { return crds_; }
 
 
+// ***** FaultHorizon2DIntersectionFinder *****
 FaultHorizon2DIntersectionFinder::FaultHorizon2DIntersectionFinder(
-	const MultiID& fltid, const MultiID& horid )
-    : fltid_(fltid)
-    , horid_(horid)
-{}
+	const EM::Fault2D& flt, int sticknr, const EM::Horizon2D& hor )
+    : flt_(flt)
+    , hor_(hor)
+    , sticknr_(sticknr)
+{
+    flt_.ref();
+    hor_.ref();
+}
+
+
+FaultHorizon2DIntersectionFinder::~FaultHorizon2DIntersectionFinder()
+{
+    flt_.unRef();
+    hor_.unRef();
+}
 
 
 bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
 {
-    EM::EMManager& emm = EM::EMM();
-    Executor* exec = emm.objectLoader( horid_ );
-    if ( !exec ) return false;
-    exec->execute();
-    mDynamicCastGet(EM::Horizon2D*,hor2d,emm.getObject(emm.getObjectID(horid_)))
-    if ( !hor2d ) return false;
-    hor2d->ref();
+    trcnr = 0; zval = 0;
 
-    delete exec;
-    exec = emm.objectLoader( fltid_ );
-    if ( !exec ) return false;
-    exec->execute();
-    mDynamicCastGet(EM::Fault2D*,flt2d,emm.getObject(emm.getObjectID(fltid_)))
-    if ( !flt2d ) return false;
-    flt2d->ref();
-
-    Fault2DSubSampler sampler( *flt2d, SI().zStep() );
+    Fault2DSubSampler sampler( flt_, sticknr_, SI().zStep() );
     sampler.execute();
     TypeSet<Coord3> crds = sampler.getCoordList();
 
-    return true;
-}
-
-
-
-FaultHorizon2DLocationField::FaultHorizon2DLocationField(
-	const EM::Fault2D& flt, const EM::Horizon2D& h1,
-	const EM::Horizon2D& h2, const MultiID& lsid, const char* lnm )
-    : Array2DImpl<char>(1,1)
-    , fault_(flt)
-    , tophor_(h1)
-    , bothor_(h2)
-    , linesetid_(lsid)
-    , linename_(lnm)
-{
-    fault_.ref();
-    tophor_.ref();
-    bothor_.ref();
-}
-
-
-FaultHorizon2DLocationField::~FaultHorizon2DLocationField()
-{
-    fault_.unRef();
-    tophor_.unRef();
-    bothor_.unRef();
-}
-
-
-bool FaultHorizon2DLocationField::calculate()
-{
-    Fault2DSubSampler sampler( fault_, SI().zStep() );
-    sampler.execute();
-    TypeSet<Coord3> crds = sampler.getCoordList();
-
-    PtrMan<IOObj> lsioobj = IOM().get( linesetid_ );
+    // TODO: optimize
+    EM::SectionID sid( 0 );
+    const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
+    if ( !lsid ) return false;
+    PtrMan<IOObj> lsioobj = IOM().get( *lsid );
     if ( !lsioobj ) return false;
 
     Seis2DLineSet ls( *lsioobj );
-    const int lineidx = ls.indexOf( linename_.buf() );
+    const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
+    const int lineidx = ls.indexOf( lnm );
     PosInfo::Line2DData lineposinfo;
     if ( !ls.getGeometry(lineidx,lineposinfo) )
 	return false;
@@ -180,10 +149,91 @@ bool FaultHorizon2DLocationField::calculate()
 	 !lineposinfo.getPos(crds.last(),lastpos) )
 	return false;
 
-    const int lidxtop = tophor_.geometry().lineIndex( linename_ );
-    const int lidxbot = bothor_.geometry().lineIndex( linename_ );
+    const int lidx = hor_.geometry().lineIndex( lnm );
+
+    Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
+    trcrg.start -= 5; trcrg.stop += 5;
+    HorSampling hs; hs.set( Interval<int>(0,0), trcrg );
+
+    bool init = false;
+    bool negside = true;
+    for ( int crlidx=0; crlidx<hs.nrCrl(); crlidx++ )
+    {
+	const int crl = trcrg.atIndex( crlidx, 1 );
+	const float z = hor_.getPos( sid, lidx, crl ).z;
+	const Coord3 fltcrd = sampler.getCoord( z );
+	PosInfo::Line2DPos fltpos;
+	const bool res = lineposinfo.getPos( fltcrd, fltpos );
+	if ( !res ) continue;
+
+	const bool side = fltpos.nr_>crl;
+	if ( !init )
+	{
+	    negside = side;
+	    init = true;
+	}
+	else if ( negside != side )
+	{
+	    trcnr = crl; zval = z;
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+
+// ***** FaultHorizon2DLocationField *****
+FaultHorizon2DLocationField::FaultHorizon2DLocationField(
+	const EM::Fault2D& flt, int sticknr,
+	const EM::Horizon2D& h1, const EM::Horizon2D& h2 )
+    : Array2DImpl<char>(1,1)
+    , flt_(flt)
+    , tophor_(h1)
+    , bothor_(h2)
+    , sticknr_(sticknr)
+{
+    flt_.ref();
+    tophor_.ref();
+    bothor_.ref();
+}
+
+
+FaultHorizon2DLocationField::~FaultHorizon2DLocationField()
+{
+    flt_.unRef();
+    tophor_.unRef();
+    bothor_.unRef();
+}
+
+
+bool FaultHorizon2DLocationField::calculate()
+{
+    Fault2DSubSampler sampler( flt_, sticknr_, SI().zStep() );
+    sampler.execute();
+    TypeSet<Coord3> crds = sampler.getCoordList();
 
     EM::SectionID sid( 0 );
+    const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
+    if ( !lsid ) return false;
+    PtrMan<IOObj> lsioobj = IOM().get( *lsid );
+    if ( !lsioobj ) return false;
+
+    Seis2DLineSet ls( *lsioobj );
+    const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
+    const int lineidx = ls.indexOf( lnm );
+    PosInfo::Line2DData lineposinfo;
+    if ( !ls.getGeometry(lineidx,lineposinfo) )
+	return false;
+
+    PosInfo::Line2DPos firstpos, lastpos;
+    if ( !lineposinfo.getPos(crds.first(),firstpos) ||
+	 !lineposinfo.getPos(crds.last(),lastpos) )
+	return false;
+
+    const int lidxtop = tophor_.geometry().lineIndex( lnm );
+    const int lidxbot = bothor_.geometry().lineIndex( lnm );
+
     Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
     CubeSampling cs; cs.hrg.set( Interval<int>(0,0), trcrg );
     Interval<float> zrg =
@@ -192,6 +242,10 @@ bool FaultHorizon2DLocationField::calculate()
     SI().snapZ( zrg.start, -1 ); SI().snapZ( zrg.stop, 1 );
     cs.zrg.setFrom( zrg );
     setSize( cs.nrCrl(), cs.nrZ() );
+
+    if ( GetEnvVarYN("OD_PRINT_FAULTFIELD") )
+	std::cout << cs.zrg.start << '\t' << cs.zrg.step << '\t' << cs.nrZ()
+	    	  << std::endl;
 
     for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
     {
@@ -230,6 +284,108 @@ bool FaultHorizon2DLocationField::calculate()
     }
 
     return true;
+}
+
+
+// ***** Fault2DThrow *****
+Fault2DThrow::Fault2DThrow( const EM::Fault2D& flt, int sticknr,
+		const EM::Horizon2D& hor1, const EM::Horizon2D& hor2 )
+    : flt_(flt)
+    , tophor_(hor1)
+    , bothor_(hor2)
+    , sticknr_(sticknr)
+{
+    flt_.ref();
+    tophor_.ref();
+    bothor_.ref();
+
+    topzneg_ = topzpos_, botzneg_, botzpos_ = mUdf(float);
+    init();
+}
+
+
+Fault2DThrow::~Fault2DThrow()
+{
+    flt_.unRef();
+    tophor_.unRef();
+    bothor_.unRef();
+}
+
+
+bool Fault2DThrow::findInterSections( float& toptrcnr, float& bottrcnr )
+{
+    float topz, botz;
+    toptrcnr = bottrcnr = mUdf(float);
+    FaultHorizon2DIntersectionFinder findertop( flt_, sticknr_, tophor_ );
+    const bool res1 = findertop.find( topz, toptrcnr );
+    FaultHorizon2DIntersectionFinder finderbot( flt_, sticknr_, bothor_ );
+    const bool res2 = findertop.find( botz, bottrcnr );
+    return res1 && res2;
+}
+
+
+bool Fault2DThrow::init()
+{
+    EM::SectionID sid( 0 );
+    const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
+    PtrMan<IOObj> lsioobj = IOM().get( *lsid );
+    if ( !lsioobj ) return false;
+
+    const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
+    Seis2DLineSet ls( *lsioobj );
+    const int lineidx = ls.indexOf( lnm );
+    PosInfo::Line2DData lineposinfo;
+    if ( !ls.getGeometry(lineidx,lineposinfo) )
+	return false;
+
+    const int lidxtop = tophor_.geometry().lineIndex( lnm );
+    const int lidxbot = bothor_.geometry().lineIndex( lnm );
+
+    float toptrcnr, bottrcnr;
+    if ( !findInterSections(toptrcnr,bottrcnr) )
+	return false;
+
+    topzneg_ = tophor_.getPos( sid, lidxtop, toptrcnr-5 ).z;
+    topzpos_ = tophor_.getPos( sid, lidxtop, toptrcnr+5 ).z;
+    botzneg_ = bothor_.getPos( sid, lidxbot, bottrcnr-5 ).z;
+    botzpos_ = bothor_.getPos( sid, lidxbot, bottrcnr+5 ).z;
+
+    return true;
+}
+
+
+float Fault2DThrow::getValue( float z, bool negtopos ) const
+{
+    const float topshift = topzpos_ - topzneg_;
+    const float botshift = botzpos_ - botzneg_;
+
+    float thr = mUdf(float);
+    if ( negtopos )
+    {
+	if ( z < topzneg_ )
+	    thr = topshift;
+	else if ( z > botzneg_ )
+	    thr = botshift;
+	else
+	{
+	    const float fact = (botshift-topshift) / (botzneg_-topzneg_);
+	    thr = topshift + fact*(z-topzneg_);
+	}
+    }
+    else
+    {
+	if ( z < topzpos_ )
+	    thr = -topshift;
+	else if ( z > botzpos_ )
+	    thr = -botshift;
+	else
+	{
+	    const float fact = (botshift-topshift) / (botzpos_-topzpos_);
+	    thr = topshift + fact*(z-topzpos_);
+	}
+    }
+
+    return thr;
 }
 
 
