@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.6 2008-11-17 13:04:00 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.7 2008-11-18 07:10:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,8 +59,8 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
 
 uiLineSel::~uiLineSel()
 {
-    if ( lsctio_ ) delete lsctio_->ioobj;
-    delete lsctio_;
+    //if ( lsctio_ ) delete lsctio_->ioobj;
+    //delete lsctio_;
 }
 
 
