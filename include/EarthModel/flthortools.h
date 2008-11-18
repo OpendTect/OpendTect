@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.6 2008-11-18 14:37:18 jaap Exp $
+ RCS:		$Id: flthortools.h,v 1.7 2008-11-18 19:15:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,9 @@ public:
 			~FaultHorizon2DLocationField();
 
     bool		calculate();
+
+    const char		getPos(int trcnr,float z) const;
+    const CubeSampling&	area() const		{ return cs_; }
 
     static char		sOutside()		{ return '0'; }
     static char		sInsideNeg()		{ return '1'; }

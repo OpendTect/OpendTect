@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.8 2008-11-18 14:37:18 jaap Exp $
+ RCS:		$Id: flthortools.cc,v 1.9 2008-11-18 19:15:25 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,26 +235,26 @@ bool FaultHorizon2DLocationField::calculate()
     const int lidxbot = bothor_.geometry().lineIndex( lnm );
 
     Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
-    CubeSampling cs; cs.hrg.set( Interval<int>(0,0), trcrg );
+    cs_.hrg.set( Interval<int>(0,0), trcrg );
     Interval<float> zrg =
 	tophor_.geometry().sectionGeometry(sid)->zRange(lidxtop);
     zrg.include( bothor_.geometry().sectionGeometry(sid)->zRange(lidxbot) );
     SI().snapZ( zrg.start, -1 ); SI().snapZ( zrg.stop, 1 );
-    cs.zrg.setFrom( zrg );
-    setSize( cs.nrCrl(), cs.nrZ() );
+    cs_.zrg.setFrom( zrg );
+    setSize( cs_.nrCrl(), cs_.nrZ() );
 
     if ( GetEnvVarYN("OD_PRINT_FAULTFIELD") )
-	std::cout << cs.zrg.start << '\t' << cs.zrg.step << '\t' << cs.nrZ()
+	std::cout << cs_.zrg.start << '\t' << cs_.zrg.step << '\t' << cs_.nrZ()
 	    	  << std::endl;
 
-    for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
+    for ( int crlidx=0; crlidx<cs_.nrCrl(); crlidx++ )
     {
 	const int crl = trcrg.atIndex( crlidx, 1 );
 	const float topz = tophor_.getPos( sid, lidxtop, crl ).z;
 	const float botz = bothor_.getPos( sid, lidxbot, crl ).z;
-	for ( int zidx=0; zidx<cs.nrZ(); zidx++ )
+	for ( int zidx=0; zidx<cs_.nrZ(); zidx++ )
 	{
-	    const float zval = cs.zAtIndex( zidx );
+	    const float zval = cs_.zAtIndex( zidx );
 	    if ( zval<topz || zval>botz )
 		set( crlidx, zidx, sOutside() );
 	    else
@@ -277,13 +277,21 @@ bool FaultHorizon2DLocationField::calculate()
 	{
 	    PosInfo::Line2DPos pos; lineposinfo.getPos( crl, pos );
 	    std::cout << crl << '\t' << pos.coord_.x << '\t' << pos.coord_.y;
-	    for ( int zidx=0; zidx<cs.nrZ(); zidx++ )
+	    for ( int zidx=0; zidx<cs_.nrZ(); zidx++ )
 		std::cout << '\t' << get(crlidx,zidx);
 	    std::cout << std::endl;
 	}
     }
 
     return true;
+}
+
+
+const char FaultHorizon2DLocationField::getPos( int trcnr, float z ) const
+{
+    const int idx0 = cs_.crlIdx( trcnr );
+    const int idx1 = cs_.zIdx( z );
+    return get( idx0, idx1 );
 }
 
 
