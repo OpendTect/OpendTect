@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.7 2008-11-18 07:26:43 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.8 2008-11-18 14:37:18 jaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "flthortools.h"
 
-#include "emfault2d.h"
+#include "emfaultstickset.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -26,8 +26,8 @@ ________________________________________________________________________
 namespace SSIS
 {
 
-Fault2DSubSampler::Fault2DSubSampler( const EM::Fault2D& flt, int sticknr,
-				      float zstep )
+FaultStickSubSampler::FaultStickSubSampler( const EM::FaultStickSet& flt,
+					    int sticknr, float zstep )
     : fault_(flt)
     , sticknr_(sticknr)
     , zstep_(zstep)
@@ -36,18 +36,18 @@ Fault2DSubSampler::Fault2DSubSampler( const EM::Fault2D& flt, int sticknr,
 }
 
 
-Fault2DSubSampler::~Fault2DSubSampler()
+FaultStickSubSampler::~FaultStickSubSampler()
 {
     fault_.unRef();
 }
 
 
-bool Fault2DSubSampler::execute()
+bool FaultStickSubSampler::execute()
 {
     crds_.erase();
     EM::SectionID fltsid( 0 );
     const int nrknots = fault_.geometry().nrKnots( fltsid, sticknr_ );
-    const Geometry::FaultStickSurface* fltgeom =
+    const Geometry::FaultStickSet* fltgeom =
 	fault_.geometry().sectionGeometry( fltsid );
     const Coord3 firstknot = fltgeom->getKnot( RowCol(sticknr_,0) );
     const Coord3 lastknot = fltgeom->getKnot( RowCol(sticknr_,nrknots-1) );
@@ -85,7 +85,7 @@ bool Fault2DSubSampler::execute()
 }
 
 
-Coord3 Fault2DSubSampler::getCoord( float zval ) const
+Coord3 FaultStickSubSampler::getCoord( float zval ) const
 {
     if ( zval < crds_.first().z )
 	return crds_.first();
@@ -99,13 +99,13 @@ Coord3 Fault2DSubSampler::getCoord( float zval ) const
 }
 
 
-const TypeSet<Coord3>& Fault2DSubSampler::getCoordList() const
+const TypeSet<Coord3>& FaultStickSubSampler::getCoordList() const
 { return crds_; }
 
 
 // ***** FaultHorizon2DIntersectionFinder *****
 FaultHorizon2DIntersectionFinder::FaultHorizon2DIntersectionFinder(
-	const EM::Fault2D& flt, int sticknr, const EM::Horizon2D& hor )
+	const EM::FaultStickSet& flt, int sticknr, const EM::Horizon2D& hor )
     : flt_(flt)
     , hor_(hor)
     , sticknr_(sticknr)
@@ -126,7 +126,7 @@ bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
 {
     trcnr = 0; zval = 0;
 
-    Fault2DSubSampler sampler( flt_, sticknr_, SI().zStep() );
+    FaultStickSubSampler sampler( flt_, sticknr_, SI().zStep() );
     sampler.execute();
     TypeSet<Coord3> crds = sampler.getCoordList();
 
@@ -185,7 +185,7 @@ bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
 
 // ***** FaultHorizon2DLocationField *****
 FaultHorizon2DLocationField::FaultHorizon2DLocationField(
-	const EM::Fault2D& flt, int sticknr,
+	const EM::FaultStickSet& flt, int sticknr,
 	const EM::Horizon2D& h1, const EM::Horizon2D& h2 )
     : Array2DImpl<char>(1,1)
     , flt_(flt)
@@ -209,7 +209,7 @@ FaultHorizon2DLocationField::~FaultHorizon2DLocationField()
 
 bool FaultHorizon2DLocationField::calculate()
 {
-    Fault2DSubSampler sampler( flt_, sticknr_, SI().zStep() );
+    FaultStickSubSampler sampler( flt_, sticknr_, SI().zStep() );
     sampler.execute();
     TypeSet<Coord3> crds = sampler.getCoordList();
 
@@ -287,9 +287,9 @@ bool FaultHorizon2DLocationField::calculate()
 }
 
 
-// ***** Fault2DThrow *****
-Fault2DThrow::Fault2DThrow( const EM::Fault2D& flt, int sticknr,
-		const EM::Horizon2D& hor1, const EM::Horizon2D& hor2 )
+// ***** FaultStickThrow *****
+FaultStickThrow::FaultStickThrow( const EM::FaultStickSet& flt, int sticknr,
+			const EM::Horizon2D& hor1, const EM::Horizon2D& hor2 )
     : flt_(flt)
     , tophor_(hor1)
     , bothor_(hor2)
@@ -304,7 +304,7 @@ Fault2DThrow::Fault2DThrow( const EM::Fault2D& flt, int sticknr,
 }
 
 
-Fault2DThrow::~Fault2DThrow()
+FaultStickThrow::~FaultStickThrow()
 {
     flt_.unRef();
     tophor_.unRef();
@@ -312,7 +312,7 @@ Fault2DThrow::~Fault2DThrow()
 }
 
 
-bool Fault2DThrow::findInterSections( float& toptrcnr, float& bottrcnr )
+bool FaultStickThrow::findInterSections( float& toptrcnr, float& bottrcnr )
 {
     float topz, botz;
     toptrcnr = bottrcnr = mUdf(float);
@@ -324,7 +324,7 @@ bool Fault2DThrow::findInterSections( float& toptrcnr, float& bottrcnr )
 }
 
 
-bool Fault2DThrow::init()
+bool FaultStickThrow::init()
 {
     EM::SectionID sid( 0 );
     const MultiID* lsid = flt_.geometry().lineSet( sid, sticknr_ );
@@ -354,7 +354,7 @@ bool Fault2DThrow::init()
 }
 
 
-float Fault2DThrow::getValue( float z, bool negtopos ) const
+float FaultStickThrow::getValue( float z, bool negtopos ) const
 {
     const float topshift = topzpos_ - topzneg_;
     const float botshift = botzpos_ - botzneg_;

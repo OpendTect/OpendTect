@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.5 2008-11-18 07:26:43 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.6 2008-11-18 14:37:18 jaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,18 +18,18 @@ ________________________________________________________________________
 #include "position.h"
 #include "sets.h"
 
-namespace EM { class Fault2D; class Horizon2D; }
+namespace EM { class FaultStickSet; class Horizon2D; }
 class IOObj;
 
 namespace SSIS
 {
 
-class Fault2DSubSampler
+class FaultStickSubSampler
 {
 public:
-    			Fault2DSubSampler(const EM::Fault2D&,int sticknr,
-					  float zstep);
-			~Fault2DSubSampler();
+    			FaultStickSubSampler(const EM::FaultStickSet&,
+					     int sticknr,float zstep);
+			~FaultStickSubSampler();
 
     bool		execute();
 
@@ -38,7 +38,7 @@ public:
     void		setZStep( float zs )	{ zstep_ = zs; }
 
 protected:
-    const EM::Fault2D&	fault_;
+    const EM::FaultStickSet& fault_;
 
     int			sticknr_;
     float		zstep_;
@@ -49,7 +49,7 @@ protected:
 class FaultHorizon2DIntersectionFinder
 {
 public:
-    		FaultHorizon2DIntersectionFinder(const EM::Fault2D&,
+    		FaultHorizon2DIntersectionFinder(const EM::FaultStickSet&,
 						 int sticknr,
 						 const EM::Horizon2D&);
 		~FaultHorizon2DIntersectionFinder();
@@ -58,7 +58,7 @@ public:
 
 protected:
 
-    const EM::Fault2D&		flt_;
+    const EM::FaultStickSet&	flt_;
     const EM::Horizon2D&	hor_;
     int				sticknr_;
 };
@@ -67,7 +67,7 @@ protected:
 class FaultHorizon2DLocationField : public Array2DImpl<char>
 {
 public:
-    			FaultHorizon2DLocationField(const EM::Fault2D&,
+    			FaultHorizon2DLocationField(const EM::FaultStickSet&,
 						    int sticknr,
 						    const EM::Horizon2D&,
 						    const EM::Horizon2D&);
@@ -82,7 +82,7 @@ public:
 protected:
     CubeSampling		cs_;
 
-    const EM::Fault2D&		flt_;
+    const EM::FaultStickSet&	flt_;
     const EM::Horizon2D&	tophor_;
     const EM::Horizon2D&	bothor_;
 
@@ -94,12 +94,12 @@ protected:
 /*! \brief Calculates Throwfield between Fault and two horizons
 */
 
-class Fault2DThrow
+class FaultStickThrow
 {
 public:
-			Fault2DThrow(const EM::Fault2D&,int sticknr,
+			FaultStickThrow(const EM::FaultStickSet&,int sticknr,
 				     const EM::Horizon2D&,const EM::Horizon2D&);
-			~Fault2DThrow();
+			~FaultStickThrow();
 
     float		getValue(float z,bool negtopos) const;
 
@@ -109,7 +109,8 @@ protected:
     bool		findInterSections(float&,float&);
     bool		init();
 
-    const EM::Fault2D&	flt_;
+    const EM::FaultStickSet& flt_;
+
     const EM::Horizon2D& tophor_;
     const EM::Horizon2D& bothor_;
 
