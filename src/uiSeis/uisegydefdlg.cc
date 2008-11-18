@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.10 2008-11-12 14:28:19 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.cc,v 1.11 2008-11-18 09:50:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,12 +49,14 @@ uiSEGYDefDlg::uiSEGYDefDlg( uiParent* p, const uiSEGYDefDlg::Setup& su,
 {
     uiSEGYFileSpec::Setup sgyfssu; sgyfssu.forread(true).pars(&iop);
     sgyfssu.canbe3d( su.geoms_.indexOf( Seis::Vol ) >= 0
-	    	  && su.geoms_.indexOf( Seis::VolPS ) >= 0 );
+	    	  || su.geoms_.indexOf( Seis::VolPS ) >= 0 );
     filespecfld_ = new uiSEGYFileSpec( this, sgyfssu );
 
     uiGroup* lastgrp = filespecfld_;
     if ( su.geoms_.size() == 1 )
-	    geomtype_ = su.geoms_[0];
+    {
+	geomtype_ = su.geoms_[0];
+    }
     else
     {
 	if ( su.geoms_.isEmpty() )
@@ -160,7 +162,7 @@ void uiSEGYDefDlg::useSpecificPars( const IOPar& iop )
     iop.get( uiSEGYExamine::Setup::sKeyNrTrcs, nrex );
     nrtrcexfld_->setValue( nrex );   
     const char* res = iop.find( sKey::Geometry );
-    if ( res && *res )
+    if ( res && *res && geomfld_ )
     {
 	geomfld_->setCurrentItem( res );
 	geomChg( 0 );
