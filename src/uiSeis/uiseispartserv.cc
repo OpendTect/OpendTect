@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.103 2008-11-17 12:26:24 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.104 2008-11-18 09:49:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,8 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	{
 	    uiSEGYRead::Setup su( opt == 7 ? uiSEGYRead::DirectDef
 		    			   : uiSEGYRead::Import );
+	    if ( opt == 7 )
+		{ su.geoms_ -= Seis::Line; su.geoms_ -= Seis::Vol; }
 	    new uiSEGYRead( appserv().parent(), su );
 	}
     }
