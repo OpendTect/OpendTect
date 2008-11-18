@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki	
  Date:          December 2007
- RCS:           $Id: initearthmodel.cc,v 1.5 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: initearthmodel.cc,v 1.6 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "initearthmodel.h"
-#include "emfault2d.h"
+#include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 void EarthModel::initStdClasses()
 {
-    EM::Fault2D::initClass();
+    EM::FaultStickSet::initClass();
     EM::Fault3D::initClass();
     EM::Horizon2D::initClass();
     EM::Horizon3D::initClass();

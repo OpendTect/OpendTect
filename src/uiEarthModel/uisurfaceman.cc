@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.50 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.51 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,17 +40,17 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 
-#define mGet( typ, hor2d, hor3d, anyhor, flt2d, flt3d ) \
+#define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d ) \
     !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? hor2d : \
     (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? hor3d : \
     (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword) ? anyhor : \
-    (!strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? flt2d : flt3d) ) )
+    (!strcmp(typ,EMFaultStickSetTranslatorGroup::keyword) ? emfss : flt3d) ) )
 
 #define mGetIoContext(typ) \
     mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
 	       EMHorizon3DTranslatorGroup::ioContext(), \
 	       EMAnyHorizonTranslatorGroup::ioContext(), \
-	       EMFault2DTranslatorGroup::ioContext(), \
+	       EMFaultStickSetTranslatorGroup::ioContext(), \
 	       EMFault3DTranslatorGroup::ioContext() )
 
 #define mGetManageStr(typ) \
@@ -121,7 +121,7 @@ bool uiSurfaceMan::isCur2D() const
 bool uiSurfaceMan::isCurFault() const
 {
     return curioobj_ && 
-	( !strcmp(curioobj_->group(),EMFault2DTranslatorGroup::keyword) ||
+	( !strcmp(curioobj_->group(),EMFaultStickSetTranslatorGroup::keyword) ||
 	  !strcmp(curioobj_->group(),EMFault3DTranslatorGroup::keyword) );
 }
 

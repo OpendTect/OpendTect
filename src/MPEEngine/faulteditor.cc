@@ -8,13 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.8 2008-10-01 03:44:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.9 2008-11-18 13:28:53 cvsjaap Exp $";
 
 #include "faulteditor.h"
 
 #include "emfault3d.h"
 #include "emmanager.h"
-#include "faultsticksurfedit.h"
+#include "stickseteditor.h"
 #include "mpeengine.h"
 #include "selector.h"
 #include "trigonometry.h"
@@ -48,7 +48,7 @@ Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )
     mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
     if ( !surface ) return 0;
     
-    return new Geometry::FaultStickSurfEditor(
+    return new Geometry::StickSetEditor(
 			*const_cast<Geometry::FaultStickSurface*>(surface) );
 }
 

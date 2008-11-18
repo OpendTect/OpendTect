@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.31 2008-10-29 20:03:49 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.32 2008-11-18 13:28:53 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -92,7 +92,8 @@ visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
     bool legalclick = !plane; \
     mCheckTracker( typ, Horizon3D, legalclick, \
 		   plane->getOrientation()!=PlaneDataDisplay::Timeslice ); \
-    mCheckTracker( typ, Fault3D, legalclick, true );
+    mCheckTracker( typ, Fault3D, legalclick, true ); \
+    mCheckTracker( typ, FaultStickSet, legalclick, true );
 
 #define mCheckMPEDisplay( typ, dataobj, mped, cs, legalclick ) \
     mDynamicCastGet( MPEDisplay*, mped, dataobj ); \
@@ -108,7 +109,7 @@ visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
 	seis2ddisp =  0; \
     bool legalclick = !seis2ddisp; \
     mCheckTracker( typ, Horizon2D, legalclick, true ); \
-    mCheckTracker( typ, Fault2D, legalclick, true );
+    mCheckTracker( typ, FaultStickSet, legalclick, true );
 
 
 bool MPEClickCatcher::isClickable( const char* trackertype, int visid )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.26 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.27 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,9 +82,9 @@ const char* EMFault3DTranslatorGroup::keyword = "Fault";
 mDefSimpleTranslatorSelector(EMFault3D,keyword)
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
-const char* EMFault2DTranslatorGroup::keyword = "2D Fault";
-mDefSimpleTranslatorSelector(EMFault2D,keyword)
-mDefSimpleTranslatorioContext(EMFault2D,Surf)
+const char* EMFaultStickSetTranslatorGroup::keyword = "FaultStickSet";
+mDefSimpleTranslatorSelector(EMFaultStickSet,keyword)
+mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 
 
 EMSurfaceTranslator::~EMSurfaceTranslator()

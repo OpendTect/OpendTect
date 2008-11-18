@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.85 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.86 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,8 +134,8 @@ static const char* sLineManualInfo( const BufferString& trackertype )
 
 static const IOObjContext* getContext( const char* type )
 {
-    if ( !strcmp(type,EMFault2DTranslatorGroup::keyword ) )
-	return &EMFault2DTranslatorGroup::ioContext();
+    if ( !strcmp(type,EMFaultStickSetTranslatorGroup::keyword ) )
+	return &EMFaultStickSetTranslatorGroup::ioContext();
 
     if ( !strcmp(type,EMFault3DTranslatorGroup::keyword ) )
 	return &EMFault3DTranslatorGroup::ioContext();

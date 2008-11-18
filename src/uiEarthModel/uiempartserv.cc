@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.148 2008-10-14 11:19:43 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.149 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "datainpspec.h"
 #include "datapointset.h"
-#include "emfault2d.h"
+#include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
@@ -307,9 +307,13 @@ void uiEMPartServer::selectHorizons( TypeSet<EM::ObjectID>& ids, bool is2d )
 
 void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids, bool is2d )
 {
-    selectSurfaces( ids, is2d ? EMFault2DTranslatorGroup::keyword
-	    		      : EMFault3DTranslatorGroup::keyword );
+    if ( !is2d )
+	selectSurfaces( ids, EMFault3DTranslatorGroup::keyword );
 }
+
+
+void uiEMPartServer::selectFaultStickSets( TypeSet<EM::ObjectID>& ids )
+{  selectSurfaces( ids, EMFaultStickSetTranslatorGroup::keyword ); } 
 
 
 void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )

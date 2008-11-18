@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.13 2008-10-01 03:44:36 cvsnanne Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.14 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class IOObj;
 namespace EM
 {
     class dgbSurfaceReader;
-    class Fault2D;
+    class FaultStickSet;
     class Fault3D;
     class Horizon;
     class Horizon2D;
@@ -30,11 +30,11 @@ namespace EM
     class Surface;
 }
 
-typedef EM::Horizon3D 	EMHorizon3D;
-typedef EM::Horizon2D	EMHorizon2D;
-typedef EM::Horizon	EMAnyHorizon;
-typedef EM::Fault3D	EMFault3D;
-typedef EM::Fault2D	EMFault2D;
+typedef EM::Horizon3D 		EMHorizon3D;
+typedef EM::Horizon2D		EMHorizon2D;
+typedef EM::Horizon		EMAnyHorizon;
+typedef EM::Fault3D		EMFault3D;
+typedef EM::FaultStickSet	EMFaultStickSet;
 
 
 /*!\brief Read/write EM::Horizon to storage */
@@ -81,12 +81,12 @@ public:
 };
 
 
-class EMFault2DTranslatorGroup : public TranslatorGroup
-{			         isTranslatorGroup(EMFault2D)
+class EMFaultStickSetTranslatorGroup : public TranslatorGroup
+{				       isTranslatorGroup(EMFaultStickSet)
 public:
-    			mDefEmptyTranslatorGroupConstructor(EMFault2D)
+    			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
 
-    const char*		defExtension() const { return "2df"; }
+    const char*		defExtension() const { return "fss"; }
 
     static const char*	keyword;
 };
@@ -211,13 +211,13 @@ protected:
 };
 
 
-class dgbEMFault2DTranslator : public dgbEMSurfaceTranslator
-{			       isTranslator(dgb,EMFault2D)
+class dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
+{				     isTranslator(dgb,EMFaultStickSet)
 public:
-    				dgbEMFault2DTranslator(const char* unm,
-						       const char* nm)
+    				dgbEMFaultStickSetTranslator(const char* unm,
+							     const char* nm)
 				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMFault2DTranslator()		{}
+    virtual			~dgbEMFaultStickSetTranslator()		{}
 
 protected:
     virtual bool		readOnlyZ() const		{ return false;}

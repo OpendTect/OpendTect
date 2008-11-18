@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.6 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.7 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-namespace visSurvey { class FaultDisplay; class Fault2DDisplay; }
+namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
 
 
 mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu );
@@ -64,25 +64,25 @@ protected:
 };
 
 
-mDefineItem( Fault2DParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( FaultStickSetParent, TreeItem, TreeTop, mShowMenu );
 
 
-class uiODFault2DTreeItemFactory : public uiODTreeItemFactory
+class uiODFaultStickSetTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
     uiTreeItem*		create() const
-    			{ return new uiODFault2DParentTreeItem; }
+    			{ return new uiODFaultStickSetParentTreeItem; }
     uiTreeItem*		create(int visid,uiTreeItem*) const;
 };
 
 
-class uiODFault2DTreeItem : public uiODDisplayTreeItem
+class uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
 {
 public:
-    			uiODFault2DTreeItem(int,bool dummy);
-    			uiODFault2DTreeItem(const EM::ObjectID&);
-    			~uiODFault2DTreeItem();
+    			uiODFaultStickSetTreeItem(int,bool dummy);
+    			uiODFaultStickSetTreeItem(const EM::ObjectID&);
+    			~uiODFaultStickSetTreeItem();
 
 protected:
     void		prepareForShutdown();
@@ -92,13 +92,14 @@ protected:
 
     bool		init();
     const char*		parentType() const
-			{return typeid(uiODFault2DParentTreeItem).name();}
+			{return typeid(uiODFaultStickSetParentTreeItem).name();}
 
-    EM::ObjectID		emid_;
-    MenuItem			savemnuitem_;
-    MenuItem			saveasmnuitem_;
-    MenuItem			removeselectedmnuitem_;
-    visSurvey::Fault2DDisplay*	fault2ddisplay_;
+
+    EM::ObjectID			emid_;
+    MenuItem				savemnuitem_;
+    MenuItem				saveasmnuitem_;
+    MenuItem				removeselectedmnuitem_;
+    visSurvey::FaultStickSetDisplay*	faultsticksetdisplay_;
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.58 2008-10-15 11:46:53 cvsraman Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.59 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* typ )
 	ctio_ = mMkCtxtIOObj(EMHorizon2D);
     else if (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) )
 	ctio_ = mMkCtxtIOObj(EMHorizon3D);
-    else if ( !strcmp(typ,EMFault2DTranslatorGroup::keyword) )
-	ctio_ = mMkCtxtIOObj(EMFault2D);
+    else if ( !strcmp(typ,EMFaultStickSetTranslatorGroup::keyword) )
+	ctio_ = mMkCtxtIOObj(EMFaultStickSet);
     else if ( !strcmp(typ,EMFault3DTranslatorGroup::keyword) )
 	ctio_ = mMkCtxtIOObj(EMFault3D);
     else
@@ -284,7 +284,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
     , stratlvlfld_(0)
 {
     if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword &&
-	 setup.typ_!=EMFault2DTranslatorGroup::keyword &&
+	 setup.typ_!=EMFaultStickSetTranslatorGroup::keyword &&
 	 setup.typ_!=EMFault3DTranslatorGroup::keyword &&
 	 setup.typ_!=polygonEMBodyTranslator::sKeyUserName() )
     {

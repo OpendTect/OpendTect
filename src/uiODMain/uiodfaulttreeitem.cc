@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.16 2008-10-07 10:21:24 cvsnanne Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.17 2008-11-18 13:28:53 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -13,8 +13,8 @@ ___________________________________________________________________
 
 #include "uimpepartserv.h"
 #include "visfaultdisplay.h"
-#include "visfault2ddisplay.h"
-#include "emfault2d.h"
+#include "visfaultsticksetdisplay.h"
+#include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emmanager.h"
 #include "ioman.h"
@@ -296,12 +296,12 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 
 
 
-uiODFault2DParentTreeItem::uiODFault2DParentTreeItem()
-   : uiODTreeItem( "2D Fault" )
+uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
+   : uiODTreeItem( "FaultStickSet" )
 {}
 
 
-bool uiODFault2DParentTreeItem::showSubMenu()
+bool uiODFaultStickSetParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), mLoadMnuID );
@@ -312,18 +312,18 @@ bool uiODFault2DParentTreeItem::showSubMenu()
     if ( mnuid==mLoadMnuID )
     {
 	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->selectFaults( emids, true );
+	applMgr()->EMServer()->selectFaultStickSets( emids );
 	MouseCursorChanger uics( MouseCursor::Wait );
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx]<0 ) continue;
-	    addChild( new uiODFault2DTreeItem(emids[idx]), false );
+	    addChild( new uiODFaultStickSetTreeItem(emids[idx]), false );
 	}
     }
     else if ( mnuid == mNewMnuID )
     {
 	RefMan<EM::EMObject> emo =
-	    EM::EMM().createTempObject( EM::Fault2D::typeStr() );
+	    EM::EMM().createTempObject( EM::FaultStickSet::typeStr() );
 	if ( !emo )
 	    return false;
 
@@ -334,7 +334,7 @@ bool uiODFault2DParentTreeItem::showSubMenu()
 	newname += ">";
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );
-	addChild( new uiODFault2DTreeItem( emo->id() ), false );
+	addChild( new uiODFaultStickSetTreeItem( emo->id() ), false );
 
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();
@@ -348,24 +348,25 @@ bool uiODFault2DParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFault2DTreeItemFactory::create( int visid, uiTreeItem* ) const
+uiTreeItem* uiODFaultStickSetTreeItemFactory::create( int visid,
+						      uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::Fault2DDisplay*,fd,
+    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
-    return fd ? new uiODFault2DTreeItem( visid, true ) : 0;
+    return fd ? new uiODFaultStickSetTreeItem( visid, true ) : 0;
 }
 
 
 #undef mCommonInit
 #define mCommonInit \
-    , fault2ddisplay_(0) \
+    , faultsticksetdisplay_(0) \
     , savemnuitem_("Save") \
     , saveasmnuitem_("Save as ...") \
     , removeselectedmnuitem_( "&Remove selection" )
 
 
 
-uiODFault2DTreeItem::uiODFault2DTreeItem( const EM::ObjectID& oid )
+uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( const EM::ObjectID& oid )
     : uiODDisplayTreeItem()
     , emid_( oid )
     mCommonInit
@@ -373,7 +374,7 @@ uiODFault2DTreeItem::uiODFault2DTreeItem( const EM::ObjectID& oid )
 }
 
 
-uiODFault2DTreeItem::uiODFault2DTreeItem( int id, bool dummy )
+uiODFaultStickSetTreeItem::uiODFaultStickSetTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
     , emid_(-1)
     mCommonInit
@@ -382,76 +383,77 @@ uiODFault2DTreeItem::uiODFault2DTreeItem( int id, bool dummy )
 }
 
 
-uiODFault2DTreeItem::~uiODFault2DTreeItem()
+uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
 {
-    if ( fault2ddisplay_ )
+    if ( faultsticksetdisplay_ )
     {
-	fault2ddisplay_->unRef();
-	fault2ddisplay_->materialChange()->remove(
-	    mCB(this,uiODFault2DTreeItem,colorChCB) );
+	faultsticksetdisplay_->unRef();
+	faultsticksetdisplay_->materialChange()->remove(
+	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
     }
 }
 
 
-bool uiODFault2DTreeItem::init()
+bool uiODFaultStickSetTreeItem::init()
 {
     if ( displayid_==-1 )
     {
-	visSurvey::Fault2DDisplay* fd = visSurvey::Fault2DDisplay::create();
+	visSurvey::FaultStickSetDisplay* fd =
+				    visSurvey::FaultStickSetDisplay::create();
 	displayid_ = fd->id();
-	fault2ddisplay_ = fd;
-	fault2ddisplay_->ref();
+	faultsticksetdisplay_ = fd;
+	faultsticksetdisplay_->ref();
 
 	fd->setEMID( emid_ );
 	visserv_->addObject( fd, sceneID(), true );
     }
     else
     {
-	mDynamicCastGet(visSurvey::Fault2DDisplay*,fd,
+	mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
 			visserv_->getObject(displayid_));
 	if ( !fd )
 	    return false;
 
-	fault2ddisplay_ = fd;
-	fault2ddisplay_->ref();
+	faultsticksetdisplay_ = fd;
+	faultsticksetdisplay_->ref();
 	emid_ = fd->getEMID();
     }
 
-    fault2ddisplay_->materialChange()->notify(
-	    mCB(this,uiODFault2DTreeItem,colorChCB) );
+    faultsticksetdisplay_->materialChange()->notify(
+	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
 
     return uiODDisplayTreeItem::init();
 }
 
 
-void uiODFault2DTreeItem::colorChCB( CallBacker* )
+void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
-void uiODFault2DTreeItem::prepareForShutdown()
+void uiODFaultStickSetTreeItem::prepareForShutdown()
 {
     applMgr()->EMServer()->askUserToSave(emid_);
-    if ( fault2ddisplay_ )
+    if ( faultsticksetdisplay_ )
     {
-	fault2ddisplay_->unRef();
-	fault2ddisplay_->materialChange()->remove(
-	    mCB(this,uiODFault2DTreeItem,colorChCB) );
+	faultsticksetdisplay_->unRef();
+	faultsticksetdisplay_->materialChange()->remove(
+	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
     }
 
-    fault2ddisplay_ = 0;
+    faultsticksetdisplay_ = 0;
 }
 
 
-void uiODFault2DTreeItem::createMenuCB( CallBacker* cb )
+void uiODFaultStickSetTreeItem::createMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     if ( menu->menuID()!=displayID() )
 	return;
 
-    mDynamicCastGet(visSurvey::Fault2DDisplay*,fd,
+    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
     if ( !fd )
 	return;
@@ -466,7 +468,7 @@ void uiODFault2DTreeItem::createMenuCB( CallBacker* cb )
 }
 
 
-void uiODFault2DTreeItem::handleMenuCB( CallBacker* cb )
+void uiODFaultStickSetTreeItem::handleMenuCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
@@ -488,10 +490,10 @@ void uiODFault2DTreeItem::handleMenuCB( CallBacker* cb )
 
 	applMgr()->EMServer()->storeObject( emid_, saveas );
 
-	if ( saveas && fault2ddisplay_ &&
-	     !applMgr()->EMServer()->getName(emid_).isEmpty() )
+	const BufferString emname = applMgr()->EMServer()->getName(emid_);
+	if ( saveas && faultsticksetdisplay_ && !emname.isEmpty() )
 	{
-	    fault2ddisplay_->setName( applMgr()->EMServer()->getName(emid_));
+	    faultsticksetdisplay_->setName( emname );
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }
@@ -500,7 +502,7 @@ void uiODFault2DTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	if ( sel->isOK() )
-	    fault2ddisplay_->removeSelection( *sel );
+	    faultsticksetdisplay_->removeSelection( *sel );
 	else
 	    uiMSG().error( "Invalid selection : self-intersecting polygon" );
     }
