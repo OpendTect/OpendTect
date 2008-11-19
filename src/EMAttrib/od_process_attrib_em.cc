@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.50 2008-11-17 15:42:39 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.51 2008-11-19 08:25:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -298,7 +298,7 @@ static HorSampling getHorSamp( IOPar* geompar )
 	hsamp.start.inl = 0;
 	hsamp.stop.inl = mUdf(int);
 	hsamp.start.crl = 0;
-	hsamp.stop.inl = mUdf(int);
+	hsamp.stop.crl = mUdf(int);
     }
 
     return hsamp;
