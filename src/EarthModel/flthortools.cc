@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.9 2008-11-18 19:15:25 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.10 2008-11-19 08:39:16 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -353,10 +353,10 @@ bool FaultStickThrow::init()
     if ( !findInterSections(toptrcnr,bottrcnr) )
 	return false;
 
-    topzneg_ = tophor_.getPos( sid, lidxtop, toptrcnr-5 ).z;
-    topzpos_ = tophor_.getPos( sid, lidxtop, toptrcnr+5 ).z;
-    botzneg_ = bothor_.getPos( sid, lidxbot, bottrcnr-5 ).z;
-    botzpos_ = bothor_.getPos( sid, lidxbot, bottrcnr+5 ).z;
+    topzneg_ = tophor_.getPos( sid, lidxtop, mNINT(toptrcnr-5) ).z;
+    topzpos_ = tophor_.getPos( sid, lidxtop, mNINT(toptrcnr+5) ).z;
+    botzneg_ = bothor_.getPos( sid, lidxbot, mNINT(bottrcnr-5) ).z;
+    botzpos_ = bothor_.getPos( sid, lidxbot, mNINT(bottrcnr+5) ).z;
 
     return true;
 }
