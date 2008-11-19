@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: inituivolumeprocessing.cc,v 1.4 2008-07-22 17:39:21 cvskris Exp $
+ RCS:           $Id: inituivolumeprocessing.cc,v 1.5 2008-11-19 15:01:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uivolprochorinterfiller.h"
 #include "uivolprocmarchingcubes.h"
 #include "uivolprocsmoother.h"
+#include "uivolprocvolreader.h"
 
 void uiVolumeProcessing::initStdClasses()
 {
@@ -22,6 +23,7 @@ void uiVolumeProcessing::initStdClasses()
     VolProc::uiMarchingCubes::initClass();
     VolProc::uiSmoother::initClass();
     VolProc::uiVelocityGridder::initClass();
+    VolProc::uiVolumeReader::initClass();
 }
 
 
