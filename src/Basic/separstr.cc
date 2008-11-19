@@ -5,66 +5,106 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.13 2008-06-20 12:08:38 cvsraman Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.14 2008-11-19 20:24:24 cvsbert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
 #include "separstr.h"
+#include "convert.h"
 #include "string2.h"
 
 SeparString::SeparString( const char* str, char separ )
+    : rep_(str)
 {
-    rep_ = str ? str : "";
-    setSepChar( separ );
+    sep_[0] = separ; sep_[1] = '\0';
 }
 
 
-void SeparString::setSepChar( char separ )
+SeparString& SeparString::operator =( const SeparString& ss )
 {
-    sep_ = separ;
-    sepstr_[0] = separ;
-    sepstr_[1] = '\0';
-}
-
-
-const char* SeparString::operator[]( unsigned int elemnr ) const
-{
-    static char buf_[mMaxSepItem+1];
-    char* bufptr = buf_;
-    const char* repptr = rep_;
-    buf_[0] = '\0';
-
-    while ( *repptr )
+    if ( this != &ss )
     {
-	if ( !elemnr )
-	    *bufptr = *repptr;
+	rep_ = ss.rep_;
+	sep_[0] = ss.sep_[0];
+    }
+    return *this;
+}
 
-	if ( *repptr == sep_ )
+
+SeparString& SeparString::operator =( const char* s )
+{
+    if ( s == rep_.buf() ) return *this;
+
+    rep_.setEmpty();
+    add( s );
+    return *this;
+}
+
+
+void SeparString::setSepChar( char newchar )
+{
+    SeparString ss( 0, newchar );
+    const int sz = size();
+    for ( int idx=0; idx<sz; idx++ )
+	ss.add( (*this)[idx] );
+    *this = ss;
+}
+
+
+const char* SeparString::operator[]( int elemnr ) const
+{
+    static const char* emptystr = "";
+    if ( elemnr < 0 ) return emptystr;
+
+    const char* startptr = rep_.buf();
+    while ( *startptr )
+    {
+	const char* endptr = strchr( startptr, sep_[0] );
+	if ( !elemnr || !endptr )
 	{
-	    if ( !elemnr || bufptr-buf_ == mMaxSepItem )
-	    {
-		*bufptr = '\0';
-		return buf_;
-	    }
-	    elemnr--;
-	}
-	else if ( !elemnr )
-	    bufptr++;
+	    if ( elemnr ) return emptystr;
+	    if ( !endptr )
+		return startptr;
 
-	repptr++;
+	    const int retlen = (int)(endptr - startptr);
+	    if ( retlen < 1 ) return emptystr;
+	    static BufferString ret;
+	    ret.setBufSize( retlen + 1 );
+	    char* ptr = ret.buf();
+	    while ( startptr != endptr )
+		*ptr++ = *startptr++;
+	    *ptr = '\0';
+	    return ret.buf();
+	}
+
+	elemnr--;
+	startptr = endptr+1;
     }
 
-    *bufptr = '\0';
-    return buf_;
+    return emptystr;
 }
 
 
-const char* SeparString::from( unsigned int idx ) const
+#define mDeclGetFn(typ,fn) \
+typ SeparString::fn( int idx ) const \
+{ \
+    return Conv::to<typ>( (*this)[idx] ); \
+}
+mDeclGetFn(int,getIValue)
+mDeclGetFn(od_uint32,getUIValue)
+mDeclGetFn(od_int64,getI64Value)
+mDeclGetFn(od_uint64,getUI64Value)
+mDeclGetFn(float,getFValue)
+mDeclGetFn(double,getDValue)
+mDeclGetFn(bool,getYN)
+
+
+const char* SeparString::from( int idx ) const
 {
-    const char* ptr = rep_;
+    const char* ptr = rep_.buf();
     for ( ; idx!=0; idx-- )
     {
-	ptr = strchr( ptr, sep_ );
+	ptr = strchr( ptr, sep_[0] );
 	if ( ptr ) ptr++;
     }
     return ptr;
@@ -73,67 +113,40 @@ const char* SeparString::from( unsigned int idx ) const
 
 void SeparString::add( const char* str )
 {
-    if ( str )
-    {
-	if ( *rep_ ) rep_ += sepstr_;
-	rep_ += str;
-    }
+    if ( !str || !*str ) str = " ";
+
+    if ( *rep_.buf() ) rep_ += sep_;
+    rep_ += str;
 }
 
 
-
-SeparString& SeparString::operator += ( const char* str )
+int SeparString::size() const
 {
-    add( str );
-    return *this;
-}
+    if ( !*rep_.buf() ) return 0;
 
-
-unsigned int SeparString::size() const
-{
-    if ( !*rep_ ) return 0;
-
-    unsigned int idx = *rep_ == sep_ ? 1 : 0;
-    const char* ptr = rep_;
+    int sz = *rep_.buf() == sep_[0] ? 1 : 0;
+    const char* ptr = rep_.buf();
     while ( ptr )
     {
-	idx++;
-	ptr = strchr( ptr+1, sep_ );
+	sz++;
+	ptr = strchr( ptr+1, sep_[0] );
     }
 
-    return idx;
+    return sz;
 }
 
 
-SeparString& SeparString::operator +=( int i )
-{
-    *this += getStringFromInt( i );
-    return *this;
+#define mDeclAddFn(typ) \
+SeparString& SeparString::operator +=( typ v ) \
+{ \
+    *this += Conv::to<const char*>( v ); \
+    return *this; \
 }
 
-
-SeparString& SeparString::operator +=( float f )
-{
-    *this += getStringFromFloat( 0, f );
-    return *this;
-}
-
-
-SeparString& SeparString::operator +=( double d )
-{
-    *this += getStringFromDouble( 0, d );
-    return *this;
-}
-
-
-void SeparString::replaceSepChar( char newchar )
-{
-    SeparString newstr( 0, newchar );
-    for ( int idx=0; idx<size(); idx++ )
-	newstr.add( (*this)[idx] );
-
-    rep_ = newstr.buf();
-    setSepChar( newchar );
-}
-
-
+mDeclAddFn(int)
+mDeclAddFn(od_uint32)
+mDeclAddFn(od_int64)
+mDeclAddFn(od_uint64)
+mDeclAddFn(float)
+mDeclAddFn(double)
+mDeclAddFn(bool)

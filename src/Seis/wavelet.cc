@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.31 2008-07-16 11:16:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.32 2008-11-19 20:24:24 cvsbert Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -201,13 +201,13 @@ bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )
     while ( !atEndOfSection( astream.next() ) )
     {
         if ( astream.hasKeyword( sLength ) )
-	    wv->reSize( astream.getVal() );
+	    wv->reSize( astream.getIValue() );
         else if ( astream.hasKeyword( sIndex ) )
-	    iw = astream.getVal();
+	    iw = astream.getIValue();
         else if ( astream.hasKeyword(sKey::Name) )
 	    wv->setName( astream.value() );
         else if ( astream.hasKeyword( sSampRate ) )
-	    sr = astream.getValue();
+	    sr = astream.getFValue();
     }
     wv->set( -iw, sr / scfac );
 

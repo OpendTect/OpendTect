@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.37 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:           $Id: hostdata.cc,v 1.38 2008-11-19 20:24:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,9 +203,9 @@ bool HostDataList::readHostFile( const char* fname )
 	if ( astrm.hasKeyword("Remote shell") )
 	    rshcomm_ = astrm.value();
 	if ( astrm.hasKeyword("Default nice level") )
-	    defnicelvl_ = astrm.getVal();
+	    defnicelvl_ = astrm.getIValue();
 	if ( astrm.hasKeyword("First port") )
-	    portnr_ = astrm.getVal();
+	    portnr_ = astrm.getIValue();
 	if ( astrm.hasKeyword("Win appl prefix") )
 	    win_appl_pr_.set( (char*) astrm.value() );
 	if ( astrm.hasKeyword("Unx appl prefix") )

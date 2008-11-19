@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.57 2008-05-22 12:04:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.58 2008-11-19 20:24:24 cvsbert Exp $";
 
 #include "pickset.h"
 
@@ -63,7 +63,8 @@ void Pick::Location::unSetText( const char* key )
 	    continue;
 
 	SeparString copy( 0, '\'' );
-	for ( int idy=0; idy<sepstr.size(); idy++ )
+	const int nrkeys = sepstr.size();
+	for ( int idy=0; idy<nrkeys; idy++ )
 	{
 	    if ( idy==idx || idy==idx+1 )
 		continue;
@@ -109,10 +110,7 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 	{
 	    *stop = '\0';
 	    s += stop - start + 1;
-
-	    SeparString separstring( text->buf(), pipechar );
-	    separstring.replaceSepChar( newlinechar );
-	    *text = separstring.buf();
+	    replaceCharacter( text->buf(), newlinechar, pipechar );
 	}
     }
 
@@ -159,11 +157,10 @@ void Pick::Location::toString( BufferString& str ) const
     str = "";
     if ( text )
     {
-	SeparString separstring( text->buf(), newlinechar );
-	separstring.replaceSepChar( pipechar );
+	replaceCharacter( text->buf(), newlinechar, pipechar );
 
 	str = "\"";
-	str += separstring.buf();
+	str += *text;
 	str += "\"";
 	str += "\t";
     }

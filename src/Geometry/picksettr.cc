@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.16 2008-05-30 09:49:20 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.17 2008-11-19 20:24:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,12 +105,12 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	    }
 	    if ( astrm.hasKeyword(sKey::Size) )
 	    {
-		ps.disp_.pixsize_ = astrm.getVal();
+		ps.disp_.pixsize_ = astrm.getIValue();
 		astrm.next();
 	    }
 	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType) )
 	    {
-		ps.disp_.markertype_ = astrm.getVal();
+		ps.disp_.markertype_ = astrm.getIValue();
 		astrm.next();
 	    }
 	    while ( !atEndOfSection(astrm) )

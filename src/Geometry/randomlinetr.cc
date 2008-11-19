@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.8 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.9 2008-11-19 20:24:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	astrm.next();
 
     const bool issimple = !astrm.hasKeyword( sKeyNrLines );
-    const int nrlines = issimple ? 1 : astrm.getVal();
+    const int nrlines = issimple ? 1 : astrm.getIValue();
     Interval<float> zrg; assign( zrg, SI().zRange(true) );
     BufferString rlnm;
     if ( issimple )

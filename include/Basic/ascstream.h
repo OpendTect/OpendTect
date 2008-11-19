@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.16 2008-11-19 09:44:26 cvsbert Exp $
+ RCS:		$Id: ascstream.h,v 1.17 2008-11-19 20:24:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <bufstring.h>
+#include "bufstring.h"
+#include "plftypes.h"
 #include <limits.h>
 #include <iosfwd>
 
@@ -40,12 +41,22 @@ public:
 		~ascostream();
 
     bool	putHeader(const char* filetype);
-    void	putKeyword(const char*);	// Just a string, no keyw/value
+    void	putKeyword(const char*);	// Just a string, no keyw: value
     bool	put(const char*,const char* val=0);
-    bool	put(const char*,int);
-    bool	put(const char*,float);
-    bool	put(const char*,double);
-    bool	putYN(const char*,bool);
+
+#define mAscStreamDefFns(fn,typ) \
+    bool	fn(const char*,typ); \
+    bool	fn(const char*,typ,typ); \
+    bool	fn(const char*,typ,typ,typ); \
+    bool	fn(const char*,typ,typ,typ,typ)
+    		mAscStreamDefFns(put,int);
+		mAscStreamDefFns(put,od_uint32);
+		mAscStreamDefFns(put,od_int64);
+		mAscStreamDefFns(put,od_uint64);
+		mAscStreamDefFns(put,float);
+		mAscStreamDefFns(put,double);
+		mAscStreamDefFns(putYN,bool);
+#undef mAscStreamDefFns
 
     void	newParagraph();
 
@@ -93,16 +104,20 @@ public:
     EntryType		type() const;
     bool		atEOS() const		{ return type() > KeyVal; }
 			//!< returns true if at end of segment (='paragraph')
-    bool		hasKeyword(const char*) const;
-    bool		hasValue(const char*) const;
-    int			getVal() const;
-    double		getValue() const;
-    bool		getYN() const;
-
-    inline std::istream& stream() const		{ return *streamptr; }
 
     const char*		keyWord() const		{ return keybuf.buf(); }
     const char*		value() const		{ return valbuf.buf(); }
+    bool		hasKeyword(const char*) const;
+    bool		hasValue(const char*) const;
+    int			getIValue(int i=0) const;
+    od_uint32		getUIValue(int i=0) const;
+    od_int64		getI64Value(int i=0) const;
+    od_uint64		getUI64Value(int i=0) const;
+    float		getFValue(int i=0) const;
+    double		getDValue(int i=0) const;
+    bool		getYN(int i=0) const;
+
+    inline std::istream& stream() const		{ return *streamptr; }
 
 			// This is for overriding what's in the file
     void		setKeyWord( const char* s ) { keybuf = s; }

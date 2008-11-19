@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.26 2008-11-19 09:44:26 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.27 2008-11-19 20:24:24 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -143,9 +143,9 @@ bool Well::Reader::getInfo( std::istream& strm ) const
     bool badhdr = *hdrln != 'd';
     if ( !badhdr )
     {
-	if ( (*hdrln+1) == 'G' )
+	if ( *(hdrln+1) == 'G' )
 	    return getOldTimeWell(strm);
-	else if ( (*hdrln+1) != 'T' )
+	else if ( *(hdrln+1) != 'T' )
 	    badhdr = true;
     }
     if ( badhdr )
@@ -165,7 +165,7 @@ bool Well::Reader::getInfo( std::istream& strm ) const
 	else if ( astrm.hasKeyword(Well::Info::sKeycoord) )
 	    wd.info().surfacecoord.use( astrm.value() );
 	else if ( astrm.hasKeyword(Well::Info::sKeyelev) )
-	    wd.info().surfaceelev = astrm.getValue();
+	    wd.info().surfaceelev = astrm.getFValue();
     }
 
     return getTrack( strm );

@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.25 2008-11-19 09:44:26 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.26 2008-11-19 20:24:24 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: ascstream.cc,v 1.25 2008-11-19 09:44:26 cvsbert
 #include "convert.h"
 #include "odver.h"
 #include "strmoper.h"
+#include "separstr.h"
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
@@ -51,6 +52,15 @@ extern "C" void SetProjectVersionName( const char* s )
 ascostream::~ascostream()
 {
     if ( mystrm ) delete streamptr;
+}
+
+
+bool ascostream::putHeader( const char* fltyp )
+{
+    stream() << GetProjectVersionName() << '\n' << fltyp << '\n'
+	     << Time_getFullDateString() << '\n';
+    newParagraph();
+    return stream().good();
 }
 
 
@@ -99,20 +109,16 @@ bool ascostream::put( const char* keyword, const char* value )
 }
 
 
-bool ascostream::putYN( const char* keyword, bool yn )
-{
-    putKeyword( keyword );
-    stream() << getYesNoString(yn) << '\n';
-    return stream().good();
+#define mDeclPut1IFn(typ) \
+bool ascostream::put( const char* keyword, typ value ) \
+{ \
+    putKeyword( keyword ); stream() << value << '\n'; \
+    return stream().good(); \
 }
-
-
-bool ascostream::put( const char* keyword, int value )
-{
-    putKeyword( keyword );
-    stream() << value << '\n';
-    return stream().good();
-}
+mDeclPut1IFn(int)
+mDeclPut1IFn(od_uint32)
+mDeclPut1IFn(od_int64)
+mDeclPut1IFn(od_uint64)
 
 
 bool ascostream::put( const char* keyword, float value )
@@ -129,13 +135,60 @@ bool ascostream::put( const char* keyword, double value )
 }
 
 
-bool ascostream::putHeader( const char* fltyp )
+bool ascostream::putYN( const char* keyword, bool yn )
 {
-    stream() << GetProjectVersionName() << '\n' << fltyp << '\n'
-	     << Time_getFullDateString() << '\n';
-    newParagraph();
+    putKeyword( keyword );
+    stream() << getYesNoString(yn) << '\n';
     return stream().good();
 }
+
+
+#define mDeclPut2Fn(fn,typ) \
+bool ascostream::fn( const char* keyword, typ v1, typ v2 ) \
+{ \
+    FileMultiString fms; fms += v1; fms += v2; \
+    putKeyword( keyword ); stream() << fms << '\n'; \
+    return stream().good(); \
+}
+mDeclPut2Fn(put,int)
+mDeclPut2Fn(put,od_uint32)
+mDeclPut2Fn(put,od_int64)
+mDeclPut2Fn(put,od_uint64)
+mDeclPut2Fn(put,float)
+mDeclPut2Fn(put,double)
+mDeclPut2Fn(putYN,bool)
+
+
+#define mDeclPut3Fn(fn,typ) \
+bool ascostream::fn( const char* keyword, typ v1, typ v2, typ v3 ) \
+{ \
+    FileMultiString fms; fms += v1; fms += v2; fms += v3; \
+    putKeyword( keyword ); stream() << fms << '\n'; \
+    return stream().good(); \
+}
+mDeclPut3Fn(put,int)
+mDeclPut3Fn(put,od_uint32)
+mDeclPut3Fn(put,od_int64)
+mDeclPut3Fn(put,od_uint64)
+mDeclPut3Fn(put,float)
+mDeclPut3Fn(put,double)
+mDeclPut3Fn(putYN,bool)
+
+
+#define mDeclPut4Fn(fn,typ) \
+bool ascostream::fn( const char* keyword, typ v1, typ v2, typ v3, typ v4 ) \
+{ \
+    FileMultiString fms; fms += v1; fms += v2; fms += v3; fms += v4; \
+    putKeyword( keyword ); stream() << fms << '\n'; \
+    return stream().good(); \
+}
+mDeclPut4Fn(put,int)
+mDeclPut4Fn(put,od_uint32)
+mDeclPut4Fn(put,od_int64)
+mDeclPut4Fn(put,od_uint64)
+mDeclPut4Fn(put,float)
+mDeclPut4Fn(put,double)
+mDeclPut4Fn(putYN,bool)
 
 
 ascistream::~ascistream()
@@ -278,19 +331,18 @@ bool ascistream::hasValue( const char* val ) const
 }
 
 
-bool ascistream::getYN() const
-{
-    return yesNoFromString( valbuf );
+#define mDeclGetFn(typ,fn) \
+typ ascistream::get##fn( int idx ) const \
+{ \
+    if ( idx < 1 ) return Conv::to<typ>( valbuf.buf() ); \
+    FileMultiString fms( valbuf.buf() ); \
+    return Conv::to<typ>( fms[idx] ); \
 }
 
-
-int ascistream::getVal() const
-{
-    return valbuf.isEmpty() ? mUdf(int) : atoi( valbuf.buf() );
-}
-
-
-double ascistream::getValue() const
-{
-    return valbuf.isEmpty() ? mUdf(double) : atof( valbuf.buf() );
-}
+mDeclGetFn(int,IValue)
+mDeclGetFn(od_uint32,UIValue)
+mDeclGetFn(od_int64,I64Value)
+mDeclGetFn(od_uint64,UI64Value)
+mDeclGetFn(float,FValue)
+mDeclGetFn(double,DValue)
+mDeclGetFn(bool,YN)
