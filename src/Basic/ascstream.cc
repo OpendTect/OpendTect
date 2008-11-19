@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.24 2008-07-24 06:46:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.25 2008-11-19 09:44:26 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -65,22 +65,22 @@ void ascostream::putKeyword( const char* keyword )
     if ( !keyword || !*keyword ) return;
 
     BufferString towrite = keyword;
-    char* ptr = strchr( towrite.buf(), keyvalsep );
+    char* ptr = strchr( towrite.buf(), mAscStrmKeyValSep );
     while ( ptr )
     {
-	// Need to escape keyvalsep in keyword
+	// Need to escape mAscStrmKeyValSep in keyword
 	const int offs = ptr - towrite.buf();
 	BufferString tmp( ptr + 1 );
 	char escbuf[3];
-	escbuf[0] = '\\'; escbuf[1] = keyvalsep; escbuf[2] = '\0';
+	escbuf[0] = '\\'; escbuf[1] = mAscStrmKeyValSep; escbuf[2] = '\0';
 	*ptr = 0;
 	towrite += escbuf;
 	towrite += tmp;
-	ptr = strchr( towrite.buf() + offs + 2, keyvalsep );
+	ptr = strchr( towrite.buf() + offs + 2, mAscStrmKeyValSep );
     }
 
-    stream() << towrite << keyvalsep;
-    if ( keyvalsep != '=' )
+    stream() << towrite << mAscStrmKeyValSep;
+    if ( mAscStrmKeyValSep != '=' )
 	stream() << ' ';
 }
 
@@ -129,10 +129,9 @@ bool ascostream::put( const char* keyword, double value )
 }
 
 
-bool ascostream::putHeader( const char* fltyp, const char* pspec )
+bool ascostream::putHeader( const char* fltyp )
 {
-    if ( !pspec ) pspec = GetProjectVersionName();
-    stream() << pspec << '\n' << fltyp << '\n'
+    stream() << GetProjectVersionName() << '\n' << fltyp << '\n'
 	     << Time_getFullDateString() << '\n';
     newParagraph();
     return stream().good();
@@ -193,12 +192,12 @@ ascistream& ascistream::next()
 	return *this;
     }
 
-    char* separptr = strchr( linebuf, keyvalsep );
+    char* separptr = strchr( linebuf, mAscStrmKeyValSep );
     while ( separptr && separptr != linebuf && *(separptr-1) == '\\' )
     {
 	for ( char* ptr=separptr-1; *ptr; ptr++ )
 	    *ptr = *(ptr+1);
-	separptr = strchr( separptr+1, keyvalsep );
+	separptr = strchr( separptr+1, mAscStrmKeyValSep );
     }
 
     char* startptr = separptr + 1;
@@ -220,16 +219,6 @@ ascistream& ascistream::next()
 bool ascistream::isOfFileType( const char* ftyp ) const
 {
     return matchStringCI( ftyp, filetype.buf() );
-}
-
-
-const char* ascistream::projName() const
-{
-    static char buf[20];
-    strncpy( buf, header.buf(), 20 );
-    char* ptr = strchr( buf, ' ' );
-    if ( ptr ) *ptr = '\0';
-    return buf;
 }
 
 

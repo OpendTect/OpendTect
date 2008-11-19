@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.15 2008-01-08 11:53:52 cvsbert Exp $
+ RCS:		$Id: ascstream.h,v 1.16 2008-11-19 09:44:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include <iosfwd>
 
 #define mAscStrmParagraphMarker		"!"
-#define mAscStrmDefKeyValSep		':'
+#define mAscStrmKeyValSep		':'
 
 
 /*!\brief OpendTect standard ascii format file writing.
@@ -32,30 +32,32 @@ class ascostream
 {
 
 public:
-		ascostream(std::ostream& strm,char kvsep=mAscStrmDefKeyValSep)
-			: mystrm(false), keyvalsep(kvsep), streamptr(&strm) {}
-		ascostream(std::ostream* strm,char kvsep=mAscStrmDefKeyValSep)
-			: mystrm(true), keyvalsep(kvsep), streamptr(strm)   {}
+		ascostream( std::ostream& strm )
+			: mystrm(false), streamptr(&strm) {}
+		ascostream( std::ostream* strm )
+			: mystrm(true), streamptr(strm)   {}
 					//!<\note strm becomes mine
 		~ascostream();
 
+    bool	putHeader(const char* filetype);
+    void	putKeyword(const char*);	// Just a string, no keyw/value
     bool	put(const char*,const char* val=0);
     bool	put(const char*,int);
     bool	put(const char*,float);
     bool	put(const char*,double);
     bool	putYN(const char*,bool);
-    bool	putHeader(const char*,const char* pspec=0);
 
     void	newParagraph();
-    void	putKeyword(const char*);
-    std::ostream& stream() const		{ return *streamptr; }
-		operator std::ostream&()	{ return *streamptr; }
+
+    std::ostream& stream()			{ return *streamptr; }
+    const std::ostream& stream() const		{ return *streamptr; }
+    operator	std::ostream&()			{ return *streamptr; }
+    operator	const std::ostream&() const	{ return *streamptr; }
 
 protected:
 
     std::ostream* streamptr;
     bool	mystrm;
-    const char	keyvalsep;
 
 };
 
@@ -71,23 +73,17 @@ of 'paragraphs', each separated by a single '!' on a line.
 class ascistream
 {
 public:
-			ascistream(std::istream& strm,bool rdhead=true,
-				   char kvsep=mAscStrmDefKeyValSep)
-				: mystrm(false)
-				, keyvalsep(kvsep)
-				{ init(&strm,rdhead); }
-			ascistream(std::istream* strm,bool rdhead=true,
-				   char kvsep=mAscStrmDefKeyValSep)
-				: mystrm(true)
-				, keyvalsep(kvsep)
-				{ init(strm,rdhead); }
+			ascistream( std::istream& strm, bool rdhead=true )
+				: mystrm(false)	{ init(&strm,rdhead); }
+			ascistream( std::istream* strm, bool rdhead=true )
+				: mystrm(true)	{ init(strm,rdhead); }
 			~ascistream();
 
     ascistream&		next();
 
-    const char*		projName() const;	//!< Usually 'dTect'
-    bool		isOfFileType(const char*) const;
+    const char*		headerStartLine() const	{ return header.buf(); }
     const char*		fileType() const	{ return filetype.buf(); }
+    bool		isOfFileType(const char*) const;
     const char*		version() const;
     const char*		timeStamp() const	{ return timestamp.buf(); }
     int			majorVersion() const;
@@ -118,10 +114,9 @@ protected:
     bool		mystrm;
     BufferString	keybuf;
     BufferString	valbuf;
-    const char		keyvalsep;
 
-    BufferString	filetype;
     BufferString	header;
+    BufferString	filetype;
     BufferString	timestamp;
 
 private:

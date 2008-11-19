@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.25 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.26 2008-11-19 09:44:26 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -101,8 +101,9 @@ const char* Well::Reader::rdHdr( std::istream& strm, const char* fileky ) const
 	ErrMsg( msg );
 	return 0;
     }
-    static BufferString ver; ver = astrm.projName();
-    return ver.buf();
+
+    static BufferString hdrln; hdrln = astrm.headerStartLine();
+    return hdrln.buf();
 }
 
 
@@ -136,11 +137,19 @@ bool Well::Reader::getInfo() const
 
 bool Well::Reader::getInfo( std::istream& strm ) const
 {
-    const char* ver = rdHdr( strm, sKeyWell );
-    if ( !ver || !*ver || !*(ver+1) )
+    const char* hdrln = rdHdr( strm, sKeyWell );
+    if ( !hdrln )
 	return false;
-    if ( !strcmp(ver,"dGB-dTect") )
-	return getOldTimeWell(strm);
+    bool badhdr = *hdrln != 'd';
+    if ( !badhdr )
+    {
+	if ( (*hdrln+1) == 'G' )
+	    return getOldTimeWell(strm);
+	else if ( (*hdrln+1) != 'T' )
+	    badhdr = true;
+    }
+    if ( badhdr )
+	{ ErrMsg("Bad file header for main well file"); return false; }
 
     ascistream astrm( strm, false );
     while ( !atEndOfSection(astrm.next()) )
@@ -219,9 +228,11 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 	StreamData sd = mkSD( sExtLog, idx );
 	if ( !sd.usable() ) break;
 
-	rdHdr( *sd.istrm, sKeyLog );
-	PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, idx-1 );
-	strs.add( log->name() );
+	if ( rdHdr(*sd.istrm,sKeyLog) )
+	{
+	    PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, idx-1 );
+	    strs.add( log->name() );
+	}
 	sd.close();
     }
 }
@@ -238,7 +249,8 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 	if ( !sd.usable() ) break;
 	std::istream& strm = *sd.istrm;
 
-	rdHdr( strm, sKeyLog );
+	if ( !rdHdr(strm,sKeyLog) )
+	    { sd.close(); continue; }
 	PtrMan<Well::Log> log = rdLogHdr( strm, idx-1 );
 	if ( log->name() != nm )
 	    { sd.close(); continue; }
@@ -307,8 +319,8 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int idx ) const
 
 bool Well::Reader::addLog( std::istream& strm ) const
 {
-    const char* ver = rdHdr( strm, sKeyLog );
-    if ( !ver ) return false;
+    if ( !rdHdr(strm,sKeyLog) )
+	return false;
 
     Well::Log* newlog = rdLogHdr( strm, wd.logs().size() );
 
@@ -339,7 +351,8 @@ bool Well::Reader::getMarkers() const
 
 bool Well::Reader::getMarkers( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyMarkers) ) return false;
+    if ( !rdHdr(strm,sKeyMarkers) )
+	return false;
 
     ascistream astrm( strm, false );
     IOPar iopar( astrm );
@@ -389,7 +402,8 @@ bool Well::Reader::getD2T() const
 
 bool Well::Reader::getD2T( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyD2T) ) return false;
+    if ( !rdHdr(strm,sKeyD2T) )
+	return false;
 
     ascistream astrm( strm, false );
     Well::D2TModel* d2t = new Well::D2TModel;
