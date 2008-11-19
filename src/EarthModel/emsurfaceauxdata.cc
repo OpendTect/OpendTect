@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.18 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.19 2008-11-19 13:32:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,10 +296,11 @@ BufferString SurfaceAuxData::getAuxDataFileName( const IOObj& ioobj,
 
 Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 {
+    if ( horizon_.geometry().sectionGeometry( sid )->isEmpty() )
+	return 0;
+
     const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
     const StepInterval<int> colrg = horizon_.geometry().colRange( sid );
-    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
-	return 0;
 
     PosID posid( horizon_.id(), sid );
     Array2DImpl<float>* arr =
@@ -321,10 +322,11 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
 				 const Array2D<float>& arr2d )
 {
+    if ( horizon_.geometry().sectionGeometry( sid )->isEmpty() )
+	return;
+
     const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
     const StepInterval<int> colrg = horizon_.geometry().colRange( sid );
-    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
-	return;
 
     PosID posid( horizon_.id(), sid );
 

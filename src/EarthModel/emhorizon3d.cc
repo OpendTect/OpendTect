@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.106 2008-10-03 12:10:12 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.107 2008-11-19 13:32:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,10 +272,11 @@ mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword );
 Array2D<float>* Horizon3D::createArray2D( 
 		    SectionID sid, const ZAxisTransform* zaxistransform ) const
 {
+    if ( geometry().sectionGeometry( sid )->isEmpty() )
+	return 0;
+
     const StepInterval<int> rowrg = geometry_.rowRange( sid );
     const StepInterval<int> colrg = geometry_.colRange( sid );
-    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
-	return 0;
 
     Array2DImpl<float>* arr =
 	    new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
@@ -298,10 +299,11 @@ Array2D<float>* Horizon3D::createArray2D(
 bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid, 
 			    bool onlyfillundefs )
 {
+    if ( geometry().sectionGeometry( sid )->isEmpty() )
+	return 0;
+
     const StepInterval<int> rowrg = geometry_.rowRange( sid );
     const StepInterval<int> colrg = geometry_.colRange( sid );
-    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
-	return false;
 
     const RowCol startrc( rowrg.start, colrg.start );
     const RowCol stoprc( rowrg.stop, colrg.stop );
