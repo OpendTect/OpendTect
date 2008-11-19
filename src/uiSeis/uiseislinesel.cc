@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.8 2008-11-18 10:00:22 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.9 2008-11-19 07:07:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,13 +56,6 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
 }   
 
 
-uiLineSel::~uiLineSel()
-{
-    //if ( lsctio_ ) delete lsctio_->ioobj;
-    //delete lsctio_;
-}
-
-
 BufferString uiLineSel::getSummary() const
 {
     BufferString ret;
@@ -96,11 +89,9 @@ void uiLineSel::lineSetSel( CallBacker* )
     lnmsfld_->empty();
     lnmsfld_->addItems( lnms );
 
-    if ( lnms.size() == 0 )
-    {
-	lsb_->display( false );
-	trc1fld_->display( false );
-    }
+    lsb_->display( !lnms.isEmpty() );
+    trc1fld_->display( !lnms.isEmpty() );
+    
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
 	lnmsfld_->setItemCheckable( idx, true );
@@ -127,30 +118,23 @@ void uiLineSel::lineSetSel( CallBacker* )
 	trc1fld_->setValue( linetrcrgs_[0].stop );
     }
 
-    lnmsfld_->selectionChanged.notify( mCB(this,uiLineSel,trcRangeSel) );
+    lnmsfld_->selectionChanged.notify( mCB(this,uiLineSel,lineSelTrcRange) );
 }
 
 
-void uiLineSel::trcRangeSel( CallBacker* )
+void uiLineSel::lineSelTrcRange( CallBacker* )
 {
     if ( linetrcrgs_.isEmpty() )
 	return;
 
     int curselno = lnmsfld_->currentItem(); 
-    if ( !lsb_->box()->isDisplayed() )
-	lsb_->display( true );
+    
     trc0fld_->setInterval( linetrcrgs_[curselno] );
     trc0fld_->setValue( linetrcrgs_[curselno].start );
 
-    if ( !trc1fld_->isDisplayed() )
-	trc1fld_->display( true );
     trc1fld_->setInterval( linetrcrgs_[curselno] );
     trc1fld_->setValue( linetrcrgs_[curselno].stop );
 }
-
-
-MultiID uiLineSel::getLineSetKey()
-{ return getIOObj()->key(); }
 
 
 void uiLineSel::trc0Changed( CallBacker* )
@@ -177,10 +161,6 @@ bool uiLineSel::acceptOK( CallBacker* )
     
     return true;
 }
-
-
-IOObj* uiLineSel::getIOObj()
-{ return lsctio_->ioobj; }
 
 
 uiSelection2DParSel::uiSelection2DParSel( uiParent* p )
