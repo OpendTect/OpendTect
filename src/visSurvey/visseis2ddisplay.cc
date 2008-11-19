@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.46 2008-10-29 17:05:19 cvsjaap Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.47 2008-11-19 14:23:47 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -307,6 +307,8 @@ void Seis2DDisplay::setData( int attrib,
 		    const float val = dh->dataPresent(sample) ?
 			dataseries->value( sample-dh->z0_ ) : mUdf(float);
 		    const int arrzidx = arraysrg.getIndex( sample );
+		    if ( arrzidx<0 ||  arrzidx>=arrzsz ) continue;
+
 		    arr->set( trcidx, arrzidx, val );
 		}
 	    }
