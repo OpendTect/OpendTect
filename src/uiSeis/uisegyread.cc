@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyread.cc,v 1.22 2008-11-17 12:26:24 cvsbert Exp $
+ RCS:		$Id: uisegyread.cc,v 1.23 2008-11-19 08:30:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uifileinput.h"
 #include "uitaskrunner.h"
-#include "uitextedit.h"
 #include "uiobjdisposer.h"
 #include "uimsg.h"
 #include "survinfo.h"
@@ -35,7 +34,6 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "filepath.h"
 #include "timefun.h"
-#include <sstream>
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
@@ -248,10 +246,8 @@ uiSEGYReadPreScanner( uiParent* p, Seis::GeomType gt, const IOPar& pars )
 
 bool acceptOK( CallBacker* )
 {
-    const int nrtrcs = nrtrcsfld_->isChecked() ? nrtrcsfld_->getIntValue() : 0;
-    const char* fnm = saveasfld_->isChecked() ? saveasfld_->fileName() : "";
-
     scanner_= new SEGY::Scanner( pars_, geom_ );
+    const int nrtrcs = nrtrcsfld_->isChecked() ? nrtrcsfld_->getIntValue() : 0;
     scanner_->setMaxNrtraces( nrtrcs );
     uiTaskRunner uitr( this );
     uitr.execute( *scanner_ );
@@ -259,27 +255,11 @@ bool acceptOK( CallBacker* )
     if ( scanner_->fileDataSet().isEmpty() )
     {
 	uiMSG().error( "No traces found" );
-	res_ = false;
-    }
-    else
-    {
-	scanner_->getReport( rep_ );
-	for ( int idx=0; idx<scanner_->warnings().size(); idx++ )
-	{
-	    if ( !idx ) rep_.add( "->", "Warnings" );
-	    rep_.add( BufferString(idx+1), scanner_->warnings().get(idx) );
-	}
-	if ( *fnm && ! rep_.write(fnm,IOPar::sKeyDumpPretty) )
-	    uiMSG().warning( "Cannot write report to specified file" );
+	return false;
     }
 
-    uiDialog* dlg = new uiDialog( parent(), uiDialog::Setup("SEG-Y Scan Report",
-				  mNoDlgTitle,mNoHelpID).modal(false) );
-    dlg->setCtrlStyle( uiDialog::LeaveOnly );
-    std::ostringstream strstrm; rep_.dumpPretty( strstrm );
-    uiTextEdit* te = new uiTextEdit( dlg, "SEG-Y Scan Report" );
-    te->setText( strstrm.str().c_str() );
-    dlg->setDeleteOnClose( true ); dlg->go();
+    const char* fnm = saveasfld_->isChecked() ? saveasfld_->fileName() : 0;
+    uiSEGYScanDlg::presentReport( parent(), *scanner_, fnm );
     return true;
 }
 

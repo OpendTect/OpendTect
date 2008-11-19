@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.6 2008-11-17 15:50:12 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.7 2008-11-19 08:30:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,12 +17,14 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uibutton.h"
 #include "uitaskrunner.h"
+#include "uitextedit.h"
 #include "pixmap.h"
 
 #include "segyfiledef.h"
 #include "segyfiledata.h"
 #include "segyscanner.h"
 #include "segydirectdef.h"
+#include <sstream>
 
 
 uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
@@ -125,14 +127,41 @@ bool uiSEGYScanDlg::mkOutput()
     if ( !anydata )
 	mErrRet(fds.size() > 1 ? "No traces found in any of the files"
 				: "No traces found in file")
+    presentReport( parent(), *scanner_ );
 
     SEGY::DirectDef dd( scanner_->geomType() );
     dd.setData( fds, true );
     if ( !dd.writeToFile( ctio_.ioobj->fullUserExpr(Conn::Read) ) )
     {
-	uiMSG().error( "Cannot write data definition file to disk" );
+	uiMSG().error( "Cannot write data definition file to disk.\n"
+			"You cannot use the data store." );
 	return false;
     }
 
     return true;
+}
+
+
+void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
+				   const char* fnm )
+{
+    static const char* titl = "SEG-Y scan report";
+    IOPar rep( titl );
+    sc.getReport( rep );
+    for ( int idx=0; idx<sc.warnings().size(); idx++ )
+    {
+	if ( !idx ) rep.add( "->", "Warnings" );
+	rep.add( BufferString(idx+1), sc.warnings().get(idx) );
+    }
+
+    if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty) )
+	uiMSG().warning( "Cannot write report to specified file" );
+
+    uiDialog* dlg = new uiDialog( p,
+	    	    uiDialog::Setup(titl,mNoDlgTitle,mNoHelpID).modal(false) );
+    dlg->setCtrlStyle( uiDialog::LeaveOnly );
+    std::ostringstream strstrm; rep.dumpPretty( strstrm );
+    uiTextEdit* te = new uiTextEdit( dlg, titl );
+    te->setText( strstrm.str().c_str() );
+    dlg->setDeleteOnClose( true ); dlg->go();
 }

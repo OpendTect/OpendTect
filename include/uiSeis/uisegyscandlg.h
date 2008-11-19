@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyscandlg.h,v 1.3 2008-11-17 15:50:12 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.h,v 1.4 2008-11-19 08:30:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ public :
 			~uiSEGYScanDlg();
 
     SEGY::Scanner*	getScanner();	//!< becomes yours
+    static void		presentReport(uiParent*,const SEGY::Scanner&,
+	    			      const char* reportfilenm=0);
 
 protected:
 
