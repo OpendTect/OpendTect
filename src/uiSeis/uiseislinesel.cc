@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.9 2008-11-19 07:07:22 cvsraman Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.10 2008-11-19 10:13:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,16 +105,18 @@ void uiLineSel::lineSetSel( CallBacker* )
 		    (attrbnms.size() > 0 ? attrbnms.get(0) : 0) );
 	oinf.getRanges( lk, trcrg, zrg );
 
-	linetrcrgs_ += trcrg;
-	linetrcflrgs_ += trcrg;
+	Interval<int> trcitval( trcrg.start, trcrg.stop );
+
+	linetrcrgs_ += trcitval;
+	linetrcflrgs_ += trcitval;
     }
 
     if ( lnms.size() && lsb_->box()->isDisplayed() && 
 	    		trc1fld_->isDisplayed() )
     {
-	trc0fld_->setInterval( linetrcrgs_[0] );
+	trc0fld_->setInterval( linetrcrgs_[0].start, linetrcrgs_[0].stop );
 	trc0fld_->setValue( linetrcrgs_[0].start );
-	trc1fld_->setInterval( linetrcrgs_[0] );
+	trc1fld_->setInterval( linetrcrgs_[0].start, linetrcrgs_[0].stop );
 	trc1fld_->setValue( linetrcrgs_[0].stop );
     }
 
@@ -129,10 +131,12 @@ void uiLineSel::lineSelTrcRange( CallBacker* )
 
     int curselno = lnmsfld_->currentItem(); 
     
-    trc0fld_->setInterval( linetrcrgs_[curselno] );
+    trc0fld_->setInterval( linetrcrgs_[curselno].start, 
+	    		   linetrcrgs_[curselno].stop );
     trc0fld_->setValue( linetrcrgs_[curselno].start );
 
-    trc1fld_->setInterval( linetrcrgs_[curselno] );
+    trc1fld_->setInterval( linetrcrgs_[curselno].start,
+	   		   linetrcrgs_[curselno].stop );
     trc1fld_->setValue( linetrcrgs_[curselno].stop );
 }
 
