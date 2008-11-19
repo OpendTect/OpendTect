@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2008
- RCS:		$Id: visfaultsticksetdisplay.cc,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:		$Id: visfaultsticksetdisplay.cc,v 1.2 2008-11-19 13:03:18 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -552,12 +552,14 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 	    else if ( plane->getCubeSampling().defaultDir()==CubeSampling::Crl )
 		editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
-	    mDynamicCastGet( const Geometry::FaultStickSet*, fss, &fssg );
+	    const int sid = emfss_->sectionID(0);
+	    Geometry::FaultStickSet* fss = fssg.sectionGeometry( sid );
+
 	    const int insertsticknr = 
 			!fss || fss->isEmpty() ? 0 : fss->rowRange().stop+1;
 
-	    if ( fssg.insertStick(emfss_->sectionID(0), insertsticknr, 0,
-				  pos, editnormal, lineset, linenm, true) )
+	    if ( fssg.insertStick(sid, insertsticknr, 0, pos, editnormal,
+				  lineset, linenm, true) )
 	    {
 		updateEditPids();
 	    }
