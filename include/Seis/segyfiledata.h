@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.3 2008-11-17 15:50:12 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.4 2008-11-19 09:44:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "samplingdata.h"
 #include "iopar.h"
+
+class ascostream;
  
 
 namespace SEGY
@@ -46,10 +48,9 @@ class FileData : public TypeSet<TraceInfo>
 {
 public:
 
-    			FileData(const char* fnm,Seis::GeomType);
+    			FileData(const char* fnm);
 
     BufferString	fname_;
-    Seis::GeomType	geom_;
     int			trcsz_;
     SamplingData<float>	sampling_;
     int			segyfmt_;
@@ -66,7 +67,8 @@ public:
     int			nrNullTraces() const;
     int			nrUsableTraces() const;
 
-    void		getReport(IOPar&) const;
+    void		getReport(IOPar&,Seis::GeomType) const;
+    bool		putTo(ascostream&,Seis::GeomType) const;
 
 };
 

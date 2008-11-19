@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.4 2008-11-17 15:50:12 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.5 2008-11-19 09:44:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,8 @@ class DirectDef
 {
 public:
 
-    			DirectDef(Seis::GeomType); // Create empty
-    			DirectDef(const char*);	// read from file
+    			DirectDef(Seis::GeomType);	//!< Create empty
+    			DirectDef(const char*);		//!< Read from file
 			~DirectDef();
 
     void		setData(FileDataSet*);

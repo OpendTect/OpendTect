@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.13 2008-11-18 11:07:37 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.14 2008-11-19 09:44:54 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -97,8 +97,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
     addErrReport( iop );
 
     for ( int idx=0; idx<fds_.size(); idx++ )
-	fds_[idx]->getReport( iop );
-
+	fds_[idx]->getReport( iop, geom_ );
 }
 
 
@@ -244,7 +243,7 @@ StepInterval<float> SEGY::Scanner::zRange() const
 
 void SEGY::Scanner::initFileData()
 {
-    FileData* newfd = new FileData( fnms_.get(curfidx_), geom_ );
+    FileData* newfd = new FileData( fnms_.get(curfidx_) );
     if ( !fds_.isEmpty() && tr_->inpNrSamples() != fds_[0]->trcsz_ )
     {
 	BufferString emsg( "Wrong #samples: " ); tr_->inpNrSamples();

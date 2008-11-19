@@ -4,17 +4,20 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.5 2008-11-17 15:50:12 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.6 2008-11-19 09:44:54 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
 #include "survinfo.h"
 #include "horsampling.h"
+#include "ascstream.h"
+#include "keystrs.h"
+
+static const char* sKeyTraceSize = "Trace size";
 
 
-SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
+SEGY::FileData::FileData( const char* fnm )
     : fname_(fnm)
-    , geom_(gt)
     , trcsz_(-1)
     , sampling_(SI().zRange(false).start,SI().zRange(false).step)
     , segyfmt_(0)
@@ -42,7 +45,7 @@ int SEGY::FileData::nrUsableTraces() const
 }
 
 
-void SEGY::FileData::getReport( IOPar& iop ) const
+void SEGY::FileData::getReport( IOPar& iop, Seis::GeomType gt ) const
 {
     BufferString str( "Info for '" ); str += fname_; str += "'";
     iop.add( "->", str );
@@ -91,7 +94,7 @@ void SEGY::FileData::getReport( IOPar& iop ) const
 	offsrg.include( offset(idx) );
     }
 
-    if ( Seis::is2D(geom_) )
+    if ( Seis::is2D(gt) )
 	iop.add( "Trace number range", nrrg.start, nrrg.stop );
     else
     {
@@ -100,8 +103,16 @@ void SEGY::FileData::getReport( IOPar& iop ) const
     }
     iop.add( "X range", xrg.start, xrg.stop );
     iop.add( "Y range", yrg.start, yrg.stop );
-    if ( Seis::isPS(geom_) )
+    if ( Seis::isPS(gt) )
 	iop.add( "Offset range", offsrg.start, offsrg.stop );
+}
+
+
+bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
+{
+    astrm.put( sKey::FileName, fname_ );
+    astrm.put( sKeyTraceSize, trcsz_ );
+    return true;
 }
 
 
