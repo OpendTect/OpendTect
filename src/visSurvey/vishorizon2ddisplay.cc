@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.13 2008-07-16 18:10:23 cvsnanne Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.14 2008-11-19 08:13:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
 
 bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z, 
-				     const LineRanges& linergs )
+				     const LineRanges& linergs ) const
 {
     if ( rc.row<linergs.trcrgs.size() && rc.row<linergs.zrgs.size() )
     {
@@ -299,7 +299,9 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    if ( !marker ) continue;
 
 	    marker->turnOn( !displayonlyatsections_ );
-	    Coord3 pos = marker->centerPos(true);
+	    Coord3 pos = marker->centerPos();
+	    if ( transformation_ ) 
+		pos = transformation_->transform( pos );
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const float dist = seis2dlist[idz]->calcDist(pos);

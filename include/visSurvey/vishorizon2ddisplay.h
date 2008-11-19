@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.7 2008-02-25 16:12:47 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.8 2008-11-19 08:13:28 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ protected:
     };
 
     bool			withinRanges(const RowCol&,float z,
-					     const LineRanges& );	
+					     const LineRanges& ) const;	
     void			updateSection(int idx,const LineRanges* lr=0);
 					      
     void			emChangeCB(CallBacker*);
