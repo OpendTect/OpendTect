@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.8 2008-10-30 18:54:26 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.9 2008-11-19 21:47:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "thread.h"
 
+template<class T> class Array3D;
 
 /*<Delaunay triangulation for 3D points. Should make sure all the points are 
    defined. */
@@ -49,6 +50,15 @@ public:
 
     bool		insertPoint(int pointidx, int& dupid);
     int			insertPoint(const Coord3&, int& dupid);
+    char		locationToTetrahedra(const Coord3& checkpt,
+	    				const Coord3* v,char& face,
+					int& dupididx,int& edgeend0idx,
+					int& edgeend1idx,double& dist) const;
+    			/*<Find the relative position of checkpt to tetrahedra
+			   with verticies v[0], v[1],v[2],v[3]. */
+    char		searchTetrahedra(const Coord3&);
+    			/*<Check pt is outside, on, or inside the body surface,
+			   return -1, 0, 1 respectively. */
     
     bool		getConnections(int pointidx,TypeSet<int>&) const;
     bool		getTetrahedrasExcept(const TypeSet<int>& exceptions,
@@ -108,7 +118,7 @@ protected:
 			 double& signedsqdist) const;
     char	locationToTriangle(const Coord3& pt,const Coord3& a,
 	    		const Coord3& b,const Coord3& c,double& signedsqdist,
-			char& dupid,char& edgeidx) const;
+			double& closeedgedist,char& dupid,char& edgeidx) const;
 
     char	isIntersect(const Coord3& p,const Coord3& q,const Coord3& a,
 	   		const Coord3& b,const Coord3& c,char& edge) const;
@@ -158,6 +168,104 @@ protected:
     DAGTetrahedraTree&	tree_;
 };
 
+/*<Given a triangulated body, extract position value on each trace based on 
+   threshhold value. The arr's size is based on inlrg, crlrg, zrg. Here pt on
+   surface will be set to 0, inside to be -1, outside to be 1. */
+class Explicit2ImplicitBodyExtracter : public ParallelTask
+{
+public:
+  		Explicit2ImplicitBodyExtracter( const DAGTetrahedraTree&,
+    						const StepInterval<int>& inlrg,
+    						const StepInterval<int>& crlrg,
+    						const Interval<float>& zrg,
+    						Array3D<char>& arr);
+protected:
+
+    od_int64			totalNr() const;
+    bool			doPrepare(int);
+    bool			doWork(od_int64,od_int64,int);
+
+    const DAGTetrahedraTree&	dagtree_;
+    const Interval<float>&	zrg_;
+    const StepInterval<int>&	inlrg_;
+    const StepInterval<int>&	crlrg_;
+
+    Threads::Mutex		lock_;
+    TypeSet<int>		triangles_;
+    Array3D<char>&		array_;
+};
+
+
+class Implicit2BodyFloodFill
+{
+public:
+		Implicit2BodyFloodFill(const Array3D<char>& impbody,
+				       const StepInterval<int>& inlrg,
+				       const StepInterval<int>& crlrg,
+				       const Interval<float>& zrg,
+				       int threshold,
+				       TypeSet<Coord3>& res);
+    void	compute();
+
+protected:
+
+    bool	findFirst(int& inlidx,int& crlidx,int& zidx);
+    void	addToQueue(int i0,int i1,int i2,bool increase,char dir);
+
+    const Array3D<char>&	body_; 
+    TypeSet<Coord3>&		result_; 
+    const Interval<float>&	zrg_;
+    const StepInterval<int>&	inlrg_;
+    const StepInterval<int>&	crlrg_;
+    const int			xsz_;
+    const int			ysz_;
+    const int			zsz_;
+    int				threshold_;
+    
+    struct Dummy
+    {
+    	int i, j, k;
+	bool        operator==(const Dummy& d ) const
+		    {
+    			return d.i==i && d.j==j && d.k==k;
+		    }
+    };
+
+    TypeSet<Dummy>		queue_;
+    TypeSet<Dummy>		used_;
+};    
+
+
+
+/*
+class SeedBasedImplicit2Body
+{
+public:
+				SeedBasedImplicit2Body(const Array3D<float>&,
+						       const float threshold,
+						       Array3D<float>& res);
+				~seedBasedImplicit2Body();
+    bool			updateBodyFrom(int posx,int posy,int posz);
+    
+private:
+
+    void			seedBasedFloodFill();
+    void			add(int idx,int idy,int idz, bool contin);
+    void			processBody(int idx,int idy,int idz);
+    
+    friend			class SeedBasedBodyFloodFiller;
+    
+    Array3D<float>&		result_;
+    const Array3D<float>*	array_;
+    Array3D<unsigned char>*	visitedlocations_;
+    float			threshold_;
+    Threads::Mutex		newfloodfillerslock_;
+
+    ObjectSet<SeedBasedBodyFloodFiller>     newfloodfillers_;
+    ObjectSet<SeedBasedBodyFloodFiller>     oldfloodfillers_;
+    ObjectSet<SeedBasedBodyFloodFiller>     activefloodfillers_;
+};
+*/
 
 
 #endif
