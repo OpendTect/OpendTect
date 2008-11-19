@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.10 2008-11-19 08:39:16 nanne Exp $
+ RCS:		$Id: flthortools.cc,v 1.11 2008-11-19 09:33:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -325,9 +325,9 @@ bool FaultStickThrow::findInterSections( float& toptrcnr, float& bottrcnr )
     float topz, botz;
     toptrcnr = bottrcnr = mUdf(float);
     FaultHorizon2DIntersectionFinder findertop( flt_, sticknr_, tophor_ );
-    const bool res1 = findertop.find( topz, toptrcnr );
+    const bool res1 = findertop.find( toptrcnr, topz );
     FaultHorizon2DIntersectionFinder finderbot( flt_, sticknr_, bothor_ );
-    const bool res2 = findertop.find( botz, bottrcnr );
+    const bool res2 = finderbot.find( bottrcnr, botz );
     return res1 && res2;
 }
 
