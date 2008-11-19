@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.h,v 1.1 2008-01-10 08:41:18 cvshelene Exp $
+ RCS:           $Id: uiattremout.h,v 1.2 2008-11-19 15:22:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ protected:
     virtual bool	fillPar(IOPar&);
     bool		addNLA(Attrib::DescID&);
     void		fillOutPar(IOPar&,const char* outtyp,
-	    			   const char* idlbl,MultiID);
+	    			   const char* idlbl,const BufferString& outid);
 
     Attrib::DescSet&	ads_;
     const MultiID&	nlaid_;

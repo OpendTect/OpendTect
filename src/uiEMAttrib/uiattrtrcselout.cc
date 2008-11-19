@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.42 2008-11-17 15:42:39 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.43 2008-11-19 15:22:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -297,7 +297,7 @@ void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
     ctioout_.ctxt.allowcnstrsabsent = true;
     outpfld_ = new uiSeisSel( prnt, ctioout_,
 	    		      uiSeisSel::Setup(ads_.is2D(),false)
-			      .selattr(false) );
+			      .selattr(true) );
     const bool noadvdlg = usesinglehor_ || ads_.is2D();
     outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
 }
@@ -334,8 +334,13 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 {
     uiAttrEMOut::fillPar( iopar );
     const bool is2d = ads_.is2D();
-    fillOutPar( iopar, Output::tskey, SeisTrcStorOutput::seisidkey,
-	    	ctioout_.ioobj->key() );
+
+    BufferString outseisid;
+    outseisid += ctioout_.ioobj->key();
+    if ( is2d )
+	outseisid += "|"; outseisid += outpfld_->attrNm();
+
+    fillOutPar( iopar, Output::tskey, SeisTrcStorOutput::seisidkey, outseisid );
     
     BufferString outnm = is2d ? attrfld_->getAttrName() : outpfld_->getInput();
     iopar.set( sKey::Target, outnm );

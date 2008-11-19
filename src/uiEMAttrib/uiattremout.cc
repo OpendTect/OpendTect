@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.cc,v 1.4 2008-05-27 11:49:38 cvshelene Exp $
+ RCS:           $Id: uiattremout.cc,v 1.5 2008-11-19 15:22:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 
 
 void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
-			      const char* idlbl, MultiID mid )
+			      const char* idlbl, const BufferString& outid )
 {
     iopar.set( IOPar::compKey( sKey::Output, sKey::Type), outtyp );
 
@@ -120,7 +120,7 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 	    			  : nladescid_.asInt() );
 
     key = IOPar::compKey( keybase.buf(), idlbl );
-    iopar.set( key, mid );
+    iopar.set( key, outid );
 }
 
 #define mErrRet(str) { uiMSG().message( str ); return false; }

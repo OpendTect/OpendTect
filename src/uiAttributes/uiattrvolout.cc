@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.47 2008-05-27 11:49:38 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.48 2008-11-19 15:22:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     ctio.ctxt.includeconstraints = false;
     ctio.ctxt.allowcnstrsabsent = true;
     objfld = new uiSeisSel( uppgrp_, ctio,
-			    uiSeisSel::Setup(is2d,false).selattr(false));
+			    uiSeisSel::Setup(is2d,false).selattr(true));
     objfld->attach( alignedBelow, transffld );
 
     uppgrp_->setHAlignObj( transffld );
@@ -211,8 +211,13 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
 
-    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey),
-	     ctio.ioobj->key() );
+    BufferString outseisid;
+    outseisid += ctio.ioobj->key();
+    if ( todofld->is2D() )
+	outseisid += "|"; outseisid += objfld->attrNm();
+
+    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey), outseisid );
+
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI),
 	       transffld->scfmtfld->extendTrcToSI() );

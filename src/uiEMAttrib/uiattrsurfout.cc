@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.23 2008-05-27 11:49:38 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.24 2008-11-19 15:22:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,8 +93,9 @@ bool uiAttrSurfaceOut::prepareProcessing()
 bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 {
     uiAttrEMOut::fillPar( iopar );
-    fillOutPar( iopar, Output::surfkey, LocationOutput::surfidkey,
-	    	ctio_.ioobj->key() );
+    BufferString outid;
+    outid += ctio_.ioobj->key();
+    fillOutPar( iopar, Output::surfkey, LocationOutput::surfidkey, outid );
 
     BufferString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() ) attrnm = attrfld_->getInput();
