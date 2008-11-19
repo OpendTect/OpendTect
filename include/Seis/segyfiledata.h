@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.4 2008-11-19 09:44:54 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.5 2008-11-19 20:24:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ public:
     int			nrUsableTraces() const;
 
     void		getReport(IOPar&,Seis::GeomType) const;
+    bool		getFrom(ascistream&,Seis::GeomType);
     bool		putTo(ascostream&,Seis::GeomType) const;
 
 };
