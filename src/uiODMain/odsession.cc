@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.17 2007-11-13 16:21:11 cvsbert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.18 2008-11-19 09:42:11 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -211,11 +211,8 @@ const char* dgbODSessionTranslator::read( ODSession& session, Conn& conn )
 	return "Internal error: bad connection";
 
     ascistream astream( ((StreamConn&)conn).iStream() );
-    const bool isoldhdr = !strcmp(astream.projName(),"dGB-dTect");
-    const int nr = astream.minorVersion() + astream.majorVersion() * 100;
-    if ( isoldhdr && nr < 200 )
-	return "Cannot read session files older than d-Tect V2.0";
-
+    if ( astream.majorVersion() < 3 )
+	return "Cannot read session files older than OpendTect V3.0";
 
     IOPar iopar( astream );
     if ( iopar.isEmpty() )
