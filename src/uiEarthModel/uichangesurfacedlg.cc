@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.23 2008-11-07 14:33:35 cvskris Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.24 2008-11-19 22:15:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,9 +128,45 @@ bool uiChangeSurfaceDlg::doProcessing()
     MouseCursorChanger chgr( MouseCursor::Wait );
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
-	EM::SectionID sid = horizon_->geometry().sectionID( idx );
-	const StepInterval<int> rowrg = horizon_->geometry().rowRange( sid );
-	const StepInterval<int> colrg = horizon_->geometry().colRange( sid );
+	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
+	StepInterval<int> rowrg = horizon_->geometry().rowRange( sid );
+	StepInterval<int> colrg = horizon_->geometry().colRange( sid );
+
+	mDynamicCastGet( Geometry::ParametricSurface*, surf,
+			 horizon_->sectionGeometry( sid ) );
+
+	if ( !idx && surf && needsFullSurveyArray() )
+	{
+	    const StepInterval<int> survcrlrg = SI().crlRange(true);
+	    while ( colrg.start-colrg.step>=survcrlrg.start )
+	    {
+		const int newcol = colrg.start-colrg.step;
+		surf->insertCol( newcol );
+		colrg.start = newcol;
+	    }
+
+	    while ( colrg.stop+colrg.step<=survcrlrg.stop )
+	    {
+		const int newcol = colrg.stop+colrg.step;
+		surf->insertCol( newcol );
+		colrg.stop = newcol;
+	    }
+
+	    const StepInterval<int> survinlrg = SI().inlRange(true);
+	    while ( rowrg.start-rowrg.step>=survinlrg.start )
+	    {
+		const int newrow = rowrg.start-rowrg.step;
+		surf->insertRow( newrow );
+		rowrg.start = newrow;
+	    }
+
+	    while ( rowrg.stop+rowrg.step<=survinlrg.stop )
+	    {
+		const int newrow = rowrg.stop+rowrg.step;
+		surf->insertRow( newrow );
+		rowrg.stop = newrow;
+	    }
+	}
 
 	PtrMan<Array2D<float> > arr = horizon_->createArray2D( sid );
 	if ( !arr )
@@ -227,11 +263,24 @@ uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp()
 }
 
 
+const uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp() const
+{
+    return (uiArr2DInterpolPars*)parsgrp_;
+}
+
+
 uiInterpolHorizonDlg::uiInterpolHorizonDlg( uiParent* p, EM::Horizon3D* hor )
     : uiChangeSurfaceDlg(p,hor,"Horizon interpolation")
 {
     parsgrp_ = new uiArr2DInterpolPars( this );
     attachPars();
+}
+
+
+bool uiInterpolHorizonDlg::needsFullSurveyArray() const
+{
+    return a2dInterp()->getInput().filltype_==
+	Array2DInterpolatorPars::FullOutward;
 }
 
 
