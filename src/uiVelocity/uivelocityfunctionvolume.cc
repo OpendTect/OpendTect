@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityfunctionvolume.cc,v 1.1 2008-07-22 17:39:21 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionvolume.cc,v 1.2 2008-11-19 22:14:42 cvskris Exp $";
 
 #include "uivelocityfunctionvolume.h"
 
@@ -47,7 +47,7 @@ uiVolumeFunction::uiVolumeFunction( uiParent* p, VolumeFunctionSource* s )
     ctxtioobj_->ctxt.forread = true;
 
     volumesel_ = new uiSeisSel( this, *ctxtioobj_,
-	    			uiSeisSel::Setup(Seis::Line) );
+	    			uiSeisSel::Setup(Seis::Vol) );
     setHAlignObj( volumesel_ );
 }
 
