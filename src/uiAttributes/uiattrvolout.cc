@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.48 2008-11-19 15:22:02 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.49 2008-11-19 15:56:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,7 +214,10 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     BufferString outseisid;
     outseisid += ctio.ioobj->key();
     if ( todofld->is2D() )
-	outseisid += "|"; outseisid += objfld->attrNm();
+    {
+	outseisid += "|";
+	outseisid += objfld->attrNm();
+    }
 
     iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey), outseisid );
 

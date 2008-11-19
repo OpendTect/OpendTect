@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.43 2008-11-19 15:22:02 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.44 2008-11-19 15:56:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -338,7 +338,10 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     BufferString outseisid;
     outseisid += ctioout_.ioobj->key();
     if ( is2d )
-	outseisid += "|"; outseisid += outpfld_->attrNm();
+    {
+	outseisid += "|";
+	outseisid += outpfld_->attrNm();
+    }
 
     fillOutPar( iopar, Output::tskey, SeisTrcStorOutput::seisidkey, outseisid );
     
