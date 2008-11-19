@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.61 2008-10-10 14:08:28 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.62 2008-11-19 16:00:58 cvsnanne Exp $";
 
 
 #include "segyhdr.h"
@@ -208,7 +208,7 @@ void SEGY::TxtHeader::setStartPos( float sp )
 
 void SEGY::TxtHeader::getText( BufferString& bs ) const
 {
-    char buf[cTxtHeadCharsPerLine];
+    char buf[cTxtHeadCharsPerLine+1];
     getFrom( 1, 1, cTxtHeadCharsPerLine, buf );
     bs = buf;
     for ( int iln=2; iln<=cTxtHeadNrLines; iln++ )
