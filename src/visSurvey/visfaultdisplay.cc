@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.28 2008-10-30 13:15:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.29 2008-11-19 08:14:52 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -493,7 +493,6 @@ void FaultDisplay::mouseCB( CallBacker* cb )
    
     CubeSampling mouseplanecs; 
     mouseplanecs.setEmpty();
-    EM::PosID mousepid( EM::PosID::udf() );
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
