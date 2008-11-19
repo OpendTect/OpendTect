@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.73 2008-11-11 17:56:09 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.74 2008-11-19 08:29:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -421,6 +421,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , columnClicked(this)
     , activatedone(this)
 {
+    setFont( uiFontList::get(FontData::key(FontData::Fixed)) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 
