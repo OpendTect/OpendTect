@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.11 2008-11-04 14:08:53 cvskris Exp $
+ RCS:           $Id: SoTextureComposer.cc,v 1.12 2008-11-20 16:21:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,11 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
 	needregenration_ = true;
 	
     if ( needregenration_ )
+    {
 	removeTextureData();
+	delete matchinfo_; matchinfo_ = channelelem->copyMatchInfo();
+    }
+
 
     if ( SoTextureOverrideElement::getImageOverride(state) )
 	return;
@@ -131,7 +135,6 @@ void SoTextureComposer::GLRender( SoGLRenderAction* action )
     SoTextureUnitElement::set( state, this, prevunit );
 
     needregenration_ = false;
-    delete matchinfo_; matchinfo_ = channelelem->copyMatchInfo();
 }
 
 

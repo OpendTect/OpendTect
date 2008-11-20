@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.9 2008-10-31 22:21:27 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.10 2008-11-20 16:21:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,8 @@ void SoColTabTextureChannel2RGBA::fieldChangeCB( void* data, SoSensor* )
 void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 {
     SoState* state = action->getState();
-    const SoElement* elem = state->getConstElement(
-	                SoTextureChannelSetElement::getClassStackIndex() );
+    const SoTextureChannelSetElement* elem = (const SoTextureChannelSetElement*)
+       state->getConstElement(SoTextureChannelSetElement::getClassStackIndex());
 
     if ( !needsregeneration_ && matchinfo_ && elem &&
 	 !elem->matches( matchinfo_ ) )
@@ -78,10 +78,16 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
 	needsregeneration_ = true;
     }
 
+    SbList<uint32_t> dep;
+    dep.append( elem->getNodeId() );
     if ( !needsregeneration_ )
     {
-	sendRGBA( state );
+	sendRGBA( state, dep );
 	return;
+    }
+    else
+    {
+	delete matchinfo_; matchinfo_ = elem->copyMatchInfo();
     }
 
     int nrchannels = SoTextureChannelSetElement::getNrChannels( state );
@@ -95,7 +101,7 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     {
 	for ( int idx=0; idx<4; idx++ )
 	    rgba_[idx].setValue( SbVec3s(1,1,1), 1, 0 );
-	sendRGBA( state );
+	sendRGBA( state, dep );
 	return;
     }
 
@@ -105,7 +111,8 @@ void SoColTabTextureChannel2RGBA::GLRender( SoGLRenderAction* action )
     needsregeneration_ = false;
 
 
-    sendRGBA( state );
+    sendRGBA( state, dep );
+
 }
 
 
@@ -251,9 +258,10 @@ void SoColTabTextureChannel2RGBA::computeRGBA( const SbImage* channels,
 }
 
 
-void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state )
+void SoColTabTextureChannel2RGBA::sendRGBA( SoState* state,
+					    const SbList<uint32_t>& dep )
 {
-    SoTextureChannelSetElement::set( state, this, rgba_, 4 );
+    SoTextureChannelSetElement::set( state, this, rgba_, 4, &dep );
     SbList<int> units;
     units.append( 0 );
     SoTextureComposerElement::set( state, this, units, ti_ );

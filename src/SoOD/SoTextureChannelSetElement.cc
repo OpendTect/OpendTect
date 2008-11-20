@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          November 2007
- RCS:           $Id: SoTextureChannelSetElement.cc,v 1.1 2008-09-16 16:17:01 cvskris Exp $
+ RCS:           $Id: SoTextureChannelSetElement.cc,v 1.2 2008-11-20 16:21:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,11 @@ SoTextureChannelSetElement::~SoTextureChannelSetElement()
 
 void SoTextureChannelSetElement::set( SoState* const state, SoNode* node,
 				   const SbImage* channels,
-       				   int nrchannels)
+       				   int nrchannels,
+				   const SbList<uint32_t>* additionalnodeids)
 {
     SoTextureChannelSetElement * elem = (SoTextureChannelSetElement *)
-	getElement( state, classStackIndex, node );
+	getElement( state, classStackIndex, node, additionalnodeids );
 
     if ( elem )
 	elem->setElt( channels, nrchannels );
@@ -58,4 +59,48 @@ const SbImage* SoTextureChannelSetElement::getChannels( SoState* state )
 	getConstElement(state,classStackIndex);
 
     return elem->channels_;
+}
+
+
+SoElement* SoTextureChannelSetElement::copyMatchInfo(void) const
+{
+    SoTextureChannelSetElement* element =
+	new SoTextureChannelSetElement;
+
+    element->nodeId = nodeId;
+    element->additionalnodeids_ = additionalnodeids_;
+    return element;
+}
+
+
+SbBool SoTextureChannelSetElement::matches( const SoElement* element ) const
+{
+    if ( !SoReplacedElement::matches( element ) )
+	return false;
+
+    for ( int idx=additionalnodeids_.getLength()-1; idx>=0; idx-- )
+    {
+	if ( ((SoTextureChannelSetElement*)element)->additionalnodeids_.find(
+		    additionalnodeids_[idx] )==-1 )
+	    return false;
+    }
+
+    return true;
+}
+
+
+
+SoElement* SoTextureChannelSetElement::getElement(SoState* const state,
+	const int stackIndex, SoNode* const node,
+	const SbList<uint32_t>* additionalnodeids )
+{
+    SoTextureChannelSetElement* elem = (SoTextureChannelSetElement*)
+	SoReplacedElement::getElement( state, stackIndex, node );
+
+    if ( additionalnodeids )
+	elem->additionalnodeids_ = *additionalnodeids;
+    else
+	elem->additionalnodeids_.truncate( 0 );
+
+    return elem;
 }
