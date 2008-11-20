@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.14 2008-11-19 20:24:24 cvsbert Exp $
+ RCS:		$Id: separstr.h,v 1.15 2008-11-20 13:08:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
     float		getFValue(int) const;
     double		getDValue(int) const;
     bool		getYN(int) const;
+    int			indexOf(const char*) const;
 
     void		add(const char*);
     inline SeparString&	operator +=( const char* s ) { add(s); return *this; }
