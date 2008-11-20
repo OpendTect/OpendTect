@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.4 2008-11-19 09:44:54 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.5 2008-11-20 13:26:15 cvsbert Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: segydirect.cc,v 1.4 2008-11-19 09:44:54 cvsbert
 #include "ascstream.h"
 #include "keystrs.h"
 
+const char* sKeyDirectDef = "DirectSEG-Y";
 static const char* sKeyFileType = "SEG-Y Direct Definition";
 static const char* sKeyNrFiles = "Number of files";
 
@@ -65,7 +66,30 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
     StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() )
 	return false;
-    return false;
+
+    ascistream astrm( *sd.istrm, true );
+    if ( !astrm.isOfFileType(sKeyFileType) )
+	return false;
+
+    int nrfiles = 0;
+    while ( !atEndOfSection(astrm.next()) )
+    {
+	if ( astrm.hasKeyword(sKey::Geometry) )
+	    geom_ = Seis::geomTypeOf( astrm.value() );
+	else if ( astrm.hasKeyword(sKeyNrFiles) )
+	    nrfiles = atoi( astrm.value() );
+    }
+
+    IOPar iop; iop.getFrom( astrm );
+    delete myfds_; myfds_ = new FileDataSet(iop); fds_ = myfds_;
+
+    for ( int idx=0; idx<nrfiles; idx++ )
+    {
+	FileData* fd = new FileData(0);
+	fd->getFrom( astrm, geom_ );
+    }
+
+    return true;
 }
 
 

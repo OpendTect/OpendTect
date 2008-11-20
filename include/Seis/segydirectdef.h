@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.5 2008-11-19 09:44:54 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.6 2008-11-20 13:26:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
     bool		writeToFile(const char*) const;
 
     Seis::GeomType	geomType() const	{ return geom_; }   
+
+    static const char*	sKeyDirectDef;
 
 protected:
 

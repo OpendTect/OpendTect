@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.7 2008-11-19 20:24:49 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.8 2008-11-20 13:26:15 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -13,12 +13,15 @@ static const char* rcsID = "$Id: segyfiledata.cc,v 1.7 2008-11-19 20:24:49 cvsbe
 #include "ascstream.h"
 #include "separstr.h"
 #include "keystrs.h"
+#include "envvars.h"
 #include <iostream>
 
 static const char* sKeyTraceSize = "Trace size";
 static const char* sKeyFormat = "SEG-Y sample format";
 static const char* sKeySampling = "Z sampling";
 static const char* sKeyNrStanzas = "Nr REV.1 Text stanzas";
+static const char* sKeyStorageType = "Storage type";
+static bool writeascii = !__islittle__ || GetEnvVarYN("OD_WRITE_SEGYDEF_ASCII");
 
 
 SEGY::FileData::FileData( const char* fnm )
@@ -113,9 +116,12 @@ void SEGY::FileData::getReport( IOPar& iop, Seis::GeomType gt ) const
 }
 
 
+#define mErrRet(s) { ErrMsg(s); return false; }
+
 bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
 {
     erase(); fname_.setEmpty(); trcsz_ = -1;
+    bool isasc = false;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(sKey::FileName) )
@@ -126,39 +132,102 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
 	    segyfmt_ = astrm.getIValue();
 	else if ( astrm.hasKeyword(sKeyNrStanzas) )
 	    nrstanzas_ = astrm.getIValue();
+	else if ( astrm.hasKeyword(sKeyStorageType) )
+	    isasc = *astrm.value() == 'A';
 	else if ( astrm.hasKeyword(sKeySampling) )
 	{
 	    sampling_.start = astrm.getFValue(0);
 	    sampling_.step = astrm.getFValue(1);
 	}
     }
-    if ( fname_.isEmpty() || trcsz_ < 1 )
-	return false;
+    if ( fname_.isEmpty() )
+	mErrRet("No filename found in header")
+    else if ( trcsz_ < 1 )
+	mErrRet("Invalid trace size in header")
 
-    FileMultiString keyw; FileMultiString val;
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
-    while ( !atEndOfSection(astrm.next()) )
+
+    if ( isasc )
     {
-	keyw = astrm.keyWord(); val = astrm.value();
-	TraceInfo ti;
-	if ( is2d )
-	    ti.nr_ = keyw.getIValue(0);
-	else
-	    ti.binid_.use( keyw[0] );
-	if ( isps )
-	    ti.offset_ = keyw.getFValue(1);
+	FileMultiString keyw; FileMultiString val;
 
-	const char ch( *val[0] );
-	ti.usable_ = ch != 'X';
-	ti.null_ = ch == 'N';
-	if ( is2d )
-	    { ti.coord_.x = val.getDValue(1); ti.coord_.y = val.getDValue(2); }
+	while ( !atEndOfSection(astrm.next()) )
+	{
+	    keyw = astrm.keyWord(); val = astrm.value();
+	    TraceInfo ti;
+	    if ( is2d )
+		ti.nr_ = keyw.getIValue(0);
+	    else
+		ti.binid_.use( keyw[0] );
+	    if ( isps )
+		ti.offset_ = keyw.getFValue(1);
 
-	*this += ti;
+	    const char ch( *val[0] );
+	    ti.usable_ = ch != 'X';
+	    ti.null_ = ch == 'N';
+	    if ( is2d && !isps )
+	    {
+		ti.coord_.x = val.getDValue(1);
+		ti.coord_.y = val.getDValue(2);
+	    }
+
+	    *this += ti;
+	}
+    }
+    else
+    {
+	std::istream& strm = astrm.stream();
+	int entrylen = 1 + (isps ? 4 : 0) + sizeof(int);
+	if ( !is2d )
+	    entrylen += sizeof(int);
+	else if ( !isps )
+	    entrylen += 2*sizeof(double);
+	char* buf = new char [entrylen];
+
+	while ( strm.good() )
+	{
+	    const char ch = strm.peek();
+	    if ( ch == *mAscStrmParagraphMarker )
+		break;
+
+	    strm.read( buf, entrylen );
+	    TraceInfo ti;
+	    ti.usable_ = buf[0] != 'X';
+	    ti.null_ = buf[0] == 'N';
+
+	    char* bufpos = buf + 1;
+
+#define mGtVal(attr,typ)   ti.attr = *((typ*)bufpos); bufpos += sizeof(typ)
+#ifdef __little__
+# define mGetVal(attr,typ) { mGtVal(attr,typ); }
+#else
+# define mGetVal(attr,typ) { SwapBytes(bufpos,sizeof(typ)); mGtVal(attr,typ); }
+#endif
+
+	    if ( is2d )
+		mGetVal(nr_,int)
+	    else
+	    {
+		mGetVal(binid_.inl,int)
+		mGetVal(binid_.crl,int)
+	    }
+	    if ( isps )
+		mGetVal(offset_,float)
+	    if ( is2d && !isps )
+	    {
+		mGetVal(coord_.x,double)
+		mGetVal(coord_.y,double)
+	    }
+
+	    *this += ti;
+	}
+
+	delete [] buf;
+	astrm.next();
     }
 
-    return true;
+    return 0;
 }
 
 
@@ -170,27 +239,52 @@ bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
     astrm.put( sKeyFormat, segyfmt_ );
     if ( isrev1_ && nrstanzas_ > 0 )
 	astrm.put( sKeyNrStanzas, nrstanzas_ );
+    astrm.put( sKeyStorageType, writeascii ? "Ascii" : "Binary" );
     astrm.newParagraph();
 
-    FileMultiString keyw; FileMultiString val;
     const bool is2d = Seis::is2D( gt );
     const bool isps = Seis::isPS( gt );
-    for ( int itrc=0; itrc<size(); itrc++ )
+
+    if ( writeascii )
     {
-	const TraceInfo& ti = (*this)[itrc];
-	keyw.setEmpty();
-	if ( is2d )
-	    keyw += ti.nr_;
-	else
-	    ti.binid_.fill( keyw.buf() );
-	if ( isps )
-	    keyw += ti.offset_;
+	FileMultiString keyw; FileMultiString val;
+	for ( int itrc=0; itrc<size(); itrc++ )
+	{
+	    const TraceInfo& ti = (*this)[itrc];
+	    keyw.setEmpty();
+	    if ( is2d )
+		keyw += ti.nr_;
+	    else
+		ti.binid_.fill( keyw.buf() );
+	    if ( isps )
+		keyw += ti.offset_;
 
-	val = ti.usable_ ? (ti.null_ ? "N" : "O") : "X";
-	if ( is2d )
-	    { val += ti.coord_.x; val += ti.coord_.y; }
+	    val = ti.usable_ ? (ti.null_ ? "N" : "O") : "X";
+	    if ( is2d && !isps )
+		{ val += ti.coord_.x; val += ti.coord_.y; }
 
-	astrm.put( keyw.buf(), val.buf() );
+	    astrm.put( keyw.buf(), val.buf() );
+	}
+    }
+    else
+    {
+	std::ostream& strm = astrm.stream();
+	for ( int itrc=0; itrc<size(); itrc++ )
+	{
+	    const TraceInfo& ti = (*this)[itrc];
+	    const char ch = ti.usable_ ? (ti.null_ ? 'N' : 'O') : 'X';
+	    strm.write( &ch, 1 );
+
+#define mPutVal(attr,typ) strm.write( (const char*)(&ti.attr), sizeof(typ) );
+	    if ( is2d )
+		mPutVal(nr_,int)
+	    else
+		{ mPutVal(binid_.inl,int); mPutVal(binid_.crl,int) }
+	    if ( isps )
+		mPutVal(offset_,float)
+	    if ( is2d && !isps )
+		{ mPutVal(coord_.x,double); mPutVal(coord_.y,double) }
+	}
     }
 
     astrm.newParagraph();
