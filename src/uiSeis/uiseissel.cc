@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.61 2008-11-12 12:28:03 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.62 2008-11-20 13:25:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,9 +53,24 @@ static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
 			bool chgtol )
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
+
     ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( s.geom_,
 	    					       ctxt.forread );
-    ctxt.deftransl = s.geom_ == Seis::Line ? "2D" : "CBVS";
+
+    if ( ctxt.deftransl.isEmpty() )
+	ctxt.deftransl = s.geom_ == Seis::Line ? "2D" : "CBVS";
+    else if ( !c.forread )
+	ctxt.trglobexpr = ctxt.deftransl;
+    else
+    {
+	FileMultiString fms( ctxt.trglobexpr );
+	if ( fms.indexOf(ctxt.deftransl.buf()) < 0 )
+	{
+	    fms += ctxt.deftransl;
+	    ctxt.trglobexpr = fms;
+	}
+    }
+
     if ( s.geom_ == Seis::Line && !ctxt.allowcnstrsabsent && chgtol )
 	ctxt.allowcnstrsabsent = true;	//change required to get any 2D LineSet
 }
@@ -127,12 +142,16 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 }
 
 
-static const char* trglobexprs[] = { "2D", "CBVS`MultiCube", "CBVS`PS Cube" };
+// Tied to order in Seis::GeomType: Vol, VolPS, Line, LinePS
+static const char* rdtrglobexprs[] =
+{ "CBVS`PS Cube", "CBVS`MultiCube`SEGYDirect", "2D", "CBVS`SEGYDirect" };
+static const char* wrtrglobexprs[] =
+{ "CBVS", "CBVS", "2D", "CBVS" };
 
 const char* uiSeisSelDlg::standardTranslSel( Seis::GeomType geom, bool forread )
 {
-    return Seis::isPS(geom) ? trglobexprs[1]
-	: (Seis::is2D(geom) ? trglobexprs[0] : trglobexprs[2]);
+    const char** ges = forread ? rdtrglobexprs : wrtrglobexprs;
+    return ges[ (int)geom ];
 }
 
 
