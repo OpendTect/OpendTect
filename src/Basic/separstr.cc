@@ -5,7 +5,7 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.14 2008-11-19 20:24:24 cvsbert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.15 2008-11-20 13:11:14 cvsbert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
@@ -82,6 +82,34 @@ const char* SeparString::operator[]( int elemnr ) const
     }
 
     return emptystr;
+}
+
+
+int SeparString::indexOf( const char* str ) const
+{
+    if ( !str ) return -1;
+
+    const char* startptr = rep_.buf();
+    int elemnr = 0;
+    while ( *startptr )
+    {
+	const char* endptr = strchr( startptr, sep_[0] );
+	if ( !endptr )
+	    return strcmp(str,startptr) ? -1 : elemnr;
+
+	BufferString cmpstr; cmpstr.setBufSize( (int)(endptr - startptr) + 1 );
+	char* ptr = cmpstr.buf();
+	while ( startptr != endptr )
+	    *ptr++ = *startptr++;
+	*ptr = '\0';
+	if ( cmpstr == str )
+	    return elemnr;
+
+	elemnr++;
+	startptr = endptr+1;
+    }
+
+    return -1;
 }
 
 
