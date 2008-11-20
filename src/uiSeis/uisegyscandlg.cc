@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.8 2008-11-20 09:00:36 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.9 2008-11-20 13:25:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     {
 	IOObjContext& ctxt = ctio_.ctxt;
 	ctxt.forread = false;
-	ctxt.deftransl = ctxt.trglobexpr = "DA-SEG-Y";
+	ctxt.deftransl = ctxt.trglobexpr = "SEGYDirect";
 	uiSeisSel::Setup sssu( setup_.geom_ ); sssu.selattr( false );
 	outfld_ = new uiSeisSel( this, ctio_, sssu );
 	if ( optsgrp_ )
