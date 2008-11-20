@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.8 2008-11-20 13:26:15 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.9 2008-11-20 14:21:50 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -164,7 +164,7 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
 		ti.offset_ = keyw.getFValue(1);
 
 	    const char ch( *val[0] );
-	    ti.usable_ = ch != 'X';
+	    ti.usable_ = ch != 'U';
 	    ti.null_ = ch == 'N';
 	    if ( is2d && !isps )
 	    {
@@ -188,12 +188,12 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
 	while ( strm.good() )
 	{
 	    const char ch = strm.peek();
-	    if ( ch == *mAscStrmParagraphMarker )
-		break;
+	    if ( ch == '\n' )
+		{ strm.ignore( 1 ); break; }
 
 	    strm.read( buf, entrylen );
 	    TraceInfo ti;
-	    ti.usable_ = buf[0] != 'X';
+	    ti.usable_ = buf[0] != 'U';
 	    ti.null_ = buf[0] == 'N';
 
 	    char* bufpos = buf + 1;
@@ -259,7 +259,7 @@ bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
 	    if ( isps )
 		keyw += ti.offset_;
 
-	    val = ti.usable_ ? (ti.null_ ? "N" : "O") : "X";
+	    val = ti.usable_ ? (ti.null_ ? "Null" : "OK") : "Unusable";
 	    if ( is2d && !isps )
 		{ val += ti.coord_.x; val += ti.coord_.y; }
 
@@ -272,7 +272,7 @@ bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
 	for ( int itrc=0; itrc<size(); itrc++ )
 	{
 	    const TraceInfo& ti = (*this)[itrc];
-	    const char ch = ti.usable_ ? (ti.null_ ? 'N' : 'O') : 'X';
+	    const char ch = ti.usable_ ? (ti.null_ ? 'N' : 'O') : 'U';
 	    strm.write( &ch, 1 );
 
 #define mPutVal(attr,typ) strm.write( (const char*)(&ti.attr), sizeof(typ) );
@@ -285,6 +285,8 @@ bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
 	    if ( is2d && !isps )
 		{ mPutVal(coord_.x,double); mPutVal(coord_.y,double) }
 	}
+
+	strm << "\n";
     }
 
     astrm.newParagraph();
