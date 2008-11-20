@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.7 2008-11-19 08:30:26 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.8 2008-11-20 09:00:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     , scanner_(0)
     , forsurvsetup_(ss)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
+    , outfld_(0)
 {
     uiObject* attobj = 0;
     if ( setup_.dlgtitle_.isEmpty() )
@@ -92,7 +93,7 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 
 bool uiSEGYScanDlg::doWork( const IOObj& )
 {
-    if ( !outfld_ && !outfld_->commitInput(true) )
+    if ( outfld_ && !outfld_->commitInput(true) )
 	return false;
 
     SEGY::FileSpec fs; fs.usePar( pars_ );
