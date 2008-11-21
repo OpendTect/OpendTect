@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.7 2008-11-19 10:13:24 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.8 2008-11-21 05:02:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,12 +37,12 @@ class uiLineSel : public uiDialog
 public:
     					uiLineSel(uiParent*,
 						  BufferStringSet& selln,
-						  CtxtIOObj* lsctio,
-						  BoolTypeSet& lineselsum);
+						  CtxtIOObj* lsctio);
 					~uiLineSel(){}
     BufferString			getSummary() const;
 
     const BufferStringSet&		getSelLines() const { return sellines_;}
+    const Interval<int>			getLineTrcRange(int idx) const;
 
 protected:
 
@@ -56,7 +56,6 @@ protected:
     CtxtIOObj*				lsctio_;
     TypeSet< Interval<int> > 		linetrcrgs_;
     TypeSet< Interval<int> >		linetrcflrgs_;
-    BoolTypeSet&                 	linechksum_;
 
     void 				lineSetSel(CallBacker*);
     void 				lineSelTrcRange(CallBacker*);
@@ -77,13 +76,13 @@ public:
     void                        doDlg(CallBacker*);
     IOObj*                      getIOObj();
     const BufferStringSet&      getSelLines() const     { return sellines_; }
+    void 			fillPar(IOPar &);
 
 protected:
 
     BufferStringSet             sellines_;
     CtxtIOObj*                  lsctio_;
     uiLineSel*                  linesel_;
-    BoolTypeSet                 linechksum_;
 };   
 
 #endif
