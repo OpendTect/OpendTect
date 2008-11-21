@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.11 2008-10-07 18:45:07 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.12 2008-11-21 10:32:39 cvsbert Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -337,17 +337,18 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 {
     iopar.set( sKey::Name, name() );
     FileMultiString fms;
-    fms += markcolor_.r(); fms += markcolor_.g(); fms += markcolor_.b();
+    fms += (int)markcolor_.r(); fms += (int)markcolor_.g();
+    fms += (int)markcolor_.b(); fms += (int)markcolor_.t();
     iopar.set( sKeyMarkColor, fms );
-    fms = "";
-    fms += undefcolor_.r(); fms += undefcolor_.g(); fms += undefcolor_.b();
-    fms += undefcolor_.t();
+    fms = (int)undefcolor_.r(); fms += (int)undefcolor_.g();
+    fms += (int)undefcolor_.b(); fms += (int)undefcolor_.t();
     iopar.set( sKeyUdfColor, fms );
 
     for ( int idx=0; idx<x_.size(); idx++ )
     {
 	fms = "";
-	fms += x_[idx]; fms += r_[idx]; fms += g_[idx]; fms += b_[idx];
+	fms += x_[idx];
+	fms += (int)r_[idx]; fms += (int)g_[idx]; fms += (int)b_[idx];
 	fms += transparencyAt( x_[idx] );
 	BufferString str( sKeyValCol );
 	str += "."; str += idx;

@@ -8,34 +8,39 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.15 2008-11-20 13:08:30 cvsbert Exp $
+ RCS:		$Id: separstr.h,v 1.16 2008-11-21 10:32:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
-#include "plftypes.h"
+#include "convert.h"
 
 
 /*!\brief list encoded in a string.
 
 SeparString is a list encoded in a string where the items are separated by
 a user chosen separator. The separator in the input is escaped with a backslash.
-A `\' is encoded as `\\' .
-A FileMultiString has the back-quote as separator.
-Elements can have any size, but if you use the [] operator they will be cut
-at mMaxSepItem size.
+A `\' is encoded as `\\' . Elements can have any size.
 
 */
 
 class SeparString
 {
 public:
-			SeparString(const char* str=0,char separ=',');
+			SeparString( const char* s=0, char separ=',' )
+			{ initSep( separ ); addStr( s ); }
+    template <class T>	SeparString( T t, char separ=',' )
+			{ initSep( separ ); addStr( Conv::to<const char*>(t)); }
 			SeparString( const SeparString& s )
-			: rep_(s.rep_) { sep_[0] = s.sep_[0]; sep_[1] = '\0'; }
+			: rep_(s.rep_) { initSep( s.sep_[0] ); }
+
     SeparString&	operator=(const SeparString&);
     SeparString&	operator=(const char*);
+    template <class T>
+    inline SeparString&	operator=( T t )
+    			{ return operator=( Conv::to<const char*>(t)); }
+
     inline bool		isEmpty() const		{ return rep_.isEmpty(); }
     inline void		setEmpty()		{ rep_.setEmpty(); }
 
@@ -51,15 +56,11 @@ public:
     bool		getYN(int) const;
     int			indexOf(const char*) const;
 
-    void		add(const char*);
-    inline SeparString&	operator +=( const char* s ) { add(s); return *this; }
-    SeparString&	operator +=(int);
-    SeparString&	operator +=(od_uint32);
-    SeparString&	operator +=(od_int64);
-    SeparString&	operator +=(od_uint64);
-    SeparString&	operator +=(float);
-    SeparString&	operator +=(double);
-    SeparString&	operator +=(bool);
+    SeparString&	add(const char*);
+    inline SeparString&	operator +=( const char* s )	{ return add( s ); }
+    template <class T>
+    SeparString&	operator +=( T t )
+    				{ return add( Conv::to<const char*>(t) ); }
 
     inline		operator const char*() const	{ return buf(); }
     inline char*	buf()			{ return rep_.buf(); }
@@ -75,10 +76,13 @@ private:
     char		sep_[2];
     BufferString	rep_;
 
+    void		addStr(const char*);
+    inline void		initSep( char s )	{ sep_[0] = s; sep_[1] = '\0'; }
+
 };
 
 
-/*!\brief SeparString with backquotes as separators */
+/*!\brief SeparString with backquotes as separators, use in most ascii files */
 
 class FileMultiString : public SeparString
 {
@@ -86,11 +90,14 @@ public:
 
 			FileMultiString( const char* str=0 )
 			    : SeparString(str,'`')		{}
+    template <class T>	FileMultiString( T t )
+			    : SeparString(t,'`')		{}
 
     FileMultiString&	operator=( const FileMultiString& fms )
 			{ SeparString::operator=( fms ); return *this; }
-    FileMultiString&	operator=( const char* s )
-			{ SeparString::operator=( s ); return *this; }
+    template <class T>
+    FileMultiString&	operator=( T t )
+    			{ SeparString::operator=( t ); return *this; }
 
 };
 
