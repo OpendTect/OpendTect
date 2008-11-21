@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.23 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.24 2008-11-21 15:30:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -205,7 +205,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	    maxcs.zrg.stop = zintv.stop;
 	}
 
-	positiondlg_ = new uiSliceSel( getUiParent(),
+	positiondlg_ = new uiSliceSelDlg( getUiParent(),
 				pdd->getCubeSampling(true,true), maxcs,
 				mCB(this,uiODPlaneDataTreeItem,updatePlanePos), 
 				(uiSliceSel::Type)dim_ );
@@ -257,10 +257,10 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
 	    	    visserv_->getObject(displayid_))
-    mDynamicCastGet(uiSliceSel*,dlg,cb)
-    if ( !dlg ) return;
+    mDynamicCastGet(uiSliceSel*,slicesel,cb)
+    if ( !slicesel ) return;
 
-    movePlaneAndCalcAttribs( dlg->getCubeSampling() );
+    movePlaneAndCalcAttribs( slicesel->getCubeSampling() );
 }
 
 

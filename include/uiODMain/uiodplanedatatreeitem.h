@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.6 2008-11-04 23:15:51 cvskris Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.7 2008-11-21 15:30:08 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uioddisplaytreeitem.h"
-class uiSliceSel;
+
+class uiSliceSelDlg;
 class CubeSampling;
 
 
@@ -47,7 +48,7 @@ protected:
     const bool		rgba_;
     MenuItem		positionmnuitem_;
     MenuItem		gridlinesmnuitem_;
-    uiSliceSel*		positiondlg_;
+    uiSliceSelDlg*	positiondlg_;
 };
 
 

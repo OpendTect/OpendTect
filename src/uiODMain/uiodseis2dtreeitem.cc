@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.45 2008-08-14 04:56:14 cvsumesh Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.46 2008-11-21 15:30:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -549,8 +549,8 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	curcs.hrg.stop.crl = s2d->getTraceNrRange().stop;
 
 	CallBack dummy;
-	uiSliceSel positiondlg( getUiParent(), curcs,
-				maxcs, dummy, uiSliceSel::TwoD );
+	uiSliceSelDlg positiondlg( getUiParent(), curcs,
+				   maxcs, dummy, uiSliceSel::TwoD );
 	if ( !positiondlg.go() ) return;
 	const CubeSampling newcs = positiondlg.getCubeSampling();
 

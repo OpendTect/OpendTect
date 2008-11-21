@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.47 2008-05-23 05:20:27 cvsnageswara Exp $
+ RCS:           $Id: uislicesel.cc,v 1.48 2008-11-21 15:30:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,9 +27,7 @@ static const char* sButTxtPause = "&Pause";
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
 			const CubeSampling& maxcs,
 			const CallBack& acb, Type type )
-    : uiDialog(p,uiDialog::Setup("Positioning",
-				 "Specify the element's position",
-				 "0.4.1").modal(type==Vol||type==TwoD))
+    : uiGroup(p,"Slice Selection")
     , cs_(*new CubeSampling(curcs))
     , maxcs_(*new CubeSampling(maxcs))
     , inl0fld(0)
@@ -440,7 +438,7 @@ void uiSliceSel::setCubeSampling( const CubeSampling& cs )
 }
 
 
-bool uiSliceSel::acceptOK( CallBacker* )
+bool uiSliceSel::acceptOK()
 {
     readInput();
     return true;
@@ -463,3 +461,19 @@ void uiSliceSel::disableScrollButton()
 }
 
 
+
+uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
+			const CubeSampling& maxcs,
+			const CallBack& acb, uiSliceSel::Type type )
+    : uiDialog(p,uiDialog::Setup("Positioning",
+				 "Specify the element's position","0.4.1")
+	    	 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
+{
+    slicesel_ = new uiSliceSel( this, curcs, maxcs, acb, type );
+}
+
+
+bool uiSliceSelDlg::acceptOK( CallBacker* )
+{
+    return slicesel_->acceptOK();
+}

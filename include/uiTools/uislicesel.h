@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.15 2006-09-21 15:17:45 cvshelene Exp $
+ RCS:           $Id: uislicesel.h,v 1.16 2008-11-21 15:30:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "uigroup.h"
 #include "ranges.h"
 
 class uiCheckBox;
@@ -25,7 +26,7 @@ class uiSliceScroll;
 namespace Threads { class Mutex; };
 
 
-class uiSliceSel : public uiDialog
+class uiSliceSel : public uiGroup
 {
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
@@ -34,10 +35,13 @@ public:
 					   const CubeSampling& maxcs,
 					   const CallBack& applycb,Type);
 				~uiSliceSel();
-    const CubeSampling&		getCubeSampling()	{ return cs_; }
+
+    const CubeSampling&		getCubeSampling() const	{ return cs_; }
     void			setCubeSampling(const CubeSampling&);
     void			disableApplyButton();
     void			disableScrollButton();
+
+    bool			acceptOK();
 
 protected:
 
@@ -46,7 +50,6 @@ protected:
     void			scrollPush(CallBacker*);
     void			applyPush(CallBacker*);
     void			readInput();
-    bool			acceptOK(CallBacker*);
     void			setBoxValues(uiSpinBox*,
 	    				     const StepInterval<int>&,int);
     void			createInlFld();
@@ -71,6 +74,30 @@ protected:
     bool			isinl_, iscrl_, istsl_, isvol_, is2d_;
 
     Threads::Mutex&		updatemutex_;
+};
+
+
+class uiSliceSelDlg : public uiDialog
+{
+public:
+    				uiSliceSelDlg(uiParent*,
+					      const CubeSampling& csin,
+					      const CubeSampling& maxcs,
+					      const CallBack& applycb,
+					      uiSliceSel::Type);
+
+    const CubeSampling&		getCubeSampling() const
+    				{ return slicesel_->getCubeSampling(); }
+    void			setCubeSampling( const CubeSampling& cs )
+				{ slicesel_->setCubeSampling( cs ); }
+
+    uiSliceSel*			grp()	{ return slicesel_; }
+
+protected:
+
+    uiSliceSel*			slicesel_;
+
+    bool			acceptOK(CallBacker*);
 };
 
 #endif

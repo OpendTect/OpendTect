@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.35 2008-09-09 10:52:11 cvsbert Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.36 2008-11-21 15:30:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ class uiGDPositionDlg: public uiDialog
     uiLabeledComboBox*	linesfld_;
     CubeSampling	cs_;
     CubeSampling*	prefcs_;
-    uiSliceSel*		posdlg_;
+    uiSliceSelDlg*	posdlg_;
     bool 		is2d_; 
     MultiID 		mid_; 
 };
@@ -627,11 +627,11 @@ void uiGDPositionDlg::popUpPosDlg()
 	inputcs.zrg.start = 0;
     }
     
-    posdlg_ = new uiSliceSel( this, inputcs, cs_, dummycb, 
+    posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, dummycb, 
 			      is2d ? uiSliceSel::TwoD 
 			        : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl) );
-    posdlg_->disableApplyButton();
-    posdlg_->disableScrollButton();
+    posdlg_->grp()->disableApplyButton();
+    posdlg_->grp()->disableScrollButton();
     posdlg_->setModal( true );
     posdlg_->go();
 }
