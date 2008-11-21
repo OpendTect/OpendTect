@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.35 2008-11-21 19:29:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.36 2008-11-21 19:36:32 cvsyuancheng Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -313,7 +313,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	isshown = true;
 
 	//MouseCursorChanger cursorchanger( MouseCursor::Wait );
-	//const int surfid = voldisp->addIsoSurface(0,false);
+	const int surfid = voldisp->addIsoSurface(0,false);
 	//uiODIsoValueDlg dlg(applMgr()->applService().parent(),voldisp);
 	//dlg.go();
 	
