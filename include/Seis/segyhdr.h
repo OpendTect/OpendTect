@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.20 2008-10-10 14:08:27 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.21 2008-11-21 11:43:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,7 @@ public:
     const TrcHeaderDef&	hdef;
     bool		isrev1;
     bool		isusable; // trid < 2 ; mostly ignored but not always
+    bool		nonrectcoords; // counit == 1, 2 or 3
 
     void		dump(std::ostream&) const;
 

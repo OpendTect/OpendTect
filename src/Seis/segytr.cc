@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.73 2008-11-14 13:54:10 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.74 2008-11-21 11:43:46 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -33,6 +33,7 @@ static const int cSEGYWarnBadFmt = 1;
 static const int cSEGYWarnPos = 2;
 static const int cSEGYWarnZeroSampIntv = 3;
 static const int cSEGYWarnDataReadIncomplete = 4;
+static const int cSEGYWarnNonrectCoord = 5;
 static int maxnrconsecutivebadtrcs = -1;
 static const char* sKeyMaxConsBadTrcs = "SEGY.Max Bad Trace Block";
 
@@ -167,6 +168,11 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnDataReadIncomplete )
     {
+	msg = detail;
+    }
+    else if ( nr == cSEGYWarnNonrectCoord )
+    {
+	msg = "Geographic coordinates found - not supported\nFirst occurrence ";
 	msg = detail;
     }
 
@@ -595,6 +601,10 @@ bool SEGYSeisTrcTranslator::readInfo( SeisTrcInfo& ti )
 	addWarn(cSEGYWarnZeroSampIntv,getTrcPosStr());
 	ti.sampling.step = SI().zStep();
     }
+
+    if ( trchead_.nonrectcoords )
+	addWarn(cSEGYWarnNonrectCoord,getTrcPosStr());
+
     return (headerdone = true);
 }
 
