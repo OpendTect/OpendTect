@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.30 2008-01-21 09:23:56 cvshelene Exp $
+ RCS:           $Id: attribparam.h,v 1.31 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,8 +205,8 @@ const StepInterval<T>* NumParam<T>::limits() const
 template <class T>
 BufferString NumParam<T>::getDefaultValue() const
 {
-    BufferString bfs = reinterpret_cast<NumInpSpec<T>*>(spec_)->defaultValue();
-    return bfs;
+    return BufferString(
+	    toString(reinterpret_cast<NumInpSpec<T>*>(spec_)->defaultValue()) );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.26 2008-10-14 12:11:14 cvsbert Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.27 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( "->", "Warning" );
 	iopar.add( "These positions were rejected", "" );
 	for ( int idx=0; idx<rejectedlines_.size(); idx++ )
-	    iopar.add( BufferString(idx).buf(), rejectedlines_.get(idx).buf() );
+	    iopar.add( toString(idx), rejectedlines_.get(idx).buf() );
     }
 }
 
@@ -334,11 +334,10 @@ int HorizonScanner::nextStep()
 
     else if ( rejectedlines_.size()<1024 )
     {
-	BufferString rej( data[0] );
-	rej += "\t";
+	BufferString rej( "", data[0], "\t" );
 	rej += data[1];
 	if ( isgeom_ )
-	{ rej += "\t"; rej += data[2]; }
+	    { rej += "\t"; rej += data[2]; }
 	rejectedlines_.add( rej.buf() );
     }
 

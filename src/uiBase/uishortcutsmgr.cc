@@ -207,8 +207,7 @@ bool uiShortcutsList::getKeyValues( const IOPar& par, int scutidx,
 				    BufferString& val1,
 				    BufferString& val2 ) const
 {
-    BufferString scutidxstr = scutidx;
-    BufferString key = IOPar::compKey( scutidxstr.buf(), sKey::Keys );
+    BufferString key = IOPar::compKey( toString(scutidx), sKey::Keys );
     return par.get( key.buf(), val1, val2 );
 }
 
@@ -238,8 +237,7 @@ const char* uiShortcutsList::nameOf( const uiKeyDesc& kd ) const
 bool uiShortcutsList::getSCNames( const IOPar& par, int scutidx,
 				  BufferString& name ) const
 {
-    BufferString scutidxstr = scutidx;
-    BufferString key = IOPar::compKey( scutidxstr.buf(), sKey::Name );
+    BufferString key = IOPar::compKey( toString(scutidx), sKey::Name );
     return par.get( key.buf(), name );
 }
 

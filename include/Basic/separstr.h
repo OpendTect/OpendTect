@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.16 2008-11-21 10:32:38 cvsbert Exp $
+ RCS:		$Id: separstr.h,v 1.17 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,10 @@ private:
     inline void		initSep( char s )	{ sep_[0] = s; sep_[1] = '\0'; }
 
 };
+
+std::ostream& operator <<(std::ostream&,const SeparString&);
+std::istream& operator >>(std::istream&,SeparString&);
+
 
 
 /*!\brief SeparString with backquotes as separators, use in most ascii files */

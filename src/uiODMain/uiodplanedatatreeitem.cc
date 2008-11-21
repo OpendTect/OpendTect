@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.22 2008-11-04 23:15:51 cvskris Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.23 2008-11-21 14:58:20 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -156,7 +156,7 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 	if ( scene && !scene->getDataTransform() )
 	{
 	    const float zval = cs.zrg.start * SI().zFactor();
-	    res = BufferString( SI().zIsTime() ? mNINT(zval) : zval );
+	    res = toString( SI().zIsTime() ? (float)(mNINT(zval)) : zval );
 	}
 	else
 	    res = cs.zrg.start;

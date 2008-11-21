@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.155 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.156 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -309,8 +309,7 @@ void uiODSceneMgr::getScenePars( IOPar& iopar )
     {
 	IOPar iop;
 	scenes_[idx]->sovwr_->fillPar( iop );
-	BufferString key = idx;
-	iopar.mergeComp( iop, key );
+	iopar.mergeComp( iop, toString(idx) );
     }
 }
 
@@ -319,8 +318,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 {
     for ( int idx=0; ; idx++ )
     {
-	BufferString key = idx;
-	PtrMan<IOPar> scenepar = sessionpar.subselect( key );
+	PtrMan<IOPar> scenepar = sessionpar.subselect( toString(idx) );
 	if ( !scenepar || !scenepar->size() )
 	{
 	    if ( !idx ) continue;

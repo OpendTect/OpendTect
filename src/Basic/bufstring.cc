@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.12 2008-09-29 13:23:47 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.13 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "bufstring.h"
 
@@ -15,27 +15,33 @@ static const char* rcsID = "$Id: bufstring.cc,v 1.12 2008-09-29 13:23:47 cvsbert
 #include <string.h>
 
 
-#define mDeclMinlen : minlen_(mMaxFilePathLength+1), buf_( 0 ), len_( 0 )
-#define mSimpConstrImpl(pars,impl) \
-    BufferString::BufferString pars mDeclMinlen { impl; }
+BufferString::BufferString( int sz, bool mknull )
+    : minlen_(sz)
+    , len_(0)
+    , buf_(0)
+{
+    if ( sz < 1 ) return;
 
-mSimpConstrImpl( (), )
-mSimpConstrImpl( (const char* s), if ( s ) *this = s )
-mSimpConstrImpl( (int i), *this = i )
-mSimpConstrImpl( (float f), *this = f )
-mSimpConstrImpl( (double d), *this = d )
+    setBufSize( sz );
+    if ( len_ > 0 )
+	memset( buf_, 0, len_ );
+}
+
 
 BufferString::BufferString( const BufferString& bs )
-    mDeclMinlen { *this = bs; }
+    : minlen_(bs.minlen_)
+    , len_(0)
+    , buf_(0)
+{
+    if ( !bs.buf_ || !bs.len_ ) return;
 
-mSimpConstrImpl( (const char* s1, const char* s2, const char* s3),
-		 *this = s1; *this += s2; *this += s3 )
-mSimpConstrImpl( (const char* s1, int i, const char* s2),
-		 *this = s1; *this += i; *this += s2 )
-mSimpConstrImpl( (const char* s1, float f, const char* s2),
-		 *this = s1; *this += f; *this += s2 )
-mSimpConstrImpl( (const char* s1, double d, const char* s2),
-		 *this = s1; *this += d; *this += s2 )
+    mTryAlloc( buf_, char [bs.len_] );
+    if ( buf_ )
+    {
+	len_ = bs.len_;
+	strcpy( buf_, bs.buf_ );
+    }
+}
 
 
 BufferString::~BufferString()
@@ -47,7 +53,6 @@ BufferString::~BufferString()
 bool BufferString::operator==( const char* s ) const
 {
     if ( !s || !(*s) ) return isEmpty();
-
     if ( isEmpty() ) return false;
 
     const char* ptr = buf_;
@@ -92,20 +97,8 @@ BufferString& BufferString::operator=( const char* s )
     return *this;
 }
 
-BufferString& BufferString::operator=( const BufferString& bs )
-{ if ( &bs != this ) *this = bs.buf_; return *this; }
 
-BufferString& BufferString::operator=( int i )
-{ if ( buf_ ) *buf_ = '\0'; *this += i; return *this; }
-
-BufferString& BufferString::operator=( float f )
-{ if ( buf_ ) *buf_ = '\0'; *this += f; return *this; }
-
-BufferString& BufferString::operator=( double d )
-{ if ( buf_ ) *buf_ = '\0'; *this += d; return *this; }
-
-
-BufferString& BufferString::operator +=( const char* s )
+BufferString& BufferString::add( const char* s )
 {
     if ( s && *s )
     {
@@ -120,14 +113,6 @@ BufferString& BufferString::operator +=( const char* s )
     return *this;
 }
 
-BufferString& BufferString::operator+=( int i )
-{ *this += getStringFromInt(i); return *this; }
-
-BufferString& BufferString::operator+=( float f )
-{ *this += getStringFromFloat(0,f); return *this; }
-
-BufferString& BufferString::operator+=( double d )
-{ *this += getStringFromDouble(0,d); return *this; }
 
 unsigned int BufferString::size() const	
 {
@@ -269,14 +254,26 @@ const BufferString& BufferString::empty()
 void BufferString::init()
 {
     len_ = minlen_;
-    mTryAlloc( buf_, char[len_] );
-    if ( buf_ )
-	*buf_ ='\0';
+    if ( len_ < 1 )
+	buf_ = 0;
+    else
+    {
+	mTryAlloc( buf_, char[len_] );
+	if ( buf_ )
+	    *buf_ ='\0';
+    }
 }
 
 
 std::ostream& operator <<( std::ostream& s, const BufferString& bs )
-{ s << (const char*)bs; return s; }
+{
+    s << bs.buf();
+    return s;
+}
 
 std::istream& operator >>( std::istream& s, BufferString& bs )
-{ s >> bs.buf(); return s; }
+{
+    std::string stdstr; s >> stdstr;
+    bs = stdstr.c_str();
+    return s;
+}

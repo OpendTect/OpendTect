@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.cc,v 1.4 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: attribdescsetman.cc,v 1.5 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ void DescSetMan::fillHist()
 	Desc* ad = ads_->getDesc( attribids[idx] );
 	if ( !ad || ad->isHidden() || ad->isStored() ) continue;
 
-	BufferString key( attribids[idx].asInt() );
+	const BufferString key( "", attribids[idx].asInt() );
 	if ( inpselhist_.findKeyFor(key) ) continue;
 
 	nr++;

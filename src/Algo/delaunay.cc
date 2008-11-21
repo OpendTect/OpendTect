@@ -4,11 +4,12 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.27 2008-09-22 13:05:33 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.28 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
 #include "varlenarray.h"
+#include <iostream>
 
 
 ParallelDTriangulator::ParallelDTriangulator( DAGTriangleTree& dagt )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.8 2008-05-22 15:54:45 cvskris Exp $
+ RCS:		$Id: compoundkey.h,v 1.9 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,10 +44,11 @@ public:
     inline bool		operator!=(const char* s) const	{ return id_ != s; }
     inline bool		operator!=(const CompoundKey& u) const
 							{ return id_ != u.id_; }
-    inline void		empty()				{ id_.empty(); }
+    inline void		setEmpty()			{ id_.setEmpty(); }
     inline bool		isEmpty() const			{ return id_.isEmpty();}
-    inline		operator const char*() const	{ return id_.buf(); }
     inline char*	buf()				{ return id_.buf(); }
+    inline const char*	buf() const			{ return id_.buf(); }
+    inline		operator const char*() const	{ return buf(); }
 
     int			nrKeys() const;
     BufferString	key(int) const;
@@ -61,14 +62,10 @@ protected:
 
     BufferString	id_;
     char*		fromKey(int,bool cptobuf=false) const;
+    friend std::istream& operator >>(std::istream&,CompoundKey&);
 
 };
 
-
-inline std::ostream& operator <<( std::ostream& strm, const CompoundKey& uid )
-{ strm << (const char*)uid; return strm; }
-inline std::istream& operator >>( std::istream& strm, CompoundKey& uid )
-{ strm >> uid.buf(); return strm; }
 
 inline CompoundKey& CompoundKey::operator +=( const char* s )
 {

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.33 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.34 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -377,8 +377,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
     curinl_ = inl;
 
     FilePath fp( dirnm_ );
-    BufferString fnm = inl; fnm += ext();
-    fp.add( fnm );
+    fp.add( BufferString("",inl,ext()) );
 
     BufferString filep = fp.fullPath();
 
@@ -466,7 +465,7 @@ void SeisCBVSPS3DWriter::close()
 bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 {
     const BinID& trcbid = trc.info().binid;
-    BufferString fnm = trcbid.inl; fnm += ext();
+    BufferString fnm( "", trcbid.inl, ext() );
     FilePath fp( dirnm_ ); fp.add( fnm );
     fnm = fp.fullPath();
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.41 2008-10-27 22:03:09 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.42 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -78,9 +78,7 @@ void DataManager::fillPar( IOPar& par, TypeSet<int>& storids ) const
 	const DataObject* dataobj = getObject( storids[idx] );
 	if ( !dataobj ) continue;
 	dataobj->fillPar( dataobjpar, storids );
-
-	BufferString idstr = storids[idx];
-	par.mergeComp( dataobjpar, idstr );
+	par.mergeComp( dataobjpar, toString(storids[idx]) );
     }
 
     sort( storids );

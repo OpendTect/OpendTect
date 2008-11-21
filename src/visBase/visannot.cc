@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.25 2008-10-29 19:49:41 cvskris Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.26 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -247,8 +247,7 @@ void Annotation::updateTextPos( int textid )
 	Coord3 pos( p0[0], p0[1], p0[2] );
 	pos[dim] = val;
 	text->setPosition( pos );
-	BufferString string = val;
-	text->setText( string );
+	text->setText( toString(val) );
     }
 }
 

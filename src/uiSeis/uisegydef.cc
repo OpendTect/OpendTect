@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2008
- RCS:		$Id: uisegydef.cc,v 1.16 2008-11-12 14:28:19 cvsbert Exp $
+ RCS:		$Id: uisegydef.cc,v 1.17 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ void uiSEGYFileSpec::setMultiInput( const StepInterval<int>& nrs, int zp )
 	    mDynamicCastGet(uiLineEdit*,le,inpobj)
 	    if ( le )
 	    {
-		BufferString txt( nrs.start );
+		BufferString txt( toString(nrs.start) );
 		const int nrzeros = zp - txt.size();
 		if ( nrzeros > 0 )
 		{

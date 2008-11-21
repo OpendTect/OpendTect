@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.44 2008-11-19 15:56:50 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.45 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -397,12 +397,9 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	zinterval.start = extraztopfld_->getfValue();
 	zinterval.stop = extrazbotfld_->getfValue();
     }
-    
-    BufferString gatestr = zinterval.start; gatestr += "`";
-    gatestr += zinterval.stop;
-    
+
     key = IOPar::compKey( sKey::Geometry, "ExtraZInterval" );
-    iopar.set( key, gatestr );
+    iopar.set( key, zinterval );
 
     key = IOPar::compKey( sKey::Geometry, "Outside Value" );
     iopar.set( key, outsidevalfld_->getfValue() );
@@ -428,13 +425,10 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     cubezbounds = setcubeboundsfld_->getBoolValue()
 				? cubeboundsfld_->getFInterval()
 				: Interval<float>( mUdf(float), mUdf(float) );
-    BufferString zboundsstr = cubezbounds.start; zboundsstr += "`";
-    zboundsstr += cubezbounds.stop;
-   
     if ( !mIsUdf(cubezbounds.start) )
     {
 	key = IOPar::compKey( sKey::Geometry, "Z Boundaries" );
-	iopar.set( key, zboundsstr );
+	iopar.set( key, cubezbounds );
     }
     
     return true;

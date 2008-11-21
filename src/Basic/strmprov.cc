@@ -41,9 +41,9 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.74 2008-10-26 17:41:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.75 2008-11-21 14:58:20 cvsbert Exp $";
 
-static BufferString oscommand( 2048 );
+static BufferString oscommand( 2048, false );
 
 const char* StreamProvider::sStdIO()	{ return "Std-IO"; }
 const char* StreamProvider::sStdErr()	{ return "Std-Err"; }

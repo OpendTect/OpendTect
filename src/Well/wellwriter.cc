@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.9 2008-02-26 09:17:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.10 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -87,9 +87,11 @@ bool Well::Writer::putTrack( std::ostream& strm ) const
     for ( int idx=0; idx<wd.track().size(); idx++ )
     {
 	const Coord3& c = wd.track().pos(idx);
-	BufferString bs( c.x ); strm << bs << '\t';
-	bs = c.y; strm << bs << '\t';
-	bs = c.z; strm << bs << '\t';
+	    // don't try to do the following in one statement
+	    // (unless for educational purposes)
+	strm << toString(c.x) << '\t';
+	strm << toString(c.y) << '\t';
+	strm << toString(c.z) << '\t';
 	strm << wd.track().dah(idx) << '\n';
     }
     return strm.good();
@@ -106,10 +108,7 @@ bool Well::Writer::putLogs() const
 	const Well::Log& wl = wd.logs().getLog(idx);
 	if ( !putLog(*sd.ostrm,wl) )
 	{
-	    BufferString msg( "Could not write log: '" );
-	    msg += wl.name();
-	    msg += "'";
-	    ErrMsg( msg );
+	    ErrMsg( BufferString("Could not write log: '",wl.name(),"'") );
 	    sd.close();
 	    return false;
 	}

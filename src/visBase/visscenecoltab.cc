@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: visscenecoltab.cc,v 1.7 2008-10-29 19:49:41 cvskris Exp $
+ RCS:		$Id: visscenecoltab.cc,v 1.8 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,8 +81,8 @@ void SceneColTab::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 	idx++;
     }
 
-    legendkit_->minvalue = BufferString(rg.start).buf();
-    legendkit_->maxvalue = BufferString(rg.stop).buf();
+    legendkit_->minvalue = toString( rg.start );
+    legendkit_->maxvalue = toString( rg.stop );
 }
 
 

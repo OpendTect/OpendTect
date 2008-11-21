@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.9 2008-09-26 07:39:26 cvsbert Exp $
+ RCS:           $Id: convert.h,v 1.10 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,14 @@ template <>
 inline void set( const char*& _to, const double& d )
     { _to = toString(d); }
 
+template <>
+inline void set( const char*& _to, const short& i )
+    { _to = toString(i); }
+
+template <>
+inline void set( const char*& _to, const unsigned short& i )
+    { _to = toString(i); }
+
 
 #ifndef __sol32__
 
@@ -114,22 +122,29 @@ mConvDefFromStrToFn( od_uint64, strtoull(s,&endptr,0) )
 mConvDefFromStrToFn( double, strtod(s,&endptr) )
 mConvDefFromStrToFn( float, strtof(s,&endptr) )
 
+#undef mConvDefFromStrToFn
 
-#else
+
+#endif
 
 #define mConvDefFromStrToFn(type,fn) \
 template <> \
 inline void set( type& _to, const char* const& s ) \
     { _to = (type)fn(s); }
 
+#ifdef __sol32__
 mConvDefFromStrToFn( int, atoi )
 mConvDefFromStrToFn( od_uint32, atoi )
 mConvDefFromStrToFn( od_int64, atoll )
 mConvDefFromStrToFn( od_uint64, atoll )
 mConvDefFromStrToFn( double, atof )
 mConvDefFromStrToFn( float, atof )
-
 #endif
+
+mConvDefFromStrToFn( short, atoi )
+mConvDefFromStrToFn( unsigned short, atoi )
+
+#undef mConvDefFromStrToFn
 
     
 template <>
@@ -145,12 +160,28 @@ inline void set( od_int64& _to, const float& f )
     { _to = mNINT(f); }
 
 template <>
+inline void set( short& _to, const float& f )
+    { _to = (short)mNINT(f); }
+
+template <>
+inline void set( unsigned short& _to, const float& f )
+    { _to = (unsigned short)mNINT(f); }
+
+template <>
 inline void set( od_int32& _to, const double& f )
     { _to = mNINT(f); }
 
 template <>
 inline void set( od_int64& _to, const double& f )
     { _to = mNINT(f); }
+
+template <>
+inline void set( short& _to, const double& f )
+    { _to = (short)mNINT(f); }
+
+template <>
+inline void set( unsigned short& _to, const double& f )
+    { _to = (unsigned short)mNINT(f); }
 
 template <>
 inline void set( od_uint32& _to, const float& f )

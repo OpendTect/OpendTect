@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.9 2008-11-04 13:45:04 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.10 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -41,7 +41,7 @@ const char* SEGY::FileSpec::getFileName( int nr ) const
     if ( !isMultiFile() )
 	return fname_.buf();
 
-    BufferString numbstr( nrs_.atIndex(nr) );
+    BufferString numbstr( "", nrs_.atIndex(nr) );
     BufferString replstr;
     if ( zeropad_ < 2 )
 	replstr = numbstr;
@@ -64,8 +64,8 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     IOStream* iostrm;
     if ( tmp )
     {
-	MultiID tmpid( "100010." ); tmpid += BufferString(IOObj::tmpID);
-	iostrm = new IOStream( fname_, tmpid.buf() );
+	BufferString idstr( "100010.", IOObj::tmpID );
+	iostrm = new IOStream( fname_, idstr );
     }
     else
     {
@@ -330,8 +330,8 @@ static void setIntByte( IOPar& iop, const char* nm,
 			unsigned char bytenr, unsigned char bytesz )
 {
     BufferString keyw( nm ); keyw += " byte";
-    BufferString val; val = bytenr;
-    val += " (size "; val += bytesz; val += ")";
+    BufferString val; val = (int)bytenr;
+    val += " (size "; val += (int)bytesz; val += ")";
     iop.set( keyw.buf(), val.buf() );
 }
 

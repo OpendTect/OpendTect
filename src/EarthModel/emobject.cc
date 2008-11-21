@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.81 2008-05-07 12:34:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.82 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "emobject.h"
 
@@ -92,8 +92,7 @@ int EMObject::sectionIndex( const SectionID& sid ) const
 
 BufferString EMObject::sectionName( const SectionID& sid ) const
 {
-    BufferString res = sid;
-    return res;
+    return BufferString( toString(sid) );
 }
 
 

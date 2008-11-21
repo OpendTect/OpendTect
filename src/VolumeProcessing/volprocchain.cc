@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.4 2008-09-22 13:12:03 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.5 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "volprocchain.h"
 
@@ -347,8 +347,7 @@ void Chain::fillPar(IOPar& par) const
 	oppar.set( sKeyStepType(), steps_[idx]->type() );
 	steps_[idx]->fillPar( oppar );
 
-	const BufferString idxstr = idx;	
-	par.mergeComp( oppar, idxstr.buf() );
+	par.mergeComp( oppar, toString(idx) );
     }
 }
 
@@ -363,8 +362,7 @@ bool Chain::usePar( const IOPar& par )
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {
-	const BufferString idxstr = idx;	
-	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
+	PtrMan<IOPar> steppar = par.subselect( toString(idx) );
 	if ( !steppar )
 	    continue;
 

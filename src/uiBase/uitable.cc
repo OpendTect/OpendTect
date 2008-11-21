@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.74 2008-11-19 08:29:56 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.75 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1070,10 +1070,7 @@ void uiTable::popupMenu( CallBacker* )
 	insertColumns( newcell_, 1 );
 
 	if ( !setup_.defcollbl_ )
-	{
-	    BufferString label( newcell_.col );
-	    setColumnLabel( newcell_, label );
-	}
+	    setColumnLabel( newcell_, toString(newcell_.col) );
 
 	colInserted.trigger();
     }
@@ -1089,10 +1086,7 @@ void uiTable::popupMenu( CallBacker* )
 	insertRows( newcell_, 1 );
 
 	if ( !setup_.defrowlbl_ )
-	{
-	    BufferString label( newcell_.row );
-	    setRowLabel( newcell_, label );
-	}
+	    setRowLabel( newcell_, toString(newcell_.row) );
 
 	rowInserted.trigger();
     }

@@ -5,7 +5,7 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.16 2008-11-21 10:32:39 cvsbert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.17 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include <string.h>
 #include <stdlib.h>
@@ -164,3 +164,10 @@ void SeparString::setSepChar( char newchar )
 	ss.add( (*this)[idx] );
     *this = ss;
 }
+
+
+std::ostream& operator <<( std::ostream& s, const SeparString& ss )
+{ s << ss.rep(); return s; }
+
+std::istream& operator >>( std::istream& s, SeparString& ss )
+{ s >> ss.rep(); return s; }

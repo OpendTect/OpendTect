@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.73 2008-08-15 12:23:26 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.74 2008-11-21 14:58:20 cvsbert Exp $";
 
 /*!
 
@@ -76,7 +76,7 @@ bool CBVSReader::readInfo( bool wanttrailer )
     errmsg_ = check( strm_ );
     if ( errmsg_ ) return false;
 
-    BufferString buf(headstartbytes);
+    BufferString buf( headstartbytes, false );
     char* ptr = buf.buf();
     strm_.read( ptr, headstartbytes );
 

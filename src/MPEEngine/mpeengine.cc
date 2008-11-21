@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.84 2008-02-28 12:18:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.85 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "mpeengine.h"
 
@@ -496,8 +496,7 @@ void Engine::fillPar( IOPar& iopar ) const
 
 //	tracker->fillPar( localpar );
 
-	BufferString key( trackeridx );
-	iopar.mergeComp( localpar, key );
+	iopar.mergeComp( localpar, toString(trackeridx) );
 	trackeridx++;
     }
 
@@ -530,8 +529,7 @@ bool Engine::usePar( const IOPar& iopar )
 
     for ( int idx=0; idx<nrtrackers; idx++ )
     {
-	BufferString key( idx );
-	PtrMan<IOPar> localpar = iopar.subselect( key );
+	PtrMan<IOPar> localpar = iopar.subselect( toString(idx) );
 	if ( !localpar ) continue;
 	
 	if ( !localpar->get(sKeyObjectID(),midtoload) ) continue;

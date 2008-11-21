@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.64 2008-11-21 11:53:25 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.65 2008-11-21 14:58:20 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -145,11 +145,11 @@ void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 
 
 #define mPutBytePos(line,s,memb) \
-    buf = s; buf += thd.memb; \
+    buf = s; buf += (int)thd.memb; \
     putAt( line, 6, 6+buf.size(), buf )
 #define mPutBytePosSize(line,s,memb) \
-    buf = s; buf += thd.memb; \
-    buf += " ("; buf += thd.memb##bytesz; buf += "-byte int)"; \
+    buf = s; buf += (int)thd.memb; \
+    buf += " ("; buf += (int)thd.memb##bytesz; buf += "-byte int)"; \
     putAt( line, 6, 6+buf.size(), buf )
 
 void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
@@ -185,8 +185,8 @@ void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
     {
 	mPutBytePosSize( 8, "In-line:      ", inl );
 	mPutBytePosSize( 9, "X-line:       ", crl );
-	buf = "I/X bytes: "; buf += thd.inl;
-	buf += " / "; buf += thd.crl;
+	buf = "I/X bytes: "; buf += (int)thd.inl;
+	buf += " and "; buf += (int)thd.crl;
     }
     putAt( 36, 6, 75, buf );
 }

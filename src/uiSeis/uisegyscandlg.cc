@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.9 2008-11-20 13:25:51 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.10 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
     for ( int idx=0; idx<sc.warnings().size(); idx++ )
     {
 	if ( !idx ) rep.add( "->", "Warnings" );
-	rep.add( BufferString(idx+1), sc.warnings().get(idx) );
+	rep.add( toString(idx+1), sc.warnings().get(idx) );
     }
 
     if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty) )

@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.73 2008-11-13 10:59:01 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.74 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -982,6 +982,15 @@ void IOPar::set( const char* s, const BinID& binid )
 { set( s, binid.inl, binid.crl ); }
 
 
+bool IOPar::get( const char* s, SeparString& ss ) const
+{
+    const char* res = find( s );
+    if ( !res ) return false;
+    ss = res;
+    return true;
+}
+
+
 bool IOPar::get( const char* s, BufferString& bs ) const
 {
     const char* res = find( s );
@@ -1017,16 +1026,22 @@ bool IOPar::get( const char* s, BufferStringSet& bss ) const
 }
 
 
+void IOPar::set( const char* s, const SeparString& ss )
+{
+    set( s, ss.buf() );
+}
+
+
 void IOPar::set( const char* s, const BufferString& bs )
 {
-    set( s, (const char*)bs );
+    set( s, bs.buf() );
 }
 
 
 void IOPar::set( const char* s, const BufferString& bs1,
 				const BufferString& bs2 )
 {
-    set( s, (const char*)bs1, (const char*)bs2 );
+    set( s, bs1.buf(), bs2.buf() );
 }
 
 
@@ -1050,7 +1065,7 @@ bool IOPar::get( const char* s, MultiID& mid ) const
 
 void IOPar::set( const char* s, const MultiID& mid )
 {
-    set( s, (const char*)mid );
+    set( s, mid.buf() );
 }
 
 

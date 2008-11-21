@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.51 2008-11-13 11:29:12 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.52 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class Coord;
 class Color;
 class Coord3;
 class MultiID;
+class SeparString;
 class ascistream;
 class ascostream;
 template <class T> class SamplingData;
@@ -144,6 +145,7 @@ public:
     bool		get(const char*,Coord3&) const;
     bool		get(const char*,MultiID&) const;
     bool		get(const char*,Color&) const;
+    bool		get(const char*,SeparString&) const;
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
@@ -213,6 +215,7 @@ public:
     void		set(const char*,const Coord3&);
     void		set(const char*,const MultiID&);
     void		set(const char*,const Color&);
+    void		set(const char*,const SeparString&);
     void		set(const char*,const BufferString&);
     void		set(const char*,const BufferString&,
 	    				const BufferString&);

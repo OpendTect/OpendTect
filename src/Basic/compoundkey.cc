@@ -5,11 +5,12 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID = "$Id: compoundkey.cc,v 1.5 2008-03-20 21:39:30 cvskris Exp $";
+static const char* rcsID = "$Id: compoundkey.cc,v 1.6 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "multiid.h"
 #include "globexpr.h"
 #include <stdlib.h>
+#include <iostream>
 
 
 static char bufstr[4096];
@@ -107,4 +108,16 @@ int MultiID::leafID() const
 {
     const char* ptr = strrchr( id_, '.' );
     return atoi( ptr ? ptr+1 : (const char*)id_ );
+}
+
+
+std::ostream& operator <<( std::ostream& strm, const CompoundKey& ck )
+{
+    strm << ck.buf(); return strm;
+}
+
+
+std::istream& operator >>( std::istream& strm, CompoundKey& ck )
+{
+    strm >> ck.id_; return strm;
 }

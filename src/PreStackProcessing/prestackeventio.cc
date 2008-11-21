@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.3 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.4 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "prestackeventio.h"
 
@@ -369,7 +369,7 @@ bool EventReader::readHorizonIDs(const char* fnm)
     NotifyStopper stopper( eventmanager_->change );
     for ( int idx=0; idx<nrhors; idx++ )
     {
-	BufferString key = idx;
+	const BufferString key( "", idx );
 	PtrMan<IOPar> horpar = par.subselect( key.buf() );
 	if ( !horpar )
 	    return false;
@@ -581,11 +581,11 @@ bool EventWriter::writeHorizonIDs( const char* fnm ) const
 
     for ( int idx=eventmanager_.getHorizonIDs().size()-1; idx>=0; idx-- )
     {
-	BufferString key = idx;
 	IOPar horpar;
 	const int id =  eventmanager_.getHorizonIDs()[idx];
 	horpar.set( EventReader::sKeyHorizonID(), id );
 
+	const BufferString key( "", idx );
 	par.mergeComp( horpar, key.buf() );
     }
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.17 2008-05-15 18:41:01 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.18 2008-11-21 14:58:20 cvsbert Exp $";
 
 #include "prestackprocessor.h"
 
@@ -342,7 +342,7 @@ void ProcessManager::fillPar( IOPar& par ) const
 	procpar.set( sKey::Name, processors_[idx]->name() );
 	processors_[idx]->fillPar( procpar );
 
-	const BufferString idxstr = idx;
+	const BufferString idxstr( "", idx );
 	par.mergeComp( procpar, idxstr.buf() );
     }
 }
@@ -360,7 +360,7 @@ bool ProcessManager::usePar( const IOPar& par )
 
     for ( int idx=0; idx<nrprocessors; idx++ )
     {
-	const BufferString idxstr = idx;
+	const BufferString idxstr( "", idx );
 	PtrMan<IOPar> steppar = par.subselect( idxstr.buf() );
 	if ( !steppar )
 	    continue;

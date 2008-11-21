@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.22 2008-09-30 12:08:20 cvshelene Exp $
+ RCS:		$Id: string2.h,v 1.23 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -96,6 +96,9 @@ inline const char* toString(od_uint64 i){ return getStringFromUInt64( i ); }
 inline const char* toString( float f )	{ return getStringFromFloat( 0, f ); }
 inline const char* toString( double d )	{ return getStringFromDouble( 0, d ); }
 inline const char* toString( bool b )	{ return getYesNoString( b ); }
+inline const char* toString( short i)	{ return getStringFromInt( (int)i ); }
+inline const char* toString( unsigned short i )
+				{ return getStringFromUInt( (unsigned int)i ); }
 
 #define mImplGetFromStrFunc( type, func, udfv ) \
 inline bool getFromString( type& i, const char* s, type undef=udfv ) \
