@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.10 2008-11-19 10:13:59 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.11 2008-11-21 05:03:38 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
+#include "keystrs.h"
 #include "linekey.h"
 #include "seisioobjinfo.h"
 #include "seistrc.h"
@@ -25,13 +26,12 @@ ________________________________________________________________________
 #include "transl.h"
 
 uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines, 
-	              CtxtIOObj* lsctio, BoolTypeSet& linechksum )
+	              CtxtIOObj* lsctio )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
 				   mNoDlgTitle,mNoHelpID) )
     , lsctio_(lsctio)
     , nroflines_(0)
     , sellines_(sellines)		   
-    , linechksum_(linechksum)					   
 {
     linesetfld_ = new uiSeisSel( this, *lsctio_,
 	    			 uiSeisSel::Setup(Seis::Line).selattr(false) );
@@ -51,8 +51,7 @@ uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines,
     lsb_->attach( alignedBelow, llb );
 
     lineSetSel( 0 );
-    for ( int lineidx = 0; lineidx<linechksum.size(); lineidx++)
-	lnmsfld_->setItemChecked( lineidx, linechksum[lineidx] );
+    lnmsfld_->setCheckedItems( sellines_ );
 }   
 
 
@@ -124,6 +123,10 @@ void uiLineSel::lineSetSel( CallBacker* )
 }
 
 
+const Interval<int> uiLineSel::getLineTrcRange( int idx ) const
+{ return linetrcflrgs_[idx]; }
+
+
 void uiLineSel::lineSelTrcRange( CallBacker* )
 {
     if ( linetrcrgs_.isEmpty() )
@@ -159,10 +162,6 @@ bool uiLineSel::acceptOK( CallBacker* )
     nroflines_ = lnmsfld_->size();
     lnmsfld_->getCheckedItems( sellines_ );
     
-    linechksum_.erase();
-    for ( int sellineidx = 0; sellineidx<nroflines_; sellineidx++ )
-	linechksum_ += lnmsfld_->isItemChecked( sellineidx );
-    
     return true;
 }
 
@@ -191,8 +190,36 @@ BufferString uiSelection2DParSel::getSummary() const
 
 void uiSelection2DParSel::doDlg( CallBacker* )
 {
-    linesel_ = new uiLineSel( this, sellines_, lsctio_, linechksum_ );
+    linesel_ = new uiLineSel( this, sellines_, lsctio_ );
     linesel_->go();
+}
+
+
+void uiSelection2DParSel::fillPar( IOPar& par )
+{
+    SeisIOObjInfo oinf( lsctio_->ioobj );
+    BufferStringSet lnms;
+    oinf.getLineNames( lnms );
+
+    par.set( "LineSet.ID", getIOObj()->key() );
+
+    IOPar linespar;
+    BufferString key;
+    for ( int idx=0; idx<sellines_.size(); idx++ )
+    {
+	key = idx;
+	linespar.set( key, sellines_[idx]->buf() );
+
+	IOPar trcpar;
+	Interval<int> trcitval = linesel_->getLineTrcRange(
+				          lnms.indexOf(sellines_[idx]->buf()) );
+	trcpar.set( sKey::FirstTrc, trcitval.start );
+	trcpar.set( sKey::LastTrc, trcitval.stop );
+
+	linespar.mergeComp( trcpar, key );
+    }
+
+    par.mergeComp( linespar, sKey::LineKey );
 }
 
 
