@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.51 2008-11-19 08:25:23 cvsjaap Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.52 2008-11-24 11:04:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -389,9 +389,8 @@ bool BatchProgram::go( std::ostream& strm )
     attribsiopar->get( "MaxNrKeys", nrattribs );
     for ( int idx=0; idx<nrattribs; idx++ )
     {
-	BufferString key = idx;
 	int id;
-	if ( attribsiopar->get(key,id) )
+	if ( attribsiopar->get(toString(idx),id) )
 	    attribids += DescID(id,true);
     }
 
