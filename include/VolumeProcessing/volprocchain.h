@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.4 2008-09-22 13:12:03 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.5 2008-11-24 15:53:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -83,6 +83,7 @@ class Step
 public:
     				Step(Chain&);
     virtual			~Step();
+    const Chain&		getChain() const	{ return chain_; }
 
     virtual const char*		type() const 				= 0;
     virtual const char*		userName() const;
@@ -104,6 +105,8 @@ public:
     virtual bool		setInput(const Attrib::DataCubes*);
     				//!<\returns true if it wants to keep the data.
     virtual void		setOutput(Attrib::DataCubes*);
+    const Attrib::DataCubes*	getOutput() const	{ return output_; }
+    Attrib::DataCubes*		getOutput()		{ return output_; }
 
     virtual bool		areSamplesIndependent() const { return true; }
     				//!<\returns wether samples int the output
