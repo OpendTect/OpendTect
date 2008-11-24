@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.32 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:		$Id: bufstring.h,v 1.33 2008-11-24 12:45:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,12 @@ The minimum buffer size makes life easier in worlds where strcpy etc. rule.
 Overhead is 4 extra bytes for variable length and 4 bytes for minimum length.
 
 Passing a (char*) null pointer is no problem.
+
+Don't try to add constructors with a single basic type - this leads to nasty
+hidden bugs because the compiler will try to convert all kinds of things into
+BufferStrings. If you just need a string from an int, float, ..., just
+use str = toString( var ). If you need the BufferString later, use:
+BufferString istr( "", intvar );
 
 */
 
@@ -67,8 +73,6 @@ public:
     inline BufferString& operator+=( T t )		{ return add( t ); }
 
     unsigned int	size() const;
-    inline char&	lastChar()		{ return buf()[size()-1]; }
-    inline const char&	lastChar() const	{ return buf()[size()-1]; }
     inline unsigned int	bufSize() const		{ return len_; }
     void		setBufSize(unsigned int);
     inline unsigned int	minBufSize() const	{ return minlen_; }
