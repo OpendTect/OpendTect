@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.24 2008-11-19 22:15:31 cvskris Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.25 2008-11-24 15:58:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,7 +272,8 @@ const uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp() const
 uiInterpolHorizonDlg::uiInterpolHorizonDlg( uiParent* p, EM::Horizon3D* hor )
     : uiChangeSurfaceDlg(p,hor,"Horizon interpolation")
 {
-    parsgrp_ = new uiArr2DInterpolPars( this );
+    Array2DInterpolatorPars pars( false );
+    parsgrp_ = new uiArr2DInterpolPars( this, &pars );
     attachPars();
 }
 
