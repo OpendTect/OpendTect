@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.99 2008-11-14 15:36:34 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.100 2008-11-24 10:50:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, dirshwattrdesc_(0)
         , attrsetdlg_(0)
         , selptps_(0)
+        , is2devsent_(false)
     	, attrsetclosetim_("Attrset dialog close")
 	, stored2dmnuitem_("&Stored 2D Data")
 	, stored3dmnuitem_("Stored &Cubes")
@@ -227,19 +228,27 @@ void uiAttribPartServer::sendPickEvent( CallBacker* )
 }
 
 
-void uiAttribPartServer::showXPlot( CallBacker* )
+void uiAttribPartServer::showXPlot( CallBacker* cb )
 {
-    uiattrxplot_ = new uiAttribCrossPlot( 0, *curDescSet(is2DEvent()) );
+    bool is2d = false;
+    if ( !cb )
+	is2d = is2DEvent();
+    else if ( attrsetdlg_ )
+	is2d = attrsetdlg_->getSet()->is2D();
+
+    uiattrxplot_ = new uiAttribCrossPlot( 0, *curDescSet(is2d) );
     uiattrxplot_->setDeleteOnClose( true );
     uiattrxplot_->pointsSelected.notify(
 	    mCB(this,uiAttribPartServer,sendPickEvent) );
     uiattrxplot_->show();
-
 }
+
+
 void uiAttribPartServer::attrsetDlgClosed( CallBacker* )
 {
     attrsetclosetim_.start( 10, true );
 }
+
 
 void uiAttribPartServer::attrsetDlgCloseTimTick( CallBacker* )
 {
