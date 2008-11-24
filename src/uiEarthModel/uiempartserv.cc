@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.149 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.150 2008-11-24 10:59:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,9 +153,9 @@ bool uiEMPartServer::importFault()
 }
 
 
-bool uiEMPartServer::exportFault()
+bool uiEMPartServer::exportFault( const char* type )
 {
-    uiExportFault dlg( parent() );
+    uiExportFault dlg( parent(), type );
     return dlg.go();
 }
 

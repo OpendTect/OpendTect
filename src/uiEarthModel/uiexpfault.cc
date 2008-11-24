@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.cc,v 1.5 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.cc,v 1.6 2008-11-24 10:59:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "emfault3d.h"
+#include "emfaultstickset.h"
 #include "emfaulttransl.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -32,10 +33,18 @@ ________________________________________________________________________
 
 #include <stdio.h>
 
-uiExportFault::uiExportFault( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Export Fault",
+#define mGet( tp, fss, f3d ) \
+    !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword) ? fss : f3d
+
+#define mGetCtio(tp) \
+    mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
+#define mGetTitle(tp) \
+    mGet( tp, "Export FaultStickSet", "Export Fault" )
+
+uiExportFault::uiExportFault( uiParent* p, const char* typ )
+    : uiDialog(p,uiDialog::Setup(mGetTitle(typ),
 				 "Specify output format","104.1.1"))
-    , ctio_(*mMkCtxtIOObj(EMFault3D))
+    , ctio_(mGetCtio(typ))
 {
     infld_ = new uiIOObjSel( this, ctio_, "Input Fault" );
 
@@ -65,6 +74,32 @@ uiExportFault::~uiExportFault()
 }
 
 
+static int nrSticks( EM::EMObject* emobj, EM::SectionID sid )
+{
+    mDynamicCastGet(EM::Fault3D*,f3d,emobj)
+    mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
+    return f3d ? f3d->geometry().nrSticks( sid )
+               : fss->geometry().nrSticks( sid );
+}
+
+static int nrKnots( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
+{
+    mDynamicCastGet(EM::Fault3D*,f3d,emobj)
+    mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
+    return f3d ? f3d->geometry().nrKnots( sid, stickidx )
+               : fss->geometry().nrKnots( sid, stickidx );
+}
+
+static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
+			int knotidx )
+{
+    mDynamicCastGet(EM::Fault3D*,f3d,emobj)
+    mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
+    const RowCol rc( stickidx, knotidx );
+    return f3d ? f3d->geometry().sectionGeometry(sid)->getKnot( rc )
+	       : fss->geometry().sectionGeometry(sid)->getKnot( rc );
+}
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiExportFault::writeAscii()
@@ -76,8 +111,11 @@ bool uiExportFault::writeAscii()
     if ( !emobj ) mErrRet("Cannot add fault to EarthModel")
 
     emobj->setMultiID( ioobj->key() );
-    mDynamicCastGet(EM::Fault3D*,fault,emobj.ptr())
-    PtrMan<Executor> loader = fault->geometry().loader();
+    mDynamicCastGet(EM::Fault3D*,f3d,emobj.ptr())
+    mDynamicCastGet(EM::FaultStickSet*,fss,emobj.ptr())
+    if ( !f3d && !fss ) return false;
+
+    PtrMan<Executor> loader = emobj->loader();
     if ( !loader ) mErrRet("Cannot read fault")
 
     uiTaskRunner taskrunner( this );
@@ -95,18 +133,16 @@ bool uiExportFault::writeAscii()
     const bool inclstickidx = stickfld_->isChecked();
     const bool inclknotidx = nodefld_->isChecked();
 
-    const EM::SectionID sectionid = fault->sectionID( 0 );
-    const Geometry::FaultStickSurface* fltgeom =
-	fault->geometry().sectionGeometry( sectionid );
-
     BufferString str;
-    const int nrsticks = fault->geometry().nrSticks( sectionid );
+    const EM::SectionID sectionid = emobj->sectionID( 0 );
+    const int nrsticks = nrSticks( emobj.ptr(), sectionid );
     for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
     {
-	const int nrknots = fault->geometry().nrKnots( sectionid, stickidx );
+	const int nrknots = nrKnots( emobj.ptr(), sectionid, stickidx );
 	for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	{
-	    const Coord3 crd = fltgeom->getKnot( RowCol(stickidx,knotidx) );
+	    const Coord3 crd = getCoord( emobj.ptr(), sectionid,
+		    			 stickidx, knotidx );
 	    if ( !crd.isDefined() )
 		continue;
 

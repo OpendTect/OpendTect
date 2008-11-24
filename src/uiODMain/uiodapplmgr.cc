@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.271 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.272 2008-11-24 10:59:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,13 +255,16 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	switch( at )
 	{
 	case Imp:	emserv_->importFault();	break;
-	case Exp:	emserv_->exportFault();	break;
+	case Exp:
+	    if ( opt == 0 )
+		emserv_->exportFault( EMFaultStickSetTranslatorGroup::keyword );
+	    else if ( opt == 1 )
+		emserv_->exportFault( EMFault3DTranslatorGroup::keyword );
+	    break;
 	case Man:
 	    if ( opt == 1 )
-	    {
 		emserv_->manageSurfaces(
 				    EMFaultStickSetTranslatorGroup::keyword );
-	    }
 	    else if ( opt == 2 )
 		emserv_->manageSurfaces( EMFault3DTranslatorGroup::keyword );
 	    break;
@@ -420,6 +423,10 @@ void uiODApplMgr::doXPlot()
 
 void uiODApplMgr::crossPlot()
 {
+    Attrib::DescSet* ads = attrserv_->getUserPrefDescSet();
+    if ( !ads ) return;
+
+    attrserv_->set2DEvent( ads->is2D() );
     attrserv_->showXPlot(0);
 }
 

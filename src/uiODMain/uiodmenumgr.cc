@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.142 2008-11-18 11:08:58 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.143 2008-11-24 10:59:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,6 +246,9 @@ void uiODMenuMgr::fillExportMenu()
     uiPopupMenu* expflt = new uiPopupMenu( &appl_, "&Faults" );
     mInsertItem( expflt, "&Ascii ...", mExpFltAsciiMnuItm );
     expmnu_->insertItem( expflt );
+    uiPopupMenu* expfltss = new uiPopupMenu( &appl_, "&FaultStickSets" );
+    mInsertItem( expfltss, "&Ascii ...", mExpFltSSAsciiMnuItm );
+    expmnu_->insertItem( expfltss );
 
     mInsertItem( expmnu_, "&Picksets ...", mExpPickMnuItm );
 
@@ -672,6 +675,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpHorAscii3DMnuItm: 	mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:    mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm: 	mDoOp(Exp,Flt,0); break;
+    case mExpFltSSAsciiMnuItm: 	mDoOp(Exp,Flt,1); break;
     case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm: mDoOp(Imp,Wll,2); break;

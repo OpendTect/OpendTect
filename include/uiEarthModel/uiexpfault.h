@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.h,v 1.3 2008-05-23 11:20:16 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.h,v 1.4 2008-11-24 10:59:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiIOObjSel;
 class uiExportFault : public uiDialog
 {
 public:
-			uiExportFault(uiParent*);
+			uiExportFault(uiParent*,const char* type);
 			~uiExportFault();
 
 protected:

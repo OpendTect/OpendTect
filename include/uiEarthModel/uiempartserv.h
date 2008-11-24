@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.76 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.h,v 1.77 2008-11-24 10:59:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,10 +49,10 @@ public:
     bool		export3DHorizon();
     bool		export2DHorizon();
     bool		importFault();
-    bool		exportFault();
+    bool		exportFault(const char* type);
 
-    MultiID		getStorageID( const EM::ObjectID& ) const;
-    EM::ObjectID	getObjectID( const MultiID& ) const;
+    MultiID		getStorageID(const EM::ObjectID&) const;
+    EM::ObjectID	getObjectID(const MultiID&) const;
 
     BufferString	getName(const EM::ObjectID&) const;
     const char*		getType(const EM::ObjectID&) const;
