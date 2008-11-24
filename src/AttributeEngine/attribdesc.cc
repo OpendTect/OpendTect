@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.68 2008-10-24 05:58:37 cvsumesh Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.69 2008-11-24 11:06:39 cvsnageswara Exp $";
 
 #include "attribdesc.h"
 
@@ -605,9 +605,9 @@ bool Desc::getParamString( const char* defstr, const char* key,
 
 		    ArrPtrMan<char> tmpres = new char [lastpos-firstpos+2];
 		    strncpy( tmpres, &defstr[firstpos], lastpos-firstpos+1 );
-		    tmpres[lastpos-firstpos+1] = 0;
+		    tmpres[lastpos-firstpos+1] = '\0';
 
-		    res = tmpres;
+		    res = tmpres.ptr();
 		    return true;
 		}
 	    }
