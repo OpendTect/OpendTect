@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.8 2008-10-10 21:13:05 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.9 2008-11-24 10:45:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ struct MapperSetup
 
     mDefSetupClssMemb(MapperSetup,Type,type);
     mDefSetupClssMemb(MapperSetup,float,cliprate);	//!< Auto
+    mDefSetupClssMemb(MapperSetup,bool,autosym0);	//!< Auto and HistEq.
     mDefSetupClssMemb(MapperSetup,float,symmidval);	//!< Auto and HistEq.
     							//!< Usually mUdf(float)
     mDefSetupClssMemb(MapperSetup,int,maxpts);		//!< Auto and HistEq
@@ -52,6 +53,7 @@ struct MapperSetup
     bool		usePar(const IOPar&);
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyClipRate()		{ return "Clip Rate"; }
+    static const char*	sKeyAutoSym()		{ return "Auto Sym"; }
     static const char*	sKeySymMidVal()		{ return "Sym Mid Value"; }
     static const char*	sKeyMaxPts()		{ return "Max Pts"; }
     static const char*	sKeyRange()		{ return "Start_Width"; }

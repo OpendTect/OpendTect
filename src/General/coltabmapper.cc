@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.14 2008-11-14 04:47:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.15 2008-11-24 10:45:29 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -12,14 +12,17 @@ static const char* rcsID = "$Id: coltabmapper.cc,v 1.14 2008-11-14 04:47:31 cvss
 #include "settings.h"
 #include "math2.h"
 #include "errh.h"
+#include "task.h"
 
 namespace ColTab
 {
 static float defcliprate_ = mUdf(float);
 static const char* sKeyDefClipPerc = "dTect.Disp.Default clip perc";
 static float defsymmidval_ = mUdf(float);
+static bool defautosymm_ = false;
 static bool defhisteq_ = false;
 static const char* sKeyDefSymmZero = "dTect.Disp.Default symmetry zero";
+static const char* sKeyDefAutoSymm = "dTect.Disp.Default auto symmetry";
 static const char* sKeyDefHistEq = "dTect.Disp.Default histogram equalisation";
 static BufferString defcoltabnm_ = "Seismics";
 static const char* sKeyDefName = "dTect.Disp.Default Color table";
@@ -51,6 +54,13 @@ float ColTab::defClipRate()
 }
 
 
+bool ColTab::defAutoSymmetry()
+{
+    Settings::common().getYN( sKeyDefAutoSymm, defautosymm_ );
+    return defautosymm_;
+}
+
+
 bool ColTab::defHistEq()
 {
     return defhisteq_;
@@ -65,13 +75,15 @@ float ColTab::defSymMidval()
 }
 
 
-void ColTab::setMapperDefaults( float cr, float sm, bool histeq )
+void ColTab::setMapperDefaults( float cr, float sm, bool asym, bool histeq )
 {
     defcliprate_ = cr;
     defsymmidval_ = sm;
+    defautosymm_ = asym;
     Settings::common().set( sKeyDefClipPerc, cr*100 );
     Settings::common().set( sKeyDefSymmZero, sm );
-    Settings::common().set( sKeyDefHistEq, histeq );
+    Settings::common().setYN( sKeyDefAutoSymm, asym );
+    Settings::common().setYN( sKeyDefHistEq, histeq );
     Settings::common().write();
 }
 
@@ -84,6 +96,7 @@ ColTab::MapperSetup::MapperSetup()
     : type_(Auto)
     , cliprate_(defClipRate())
     , symmidval_(defSymMidval())
+    , autosym0_(defAutoSymmetry())
     , maxpts_(2560)
     , nrsegs_(0)
     , start_(0), width_(1)
@@ -107,6 +120,9 @@ bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
 	    if ( !mIsEqual(symmidval_,b.symmidval_, 1e-5 ) )
 		return false;
 	}
+
+	if ( autosym0_ != b.autosym0_ )
+	    return false;
     }
 
     if ( type_==Auto )
@@ -131,6 +147,7 @@ void ColTab::MapperSetup::fillPar( IOPar& par ) const
     par.set( sKeyType(), TypeNames[(int) type_] );
     par.set( sKeyClipRate(), cliprate_ );
     par.set( sKeySymMidVal(), symmidval_ );
+    par.setYN( sKeyAutoSym(), autosym0_ );
     par.set( sKeyMaxPts(), maxpts_ );
     par.set( sKeyRange(), start_, width_ );
 }
@@ -147,6 +164,7 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 
     return par.get( sKeyClipRate(), cliprate_ ) &&
 	   par.get( sKeySymMidVal(), symmidval_ ) &&
+	   par.getYN( sKeyAutoSym(), autosym0_ );
 	   par.get( sKeyMaxPts(), maxpts_ ) &&
 	   par.get( sKeyRange(), start_, width_ );
 }
@@ -226,6 +244,44 @@ void ColTab::Mapper::setData( const ValueSeries<float>* vs, od_int64 sz )
 }
 
 
+struct SymmetryCalc : public ParallelTask
+{
+SymmetryCalc( const ValueSeries<float>& vs, od_int64 sz )
+    : sz_(sz)
+    , vs_(vs)
+    , above0_(0)
+    , below0_(0)
+{}
+
+od_int64 totalNr() const { return sz_; }
+
+bool doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	if ( vs_[idx] < 0 ) below0_++;
+	else if ( vs_[idx] > 0 ) above0_++;
+    }
+    return true;
+}
+
+
+bool isSymmAroundZero() const
+{
+    od_int64 max = mMAX( above0_, below0_ );
+    od_int64 min = mMIN( above0_, below0_ );
+    if ( max==0 || min==0 ) return false;
+
+    return max/min - 1 < 0.05;
+}
+
+    od_int64	sz_;
+    od_int64	above0_;
+    od_int64	below0_;
+    const ValueSeries<float>& vs_;
+};
+
+
 void ColTab::Mapper::update( bool full )
 {
     if ( setup_.type_ == MapperSetup::Fixed || !vs_ || vssz_ < 1 )
@@ -241,6 +297,13 @@ void ColTab::Mapper::update( bool full )
 	clipper_.setApproxNrValues( vssz_, setup_.maxpts_ ) ;
 	clipper_.putData( *vs_, vssz_ );
 	clipper_.fullSort();
+
+	if ( setup_.autosym0_ )
+	{
+	    SymmetryCalc symmcalc( *vs_, vssz_ );
+	    symmcalc.execute();
+	    setup_.symmidval_ = symmcalc.isSymmAroundZero() ? 0 : mUdf(float);
+	}
     }
 
     Interval<float> intv( -1, 1 );
