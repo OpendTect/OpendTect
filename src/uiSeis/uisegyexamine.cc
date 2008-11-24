@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.11 2008-11-04 13:45:04 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.12 2008-11-24 10:42:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,6 +305,8 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 	rownm += val.desc_; rownm += "]";
 	tbl_->setRowLabel( ival, rownm );
     }
+
+    tbl_->resizeHeaderToContents( false );
 }
 
 
