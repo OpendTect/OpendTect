@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.11 2008-05-13 13:06:57 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.12 2008-11-24 11:06:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uilabel.h"
 
 static const int cUnLim = 1000000;
+static const float cMaxUnsnappedZStep = 0.999f;
 
 
 uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
@@ -48,26 +49,37 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 				 StepInterval<float> limitrg )
 {
-    if ( limitrg.step > SI().zRange(false).step )
-	limitrg.step = SI().zRange(false).step;
-    limitrg.scale( SI().zFactor() );
-    StepInterval<int> zrg( mNINT(limitrg.start), mNINT(limitrg.stop),
+    const float zfac = SI().zFactor();
+    const StepInterval<float>& sizrg( SI().zRange(false) );
+
+    if ( limitrg.step > sizrg.step ) limitrg.step = sizrg.step;
+    limitrg.scale( zfac );
+    const bool cansnap = sizrg.step > cMaxUnsnappedZStep / zfac;
+    const int nrdecimals = cansnap ? 0 : 2;
+    StepInterval<int> izrg( mNINT(limitrg.start), mNINT(limitrg.stop),
 			   mNINT(limitrg.step) );
-    startfld_ = new uiSpinBox( this, 0, "Z start" );
-    startfld_->setInterval( zrg );
-    startfld_->doSnap( true );
+    startfld_ = new uiSpinBox( this, nrdecimals, "Z start" );
     if ( !lbltxt ) lbltxt = "Z Range";
     uiLabel* lbl = new uiLabel( this, lbltxt, startfld_ );
-    stopfld_ = new uiSpinBox( this, 0, "Z stop" );
-    stopfld_->setInterval( zrg );
+    stopfld_ = new uiSpinBox( this, nrdecimals, "Z stop" );
     stopfld_->doSnap( true );
     stopfld_->attach( rightOf, startfld_ );
+    if ( !cansnap )
+	{ startfld_->setInterval( limitrg ); stopfld_->setInterval( limitrg ); }
+    else
+	{ startfld_->setInterval( izrg ); stopfld_->setInterval( izrg ); }
+    startfld_->doSnap( cansnap ); stopfld_->doSnap( cansnap );
 
     if ( wstep )
     {
-	stepfld_ = new uiSpinBox( this, 0, "Z step" );
-	stepfld_->setInterval( StepInterval<int>(zrg.step,zrg.width(),zrg.step) );
-	stepfld_->doSnap( true );
+	stepfld_ = new uiSpinBox( this, nrdecimals, "Z step" );
+	if ( cansnap )
+	    stepfld_->setInterval(
+		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
+	else
+	    stepfld_->setInterval(
+		StepInterval<int>(limitrg.step,limitrg.width(),limitrg.step) );
+	stepfld_->doSnap( cansnap );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
     }
@@ -81,8 +93,8 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 
 StepInterval<float> uiSelZRange::getRange() const
 {
-    StepInterval<float> zrg( startfld_->getValue(), stopfld_->getValue(), 
-	    		     stepfld_ ? stepfld_->getValue() : 1 );
+    StepInterval<float> zrg( startfld_->getFValue(), stopfld_->getFValue(), 
+	    		     stepfld_ ? stepfld_->getFValue() : 1 );
     zrg.scale( 1 / SI().zFactor() );
     if ( !stepfld_ )
 	zrg.step = SI().zRange(true).step;
@@ -94,12 +106,21 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 {
     StepInterval<float> zrg( inpzrg );
     zrg.scale( SI().zFactor() );
-    StepInterval<int> irg( mNINT(zrg.start), mNINT(zrg.stop), mNINT(zrg.step) );
 
-    startfld_->setValue( mNINT(zrg.start) );
-    stopfld_->setValue( mNINT(zrg.stop) );
-    if ( stepfld_ )
-	stepfld_->setValue( mNINT(zrg.step) );
+    if ( SI().zRange(false).step > cMaxUnsnappedZStep / SI().zFactor() )
+    {
+	startfld_->setValue( mNINT(zrg.start) );
+	stopfld_->setValue( mNINT(zrg.stop) );
+	if ( stepfld_ )
+	    stepfld_->setValue( mNINT(zrg.step) );
+    }
+    else
+    {
+	startfld_->setValue( zrg.start );
+	stopfld_->setValue( zrg.stop );
+	if ( stepfld_ )
+	    stepfld_->setValue( zrg.step );
+    }
 }
 
 
