@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.21 2008-11-17 15:42:39 cvshelene Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.22 2008-11-24 12:06:09 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -128,8 +128,7 @@ void Seis::SelData::usePar( const IOPar& iop )
     const char* res = iop.find( sKey::Type );
     if ( !res )
 	res = iop.find( sKey::BinIDSel );
-    if ( !res || !*res || *res == *sKey::None )
-	isall_ = true;
+    isall_ = !res || !*res || *res == *sKey::None;
 
     iop.get( sKey::LineKey, linekey_ );
     res = iop.find( sKey::Attribute );
