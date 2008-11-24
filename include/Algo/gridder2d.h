@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.9 2008-08-21 19:59:12 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.10 2008-11-24 15:52:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,44 +27,56 @@ class DAGTriangleTree;
 class Gridder2D
 {
 public:
-			mDefineFactoryInClass(Gridder2D,factory);
+				mDefineFactoryInClass(Gridder2D,factory);
 
 
-    virtual		~Gridder2D()					{}
-    virtual const char* name() const					= 0;
-    virtual Gridder2D*	clone() const					= 0;
-    virtual bool	operator==(const Gridder2D&) const;
-    			/*!Only checks the name. Should be re-implemented
-			   in inheriting classed if they have own variables/
-			   settings. */
+    virtual			~Gridder2D()					{}
+    virtual const char* 	name() const				= 0;
+    virtual Gridder2D*		clone() const				= 0;
+    virtual bool		operator==(const Gridder2D&) const;
+				/*!Only checks the name. Should be
+				   re-implemented in inheriting classed if they
+				   have own variables/ settings. */
 
-    virtual bool	isPointUsable(const Coord& cpt,const Coord& dpt) const;
-    			/*!Given that we want to calculate cpt, is data at
-			   dpt usable. */
+    virtual bool		isPointUsable(const Coord& cpt,
+	    				      const Coord& dpt) const;
+				/*!Given that we want to calculate cpt, is data
+				   at dpt usable. */
 
-    virtual void	setGridArea(const Interval<float>&,
-	    			    const Interval<float>&) {}
-    			/*!<Tells gridder that you will not call setGridPoint
-			    outside these ranges. May speed up calculation. */
+    virtual void		setGridArea(const Interval<float>&,
+	    				    const Interval<float>&) {}
+				/*!<Tells gridder that you will not call
+				    setGridPoint outside these ranges. May speed
+				    up calculation. */
 
-    virtual bool	setPoints(const TypeSet<Coord>&);
-    			/*<!Points are assumed to remain in mem through
-			    init(). Points should correspond to the values in
-			    setValues */
-    virtual bool	setGridPoint(const Coord&);
-    			/*!This is where we want to compute a value */
-    virtual bool	init()						= 0;
-    virtual bool	isPointUsed(int) const;
-    			/*!<Returns wether a certain point is used in the
-			    interpolation. Can only be called after successful
-			    init.*/
-    virtual bool	setValues(const TypeSet<float>&,bool hasudfs);
-    			/*<!Values are assumed to remain in mem at getValue().
-			     Values should correspond to the coords in
-			     setPoints*/
-    virtual float	getValue() const;
-    			/*!<Does the gridding. Can only be run after a
-			    successful init. */
+    virtual bool		setPoints(const TypeSet<Coord>&);
+    				/*<!Points are assumed to remain in mem through
+				    init(). Points should correspond to the
+				    values in setValues */
+    virtual bool		setGridPoint(const Coord&);
+				/*!This is where we want to compute a value */
+    virtual bool		init()						= 0;
+    virtual bool		isPointUsed(int) const;
+				/*!<Returns wether a certain point is used in
+				    the interpolation. Can only be called after
+				    successful init.*/
+    virtual bool		setValues(const TypeSet<float>&,bool hasudfs);
+				/*<!Values are assumed to remain in mem at
+				    getValue(). Values should correspond to the
+				    coords in setPoints*/
+    virtual float		getValue() const;
+				/*!<Does the gridding. Can only be run after a
+				    successful init. */
+
+    virtual const TypeSet<int>&	usedValues() const	{ return usedvalues_; }
+    				/*!<Returns which coordinates that are 
+				    used in the gridding. Can only be called
+				    after a successful init. */
+    virtual const TypeSet<float>& weights() const	{ return weights_; }
+    				/*!<Returns the weights for the coordinates that
+				    are used in the gridding. The weights are 
+				    linked with the usedValues(). Can only be
+				    called after a successful init. */
 
     virtual void	fillPar(IOPar&) const		{}
     virtual bool	usePar(const IOPar&)		{ return true; }  
