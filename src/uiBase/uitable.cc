@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.75 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:           $Id: uitable.cc,v 1.76 2008-11-24 10:41:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -778,6 +778,14 @@ bool uiTable::isTopHeaderHidden() const
 
 bool uiTable::isLeftHeaderHidden() const
 { return !body_->verticalHeader()->isVisible(); }
+
+
+void uiTable::resizeHeaderToContents( bool hor )
+{
+    QHeaderView* hdr = hor ? body_->horizontalHeader() :body_->verticalHeader();
+    if ( hdr ) hdr->resizeSections( QHeaderView::ResizeToContents );
+}
+
 
 void uiTable::resizeColumnToContents( int col )
 { body_->resizeColumnToContents( col ); }
