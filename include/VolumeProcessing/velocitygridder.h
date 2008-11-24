@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.2 2008-08-12 19:22:30 cvskris Exp $
+ RCS:		$Id: velocitygridder.h,v 1.3 2008-11-24 15:55:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,10 +40,8 @@ public:
     const char*		type() const			{ return sType(); }
     const VelocityDesc& outputVelocityType() const;
 
-    void		setPicks(ObjectSet<Vel::FunctionSource>&);
-    void		setPicks(const TypeSet<MultiID>&);
-    void		getPicks(TypeSet<MultiID>&) const;
-    const ObjectSet<Vel::FunctionSource>&	getPicks() const;
+    void		setSources(ObjectSet<Vel::FunctionSource>&);
+    const ObjectSet<Vel::FunctionSource>&	getSources() const;
 
     void		setGridder(Gridder2D*); //becomes mine
     const Gridder2D*	getGridder() const;
@@ -57,19 +55,18 @@ public:
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }
     static const char*	sKeyNrSources()		{ return "NrSources"; }
+    static const char*	sKeyGridder()		{ return "Gridder"; }
 
 protected:
 
-    bool				prefersBinIDWise() const { return true;}
-    bool				computeBinID(const BinID&,int threadid);
-    bool				prepareComp(int nrthreads);
+    Task*				createTask();
 
     int					addFunction(const BinID&,int);
     void				removeOldFunctions();
     static VolProc::Step*		create(VolProc::Chain&);
 
-    ObjectSet<Vel::Function>		velfuncs_;
-    Vel::GriddedSource*			velfuncsource_;
+    Gridder2D*				gridder_;
+    ObjectSet<Vel::FunctionSource>	sources_;
 };
 
 

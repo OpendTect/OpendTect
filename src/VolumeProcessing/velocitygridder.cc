@@ -4,136 +4,463 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.4 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.5 2008-11-24 15:55:47 cvskris Exp $";
 
 #include "velocitygridder.h"
 
+#include "arraynd.h"
 #include "attribdatacubes.h"
+#include "binidvalset.h"
+#include "gridder2d.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "survinfo.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
 
 namespace VolProc
 {
+class VelGriddingStepTask;
 
 
-void VelGriddingStep::initClass()
+class VelGriddingFromFuncTask : public ParallelTask
 {
-    VolProc::PS().addCreator( create, VelGriddingStep::sType(),
-	    		      VelGriddingStep::sUserName() );
+public:
+    			VelGriddingFromFuncTask( VelGriddingStepTask& );
+			~VelGriddingFromFuncTask();
 
+    bool		isOK() const;
+
+    od_int64		totalNr() const;
+    bool		doPrepare(int);
+    bool		doWork(od_int64,od_int64,int);
+
+    const BinIDValueSet&	completedBids() const { return completedbids_; }
+
+protected:
+    ObjectSet<Vel::Function>	velfuncs_;
+    Vel::GriddedSource*		velfuncsource_;
+    VelGriddingStepTask&	task_;
+
+    Threads::Mutex		lock_;
+    BinIDValueSet		completedbids_;
+};
+
+
+class VelGriddingFromVolumeTask : public ParallelTask
+{
+public:
+    			VelGriddingFromVolumeTask( VelGriddingStepTask& );
+			~VelGriddingFromVolumeTask();
+
+    od_int64		totalNr() const;
+    bool		doPrepare(int);
+    bool		doWork(od_int64,od_int64,int);
+
+    const BinIDValueSet&	completedBids() const { return completedbids_; }
+
+protected:
+
+    Threads::Mutex		lock_;
+    BinIDValueSet		completedbids_;
+
+    ObjectSet<Gridder2D>	gridders_;
+    VelGriddingStepTask&	task_;
+};
+
+
+class VelGriddingStepTask : public SequentialTask
+{
+public:
+    				VelGriddingStepTask(VelGriddingStep&);
+    int				nextStep();
+
+    BinID			getNextBid();
+    void			report1Done();
+    od_int64			nrDone() const;
+
+    VelGriddingStep&		getStep() { return step_; }
+    const BinIDValueSet&	remainingBids() const { return remainingbids_; }
+    const BinIDValueSet&	definedBids() const   { return definedbids_; }
+    const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
+    const TypeSet<BinIDValueSet::Pos> definedPos() const { return definedpos_; }
+
+protected:
+    int				nrdone_;
+    mutable Threads::Mutex	lock_;
+
+    BinIDValueSet::Pos		curpos_;
+
+    BinIDValueSet		remainingbids_;
+    BinIDValueSet		definedbids_;
+
+    TypeSet<Coord>		definedpts_;
+    TypeSet<BinIDValueSet::Pos>	definedpos_;
+
+    VelGriddingStep&		step_;
+};
+
+
+VelGriddingStepTask::VelGriddingStepTask( VelGriddingStep& step )
+    : nrdone_( 0 )
+    , remainingbids_( 0, false )
+    , definedbids_( 0, false )
+    , step_( step )
+{
+    const Attrib::DataCubes* output = step_.getOutput();
+    const HorSampling hrg = output->cubeSampling().hrg;
+
+    HorSamplingIterator iterator( hrg );
+    BinID bid;
+    while ( iterator.next( bid ) )
+	remainingbids_.add( bid );
 }
 
 
-VolProc::Step* VelGriddingStep::create( VolProc::Chain& vr )
+void VelGriddingStepTask::report1Done()
 {
-    mDeclareAndTryAlloc( VolProc::Step*, res, VelGriddingStep( vr ) );
-    return res;
+    Threads::MutexLocker lock( lock_ );
+    nrdone_++;
 }
 
 
-VelGriddingStep::VelGriddingStep( VolProc::Chain& vr )
-    :VolProc::Step( vr )
+od_int64 VelGriddingStepTask::nrDone() const
+{
+    Threads::MutexLocker lock( lock_ );
+    return nrdone_;
+}
+
+
+BinID VelGriddingStepTask::getNextBid()
+{
+    Threads::MutexLocker lock( lock_ );
+    if ( !remainingbids_.next(curpos_) )
+    {
+	pErrMsg("Too many bids requested");
+	return BinID(-1,-1);
+    }
+
+    return remainingbids_.getBinID(curpos_);
+}
+
+
+int VelGriddingStepTask::nextStep()
+{
+    curpos_ = BinIDValueSet::Pos(-1,-1);
+
+    bool change = false;
+
+    if ( !nrdone_ )
+    {
+	VelGriddingFromFuncTask task( *this );
+	if ( !task.execute() )
+	    return cErrorOccurred();
+
+	definedbids_.append( task.completedBids() );
+	remainingbids_.remove( task.completedBids() );
+
+	change = !task.completedBids().isEmpty();
+    }
+    else
+    {
+	definedpts_.erase();
+	definedpos_.erase();
+
+	BinIDValueSet::Pos pos;
+	while ( definedbids_.next( pos, true ) )
+	{
+	    definedpts_ += SI().transform( definedbids_.getBinID(pos) );
+	    definedpos_ += pos;
+	}
+
+	VelGriddingFromVolumeTask task( *this );
+	if ( !task.execute() )
+	    return cErrorOccurred();
+
+	definedbids_.append( task.completedBids() );
+	remainingbids_.remove( task.completedBids() );
+
+	change = !task.completedBids().isEmpty();
+    }
+
+    return !change || remainingbids_.isEmpty() ? cFinished() : cMoreToDo();
+}
+
+
+
+VelGriddingFromFuncTask::VelGriddingFromFuncTask( VelGriddingStepTask& task )
+    : task_( task )
+    , velfuncsource_( 0 )
+    , completedbids_( 0, false )
 {
     mTryAlloc( velfuncsource_, Vel::GriddedSource );
     if ( velfuncsource_ )
+    {
 	velfuncsource_->ref();
+	velfuncsource_->setSource( const_cast<ObjectSet<Vel::FunctionSource>&>(
+		    task_.getStep().getSources()) );
+	velfuncsource_->setGridder( task_.getStep().getGridder()->clone() );
+    }
 }
 
 
-VelGriddingStep::~VelGriddingStep()
+VelGriddingFromFuncTask::~VelGriddingFromFuncTask()
 {
-    velfuncsource_->unRef();
-    deepUnRef( velfuncs_ );
+    if ( velfuncsource_ )
+	velfuncsource_->unRef();
+   deepUnRef( velfuncs_ );
 }
 
 
-const VelocityDesc& VelGriddingStep::outputVelocityType() const
+bool VelGriddingFromFuncTask::isOK() const
 {
-    return velfuncsource_->getDesc();
+    return velfuncsource_ && velfuncsource_->getSources().size();
 }
 
 
-void VelGriddingStep::setPicks( ObjectSet<Vel::FunctionSource>& nvfs )
-{ velfuncsource_->setSource( nvfs ); }
-
-
-void VelGriddingStep::setPicks( const TypeSet<MultiID>& mids )
-{ velfuncsource_->setSource( mids ); }
-
-
-void VelGriddingStep::getPicks(TypeSet<MultiID>& mids ) const
+bool VelGriddingFromFuncTask::doPrepare( int nrthreads )
 {
-    velfuncsource_->getSources( mids );
-}
-
-
-void VelGriddingStep::setGridder( Gridder2D* gridder )
-{ velfuncsource_->setGridder( gridder ); }
-
-
-const Gridder2D* VelGriddingStep::getGridder() const
-{ return velfuncsource_->getGridder(); }
-
-
-const ObjectSet<Vel::FunctionSource>& VelGriddingStep::getPicks() const
-{
-    return velfuncsource_->getSources();
-}
-
-
-bool VelGriddingStep::needsInput(const HorSampling&) const
-{ return false; }
-
-
-bool  VelGriddingStep::prepareComp( int nrthreads )
-{
-    if ( !nrthreads )
+    if ( !isOK() || !nrthreads )
 	return false;
 
    deepUnRef( velfuncs_ );
-   if ( !velfuncsource_ )
-   {
-       mTryAlloc( velfuncsource_, Vel::GriddedSource );
-       velfuncsource_->ref();
-   }
 
    for ( int idx=0; idx<nrthreads; idx++ )
    {
        RefMan<Vel::Function> velfunc = velfuncsource_->createFunction();
        velfunc->ref();
-       velfuncs_ +=velfunc;
+       velfuncs_ += velfunc;
    }
 
    return true;
 }
 
 
-bool VelGriddingStep::computeBinID( const BinID& bid, int threadid )
+od_int64 VelGriddingFromFuncTask::totalNr() const
 {
-    RefMan<Vel::Function> velfunc = velfuncs_[threadid];
-    if ( !velfunc->moveTo( bid ) )
-	velfunc = 0;
+    return task_.remainingBids().totalSize();
+}
 
-    const int inlidx = output_->inlsampling.nearestIndex( bid.inl );
-    const int crlidx = output_->crlsampling.nearestIndex( bid.crl );
-    
-    const bool zit = chain_.zIsT();
-    const int zsz = output_->getZSz();
-    StepInterval<float> zrg( chain_.getZSampling().start,
-	    		     chain_.getZSampling().atIndex(zsz-1),
-		 	     chain_.getZSampling().step );
 
-    for ( int idx=0; idx<zsz; idx++ )
+bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop, int thread )
+{
+    Attrib::DataCubes* output = task_.getStep().getOutput();
+    const bool zit = task_.getStep().getChain().zIsT();
+    const int zsz = output->getZSz();
+    const SamplingData<double>& zsd = task_.getStep().getChain().getZSampling();
+
+    Vel::Function* func = velfuncs_[thread];
+    const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
+    func->setDesiredZRange( zrg );
+
+    for ( int idx=start; idx<=stop; idx++ )
     {
-	if ( velfunc ) velfunc->setDesiredZRange( zrg );
-	const float z = (output_->z0+idx) * output_->zstep;
-	const float vel = velfunc ? velfunc->getVelocity( z ) : mUdf(float);
+	const BinID bid = task_.getNextBid();
 
-	output_->setValue( 0, inlidx, crlidx, idx, vel );
+	if ( !func->moveTo( bid ) )
+	    continue;
+
+	const int inlidx = output->inlsampling.nearestIndex( bid.inl );
+	const int crlidx = output->crlsampling.nearestIndex( bid.crl );
+
+	for ( int idy=0; idy<zsz; idy++ )
+	{
+	    const float z = (output->z0+idy) * output->zstep;
+	    const float vel = func->getVelocity( z );
+
+	    output->setValue( 0, inlidx, crlidx, idy, vel );
+	}
+
+	task_.report1Done();
+
+	Threads::MutexLocker lock( lock_ );
+	completedbids_.add( bid );
     }
 
     return true;
+}
+
+
+
+VelGriddingFromVolumeTask::VelGriddingFromVolumeTask(VelGriddingStepTask& task )
+    : task_( task )
+    , completedbids_( 0, false )
+{}
+
+
+VelGriddingFromVolumeTask::~VelGriddingFromVolumeTask()
+{
+    deepErase( gridders_ );
+}
+
+
+od_int64 VelGriddingFromVolumeTask::totalNr() const
+{ return task_.remainingBids().totalSize(); }
+
+
+bool VelGriddingFromVolumeTask::doPrepare( int nrthreads )
+{
+    for ( int idx=0; idx<nrthreads; idx++ )
+    {
+	Gridder2D* gridder = task_.getStep().getGridder()->clone();
+	if ( !gridder->setPoints( task_.definedPts() ) )
+	{
+	    delete gridder;
+	    return false;
+	}
+
+	//gridder->setGridArea(
+
+	gridders_ += gridder;
+    }
+
+    return true;
+}
+
+
+bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int thread )
+{
+    Attrib::DataCubes& output = *task_.getStep().getOutput();
+    const int zsz = output.getZSz();
+    const SamplingData<double>& zsd = task_.getStep().getChain().getZSampling();
+    const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
+
+    Gridder2D* gridder = gridders_[thread];
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	const BinID bid = task_.getNextBid();
+	const Coord coord = SI().transform( bid );
+	if ( !gridder->setGridPoint( coord ) )
+	    continue;
+
+	if ( !gridder->init() )
+	    continue;
+
+	const TypeSet<int>& usedvals = gridder->usedValues();
+	const TypeSet<float>& weights = gridder->weights();
+
+	if ( !usedvals.size() )
+	    continue;
+
+	const TypeSet<BinID> bids;
+	ObjectSet<const float> sources;
+	for ( int idy=0; idy<usedvals.size(); idy++ )
+	{
+	    const BinID sourcebid =
+		task_.definedBids().getBinID(task_.definedPos()[usedvals[idy]]);
+
+	    const int inlidx = output.inlsampling.nearestIndex( sourcebid.inl );
+	    const int crlidx = output.crlsampling.nearestIndex( sourcebid.crl );
+
+	    const od_int64 offset =
+		output.getCube(0).info().getOffset( inlidx, crlidx, 0 );
+
+	    const float* sourceptr = output.getCube(0).getData() + offset;
+	    sources += sourceptr;
+	}
+
+	const int inlidx = output.inlsampling.nearestIndex( bid.inl );
+	const int crlidx = output.crlsampling.nearestIndex( bid.crl );
+	const od_int64 offset =
+	    output.getCube(0).info().getOffset( inlidx, crlidx, 0 );
+	float* dstptr = output.getCube(0).getData() + offset;
+
+	for ( int idy=0; idy<zsz; idy++ )
+	{
+	    int nrvals = 0;
+	    float wsum = 0;
+	    float sum = 0;
+	    for ( int idz=weights.size()-1; idz>=0; idz-- )
+	    {
+		const float val = sources[idz][idy];
+		if ( mIsUdf(val) )
+		    continue;
+
+		sum += val*weights[idz];
+		nrvals ++;
+		wsum += weights[idz];
+	    }
+
+	    dstptr[idy] = !nrvals || mIsZero(wsum,1e-5)
+		? mUdf(float)
+		: sum/wsum;
+	}
+
+	task_.report1Done();
+
+	Threads::MutexLocker lock( lock_ );
+	completedbids_.add( bid );
+    }
+
+    return true;
+}
+
+
+void VelGriddingStep::initClass()
+{
+    VolProc::PS().addCreator( create, VelGriddingStep::sType(),
+	  		      VelGriddingStep::sUserName() );
+}
+
+
+VolProc::Step* VelGriddingStep::create( VolProc::Chain& vr )
+{
+    VolProc::Step* res;
+    mTryAlloc( res, VelGriddingStep( vr ) );
+    return res;
+}
+
+
+VelGriddingStep::VelGriddingStep( VolProc::Chain& vr )
+    : VolProc::Step( vr )
+    , gridder_( 0 )
+{ }
+
+
+VelGriddingStep::~VelGriddingStep()
+{
+    deepUnRef( sources_ );
+    delete gridder_;
+}
+
+
+const VelocityDesc& VelGriddingStep::outputVelocityType() const
+{
+    return sources_[0]->getDesc();
+}
+
+
+void VelGriddingStep::setSources( ObjectSet<Vel::FunctionSource>& nvfs )
+{
+    deepUnRef( sources_ );
+    sources_ = nvfs;
+    deepRef( sources_ );
+}
+
+
+void VelGriddingStep::setGridder( Gridder2D* gridder )
+{
+    delete gridder_;
+    gridder_ = gridder;
+}
+
+
+const Gridder2D* VelGriddingStep::getGridder() const
+{ return gridder_; }
+
+
+const ObjectSet<Vel::FunctionSource>& VelGriddingStep::getSources() const
+{ return sources_; }
+
+
+bool VelGriddingStep::needsInput(const HorSampling&) const
+{ return false; }
+
+
+
+Task* VelGriddingStep::createTask()
+{
+    return new VelGriddingStepTask( *this );
 }
 
 
@@ -141,21 +468,25 @@ void VelGriddingStep::fillPar( IOPar& par ) const
 {
     Step::fillPar( par );
 
-    const ObjectSet<Vel::FunctionSource>& sources =
-					velfuncsource_->getSources();
-
-    par.set( sKeyNrSources(), sources.size() );
-    for ( int idx=0; idx<sources.size(); idx++ )
+    par.set( sKeyNrSources(), sources_.size() );
+    for ( int idx=0; idx<sources_.size(); idx++ )
     {
 	IOPar sourcepar;
-	sourcepar.set( sKeyType(), sources[idx]->type() );
-	sourcepar.set( sKeyID(), sources[idx]->multiID() );
-	sources[idx]->fillPar(sourcepar);
+	sourcepar.set( sKeyType(), sources_[idx]->type() );
+	sourcepar.set( sKeyID(), sources_[idx]->multiID() );
+	sources_[idx]->fillPar(sourcepar);
 
-	par.mergeComp( sourcepar, toString(idx) );
+	const BufferString idxstr( 0, idx, 0 );
+	par.mergeComp( sourcepar, idxstr.buf() );
     }
 
-    velfuncsource_->fillPar( par );
+    if ( gridder_ )
+    {
+	IOPar gridpar;
+	gridder_->fillPar( gridpar );
+	gridpar.set( sKey::Name, gridder_->name() );
+	par.mergeComp( gridpar, sKeyGridder() );
+    }
 }
 
 
@@ -168,10 +499,12 @@ bool VelGriddingStep::usePar( const IOPar& par )
     if ( !par.get( sKeyNrSources(), nrsources ) )
 	return false;
 
-    ObjectSet<Vel::FunctionSource> sources;
+    deepUnRef( sources_ );
+
     for ( int idx=0; idx<nrsources; idx++ )
     {
-	PtrMan<IOPar> sourcepar = par.subselect( toString(idx) );
+	const BufferString idxstr( 0, idx, 0 );
+	PtrMan<IOPar> sourcepar = par.subselect( idxstr.buf() );
 	if ( !sourcepar )
 	    continue;
 
@@ -196,16 +529,26 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	    continue;
 	}
 
-	sources += source;
+	sources_ += source;
     }
 
-    if ( !sources.size() )
-	return false;
+    PtrMan<IOPar> velgridpar = par.subselect( sKeyGridder() );
+    if ( velgridpar )
+    {
+	BufferString nm;
+	velgridpar->get( sKey::Name, nm );
+	Gridder2D* gridder = Gridder2D::factory().create( nm.buf() );
+	if ( !gridder )
+	    return false;
+	
+	if ( !gridder->usePar( *velgridpar ) )
+	{
+	    delete gridder;
+	    return false;
+	}
 
-    velfuncsource_->setSource( sources );
-
-    if ( !velfuncsource_->usePar( par ) ) 
-	return false;
+	setGridder( gridder );
+    }
 
     return true;
 }
