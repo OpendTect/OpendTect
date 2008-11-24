@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.18 2008-02-04 16:22:10 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.19 2008-11-24 15:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ public:
 			{ allowdup_ = yn; if ( !yn ) removeDuplicateBids(); }
     void		empty();
     void		append(const BinIDValueSet&);
+    void		remove(const BinIDValueSet&);
     void		copyStructureFrom(const BinIDValueSet&);
     			//!< will also empty this set
 

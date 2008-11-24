@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.25 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.26 2008-11-24 15:01:13 cvskris Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -101,6 +101,26 @@ void BinIDValueSet::append( const BinIDValueSet& bvs )
 	delete [] insvals;
     }
 }
+
+
+void BinIDValueSet::remove( const BinIDValueSet& removebids ) 
+{ 
+    BinIDValueSet::Pos pos; 
+	 
+    while ( removebids.next(pos, true ) ) 
+    { 
+	//TODO: This loop can be optimized somewhat by reusing old pos,
+	//but let's play it safe for now.
+	const BinID bid = removebids.getBinID( pos ); 
+	BinIDValueSet::Pos removepos = findFirst( bid ); 
+					 
+	while ( removepos.j>=0 ) 
+	{ 
+	    remove( removepos ); 
+	    removepos = findFirst( bid ); 
+	} 
+    } 
+} 
 
 
 bool BinIDValueSet::getFrom( std::istream& strm )
