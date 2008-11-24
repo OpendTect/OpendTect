@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.156 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.157 2008-11-24 10:56:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,6 +224,12 @@ int uiODSceneMgr::addScene( bool maximized )
 	if ( !scenes_[0]->sovwr_->isCameraPerspective() )
 	    scn.sovwr_->toggleCameraType();
     }
+    else if ( scenes_[0] )
+    {
+	const bool isperspective = scenes_[0]->sovwr_->isCameraPerspective();
+	menuMgr().setCameraPixmap( isperspective );
+	zoomslider_->setSensitive( isperspective );
+    }
 
     wsp_->cursorReset();
     return sceneid;
@@ -344,6 +350,14 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	initTree( scn, vwridx_ );
     }
 
+    ObjectSet<uiSoViewer> vwrs;
+    getSoViewers( vwrs );
+    if ( !vwrs.isEmpty() && vwrs[0] )
+    {
+	const bool isperspective = vwrs[0]->isCameraPerspective();
+	menuMgr().setCameraPixmap( isperspective );
+	zoomslider_->setSensitive( isperspective );
+    }
     rebuildTrees();
 }
 
