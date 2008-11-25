@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.12 2008-11-24 11:06:03 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.13 2008-11-25 06:45:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,8 @@ void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 		StepInterval<int>(izrg.step,izrg.width(),izrg.step) );
 	else
 	    stepfld_->setInterval(
-		StepInterval<int>(limitrg.step,limitrg.width(),limitrg.step) );
+		StepInterval<int>(mNINT(limitrg.step),mNINT(limitrg.width()),
+		    		  mNINT(limitrg.step)) );
 	stepfld_->doSnap( cansnap );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
