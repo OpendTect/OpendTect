@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.11 2008-11-21 05:03:38 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.cc,v 1.12 2008-11-25 10:30:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,15 +208,14 @@ void uiSelection2DParSel::fillPar( IOPar& par )
     for ( int idx=0; idx<sellines_.size(); idx++ )
     {
 	key = idx;
-	linespar.set( key, sellines_[idx]->buf() );
 
-	IOPar trcpar;
+	IOPar lntrcpar;
+	lntrcpar.set( sKey::Name, sellines_[idx]->buf() );
+	
 	Interval<int> trcitval = linesel_->getLineTrcRange(
 				          lnms.indexOf(sellines_[idx]->buf()) );
-	trcpar.set( sKey::FirstTrc, trcitval.start );
-	trcpar.set( sKey::LastTrc, trcitval.stop );
-
-	linespar.mergeComp( trcpar, key );
+	lntrcpar.set( sKey::TrcRange, trcitval );
+	linespar.mergeComp( lntrcpar, key );
     }
 
     par.mergeComp( linespar, sKey::LineKey );
