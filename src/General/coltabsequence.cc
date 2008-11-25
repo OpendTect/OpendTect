@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.12 2008-11-21 10:32:39 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.13 2008-11-25 15:56:14 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -186,6 +186,9 @@ float ColTab::Sequence::transparencyAt( float x ) const
 
 bool ColTab::Sequence::hasTransparency() const
 {
+    if ( undefcolor_.t() || markcolor_.t() )
+	return true;
+
     if ( tr_.isEmpty() )
 	return false;
 
