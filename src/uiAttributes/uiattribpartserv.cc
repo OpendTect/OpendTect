@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.100 2008-11-24 10:50:46 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.101 2008-11-25 11:36:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,8 @@ const int uiAttribPartServer::evEvalAttrInit 	 = 3;
 const int uiAttribPartServer::evEvalCalcAttr	 = 4;
 const int uiAttribPartServer::evEvalShowSlice	 = 5;
 const int uiAttribPartServer::evEvalStoreSlices	 = 6;
-const int uiAttribPartServer::evShowSelPtPickSet = 7;
 const int uiAttribPartServer::evEvalUpdateName	 = 7;
+const int uiAttribPartServer::evShowSelPtPickSet = 8;
 const int uiAttribPartServer::objNLAModel2D	 = 100;
 const int uiAttribPartServer::objNLAModel3D	 = 101;
 
