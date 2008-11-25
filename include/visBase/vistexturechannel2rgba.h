@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.7 2008-11-04 21:18:01 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.8 2008-11-25 16:21:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ public:
 				/*!<Fill the image with the output, using
 				    current settings. */
 
+    virtual void		swapChannels(int ch0,int ch1)	{}
     virtual void		setEnabled(int ch,bool yn)	{}
     virtual bool		isEnabled(int ch) const		{ return true; }
 
@@ -75,6 +76,8 @@ class ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 public:
     static ColTabTextureChannel2RGBA*	create()
 				mCreateDataObj(ColTabTextureChannel2RGBA);
+
+    void			swapChannels(int ch0,int ch1);
 
     void			setSequence(int ch,const ColTab::Sequence&);
     const ColTab::Sequence&	getSequence(int ch) const;

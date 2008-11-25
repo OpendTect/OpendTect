@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.56 2008-11-03 23:42:37 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.57 2008-11-25 16:21:43 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -197,6 +197,10 @@ void MultiTexture2::swapTextures( int t0, int t1 )
 	texture_->opacity.set1Value( t1, texture_->opacity[t0] );
 	texture_->opacity.set1Value( t0, tmp );
     }
+
+    const float tmp = opacity_[t1];
+    opacity_[t1] = opacity_[t0];
+    opacity_[t0] = tmp;
 
     MultiTexture::swapTextures( t0, t1 );
 }

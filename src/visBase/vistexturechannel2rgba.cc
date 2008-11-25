@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.9 2008-11-05 20:06:45 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.10 2008-11-25 16:21:43 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -109,6 +109,15 @@ void ColTabTextureChannel2RGBA::adjustNrChannels() const
 	enabled_.remove( nr );
 	opacity_.remove( nr );
     }
+}
+
+void ColTabTextureChannel2RGBA::swapChannels( int ch0, int ch1 )
+{
+    coltabs_.swap( ch0, ch1 );
+    enabled_.swap( ch0, ch1 );
+    opacity_.swap( ch0, ch1 );
+
+    update();
 }
 
 
