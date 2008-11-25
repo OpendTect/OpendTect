@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.18 2008-03-19 11:22:51 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.19 2008-11-25 13:04:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 
     BufferString srchwindtxt( "Search window " );
     srchwindtxt += SI().getZUnit();
-    srchgatefld = new uiGenInput( grp, srchwindtxt, IntInpIntervalSpec() );
+    srchgatefld = new uiGenInput( grp, srchwindtxt, FloatInpIntervalSpec() );
     srchgatefld->attach( alignedBelow, evfld );
 
     thresholdtypefld = new uiGenInput( grp, "Threshold type",
@@ -130,7 +130,7 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 
     BufferString compwindtxt( "Compare window " );
     compwindtxt += SI().getZUnit();
-    compwinfld = new uiGenInput( grp, compwindtxt, IntInpIntervalSpec() );
+    compwinfld = new uiGenInput( grp, compwindtxt, FloatInpIntervalSpec() );
     compwinfld->attach( alignedBelow, usesimifld );
 
     simithresholdfld = new uiGenInput( grp, "Similarity threshold(0-1)",
@@ -220,10 +220,12 @@ void uiHorizonSetupGroup::initEventGroup()
 			    : (ev == VSEvent::ZCPosNeg ? 2 : 3) );
     evfld->setValue( fldidx );
 
-    Interval<int> srchintv(
-	    mNINT(horadj_->permittedZRange().start * SI().zFactor()),
-	    mNINT(horadj_->permittedZRange().stop * SI().zFactor()) );
-    srchgatefld->setValue( srchintv );
+    Interval<float> srchintv(
+	    horadj_->permittedZRange().start * SI().zFactor(),
+	    horadj_->permittedZRange().stop * SI().zFactor() );
+
+    srchgatefld->setText( getStringFromFloat("%.5f",srchintv.start), 0 );
+    srchgatefld->setText( getStringFromFloat("%.5f",srchintv.stop), 1 );
 
     thresholdtypefld->setValue( horadj_->useAbsThreshold() );
     extriffailfld->setValue( !horadj_->removesOnFailure() );
@@ -234,10 +236,12 @@ void uiHorizonSetupGroup::initSimiGroup()
 {
     usesimifld->setValue( !horadj_->trackByValue() );
 
-    Interval<int> simiintv(
-	    mNINT(horadj_->similarityWindow().start * SI().zFactor()),
-	    mNINT(horadj_->similarityWindow().stop * SI().zFactor()) );
-    compwinfld->setValue( simiintv );
+    Interval<float> simiintv(
+	    horadj_->similarityWindow().start * SI().zFactor(),
+	    horadj_->similarityWindow().stop * SI().zFactor() );
+
+    compwinfld->setText( getStringFromFloat("%.5f",simiintv.start), 0 );
+    compwinfld->setText( getStringFromFloat("%.5f",simiintv.stop), 1 );
 
     simithresholdfld->setValue( horadj_->similarityThreshold() );
 }
@@ -282,7 +286,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	horadj_->setTrackEvent( evtyp );
     }
 
-    Interval<int> intv = srchgatefld->getIInterval();
+    Interval<float> intv = srchgatefld->getFInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
 	mErrRet( "Search window should be minus to positive, ex. -20, 20");
     Interval<float> relintv( (float)intv.start/SI().zFactor(),
