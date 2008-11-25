@@ -3,6 +3,7 @@
  * AUTHOR   : K. Tingdahl
  * DATE     : 9-3-1999
 -*/
+static const char* rcsID = "$Id: genericnumer.cc,v 1.17 2008-11-25 13:46:17 cvsbert Exp $";
 
 #include "genericnumer.h"
 #include "undefval.h"

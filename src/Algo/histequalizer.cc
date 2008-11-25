@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2008
- RCS:           $Id: histequalizer.cc,v 1.2 2008-10-27 11:58:55 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: histequalizer.cc,v 1.3 2008-11-25 13:46:17 cvsbert Exp $";
 
 #include "histequalizer.h"
 #include "dataclipper.h"

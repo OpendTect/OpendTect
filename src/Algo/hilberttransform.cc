@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		June 2008
- RCS:		$Id: hilberttransform.cc,v 1.3 2008-10-21 10:18:38 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: hilberttransform.cc,v 1.4 2008-11-25 13:46:17 cvsbert Exp $";
 
 
 #include "hilberttransform.h"

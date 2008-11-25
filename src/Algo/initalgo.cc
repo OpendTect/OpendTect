@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initalgo.cc,v 1.12 2008-08-21 19:59:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: initalgo.cc,v 1.13 2008-11-25 13:46:17 cvsbert Exp $";
 
 #include "initalgo.h"
 
