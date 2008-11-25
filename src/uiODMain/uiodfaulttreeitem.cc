@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.17 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.18 2008-11-25 11:07:24 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -328,7 +328,7 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
 	    return false;
 
 	emo->setPreferredColor( getRandomColor(false) );
-	BufferString newname = "<New fault ";
+	BufferString newname = "<New sticks ";
 	static int faultnr = 1;
 	newname += faultnr++;
 	newname += ">";
