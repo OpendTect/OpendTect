@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.15 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.16 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -159,7 +159,7 @@ int SEGY::Scanner::readNext()
     dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
 
     SEGY::TraceInfo sgyti( geom_ );
-    sgyti.pos_.set( ti.nr, ti.binid, ti.offset );
+    sgyti.pos_= ti.posKey( geom_ );
     sgyti.coord_ = ti.coord;
     sgyti.null_ = trc_.isNull();
     sgyti.usable_ = tr_->trcHeader().isusable;

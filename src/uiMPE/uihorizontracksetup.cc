@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.19 2008-11-25 13:04:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.20 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uihorizontracksetup.h"
 

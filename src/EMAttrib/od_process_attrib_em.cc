@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.52 2008-11-24 11:04:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.53 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"

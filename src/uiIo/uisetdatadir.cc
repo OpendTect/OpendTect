@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.24 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.25 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uisetdatadir.h"
 #include "uifileinput.h"

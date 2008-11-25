@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: uigridder2d.cc,v 1.4 2008-08-11 11:58:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uigridder2d.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uigridder2d.h"
 

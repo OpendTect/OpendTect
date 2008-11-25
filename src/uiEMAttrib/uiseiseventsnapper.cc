@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.17 2008-10-22 05:42:28 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.18 2008-11-25 15:35:25 cvsbert Exp $";
 
 
 #include "uiseiseventsnapper.h"

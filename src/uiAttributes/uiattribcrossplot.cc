@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.32 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.33 2008-11-25 15:35:23 cvsbert Exp $";
 
 #include "uiattribcrossplot.h"
 

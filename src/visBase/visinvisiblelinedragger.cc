@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visinvisiblelinedragger.cc,v 1.1 2007-10-18 19:14:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visinvisiblelinedragger.cc,v 1.2 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "visinvisiblelinedragger.h"
 

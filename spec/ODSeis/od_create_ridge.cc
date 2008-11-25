@@ -2,8 +2,8 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
- * RCS      : $Id: od_create_ridge.cc,v 1.3 2007-08-02 04:28:10 cvsraman Exp $
 -*/
+static const char* rcsID = "$Id: od_create_ridge.cc,v 1.4 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "conn.h"
 #include "cubesampling.h"

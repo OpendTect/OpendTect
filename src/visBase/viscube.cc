@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2002
- RCS:           $Id: viscube.cc,v 1.19 2006-04-13 15:29:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: viscube.cc,v 1.20 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "viscube.h"
 #include "vistransform.h"

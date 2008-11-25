@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.11 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uitaskrunner.h"
 

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.89 2008-11-19 09:28:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: attribengman.cc,v 1.90 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "attribengman.h"
 

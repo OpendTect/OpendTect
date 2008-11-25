@@ -1,3 +1,5 @@
+static const char* rcsID = "$Id: progress.cc,v 1.9 2008-11-25 15:35:21 cvsbert Exp $";
+
 #include <iostream>
 #include <stdlib.h>
 #include "progressmeter.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.cc,v 1.23 2008-11-18 11:09:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uifont.cc,v 1.24 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"

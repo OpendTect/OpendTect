@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.32 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uispinbox.cc,v 1.33 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"

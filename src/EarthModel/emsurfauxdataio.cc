@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.36 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.37 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emsurfauxdataio.h"
 

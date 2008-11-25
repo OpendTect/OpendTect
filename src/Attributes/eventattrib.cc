@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.26 2008-05-29 10:16:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: eventattrib.cc,v 1.27 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"

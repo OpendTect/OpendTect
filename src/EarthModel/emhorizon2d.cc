@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.23 2008-10-26 18:25:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.24 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emhorizon2d.h"
 

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.48 2008-08-28 05:58:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uibutton.cc,v 1.49 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"

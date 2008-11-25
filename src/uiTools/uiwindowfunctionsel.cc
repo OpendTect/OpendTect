@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.cc,v 1.9 2008-08-08 13:24:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiwindowfunctionsel.cc,v 1.10 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiwindowfunctionsel.h"
 

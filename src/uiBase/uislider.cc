@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.35 2008-07-25 07:08:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uislider.cc,v 1.36 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"

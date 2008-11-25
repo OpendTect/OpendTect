@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoLockableSeparator.cc,v 1.1 2008-10-30 13:00:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoLockableSeparator.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoLockableSeparator.h"

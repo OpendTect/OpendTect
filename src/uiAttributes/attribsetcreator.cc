@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.8 2008-07-16 11:16:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.9 2008-11-25 15:35:23 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"

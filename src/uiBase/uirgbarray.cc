@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril & H. Huck
  Date:          08/09/2006
- RCS:           $Id: uirgbarray.cc,v 1.8 2008-04-09 11:07:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uirgbarray.cc,v 1.9 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uirgbarray.h"
 

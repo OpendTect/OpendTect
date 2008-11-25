@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoShaderTexture2.cc,v 1.6 2007-03-20 17:16:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoShaderTexture2.cc,v 1.7 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoShaderTexture2.h"

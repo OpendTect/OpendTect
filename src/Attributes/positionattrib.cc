@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.26 2008-09-23 06:03:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: positionattrib.cc,v 1.27 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "positionattrib.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.12 2008-11-21 15:28:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uihorizonsortdlg.h"
 

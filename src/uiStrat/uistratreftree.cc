@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.24 2008-09-05 09:39:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.25 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uistratreftree.h"
 

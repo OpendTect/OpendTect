@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uidrawable.cc,v 1.8 2008-07-03 13:07:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uidrawable.cc,v 1.9 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uidrawable.h"
 #include "i_uidrwbody.h"

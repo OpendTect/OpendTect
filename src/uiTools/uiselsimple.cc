@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.13 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiselsimple.cc,v 1.14 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiselsimple.h"
 #include "uilabel.h"

@@ -4,10 +4,10 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.12 2008-11-14 04:50:45 cvssatyaki Exp $
  ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.13 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"

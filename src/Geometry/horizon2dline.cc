@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2006
- RCS:		$Id: horizon2dline.cc,v 1.9 2008-05-29 13:27:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.10 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "horizon2dline.h"
 

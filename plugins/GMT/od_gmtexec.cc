@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: od_gmtexec.cc,v 1.5 2008-10-01 05:20:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: od_gmtexec.cc,v 1.6 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "filepath.h"

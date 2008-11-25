@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.9 2008-10-06 04:38:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uigmtbasemap.cc,v 1.10 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uigmtbasemap.h"
 

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoRGBATextureChannel2RGBA.cc,v 1.3 2008-11-05 14:30:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoRGBATextureChannel2RGBA.cc,v 1.4 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoRGBATextureChannel2RGBA.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.381 2008-11-14 05:36:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.382 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uivispartserv.h"
 

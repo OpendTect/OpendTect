@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2006
- RCS:           $Id: gapdeconattrib.cc,v 1.17 2007-03-22 09:55:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.18 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "gapdeconattrib.h"
 

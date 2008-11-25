@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.43 2008-09-08 12:31:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uicanvas.cc,v 1.44 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uicanvas.h"
 #include "errh.h"

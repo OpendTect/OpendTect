@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.10 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 

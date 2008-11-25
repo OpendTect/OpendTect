@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: volproctrans.cc,v 1.2 2008-06-03 12:15:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: volproctrans.cc,v 1.3 2008-11-25 15:35:23 cvsbert Exp $";
 
 #include "volproctrans.h"
 

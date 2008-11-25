@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.10 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
 
 
 #include "uimenuhandler.h"

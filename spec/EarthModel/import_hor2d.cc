@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: import_hor2d.cc,v 1.7 2008-05-22 09:46:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: import_hor2d.cc,v 1.8 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "prog.h"
 

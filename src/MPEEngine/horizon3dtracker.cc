@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon3dtracker.cc,v 1.8 2008-02-20 20:19:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: horizon3dtracker.cc,v 1.9 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "horizon3dtracker.h"
 

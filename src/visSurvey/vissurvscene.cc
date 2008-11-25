@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.108 2008-08-28 12:28:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.109 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "vissurvscene.h"
 

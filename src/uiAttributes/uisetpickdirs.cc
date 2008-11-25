@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.12 2008-10-02 08:38:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.13 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uisetpickdirs.h"

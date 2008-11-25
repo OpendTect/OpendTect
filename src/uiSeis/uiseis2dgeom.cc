@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.13 2008-03-14 11:59:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.14 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"

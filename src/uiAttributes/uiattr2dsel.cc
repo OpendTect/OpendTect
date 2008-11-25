@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.cc,v 1.5 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiattr2dsel.cc,v 1.6 2008-11-25 15:35:23 cvsbert Exp $";
 
 #include "uiattr2dsel.h"
 #include "attribdescset.h"

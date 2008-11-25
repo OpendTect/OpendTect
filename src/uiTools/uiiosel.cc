@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.49 2008-08-15 12:19:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiiosel.cc,v 1.50 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"

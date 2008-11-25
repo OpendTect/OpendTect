@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:		$Id: uisplitter.cc,v 1.2 2007-10-19 11:22:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisplitter.cc,v 1.3 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uisplitter.h"

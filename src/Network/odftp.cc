@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: odftp.cc,v 1.1 2006-08-17 19:49:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: odftp.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 ODFtp::ODFtp()

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.48 2008-06-27 10:27:36 cvsjaap Exp $
 
 ________________________________________________________________________
 
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.49 2008-11-25 15:35:24 cvsbert Exp $";
 -*/
 
 #include "uifingerprintattrib.h"

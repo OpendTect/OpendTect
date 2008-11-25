@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          December 2007
- RCS:           $Id: initattributes.cc,v 1.2 2008-01-15 08:07:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: initattributes.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "initattributes.h"
 #include "coherencyattrib.h"

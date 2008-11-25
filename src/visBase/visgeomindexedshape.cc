@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.15 2008-10-30 19:03:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.16 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "visgeomindexedshape.h"
 

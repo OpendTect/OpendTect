@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.9 2008-11-19 20:24:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: randomlinetr.cc,v 1.10 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "randomlinetr.h"
 #include "randomlinefact.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.cc,v 1.6 2008-09-23 15:46:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiarray2dchg.cc,v 1.7 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiarray2dchg.h"
 #include "uigeninput.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          May 2008
-    RCS:           $Id: uimeasuredlg.cc,v 1.8 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.9 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uimeasuredlg.h"
 

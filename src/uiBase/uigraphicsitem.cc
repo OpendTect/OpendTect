@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsitem.cc,v 1.6 2008-10-27 10:41:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.7 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uigraphicsitem.h"

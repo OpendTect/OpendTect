@@ -3,6 +3,7 @@
  * AUTHOR   : Kristofer Tingdahl
  * DATE     : Sep 2000
 -*/
+static const char* rcsID = "$Id: SoManLevelOfDetail.cc,v 1.8 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include <SoManLevelOfDetail.h>
 

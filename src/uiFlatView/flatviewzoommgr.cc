@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewzoommgr.cc,v 1.4 2007-05-07 18:22:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: flatviewzoommgr.cc,v 1.5 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "flatviewzoommgr.h"
 

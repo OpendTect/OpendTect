@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uivalseriestracker.cc,v 1.3 2008-02-07 18:59:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uivalseriestracker.cc,v 1.4 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uivalseriestracker.h"
 

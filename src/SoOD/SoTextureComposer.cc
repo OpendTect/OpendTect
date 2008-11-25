@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2008
- RCS:           $Id: SoTextureComposer.cc,v 1.12 2008-11-20 16:21:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.13 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoTextureComposer.h"

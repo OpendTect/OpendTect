@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.43 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: mathexpression.cc,v 1.44 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"

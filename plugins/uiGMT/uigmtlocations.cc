@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtlocations.cc,v 1.4 2008-09-25 12:01:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uigmtlocations.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uigmtlocations.h"
 

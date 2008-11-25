@@ -1,13 +1,13 @@
 /*+
- ________________________________________________________________________
+________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          December 2007
- RCS:           $Id: initattributeengine.cc,v 1.2 2007-12-14 05:52:55 cvsnanne Exp $
-        ________________________________________________________________________
+________________________________________________________________________
 
-	-*/
+-*/
+static const char* rcsID = "$Id: initattributeengine.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "initattributeengine.h"
 #include "attribstorprovider.h"

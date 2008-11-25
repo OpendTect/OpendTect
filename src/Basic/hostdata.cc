@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.38 2008-11-19 20:24:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: hostdata.cc,v 1.39 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"

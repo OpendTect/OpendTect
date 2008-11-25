@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.13 2008-05-26 05:20:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uienergyattrib.cc,v 1.14 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uienergyattrib.h"

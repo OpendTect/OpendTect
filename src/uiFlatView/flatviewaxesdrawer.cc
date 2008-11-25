@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.9 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: flatviewaxesdrawer.cc,v 1.10 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "flatviewaxesdrawer.h"
 #include "flatview.h"

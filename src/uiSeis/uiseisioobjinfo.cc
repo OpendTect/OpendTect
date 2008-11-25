@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2004
- RCS:		$Id: uiseisioobjinfo.cc,v 1.18 2005-06-02 14:11:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.19 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiseisioobjinfo.h"
 #include "uimsg.h"

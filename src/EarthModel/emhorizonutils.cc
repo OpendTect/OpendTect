@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.19 2008-11-17 15:42:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emhorizonutils.cc,v 1.20 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emhorizonutils.h"
 

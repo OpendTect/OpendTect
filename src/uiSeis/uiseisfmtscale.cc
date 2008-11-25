@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.22 2008-10-01 10:51:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.23 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiseisfmtscale.h"
 #include "uicompoundparsel.h"

@@ -5,10 +5,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.cc,v 1.12 2008-11-25 10:30:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.13 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiseislinesel.h"
 

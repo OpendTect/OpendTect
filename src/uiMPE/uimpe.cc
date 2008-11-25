@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uimpe.cc,v 1.5 2007-12-14 05:15:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uimpe.cc,v 1.6 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uimpe.h"
 

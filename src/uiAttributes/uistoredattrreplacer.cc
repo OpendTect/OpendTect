@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2008
- RCS:           $Id: uistoredattrreplacer.cc,v 1.4 2008-10-22 12:20:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.5 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uistoredattrreplacer.h"
 

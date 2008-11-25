@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.88 2008-11-10 22:50:11 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.89 2008-11-25 15:35:27 cvsbert Exp $";
 
 
 #include "visvolumedisplay.h"

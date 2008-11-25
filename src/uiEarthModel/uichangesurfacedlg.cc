@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.25 2008-11-24 15:58:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.26 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uichangesurfacedlg.h"
 

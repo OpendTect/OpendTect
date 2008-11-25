@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabimport.cc,v 1.2 2008-06-03 13:48:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uicoltabimport.cc,v 1.3 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uicoltabimport.h"
 

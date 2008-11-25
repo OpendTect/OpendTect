@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.cc,v 1.11 2008-11-18 09:50:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 

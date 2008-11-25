@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          December 2007
- RCS:           $Id: initmpeengine.cc,v 1.6 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: initmpeengine.cc,v 1.7 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "initmpeengine.h"
 #include "faulteditor.h"

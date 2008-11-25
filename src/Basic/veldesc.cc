@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: veldesc.cc,v 1.5 2008-01-04 22:36:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: veldesc.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "veldesc.h"

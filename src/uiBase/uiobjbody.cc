@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.21 2008-09-17 12:17:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.22 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uiobjbody.h"

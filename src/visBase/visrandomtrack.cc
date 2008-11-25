@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: visrandomtrack.cc,v 1.37 2006-11-21 14:00:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visrandomtrack.cc,v 1.38 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "visrandomtrack.h"
 

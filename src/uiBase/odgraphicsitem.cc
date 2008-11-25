@@ -4,10 +4,11 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: odgraphicsitem.cc,v 1.5 2008-11-14 04:33:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.6 2008-11-25 15:35:24 cvsbert Exp $";
+
 #include "odgraphicsitem.h"
 
 #include "enums.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.cc,v 1.7 2008-05-28 14:44:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.8 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uisrchprocfiles.h"
 

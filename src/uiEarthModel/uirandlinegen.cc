@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.12 2008-10-03 12:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uirandlinegen.h"
 

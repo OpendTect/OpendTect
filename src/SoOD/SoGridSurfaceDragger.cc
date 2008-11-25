@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Marc Gerritsen
  Date:          15-04-2003
- RCS:           $Id: SoGridSurfaceDragger.cc,v 1.4 2007-10-10 05:03:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoGridSurfaceDragger.cc,v 1.5 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoGridSurfaceDragger.h"

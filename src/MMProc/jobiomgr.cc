@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.27 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.28 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "jobiomgr.h"
 #include "filepath.h"

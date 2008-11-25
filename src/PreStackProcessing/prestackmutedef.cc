@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.cc,v 1.5 2008-02-18 16:32:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: prestackmutedef.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "prestackmutedef.h"
 

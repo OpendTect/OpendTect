@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2006
- RCS:           $Id: uicompparsel.cc,v 1.5 2008-10-14 11:17:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uicompparsel.cc,v 1.6 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uicompoundparsel.h"
 #include "uigeninput.h"

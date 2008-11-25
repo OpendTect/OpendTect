@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: sectionadjuster.cc,v 1.11 2005-12-09 16:53:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: sectionadjuster.cc,v 1.12 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "sectionadjuster.h"

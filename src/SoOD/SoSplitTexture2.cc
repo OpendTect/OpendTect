@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.16 2008-11-03 20:36:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoSplitTexture2.cc,v 1.17 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoSplitTexture2.h"

@@ -2,12 +2,12 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        B.Bril & H.Huck
+ Author:        Bert & Helene
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.12 2008-10-24 04:33:24 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.13 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uiprestackattrib.h"

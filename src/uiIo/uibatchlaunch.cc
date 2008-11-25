@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.68 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.69 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uibatchlaunch.h"
 

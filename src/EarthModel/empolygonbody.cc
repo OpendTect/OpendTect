@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: empolygonbody.cc,v 1.4 2008-10-07 14:17:38 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.5 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "empolygonbody.h"
 

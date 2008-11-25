@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: uisplashscreen.cc,v 1.4 2007-08-27 10:35:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisplashscreen.cc,v 1.5 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uisplashscreen.h"

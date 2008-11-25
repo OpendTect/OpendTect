@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Oct 2004
- RCS:		$Id: ui2dsip.cc,v 1.6 2008-06-30 13:02:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: ui2dsip.cc,v 1.7 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "ui2dsip.h"
 #include "uidialog.h"

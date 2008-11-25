@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2008
- RCS:           $Id: SoColTabTextureChannel2RGBA.cc,v 1.10 2008-11-20 16:21:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.11 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoColTabTextureChannel2RGBA.h"

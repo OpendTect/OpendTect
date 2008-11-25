@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.11 2008-09-30 05:19:41 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.12 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "bufstringset.h"
 #include "color.h"

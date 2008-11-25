@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uimarkerstyledlg.cc,v 1.4 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uimarkerstyledlg.h"
 

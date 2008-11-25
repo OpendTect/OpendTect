@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2007
- RCS:		$Id: uibuttonstateedit.cc,v 1.2 2007-02-05 19:09:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uibuttonstateedit.cc,v 1.3 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uibuttonstateedit.h"
 #include "uigeninput.h"

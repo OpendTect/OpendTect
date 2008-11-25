@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.11 2008-09-24 08:07:18 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uitextfile.h"
 #include "uimain.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2005
- RCS:		$Id: horizon2dseedpicker.cc,v 1.10 2008-07-30 11:56:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.11 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "horizon2dseedpicker.h"
 

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.23 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisellinest.cc,v 1.24 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"

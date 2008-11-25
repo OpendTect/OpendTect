@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemobjeditor.cc,v 1.1 2005-07-25 12:22:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiemobjeditor.cc,v 1.2 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiemobjeditor.h"
 

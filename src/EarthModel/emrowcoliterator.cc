@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emrowcoliterator.cc,v 1.5 2007-02-07 10:28:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emrowcoliterator.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emrowcoliterator.h"
 

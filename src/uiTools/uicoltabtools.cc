@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
 Date:		Aug 2007
- RCS:           $Id: uicoltabtools.cc,v 1.10 2008-10-27 11:21:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uicoltabtools.h"
 #include "uicanvas.h"

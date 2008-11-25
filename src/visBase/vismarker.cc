@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.27 2008-09-23 12:16:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: vismarker.cc,v 1.28 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "vismarker.h"
 #include "iopar.h"

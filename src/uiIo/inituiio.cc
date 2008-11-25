@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: inituiio.cc,v 1.5 2008-02-26 08:55:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: inituiio.cc,v 1.6 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "inituiio.h"
 #include "uiposprovgroupstd.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.15 2008-02-06 13:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.16 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uihor3dfrom2ddlg.h"
 

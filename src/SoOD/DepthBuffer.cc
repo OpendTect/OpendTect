@@ -30,6 +30,7 @@
   to enable/disable depth buffer and clear the depth buffer when the node is
   traversed.
 */
+static const char* rcsID = "$Id: DepthBuffer.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "DepthBuffer.h"
 #include <Inventor/actions/SoGLRenderAction.h>

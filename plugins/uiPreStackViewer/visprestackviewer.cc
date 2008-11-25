@@ -4,10 +4,10 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.35 2008-10-14 16:46:44 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.36 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "visprestackviewer.h"
 

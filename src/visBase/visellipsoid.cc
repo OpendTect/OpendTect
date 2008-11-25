@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          Oct. 2007
- RCS:           $Id: visellipsoid.cc,v 1.1 2007-10-12 21:22:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visellipsoid.cc,v 1.2 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "visellipsoid.h"
 

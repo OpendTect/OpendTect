@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcoastline.cc,v 1.4 2008-09-29 13:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: gmtcoastline.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "gmtcoastline.h"
 

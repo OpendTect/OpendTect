@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: undo.cc,v 1.4 2008-07-31 22:09:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: undo.cc,v 1.5 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "undo.h"
 

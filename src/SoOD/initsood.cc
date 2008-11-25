@@ -4,10 +4,10 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initsood.cc,v 1.9 2008-10-31 22:21:27 cvskris Exp $
  ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: initsood.cc,v 1.10 2008-11-25 15:35:23 cvsbert Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 

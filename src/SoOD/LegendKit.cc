@@ -186,6 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
+static const char* rcsID = "$Id: LegendKit.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "LegendKit.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.37 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: treeitem.cc,v 1.38 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"

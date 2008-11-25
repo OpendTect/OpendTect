@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2003
- RCS:           $Id: SoArrow.cc,v 1.4 2005-01-28 16:02:23 nanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoArrow.cc,v 1.5 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoArrow.h"

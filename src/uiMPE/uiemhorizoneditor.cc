@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.24 2007-10-25 15:17:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiemhorizoneditor.cc,v 1.25 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiemhorizoneditor.h"
 

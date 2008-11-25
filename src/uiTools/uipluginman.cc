@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.20 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uipluginman.cc,v 1.21 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"

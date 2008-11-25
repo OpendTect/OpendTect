@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.8 2007-12-06 08:52:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uigridlinesdlg.h"
 

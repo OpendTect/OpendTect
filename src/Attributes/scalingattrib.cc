@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.25 2008-11-07 11:07:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.26 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "scalingattrib.h"
 

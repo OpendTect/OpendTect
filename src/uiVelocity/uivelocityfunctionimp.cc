@@ -5,10 +5,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.cc,v 1.4 2008-09-02 07:17:39 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uivelocityfunctionimp.h"
 

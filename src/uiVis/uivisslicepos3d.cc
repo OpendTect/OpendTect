@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisslicepos3d.cc,v 1.8 2008-05-12 08:30:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uislicepos.h"
 

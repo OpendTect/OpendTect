@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: create_randpicks_2d.cc,v 1.6 2008-05-22 09:46:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: create_randpicks_2d.cc,v 1.7 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "prog.h"
 

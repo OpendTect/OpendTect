@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.cc,v 1.2 2008-04-03 19:11:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: vissplittextureseis2d.cc,v 1.3 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "vissplittextureseis2d.h"
 

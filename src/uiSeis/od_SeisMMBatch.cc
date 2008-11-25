@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.22 2008-09-24 08:14:03 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: od_SeisMMBatch.cc,v 1.23 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uimain.h"

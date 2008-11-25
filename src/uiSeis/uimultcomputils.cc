@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2008
- RCS:		$Id: uimultcomputils.cc,v 1.1 2008-10-02 08:54:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uimultcomputils.cc,v 1.2 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uimultcompdlg.h"
 #include "ioman.h"

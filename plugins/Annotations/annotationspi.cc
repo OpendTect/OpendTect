@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: annotationspi.cc,v 1.6 2008-08-04 11:11:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: annotationspi.cc,v 1.7 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "measuretoolman.h"
 #include "plugins.h"

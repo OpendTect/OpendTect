@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.cc,v 1.7 2006-08-16 10:51:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: attribposvecoutput.cc,v 1.8 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "attribposvecoutput.h"
 #include "attribdescset.h"

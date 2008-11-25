@@ -4,10 +4,10 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.23 2008-07-09 12:33:41 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.24 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiodrandlinetreeitem.h"
 

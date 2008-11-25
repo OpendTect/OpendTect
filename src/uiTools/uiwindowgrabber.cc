@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.cc,v 1.4 2008-09-09 08:41:21 cvsbert Exp $ 
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiwindowgrabber.h"
 

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.157 2008-11-24 10:56:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.158 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"

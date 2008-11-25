@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2003
- RCS:           $Id: viscolorseq.cc,v 1.17 2008-04-08 09:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: viscolorseq.cc,v 1.18 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "viscolorseq.h"
 #include "bufstringset.h"

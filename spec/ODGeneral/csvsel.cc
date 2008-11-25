@@ -1,3 +1,5 @@
+static const char* rcsID = "$Id: csvsel.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
+
 #include <iostream>
 #include "tableconvimpl.h"
 #include "strmprov.h"

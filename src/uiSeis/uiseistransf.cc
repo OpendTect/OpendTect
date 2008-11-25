@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.46 2008-07-16 12:29:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseistransf.cc,v 1.47 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiseistransf.h"
 #include "uiseissubsel.h"

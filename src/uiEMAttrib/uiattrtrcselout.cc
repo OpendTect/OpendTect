@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.45 2008-11-21 14:58:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.46 2008-11-25 15:35:25 cvsbert Exp $";
 
 
 #include "uiattrtrcselout.h"

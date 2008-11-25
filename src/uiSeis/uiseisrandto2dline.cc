@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.cc,v 1.3 2008-05-23 07:13:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.4 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiseisrandto2dline.h"
 

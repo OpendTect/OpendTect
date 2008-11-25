@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.14 2008-11-18 17:29:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.15 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "visflatviewer.h"
 #include "arraynd.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: prestackprocessortransl.cc,v 1.1 2008-10-21 13:31:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: prestackprocessortransl.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "prestackprocessortransl.h"
 

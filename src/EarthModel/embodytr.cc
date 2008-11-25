@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: embodytr.cc,v 1.2 2008-09-08 17:41:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: embodytr.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "embodytr.h"
 #include "embody.h"

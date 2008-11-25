@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2007
- RCS:		$Id: keyboardevent.cc,v 1.2 2008-07-03 13:02:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: keyboardevent.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "keyboardevent.h"
 

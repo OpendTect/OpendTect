@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emundo.cc,v 1.2 2008-02-20 21:39:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emundo.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emundo.h"
 

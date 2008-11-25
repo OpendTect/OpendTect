@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.11 2008-10-20 09:58:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.12 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "horizonattrib.h"
 

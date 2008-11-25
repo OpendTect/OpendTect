@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.17 2008-11-19 20:24:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: picksettr.cc,v 1.18 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"

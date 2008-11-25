@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.31 2008-10-29 19:49:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: viswell.cc,v 1.32 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"

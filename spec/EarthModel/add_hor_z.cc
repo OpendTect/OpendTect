@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: add_hor_z.cc,v 1.5 2007-01-31 16:52:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: add_hor_z.cc,v 1.6 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "emsurfacegeometry.h"
 #include "emhorizon.h"

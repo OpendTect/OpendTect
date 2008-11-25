@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: jobrunner.cc,v 1.37 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: jobrunner.cc,v 1.38 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"

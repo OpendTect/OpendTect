@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipicksetmgr.cc,v 1.5 2008-01-21 04:13:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.6 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"

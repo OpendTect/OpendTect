@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.13 2008-10-03 12:22:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emrandlinegen.cc,v 1.14 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emrandlinegen.h"
 #include "emhorizon3d.h"

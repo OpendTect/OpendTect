@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.30 2008-06-26 13:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.31 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "freqfilterattrib.h"

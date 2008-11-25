@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.cc,v 1.6 2008-08-22 06:52:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.7 2008-11-25 15:35:21 cvsbert Exp $";
 
 
 #include "measuretoolman.h"

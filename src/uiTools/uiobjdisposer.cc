@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2008
- RCS:           $Id: uiobjdisposer.cc,v 1.1 2008-06-03 11:34:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiobjdisposer.cc,v 1.2 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiobjdisposer.h"
 #include "timer.h"

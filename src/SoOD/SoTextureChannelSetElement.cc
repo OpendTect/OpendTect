@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          November 2007
- RCS:           $Id: SoTextureChannelSetElement.cc,v 1.2 2008-11-20 16:21:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoTextureChannelSetElement.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "SoTextureChannelSetElement.h"
 

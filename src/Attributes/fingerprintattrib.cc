@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.15 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: fingerprintattrib.cc,v 1.16 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "fingerprintattrib.h"
 

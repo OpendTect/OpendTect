@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jul 2003
- RCS:           $Id: visdepthtabplanedragger.cc,v 1.21 2008-10-21 21:14:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visdepthtabplanedragger.cc,v 1.22 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "visdepthtabplanedragger.h"
 

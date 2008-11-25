@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.58 2008-11-17 13:04:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.59 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"

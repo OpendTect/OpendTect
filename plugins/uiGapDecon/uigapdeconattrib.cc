@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.36 2008-11-21 15:30:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.37 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"

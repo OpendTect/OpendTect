@@ -5,10 +5,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:		$Id: uisegyexp.cc,v 1.8 2008-11-17 13:04:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.19 2008-10-01 03:37:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.20 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 

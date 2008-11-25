@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          November 2008
- RCS:           $Id: emfaultstickset.cc,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emfaultstickset.h"
 

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          30/01/2006
- RCS:           $Id: keyenum.cc,v 1.3 2008-03-17 21:03:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: keyenum.cc,v 1.4 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "keyenum.h"

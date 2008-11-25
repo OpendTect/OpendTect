@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.69 2008-06-27 06:10:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.70 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uimpepartserv.h"
 

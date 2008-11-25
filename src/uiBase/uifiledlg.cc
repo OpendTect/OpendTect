@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.42 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.43 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uifiledlg.h"
 

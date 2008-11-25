@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.cc,v 1.9 2008-01-24 08:17:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uithumbwheel.cc,v 1.10 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uithumbwheel.h"
 #include "i_qthumbwhl.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.cc,v 1.7 2008-10-02 13:20:31 cvshelene Exp $
 _______________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.8 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "uicreateattriblogdlg.h"
 

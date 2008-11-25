@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uitextfile.cc,v 1.6 2007-09-07 21:25:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uitextfile.cc,v 1.7 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uitextfile.h"
 #include "uitextedit.h"

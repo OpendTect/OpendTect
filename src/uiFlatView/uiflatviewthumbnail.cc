@@ -4,10 +4,10 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.cc,v 1.9 2008-10-27 11:21:08 cvssatyaki Exp $
  ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.10 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiflatviewthumbnail.h"
 #include "uiflatviewcontrol.h"

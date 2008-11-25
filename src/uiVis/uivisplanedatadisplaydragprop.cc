@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2007
- RCS:           $Id: uivisplanedatadisplaydragprop.cc,v 1.3 2007-05-21 09:22:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uivisplanedatadisplaydragprop.cc,v 1.4 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uivisplanedatadisplaydragprop.h"
 

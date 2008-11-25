@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2008
- RCS:           $Id: uisemblanceattrib.cc,v 1.1 2008-10-17 05:42:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uisemblanceattrib.cc,v 1.2 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uisemblanceattrib.h"
 #include "semblanceattrib.h"

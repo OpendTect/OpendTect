@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.19 2008-11-12 14:49:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.20 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"

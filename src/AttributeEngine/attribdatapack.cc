@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.27 2008-02-20 17:50:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.28 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "attribdatapack.h"
 

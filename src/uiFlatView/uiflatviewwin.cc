@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.14 2008-10-07 10:19:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.15 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"

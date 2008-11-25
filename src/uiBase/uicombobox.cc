@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.46 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uicombobox.cc,v 1.47 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"

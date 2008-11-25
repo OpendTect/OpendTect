@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.14 2008-11-14 04:35:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.15 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "drawaxis2d.h"
 

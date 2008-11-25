@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2007
- RCS:           $Id: emhor2dto3d.cc,v 1.9 2008-09-23 15:46:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.10 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emhor2dto3d.h"
 

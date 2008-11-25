@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Arend Lammertink
  Date:		2001
- RCS:		$Id: uiprogressbar.cc,v 1.15 2007-12-27 10:52:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiprogressbar.cc,v 1.16 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uiprogressbar.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.104 2008-11-13 10:59:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: survinfo.cc,v 1.105 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2008
- RCS:           $Id: vispolygonselection.cc,v 1.4 2008-08-28 11:06:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.5 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "vispolygonselection.h"
 

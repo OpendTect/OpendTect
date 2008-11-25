@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrtypesel.cc,v 1.3 2006-10-24 12:37:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiattrtypesel.cc,v 1.4 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uiattrtypesel.h"
 #include "uiattrdesced.h"

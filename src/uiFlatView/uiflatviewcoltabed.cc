@@ -1,12 +1,13 @@
 /*
 ___________________________________________________________________
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : Satyaki Maitra
- * DATE     : May 2008
- * RCS	    : $Id: uiflatviewcoltabed.cc,v 1.4 2008-10-27 11:21:08 cvssatyaki Exp $
-___________________________________________________________________
--*/
 
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        Satyaki Maitra
+ Date:          May 2008
+___________________________________________________________________
+
+-*/
+static const char* rcsID = "$Id: uiflatviewcoltabed.cc,v 1.5 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiflatviewcoltabed.h"
 

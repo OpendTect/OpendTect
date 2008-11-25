@@ -4,10 +4,10 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2006
- RCS:           $Id: uiworld2ui.cc,v 1.5 2007-02-27 22:33:35 cvskris Exp $
  ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiworld2ui.cc,v 1.6 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiworld2ui.h"
 

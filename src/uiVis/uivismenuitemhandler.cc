@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivismenuitemhandler.cc,v 1.1 2007-04-13 20:01:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uivismenuitemhandler.cc,v 1.2 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uivismenuitemhandler.h"
 

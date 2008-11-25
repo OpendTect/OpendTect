@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          Jul 2008
- RCS:           $Id: uiaxisdata.cc,v 1.2 2008-10-27 11:12:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiaxisdata.cc,v 1.3 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiaxisdata.h"
 #include "dataclipper.h"

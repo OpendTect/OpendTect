@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.12 2008-10-26 17:41:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: od_madexec.cc,v 1.13 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "madstream.h"
 #include "batchprog.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivispickretriever.cc,v 1.7 2008-03-17 21:39:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uivispickretriever.cc,v 1.8 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uivispickretriever.h"
 

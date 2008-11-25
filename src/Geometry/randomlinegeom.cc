@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.cc,v 1.5 2007-12-01 15:34:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: randomlinegeom.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "randomlinegeom.h"
 #include "survinfo.h"

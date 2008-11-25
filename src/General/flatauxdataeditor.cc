@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.24 2008-07-16 17:52:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.25 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "flatauxdataeditor.h"
 

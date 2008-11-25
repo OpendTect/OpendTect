@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: process_attrib_exp.cc,v 1.1 2003-12-16 15:44:20 nanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: process_attrib_exp.cc,v 1.2 2008-11-25 15:35:21 cvsbert Exp $";
 
 /* process_attrib with experimental attributes */
 

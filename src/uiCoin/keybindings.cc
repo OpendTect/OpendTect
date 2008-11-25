@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.9 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: keybindings.cc,v 1.10 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "keybindings.h"
 #include "settings.h"

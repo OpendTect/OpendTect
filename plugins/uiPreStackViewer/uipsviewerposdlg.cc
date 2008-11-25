@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          Aug 2008
- RCS:           $Id: uipsviewerposdlg.cc,v 1.2 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uipsviewerposdlg.h"
 

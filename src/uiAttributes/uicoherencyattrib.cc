@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.18 2008-05-14 11:11:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.19 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"

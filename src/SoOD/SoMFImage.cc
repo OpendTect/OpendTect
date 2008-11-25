@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMFImage.cc,v 1.3 2008-10-16 21:54:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoMFImage.cc,v 1.4 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "SoMFImage.h"

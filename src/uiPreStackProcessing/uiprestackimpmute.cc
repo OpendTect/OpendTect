@@ -5,10 +5,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
 Date:		June 2008
- RCS:		$Id: uiprestackimpmute.cc,v 1.9 2008-08-29 14:11:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiprestackimpmute.cc,v 1.10 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiprestackimpmute.h"
 #include "uifileinput.h"

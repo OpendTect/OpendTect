@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: uihor2dfrom3ddlg.cc,v 1.3 2008-11-17 17:18:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.4 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 

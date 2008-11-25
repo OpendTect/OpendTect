@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault3d.cc,v 1.1 2008-09-30 12:47:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emfault3d.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emfault3d.h"
 

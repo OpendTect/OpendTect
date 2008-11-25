@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2006
- RCS:           $Id: externalattrib.cc,v 1.5 2008-07-16 16:59:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: externalattrib.cc,v 1.6 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "externalattrib.h"
 

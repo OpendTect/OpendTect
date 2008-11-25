@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.31 2008-09-29 13:23:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.32 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"

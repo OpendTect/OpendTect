@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.107 2008-10-07 21:49:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiodmain.cc,v 1.108 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiodmain.h"
 

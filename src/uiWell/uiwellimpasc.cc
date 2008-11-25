@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.39 2008-08-13 09:29:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.40 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 

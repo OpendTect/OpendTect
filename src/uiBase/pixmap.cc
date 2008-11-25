@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.30 2008-04-09 11:07:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: pixmap.cc,v 1.31 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "pixmap.h"
 

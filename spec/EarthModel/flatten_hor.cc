@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		Januari 2007
- RCS:		$Id: flatten_hor.cc,v 1.1 2007-01-11 11:42:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: flatten_hor.cc,v 1.2 2008-11-25 15:35:21 cvsbert Exp $";
 
 
 

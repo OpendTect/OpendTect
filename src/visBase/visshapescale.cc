@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: visshapescale.cc,v 1.12 2005-02-07 12:45:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: visshapescale.cc,v 1.13 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "visshapescale.h"
 #include "iopar.h"

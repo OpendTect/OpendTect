@@ -25,6 +25,7 @@
   \class GLDepthBufferElement Inventor/elements/GLDepthBufferElement.h
   \brief The SoGLDrawStyleElement controls the OpenGL depth buffer.
 */
+static const char* rcsID = "$Id: GLDepthBufferElement.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "GLDepthBufferElement.h"
 

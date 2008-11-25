@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.16 2008-11-04 13:42:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: instantattrib.cc,v 1.17 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "instantattrib.h"
 

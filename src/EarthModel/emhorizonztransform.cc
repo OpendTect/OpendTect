@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.8 2008-06-26 05:06:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.9 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "emhorizonztransform.h"
 

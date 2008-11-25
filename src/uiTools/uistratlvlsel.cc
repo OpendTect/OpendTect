@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.9 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.10 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uistratlvlsel.h"
 

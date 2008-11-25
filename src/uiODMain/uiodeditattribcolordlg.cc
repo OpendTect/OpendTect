@@ -4,10 +4,10 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.12 2008-11-04 23:12:37 cvskris Exp $
 ___________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiodeditattribcolordlg.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiodeditattribcolordlg.h"
 

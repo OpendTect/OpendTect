@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.110 2008-10-16 05:19:33 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.111 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dchg.h"

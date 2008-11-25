@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackexpmute.cc,v 1.2 2008-08-29 13:19:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiprestackexpmute.cc,v 1.3 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiprestackexpmute.h"
 

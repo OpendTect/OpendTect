@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: mpesetup.cc,v 1.5 2006-11-21 14:00:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: mpesetup.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "mpesetup.h"
 #include "mpefact.h"

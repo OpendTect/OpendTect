@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.14 2008-09-17 11:33:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.15 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "seisbufadapters.h"
 #include "seisinfo.h"

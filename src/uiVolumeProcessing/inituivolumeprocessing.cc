@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: inituivolumeprocessing.cc,v 1.5 2008-11-19 15:01:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: inituivolumeprocessing.cc,v 1.6 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "inituivolumeprocessing.h"
 

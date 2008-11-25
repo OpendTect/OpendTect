@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.13 2008-06-05 14:59:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: jobdescprov.cc,v 1.14 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "jobdescprov.h"
 #include "iopar.h"

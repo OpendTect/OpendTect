@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.18 2008-05-28 15:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: vishingeline.cc,v 1.19 2008-11-25 15:35:27 cvsbert Exp $";
 
 
 #include "vishingeline.h"

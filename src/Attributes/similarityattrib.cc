@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.36 2008-09-23 06:03:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.37 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "similarityattrib.h"
 

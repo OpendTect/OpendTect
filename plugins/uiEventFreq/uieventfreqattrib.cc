@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Oct  2006
- RCS:           $Id: uieventfreqattrib.cc,v 1.2 2007-08-10 11:57:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uieventfreqattrib.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uieventfreqattrib.h"
 #include "eventfreqattrib.h"

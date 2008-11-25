@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoColTabMultiTexture2.cc,v 1.4 2008-07-22 08:53:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: SoColTabMultiTexture2.cc,v 1.5 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "SoColTabMultiTexture2.h"
 

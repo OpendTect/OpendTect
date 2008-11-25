@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.cc,v 1.7 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uitutorialattrib.cc,v 1.8 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uitutorialattrib.h"
 #include "tutorialattrib.h"

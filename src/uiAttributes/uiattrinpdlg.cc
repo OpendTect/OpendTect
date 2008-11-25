@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.17 2008-10-22 12:20:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.18 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uiattrinpdlg.h"
 

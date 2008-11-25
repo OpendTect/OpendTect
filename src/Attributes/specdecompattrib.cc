@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.21 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.22 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.17 2008-11-04 13:45:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.18 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uisegyexamine.h"
 

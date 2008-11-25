@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vistristripset.cc,v 1.13 2005-02-07 12:45:40 nanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: vistristripset.cc,v 1.14 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "vistristripset.h"
 

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.10 2008-07-08 00:42:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.11 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiflatauxdataeditorlist.h"
 

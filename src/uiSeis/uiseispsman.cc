@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiseispsman.cc,v 1.6 2008-09-04 13:31:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.7 2008-11-25 15:35:26 cvsbert Exp $";
 
 
 #include "uiseispsman.h"

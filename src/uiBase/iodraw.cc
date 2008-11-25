@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.47 2008-10-27 10:41:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: iodraw.cc,v 1.48 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"

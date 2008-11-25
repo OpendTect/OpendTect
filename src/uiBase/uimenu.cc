@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.50 2008-09-08 12:35:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uimenu.cc,v 1.51 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"

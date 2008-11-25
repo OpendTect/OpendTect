@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2003
- RCS:           $Id: cmddriverpi.cc,v 1.19 2008-08-21 12:35:53 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.20 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "cmddriver.h"
 

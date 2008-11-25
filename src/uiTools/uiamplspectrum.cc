@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.10 2008-10-27 11:12:56 cvssatyaki Exp $
 _______________________________________________________________________
                    
 -*/   
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uiamplspectrum.h"
 

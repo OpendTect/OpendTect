@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: arrayndslice.cc,v 1.3 2007-10-05 10:38:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: arrayndslice.cc,v 1.4 2008-11-25 15:35:22 cvsbert Exp $";
 
 
 #include "arrayndslice.h"

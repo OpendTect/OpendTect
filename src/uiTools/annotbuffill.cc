@@ -4,10 +4,10 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          September 2006
- RCS:           $Id: annotbuffill.cc,v 1.8 2007-07-09 16:47:00 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: annotbuffill.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "annotbuffill.h"
 #include "uirgbarray.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: prestackmuteasciio.cc,v 1.5 2008-06-27 06:47:39 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"

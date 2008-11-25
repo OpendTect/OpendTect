@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: attribdataholderarray.cc,v 1.4 2007-03-20 14:27:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: attribdataholderarray.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "attribdataholderarray.h"
 #include "attribdataholder.h"

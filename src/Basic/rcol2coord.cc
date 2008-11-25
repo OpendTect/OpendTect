@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: rcol2coord.cc,v 1.6 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: rcol2coord.cc,v 1.7 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "rcol2coord.h"
 

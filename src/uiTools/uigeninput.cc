@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.85 2008-05-26 05:48:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uigeninput.cc,v 1.86 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"

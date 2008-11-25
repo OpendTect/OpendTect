@@ -4,10 +4,10 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.24 2008-11-21 15:30:08 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.25 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiodplanedatatreeitem.h"
 

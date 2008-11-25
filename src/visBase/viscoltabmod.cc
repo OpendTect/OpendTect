@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.11 2008-04-08 05:05:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: viscoltabmod.cc,v 1.12 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "viscoltabmod.h"
 

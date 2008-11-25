@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.11 2008-10-13 05:22:31 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.12 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "uihorizonattrib.h"
 #include "uiempartserv.h"

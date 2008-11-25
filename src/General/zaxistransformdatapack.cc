@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.cc,v 1.7 2008-04-08 21:18:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: zaxistransformdatapack.cc,v 1.8 2008-11-25 15:35:22 cvsbert Exp $";
 
 #include "zaxistransformdatapack.h"
 

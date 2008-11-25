@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vispolyline.cc,v 1.16 2008-05-27 19:02:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: vispolyline.cc,v 1.17 2008-11-25 15:35:27 cvsbert Exp $";
 
 #include "vispolyline.h"
 #include "viscoord.h"

@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          June 2008
- RCS:           $Id: uiexport2dhorizon.cc,v 1.2 2008-06-23 06:36:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiexport2dhorizon.cc,v 1.3 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "uiexport2dhorizon.h"
 

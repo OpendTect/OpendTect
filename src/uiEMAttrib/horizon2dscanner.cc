@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizon2dscanner.cc,v 1.7 2008-10-02 14:37:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.8 2008-11-25 15:35:25 cvsbert Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"

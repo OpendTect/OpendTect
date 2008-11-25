@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nageswara Rao
  Date:		March 2008
- RCS:		$Id: stratamp.cc,v 1.3 2008-07-08 14:23:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: stratamp.cc,v 1.4 2008-11-25 15:35:21 cvsbert Exp $";
 
 #include "stratamp.h"
 

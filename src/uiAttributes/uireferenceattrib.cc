@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.10 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.11 2008-11-25 15:35:24 cvsbert Exp $";
 
 
 #include "uireferenceattrib.h"

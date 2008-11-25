@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.29 2008-08-08 08:47:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uidockwin.cc,v 1.30 2008-11-25 15:35:24 cvsbert Exp $";
 
 #include "uidockwin.h"
 #include "uigroup.h"

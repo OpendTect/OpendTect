@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.18 2008-06-24 05:25:11 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.19 2008-11-25 15:35:26 cvsbert Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
