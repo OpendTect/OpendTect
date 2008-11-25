@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.cc,v 1.11 2008-11-19 09:33:26 nanne Exp $
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: flthortools.cc,v 1.12 2008-11-25 15:36:06 bert Exp $";
 
 #include "flthortools.h"
 
