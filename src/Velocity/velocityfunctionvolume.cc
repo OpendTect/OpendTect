@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.2 2008-09-11 07:11:25 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.3 2008-11-25 11:37:46 cvsbert Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.2 2008-09-11 07:1
 #include "ioman.h"
 #include "seisread.h"
 #include "seistrc.h"
+#include "seispacketinfo.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 

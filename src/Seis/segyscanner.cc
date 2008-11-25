@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: segyscanner.cc,v 1.14 2008-11-19 09:44:54 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.15 2008-11-25 11:37:46 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -97,7 +97,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
     addErrReport( iop );
 
     for ( int idx=0; idx<fds_.size(); idx++ )
-	fds_[idx]->getReport( iop, geom_ );
+	fds_[idx]->getReport( iop );
 }
 
 
@@ -158,11 +158,9 @@ int SEGY::Scanner::readNext()
     const SeisTrcInfo& ti = trc_.info();
     dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
 
-    SEGY::TraceInfo sgyti;
-    sgyti.nr_ = ti.nr;
-    sgyti.binid_ = ti.binid;
+    SEGY::TraceInfo sgyti( geom_ );
+    sgyti.pos_.set( ti.nr, ti.binid, ti.offset );
     sgyti.coord_ = ti.coord;
-    sgyti.offset_ = ti.offset;
     sgyti.null_ = trc_.isNull();
     sgyti.usable_ = tr_->trcHeader().isusable;
     fd += sgyti;
@@ -243,11 +241,12 @@ StepInterval<float> SEGY::Scanner::zRange() const
 
 void SEGY::Scanner::initFileData()
 {
-    FileData* newfd = new FileData( fnms_.get(curfidx_) );
+    FileData* newfd = new FileData( fnms_.get(curfidx_), geom_ );
     if ( !fds_.isEmpty() && tr_->inpNrSamples() != fds_[0]->trcsz_ )
     {
 	BufferString emsg( "Wrong #samples: " ); tr_->inpNrSamples();
-	emsg += "(should be "; emsg += fds_[0]->trcsz_; emsg += ")";
+	emsg += "(must be same as first file: ";
+	emsg += fds_[0]->trcsz_; emsg += ")";
 	addFailed( tr_->errMsg() );
 	delete newfd; closeTr();
 	return;

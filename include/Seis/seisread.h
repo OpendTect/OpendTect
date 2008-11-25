@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.31 2008-07-31 10:24:27 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.32 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seisstor.h"
 #include "seistype.h"
 #include "linekey.h"
+class SeisTrc;
 class Executor;
 class HorSampling;
 class SeisTrcBuf;

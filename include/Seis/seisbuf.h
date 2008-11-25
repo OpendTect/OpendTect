@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.20 2008-09-22 13:11:24 cvskris Exp $
+ RCS:		$Id: seisbuf.h,v 1.21 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -15,7 +15,9 @@ ________________________________________________________________________
 
 #include "seisinfo.h"
 #include "executor.h"
+class SeisTrc;
 class SeisTrcReader;
+class SeisPacketInfo;
 
 
 /*!\brief set of seismic traces.

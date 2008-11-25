@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.9 2008-11-20 14:21:50 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.10 2008-11-25 11:37:46 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -24,8 +24,9 @@ static const char* sKeyStorageType = "Storage type";
 static bool writeascii = !__islittle__ || GetEnvVarYN("OD_WRITE_SEGYDEF_ASCII");
 
 
-SEGY::FileData::FileData( const char* fnm )
+SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
     : fname_(fnm)
+    , geom_(gt)
     , trcsz_(-1)
     , sampling_(SI().zRange(false).start,SI().zRange(false).step)
     , segyfmt_(0)
@@ -53,7 +54,7 @@ int SEGY::FileData::nrUsableTraces() const
 }
 
 
-void SEGY::FileData::getReport( IOPar& iop, Seis::GeomType gt ) const
+void SEGY::FileData::getReport( IOPar& iop ) const
 {
     BufferString str( "Info for '" ); str += fname_; str += "'";
     iop.add( "->", str );
@@ -102,7 +103,7 @@ void SEGY::FileData::getReport( IOPar& iop, Seis::GeomType gt ) const
 	offsrg.include( offset(idx) );
     }
 
-    if ( Seis::is2D(gt) )
+    if ( Seis::is2D(geom_) )
 	iop.add( "Trace number range", nrrg.start, nrrg.stop );
     else
     {
@@ -111,14 +112,14 @@ void SEGY::FileData::getReport( IOPar& iop, Seis::GeomType gt ) const
     }
     iop.add( "X range", xrg.start, xrg.stop );
     iop.add( "Y range", yrg.start, yrg.stop );
-    if ( Seis::isPS(gt) )
+    if ( Seis::isPS(geom_) )
 	iop.add( "Offset range", offsrg.start, offsrg.stop );
 }
 
 
 #define mErrRet(s) { ErrMsg(s); return false; }
 
-bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
+bool SEGY::FileData::getFrom( ascistream& astrm )
 {
     erase(); fname_.setEmpty(); trcsz_ = -1;
     bool isasc = false;
@@ -126,6 +127,8 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
     {
 	if ( astrm.hasKeyword(sKey::FileName) )
 	    fname_ = astrm.value();
+	if ( astrm.hasKeyword(sKey::Geometry) )
+	    geom_ = Seis::geomTypeOf( astrm.value() );
 	else if ( astrm.hasKeyword(sKeyTraceSize) )
 	    trcsz_ = astrm.getIValue();
 	else if ( astrm.hasKeyword(sKeyFormat) )
@@ -145,8 +148,9 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
     else if ( trcsz_ < 1 )
 	mErrRet("Invalid trace size in header")
 
-    const bool is2d = Seis::is2D( gt );
-    const bool isps = Seis::isPS( gt );
+    const bool is2d = Seis::is2D( geom_ );
+    const bool isps = Seis::isPS( geom_ );
+    BinID bid;
 
     if ( isasc )
     {
@@ -157,11 +161,11 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
 	    keyw = astrm.keyWord(); val = astrm.value();
 	    TraceInfo ti;
 	    if ( is2d )
-		ti.nr_ = keyw.getIValue(0);
+		ti.pos_.setTrcNr( keyw.getIValue(0) );
 	    else
-		ti.binid_.use( keyw[0] );
+		ti.pos_.binID().use( keyw[0] );
 	    if ( isps )
-		ti.offset_ = keyw.getFValue(1);
+		ti.pos_.setOffset( keyw.getFValue(1) );
 
 	    const char ch( *val[0] );
 	    ti.usable_ = ch != 'U';
@@ -206,14 +210,14 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
 #endif
 
 	    if ( is2d )
-		mGetVal(nr_,int)
+		mGetVal(pos_.trcNr(),int)
 	    else
 	    {
-		mGetVal(binid_.inl,int)
-		mGetVal(binid_.crl,int)
+		mGetVal(pos_.inLine(),int)
+		mGetVal(pos_.xLine(),int)
 	    }
 	    if ( isps )
-		mGetVal(offset_,float)
+		mGetVal(pos_.offset(),float)
 	    if ( is2d && !isps )
 	    {
 		mGetVal(coord_.x,double)
@@ -231,9 +235,10 @@ bool SEGY::FileData::getFrom( ascistream& astrm, Seis::GeomType gt )
 }
 
 
-bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
+bool SEGY::FileData::putTo( ascostream& astrm ) const
 {
     astrm.put( sKey::FileName, fname_ );
+    astrm.put( sKey::Geometry, Seis::nameOf(geom_) );
     astrm.put( sKeyTraceSize, trcsz_ );
     astrm.put( sKeySampling, sampling_.start, sampling_.step );
     astrm.put( sKeyFormat, segyfmt_ );
@@ -242,8 +247,8 @@ bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
     astrm.put( sKeyStorageType, writeascii ? "Ascii" : "Binary" );
     astrm.newParagraph();
 
-    const bool is2d = Seis::is2D( gt );
-    const bool isps = Seis::isPS( gt );
+    const bool is2d = Seis::is2D( geom_ );
+    const bool isps = Seis::isPS( geom_ );
 
     if ( writeascii )
     {
@@ -253,11 +258,11 @@ bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
 	    const TraceInfo& ti = (*this)[itrc];
 	    keyw.setEmpty();
 	    if ( is2d )
-		keyw += ti.nr_;
+		keyw += ti.trcNr();
 	    else
-		ti.binid_.fill( keyw.buf() );
+		ti.binID().fill( keyw.buf() );
 	    if ( isps )
-		keyw += ti.offset_;
+		keyw += ti.offset();
 
 	    val = ti.usable_ ? (ti.null_ ? "Null" : "OK") : "Unusable";
 	    if ( is2d && !isps )
@@ -275,13 +280,17 @@ bool SEGY::FileData::putTo( ascostream& astrm, Seis::GeomType gt ) const
 	    const char ch = ti.usable_ ? (ti.null_ ? 'N' : 'O') : 'U';
 	    strm.write( &ch, 1 );
 
-#define mPutVal(attr,typ) strm.write( (const char*)(&ti.attr), sizeof(typ) );
+#define mPutVal(attr,typ) \
+	    { \
+		typ tmp; tmp = ti.attr; \
+		strm.write( (const char*)(&tmp), sizeof(typ) ); \
+	    }
 	    if ( is2d )
-		mPutVal(nr_,int)
+		mPutVal(trcNr(),int)
 	    else
-		{ mPutVal(binid_.inl,int); mPutVal(binid_.crl,int) }
+		{ mPutVal(pos_.inLine(),int); mPutVal(pos_.xLine(),int) }
 	    if ( isps )
-		mPutVal(offset_,float)
+		mPutVal(offset(),float)
 	    if ( is2d && !isps )
 		{ mPutVal(coord_.x,double); mPutVal(coord_.y,double) }
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.52 2008-11-12 12:28:03 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.53 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -238,7 +238,7 @@ protected:
 
     Conn*		conn;
     const char*		errmsg;
-    SeisPacketInfo	pinfo;
+    SeisPacketInfo&	pinfo;
     BufferStringSet*	compnms_;
 
     Seis::ReadMode	read_mode;

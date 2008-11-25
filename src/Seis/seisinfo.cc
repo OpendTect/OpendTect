@@ -5,9 +5,10 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.49 2008-07-16 09:39:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.50 2008-11-25 11:37:46 cvsbert Exp $";
 
 #include "seisinfo.h"
+#include "seispacketinfo.h"
 #include "seisbounds.h"
 #include "seistrc.h"
 #include "posauxinfo.h"
@@ -376,6 +377,30 @@ SampleGate SeisTrcInfo::sampleGate( const Interval<float>& tg ) const
     if ( sg.stop < 0 ) sg.stop = 0;
 
     return sg;
+}
+
+
+Seis::PosKey SeisTrcInfo::posKey( Seis::GeomType gt ) const
+{
+    switch ( gt )
+    {
+    case Seis::VolPS:	return Seis::PosKey( binid, offset );
+    case Seis::Line:	return Seis::PosKey( nr );
+    case Seis::LinePS:	return Seis::PosKey( nr, offset );
+    default: 		return Seis::PosKey( binid );
+    }
+}
+
+
+void SeisTrcInfo::setPosKey( const Seis::PosKey& pk )
+{
+    Seis::GeomType gt = pk.geomType();
+    if ( Seis::isPS(gt) )
+	offset = pk.offset();
+    if ( Seis::is2D(gt) )
+	nr = pk.trcNr();
+    else
+	binid = pk.binID();
 }
 
 

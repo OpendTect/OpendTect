@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyscandlg.cc,v 1.10 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.cc,v 1.11 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,7 @@ bool uiSEGYScanDlg::mkOutput()
 				: "No traces found in file")
     presentReport( parent(), *scanner_ );
 
-    SEGY::DirectDef dd( scanner_->geomType() );
+    SEGY::DirectDef dd;
     dd.setData( fds, true );
     if ( !dd.writeToFile( ctio_.ioobj->fullUserExpr(Conn::Read) ) )
     {

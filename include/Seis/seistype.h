@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.13 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: seistype.h,v 1.14 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
+#include "gendefs.h"
 class IOPar;
 
 namespace Seis

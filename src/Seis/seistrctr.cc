@@ -5,12 +5,13 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.86 2008-11-12 12:28:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.87 2008-11-25 11:37:46 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
-#include "seisinfo.h"
 #include "seistrc.h"
+#include "seisinfo.h"
+#include "seispacketinfo.h"
 #include "seisselection.h"
 #include "seisbuf.h"
 #include "iopar.h"
@@ -56,6 +57,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 	, outcds(0)
 	, seldata(0)
     	, prevnr_(mUdf(int))
+    	, pinfo(*new SeisPacketInfo)
     	, trcblock_(*new SeisTrcBuf(false))
     	, lastinlwritten(SI().sampling(false).hrg.start.inl)
     	, read_mode(Seis::Prod)
@@ -75,6 +77,7 @@ SeisTrcTranslator::~SeisTrcTranslator()
 {
     cleanUp();
     delete &trcblock_;
+    delete &pinfo;
     delete &warnings_;
 }
 

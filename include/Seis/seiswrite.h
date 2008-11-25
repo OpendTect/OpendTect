@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.25 2008-08-19 13:01:14 cvsumesh Exp $
+ RCS:		$Id: seiswrite.h,v 1.26 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ is done.
 
 #include "seisstor.h"
 #include "linekey.h"
+class SeisTrc;
 class SeisPSWriter;
 class Seis2DLinePutter;
 

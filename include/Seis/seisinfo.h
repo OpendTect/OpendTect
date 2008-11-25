@@ -7,53 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.23 2008-04-25 11:20:37 cvsraman Exp $
+ RCS:		$Id: seisinfo.h,v 1.24 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "enums.h"
-#include "ranges.h"
-#include "position.h"
-#include "datachar.h"
+#include "seisposkey.h"
 #include "samplingdata.h"
-#include "seistype.h"
-class SeisTrc;
-class PosAuxInfo;
+#include "position.h"
+#include "ranges.h"
+#include "enums.h"
 class IOPar;
-namespace PosInfo { class CubeData; }
+class PosAuxInfo;
 template <class T> class TypeSet;
-
-/*!\brief Information for a packet of seismics, AKA tape header info */
-
-
-class SeisPacketInfo
-{
-public:
-
-			SeisPacketInfo()	{ clear(); }
-
-    BufferString	usrinfo;
-    BufferString	stdinfo;
-    int			nr;
-    bool		fullyrectandreg;
-
-    const PosInfo::CubeData* cubedata;
-
-    StepInterval<int>	inlrg;
-    StepInterval<int>	crlrg;
-    StepInterval<float>	zrg;
-    bool		inlrev;
-    bool		crlrev;
-
-    void		clear();
-
-    static const char*	sBinIDs;
-    static const char*	sZRange;
-
-    static BufferString	defaultusrinfo;
-
-};
 
 
 /*!\brief Information for a seismic trace, AKA trace header info */
@@ -98,6 +64,8 @@ public:
     static const char*	sNrSamples;
     static float	defaultSampleInterval(bool forcetime=false);
 
+    Seis::PosKey	posKey(Seis::GeomType) const;
+    void		setPosKey(const Seis::PosKey&);
     void		putTo(PosAuxInfo&) const;
     void		getFrom(const PosAuxInfo&);
     void		fillPar(IOPar&) const;

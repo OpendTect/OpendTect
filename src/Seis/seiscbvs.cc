@@ -5,11 +5,12 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.79 2008-10-26 17:41:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.80 2008-11-25 11:37:46 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
 #include "seistrc.h"
+#include "seispacketinfo.h"
 #include "seisselection.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"

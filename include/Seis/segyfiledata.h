@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.5 2008-11-19 20:24:49 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.6 2008-11-25 11:37:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
 #include "position.h"
-#include "seistype.h"
+#include "seisposkey.h"
 #include "samplingdata.h"
 #include "iopar.h"
 
@@ -26,19 +26,19 @@ namespace SEGY
 
 struct TraceInfo
 {
-		TraceInfo()
-		    : nr_(0), offset_(0)
-		    , null_(false), usable_(true)		{}
+			TraceInfo( Seis::GeomType gt=Seis::Vol )
+			    : pos_(gt), null_(false), usable_(true)	{}
     bool	operator ==( const TraceInfo& ti ) const
-			{ return nr_ == ti.nr_ && binid_ == ti.binid_
-			    			&& offset_ == ti.offset_; }
+			{ return pos_ == ti.pos_; }
 
-    int		nr_;
-    BinID	binid_;
-    Coord	coord_;
-    float	offset_;
-    bool	null_;
-    bool	usable_;
+    Seis::PosKey	pos_;
+    Coord		coord_;
+    bool		null_;
+    bool		usable_;
+
+    inline BinID	binID() const		{ return pos_.binID(); }
+    inline int		trcNr() const		{ return pos_.trcNr(); }
+    inline float	offset() const		{ return pos_.offset(); }
 };
 
 
@@ -48,28 +48,29 @@ class FileData : public TypeSet<TraceInfo>
 {
 public:
 
-    			FileData(const char* fnm);
+    			FileData(const char* fnm,Seis::GeomType);
 
     BufferString	fname_;
+    Seis::GeomType	geom_;
     int			trcsz_;
     SamplingData<float>	sampling_;
     int			segyfmt_;
     bool		isrev1_;
     int			nrstanzas_;
 
-    inline BinID	binID( int i ) const	{ return (*this)[i].binid_; }
+    inline BinID	binID( int i ) const	{ return (*this)[i].binID(); }
     inline Coord	coord( int i ) const	{ return (*this)[i].coord_; }
-    inline int		trcNr( int i ) const	{ return (*this)[i].nr_; }
-    inline float	offset( int i ) const	{ return (*this)[i].offset_; }
+    inline int		trcNr( int i ) const	{ return (*this)[i].trcNr(); }
+    inline float	offset( int i ) const	{ return (*this)[i].offset(); }
     inline bool		isNull( int i ) const	{ return (*this)[i].null_; }
     inline bool		isUsable( int i ) const	{ return (*this)[i].usable_; }
 
     int			nrNullTraces() const;
     int			nrUsableTraces() const;
 
-    void		getReport(IOPar&,Seis::GeomType) const;
-    bool		getFrom(ascistream&,Seis::GeomType);
-    bool		putTo(ascostream&,Seis::GeomType) const;
+    void		getReport(IOPar&) const;
+    bool		getFrom(ascistream&);
+    bool		putTo(ascostream&) const;
 
 };
 
