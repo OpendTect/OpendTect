@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.1 2008-11-25 16:40:14 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.2 2008-11-25 16:44:19 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -18,6 +18,17 @@ Seis::PosIndexer::PosIndexer( const Seis::PosKeyList& pkl )
 Seis::PosIndexer::~PosIndexer()
 {
     empty();
+}
+
+
+void Seis::PosIndexer::empty()
+{
+    deepErase( crlsets_ );
+    for ( int idx=0; idx<idxsets_.size(); idx++ )
+    {
+	deepErase( *idxsets_[idx] );
+	deepErase( *offssets_[idx] );
+    }
 }
 
 
