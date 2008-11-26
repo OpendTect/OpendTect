@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.7 2008-11-14 04:43:52 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.8 2008-11-26 16:31:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class uiFlatViewWin
 {
 public:
 
-    virtual		~uiFlatViewWin()	{ std::cout<<"uiFlatViewWin deleted ...................................."<<std::endl;}
+    virtual		~uiFlatViewWin()	{}
 
     uiFlatViewer&	viewer( int idx=0 )	{ return *vwrs_[idx]; }
     int			nrViewers() const	{ return vwrs_.size(); }
