@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.15 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.16 2008-11-26 07:01:22 cvssatyaki Exp $";
 
 #include "visflatviewer.h"
 #include "arraynd.h"
@@ -53,7 +53,7 @@ FlatViewer::~FlatViewer()
 }
 
 
-void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
+void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 {
     switch ( dt )
     {

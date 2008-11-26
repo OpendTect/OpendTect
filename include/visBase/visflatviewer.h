@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.4 2008-03-05 20:05:20 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.h,v 1.5 2008-11-26 06:59:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ public:
 				mCreateDataObj(FlatViewer);
 
     Notifier<FlatViewer> 	dataChange;    
-    void			handleChange(FlatView::Viewer::DataChangeType);
+    void			handleChange(FlatView::Viewer::DataChangeType,
+	    				     bool dofill = true);
     void	                setPosition(const Coord3& c00,const Coord3& c01,
 	                                  const Coord3& c10,const Coord3& c11);    
     void			allowShading(bool yn);  
