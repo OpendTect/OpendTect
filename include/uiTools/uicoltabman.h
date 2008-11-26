@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.6 2008-05-29 11:55:19 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.h,v 1.7 2008-11-26 06:59:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ protected:
     int				selidx_;
 
     void			doFinalise(CallBacker*);
+    void			reDraw(CallBacker*);
     void			markerChgd(CallBacker*);
     void			selChg(CallBacker*);
     void			removeCB(CallBacker*);

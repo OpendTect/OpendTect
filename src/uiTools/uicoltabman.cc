@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.21 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.22 2008-11-26 06:59:15 cvssatyaki Exp $";
 
 #include "uicoltabman.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: uicoltabman.cc,v 1.21 2008-11-25 15:35:26 cvsbe
 #include "uicoltabmarker.h"
 #include "uicoltabtools.h"
 #include "uifunctiondisplay.h"
+#include "uirgbarray.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uilistview.h"
@@ -86,14 +87,14 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     markercanvas_->attach( alignedBelow, cttranscanvas_ );
 
     ctabcanvas_ = new uiColorTableCanvas( rightgrp, ctab_, false, false );
-    ctabcanvas_->setStretch( 0, 0 );
     ctabcanvas_->getMouseEventHandler().buttonPressed.notify( 
         	    mCB(this,uiColorTableMan,rightClick) );
+    ctabcanvas_->reSize.notify( mCB(this,uiColorTableMan,reDraw) );
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
 	         uiSize(mTransWidth,mTransWidth/10) );
     ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
-    ctabcanvas_->attach( widthSameAs, markercanvas_ );
-    ctabcanvas_->setPrefWidth( mTransWidth/10 );
+    ctabcanvas_->setPrefWidth( mTransWidth );
+    ctabcanvas_->setPrefHeight( mTransWidth/10 );
 
     BufferString lbl = "Segmentize";
     segmentfld_ = new uiCheckBox( rightgrp, lbl );
@@ -134,7 +135,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
 					     uiColorTableMan,markerChange) );
     ctab_.colorChanged.notify( mCB(this,uiColorTableMan,sequenceChange) );
     ctab_.transparencyChanged.notify( mCB(this,uiColorTableMan,sequenceChange));
-    finaliseStart.notify( mCB(this,uiColorTableMan,doFinalise) );
+    finaliseDone.notify( mCB(this,uiColorTableMan,doFinalise) );
 }
 
 
@@ -150,10 +151,10 @@ uiColorTableMan::~uiColorTableMan()
 
 void uiColorTableMan::doFinalise( CallBacker* )
 {
-    ctabcanvas_->setPrefWidth( mTransWidth );
-    ctabcanvas_->setPrefHeight( mTransWidth/10 );
+    //ctabcanvas_->setPrefWidth( mTransWidth );
+    //ctabcanvas_->setPrefHeight( mTransWidth/10 );
     refreshColTabList( ctab_.name() );
-    selChg(0);
+    sequenceChange(0);
     toStatusBar( "", 1 );
 }
 
@@ -397,7 +398,6 @@ void uiColorTableMan::segmentSel( CallBacker* )
 void uiColorTableMan::nrSegmentsCB( CallBacker* )
 {
     NotifyStopper( ctab_.colorChanged );
-    ColTab::SM().get( orgctab_->name(), ctab_ );
     doSegmentize();
 }
 
@@ -422,6 +422,7 @@ void uiColorTableMan::doSegmentize()
 	return;
 
     NotifyStopper ns( ctab_.colorChanged );
+    *orgctab_ = ctab_;
     ctab_.removeAllColors();
     const float step = 1 / (float)(nrseg-1);
     ColTab::IndexedLookUpTable indextbl( *orgctab_, nrseg );
@@ -479,6 +480,12 @@ void uiColorTableMan::markerChange( CallBacker* )
     updateSegmentFields();
     ctabcanvas_->setRGB();
     sequenceChange( 0 );
+}
+
+
+void uiColorTableMan::reDraw( CallBacker* )
+{
+    ctabcanvas_->setRGB();
 }
 
 

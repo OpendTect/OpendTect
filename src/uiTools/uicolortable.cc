@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.29 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.30 2008-11-26 06:59:15 cvssatyaki Exp $";
 #include "uicolortable.h"
 
 #include "bufstringset.h"
@@ -61,13 +61,11 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool ve
     canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
+    canvas_->setPrefHeight( vert ? 160 : 25 );
+    canvas_->setPrefWidth( vert ? 30 : 80 );
+    canvas_->setStretch( 0, 0 );
+    canvas_->reSize.notify( mCB(this,uiColorTable,canvasreDraw) );
     canvas_->setDrawArr( true );
-    if ( !vert )
-    {
-	canvas_->setPrefHeight( vert ? 160 : 25 );
-	canvas_->setPrefWidth( vert ? 30 : 80 );
-	canvas_->setStretch( 0, 0 );
-    }
 
     maxfld_ = new uiLineEdit( this, "Max" );
     maxfld_->setHSzPol( uiObject::Small );
@@ -107,6 +105,9 @@ uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
 {
     ColTab::SM().get( ctnm, coltabseq_ );
     canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
+    canvas_->setPrefHeight( vert ? 160 : 25 );
+    canvas_->setPrefWidth( vert ? 30 : 80 );
+    canvas_->setStretch( 0, 0 );
 
     selfld_ = new uiComboBox( this, "Table selection" );
     selfld_->attach( vert ? alignedBelow : rightOf, canvas_ );
@@ -187,6 +188,12 @@ void uiColorTable::setSequence( const ColTab::Sequence* ctseq, bool edit,
     }
 
     selfld_->setSensitive( ctseq && edit );
+}
+
+
+void uiColorTable::canvasreDraw( CallBacker* )
+{
+    canvas_->setRGB();
 }
 
 

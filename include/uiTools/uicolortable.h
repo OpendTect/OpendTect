@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.12 2008-11-04 23:08:37 cvskris Exp $
+ RCS:           $Id: uicolortable.h,v 1.13 2008-11-26 06:59:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ class uiComboBox;
 class uiLineEdit;
 
 namespace ColTab { class Sequence; class MapperSetup; }
-//namespace FlatView { class DataDispPars::VD; }
 
 class uiColorTable : public uiGroup
 {
@@ -68,6 +67,7 @@ protected:
     uiComboBox*		selfld_;
 
     void		updateRgFld();
+    void		canvasreDraw(CallBacker*);
     void		canvasClick(CallBacker*);
     void		tabSel(CallBacker*);
     void		tableAdded(CallBacker*);

@@ -7,7 +7,7 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.12 2008-11-26 06:59:15 cvssatyaki Exp $";
 
 #include "uicoltabtools.h"
 #include "uicanvas.h"
@@ -31,7 +31,6 @@ uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
 {
     setBackgroundQpaque( withalpha );
     setRGB();
-    reSize.notify( mCB(this,uiRGBArrayCanvas,reDraw) );
 }
 
 
@@ -45,11 +44,6 @@ uiRGBArray& uiColorTableCanvas::mkRGBArr( bool withalpha )
 {
     rgbarr_ = new uiRGBArray( withalpha );
     return *rgbarr_;
-}
-
-void uiColorTableCanvas::reDraw( CallBacker* )
-{
-    setRGB();
 }
 
 

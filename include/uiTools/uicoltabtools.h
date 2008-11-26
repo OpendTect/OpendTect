@@ -23,7 +23,6 @@ protected:
     bool			vertical_;
     const ColTab::Sequence&	ctseq_;
     uiRGBArray*			rgbarr_;
-    void			reDraw(CallBacker*);
 
     uiRGBArray&			mkRGBArr(bool wa);
 };
