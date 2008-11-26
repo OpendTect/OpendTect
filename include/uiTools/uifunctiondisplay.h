@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.11 2008-10-27 11:13:07 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.12 2008-11-26 07:02:01 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,10 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "draw.h"
 class uiGraphicsScene;
+class uiGraphicsItem;
 class uiAxisHandler;
 class uiPolygonItem;
+class uiPolyLineItem;
 class uiGraphicsItemGroup;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
@@ -112,8 +114,12 @@ protected:
     uiAxisHandler*		xax_;
     uiAxisHandler*		yax_;
     uiAxisHandler*		y2ax_;
-    uiPolygonItem*		ypolyitem_;
-    uiPolygonItem*		y2polyitem_;
+    uiGraphicsItem*		ypolyitem_;
+    uiGraphicsItem*		y2polyitem_;
+    uiPolygonItem*		ypolygonitem_;
+    uiPolygonItem*		y2polygonitem_;
+    uiPolyLineItem*		ypolylineitem_;
+    uiPolyLineItem*		y2polylineitem_;
     uiGraphicsItemGroup*	markeritems_;
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.20 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.21 2008-11-26 07:02:01 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -29,6 +29,10 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , selpt_(0)
     , ypolyitem_(0)
     , y2polyitem_(0)
+    , ypolygonitem_(0)
+    , y2polygonitem_(0)
+    , ypolylineitem_(0)
+    , y2polylineitem_(0)
     , markeritems_(0)
     , pointSelected(this)
     , pointChanged(this)
@@ -245,23 +249,51 @@ void uiFunctionDisplay::draw()
 
     if ( havey2 )
     {
-	if ( !y2polyitem_ )
-	    y2polyitem_ = scene().addPolygon( y2ptlist, setup_.fillbelowy2_ );
+	if ( setup_.fillbelowy2_ )
+	{
+	    if ( !y2polygonitem_ )
+		y2polygonitem_ = scene().addPolygon( y2ptlist,
+						     setup_.fillbelowy2_ );
+	    else
+		y2polygonitem_->setPolygon( y2ptlist );
+	    y2polygonitem_->setFillColor( setup_.fillbelowy2_ ? setup_.y2col_ :
+							        Color::NoColor);
+	    y2polyitem_ = y2polygonitem_;
+	}
 	else
-	    y2polyitem_->setPolygon( y2ptlist );
+	{
+	    if ( !y2polylineitem_ )
+		y2polylineitem_ = scene().addPolyLine( y2ptlist );
+	    else
+		y2polylineitem_->setPolyLine( y2ptlist );
+	    y2polyitem_ = y2polylineitem_;
+	}
+
 	y2polyitem_->setPenColor( setup_.y2col_ );
-	y2polyitem_->setFillColor( setup_.fillbelowy2_ ? setup_.y2col_ :
-						        Color::NoColor );
 	y2polyitem_->setZValue( 0 );
     }
+    {
+	if ( setup_.fillbelow_ )
+	{
+	    if ( !ypolygonitem_ )
+		ypolygonitem_ = scene().addPolygon( y2ptlist,
+						     setup_.fillbelow_ );
+	    else
+		ypolygonitem_->setPolygon( yptlist );
+	    ypolygonitem_->setFillColor( setup_.ycol_ );
+	    ypolyitem_ = ypolygonitem_;
+	}
+	else
+	{
+	    if ( !ypolylineitem_ )
+		ypolylineitem_ = scene().addPolyLine( y2ptlist );
+	    else
+		ypolylineitem_->setPolyLine( yptlist );
+	    ypolyitem_ = ypolylineitem_;
+	}
+    }
 
-    if ( !ypolyitem_ )
-	ypolyitem_ = scene().addPolygon( yptlist, setup_.fillbelowy2_ );
-    else
-	ypolyitem_->setPolygon( yptlist );
     ypolyitem_->setPenColor( setup_.ycol_ );
-    if ( setup_.fillbelow_ )
-	ypolyitem_->setFillColor( setup_.ycol_ );
     ypolyitem_->setZValue( 1 );
     if ( setup_.pointsz_ > 0 )
     {

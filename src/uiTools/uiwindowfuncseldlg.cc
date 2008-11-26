@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.12 2008-11-26 07:02:01 cvssatyaki Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -63,7 +63,6 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     view_->setPrefWidth( mTransWidth );
     view_->setStretch(0,0);
     view_->attach( rightOf, taperlistfld_ );
-    //canvas_->postDraw.notify( mCB(this,uiWindowFuncSelDlg,reDraw) );
     taperlistfld_->selectionChanged.notify( 
 	mCB(this,uiWindowFuncSelDlg,taperSelChg) );
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
@@ -127,8 +126,8 @@ void uiWindowFuncSelDlg::createLine(const WindowFunction& winfunc,bool replace)
 
 void uiWindowFuncSelDlg::draw()
 {
-    xax_->setNewDevSize( mTransWidth, mTransHeight );
-    yax_->setNewDevSize( mTransHeight, mTransWidth );
+    xax_->setNewDevSize( mTransWidth, mTransHeight + 7 );
+    yax_->setNewDevSize( mTransHeight + 7, mTransWidth );
     xax_->plotAxis();
     yax_->plotAxis();
     const int selsz = pointlistset_.size();
@@ -143,8 +142,8 @@ void uiWindowFuncSelDlg::draw()
     taperlistfld_->getSelectedItems( selecteditems );
     for ( int idx=0; idx<pointlistset_.size(); idx++ )
     {
-	uiPolygonItem* polyitem = new uiPolygonItem();
-	polyitem->setPolygon( pointlistset_[idx] );
+	uiPolyLineItem* polyitem = new uiPolyLineItem();
+	polyitem->setPolyLine( pointlistset_[idx] );
 	LineStyle ls;
 	ls.width_ = 2;
 	if ( selsz == 1 )
