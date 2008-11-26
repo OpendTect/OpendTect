@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: seisposkey.h,v 1.2 2008-11-26 12:50:46 cvsbert Exp $
+ RCS:		$Id: seisposkey.h,v 1.3 2008-11-26 14:43:46 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -62,6 +62,8 @@ public:
     inline float&	offset()		{ return offset_; }
     inline int&		inLine()		{ return binid_.inl; }
     inline int&		xLine()			{ return binid_.crl; }
+
+    static PosKey	undef()			{ return PosKey( mUdf(int) ); }
 
 protected:
 

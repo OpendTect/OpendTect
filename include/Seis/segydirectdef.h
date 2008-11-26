@@ -7,19 +7,21 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.7 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.8 2008-11-26 14:43:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seistype.h"
 #include "bufstring.h"
+namespace Seis { class PosIndexer; }
 
 
 namespace SEGY {
 
 class Scanner;
 class FileDataSet;
+class PosKeyList;
 
 
 class DirectDef
@@ -45,6 +47,8 @@ public:
 protected:
 
     const FileDataSet*	fds_;
+    SEGY::PosKeyList&	keylist_;
+    Seis::PosIndexer&	indexer_;
 
     int			curfidx_;
     mutable BufferString errmsg_;
