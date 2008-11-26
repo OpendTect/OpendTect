@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.32 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.33 2008-11-26 16:54:39 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: viswell.cc,v 1.32 2008-11-25 15:35:27 cvsbert E
 #include "survinfo.h"
 #include "iopar.h"
 #include "ranges.h"
+#include "undefval.h"
 #include "scaler.h"
 
 #include "SoPlaneWellLog.h"
@@ -92,8 +93,7 @@ Well::Well()
     lognmswitch->addChild( lognmright->getInventorNode() );
     lognmswitch->whichChild = 0;
 
-    log = new SoPlaneWellLog;
-    addChild( log );
+    setRepeat(0);
 }
 
 
@@ -119,6 +119,7 @@ Well::~Well()
     markernames->removeAll();
     removeChild( markernames->getInventorNode() );
     markernames->unRef();
+
 }
 
 
@@ -293,8 +294,11 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 
     float prevval = 0;
     const bool rev = range.start > range.stop;
-    log->setRevScale( rev, lognr );
-    log->clearLog( lognr );
+    for ( int i=0; i<log.size(); i++ )
+    {   
+        log[i]->setRevScale( rev, lognr );
+       // log[i]->clearLog( lognr );
+    }
     Interval<float> rg = range; rg.sort();
     LinScaler scaler( rg.start, 0, rg.stop, 100 );
     for ( int idx=0; idx<nrsamp; idx++ )
@@ -319,7 +323,13 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 	    val += 1;
 	    val = ::log( val );
 	}
-	log->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
+       
+
+    	for ( int i=0; i<log.size(); i++ )
+    	{   
+	    log[i]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z),
+				      val, lognr );
+	}
 	prevval = val;
     }
 
@@ -329,20 +339,124 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
 
 void Well::clearLog( int lognr )
 {
-    log->clearLog( lognr );
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->clearLog( lognr );
 }
+
+
+void Well::hideUnwantedLogs( int lognr, int rpt )
+{ 
+	for ( int i=rpt; i<log.size(); i++)
+        showOneLog(false, lognr, i);	
+}
+
+
+void Well::removeLog( const int rpt )
+{
+    int lz=log.size();
+
+    for ( int i=1; i<=lz-rpt; i++ )
+	{
+	    log[lz-i]->clearLog(1);
+	    log[lz-i]->clearLog(2);
+	    removeChild( log[lz-i] );
+	    log.remove( lz-i );
+	}
+}
+
+
+void Well::setRepeat( int rpt )
+{
+    if ( rpt < 0 || mIsUdf(rpt) ) rpt = 0; 
+    int lz=log.size();
+   
+    if (rpt > lz)   
+    {
+	for ( int i=lz; i<rpt; i++ )
+	{
+	    log += new SoPlaneWellLog;
+	    addChild( log[i] );
+	}
+    }
+}
+
+
+void Well::setOverlapp( float ovlap, int lognr )
+{
+    ovlap = 100 - ovlap;
+    if ( ovlap < 0.0 || mIsUdf(ovlap)  ) ovlap = 0.0;
+    if ( ovlap > 100.0 || mIsUdf(ovlap)  ) ovlap = 100.0;
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->setShift( i*ovlap, lognr );
+}
+
+
+void Well::setLogFill( bool fill, int lognr )
+{
+    if ( log.size() > 0 )
+    log[0]->setLogFill( fill, lognr );
+}
+
+
+void Well::setLogStyle( bool style, int lognr )
+{
+    for ( int i=0; i<log.size(); i++ )
+	    log[i]->setLogStyle( (1-style), lognr );
+}
+
 
 void Well::setLogColor( const Color& col, int lognr )
 {
 #define col2f(rgb) float(col.rgb())/255
-    log->setLineColor( SbVec3f(col2f(r),col2f(g),col2f(b)), lognr );
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->setLineColor( SbVec3f(col2f(r),col2f(g),col2f(b)), lognr );
 }
 
 
 const Color& Well::logColor( int lognr ) const
 {
     static Color color;
-    const SbVec3f& col = log->lineColor( lognr );
+    const SbVec3f& col = log[0]->lineColor( lognr );
+    const int r = mNINT(col[0]*255);
+    const int g = mNINT(col[1]*255);
+    const int b = mNINT(col[2]*255);
+    color.set( (unsigned char)r, (unsigned char)g, (unsigned char)b );
+    return color;
+}
+
+
+void Well::setLogFillColor( const Color& col, int lognr )
+{
+#define col2f(rgb) float(col.rgb())/255
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->setLogFillColor( SbVec3f(col2f(r),col2f(g),col2f(b)), lognr );
+}
+
+
+const Color& Well::logFillColor( int lognr ) const
+{
+    static Color color;
+    const SbVec3f& col = log[0]->logFillColor( lognr );
+    const int r = mNINT(col[0]*255);
+    const int g = mNINT(col[1]*255);
+    const int b = mNINT(col[2]*255);
+    color.set( (unsigned char)r, (unsigned char)g, (unsigned char)b );
+    return color;
+}
+
+
+void Well::setSeisFillColor( const Color& col, int lognr )
+{
+#define col2f(rgb) float(col.rgb())/255
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->setSeisFillColor( SbVec3f(col2f(r),col2f(g),col2f(b)), lognr );
+}
+
+
+const Color& Well::seisFillColor( int lognr ) const
+{
+    static Color color;
+    const SbVec3f& col = log[0]->seisFillColor( lognr );
     const int r = mNINT(col[0]*255);
     const int g = mNINT(col[1]*255);
     const int b = mNINT(col[2]*255);
@@ -353,43 +467,55 @@ const Color& Well::logColor( int lognr ) const
 
 void Well::setLogLineWidth( float width, int lognr )
 {
-    log->setLineWidth( width, lognr );
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->setLineWidth( width, lognr );
 }
 
 
 float Well::logLineWidth( int lognr ) const
 {
-    return log->lineWidth( lognr );
+        return log[0]->lineWidth( lognr );
 }
 
 
 void Well::setLogWidth( int width )
 {
-    log->screenWidth.setValue( (float)width );
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->screenWidth.setValue( (float)width );
 }
 
 
 int Well::logWidth() const
 {
-    return mNINT(log->screenWidth.getValue());
+       return mNINT(log[0]->screenWidth.getValue());
 }
 
 
 void Well::showLogs( bool yn )
 {
-    log->showLog( yn, 1 );
-    log->showLog( yn, 2 );
+    for ( int i=0; i<log.size(); i++ )
+    {
+        log[i]->showLog( yn, 1 );
+        log[i]->showLog( yn, 2 );
+    }
 }
 
 void Well::showLog( bool yn, int lognr )
 {
-    log->showLog( yn, lognr );
+    for ( int i=0; i<log.size(); i++ )
+        log[i]->showLog( yn, lognr );
+}
+
+
+void Well::showOneLog( bool yn, int lognr, int i )
+{
+    log[i]->showLog( yn, lognr );
 }
 
 
 bool Well::logsShown() const
 {
-    return log->logShown( 1 ) || log->logShown( 2 );
+    return log.size() ? log[0]->logShown(1) || log[0]->logShown(2) : false;
 }
 
 

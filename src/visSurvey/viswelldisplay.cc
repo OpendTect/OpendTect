@@ -4,10 +4,11 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.76 2008-06-16 19:46:46 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.77 2008-11-26 16:54:39 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
+#include "dataclipper.h"
 #include "draw.h"
 #include "iopar.h"
 #include "executor.h"
@@ -38,16 +39,28 @@ mCreateFactoryEntry( visSurvey::WellDisplay );
 namespace visSurvey
 {
 
-const char* WellDisplay::sKeyEarthModelID = "EarthModel ID";
-const char* WellDisplay::sKeyWellID	 = "Well ID";
-const char* WellDisplay::sKeyLog1Name	 = "Logname 1";
-const char* WellDisplay::sKeyLog2Name	 = "Logname 2";
-const char* WellDisplay::sKeyLog1Range	 = "Logrange 1";
-const char* WellDisplay::sKeyLog2Range	 = "Logrange 2";
-const char* WellDisplay::sKeyLog1Scale	 = "Loglogsc 1";
-const char* WellDisplay::sKeyLog2Scale	 = "Loglogsc 2";
-const char* WellDisplay::sKeyLog1Color	 = "Logcolor 1";
-const char* WellDisplay::sKeyLog2Color	 = "Logcolor 2";
+const char* WellDisplay::sKeyEarthModelID      = "EarthModel ID";
+const char* WellDisplay::sKeyWellID	       = "Well ID";
+const char* WellDisplay::sKeyLog1Name	       = "Logname 1";
+const char* WellDisplay::sKeyLog2Name	       = "Logname 2";
+const char* WellDisplay::sKeyLog1Range	       = "Logrange 1";
+const char* WellDisplay::sKeyLog2Range	       = "Logrange 2";
+const char* WellDisplay::sKeyLog1Scale	       = "Loglogsc 1";
+const char* WellDisplay::sKeyLog2Scale	       = "Loglogsc 2";
+const char* WellDisplay::sKeyLog1Repeat	       = "Logrepeat 1";
+const char* WellDisplay::sKeyLog2Repeat	       = "Logrepeat 2";
+const char* WellDisplay::sKeyLog1Color	       = "Logcolor 1";
+const char* WellDisplay::sKeyLog2Color	       = "Logcolor 2";
+const char* WellDisplay::sKeyLog1FillColor     = "Logfillcolor 1";
+const char* WellDisplay::sKeyLog2FillColor     = "Logfillcolor 2";
+const char* WellDisplay::sKeyLog1SeisFillColor = "Seisfillcolor 1";
+const char* WellDisplay::sKeyLog2SeisFillColor = "Seisfillcolor 2";
+const char* WellDisplay::sKeyLog1Style	       = "Logstyle 1";
+const char* WellDisplay::sKeyLog2Style	       = "Logstyle 2";
+const char* WellDisplay::sKeyLog1Ovlap	       = "Logovlap 1";
+const char* WellDisplay::sKeyLog2Ovlap	       = "Logovlap 2";
+const char* WellDisplay::sKeyLog1Clip	       = "Cliprate 1";
+const char* WellDisplay::sKeyLog2Clip	       = "Cliprate 2";
 
 #define mMeter2Feet(val) \
    val /= 0.3048;
@@ -64,8 +77,9 @@ WellDisplay::WellDisplay()
     , picksallowed_(false)
     , group_(0)
     , pseudotrack_(0)
-    , logparset_( new Well::LogDisplayParSet() )
+    , logparset_(*new Well::LogDisplayParSet)
     , needsave_(false)
+    , onelogdisplayed_(false) 
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -80,7 +94,7 @@ WellDisplay::~WellDisplay()
     if ( transformation_ ) transformation_->unRef();
     if ( group_ )
 	removeChild( group_->getInventorNode() );
-    delete logparset_;
+    delete &logparset_;
 }
 
 
@@ -111,10 +125,10 @@ void WellDisplay::fullRedraw( CallBacker* )
     well_->setWellName( wd->name(), trackpos[0], trackpos[trackpos.size()-1] );
     updateMarkers(0);
 
-    if ( logparset_->getLeft()->getLogNm().size() )
+    if ( logparset_.getLeft()->name_.size() )
 	displayLeftLog();
 
-    if ( logparset_->getRight()->getLogNm().size())
+    if ( logparset_.getRight()->name_.size())
 	displayRightLog();
 }
 
@@ -238,25 +252,25 @@ mShowFunction( showWellBotName, wellBotNameShown )
 mShowFunction( showMarkers, markersShown )
 mShowFunction( showMarkerName, markerNameShown )
 mShowFunction( showLogName, logNameShown )
+     
 
-
-void WellDisplay::displayLog( int logidx, Interval<float>* range, 
-						bool logrthm, int lognr ) 
+void WellDisplay::createLogDisplay( int logidx, Interval<float>* range,
+			            bool logrthm, int lognr)
 {
+    if ( logidx < 0 ) { pErrMsg("Logidx < 0"); return;}
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
 
-    if ( logidx<0 )
-	return;
-    Well::Log& log = wd->logs().getLog(logidx);
-    const int logsz = log.size();
-    if ( !logsz ) return;
-
-    Well::Track& track = wd->track();
+    Well::Log& wl = wd->logs().getLog( logidx );
+    if ( wl.isEmpty() ) return;
+    const int logsz = wl.size();
+  
+    const Well::Track& track = wd->track();
     TypeSet<Coord3Value> crdvals;
+
     for ( int idx=0; idx<logsz; idx++ )
     {
-	const float dah = log.dah(idx);
+	const float dah = wl.dah(idx);
 	Coord3 pos = track.getPos( dah );
 	if ( !pos.x && !pos.y && !pos.z ) continue;
 
@@ -264,72 +278,132 @@ void WellDisplay::displayLog( int logidx, Interval<float>* range,
 	    pos.z = wd->d2TModel()->getTime( dah );
 	else if ( zinfeet_ )
 	    mMeter2Feet(pos.z)
-
-	Coord3Value cv( pos, log.value(idx) );
+	
+	Coord3Value cv( pos, wl.value(idx) );
 	crdvals += cv;
-    }
+     }
 
-    const Interval<float> selrange( Interval<float>().setFrom(
-		range ? *range : log.selValueRange() ) );
+    Interval<float> selrange( Interval<float>().setFrom(
+		range ? *range : wl.selValueRange() ) );
     if ( !range )
-	logrthm = log.dispLogarithmic();
-    well_->setLogData( crdvals, log.name(), selrange, logrthm, lognr );
-    
+	logrthm = wl.dispLogarithmic();
+   
+    well_->setLogData( crdvals, wl.name(), selrange, logrthm, lognr );
 }
 
 
-void WellDisplay::displayLog( const BufferString lognm, bool logarthm,
-			      const Interval<float>& range, int lognr )
+void WellDisplay::displayLog( const BufferString lognm, bool logrthm,
+		        	  Interval<float>& range, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
 
     int logidx = wd->logs().indexOf( lognm );
-
     if ( logidx < 0 ) return; // TODO: errmsg
    
     mDeclareAndTryAlloc( Interval<float>*, rgptr, Interval<float>( range ) );
-    displayLog( logidx, rgptr, logarthm, lognr );
+    createLogDisplay( lognr, rgptr, logidx, logrthm );
 }
 
 
-void WellDisplay::displayLog( Well::LogDisplayPars* logpar, int lognr )
+void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
     
-    const int logidx = wd->logs().indexOf( logpar->getLogNm() );
+    const int logidx = wd->logs().indexOf( dp.name_ );
     if( logidx<0 )
     {
 	well_->clearLog( lognr );
 	well_->showLog( false, lognr );
 	return;
     }
+    Well::Log& wl = wd->logs().getLog( logidx );
+    
+    if ( !onelogdisplayed_ ) well_->removeLog( dp.repeat_ );
+    well_->setRepeat( dp.repeat_ );
+    well_->setOverlapp( dp.repeatovlap_, lognr );
+    well_->setLogStyle( dp.seisstyle_, lognr );
+    well_->setLogFill( dp.logfill_, lognr );
+    mDeclareAndTryAlloc( Interval<float>*,rgptr,
+	    		 Interval<float>( dp.range_ ) );
+    if (dp.nocliprate_ == false)
+	getClippedRange( dp.cliprate_, rgptr, wl );
+    createLogDisplay( logidx, rgptr, dp.logarithmic_, lognr );
+    dp.range_ =  *rgptr;
+    setLogColor( dp.linecolor_, lognr );
+    setSeisFillColor( dp.seisfillcolor_, lognr );
+    well_->showLog( true, lognr );
+    if ( onelogdisplayed_ ) well_->hideUnwantedLogs( lognr, dp.repeat_ );
+    setOneLogDisplayed(true);	
+}
 
-    mDeclareAndTryAlloc( Interval<float>*, rgptr,
-	    		 Interval<float>( logpar->getRange() ) );
-    displayLog( logidx, rgptr, logpar->getLogScale(), lognr );
-    setLogColor( logpar->getColor(), lognr );
+
+void WellDisplay::getClippedRange(float cliprate, Interval<float>* range, Well::Log& wl )
+{
+    int logsz=wl.size();
+    DataClipper dataclipper;
+    dataclipper.setApproxNrValues( logsz );
+    dataclipper.putData( wl.valArr(), logsz );
+    dataclipper.calculateRange( cliprate, *range );
+}
+
+
+void WellDisplay::displayRightLog()
+{
+    setLogDisplay( *logparset_.getRight(), 2 ); 
 }
 
 
 void WellDisplay::displayLeftLog()
-{ displayLog( logparset_->getLeft(), 1 ); }
+{   
+    setLogDisplay( *logparset_.getLeft(), 1 ); 
+}
 
-void WellDisplay::displayRightLog()
-{ displayLog( logparset_->getRight(), 2 ); }
+
+void WellDisplay::setOneLogDisplayed(bool yn)
+{
+    onelogdisplayed_ = yn; 
+}
+
 
 void WellDisplay::setLogColor( const Color& col, int lognr )
 {
-    Well::LogDisplayPars* par = lognr==1 ? logparset_->getLeft()
-					 : logparset_->getRight();
-    if ( par ) par->setColor( col );
-    well_->setLogColor( col, lognr );
+    Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
+					 : logparset_.getRight();
+    Color color = par ? par->linecolor_ : col;
+    well_->setLogColor( color, lognr );
 }
 
 
 const Color& WellDisplay::logColor( int lognr ) const
 { return well_->logColor( lognr ); }
+
+
+void WellDisplay::setLogFillColor( const Color& col, int lognr )
+{
+    Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
+					 : logparset_.getRight();
+    Color color = par ? par->logfillcolor_ : col;
+    well_->setLogFillColor( color, lognr );
+}
+
+
+const Color& WellDisplay::logFillColor( int lognr ) const
+{ return well_->logFillColor( lognr ); }
+
+
+void WellDisplay::setSeisFillColor( const Color& col, int lognr )
+{
+    Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
+					 : logparset_.getRight();
+    Color color = par ? par->seisfillcolor_ : col;
+    well_->setSeisFillColor( color, lognr );
+}
+
+
+const Color& WellDisplay::seisFillColor( int lognr ) const
+{ return well_->seisFillColor( lognr ); }
 
 
 void WellDisplay::setLogLineWidth( float width, int lognr )
@@ -347,15 +421,17 @@ void WellDisplay::setLogWidth( int width )
 int WellDisplay::logWidth() const
 { return well_->logWidth(); }
 
+
 bool WellDisplay::logsShown() const
 {
     return well_->logsShown();
 }
 
+
 void WellDisplay::showLogs( bool yn )
 {
-    well_->showLog( yn && !(logparset_->getLeft()->getLogNm()=="None"), 1);
-    well_->showLog( yn && !(logparset_->getRight()->getLogNm()=="None"), 2);
+    well_->showLog( yn && !(logparset_.getLeft()->name_="None"), 1);
+    well_->showLog( yn && !(logparset_.getRight()->name_="None"), 2);
 }
 
 
@@ -396,14 +472,6 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyWellID, viswellid );
     if ( saveids.indexOf(viswellid) == -1 ) saveids += viswellid;
     
-    par.set( sKeyLog1Name, logparset_->getLeft()->getLogNm() ); 
-    par.set( sKeyLog2Name, logparset_->getRight()->getLogNm() ); 
-    par.set( sKeyLog1Range, logparset_->getLeft()->getRange() ); 
-    par.set( sKeyLog2Range, logparset_->getRight()->getRange() ); 
-    par.setYN( sKeyLog1Scale, logparset_->getLeft()->getLogScale() ); 
-    par.setYN( sKeyLog2Scale, logparset_->getRight()->getLogScale() ); 
-    par.set( sKeyLog1Color, logparset_->getLeft()->getColor() ); 
-    par.set( sKeyLog2Color, logparset_->getRight()->getColor() );
     fillSOPar( par );
 }
 
@@ -441,25 +509,7 @@ int WellDisplay::usePar( const IOPar& par )
     Color col;
     Interval<float> rg;
     bool logsc;
-
-    par.get( sKeyLog1Name, logname ); 
-    logparset_->getLeft()->setLogNm(logname); 
-    par.get( sKeyLog1Range, rg ); 
-    logparset_->getLeft()->setRange(rg); 
-    par.getYN( sKeyLog1Scale, logsc ); 
-    logparset_->getLeft()->setLogScale(logsc); 
-    par.get( sKeyLog1Color, col ); 
-    logparset_->getLeft()->setColor(col); 
-    					  
-    par.get( sKeyLog2Name, logname ); 
-    logparset_->getRight()->setLogNm(logname); 
-    par.get( sKeyLog2Range, rg ); 
-    logparset_->getRight()->setRange(rg); 
-    par.getYN( sKeyLog2Scale, logsc ); 
-    logparset_->getRight()->setLogScale(logsc); 
-    par.get( sKeyLog2Color, col ); 
-    logparset_->getRight()->setColor(col); 
-
+    bool stl;
     displayLeftLog();
     displayRightLog();
 

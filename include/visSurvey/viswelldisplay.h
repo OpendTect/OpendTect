@@ -7,8 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.41 2007-10-04 12:02:05 cvsnanne Exp $
-________________________________________________________________________
+ RCS:		$Id: viswelldisplay.h,v 1.42 2008-11-26 16:54:39 cvsbruno Exp $
+
 
 
 -*/
@@ -28,9 +28,15 @@ namespace visBase
     class EventInfo;
     class Transformation;
     class Well;
-};
+}
 
-namespace Well { class Data; class Track; class LogDisplayPars; class LogDisplayParSet; }
+namespace Well
+{
+    class Data;
+    class Track;
+    class LogDisplayPars;
+    class LogDisplayParSet;
+}
 
 namespace visSurvey
 {
@@ -69,16 +75,24 @@ public:
     bool			markerNameShown() const;
     void			setMarkerScreenSize(int);
     int				markerScreenSize() const;
-
-    void			displayLog(int,Interval<float>*,bool,int);
-    void			displayLog(const BufferString,bool,
-	    				   const Interval<float>&,int nr);
+    
+    void			createLogDisplay(int,Interval<float>*,bool,int);
+    void			setLogDisplay(Well::LogDisplayPars&,int);
+    void			displayLog(const BufferString, bool,
+	    				       Interval<float>&,int nr);
+    void			getClippedRange(float,Interval<float>*,Well::Log&);
     void			displayRightLog();
     void			displayLeftLog();
-    Well::LogDisplayParSet*	getLogParSet() const	{ return logparset_; }
+    Well::LogDisplayParSet*	getLogParSet() const	{ return &logparset_; }
 
+    void			setOneLogDisplayed(bool);
+    	
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
+    void			setLogFillColor(const Color&,int);
+    const Color&		logFillColor(int) const;
+    void			setSeisFillColor(const Color&,int);
+    const Color&		seisFillColor(int) const;
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
     void			setLogWidth(int);
@@ -88,7 +102,7 @@ public:
     void			showLogName(bool);
     bool			logNameShown() const;
     const char*			logName(bool left) const
-				{return left ? logparset_->getLeft()->getLogNm()					: logparset_->getRight()->getLogNm();}
+				{return left ? logparset_.getLeft()->name_					: logparset_.getRight()->name_;}
 
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					const Coord3&,BufferString& val,
@@ -129,7 +143,9 @@ protected:
     const bool			zistime_;
     const bool			zinfeet_;
 
-    Well::LogDisplayParSet*	logparset_;
+    bool			onelogdisplayed_;
+
+    Well::LogDisplayParSet&	logparset_;
 
     visBase::DataObjectGroup*	group_;
     visBase::EventCatcher*	eventcatcher_;
@@ -143,17 +159,29 @@ protected:
 
     bool			picksallowed_;
     bool			needsave_;
-
+    
     static const char*		sKeyEarthModelID;
     static const char*		sKeyWellID;
     static const char*		sKeyLog1Name;
     static const char*		sKeyLog1Range;
     static const char*		sKeyLog1Scale;
+    static const char*		sKeyLog1Repeat;
+    static const char*		sKeyLog1Ovlap;
+    static const char*		sKeyLog1Clip;
+    static const char*		sKeyLog1Style;
     static const char*		sKeyLog1Color;
+    static const char*		sKeyLog1FillColor;
+    static const char*		sKeyLog1SeisFillColor;
     static const char*		sKeyLog2Name;
     static const char*		sKeyLog2Range;
+    static const char*		sKeyLog2Repeat;
+    static const char*		sKeyLog2Ovlap;
+    static const char*		sKeyLog2Clip;
     static const char*		sKeyLog2Scale;
+    static const char*		sKeyLog2Style;
     static const char*		sKeyLog2Color;
+    static const char*		sKeyLog2FillColor;
+    static const char*		sKeyLog2SeisFillColor;
 };
 
 };

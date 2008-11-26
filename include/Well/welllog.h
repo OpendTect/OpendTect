@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.14 2007-05-03 11:26:38 cvsraman Exp $
+ RCS:		$Id: welllog.h,v 1.15 2008-11-26 16:54:39 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -41,15 +41,18 @@ public:
     void		ensureAscZ();
     			// Do this after adding values when Z may be reversed
 
-    const Interval<float>& valueRange() const		{ return range_; }
+    Interval<float>& valueRange() 			{ return range_; }
     void		setSelValueRange(const Interval<float>&);
-    const Interval<float>& selValueRange() const	{ return selrange_; }
+    Interval<float>& selValueRange() 			{ return selrange_; }
     bool		dispLogarithmic() const		{ return displogrthm_; }
     void		setDispLogarithmic( bool yn )	{ displogrthm_ = yn; }
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
     static const char*	sKeyUnitLbl;
+
+    float*		valArr()			{ return val_.arr(); }
+    const float*	valArr() const			{ return val_.arr(); }
 
 protected:
 
@@ -68,32 +71,34 @@ protected:
 class LogDisplayPars
 {
 public:
-			LogDisplayPars( BufferString nm,
-					const Interval<float>& rg, 
-					bool logsc )
-			    : lognm_(nm)
-			    , logrange_(rg)
-			    , logscale_(logsc)
-			    , logcolor_(Color::White)	{}
-			LogDisplayPars() {}
-			~LogDisplayPars() {}
+			LogDisplayPars( const char* nm=0 )
+			    : name_(nm)
+ 			    , cliprate_(mUdf(float))
+			    , range_(mUdf(float),mUdf(float))
+			    , nocliprate_(false)	
+			    , logarithmic_(false)
+			    , repeat_(1)	
+			    , repeatovlap_(mUdf(float))
+			    , seisstyle_(false)	
+			    , linecolor_(Color::White)	
+			    , seisfillcolor_(Color::White)
+			    , logfill_(false)
+	    		    , logfillcolor_(Color::White)
+						        {}
+			~LogDisplayPars()		{}
 
-    void		setLogNm( const char* nm )	{ lognm_ = nm; }
-    void		setRange( const Interval<float>& rg )
-    				{ logrange_ = rg; }
-    void		setLogScale( bool ls )	{ logscale_ = ls; }
-    void		setColor( const Color& col )	
-				{ logcolor_.setRgb( col.rgb() ); }
-    BufferString	getLogNm() const	{ return lognm_; }
-    Interval<float>	getRange() const	{ return logrange_; }
-    bool		getLogScale() const	{ return logscale_; }
-    Color		getColor() const	{ return logcolor_; }
-
-protected:
-    BufferString	lognm_;
-    Interval<float>	logrange_;
-    bool		logscale_;
-    Color		logcolor_;
+    BufferString	name_;
+    float		cliprate_;	//!< If undef, use range_
+    Interval<float>	range_;		//!< If cliprate_ set, filled using it
+    bool		logarithmic_;
+    bool		seisstyle_;
+    bool		nocliprate_;
+    bool		logfill_;
+    int 		repeat_;
+    float		repeatovlap_;
+    Color		linecolor_;
+    Color		seisfillcolor_;
+    Color		logfillcolor_;
 };
 
 
@@ -104,10 +109,8 @@ public:
 			{
 			    Interval<float> lrg( 0, 0 );
 			    Interval<float> rrg( 0, 0 );
-			    leftlogpar_ = new LogDisplayPars( "None", lrg,
-							false );
-			    rightlogpar_ = new LogDisplayPars( "None", rrg,
-							false );  
+			    leftlogpar_ = new LogDisplayPars( "None" );
+			    rightlogpar_ = new LogDisplayPars( "None" );
 			}
 			~LogDisplayParSet()  
 			{

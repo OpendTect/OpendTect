@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.17 2007-05-14 12:06:53 cvsraman Exp $
+ RCS:           $Id: viswell.h,v 1.18 2008-11-26 16:54:39 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,10 @@ public:
 					   bool scale,int nr);
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
+    void			setLogFillColor(const Color&,int);
+    const Color&		logFillColor(int) const;
+    void			setSeisFillColor(const Color&,int);
+    const Color&		seisFillColor(int) const;
     void			clearLog(int);
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
@@ -80,7 +84,14 @@ public:
     void			showLog(bool,int);
     bool			logsShown() const;
     void			showLogName(bool);
-    bool			logNameShown() const;
+    bool			logNameShown() const; 
+    void			setLogStyle(bool,int);
+    void			setLogFill(bool,int);
+    void			setOverlapp(float,int);
+    void			setRepeat(int);
+    void			removeLog(const int);
+    void			hideUnwantedLogs(int,int);
+    void			showOneLog(bool,int,int);
 
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
@@ -101,6 +112,7 @@ public:
 protected:
     				~Well();
 
+
     PolyLine*			track;
     DrawStyle*			drawstyle;
     Text2*			welltoptxt;
@@ -111,7 +123,7 @@ protected:
     SoSwitch*			lognmswitch;
     Text2*			lognmleft;
     Text2*			lognmright;
-    SoPlaneWellLog*		log;
+    ObjectSet<SoPlaneWellLog>	log;
     Transformation*		transformation;
 
     bool			showmarkers;
