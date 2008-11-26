@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.4 2008-10-27 10:41:42 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.5 2008-11-26 06:13:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ class QGraphicsPixmapItem;
 class QGraphicsPolygonItem;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
+class ODGraphicsPolyLineItem;
 
 class ODGraphicsArrowItem;
 class ODGraphicsMarkerItem;
@@ -104,13 +105,31 @@ public:
 
     QGraphicsPolygonItem* qPolygonItem()	{ return qpolygonitem_; }
     void		fill();
-    void		setPolygon(const TypeSet<uiPoint>&);
+    void		setPolygon(const TypeSet<uiPoint>&,bool polyline=false);
 
 protected:
 
     QGraphicsItem*	mkQtObj();
     QGraphicsPolygonItem* qpolygonitem_;
 };
+
+
+class uiPolyLineItem : public uiGraphicsItem
+{
+public:
+    				uiPolyLineItem();
+				~uiPolyLineItem();
+
+    ODGraphicsPolyLineItem* 	qPolyLineItem()
+    				{ return qpolylineitem_; }
+    void			setPolyLine(const TypeSet<uiPoint>&);
+
+protected:
+
+    QGraphicsItem*		mkQtObj();
+    ODGraphicsPolyLineItem*	qpolylineitem_;
+};
+
 
 
 class uiRectItem : public uiGraphicsItem

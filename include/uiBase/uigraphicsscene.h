@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.9 2008-11-14 04:31:45 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.10 2008-11-26 06:13:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ class uiMarkerItem;
 class uiPixmapItem;
 class uiPointItem;
 class uiPolygonItem;
+class uiPolyLineItem;
 class uiRect;
 class uiRectItem;
 class uiTextItem;
@@ -68,6 +69,7 @@ public:
     uiLineItem*	                addLine(const uiPoint& pt1,const uiPoint& pt2);
     uiLineItem*        	        addLine(const uiPoint&,double angle,double len);
     uiPolygonItem*		addPolygon(const TypeSet<uiPoint>&,bool fill);
+    uiPolyLineItem*		addPolyLine(const TypeSet<uiPoint>&);
     uiPointItem*		addPoint(bool);
     uiMarkerItem*       	addMarker(const MarkerStyle2D&,int side=0);
 

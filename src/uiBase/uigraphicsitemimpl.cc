@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.7 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.8 2008-11-26 06:13:35 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -176,12 +176,42 @@ void uiPolygonItem::fill()
 }
 
 
-void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist )
+void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist, bool polyline )
 {
     QPolygon qpolygon( ptlist.size() );
     for ( int idx=0; idx<ptlist.size(); idx++ )
 	qpolygon.setPoint( (unsigned int)idx, ptlist[idx].x, ptlist[idx].y );
-    qpolygonitem_->setPolygon( QPolygonF(qpolygon) );
+    QPolygonF qpolygonf(qpolygon);
+    //if ( polyline )
+	//qpolygonf.replace( qpolygonf.size(), 0 ); 
+    qpolygonitem_->setPolygon( qpolygonf );
+}
+
+
+uiPolyLineItem::uiPolyLineItem()
+    : uiGraphicsItem(mkQtObj())
+{}
+
+
+uiPolyLineItem::~uiPolyLineItem()
+{
+    delete qpolylineitem_;
+}
+
+
+void uiPolyLineItem::setPolyLine( const TypeSet<uiPoint>& ptlist )
+{
+    QPolygon qpolygon( ptlist.size() );
+    for ( int idx=0; idx<ptlist.size(); idx++ )
+	qpolygon.setPoint( (unsigned int)idx, ptlist[idx].x, ptlist[idx].y );
+    qpolylineitem_->setPolyLine( qpolygon );
+}
+
+
+QGraphicsItem* uiPolyLineItem::mkQtObj()
+{
+    qpolylineitem_ = new ODGraphicsPolyLineItem();
+    return qpolylineitem_;
 }
 
 

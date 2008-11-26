@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.6 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.7 2008-11-26 06:13:35 cvssatyaki Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -40,6 +40,7 @@ void ODGraphicsPointItem::paint( QPainter* painter,
 				 QWidget *widget )
 {
     painter->setClipRect( option->exposedRect );
+    painter->setPen( pen() );
     drawPoint( painter );
 
     if ( option->state & QStyle::State_Selected )
@@ -160,6 +161,7 @@ void ODGraphicsArrowItem::paint( QPainter* painter,
 				 QWidget* widget )
 {
     painter->setClipRect( option->exposedRect );
+    painter->setPen( pen() );
     drawArrow( *painter );
 
     if (option->state & QStyle::State_Selected)
@@ -335,4 +337,19 @@ void ODGraphicsPixmapItem::paint( QPainter* painter,
 {
     painter->setClipRect( option->exposedRect );
     QGraphicsPixmapItem::paint( painter, option, widget );
+}
+
+
+QRectF ODGraphicsPolyLineItem::boundingRect() const
+{
+    return qpolygon_.boundingRect();
+}
+
+
+void ODGraphicsPolyLineItem::paint( QPainter* painter,
+				  const QStyleOptionGraphicsItem* option,
+				  QWidget* widget )
+{
+    painter->setPen( pen() );
+    painter->drawPolyline( qpolygon_ );
 }

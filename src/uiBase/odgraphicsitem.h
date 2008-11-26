@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.5 2008-11-14 04:33:14 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.6 2008-11-26 06:13:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <QGraphicsItem>
+#include <QPolygon>
 
 #include "draw.h"
 
@@ -117,5 +118,19 @@ protected:
     QString*			text_;
     QTextOption*		alignoption_;
 };
+
+
+class ODGraphicsPolyLineItem : public QAbstractGraphicsShapeItem
+{
+public:
+    QRectF			boundingRect() const;
+    void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
+	    		              QWidget*);
+    void			setPolyLine( const QPolygon& polygon )
+    				{ qpolygon_ = polygon; }
+protected:
+    QPolygon			qpolygon_;
+};
+
 
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.11 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.12 2008-11-26 06:13:35 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -30,6 +30,7 @@ public:
     			ODGraphicsScene( uiGraphicsScene& scene )
 			    : uiscene_(scene)
 			    , bgopaque_(false)
+			    , mousepressedbs_(OD::NoButton)
 			    , startpos_( *new QPoint() )	{}
 
     void		setBackgroundOpaque( bool yn )	{ bgopaque_ = yn; }
@@ -40,6 +41,7 @@ protected:
     virtual void	mouseDoubleClickEvent(QGraphicsSceneMouseEvent*);
 
     virtual void	drawBackground(QPainter*,const QRectF&);
+    OD::ButtonState	mousepressedbs_;
 
 private:
 
@@ -60,8 +62,8 @@ void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 
 void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 {
-    OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
-    MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
+    MouseEvent mev( mousepressedbs_, (int)qev->scenePos().x(),
+	    	    (int)qev->scenePos().y() );
     uiscene_.getMouseEventHandler().triggerMovement( mev );
     QGraphicsScene::mouseMoveEvent( qev );
 }
@@ -72,6 +74,7 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     if ( bs == OD::LeftButton )
 	startpos_ = QPoint( (int)qev->scenePos().x(),(int)qev->scenePos().y() );
+    mousepressedbs_ = bs;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     uiscene_.getMouseEventHandler().triggerButtonPressed( mev );
     QGraphicsScene::mousePressEvent( qev );
@@ -81,6 +84,7 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
+    mousepressedbs_ = OD::NoButton;
     if ( bs == OD::LeftButton )
     {
 	const QPoint& stoppos = QPoint( (int)qev->scenePos().x(),
@@ -252,6 +256,14 @@ uiPolygonItem* uiGraphicsScene::addPolygon( const TypeSet<uiPoint>& pts,
 	uipolyitem->fill();
     items_ += uipolyitem;
     return uipolyitem;
+}
+
+uiPolyLineItem* uiGraphicsScene::addPolyLine( const TypeSet<uiPoint>& ptlist )
+{
+    uiPolyLineItem* polylineitem = new uiPolyLineItem();
+    polylineitem->setPolyLine( ptlist );
+    addItem( polylineitem );
+    return polylineitem;
 }
 
 
