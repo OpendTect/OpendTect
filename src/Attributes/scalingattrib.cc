@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.26 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.27 2008-11-26 09:56:00 cvsumesh Exp $";
 
 #include "scalingattrib.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: scalingattrib.cc,v 1.26 2008-11-25 15:35:22 cvs
 #include "attribparam.h"
 #include "attribparamgroup.h"
 #include "statruncalc.h"
+#include "survinfo.h"
 
 #define mStatsTypeRMS	0
 #define mStatsTypeMean	1
@@ -86,7 +87,7 @@ void Scaling::initClass()
     widthval->setLimits( Interval<float>(0,mUdf(float)) );
     desc->setParamEnabled( widthStr(), false );
     desc->addParam( widthval );
-    widthval->setDefaultValue(200 );
+    widthval->setDefaultValue( 200 );
 
     FloatParam* mutefractionval = new FloatParam( mutefractionStr() );
     mutefractionval->setLimits( Interval<float>(0,mUdf(float)) );
@@ -181,7 +182,8 @@ Scaling::Scaling( Desc& desc_ )
     }
     
     desgate_ = Interval<int>( -(1024-1), 1024-1 );
-    window_ = Interval<float>( -width_/2, width_/2 );
+    window_ = Interval<float>( -width_/(2*SI().zFactor()), 
+				width_/(2*SI().zFactor()) );
 }
 
 
@@ -331,10 +333,9 @@ void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
     agc.setOutput( outarr );
     agc.execute( false );
 
-    for ( int idx=0; idx<output.nrsamples_ 
-	  && idx<inputdata_->nrsamples_- (inputdata_->z0_ - output.z0_); idx++ )
-	setOutputValue( output, 0, idx, z0, 
-			outarr.get(idx+(inputdata_->z0_ - output.z0_)) );
+    const int shift = output.z0_ - inputdata_->z0_;
+    for ( int idx=0; idx<output.nrsamples_; idx++ )
+	setOutputValue( output, 0, idx, z0, outarr.get(idx+shift) );
 }
 
 

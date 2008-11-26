@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.18 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.19 2008-11-26 09:56:34 cvsumesh Exp $";
 
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
@@ -88,7 +88,8 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
     // for AGC
     BufferString label = "Window width ";
     label += SI().getZUnit( true );
-    windowfld = new uiGenInput( this, label.buf(), FloatInpSpec() );
+    // TODO: make default value dependent on survey type
+    windowfld = new uiGenInput( this, label.buf(), FloatInpSpec(200) );
     windowfld->attach( alignedBelow, typefld );
 
     lowenergymute = new uiGenInput( this, "Low energy mute (%)",
@@ -134,9 +135,9 @@ bool uiScalingAttrib::setParameters( const Desc& desc )
     mIfGetEnum( Scaling::statsTypeStr(), statstype, 
 	    			statsfld->setValue(statstype) );
     mIfGetFloat( Scaling::widthStr(), wndwidthval, 
-	    			windowfld->setValue(wndwidthval) );
+	    	 windowfld->setValue(wndwidthval) );
     mIfGetFloat( Scaling::mutefractionStr(), mutefactor,
-				lowenergymute->setValue(mutefactor) );    
+				lowenergymute->setValue(mutefactor*100));    
 
     table->clearTable();
 
@@ -196,7 +197,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     mSetFloat( Scaling::powervalStr(), nfld->getfValue() );
     mSetEnum( Scaling::statsTypeStr(), statsfld->getIntValue() );
     mSetFloat( Scaling::widthStr(), windowfld->getfValue() );
-    mSetFloat( Scaling::mutefractionStr(), lowenergymute->getfValue() );
+    mSetFloat( Scaling::mutefractionStr(), lowenergymute->getfValue()/100 );
 
     TypeSet<ZGate> tgs;
     TypeSet<float> factors;
