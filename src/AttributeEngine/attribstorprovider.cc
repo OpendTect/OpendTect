@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.79 2008-11-17 15:42:39 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.80 2008-11-26 13:36:45 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -546,6 +546,21 @@ bool StorageProvider::computeData( const DataHolder& output,
 	    				relpos.crl/bidstep.crl );
     if ( !trc )
 	return false;
+
+    if ( desc.is2D() && seldata_ && seldata_->type() == Seis::Table )
+    {
+	Interval<float> deszrg = desiredvolume->zrg;
+	Interval<float> poszrg = possiblevolume->zrg;
+	const float desonlyzrgstart = deszrg.start - poszrg.start;
+	const float desonlyzrgstop = deszrg.stop - poszrg.stop;
+	Interval<float> trcrange = trc->info().sampling.interval(trc->size());
+	const float diffstart = z0*refstep - trcrange.start;
+	const float diffstop = trcrange.stop - (z0+nrsamples-1)*refstep;
+	bool isdiffacceptable = ( diffstart>=0 || diffstart >= desonlyzrgstart )
+				&& diffstop > 0;
+	if ( !isdiffacceptable )
+	    return false;
+    }
 
     return fillDataHolderWithTrc( trc, output );
 }
