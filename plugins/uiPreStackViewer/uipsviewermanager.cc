@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.24 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.25 2008-11-26 07:03:59 cvssatyaki Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -346,6 +346,8 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer( BufferString title,
     vwr.setInitialSize( uiSize(pw,500) );  
     viewwin->addControl( new uiFlatViewStdControl( vwr,
 			 uiFlatViewStdControl::Setup().withstates(false) ) );
+    vwr.drawBitMaps();
+    vwr.drawAnnot();
     DPM(DataPackMgr::FlatID).release( dpid );
     return viewwin;
 }
