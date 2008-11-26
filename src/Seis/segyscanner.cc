@@ -1,10 +1,9 @@
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
- * DATE     : 21-1-1998
+ * DATE     : Oct 2008
 -*/
-
-static const char* rcsID = "$Id: segyscanner.cc,v 1.16 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.17 2008-11-26 12:50:46 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -32,6 +31,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.16 2008-11-25 15:35:22 cvsbe
     , forcerev0_(false) \
     , curfidx_(-1) \
     , msg_("Opening first file") \
+    , richinfo_(false) \
     , nrdone_(0) \
     , nrtrcs_(0)
 
@@ -158,11 +158,18 @@ int SEGY::Scanner::readNext()
     const SeisTrcInfo& ti = trc_.info();
     dtctor_.add( ti.coord, ti.binid, ti.nr, ti.offset );
 
-    SEGY::TraceInfo sgyti( geom_ );
-    sgyti.pos_= ti.posKey( geom_ );
-    sgyti.coord_ = ti.coord;
-    sgyti.null_ = trc_.isNull();
-    sgyti.usable_ = tr_->trcHeader().isusable;
+    SEGY::TraceInfo* sgyti = richinfo_ ? new SEGY::RichTraceInfo( geom_ )
+				       : new SEGY::TraceInfo( geom_ );
+    sgyti->pos_= ti.posKey( geom_ );
+    sgyti->usable_ = tr_->trcHeader().isusable;
+    if ( richinfo_ )
+    {
+	SEGY::RichTraceInfo* rti = static_cast<SEGY::RichTraceInfo*>( sgyti );
+	rti->coord_ = ti.coord;
+	rti->null_ = trc_.isNull();
+	if ( Seis::isPS(geom_) )
+	    rti->azimuth_ = ti.azimuth;
+    }
     fd += sgyti;
 
     nrdone_++;

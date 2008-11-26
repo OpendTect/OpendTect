@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.11 2008-11-13 11:33:21 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.12 2008-11-26 12:50:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ namespace SEGY
 {
 class FileDataSet;
 
+/*!\brief Scans SEG-Y file(s). For reports, you'd want to set rich info. */
 
 class Scanner : public Executor
 {
@@ -41,6 +42,7 @@ public:
     const IOPar&	pars() const		{ return pars_; }
     void		setMaxNrtraces( int n )	{ nrtrcs_ = n; }
     void		setForceRev0( bool yn )	{ forcerev0_ = yn; }
+    void		setRichInfo( bool yn )	{ richinfo_ = yn; }
 
     int			nextStep();
     const char*		message() const		{ return msg_.buf(); }
@@ -69,6 +71,7 @@ protected:
     SEGYSeisTrcTranslator* tr_;
     int			nrtrcs_;
     bool		forcerev0_;
+    bool		richinfo_;
 
     SeisTrc&		trc_;
     int			curfidx_;

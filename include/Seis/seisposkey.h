@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: seisposkey.h,v 1.1 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seisposkey.h,v 1.2 2008-11-26 12:50:46 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -34,11 +34,15 @@ public:
     inline bool		isPS() const		{ return !mIsUdf(offset_); }
     inline Seis::GeomType geomType() const	{ return geomTypeOf(
 	    						 is2D(),isPS()); }
+    inline bool		isUndef() const		{ return mIsUdf(binid_.crl); }
+    inline void		setUndef()		{ mSetUdf(binid_.crl); }
+
     inline const BinID&	binID() const		{ return binid_; }
     inline int		trcNr() const		{ return binid_.crl; }
     inline int		inLine() const		{ return binid_.inl; }
     inline int		xLine() const		{ return binid_.crl; }
     inline float	offset() const		{ return offset_; }
+    inline bool		hasOffset(float) const;
 
     inline void		setTrcNr( int trcnr )	{ binid_.crl = trcnr; }
     inline void		setBinID( const BinID& bid ) { binid_ = bid; }
@@ -73,6 +77,12 @@ inline PosKey::PosKey( Seis::GeomType gt )
 {
     if ( Seis::is2D(gt) ) mSetUdf(binid_.inl);
     if ( !Seis::isPS(gt) ) mSetUdf(offset_);
+}
+
+inline bool PosKey::hasOffset( float offs ) const
+{
+    const float diff = offs - offset_;
+    return mIsZero(diff,1e-4);
 }
 
 inline void PosKey::set( int nr, const BinID& bid, float offs )

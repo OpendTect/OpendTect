@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.24 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.25 2008-11-26 12:50:47 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -248,6 +248,7 @@ bool acceptOK( CallBacker* )
 {
     scanner_= new SEGY::Scanner( pars_, geom_ );
     const int nrtrcs = nrtrcsfld_->isChecked() ? nrtrcsfld_->getIntValue() : 0;
+    scanner_->setRichInfo( true );
     scanner_->setMaxNrtraces( nrtrcs );
     uiTaskRunner uitr( this );
     uitr.execute( *scanner_ );

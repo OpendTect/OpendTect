@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.2 2008-11-25 16:44:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.3 2008-11-26 12:50:47 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -24,15 +24,12 @@ Seis::PosIndexer::~PosIndexer()
 void Seis::PosIndexer::empty()
 {
     deepErase( crlsets_ );
-    for ( int idx=0; idx<idxsets_.size(); idx++ )
-    {
-	deepErase( *idxsets_[idx] );
-	deepErase( *offssets_[idx] );
-    }
+    deepErase( idxsets_ );
+    maxidx_ = -1;
 }
 
 
-static int findNr( const TypeSet<int>& nrs, int nr )
+inline static int getIndex( const TypeSet<int>& nrs, int nr )
 {
     int ret;
     IdxAble::findPos( nrs.arr(), nrs.size(), nr, -1, ret );
@@ -40,32 +37,65 @@ static int findNr( const TypeSet<int>& nrs, int nr )
 }
 
 
-od_int64 Seis::PosIndexer::indexOf( const Seis::PosKey& pk, int offsnr ) const
+inline static int getIndex( const TypeSet<int>& nrs, int nr, bool& present )
 {
-    const int inlidx = is2d_ ? (crlsets_.isEmpty() ? -1 : 0)
-					 : findNr( inls_, pk.inLine() );
+    int ret;
+    present = IdxAble::findPos( nrs.arr(), nrs.size(), nr, -1, ret );
+    return ret;
+}
+
+
+int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
+				    int& inlidx, int& crlidx ) const
+{
+    inlidx = is2d_ ? (inls_.isEmpty() ? -1 : 0) : getIndex( inls_, bid.inl );
     if ( inlidx < 0 ) 
 	return -1;
 
-    const int crlidx = findNr( *crlsets_[inlidx], pk.xLine() );
+    crlidx = getIndex( *crlsets_[inlidx], bid.crl );
     if ( crlidx < 0 )
-	return -1;
+	return -2;
+    return 0;
+}
 
-    const TypeSet<od_int64>& idxs = *((*idxsets_[inlidx])[crlidx]);
-    if ( !isps_ || mIsUdf(pk.offset()) )
-	return idxs[0];
 
-    if ( offsnr >= 0 )
-	return offsnr >= idxs.size() ? -1 : idxs[offsnr];
+od_int64 Seis::PosIndexer::findFirst( const BinID& bid ) const
+{
+    int inlidx, crlidx;
+    int res = getFirstIdxs( bid, inlidx, crlidx );
+    if ( res < 0 ) return res;
 
-    const TypeSet<float>& offs = *((*offssets_[inlidx])[crlidx]);
-    for ( int idx=0; idx<idxs.size(); idx++ )
+    return (*idxsets_[inlidx])[crlidx];
+}
+
+
+od_int64 Seis::PosIndexer::findFirst( int trcnr ) const
+{
+    return findFirst( BinID(1,trcnr) );
+}
+
+
+od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
+{
+    int inlidx, crlidx;
+    int res = getFirstIdxs( pk.binID(), inlidx, crlidx );
+    if ( res < 0 ) return res;
+
+    od_int64 ret = (*idxsets_[inlidx])[crlidx];
+    if ( !wo ) return ret;
+
+    for ( ; ret<=maxidx_; ret++ )
     {
-	if ( mIsEqual(offs[idx],pk.offset(),1e-4) )
-	    return idxs[idx];
+	const PosKey curpk( pkl_.key(ret) );
+	if ( curpk.isUndef() )
+	    continue;
+	if ( curpk.binID() != pk.binID() )
+	    break;
+	if ( curpk.hasOffset(pk.offset()) )
+	    return ret;
     }
 
-    return -1;
+    return -3;
 }
 
 
@@ -73,16 +103,72 @@ void Seis::PosIndexer::reIndex()
 {
     empty();
 
-    const od_uint64 sz = pkl_.size();
-    Seis::GeomType gt( sz > 0 ? pkl_.key(0).geomType() : Seis::Vol );
+    const od_int64 sz = pkl_.size();
+    od_int64 firstok = 0;
+    for ( ; firstok<sz; firstok++ )
+    {
+	if ( !pkl_.key(firstok).isUndef() )
+	    break;
+    }
+    if ( firstok >= sz )
+	return;
+
+    const PosKey prevpk( pkl_.key(firstok) );
+    Seis::GeomType gt( sz > 0 ? prevpk.geomType() : Seis::Vol );
     is2d_ = Seis::is2D( gt ); isps_ = Seis::isPS( gt );
 
-    for ( od_int64 idx=0; idx<sz; idx++ )
-	add( pkl_.key(idx), idx );
+    BinID prevbid( mUdf(int), mUdf(int) );
+    od_int64 startidx = firstok;
+    for ( od_int64 idx=firstok+1; idx<sz; idx++ )
+    {
+	const PosKey curpk( pkl_.key(idx) );
+	const BinID& curbid( curpk.binID() );
+	if ( curpk.isUndef() )
+	    continue;
+	maxidx_ = idx;
+	if ( curbid == prevbid )
+	    continue;
+
+	add( curbid, idx );
+	prevbid = curbid;
+    }
 }
 
 
-void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 idx )
+void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 {
-    //TODO implement
+    bool ispresent = false;
+    const int inlidx = is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent );
+    if ( !ispresent )
+    {
+	if ( inlidx >= inls_.size() )
+	{
+	    inls_ += pk.inLine();
+	    crlsets_ += new TypeSet<int>;
+	    idxsets_ += new TypeSet<od_int64>;
+	}
+	else
+	{
+	    inls_.insert( inlidx, pk.inLine() );
+	    crlsets_.insertAt( new TypeSet<int>, inlidx );
+	    idxsets_.insertAt( new TypeSet<od_int64>, inlidx );
+	}
+    }
+
+    TypeSet<int>& crls = *crlsets_[inlidx];
+    TypeSet<od_int64>& idxs = *idxsets_[inlidx];
+    const int crlidx = getIndex( crls, pk.xLine(), ispresent );
+    if ( !ispresent )
+    {
+	if ( crlidx >= crls.size() )
+	{
+	    crls += pk.xLine();
+	    idxs += posidx;
+	}
+	else
+	{
+	    crls.insert( crlidx, pk.xLine() );
+	    idxs.insert( crlidx, posidx );
+	}
+    }
 }

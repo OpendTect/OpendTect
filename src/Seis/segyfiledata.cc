@@ -3,8 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.10 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.11 2008-11-26 12:50:46 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -36,8 +35,36 @@ SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
 }
 
 
+SEGY::FileData& SEGY::FileData::operator =( const SEGY::FileData& fd )
+{
+    if ( this == &fd ) return *this;
+
+    fname_ = fd.fname_;
+    geom_ = fd.geom_;
+    trcsz_ = fd.trcsz_;
+    sampling_ = fd.sampling_;
+    segyfmt_ = fd.segyfmt_;
+    isrev1_ = fd.isrev1_;
+    nrstanzas_ = fd.nrstanzas_;
+
+    deepErase( *this );
+    for ( int idx=0; idx<fd.size(); idx++ )
+	*this += fd[idx]->clone();
+
+    return *this;
+}
+
+
+bool SEGY::FileData::isRich() const
+{
+    return isEmpty() ? false : (*this)[0]->isRich();
+}
+
+
 int SEGY::FileData::nrNullTraces() const
 {
+    if ( !isRich() ) return 0;
+
     int nr = 0;
     for ( int idx=0; idx<size(); idx++ )
 	if ( isNull(idx) ) nr++;
@@ -92,8 +119,9 @@ void SEGY::FileData::getReport( IOPar& iop ) const
     Interval<int> nrrg( trcNr(firstok), trcNr(firstok) );
     const Coord c0( coord(firstok) );
     Interval<double> xrg( c0.x, c0.x ), yrg( c0.y, c0.y );
-    Interval<double> offsrg( offset(firstok), offset(firstok) );
-    for ( int idx=1; idx<size(); idx++ )
+    Interval<float> offsrg( offset(firstok), offset(firstok) );
+    Interval<float> azimrg( azimuth(firstok), azimuth(firstok) );
+    for ( int idx=firstok+1; idx<size(); idx++ )
     {
 	if ( !isUsable(idx) ) continue;
 	hs.include( binID(idx) );
@@ -101,6 +129,7 @@ void SEGY::FileData::getReport( IOPar& iop ) const
 	const Coord c( coord(idx) );
 	xrg.include( c.x ); yrg.include( c.y );
 	offsrg.include( offset(idx) );
+	azimrg.include( azimuth(idx) );
     }
 
     if ( Seis::is2D(geom_) )
@@ -110,10 +139,17 @@ void SEGY::FileData::getReport( IOPar& iop ) const
 	iop.add( "Inline range", hs.start.inl, hs.stop.inl );
 	iop.add( "Crossline range", hs.start.crl, hs.stop.crl );
     }
-    iop.add( "X range", xrg.start, xrg.stop );
-    iop.add( "Y range", yrg.start, yrg.stop );
+    if ( isRich() )
+    {
+	iop.add( "X range", xrg.start, xrg.stop );
+	iop.add( "Y range", yrg.start, yrg.stop );
+    }
     if ( Seis::isPS(geom_) )
+    {
 	iop.add( "Offset range", offsrg.start, offsrg.stop );
+	if ( isRich() )
+	    iop.add( "Azimuth range", azimrg.start, azimrg.stop );
+    }
 }
 
 
@@ -159,22 +195,16 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	while ( !atEndOfSection(astrm.next()) )
 	{
 	    keyw = astrm.keyWord(); val = astrm.value();
-	    TraceInfo ti;
+	    TraceInfo* ti = new TraceInfo( geom_ );
 	    if ( is2d )
-		ti.pos_.setTrcNr( keyw.getIValue(0) );
+		ti->pos_.setTrcNr( keyw.getIValue(0) );
 	    else
-		ti.pos_.binID().use( keyw[0] );
+		ti->pos_.binID().use( keyw[0] );
 	    if ( isps )
-		ti.pos_.setOffset( keyw.getFValue(1) );
+		ti->pos_.setOffset( keyw.getFValue(1) );
 
 	    const char ch( *val[0] );
-	    ti.usable_ = ch != 'U';
-	    ti.null_ = ch == 'N';
-	    if ( is2d && !isps )
-	    {
-		ti.coord_.x = val.getDValue(1);
-		ti.coord_.y = val.getDValue(2);
-	    }
+	    ti->usable_ = ch != 'U';
 
 	    *this += ti;
 	}
@@ -185,8 +215,6 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	int entrylen = 1 + (isps ? 4 : 0) + sizeof(int);
 	if ( !is2d )
 	    entrylen += sizeof(int);
-	else if ( !isps )
-	    entrylen += 2*sizeof(double);
 	char* buf = new char [entrylen];
 
 	while ( strm.good() )
@@ -196,13 +224,12 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 		{ strm.ignore( 1 ); break; }
 
 	    strm.read( buf, entrylen );
-	    TraceInfo ti;
-	    ti.usable_ = buf[0] != 'U';
-	    ti.null_ = buf[0] == 'N';
+	    TraceInfo* ti = new TraceInfo( geom_ );
+	    ti->usable_ = buf[0] != 'U';
 
 	    char* bufpos = buf + 1;
 
-#define mGtVal(attr,typ)   ti.attr = *((typ*)bufpos); bufpos += sizeof(typ)
+#define mGtVal(attr,typ)   ti->attr = *((typ*)bufpos); bufpos += sizeof(typ)
 #ifdef __little__
 # define mGetVal(attr,typ) { mGtVal(attr,typ); }
 #else
@@ -218,11 +245,6 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	    }
 	    if ( isps )
 		mGetVal(pos_.offset(),float)
-	    if ( is2d && !isps )
-	    {
-		mGetVal(coord_.x,double)
-		mGetVal(coord_.y,double)
-	    }
 
 	    *this += ti;
 	}
@@ -255,7 +277,7 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 	FileMultiString keyw; FileMultiString val;
 	for ( int itrc=0; itrc<size(); itrc++ )
 	{
-	    const TraceInfo& ti = (*this)[itrc];
+	    const TraceInfo& ti = *(*this)[itrc];
 	    keyw.setEmpty();
 	    if ( is2d )
 		keyw += ti.trcNr();
@@ -264,10 +286,7 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 	    if ( isps )
 		keyw += ti.offset();
 
-	    val = ti.usable_ ? (ti.null_ ? "Null" : "OK") : "Unusable";
-	    if ( is2d && !isps )
-		{ val += ti.coord_.x; val += ti.coord_.y; }
-
+	    val = ti.usable_ ? (ti.isNull() ? "Null" : "OK") : "Unusable";
 	    astrm.put( keyw.buf(), val.buf() );
 	}
     }
@@ -276,8 +295,8 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 	std::ostream& strm = astrm.stream();
 	for ( int itrc=0; itrc<size(); itrc++ )
 	{
-	    const TraceInfo& ti = (*this)[itrc];
-	    const char ch = ti.usable_ ? (ti.null_ ? 'N' : 'O') : 'U';
+	    const TraceInfo& ti = *(*this)[itrc];
+	    const char ch = ti.usable_ ? (ti.isNull() ? 'N' : 'O') : 'U';
 	    strm.write( &ch, 1 );
 
 #define mPutVal(attr,typ) \
@@ -291,8 +310,6 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 		{ mPutVal(pos_.inLine(),int); mPutVal(pos_.xLine(),int) }
 	    if ( isps )
 		mPutVal(offset(),float)
-	    if ( is2d && !isps )
-		{ mPutVal(coord_.x,double); mPutVal(coord_.y,double) }
 	}
 
 	strm << "\n";

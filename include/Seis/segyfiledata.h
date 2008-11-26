@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.6 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.7 2008-11-26 12:50:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,28 +27,58 @@ namespace SEGY
 struct TraceInfo
 {
 			TraceInfo( Seis::GeomType gt=Seis::Vol )
-			    : pos_(gt), null_(false), usable_(true)	{}
-    bool	operator ==( const TraceInfo& ti ) const
+			    : pos_(gt), usable_(true)	{}
+    virtual		~TraceInfo()			{}
+    virtual TraceInfo*	clone() const		{ return new TraceInfo(*this); }
+    bool		operator ==( const TraceInfo& ti ) const
 			{ return pos_ == ti.pos_; }
 
     Seis::PosKey	pos_;
-    Coord		coord_;
-    bool		null_;
     bool		usable_;
 
     inline BinID	binID() const		{ return pos_.binID(); }
     inline int		trcNr() const		{ return pos_.trcNr(); }
     inline float	offset() const		{ return pos_.offset(); }
+    inline bool		isUsable() const	{ return usable_; }
+
+    virtual bool	isRich() const		{ return false; }
+    virtual Coord	coord() const		{ return Coord(0,0); }
+    virtual float	azimuth() const		{ return 0; }
+    virtual bool	isNull() const		{ return false; }
+};
+
+
+struct RichTraceInfo : public TraceInfo
+{
+			RichTraceInfo( Seis::GeomType gt=Seis::Vol )
+			    : TraceInfo(gt), azimuth_(0), null_(false)	{}
+    virtual TraceInfo*	clone() const	{ return new RichTraceInfo(*this); }
+    bool		operator ==( const RichTraceInfo& ti ) const
+			{ return pos_ == ti.pos_; }
+    bool		operator ==( const TraceInfo& ti ) const
+			{ return pos_ == ti.pos_; }
+
+    virtual bool	isRich() const		{ return true; }
+    virtual Coord	coord() const		{ return coord_; }
+    virtual float	azimuth() const		{ return azimuth_; }
+    virtual bool	isNull() const		{ return null_; }
+
+    Coord		coord_;
+    float		azimuth_;
+    bool		null_;
 };
 
 
 /*\brief Data usually obtained by scanning a SEG-Y file. */
 
-class FileData : public TypeSet<TraceInfo>
+class FileData : public ObjectSet<TraceInfo>
 {
 public:
 
     			FileData(const char* fnm,Seis::GeomType);
+			FileData( const FileData& fd )	{ *this = fd; }
+			~FileData()			{ deepErase(*this); }
+    FileData&		operator =(const FileData&);
 
     BufferString	fname_;
     Seis::GeomType	geom_;
@@ -58,13 +88,18 @@ public:
     bool		isrev1_;
     int			nrstanzas_;
 
-    inline BinID	binID( int i ) const	{ return (*this)[i].binID(); }
-    inline Coord	coord( int i ) const	{ return (*this)[i].coord_; }
-    inline int		trcNr( int i ) const	{ return (*this)[i].trcNr(); }
-    inline float	offset( int i ) const	{ return (*this)[i].offset(); }
-    inline bool		isNull( int i ) const	{ return (*this)[i].null_; }
-    inline bool		isUsable( int i ) const	{ return (*this)[i].usable_; }
+#define mSEGYFileDataDefFn(ret,nm) \
+    inline ret		nm( int idx ) const	{ return (*this)[idx]->nm(); }
+			mSEGYFileDataDefFn(BinID,binID)
+			mSEGYFileDataDefFn(Coord,coord)
+			mSEGYFileDataDefFn(int,trcNr)
+			mSEGYFileDataDefFn(float,offset)
+			mSEGYFileDataDefFn(float,azimuth)
+			mSEGYFileDataDefFn(bool,isNull)
+			mSEGYFileDataDefFn(bool,isUsable)
+#undef mSEGYFileDataDefFn
 
+    bool		isRich() const;
     int			nrNullTraces() const;
     int			nrUsableTraces() const;
 
