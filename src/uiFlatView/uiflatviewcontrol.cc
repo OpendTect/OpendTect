@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.40 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.41 2008-11-26 06:57:08 cvssatyaki Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -283,8 +283,8 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
     vwr->setAnnotChoice( selannot );
     //Don't send FlatView::Viewer::All, since that triggers a viewchange
-    vwr->handleChange( FlatView::Viewer::Annot );
-    vwr->handleChange( FlatView::Viewer::WVAPars );
+    vwr->handleChange( FlatView::Viewer::Annot, false );
+    vwr->handleChange( FlatView::Viewer::WVAPars, false );
     vwr->handleChange( FlatView::Viewer::VDPars );
 }
 

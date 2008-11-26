@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.25 2008-11-14 04:43:52 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.26 2008-11-26 06:57:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class uiRGBArrayCanvas;
 class uiRGBArray;
 class uiWorld2Ui;
 class uiFlatViewControl;
+class uiGraphicsItemGroup;
 class uiArrowItem;
 class uiEllipseItem;
 class uiLineItem;
@@ -62,8 +63,9 @@ public:
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
 
-    void		handleChange(DataChangeType);
+    void		handleChange(DataChangeType,bool dofill = true);
 
+    Notifier<uiFlatViewer> newFillNeeded; //!< setView
     Notifier<uiFlatViewer> viewChanged; //!< setView
     Notifier<uiFlatViewer> dataChanged; //!< WVA or VD data changed
     Notifier<uiFlatViewer> dispParsChanged; //!< WVA or VD disppars changed
@@ -106,8 +108,8 @@ protected:
     uiArrowItem*		arrowitem1_;
     uiArrowItem*		arrowitem2_;
     uiPolygonItem*		polyitem_;
-    uiLineItem*			lineitem_;
-    uiMarkerItem*		marketitem_;
+    uiGraphicsItemGroup*	polylineitmgrp_;
+    uiGraphicsItemGroup*	markeritemgrp_;
     void			onFinalise(CallBacker*);
     void			reDraw(CallBacker*);
     uiWorldRect			getBoundingBox(bool) const;

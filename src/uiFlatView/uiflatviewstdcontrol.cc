@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.14 2008-11-26 06:57:08 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -257,8 +257,6 @@ void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
 
 void uiFlatViewStdControl::coltabChg( CallBacker* )
 {
-    vwr_.handleChange( FlatView::Viewer::VDPars );
+    vwr_.handleChange( FlatView::Viewer::VDPars, false );
     vwr_.handleChange( FlatView::Viewer::VDData );
-    vwr_.drawBitMaps();
-    vwr_.drawAnnot();
 }

@@ -7,17 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.6 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditor.cc,v 1.7 2008-11-26 06:57:08 cvssatyaki Exp $";
 
 #include "uiflatauxdataeditor.h"
 
 #include "uiflatviewer.h"
 #include "uirgbarraycanvas.h"
+#include "uigraphicsscene.h"
 
 uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& vw )
-    : FlatView::AuxDataEditor(vw,vw.rgbCanvas().getMouseEventHandler())
+    : FlatView::AuxDataEditor(vw,vw.rgbCanvas().scene().getMouseEventHandler())
 {
     vw.rgbCanvas().reDrawNeeded.notify(
+	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
+    vw.rgbCanvas().reSize.notify(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
     vw.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
 
@@ -30,6 +33,8 @@ uiFlatViewAuxDataEditor::~uiFlatViewAuxDataEditor()
     mDynamicCastGet(uiFlatViewer*,uivw,&viewer_);
     uivw->viewChanged.remove( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
     uivw->rgbCanvas().reDrawNeeded.remove(
+	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
+    uivw->rgbCanvas().reSize.remove(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
 }
 

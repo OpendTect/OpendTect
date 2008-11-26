@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcoltabed.cc,v 1.5 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewcoltabed.cc,v 1.6 2008-11-26 06:57:08 cvssatyaki Exp $";
 
 #include "uiflatviewcoltabed.h"
 
@@ -42,9 +42,9 @@ uiFlatViewColTabEd::~uiFlatViewColTabEd()
 
 void uiFlatViewColTabEd::setColTab( const FlatView::Viewer& vwr)
 {
-    uicoltab_->setInterval( vwr.getDataRange(false) );
     uicoltab_->setSequence( vwr.appearance().ddpars_.vd_.ctab_ );
     uicoltab_->setDispPars( vwr.appearance().ddpars_.vd_ );
+    uicoltab_->setInterval( vwr.getDataRange(false) );
 }
 
 

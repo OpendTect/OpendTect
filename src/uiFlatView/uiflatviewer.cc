@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.65 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.66 2008-11-26 06:57:08 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -39,8 +39,8 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.65 2008-11-25 15:35:25 cvsb
     , arrowitem1_(0) \
     , arrowitem2_(0) \
     , polyitem_(0) \
-    , lineitem_(0) \
-    , marketitem_(0)
+    , polylineitmgrp_(0) \
+    , markeritemgrp_(0) 
 
 
 float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
@@ -57,6 +57,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
     , anysetviewdone_(false)
     , extraborders_(0,0,0,0)
     , annotsz_(50,20) //TODO: should be dep on font size
+    , newFillNeeded(this)
     , viewChanged(this)
     , dataChanged(this)
     , dispParsChanged(this)
@@ -64,7 +65,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.reSize.notify( mCB(this,uiFlatViewer,reDraw) );
-    canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
+    newFillNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
     reportedchanges_ += All;
 
     mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
@@ -173,12 +174,12 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
     if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
 
-    canvas_.reDrawNeeded.trigger();
+    newFillNeeded.trigger();
     viewChanged.trigger();
 }
 
 
-void uiFlatViewer::handleChange( DataChangeType dct )
+void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
 {
     if ( dct == None )
 	return;
@@ -198,7 +199,8 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
 
     canvas_.setBorder( uiBorder(l,t,r,b) );
-    canvas_.newfillneeded_ =  true;
+    if ( dofill )
+	newFillNeeded.trigger();
 
 }
 
@@ -273,6 +275,25 @@ void uiFlatViewer::drawBitMaps()
 	if ( wvabmpmgr_->bitMapGen() )
 	    appearance().ddpars_.wva_.rg_ =
 		wvabmpmgr_->bitMapGen()->getScaleRange();
+    
+	bmp2rgb_->setRGBArr( canvas_.rgbArray() );
+	bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
+	ioPixmap* pixmap = new ioPixmap( canvas_.arrArea().width(),
+					 canvas_.arrArea().height() );
+	pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
+	canvas_.setPixmap( *pixmap );
+	canvas_.draw();
+    }
+
+    if ( !hasdata )
+    {
+	bmp2rgb_->draw( 0, 0, offs );
+	ioPixmap* pixmap = new ioPixmap( canvas_.arrArea().width(),
+					 canvas_.arrArea().height() );
+	pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
+	canvas_.setPixmap( *pixmap );
+	canvas_.draw();
+	return;
     }
 
     if ( mIsUdf(offs.x) )
@@ -281,14 +302,6 @@ void uiFlatViewer::drawBitMaps()
 	    ErrMsg( "Internal error during bitmap generation" );
 	return;
     }
-
-    bmp2rgb_->setRGBArr( canvas_.rgbArray() );
-    bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
-    ioPixmap* pixmap = new ioPixmap( canvas_.arrArea().width(),
-	    			     canvas_.arrArea().height() );
-    pixmap->convertFromRGBArray( bmp2rgb_->rgbArray() );
-    canvas_.setPixmap( *pixmap );
-    canvas_.draw();
 }
 
 
@@ -340,6 +353,10 @@ void uiFlatViewer::drawAnnot()
 	drawGridAnnot();
     }
 
+    if ( polylineitmgrp_ )
+	polylineitmgrp_->removeAll( true );
+    if ( markeritemgrp_ )
+	markeritemgrp_->removeAll( true );
     for ( int idx=0; idx<annot.auxdata_.size(); idx++ )
 	drawAux( *annot.auxdata_[idx] );
 
@@ -405,9 +422,9 @@ void uiFlatViewer::drawGridAnnot()
     axesdrawer_.draw( datarect, wr_ );
     if ( !rectitem_ )
 	rectitem_ = canvas_.scene().addRect( datarect.left(),
-						datarect.top(),
-						datarect.width(),
-						datarect.height() );
+					     datarect.top(),
+					     datarect.width(),
+					     datarect.height() );
     else
 	rectitem_->setRect( datarect.left(), datarect.top(),
 			    datarect.width(), datarect.height() );
@@ -497,6 +514,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 		polyitem_->setPolygon( ptlist );
 	    polyitem_->setZValue(1);
 	    polyitem_->setFillColor(  ad.fillcolor_ );
+	    polyitem_->fill();
 	    polyitem_->setPenStyle( ad.linestyle_ );
 	    //TODO clip polygon
 	}
@@ -508,17 +526,20 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	    ObjectSet<TypeSet<uiPoint> > lines;
 	    clipPolyLine( datarect, ptlist, lines );
 
-	    for ( int idx=0; idx<ptlist.size()-1; idx++ )
+	    if ( !polylineitmgrp_ )
 	    {
-		if ( !lineitem_ )
-		    lineitem_ = canvas_.scene().addLine( ptlist[idx],
-			    				    ptlist[idx+1] );
-		else
-		    lineitem_->setLine( ptlist[idx].x, ptlist[idx].y,
-			    		ptlist[idx+1].x, ptlist[idx+1].y );
-		lineitem_->setZValue(1);
-		lineitem_->setPenStyle( ad.linestyle_ );
+		polylineitmgrp_ = new uiGraphicsItemGroup();
+		canvas_.scene().addItemGrp( polylineitmgrp_ );
 	    }
+	    for ( int idx=lines.size()-1; idx>=0; idx-- )
+	    {
+		uiPolyLineItem* polyitem = new uiPolyLineItem();
+		polyitem->setPolyLine( *lines[idx] );
+		polyitem->setPenStyle( ad.linestyle_ );
+		polylineitmgrp_->add( polyitem );
+	    }
+	    
+	    polylineitmgrp_->setZValue(1);
 
 	    deepErase( lines );
 	}
@@ -527,6 +548,11 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
     const int nrmarkerstyles = ad.markerstyles_.size();
     if ( nrmarkerstyles )
     {
+	if ( !markeritemgrp_ )
+	{
+	    markeritemgrp_ = new uiGraphicsItemGroup();
+	    canvas_.scene().addItemGrp( markeritemgrp_ );
+	}
 	for ( int idx=nrpoints-1; idx>=0; idx-- )
 	{
 	    const int styleidx = mMIN(idx,nrmarkerstyles-1);
@@ -534,14 +560,15 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 		 datarect.isOutside(ptlist[idx] ) )
 		continue;
 
-	    if ( !marketitem_ )
-		marketitem_ =
-		    canvas_.scene().addMarker( ad.markerstyles_[styleidx] );
-	    else
-		marketitem_->setMarkerStyle( ad.markerstyles_[styleidx] );
-	    marketitem_->setZValue(1);
-	    marketitem_->setPos( ptlist[idx].x, ptlist[idx].y );
+	    uiMarkerItem* marketitem =
+		new uiMarkerItem( ad.markerstyles_[styleidx] );
+	    marketitem->setPenColor( ad.markerstyles_[styleidx].color_ );
+	    marketitem->setFillColor( ad.markerstyles_[styleidx].color_ );
+	    marketitem->setPos( ptlist[idx].x, ptlist[idx].y );
+	    markeritemgrp_->add( marketitem );
 	}
+	
+	markeritemgrp_->setZValue(1);
     }
 
     if ( !ad.name_.isEmpty() && !mIsUdf(ad.namepos_) )
