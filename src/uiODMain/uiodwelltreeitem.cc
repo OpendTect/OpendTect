@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.27 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.28 2008-11-27 09:15:20 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -162,6 +162,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
 	for ( int idx=0; idx<selectedwells.size(); idx++ )
 	{
+	    welldisplayset[ selectedwells[idx] ]->setOneLogDisplayed(false);
 	    welldisplayset[ selectedwells[idx] ]->displayRightLog();
 	    welldisplayset[ selectedwells[idx] ]->displayLeftLog();
 	}
@@ -395,8 +396,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == showlogmnuitem_.id )
     {
        	menu->setIsHandled( true );
-	if( wd->getLogParSet()->getLeft()->getLogNm() == "None"
-	    && wd->getLogParSet()->getRight()->getLogNm() == "None" )
+	if( wd->getLogParSet()->getLeft()->name_ == "None"
+	    && wd->getLogParSet()->getRight()->name_ == "None" )
 	{
 	    Well::LogDisplayParSet* logparset = wd->getLogParSet();
 	    if( applMgr()->wellServer()->selectLogs( wellid, logparset ) )
