@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.12 2008-10-22 11:31:10 cvsnanne Exp $
+ RCS:		$Id: samplingdata.h,v 1.13 2008-11-27 13:26:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ int SamplingData<T>::operator!=( const SamplingData& sd ) const
 
 template <class T> inline
 StepInterval<T> SamplingData<T>::interval( int nrsamp ) const
-{ return StepInterval<T>( start, start+(nrsamp-1)*step, step); }
+{ return StepInterval<T>( start, nrsamp ? start+(nrsamp-1)*step : 0, step); }
 
 
 template <class T>
