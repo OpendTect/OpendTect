@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.14 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.15 2008-11-27 16:08:07 cvshelene Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -48,6 +48,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 {
     setTitleText( "" );
     setCtrlStyle( LeaveOnly );
+    setHelpID( "103.5.2" );
 
     uiGroup* rightgrp = new uiGroup( uppgrp_, "Right group" );
     tabstack_ = new uiTabStack( rightgrp, "Tab" );
