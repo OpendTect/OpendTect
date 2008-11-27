@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.87 2008-08-14 10:11:53 cvsumesh Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.88 2008-11-27 13:28:19 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -1106,8 +1106,24 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
-    DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(info.coord)
+    const Coord coord = info.coord;
+    DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(coord)
 					  : datapointset_.findFirst(info.binid);
+    if ( rid< 0 && datapointset_.is2D() )
+    {
+	//TODO remove when datapointset is snaped
+	for ( int idx=0; idx<datapointset_.size()-1; idx++ )
+	{
+	    if ( coord > datapointset_.coord( idx )
+		 && coord < datapointset_.coord( idx+1 ) )
+	    {
+		const double distn = coord.distTo( datapointset_.coord(idx) );
+		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
+		rid = distn < distnp1 ? idx : idx+1;
+	    }
+	}
+    }
+
     if ( rid<0 ) return;
 
     const int desnrvals = desoutputs_.size();
@@ -1232,11 +1248,28 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     TypeSet< Interval<int> > sampleinterval;
     
     DataPointSet::RowID rid = datapointset_.findFirst( coord );
+
+    if ( rid< 0 )
+    {
+	for ( int idx=0; idx<datapointset_.size()-1; idx++ )
+	{
+	    if ( coord > datapointset_.coord( idx )
+		 && coord < datapointset_.coord( idx+1 ) )
+	    {
+		const double distn = coord.distTo( datapointset_.coord(idx) );
+		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
+		rid = distn < distnp1 ? idx : idx+1;
+		break;
+	    }
+	}
+    }
+
     if ( rid< 0 ) return sampleinterval;
-    
+
+    Coord truecoord = datapointset_.coord( rid );
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
-	if ( coord != datapointset_.coord( idx ) ) break;
+	if ( truecoord != datapointset_.coord( idx ) ) break;
 	addLocalInterval( sampleinterval, exactz, idx, zstep );
     }
 

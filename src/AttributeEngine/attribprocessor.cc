@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.60 2008-09-22 13:06:42 cvskris Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.61 2008-11-27 13:28:19 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -361,11 +361,16 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
     TypeSet<float> exactz;
+    mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	const bool wantout = outputs_[idx]->useCoords()
+	bool wantout = outputs_[idx]->useCoords()
 	    			? outputs_[idx]->wantsOutput(curcoords)
 				: outputs_[idx]->wantsOutput(curbid);
+
+	if ( taboutp && is2d_ )
+	    wantout = true;
+
 	if ( !wantout || curbid == prevbid_ ) 
 	    continue;
 
