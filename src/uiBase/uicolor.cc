@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolor.cc,v 1.21 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uicolor.cc,v 1.22 2008-11-27 09:11:05 cvsbruno Exp $";
 
 #include "uicolor.h"
 #include "uibutton.h"
@@ -118,6 +118,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	, color_(s.color_)
 	, dlgtxt_(s.dlgtitle_)
 	, dodrawbox_(0)
+	, uilbl_(0)
 	, withalpha_(s.withalpha_)
 	, colorchanged(this)
 	, dodrawchanged(this)
@@ -136,7 +137,7 @@ uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	colbut_->attach( rightOf, dodrawbox_ );
     
     if ( !dodrawbox_ && s.lbltxt_ && *s.lbltxt_)
-	new uiLabel( this, s.lbltxt_, colbut_ );
+	uilbl_ = new uiLabel( this, s.lbltxt_, colbut_ );
 
     setColor( color_ ); 
     setHAlignObj( colbut_ );
@@ -186,4 +187,11 @@ void uiColorInput::setColor( const Color& col )
     ioPixmap pm( colbut_->prefHNrPics()-10, colbut_->prefVNrPics()-10 );
     pm.fill( color_ );
     colbut_->setPixmap( pm );
+}
+
+
+void uiColorInput::setLblText( const char* txt )
+{
+    if ( uilbl_ )
+	uilbl_->setText( txt );
 }

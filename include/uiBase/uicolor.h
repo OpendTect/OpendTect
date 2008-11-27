@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.15 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uicolor.h,v 1.16 2008-11-27 09:11:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
     void			setColor(const Color&);
     bool			doDraw() const;
     void			setDoDraw(bool);
+    void			setLblText(const char*);
 
     void			enableAlphaSetting( bool yn )
 				{ withalpha_ = yn; }
@@ -78,6 +79,7 @@ protected:
 
     uiPushButton*		colbut_;
     uiCheckBox*			dodrawbox_;
+    uiLabel*			uilbl_;
 
     Color			color_;
     BufferString		dlgtxt_;
