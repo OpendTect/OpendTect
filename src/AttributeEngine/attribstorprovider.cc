@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.80 2008-11-26 13:36:45 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.81 2008-11-27 13:27:15 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -544,7 +544,7 @@ bool StorageProvider::computeData( const DataHolder& output,
     const BinID bidstep = getStepoutStep();
     const SeisTrc* trc = mscprov_->get( relpos.inl/bidstep.inl, 
 	    				relpos.crl/bidstep.crl );
-    if ( !trc )
+    if ( !trc || !trc->size() )
 	return false;
 
     if ( desc.is2D() && seldata_ && seldata_->type() == Seis::Table )
@@ -555,9 +555,9 @@ bool StorageProvider::computeData( const DataHolder& output,
 	const float desonlyzrgstop = deszrg.stop - poszrg.stop;
 	Interval<float> trcrange = trc->info().sampling.interval(trc->size());
 	const float diffstart = z0*refstep - trcrange.start;
-	const float diffstop = trcrange.stop - (z0+nrsamples-1)*refstep;
-	bool isdiffacceptable = ( diffstart>=0 || diffstart >= desonlyzrgstart )
-				&& diffstop > 0;
+	const float diffstop = (z0+nrsamples-1)*refstep - trcrange.stop;
+	bool isdiffacceptable = (diffstart>=0 || diffstart >= desonlyzrgstart)
+				&& (diffstop <= 0 || diffstop<=desonlyzrgstop);
 	if ( !isdiffacceptable )
 	    return false;
     }
