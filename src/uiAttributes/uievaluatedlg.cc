@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.20 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.21 2008-11-28 10:34:26 cvsnageswara Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -206,7 +206,9 @@ void AttribParamGroup::updateDesc( Attrib::Desc& desc, int idx )
 {
     if ( !evaloutput_ ) return;
 
-    const float step = desced_.getOutputValue( 1 );
+    float step = desced_.getOutputValue( 0 );
+    if ( mIsZero(step,mDefEps) ) step = desced_.getOutputValue( 1 );
+
     const float val = initfld->getfValue() + idx*step;
     desc.selectOutput( desced_.getOutputIdx(val) );
     mCreateLabel1( val );
