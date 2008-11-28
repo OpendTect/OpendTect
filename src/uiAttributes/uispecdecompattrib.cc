@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.19 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.20 2008-11-28 10:32:06 cvsnageswara Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -33,98 +33,104 @@ mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp)
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.15")
-    , nyqfreq(0)
-    , nrsamples(0)
-    , ds(0)
+    , nyqfreq_(0)
+    , nrsamples_(0)
+    , ds_(0)
     
 {
-    inpfld = getImagInpFld();
-    inpfld->selectiondone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
+    inpfld_ = getImagInpFld();
+    inpfld_->selectiondone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );
 
-    typefld = new uiGenInput( this, "Transform type",
+    typefld_ = new uiGenInput( this, "Transform type",
 	    		      BoolInpSpec(true,"FFT","CWT") );
-    typefld->attach( alignedBelow, inpfld );
-    typefld->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
+    typefld_->attach( alignedBelow, inpfld_ );
+    typefld_->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
-    gatefld = new uiGenInput( this, gateLabel(),
+    gatefld_ = new uiGenInput( this, gateLabel(),
 	    		      DoubleInpIntervalSpec().setName("Z start",0)
 						     .setName("Z stop",1) );
-    gatefld->attach( alignedBelow, typefld );
+    gatefld_->attach( alignedBelow, typefld_ );
 
     BufferString lbl( "Output frequency (" );
     lbl += zIsTime() ? "Hz" : "cycles/mm"; lbl += ")";
-    outpfld = new uiLabeledSpinBox( this, lbl, 1 );
-    outpfld->attach( alignedBelow, gatefld );
-    outpfld->box()->doSnap( true );
+    outpfld_ = new uiLabeledSpinBox( this, lbl, 1 );
+    outpfld_->attach( alignedBelow, gatefld_ );
+    outpfld_->box()->doSnap( true );
 
-    stepfld = new uiLabeledSpinBox( this, "step", 1 );
-    stepfld->attach( rightTo, outpfld );
-    stepfld->box()->valueChanged.notify( 
+    stepfld_ = new uiLabeledSpinBox( this, "step", 1 );
+    stepfld_->attach( rightTo, outpfld_ );
+    stepfld_->box()->valueChanged.notify( 
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );
 
-    waveletfld = new uiGenInput( this, "Wavelet", 
+    waveletfld_ = new uiGenInput( this, "Wavelet", 
 	    			 StringListInpSpec(CWT::WaveletTypeNames) );
-    waveletfld->attach( alignedBelow, typefld );
+    waveletfld_->attach( alignedBelow, typefld_ );
 
     stepChg(0);
     typeSel(0);
-    setHAlignObj( inpfld );
+    setHAlignObj( inpfld_ );
 }
 
 
 void uiSpecDecompAttrib::inputSel( CallBacker* )
 {
-    if ( !*inpfld->getInput() ) return;
+    if ( !*inpfld_->getInput() ) return;
 
     CubeSampling cs;
-    if ( !inpfld->getRanges(cs) )
+    if ( !inpfld_->getRanges(cs) )
 	cs.init(true);
 
-    ds = cs.zrg.step;
-    int ns = (int)((cs.zrg.stop-cs.zrg.start)/ds + .5) + 1;
+    ds_ = cs.zrg.step;
+    int ns = (int)((cs.zrg.stop-cs.zrg.start)/ds_ + .5) + 1;
     int temp = 2;
     while ( temp  < ns ) temp *= 2;
-    nrsamples = temp;
-    nyqfreq = 0.5 / ds;
+    nrsamples_ = temp;
+    nyqfreq_ = 0.5 / ds_;
 
     const float freqscale = zIsTime() ? 1 : 1000;
-    outpfld->box()->setMaxValue( nyqfreq*freqscale );
-    stepfld->box()->setInterval( (float)1, nyqfreq*freqscale );
-    stepfld->box()->setStep( (float)0.5, true );
+    outpfld_->box()->setMinValue( stepfld_->box()->getFValue() );
+    outpfld_->box()->setMaxValue( nyqfreq_*freqscale );
+    stepfld_->box()->setInterval( (float)1, nyqfreq_*freqscale );
+    stepfld_->box()->setMaxValue( nyqfreq_/2 );
+    stepfld_->box()->setStep( (float)0.5, true );
+
 }
 
 
 void uiSpecDecompAttrib::typeSel( CallBacker* )
 {
-    bool usefft = typefld->getBoolValue();
-    gatefld->display( usefft );
-    waveletfld->display( !usefft );
+    bool usefft = typefld_->getBoolValue();
+    gatefld_->display( usefft );
+    waveletfld_->display( !usefft );
 }
 
 
 void uiSpecDecompAttrib::stepChg( CallBacker* )
 {
-    if ( mIsZero(stepfld->box()->getFValue(),mDefEps) )
+    if ( mIsZero(stepfld_->box()->getFValue(),mDefEps) )
     {
-	stepfld->box()->setValue( 1 );
-	outpfld->box()->setStep( 1, true );
+	stepfld_->box()->setValue( 1 );
+	outpfld_->box()->setStep( 1, true );
     }
     else
-	outpfld->box()->setStep( stepfld->box()->getFValue(), true );
+    {
+	outpfld_->box()->setMinValue( stepfld_->box()->getFValue() );
+	outpfld_->box()->setStep( stepfld_->box()->getFValue(), true );
+    }
 }
 
 
 int uiSpecDecompAttrib::getOutputIdx( float outval ) const
 {
-    const float step = stepfld->box()->getFValue();
-    return mNINT(outval/step);
+    const float step = stepfld_->box()->getFValue();
+    return mNINT(outval/step) - 1;
 }
 
 
 float uiSpecDecompAttrib::getOutputValue( int idx ) const
 {
-    const float step = stepfld->box()->getFValue();
-    return float(idx*step);
+    const float step = stepfld_->box()->getFValue();
+    return float((idx+1)*step);
 }
 
 
@@ -133,15 +139,15 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),SpecDecomp::attribName()) )
 	return false;
 
-    mIfGetFloatInterval( SpecDecomp::gateStr(), gate, gatefld->setValue(gate) );
+    mIfGetFloatInterval( SpecDecomp::gateStr(),gate, gatefld_->setValue(gate) );
     mIfGetEnum( SpecDecomp::transformTypeStr(), transformtype,
-		typefld->setValue(transformtype==0) );
+		typefld_->setValue(transformtype==0) );
     mIfGetEnum( SpecDecomp::cwtwaveletStr(), cwtwavelet,
-	        waveletfld->setValue(cwtwavelet) );
+	        waveletfld_->setValue(cwtwavelet) );
 
     const float freqscale = zIsTime() ? 1 : 1000;
     mIfGetFloat( SpecDecomp::deltafreqStr(), deltafreq,
-		 stepfld->box()->setValue(deltafreq*freqscale) );
+		 stepfld_->box()->setValue(deltafreq*freqscale) );
 
     stepChg(0);
     typeSel(0);
@@ -151,7 +157,7 @@ bool uiSpecDecompAttrib::setParameters( const Desc& desc )
 
 bool uiSpecDecompAttrib::setInput( const Desc& desc )
 {
-    putInp( inpfld, desc, 0 );
+    putInp( inpfld_, desc, 0 );
     inputSel(0);
     return true;
 }
@@ -160,7 +166,7 @@ bool uiSpecDecompAttrib::setInput( const Desc& desc )
 bool uiSpecDecompAttrib::setOutput( const Desc& desc )
 {
     const float freq = getOutputValue( desc.selectedOutput() );
-    outpfld->box()->setValue( freq );
+    outpfld_->box()->setValue( freq );
     return true;
 }
 
@@ -170,13 +176,13 @@ bool uiSpecDecompAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),SpecDecomp::attribName()) )
 	return false;
 
-    mSetEnum( SpecDecomp::transformTypeStr(), typefld->getBoolValue() ? 0 : 2 );
-    mSetFloatInterval( SpecDecomp::gateStr(), gatefld->getFInterval() );
-    mSetEnum( SpecDecomp::cwtwaveletStr(), waveletfld->getIntValue() );
+    mSetEnum( SpecDecomp::transformTypeStr(),typefld_->getBoolValue() ? 0 : 2 );
+    mSetFloatInterval( SpecDecomp::gateStr(), gatefld_->getFInterval() );
+    mSetEnum( SpecDecomp::cwtwaveletStr(), waveletfld_->getIntValue() );
 
     const float freqscale = zIsTime() ? 1 : 1000;
     mSetFloat( SpecDecomp::deltafreqStr(), 
-	       stepfld->box()->getFValue()/freqscale );
+	       stepfld_->box()->getFValue()/freqscale );
 
     return true;
 }
@@ -184,7 +190,7 @@ bool uiSpecDecompAttrib::getParameters( Desc& desc )
 
 bool uiSpecDecompAttrib::getInput( Desc& desc )
 {
-    fillInp( inpfld, desc, 0 );
+    fillInp( inpfld_, desc, 0 );
     return true;
 }
 
@@ -192,7 +198,7 @@ bool uiSpecDecompAttrib::getInput( Desc& desc )
 bool uiSpecDecompAttrib::getOutput( Desc& desc )
 {
     checkOutValSnapped();
-    const int freqidx = getOutputIdx( outpfld->box()->getFValue() );
+    const int freqidx = getOutputIdx( outpfld_->box()->getFValue() );
     fillOutput( desc, freqidx );
     return true;
 }
@@ -202,14 +208,14 @@ void uiSpecDecompAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     EvalParam ep( "Frequency" ); ep.evaloutput_ = true;
     params += ep;
-    if ( typefld->getBoolValue() )
+    if ( typefld_->getBoolValue() )
 	params += EvalParam( timegatestr, SpecDecomp::gateStr() );
 }
 
 
 void uiSpecDecompAttrib::checkOutValSnapped() const
 {
-    const float oldfreq = outpfld->box()->getFValue();
+    const float oldfreq = outpfld_->box()->getFValue();
     const int freqidx = getOutputIdx( oldfreq );
     const float freq = getOutputValue( freqidx );
     if ( oldfreq>0.5 && oldfreq!=freq )
