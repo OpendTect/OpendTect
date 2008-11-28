@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.10 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.11 2008-11-28 13:05:05 cvsjaap Exp $";
 
 #include "horizon2dline.h"
 
@@ -281,11 +281,11 @@ bool Horizon2DLine::isKnotDefined( const RCol& rc ) const
 
 int Horizon2DLine::colIndex( int rowidx, int colid ) const
 {
-    if ( rowidx >= colsampling_.size() )
+    if ( rowidx<0 || rowidx>=colsampling_.size() )
 	return -1;
     const SamplingData<int>& sd = colsampling_[rowidx];
     int idx = colid-sd.start;
-    if ( idx<0 || idx%sd.step )
+    if ( idx<0 || !sd.step || idx%sd.step )
 	return -1;
 
     idx /= sd.step;

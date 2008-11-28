@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.108 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.109 2008-11-28 13:05:05 cvsjaap Exp $";
 
 #include "emhorizon3d.h"
 
@@ -404,11 +404,16 @@ RowCol Horizon3DGeometry::step() const
 
 void Horizon3DGeometry::setStep( const RowCol& ns, const RowCol& loadedstep )
 {
-    step_ = ns; step_.row = abs( step_.row ); step_.col = abs( step_.col );
+    if ( ns.row && ns.col )
+    {
+	step_.row = abs( ns.row ); step_.col = abs( ns.col );
+    }
 
-    loadedstep_ = loadedstep;
-    loadedstep_.row = abs( loadedstep_.row );
-    loadedstep_.col = abs( loadedstep_.col );
+    if ( loadedstep.row && loadedstep.col )
+    {
+	loadedstep_.row = abs( loadedstep.row );
+	loadedstep_.col = abs( loadedstep.col );
+    }
 
     if ( nrSections() )
         pErrMsg("Hey, this can only be done without sections.");

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.110 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.111 2008-11-28 13:05:05 cvsjaap Exp $";
 
 #include "emsurfaceio.h"
 
@@ -446,9 +446,9 @@ void dgbSurfaceReader::setGeometry()
 	if ( readcolrange_->step < abs(filestep.col) )
 	    readcolrange_->step = filestep.col;
 
-	if ( readrowrange_->step / filestep.row < 0 )
+	if ( filestep.row && readrowrange_->step / filestep.row < 0 )
 	    readrowrange_->step *= -1;
-	if ( readcolrange_->step / filestep.col < 0 )
+	if ( filestep.col && readcolrange_->step / filestep.col < 0 )
 	    readcolrange_->step *= -1;
     }
 
@@ -460,7 +460,7 @@ void dgbSurfaceReader::setGeometry()
 	    ? RowCol(readrowrange_->step,readcolrange_->step)
 	    : filestep;
    
-       hor->geometry().setStep( filestep, loadedstep );
+	hor->geometry().setStep( filestep, loadedstep );
     }
 }
 
@@ -558,6 +558,9 @@ int dgbSurfaceReader::nextStep()
 
 	    surface_->resetChangedFlag();
 	    surface_->enableGeometryChecks(true);
+	    
+	    if ( !surface_->nrSections() )
+		surface_->geometry().addSection( "", false );
 	}
 
 	return res;
@@ -1390,7 +1393,7 @@ int dgbSurfaceWriter::nextStep()
     if ( sectionindex_!=oldsectionindex_ && !writeNewSection( strm ) )
 	return ErrorOccurred;
 
-    if ( !writeRow( strm ) )
+    if ( nrrows_ && !writeRow( strm ) )
 	return ErrorOccurred;
 	    
     rowindex_++;
@@ -1485,35 +1488,47 @@ bool dgbSurfaceWriter::writeInt64( std::ostream& strm, od_int64 val,
 
 bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 {
+    rowindex_ = 0;
+    rowoffsettableoffset_ = 0;
+
     mDynamicCastGet( const Geometry::RowColSurface*, gsurf,
 	    	     surface_.sectionGeometry( sectionsel_[sectionindex_] ) );
 
-    StepInterval<int> sectionrange = gsurf->rowRange();
-    sectionrange.sort();
-    firstrow_ = sectionrange.start;
-    int lastrow = sectionrange.stop;
-
-    if ( writerowrange_ )
+    if ( !gsurf || gsurf->isEmpty() )
     {
-	if ( firstrow_>writerowrange_->stop || lastrow<writerowrange_->start)
-	    nrrows_ = 0;
-	else
-	{
-	    if ( firstrow_<writerowrange_->start )
-		firstrow_ = writerowrange_->start;
-
-	    if ( lastrow>writerowrange_->stop )
-		lastrow = writerowrange_->stop;
-
-	    firstrow_ = writerowrange_->snap( firstrow_ );
-	    lastrow = writerowrange_->snap( lastrow );
-
-	    nrrows_ = (lastrow-firstrow_)/writerowrange_->step+1;
-	}
+	nrrows_ = 0;
     }
     else
     {
-	nrrows_ = sectionrange.nrSteps()+1;
+	StepInterval<int> sectionrange = gsurf->rowRange();
+	sectionrange.sort();
+	firstrow_ = sectionrange.start;
+	int lastrow = sectionrange.stop;
+
+	if ( writerowrange_ )
+	{
+	    if (firstrow_>writerowrange_->stop || lastrow<writerowrange_->start)
+	    {
+		nrrows_ = 0;
+	    }
+	    else
+	    {
+		if ( firstrow_<writerowrange_->start )
+		    firstrow_ = writerowrange_->start;
+
+		if ( lastrow>writerowrange_->stop )
+		    lastrow = writerowrange_->stop;
+
+		firstrow_ = writerowrange_->snap( firstrow_ );
+		lastrow = writerowrange_->snap( lastrow );
+
+		nrrows_ = (lastrow-firstrow_)/writerowrange_->step+1;
+	    }
+	}
+	else
+	{
+	    nrrows_ = sectionrange.nrSteps()+1;
+	}
     }
 
     sectionoffsets_ += strm.tellp();
@@ -1548,7 +1563,6 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
     }
 
     oldsectionindex_ = sectionindex_;
-    rowindex_ = 0;
     const BufferString sectionname =
 	surface_.sectionName( sectionsel_[sectionindex_] );
 
