@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.14 2008-11-28 14:35:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.15 2008-11-28 14:50:29 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -68,12 +68,6 @@ SoPlaneWellLog::SoPlaneWellLog()
 	    		     lineshape1,lineset1,false);
     SO_KIT_ADD_CATALOG_ENTRY(lineset1,SoLineSet,false,
 	    		     lineshape1, "",false);
-    SO_KIT_ADD_CATALOG_ENTRY(nbinding1,SoTextureCoordinateBinding,false,
-  	    		     trishape1, texturecoord1,false);
-    SO_KIT_ADD_CATALOG_ENTRY(texturecoord1,SoTextureCoordinate2,false,
-  	    		     trishape1, texture1,false);
-    SO_KIT_ADD_CATALOG_ENTRY(texture1,SoTexture2,false,
-  	    		     trishape1, material1,false);
     SO_KIT_ADD_CATALOG_ENTRY(material1,SoMaterial,false,
   	    		     trishape1, coordtri1,false);
     SO_KIT_ADD_CATALOG_ENTRY(coordtri1,SoCoordinate3,false,
@@ -95,12 +89,6 @@ SoPlaneWellLog::SoPlaneWellLog()
 	    		     lineshape2,lineset2,false);
     SO_KIT_ADD_CATALOG_ENTRY(lineset2,SoLineSet,false,
 	    		     lineshape2, "",false);
-    SO_KIT_ADD_CATALOG_ENTRY(nbinding2,SoTextureCoordinateBinding,false,
-  	    		     trishape1, texturecoord2,false);
-    SO_KIT_ADD_CATALOG_ENTRY(texturecoord2,SoTextureCoordinate2,false,
-  	    		     trishape2, texture2,false);
-    SO_KIT_ADD_CATALOG_ENTRY(texture2,SoTexture2,false,
-  	    		     trishape2, material2,false);
     SO_KIT_ADD_CATALOG_ENTRY(material2,SoMaterial,false,
   	    		     trishape2, coordtri2,false);
     SO_KIT_ADD_CATALOG_ENTRY(coordtri2,SoCoordinate3,false,
@@ -280,10 +268,6 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
 	    lognr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
     coordtri->point.deleteValues(0);
 
-    SoTextureCoordinate2* texturecoord = SO_GET_ANY_PART( this,
-	    lognr==1 ? "texturecoord1" : "texturecoord2", SoTextureCoordinate2 );
-    texturecoord->point.deleteValues(0);
-
     SoMFVec3f& path = lognr==1 ? path1 : path2;
     SoMFFloat& log = lognr==1 ? log1 : log2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
@@ -356,11 +340,6 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
     SoTriangleStripSet* triset = SO_GET_ANY_PART( this,
 	    lognr==1 ? "triset1" : "triset2", SoTriangleStripSet );
     triset->numVertices.setValue( nrcrdtri );
-
-    //SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
-    SoTextureCoordinateBinding* nbinding = SO_GET_ANY_PART( this,
-	    lognr==1 ? "nbinding1" : "nbinding2", SoTextureCoordinateBinding );
-    nbinding->value.setValue(SoTextureCoordinateBinding::PER_VERTEX);
     
     currentres = res;
 }
@@ -390,12 +369,6 @@ void SoPlaneWellLog::fillLogTriangles( const int idx, SoCoordinate3* coordtri,
 {
     coordtri->point.set1Value( 2*idx, newcrd );
     coordtri->point.set1Value( 2*idx+1, linecrd );
-}
-
-
-void SoPlaneWellLog::setTextCoords( const int idx, SoTextureCoordinate2* texturecoord,
-       			           SbVec3f& newcrd, SbVec3f& linecrd )
-{
 }
 
 
