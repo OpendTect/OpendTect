@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: mathexpression.cc,v 1.44 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: mathexpression.cc,v 1.45 2008-11-28 06:29:06 cvsnageswara Exp $";
 
 #include "mathexpression.h"
 #include "ctype.h"
@@ -1021,7 +1021,7 @@ void MathExpression::getPrefixAndShift( const char* str,
 	}
     }
     
-    varprefix = prefix;
+    varprefix = prefix.ptr();
 }
 
 
