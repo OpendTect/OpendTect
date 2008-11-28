@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.h,v 1.1 2008-11-28 19:29:20 cvskris Exp $
+ RCS:		$Id: prestackeventascio.h,v 1.2 2008-11-28 19:56:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ columns are as follows:
 
      Inline
      Crossline
-     Event index (0-N per inline/crossline pair).
+     Event index (0-N).
      Dip, going to increasing inlines, If not dip is available, 0 is written
      Dip, going to increasing crosslines, If not dip is available, 0 is written
      Event quality, 0-255
