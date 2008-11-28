@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2003
- RCS:           $Id: uispecdecompattrib.h,v 1.6 2007-04-16 13:53:11 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.h,v 1.7 2008-11-28 10:35:56 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,12 +34,12 @@ public:
 
 protected:
 
-    uiImagAttrSel*	inpfld;
-    uiGenInput*		typefld;
-    uiGenInput*         gatefld;
-    uiLabeledSpinBox*	outpfld;
-    uiLabeledSpinBox*	stepfld;
-    uiGenInput*		waveletfld;
+    uiImagAttrSel*	inpfld_;
+    uiGenInput*		typefld_;
+    uiGenInput*         gatefld_;
+    uiLabeledSpinBox*	outpfld_;
+    uiLabeledSpinBox*	stepfld_;
+    uiGenInput*		waveletfld_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
@@ -55,9 +55,9 @@ protected:
 
     void		checkOutValSnapped() const;
 
-    float		nyqfreq;
-    int			nrsamples; //!< Nr of samples in selected data
-    float		ds; //!< Sample spacing of selected data
+    float		nyqfreq_;
+    int			nrsamples_; //!< Nr of samples in selected data
+    float		ds_; //!< Sample spacing of selected data
 
     			mDeclReqAttribUIFns
 };
