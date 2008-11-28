@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.33 2008-11-26 16:54:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.34 2008-11-28 14:35:59 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -346,8 +346,8 @@ void Well::clearLog( int lognr )
 
 void Well::hideUnwantedLogs( int lognr, int rpt )
 { 
-	for ( int i=rpt; i<log.size(); i++)
-        showOneLog(false, lognr, i);	
+    for ( int i=rpt; i<log.size(); i++)
+	showOneLog(false, lognr, i);	
 }
 
 
@@ -356,12 +356,12 @@ void Well::removeLog( const int rpt )
     int lz=log.size();
 
     for ( int i=1; i<=lz-rpt; i++ )
-	{
-	    log[lz-i]->clearLog(1);
-	    log[lz-i]->clearLog(2);
-	    removeChild( log[lz-i] );
-	    log.remove( lz-i );
-	}
+    {
+	log[lz-i]->clearLog(1);
+	log[lz-i]->clearLog(2);
+	removeChild( log[lz-i] );
+	log.remove( lz-i );
+    }
 }
 
 

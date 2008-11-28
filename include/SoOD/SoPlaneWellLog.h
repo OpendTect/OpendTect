@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.10 2008-11-26 16:54:39 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.11 2008-11-28 14:35:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 class SoBaseColor;
 class SoCoordinate3;
+class SoTextureCoordinate2;
 class SoDrawStyle;
 class SoFieldSensor;
 class SoLineSet;
@@ -97,6 +98,9 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(coordtri1);
     SO_KIT_CATALOG_ENTRY_HEADER(triset1);
     SO_KIT_CATALOG_ENTRY_HEADER(material1);
+    SO_KIT_CATALOG_ENTRY_HEADER(texture1);
+    SO_KIT_CATALOG_ENTRY_HEADER(texturecoord1);
+    SO_KIT_CATALOG_ENTRY_HEADER(nbinding1);
     SO_KIT_CATALOG_ENTRY_HEADER(line2Switch);
     SO_KIT_CATALOG_ENTRY_HEADER(group2);
     SO_KIT_CATALOG_ENTRY_HEADER(col2);
@@ -106,6 +110,9 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(coordtri2);
     SO_KIT_CATALOG_ENTRY_HEADER(triset2);
     SO_KIT_CATALOG_ENTRY_HEADER(material2);
+    SO_KIT_CATALOG_ENTRY_HEADER(texture2);
+    SO_KIT_CATALOG_ENTRY_HEADER(texturecoord2);
+    SO_KIT_CATALOG_ENTRY_HEADER(nbinding2);
 
     void			GLRender(SoGLRenderAction*);
 
@@ -116,6 +123,7 @@ protected:
     float			worldwidth;
     bool			revscale1, revscale2;
     int 			lognr;
+
     
     SoFieldSensor*		valuesensor;
     static void			valueChangedCB(void*,SoSensor*);
@@ -124,7 +132,9 @@ protected:
     void			buildLog(int,const SbVec3f&,int);
     void			fillTriangles(const int, const bool,float,float,
 	   				      SoCoordinate3*,SbVec3f&,SbVec3f&);
-    void			fillFirstLog(const int,SoCoordinate3*,SbVec3f&,SbVec3f&);
+    void			fillLogTriangles(const int,SoCoordinate3*,SbVec3f&,SbVec3f&);
+    void			setTextCoords(const int,SoTextureCoordinate2*,
+	    						SbVec3f&,SbVec3f&);
     SbVec3f 			getProjCoords(const SoMFVec3f&,const int,
 	  				      const SbVec3f&, const SoSFFloat&,
 					      const float, int lognr);
