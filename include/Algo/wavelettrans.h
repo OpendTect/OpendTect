@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.13 2004-12-23 17:11:58 nanne Exp $
+ RCS:           $Id: wavelettrans.h,v 1.14 2008-11-28 09:19:15 cvsnageswara Exp $
 ________________________________________________________________________
 
 @$*/
@@ -154,22 +154,20 @@ public:
     			DeclareEnumUtils(WaveletType);
 
     void		setWavelet(CWT::WaveletType);
-    void		setScale(int s)			{ scale_start = s; }
-    void		setNrVoices(int nv)		{ nrvoices = nv; }
 
-    void		setTransformRange(const StepInterval<float>& rg)
-			{ freqrg = rg; }
-    void		setDeltaT(float dt_)		{ dt = dt_; }
+    void		setTransformRange( const StepInterval<float>& rg )
+			{ freqrg_ = rg; }
+    void		setDeltaT( float dt )		{ dt_ = dt; }
 			
-    bool		setInputInfo( const ArrayNDInfo& );
-    const ArrayNDInfo&	getInputInfo() const { return *info; }
+    bool		setInputInfo(const ArrayNDInfo&);
+    const ArrayNDInfo&	getInputInfo() const		{ return *info_; }
 
     bool		isReal() const;
-    bool		isCplx() const { return true; }
+    bool		isCplx() const			{ return true; }
 
-    bool		bidirectional() const { return false; }
+    bool		bidirectional() const		{ return false; }
     bool		setDir(bool forw);
-    bool		getDir() const { return true; }
+    bool		getDir() const			{ return true; }
 
     bool		init();
 
@@ -179,43 +177,53 @@ public:
     bool		transform(const ArrayND<float_complex>&,
 				   ArrayND<float_complex>& ) const
 			{ return false; }
-    bool		transform(const ArrayND<float_complex>&,
-	    				ArrayND<float>& ) const;
+    bool		transform(const ArrayND<float_complex>& input,
+	    				ArrayND<float>& output) const;
 
-    float		getFrequency(int ns,float dt,int scaleidx) const;
-    int			getNrScales(int ns) const;
     float		getScale(int ns,float dt,float freq) const;
+
+    void		setFreqIdxs( const TypeSet<int>& outfreqidxs )
+			{ outfreqidxs_ = outfreqidxs; }
 
 protected:
 
-    bool		isPossible( int sz) const;
+    struct CWTWavelets
+    {
+				CWTWavelets()	{}
+
+	void			createWavelet(WaveletType,int nrsamples,
+					      float scale);
+	const TypeSet<float>*	getWavelet(float scale) const;
+	void			createMorletWavelet(int,float,TypeSet<float>&);
+	void			createMexhatWavelet(int,float,TypeSet<float>&);
+	void			createGaussWavelet(int,float,TypeSet<float>&);
+
+
+	TypeSet<float>		scales_;
+	TypeSet< TypeSet<float> > wavelets_;
+    };
+
+
+    CWTWavelets		wvlts_;
+
+    bool		isPossible(int sz) const;
     bool		isFast( int ) const { return true; }
 
-    void		getMorletWavelet(int,float,TypeSet<float>&) const;
-    void		getMexhatWavelet(int,float,TypeSet<float>&) const;
-    void		getGaussWavelet(int,float,TypeSet<float>&) const;
-
-    bool		transformRange(const ArrayND<float_complex>&,
-	    			       Array2DImpl<float>&) const;
-    bool		transformAll(const ArrayND<float_complex>&,
-	    			     Array2DImpl<float>&) const;
     void		transform(int,float,int,
 	    			  const Array1DImpl<float_complex>&,
 				  Array2DImpl<float>&) const;
 
-    FFT			fft;
-    FFT			ifft;
+    FFT			fft_;
+    FFT			ifft_;
 	    			     
-    ArrayNDInfo*	info;
+    ArrayNDInfo*	info_;
 
-    WaveletType 	wt;
-    int 		scale_start;
-    int			nrvoices;
     bool		inited;
+    float		dt_;
+    WaveletType		wt_;
 
-    float		dt;
-    StepInterval<float> freqrg;
+    StepInterval<float> freqrg_;
+    TypeSet<int>	outfreqidxs_;
 };
-
 
 #endif

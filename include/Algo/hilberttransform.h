@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2007
- RCS:		$Id: hilberttransform.h,v 1.2 2008-10-20 06:15:01 cvsnageswara Exp $
+ RCS:		$Id: hilberttransform.h,v 1.3 2008-11-28 09:19:15 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
 
     bool		init();
     void		setHalfLen( int hl )		{ halflen_ = hl; }
-    void		setCalcRange(int, int);
+    void		setCalcRange(int, int, int);
 
     bool		transform(const ValueSeries<float>&,int szin,
 	    			  ValueSeries<float>&,int szout) const;
@@ -58,11 +58,13 @@ protected:
     bool		isFast( int ) const		{ return true; }
 
     bool		forward_;
-    int			startidx_;
     int			nrsamples_;
     int			halflen_;
     float*		hilbwindow_;
     ArrayNDInfo*	info_;
+    int			startidx_;
+    int			convstartidx_;
+    int			arrminnrsamp_;
 
     mutable BufferString errmsg_;
 };

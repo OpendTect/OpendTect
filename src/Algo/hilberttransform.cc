@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hilberttransform.cc,v 1.4 2008-11-25 13:46:17 cvsbert Exp $";
+static const char* rcsID = "$Id: hilberttransform.cc,v 1.5 2008-11-28 09:24:10 cvsnageswara Exp $";
 
 
 #include "hilberttransform.h"
-
 
 #include "genericnumer.h"
 #include "arraynd.h"
@@ -19,11 +18,16 @@ static const char* rcsID = "$Id: hilberttransform.cc,v 1.4 2008-11-25 13:46:17 c
 #include "arrayndinfo.h"
 #include "valseries.h"
 
+
 HilbertTransform::HilbertTransform()
     : info_(0)
     , forward_(true)
+    , nrsamples_(0)		    
     , halflen_(30)
     , hilbwindow_(0)
+    , startidx_(0)
+    , convstartidx_(0)
+    , arrminnrsamp_(0)		  
 {}
 
 
@@ -55,10 +59,12 @@ bool HilbertTransform::isPossible( int sz ) const
 }
 
 
-void HilbertTransform::setCalcRange( int startidx, int size )
+void HilbertTransform::setCalcRange( int startidx,int arrminnrsamp,
+			             int convstartidx )
 {
-    startidx_ = startidx;
-    nrsamples_ = size;
+    startidx_ = startidx; 
+    arrminnrsamp_ = arrminnrsamp;
+    convstartidx_ = convstartidx;
 }
 
 
@@ -94,6 +100,7 @@ Masker( const ValueSeries<float>& data, int sz )
     , size_(sz)
 {}
 
+
 float operator[]( int pos ) const
 {
     float val = mUdf(float);
@@ -123,17 +130,9 @@ float operator[]( int pos ) const
 };
 
 
-
 bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
 				  ValueSeries<float>& output, int szout ) const
 {
-    const bool enoughnrsamples = isPossible( szin );
-    if ( !enoughnrsamples )
-    {
-	errmsg_ = "Insufficient data to calculate Hilbert Transform";
-	return false;
-    }
-
     Masker masker( input, szin );
     int nrsampforavg = szout;
     float sum = 0;
@@ -154,12 +153,10 @@ bool HilbertTransform::transform( const ValueSeries<float>& input, int szin,
     float* outarr = output.arr();
     const int windowsz = halflen_ * 2 + 1;
     GenericConvolve( windowsz, -halflen_, hilbwindow_,
-		     szin, -startidx_, masker,
-		     szout, 0, outarr );
-
+		     szin, convstartidx_, masker,
+		     arrminnrsamp_, 0, outarr ); 
     return true;
 }
-
 
 
 bool HilbertTransform::transform( const ArrayND<float>& in,
@@ -191,8 +188,9 @@ bool HilbertTransform::transform( const ArrayND<float>& real,
     const bool trans = transform( real, imgout );
     if ( !trans ) return false;
 
-    mDynamicCastGet( const Array1D<float>*, realarr, &real );
-    mDynamicCastGet( Array1D<float_complex>*, imgarr, &img );
+    mDynamicCastGet(const Array1D<float>*,realarr,&real);
+    mDynamicCastGet(Array1D<float_complex>*,imgarr,&img);
+    if ( !realarr || !imgarr ) return false;
 
     for ( int idx=0; idx<insize; idx++ )
 	imgarr->set( idx, float_complex(realarr->get(idx),imgout.get(idx)) );
