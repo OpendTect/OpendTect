@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.12 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.13 2008-11-28 08:53:22 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ public:
     static const char*		halflenStr()	{ return "halflen"; }
 
 protected:
-				~Hilbert()	{ delete [] hilbfilter_; }
     static Provider*		createInstance(Desc&);
 
     bool			getInputOutput(int inp,TypeSet<int>& res) const;
@@ -52,10 +51,6 @@ protected:
 
     Interval<int>		zmargin_;
     int				halflen_;
-    int				hilbfilterlen_;
-    const float*		hilbfilter_;
-
-    static float*		makeHilbFilt(int);
 };
 
 }; // namespace Attrib
