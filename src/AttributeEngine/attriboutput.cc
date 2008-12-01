@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.88 2008-11-27 13:28:19 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.89 2008-12-01 15:31:52 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -1053,16 +1053,32 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 						    float zstep,
 						    TypeSet<float>& ) const
 {
-    //TODO : for some reason horizon coords in 2D are now rounded, check why
-    Coord roundedcoord( (int)coord.x, (int)coord.y ); 
-    DataPointSet::RowID rowid = poszvalues_->findFirst( roundedcoord );
-    const BinID bid = SI().transform( roundedcoord );
     TypeSet< Interval<int> > sampleinterval;
+    DataPointSet::RowID rowid = poszvalues_->findFirst( coord );
+
+    if ( rowid< 0 )
+    {
+	for ( int idx=0; idx<poszvalues_->size()-1; idx++ )
+	{
+	    if ( coord > poszvalues_->coord( idx )
+		&& coord < poszvalues_->coord( idx+1 ) )
+	    {
+		const double distn = coord.distTo( poszvalues_->coord(idx) );
+		const double distnp1 = coord.distTo(poszvalues_->coord(idx+1));
+		rowid = distn < distnp1 ? idx : idx+1;
+		break;
+	    }
+	}
+    }
+
+    if ( rowid< 0 ) return sampleinterval;
+
+    const BinID bid = poszvalues_->binID(rowid);
     for ( int idx=rowid; idx<poszvalues_->size(); idx++ )
     {
 	if ( poszvalues_->binID( idx ) != bid ) break;
-	if ( mIsEqual( poszvalues_->coord(idx).x, roundedcoord.x, 1e-3 )
-	   &&mIsEqual( poszvalues_->coord(idx).y, roundedcoord.y, 1e-3 ) )
+	if ( mIsEqual( poszvalues_->coord(idx).x, coord.x, 1e-3 )
+	   &&mIsEqual( poszvalues_->coord(idx).y, coord.y, 1e-3 ) )
 	{
 	    Interval<int> interval( mNINT(poszvalues_->z(idx)/zstep),
 		    		    mNINT(poszvalues_->value(0,idx)/zstep) );
