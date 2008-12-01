@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.5 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.6 2008-12-01 15:19:13 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
+#include "delaunay3d.h"
 #include "embodytr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -21,11 +22,13 @@ static const char* rcsID = "$Id: empolygonbody.cc,v 1.5 2008-11-25 15:35:22 cvsb
 #include "explpolygonsurface.h"
 #include "indexedshape.h"
 #include "ioman.h"
-#include "rowcol.h"
+#include "mousecursor.h"
 #include "positionlist.h"
+#include "rowcol.h"
 #include "survinfo.h"
 #include "sortedtable.h"
 #include "tabledef.h"
+#include "trigonometry.h"
 #include "undo.h"
 #include "unitofmeasure.h"
 
@@ -166,7 +169,7 @@ protected:
     bool	remove_;
 };
 
-    
+
 PolygonBody::PolygonBody( EMManager& em )
     : Surface( em )
     , geometry_( *this )
@@ -183,56 +186,54 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
 {
     const EM::SectionID sid = sectionID( 0 );
     const Geometry::PolygonSurface* surf = geometry().sectionGeometry( sid );
-    
-    if ( !surf )
+    if ( !surf || surf->nrPolygons()<2 )
 	return 0;
 
-    Geometry::ExplPolygonSurface explpoly( surf, 1 ); //zScale =1 ?
-    explpoly.display( false, true );
+     const StepInterval<int> rrg = surf->rowRange();
+     if ( rrg.isUdf() )
+	 return 0;
 
-    if ( !explpoly.update(true,tr) ) 
-	return 0;
-
-    const ObjectSet<Geometry::IndexedGeometry> indexedgeoms = 
-	explpoly.getGeometry();
-    const Coord3List* xyzcoords = explpoly.coordList();
-    if ( !indexedgeoms.size() || !xyzcoords )
-	return 0;
-
-    SortedTable<BinIDValue> bidvals;
-
-    Interval<int> inlrg, crlrg;
+     const float zscale = SI().zFactor();
+     TypeSet<Coord3> pts;
+     for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
+	 surf->getCubicBezierCurve( plg, pts, zscale );
+     
     Interval<float> zrg;
-    int curid = xyzcoords->nextID( -1 );
-    while ( curid>=0 )
+    StepInterval<int> inlrg, crlrg;
+    inlrg.step = SI().inlStep();
+    crlrg.step = SI().crlStep();
+   
+    for ( int idx=0; idx<pts.size(); idx++ )
     {
-	const Coord3 crd = xyzcoords->get( curid );
-	if ( !crd.isDefined() )
-	    return 0;
-
-	const BinID bid = SI().transform(crd);
-	if ( !inlrg.width() )
+	const BinID bid = SI().transform( pts[idx] );
+	if ( !idx )
 	{
-	    inlrg.start = bid.inl; inlrg.stop = bid.inl;
-	    crlrg.start = bid.crl; crlrg.stop = bid.crl;
-	    zrg.start = crd.z;     zrg.stop = crd.z;
+	    inlrg.start = inlrg.stop = bid.inl;
+	    crlrg.start = crlrg.stop = bid.crl;
+	    zrg.start = zrg.stop = pts[idx].z;
 	}
 	else
 	{
 	    inlrg.include( bid.inl ); 
 	    crlrg.include( bid.crl );
-	    zrg.include( crd.z );
+	    zrg.include( pts[idx].z );
 	}
-
-	bidvals.set( curid, BinIDValue( bid, crd.z ) );
-	curid = xyzcoords->nextID( curid );
     }
 
-    const int inlsz = inlrg.width()+1;
-    const int crlsz = crlrg.width()+1;
-    const int zsz = mNINT(zrg.width()/SI().zStep())+1;
+    for ( int idx=0; idx<pts.size(); idx++ )
+	 pts[idx].z *= zscale;
 
-    mDeclareAndTryAlloc(Array3D<int>*,intarr,Array3DImpl<int>(inlsz,crlsz,zsz));
+     DAGTetrahedraTree dagtree;
+     if ( !dagtree.setCoordList( pts, false ) )
+	 return 0;
+
+     ParallelDTetrahedralator triangulator( dagtree );
+     if ( !triangulator.execute(true) )
+	 return 0;
+
+    mDeclareAndTryAlloc( Array3D<char>*, intarr, 
+	    		 Array3DImpl<char>(inlrg.nrSteps()+1,crlrg.nrSteps()+1,
+			     		   mNINT(zrg.width()/SI().zStep())+1) );
     if ( !intarr )
 	return 0;
     
@@ -243,7 +244,10 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
 	return 0;
     }
 
-    Array3D<float>* arr = new Array3DConv<float,int>(intarr);
+    //Initial all the points outside the body.
+    memset( intarr->getData(), 1, sizeof(char)*intarr->info().getTotalSz() );
+
+    Array3D<float>* arr = new Array3DConv<float,char>(intarr);
     if ( !arr )
     {
 	delete intarr;
@@ -252,21 +256,23 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
     }
 
     res->arr_ = arr;
+    res->threshold_ = 0;
     res->inlsampling_.start = inlrg.start;
-    res->inlsampling_.step = SI().inlStep();
-    
+    res->inlsampling_.step = inlrg.step;
     res->crlsampling_.start = crlrg.start;
-    res->crlsampling_.step = SI().crlStep();    
-
+    res->crlsampling_.step = crlrg.step;    
     res->zsampling_.start = zrg.start;
     res->zsampling_.step = SI().zStep();
 
-    res->threshold_ = 0;
-    //set value on each pos.
-    for ( int idx=0; idx<indexedgeoms.size(); idx++ )
-    {
-    }
-
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    
+    PtrMan<Explicit2ImplicitBodyExtracter> extractor = 
+	new Explicit2ImplicitBodyExtracter( dagtree, inlrg, crlrg, zrg,*intarr);
+	       				 //   *(res->arr_) );
+    if ( !extractor->execute() )
+	res = 0;
+    
+    cursorchanger.restore();
     return res;
 }
 
