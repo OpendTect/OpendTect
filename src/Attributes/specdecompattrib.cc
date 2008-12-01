@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.22 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.23 2008-12-01 04:32:59 cvsnageswara Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: specdecompattrib.cc,v 1.22 2008-11-25 15:35:22 
 #include <math.h>
 #include <complex>
 
+#include <iostream>
 
 #define mTransformTypeFourier		0
 #define mTransformTypeDiscrete  	1
@@ -298,7 +299,7 @@ bool SpecDecomp::calcDWT(const DataHolder& output, int z0, int nrsamples ) const
     }
 
     Array1DImpl<float> transformed( len );
-    ::DWT dwt(dwtwavelet_ );// what does that really mean?
+    ::DWT dwt(dwtwavelet_ );
 
     dwt.setInputInfo( inputdata.info() );
     dwt.init();
@@ -344,7 +345,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     Array1DImpl<float_complex> inputdata( nrsamp );
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	const int cursample = z0 + idx - off;
+	const int cursample = z0 + idx - off;   
 	const int reidx = cursample-redata_->z0_;
 	float real = reidx < 0 || reidx >= redata_->nrsamples_
 		    ? 0 : redata_->series(realidx_)->value( reidx );
@@ -354,9 +355,9 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 	float imag = imidx < 0 || imidx >= imdata_->nrsamples_
 		    ? 0 : -imdata_->series(imagidx_)->value( imidx );
 	if ( mIsUdf(imag) ) imag = 0;
-        inputdata.set( idx, float_complex(real,imag) );
+        inputdata.set( idx, float_complex(real, imag) );
     }
-
+    
     CWT& cwt = const_cast<CWT&>(cwt_);
     cwt.setInputInfo( Array1DInfoImpl(nrsamp) );
     cwt.setDir( true );
@@ -366,13 +367,17 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     const float nyqfreq = 0.5 / SI().zStep();
     const int nrattribs = mNINT( nyqfreq / deltafreq_ );
     const float freqstop = deltafreq_*nrattribs;
+    TypeSet<int> freqidxs;
+    for ( int idx=0; idx<nrOutputs(); idx++ )
+	if ( outputinterest[idx]>0 ) freqidxs += idx;
+
+    cwt.setFreqIdxs( freqidxs );
     cwt.setTransformRange( StepInterval<float>(deltafreq_,freqstop,deltafreq_));
     cwt.init();
-
     Array2DImpl<float> outputdata(0,0);
     cwt.transform( inputdata, outputdata );
-
     const int nrscales = outputdata.info().getSize(1);
+
     const char* fname = GetEnvVar( "OD_PRINT_SPECDECOMP_FILE" );
     if ( fname && *fname )
     {
@@ -388,7 +393,7 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
 	    sd.close();
 	}
     }
-    
+
     for ( int idx=0; idx<nrscales; idx++ )
     {
 	if ( !outputinterest[idx] ) continue;
