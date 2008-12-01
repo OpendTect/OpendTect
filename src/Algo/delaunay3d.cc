@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.11 2008-11-19 21:47:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.12 2008-12-01 15:10:31 cvsyuancheng Exp $";
 
 #include "arraynd.h"
 #include "delaunay3d.h"
@@ -266,7 +266,6 @@ bool Implicit2BodyFloodFill::findFirst( int& startx, int& starty, int& startz )
 void Implicit2BodyFloodFill::addToQueue( int i0, int i1, int i2, 
 					 bool increase, char dir ) 
 {
-    bool found = false;
     Dummy newpos;
      if ( i0<0 || i0>=xsz_ || i1<0 || i1>=ysz_ || i2<0 || i2>=zsz_ )
 	 return;
@@ -274,7 +273,7 @@ void Implicit2BodyFloodFill::addToQueue( int i0, int i1, int i2,
     if ( body_.get(i0,i1,i2)==threshold_ ) 
     {  
 	newpos.i = i0; newpos.j = i1; newpos.k = i2; 
-	found = false; 
+	bool found = false; 
 	for ( int idx=0; idx<used_.size(); idx++ ) 
 	{ 
 	    if ( used_[idx] == newpos ) 
@@ -283,6 +282,7 @@ void Implicit2BodyFloodFill::addToQueue( int i0, int i1, int i2,
 		break; 
 	    } 
 	} 
+	
 	if ( !found ) 
 	{ 
 	    for ( int idx=0; idx<queue_.size(); idx++ ) 
@@ -294,6 +294,7 @@ void Implicit2BodyFloodFill::addToQueue( int i0, int i1, int i2,
 		} 
 	    } 
 	} 
+	
 	if ( !found ) 
 	    queue_ += newpos; 
     }
