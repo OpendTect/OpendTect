@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.9 2008-10-22 18:48:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.10 2008-12-01 15:14:21 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -138,15 +138,36 @@ bool ExplPolygonSurface::updateBodyDisplay()
 	return false;
 
     ParallelDTetrahedralator triangulator( *tetrahedratree_ );
+    triangulator.dataIsRandom( false );
     if ( !triangulator.execute(true) )
 	return false;
 
     sampleindices_.erase();
     tetrahedratree_->getSurfaceTriangles( sampleindices_ );
+    
+    TypeSet<int> invalidknots;
+    for ( int idx=0; idx<pts.size(); idx++ )
+    {
+	int counts = 0;
+	for ( int idy=0; idy<sampleindices_.size(); idy++ )
+	{
+	    if ( idx==sampleindices_[idy] )
+		counts++;
+	}
+
+	if ( counts<3 )
+	    invalidknots += idx;
+    }
    
     bodytriangle_->coordindices_.erase();
+    bool allvalid = invalidknots.size();
     for ( int idx=0; idx<sampleindices_.size()/3; idx++ )
     {
+	if ( !allvalid && ( invalidknots.validIdx(sampleindices_[3*idx]) ||
+		    	    invalidknots.validIdx(sampleindices_[3*idx+1]) ||
+			    invalidknots.validIdx(sampleindices_[3*idx+2]) ) )
+	    continue;
+
 	bodytriangle_->coordindices_ += sampleindices_[3*idx];
 	bodytriangle_->coordindices_ += sampleindices_[3*idx+1];
 	bodytriangle_->coordindices_ += sampleindices_[3*idx+2];
@@ -158,7 +179,52 @@ bool ExplPolygonSurface::updateBodyDisplay()
 }
 
 
-char ExplPolygonSurface::locationToSurface( const Coord3 pt )
+bool ExplPolygonSurface::prepareBodyDAGTree()
+{
+    if ( !tetrahedratree_ )
+	tetrahedratree_ = new DAGTetrahedraTree;
+
+    if ( !surface_ )
+	return false;
+    
+    const StepInterval<int> rrg = surface_->rowRange();
+    if ( rrg.isUdf() )
+	return false;
+
+    TypeSet<Coord3> pts;
+    for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
+	surface_->getCubicBezierCurve( plg, pts, (float)scalefacs_.z );
+   
+    for ( int idx=0; idx<pts.size(); idx++ )
+	coordlist_->set( idx, pts[idx] );
+
+    for ( int idx=0; idx<pts.size(); idx++ )
+	pts[idx].z *= scalefacs_.z;
+    
+    if ( !tetrahedratree_->setCoordList( pts, false ) )
+	return false;
+    
+    ParallelDTetrahedralator triangulator( *tetrahedratree_ );
+    triangulator.dataIsRandom( false );
+    return triangulator.execute(true);
+}
+
+
+char ExplPolygonSurface::positionToBody( const Coord3 pt )
+{
+    if ( !pt.isDefined() )
+	return -1;
+    
+    if ( !tetrahedratree_ && !prepareBodyDAGTree() )
+	return -1;
+    
+    const Coord3 scaledpt = pt.scaleBy(scalefacs_);
+    return tetrahedratree_->searchTetrahedra( scaledpt );
+}
+
+
+/*
+char ExplPolygonSurfacerrlocationToSurface( const Coord3 pt )
 {
     if ( !pt.isDefined() || !sampleindices_.size() )
 	return -1;
@@ -210,7 +276,7 @@ char ExplPolygonSurface::locationToSurface( const Coord3 pt )
 
     return -1;
 }
-
+*/
 
 void ExplPolygonSurface::display( bool polygons, bool body )
 {

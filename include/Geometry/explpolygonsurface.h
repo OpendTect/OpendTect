@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: explpolygonsurface.h,v 1.4 2008-10-07 14:17:38 cvsyuancheng Exp $
+ RCS:           $Id: explpolygonsurface.h,v 1.5 2008-12-01 15:14:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,10 @@ public:
     TypeSet<Coord3>	getSurfaceSamples() const    { return samples_; }
     TypeSet<int>	getSampleIndices() const     { return sampleindices_; }
     			/*<The indices are corresponding to the samples_. */
-    char		locationToSurface(const Coord3 point);
+    
+    bool		prepareBodyDAGTree();
+    			/*<Create body tetrahedras based on surface polygons.*/
+    char		positionToBody(const Coord3 point);
     			/*<Check point is inside, on, or outside a triangulated 
 			   body surface, ret 1, 0, -1 respectively. */
 
