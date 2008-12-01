@@ -4,7 +4,7 @@
  * DATE     : Dec 2006
 -*/
 
-static const char* rcsID = "$Id: binidsorting.cc,v 1.4 2008-10-14 10:21:54 cvsbert Exp $";
+static const char* rcsID = "$Id: binidsorting.cc,v 1.5 2008-12-01 14:13:03 cvsbert Exp $";
 
 #include "binidsorting.h"
 #include "undefval.h"
@@ -112,10 +112,12 @@ bool BinIDSortingAnalyser::add( const BinID& cur )
     else
     {
 	int nrvalid = 0;
+	int firststillvalid = -1;
 	for ( int idx=0; idx<8; idx++ )
 	{
 	    if ( st_[idx] )
 	    {
+		firststillvalid = idx;
 		st_[idx] = BinIDSorting(false,idx).isValid( prev_, cur );
 		if ( st_[idx] ) nrvalid++;
 	    }
@@ -124,6 +126,8 @@ bool BinIDSortingAnalyser::add( const BinID& cur )
 	if ( nrvalid < 1 )
 	{
 	    errmsg_ = "Input data is not sorted on inline or crossline";
+	    if ( firststillvalid >= 0 )
+		st_[firststillvalid] = true;
 	    return false;
 	}
 	rv = nrvalid == 1;

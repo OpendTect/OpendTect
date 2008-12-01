@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.6 2008-11-11 12:02:16 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.7 2008-12-01 14:13:03 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -30,7 +30,8 @@ void PosInfo::Detector::reInit()
     sortanal_ = new BinIDSortingAnalyser( setup_.is2d_ );
     cbobuf_.erase();
     deepErase( lds_ );
-    allstd_ = inlirreg_ = crlirreg_ = false;
+    inlirreg_ = crlirreg_ = false;
+    allstd_ = true;
     curline_ = curseg_ = -1;
     nrpos_ = nruniquepos_ = 0;
     offsrg_.start = offsrg_.stop = 0;
@@ -221,10 +222,11 @@ bool PosInfo::Detector::applySortAnal()
 	allstd_ = allstd_ && sorting_.inlUpward() && inlSorted();
 
     addFirst( cbobuf_[0] );
+    bool rv = true;
     for ( int idx=1; idx<cbobuf_.size(); idx++ )
     {
 	if ( !addNext(cbobuf_[idx]) )
-	    return false; // should not be possible
+	    rv = false;
     }
     cbobuf_.erase();
     return true;
@@ -249,19 +251,23 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 
 bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
 {
+    bool rv = true;
+
     if ( !sorting_.isValid(prevcbo_.binid_,cbo.binid_) && setup_.reqsorting_ )
     {
 	errmsg_ = "Sorting violation at ";
-	errmsg_ += setup_.is2d_ ? "trace number " : "inl/crl ";
-	if ( !setup_.is2d_ )
-	    { errmsg_ += cbo.binid_.inl; errmsg_ == "/"; }
+	if ( setup_.is2d_ )
+	    errmsg_ += "trace number ";
+	else
+	    { errmsg_ += cbo.binid_.inl; errmsg_ += "/"; }
 	errmsg_ += cbo.binid_.crl;
 	if ( setup_.isps_ )
 	    { errmsg_ += "(offset "; errmsg_ += cbo.offset_; errmsg_ += ")"; }
-	errmsg_ += ".\n\nIt violates '";
+	errmsg_ += ".\n\nThis position violates all possible sortings.\n"
+	    	   "The last possibility was '";
 	errmsg_ += sorting_.description();
 	errmsg_ += "'\n";
-	return false;
+	rv = false;
     }
 
     setCur( cbo );
@@ -274,7 +280,7 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
     if ( setup_.isps_ )
 	offsrg_.include( cbo.offset_ );
 
-    return true;
+    return rv;
 }
 
 
