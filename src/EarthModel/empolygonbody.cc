@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.6 2008-12-01 15:19:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.7 2008-12-01 15:32:27 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
@@ -246,6 +246,10 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
 
     //Initial all the points outside the body.
     memset( intarr->getData(), 1, sizeof(char)*intarr->info().getTotalSz() );
+    
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    PtrMan<Explicit2ImplicitBodyExtracter> extractor = 
+	new Explicit2ImplicitBodyExtracter(dagtree, inlrg, crlrg, zrg, *intarr);
 
     Array3D<float>* arr = new Array3DConv<float,char>(intarr);
     if ( !arr )
@@ -264,11 +268,6 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
     res->zsampling_.start = zrg.start;
     res->zsampling_.step = SI().zStep();
 
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    
-    PtrMan<Explicit2ImplicitBodyExtracter> extractor = 
-	new Explicit2ImplicitBodyExtracter( dagtree, inlrg, crlrg, zrg,*intarr);
-	       				 //   *(res->arr_) );
     if ( !extractor->execute() )
 	res = 0;
     
