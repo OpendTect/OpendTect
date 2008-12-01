@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.3 2008-05-29 13:26:29 cvskris Exp $
+ RCS:		$Id: multidimstorage.h,v 1.4 2008-12-01 14:43:39 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,7 +216,7 @@ template <class T> inline
 int MultiDimStorage<T>::totalSize() const
 {
     if ( nrdims_==1 )
-	return onedimstorage_.size();
+	return positions_.size();
 
     int sum = 0;
     for ( int idx=lowerdimstorage_.size()-1; idx>=0; idx-- )
@@ -492,7 +492,7 @@ bool MultiDimStorage<T>::getIndex( int globalpos, IDX& indexarr ) const
 	return false;
     }
 
-    if ( globalpos<onedimstorage_.size() )
+    if ( globalpos<positions_.size() )
     {
 	index = globalpos;
 	return true;
@@ -592,7 +592,7 @@ bool MultiDimStorage<T>::isValidPos( const IDX& indexarr ) const
 	return index<lowerdimstorage_.size() &&
 	       lowerdimstorage_[index]->isValidPos( indexarr );
 
-    return index<onedimstorage_.size();
+    return index<positions_.size();
 }
     
     
