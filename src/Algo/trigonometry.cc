@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.45 2008-11-17 21:32:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.46 2008-12-01 15:12:34 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -317,8 +317,9 @@ bool Line3::closestPoint( const Line3& line, double& t_this,
 {
     const Coord3 dir0 = direction( false );
     const Coord3 dir1 = line.direction( false );
-    const double cosalpha = dir0.normalize().dot( dir1.normalize() );
-    if ( mIsZero(fabs(cosalpha)-1,1e-4) )
+    double cosalpha = dir0.normalize().dot( dir1.normalize() );
+    cosalpha = fabs(cosalpha);
+    if ( mIsZero(cosalpha-1,1e-3) )
 	return false;
 
     const Coord3 diff(line.x0_-x0_,line.y0_-y0_,line.z0_-z0_);
