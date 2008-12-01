@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.17 2008-09-25 17:25:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.18 2008-12-01 15:00:13 cvsyuancheng Exp $";
 
 #include "marchingcubes.h"
 
@@ -26,6 +26,8 @@ static const char* rcsID = "$Id: marchingcubes.cc,v 1.17 2008-09-25 17:25:00 cvs
 const unsigned char MarchingCubesModel::cUdfAxisPos = 255;
 const unsigned char MarchingCubesModel::cMaxAxisPos = 254;
 const unsigned char MarchingCubesModel::cAxisSpacing = 255;
+
+const double  mInitValue = 1e+10;  
 
 
 class MarchingCubesSurfaceWriter: public Executor
@@ -264,13 +266,35 @@ bool MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
     }
     */
 
-    if ( !use2 || !use1 || !use0 )
-	return false;
-
+    const float diff000 = threshold-val000;
     const bool sign000 = use000 && val000>threshold;
     const bool sign001 = use001 && val001>threshold;
     const bool sign010 = use010 && val010>threshold;
     const bool sign100 = use100 && val100>threshold;
+
+    if ( !use2 && !use1 && !use0 )
+    {
+	return false; //How about on the edge?
+
+	model_ = 0;
+	submodel_ = 0;
+	if ( !use2 )
+	    axispos_[mZ] = cUdfAxisPos;
+	else
+	    mCalcCoord( 001, mZ );
+
+	if ( !use1 )
+	    axispos_[mY] = cUdfAxisPos;
+	else
+	    mCalcCoord( 010, mY );
+
+	if ( !use0 )
+	    axispos_[mX] = cUdfAxisPos;
+	else
+	    mCalcCoord( 100, mX );
+
+	return true;
+    }
 
     if ( use000 && use001 && use010 && use011 &&
 	 use100 && use101 && use110 && use111 )
@@ -284,7 +308,6 @@ bool MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
     else
 	model_ = 0;
 
-    const float diff000 = threshold-val000;
     mCalcCoord( 001, mZ );
     mCalcCoord( 010, mY );
     mCalcCoord( 100, mX );
@@ -489,174 +512,6 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
     }
 
     return true;
-}
-
-
-class SeedBasedFloodFiller : public SequentialTask
-{
-public:
-    SeedBasedFloodFiller( SeedBasedImplicit2MarchingCubes& sbi2mc, 
-	    		  int posx, int posy, int posz, bool docont )
-	: sbi2mc_( sbi2mc )
-	, posx_( posx )
-	, posy_( posy )
-	, posz_( posz )
-	, docontinue_( docont )
-    {}
-
-    int nextStep()
-    {
-	sbi2mc_.processMarchingCube( posx_, posy_, posz_ );
-	if ( !docontinue_ )
-	    return cFinished();
-
-        sbi2mc_.addMarchingCube( posx_+1, posy_, posz_, true );
-        sbi2mc_.addMarchingCube( posx_-1, posy_, posz_, true );
-        sbi2mc_.addMarchingCube( posx_, posy_+1, posz_, true );
-        sbi2mc_.addMarchingCube( posx_, posy_-1, posz_, true );
-        sbi2mc_.addMarchingCube( posx_, posy_, posz_+1, true );
-	sbi2mc_.addMarchingCube( posx_, posy_, posz_-1, true );
-
-        sbi2mc_.addMarchingCube( posx_-1, posy_-1, posz_-1, false );
-        sbi2mc_.addMarchingCube( posx_-1, posy_-1, posz_, false );
-        sbi2mc_.addMarchingCube( posx_-1, posy_, posz_-1, false );
-        sbi2mc_.addMarchingCube( posx_, posy_-1, posz_-1, false );
-
-	return cFinished();
-    }
-    
-    void setIndices( int idx, int idy, int idz, bool docont )
-    {
-	posx_ = idx;
-	posy_ = idy;
-	posz_ = idz;
-	docontinue_ = docont;
-    }
-
-protected:
-    SeedBasedImplicit2MarchingCubes&	sbi2mc_;
-    int					posx_;
-    int					posy_;
-    int					posz_;
-    bool				docontinue_;
-};
-
-
-SeedBasedImplicit2MarchingCubes::SeedBasedImplicit2MarchingCubes( 
-	MarchingCubesSurface* ms, const Array3D<float>& arr, 
-	const float threshold, 
-	int originx,int originy,int originz )
-    : array_( &arr )
-    , threshold_( threshold )
-    , surface_( ms )
-    , xorigin_( originx )	       
-    , yorigin_( originy )	       
-    , zorigin_( originz )	       
-    , visitedlocations_( 0 )
-{}
-
-
-SeedBasedImplicit2MarchingCubes::~SeedBasedImplicit2MarchingCubes()
-{
-    deepErase( newfloodfillers_ );
-    deepErase( activefloodfillers_ );
-    deepErase( oldfloodfillers_ );
-
-    delete visitedlocations_;
-}
-
-
-bool SeedBasedImplicit2MarchingCubes::updateCubesFrom( int posx, 
-						       int posy, int posz)
-{
-    if ( !visitedlocations_ )
-    {
-	visitedlocations_ = new Array3DImpl<unsigned char>( array_->info() );
-	if ( !visitedlocations_ || !visitedlocations_->isOK() )
-	    return false;
-
-	memset( visitedlocations_->getData(), 0,
-		visitedlocations_->info().getTotalSz() * sizeof(bool) );
-    }
-
-    if ( array_->get(posx, posy, posz) < threshold_ )
-	return true;
-   
-    addMarchingCube( posx, posy, posz, true );
-    seedBasedFloodFill();
-    return true;
-}
-
-
-void SeedBasedImplicit2MarchingCubes::seedBasedFloodFill()
-{
-    Threads::ThreadWorkManager workman;
-
-    newfloodfillerslock_.lock();
-    while ( newfloodfillers_.size() )
-    {
-	deepErase( oldfloodfillers_ );
-	oldfloodfillers_ = activefloodfillers_;
-	activefloodfillers_ = newfloodfillers_;
-	newfloodfillers_.erase();
-	newfloodfillerslock_.unLock();
-
-	workman.addWork( (ObjectSet<SequentialTask>&) activefloodfillers_ );
-
-	newfloodfillerslock_.lock();
-    }
-
-    newfloodfillerslock_.unLock();
-}
-
-
-void SeedBasedImplicit2MarchingCubes::processMarchingCube(
-	int idx, int idy, int idz )
-{
-    if ( idx<0 || idx>=array_->info().getSize(mX) ||
-	 idy<0 || idy>=array_->info().getSize(mY) ||
-         idz<0 || idz>=array_->info().getSize(mZ) )	 
-	return;
-
-    MarchingCubesModel model;
-    model.set( *array_, idx, idy, idz, threshold_ );
-    if ( model.isEmpty() )
-	return;
-
-    int pos[] = { idx+xorigin_, idy+yorigin_, idz+zorigin_ };
-    surface_->modelslock_.writeLock();
-    surface_->models_.add<MarchingCubesModel*,const int*, int*>( &model,pos,0 );
-    surface_->modelslock_.writeUnLock();
-}
-
-
-void SeedBasedImplicit2MarchingCubes::addMarchingCube( int idx, int idy, 
-	int idz, bool docontinue )
-{
-    if ( idx<0 || idx>=array_->info().getSize(mX) ||
-	 idy<0 || idy>=array_->info().getSize(mY) ||
-         idz<0 || idz>=array_->info().getSize(mZ) )	 
-	return;
-
-    const bool willcontinue = docontinue && array_->get(idx,idy,idz)>threshold_;
-    unsigned char oldproc = visitedlocations_->get( idx, idy, idz );
-    if ( oldproc==2 )
-        return;
-
-    if ( oldproc==1 && !willcontinue )
-        return;
-    
-    visitedlocations_->set( idx, idy, idz, willcontinue ? 2 : 1 );  
-  
-    newfloodfillerslock_.lock();
-    SeedBasedFloodFiller* floodfiller = oldfloodfillers_.size()
-	? oldfloodfillers_.remove( oldfloodfillers_.size()-1 )
-	: new SeedBasedFloodFiller( *this, idx, idy, idz, willcontinue );
-
-    newfloodfillers_ += floodfiller;
-    newfloodfillerslock_.unLock();
-
-    floodfiller->setIndices( idx, idy, idz, willcontinue );
 }
 
 
@@ -994,3 +849,5 @@ bool MarchingCubes2Implicit::shouldSetResult( int newval, int prevvalue )
 
     return true;
 }
+
+

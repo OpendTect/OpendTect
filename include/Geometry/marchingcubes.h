@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.7 2008-09-22 13:15:13 cvskris Exp $
+ RCS:           $Id: marchingcubes.h,v 1.8 2008-12-01 15:00:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,36 +130,6 @@ protected:
     int				xorigin_;
     int				yorigin_;
     int				zorigin_;
-};
-
-
-class SeedBasedImplicit2MarchingCubes
-{
-public:
-			SeedBasedImplicit2MarchingCubes(MarchingCubesSurface*,
-				const Array3D<float>&,const float threshold,					int originx,int originy,int originz);
-			~SeedBasedImplicit2MarchingCubes();
-    bool		updateCubesFrom(int posx,int posy,int posz);
-
-private:
-    void 		seedBasedFloodFill();
-    void		addMarchingCube(int idx,int idy,int idz, bool contin);
-    void		processMarchingCube(int idx,int idy,int idz);
-
-    friend				class SeedBasedFloodFiller;
-    MarchingCubesSurface* 		surface_;
-    const Array3D<float>*		array_;
-    Array3D<unsigned char>*		visitedlocations_;
-    float				threshold_;
-
-    Threads::Mutex  			newfloodfillerslock_;
-    ObjectSet<SeedBasedFloodFiller> 	newfloodfillers_;
-    ObjectSet<SeedBasedFloodFiller> 	oldfloodfillers_;
-    ObjectSet<SeedBasedFloodFiller> 	activefloodfillers_;
-
-    int					xorigin_;
-    int					yorigin_;
-    int					zorigin_;
 };
 
 
