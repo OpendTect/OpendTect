@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.20 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.21 2008-12-02 22:44:09 cvskris Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -228,7 +228,8 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
 	fnm = getAuxDataFileName( *ioobj, auxDataName(dataidx) );
-	return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm.buf());
+	if ( !fnm.isEmpty() )
+	    return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm.buf());
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
@@ -243,7 +244,8 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 		break;
 	}
 
-	Executor* exec = new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm.buf());
+	Executor* exec =
+	    new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm.buf());
 	grp->add( exec );
     }
 
