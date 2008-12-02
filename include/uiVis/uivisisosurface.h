@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.5 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.6 2008-12-02 15:40:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,9 @@ class uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,
 			visBase::MarchingCubesSurface*,
-			visSurvey::VolumeDisplay*);
+			visSurvey::VolumeDisplay*,bool couldchoosemode);
+		/*<If couldchoosemode is on, you have the choice of full mode 
+		   or picks mode, otherwise, only have isovalue setting.*/
 		~uiVisIsoSurfaceThresholdDlg();
     bool	acceptOK();
     bool	rejectOK();
@@ -43,11 +45,13 @@ protected:
 
     void		updatePressed(CallBacker*);
     void		mousePressed(CallBacker*);
+    void		modeChangeCB(CallBacker*);
     void		doubleClick(CallBacker*);
     void		handleClick(CallBacker*,bool isdouble );
     void		updateIsoDisplay(float nv);
 
     uiStatsDisplay*	statsdisplay_;
+    uiGenInput*		modefld_;
     uiGenInput*		thresholdfld_;
     uiPushButton*	updatebutton_;
 
