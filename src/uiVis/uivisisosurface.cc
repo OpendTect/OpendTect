@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.13 2008-12-02 03:30:32 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.14 2008-12-02 15:34:15 cvsyuancheng Exp $";
 
 #include "uivisisosurface.h"
 
@@ -18,31 +18,45 @@ static const char* rcsID = "$Id: uivisisosurface.cc,v 1.13 2008-12-02 03:30:32 c
 #include "uigraphicsitemimpl.h"
 #include "uiaxishandler.h"
 #include "mousecursor.h"
-#include "uigeninput.h"
 #include "uibutton.h"
+#include "uigeninput.h"
+#include "uimsg.h"
 #include "visvolumedisplay.h"
 #include "viscolortab.h"
 
 
 uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	visBase::MarchingCubesSurface* isosurface,
-	visSurvey::VolumeDisplay* vd )
+	visSurvey::VolumeDisplay* vd, bool couldchoosemode )
     : uiDlgGroup( p, "Iso surface threshold" )
     , isosurfacedisplay_( isosurface )
     , initialvalue_( vd->isoValue( isosurface ) )
     , vd_( vd )
+    , modefld_( 0 )	       
 {
+    if ( couldchoosemode )
+    {
+    	modefld_ = new uiGenInput( this, "Mode", 
+    		BoolInpSpec( true, "Full volume", "Picks based" ) );
+    	modefld_->setValue( true );
+    	modefld_->valuechanged.notify( 
+    		mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
+    }
+
     TypeSet<float> histogram;
     if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
     const Interval<float> rg = vd->getColorTab().getInterval();
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );
+    statsdisplay_->setHistogram( histogram, rg );
+    if ( modefld_ )
+    	statsdisplay_->attach( alignedBelow, modefld_ );
+    
     funcDisp().scene().getMouseEventHandler().buttonPressed.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,mousePressed) );
     funcDisp().scene().getMouseEventHandler().doubleClick.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,doubleClick) );
-    statsdisplay_->setHistogram( histogram, rg );
 
     thresholdfld_ = new uiGenInput( this, "Iso value",
 	    			    FloatInpSpec(initialvalue_) );
@@ -56,6 +70,9 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
 uiVisIsoSurfaceThresholdDlg::~uiVisIsoSurfaceThresholdDlg()
 {
+    if ( modefld_ )
+    	modefld_->valuechanged.remove( 
+    		mCB(this,uiVisIsoSurfaceThresholdDlg,modeChangeCB) );
 }
 
 
@@ -100,6 +117,20 @@ void uiVisIsoSurfaceThresholdDlg::mousePressed( CallBacker* cb )
 }
 
 
+void uiVisIsoSurfaceThresholdDlg::modeChangeCB( CallBacker* )
+{
+    if ( !modefld_ )
+	return;
+
+    const bool yn = modefld_->getBoolValue();
+    if ( !yn )  //TODO:
+	uiMSG().message("Picks based mode is not implemented yet!");
+    
+    modefld_->setValue( true );
+}
+
+
+
 void uiVisIsoSurfaceThresholdDlg::doubleClick( CallBacker* cb )
 {
     handleClick( cb, true );
@@ -120,8 +151,7 @@ uiAxisHandler& uiVisIsoSurfaceThresholdDlg::xAxis()
 
 void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 {
-    MouseEventHandler& eventhandler = 
-	funcDisp().scene().getMouseEventHandler();
+    MouseEventHandler& eventhandler = funcDisp().scene().getMouseEventHandler();
     if ( eventhandler.isHandled() )
 	return;
 
@@ -135,7 +165,8 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
     eventhandler.setHandled( true );
     const float val = xAxis().getVal( pt.x );
     thresholdfld_->setValue( val );
-    if ( isdouble )	updateIsoDisplay( val );
+    if ( isdouble )
+	updateIsoDisplay( val );
 }
 
 
@@ -155,8 +186,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     {
 	ls.color_ = Color(0,150,0);
 	const int val = xAxis().getPix(initialvalue_);
-	lineitem = funcDisp().scene().addLine( 
-	    val, 0, val, funcDisp().width() );
+	lineitem = funcDisp().scene().addLine(val, 0, val, funcDisp().width());
 	lineitem->setPenStyle( ls );
     }
 
@@ -164,15 +194,13 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     {
 	ls.color_ = Color(0,255,0,0); 
 	const int val = xAxis().getPix(thresholdfld_->getfValue());
-	lineitem = funcDisp().scene().addLine( 
-	    val, 0, val, funcDisp().width() );
+	lineitem = funcDisp().scene().addLine(val, 0, val, funcDisp().width());
     }
 
     if ( !mIsUdf(vd_->isoValue( isosurfacedisplay_ ) ) )
     {
 	ls.color_ = Color(255,0,0,0);
 	const int val = xAxis().getPix( vd_->isoValue( isosurfacedisplay_) );
-	lineitem = funcDisp().scene().addLine( 
-	    val, 0, val, funcDisp().width() );
+	lineitem = funcDisp().scene().addLine(val, 0, val, funcDisp().width());
     }
 }
