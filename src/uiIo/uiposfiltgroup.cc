@@ -8,10 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.4 2008-02-26 08:55:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.5 2008-12-02 13:57:13 cvsbert Exp $";
 
 #include "uiposfiltgroupstd.h"
 #include "posfilterstd.h"
+#include "uigeninput.h"
 #include "uispinbox.h"
 #include "uilabel.h"
 #include "keystrs.h"
@@ -31,28 +32,26 @@ uiRandPosFiltGroup::uiRandPosFiltGroup( uiParent* p,
 					const uiPosFiltGroup::Setup& su )
     : uiPosFiltGroup(p,su)
 {
-    percpassfld_ = new uiSpinBox( this, 0, "Perc pass" );
-    percpassfld_->setInterval( StepInterval<int>(1,99,1) );
-    new uiLabel( this, "Percentage to pass", percpassfld_ );
+    FloatInpSpec inpspec( 1 ); inpspec.setLimits( Interval<float>(0,100) );
+    percpassfld_ = new uiGenInput( this, "Percentage to pass", inpspec );
     setHAlignObj( percpassfld_ );
 }
 
 
 void uiRandPosFiltGroup::usePar( const IOPar& iop )
 {
-    const int initialperc = percpassfld_->getValue();
-    float perc = initialperc * 0.01;
+    const float initialperc = percpassfld_->getfValue();
+    float perc = mIsUdf(initialperc) ? initialperc : initialperc * 0.01;
     iop.get( Pos::RandomFilter::ratioStr(), perc );
-    int iperc = mNINT(perc);
-    if ( iperc > 0 && iperc < 100 )
-	percpassfld_->setValue( iperc );
+    if ( perc >= 0 && perc <= 100 )
+	percpassfld_->setValue( perc );
 }
 
 
 bool uiRandPosFiltGroup::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type, sKey::Random );
-    const int perc = percpassfld_->getValue();
+    const float perc = percpassfld_->getfValue();
     iop.set( Pos::RandomFilter::ratioStr(), perc*0.01 );
     return true;
 }
@@ -60,7 +59,7 @@ bool uiRandPosFiltGroup::fillPar( IOPar& iop ) const
 
 void uiRandPosFiltGroup::getSummary( BufferString& txt ) const
 {
-    txt += "Rand ["; txt += percpassfld_->getValue(); txt += "]"; 
+    txt += "Rand ["; txt += percpassfld_->getfValue(); txt += "]"; 
 }
 
 
