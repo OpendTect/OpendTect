@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.11 2008-09-04 10:07:51 cvsnanne Exp $
+ RCS:           $Id: uiposprovider.h,v 1.12 2008-12-02 13:58:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
 
     Pos::Provider*	createProvider() const;
 
+    bool		is2D() const		{ return setup_.is2d_; }
     bool		isAll() const		{ return !curGrp(); }
 
 protected:
