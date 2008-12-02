@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.55 2008-05-30 07:34:17 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.56 2008-12-02 15:41:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,6 +187,7 @@ public:
 			{ deepCopy( unselabls, s ); }
 
     void		setHelpID( const char* id )	{ helpid_ = id; }
+    void		setConfirmOverwrite( bool yn )	{ confirmovw_ = yn; }
 
 protected:
 
@@ -195,6 +196,7 @@ protected:
     BufferString	seltxt;
     ObjectSet<MultiID>	unselabls;
     BufferString	helpid_;
+    bool		confirmovw_;
 
     void		doObjSel(CallBacker*);
 

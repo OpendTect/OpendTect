@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.123 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.124 2008-12-02 15:41:27 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 #include "uiioobjmanip.h"
@@ -498,15 +498,16 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
 			bool wclr, const char* st, const char* buttxt, 
 			bool keepmytxt )
-	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
-		      txt ? txt :
-		         (c.ctxt.name().isEmpty()
-			     ? (const char*)c.ctxt.trgroup->userName() 
-			     : (const char*) c.ctxt.name() ),
-		      wclr, buttxt, keepmytxt )
-	, ctio(c)
-	, forread(c.ctxt.forread)
-	, seltxt(st)
+    : uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
+		  txt ? txt :
+		     (c.ctxt.name().isEmpty()
+			 ? (const char*)c.ctxt.trgroup->userName() 
+			 : (const char*) c.ctxt.name() ),
+		  wclr, buttxt, keepmytxt )
+    , ctio(c)
+    , forread(c.ctxt.forread)
+    , seltxt(st)
+    , confirmovw_(true)
 {
     updateInput();
 }
@@ -627,6 +628,8 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	ctio.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg ) return;
+    uiIOObjSelGrp* selgrp = dlg->selGrp();
+    if ( selgrp ) selgrp->setConfirmOverwrite( confirmovw_ );
 
     if ( !helpid_.isEmpty() )
 	dlg->setHelpID( helpid_ );
