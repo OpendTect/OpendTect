@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl & N. Hemstra
  Date:		September 2008
- RCS:		$Id: displaypropertylinks.h,v 1.1 2008-09-15 10:24:34 cvskris Exp $
+ RCS:		$Id: displaypropertylinks.h,v 1.2 2008-12-02 21:39:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,8 +105,8 @@ private:
 class DisplayPropertyLink : public NamedObject
 {
 public:
-    mDefineFactory2ParamInClass(DisplayPropertyLink,DisplayPropertyHolder*,
-	    			DisplayPropertyHolder*,factory);
+    mDefineFactory1ParamInClass(DisplayPropertyLink,
+	    ObjectSet<DisplayPropertyHolder>&,factory);
 
     virtual const char*		type() const				= 0;
     virtual const char*		userType() const;

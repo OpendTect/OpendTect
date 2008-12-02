@@ -4,13 +4,13 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.1 2008-09-15 10:24:34 cvskris Exp $";
+static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.2 2008-12-02 21:39:06 cvskris Exp $";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"
 
-mImplFactory2Param(DisplayPropertyLink,DisplayPropertyHolder*,
-		   DisplayPropertyHolder*,DisplayPropertyLink::factory);
+mImplFactory1Param(DisplayPropertyLink,ObjectSet<DisplayPropertyHolder>&,
+		   DisplayPropertyLink::factory);
 
 
 DisplayPropertyHolder::DisplayPropertyHolder( bool reg )
@@ -123,10 +123,14 @@ void DisplayLinkManager::createPossibleLinks( DisplayPropertyHolder* hldr,
 				    ObjectSet<DisplayPropertyLink>& links )
 {
     Threads::MutexLocker lock( lock_ );
+    ObjectSet<DisplayPropertyHolder> tmpholders;
+    tmpholders += hldr;
     for ( int idx=holders_.size()-1; idx>=0; idx-- )
     {
 	if ( holders_[idx]==hldr )
 	    continue;
+
+	tmpholders += holders_[idx];
 
 	const BufferStringSet& names =
 	    DisplayPropertyLink::factory().getNames( false );
@@ -135,10 +139,12 @@ void DisplayLinkManager::createPossibleLinks( DisplayPropertyHolder* hldr,
 	{
 	    DisplayPropertyLink* link =
 		DisplayPropertyLink::factory().create( names[idy]->buf(),
-						       hldr, holders_[idx] );
+						       tmpholders );
 	    if ( link )
 		links += link;
 	}
+
+	tmpholders -= holders_[idx];
     }
 }
 
