@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.12 2008-11-26 07:02:01 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.13 2008-12-02 03:30:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,14 +103,12 @@ public:
     Notifier<uiFunctionDisplay>	pointChanged;
     int				selPt() const	{ return selpt_; }
 
-    uiGraphicsScene*		getScene()	{ return funcscene_; }
     void			gatherInfo();
     void			draw();
 
 protected:
 
     Setup			setup_;
-    uiGraphicsScene*		funcscene_;
     uiAxisHandler*		xax_;
     uiAxisHandler*		yax_;
     uiAxisHandler*		y2ax_;

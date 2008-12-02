@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.21 2008-11-26 07:02:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.22 2008-12-02 03:30:31 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -42,7 +42,6 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     setPrefHeight( setup_.canvasheight_ );
     setStretch( 2, 2 );
     gatherInfo();
-    //preDraw.notify( mCB(this,uiFunctionDisplay,gatherInfo) );
     uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
 	    		      setup_.canvasheight_ );
     asu.noannot( !setup_.annotx_ );

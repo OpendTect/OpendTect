@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.13 2008-12-02 03:30:32 cvssatyaki Exp $";
 
 #include "uivisisosurface.h"
 
@@ -38,9 +38,9 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );
-    funcDisp().getScene()->getMouseEventHandler().buttonPressed.notify(
+    funcDisp().scene().getMouseEventHandler().buttonPressed.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,mousePressed) );
-    funcDisp().getScene()->getMouseEventHandler().doubleClick.notify(
+    funcDisp().scene().getMouseEventHandler().doubleClick.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,doubleClick) );
     statsdisplay_->setHistogram( histogram, rg );
 
@@ -121,7 +121,7 @@ uiAxisHandler& uiVisIsoSurfaceThresholdDlg::xAxis()
 void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 {
     MouseEventHandler& eventhandler = 
-	funcDisp().getScene()->getMouseEventHandler();
+	funcDisp().scene().getMouseEventHandler();
     if ( eventhandler.isHandled() )
 	return;
 
@@ -155,7 +155,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     {
 	ls.color_ = Color(0,150,0);
 	const int val = xAxis().getPix(initialvalue_);
-	lineitem = funcDisp().getScene()->addLine( 
+	lineitem = funcDisp().scene().addLine( 
 	    val, 0, val, funcDisp().width() );
 	lineitem->setPenStyle( ls );
     }
@@ -164,7 +164,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     {
 	ls.color_ = Color(0,255,0,0); 
 	const int val = xAxis().getPix(thresholdfld_->getfValue());
-	lineitem = funcDisp().getScene()->addLine( 
+	lineitem = funcDisp().scene().addLine( 
 	    val, 0, val, funcDisp().width() );
     }
 
@@ -172,7 +172,7 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
     {
 	ls.color_ = Color(255,0,0,0);
 	const int val = xAxis().getPix( vd_->isoValue( isosurfacedisplay_) );
-	lineitem = funcDisp().getScene()->addLine( 
+	lineitem = funcDisp().scene().addLine( 
 	    val, 0, val, funcDisp().width() );
     }
 }
