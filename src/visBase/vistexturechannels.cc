@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.8 2008-11-04 21:27:44 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.9 2008-12-02 20:36:59 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -427,8 +427,12 @@ void TextureChannels::swapChannels( int t0, int t1 )
 
     channelinfo_.swap( t0, t1 );
 
+
     update( t0 );
     update( t1 );
+
+    if ( tc2rgba_ )
+	tc2rgba_->swapChannels( t0, t1 );
 }
 
 
