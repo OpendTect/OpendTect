@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.2 2008-11-26 12:50:46 cvsbert Exp $
+ RCS:           $Id: seisposindexer.h,v 1.3 2008-12-02 16:10:39 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,8 +30,9 @@ public:
 
 /*!\brief builds an index of a list of positions, making it easy to find a
   specific position.
-
- Sorting in in-line direction is assumed.
+  
+  In principle, no sorting is required.
+  While at it, in/xline and offset ranges are determined.
 
 */
 
@@ -60,6 +61,14 @@ public:
 
     void			reIndex();
 
+    inline Seis::GeomType	geomType() const
+    				{ return Seis::geomTypeOf(is2d_,isps_); }
+
+    inline Interval<int>	inlRange() const	{ return inlrg_; }
+    inline Interval<int>	crlRange() const	{ return crlrg_; }
+    inline Interval<int>	trcNrRange() const	{ return crlrg_; }
+    inline Interval<float>	offsetRange() const	{ return offsrg_; }
+
 protected:
 
     const PosKeyList&		pkl_;
@@ -69,6 +78,10 @@ protected:
     ObjectSet< TypeSet<int> >	crlsets_;
     ObjectSet< TypeSet<od_int64> > idxsets_;
     od_int64			maxidx_;
+
+    Interval<int>		inlrg_;
+    Interval<int>		crlrg_;
+    Interval<float>		offsrg_;
 
     void			empty();
     void			add(const PosKey&,od_int64);

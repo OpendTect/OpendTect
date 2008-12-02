@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.3 2008-11-26 12:50:47 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.4 2008-12-02 16:10:39 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -102,6 +102,8 @@ od_int64 Seis::PosIndexer::findFirst( const Seis::PosKey& pk, bool wo ) const
 void Seis::PosIndexer::reIndex()
 {
     empty();
+    inlrg_.start = inlrg_.stop = crlrg_.start = crlrg_.stop = 0;
+    offsrg_.start = offsrg_.stop = 0;
 
     const od_int64 sz = pkl_.size();
     od_int64 firstok = 0;
@@ -116,6 +118,9 @@ void Seis::PosIndexer::reIndex()
     const PosKey prevpk( pkl_.key(firstok) );
     Seis::GeomType gt( sz > 0 ? prevpk.geomType() : Seis::Vol );
     is2d_ = Seis::is2D( gt ); isps_ = Seis::isPS( gt );
+    inlrg_.start = inlrg_.stop = is2d_ ? 1 : prevpk.inLine();
+    crlrg_.start = crlrg_.stop = prevpk.xLine();
+    offsrg_.start = offsrg_.stop = isps_ ? prevpk.offset() : 0;
 
     BinID prevbid( mUdf(int), mUdf(int) );
     od_int64 startidx = firstok;
@@ -125,11 +130,15 @@ void Seis::PosIndexer::reIndex()
 	const BinID& curbid( curpk.binID() );
 	if ( curpk.isUndef() )
 	    continue;
+
 	maxidx_ = idx;
+	if ( isps_ ) offsrg_.include( curpk.offset() );
 	if ( curbid == prevbid )
 	    continue;
 
 	add( curbid, idx );
+	if ( !is2d_ ) inlrg_.include( curpk.inLine() );
+	crlrg_.include( curpk.xLine() );
 	prevbid = curbid;
     }
 }

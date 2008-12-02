@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.7 2008-11-26 14:43:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.8 2008-12-02 16:10:39 cvsbert Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"
@@ -50,14 +50,32 @@ od_int64 size() const
 
 Seis::PosKey key( od_int64 nr ) const
 {
-    if ( !fds_ ) return Seis::PosKey::undef();
+    if ( !fds_ || nr < 0 )		return Seis::PosKey::undef();
 
     int idx;
     IdxAble::findPos( cumszs_.arr(), cumszs_.size(), nr, -1, idx );
-    const int relidx = nr - cumszs_[idx];
-    const SEGY::TraceInfo& ti = *(*(*fds_)[idx])[relidx];
+    if ( idx < 0 )			return Seis::PosKey::undef();
 
-    return ti.isUsable() ? ti.pos_ : Seis::PosKey::undef();
+    const FileData& fd = *(*fds_)[idx];
+    const int relidx = nr - cumszs_[idx];
+    if ( relidx >= fd.size() )		return Seis::PosKey::undef();
+    const SEGY::TraceInfo& ti = *fd[relidx];
+
+    if ( !ti.isUsable() )		return Seis::PosKey::undef();
+    return ti.pos_;
+}
+
+FileDataSet::TrcIdx find( const Seis::PosKey& pk,
+			  const Seis::PosIndexer& idxer,
+       			  bool chkoffs ) const
+{
+    od_int64 nr = idxer.findFirst( pk, chkoffs );
+    FileDataSet::TrcIdx tidx;
+    if ( nr < 0 ) return tidx;
+
+    IdxAble::findPos( cumszs_.arr(), cumszs_.size(), nr, -1, tidx.filenr_ );
+    tidx.trcnr_ = nr - cumszs_[tidx.filenr_];
+    return tidx;
 }
 
     TypeSet<od_int64>	cumszs_;
@@ -115,6 +133,13 @@ void SEGY::DirectDef::setData( const FileDataSet& fds, bool nc )
     else
 	fds_ = myfds_ = new FileDataSet( fds );
     keylist_.setFDS( fds_ ); indexer_.reIndex();
+}
+
+
+SEGY::FileDataSet::TrcIdx SEGY::DirectDef::find( const Seis::PosKey& pk,
+						 bool chkoffs ) const
+{
+    return keylist_.find( pk, indexer_, chkoffs );
 }
 
 
@@ -186,4 +211,16 @@ bool SEGY::DirectDef::writeToFile( const char* fnm ) const
     }
 
     return true;
+}
+
+
+void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
+{
+    if ( !fds_ || Seis::is2D(indexer_.geomType()) ) return;
+}
+
+
+void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
+{
+    if ( !fds_ || !Seis::is2D(indexer_.geomType()) ) return;
 }

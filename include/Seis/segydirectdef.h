@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.8 2008-11-26 14:43:46 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.9 2008-12-02 16:10:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "seistype.h"
-#include "bufstring.h"
+#include "segyfiledata.h"
 namespace Seis { class PosIndexer; }
+namespace PosInfo { class CubeData; class Line2DData; }
 
 
 namespace SEGY {
@@ -36,6 +36,8 @@ public:
     void		setData(FileDataSet*);
     void		setData(const FileDataSet&,bool no_copy=false);
 
+    FileDataSet::TrcIdx	find(const Seis::PosKey&,bool chkoffs) const;
+
     bool		readFromFile(const char*);
     bool		writeToFile(const char*) const;
     const char*		errMsg() const		{ return errmsg_.buf(); }
@@ -43,6 +45,9 @@ public:
     Seis::GeomType	geomType() const;
 
     static const char*	sKeyDirectDef;
+
+    void		getPosData(PosInfo::CubeData&) const;
+    void		getPosData(PosInfo::Line2DData&) const;
 
 protected:
 

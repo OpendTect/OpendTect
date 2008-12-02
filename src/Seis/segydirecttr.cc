@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.1 2008-11-20 13:24:21 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.2 2008-12-02 16:10:39 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -31,7 +31,7 @@ public:
     static int		factid;
 };
 
-// This adds the Multicube type pre-stack seismics data storage to the factory
+// This adds the SEG-Y direct pre-stack seismics data storage to the factory
 int SEGYDirectPSIOProvider::factid = SPSIOPF().add(new SEGYDirectPSIOProvider);
 
 
@@ -39,6 +39,7 @@ SEGYDirect3DPSReader::SEGYDirect3DPSReader( const char* fnm )
     : posdata_(*new PosInfo::CubeData)
     , def_(*new SEGY::DirectDef(fnm))
 {
+    def_.getPosData( posdata_ );
 }
 
 
