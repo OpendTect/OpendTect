@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfiltgroupstd.h,v 1.1 2008-02-26 08:55:18 cvsbert Exp $
+ RCS:           $Id: uiposfiltgroupstd.h,v 1.2 2008-12-02 13:57:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiposfiltgroup.h"
 class uiSpinBox;
+class uiGenInput;
 
 
 /*! \brief UI for Random Position filter */
@@ -34,7 +35,7 @@ public:
 
 protected:
 
-    uiSpinBox*		percpassfld_;
+    uiGenInput*		percpassfld_;
 
 };
 
