@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.5 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.6 2008-12-02 13:58:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,10 @@ class uiGenInput;
 class uiLabeledComboBox;
 class uiLabeledListBox;
 class uiSeis2DSubSel;
+class uiPosProvider;
+class uiPosFilterSetSel;
+class DataPointSet;
+namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
 
@@ -54,15 +58,33 @@ public:
 			uiCreatePicks(uiParent*);
 			~uiCreatePicks() {}
 
-    const char*		getName() const;
-    const Color&	getPickColor();
+    virtual Pick::Set*	getPickSet() const;	//!< Set is yours
 
 protected:
 
     uiGenInput*		nmfld_;
     uiColorInput*       colsel_;
+    BufferString	name_;
 
     virtual bool	acceptOK(CallBacker*);
+};
+
+
+class uiGenPosPicks : public uiCreatePicks
+{
+public:
+    			uiGenPosPicks(uiParent*,bool is2d); //!<TODO: 2D support
+			~uiGenPosPicks();
+
+    virtual Pick::Set*	getPickSet() const;
+
+protected:
+
+    uiPosProvider*	posprovfld_;
+    uiPosFilterSetSel*	posfiltfld_;
+    DataPointSet*	dps_;
+
+    bool		acceptOK(CallBacker*);
 };
 
 

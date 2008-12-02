@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.49 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.50 2008-12-02 13:58:33 cvsbert Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -104,10 +104,12 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 
 
 #define mLoadIdx	0
-#define mRandom3DIdx	1
-#define mRandom2DIdx	2
-#define mEmptyIdx	3
-#define mPolygonIdx	4
+#define mEmptyIdx	1
+#define mPolygonIdx	2
+#define mGen3DIdx	3
+#define mGen2DIdx	4
+#define mRandom3DIdx	5
+#define mRandom2DIdx	6
 #define mSaveIdx	10
 #define mDisplayIdx	11
 #define mShowAllIdx	12
@@ -123,18 +125,21 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );
     uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
-    if ( SI().has2D() )
-    {
-	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(), "&Random" );
-	randmnu->insertItem( new uiMenuItem("3D ..."), mRandom3DIdx );
-	randmnu->insertItem( new uiMenuItem("2D ..."), mRandom2DIdx );
-	newmnu->insertItem( randmnu );
-    }
-    else
-	newmnu->insertItem( new uiMenuItem("&Random ..."), mRandom3DIdx );
-
     newmnu->insertItem( new uiMenuItem("&Empty ..."), mEmptyIdx );
     newmnu->insertItem( new uiMenuItem("&Polygon ..."), mPolygonIdx );
+    newmnu->insertItem( new uiMenuItem("&Generate ..."), mGen3DIdx );
+    if ( !SI().has2D() )
+	newmnu->insertItem( new uiMenuItem("&Random positions ..."),
+			    mRandom3DIdx );
+    else
+    {
+	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(),
+						"&Random positions" );
+	randmnu->insertItem( new uiMenuItem("&3D ..."), mRandom3DIdx );
+	randmnu->insertItem( new uiMenuItem("&2D ..."), mRandom2DIdx );
+	newmnu->insertItem( randmnu );
+    }
+
     mnu.insertItem( newmnu );
     if ( children_.size() > 0 )
     {
@@ -163,7 +168,14 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	display_on_add = false;
 	if ( !res )
 	    return -1;
-    }    
+    }
+    else if ( mnuid==mGen3DIdx || mnuid==mGen2DIdx )
+    {
+	display_on_add = true;
+	if ( !applMgr()->pickServer()->createGenSet(mnuid==mGen2DIdx) )
+	    return -1;
+	display_on_add = false;
+    }
     else if ( mnuid==mRandom3DIdx || mnuid==mRandom2DIdx )
     {
 	display_on_add = true;

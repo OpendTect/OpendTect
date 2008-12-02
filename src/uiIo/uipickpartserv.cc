@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.55 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.56 2008-12-02 13:58:33 cvsbert Exp $";
 
 #include "uipickpartserv.h"
 
@@ -121,15 +121,26 @@ bool uiPickPartServer::loadSets()
 #define mHandleDlg() \
     if ( !dlg.go() ) \
         return false; \
-    Pick::Set* newps = new Pick::Set( dlg.getName() ); \
-    newps->disp_.color_ = dlg.getPickColor();
+    Pick::Set* newps = dlg.getPickSet();
 
 bool uiPickPartServer::createEmptySet( bool aspolygon )
 {
     uiCreatePicks dlg( parent() );
+    if ( aspolygon )
+	dlg.setTitleText( "Create new Polygon (Pick Set)" );
     mHandleDlg();
     newps->disp_.connect_ = aspolygon ? Pick::Set::Disp::Open
 				      : Pick::Set::Disp::None;
+    return newps ? storeNewSet( newps ) : false;
+}
+
+
+bool uiPickPartServer::createGenSet( bool is2d )
+{
+    if ( is2d )
+	{ uiMSG().error( "TODO: 2D not implemented" ); return false; }
+    uiGenPosPicks dlg( parent(), is2d );
+    mHandleDlg();
     return newps ? storeNewSet( newps ) : false;
 }
 
