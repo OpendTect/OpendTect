@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.36 2008-11-21 19:36:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.37 2008-12-02 15:43:37 cvsyuancheng Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -306,19 +306,21 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( !uiMSG().askGoOn("The iso surface generation is experimental\n"
 		    "and may generate large amounts of display data\n"
 		    "that could destabilize OpendTect.\n"
-		    "Do you want to continue?" ) )
+		    "Do you want to continue?") )
 	    return;
 	}
 
 	isshown = true;
-
-	//MouseCursorChanger cursorchanger( MouseCursor::Wait );
-	const int surfid = voldisp->addIsoSurface(0,false);
-	//uiODIsoValueDlg dlg(applMgr()->applService().parent(),voldisp);
-	//dlg.go();
 	
-	addChild( new uiODVolrenSubTreeItem(surfid), true );
+	const int surfobjid = voldisp->addIsoSurface( 0, false );	
+	const int surfidx = voldisp->getNrIsoSurfaces()-1;	
+	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
+		uiDialog::Setup( "Iso value selection", 0, mTODOHelpID ) );
+	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, 
+		    voldisp->getIsoSurface(surfidx), voldisp, true ) );
+	dlg.go();
 
+	addChild( new uiODVolrenSubTreeItem(surfobjid), true );
     }
     else if ( uiODAttribTreeItem::handleSelMenu( mnuid, displayID(), 0 ) )
     {
@@ -492,12 +494,11 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 			visserv_->getObject(displayid_));
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 			visserv_->getObject(parent_->selectionKey()));
-	TypeSet<float> histogram;
-	if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
 
-	uiSingleGroupDlg dlg(getUiParent(),
-		uiDialog::Setup( "Iso value selection",0,mTODOHelpID) );
-	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, isosurface, vd ) );
+	uiSingleGroupDlg dlg( getUiParent(),
+		uiDialog::Setup( "Iso value selection", 0, mTODOHelpID ) );
+	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, isosurface, vd,
+		    false ) );
 	dlg.go();
 	updateColumnText(1);
     }
