@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.1 2008-12-01 14:41:20 cvsyuancheng Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.2 2008-12-03 16:30:58 cvsyuancheng Exp $
  ________________________________________________________________________
 
 -*/
@@ -32,9 +32,13 @@ ________________________________________________________________________
     Example: Given known array, threshold, T=float
 
    	     Array3DImpl<float> output( array.info() ); 
-	     Array3DFloodfill<float> floodfill( arr, threshold, output );
+	     Array3DFloodfill<float> floodfill( arr, threshold, max, output );
 	     floodfill.setOutsideValue( 1e+5 );
-	     floodfill.addSeed(0,0,0);   
+	     
+	     floodfill.addSeed(0,0,0);  
+	     //At least one seed's value should be bigger than the threshold
+	     //if max (or smaller if !max) 
+
 	     floodfill.execute();
 */
 
@@ -224,7 +228,7 @@ void Array3DFloodfill<T>::addSeed( int x0, int x1, int x2 )
     const T inputval = input_.get( x0, x1, x2 );
 
     if ( aboveisovalue_ && inputval<=threshold_ || 
-	!aboveisovalue_ && inputval>threshold_ )
+	!aboveisovalue_ && inputval>=threshold_ )
     {
 	output_.set( x0, x1, x2, useinputval_ ? inputval : outsideval_ );
 	compartments_[cellidx]->lock_.writeUnLock();
@@ -248,7 +252,7 @@ int Array3DFloodfill<T>::getNextWorkCompartment()
     while ( true )
     {
 	bool nothingleft = true;
-	for ( int idx=permutation_.size()-1; idx>0; idx-- )
+	for ( int idx=permutation_.size()-1; idx>=0; idx-- )
 	{
 	    const int compidx = permutation_[idx];
 	    if ( compartments_[compidx]->isused_ )
