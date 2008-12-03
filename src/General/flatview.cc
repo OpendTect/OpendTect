@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.41 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.42 2008-12-03 22:50:09 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: flatview.cc,v 1.41 2008-11-25 15:35:22 cvsbert 
 #include "survinfo.h"
 #include "keystrs.h"
 #include "coltab.h"
+#include "coltabmapper.h"
 #include "datapackbase.h"
 
 
@@ -138,7 +139,33 @@ FlatView::DataDispPars::Common::Common()
     , clipperc_(ColTab::defClipRate()*100,mUdf(float))
     , blocky_(false)
     , symmidvalue_(mUdf(float))
+    , histeq_(false)
 {}
+
+
+void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
+{
+    if ( autoscale_ )
+    {
+	if ( histeq_ ) setup.type_ = ColTab::MapperSetup::HistEq;
+	else
+	{
+	    setup.type_ = ColTab::MapperSetup::Auto;
+	    if ( mIsUdf(clipperc_.stop) )
+		setup.cliprate_ = clipperc_.start;
+	    else
+		setup.cliprate_ = clipperc_.center();
+	}
+
+	setup.symmidval_ = symmidvalue_;
+    }
+    else
+    {
+	setup.type_ = ColTab::MapperSetup::Fixed;
+	setup.start_ = rg_.start;
+	setup.width_ = rg_.width();
+    }
+}
 
 
 FlatView::Annotation::Annotation( bool drkbg )

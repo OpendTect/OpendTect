@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.35 2008-11-26 06:57:08 cvssatyaki Exp $
+ RCS:           $Id: flatview.h,v 1.36 2008-12-03 22:50:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,8 @@ ________________________________________________________________________
 
 class IOPar;
 class FlatView_CB_Rcvr;
+
+namespace ColTab { class MapperSetup; };
 
 
 namespace FlatView
@@ -156,6 +158,7 @@ public:
 	bool		blocky_;   // default=false
 	float		symmidvalue_; //!< undef => auto data mid
 	bool		histeq_; //!< undef => auto data mid
+	void		fill(ColTab::MapperSetup&) const;
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
