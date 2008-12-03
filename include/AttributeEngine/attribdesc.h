@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.43 2008-05-19 11:29:01 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.44 2008-12-03 16:11:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,8 @@ public:
     int				selectedOutput() const;
 
     Seis::DataType		dataType(int output=-1) const;
-				/*!<\param output specifies which outut that is 
-				     requiried, or -1 for the selected output.*/
+				/*!<\param output specifies which output is 
+				     required, or -1 for the selected output.*/
 
     void			setSteering( bool yn )	{ issteering_=yn; }
     bool			isSteering() const	{ return issteering_; }
@@ -118,7 +118,7 @@ public:
 
     enum SatisfyLevel		{ AllOk, Warning, Error };
     SatisfyLevel		isSatisfied() const;
-				/*!< Checks wether all inputs are satisfied. */
+				/*!< Checks whether all inputs are satisfied. */
 
     const BufferString&		errMsg() const;
     void			setErrMsg( const char* str )	{ errmsg_=str; }
