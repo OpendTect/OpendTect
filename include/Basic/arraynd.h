@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.31 2008-09-30 11:59:41 cvsbert Exp $
+ RCS:		$Id: arraynd.h,v 1.32 2008-12-03 18:56:00 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -76,6 +76,11 @@ public:
 					{ return false; }
 
     void				setAll(const T&);
+    void				getAll(T* ptr) const;
+    					/*!<Fills ptr with values from array.
+					    ptr is assumed to be allocated
+					    with info().getTotalSz() number
+					    of values. */
 
 protected:
  
@@ -236,6 +241,36 @@ void ArrayND<T>::setAll( const T& val )
     do
     {
 	set( iterator.getPos(), val );
+    } while ( iterator.next() );
+}
+
+template <class T> inline
+void ArrayND<T>::getAll( T* ptr ) const
+{
+    const od_int64 totalsz = info().getTotalSz();
+    if ( !totalsz )
+	return;
+
+    const T* tp = getData();
+    if ( tp )
+    {
+	memcpy( ptr, tp, sizeof(T)*totalsz );
+	return;
+    }
+
+    const ValueSeries<T>* stor = getStorage();
+    if ( stor )
+    {
+	for ( od_int64 idx=0; idx<totalsz; idx++, ptr++ )
+	    *ptr = stor->value( idx );
+	return;
+    }
+
+    ArrayNDIter iterator( info() );
+    do
+    {
+	*ptr = get( iterator.getPos() );
+	ptr++;
     } while ( iterator.next() );
 }
 
