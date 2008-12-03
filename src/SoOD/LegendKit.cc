@@ -46,7 +46,7 @@
       ViewportRegion node. This part is NULL by default. Set this part if
       you want to restrict the area the legend is drawn into.
 
-  \li depthBuffer Used to disable depth buffer tests. Contains a DepthBuffer
+  \li depthBuffer Used to disable depth buffer tests. Contains a SoDepthBuffer
       node.
 
   \li lightModel Used to disable lighting. Contains an SoLightModel
@@ -186,7 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
-static const char* rcsID = "$Id: LegendKit.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: LegendKit.cc,v 1.4 2008-12-03 16:00:55 cvskris Exp $";
 
 
 #include "LegendKit.h"
@@ -220,6 +220,7 @@ static const char* rcsID = "$Id: LegendKit.cc,v 1.3 2008-11-25 15:35:22 cvsbert 
 #include <Inventor/elements/SoDrawStyleElement.h>
 #include <Inventor/elements/SoComplexityTypeElement.h>
 #include <Inventor/elements/SoComplexityElement.h>
+#include <Inventor/nodes/SoDepthBuffer.h>
 
 #ifdef __COIN__
 #include <Inventor/lists/SbList.h>
@@ -229,7 +230,6 @@ static const char* rcsID = "$Id: LegendKit.cc,v 1.3 2008-11-25 15:35:22 cvsbert 
 #include "SbList.h"
 #endif
 
-#include <DepthBuffer.h>
 #include <ViewportRegion.h>
 #include <string.h>
 #include <float.h>
@@ -332,7 +332,7 @@ LegendKit::LegendKit(void)
   SO_KIT_ADD_CATALOG_ENTRY(topSeparator, SoSeparator, FALSE, this, "", FALSE);
   SO_KIT_ADD_CATALOG_ENTRY(viewport, ViewportRegion, TRUE, topSeparator, resetTransform, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(resetTransform, SoResetTransform, FALSE, topSeparator, depthBuffer, TRUE);
-  SO_KIT_ADD_CATALOG_ENTRY(depthBuffer, DepthBuffer, TRUE, topSeparator, lightModel, TRUE);
+  SO_KIT_ADD_CATALOG_ENTRY(depthBuffer, SoDepthBuffer, TRUE, topSeparator, lightModel, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(lightModel, SoLightModel, FALSE, topSeparator, camera, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(camera, SoOrthographicCamera, FALSE, topSeparator, position, TRUE);
   SO_KIT_ADD_CATALOG_ENTRY(position, SoTranslation, TRUE, topSeparator, texture, TRUE);
@@ -411,8 +411,8 @@ LegendKit::LegendKit(void)
   topsep->boundingBoxCaching = SoSeparator::OFF;
 
   // disable depth buffer
-  DepthBuffer * db = (DepthBuffer*) this->getAnyPart("depthBuffer", TRUE);
-  db->enable = FALSE;
+  SoDepthBuffer * db = (SoDepthBuffer*) this->getAnyPart("depthBuffer", TRUE);
+  db->function = SoDepthBuffer::NEVER;
 
   // avoid rounding errors
   SoTranslation * t = (SoTranslation*) this->getAnyPart("imageTranslation", TRUE);
@@ -440,7 +440,6 @@ LegendKit::initClass(void)
   static int first = 1;
   if (first) {
     first = 0;
-    DepthBuffer::initClass();
     SO_KIT_INIT_CLASS(LegendKit, SoBaseKit, "BaseKit");
   }
 }

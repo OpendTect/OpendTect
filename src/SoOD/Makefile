@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.32 2008-10-31 18:28:49 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.33 2008-12-03 16:00:55 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ SRC.cc	:=	initsood.cc \
 		UTMElement.cc \
 		UTMPosition.cc \
 		ViewportRegion.cc \
-		DepthBuffer.cc GLDepthBufferElement.cc LegendKit.cc
+		LegendKit.cc
 
 PROG.cc := oib2a.cc
 

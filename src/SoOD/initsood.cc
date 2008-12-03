@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.10 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.11 2008-12-03 16:00:55 cvskris Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -48,7 +48,6 @@ static const char* rcsID = "$Id: initsood.cc,v 1.10 2008-11-25 15:35:23 cvsbert 
 #include "UTMElement.h"
 #include "UTMPosition.h"
 #include "ViewportRegion.h"
-#include "DepthBuffer.h"
 #include "LegendKit.h"
 
 
@@ -97,7 +96,6 @@ void SoOD::initStdClasses()
     UTMCamera::initClass();
     UTMPosition::initClass();
     ViewportRegion::initClass();
-    DepthBuffer::initClass();
     LegendKit::initClass();
     SoTextureComposer::initClass();
     SoTextureComposerInfo::initClass();
