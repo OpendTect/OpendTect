@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.203 2008-11-18 17:29:03 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.204 2008-12-03 19:02:00 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -915,13 +915,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 		    continue;
 		}
 
-		ArrayNDIter iter( dparr.info() );
-		int idy=0;
-		do
-		{
-		    tmparr[idy++] = dparr.get( iter.getPos() );
-		} while ( iter.next() );
-
+		dparr.getAll( tmparr );
 		arr = tmparr;
 		cp = visBase::TextureChannels::TakeOver;
 	    }
