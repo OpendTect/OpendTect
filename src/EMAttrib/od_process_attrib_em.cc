@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.53 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.54 2008-12-03 07:04:32 cvsnageswara Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -341,9 +341,11 @@ bool BatchProgram::go( std::ostream& strm )
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
     HorSampling hsamp;
     BufferString linename;
-    geompar->get( sKey::LineKey, linename );
     if ( iscubeoutp && geompar )
+    {
+	geompar->get( sKey::LineKey, linename );
 	hsamp = getHorSamp( geompar );
+    }
 
     ObjectSet<EMObject> objects;
     for ( int idx=0; idx<midset.size(); idx++ )
