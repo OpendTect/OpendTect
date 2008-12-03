@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.5 2008-10-16 21:56:53 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.6 2008-12-03 22:54:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -76,8 +76,8 @@ public:
 
 protected:
     friend			class ChannelInfo;
-    void			update(int channel);
-    void			update(ChannelInfo*);
+    void			update(int channel,bool tc2rgba);
+    void			update(ChannelInfo*,bool tc2rgba);
     				~TextureChannels();
 
     int				size_[3];

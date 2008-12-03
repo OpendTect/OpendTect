@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.8 2008-11-25 16:21:43 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.9 2008-12-03 22:54:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,8 @@ class TextureChannel2RGBA : public DataObject
 {
 public:
     virtual void		setChannels(TextureChannels*);
-    virtual bool		createRGBA(SbImage&) const		= 0;
+    virtual void		notifyChannelChange()		{}
+    virtual bool		createRGBA(SbImage&) const	= 0;
 				/*!<Fill the image with the output, using
 				    current settings. */
 
@@ -53,10 +54,10 @@ public:
     virtual void		setEnabled(int ch,bool yn)	{}
     virtual bool		isEnabled(int ch) const		{ return true; }
 
-    virtual bool		canUseShading() const			= 0;
+    virtual bool		canUseShading() const		= 0;
     virtual void		allowShading(bool);
-    virtual bool		usesShading() const			= 0;
-    virtual int			maxNrChannels() const			= 0;
+    virtual bool		usesShading() const		= 0;
+    virtual int			maxNrChannels() const		= 0;
     virtual int			minNrChannels() const		{ return 1; }
 
 protected:
@@ -96,6 +97,7 @@ public:
     bool			createRGBA(SbImage&) const;
 
 protected:
+    void			notifyChannelChange()	{ update(); }
     void			adjustNrChannels() const;
     void			setChannels(TextureChannels*);
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.10 2008-11-25 16:21:43 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.11 2008-12-03 22:54:25 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -243,6 +243,8 @@ bool ColTabTextureChannel2RGBA::createRGBA( SbImage& res ) const
 
 void ColTabTextureChannel2RGBA::update()
 {
+    adjustNrChannels();
+
     if ( shadingallowed_ && canUseShading() )
 	setShadingVars();
     else
@@ -331,6 +333,9 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	shadinggroup_->addChild( complexity );
 
     }
+
+    if ( !coltabs_.size() )
+	return;
 
     const int nrchannels = coltabs_.size()>1
 	? getPow2Sz( coltabs_.size() ) : 1;
@@ -515,6 +520,12 @@ void ColTabTextureChannel2RGBA::doFill(
 void ColTabTextureChannel2RGBA::getColors( int channelidx,
 	TypeSet<unsigned char>& cols ) const
 {
+    if ( channelidx>=coltabs_.size() )
+    {
+	cols.setSize( 256*4, 255 );
+	return;
+    }
+
     const ColTab::Sequence& seq = coltabs_[channelidx];
     if ( cols.size()!=((mNrColors+1)*4) )
 	cols.setSize( ((mNrColors+1)*4), 0 );
