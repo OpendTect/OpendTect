@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.56 2008-12-02 13:58:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.57 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "uipickpartserv.h"
 
@@ -252,8 +252,8 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     else
     {
 	for ( int ldx=0; ldx<linegeoms_.size(); ldx++ )
-	    for ( int tdx=0; tdx<linegeoms_[ldx]->posns.size(); tdx++ )
-		coords2d_ += linegeoms_[ldx]->posns[tdx].coord_;
+	    for ( int tdx=0; tdx<linegeoms_[ldx]->posns_.size(); tdx++ )
+		coords2d_ += linegeoms_[ldx]->posns_[tdx].coord_;
 	
 	deepErase( linegeoms_ );
     }

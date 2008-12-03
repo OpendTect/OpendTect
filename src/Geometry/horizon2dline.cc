@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.11 2008-11-28 13:05:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.12 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "horizon2dline.h"
 
@@ -80,17 +80,17 @@ void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
 	(*rows_[rowidx])[colidx] = Coord3( Coord::udf(), z );
     }
 
-    const int nrtraces = geom.posns.size();
-    for ( int tridx=geom.posns.size()-1; tridx>=0; tridx-- )
+    const int nrtraces = geom.posns_.size();
+    for ( int tridx=geom.posns_.size()-1; tridx>=0; tridx-- )
     {
-	int colidx = colsampling_[rowidx].nearestIndex( geom.posns[tridx].nr_ );
-	if ( colsampling_[rowidx].atIndex(colidx) != geom.posns[tridx].nr_ )
+	int colidx = colsampling_[rowidx].nearestIndex( geom.posns_[tridx].nr_ );
+	if ( colsampling_[rowidx].atIndex(colidx) != geom.posns_[tridx].nr_ )
 	    continue;
 	
 	if ( !rows_[rowidx]->size() )
 	{
 	    *rows_[rowidx] += Coord3::udf();
-	    colsampling_[rowidx].start = geom.posns[tridx].nr_;
+	    colsampling_[rowidx].start = geom.posns_[tridx].nr_;
 	    colidx = 0;
 	}
 
@@ -109,7 +109,7 @@ void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
 	}
 
 	const double z = (*rows_[rowidx])[colidx].z;
-	(*rows_[rowidx])[colidx] = Coord3( geom.posns[tridx].coord_, z );
+	(*rows_[rowidx])[colidx] = Coord3( geom.posns_[tridx].coord_, z );
     }
 
     for ( int colidx=rows_[rowidx]->size()-1; colidx>=0; colidx-- )
@@ -234,18 +234,18 @@ Interval<float> Horizon2DLine::zRange( int rowid ) const
 
 void Horizon2DLine::geometry( int rowid, PosInfo::Line2DData& ld ) const
 {
-    ld.posns.erase();
+    ld.posns_.erase();
     const int rowidx = rowid - firstrow_;
     if ( !rows_.validIdx(rowidx) )
 	return;
 
-    assign( ld.zrg, zRange(rowid) );
+    assign( ld.zrg_, zRange(rowid) );
     for ( int idx=0; idx<rows_[rowidx]->size(); idx++ )
     {
 	PosInfo::Line2DPos pos;
 	pos.nr_ = colsampling_[rowidx].atIndex( idx );
 	pos.coord_ = (*rows_[rowidx])[idx];
-	ld.posns += pos;
+	ld.posns_ += pos;
     }
 }
 

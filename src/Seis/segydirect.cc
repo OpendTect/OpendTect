@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.8 2008-12-02 16:10:39 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.9 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"
@@ -13,6 +13,8 @@ static const char* rcsID = "$Id: segydirect.cc,v 1.8 2008-12-02 16:10:39 cvsbert
 #include "strmprov.h"
 #include "ascstream.h"
 #include "keystrs.h"
+#include "posinfo.h"
+#include "survinfo.h"
 
 const char* sKeyDirectDef = "DirectSEG-Y";
 static const char* sKeyFileType = "SEG-Y Direct Definition";
@@ -217,10 +219,32 @@ bool SEGY::DirectDef::writeToFile( const char* fnm ) const
 void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 {
     if ( !fds_ || Seis::is2D(indexer_.geomType()) ) return;
+
+    Interval<int> inlrg( indexer_.inlRange() ); inlrg.sort();
+    Interval<int> crlrg( indexer_.crlRange() ); crlrg.sort();
+    const Interval<int> step( SI().inlStep(), SI().crlStep() );
 }
 
 
 void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
 {
-    if ( !fds_ || !Seis::is2D(indexer_.geomType()) ) return;
+    if ( !fds_ || fds_->isEmpty() || !Seis::is2D(indexer_.geomType()) )
+	return;
+
+    Interval<int> nrrg( indexer_.trcNrRange() );
+    nrrg.sort();
+    for ( int nr=nrrg.start; nr<=nrrg.stop; nr++ )
+    {
+	FileDataSet::TrcIdx tidx = keylist_.find( Seis::PosKey(nr), indexer_,
+						  false );
+	if ( !tidx.isValid() ) continue;
+
+	PosInfo::Line2DPos l2dpos( nr );
+	l2dpos.coord_ = (*(*fds_)[tidx.filenr_])[tidx.trcnr_]->coord();
+	ld.posns_ += l2dpos;
+    }
+    const FileData& fd = *(*fds_)[0];
+    ld.zrg_.start = fd.sampling_.start;
+    ld.zrg_.step = fd.sampling_.step;
+    ld.zrg_.stop = ld.zrg_.start + (fd.trcsz_-1) * ld.zrg_.step;
 }

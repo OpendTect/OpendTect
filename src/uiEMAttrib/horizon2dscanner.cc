@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.8 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.9 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -211,7 +211,7 @@ int Horizon2DScanner::nextStep()
 	if ( invalidnms_.indexOf(linenm) >= 0 )
 	    return Executor::MoreToDo;
 
-	linegeom_.posns.erase();
+	linegeom_.posns_.erase();
 	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
 	{
 	    invalidnms_.addIfNew( linenm );
@@ -222,7 +222,7 @@ int Horizon2DScanner::nextStep()
 	curline_ = linenm;
     }
 
-    if ( !linegeom_.posns.size() )
+    if ( !linegeom_.posns_.size() )
 	return Executor::ErrorOccurred;
 
     PosInfo::Line2DPos pos;
@@ -255,7 +255,7 @@ int Horizon2DScanner::nextStep()
 
 	const float val = data[validx+2];
 
-	if ( mIsUdf(val) || !linegeom_.zrg.includes(val) )
+	if ( mIsUdf(val) || !linegeom_.zrg_.includes(val) )
 	    data[validx+2] = mUdf(float);
 	else
 	{

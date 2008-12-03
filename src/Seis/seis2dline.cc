@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.66 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.67 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -354,7 +354,7 @@ bool Seis2DLineSet::getGeometry( PosInfo::LineSet2DData& lsgeom ) const
 
 	PosInfo::Line2DData& ld = lsgeom.addLine( lnm );
 	getGeometry( idx, ld );
-	if ( ld.posns.size() < 1 )
+	if ( ld.posns_.size() < 1 )
 	{
 	    lsgeom.removeLine( lnm );
 	    return false;
@@ -760,9 +760,9 @@ bool Seis2DLineSet::haveMatch( int ipar, const BinIDValueSet& bivs ) const
     PosInfo::Line2DData geom;
     if ( getGeometry(ipar,geom) )
     {
-	for ( int idx=0; idx<geom.posns.size(); idx++ )
+	for ( int idx=0; idx<geom.posns_.size(); idx++ )
 	{
-	    if ( bivs.includes( SI().transform(geom.posns[idx].coord_) ) )
+	    if ( bivs.includes( SI().transform(geom.posns_[idx].coord_) ) )
 		return true;
 	}
     }
@@ -888,9 +888,9 @@ int nextStep()
 
     BufferString outstr;
     const float zfac = SI().zFactor();
-    for ( int idx=0; idx<geom.posns.size(); idx++ )
+    for ( int idx=0; idx<geom.posns_.size(); idx++ )
     {
-	const PosInfo::Line2DPos& pos = geom.posns[idx];
+	const PosInfo::Line2DPos& pos = geom.posns_[idx];
 	outstr = "";
 	if ( dolnm )
 	    { outstr += ls.lineKey(curidx); outstr += "\t"; }

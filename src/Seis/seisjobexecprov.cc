@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.31 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.32 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -118,7 +118,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 		if ( lidx >= 0 )
 		{
 		    PosInfo::Line2DData geom;
-		    if ( inpls->getGeometry(lidx,geom) && geom.posns.size()>0 )
+		    if ( inpls->getGeometry(lidx,geom) && geom.posns_.size()>0 )
 		    {
 			nms.remove( idx );
 			idx--;

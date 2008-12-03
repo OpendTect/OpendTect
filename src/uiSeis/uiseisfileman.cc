@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.76 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.77 2008-12-03 09:13:56 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -372,22 +372,22 @@ void attribSel( CallBacker* )
     if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
 
     PosInfo::Line2DData l2dd;
-    if ( !lineset->getGeometry(lineidx,l2dd) || l2dd.posns.isEmpty() )
+    if ( !lineset->getGeometry(lineidx,l2dd) || l2dd.posns_.isEmpty() )
 	return;
 
-    const int sz = l2dd.posns.size();
+    const int sz = l2dd.posns_.size();
     BufferString txt( "Number of traces: " ); txt += sz;
-    const PosInfo::Line2DPos& firstpos = l2dd.posns[0];
+    const PosInfo::Line2DPos& firstpos = l2dd.posns_[0];
     txt += "\nFirst trace: "; txt += firstpos.nr_;
     txt += " ("; txt += firstpos.coord_.x;
     txt += ","; txt += firstpos.coord_.y; txt += ")";
-    const PosInfo::Line2DPos& lastpos = l2dd.posns[sz-1];
+    const PosInfo::Line2DPos& lastpos = l2dd.posns_[sz-1];
     txt += "\nLast trace: "; txt += lastpos.nr_;
     txt += " ("; txt += lastpos.coord_.x;
     txt += ","; txt += lastpos.coord_.y; txt += ")";
-    txt += "\nZ-range: "; mZRangeTxt(l2dd.zrg.start); txt += " - ";
-    mZRangeTxt(l2dd.zrg.stop);
-    txt += " ["; mZRangeTxt(l2dd.zrg.step); txt += "]";
+    txt += "\nZ-range: "; mZRangeTxt(l2dd.zrg_.start); txt += " - ";
+    mZRangeTxt(l2dd.zrg_.stop);
+    txt += " ["; mZRangeTxt(l2dd.zrg_.step); txt += "]";
 
     const IOPar& iopar = lineset->getInfo( lineidx );
     BufferString fname = iopar.find( sKey::FileName );

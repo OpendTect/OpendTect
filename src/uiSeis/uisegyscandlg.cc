@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.13 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -100,6 +100,8 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     delete scanner_; scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
     if ( setup_.rev_ == uiSEGYRead::Rev0 )
 	scanner_->setForceRev0( true );
+    if ( Seis::is2D(setup_.geom_) )
+	scanner_->setRichInfo( true );
     uiTaskRunner tr( parent_ );
     bool rv = tr.execute(*scanner_);
     if ( !rv ) return false;

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.34 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.35 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -527,7 +527,7 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
 	{
 	    PosInfo::Line2DPos p( curnr );
 	    p.coord_ = coords[idx];
-	    posdata_.posns += p;
+	    posdata_.posns_ += p;
 	    prevnr = curnr;
 	}
     }

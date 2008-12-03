@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.4 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.5 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -115,9 +115,9 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 	const int lineid =
 	    horizon2d.geometry().addLine( linesetinpsel_->getIOObj()->key(),
 				          sellinenames.get(idx).buf() );
-	for ( int idy=0; idy<posdata.posns.size(); idy++ )
+	for ( int idy=0; idy<posdata.posns_.size(); idy++ )
 	{
-	    const PosInfo::Line2DPos& posinfo = posdata.posns[idy];
+	    const PosInfo::Line2DPos& posinfo = posdata.posns_[idy];
 	    BinID bid = SI().transform( posinfo.coord_ );
 	    EM::SubID subid = bid.getSerialized();
 	    const Coord3 pos3d = horizon3d->getPos( horizon3d->sectionID(0),

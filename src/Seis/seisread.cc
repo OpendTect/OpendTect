@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.87 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.88 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -741,15 +741,15 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
 bool SeisTrcReader::initBounds2D( const PosInfo::Line2DData& l2dd,
 				  Seis::Bounds2D& b2d ) const
 {
-    b2d.zrg_ = l2dd.zrg;
+    b2d.zrg_ = l2dd.zrg_;
 
-    int prevnr = l2dd.posns[0].nr_;
+    int prevnr = l2dd.posns_[0].nr_;
     bool havefoundaselected = false;
     b2d.nrrg_.step = mUdf(int);
 
-    for ( int idx=0; idx<l2dd.posns.size(); idx++ )
+    for ( int idx=0; idx<l2dd.posns_.size(); idx++ )
     {
-	const int curnr = l2dd.posns[idx].nr_;
+	const int curnr = l2dd.posns_[idx].nr_;
 	if ( idx != 0 )
 	{
 	    const int step = abs( curnr - prevnr );
@@ -760,7 +760,7 @@ bool SeisTrcReader::initBounds2D( const PosInfo::Line2DData& l2dd,
 	if ( !havefoundaselected )
 	{
 	    b2d.nrrg_.start = b2d.nrrg_.stop = curnr;
-	    b2d.mincoord_ = b2d.maxcoord_ = l2dd.posns[idx].coord_;
+	    b2d.mincoord_ = b2d.maxcoord_ = l2dd.posns_[idx].coord_;
 	    havefoundaselected = true;
 	}
 
@@ -807,7 +807,7 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	    continue;
 
 	PosInfo::Line2DData l2dd;
-	if ( !lset->getGeometry(iln,l2dd) || l2dd.posns.size() < 2 )
+	if ( !lset->getGeometry(iln,l2dd) || l2dd.posns_.size() < 2 )
 	    continue;
 
 	if ( iiter == 0 )
@@ -818,12 +818,12 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 		continue;
 	}
 
-	for ( int idx=0; idx<l2dd.posns.size(); idx++ )
+	for ( int idx=0; idx<l2dd.posns_.size(); idx++ )
 	{
-	    const int nr = l2dd.posns[idx].nr_;
+	    const int nr = l2dd.posns_[idx].nr_;
 	    if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
 	    else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
-	    const Coord c( l2dd.posns[idx].coord_ );
+	    const Coord c( l2dd.posns_[idx].coord_ );
 	    if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
 	    else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;
 	    if ( b2d->mincoord_.y > c.y ) b2d->mincoord_.y = c.y;

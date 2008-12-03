@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.9 2008-05-30 08:23:34 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.10 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -203,7 +203,7 @@ bool Pos::RangeProvider2D::toNextPos()
 	else
 	{
 	    curidx_++;
-	    if ( curidx_ >= ld_->posns.size() )
+	    if ( curidx_ >= ld_->posns_.size() )
 		return false;
 	}
 
@@ -219,8 +219,8 @@ bool Pos::RangeProvider2D::toNextPos()
     curz_ = zrg_.start;
     if ( ld_ )
     {
-	if ( curz_ < ld_->zrg.start ) curz_ = ld_->zrg.start;
-	if ( curz_ > ld_->zrg.stop ) return false;
+	if ( curz_ < ld_->zrg_.start ) curz_ = ld_->zrg_.start;
+	if ( curz_ > ld_->zrg_.stop ) return false;
     }
 
     return true;
@@ -236,7 +236,7 @@ bool Pos::RangeProvider2D::toNextZ()
     if ( curz_ > zrg_.stop+mZrgEps )
 	return toNextPos();
 
-    if ( ld_ && curz_ > ld_->zrg.stop+mZrgEps )
+    if ( ld_ && curz_ > ld_->zrg_.stop+mZrgEps )
 	return toNextPos();
 
     return true;
@@ -245,13 +245,13 @@ bool Pos::RangeProvider2D::toNextZ()
 
 int Pos::RangeProvider2D::curNr() const
 {
-    return ld_ ? ld_->posns[curidx_].nr_ : curidx_;
+    return ld_ ? ld_->posns_[curidx_].nr_ : curidx_;
 }
 
 
 Coord Pos::RangeProvider2D::curCoord() const
 {
-    return ld_ ? ld_->posns[curidx_].coord_ : Coord(0,0);
+    return ld_ ? ld_->posns_[curidx_].coord_ : Coord(0,0);
 }
 
 
@@ -269,15 +269,15 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
     if ( !ld_ ) return false;
 
     bool found = false;
-    for ( int idx=0; idx<ld_->posns.size(); idx++ )
+    for ( int idx=0; idx<ld_->posns_.size(); idx++ )
     {
-	if ( ld_->posns[idx].coord_ == c )
+	if ( ld_->posns_[idx].coord_ == c )
 	    { found = true; break; }
     }
     if ( !found ) return false;
 
     return mIsUdf(z) ? true : z < zrg_.stop+mZrgEps
-			   && z < ld_->zrg.stop+mZrgEps;
+			   && z < ld_->zrg_.stop+mZrgEps;
 }
 
 

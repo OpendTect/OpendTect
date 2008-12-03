@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.48 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.49 2008-12-03 09:13:56 cvsbert Exp $";
 
 
 #include "visseis2ddisplay.h"
@@ -64,7 +64,7 @@ Seis2DDisplay::Seis2DDisplay()
     , voiidx_(-1)
     , prevtrcidx_(0)
 {
-    geometry_.zrg.start = geometry_.zrg.stop = mUdf(float);
+    geometry_.zrg_.start = geometry_.zrg_.stop = mUdf(float);
     cache_.allowNull();
 
     triangles_->ref();
@@ -114,16 +114,16 @@ void Seis2DDisplay::setLineName( const char* lnm )
 void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 {
     geometry_ = geometry;
-    const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.posns;
+    const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.posns_;
     maxtrcnrrg_.set( INT_MAX, INT_MIN );
 
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
 
-    triangles_->setPath( geometry_.posns );
+    triangles_->setPath( geometry_.posns_ );
 
     setTraceNrRange( maxtrcnrrg_ );
-    setZRange( geometry_.zrg );
+    setZRange( geometry_.zrg_ );
     updateRanges( false, true );
 
     geomchanged_.trigger();
@@ -133,18 +133,18 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
 {
     if ( !datatransform_ || displayspace )
-	return geometry_.zrg;
+	return geometry_.zrg_;
 
     StepInterval<float> zrg;
     zrg.setFrom( datatransform_->getZInterval(false) );
-    zrg.step = geometry_.zrg.step;
+    zrg.step = geometry_.zrg_.step;
     return zrg;
 }
 
 
 void Seis2DDisplay::setZRange( const Interval<float>& nzrg )
 {
-    if ( mIsUdf(geometry_.zrg.start) )
+    if ( mIsUdf(geometry_.zrg_.start) )
 	return;
 
     const StepInterval<float> maxzrg = getMaxZRange( false );
@@ -295,7 +295,7 @@ void Seis2DDisplay::setData( int attrib,
 	    const float firstdhsamplef = sd.getIndex( firstz );
 	    const int firstdhsample = sd.nearestIndex( firstz );
 	    const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3)
-				 &&  mIsEqual(sd.step,geometry_.zrg.step,1e-3 );
+				&&  mIsEqual(sd.step,geometry_.zrg_.step,1e-3 );
 	    const ValueSeries<float>* dataseries = dh->series( valididxs[sidx]);
 
 	    if ( samplebased )
@@ -577,7 +577,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
     if ( getNearestTrace(pos,dataidx,mindist) )
     {
 	info += "   Tracenr: ";
-	info += geometry_.posns[dataidx].nr_;
+	info += geometry_.posns_[dataidx].nr_;
     }
 }
 
@@ -599,7 +599,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
     if ( !getNearestTrace(pos, trcidx, mindist) )
 	return false;
 
-    const int trcnr = geometry_.posns[trcidx].nr_;
+    const int trcnr = geometry_.posns_[trcidx].nr_;
     for ( int idx=0; idx<cache_[attrib]->trcinfoset_.size(); idx++ )
     {
 	if ( cache_[attrib]->trcinfoset_[idx]->nr != trcnr )
@@ -626,7 +626,7 @@ int Seis2DDisplay::getNearestTraceNr( Coord3& pos ) const
     float mindist;
     getNearestTrace( pos, trcidx, mindist );
 
-    return  geometry_.posns[trcidx].nr_;
+    return  geometry_.posns_[trcidx].nr_;
 }
 
 Coord3 Seis2DDisplay::getNearestSubPos( const Coord3& pos,
@@ -652,20 +652,20 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
     const Interval<int>& trcrg = usemaxrange ? getMaxTraceNrRange() :
 					       getTraceNrRange();
 
-    for ( int aidx=0; aidx<geometry_.posns.size()-1; aidx++ )
+    for ( int aidx=0; aidx<geometry_.posns_.size()-1; aidx++ )
     {
-	const Coord posa = geometry_.posns[aidx].coord_;
-	if ( !posa.isDefined() || !trcrg.includes(geometry_.posns[aidx].nr_) )
+	const Coord posa = geometry_.posns_[aidx].coord_;
+	if ( !posa.isDefined() || !trcrg.includes(geometry_.posns_[aidx].nr_) )
 	    continue;
 
 	Coord posb = Coord::udf();
 	int bidx = aidx;
 
-	while ( !posb.isDefined() && bidx<geometry_.posns.size()-1 &&
-		trcrg.includes(geometry_.posns[bidx+1].nr_) )
+	while ( !posb.isDefined() && bidx<geometry_.posns_.size()-1 &&
+		trcrg.includes(geometry_.posns_[bidx+1].nr_) )
 	{
 	    bidx++;
-	    posb = geometry_.posns[bidx].coord_;
+	    posb = geometry_.posns_[bidx].coord_;
 	}
 
 	if ( !posb.isDefined() )
@@ -683,8 +683,8 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    if ( mindist2 > dist2a )
 	    {
 		mindist2 = dist2a;
-		trcnr1st = geometry_.posns[aidx].nr_;
-		trcnr2nd = geometry_.posns[bidx].nr_;
+		trcnr1st = geometry_.posns_[aidx].nr_;
+		trcnr2nd = geometry_.posns_[bidx].nr_;
 		frac = 0.0;
 	    }
 	    continue;
@@ -695,8 +695,8 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	    if ( mindist2 > dist2b )
 	    {
 		mindist2 = dist2b;
-		trcnr1st = geometry_.posns[aidx].nr_;
-		trcnr2nd = geometry_.posns[bidx].nr_;
+		trcnr1st = geometry_.posns_[aidx].nr_;
+		trcnr2nd = geometry_.posns_[bidx].nr_;
 		frac = 1.0;
 	    }
 	    continue;
@@ -711,8 +711,8 @@ float Seis2DDisplay::getNearestSegment( const Coord3& pos, bool usemaxrange,
 	if ( mindist2 > height2 )
 	{
 	    mindist2 = height2;
-	    trcnr1st = geometry_.posns[aidx].nr_;
-	    trcnr2nd = geometry_.posns[bidx].nr_;
+	    trcnr1st = geometry_.posns_[aidx].nr_;
+	    trcnr2nd = geometry_.posns_[bidx].nr_;
 	    frac = sqrt( dist2a - height2 ) / distc;
 	}
     }
@@ -728,7 +728,7 @@ void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 
     if ( trcidx<0 ) return;
 
-    const Coord& crd = geometry_.posns[trcidx].coord_;
+    const Coord& crd = geometry_.posns_[trcidx].coord_;
     pos.x = crd.x; pos.y = crd.y; 
 }
 
@@ -747,11 +747,11 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
     trcidx = -1;
     mSetUdf(mindist);
 
-    for ( int idx=geometry_.posns.size()-1; idx>=0; idx-- )
+    for ( int idx=geometry_.posns_.size()-1; idx>=0; idx-- )
     {
-	if ( !trcnrrg_.includes( geometry_.posns[idx].nr_ ) ) continue;
+	if ( !trcnrrg_.includes( geometry_.posns_[idx].nr_ ) ) continue;
 
-	const float dist = pos.Coord::sqDistTo( geometry_.posns[idx].coord_ );
+	const float dist = pos.Coord::sqDistTo( geometry_.posns_[idx].coord_ );
 	if ( dist<mindist )
 	{
 	    mindist = dist;
@@ -765,23 +765,23 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
 
 Coord Seis2DDisplay::getCoord( int trcnr ) const
 {
-    const int sz = geometry_.posns.size();
+    const int sz = geometry_.posns_.size();
     if ( !sz )
 	return Coord::udf();
     if ( prevtrcidx_ >= sz )
 	prevtrcidx_ = sz-1;
 
-    const int prevnr = geometry_.posns[prevtrcidx_].nr_;
-    int dir = (geometry_.posns[0].nr_-prevnr)*(trcnr-prevnr)<0 ? 1 : -1;
+    const int prevnr = geometry_.posns_[prevtrcidx_].nr_;
+    int dir = (geometry_.posns_[0].nr_-prevnr)*(trcnr-prevnr)<0 ? 1 : -1;
 
     for ( int cnt=0; cnt<=1; cnt++ )
     {
 	for ( int idx=prevtrcidx_+cnt*dir; idx>=0 && idx<sz; idx+=dir )
 	{
-	    if ( geometry_.posns[idx].nr_ == trcnr )
+	    if ( geometry_.posns_[idx].nr_ == trcnr )
 	    {
 		prevtrcidx_ = idx;
-		return geometry_.posns[idx].coord_;
+		return geometry_.posns_[idx].coord_;
 	    }
 	}
 	dir = -dir;
@@ -793,10 +793,10 @@ Coord Seis2DDisplay::getCoord( int trcnr ) const
 Coord Seis2DDisplay::getNormal( int trcnr ) const
 {
     int posid = -1;
-    int sz = geometry_.posns.size();
+    int sz = geometry_.posns_.size();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( geometry_.posns[idx].nr_ == trcnr )
+	if ( geometry_.posns_[idx].nr_ == trcnr )
 	{
 	    posid = idx; 
 	    break;
@@ -806,12 +806,12 @@ Coord Seis2DDisplay::getNormal( int trcnr ) const
     if ( posid == -1 || sz == -1 )
 	return Coord(mUdf(float), mUdf(float));
 
-    Coord pos = geometry_.posns[posid].coord_;
+    Coord pos = geometry_.posns_[posid].coord_;
     Coord v1;
     if ( posid+1<sz )    
-	v1 = geometry_.posns[posid-1].coord_- pos; 
+	v1 = geometry_.posns_[posid-1].coord_- pos; 
     else if ( posid-1>=0 )
-	v1 = pos - geometry_.posns[posid+1].coord_;
+	v1 = pos - geometry_.posns_[posid+1].coord_;
 
     if ( v1.x == 0 )
 	return Coord( 1, 0 );

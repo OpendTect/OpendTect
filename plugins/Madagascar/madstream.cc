@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.12 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.13 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -268,11 +268,11 @@ void MadStream::fillHeaderParsFromSeis()
 	if ( !seldata->isAll() )
 	{
 	    geom.limitTo( seldata->crlRange() );
-	    geom.zrg.limitTo( seldata->zRange() );
+	    geom.zrg_.limitTo( seldata->zRange() );
 	}
 
-	nrtrcs = geom.posns.size();
-	zrg = geom.zrg;
+	nrtrcs = geom.posns_.size();
+	zrg = geom.zrg_;
 	mWriteToPosFile( geom )
     }
     else
@@ -356,14 +356,14 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 	if ( seldata && !seldata->isAll() )
 	{
 	    l2ddata_->limitTo( seldata->crlRange() );
-	    l2ddata_->zrg.limitTo( seldata->zRange() );
+	    l2ddata_->zrg_.limitTo( seldata->zRange() );
 	}
 
-	nrbids = l2ddata_->posns.size();
+	nrbids = l2ddata_->posns_.size();
 	if ( !nrbids ) mErrRet( "No data available in the given range" );
 
 	mWriteToPosFile( (*l2ddata_) );
-	firstbid.crl = l2ddata_->posns[0].nr_;
+	firstbid.crl = l2ddata_->posns_[0].nr_;
 
 	if ( !rdr->getGather(firstbid,trcbuf) )
 	    mErrRet( "No data to read" );
@@ -502,19 +502,20 @@ bool MadStream::getNextPos( BinID& bid )
     if ( !is2d_ )
 	return iter_ && iter_->next( bid );
 
-    if ( !l2ddata_ || !l2ddata_->posns.size() ) return false;
+    if ( !l2ddata_ || !l2ddata_->posns_.size() ) return false;
 
     if ( !bid.crl )
-    { bid.crl = l2ddata_->posns[0].nr_; return true; }
+    { bid.crl = l2ddata_->posns_[0].nr_; return true; }
     
     int idx = 0;
-    while ( idx<l2ddata_->posns.size() && bid.crl != l2ddata_->posns[idx].nr_ )
+    while ( idx<l2ddata_->posns_.size()
+	  && bid.crl != l2ddata_->posns_[idx].nr_ )
 	idx++;
 
-    if ( idx+1 >= l2ddata_->posns.size() )
+    if ( idx+1 >= l2ddata_->posns_.size() )
 	return false;
 
-    bid.crl = l2ddata_->posns[idx+1].nr_;
+    bid.crl = l2ddata_->posns_[idx+1].nr_;
     return true;
 }
 
@@ -688,19 +689,19 @@ bool MadStream::write2DTraces()
 	headerpars_->get( "n3", nrtrcs );
     }
 
-    if ( nrtrcs != geom.posns.size() )
+    if ( nrtrcs != geom.posns_.size() )
 	mErrBoolRet( "Line geometry doesn't match with data" );
 
     float* buf = new float[nrsamps];
-    for ( int idx=0; idx<geom.posns.size(); idx++ )
+    for ( int idx=0; idx<geom.posns_.size(); idx++ )
     {
-	const int trcnr = geom.posns[idx].nr_;
+	const int trcnr = geom.posns_[idx].nr_;
 	for ( int offidx=1; offidx<=nroffsets; offidx++ )
 	{
 	    std::cin.read( (char*)buf, nrsamps*sizeof(float) );
 	    SeisTrc trc( nrsamps );
 	    trc.info().sampling = sd;
-	    trc.info().coord = geom.posns[idx].coord_;
+	    trc.info().coord = geom.posns_[idx].coord_;
 	    trc.info().binid.crl = trcnr;
 	    trc.info().nr = trcnr;
 

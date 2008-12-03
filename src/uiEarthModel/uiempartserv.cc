@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.151 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.152 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "uiempartserv.h"
 
@@ -1001,16 +1001,16 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 
 	if ( lineid1<0 || ( issecondhor && lineid2<0 ) ) continue;
 
-	for ( int trcidx=0; trcidx<ld->posns.size(); trcidx++ )
+	for ( int trcidx=0; trcidx<ld->posns_.size(); trcidx++ )
 	{
 	    const EM::SubID subid1 = 
-		RowCol( lineid1, ld->posns[trcidx].nr_ ).getSerialized();
+		RowCol( lineid1, ld->posns_[trcidx].nr_ ).getSerialized();
 	    const float z1 = hor2d1->getPos(0,subid1).z;
 	    float z2 = mUdf(float);
 	    if ( issecondhor )
 	    {
 		const EM::SubID subid2 =
-		    RowCol( lineid2, ld->posns[trcidx].nr_ ).getSerialized();
+		    RowCol( lineid2, ld->posns_[trcidx].nr_ ).getSerialized();
 		z2 = hor2d2->getPos(0,subid2).z;
 	    }
 
@@ -1018,7 +1018,7 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	    {
 		Interval<float> zrg( z1, issecondhor ? z2 : z1 );	
 		zrgs += zrg;
-		coords += ld->posns[trcidx].coord_;
+		coords += ld->posns_[trcidx].coord_;
 	    }
 	}
     }

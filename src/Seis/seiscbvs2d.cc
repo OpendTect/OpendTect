@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.41 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.42 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -235,7 +235,7 @@ od_int64		totalNr() const		{ return totnr; }
 bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
 					    PosInfo::Line2DData& geom ) const
 {
-    geom.posns.erase();
+    geom.posns_.erase();
     BufferString fnm = getFileName(iop);
     if ( !isUsable(iop) )
     {
@@ -258,14 +258,14 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
     tr->readMgr()->getPositions( coords );
     tr->readMgr()->getPositions( binids );
 
-    geom.zrg.start = cbvsinf.sd.start;
-    geom.zrg.step = cbvsinf.sd.step;
-    geom.zrg.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
+    geom.zrg_.start = cbvsinf.sd.start;
+    geom.zrg_.step = cbvsinf.sd.step;
+    geom.zrg_.stop = cbvsinf.sd.start + (cbvsinf.nrsamples-1) * cbvsinf.sd.step;
     for ( int idx=0; idx<coords.size(); idx++ )
     {
 	PosInfo::Line2DPos p( binids[idx].crl );
 	p.coord_ = coords[idx];
-	geom.posns += p;
+	geom.posns_ += p;
     }
 
     return true;

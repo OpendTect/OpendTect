@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.7 2008-10-08 15:54:58 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.8 2008-12-03 09:13:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,8 +144,8 @@ public:
 
 			Line2DData();
 
-    StepInterval<float> zrg;
-    TypeSet<Line2DPos>  posns;
+    StepInterval<float> zrg_;
+    TypeSet<Line2DPos>  posns_;
 
     bool		getPos(const Coord&,Line2DPos&) const;
     bool		getPos(int,Line2DPos&) const;

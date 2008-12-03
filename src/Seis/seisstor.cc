@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.39 2008-10-26 17:41:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.40 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -303,7 +303,7 @@ bool Seis::ODSeqInp::get( SeisTrc& trc ) const
     if ( psrdr_->is2D() )
     {
 	const SeisPS2DReader& rdr = *((const SeisPS2DReader*)psrdr_);
-	const PosInfo::Line2DPos& lp = rdr.posData().posns[curposidx_];
+	const PosInfo::Line2DPos& lp = rdr.posData().posns_[curposidx_];
 	if ( !rdr.getGath(lp.nr_,gath_) )
 	{
 	    errmsg_ = rdr.errMsg();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 ________________________________________________________________________
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.49 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.50 2008-12-03 09:13:56 cvsbert Exp $";
 -*/
 
 #include "uifingerprintattrib.h"
@@ -626,9 +626,9 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 		return undef;
 	    }
 	    StepInterval<int> trcrg;
-	    lineset.getRanges( lineindex, trcrg, geometry->zrg );
+	    lineset.getRanges( lineindex, trcrg, geometry->zrg_ );
 	    const int trcnr = refposfld_->getBinID().crl;
-	    return SI().transform( geometry->posns[trcnr-trcrg.start].coord_ );
+	    return SI().transform( geometry->posns_[trcnr-trcrg.start].coord_ );
 	}
     }
 

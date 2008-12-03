@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.2 2008-12-02 16:10:39 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.3 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -67,6 +67,7 @@ SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, const char* lnm )
     , posdata_(*new PosInfo::Line2DData)
     , def_(*new SEGY::DirectDef(fileName(dirnm,lnm)))
 {
+    def_.getPosData( posdata_ );
 }
 
 

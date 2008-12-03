@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.10 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.11 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -71,13 +71,13 @@ static void create2DRandPicks( const MultiID& lsetid, BinIDValueSet* rangesset )
     {
 	const int lineidx = Stats::RandGen::getIndex( nrlines );
 	PosInfo::Line2DData& geometry = *geoms[lineidx];
-	const int nrcoords = geometry.posns.size();
+	const int nrcoords = geometry.posns_.size();
 	const int crdidx = Stats::RandGen::getIndex( nrcoords );
-	const Coord& pos = geometry.posns[crdidx].coord_;
+	const Coord& pos = geometry.posns_[crdidx].coord_;
 
 	const BinID bid = SI().transform( pos );
-	const float zpos = geometry.zrg.start +
-				    Stats::RandGen::get()*geometry.zrg.width();
+	const float zpos = geometry.zrg_.start +
+				    Stats::RandGen::get()*geometry.zrg_.width();
 	rangesset->add( bid, zpos );
     }
 }

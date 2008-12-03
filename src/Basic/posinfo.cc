@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.11 2008-10-15 10:16:59 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.12 2008-12-03 09:13:56 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -625,7 +625,7 @@ bool PosInfo::CubeDataIterator::next( BinID& bid )
 
 PosInfo::Line2DData::Line2DData()
 {
-    zrg = SI().sampling(false).zrg;
+    zrg_ = SI().sampling(false).zrg;
 }
 
 
@@ -634,9 +634,9 @@ bool PosInfo::Line2DData::getPos( const Coord& coord,
 {
     int posidx = -1;
     double mindist = mUdf(float);
-    for ( int idx=0; idx<posns.size(); idx++ )
+    for ( int idx=0; idx<posns_.size(); idx++ )
     {
-	const Coord& curpos = posns[idx].coord_;
+	const Coord& curpos = posns_[idx].coord_;
 	const float offset = curpos.distTo( coord );
 	if ( offset > cThresholdDist ) continue;
 	if ( offset < mindist )
@@ -648,20 +648,20 @@ bool PosInfo::Line2DData::getPos( const Coord& coord,
 
     if ( posidx < 0 ) return false;
 
-    pos.nr_ = posns[posidx].nr_;
-    pos.coord_ = posns[posidx].coord_;
+    pos.nr_ = posns_[posidx].nr_;
+    pos.coord_ = posns_[posidx].coord_;
     return true;
 }
 
 
 bool PosInfo::Line2DData::getPos( int trcnr, PosInfo::Line2DPos& pos ) const
 {
-    for ( int idx=0; idx<posns.size(); idx++ )
+    for ( int idx=0; idx<posns_.size(); idx++ )
     {
-	if ( posns[idx].nr_ == trcnr )
+	if ( posns_[idx].nr_ == trcnr )
 	{
-	    pos.nr_ = posns[idx].nr_;
-	    pos.coord_ = posns[idx].coord_;
+	    pos.nr_ = posns_[idx].nr_;
+	    pos.coord_ = posns_[idx].coord_;
 	    return true;
 	}
     }
@@ -673,27 +673,27 @@ bool PosInfo::Line2DData::getPos( int trcnr, PosInfo::Line2DPos& pos ) const
 void PosInfo::Line2DData::limitTo( Interval<int> trcrg )
 {
     trcrg.sort();
-    for ( int idx=0; idx<posns.size(); idx++ )
-	if ( posns[idx].nr_ < trcrg.start || posns[idx].nr_ > trcrg.stop )
-	    posns.remove( idx-- );
+    for ( int idx=0; idx<posns_.size(); idx++ )
+	if ( posns_[idx].nr_ < trcrg.start || posns_[idx].nr_ > trcrg.stop )
+	    posns_.remove( idx-- );
 }
 
 
 void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
 {
     if ( !pretty )
-	strm << zrg.start << '\t' << zrg.stop << '\t' << zrg.step << std::endl;
+	strm << zrg_.start << '\t' << zrg_.stop << '\t' << zrg_.step << '\n';
     else
     {
 	const float fac = SI().zFactor();
-	strm << "Z range " << SI().getZUnit() << ":\t" << fac*zrg.start
-	     << '\t' << fac*zrg.stop << "\t" << fac*zrg.step;
+	strm << "Z range " << SI().getZUnit() << ":\t" << fac*zrg_.start
+	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
 	strm << "\n\nTrace number\tX-coord\tY-coord" << std::endl;
     }
 
-    for ( int idx=0; idx<posns.size(); idx++ )
+    for ( int idx=0; idx<posns_.size(); idx++ )
     {
-	const PosInfo::Line2DPos& pos = posns[idx];
+	const PosInfo::Line2DPos& pos = posns_[idx];
 	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
     }
     strm.flush();
@@ -704,20 +704,20 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 {
     int linesz = 0;
     if ( asc )
-	strm >> zrg.start >> zrg.stop >> zrg.step >> linesz;
+	strm >> zrg_.start >> zrg_.stop >> zrg_.step >> linesz;
     else
     {
 	float buf[3];
 	strm.read( (char*) buf, 3 * sizeof(float) );
-	zrg.start = buf[0];
-	zrg.stop = buf[1];
-	zrg.step = buf[2];
+	zrg_.start = buf[0];
+	zrg_.stop = buf[1];
+	zrg_.step = buf[2];
 	strm.read( (char*) &linesz, sizeof(int) );
     }
     if ( linesz <= 0 )
 	return false;
 
-    posns.erase();
+    posns_.erase();
     for ( int idx=0; idx<linesz; idx++ )
     {
 	int trcnr = -1;
@@ -737,7 +737,7 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 	    strm.read( (char*) dbuf, 2 * sizeof(double) );
 	    pos.coord_.x = dbuf[0]; pos.coord_.y = dbuf[1];
 	}
-	posns += pos;
+	posns_ += pos;
     }
 
     return true;
@@ -746,20 +746,20 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 
 bool PosInfo::Line2DData::write( std::ostream& strm, bool asc ) const
 {
-    const int linesz = posns.size();
+    const int linesz = posns_.size();
     if ( asc )
-	strm << zrg.start << ' ' << zrg.stop << ' ' << zrg.step
+	strm << zrg_.start << ' ' << zrg_.stop << ' ' << zrg_.step
 	     << ' ' << linesz;
     else
     {
-	float buf[] = { zrg.start, zrg.stop, zrg.step };
+	float buf[] = { zrg_.start, zrg_.stop, zrg_.step };
 	strm.write( (const char*) buf, 3 * sizeof(float) );
 	strm.write( (const char*) &linesz, sizeof(int) );
     }
 
     for ( int idx=0; idx<linesz; idx++ )
     {
-	const PosInfo::Line2DPos& pos = posns[idx];
+	const PosInfo::Line2DPos& pos = posns_[idx];
 	if ( asc )
 	{
 	    strm << ' ' << pos.nr_
