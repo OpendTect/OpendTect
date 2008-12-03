@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.2 2008-12-03 16:30:58 cvsyuancheng Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.3 2008-12-03 23:04:30 cvsyuancheng Exp $
  ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
 
 protected:
 
+    void			setOutput(int,int,int,bool addseed);
     bool			doWork(od_int64 start,od_int64 stop,int);
     int				getNextWorkCompartment();
     void			returnCompartment(int);
@@ -184,7 +185,10 @@ int Array3DFloodfill<T>::getWorkCompartment( int x0, int x1, int x2 ) const
 template <class T> inline
 void Array3DFloodfill<T>::setOutsideValue( T val )
 {
-    outsideval_ = val;
+    if ( mIsUdf(val) )
+	outsideval_ = val;
+    else
+    	outsideval_ = aboveisovalue_ ? val : -val;
 
     T* ptr = output_.getData();
     const T* stopptr = ptr + output_.info().getTotalSz();
@@ -199,6 +203,13 @@ void Array3DFloodfill<T>::setOutsideValue( T val )
 
 template <class T> inline
 void Array3DFloodfill<T>::addSeed( int x0, int x1, int x2 )
+{
+    setOutput( x0, x1, x2, true );
+}
+
+
+template <class T> inline
+void Array3DFloodfill<T>::setOutput( int x0, int x1, int x2, bool addseed )
 {
     if ( x0<0 || x0>=sz0_ || x1<0 || x1>=sz1_ || x2<0 || x2>=sz2_ )
 	return;
@@ -223,7 +234,8 @@ void Array3DFloodfill<T>::addSeed( int x0, int x1, int x2 )
 	}
     }
 
-    isdefined_->set( x0, x1, x2, true );
+    if ( addseed )
+    	isdefined_->set( x0, x1, x2, true );
 
     const T inputval = input_.get( x0, x1, x2 );
 
@@ -237,10 +249,14 @@ void Array3DFloodfill<T>::addSeed( int x0, int x1, int x2 )
 
     output_.set( x0, x1, x2, useinputval_ ? inputval : insideval_ );
 
-    int dummy;
-    int seed[] = { x0, x1, x2 };
-    compartments_[cellidx]->seeds_.add( &dummy, seed );
-    compartmentlock_.signal( false );
+    if ( addseed )
+    {
+	int dummy;
+	int seed[] = { x0, x1, x2 };
+	compartments_[cellidx]->seeds_.add( &dummy, seed );
+	compartmentlock_.signal( false );
+    }
+
     compartments_[cellidx]->lock_.writeUnLock();
 }
 
@@ -329,10 +345,12 @@ bool Array3DFloodfill<T>::doWork( od_int64 start, od_int64 stop, int )
 		    for ( int k=-1; k<=1; k++ )
 		    {
 			const char nrzeros = !i + !j + !k;
-			if ( nrzeros==3 || (use6neighbors_ && nrzeros!=2) )
+			if ( nrzeros==3 )
 			    continue;
-		    
-			addSeed( arrpos[0]+i, arrpos[1]+j, arrpos[2]+k );
+
+			const bool addseed = !use6neighbors_ || nrzeros==2;
+			setOutput( arrpos[0]+i, arrpos[1]+j, arrpos[2]+k,
+			           addseed );
 		    }
 		}
 	    }
