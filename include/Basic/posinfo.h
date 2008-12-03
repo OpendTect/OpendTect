@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.8 2008-12-03 09:13:56 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.9 2008-12-03 11:44:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,30 @@ public:
 
     bool		read(std::istream&,bool asc);
     bool		write(std::ostream&,bool asc) const;
+};
+
+
+/*!\brief Fills CubeData object. Requires inline- and crossline-sorting. */
+
+class CubeDataFiller
+{
+public:
+    			CubeDataFiller(CubeData&);
+    			~CubeDataFiller();
+
+    void		add(const BinID&);
+    void		finish();
+
+protected:
+
+    CubeData&		cd_;
+    LineData*		ld_;
+    LineData::Segment	seg_;
+    int			prevcrl;
+
+    void		initLine();
+    void		finishLine();
+
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.12 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.13 2008-12-03 11:44:14 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -570,6 +570,76 @@ bool PosInfo::CubeData::write( std::ostream& strm, bool asc ) const
     }
 
     return true;
+}
+
+
+PosInfo::CubeDataFiller::CubeDataFiller( CubeData& cd )
+    : cd_(cd)
+{
+    initLine();
+}
+
+
+PosInfo::CubeDataFiller::~CubeDataFiller()
+{
+    delete ld_;
+}
+
+
+void PosInfo::CubeDataFiller::add( const BinID& bid )
+{
+    if ( !ld_ || ld_->linenr_ != bid.inl )
+    {
+	if ( ld_ )
+	    finishLine();
+	ld_ = new LineData( bid.inl );
+    }
+
+    if ( mIsUdf(prevcrl) )
+	seg_.start = seg_.stop = bid.crl;
+    else
+    {
+	const int curstep = bid.crl - prevcrl;
+	if ( mIsUdf(seg_.step) )
+	    seg_.step = curstep;
+	else if ( seg_.step != curstep )
+	{
+	    ld_->segments_ += seg_;
+	    seg_.start = bid.crl;
+	    mSetUdf(seg_.step);
+	}
+	seg_.stop = bid.crl;
+    }
+}
+
+
+void PosInfo::CubeDataFiller::finish()
+{
+    if ( ld_ )
+	finishLine();
+}
+
+
+void PosInfo::CubeDataFiller::initLine()
+{
+    ld_ = 0;
+    prevcrl = seg_.start = seg_.stop = seg_.step = mUdf(int);
+}
+
+
+void PosInfo::CubeDataFiller::finishLine()
+{
+    if ( mIsUdf(seg_.step) )
+    {
+	if ( ld_->segments_.isEmpty() )
+	    seg_.step = SI().crlStep();
+	else
+	    seg_.step = ld_->segments_[0].step;
+    }
+
+    ld_->segments_ += seg_;
+    cd_ += ld_;
+    initLine();
 }
 
 
