@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.31 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.32 2008-12-03 09:53:37 cvsnanne Exp $";
 
 #include "attribsel.h"
 #include "attribdesc.h"
@@ -251,7 +251,8 @@ void SelInfo::fillStored( const char* filter )
 	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
 	const bool isvalid3d = !is2d && ioobj.isReadDefault();
-	const bool isz = ioobj.pars().find(sKey::ZDomain);
+	const bool isz = ioobj.pars().find(sKey::ZDomain) ||
+	    		 ioobj.pars().find( "Depth Domain" );
 	if ( isz || (is2d_ != is2d) || (!is2d && !isvalid3d) )
 	    continue;
 
