@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.57 2008-11-25 16:21:43 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.58 2008-12-03 22:56:08 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -404,19 +404,7 @@ bool MultiTexture2::setData( int texture, int version,
     if ( data && (!dataarray || copy ) )
     {
 	float* arr = new float[totalsz];
-
-	if ( data->getData() )
-	    memcpy( arr, data->getData(), totalsz*sizeof(float) );
-	else
-	{
-	    ArrayNDIter iter( data->info() );
-	    int idx=0;
-	    do
-	    {
-		arr[idx++] = data->get(iter.getPos());
-	    } while ( iter.next() );
-	}
-
+	data->getAll( arr );
 	manage = true;
 	dataarray = arr;
     }
@@ -434,12 +422,7 @@ bool MultiTexture2::setIndexData( int texture, int version,
     if ( data && !dataarray )
     {
 	unsigned char* arr = new unsigned char[totalsz];
-	ArrayNDIter iter( data->info() );
-	int idx=0;
-	do
-	{
-	    arr[idx++] = data->get(iter.getPos());
-	} while ( iter.next() );
+	data->getAll( arr );
 
 	manage = true;
 	dataarray = arr;
