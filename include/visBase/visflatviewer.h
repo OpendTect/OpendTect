@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.5 2008-11-26 06:59:52 cvssatyaki Exp $
+ RCS:		$Id: visflatviewer.h,v 1.6 2008-12-04 18:17:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ ________________________________________________________________________
 namespace visBase
 {
 
-class MultiTexture2;
+class TextureChannels;
+class ColTabTextureChannel2RGBA;
 class SplitTexture2Rectangle;
 
 /*!Implementation of FlatViewer::Viewer in 3D. */
@@ -35,13 +36,14 @@ public:
     void	                setPosition(const Coord3& c00,const Coord3& c01,
 	                                  const Coord3& c10,const Coord3& c11);    
     void			allowShading(bool yn);  
-    void			replaceTexture(visBase::MultiTexture2*);
+    void			replaceChannels(visBase::TextureChannels*);
     				/*!<Replaces internal texture. The new texture 
 				  will not be added to the scene. */	
 protected:
     				~FlatViewer();
     
-    MultiTexture2*		texture_;
+    TextureChannels*		channels_;
+    ColTabTextureChannel2RGBA*	channel2rgba_;
     SplitTexture2Rectangle* 	rectangle_;
 };
 

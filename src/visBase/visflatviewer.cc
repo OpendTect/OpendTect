@@ -7,16 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.16 2008-11-26 07:01:22 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.17 2008-12-04 18:17:10 cvskris Exp $";
 
 #include "visflatviewer.h"
 #include "arraynd.h"
-#include "coltab.h"
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "flatview.h"
-#include "viscolortab.h"
-#include "vismultitexture2.h"
+#include "vistexturechannels.h"
 #include "vissplittexture2rectangle.h"
+#include "vistexturechannel2rgba.h"
 
 
 mCreateFactoryEntry( visBase::FlatViewer );
@@ -27,16 +27,21 @@ namespace visBase
 FlatViewer::FlatViewer()
     : VisualObjectImpl( false )
     , dataChange( this )
-    , texture_( MultiTexture2::create() )
+    , channels_( TextureChannels::create() )
+    , channel2rgba_( ColTabTextureChannel2RGBA::create() )
     , rectangle_( SplitTexture2Rectangle::create() )
 {
-    texture_->ref();
-    addChild( texture_->getInventorNode() );
+    channel2rgba_->ref();
+    channel2rgba_->allowShading( true );
 
-    if ( texture_->nrTextures()<1 )
+    channels_->ref();
+    addChild( channels_->getInventorNode() );
+    channels_->setChannels2RGBA( channel2rgba_ );
+
+    if ( channels_->nrChannels()<1 )
     {
-    	texture_->addTexture( "Flat Viewer" );
-    	texture_->enableTexture( 0, true );	
+    	channels_->addChannel();
+    	channel2rgba_->setEnabled( 0, true );	
     }
 
     rectangle_->ref();
@@ -48,7 +53,8 @@ FlatViewer::FlatViewer()
 
 FlatViewer::~FlatViewer()
 {
-    texture_->unRef();
+    channels_->unRef();
+    channel2rgba_->unRef();
     rectangle_->unRef();
 }
 
@@ -72,41 +78,60 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 	    {
 		const FlatDataPack* dp = pack( false );
 		if ( !dp )
-		    texture_->turnOn( false );
+		    channels_->turnOn( false );
 		else
 		{
-    		    texture_->splitTexture( true );
-    		    texture_->setData( 0, 0, &dp->data(), true );
-    		    texture_->turnOn( appearance().ddpars_.vd_.show_ );
+		    const Array2D<float>& dparr = dp->data();
+		    channels_->setSize( 1, dparr.info().getSize(0),
+					   dparr.info().getSize(1) );
+		    if ( !dparr.getData() )
+		    {
+			const int bufsz = dparr.info().getTotalSz();
+			mDeclareAndTryAlloc(float*,ptr, float[bufsz]);
+			if ( !ptr )
+			    channels_->turnOn( false );
+			else
+			{
+			    dparr.getAll( ptr );
+			    channels_->setUnMappedData( 0, 0, ptr,
+						    TextureChannels::TakeOver );
+			}
+		    }
+		    else 
+		    {
+			channels_->setUnMappedData( 0, 0, dparr.getData(),
+						    TextureChannels::Cache );
+		    }
 
-		    appearance().ddpars_.vd_.ctab_ = 
-			texture_->getColorTab(0).colorSeq().name();	    
-    		    rectangle_->setOriginalTextureSize( 
-			    dp->data().info().getSize(1),
-			    dp->data().info().getSize(0) );
+		    appearance().ddpars_.vd_.ctab_ =
+			channel2rgba_->getSequence(0)->name();
+		    rectangle_->setOriginalTextureSize( 
+				dparr.info().getSize(0),
+				dparr.info().getSize(1) );
+		    channels_->turnOn( appearance().ddpars_.vd_.show_ );
+
+		    dataChange.trigger();
+		    if ( dt!=All )
+			break;
 		}
-
-		dataChange.trigger();
-		if ( dt!=All )
-		    break;
 	    }
 	case VDPars : 	
-		visBase::VisColorTab& vct = texture_->getColorTab( 0 );
-		vct.setAutoScale( false ); //To trigger clipping update.
-		const bool autoscal = appearance().ddpars_.vd_.autoscale_;
-		if ( !mIsUdf(appearance().ddpars_.vd_.symmidvalue_) && autoscal)
-		    vct.setSymMidval( appearance().ddpars_.vd_.symmidvalue_ );
+	    {
+	    	const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
+	    	ColTab::MapperSetup mappersetup;
+		vd.fill( mappersetup );
+		if ( channels_->getColTabMapperSetup( 0,0 )!=mappersetup )
+		    channels_->setColTabMapperSetup( 0, mappersetup );
 
-		const Interval<float>& range = appearance().ddpars_.vd_.rg_;
-		if ( mIsUdf(range.start) || mIsUdf(range.stop) || autoscal )
-		    vct.setClipRate( 
-			    appearance().ddpars_.vd_.clipperc_.start*0.01 );
-		else
-	    	    vct.scaleTo( range );
-		
-		const char* ctabname = appearance().ddpars_.vd_.ctab_.buf();
-		vct.colorSeq().loadFromStorage( ctabname );
-		vct.setAutoScale( autoscal );
+		ColTab::Sequence sequence = *channel2rgba_->getSequence( 0 );
+		if ( vd.ctab_!=sequence.name() )
+		{
+		    if ( ColTab::SM().get( vd.ctab_, sequence ) )
+		    {
+			channel2rgba_->setSequence( 0, sequence );
+		    }
+		}
+	    }
     }			
 }
 
@@ -120,23 +145,23 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 
 void FlatViewer::allowShading( bool yn )
 {
-    texture_->allowShading( yn ); 
+    channel2rgba_->allowShading( yn );
 }
 
 
-void FlatViewer::replaceTexture( MultiTexture2* nt )
+void FlatViewer::replaceChannels( TextureChannels* nt )
 {
     if ( !nt )
 	return;
 
-    if ( texture_ )
+    if ( channels_ )
     {
-	removeChild( texture_->getInventorNode() );
-	texture_->unRef();
+	removeChild( channels_->getInventorNode() );
+	channels_->unRef();
     }
 
-    texture_ = nt;
-    texture_->ref();
+    channels_ = nt;
+    channels_->ref();
 }
 
 

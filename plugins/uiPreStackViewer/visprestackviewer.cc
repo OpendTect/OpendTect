@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.36 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.37 2008-12-04 18:17:10 cvskris Exp $";
 
 #include "visprestackviewer.h"
 
@@ -330,9 +330,9 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	factor_ = width_/offsetrange_.width();
 
     const Coord3 c00( startpos, zrg_.start );
-    const Coord3 c01( stoppos, zrg_.start ); 
+    const Coord3 c01( startpos, zrg_.stop );
     const Coord3 c11( stoppos, zrg_.stop );
-    const Coord3 c10( startpos, zrg_.stop );
+    const Coord3 c10( stoppos, zrg_.start ); 
 
     flatviewer_->setPosition( c00, c01, c10, c11 );
     if ( section_ )
