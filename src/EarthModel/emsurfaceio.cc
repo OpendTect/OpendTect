@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.111 2008-11-28 13:05:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.112 2008-12-04 12:48:44 cvsumesh Exp $";
 
 #include "emsurfaceio.h"
 
@@ -62,6 +62,8 @@ const char* dgbSurfaceReader::sMsgParseError()  { return "Cannot parse file"; }
 const char* dgbSurfaceReader::sMsgReadError()
 { return "Unexpected end of file"; }
 
+const char* dgbSurfaceReader::linenamesstr_	= "Line names";
+
 BufferString dgbSurfaceReader::sSectionIDKey( int idx )
 { BufferString res = "Patch "; res += idx; return res;  }
 
@@ -74,7 +76,7 @@ BufferString dgbSurfaceReader::sColStepKey( int idx )
 
 
 dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
-					const char* filetype )
+				    const char* filetype )
     : ExecutorGroup( "Surface Reader" )
     , conn_( dynamic_cast<StreamConn*>(ioobj.getConn(Conn::Read)) )
     , cube_( 0 )
@@ -96,6 +98,8 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , isinited_( false )
     , fullyread_( true )
     , version_( 1 )
+    , linenames_( 0 )
+    , linestrcrgs_( 0 )		       
 {
     sectionnames_.allowNull();
 
@@ -281,6 +285,8 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete conn_;
     delete readrowrange_;
     delete readcolrange_;
+    delete linenames_;
+    delete linestrcrgs_;
 
     delete int16interpreter_;
     delete int32interpreter_;
@@ -379,6 +385,20 @@ void dgbSurfaceReader::setColInterval( const StepInterval<int>& rg )
 {
     if ( readcolrange_ ) delete readcolrange_;
     readcolrange_ = new StepInterval<int>(rg);
+}
+
+
+void dgbSurfaceReader::setLineNames( const BufferStringSet& lns )
+{
+    if ( linenames_ ) delete linenames_;
+    linenames_ = new BufferStringSet( lns );
+}
+
+
+void dgbSurfaceReader::setLinesTrcRngs( const TypeSet<Interval<int> >& lnstrcs )
+{
+    if ( linestrcrgs_ ) delete linestrcrgs_;
+    linestrcrgs_ = new TypeSet<Interval<int> >( lnstrcs );
 }
 
 
@@ -587,8 +607,29 @@ int dgbSurfaceReader::nextStep()
 	return ErrorOccurred;
 
     const SectionID sectionid = sectionids_[sectionindex_];
-    const int nrcols = readInt32( strm );
-    const int firstcol = nrcols ? readInt32( strm ) : 0;
+    
+    int nrcols = readInt32( strm );
+    int firstcol = nrcols ? readInt32( strm ) : 0;
+    int noofcoltoskip = 0;
+    
+    BufferStringSet lines;
+    if( linenames_ && linestrcrgs_ && par_->hasKey(linenamesstr_) &&
+	par_->get(linenamesstr_,lines) && !lines.isEmpty() )
+    {
+	const int trcrgidx = linenames_->indexOf( lines.get(rowindex_).buf() );
+	int callastcols = ( firstcol - 1 ) + nrcols;
+
+	if ( firstcol < (*linestrcrgs_)[trcrgidx].start )
+	{
+	    noofcoltoskip = (*linestrcrgs_)[trcrgidx].start - ( firstcol - 1 );
+	    firstcol = (*linestrcrgs_)[trcrgidx].start;
+	}
+
+	if ( (*linestrcrgs_)[trcrgidx].stop < callastcols )
+	    callastcols = (*linestrcrgs_)[trcrgidx].stop;
+
+	nrcols = callastcols - firstcol;
+    }
     if ( !strm )
     {
 	msg_ = sMsgReadError();
@@ -634,7 +675,8 @@ int dgbSurfaceReader::nextStep()
 	return MoreToDo;
     }
 
-    if ( (version_==3 && !readVersion3Row(strm, firstcol, nrcols, colstep) ) ||
+    if ( (version_==3 && !readVersion3Row(strm, firstcol, nrcols, colstep,
+		    		  	  noofcoltoskip) ) ||
          ( version_==2 && !readVersion2Row(strm, firstcol, nrcols) ) ||
          ( version_==1 && !readVersion1Row(strm, firstcol, nrcols) ) )
 	return ErrorOccurred;
@@ -880,8 +922,8 @@ void dgbSurfaceReader::goToNextRow()
 }
 
 
-bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
-				        int firstcol, int nrcols, int colstep )
+bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol, 
+					int nrcols, int colstep, int colstoskip)
 {
     SamplingData<float> zsd;
     if ( readonlyz_ )
@@ -929,13 +971,23 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
-	    pos.x = readFloat( strm );
-	    pos.y = readFloat( strm );
-	    pos.z = readFloat( strm );
+	    double x = readFloat( strm );
+	    double y = readFloat( strm );
+	    double z = readFloat( strm );
+
+	    if ( colindex < (colstoskip-1) )
+		continue;
+
+	    pos.x = x;
+	    pos.y = y;
+	    pos.z = z;
 	}
 	else
 	{
 	    const int zidx = readInt16( strm );
+
+	    if ( colindex < (colstoskip-1) )
+		continue;
 	    pos.z = (zidx==65535) ? mUdf(float) : zsd.atIndex( zidx );
 	}
 

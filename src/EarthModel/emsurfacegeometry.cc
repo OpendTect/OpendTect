@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.43 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.44 2008-12-04 12:48:44 cvsumesh Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -971,6 +971,8 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
     SurfaceIODataSelection& sel = tr->selections();
     if ( newsel )
     {
+	sel.sellinenames = newsel->sellinenames;
+	sel.seltrcranges = newsel->seltrcranges;
 	sel.rg = newsel->rg;
 	sel.selvalues = newsel->selvalues;
 	if ( !newsel->selsections.isEmpty() )

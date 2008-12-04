@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacetr.cc,v 1.28 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfacetr.cc,v 1.29 2008-12-04 12:48:44 cvsumesh Exp $";
 
 #include "emsurfacetr.h"
 
@@ -314,6 +314,12 @@ Executor* dgbEMSurfaceTranslator::reader( EM::Surface& surf )
 	{
 	    StepInterval<int> rrg, crg; getSels( rrg, crg );
 	    reader_->setRowInterval( rrg ); reader_->setColInterval( crg );
+	}
+
+	if ( !sels_.sellinenames.isEmpty() && !sels_.seltrcranges.isEmpty() )
+	{
+	    reader_->setLineNames( sels_.sellinenames );
+	    reader_->setLinesTrcRngs( sels_.seltrcranges );
 	}
 	TypeSet<EM::SectionID> sectionids;
 	for ( int idx=0; idx<sels_.selsections.size(); idx++ )
