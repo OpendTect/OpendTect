@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.16 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:           $Id: treeitem.h,v 1.17 2008-12-04 19:46:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,10 +49,12 @@ public:
 
 class AnnotTreeItem : public uiODTreeItem
 {
+    typedef uiODTreeItem  inheritedClass;
 public:
     				AnnotTreeItem(const char*);
     				~AnnotTreeItem();
 
+				mMenuOnAnyButton;
 
 protected:
     bool			readPicks(Pick::Set&);
