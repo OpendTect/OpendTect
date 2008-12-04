@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.7 2008-12-04 17:31:25 cvsyuancheng Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.8 2008-12-04 21:00:48 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,8 @@ class uiGenInput;
 class uiIOObjSel;
 class uiPushButton;
 class uiStatsDisplay;
+
+namespace Pick { class Set; }
 namespace visBase { class MarchingCubesSurface; }
 namespace visSurvey { class VolumeDisplay; }
 template <class T> class SamplingData;
@@ -47,6 +49,8 @@ protected:
     void		updatePressed(CallBacker*);
     void		mousePressed(CallBacker*);
     void		modeChangeCB(CallBacker*);
+    void		seedSelCB(CallBacker*);
+    bool		getSeeds(Pick::Set&);
     void		doubleClick(CallBacker*);
     void		handleClick(CallBacker*,bool isdouble );
     void		updateIsoDisplay(float nv);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.15 2008-12-04 17:31:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.16 2008-12-04 21:00:48 cvsyuancheng Exp $";
 
 #include "uivisisosurface.h"
 
@@ -53,6 +53,8 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     ioobjselfld_->setForRead( true );
     ioobjselfld_->display( false );
     ioobjselfld_->attach( alignedBelow, modefld_ );
+    ioobjselfld_->selectiondone.notify(
+	    mCB(this,uiVisIsoSurfaceThresholdDlg,seedSelCB) );
 
     aboveisovaluefld_ = new uiGenInput( this, "Seeds value",
 	    BoolInpSpec( true, "Above iso-value", "Below  iso-value" ) );
@@ -89,8 +91,61 @@ uiVisIsoSurfaceThresholdDlg::~uiVisIsoSurfaceThresholdDlg()
 }
 
 
+void uiVisIsoSurfaceThresholdDlg::seedSelCB( CallBacker* )
+{
+    Pick::Set pickset;
+    if ( !getSeeds(pickset) )
+	return;
+
+    const Array3D<float>& data = vd_->getCacheVolume(0)->getCube(0);
+    if ( !data.isOK() )
+	return ;
+
+    const CubeSampling& cs = vd_->getCubeSampling( 0 );
+    const int sz = pickset.size();
+    float vals[sz];
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	const Coord3 pos =  pickset[idx].pos;
+	const BinID bid = SI().transform( pos );
+	vals[idx] = data.get( cs.inlIdx(bid.inl), cs.crlIdx(bid.crl),
+			      cs.zIdx(pos.z) );
+    }
+    
+    statsdisplay_->setData( vals, sz );
+}
+
+
+bool uiVisIsoSurfaceThresholdDlg::getSeeds( Pick::Set& seed )
+{
+    if ( !ioobjselfld_->ctxtIOObj().ioobj )
+	return false;
+
+    MultiID picksmid = ioobjselfld_->ctxtIOObj().ioobj->key();
+
+    if ( Pick::Mgr().indexOf(picksmid)!=-1 )
+	seed = Pick::Mgr().get( picksmid );
+    else
+    {
+	BufferString errmsg;
+	if ( !PickSetTranslator::retrieve( seed,
+		    ioobjselfld_->ctxtIOObj().ioobj, errmsg ) )
+	{
+	    uiMSG().error( errmsg.buf() );
+	    return false;
+	}
+    }
+
+    return true;
+}
+
+
 bool uiVisIsoSurfaceThresholdDlg::acceptOK()
 {
+    TypeSet<float> histogram;
+    if ( vd_->getHistogram(0) ) histogram = *vd_->getHistogram(0);
+    const Interval<float> rg = vd_->getColorTab().getInterval();
+
     const float curval = vd_->isoValue( isosurfacedisplay_ );
     const float fldvalue = thresholdfld_->getfValue();
     const float prec = (curval+fldvalue)/2000;
@@ -105,27 +160,9 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
 	return true;
     }
 
-    if ( !ioobjselfld_->ctxtIOObj().ioobj )
-    {
-	uiMSG().error("No pickset selected");
-	return false;
-    }
-
-    MultiID picksmid = ioobjselfld_->ctxtIOObj().ioobj->key();
-
     Pick::Set pickset;
-    if ( Pick::Mgr().indexOf(picksmid)!=-1 )
-	pickset = Pick::Mgr().get( picksmid );
-    else
-    {
-	BufferString errmsg;
-	if ( !PickSetTranslator::retrieve( pickset,
-		    ioobjselfld_->ctxtIOObj().ioobj, errmsg ) )
-	{
-	    uiMSG().error( errmsg.buf() );
-	    return false;
-	}
-    }
+    if ( !getSeeds(pickset) )
+	return false;
 
     const Array3D<float>& data = vd_->getCacheVolume(0)->getCube(0);
     if ( !data.isOK() )
@@ -135,8 +172,8 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
     }
 
     Array3DImpl<float> newarr( data.info() );
-
     const bool aboveisoval = aboveisovaluefld_->getBoolValue();
+    
     Array3DFloodfill<float> ff( data, fldvalue, aboveisoval, newarr );    
     ff.setOutsideValue( 1e+7 );
     
@@ -150,11 +187,14 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
 	const int k = cs.zIdx( pos.z );
 	ff.addSeed( i, j, k );
     }
-    
+   
+    MouseCursorChanger changer( MouseCursor::Wait );
     if ( !ff.execute() )
 	return false;
 
-    return vd_->resetIsoSurface( isosurfacedisplay_, fldvalue, newarr );
+    vd_->resetIsoSurface( isosurfacedisplay_, fldvalue, newarr );
+
+    return true;
 }
 
 
@@ -192,6 +232,15 @@ void uiVisIsoSurfaceThresholdDlg::modeChangeCB( CallBacker* )
     const bool showseed = usemode_ && !modefld_->getBoolValue();
     ioobjselfld_->display( showseed );
     aboveisovaluefld_->display( showseed );
+
+    if ( showseed )
+	seedSelCB( 0 );
+    else
+    {
+	if ( vd_->getHistogram(0) ) 
+    	    statsdisplay_->setHistogram( *vd_->getHistogram(0), 
+		    			  vd_->getColorTab().getInterval() );
+    }
 }
 
 
