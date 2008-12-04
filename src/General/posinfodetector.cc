@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.8 2008-12-04 09:59:38 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.9 2008-12-04 13:28:34 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -265,10 +265,9 @@ bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
     if ( setup_.reqsorting_
       && !sorting_.isValid(prevusrcbo_.binid_,cbo.binid_) )
     {
-	errmsg_ = "Sorting violation at ";
+	errmsg_ = "Sorting inconsistency at ";
 	addToErrMsg( cbo );
-	errmsg_ += ".\n\nThis position violates all possible sortings.\n"
-	    	   "The last possibility was '";
+	errmsg_ += ".\nLast valid sorting '";
 	errmsg_ += sorting_.description();
 	errmsg_ += "'\nThe previous position was ";
 	addToErrMsg( prevusrcbo_ );
