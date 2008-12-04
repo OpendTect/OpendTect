@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.7 2008-12-01 14:13:03 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.8 2008-12-04 09:59:38 cvsbert Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -222,12 +222,9 @@ bool PosInfo::Detector::applySortAnal()
 	allstd_ = allstd_ && sorting_.inlUpward() && inlSorted();
 
     addFirst( cbobuf_[0] );
-    bool rv = true;
     for ( int idx=1; idx<cbobuf_.size(); idx++ )
-    {
-	if ( !addNext(cbobuf_[idx]) )
-	    rv = false;
-    }
+	addNext( cbobuf_[idx] );
+
     cbobuf_.erase();
     return true;
 }
@@ -235,8 +232,8 @@ bool PosInfo::Detector::applySortAnal()
 
 void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 {
+    curusrcbo_ = cbo;
     setCur( cbo );
-    if ( setup_.is2d_ ) curcbo_.binid_.inl = 1;
     firstcbo_ = prevcbo_ = curcbo_;
     llnstart_ = llnstop_ = curlnstart_ = curcbo_;
     mincoord_.x = maxcoord_.x = curcbo_.coord_.x;
@@ -249,24 +246,32 @@ void PosInfo::Detector::addFirst( const PosInfo::CrdBidOffs& cbo )
 }
 
 
+void PosInfo::Detector::addToErrMsg( const PosInfo::CrdBidOffs& cbo )
+{
+    if ( setup_.is2d_ )
+	errmsg_ += "trace number ";
+    else
+	{ errmsg_ += cbo.binid_.inl; errmsg_ += "/"; }
+    errmsg_ += cbo.binid_.crl;
+    if ( setup_.isps_ )
+	{ errmsg_ += " (offset "; errmsg_ += cbo.offset_; errmsg_ += ")"; }
+}
+
+
 bool PosInfo::Detector::addNext( const PosInfo::CrdBidOffs& cbo )
 {
     bool rv = true;
 
-    if ( !sorting_.isValid(prevcbo_.binid_,cbo.binid_) && setup_.reqsorting_ )
+    if ( setup_.reqsorting_
+      && !sorting_.isValid(prevusrcbo_.binid_,cbo.binid_) )
     {
 	errmsg_ = "Sorting violation at ";
-	if ( setup_.is2d_ )
-	    errmsg_ += "trace number ";
-	else
-	    { errmsg_ += cbo.binid_.inl; errmsg_ += "/"; }
-	errmsg_ += cbo.binid_.crl;
-	if ( setup_.isps_ )
-	    { errmsg_ += "(offset "; errmsg_ += cbo.offset_; errmsg_ += ")"; }
+	addToErrMsg( cbo );
 	errmsg_ += ".\n\nThis position violates all possible sortings.\n"
 	    	   "The last possibility was '";
 	errmsg_ += sorting_.description();
-	errmsg_ += "'\n";
+	errmsg_ += "'\nThe previous position was ";
+	addToErrMsg( prevusrcbo_ );
 	rv = false;
     }
 
@@ -363,7 +368,9 @@ void PosInfo::Detector::addPos()
 void PosInfo::Detector::setCur( const PosInfo::CrdBidOffs& cbo )
 {
     prevcbo_ = curcbo_;
-    curcbo_ = workCBO( cbo );
+    prevusrcbo_ = curusrcbo_;
+    curusrcbo_ = cbo;
+    curcbo_ = workCBO( curusrcbo_ );
 }
 
 

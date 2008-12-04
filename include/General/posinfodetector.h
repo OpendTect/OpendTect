@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.3 2008-10-14 12:11:14 cvsbert Exp $
+ RCS:		$Id: posinfodetector.h,v 1.4 2008-12-04 09:59:38 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -134,6 +134,8 @@ protected:
     int			curseg_;
     CrdBidOffs		curcbo_;
     CrdBidOffs		prevcbo_;
+    CrdBidOffs		curusrcbo_;
+    CrdBidOffs		prevusrcbo_;
     CrdBidOffs		curlnstart_;
     int			nroffsthispos_;
     BufferString	errmsg_;
@@ -146,6 +148,7 @@ protected:
     void		setCur(const PosInfo::CrdBidOffs&);
     void		getBinIDRanges();
     int			getStep(bool inl) const; //!< smallest
+    void		addToErrMsg(const CrdBidOffs&);
 
     CrdBidOffs		workCBO(const CrdBidOffs&) const;
     CrdBidOffs		userCBO(const CrdBidOffs&) const;
