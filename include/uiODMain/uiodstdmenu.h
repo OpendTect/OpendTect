@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.50 2008-11-24 10:59:18 cvsnanne Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.51 2008-12-04 06:40:26 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,7 @@ ________________________________________________________________________
 #define mManHor3DMnuItm		(mFileManMnu + 20)
 #define mManHor2DMnuItm		(mFileManMnu + 21)
 #define mManFaultMnuItm		(mFileManMnu + 30)
+#define mManFaultStickMnuItm	(mFileManMnu + 31)
 #define mManWellMnuItm		(mFileManMnu + 40)
 #define mManPickMnuItm		(mFileManMnu + 50)
 #define mManWvltMnuItm		(mFileManMnu + 60)

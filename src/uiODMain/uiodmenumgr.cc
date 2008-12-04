@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.144 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.145 2008-12-04 06:40:26 cvsnanne Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -266,6 +266,7 @@ void uiODMenuMgr::fillManMenu()
     manmnu_->clear();
     mInsertItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm );
     mInsertItem( manmnu_, "&Faults ...", mManFaultMnuItm );
+    mInsertItem( manmnu_, "&FaultStickSets ...", mManFaultStickMnuItm );
     if ( SI().getSurvDataType() == SurveyInfo::No2D )
 	mInsertItem( manmnu_, "&Horizons ...", mManHor3DMnuItm );
     else
@@ -281,70 +282,43 @@ void uiODMenuMgr::fillManMenu()
 }
 
 
-#define mCreateHorMnu( hor, nm )\
-    BufferString hor##nm( "&" #nm);\
-    hor##nm += " horizons ...";\
-    if ( !hasboth )\
-    {\
-	if ( SI().has2D() )\
-	{ mInsertItem( voitm, hor##nm.buf(), mComp##nm##Hor2DMnuItm ); }\
-	else if ( SI().has3D() )\
-	{ mInsertItem( voitm, hor##nm.buf(), mComp##nm##Hor3DMnuItm ); }\
-    }\
-    else\
-    {\
-	uiPopupMenu* nm = new uiPopupMenu( &appl_, hor##nm.buf() );\
-	if ( SI().has2D() )\
-	{ mInsertItem( nm, "&2D ...", mComp##nm##Hor2DMnuItm ); }\
-	if ( SI().has3D() )\
-	{ mInsertItem( nm, "&3D ...", mComp##nm##Hor3DMnuItm ); }\
-	voitm->insertItem( nm );\
+void uiODMenuMgr::create2D3DMnu( uiPopupMenu* itm, const char* title,
+				 int id2d, int id3d )
+{
+    if ( SI().has2D() && SI().has3D() )
+    {
+	uiPopupMenu* mnu = new uiPopupMenu( &appl_, title );
+	mInsertItem( mnu, "&2D ...", id2d );
+	mInsertItem( mnu, "&3D ...", id3d );
+	itm->insertItem( mnu );
     }
-    
+    else
+    {
+	const BufferString titledots( title, " ..." );
+	if ( SI().has2D() )
+	    mInsertItem( itm, titledots, id2d );
+	else if ( SI().has3D() )
+	    mInsertItem( itm, titledots, id3d );
+    }
+}
+
 
 void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
 
     uiPopupMenu* voitm = new uiPopupMenu( &appl_, "&Create Volume output" );
-
-    if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
-    {
-	uiPopupMenu* sitm = new uiPopupMenu( &appl_, "&Cube ..." );
-	mInsertItem( sitm, "&2D ...", mSeisOut2DMnuItm );
-	mInsertItem( sitm, "&3D ...", mSeisOut3DMnuItm );
-	voitm->insertItem( sitm );
-    }
-    else
-    {
-	mInsertItem( voitm, "&Cube ...", mSeisOutMnuItm );
-    }
-
-    bool hasboth = SI().has2D() && SI().has3D();
-    mCreateHorMnu( hor, Between );
-    mCreateHorMnu( hor, Along );
+    create2D3DMnu( voitm, "&Cube", mSeisOut2DMnuItm, mSeisOut3DMnuItm );
+    create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
+	    	   mCompBetweenHor3DMnuItm );
+    create2D3DMnu( voitm, "&Along horizon", mCompAlongHor2DMnuItm,
+	    	   mCompAlongHor3DMnuItm );
     mInsertItem( voitm, "&Re-Start ...", mReStartMnuItm );
 
     procmnu_->insertItem( voitm );
 
     uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create Grid output");
-
-    if ( !hasboth )
-    {
-	if ( SI().has2D() )
-	    mInsertItem( grditm, "&Grid ...", mCreateSurf2DMnuItm );
-	else if ( SI().has3D() )
-	    mInsertItem( grditm, "&Grid ...", mCreateSurf3DMnuItm );
-    }
-    else
-    {
-	uiPopupMenu* nm = new uiPopupMenu( &appl_, "Grid" );
-	if ( SI().has2D() )
-	    mInsertItem( nm, "&2D ...", mCreateSurf2DMnuItm );
-	if ( SI().has3D() )
-	    mInsertItem( nm, "&3D ...", mCreateSurf3DMnuItm );
-	grditm->insertItem( nm );
-    }
+    create2D3DMnu( grditm, "&Grid", mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
 }
 
@@ -690,7 +664,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;
     case mManHor2DMnuItm: 	mDoOp(Man,Hor,1); break;
-    case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;
+    case mManFaultStickMnuItm:	mDoOp(Man,Flt,1); break;
+    case mManFaultMnuItm: 	mDoOp(Man,Flt,2); break;
     case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;
     case mManPickMnuItm: 	mDoOp(Man,Pick,0); break;
     case mManWvltMnuItm: 	mDoOp(Man,Wvlt,0); break;

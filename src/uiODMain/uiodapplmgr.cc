@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.273 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.274 2008-12-04 06:40:26 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -257,11 +257,12 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	case Imp:	emserv_->importFault();	break;
 	case Exp:
 	    if ( opt == 0 )
-		emserv_->exportFault( EMFaultStickSetTranslatorGroup::keyword );
-	    else if ( opt == 1 )
 		emserv_->exportFault( EMFault3DTranslatorGroup::keyword );
+	    else if ( opt == 1 )
+		emserv_->exportFault( EMFaultStickSetTranslatorGroup::keyword );
 	    break;
 	case Man:
+	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
 	    if ( opt == 1 )
 		emserv_->manageSurfaces(
 				    EMFaultStickSetTranslatorGroup::keyword );
