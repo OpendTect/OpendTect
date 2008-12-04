@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.4 2008-12-01 14:43:39 cvsyuancheng Exp $
+ RCS:		$Id: multidimstorage.h,v 1.5 2008-12-04 14:36:57 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -634,14 +634,10 @@ void MultiDimStorage<T>::getIndicesInRangeI(const POS& startarr,
 	const POS& stoparr, TypeSet<int>& curpos, TypeSet<int>& res) const
 {
     const int dim = nrdims_-1;
-    const int stop = stoparr[dim];
-
-    if ( stop<positions_[0] )
-	return;
-
     const int start = startarr[dim];
+    const int stop = stoparr[dim];
     const int sz = positions_.size();
-    if ( start>positions_[sz-1] )
+    if ( !sz || stop<positions_[0] || start>positions_[sz-1] )
 	return;
 
     int idx = findFirstPos(start);
