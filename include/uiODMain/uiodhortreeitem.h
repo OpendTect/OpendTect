@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.3 2008-07-01 10:04:35 cvsnanne Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.4 2008-12-04 18:17:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiodemsurftreeitem.h"
 
 
-mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 class uiODHorizonTreeItemFactory : public uiODTreeItemFactory
@@ -53,7 +53,7 @@ protected:
 };
 
 
-mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 class uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.7 2008-02-04 07:11:22 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.8 2008-12-04 18:17:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 
-mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 class Seis2DTreeItemFactory : public uiODTreeItemFactory

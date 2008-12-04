@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.7 2008-11-21 15:30:08 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.8 2008-12-04 18:17:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,7 @@ protected:
 
 
 
-mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 class uiODInlineTreeItemFactory : public uiODTreeItemFactory
@@ -77,7 +77,7 @@ protected:
 };
 
 
-mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 class uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
@@ -101,7 +101,7 @@ protected:
 };
 
 
-mDefineItem( TimesliceParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( TimesliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 class uiODTimesliceTreeItemFactory : public uiODTreeItemFactory

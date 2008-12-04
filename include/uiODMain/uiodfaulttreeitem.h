@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.7 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.8 2008-12-04 18:17:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
 
 
-mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
 class uiODFaultTreeItemFactory : public uiODTreeItemFactory
@@ -64,7 +64,7 @@ protected:
 };
 
 
-mDefineItem( FaultStickSetParent, TreeItem, TreeTop, mShowMenu );
+mDefineItem( FaultStickSetParent, TreeItem, TreeTop,mShowMenu mMenuOnAnyButton);
 
 
 class uiODFaultStickSetTreeItemFactory : public uiODTreeItemFactory
