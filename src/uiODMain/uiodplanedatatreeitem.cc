@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.25 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.26 2008-12-04 13:56:22 cvskris Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -37,8 +37,10 @@ static const int sGridLinesIdx = 980;
 
 #define mParentShowSubMenu( creation ) \
     uiPopupMenu mnu( getUiParent(), "Action" ); \
-    mnu.insertItem( new uiMenuItem("&Add layer-based"), 0 ); \
-    mnu.insertItem( new uiMenuItem("&Add RGBA"), 1 ); \
+    mnu.insertItem( new uiMenuItem("&Add"), 0 ); \
+    uiPopupMenu* specitem = new uiPopupMenu( getUiParent(), "Add special"); \
+    specitem->insertItem( new uiMenuItem("&RGBA"), 1 ); \
+    mnu.insertItem( specitem ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
     if ( mnuid==0 || mnuid==1 ) creation; \
