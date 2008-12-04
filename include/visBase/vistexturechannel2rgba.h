@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.10 2008-12-04 13:53:19 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.11 2008-12-04 16:02:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,7 @@ class TextureChannel2RGBA : public DataObject
 {
 public:
     virtual void	setChannels(TextureChannels*);
+    virtual void	notifyChannelChange()			{}
     virtual bool	createRGBA(SbImage&) const		= 0;
 			/*!<Fill the image with the output, using
 			    current settings. */
