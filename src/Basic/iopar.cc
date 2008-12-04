@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.74 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.75 2008-12-04 13:24:01 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: iopar.cc,v 1.74 2008-11-21 14:58:20 cvsbert Exp
 #include "errh.h"
 
 const char* IOPar::sKeyDumpPretty = "_pretty";
+const char* IOPar::sKeyHdr = "->";
+const char* IOPar::sKeySubHdr = "-->";
 
 
 IOPar::IOPar( const char* nm )
@@ -1338,27 +1340,51 @@ void IOPar::dumpPretty( std::ostream& strm ) const
     if ( !name().isEmpty() )
 	strm << "> " << name() << " <\n";
 
-    int maxlen = 0;
+    int maxkeylen = 0;
+    bool haveval = false;
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( keys_[idx]->size() > maxlen )
-	    maxlen = keys_[idx]->size();
+	if ( keys_[idx]->size() > maxkeylen )
+	    maxkeylen = keys_[idx]->size();
+	if ( !haveval && !vals_[idx]->isEmpty() )
+	    haveval = true;
     }
-    if ( maxlen == 0 ) return;
+    if ( maxkeylen == 0 ) return;
+
+    const int valpos = haveval ? maxkeylen + 3 : 0;
+    BufferString valposstr( valpos + 1, true );
+    for ( int ispc=0; ispc<valpos; ispc++ )
+	valposstr[ispc] = ' ';
 
     for ( int idx=0; idx<size(); idx++ )
     {
 	const BufferString& ky = *keys_[idx];
-	if ( ky == "->" )
+	if ( ky == sKeyHdr )
 	    { strm << "\n\n* " << vals_.get(idx) << " *\n\n"; continue; }
+	else if ( ky == sKeySubHdr )
+	    { strm << "\n  - " << vals_.get(idx) << "\n\n"; continue; }
 
-	int extra = maxlen - ky.size();
-	BufferString toprint;
+	BufferString keyprint( maxkeylen + 1, true );
+	const int extra = maxkeylen - ky.size();
 	for ( int ispc=0; ispc<extra; ispc++ )
-	    toprint += " ";
-	toprint += ky;
-	toprint += " : ";
-	toprint += vals_.get(idx);
-	strm << toprint << '\n';
+	    keyprint[ispc] = ' ';
+	keyprint += ky;
+	strm << keyprint << (haveval ? " : " : "");
+
+	BufferString valstr( vals_.get(idx) );
+	char* startptr = valstr.buf();
+	while ( startptr && *startptr )
+	{
+	    char* nlptr = strchr( startptr, '\n' );
+	    if ( nlptr )
+		*nlptr = '\0';
+	    strm << startptr;
+	    if ( !nlptr ) break;
+
+	    startptr = nlptr + 1;
+	    if ( *startptr )
+		strm << '\n' << valposstr;
+	}
+	strm << std::endl;
     }
 }

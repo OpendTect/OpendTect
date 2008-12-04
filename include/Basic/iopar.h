@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.52 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.53 2008-12-04 13:24:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,10 @@ Passing a keyword will return the appropriate value.
 
 Tools around this basic idea are paring into other types, key composition,
 reading/writing to/from file, merging, and more.
+
+dumpPretty() is used for reports.  The title of the report is the name of the
+IOPar. If sKeyHdr and sKeySubHdr are the key, there will be a (sub)header
+with the value. Use add() rather than set(). Values may contain newlines.
 
 */
 
@@ -240,11 +244,13 @@ public:
     			//!< If filetype is set to null no ascstream header
     			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(std::ostream&,const char* filetyp) const;
-    void		dumpPretty(std::ostream&) const;
 
     const char*		mkKey(int) const;
 
+    void		dumpPretty(std::ostream&) const;
     static const char*	sKeyDumpPretty;
+    static const char*	sKeyHdr;
+    static const char*	sKeySubHdr;
 
 protected:
 
