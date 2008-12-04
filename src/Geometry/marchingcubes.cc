@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.18 2008-12-01 15:00:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.19 2008-12-04 16:15:11 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -522,11 +522,7 @@ public:
 	: mc2i_( mc2i )
 	, totalnr_( mc2i.surface_.models_.totalSize() )
     {
-	ArrayNDIter iter( mc2i_.result_.info() );
-	do
-	{
-	    mc2i_.result_.set( iter.getPos(), mUdf(int) );
-	} while ( iter.next() );
+	mc2i_.result_.setAll( mUdf(int) );
     }
 
     od_int64	totalNr() const { return totalnr_; }
