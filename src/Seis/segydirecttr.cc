@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.4 2008-12-04 13:27:43 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.5 2008-12-04 15:55:27 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -55,6 +55,9 @@ static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
     SEGYSeisTrcTranslator* ret = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
     if ( !ret->initRead(ioobj->getConn(Conn::Read)) )
 	{ delete ret; return 0; }
+    ret->usePar( fds->pars() );
+    if ( !ret->commitSelections() )
+	{ delete ret; return 0; }
 
     return ret;
 }
@@ -63,6 +66,7 @@ static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
 SEGYDirect3DPSReader::SEGYDirect3DPSReader( const char* fnm )
     : posdata_(*new PosInfo::CubeData)
     , def_(*new SEGY::DirectDef(fnm))
+    , tr_(0)
     , curfilenr_(-1)
 {
     errmsg_ = def_.errMsg();
@@ -83,11 +87,13 @@ SeisTrc* SEGYDirect3DPSReader::getTrace( int filenr, int trcidx, int nr,
     if ( !errmsg_.isEmpty() )
 	return 0;
 
-    if ( filenr != curfilenr_ && !createTranslator(def_,filenr) )
-	return 0;
-    curfilenr_ = filenr;
-
-    if ( !tr_->goToTrace(trcidx+nr) )
+    if ( filenr != curfilenr_ )
+    {
+	delete tr_;
+	tr_ = createTranslator( def_, filenr );
+	curfilenr_ = filenr;
+    }
+    if ( !tr_ || !tr_->goToTrace(trcidx+nr) )
 	return 0;
 
     SeisTrc* trc = new SeisTrc;
@@ -134,6 +140,7 @@ SEGYDirect2DPSReader::SEGYDirect2DPSReader( const char* dirnm, const char* lnm )
     : SeisPS2DReader(lnm)
     , posdata_(*new PosInfo::Line2DData)
     , def_(*new SEGY::DirectDef(SEGY::DirectDef::get2DFileName(dirnm,lnm)))
+    , tr_(0)
     , curfilenr_(-1)
 {
     def_.getPosData( posdata_ );
@@ -150,11 +157,13 @@ SEGYDirect2DPSReader::~SEGYDirect2DPSReader()
 SeisTrc* SEGYDirect2DPSReader::getTrace( int filenr, int trcidx, int nr,
 					 int trcnr ) const
 {
-    if ( filenr != curfilenr_ && !createTranslator(def_,filenr) )
-	return 0;
-    curfilenr_ = filenr;
-
-    if ( !tr_->goToTrace(trcidx+nr) )
+    if ( filenr != curfilenr_ )
+    {
+	delete tr_;
+	tr_ = createTranslator( def_, filenr );
+	curfilenr_ = filenr;
+    }
+    if ( !tr_ || !tr_->goToTrace(trcidx+nr) )
 	return 0;
 
     SeisTrc* trc = new SeisTrc;

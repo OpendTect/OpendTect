@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.5 2008-12-04 13:27:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.6 2008-12-04 15:55:27 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -40,11 +40,13 @@ inline static int getIndex( const TypeSet<int>& nrs, int nr, bool& present )
 int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 				    int& inlidx, int& crlidx ) const
 {
-    bool pres = false;
-    inlidx = is2d_ ? (inls_.isEmpty() ? -1 : 0) : getIndex( inls_, bid.inl,
-	    						    pres );
-    if ( !pres )
+    if ( inls_.isEmpty() )
 	return -1;
+
+    bool pres = true;
+    inlidx = is2d_ ? 0 : getIndex( inls_, bid.inl, pres );
+    if ( !pres )
+	{ crlidx = -1; return -1; }
 
     crlidx = getIndex( *crlsets_[inlidx], bid.crl, pres );
     if ( !pres )
@@ -142,11 +144,11 @@ void Seis::PosIndexer::reIndex()
 
 void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 {
-    bool ispresent = false;
-    int inlidx = (is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent ));
+    bool ispresent = !inls_.isEmpty();
+    int inlidx = is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent );
     if ( !ispresent )
     {
-	if ( inlidx >= inls_.size() )
+	if ( inlidx >= inls_.size() - 1 )
 	{
 	    inls_ += pk.inLine();
 	    crlsets_ += new TypeSet<int>;
@@ -155,6 +157,7 @@ void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 	}
 	else
 	{
+	    inlidx++;
 	    inls_.insert( inlidx, pk.inLine() );
 	    crlsets_.insertAt( new TypeSet<int>, inlidx );
 	    idxsets_.insertAt( new TypeSet<od_int64>, inlidx );
@@ -163,16 +166,17 @@ void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 
     TypeSet<int>& crls = *crlsets_[inlidx];
     TypeSet<od_int64>& idxs = *idxsets_[inlidx];
-    const int crlidx = getIndex( crls, pk.xLine(), ispresent ) + 1;
+    int crlidx = getIndex( crls, pk.xLine(), ispresent );
     if ( ispresent ) return;
 
-    if ( crlidx >= crls.size() )
+    if ( crlidx >= crls.size()-1 )
     {
 	crls += pk.xLine();
 	idxs += posidx;
     }
     else
     {
+	crlidx++;
 	crls.insert( crlidx, pk.xLine() );
 	idxs.insert( crlidx, posidx );
     }

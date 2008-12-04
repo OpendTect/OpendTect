@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.2 2008-12-04 13:27:43 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.3 2008-12-04 15:55:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ protected:
 
     PosInfo::CubeData&	posdata_;
     SEGY::DirectDef&	def_;
-    SEGYSeisTrcTranslator* tr_;
+    mutable SEGYSeisTrcTranslator* tr_;
     mutable int		curfilenr_;
     mutable BufferString errmsg_;
 
@@ -67,7 +67,7 @@ protected:
 
     PosInfo::Line2DData&	posdata_;
     SEGY::DirectDef&		def_;
-    SEGYSeisTrcTranslator*	tr_;
+    mutable SEGYSeisTrcTranslator* tr_;
     mutable int			curfilenr_;
     mutable BufferString	errmsg_;
 

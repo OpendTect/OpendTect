@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.13 2008-12-03 11:44:14 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.14 2008-12-04 15:55:26 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -596,19 +596,22 @@ void PosInfo::CubeDataFiller::add( const BinID& bid )
     }
 
     if ( mIsUdf(prevcrl) )
-	seg_.start = seg_.stop = bid.crl;
+	prevcrl = seg_.start = seg_.stop = bid.crl;
     else
     {
 	const int curstep = bid.crl - prevcrl;
-	if ( mIsUdf(seg_.step) )
-	    seg_.step = curstep;
-	else if ( seg_.step != curstep )
+	if ( curstep != 0 )
 	{
-	    ld_->segments_ += seg_;
-	    seg_.start = bid.crl;
-	    mSetUdf(seg_.step);
+	    if ( mIsUdf(seg_.step) )
+		seg_.step = curstep;
+	    else if ( seg_.step != curstep )
+	    {
+		ld_->segments_ += seg_;
+		seg_.start = bid.crl;
+		mSetUdf(seg_.step);
+	    }
+	    prevcrl = seg_.stop = bid.crl;
 	}
-	seg_.stop = bid.crl;
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.14 2008-12-04 13:28:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.15 2008-12-04 15:55:27 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -91,10 +91,13 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
 bool uiSEGYScanDlg::doWork( const IOObj& )
 {
     if ( outfld_ && !outfld_->commitInput(true) )
-	return false;
+	mErrRet("Please enter a name for the output data store file")
 
     SEGY::FileSpec fs; fs.usePar( pars_ );
     delete scanner_; scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
@@ -111,9 +114,6 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 
     return outfld_ ? mkOutput() : true;
 }
-
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
 
 
 bool uiSEGYScanDlg::mkOutput()

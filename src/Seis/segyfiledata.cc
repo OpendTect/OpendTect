@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.12 2008-12-04 13:28:43 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.13 2008-12-04 15:55:27 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -254,7 +254,7 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	astrm.next();
     }
 
-    return 0;
+    return true;
 }
 
 

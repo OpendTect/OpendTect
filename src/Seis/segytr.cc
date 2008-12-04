@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.76 2008-12-04 13:26:55 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.77 2008-12-04 15:55:27 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -467,7 +467,7 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
     so *= (240 + dataBytes() * innrsamples);
     so += 3600;
     sConn().iStream().seekg( so, std::ios::beg );
-    headerbufread = false;
+    headerbufread = headerdone = false;
     return sConn().iStream().good();
 }
 

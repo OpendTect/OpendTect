@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.10 2008-12-04 13:28:43 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.11 2008-12-04 15:55:27 cvsbert Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"
@@ -178,6 +178,7 @@ bool SEGY::DirectDef::readFromFile( const char* fnm )
 	    delete fds;
 	    mErrRet(emsg)
 	}
+	*fds += fd;
     }
 
     setData( fds );
