@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seisposindexer.cc,v 1.4 2008-12-02 16:10:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seisposindexer.cc,v 1.5 2008-12-04 13:27:43 cvsbert Exp $";
 
 #include "seisposindexer.h"
 #include "idxable.h"
@@ -29,14 +29,6 @@ void Seis::PosIndexer::empty()
 }
 
 
-inline static int getIndex( const TypeSet<int>& nrs, int nr )
-{
-    int ret;
-    IdxAble::findPos( nrs.arr(), nrs.size(), nr, -1, ret );
-    return ret;
-}
-
-
 inline static int getIndex( const TypeSet<int>& nrs, int nr, bool& present )
 {
     int ret;
@@ -48,13 +40,16 @@ inline static int getIndex( const TypeSet<int>& nrs, int nr, bool& present )
 int Seis::PosIndexer::getFirstIdxs( const BinID& bid,
 				    int& inlidx, int& crlidx ) const
 {
-    inlidx = is2d_ ? (inls_.isEmpty() ? -1 : 0) : getIndex( inls_, bid.inl );
-    if ( inlidx < 0 ) 
+    bool pres = false;
+    inlidx = is2d_ ? (inls_.isEmpty() ? -1 : 0) : getIndex( inls_, bid.inl,
+	    						    pres );
+    if ( !pres )
 	return -1;
 
-    crlidx = getIndex( *crlsets_[inlidx], bid.crl );
-    if ( crlidx < 0 )
+    crlidx = getIndex( *crlsets_[inlidx], bid.crl, pres );
+    if ( !pres )
 	return -2;
+
     return 0;
 }
 
@@ -116,6 +111,7 @@ void Seis::PosIndexer::reIndex()
 	return;
 
     const PosKey prevpk( pkl_.key(firstok) );
+    add( prevpk.binID(), firstok );
     Seis::GeomType gt( sz > 0 ? prevpk.geomType() : Seis::Vol );
     is2d_ = Seis::is2D( gt ); isps_ = Seis::isPS( gt );
     inlrg_.start = inlrg_.stop = is2d_ ? 1 : prevpk.inLine();
@@ -147,7 +143,7 @@ void Seis::PosIndexer::reIndex()
 void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 {
     bool ispresent = false;
-    const int inlidx = is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent );
+    int inlidx = (is2d_ ? 0 : getIndex( inls_, pk.inLine(), ispresent ));
     if ( !ispresent )
     {
 	if ( inlidx >= inls_.size() )
@@ -155,6 +151,7 @@ void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 	    inls_ += pk.inLine();
 	    crlsets_ += new TypeSet<int>;
 	    idxsets_ += new TypeSet<od_int64>;
+	    inlidx = inls_.size() - 1;
 	}
 	else
 	{
@@ -166,18 +163,17 @@ void Seis::PosIndexer::add( const Seis::PosKey& pk, od_int64 posidx )
 
     TypeSet<int>& crls = *crlsets_[inlidx];
     TypeSet<od_int64>& idxs = *idxsets_[inlidx];
-    const int crlidx = getIndex( crls, pk.xLine(), ispresent );
-    if ( !ispresent )
+    const int crlidx = getIndex( crls, pk.xLine(), ispresent ) + 1;
+    if ( ispresent ) return;
+
+    if ( crlidx >= crls.size() )
     {
-	if ( crlidx >= crls.size() )
-	{
-	    crls += pk.xLine();
-	    idxs += posidx;
-	}
-	else
-	{
-	    crls.insert( crlidx, pk.xLine() );
-	    idxs.insert( crlidx, posidx );
-	}
+	crls += pk.xLine();
+	idxs += posidx;
+    }
+    else
+    {
+	crls.insert( crlidx, pk.xLine() );
+	idxs.insert( crlidx, posidx );
     }
 }

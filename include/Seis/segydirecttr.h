@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.1 2008-11-20 13:24:21 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.2 2008-12-04 13:27:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seispsread.h"
 #include "seispsioprov.h"
 namespace SEGY { class DirectDef; }
+class SEGYSeisTrcTranslator;
 
 
 /*!\brief reads from 3D PS data store reader based on SEG-Y files */
@@ -33,12 +34,15 @@ public:
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
 
-
 protected:
 
     PosInfo::CubeData&	posdata_;
     SEGY::DirectDef&	def_;
+    SEGYSeisTrcTranslator* tr_;
+    mutable int		curfilenr_;
     mutable BufferString errmsg_;
+
+    SeisTrc*		getTrace(int,int,int,const BinID&) const;
 
 };
 
@@ -59,14 +63,15 @@ public:
 
     const PosInfo::Line2DData& posData() const	{ return posdata_; }
 
-    static const char*	fileName(const char* dirnm,const char* lnm);
-
 protected:
 
-    PosInfo::Line2DData& posdata_;
-    SEGY::DirectDef&	def_;
-    mutable BufferString errmsg_;
+    PosInfo::Line2DData&	posdata_;
+    SEGY::DirectDef&		def_;
+    SEGYSeisTrcTranslator*	tr_;
+    mutable int			curfilenr_;
+    mutable BufferString	errmsg_;
 
+    SeisTrc*			getTrace(int,int,int,int) const;
 };
 
 

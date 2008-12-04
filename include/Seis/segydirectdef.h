@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.9 2008-12-02 16:10:39 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.10 2008-12-04 13:27:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 			~DirectDef();
     bool		isEmpty() const;
 
+    const FileDataSet*	dataSet() const			{ return fds_; }
     void		setData(FileDataSet*);
     void		setData(const FileDataSet&,bool no_copy=false);
 
@@ -45,6 +46,7 @@ public:
     Seis::GeomType	geomType() const;
 
     static const char*	sKeyDirectDef;
+    static const char*	get2DFileName(const char*,const char*);
 
     void		getPosData(PosInfo::CubeData&) const;
     void		getPosData(PosInfo::Line2DData&) const;
