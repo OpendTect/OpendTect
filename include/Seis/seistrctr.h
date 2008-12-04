@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.53 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.54 2008-12-04 13:26:55 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -208,7 +208,7 @@ public:
 
     static bool		is2D(const IOObj&,bool only_internal=false);
     static bool		isPS(const IOObj&);
-    bool		isPS() const		{ return is_prestack; }
+    bool		isPS() const			{ return is_prestack; }
 
     static const char*	sKeyIs2D;
     static const char*	sKeyIsPS;
@@ -227,12 +227,13 @@ public:
     void		setCurLineKey( const LineKey& lk )
     			{ curlinekey = lk; }
 
-    virtual bool	isReadDefault() const	{ return false; }
+    virtual bool	isReadDefault() const		{ return false; }
+    virtual int		estimatedNrTraces() const	{ return -1; }
 
     void		setComponentNames(const BufferStringSet&);
 
     bool		haveWarnings() const;
-    const BufferStringSet& warnings() const	{ return warnings_; }
+    const BufferStringSet& warnings() const		{ return warnings_; }
 
 protected:
 

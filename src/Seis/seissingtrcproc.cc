@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.51 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.52 2008-12-04 13:26:55 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -174,7 +174,17 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	}
 
 	if ( !szdone )
-	    allszsfound = false;
+	{
+	    SeisTrcTranslator* str = rdr_->seisTranslator();
+	    if ( str )
+	    {
+		int estnr = str->estimatedNrTraces();
+		if ( estnr > 0 )
+		    { szdone = true; totnr_ += estnr; }
+	    }
+	    if ( !szdone )
+		allszsfound = false;
+	}
 	rdrset_ += rdr_;
 	is3d_ = is3d;
     }

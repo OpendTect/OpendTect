@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.29 2008-11-18 17:25:15 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.30 2008-12-04 13:26:55 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -38,6 +38,7 @@ public:
 
     bool		isRev1() const;
     int			numberFormat() const	{ return filepars_.fmt_; }
+    int			estimatedNrTraces() const { return estnrtrcs_; }
 
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&);
@@ -116,6 +117,7 @@ protected:
     int			curtrcnr, prevtrcnr;
     BinID		curbinid, prevbinid;
     float		curoffs, prevoffs;
+    int			estnrtrcs_;
 
 };
 

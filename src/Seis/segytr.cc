@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.75 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.76 2008-12-04 13:26:55 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -55,6 +55,7 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, useinpsd(false)
 	, inpcd(0)
 	, outcd(0)
+	, estnrtrcs_(-1)
 	, curoffs(-1)
 	, prevoffs(0)
 	, offsdef(0,1)
@@ -97,6 +98,11 @@ int SEGYSeisTrcTranslator::dataBytes() const
 
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
+    std::streamoff so0 = 0;
+    sConn().iStream().seekg( so0, std::ios::end );
+    std::streampos endstrmpos = sConn().iStream().tellg();
+    sConn().iStream().seekg( so0, std::ios::beg );
+
     if ( !txthead_ )
 	txthead_ = new SEGY::TxtHeader;
     if ( !sConn().doIO(txthead_->txt_,SegyTxtHeaderLength) )
@@ -140,6 +146,9 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     pinfo.zrg.step = binhead_.hdt * (0.001 / SI().zFactor());
     insd.step = binhead_dpos_ = pinfo.zrg.step;
     innrsamples = binhead_ns_ = binhead_.hns;
+
+    estnrtrcs_ = (endstrmpos - (std::streampos)3600)
+		/ (240 + dataBytes() * innrsamples);
     return true;
 }
 
