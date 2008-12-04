@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.42 2008-12-03 22:50:09 cvskris Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.43 2008-12-04 18:16:30 cvskris Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -152,9 +152,9 @@ void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 	{
 	    setup.type_ = ColTab::MapperSetup::Auto;
 	    if ( mIsUdf(clipperc_.stop) )
-		setup.cliprate_ = clipperc_.start;
+		setup.cliprate_ = clipperc_.start*0.01;
 	    else
-		setup.cliprate_ = clipperc_.center();
+		setup.cliprate_ = clipperc_.center()*0.01;
 	}
 
 	setup.symmidval_ = symmidvalue_;
