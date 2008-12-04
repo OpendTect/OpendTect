@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.21 2008-11-04 21:29:38 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.22 2008-12-04 13:56:07 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -390,9 +390,7 @@ void MultiTextureSurveyObject::setColTabSequence( int attrib,
 bool MultiTextureSurveyObject::canSetColTabSequence() const
 {
     if ( texture_ ) return true;
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-		     channels_->getChannels2RGBA() );
-    return cttc2rgba;
+    return channels_->getChannels2RGBA()->canSetSequence();
 }
 
 
@@ -409,13 +407,7 @@ MultiTextureSurveyObject::getColTabSequence( int attrib ) const
 	return &vt.colorSeq().colors();
     }
 
-    mDynamicCastGet( visBase::ColTabTextureChannel2RGBA*, cttc2rgba,
-	    channels_->getChannels2RGBA() );
-
-    if ( cttc2rgba )
-	return &cttc2rgba->getSequence( attrib );
-
-    return 0;
+    return channels_->getChannels2RGBA()->getSequence( attrib );
 }
 
 
@@ -669,13 +661,13 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	    }
 	    else if ( ctab )
 	    {
-		const ColTab::Sequence& seq = ctab->getSequence( idx );
+		const ColTab::Sequence* seq = ctab->getSequence( idx );
 		const ColTab::Mapper& map = channels_->getColTabMapper(idx,
 			channels_->currentVersion( idx ) );
 
 		col = mIsUdf(fval)
-		    ? seq.undefColor()
-		    : seq.color( map.position(fval) );
+		    ? seq->undefColor()
+		    : seq->color( map.position(fval) );
 	    }
 	    else
 	    {
