@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.10 2008-12-03 22:54:25 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.11 2008-12-04 13:55:32 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -185,7 +185,7 @@ void ChannelInfo::setNrVersions( int nsz )
 	mappers_ += new ColTab::Mapper;
     }
 
-    if ( currentversion_>=nsz )
+    if ( nsz && currentversion_>=nsz )
 	setCurrentVersion( nsz-1 );
 }
 
@@ -339,7 +339,7 @@ int ChannelInfo::getCurrentVersion() const { return currentversion_; }
 
 void ChannelInfo::setCurrentVersion( int nidx )
 {
-    if ( nidx<0 || nidx>=mappeddata_.size() )
+    if ( mappeddata_.size() && (nidx<0 || nidx>=mappeddata_.size() ) )
     {
 	pErrMsg("Invalid index");
 	return;
