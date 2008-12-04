@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.9 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.10 2008-12-04 13:28:43 cvsbert Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: segydirect.cc,v 1.9 2008-12-03 09:13:56 cvsbert
 #include "keystrs.h"
 #include "posinfo.h"
 #include "survinfo.h"
+#include "filepath.h"
 
 const char* sKeyDirectDef = "DirectSEG-Y";
 static const char* sKeyFileType = "SEG-Y Direct Definition";
@@ -76,7 +77,7 @@ FileDataSet::TrcIdx find( const Seis::PosKey& pk,
     if ( nr < 0 ) return tidx;
 
     IdxAble::findPos( cumszs_.arr(), cumszs_.size(), nr, -1, tidx.filenr_ );
-    tidx.trcnr_ = nr - cumszs_[tidx.filenr_];
+    tidx.trcidx_ = nr - cumszs_[tidx.filenr_];
     return tidx;
 }
 
@@ -222,7 +223,22 @@ void SEGY::DirectDef::getPosData( PosInfo::CubeData& cd ) const
 
     Interval<int> inlrg( indexer_.inlRange() ); inlrg.sort();
     Interval<int> crlrg( indexer_.crlRange() ); crlrg.sort();
-    const Interval<int> step( SI().inlStep(), SI().crlStep() );
+    const BinID step( SI().inlStep(), SI().crlStep() );
+
+    PosInfo::CubeDataFiller cdf( cd );
+    for ( int inl=inlrg.start; inl<=inlrg.stop; inl+=step.inl )
+    {
+	for ( int crl=crlrg.start; crl<=crlrg.stop; crl+=step.crl )
+	{
+	    const BinID bid( inl, crl );
+	    const FileDataSet::TrcIdx tidx = keylist_.find( Seis::PosKey(bid),
+		    					    indexer_, false );
+	    if ( tidx.isValid() )
+		cdf.add( bid );
+	}
+    }
+
+    cdf.finish();
 }
 
 
@@ -235,16 +251,28 @@ void SEGY::DirectDef::getPosData( PosInfo::Line2DData& ld ) const
     nrrg.sort();
     for ( int nr=nrrg.start; nr<=nrrg.stop; nr++ )
     {
-	FileDataSet::TrcIdx tidx = keylist_.find( Seis::PosKey(nr), indexer_,
-						  false );
+	const FileDataSet::TrcIdx tidx = keylist_.find( Seis::PosKey(nr),
+							indexer_, false );
 	if ( !tidx.isValid() ) continue;
 
 	PosInfo::Line2DPos l2dpos( nr );
-	l2dpos.coord_ = (*(*fds_)[tidx.filenr_])[tidx.trcnr_]->coord();
+	l2dpos.coord_ = (*(*fds_)[tidx.filenr_])[tidx.trcidx_]->coord();
 	ld.posns_ += l2dpos;
     }
     const FileData& fd = *(*fds_)[0];
     ld.zrg_.start = fd.sampling_.start;
     ld.zrg_.step = fd.sampling_.step;
     ld.zrg_.stop = ld.zrg_.start + (fd.trcsz_-1) * ld.zrg_.step;
+}
+
+
+const char* SEGY::DirectDef::get2DFileName( const char* dirnm, const char* unm )
+{
+    static BufferString ret;
+    FilePath fp( dirnm );
+    BufferString nm( unm ); cleanupString( nm.buf(), 1, 1, 1 );
+    fp.add( nm ); fp.setExtension( "sgydef" );
+
+    ret = fp.fullPath();
+    return ret.buf();
 }

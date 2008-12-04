@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.9 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.10 2008-12-04 13:28:43 cvsbert Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -102,11 +102,11 @@ void Horizon2DScanner::report( IOPar& iopar ) const
     str += "\n\n";
     iopar.setName( str.buf() );
 
-    iopar.add( "->", "Geometry" );
+    iopar.add( IOPar::sKeyHdr, "Geometry" );
     const int nrlines = validnms_.size();
     if ( !nrlines )
     {
-	iopar.add( "No valid line names found",
+	iopar.add( IOPar::sKeySubHdr, "No valid line names found\n"
 		   "Make sure the line names match with those in survey" );
 	return;
     }

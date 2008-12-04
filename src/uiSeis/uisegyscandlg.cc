@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.13 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.14 2008-12-04 13:28:43 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -151,10 +151,15 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
     static const char* titl = "SEG-Y scan report";
     IOPar rep( titl );
     sc.getReport( rep );
-    for ( int idx=0; idx<sc.warnings().size(); idx++ )
+    if ( sc.warnings().size() == 1 )
+	rep.add( "Warning", sc.warnings().get(0) );
+    else
     {
-	if ( !idx ) rep.add( "->", "Warnings" );
-	rep.add( toString(idx+1), sc.warnings().get(idx) );
+	for ( int idx=0; idx<sc.warnings().size(); idx++ )
+	{
+	    if ( !idx ) rep.add( IOPar::sKeyHdr, "Warnings" );
+	    rep.add( toString(idx+1), sc.warnings().get(idx) );
+	}
     }
 
     if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty) )

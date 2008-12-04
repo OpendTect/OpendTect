@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.11 2008-11-26 12:50:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.12 2008-12-04 13:28:43 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -83,24 +83,24 @@ int SEGY::FileData::nrUsableTraces() const
 
 void SEGY::FileData::getReport( IOPar& iop ) const
 {
-    BufferString str( "Info for '" ); str += fname_; str += "'";
-    iop.add( "->", str );
+    iop.add( IOPar::sKeyHdr, BufferString("Info for '",fname_.buf(),"'") );
+    iop.add( IOPar::sKeySubHdr, "General info" );
     const int nrtrcs = size();
     if ( nrtrcs < 1 )
 	{ iop.add( "Number of traces found", "0" ); return; }
 
     int nr = nrNullTraces();
-    str = nrtrcs;
+    BufferString nrtrcsstr( "", nrtrcs );
     if ( nr < 1 )
-	str += " (none null; ";
+	nrtrcsstr += " (none null; ";
     else
-	{ str += " ("; str += nr; str += " null; "; }
+	{ nrtrcsstr += " ("; nrtrcsstr += nr; nrtrcsstr += " null; "; }
     nr = nrUsableTraces();
     if ( nr == nrtrcs )
-	str += "all usable)";
+	nrtrcsstr += "all usable)";
     else
-	{ str += nr; str += " usable)"; }
-    iop.add( "Number of traces found", str );
+	{ nrtrcsstr += nr; nrtrcsstr += " usable)"; }
+    iop.add( "Number of traces found", nrtrcsstr );
     iop.add( "Number of samples in file", trcsz_ );
     const Interval<float> zrg( sampling_.start,
 	    		       sampling_.start + (trcsz_-1)*sampling_.step );
@@ -132,6 +132,7 @@ void SEGY::FileData::getReport( IOPar& iop ) const
 	azimrg.include( azimuth(idx) );
     }
 
+    iop.add( IOPar::sKeySubHdr, "Ranges" );
     if ( Seis::is2D(geom_) )
 	iop.add( "Trace number range", nrrg.start, nrrg.stop );
     else
@@ -336,21 +337,21 @@ bool SEGY::FileDataSet::toNext( SEGY::FileDataSet::TrcIdx& ti, bool nll,
 				bool unu ) const
 {
     if ( ti.filenr_ < 0 )
-	{ ti.trcnr_ = -1; ti.filenr_= 0; }
+	{ ti.trcidx_ = -1; ti.filenr_= 0; }
 
     if ( isEmpty() || ti.filenr_ >= size() )
-	{ ti.filenr_ = -1; ti.trcnr_ = 0; return false; }
+	{ ti.filenr_ = -1; ti.trcidx_ = 0; return false; }
 
-    ti.trcnr_++;
-    if ( ti.trcnr_ >= (*this)[ti.filenr_]->size() )
-	{ ti.filenr_++; ti.trcnr_ = -1; return toNext( ti, nll, unu ); }
+    ti.trcidx_++;
+    if ( ti.trcidx_ >= (*this)[ti.filenr_]->size() )
+	{ ti.filenr_++; ti.trcidx_ = -1; return toNext( ti, nll, unu ); }
 
     if ( nll && unu )
 	return true;
 
     const FileData& fd = *(*this)[ti.filenr_];
-    if ( (!nll && fd.isNull(ti.trcnr_))
-      || (!unu && !fd.isUsable(ti.trcnr_)) )
+    if ( (!nll && fd.isNull(ti.trcidx_))
+      || (!unu && !fd.isUsable(ti.trcidx_)) )
 	return toNext( ti, nll, unu );
 
     return true;

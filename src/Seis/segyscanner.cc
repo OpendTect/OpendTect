@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.17 2008-11-26 12:50:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.18 2008-12-04 13:28:43 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.17 2008-11-26 12:50:46 cvsbe
     , msg_("Opening first file") \
     , richinfo_(false) \
     , nrdone_(0) \
+    , totnr_(-2) \
     , nrtrcs_(0)
 
 SEGY::Scanner::Scanner( const FileSpec& fs, Seis::GeomType gt, const IOPar& i )
@@ -78,7 +79,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 {
     const bool isrev1 = !forcerev0_ && (fds_.isEmpty() || fds_[0]->isrev1_);
 
-    iop.add( "->", "Provided information" );
+    iop.add( IOPar::sKeyHdr, "Provided information" );
     FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev1 );
     FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop, isrev1 );
     FileReadOpts fro(geom_); fro.usePar( pars_ ); fro.getReport( iop, isrev1 );
@@ -86,13 +87,13 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
     if ( fds_.isEmpty() )
     {
 	if ( failedfnms_.isEmpty() )
-	    iop.add( "->", "No matching files found" );
+	    iop.add( IOPar::sKeySubHdr, "No matching files found" );
 	else
 	    addErrReport( iop );
 	return;
     }
 
-    iop.add( "->", "Position scanning results" );
+    iop.add( IOPar::sKeyHdr, "Position scanning results" );
     dtctor_.report( iop );
     addErrReport( iop );
 
@@ -103,7 +104,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 
 void SEGY::Scanner::addErrReport( IOPar& iop ) const
 {
-    iop.add( "->",  "Status" );
+    iop.add( IOPar::sKeyHdr,  "Status" );
     for ( int idx=0; idx<fnms_.size(); idx++ )
     {
 	const char* fnm = fnms_.get( idx );
@@ -129,6 +130,18 @@ void SEGY::Scanner::addErrReport( IOPar& iop ) const
 	iop.add( keyw, failerrmsgs_.get(idx) );
     }
 
+}
+
+
+od_int64 SEGY::Scanner::totalNr() const
+{
+    if ( totnr_ == -2 )
+    {
+	if ( !tr_ ) return -1;
+	totnr_ = tr_->estimatedNrTraces();
+	totnr_ *= fnms_.size();
+    }
+    return totnr_;
 }
 
 

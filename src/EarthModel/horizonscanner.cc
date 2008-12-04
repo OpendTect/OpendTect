@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.28 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.29 2008-12-04 13:28:43 cvsbert Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -112,7 +112,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 
     if ( isxy_ != selxy_ )
     {
-	iopar.add( "->", "Warning" );
+	iopar.add( IOPar::sKeyHdr, "Warning" );
 	const char* selected = selxy_ ? "X/Y" : "Inl/Crl";
 	const char* actual = isxy_ ? "X/Y" : "Inl/Crl";
 	iopar.add( "You have selected positions in", selected );
@@ -122,14 +122,14 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( msg.buf(), "" );
     }
 
-    iopar.add( "->", "Geometry" );
+    iopar.add( IOPar::sKeyHdr, "Geometry" );
     dtctor_.report( iopar );
     if ( isgeom_ && valranges_.size() > 0 )
 	iopar.set( SI().zIsTime() ? "Time range (s)" : "Z Range",valranges_[0]);
 
     if ( valranges_.size() > firstattribidx )
     {
-	iopar.add( "->", "Data values" );
+	iopar.add( IOPar::sKeySubHdr, "Data values" );
 	for ( int idx=firstattribidx; idx<valranges_.size(); idx++ )
 	{
 	    const char* attrnm = fd_.bodyinfos_[idx+1]->name().buf();
@@ -140,11 +140,11 @@ void HorizonScanner::report( IOPar& iopar ) const
 	}
     }
     else
-	iopar.add( "->", "No attribute data values" );
+	iopar.add( IOPar::sKeySubHdr, "No attribute data values" );
 
     if ( !rejectedlines_.isEmpty() )
     {
-	iopar.add( "->", "Warning" );
+	iopar.add( IOPar::sKeyHdr, "Warning" );
 	iopar.add( "These positions were rejected", "" );
 	for ( int idx=0; idx<rejectedlines_.size(); idx++ )
 	    iopar.add( toString(idx), rejectedlines_.get(idx).buf() );

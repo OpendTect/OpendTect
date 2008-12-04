@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.7 2008-11-26 12:50:46 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.8 2008-12-04 13:28:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,12 +117,12 @@ public:
     struct TrcIdx
     {
 			TrcIdx( int fnr=-1, int tnr=0 )
-			    : filenr_(fnr), trcnr_(tnr)	{}
-	bool		isValid() const			{ return filenr_>=0; }
-	void		toNextFile()			{ filenr_++; trcnr_=0; }
+			    : filenr_(fnr), trcidx_(tnr)	{}
+	bool		isValid() const		{ return filenr_>=0; }
+	void		toNextFile()		{ filenr_++; trcidx_ = 0; }
 
 	int		filenr_;
-	int		trcnr_;
+	int		trcidx_;
     };
 
     			FileDataSet( const IOPar& iop )	{ pars_ = iop; }
