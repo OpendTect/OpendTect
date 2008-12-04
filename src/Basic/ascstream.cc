@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.26 2008-11-19 20:24:24 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.27 2008-12-04 13:23:26 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -70,7 +70,7 @@ void ascostream::newParagraph()
 }
 
 
-void ascostream::putKeyword( const char* keyword )
+void ascostream::putKeyword( const char* keyword, bool withsep )
 {
     if ( !keyword || !*keyword ) return;
 
@@ -89,21 +89,36 @@ void ascostream::putKeyword( const char* keyword )
 	ptr = strchr( towrite.buf() + offs + 2, mAscStrmKeyValSep );
     }
 
-    stream() << towrite << mAscStrmKeyValSep;
-    if ( mAscStrmKeyValSep != '=' )
-	stream() << ' ';
+    stream() << towrite;
+    if ( withsep )
+	stream() << mAscStrmKeyValSep << ' ';
 }
 
 
 bool ascostream::put( const char* keyword, const char* value )
 {
-    if ( !value )
-	stream() << keyword;
-    else
+    putKeyword( keyword, (bool)value );
+
+    if ( value )
     {
-	putKeyword( keyword );
+	const char* nlptr = strchr( value, '\n' );
+	if ( nlptr )
+	{
+	    BufferString str( value );
+	    char* startptr = str.buf();
+	    char* ptr = startptr + (nlptr - value);
+	    while ( ptr )
+	    {
+		*ptr++ = '\0';
+		stream() << startptr << "\\n";
+		startptr = ptr; 
+		ptr = strchr( ptr, '\n' );
+	    }
+	    value += startptr - str.buf();
+	}
 	stream() << value;
     }
+
     stream() << '\n';
     return stream().good();
 }
@@ -218,7 +233,6 @@ void ascistream::init( std::istream* strm, bool rdhead )
 	    removeTrailingBlanks(filetype.buf());
 	}
 
-
 	next();
     }
 }
@@ -227,41 +241,44 @@ void ascistream::init( std::istream* strm, bool rdhead )
 ascistream& ascistream::next()
 {
     keybuf.setEmpty(); valbuf.setEmpty();
-
     if ( !streamptr || !streamptr->good() )
 	return *this;
 
     BufferString lineread;
     if ( !StrmOper::readLine(stream(),&lineread) )
 	return *this;
-
     char* linebuf = lineread.buf();
     if ( linebuf[0] == '\0' || ( linebuf[0]=='-' && linebuf[1]=='-' ) )
 	return next();
+    if ( linebuf[0] == mAscStrmParagraphMarker[0] )
+	{ keybuf = mAscStrmParagraphMarker; return *this; }
 
-    else if ( linebuf[0] == mAscStrmParagraphMarker[0] )
+    int sz = lineread.size();
+    char* separptr = linebuf[0] == mAscStrmKeyValSep ? linebuf : 0;
+    for ( int ich=1; ich<sz; ich++ )
     {
-	keybuf = mAscStrmParagraphMarker;
-	return *this;
+	const bool issep = linebuf[ich] == mAscStrmKeyValSep;
+	if ( linebuf[ich-1] == '\\' && (issep || linebuf[ich] == 'n') )
+	{
+	    char frm[3]; frm[0] = '\\'; frm[1] = linebuf[ich]; frm[2] = '\0';
+	    char to[2]; to[0] = issep ? mAscStrmKeyValSep : '\n'; to[1] = '\0';
+	    replaceString( linebuf, frm, to );
+	    sz = lineread.size();
+	    continue;
+	}
+	else if ( issep && !separptr )
+	    separptr = linebuf + ich;
     }
 
-    char* separptr = strchr( linebuf, mAscStrmKeyValSep );
-    while ( separptr && separptr != linebuf && *(separptr-1) == '\\' )
-    {
-	for ( char* ptr=separptr-1; *ptr; ptr++ )
-	    *ptr = *(ptr+1);
-	separptr = strchr( separptr+1, mAscStrmKeyValSep );
-    }
-
-    char* startptr = separptr + 1;
     if ( separptr )
     {
+	char* startptr = separptr + 1;
 	mTrimBlanks(startptr);
 	valbuf = startptr;
 	*separptr = '\0';
     }
 
-    startptr = linebuf;
+    char* startptr = linebuf;
     mTrimBlanks(startptr);
     keybuf = startptr;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.17 2008-11-19 20:24:24 cvsbert Exp $
+ RCS:		$Id: ascstream.h,v 1.18 2008-12-04 13:23:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,6 @@ public:
 		~ascostream();
 
     bool	putHeader(const char* filetype);
-    void	putKeyword(const char*);	// Just a string, no keyw: value
     bool	put(const char*,const char* val=0);
 
 #define mAscStreamDefFns(fn,typ) \
@@ -69,6 +68,8 @@ protected:
 
     std::ostream* streamptr;
     bool	mystrm;
+
+    void	putKeyword(const char*,bool wsep=true);
 
 };
 
