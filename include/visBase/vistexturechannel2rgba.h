@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.9 2008-12-03 22:54:25 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.10 2008-12-04 13:53:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,27 +44,30 @@ with shaders. There should always be a non-shading way to fall back on.
 class TextureChannel2RGBA : public DataObject
 {
 public:
-    virtual void		setChannels(TextureChannels*);
-    virtual void		notifyChannelChange()		{}
-    virtual bool		createRGBA(SbImage&) const	= 0;
-				/*!<Fill the image with the output, using
-				    current settings. */
+    virtual void	setChannels(TextureChannels*);
+    virtual bool	createRGBA(SbImage&) const		= 0;
+			/*!<Fill the image with the output, using
+			    current settings. */
 
-    virtual void		swapChannels(int ch0,int ch1)	{}
-    virtual void		setEnabled(int ch,bool yn)	{}
-    virtual bool		isEnabled(int ch) const		{ return true; }
+    virtual bool	canSetSequence() const			{ return false;}
+    virtual void	setSequence(int,const ColTab::Sequence&){}
+    virtual const ColTab::Sequence* getSequence(int) const	{ return 0; }
 
-    virtual bool		canUseShading() const		= 0;
-    virtual void		allowShading(bool);
-    virtual bool		usesShading() const		= 0;
-    virtual int			maxNrChannels() const		= 0;
-    virtual int			minNrChannels() const		{ return 1; }
+    virtual void	swapChannels(int ch0,int ch1)		{}
+    virtual void	setEnabled(int ch,bool yn)		{}
+    virtual bool	isEnabled(int ch) const			{ return true; }
+
+    virtual bool	canUseShading() const			= 0;
+    virtual void	allowShading(bool);
+    virtual bool	usesShading() const			= 0;
+    virtual int		maxNrChannels() const			= 0;
+    virtual int		minNrChannels() const			{ return 1; }
 
 protected:
-    				TextureChannel2RGBA();
+    			TextureChannel2RGBA();
 
-    TextureChannels*		channels_;
-    bool			shadingallowed_;
+    TextureChannels*	channels_;
+    bool		shadingallowed_;
 };
 
 
@@ -80,8 +83,9 @@ public:
 
     void			swapChannels(int ch0,int ch1);
 
+    bool			canSetSequence() const		{ return true;}
     void			setSequence(int ch,const ColTab::Sequence&);
-    const ColTab::Sequence&	getSequence(int ch) const;
+    const ColTab::Sequence*	getSequence(int ch) const;
 
     void			setEnabled(int ch,bool yn);
     bool			isEnabled(int ch) const;
