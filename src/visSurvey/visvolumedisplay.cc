@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.89 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.90 2008-12-04 17:31:26 cvsyuancheng Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -443,6 +443,32 @@ visBase::MarchingCubesSurface* VolumeDisplay::getIsoSurface( int idx )
 
 const int VolumeDisplay::getNrIsoSurfaces()
 { return isosurfaces_.size(); }
+
+
+bool VolumeDisplay::resetIsoSurface( visBase::MarchingCubesSurface* mcd,
+				     float isovalue, const Array3D<float>& arr )
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    if ( idx<0 || idx>=isosurfaces_.size() )
+	return false;
+
+    isovalues_[idx] = isovalue;
+    isosurfaces_[idx]->getSurface()->removeAll(); 
+    isosurfaces_[idx]->setBoxBoudary( 
+	    cache_->cubeSampling().hrg.inlRange().stop,
+	    cache_->cubeSampling().hrg.crlRange().stop,
+	    cache_->cubeSampling().zrg.stop );
+    isosurfaces_[idx]->setScales(
+	    cache_->inlsampling, cache_->crlsampling,
+	    SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
+    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, arr, isovalue, 0 );
+    isosurfaces_[idx]->getMaterial()->setColor(
+	scalarfield_->getColorTab().color(isovalue) );
+
+    isosurfaces_[idx]->touch( false, 0 );
+
+    return true;
+}
 
 
 void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )

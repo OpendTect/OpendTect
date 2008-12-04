@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.57 2008-11-10 22:50:11 cvsyuancheng Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.58 2008-12-04 17:31:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ class MarchingCubesSurface;
 class ZAxisTransform;
 class TaskRunner;
 class ZAxisTransformer;
+template <class T> class Array3D;
 
 namespace Attrib { class SelSpec; class DataCubes; }
 
@@ -93,8 +94,8 @@ public:
     float			isoValue(
 	    			    const visBase::MarchingCubesSurface*) const;
     void			setIsoValue(
-	    			    const visBase::MarchingCubesSurface*,
-				    float, TaskRunner* = 0);
+	    			    const visBase::MarchingCubesSurface*,float,
+				    TaskRunner* = 0);
 
     CubeSampling		getCubeSampling(int attrib) const;
     void			setCubeSampling(const CubeSampling&);
@@ -132,6 +133,11 @@ public:
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
+
+    bool			resetIsoSurface(visBase::MarchingCubesSurface*,
+	    					float isovalue,
+	    					const Array3D<float>& arr);
+    				/*<The surface must be one of known.*/
 
 protected:
 				~VolumeDisplay();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.6 2008-12-02 15:40:12 cvsyuancheng Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.7 2008-12-04 17:31:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -15,11 +15,12 @@ ________________________________________________________________________
 
 #include "uidlggroup.h"
 
-class uiStatsDisplay;
-class uiGenInput;
-class uiPushButton;
 class uiAxisHandler;
 class uiFunctionDisplay;
+class uiGenInput;
+class uiIOObjSel;
+class uiPushButton;
+class uiStatsDisplay;
 namespace visBase { class MarchingCubesSurface; }
 namespace visSurvey { class VolumeDisplay; }
 template <class T> class SamplingData;
@@ -53,11 +54,14 @@ protected:
     uiStatsDisplay*	statsdisplay_;
     uiGenInput*		modefld_;
     uiGenInput*		thresholdfld_;
+    uiGenInput*		aboveisovaluefld_;
+    uiIOObjSel*		ioobjselfld_;
     uiPushButton*	updatebutton_;
 
     visBase::MarchingCubesSurface*	isosurfacedisplay_;
     visSurvey::VolumeDisplay*		vd_;
     float				initialvalue_;
+    bool				usemode_;
 
     uiAxisHandler&	xAxis();
     uiFunctionDisplay&	funcDisp();

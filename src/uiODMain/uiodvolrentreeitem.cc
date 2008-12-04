@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.37 2008-12-02 15:43:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.38 2008-12-04 17:31:26 cvsyuancheng Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -208,8 +208,8 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	 menu->menuID() != displayID() )
 	return;
 
-    mDynamicCastGet(visSurvey::VolumeDisplay*,voldisp,
-	    	    visserv_->getObject(displayid_))
+    mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
+	    	     visserv_->getObject( displayid_ ) )
     if ( mnuid == colsettingsmnuitem_.id )
     {
 	menu->setIsHandled(true);
@@ -239,11 +239,11 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	CallBack dummycb;
-	uiSliceSelDlg dlg( getUiParent(), voldisp->getCubeSampling(0), maxcs,
+	uiSliceSelDlg dlg( getUiParent(), vd->getCubeSampling(0), maxcs,
 			   dummycb, uiSliceSel::Vol );
 	if ( !dlg.go() ) return;
 	CubeSampling cs = dlg.getCubeSampling();
-	voldisp->setCubeSampling( cs );
+	vd->setCubeSampling( cs );
 	visserv_->calculateAttrib( displayid_, 0, false );
 	updateColumnText(0);
     }
@@ -274,26 +274,26 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 
     else if ( mnuid==addlinlslicemnuitem_.id )
     {
-	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
-		  visSurvey::VolumeDisplay::cInLine())), true );
+	addChild( new uiODVolrenSubTreeItem(
+		  vd->addSlice(visSurvey::VolumeDisplay::cInLine()) ), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==addlcrlslicemnuitem_.id )
     {
-	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
-		  visSurvey::VolumeDisplay::cCrossLine())), true );
+	addChild( new uiODVolrenSubTreeItem(
+		  vd->addSlice(visSurvey::VolumeDisplay::cCrossLine())), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==addltimeslicemnuitem_.id )
     {
-	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
-		  visSurvey::VolumeDisplay::cTimeSlice())), true );
+	addChild( new uiODVolrenSubTreeItem(
+		  vd->addSlice(visSurvey::VolumeDisplay::cTimeSlice())), true );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==addvolumemnuitem_.id && !hasVolume() )
     {
-	voldisp->showVolRen(true);
-	int volrenid = voldisp->volRenID();
+	vd->showVolRen(true);
+	int volrenid = vd->volRenID();
 	addChild( new uiODVolrenSubTreeItem(volrenid), true );
 	menu->setIsHandled( true );
     }
@@ -312,12 +312,12 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 
 	isshown = true;
 	
-	const int surfobjid = voldisp->addIsoSurface( 0, false );	
-	const int surfidx = voldisp->getNrIsoSurfaces()-1;	
+	const int surfobjid = vd->addIsoSurface( 0, false );
+	const int surfidx = vd->getNrIsoSurfaces()-1;
+	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
 		uiDialog::Setup( "Iso value selection", 0, mTODOHelpID ) );
-	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, 
-		    voldisp->getIsoSurface(surfidx), voldisp, true ) );
+	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd,true) );
 	dlg.go();
 
 	addChild( new uiODVolrenSubTreeItem(surfobjid), true );
@@ -380,9 +380,8 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 
 bool uiODVolrenSubTreeItem::isVolume() const
 {
-    mDynamicCastGet(visBase::VolrenDisplay*,voldisp,
-	    	    visserv_->getObject(displayid_));
-    return voldisp;
+    mDynamicCastGet(visBase::VolrenDisplay*,vd,visserv_->getObject(displayid_));
+    return vd;
 }
 
 
