@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.2 2008-11-04 21:27:01 cvskris Exp $
+ RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.3 2008-12-04 13:45:59 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "vistexturechannel2rgba.h"
+#include "coltabsequence.h"
 
 class SoRGBATextureChannel2RGBA;
 
@@ -32,6 +33,7 @@ public:
 
     void			setEnabled(int ch,bool yn);
     bool			isEnabled(int ch) const;
+    const ColTab::Sequence*	getSequence(int ch) const;
 
     bool			canUseShading() const	{ return false; }
     bool			usesShading() const	{ return false; }
@@ -44,6 +46,8 @@ protected:
 
     				~RGBATextureChannel2RGBA();
     SoNode*			getInventorNode();
+
+    ColTab::Sequence		sequences_[4];
 
     SoRGBATextureChannel2RGBA*	converter_;
 };
