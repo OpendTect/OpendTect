@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.3 2008-04-10 05:24:11 cvssatyaki Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.4 2008-12-04 19:51:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,10 +22,13 @@ class uiCreateAttribLogDlg;
 
 class uiODWellParentTreeItem : public uiODTreeItem
 {
+    typedef uiODTreeItem	inheritedClass;
 public:
     			uiODWellParentTreeItem();
     bool		showSubMenu();
     bool		handleSubMenu(int);
+
+			mMenuOnAnyButton;
 
 protected:
     const char*		parentType() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.6 2007-10-18 10:27:26 cvssatyaki Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.7 2008-12-04 19:51:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,9 +17,12 @@ ________________________________________________________________________
 
 class uiODVolrenParentTreeItem : public uiTreeItem
 {
+    typedef uiTreeItem	inheritedClass;
 public:
 			uiODVolrenParentTreeItem();
 			~uiODVolrenParentTreeItem();
+
+			mMenuOnAnyButton;
 
     bool		showSubMenu();
     int			sceneID() const;
