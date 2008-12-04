@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.32 2008-12-03 18:56:00 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.33 2008-12-04 16:30:48 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -78,6 +78,11 @@ public:
     void				setAll(const T&);
     void				getAll(T* ptr) const;
     					/*!<Fills ptr with values from array.
+					    ptr is assumed to be allocated
+					    with info().getTotalSz() number
+					    of values. */
+    void				getAll(ValueSeries<T>& vs) const;
+    					/*!<Fills vs with values from array.
 					    ptr is assumed to be allocated
 					    with info().getTotalSz() number
 					    of values. */
@@ -243,6 +248,38 @@ void ArrayND<T>::setAll( const T& val )
 	set( iterator.getPos(), val );
     } while ( iterator.next() );
 }
+
+
+template <class T> inline
+void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
+{
+    if ( vs.arr() )
+    {
+	getAll( vs.arr() );
+	return;
+    }
+
+    const od_int64 totalsz = info().getTotalSz();
+    if ( !totalsz )
+	return;
+
+    const ValueSeries<T>* stor = getStorage();
+    if ( stor )
+    {
+	for ( od_int64 idx=0; idx<totalsz; idx++ )
+	    vs.setValue( idx, stor->value( idx ) );
+	return;
+    }
+
+    ArrayNDIter iterator( info() );
+    for ( od_int64 idx=0; idx<totalsz; idx++ )
+    {
+	vs.setValue( idx, get( iterator.getPos() ) );
+	if ( idx!=totalsz-1 && !iterator.next() )
+	    return;
+    }
+}
+
 
 template <class T> inline
 void ArrayND<T>::getAll( T* ptr ) const
