@@ -7,15 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.49 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.50 2008-12-04 12:22:41 cvsnanne Exp $";
 
 #include "uislicesel.h"
 
-#include "uispinbox.h"
+#include "uibutton.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
-#include "uibutton.h"
-#include "cubesampling.h"
+#include "uispinbox.h"
+
 #include "survinfo.h"
 #include "thread.h"
 #include "timer.h"
@@ -24,15 +24,11 @@ static const char* sButTxtAdvance = "&Advance >>";
 static const char* sButTxtPause = "&Pause";
 
 
-uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
-			const CubeSampling& maxcs,
-			const CallBack& acb, Type type )
+uiSliceSel::uiSliceSel( uiParent* p, Type type )
     : uiGroup(p,"Slice Selection")
-    , cs_(*new CubeSampling(curcs))
-    , maxcs_(*new CubeSampling(maxcs))
-    , inl0fld(0)
+    , inl0fld_(0)
     , updatemutex_(*new Threads::Mutex)
-    , applycb_(*new CallBack(acb))
+    , applycb_(0)
     , scrolldlg_(0)
     , scrollbut_(0)
     , applybut_(0)
@@ -49,22 +45,34 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
     createCrlFld();
     createZFld();
 
-    if ( inl0fld )
-	mainObject()->setTabOrder( (uiObject*)inl0fld, (uiObject*)crl0fld );
-    mainObject()->setTabOrder( (uiObject*)crl0fld, (uiObject*)z0fld );
+    if ( inl0fld_ )
+	mainObject()->setTabOrder( (uiObject*)inl0fld_, (uiObject*)crl0fld_ );
+    mainObject()->setTabOrder( (uiObject*)crl0fld_, (uiObject*)z0fld_ );
 
     if ( !isvol_ && !is2d_ )
     {
 	applybut_ = new uiPushButton( this, "&Apply", true );
 	applybut_->activated.notify( mCB(this,uiSliceSel,applyPush) );
-	mainObject()->setTabOrder( (uiObject*)z0fld, (uiObject*)applybut_ );
-	applybut_->attach( alignedBelow, z0fld );
+	mainObject()->setTabOrder( (uiObject*)z0fld_, (uiObject*)applybut_ );
+	applybut_->attach( alignedBelow, z0fld_ );
+	applybut_->display( false, true );
+
 	scrollbut_ = new uiPushButton( this, "&Scroll", false );
 	scrollbut_->activated.notify( mCB(this,uiSliceSel,scrollPush) );
-	scrollbut_->attach( rightOf, isinl_ ? inl0fld : (iscrl_?crl0fld:z0fld));
+	scrollbut_->attach( rightOf, isinl_ ? inl0fld_
+					    : (iscrl_?crl0fld_:z0fld_));
     }
 
-    setCubeSampling( curcs );
+    setHAlignObj( crl0fld_ );
+    updateUI();
+}
+
+
+void uiSliceSel::setApplyCB( const CallBack& acb )
+{
+    delete applycb_;
+    applycb_ = new CallBack( acb );
+    applybut_->display( true );
 }
 
 
@@ -72,11 +80,11 @@ void uiSliceSel::createInlFld()
 {
     BufferString label( isinl_ ? "Inline nr" : "Inline range" );
     const char* nm = label;
-    inl0fld = new uiLabeledSpinBox( this, label, 0,
+    inl0fld_ = new uiLabeledSpinBox( this, label, 0,
 			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
-    inl1fld = new uiSpinBox( this, 0, "Inl Stop" );
-    inl1fld->attach( rightTo, inl0fld );
-    inl1fld->display( !isinl_ );
+    inl1fld_ = new uiSpinBox( this, 0, "Inl Stop" );
+    inl1fld_->attach( rightTo, inl0fld_ );
+    inl1fld_->display( !isinl_ );
 }
 
 
@@ -84,12 +92,12 @@ void uiSliceSel::createCrlFld()
 {
     BufferString label = is2d_ ? "Trace range" 
 			       : ( iscrl_ ? "Xline nr" : "Xline range" );
-    crl0fld = new uiLabeledSpinBox( this, label, 0,
+    crl0fld_ = new uiLabeledSpinBox( this, label, 0,
 	   		 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
-    crl1fld = new uiSpinBox( this, 0, "Crl Stop" );
-    crl1fld->attach( rightTo, crl0fld );
-    crl1fld->display( !iscrl_ );
-    if ( inl0fld ) crl0fld->attach( alignedBelow, inl0fld );
+    crl1fld_ = new uiSpinBox( this, 0, "Crl Stop" );
+    crl1fld_->attach( rightTo, crl0fld_ );
+    crl1fld_->display( !iscrl_ );
+    if ( inl0fld_ ) crl0fld_->attach( alignedBelow, inl0fld_ );
 }
 
 
@@ -102,11 +110,11 @@ void uiSliceSel::createZFld()
 	label += " range "; label += SI().getZUnit();
 	nm += " Start";
     }
-    z0fld = new uiLabeledSpinBox( this, label, 0, nm );
-    z1fld = new uiSpinBox( this, 0, "Z Stop" );
-    z1fld->attach( rightTo, z0fld );
-    z1fld->display( !istsl_ );
-    z0fld->attach( alignedBelow, crl0fld );
+    z0fld_ = new uiLabeledSpinBox( this, label, 0, nm );
+    z1fld_ = new uiSpinBox( this, 0, "Z Stop" );
+    z1fld_->attach( rightTo, z0fld_ );
+    z1fld_->display( !istsl_ );
+    z0fld_->attach( alignedBelow, crl0fld_ );
 }
 
 
@@ -153,27 +161,27 @@ uiSliceScroll( uiSliceSel* ss )
 	maxstep = mNINT(zrg);
     }
     if ( maxstep < 0 ) maxstep = -maxstep;
-    stepfld = new uiLabeledSpinBox( this, "Scroll step" );
-    stepfld->box()->setMinValue( -maxstep );
-    stepfld->box()->setMaxValue( maxstep );
-    stepfld->box()->setStep( step );
-    stepfld->box()->setValue( step );
+    stepfld_ = new uiLabeledSpinBox( this, "Scroll step" );
+    stepfld_->box()->setMinValue( -maxstep );
+    stepfld_->box()->setMaxValue( maxstep );
+    stepfld_->box()->setStep( step );
+    stepfld_->box()->setValue( step );
 
-    typfld = new uiLabeledComboBox( this, "Control" );
-    typfld->box()->addItem( "Manual" );
-    typfld->box()->addItem( "Auto" );
-    typfld->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
-    typfld->attach( alignedBelow, stepfld );
+    typfld_ = new uiLabeledComboBox( this, "Control" );
+    typfld_->box()->addItem( "Manual" );
+    typfld_->box()->addItem( "Auto" );
+    typfld_->box()->selectionChanged.notify( mCB(this,uiSliceScroll,typSel) );
+    typfld_->attach( alignedBelow, stepfld_ );
 
     ctrlbut = new uiPushButton( this, sButTxtAdvance, true );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
-    ctrlbut->attach( alignedBelow, typfld );
+    ctrlbut->attach( alignedBelow, typfld_ );
     backbut = new uiPushButton( this, "<< Step &Back", true );
     backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     backbut->attach( leftOf, ctrlbut );
 
-    dtfld = new uiGenInput( this, "Time between updates (s)", FloatInpSpec(2) );
-    dtfld->attach( alignedBelow, ctrlbut );
+    dtfld_ = new uiGenInput( this, "Time between updates (s)", FloatInpSpec(2));
+    dtfld_->attach( alignedBelow, ctrlbut );
 
     finaliseDone.notify( mCB(this,uiSliceScroll,typSel) );
 }
@@ -187,8 +195,8 @@ uiSliceScroll( uiSliceSel* ss )
 
 void typSel( CallBacker* )
 {
-    const bool autoreq = typfld->box()->currentItem() == 1;
-    dtfld->display( autoreq );
+    const bool autoreq = typfld_->box()->currentItem() == 1;
+    dtfld_->display( autoreq );
     if ( inauto != autoreq )
     {
 	if ( autoreq )
@@ -228,7 +236,7 @@ void stopAuto( bool setmanual )
     inauto = false;
     if ( setmanual )
     {
-	typfld->box()->setCurrentItem( 0 );
+	typfld_->box()->setCurrentItem( 0 );
 	ctrlbut->setText( sButTxtAdvance );
 	backbut->display( true );
     }
@@ -239,7 +247,7 @@ void doAdvance( bool reversed )
 {
     if ( !timer ) return;
 
-    const int step = (reversed ? -1 : 1) * stepfld->box()->getValue();
+    const int step = (reversed ? -1 : 1) * stepfld_->box()->getValue();
     slcsel->readInput();
     if ( slcsel->isinl_ )
     {
@@ -247,7 +255,7 @@ void doAdvance( bool reversed )
 	if ( !SI().sampling(true).hrg.inlOK(newval) )
 	    stopAuto( true );
 	else
-	    slcsel->inl0fld->box()->setValue( newval );
+	    slcsel->inl0fld_->box()->setValue( newval );
     }
     else if ( slcsel->iscrl_ )
     {
@@ -255,7 +263,7 @@ void doAdvance( bool reversed )
 	if ( !SI().sampling(true).hrg.crlOK(newval) )
 	    stopAuto( true );
 	else
-	    slcsel->crl0fld->box()->setValue( newval );
+	    slcsel->crl0fld_->box()->setValue( newval );
     }
     else
     {
@@ -266,11 +274,11 @@ void doAdvance( bool reversed )
 	else
 	{
 	    if ( zfac < 10 )
-		slcsel->z0fld->box()->setValue( newval );
+		slcsel->z0fld_->box()->setValue( newval );
 	    else
 	    {
 		newval *= zfac;
-		slcsel->z0fld->box()->setValue( mNINT(newval) );
+		slcsel->z0fld_->box()->setValue( mNINT(newval) );
 	    }
 	}
     }
@@ -293,7 +301,7 @@ void setTimer()
 {
     if ( !timer ) return;
 
-    float val = dtfld->getfValue();
+    float val = dtfld_->getfValue();
     if ( mIsUdf(val) || val < 0.2 )
 	val = 200;
     else
@@ -325,11 +333,11 @@ const char* getTitle( uiSliceSel* ss )
 }
 
     uiSliceSel*		slcsel;
-    uiLabeledSpinBox*	stepfld;
-    uiLabeledComboBox*	typfld;
+    uiLabeledSpinBox*	stepfld_;
+    uiLabeledComboBox*	typfld_;
     uiPushButton*	ctrlbut;
     uiPushButton*	backbut;
-    uiGenInput*		dtfld;
+    uiGenInput*		dtfld_;
     const float		zfact;
 
     bool		paused;
@@ -341,11 +349,9 @@ const char* getTitle( uiSliceSel* ss )
 
 uiSliceSel::~uiSliceSel()
 {
-    delete &cs_;
-    delete &applycb_;
+    delete applycb_;
     delete &updatemutex_;
     delete scrolldlg_;
-    delete &maxcs_;
 }
 
 
@@ -362,7 +368,8 @@ void uiSliceSel::applyPush( CallBacker* )
     if ( !updatemutex_.tryLock() )
 	return;
     readInput();
-    applycb_.doCall(this);
+    if ( applycb_ )
+	applycb_->doCall(this);
     updatemutex_.unLock();
 }
 
@@ -372,27 +379,27 @@ void uiSliceSel::readInput()
     const HorSampling& hs = maxcs_.hrg;
     Interval<int> inlrg, crlrg;
     hs.get( inlrg, crlrg );
-    if ( inl0fld )
+    if ( inl0fld_ )
     {
-	inlrg.start = inl0fld->box()->getValue();
-	inlrg.stop = isinl_ ? inlrg.start : inl1fld->getValue();
+	inlrg.start = inl0fld_->box()->getValue();
+	inlrg.stop = isinl_ ? inlrg.start : inl1fld_->getValue();
 	if ( !isinl_ && inlrg.start == inlrg.stop )
 	    inlrg.stop += hs.step.inl;
     }
 
-    crlrg.start = crl0fld->box()->getValue();
-    crlrg.stop = iscrl_ ? crlrg.start : crl1fld->getValue();
+    crlrg.start = crl0fld_->box()->getValue();
+    crlrg.stop = iscrl_ ? crlrg.start : crl1fld_->getValue();
     if ( !iscrl_ && crlrg.start == crlrg.stop )
 	crlrg.stop += hs.step.crl;
 
     Interval<float> zrg;
-    zrg.start = z0fld->box()->getValue() / SI().zFactor();
+    zrg.start = z0fld_->box()->getValue() / SI().zFactor();
     zrg.start = maxcs_.zrg.snap( zrg.start );
     if ( istsl_ )
 	zrg.stop = zrg.start;
     else
     {
-	zrg.stop = z1fld->getValue() / SI().zFactor();
+	zrg.stop = z1fld_->getValue() / SI().zFactor();
 	zrg.sort();
 	zrg.stop = maxcs_.zrg.snap( zrg.stop );
 	if ( mIsEqual(zrg.start,zrg.stop,mDefEps) )
@@ -407,34 +414,46 @@ void uiSliceSel::readInput()
 }
 
 
-void uiSliceSel::setCubeSampling( const CubeSampling& cs )
+void uiSliceSel::updateUI()
 {
-    if ( inl0fld )
+    if ( inl0fld_ )
     {
-	Interval<int> inlrg( cs.hrg.start.inl, cs.hrg.stop.inl );
+	Interval<int> inlrg( cs_.hrg.start.inl, cs_.hrg.stop.inl );
 	StepInterval<int> maxinlrg( maxcs_.hrg.start.inl, maxcs_.hrg.stop.inl,
 				    maxcs_.hrg.step.inl );
-	setBoxValues( inl0fld->box(), maxinlrg, inlrg.start );
-	setBoxValues( inl1fld, maxinlrg, inlrg.stop );
+	setBoxValues( inl0fld_->box(), maxinlrg, inlrg.start );
+	setBoxValues( inl1fld_, maxinlrg, inlrg.stop );
     }
 
-    Interval<int> crlrg( cs.hrg.start.crl, cs.hrg.stop.crl );
+    Interval<int> crlrg( cs_.hrg.start.crl, cs_.hrg.stop.crl );
     StepInterval<int> maxcrlrg( maxcs_.hrg.start.crl, maxcs_.hrg.stop.crl,
 				maxcs_.hrg.step.crl );
-    setBoxValues( crl0fld->box(), maxcrlrg, crlrg.start );
-    setBoxValues( crl1fld, maxcrlrg, crlrg.stop );
+    setBoxValues( crl0fld_->box(), maxcrlrg, crlrg.start );
+    setBoxValues( crl1fld_, maxcrlrg, crlrg.stop );
 
     const float zfact( SI().zFactor() );
-    Interval<int> zrg( mNINT(cs.zrg.start*zfact), 
-	    	       mNINT(cs.zrg.stop*zfact) );
+    Interval<int> zrg( mNINT(cs_.zrg.start*zfact), 
+	    	       mNINT(cs_.zrg.stop*zfact) );
     StepInterval<int> maxzrg = 
 		    StepInterval<int>( mNINT(maxcs_.zrg.start*zfact),
 				       mNINT(maxcs_.zrg.stop*zfact),
 				       mNINT(maxcs_.zrg.step*zfact) );
-    setBoxValues( z0fld->box(), maxzrg, zrg.start );
-    setBoxValues( z1fld, maxzrg, zrg.stop );
+    setBoxValues( z0fld_->box(), maxzrg, zrg.start );
+    setBoxValues( z1fld_, maxzrg, zrg.stop );
+}
 
+
+void uiSliceSel::setCubeSampling( const CubeSampling& cs )
+{
     cs_ = cs;
+    updateUI();
+}
+
+
+void uiSliceSel::setMaxCubeSampling( const CubeSampling& maxcs )
+{
+    maxcs_ = maxcs;
+    updateUI();
 }
 
 
@@ -469,7 +488,10 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
 				 "Specify the element's position","0.4.1")
 	    	 .modal(type==uiSliceSel::Vol||type==uiSliceSel::TwoD))
 {
-    slicesel_ = new uiSliceSel( this, curcs, maxcs, acb, type );
+    slicesel_ = new uiSliceSel( this, type );
+    slicesel_->setMaxCubeSampling( maxcs );
+    slicesel_->setCubeSampling( curcs );
+    slicesel_->setApplyCB( acb );
 }
 
 

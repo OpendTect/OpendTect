@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.16 2008-11-21 15:30:08 cvsnanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.17 2008-12-04 12:22:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "uigroup.h"
+#include "cubesampling.h"
 #include "ranges.h"
 
 class uiCheckBox;
@@ -20,7 +21,6 @@ class uiLabeledSpinBox;
 class uiPushButton;
 class uiScrollDialog;
 class uiSpinBox;
-class CubeSampling;
 class uiSliceScroll;
 
 namespace Threads { class Mutex; };
@@ -31,13 +31,14 @@ class uiSliceSel : public uiGroup
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
 
-				uiSliceSel(uiParent*,const CubeSampling& csin,
-					   const CubeSampling& maxcs,
-					   const CallBack& applycb,Type);
+				uiSliceSel(uiParent*,Type);
 				~uiSliceSel();
+
+    void			setApplyCB(const CallBack&);
 
     const CubeSampling&		getCubeSampling() const	{ return cs_; }
     void			setCubeSampling(const CubeSampling&);
+    void			setMaxCubeSampling(const CubeSampling&);
     void			disableApplyButton();
     void			disableScrollButton();
 
@@ -47,30 +48,31 @@ protected:
 
     friend class		uiSliceScroll;
 
-    void			scrollPush(CallBacker*);
-    void			applyPush(CallBacker*);
-    void			readInput();
-    void			setBoxValues(uiSpinBox*,
-	    				     const StepInterval<int>&,int);
     void			createInlFld();
     void			createCrlFld();
     void			createZFld();
 
-    uiLabeledSpinBox*           inl0fld;
-    uiLabeledSpinBox*           crl0fld;
-    uiLabeledSpinBox*           z0fld;
-    uiSpinBox*			inl1fld;
-    uiSpinBox*			crl1fld;
-    uiSpinBox*			z1fld;
+    void			scrollPush(CallBacker*);
+    void			applyPush(CallBacker*);
+    void			readInput();
+    void			updateUI();
+    void			setBoxValues(uiSpinBox*,
+	    				     const StepInterval<int>&,int);
+
+    uiLabeledSpinBox*           inl0fld_;
+    uiLabeledSpinBox*           crl0fld_;
+    uiLabeledSpinBox*           z0fld_;
+    uiSpinBox*			inl1fld_;
+    uiSpinBox*			crl1fld_;
+    uiSpinBox*			z1fld_;
     uiButton*			applybut_;
     uiButton*			scrollbut_;
 
     uiSliceScroll*		scrolldlg_;
 
-    const CubeSampling&		maxcs_;
-
-    CubeSampling&		cs_;
-    CallBack&			applycb_;
+    CubeSampling		maxcs_;
+    CubeSampling		cs_;
+    CallBack*			applycb_;
     bool			isinl_, iscrl_, istsl_, isvol_, is2d_;
 
     Threads::Mutex&		updatemutex_;
