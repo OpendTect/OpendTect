@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: annotationspi.cc,v 1.7 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: annotationspi.cc,v 1.8 2008-12-04 12:21:29 cvsnanne Exp $";
 
 #include "measuretoolman.h"
 #include "plugins.h"
@@ -31,7 +31,7 @@ extern "C" PluginInfo* GetAnnotationsPluginInfo()
     static PluginInfo retpii = {
 	"Annotations",
 	"dGB (Nanne Hemstra)",
-	"=dgb",
+	"=od",
 	"Annotation display utilities" };
     return &retpii;
 }
