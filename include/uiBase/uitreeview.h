@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.33 2008-10-27 10:41:42 cvssatyaki Exp $
+ RCS:           $Id: uitreeview.h,v 1.34 2008-12-04 15:47:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,6 +216,8 @@ public:
     void		setChecked(bool,bool trigger=false);
     			//!< does nothing if not checkable
     bool		isChecked() const;  //!< returns false if not checkable
+
+    void		setToolTip(int column,const char*);
 
     void		insertItem(int,uiListViewItem*);
     void		takeItem(uiListViewItem*);
