@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.29 2008-09-22 13:07:32 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.30 2008-12-04 12:47:51 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ class dgbSurfaceReader : public ExecutorGroup
 {
 public:
 			dgbSurfaceReader(const IOObj& ioobj,
-					 const char* filetype );
+					 const char* filetype);
 			/*!< Sets up object and reads header.
 			\param ioobj	The IOObj with info about where to
 					read data.
@@ -93,6 +93,8 @@ public:
     void			setRowInterval(const StepInterval<int>&);
     void			setColInterval(const StepInterval<int>&);
     void			setReadOnlyZ(bool yn=true);
+    void 			setLineNames(const BufferStringSet&);
+    void			setLinesTrcRngs(const TypeSet<Interval<int> >&);
 
     const IOPar*		pars() const;
 
@@ -189,7 +191,8 @@ protected:
     bool			readVersion2Row(std::istream&,int,int);
 
 //Version 3 stuff 
-    bool			readVersion3Row(std::istream&,int,int,int);
+    bool			readVersion3Row(std::istream&,int,int,int,
+	    					int noofcoltoskip=0);
     DataInterpreter<int>*	int16interpreter_;
     DataInterpreter<od_int64>*	int64interpreter_;
     TypeSet<od_int64>		rowoffsets_;
@@ -203,6 +206,11 @@ protected:
     static const char*		sKeyTransformY();
 
     double			conv11, conv12, conv13, conv21, conv22, conv23;
+
+// for loading horizon based on Lines trace range
+   const BufferStringSet*	linenames_;
+   const TypeSet< Interval<int> >*    linestrcrgs_; 
+   static const char*         	linenamesstr_;  
 };
 
 

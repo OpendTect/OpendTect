@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.7 2008-08-05 05:01:06 cvsraman Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.8 2008-12-04 12:47:51 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,11 +35,13 @@ public:
     void		use(const Surface&);
 
     BufferString	dbinfo;
-    HorSampling		rg;
+    HorSampling		rg;			// 3D only
     Interval<float>	zrg;
     BufferStringSet	valnames;
     BufferStringSet	sections;
 
+    BufferStringSet	linenames;		// 2D only
+    TypeSet<Interval<int> >	trcranges;	// 2D only
 };
 
 
@@ -56,11 +58,14 @@ public:
     TypeSet<int>		selvalues; // Indexes in sd.valnames
     TypeSet<int>		selsections; // Indexes in sd.sections
 
+    BufferStringSet		sellinenames;
+    TypeSet<Interval<int> >	seltrcranges;
+
     void			setDefault(); // selects all
 };
 
 
 
-}; // Namespace
+}; // namespace EM
 
 #endif

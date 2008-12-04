@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.39 2008-03-04 12:03:41 cvsnanne Exp $
+ RCS:		$Id: emmanager.h,v 1.40 2008-12-04 12:47:51 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "factory.h"
 #include "ptrman.h"
+#include "ranges.h"
 #include "multiid.h"
 #include "emposid.h"
 
