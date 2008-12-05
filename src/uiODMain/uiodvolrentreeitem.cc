@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.38 2008-12-04 17:31:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.39 2008-12-05 22:53:10 cvsyuancheng Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -317,7 +317,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
 	uiSingleGroupDlg dlg( applMgr()->applService().parent(),
 		uiDialog::Setup( "Iso value selection", 0, mTODOHelpID ) );
-	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd,true) );
+	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg,mcs,vd) );
 	dlg.go();
 
 	addChild( new uiODVolrenSubTreeItem(surfobjid), true );
@@ -359,7 +359,7 @@ bool uiODVolrenTreeItem::hasVolume() const
 
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
-    : setisovaluemnuitem_("&Set isovalue")
+    : resetisosurfacemnuitem_("&Settings")
     , convertisotobodymnuitem_("&Convert to body")
 { displayid_ = displayid; }
 
@@ -467,12 +467,12 @@ void uiODVolrenSubTreeItem::createMenuCB( CallBacker* cb )
     if ( !menu || menu->menuID() != displayID() ) return;
     if ( !isIsoSurface() )
     {
-	mResetMenuItem( &setisovaluemnuitem_ );
+	mResetMenuItem( &resetisosurfacemnuitem_ );
 	mResetMenuItem( &convertisotobodymnuitem_ );
 	return;
     }
 
-    mAddMenuItem( menu, &setisovaluemnuitem_, true, false );
+    mAddMenuItem( menu, &resetisosurfacemnuitem_, true, false );
     mAddMenuItem( menu, &convertisotobodymnuitem_, true, false );
 }
 
@@ -486,7 +486,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	 menu->menuID() != displayID() )
 	return;
 
-    if ( mnuid==setisovaluemnuitem_.id )
+    if ( mnuid==resetisosurfacemnuitem_.id )
     {
 	menu->setIsHandled( true );
 	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
@@ -496,8 +496,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 
 	uiSingleGroupDlg dlg( getUiParent(),
 		uiDialog::Setup( "Iso value selection", 0, mTODOHelpID ) );
-	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, isosurface, vd,
-		    false ) );
+	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg(&dlg, isosurface, vd) );
 	dlg.go();
 	updateColumnText(1);
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.58 2008-12-04 17:31:25 cvsyuancheng Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.59 2008-12-05 22:53:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ namespace visSurvey
 class Scene;
 
 class VolumeDisplay : public visBase::VisualObjectImpl,
-		      public visSurvey::SurveyObject
+		      public SurveyObject
 {
 public:
     static VolumeDisplay*	create()
@@ -68,9 +68,36 @@ public:
     				/*!\note return with removeChild(displayid). */
     void			removeChild(int displayid);
     
+    visBase::MarchingCubesSurface* getIsoSurface(int idx);
     void			updateIsoSurface(int,TaskRunner* = 0);
     const int			getNrIsoSurfaces();
-    visBase::MarchingCubesSurface* getIsoSurface(int idx);
+    int				getIsoSurfaceIdx(
+	    			    const visBase::MarchingCubesSurface*) const;
+    float			defaultIsoValue() const;
+    float			isoValue(
+				    const visBase::MarchingCubesSurface*) const;
+    				/*<Set isovalue and do update. */
+    void			setIsoValue(
+				    const visBase::MarchingCubesSurface*,
+				    float,TaskRunner* =0);
+
+    				/*<Seed based settings. set only, no update. */
+    char			isFullMode(
+				    const visBase::MarchingCubesSurface*)const;
+    				/*<Return -1 if undefined, 1 if full, 
+				   0 if seed based. */
+    void			setFullMode(
+	    			    const visBase::MarchingCubesSurface*,
+				    bool full=1);
+    				/*<If 0, it is seed based. */
+    char			seedAboveIsovalue(
+				    const visBase::MarchingCubesSurface*) const;
+    				/*<-1 undefined, 1 above, 0 below. */
+    void			setSeedAboveIsovalue(
+				    const visBase::MarchingCubesSurface*,bool);
+    MultiID			getSeedsID(
+	    			    const visBase::MarchingCubesSurface*) const;
+    void			setSeedsID(const visBase::MarchingCubesSurface*,					   MultiID);
 
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
@@ -90,12 +117,6 @@ public:
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
     float			getValue(const Coord3&) const;
-    float			defaultIsoValue() const;
-    float			isoValue(
-	    			    const visBase::MarchingCubesSurface*) const;
-    void			setIsoValue(
-	    			    const visBase::MarchingCubesSurface*,float,
-				    TaskRunner* = 0);
 
     CubeSampling		getCubeSampling(int attrib) const;
     void			setCubeSampling(const CubeSampling&);
@@ -134,13 +155,9 @@ public:
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
 
-    bool			resetIsoSurface(visBase::MarchingCubesSurface*,
-	    					float isovalue,
-	    					const Array3D<float>& arr);
-    				/*<The surface must be one of known.*/
-
 protected:
 				~VolumeDisplay();
+    bool			updateSeedBasedSurface(int,TaskRunner* = 0);
     CubeSampling		getCubeSampling(bool manippos,bool display,
 	    					int attrib) const;
     void			materialChange(CallBacker*);
@@ -158,8 +175,12 @@ protected:
     visBase::VolumeRenderScalarField*		scalarfield_;
     visBase::VolrenDisplay*			volren_;
     ObjectSet<visBase::OrthogonalSlice>		slices_;
-    ObjectSet<visBase::MarchingCubesSurface>	isosurfaces_;
+    ObjectSet<visBase::MarchingCubesSurface>			isosurfaces_;
     TypeSet<float>				isovalues_;
+    TypeSet<char>				surfacemodes_;
+    TypeSet<char>				seedsaboveisoval_;
+    TypeSet<MultiID>				seedids_;
+
     TypeSet<char>				sections_;
 
     void			manipMotionFinishCB(CallBacker*);
@@ -210,6 +231,9 @@ protected:
     static const char*		sKeyNrIsoSurfaces() { return "Nr Isosurfaces"; }
     static const char*		sKeyIsoValueStart() { return "Iso Value "; }
     static const char*		sKeyIsoOnStart() { return "Iso Surf On "; }
+    static const char*		sKeySurfMode() { return "Surf Mode"; }
+    static const char*		sKeySeedsMid() { return "Surf Seeds Mid"; }
+    static const char*		sKeySeedsAboveIsov() { return "Above IsoVal"; }
 
 };
 

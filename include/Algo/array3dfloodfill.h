@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.4 2008-12-05 07:48:04 cvsnanne Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.5 2008-12-05 22:53:10 cvsyuancheng Exp $
  ________________________________________________________________________
 
 -*/
@@ -190,14 +190,7 @@ void Array3DFloodfill<T>::setOutsideValue( T val )
     else
     	outsideval_ = aboveisovalue_ ? val : -val;
 
-    T* ptr = output_.getData();
-    const T* stopptr = ptr + output_.info().getTotalSz();
-
-    while ( ptr!=stopptr )
-    {
-	*ptr = val;
-	ptr++;
-    }
+    output_.setAll( outsideval_ );
 }
 
 

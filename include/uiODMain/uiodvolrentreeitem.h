@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.7 2008-12-04 19:51:00 cvskris Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.8 2008-12-05 22:53:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -96,7 +96,7 @@ protected:
     bool		init();
     const char*		parentType() const;
 
-    MenuItem		setisovaluemnuitem_;
+    MenuItem		resetisosurfacemnuitem_;
     MenuItem		convertisotobodymnuitem_;
 };
 

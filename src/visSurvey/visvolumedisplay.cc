@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.90 2008-12-04 17:31:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.91 2008-12-05 22:53:10 cvsyuancheng Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -24,19 +24,25 @@ static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.90 2008-12-04 17:31:26 
 #include "visvolrenscalarfield.h"
 #include "visvolren.h"
 
+#include "array3dfloodfill.h"
 #include "arrayndimpl.h"
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
 #include "cubesampling.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "marchingcubes.h"
+#include "picksettr.h"
+#include "pickset.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 #include "zaxistransformer.h"
 
+#define mVisMCSurf visBase::MarchingCubesSurface
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
+
 
 namespace visSurvey {
 
@@ -311,10 +317,14 @@ void VolumeDisplay::removeChild( int displayid )
     {
 	if ( isosurfaces_[idx]->id()==displayid )
 	{
-	    VisualObjectImpl::removeChild(isosurfaces_[idx]->getInventorNode());
+	    VisualObjectImpl::removeChild(
+		    isosurfaces_[idx]->getInventorNode() );
 	    isosurfaces_[idx]->unRef();
 	    isosurfaces_.removeFast(idx);
 	    isovalues_.removeFast(idx);
+	    surfacemodes_.removeFast(idx);
+	    seedsaboveisoval_.removeFast(idx);
+	    seedids_.removeFast(idx);
 	    return;
 	}
     }
@@ -349,8 +359,7 @@ float VolumeDisplay::defaultIsoValue() const
 
 int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
 {
-    visBase::MarchingCubesSurface* isosurface =
-				    visBase::MarchingCubesSurface::create();
+    mVisMCSurf* isosurface = mVisMCSurf::create();
     isosurface->ref();
     isosurface->setRightHandSystem( righthandsystem_ );
     mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
@@ -360,6 +369,9 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
 
     isosurfaces_ += isosurface;
     isovalues_ += defaultIsoValue();
+    surfacemodes_ += 1;
+    seedsaboveisoval_ += -1;
+    seedids_ += MultiID();
 
     if ( updateisosurface )   
        	updateIsoSurface( isosurfaces_.size()-1, tr );
@@ -418,15 +430,15 @@ float VolumeDisplay::getValue( const Coord3& pos_ ) const
 }
 
 
-float VolumeDisplay::isoValue( const visBase::MarchingCubesSurface* mcd ) const
+float VolumeDisplay::isoValue( const mVisMCSurf* mcd ) const
 {
     const int idx = isosurfaces_.indexOf( mcd );
     return idx<0 ? mUdf(float) : isovalues_[idx];
 }
 
 
-void VolumeDisplay::setIsoValue( const visBase::MarchingCubesSurface* mcd,
-				 float nv, TaskRunner* tr )
+void VolumeDisplay::setIsoValue( const mVisMCSurf* mcd, float nv, 
+				 TaskRunner* tr )
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 )
@@ -437,7 +449,7 @@ void VolumeDisplay::setIsoValue( const visBase::MarchingCubesSurface* mcd,
 }
 
 
-visBase::MarchingCubesSurface* VolumeDisplay::getIsoSurface( int idx ) 
+mVisMCSurf* VolumeDisplay::getIsoSurface( int idx ) 
 { return isosurfaces_.validIdx(idx) ? isosurfaces_[idx] : 0; }
 
 
@@ -445,29 +457,117 @@ const int VolumeDisplay::getNrIsoSurfaces()
 { return isosurfaces_.size(); }
 
 
-bool VolumeDisplay::resetIsoSurface( visBase::MarchingCubesSurface* mcd,
-				     float isovalue, const Array3D<float>& arr )
+char VolumeDisplay::isFullMode( const mVisMCSurf* mcd ) const
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 || idx>=isosurfaces_.size() )
+	return -1;
+
+    return surfacemodes_[idx];
+}
+
+
+void VolumeDisplay::setFullMode( const mVisMCSurf* mcd, bool full )
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    if ( idx<0 )
+	return;
+    
+    surfacemodes_[idx] = full;
+}
+
+
+char VolumeDisplay::seedAboveIsovalue( const mVisMCSurf* mcd ) const
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    if ( idx<0 || idx>=isosurfaces_.size() )
+            return -1;
+
+    return seedsaboveisoval_[idx];
+}
+
+
+void VolumeDisplay::setSeedAboveIsovalue( const mVisMCSurf* mcd, bool above )
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    if ( idx<0 || idx>=isosurfaces_.size() )
+            return;
+
+    seedsaboveisoval_[idx] = above;
+}
+
+
+MultiID  VolumeDisplay::getSeedsID( const mVisMCSurf* mcd ) const
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    if ( idx<0 || idx>=isosurfaces_.size() )
+	return MultiID();
+    
+    return seedids_[idx];
+}
+
+
+void VolumeDisplay::setSeedsID( const mVisMCSurf* mcd, MultiID mid )
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    if ( idx<0 || idx>=isosurfaces_.size() )
+	return;
+
+    seedids_[idx] = mid;
+}
+
+
+bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
+{
+    if ( idx<0 || idx>=isosurfaces_.size() || mIsUdf(isovalues_[idx]) )
 	return false;
 
-    isovalues_[idx] = isovalue;
-    isosurfaces_[idx]->getSurface()->removeAll(); 
-    isosurfaces_[idx]->setBoxBoudary( 
-	    cache_->cubeSampling().hrg.inlRange().stop,
-	    cache_->cubeSampling().hrg.crlRange().stop,
-	    cache_->cubeSampling().zrg.stop );
-    isosurfaces_[idx]->setScales(
-	    cache_->inlsampling, cache_->crlsampling,
-	    SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
-    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, arr, isovalue, 0 );
-    isosurfaces_[idx]->getMaterial()->setColor(
-	scalarfield_->getColorTab().color(isovalue) );
+    if ( seedids_[idx].isEmpty() || !cache_ )
+	return false;
 
-    isosurfaces_[idx]->touch( false, 0 );
+    Pick::Set seeds;
+    if ( Pick::Mgr().indexOf(seedids_[idx])!=-1 )
+	seeds = Pick::Mgr().get( seedids_[idx] );
+    else
+    {
+	BufferString ermsg;
+	if ( !PickSetTranslator::retrieve( seeds, IOM().get(seedids_[idx]), 
+		    			   ermsg ) )
+	    return false;
+    }
 
+    const Array3D<float>& data = cache_->getCube(0);
+    if ( !data.isOK() )
+	return false;
+    
+    Array3DImpl<float> newarr( data.info() );
+    Array3DFloodfill<float> ff( data, isovalues_[idx], seedsaboveisoval_[idx],
+	    			newarr );    
+    ff.useInputValue( true );
+
+    const CubeSampling& cs = getCubeSampling(true,true,0);
+    for ( int seedidx=0; seedidx<seeds.size(); seedidx++ )
+    {
+	const Coord3 pos =  seeds[seedidx].pos;
+	const BinID bid = SI().transform( pos );
+	const int i = cs.inlIdx( bid.inl );
+	const int j = cs.crlIdx( bid.crl );
+	const int k = cs.zIdx( pos.z );
+	ff.addSeed( i, j, k );
+    }
+
+    if ( !ff.execute() )
+	return false;
+
+    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, newarr,
+	    					    isovalues_[idx], tr );
     return true;
+}
+
+
+int VolumeDisplay::getIsoSurfaceIdx( const mVisMCSurf* mcd ) const
+{
+    return isosurfaces_.indexOf( mcd );
 }
 
 
@@ -484,9 +584,16 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 		cache_->cubeSampling().zrg.stop );
 	isosurfaces_[idx]->setScales(
 		cache_->inlsampling, cache_->crlsampling,
-		SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
-	isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		cache_->getCube(0), isovalues_[idx], tr );
+		SamplingData<float>(cache_->z0*cache_->zstep,cache_->zstep) );
+	if ( surfacemodes_[idx] )
+    	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
+		    cache_->getCube(0), isovalues_[idx], tr );
+	else
+	{
+	    if ( !updateSeedBasedSurface( idx, tr ) )
+		return;
+	}
+
 	isosurfaces_[idx]->getMaterial()->setColor(
 	    scalarfield_->getColorTab().color(isovalues_[idx]));
     }
@@ -830,9 +937,12 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
 	const int isosurfid = vd->addIsoSurface();
-	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-			visBase::DM().getObject(isosurfid));
+	mDynamicCastGet( mVisMCSurf*, isosurface,
+			 visBase::DM().getObject(isosurfid) );
 	vd->isovalues_[idx] = isovalues_[idx];
+	vd->surfacemodes_[idx] = surfacemodes_[idx];
+	vd->seedsaboveisoval_[idx] = seedsaboveisoval_[idx];
+	vd->seedids_[idx] = seedids_[idx];
     }
 
     vd->showVolRen( isVolRenShown() );
@@ -922,6 +1032,16 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 
 	str = sKeyIsoOnStart(); str += idx;
 	par.setYN( str, isosurfaces_[idx]->isOn() );
+
+	BufferString surfmode( sKeySurfMode() ); surfmode += idx;
+	par.set( surfmode, surfacemodes_[idx] );
+
+	BufferString seedsaboveisov( sKeySeedsAboveIsov() ); 
+	seedsaboveisov += idx;
+	par.set( seedsaboveisov, seedsaboveisoval_[idx] );
+
+	BufferString seedsmid( sKeySeedsMid() ); seedsmid += idx;
+	par.set( seedsmid, seedids_[idx] );
     }
 
     as_.fillPar( par );
@@ -995,6 +1115,22 @@ int VolumeDisplay::usePar( const IOPar& par )
 	    bool status = true;
 	    par.getYN( str, status );
 	    isosurfaces_[idx]->turnOn( status );
+
+	    BufferString surfmode( sKeySurfMode() ); surfmode += idx;
+	    int smode;
+	    if ( par.get( surfmode, smode ) )
+		surfacemodes_[idx] = smode;
+
+	    BufferString seedsaboveisov( sKeySeedsAboveIsov() ); 
+	    seedsaboveisov += idx;
+	    int aboveisov;
+	    if ( par.get( seedsaboveisov, aboveisov ) )
+		seedsaboveisoval_[idx] = aboveisov;
+
+	    BufferString seedsmid( sKeySeedsMid() ); seedsmid += idx;
+	    MultiID mid;
+	    if ( par.get( seedsmid, mid ) )
+		seedids_[idx] = mid;
 	}
     }
 

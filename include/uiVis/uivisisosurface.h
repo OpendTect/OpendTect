@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.8 2008-12-04 21:00:48 cvsyuancheng Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.9 2008-12-05 22:53:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,6 @@ class uiIOObjSel;
 class uiPushButton;
 class uiStatsDisplay;
 
-namespace Pick { class Set; }
 namespace visBase { class MarchingCubesSurface; }
 namespace visSurvey { class VolumeDisplay; }
 template <class T> class SamplingData;
@@ -35,9 +34,7 @@ class uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,
 			visBase::MarchingCubesSurface*,
-			visSurvey::VolumeDisplay*,bool couldchoosemode);
-		/*<If couldchoosemode is on, you have the choice of full mode 
-		   or picks mode, otherwise, only have isovalue setting.*/
+			visSurvey::VolumeDisplay*);
 		~uiVisIsoSurfaceThresholdDlg();
     bool	acceptOK();
     bool	rejectOK();
@@ -49,8 +46,6 @@ protected:
     void		updatePressed(CallBacker*);
     void		mousePressed(CallBacker*);
     void		modeChangeCB(CallBacker*);
-    void		seedSelCB(CallBacker*);
-    bool		getSeeds(Pick::Set&);
     void		doubleClick(CallBacker*);
     void		handleClick(CallBacker*,bool isdouble );
     void		updateIsoDisplay(float nv);
@@ -65,7 +60,6 @@ protected:
     visBase::MarchingCubesSurface*	isosurfacedisplay_;
     visSurvey::VolumeDisplay*		vd_;
     float				initialvalue_;
-    bool				usemode_;
 
     uiAxisHandler&	xAxis();
     uiFunctionDisplay&	funcDisp();
