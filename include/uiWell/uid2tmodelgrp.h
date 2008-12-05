@@ -4,23 +4,10 @@
 /*+
 ________________________________________________________________________
 
- CopyRight:     (C) dGB Beheer B.V.
- Author:        Nanne Hemstra
- Date:          August 2006
- RCS:           $Id: uid2tmodelgrp.h,v 1.1 2006-08-24 19:10:46 cvsnanne Exp $
-________________________________________________________________________
-
--*/
-
-
-
-/*+
-________________________________________________________________________
-
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.h,v 1.1 2006-08-24 19:10:46 cvsnanne Exp $
+ RCS:		$Id: uid2tmodelgrp.h,v 1.2 2008-12-05 13:03:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
