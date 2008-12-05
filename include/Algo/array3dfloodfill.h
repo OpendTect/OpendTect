@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.3 2008-12-03 23:04:30 cvsyuancheng Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.4 2008-12-05 07:48:04 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -239,8 +239,8 @@ void Array3DFloodfill<T>::setOutput( int x0, int x1, int x2, bool addseed )
 
     const T inputval = input_.get( x0, x1, x2 );
 
-    if ( aboveisovalue_ && inputval<=threshold_ || 
-	!aboveisovalue_ && inputval>=threshold_ )
+    if ( (aboveisovalue_ && inputval<=threshold_) || 
+	 (!aboveisovalue_ && inputval>=threshold_) )
     {
 	output_.set( x0, x1, x2, useinputval_ ? inputval : outsideval_ );
 	compartments_[cellidx]->lock_.writeUnLock();
