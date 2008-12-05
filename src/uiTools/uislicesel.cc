@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.50 2008-12-04 12:22:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.51 2008-12-05 10:47:40 cvsnanne Exp $";
 
 #include "uislicesel.h"
 
@@ -55,7 +55,7 @@ uiSliceSel::uiSliceSel( uiParent* p, Type type )
 	applybut_->activated.notify( mCB(this,uiSliceSel,applyPush) );
 	mainObject()->setTabOrder( (uiObject*)z0fld_, (uiObject*)applybut_ );
 	applybut_->attach( alignedBelow, z0fld_ );
-	applybut_->display( false, true );
+	applybut_->display( false );
 
 	scrollbut_ = new uiPushButton( this, "&Scroll", false );
 	scrollbut_->activated.notify( mCB(this,uiSliceSel,scrollPush) );
@@ -464,19 +464,17 @@ bool uiSliceSel::acceptOK()
 }
 
 
-void uiSliceSel::disableApplyButton()
+void uiSliceSel::enableApplyButton( bool yn )
 {
     if ( !applybut_ ) return;
-
-    applybut_->display( false );
+    applybut_->display( yn );
 }
 
 
-void uiSliceSel::disableScrollButton()
+void uiSliceSel::enableScrollButton( bool yn )
 {
     if ( !scrollbut_ ) return;
-    
-    scrollbut_->display( false );
+    scrollbut_->display( yn );
 }
 
 
@@ -492,6 +490,7 @@ uiSliceSelDlg::uiSliceSelDlg( uiParent* p, const CubeSampling& curcs,
     slicesel_->setMaxCubeSampling( maxcs );
     slicesel_->setCubeSampling( curcs );
     slicesel_->setApplyCB( acb );
+    slicesel_->enableScrollButton( true );
 }
 
 

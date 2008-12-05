@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.17 2008-12-04 12:22:41 cvsnanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.18 2008-12-05 10:47:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ public:
     const CubeSampling&		getCubeSampling() const	{ return cs_; }
     void			setCubeSampling(const CubeSampling&);
     void			setMaxCubeSampling(const CubeSampling&);
-    void			disableApplyButton();
-    void			disableScrollButton();
+    void			enableApplyButton(bool);
+    void			enableScrollButton(bool);
 
     bool			acceptOK();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.37 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.38 2008-12-05 10:47:40 cvsnanne Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -630,8 +630,8 @@ void uiGDPositionDlg::popUpPosDlg()
     posdlg_ = new uiSliceSelDlg( this, inputcs, cs_, dummycb, 
 			      is2d ? uiSliceSel::TwoD 
 			        : (isinl ? uiSliceSel::Inl : uiSliceSel::Crl) );
-    posdlg_->grp()->disableApplyButton();
-    posdlg_->grp()->disableScrollButton();
+    posdlg_->grp()->enableApplyButton( false );
+    posdlg_->grp()->enableScrollButton( false );
     posdlg_->setModal( true );
     posdlg_->go();
 }
