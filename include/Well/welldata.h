@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.11 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:		$Id: welldata.h,v 1.12 2008-12-05 12:58:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class Track;
 class LogSet;
 class D2TModel;
 class Marker;
+class DisplayProperties;
 
 /*!\brief Infomation about a certain well */
 
@@ -84,6 +85,8 @@ public:
     const D2TModel*		d2TModel() const	{ return d2tmodel_; }
     D2TModel*			d2TModel()		{ return d2tmodel_; }
     void			setD2TModel(D2TModel*);	//!< becomes mine
+    DisplayProperties&		displayProperties()	{ return disp_; }
+    const DisplayProperties&	displayProperties() const { return disp_; }
 
     Notifier<Well::Data>	markerschanged;
     Notifier<Well::Data>	d2tchanged;
@@ -95,6 +98,7 @@ protected:
     LogSet&			logs_;
     D2TModel*			d2tmodel_;
     ObjectSet<Marker>		markers_;
+    DisplayProperties&		disp_;
 
 };
 
