@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.9 2008-12-03 11:44:14 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.10 2008-12-05 04:34:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,10 @@ public:
     StepInterval<float> zrg_;
     TypeSet<Line2DPos>  posns_;
 
-    bool		getPos(const Coord&,Line2DPos&) const;
+    bool		getPos(const Coord& crd,Line2DPos& l2p,
+	    		       float thr=mUdf(float)) const;
+    			/*!\Returns false if distance between crd && l2p.coord_
+			    is larger than threshold thr */
     bool		getPos(int,Line2DPos&) const;
     void		limitTo(Interval<int> trcrg);
     void                dump(std::ostream&,bool pretty=true) const;

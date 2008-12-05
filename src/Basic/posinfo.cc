@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.14 2008-12-04 15:55:26 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.15 2008-12-05 04:34:45 cvsnanne Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -12,7 +12,6 @@ static const char* rcsID = "$Id: posinfo.cc,v 1.14 2008-12-04 15:55:26 cvsbert E
 #include "position.h"
 #include <iostream>
 
-static const float cThresholdDist = 25;
 
 int PosInfo::LineData::size() const
 {
@@ -703,7 +702,7 @@ PosInfo::Line2DData::Line2DData()
 
 
 bool PosInfo::Line2DData::getPos( const Coord& coord,
-				  PosInfo::Line2DPos& pos ) const
+				  PosInfo::Line2DPos& pos, float thrdist ) const
 {
     int posidx = -1;
     double mindist = mUdf(float);
@@ -711,7 +710,6 @@ bool PosInfo::Line2DData::getPos( const Coord& coord,
     {
 	const Coord& curpos = posns_[idx].coord_;
 	const float offset = curpos.distTo( coord );
-	if ( offset > cThresholdDist ) continue;
 	if ( offset < mindist )
 	{
 	    mindist = offset;
