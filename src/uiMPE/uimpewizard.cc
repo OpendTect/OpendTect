@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.87 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.88 2008-12-05 15:17:28 cvsjaap Exp $";
 
 
 #include "uimpewizard.h"
@@ -519,12 +519,9 @@ bool Wizard::finalizeCycle()
     if ( objectcreated )
     {
 	adjustSeedBox();
-	if ( !seedbox.isEmpty() )
-	{
-	    EM::EMObject* emobj = EM::EMM().getObject( currentobject );
-	    PtrMan<Executor> saver = emobj->saver();
-	    if ( saver ) saver->execute();
-	}
+	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
+	PtrMan<Executor> saver = emobj->saver();
+	if ( saver ) saver->execute();
     }
 
     return true;
