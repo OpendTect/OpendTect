@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.29 2007-12-03 15:00:47 cvsnanne Exp $
+ RCS:           $Id: arrayndutils.h,v 1.30 2008-12-05 23:14:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ inline void operator<<( std::ostream& strm, const ArrayND<T>& array )
 
     do 
     {
-	strm << array.get( iter.getPos() );
+	strm << array.getND( iter.getPos() );
 
 	strm << ' ';
     } while ( iter.next() );
@@ -86,7 +86,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
 
 	do
 	{
-	    avg += in->get( iter.getPos() );
+	    avg += in->getND( iter.getPos() );
 	} while ( iter.next() );
 
 	iter.reset();
@@ -94,7 +94,7 @@ inline bool removeBias( ArrayND<T>* in, ArrayND<T>* out_ = 0)
 
 	do
 	{
-	    out->set(iter.getPos(), in->get( iter.getPos() ) - avg); 
+	    out->setND(iter.getPos(), in->getND( iter.getPos() ) - avg); 
 
 	} while ( iter.next() );
     }
@@ -186,8 +186,8 @@ public:
 		int idx = 0;
 		do
 		{
-		    out->set( iter.getPos(),
-			      in->get(iter.getPos()) * window_[idx] );
+		    out->setND( iter.getPos(),
+			      in->getND(iter.getPos()) * window_[idx] );
 		    idx++;
 
 		} while ( iter.next() );
@@ -412,7 +412,7 @@ inline bool ArrayNDCopy( ArrayND<T>& dest, const ArrayND<T>& src,
 		    dePeriodize( srcposition[idx], srcsz.getSize(idx) );
 	}
 
-	dest.set( destposition.getPos(), src.get( &srcposition[0] ));
+	dest.setND( destposition.getPos(), src.get( &srcposition[0] ));
 
 		
     } while ( destposition.next() );

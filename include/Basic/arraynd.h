@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.33 2008-12-04 16:30:48 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.34 2008-12-05 23:14:37 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -38,7 +38,7 @@ public:
     virtual inline bool			isOK() const;
 
 					// Read specs
-    virtual T	                	get( const int* ) const	= 0;
+    virtual T	                	getND( const int* ) const	= 0;
 
     inline const ValueSeries<T>*	getStorage() const
 					{ return getStorage_(); }
@@ -51,7 +51,7 @@ public:
 					// Write specs
     virtual bool			isSettable() const
 					{ return true; }
-    virtual void			set( const int*, T )	= 0;
+    virtual void			setND( const int*, T )	= 0;
 
     virtual bool			canSetStorage() const { return false; }
     virtual bool			setStorage(ValueSeries<T>* s)
@@ -109,8 +109,8 @@ public:
 
     virtual void		set(int,T)				= 0;
     virtual T			get(int) const				= 0;
-    void			set(const int* pos,T v) { set( pos[0], v ); }
-    T	                	get(const int* pos) const {return get(pos[0]);}
+    void			setND(const int* pos,T v) { set( pos[0], v ); }
+    T	                	getND(const int* pos) const {return get(pos[0]);}
 
 				// implement ValueSeries interface
     T				value(od_int64 i) const	{ return get(i); }
@@ -128,9 +128,9 @@ class Array2D : public ArrayND<T>
 public: 
     virtual void		set( int, int, T ) 			= 0;
     virtual T        		get( int p0, int p1 ) const		= 0;
-    void			set(  const int* pos, T v )
+    void			setND(  const int* pos, T v )
 				    { set( pos[0], pos[1], v);}
-    T		                get( const int* pos ) const
+    T		                getND( const int* pos ) const
 				    { return get( pos[0], pos[1] ); }
 
     virtual const Array2DInfo&	info() const = 0;
@@ -143,9 +143,9 @@ public:
 
     virtual void		set( int, int, int, T ) 		= 0;
     virtual T        		get( int p0, int p1, int p2 ) const	= 0;
-    void			set( const int* pos, T v )
+    void			setND( const int* pos, T v )
 				    { set( pos[0], pos[1], pos[2], v);}
-    T		                get( const int* pos ) const
+    T		                getND( const int* pos ) const
 				    { return get( pos[0], pos[1], pos[2] ); }
 
     virtual const Array3DInfo&	info() const = 0;
@@ -245,7 +245,7 @@ void ArrayND<T>::setAll( const T& val )
     ArrayNDIter iterator( info() );
     do
     {
-	set( iterator.getPos(), val );
+	setND( iterator.getPos(), val );
     } while ( iterator.next() );
 }
 
@@ -274,7 +274,7 @@ void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
     ArrayNDIter iterator( info() );
     for ( od_int64 idx=0; idx<totalsz; idx++ )
     {
-	vs.setValue( idx, get( iterator.getPos() ) );
+	vs.setValue( idx, getND( iterator.getPos() ) );
 	if ( idx!=totalsz-1 && !iterator.next() )
 	    return;
     }
@@ -306,7 +306,7 @@ void ArrayND<T>::getAll( T* ptr ) const
     ArrayNDIter iterator( info() );
     do
     {
-	*ptr = get( iterator.getPos() );
+	*ptr = getND( iterator.getPos() );
 	ptr++;
     } while ( iterator.next() );
 }

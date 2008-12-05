@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.7 2008-09-16 10:03:20 cvsbert Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.8 2008-12-05 23:14:38 cvskris Exp $";
 
 #include "attribslice.h"
 
@@ -113,7 +113,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 		    const float val =
 			(*this)[zidx] ?(*this)[zidx]->get( inl, crl ) : udefval;
 		    pos[inldim] = inl; pos[crldim]=crl; pos[depthdim]=zidx;
-		    res->set( pos, val );
+		    res->setND( pos, val );
 		}
 	    }
 	}
@@ -142,7 +142,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 		    const float val =
 			(*this)[crl] ? (*this)[crl]->get( inl, zidx ) : udefval;
 		    pos[inldim]=inl; pos[crldim]=crl; pos[depthdim]=zidx;
-		    res->set( pos, val );
+		    res->setND( pos, val );
 		}
 	    }
 	}
@@ -170,7 +170,7 @@ Array3D<float>* SliceSet::createArray( int inldim, int crldim,
 		const float val =
 			(*this)[inl] ? (*this)[inl]->get( crl, zidx ) : udefval;
 		pos[inldim]=inl; pos[crldim]=crl; pos[depthdim]=zidx;
-		res->set( pos, val );
+		res->setND( pos, val );
 	    }
 	}
     }

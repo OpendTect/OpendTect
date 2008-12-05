@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: arrayndslice.h,v 1.3 2007-10-10 04:08:33 cvsnanne Exp $
+ RCS:           $Id: arrayndslice.h,v 1.4 2008-12-05 23:14:37 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
@@ -133,7 +133,7 @@ void Array1DSlice<T>::set( int pos, T val )
     if ( !writable_ ) return;
     mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
-    source_.set( srcpos, val );
+    source_.setND( srcpos, val );
 }
 
 
@@ -142,7 +142,7 @@ T Array1DSlice<T>::get( int pos ) const
 {
     mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
-    return source_.get( srcpos );
+    return source_.getND( srcpos );
 }
 
 
@@ -209,7 +209,7 @@ void Array2DSlice<T>::set( int pos0, int pos1, T val )
     const int localpos[] = { pos0, pos1 };
     mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( localpos, srcpos );
-    source_.set( srcpos, val );
+    source_.setND( srcpos, val );
 }
 
 
@@ -219,7 +219,7 @@ T Array2DSlice<T>::get( int pos0, int pos1 ) const
     const int localpos[] = { pos0, pos1 };
     mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( localpos, srcpos );
-    return source_.get( srcpos );
+    return source_.getND( srcpos );
 }
 
 

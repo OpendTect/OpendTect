@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2007
- RCS:		$Id: arrayndwrapper.h,v 1.1 2007-10-15 08:11:13 cvsnanne Exp $
+ RCS:		$Id: arrayndwrapper.h,v 1.2 2008-12-05 23:14:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ void Array3DWrapper<T>::set( int i0, int i1, int i2, T val )
     for ( int idx=0; idx<dimmap_.size(); idx++ )
 	posnd += pos3d[ dimmap_[idx] ];
 
-    srcarr_.set( posnd.arr(), val );
+    srcarr_.setND( posnd.arr(), val );
 }
 
 
@@ -103,7 +103,7 @@ T Array3DWrapper<T>::get( int i0, int i1, int i2 ) const
     for ( int idx=0; idx<dimmap_.size(); idx++ )
 	posnd += pos3d[ dimmap_[idx] ];
 
-    return srcarr_.get( posnd.arr() );
+    return srcarr_.getND( posnd.arr() );
 }
 
 #endif

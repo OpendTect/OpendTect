@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: polynd.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: polynd.h,v 1.7 2008-12-05 23:14:37 cvskris Exp $
 ________________________________________________________________________
 
 PolynomialND is a N-dimensional polynomial with arbitary orders in each
@@ -76,7 +76,7 @@ T PolynomialND<T>::getValue( const TypeSet<float>& pos ) const
 	    posproduct *= intpow( pos[idx], coeffiter[idx] );
 	}
      
-	res += posproduct * coeffs.get( coeffiter.getPos() );
+	res += posproduct * coeffs.getND( coeffiter.getPos() );
     } while ( coeffiter.next() );
 
     return res;

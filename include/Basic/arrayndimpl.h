@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.59 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.60 2008-12-05 23:14:37 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -180,8 +180,8 @@ public:
     inline bool			canSetStorage() const		{ return true; }
     inline bool			setStorage(ValueSeries<T>*);
 
-    inline void			set(const int*,T);
-    inline T			get(const int*) const;
+    inline void			setND(const int*,T);
+    inline T			getND(const int*) const;
 
     inline const ArrayNDInfo&	info() const;
     inline bool			canSetInfo();
@@ -685,7 +685,7 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 
 
 template <class T> inline
-void ArrayNDImpl<T>::set( const int* pos, T v )
+void ArrayNDImpl<T>::setND( const int* pos, T v )
 {
     const od_int64 offset = in_->getOffset(pos);
     if ( ptr_ ) ptr_[offset] = v ;
@@ -694,7 +694,7 @@ void ArrayNDImpl<T>::set( const int* pos, T v )
 
 
 template <class T> inline
-T ArrayNDImpl<T>::get( const int* pos ) const
+T ArrayNDImpl<T>::getND( const int* pos ) const
 {
     const od_int64 offset = in_->getOffset(pos);
     return ptr_ ? ptr_[offset] : stor_->value( offset );
