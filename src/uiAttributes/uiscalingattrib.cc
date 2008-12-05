@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.19 2008-11-26 09:56:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.20 2008-12-05 04:35:24 cvsnanne Exp $";
 
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
@@ -240,4 +240,17 @@ bool uiScalingAttrib::getInput( Desc& desc )
 {
     fillInp( inpfld, desc, 0 );
     return true;
+}
+
+
+void uiScalingAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    const int typeval = typefld->getIntValue();
+    if ( typeval == 0 )
+	params += EvalParam( "n", Scaling::powervalStr() );
+    else if ( typeval == 2 )
+    {
+	params += EvalParam( "Width", Scaling::widthStr() );
+	params += EvalParam( "Mute fraction", Scaling::mutefractionStr() );
+    }
 }
