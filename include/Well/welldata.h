@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.12 2008-12-05 12:58:58 cvsbert Exp $
+ RCS:		$Id: welldata.h,v 1.13 2008-12-05 15:19:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,8 +88,9 @@ public:
     DisplayProperties&		displayProperties()	{ return disp_; }
     const DisplayProperties&	displayProperties() const { return disp_; }
 
-    Notifier<Well::Data>	markerschanged;
     Notifier<Well::Data>	d2tchanged;
+    Notifier<Well::Data>	markerschanged;
+    Notifier<Well::Data>	dispparschanged;
 
 protected:
 
