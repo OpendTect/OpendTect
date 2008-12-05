@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.212 2008-11-04 22:54:05 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.213 2008-12-05 15:55:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; };
 namespace Tracking  { class TrackManager; };
 namespace visBase   { class DataObject; };
-namespace visSurvey { class Scene; };
+namespace visSurvey { class Scene; class WellDisplay; };
 namespace ColTab { class Sequence; struct MapperSetup; };
 
 
@@ -91,6 +91,8 @@ public:
 			/*!< Gets a scenes' children or a volumes' parts
 			     If id==-1, it will give the ids of the
 			     scenes */
+
+    void		doWellDispPropDlg(ObjectSet<visSurvey::WellDisplay>&);
 
     bool		hasAttrib(int) const;
     enum AttribFormat	{ None, Cube, Traces, RandomPos, OtherFormat };

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.382 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.383 2008-12-05 15:55:30 cvsbert Exp $";
 
 #include "uivispartserv.h"
 
@@ -47,9 +47,15 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.382 2008-11-25 15:35:26 cv
 #include "uimsg.h"
 #include "uimpeman.h"
 #include "uislicepos.h"
-#include "uitoolbar.h"
 #include "uiselsurvranges.h"
+#include "uiwellpropdlg.h"
+#include "uitoolbar.h"
 #include "uizscaledlg.h"
+
+#include "uiwelldisppropdlg.h"
+#include "envvars.h"
+#include "wellman.h"
+#include "viswelldisplay.h"
 
 
 const int uiVisPartServer::evUpdateTree			= 0;
@@ -1292,6 +1298,24 @@ void uiVisPartServer::removeObject( int id, int sceneid )
     const int idx = scene->getFirstIdx( id );
     if ( idx!=-1 ) 
 	scene->removeObject( idx );
+}
+
+
+void uiVisPartServer::doWellDispPropDlg(
+			ObjectSet<visSurvey::WellDisplay>& wds )
+{
+    if ( !GetEnvVarYN("OD_NEW_WELL_PROP") )
+    {
+	uiWellPropDlg dlg( parent(), wds );
+	dlg.go();
+	return;
+    }
+
+    Well::Data* wd = Well::MGR().get( wds[0]->getMultiID(), false );
+    if ( !wd ) { pErrMsg( "Huh" ); return; }
+
+    uiWellDispPropDlg dlg( parent(), *wd );
+    dlg.go();
 }
 
 

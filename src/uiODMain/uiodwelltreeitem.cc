@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.28 2008-11-27 09:15:20 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.29 2008-12-05 15:55:30 cvsbert Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.28 2008-11-27 09:15:20 
 #include "uiodscenemgr.h"
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
-#include "uiwellpropdlg.h"
 #include "mousecursor.h"
 #include "wellman.h"
 #include "welldata.h"
@@ -183,8 +182,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
 	if ( wds.isEmpty() ) return false;
 
-	uiWellPropDlg dlg( getUiParent(), wds );
-	dlg.go();
+	visserv->doWellDispPropDlg( wds );
 
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -368,8 +366,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == propertiesmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiWellPropDlg dlg( getUiParent(), wd );
-	dlg.go();
+	ObjectSet<visSurvey::WellDisplay> vwds; vwds += wd;
+	visserv_->doWellDispPropDlg( vwds );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == nametopmnuitem_.id )
