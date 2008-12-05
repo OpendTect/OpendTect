@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.12 2008-11-28 14:50:29 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.13 2008-12-05 09:17:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,10 +49,7 @@ public:
     void			setMaterial();
     void			setLineColor(const SbVec3f&,int);
     const SbVec3f&		lineColor(int) const;
-    void			setLogFillColor(const SbVec3f&,int);
-    const SbVec3f&		logFillColor(int) const;
-    void			setSeisFillColor(const SbVec3f&,int);
-    const SbVec3f&		seisFillColor(int) const;
+    void			setLogFillColorTab(const float[][3],int);
     void			setLineWidth(float,int);
     float			lineWidth(int) const;
     void			showLog(bool,int);
@@ -93,21 +90,26 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(coords1);
     SO_KIT_CATALOG_ENTRY_HEADER(lineset1);
     SO_KIT_CATALOG_ENTRY_HEADER(trishape1);
-    SO_KIT_CATALOG_ENTRY_HEADER(trishape2);
     SO_KIT_CATALOG_ENTRY_HEADER(coordtri1);
     SO_KIT_CATALOG_ENTRY_HEADER(triset1);
     SO_KIT_CATALOG_ENTRY_HEADER(material1);
+    SO_KIT_CATALOG_ENTRY_HEADER(mbinding1);
+    SO_KIT_CATALOG_ENTRY_HEADER(hints1);
     SO_KIT_CATALOG_ENTRY_HEADER(line2Switch);
     SO_KIT_CATALOG_ENTRY_HEADER(group2);
     SO_KIT_CATALOG_ENTRY_HEADER(col2);
     SO_KIT_CATALOG_ENTRY_HEADER(drawstyle2);
     SO_KIT_CATALOG_ENTRY_HEADER(coords2);
     SO_KIT_CATALOG_ENTRY_HEADER(lineset2);
+    SO_KIT_CATALOG_ENTRY_HEADER(trishape2);
     SO_KIT_CATALOG_ENTRY_HEADER(coordtri2);
     SO_KIT_CATALOG_ENTRY_HEADER(triset2);
     SO_KIT_CATALOG_ENTRY_HEADER(material2);
+    SO_KIT_CATALOG_ENTRY_HEADER(mbinding2);
+    SO_KIT_CATALOG_ENTRY_HEADER(hints2);
 
     void			GLRender(SoGLRenderAction*);
+
 
 protected:
 
@@ -125,8 +127,9 @@ protected:
     void			buildLog(int,const SbVec3f&,int);
     void			fillTriangles(const int, const bool,float,float,
 	   				      SoCoordinate3*,SbVec3f&,SbVec3f&);
-    void			fillLogTriangles(const int,SoCoordinate3*,SbVec3f&,SbVec3f&);
-    SbVec3f 			getProjCoords(const SoMFVec3f&,const int,
+    void			fillLogTriangles(const float,const int, float,
+	    						SoCoordinate3*,SbVec3f&,SbVec3f&);
+    SbVec3f 			getProjCoords(const SoMFVec3f&,const int, 
 	  				      const SbVec3f&, const SoSFFloat&,
 					      const float, int lognr);
     SbVec3f			getNormal(const SbVec3f&,const SbVec3f&,

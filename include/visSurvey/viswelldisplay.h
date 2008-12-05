@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.42 2008-11-26 16:54:39 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.43 2008-12-05 09:17:49 cvsbruno Exp $
 
 
 
 -*/
 
+#include "coltabsequence.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "multiid.h"
@@ -89,10 +90,9 @@ public:
     	
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
-    void			setLogFillColor(const Color&,int);
+    void			setLogFillColor(const Color&,int,const bool,
+	    					     const char*,const bool);
     const Color&		logFillColor(int) const;
-    void			setSeisFillColor(const Color&,int);
-    const Color&		seisFillColor(int) const;
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
     void			setLogWidth(int);

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.77 2008-11-26 16:54:39 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.78 2008-12-05 09:17:49 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.77 2008-11-26 16:54:39 cv
 #include "executor.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "coltabsequence.h"
 #include "visdataman.h"
 #include "visevent.h"
 #include "vismarker.h"
@@ -332,7 +333,7 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
     createLogDisplay( logidx, rgptr, dp.logarithmic_, lognr );
     dp.range_ =  *rgptr;
     setLogColor( dp.linecolor_, lognr );
-    setSeisFillColor( dp.seisfillcolor_, lognr );
+    setLogFillColor( dp.logfillcolor_, lognr, dp.singlfillcol_, dp.seqname_, dp.seisstyle_ );
     well_->showLog( true, lognr );
     if ( onelogdisplayed_ ) well_->hideUnwantedLogs( lognr, dp.repeat_ );
     setOneLogDisplayed(true);	
@@ -380,30 +381,14 @@ const Color& WellDisplay::logColor( int lognr ) const
 { return well_->logColor( lognr ); }
 
 
-void WellDisplay::setLogFillColor( const Color& col, int lognr )
+void WellDisplay::setLogFillColor( const Color& col, int lognr, const bool singlefill,
+       				         const char* seqname, const bool isnoseismic )
 {
     Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
 					 : logparset_.getRight();
     Color color = par ? par->logfillcolor_ : col;
-    well_->setLogFillColor( color, lognr );
+    well_->setLogFillColorTab( seqname, lognr, singlefill, col, isnoseismic ); 
 }
-
-
-const Color& WellDisplay::logFillColor( int lognr ) const
-{ return well_->logFillColor( lognr ); }
-
-
-void WellDisplay::setSeisFillColor( const Color& col, int lognr )
-{
-    Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
-					 : logparset_.getRight();
-    Color color = par ? par->seisfillcolor_ : col;
-    well_->setSeisFillColor( color, lognr );
-}
-
-
-const Color& WellDisplay::seisFillColor( int lognr ) const
-{ return well_->seisFillColor( lognr ); }
 
 
 void WellDisplay::setLogLineWidth( float width, int lognr )

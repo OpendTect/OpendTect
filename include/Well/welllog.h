@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.15 2008-11-26 16:54:39 cvsbruno Exp $
+ RCS:		$Id: welllog.h,v 1.16 2008-12-05 09:17:49 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -81,9 +81,10 @@ public:
 			    , repeatovlap_(mUdf(float))
 			    , seisstyle_(false)	
 			    , linecolor_(Color::White)	
-			    , seisfillcolor_(Color::White)
 			    , logfill_(false)
 	    		    , logfillcolor_(Color::White)
+			    , seqname_("")
+       			    , singlfillcol_(false)				
 						        {}
 			~LogDisplayPars()		{}
 
@@ -97,8 +98,9 @@ public:
     int 		repeat_;
     float		repeatovlap_;
     Color		linecolor_;
-    Color		seisfillcolor_;
     Color		logfillcolor_;
+    const char*		seqname_;
+    bool 		singlfillcol_;
 };
 
 

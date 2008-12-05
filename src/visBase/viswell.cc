@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.34 2008-11-28 14:35:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.35 2008-12-05 09:17:49 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -22,6 +22,9 @@ static const char* rcsID = "$Id: viswell.cc,v 1.34 2008-11-28 14:35:59 cvsbruno 
 #include "ranges.h"
 #include "undefval.h"
 #include "scaler.h"
+
+#include "coltabsequence.h"
+
 
 #include "SoPlaneWellLog.h"
 
@@ -54,6 +57,7 @@ Well::Well()
     , showmarkers(true)
     , markersize(sDefaultMarkerSize)
     , transformation(0)
+				       
 {
     SoSeparator* sep = new SoSeparator;
     addChild( sep );
@@ -119,7 +123,6 @@ Well::~Well()
     markernames->removeAll();
     removeChild( markernames->getInventorNode() );
     markernames->unRef();
-
 }
 
 
@@ -394,14 +397,14 @@ void Well::setOverlapp( float ovlap, int lognr )
 void Well::setLogFill( bool fill, int lognr )
 {
     if ( log.size() > 0 )
-    log[0]->setLogFill( fill, lognr );
+	log[0]->setLogFill( fill, lognr );
 }
 
 
 void Well::setLogStyle( bool style, int lognr )
 {
     for ( int i=0; i<log.size(); i++ )
-	    log[i]->setLogStyle( (1-style), lognr );
+	log[i]->setLogStyle( (1-style), lognr );
 }
 
 
@@ -425,43 +428,37 @@ const Color& Well::logColor( int lognr ) const
 }
 
 
-void Well::setLogFillColor( const Color& col, int lognr )
+void Well::setLogFillColorTab( const char* seqname, int lognr, const bool singlecol, 
+					const Color& color, const bool isnoseismic )
 {
-#define col2f(rgb) float(col.rgb())/255
+#define scolors2f(rgb) float(color.rgb())/255
+#define colors2f(rgb) float(Col.rgb())/255
+	
+    float colors[256][3];
+    int idx= ColTab::SM().indexOf(seqname);
+    if (idx<0 || mIsUdf(idx))
+	idx=0;
+    const ColTab::Sequence* seq = ColTab::SM().get( idx);
+    Color Col;
+
+    for (int i=0; i<256; i++ )
+    {
+	if ( singlecol || (!isnoseismic) )
+	{
+	    colors[i][0] = scolors2f(r);
+	    colors[i][1] = scolors2f(g);
+	    colors[i][2] = scolors2f(b);
+	}
+	else
+	{
+	    Col = seq->color((float)i/255);
+	    colors[i][0] = colors2f(r);
+	    colors[i][1] = colors2f(g);
+	    colors[i][2] = colors2f(b);
+	}
+    }
     for ( int i=0; i<log.size(); i++ )
-        log[i]->setLogFillColor( SbVec3f(col2f(r),col2f(g),col2f(b)), lognr );
-}
-
-
-const Color& Well::logFillColor( int lognr ) const
-{
-    static Color color;
-    const SbVec3f& col = log[0]->logFillColor( lognr );
-    const int r = mNINT(col[0]*255);
-    const int g = mNINT(col[1]*255);
-    const int b = mNINT(col[2]*255);
-    color.set( (unsigned char)r, (unsigned char)g, (unsigned char)b );
-    return color;
-}
-
-
-void Well::setSeisFillColor( const Color& col, int lognr )
-{
-#define col2f(rgb) float(col.rgb())/255
-    for ( int i=0; i<log.size(); i++ )
-        log[i]->setSeisFillColor( SbVec3f(col2f(r),col2f(g),col2f(b)), lognr );
-}
-
-
-const Color& Well::seisFillColor( int lognr ) const
-{
-    static Color color;
-    const SbVec3f& col = log[0]->seisFillColor( lognr );
-    const int r = mNINT(col[0]*255);
-    const int g = mNINT(col[1]*255);
-    const int b = mNINT(col[2]*255);
-    color.set( (unsigned char)r, (unsigned char)g, (unsigned char)b );
-    return color;
+	log[i]->setLogFillColorTab( colors, lognr );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.18 2008-11-26 16:54:39 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.19 2008-12-05 09:17:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class Coord3;
 class Coord3Value;
 class IOPar;
 class LineStyle;
+class VisColorTab;
 class SoPlaneWellLog;
 template <class T> class Interval;
 
@@ -71,10 +72,8 @@ public:
 					   bool scale,int nr);
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
-    void			setLogFillColor(const Color&,int);
     const Color&		logFillColor(int) const;
-    void			setSeisFillColor(const Color&,int);
-    const Color&		seisFillColor(int) const;
+    void			setLogFillColor(const Color&,int);
     void			clearLog(int);
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
@@ -93,6 +92,8 @@ public:
     void			hideUnwantedLogs(int,int);
     void			showOneLog(bool,int,int);
 
+    void			setLogFillColorTab(const char*,int,const bool,
+	    					      const Color&,const bool);
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
 
