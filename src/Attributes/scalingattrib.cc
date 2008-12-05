@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.28 2008-12-02 09:00:24 cvshelene Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.29 2008-12-05 06:38:52 cvsnageswara Exp $";
 
 #include "scalingattrib.h"
 
@@ -317,7 +317,7 @@ void Scaling::scaleAGC( const DataHolder& output, int z0, int nrsamples ) const
 
     if ( nrsamples <= samplewindow.width() )
     {
-	for ( int idx=0; idx<inputdata_->nrsamples_; idx++ )
+	for ( int idx=0; idx<nrsamples; idx++ )
 	{
 	    const float result = getInputValue( *inputdata_, dataidx_, idx, z0);
 	    setOutputValue( output, 0, idx, z0, result );
