@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.112 2008-12-04 12:48:44 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.113 2008-12-05 04:02:08 cvsumesh Exp $";
 
 #include "emsurfaceio.h"
 
@@ -965,7 +965,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm, int firstcol,
     const SectionID sectionid = sectionids_[sectionindex_];
     const int cubezidx = sectionsel_.indexOf( sectionid );
 
-    for ( ; colindex<nrcols; colindex++ )
+    for ( ; colindex<nrcols+colstoskip; colindex++ )
     {
 	rc.col = firstcol+colindex*colstep;
 	Coord3 pos;
