@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.27 2008-11-19 20:24:24 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.28 2008-12-05 16:21:47 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.27 2008-11-19 20:24:24 cvsber
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "welldisp.h"
 #include "ascstream.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -29,10 +30,12 @@ const char* Well::IO::sKeyWell = "Well";
 const char* Well::IO::sKeyLog = "Well Log";
 const char* Well::IO::sKeyMarkers = "Well Markers";
 const char* Well::IO::sKeyD2T = "Depth2Time Model";
+const char* Well::IO::sKeyDispProps = "Display Properties";
 const char* Well::IO::sExtWell = ".well";
 const char* Well::IO::sExtLog = ".wll";
 const char* Well::IO::sExtMarkers = ".wlm";
 const char* Well::IO::sExtD2T = ".wlt";
+const char* Well::IO::sExtDispProps = ".disp";
 
 
 Well::IO::IO( const char* f, bool fr )
@@ -118,6 +121,7 @@ bool Well::Reader::get() const
     getLogs();
     getMarkers();
     getD2T();
+    getDispProps();
     return true;
 }
 
@@ -429,4 +433,27 @@ bool Well::Reader::getD2T( std::istream& strm ) const
 
     wd.setD2TModel( d2t );
     return d2t ? true : false;
+}
+
+
+bool Well::Reader::getDispProps() const
+{
+    StreamData sd = mkSD( sExtDispProps );
+    if ( !sd.usable() ) return false;
+
+    const bool isok = getDispProps( *sd.istrm );
+    sd.close();
+    return isok;
+}
+
+
+bool Well::Reader::getDispProps( std::istream& strm ) const
+{
+    if ( !rdHdr(strm,sKeyDispProps) )
+	return false;
+
+    ascistream astrm( strm, false );
+    IOPar iop; iop.getFrom( astrm );
+    wd.displayProperties().usePar( iop );
+    return true;
 }

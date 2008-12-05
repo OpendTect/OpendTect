@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellwriter.h,v 1.4 2004-04-28 21:30:58 bert Exp $
+ RCS:		$Id: wellwriter.h,v 1.5 2008-12-05 16:21:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,11 +33,13 @@ public:
     bool		putLogs() const;	//!< Write logs only
     bool		putMarkers() const;	//!< Write Markers only
     bool		putD2T() const;		//!< Write D2T model only
+    bool		putDispProps() const;	//!< Write display pars only
 
     bool		putInfo(std::ostream&) const;
     bool		putLog(std::ostream&,const Log&) const;
     bool		putMarkers(std::ostream&) const;
     bool		putD2T(std::ostream&) const;
+    bool		putDispProps(std::ostream&) const;
 
 protected:
 

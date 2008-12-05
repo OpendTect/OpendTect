@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.10 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.11 2008-12-05 16:21:47 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: wellwriter.cc,v 1.10 2008-11-21 14:58:20 cvsber
 #include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "welldisp.h"
 #include "ascstream.h"
 #include "errh.h"
 #include "strmprov.h"
@@ -49,7 +50,8 @@ bool Well::Writer::put() const
     return putInfo()
 	&& putLogs()
 	&& putMarkers()
-	&& putD2T();
+	&& putD2T()
+	&& putDispProps();
 }
 
 
@@ -225,5 +227,27 @@ bool Well::Writer::putD2T( std::ostream& strm ) const
 
     for ( int idx=0; idx<d2t.size(); idx++ )
 	strm << d2t.dah(idx) << '\t' << d2t.t(idx) << '\n';
+    return strm.good();
+}
+
+
+bool Well::Writer::putDispProps() const
+{
+    StreamData sd = mkSD( sExtDispProps );
+    if ( !sd.usable() ) return false;
+
+    const bool isok = putDispProps( *sd.ostrm );
+    sd.close();
+    return isok;
+}
+
+
+bool Well::Writer::putDispProps( std::ostream& strm ) const
+{
+    if ( !wrHdr(strm,sKeyDispProps) ) return false;
+
+    ascostream astrm( strm );
+    IOPar iop; wd.displayProperties().fillPar( iop );
+    iop.putTo( astrm );
     return strm.good();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.5 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: wellio.h,v 1.6 2008-12-05 16:21:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -31,10 +31,12 @@ public:
     static const char*	sKeyLog;
     static const char*	sKeyMarkers;
     static const char*	sKeyD2T;
+    static const char*	sKeyDispProps;
     static const char*	sExtWell;
     static const char*	sExtLog;
     static const char*	sExtMarkers;
     static const char*	sExtD2T;
+    static const char*	sExtDispProps;
 
 protected:
 
