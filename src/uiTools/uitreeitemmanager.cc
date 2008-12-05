@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.42 2008-07-23 08:05:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.43 2008-12-05 22:00:41 cvskris Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -38,7 +38,6 @@ uiTreeItem::~uiTreeItem()
 
 const char* uiTreeItem::name() const
 { return name_.buf(); }
-
 
 
 bool uiTreeItem::rightClick( uiListViewItem* item )
@@ -419,7 +418,8 @@ void uiTreeTopItem::selectionChanged( CallBacker* )
 void uiTreeTopItem::rightClickCB( CallBacker* )
 {
     if ( !listview_->sensitive() || disabanyclick_ || disabrightclick_ ) return;
-    rightClick( listview_->itemNotified() );
+    if ( rightClick( listview_->itemNotified() ) )
+	listview_->unNotify();
 }
 
 
