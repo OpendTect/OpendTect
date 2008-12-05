@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.1 2008-12-05 14:43:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.2 2008-12-05 15:20:05 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -39,11 +39,11 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
 }
 
 
-void uiWellDispProperties::putOnScreen()
+void uiWellDispProperties::putToScreen()
 {
     szfld_->setValue( props_.size_ );
     colfld_->setColor( props_.color_ );
-    doPutOnScreen();
+    doPutToScreen();
 }
 
 
@@ -70,7 +70,7 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 }
 
 
-void uiWellTrackDispProperties::doPutOnScreen()
+void uiWellTrackDispProperties::doPutToScreen()
 {
     dispabovefld_->setChecked( trackprops().dispabove_ );
     dispbelowfld_->setChecked( trackprops().dispbelow_ );
@@ -95,7 +95,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 }
 
 
-void uiWellMarkersDispProperties::doPutOnScreen()
+void uiWellMarkersDispProperties::doPutToScreen()
 {
     circfld_->setValue( mrkprops().circular_ );
 }

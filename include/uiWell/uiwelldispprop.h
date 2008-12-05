@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.1 2008-12-05 14:43:58 cvsbert Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.2 2008-12-05 15:20:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,12 +42,12 @@ public:
 
     Well::DisplayProperties::BasicProps& props()	{ return props_; }
 
-    void		putOnScreen();
+    void		putToScreen();
     void		getFromScreen();
 
 protected:
 
-    virtual void	doPutOnScreen()			{}
+    virtual void	doPutToScreen()			{}
     virtual void	doGetFromScreen()		{}
 
     Well::DisplayProperties::BasicProps&	props_;
@@ -69,7 +69,7 @@ public:
 
 protected:
 
-    virtual void	doPutOnScreen();
+    virtual void	doPutToScreen();
     virtual void	doGetFromScreen();
 
     uiCheckBox*		dispabovefld_;
@@ -88,7 +88,7 @@ public:
 
 protected:
 
-    virtual void	doPutOnScreen();
+    virtual void	doPutToScreen();
     virtual void	doGetFromScreen();
 
     uiGenInput*		circfld_;
