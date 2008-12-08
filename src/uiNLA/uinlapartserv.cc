@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.57 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.58 2008-12-08 12:51:59 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -54,32 +54,25 @@ const int uiNLAPartServer::evCreateAttrSet	= 7;
 const int uiNLAPartServer::evShowSelPts		= 8;
 const char* uiNLAPartServer::sKeyUsrCancel	= "User cancel";
 
-#define mDestroySets \
-{ \
-    delete traindps; traindps = 0; \
-    delete testdps; testdps = 0; \
-    delete mcdps; mcdps = 0; \
-}
 
 uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-	, traindps(0)
-	, testdps(0)
-	, mcdps(0)
 	, uidps_(0)
+	, dps_(0)
 	, selptps_(0)
-	, storepars(*new IOPar)
+	, storepars_(*new IOPar)
+	, is2d_(false)
 {
 }
 
 
 uiNLAPartServer::~uiNLAPartServer()
 {
-    deepErase( inpnms );
-    mDestroySets
-    delete &storepars;
+    deepErase( inpnms_ );
+    delete dps_;
     if ( selptps_ )
 	delete selptps_;
+    delete &storepars_;
 }
 
 
@@ -100,11 +93,11 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     const NLACreationDesc& crdesc = creationDesc();
 
     if ( !crdesc.isdirect )
-	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2devent);
+	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2d_ );
     else
     {
 	PtrMan<Executor> ex = WellTranslator::createDataPointSets(
-				crdesc.outids, crdesc.pars, is2devent, dpss,
+				crdesc.outids, crdesc.pars, is2d_ , dpss,
 	       			SI().zIsTime() );
 	if ( !ex ) return;
 	uiTaskRunner uiex( appserv().parent() );
@@ -489,22 +482,28 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 }
 
 
-bool uiNLAPartServer::doDPSDlg( const char* wtitle, DataPointSet& dps )
+bool uiNLAPartServer::doDPSDlg()
 {
-    uiDataPointSet::Setup su( wtitle, true );
+    uiDataPointSet::Setup su( "Input data", true );
     su.isconst(false).allowretrieve(false);
-    uidps_ = new uiDataPointSet( appserv().parent(), dps, su );
+    uidps_ = new uiDataPointSet( appserv().parent(), dps(), su );
     uidps_->setCtrlStyle( uiDialog::DoAndStay );
-    uidps_->storePars() = storepars;
+    uidps_->storePars() = storepars_;
     uidps_->storePars().set( sKey::Type, "MVA Data" );
+    BufferStringSet bss;
+    bss.add( NLACreationDesc::DataTypeNames()[0] );
+    bss.add( NLACreationDesc::DataTypeNames()[1] );
+    uidps_->setGroupNames( bss );
+    uidps_->setGroupType( "Data Set" );
     uidps_->showSelectedPts.notify( mCB(this,uiNLAPartServer,showPickSet) );
+    uidps_->setDeleteOnClose( true );
     return uidps_->go();
 }
 
 
 #undef mErrRet
 #define mErrRet(rv) \
-{ mDestroySets; return rv; }
+{ if ( dps_ ) delete dps_; dps_ = 0; return rv; }
 
 void uiNLAPartServer::showPickSet( CallBacker* )
 {
@@ -522,6 +521,22 @@ void uiNLAPartServer::showPickSet( CallBacker* )
     }
     sendEvent( evShowSelPts );
 
+}
+
+
+DataPointSet& uiNLAPartServer::gtDps() const
+{
+    uiNLAPartServer& self = *const_cast<uiNLAPartServer*>( this );
+    if ( dps_ && dps_->is2D() != is2d_ )
+	{ delete self.dps_; self.dps_ = 0; }
+
+    if ( !dps_ )
+    {
+	self.dps_ = new DataPointSet( is2d_ );
+	self.dps_.setName( "<NLA train/test data>" );
+    }
+
+    return *dps_;
 }
 
 
@@ -560,42 +575,29 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	}
     }
 
-    mDestroySets;
-    traindps = new DataPointSet( is2devent, false );
-    testdps = new DataPointSet( is2devent, false );
-    const char* res = crdesc.prepareData( dpss, *traindps, *testdps );
+    dps().setEmpty();
+    const char* res = crdesc.prepareData( dpss, dps() );
     if ( res ) mErrRet(res)
 
     // allow user to view and edit data
-    if ( !doDPSDlg( "Training data", *traindps ) )
-	mErrRet(sKeyUsrCancel)
-    if ( !testdps->isEmpty() && !doDPSDlg("Test data",*testdps) )
+    if ( !doDPSDlg() )
 	mErrRet(sKeyUsrCancel)
 
     bool allok = true;
     if ( crdesc.isdirect && !crdesc.design.classification )
     {
-	uiPrepNLAData pddlg( appserv().parent(), *traindps );
+	uiPrepNLAData pddlg( appserv().parent(), dps() );
 	allok = pddlg.go();
 	if ( allok )
 	{
-	    const int targetcol = traindps->dataSet().data().nrVals() - 1;
-	    NLADataPreparer dptrain( traindps->dataSet().data(), targetcol );
-	    dptrain.removeUndefs(); dptrain.limitRange( pddlg.rg_ );
+	    BinIDValueSet& bivset = dps().dataSet().data();
+	    const int targetcol = bivset.nrVals() - 1;
+	    NLADataPreparer dp( bivset, targetcol );
+	    dp.removeUndefs(); dp.limitRange( pddlg.rg_ );
 	    if ( pddlg.dobal_ )
 	    {
-		dptrain.balance( pddlg.bsetup_ );
-		traindps->dataChanged();
-	    }
-	    if ( !testdps->isEmpty() )
-	    {
-		NLADataPreparer dptest( testdps->dataSet().data(), targetcol );
-		dptest.removeUndefs(); dptest.limitRange( pddlg.rg_ );
-		if ( pddlg.dobal_ )
-		{
-		    dptest.balance( pddlg.bsetup_ );
-		    testdps->dataChanged();
-		}
+		dp.balance( pddlg.bsetup_ );
+		dps().dataChanged();
 	    }
 	}
     }

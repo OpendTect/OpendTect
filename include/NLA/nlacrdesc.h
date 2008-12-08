@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.8 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.9 2008-12-08 12:51:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "bufstringset.h"
 #include "iopar.h"
+#include "enums.h"
 class BinIDValueSet;
 class DataPointSet;
 
@@ -45,8 +46,19 @@ public:
     inline bool		isSupervised() const	{ return design.isSupervised();}
 
     const char*		prepareData(const ObjectSet<DataPointSet>&,
-				     DataPointSet& train,
-				     DataPointSet& test) const;
+				    DataPointSet&) const;
+
+    enum DataType	{ Train=0, Test, MCTrain, MCTest };
+    static const char**	DataTypeNames();
+    inline static int	dpsGroup( DataType dt )
+			{ return ((int)dt) + 1; }
+    inline static int	dataTypeOf( int dpsgrp )
+			{ return (DataType)(dpsgrp - 1); }
+    inline static bool	isTrain( DataType dt )
+			{ return dt == Train || dt == MCTrain; }
+    inline static bool	isMC( DataType dt )
+			{ return dt > Test; }
+
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.20 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.21 2008-12-08 12:51:59 cvsbert Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -668,10 +668,12 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			mCB(this,uiDataPointSetCrossPlotWin,editProps),
 			"Properties", false );
 
-    if ( uidps_.groupNames().size() > 1 )
+    const int nrgrps = uidps_.groupNames().size();
+    if ( nrgrps > 1 )
     {
 	grpfld_ = new uiComboBox( grp, "Group selection" );
-	BufferString txt( "All " ); txt += uidps_.groupType(); txt += "s";
+	BufferString txt( nrgrps == 2 ? "Both " : "All " );
+	txt += uidps_.groupType(); txt += "s";
 	grpfld_->addItem( txt );
 	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
 	    grpfld_->addItem( uidps_.groupNames().get(idx) );

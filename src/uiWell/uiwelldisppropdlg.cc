@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.1 2008-12-05 15:20:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.2 2008-12-08 12:51:59 cvsbert Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -33,6 +33,9 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
     propflds_ += new uiWellMarkersDispProperties( tg,
 		    uiWellDispProperties::Setup("Marker size","Marker color"),
 		    props_.markers_ );
+
+    for ( int idx=0; idx<propflds_.size(); idx++ )
+	ts_->addTab( propflds_[idx], propflds_[idx]->props().subjectName() );
 
     uiPushButton* applbut = new uiPushButton( this, "&Apply",
 			mCB(this,uiWellDispPropDlg,applyPush), true );

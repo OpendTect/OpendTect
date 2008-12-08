@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.30 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.31 2008-12-08 12:51:59 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -94,14 +94,20 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     const int nrcols = initVars();
     mkToolBars();
 
-    uiLabel* titllbl = new uiLabel( this, dps.name() );
-    titllbl->attach( hCentered );
+    const char* dpsnm = dps.name();
+    uiLabel* titllbl = 0;
+    if ( *dpsnm != '<' )
+    {
+	titllbl = new uiLabel( this, dpsnm );
+	titllbl->attach( hCentered );
+    }
 
     tbl_ = new uiTable( this, uiTable::Setup(size(),nrcols)
 			  .rowgrow( false ).colgrow( false )
 			  .selmode( uiTable::Multi )
 			  .manualresize( true ), "Data Table" );
-    tbl_->attach( ensureBelow, titllbl );
+    if ( titllbl )
+	tbl_->attach( ensureBelow, titllbl );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowSel) );
     tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );

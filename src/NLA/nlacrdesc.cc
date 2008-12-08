@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.17 2008-04-15 12:50:30 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.18 2008-12-08 12:51:59 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -17,6 +17,14 @@ static const char* rcsID = "$Id: nlacrdesc.cc,v 1.17 2008-04-15 12:50:30 cvsbert
 #include "datapointset.h"
 #include "ptrman.h"
 #include "statrand.h"
+
+const char** NLACreationDesc::DataTypeNames()
+{
+    static const char* datatyps[] = { "Training data", "Test data",
+		"Misclassified training data", "Misclassified test data", 0 };
+    return datatyps;
+}
+
 
 NLACreationDesc& NLACreationDesc::operator =(
 	const NLACreationDesc& sd )
@@ -44,16 +52,9 @@ void NLACreationDesc::clear()
 }
 
 
-static bool transferData2DPS( const PosVecDataSet& vds, DataPointSet& dps,
-			      BufferString& errmsg )
-{
-    return true;
-}
-
 
 const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
-					  DataPointSet& traindps,
-					  DataPointSet& testdps ) const
+					  DataPointSet& dps ) const
 {
     int nrout = dpss.size();
     BufferString dpsnmadd;
@@ -91,25 +92,19 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     if ( totnrvec < 1 )
 	return "No data vectors found";
 
-    BufferString setnm( "NN Training data" ); setnm += dpsnmadd;
-    traindps.setName( setnm );
-    setnm = "NN Test data"; setnm += dpsnmadd;
-    testdps.setName( setnm );
-    
     // If not direct prediction, add a ColumnDef for each output node
-    traindps.dataSet().copyStructureFrom( dpss[0]->dataSet() );
-    const int orgnrcols = traindps.dataSet().nrCols();
+    dps.dataSet().copyStructureFrom( dpss[0]->dataSet() );
+    const int orgnrcols = dps.dataSet().nrCols();
     int nrcols = orgnrcols;
     if ( doextraction && !isdirect )
     {
         for ( int iout=0; iout<nrout; iout++ )
 	{
 	    BufferString psnm = LineKey::defKey2DispName( outids.get(iout) );
-            traindps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
+            dps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
-	nrcols = traindps.nrCols();
+	nrcols = dps.nrCols();
     }
-    testdps.dataSet().copyStructureFrom( traindps.dataSet() );
 
     // Get the data into train and test set
     Stats::RandGen::init();
@@ -118,10 +113,10 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     const int lasttrain = (int)((1-ratiotst)*totnrvec + .5);
     for ( int idps=0; idps<dpss.size(); idps++ )
     {
-	const DataPointSet& dps = *dpss[idps];
-	for ( DataPointSet::RowID irow=0; irow<dps.size(); irow++ )
+	const DataPointSet& curdps = *dpss[idps];
+	for ( DataPointSet::RowID irow=0; irow<curdps.size(); irow++ )
 	{
-	    DataPointSet::DataRow dr( dps.dataRow(irow) );
+	    DataPointSet::DataRow dr( curdps.dataRow(irow) );
 	    if ( nrcols != orgnrcols )
 	    {
 		for ( int idx=0; idx<nrout; idx++ )
@@ -130,13 +125,11 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 
 	    const bool istest = extractrand ? Stats::RandGen::get() < ratiotst
 					     : irow > lasttrain;
-	    if ( istest )
-		testdps.addRow( dr );
-	    else
-		traindps.addRow( dr );
+	    dr.setGroup( istest ? 2 : 1 );
+	    dps.addRow( dr );
 	}
     }
 
-    traindps.dataChanged(); testdps.dataChanged();
+    dps.dataChanged();
     return 0;
 }

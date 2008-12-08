@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.22 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.23 2008-12-08 12:51:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,40 +77,39 @@ public:
     			//!< Returned when operation must stop without error
 
     			// Following should be filled on events
-    BufferStringSet&	inputNames()			{ return inpnms; }
-    DataPointSet*	dpsTrain()			{ return traindps; }
-    DataPointSet*	dpsTest()			{ return testdps; }
-    DataPointSet*	dpsMCA()			{ return mcdps; }
-    IOPar&		storePars()			{ return storepars; }
+    BufferStringSet&	inputNames()			{ return inpnms_; }
+    const BufferStringSet& inputNames() const		{ return inpnms_; }
+    DataPointSet&	dps()				{ return gtDps(); }
+    const DataPointSet&	dps() const			{ return gtDps(); }
+    IOPar&		storePars()			{ return storepars_; }
+    const IOPar&	storePars() const		{ return storepars_; }
 
-    virtual bool	fillPar(IOPar&) const			= 0;
-    virtual void	usePar(const IOPar&)			= 0;
+    virtual bool	fillPar(IOPar&) const		= 0;
+    virtual void	usePar(const IOPar&)		= 0;
 
     void		getDataPointSets(ObjectSet<DataPointSet>&) const;
     const char*		prepareInputData(ObjectSet<DataPointSet>&);
 
-    void		set2DEvent( bool is2d )		{ is2devent = is2d; }
-    bool		is2DEvent()			{ return is2devent; }
+    void		set2DEvent( bool is2d )		{ is2d_ = is2d; }
+    bool		is2DEvent()			{ return is2d_; }
 
     const Pick::Set&	getSelectedPts() const		{ return *selptps_; }
 
 protected:
 
-    DataPointSet*	traindps;
-    DataPointSet*	testdps;
-    DataPointSet*	mcdps;
+    DataPointSet*	dps_;
     uiDataPointSet*	uidps_;
     Pick::Set*		selptps_;
-    BufferStringSet	inpnms;
-    IOPar&		storepars;
-    bool		is2devent;
+    BufferStringSet	inpnms_;
+    bool		is2d_;
+    IOPar&		storepars_;
 
     void		writeSets(CallBacker*);
     void		showPickSet(CallBacker*);
 
     bool		extractDirectData(ObjectSet<DataPointSet>&);
     const char*		convertToClasses(const ObjectSet<DataPointSet>&,int);
-    bool		doDPSDlg(const char*,DataPointSet&);
+    bool		doDPSDlg();
 
     struct LithCodeData
     {
@@ -124,6 +123,8 @@ protected:
 	void		fillCols(PosVecDataSet&,const int);
     };
 
+    DataPointSet&	gtDps() const;
+
 };
 
 
@@ -136,8 +137,8 @@ protected:
 
   Without this small sacrifice I don't think OpendTect would have ever started.
   We tried to keep the interface as general as possible, though. So it's very
-  well possible and feasible (frighteningly!) to make your own special
-  analysis module.
+  well possible and feasible to make your own special analysis module.
+
   */
 
 
