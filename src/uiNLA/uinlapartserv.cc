@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.58 2008-12-08 12:51:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.59 2008-12-08 13:43:47 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -533,7 +533,7 @@ DataPointSet& uiNLAPartServer::gtDps() const
     if ( !dps_ )
     {
 	self.dps_ = new DataPointSet( is2d_ );
-	self.dps_.setName( "<NLA train/test data>" );
+	self.dps_->setName( "<NLA train/test data>" );
     }
 
     return *dps_;
