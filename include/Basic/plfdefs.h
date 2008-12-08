@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.22 2008-07-24 13:35:48 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.23 2008-12-08 07:41:03 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -81,7 +81,7 @@ Always defined:
 #undef __unix__
 #undef __win__
 
-#ifdef win
+#if defined( win ) || defined( WIN32 ) 
 # define __win__ 1
 #endif
 #ifdef lux
@@ -220,7 +220,7 @@ Always defined:
 #  define __sunc__ 1
 # endif
 #endif
-#ifdef win
+#if defined( win ) || defined( WIN32 )
 # ifndef __gnuc__
 #  define __msvc__ 1
 # endif
