@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.18 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.19 2008-12-08 12:51:15 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -82,7 +82,7 @@ PosVecDataSet::PosVecDataSet( const char* nm )
 	, pars_(*new IOPar)
 	, name_(nm)
 {
-    empty();
+    setEmpty();
 }
 
 
@@ -120,7 +120,7 @@ PosVecDataSet& PosVecDataSet::operator =( const PosVecDataSet& vds )
 
 void PosVecDataSet::copyStructureFrom( const PosVecDataSet& vds )
 {
-    empty();
+    setEmpty();
     data_.copyStructureFrom( vds.data_ );
     deepErase( coldefs_ );
     deepCopy( coldefs_, vds.coldefs_ );
@@ -128,7 +128,7 @@ void PosVecDataSet::copyStructureFrom( const PosVecDataSet& vds )
 }
 
 
-void PosVecDataSet::empty()
+void PosVecDataSet::setEmpty()
 {
     deepErase(coldefs_);
     data_.setNrVals( 1 );
@@ -343,7 +343,7 @@ bool PosVecDataSet::getFrom( const char* fnm, BufferString& errmsg )
     if ( !sd.usable() )
 	return false;
 
-    empty(); pars_.clear(); setName( "" );
+    setEmpty(); pars_.clear(); setName( "" );
     if ( tabstyle )
     {
 	char buf[65536]; sd.istrm->getline( buf, 65536 );

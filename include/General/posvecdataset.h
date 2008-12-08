@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.8 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.9 2008-12-08 12:50:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
     PosVecDataSet&	operator =(const PosVecDataSet&);
     void		copyStructureFrom(const PosVecDataSet&);
 
-    void		empty();
+    void		setEmpty();
     void		add(DataColDef*);
     void		removeColumn(int); //!< "Z" col (idx=0) can't be removed
     enum OvwPolicy	{ Keep, OvwIfUdf, Ovw };
