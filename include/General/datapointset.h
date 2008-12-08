@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.21 2008-08-05 10:26:37 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.22 2008-12-08 12:50:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,8 @@ public:
     DataPointSet&	operator =(const DataPointSet&);
     bool		is2D() const		{ return is2d_; }
     bool		isMinimal() const	{ return minimal_; }
+    bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }
+    void		setEmpty();
 
     int			nrCols() const;
     int			nrFixedCols() const	{ return nrfixedcols_; }
@@ -146,7 +148,6 @@ public:
     float		z(RowID) const;
     int			trcNr(RowID) const;
 
-    bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }
     Pos			pos(RowID) const;
     DataRow		dataRow(RowID) const;
     float		value(ColID,RowID) const;

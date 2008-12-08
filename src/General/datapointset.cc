@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.23 2008-06-30 12:47:54 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.24 2008-12-08 12:51:23 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -316,6 +316,13 @@ void DataPointSet::calcIdxs()
 int DataPointSet::nrCols() const
 {
     return data_.nrCols() - nrfixedcols_;
+}
+
+
+void DataPointSet::setEmpty()
+{
+    data_.setEmpty();
+    bvsidxs_.erase();
 }
 
 
