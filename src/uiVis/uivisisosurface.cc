@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.17 2008-12-05 22:53:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.18 2008-12-08 08:48:08 cvsnanne Exp $";
 
 #include "uivisisosurface.h"
 
@@ -105,10 +105,10 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
 
     if ( !(fullmode!=vd_->isFullMode(isosurfacedisplay_) ||
 	 !mIsZero(curval-fldvalue,(curval+fldvalue)/2000) ||
-	 !fullmode && max!=vd_->seedAboveIsovalue( isosurfacedisplay_ ) ||
-	 !fullmode && mid!=vd_->getSeedsID( isosurfacedisplay_ ) ) )
+	 (!fullmode && max!=vd_->seedAboveIsovalue(isosurfacedisplay_)) ||
+	 (!fullmode && mid!=vd_->getSeedsID(isosurfacedisplay_)) ) )
 	return true;
-    
+
     vd_->setFullMode( isosurfacedisplay_, fullmode );
     if ( !fullmode )
     {
