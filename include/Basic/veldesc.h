@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.4 2007-12-28 21:13:08 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.5 2008-12-08 20:10:14 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -21,7 +21,7 @@ class IOPar;
 class VelocityDesc
 {
 public:
-    enum Type		{ Unknown, Interval, RMO, Avg };
+    enum Type		{ Unknown, Interval, RMS, Avg };
     			DeclareEnumUtils(Type);
     enum SampleSpan	{ Centered, Above, Below };
     			DeclareEnumUtils(SampleSpan);

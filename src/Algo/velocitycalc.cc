@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.1 2008-01-04 22:38:10 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.2 2008-12-08 20:10:14 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -40,7 +40,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 
     switch ( vd.type_ )
     {
-	case VelocityDesc::RMO:
+	case VelocityDesc::RMS:
 	{
 	    if ( !istime ) break;
 	    //TODO:: Do dix
