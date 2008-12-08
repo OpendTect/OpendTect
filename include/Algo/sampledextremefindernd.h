@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2008
- RCS:           $Id: sampledextremefindernd.h,v 1.3 2008-09-22 13:05:33 cvskris Exp $
+ RCS:           $Id: sampledextremefindernd.h,v 1.4 2008-12-08 15:46:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,7 +144,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 {
     const int ndim = array_.info().getNDim();
 
-    T extremeval = array_.get( extremepos );
+    T extremeval = array_.getND( extremepos );
 
     mVariableLengthArr( int, curpos, ndim );
     mVariableLengthArr( int, bestpos, ndim );
@@ -177,7 +177,7 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 	    if ( invalid || isnull )
 	    continue;
 
-	    const T val = array_.get( curpos );
+	    const T val = array_.getND( curpos );
 	    if ( (minima_ && val<extremeval) || (!minima_ && val>extremeval) )
 	    {
 		memcpy( bestpos, curpos, ndim*sizeof(int) );
