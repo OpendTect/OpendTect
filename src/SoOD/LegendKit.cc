@@ -186,7 +186,7 @@
   instead of the upper value (the value right below the current
   bigtick).
 */
-static const char* rcsID = "$Id: LegendKit.cc,v 1.4 2008-12-03 16:00:55 cvskris Exp $";
+static const char* rcsID = "$Id: LegendKit.cc,v 1.5 2008-12-08 10:56:24 cvsnanne Exp $";
 
 
 #include "LegendKit.h"
@@ -412,7 +412,7 @@ LegendKit::LegendKit(void)
 
   // disable depth buffer
   SoDepthBuffer * db = (SoDepthBuffer*) this->getAnyPart("depthBuffer", TRUE);
-  db->function = SoDepthBuffer::NEVER;
+  db->write = FALSE;
 
   // avoid rounding errors
   SoTranslation * t = (SoTranslation*) this->getAnyPart("imageTranslation", TRUE);
