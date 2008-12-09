@@ -7,7 +7,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.30 2008-11-26 06:59:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.31 2008-12-09 11:19:03 cvsnanne Exp $";
+
 #include "uicolortable.h"
 
 #include "bufstringset.h"
@@ -314,20 +315,20 @@ uiAutoRangeClipDlg( uiParent* p, const ColTab::MapperSetup& ms )
     clipfld->setElemSzPol( uiObject::Small );
     clipfld->attach( alignedBelow, doclipfld );
 
-    symfld = new uiGenInput( this, "Set symmetrical",
-	    		     BoolInpSpec(!mIsUdf(ms.symmidval_)) );
-    symfld->attach( alignedBelow, clipfld );
-    symfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
-
     autosymfld = new uiGenInput( this, "Auto detect symmetry",
 				 BoolInpSpec(ms.autosym0_) );
-    autosymfld->attach( alignedBelow, symfld );
+    autosymfld->attach( alignedBelow, clipfld );
     autosymfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,autoSymPush));
+
+    symfld = new uiGenInput( this, "Set symmetrical",
+	    		     BoolInpSpec(!mIsUdf(ms.symmidval_)) );
+    symfld->attach( alignedBelow, autosymfld );
+    symfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
 
     midvalfld = new uiGenInput( this, "Symmetrical Mid Value",
 		    FloatInpSpec(mIsUdf(ms.symmidval_) ? 0 : ms.symmidval_) );
     midvalfld->setElemSzPol( uiObject::Small );
-    midvalfld->attach( alignedBelow, autosymfld );
+    midvalfld->attach( alignedBelow, symfld );
 
     storfld = new uiCheckBox( this, "Save as default" );
     storfld->attach( alignedBelow, midvalfld );
@@ -349,14 +350,14 @@ void clipPush( CallBacker* )
 
 void symPush( CallBacker* )
 {
-    autosymfld->display( doclipfld->getBoolValue() && symfld->getBoolValue() );
-    autoSymPush(0);
+    midvalfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue()
+	   		&& symfld->getBoolValue() );
 }
 
 void autoSymPush( CallBacker* )
 {
-    midvalfld->display( doclipfld->getBoolValue() && symfld->getBoolValue() &&
-	   		!autosymfld->getBoolValue() );
+    symfld->display( doclipfld->getBoolValue() && !autosymfld->getBoolValue() );
+    symPush( 0 );
 }
 
 bool saveDef()
@@ -384,8 +385,8 @@ void uiColorTable::editScaling( CallBacker* )
 	? ColTab::MapperSetup::Auto : ColTab::MapperSetup::Fixed;
 
     mapsetup_.cliprate_ = dlg.clipfld->getfValue() * 0.01;
-    const bool symmetry = dlg.symfld->getBoolValue();
-    const bool autosym = symmetry && dlg.autosymfld->getBoolValue();
+    const bool autosym = dlg.autosymfld->getBoolValue();
+    const bool symmetry = !autosym && dlg.symfld->getBoolValue();
     mapsetup_.autosym0_ = autosym;
     mapsetup_.symmidval_ = symmetry && !autosym ? dlg.midvalfld->getfValue()
 						: mUdf(float);
