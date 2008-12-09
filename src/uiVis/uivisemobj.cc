@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.70 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.71 2008-12-09 08:50:13 cvsjaap Exp $";
 
 #include "uivisemobj.h"
 
@@ -370,6 +370,9 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	&& !visserv_->isLocked(displayid_) && !hastransform;
 
     mAddMenuItem( menu, &shiftmnuitem_, enabmenu, false );
+
+    trackmenuitem_.removeItems();
+    seedsmenuitem_.removeItems();
 
     mAddMenuItem( &trackmenuitem_, &editmnuitem_, enabmenu,
 	    	  emod->isEditingEnabled() );

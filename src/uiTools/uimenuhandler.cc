@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.12 2008-12-09 08:50:12 cvsjaap Exp $";
 
 
 #include "uimenuhandler.h"
@@ -68,25 +68,32 @@ bool uiMenuHandler::executeMenu( int menutype, const TypeSet<int>* path )
 uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 					const MenuItem* item )
 {
-    if ( subitms.isEmpty() )
+    ObjectSet<const MenuItem> validsubitms;
+    for ( int idx=0; idx<subitms.size(); idx++ )
+    {
+	if ( subitms[idx]->id >= 0 )
+	    validsubitms += subitms[idx];
+    }
+
+    if ( validsubitms.isEmpty() )
 	return 0;
 
     uiPopupMenu* menu = item ? new uiPopupMenu( uiparent_, item->text )
 			     : new uiPopupMenu( uiparent_ );
 
-    BoolTypeSet handled( subitms.size(), false );
+    BoolTypeSet handled( validsubitms.size(), false );
 
     while ( true )
     {
 	int lowest;
 	int lowestitem = -1;
-	for ( int idx=0; idx<subitms.size(); idx++ )
+	for ( int idx=0; idx<validsubitms.size(); idx++ )
 	{
-	    if ( lowestitem==-1 || lowest<subitms[idx]->placement )
+	    if ( lowestitem==-1 || lowest<validsubitms[idx]->placement )
 	    {
 		if ( handled[idx] ) continue;
 
-		lowest = subitms[idx]->placement;
+		lowest = validsubitms[idx]->placement;
 		lowestitem = idx;
 	    }
 	}
@@ -94,7 +101,7 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	if ( lowestitem==-1 )
 	    break;
 
-	const MenuItem& subitm = *subitms[lowestitem];
+	const MenuItem& subitm = *validsubitms[lowestitem];
 
 	if ( subitm.nrItems() )
 	{
