@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.13 2008-12-04 21:38:40 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.14 2008-12-09 16:16:38 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.13 2008-12-04 21:
 #include "Inventor/nodes/SoTexture2.h"
 #include "Inventor/nodes/SoVertexShader.h"
 #include "Inventor/nodes/SoShaderParameter.h"
+#include "SoOD.h"
 
 #define mNrColors	255
 #define mUndefColIdx	255
@@ -56,6 +57,10 @@ void TextureChannel2RGBA::allowShading( bool yn )
 }
 
 
+bool TextureChannel2RGBA::canUseShading() const
+{ return shadingallowed_ && SoOD::supportsFragShading()==1; }
+
+
 ColTabTextureChannel2RGBA::ColTabTextureChannel2RGBA()
     : converter_( new SoColTabTextureChannel2RGBA )
     , shaderswitch_( new SoSwitch )
@@ -73,10 +78,6 @@ ColTabTextureChannel2RGBA::ColTabTextureChannel2RGBA()
 
 int ColTabTextureChannel2RGBA::maxNrChannels() const
 { return 8; } //TODO
-
-
-bool ColTabTextureChannel2RGBA::canUseShading() const
-{ return true; }//TODO
 
 
 ColTabTextureChannel2RGBA::~ColTabTextureChannel2RGBA()

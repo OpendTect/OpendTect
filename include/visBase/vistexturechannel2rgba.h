@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.11 2008-12-04 16:02:11 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.12 2008-12-09 16:16:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,7 @@ public:
     virtual void	setEnabled(int ch,bool yn)		{}
     virtual bool	isEnabled(int ch) const			{ return true; }
 
-    virtual bool	canUseShading() const			= 0;
+    virtual bool	canUseShading() const;
     virtual void	allowShading(bool);
     virtual bool	usesShading() const			= 0;
     virtual int		maxNrChannels() const			= 0;
@@ -94,7 +94,6 @@ public:
     void			setTransparency(int ch,unsigned char yn);
     unsigned char		getTransparency(int ch) const;
 
-    bool			canUseShading() const;
     void			allowShading(bool);
     bool			usesShading() const;
     int				maxNrChannels() const;
