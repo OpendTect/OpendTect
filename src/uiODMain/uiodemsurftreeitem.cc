@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.36 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.37 2008-12-09 09:15:00 cvsjaap Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -326,7 +326,12 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    mAddMenuItem( trackmnu, &enabletrackingmnuitem_, true,
 			  mps->isTrackingEnabled(mps->getTrackerID(emid_)) );
 	}
-
+	else
+	{
+	    mResetMenuItem( &starttrackmnuitem_ );
+	    mResetMenuItem( &changesetupmnuitem_ );
+	    mResetMenuItem( &enabletrackingmnuitem_ );
+	}
     }
     else
     {
