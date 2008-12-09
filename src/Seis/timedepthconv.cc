@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.4 2008-02-13 12:25:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.5 2008-12-09 21:38:44 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -76,7 +76,6 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
 	releaseData();
 	return false;
     }
-
 
     //TODO: Reload eventual VOIs
     return true;
@@ -412,9 +411,34 @@ void Time2DepthStretcher::udfFill( ValueSeries<float>& res, int sz )
 
 
 
-Interval<float> Time2DepthStretcher::getZInterval(bool from) const
+Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 {
-    return Interval<float>( 0, 1 ); //TODO implement something real
+    const float factor = SI().defaultTime2DepthFactor(false);
+
+    Interval<float> res = SI().zRange(true);
+
+    const bool survistime = SI().zIsTime();
+
+    if ( survistime && !time )
+    {
+	res.start *= factor;
+	res.stop *= factor;
+    }
+    else if ( !survistime && time )
+    {
+	res.start /= factor;
+	res.stop /= factor;
+    }
+
+    return res;
+}
+
+
+float Time2DepthStretcher::getGoodZStep() const
+{
+    if ( SI().zIsTime() )
+	return SI().zRange(true).step * SI().defaultTime2DepthFactor(false);
+    return SI().zRange(true).step;
 }
 
 
@@ -430,5 +454,102 @@ void Time2DepthStretcher::releaseData()
     }
 }
 
-    
 
+//Depth2Time
+
+
+
+const char* Depth2TimeStretcher::sName() 	{ return "Depth2Time"; }
+
+void Depth2TimeStretcher::initClass()
+{ ZATF().addCreator( create, sName() ); }
+
+
+ZAxisTransform* Depth2TimeStretcher::create()
+{ return new Depth2TimeStretcher; }
+
+
+Depth2TimeStretcher::Depth2TimeStretcher()
+    : stretcher_( new Time2DepthStretcher )
+{}
+
+
+bool Depth2TimeStretcher::setVelData( const MultiID& mid )
+{ return stretcher_->setVelData( mid ); }
+
+
+bool Depth2TimeStretcher::isOK() const
+{ return stretcher_ && stretcher_->isOK(); }
+
+
+bool Depth2TimeStretcher::needsVolumeOfInterest() const
+{ return stretcher_->needsVolumeOfInterest(); }
+
+
+void Depth2TimeStretcher::fillPar( IOPar& par ) const
+{ stretcher_->fillPar( par ); }
+
+
+bool Depth2TimeStretcher::usePar( const IOPar& par )
+{ return stretcher_->usePar( par ); }
+
+
+int Depth2TimeStretcher::addVolumeOfInterest(const CubeSampling& cs, bool time )
+{ return stretcher_->addVolumeOfInterest( cs, !time ); }
+
+
+void Depth2TimeStretcher::setVolumeOfInterest( int id, const CubeSampling& cs,
+					       bool time )
+{ stretcher_->setVolumeOfInterest( id, cs, !time ); }
+
+
+void Depth2TimeStretcher::removeVolumeOfInterest( int id )
+{ stretcher_->removeVolumeOfInterest( id ); }
+
+
+bool Depth2TimeStretcher::loadDataIfMissing( int id, TaskRunner* tr )
+{ return stretcher_->loadDataIfMissing( id, tr ); }
+
+
+void Depth2TimeStretcher::transform(const BinID& bid,
+				    const SamplingData<float>& sd,
+				    int sz, float* res ) const
+{ stretcher_->transformBack( bid, sd, sz, res ); }
+
+
+void Depth2TimeStretcher::transformBack(const BinID& bid,
+					const SamplingData<float>& sd,
+				        int sz, float* res ) const
+{ stretcher_->transform( bid, sd, sz, res ); }
+
+
+Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
+{
+    const float factor = SI().defaultTime2DepthFactor(false);
+
+    Interval<float> res = SI().zRange(true);
+
+    const bool survisdepth = !SI().zIsTime();
+
+    if ( survisdepth && !depth )
+    {
+	res.start /= factor;
+	res.stop /= factor;
+    }
+    else if ( !survisdepth && depth )
+    {
+	res.start *= factor;
+	res.stop *= factor;
+    }
+
+    return res;
+}
+
+
+float Depth2TimeStretcher::getGoodZStep() const
+{
+    if ( SI().zIsTime() )
+	return SI().zRange(true).step;
+
+    return SI().zRange(true).step / SI().defaultTime2DepthFactor(false);
+}

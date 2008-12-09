@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.5 2008-10-22 10:36:30 cvsnanne Exp $
+ RCS:		$Id: timedepthconv.h,v 1.6 2008-12-09 21:38:44 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -30,8 +30,17 @@ template <class T> class ValueSeries;
 template <class T> class Array3D;
 
 
+class VelocityStretcher : public ZAxisTransform
+{
+public:
+    virtual bool		setVelData(const MultiID&)		= 0;
+};
 
-class Time2DepthStretcher : public ZAxisTransform
+
+/*!ZAxisstretcher that converts from time to depth (or back) using a
+   velocity model on disk. */
+
+class Time2DepthStretcher : public VelocityStretcher
 {
 public:
     static const char*		sName();
@@ -53,6 +62,7 @@ public:
     void		transformBack(const BinID&,const SamplingData<float>&,
 	    			  int,float*) const;
     Interval<float>	getZInterval(bool from) const;
+    float		getGoodZStep() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -75,6 +85,44 @@ protected:
     SeisTrcReader*			velreader_;
     VelocityDesc			veldesc_;
     bool				velintime_;
+};
+
+
+/*!ZAxisstretcher that converts from depth to time (or back). Uses
+   an Time2Depth converter to do the job. */
+
+
+class Depth2TimeStretcher : public VelocityStretcher
+{
+public:
+    static const char*		sName();
+    const char*			name() const	{ return sName(); }
+    static void			initClass();
+    static ZAxisTransform*	create();
+
+			Depth2TimeStretcher();
+    bool		setVelData(const MultiID&);
+    bool		isOK() const;
+
+    bool		needsVolumeOfInterest() const;
+    int			addVolumeOfInterest(const CubeSampling&,bool);
+    void		setVolumeOfInterest(int,const CubeSampling&,bool);
+    void		removeVolumeOfInterest(int);
+    bool		loadDataIfMissing(int,TaskRunner* =0);
+    void		transform(const BinID&,const SamplingData<float>&,
+	    			  int,float*) const;
+    void		transformBack(const BinID&,const SamplingData<float>&,
+	    			  int,float*) const;
+    Interval<float>	getZInterval(bool from) const;
+    float		getGoodZStep() const;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+protected:
+			~Depth2TimeStretcher()				{}
+
+    RefMan<Time2DepthStretcher>		stretcher_;
 };
 
 #endif

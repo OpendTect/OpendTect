@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initseis.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: initseis.cc,v 1.4 2008-12-09 21:38:44 cvskris Exp $";
 
 #include "initseis.h"
 #include "timedepthconv.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: initseis.cc,v 1.3 2008-11-25 15:35:22 cvsbert E
 void Seis::initStdClasses()
 {
     Time2DepthStretcher::initClass();
+    Depth2TimeStretcher::initClass();
     Seis::ODSeqInp::initClass();
     Seis::ODSeqOut::initClass();
 }
