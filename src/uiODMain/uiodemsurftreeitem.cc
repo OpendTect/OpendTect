@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.37 2008-12-09 09:15:00 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.38 2008-12-09 21:43:54 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -459,7 +459,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==createflatscenemnuitem_.id )
     {
-	const int sceneid = ODMainWin()->sceneMgr().addScene( false );
     	mDynamicCastGet(visSurvey::EMObjectDisplay*,
 			emd,visserv_->getObject(displayid_));
 	const EM::ObjectID objectid = emd->getObjectID();
@@ -467,16 +466,13 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 			EM::EMM().getObject( objectid ) );
 
 	if ( !horizon ) return;
-	RefMan<ZAxisTransform> transform = new EM::HorizonZTransform(horizon);
-	mDynamicCastGet(visSurvey::Scene*,scene,
-	    applMgr()->visServer()->getObject(sceneid));
-	if ( !scene ) return;
 
 	BufferString scenenm = "Flattened on '";
 	scenenm += horizon->name(); scenenm += "'";
 
-	ODMainWin()->sceneMgr().setSceneName( sceneid, scenenm );
-	scene->setDataTransform( transform );
+	RefMan<ZAxisTransform> transform = new EM::HorizonZTransform(horizon);
+	const int sceneid = ODMainWin()->sceneMgr().addScene( false, transform,
+							      scenenm.buf() );
 	ODMainWin()->sceneMgr().viewAll( 0 );
 	ODMainWin()->sceneMgr().tile();
     }
