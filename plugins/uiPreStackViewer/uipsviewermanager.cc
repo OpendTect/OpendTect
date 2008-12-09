@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.25 2008-11-26 07:03:59 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.26 2008-12-09 19:12:41 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -281,15 +281,18 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     }
     
     bool autoview;
-    if ( Settings::common().getYN(PreStackViewer::sKeyAutoWidth(), autoview) )
+    if ( Settings::common().getYN(PreStackViewer::sKeyAutoWidth(), autoview) ||
+	 Settings::common().getYN("AutoWidth", autoview) )
 	viewer->displaysAutoWidth( autoview );
 
     float factor;
-    if ( Settings::common().get( PreStackViewer::sKeyFactor(), factor ) )
+    if ( Settings::common().get( PreStackViewer::sKeyFactor(), factor ) ||
+	 Settings::common().get( "Factor", factor ) )
 	viewer->setFactor( factor );
    
     float width; 
-    if ( Settings::common().get( PreStackViewer::sKeyWidth(), width ) )
+    if ( Settings::common().get( PreStackViewer::sKeyWidth(), width ) ||
+	 Settings::common().get( "Width", width ) )
 	viewer->setWidth( width );
     
     IOPar* par = Settings::common().subselect( 
