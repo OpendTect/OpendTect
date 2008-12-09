@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.2 2008-12-09 09:45:18 cvsjaap Exp $";
 
 #include "faultstickset.h"
 
@@ -156,7 +156,7 @@ bool FaultStickSet::removeKnot( const RCol& rc )
 }
 
 
-#define mEmptyInterval() StepInterval<int>( mUdf(int), mUdf(int), mUdf(int) )
+#define mEmptyInterval() StepInterval<int>( mUdf(int), -mUdf(int), mUdf(int) )
 
 StepInterval<int> FaultStickSet::rowRange() const
 {
