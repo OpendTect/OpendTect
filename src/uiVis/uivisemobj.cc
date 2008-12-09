@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.71 2008-12-09 08:50:13 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.72 2008-12-09 15:11:56 cvsjaap Exp $";
 
 #include "uivisemobj.h"
 
@@ -227,7 +227,7 @@ void uiVisEMObject::setUpConnections()
     singlecolmnuitem_.checkable = true;
     trackmenuitem_.text = uiVisEMObject::trackingmenutxt;
     seedsmenuitem_.text = "S&eeds";
-    seedsmenuitem_.checkable = true;
+    seedsmenuitem_.checkable = false;
     showseedsmnuitem_.text = "&Show";
     seedpropmnuitem_.text = "&Properties ...";
     lockseedsmnuitem_.text = "&Lock";
