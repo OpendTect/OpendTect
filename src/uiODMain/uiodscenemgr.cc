@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.158 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.159 2008-12-09 21:43:21 cvskris Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.158 2008-11-25 15:35:25 cvs
 #include "uiempartserv.h"
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
+#include "vissurvscene.h"
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -195,7 +196,8 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 }
 
 
-int uiODSceneMgr::addScene( bool maximized )
+int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
+			    const char* name )
 {
     Scene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
@@ -232,6 +234,15 @@ int uiODSceneMgr::addScene( bool maximized )
     }
 
     wsp_->cursorReset();
+
+    if ( name ) setSceneName( sceneid, name );
+
+    if ( zt )
+    {
+	mDynamicCastGet(visSurvey::Scene*,scene, visServ().getObject(sceneid));
+	scene->setDataTransform( zt );
+    }
+
     return sceneid;
 }
 

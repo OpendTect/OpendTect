@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.61 2008-09-04 13:21:26 cvsyuancheng Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.62 2008-12-09 21:43:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ class uiVisPartServer;
 class uiWindowGrabber;
 class uiWorkSpace;
 class uiWorkSpaceGroup;
+class ZAxisTransform;
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -46,7 +47,9 @@ class uiODSceneMgr : public CallBacker
 public:
 
     void			cleanUp(bool startnew=true);
-    int				addScene(bool maximized);
+    int				addScene(bool maximized,ZAxisTransform* =0,
+	    				 const char* nm=0);
+    				//!<Returns scene id
     void			removeScene(CallBacker*);
     void			setSceneName(int sceneid,const char*);
     const char*			getSceneName(int sceneid) const;
