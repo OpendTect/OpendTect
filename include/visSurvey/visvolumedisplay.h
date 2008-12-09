@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.59 2008-12-05 22:53:10 cvsyuancheng Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.60 2008-12-09 19:45:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -175,13 +175,21 @@ protected:
     visBase::VolumeRenderScalarField*		scalarfield_;
     visBase::VolrenDisplay*			volren_;
     ObjectSet<visBase::OrthogonalSlice>		slices_;
-    ObjectSet<visBase::MarchingCubesSurface>			isosurfaces_;
-    TypeSet<float>				isovalues_;
-    TypeSet<char>				surfacemodes_;
-    TypeSet<char>				seedsaboveisoval_;
-    TypeSet<MultiID>				seedids_;
+    ObjectSet<visBase::MarchingCubesSurface>	isosurfaces_;
+    struct IsosurfaceSetting
+    {
+				IsosurfaceSetting();
+	bool			operator==(const IsosurfaceSetting&) const;
+	IsosurfaceSetting& 	operator=(const IsosurfaceSetting&);
 
-    TypeSet<char>				sections_;
+	float			isovalue_;
+	char			mode_;
+	char			seedsaboveisoval_;
+	MultiID			seedsid_;
+    };
+
+    TypeSet<IsosurfaceSetting>	settings_;
+    TypeSet<char>		sections_;
 
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
