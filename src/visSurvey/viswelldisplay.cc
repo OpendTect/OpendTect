@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.78 2008-12-05 09:17:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.79 2008-12-09 16:39:50 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -429,8 +429,9 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd ) { info = ""; return; }
 
-    const float mousez = pos.z * SI().zFactor();
-    const float zstep2 = SI().zFactor() * SI().zStep()/2;
+    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+    const float mousez = pos.z * zfactor;
+    const float zstep2 = zfactor * SI().zStep()/2;
 
     info = "Well: "; info += wd->name();
     for ( int idx=0; idx<wd->markers().size(); idx++ )
@@ -564,6 +565,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 	     !OD::altKeyboardButton(eventinfo.buttonstate_) &&
 	     !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	{
+	    const float zfactor = scene_ ? scene_->getZFactor(): SI().zFactor();
 	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
 	    {
 		int removeidx = group_->getFirstIdx(mousepressid_);
@@ -575,7 +577,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 		    for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
 		    {
 			wcoords += pseudotrack_->pos(idx);
-			wcoords[idx].z /= SI().zFactor();
+			wcoords[idx].z /= zfactor;
 		    }
 
 		    well_->setTrack(wcoords);
@@ -629,12 +631,13 @@ void WellDisplay::addPick( Coord3 pos )
     if ( pseudotrack_ )
     {
 	TypeSet<Coord3> wcoords;
+	const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
 	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y), 
-					       pos.z * SI().zFactor() );
+					       pos.z * zfactor  );
 	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
 	{
 	    wcoords += pseudotrack_->pos(idx);
-	    wcoords[idx].z /= SI().zFactor();
+	    wcoords[idx].z /= zfactor;
 	}
 
 	well_->setTrack(wcoords);
@@ -730,11 +733,13 @@ void WellDisplay::showKnownPositions()
 
 TypeSet<Coord3> WellDisplay::getWellCoords() const
 {
+    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+
     TypeSet<Coord3> coords;
     for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
     {
 	coords += pseudotrack_->pos(idx);
-	coords[idx].z /= SI().zFactor();
+	coords[idx].z /= zfactor;
     }
 
     return coords;

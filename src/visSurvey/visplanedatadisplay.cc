@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.204 2008-12-03 19:02:00 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.205 2008-12-09 16:39:50 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -281,10 +281,11 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	     ? 0
 	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
 		     abs( binid.crl-cs.hrg.stop.crl) );
+    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
     zdiff = cs.zrg.includes(xytpos.z)
 	? 0
 	: mMIN(fabs(xytpos.z-cs.zrg.start),fabs(xytpos.z-cs.zrg.stop)) *
-	  SI().zFactor() * scene_->getZScale();
+	  zfactor  * scene_->getZScale();
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
@@ -297,7 +298,8 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    float maxzdist = SI().zFactor() * scene_->getZScale() * SI().zStep() / 2;
+    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+    float maxzdist = zfactor * scene_->getZScale() * SI().zStep() / 2;
     return orientation_==Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
 }
 

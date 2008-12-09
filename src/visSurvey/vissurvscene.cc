@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.109 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.110 2008-12-09 16:39:50 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -58,6 +58,7 @@ Scene::Scene()
     , mousecursor_( 0 )
     , polyselector_( 0 )
     , coordselector_( 0 )
+    , zfactor_( SI().zFactor() )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -250,7 +251,7 @@ void Scene::setZScale( float zscale )
 
     if ( mIsEqual(zscale,curzscale_,mDefEps) ) return;
 
-    STM().setZScale( zscaletransform_, zscale );
+    STM().setZScale( zscaletransform_, zscale*zfactor_ );
     curzscale_ = zscale;
     zscalechange.trigger();
 }
@@ -258,6 +259,18 @@ void Scene::setZScale( float zscale )
 
 float Scene::getZScale() const
 { return curzscale_; }
+
+
+void Scene::setZFactor( float zfactor )
+{
+    zfactor_ = zfactor;
+    if ( zscaletransform_ )
+       	STM().setZScale( zscaletransform_, curzscale_*zfactor_ );
+}
+
+
+float Scene::getZFactor() const
+{ return zfactor_; }
 
 
 mVisTrans* Scene::getZScaleTransform() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.53 2008-08-28 12:28:57 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.54 2008-12-09 16:39:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -109,7 +109,19 @@ public:
 
     Notifier<Scene>		zscalechange;
     void			setZScale(float);
+    				/*!<Used to set the z-strecthing according
+				    to the user's preference. Is unitless -
+				    all entities (i.e. distance vs time) 
+				    should be handled by zfactor.
+				*/
     float			getZScale() const;
+
+    void			setZFactor(float);
+    				/*!<The zfactor should compensate for different
+				   entities in xy and z respectively and
+				   remain constant through the life of the scene.
+				*/
+    float			getZFactor() const;
 
     mVisTrans*			getZScaleTransform() const;
     mVisTrans*			getInlCrl2DisplayTransform() const;
@@ -163,6 +175,7 @@ protected:
     BufferString		mouseposstr_;
     const MouseCursor*		mousecursor_;
     float			curzscale_;
+    float			zfactor_;
     BufferString		zdomainkey_;
     bool			allowshading_;
 

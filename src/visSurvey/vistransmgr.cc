@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistransmgr.cc,v 1.3 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vistransmgr.cc,v 1.4 2008-12-09 16:39:50 cvskris Exp $";
 
 
 #include "vistransmgr.h"
@@ -58,11 +58,10 @@ visBase::Transformation*
 
     const Coord startpos = SI().transform( hs.start );
     const Coord stoppos = SI().transform( hs.stop );
-    const float zfact = SI().zFactor();
 
     tf->setA(	1,	0,	0,	-startpos.x,
 	    	0,	1,	0,	-startpos.y,
-		0,	0,	-zfact,	0,
+		0,	0,	-1,	0,
 		0,	0,	0,	1 );
     return tf;
 }
@@ -80,7 +79,6 @@ visBase::Transformation*
     const Coord startpos = SI().transform( startbid );
     const Coord stoppos = SI().transform( stopbid );
     const Coord extrapos = SI().transform( extrabid );
-    const float zfact = SI().zFactor();
 
     Array2DImpl<double> A(3,3);
     A.set( 0, 0, startbid.inl );
@@ -115,7 +113,7 @@ visBase::Transformation*
 
     tf->setA(	mat11,	mat12,	0,	mat14,
 		mat21,	mat22,	0,	mat24,
-		0,	0,	-zfact,	0,
+		0,	0,	-1,	0,
 		0,	0,	0,	1 );
     return tf;
 }

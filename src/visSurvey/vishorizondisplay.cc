@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.57 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.58 2008-12-09 16:39:50 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -664,8 +664,8 @@ void HorizonDisplay::getRandomPos( DataPointSet& data ) const
 	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf ) return;
 
-	psurf->getDataPositions( data.bivSet(),
-				 getTranslation().z/SI().zFactor() );
+	const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+	psurf->getDataPositions( data.bivSet(), getTranslation().z/zfactor  );
     }
     data.dataChanged();
 }
@@ -999,8 +999,8 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<positions.size(); idx++ )
 	{
-	    const Coord3& pos = positions[idx] + 
-				getTranslation()/SI().zFactor();
+	    const float zfactor = scene_ ? scene_->getZFactor(): SI().zFactor();
+	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
 	    const float dist = fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
 	}
@@ -1254,7 +1254,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 }
 
 
-static void drawHorizonOnTimeSlice( const CubeSampling& cs,
+static void drawHorizonOnTimeSlice( const CubeSampling& cs, float zfactor,
 			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
 			const ZAxisTransform* zaxistransform, 
 			visBase::IndexedShape* line, int& cii )
@@ -1269,7 +1269,7 @@ static void drawHorizonOnTimeSlice( const CubeSampling& cs,
 	   		  hor->geometry().colRange(sid) );
     ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
     ObjectSet<ODPolygon<float> > isocontours;
-    const float zshift = hor->geometry().getShift() / SI().zFactor();
+    const float zshift = hor->geometry().getShift() / zfactor;
     ictracer.getContours( isocontours, cs.zrg.start-zshift, false );
     
     for ( int cidx=0; cidx<isocontours.size(); cidx++ )
@@ -1494,7 +1494,10 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		drawHorizonOnTimeSlice( cs, horizon, sid,  
+		const float zfactor = scene_
+		    ? scene_->getZFactor()
+		    : SI().zFactor();
+		drawHorizonOnTimeSlice( cs, zfactor, horizon, sid,  
 				        zaxistransform_, line, cii );
 	    }
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visarrow.cc,v 1.12 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: visarrow.cc,v 1.13 2008-12-09 16:39:50 cvskris Exp $";
 
 #include "visarrow.h"
 
@@ -116,7 +116,7 @@ void ArrowDisplay::setPosition( int idx, const Pick::Location& loc )
     const Coord3 d0 = world2Display( loc.pos );
     Coord3 vector = spherical2Cartesian( loc.dir, true );
 
-    vector.z /= -SI().zFactor();
+    vector.z /= -scene_->getZFactor();
     const Coord3 c1 = loc.pos+vector;
     Coord3 d1 = world2Display( c1 );
     Coord3 displayvector = d1-d0;

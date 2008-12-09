@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.49 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.50 2008-12-09 16:39:50 cvskris Exp $";
 
 
 #include "visseis2ddisplay.h"
@@ -451,7 +451,10 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
     if ( !zrg.includes(xytpos.z) )
     {
 	zdif = mMIN( fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop) );
-	zdif *= SI().zFactor() * scene_->getZScale();
+	const float zscale = scene_
+	    ? scene_->getZFactor() *scene_->getZScale()
+	    : SI().zFactor();
+	zdif *= zscale;
     }
 
     return Math::Sqrt( mindist + zdif*zdif );
