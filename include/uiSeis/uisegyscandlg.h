@@ -7,15 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyscandlg.h,v 1.4 2008-11-19 08:30:26 cvsbert Exp $
+ RCS:           $Id: uisegyscandlg.h,v 1.5 2008-12-10 16:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisegyreaddlg.h"
 namespace SEGY { class Scanner; }
-class uiSeisSel;
 class CtxtIOObj;
+class uiSeisSel;
+class uiSeisLineSel;
 
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
@@ -39,9 +40,10 @@ protected:
     CtxtIOObj&		ctio_;
 
     uiSeisSel*		outfld_;
+    uiSeisLineSel*	lnmfld_;
 
     virtual bool	doWork(const IOObj&);
-    bool		mkOutput();
+    bool		mkOutput(const char*,const char*);
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.105 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.106 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "uiseispartserv.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uiseispartserv.cc,v 1.105 2008-11-25 15:35:26 c
 #include "survinfo.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
+#include "seisioobjinfo.h"
 
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
@@ -177,21 +178,7 @@ void uiSeisPartServer::get2DLineInfo( BufferStringSet& linesets,
 				      TypeSet<MultiID>& setids,
 				      TypeSet<BufferStringSet>& linenames )
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
-    ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
-    for ( int idx=0; idx<ioobjs.size(); idx++ )
-    {
-	const IOObj& ioobj = *ioobjs[idx];
-	if ( !SeisTrcTranslator::is2D(ioobj,true)
-	  || SeisTrcTranslator::isPS(ioobj) ) continue;
-
-	uiSeisIOObjInfo oinf(ioobj,false);
-	BufferStringSet lnms;
-	oinf.getLineNames( lnms );
-	linesets.add( ioobj.name() );
-	setids += ioobj.key();
-	linenames += lnms;
-    }
+    SeisIOObjInfo::get2DLineInfo( linesets, &setids, &linenames );
 }
 
 

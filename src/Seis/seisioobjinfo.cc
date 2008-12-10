@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.18 2008-07-31 09:30:40 cvsumesh Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.19 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.18 2008-07-31 09:30:40 cvs
 #include "ptrman.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "iopar.h"
 #include "conn.h"
 #include "linekey.h"
@@ -25,6 +26,9 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.18 2008-07-31 09:30:40 cvs
 #include "keystrs.h"
 #include "errh.h"
 
+#define mGoToSeisDir() \
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) )
+
 
 SeisIOObjInfo::SeisIOObjInfo( const IOObj* ioobj )
     	: ioobj_(ioobj ? ioobj->clone() : 0)		{ setType(); }
@@ -32,6 +36,15 @@ SeisIOObjInfo::SeisIOObjInfo( const IOObj& ioobj )
     	: ioobj_(ioobj.clone())				{ setType(); }
 SeisIOObjInfo::SeisIOObjInfo( const MultiID& id )
     	: ioobj_(IOM().get(id))				{ setType(); }
+
+
+SeisIOObjInfo::SeisIOObjInfo( const char* ioobjnm )
+    	: ioobj_(0)
+{
+    mGoToSeisDir();
+    ioobj_ = IOM().getLocal( ioobjnm );
+    setType();
+}
 
 
 SeisIOObjInfo::SeisIOObjInfo( const SeisIOObjInfo& sii )
@@ -414,3 +427,31 @@ void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
 	ids += id;
     }
 }
+
+
+void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
+				   TypeSet<MultiID>* setids,
+				   TypeSet<BufferStringSet>* linenames )
+{
+    mGoToSeisDir();
+    ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj& ioobj = *ioobjs[idx];
+	if ( !SeisTrcTranslator::is2D(ioobj,true)
+	  || SeisTrcTranslator::isPS(ioobj) ) continue;
+
+	linesets.add( ioobj.name() );
+	if ( setids )
+	    *setids += ioobj.key();
+
+	if ( linenames )
+	{
+	    SeisIOObjInfo oinf( ioobj );
+	    BufferStringSet lnms;
+	    oinf.getLineNames( lnms );
+	    *linenames += lnms;
+	}
+    }
+}
+

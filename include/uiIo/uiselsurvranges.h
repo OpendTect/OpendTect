@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.6 2008-04-24 10:32:01 cvsraman Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.7 2008-12-10 16:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,7 +126,7 @@ public:
 };
 
 
-/*!\brief Selects sub-volume. Default will be SI() work area */
+/*!\brief Selects sub-line. Default will be 1-udf and SI() z range*/
 
 class uiSelSubline : public uiGroup
 {

@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.13 2008-12-04 15:55:27 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.14 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -196,7 +196,8 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	while ( !atEndOfSection(astrm.next()) )
 	{
 	    keyw = astrm.keyWord(); val = astrm.value();
-	    TraceInfo* ti = new TraceInfo( geom_ );
+	    RichTraceInfo* rti = is2d ? new RichTraceInfo( geom_ ) : 0;
+	    TraceInfo* ti = rti ? rti : new TraceInfo( geom_ );
 	    if ( is2d )
 		ti->pos_.setTrcNr( keyw.getIValue(0) );
 	    else
@@ -206,6 +207,11 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 
 	    const char ch( *val[0] );
 	    ti->usable_ = ch != 'U';
+	    if ( is2d )
+	    {
+		rti->coord_.use( val[1] );
+		rti->azimuth_ = val.getFValue(2);
+	    }
 
 	    *this += ti;
 	}
@@ -214,7 +220,9 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
     {
 	std::istream& strm = astrm.stream();
 	int entrylen = 1 + (isps ? 4 : 0) + sizeof(int);
-	if ( !is2d )
+	if ( is2d )
+	    entrylen += 2*sizeof(double) + sizeof(float); // + coord/azim
+	else
 	    entrylen += sizeof(int);
 	char* buf = new char [entrylen];
 
@@ -225,12 +233,13 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 		{ strm.ignore( 1 ); break; }
 
 	    strm.read( buf, entrylen );
-	    TraceInfo* ti = new TraceInfo( geom_ );
+	    RichTraceInfo* rti = is2d ? new RichTraceInfo( geom_ ) : 0;
+	    TraceInfo* ti = rti ? rti : new TraceInfo( geom_ );
 	    ti->usable_ = buf[0] != 'U';
 
 	    char* bufpos = buf + 1;
 
-#define mGtVal(attr,typ)   ti->attr = *((typ*)bufpos); bufpos += sizeof(typ)
+#define mGtVal(attr,typ)   attr = *((typ*)bufpos); bufpos += sizeof(typ)
 #ifdef __little__
 # define mGetVal(attr,typ) { mGtVal(attr,typ); }
 #else
@@ -238,14 +247,20 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 #endif
 
 	    if ( is2d )
-		mGetVal(pos_.trcNr(),int)
+		mGetVal(ti->pos_.trcNr(),int)
 	    else
 	    {
-		mGetVal(pos_.inLine(),int)
-		mGetVal(pos_.xLine(),int)
+		mGetVal(ti->pos_.inLine(),int)
+		mGetVal(ti->pos_.xLine(),int)
 	    }
 	    if ( isps )
-		mGetVal(pos_.offset(),float)
+		mGetVal(ti->pos_.offset(),float)
+	    if ( is2d )
+	    {
+		mGetVal(rti->coord_.x,double);
+		mGetVal(rti->coord_.x,double);
+		mGetVal(rti->azimuth_,float)
+	    }
 
 	    *this += ti;
 	}
@@ -288,6 +303,12 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 		keyw += ti.offset();
 
 	    val = ti.usable_ ? (ti.isNull() ? "Null" : "OK") : "Unusable";
+	    if ( is2d )
+	    {
+		BufferString s( 128, true );
+		ti.coord().fill( s.buf() ); val += s;
+		val += ti.azimuth();
+	    }
 	    astrm.put( keyw.buf(), val.buf() );
 	}
     }
@@ -311,6 +332,12 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 		{ mPutVal(pos_.inLine(),int); mPutVal(pos_.xLine(),int) }
 	    if ( isps )
 		mPutVal(offset(),float)
+	    if ( is2d )
+	    {
+		mPutVal(coord().x,double);
+		mPutVal(coord().y,double);
+		mPutVal(azimuth(),float);
+	    }
 	}
 
 	strm << "\n";

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.3 2008-12-04 15:55:26 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.4 2008-12-10 16:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,8 @@ public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
 
     virtual bool	isReadDefault() const	{ return true; }
-    virtual const char*	defExtension() const    { return "sgydef"; }
+    virtual const char*	defExtension() const	{ return fileExt(); }
+    static const char*	fileExt()		{ return "sgydef"; }
 
 };
 
@@ -93,7 +94,6 @@ public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)
 
     virtual bool	isReadDefault() const	{ return true; }
-    virtual const char*	defExtension() const    { return "sgydef"; }
 
 };
 

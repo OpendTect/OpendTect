@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.18 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.19 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -186,7 +186,7 @@ void uiSEGYFileSpec::use( const IOObj* ioobj, bool force )
     mDynamicCastGet(const IOStream*,iostrm,ioobj)
     if ( !iostrm ) { pErrMsg("Wrong IOObj type"); return; }
 
-    fnmfld_->setFileName( iostrm->fullUserExpr(forread_) );
+    fnmfld_->setFileName( iostrm->getExpandedName(forread_,false) );
     if ( iostrm->isMulti() )
 	setMultiInput( iostrm->fileNumbers(), iostrm->zeroPadding() );
 

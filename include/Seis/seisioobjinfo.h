@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.9 2008-07-21 08:41:51 cvsumesh Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.10 2008-12-10 16:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
 			SeisIOObjInfo(const IOObj*);
 			SeisIOObjInfo(const IOObj&);
 			SeisIOObjInfo(const MultiID&);
+			SeisIOObjInfo(const char* ioobjnm);
 			SeisIOObjInfo(const SeisIOObjInfo&);
 			~SeisIOObjInfo();
 
@@ -94,6 +95,10 @@ public:
     			//!< Only does something if there is not yet a default
     static const MultiID& getDefault(const char* type=0);
     static void		setDefault(const MultiID&,const char* type=0);
+
+    static void		get2DLineInfo(BufferStringSet& linesets,
+	    			      TypeSet<MultiID>* setids=0,
+				      TypeSet<BufferStringSet>* linenames=0);
 
 protected:
 

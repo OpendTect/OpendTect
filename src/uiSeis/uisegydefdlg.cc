@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydefdlg.cc,v 1.13 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "uisegydefdlg.h"
 
@@ -123,7 +123,6 @@ int uiSEGYDefDlg::nrTrcExamine() const
 void uiSEGYDefDlg::use( const IOObj* ioobj, bool force )
 {
     filespecfld_->use( ioobj, force );
-    fileparsfld_->use( ioobj, force );
     SeisIOObjInfo oinf( ioobj );
     if ( oinf.isOK() )
     {

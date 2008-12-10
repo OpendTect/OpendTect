@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.145 2008-12-04 06:40:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.146 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -192,16 +192,16 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impmnu_, "&Mute Function ...", mImpMuteDefMnuItm );
     mInsertItem( impmnu_, "&Velocity ...", mImpVelocityMnuItm );
 
-    mInsertItem( impseis, "&SEG-Y ...", mImpSeisSEGYMnuItm );
-    uiPopupMenu* impseissimple = new uiPopupMenu( &appl_, "S&imple file" );
+    mInsertItem( impseis, "SEG-&Y ...", mImpSeisSEGYMnuItm );
+    mInsertItem( impseis, "SEG-Y &Pre-stack scanned ...",
+	    		mImpSeisSEGYDirectMnuItm );
+    uiPopupMenu* impseissimple = new uiPopupMenu( &appl_, "&Simple file" );
     mInsertItem( impseissimple, "&3D ...", mImpSeisSimple3DMnuItm );
     mInsertItem( impseissimple, "&2D ...", mImpSeisSimple2DMnuItm );
     mInsertItem( impseissimple, "&Pre-Stack 3D ...", mImpSeisSimplePS3DMnuItm );
-    mInsertItem( impseissimple, "&Pre-Stack 2D ...", mImpSeisSimplePS2DMnuItm );
+    mInsertItem( impseissimple, "Pre-S&tack 2D ...", mImpSeisSimplePS2DMnuItm );
     impseis->insertItem( impseissimple );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
-    mInsertItem( impseis, "SEG-&Y (Pre-stack,in-place) ...",
-	    		mImpSeisSEGYDirectMnuItm );
 
     uiPopupMenu* imphorasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );

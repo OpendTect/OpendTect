@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.25 2008-11-26 12:50:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.26 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -383,6 +383,7 @@ void uiSEGYRead::getBasicOpts()
 
 void uiSEGYRead::basicOptsGot()
 {
+    if ( !defdlg_ ) return;
     if ( !defdlg_->uiResult() )
 	mSetState(Cancelled);
     geom_ = defdlg_->geomType();

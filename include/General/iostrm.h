@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.22 2008-11-18 17:25:15 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.23 2008-12-10 16:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,8 +33,8 @@ public:
 
     void		copyFrom(const IOObj*);
     const char*		fullUserExpr(bool) const;
-    const char*		getExpandedName(bool forread) const;
-    			//!< Will fill in '*' or '%'
+    const char*		getExpandedName(bool forread,
+	    				bool fillwildcard=true) const;
     void		genDefaultImpl()		{ genFileName(); }
 
     const char*		connType() const;
@@ -92,7 +92,7 @@ public:
     StepInterval<int>&	fileNumbers()			{ return fnrs; }
     const StepInterval<int>& fileNumbers() const	{ return fnrs; }
 
-    StreamProvider*	streamProvider(bool) const;
+    StreamProvider*	streamProvider(bool,bool fillwc=true) const;
     bool		isMulti() const
 			{ return fnrs.start != fnrs.stop; }
 

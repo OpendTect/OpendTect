@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.15 2008-12-04 15:55:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.16 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.15 2008-12-04 15:55:27 cvs
 #include "segyfiledata.h"
 #include "segyscanner.h"
 #include "segydirectdef.h"
+#include "filegen.h"
 #include <sstream>
 
 
@@ -34,6 +35,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
     , forsurvsetup_(ss)
     , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
     , outfld_(0)
+    , lnmfld_(0)
 {
     uiObject* attobj = 0;
     if ( setup_.dlgtitle_.isEmpty() )
@@ -62,6 +64,12 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	    outfld_->attach( alignedBelow, optsgrp_ );
 	else
 	    attobj = outfld_->attachObj();
+
+	if ( Seis::is2D(setup_.geom_) )
+	{
+	    lnmfld_ = new uiSeisLineSel( this );
+	    lnmfld_->attach( alignedBelow, outfld_ );
+	}
     }
 
     if ( attobj )
@@ -91,13 +99,42 @@ SEGY::Scanner* uiSEGYScanDlg::getScanner()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s1,s2) { uiMSG().error(s1,s2); return false; }
 
 
 bool uiSEGYScanDlg::doWork( const IOObj& )
 {
-    if ( outfld_ && !outfld_->commitInput(true) )
-	mErrRet("Please enter a name for the output data store file")
+    BufferString pathnm, lnm;
+    if ( outfld_ )
+    {
+	if ( lnmfld_ )
+	{
+	    lnm = lnmfld_->lineName();
+	    if ( lnm.isEmpty() )
+		mErrRet("Please select the line name",0)
+	}
+
+        if ( !outfld_->commitInput(true) )
+	    mErrRet("Please enter a name for the output data store file",0)
+
+	pathnm = ctio_.ioobj->fullUserExpr( Conn::Write );
+	if ( lnmfld_ )
+	{
+	    if ( !File_isDirectory(pathnm) )
+	    {
+		File_createDir(pathnm,0);
+		if ( !File_isDirectory(pathnm) )
+		    mErrRet("Cannot create directory for output:\n",pathnm)
+	    }
+	    if ( !File_isWritable(pathnm) )
+		mErrRet("Output directory is not writable:\n",pathnm)
+	}
+	else
+	{
+	    if ( File_exists(pathnm) && !File_isWritable(pathnm) )
+		mErrRet("Cannot overwrite output file:\n",pathnm)
+	}
+    }
 
     SEGY::FileSpec fs; fs.usePar( pars_ );
     delete scanner_; scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
@@ -112,15 +149,15 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     if ( !displayWarnings(scanner_->warnings(),outfld_) )
 	return false;
 
-    return outfld_ ? mkOutput() : true;
+    return outfld_ ? mkOutput( pathnm, lnm ) : true;
 }
 
 
-bool uiSEGYScanDlg::mkOutput()
+bool uiSEGYScanDlg::mkOutput( const char* pathnm, const char* lnm )
 {
     const SEGY::FileDataSet& fds = scanner_->fileDataSet();
     if ( fds.isEmpty() )
-	mErrRet("No files found")
+	mErrRet("No files found",0)
     bool anydata = false;
     for ( int idx=0; idx<fds.size() ; idx++ )
     {
@@ -129,12 +166,17 @@ bool uiSEGYScanDlg::mkOutput()
     }
     if ( !anydata )
 	mErrRet(fds.size() > 1 ? "No traces found in any of the files"
-				: "No traces found in file")
+				: "No traces found in file",0)
     presentReport( parent(), *scanner_ );
 
     SEGY::DirectDef dd;
     dd.setData( fds, true );
-    if ( !dd.writeToFile( ctio_.ioobj->fullUserExpr(Conn::Read) ) )
+
+    BufferString fnm;
+    if ( *lnm ) fnm = SEGY::DirectDef::get2DFileName( pathnm, lnm );
+    else	fnm = pathnm;
+
+    if ( !dd.writeToFile( fnm ) )
     {
 	uiMSG().error( "Cannot write data definition file to disk.\n"
 			"You cannot use the data store." );

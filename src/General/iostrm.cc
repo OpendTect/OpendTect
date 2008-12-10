@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.27 2008-11-18 17:25:15 cvsbert Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.28 2008-12-10 16:16:33 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -83,10 +83,10 @@ void IOStream::copyFrom( const IOObj* obj )
 }
 
 
-const char* IOStream::getExpandedName( bool forread ) const
+const char* IOStream::getExpandedName( bool forread, bool fillwc ) const
 {
     static BufferString ret;
-    StreamProvider* sp = streamProvider( forread );
+    StreamProvider* sp = streamProvider( forread, fillwc );
     if ( !sp ) return "<bad>";
     ret = sp->fullName();
     delete sp;
@@ -390,12 +390,13 @@ bool IOStream::putTo( ascostream& stream ) const
 }
 
 
-StreamProvider* IOStream::streamProvider( bool fr ) const
+StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
 {
     FileNameString nm( type_ == StreamConn::Command && !fr
 			? writer() : (const char*)fname );
 
-    const bool doins = isMulti() && (strchr(nm,'*') || strchr(nm,'%'));
+    const bool doins = fillwc && isMulti()
+	&& (strchr(nm,'*') || strchr(nm,'%'));
     if ( doins )
     {
 	char numb[80], numbstr[80]; numbstr[0] = '\0';

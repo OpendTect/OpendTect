@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.32 2008-09-26 13:36:29 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.33 2008-12-10 16:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiioobjsel.h"
+#include "uicompoundparsel.h"
 #include "seistype.h"
 
 class uiSeisIOObjInfo;
@@ -105,6 +106,27 @@ protected:
     void		entrySel(CallBacker*);
     void 		attrNmSel(CallBacker*);
     const char*		getDataType();
+};
+
+
+class uiSeisLineSel : public uiCompoundParSel
+{
+public:
+
+    			uiSeisLineSel(uiParent*,const char* lsnm=0);
+
+    const char*		lineName() const	{ return lnm_; }
+    const char*		lineSetName() const	{ return lsnm_; }
+
+protected:
+
+    BufferString	lnm_;
+    BufferString	lsnm_;
+    bool		fixedlsname_;
+
+    BufferString	getSummary() const;
+
+    void		selPush(CallBacker*);
 };
 
 
