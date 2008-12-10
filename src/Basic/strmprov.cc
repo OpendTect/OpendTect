@@ -43,7 +43,7 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.76 2008-12-10 11:01:21 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.77 2008-12-10 11:59:08 cvsranojay Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -420,7 +420,7 @@ StreamData StreamProvider::makeIStream( bool binary ) const
     {
 #ifdef __msvc__
 	// TODO
-	pErrMsg( "Not implemented yet" );
+	pErrMsg( "Not implemented yet" )
 #else
 # if __GNUC__ > 2
 	//TODO change StreamData to include filebuf?
@@ -471,7 +471,7 @@ StreamData StreamProvider::makeOStream( bool binary ) const
     {
 #ifdef __msvc__
 	// TODO
-	pErrMsg( "Not implemented yet" );
+	pErrMsg( "Not implemented yet" )
 #else
 # if __GNUC__ > 2
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, std::ios_base::out );
