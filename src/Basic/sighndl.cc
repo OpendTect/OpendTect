@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2000
- RCS:           $Id: sighndl.cc,v 1.30 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: sighndl.cc,v 1.31 2008-12-10 12:09:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sighndl.cc,v 1.30 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: sighndl.cc,v 1.31 2008-12-10 12:09:49 cvsnanne Exp $";
 
 #include "sighndl.h"
 #include "strmdata.h"
@@ -75,13 +75,6 @@ CallBackSet& SignalHandling::getCBL( SignalHandling::EvType et )
     default:		return killcbs;
     }
 }
-
-#ifdef __msvc__
-
-SignalHandling::SignalHandling() {}
-
-#else
-
 
 
 SignalHandling::SignalHandling()
@@ -319,5 +312,3 @@ void SignalHandling::handleAlarm()
 {
     alarmcbs.doCall( this, 0 );
 }
-
-#endif
