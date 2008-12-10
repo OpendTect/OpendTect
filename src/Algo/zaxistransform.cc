@@ -4,7 +4,7 @@
  * DATE     : Oct 2005
 -*/
 
-static const char* rcsID = "$Id: zaxistransform.cc,v 1.13 2008-02-13 12:25:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: zaxistransform.cc,v 1.14 2008-12-10 17:43:32 cvskris Exp $";
 
 #include "zaxistransform.h"
 
@@ -68,6 +68,16 @@ float ZAxisTransform::getZIntervalCenter( bool from ) const
 
     return rg.center();
 }
+
+
+float ZAxisTransform::getGoodZStep() const
+{
+    return SI().zRange(true).step;
+}
+
+
+const char* ZAxisTransform::getZDomainString() const
+{ return SI().zDomainString(); }
 
 
 ZAxisTransformSampler::ZAxisTransformSampler( const ZAxisTransform& trans,
