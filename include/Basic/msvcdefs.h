@@ -7,10 +7,10 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.5 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: msvcdefs.h,v 1.6 2008-12-10 12:02:41 cvsranojay Exp $
 ________________________________________________________________________
 
- For use with Microsoft Visual C++ 5.0 and 6.0
+ For use with Microsoft Visual C++ 8.0
 
 -*/
 
@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 #define strtoll		_strtoi64
 #define strtoull	_strtoui64
+#define strtof		strtod
 
 // Index variable's scope is non-ANSI. This corrects that idiocy.
 #define for				if (0) ; else for
