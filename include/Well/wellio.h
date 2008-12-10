@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.6 2008-12-05 16:21:47 cvsbert Exp $
+ RCS:		$Id: wellio.h,v 1.7 2008-12-10 10:02:03 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,8 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "strmdata.h"
+class IOObj;
+class MultiID;
 
 namespace Well
 {
@@ -23,7 +25,8 @@ class IO
 {
 public:
 
-    static const char*	mkFileName(const char*,const char* ext,int nr=0);
+    const BufferString&	baseName() const	{ return basenm; }
+
     const char*		getFileName(const char* ext,int nr=0) const;
     bool		removeAll(const char* ext) const;
 
@@ -38,7 +41,11 @@ public:
     static const char*	sExtD2T;
     static const char*	sExtDispProps;
 
+    static const char*	getMainFileName(const IOObj&);
+    static const char*	getMainFileName(const MultiID&);
+
 protected:
+
 
 			IO(const char*,bool);
 
@@ -48,6 +55,10 @@ protected:
 private:
 
     const bool		isrdr;
+
+public:
+
+    static const char*	mkFileName(const char* basefnm,const char* ext,int nr=0);
 
 };
 

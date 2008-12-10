@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.28 2008-12-05 16:21:47 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.29 2008-12-10 10:02:03 cvsbruno Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.28 2008-12-05 16:21:47 cvsber
 #include "keystrs.h"
 #include "separstr.h"
 #include "iopar.h"
+#include "ioobj.h"
+#include "ioman.h"
 #include "ptrman.h"
 #include "bufstringset.h"
 #include <iostream>
@@ -69,6 +71,20 @@ const char* Well::IO::mkFileName( const char* bnm, const char* ext, int nr )
 	{ fnm += "^"; fnm += nr; }
     fnm += ext;
     return fnm;
+}
+
+
+const char* Well::IO::getMainFileName( const IOObj& ioobj )
+{
+    return ioobj.fullUserExpr( true );
+}
+
+
+const char* Well::IO::getMainFileName( const MultiID& mid )
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return 0;
+    return getMainFileName( *ioobj );
 }
 
 
