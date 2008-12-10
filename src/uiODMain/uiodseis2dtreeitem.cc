@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.47 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.48 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -402,7 +402,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 
-	BufferString lbl( "Z-Range " ); lbl += SI().getZUnit();
+	BufferString lbl( "Z-Range " ); lbl += SI().getZUnitString();
 	Interval<int> intzrg( mNINT(curzrg_.start*SI().zFactor()), 
 			      mNINT(curzrg_.stop*SI().zFactor()) );
 	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,

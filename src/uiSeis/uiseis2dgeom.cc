@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.14 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.15 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
@@ -54,7 +54,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 	    		       BoolInpSpec(true) );
     incnrfld->attach( alignedBelow, lnmsfld );
 
-    BufferString txt( "Add Z value" ); txt += SI().getZUnit(true);
+    BufferString txt( "Add Z value" ); txt += SI().getZUnitString(true);
     const float zval = SI().zRange(true).start * SI().zFactor();
     zfld = new uiGenInput( this, txt, FloatInpSpec(zval) );
     zfld->setWithCheck( true );

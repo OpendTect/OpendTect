@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.38 2008-12-05 10:47:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.39 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -67,7 +67,7 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     inpfld_ = getInpFld();
 
     BufferString gatestr = "Correlation window ";
-    gatestr += SI().getZUnit();
+    gatestr += SI().getZUnitString();
     gatefld_ = new uiGenInput( this, gatestr, FloatInpIntervalSpec() );
     gatefld_->attach( alignedBelow, inpfld_ );
 
@@ -76,12 +76,12 @@ uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
     exambut_->attach( rightOf, gatefld_ );
 
     BufferString lagstr = "Lag size ";
-    lagstr += SI().getZUnit();
+    lagstr += SI().getZUnitString();
     lagfld_ = new uiGenInput( this, lagstr, IntInpSpec() );
     lagfld_->attach( alignedBelow, gatefld_ );
     
     BufferString gapstr = "Gap size ";
-    gapstr += SI().getZUnit();
+    gapstr += SI().getZUnitString();
     gapfld_ = new uiGenInput( this, gapstr, IntInpSpec() );
     gapfld_->attach( alignedBelow, lagfld_ );
     

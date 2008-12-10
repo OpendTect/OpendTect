@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.12 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.13 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -148,7 +148,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    colbarcomm += fp.fullPath(); colbarcomm += " -B";
 	    colbarcomm += rg.step * 5; colbarcomm += ":\"";
 	    colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
-	    colbarcomm += SI().getZUnit(false); colbarcomm += ": -K >> ";
+	    colbarcomm += SI().getZUnitString(false); colbarcomm += ": -K >> ";
 	    colbarcomm += fnm;
 	    if ( system(colbarcomm) )
 		mErrStrmRet("Failed to post color bar")

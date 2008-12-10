@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.9 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.10 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -38,7 +38,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
-    BufferString zdistlbl ( "Vertical Distance ", SI().getZUnit() ); 
+    BufferString zdistlbl ( "Vertical Distance ", SI().getZUnitString() ); 
     zdistfld_ = new uiGenInput( topgrp, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );

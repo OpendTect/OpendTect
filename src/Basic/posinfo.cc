@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.15 2008-12-05 04:34:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.16 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -757,7 +757,7 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
     else
     {
 	const float fac = SI().zFactor();
-	strm << "Z range " << SI().getZUnit() << ":\t" << fac*zrg_.start
+	strm << "Z range " << SI().getZUnitString() << ":\t" << fac*zrg_.start
 	     << '\t' << fac*zrg_.stop << "\t" << fac*zrg_.step;
 	strm << "\n\nTrace number\tX-coord\tY-coord" << std::endl;
     }

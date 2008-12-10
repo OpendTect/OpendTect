@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.8 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.9 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uigmtcontour.h"
 
@@ -69,7 +69,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     readbut_->setSensitive( false );
 
     BufferString ztag = "Z range ";
-    ztag += SI().getZUnit( true );
+    ztag += SI().getZUnitString( true );
     rgfld_ = new uiGenInput( this, ztag, IntInpIntervalSpec(true) );
     rgfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
     rgfld_->attach( alignedBelow, readbut_ );

@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.6 2008-09-16 06:37:16 cvsraman Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.7 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -57,7 +57,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     horfld2_->attach( alignedBelow, horfld1_ );
 
     BufferString lbltxt = "Z Offset ";
-    lbltxt += SI().getZUnit(); lbltxt += " Top";
+    lbltxt += SI().getZUnitString(); lbltxt += " Top";
     tophorshiftfld_ = new uiGenInput( this, lbltxt,
 	    			            FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );

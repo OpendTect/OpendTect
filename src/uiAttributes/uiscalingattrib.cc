@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.20 2008-12-05 04:35:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.21 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
@@ -74,8 +74,8 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 					       .maxrowhgt(1)
 	   				       ,"Define Gate limits" );
 
-    BufferString lblstart = "Start "; lblstart += SI().getZUnit();
-    BufferString lblstop = "Stop "; lblstop += SI().getZUnit();
+    BufferString lblstart = "Start "; lblstart += SI().getZUnitString();
+    BufferString lblstop = "Stop "; lblstop += SI().getZUnitString();
     const char* collbls[] = { lblstart.buf(), lblstop.buf(), "Scale value", 0 };
     table->setColumnLabels( collbls );
     table->setNrRows( initnrrows );
@@ -87,7 +87,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 
     // for AGC
     BufferString label = "Window width ";
-    label += SI().getZUnit( true );
+    label += SI().getZUnitString( true );
     // TODO: make default value dependent on survey type
     windowfld = new uiGenInput( this, label.buf(), FloatInpSpec(200) );
     windowfld->attach( alignedBelow, typefld );

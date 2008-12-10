@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.7 2008-09-29 19:25:23 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.8 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -63,7 +63,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
 
     const float zstep = SI().zStep();
     BufferString zlabel = "Vertical ";
-    zlabel += SI().getZUnit(true);
+    zlabel += SI().getZUnitString(true);
 
     zlenfld_ = new uiLabeledSpinBox( stepoutgroup, zlabel.buf(), 0,
 	    			     "Z_spinbox" );

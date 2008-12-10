@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.34 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.35 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -727,7 +727,7 @@ uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
-    const BufferString lbl( "Z-Range ", SI().getZUnit() );
+    const BufferString lbl( "Z-Range ", SI().getZUnitString() );
     zrangefld_ = new uiGenInput( valgrp, lbl, FloatInpIntervalSpec(true) );
     zrangefld_->attach( alignedBelow, trcnrbinidfld_ );
     zrangefld_->setReadOnly();

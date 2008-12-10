@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.31 2008-12-08 12:51:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.32 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -77,7 +77,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, dps_(*const_cast<DataPointSet*>(&dps))
     	, setup_(su)
     	, zfac_(SI().zFactor())
-    	, zunitnm_(SI().getZUnit(false))
+    	, zunitnm_(SI().getZUnitString(false))
 	, tbl_(0)
     	, unsavedchgs_(false)
     	, fillingtable_(true)

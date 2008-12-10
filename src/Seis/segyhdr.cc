@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.66 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.67 2008-12-10 18:24:14 cvskris Exp $";
 
 
 #include "segyhdr.h"
@@ -88,7 +88,7 @@ SEGY::TxtHeader::TxtHeader( bool rev1 )
     if ( !SI().zIsTime() )
     {
 	buf = "Depth survey: 1 SEG-Y millisec = 1 ";
-	buf += SI().getZUnit(false);
+	buf += SI().getZUnitString(false);
 	putAt( 18, 6, 75, buf.buf() );
     }
 }
@@ -200,7 +200,7 @@ void SEGY::TxtHeader::setStartPos( float sp )
     {
 	buf = "First sample ";
 	buf += SI().zIsTime() ? "time " : "depth ";
-	buf += SI().getZUnit(); buf += ": ";
+	buf += SI().getZUnitString(); buf += ": ";
 	buf += sp * SI().zFactor();
     }
     putAt( 37, 6, 75, buf );

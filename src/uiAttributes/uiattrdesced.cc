@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.24 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.25 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
@@ -226,7 +226,7 @@ BufferString uiAttrDescEd::zDepLabel( const char* pre, const char* post ) const
     lbl += zstr;
     if ( post )
 	{ lbl += " "; lbl += post; }
-    lbl += " "; lbl += SI().getZUnit();
+    lbl += " "; lbl += SI().getZUnitString();
     return lbl;
 }
 

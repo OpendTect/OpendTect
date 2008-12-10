@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.51 2008-12-05 10:47:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.52 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uislicesel.h"
 
@@ -107,7 +107,7 @@ void uiSliceSel::createZFld()
     BufferString nm = "Z";
     if ( !istsl_ )
     {
-	label += " range "; label += SI().getZUnit();
+	label += " range "; label += SI().getZUnitString();
 	nm += " Start";
     }
     z0fld_ = new uiLabeledSpinBox( this, label, 0, nm );

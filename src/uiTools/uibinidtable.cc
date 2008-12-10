@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibinidtable.cc,v 1.15 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uibinidtable.cc,v 1.16 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uibinidtable.h"
 #include "uigeninput.h"
@@ -36,7 +36,7 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 
     if ( withz_ )
     {
-	BufferString lbl = "Z range "; lbl += SI().getZUnit();
+	BufferString lbl = "Z range "; lbl += SI().getZUnitString();
 	zfld_ = new uiGenInput( this, lbl,
 	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
 	zfld_->attach( leftAlignedBelow, table_ );

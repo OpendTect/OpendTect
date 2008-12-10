@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 ________________________________________________________________________
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.50 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.51 2008-12-10 18:24:13 cvskris Exp $";
 -*/
 
 #include "uifingerprintattrib.h"
@@ -127,7 +127,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 	   		.setName("Inl position",0).setName("Crl position",1) );
     refposfld_->attach( alignedBelow, refgrp_ );
 
-    BufferString zlabel = "Z "; zlabel += SI().getZUnit();
+    BufferString zlabel = "Z "; zlabel += SI().getZUnitString();
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );

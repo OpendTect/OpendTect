@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.15 2008-09-26 13:37:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.16 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -209,7 +209,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     if ( isimp_ )
     {
 	BufferString txt = "Sampling info: start, step ";
-	txt += SI().getZUnit(true);
+	txt += SI().getZUnitString(true);
 	txt += " and #samples";
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )

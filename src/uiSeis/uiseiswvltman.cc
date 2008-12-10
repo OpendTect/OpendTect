@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.29 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.30 2008-12-10 18:24:14 cvskris Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -122,7 +122,7 @@ uiSeisWvltManCrWvlt( uiParent* p )
     freqfld->attach( alignedBelow, isrickfld );
 
     const float usrsr = sisr * SI().zFactor();
-    txt = "Sample interval "; txt += SI().getZUnit();
+    txt = "Sample interval "; txt += SI().getZUnitString();
     srfld = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
     srfld->attach( alignedBelow, freqfld );
 
@@ -214,7 +214,7 @@ void uiSeisWvltMan::mkFileInfo()
 
 	BufferString tmp;
 	tmp += "Number of samples: "; tmp += wvlt->size(); tmp += "\n";
-	tmp += "Sample interval "; tmp += SI().getZUnit(true); tmp += ": ";
+	tmp += "Sample interval "; tmp += SI().getZUnitString(true);tmp += ": ";
 	tmp += wvlt->sampleRate() * zfac; tmp += "\n";
 	tmp += "Min/Max amplitude: ";
 	tmp += rc.min(); tmp += "/"; tmp += rc.max(); tmp += "\n";

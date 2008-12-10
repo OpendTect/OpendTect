@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.14 2008-12-02 13:58:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.15 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uicreatepicks.h"
 
@@ -326,7 +326,7 @@ uiGenRandPicks2D::uiGenRandPicks2D( uiParent* p, const BufferStringSet& hornms,
     }
 
     BufferString zlbl = "Z Range";
-    zlbl += SI().getZUnit();
+    zlbl += SI().getZUnitString();
     StepInterval<float> survzrg = SI().zRange(false);
     Interval<float> inpzrg( survzrg.start, survzrg.stop );
     inpzrg.scale( SI().zFactor() );

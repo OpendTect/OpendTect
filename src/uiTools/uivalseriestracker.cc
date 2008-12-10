@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivalseriestracker.cc,v 1.4 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uivalseriestracker.cc,v 1.5 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "uivalseriestracker.h"
 
@@ -39,7 +39,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     }
 
     BufferString srchwindtxt( "Search window " );
-    srchwindtxt += SI().getZUnit();
+    srchwindtxt += SI().getZUnitString();
     srchgatefld_ =
 	new uiGenInput( this, srchwindtxt.buf(), FloatInpIntervalSpec());
     const Interval<float> srchintv(
@@ -76,7 +76,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
     usesimifld_->attach( alignedBelow, ampthresholdfld_ );
 
     BufferString compwindtxt( "Compare window " );
-    compwindtxt += SI().getZUnit();
+    compwindtxt += SI().getZUnitString();
     compwinfld_ = new uiGenInput( this, compwindtxt, FloatInpIntervalSpec() );
     compwinfld_->valuechanged.notify( mCB(this,uiEventTracker,changeCB) );
     compwinfld_->attach( alignedBelow, usesimifld_ );

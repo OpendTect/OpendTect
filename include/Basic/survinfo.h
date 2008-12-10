@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.78 2008-12-10 18:06:06 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.79 2008-12-10 18:24:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,8 +91,8 @@ public:
     inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}
     void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);
-    const char*		getXYUnit(bool withparens=true) const;
-    const char*		getZUnit(bool withparens=true) const;
+    const char*		getXYUnitString(bool withparens=true) const;
+    const char*		getZUnitString(bool withparens=true) const;
     static float	defaultXYtoZScale(Unit zunit,Unit xyunit);
     			/*!<Gives a ballpark figure of how to scale Z to
 			    make it comparable to XY. */

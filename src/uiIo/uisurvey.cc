@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.95 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.96 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uisurvey.h"
 
@@ -519,7 +519,7 @@ void uiSurvey::mkInfo()
     BufferString inlinfo( "In-line range: " );
     BufferString crlinfo( "Cross-line range: " );
     BufferString zinfo( "Z range " );
-    zinfo += si.getZUnit(); zinfo += ": ";
+    zinfo += si.getZUnitString(); zinfo += ": ";
     BufferString bininfo( "Bin size (m/line): " );
 
     if ( si.sampling(false).hrg.totalNr() )

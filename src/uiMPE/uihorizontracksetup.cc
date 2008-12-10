@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.20 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.21 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -98,7 +98,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     evfld->valuechanged.notify( mCB(this,uiHorizonSetupGroup,selEventType) );
 
     BufferString srchwindtxt( "Search window " );
-    srchwindtxt += SI().getZUnit();
+    srchwindtxt += SI().getZUnitString();
     srchgatefld = new uiGenInput( grp, srchwindtxt, FloatInpIntervalSpec() );
     srchgatefld->attach( alignedBelow, evfld );
 
@@ -129,7 +129,7 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 	    mCB(this,uiHorizonSetupGroup,selUseSimilarity) );
 
     BufferString compwindtxt( "Compare window " );
-    compwindtxt += SI().getZUnit();
+    compwindtxt += SI().getZUnitString();
     compwinfld = new uiGenInput( grp, compwindtxt, FloatInpIntervalSpec() );
     compwinfld->attach( alignedBelow, usesimifld );
 

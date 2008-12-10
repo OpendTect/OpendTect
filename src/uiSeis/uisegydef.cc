@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.19 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.20 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -222,7 +222,7 @@ static uiGenInput* mkOverruleFld( uiGroup* grp, const char* txt,
 	if ( !mIsUdf(val) && isz ) val *= SI().zFactor();
 	FloatInpSpec fis( val );
 	BufferString fldtxt( txt );
-	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnit(); }
+	if ( isz ) { fldtxt += " "; fldtxt += SI().getZUnitString(); }
 	inp = new uiGenInput( grp, fldtxt, fis );
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.3 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "emfault3d.h"
 
@@ -422,7 +422,7 @@ Table::FormatDesc* Fault3DAscIO::getDesc()
     Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
 						    Table::Required );
     zti->setPropertyType( PropertyRef::surveyZType() );
-    zti->selection_.unit_ = UoMR().get( SI().getZUnit(false) );
+    zti->selection_.unit_ = UoMR().get( SI().getZUnitString(false) );
     fd->bodyinfos_ += zti;
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
 	    				     Table::Optional );

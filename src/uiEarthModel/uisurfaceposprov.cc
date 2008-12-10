@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.3 2008-03-10 16:35:14 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.4 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -57,10 +57,10 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     int v = (int)((zstep * zfac_) + .5);
     zstepfld_->setValue( v );
     zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
-    BufferString txt( "Z step " ); txt += SI().getZUnit();
+    BufferString txt( "Z step " ); txt += SI().getZUnitString();
     zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
 
-    txt = "Extra Z "; txt += SI().getZUnit();
+    txt = "Extra Z "; txt += SI().getZUnitString();
     extrazfld_ = new uiSelZRange( this, false, true, txt );
     extrazfld_->attach( alignedBelow, zstepfld_ );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.18 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.19 2008-12-10 18:24:13 cvskris Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -54,7 +54,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
     eventfld_ = new uiGenInput( this, "Event", StringListInpSpec(eventnms) );
     eventfld_->attach( alignedBelow, seisfld_ );
 
-    BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnit();
+    BufferString gatelbl( "Search gate " ); gatelbl += SI().getZUnitString();
     gatefld_ = new uiGenInput( this, gatelbl, FloatInpIntervalSpec() );
     gatefld_->setValues( -SI().zStep() * SI().zFactor(), 
 	    		  SI().zStep() * SI().zFactor() );

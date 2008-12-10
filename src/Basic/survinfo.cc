@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.109 2008-12-10 18:06:06 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.110 2008-12-10 18:24:14 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -483,13 +483,13 @@ const char* SIDistUnitString( bool feet, bool wb )
 }
 
 
-const char* SurveyInfo::getXYUnit( bool wb ) const
+const char* SurveyInfo::getXYUnitString( bool wb ) const
 {
     return SIDistUnitString( xyinfeet_, wb );
 }
 
 
-const char* SurveyInfo::getZUnit( bool wb ) const
+const char* SurveyInfo::getZUnitString( bool wb ) const
 {
     if ( zistime_ )
 	return wb ? "(ms)" : "ms";

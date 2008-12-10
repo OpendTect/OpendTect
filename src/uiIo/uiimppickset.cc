@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.35 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.36 2008-12-10 18:24:13 cvskris Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -80,7 +80,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 	zfld_->attach( alignedBelow, filefld_ );
 
 	BufferString constzlbl = "Specify constant Z value";
-	constzlbl += SI().getZUnit();
+	constzlbl += SI().getZUnitString();
 	constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
 	constzfld_->attach( alignedBelow, zfld_ );
 	constzfld_->display( zfld_->box()->currentItem() == 1 );

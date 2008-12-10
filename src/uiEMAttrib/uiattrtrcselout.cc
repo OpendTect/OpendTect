@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.46 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.47 2008-12-10 18:24:13 cvskris Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -167,7 +167,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 	    		FloatInpIntervalSpec().setName("Z Interval Start",0)
 	   				      .setName("Z Interval Stop",1) );
     gatefld_->attach( alignedBelow, seissubselfld_ );
-    uiLabel* lbl = new uiLabel( prnt, SI().getZUnit() );
+    uiLabel* lbl = new uiLabel( prnt, SI().getZUnitString() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
 }
 
@@ -178,7 +178,7 @@ void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
     extraztopfld_->setElemSzPol(uiObject::Small);
     extraztopfld_->attach( rightOf, objfld_ );
     extraztopfld_->setValue(0);
-    uiLabel* toplbl = new uiLabel( prnt, SI().getZUnit() );
+    uiLabel* toplbl = new uiLabel( prnt, SI().getZUnitString() );
     toplbl->attach( rightOf, extraztopfld_ );
 }
 
@@ -189,7 +189,7 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
     extrazbotfld_->setElemSzPol(uiObject::Small);
     extrazbotfld_->attach( rightOf, obj2fld_ );
     extrazbotfld_->setValue(0);
-    uiLabel* botlbl = new uiLabel( prnt, SI().getZUnit() );
+    uiLabel* botlbl = new uiLabel( prnt, SI().getZUnitString() );
     botlbl->attach( rightOf, extrazbotfld_ );
 }
 
