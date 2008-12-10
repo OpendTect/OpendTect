@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.5 2008-12-09 21:38:44 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.6 2008-12-10 17:44:36 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -413,7 +413,8 @@ void Time2DepthStretcher::udfFill( ValueSeries<float>& res, int sz )
 
 Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 {
-    const float factor = SI().defaultTime2DepthFactor(false);
+    const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
+	    					SurveyInfo::Meter);
 
     Interval<float> res = SI().zRange(true);
 
@@ -437,9 +438,18 @@ Interval<float> Time2DepthStretcher::getZInterval( bool time ) const
 float Time2DepthStretcher::getGoodZStep() const
 {
     if ( SI().zIsTime() )
-	return SI().zRange(true).step * SI().defaultTime2DepthFactor(false);
+    {
+	const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
+						    SurveyInfo::Meter);
+	return SI().zRange(true).step * factor;
+    }
+
     return SI().zRange(true).step;
 }
+
+
+const char* Time2DepthStretcher::getZDomainString() const
+{ return sKey::Depth; }
 
 
 void Time2DepthStretcher::releaseData()
@@ -525,7 +535,8 @@ void Depth2TimeStretcher::transformBack(const BinID& bid,
 
 Interval<float> Depth2TimeStretcher::getZInterval( bool depth ) const
 {
-    const float factor = SI().defaultTime2DepthFactor(false);
+    const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
+	    					SurveyInfo::Meter);
 
     Interval<float> res = SI().zRange(true);
 
@@ -551,5 +562,11 @@ float Depth2TimeStretcher::getGoodZStep() const
     if ( SI().zIsTime() )
 	return SI().zRange(true).step;
 
-    return SI().zRange(true).step / SI().defaultTime2DepthFactor(false);
+    const float factor = SI().defaultXYtoZScale(SurveyInfo::Second,
+	    					SurveyInfo::Meter);
+    return SI().zRange(true).step / factor;
 }
+
+
+const char* Depth2TimeStretcher::getZDomainString() const
+{ return sKey::TWT; }
