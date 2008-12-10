@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.31 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.32 2008-12-10 10:03:21 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -18,8 +18,11 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.31 2008-11-25 15:35:26 cv
 #include "welldata.h"
 #include "welllog.h"
 #include "welltrack.h"
+#include "welldisp.h"
 #include "welllogset.h"
+#include "wellwriter.h"
 #include "uiwellrdmlinedlg.h"
+#include "uiwelldisppropdlg.h"
 #include "multiid.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
@@ -29,10 +32,10 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.31 2008-11-25 15:35:26 cv
 #include "uilogselectdlg.h"
 #include "ptrman.h"
 #include "color.h"
+#include "errh.h"
 
 
 const int uiWellPartServer::evPreviewRdmLine			=0;
-const int uiWellPartServer::evCreateRdmLine			=1;
 const int uiWellPartServer::evCleanPreview			=2;
 
 
@@ -88,18 +91,72 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 }
 
 
+bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
+{
+    allapplied_ = false;
+    Well::Data* wd = Well::MGR().get( mid );
+    if ( !wd ) return false;
+    uiWellDispPropDlg dlg( parent(), *wd );
+    dlg.applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
+    bool rv = dlg.go();
+    if ( rv )
+	saveWellDispProps( allapplied_ ? 0 : wd );
+    return rv;
+}
+
+
+void uiWellPartServer::saveWellDispProps( const Well::Data* wd )
+{
+    ObjectSet<Well::Data>& wds = Well::MGR().wells();
+    for ( int iwll=0; iwll<wds.size(); iwll++ )
+    {
+	Well::Data& curwd = *wds[iwll];
+	if ( wd && &curwd != wd )
+	   continue;
+	saveWellDispProps( curwd, *Well::MGR().keys()[iwll] );
+    }
+}
+
+
+void uiWellPartServer::saveWellDispProps( const Well::Data& wd, const MultiID& key )
+{
+    Well::Writer wr( Well::IO::getMainFileName(key), wd );
+    if ( !wr.putDispProps() )
+	uiMSG().error( "Could not write display properties for \n",
+			wd.name() );
+}
+
+
+void uiWellPartServer::applyAll( CallBacker* cb )
+{
+    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
+    const Well::Data& edwd = dlg->wellData();
+    const Well::DisplayProperties& edprops = edwd.displayProperties();
+
+    ObjectSet<Well::Data>& wds = Well::MGR().wells();
+    for ( int iwll=0; iwll<wds.size(); iwll++ )
+    {
+	Well::Data& wd = *wds[iwll];
+	if ( &wd != &edwd )
+	{
+	    wd.displayProperties() = edprops;
+	    wd.dispparschanged.trigger();
+	}
+    }
+    allapplied_ = true;
+}
+
+
 bool uiWellPartServer::selectLogs( const MultiID& wellid, 
 					Well::LogDisplayParSet*& logparset ) 
 {
-    MultiID wellmultiid( wellid );
     ObjectSet<Well::LogDisplayParSet> logparsets;
     logparsets += logparset;
     ObjectSet<MultiID> wellids;
-    wellids += &wellmultiid;
+    MultiID wellmultiid( wellid ); wellids += &wellmultiid;
     uiLogSelectDlg dlg( parent(), wellids, logparsets );
-    if( !dlg.go() )
-	return false;
-    return true;
+    return dlg.go();
 }
 
 
