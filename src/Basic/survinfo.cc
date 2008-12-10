@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.106 2008-12-09 17:02:57 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.107 2008-12-10 16:06:24 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -459,27 +459,38 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
 }
 
 
+SurveyInfo::Unit SurveyInfo::xyUnit() const
+{ return xyinfeet_ ? Feet : Meter; }
+
+
+SurveyInfo::Unit SurveyInfo::zUnit() const
+{
+    if ( zistime_ ) return Second;
+    return zinfeet_ ? Feet : Meter;
+}
+
+
+const char* SIDistUnitString( bool feet, bool wb )
+{
+    if ( feet )
+	return wb ? "(ft)" : "ft";
+
+    return wb ? "(m)" : "m";
+}
+
+
 const char* SurveyInfo::getXYUnit( bool wb ) const
 {
-    static BufferString lbl;
-    lbl = BufferString( wb ? "(" : "", xyinfeet_ ? "ft" : "m", wb ? ")" : "" );
-    return lbl.buf();
+    return SIDistUnitString( xyinfeet_, wb );
 }
 
 
 const char* SurveyInfo::getZUnit( bool wb ) const
 {
-    static BufferString lbl;
-    lbl = wb ? "(" : "";
     if ( zistime_ )
-	lbl += "ms";
-    else if ( zinfeet_ )
-	lbl += "ft";
-    else
-	lbl += "m";
-    if ( wb ) lbl += ")";
-    
-    return lbl.buf();
+	return wb ? "(ms)" : "ms";
+
+    return SIDistUnitString( zinfeet_, wb );
 }
 
 
@@ -489,20 +500,29 @@ void SurveyInfo::setZUnit( bool istime, bool meter )
     zinfeet_ = istime ? false : !meter;
 }
 
-float SurveyInfo::defaultTime2DepthFactor( bool zinfeet )
+float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 {
-    return zinfeet ? 3000 : 1000;
+    if ( zunit==xyunit )
+	return 1;
+
+    if ( zunit==Second )
+    {
+	if ( xyunit==Meter )
+	    return 1000;
+
+	//xyunit==feet	
+	return 3048;
+    }
+    else if ( zunit==Feet && xyunit==Meter )
+	return 0.3048;
+
+//  zunit==Meter && xyunit==Feet
+    return 3.2808;
 }
 
 
 float SurveyInfo::zFactor() const
-{
-    const bool xyinfeet = xyInFeet();
-    if ( zistime_ ) return defaultTime2DepthFactor( xyinfeet );
-    if ( zinfeet_ )
-	return xyinfeet ? 1 : 0.3;
-    return xyinfeet ? 3 : 1;
-}
+{ return zIsTime() ? 1000 : 1; }
 
 
 bool SurveyInfo::depthsInFeetByDefault() const

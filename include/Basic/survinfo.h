@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.75 2008-12-09 17:02:57 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.76 2008-12-10 16:06:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     bool		isValid() const		{ return valid_; }
 
     enum Pol2D      	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
-    			DeclareEnumUtils(Pol2D)
+    			DeclareEnumUtils(Pol2D);
 
     const CubeSampling&	sampling( bool work ) const
     			{ return work ? wcs_ : cs_; }
@@ -81,6 +81,9 @@ public:
     bool		includes(const BinID&,const float,bool work) const;
 			//!< Returns true when pos is inside survey-range
 
+    enum Unit		{ Second, Meter, Feet };
+    Unit		xyUnit() const;
+    Unit		zUnit() const;
     inline bool		xyInFeet() const	{ return xyinfeet_;}
     inline bool		zIsTime() const		{ return zistime_; }
     inline bool		zInMeter() const	{ return !zistime_ &&!zinfeet_;}
@@ -89,9 +92,11 @@ public:
     void		setZUnit(bool istime,bool infeet=false);
     const char*		getXYUnit(bool withparens=true) const;
     const char*		getZUnit(bool withparens=true) const;
-    static float	defaultTime2DepthFactor(bool depthinfeet);
+    static float	defaultXYtoZScale(Unit xyunit,Unit zunit);
+    			/*!<Gives a ballpark figure of how to scale Z to
+			    make it comparable to xy. */
     float		zFactor() const;
-    			//!< Factor between real and displayed unit
+    			//!< Factor between real and displayed unit in UI
     bool		depthsInFeetByDefault() const;
     void		setSurvDataType( Pol2D typ )	{ survdatatype_ = typ; }
     Pol2D		getSurvDataType() const	{ return survdatatype_; }
