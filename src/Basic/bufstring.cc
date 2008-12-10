@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.13 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.14 2008-12-10 10:46:30 cvsranojay Exp $";
 
 #include "bufstring.h"
 
@@ -273,7 +273,12 @@ std::ostream& operator <<( std::ostream& s, const BufferString& bs )
 
 std::istream& operator >>( std::istream& s, BufferString& bs )
 {
+#ifdef __msvc__
+// TODO
+    s >> bs.buf();
+#else
     std::string stdstr; s >> stdstr;
     bs = stdstr.c_str();
+#endif
     return s;
 }
