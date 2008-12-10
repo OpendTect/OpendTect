@@ -22,12 +22,14 @@
 #  define popen _popen
 #  define pclose _pclose
 #  define fileno(s) _fileno(s)
-# include "errh.h"
+#  include "errh.h"
 # endif
 #endif
 
-#include <ext/stdio_filebuf.h>
-#define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
+#ifndef __msvc__
+# include <ext/stdio_filebuf.h>
+# define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
+#endif
 
 #include "strmprov.h"
 #include "filegen.h"
@@ -41,7 +43,7 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.75 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.76 2008-12-10 11:01:21 cvsranojay Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -416,12 +418,17 @@ StreamData StreamProvider::makeIStream( bool binary ) const
 
     if ( sd.fp )
     {
-#if __GNUC__ > 2
+#ifdef __msvc__
+	// TODO
+	pErrMsg( "Not implemented yet" );
+#else
+# if __GNUC__ > 2
 	//TODO change StreamData to include filebuf?
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, std::ios_base::in );
 	sd.istrm = new std::istream( stdiofb );
-#else
-	sd.istrm = new std::ifstream( fileno(sd.fp) );
+# else
+	sd.istrm = new std::ifstream( fileno(sd.fp) );  
+# endif
 #endif
     }
 
@@ -462,11 +469,16 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 
     if ( sd.fp )
     {
-#if __GNUC__ > 2
+#ifdef __msvc__
+	// TODO
+	pErrMsg( "Not implemented yet" );
+#else
+# if __GNUC__ > 2
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp, std::ios_base::out );
 	sd.ostrm = new std::ostream( stdiofb );
-#else
+# else
 	sd.ostrm = new std::ofstream( fileno(sd.fp) );
+# endif
 #endif
     }
 
