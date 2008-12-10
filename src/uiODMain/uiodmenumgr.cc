@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.146 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.147 2008-12-10 18:10:54 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -351,6 +351,10 @@ void uiODMenuMgr::fillAnalMenu()
 void uiODMenuMgr::fillSceneMenu()
 {
     mInsertItem( scenemnu_, "&New", mAddSceneMnuItm );
+    BufferString timedepth( "New " );
+    timedepth += SI().zIsTime() ? "depth" : "time";
+    timedepth += " scene";
+    mInsertItem( scenemnu_, timedepth.buf(), mAddTmeDepthMnuItm );
     mInsertItem( scenemnu_, "&Cascade", mCascadeMnuItm );
     uiPopupMenu* tileitm = new uiPopupMenu( &appl_, "&Tile" );
     scenemnu_->insertItem( tileitm );
@@ -693,12 +697,13 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mAXplotMnuItm:		applMgr().crossPlot(); break;			
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
+    case mAddTmeDepthMnuItm:	applMgr().addTimeDepthScene(); break;
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;
     case mTileAutoMnuItm: 	sceneMgr().tile(); break;
     case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;
     case mTileVerMnuItm: 	sceneMgr().tileVertical(); break;
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
-    case mZScaleMnuItm: 	applMgr().setZScale(); break;
+    case mZScaleMnuItm: 	applMgr().setZStretch(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
     case mPosconvMnuItm:	applMgr().posConversion(); break;	
