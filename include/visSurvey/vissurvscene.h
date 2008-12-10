@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.54 2008-12-09 16:39:50 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.55 2008-12-10 18:05:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -107,21 +107,23 @@ public:
 
     void			objectMoved(CallBacker*);
 
-    Notifier<Scene>		zscalechange;
-    void			setZScale(float);
+    Notifier<Scene>		zstretchchange;
+    void			setZStretch(float);
     				/*!<Used to set the z-strecthing according
 				    to the user's preference. Is unitless -
 				    all entities (i.e. distance vs time) 
-				    should be handled by zfactor.
+				    should be handled by zscale.
 				*/
-    float			getZScale() const;
+    float			getZStretch() const;
 
-    void			setZFactor(float);
-    				/*!<The zfactor should compensate for different
+    void			setZScale(float);
+    				/*!<The zscale should compensate for different
 				   entities in xy and z respectively and
-				   remain constant through the life of the scene.
-				*/
-    float			getZFactor() const;
+				   remain constant through the life of the
+				   scene.  */
+    float			getZScale() const;
+    				/*!<Returns an anproximate figure how to scale Z
+				    relates to XY coordinates in this scene. */
 
     mVisTrans*			getZScaleTransform() const;
     mVisTrans*			getInlCrl2DisplayTransform() const;
@@ -154,6 +156,7 @@ protected:
     				~Scene();
 
     void			init();
+    void			updateAnnotationText();
     void			createTransforms(const HorSampling&);
     void			mouseMoveCB(CallBacker*);
     visBase::Marker*		createMarker() const;
@@ -174,15 +177,15 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     const MouseCursor*		mousecursor_;
-    float			curzscale_;
-    float			zfactor_;
+    float			curzstretch_;
+    float			zscale_;
     BufferString		zdomainkey_;
     bool			allowshading_;
 
     static const char*		sKeyShowAnnot();
     static const char*		sKeyShowScale();
     static const char*		sKeyShowCube();
-    static const char*		sKeyZScale();
+    static const char*		sKeyZStretch();
     static const char*		sKeyZDataTransform();
     static const char*		sKeyAllowShading();
 };

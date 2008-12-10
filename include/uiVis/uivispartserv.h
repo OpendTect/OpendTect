@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.213 2008-12-05 15:55:30 cvsbert Exp $
+ RCS:           $Id: uivispartserv.h,v 1.214 2008-12-10 18:05:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,7 +256,7 @@ public:
 
 				//General stuff
     bool			deleteAllObjects();
-    void			setZScale();
+    void			setZStretch();
     bool			setWorkingArea();
     static const int		evViewModeChange;
     void			setViewMode(bool yn,bool notify=true);

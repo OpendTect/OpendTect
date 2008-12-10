@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.80 2008-12-10 10:04:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.81 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -430,7 +430,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd ) { info = ""; return; }
 
-    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     const float mousez = pos.z * zfactor;
     const float zstep2 = zfactor * SI().zStep()/2;
 
@@ -566,7 +566,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 	     !OD::altKeyboardButton(eventinfo.buttonstate_) &&
 	     !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	{
-	    const float zfactor = scene_ ? scene_->getZFactor(): SI().zFactor();
+	    const float zfactor = scene_ ? scene_->getZScale(): SI().zScale();
 	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
 	    {
 		int removeidx = group_->getFirstIdx(mousepressid_);
@@ -632,7 +632,7 @@ void WellDisplay::addPick( Coord3 pos )
     if ( pseudotrack_ )
     {
 	TypeSet<Coord3> wcoords;
-	const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 	insertidx = pseudotrack_->insertPoint( Coord(pos.x, pos.y), 
 					       pos.z * zfactor  );
 	for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )
@@ -734,7 +734,7 @@ void WellDisplay::showKnownPositions()
 
 TypeSet<Coord3> WellDisplay::getWellCoords() const
 {
-    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 
     TypeSet<Coord3> coords;
     for ( int idx=0; idx<pseudotrack_->nrPoints(); idx++ )

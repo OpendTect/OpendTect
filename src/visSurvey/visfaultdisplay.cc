@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.30 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.31 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -220,8 +220,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     if ( !explicitpanels_ )
     {
 	const float zscale = scene_
-	    ? scene_->getZFactor() *scene_->getZScale()
-	    : SI().zFactor();
+	    ? scene_->getZScale() *scene_->getZStretch()
+	    : SI().zScale();
 
 	mTryAlloc( explicitpanels_,Geometry::ExplFaultStickSurface(0,zscale));
 	explicitpanels_->display( false, true );
@@ -519,8 +519,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
     EM::PosID nearestpid0, nearestpid1, insertpid;
     const float zscale = scene_
-	? scene_->getZFactor() *scene_->getZScale()
-	: SI().zFactor();
+	? scene_->getZScale() *scene_->getZStretch()
+	: SI().zScale();
 
     faulteditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
 				      pos, zscale );

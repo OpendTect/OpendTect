@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.58 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.59 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -664,7 +664,7 @@ void HorizonDisplay::getRandomPos( DataPointSet& data ) const
 	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf ) return;
 
-	const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
 	psurf->getDataPositions( data.bivSet(), getTranslation().z/zfactor  );
     }
     data.dataChanged();
@@ -999,7 +999,7 @@ float HorizonDisplay::calcDist( const Coord3& pickpos ) const
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<positions.size(); idx++ )
 	{
-	    const float zfactor = scene_ ? scene_->getZFactor(): SI().zFactor();
+	    const float zfactor = scene_ ? scene_->getZScale(): SI().zScale();
 	    const Coord3& pos = positions[idx] + getTranslation()/zfactor;
 	    const float dist = fabs(xytpos.z-pos.z);
 	    if ( dist < mindist ) mindist = dist;
@@ -1495,8 +1495,8 @@ void HorizonDisplay::updateIntersectionLines(
 	    else
 	    {
 		const float zfactor = scene_
-		    ? scene_->getZFactor()
-		    : SI().zFactor();
+		    ? scene_->getZScale()
+		    : SI().zScale();
 		drawHorizonOnTimeSlice( cs, zfactor, horizon, sid,  
 				        zaxistransform_, line, cii );
 	    }

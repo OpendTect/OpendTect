@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.60 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.61 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -782,11 +782,11 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
              ? 0
 	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
 		     abs( binid.crl-cs.hrg.stop.crl) );
-    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     zdiff = cs.zrg.includes(xytpos.z)
 	     ? 0
 	     : mMIN(xytpos.z-cs.zrg.start,xytpos.z-cs.zrg.stop) *
-	       zfactor  * scene_->getZScale();
+	       zfactor  * scene_->getZStretch();
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
@@ -799,8 +799,8 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     
 float MPEDisplay::maxDist() const
 {
-    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
-    float maxzdist = zfactor * scene_->getZScale() * SI().zStep() / 2;
+    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
+    float maxzdist = zfactor * scene_->getZStretch() * SI().zStep() / 2;
     return engine_.trackPlane().boundingBox().nrZ()==1 
 					? maxzdist : SurveyObject::sDefMaxDist;
 }

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.205 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.206 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -188,7 +188,10 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 	if ( csfromsession_ != survey )
 	    survey = csfromsession_;
 	else
+	{
 	    survey.zrg.setFrom( datatransform_->getZInterval(false) );
+	    survey.zrg.step = datatransform_->getGoodZStep();
+	}
     }
 	
     const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
@@ -281,11 +284,11 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 	     ? 0
 	     : mMIN( abs(binid.crl-cs.hrg.start.crl),
 		     abs( binid.crl-cs.hrg.stop.crl) );
-    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
+    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     zdiff = cs.zrg.includes(xytpos.z)
 	? 0
 	: mMIN(fabs(xytpos.z-cs.zrg.start),fabs(xytpos.z-cs.zrg.stop)) *
-	  zfactor  * scene_->getZScale();
+	  zfactor  * scene_->getZStretch();
 
     const float inldist = SI().inlDistance();
     const float crldist = SI().crlDistance();
@@ -298,8 +301,8 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
 
 float PlaneDataDisplay::maxDist() const
 {
-    const float zfactor = scene_ ? scene_->getZFactor() : SI().zFactor();
-    float maxzdist = zfactor * scene_->getZScale() * SI().zStep() / 2;
+    const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
+    float maxzdist = zfactor * scene_->getZStretch() * SI().zStep() / 2;
     return orientation_==Timeslice ? maxzdist : SurveyObject::sDefMaxDist;
 }
 
@@ -691,7 +694,9 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
     res.zrg.include( c1.z );
     res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-    res.zrg.step = SI().zRange(true).step;
+    res.zrg.step = datatransform_ && displayspace
+	? datatransform_->getGoodZStep()
+	: SI().zRange(true).step;
 
     const char* zdomain = attrib>=0 && attrib<nrAttribs() 
 				? getSelSpec(attrib)->zDomainKey() : 0;
@@ -701,7 +706,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
     if ( datatransform_ && !displayspace )
     {
 	res.zrg.setFrom( datatransform_->getZInterval(true) );
-	res.zrg.step = SI().zRange( true ).step;
+	res.zrg.step = SI().zRange(true).step;
     }
 
     return res;

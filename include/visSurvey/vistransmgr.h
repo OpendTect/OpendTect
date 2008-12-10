@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2005
- RCS:           $Id: vistransmgr.h,v 1.2 2007-08-30 14:31:36 cvskris Exp $
+ RCS:           $Id: vistransmgr.h,v 1.3 2008-12-10 18:05:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,9 @@ public:
     visBase::Transformation*	createIC2DisplayTransform(const HorSampling&);
 
     void			setZScale(visBase::Transformation*,float);
-    float			defZScale() const	{ return 2; }
-    const char*			zScaleStr() const	{ return "Z Scale"; }
+    float			defZStretch() const	{ return 2; }
+    const char*			zStretchStr() const	{ return "Z Stretch"; }
+    const char*			zOldStretchStr() const	{ return "Z Scale"; }
 
     void			setCurrentScene( Scene* scn ) { scene_ = scn; }
     Scene*			currentScene() const	{ return scene_; }

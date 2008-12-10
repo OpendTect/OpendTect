@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.110 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.111 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -38,7 +38,7 @@ namespace visSurvey {
 const char* Scene::sKeyShowAnnot()		{ return "Show text"; }
 const char* Scene::sKeyShowScale()		{ return "Show scale"; }
 const char* Scene::sKeyShowCube()		{ return "Show cube"; }
-const char* Scene::sKeyZScale()			{ return "ZScale"; }
+const char* Scene::sKeyZStretch()		{ return "ZStretch"; }
 const char* Scene::sKeyZDataTransform()		{ return "ZTransform"; }
 const char* Scene::sKeyAllowShading()		{ return "Allow shading"; }
 
@@ -51,14 +51,14 @@ Scene::Scene()
     , mouseposchange(this)
     , mouseposval_(0)
     , mouseposstr_("")
-    , zscalechange(this)
-    , curzscale_(-1)
+    , zstretchchange(this)
+    , curzstretch_(-1)
     , datatransform_( 0 )
     , allowshading_(true)
     , mousecursor_( 0 )
     , polyselector_( 0 )
     , coordselector_( 0 )
-    , zfactor_( SI().zFactor() )
+    , zscale_( SI().zScale() )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -76,21 +76,32 @@ Scene::Scene()
 }
 
 
+void Scene::updateAnnotationText()
+{
+    if ( !annot_ )
+	return;
+
+    annot_->setText( 0, "In-line" );
+    annot_->setText( 1, "Cross-line" );
+    annot_->setText( 2, datatransform_ ? datatransform_->getZDomainString()
+				       : SI().zDomainString() );
+}
+
+
 void Scene::init()
 {
     annot_ = visBase::Annotation::create();
-    annot_->setText( 0, "In-line" );
-    annot_->setText( 1, "Cross-line" );
-    annot_->setText( 2, SI().zIsTime() ? "TWT" : "Depth" );
 
     const CubeSampling& cs = SI().sampling(true);
     createTransforms( cs.hrg );
-    float zsc = STM().defZScale();
-    SI().pars().get( STM().zScaleStr(), zsc );
-    setZScale( zsc );
+    float zsc = STM().defZStretch();
+    if ( !SI().pars().get( STM().zStretchStr(), zsc ) )
+	SI().pars().get( STM().zOldStretchStr(), zsc );
+    setZStretch( zsc );
 
     setAnnotationCube( cs );
     addInlCrlTObject( annot_ );
+    updateAnnotationText();
 
     polyselector_ = visBase::PolygonSelection::create();
     addUTMObject( polyselector_ );
@@ -245,32 +256,32 @@ void Scene::removeObject( int idx )
 }
 
 
-void Scene::setZScale( float zscale )
+void Scene::setZStretch( float zstretch )
 {
     if ( !zscaletransform_ ) return;
 
-    if ( mIsEqual(zscale,curzscale_,mDefEps) ) return;
+    if ( mIsEqual(zstretch,curzstretch_,mDefEps) ) return;
 
-    STM().setZScale( zscaletransform_, zscale*zfactor_ );
-    curzscale_ = zscale;
-    zscalechange.trigger();
+    STM().setZScale( zscaletransform_, zstretch*zscale_ );
+    curzstretch_ = zstretch;
+    zstretchchange.trigger();
+}
+
+
+float Scene::getZStretch() const
+{ return curzstretch_; }
+
+
+void Scene::setZScale( float zscale )
+{
+    zscale_ = zscale;
+    if ( zscaletransform_ )
+       	STM().setZScale( zscaletransform_, curzstretch_*zscale_ );
 }
 
 
 float Scene::getZScale() const
-{ return curzscale_; }
-
-
-void Scene::setZFactor( float zfactor )
-{
-    zfactor_ = zfactor;
-    if ( zscaletransform_ )
-       	STM().setZScale( zscaletransform_, curzscale_*zfactor_ );
-}
-
-
-float Scene::getZFactor() const
-{ return zfactor_; }
+{ return zscale_; }
 
 
 mVisTrans* Scene::getZScaleTransform() const
@@ -450,6 +461,7 @@ void Scene::setDataTransform( ZAxisTransform* zat )
     }
 
     setAnnotationCube( cs );
+    updateAnnotationText();
 }
 
 
@@ -576,7 +588,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyShowAnnot(), isAnnotTextShown() );
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );
     par.setYN( sKeyShowCube(), isAnnotShown() );
-    par.set( sKeyZScale(), curzscale_ );
+    par.set( sKeyZStretch(), curzstretch_ );
     par.setYN( sKeyAllowShading(), allowshading_ );
 
     if ( datatransform_ )
@@ -595,7 +607,7 @@ void Scene::removeAll()
     zscaletransform_ = 0; inlcrl2disptransform_ = 0; annot_ = 0;
     polyselector_= 0;
     delete coordselector_; coordselector_ = 0;
-    curzscale_ = -1;
+    curzstretch_ = -1;
 }
 
 
@@ -621,10 +633,12 @@ int Scene::usePar( const IOPar& par )
     par.getYN( sKeyShowCube(), cubeshown );
     showAnnot( cubeshown );
 
-    float zscale = curzscale_;
-    par.get( sKeyZScale(), zscale );
-    if ( zscale != curzscale_ )
-	setZScale( zscale );
+    float zstretch = curzstretch_;
+    if ( !par.get( sKeyZStretch(), zstretch ) )
+	par.get( "ZScale", zstretch ); //Old format, can be removed in 3.6
+
+    if ( zstretch != curzstretch_ )
+	setZStretch( zstretch );
    
     PtrMan<IOPar> transpar = par.subselect( sKeyZDataTransform() );
     if ( transpar )

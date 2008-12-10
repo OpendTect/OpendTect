@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistransmgr.cc,v 1.4 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: vistransmgr.cc,v 1.5 2008-12-10 18:05:30 cvskris Exp $";
 
 
 #include "vistransmgr.h"
@@ -33,7 +33,7 @@ SceneTransformManager& STM()
 visBase::Transformation* SceneTransformManager::createZScaleTransform()
 {
     visBase::Transformation* tf = visBase::Transformation::create();
-    setZScale( tf, defZScale() );
+    setZScale( tf, defZStretch() );
     return tf;
 }
 

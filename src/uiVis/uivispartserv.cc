@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.383 2008-12-05 15:55:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.384 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -50,7 +50,7 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.383 2008-12-05 15:55:30 cv
 #include "uiselsurvranges.h"
 #include "uiwellpropdlg.h"
 #include "uitoolbar.h"
-#include "uizscaledlg.h"
+#include "uiviszstretchdlg.h"
 
 #include "uiwelldisppropdlg.h"
 #include "envvars.h"
@@ -1024,9 +1024,9 @@ void uiVisPartServer::toggleDraggers()
     
 
 
-void uiVisPartServer::setZScale()
+void uiVisPartServer::setZStretch()
 {
-    uiZScaleDlg dlg( appserv().parent() );
+    uiZStretchDlg dlg( appserv().parent() );
     dlg.vwallcb = mCB(this,uiVisPartServer,vwAll);
     dlg.homecb = mCB(this,uiVisPartServer,toHome);
     dlg.go();
@@ -1093,7 +1093,7 @@ bool uiVisPartServer::usePar( const IOPar& par )
 
 	float appvel;
 	if ( par.get(sKeyAppVel(),appvel) )
-	    newscene->setZScale( appvel/1000 );
+	    newscene->setZStretch( appvel/1000 );
 
 	TypeSet<int> children;
 	getChildIds( newscene->id(), children );

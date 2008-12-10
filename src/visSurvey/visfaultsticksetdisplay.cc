@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.4 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.5 2008-12-10 18:05:30 cvskris Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -498,8 +498,8 @@ void FaultStickSetDisplay::mouseCB( CallBacker* cb )
 
     EM::PosID insertpid;
     const float zscale = scene_
-	? scene_->getZFactor() *scene_->getZScale()
-	: SI().zFactor();
+	? scene_->getZScale() *scene_->getZStretch()
+	: SI().zScale();
 
     fsseditor_->getInteractionInfo( insertpid, lineset, linenm, pos, zscale );
 
