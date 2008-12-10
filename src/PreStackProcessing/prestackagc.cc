@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.13 2008-09-22 13:10:42 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.14 2008-12-10 19:06:30 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -64,7 +64,7 @@ const Interval<float>& PreStack::AGC::getWindow() const
 
 void PreStack::AGC::getWindowUnit( BufferString& buf, bool parens ) const
 {
-    buf = SI().getZUnit( parens );
+    buf = SI().getZUnitString( parens );
 }
 
 
