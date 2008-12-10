@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.275 2008-12-08 12:51:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.276 2008-12-10 18:10:02 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -64,6 +64,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.275 2008-12-08 12:51:59 cvsb
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "survinfo.h"
+#include "timedepthconv.h"
 
 #include "uiattribcrossplot.h"
 #include "uibatchlaunch.h"
@@ -78,6 +79,8 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.275 2008-12-08 12:51:59 cvsb
 #include "uisurvey.h"
 #include "uitoolbar.h"
 #include "uiviscoltabed.h"
+#include "uiveldesc.h"
+#include "veldesc.h"
 
 #include <iostream>
 
@@ -464,6 +467,93 @@ void uiODApplMgr::setStereoOffset()
 }
 
 
+void uiODApplMgr::addTimeDepthScene()
+{
+    CtxtIOObj ctxt( uiVelSel::ioContext() );
+    ctxt.ctxt.forread = true;
+
+    const char* txt = "Select velocity model";
+    uiDialog::Setup dlgsetup( txt, txt, "base: 0.4.7" );
+    uiDialog dlg( &appl_, dlgsetup );
+    
+    uiSeisSel::Setup selsetup( false, false );
+    selsetup.seltxt("Velocity model");
+    uiVelSel* velsel = new uiVelSel( &dlg, ctxt, selsetup );
+
+    while ( dlg.go() )
+    {
+	if ( !velsel->ctxtIOObj().ioobj )
+	{
+	    uiMSG().error("No model selected");
+	    continue;
+	}
+
+	VelocityDesc desc;
+
+	if ( !desc.usePar( velsel->ctxtIOObj().ioobj->pars() ) )
+	{
+	    uiMSG().error("Cannot read velocity information for "
+		    	  "selected model");
+	    continue;
+	}
+
+	RefMan<VelocityStretcher> trans = 0;
+	float zscale;
+	if ( SI().zIsTime() ) 
+	    // TODO: Should really depend on z-domain of model, not
+	    // the survey.
+	{
+	    if ( desc.type_!=VelocityDesc::Interval || 
+		 desc.type_!=VelocityDesc::RMS )
+	    {
+		uiMSG().error("Only RMS and Interval velocity are allowed for "
+			      "time based models");
+		continue;
+	    }
+
+	    trans = new Time2DepthStretcher();
+	    zscale = SurveyInfo::defaultXYtoZScale( SurveyInfo::Meter,
+		    				    SI().xyUnit() );
+	}
+	else
+	{
+	    if ( desc.type_!=VelocityDesc::Interval )
+	    {
+		uiMSG().error("Only Interval velocity are allowed for "
+			      "depth based models");
+		continue;
+	    }
+
+	    trans = new Depth2TimeStretcher();
+	    zscale = SurveyInfo::defaultXYtoZScale( SurveyInfo::Second,
+		    				    SI().xyUnit() );
+	}
+
+	if ( !trans->setVelData( velsel->ctxtIOObj().ioobj->key() ) || 
+	     !trans->isOK() )
+	{
+	    uiMSG().error("Internal: Could not initialize transform");
+	    continue;
+	}
+
+	BufferString scenename = "Converted with ";
+	scenename += velsel->ctxtIOObj().ioobj->name();
+
+	const int sceneid = sceneMgr().addScene(false,trans,scenename.buf());
+	if ( sceneid!=-1 )
+	{
+	    mDynamicCastGet( visSurvey::Scene*, scene,
+		    	     visserv_->getObject(sceneid) );
+	    scene->setZFactor( zscale );
+	    sceneMgr().viewAll( 0 );
+	    sceneMgr().tile();
+	}
+
+	return;
+    }
+}
+
+
 void uiODApplMgr::setWorkingArea()
 {
     if ( visserv_->setWorkingArea() )
@@ -471,9 +561,9 @@ void uiODApplMgr::setWorkingArea()
 }
 
 
-void uiODApplMgr::setZScale()
+void uiODApplMgr::setZStretch()
 {
-    visserv_->setZScale();
+    visserv_->setZStretch();
 }
 
 

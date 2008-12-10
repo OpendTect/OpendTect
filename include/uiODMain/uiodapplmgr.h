@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.66 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.67 2008-12-10 18:10:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,8 +94,11 @@ public:
 
     // View menu operations
     void			setWorkingArea();
-    void			setZScale();
+    void			setZStretch();
     void			setStereoOffset();
+
+    // Scene menu operations
+    void			addTimeDepthScene();
 
     // Utility menu operations
     void			batchProgs();
