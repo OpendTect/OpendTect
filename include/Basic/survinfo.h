@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.76 2008-12-10 16:06:24 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.77 2008-12-10 17:41:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ public:
     enum Unit		{ Second, Meter, Feet };
     Unit		xyUnit() const;
     Unit		zUnit() const;
+    const char*		zDomainString() const;
     inline bool		xyInFeet() const	{ return xyinfeet_;}
     inline bool		zIsTime() const		{ return zistime_; }
     inline bool		zInMeter() const	{ return !zistime_ &&!zinfeet_;}
