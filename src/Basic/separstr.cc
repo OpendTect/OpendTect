@@ -5,13 +5,17 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.17 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.18 2008-12-10 10:43:36 cvsranojay Exp $";
 
 #include <string.h>
 #include <stdlib.h>
 #include "separstr.h"
 #include "convert.h"
 #include "string2.h"
+
+#ifdef __msvc__
+# include <iostream>
+#endif
 
 
 SeparString& SeparString::operator =( const SeparString& ss )
