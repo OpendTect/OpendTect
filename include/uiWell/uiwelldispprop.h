@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.2 2008-12-05 15:20:05 cvsbert Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.3 2008-12-10 10:05:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     void		putToScreen();
     void		getFromScreen();
 
+    Notifier<uiWellDispProperties>	propChanged;
+
 protected:
 
     virtual void	doPutToScreen()			{}
@@ -52,6 +54,7 @@ protected:
 
     Well::DisplayProperties::BasicProps&	props_;
 
+    void		propChg(CallBacker*);
     uiColorInput*	colfld_;
     uiSpinBox*		szfld_;
 
@@ -95,6 +98,25 @@ protected:
 
 };
 
+class uiWellLogDispProperties : public uiWellDispProperties
+{
+public:
+    			uiWellLogDispProperties(uiParent*,const Setup&,
+					Well::DisplayProperties::Log&);
 
+    Well::DisplayProperties::Log&	logprops()
+	{ return static_cast<Well::DisplayProperties::Log&>(props_); }
+
+protected:
+
+    virtual void	doPutToScreen();
+    virtual void	doGetFromScreen();
+
+    uiGenInput*		stylefld_;
+    uiGenInput*         clipratefld_;
+    uiGenInput*         rangefld_;
+    uiGenInput*         cliprangefld_;
+
+};
 
 #endif

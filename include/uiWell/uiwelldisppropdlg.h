@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.1 2008-12-05 15:20:05 cvsbert Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.2 2008-12-10 10:05:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,11 @@ public:
 				uiWellDispPropDlg(uiParent*,Well::Data&);
 				~uiWellDispPropDlg();
 
+    Notifier<uiWellDispPropDlg>	applyAllReq;
+
+    Well::Data&			wellData()		{ return wd_; }
+    const Well::Data&		wellData() const	{ return wd_; }
+
 protected:
 
     Well::Data&			wd_;
@@ -37,10 +42,13 @@ protected:
     uiTabStack*			ts_;
     ObjectSet<uiWellDispProperties> propflds_;
 
+
     void			getFromScreen();
     void			putToScreen();
 
-    void			applyPush(CallBacker*);
+    void			propChg(CallBacker*);
+    void			wdChg(CallBacker*);
+    void			applyAllPush(CallBacker*);
     bool			rejectOK(CallBacker*);
     bool			acceptOK(CallBacker*);
 };

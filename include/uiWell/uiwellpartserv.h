@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.24 2008-05-22 11:08:57 cvssatyaki Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.25 2008-12-10 10:05:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 #include "welllog.h"
+#include "welldata.h"
 
 class MultiID;
 class Coord3;
@@ -40,6 +41,7 @@ public:
     void			manageWells();
     bool			selectWells(ObjectSet<MultiID>&);
 
+    bool			editDisplayProperties(const MultiID&);
     bool			selectLogs(const MultiID&, 
 						Well::LogDisplayParSet*&);
     bool			hasLogs(const MultiID&) const;
@@ -66,7 +68,6 @@ public:
     int				getSceneID() const	{ return cursceneid_; }
 
     static const int            evPreviewRdmLine;
-    static const int            evCreateRdmLine;
     static const int		evCleanPreview;
     
 protected:
@@ -77,7 +78,11 @@ protected:
     int				cursceneid_;
     bool			disponcreation_;
     const char*			multiid_;
+    bool			allapplied_;
 
+    void			saveWellDispProps(const Well::Data*);
+    void			saveWellDispProps(const Well::Data&,const MultiID&);
+    void			applyAll(CallBacker*);
 };
 
 /*!\mainpage Well User Interface

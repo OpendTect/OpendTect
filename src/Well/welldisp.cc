@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.2 2008-12-05 14:43:58 cvsbert Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.3 2008-12-10 10:05:18 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: welldisp.cc,v 1.2 2008-12-05 14:43:58 cvsbert E
 
 static const char* sKeyDisplayPos = "DisplayPos";
 static const char* sKeyShape = "Shape";
+static const char* sKeyStyle = "Log Style";
 
 
 void Well::DisplayProperties::BasicProps::usePar( const IOPar& iop )
@@ -59,10 +60,25 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& iop ) const
 }
 
 
+void Well::DisplayProperties::Log::doUsePar( const IOPar& iop )
+{
+    iop.getYN( IOPar::compKey(subjectName(),sKeyStyle),
+	       seismicstyle_ );
+}
+
+
+void Well::DisplayProperties::Log::doFillPar( IOPar& iop ) const
+{
+    iop.setYN( IOPar::compKey(subjectName(),sKeyStyle),
+	       seismicstyle_ );
+}
+
+
 void Well::DisplayProperties::usePar( const IOPar& iop )
 {
     track_.usePar( iop );
     markers_.usePar( iop );
+    right_.usePar( iop );
 }
 
 
@@ -70,6 +86,7 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
 {
     track_.fillPar( iop );
     markers_.fillPar( iop );
+    left_.fillPar( iop );
 }
 
 
