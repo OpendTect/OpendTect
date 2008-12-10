@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.10 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uimeasuredlg.cc,v 1.11 2008-12-10 23:27:17 cvskris Exp $";
 
 #include "uimeasuredlg.h"
 
@@ -34,7 +34,7 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     setCancelText( "" );
 
     uiGroup* topgrp = new uiGroup( this, "Info fields" );
-    BufferString hdistlbl ( "Horizontal Distance ", SI().getXYUnit() );
+    BufferString hdistlbl ( "Horizontal Distance ", SI().getXYUnitString() );
     hdistfld_ = new uiGenInput( topgrp, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
 
@@ -45,14 +45,14 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 
     if ( SI().zIsTime() )
     {
-	BufferString lbl( "(", SI().getXYUnit(false), "/sec)" );
+	BufferString lbl( "(", SI().getXYUnitString(false), "/sec)" );
 	BufferString vellbl( "Velocity ", lbl );
 	appvelfld_ = new uiGenInput( topgrp, vellbl, FloatInpSpec(2000) );
 	appvelfld_->valuechanged.notify( mCB(this,uiMeasureDlg,velocityChgd) );
 	appvelfld_->attach( alignedBelow, zdistfld_ );
     }
 
-    BufferString distlbl( "Distance ", SI().getXYUnit() );
+    BufferString distlbl( "Distance ", SI().getXYUnitString() );
     distfld_ = new uiGenInput( topgrp, distlbl, FloatInpSpec(0) );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
