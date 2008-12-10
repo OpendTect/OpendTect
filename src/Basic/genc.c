@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.96 2008-09-29 13:23:47 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.97 2008-12-10 11:58:13 cvsranojay Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -124,7 +124,7 @@ int ExitProgram( int ret )
 #endif
 
 #ifdef __msvc__
-    exit( EXIT_SUCCES );
+    exit( EXIT_SUCCESS );
     return 0;
 #else
 

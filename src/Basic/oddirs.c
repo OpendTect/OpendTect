@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.5 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.6 2008-12-10 11:58:13 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -117,12 +117,12 @@ void SetSurveyName( const char* newnm )
 const char* GetSurveyName()
 {
     FILE* fp; char* ptr;
+    static char tmpbuf[mMaxFilePathLength];
     if ( !surveynamedirty ) return surveyname;
 
     fp = fopen( GetSurveyFileName(), "r" );
     if ( !fp ) return 0;
 
-    static char tmpbuf[mMaxFilePathLength];
     ptr = tmpbuf; *ptr = '\0';
     fgets( ptr, mMaxFilePathLength, fp );
     fclose( fp );

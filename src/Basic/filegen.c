@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.75 2008-10-07 07:29:45 cvsumesh Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.76 2008-12-10 11:58:13 cvsranojay Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -76,7 +76,7 @@ int File_isEmpty( const char* fname )
 {
     if( !File_exists( fname ) ) return mC_True;
 #ifdef __msvc__
-    pErrMsg("File_isEmpty not fully implemented!");
+    //pErrMsg("File_isEmpty not fully implemented!");
     return mC_False;
 #else
     return stat(fname,&statbuf) < 0 || statbuf.st_size < 1 ? mC_True : mC_False;
@@ -125,6 +125,12 @@ int File_isRemote( const char* fname )
 
 int File_getFreeMBytes( const char* dirnm )
 {
+#ifdef __win__
+    ULARGE_INTEGER freeBytesAvail2User; 
+    ULARGE_INTEGER totalNrBytes;
+    ULARGE_INTEGER totalNrFreeBytes;
+#endif 
+
     double fac = mToKbFac;
     double res;
 
@@ -132,17 +138,11 @@ int File_getFreeMBytes( const char* dirnm )
 	return 0;
 
 #ifdef __win__
-
-    ULARGE_INTEGER freeBytesAvail2User; 
-    ULARGE_INTEGER totalNrBytes;
-    ULARGE_INTEGER totalNrFreeBytes;
-
     GetDiskFreeSpaceEx( dirnm, &freeBytesAvail2User,
 			&totalNrBytes, &totalNrFreeBytes);
 
     res = freeBytesAvail2User.LowPart * fac * fac;
     res += ((double)freeBytesAvail2User.HighPart) * 2048;
-
 #else
 
     if ( mStatFS(dirnm,&fsstatbuf) )
@@ -169,6 +169,7 @@ int File_getFreeMBytes( const char* dirnm )
 int File_getKbSize( const char* fnm )
 {
 #ifdef __msvc__
+    // TODO Implement
     return 0;
 #else
 
@@ -191,11 +192,8 @@ int File_getKbSize( const char* fnm )
 const char* File_getTime( const char* fnm )
 {
     static char buf[64];
-    if ( !File_exists(fnm) )
-	return 0;
-
+   
 #ifdef __win__
-
     HANDLE hfile;
     FILETIME ftCreate, ftAccess, ftWrite;
     SYSTEMTIME stUTC, stLocal;
@@ -204,6 +202,13 @@ const char* File_getTime( const char* fnm )
     const int len = strlen( fnm );
     TCHAR* fname1 = (TCHAR*) malloc( (len+1) * sizeof(TCHAR) );
     int i;
+#endif
+
+    if ( !File_exists(fnm) )
+	return 0;
+
+ #ifdef __win__
+
     for ( i=0; i<len; i++ )
 	fname1[i] = (TCHAR)fnm[i];
 
@@ -239,10 +244,15 @@ const char* File_getTime( const char* fnm )
 int File_isWritable( const char* fnm )
 {
     FileNameString cmd;
-    if ( !File_exists(fnm) ) return 0;
+    int acc;
+    if ( !File_exists(fnm) )
+	return 0;
 
-    int acc =  access( fnm, W_OK );
-
+#ifdef __msvc__
+     acc = access( fnm, 02 );
+#else
+     acc = access( fnm, W_OK );
+#endif
     return !acc;
 }
 
@@ -253,13 +263,9 @@ int File_createDir( const char* dirname, int mode )
     if ( mode == 0 ) mode = 0755;
 
 #ifdef __win__
-
     return CreateDirectory( dirname, 0 );
-
 #else
-
     return mkdir( dirname, (mode_t)mode ) < 0 ? mC_False : mC_True;
-
 #endif
 }
 
@@ -276,10 +282,10 @@ int File_rename( const char* from, const char* to )
 
 #ifdef __win__
 
-    int ret = MoveFile( from, to );
+    rv = MoveFile( from, to );
 
 # ifdef __debug__
-    if( ! ret )
+    if( !rv )
     {
 
 	LPVOID lpMsgBuf;
@@ -303,10 +309,10 @@ int File_rename( const char* from, const char* to )
     }
 # endif
 
-    if ( ret )
-	ret = File_exists( to );
+    if ( rv>0 )
+	rv = File_exists( to );
 
-    return ret;
+    return rv;
 
 #else
 
