@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.108 2008-12-10 17:41:50 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.109 2008-12-10 18:06:06 cvskris Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -527,6 +527,10 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 
 float SurveyInfo::zFactor() const
 { return zIsTime() ? 1000 : 1; }
+
+
+float SurveyInfo::zScale() const
+{ return defaultXYtoZScale( zUnit(), xyUnit() ); }
 
 
 bool SurveyInfo::depthsInFeetByDefault() const

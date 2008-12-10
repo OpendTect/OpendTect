@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.77 2008-12-10 17:41:50 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.78 2008-12-10 18:06:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,9 +93,12 @@ public:
     void		setZUnit(bool istime,bool infeet=false);
     const char*		getXYUnit(bool withparens=true) const;
     const char*		getZUnit(bool withparens=true) const;
-    static float	defaultXYtoZScale(Unit xyunit,Unit zunit);
+    static float	defaultXYtoZScale(Unit zunit,Unit xyunit);
     			/*!<Gives a ballpark figure of how to scale Z to
-			    make it comparable to xy. */
+			    make it comparable to XY. */
+    float		zScale() const;
+    			/*!<Gives a ballpark figure of how to scale Z to
+			    make it comparable to XY. */
     float		zFactor() const;
     			//!< Factor between real and displayed unit in UI
     bool		depthsInFeetByDefault() const;
