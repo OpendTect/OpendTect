@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscallout.cc,v 1.23 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.24 2008-12-10 18:08:17 cvskris Exp $";
 
 #include "viscallout.h"
 
@@ -654,7 +654,7 @@ CalloutDisplay::~CalloutDisplay()
     activedraggermaterial_->unRef();
 
     if ( scene_ )
-	scene_->zscalechange.remove( mCB(this,CalloutDisplay,zScaleChangeCB) );
+	scene_->zstretchchange.remove( mCB(this,CalloutDisplay,zScaleChangeCB));
 }
 
 
@@ -686,12 +686,12 @@ const Color& CalloutDisplay::getBoxColor() const
 void CalloutDisplay::setScene( visSurvey::Scene* scene )
 {
     if ( scene_ )
-	scene_->zscalechange.remove( mCB(this,CalloutDisplay,zScaleChangeCB) );
+	scene_->zstretchchange.remove( mCB(this,CalloutDisplay,zScaleChangeCB));
 
     visSurvey::SurveyObject::setScene( scene );
 
     if ( scene_ )
-	scene_->zscalechange.notify( mCB(this,CalloutDisplay,zScaleChangeCB) );
+	scene_->zstretchchange.notify( mCB(this,CalloutDisplay,zScaleChangeCB));
 
     zScaleChangeCB( 0 );
 }
@@ -749,7 +749,7 @@ void CalloutDisplay::setScaleTransform( visBase::DataObject* dobj ) const
     if ( !scene_ ) return;
     mDynamicCastGet(Callout*,call,dobj)
     call->getScale()->
-	setScale(Coord3(1,1,2/scene_->getZScale()));
+	setScale(Coord3(1,1,2/scene_->getZStretch()));
 }
 
 

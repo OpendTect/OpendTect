@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visarrow.cc,v 1.13 2008-12-09 16:39:50 cvskris Exp $";
+static const char* rcsID = "$Id: visarrow.cc,v 1.14 2008-12-10 18:08:17 cvskris Exp $";
 
 #include "visarrow.h"
 
@@ -37,7 +37,7 @@ ArrowDisplay::~ArrowDisplay()
     linestyle_->unRef();
 
     if ( scene_ )
-	scene_->zscalechange.remove( mCB(this,ArrowDisplay,zScaleCB) );
+	scene_->zstretchchange.remove( mCB(this,ArrowDisplay,zScaleCB) );
 }
 
 
@@ -57,11 +57,11 @@ void ArrowDisplay::setType( Type typ )
 void ArrowDisplay::setScene( visSurvey::Scene* ns )
 {
     if ( scene_ )
-	scene_->zscalechange.remove( mCB(this,ArrowDisplay,zScaleCB) );
+	scene_->zstretchchange.remove( mCB(this,ArrowDisplay,zScaleCB) );
     visSurvey::SurveyObject::setScene( ns );
 
     if ( scene_ )
-	scene_->zscalechange.notify( mCB(this,ArrowDisplay,zScaleCB) );
+	scene_->zstretchchange.notify( mCB(this,ArrowDisplay,zScaleCB) );
 }
 
 
