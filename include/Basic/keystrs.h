@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.40 2008-12-10 09:59:57 cvsbruno Exp $
+ RCS:		$Id: keystrs.h,v 1.41 2008-12-10 17:18:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ namespace sKey
     extern const char*	Table		mImpl("Table");
     extern const char*	Target		mImpl("Target");
     extern const char*	Time		mImpl("Time");
+    extern const char*	TWT		mImpl("TWT");
     extern const char*	Title		mImpl("Title");
     extern const char*	Type		mImpl("Type");
     extern const char*	Undef		mImpl("Undefined");
