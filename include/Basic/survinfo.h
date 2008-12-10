@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.79 2008-12-10 18:24:13 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.80 2008-12-10 18:35:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,6 @@ public:
     enum Unit		{ Second, Meter, Feet };
     Unit		xyUnit() const;
     Unit		zUnit() const;
-    const char*		zDomainString() const;
     inline bool		xyInFeet() const	{ return xyinfeet_;}
     inline bool		zIsTime() const		{ return zistime_; }
     inline bool		zInMeter() const	{ return !zistime_ &&!zinfeet_;}
@@ -93,6 +92,7 @@ public:
     void		setZUnit(bool istime,bool infeet=false);
     const char*		getXYUnitString(bool withparens=true) const;
     const char*		getZUnitString(bool withparens=true) const;
+    const char*		getZDomainString() const;
     static float	defaultXYtoZScale(Unit zunit,Unit xyunit);
     			/*!<Gives a ballpark figure of how to scale Z to
 			    make it comparable to XY. */

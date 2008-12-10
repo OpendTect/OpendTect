@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.111 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.112 2008-12-10 18:35:14 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -84,7 +84,7 @@ void Scene::updateAnnotationText()
     annot_->setText( 0, "In-line" );
     annot_->setText( 1, "Cross-line" );
     annot_->setText( 2, datatransform_ ? datatransform_->getZDomainString()
-				       : SI().zDomainString() );
+				       : SI().getZDomainString() );
 }
 
 
