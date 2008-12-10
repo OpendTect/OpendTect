@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.17 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:		$Id: separstr.h,v 1.18 2008-12-10 23:06:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,6 @@ class SeparString
 public:
 			SeparString( const char* s=0, char separ=',' )
 			{ initSep( separ ); addStr( s ); }
-    template <class T>	SeparString( T t, char separ=',' )
-			{ initSep( separ ); addStr( Conv::to<const char*>(t)); }
 			SeparString( const SeparString& s )
 			: rep_(s.rep_) { initSep( s.sep_[0] ); }
 
