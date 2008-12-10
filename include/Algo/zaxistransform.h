@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.17 2008-06-26 04:41:03 cvsnanne Exp $
+ RCS:           $Id: zaxistransform.h,v 1.18 2008-12-10 13:45:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,10 @@ public:
     virtual float		getZIntervalCenter(bool from) const;
     				/*!\Returns a position within the
 				    z-range that is a logical 'center' */
+    virtual float		getGoodZStep() const;
+    				/*!\returns a reasonable step in the transformed domain. Default
+					    implementation gives the same step as in SI()
+					    (i.e. non transformed domain) */
 
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }
