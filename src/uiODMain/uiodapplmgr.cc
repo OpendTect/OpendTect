@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.276 2008-12-10 18:10:02 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.277 2008-12-10 20:28:36 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -544,7 +544,7 @@ void uiODApplMgr::addTimeDepthScene()
 	{
 	    mDynamicCastGet( visSurvey::Scene*, scene,
 		    	     visserv_->getObject(sceneid) );
-	    scene->setZFactor( zscale );
+	    scene->setZScale( zscale );
 	    sceneMgr().viewAll( 0 );
 	    sceneMgr().tile();
 	}
