@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.39 2008-11-25 09:10:51 cvsumesh Exp $
+ RCS:		$Id: keystrs.h,v 1.40 2008-12-10 09:59:57 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ namespace sKey
     extern const char*	IOSelection	mImpl("I/O Selection");
     extern const char*	Keys		mImpl("Keys");
     extern const char*	LineKey		mImpl("Line key");
+    extern const char*	Log		mImpl("Log");
     extern const char*	Name		mImpl("Name");
     extern const char*	No		mImpl("No");
     extern const char*	None		mImpl("None");
