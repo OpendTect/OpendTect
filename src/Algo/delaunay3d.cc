@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.13 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.14 2008-12-11 10:25:51 cvsranojay Exp $";
 
 #include "arraynd.h"
 #include "delaunay3d.h"
@@ -170,7 +170,7 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 	const int tisz = tis.size();
 	mAllocVarLenArr( int, zzeros, tisz );
 	if ( !tisz || tis.size()==1 ) //Ouside has been set to be 1.
-	{
+	{ 
 	    if ( tis.size()==1 )
 		pErrMsg("On edge?");
 	    
@@ -459,10 +459,12 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	Math::Sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
     epsilon_ = k*(1e-5);
 
+    const double sq2 = sqrt( 2. );
+    const double sq6 = sqrt( 6. );
     initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
-    initialcoords_[1] = center_ + Coord3( 0, 6*sqrt(2)*k, -6*k );
-    initialcoords_[2] = center_ + Coord3( -3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
-    initialcoords_[3] = center_ + Coord3( 3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
+    initialcoords_[1] = center_ + Coord3( 0, 6*sq2*k, -6*k );
+    initialcoords_[2] = center_ + Coord3( -3*sq6*k, -3*sq2*k, -6*k );
+    initialcoords_[3] = center_ + Coord3( 3*sq6*k, -3*sq2*k, -6*k );
 
     DAGTetrahedra initnode;
     initnode.coordindices_[0] = cInitVertex0();
@@ -482,12 +484,14 @@ void DAGTetrahedraTree::setInitSizeFactor( float newfactor )
 
     if ( initialcoords_[0].isDefined() )
     {
+	const double sq2 = sqrt( 2. );
+	const double sq6 = sqrt( 6. );
 	double k = (initialcoords_[0].z-center_.z)/6;
 	k = k * newfactor/initsizefactor_;
 	initialcoords_[0] = center_ + Coord3( 0, 0, 6*k );
-	initialcoords_[1] = center_ + Coord3( 0, 6*sqrt(2)*k, -6*k );
-	initialcoords_[2] = center_ + Coord3(-3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
-	initialcoords_[3] = center_ + Coord3( 3*sqrt(6)*k, -3*sqrt(2)*k, -6*k );
+	initialcoords_[1] = center_ + Coord3( 0, 6*sq2*k, -6*k );
+	initialcoords_[2] = center_ + Coord3(-3*sq6*k, -3*sq2*k, -6*k );
+	initialcoords_[3] = center_ + Coord3( 3*sq6*k, -3*sq2*k, -6*k );
     }
     
     initsizefactor_ = newfactor;

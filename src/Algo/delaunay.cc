@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.29 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.30 2008-12-11 10:25:51 cvsranojay Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -40,6 +40,7 @@ bool ParallelDTriangulator::doPrepare( int nrthreads )
 	mAllocVarLenArr( int, arr, nrcoords);
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    arr[idx] = idx;
+
 
 	std::random_shuffle( mVarLenArr(arr), arr+nrcoords );
 	for ( int idx=0; idx<nrcoords; idx++ )
@@ -186,8 +187,8 @@ bool DAGTriangleTree::setBBox(const Interval<double>& xrg,
 
     const Coord center( xrg.center(), yrg.center() );
     const double radius = sqrt( xlength*xlength+ylength*ylength )/2;
-    initialcoords_[0] = Coord( center.x-radius*sqrt(3), center.y-radius );
-    initialcoords_[1] = Coord( center.x+radius*sqrt(3), center.y-radius );
+    initialcoords_[0] = Coord( center.x-radius*sqrt(3.0), center.y-radius );
+    initialcoords_[1] = Coord( center.x+radius*sqrt(3.0), center.y-radius );
     initialcoords_[2] = Coord( center.x, center.y+2*radius );
 
     DAGTriangle initnode;
