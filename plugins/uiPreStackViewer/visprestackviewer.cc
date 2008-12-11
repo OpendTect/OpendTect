@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.38 2008-12-09 19:12:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.39 2008-12-11 16:26:45 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -822,18 +822,19 @@ int PreStackViewer::usePar( const IOPar& par )
 	    return -1;
     }
        
-    float factor, width; //The second part will be removed on OD3.6 or higher.
+    float factor, width;
     if ( par.get(sKeyFactor(), factor) || par.get("Factor", factor) )
 	setFactor( factor );
 
     if ( par.get(sKeyWidth(), width) || par.get("Width", width) )
 	setWidth( width );
 
-    bool autowd, side;
-    if ( par.getYN(sKeyAutoWidth(), autowd) || par.getYN("AutoWidth", autowd) )
-	 displaysAutoWidth( autowd );
+    bool autowidth, side;
+    if ( par.getYN(sKeyAutoWidth(), autowidth) || 
+	 par.getYN("AutoWidth", autowidth) )
+	 displaysAutoWidth( autowidth );
 
-    if ( par.getYN(sKeySide(), side) || par.getYN("ShowSide", side) )
+    if ( par.getYN(sKeySide(), side) ||  par.getYN("ShowSide", side) )
 	displaysOnPositiveSide( side );
 	
     if ( flatviewer_ )
