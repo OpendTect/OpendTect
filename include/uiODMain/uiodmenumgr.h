@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.40 2008-12-04 06:40:26 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.41 2008-12-11 21:42:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,6 +137,7 @@ protected:
     uiMenuItem*		stereoredcyanitm_;
     uiMenuItem*		stereoquadbufitm_;
     uiMenuItem*		stereooffsetitm_;
+    uiMenuItem*		addtimedepthsceneitm_;
     int			axisid_, actid_, viewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_;
 
