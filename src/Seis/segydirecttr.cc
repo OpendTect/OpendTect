@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.5 2008-12-04 15:55:27 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.6 2008-12-11 16:08:22 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -53,9 +53,9 @@ static SEGYSeisTrcTranslator* createTranslator( const SEGY::DirectDef& def,
     ioobj->pars() = fds->pars();
 
     SEGYSeisTrcTranslator* ret = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
+    ret->usePar( fds->pars() );
     if ( !ret->initRead(ioobj->getConn(Conn::Read)) )
 	{ delete ret; return 0; }
-    ret->usePar( fds->pars() );
     if ( !ret->commitSelections() )
 	{ delete ret; return 0; }
 

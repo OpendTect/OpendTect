@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.16 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.17 2008-12-11 16:08:22 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -67,6 +67,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 
 	if ( Seis::is2D(setup_.geom_) )
 	{
+	    outfld_->setConfirmOverwrite( false );
 	    lnmfld_ = new uiSeisLineSel( this );
 	    lnmfld_->attach( alignedBelow, outfld_ );
 	}
@@ -140,7 +141,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
     delete scanner_; scanner_ = new SEGY::Scanner( fs, setup_.geom_, pars_ );
     if ( setup_.rev_ == uiSEGYRead::Rev0 )
 	scanner_->setForceRev0( true );
-    if ( Seis::is2D(setup_.geom_) )
+    if ( forsurvsetup_ || Seis::is2D(setup_.geom_) )
 	scanner_->setRichInfo( true );
     uiTaskRunner tr( parent_ );
     bool rv = tr.execute(*scanner_);

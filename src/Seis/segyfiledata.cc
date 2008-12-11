@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.14 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.15 2008-12-11 16:08:22 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -159,7 +159,7 @@ void SEGY::FileData::getReport( IOPar& iop ) const
 bool SEGY::FileData::getFrom( ascistream& astrm )
 {
     erase(); fname_.setEmpty(); trcsz_ = -1;
-    bool isasc = false;
+    bool isasc = false; bool isrich = false;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(sKey::FileName) )
@@ -172,12 +172,17 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	    segyfmt_ = astrm.getIValue();
 	else if ( astrm.hasKeyword(sKeyNrStanzas) )
 	    nrstanzas_ = astrm.getIValue();
-	else if ( astrm.hasKeyword(sKeyStorageType) )
-	    isasc = *astrm.value() == 'A';
 	else if ( astrm.hasKeyword(sKeySampling) )
 	{
 	    sampling_.start = astrm.getFValue(0);
 	    sampling_.step = astrm.getFValue(1);
+	}
+	else if ( astrm.hasKeyword(sKeyStorageType) )
+	{
+	    isasc = *astrm.value() == 'A';
+	    FileMultiString fms( astrm.value() );
+	    if ( fms.size() > 1 )
+		isrich = *fms[1] == 'R';
 	}
     }
     if ( fname_.isEmpty() )
@@ -196,7 +201,7 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	while ( !atEndOfSection(astrm.next()) )
 	{
 	    keyw = astrm.keyWord(); val = astrm.value();
-	    RichTraceInfo* rti = is2d ? new RichTraceInfo( geom_ ) : 0;
+	    RichTraceInfo* rti = isrich ? new RichTraceInfo( geom_ ) : 0;
 	    TraceInfo* ti = rti ? rti : new TraceInfo( geom_ );
 	    if ( is2d )
 		ti->pos_.setTrcNr( keyw.getIValue(0) );
@@ -207,10 +212,11 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 
 	    const char ch( *val[0] );
 	    ti->usable_ = ch != 'U';
-	    if ( is2d )
+	    if ( isrich )
 	    {
 		rti->coord_.use( val[1] );
-		rti->azimuth_ = val.getFValue(2);
+		rti->azimuth_ = val.getFValue( 2 );
+		rti->null_ = ch == 'N';
 	    }
 
 	    *this += ti;
@@ -220,10 +226,10 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
     {
 	std::istream& strm = astrm.stream();
 	int entrylen = 1 + (isps ? 4 : 0) + sizeof(int);
-	if ( is2d )
-	    entrylen += 2*sizeof(double) + sizeof(float); // + coord/azim
-	else
+	if ( !is2d )
 	    entrylen += sizeof(int);
+	if ( isrich )
+	    entrylen += 2*sizeof(double) + sizeof(float);
 	char* buf = new char [entrylen];
 
 	while ( strm.good() )
@@ -255,11 +261,13 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 	    }
 	    if ( isps )
 		mGetVal(ti->pos_.offset(),float)
-	    if ( is2d )
+
+	    if ( isrich )
 	    {
 		mGetVal(rti->coord_.x,double);
-		mGetVal(rti->coord_.x,double);
-		mGetVal(rti->azimuth_,float)
+		mGetVal(rti->coord_.y,double);
+		mGetVal(rti->azimuth_,double);
+		rti->null_ = buf[0] == 'N';
 	    }
 
 	    *this += ti;
@@ -275,6 +283,8 @@ bool SEGY::FileData::getFrom( ascistream& astrm )
 
 bool SEGY::FileData::putTo( ascostream& astrm ) const
 {
+    const bool isrich = !isEmpty() && (*this)[0]->isRich();
+
     astrm.put( sKey::FileName, fname_ );
     astrm.put( sKey::Geometry, Seis::nameOf(geom_) );
     astrm.put( sKeyTraceSize, trcsz_ );
@@ -282,7 +292,9 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
     astrm.put( sKeyFormat, segyfmt_ );
     if ( isrev1_ && nrstanzas_ > 0 )
 	astrm.put( sKeyNrStanzas, nrstanzas_ );
-    astrm.put( sKeyStorageType, writeascii ? "Ascii" : "Binary" );
+    FileMultiString fms( writeascii ? "Ascii" : "Binary" );
+    if ( isrich ) fms += "Rich";
+    astrm.put( sKeyStorageType, fms );
     astrm.newParagraph();
 
     const bool is2d = Seis::is2D( geom_ );
@@ -303,7 +315,7 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 		keyw += ti.offset();
 
 	    val = ti.usable_ ? (ti.isNull() ? "Null" : "OK") : "Unusable";
-	    if ( is2d )
+	    if ( isrich )
 	    {
 		BufferString s( 128, true );
 		ti.coord().fill( s.buf() ); val += s;
@@ -332,7 +344,7 @@ bool SEGY::FileData::putTo( ascostream& astrm ) const
 		{ mPutVal(pos_.inLine(),int); mPutVal(pos_.xLine(),int) }
 	    if ( isps )
 		mPutVal(offset(),float)
-	    if ( is2d )
+	    if ( isrich )
 	    {
 		mPutVal(coord().x,double);
 		mPutVal(coord().y,double);
