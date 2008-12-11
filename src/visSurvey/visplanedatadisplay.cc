@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.207 2008-12-11 18:23:15 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.208 2008-12-11 20:39:24 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -651,8 +651,8 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     {
 	rectangle_->setPosition(
 		Coord3( hrg.start.inl, hrg.start.crl, cs.zrg.stop ),
-		Coord3( hrg.stop.inl,  hrg.start.crl, cs.zrg.start ),
 		Coord3( hrg.start.inl, hrg.stop.crl,  cs.zrg.start ),
+		Coord3( hrg.stop.inl,  hrg.start.crl, cs.zrg.start ),
 		Coord3( hrg.stop.inl,  hrg.stop.crl,  cs.zrg.stop ) );
     }
 
