@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: varlenarray.h,v 1.1 2007-10-05 10:38:34 cvsnanne Exp $
+ RCS:		$Id: varlenarray.h,v 1.2 2008-12-11 06:32:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,13 +16,16 @@ ________________________________________________________________________
 #ifdef __msvc__
 # include "ptrman.h"
 
-# define mVariableLengthArr( type, varnm, __size ) \
+# define mAllocVarLenArr( type, varnm, __size ) \
   ArrPtrMan<type> varnm = new type [__size]
+
+# define mVarLenArr(varnm)	varnm.ptr()
 
 #else
 
-# define mVariableLengthArr( type, varnm, __size ) \
+# define mAllocVarLenArr( type, varnm, __size ) \
   type varnm[__size]
+# define mVarLenArr(varnm)	varnm
 
 #endif
 

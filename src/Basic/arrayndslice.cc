@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: arrayndslice.cc,v 1.4 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: arrayndslice.cc,v 1.5 2008-12-11 06:32:29 cvsnanne Exp $";
 
 
 #include "arrayndslice.h"
@@ -94,10 +94,10 @@ bool ArrayNDSliceBase::init()
     }
     else
     {
-	mVariableLengthArr( int, localpos, nrowndims );
+	mAllocVarLenArr( int, localpos, nrowndims );
 	memset( localpos, 0, nrowndims * sizeof(int) );
 
-	mVariableLengthArr( int, tpos, ndim );
+	mAllocVarLenArr( int, tpos, ndim );
 	getSourcePos( localpos, tpos );
 	offset_ = sourceinfo_.getOffset(tpos);
     }

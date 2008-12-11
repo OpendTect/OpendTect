@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.28 2008-10-21 11:42:24 cvsdgb Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.29 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1249,7 +1249,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	if ( displaypanels_ ) addToGeometries( triangles );
     }
 
-    mVariableLengthArr( float, sqdists, lsize*rsize );
+    mAllocVarLenArr( float, sqdists, lsize*rsize );
     for ( int idx=0; idx<lsize; idx++ )
     {
 	for ( int idy=0; idy<rsize; idy++ )

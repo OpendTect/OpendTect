@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.22 2008-12-05 23:14:37 cvskris Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.23 2008-12-11 06:32:29 cvsnanne Exp $";
 
 
 #include "dataclipper.h"
@@ -103,7 +103,7 @@ void DataClipper::putData( const ArrayND<float>& vals )
 
     const ArrayNDInfo& info = vals.info();
 
-    mVariableLengthArr( int, idxs, info.getNDim() );
+    mAllocVarLenArr( int, idxs, info.getNDim() );
     mPutDataImpl(info.getArrayPos(sampidx,idxs); float val=vals.getND(idxs) );
 }
 
@@ -262,4 +262,3 @@ void DataClipper::reset()
     subselect_ = false;
     sampleprob_ = 1;
 }
-    

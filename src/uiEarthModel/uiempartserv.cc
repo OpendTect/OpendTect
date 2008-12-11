@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.152 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.153 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -602,7 +602,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
     BinID bid;
     BinIDValueSet::Pos pos;
     const EM::SectionID sectionid = hor3d->sectionID( 0 );
-    mVariableLengthArr( float, vals, bivs.nrVals() );
+    mAllocVarLenArr( float, vals, bivs.nrVals() );
 
     EM::PosID posid( id, sectionid );
     while ( bivs.next(pos) )
@@ -678,7 +678,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	if ( data.bivSet().nrVals() < nrauxdata )
 	    data.bivSet().setNrVals( nrauxdata );
 	
-	mVariableLengthArr( float, auxvals, nrauxdata );
+	mAllocVarLenArr( float, auxvals, nrauxdata );
 	auxvals[0] = 0;
 	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );

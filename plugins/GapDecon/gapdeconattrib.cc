@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.18 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: gapdeconattrib.cc,v 1.19 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "gapdeconattrib.h"
 
@@ -245,8 +245,8 @@ bool GapDecon::computeData( const DataHolder& output, const BinID& relpos,
 
     int safencorr = mMIN( ncorr_, inputdata_->nrsamples_ );	
     int safelcorr = mMIN( lcorr_, inputdata_->nrsamples_ );	
-    mVariableLengthArr( float, wiener, ngap_ );
-    mVariableLengthArr( float, spiker, ngap_ );
+    mAllocVarLenArr( float, wiener, ngap_ );
+    mAllocVarLenArr( float, spiker, ngap_ );
     ArrPtrMan<float> autocorr = new float[safelcorr];
 
     memset( wiener, 0, ngap_ * sizeof( float ) );

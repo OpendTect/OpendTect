@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.28 2008-11-19 08:28:50 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.29 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -479,8 +479,8 @@ bool Horizon3DSeedPicker::interpolateSeeds()
     if ( nrseeds<2 ) 
 	return true;
 
-    mVariableLengthArr( int, sortval, nrseeds );
-    mVariableLengthArr( int, sortidx, nrseeds );
+    mAllocVarLenArr( int, sortval, nrseeds );
+    mAllocVarLenArr( int, sortidx, nrseeds );
 
     for ( int idx=0; idx<nrseeds; idx++ )
     {
@@ -489,11 +489,7 @@ bool Horizon3DSeedPicker::interpolateSeeds()
 	sortidx[idx] = idx;
     }
 
-#ifdef __msvc__
-    sort_coupled( sortval.ptr(), sortidx.ptr(), nrseeds );
-#else
-    sort_coupled( sortval, sortidx, nrseeds );
-#endif
+    sort_coupled( mVarLenArr(sortval), mVarLenArr(sortidx), nrseeds );
 
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     for ( int vtx=0; vtx<nrseeds-1; vtx++ ) 

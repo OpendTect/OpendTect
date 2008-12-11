@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2008
- RCS:           $Id: sampledextremefindernd.h,v 1.4 2008-12-08 15:46:23 cvskris Exp $
+ RCS:           $Id: sampledextremefindernd.h,v 1.5 2008-12-11 06:32:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,14 +68,14 @@ template <class T> inline
 bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
 {
     const int ndim = array_.info().getNDim();
-    mVariableLengthArr( int, pos, ndim );
+    mAllocVarLenArr( int, pos, ndim );
     if ( !array_.info().getArrayPos( start, pos ) )
 	return false;
 
     ArrayNDIter iter( array_.info() );
     iter.setPos<int*>( pos );
 			    
-    mVariableLengthArr( int, currentextreme, ndim );
+    mAllocVarLenArr( int, currentextreme, ndim );
     for ( int idx=start; idx<=stop && shouldContinue();
 	  idx++, reportNrDone(1), iter.next() ) 
     {
@@ -146,8 +146,8 @@ bool SampledExtremeFinderND<T>::findExtreme( int* extremepos ) const
 
     T extremeval = array_.getND( extremepos );
 
-    mVariableLengthArr( int, curpos, ndim );
-    mVariableLengthArr( int, bestpos, ndim );
+    mAllocVarLenArr( int, curpos, ndim );
+    mAllocVarLenArr( int, bestpos, ndim );
     memcpy( bestpos, extremepos, ndim*sizeof(int) );
 
     bool change = true;

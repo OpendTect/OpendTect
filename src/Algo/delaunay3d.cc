@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.12 2008-12-01 15:10:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.13 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "arraynd.h"
 #include "delaunay3d.h"
@@ -33,11 +33,11 @@ bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 	permutation_.erase();
     else
     {
-	mVariableLengthArr( int, arr, nrcoords);
+	mAllocVarLenArr( int, arr, nrcoords);
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    arr[idx] = idx;
 	
-	std::random_shuffle( arr, arr+nrcoords );
+	std::random_shuffle( mVarLenArr(arr), arr+nrcoords );
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    permutation_ += arr[idx];
     }
@@ -168,7 +168,7 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 	}
 	
 	const int tisz = tis.size();
-	int zzeros[tisz];
+	mAllocVarLenArr( int, zzeros, tisz );
 	if ( !tisz || tis.size()==1 ) //Ouside has been set to be 1.
 	{
 	    if ( tis.size()==1 )
@@ -205,7 +205,7 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 		lock_.unLock();
 	    }
 	    
-	    sort_array( zzeros, tisz );
+	    sort_array( mVarLenArr(zzeros), tisz );
 	    for ( int idz=0; idz<tisz/2; idz++ )
 	    {
 		for ( int k=zzeros[idz*2]+1; k<zzeros[idz*2+1]; k++ )

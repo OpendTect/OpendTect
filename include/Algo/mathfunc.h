@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.23 2008-08-18 13:32:23 cvsyuancheng Exp $
+ RCS:		$Id: mathfunc.h,v 1.24 2008-12-11 06:32:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     RT		getValue( const IDXABL& x ) const
     		{
 		    const int nrdim = getNrDim();
-		    mVariableLengthArr( PT, pos, nrdim );
+		    mAllocVarLenArr( PT, pos, nrdim );
 		    for ( int idx=0; idx<nrdim; idx++ )
 			pos[idx] = x[idx];
 		    return getValue( pos );
@@ -206,7 +206,7 @@ public:
     RT			getValue( PT lambda ) const
 			{
 			    const int nrdim = func.getNrDim();
-			    mVariableLengthArr( PT, pos, nrdim );
+			    mAllocVarLenArr( PT, pos, nrdim );
 			    for ( int idx=0; idx<nrdim; idx++ )
 				pos[idx] = P[idx] + N[idx]*lambda;
 

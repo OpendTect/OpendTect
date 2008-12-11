@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.11 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.12 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -465,8 +465,8 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     if ( nrseeds<2 )
 	return true;
 
-    mVariableLengthArr( int, sortval, nrseeds );
-    mVariableLengthArr( int, sortidx, nrseeds );
+    mAllocVarLenArr( int, sortval, nrseeds );
+    mAllocVarLenArr( int, sortidx, nrseeds );
 
     RowCol rc;
     for ( int idx=0; idx<nrseeds; idx++ )
@@ -479,11 +479,7 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	sortidx[idx] = idx;
     }
 
-#ifdef __msvc__
-    sort_coupled( sortval.ptr(), sortidx.ptr(), nrseeds );
-#else
-    sort_coupled( sortval, sortidx, nrseeds );
-#endif
+    sort_coupled( mVarLenArr(sortval), mVarLenArr(sortidx), nrseeds );
 
     for ( int vtx=0; vtx<nrseeds-1; vtx++ )
     {

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.8 2008-09-22 13:14:13 cvskris Exp $";
+static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.9 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "viscolortabindexer.h"
 
@@ -87,7 +87,7 @@ od_int64 ColorTabIndexer::totalNr() const
 
 bool ColorTabIndexer::doWork( od_int64 start, od_int64 stop, int threadid )
 {
-    mVariableLengthArr( unsigned int, histogram, nrhistogramsteps_ );
+    mAllocVarLenArr( unsigned int, histogram, nrhistogramsteps_ );
     memset( histogram, 0, sizeof(int)*nrhistogramsteps_ );
 
     if ( datacacheptr_ )

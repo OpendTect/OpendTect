@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.28 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.29 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -37,11 +37,11 @@ bool ParallelDTriangulator::doPrepare( int nrthreads )
 	permutation_.erase();
     else
     {
-	mVariableLengthArr( int, arr, nrcoords);
+	mAllocVarLenArr( int, arr, nrcoords);
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    arr[idx] = idx;
 
-	std::random_shuffle( arr, arr+nrcoords );
+	std::random_shuffle( mVarLenArr(arr), arr+nrcoords );
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    permutation_ += arr[idx];
     }

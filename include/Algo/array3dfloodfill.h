@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.5 2008-12-05 22:53:10 cvsyuancheng Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.6 2008-12-11 06:32:29 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -154,7 +154,7 @@ Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
     nrcomp2_ = sz2_ % compsz2_ ? sz2_/compsz2_+1 : sz2_/compsz2_;
     
     const int nrcompartments = nrcomp0_*nrcomp1_*nrcomp2_;
-    mVariableLengthArr( int, arr, nrcompartments);
+    mAllocVarLenArr( int, arr, nrcompartments);
     for ( int idx=0; idx<nrcompartments; idx++ )
     {
 	compartments_ += new Compartment();

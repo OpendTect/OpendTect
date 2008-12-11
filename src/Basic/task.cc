@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.13 2008-09-22 12:51:51 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.14 2008-12-11 06:32:29 cvsnanne Exp $";
 
 #include "task.h"
 
@@ -284,7 +284,7 @@ bool ParallelTask::execute( bool parallel )
     const od_int64 size = totalnrcache_;
     if ( !size ) return true;
 
-    mVariableLengthArr( ParallelTaskRunner, runners, nrthreads );
+    mAllocVarLenArr( ParallelTaskRunner, runners, nrthreads );
 
     od_int64 start = 0;
     ObjectSet<SequentialTask> tasks;
