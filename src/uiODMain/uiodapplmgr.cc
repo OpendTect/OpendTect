@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.277 2008-12-10 20:28:36 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.278 2008-12-11 21:42:52 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -503,7 +503,7 @@ void uiODApplMgr::addTimeDepthScene()
 	    // TODO: Should really depend on z-domain of model, not
 	    // the survey.
 	{
-	    if ( desc.type_!=VelocityDesc::Interval || 
+	    if ( desc.type_!=VelocityDesc::Interval &&
 		 desc.type_!=VelocityDesc::RMS )
 	    {
 		uiMSG().error("Only RMS and Interval velocity are allowed for "

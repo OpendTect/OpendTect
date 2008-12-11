@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.147 2008-12-10 18:10:54 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.148 2008-12-11 21:42:52 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -351,10 +351,11 @@ void uiODMenuMgr::fillAnalMenu()
 void uiODMenuMgr::fillSceneMenu()
 {
     mInsertItem( scenemnu_, "&New", mAddSceneMnuItm );
-    BufferString timedepth( "New " );
-    timedepth += SI().zIsTime() ? "depth" : "time";
-    timedepth += " scene";
-    mInsertItem( scenemnu_, timedepth.buf(), mAddTmeDepthMnuItm );
+
+    addtimedepthsceneitm_ = new uiMenuItem( "Dummy",
+	    				    mCB(this,uiODMenuMgr,handleClick) );
+    scenemnu_->insertItem( addtimedepthsceneitm_, mAddTmeDepthMnuItm );
+
     mInsertItem( scenemnu_, "&Cascade", mCascadeMnuItm );
     uiPopupMenu* tileitm = new uiPopupMenu( &appl_, "&Tile" );
     scenemnu_->insertItem( tileitm );
@@ -363,7 +364,10 @@ void uiODMenuMgr::fillSceneMenu()
     mInsertItem( tileitm, "&Horizontal", mTileHorMnuItm );
     mInsertItem( tileitm, "&Vertical", mTileVerMnuItm );
     scenemnu_->insertSeparator();
+
+    updateSceneMenu();
 }
+
 
 
 void uiODMenuMgr::updateSceneMenu()
@@ -387,6 +391,12 @@ void uiODMenuMgr::updateSceneMenu()
 	mInsertSceneItem( scenenms.get(idx), idx==activescene,
 			  mSceneSelMnuItm+idx );    
     }
+
+    BufferString timedepth( "New " );
+    timedepth += SI().zIsTime() ? "depth" : "time";
+    timedepth += " scene";
+
+    addtimedepthsceneitm_->setText( timedepth.buf() );
 }
 
 
@@ -814,6 +824,8 @@ void uiODMenuMgr::updateDTectMnus( CallBacker* )
     fillImportMenu();
     fillExportMenu();
     fillManMenu();
+
+    updateSceneMenu();
 
     fillAnalMenu();
     fillProcMenu();
