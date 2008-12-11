@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.9 2008-11-19 21:47:25 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.10 2008-12-11 16:12:31 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,78 +194,6 @@ protected:
     TypeSet<int>		triangles_;
     Array3D<char>&		array_;
 };
-
-
-class Implicit2BodyFloodFill
-{
-public:
-		Implicit2BodyFloodFill(const Array3D<char>& impbody,
-				       const StepInterval<int>& inlrg,
-				       const StepInterval<int>& crlrg,
-				       const Interval<float>& zrg,
-				       int threshold,
-				       TypeSet<Coord3>& res);
-    void	compute();
-
-protected:
-
-    bool	findFirst(int& inlidx,int& crlidx,int& zidx);
-    void	addToQueue(int i0,int i1,int i2,bool increase,char dir);
-
-    const Array3D<char>&	body_; 
-    TypeSet<Coord3>&		result_; 
-    const Interval<float>&	zrg_;
-    const StepInterval<int>&	inlrg_;
-    const StepInterval<int>&	crlrg_;
-    const int			xsz_;
-    const int			ysz_;
-    const int			zsz_;
-    int				threshold_;
-    
-    struct Dummy
-    {
-    	int i, j, k;
-	bool        operator==(const Dummy& d ) const
-		    {
-    			return d.i==i && d.j==j && d.k==k;
-		    }
-    };
-
-    TypeSet<Dummy>		queue_;
-    TypeSet<Dummy>		used_;
-};    
-
-
-
-/*
-class SeedBasedImplicit2Body
-{
-public:
-				SeedBasedImplicit2Body(const Array3D<float>&,
-						       const float threshold,
-						       Array3D<float>& res);
-				~seedBasedImplicit2Body();
-    bool			updateBodyFrom(int posx,int posy,int posz);
-    
-private:
-
-    void			seedBasedFloodFill();
-    void			add(int idx,int idy,int idz, bool contin);
-    void			processBody(int idx,int idy,int idz);
-    
-    friend			class SeedBasedBodyFloodFiller;
-    
-    Array3D<float>&		result_;
-    const Array3D<float>*	array_;
-    Array3D<unsigned char>*	visitedlocations_;
-    float			threshold_;
-    Threads::Mutex		newfloodfillerslock_;
-
-    ObjectSet<SeedBasedBodyFloodFiller>     newfloodfillers_;
-    ObjectSet<SeedBasedBodyFloodFiller>     oldfloodfillers_;
-    ObjectSet<SeedBasedBodyFloodFiller>     activefloodfillers_;
-};
-*/
 
 
 #endif

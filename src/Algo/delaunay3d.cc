@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.14 2008-12-11 10:25:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.15 2008-12-11 16:12:31 cvsyuancheng Exp $";
 
 #include "arraynd.h"
 #include "delaunay3d.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: delaunay3d.cc,v 1.14 2008-12-11 10:25:51 cvsran
 
 ParallelDTetrahedralator::ParallelDTetrahedralator( DAGTetrahedraTree& dagt )
     : tree_( dagt )
-    , israndom_( false )
+    , israndom_( true )
 {}
 
 
@@ -222,124 +222,6 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 }
 
 
-Implicit2BodyFloodFill::Implicit2BodyFloodFill( const Array3D<char>& impbody,
-						const StepInterval<int>& inlrg,
-					       	const StepInterval<int>& crlrg,
-						const Interval<float>& zrg, 
-					        int threshold,	
-    						TypeSet<Coord3>& res )
-    : body_( impbody )
-    , result_( res )  
-    , threshold_( threshold )		      
-    , inlrg_( inlrg )
-    , crlrg_( crlrg )
-    , zrg_( zrg )
-    , xsz_( inlrg.nrSteps()+1 )
-    , ysz_( crlrg.nrSteps()+1 )
-    , zsz_( mNINT(zrg_.width()/(SI().zFactor()*SI().zStep()))+1 )
-{}
-
-
-bool Implicit2BodyFloodFill::findFirst( int& startx, int& starty, int& startz )
-{
-    for ( int idx=0; idx<xsz_; idx++ )
-    {
-	for ( int idy=0; idy<ysz_; idy++ )
-	{
-	    for ( int idz=0; idz<zsz_; idz++ )
-	    {
-		if ( body_.get(idx,idy,idz)==threshold_ )
-		{
-		    startx = idx;
-		    starty = idy;
-		    startz = idz;
-		    return true;
-		}
-	    }
-	}
-    }
-
-    return false;
-}
-
-
-void Implicit2BodyFloodFill::addToQueue( int i0, int i1, int i2, 
-					 bool increase, char dir ) 
-{
-    Dummy newpos;
-     if ( i0<0 || i0>=xsz_ || i1<0 || i1>=ysz_ || i2<0 || i2>=zsz_ )
-	 return;
-
-    if ( body_.get(i0,i1,i2)==threshold_ ) 
-    {  
-	newpos.i = i0; newpos.j = i1; newpos.k = i2; 
-	bool found = false; 
-	for ( int idx=0; idx<used_.size(); idx++ ) 
-	{ 
-	    if ( used_[idx] == newpos ) 
-	    { 
-		found = true; 
-		break; 
-	    } 
-	} 
-	
-	if ( !found ) 
-	{ 
-	    for ( int idx=0; idx<queue_.size(); idx++ ) 
-	    { 
-		if ( queue_[idx] == newpos ) 
-		{ 
-		    found = true; 
-		    break; 
-		} 
-	    } 
-	} 
-	
-	if ( !found ) 
-	    queue_ += newpos; 
-    }
-     
-    if ( dir==0 )
-	addToQueue( increase ? i0+1 : i0-1, i1, i2, increase, dir );
-    else if ( dir==1 )
-	addToQueue( i0, increase ? i1+1 : i1-1, i2, increase, dir );
-    else 
-	addToQueue( i0, i1, increase ? i2+1 : i2-1, increase, dir );
-}
-
-
-void Implicit2BodyFloodFill::compute( )
-{
-    Dummy first;
-    if ( !findFirst(first.i, first.j, first.k) )
-	return;
-
-    queue_.erase();
-    used_.erase();
-    queue_ += first;
-
-    const float zstep = SI().zStep();
-    while ( queue_.size() )
-    {
-	const int c0 = queue_[0].i;
-	const int c1 = queue_[0].j;
-	const int c2 = queue_[0].k;
-	BinID bid(inlrg_.atIndex(c0), crlrg_.atIndex(c1));
-	result_ += Coord3( SI().transform(bid), zrg_.start+c2*zstep );
-    
-	used_ += queue_[0];
-	queue_.remove( 0 );
-	
-	addToQueue( c0+1, c1, c2, true, 0 );
-	addToQueue( c0-1, c1, c2, false, 0 );
-	addToQueue( c0, c1+1, c2, true, 1 );
-	addToQueue( c0, c1-1, c2, false, 1 );
-	addToQueue( c0, c1, c2+1, true, 2 );
-	addToQueue( c0, c1, c2-1, false, 2 ); 
-   }
-}
-
-
 DAGTetrahedraTree::DAGTetrahedraTree()
     : coordlist_( 0 )
     , center_( Coord3(0,0,0) )  
@@ -447,14 +329,36 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 {
     tetrahedras_.erase();
 
-    const double xlength = xrg.width();
-    const double ylength = yrg.width();
-    const double zlength = zrg.width();
-    if ( mIsZero(xlength,1e-3) || mIsZero(ylength,1e-3) || 
-	 mIsZero(zlength,1e-3) )
-	return false;
-
+    double xlength = xrg.width();
+    double ylength = yrg.width();
+    double zlength = zrg.width();
     center_ = Coord3( xrg.center(), yrg.center(), zrg.center() );
+
+    bool narrow[3] = { mIsZero(xlength, 1e-3), mIsZero(ylength, 1e-3), 
+		       mIsZero(zlength, 1e-3) };
+    if ( narrow[0] || narrow[1] || narrow[2] )
+    {
+	const Coord mincoord = SI().minCoord( true );
+	const Coord maxcoord = SI().maxCoord( true );
+	if ( narrow[0] )
+	{
+	    center_.x = (mincoord.x+maxcoord.x)/2;
+	    xlength = maxcoord.x-mincoord.x;
+	}
+	
+	if ( narrow[1] )
+	{
+	    center_.y = (mincoord.y+maxcoord.y)/2;
+	    ylength = maxcoord.y-mincoord.y;
+	}
+
+	if ( narrow[2] )
+	{
+	    center_.z = SI().zRange(true).center()*SI().zFactor();
+	    zlength = SI().zRange(true).width()*SI().zFactor();
+	}
+    }
+
     const double k = initsizefactor_ * 2 * 
 	Math::Sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
     epsilon_ = k*(1e-5);
@@ -557,7 +461,8 @@ bool DAGTetrahedraTree::insertPoint( int ci, int& dupid )
 
 
 #define mCrd( idx ) \
-	(idx>=0 ? (*coordlist_)[idx]-center_ : initialcoords_[-idx-2]-center_)
+	(idx>=0 ? (*coordlist_)[idx] : initialcoords_[-idx-2])
+	//(idx>=0 ? (*coordlist_)[idx]-center_ : initialcoords_[-idx-2]-center_)
 
 
 char DAGTetrahedraTree::searchTetrahedra( const Coord3& pt )
