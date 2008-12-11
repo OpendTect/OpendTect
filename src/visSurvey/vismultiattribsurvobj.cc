@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.22 2008-12-04 13:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.23 2008-12-11 16:19:00 cvsyuancheng Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -579,16 +579,19 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 	    {
 		mDynamicCastGet(visBase::VisColorTab*,coltab, 
 		       		visBase::DM().getObject(coltabid) );
-		texture_->setColorTab( attribnr, *coltab );
+		if ( texture_ )
+    		    texture_->setColorTab( attribnr, *coltab );
 	    }
 
 	    ison = true;
 	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
-	    texture_->enableTexture( attribnr, ison );
+	    if ( texture_ )
+    		texture_->enableTexture( attribnr, ison );
 
 	    unsigned int trans = 0;
 	    attribpar->get( sKeyTextTrans(), trans );
-	    texture_->setTextureTransparency( attribnr, trans );
+	    if ( texture_ )
+    		texture_->setTextureTransparency( attribnr, trans );
 	}
     }
 
