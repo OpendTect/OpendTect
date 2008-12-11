@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.13 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.14 2008-12-11 08:45:10 cvsumesh Exp $";
 
 #include "uiseislinesel.h"
 
@@ -25,63 +25,68 @@ static const char* rcsID = "$Id: uiseislinesel.cc,v 1.13 2008-11-25 15:35:26 cvs
 #include "seistrctr.h"
 #include "transl.h"
 
-uiLineSel::uiLineSel( uiParent* p, BufferStringSet& sellines, 
-	              CtxtIOObj* lsctio )
+uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
 				   mNoDlgTitle,mNoHelpID) )
     , lsctio_(lsctio)
-    , nroflines_(0)
-    , sellines_(sellines)		   
 {
-    linesetfld_ = new uiSeisSel( this, *lsctio_,
+    linesetfld_ = new uiSeisSel( this, lsctio_,
 	    			 uiSeisSel::Setup(Seis::Line).selattr(false) );
-    linesetfld_->selectiondone.notify( mCB(this,uiLineSel,lineSetSel) );
+    linesetfld_->selectiondone.notify( mCB(this,uiSeis2DLineSubSel,lineSetSel));
 
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", false );
     llb->attach( alignedBelow, linesetfld_ );
     lnmsfld_ = llb->box();
+    lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
 
+//  TODO: Replace by uiSelNrRange
     lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
     trc0fld_ = lsb_->box();
-    trc0fld_->valueChanged.notify( mCB(this,uiLineSel,trc0Changed) );
+    trc0fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc0Changed) );
     trc1fld_ = new uiSpinBox( this, 0, "Trc Stop" );
     trc1fld_->attach( rightTo, lsb_ );
-    trc1fld_->valueChanged.notify( mCB(this,uiLineSel,trc1Changed) );
+    trc1fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc1Changed) );
     
     lsb_->attach( alignedBelow, llb );
 
     lineSetSel( 0 );
-    lnmsfld_->setCheckedItems( sellines_ );
 }   
 
 
-BufferString uiLineSel::getSummary() const
+void uiSeis2DLineSubSel::setSelLines( const BufferStringSet& sellines )
+{ 
+    sellines_ = sellines; 
+    lnmsfld_->setCheckedItems( sellines_ );
+}
+
+
+BufferString uiSeis2DLineSubSel::getSummary() const
 {
     BufferString ret;
-    if ( !linesetfld_ || !lsctio_->ioobj ) return ret;
+    if ( !linesetfld_ || !lsctio_.ioobj ) return ret;
 
-    ret = lsctio_->ioobj->name();
+    ret = lsctio_.ioobj->name();
     const int nrsel = sellines_.size();
-    if ( nroflines_==1 )
+    const int nroflines = lnmsfld_->size();
+    if ( nroflines==1 )
 	ret += " (1 line)";
     else
     {
 	ret += " (";
-	if ( nroflines_ == nrsel ) ret += "all";
-	else { ret += nrsel; ret += "/"; ret += nroflines_; }
+	if ( nroflines == nrsel ) ret += "all";
+	else { ret += nrsel; ret += "/"; ret += nroflines; }
 	ret += " lines)";
     }
 
     return ret;
-
 }
 
 
-void uiLineSel::lineSetSel( CallBacker* )
+void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 {
-    if ( !lsctio_->ioobj ) return;
+    if ( !lsctio_.ioobj ) return;
 
-    SeisIOObjInfo oinf( lsctio_->ioobj );
+    SeisIOObjInfo oinf( lsctio_.ioobj );
     BufferStringSet lnms;
     oinf.getLineNames( lnms );   
 
@@ -118,16 +123,14 @@ void uiLineSel::lineSetSel( CallBacker* )
 	trc1fld_->setInterval( linetrcrgs_[0].start, linetrcrgs_[0].stop );
 	trc1fld_->setValue( linetrcrgs_[0].stop );
     }
-
-    lnmsfld_->selectionChanged.notify( mCB(this,uiLineSel,lineSelTrcRange) );
 }
 
 
-const Interval<int> uiLineSel::getLineTrcRange( int idx ) const
+const Interval<int> uiSeis2DLineSubSel::getLineTrcRange( int idx ) const
 { return linetrcflrgs_[idx]; }
 
 
-void uiLineSel::lineSelTrcRange( CallBacker* )
+void uiSeis2DLineSubSel::lineSel( CallBacker* )
 {
     if ( linetrcrgs_.isEmpty() )
 	return;
@@ -144,22 +147,21 @@ void uiLineSel::lineSelTrcRange( CallBacker* )
 }
 
 
-void uiLineSel::trc0Changed( CallBacker* )
+void uiSeis2DLineSubSel::trc0Changed( CallBacker* )
 {
     linetrcflrgs_[ lnmsfld_->currentItem() ].start = trc0fld_->getValue();
 }
 
 
-void uiLineSel::trc1Changed( CallBacker* )
+void uiSeis2DLineSubSel::trc1Changed( CallBacker* )
 {
     linetrcflrgs_[ lnmsfld_->currentItem() ].stop = trc1fld_->getValue();
 }
 
 
-bool uiLineSel::acceptOK( CallBacker* )
+bool uiSeis2DLineSubSel::acceptOK( CallBacker* )
 {
     sellines_.erase();
-    nroflines_ = lnmsfld_->size();
     lnmsfld_->getCheckedItems( sellines_ );
     
     return true;
@@ -190,8 +192,10 @@ BufferString uiSelection2DParSel::getSummary() const
 
 void uiSelection2DParSel::doDlg( CallBacker* )
 {
-    linesel_ = new uiLineSel( this, sellines_, lsctio_ );
+    linesel_ = new uiSeis2DLineSubSel( this, *lsctio_ );
+    linesel_->setSelLines( sellines_ );
     linesel_->go();
+    sellines_ = linesel_->getSelLines();
 }
 
 
