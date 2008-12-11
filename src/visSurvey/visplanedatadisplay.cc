@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.206 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.207 2008-12-11 18:23:15 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -102,10 +102,6 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     dragger_->setOwnShape( draggerrect_->getInventorNode() );
     dragger_->setDim( (int) 0 );
-    dragger_->setWidthLimits(
-	    Interval<float>( 4*SI().inlRange(true).step, mUdf(float) ),
-	    Interval<float>( 4*SI().crlRange(true).step, mUdf(float) ),
-	    Interval<float>( 4*SI().zRange(true).step, mUdf(float) ) );
 	
     if ( (int) orientation_ )
 	dragger_->setDim( (int) orientation_ );
@@ -198,6 +194,11 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
     const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
 
     dragger_->setSpaceLimits( inlrg, crlrg, survey.zrg );
+    dragger_->setWidthLimits(
+	    Interval<float>( 4*survey.hrg.step.inl, mUdf(float) ),
+	    Interval<float>( 4*survey.hrg.step.crl, mUdf(float) ),
+	    Interval<float>( 4*survey.zrg.step, mUdf(float) ) );
+
     dragger_->setSize( Coord3(inlrg.width(), crlrg.width(),survey.zrg.width()));
 
     CubeSampling newpos = getCubeSampling(false,true);
