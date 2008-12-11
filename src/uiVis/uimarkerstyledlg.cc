@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.6 2008-12-11 16:15:12 cvsyuancheng Exp $";
 
 #include "uimarkerstyledlg.h"
 
@@ -24,7 +24,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
 		       		   mNoHelpID)
 		   .canceltext(""))
 {
-    typefld = new uiGenInput( this, "Type", 
+    typefld = new uiGenInput( this, "Shape", 
 	    		      StringListInpSpec(MarkerStyle3D::TypeNames) );
     typefld->valuechanged.notify( mCB(this,uiMarkerStyleDlg,typeSel) );
 

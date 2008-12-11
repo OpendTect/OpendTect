@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uipickpropdlg.h,v 1.4 2007-12-10 03:56:57 cvsnanne Exp $
+ RCS:           $Id: uipickpropdlg.h,v 1.5 2008-12-11 16:15:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,26 +16,32 @@ ________________________________________________________________________
 class uiCheckBox;
 
 namespace Pick { class Set; };
+namespace visSurvey { class PickSetDisplay; };
 
 
 class uiPickPropDlg : public uiMarkerStyleDlg
 {
 public:
-			uiPickPropDlg(uiParent* p,Pick::Set& set);
+				uiPickPropDlg(uiParent* p,
+					      Pick::Set& set, 
+					      visSurvey::PickSetDisplay* psd);
 
 protected:
 
-    uiCheckBox*		linefld_;
+    void			doFinalise(CallBacker*);
+    void			sliderMove(CallBacker*);
+    void			typeSel(CallBacker*);
+    void			colSel(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    void			drawStyleCB(CallBacker*);
+    void			drawSel(CallBacker*);
+    
+    uiGenInput*         	drawstylefld_;			
+    uiCheckBox*         	usedrawstylefld_;			
 
-    Pick::Set&		set_;
-
-    void		doFinalise(CallBacker*);
-
-    void		sliderMove(CallBacker*);
-    void		typeSel(CallBacker*);
-    void		colSel(CallBacker*);
-    void		connectSel(CallBacker*);
-    bool		acceptOK(CallBacker*);
+    Pick::Set&			set_;
+    visSurvey::PickSetDisplay*	psd_;
+    bool			needtriangulate_;
 };
 
 #endif
