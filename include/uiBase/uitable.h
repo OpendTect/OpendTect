@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.49 2008-11-24 10:41:58 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.50 2008-12-11 10:56:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,6 +186,7 @@ public:
     			{ return RowCol( currentRow(), currentCol() ); }
     void		selectRow(int row);
     void 		selectColumn(int col);
+    void 		selectItems(const TypeSet<RowCol>&,bool);
     void		removeAllSelections();
     void 		ensureCellVisible(const RowCol&);
 

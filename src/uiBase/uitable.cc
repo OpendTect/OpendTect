@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.77 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.78 2008-12-11 10:56:31 cvssatyaki Exp $";
 
 
 #include "uitable.h"
@@ -1322,6 +1322,21 @@ void uiTable::activateClick( const RowCol& rc, bool leftclick,
 
 void uiTable::activateFill( const RowCol& rc, const char* txt )
 { body_->activateFill( rc, txt ); }
+
+
+void uiTable::selectItems( const TypeSet<RowCol>& rcs, bool yn )
+{
+    removeAllSelections();
+    for ( int idx=0; idx<rcs.size(); idx++ )
+    {
+	if ( mIsUdf(rcs[idx].row) || mIsUdf(rcs[idx].col) )
+	    continue;
+	QTableWidgetItem* itm = body_->item( rcs[idx].row, rcs[idx].col );
+	if ( !itm || (yn && itm->isSelected()) || (!yn && !itm->isSelected()) )
+	    continue;
+	itm->setSelected( yn );
+    }
+}
 
 
 void uiTable::activateSelect( const TypeSet<RowCol>& selection )
