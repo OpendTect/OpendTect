@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.13 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: commondefs.h,v 1.14 2008-12-11 04:27:43 cvsranojay Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -45,7 +45,7 @@ ________________________________________________________________________
 #endif
 
 #ifndef MAXFLOAT
-# define MAXFLOAT	3.40282347e+38F
+# define MAXFLOAT	3.4028234663852886e+38F
 #endif
 
 #ifndef MAXDOUBLE
