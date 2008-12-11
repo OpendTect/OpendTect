@@ -4,10 +4,11 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.43 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.44 2008-12-11 16:13:58 cvsyuancheng Exp $";
 
 #include "vislocationdisplay.h"
 
+#include "delaunay3d.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -15,6 +16,7 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.43 2008-12-10 18:05:3
 #include "picksettr.h"
 #include "separstr.h"
 #include "survinfo.h"
+#include "viscoord.h"
 #include "visevent.h"
 #include "visdataman.h"
 #include "visdrawstyle.h"
@@ -22,6 +24,7 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.43 2008-12-10 18:05:3
 #include "vispickstyle.h"
 #include "vispolyline.h"
 #include "vistransform.h"
+#include "vistristripset.h"
 #include "zaxistransform.h"
 
 namespace visSurvey {
@@ -56,6 +59,7 @@ LocationDisplay::LocationDisplay()
     , group_( visBase::DataObjectGroup::create() )
     , eventcatcher_( 0 )
     , transformation_( 0 )
+    , isbodydisplay_( false )			  
     , showall_( true )
     , set_(0)
     , manip_( this )
@@ -64,6 +68,7 @@ LocationDisplay::LocationDisplay()
     , waitsforpositionid_( -1 )
     , datatransform_( 0 )
     , pickstyle_( 0 )
+    , bodydisplay_( 0 )		     
     , polyline_(0)
     , needline_(false)
     , pickedsobjid_(-1)
@@ -85,6 +90,7 @@ LocationDisplay::~LocationDisplay()
     setSetMgr( 0 );
 
     if ( pickstyle_ ) pickstyle_->unRef();
+    if ( bodydisplay_ ) bodydisplay_->unRef();
 
     if ( datatransform_ )
     {
@@ -187,6 +193,69 @@ void LocationDisplay::showAll( bool yn )
 
 	vo->turnOn( true );
     }
+}
+
+
+bool LocationDisplay::isLocationBodyDisplayed() const
+{ 
+    return bodydisplay_ && isbodydisplay_; 
+}
+
+
+void LocationDisplay::displayLocationBody( bool yn )
+{
+    isbodydisplay_ = yn;
+    if ( bodydisplay_ )
+	bodydisplay_->turnOn( yn );
+}
+
+
+bool LocationDisplay::setLocationBodyDisplay()
+{
+    if ( !bodydisplay_ )
+    {
+	bodydisplay_ = visBase::TriangleStripSet::create();
+	bodydisplay_->ref();
+	bodydisplay_->setDisplayTransformation( transformation_ );
+	addChild( bodydisplay_->getInventorNode() );
+    }
+
+    if ( !set_ )
+	return true;
+
+    TypeSet<Coord3> picks;
+    const float zscale = SI().zFactor();
+    for ( int idx=0; idx<set_->size(); idx++ )
+    {
+	Coord3 pos = (*set_)[idx].pos;
+	bodydisplay_->getCoordinates()->setPos( idx, pos );
+	
+	if ( datatransform_ ) pos.z = datatransform_->transformBack( pos );
+	pos.z  *= zscale;
+	picks += pos;
+    }
+
+    DAGTetrahedraTree tree;
+    tree.setCoordList( picks, false );
+    
+    ParallelDTetrahedralator pdtri( tree );
+    if ( !pdtri.execute(true) )
+	return false;
+    
+    TypeSet<int> result;
+    if ( !tree.getSurfaceTriangles(result) )
+	return false;
+    
+    int cii = 0;
+    for ( int idx=0; idx<result.size()/3; idx++ )
+    {
+	bodydisplay_->setCoordIndex( cii++, result[3*idx] );
+	bodydisplay_->setCoordIndex( cii++, result[3*idx+2] );
+	bodydisplay_->setCoordIndex( cii++, result[3*idx+1] );
+	bodydisplay_->setCoordIndex( cii++, -1 );
+    }
+
+    return true;
 }
 
 

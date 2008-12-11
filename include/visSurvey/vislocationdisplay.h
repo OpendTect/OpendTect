@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.16 2008-06-19 15:48:54 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.17 2008-12-11 16:13:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ namespace visBase
     class PickStyle;
     class PolyLine;
     class Transformation;
+    class TriangleStripSet;
 };
 
 
@@ -58,6 +59,11 @@ public:
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
+    
+    void			displayLocationBody(bool);
+    bool			isLocationBodyDisplayed() const;
+    bool			setLocationBodyDisplay();
+    visBase::TriangleStripSet*	getLocationBody() const { return bodydisplay_; }
 
     void                        createLine();
     void                        showLine(bool);
@@ -129,6 +135,8 @@ protected:
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
 
+    bool			isbodydisplay_;
+    visBase::TriangleStripSet*	bodydisplay_;
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
     visBase::DrawStyle*         drawstyle_;
