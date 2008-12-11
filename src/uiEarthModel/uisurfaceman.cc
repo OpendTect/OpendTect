@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.52 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.53 2008-12-11 11:13:54 cvsjaap Exp $";
 
 
 #include "uisurfaceman.h"
@@ -55,11 +55,11 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.52 2008-11-25 15:35:25 cvsb
 
 #define mGetManageStr(typ) \
     mGet( typ, "Manage 2D horizons", "Manage 3D horizons", "Manage horizons", \
-	       "Manage 2D faults", "Manage 3D faults" )
+	       "Manage FaultStickSets", "Manage 3D faults" )
 
 #define mGetCopyStr(typ) \
     mGet( typ, "Copy 2D horizon", "Copy 3D horizon", "Copy horizon", \
-	       "Copy 2D fault", "Copy 3D fault" )
+	       "Copy FaultStickSet", "Copy 3D fault" )
 
 using namespace EM;
 
