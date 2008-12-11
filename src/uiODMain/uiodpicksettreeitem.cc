@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.50 2008-12-02 13:58:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.51 2008-12-11 16:16:06 cvsyuancheng Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -358,7 +358,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==propertymnuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiPickPropDlg dlg( getUiParent(), set_ );
+	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
     }
     else if( mnuid==removeselectionmnuitem_.id )
