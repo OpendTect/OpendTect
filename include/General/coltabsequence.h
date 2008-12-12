@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.6 2008-10-07 18:45:07 cvskris Exp $
+ RCS:		$Id: coltabsequence.h,v 1.7 2008-12-12 19:53:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ public:
     void		removeAllColors();
 
     void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
+    bool		usePar(const IOPar&);
 
     Notifier<Sequence>	colorChanged;
     Notifier<Sequence>	transparencyChanged;

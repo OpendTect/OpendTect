@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.13 2008-11-25 15:56:14 cvskris Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.14 2008-12-12 19:53:21 cvskris Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -317,22 +317,23 @@ void ColTab::Sequence::changeTransparency( int idx, Geom::Point2D<float> pt )
 
 
 static float getfromPar( const IOPar& iopar, Color& col, const char* key,
-			 bool withx=false )
+			 float* px=0 )
 {
     const char* res = iopar.find( key );
-    float px = withx ? mUdf(float) : 0;
-    if ( res && *res )
+    if ( px ) *px = mUdf(float);
+    if ( !res || !*res )
+	return false;
+
+    if ( !px )
+	col.use( res );
+    else
     {
-	if ( !withx )
-	    col.use( res );
-	else
-	{
-	    const FileMultiString fms( res );
-	    if ( fms.size() > 1 && col.use( fms.from(1) ) )
-		px = atof(fms[0]);
-	}
+	const FileMultiString fms( res );
+	if ( fms.size() > 1 && col.use( fms.from(1) ) )
+	    *px = atof(fms[0]);
     }
-    return px;
+
+    return true;
 }
 
 
@@ -367,12 +368,17 @@ void ColTab::Sequence::fillPar( IOPar& iopar ) const
 }
 
 
-void ColTab::Sequence::usePar( const IOPar& iopar )
+bool ColTab::Sequence::usePar( const IOPar& iopar )
 {
+    ColTab::Sequence backup = *this;
     const char* res = iopar.find( sKey::Name );
     if ( res ) setName( res );
-    getfromPar( iopar, markcolor_, sKeyMarkColor );
-    getfromPar( iopar, undefcolor_, sKeyUdfColor );
+    if ( !getfromPar( iopar, markcolor_, sKeyMarkColor, 0 ) ||
+	 !getfromPar( iopar, undefcolor_, sKeyUdfColor, 0 ) )
+    {
+	*this = backup;
+	return false;
+    }
 
     x_.erase(); r_.erase(); g_.erase(); b_.erase(); tr_.erase();
     for ( int idx=0; ; idx++ )
@@ -380,7 +386,8 @@ void ColTab::Sequence::usePar( const IOPar& iopar )
 	BufferString key( sKeyValCol );
 	key += "."; key += idx;
 	Color col;
-	float px = getfromPar( iopar, col, key, true );
+	float px;
+	getfromPar( iopar, col, key, &px );
 	if ( mIsUdf(px) )
 	{
 	    if ( idx )
@@ -402,6 +409,7 @@ void ColTab::Sequence::usePar( const IOPar& iopar )
     }
 
     triggerAll();
+    return true;
 }
 
 
