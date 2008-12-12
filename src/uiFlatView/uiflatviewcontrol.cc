@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.41 2008-11-26 06:57:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.42 2008-12-12 05:52:27 cvssatyaki Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.41 2008-11-26 06:57:08
 #include "uiflatviewer.h"
 #include "uiflatviewpropdlg.h"
 #include "uirgbarraycanvas.h"
+#include "uigraphicsscene.h"
 #include "uiworld2ui.h"
 #include "uiobjdisposer.h"
 #include "datapackbase.h"
@@ -223,6 +224,8 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 {
     //TODO handle when zoom is disabled
     const uiRect* selarea = vwrs_[0]->rgbCanvas().getSelectedArea();
+    if ( selarea->topLeft() == selarea->bottomRight() )
+	return;
     uiWorld2Ui w2u;
     vwrs_[0]->getWorld2Ui(w2u);
     uiWorldRect wr = w2u.transform(*selarea);
@@ -309,7 +312,7 @@ void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 
 MouseEventHandler& uiFlatViewControl::mouseEventHandler( int vieweridx )
 {
-    return vwrs_[vieweridx]->rgbCanvas().getMouseEventHandler();
+    return vwrs_[vieweridx]->rgbCanvas().scene().getMouseEventHandler();
 }
 
 
