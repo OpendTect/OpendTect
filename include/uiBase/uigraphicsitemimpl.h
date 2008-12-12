@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.5 2008-11-26 06:13:35 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.6 2008-12-12 05:45:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ class ODGraphicsArrowItem;
 class ODGraphicsMarkerItem;
 class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
+template <class T> class ODPolygon;
 
 
 class uiEllipseItem : public uiGraphicsItem
@@ -105,7 +106,8 @@ public:
 
     QGraphicsPolygonItem* qPolygonItem()	{ return qpolygonitem_; }
     void		fill();
-    void		setPolygon(const TypeSet<uiPoint>&,bool polyline=false);
+    void		setPolygon(const TypeSet<uiPoint>&);
+    void		setPolygon(const ODPolygon<int>&);
 
 protected:
 

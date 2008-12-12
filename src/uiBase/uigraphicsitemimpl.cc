@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.8 2008-11-26 06:13:35 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.9 2008-12-12 05:45:08 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
 #include "odgraphicsitem.h"
 #include "pixmap.h"
+#include "polygon.h"
 #include "uifont.h"
 
 #include <QBrush>
@@ -80,6 +81,7 @@ void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
 {
     qlineitem_->setLine( x1, y1, x2, y2 );
 }
+
 
 uiRect* uiLineItem::lineRect()
 {
@@ -176,15 +178,22 @@ void uiPolygonItem::fill()
 }
 
 
-void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist, bool polyline )
+void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist )
 {
     QPolygon qpolygon( ptlist.size() );
     for ( int idx=0; idx<ptlist.size(); idx++ )
 	qpolygon.setPoint( (unsigned int)idx, ptlist[idx].x, ptlist[idx].y );
     QPolygonF qpolygonf(qpolygon);
-    //if ( polyline )
-	//qpolygonf.replace( qpolygonf.size(), 0 ); 
     qpolygonitem_->setPolygon( qpolygonf );
+}
+
+
+void uiPolygonItem::setPolygon( const ODPolygon<int>& polygon )
+{
+    TypeSet<uiPoint> ptlist;
+    for ( int idx=0; idx<polygon.size(); idx++ )
+	ptlist += polygon.data()[idx];
+    setPolygon( ptlist );
 }
 
 
