@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.66 2008-11-26 06:57:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.67 2008-12-12 05:49:41 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -57,7 +57,6 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
     , anysetviewdone_(false)
     , extraborders_(0,0,0,0)
     , annotsz_(50,20) //TODO: should be dep on font size
-    , newFillNeeded(this)
     , viewChanged(this)
     , dataChanged(this)
     , dispParsChanged(this)
@@ -65,7 +64,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.reSize.notify( mCB(this,uiFlatViewer,reDraw) );
-    newFillNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
+    canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
     reportedchanges_ += All;
 
     mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
@@ -91,7 +90,8 @@ void uiFlatViewer::reDraw( CallBacker* )
 
 void uiFlatViewer::setRubberBandingOn( bool yn )
 {
-    canvas_.setRubberBandingOn( yn );
+    canvas_.setDragMode( yn ? uiGraphicsView::RubberBandDrag
+	   		    : uiGraphicsView::NoDrag );
 }
 
 
@@ -168,13 +168,15 @@ void uiFlatViewer::setView( const uiWorldRect& wr )
 {
     anysetviewdone_ = true;
 
+    if ( wr.topLeft() == wr.bottomRight() )
+	return;
     wr_ = wr;
     if ( (wr_.left() > wr.right()) != appearance().annot_.x1_.reversed_ )
 	wr_.swapHor();
     if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
 
-    newFillNeeded.trigger();
+    canvas_.reDrawNeeded.trigger();
     viewChanged.trigger();
 }
 
@@ -200,7 +202,7 @@ void uiFlatViewer::handleChange( DataChangeType dct, bool dofill )
 
     canvas_.setBorder( uiBorder(l,t,r,b) );
     if ( dofill )
-	newFillNeeded.trigger();
+	canvas_.reDrawNeeded.trigger();
 
 }
 
@@ -344,14 +346,16 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
 }
 
 
+#define mRemoveAnnotItem( item ) \
+    if ( item ) \
+    { canvas_.scene().removeItem( item ); delete item; item = 0; }
+
+
 void uiFlatViewer::drawAnnot()
 {
     const FlatView::Annotation& annot = appearance().annot_;
 
-    if ( annot.color_.isVisible() )
-    {
-	drawGridAnnot();
-    }
+    drawGridAnnot( annot.color_.isVisible() );
 
     if ( polylineitmgrp_ )
 	polylineitmgrp_->removeAll( true );
@@ -372,6 +376,8 @@ void uiFlatViewer::drawAnnot()
 	Alignment al( OD::AlignHCenter, OD::AlignTop );
 	titletxtitem_->setAlignment( al );
     }
+    else
+    { mRemoveAnnotItem( titletxtitem_ ); }
 }
 
 
@@ -408,18 +414,40 @@ void uiFlatViewer::getWorld2Ui( uiWorld2Ui& w2u ) const
 }
 
 
-void uiFlatViewer::drawGridAnnot()
+void uiFlatViewer::drawGridAnnot( bool isvisble )
 {
+    if ( rectitem_ )
+	rectitem_->setVisible( isvisble );
+    if ( arrowitem1_ )
+	arrowitem1_->setVisible( isvisble );
+    if ( axis1nm_ )
+	axis1nm_->setVisible( isvisble );
+    if ( arrowitem2_ )
+	arrowitem2_->setVisible( isvisble );
+    if ( axis2nm_ )
+	axis2nm_->setVisible( isvisble );
+    if ( !isvisble )
+	return;
+
     const FlatView::Annotation& annot = appearance().annot_;
     const FlatView::Annotation::AxisData& ad1 = annot.x1_;
     const FlatView::Annotation::AxisData& ad2 = annot.x2_;
     const bool showanyx1annot = ad1.showannot_ || ad1.showgridlines_;
     const bool showanyx2annot = ad2.showannot_ || ad2.showgridlines_;
-    if ( !showanyx1annot && !showanyx2annot )
-	return;
-
+    
     const uiRect datarect( canvas_.arrArea() );
     axesdrawer_.draw( datarect, wr_ );
+   
+    if ( (!showanyx1annot && !showanyx2annot) )
+    {
+	mRemoveAnnotItem( rectitem_ );
+	mRemoveAnnotItem( arrowitem1_ );
+	mRemoveAnnotItem( axis1nm_ );
+	mRemoveAnnotItem( arrowitem2_ );
+	mRemoveAnnotItem( axis2nm_ );
+	return;
+    }
+
     if ( !rectitem_ )
 	rectitem_ = canvas_.scene().addRect( datarect.left(),
 					     datarect.top(),

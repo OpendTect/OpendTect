@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.26 2008-11-26 06:57:08 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.27 2008-12-12 05:49:41 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class uiRGBArrayCanvas;
 class uiRGBArray;
 class uiWorld2Ui;
 class uiFlatViewControl;
+class uiGraphicsItem;
 class uiGraphicsItemGroup;
 class uiArrowItem;
 class uiEllipseItem;
@@ -65,7 +66,6 @@ public:
 
     void		handleChange(DataChangeType,bool dofill = true);
 
-    Notifier<uiFlatViewer> newFillNeeded; //!< setView
     Notifier<uiFlatViewer> viewChanged; //!< setView
     Notifier<uiFlatViewer> dataChanged; //!< WVA or VD data changed
     Notifier<uiFlatViewer> dispParsChanged; //!< WVA or VD disppars changed
@@ -115,7 +115,7 @@ protected:
     uiWorldRect			getBoundingBox(bool) const;
     Color			color(bool foreground) const;
 
-    void			drawGridAnnot();
+    void			drawGridAnnot(bool);
     void			drawAux(const FlatView::Annotation::AuxData&);
 
     void			reset();
