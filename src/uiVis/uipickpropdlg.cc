@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.9 2008-12-11 18:23:48 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.10 2008-12-12 22:31:40 cvsyuancheng Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -72,6 +72,9 @@ void uiPickPropDlg::drawSel( CallBacker* )
 void uiPickPropDlg::drawStyleCB( CallBacker* )
 {
     const bool showline = drawstylefld_->getBoolValue();
+    if ( psd_ )
+    	psd_->displayLocationBody( !showline );
+
     if ( showline )
     {
 	set_.disp_.connect_ = Pick::Set::Disp::Close;
@@ -89,9 +92,6 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
     	    needtriangulate_ = false;
     	}
     }
-
-    if ( psd_ )
-    	psd_->displayLocationBody( !showline );
 }
 
 
