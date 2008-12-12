@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.12 2008-11-26 06:13:35 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.13 2008-12-12 05:46:51 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -64,7 +64,8 @@ void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 {
     MouseEvent mev( mousepressedbs_, (int)qev->scenePos().x(),
 	    	    (int)qev->scenePos().y() );
-    uiscene_.getMouseEventHandler().triggerMovement( mev );
+    if ( uiscene_.isMouseEventActive() )
+	uiscene_.getMouseEventHandler().triggerMovement( mev );
     QGraphicsScene::mouseMoveEvent( qev );
 }
 
@@ -76,7 +77,8 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 	startpos_ = QPoint( (int)qev->scenePos().x(),(int)qev->scenePos().y() );
     mousepressedbs_ = bs;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
-    uiscene_.getMouseEventHandler().triggerButtonPressed( mev );
+    if ( uiscene_.isMouseEventActive() )
+	uiscene_.getMouseEventHandler().triggerButtonPressed( mev );
     QGraphicsScene::mousePressEvent( qev );
 }
 
@@ -95,7 +97,8 @@ void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 	setSelectionArea( selareapath );
     }
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
-    uiscene_.getMouseEventHandler().triggerButtonReleased( mev );
+    if ( uiscene_.isMouseEventActive() )
+	uiscene_.getMouseEventHandler().triggerButtonReleased( mev );
     QGraphicsScene::mouseReleaseEvent( qev );
 }
 
@@ -104,7 +107,8 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
-    uiscene_.getMouseEventHandler().triggerDoubleClick( mev );
+    if ( uiscene_.isMouseEventActive() )
+	uiscene_.getMouseEventHandler().triggerDoubleClick( mev );
     QGraphicsScene::mouseDoubleClickEvent( qev );
 }
 
@@ -113,6 +117,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
     , mousehandler_(MouseEventHandler())
+    , ismouseeventactive_(true)
     , odgraphicsscene_(new ODGraphicsScene(*this))
 {
     odgraphicsscene_->setObjectName( nm );

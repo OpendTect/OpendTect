@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.10 2008-11-26 06:13:35 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.11 2008-12-12 05:46:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,10 @@ public:
 
     void			setSceneRect(float x,float y,float w,float h);
 
+    const bool			isMouseEventActive() const	
+    				{ return ismouseeventactive_; }
+    void			setMouseEventActive( bool yn )
+    				{ ismouseeventactive_ = yn; }
     QGraphicsScene*		qGraphicsScene()
     				{ return (QGraphicsScene*)odgraphicsscene_; }
 
@@ -105,6 +109,7 @@ protected:
 
     MouseEventHandler		mousehandler_;
     KeyboardEventHandler	keyboardhandler_;
+    bool			ismouseeventactive_;
 };
 
 #endif
