@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          August 2008
- RCS:           $Id: uimultcomputils.h,v 1.2 2008-12-12 09:30:18 cvshelene Exp $
+ RCS:           $Id: uimultcomputils.h,v 1.3 2008-12-12 15:00:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class LineKey;
-class uiLabeledSpinBox;
+class uiListBox;
 
 class uiMultCompDlg : public uiDialog
 {
@@ -26,7 +26,7 @@ public:
 
 protected:
 
-    uiLabeledSpinBox*	compfld_;
+    uiListBox*		compfld_;
     bool		needdisplay_;
 };
 
