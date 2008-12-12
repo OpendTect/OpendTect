@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.7 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.8 2008-12-12 05:44:20 cvssatyaki Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -68,9 +68,9 @@ bool uiGraphicsItem::isSelectable()
 }
 
 
-bool uiGraphicsItem::isSelected()
+void uiGraphicsItem::setSelected( bool yn )
 {
-    return qgraphicsitem_->isSelected();
+    selected_ = yn;
 }
 
 
@@ -111,17 +111,20 @@ void uiGraphicsItem::setFillColor( const Color& col )
 
 uiGraphicsItemGroup::uiGraphicsItemGroup()
     : uiGraphicsItem(mkQtObj())
+    , isvisible_(true)
 {}
 
 
 uiGraphicsItemGroup::uiGraphicsItemGroup( QGraphicsItemGroup* qtobj )
     : uiGraphicsItem(qtobj)
     , qgraphicsitemgrp_(qtobj)
+    , isvisible_(true)
 {}
 
 
 uiGraphicsItemGroup::uiGraphicsItemGroup( const ObjectSet<uiGraphicsItem>& grp )
     : uiGraphicsItem(mkQtObj())
+    , isvisible_(true)
 {
     ObjectSet<uiGraphicsItem>& itms =
 				const_cast<ObjectSet<uiGraphicsItem>&>(grp);
@@ -163,4 +166,18 @@ void uiGraphicsItemGroup::removeAll( bool withdelete )
 {
     while ( !items_.isEmpty() )
 	remove( items_[0], withdelete );
+}
+
+
+void uiGraphicsItemGroup::setVisible( bool yn )
+{
+    isvisible_ = yn;
+    for ( int idx=0; idx<getSize(); idx++ )
+	getUiItem(idx)->setVisible( yn );
+}
+
+
+bool uiGraphicsItemGroup::isVisible() const
+{
+    return isvisible_;
 }

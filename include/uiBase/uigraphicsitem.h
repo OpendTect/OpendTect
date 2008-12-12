@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.6 2008-10-27 10:41:42 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.7 2008-12-12 05:44:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,11 +31,12 @@ public:
 
     void		show();
     void		hide();
-    bool		isVisible() const;
-    void		setVisible(bool);
+    virtual bool	isVisible() const;
+    virtual void	setVisible(bool);
     void		setSelectable(bool);
+    void		setSelected(bool);
     bool		isSelectable();
-    bool		isSelected();
+    bool		isSelected() const		{ return selected_; }
 
     uiPoint*		getPos() const;
     void		setPos(float x,float y);
@@ -52,11 +53,13 @@ public:
 
 protected:
     			uiGraphicsItem( QGraphicsItem* itm )
-			    : qgraphicsitem_(itm)		{}
+			    : qgraphicsitem_(itm)
+			    , selected_(false)			{}
 
     QGraphicsItem*	qgraphicsitem_;
 
     virtual QGraphicsItem*	mkQtObj()			= 0;
+    bool			selected_; // Remove when things in Qt works
 };
 
 
@@ -76,12 +79,15 @@ public:
 			{ if ( items_.validIdx(idx) ) return items_[idx];
 		          else return 0; }
 
+    virtual bool	isVisible() const;
+    virtual void	setVisible(bool);
     QGraphicsItemGroup*	qGraphicsItemGroup()	{ return qgraphicsitemgrp_; }
 
 protected:
 
     QGraphicsItem*	mkQtObj();
 
+    bool		isvisible_;
     QGraphicsItemGroup*	qgraphicsitemgrp_;
     ObjectSet<uiGraphicsItem>	items_;
 };
