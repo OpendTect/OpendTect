@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.32 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.33 2008-12-12 06:01:17 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -382,6 +382,8 @@ void uiDataPointSet::selYCol( CallBacker* )
 	ycol_ = tid;
     else
 	y2col_ = tid;
+    if ( xplotwin_ && y2col_ == tid )
+	xplotwin_->setSelComboSensitive( true );
 
     if ( prevy != ycol_ || prevy2 != y2col_ )
 	handleAxisColChg();
@@ -399,6 +401,8 @@ void uiDataPointSet::unSelCol( CallBacker* )
     else
 	return;
 
+    if ( xplotwin_ && y2col_==-1 )
+	xplotwin_->setSelComboSensitive( false );
     handleAxisColChg();
 }
 
@@ -482,6 +486,8 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 	uiDataPointSetCrossPlotter& xpl = xplotwin_->plotter();
 	xpl.selectionChanged.notify( mCB(this,uiDataPointSet,xplotSelChg) );
 	xpl.removeRequest.notify( mCB(this,uiDataPointSet,xplotRemReq) );
+	xplotwin_->plotter().pointsSelected.notify(
+		mCB(this,uiDataPointSet,notifySelectedCell) );
 	xplotwin_->windowClosed.notify( mCB(this,uiDataPointSet,xplotClose) );
     }
 
@@ -489,6 +495,22 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
     handleAxisColChg();
     xplotwin_->showSelPts.notify( mCB(this,uiDataPointSet,getSelPts) );
     xplotwin_->show();
+}
+
+
+void uiDataPointSet::notifySelectedCell( CallBacker* )
+{
+    TypeSet<RowCol> selrcs;
+    TypeSet<RowCol> selectedrowcols( xplotwin_->plotter().selrowcols_ );
+    for ( int idx=0; idx<selectedrowcols.size(); idx++ )
+    {
+	if ( mIsUdf(selectedrowcols[idx].r()) ||
+	     mIsUdf(selectedrowcols[idx].c()) )
+	    continue;
+	selrcs += RowCol( tRowID(selectedrowcols[idx].r()),
+			  tColID(selectedrowcols[idx].c()) );
+    }
+    tbl_->selectItems( selrcs, true );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.11 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.12 2008-12-12 06:01:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,14 +18,18 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "uiaxisdata.h"
 class Coord;
+class RowCol;
 class ioDrawTool;
 class uiComboBox;
 class uiParent;
 class MouseEvent;
 class LinStats2D;
 class uiDataPointSet;
+class uiPolygonItem;
+class uiLineItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
+template <class T> class ODPolygon;
 
 /*!\brief Data Point Set Cross Plotter */
 
@@ -45,6 +49,8 @@ public:
 	mDefSetupMemb(LineStyle,y2style)
 	mDefSetupMemb(bool,showcc)		// corr coefficient
 	mDefSetupMemb(bool,showregrline)
+	mDefSetupMemb(bool,showy1userdefline)
+	mDefSetupMemb(bool,showy2userdefline)
     };
 
     			uiDataPointSetCrossPlotter(uiParent*,uiDataPointSet&,
@@ -58,8 +64,9 @@ public:
 	    			DataPointSet::ColID y,
 				DataPointSet::ColID y2);
 
-    Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
+    Notifier<uiDataPointSetCrossPlotter>	pointsSelected;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
+    Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
     DataPointSet::RowID	selRow() const		{ return selrow_; }
     bool		selRowIsY2() const	{ return selrowisy2_; }
 
@@ -92,7 +99,8 @@ public:
     const ObjectSet<Coord3>&	getSelCoords() const	{ return selcoords_; }
     void			setSceneSelectable( bool yn )	
 				{ selectable_ = yn; }
-    void			setSelectable( bool y1, bool y2 );	
+    void			setSelectable( bool y1, bool y2 );
+    void			removeSelections();
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
@@ -105,6 +113,20 @@ public:
 
     friend class		uiDataPointSetCrossPlotWin;
     friend class		AxisData;
+    
+    Interval<float>		desiredxrg_;
+    Interval<float>		desiredyrg_;
+    Interval<float>		desiredy2rg_;
+    
+    LinePars&			userdefy1lp_;
+    LinePars&			userdefy2lp_;
+    
+    TypeSet<RowCol>		y1rowcols_;
+    TypeSet<RowCol>		y2rowcols_;
+    TypeSet<RowCol>		selrowcols_;
+
+    void			drawY1UserDefLine(const Interval<int>&,bool);
+    void			drawY2UserDefLine(const Interval<int>&,bool);
 
     int				width_;
     int				height_;
@@ -112,17 +134,23 @@ public:
     void 			drawContent( bool withaxis = true );
     bool                        isy1selectable_;
     bool                        isy2selectable_;
+    bool                        rectangleselection_;
+    bool                        isY2Shown() const;
 protected:
 
     uiParent*			parent_;
-    uiPoint*                    selstartpos_;
+    uiPoint			selstartpos_;
     uiDataPointSet&		uidps_;
     const DataPointSet&		dps_;
     Setup			setup_;
     MouseEventHandler&		meh_;
+    uiPolygonItem*		selectionpolygonitem_;
     uiGraphicsItemGroup*	yptitems_;
     uiGraphicsItemGroup*	y2ptitems_;
     uiGraphicsItemGroup*	selecteditems_;
+    uiLineItem*			regrlineitm_;
+    uiLineItem*			y1userdeflineitm_;
+    uiLineItem*			y2userdeflineitm_;
     BoolTypeSet*		selectedypts_;
     BoolTypeSet*		selectedy2pts_;
     LinStats2D&			lsy1_;
@@ -130,20 +158,18 @@ protected:
     bool			doy2_;
     bool			dobd_;
     bool			selectable_;
+    bool			mousepressed_;
     int				eachrow_;
     int				curgrp_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
     bool			selrowisy2_;
 
-    ObjectSet<uiGraphicsItem>	y1itemset_;
-    ObjectSet<uiGraphicsItem>	y2itemset_;
-    ObjectSet<uiGraphicsItem>	selitemset_;
-
     ObjectSet<Coord3>		y1coords_;
     ObjectSet<Coord3>		y2coords_;
     ObjectSet<Coord3>		selcoords_;
-    
+    ODPolygon<int>*		odselectedpolygon_;
+ 
     void 			initDraw();
     void 			setDraw();
     virtual void		mkNewFill();
@@ -154,17 +180,8 @@ protected:
     void 			mouseClick(CallBacker*);
     void 			mouseRel(CallBacker*);
     void                        getSelStarPos(CallBacker*);
+    void                        drawPolygon(CallBacker*);
     void                        itemsSelected(CallBacker*);
-};
-
-class uiAskDlg : public uiDialog
-{
-public : 
-    			uiAskDlg( uiParent* );
-    bool                        selcty1_;
-    bool                        selcty2_;
-protected :
-    uiComboBox*		slefld_;
-    bool		acceptOK(CallBacker*);
+    void                        removeSelections(CallBacker*);
 };
 #endif

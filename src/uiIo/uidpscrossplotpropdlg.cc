@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.6 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.7 2008-12-12 06:01:17 cvssatyaki Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -220,6 +220,98 @@ bool acceptOK()
 };
 
 
+class uiDPSUserDefTab : public uiDlgGroup
+{
+public:
+
+uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
+    : uiDlgGroup(p->tabParent(),"User Defined")
+    , plotter_(p->plotter())
+    , hasy2_(plotter_.axisHandler(2))
+{
+    uiLabel* y1lbl = new uiLabel( this, "Y1 =" );
+    y1a0fld_ = new uiGenInput( this, "", FloatInpSpec(0) );
+    y1a0fld_->attach( rightOf, y1lbl );
+    uiLabel* y1pluslbl = new uiLabel( this, "+ " );
+    y1pluslbl->attach( rightOf, y1a0fld_ );
+
+    y1a1fld_ = new uiGenInput( this, "", FloatInpSpec(1) );
+    y1a1fld_->attach( rightOf, y1pluslbl );
+    uiLabel* y1xlbl = new uiLabel( this, "* X" );
+    y1xlbl->attach( rightOf, y1a1fld_ );
+
+    shwy1userdefline_ = new uiCheckBox( this, "Show Y1 User Defined line" );
+    shwy1userdefline_->attach( alignedBelow, y1a0fld_ );
+    
+    if (  hasy2_ )
+    {
+	uiLabel* y2lbl = new uiLabel( this, "Y2 =" );
+	y2lbl->attach( alignedBelow, y1lbl );
+	y2lbl->attach( ensureBelow, shwy1userdefline_ );
+	y2a0fld_ = new uiGenInput( this, "", FloatInpSpec(0) );
+	y2a0fld_->attach( rightOf, y2lbl );
+	uiLabel* y2pluslbl = new uiLabel( this, "+ " );
+	y2pluslbl->attach( rightOf, y2a0fld_ );
+
+	y2a1fld_ = new uiGenInput( this, "", FloatInpSpec(1) );
+	y2a1fld_->attach( rightOf, y2pluslbl );
+	uiLabel* y2xlbl = new uiLabel( this, "* X" );
+	y2xlbl->attach( rightOf, y2a1fld_ );
+
+	shwy2userdefline_ = new uiCheckBox( this, "Show Y2 User Defined line" );
+	shwy2userdefline_->attach( alignedBelow, y2a0fld_ );
+    }
+
+    p->finaliseDone.notify( mCB(this,uiDPSUserDefTab,initFlds) );
+}
+
+
+void initFlds( CallBacker* )
+{
+    uiAxisHandler* xaxh = plotter_.axisHandler( 0 );
+    uiAxisHandler* yaxh = plotter_.axisHandler( 1 );
+    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
+
+    y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );
+    y1a1fld_->setValue( plotter_.userdefy1lp_.ax );
+    
+    if (  hasy2_ )
+    {
+	y2a0fld_->setValue( plotter_.userdefy2lp_.a0 );
+	y2a1fld_->setValue( plotter_.userdefy2lp_.ax );
+    }
+    shwy1userdefline_->setChecked( plotter_.setup().showy1userdefline_ );
+    shwy2userdefline_->setChecked( plotter_.setup().showy2userdefline_ );
+}
+
+
+bool acceptOK()
+{
+    plotter_.userdefy1lp_.a0 = y1a0fld_->getfValue();
+    plotter_.userdefy1lp_.ax = y1a1fld_->getfValue();
+    if ( hasy2_ )
+    {
+	plotter_.userdefy2lp_.a0 = y2a0fld_->getfValue();
+	plotter_.userdefy2lp_.ax = y2a1fld_->getfValue();
+    }
+    plotter_.setup().showy1userdefline_ = shwy1userdefline_->isChecked();
+    plotter_.setup().showy2userdefline_ = shwy2userdefline_->isChecked();
+    return true;
+}
+
+    uiDataPointSetCrossPlotter&		plotter_;
+
+    bool 		hasy2_;	
+    uiGenInput*		y1a0fld_;
+    uiGenInput*		y1a1fld_;
+    uiGenInput*		y2a0fld_;
+    uiGenInput*		y2a1fld_;
+    uiCheckBox*		shwy1userdefline_;
+    uiCheckBox*		shwy2userdefline_;
+
+};
+
+
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
 	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,mTODOHelpID))
@@ -230,6 +322,8 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
     addGroup( scaletab_ );
     statstab_ = new uiDPSCPStatsTab( this );
     addGroup( statstab_ );
+    userdeftab_ = new uiDPSUserDefTab( this );
+    addGroup( userdeftab_ );
 }
 
 
@@ -237,6 +331,7 @@ bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
 {
     if ( scaletab_ ) scaletab_->acceptOK();
     if ( statstab_ ) statstab_->acceptOK();
+    if ( userdeftab_ ) userdeftab_->acceptOK();
 
     plotter_.dataChanged();
     return true;

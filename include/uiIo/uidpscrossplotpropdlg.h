@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.h,v 1.1 2008-06-20 13:39:31 cvsbert Exp $
+ RCS:           $Id: uidpscrossplotpropdlg.h,v 1.2 2008-12-12 06:01:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 class uiDataPointSetCrossPlotter;
 class uiDPSCPScalingTab;
 class uiDPSCPStatsTab;
+class uiDPSUserDefTab;
 class uiDPSCPBackdropTab;
 
 		     
@@ -30,6 +31,7 @@ protected:
     uiDataPointSetCrossPlotter&	plotter_;
     uiDPSCPScalingTab*	scaletab_;
     uiDPSCPStatsTab*	statstab_;
+    uiDPSUserDefTab*	userdeftab_;
     uiDPSCPBackdropTab*	bdroptab_;
 
     bool		acceptOK(CallBacker*);
