@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.16 2008-12-12 05:54:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.17 2008-12-12 10:32:18 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -21,12 +21,12 @@ static const char* rcsID = "$Id: uiaxishandler.cc,v 1.16 2008-12-12 05:54:48 cvs
 static const float logof2 = log(2);
 
 #define mDefInitList \
-      gridlineitngrp_(0) \
-    , axisline_(0) \
-    , annottextitem_(0) \
-    , annotpostxtitemgrp_(0) \
-    , nameitem_(0) \
-    , annotposlineitmgrp_(0)
+      gridlineitmgrp_(0) \
+    , axislineitm_(0) \
+    , endannottextitm_(0) \
+    , annottxtitmgrp_(0) \
+    , nameitm_(0) \
+    , annotlineitmgrp_(0)
 
 uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
 			      const uiAxisHandler::Setup& su )
@@ -44,14 +44,15 @@ uiAxisHandler::uiAxisHandler( uiGraphicsScene* scene,
     setRange( StepInterval<float>(0,1,1) );
 }
 
+
 uiAxisHandler::~uiAxisHandler()
 {
-    if ( axisline_ ) scene_->removeItem( axisline_ );
-    if ( gridlineitngrp_ ) scene_->removeItem( gridlineitngrp_ );
-    if ( annotpostxtitemgrp_ ) scene_->removeItem( annotpostxtitemgrp_ );
-    if ( annotposlineitmgrp_ ) scene_->removeItem( annotposlineitmgrp_ );
-    if ( annottextitem_ ) scene_->removeItem( annottextitem_ );
-    if ( nameitem_ ) scene_->removeItem( nameitem_ );
+    if ( axislineitm_ ) scene_->removeItem( axislineitm_ );
+    if ( gridlineitmgrp_ ) scene_->removeItem( gridlineitmgrp_ );
+    if ( annottxtitmgrp_ ) scene_->removeItem( annottxtitmgrp_ );
+    if ( annotlineitmgrp_ ) scene_->removeItem( annotlineitmgrp_ );
+    if ( endannottextitm_ ) scene_->removeItem( endannottextitm_ );
+    if ( nameitm_ ) scene_->removeItem( nameitm_ );
 }
 
 
@@ -200,26 +201,26 @@ void uiAxisHandler::plotAxis()
 {
     drawAxisLine();
 
-    if ( gridlineitngrp_ )
+    if ( gridlineitmgrp_ )
     {
-	if ( gridlineitngrp_->getSize() > 0 )
+	if ( gridlineitmgrp_->getSize() > 0 )
 	{
-	    for ( int idx=0; idx<gridlineitngrp_->getSize(); idx++ )
+	    for ( int idx=0; idx<gridlineitmgrp_->getSize(); idx++ )
 	    {
-		mDynamicCastGet(uiLineItem*,lineitm,gridlineitngrp_->getUiItem(idx))
+		mDynamicCastGet(uiLineItem*,lineitm,gridlineitmgrp_->getUiItem(idx))
 		uiRect* linerect = lineitm->lineRect();
 	    }
 	}
     }
     if ( setup_.style_.isVisible() )
     {
-	if ( !gridlineitngrp_ )
+	if ( !gridlineitmgrp_ )
 	{
-	    gridlineitngrp_ = new uiGraphicsItemGroup();
-	    scene_->addItemGrp( gridlineitngrp_ );
+	    gridlineitmgrp_ = new uiGraphicsItemGroup();
+	    scene_->addItemGrp( gridlineitmgrp_ );
 	}
 	else
-	    gridlineitngrp_->removeAll( true );
+	    gridlineitmgrp_->removeAll( true );
 	Interval<int> toplot( 0, pos_.size()-1 );
 	for ( int idx=0; idx<pos_.size(); idx++ )
 	{
@@ -233,20 +234,20 @@ void uiAxisHandler::plotAxis()
 
     LineStyle ls( setup_.style_ );
     ls.width_ = 1; ls.type_ = LineStyle::Solid;
-    if ( !annotpostxtitemgrp_ )
+    if ( !annottxtitmgrp_ )
     {
-	annotpostxtitemgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( annotpostxtitemgrp_ );
+	annottxtitmgrp_ = new uiGraphicsItemGroup();
+	scene_->addItemGrp( annottxtitmgrp_ );
     }
     else
-	annotpostxtitemgrp_->removeAll( true );
-    if ( !annotposlineitmgrp_ )
+	annottxtitmgrp_->removeAll( true );
+    if ( !annotlineitmgrp_ )
     {
-	annotposlineitmgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( annotposlineitmgrp_ );
+	annotlineitmgrp_ = new uiGraphicsItemGroup();
+	scene_->addItemGrp( annotlineitmgrp_ );
     }
     else
-	annotposlineitmgrp_->removeAll( true );
+	annotlineitmgrp_->removeAll( true );
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
 	const float relpos = pos_[idx] / endpos_;
@@ -270,12 +271,12 @@ void uiAxisHandler::drawAxisLine()
 	const int endpix = devsz_-pixAfter();
 	const int pixpos = setup_.side_ == uiRect::Top
 	    		 ? edgepix : height_ - edgepix;
-	if ( !axisline_ )
-	    axisline_ = scene_->addLine( startpix, pixpos, endpix, pixpos );
+	if ( !axislineitm_ )
+	    axislineitm_ = scene_->addLine( startpix, pixpos, endpix, pixpos );
 	else
-	    axisline_->setLine( startpix, pixpos, endpix, pixpos );
-	axisline_->setPenStyle( ls );
-	axisline_->setZValue( 3 );
+	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos );
+	axislineitm_->setPenStyle( ls );
+	axislineitm_->setZValue( 3 );
     }
     else
     {
@@ -284,17 +285,17 @@ void uiAxisHandler::drawAxisLine()
 	const int pixpos = setup_.side_ == uiRect::Left
 	    		 ? edgepix : width_ - edgepix;
 
-	if ( !axisline_ )
-	    axisline_ = scene_->addLine( pixpos, startpix, pixpos, endpix );
+	if ( !axislineitm_ )
+	    axislineitm_ = scene_->addLine( pixpos, startpix, pixpos, endpix );
 	else
-	    axisline_->setLine( pixpos, startpix, pixpos, endpix );
-	axisline_->setPenStyle( ls );
-	axisline_->setZValue( 3 );
+	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix );
+	axislineitm_->setPenStyle( ls );
+	axislineitm_->setZValue( 3 );
     }
 }
 
 
-void drawLine( uiLineItem& regrline, const LinePars& lp,
+void drawLine( uiLineItem& lineitm, const LinePars& lp,
 	       const uiAxisHandler& xah, const uiAxisHandler& yah,
 	       const Interval<float>* extxvalrg )
 {
@@ -367,7 +368,7 @@ void drawLine( uiLineItem& regrline, const LinePars& lp,
 	}
     }
 
-    regrline.setLine( from.x, from.y, to.x, to.y );
+    lineitm.setLine( from, to );
 }
 
 
@@ -395,13 +396,13 @@ void uiAxisHandler::annotAtEnd( const char* txt )
     }
 
 
-    if ( !annottextitem_ )
-	annottextitem_ = scene_->addText( txt );
+    if ( !endannottextitm_ )
+	endannottextitm_ = scene_->addText( txt );
     else
-	annottextitem_->setText( txt );
-    annottextitem_->setPos( xpix, ypix );
-    annottextitem_->setAlignment( al );
-    annottextitem_->setZValue( 3 );
+	endannottextitm_->setText( txt );
+    endannottextitm_->setPos( xpix, ypix );
+    endannottextitm_->setAlignment( al );
+    endannottextitm_->setZValue( 3 );
 
 }
 
@@ -417,7 +418,7 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
 	annotposlineitm->setZValue( 3 );
-	annotposlineitmgrp_->add( annotposlineitm );
+	annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( OD::AlignHCenter,
 		      istop ? OD::AlignBottom : OD::AlignTop );
 	uiTextItem* annotpostxtitem = new uiTextItem();
@@ -426,7 +427,7 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 	annotpostxtitem->setTextColor( ls.color_ );
 	annotpostxtitem->setPos( pix, y1 );
 	annotpostxtitem->setAlignment( al );
-	annotpostxtitemgrp_->add( annotpostxtitem );
+	annottxtitmgrp_->add( annotpostxtitem );
     }
     else
     {
@@ -444,7 +445,7 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 	annotpostxtitem->setPos( x1, pix );
 	annotpostxtitem->setAlignment( al );
 	annotpostxtitem->setTextColor( ls.color_ );
-	annotpostxtitemgrp_->add( annotpostxtitem );
+	annottxtitmgrp_->add( annotpostxtitem );
     }
 }
 
@@ -476,19 +477,19 @@ void uiAxisHandler::drawGridLine( int pix )
     }
     lineitem->setZValue( 3 );
     lineitem->setPenStyle( setup_.style_ );
-    gridlineitngrp_->add( lineitem );
+    gridlineitmgrp_->add( lineitem );
 }
 
 
 void uiAxisHandler::drawName() 
 {
     uiPoint pt;
-    if ( !nameitem_ )
-	nameitem_ = scene_->addText( name() );
+    if ( !nameitm_ )
+	nameitm_ = scene_->addText( name() );
     else
-	nameitem_->setText( name() );
-    nameitem_->setZValue( 3 );
-    nameitem_->setTextColor( setup_.style_.color_ );
+	nameitm_->setText( name() );
+    nameitm_->setZValue( 3 );
+    nameitm_->setTextColor( setup_.style_.color_ );
     if ( isHor() )
     {
 	const bool istop = setup_.side_ == uiRect::Top;
@@ -496,8 +497,8 @@ void uiAxisHandler::drawName()
 	const int y = istop ? 2 : height_- 8;
 	const Alignment al( OD::AlignHCenter,
 			    istop ? OD::AlignBottom : OD::AlignTop );
-	nameitem_->setPos( x, y );
-	nameitem_->setAlignment( al );
+	nameitm_->setPos( x, y );
+	nameitm_->setAlignment( al );
     }
     else
     {
@@ -506,10 +507,10 @@ void uiAxisHandler::drawName()
 	const int y = height_ / 2;
 	const Alignment al( isleft ? OD::AlignRight : OD::AlignLeft,
 			    OD::AlignVCenter );
-	nameitem_->setAlignment( al );
-	nameitem_->setPos( x, y ); 
+	nameitm_->setAlignment( al );
+	nameitm_->setPos( x, y ); 
 	if ( !ynmtxtvertical_ )
-	    nameitem_->rotate( 90 );
+	    nameitm_->rotate( 90 );
 	ynmtxtvertical_ = true;
     }
 }

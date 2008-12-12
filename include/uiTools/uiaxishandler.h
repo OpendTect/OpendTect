@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.12 2008-12-12 05:54:48 cvssatyaki Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.13 2008-12-12 10:32:18 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,9 +103,9 @@ public:
 protected:
 
     uiGraphicsScene*	 scene_;
-    uiGraphicsItemGroup* gridlineitngrp_;
-    uiGraphicsItemGroup* annotpostxtitemgrp_;
-    uiGraphicsItemGroup* annotposlineitmgrp_;
+    uiGraphicsItemGroup* gridlineitmgrp_;
+    uiGraphicsItemGroup* annottxtitmgrp_;
+    uiGraphicsItemGroup* annotlineitmgrp_;
 
     Setup		setup_;
     bool		islog_;
@@ -118,11 +118,9 @@ protected:
     const uiAxisHandler* beghndlr_;
     const uiAxisHandler* endhndlr_;
 
-    uiLineItem*		axisline_;
-    uiTextItem*		annottextitem_;
-    uiTextItem*		annotpostxtitem_;
-    uiTextItem*		nameitem_;
-    uiLineItem*		annotposlineitm_;
+    uiLineItem*		axislineitm_;
+    uiTextItem*		endannottextitm_;
+    uiTextItem*		nameitm_;
     void		reCalc();
     int			wdthx_;
     int			wdthy_;
