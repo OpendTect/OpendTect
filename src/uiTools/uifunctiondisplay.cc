@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.22 2008-12-02 03:30:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.23 2008-12-12 06:02:01 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -20,7 +20,7 @@ static const int cBoundarySz = 10;
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
-    : uiGraphicsView(p,"Function display viewer", su.handdrag_ )
+    : uiGraphicsView(p,"Function display viewer" )
     , setup_(su)
     , xax_(0)
     , yax_(0)
@@ -40,6 +40,8 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 {
     setPrefWidth( setup_.canvaswidth_ );
     setPrefHeight( setup_.canvasheight_ );
+    su.handdrag_ ? setDragMode( uiGraphicsView::ScrollHandDrag )
+		 : setDragMode( uiGraphicsView::NoDrag );
     setStretch( 2, 2 );
     gatherInfo();
     uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
@@ -65,7 +67,8 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				mCB(this,uiFunctionDisplay,mouseDClick) );
     }
     reSize.notify( mCB(this,uiFunctionDisplay,reSized) );
-    setScrollBar( false );
+    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     draw();
 }
 
@@ -330,7 +333,6 @@ void uiFunctionDisplay::draw()
 	yax_->setup().style_ = ls;
 	yax_->drawGridLine( yax_->getPix(ymarkval_) );
     }
-    setViewArea( 0, 5, width()+10, height()+10 );
 }
 
 
