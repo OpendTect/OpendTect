@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.15 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.16 2008-12-12 05:54:48 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -294,7 +294,7 @@ void uiAxisHandler::drawAxisLine()
 }
 
 
-void drawLine( uiGraphicsScene& scene, const LinePars& lp,
+void drawLine( uiLineItem& regrline, const LinePars& lp,
 	       const uiAxisHandler& xah, const uiAxisHandler& yah,
 	       const Interval<float>* extxvalrg )
 {
@@ -367,7 +367,7 @@ void drawLine( uiGraphicsScene& scene, const LinePars& lp,
 	}
     }
 
-    uiLineItem* uilinetitem = scene.addLine( from, to );
+    regrline.setLine( from.x, from.y, to.x, to.y );
 }
 
 

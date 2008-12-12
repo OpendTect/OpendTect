@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.11 2008-10-27 11:13:07 cvssatyaki Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.12 2008-12-12 05:54:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ public:
 
 protected:
 
-    uiGraphicsScene*	scene_;
+    uiGraphicsScene*	 scene_;
     uiGraphicsItemGroup* gridlineitngrp_;
     uiGraphicsItemGroup* annotpostxtitemgrp_;
     uiGraphicsItemGroup* annotposlineitmgrp_;
@@ -143,7 +143,7 @@ protected:
 };
 
 //! draws line not outside box defined by X and Y value ranges
-void drawLine(uiGraphicsScene&,const LinePars&,const uiAxisHandler& xah,
+void drawLine(uiLineItem&,const LinePars&,const uiAxisHandler& xah,
 	      const uiAxisHandler& yah,const Interval<float>* xvalrg = 0);
 
 
