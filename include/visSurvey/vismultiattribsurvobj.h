@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.16 2008-11-04 21:29:38 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.17 2008-12-12 19:56:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,8 @@ private:
     BoolTypeSet			isclassification_;
     bool			onoffstatus_;
 
+    static const char*		sKeySequence();
+    static const char*		sKeyMapper();
     static const char*		sKeyResolution();
     static const char*		sKeyTextTrans();
 };

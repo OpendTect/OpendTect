@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.23 2008-12-11 16:19:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.24 2008-12-12 19:56:15 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.23 2008-12-11 16:1
 #include "vistexturechannel2rgba.h"
 #include "vistexturechannels.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "math2.h"
 
 
@@ -25,6 +26,8 @@ namespace visSurvey {
 
 const char* MultiTextureSurveyObject::sKeyResolution()	{ return "Resolution"; }
 const char* MultiTextureSurveyObject::sKeyTextTrans()	{ return "Trans"; }
+const char* MultiTextureSurveyObject::sKeySequence()	{ return "Sequence"; }
+const char* MultiTextureSurveyObject::sKeyMapper()	{ return "Mapper"; }
 
 MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
     : VisualObjectImpl(true)
@@ -505,14 +508,30 @@ void MultiTextureSurveyObject::fillPar( IOPar& par,
     {
 	IOPar attribpar;
 	as_[attrib]->fillPar( attribpar );
-	const int coltabid = getColTabID(attrib);
-	attribpar.set( sKeyColTabID(), coltabid );
-	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
 
+	if ( canSetColTabSequence() && getColTabSequence( attrib ) )
+	{
+	    IOPar seqpar;
+	    const ColTab::Sequence* seq = getColTabSequence( attrib );
+	    if ( seq->isSys() )
+		seqpar.set( sKey::Name, seq->name() );
+	    else
+		seq->fillPar( seqpar );
+
+	    attribpar.mergeComp( seqpar, sKeySequence() );
+	}
+
+	if ( getColTabMapperSetup( attrib ) )
+	{
+	    IOPar mapperpar;
+	    getColTabMapperSetup( attrib )->fillPar( mapperpar );
+	    attribpar.mergeComp( mapperpar, sKeyMapper() );
+	}
+
+	attribpar.set( sKeyTextTrans(),
+		       getAttribTransparency( attrib ) );
 	attribpar.setYN( visBase::VisualObjectImpl::sKeyIsOn(),
 			 isAttribEnabled( attrib ) );
-	attribpar.set( sKeyTextTrans(),
-	    		getAttribTransparency( attrib ) );
 	    	     
 	BufferString key = sKeyAttribs();
 	key += attrib;
@@ -539,6 +558,8 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
     if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
     {
 	TypeSet<int> coltabids( nrattribs, -1 );
+
+	//This loop is only needed for reading pars up to od3.3
 	for ( int attrib=0; attrib<nrattribs; attrib++ )
 	{
 	    BufferString key = sKeyAttribs();
@@ -575,23 +596,52 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 
 	    as_[attribnr]->usePar( *attribpar );
 	    const int coltabid = coltabids[attribnr];
-	    if ( coltabid!=-1 )
+	    if ( coltabid!=-1 ) //format up to od3.3
 	    {
 		mDynamicCastGet(visBase::VisColorTab*,coltab, 
 		       		visBase::DM().getObject(coltabid) );
 		if ( texture_ )
-    		    texture_->setColorTab( attribnr, *coltab );
+		    texture_->setColorTab( attribnr, *coltab );
+		else
+		{
+		    channels_->setColTabMapperSetup( attribnr,
+			        coltab->colorMapper().setup_ );
+		    channels_->getChannels2RGBA()->setSequence( attribnr,
+			    coltab->colorSeq().colors() );
+		}
+	    }
+	    else
+	    {
+		PtrMan<IOPar> seqpar = attribpar->subselect( sKeySequence() );
+		if ( seqpar )
+		{
+		    ColTab::Sequence seq;
+		    if ( !seq.usePar( *seqpar ) )
+		    {
+			BufferString seqname;
+			if ( seqpar->get( sKey::Name, seqname ) ) //Sys
+			    ColTab::SM().get( seqname.buf(), seq );
+		    }
+
+		    setColTabSequence( attribnr, seq );
+		}
+
+		PtrMan<IOPar> mappar = attribpar->subselect( sKeyMapper() );
+		if ( mappar )
+		{
+		    ColTab::MapperSetup mapper;
+		    mapper.usePar( *mappar );
+		    setColTabMapperSetup( attribnr, mapper );
+		}
 	    }
 
 	    ison = true;
 	    attribpar->getYN( visBase::VisualObjectImpl::sKeyIsOn(), ison );
-	    if ( texture_ )
-    		texture_->enableTexture( attribnr, ison );
+	    enableAttrib( attribnr, ison );
 
 	    unsigned int trans = 0;
 	    attribpar->get( sKeyTextTrans(), trans );
-	    if ( texture_ )
-    		texture_->setTextureTransparency( attribnr, trans );
+	    setAttribTransparency( attribnr, trans );
 	}
     }
 
