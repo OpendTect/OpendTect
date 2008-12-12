@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.9 2008-12-12 05:45:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.10 2008-12-12 10:31:10 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -80,6 +80,12 @@ QGraphicsItem* uiLineItem::mkQtObj()
 void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
 {
     qlineitem_->setLine( x1, y1, x2, y2 );
+}
+
+
+void uiLineItem::setLine( const uiPoint& from, const uiPoint& to )
+{
+    setLine( from.x, from.y, to.x, to.y );
 }
 
 

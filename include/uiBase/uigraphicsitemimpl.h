@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.6 2008-12-12 05:45:08 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.7 2008-12-12 10:31:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,7 @@ public:
     void 		setPenStyle(const LineStyle&);
     void		setPenColor(const Color&);
     void		setLine(float x1,float y1,float x2,float y2);
+    void		setLine(const uiPoint& x,const uiPoint& y);
     uiRect*		lineRect();
 
 protected:
