@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.10 2008-12-10 16:16:33 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.11 2008-12-12 09:30:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ class MultiID;
 class CubeSampling;
 class BinIDValueSet;
 class BufferStringSet;
-
 
 /*!\brief Info on IOObj for seismics */
 
@@ -95,6 +94,9 @@ public:
     			//!< Only does something if there is not yet a default
     static const MultiID& getDefault(const char* type=0);
     static void		setDefault(const MultiID&,const char* type=0);
+
+    static int          getNrCompAvail(const LineKey&);
+    static void		getCompNames(const LineKey&,BufferStringSet&);
 
     static void		get2DLineInfo(BufferStringSet& linesets,
 	    			      TypeSet<MultiID>* setids=0,

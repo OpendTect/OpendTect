@@ -4,14 +4,15 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.19 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.20 2008-12-12 09:30:18 cvshelene Exp $";
 
 #include "seisioobjinfo.h"
-#include "seistrctr.h"
-#include "seisselection.h"
-#include "seispsioprov.h"
-#include "seiscbvs.h"
 #include "seis2dline.h"
+#include "seiscbvs.h"
+#include "seispsioprov.h"
+#include "seisread.h"
+#include "seisselection.h"
+#include "seistrctr.h"
 #include "ptrman.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -429,6 +430,29 @@ void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
 }
 
 
+int SeisIOObjInfo::getNrCompAvail( const LineKey& lkey )
+{
+    const MultiID key( lkey );
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    SeisTrcReader rdr( ioobj );
+    SeisTrcTranslator* transl = rdr.prepareWork(Seis::PreScan) ?
+					  rdr.seisTranslator() : 0;
+    return transl ? transl->componentInfo().size() : 0;
+}
+
+
+void SeisIOObjInfo::getCompNames( const LineKey& lkey, BufferStringSet& bss )
+{
+    const MultiID key( lkey );
+    PtrMan<IOObj> ioobj = IOM().get( key );
+    SeisTrcReader rdr( ioobj );
+    SeisTrcTranslator* transl = rdr.prepareWork(Seis::PreScan) ?
+					  rdr.seisTranslator() : 0;
+    if ( transl )
+	transl->getComponentNames( bss );
+}
+
+
 void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
 				   TypeSet<MultiID>* setids,
 				   TypeSet<BufferStringSet>* linenames )
@@ -454,4 +478,3 @@ void SeisIOObjInfo::get2DLineInfo( BufferStringSet& linesets,
 	}
     }
 }
-

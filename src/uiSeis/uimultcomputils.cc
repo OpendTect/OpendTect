@@ -7,26 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultcomputils.cc,v 1.2 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimultcomputils.cc,v 1.3 2008-12-12 09:30:18 cvshelene Exp $";
 
 #include "uimultcompdlg.h"
-#include "ioman.h"
-#include "ioobj.h"
 #include "linekey.h"
-#include "ptrman.h"
-#include "seisread.h"
-#include "seistrctr.h"
+#include "seisioobjinfo.h"
 #include "uispinbox.h"
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, LineKey lkey )
     	: uiDialog(p,uiDialog::Setup("Component dialog",
-		    		     "Choose the component to display","")
-		     		.modal(false) )
+		    		     "Choose the component to display","") )
 	, needdisplay_(true)
 	, compfld_(0)
 {
-    int nrcomp = getNrCompAvail( lkey );
+    int nrcomp = SeisIOObjInfo::getNrCompAvail( lkey );
 
     if ( nrcomp>1 )
     {
@@ -38,19 +33,7 @@ uiMultCompDlg::uiMultCompDlg( uiParent* p, LineKey lkey )
 }
 
 
-int uiMultCompDlg::getNrCompAvail( LineKey lkey )
-{
-    const MultiID key( lkey );
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    SeisTrcReader rdr( ioobj );
-    if ( !rdr.prepareWork(Seis::PreScan) ) return 0;
-
-    SeisTrcTranslator* transl = rdr.seisTranslator();
-    return transl ? transl->componentInfo().size() : 0; 
-}
-
-
 int uiMultCompDlg::getCompNr() const
 {
-    return compfld_->box()->getValue();
+    return compfld_->box()->getValue() - 1;
 }
