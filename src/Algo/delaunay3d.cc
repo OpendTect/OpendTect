@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.15 2008-12-11 16:12:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.16 2008-12-12 15:47:55 cvsyuancheng Exp $";
 
 #include "arraynd.h"
 #include "delaunay3d.h"
@@ -461,8 +461,7 @@ bool DAGTetrahedraTree::insertPoint( int ci, int& dupid )
 
 
 #define mCrd( idx ) \
-	(idx>=0 ? (*coordlist_)[idx] : initialcoords_[-idx-2])
-	//(idx>=0 ? (*coordlist_)[idx]-center_ : initialcoords_[-idx-2]-center_)
+	(idx>=0 ? (*coordlist_)[idx]-center_ : initialcoords_[-idx-2]-center_)
 
 
 char DAGTetrahedraTree::searchTetrahedra( const Coord3& pt )
