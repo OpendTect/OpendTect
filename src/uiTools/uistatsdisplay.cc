@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.17 2008-12-02 03:30:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.18 2008-12-12 09:10:45 cvssatyaki Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -198,7 +198,9 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
     nrclasses_ = getNrIntervals( nrpts );
     TypeSet<float> histdata( nrclasses_, 0 );
     const float min = rc.min(); const float max = rc.max();
-    const float step = (max - min) / nrclasses_;
+    float step = (max - min) / nrclasses_;
+    if ( mIsZero(step,1e-6) )
+	step = 1;
     nrinpvals_ = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
