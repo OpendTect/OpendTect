@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.9 2008-12-05 22:53:10 cvsyuancheng Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.10 2008-12-12 06:04:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ class uiAxisHandler;
 class uiFunctionDisplay;
 class uiGenInput;
 class uiIOObjSel;
+class uiLineItem;
 class uiPushButton;
 class uiStatsDisplay;
 
@@ -36,19 +37,21 @@ public:
 			visBase::MarchingCubesSurface*,
 			visSurvey::VolumeDisplay*);
 		~uiVisIsoSurfaceThresholdDlg();
+
     bool	acceptOK();
     bool	rejectOK();
     bool	revertChanges();
-    void	drawHistogram();
 
 protected:
 
+    void		reDrawCB(CallBacker*);
     void		updatePressed(CallBacker*);
     void		mousePressed(CallBacker*);
     void		modeChangeCB(CallBacker*);
     void		doubleClick(CallBacker*);
-    void		handleClick(CallBacker*,bool isdouble );
+    void		handleClick(CallBacker*,bool isdouble);
     void		updateIsoDisplay(float nv);
+    void		drawHistogram();
 
     uiStatsDisplay*	statsdisplay_;
     uiGenInput*		modefld_;
@@ -56,6 +59,10 @@ protected:
     uiGenInput*		aboveisovaluefld_;
     uiIOObjSel*		ioobjselfld_;
     uiPushButton*	updatebutton_;
+
+    uiLineItem*		initiallineitem_;
+    uiLineItem*		thresholdlineitem_;
+    uiLineItem*		isovallineitem_;
 
     visBase::MarchingCubesSurface*	isosurfacedisplay_;
     visSurvey::VolumeDisplay*		vd_;
