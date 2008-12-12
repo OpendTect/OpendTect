@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.60 2008-12-09 19:45:25 cvsyuancheng Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.61 2008-12-12 22:32:42 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -152,6 +152,8 @@ public:
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
 
+    void			setRightHandSystem(bool yn);
+
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
 
@@ -188,7 +190,7 @@ protected:
 	MultiID			seedsid_;
     };
 
-    TypeSet<IsosurfaceSetting>	settings_;
+    TypeSet<IsosurfaceSetting>	isosurfsettings_;
     TypeSet<char>		sections_;
 
     void			manipMotionFinishCB(CallBacker*);
