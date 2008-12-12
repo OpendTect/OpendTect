@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.44 2008-12-11 16:13:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.45 2008-12-12 22:30:32 cvsyuancheng Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -59,7 +59,7 @@ LocationDisplay::LocationDisplay()
     , group_( visBase::DataObjectGroup::create() )
     , eventcatcher_( 0 )
     , transformation_( 0 )
-    , isbodydisplay_( false )			  
+    , shoulddisplaybody_( false )			  
     , showall_( true )
     , set_(0)
     , manip_( this )
@@ -117,6 +117,8 @@ void LocationDisplay::setSet( Pick::Set* s )
 
     if ( !showall_ && scene_ )
 	scene_->objectMoved( 0 );
+
+    setLocationBodyDisplay();
 }
 
 
@@ -198,13 +200,13 @@ void LocationDisplay::showAll( bool yn )
 
 bool LocationDisplay::isLocationBodyDisplayed() const
 { 
-    return bodydisplay_ && isbodydisplay_; 
+    return bodydisplay_ && shoulddisplaybody_; 
 }
 
 
 void LocationDisplay::displayLocationBody( bool yn )
 {
-    isbodydisplay_ = yn;
+    shoulddisplaybody_ = yn;
     if ( bodydisplay_ )
 	bodydisplay_->turnOn( yn );
 }
@@ -212,6 +214,9 @@ void LocationDisplay::displayLocationBody( bool yn )
 
 bool LocationDisplay::setLocationBodyDisplay()
 {
+    if ( !shoulddisplaybody_ || !set_ || !set_->size() )
+	return true;
+
     if ( !bodydisplay_ )
     {
 	bodydisplay_ = visBase::TriangleStripSet::create();
@@ -219,9 +224,6 @@ bool LocationDisplay::setLocationBodyDisplay()
 	bodydisplay_->setDisplayTransformation( transformation_ );
 	addChild( bodydisplay_->getInventorNode() );
     }
-
-    if ( !set_ )
-	return true;
 
     TypeSet<Coord3> picks;
     const float zscale = SI().zFactor();
@@ -234,6 +236,8 @@ bool LocationDisplay::setLocationBodyDisplay()
 	pos.z  *= zscale;
 	picks += pos;
     }
+
+    bodydisplay_->getCoordinates()->removeAfter( set_->size()-1 );
 
     DAGTetrahedraTree tree;
     tree.setCoordList( picks, false );
@@ -254,6 +258,8 @@ bool LocationDisplay::setLocationBodyDisplay()
 	bodydisplay_->setCoordIndex( cii++, result[3*idx+1] );
 	bodydisplay_->setCoordIndex( cii++, -1 );
     }
+    
+    bodydisplay_->removeCoordIndexAfter( cii-1 );
 
     return true;
 }
@@ -674,6 +680,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	picksetmgr_->reportChange( 0, cd );
     }
 
+    setLocationBodyDisplay();
     if ( !hasText() ) return true;
 
     if ( !(*set_)[locidx].text || !(*set_)[locidx].text->size() )
@@ -696,6 +703,8 @@ void LocationDisplay::removePick( int removeidx )
     picksetmgr_->reportChange( 0, cd );
 
     set_->remove( removeidx );
+    
+    setLocationBodyDisplay();
     if ( needline_ ) createLine();
 }
 
@@ -779,6 +788,16 @@ void LocationDisplay::otherObjectsMoved(
 }
 
 
+void LocationDisplay::setPosition(int idx, const Pick::Location& nl )
+{
+    if ( !set_ || idx<0 || idx>=(*set_).size() )
+	return;
+    
+    (*set_)[idx] = nl;
+    setLocationBodyDisplay();
+}
+
+
 void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
 {
     if ( transformation_==newtr )
@@ -795,6 +814,9 @@ void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
     if ( polyline_ )
 	polyline_->setDisplayTransformation( transformation_ );
 
+    if ( bodydisplay_ )
+	bodydisplay_->setDisplayTransformation( transformation_ );
+
     for ( int idx=0; idx<group_->size(); idx++ )
 	group_->getObject(idx)->setDisplayTransformation( transformation_ );
 }
@@ -803,6 +825,14 @@ void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
 visBase::Transformation* LocationDisplay::getDisplayTransformation()
 {
     return transformation_;
+}
+
+
+void LocationDisplay::setRightHandSystem( bool yn )
+{
+    visBase::VisualObjectImpl::setRightHandSystem( yn );
+    if ( bodydisplay_ )
+	bodydisplay_->setRightHandSystem( yn );
 }
 
 

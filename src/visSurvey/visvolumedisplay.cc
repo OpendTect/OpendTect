@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.94 2008-12-12 18:44:20 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.95 2008-12-12 22:30:32 cvsyuancheng Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -154,11 +154,11 @@ void VolumeDisplay::colTabChange( CallBacker* )
 {
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
-	if ( mIsUdf( settings_[idx].isovalue_) )
+	if ( mIsUdf( isosurfsettings_[idx].isovalue_) )
 	    continue;
 
 	isosurfaces_[idx]->getMaterial()->setColor(
-	    scalarfield_->getColorTab().color(settings_[idx].isovalue_));
+	    scalarfield_->getColorTab().color(isosurfsettings_[idx].isovalue_));
     }
 }
 
@@ -194,6 +194,14 @@ bool VolumeDisplay::setDataTransform( ZAxisTransform* zat )
 
 const ZAxisTransform* VolumeDisplay::getDataTransform() const
 { return datatransform_; }
+
+
+void VolumeDisplay::setRightHandSystem( bool yn )
+{
+    visBase::VisualObjectImpl::setRightHandSystem( yn );
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+	isosurfaces_[idx]->setRightHandSystem( yn );
+}
 
 
 void VolumeDisplay::dataTransformCB( CallBacker* )
@@ -321,7 +329,7 @@ void VolumeDisplay::removeChild( int displayid )
 		    isosurfaces_[idx]->getInventorNode() );
 	    isosurfaces_[idx]->unRef();
 	    isosurfaces_.removeFast(idx);
-	    settings_.removeFast(idx);
+	    isosurfsettings_.removeFast(idx);
 	    return;
 	}
     }
@@ -367,7 +375,7 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr, bool updateisosurface )
     isosurfaces_ += isosurface;
     IsosurfaceSetting setting;
     setting.isovalue_ = defaultIsoValue();
-    settings_ += setting;
+    isosurfsettings_ += setting;
 
     if ( updateisosurface )   
        	updateIsoSurface( isosurfaces_.size()-1, tr );
@@ -429,7 +437,7 @@ float VolumeDisplay::getValue( const Coord3& pos_ ) const
 float VolumeDisplay::isoValue( const mVisMCSurf* mcd ) const
 {
     const int idx = isosurfaces_.indexOf( mcd );
-    return idx<0 ? mUdf(float) : settings_[idx].isovalue_;
+    return idx<0 ? mUdf(float) : isosurfsettings_[idx].isovalue_;
 }
 
 
@@ -440,7 +448,7 @@ void VolumeDisplay::setIsoValue( const mVisMCSurf* mcd, float nv,
     if ( idx<0 )
 	return;
 
-    settings_[idx].isovalue_ = nv;
+    isosurfsettings_[idx].isovalue_ = nv;
     updateIsoSurface( idx, tr );
 }
 
@@ -459,7 +467,7 @@ char VolumeDisplay::isFullMode( const mVisMCSurf* mcd ) const
     if ( idx<0 || idx>=isosurfaces_.size() )
 	return -1;
 
-    return settings_[idx].mode_;
+    return isosurfsettings_[idx].mode_;
 }
 
 
@@ -469,7 +477,7 @@ void VolumeDisplay::setFullMode( const mVisMCSurf* mcd, bool full )
     if ( idx<0 )
 	return;
     
-    settings_[idx].mode_ = full;
+    isosurfsettings_[idx].mode_ = full;
 }
 
 
@@ -479,7 +487,7 @@ char VolumeDisplay::seedAboveIsovalue( const mVisMCSurf* mcd ) const
     if ( idx<0 || idx>=isosurfaces_.size() )
             return -1;
 
-    return settings_[idx].seedsaboveisoval_;
+    return isosurfsettings_[idx].seedsaboveisoval_;
 }
 
 
@@ -489,7 +497,7 @@ void VolumeDisplay::setSeedAboveIsovalue( const mVisMCSurf* mcd, bool above )
     if ( idx<0 || idx>=isosurfaces_.size() )
             return;
 
-    settings_[idx].seedsaboveisoval_ = above;
+    isosurfsettings_[idx].seedsaboveisoval_ = above;
 }
 
 
@@ -499,7 +507,7 @@ MultiID  VolumeDisplay::getSeedsID( const mVisMCSurf* mcd ) const
     if ( idx<0 || idx>=isosurfaces_.size() )
 	return MultiID();
     
-    return settings_[idx].seedsid_;
+    return isosurfsettings_[idx].seedsid_;
 }
 
 
@@ -509,26 +517,25 @@ void VolumeDisplay::setSeedsID( const mVisMCSurf* mcd, MultiID mid )
     if ( idx<0 || idx>=isosurfaces_.size() )
 	return;
 
-    settings_[idx].seedsid_ = mid;
+    isosurfsettings_[idx].seedsid_ = mid;
 }
 
 
 bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 {
-    if ( idx<0 || idx>=isosurfaces_.size() || mIsUdf(settings_[idx].isovalue_) )
-	return false;
-
-    if ( settings_[idx].seedsid_.isEmpty() || !cache_ )
+    if ( idx<0 || idx>=isosurfaces_.size() || !cache_ ||
+	 mIsUdf(isosurfsettings_[idx].isovalue_) ||
+	 isosurfsettings_[idx].seedsid_.isEmpty() )
 	return false;
 
     Pick::Set seeds;
-    if ( Pick::Mgr().indexOf(settings_[idx].seedsid_)!=-1 )
-	seeds = Pick::Mgr().get( settings_[idx].seedsid_ );
+    if ( Pick::Mgr().indexOf(isosurfsettings_[idx].seedsid_)!=-1 )
+	seeds = Pick::Mgr().get( isosurfsettings_[idx].seedsid_ );
     else
     {
 	BufferString ermsg;
-	if ( !PickSetTranslator::retrieve( seeds, 
-		    IOM().get(settings_[idx].seedsid_), ermsg ) )
+	if ( !PickSetTranslator::retrieve( seeds,
+		    IOM().get(isosurfsettings_[idx].seedsid_), ermsg ) )
 	    return false;
     }
 
@@ -537,8 +544,8 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	return false;
     
     Array3DImpl<float> newarr( data.info() );
-    Array3DFloodfill<float> ff( data, settings_[idx].isovalue_, 
-	    			settings_[idx].seedsaboveisoval_, newarr );    
+    Array3DFloodfill<float> ff( data, isosurfsettings_[idx].isovalue_,
+	    isosurfsettings_[idx].seedsaboveisoval_, newarr );    
     ff.useInputValue( true );
 
     CubeSampling cs = getCubeSampling(true,true,0);
@@ -557,7 +564,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	return false;
 
     isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0, newarr,
-	    settings_[idx].isovalue_, tr );
+	    isosurfsettings_[idx].isovalue_, tr );
     return true;
 }
 
@@ -571,7 +578,7 @@ int VolumeDisplay::getIsoSurfaceIdx( const mVisMCSurf* mcd ) const
 void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 {
     if ( !cache_ || !cache_->getCube(0).isOK() || 
-	 mIsUdf(settings_[idx].isovalue_) )
+	 mIsUdf(isosurfsettings_[idx].isovalue_) )
 	isosurfaces_[idx]->getSurface()->removeAll();
     else
     {
@@ -583,9 +590,9 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	isosurfaces_[idx]->setScales(
 		cache_->inlsampling, cache_->crlsampling,
 		SamplingData<float>(cache_->z0*cache_->zstep,cache_->zstep) );
-	if ( settings_[idx].mode_ )
+	if ( isosurfsettings_[idx].mode_ )
     	    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		    cache_->getCube(0), settings_[idx].isovalue_, tr );
+		    cache_->getCube(0), isosurfsettings_[idx].isovalue_, tr );
 	else
 	{
 	    if ( !updateSeedBasedSurface( idx, tr ) )
@@ -593,7 +600,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 	}
 
 	isosurfaces_[idx]->getMaterial()->setColor(
-	    scalarfield_->getColorTab().color(settings_[idx].isovalue_));
+	    scalarfield_->getColorTab().color(isosurfsettings_[idx].isovalue_));
     }
 
     isosurfaces_[idx]->touch( false, tr );
@@ -937,7 +944,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
 	const int isosurfid = vd->addIsoSurface();
 	mDynamicCastGet( mVisMCSurf*, isosurface,
 			 visBase::DM().getObject(isosurfid) );
-	vd->settings_[idx] = settings_[idx];
+	vd->isosurfsettings_[idx] = isosurfsettings_[idx];
     }
 
     vd->showVolRen( isVolRenShown() );
@@ -1023,19 +1030,19 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     for ( int idx=0; idx<nrisosurfaces; idx++ )
     {
 	BufferString str( sKeyIsoValueStart() ); str += idx;
-	par.set( str, settings_[idx].isovalue_ );
+	par.set( str, isosurfsettings_[idx].isovalue_ );
 
 	str = sKeyIsoOnStart(); str += idx;
 	par.setYN( str, isosurfaces_[idx]->isOn() );
 
 	str = sKeySurfMode(); str += idx;
-	par.set( str, settings_[idx].mode_ );
+	par.set( str, isosurfsettings_[idx].mode_ );
 
 	str = sKeySeedsAboveIsov(); str += idx;
-	par.set( str, settings_[idx].seedsaboveisoval_ );
+	par.set( str, isosurfsettings_[idx].seedsaboveisoval_ );
 
 	str = sKeySeedsMid(); str += idx;
-	par.set( str, settings_[idx].seedsid_ );
+	par.set( str, isosurfsettings_[idx].seedsid_ );
     }
 
     as_.fillPar( par );
@@ -1133,7 +1140,7 @@ int VolumeDisplay::usePar( const IOPar& par )
 	    if ( par.get( str, isovalue ) )
 	    {
 		addIsoSurface( 0, false );
-		settings_[idx].isovalue_ = isovalue;
+		isosurfsettings_[idx].isovalue_ = isovalue;
 	    }
 
 	    str = sKeyIsoOnStart(); str += idx;
@@ -1144,17 +1151,17 @@ int VolumeDisplay::usePar( const IOPar& par )
 	    str = sKeySurfMode(); str += idx;
 	    int smode;
 	    par.get( str, smode );
-	    settings_[idx].mode_ = smode;
+	    isosurfsettings_[idx].mode_ = smode;
 	    
 	    str = sKeySeedsAboveIsov(); str += idx;
 	    int aboveisov;
 	    par.get( str, aboveisov );
-	    settings_[idx].seedsaboveisoval_ = aboveisov;
+	    isosurfsettings_[idx].seedsaboveisoval_ = aboveisov;
     
 	    str = sKeySeedsMid(); str += idx;
 	    MultiID mid;
 	    par.get( str, mid );
-	    settings_[idx].seedsid_ = mid;
+	    isosurfsettings_[idx].seedsid_ = mid;
 	}
     }
 

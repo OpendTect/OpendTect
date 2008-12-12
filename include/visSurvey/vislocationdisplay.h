@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.17 2008-12-11 16:13:58 cvsyuancheng Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.18 2008-12-12 22:30:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -80,6 +80,7 @@ public:
     virtual NotifierAccess*	getManipulationNotifier() { return &manip_; }
     virtual void		setDisplayTransformation(mVisTrans*);
     virtual mVisTrans*		getDisplayTransformation();
+    void			setRightHandSystem(bool yn);
     virtual void		setSceneEventCatcher(visBase::EventCatcher*);
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -97,7 +98,7 @@ protected:
 					LocationDisplay();
     virtual visBase::VisualObject*	createLocation() const  = 0;
     virtual void			setPosition(int idx,
-	    					    const Pick::Location&)  = 0;
+	    					    const Pick::Location&);
     virtual bool			hasDirection() const { return false; }
     virtual bool			hasText() const { return false; }
     virtual int			isMarkerClick(const TypeSet<int>&) const;
@@ -135,7 +136,7 @@ protected:
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
 
-    bool			isbodydisplay_;
+    bool			shoulddisplaybody_;
     visBase::TriangleStripSet*	bodydisplay_;
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
