@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.15 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.16 2008-12-12 05:55:48 cvssatyaki Exp $";
 
 #include "drawaxis2d.h"
 
@@ -83,12 +83,30 @@ void DrawAxis2D::setup( const StepInterval<float>& xrg,
     yaxis_ = SamplingData<double>( yrg.start, yrg.step );
 }
 
+# define mRemoveGraphicsItem( item ) \
+    if ( item ) \
+    { drawscene_->removeItem( item ); delete item; item = 0; }
 
 void DrawAxis2D::drawAxes( bool xdir, bool ydir,
 			   bool topside, bool leftside )
 {
-    if ( xdir ) drawXAxis( topside );
-    if ( ydir ) drawYAxis( leftside );
+    if ( xdir )
+	drawXAxis( topside );
+    else
+    {
+	mRemoveGraphicsItem( xaxlineitmgrp_ );
+	mRemoveGraphicsItem( xaxtxtitmgrp_ );
+	mRemoveGraphicsItem( xaxrectitem_ );
+    }
+
+    if ( ydir )
+	drawYAxis( leftside );
+    else
+    {
+	mRemoveGraphicsItem( yaxlineitmgrp_ );
+	mRemoveGraphicsItem( yaxtxtitmgrp_ );
+	mRemoveGraphicsItem( yaxlineitem_ );
+    }
 }
 
 #define mLoopStart( dim ) \
@@ -107,7 +125,7 @@ void DrawAxis2D::drawXAxis( bool topside )
     const uiRect drawarea = getDrawArea();
     const uiWorld2Ui transform( uiWorldRect(xrg_.start,yrg_.start,
 					    xrg_.stop,yrg_.stop),
-				drawarea.getPixelSize() );
+					    drawarea.getPixelSize() );
 
     int baseline, bias;
     if ( topside )
@@ -288,6 +306,8 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 
 	xaxgriditmgrp_->setZValue( zValue_ );
     }
+    else
+    { mRemoveGraphicsItem( xaxgriditmgrp_ ); }
 
     if ( ydir )
     {
@@ -310,6 +330,8 @@ void DrawAxis2D::drawGridLines( bool xdir, bool ydir )
 	
 	yaxgriditmgrp_->setZValue( zValue_ );
     }
+    else
+    { mRemoveGraphicsItem( xaxgriditmgrp_ ); }
 }
 
 
