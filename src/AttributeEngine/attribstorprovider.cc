@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.81 2008-11-27 13:27:15 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.82 2008-12-12 09:40:36 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -85,8 +85,11 @@ void StorageProvider::updateDesc( Desc& desc )
 	    if ( !transl || transl->componentInfo().isEmpty() )
 		desc.setNrOutputs( Seis::UnknowData, 1 );//why only 1 ?
 	    else
-		desc.setNrOutputs( (Seis::DataType)
-				   transl->componentInfo()[0]->datatype, 1 );
+	    {
+		for ( int idx=0; idx<transl->componentInfo().size(); idx++ )
+		    desc.addOutputDataType( (Seis::DataType)
+					transl->componentInfo()[0]->datatype );
+	    } 
 	}
 	else
 	    desc.setNrOutputs( Seis::Dip, 2 );
@@ -688,7 +691,9 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 	    if ( !trcrange.includes(curt) )
 		continue;
 
-	    const float val = trc->getValue( curt, idx );
+	    //the component index inthe trace is depending on outputinterest,
+	    //thus is the same as cubeidx
+	    const float val = trc->getValue( curt, cubeidx );
 	    dc->setValue( cubeidx, inlidx, crlidx, idz, val );
 	}
     }

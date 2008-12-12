@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.87 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.88 2008-12-12 09:40:36 cvshelene Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -474,6 +474,14 @@ SeisTrc* SeisTrcTranslator::getEmpty()
 void SeisTrcTranslator::setComponentNames( const BufferStringSet& bss )
 {
     delete compnms_; compnms_ = new BufferStringSet( bss );
+}
+
+
+void SeisTrcTranslator::getComponentNames( BufferStringSet& bss ) const
+{
+    bss.erase();
+    for ( int idx=0; idx<cds.size(); idx++ )
+	bss.add( cds[idx]->name() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.54 2008-12-04 13:26:55 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.55 2008-12-12 09:40:36 cvshelene Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -231,6 +231,7 @@ public:
     virtual int		estimatedNrTraces() const	{ return -1; }
 
     void		setComponentNames(const BufferStringSet&);
+    void		getComponentNames(BufferStringSet&) const;
 
     bool		haveWarnings() const;
     const BufferStringSet& warnings() const		{ return warnings_; }

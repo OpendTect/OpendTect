@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.69 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.70 2008-12-12 09:40:36 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -633,19 +633,45 @@ bool DescSet::is2D() const
 
 DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 {
+    TypeSet<int> outsreadyforthislk;
+    TypeSet<DescID> outsreadyids;
     for ( int idx=0; idx<descs.size(); idx++ )
     {
 	const Desc& dsc = *descs[idx];
-	if ( !dsc.isStored() || dsc.selectedOutput()!=selout )
+	const bool outnrisok = dsc.selectedOutput() == selout;
+	if ( !dsc.isStored() || ( !outnrisok && selout>=0 ) )
 	    continue;
 
 	const ValParam* keypar = dsc.getValParam( StorageProvider::keyStr() );
 	const char* curlk = keypar->getStringValue();
-	if ( !strcmp(lk,curlk) ) return dsc.id();
+	if ( !strcmp(lk,curlk) )
+	{
+	    if ( selout>=0 ) return dsc.id();
+	    outsreadyforthislk += dsc.selectedOutput();
+	    outsreadyids += dsc.id();
+	}
     }
 
     if ( !create ) return DescID::undef();
 
+    const int startidx = selout<0 ? 0 : selout; 
+    const int stopidx = selout<0 ? SeisIOObjInfo::getNrCompAvail( lk ) : selout;
+    const int out0idx = outsreadyforthislk.indexOf( 0 );
+    BufferStringSet bss;
+    SeisIOObjInfo::getCompNames( lk, bss );
+    DescID did = out0idx != -1 ? outsreadyids[out0idx] 
+			       : createStoredDesc( lk, startidx,*bss[startidx]);
+    for ( int idx=startidx+1; idx<stopidx; idx++ )
+	if ( outsreadyforthislk.indexOf(idx)<0 )
+	    createStoredDesc( lk, idx, *bss[idx] );
+
+    return did;
+}
+
+
+DescID DescSet::createStoredDesc( const char* lk, int selout,
+				  const BufferString& compnm )
+{
     LineKey newlk( lk );
     MultiID mid = newlk.lineName().buf();
     PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -653,8 +679,15 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 
     Desc* newdesc = PF().createDescCopy( StorageProvider::attribName() );
     if ( !newdesc ) return DescID::undef(); // "Cannot create desc"
+    if ( compnm.isEmpty() && selout>0 )
+	return DescID::undef(); 	// "Missing component name"
 
     BufferString userref = LineKey( ioobj->name(), newlk.attrName() );
+    if ( !compnm.isEmpty() )
+    {
+	userref += "|";
+	userref += compnm.buf();
+    }
     newdesc->setUserRef( userref );
     newdesc->selectOutput( selout );
     ValParam* keypar = newdesc->getValParam( StorageProvider::keyStr() );

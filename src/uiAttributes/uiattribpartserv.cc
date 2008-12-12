@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.102 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.103 2008-12-12 09:40:36 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1043,10 +1043,20 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     else
 	return false;
 
+    if ( isstored )
+    {
+	uiMultCompDlg dlg( parent(), idlkey );
+	if ( dlg.needDisplay() && dlg.go() )
+	    attribid = adsman->descSet()->getStoredID( idlkey, dlg.getCompNr(),
+		   				       false );
+    }
+    
     IOObj* ioobj = IOM().get( adsman->attrsetid_ );
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
-    as.set( 0, isnla ? DescID(outputnr,true) : attribid, isnla,
-	    isnla ? (const char*)nlaname_ : (const char*)attrsetnm );
+    DescID did = isnla ? DescID(outputnr,true) : attribid;
+
+    as.set( 0, did, isnla, isnla ? (const char*)nlaname_ 
+	    			 : (const char*)attrsetnm );
     
     BufferString bfs;
     if ( attribid != SelSpec::cAttribNotSel() )
@@ -1060,13 +1070,6 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     else
 	as.setRefFromID( *adsman->descSet() );
 
-    if ( isstored )
-    {
-	uiMultCompDlg dlg( parent(), idlkey );
-	if ( dlg.needDisplay() && dlg.go() )
-	    outputnr = dlg.getCompNr();
-    }
-    
     as.set2DFlag( is2d );
 
     return true;
