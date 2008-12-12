@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.93 2008-12-11 16:17:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.94 2008-12-12 18:44:20 cvsyuancheng Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -541,7 +541,8 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
 	    			settings_[idx].seedsaboveisoval_, newarr );    
     ff.useInputValue( true );
 
-    const CubeSampling& cs = getCubeSampling(true,true,0);
+    CubeSampling cs = getCubeSampling(true,true,0);
+    cs.normalise();
     for ( int seedidx=0; seedidx<seeds.size(); seedidx++ )
     {
 	const Coord3 pos =  seeds[seedidx].pos;

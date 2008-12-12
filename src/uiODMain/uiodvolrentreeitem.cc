@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.39 2008-12-05 22:53:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.40 2008-12-12 18:44:20 cvsyuancheng Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -139,7 +139,7 @@ bool uiODVolrenTreeItem::init()
     if ( displayid_==-1 )
     {
 	visSurvey::VolumeDisplay* display = visSurvey::VolumeDisplay::create();
-	visserv_->addObject(display,sceneID(),false);
+	visserv_->addObject(display,sceneID(),true);
 	displayid_ = display->id();
     }
     else
