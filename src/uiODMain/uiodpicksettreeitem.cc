@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.51 2008-12-11 16:16:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.52 2008-12-12 22:29:47 cvsyuancheng Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.51 2008-12-11 16:16:
 #include "survinfo.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uiodbodydisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uipickpartserv.h"
 #include "uipickpropdlg.h"
@@ -233,6 +234,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , propertymnuitem_("&Properties ...")
     , closepolyitem_("&Close Polygon")
     , removeselectionmnuitem_( "&Remove selection" )
+    , addbodymnuitem_( "Convert to body" )						    
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
@@ -308,11 +310,14 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( menu, &propertymnuitem_, true, false );
     mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
+
+    const bool hasbody = psd && psd->isLocationBodyDisplayed();
+    //mAddMenuItem( menu, &addbodymnuitem_, hasbody, false )
+
     mAddMenuItem( menu, &dirmnuitem_, true, false );
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
-    mAddMenuItem( menu, &removeselectionmnuitem_, selector,
-	    	  false );
+    mAddMenuItem( menu, &removeselectionmnuitem_, selector, false );
 }
 
 
@@ -322,7 +327,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( uiMenuHandler*, menu, caller );
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	                            visserv_->getObject(displayid_));
+	    				visserv_->getObject(displayid_));
 
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
@@ -360,6 +365,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
+    
+      //addbodymnuitem_.enabled = psd ? psd->isLocationBodyDisplayed() : false;
     }
     else if( mnuid==removeselectionmnuitem_.id )
     {
@@ -369,6 +376,27 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	    psd->removeSelected( *sel );
 	else
 	    uiMSG().error("Invalid selection : self-intersecting polygon");
+    }
+    else if ( mnuid==addbodymnuitem_.id )
+    {
+	return; //TODO:	come back later.
+	menu->setIsHandled( true );
+	RefMan<visSurvey::PickSetDisplay> psdisplay =
+	    visSurvey::PickSetDisplay::create();
+
+	Pick::Set* newset = new Pick::Set( *psd->getSet() );
+	psdisplay->setSet( newset );
+	psdisplay->setDisplayTransformation( psd->getDisplayTransformation() );
+	psdisplay->setLocationBodyDisplay();
+  
+	BufferString newname = "Pickset ";
+        newname += psd->name();
+        psdisplay->setName( newname.buf() );
+
+        visserv_->addObject( psdisplay, sceneID(), true );
+        addChild( new uiODBodyDisplayTreeItem(psdisplay->id(),true), false );
+	parent_->removeChild( this );
+	return;
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
