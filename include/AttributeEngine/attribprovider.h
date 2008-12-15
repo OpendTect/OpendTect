@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.69 2008-03-17 13:15:21 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.70 2008-12-15 16:49:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "linekey.h"
+#include "bufstringset.h"
 
 class BinDataDesc;
 class CubeSampling;
@@ -64,6 +65,7 @@ public:
     bool			isOutputEnabled(int output) const;
     void			setOutputInterestSize(bool preserve=false);
     void			enableAllOutputs(bool yn=true);
+    virtual void		getCompNames(BufferStringSet&) const;
 
     virtual void		setReqBufStepout(const BinID&,bool wait=false);
     virtual void		setDesBufStepout(const BinID&,bool wait=false);
