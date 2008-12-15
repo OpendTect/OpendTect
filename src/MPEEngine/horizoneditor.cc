@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizoneditor.cc,v 1.11 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: horizoneditor.cc,v 1.12 2008-12-15 09:55:46 cvsranojay Exp $";
 
 #include "horizoneditor.h"
 #include "geeditorimpl.h"
@@ -139,9 +139,8 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 
 		if ( ridx )
 		{
-		    const float rowfactor = fabs(ridx)/(editarea.row+1);
-		    const float colfactor = fabs(cidx)/rowfactor;
-
+		    const float rowfactor = fabs((float)ridx)/(editarea.row+1);
+		    const float colfactor = fabs((float)cidx)/rowfactor;
 		    const float totallength =
 			Math::Sqrt(editarea.row*editarea.row+colfactor*colfactor);
 
@@ -150,9 +149,8 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 
 		if ( cidx )
 		{
-		    const float colfactor = fabs(cidx)/(editarea.col+1);
-		    const float rowfactor = fabs(ridx)/colfactor;
-
+		    const float colfactor = fabs((float)cidx)/(editarea.col+1);
+		    const float rowfactor = fabs((float)ridx)/colfactor;
 		    const float totallength =
 			Math::Sqrt(editarea.col*editarea.col+rowfactor*rowfactor);
 
