@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.18 2008-05-15 18:41:01 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.19 2008-12-15 22:47:07 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -29,7 +29,7 @@ using namespace PreStack;
 
 const char* Gather::sDataPackCategory()		{ return "Pre-Stack Gather"; }
 const char* Gather::sKeyIsAngleGather()		{ return "Angle Gather"; }
-const char* Gather::sKeyIsNMO()			{ return "Is NMO Corrected"; }
+const char* Gather::sKeyIsCorr()		{ return "Is Corrected"; }
 const char* Gather::sKeyVelocityCubeID()	{ return "Velocity volume"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
@@ -197,7 +197,8 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
 
     iscorr_ = false;
-    ioobj.pars().getYN(sKeyIsNMO(), iscorr_ );
+    if ( !ioobj.pars().getYN(sKeyIsCorr(), iscorr_ ) )
+	ioobj.pars().getYN( "Is NMO Corrected", iscorr_ );
 
     zit_ = SI().zIsTime();
     ioobj.pars().getYN(sKeyZisTime(),zit_);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.13 2008-02-29 20:38:12 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.14 2008-12-15 22:47:07 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,7 +75,7 @@ public:
 
     static const char*		sDataPackCategory();
     static const char*		sKeyIsAngleGather();
-    static const char*		sKeyIsNMO();
+    static const char*		sKeyIsCorr();
     static const char*		sKeyZisTime();
 
     static const char*		sKeyPostStackDataID();
