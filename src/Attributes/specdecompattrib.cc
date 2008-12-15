@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.23 2008-12-01 04:32:59 cvsnageswara Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.24 2008-12-15 16:50:22 cvshelene Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -412,6 +412,21 @@ const Interval<float>* SpecDecomp::reqZMargin( int inp, int ) const
 const Interval<int>* SpecDecomp::desZSampMargin( int inp, int ) const
 {
     return transformtype_ == mTransformTypeFourier ? 0 : &desgate_;
+}
+
+
+void SpecDecomp::getCompNames( BufferStringSet& nms ) const
+{
+    nms.erase();
+    const float fnyq = 0.5 / refstep;
+    BufferString basestr = "frequency = ";
+    BufferString suffixstr = "("; 
+    suffixstr += zIsTime() ? "Hz" : "cycles/mm"; suffixstr += ")";
+    for ( int freq=deltafreq_; freq< fnyq; freq+=deltafreq_ )
+    {
+	BufferString tmpstr = basestr; tmpstr += freq; tmpstr += suffixstr;
+	nms.add( tmpstr.buf() );
+    }
 }
 
 }//namespace

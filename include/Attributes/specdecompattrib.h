@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.11 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.12 2008-12-15 16:50:22 cvshelene Exp $
 ________________________________________________________________________
 -*/
 
@@ -55,6 +55,8 @@ public:
     static const char*	dwtwaveletStr()		{ return "dwtwavelet"; }
     static const char*	cwtwaveletStr()		{ return "cwtwavelet"; }
     static const char*	transTypeNamesStr(int);
+
+    void                getCompNames(BufferStringSet&) const;
 
 protected:
     			~SpecDecomp();
