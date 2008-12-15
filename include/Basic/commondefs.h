@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.14 2008-12-11 04:27:43 cvsranojay Exp $
+ RCS:		$Id: commondefs.h,v 1.15 2008-12-15 12:23:13 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -79,5 +79,12 @@ ________________________________________________________________________
 #define mTODOHelpID	"0.0.0"
 #define mNoHelpID	"-"
 
+#ifdef __msvc__
+# define DLL_EXPORT __declspec( dllexport )
+#else
+# define DLL_EXPORT
+#endif
+
+#define mClass class DLL_EXPORT
 
 #endif
