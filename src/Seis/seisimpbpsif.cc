@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.9 2008-08-19 09:30:59 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.10 2008-12-15 04:50:59 cvsranojay Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -220,7 +220,7 @@ int SeisImpBPSIF::readBinary()
     std::istream& strm = *cursd_.istrm;
     const int nrshotattrs = shotattrs_.size();
     const int nrrcvattrs = rcvattrs_.size();
-    float vbuf[2+nrshotattrs];
+    mAllocVarLenArr( float, vbuf, 2+nrshotattrs );
     SeisTrc tmpltrc( nrshotattrs + nrrcvattrs );
     tmpltrc.info().sampling.start = SI().zRange(true).start;
     tmpltrc.info().sampling.step = SI().zStep();
@@ -294,7 +294,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
     const int nrshotattrs = shotattrs_.size();
 
     const int nrrcvvals = 2+nrrcvattrs;
-    float vbuf[nrrcvvals];
+    mAllocVarLenArr( float, vbuf, nrrcvvals );
     for ( int idx=0; idx<nrrcvpershot_; idx++ )
     {
 	if ( !StrmOper::readBlock( *cursd_.istrm, vbuf,
