@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.59 2008-10-03 12:09:58 cvsraman Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.60 2008-12-15 19:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -95,8 +95,11 @@ public:
     Array2D<float>*		createArray2D(SectionID,
 					      const ZAxisTransform* zt=0) const;
     bool			setArray2D(const Array2D<float>&,SectionID,
-	    				   bool onlyfillundefs);
-    				//!< Returns true on succes
+	    				   bool onlyfillundefs,
+					   const char* histdesc);
+    				/*!< Returns true on succes.  If histdesc
+				     is set, the event will be saved to
+				     history with the desc. */
 
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
 	    				 const HorSampling& hs);

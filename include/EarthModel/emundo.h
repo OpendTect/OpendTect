@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.2 2008-02-20 21:39:16 cvskris Exp $
+ RCS:		$Id: emundo.h,v 1.3 2008-12-15 19:01:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,9 +19,11 @@ ________________________________________________________________________
 
 class IOPar;
 namespace Geometry { class ParametricSurface; };
+template <class T> class Array2D;
 
 namespace EM
 {
+class Horizon3D;
 
 class SetPosUndoEvent : public UndoEvent
 {
@@ -38,6 +40,30 @@ protected:
     Coord3		savedpos;
 
     static const char*	savedposstr;
+};
+
+
+// Undo for setting all positions on a horizon3d-section
+class SetAllHor3DPosUndoEvent : public UndoEvent
+{
+public:
+			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
+						Array2D<float>*);
+
+    const char*		getStandardDesc() const;
+    bool		unDo();
+    bool		reDo();
+
+protected:
+    bool		setArray(const Array2D<float>&, const RowCol& origin);
+			~SetAllHor3DPosUndoEvent();
+
+    EM::Horizon3D*	horizon_;
+    EM::SectionID	 sid_;
+    RowCol		oldorigin_;
+    RowCol		neworigin_;
+    Array2D<float>*	oldarr_;
+    Array2D<float>*	newarr_;
 };
 
 

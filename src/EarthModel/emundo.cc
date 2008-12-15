@@ -7,12 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emundo.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emundo.cc,v 1.4 2008-12-15 19:01:03 cvskris Exp $";
 
 #include "emundo.h"
 
+#include "arrayndimpl.h"
+#include "arrayndutils.h"
 #include "emmanager.h"
 #include "emsurface.h"
+#include "emhorizon3d.h"
 #include "errh.h"
 #include "iopar.h"
 
@@ -82,8 +85,116 @@ bool EM::SetPosUndoEvent::reDo()
 }
 
 
+//SetAllHor3DPosUndoEvent
+EM::SetAllHor3DPosUndoEvent::SetAllHor3DPosUndoEvent( EM::Horizon3D* hor,
+				EM::SectionID sid, Array2D<float>* oldarr )
+    : horizon_( hor )
+    , oldarr_( oldarr )
+    , newarr_( 0 )
+    , sid_( sid )
+    , oldorigin_( hor->geometry().sectionGeometry(sid)->rowRange().start,
+		  hor->geometry().sectionGeometry(sid)->colRange().start )
+{}
+
+
+EM::SetAllHor3DPosUndoEvent::~SetAllHor3DPosUndoEvent()
+{
+    delete oldarr_;
+    delete newarr_;
+}
+
+
+const char* EM::SetAllHor3DPosUndoEvent::getStandardDesc() const
+{ return "Bulk change"; }
+
+
+bool EM::SetAllHor3DPosUndoEvent::unDo()
+{
+    if ( !newarr_ )
+    {
+	newarr_ = horizon_->createArray2D( sid_, 0 );
+	neworigin_.row =
+		horizon_->geometry().sectionGeometry(sid_)->rowRange().start;
+	neworigin_.col =
+		horizon_->geometry().sectionGeometry(sid_)->colRange().start;
+    }
+
+    if ( !newarr_ )
+	return false;
+
+    return setArray( *oldarr_, oldorigin_ );
+}
+
+
+bool EM::SetAllHor3DPosUndoEvent::reDo()
+{
+    return setArray( *newarr_, neworigin_ );
+}
+
+
+bool EM::SetAllHor3DPosUndoEvent::setArray( const Array2D<float>& arr,
+					    const RowCol& origin )
+{
+    mDynamicCastGet( Geometry::ParametricSurface*, surf,
+		     horizon_->sectionGeometry( sid_ ) );
+
+    StepInterval<int> curcolrg = surf->colRange();
+    const StepInterval<int> targetcolrg( origin.col,
+	origin.col+curcolrg.step*(arr.info().getSize(1)-1), curcolrg.step );
+
+    while ( curcolrg.start-curcolrg.step>=targetcolrg.start )
+    {
+	const int newcol = curcolrg.start-curcolrg.step;
+	surf->insertCol( newcol );
+	curcolrg.start = newcol;
+    }
+
+    while ( curcolrg.stop+curcolrg.step<=targetcolrg.stop )
+    {
+	const int newcol = curcolrg.stop+curcolrg.step;
+	surf->insertCol( newcol );
+	curcolrg.stop = newcol;
+    }
+
+
+    StepInterval<int> currowrg = surf->rowRange();
+    const StepInterval<int> targetrowrg( origin.row,
+	origin.row+currowrg.step*(arr.info().getSize(0)-1), currowrg.step );
+
+    while ( currowrg.start-currowrg.step>=targetrowrg.start )
+    {
+	const int newrow = currowrg.start-currowrg.step;
+	surf->insertCol( newrow );
+	currowrg.start = newrow;
+    }
+
+    while ( currowrg.stop+currowrg.step<=targetrowrg.stop )
+    {
+	const int newrow = currowrg.stop+currowrg.step;
+	surf->insertCol( newrow );
+	currowrg.stop = newrow;
+    }
+
+    if ( currowrg!=targetrowrg || curcolrg!=targetcolrg )
+    { //new array is smaller
+	Array2DImpl<float> tmparr( currowrg.nrSteps()+1, curcolrg.nrSteps()+1 );
+	if ( !tmparr.isOK() )
+	    return false;
+
+	tmparr.setAll( mUdf(float) );
+	Array2DPaste( tmparr, arr, currowrg.nearestIndex( targetrowrg.start ),
+		      curcolrg.nearestIndex( targetcolrg.start ), false );
+
+	return horizon_->setArray2D( tmparr, sid_, false, 0 );
+    }
+
+    return horizon_->setArray2D( arr, sid_, false, 0 );
+}
+
+
+
 EM::SetPosAttribUndoEvent::SetPosAttribUndoEvent( const EM::PosID& pid,
-							int attr, bool yesno )
+						  int attr, bool yesno )
     : posid( pid )
     , attrib( attr )
     , yn( yesno )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.109 2008-11-28 13:05:05 cvsjaap Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.110 2008-12-15 19:01:03 cvskris Exp $";
 
 #include "emhorizon3d.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.109 2008-11-28 13:05:05 cvsj
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
 #include "emsurfacetr.h"
+#include "emundo.h"
 #include "executor.h"
 #include "ioobj.h"
 #include "pickset.h"
@@ -297,7 +298,7 @@ Array2D<float>* Horizon3D::createArray2D(
 
 
 bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid, 
-			    bool onlyfillundefs )
+			    bool onlyfillundefs, const char* undodesc )
 {
     if ( geometry().sectionGeometry( sid )->isEmpty() )
 	return 0;
@@ -313,6 +314,8 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
     geometry().sectionGeometry( sid )->blockCallBacks( true, false );
     const bool didcheck = geometry().enableChecks( false );
     setBurstAlert( true );
+
+    Array2D<float>* oldarr = undodesc ? createArray2D( sid, 0 ) : 0;
 
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
@@ -342,6 +345,13 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
     geometry().sectionGeometry( sid )->blockCallBacks( false, true );
     geometry().enableChecks( didcheck );
     geometry().sectionGeometry( sid )->trimUndefParts();
+
+    if ( oldarr )
+    {
+	UndoEvent* undo = new  SetAllHor3DPosUndoEvent( this, sid, oldarr );
+	EMM().undo().addEvent( undo, undodesc );
+    }
+
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.26 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.27 2008-12-15 19:01:03 cvskris Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.26 2008-11-25 15:35:2
 #include "uiioobjsel.h"
 #include "uistepoutsel.h"
 #include "uimsg.h"
+#include "undo.h"
 
 #include "array2dinterpol.h"
 #include "array2dfilter.h"
@@ -126,6 +127,7 @@ bool uiChangeSurfaceDlg::readHorizon()
 bool uiChangeSurfaceDlg::doProcessing()
 {
     MouseCursorChanger chgr( MouseCursor::Wait );
+    bool change = false;
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
 	const EM::SectionID sid = horizon_->geometry().sectionID( idx );
@@ -192,13 +194,21 @@ bool uiChangeSurfaceDlg::doProcessing()
 		uiMSG().message( msg );
 	}
 
-	if ( !horizon_->setArray2D( *arr, sid, fillUdfsOnly() ) )
+	if ( !horizon_->setArray2D( *arr, sid, fillUdfsOnly(), undoText() ) )
 	{
 	    BufferString msg( "Cannot set new data to section " );
 	    msg += sid;
 	    ErrMsg( msg ); continue;
         }
+	else
+	{
+	    change = true;
+	}
     }
+
+    if ( change )
+	EM::EMM().undo().setUserInteractionEnd(EM::EMM().undo().lastEventID());
+
 
     return true;
 }
