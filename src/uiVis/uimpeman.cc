@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.133 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.134 2008-12-15 19:02:24 cvskris Exp $";
 
 #include "uimpeman.h"
 
@@ -822,6 +822,8 @@ void uiMPEMan::loadPostponedData()
 
 void uiMPEMan::undoPush( CallBacker* )
 {
+    MouseCursorChanger mcc( MouseCursor::Wait );
+
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().unDo( 1, true  ) )
 	uiMSG().error("Could not undo everything.");
@@ -833,6 +835,8 @@ void uiMPEMan::undoPush( CallBacker* )
 
 void uiMPEMan::redoPush( CallBacker* )
 {
+    MouseCursorChanger mcc( MouseCursor::Wait );
+
     EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().reDo( 1, true ) )
 	uiMSG().error("Could not redo everything.");
@@ -862,6 +866,18 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 {
     //Undo/Redo
     toolbar->setSensitive( undoidx, EM::EMM().undo().canUnDo() );
+    BufferString tooltip("Undo ");
+    if ( EM::EMM().undo().canUnDo() )
+	tooltip += EM::EMM().undo().unDoDesc();
+    toolbar->setToolTip( undoidx, tooltip.buf() );
+
+    if ( EM::EMM().undo().canReDo() )
+    {
+	tooltip = "Redo ";
+	tooltip += EM::EMM().undo().reDoDesc();
+    }
+    toolbar->setToolTip( redoidx, tooltip.buf() );
+
     toolbar->setSensitive( redoidx, EM::EMM().undo().canReDo() );
 
     //Seed button
