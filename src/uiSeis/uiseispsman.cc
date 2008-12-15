@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.7 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.8 2008-12-15 13:46:28 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiseispsman.cc,v 1.7 2008-11-25 15:35:26 cvsber
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
 #include "uiseismulticubeps.h"
+#include "posinfo.h"
 
 
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
@@ -26,6 +27,7 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
                                      "103.4.0").nrstatusflds(1),
 	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext() )
+    , is2d_(is2d)
 {
     createDefaultUI();
     selgrp->setPrefWidthInChar( 50 );
@@ -53,6 +55,53 @@ uiSeisPreStackMan::~uiSeisPreStackMan()
 void uiSeisPreStackMan::mkFileInfo()
 {
     BufferString txt;
+    if ( is2d_ )
+    {
+	BufferStringSet nms;
+	SPSIOPF().getLineNames( *curioobj_, nms );
+	if ( nms.size() > 0 )
+	{
+	    if ( nms.size() > 4 )
+		{ txt = "Number of lines: "; txt += nms.size(); }
+	    else
+	    {
+		if ( nms.size() == 1 )
+		    { txt = "Line: "; txt += nms.get( 0 ); }
+		else
+		{
+		    txt = "Lines: ";
+		    for ( int idx=0; idx<nms.size(); idx++ )
+		    {
+			if ( idx ) txt += ", ";
+			txt += nms.get( idx );
+		    }
+		}
+	    }
+	    txt += "\n\n";
+	}
+    }
+    else
+    {
+	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *curioobj_ );
+	const PosInfo::CubeData& cd = rdr->posData();
+	txt = "Total number of gathers: "; txt += cd.totalSize(); txt += "\n";
+	const bool haveinlstep = cd.haveInlStepInfo();
+	const bool havecrlstep = cd.haveCrlStepInfo();
+	const bool havebothsteps = haveinlstep && havecrlstep;
+	StepInterval<int> rg; cd.getInlRange( rg );
+	txt += "Inline range: ";
+	txt += rg.start; txt += " - "; txt += rg.stop;
+	if ( cd.haveInlStepInfo() )
+	    txt += " step "; txt += rg.step;
+	txt += "\n";
+	cd.getCrlRange( rg );
+	txt += "Crossline range: ";
+	txt += rg.start; txt += " - "; txt += rg.stop;
+	if ( cd.haveCrlStepInfo() )
+	    txt += " step "; txt += rg.step;
+	txt += "\n\n";
+	delete rdr;
+    }
     txt += getFileInfo();
     infofld->setText( txt );
 }

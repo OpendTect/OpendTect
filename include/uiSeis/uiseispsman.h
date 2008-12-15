@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseispsman.h,v 1.4 2008-09-04 13:31:45 cvsbert Exp $
+ RCS:           $Id: uiseispsman.h,v 1.5 2008-12-15 13:46:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ public:
 			~uiSeisPreStackMan();
 
 protected:
+
+    bool		is2d_;
 
     void		mkFileInfo();
 

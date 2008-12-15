@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.6 2008-12-11 16:08:22 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.7 2008-12-15 13:46:28 cvsbert Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: segydirecttr.cc,v 1.6 2008-12-11 16:08:22 cvsbe
 #include "seisbuf.h"
 #include "ioobj.h"
 #include "ptrman.h"
+#include "dirlist.h"
 
 
 class SEGYDirectPSIOProvider : public SeisPSIOProvider
@@ -31,10 +32,25 @@ public:
 			{ return new SEGYDirect2DPSReader(dirnm,lnm); }
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
 			{ return 0; }
-    bool		getLineNames(const char*,BufferStringSet&) const
-			{ return false; }
+    bool		getLineNames(const char*,BufferStringSet&) const;
     static int		factid;
 };
+
+
+bool SEGYDirectPSIOProvider::getLineNames( const char* dirnm,
+					   BufferStringSet& nms ) const
+{
+    DirList dl( dirnm, DirList::FilesOnly, "*.sgydef" );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	FilePath fp( dl.fullPath(idx) );
+	fp.setExtension( 0 );
+	nms.add( fp.fileName() );
+    }
+
+    return true;
+}
+
 
 // This adds the SEG-Y direct pre-stack seismics data storage to the factory
 int SEGYDirectPSIOProvider::factid = SPSIOPF().add(new SEGYDirectPSIOProvider);
