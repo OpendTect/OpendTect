@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.17 2008-12-11 16:08:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.18 2008-12-15 13:46:09 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.17 2008-12-11 16:08:22 cvs
 #include "segyfiledata.h"
 #include "segyscanner.h"
 #include "segydirectdef.h"
+#include "seispsioprov.h"
 #include "filegen.h"
 #include <sstream>
 
@@ -184,6 +185,8 @@ bool uiSEGYScanDlg::mkOutput( const char* pathnm, const char* lnm )
 	return false;
     }
 
+    if ( !Seis::is2D(setup_.geom_) )
+	SPSIOPF().mk3DPostStackProxy( *ctio_.ioobj );
     return true;
 }
 
