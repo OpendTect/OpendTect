@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.14 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.15 2008-12-15 16:40:52 cvsbert Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -143,9 +143,9 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 		 : (typ == Crl ? "Crossline range selection"
 			       : "Number range selection"))
 	, stepfld_(0)
-	, defstep_(1)
 	, icstopfld_(0)
 	, nrstopfld_(0)
+	, defstep_(1)
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
@@ -157,7 +157,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	const HorSampling& whs( SI().sampling(true).hrg );
 	wrg = typ == Inl ? whs.inlRange() : whs.crlRange();
 	nm = typ == Inl ? "Inline" : "Crossline";
-	defstep_ = wrg.step;
+	defstep_ = typ == Inl ? SI().inlStep() : SI().crlStep();
     }
 
     makeInpFields( nm, rg, wstep, typ==Gen );
@@ -169,7 +169,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 			    const char* lbltxt )
 	: uiGroup(p,BufferString(lbltxt," range selection"))
 	, stepfld_(0)
-	, defstep_(1)
+	, defstep_(limitrg.step)
 	, icstopfld_(0)
 	, nrstopfld_(0)
 {
