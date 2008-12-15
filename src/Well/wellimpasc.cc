@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.48 2008-08-13 09:23:19 cvsumesh Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.49 2008-12-15 12:12:28 cvsranojay Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -218,8 +218,8 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 		if ( matchString("Name = ",lognm.buf()) )
 		{
 		    // Possible HRS 'encoding'. Awful for user display.
-		    BufferString newnm = lognm.buf() + 7;
-		    char* newptr = strstr( newnm, " - Type = " );
+		    BufferString newnm =  lognm.buf() + 7;
+		    char* newptr = strstr( newnm.buf(), " - Type = " );
 		    if ( !newptr )
 			lognm = newnm;
 		    else
