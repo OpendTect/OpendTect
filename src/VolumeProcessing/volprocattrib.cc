@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.5 2008-08-12 20:53:27 cvskris Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.6 2008-12-15 09:54:32 cvsranojay Exp $";
 
 #include "volprocattrib.h"
 
@@ -199,7 +199,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     }
 
     chain_->setZSampling( SamplingData<float>( cs.zrg ), SI().zIsTime() );
-    RefMan<Attrib::DataCubes> datacubes = new Attrib::DataCubes::DataCubes();
+    RefMan<Attrib::DataCubes> datacubes = new Attrib::DataCubes();
     if ( !datacubes->setSizeAndPos(cs) )
     {
 	errmsg_ = "Cannot allocate enough memory.";
@@ -228,7 +228,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     }
 
     const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
-    Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack(did,*datacubes,0);
+    Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack( did, *datacubes, 0 );
     DPM( DataPackMgr::FlatID ).add( ndp );
 
     PtrMan<IOObj> ioobj = IOM().get( chain_->storageID() );
