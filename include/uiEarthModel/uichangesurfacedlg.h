@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2006
- RCS:           $Id: uichangesurfacedlg.h,v 1.6 2008-11-19 22:15:31 cvskris Exp $
+ RCS:           $Id: uichangesurfacedlg.h,v 1.7 2008-12-15 19:01:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ protected:
 					  const StepInterval<int>&) = 0;
     virtual bool		fillUdfsOnly() const		{ return false;}
     virtual bool		needsFullSurveyArray() const	{ return false;}
-
+    virtual const char*		undoText() const		{ return 0; }
 };
 
 
@@ -84,6 +84,7 @@ protected:
 
     virtual bool		fillUdfsOnly() const	{ return true; }
     virtual bool		needsFullSurveyArray() const;
+    virtual const char*		undoText() const { return "interpolation"; }
 
 };
 
@@ -103,6 +104,7 @@ protected:
     Executor*			getWorker(Array2D<float>&,
 	    				  const StepInterval<int>&,
 					  const StepInterval<int>&);
+    virtual const char*		undoText() const { return "filtering"; }
 
 };
 
