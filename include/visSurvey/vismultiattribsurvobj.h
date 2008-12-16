@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.17 2008-12-12 19:56:15 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.18 2008-12-16 12:15:45 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "vissurvobj.h"
 #include "visobject.h"
+#include "displaypropertylinks.h"
 
 namespace visBase
 {
@@ -33,7 +34,8 @@ namespace visSurvey
 
 
 class MultiTextureSurveyObject : public visBase::VisualObjectImpl,
-				 public SurveyObject
+				 public SurveyObject,
+				 public DisplayPropertyHolder
 {
 public:
     void			turnOn(bool yn);
