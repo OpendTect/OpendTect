@@ -4,7 +4,7 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.2 2008-12-02 21:39:06 cvskris Exp $";
+static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.3 2008-12-16 12:14:52 cvsnanne Exp $";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"
@@ -227,7 +227,7 @@ void DisplayLinkManager::removeDisplayPropertyLink( int id )
 
 
 const DisplayPropertyLink*
-DisplayLinkManager::getDisplayPropertyLink( int id ) const 
+    DisplayLinkManager::getDisplayPropertyLink( int id ) const 
 { return const_cast<DisplayLinkManager*>(this)->getDisplayPropertyLink( id ); }
 
 
@@ -264,4 +264,6 @@ void DisplayLinkManager::removeHolder(  DisplayPropertyHolder* hldr )
 	    }
 	}
     }
+
+    holders_ -= hldr;
 }
