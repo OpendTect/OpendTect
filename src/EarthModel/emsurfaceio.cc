@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.113 2008-12-05 04:02:08 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.114 2008-12-16 11:34:59 cvsraman Exp $";
 
 #include "emsurfaceio.h"
 
@@ -620,15 +620,12 @@ int dgbSurfaceReader::nextStep()
 	int callastcols = ( firstcol - 1 ) + nrcols;
 
 	if ( firstcol < (*linestrcrgs_)[trcrgidx].start )
-	{
-	    noofcoltoskip = (*linestrcrgs_)[trcrgidx].start - ( firstcol - 1 );
-	    firstcol = (*linestrcrgs_)[trcrgidx].start;
-	}
+	    noofcoltoskip = (*linestrcrgs_)[trcrgidx].start - firstcol;
 
 	if ( (*linestrcrgs_)[trcrgidx].stop < callastcols )
 	    callastcols = (*linestrcrgs_)[trcrgidx].stop;
 
-	nrcols = callastcols - firstcol;
+	nrcols = callastcols - firstcol - noofcoltoskip + 1;
     }
     if ( !strm )
     {
@@ -644,8 +641,8 @@ int dgbSurfaceReader::nextStep()
     {
 	if ( !hor2d->sectionGeometry(sectionid) )
 	    createSection( sectionid );
-	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow( firstcol,
-						firstcol+nrcols-1, colstep );
+	hor2d->geometry().sectionGeometry( sectionid )->addUdfRow(
+	    firstcol+noofcoltoskip, firstcol+nrcols+noofcoltoskip-1, colstep );
     }
 
     mDynamicCastGet(Fault3D*,flt3d,surface_);
