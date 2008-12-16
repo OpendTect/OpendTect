@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.6 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.7 2008-12-16 06:26:43 cvsraman Exp $";
 
 #include "gmtlocations.h"
 
@@ -107,7 +107,7 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
 	comm += fillcolstr;
     }
 
-    comm += " >> "; comm += fnm;
+    comm += " >> "; comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay locations")
 
@@ -208,7 +208,7 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
 	comm += fillcolstr;
     }
 
-    comm += " >> "; comm += fnm;
+    comm += " >> "; comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay polylines")
 
@@ -303,7 +303,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 	comm += fillcolstr;
     }
 
-    comm += " >> "; comm += fnm;
+    comm += " >> "; comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
@@ -347,7 +347,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     comm = "@pstext "; comm += rgstr;
     comm += " -D"; comm += dx; comm += "/"; comm += dy;
     comm += " -G"; comm += outcolstr;
-    comm += " -O -K >> "; comm += fnm;
+    comm += " -O -K >> "; comm += fileName( fnm );
     sd = StreamProvider( comm ).makeOStream();
     if ( !sd.usable() )
 	mErrStrmRet("Failed to post labels")

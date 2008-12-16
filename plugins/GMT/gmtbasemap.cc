@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtbasemap.cc,v 1.13 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: gmtbasemap.cc,v 1.14 2008-12-16 06:26:43 cvsraman Exp $";
 
 #include "bufstringset.h"
 #include "color.h"
@@ -68,7 +68,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
     comm += pagewidth < 21 ? 21 : pagewidth; comm += "c -K ";
 
-    comm += "> "; comm += fnm;
+    comm += "> "; comm += fileName( fnm );
     if ( system(comm) )
 	mErrStrmRet("Failed to create Basemap")
 
@@ -83,7 +83,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     if ( !closeps ) comm += "-K ";
 
     comm += "-UBL/0/0 ";    
-    comm += ">> "; comm += fnm;
+    comm += ">> "; comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
 
@@ -145,11 +145,11 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    colbarcomm += 1.2 * ymargin + cTitleBoxHeight; colbarcomm += "c/";
 	    colbarcomm += 2 * ymargin; colbarcomm += "c/";
 	    colbarcomm += xmargin / 2; colbarcomm += "c -O -C";
-	    colbarcomm += fp.fullPath(); colbarcomm += " -B";
+	    colbarcomm += fileName( fp.fullPath() ); colbarcomm += " -B";
 	    colbarcomm += rg.step * 5; colbarcomm += ":\"";
 	    colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
 	    colbarcomm += SI().getZUnitString(false); colbarcomm += ": -K >> ";
-	    colbarcomm += fnm;
+	    colbarcomm += fileName( fnm );
 	    if ( system(colbarcomm) )
 		mErrStrmRet("Failed to post color bar")
 
@@ -168,7 +168,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     comm += "c/"; comm += 10; comm += "c/";
     comm += nritems ? nritems : 1; comm += "c/BL ";
     
-    comm += ">> "; comm += fnm;
+    comm += ">> "; comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay legend")
 

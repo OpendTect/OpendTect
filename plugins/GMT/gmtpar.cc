@@ -7,10 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtpar.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtpar.cc,v 1.4 2008-12-16 06:26:43 cvsraman Exp $";
 
 
 #include "gmtpar.h"
+
+#include "debug.h"
 #include "keystrs.h"
 
 
@@ -77,3 +79,19 @@ GMTParFactory::Entry* GMTParFactory::getEntry( const char* nm ) const
     return 0;
 }
 
+
+BufferString GMTPar::fileName( const char* fnm ) const
+{
+    BufferString fnmchg;
+    if ( __iswin__ ) fnmchg += "\"";
+    fnmchg += fnm;
+    if ( __iswin__ ) fnmchg += "\"";
+    return fnmchg;
+}
+
+
+bool GMTPar::execCmd( const BufferString& comm )
+{
+    DBG::message( comm );
+    return system( comm ) != -1;
+}

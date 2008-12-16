@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcoastline.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: gmtcoastline.cc,v 1.6 2008-12-16 06:26:43 cvsraman Exp $";
 
 #include "gmtcoastline.h"
 
@@ -108,7 +108,7 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
 	mGetColorString( drycol, drycolstr );
 	comm += " -G"; comm += drycolstr;
     }
-    comm += " -O -K >> "; comm += fnm;
+    comm += " -O -K >> "; comm += fileName( fnm );
     if ( system(comm) )
 	mErrStrmRet("Failed")
 
@@ -133,7 +133,7 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm ) const
     comm += minlong; comm += "/";
     comm += minlong + 6; comm += "/0/80 -Ju";
     comm += zone; comm += "/1:1 -I -F -C | minmax -I0.0001/0.0001 > ";
-    comm += fnm;
+    comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) return false;
 

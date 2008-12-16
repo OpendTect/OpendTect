@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtpar.h,v 1.3 2008-08-14 10:52:47 cvsraman Exp $
+ RCS:		$Id: gmtpar.h,v 1.4 2008-12-16 06:26:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,9 @@ public:
     virtual bool	execute(std::ostream&,const char*)		=0;
     virtual const char* userRef() const					=0;
     virtual bool	fillLegendPar(IOPar&) const	{ return false; }
+
+    BufferString        fileName(const char*) const;
+    bool                execCmd(const BufferString&);
 };
 
 

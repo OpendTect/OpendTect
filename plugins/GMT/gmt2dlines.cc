@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.7 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.8 2008-12-16 06:26:43 cvsraman Exp $";
 
 #include "gmt2dlines.h"
 
@@ -85,7 +85,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     mGetLineStyleString( ls, lsstr );
     comm += " -W"; comm += lsstr;
 
-    comm += " >> "; comm += fnm;
+    comm += " >> "; comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
@@ -118,7 +118,7 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;
-    comm += " -O -K -N >> "; comm += fnm;
+    comm += " -O -K -N >> "; comm += fileName( fnm );
     sd = StreamProvider( comm ).makeOStream();
     if ( !sd.usable() )
 	mErrStrmRet("Failed")
@@ -265,7 +265,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     mGetLineStyleString( ls, lsstr );
     comm += " -W"; comm += lsstr;
 
-    comm += " >> "; comm += fnm;
+    comm += " >> "; comm += fileName( fnm );
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
@@ -295,7 +295,7 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;
-    comm += " -O -K -N >> "; comm += fnm;
+    comm += " -O -K -N >> "; comm += fileName( fnm );
     sd = StreamProvider( comm ).makeOStream();
     if ( !sd.usable() )
 	mErrStrmRet("Failed")
