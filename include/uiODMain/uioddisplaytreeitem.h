@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.8 2008-11-04 23:10:18 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.9 2008-12-16 12:10:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -66,6 +66,7 @@ protected:
     MenuItem		selattrmnuitem_;
     MenuItem		addattribmnuitem_;
     MenuItem		duplicatemnuitem_;
+    MenuItem		linkmnuitem_;
     MenuItem		removemnuitem_;
     MenuItem            lockmnuitem_;
     MenuItem		hidemnuitem_;

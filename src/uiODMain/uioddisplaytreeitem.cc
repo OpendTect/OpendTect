@@ -7,19 +7,19 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.24 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.25 2008-12-16 12:10:35 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-
 #include "pixmap.h"
 #include "uilistview.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
+#include "uivispartserv.h"
 #include "vissurvobj.h"
 
 
@@ -50,6 +50,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 
 static const int sAttribIdx = 1000;
 static const int sDuplicateIdx = 900;
+static const int sLinkIdx = 800;
 static const int sLockIdx = -900;
 static const int sHideIdx = -950;
 static const int sRemoveIdx = -1000;
@@ -60,6 +61,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , visserv_(ODMainWin()->applMgr().visServer())
     , addattribmnuitem_("&Add attribute",sAttribIdx)
     , duplicatemnuitem_("&Duplicate",sDuplicateIdx)
+    , linkmnuitem_("&Link ...",sLinkIdx)
     , lockmnuitem_("&Lock",sLockIdx)
     , hidemnuitem_("&Hide",sHideIdx )
     , removemnuitem_("&Remove",sRemoveIdx)
@@ -254,6 +256,10 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 
     lockmnuitem_.text = getLockMenuText(); 
     mAddMenuItem( menu, &lockmnuitem_, true, false );
+    if ( visserv_->canHaveMultipleAttribs(displayid_) )
+    { mAddMenuItem( menu, &linkmnuitem_, true, false ); }
+    else
+	mResetMenuItem( &linkmnuitem_ );
     
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv_->canDuplicate(displayid_) );
@@ -308,5 +314,9 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	visserv_->turnOn( displayid_, false );
 	updateCheckStatus();
+    }
+    else if ( mnuid==linkmnuitem_.id )
+    {
+	uiMSG().message( "Not implemented yet" );
     }
 }
