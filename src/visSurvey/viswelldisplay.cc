@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.81 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.82 2008-12-17 14:17:18 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: viswelldisplay.cc,v 1.81 2008-12-10 18:05:30 cv
 #include "vistransform.h"
 #include "viswell.h"
 
+#include "welldisp.h"
 #include "wellman.h"
 #include "welllog.h"
 #include "welllogset.h"
@@ -66,6 +67,8 @@ const char* WellDisplay::sKeyLog2Clip	       = "Cliprate 2";
 #define mMeter2Feet(val) \
    val /= 0.3048;
 
+#define dpp(param) wd->displayProperties().param
+
 WellDisplay::WellDisplay()
     : VisualObjectImpl(true)
     , well_(0)
@@ -80,7 +83,6 @@ WellDisplay::WellDisplay()
     , pseudotrack_(0)
     , logparset_(*new Well::LogDisplayParSet)
     , needsave_(false)
-    , onelogdisplayed_(false) 
 {
     setMaterial(0);
     setWell( visBase::Well::create() );
@@ -123,14 +125,31 @@ void WellDisplay::fullRedraw( CallBacker* )
 	return;
 
     well_->setTrack( trackpos );
+    Color& tcolor = dpp(track_.color_);
+    int twidth = dpp(track_.size_);
+    well_->setTrackProperties( tcolor, twidth );
     well_->setWellName( wd->name(), trackpos[0], trackpos[trackpos.size()-1] );
     updateMarkers(0);
+   
+    BufferString leftname = dpp( left_.name_ );  
+    BufferString rightname = dpp( right_.name_ );  
+   
+	logsnumber_ = 0;
 
-    if ( logparset_.getLeft()->name_.size() )
+    if ( leftname.size() )
+    {
+	int repeatl = dpp( left_.repeat_);
+	logsnumber_ = logsnumber_ >repeatl ? logsnumber_ : repeatl ;
 	displayLeftLog();
+    }
 
-    if ( logparset_.getRight()->name_.size())
+    if ( rightname.size() )
+    {
+	int repeatr = dpp( right_.repeat_);
+	logsnumber_ = logsnumber_ >repeatr ? logsnumber_ : repeatr ;
 	displayRightLog();
+    }
+    
 }
 
 
@@ -200,7 +219,7 @@ const LineStyle* WellDisplay::lineStyle() const
 }
 
 
-void WellDisplay::setLineStyle( const LineStyle& lst )
+void WellDisplay::setLineStyle( LineStyle lst )
 {
     well_->setLineStyle( lst );
 }
@@ -223,7 +242,9 @@ void WellDisplay::updateMarkers( CallBacker* )
 	else if ( zinfeet_ )
 	    mMeter2Feet(pos.z)
 
-	well_->addMarker( pos, wellmarker->color_, wellmarker->name() );
+	well_->markersize = dpp(markers_.size_);
+	Color& mcolor = dpp(markers_.color_);
+	well_->addMarker( pos, mcolor, wellmarker->name() );
     }
 }
 
@@ -313,41 +334,38 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
     
-    const int logidx = wd->logs().indexOf( dp.name_ );
+    BufferString logname ;
+    Interval<float> range;
+    int repeat;
+    logname = ( lognr == 1 ? dpp( left_.name_ ) : dpp( right_.name_ ) ); 
+    range = ( lognr == 1 ? dpp( left_.range_ ) : dpp( right_.range_ ) );
+    repeat = ( lognr == 1 ? dpp( left_.repeat_ ) : dpp( right_.repeat_ ) );
+    
+    const int logidx = wd->logs().indexOf( logname );
     if( logidx<0 )
     {
 	well_->clearLog( lognr );
 	well_->showLog( false, lognr );
 	return;
     }
-    Well::Log& wl = wd->logs().getLog( logidx );
-    
-    if ( !onelogdisplayed_ ) well_->removeLog( dp.repeat_ );
-    well_->setRepeat( dp.repeat_ );
-    well_->setOverlapp( dp.repeatovlap_, lognr );
-    well_->setLogStyle( dp.seisstyle_, lognr );
-    well_->setLogFill( dp.logfill_, lognr );
+  
+    setWellProperties( lognr, range );
     mDeclareAndTryAlloc( Interval<float>*,rgptr,
-	    		 Interval<float>( dp.range_ ) );
-    if (dp.nocliprate_ == false)
-	getClippedRange( dp.cliprate_, rgptr, wl );
+	    		 Interval<float>( range ) );
     createLogDisplay( logidx, rgptr, dp.logarithmic_, lognr );
-    dp.range_ =  *rgptr;
-    setLogColor( dp.linecolor_, lognr );
-    setLogFillColor( dp.logfillcolor_, lognr, dp.singlfillcol_, dp.seqname_, dp.seisstyle_ );
     well_->showLog( true, lognr );
-    if ( onelogdisplayed_ ) well_->hideUnwantedLogs( lognr, dp.repeat_ );
-    setOneLogDisplayed(true);	
+    if (repeat < logsnumber_) well_->hideUnwantedLogs( lognr, repeat  );
 }
 
 
-void WellDisplay::getClippedRange(float cliprate, Interval<float>* range, Well::Log& wl )
+void WellDisplay::calcClippedRange(float cliprate, Interval<float>& range,
+       							Well::Log& wl )
 {
     int logsz=wl.size();
     DataClipper dataclipper;
     dataclipper.setApproxNrValues( logsz );
     dataclipper.putData( wl.valArr(), logsz );
-    dataclipper.calculateRange( cliprate, *range );
+    dataclipper.calculateRange( cliprate, range );
 }
 
 
@@ -369,12 +387,55 @@ void WellDisplay::setOneLogDisplayed(bool yn)
 }
 
 
+#define mSetLogProp(side) \
+{ \
+    logname = dpp( side.name_ );\
+    bool iswelllog = dpp(side.iswelllog_);\
+    const char* seqname = dpp( side.seqname_);\
+    int repeat = dpp( side.repeat_);\
+    float ovlap = dpp( side.repeatovlap_ );\
+    Color& lcolor = dpp( side.color_);\
+    Color& seiscolor = dpp( side.seiscolor_);\
+    bool isfilled = dpp(side.islogfill_);\
+    isdatarange = dpp(side.isdatarange_);\
+    cliprate = dpp( side.cliprate_ );\
+    if (iswelllog) \
+	repeat = 1; \
+    well_->removeLog( logsnumber_ );\
+    well_->setRepeat( logsnumber_ );\
+    well_->setOverlapp( ovlap, lognr );\
+    well_->setLogStyle( iswelllog, lognr ); \
+    well_->setLogFill( isfilled, lognr ); \
+    setLogColor( lcolor, lognr ); \
+    setLogFillColor( seiscolor, lognr, seqname, iswelllog );\
+}
+
+
+void WellDisplay::setWellProperties( int lognr, Interval<float>& range)
+{  
+    BufferString logname;
+    float cliprate;
+    bool isdatarange;
+    Well::Data* wd = Well::MGR().get( wellid_ );
+  
+    if (lognr==1)
+      	mSetLogProp( left_ )
+    else
+	mSetLogProp( right_)
+
+    const int logidx = wd->logs().indexOf( logname );
+    Well::Log& wl = wd->logs().getLog( logidx );
+    if ( !isdatarange )
+	calcClippedRange( cliprate, range, wl );
+}
+
+
+
 void WellDisplay::setLogColor( const Color& col, int lognr )
 {
     Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
 					 : logparset_.getRight();
-    Color color = par ? par->linecolor_ : col;
-    well_->setLogColor( color, lognr );
+    well_->setLogColor( col, lognr );
 }
 
 
@@ -382,13 +443,12 @@ const Color& WellDisplay::logColor( int lognr ) const
 { return well_->logColor( lognr ); }
 
 
-void WellDisplay::setLogFillColor( const Color& col, int lognr, const bool singlefill,
-       				         const char* seqname, const bool isnoseismic )
+void WellDisplay::setLogFillColor(const Color& color, int lognr, 
+				  const char* seqname, const bool isnoseismic )
 {
     Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
 					 : logparset_.getRight();
-    Color color = par ? par->logfillcolor_ : col;
-    well_->setLogFillColorTab( seqname, lognr, singlefill, col, isnoseismic ); 
+    well_->setLogFillColorTab( seqname, lognr, color, isnoseismic ); 
 }
 
 
@@ -628,6 +688,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 
 void WellDisplay::addPick( Coord3 pos )
 {
+    Well::Data* wd = Well::MGR().get( wellid_ );
     int insertidx = -1;
     if ( pseudotrack_ )
     {
@@ -653,7 +714,8 @@ void WellDisplay::addPick( Coord3 pos )
 
 	marker->setDisplayTransformation( transformation_ );
 	marker->setCenterPos( pos );
-	marker->setScreenSize( mPickSz );
+        int msize = dpp(markers_.size_);
+        marker->setScreenSize( msize );
 	marker->setType( (MarkerStyle3D::Type)mPickType );
 	marker->getMaterial()->setColor( lineStyle()->color_ );
     }
