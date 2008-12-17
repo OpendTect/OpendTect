@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.35 2008-12-05 09:17:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.36 2008-12-17 14:18:49 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -39,7 +39,6 @@ namespace visBase
 {
 
 static const int sMaxNrLogSamples = 2000;
-static const int sDefaultMarkerSize = 10;
 
 const char* Well::linestylestr	= "Line style";
 const char* Well::showwelltopnmstr = "Show top name";
@@ -55,7 +54,6 @@ const char* Well::logwidthstr 	= "Screen width";
 Well::Well()
     : VisualObjectImpl( false )
     , showmarkers(true)
-    , markersize(sDefaultMarkerSize)
     , transformation(0)
 				       
 {
@@ -140,6 +138,13 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 	else
 	    track->setPoint( idx, crd );
     }
+}
+
+
+void Well::setTrackProperties( Color& col, int width )
+{
+    track->getMaterial()->setColor( col );
+    drawstyle->setLineWidth( width );
 }
 
 
@@ -250,7 +255,7 @@ void Well::setMarkerScreenSize( int size )
 int Well::markerScreenSize() const
 {
     mDynamicCastGet(Marker*,marker,markergroup->getObject(0))
-    return marker ? mNINT(marker->getScreenSize()) : sDefaultMarkerSize;
+    return marker ? mNINT(marker->getScreenSize()) : markersize;
 }
 
 
@@ -428,8 +433,8 @@ const Color& Well::logColor( int lognr ) const
 }
 
 
-void Well::setLogFillColorTab( const char* seqname, int lognr, const bool singlecol, 
-					const Color& color, const bool isnoseismic )
+void Well::setLogFillColorTab( const char* seqname, int lognr,
+			       const Color& color, const bool isnoseismic )
 {
 #define scolors2f(rgb) float(color.rgb())/255
 #define colors2f(rgb) float(Col.rgb())/255
@@ -443,7 +448,7 @@ void Well::setLogFillColorTab( const char* seqname, int lognr, const bool single
 
     for (int i=0; i<256; i++ )
     {
-	if ( singlecol || (!isnoseismic) )
+	if ( (!isnoseismic) )
 	{
 	    colors[i][0] = scolors2f(r);
 	    colors[i][1] = scolors2f(g);
