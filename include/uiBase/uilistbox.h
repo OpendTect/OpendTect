@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.43 2008-10-14 11:16:56 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.44 2008-12-17 07:44:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class BufferStringSet;
 class Color;
 class uiLabel;
 class uiListBoxBody;
+class uiPopupMenu;
 
 class QString;
 
@@ -52,7 +53,7 @@ public:
     adaptVStretch specifies wether or not the vertical stretch should be
     set to 0 if nrlines == 1 or 2 otherwise.
 */
-    void 		setLines(int, bool adaptVStretch);
+    void 		setLines(int,bool adaptvstretch);
     void		setNotSelectable();
     void		setMultiSelect(bool yn=true);
     int			maxSelectable() const;
@@ -94,7 +95,9 @@ public:
     void                setCurrentItem(const char*); //!< First match
     int			indexOf(const char*) const; //!< First match
 
+    void		setItemsCheckable(bool);	//!<Sets all items
     void		setItemCheckable(int,bool);
+    void		setItemsChecked(bool);		//!<Sets all items
     void		setItemChecked(int,bool);
     bool		isItemCheckable(int) const;
     bool		isItemChecked(int) const;
@@ -129,6 +132,10 @@ protected:
 
     mutable BufferString	rettxt;
     OD::ButtonState	buttonstate_;
+    bool		itemscheckable_;
+    uiPopupMenu&	rightclickmnu_;
+
+    void		menuCB(CallBacker*);
 
 private:
 

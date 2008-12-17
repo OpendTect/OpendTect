@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.94 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.95 2008-12-17 07:44:40 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
 #include "uifont.h"
 #include "uilabel.h"
+#include "uimenu.h"
 #include "uiobjbody.h"
 #include "bufstringset.h"
 #include "color.h"
@@ -231,32 +232,35 @@ bool uiListBoxBody::event( QEvent* ev )
 
 
 // -------------- uiListBox ---------------
+
+#define mStdInit \
+    , buttonstate_(OD::NoButton) \
+    , selectionChanged(this) \
+    , doubleClicked(this) \
+    , rightButtonClicked(this) \
+    , leftButtonClicked(this) \
+    , deleteButtonPressed(this) \
+    , activatedone(this) \
+    , rightclickmnu_(*new uiPopupMenu(p)) \
+    , itemscheckable_(false)
+
+
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
     : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
-    , buttonstate_(OD::NoButton)
-    , selectionChanged(this)
-    , doubleClicked(this)
-    , rightButtonClicked(this)
-    , leftButtonClicked(this)
-    , deleteButtonPressed(this)
-    , activatedone(this)
+    mStdInit
 {
+    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
 }
 
 
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
 		      const char* txt, bool ms, int nl, int pfw )
     : uiObject( p, txt, mkbody(p,txt,ms,nl,pfw))
-    , buttonstate_(OD::NoButton)
-    , selectionChanged(this)
-    , doubleClicked(this)
-    , rightButtonClicked(this)
-    , leftButtonClicked(this)
-    , deleteButtonPressed(this)
-    , activatedone(this)
+    mStdInit
 {
     addItems( items );
     setName( "Select Data" );
+    rightButtonClicked.notify( mCB(this,uiListBox,menuCB) );
 }
 
 
@@ -272,7 +276,21 @@ uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
 
 
 uiListBox::~uiListBox()
-{}
+{
+    delete &rightclickmnu_;
+}
+
+
+void uiListBox::menuCB( CallBacker* )
+{
+    if ( !itemscheckable_ ) return;
+
+    rightclickmnu_.clear();
+    rightclickmnu_.insertItem( new uiMenuItem("Check all items"), 0 );
+    rightclickmnu_.insertItem( new uiMenuItem("Uncheck all items"), 1 );
+    const int res = rightclickmnu_.exec();
+    setItemsChecked( res==0 );
+}
 
 
 void uiListBox::setLines( int prefnrlines, bool adaptvstretch )
@@ -344,7 +362,7 @@ void uiListBox::addItem( const char* text, bool embed )
     QString qs;
     createQString( qs, text, embed );
     body_->addItem( qs );
-    setItemCheckable( size()-1, false );
+    setItemCheckable( size()-1, itemscheckable_ );
 }
 
 
@@ -377,8 +395,8 @@ void uiListBox::addItems( const BufferStringSet& strs )
     int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
     {
-	body_->addItem( QString( strs.get(idx) ) );
-	setItemCheckable( size()-1, false );
+	body_->addItem( QString(strs.get(idx)) );
+	setItemCheckable( size()-1, itemscheckable_ );
     }
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
@@ -393,7 +411,7 @@ void uiListBox::insertItem( const char* text, int index, bool embed )
     else
 	body_->insertItem( index, qs );
 
-    setItemCheckable( index<0 ? 0 : index, false );
+    setItemCheckable( index<0 ? 0 : index, itemscheckable_ );
 }
 
 
@@ -571,20 +589,39 @@ int uiListBox::indexOf( const char* txt ) const
 }
 
 
+void uiListBox::setItemsCheckable( bool yn )
+{
+    itemscheckable_ = yn;
+    for ( int idx=0; idx<size(); idx++ )
+	setItemCheckable( idx, yn );
+}
+
+
 void uiListBox::setItemCheckable( int idx, bool yn )
 {
+    if ( !validIndex(idx) ) return;
+
     Qt::ItemFlags flags = body_->item(idx)->flags();
-    if ( bool(flags&Qt::ItemIsUserCheckable) != yn )
-    {
-	body_->item(idx)->setFlags( flags^Qt::ItemIsUserCheckable );
-	setItemChecked( idx, false );
-    }
+    const bool ischeckable = flags.testFlag( Qt::ItemIsUserCheckable );
+    if ( ischeckable == yn )
+	return;
+
+    body_->item(idx)->setFlags( flags^Qt::ItemIsUserCheckable );
+    setItemChecked( idx, false );
 }
 
 
 bool uiListBox::isItemCheckable( int idx ) const
 {
-    return validIndex(idx) && body_->item(idx)->flags()&Qt::ItemIsUserCheckable;
+    return validIndex(idx) &&
+	body_->item(idx)->flags().testFlag( Qt::ItemIsUserCheckable );
+}
+
+
+void uiListBox::setItemsChecked( bool yn )
+{
+    for ( int idx=0; idx<size(); idx++ )
+	setItemChecked( idx, yn );
 }
 
 
@@ -605,7 +642,8 @@ int uiListBox::nrChecked() const
 {
     int res = 0;
     for ( int idx=0; idx<size(); idx++ )
-	{ if ( isItemChecked(idx) ) res++; }
+	if ( isItemChecked(idx) )
+	    res++;
     return res;
 }
 
