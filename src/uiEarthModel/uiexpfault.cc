@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.7 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.8 2008-12-17 08:58:23 cvsjaap Exp $";
 
 #include "uiexpfault.h"
 
@@ -76,28 +76,26 @@ uiExportFault::~uiExportFault()
 
 static int nrSticks( EM::EMObject* emobj, EM::SectionID sid )
 {
-    mDynamicCastGet(EM::Fault3D*,f3d,emobj)
-    mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
-    return f3d ? f3d->geometry().nrSticks( sid )
-               : fss->geometry().nrSticks( sid );
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    return fss->nrSticks();
 }
+
 
 static int nrKnots( EM::EMObject* emobj, EM::SectionID sid, int stickidx )
 {
-    mDynamicCastGet(EM::Fault3D*,f3d,emobj)
-    mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
-    return f3d ? f3d->geometry().nrKnots( sid, stickidx )
-               : fss->geometry().nrKnots( sid, stickidx );
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    const int sticknr = fss->rowRange().atIndex( stickidx );
+    return fss->nrKnots( sticknr );
 }
+
 
 static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
 			int knotidx )
 {
-    mDynamicCastGet(EM::Fault3D*,f3d,emobj)
-    mDynamicCastGet(EM::FaultStickSet*,fss,emobj)
-    const RowCol rc( stickidx, knotidx );
-    return f3d ? f3d->geometry().sectionGeometry(sid)->getKnot( rc )
-	       : fss->geometry().sectionGeometry(sid)->getKnot( rc );
+    mDynamicCastGet(Geometry::FaultStickSet*,fss,emobj->sectionGeometry(sid));
+    const int sticknr = fss->rowRange().atIndex(stickidx);
+    const int knotnr = fss->colRange(sticknr).atIndex(knotidx);
+    return fss->getKnot( RowCol(sticknr,knotnr) );
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
