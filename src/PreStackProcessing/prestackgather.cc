@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.19 2008-12-15 22:47:07 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.20 2008-12-17 16:04:25 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -33,6 +33,7 @@ const char* Gather::sKeyIsCorr()		{ return "Is Corrected"; }
 const char* Gather::sKeyVelocityCubeID()	{ return "Velocity volume"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
+const char* Gather::sKeyStaticsID()		{ return "Statics"; }
 
 Gather::Gather()
     : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(0,0) )
@@ -53,7 +54,8 @@ Gather::Gather( const Gather& gather )
     , azimuths_( gather.azimuths_ )
     , velocitymid_( gather.velocitymid_ )
     , storagemid_( gather.storagemid_ )
-    , linename_( gather.linename_ )				       
+    , linename_( gather.linename_ )
+    , staticsmid_( gather.staticsmid_ )
 {}
 
 
@@ -203,7 +205,10 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     zit_ = SI().zIsTime();
     ioobj.pars().getYN(sKeyZisTime(),zit_);
 
-    ioobj.pars().get(sKeyVelocityCubeID(), velocitymid_ );
+    velocitymid_.setEmpty();
+    ioobj.pars().get( sKeyVelocityCubeID(), velocitymid_ );
+    staticsmid_.setEmpty();
+    ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
     
     binid_ = bid;
     setName( ioobj.name() );

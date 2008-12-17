@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.14 2008-12-15 22:47:07 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.15 2008-12-17 16:04:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,7 @@ public:
 
     const MultiID&		getVelocityID() const	{ return velocitymid_; }
     const MultiID&		getStorageID() const    { return storagemid_; }
+    const MultiID&		getStaticsID() const	{ return staticsmid_; }
 
     static bool			getVelocityID(const MultiID& stor,MultiID& vid);
 
@@ -80,10 +81,12 @@ public:
 
     static const char*		sKeyPostStackDataID();
     static const char*		sKeyVelocityCubeID();
+    static const char*		sKeyStaticsID();
 protected:
 
     MultiID			velocitymid_;
     MultiID			storagemid_;
+    MultiID			staticsmid_;
     bool			offsetisangle_;
     bool			iscorr_;
 
