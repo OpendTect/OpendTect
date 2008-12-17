@@ -7,20 +7,29 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.3 2008-12-10 10:05:18 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.4 2008-12-17 13:08:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
-
+#include "uicombobox.h"
+#include "ranges.h"
 #include "uigroup.h"
 #include "welldisp.h"
+#include "multiid.h"
+#include "sets.h"
 
+class MultiID;
 class uiSpinBox;
 class uiCheckBox;
 class uiColorInput;
 class uiGenInput;
 
+namespace Well
+{
+    class LogDisplayParSet;
+    class Data;
+}
 
 class uiWellDispProperties : public uiGroup
 {
@@ -30,11 +39,11 @@ public:
     {
     public:
 			Setup( const char* sztxt=0, const char* coltxt=0 )
-			    : sztxt_(sztxt ? sztxt : "Line thickness")
-			    , coltxt_(sztxt ? sztxt : "Line color")	{}
+			    : mysztxt_(sztxt ? sztxt : "Line thickness")
+			    , mycoltxt_(coltxt ? coltxt : "Line color")	{}
 
-	mDefSetupMemb(BufferString,sztxt)
-	mDefSetupMemb(BufferString,coltxt)
+	mDefSetupMemb(BufferString,mysztxt)
+	mDefSetupMemb(BufferString,mycoltxt)
     };
 
     			uiWellDispProperties(uiParent*,const Setup&,
@@ -102,20 +111,43 @@ class uiWellLogDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellLogDispProperties(uiParent*,const Setup&,
-					Well::DisplayProperties::Log&);
+					Well::DisplayProperties::Log&,
+					Well::Data* d);
 
     Well::DisplayProperties::Log&	logprops()
 	{ return static_cast<Well::DisplayProperties::Log&>(props_); }
 
+
 protected:
 
-    virtual void	doPutToScreen();
-    virtual void	doGetFromScreen();
+    void        	doPutToScreen();
+    void        	doGetFromScreen();
+    void                isFilledSel(CallBacker*);
+    void 		isRepeatSel(CallBacker*);
+    void 		isSeismicSel(CallBacker*);
+    void 		choiceSel(CallBacker*);
+    void 		setRangeFields(Interval<float>&);
+    void 		updateRange(CallBacker*);
+    void 		calcLogValueRange();
+    void  		setFldSensitive(bool);
+    void 		logSel(CallBacker*);
+    void 		selNone();
+    void 		setFieldVals( bool );
+
 
     uiGenInput*		stylefld_;
+    uiGenInput*		repeatfld_;
     uiGenInput*         clipratefld_;
     uiGenInput*         rangefld_;
     uiGenInput*         cliprangefld_;
+    uiGenInput*         ovlapfld_;
+    uiLabeledComboBox*  logsfld_;
+    uiCheckBox*         logfillfld_;
+    uiComboBox*         coltablistfld_;
+    uiColorInput*       seiscolorfld_;
+
+    Interval<float>     valuerange_;
+    Well::Data*  wd_;
 
 };
 

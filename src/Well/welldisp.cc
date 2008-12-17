@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.3 2008-12-10 10:05:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.4 2008-12-17 13:08:34 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -63,14 +63,14 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& iop ) const
 void Well::DisplayProperties::Log::doUsePar( const IOPar& iop )
 {
     iop.getYN( IOPar::compKey(subjectName(),sKeyStyle),
-	       seismicstyle_ );
+	       iswelllog_ );
 }
 
 
 void Well::DisplayProperties::Log::doFillPar( IOPar& iop ) const
 {
     iop.setYN( IOPar::compKey(subjectName(),sKeyStyle),
-	       seismicstyle_ );
+	       iswelllog_ );
 }
 
 

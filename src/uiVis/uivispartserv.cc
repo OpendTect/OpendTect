@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.384 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.385 2008-12-17 13:08:34 cvsbruno Exp $";
 
 #include "uivispartserv.h"
 
@@ -53,6 +53,8 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.384 2008-12-10 18:05:30 cv
 #include "uiviszstretchdlg.h"
 
 #include "uiwelldisppropdlg.h"
+#include "welldata.h"
+#include "welldisp.h"
 #include "envvars.h"
 #include "wellman.h"
 #include "viswelldisplay.h"
@@ -1304,18 +1306,25 @@ void uiVisPartServer::removeObject( int id, int sceneid )
 void uiVisPartServer::doWellDispPropDlg(
 			ObjectSet<visSurvey::WellDisplay>& wds )
 {
+/*  
     if ( !GetEnvVarYN("OD_NEW_WELL_PROP") )
     {
 	uiWellPropDlg dlg( parent(), wds );
 	dlg.go();
 	return;
     }
+*/
 
     Well::Data* wd = Well::MGR().get( wds[0]->getMultiID(), false );
     if ( !wd ) { pErrMsg( "Huh" ); return; }
 
     uiWellDispPropDlg dlg( parent(), *wd );
-    dlg.go();
+    if ( dlg.go() ) //TODO && condition.
+    {
+        wd->displayProperties().defaults() = wd->displayProperties();
+	wd->displayProperties().commitDefaults();
+    }
+
 }
 
 

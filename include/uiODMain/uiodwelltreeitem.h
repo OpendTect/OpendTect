@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.4 2008-12-04 19:51:00 cvskris Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.5 2008-12-17 13:08:34 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ class uiODWellTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
-    uiTreeItem*		create() const { return new uiODWellParentTreeItem; }
+    uiTreeItem*		create() const { return new uiODWellParentTreeItem(); }
     uiTreeItem*		create(int visid,uiTreeItem*) const;
 };
 

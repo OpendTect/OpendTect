@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.3 2008-12-10 10:03:21 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.4 2008-12-17 13:08:34 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -33,17 +33,17 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
     ObjectSet<uiGroup> tgs;
-    tgs += new uiGroup( ts_->tabGroup(), "Left log properties" );
-    tgs +=  new uiGroup( ts_->tabGroup(), "Right Log properties" );
     tgs += new uiGroup( ts_->tabGroup(), "Track properties" );
     tgs +=  new uiGroup( ts_->tabGroup(), "Marker properties" );
+    tgs += new uiGroup( ts_->tabGroup(), "Left log properties" );
+    tgs +=  new uiGroup( ts_->tabGroup(), "Right Log properties" );
 
     propflds_ += new uiWellLogDispProperties( tgs[0],
 		    uiWellDispProperties::Setup( "Line thickness", "Line Color" ),
-		    props_.left_ );
+		    props_.left_, &wd_ );
     propflds_ += new uiWellLogDispProperties( tgs[1],
 		    uiWellDispProperties::Setup( "Line thickness", "Line Color" ),
-		    props_.right_ );
+		    props_.right_, &wd_ );
     propflds_ += new uiWellTrackDispProperties( tgs[2],
 		    uiWellDispProperties::Setup(), props_.track_ );
     propflds_ += new uiWellMarkersDispProperties( tgs[3],
@@ -65,6 +65,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
     uiPushButton* applbut = new uiPushButton( this, "&Apply to all wells",
 			mCB(this,uiWellDispPropDlg,applyAllPush), true );
     applbut->attach( centeredBelow, ts_ );
+
 }
 
 
@@ -123,3 +124,5 @@ bool uiWellDispPropDlg::acceptOK( CallBacker* )
     wd_.dispparschanged.trigger();
     return true;
 }
+
+

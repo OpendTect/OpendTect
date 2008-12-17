@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.19 2008-12-05 09:17:49 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.20 2008-12-17 13:08:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,15 +91,17 @@ public:
     void			removeLog(const int);
     void			hideUnwantedLogs(int,int);
     void			showOneLog(bool,int,int);
+    void 			setTrackProperties(Color&,int);
 
-    void			setLogFillColorTab(const char*,int,const bool,
-	    					      const Color&,const bool);
+    void			setLogFillColorTab(const char*,int,
+	    					   const Color&,const bool);
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar& par);
-
+    int				markersize;
+    
     static const char*		linestylestr;
     static const char*		showwelltopnmstr;
     static const char*		showwellbotnmstr;
@@ -128,7 +130,6 @@ protected:
     Transformation*		transformation;
 
     bool			showmarkers;
-    int				markersize;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.25 2008-12-10 10:05:18 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.26 2008-12-17 13:08:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,10 +87,10 @@ protected:
 
 /*!\mainpage Well User Interface
 
-  Apart from nice visualisation import and management of well data must be
+  Apart 
+ 
+  rom nice visualisation import and management of well data must be
   done. The uiWellPartServer delivers the services needed.
-
 */
-
 
 #endif

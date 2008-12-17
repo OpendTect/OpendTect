@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.6 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.7 2008-12-17 13:08:34 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
     			/*!< Color in Linestyle is ignored, must be
 			     set separately.
 			*/
+    void 		setLineWidth(int);
     const LineStyle&	lineStyle() const { return linestyle; }
 
     int			usePar( const IOPar& );

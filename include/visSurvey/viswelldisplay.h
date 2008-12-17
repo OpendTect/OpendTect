@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.43 2008-12-05 09:17:49 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.44 2008-12-17 13:08:34 cvsbruno Exp $
 
 
 
@@ -59,7 +59,7 @@ public:
     MultiID			getMultiID() const 	{ return wellid_; }
 
     const LineStyle*		lineStyle() const;
-    void			setLineStyle(const LineStyle&);
+    void			setLineStyle(LineStyle);
 
     bool			hasColor() const	{ return true; }
     Color			getColor() const;
@@ -81,7 +81,8 @@ public:
     void			setLogDisplay(Well::LogDisplayPars&,int);
     void			displayLog(const BufferString, bool,
 	    				       Interval<float>&,int nr);
-    void			getClippedRange(float,Interval<float>*,Well::Log&);
+    void			calcClippedRange(float,Interval<float>&,
+	    							Well::Log&);
     void			displayRightLog();
     void			displayLeftLog();
     Well::LogDisplayParSet*	getLogParSet() const	{ return &logparset_; }
@@ -90,8 +91,8 @@ public:
     	
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
-    void			setLogFillColor(const Color&,int,const bool,
-	    					     const char*,const bool);
+    void			setLogFillColor(const Color&,int,
+	    					    const char*,const bool);
     const Color&		logFillColor(int) const;
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
@@ -134,7 +135,7 @@ protected:
     void			fullRedraw(CallBacker*);
     TypeSet<Coord3>		getTrackPos(Well::Data*);
     void			displayLog(Well::LogDisplayPars*,int);
-
+    void			setWellProperties(int,Interval<float>&);
     void                        pickCB(CallBacker* cb=0);
 
     visBase::Well*		well_;
@@ -144,7 +145,7 @@ protected:
     const bool			zinfeet_;
 
     bool			onelogdisplayed_;
-
+    int 			logsnumber_;
     Well::LogDisplayParSet&	logparset_;
 
     visBase::DataObjectGroup*	group_;
