@@ -4,11 +4,12 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.2 2008-12-08 20:10:14 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.3 2008-12-17 23:14:52 cvskris Exp $";
 
 #include "velocitycalc.h"
 
 #include "idxable.h"
+#include "math2.h"
 #include "valseries.h"
 #include "veldesc.h"
 
@@ -324,3 +325,50 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 
     return true;
 }
+
+
+bool computeDix( const float* Vrms, SamplingData<double>& sd, int nrvels,
+	                 VelocityDesc::SampleSpan span, float* Vint )
+{
+    if ( !nrvels )
+	return true;
+
+    int idx_prev = -1;
+    double v2t_prev = 0;
+    double t_above = 0;
+
+    double spanadjustment = 0;
+    if ( span==VelocityDesc::Centered )
+	spanadjustment = sd.step/2;
+    else if ( span==VelocityDesc::Below )
+	spanadjustment = sd.step;
+
+    for ( int idx=0; idx<nrvels; idx++ )
+    {
+	const double v = Vrms[idx];
+	if ( mIsUdf(v) )
+	    continue;
+
+	double t_below = sd.atIndex( idx ) + spanadjustment;
+
+	const double v2t = t_below*v*v;
+	const double numerator = v2t-v2t_prev;
+	if ( numerator<0 )
+	    continue;
+
+	const double vlayer = Math::Sqrt( numerator/(t_below-t_above) );
+
+	for ( int idy=idx_prev+1; idy<=idx; idy++ )
+	    Vint[idy] = vlayer;
+
+	v2t_prev = v2t;
+	t_above = t_below;
+	idx_prev = idx;
+    }
+
+    for ( int idx=idx_prev+1; idx<nrvels; idx++ )
+	Vint[idx] = Vint[idx_prev];
+
+    return true;
+}
+

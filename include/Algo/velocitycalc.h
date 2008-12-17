@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.1 2008-01-04 22:38:10 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.2 2008-12-17 23:14:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,14 @@ protected:
     SamplingData<double>	sd_;
 };
 
+
+
+/*!Converts a series of Vrms to Vint. Vrms may contain undefined values, as
+   long as at least one is define.
+*/
+
+bool computeDix(const float* Vrms,SamplingData<double>& sd,int nrvels,
+	                VelocityDesc::SampleSpan,float* Vint);
 
 
 #endif
