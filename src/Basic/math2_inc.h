@@ -49,7 +49,7 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
     }
     return ret;
 }
-
+ 
 
 mTYPE Math::PowerOf( mTYPE x, mTYPE y )
 {
