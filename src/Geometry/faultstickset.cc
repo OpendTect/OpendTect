@@ -4,7 +4,7 @@
  * DATE     : November 2008
 -*/
 
-static const char* rcsID = "$Id: faultstickset.cc,v 1.2 2008-12-09 09:45:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickset.cc,v 1.3 2008-12-17 08:52:42 cvsjaap Exp $";
 
 #include "faultstickset.h"
 
@@ -153,6 +153,17 @@ bool FaultStickSet::removeKnot( const RCol& rc )
     triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
     
     return true;
+}
+
+
+int FaultStickSet::nrSticks() const
+{ return sticks_.size(); }
+
+
+int FaultStickSet::nrKnots( int sticknr ) const
+{
+    mGetValidStickIdx( stickidx, sticknr, 0, 0 );
+    return sticks_[stickidx]->size();
 }
 
 

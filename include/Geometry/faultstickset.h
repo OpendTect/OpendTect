@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $
+RCS:           $Id: faultstickset.h,v 1.2 2008-12-17 08:52:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,9 @@ public:
 
     bool		insertKnot(const RCol&,const Coord3&);
     bool		removeKnot(const RCol&);
+
+    int			nrSticks() const;
+    int			nrKnots(int stick) const;
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int stick) const;

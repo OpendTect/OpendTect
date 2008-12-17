@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfaultstickset.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.3 2008-12-17 08:52:42 cvsjaap Exp $";
 
 #include "emfaultstickset.h"
 
@@ -85,14 +85,14 @@ EMObjectIterator* FaultStickSetGeometry::createIterator( const SectionID& sid,
 int FaultStickSetGeometry::nrSticks( const SectionID& sid ) const
 {
     const Geometry::FaultStickSet* fss = sectionGeometry( sid );
-    return !fss || fss->isEmpty() ? 0 : fss->rowRange().nrSteps()+1;
+    return fss ? fss->nrSticks(): 0;
 }
 
 
 int FaultStickSetGeometry::nrKnots( const SectionID& sid, int sticknr ) const
 {
     const Geometry::FaultStickSet* fss = sectionGeometry( sid );
-    return !fss || fss->isEmpty() ? -1 : fss->colRange(sticknr).nrSteps()+1;
+    return fss ? fss->nrKnots(sticknr) : 0;
 }
 
 

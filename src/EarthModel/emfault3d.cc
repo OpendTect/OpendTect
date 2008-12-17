@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.3 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.4 2008-12-17 08:52:42 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -219,14 +219,14 @@ EMObjectIterator* Fault3DGeometry::createIterator( const SectionID& sid,
 int Fault3DGeometry::nrSticks( const SectionID& sid ) const
 {
     const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    return !fss || fss->isEmpty() ? 0 : fss->rowRange().nrSteps()+1;
+    return fss ? fss->nrSticks() : 0;
 }
 
 
 int Fault3DGeometry::nrKnots( const SectionID& sid, int sticknr ) const
 {
     const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    return !fss || fss->isEmpty() ? -1 : fss->colRange(sticknr).nrSteps()+1;
+    return fss ? fss->nrKnots(sticknr) : 0;
 }
 
 
