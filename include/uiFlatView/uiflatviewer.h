@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.27 2008-12-12 05:49:41 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.28 2008-12-18 23:06:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,8 +72,8 @@ public:
 
     uiFlatViewControl*	control()	{ return control_; }
     Interval<float>     getDataRange(bool) const;
-    void			drawBitMaps();
-    void			drawAnnot();
+    void		drawBitMaps();
+    void		drawAnnot();
 
 
     static float	bufextendratio_;
