@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.134 2008-12-15 19:02:24 cvskris Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.135 2008-12-18 11:19:29 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -516,7 +516,7 @@ bool uiMPEMan::isSeedPickingOn() const
 
 bool uiMPEMan::isPickingInWizard() const
 {
-    return isSeedPickingOn() && !seedconmodefld->sensitive();
+    return isSeedPickingOn() && visserv->isMPEWizardActive();
 }
 
 
@@ -699,11 +699,24 @@ void uiMPEMan::addSeedCB( CallBacker* )
 }
 
 
+void uiMPEMan::updateSeedModeSel()
+{ 
+    MPE::EMTracker* tracker = getSelectedTracker();
+    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
+    if ( seedpicker )
+	seedconmodefld->setCurrentItem( seedpicker->getSeedConnectMode() );
+}
+
+
 void uiMPEMan::seedConnectModeSel( CallBacker* )
 {
     MPE::EMTracker* tracker = getSelectedTracker();
-    MPE::EMSeedPicker* seedpicker = tracker ? tracker->getSeedPicker(true) : 0;
-    if ( !seedpicker )
+    if ( !tracker )
+	return;
+
+    EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !emobj || !seedpicker )
 	return;
 
     const int oldseedconmode = seedpicker->getSeedConnectMode();
@@ -712,10 +725,10 @@ void uiMPEMan::seedConnectModeSel( CallBacker* )
     if ( seedpicker->doesModeUseSetup() )
     {
 	const SectionTracker* sectiontracker = 
-	      tracker->getSectionTracker( seedpicker->getSectionID(), true );
-	if (  sectiontracker && !sectiontracker->hasInitializedSetup() )
+	      tracker->getSectionTracker( emobj->sectionID(0), true );
+	if ( sectiontracker && !sectiontracker->hasInitializedSetup() )
 	    visserv->sendShowSetupDlgEvent();
-	if (  !sectiontracker || !sectiontracker->hasInitializedSetup() )
+	if ( !sectiontracker || !sectiontracker->hasInitializedSetup() )
 	    seedpicker->setSeedConnectMode( oldseedconmode ); 
     }
     
@@ -735,6 +748,8 @@ void uiMPEMan::treeItemSelCB( CallBacker* )
 
 void uiMPEMan::validateSeedConMode()
 {
+    if ( visserv->isMPEWizardActive() )
+	return;
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker ) 
 	return;
@@ -966,8 +981,6 @@ void uiMPEMan::updateSeedPickState()
     const EM::EMObject* emobj = EM::EMM().getObject( tracker->objectID() );
     mAddSeedConModeItems( seedconmodefld, Horizon3D );
     mAddSeedConModeItems( seedconmodefld, Horizon2D );
-//    mAddSeedConModeItems( seedconmodefld, Fault3D );
-//    mAddSeedConModeItems( seedconmodefld, Fault2D );
 
     seedconmodefld->setCurrentItem( seedpicker->getSeedConnectMode() );
 }
