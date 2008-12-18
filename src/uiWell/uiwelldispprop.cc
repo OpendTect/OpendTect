@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.5 2008-12-17 13:08:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.6 2008-12-18 11:06:38 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -37,6 +37,7 @@ uiWellDispProperties::uiWellDispProperties( uiParent* p,
 {
     szfld_ = new uiSpinBox( this, 0, "Size" );
     szfld_->setInterval( StepInterval<int>(1,mUdf(int),1) );
+    szfld_->setValue(  props_.size_ );
     szfld_->valueChanging.notify( mCB(this,uiWellDispProperties,propChg) );
     new uiLabel( this, su.mysztxt_ , szfld_ );
 
@@ -152,11 +153,10 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 	       						choiceSel) );
     rangefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,propChg) );
    
-    const char* choice[] = { "cliprate", "data range", 0 };
+    const char* choice[] = { "data range", "clip rate", 0 };
     cliprangefld_ = new uiGenInput( this, "Specify",
 				StringListInpSpec(choice) );
     cliprangefld_->attach( alignedAbove, rangefld_ );
-    //cliprangefld_->setValue(true);
     cliprangefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,
 							choiceSel));
    
@@ -205,6 +205,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     logsfld_->box()->addItem("None");
     logsfld_->box()->addItems( lognames );
     logsfld_->attach( alignedAbove, cliprangefld_ );
+    logsfld_-> box() -> setText( logprops().name_ );
     logsfld_->box()->selectionChanged.notify( mCB(this, uiWellLogDispProperties,
 				 		logSel));
     logsfld_->box()->selectionChanged.notify( mCB(this, uiWellLogDispProperties,
@@ -232,8 +233,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     seiscolorfld_->display(false);
     seiscolorfld_->colorchanged.notify( mCB(this,uiWellLogDispProperties,
 								propChg) );
- 
-    if ( logprops().name_ = "None" ) selNone();
+    doPutToScreen();
+    if ( logprops().name_ == "None" ) selNone();
 }
 
 
@@ -255,7 +256,7 @@ void uiWellLogDispProperties::doGetFromScreen()
 {
     logprops().iswelllog_ = stylefld_->getBoolValue();
     logprops().range_ = rangefld_->getFInterval();
-    logprops().isdatarange_ = cliprangefld_->getBoolValue();
+    logprops().isdatarange_ = 1-(cliprangefld_->getBoolValue());
     logprops().islogfill_ = logfillfld_->isChecked();
     logprops().cliprate_ = clipratefld_->getfValue();
     logprops().seqname_ = coltablistfld_-> text();
