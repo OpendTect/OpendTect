@@ -7,33 +7,46 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2008
- RCS:           $Id: uipsviewerposdlg.h,v 1.1 2008-08-26 14:24:44 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewerposdlg.h,v 1.2 2008-12-18 11:04:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
-class uiGenInput;
+class uiSpinBox;
 class uiPushButton;
+class uiCheckBox;
 
 namespace PreStackView 
 { 
-    class PreStackViewer; 
+class PreStackViewer; 
+
 
 class uiPSViewerPositionDlg : public uiDialog
 {
 public:			
+
     			uiPSViewerPositionDlg(uiParent*,PreStackViewer&);
+
+    bool		is3D() const;
+    bool		isInl() const;
 
 protected:
 
-    bool		acceptOK(CallBacker*);
+    PreStackViewer&	viewer_;
+
+    uiSpinBox*		posfld_;
+    uiCheckBox*		applybox_;
+    uiPushButton*	applybut_;
+
+    void		boxSel(CallBacker*);
+    void		posChg(CallBacker*);
     void		applyCB(CallBacker*);
 
-    uiGenInput*		posfld_;
-    PreStackViewer&	viewer_;
-    uiPushButton*	applybut_;
+    void		atStart(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
 };
 
 
