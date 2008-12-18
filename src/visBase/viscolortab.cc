@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscolortab.cc,v 1.47 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.48 2008-12-18 21:25:55 cvsyuancheng Exp $";
 
 #include "viscolortab.h"
 
@@ -81,6 +81,7 @@ void VisColorTab::setSymMidval( float symmidval )
 
     ctmapper_->setup_.symmidval_ = symmidval;
     ctmapper_->update( true );
+    rangechange.trigger();
 }
 
 
@@ -98,6 +99,7 @@ void VisColorTab::setClipRate( float ncr )
 
     ctmapper_->setup_.cliprate_ = ncr;
     ctmapper_->update( false );
+    rangechange.trigger();
 }
 
 
