@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.70 2008-12-12 09:40:36 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.71 2008-12-18 05:59:17 cvsnageswara Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -659,8 +659,9 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
     const int out0idx = outsreadyforthislk.indexOf( 0 );
     BufferStringSet bss;
     SeisIOObjInfo::getCompNames( lk, bss );
+    const BufferString curstr = bss.validIdx(startidx) ? bss.get(startidx) : "";
     DescID did = out0idx != -1 ? outsreadyids[out0idx] 
-			       : createStoredDesc( lk, startidx,*bss[startidx]);
+			       : createStoredDesc( lk, startidx, curstr );
     for ( int idx=startidx+1; idx<stopidx; idx++ )
 	if ( outsreadyforthislk.indexOf(idx)<0 )
 	    createStoredDesc( lk, idx, *bss[idx] );
