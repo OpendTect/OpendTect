@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-3-96
- RCS:		$Id: dateinfo.h,v 1.5 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: dateinfo.h,v 1.6 2008-12-18 09:22:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
 #include "bufstring.h"
+#include "undefval.h"
 
 /*!\brief Clumsy date info class. Has nice 'relative' printouts.
 
@@ -37,7 +38,9 @@ public:
 			DateInfo(int yr,int mnth,int dy);
 			DateInfo(int yr,const char* mnth,int dy);
 
-    int			key() const		{ return days96; }
+    bool		isUdf() const		{ return !mIsUdf(days96_); }
+    void		setUdf()		{ days96_ = mUdf(int); }
+    int			key() const		{ return days96_; }
     int			day() const		{ return day_  + 1; }
     Month		month() const		{ return month_; }
     int			year() const		{ return year_ + 1996; }
@@ -46,11 +49,11 @@ public:
     void		setYear(int);
 
     int			operator ==( const DateInfo& di ) const
-			{ return days96 == di.days96; }
+			{ return days96_ == di.days96_; }
     int			operator <( const DateInfo& di ) const
-			{ return days96 < di.days96; }
+			{ return days96_ < di.days96_; }
     int			operator <=( const DateInfo& di ) const
-			{ return days96 <= di.days96; }
+			{ return days96_ <= di.days96_; }
     DateInfo&		operator +=(int);
     DateInfo&		operator -=(int);
     friend int		operator -(const DateInfo&,const DateInfo&);
@@ -62,11 +65,13 @@ public:
     static int		daysInMonth(int yr,Month);
     static int		daysInYear( int yr )	{ return yr%4 ? 365 : 366; }
 
-    void		getFullDisp(BufferString&) const;
+    void		toString(BufferString&) const;
+    bool		fromString(const char*);
+    void		getFullDisp(BufferString&,bool withtime=true) const;
 
 private:
 
-    int			days96;
+    int			days96_;
     int			day_;
     Month		month_;
     int			year_;
@@ -82,7 +87,7 @@ private:
 
 
 inline int operator -( const DateInfo& di1, const DateInfo& di2 )
-{ return di1.days96 - di2.days96; }
+{ return di1.days96_ - di2.days96_; }
 
 
 #endif

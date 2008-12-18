@@ -5,14 +5,16 @@
  * FUNCTION : date info
 -*/
  
-static const char* rcsID = "$Id: dateinfo.cc,v 1.6 2005-04-07 16:27:58 cvsbert Exp $";
+static const char* rcsID = "$Id: dateinfo.cc,v 1.7 2008-12-18 09:22:47 cvsbert Exp $";
 
 #include "dateinfo.h"
 #include "timefun.h"
+#include "keystrs.h"
+#include "separstr.h"
 #include <time.h>
 
-static int d0[] = { 31,59,90,120,151,181,212,243,273,304,334,365 };
-static int d1[] = { 31,60,91,121,152,182,213,244,274,305,335,366 };
+static int normdaycount[] = { 31,59,90,120,151,181,212,243,273,304,334,365 };
+static int leapdaycount[] = { 31,60,91,121,152,182,213,244,274,305,335,366 };
 
 DefineEnumNames(DateInfo,Day,2,"Week day") {
 	"Sunday",
@@ -44,7 +46,7 @@ DefineEnumNames(DateInfo,Month,3,"Month") {
 
 DateInfo::DateInfo()
 {
-    days96 = (time(0) - 820454400L)/86400L;
+    days96_ = (time(0) - 820454400L)/86400L;
     calcDMY();
 }
 
@@ -79,6 +81,7 @@ DateInfo::DateInfo( int yr, const char* mn, int dy )
 void DateInfo::setDay( int dy )
 {
     day_ = dy - 1;
+    if ( isUdf() ) return;
     calcDays96();
 }
 
@@ -86,6 +89,7 @@ void DateInfo::setDay( int dy )
 void DateInfo::setMonth( DateInfo::Month mn )
 {
     month_ = mn;
+    if ( isUdf() ) return;
     calcDays96();
 }
 
@@ -93,29 +97,36 @@ void DateInfo::setMonth( DateInfo::Month mn )
 void DateInfo::setYear( int yr )
 {
     year_ = yr - 1996;
+    if ( isUdf() ) return;
     calcDays96();
 }
 
 
 DateInfo& DateInfo::operator +=( int dys )
 {
-    days96 += dys;
-    calcDMY();
+    if ( !isUdf() )
+    {
+	days96_ += dys;
+	calcDMY();
+    }
     return *this;
 }
 
 
 DateInfo& DateInfo::operator -=( int dys )
 {
-    days96 -= dys;
-    calcDMY();
+    if ( !isUdf() )
+    {
+	days96_ -= dys;
+	calcDMY();
+    }
     return *this;
 }
 
 
 void DateInfo::addMonths( int mns )
 {
-    if ( !mns ) return;
+    if ( isUdf() || mns < 1 ) return;
 
     int nr = (int)month_ + mns;
     if ( mns > 0 )
@@ -140,7 +151,7 @@ void DateInfo::addMonths( int mns )
 
 const char* DateInfo::weekDayName() const
 {
-    int nr = days96 % 7 + 1;
+    int nr = days96_ % 7 + 1;
     if ( nr > 6 ) nr = 0;
     return eString(Day,nr);
 }
@@ -148,7 +159,7 @@ const char* DateInfo::weekDayName() const
 
 int DateInfo::daysInMonth( int yr, DateInfo::Month m )
 {
-    int* d = yr % 4 ? d0 : d1;
+    int* d = yr % 4 ? normdaycount : leapdaycount;
     int nr = d[m];
     if ( m != Jan ) nr -= d[m-1];
     return nr;
@@ -157,7 +168,7 @@ int DateInfo::daysInMonth( int yr, DateInfo::Month m )
 
 void DateInfo::getDayMonth( int yr, int ndays, int& dy, DateInfo::Month& mn )
 {
-    int* d = yr % 4 ? d0 : d1;
+    int* d = yr % 4 ? normdaycount : leapdaycount;
     int mnth = 0;
     while ( ndays >= d[mnth] ) mnth++;
     dy = mnth ? ndays - d[mnth-1] : ndays;
@@ -167,8 +178,8 @@ void DateInfo::getDayMonth( int yr, int ndays, int& dy, DateInfo::Month& mn )
 
 void DateInfo::calcDMY()
 {
-    int yrqtets = days96 / 1461;
-    int qtetrest = days96 % 1461;
+    int yrqtets = days96_ / 1461;
+    int qtetrest = days96_ % 1461;
     year_ = 4 * yrqtets;
     if ( qtetrest > 1095 )	{ year_ += 3; qtetrest -= 1096; }
     else if ( qtetrest > 730 )	{ year_ += 2; qtetrest -= 731; }
@@ -180,21 +191,21 @@ void DateInfo::calcDMY()
 
 void DateInfo::calcDays96()
 {
-    days96 = (year_/4) * 1461;
+    days96_ = (year_/4) * 1461;
     int rest = year_ % 4;
-    if ( rest )	{ days96 += 366; rest--; }
-    if ( rest )	{ days96 += 365; rest--; }
-    if ( rest )	days96 += 365;
+    if ( rest )	{ days96_ += 366; rest--; }
+    if ( rest )	{ days96_ += 365; rest--; }
+    if ( rest )	days96_ += 365;
     if ( month_ != Jan )
     {
-	int* d = year_ % 4 ? d0 : d1;
-	days96 += d[((int)month_)-1];
+	int* d = year_ % 4 ? normdaycount : leapdaycount;
+	days96_ += d[((int)month_)-1];
     }
-    days96 += day_;
+    days96_ += day_;
 }
 
 
-static UserIDString buf;
+static BufferString buf;
 
 const char* DateInfo::whenRelative( const DateInfo* di ) const
 {
@@ -202,7 +213,7 @@ const char* DateInfo::whenRelative( const DateInfo* di ) const
     if ( di )	getRel( *di );
     else	getRelToday();
 
-    return buf;
+    return buf.buf();
 }
 
 
@@ -210,15 +221,20 @@ const char* DateInfo::whenRelative( const DateInfo* di ) const
 
 void DateInfo::getRel( const DateInfo& reld ) const
 {
-    if ( reld.days96 == days96 ) mRet("that day")
-    int diff = days96 - reld.days96;
+    if ( isUdf() || reld.isUdf() )
+	mRet(sKey::Undef)
+    else if ( reld.days96_ == days96_ )
+	mRet("that day")
+
+    const int diff = days96_ - reld.days96_;
+    buf.setEmpty();
     if ( diff < 0 )
     {
 	if ( diff == -1 ) mRet("the previous day")
 	if ( diff == -7 ) mRet("one week earlier")
 	if ( diff == -14 ) mRet("two weeks earlier")
 	if ( diff == -21 ) mRet("three weeks earlier")
-	if ( diff > -21 ) { buf = (-diff); buf += " days earlier"; return; }
+	if ( diff > -21 ) { buf += (-diff); buf += " days earlier"; return; }
     }
     else
     {
@@ -226,7 +242,7 @@ void DateInfo::getRel( const DateInfo& reld ) const
 	if ( diff == 7 ) mRet("one week later")
 	if ( diff == 14 ) mRet("two weeks later")
 	if ( diff == 21 ) mRet("three weeks later")
-	if ( diff < 21 ) { buf = diff; buf += " days later"; return; }
+	if ( diff < 21 ) { buf += diff; buf += " days later"; return; }
     }
 
     if ( reld.month_ == month_ && reld.day_ == day_ )
@@ -250,7 +266,8 @@ void DateInfo::getRel( const DateInfo& reld ) const
 	    buf = "the ";
 	    addDay();
 	    buf += " of ";
-	    buf += difference ? (difference > 0 ? "the following" : "the previous") :"that";
+	    buf += difference ? (difference > 0 ? "the following"
+		    				: "the previous") : "that";
 	    buf += " month";
 	    return;
 	}
@@ -265,10 +282,12 @@ void DateInfo::getRel( const DateInfo& reld ) const
 
 void DateInfo::getRelToday() const
 {
+    if ( isUdf() ) mRet(sKey::Undef)
+
     DateInfo today;
 
-    if ( today.days96 == days96 ) mRet("today")
-    int diff = days96 - today.days96;
+    if ( today.days96_ == days96_ ) mRet("today")
+    int diff = days96_ - today.days96_;
     if ( diff < 0 )
     {
 	if ( diff == -1 ) mRet("yesterday")
@@ -332,19 +351,49 @@ void DateInfo::addDay() const
 }
 
 
-void DateInfo::getFullDisp( BufferString& disp ) const
+void DateInfo::toString( BufferString& str ) const
 {
+    if ( isUdf() ) { str = sKey::Undef; return; }
+    str.setEmpty(); str += day_;
+    str += "-";
+    buf = eString(DateInfo::Month,month_); buf[3] = '\0';
+    str += buf; str += year_;
+}
+
+
+bool DateInfo::fromString( const char* str )
+{
+    setUdf(); if ( !str || !*str ) return false;
+    SeparString ss( str, '-' );
+    const char* dayptr = ss[0];
+    if ( !isdigit(*dayptr) ) return false;
+
+    day_ = atoi( dayptr );
+    month_ = eEnum(DateInfo::Month,ss[1]);   
+    year_ = atoi( ss[2] );
+    calcDays96();
+    return true;
+}
+
+
+void DateInfo::getFullDisp( BufferString& disp, bool withtime ) const
+{
+    if ( isUdf() ) { disp = sKey::Undef; return; }
+
     disp = eString(DateInfo::Month,month());
     *(disp.buf() + 3) = ' '; *(disp.buf() + 4) = '\0';
     disp += day(); disp += " ";
     disp += year(); disp += " ";
 
-    const int cursecs = Time_getMilliSeconds() / 1000;
-    const int hrs = cursecs / 3600;
-    const int mins = (cursecs - hrs * 3600) / 60;
-    const int secs = cursecs - hrs * 3600 - mins * 60;
+    if ( withtime )
+    {
+	const int cursecs = Time_getMilliSeconds() / 1000;
+	const int hrs = cursecs / 3600;
+	const int mins = (cursecs - hrs * 3600) / 60;
+	const int secs = cursecs - hrs * 3600 - mins * 60;
 
-    if ( hrs < 10 ) disp += "0";  disp += hrs; disp += ":";
-    if ( mins < 10 ) disp += "0"; disp += mins; disp += ":";
-    if ( secs < 10 ) disp += "0"; disp += secs;
+	if ( hrs < 10 ) disp += "0";  disp += hrs; disp += ":";
+	if ( mins < 10 ) disp += "0"; disp += mins; disp += ":";
+	if ( secs < 10 ) disp += "0"; disp += secs;
+    }
 }
