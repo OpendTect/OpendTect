@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.10 2006-09-21 12:02:46 cvsbert Exp $
+ RCS:		$Id: enums.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ extern "C" { int getEnumDef(const char*,const char**,int,int,int); }
 
 /*\brief holds data pertinent for a certain enum */
 
-class EnumDef : public NamedObject
+mClass EnumDef : public NamedObject
 {
 public:
 			EnumDef( const char* nm, const char* s[], int nrs=0 )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.6 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: multiid.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief Compound key consisting of ints */
 
-class MultiID : public CompoundKey
+mClass MultiID : public CompoundKey
 {
 public:
 			MultiID( const char* s=0 )

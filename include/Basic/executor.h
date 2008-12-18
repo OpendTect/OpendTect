@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.23 2008-09-22 12:51:51 cvskris Exp $
+ RCS:		$Id: executor.h,v 1.24 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ a stream. Useful in batch situations.
 
 */
 
-class Executor : public SequentialTask
+mClass Executor : public SequentialTask
 {
 public:
 			Executor( const char* nm )
@@ -69,7 +69,7 @@ or in parallel (but still single-threaded).
 */
 
 
-class ExecutorGroup : public Executor
+mClass ExecutorGroup : public Executor
 {
 public:
     			ExecutorGroup( const char* nm, bool parallel=false );

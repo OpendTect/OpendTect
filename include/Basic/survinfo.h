@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.80 2008-12-10 18:35:14 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.81 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,10 +40,10 @@ at the bottom part of the class too for some more public functions.
 
 */
 
-class SurveyInfo : public NamedObject
+mClass SurveyInfo : public NamedObject
 {
 
-    friend const SurveyInfo&	SI();
+    friend __declspec( dllexport ) const SurveyInfo&	SI();
 
 public:
 
@@ -182,8 +182,7 @@ protected:
     bool		survdatatypeknown_;
 
     static SurveyInfo*	theinst_;
-    static bool		dowarnings_;
-
+ 
     static void		deleteInstance();
     void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
@@ -225,7 +224,7 @@ public:
     void		setRange(const CubeSampling&,bool);
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		setComment( const char* s )	{ comment_ = s; }
-    static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
+    static void		produceWarnings(bool);
 
     void		setWSProjName( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }
@@ -235,7 +234,7 @@ public:
 };
 
 
-const SurveyInfo&	SI();
+ __declspec( dllexport ) const SurveyInfo&	SI();
 
 
 #endif

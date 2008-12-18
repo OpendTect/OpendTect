@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.10 2008-02-29 10:30:50 cvsnanne Exp $
+ RCS:		$Id: bufstringset.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "sets.h"
 
-class IOPar;
+mClass IOPar;
 
 /*!\brief Set of BufferString objects
  
@@ -25,7 +25,7 @@ class IOPar;
 
  */
 
-class BufferStringSet : public ObjectSet<BufferString>
+mClass BufferStringSet : public ObjectSet<BufferString>
 {
 public:
     			BufferStringSet( bool ownr=true ) : owner_(ownr) {}
@@ -67,7 +67,7 @@ protected:
 };
 
 
-class NamedBufferStringSet : public BufferStringSet
+mClass NamedBufferStringSet : public BufferStringSet
 {
 public:
     			NamedBufferStringSet( const char* nm=0, bool ownr=true )

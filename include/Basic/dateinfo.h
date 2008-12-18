@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-3-96
- RCS:		$Id: dateinfo.h,v 1.4 2004-01-30 10:21:14 bert Exp $
+ RCS:		$Id: dateinfo.h,v 1.5 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ are for dates other than today. Constructors accept numbers as in normal usage.
 */
 
 
-class DateInfo
+mClass DateInfo
 {
 public:
     enum Day		{ Su=0, Mo, Tu, We, Th, Fr, Sa };

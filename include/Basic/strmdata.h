@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.10 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: strmdata.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ Need to find out what to do with the pipe in windows.
 
 */
 
-class StreamData
+mClass StreamData
 {
 public:
 

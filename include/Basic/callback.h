@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.38 2008-08-04 10:43:23 cvsbert Exp $
+ RCS:		$Id: callback.h,v 1.39 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ able to send a CallBack, you must provide a 'sender' CallBacker* (usually
 
 */
 
-class CallBack
+mClass CallBack
 {
 public:
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
@@ -187,7 +187,7 @@ would result in the availability of:
 
 /*!\brief interface class for Notifier. See comments there. */
 
-class NotifierAccess
+mClass NotifierAccess
 {
 
     friend class	NotifyStopper;
@@ -229,7 +229,7 @@ to 'publish' event notification abilities.
 
 */
 
-class NamedNotifierSet
+mClass NamedNotifierSet
 {
 public:
 				~NamedNotifierSet()
@@ -257,7 +257,7 @@ inline NotifierAccess* NamedNotifierSet::find( const char* nm ) const
 
 /*!\brief implementation class for Notifier */
 
-class i_Notifier : public NotifierAccess
+mClass i_Notifier : public NotifierAccess
 {
 public:
 
@@ -352,7 +352,7 @@ void xxx:doSomething()
 
 */
 
-class NotifyStopper 
+mClass NotifyStopper 
 {
 public:
 			NotifyStopper( NotifierAccess& n ) 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.33 2008-11-24 12:45:25 cvsbert Exp $
+ RCS:		$Id: bufstring.h,v 1.34 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ BufferString istr( "", intvar );
 
 */
 
-class BufferString
+mClass BufferString
 {
 public:
 

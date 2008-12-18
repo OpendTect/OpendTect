@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.53 2008-12-04 13:24:01 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.54 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ with the value. Use add() rather than set(). Values may contain newlines.
 */
 
 
-class IOPar : public NamedObject
+mClass IOPar : public NamedObject
 {
 public:
 			IOPar(const char* nm=0); //!< empty

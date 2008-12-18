@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.18 2008-12-10 23:06:19 cvskris Exp $
+ RCS:		$Id: separstr.h,v 1.19 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ A `\' is encoded as `\\' . Elements can have any size.
 
 */
 
-class SeparString
+mClass SeparString
 {
 public:
 			SeparString( const char* s=0, char separ=',' )
@@ -86,7 +86,7 @@ std::istream& operator >>(std::istream&,SeparString&);
 
 /*!\brief SeparString with backquotes as separators, use in most ascii files */
 
-class FileMultiString : public SeparString
+mClass FileMultiString : public SeparString
 {
 public:
 

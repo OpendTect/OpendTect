@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.8 2008-01-08 11:53:52 cvsbert Exp $
+ RCS:		$Id: streamconn.h,v 1.9 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*!\brief Connection with an underlying iostream. */
 
-class StreamConn : public Conn
+mClass StreamConn : public Conn
 {
 public:
 

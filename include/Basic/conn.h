@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.11 2008-01-08 11:53:52 cvsbert Exp $
+ RCS:		$Id: conn.h,v 1.12 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ interface common to these connections.
 
 */
 
-class Conn
+mClass Conn
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
 
 /*!\brief Connection implemented in terms of another Conn object. */
 
-class XConn  : public Conn
+mClass XConn  : public Conn
 {
 
     friend class	IOX;

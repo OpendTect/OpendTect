@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: sighndl.h,v 1.9 2008-12-10 12:03:56 cvsranojay Exp $
+ RCS:           $Id: sighndl.h,v 1.10 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ namespace DBG { void forceCrash(bool); }
 /*!\brief asynchronous event handling and notification. */
 
 
-class SignalHandling : public CallBacker
+mClass SignalHandling : public CallBacker
 {
 public:
 

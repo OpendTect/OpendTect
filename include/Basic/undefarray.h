@@ -6,20 +6,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          13/01/2005
- RCS:           $Id: undefarray.h,v 1.2 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: undefarray.h,v 1.3 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "plftypes.h"
-
+#include "commondefs.h"
 class BinDataDesc;
 
 
 /*!Class that handles undefvalues in arrays that are in a format described
    by a BinDataDesc */
 
-class UndefArrayHandler
+mClass UndefArrayHandler
 {
 public:
 		UndefArrayHandler(const BinDataDesc& desc);

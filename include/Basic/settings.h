@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.8 2006-07-17 15:33:31 cvsbert Exp $
+ RCS:		$Id: settings.h,v 1.9 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include <iopar.h>
 
 
-class Settings : public IOPar
+mClass Settings : public IOPar
 {
 public:
 

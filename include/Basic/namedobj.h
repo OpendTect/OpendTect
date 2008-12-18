@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: namedobj.h,v 1.2 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: namedobj.h,v 1.3 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ but allows for names that are fundamentally linked.
 */
 
 
-class NamedObject : public CallBacker
+mClass NamedObject : public CallBacker
 {
 public:
 			NamedObject(const char* nm=0)

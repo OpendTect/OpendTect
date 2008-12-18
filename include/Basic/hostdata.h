@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.23 2007-01-25 16:19:53 cvsbert Exp $
+ RCS:           $Id: hostdata.h,v 1.24 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class ShareData;
     return bs;
 
 /*\brief Host name and aliases */
-class HostData
+mClass HostData
 {
 public:
 
@@ -108,7 +108,7 @@ protected:
 
 
 /*\brief Describes shared drive and host. Mostly win32. */
-class ShareData
+mClass ShareData
 {
 public:
 			ShareData( const HostData* hst=0 ) : host_(hst) {}

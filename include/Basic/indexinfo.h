@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2006
- RCS:		$Id: indexinfo.h,v 1.3 2007-03-09 10:30:18 cvshelene Exp $
+ RCS:		$Id: indexinfo.h,v 1.4 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 //! Info on (floating-point) position in an array or StepInterval
 
-class IndexInfo
+mClass IndexInfo
 {
 public:
 			IndexInfo( int i, bool r=true, bool u=false )

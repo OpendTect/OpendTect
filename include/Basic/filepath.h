@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.7 2007-07-24 09:56:15 cvsnanne Exp $
+ RCS:		$Id: filepath.h,v 1.8 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief File pathname tools */
 
-class FilePath
+mClass FilePath
 {
 public:
     enum Style		{ Local, Unix, Windows };

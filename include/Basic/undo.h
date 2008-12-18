@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: undo.h,v 1.4 2008-07-31 22:09:49 cvskris Exp $
+ RCS:		$Id: undo.h,v 1.5 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -38,7 +38,7 @@ void MyClass::userPushedAButtonCB( CallBacker* )
 \endcode
 */
 
-class Undo : public CallBacker
+mClass Undo : public CallBacker
 {
 public:
 	    			Undo();
@@ -96,7 +96,7 @@ protected:
 
 /*! Holds the information how to undo/redo something. */
 
-class UndoEvent
+mClass UndoEvent
 {
 public:
     				UndoEvent();
@@ -118,7 +118,7 @@ protected:
 };
 
 
-class BinIDUndoEvent : public UndoEvent
+mClass BinIDUndoEvent : public UndoEvent
 {
 public:
     virtual const BinID&	getBinID() const;

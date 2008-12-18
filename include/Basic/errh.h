@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.12 2008-03-20 21:39:30 cvskris Exp $
+ RCS:		$Id: errh.h,v 1.13 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -24,7 +24,7 @@ is set to true by default only if __debug__ is defined.
 */
 
 
-class ErrMsgClass : public MsgClass
+mClass ErrMsgClass : public MsgClass
 {
 public:
 

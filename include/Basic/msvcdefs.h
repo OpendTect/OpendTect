@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.6 2008-12-10 12:02:41 cvsranojay Exp $
+ RCS:		$Id: msvcdefs.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0
@@ -26,6 +26,8 @@ ________________________________________________________________________
 #define strtoull	_strtoui64
 #define strtof		strtod
 
+#define finite		_finite
+
 // Index variable's scope is non-ANSI. This corrects that idiocy.
 #define for				if (0) ; else for
 
@@ -37,9 +39,7 @@ ________________________________________________________________________
 # define mProtected			public
 # define mPolyRetDownCast(clss,var)	dynamic_cast<clss>(var)
 # define mPolyRetDownCastRef(clss,var)	*(dynamic_cast<clss*>(&var))
-# define mDynamicCastGet(typ,out,in) \
-	 typ out = 0; try { out = dynamic_cast< typ >( in ); } catch (...) {}
-
+# define mDynamicCastGet(typ,out,in)	typ out = dynamic_cast< typ >( in );
 
 // Pragmas
 //

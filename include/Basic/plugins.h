@@ -7,7 +7,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.19 2008-09-30 08:31:21 cvsbert Exp $
+ RCS:		$Id: plugins.h,v 1.20 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ int LoadPlugin(const char* libnm);
 
  */
 
-class PluginManager
+mClass PluginManager
 {
 public:
 

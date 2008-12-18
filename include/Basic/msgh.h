@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.9 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: msgh.h,v 1.10 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -23,7 +23,7 @@ for when UsrMsg is called: theCB. If it is not set, messages go to cerr.
 
 */
 
-class MsgClass : public CallBacker
+mClass MsgClass : public CallBacker
 {
 public:
 

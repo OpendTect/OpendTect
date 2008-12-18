@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.12 2008-09-22 12:51:51 cvskris Exp $
+ RCS:		$Id: task.h,v 1.13 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class ProgressMeter;
    done in multiple steps. */
 
 
-class Task : public NamedObject
+mClass Task : public NamedObject
 {
 public:
     virtual		~Task() 			{}
@@ -60,7 +60,7 @@ protected:
    be done in sequence, i.e. not parallely. */
 
 
-class SequentialTask : public Task
+mClass SequentialTask : public Task
 {
 public:
 		SequentialTask(const char* nm=0)
@@ -140,7 +140,7 @@ and in use that instead of the for-loop:
 */
 
 
-class ParallelTask : public Task
+mClass ParallelTask : public Task
 {
 public:
     virtual		~ParallelTask();
@@ -214,7 +214,7 @@ private:
 /*!Class that can execute a task. Can be used as such, be inherited by
    fancy subclasses with user interface and progressbars etc. */
 
-class TaskRunner
+mClass TaskRunner
 {
 public:
     virtual 		~TaskRunner()		{}

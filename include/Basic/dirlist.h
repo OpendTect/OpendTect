@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		18-4-1996
- RCS:		$Id: dirlist.h,v 1.6 2006-12-08 13:58:42 cvsbert Exp $
+ RCS:		$Id: dirlist.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief provides file and directory names in a certain directory.  */
 
-class DirList : public BufferStringSet
+mClass DirList : public BufferStringSet
 {
 public:
 

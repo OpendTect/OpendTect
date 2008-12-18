@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.6 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: rcol2coord.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ template <class T> class StepInterval;
 
 /*!\brief Encapsulates linear tranform from (i,j) index to (x,y) coordinates. */
 
-class RCol2Coord
+mClass RCol2Coord
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: repos.h,v 1.4 2007-06-15 10:52:33 cvsbert Exp $
+ RCS:		$Id: repos.h,v 1.5 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ namespace Repos
 
  */
 
-class FileProvider
+mClass FileProvider
 {
 public:
 

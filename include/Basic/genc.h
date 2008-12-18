@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.35 2008-09-30 12:08:20 cvshelene Exp $
+ RCS:		$Id: genc.h,v 1.36 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -24,36 +24,36 @@ Some general utilities, that need to be accessible in many places:
 extern "C" {
 #endif
 
-const char*	GetProjectVersionName(void);
+mGlobal(const char* GetProjectVersionName(void))
 		/*!< "dTect Vx.x" */
 
-int		GetPID();
+mGlobal(int GetPID())
 		/*!< returns process ID */
 
-const char*	GetLocalHostName();
+mGlobal(const char* GetLocalHostName())
 		/*!< returns (as expected) local host name */
 
-int		isProcessAlive(int pid);
+mGlobal(int isProcessAlive(int pid))
 		/*!< returns 1 if the process is still running */
 
-int		ExitProgram( int ret );
+mGlobal(int ExitProgram( int ret ))
 		/*!< Win32: kills progam itself and ignores ret.
 		     Unix: uses exit(ret).
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
                 */
 
-typedef void	(*PtrAllVoidFn)(void);
-void		NotifyExitProgram(PtrAllVoidFn);
+typedef void (*PtrAllVoidFn)(void);
+mGlobal(void NotifyExitProgram(PtrAllVoidFn))
 		/*!< Function will be called on 'ExitProgram' */
 
-void		PutIsLittleEndian(unsigned char*);
+mGlobal(void PutIsLittleEndian(unsigned char*))
 		/*!< Puts into 1 byte: 0=SunSparc/SGI (big), 1=PC (little) */
 
-void		SwapBytes(void*,int nbytes);
+mGlobal(void SwapBytes(void*,int nbytes))
 		/*!< nbytes=2,4,... e.g. nbytes=4: abcd becomes cdab */
 
-int		InSysAdmMode();
+mGlobal(int InSysAdmMode())
 		/*!< returns 0 unless in sysadm mode */
 
 #ifdef __cpp__

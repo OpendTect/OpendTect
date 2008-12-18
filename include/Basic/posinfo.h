@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.10 2008-12-05 04:34:45 cvsnanne Exp $
+ RCS:		$Id: posinfo.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ namespace PosInfo
 /*!\brief Position info for a line - in a 3D cube, that would be an inline.
 	  Stored as (crossline-)number segments. */
 
-class LineData
+mClass LineData
 {
 public:
     typedef StepInterval<int>	Segment;
@@ -103,7 +103,7 @@ public:
 
 /*!\brief Fills CubeData object. Requires inline- and crossline-sorting. */
 
-class CubeDataFiller
+mClass CubeDataFiller
 {
 public:
     			CubeDataFiller(CubeData&);
@@ -127,7 +127,7 @@ protected:
 
 /*!\brief Cube Data Iterator */
 
-class CubeDataIterator
+mClass CubeDataIterator
 {
 public:
     			CubeDataIterator(const CubeData& cd)
@@ -145,7 +145,7 @@ protected:
 
 /*!\brief One position on a 2D line */
 
-class Line2DPos
+mClass Line2DPos
 {
 public:
 
@@ -162,7 +162,7 @@ public:
 
 /*!\brief Position info for a 2D line */
 
-class Line2DData
+mClass Line2DData
 {
 public:
 

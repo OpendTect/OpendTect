@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/09/2000
- RCS:           $Id: changetracker.h,v 1.8 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: changetracker.h,v 1.9 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ Giving unique change stamps.
 */
 
 
-class ChangeTracker
+mClass ChangeTracker
 {
 public:
 			ChangeTracker( bool* c=0 )

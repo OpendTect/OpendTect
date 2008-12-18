@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2001
- RCS:		$Id: globexpr.h,v 1.3 2007-07-04 11:11:44 cvsbert Exp $
+ RCS:		$Id: globexpr.h,v 1.4 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -23,7 +23,7 @@ the special chars with '\';
 */
 
 
-class GlobExpr
+mClass GlobExpr
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: arrayndslice.h,v 1.5 2008-12-11 06:32:29 cvsnanne Exp $
+ RCS:           $Id: arrayndslice.h,v 1.6 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 @$*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "varlenarray.h"
 
-class ArrayNDSliceBase
+mClass ArrayNDSliceBase
 {
 public:				
     virtual			~ArrayNDSliceBase();

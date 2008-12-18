@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.13 2007-11-15 13:29:04 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.14 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ template <class T> class ObjectSet;
 namespace Threads { class Mutex; }
 
 /*!The refcount itself. Used internally by refcounted objects. */
-class RefCount
+mClass RefCount
 {
 public:
     			RefCount();

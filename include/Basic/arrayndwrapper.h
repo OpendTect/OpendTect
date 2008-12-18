@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2007
- RCS:		$Id: arrayndwrapper.h,v 1.2 2008-12-05 23:14:37 cvskris Exp $
+ RCS:		$Id: arrayndwrapper.h,v 1.3 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 //TODO: Write more info
 
-class ArrayNDWrapper
+mClass ArrayNDWrapper
 {
 public:
     void		setDimMap(int srcdim,int targetdim);

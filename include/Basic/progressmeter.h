@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.12 2008-09-22 12:49:54 cvskris Exp $
+ RCS:           $Id: progressmeter.h,v 1.13 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class Task;
 
 /*!Is an interface where processes can report their progress. */
-class ProgressMeter
+mClass ProgressMeter
 {
 public:
     virtual		~ProgressMeter()		{}
@@ -37,7 +37,7 @@ public:
 
 /*!\brief Textual progress indicator for batch programs. */
 
-class TextStreamProgressMeter : public ProgressMeter
+mClass TextStreamProgressMeter : public ProgressMeter
 {
 public:
 		TextStreamProgressMeter(std::ostream&,unsigned short rowlen=50);

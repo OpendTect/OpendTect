@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.5 2008-12-08 20:10:14 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.6 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -18,7 +18,7 @@ class IOPar;
 
 //!Specifies velocity type and which z-interval a velocity sample belongs to
 
-class VelocityDesc
+mClass VelocityDesc
 {
 public:
     enum Type		{ Unknown, Interval, RMS, Avg };

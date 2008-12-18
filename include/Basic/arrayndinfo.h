@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.11 2008-02-25 18:45:40 cvskris Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.12 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ Contains the information about the size of ArrayND, and
 in what order the data is stored (if accessable via a pointer).
 */
 
-class ArrayNDInfo
+mClass ArrayNDInfo
 {
 public:
 
@@ -57,7 +57,7 @@ inline bool operator !=( const ArrayNDInfo& a1, const ArrayNDInfo& a2 )
 { return !(a1 == a2); }
 
 
-class Array1DInfo : public ArrayNDInfo
+mClass Array1DInfo : public ArrayNDInfo
 {
 public:
 
@@ -70,7 +70,7 @@ public:
 };
 
 
-class Array2DInfo : public ArrayNDInfo
+mClass Array2DInfo : public ArrayNDInfo
 {
 public:
 
@@ -83,7 +83,7 @@ public:
 };
 
 
-class Array3DInfo : public ArrayNDInfo
+mClass Array3DInfo : public ArrayNDInfo
 {
 public:
 
@@ -96,7 +96,7 @@ public:
 };
 
 
-class Array1DInfoImpl : public Array1DInfo
+mClass Array1DInfoImpl : public Array1DInfo
 {
 public:
     Array1DInfo*	clone() const
@@ -115,7 +115,7 @@ protected:
 };
 
 
-class Array2DInfoImpl : public Array2DInfo
+mClass Array2DInfoImpl : public Array2DInfo
 {
 public:
 
@@ -140,7 +140,7 @@ protected:
 };
 
 
-class Array3DInfoImpl : public Array3DInfo
+mClass Array3DInfoImpl : public Array3DInfo
 {
 public:
 
@@ -165,7 +165,7 @@ protected:
 };  
 
 
-class ArrayNDInfoImpl : public ArrayNDInfo
+mClass ArrayNDInfoImpl : public ArrayNDInfo
 {
 public:
 
@@ -200,7 +200,7 @@ protected:
    no more positions are avaliable
 */
 
-class ArrayNDIter
+mClass ArrayNDIter
 {
 public:
 				ArrayNDIter( const ArrayNDInfo& );

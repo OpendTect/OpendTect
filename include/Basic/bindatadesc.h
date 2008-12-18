@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.10 2006-10-25 09:34:07 cvsbert Exp $
+ RCS:		$Id: bindatadesc.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -40,7 +40,7 @@ data types.
 
 */
 
-class BinDataDesc
+mClass BinDataDesc
 {
 public:
 

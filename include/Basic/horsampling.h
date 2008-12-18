@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.2 2008-10-07 10:12:09 cvsnanne Exp $
+ RCS:           $Id: horsampling.h,v 1.3 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class IOPar;
 
 /*\brief Horizontal sampling (inline and crossline range and steps) */
 
-class HorSampling
+mClass HorSampling
 {
 public:
 			HorSampling( bool settoSI=true ) { init(settoSI); }
@@ -96,7 +96,7 @@ public:
 
 //\brief Finds next BinID in HorSampling; initializes to first position
 
-class HorSamplingIterator
+mClass HorSamplingIterator
 {
 public:
     			HorSamplingIterator( const HorSampling& hs )

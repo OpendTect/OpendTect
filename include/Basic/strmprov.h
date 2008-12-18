@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.24 2008-10-26 17:41:02 cvsnanne Exp $
+ RCS:		$Id: strmprov.h,v 1.25 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ Thus:
  A null string or StreamProvider::sStdIO will select std input and output.
 */
 
-class StreamProvider
+mClass StreamProvider
 {
 public:
 		StreamProvider(const char* nm=0);

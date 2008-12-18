@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.14 2008-05-19 19:58:45 cvskris Exp $
+ RCS:		$Id: color.h,v 1.15 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -19,7 +19,7 @@ integer, similar to Qt.
 #include "gendefs.h"
 
 
-class Color
+mClass Color
 {
 public:
 

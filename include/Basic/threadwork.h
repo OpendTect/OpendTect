@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.17 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.18 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ in time. Note that no notification is done when the task is done. It's up to
 the user of the class to implement such things in the ThreadTask.
 */
 
-class ThreadWorkManager : public CallBacker
+mClass ThreadWorkManager : public CallBacker
 {
 public:
 				//Interface from outside world

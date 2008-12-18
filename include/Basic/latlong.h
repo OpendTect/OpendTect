@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Geographics lat/long <-> Coord transform (an estimate)
- RCS:		$Id: latlong.h,v 1.6 2008-03-18 15:38:44 cvsbert Exp $
+ RCS:		$Id: latlong.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*!\brief geographical coordinates as defined by Google Earth/Maps. */
 
-class LatLong
+mClass LatLong
 {
 public:
     			LatLong( double la=0, double lo=0 )
@@ -44,7 +44,7 @@ public:
 
  */
 
-class LatLong2Coord
+mClass LatLong2Coord
 {
 public:
 

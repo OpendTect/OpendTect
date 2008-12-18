@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.6 2008-02-15 20:28:40 cvskris Exp $
+ RCS:           $Id: positionlist.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class Coord3;
 /*! Basic interface to an list of Coord3 where each coord has a unique id. */
 
-class Coord3List
+mClass Coord3List
 { mRefCountImplNoDestructor(Coord3List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -34,7 +34,7 @@ public:
 
 /*! Basic interface to an list of Coord where each coord has a unique id. */
 
-class Coord2List
+mClass Coord2List
 { mRefCountImplNoDestructor(Coord2List);
 public:
     virtual int		nextID(int previd) const			= 0;
@@ -48,7 +48,7 @@ public:
 };
 
 
-class Coord2ListImpl : public Coord2List
+mClass Coord2ListImpl : public Coord2List
 { 
 public:			
     			Coord2ListImpl();

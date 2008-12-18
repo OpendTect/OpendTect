@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.10 2008-11-18 10:59:15 cvsbert Exp $
+ RCS:           $Id: fontdata.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include <bufstring.h>
 
 
-class FontData
+mClass FontData
 {			//!< Data needed to make an actual font
 public:    
 

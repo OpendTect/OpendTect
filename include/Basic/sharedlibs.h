@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jun 2006
- RCS:		$Id: sharedlibs.h,v 1.3 2006-07-03 16:38:15 cvsbert Exp $
+ RCS:		$Id: sharedlibs.h,v 1.4 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
    */
 
 
-class SharedLibAccess
+mClass SharedLibAccess
 {
 public:
     		SharedLibAccess(const char* file_name);

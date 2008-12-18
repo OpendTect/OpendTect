@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.34 2008-10-07 10:12:09 cvsnanne Exp $
+ RCS:           $Id: cubesampling.h,v 1.35 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ ________________________________________________________________________
 
  */
 
-class CubeSampling
+mClass CubeSampling
 {
 public:
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.53 2008-07-16 17:59:59 cvsnanne Exp $
+ RCS:		$Id: position.h,v 1.54 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class BufferString;
 
 /*!\brief a cartesian coordinate in 2D space. */
 
-class Coord : public Geom::Point2D<double>
+mClass Coord : public Geom::Point2D<double>
 {
 public:
 		Coord( const Geom::Point2D<double>& p )
@@ -63,7 +63,7 @@ bool getDirectionStr( const Coord&, BufferString& );
 
 /*!\brief a cartesian coordinate in 3D space. */
 
-class Coord3 : public Coord
+mClass Coord3 : public Coord
 {
 public:
 
@@ -125,7 +125,7 @@ inline Coord3 operator*( double f, const Coord3& b )
 
 /*!\brief 2D coordinate and a value. */
 
-class CoordValue
+mClass CoordValue
 {
 public:
 		CoordValue( double x=0, double y=0, float v=mUdf(float) )
@@ -144,7 +144,7 @@ public:
 
 /*!\brief 3D coordinate and a value. */
 
-class Coord3Value
+mClass Coord3Value
 {
 public:
     		Coord3Value( double x=0, double y=0, double z=0, 
@@ -164,7 +164,7 @@ public:
 
 /*!\brief positioning in a seismic survey: inline/crossline. */
 
-class BinID : public RCol
+mClass BinID : public RCol
 {
 public:
 		BinID() : inl(0), crl(0)			{}
@@ -215,7 +215,7 @@ public:
 
 /*!\brief BinID and values. If one of the values is Z, make it the first one. */
 
-class BinIDValues
+mClass BinIDValues
 {
 public:
 			BinIDValues( int inl=0, int crl=0, int n=2 )

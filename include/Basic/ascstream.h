@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.18 2008-12-04 13:23:26 cvsbert Exp $
+ RCS:		$Id: ascstream.h,v 1.19 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ a colon.
 
 */
 
-class ascostream
+mClass ascostream
 {
 
 public:
@@ -82,7 +82,7 @@ of 'paragraphs', each separated by a single '!' on a line.
 
 */
 
-class ascistream
+mClass ascistream
 {
 public:
 			ascistream( std::istream& strm, bool rdhead=true )

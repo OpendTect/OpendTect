@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.32 2008-09-08 17:19:47 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.33 2008-12-18 05:23:26 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -39,7 +39,7 @@ it is unlocked. If a thread tries to lock it, it will be postponed until
 the thread that has locked it will unlock it.
 */
 
-class Mutex
+mClass Mutex
 {
 public:
 			Mutex();
@@ -79,7 +79,7 @@ int function()
 */
 
 
-class MutexLocker
+mClass MutexLocker
 {
 public:
 		MutexLocker( Mutex& mutex, bool wait=true );
@@ -132,7 +132,7 @@ When you want to change the condition:
 */
 
 
-class ConditionVar : public Mutex
+mClass ConditionVar : public Mutex
 {
 public:
 				ConditionVar();
@@ -160,7 +160,7 @@ but it will not allow any readers when writelocked, and no writelock is allowed
 when readlocked. */
 
 
-class ReadWriteLock
+mClass ReadWriteLock
 {
 public:
     			ReadWriteLock();
@@ -211,7 +211,7 @@ The process that has created the thread must call destroy() or detach().
 
 */
 
-class Thread
+mClass Thread
 {
 public:
 
