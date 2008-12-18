@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: msvcdefs.h,v 1.8 2008-12-18 21:34:22 cvskris Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 8.0
@@ -39,7 +39,10 @@ ________________________________________________________________________
 # define mProtected			public
 # define mPolyRetDownCast(clss,var)	dynamic_cast<clss>(var)
 # define mPolyRetDownCastRef(clss,var)	*(dynamic_cast<clss*>(&var))
-# define mDynamicCastGet(typ,out,in)	typ out = dynamic_cast< typ >( in );
+# define mDynamicCast(typ,out,in) \
+	 out = dynamic_cast< typ >( in );
+# define mDynamicCastGet(typ,out,in) \
+	 typ mDynamicCast(typ,out,in)
 
 // Pragmas
 //

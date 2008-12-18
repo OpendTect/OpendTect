@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.17 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: commondefs.h,v 1.18 2008-12-18 21:35:15 cvskris Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -72,7 +72,8 @@ ________________________________________________________________________
 # define mProtected		protected
 # define mPolyRetDownCast(clss,var)	var
 # define mPolyRetDownCastRef(clss,var)	var
-# define mDynamicCastGet(typ,out,in)	typ out = dynamic_cast< typ >( in );
+# define mDynamicCast(typ,out,in)	out = dynamic_cast< typ >( in );
+# define mDynamicCastGet(typ,out,in)	typ mDynamicCast(typ,out,in)
 
 #endif
 
