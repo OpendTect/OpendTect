@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.51 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.52 2008-12-18 23:06:04 cvsyuancheng Exp $";
 
 
 #include "visseis2ddisplay.h"
@@ -109,6 +109,10 @@ void Seis2DDisplay::setLineName( const char* lnm )
     if ( linename_ )
 	linename_->setText( lnm );
 }
+
+
+const char* Seis2DDisplay::getLineName() const
+{ return name(); }
 
 
 void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
@@ -341,7 +345,7 @@ void Seis2DDisplay::setData( int attrib,
 				SamplingData<double>(cs.zrg.start,cs.zrg.step));
 	    mTryAlloc( tmparr, Array2DImpl<float>( cs.nrCrl(), cs.nrZ() ) );
 	    usedarr = tmparr;
-	    const int inl = datatransform_->lineIndex( name() );
+	    const int inl = datatransform_->lineIndex( getLineName() );
 	    for ( int crlidx=0; crlidx<cs.nrCrl() && inl>=0; crlidx++ )
 	    {
 		BinID bid = cs.hrg.atIndex( 0, crlidx );
@@ -418,7 +422,7 @@ SurveyObject* Seis2DDisplay::duplicate() const
     s2dd->setResolution( getResolution() );
 
     s2dd->setLineSetID( linesetid_ );
-    s2dd->setLineName( name() );
+    s2dd->setLineName( getLineName() );
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
@@ -587,7 +591,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 
 void Seis2DDisplay::getObjectInfo( BufferString& info ) const
 {
-    info = "Line: "; info += name();
+    info = "Line: "; info += getLineName();
 }
 
 
@@ -623,7 +627,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 }
 
 
-int Seis2DDisplay::getNearestTraceNr( Coord3& pos ) const
+int Seis2DDisplay::getNearestTraceNr( const Coord3& pos ) const
 {
     int trcidx = -1;
     float mindist;
@@ -896,7 +900,8 @@ Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
     {
 	DataObject* dataobj = visBase::DM().getObject( idx );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
-	if (s2dd && lineset==s2dd->lineSetID() && !strcmp(linenm,s2dd->name()) )
+	if (s2dd && lineset==s2dd->lineSetID() &&
+	    !strcmp(linenm,s2dd->getLineName()) )
 	    return s2dd;
     }
 

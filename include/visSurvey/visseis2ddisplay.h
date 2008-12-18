@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.24 2008-10-29 17:05:19 cvsjaap Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.25 2008-12-18 23:06:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -44,6 +44,7 @@ public:
 				mCreateDataObj(Seis2DDisplay);
 
     void			setLineName(const char*);
+    const char*			getLineName() const;
 
     void			setGeometry(const PosInfo::Line2DData&);
     StepInterval<float>		getMaxZRange(bool displayspace) const;
@@ -90,7 +91,7 @@ public:
 	    					BufferString&) const;
     void			getObjectInfo(BufferString&) const;
     void			snapToTracePos(Coord3&) const;
-    int				getNearestTraceNr(Coord3&) const;
+    int				getNearestTraceNr(const Coord3&) const;
 
     Coord3			getNearestSubPos(const Coord3& pos,
 						 bool usemaxrange) const;
