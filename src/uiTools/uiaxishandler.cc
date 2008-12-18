@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.17 2008-12-12 10:32:18 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.18 2008-12-18 10:52:38 cvsranojay Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uiaxishandler.cc,v 1.17 2008-12-12 10:32:18 cvs
 
 #include <math.h>
 
-static const float logof2 = log(2);
+static const float logof2 = logf(2);
 
 #define mDefInitList \
       gridlineitmgrp_(0) \
@@ -134,7 +134,7 @@ float uiAxisHandler::getVal( int pix ) const
     relpix /= axsz_;
 
     if ( setup_.islog_ )
-	relpix = exp( relpix * logof2 );
+	relpix = expf( relpix * logof2 );
 
     return rg_.start + (rgisrev_?-1:1) * rgwidth_ * relpix;
 }
