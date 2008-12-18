@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.38 2008-07-23 08:05:39 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.39 2008-12-18 11:25:04 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "callback.h"
 #include "bufstring.h"
+#include "thread.h"
 
 /*!\brief
 are helping classes for uiListViews, wich makes it easy to bundle inteligence
@@ -198,7 +199,6 @@ public:
     void		disabRightClick(bool yn) 	{ disabrightclick_=yn; }
     void		disabAnyClick(bool yn) 		{ disabanyclick_=yn; }
 
-
 			~uiTreeTopItem();
 protected:
     virtual bool	addChild(uiTreeItem*,bool below,bool downwards);
@@ -214,7 +214,7 @@ protected:
     bool		disabrightclick_;
     bool		disabanyclick_;
 
-    int			nonsensiselkey_; // to cover Q3ListView sensitivity bug
+    int			prevselectionkey_;
 };
 
 

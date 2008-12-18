@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.43 2008-12-05 22:00:41 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.44 2008-12-18 11:25:04 cvsjaap Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -75,7 +75,7 @@ bool uiTreeItem::anyButtonClick( uiListViewItem* item )
 
 void uiTreeItem::updateSelection( int selid, bool downward )
 {
-    if ( uilistviewitem_ )
+    if ( uilistviewitem_ ) 
 	uilistviewitem_->setSelected( shouldSelect(selid) );
 
     if ( downward )
@@ -291,10 +291,9 @@ uiTreeItem* uiTreeItem::lastChild()
 bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 			       bool below, bool downwards )
 {
-    mEnabSelChg( false )
-
     if ( !strcmp(newitem->parentType(),typeid(*this).name()) )
     {
+	mEnabSelChg( false )
 	children_ += newitem;
 	newitem->parent_ = this;
 	uiListViewItem::Setup setup( newitem->name(),
@@ -343,6 +342,7 @@ bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
 bool uiTreeItem::addChild( uiTreeItem* newitem, bool below )
 { return addChild( newitem, below, false ); }
 
+
 bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
 { return addChildImpl( uilistviewitem_, newitem, below, downwards ); }
 
@@ -373,7 +373,7 @@ uiTreeTopItem::uiTreeTopItem( uiListView* listview)
     , listview_( listview )
     , disabrightclick_(false)
     , disabanyclick_(false)
-    , nonsensiselkey_(-1)
+    , prevselectionkey_(-1)
 {
     listview_->rightButtonClicked.notify(
 	    		mCB(this,uiTreeTopItem,rightClickCB) );
@@ -410,14 +410,16 @@ bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
 
 void uiTreeTopItem::selectionChanged( CallBacker* )
 {
-    if ( !listview_->sensitive() || disabanyclick_ ) return;
+    if ( disabanyclick_ || !listview_->itemNotified() ) return;
     anyButtonClick( listview_->itemNotified() );
 }
 
 
 void uiTreeTopItem::rightClickCB( CallBacker* )
 {
-    if ( !listview_->sensitive() || disabanyclick_ || disabrightclick_ ) return;
+    if ( disabanyclick_ || disabrightclick_ || !listview_->itemNotified() )
+	return;
+
     if ( rightClick( listview_->itemNotified() ) )
 	listview_->unNotify();
 }
@@ -425,25 +427,26 @@ void uiTreeTopItem::rightClickCB( CallBacker* )
 
 void uiTreeTopItem::anyButtonClickCB( CallBacker* )
 {
-    if ( !listview_->sensitive() )
-    {
-	updateSelection( nonsensiselkey_,true);
+    if ( disabanyclick_ || !listview_->itemNotified() )
 	return;
-    }
-    nonsensiselkey_ = -1;
-    
-    if ( disabanyclick_ ) return;
     anyButtonClick( listview_->itemNotified() );
 }
 
 
 void uiTreeTopItem::updateSelection( int selectionkey, bool dw )
 {
+    NotifyStopper temp( listview_->selectionChanged );
     uiTreeItem::updateSelection( selectionkey, true );
     listview_->triggerUpdate();
 
-    if ( !listview_->sensitive() && selectionkey!=-1 )
-	nonsensiselkey_ = selectionkey;
+    // Hack to highlight programmatically selected item (possibly a Qt bug).
+    if ( selectionkey != prevselectionkey_ )
+    {
+	prevselectionkey_ = selectionkey;
+	if ( selectionkey >= 0 )
+	    listview_->activateClick( *listview_->itemNotified(), 0 );
+    }
+
 }
 
 
