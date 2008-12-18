@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.159 2008-12-09 21:43:21 cvskris Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.160 2008-12-18 11:26:37 cvsjaap Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -899,7 +899,7 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	    }
 	}
 
-//	scene.itemmanager_->updateSelection( id );
+	scene.itemmanager_->updateSelection( id );
 	scene.itemmanager_->updateColumnText( cNameColumn() );
 	scene.itemmanager_->updateColumnText( cColorColumn() );
     }
