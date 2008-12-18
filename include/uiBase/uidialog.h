@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.47 2008-09-15 06:57:38 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.48 2008-12-18 13:21:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ public:
 			, savebutton_(false), savebutispush_(false)
 			, separator_(true), menubar_(false), nrstatusflds_(0)
 			, mainwidgcentered_(false), savechecked_(false)
-			, fixedsize_(false)
+			, fixedsize_(false), havecredits_(false)
 			{}
 
 	mDefSetupMemb(BufferString,wintitle)
@@ -77,6 +77,7 @@ public:
 	mDefSetupMemb(bool,menubar)
 	mDefSetupMemb(bool,mainwidgcentered)
 	mDefSetupMemb(bool,fixedsize)
+	mDefSetupMemb(bool,havecredits)
 	mDefSetupMemb(int,nrstatusflds)
 	    //! nrstatusflds == -1: Make a statusbar, but don't add msg fields.
 
@@ -89,7 +90,7 @@ public:
 
     };
 
-    enum                Button { OK, SAVE, CANCEL, HELP };
+    enum                Button { OK, SAVE, CANCEL, HELP, CREDITS };
 
 			uiDialog(uiParent*,const Setup&);
     const Setup&	setup() const;
@@ -117,7 +118,8 @@ public:
 			    case OK	: setOkText( txt ); break;
 			    case CANCEL	: setCancelText( txt ); break;
 			    case SAVE	: enableSaveButton( txt ); break;
-			    case HELP	: pErrMsg("can't set txt on help but");
+			    case HELP	: pErrMsg("set help txt but"); break;
+			    case CREDITS: pErrMsg("set credits txt but");
 			    }
 			}
 
@@ -145,6 +147,8 @@ public:
     bool		separator() const;
     void		setHelpID(const char*);
     virtual const char*	helpID() const;
+    void		setHaveCredits(bool);
+    bool		haveCredits() const;
 
 protected:
 

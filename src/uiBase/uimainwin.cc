@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.161 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.162 2008-12-18 13:21:48 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -681,7 +681,13 @@ QWidget* uiMainWin::qWidget() const
 
 void uiMainWin::provideHelp( const char* winid )
 {
-    BufferString fnm = HelpViewer::getURLForWinID( winid );
+    const BufferString fnm = HelpViewer::getURLForWinID( winid );
+    uiDesktopServices::openUrl( fnm );
+}
+
+void uiMainWin::showCredits( const char* winid )
+{
+    const BufferString fnm = HelpViewer::getCreditsURLForWinID( winid );
     uiDesktopServices::openUrl( fnm );
 }
 
@@ -974,6 +980,10 @@ public:
 				case uiDialog::HELP   : 
 				    if ( helpbut ) helpbut->setSensitive(yn); 
 				break;
+				case uiDialog::CREDITS :
+				    if ( creditsbut )
+					creditsbut->setSensitive(yn); 
+				break;
 				}
 			    }
 
@@ -994,6 +1004,7 @@ public:
 					: (uiButton*) savebut_tb;
 				break;
 				case uiDialog::HELP   : return helpbut;
+				case uiDialog::CREDITS: return creditsbut;
 				break;
 				}
 				return 0;
@@ -1003,7 +1014,9 @@ public:
     void		setSeparator( bool yn )	{ setup.separator_ = yn; }
     bool		separator() const	{ return setup.separator_; }
     void		setHelpID( const char* id ) { setup.helpid_ = id; }
+    void		setHaveCredits( bool yn ) { setup.havecredits_ = yn;}
     const char*		helpID() const		{ return setup.helpid_; }
+    bool		haveCredits() const	{ return setup.havecredits_; }
 
     void		setDlgGrp( uiGroup* cw )	{ dlgGroup=cw; }
 
@@ -1035,6 +1048,7 @@ public:
 						   reciprocal ); 
                         }
     void		provideHelp(CallBacker*);
+    void		showCredits(CallBacker*);
 
     const uiDialog::Setup& getSetup() const	{ return setup; }
 
@@ -1056,6 +1070,7 @@ protected:
     uiPushButton*	okbut;
     uiPushButton*	cnclbut;
     uiToolButton*	helpbut;
+    uiToolButton*	creditsbut;
 
     uiCheckBox*		savebut_cb;
     uiToolButton*	savebut_tb;
@@ -1083,7 +1098,7 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
     , dlgGroup( 0 )
     , setup( s )
     , okbut( 0 ), cnclbut( 0 ), savebut_cb( 0 ),  savebut_tb( 0 )
-    , helpbut( 0 ), title( 0 ) , reslt( 0 )
+    , helpbut( 0 ), creditsbut( 0 ), title( 0 ) , reslt( 0 )
     , childrenInited(false)
 {
     setContentsMargins( 10, 2, 10, 2 );
@@ -1195,6 +1210,8 @@ void uiDialogBody::initChildren()
     }
     if ( helpbut )
 	helpbut->activated.notify( mCB(this,uiDialogBody,provideHelp) );
+    if ( creditsbut )
+	creditsbut->activated.notify( mCB(this,uiDialogBody,showCredits) );
 
     childrenInited = true;
 }
@@ -1230,6 +1247,15 @@ uiObject* uiDialogBody::createChildren()
 	shwhid = true;
 #endif
 	helpbut->setToolTip( shwhid ? hid.buf() : "Help on this window" );
+	if ( dlg.haveCredits() )
+	{
+	    const ioPixmap pixmap( "credits.png" );
+	    creditsbut = new uiToolButton( centralWidget_, "&Credits button",
+					    pixmap );
+	    creditsbut->setPrefWidthInChar( 5 );
+	    creditsbut->setToolTip( "Show credits" );
+	    creditsbut->attach( rightOf, helpbut );
+	}
     }
     if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
     {
@@ -1329,12 +1355,7 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
     }
 
     if ( extrabut )
-    {
 	extrabut->attach( rightOf, centerbut );
-// TODO: Is this attach really necessary? For now disabled.
-//	if ( rightbut )
-//	    extrabut->attach( ensureLeftOf, rightbut );
-    }
 }
 
 
@@ -1342,6 +1363,13 @@ void uiDialogBody::provideHelp( CallBacker* )
 {
     mDynamicCastGet( uiDialog&, dlg, handle_ );
     uiMainWin::provideHelp( dlg.helpID() );
+}
+
+
+void uiDialogBody::showCredits( CallBacker* )
+{
+    mDynamicCastGet( uiDialog&, dlg, handle_ );
+    uiMainWin::showCredits( dlg.helpID() );
 }
 
 
@@ -1402,6 +1430,8 @@ uiButton* uiDialog::button(Button b)		{ return mBody->button(b); }
 void uiDialog::setSeparator( bool yn )		{ mBody->setSeparator(yn); }
 bool uiDialog::separator() const		{ return mBody->separator(); }
 void uiDialog::setHelpID( const char* id )	{ mBody->setHelpID(id); }
+void uiDialog::setHaveCredits( bool yn )	{ mBody->setHaveCredits(yn); }
+bool uiDialog::haveCredits() const		{ return mBody->haveCredits(); }
 const char* uiDialog::helpID() const		{ return mBody->helpID(); }
 int uiDialog::uiResult() const			{ return mBody->uiResult(); }
 void uiDialog::setButtonSensitive(uiDialog::Button b, bool s ) 

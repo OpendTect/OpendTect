@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		18-8-2000
- RCS:		$Id: helpview.h,v 1.10 2008-02-27 10:22:06 cvsnanne Exp $
+ RCS:		$Id: helpview.h,v 1.11 2008-12-18 13:21:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,17 @@ ________________________________________________________________________
 class HelpViewer
 {
 public:
+
     static BufferString	getURLForWinID(const char* winid);
     			//!< Combines Link -> WinID -> URL
+    static BufferString	getCreditsURLForWinID(const char* winid);
+    			//!< Finds link in the appropriate credits page
+
 protected:
+
     static BufferString	getLinkNameForWinID(const char*,const char*);
     static BufferString	getURLForLinkName(const char*,const char*);
+
 };
 
 #endif

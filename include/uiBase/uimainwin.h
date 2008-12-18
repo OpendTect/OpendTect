@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.63 2008-11-04 14:34:28 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.64 2008-12-18 13:21:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,7 @@ public:
     			//!< triggered when window exits
 
     static void		provideHelp(const char* winid=0);
+    static void		showCredits(const char* winid=0);
 
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
     static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
