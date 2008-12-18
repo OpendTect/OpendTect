@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.19 2008-12-09 19:12:41 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.20 2008-12-18 11:03:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ class PreStackViewer :	public visBase::VisualObjectImpl,
 			public visSurvey::SurveyObject
 {
 public:
+
     static PreStackViewer*	create()
 				mCreateDataObj( PreStackViewer );
     void			allowShading(bool yn);
@@ -57,7 +58,8 @@ public:
     bool			is3DSeis() const;
     DataPack::ID		getDataPackID() const;
 
-    visBase::FlatViewer*	flatViewer() { return flatviewer_; }
+    visBase::FlatViewer*	flatViewer()	{ return flatviewer_; }
+    PreStack::ProcessManager*	procMgr()	{ return preprocmgr_; }
 
     				//3D case
     bool			setPosition(const BinID&);
