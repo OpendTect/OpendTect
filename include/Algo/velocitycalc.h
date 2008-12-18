@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.2 2008-12-17 23:14:52 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.3 2008-12-18 19:01:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ protected:
    long as at least one is define.
 */
 
-bool computeDix(const float* Vrms,SamplingData<double>& sd,int nrvels,
+bool computeDix(const float* Vrms,const SamplingData<double>& sd,int nrvels,
 	                VelocityDesc::SampleSpan,float* Vint);
 
 

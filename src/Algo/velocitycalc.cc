@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.3 2008-12-17 23:14:52 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.4 2008-12-18 19:01:22 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -327,7 +327,7 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 }
 
 
-bool computeDix( const float* Vrms, SamplingData<double>& sd, int nrvels,
+bool computeDix( const float* Vrms, const SamplingData<double>& sd, int nrvels,
 	                 VelocityDesc::SampleSpan span, float* Vint )
 {
     if ( !nrvels )
