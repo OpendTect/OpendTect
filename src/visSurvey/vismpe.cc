@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.61 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.62 2008-12-18 16:25:41 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -314,6 +314,7 @@ void MPEDisplay::updateTexture()
 
     curtextureas_ = as_;
     curtexturecs_ = displaycs;
+
     texture_->turnOn( true );
 }
 
@@ -659,6 +660,8 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
     setDraggerCenter( true );
     if ( isDraggerShown() )
 	updateTexture();
+
+    updateTextureCoords();
     movement.trigger();
 }
 
