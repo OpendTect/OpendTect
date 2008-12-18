@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.36 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.37 2008-12-18 08:45:26 cvsnanne Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -190,19 +190,19 @@ float uiSlider::getValue() const
 
 void uiSlider::setTickMarks( TickPosition ticks )
 {
-    body_->setTickmarks( QSlider::TickPosition( (int)ticks ) );
+    body_->setTickPosition( QSlider::TickPosition( (int)ticks ) );
 }
 
 
 uiSlider::TickPosition uiSlider::tickMarks() const
 {
-    return (uiSlider::TickPosition)( (int)body_->tickmarks() );
+    return (uiSlider::TickPosition)( (int)body_->tickPosition() );
 }
 
 
-void uiSlider::setOrientation( Orientation or_ )
+void uiSlider::setOrientation( Orientation orient )
 {
-    body_->setOrientation( or_ == Vertical ?  
+    body_->setOrientation( orient == Vertical ?  
 	  Qt::Vertical : Qt::Horizontal );
 }
 
@@ -221,38 +221,38 @@ void uiSlider::setInverted( bool yn )
 
 void uiSlider::setMinValue( float minval )
 {
-    body_->setMinValue( sliderValue(minval) );
+    body_->setMinimum( sliderValue(minval) );
 }
 
 
 void uiSlider::setMaxValue( float maxval )
 { 
-    body_->setMaxValue( sliderValue(maxval) ); 
+    body_->setMaximum( sliderValue(maxval) ); 
 }
 
 
 float uiSlider::minValue() const
 {
-    return userValue( body_->minValue() );
+    return userValue( body_->minimum() );
 }
 
 
 float uiSlider::maxValue() const
 {
-    return userValue( body_->maxValue() );
+    return userValue( body_->maximum() );
 }
 
 
 void uiSlider::setStep( float step )
 {
     int istep = sliderValue( step );
-    body_->setLineStep( istep );
+    body_->setSingleStep( istep );
 }
 
 
 float uiSlider::step() const
 {
-    return userValue( body_->lineStep() );
+    return userValue( body_->singleStep() );
 }
 
 
