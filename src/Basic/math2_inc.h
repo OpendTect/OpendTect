@@ -7,11 +7,7 @@
 
 bool Math::IsNormalNumber( mTYPE x )
 {
-#ifdef __msvc__
-    return _finite( x );
-#else
     return finite( x );
-#endif
 }
 
 

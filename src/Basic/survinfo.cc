@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.111 2008-12-10 18:35:14 cvskris Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.112 2008-12-18 05:46:36 cvsranojay Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -44,8 +44,9 @@ const char* SurveyInfo::sKeyXYInFt = "XY in feet";
 const char* SurveyInfo::sKeySurvDataType = "Survey Data Type";
 
 
+static bool sDoWarnings = false;
+
 SurveyInfo* SurveyInfo::theinst_ = 0;
-bool SurveyInfo::dowarnings_ = true;
 
 DefineEnumNames(SurveyInfo,Pol2D,0,"Survey Type")
 { "Only 3D", "Both 2D and 3D", "Only 2D", 0 };
@@ -824,3 +825,6 @@ float SurveyInfo::computeAngleXInl() const
     return mIsZero(xdiff,1e-3) ? M_PI/2 : atan( ydiff / xdiff );
 }
 
+
+void SurveyInfo::produceWarnings( bool yn )
+{ sDoWarnings = yn; }
