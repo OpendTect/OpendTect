@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.22 2008-11-26 06:59:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.23 2008-12-18 10:01:02 cvssatyaki Exp $";
 
 #include "uicoltabman.h"
 
@@ -73,7 +73,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     su.annotx(false).annoty(false).border(uiBorder(0,0,0,2))
       .xrg(Interval<float>(0,1)).yrg(Interval<float>(0,255))
       .canvaswidth(mTransWidth).canvasheight(mTransHeight)
-      .ycol(Color(255,0,0)).y2col(Color(190,190,190)).handdrag(false)
+      .ycol(Color(255,0,0)).y2col(Color(190,190,190))
       .fillbelowy2(true).editable(true).pointsz(3).ptsnaptol(0.08);
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
     cttranscanvas_->pointChanged.notify( mCB(this,uiColorTableMan,transptChg) );
