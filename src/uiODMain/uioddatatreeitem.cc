@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.33 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.34 2008-12-18 09:20:13 cvsbert Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.33 2008-11-25 15:35:25 
 #include "uivispartserv.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
-#include "uiobjdisposer.h"
 #include "uiamplspectrum.h"
 #include "attribsel.h"
 #include "pixmap.h"
@@ -322,7 +321,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 				  applMgr()->applService().parent(), su, false);
 	dwin->statsDisplay().setDataPackID( dpid, dmid );
 	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
-	dwin->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	dwin->setDeleteOnClose( true );
 	dwin->show();
 	menu->setIsHandled( true );
     }
@@ -333,7 +332,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
 	uiAmplSpectrum* asd = new uiAmplSpectrum(
 					applMgr()->applService().parent() );
-	asd->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	asd->setDeleteOnClose( true );
 	asd->setDataPackID( dpid, dmid ); asd->show();
 	menu->setIsHandled( true );
     }
