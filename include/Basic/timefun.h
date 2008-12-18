@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	Time functions
- RCS:		$Id: timefun.h,v 1.7 2005-10-12 12:59:23 cvsarend Exp $
+ RCS:		$Id: timefun.h,v 1.8 2008-12-18 12:30:31 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,13 +19,13 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-int		Time_getMilliSeconds(void);	/*!< From day start */
-int             Time_passedSince(int);		/*!< in millisecs */
+mGlobal( int Time_getMilliSeconds(void) )	/*!< From day start */
+mGlobal( int Time_passedSince(int) )		/*!< in millisecs */
 
-const char*	Time_getFullDateString(void);	/*!< full date/time */
-const char*	Time_getTimeString(void);	/*!< "hh::mm::ss" */
+mGlobal( const char* Time_getFullDateString(void) )     /*!< full date/time */
+mGlobal( const char* Time_getTimeString(void) )  	/*!< "hh::mm::ss" */
 
-void		Time_sleep(double);		/*!< in seconds */
+mGlobal( void Time_sleep(double) )       		/*!< in seconds */
 
 #ifdef __cpp__
 }
