@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.27 2008-12-18 08:33:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.28 2008-12-18 11:04:10 cvsbert Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -50,7 +50,7 @@ uiPSViewerMgr::uiPSViewerMgr()
     , positionmenuitem_( "P&osition ..." )  
     , proptymenuitem_( "&Properties ..." )				 
     , viewermenuitem_( "View in &2D Panel" )
-    , amplspectrumitem_( "&Amplitude spectrum ..." )
+    , amplspectrumitem_( "&Amplitude spectrum" )
     , removemenuitem_( "&Remove" ) 
     , visserv_( ODMainWin()->applMgr().visServer() )
     , preprocmgr_( new PreStack::ProcessManager )
