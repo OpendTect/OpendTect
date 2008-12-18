@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.28 2008-12-18 11:04:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.29 2008-12-18 15:21:06 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -40,6 +40,7 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.28 2008-12-18 11:04:10
 #include "vistransform.h"
 #include "uipsviewercoltab.h"
 #include "uiamplspectrum.h"
+#include "uiobjdisposer.h"
 
 
 namespace PreStackView
@@ -50,7 +51,7 @@ uiPSViewerMgr::uiPSViewerMgr()
     , positionmenuitem_( "P&osition ..." )  
     , proptymenuitem_( "&Properties ..." )				 
     , viewermenuitem_( "View in &2D Panel" )
-    , amplspectrumitem_( "&Amplitude spectrum" )
+    , amplspectrumitem_( "&Amplitude spectrum ..." )
     , removemenuitem_( "&Remove" ) 
     , visserv_( ODMainWin()->applMgr().visServer() )
     , preprocmgr_( new PreStack::ProcessManager )
@@ -254,21 +255,37 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     if ( !pdd && !s2d )
 	mErrReturn( "Display panel is not set." )
 
-    Coord3 pickedpos = menu->getPickedPos();
-
     PreStackViewer* viewer = PreStackViewer::create();
     viewer->ref();
     viewer->setMultiID( ioobj->key() );
     visserv_->addObject( viewer, sceneid, false );
     viewers_ += viewer;
+   
+    //Read defaults 
+    const Settings& settings = Settings::fetch(uiPSViewerMgr::sSettingsKey()); 
+    bool autoview;
+    if ( settings.getYN(PreStackViewer::sKeyAutoWidth(), autoview) )
+	viewer->displaysAutoWidth( autoview );
 
-    const uiSoViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
-    const Coord3 campos = sovwr->getCameraPosition();
-    const Coord3 displaycampos = 
-	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
-    const BinID dir0 = SI().transform(displaycampos)-SI().transform(pickedpos);
-    const Coord dir( dir0.inl, dir0.crl );
+    float factor;
+    if ( settings.get( PreStackViewer::sKeyFactor(), factor ) )
+	viewer->setFactor( factor );
+   
+    float width; 
+    if ( settings.get( PreStackViewer::sKeyWidth(), width ) )
+	viewer->setWidth( width );
+    
+    IOPar* flatviewpar = settings.subselect( sKeyFlatviewPars() );
+    if ( flatviewpar )
+	viewer->flatViewer()->appearance().ddpars_.usePar( *flatviewpar );
+    
+    if ( viewer->getScene() )
+	viewer->getScene()->change.notifyIfNotNotified( mCB( this, 
+		    uiPSViewerMgr,sceneChangeCB ) );
 
+    //set viewer position
+    const Coord3 pickedpos = menu->getPickedPos();
+    bool settingok = true;
     if ( pdd )
     {
 	viewer->setSectionDisplay( pdd ); 
@@ -280,10 +297,8 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 				 +SI().transform(hrg.stop))/2);
 	}
 	else bid = SI().transform( pickedpos );
-    	
-	viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
-	if ( !viewer->setPosition( bid ) )
-	    mErrReturn( "No prestack data at this position" )
+
+	settingok = viewer->setPosition( bid );
     } 
     else if ( s2d )
     {
@@ -292,43 +307,35 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 	    trcnr = s2d->getTraceNrRange().center();
 	else
 	    trcnr = s2d->getNearestTraceNr( pickedpos );
-
-	viewer->setSeis2DDisplay( s2d, trcnr );
-	viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
-	if ( !viewer->setSeis2DData( ioobj ) )
-	    mErrReturn( "No prestack data at this position" )
+	
+	settingok = viewer->setSeis2DDisplay( s2d, trcnr );
     }
     
-    bool autoview;
-    if ( Settings::common().getYN(PreStackViewer::sKeyAutoWidth(), autoview) ||
-	 Settings::common().getYN("AutoWidth", autoview) )
-	viewer->displaysAutoWidth( autoview );
+    if ( !settingok )
+	return false;
 
-    float factor;
-    if ( Settings::common().get( PreStackViewer::sKeyFactor(), factor ) ||
-	 Settings::common().get( "Factor", factor ) )
-	viewer->setFactor( factor );
-   
-    float width; 
-    if ( Settings::common().get( PreStackViewer::sKeyWidth(), width ) ||
-	 Settings::common().get( "Width", width ) )
-	viewer->setWidth( width );
-    
-    IOPar* par = Settings::common().subselect( 
-	    PreStackView::uiPSViewerColTab::sKeyDataPars() );
-    if ( par )
-	viewer->flatViewer()->appearance().ddpars_.usePar( *par );
-    BufferString coltab;
-    if ( Settings::common().get( FlatView::DataDispPars::sKeyColTab, coltab ) )
-	viewer->flatViewer()->appearance().ddpars_.vd_.ctab_ =  coltab;
-	
-    viewer->flatViewer()->handleChange( FlatView::Viewer::VDPars );
-
-    if ( viewer->getScene() )
-	viewer->getScene()->change.notifyIfNotNotified( mCB( this, 
-		    uiPSViewerMgr,sceneChangeCB ) );
+    //set viewer angle.
+    const uiSoViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
+    const Coord3 campos = sovwr->getCameraPosition();
+    const Coord3 displaycampos = 
+	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
+    const BinID dir0 = SI().transform(displaycampos)-SI().transform(pickedpos);
+    const Coord dir( dir0.inl, dir0.crl );
+    viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
     
     return true;
+}
+
+
+void uiPSViewerMgr::reloadData( CallBacker* cb )
+{
+    const int vieweridx = viewers_.indexOf( (PreStackViewer*) cb );
+    if ( vieweridx==-1 )
+	return;
+
+    PreStackViewer* viewer = viewers_[vieweridx];
+
+
 }
 
 
@@ -442,6 +449,10 @@ void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
     
     PtrMan<IOPar> allwindowspar = ODMainWin()->sessionPars().subselect(
 	    			  sKey2DViewers() );
+    if ( !allwindowspar )
+	allwindowspar =
+	    ODMainWin()->sessionPars().subselect( "PreStack 2D Viewers" );
+
     int nrwindows;
     if ( !allwindowspar || !allwindowspar->get(sKeyNrWindows(), nrwindows) )
 	return;
@@ -462,9 +473,16 @@ void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
 	if ( !viewerpar->get( sKeyMultiID(), mid ) ||
 	     !viewerpar->get( sKeyBinID(), bid ) ||
 	     !viewerpar->get( sKeyTraceNr(), trcnr ) ||
-	     !viewerpar->get( sKeySeis2DName(), name2d ) ||
+	     !viewerpar->get( sKeyLineName(), name2d ) ||
 	     !viewerpar->getYN( sKeyIs3D(), is3d ) )
-	    continue;
+	{
+	    if ( !viewerpar->get( "uiFlatViewWin MultiID", mid ) ||
+		 !viewerpar->get( "uiFlatViewWin binid", bid ) ||
+		 !viewerpar->get( "Seis2D TraceNr", trcnr ) ||
+		 !viewerpar->get( "Seis2D Name", name2d ) ||
+		 !viewerpar->getYN( "Seis3D display", is3d ) )
+		continue;
+	}
     
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
@@ -544,7 +562,7 @@ void uiPSViewerMgr::sessionSaveCB( CallBacker* )
 	viewerpar.set( sKeyBinID(), gather->getBinID() );
 	viewerpar.set( sKeyMultiID(), gather->getStorageID() );
 	viewerpar.set( sKeyTraceNr(), gather->getSeis2DTraceNr() );
-	viewerpar.set( sKeySeis2DName(), gather->getSeis2DName() );
+	viewerpar.set( sKeyLineName(), gather->getSeis2DName() );
 	viewerpar.setYN( sKeyIs3D(), gather->is3D() );
 
 	BufferString key = sKeyViewerPrefix();

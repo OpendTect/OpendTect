@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.4 2008-12-18 15:21:06 cvsyuancheng Exp $";
 
 #include "uipsviewershapetab.h"
 
@@ -157,16 +157,15 @@ bool uiPSViewerShapeTab::acceptOK( )
 
     if ( saveAsDefault() )
     {
-	Settings::common().set(
-		PreStackViewer::sKeyFactor(),viewer_.getFactor());
-	Settings::common().set( 
-		PreStackViewer::sKeyWidth(), viewer_.getWidth() );
-	Settings::common().set( 
-		PreStackViewer::sKeyAutoWidth(), viewer_.displayAutoWidth() );
+	Settings& settings = Settings::fetch(uiPSViewerMgr::sSettingsKey());
+	settings.set( PreStackViewer::sKeyFactor(),viewer_.getFactor());
+	settings.set( PreStackViewer::sKeyWidth(), viewer_.getWidth() );
+	settings.set( PreStackViewer::sKeyAutoWidth(),
+		      viewer_.displayAutoWidth() );
 
-	if ( !Settings::common().write() )
+	if ( !settings.write() )
 	{
-	    uiMSG().error("Cannot write");
+	    uiMSG().error("Cannot write default settings");
 	    return false;
 	}
     }

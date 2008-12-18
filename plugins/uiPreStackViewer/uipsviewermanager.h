@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.8 2008-12-18 08:33:12 cvsbert Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.9 2008-12-18 15:21:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,14 +35,19 @@ public:
 
     ObjectSet<PreStackViewer>   getViewers()  { return viewers_; }
 
-    static const char*		sKeyViewerPrefix() { return "Viewer "; } 
-    static const char*		sKey2DViewers() {return "PreStack 2D Viewers";} 
-    static const char*		sKeyNrWindows() { return "Number of windows"; } 
-    static const char*		sKeyMultiID() {return "uiFlatViewWin MultiID";}
-    static const char*		sKeyBinID()   { return "uiFlatViewWin binid"; } 
-    static const char*		sKeyIs3D()    { return "Seis3D display"; } 
-    static const char*		sKeyTraceNr() { return "Seis2D TraceNr"; } 
-    static const char*		sKeySeis2DName() { return "Seis2D Name"; } 
+    //For session
+    static const char*		sKeyViewerPrefix()	{ return "Viewer "; } 
+    static const char*		sKey2DViewers()		{ return "PS2DViewers";}
+    static const char*		sKeyNrWindows()		{ return "Nr Viewers"; }
+    static const char*		sKeyMultiID()		{ return "Data ID"; }
+    static const char*		sKeyBinID()  		{ return "Position"; } 
+    static const char*		sKeyIs3D()   		{ return "Is 3D"; } 
+    static const char*		sKeyTraceNr()		{ return "TraceNr"; } 
+    static const char*		sKeyLineName()		{ return "LineName"; } 
+
+    //For settings
+    static const char*		sSettingsKey()		{ return "3DPSViewer"; }
+    static const char*		sKeyFlatviewPars()	{ return "Flatview"; }
 
 protected:
     
@@ -61,6 +66,8 @@ protected:
     void			sessionRestoreCB(CallBacker*);
     void			sessionSaveCB(CallBacker*);
     				//Saved 2DViewer for VD only.
+
+    void			reloadData(CallBacker*);
 
     MenuItem			selectpsdatamenuitem_;
     MenuItem			proptymenuitem_;

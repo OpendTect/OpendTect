@@ -7,18 +7,23 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.39 2008-12-11 16:26:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.40 2008-12-18 15:21:06 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
 #include "flatposdata.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "posinfo.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
+#include "seispsread.h"
+#include "seisread.h"
+#include "seispsioprov.h"
 #include "survinfo.h"
 #include "uimsg.h"
+#include "uipsviewermanager.h"
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
@@ -49,7 +54,7 @@ PreStackViewer::PreStackViewer()
     , section_( 0 )
     , seis2d_( 0 )
     , factor_( 1 )
-    , trcnr_( 0 )
+    , trcnr_( -1 )
     , basedirection_( mUdf(float), mUdf(float) )		 
     , seis2dpos_( mUdf(float), mUdf(float) )		 
     , width_( mDefaultWidth )
@@ -147,7 +152,8 @@ void PreStackViewer::allowShading( bool yn )
 
 BufferString PreStackViewer::getObjectName() const
 {
-    return IOM().get(mid_)->name();
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    return ioobj->name();
 }
 
 
@@ -213,9 +219,20 @@ DataPack::ID PreStackViewer::preProcess()
 
 bool PreStackViewer::setPosition( const BinID& nb )
 {
-    bid_ = nb;
-    dataChangedCB( 0 );
+    PtrMan<PreStack::Gather> gather = new PreStack::Gather;
+    if ( !gather->readFrom(mid_,nb) )
+    {
+	if ( uiMSG().askGoOn("There is no data at the selected location.\n"
+		    "Do you want to find a nearby location to continue?") )
+	    bid_ = getNearBinID( nb );
+    }
+    else
+	bid_ = nb;
 
+    if ( bid_.inl==-1 || bid_.crl==-1 )
+	return false;
+
+    dataChangedCB( 0 );
     return updateData();
 }
 
@@ -233,7 +250,9 @@ bool PreStackViewer::updateData()
 	{
 	    PreStack::Gather* gather = new PreStack::Gather;
 	    if ( !gather->readFrom( mid_, bid_ ) )
+	    {
 		delete gather;
+	    }
 	    else
 	    {
     		DPM(DataPackMgr::FlatID).add( gather );
@@ -258,6 +277,62 @@ bool PreStackViewer::updateData()
     }
 
     return true;
+}
+
+
+BinID PreStackViewer::getNearBinID( const BinID& bid ) const
+{
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj );
+    if ( !rdr )
+	return BinID(-1,-1);
+
+    const PosInfo::CubeData& posinfo = rdr->posData();
+    BinID res = bid;
+
+    if ( isOrientationInline() )
+    {
+	const int inlidx = posinfo.indexOf( bid.inl );
+	const int seg = posinfo[inlidx]->nearestSegment( bid.crl );
+	const StepInterval<int> crlrg = posinfo[inlidx]->segments_[seg];
+	res.crl = bid.crl<crlrg.start ? crlrg.start : crlrg.stop;
+    }
+    else
+    {
+	StepInterval<int> inlrg;
+	posinfo.getInlRange( inlrg );
+	
+	if ( bid.inl<=inlrg.atIndex(0) )
+	    res.inl = inlrg.atIndex(0);
+	else if ( bid.inl>=inlrg.stop )
+	    res.inl = inlrg.stop;
+	else
+	    res.inl = inlrg.snap( bid.inl );
+    }
+
+    return res;
+}
+
+
+int PreStackViewer::getNearTraceNr( const IOObj* ioobj, int trcnr ) const
+{
+    PtrMan<SeisPS2DReader> rdr = SPSIOPF().get2DReader(*ioobj,seis2d_->name());
+    if ( !rdr )
+	return -1;
+
+    TypeSet<PosInfo::Line2DPos>  posnrs = rdr->posData().posns_;
+    int mindist=-1, residx;
+    for ( int idx=0; idx<posnrs.size(); idx++ )
+    {
+	const int dist = abs(posnrs[idx].nr_-trcnr);
+	if ( mindist==-1 || mindist>dist )
+	{
+	    mindist = dist;
+	    residx = idx;
+	}
+    }   
+
+   return posnrs[residx].nr_; 
 }
 
 
@@ -305,6 +380,9 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     if ( (!section_ && !seis2d_) || factor_<0 || width_<0 )
 	return;
 
+    if ( section_ && ( bid_.inl<0 || bid_.crl<0 ) )
+	return;
+	
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
     const float offsetscale = Coord( basedirection_.x*SI().inlDistance(),
 	    			     basedirection_.y*SI().crlDistance()).abs();
@@ -459,14 +537,92 @@ const visSurvey::Seis2DDisplay* PreStackViewer::getSeis2DDisplay() const
 { return seis2d_; }
 
 
-bool PreStackViewer::setSeis2DData( const IOObj* ioobj ) 
+DataPack::ID PreStackViewer::getDataPackID() const
 {
-    if ( !ioobj )
-	return false;
+    return flatviewer_->packID( false );
+}
 
-    if ( !seis2d_ || trcnr_<0 )
-	return false;
-   
+
+bool PreStackViewer::is3DSeis() const
+{
+    return section_;
+}
+
+
+void PreStackViewer::setTraceNr( int trcnr )
+{
+    if ( trcnr_ == trcnr ) 
+	return;
+
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    if ( seis2d_ )
+    {
+    	PtrMan<PreStack::Gather> gather = new PreStack::Gather;
+    	if ( !gather->readFrom( *ioobj, trcnr, seis2d_->name() ) )
+    	{
+	    if (  uiMSG().askGoOn("There is no data at the selected location.\n"
+			"Do you want to find a nearby location to continue?") )
+		trcnr_ = getNearTraceNr( ioobj, trcnr );
+    	}
+	else 
+	    trcnr_ = trcnr;
+    }
+    else
+    	trcnr_ = trcnr;
+
+    seis2DMovedCB( 0 );
+    turnOn( true );
+}
+
+
+bool PreStackViewer::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
+{
+    if ( !s2d ) return false;
+
+    if ( planedragger_ )
+    { 
+     	planedragger_->motion.remove( mCB(this,PreStackViewer,draggerMotion) );
+    	planedragger_->finished.remove( mCB(this,PreStackViewer,finishedCB) );
+    	planedragger_->unRef();
+    }
+
+    pickstyle_->setStyle( visBase::PickStyle::Shape );
+    if ( seis2d_ ) 
+    {
+	if ( seis2d_->getMovementNotifier() )
+    	    seis2d_->getMovementNotifier()->remove( 
+    		    mCB( this, PreStackViewer, seis2DMovedCB ) );
+
+	seis2d_->unRef();
+    }
+
+    seis2d_ = s2d;
+    seis2d_->ref();
+    setTraceNr( trcnr );
+    if ( trcnr_<0 ) return false;
+
+    const int ctid = s2d->getColTabID(0);
+    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
+    mDynamicCastGet(visBase::VisColorTab*,vct,obj);
+    if ( vct )
+    {
+	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
+	flatviewer_->handleChange( FlatView::Viewer::VDPars );
+    }
+
+    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
+    basedirection_ = SI().binID2Coord().transformBackNoSnap(
+	    seis2d_->getNormal( trcnr_ ) ) - orig;
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
+	    seis2d_->getCoord(trcnr_)); 
+
+    if ( seis2d_->getMovementNotifier() )
+	seis2d_->getMovementNotifier()->notify( 
+    		    mCB( this, PreStackViewer, seis2DMovedCB ) );
+
+    PtrMan<IOObj> ioobj = IOM().get( mid_ );
+    if ( !ioobj ) return false;
+
     const bool haddata = flatviewer_->pack( false );
     PreStack::Gather* gather = new PreStack::Gather;
     if ( !gather->readFrom( *ioobj, trcnr_, seis2d_->name() ) )
@@ -487,87 +643,13 @@ bool PreStackViewer::setSeis2DData( const IOObj* ioobj )
     }
    
     turnOn( true );
-    return true;
-}
-
-
-DataPack::ID PreStackViewer::getDataPackID() const
-{
-    return flatviewer_->packID( false );
-}
-
-
-bool PreStackViewer::is3DSeis() const
-{
-    if ( section_ )
-	return true;
-    else
-	return false;
-}
-
-
-void PreStackViewer::setTraceNr( int trcnr )
-{
-    if ( trcnr_ == trcnr ) 
-	return;
-
-    trcnr_ = trcnr;
-    seis2DMovedCB( 0 );
-    setSeis2DData( IOM().get( mid_ ) );
-    turnOn( true );
-}
-
-
-void PreStackViewer::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
-{
-    if ( planedragger_ )
-    { 
-     	planedragger_->motion.remove( mCB(this,PreStackViewer,draggerMotion) );
-    	planedragger_->finished.remove( mCB(this,PreStackViewer,finishedCB) );
-    	planedragger_->unRef();
-    }
-
-    pickstyle_->setStyle( visBase::PickStyle::Shape );
-    if ( seis2d_ ) 
-    {
-	if ( seis2d_->getMovementNotifier() )
-    	    seis2d_->getMovementNotifier()->remove( 
-    		    mCB( this, PreStackViewer, seis2DMovedCB ) );
-
-	seis2d_->unRef();
-    }
-
-    trcnr_ = trcnr;
-    seis2d_ = s2d;
-    seis2d_->ref();
-
-    if ( !seis2d_ )
-	return;
-
-    const int ctid = s2d->getColTabID(0);
-    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
-    mDynamicCastGet(visBase::VisColorTab*,vct,obj);
-    if ( vct )
-    {
-	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
-	flatviewer_->handleChange( FlatView::Viewer::VDPars );
-    }
-
-    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
-    basedirection_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getNormal( trcnr_ ) ) - orig;
-    seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getCoord(trcnr)); 
-
-    if ( seis2d_->getMovementNotifier() )
-	seis2d_->getMovementNotifier()->notify( 
-    		    mCB( this, PreStackViewer, seis2DMovedCB ) );
+    return true;  
 }
 
 
 void  PreStackViewer::seis2DMovedCB( CallBacker* )
 {
-    if ( !seis2d_ )
+    if ( !seis2d_ || trcnr_<0 )
 	return;
     
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
@@ -663,8 +745,7 @@ void  PreStackViewer::finishedCB( CallBacker* )
     else
 	return;
 
-    if ( !setPosition(newpos) )
-	return;
+    setPosition(newpos);
 }
 
 
@@ -746,19 +827,19 @@ void PreStackViewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( section_ )
     {
 	saveids.addIfNew( section_->id() );
-        par.set( sKeySectionID(), section_->id() );
-	par.set( sKeyBinID(), bid_ );
+        par.set( sKeyParent(), section_->id() );
+	par.set( uiPSViewerMgr::sKeyBinID(), bid_ );
     }
 
     if  ( seis2d_ )
     {
 	saveids.addIfNew( seis2d_->id() );
-    	par.set( sKeySeis2DID(), seis2d_->id() );
-	par.set( sKeyTraceNr(), trcnr_ );
-	par.set( sKeyLineName(), seis2d_->name() );
+    	par.set( sKeyParent(), seis2d_->id() );
+	par.set( uiPSViewerMgr::sKeyTraceNr(), trcnr_ );
+	//Line name is kept with parent
     }
     
-    par.set( sKeyMultiID(), mid_ );
+    par.set( uiPSViewerMgr::sKeyMultiID(), mid_ );
     par.setYN( sKeyAutoWidth(), autowidth_ );
     par.setYN( sKeySide(), posside_ );
 
@@ -781,11 +862,11 @@ int PreStackViewer::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     int parentid = -1;
-    const bool is2d = par.get( sKeySeis2DID(), parentid );
-    if ( !is2d )
+    if ( !par.get( sKeyParent(), parentid ) )
     {
-	if ( !par.get(sKeySectionID(),parentid) )
-	    return -1;
+    	if ( !par.get( "Seis2D ID", parentid ) )
+	    if ( !par.get( "Section ID", parentid ) )
+		return -1;
     }
 
     visBase::DataObject* parent = visBase::DM().getObject( parentid );
@@ -793,8 +874,13 @@ int PreStackViewer::usePar( const IOPar& par )
 	return 0;
 
     MultiID mid;
-    if ( !par.get(sKeyMultiID(),mid) ) 
-	return -1;
+    if ( !par.get( uiPSViewerMgr::sKeyMultiID(), mid ) ) 
+    {
+	if ( !par.get("PreStack MultiID",mid) ) 
+	{
+	    return -1;
+	}
+    }
     
     setMultiID( mid );
 
@@ -807,34 +893,40 @@ int PreStackViewer::usePar( const IOPar& par )
     {	
     	setSectionDisplay( pdd );
 	BinID bid;
-    	if ( !par.get(sKeyBinID(),bid) || !setPosition( bid ) )
-    	    return -1;
+	if ( !par.get( uiPSViewerMgr::sKeyBinID(), bid ) )
+	{
+	    if ( !par.get("PreStack BinID",bid) )
+		return -1;
+	}
+
+	if ( !setPosition( bid ) )
+	    return -1;
     }
 
     if ( s2d )
     {
 	int tnr;
-	if ( !par.get(sKeyTraceNr(),tnr) )
-	    return -1;
+	if ( !par.get( uiPSViewerMgr::sKeyTraceNr(), tnr ) )
+	{
+	    if ( !par.get( "Seis2D TraceNumber", tnr ) )
+		return -1;
+	}
 
 	setSeis2DDisplay( s2d, tnr );
-	if ( !setSeis2DData( IOM().get(mid) ) )
-	    return -1;
     }
        
     float factor, width;
-    if ( par.get(sKeyFactor(), factor) || par.get("Factor", factor) )
+    if ( par.get(sKeyFactor(), factor) )
 	setFactor( factor );
 
-    if ( par.get(sKeyWidth(), width) || par.get("Width", width) )
+    if ( par.get(sKeyWidth(), width) )
 	setWidth( width );
 
     bool autowidth, side;
-    if ( par.getYN(sKeyAutoWidth(), autowidth) || 
-	 par.getYN("AutoWidth", autowidth) )
+    if ( par.getYN(sKeyAutoWidth(), autowidth) ) 
 	 displaysAutoWidth( autowidth );
 
-    if ( par.getYN(sKeySide(), side) ||  par.getYN("ShowSide", side) )
+    if ( par.getYN(sKeySide(), side) )
 	displaysOnPositiveSide( side );
 	
     if ( flatviewer_ )

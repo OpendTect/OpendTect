@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.3 2008-08-05 21:50:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.4 2008-12-18 15:21:06 cvsyuancheng Exp $";
 
 #include "uipsviewerpreproctab.h"
 

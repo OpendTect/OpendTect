@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.20 2008-12-18 11:03:33 cvsbert Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.21 2008-12-18 15:21:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,12 +68,10 @@ public:
     const visSurvey::PlaneDataDisplay* getSectionDisplay() const;	
    
    				//2D case 
-    const visSurvey::Seis2DDisplay*    getSeis2DDisplay() const;    
-    void			setSeis2DDisplay(visSurvey::Seis2DDisplay*,
+    const visSurvey::Seis2DDisplay*    getSeis2DDisplay() const;
+    bool			setSeis2DData(const IOObj* ioobj); 
+    bool			setSeis2DDisplay(visSurvey::Seis2DDisplay*,
 	    					 int trcnr);
-    bool			setSeis2DData(const IOObj*);
-   				//To use, set Seis2DDisplay first.
-
     void			setTraceNr(int trcnr);
     int				traceNr() const 	  { return trcnr_; }
     const char*			lineName();
@@ -99,16 +97,11 @@ public:
     void			fillPar(IOPar&, TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
-    static const char*		sKeyBinID()	{ return "PreStack BinID"; }
-    static const char*		sKeyMultiID()	{ return "PreStack MultiID"; }
-    static const char*		sKeySectionID() { return "Section ID"; }
-    static const char*		sKeySeis2DID()	{ return "Seis2D ID"; }
+    static const char*		sKeyParent()	{ return "Parent"; }
     static const char*		sKeyFactor()	{ return "Factor"; }
     static const char*		sKeyWidth() 	{ return "Width"; }
     static const char*		sKeyAutoWidth() { return "AutoWidth"; }
     static const char*		sKeySide() 	{ return "ShowSide"; }
-    static const char*		sKeyTraceNr() 	{ return "Seis2D TraceNumber"; }
-    static const char*		sKeyLineName() 	{ return "Seis2D LineName"; }
 
 protected:
     					~PreStackViewer();
@@ -117,10 +110,11 @@ protected:
     void				sectionMovedCB(CallBacker*);
     void				seis2DMovedCB(CallBacker*);
     bool				updateData();
+    int					getNearTraceNr(const IOObj*,int) const;
+    BinID				getNearBinID(const BinID& pos) const;
 
     void				draggerMotion(CallBacker*);
     void				finishedCB(CallBacker*);
-    void				mouseMoveCB(CallBacker*);
 
     BinID				bid_;
     visBase::DepthTabPlaneDragger* 	planedragger_;

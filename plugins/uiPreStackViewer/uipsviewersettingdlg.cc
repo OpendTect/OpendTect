@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.7 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.8 2008-12-18 15:21:06 cvsyuancheng Exp $";
 
 #include "uipsviewersettingdlg.h"
 
@@ -54,16 +54,16 @@ bool uiPSViewerSettingDlg::acceptOK( CallBacker* cb )
 {
    if ( saveButtonChecked() )
    {
-       shapetab_->saveAsDefault( true );
        coltab_->saveAsDefault( true );
+       shapetab_->saveAsDefault( true );
    }
 
    if ( applytoallfld_->isChecked() )
    {
-       shapetab_->applyToAll( true );
        coltab_->applyToAll( true );
        if ( preproctab_ ) 
 	   preproctab_->applyToAll( true );
+       shapetab_->applyToAll( true );
    }
 
    return uiTabStackDlg::acceptOK(cb);

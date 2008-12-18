@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.4 2008-12-18 11:04:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.5 2008-12-18 15:21:06 cvsyuancheng Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -51,6 +51,8 @@ uiPSViewerPositionDlg::uiPSViewerPositionDlg( uiParent* p, PreStackViewer& vwr )
 
 bool uiPSViewerPositionDlg::is3D() const
 { return viewer_.is3DSeis(); }
+
+
 bool uiPSViewerPositionDlg::isInl() const
 { return viewer_.isOrientationInline(); }
 
@@ -84,11 +86,8 @@ void uiPSViewerPositionDlg::posChg( CallBacker* c )
 }
 
 
-void uiPSViewerPositionDlg::applyCB( CallBacker* )
+bool uiPSViewerPositionDlg::applyCB( CallBacker* )
 {
-    //TODO : this function is 99% the same as acceptOK
-    // separate the common part in (a) separate function(s)
-
     if ( viewer_.is3DSeis() )
     {
 	BinID newpos = viewer_.getPosition();
@@ -96,9 +95,12 @@ void uiPSViewerPositionDlg::applyCB( CallBacker* )
 	
 	if ( viewer_.isOrientationInline() )
 	{
+	    if ( newpos.crl==inlcrl )
+		return true;
+
 	    const StepInterval<int> crlrg = SI().crlRange( true );
 	    if ( crlrg.includes( inlcrl ) )
-	    	newpos.crl = posfld_->getValue();
+	    	newpos.crl = inlcrl;
 	    else
 	    {
 		BufferString msg = "The crossline should be between ";
@@ -106,14 +108,17 @@ void uiPSViewerPositionDlg::applyCB( CallBacker* )
 		msg += " and ";
 		msg += crlrg.stop;
 		uiMSG().error( msg );
-		return;
+		return false;
 	    }
 	}
 	else
 	{
+	    if ( newpos.inl==inlcrl )
+		return true;
+
 	    const StepInterval<int> inlrg = SI().inlRange( true );
 	    if ( inlrg.includes( inlcrl ) )
-	    	newpos.inl = posfld_->getValue();
+	    	newpos.inl = inlcrl;
 	    else
 	    {
 		BufferString msg = "The inline should be between ";
@@ -121,17 +126,20 @@ void uiPSViewerPositionDlg::applyCB( CallBacker* )
 		msg += " and ";
 		msg += inlrg.stop;
 		uiMSG().error( msg );
-		return;
+		return false;
 	    }
 	}
 
 	viewer_.setPosition( newpos );
+
+	const BinID bid = viewer_.getPosition();
+	posfld_->setValue( viewer_.isOrientationInline() ? bid.crl : bid.inl );
     }
     else
     {
 	const int tracenr = posfld_->getValue();
-	if ( !viewer_.getSeis2DDisplay() )
-	    return;
+	if ( !viewer_.getSeis2DDisplay() || tracenr==viewer_.traceNr() )
+	    return true;
 
 	const Interval<int> trcrg = 
 	    viewer_.getSeis2DDisplay()->getTraceNrRange();
@@ -142,76 +150,20 @@ void uiPSViewerPositionDlg::applyCB( CallBacker* )
 	    msg += " and ";
 	    msg += trcrg.stop;
 	    uiMSG().error( msg );
-	    return;
+	    return false;
 	}
 
 	viewer_.setTraceNr( tracenr );
+	posfld_->setValue( viewer_.traceNr() );
     }
+
+    return true;
 }
 
 
 bool uiPSViewerPositionDlg::acceptOK( CallBacker* )
 {
-    if ( viewer_.is3DSeis() )
-    {
-	BinID newpos = viewer_.getPosition();
-	const int inlcrl = posfld_->getValue();
-	
-	if ( viewer_.isOrientationInline() )
-	{
-	    const StepInterval<int> crlrg = SI().crlRange( true );
-	    if ( crlrg.includes( inlcrl ) )
-	    	newpos.crl = posfld_->getValue();
-	    else
-	    {
-		BufferString msg = "The crossline should be between ";
-		msg += crlrg.start;
-		msg += " and ";
-		msg += crlrg.stop;
-		uiMSG().error( msg );
-		return false;
-	    }
-	}
-	else
-	{
-	    const StepInterval<int> inlrg = SI().inlRange( true );
-	    if ( inlrg.includes( inlcrl ) )
-	    	newpos.inl = posfld_->getValue();
-	    else
-	    {
-		BufferString msg = "The inline should be between ";
-		msg += inlrg.start;
-		msg += " and ";
-		msg += inlrg.stop;
-		uiMSG().error( msg );
-		return false;
-	    }
-	}
-
-	viewer_.setPosition( newpos );
-    }
-    else
-    {
-	const int tracenr = posfld_->getValue();
-	if ( !viewer_.getSeis2DDisplay() )
-	    return false;
-
-	const Interval<int> trcrg = 
-	    viewer_.getSeis2DDisplay()->getTraceNrRange();
-	if ( !trcrg.includes(tracenr) )
-	{
-	    BufferString msg = "The trace number should be between ";
-	    msg += trcrg.start;
-	    msg += " and ";
-	    msg += trcrg.stop;
-	    uiMSG().error( msg );
-	    return false;
-	}
-
-	viewer_.setTraceNr( tracenr );
-    }
-
-    return true;
+    return applyCB( 0 );
 }
 
 

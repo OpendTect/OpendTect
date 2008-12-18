@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2008
- RCS:           $Id: uipsviewerposdlg.h,v 1.2 2008-12-18 11:04:55 cvsbert Exp $
+ RCS:           $Id: uipsviewerposdlg.h,v 1.3 2008-12-18 15:21:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,10 @@ protected:
 
     void		boxSel(CallBacker*);
     void		posChg(CallBacker*);
-    void		applyCB(CallBacker*);
 
     void		atStart(CallBacker*);
     bool		acceptOK(CallBacker*);
+    bool		applyCB(CallBacker*);
 
 };
 
