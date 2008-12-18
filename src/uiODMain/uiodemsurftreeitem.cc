@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.38 2008-12-09 21:43:54 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.39 2008-12-18 11:21:09 cvsjaap Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -54,6 +54,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , changesetupmnuitem_("Change setup ...")
     , reloadmnuitem_("Reload")
     , starttrackmnuitem_("Start tracking ...")
+    , treeitemwasenabled_(true)
     , prevtrackstatus_(true)
 {
     enabletrackingmnuitem_.checkable = true;
@@ -93,6 +94,7 @@ bool uiODEarthModelSurfaceTreeItem::init()
 	return false;
 
     initNotify();
+    treeitemwasenabled_ = isChecked();
 
     return true;
 }
@@ -102,20 +104,21 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::checkCB(cb);
 
-    const int trackerid = applMgr()->mpeServer()->getTrackerID(emid_);
-    if ( trackerid==-1 )
-    {
-	prevtrackstatus_ = false;
+    uiMPEPartServer* mps = applMgr()->mpeServer();
+    const int trackerid = mps->getTrackerID( emid_ );
+    if ( trackerid == -1 )
 	return;
+
+    if ( !treeitemwasenabled_ && isChecked() )
+	mps->enableTracking( trackerid, prevtrackstatus_ );
+
+    if ( treeitemwasenabled_ && !isChecked() )
+    {
+	prevtrackstatus_ = mps->isTrackingEnabled( trackerid );
+	mps->enableTracking( trackerid, false );
     }
 
-    if ( isChecked() )
-	applMgr()->mpeServer()->enableTracking(trackerid, prevtrackstatus_);
-    else
-    {
-	prevtrackstatus_ = applMgr()->mpeServer()->isTrackingEnabled(trackerid);
-	applMgr()->mpeServer()->enableTracking(trackerid,false);
-    }
+    treeitemwasenabled_ = isChecked();
     applMgr()->visServer()->updateMPEToolbar();
 }
 
