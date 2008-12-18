@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.46 2008-12-04 15:47:43 cvskris Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.47 2008-12-18 10:53:04 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -232,9 +232,10 @@ bool uiListViewBody::event( QEvent* ev )
 	if ( actitem_ && actitem_->listView()==&lvhandle_ &&
 	     actcolumn_>=0 && actcolumn_<lvhandle_.nrColumns() )
 	{
+	    lvhandle_.setCurrentItem( actitem_, actcolumn_ );
+
 	    lvhandle_.lastitemnotified_ = actitem_;
 	    lvhandle_.column_ = actcolumn_;
-	    lvhandle_.setCurrentItem( actitem_, actcolumn_ );
 
 	    if ( actleftclick_ )
 		lvhandle_.leftButtonClicked.trigger();
@@ -254,9 +255,9 @@ bool uiListViewBody::event( QEvent* ev )
 	    }
 	    else
 	    {
-		lvhandle_.lastitemnotified_ = actitem_;
 		lvhandle_.setCurrentItem( actitem_ );
 		actitem_->setChecked( !actitem_->isChecked(), true );
+		lvhandle_.lastitemnotified_ = actitem_;
 		lvhandle_.mouseButtonClicked.trigger();
 	    }
 	}
