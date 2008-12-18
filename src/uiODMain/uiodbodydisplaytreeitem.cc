@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.4 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.5 2008-12-18 09:51:03 cvsbert Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -43,8 +43,8 @@ uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
 bool uiODBodyDisplayParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("New ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New ..."), 1 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -111,15 +111,15 @@ uiTreeItem* uiODBodyDisplayTreeItemFactory::create( int visid,
 uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     : uiODDisplayTreeItem()
     , emid_( oid )
-    , savemnuitem_("Save")
-    , saveasmnuitem_("Save as ...")
-    , displaymnuitem_( "Display ..." )
-    , beziernrmnuitem_( "Polygon smooth" )			      
-    , displaybodymnuitem_ ( "Body" )
-    , displaypolygonmnuitem_( "Picked polygons" )			    
-    , displayintersectionmnuitem_( "Intersections" )
+    , savemnuitem_("&Save")
+    , saveasmnuitem_("Save &as ...")
+    , displaymnuitem_( "&Display ..." )
+    , beziernrmnuitem_( "Polygon smo&oth" )			      
+    , displaybodymnuitem_ ( "&Body" )
+    , displaypolygonmnuitem_( "&Picked polygons" )			    
+    , displayintersectionmnuitem_( "&Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
-    , newellipsoidmnuitem_("Create body")				   
+    , newellipsoidmnuitem_("&Create body")				   
     , mcd_( 0 )
     , plg_( 0 )	       
 {

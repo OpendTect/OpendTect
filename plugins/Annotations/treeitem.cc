@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.38 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.39 2008-12-18 09:51:03 cvsbert Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -225,9 +225,9 @@ bool AnnotTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    BufferString addtxt = "Add "; addtxt += typestr_; addtxt += " group ...";
+    BufferString addtxt = "&Add "; addtxt += typestr_; addtxt += " group ...";
     mnu.insertItem( new uiMenuItem(addtxt), 0 );
-    mnu.insertItem( new uiMenuItem("Load ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
 
     const int mnusel = mnu.exec();
     if ( mnusel < 0 ) return false;

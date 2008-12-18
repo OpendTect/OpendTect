@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.19 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.20 2008-12-18 09:51:03 cvsbert Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -43,8 +43,8 @@ uiODFaultParentTreeItem::uiODFaultParentTreeItem()
 bool uiODFaultParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Load ..."), mLoadMnuID );
-    mnu.insertItem( new uiMenuItem("New ..."), mNewMnuID );
+    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
+    mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -96,12 +96,12 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 
 #define mCommonInit \
-    , savemnuitem_("Save") \
+    , savemnuitem_("&Save") \
     , saveasmnuitem_("Save as ...") \
-    , displaymnuitem_( "Display ..." ) \
-    , displayplanemnuitem_ ( "Fault planes" ) \
-    , displaystickmnuitem_ ( "Fault sticks" ) \
-    , displayintersectionmnuitem_( "At sections only" ) \
+    , displaymnuitem_( "&Display ..." ) \
+    , displayplanemnuitem_ ( "Fault &planes" ) \
+    , displaystickmnuitem_ ( "Fault &sticks" ) \
+    , displayintersectionmnuitem_( "&At sections only" ) \
     , singlecolmnuitem_( "Use single &color" ) \
     , removeselectedmnuitem_( "&Remove selection" )
 
@@ -304,8 +304,8 @@ uiODFaultStickSetParentTreeItem::uiODFaultStickSetParentTreeItem()
 bool uiODFaultStickSetParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Load ..."), mLoadMnuID );
-    mnu.insertItem( new uiMenuItem("New ..."), mNewMnuID );
+    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadMnuID );
+    mnu.insertItem( new uiMenuItem("&New ..."), mNewMnuID );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -360,8 +360,8 @@ uiTreeItem* uiODFaultStickSetTreeItemFactory::create( int visid,
 #undef mCommonInit
 #define mCommonInit \
     , faultsticksetdisplay_(0) \
-    , savemnuitem_("Save") \
-    , saveasmnuitem_("Save as ...") \
+    , savemnuitem_("&Save") \
+    , saveasmnuitem_("Save &as ...") \
     , removeselectedmnuitem_( "&Remove selection" )
 
 
