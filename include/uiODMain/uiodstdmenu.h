@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.52 2008-12-10 17:48:02 cvskris Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.53 2008-12-18 16:03:51 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -155,8 +155,9 @@ ________________________________________________________________________
 #define mHelpMnuBase		(mHelpMnu + 100)
 #define mAdminMnuItm		(mHelpMnuBase + 1)
 #define mProgrammerMnuItm	(mHelpMnuBase + 2)
-#define mHelpAboutMnuBase	(mHelpMnuBase + 10)
-#define mHelpVarMnuBase		(mHelpMnuBase + 100)
+#define mHelpAboutMnuBase	(mHelpMnuBase + 100)
+#define mHelpCreditsMnuBase	(mHelpMnuBase + 200)
+#define mHelpVarMnuBase		(mHelpMnuBase + 300)
 
 
 

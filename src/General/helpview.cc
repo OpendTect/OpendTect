@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.37 2008-12-18 13:21:48 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.38 2008-12-18 16:03:51 cvsbert Exp $";
 
 #include "helpview.h"
 
@@ -217,21 +217,38 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 }
 
 
-BufferString HelpViewer::getCreditsURLForWinID( const char* winid )
+BufferString HelpViewer::getCreditsFileName( const char* winid )
 {
-    FilePath fp( GetDocFileDir(0) );
-    fp.add( "Credits" ).add( getScope(winid) ).setExtension( ".txt" );
-    const BufferString linkfnm( fp.fullPath() );
-    StreamData sd( StreamProvider(linkfnm).makeIStream() );
+    FilePath fp( GetDocFileDir("Credits") );
+    fp.add( getScope(winid) ).add( "index.txt" );
+    return BufferString( fp.fullPath() );
+}
+
+
+bool HelpViewer::getCreditsData( const char* fnm, IOPar& iop )
+{
+    StreamData sd( StreamProvider(fnm).makeIStream() );
     if ( !sd.usable() )
-	return BufferString( GetDocFileDir(sNotInstHtml) );
+	return false;
 
     ascistream astrm( *sd.istrm, true );
-    IOPar iop; iop.getFrom( astrm );
+    iop.getFrom( astrm );
     sd.close();
-    const char* ret = iop.find( unScoped(winid) );
-    if ( !ret || !*ret ) return BufferString( GetDocFileDir(sNotFoundHtml) );
+    return !iop.isEmpty();
+}
+
+
+BufferString HelpViewer::getCreditsURLForWinID( const char* winid )
+{
+    IOPar iop;
+    const BufferString cfnm( getCreditsFileName(winid) );
+    if ( !getCreditsData(cfnm,iop) )
+	return BufferString( GetDocFileDir(sNotInstHtml) );
+
+    const char* val = iop.find( unScoped(winid) );
+    if ( !val || !*val )
+	return BufferString( GetDocFileDir(sNotFoundHtml) );
     
-    fp.setFileName( ret );
+    FilePath fp( cfnm ); fp.setFileName( val );
     return BufferString( fp.fullPath() );
 }

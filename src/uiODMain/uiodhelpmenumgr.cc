@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.16 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.17 2008-12-18 16:03:51 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -16,10 +16,12 @@ static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.16 2008-11-25 15:35:25 c
 #include "uimenu.h"
 #include "ascstream.h"
 #include "dirlist.h"
+#include "helpview.h"
 #include "strmprov.h"
 #include "filepath.h"
 #include "filegen.h"
 #include "oddirs.h"
+#include "iopar.h"
 #include "errh.h"
 
 static const char* oddirnm = "base";
@@ -44,6 +46,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm, 0 );
     }
     mkAboutMenu();
+    mkCreditsMenu();
 }
 
 
@@ -51,6 +54,7 @@ uiODHelpMenuMgr::~uiODHelpMenuMgr()
 {
     deepErase( varentries_ );
     deepErase( aboutentries_ );
+    deepErase( creditsentries_ );
 }
 
 
@@ -101,7 +105,7 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
     for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString dirnm = dl.get( idx );
-	if ( dirnm == "Programmer" ) continue;
+	if ( dirnm == "Programmer" || dirnm == "Credits" ) continue;
 
 	uiODHelpDocInfo* di = new uiODHelpDocInfo;
 	FilePath fp( dl.dirName() ); fp.add( dirnm );
@@ -167,6 +171,40 @@ void uiODHelpMenuMgr::mkVarMenu()
 }
 
 
+void uiODHelpMenuMgr::mkCreditsMenu()
+{
+    uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&Credits" );
+    helpmnu_->insertItem( submnu );
+
+    DirList dl( GetDocFileDir("Credits"), DirList::DirsOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	FilePath fp( dl.fullPath(idx) ); fp.add( "index.txt" ); IOPar iop;
+	if ( !HelpViewer::getCreditsData(fp.fullPath(),iop) )
+	    continue;
+
+	uiODHelpDocInfo* di = new uiODHelpDocInfo;
+	di->id = mHelpCreditsMnuBase + idx + 1;
+	di->nm = iop.name(); di->nm += " ...";
+	fp.setFileName( "index.html" );
+	di->starturl = fp.fullPath();
+	creditsentries_ += di;
+
+	const BufferString dirnm( dl.get(idx) );
+	if ( dirnm == "base" && creditsentries_.size() > 1 )
+	{
+	    di->id = mHelpCreditsMnuBase;
+	    creditsentries_.swap( 0, creditsentries_.size()-1 );
+	}
+    }
+    for ( int idx=0; idx<creditsentries_.size(); idx++ )
+    {
+	const uiODHelpDocInfo* di = creditsentries_[idx];
+	mInsertItem( submnu, di->nm, di->id, di->shortcut );
+    }
+}
+
+
 void uiODHelpMenuMgr::mkAboutMenu()
 {
     uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&About" );
@@ -174,12 +212,9 @@ void uiODHelpMenuMgr::mkAboutMenu()
     mInsertItem( submnu, "&General ...", mHelpAboutMnuBase, 0 );
 
     FilePath fp( GetDocFileDir("ReleaseInfo") );
-    DirList dl( fp.fullPath(), DirList::FilesOnly );
+    DirList dl( fp.fullPath(), DirList::FilesOnly, "*.txt" );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	if ( File_isDirectory(dl.fullPath(idx)) )
-	    continue;
-
 	const BufferString fnm = dl.get( idx );
 	uiODHelpDocInfo* di = new uiODHelpDocInfo;
 	di->id = mHelpAboutMnuBase + idx + 1;
@@ -197,13 +232,13 @@ void uiODHelpMenuMgr::mkAboutMenu()
 }
 
 
-bool uiODHelpMenuMgr::getPopupData( int id, BufferString& title,
-				    BufferString& helpurl )
+bool uiODHelpMenuMgr::getPopupData( int id, BufferString& helpurl )
 {
-    const bool isabout = id < mHelpVarMnuBase;
+    const bool isabout = id < mHelpCreditsMnuBase;
+    const bool iscredits = !isabout && id < mHelpVarMnuBase;
 
     const ObjectSet<uiODHelpDocInfo>& hdi =
-				 isabout ? aboutentries_ : varentries_;
+	 isabout ? aboutentries_ : (iscredits ? creditsentries_ : varentries_);
     const uiODHelpDocInfo* di = 0;
     for ( int idx=0; idx<hdi.size(); idx++ )
     {
@@ -248,8 +283,7 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
     } break;
     default:
     {
-	BufferString title;
-	if ( !getPopupData( id, title, helpurl) )
+	if ( !getPopupData( id, helpurl) )
 	    return;
     } break;
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Aug 2005
- RCS:           $Id: uiodhelpmenumgr.h,v 1.6 2008-02-26 11:09:34 cvsnanne Exp $
+ RCS:           $Id: uiodhelpmenumgr.h,v 1.7 2008-12-18 16:03:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,16 +29,19 @@ public:
     void			handle(int,const char*);
 
 protected:
+
     bool			havedtectdoc_;
     uiODMenuMgr*		mnumgr_;
     uiPopupMenu*		helpmnu_;
     ObjectSet<uiODHelpDocInfo>	aboutentries_;
     ObjectSet<uiODHelpDocInfo>	varentries_;
+    ObjectSet<uiODHelpDocInfo>	creditsentries_;
 
     void			scanEntries(const char*);
     void			mkVarMenu();
     void			mkAboutMenu();
-    bool			getPopupData(int,BufferString&,BufferString&);
+    void			mkCreditsMenu();
+    bool			getPopupData(int,BufferString&);
     void			insertVarItem(uiPopupMenu*,int,bool);
 };
 
