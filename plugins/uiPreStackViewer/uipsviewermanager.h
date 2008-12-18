@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.7 2008-08-26 14:25:58 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.8 2008-12-18 08:33:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,10 +63,11 @@ protected:
     				//Saved 2DViewer for VD only.
 
     MenuItem			selectpsdatamenuitem_;
-    MenuItem			removemenuitem_;
     MenuItem			proptymenuitem_;
     MenuItem			positionmenuitem_;
     MenuItem			viewermenuitem_;
+    MenuItem			amplspectrumitem_;
+    MenuItem			removemenuitem_;
 
     PreStack::ProcessManager*   preprocmgr_;    
     uiVisPartServer*		visserv_;

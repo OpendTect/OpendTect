@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.26 2008-12-09 19:12:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.27 2008-12-18 08:33:12 cvsbert Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -39,17 +39,19 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.26 2008-12-09 19:12:41
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "uipsviewercoltab.h"
+#include "uiamplspectrum.h"
 
 
 namespace PreStackView
 {
 
 uiPSViewerMgr::uiPSViewerMgr()
-    : selectpsdatamenuitem_( "Display PS Gather" )
-    , positionmenuitem_( "Position ..." )  
-    , proptymenuitem_( "Properties ..." )				 
-    , removemenuitem_( "Remove" ) 
-    , viewermenuitem_( "View in 2D Panel" )
+    : selectpsdatamenuitem_( "D&isplay PS Gather" )
+    , positionmenuitem_( "P&osition ..." )  
+    , proptymenuitem_( "&Properties ..." )				 
+    , viewermenuitem_( "View in &2D Panel" )
+    , amplspectrumitem_( "&Amplitude spectrum ..." )
+    , removemenuitem_( "&Remove" ) 
     , visserv_( ODMainWin()->applMgr().visServer() )
     , preprocmgr_( new PreStack::ProcessManager )
 {
@@ -116,15 +118,17 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
     {
     	mAddMenuItem( menu, &positionmenuitem_, true, false );
 	mAddMenuItem( menu, &proptymenuitem_, true, false );
-    	mAddMenuItem( menu, &removemenuitem_, true, false ); 
     	mAddMenuItem( menu, &viewermenuitem_, true, false ); 
+    	mAddMenuItem( menu, &amplspectrumitem_, true, false ); 
+    	mAddMenuItem( menu, &removemenuitem_, true, false ); 
     }
     else
     {
 	mResetMenuItem( &positionmenuitem_ );
 	mResetMenuItem( &proptymenuitem_ );
-	mResetMenuItem( &removemenuitem_ );
 	mResetMenuItem( &viewermenuitem_ );
+	mResetMenuItem( &amplspectrumitem_ );
+	mResetMenuItem( &removemenuitem_ );
     }
 }
 
@@ -190,6 +194,21 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     	    viewwindows_ += viewwin;
     	    viewwin->start();
 	}
+    }
+    else if ( mnuid==amplspectrumitem_.id )
+    {
+	menu->setIsHandled( true );
+	uiAmplSpectrum* asd = new uiAmplSpectrum( menu->getParent() );
+	asd->setDeleteOnClose( true );
+	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID );
+	BufferString capt( "Amplitude spectrum for " );
+	capt += psv->getObjectName();
+	capt += " at ";
+	if ( psv->is3DSeis() )
+	    { capt += psv->getPosition().inl; capt += "/"; }
+	capt += psv->getPosition().crl;
+	asd->setCaption( capt );
+	asd->show();
     }
 }
 
