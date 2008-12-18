@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.81 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: survinfo.h,v 1.82 2008-12-18 05:55:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ at the bottom part of the class too for some more public functions.
 mClass SurveyInfo : public NamedObject
 {
 
-    friend __declspec( dllexport ) const SurveyInfo&	SI();
+    friend const SurveyInfo&	SI();
 
 public:
 
@@ -234,7 +234,7 @@ public:
 };
 
 
- __declspec( dllexport ) const SurveyInfo&	SI();
+mGlobal( const SurveyInfo& SI() )
 
 
 #endif
