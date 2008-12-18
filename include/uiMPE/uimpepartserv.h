@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.31 2008-02-20 19:38:07 cvskris Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.32 2008-12-18 11:15:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ public:
     static const int		evRemoveTreeObject;
     				/*!<Get trackerid via activeTrackerID */
     static const int		evUpdateTrees;
+    static const int		evUpdateSeedConMode;
     static const int		evShowToolbar;
     static const int		evMPEDispIntro;
     static const int		evWizardClosed;

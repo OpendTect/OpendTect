@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.70 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.71 2008-12-18 11:15:54 cvsjaap Exp $";
 
 #include "uimpepartserv.h"
 
@@ -43,6 +43,7 @@ const int uiMPEPartServer::evWizardClosed	= 7;
 const int uiMPEPartServer::evCreate2DSelSpec	= 8;
 const int uiMPEPartServer::evMPEDispIntro	= 9;
 const int uiMPEPartServer::evUpdateTrees	= 10;
+const int uiMPEPartServer::evUpdateSeedConMode	= 11;
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )

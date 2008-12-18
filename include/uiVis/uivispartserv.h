@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.214 2008-12-10 18:05:30 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.215 2008-12-18 11:15:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,6 +282,9 @@ public:
     static const int		evDisableSelTracker;
     bool			sendDisableSelTrackerEvent(); 
 
+    bool			isMPEWizardActive() const;
+    void			reportMPEWizardActive(bool yn);
+
     bool			isPicking() const;
     				/*!<\returns true if the selected object
 				     is handling left-mouse picks on other
@@ -300,6 +303,7 @@ public:
     
     void			showMPEToolbar(bool yn=true);
     void			updateMPEToolbar();
+    void			updateSeedConnectMode();
     void			introduceMPEDisplay();
     uiToolBar*			getTrackTB() const;
     void			initMPEStuff();
@@ -360,6 +364,7 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
 
+    bool			mpewizardactive_;
     bool			viewmode_;
     bool			issolomode_;
     Threads::Mutex&		eventmutex_;

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.8 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.9 2008-12-18 11:15:54 cvsjaap Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -78,6 +78,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	//Will be restored by event (evWizardClosed) from mpeserv
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
+	applMgr()->visServer()->reportMPEWizardActive( true );
 
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet( 
@@ -276,6 +277,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	//Will be restored by event (evWizardClosed) from mpeserv
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
+	applMgr()->visServer()->reportMPEWizardActive( true );
 
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(applMgr()->attrServer()->curDescSet(true));

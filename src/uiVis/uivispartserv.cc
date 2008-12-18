@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.385 2008-12-17 13:08:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.386 2008-12-18 11:15:54 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -94,6 +94,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , changematerialmnuitem_("&Properties ...",sPropertiesIdx)
     , resmnuitem_("&Resolution",sResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
+    , mpewizardactive_(false)
     , viewmode_(false)
     , issolomode_(false)
     , eventobjid_(-1)
@@ -1224,6 +1225,14 @@ bool uiVisPartServer::sendDisableSelTrackerEvent()
 }
 
 
+void uiVisPartServer::reportMPEWizardActive( bool yn )
+{ mpewizardactive_ = yn; }
+
+
+bool uiVisPartServer::isMPEWizardActive() const
+{ return mpewizardactive_; }
+
+
 void uiVisPartServer::turnSeedPickingOn( bool yn )
 {
     mpetools_->turnSeedPickingOn( yn );
@@ -1699,6 +1708,10 @@ void uiVisPartServer::updateMPEToolbar()
     mpetools_->validateSeedConMode();
     mpetools_->updateAttribNames();
 }
+
+
+void uiVisPartServer::updateSeedConnectMode()
+{ mpetools_->updateSeedModeSel(); }
 
 
 void uiVisPartServer::introduceMPEDisplay()

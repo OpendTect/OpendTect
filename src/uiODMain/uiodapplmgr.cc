@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.278 2008-12-11 21:42:52 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.279 2008-12-18 11:15:54 cvsjaap Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -941,6 +941,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	enableMenusAndToolBars( true );
 	enableTree( true );
+	visserv_->reportMPEWizardActive( false );
     }
     else if ( evid==uiMPEPartServer::evGetAttribData )
     {
@@ -970,6 +971,8 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	visserv_->initMPEStuff();
     else if ( evid==uiMPEPartServer::evUpdateTrees )
 	sceneMgr().updateTrees();
+    else if ( evid==uiMPEPartServer::evUpdateSeedConMode )
+	visserv_->updateSeedConnectMode();
     else
 	pErrMsg("Unknown event from mpeserv");
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.88 2008-12-05 15:17:28 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.89 2008-12-18 11:15:54 cvsjaap Exp $";
 
 
 #include "uimpewizard.h"
@@ -823,6 +823,7 @@ void Wizard::seedModeChange( CallBacker* )
     infofld->setText( infotext );
     mGetSeedPicker();
     seedpicker->setSeedConnectMode( newmode );
+    mpeserv->sendEvent( uiMPEPartServer::evUpdateSeedConMode );
 
     displayPage( sSeedSetupPage, seedpicker->doesModeUseSetup() );
 }
