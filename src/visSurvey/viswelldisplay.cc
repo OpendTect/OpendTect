@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.83 2008-12-18 09:04:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.84 2008-12-18 15:41:55 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -188,7 +188,6 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 {
     Well::Data* wd = Well::MGR().get( multiid, true );
     if ( !wd ) return false;
-    
     const Well::D2TModel* d2t = wd->d2TModel();
     if ( zistime_ )
     {
@@ -691,7 +690,6 @@ void WellDisplay::pickCB( CallBacker* cb )
 
 void WellDisplay::addPick( Coord3 pos )
 {
-    Well::Data* wd = Well::MGR().get( wellid_ );
     int insertidx = -1;
     if ( pseudotrack_ )
     {
@@ -717,8 +715,7 @@ void WellDisplay::addPick( Coord3 pos )
 
 	marker->setDisplayTransformation( transformation_ );
 	marker->setCenterPos( pos );
-        int msize = dpp(markers_.size_);
-        marker->setScreenSize( msize );
+        marker->setScreenSize( mPickSz );
 	marker->setType( (MarkerStyle3D::Type)mPickType );
 	marker->getMaterial()->setColor( lineStyle()->color_ );
     }
