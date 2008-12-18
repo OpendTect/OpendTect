@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.5 2008-12-18 15:21:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.6 2008-12-18 15:30:20 cvsyuancheng Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -88,19 +88,19 @@ void uiPSViewerPositionDlg::posChg( CallBacker* c )
 
 bool uiPSViewerPositionDlg::applyCB( CallBacker* )
 {
-    if ( viewer_.is3DSeis() )
+    const int location = posfld_->getValue();
+    if ( is3D() )
     {
 	BinID newpos = viewer_.getPosition();
-	const int inlcrl = posfld_->getValue();
 	
-	if ( viewer_.isOrientationInline() )
+	if ( isInl() )
 	{
-	    if ( newpos.crl==inlcrl )
+	    if ( newpos.crl==location )
 		return true;
 
 	    const StepInterval<int> crlrg = SI().crlRange( true );
-	    if ( crlrg.includes( inlcrl ) )
-	    	newpos.crl = inlcrl;
+	    if ( crlrg.includes( location ) )
+	    	newpos.crl = location;
 	    else
 	    {
 		BufferString msg = "The crossline should be between ";
@@ -113,12 +113,12 @@ bool uiPSViewerPositionDlg::applyCB( CallBacker* )
 	}
 	else
 	{
-	    if ( newpos.inl==inlcrl )
+	    if ( newpos.inl==location )
 		return true;
 
 	    const StepInterval<int> inlrg = SI().inlRange( true );
-	    if ( inlrg.includes( inlcrl ) )
-	    	newpos.inl = inlcrl;
+	    if ( inlrg.includes( location ) )
+	    	newpos.inl = location;
 	    else
 	    {
 		BufferString msg = "The inline should be between ";
@@ -133,17 +133,16 @@ bool uiPSViewerPositionDlg::applyCB( CallBacker* )
 	viewer_.setPosition( newpos );
 
 	const BinID bid = viewer_.getPosition();
-	posfld_->setValue( viewer_.isOrientationInline() ? bid.crl : bid.inl );
+	posfld_->setValue( isInl() ? bid.crl : bid.inl );
     }
     else
     {
-	const int tracenr = posfld_->getValue();
-	if ( !viewer_.getSeis2DDisplay() || tracenr==viewer_.traceNr() )
+	if ( !viewer_.getSeis2DDisplay() || location==viewer_.traceNr() )
 	    return true;
 
 	const Interval<int> trcrg = 
 	    viewer_.getSeis2DDisplay()->getTraceNrRange();
-	if ( !trcrg.includes(tracenr) )
+	if ( !trcrg.includes(location) )
 	{
 	    BufferString msg = "The trace number should be between ";
 	    msg += trcrg.start;
@@ -153,7 +152,7 @@ bool uiPSViewerPositionDlg::applyCB( CallBacker* )
 	    return false;
 	}
 
-	viewer_.setTraceNr( tracenr );
+	viewer_.setTraceNr( location );
 	posfld_->setValue( viewer_.traceNr() );
     }
 
@@ -161,9 +160,9 @@ bool uiPSViewerPositionDlg::applyCB( CallBacker* )
 }
 
 
-bool uiPSViewerPositionDlg::acceptOK( CallBacker* )
+bool uiPSViewerPositionDlg::acceptOK( CallBacker* c )
 {
-    return applyCB( 0 );
+    return applyCB( c );
 }
 
 
