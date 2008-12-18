@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.82 2008-12-17 14:17:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.83 2008-12-18 09:04:49 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -133,8 +133,7 @@ void WellDisplay::fullRedraw( CallBacker* )
    
     BufferString leftname = dpp( left_.name_ );  
     BufferString rightname = dpp( right_.name_ );  
-   
-	logsnumber_ = 0;
+    logsnumber_ = 0;
 
     if ( leftname.size() )
     {
@@ -361,6 +360,9 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
 void WellDisplay::calcClippedRange(float cliprate, Interval<float>& range,
        							Well::Log& wl )
 {
+    cliprate = cliprate / 100;
+    if ( mIsUdf(cliprate) || cliprate < 0 ) cliprate = 0;
+    if ( cliprate > 100 ) cliprate = 100;
     int logsz=wl.size();
     DataClipper dataclipper;
     dataclipper.setApproxNrValues( logsz );
@@ -407,6 +409,7 @@ void WellDisplay::setOneLogDisplayed(bool yn)
     well_->setLogStyle( iswelllog, lognr ); \
     well_->setLogFill( isfilled, lognr ); \
     setLogColor( lcolor, lognr ); \
+    setLogLineWidth( dpp(side.size_), lognr );\
     setLogFillColor( seiscolor, lognr, seqname, iswelllog );\
 }
 

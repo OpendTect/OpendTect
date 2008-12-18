@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.10 2008-12-17 14:18:02 cvsbruno Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.11 2008-12-18 09:04:49 cvsbruno Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
@@ -78,7 +78,8 @@ void DrawStyle::setLineStyle( const LineStyle& nls )
 
 void DrawStyle::setLineWidth( int width )
 {
-    drawstyle->lineWidth.setValue( linestyle.width_ );
+    drawstyle->lineWidth.setValue( width );
+    updateLineStyle();
 }    
 
 
@@ -90,7 +91,7 @@ SoNode* DrawStyle::getInventorNode()
 
 void DrawStyle::updateLineStyle()
 {
-    drawstyle->lineWidth.setValue( linestyle.width_ );
+    //drawstyle->lineWidth.setValue( linestyle.width_ );
 
     unsigned short pattern;
 
