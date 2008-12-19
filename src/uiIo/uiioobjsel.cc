@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.124 2008-12-02 15:41:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.125 2008-12-19 07:34:52 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 #include "uiioobjmanip.h"
@@ -436,7 +436,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     selgrp->getListField()->setHSzPol( uiObject::Wide );
     if ( !ismultisel )
     {
-	statusBar()->setTxtAlign( 0, uiStatusBar::Right );
+	statusBar()->setTxtAlign( 0, OD::AlignRight );
 	selgrp->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
     }
 
