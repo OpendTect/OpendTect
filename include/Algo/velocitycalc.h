@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.3 2008-12-18 19:01:22 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.4 2008-12-19 20:04:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,11 @@ protected:
 };
 
 
+/*! Computes moveout with anisotropy, according to the equation
+    by Alkhalifah and Tsvankin 1995. */
+bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
+		     int nroffsets, const float* offsets, float* res );
+
 
 /*!Converts a series of Vrms to Vint. Vrms may contain undefined values, as
    long as at least one is define.
@@ -64,6 +69,7 @@ protected:
 
 bool computeDix(const float* Vrms,const SamplingData<double>& sd,int nrvels,
 	                VelocityDesc::SampleSpan,float* Vint);
+
 
 
 #endif

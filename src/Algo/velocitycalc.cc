@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.4 2008-12-18 19:01:22 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.5 2008-12-19 20:04:26 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -321,6 +321,45 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 
 	times[idx] = time;
 	prevvel = curvel;
+    }
+
+    return true;
+}
+
+
+bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
+	                     int nroffsets, const float* offsets, float* res )
+{
+    const double t0_2 = t0*t0;
+    const double v2 = Vrms*Vrms;
+
+    const bool hasanisotropy = !mIsZero(effectiveanisotropy, 1e-3);
+
+    for ( int idx=nroffsets-1; idx>=0; idx-- )
+    {
+	const double offset = offsets[idx];
+	const double offset2 = offset*offset;
+
+	double t2 = t0_2 + offset2/v2;
+	if ( hasanisotropy )
+	{
+	    const double offset4 = offset2*offset2;
+	    const double numerator = 2 * effectiveanisotropy * offset4;
+	    const double denominator =
+		    v2*(t0_2*v2+(1+2*effectiveanisotropy)*offset2);
+
+	    double anisotropycontrib = 0;
+	    if ( denominator>0 )
+		anisotropycontrib = numerator/denominator;
+
+	    if ( anisotropycontrib<t2 )
+		t2 -= anisotropycontrib;
+	}
+
+	if ( t2<=0 )
+	    res[idx] = 0;
+	else
+	    res[idx] = Math::Sqrt( t2 );
     }
 
     return true;
