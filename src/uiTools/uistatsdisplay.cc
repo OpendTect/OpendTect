@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.19 2008-12-18 10:53:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.20 2008-12-19 04:45:38 cvsnanne Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -255,7 +255,7 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
     : uiMainWin(p,"Data statistics",-1,false,ismodal)
     , disp_(*new uiStatsDisplay(this,su))
 {
-    statusBar()->addMsgFld( "Data name", uiStatusBar::Left, 1 );
+    statusBar()->addMsgFld( "Data name", OD::AlignLeft, 1 );
 }
 
 
