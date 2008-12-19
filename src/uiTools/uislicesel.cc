@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislicesel.cc,v 1.52 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uislicesel.cc,v 1.53 2008-12-19 12:30:05 cvsnageswara Exp $";
 
 #include "uislicesel.h"
 
@@ -72,7 +72,7 @@ void uiSliceSel::setApplyCB( const CallBack& acb )
 {
     delete applycb_;
     applycb_ = new CallBack( acb );
-    applybut_->display( true );
+    if ( applybut_ ) applybut_->display( true );
 }
 
 
