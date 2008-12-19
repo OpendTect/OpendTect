@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.36 2008-12-17 14:18:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.37 2008-12-19 16:08:58 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -342,6 +342,61 @@ void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
     }
 
     showLog( true, lognr );
+}
+
+
+void Well::setFillLogData( const TypeSet<Coord3Value>& crdvals,
+       			const char* lognm, const Interval<float>& range,
+       			bool sclog, int lognr )
+{
+    int nrsamp = crdvals.size();
+    float step = 1;
+    if ( nrsamp > sMaxNrLogSamples )
+    {
+	step = (float)nrsamp / sMaxNrLogSamples;
+	nrsamp = sMaxNrLogSamples;
+    }
+
+    float prevval = 0;
+    const bool rev = range.start > range.stop;
+    for ( int i=0; i<log.size(); i++ )
+    {   
+        log[i]->setRevScale( rev, lognr );
+       // log[i]->clearLog( lognr );
+    }
+    Interval<float> rg = range; rg.sort();
+    LinScaler scaler( rg.start, 0, rg.stop, 100 );
+    for ( int idx=0; idx<nrsamp; idx++ )
+    {
+	int index = mNINT(idx*step);
+	const Coord3Value& cv = crdvals[index];
+	Coord3 pos( cv.coord );
+	if ( transformation )
+	    pos = transformation->transform( pos );
+	if ( mIsUdf(pos.z) ) continue;
+
+	float val = scaler.scale( cv.value );
+	if ( mIsUdf(val) )
+	    val = prevval;
+	else if ( val < 0 )
+	    val = 0;
+	else if ( val > 100 )
+	    val = 100;
+
+	if ( sclog )
+	{
+	    val += 1;
+	    val = ::log( val );
+	}
+       
+
+    	for ( int i=0; i<log.size(); i++ )
+    	{   
+	    log[i]->setFillLogValue( idx, SbVec3f(pos.x,pos.y,pos.z),
+				      val, lognr );
+	}
+	prevval = val;
+    }
 }
 
 

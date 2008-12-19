@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.20 2008-12-17 13:08:34 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.21 2008-12-19 16:08:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,10 @@ public:
     bool			markerNameShown() const;
 
     void			setLogData(const TypeSet<Coord3Value>&,
+	    			           const char* lognm,
+					   const Interval<float>& rg,
+					   bool scale,int nr);
+    void			setFillLogData(const TypeSet<Coord3Value>&,
 	    			           const char* lognm,
 					   const Interval<float>& rg,
 					   bool scale,int nr);

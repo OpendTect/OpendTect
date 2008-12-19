@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.5 2008-12-19 11:19:01 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.6 2008-12-19 16:08:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,9 +87,11 @@ public:
 
 			Log()
 			    : name_("none")
+			    , fillname_("none")
 			    , iswelllog_(true)	
 			    , cliprate_(mUdf(float))
 			    , range_(mUdf(float),mUdf(float))
+			    , fillrange_(mUdf(float),mUdf(float))
 		            , isdatarange_(true)
 			    , logarithmic_(false)
 			    , repeat_(1)
@@ -98,16 +100,20 @@ public:
 			    , islogfill_(false)
 		            , seiscolor_(Color::White)
 			    , seqname_("AI")
+			    , issinglecol_(false)		    
 							{}
 
 	BufferString	    name_;
+	BufferString	    fillname_;
 	bool		    iswelllog_;
 
 	float               cliprate_;      //!< If undef, use range_
 	Interval<float>     range_;         //!< If cliprate_ set, filled using it
+	Interval<float>     fillrange_;       
 	bool                logarithmic_;
 	bool                isdatarange_;
 	bool                islogfill_;
+	bool                issinglecol_;
 	int                 repeat_;
 	float               repeatovlap_;
 	Color               linecolor_;

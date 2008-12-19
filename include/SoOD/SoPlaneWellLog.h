@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.13 2008-12-05 09:17:49 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.14 2008-12-19 16:08:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,15 +62,24 @@ public:
     bool 		        getLogStyle() const;
     void			setShift(float,int);
     void   			setLogFill(bool,int);
+    void 			setFillLogValue(int,const SbVec3f&,
+	                                        float,int);
+
 
     SoMFVec3f			path1;
     SoMFVec3f			path2;
     SoMFFloat			log1;
     SoMFFloat			log2;
+    SoMFFloat			filllog1;
+    SoMFFloat			filllog2;
     SoSFFloat			maxval1;
     SoSFFloat			maxval2;
+    SoSFFloat			fillmaxval1;
+    SoSFFloat			fillmaxval2;
     SoSFFloat			minval1;
     SoSFFloat			minval2;
+    SoSFFloat			fillminval1;
+    SoSFFloat			fillminval2;
     SoSFFloat			shift1;
     SoSFFloat			shift2;
     SoSFBool  			style1;

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.85 2008-12-19 11:19:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.86 2008-12-19 16:08:58 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -313,6 +313,44 @@ void WellDisplay::createLogDisplay( int logidx, Interval<float>* range,
 }
 
 
+void WellDisplay::createFillLogDisplay( int logidx, Interval<float>* range,
+			            bool logrthm, int lognr)
+{
+    if ( logidx < 0 ) { pErrMsg("Logidx < 0"); return;}
+    Well::Data* wd = Well::MGR().get( wellid_ );
+    if ( !wd || wd->logs().isEmpty() ) return;
+
+    Well::Log& wl = wd->logs().getLog( logidx );
+    if ( wl.isEmpty() ) return;
+    const int logsz = wl.size();
+  
+    const Well::Track& track = wd->track();
+    TypeSet<Coord3Value> crdvals;
+
+    for ( int idx=0; idx<logsz; idx++ )
+    {
+	const float dah = wl.dah(idx);
+	Coord3 pos = track.getPos( dah );
+	if ( !pos.x && !pos.y && !pos.z ) continue;
+
+	if ( zistime_ )
+	    pos.z = wd->d2TModel()->getTime( dah );
+	else if ( zinfeet_ )
+	    mMeter2Feet(pos.z)
+	
+	Coord3Value cv( pos, wl.value(idx) );
+	crdvals += cv;
+     }
+
+    Interval<float> selrange( Interval<float>().setFrom(
+		range ? *range : wl.selValueRange() ) );
+    if ( !range )
+	logrthm = wl.dispLogarithmic();
+   
+    well_->setFillLogData( crdvals, wl.name(), selrange, logrthm, lognr );
+}
+
+
 void WellDisplay::displayLog( const BufferString lognm, bool logrthm,
 		        	  Interval<float>& range, int lognr )
 {
@@ -324,6 +362,7 @@ void WellDisplay::displayLog( const BufferString lognm, bool logrthm,
    
     mDeclareAndTryAlloc( Interval<float>*, rgptr, Interval<float>( range ) );
     createLogDisplay( lognr, rgptr, logidx, logrthm );
+    createFillLogDisplay( lognr, rgptr, logidx, logrthm );
 }
 
 
@@ -333,13 +372,21 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
     if ( !wd || wd->logs().isEmpty() ) return;
     
     BufferString logname ;
+    BufferString filllogname ;
     Interval<float> range;
+    Interval<float> fillrange;
     int repeat;
     logname = ( lognr == 1 ? dpp( left_.name_ ) : dpp( right_.name_ ) ); 
+    filllogname = ( lognr == 1 ? dpp( left_.fillname_ ) 
+	    		       : dpp( right_.fillname_ ) ); 
     range = ( lognr == 1 ? dpp( left_.range_ ) : dpp( right_.range_ ) );
+    fillrange = ( lognr == 1 ? dpp( left_.fillrange_ ) 
+	    		     : dpp( right_.fillrange_ ) );
     repeat = ( lognr == 1 ? dpp( left_.repeat_ ) : dpp( right_.repeat_ ) );
     
     const int logidx = wd->logs().indexOf( logname );
+    const int filllogidx = wd->logs().indexOf( filllogname );
+   
     if( logidx<0 )
     {
 	well_->clearLog( lognr );
@@ -350,7 +397,10 @@ void WellDisplay::setLogDisplay( Well::LogDisplayPars& dp, int lognr )
     setWellProperties( lognr, range );
     mDeclareAndTryAlloc( Interval<float>*,rgptr,
 	    		 Interval<float>( range ) );
+    mDeclareAndTryAlloc( Interval<float>*,fillrgptr,
+	    		 Interval<float>( fillrange ) );
     createLogDisplay( logidx, rgptr, dp.logarithmic_, lognr );
+    createFillLogDisplay( filllogidx, fillrgptr, dp.logarithmic_, lognr );
     well_->showLog( true, lognr );
     if (repeat < logsnumber_) well_->hideUnwantedLogs( lognr, repeat  );
 }
@@ -430,8 +480,8 @@ void WellDisplay::setWellProperties( int lognr, Interval<float>& range)
     if ( !isdatarange )
     {
 	calcClippedRange( cliprate, range, wl );
-	dpp( left_.range_) = range;
-	dpp( right_.range_) = range;
+	//dpp( left_.range_) = range; //TODO update range?
+	//dpp( right_.range_) = range;
     }
 }
 

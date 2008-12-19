@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.5 2008-12-19 11:19:01 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.6 2008-12-19 16:08:58 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,8 +128,11 @@ protected:
     void 		recoverProp();
     void 		choiceSel(CallBacker*);
     void 		setRangeFields(Interval<float>&);
+    void 		setFillRangeFields(Interval<float>&);
     void 		updateRange(CallBacker*);
+    void 		updateFillRange(CallBacker*);
     void 		calcLogValueRange();
+    void 		calcFillLogValueRange();
     void  		setFldSensitive(bool);
     void 		logSel(CallBacker*);
     void 		selNone();
@@ -143,11 +146,14 @@ protected:
     uiGenInput*         cliprangefld_;
     uiGenInput*         ovlapfld_;
     uiLabeledComboBox*  logsfld_;
+    uiLabeledComboBox*  filllogsfld_;
     uiCheckBox*         logfillfld_;
+    uiCheckBox*         singlfillcolfld_;
     uiComboBox*         coltablistfld_;
     uiColorInput*       seiscolorfld_;
 
     Interval<float>     valuerange_;
+    Interval<float>     fillvaluerange_;
     Well::Data*  wd_;
 
 };

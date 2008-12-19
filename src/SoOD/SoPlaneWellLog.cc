@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.16 2008-12-05 09:17:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.17 2008-12-19 16:08:58 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -110,10 +110,16 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( path2, (0,0,0) );
     SO_KIT_ADD_FIELD( log1, (0) );
     SO_KIT_ADD_FIELD( log2, (0) );
+    SO_KIT_ADD_FIELD( filllog1, (0) );
+    SO_KIT_ADD_FIELD( filllog2, (0) );
     SO_KIT_ADD_FIELD( maxval1, (0) );
     SO_KIT_ADD_FIELD( maxval2, (0) );
+    SO_KIT_ADD_FIELD( fillmaxval1, (0) );
+    SO_KIT_ADD_FIELD( fillmaxval2, (0) );
     SO_KIT_ADD_FIELD( minval1, (0) );
     SO_KIT_ADD_FIELD( minval2, (0) );
+    SO_KIT_ADD_FIELD( fillminval1, (0) );
+    SO_KIT_ADD_FIELD( fillminval2, (0) );
     SO_KIT_ADD_FIELD( shift1, (0) );
     SO_KIT_ADD_FIELD( shift2, (0) );
     SO_KIT_ADD_FIELD( style1, (0) );
@@ -216,6 +222,12 @@ void SoPlaneWellLog::clearLog( int lognr )
     path.deleteValues(0);
     SoMFFloat& log = lognr==1 ? log1 : log2;
     log.deleteValues(0);
+    SoMFFloat& filllog = lognr==1 ? filllog1 : filllog2;
+    filllog.deleteValues(0);
+    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
+    fillmaxval.setValue( 0 ); 
+    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    fillminval.setValue( 0 ); 
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
     maxval.setValue( 0 ); 
     SoSFFloat& minval = lognr==1 ? minval1 : minval2;
@@ -243,6 +255,18 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
 }
 
 
+void SoPlaneWellLog::setFillLogValue( int index, const SbVec3f& crd,
+       					float fillval, int lognr )
+{
+    SoMFFloat& filllog = lognr==1 ? filllog1 : filllog2;
+    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    filllog.set1Value( index, fillval );
+    if ( fillval > fillmaxval.getValue() ) fillmaxval.setValue( fillval );
+    if ( fillval < fillminval.getValue() ) fillminval.setValue( fillval );
+}
+
+
 #define sMaxNrSamplesRot 250
 
 void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
@@ -262,8 +286,11 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
 
     SoMFVec3f& path = lognr==1 ? path1 : path2;
     SoMFFloat& log = lognr==1 ? log1 : log2;
+    SoMFFloat& filllog = lognr==1 ? filllog1 : filllog2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
     SoSFFloat& minval = lognr==1 ? minval1 : minval2;
+    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
+    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
     SoSFFloat& shift = lognr==1 ? shift1 : shift2;
     SoSFBool& style = lognr==1 ? style1 : style2;
     SoSFBool& filling = lognr==1 ? filling1 : filling2;
@@ -271,11 +298,13 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
     bool styleB = style.getValue();
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
+    float fillminvalF = fillminval.getValue();
+    float fillmaxvalF = fillmaxval.getValue();
     bool fillingB = filling.getValue();
     float shiftprct; 
     shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0 );
     float meanlogval = ( maxvalF - minvalF ) / 2;
-    float colstep = ( maxvalF - minvalF ) / 255;
+    float colstep = ( fillmaxvalF - fillminvalF ) / 255;
     int colindex = 0;
 
     bool& revscale = lognr==1 ? revscale1 : revscale2;
@@ -292,14 +321,15 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int index = int(idx*step+.5);
-	
+      
+        float filllogval = filllog[index];
 	float logval = log[index];
 	if ( revscale ) logval = maxval.getValue() - logval;
 	if ( logval < 0 ) logval = 0;
 	if ( logval > maxval.getValue() ) logval = maxval.getValue();
         if ( logval < minval.getValue() ) logval = minval.getValue();
     
-	colindex = (int) ( (logval - minvalF) /colstep );
+	colindex = (int) ( (filllogval - fillminvalF) / colstep );
 
 	SbVec3f shiftcrd;
         shiftcrd *= 0;
