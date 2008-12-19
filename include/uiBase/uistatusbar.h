@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.9 2006-02-01 21:54:01 cvskris Exp $
+ RCS:           $Id: uistatusbar.h,v 1.10 2008-12-19 04:45:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uihandle.h>
-
-#include "color.h"
+#include "uihandle.h"
+#include "draw.h"
 
 class uiStatusBarBody;
 class QStatusBar;
@@ -28,19 +27,17 @@ class uiStatusBar : public uiObjHandle
 
 public:
 
-    enum		TxtAlign{ Left, Centre, Right };
-
     int			addMsgFld(const char* lbltxt=0,
 	    			  const char* tooltip =0,
-				  TxtAlign al=Left,
+				  OD::Alignment al=OD::AlignLeft,
 	    			  int stretch=1);
 
     int			addMsgFld(const char* tooltip,
-				  TxtAlign al=Left,
+				  OD::Alignment al=OD::AlignLeft,
 	    			  int stretch=1);
 
     void		setToolTip(int,const char*);
-    void		setTxtAlign(int,TxtAlign);
+    void		setTxtAlign(int,OD::Alignment);
     void		setLabelTxt(int,const char*);
 
     void 		message(const char*,int fldidx=0, int msecs=-1);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatusbar.cc,v 1.13 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uistatusbar.cc,v 1.14 2008-12-19 04:45:05 cvsnanne Exp $";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
@@ -44,14 +44,9 @@ public:
 				else msgs[0]->setText(msg);
 			    }
 			    else if ( msg && *msg )
-			    {
-				if ( msecs < 0 )
-				    qthing()->message(msg);
-				else
-				    qthing()->message(msg,msecs);
-			    }
+				qthing()->showMessage( msg, msecs<0?0:msecs );
 			    else
-				qthing()->clear();
+				qthing()->clearMessage();
 			}
 
     void		setBGColor( int idx, const Color& col )
@@ -67,7 +62,9 @@ public:
 				widget = qthing();
 
 			    const QColor qcol(col.r(),col.g(),col.b());
-			    widget->setPaletteBackgroundColor(qcol);
+			    QPalette palette;
+			    palette.setColor( widget->backgroundRole(), qcol );
+			    widget->setPalette(palette);
 			}
 
     Color		getBGColor( int idx )
@@ -82,19 +79,21 @@ public:
 			    else 
 				widget = qthing();
 
-			    const QColor qc = widget->paletteBackgroundColor();
-			    return Color(qc.red(),qc.green(),qc.blue());
+			    const QBrush& qbr = widget->palette().brush(
+				    widget->backgroundRole() );
+			    const QColor& qc = qbr.color();
+			    return Color( qc.red(), qc.green(), qc.blue() );
 			}
 
     int			addMsgFld( const char* lbltxt, int stretch )
 			{
-			    QLabel* msg_ = new QLabel( qthing(), lbltxt );
+			    QLabel* msg_ = new QLabel( lbltxt );
 			    int idx = msgs.size();
 			    msgs += msg_;
 
 			    if ( lbltxt )
 			    {
-				QLabel* txtlbl = new QLabel( qthing(), lbltxt );
+				QLabel* txtlbl = new QLabel( lbltxt );
 				msg_->setBuddy( txtlbl );
 
 				qthing()->addWidget( txtlbl );
@@ -102,7 +101,6 @@ public:
 			    }
 
 			    qthing()->addWidget( msg_, stretch );
-
 			    return idx;
 			}
 
@@ -158,7 +156,7 @@ Color uiStatusBar::getBGColor( int fldidx ) const
 
 
 int uiStatusBar::addMsgFld( const char* lbltxt, const char* tooltip,
-			    TxtAlign al, int stretch )
+			    OD::Alignment al, int stretch )
 {
     int idx = body_->addMsgFld( lbltxt, stretch );
 
@@ -170,7 +168,7 @@ int uiStatusBar::addMsgFld( const char* lbltxt, const char* tooltip,
 }
 
 int uiStatusBar::addMsgFld( const char* tooltip,
-			    TxtAlign al, int stretch )
+			    OD::Alignment al, int stretch )
 {
     int idx = body_->addMsgFld( 0, stretch );
 
@@ -181,33 +179,24 @@ int uiStatusBar::addMsgFld( const char* tooltip,
 }
 
 
-void uiStatusBar::setToolTip(int idx ,const char* tooltip)
+void uiStatusBar::setToolTip( int idx, const char* tooltip )
 {
-    if ( idx<0 || idx >= body_->msgs.size() ) return;
+    if ( ! body_->msgs.validIdx(idx) ) return;
 
-    if ( tooltip && *tooltip) 
-	QToolTip::add( body_->msgs[idx], tooltip );
+    if ( tooltip && *tooltip && body_->msgs[idx] )
+	body_->msgs[idx]->setToolTip( tooltip );
 }
 
 
-void uiStatusBar::setTxtAlign(int idx ,TxtAlign algn )
+void uiStatusBar::setTxtAlign( int idx, OD::Alignment al )
 {
-    if ( idx<0 || idx >= body_->msgs.size() ) return;
+    if ( ! body_->msgs.validIdx(idx) ) return;
 
-    int qalgn = 0;
-    switch( algn )
-    {
-	case uiStatusBar::Centre:
-	    qalgn = Qt::AlignCenter; break;
-	case uiStatusBar::Right:
-	    qalgn = Qt::AlignRight; break;
-	case uiStatusBar::Left:
-	    qalgn = Qt::AlignLeft; break;
-    }
-    if ( qalgn ) body_->msgs[idx]->setAlignment( qalgn );
+    body_->msgs[idx]->setAlignment( (Qt::Alignment)al );
 }
 
-void uiStatusBar::setLabelTxt( int idx,const char* lbltxt )
+
+void uiStatusBar::setLabelTxt( int idx, const char* lbltxt )
 {
     if ( idx<0 || idx >= body_->msgs.size() ) return;
 
