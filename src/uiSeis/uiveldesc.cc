@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.13 2008-12-19 22:15:12 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -81,6 +81,12 @@ uiVelocityDescDlg::~uiVelocityDescDlg()
 }
 
 
+IOObj* uiVelocityDescDlg::getSelection() const
+{
+    return ctxt_.ioobj ? ctxt_.ioobj->clone() : 0;
+}
+
+
 void uiVelocityDescDlg::volSelChange(CallBacker*)
 {
     volsel_->commitInput( false );
@@ -128,8 +134,8 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 uiVelSel::uiVelSel(uiParent* p, CtxtIOObj& ctxt, const uiSeisSel::Setup& setup )
     : uiSeisSel( p, ctxt, setup )
 {
-    editcubebutt_ = new
-	uiPushButton( this, ctio.ioobj ? "Edit" : "Add", mCB(this,uiVelSel,editCB), false );
+    editcubebutt_ = new uiPushButton( this, ctio.ioobj ? "Edit" : "Add",
+				      mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, selbut_ );
 }
 
@@ -153,7 +159,10 @@ const IOObjContext& uiVelSel::ioContext()
 void uiVelSel::editCB(CallBacker*)
 {
     uiVelocityDescDlg dlg( this, ctio.ioobj );
-    dlg.go();
+    if ( dlg.go() )
+	ctio.setObj( dlg.getSelection() );
+
+    updateInput();
 }
 
 

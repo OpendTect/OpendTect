@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.3 2008-01-11 18:26:14 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.4 2008-12-19 22:15:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,9 @@ class uiVelocityDescDlg : public uiDialog
 public:
     			uiVelocityDescDlg(uiParent*,const IOObj* cursel);
 			~uiVelocityDescDlg();
+
+   IOObj*		getSelection() const;
+   			//!<returned object must be managed by caller
 
 protected:
    bool			acceptOK(CallBacker*);
