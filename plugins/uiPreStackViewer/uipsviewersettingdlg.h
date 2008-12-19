@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2007
- RCS:           $Id: uipsviewersettingdlg.h,v 1.2 2008-05-27 22:53:41 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewersettingdlg.h,v 1.3 2008-12-19 21:58:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,26 +19,27 @@ namespace PreStack { class ProcessManager; }
 
 namespace PreStackView 
 { 
-    class PreStackViewer; 
-    class uiPSViewerMgr; 
-    class uiPSViewerColTab;
-    class uiPSViewerShapeTab;
-    class uiPSViewerPreProcTab;
+    class Viewer; 
+    class uiViewerMgr; 
+    class uiViewerColTab;
+    class uiViewerShapeTab;
+    class uiViewerPreProcTab;
 
 
-class uiPSViewerSettingDlg : public uiTabStackDlg
+class uiViewerSettingDlg : public uiTabStackDlg
 {
 public:
-				uiPSViewerSettingDlg(uiParent*,PreStackViewer&,
-						     uiPSViewerMgr&,
-						     PreStack::ProcessManager&);
+				uiViewerSettingDlg(uiParent*,
+						   PreStackView::Viewer&,
+						   uiViewerMgr&,
+						   PreStack::ProcessManager&);
 protected:
 
     bool			acceptOK(CallBacker*);
 
-    uiPSViewerShapeTab*		shapetab_;
-    uiPSViewerColTab*		coltab_;
-    uiPSViewerPreProcTab* 	preproctab_;
+    uiViewerShapeTab*		shapetab_;
+    uiViewerColTab*		coltab_;
+    uiViewerPreProcTab* 	preproctab_;
     uiCheckBox*			applytoallfld_;
 };
 

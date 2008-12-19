@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.5 2008-01-23 15:11:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.6 2008-12-19 21:58:00 cvsyuancheng Exp $";
 
 #include "plugins.h"
 #include "uipsviewermanager.h"
@@ -31,10 +31,10 @@ extern "C" PluginInfo* GetuiPreStackViewerPluginInfo()
 
 extern "C" const char* InituiPreStackViewerPlugin( int, char** )
 {
-    PreStackView::PreStackViewer::initClass();
-    static PreStackView::uiPSViewerMgr* mgr=0;
+    PreStackView::Viewer::initClass();
+    static PreStackView::uiViewerMgr* mgr=0;
     if ( mgr ) return 0;
-    mgr = new PreStackView::uiPSViewerMgr();    
+    mgr = new PreStackView::uiViewerMgr();    
     
     return 0; 
 }

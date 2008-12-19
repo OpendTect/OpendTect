@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.21 2008-12-18 15:21:06 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.22 2008-12-19 21:58:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,19 +37,19 @@ namespace visSurvey
 namespace PreStackView
 {
 
-class PreStackViewer :	public visBase::VisualObjectImpl,
-			public visSurvey::SurveyObject
+class Viewer : public visBase::VisualObjectImpl, public visSurvey::SurveyObject
 {
 public:
 
-    static PreStackViewer*	create()
-				mCreateDataObj( PreStackViewer );
+    static Viewer*		create()
+				mCreateDataObj( Viewer );
     void			allowShading(bool yn);
     void			setMultiID(const MultiID& mid);
     BufferString		getObjectName() const;
     bool			isInlCrl() const 	{ return true; }
     bool			isOrientationInline() const;
     const Coord			getBaseDirection() const; 
+    const StepInterval<int>	getTraceRange() const;
 
     				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);
@@ -65,8 +65,11 @@ public:
     bool			setPosition(const BinID&);
     const BinID&		getPosition() const;
     void			setSectionDisplay(visSurvey::PlaneDataDisplay*);
-    const visSurvey::PlaneDataDisplay* getSectionDisplay() const;	
-   
+    const visSurvey::PlaneDataDisplay* getSectionDisplay() const;
+    
+    Notifier<Viewer>		draggermoving;
+    const BinID			draggerPosition() const	{ return draggerpos_; }
+
    				//2D case 
     const visSurvey::Seis2DDisplay*    getSeis2DDisplay() const;
     bool			setSeis2DData(const IOObj* ioobj); 
@@ -104,7 +107,7 @@ public:
     static const char*		sKeySide() 	{ return "ShowSide"; }
 
 protected:
-    					~PreStackViewer();
+    					~Viewer();
     void				setDisplayTransformation(mVisTrans*);
     void				dataChangedCB(CallBacker*);
     void				sectionMovedCB(CallBacker*);
@@ -117,6 +120,7 @@ protected:
     void				finishedCB(CallBacker*);
 
     BinID				bid_;
+    BinID				draggerpos_;
     visBase::DepthTabPlaneDragger* 	planedragger_;
     visBase::FaceSet*                   draggerrect_;
     visBase::FlatViewer*		flatviewer_;

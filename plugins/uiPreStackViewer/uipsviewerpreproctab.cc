@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.4 2008-12-18 15:21:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.5 2008-12-19 21:58:00 cvsyuancheng Exp $";
 
 #include "uipsviewerpreproctab.h"
 
@@ -19,8 +19,9 @@ namespace PreStackView
 {
 
 
-uiPSViewerPreProcTab::uiPSViewerPreProcTab( uiParent* p, PreStackViewer& vwr,
-	uiPSViewerMgr& mgr, PreStack::ProcessManager& preprocmgr )
+uiViewerPreProcTab::uiViewerPreProcTab( uiParent* p, 
+	PreStackView::Viewer& vwr, uiViewerMgr& mgr, 
+	PreStack::ProcessManager& preprocmgr )
     : uiDlgGroup( p, "Preprocessing" )
     , vwr_( vwr )
     , preprocmgr_( &preprocmgr )
@@ -30,25 +31,24 @@ uiPSViewerPreProcTab::uiPSViewerPreProcTab( uiParent* p, PreStackViewer& vwr,
     uipreprocmgr_ = new PreStack::uiProcessorManager( this, preprocmgr );
     applybut_ = new uiPushButton( this, "Apply", true );
     applybut_->attach( centeredBelow, uipreprocmgr_ );
-    applybut_->activated.notify( 
-	    mCB(this,uiPSViewerPreProcTab,applyButPushedCB) );
+    applybut_->activated.notify( mCB(this,uiViewerPreProcTab,applyButPushedCB));
     uipreprocmgr_->change.notify( 
-	    mCB(this,uiPSViewerPreProcTab,processorChangeCB) );
+	    mCB(this,uiViewerPreProcTab,processorChangeCB) );
     applybut_->setSensitive( false );
 }
 
 
-uiPSViewerPreProcTab::~uiPSViewerPreProcTab()
+uiViewerPreProcTab::~uiViewerPreProcTab()
 {
     uipreprocmgr_->change.remove(
-	    mCB(this,uiPSViewerPreProcTab,processorChangeCB) );
+	    mCB(this,uiViewerPreProcTab,processorChangeCB) );
     applybut_->activated.remove( 
-	    mCB(this,uiPSViewerPreProcTab,applyButPushedCB) );
+	    mCB(this,uiViewerPreProcTab,applyButPushedCB) );
     delete uipreprocmgr_;
 }
 
 
-void uiPSViewerPreProcTab::processorChangeCB( CallBacker* )
+void uiViewerPreProcTab::processorChangeCB( CallBacker* )
 {
     if ( !preprocmgr_->nrProcessors() )
 	applybut_->setSensitive( false );
@@ -57,7 +57,7 @@ void uiPSViewerPreProcTab::processorChangeCB( CallBacker* )
 }
 
 
-bool uiPSViewerPreProcTab::acceptOK()
+bool uiViewerPreProcTab::acceptOK()
 {
     if ( !applybut_->sensitive() )
 	return true;
@@ -67,7 +67,7 @@ bool uiPSViewerPreProcTab::acceptOK()
 
     for ( int idx=0; idx<mgr_.getViewers().size(); idx++ )
     {
-	PreStackViewer* vwr = mgr_.getViewers()[idx];
+	PreStackView::Viewer* vwr = mgr_.getViewers()[idx];
 	if ( !applyall_ && vwr != &vwr_ )
 	    continue;
 
@@ -82,7 +82,7 @@ bool uiPSViewerPreProcTab::acceptOK()
 }
 
 
-void uiPSViewerPreProcTab::applyButPushedCB( CallBacker* cb )
+void uiViewerPreProcTab::applyButPushedCB( CallBacker* cb )
 {
     applybut_->setSensitive( false );
     if ( !preprocmgr_->nrProcessors() )
@@ -90,7 +90,7 @@ void uiPSViewerPreProcTab::applyButPushedCB( CallBacker* cb )
 
     for ( int idx=0; idx<mgr_.getViewers().size(); idx++ )
     {
-	PreStackViewer* vwr = mgr_.getViewers()[idx];
+	PreStackView::Viewer* vwr = mgr_.getViewers()[idx];
 	if ( !applyall_ && vwr != &vwr_ )
 	    continue;
 

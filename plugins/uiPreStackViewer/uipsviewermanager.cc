@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.29 2008-12-18 15:21:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.30 2008-12-19 21:58:00 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -46,7 +46,7 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.29 2008-12-18 15:21:06
 namespace PreStackView
 {
 
-uiPSViewerMgr::uiPSViewerMgr()
+uiViewerMgr::uiViewerMgr()
     : selectpsdatamenuitem_( "D&isplay PS Gather" )
     , positionmenuitem_( "P&osition ..." )  
     , proptymenuitem_( "&Properties ..." )				 
@@ -56,30 +56,29 @@ uiPSViewerMgr::uiPSViewerMgr()
     , visserv_( ODMainWin()->applMgr().visServer() )
     , preprocmgr_( new PreStack::ProcessManager )
 {
-    visserv_->removeAllNotifier().notify( mCB(this,uiPSViewerMgr,removeAllCB) );
+    posdialogs_.allowNull();
+    visserv_->removeAllNotifier().notify( mCB(this,uiViewerMgr,removeAllCB) );
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
 
-    IOM().surveyToBeChanged.notify(mCB(this,uiPSViewerMgr,surveyToBeChangedCB));
-    ODMainWin()->sessionSave.notify( mCB(this,uiPSViewerMgr,sessionSaveCB) );
-    ODMainWin()->sessionRestore.notify(
-	    mCB(this,uiPSViewerMgr,sessionRestoreCB) );
+    IOM().surveyToBeChanged.notify(mCB(this,uiViewerMgr,surveyToBeChangedCB));
+    ODMainWin()->sessionSave.notify( mCB(this,uiViewerMgr,sessionSaveCB) );
+    ODMainWin()->sessionRestore.notify(mCB(this,uiViewerMgr,sessionRestoreCB));
        
-    menuhandler->createnotifier.notify( mCB(this,uiPSViewerMgr,createMenuCB) );
-    menuhandler->handlenotifier.notify( mCB(this,uiPSViewerMgr,handleMenuCB) );
+    menuhandler->createnotifier.notify( mCB(this,uiViewerMgr,createMenuCB) );
+    menuhandler->handlenotifier.notify( mCB(this,uiViewerMgr,handleMenuCB) );
 }
 
 
-uiPSViewerMgr::~uiPSViewerMgr()
+uiViewerMgr::~uiViewerMgr()
 {
-    visserv_->removeAllNotifier().remove( mCB(this,uiPSViewerMgr,removeAllCB) );
+    visserv_->removeAllNotifier().remove( mCB(this,uiViewerMgr,removeAllCB) );
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler(); 
 
-    IOM().surveyToBeChanged.remove(mCB(this,uiPSViewerMgr,surveyToBeChangedCB));
-    ODMainWin()->sessionSave.remove( mCB(this,uiPSViewerMgr,sessionSaveCB) );
-    ODMainWin()->sessionRestore.remove( 
-	    mCB(this,uiPSViewerMgr,sessionRestoreCB) );
-    menuhandler->createnotifier.remove( mCB(this,uiPSViewerMgr,createMenuCB) );
-    menuhandler->handlenotifier.remove( mCB(this,uiPSViewerMgr,handleMenuCB) );
+    IOM().surveyToBeChanged.remove(mCB(this,uiViewerMgr,surveyToBeChangedCB));
+    ODMainWin()->sessionSave.remove( mCB(this,uiViewerMgr,sessionSaveCB) );
+    ODMainWin()->sessionRestore.remove(mCB(this,uiViewerMgr,sessionRestoreCB));
+    menuhandler->createnotifier.remove( mCB(this,uiViewerMgr,createMenuCB) );
+    menuhandler->handlenotifier.remove( mCB(this,uiViewerMgr,handleMenuCB) );
 
     delete visserv_;
     removeAllCB( 0 );
@@ -87,7 +86,7 @@ uiPSViewerMgr::~uiPSViewerMgr()
 }    
 
 
-void uiPSViewerMgr::createMenuCB( CallBacker* cb )
+void uiViewerMgr::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet( uiMenuHandler*, menu, cb );
     
@@ -114,7 +113,7 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
     else
 	mResetMenuItem( &selectpsdatamenuitem_ );
 
-    mDynamicCastGet( PreStackView::PreStackViewer*, psv, dataobj.ptr() );
+    mDynamicCastGet( PreStackView::Viewer*, psv, dataobj.ptr() );
     if ( psv )
     {
     	mAddMenuItem( menu, &positionmenuitem_, true, false );
@@ -134,7 +133,7 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
 }
 
 
-void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
+void uiViewerMgr::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
@@ -149,7 +148,7 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     const int mnuidx = selectpsdatamenuitem_.itemIndex( mnuid );
 
     RefMan<visBase::DataObject> dataobj = visserv_->getObject( menu->menuID() );
-    mDynamicCastGet(PreStackView::PreStackViewer*,psv,dataobj.ptr())
+    mDynamicCastGet(PreStackView::Viewer*,psv,dataobj.ptr())
     if ( mnuidx < 0 && !psv )
 	return;
 
@@ -163,20 +162,30 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	visserv_->removeObject( psv, sceneid );
-	viewers_ -= psv;
-	psv->unRef();
+	const int idx = viewers_.indexOf( psv );
+	viewers_.remove( idx )->unRef();
+	delete posdialogs_.remove( idx );
     }
     else if ( mnuid==proptymenuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiPSViewerSettingDlg dlg(menu->getParent(), *psv, *this, *preprocmgr_);
+	uiViewerSettingDlg dlg(menu->getParent(), *psv, *this, *preprocmgr_);
 	dlg.go();
     }
     else if ( mnuid==positionmenuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiPSViewerPositionDlg dlg( menu->getParent(), *psv );
-	dlg.go();
+	const int idx = viewers_.indexOf( psv );
+	if ( !posdialogs_[idx] )
+	{
+	    mDeclareAndTryAlloc( uiViewerPositionDlg*, dlg,
+		    uiViewerPositionDlg( menu->getParent(), *psv ) );
+	    if ( dlg )
+		posdialogs_.replace( idx, dlg );
+	}
+
+	if ( posdialogs_[idx] )
+	    posdialogs_[idx]->show();
     }
     else if ( mnuid==viewermenuitem_.id )
     {
@@ -214,7 +223,7 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 }
 
 
-int uiPSViewerMgr::getSceneID( int mnid )
+int uiViewerMgr::getSceneID( int mnid )
 {
     int sceneid = -1;
     TypeSet<int> sceneids;
@@ -236,7 +245,7 @@ int uiPSViewerMgr::getSceneID( int mnid )
 
 #define mErrReturn(msg) { uiMSG().error(msg); return false; }
 
-bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu, 
+bool uiViewerMgr::addNewPSViewer( const uiMenuHandler* menu, 
 				    int sceneid, int mnuidx )
 {
     if ( !menu )
@@ -255,24 +264,25 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     if ( !pdd && !s2d )
 	mErrReturn( "Display panel is not set." )
 
-    PreStackViewer* viewer = PreStackViewer::create();
+    PreStackView::Viewer* viewer = PreStackView::Viewer::create();
     viewer->ref();
     viewer->setMultiID( ioobj->key() );
     visserv_->addObject( viewer, sceneid, false );
     viewers_ += viewer;
+    posdialogs_ += 0;
    
     //Read defaults 
-    const Settings& settings = Settings::fetch(uiPSViewerMgr::sSettingsKey()); 
+    const Settings& settings = Settings::fetch(uiViewerMgr::sSettingsKey()); 
     bool autoview;
-    if ( settings.getYN(PreStackViewer::sKeyAutoWidth(), autoview) )
+    if ( settings.getYN(PreStackView::Viewer::sKeyAutoWidth(), autoview) )
 	viewer->displaysAutoWidth( autoview );
 
     float factor;
-    if ( settings.get( PreStackViewer::sKeyFactor(), factor ) )
+    if ( settings.get( PreStackView::Viewer::sKeyFactor(), factor ) )
 	viewer->setFactor( factor );
    
     float width; 
-    if ( settings.get( PreStackViewer::sKeyWidth(), width ) )
+    if ( settings.get( PreStackView::Viewer::sKeyWidth(), width ) )
 	viewer->setWidth( width );
     
     IOPar* flatviewpar = settings.subselect( sKeyFlatviewPars() );
@@ -280,8 +290,8 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 	viewer->flatViewer()->appearance().ddpars_.usePar( *flatviewpar );
     
     if ( viewer->getScene() )
-	viewer->getScene()->change.notifyIfNotNotified( mCB( this, 
-		    uiPSViewerMgr,sceneChangeCB ) );
+	viewer->getScene()->change.notifyIfNotNotified( 
+		mCB( this, uiViewerMgr, sceneChangeCB ) );
 
     //set viewer position
     const Coord3 pickedpos = menu->getPickedPos();
@@ -299,6 +309,16 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 	else bid = SI().transform( pickedpos );
 
 	settingok = viewer->setPosition( bid );
+
+	//This will make the initial color the same as the section.
+	/*
+	if ( viewer->flatViewer() && pdd->getColTabSequence(0) )
+	{
+	    viewer->flatViewer()->appearance().ddpars_.vd_.ctab_ =
+		pdd->getColTabSequence(0)->name();
+	    viewer->flatViewer()->handleChange( FlatView::Viewer::VDPars );
+	}*/
+
     } 
     else if ( s2d )
     {
@@ -327,22 +347,9 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 }
 
 
-void uiPSViewerMgr::reloadData( CallBacker* cb )
-{
-    const int vieweridx = viewers_.indexOf( (PreStackViewer*) cb );
-    if ( vieweridx==-1 )
-	return;
-
-    PreStackViewer* viewer = viewers_[vieweridx];
-
-
-}
-
-
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
-uiFlatViewWin* uiPSViewerMgr::create2DViewer( BufferString title, 
-	const int dpid ) 
+uiFlatViewWin* uiViewerMgr::create2DViewer( BufferString title, const int dpid )
 {
     uiFlatViewWin* viewwin = new uiFlatViewMainWin( 
 	    ODMainWin()->applMgr().seisServer()->appserv().parent(), 
@@ -382,11 +389,11 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer( BufferString title,
 }
 
 
-void uiPSViewerMgr::sceneChangeCB( CallBacker* )
+void uiViewerMgr::sceneChangeCB( CallBacker* )
 {
     for ( int idx = 0; idx<viewers_.size(); idx++ )
     {
-	PreStackView::PreStackViewer* psv = viewers_[idx];
+	PreStackView::Viewer* psv = viewers_[idx];
 	visBase::Scene* scene = psv->getScene();	
 
 	int dpid = psv->getDataPackID();
@@ -396,6 +403,7 @@ void uiPSViewerMgr::sceneChangeCB( CallBacker* )
 	{
 	    removeViewWin( dpid );
 	    viewers_.remove( idx );
+	    delete posdialogs_.remove( idx );
 	    if ( scene ) visserv_->removeObject( psv, scene->id() );
 	    psv->unRef();
 	    idx--;
@@ -405,6 +413,7 @@ void uiPSViewerMgr::sceneChangeCB( CallBacker* )
 	{
 	    removeViewWin( dpid );
 	    viewers_.remove( idx );
+	    delete posdialogs_.remove( idx );
 	    if ( scene ) visserv_->removeObject( psv, scene->id() );
 	    psv->unRef();
 	    idx--;
@@ -413,7 +422,7 @@ void uiPSViewerMgr::sceneChangeCB( CallBacker* )
 }
 
 
-void uiPSViewerMgr::removeViewWin( const int dpid )
+void uiViewerMgr::removeViewWin( const int dpid )
 {
     for ( int idx=0; idx<viewwindows_.size(); idx++ )
     {
@@ -426,24 +435,25 @@ void uiPSViewerMgr::removeViewWin( const int dpid )
 }
 
 
-void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
+void uiViewerMgr::sessionRestoreCB( CallBacker* )
 {
     deepErase( viewwindows_ );
 
     TypeSet<int> vispsviewids;
-    visserv_->findObject( typeid(PreStackView::PreStackViewer), vispsviewids );
+    visserv_->findObject( typeid(PreStackView::Viewer), vispsviewids );
 
     for ( int idx=0; idx<vispsviewids.size(); idx++ )
     {
-	mDynamicCastGet( PreStackView::PreStackViewer*, psv,
+	mDynamicCastGet( PreStackView::Viewer*, psv,
 			 visserv_->getObject(vispsviewids[idx]) );
 	if ( !psv )
 	    continue;
 
 	if ( psv->getScene() )
-	    psv->getScene()->change.notifyIfNotNotified( mCB( this, 
-			uiPSViewerMgr,sceneChangeCB ) );
+	    psv->getScene()->change.notifyIfNotNotified( 
+		    mCB( this, uiViewerMgr, sceneChangeCB ) );
 	viewers_ += psv;
+	posdialogs_ += 0;
 	psv->ref();
     }
     
@@ -522,7 +532,7 @@ void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
 }
 
 
-const char* uiPSViewerMgr::getSeis2DTitle( const int tracenr, BufferString nm )
+const char* uiViewerMgr::getSeis2DTitle( const int tracenr, BufferString nm )
 {
     BufferString title( "Gather from [" );
     title += nm;
@@ -533,7 +543,7 @@ const char* uiPSViewerMgr::getSeis2DTitle( const int tracenr, BufferString nm )
 }
 
 
-const char* uiPSViewerMgr::getSeis3DTitle( BinID bid, BufferString name )
+const char* uiViewerMgr::getSeis3DTitle( BinID bid, BufferString name )
 {
     BufferString title( "Gather from [" );
     title += name;
@@ -546,7 +556,7 @@ const char* uiPSViewerMgr::getSeis3DTitle( BinID bid, BufferString name )
 }
 
 
-void uiPSViewerMgr::sessionSaveCB( CallBacker* ) 
+void uiViewerMgr::sessionSaveCB( CallBacker* ) 
 {
     IOPar allwindowpar;
     int nrsaved = 0;
@@ -580,16 +590,18 @@ void uiPSViewerMgr::sessionSaveCB( CallBacker* )
 }
 
 
-void  uiPSViewerMgr::removeAllCB( CallBacker* )
+void  uiViewerMgr::removeAllCB( CallBacker* )
 {
     deepUnRef( viewers_ );
+    deepErase( posdialogs_ );
     deepErase( viewwindows_ );
 }    
 
 
-void uiPSViewerMgr::surveyToBeChangedCB( CallBacker* )
+void uiViewerMgr::surveyToBeChangedCB( CallBacker* )
 {
     deepUnRef( viewers_ );
+    deepErase( posdialogs_ );
     deepErase( viewwindows_ );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.9 2008-12-18 15:21:06 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.10 2008-12-19 21:58:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,16 +24,17 @@ namespace PreStack { class ProcessManager; }
 namespace PreStackView
 {
 
-class PreStackViewer;
+class Viewer;
+class uiViewerPositionDlg;
 
 /*!Manages psviewers in the 3d visualization. */
-class uiPSViewerMgr : public CallBacker
+class uiViewerMgr : public CallBacker
 {
 public:
-				uiPSViewerMgr();
-				~uiPSViewerMgr();
+				uiViewerMgr();
+				~uiViewerMgr();
 
-    ObjectSet<PreStackViewer>   getViewers()  { return viewers_; }
+    ObjectSet<PreStackView::Viewer>   getViewers()	{ return viewers_; }
 
     //For session
     static const char*		sKeyViewerPrefix()	{ return "Viewer "; } 
@@ -67,8 +68,6 @@ protected:
     void			sessionSaveCB(CallBacker*);
     				//Saved 2DViewer for VD only.
 
-    void			reloadData(CallBacker*);
-
     MenuItem			selectpsdatamenuitem_;
     MenuItem			proptymenuitem_;
     MenuItem			positionmenuitem_;
@@ -78,7 +77,10 @@ protected:
 
     PreStack::ProcessManager*   preprocmgr_;    
     uiVisPartServer*		visserv_;
-    ObjectSet<PreStackViewer>	viewers_;
+
+    ObjectSet<PreStackView::Viewer>	viewers_;
+    ObjectSet<uiViewerPositionDlg>	posdialogs_;
+
     ObjectSet<uiFlatViewWin>	viewwindows_;
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.8 2008-12-18 15:21:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.9 2008-12-19 21:58:00 cvsyuancheng Exp $";
 
 #include "uipsviewersettingdlg.h"
 
@@ -23,23 +23,22 @@ namespace PreStackView
 {
 
 
-uiPSViewerSettingDlg::uiPSViewerSettingDlg( uiParent* p, 
-	PreStackViewer& viewer, uiPSViewerMgr& mgr, 
+uiViewerSettingDlg::uiViewerSettingDlg( uiParent* p, 
+	PreStackView::Viewer& viewer, uiViewerMgr& mgr, 
 	PreStack::ProcessManager& prepromgr )
     : uiTabStackDlg( p, uiDialog::Setup( viewer.getObjectName(), 
 		"Prestack display properties", "50.0.8") ) 
     , preproctab_( 0 )		     
 {
-    shapetab_ = new uiPSViewerShapeTab( tabParent(), viewer, mgr );
+    shapetab_ = new uiViewerShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );
 
-    coltab_ = new uiPSViewerColTab( tabParent(), viewer, mgr );
+    coltab_ = new uiViewerColTab( tabParent(), viewer, mgr );
     addGroup( coltab_ );
 
     if ( viewer.is3DSeis() )
     {
-    	preproctab_ = new uiPSViewerPreProcTab( tabParent(), viewer, mgr,
-	       prepromgr );	
+    	preproctab_ = new uiViewerPreProcTab(tabParent(),viewer,mgr,prepromgr);	
     	addGroup( preproctab_ );
     }
 
@@ -50,7 +49,7 @@ uiPSViewerSettingDlg::uiPSViewerSettingDlg( uiParent* p,
 }
 
 
-bool uiPSViewerSettingDlg::acceptOK( CallBacker* cb )
+bool uiViewerSettingDlg::acceptOK( CallBacker* cb )
 {
    if ( saveButtonChecked() )
    {
