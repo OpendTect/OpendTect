@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.30 2008-12-10 10:05:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.31 2008-12-19 09:33:29 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -170,8 +170,8 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( mnuid == 4 )
     {
-	const MultiID& mid = *Well::MGR().keys()[0]; //TODO get the actual current one
-	ODMainWin()->applMgr().wellServer()->editDisplayProperties( mid );
+	//const MultiID& mid = *Well::MGR().keys()[0]; //TODO get the actual current one
+	//ODMainWin()->applMgr().wellServer()->editDisplayProperties( mid );
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx])
@@ -354,6 +354,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == propertiesmnuitem_.id )
     {
 	menu->setIsHandled( true );
+	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
+	for ( int idx=0; idx<children_.size(); idx++ );
 	ObjectSet<visSurvey::WellDisplay> vwds; vwds += wd;
 	visserv_->doWellDispPropDlg( vwds );
 	updateColumnText( uiODSceneMgr::cColorColumn() );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.2 2008-12-10 10:05:18 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.3 2008-12-19 09:33:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ public:
     Well::Data&			wellData()		{ return wd_; }
     const Well::Data&		wellData() const	{ return wd_; }
 
+    bool 			savedefault_;
+ 
 protected:
 
     Well::Data&			wd_;

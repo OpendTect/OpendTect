@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.4 2008-12-17 13:08:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.5 2008-12-19 09:33:29 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -23,11 +23,13 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.4 2008-12-17 13:08:34 
 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
-				     "",mTODOHelpID))
+	   "",mTODOHelpID).savetext("Save as default").savebutton(true)
+						.savechecked(false))
 	, wd_(d)
 	, props_(d.displayProperties())
     	, orgprops_(new Well::DisplayProperties(d.displayProperties()))
 	, applyAllReq(this)
+	, savedefault_(false)		   
 {
     wd_.dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
@@ -122,6 +124,10 @@ bool uiWellDispPropDlg::acceptOK( CallBacker* )
 {
     getFromScreen();
     wd_.dispparschanged.trigger();
+    if ( saveButtonChecked() )
+	savedefault_ = true;
+    else 
+	savedefault_ = false;
     return true;
 }
 
