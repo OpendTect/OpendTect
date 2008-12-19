@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.8 2008-12-15 13:46:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.9 2008-12-19 06:46:26 cvsnanne Exp $";
 
 
 #include "uiseispsman.h"
@@ -92,13 +92,13 @@ void uiSeisPreStackMan::mkFileInfo()
 	txt += "Inline range: ";
 	txt += rg.start; txt += " - "; txt += rg.stop;
 	if ( cd.haveInlStepInfo() )
-	    txt += " step "; txt += rg.step;
+	{ txt += " step "; txt += rg.step; }
 	txt += "\n";
 	cd.getCrlRange( rg );
 	txt += "Crossline range: ";
 	txt += rg.start; txt += " - "; txt += rg.stop;
 	if ( cd.haveCrlStepInfo() )
-	    txt += " step "; txt += rg.step;
+	{ txt += " step "; txt += rg.step; }
 	txt += "\n\n";
 	delete rdr;
     }
