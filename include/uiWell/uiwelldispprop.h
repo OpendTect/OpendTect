@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.4 2008-12-17 13:08:34 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.5 2008-12-19 11:19:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,7 @@ protected:
     void                isFilledSel(CallBacker*);
     void 		isRepeatSel(CallBacker*);
     void 		isSeismicSel(CallBacker*);
+    void 		recoverProp();
     void 		choiceSel(CallBacker*);
     void 		setRangeFields(Interval<float>&);
     void 		updateRange(CallBacker*);

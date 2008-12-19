@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.6 2008-12-18 11:06:38 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.7 2008-12-19 11:19:01 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -153,7 +153,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 	       						choiceSel) );
     rangefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,propChg) );
    
-    const char* choice[] = { "data range", "clip rate", 0 };
+    const char* choice[] = { "clip rate", "data range", 0 };
     cliprangefld_ = new uiGenInput( this, "Specify",
 				StringListInpSpec(choice) );
     cliprangefld_->attach( alignedAbove, rangefld_ );
@@ -233,8 +233,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     seiscolorfld_->display(false);
     seiscolorfld_->colorchanged.notify( mCB(this,uiWellLogDispProperties,
 								propChg) );
-    doPutToScreen();
-    if ( logprops().name_ == "None" ) selNone();
+    recoverProp();
 }
 
 
@@ -245,6 +244,7 @@ void uiWellLogDispProperties::doPutToScreen()
     coltablistfld_->setText( logprops().seqname_ ); 
     logfillfld_->setChecked( logprops().islogfill_ );
     clipratefld_->setValue( logprops().cliprate_ );
+    cliprangefld_->setValue( logprops().isdatarange_ );
     repeatfld_->setValue( logprops().repeat_ );
     ovlapfld_->setValue( logprops().repeatovlap_);
     seiscolorfld_->setColor( logprops().seiscolor_);
@@ -256,7 +256,7 @@ void uiWellLogDispProperties::doGetFromScreen()
 {
     logprops().iswelllog_ = stylefld_->getBoolValue();
     logprops().range_ = rangefld_->getFInterval();
-    logprops().isdatarange_ = 1-(cliprangefld_->getBoolValue());
+    logprops().isdatarange_ = cliprangefld_->getBoolValue();
     logprops().islogfill_ = logfillfld_->isChecked();
     logprops().cliprate_ = clipratefld_->getfValue();
     logprops().seqname_ = coltablistfld_-> text();
@@ -283,9 +283,10 @@ void uiWellLogDispProperties::isRepeatSel( CallBacker* )
 {
     const bool isrepeat = repeatfld_->isChecked()
 				&& repeatfld_->getIntValue() > 0;
-    const bool noseismic = stylefld_->getBoolValue();
-    if (noseismic)
-	repeatfld_->setValue(1);
+    const bool iswelllog = stylefld_->getBoolValue();
+    if (iswelllog)
+	repeatfld_-> setValue( 1 );
+        ovlapfld_-> setValue( 50 );
 }
 
 
@@ -302,6 +303,16 @@ void uiWellLogDispProperties::isSeismicSel( CallBacker* )
     isFilledSel(0);
 }
 
+
+void uiWellLogDispProperties::recoverProp( )
+{
+    doPutToScreen();
+    if ( logprops().name_ == "None" || logprops().name_ ==  "none" ) selNone();
+    const bool iswelllog = stylefld_->getBoolValue();
+    isSeismicSel(0);
+    choiceSel(0);
+    isFilledSel(0);
+}
 
 void uiWellLogDispProperties::setRangeFields( Interval<float>& range )
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.5 2008-12-19 09:33:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.6 2008-12-19 11:19:01 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -40,18 +40,15 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
     tgs += new uiGroup( ts_->tabGroup(), "Left log properties" );
     tgs +=  new uiGroup( ts_->tabGroup(), "Right Log properties" );
 
-    propflds_ += new uiWellLogDispProperties( tgs[0],
-		    uiWellDispProperties::Setup( "Line thickness", "Line Color" ),
-		    props_.left_, &wd_ );
-    propflds_ += new uiWellLogDispProperties( tgs[1],
-		    uiWellDispProperties::Setup( "Line thickness", "Line Color" ),
-		    props_.right_, &wd_ );
-    propflds_ += new uiWellTrackDispProperties( tgs[2],
+    propflds_ += new uiWellTrackDispProperties( tgs[0],
 		    uiWellDispProperties::Setup(), props_.track_ );
-    propflds_ += new uiWellMarkersDispProperties( tgs[3],
-		    uiWellDispProperties::Setup( "Marker size", "Marker color" ),
-		    props_.markers_ );
-
+    propflds_ += new uiWellMarkersDispProperties( tgs[1],
+		    uiWellDispProperties::Setup( "Marker size", "Marker color" )		    ,props_.markers_ );
+    propflds_ += new uiWellLogDispProperties( tgs[2],
+		    uiWellDispProperties::Setup( "Line thickness", "Line Color")		    ,props_.left_, &wd_ );
+    propflds_ += new uiWellLogDispProperties( tgs[3],
+		    uiWellDispProperties::Setup( "Line thickness", "Line Color")		    ,props_.right_, &wd_ );
+  
     bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )
     {

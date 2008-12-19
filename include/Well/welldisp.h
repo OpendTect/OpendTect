@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.4 2008-12-17 13:08:34 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.5 2008-12-19 11:19:01 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,7 @@ public:
     {
 
 			Markers()
-			    : BasicProps(10)
+			    : BasicProps(8)
 			    , circular_(true)	{}
 
 	virtual const char* subjectName() const	{ return "Markers"; }

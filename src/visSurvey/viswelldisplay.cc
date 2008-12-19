@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.84 2008-12-18 15:41:55 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.85 2008-12-19 11:19:01 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -428,7 +428,11 @@ void WellDisplay::setWellProperties( int lognr, Interval<float>& range)
     const int logidx = wd->logs().indexOf( logname );
     Well::Log& wl = wd->logs().getLog( logidx );
     if ( !isdatarange )
+    {
 	calcClippedRange( cliprate, range, wl );
+	dpp( left_.range_) = range;
+	dpp( right_.range_) = range;
+    }
 }
 
 
