@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.15 2008-12-17 16:04:25 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.16 2008-12-22 19:26:36 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -55,6 +55,8 @@ public:
     const char*			getSeis2DName() const;
 
     bool			isLoaded() const	{ return arr2d_; }
+
+    const char*			dimName(bool dim0) const;
 
     static int			offsetDim()		{ return 0; }
     static int			zDim()			{ return 1; }
