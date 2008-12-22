@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.15 2008-09-05 19:06:59 cvskris Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.16 2008-12-22 09:07:54 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -124,7 +124,11 @@ void SeisMSCProvider::setSelData( Seis::SelData* sd )
 SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 {
     if ( !workstarted_ && !startWork() )
-	{ errmsg_ = rdr_.errMsg(); return Error; }
+    {
+	if ( errmsg_.isEmpty() ) errmsg_ = rdr_.errMsg();
+	if ( errmsg_.isEmpty() ) errmsg_ = "No valid data found";
+	return Error;
+    }
 
     if ( doAdvance() )
 	return NewPosition;
