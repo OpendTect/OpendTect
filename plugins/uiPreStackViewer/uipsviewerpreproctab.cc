@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.5 2008-12-19 21:58:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.6 2008-12-22 15:45:35 cvsyuancheng Exp $";
 
 #include "uipsviewerpreproctab.h"
 
@@ -19,8 +19,8 @@ namespace PreStackView
 {
 
 
-uiViewerPreProcTab::uiViewerPreProcTab( uiParent* p, 
-	PreStackView::Viewer& vwr, uiViewerMgr& mgr, 
+uiViewer3DPreProcTab::uiViewer3DPreProcTab( uiParent* p, 
+	PreStackView::Viewer3D& vwr, uiViewer3DMgr& mgr, 
 	PreStack::ProcessManager& preprocmgr )
     : uiDlgGroup( p, "Preprocessing" )
     , vwr_( vwr )
@@ -31,24 +31,24 @@ uiViewerPreProcTab::uiViewerPreProcTab( uiParent* p,
     uipreprocmgr_ = new PreStack::uiProcessorManager( this, preprocmgr );
     applybut_ = new uiPushButton( this, "Apply", true );
     applybut_->attach( centeredBelow, uipreprocmgr_ );
-    applybut_->activated.notify( mCB(this,uiViewerPreProcTab,applyButPushedCB));
+    applybut_->activated.notify( mCB(this,uiViewer3DPreProcTab,applyButPushedCB));
     uipreprocmgr_->change.notify( 
-	    mCB(this,uiViewerPreProcTab,processorChangeCB) );
+	    mCB(this,uiViewer3DPreProcTab,processorChangeCB) );
     applybut_->setSensitive( false );
 }
 
 
-uiViewerPreProcTab::~uiViewerPreProcTab()
+uiViewer3DPreProcTab::~uiViewer3DPreProcTab()
 {
     uipreprocmgr_->change.remove(
-	    mCB(this,uiViewerPreProcTab,processorChangeCB) );
+	    mCB(this,uiViewer3DPreProcTab,processorChangeCB) );
     applybut_->activated.remove( 
-	    mCB(this,uiViewerPreProcTab,applyButPushedCB) );
+	    mCB(this,uiViewer3DPreProcTab,applyButPushedCB) );
     delete uipreprocmgr_;
 }
 
 
-void uiViewerPreProcTab::processorChangeCB( CallBacker* )
+void uiViewer3DPreProcTab::processorChangeCB( CallBacker* )
 {
     if ( !preprocmgr_->nrProcessors() )
 	applybut_->setSensitive( false );
@@ -57,7 +57,7 @@ void uiViewerPreProcTab::processorChangeCB( CallBacker* )
 }
 
 
-bool uiViewerPreProcTab::acceptOK()
+bool uiViewer3DPreProcTab::acceptOK()
 {
     if ( !applybut_->sensitive() )
 	return true;
@@ -65,9 +65,9 @@ bool uiViewerPreProcTab::acceptOK()
     if ( !preprocmgr_->nrProcessors() )
 	return true;
 
-    for ( int idx=0; idx<mgr_.getViewers().size(); idx++ )
+    for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
-	PreStackView::Viewer* vwr = mgr_.getViewers()[idx];
+	PreStackView::Viewer3D* vwr = mgr_.get3DViewers()[idx];
 	if ( !applyall_ && vwr != &vwr_ )
 	    continue;
 
@@ -82,15 +82,15 @@ bool uiViewerPreProcTab::acceptOK()
 }
 
 
-void uiViewerPreProcTab::applyButPushedCB( CallBacker* cb )
+void uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
 {
     applybut_->setSensitive( false );
     if ( !preprocmgr_->nrProcessors() )
 	return;
 
-    for ( int idx=0; idx<mgr_.getViewers().size(); idx++ )
+    for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
     {
-	PreStackView::Viewer* vwr = mgr_.getViewers()[idx];
+	PreStackView::Viewer3D* vwr = mgr_.get3DViewers()[idx];
 	if ( !applyall_ && vwr != &vwr_ )
 	    continue;
 

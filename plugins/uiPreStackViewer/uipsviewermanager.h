@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.10 2008-12-19 21:58:00 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.11 2008-12-22 15:45:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,31 +24,33 @@ namespace PreStack { class ProcessManager; }
 namespace PreStackView
 {
 
-class Viewer;
-class uiViewerPositionDlg;
+class Viewer3D;
+class uiViewer3DPositionDlg;
 
-/*!Manages psviewers in the 3d visualization. */
-class uiViewerMgr : public CallBacker
+/*!Manages pre-stack data displays in 2D (panel) and 3D (visualization). The 
+   data itself can be from either lines or volumes. */
+
+class uiViewer3DMgr : public CallBacker
 {
 public:
-				uiViewerMgr();
-				~uiViewerMgr();
+				uiViewer3DMgr();
+				~uiViewer3DMgr();
 
-    ObjectSet<PreStackView::Viewer>   getViewers()	{ return viewers_; }
+    ObjectSet<PreStackView::Viewer3D>   get3DViewers()  { return viewers3d_; }
 
     //For session
-    static const char*		sKeyViewerPrefix()	{ return "Viewer "; } 
-    static const char*		sKey2DViewers()		{ return "PS2DViewers";}
-    static const char*		sKeyNrWindows()		{ return "Nr Viewers"; }
-    static const char*		sKeyMultiID()		{ return "Data ID"; }
-    static const char*		sKeyBinID()  		{ return "Position"; } 
-    static const char*		sKeyIs3D()   		{ return "Is 3D"; } 
-    static const char*		sKeyTraceNr()		{ return "TraceNr"; } 
-    static const char*		sKeyLineName()		{ return "LineName"; } 
+    static const char*		sKeyViewerPrefix()  { return "Viewer "; } 
+    static const char*		sKey2DViewers()	    { return "PS2DViewers";}
+    static const char*		sKeyNrWindows()	    { return "Nr Viewers"; }
+    static const char*		sKeyMultiID()	    { return "Data ID"; }
+    static const char*		sKeyBinID()  	    { return "Position"; } 
+    static const char*		sKeyIsVolumeData()  { return "Is Volume Data"; }
+    static const char*		sKeyTraceNr()	    { return "TraceNr"; } 
+    static const char*		sKeyLineName()	    { return "LineName"; } 
 
     //For settings
-    static const char*		sSettingsKey()		{ return "3DPSViewer"; }
-    static const char*		sKeyFlatviewPars()	{ return "Flatview"; }
+    static const char*		sSettings3DKey()    { return "3DPSViewer"; }
+    static const char*		sKeyFlatviewPars()  { return "Flatview"; }
 
 protected:
     
@@ -56,8 +58,8 @@ protected:
     int				getSceneID(int mnid);
     const char*			getSeis2DTitle(const int trnr,BufferString);
     const char*			getSeis3DTitle(BinID,BufferString);
-    bool			addNewPSViewer(const uiMenuHandler*,
-	    				       int sceneid,int mnuidx);
+    bool			add3DViewer(const uiMenuHandler*,
+	    				    int sceneid,int mnuidx);
     void			removeViewWin(const int dpid);
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
@@ -75,13 +77,13 @@ protected:
     MenuItem			amplspectrumitem_;
     MenuItem			removemenuitem_;
 
-    PreStack::ProcessManager*   preprocmgr_;    
+    PreStack::ProcessManager*	preprocmgr_;    
     uiVisPartServer*		visserv_;
 
-    ObjectSet<PreStackView::Viewer>	viewers_;
-    ObjectSet<uiViewerPositionDlg>	posdialogs_;
+    ObjectSet<PreStackView::Viewer3D>	viewers3d_;
+    ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
 
-    ObjectSet<uiFlatViewWin>	viewwindows_;
+    ObjectSet<uiFlatViewWin>		viewers2d_;
 };
 
 }; //namespace

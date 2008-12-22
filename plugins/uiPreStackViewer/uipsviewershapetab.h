@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2007
- RCS:           $Id: uipsviewershapetab.h,v 1.2 2008-12-19 21:58:00 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewershapetab.h,v 1.3 2008-12-22 15:45:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,15 +22,15 @@ class uiSlider;
 namespace PreStackView
 {
 
-class Viewer;
-class uiViewerMgr;
+class Viewer3D;
+class uiViewer3DMgr;
 
-class uiViewerShapeTab : public uiDlgGroup
+class uiViewer3DShapeTab : public uiDlgGroup
 {
 public:
-			uiViewerShapeTab(uiParent*,PreStackView::Viewer&, 
-					 uiViewerMgr&);
-			~uiViewerShapeTab();
+			uiViewer3DShapeTab(uiParent*,PreStackView::Viewer3D&, 
+					   uiViewer3DMgr&);
+			~uiViewer3DShapeTab();
     bool		acceptOK();
     bool		rejectOK(CallBacker*);
     
@@ -52,8 +52,8 @@ protected:
     uiSlider*		widthslider_;
     uiPushButton*	switchsidebutton_;
     
-    PreStackView::Viewer& viewer_;
-    uiViewerMgr&	mgr_;
+    PreStackView::Viewer3D& viewer_;
+    uiViewer3DMgr&	mgr_;
     
     float		initialfactor_;
     float		initialwidth_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.7 2008-12-19 21:58:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.8 2008-12-22 15:45:35 cvsyuancheng Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -23,8 +23,8 @@ namespace PreStackView
 {
 
 
-uiViewerPositionDlg::uiViewerPositionDlg( uiParent* p, 
-					  PreStackView::Viewer& vwr )
+uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
+					      PreStackView::Viewer3D& vwr )
     : uiDialog( p, Setup(vwr.getObjectName(),"PreStack viewer position",
 			 mTODOHelpID).modal(false) )
     , viewer_(vwr)  
@@ -40,26 +40,26 @@ uiViewerPositionDlg::uiViewerPositionDlg( uiParent* p,
     posfld_->setInterval( posspos );
 
     applybox_ = new uiCheckBox( this, "Apply immediately",
-	    			mCB(this,uiViewerPositionDlg,boxSel) );
+	    			mCB(this,uiViewer3DPositionDlg,boxSel) );
     applybox_->attach( alignedBelow, lsb );
     applybut_ = new uiPushButton( this, "&Apply now", true );
     applybut_->attach( leftOf, applybox_ );
-    applybut_->activated.notify( mCB(this,uiViewerPositionDlg,applyCB) );
+    applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
-    finaliseDone.notify( mCB(this,uiViewerPositionDlg,atStart) );
-    viewer_.draggermoving.notify(  mCB(this,uiViewerPositionDlg,renewFld) );
+    finaliseDone.notify( mCB(this,uiViewer3DPositionDlg,atStart) );
+    viewer_.draggermoving.notify(  mCB(this,uiViewer3DPositionDlg,renewFld) );
 }
 
 
-bool uiViewerPositionDlg::is3D() const
+bool uiViewer3DPositionDlg::is3D() const
 { return viewer_.is3DSeis(); }
 
 
-bool uiViewerPositionDlg::isInl() const
+bool uiViewer3DPositionDlg::isInl() const
 { return viewer_.isOrientationInline(); }
 
 
-void uiViewerPositionDlg::renewFld( CallBacker* )
+void uiViewer3DPositionDlg::renewFld( CallBacker* )
 {
     posfld_->setValue( !is3D() ? viewer_.traceNr() :
 	    (isInl() ? viewer_.draggerPosition().crl 
@@ -67,7 +67,7 @@ void uiViewerPositionDlg::renewFld( CallBacker* )
 }
 
 
-void uiViewerPositionDlg::atStart( CallBacker* )
+void uiViewer3DPositionDlg::atStart( CallBacker* )
 {
     posfld_->setValue( !is3D() ? viewer_.traceNr() : 
 	(isInl() ? viewer_.getPosition().crl : viewer_.getPosition().inl) ) ;
@@ -76,18 +76,18 @@ void uiViewerPositionDlg::atStart( CallBacker* )
     applybut_->display( false );
 
     applybox_->setChecked( true );
-    posfld_->valueChanging.notify( mCB(this,uiViewerPositionDlg,posChg) );
+    posfld_->valueChanging.notify( mCB(this,uiViewer3DPositionDlg,posChg) );
 }
 
 
-void uiViewerPositionDlg::boxSel( CallBacker* c )
+void uiViewer3DPositionDlg::boxSel( CallBacker* c )
 {
     if ( applybut_ && applybox_ )
 	applybut_->display( !applybox_->isChecked() );
 }
 
 
-void uiViewerPositionDlg::posChg( CallBacker* c )
+void uiViewer3DPositionDlg::posChg( CallBacker* c )
 {
     if ( applybox_->isChecked() && 
 	 viewer_.draggerPosition()==viewer_.getPosition() )
@@ -95,7 +95,7 @@ void uiViewerPositionDlg::posChg( CallBacker* c )
 }
 
 
-bool uiViewerPositionDlg::applyCB( CallBacker* )
+bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 {
     const int location = posfld_->getValue();
     if ( is3D() )
@@ -169,7 +169,7 @@ bool uiViewerPositionDlg::applyCB( CallBacker* )
 }
 
 
-bool uiViewerPositionDlg::acceptOK( CallBacker* c )
+bool uiViewer3DPositionDlg::acceptOK( CallBacker* c )
 {
     return applyCB( c );
 }

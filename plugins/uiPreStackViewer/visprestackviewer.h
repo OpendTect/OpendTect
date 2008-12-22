@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.22 2008-12-19 21:58:00 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.23 2008-12-22 15:45:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,12 +37,13 @@ namespace visSurvey
 namespace PreStackView
 {
 
-class Viewer : public visBase::VisualObjectImpl, public visSurvey::SurveyObject
+class Viewer3D : public visBase::VisualObjectImpl, 
+    		 public visSurvey::SurveyObject
 {
 public:
 
-    static Viewer*		create()
-				mCreateDataObj( Viewer );
+    static Viewer3D*		create()
+				mCreateDataObj( Viewer3D );
     void			allowShading(bool yn);
     void			setMultiID(const MultiID& mid);
     BufferString		getObjectName() const;
@@ -67,7 +68,7 @@ public:
     void			setSectionDisplay(visSurvey::PlaneDataDisplay*);
     const visSurvey::PlaneDataDisplay* getSectionDisplay() const;
     
-    Notifier<Viewer>		draggermoving;
+    Notifier<Viewer3D>		draggermoving;
     const BinID			draggerPosition() const	{ return draggerpos_; }
 
    				//2D case 
@@ -107,7 +108,7 @@ public:
     static const char*		sKeySide() 	{ return "ShowSide"; }
 
 protected:
-    					~Viewer();
+    					~Viewer3D();
     void				setDisplayTransformation(mVisTrans*);
     void				dataChangedCB(CallBacker*);
     void				sectionMovedCB(CallBacker*);

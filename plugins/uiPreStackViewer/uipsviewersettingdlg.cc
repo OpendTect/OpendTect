@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.9 2008-12-19 21:58:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.10 2008-12-22 15:45:35 cvsyuancheng Exp $";
 
 #include "uipsviewersettingdlg.h"
 
@@ -23,23 +23,24 @@ namespace PreStackView
 {
 
 
-uiViewerSettingDlg::uiViewerSettingDlg( uiParent* p, 
-	PreStackView::Viewer& viewer, uiViewerMgr& mgr, 
+uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p, 
+	PreStackView::Viewer3D& viewer, uiViewer3DMgr& mgr, 
 	PreStack::ProcessManager& prepromgr )
     : uiTabStackDlg( p, uiDialog::Setup( viewer.getObjectName(), 
 		"Prestack display properties", "50.0.8") ) 
     , preproctab_( 0 )		     
 {
-    shapetab_ = new uiViewerShapeTab( tabParent(), viewer, mgr );
+    shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );
 
-    coltab_ = new uiViewerColTab( tabParent(), viewer, mgr );
+    coltab_ = new uiViewer3DColTab( tabParent(), viewer, mgr );
     addGroup( coltab_ );
 
     if ( viewer.is3DSeis() )
     {
-    	preproctab_ = new uiViewerPreProcTab(tabParent(),viewer,mgr,prepromgr);	
-    	addGroup( preproctab_ );
+    	preproctab_ = 
+	    new uiViewer3DPreProcTab( tabParent(), viewer, mgr, prepromgr );
+	addGroup( preproctab_ );
     }
 
     applytoallfld_ = new uiCheckBox(this,"&Apply to all viewers");
@@ -49,7 +50,7 @@ uiViewerSettingDlg::uiViewerSettingDlg( uiParent* p,
 }
 
 
-bool uiViewerSettingDlg::acceptOK( CallBacker* cb )
+bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
 {
    if ( saveButtonChecked() )
    {

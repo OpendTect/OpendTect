@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2008
- RCS:           $Id: uipsviewerposdlg.h,v 1.4 2008-12-19 21:58:00 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewerposdlg.h,v 1.5 2008-12-22 15:45:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,21 +20,22 @@ class uiCheckBox;
 
 namespace PreStackView 
 { 
-class Viewer; 
+class Viewer3D; 
 
 
-class uiViewerPositionDlg : public uiDialog
+class uiViewer3DPositionDlg : public uiDialog
 {
 public:			
 
-    			uiViewerPositionDlg(uiParent*,PreStackView::Viewer&);
+    			uiViewer3DPositionDlg(uiParent*,
+					      PreStackView::Viewer3D&);
 
     bool		is3D() const;
     bool		isInl() const;
 
 protected:
 
-    PreStackView::Viewer& viewer_;
+    PreStackView::Viewer3D& viewer_;
 
     uiSpinBox*		posfld_;
     uiCheckBox*		applybox_;

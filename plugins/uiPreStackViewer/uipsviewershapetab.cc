@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.5 2008-12-19 21:58:00 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewershapetab.cc,v 1.6 2008-12-22 15:45:35 cvsyuancheng Exp $";
 
 #include "uipsviewershapetab.h"
 
@@ -30,8 +30,8 @@ namespace PreStackView
 {
 
 
-uiViewerShapeTab::uiViewerShapeTab( uiParent* p, PreStackView::Viewer& vwr,
-				    uiViewerMgr& mgr )
+uiViewer3DShapeTab::uiViewer3DShapeTab( uiParent* p, 
+	PreStackView::Viewer3D& vwr, uiViewer3DMgr& mgr )
     : uiDlgGroup( p, "Shape" )
     , factorslider_( 0 )
     , widthslider_( 0 )		
@@ -45,7 +45,7 @@ uiViewerShapeTab::uiViewerShapeTab( uiParent* p, PreStackView::Viewer& vwr,
 	    BoolInpSpec( true, "Relative", "Absolute" ) );
     autowidthfld_->setValue( viewer_.displayAutoWidth() );
     autowidthfld_->valuechanged.notify( 
-	    mCB( this, uiViewerShapeTab, widthTypeChangeCB ) );
+	    mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );
 
     factorslider_ = new uiSlider( this,0,mSliderDecimal,false );
     factorslider_->attach( alignedBelow, autowidthfld_ );
@@ -54,7 +54,7 @@ uiViewerShapeTab::uiViewerShapeTab( uiParent* p, PreStackView::Viewer& vwr,
 				mSliderMaxFactor*curfactor, mSliderStep) );
     factorslider_->setValue( curfactor );
     factorslider_->valueChanged.notify( 
-	    mCB(this, uiViewerShapeTab, factorMoveCB) );
+	    mCB(this, uiViewer3DShapeTab, factorMoveCB) );
     
     widthslider_ = new uiSlider( this,0,mSliderDecimal,false );
     widthslider_->attach( alignedBelow, autowidthfld_ );
@@ -62,10 +62,11 @@ uiViewerShapeTab::uiViewerShapeTab( uiParent* p, PreStackView::Viewer& vwr,
     widthslider_->setInterval( StepInterval<float>( mSliderMinFactor*curwidth,
 		mSliderMaxFactor*curwidth, mSliderStep ) );
     widthslider_->setValue( curwidth );
-    widthslider_->valueChanged.notify( mCB(this,uiViewerShapeTab,widthMoveCB) );
+    widthslider_->valueChanged.notify( 
+	    mCB(this,uiViewer3DShapeTab,widthMoveCB) );
 
     switchsidebutton_ = new uiPushButton( this, "Switch View Side",
-	    mCB(this,uiViewerShapeTab,switchPushCB), true );
+	    mCB(this,uiViewer3DShapeTab,switchPushCB), true );
     switchsidebutton_->attach( alignedBelow, widthslider_ );
 
     initialfactor_ = curfactor;
@@ -75,23 +76,23 @@ uiViewerShapeTab::uiViewerShapeTab( uiParent* p, PreStackView::Viewer& vwr,
 }
 
 
-uiViewerShapeTab::~uiViewerShapeTab()
+uiViewer3DShapeTab::~uiViewer3DShapeTab()
 {
     if ( autowidthfld_ )
 	autowidthfld_->valuechanged.remove(
-		mCB( this, uiViewerShapeTab, widthTypeChangeCB ) );
+		mCB( this, uiViewer3DShapeTab, widthTypeChangeCB ) );
 
     if ( factorslider_ )
 	factorslider_->valueChanged.remove(
-		mCB(this, uiViewerShapeTab, factorMoveCB) );
+		mCB(this, uiViewer3DShapeTab, factorMoveCB) );
 
     if ( widthslider_ )
 	widthslider_->valueChanged.remove(
-		mCB(this, uiViewerShapeTab, widthMoveCB) );
+		mCB(this, uiViewer3DShapeTab, widthMoveCB) );
 }
 
 
-void uiViewerShapeTab::widthTypeChangeCB( CallBacker* cb )
+void uiViewer3DShapeTab::widthTypeChangeCB( CallBacker* cb )
 {
     const bool yn = autowidthfld_->getBoolValue();
     viewer_.displaysAutoWidth( yn );
@@ -109,7 +110,7 @@ void uiViewerShapeTab::widthTypeChangeCB( CallBacker* cb )
 }
 
 
-void uiViewerShapeTab::widthMoveCB( CallBacker* cb )
+void uiViewer3DShapeTab::widthMoveCB( CallBacker* cb )
 {
     mDynamicCastGet( uiSlider*,sldr,cb );
     if ( !sldr ) return;
@@ -118,7 +119,7 @@ void uiViewerShapeTab::widthMoveCB( CallBacker* cb )
 }
 
 
-void uiViewerShapeTab::factorMoveCB( CallBacker* cb )
+void uiViewer3DShapeTab::factorMoveCB( CallBacker* cb )
 {
     mDynamicCastGet( uiSlider*,sldr,cb );
     if ( !sldr ) return;
@@ -127,22 +128,22 @@ void uiViewerShapeTab::factorMoveCB( CallBacker* cb )
 }
 
 
-void uiViewerShapeTab::switchPushCB( CallBacker* )
+void uiViewer3DShapeTab::switchPushCB( CallBacker* )
 {
     viewer_.displaysOnPositiveSide( !viewer_.displayOnPositiveSide() );
 }
 
 
-bool uiViewerShapeTab::acceptOK( )
+bool uiViewer3DShapeTab::acceptOK( )
 {
     if ( !&viewer_ )
 	return false;
 
     if ( applyToAll() )
     {
-	for ( int idx=0; idx<mgr_.getViewers().size(); idx++ )
+	for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
 	{
-	    PreStackView::Viewer* psv = mgr_.getViewers()[idx];
+	    PreStackView::Viewer3D* psv = mgr_.get3DViewers()[idx];
 	    if ( !psv ) continue;
 	    
 	    psv->displaysAutoWidth( autowidthfld_->getBoolValue() );
@@ -156,10 +157,10 @@ bool uiViewerShapeTab::acceptOK( )
 
     if ( saveAsDefault() )
     {
-	Settings& settings = Settings::fetch( uiViewerMgr::sSettingsKey() );
-	settings.set( PreStackView::Viewer::sKeyFactor(),viewer_.getFactor());
-	settings.set( PreStackView::Viewer::sKeyWidth(), viewer_.getWidth() );
-	settings.set( PreStackView::Viewer::sKeyAutoWidth(),
+	Settings& settings = Settings::fetch( uiViewer3DMgr::sSettings3DKey() );
+	settings.set( PreStackView::Viewer3D::sKeyFactor(),viewer_.getFactor());
+	settings.set( PreStackView::Viewer3D::sKeyWidth(), viewer_.getWidth() );
+	settings.set( PreStackView::Viewer3D::sKeyAutoWidth(),
 		      viewer_.displayAutoWidth() );
 
 	if ( !settings.write() )
@@ -173,7 +174,7 @@ bool uiViewerShapeTab::acceptOK( )
 }
 
 
-bool uiViewerShapeTab::rejectOK( CallBacker* )
+bool uiViewer3DShapeTab::rejectOK( CallBacker* )
 {
     viewer_.displaysOnPositiveSide( initialside_ );
     autowidthfld_->setValue( initialautowidth_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2008
- RCS:		$Id: uipsviewerpreproctab.h,v 1.5 2008-12-19 21:58:00 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewerpreproctab.h,v 1.6 2008-12-22 15:45:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -23,17 +23,17 @@ namespace PreStack { class ProcessManager; class uiProcessorManager; }
 namespace PreStackView
 {
 
-class Viewer;
-class uiViewerMgr;
+class Viewer3D;
+class uiViewer3DMgr;
 
-class uiViewerPreProcTab :  public uiDlgGroup
+class uiViewer3DPreProcTab :  public uiDlgGroup
 {
 public:
-				uiViewerPreProcTab(uiParent*,
-					PreStackView::Viewer&,
-					uiViewerMgr&,
+				uiViewer3DPreProcTab(uiParent*,
+					PreStackView::Viewer3D&,
+					uiViewer3DMgr&,
 					PreStack::ProcessManager&);
-				~uiViewerPreProcTab();
+				~uiViewer3DPreProcTab();
     bool			acceptOK();
 
     void			applyToAll(bool yn)	{ applyall_ = yn; }
@@ -44,8 +44,8 @@ protected:
     void				applyButPushedCB(CallBacker*);
     void				processorChangeCB(CallBacker*);
 
-    PreStackView::Viewer&		vwr_;
-    uiViewerMgr&			mgr_;
+    PreStackView::Viewer3D&		vwr_;
+    uiViewer3DMgr&			mgr_;
     PreStack::ProcessManager*		preprocmgr_;
     PreStack::uiProcessorManager*	uipreprocmgr_;
 
