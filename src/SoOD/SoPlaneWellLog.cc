@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.17 2008-12-19 16:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.18 2008-12-22 15:50:49 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -174,6 +174,11 @@ void SoPlaneWellLog::setLogFillColorTab( const float colors[][3], int lognr )
     SoMaterial* material  = SO_GET_ANY_PART( this,
 	     lognr==1 ? "material1" : "material2", SoMaterial );
     material->diffuseColor.setValues(0, 256, colors );
+    float vals[256];
+    for (int i = 0; i<256; i++)
+	vals[i] = i < 123 ? 0 : 1 ;
+
+    //material->transparency.setValues(0, 256, vals);
    
     SoMaterialBinding* mbinding  = SO_GET_ANY_PART( this,
 	     lognr==1 ? "mbinding1" : "mbinding2", SoMaterialBinding );

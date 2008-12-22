@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.6 2008-12-19 11:19:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.7 2008-12-22 15:50:49 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -45,9 +45,9 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
     propflds_ += new uiWellMarkersDispProperties( tgs[1],
 		    uiWellDispProperties::Setup( "Marker size", "Marker color" )		    ,props_.markers_ );
     propflds_ += new uiWellLogDispProperties( tgs[2],
-		    uiWellDispProperties::Setup( "Line thickness", "Line Color")		    ,props_.left_, &wd_ );
+		    uiWellDispProperties::Setup( "Line thickness", "Line Color")		    ,props_.left_, &(wd_.logs()) );
     propflds_ += new uiWellLogDispProperties( tgs[3],
-		    uiWellDispProperties::Setup( "Line thickness", "Line Color")		    ,props_.right_, &wd_ );
+		    uiWellDispProperties::Setup( "Line thickness", "Line Color")		    ,props_.right_, &(wd_.logs()) );
   
     bool foundlog = false;
     for ( int idx=0; idx<propflds_.size(); idx++ )

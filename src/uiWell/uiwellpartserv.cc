@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.34 2008-12-19 09:33:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.35 2008-12-22 15:50:49 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -102,7 +102,6 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     if ( rv &&  dlg.savedefault_ == true )
     {
 	saveWellDispProps( allapplied_ ? 0 : wd );
-	//if()//TODO Save default condition
 	wd->displayProperties().commitDefaults();
     }
     return rv;

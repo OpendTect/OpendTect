@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.6 2008-12-19 16:08:58 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.7 2008-12-22 15:50:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ namespace Well
 {
     class LogDisplayParSet;
     class Data;
+    class LogSet;
 }
 
 class uiWellDispProperties : public uiGroup
@@ -112,7 +113,7 @@ class uiWellLogDispProperties : public uiWellDispProperties
 public:
     			uiWellLogDispProperties(uiParent*,const Setup&,
 					Well::DisplayProperties::Log&,
-					Well::Data* d);
+					Well::LogSet* wl);
 
     Well::DisplayProperties::Log&	logprops()
 	{ return static_cast<Well::DisplayProperties::Log&>(props_); }
@@ -154,7 +155,7 @@ protected:
 
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;
-    Well::Data*  wd_;
+    Well::LogSet*  wl_;
 
 };
 
