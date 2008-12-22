@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.6 2008-12-22 15:45:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.7 2008-12-22 19:25:37 cvsyuancheng Exp $";
 
 #include "uipsviewerpreproctab.h"
 
@@ -62,6 +62,13 @@ bool uiViewer3DPreProcTab::acceptOK()
     if ( !applybut_->sensitive() )
 	return true;
 
+    return applyButPushedCB( 0 );
+}
+
+
+bool uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
+{
+    applybut_->setSensitive( false );
     if ( !preprocmgr_->nrProcessors() )
 	return true;
 
@@ -79,27 +86,6 @@ bool uiViewer3DPreProcTab::acceptOK()
     }
 
     return true;
-}
-
-
-void uiViewer3DPreProcTab::applyButPushedCB( CallBacker* cb )
-{
-    applybut_->setSensitive( false );
-    if ( !preprocmgr_->nrProcessors() )
-	return;
-
-    for ( int idx=0; idx<mgr_.get3DViewers().size(); idx++ )
-    {
-	PreStackView::Viewer3D* vwr = mgr_.get3DViewers()[idx];
-	if ( !applyall_ && vwr != &vwr_ )
-	    continue;
-
-	if ( !vwr->setPreProcessor( preprocmgr_ ) )
-	{
-	    uiMSG().message( "Preprocessing failed!" );
-	    return;
-	}
-    }
 }
 
 

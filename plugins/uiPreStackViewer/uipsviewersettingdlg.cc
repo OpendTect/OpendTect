@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.10 2008-12-22 15:45:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.11 2008-12-22 19:25:37 cvsyuancheng Exp $";
 
 #include "uipsviewersettingdlg.h"
 
 #include "uibutton.h"
+#include "uipsviewerappeartab.h"
 #include "uipsviewercoltab.h"
 #include "uipsviewershapetab.h"
 #include "uipsviewerpreproctab.h"
@@ -32,6 +33,9 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
 {
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );
+
+    apptab_ = new uiViewer3DAppearTab( tabParent(), viewer, mgr );
+    addGroup( apptab_ );
 
     coltab_ = new uiViewer3DColTab( tabParent(), viewer, mgr );
     addGroup( coltab_ );
@@ -55,12 +59,14 @@ bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
    if ( saveButtonChecked() )
    {
        coltab_->saveAsDefault( true );
+       apptab_->saveAsDefault( true );
        shapetab_->saveAsDefault( true );
    }
 
    if ( applytoallfld_->isChecked() )
    {
        coltab_->applyToAll( true );
+       apptab_->applyToAll( true );
        if ( preproctab_ ) 
 	   preproctab_->applyToAll( true );
        shapetab_->applyToAll( true );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.8 2008-12-22 15:45:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.9 2008-12-22 19:25:37 cvsyuancheng Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -25,7 +25,7 @@ namespace PreStackView
 
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 					      PreStackView::Viewer3D& vwr )
-    : uiDialog( p, Setup(vwr.getObjectName(),"PreStack viewer position",
+    : uiDialog( p, Setup(vwr.getObjectName(),"Viewer position",
 			 mTODOHelpID).modal(false) )
     , viewer_(vwr)  
     , applybox_(0)
@@ -91,7 +91,9 @@ void uiViewer3DPositionDlg::posChg( CallBacker* c )
 {
     if ( applybox_->isChecked() && 
 	 viewer_.draggerPosition()==viewer_.getPosition() )
+    {
 	applyCB( c ); //This will adjust to the nearest position.
+    }
 }
 
 

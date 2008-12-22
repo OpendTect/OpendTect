@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.11 2008-12-22 15:45:35 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.12 2008-12-22 19:25:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,35 +54,32 @@ public:
 
 protected:
     
-    uiFlatViewWin*		create2DViewer(BufferString,int datapackid);
-    int				getSceneID(int mnid);
-    const char*			getSeis2DTitle(const int trnr,BufferString);
-    const char*			getSeis3DTitle(BinID,BufferString);
-    bool			add3DViewer(const uiMenuHandler*,
-	    				    int sceneid,int mnuidx);
-    void			removeViewWin(const int dpid);
-    void			createMenuCB(CallBacker*);
-    void			handleMenuCB(CallBacker*);
-    void			removeAllCB(CallBacker*);
-    void			sceneChangeCB(CallBacker*);
-    void			surveyToBeChangedCB(CallBacker*);
-    void			sessionRestoreCB(CallBacker*);
-    void			sessionSaveCB(CallBacker*);
+    uiFlatViewWin*	create2DViewer(const BufferString&,int datapackid);
+    int			getSceneID(int mnid);
+    static void		getSeis2DTitle(int trnr,const char*,BufferString&);
+    static void		getSeis3DTitle(const BinID&,const char*,BufferString&);
+    bool		add3DViewer(const uiMenuHandler*,int sceneid,int mnuidx);
+    void		removeViewWin(const int dpid);
+    void		createMenuCB(CallBacker*);
+    void		handleMenuCB(CallBacker*);
+    void		removeAllCB(CallBacker*);
+    void		sceneChangeCB(CallBacker*);
+    void		surveyToBeChangedCB(CallBacker*);
+    void		sessionRestoreCB(CallBacker*);
+    void		sessionSaveCB(CallBacker*);
     				//Saved 2DViewer for VD only.
 
-    MenuItem			selectpsdatamenuitem_;
-    MenuItem			proptymenuitem_;
-    MenuItem			positionmenuitem_;
-    MenuItem			viewermenuitem_;
-    MenuItem			amplspectrumitem_;
-    MenuItem			removemenuitem_;
+    MenuItem		selectpsdatamenuitem_;
+    MenuItem		proptymenuitem_;
+    MenuItem		positionmenuitem_;
+    MenuItem		viewermenuitem_;
+    MenuItem		amplspectrumitem_;
+    MenuItem		removemenuitem_;
 
-    PreStack::ProcessManager*	preprocmgr_;    
-    uiVisPartServer*		visserv_;
-
+    uiVisPartServer*			visserv_;
+    PreStack::ProcessManager*		preprocmgr_;    
     ObjectSet<PreStackView::Viewer3D>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
-
     ObjectSet<uiFlatViewWin>		viewers2d_;
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2008
- RCS:		$Id: uipsviewerpreproctab.h,v 1.6 2008-12-22 15:45:35 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewerpreproctab.h,v 1.7 2008-12-22 19:25:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ public:
 
 protected:
     
-    void				applyButPushedCB(CallBacker*);
+    bool				applyButPushedCB(CallBacker*);
     void				processorChangeCB(CallBacker*);
 
     PreStackView::Viewer3D&		vwr_;

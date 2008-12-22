@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.31 2008-12-22 15:45:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.32 2008-12-22 19:25:37 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -196,9 +196,12 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	if ( !ioobj )
 	   return;
 
-	BufferString title = psv->is3DSeis() ?
-	    getSeis3DTitle( psv->getBinID(), ioobj->name() ) :
-	    getSeis2DTitle( psv->traceNr(), psv->lineName() );	
+	BufferString title;
+	if ( psv->is3DSeis() )
+	    getSeis3DTitle( psv->getBinID(), ioobj->name(), title );
+	else
+	    getSeis2DTitle( psv->traceNr(), psv->lineName(), title );	
+
 	uiFlatViewWin* viewwin = create2DViewer( title, psv->getDataPackID() );
 
 	if ( viewwin )
@@ -273,30 +276,9 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     viewers3d_ += viewer;
     posdialogs_ += 0;
    
-    //Read defaults 
-    const Settings& settings = Settings::fetch(uiViewer3DMgr::sSettings3DKey()); 
-    bool autoview;
-    if ( settings.getYN(PreStackView::Viewer3D::sKeyAutoWidth(), autoview) )
-	viewer->displaysAutoWidth( autoview );
-
-    float factor;
-    if ( settings.get( PreStackView::Viewer3D::sKeyFactor(), factor ) )
-	viewer->setFactor( factor );
-   
-    float width; 
-    if ( settings.get( PreStackView::Viewer3D::sKeyWidth(), width ) )
-	viewer->setWidth( width );
-    
-    IOPar* flatviewpar = settings.subselect( sKeyFlatviewPars() );
-    if ( flatviewpar )
-	viewer->flatViewer()->appearance().ddpars_.usePar( *flatviewpar );
-    
-    if ( viewer->getScene() )
-	viewer->getScene()->change.notifyIfNotNotified( 
-		mCB( this, uiViewer3DMgr, sceneChangeCB ) );
-
-    //set viewer position
     const Coord3 pickedpos = menu->getPickedPos();
+    
+    //set viewer position
     bool settingok = true;
     if ( pdd )
     {
@@ -311,16 +293,6 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	else bid = SI().transform( pickedpos );
 
 	settingok = viewer->setPosition( bid );
-
-	//This will make the initial color the same as the section.
-	/*
-	if ( viewer->flatViewer() && pdd->getColTabSequence(0) )
-	{
-	    viewer->flatViewer()->appearance().ddpars_.vd_.ctab_ =
-		pdd->getColTabSequence(0)->name();
-	    viewer->flatViewer()->handleChange( FlatView::Viewer::VDPars );
-	}*/
-
     } 
     else if ( s2d )
     {
@@ -345,13 +317,38 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     const Coord dir( dir0.inl, dir0.crl );
     viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
     
+    //Read defaults 
+    const Settings& settings = Settings::fetch(uiViewer3DMgr::sSettings3DKey()); 
+    bool autoview;
+    if ( settings.getYN(PreStackView::Viewer3D::sKeyAutoWidth(), autoview) )
+	viewer->displaysAutoWidth( autoview );
+
+    float factor;
+    if ( settings.get( PreStackView::Viewer3D::sKeyFactor(), factor ) )
+	viewer->setFactor( factor );
+   
+    float width; 
+    if ( settings.get( PreStackView::Viewer3D::sKeyWidth(), width ) )
+	viewer->setWidth( width );
+    
+    IOPar* flatviewpar = settings.subselect( sKeyFlatviewPars() );
+    if ( flatviewpar )
+	viewer->flatViewer()->appearance().ddpars_.usePar( *flatviewpar );
+
+    viewer->flatViewer()->handleChange( FlatView::Viewer::VDPars );
+
+    if ( viewer->getScene() )
+	viewer->getScene()->change.notifyIfNotNotified( 
+		mCB( this, uiViewer3DMgr, sceneChangeCB ) );
+
     return true;
 }
 
 
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
-uiFlatViewWin* uiViewer3DMgr::create2DViewer( BufferString title, const int dpid )
+uiFlatViewWin* uiViewer3DMgr::create2DViewer( const BufferString& title, 
+					      const int dpid )
 {
     uiFlatViewWin* viewwin = new uiFlatViewMainWin( 
 	    ODMainWin()->applMgr().seisServer()->appserv().parent(), 
@@ -500,9 +497,6 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	if ( !ioobj )
 	   continue;
 
-	BufferString title = !is3d ? getSeis2DTitle( trcnr, name2d ) :
-	    			    getSeis3DTitle( bid, ioobj->name() );
-
 	PreStack::Gather* gather = new PreStack::Gather;
 	int dpid;
 	if ( is3d && gather->readFrom(mid,bid) )
@@ -517,6 +511,12 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 
 	DPM(DataPackMgr::FlatID).add( gather );
 	DPM(DataPackMgr::FlatID).obtain( dpid );
+	
+	BufferString title;
+	if ( is3d )
+	    getSeis3DTitle( bid, ioobj->name(), title );
+	else
+	    getSeis2DTitle( trcnr, name2d, title );
 	uiFlatViewWin* viewwin = create2DViewer( title, dpid );
 	DPM(DataPackMgr::FlatID).release( gather );
 	if ( !viewwin )
@@ -534,27 +534,25 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 }
 
 
-const char* uiViewer3DMgr::getSeis2DTitle( const int tracenr, BufferString nm )
+void uiViewer3DMgr::getSeis2DTitle( int tracenr, const char* nm,
+				    BufferString& title )
 {
-    BufferString title( "Gather from [" );
+    title = "Gather from [";
     title += nm;
     title += "] at trace " ;
     title += tracenr;
-
-    return title;
 }
 
 
-const char* uiViewer3DMgr::getSeis3DTitle( BinID bid, BufferString name )
+void uiViewer3DMgr::getSeis3DTitle( const BinID& bid, const char* name,
+				    BufferString& title )
 {
-    BufferString title( "Gather from [" );
+    title = "Gather from [";
     title += name;
     title += "] at ";
     title += bid.inl;
     title += "/";
     title += bid.crl;
-
-    return title;
 }
 
 
