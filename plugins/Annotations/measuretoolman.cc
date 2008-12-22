@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.7 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.8 2008-12-22 12:31:04 cvsnageswara Exp $";
 
 
 #include "measuretoolman.h"
@@ -31,6 +31,7 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     : appl_(appl)
     , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
     , measuredlg_(0)
+    , status_(false)		    
 {
     butidx_ = appl.menuMgr().coinTB()->addButton(
 	    "measure.png", mCB(this,MeasureToolMan,buttonClicked),
@@ -59,19 +60,48 @@ void MeasureToolMan::objSelected( CallBacker* cb )
 }
 
 
-void MeasureToolMan::buttonClicked( CallBacker* cb )
+void MeasureToolMan::dlgClosed( CallBacker* cb )
 {
-    const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
-    if ( ison )
+    appl_.menuMgr().coinTB()->turnOn( butidx_, false );
+    appl_.sceneMgr().setToViewMode( true );
+    for ( int idx=0; idx<displayobjs_.size(); idx++ )
+	visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
+}
+
+
+void MeasureToolMan::manageDlg( bool show )
+{
+    if ( show )
+    {
+	if ( !measuredlg_ )
+	{
+	    measuredlg_ = new uiMeasureDlg( &appl_ );
+	    measuredlg_->lineStyleChange.notify(
+				mCB(this,MeasureToolMan,lineStyleChangeCB) );
+	    measuredlg_->clearPressed.notify( mCB(this,MeasureToolMan,clearCB));
+	    measuredlg_->windowClosed.notify( 
+		    		mCB(this,MeasureToolMan,dlgClosed) );
+	}
+	measuredlg_->show();
 	appl_.sceneMgr().setToViewMode( false );
+    }
+    else
+	measuredlg_->close();
 
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
-	if ( ison )
+	if ( show )
 	    visBase::DM().selMan().select( displayobjs_[idx]->id() );
 	else
 	    visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
     }
+}
+
+
+void MeasureToolMan::buttonClicked( CallBacker* cb )
+{
+    const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
+    manageDlg( ison );
 }
 
 
@@ -149,19 +179,6 @@ void MeasureToolMan::changeCB( CallBacker* cb )
     mDynamicCastGet(Pick::SetMgr::ChangeData*,cd,cb);
     if ( !cd || !cd->set_ ) return;
 
-    if ( !measuredlg_ )
-    {
-	measuredlg_ = new uiMeasureDlg( &appl_ );
-	LineStyle ls;
-	ls.color_ = cd->set_->disp_.color_;
-	ls.width_ = cd->set_->disp_.pixsize_;
-	measuredlg_->setLineStyle( ls );
-	measuredlg_->lineStyleChange.notify(
-				mCB(this,MeasureToolMan,lineStyleChangeCB) ) ;
-	measuredlg_->clearPressed.notify( mCB(this,MeasureToolMan,clearCB) );
-    }
-
-    measuredlg_->show();
     Pick::Set chgdset( *cd->set_ );
     if ( cd->ev_ == Pick::SetMgr::ChangeData::ToBeRemoved )
 	chgdset.remove( cd->loc_ );

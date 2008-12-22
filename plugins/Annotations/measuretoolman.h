@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.h,v 1.3 2008-08-04 06:56:39 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.h,v 1.4 2008-12-22 12:31:04 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ protected:
     void		changeCB(CallBacker*);
     void		lineStyleChangeCB(CallBacker*);
     void		clearCB(CallBacker*);
+    void		dlgClosed(CallBacker*); 
+    void		manageDlg(bool); 
 
     uiODMain&		appl_;
 
