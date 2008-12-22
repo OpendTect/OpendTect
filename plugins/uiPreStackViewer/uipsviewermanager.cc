@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.32 2008-12-22 19:25:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.33 2008-12-22 22:41:17 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -178,6 +178,9 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const int idx = viewers3d_.indexOf( psv );
+	if ( idx==-1 )
+	    return;
+
 	if ( !posdialogs_[idx] )
 	{
 	    mDeclareAndTryAlloc( uiViewer3DPositionDlg*, dlg,
@@ -251,7 +254,7 @@ int uiViewer3DMgr::getSceneID( int mnid )
 #define mErrReturn(msg) { uiMSG().error(msg); return false; }
 
 bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu, 
-			       int sceneid, int mnuidx )
+				 int sceneid, int mnuidx )
 {
     if ( !menu )
 	return false;
@@ -348,7 +351,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
 uiFlatViewWin* uiViewer3DMgr::create2DViewer( const BufferString& title, 
-					      const int dpid )
+					      int dpid )
 {
     uiFlatViewWin* viewwin = new uiFlatViewMainWin( 
 	    ODMainWin()->applMgr().seisServer()->appserv().parent(), 
@@ -421,7 +424,7 @@ void uiViewer3DMgr::sceneChangeCB( CallBacker* )
 }
 
 
-void uiViewer3DMgr::removeViewWin( const int dpid )
+void uiViewer3DMgr::removeViewWin( int dpid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {

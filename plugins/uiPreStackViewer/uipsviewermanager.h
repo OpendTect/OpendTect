@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.12 2008-12-22 19:25:37 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.13 2008-12-22 22:41:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,8 +58,8 @@ protected:
     int			getSceneID(int mnid);
     static void		getSeis2DTitle(int trnr,const char*,BufferString&);
     static void		getSeis3DTitle(const BinID&,const char*,BufferString&);
-    bool		add3DViewer(const uiMenuHandler*,int sceneid,int mnuidx);
-    void		removeViewWin(const int dpid);
+    bool		add3DViewer(const uiMenuHandler*,int scnid,int mnuidx);
+    void		removeViewWin(int dpid);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
     void		removeAllCB(CallBacker*);
