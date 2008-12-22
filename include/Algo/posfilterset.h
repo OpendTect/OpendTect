@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.6 2008-03-25 11:40:39 cvsnanne Exp $
+ RCS:           $Id: posfilterset.h,v 1.7 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace Pos
 
 /*!\brief Set of Filters. Owns the Filters. */
 
-class FilterSet : public virtual Filter
+mClass FilterSet : public virtual Filter
 {
 public:
 
@@ -71,7 +71,7 @@ protected:
 			{ return FilterSet::includes(c,z); } \
 
 
-class FilterSet3D : public FilterSet
+mClass FilterSet3D : public FilterSet
 		  , public Filter3D
 {
 public:
@@ -84,7 +84,7 @@ public:
 };
 
 
-class FilterSet2D : public FilterSet
+mClass FilterSet2D : public FilterSet
 		  , public Filter2D
 {
 public:

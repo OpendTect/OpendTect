@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.36 2008-08-27 16:54:04 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.37 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -230,7 +230,7 @@ Coord3 estimateAverageVector( const TypeSet<Coord3>&, bool normalize,
  where: i*i = j*j = k*k = -1.
 */
 
-class Quaternion
+mClass Quaternion
 {
 public:
     			Quaternion(float s,float x,float y,float z);
@@ -254,7 +254,7 @@ public:
     Vector3		vec_;
 };
 
-class Line2
+mClass Line2
 {
 public:			
     			Line2();
@@ -290,7 +290,7 @@ z = z0 + gamma*t
 */
 
 
-class Line3
+mClass Line3
 {
 public:			
     			Line3();
@@ -337,7 +337,7 @@ Ax + By + Cz + D = 0
 
 
 
-class Plane3
+mClass Plane3
 {
 public:
 			Plane3();
@@ -391,7 +391,7 @@ public:
    3D space and the coordiante system. */
 
 
-class Plane3CoordSystem
+mClass Plane3CoordSystem
 {
 public:
     			Plane3CoordSystem(const Coord3& normal,
@@ -429,7 +429,7 @@ protected:
   The angle phi lies in the horizontal plane, theta in the vertical plane.
 */
 
-class Sphere
+mClass Sphere
 {
 public:
 			Sphere(float r=0,float t=0,float p=0)

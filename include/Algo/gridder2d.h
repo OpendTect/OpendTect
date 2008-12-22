@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.10 2008-11-24 15:52:43 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.11 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class DAGTriangleTree;
 
 /*! Generic interface for 2D gridding. */
 
-class Gridder2D
+mClass Gridder2D
 {
 public:
 				mDefineFactoryInClass(Gridder2D,factory);
@@ -96,7 +96,7 @@ protected:
 };
 
 
-class InverseDistanceGridder2D : public Gridder2D 
+mClass InverseDistanceGridder2D : public Gridder2D 
 {
 public:
 		InverseDistanceGridder2D();
@@ -130,7 +130,7 @@ protected:
 
 /*!Uses Delaunay triangulation to find a points neighbors and does inverse
    distance between the neighbors. */
-class TriangulatedNeighborhoodGridder2D : public Gridder2D
+mClass TriangulatedNeighborhoodGridder2D : public Gridder2D
 {
 public:
     			TriangulatedNeighborhoodGridder2D();
@@ -164,7 +164,7 @@ protected:
 /*!Use Delaunay triangulation to triangulate all points, including the point
   of investigation, and use inverse distance among the point of investigation's
   neighborhood. */
-class TriangulatedGridder2D: public Gridder2D
+mClass TriangulatedGridder2D: public Gridder2D
 {
 public:
     			TriangulatedGridder2D();

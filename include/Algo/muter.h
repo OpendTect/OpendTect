@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: muter.h,v 1.2 2007-10-23 21:12:54 cvskris Exp $
+ RCS:		$Id: muter.h,v 1.3 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ template <class T> class ValueSeries;
 
   */
 
-class Muter
+mClass Muter
 {
 public:
     			Muter( float taperlen, bool tail=false )

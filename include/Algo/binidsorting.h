@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: binidsorting.h,v 1.2 2006-12-11 10:45:40 cvsbert Exp $
+ RCS:		$Id: binidsorting.h,v 1.3 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
  
  */
 
-class BinIDSorting
+mClass BinIDSorting
 {
 public:
     			BinIDSorting( bool is2d )
@@ -59,7 +59,7 @@ protected:
 };
 
 
-class BinIDSortingAnalyser
+mClass BinIDSortingAnalyser
 {
 public:
     			BinIDSortingAnalyser(bool is2d);

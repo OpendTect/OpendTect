@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.8 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: pca.h,v 1.9 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ Example of usage:\code
 
 */
 
-class PCA
+mClass PCA
 {
 public:
     					PCA( int nrvars );

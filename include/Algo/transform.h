@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: transform.h,v 1.8 2004-04-27 15:51:15 bert Exp $
+ RCS:           $Id: transform.h,v 1.9 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ checked at runtime.
 
 */
 
-class TransformND
+mClass TransformND
 {
 public:
     virtual bool		setInputInfo( const ArrayNDInfo& )	= 0;
@@ -94,7 +94,7 @@ It lets any 1D orthogonal transform
 subclass of GenericTransformND.
 */
 
-class GenericTransformND : public TransformND
+mClass GenericTransformND : public TransformND
 {
 public:
     bool			setInputInfo( const ArrayNDInfo& );
@@ -130,7 +130,7 @@ mProtected:
     ArrayNDInfo*			info;
 
     
-    class Transform1D
+    mClass Transform1D
     {
     public:
 	virtual void		setSize(int) 				= 0;

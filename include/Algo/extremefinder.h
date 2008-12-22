@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.8 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: extremefinder.h,v 1.9 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ Implementation of Brent's Method in one dimension.
 
 */
 
-class ExtremeFinder1D : public SequentialTask
+mClass ExtremeFinder1D : public SequentialTask
 {
 public:
     			ExtremeFinder1D( const FloatMathFunction&,
@@ -92,7 +92,7 @@ protected:
 };
 
 
-class BisectionExtremeFinder1D : public SequentialTask
+mClass BisectionExtremeFinder1D : public SequentialTask
 {
 public:
     			BisectionExtremeFinder1D(
@@ -169,7 +169,7 @@ Implementation of Powell's Quadratically Convergent Method
 \note The implementation is not tested (yet) 030512.
 */
 
-class ExtremeFinderND : public SequentialTask
+mClass ExtremeFinderND : public SequentialTask
 {
 
 public:

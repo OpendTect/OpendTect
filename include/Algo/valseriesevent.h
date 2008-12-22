@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.12 2008-07-16 17:52:58 cvsnanne Exp $
+ RCS:		$Id: valseriesevent.h,v 1.13 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "valseries.h"
 
-class VSEvent
+mClass VSEvent
 {
 public:
     enum Type	{ None, Extr, Max, Min, ZC, ZCNegPos, ZCPosNeg,

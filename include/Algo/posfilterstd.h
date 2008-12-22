@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.4 2008-05-19 15:53:49 cvsbert Exp $
+ RCS:           $Id: posfilterstd.h,v 1.5 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace Pos
 
 /*!\brief Passes a percentage of the positions */
 
-class RandomFilter : public virtual Filter
+mClass RandomFilter : public virtual Filter
 {
 public:
 
@@ -72,7 +72,7 @@ mSimpPosFilterDefFnsBase
 
 /*!\brief Passes a percentage of the positions (3D) */
 
-class RandomFilter3D : public Filter3D
+mClass RandomFilter3D : public Filter3D
 		     , public RandomFilter
 {
 public:
@@ -84,7 +84,7 @@ public:
 
 /*!\brief Passes a percentage of the positions (2D) */
 
-class RandomFilter2D : public Filter2D
+mClass RandomFilter2D : public Filter2D
 		     , public RandomFilter
 {
 public:
@@ -95,7 +95,7 @@ public:
 
 /*!\brief Passes each nth position */
 
-class SubsampFilter : public virtual Filter
+mClass SubsampFilter : public virtual Filter
 {
 public:
 
@@ -126,7 +126,7 @@ protected:
 
 /*!\brief Passes each nth position (3D) */
 
-class SubsampFilter3D : public Filter3D
+mClass SubsampFilter3D : public Filter3D
 		      , public SubsampFilter
 {
 public:
@@ -138,7 +138,7 @@ public:
 
 /*!\brief Passes each nth position (2D) */
 
-class SubsampFilter2D : public Filter2D
+mClass SubsampFilter2D : public Filter2D
 		      , public SubsampFilter
 {
 public:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.10 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.11 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ class Provider;
  
  */
 
-class Filter
+mClass Filter
 {
 public:
 
@@ -73,7 +73,7 @@ public:
 
 /*!\brief provides a filter related to 3D data */
 
-class Filter3D : public virtual Filter
+mClass Filter3D : public virtual Filter
 {
 public:
 
@@ -90,7 +90,7 @@ public:
 
 /*!\brief provides a filter related to 2D seismic data */
 
-class Filter2D : public virtual Filter
+mClass Filter2D : public virtual Filter
 {
 public:
     			Filter2D() : ld_(0)			{}

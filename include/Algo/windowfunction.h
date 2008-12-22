@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer
  Date:		2007
- RCS:		$Id: windowfunction.h,v 1.5 2007-12-02 09:23:54 cvsnanne Exp $
+ RCS:		$Id: windowfunction.h,v 1.6 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class IOPar;
    between 0 and 1 in the interval -1 to 1. Outside that interval, the result
    is zero. */
 
-class WindowFunction : public FloatMathFunction
+mClass WindowFunction : public FloatMathFunction
 {
 public:
     virtual const char*	name() const			= 0;
@@ -38,7 +38,7 @@ public:
 };
 
 
-class BoxWindow : public WindowFunction
+mClass BoxWindow : public WindowFunction
 {
 public:
     static void			initClass();
@@ -50,7 +50,7 @@ public:
 };
 
 
-class HammingWindow : public WindowFunction
+mClass HammingWindow : public WindowFunction
 {
 public:
     static void			initClass();
@@ -62,7 +62,7 @@ public:
 };
 
 
-class HanningWindow : public WindowFunction
+mClass HanningWindow : public WindowFunction
 {
 public:
     static void			initClass();
@@ -74,7 +74,7 @@ public:
 };
 
 
-class BlackmanWindow : public WindowFunction
+mClass BlackmanWindow : public WindowFunction
 {
 public:
     static void			initClass();
@@ -86,7 +86,7 @@ public:
 };
 
 
-class BartlettWindow : public WindowFunction
+mClass BartlettWindow : public WindowFunction
 {
 public:
     static void			initClass();
@@ -98,7 +98,7 @@ public:
 };
 
 
-class CosTaperWindow : public WindowFunction
+mClass CosTaperWindow : public WindowFunction
 {
 public:
     static void			initClass();

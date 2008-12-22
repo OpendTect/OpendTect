@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: linear.h,v 1.6 2008-06-26 16:16:56 cvsbert Exp $
+ RCS:		$Id: linear.h,v 1.7 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
 
 /*!\brief linear stats in 2D. */
 
-class LinStats2D
+mClass LinStats2D
 {
 public:
 		LinStats2D() : corrcoeff(0)	{}
@@ -68,7 +68,7 @@ public:
 
 /*!\brief linear stats in 3D. */
 
-class LinStats3D
+mClass LinStats3D
 {
 public:
 		LinStats3D() : corrcoeff(0)	{}
@@ -82,7 +82,7 @@ public:
 
 /*!\brief helps making nice axes for graphs */
 
-class AxisLayout
+mClass AxisLayout
 {
 public:
 				AxisLayout();

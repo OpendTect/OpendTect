@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: histequalizer.h,v 1.2 2008-10-27 11:58:55 cvssatyaki Exp $
+ RCS:		$Id: histequalizer.h,v 1.3 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 template <class T> class TypeSet;
 
 
-class HistEqualizer
+mClass HistEqualizer
 {
 public:
     			HistEqualizer(const int nrseg=256);

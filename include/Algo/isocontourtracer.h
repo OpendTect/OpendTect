@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		November 2007	
- RCS:		$Id: isocontourtracer.h,v 1.2 2008-10-03 12:22:42 cvsjaap Exp $
+ RCS:		$Id: isocontourtracer.h,v 1.3 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*!\brief Tracing the z-level contour of a 2D scalar field. */
 
-class IsoContourTracer
+mClass IsoContourTracer
 {
 public:
 		

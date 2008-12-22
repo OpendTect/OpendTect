@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.19 2008-12-10 17:43:32 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.20 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ on the location (binid). The various transforms can be retrieved from factory
 ZATF().
 */
 
-class ZAxisTransform
+mClass ZAxisTransform
 { mRefCountImpl(ZAxisTransform);
 public:
     			ZAxisTransform();
@@ -83,7 +83,7 @@ public:
 mDefineFactory( ZAxisTransform, ZATF );
 
 
-class ZAxisTransformSampler
+mClass ZAxisTransformSampler
 {
 public:
     				ZAxisTransformSampler( const ZAxisTransform&,

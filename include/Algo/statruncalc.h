@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.14 2008-08-18 13:32:23 cvsyuancheng Exp $
+ RCS:           $Id: statruncalc.h,v 1.15 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Stats
 
 /*!\brief setup for the Stats::RunCalc object */
 
-class RunCalcSetup
+mClass RunCalcSetup
 {
 public:
     			RunCalcSetup( bool weighted=false )

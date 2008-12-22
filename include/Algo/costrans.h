@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: costrans.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:           $Id: costrans.h,v 1.7 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ standard, where it is used extensively.
 */
 
 
-class CosineTransform : public GenericTransformND
+mClass CosineTransform : public GenericTransformND
 {
 public:
     bool		isReal() const { return true; }
@@ -51,7 +51,7 @@ public:
 
 protected:
 
-    class CosineTransform1D : public GenericTransformND::Transform1D
+    mClass CosineTransform1D : public GenericTransformND::Transform1D
     {
     public:
 	void		setSize(int nsz) { size=nsz; }

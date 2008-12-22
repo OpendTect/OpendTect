@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-9-1995
  Contents:	Scaler objects
- RCS:		$Id: scaler.h,v 1.17 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: scaler.h,v 1.18 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ is defined, aswell as a factory (Scaler::get).
 
 */
 
-class Scaler
+mClass Scaler
 {
 public:
     static Scaler*	get(const char*);
@@ -50,7 +50,7 @@ public:
 /*!\brief Linear scaling
 */
 
-class LinScaler : public Scaler
+mClass LinScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LinScaler)
 public:
@@ -90,7 +90,7 @@ inline bool LinScaler::isEmpty() const
 /*!\brief Logarithmic scaling, base e or ten.
 */
 
-class LogScaler : public Scaler
+mClass LogScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,LogScaler)
 public:
@@ -115,7 +115,7 @@ public:
 /*!\brief Exponential scaling, base e or ten.
 */
 
-class ExpScaler : public Scaler
+mClass ExpScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,ExpScaler)
 public:
@@ -150,7 +150,7 @@ reversible squeeze function, with a non-deforming (linear), fast central part.
 
 */
 
-class AsymptScaler : public Scaler
+mClass AsymptScaler : public Scaler
 {
 #define cloneTp		mPolyRet(Scaler,AsymptScaler)
 public:

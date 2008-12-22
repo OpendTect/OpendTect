@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.30 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: simpnumer.h,v 1.31 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -143,7 +143,7 @@ int nrBlocks( int totalsamples, int basesize, int overlapsize )
  will be set to zero. The taper can be either cosine or linear.
 */
 
-class Taper
+mClass Taper
 {
 public:
     enum Type { Cosine, Linear };

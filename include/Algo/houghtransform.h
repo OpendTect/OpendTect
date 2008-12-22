@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.9 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: houghtransform.h,v 1.10 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -42,7 +42,7 @@ Usage:
 
 */
 
-class PlaneFrom3DSpaceHoughTransform
+mClass PlaneFrom3DSpaceHoughTransform
 {
 public:
     				PlaneFrom3DSpaceHoughTransform();

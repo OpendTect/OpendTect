@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.6 2008-07-11 17:45:05 cvskris Exp $
+ RCS:		$Id: valseriestracker.h,v 1.7 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ template <class T> class ValueSeries;
 /*!Base class for a tracker that tracks something (e.g. min, max, a certain
    value)++ from one ValueSeries<float> to another. */
 
-class ValSeriesTracker
+mClass ValSeriesTracker
 {
 public:
     			ValSeriesTracker();
@@ -57,7 +57,7 @@ protected:
 /*!Tracker that tracks Min/Max & Zero crossings between valueseries. */
 
 
-class EventTracker : public ValSeriesTracker
+mClass EventTracker : public ValSeriesTracker
 {
 public:
     				EventTracker();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.21 2008-09-22 13:05:33 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.22 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 */
 
 #define mDAGTriangleForceSingleThread
-class DAGTriangleTree
+mClass DAGTriangleTree
 {
 public:
     			DAGTriangleTree();
@@ -143,7 +143,7 @@ protected:
 };
 
 /*!<The parallel DTriangulation works for only one processor now.*/
-class ParallelDTriangulator : public ParallelTask
+mClass ParallelDTriangulator : public ParallelTask
 {
 public:
 			ParallelDTriangulator(DAGTriangleTree&);

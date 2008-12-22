@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2006
- RCS:           $Id: statrand.h,v 1.1 2006-09-21 12:02:46 cvsbert Exp $
+ RCS:           $Id: statrand.h,v 1.2 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 namespace Stats
 {
 
-class RandGen
+mClass RandGen
 {
 public:
 

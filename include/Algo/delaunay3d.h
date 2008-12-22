@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.10 2008-12-11 16:12:31 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.11 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ template<class T> class Array3D;
 /*<Delaunay triangulation for 3D points. Should make sure all the points are 
    defined. */
 
-class DAGTetrahedraTree
+mClass DAGTetrahedraTree
 {
 public:
     			DAGTetrahedraTree();
@@ -149,7 +149,7 @@ protected:
 };
 
 
-class ParallelDTetrahedralator : public ParallelTask
+mClass ParallelDTetrahedralator : public ParallelTask
 {
 public:
 			ParallelDTetrahedralator(DAGTetrahedraTree&);
@@ -171,7 +171,7 @@ protected:
 /*<Given a triangulated body, extract position value on each trace based on 
    threshhold value. The arr's size is based on inlrg, crlrg, zrg. Here pt on
    surface will be set to 0, inside to be -1, outside to be 1. */
-class Explicit2ImplicitBodyExtracter : public ParallelTask
+mClass Explicit2ImplicitBodyExtracter : public ParallelTask
 {
 public:
   		Explicit2ImplicitBodyExtracter( const DAGTetrahedraTree&,

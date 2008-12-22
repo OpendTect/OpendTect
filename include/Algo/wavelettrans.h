@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: wavelettrans.h,v 1.14 2008-11-28 09:19:15 cvsnageswara Exp $
+ RCS:           $Id: wavelettrans.h,v 1.15 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 @$*/
@@ -27,7 +27,7 @@ The algorithm is based on the one from NumericalRecipies, and additional
 kernel support comes from the Matlab library "WaveLab" (Stanford University).
 */
 
-class WaveletTransform
+mClass WaveletTransform
 {
 public:
     enum		WaveletType { Haar, Daubechies4, Daubechies6,
@@ -78,7 +78,7 @@ public:
 };
 
 
-class DWT : public GenericTransformND
+mClass DWT : public GenericTransformND
 {
 public:
 		    DWT( WaveletTransform::WaveletType );
@@ -92,7 +92,7 @@ public:
 
 protected:
 
-    class FilterWT1D : public GenericTransformND::Transform1D
+    mClass FilterWT1D : public GenericTransformND::Transform1D
     {
     public:
 	
@@ -144,7 +144,7 @@ protected:
 };
 
 
-class CWT : public TransformND
+mClass CWT : public TransformND
 {
 public:
 			CWT();

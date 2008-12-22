@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: zaxistransformer.h,v 1.5 2008-09-22 13:05:33 cvskris Exp $
+ RCS:           $Id: zaxistransformer.h,v 1.6 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ template <class T> class Array3D;
 */
 
 
-class ZAxisTransformer : public ParallelTask
+mClass ZAxisTransformer : public ParallelTask
 {
 public:
     			ZAxisTransformer(ZAxisTransform&,bool forward = true);

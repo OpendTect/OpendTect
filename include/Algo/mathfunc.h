@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.24 2008-12-11 06:32:29 cvsnanne Exp $
+ RCS:		$Id: mathfunc.h,v 1.25 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,7 +144,7 @@ public:
 
  */
 
-class PointBasedMathFunction : public FloatMathFunction
+mClass PointBasedMathFunction : public FloatMathFunction
 {
 public:
 
@@ -225,7 +225,7 @@ protected:
     a x^2 + b x + c
 */
 
-class SecondOrderPoly : public FloatMathFunction
+mClass SecondOrderPoly : public FloatMathFunction
 {
 public:
     			SecondOrderPoly( float a_=0, float b_=0, float c_=0 )
@@ -294,7 +294,7 @@ public:
     a x^3 + b x^2 + c x + d
 */
 
-class ThirdOrderPoly : public FloatMathFunction
+mClass ThirdOrderPoly : public FloatMathFunction
 {
 public:
     			ThirdOrderPoly( float a_=0, float b_=0,

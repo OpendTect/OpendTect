@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.11 2008-09-23 10:40:08 cvshelene Exp $
+ RCS:		$Id: dataclipper.h,v 1.12 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -72,7 +72,7 @@ Example
 */
 
 
-class DataClipper
+mClass DataClipper
 {
 public:
     				DataClipper();

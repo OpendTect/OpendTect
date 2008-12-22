@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2007
- RCS:		$Id: hilberttransform.h,v 1.3 2008-11-28 09:19:15 cvsnageswara Exp $
+ RCS:		$Id: hilberttransform.h,v 1.4 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ template <class T> class ArrayND;
 
 typedef std::complex<float> float_complex;
 
-class HilbertTransform : public TransformND
+mClass HilbertTransform : public TransformND
 {
 public:
     			HilbertTransform();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.12 2008-02-28 10:03:13 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.13 2008-12-22 04:13:28 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,7 @@ public:
 
 /*!\brief provides a subselection for 3D surveys */
 
-class Provider3D : public Filter3D
+mClass Provider3D : public Filter3D
 		 , public Provider
 {
 public:
@@ -78,7 +78,7 @@ public:
 
 /*!\brief provides a subselection for 2D surveys - requires the line name(s). */
 
-class Provider2D : public Filter2D
+mClass Provider2D : public Filter2D
 		 , public Provider
 {
 public:
