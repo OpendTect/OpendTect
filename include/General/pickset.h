@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.38 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: pickset.h,v 1.39 2008-12-23 11:05:17 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ public:
     struct Disp
     {
 			Disp()
-			    : color_(Color::NoColor)
+			    : color_(Color::NoColor())
 			    , markertype_(3) // Sphere
 			    , connect_(None)
 			    , pixsize_(3)		{}

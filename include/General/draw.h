@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.21 2008-10-27 10:49:18 cvssatyaki Exp $
+ RCS:           $Id: draw.h,v 1.22 2008-12-23 11:05:17 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 			DeclareEnumUtils(Type)
 
 			MarkerStyle2D( Type tp=Square, int sz=2,
-				       Color col=Color::Black )
+				       Color col=Color::Black() )
 			: type_(tp), size_(sz), color_(col)	{}
 
     bool		operator==(const MarkerStyle2D& a) const
@@ -89,7 +89,7 @@ public:
 			DeclareEnumUtils(Type)
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
-				       Color col=Color::White )
+				       Color col=Color::White() )
 			: type_(tp), size_(sz), color_(col)	{}
 
     Type		type_;
@@ -114,7 +114,7 @@ public:
 			// directly to a UI enum.
 			DeclareEnumUtils(Type)
 
-			LineStyle( Type t=Solid,int w=1,Color c=Color::Black )
+			LineStyle( Type t=Solid,int w=1,Color c=Color::Black() )
 			: type_(t), width_(w), color_(c)	{}
 
     bool		operator ==( const LineStyle& ls ) const

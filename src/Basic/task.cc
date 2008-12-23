@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.14 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.15 2008-12-23 11:03:30 cvsdgb Exp $";
 
 #include "task.h"
 
@@ -147,8 +147,8 @@ public:
     int		nextStep()
 		{
 		    return task_->doWork(start_,stop_,threadid_)
-			? SequentialTask::cFinished()
-			: SequentialTask::cErrorOccurred();
+			? SequentialTask::Finished()
+			: SequentialTask::ErrorOccurred();
 		}
 
 protected:

@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.28 2008-09-22 12:51:51 cvskris Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.29 2008-12-23 11:03:30 cvsdgb Exp $";
 
 #include "executor.h"
 
@@ -14,11 +14,6 @@ static const char* rcsID = "$Id: executor.cc,v 1.28 2008-09-22 12:51:51 cvskris 
 #include "timefun.h"
 #include <iostream>
 
-const int Executor::ErrorOccurred	= -1;
-const int Executor::Finished		= 0;
-const int Executor::MoreToDo		= 1;
-const int Executor::WarningAvailable	= 2;
-
 
 bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 		        int delaybetwnsteps )
@@ -27,7 +22,7 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
     {
 	if ( !delaybetwnsteps ) return SequentialTask::execute();
 
-	int rv = MoreToDo;
+	int rv = MoreToDo();
 	while ( rv )
 	{
 	    rv = doStep();
@@ -124,16 +119,17 @@ void ExecutorGroup::add( Executor* n )
 int ExecutorGroup::nextStep()
 {
     const int nrexecs = executors_.size();
-    if ( !nrexecs ) return Finished;
+    if ( !nrexecs ) return Finished();
 
     int res = executorres_[currentexec_] = executors_[currentexec_]->doStep();
-    if ( res == ErrorOccurred )
-	return ErrorOccurred;
-    else if ( parallel_ || res==Finished )
-	res = goToNextExecutor() ? MoreToDo : Finished;
+    if ( res == ErrorOccurred() )
+	return ErrorOccurred();
+    else if ( parallel_ || res==Finished() )
+	res = goToNextExecutor() ? MoreToDo() : Finished();
 
     return res;
 }
+
 
 bool ExecutorGroup::goToNextExecutor()
 {
@@ -146,7 +142,7 @@ bool ExecutorGroup::goToNextExecutor()
 	if ( currentexec_==nrexecs )
 	    currentexec_ = 0;
 
-	if ( executorres_[currentexec_]>Finished )
+	if ( executorres_[currentexec_]>Finished() )
 	{
 	    if ( currentexec_>sumstop_ )
 	    {

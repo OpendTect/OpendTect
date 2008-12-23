@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.36 2008-12-03 22:50:09 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.37 2008-12-23 11:05:17 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,10 +177,10 @@ public:
     public:
 
 		    WVA()
-			: wigg_(Color::Black)
-			, mid_(Color::NoColor)
-			, left_(Color::NoColor)
-			, right_(Color::DgbColor)
+			: wigg_(Color::Black())
+			, mid_(Color::NoColor())
+			, left_(Color::NoColor())
+			, right_(Color::DgbColor())
 			, overlap_(1)		{ midlinevalue_ = 0; }
 
 	Color		wigg_;

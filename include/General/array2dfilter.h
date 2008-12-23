@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2006
- RCS:           $Id: array2dfilter.h,v 1.6 2008-09-22 13:09:19 cvskris Exp $
+ RCS:           $Id: array2dfilter.h,v 1.7 2008-12-23 11:05:17 cvsdgb Exp $
 ________________________________________________________________________
 
 
@@ -160,14 +160,14 @@ void Array2DFilterer<T>::releaseAll()
 template <class T> inline int Array2DFilterer<T>::nextStep()
 {
     if ( !bufs_ || nrcolsdone_ >= colsize_ )
-	return Executor::Finished;
+	return Executor::Finished();
 
     if ( !manageBufs(nrcolsdone_) )
-	return Executor::Finished;
+	return Executor::Finished();
 
     filterCol( nrcolsdone_ );
     nrcolsdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
