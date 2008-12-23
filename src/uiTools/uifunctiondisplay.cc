@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.24 2008-12-18 10:01:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.25 2008-12-23 11:33:10 cvsdgb Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -258,7 +258,7 @@ void uiFunctionDisplay::draw()
 	    else
 		y2polygonitem_->setPolygon( y2ptlist );
 	    y2polygonitem_->setFillColor( setup_.fillbelowy2_ ? setup_.y2col_ :
-							        Color::NoColor);
+							        Color::NoColor());
 	    y2polyitem_ = y2polygonitem_;
 	}
 	else

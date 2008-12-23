@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.10 2008-12-23 09:40:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.11 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -373,8 +373,8 @@ void uiWellLogDispProperties::logSel( CallBacker* )
 void uiWellLogDispProperties::selNone()
 {
     rangefld_->setValue( Interval<float>(0,0) );
-    colfld_->setColor( Color::White );
-    seiscolorfld_->setColor( Color::White );
+    colfld_->setColor( Color::White() );
+    seiscolorfld_->setColor( Color::White() );
     stylefld_->setValue( true );
     setFldSensitive( false );
     cliprangefld_->setValue( true );

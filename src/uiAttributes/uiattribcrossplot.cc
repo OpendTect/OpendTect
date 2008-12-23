@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.33 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.34 2008-12-23 11:40:05 cvsdgb Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -272,7 +272,7 @@ void uiAttribCrossPlot::createPickSet( CallBacker* )
 	delete selptps_;
     selptps_ = 0;
     selptps_ = new Pick::Set( "Selected Points from Attribute" );
-    selptps_->disp_.color_ = Color::White;
+    selptps_->disp_.color_ = Color::White();
     for ( int idx=0; idx<uidps_->selptcoord_.size(); idx++ )
     {
 	Pick::Location pickloc( uidps_->selptcoord_[idx]->x,

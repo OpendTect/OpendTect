@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.62 2008-12-18 16:25:41 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.63 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "vismpe.h"
 
@@ -37,7 +37,7 @@ mCreateFactoryEntry( visSurvey::MPEDisplay );
 namespace visSurvey {
 
 const Color MPEDisplay::movingColor = Color(130,130,255);
-const Color MPEDisplay::extendColor = Color::White;
+const Color MPEDisplay::extendColor = Color::White();
 const Color MPEDisplay::reTrackColor = Color(130,255,130);
 const Color MPEDisplay::eraseColor = Color(255,130,130);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.12 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.13 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -72,8 +72,8 @@ od_int64 nrDone() const
 
 int nextStep()
 {
-    if ( !bvalset_ ) return Executor::ErrorOccurred;
-    if ( !bvalset_->next(pos_) ) return Executor::Finished;
+    if ( !bvalset_ ) return Executor::ErrorOccurred();
+    if ( !bvalset_->next(pos_) ) return Executor::Finished();
 
     BinID bid;
     const int nrvals = bvalset_->nrVals();
@@ -82,7 +82,7 @@ int nextStep()
 	vals[idx] = mUdf(float);
 
     bvalset_->get( pos_, bid, vals );
-    if ( bid.inl < 0 ) return Executor::ErrorOccurred;
+    if ( bid.inl < 0 ) return Executor::ErrorOccurred();
 
     BufferString linenm = linenames_.get( bid.inl );
     if ( bid.inl != prevlineidx_ )
@@ -91,7 +91,7 @@ int nextStep()
 	prevtrcnr_ = -1;
 	linegeom_.posns_.erase();
 	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
 
 	for ( int hdx=0; hdx<hors_.size(); hdx++ )
 	{
@@ -142,7 +142,7 @@ int nextStep()
 
     prevtrcnr_ = curtrcnr_;
     nrdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.20 2008-12-04 16:30:48 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.21 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -45,7 +45,7 @@ VolumeRenderScalarField::VolumeRenderScalarField()
     , sz1_( 1 )
     , sz2_( 1 )
     , ctab_( 0 )
-    , blendcolor_( Color::White )
+    , blendcolor_( Color::White() )
     , useshading_( true )
 {
     root_->ref();

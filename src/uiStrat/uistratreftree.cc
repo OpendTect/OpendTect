@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.25 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.26 2008-12-23 11:36:33 cvsdgb Exp $";
 
 #include "uistratreftree.h"
 
@@ -240,9 +240,9 @@ ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
 {
     uiRGBArray rgbarr( false );
     rgbarr.setSize( PMWIDTH, PMHEIGHT );
-    rgbarr.clear( Color::White );
+    rgbarr.clear( Color::White() );
     for ( int idw=0; idw<PMWIDTH; idw++ )
-	rgbarr.set( idw, mNINT(PMHEIGHT/2), Color::Black );
+	rgbarr.set( idw, mNINT(PMHEIGHT/2), Color::Black() );
 
     if ( ref )
     {

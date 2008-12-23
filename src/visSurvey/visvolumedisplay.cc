@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.95 2008-12-12 22:30:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.96 2008-12-23 11:41:38 cvsdgb Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -76,7 +76,7 @@ VolumeDisplay::VolumeDisplay()
     boxdragger_->ref();
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->finished.notify( mCB(this,VolumeDisplay,manipMotionFinishCB) );
-    getMaterial()->setColor( Color::White );
+    getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.3 );
     getMaterial()->setDiffIntensity( 0.8 );
     getMaterial()->change.notify(mCB(this,VolumeDisplay,materialChange) );

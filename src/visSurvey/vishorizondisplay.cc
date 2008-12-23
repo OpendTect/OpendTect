@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.59 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.60 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -687,7 +687,7 @@ void HorizonDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 void HorizonDisplay::updateSingleColor()
 {
     const bool usesinglecolor = !validtexture_ || !usestexture_;
-    getMaterial()->setColor( usesinglecolor ? nontexturecol_ : Color::White );
+    getMaterial()->setColor( usesinglecolor ? nontexturecol_ : Color::White() );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {

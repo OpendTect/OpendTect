@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.10 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.11 2008-12-23 11:34:47 cvsdgb Exp $";
 
 #include "uiflatviewthumbnail.h"
 #include "uiflatviewcontrol.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.10 2008-11-25 15:35:
 #include "uiworld2ui.h"
 
 uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
-    	: uiCanvas(p,Color::White,"Flatview thumbnail canvas")
+    	: uiCanvas(p,Color::White(),"Flatview thumbnail canvas")
 	, viewer_(fv)
 	, mousehandler_(getMouseEventHandler())
 	, feedbackwr_( 0 )
@@ -66,7 +66,7 @@ void uiFlatViewThumbnail::reDrawHandler( uiRect updarea )
     ioDrawTool& dt = drawTool();
 
     mDeclW2UVars( viewer_.curView() );
-    dt.setPenColor( Color::Black );
+    dt.setPenColor( Color::Black() );
     const uiRect uibr( w2u.transform(br) );
     dt.drawRect( uibr );
 

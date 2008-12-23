@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.25 2008-12-16 12:15:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.26 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -51,7 +51,7 @@ MultiTextureSurveyObject::MultiTextureSurveyObject( bool dochannels )
 		visBase::ColTabTextureChannel2RGBA::create() );
     }
 	
-    material_->setColor( Color::White );
+    material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.8 );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.16 2008-12-05 09:17:49 cvsbruno Exp $
+ RCS:		$Id: welllog.h,v 1.17 2008-12-23 11:31:18 cvsdgb Exp $
 ________________________________________________________________________
 
 
@@ -80,9 +80,9 @@ public:
 			    , repeat_(1)	
 			    , repeatovlap_(mUdf(float))
 			    , seisstyle_(false)	
-			    , linecolor_(Color::White)	
+			    , linecolor_(Color::White())	
 			    , logfill_(false)
-	    		    , logfillcolor_(Color::White)
+	    		    , logfillcolor_(Color::White())
 			    , seqname_("")
        			    , singlfillcol_(false)				
 						        {}

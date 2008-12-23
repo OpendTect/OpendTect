@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.15 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.16 2008-12-23 11:34:47 cvsdgb Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -40,7 +40,7 @@ void uiFlatViewWin::setDarkBG( bool yn )
 	vwrs_[idx]->appearance().setDarkBG( yn );
     }
 
-    viewerParent()->setBackgroundColor( yn ? Color::Black : Color::White );
+    viewerParent()->setBackgroundColor( yn ? Color::Black() : Color::White() );
 }
 
 

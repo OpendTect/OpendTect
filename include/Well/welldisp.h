@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.7 2008-12-22 15:50:49 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.8 2008-12-23 11:31:18 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,10 +95,10 @@ public:
 			    , logarithmic_(false)
 			    , repeat_(5)
 			    , repeatovlap_(50)
-			    , linecolor_(Color::White)
+			    , linecolor_(Color::White())
 			    , islogfill_(false)
 		            , isdatarange_(true)
-		            , seiscolor_(Color::White)
+		            , seiscolor_(Color::White())
 			    , seqname_("AI")
 			    , issinglecol_(false)	{}
 

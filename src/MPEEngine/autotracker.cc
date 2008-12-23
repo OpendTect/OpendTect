@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: autotracker.cc,v 1.14 2008-03-10 15:40:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: autotracker.cc,v 1.15 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "autotracker.h"
 
@@ -167,7 +167,7 @@ int AutoTracker::nextStep()
     currentseeds_ = addedpos;
     nrdone_ += currentseeds_.size();
     
-    return currentseeds_.size() ? MoreToDo : Finished;
+    return currentseeds_.size() ? MoreToDo() : Finished();
 }
 
 

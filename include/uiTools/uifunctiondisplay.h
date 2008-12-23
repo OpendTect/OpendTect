@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.14 2008-12-18 10:01:02 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.15 2008-12-23 11:42:11 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
 				    : xrg_(mUdf(float),mUdf(float))
 				    , yrg_(mUdf(float),mUdf(float))
 				    , y2rg_(mUdf(float),mUdf(float))
-				    , bgcol_(Color::White)
+				    , bgcol_(Color::White())
 				    , ycol_(0,0,150)
 				    , y2col_(0,200,0)
 				    , xmarkcol_(150,0,0)

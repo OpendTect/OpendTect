@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.52 2008-12-18 23:06:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.53 2008-12-23 11:41:38 cvsdgb Exp $";
 
 
 #include "visseis2ddisplay.h"
@@ -75,7 +75,7 @@ Seis2DDisplay::Seis2DDisplay()
     linename_->ref();
     addChild( linename_->getInventorNode() );
 
-    getMaterial()->setColor( Color::White );
+    getMaterial()->setColor( Color::White() );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.2 );
 }

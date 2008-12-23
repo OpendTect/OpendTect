@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.58 2008-12-03 22:56:08 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.59 2008-12-23 11:41:38 cvsdgb Exp $";
 
 
 #include "vismultitexture2.h"
@@ -550,7 +550,7 @@ void MultiTexture2::updateColorTables()
 	    for ( int idy=0; idy<256; idy++ )
 	    {
 		const Color col =
-		    idy<=nrsteps ? ctab.tableColor( idy ) : Color::Black;
+		    idy<=nrsteps ? ctab.tableColor( idy ) : Color::Black();
 
 		*(arr++) = col.r();
 		*(arr++) = col.g();

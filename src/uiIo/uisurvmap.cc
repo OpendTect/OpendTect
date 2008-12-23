@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.20 2008-12-12 05:56:34 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.21 2008-12-23 11:35:51 cvsdgb Exp $";
 
 #include "uisurvmap.h"
 
@@ -39,7 +39,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     	return;
 
     uiTextItem* textitem = scene().addText( survinfo->name() );
-    textitem->setPenColor( Color::Black );
+    textitem->setPenColor( Color::Black() );
     textitem->setFont( uiFontList::get(FontData::key(FontData::GraphicsLarge)));
     textitem->setPos( width()/2, 10 );
     Alignment al( OD::AlignHCenter, OD::AlignVCenter );
@@ -108,7 +108,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
         annot += bid.inl; annot += "/"; annot += bid.crl;
         uiTextItem* textitm1 = scene().addText( annot.buf() );
 	textitm1->setPos( cpt[idx].x, cpt[idx].y+spacing );
-	textitm1->setPenColor( Color::Black );
+	textitm1->setPenColor( Color::Black() );
 	textitm1->setFont(
 		uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
 	textitm1->setAlignment( al );
@@ -123,7 +123,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 	    uiTextItem* textitm2 = scene().addText( annot.buf() );
 	    textitm2->moveBy( (float)(int)al.hor_, (float)(int)al.ver_ );
 	    textitm2->setPos( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing) );
-	    textitm2->setPenColor( Color::Black );
+	    textitm2->setPenColor( Color::Black() );
 	    textitm2->setFont(
 		    uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
 	    textitm2->setAlignment( al );

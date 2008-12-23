@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.2 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.3 2008-12-23 11:39:31 cvsdgb Exp $";
 
 #include "uiselectvelocityfunction.h"
 
@@ -55,7 +55,7 @@ uiFunctionSel::uiFunctionSel( uiParent* p,
     if ( colors )
     {
 	colors_ = *colors;
-	colorfld_ = new uiColorInput( this, Color::Black, "Color" );
+	colorfld_ = new uiColorInput( this, Color::Black(), "Color" );
 	colorfld_->attach( alignedBelow, list_ );
 	colorfld_->colorchanged.notify(
 		mCB( this, uiFunctionSel, colorChanged ));

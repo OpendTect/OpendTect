@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.92 2008-11-04 22:54:05 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.93 2008-12-23 11:42:11 cvsdgb Exp $
 ________________________________________________________________________
 
 
@@ -124,7 +124,7 @@ public:
     virtual bool		hasColor() const		{ return false;}
     virtual void		setColor(Color)			{}
     virtual Color		getColor() const		
-    				{ return Color::DgbColor; }
+    				{ return Color::DgbColor(); }
 
     virtual int			nrResolutions() const		{ return 1; }
     virtual BufferString	getResolutionName(int) const;

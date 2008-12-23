@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.3 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.4 2008-12-23 11:33:10 cvsdgb Exp $";
 
 #include "uicoltabmarker.h"
 
@@ -187,7 +187,7 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 
 // ***** uiColTabMarkerCanvas ****
 uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
-    : uiCanvas(p,Color::White,"Marker Canvas")
+    : uiCanvas(p,Color::White(),"Marker Canvas")
     , parent_(p)
     , ctab_(ctab)
     , markerChanged(this)

@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.48 2008-10-09 15:15:00 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.49 2008-12-23 11:31:36 cvsdgb Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -79,7 +79,7 @@ Well::InfoCollector::~InfoCollector()
 int Well::InfoCollector::nextStep()
 {
     if ( curidx_ >= totalnr_ )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     IOObj* ioobj = (*direntries_)[curidx_]->ioobj;
     Well::Data wd;
@@ -103,7 +103,7 @@ int Well::InfoCollector::nextStep()
 	}
     }
 
-    return ++curidx_ >= totalnr_ ? Finished : MoreToDo;
+    return ++curidx_ >= totalnr_ ? Finished() : MoreToDo();
 }
 
 
@@ -144,20 +144,20 @@ static int closeDPSS( ObjectSet<DataPointSet>& dpss )
 {
     for ( int idx=0; idx<dpss.size(); idx++ )
 	dpss[idx]->dataChanged();
-    return Executor::Finished;
+    return Executor::Finished();
 }
 
 #define mRetNext() { \
     delete ioobj; \
     curid++; \
-    return curid >= ids.size() ? closeDPSS(dpss) : MoreToDo; }
+    return curid >= ids.size() ? closeDPSS(dpss) : MoreToDo(); }
 
 int Well::TrackSampler::nextStep()
 {
     if ( curid >= ids.size() )
 	return 0;
     if ( lognms.isEmpty() )
-	{ "No well logs specified"; return Executor::ErrorOccurred; }
+	{ "No well logs specified"; return Executor::ErrorOccurred(); }
 
     DataPointSet* dps = new DataPointSet( for2d, minidps );
     dpss += dps;
@@ -359,14 +359,14 @@ void Well::LogDataExtracter::usePar( const IOPar& pars )
 #define mRetNext() { \
     delete ioobj; \
     curid_++; \
-    return curid_ >= ids_.size() ? Finished : MoreToDo; }
+    return curid_ >= ids_.size() ? Finished() : MoreToDo(); }
 
 int Well::LogDataExtracter::nextStep()
 {
     if ( curid_ >= ids_.size() )
 	return 0;
     if ( msg_.isEmpty() )
-	{ msg_ = "Extracting '"; msg_ += lognm_; msg_ += "'"; return MoreToDo; }
+	{ msg_ = "Extracting '"; msg_ += lognm_; msg_ += "'"; return MoreToDo(); }
 
     IOObj* ioobj = 0;
     if ( dpss_.size() <= curid_ ) mRetNext()

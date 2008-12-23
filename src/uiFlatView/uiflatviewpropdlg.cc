@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.37 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.38 2008-12-23 11:34:47 cvsdgb Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -349,7 +349,7 @@ void uiFVWVAPropTab::putToScreen()
 
 #define mSetCol(fld,memb) \
     havecol = pars_.memb.isVisible(); \
-    fld->setColor( havecol ? pars_.memb : Color::Black ); \
+    fld->setColor( havecol ? pars_.memb : Color::Black() ); \
     fld->setDoDraw( havecol )
 
     bool mSetCol(leftcolsel_,left_);
@@ -375,7 +375,7 @@ bool uiFVWVAPropTab::acceptOK()
     pars_.midlinevalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue() 
 						      : mUdf(float);
 #define mSetCol(fld,memb) \
-    pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor
+    pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor()
     mSetCol(leftcolsel_,left_);
     mSetCol(rightcolsel_,right_);
     mSetCol(wigcolsel_,wigg_);

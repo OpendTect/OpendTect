@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.24 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.25 2008-12-23 11:34:47 cvsdgb Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -175,7 +175,7 @@ FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
 void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
        				 const Geom::Point2D<int>& offs )
 {
-    arr_.clear( Color::White );
+    arr_.clear( Color::White() );
     if ( vd )
 	drawVD( *vd, offs );
     if ( wva )

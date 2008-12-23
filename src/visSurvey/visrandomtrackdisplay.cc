@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.104 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.105 2008-12-23 11:41:38 cvsdgb Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -75,7 +75,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     BufferString nm( "Random Line "); nm += namenr_;
     setName( nm );
 
-    material_->setColor( Color::White );
+    material_->setColor( Color::White() );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.2 );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.67 2008-12-12 05:49:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.68 2008-12-23 11:34:47 cvsdgb Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -109,7 +109,7 @@ uiRGBArray& uiFlatViewer::rgbArray()
 
 Color uiFlatViewer::color( bool foreground ) const
 {
-    return appearance().darkBG() == foreground ? Color::White : Color::Black;
+    return appearance().darkBG() == foreground ? Color::White() : Color::Black();
 }
 
 
@@ -456,7 +456,7 @@ void uiFlatViewer::drawGridAnnot( bool isvisble )
     else
 	rectitem_->setRect( datarect.left(), datarect.top(),
 			    datarect.width(), datarect.height() );
-    rectitem_->setPenStyle( LineStyle(LineStyle::Solid, 3, Color::Black) );
+    rectitem_->setPenStyle( LineStyle(LineStyle::Solid, 3, Color::Black()) );
     rectitem_->setZValue(1);
 
     const uiSize totsz( canvas_.width(), canvas_.height() );

@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: annotbuffill.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: annotbuffill.cc,v 1.10 2008-12-23 11:33:10 cvsdgb Exp $";
 
 #include "annotbuffill.h"
 #include "uirgbarray.h"
@@ -147,7 +147,7 @@ void AnnotBufferFiller::dummytest()
 {
     LineInfo* linfo = new LineInfo();
     
-    LineStyle lstyle( LineStyle::Solid, 1, Color::DgbColor );
+    LineStyle lstyle( LineStyle::Solid, 1, Color::DgbColor() );
     linfo->linestyle_ = lstyle;
     linfo->pts_ += dPoint( 125, 0.5 );
     linfo->pts_ += dPoint( 200, 1.8 );

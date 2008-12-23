@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.20 2008-12-19 04:45:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistatsdisplay.cc,v 1.21 2008-12-23 11:33:10 cvsdgb Exp $";
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
@@ -244,7 +244,7 @@ void uiStatsDisplay::putN()
     BufferString str = "N="; str += nrinpvals_;
     uiTextItem* textitem = funcdisp_->scene().addText( str );
     textitem->setPos( funcdisp_->width()/2, 0 );
-    textitem->setPenColor( Color::Black );
+    textitem->setPenColor( Color::Black() );
     funcdisp_->draw();
 }
 

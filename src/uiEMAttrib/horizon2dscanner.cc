@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.10 2008-12-04 13:28:43 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.11 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -189,33 +189,33 @@ bool Horizon2DScanner::reInitAscIO( const char* fnm )
 int Horizon2DScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
-	return Executor::Finished;
+	return Executor::Finished();
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     BufferString linenm;
     TypeSet<float> data;
     const int ret = ascio_->getNextLine( linenm, data );
-    if ( ret < 0 ) return Executor::ErrorOccurred;
+    if ( ret < 0 ) return Executor::ErrorOccurred();
     if ( ret == 0 ) 
     {
 	fileidx_++;
 	delete ascio_;
 	ascio_ = 0;
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
 
     if ( curline_.isEmpty() || curline_ != linenm )
     {
 	if ( invalidnms_.indexOf(linenm) >= 0 )
-	    return Executor::MoreToDo;
+	    return Executor::MoreToDo();
 
 	linegeom_.posns_.erase();
 	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
 	{
 	    invalidnms_.addIfNew( linenm );
-	    return Executor::MoreToDo;
+	    return Executor::MoreToDo();
 	}
 
 	validnms_.addIfNew( linenm );
@@ -223,14 +223,14 @@ int Horizon2DScanner::nextStep()
     }
 
     if ( !linegeom_.posns_.size() )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     PosInfo::Line2DPos pos;
     if ( !isxy_ )
     {
 	const int trcnr = mNINT( data[0] );
 	if ( !linegeom_.getPos(trcnr,pos) )
-	    return Executor::MoreToDo;
+	    return Executor::MoreToDo();
 
 	data[0] = pos.coord_.x;
 	data.insert( 1, pos.coord_.y );
@@ -239,7 +239,7 @@ int Horizon2DScanner::nextStep()
     {
 	const Coord coord( data[0], data[1] );
 	if ( !linegeom_.getPos(coord,pos) )
-	    return Executor::MoreToDo;
+	    return Executor::MoreToDo();
     }
 
     if ( !bvalset_ )
@@ -273,7 +273,7 @@ int Horizon2DScanner::nextStep()
 	bvalset_->add( bid, data.arr() );
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 

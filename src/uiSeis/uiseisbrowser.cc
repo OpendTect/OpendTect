@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.35 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.36 2008-12-23 11:38:53 cvsdgb Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -594,7 +594,7 @@ protected:
 int nextStep()
 {
     if ( nrdone_ == 0 && !init() )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     if ( tri_->read(trc_) ) 
     {
@@ -604,15 +604,15 @@ int nextStep()
 	if ( !res )
 	{
 	    safeio_->closeFail();
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
 
 	nrdone_++;
-	return MoreToDo;
+	return MoreToDo();
     }
 
     safeio_->closeSuccess();
-    return Finished;
+    return Finished();
 }
 
     CBVSSeisTrcTranslator* tri_;

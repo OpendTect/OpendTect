@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.31 2008-12-10 18:05:30 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.32 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -315,7 +315,7 @@ void FaultDisplay::updateSingleColor()
     const bool usesinglecolor = !validtexture_ || !usestexture_;
 
     const Color prevcol = getMaterial()->getColor();
-    const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White;
+    const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White();
     if ( newcol==prevcol )
 	return;
 

@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.15 2008-12-18 10:01:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.16 2008-12-23 11:33:10 cvsdgb Exp $";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
@@ -23,7 +23,7 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p,
 	, pixmapitm_( 0 )
 	, rgbarr_( a ) 
 	, border_( 0,0,0,0 )
-	, bgcolor_( Color::NoColor ) 
+	, bgcolor_( Color::NoColor() ) 
 	, dodraw_( true )
 	, pixmap_( 0 )
 	, arrarea_( uiRect(0,0,0,0) )

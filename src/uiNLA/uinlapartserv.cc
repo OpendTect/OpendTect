@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.59 2008-12-08 13:43:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.60 2008-12-23 11:37:58 cvsdgb Exp $";
 
 #include "uinlapartserv.h"
 
@@ -511,7 +511,7 @@ void uiNLAPartServer::showPickSet( CallBacker* )
 	delete selptps_;
     selptps_ = 0;
     selptps_ = new Pick::Set( "Selected Points from NN " );
-    selptps_->disp_.color_ = Color::DgbColor;
+    selptps_->disp_.color_ = Color::DgbColor();
     for ( int idx=0; idx<uidps_->selptcoord_.size(); idx++ )
     {
 	Pick::Location pickloc( uidps_->selptcoord_[idx]->x,

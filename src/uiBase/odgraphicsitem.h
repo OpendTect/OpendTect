@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.6 2008-11-26 06:13:35 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.7 2008-12-23 11:42:11 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
     				ODGraphicsPointItem()
 				    : highlight_(false)
 				    , penwidth_(2)
-				    , pencolor_(Color::Black)	{}
+				    , pencolor_(Color::Black())	{}
 
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,

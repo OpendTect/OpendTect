@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.6 2008-12-11 16:15:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uimarkerstyledlg.cc,v 1.7 2008-12-23 11:41:38 cvsdgb Exp $";
 
 #include "uimarkerstyledlg.h"
 
@@ -38,7 +38,7 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
     sliderfld->attach( alignedBelow, typefld );
 
     colselfld = new uiColorInput( this,
-	    		uiColorInput::Setup(Color::White).lbltxt("Color") );
+	    		uiColorInput::Setup(Color::White()).lbltxt("Color") );
     colselfld->attach( alignedBelow, sliderfld );
     colselfld->colorchanged.notify( mCB(this,uiMarkerStyleDlg,colSel) );
 

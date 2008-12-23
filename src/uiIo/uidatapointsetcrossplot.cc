@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.22 2008-12-12 06:01:17 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.23 2008-12-23 11:35:51 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.22 2008-12-12 06:01:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.23 2008-12-23 11:35:51 cvsdgb Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -45,7 +45,7 @@ uiDataPointSetCrossPlotter::Setup uiDataPointSetCrossPlotWin::defsetup_;
 uiDataPointSetCrossPlotter::Setup::Setup()
     : noedit_(false)
     , markerstyle_(MarkerStyle2D::Square)
-    , xstyle_(LineStyle::Solid,1,Color::Black)
+    , xstyle_(LineStyle::Solid,1,Color::Black())
     , ystyle_(LineStyle::Solid,1,Color::stdDrawColor(0))
     , y2style_(LineStyle::Dot,1,Color::stdDrawColor(1))
     , minborder_(10,20,20,5)
@@ -326,7 +326,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	    {
 		selcoords_ += y1coords_[idx];
 		selrowcols_ += y1rowcols_[idx];
-		itm->setPenColor( Color::DgbColor );
+		itm->setPenColor( Color::DgbColor() );
 	    }
 	}
     }
