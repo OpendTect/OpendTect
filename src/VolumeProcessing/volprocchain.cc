@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.5 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.6 2008-12-23 11:15:22 cvsdgb Exp $";
 
 #include "volprocchain.h"
 
@@ -152,16 +152,16 @@ bool ChainExecutor::setCalculationScope(
 int ChainExecutor::nextStep()
 {
     if ( !isok_ )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     if ( !prepareNewStep() )
-	return errmsg_.isEmpty() ? Finished : ErrorOccurred;
+	return errmsg_.isEmpty() ? Finished() : ErrorOccurred();
 
     if ( !curtask_->execute() )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     currentstep_++;
-    return currentstep_<steps_.size() ? MoreToDo : Finished;
+    return currentstep_<steps_.size() ? MoreToDo() : Finished();
 }
 
 

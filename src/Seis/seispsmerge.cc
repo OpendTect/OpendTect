@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.9 2008-03-31 08:22:51 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.10 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seispsmerge.h"
 #include "seisselection.h"
@@ -72,13 +72,13 @@ SeisPSMerger::~SeisPSMerger()
 int SeisPSMerger::nextStep()
 {
     if ( readers_.isEmpty() )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     SeisTrcBuf trcbuf( true );
     while ( true )
     {
 	if ( !iter_->next(curbid_) )
-	    return Executor::Finished;
+	    return Executor::Finished();
 	if ( sd_ && !sd_->isOK(curbid_) )
 	    continue;
 
@@ -89,10 +89,10 @@ int SeisPSMerger::nextStep()
 		for ( int tdx=0; tdx<trcbuf.size(); tdx++ )
 		{
 		    if ( !writer_->put(*trcbuf.get(tdx)) )
-			return Executor::ErrorOccurred;
+			return Executor::ErrorOccurred();
 		}
 		nrdone_ ++;
-		return Executor::MoreToDo;
+		return Executor::MoreToDo();
 	    }
 	}
     }

@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.5 2008-11-24 15:55:47 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.6 2008-12-23 11:15:22 cvsdgb Exp $";
 
 #include "velocitygridder.h"
 
@@ -154,7 +154,7 @@ int VelGriddingStepTask::nextStep()
     {
 	VelGriddingFromFuncTask task( *this );
 	if ( !task.execute() )
-	    return cErrorOccurred();
+	    return ErrorOccurred();
 
 	definedbids_.append( task.completedBids() );
 	remainingbids_.remove( task.completedBids() );
@@ -175,7 +175,7 @@ int VelGriddingStepTask::nextStep()
 
 	VelGriddingFromVolumeTask task( *this );
 	if ( !task.execute() )
-	    return cErrorOccurred();
+	    return ErrorOccurred();
 
 	definedbids_.append( task.completedBids() );
 	remainingbids_.remove( task.completedBids() );
@@ -183,7 +183,7 @@ int VelGriddingStepTask::nextStep()
 	change = !task.completedBids().isEmpty();
     }
 
-    return !change || remainingbids_.isEmpty() ? cFinished() : cMoreToDo();
+    return !change || remainingbids_.isEmpty() ? Finished() : MoreToDo();
 }
 
 

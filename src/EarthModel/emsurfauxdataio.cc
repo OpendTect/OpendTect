@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.37 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfauxdataio.cc,v 1.38 2008-12-23 11:08:31 cvsdgb Exp $";
 
 #include "emsurfauxdataio.h"
 
@@ -108,7 +108,7 @@ dgbSurfDataWriter::~dgbSurfDataWriter()
 
 #define mErrRetWrite(msg) \
 { errmsg_ = msg; File_remove(filename_.buf(),mFile_NotRecursive); \
-    return ErrorOccurred; }
+    return ErrorOccurred(); }
 
 
 int dgbSurfDataWriter::nextStep()
@@ -122,7 +122,7 @@ int dgbSurfDataWriter::nextStep()
 	    {
 		sectionindex_++;
 		if ( sectionindex_ >= surf_.nrSections() )
-		    return Finished;
+		    return Finished();
 	    }
 	    else
 	    {
@@ -175,7 +175,7 @@ int dgbSurfDataWriter::nextStep()
     }
 
     nrdone_++;
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -332,7 +332,7 @@ void dgbSurfDataReader::setSurface( Horizon3D& surf )
 
 #define mErrRetRead(msg) { \
     if ( msg ) errmsg_ = msg; \
-    surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred; }
+    surf_->auxdata.removeAuxData(dataidx_); return ErrorOccurred(); }
 
 int dgbSurfDataReader::nextStep()
 {
@@ -347,7 +347,7 @@ int dgbSurfDataReader::nextStep()
 	    {
 		sectionindex_++;
 		if ( sectionindex_ >= nrsections_ )
-		    return Finished;
+		    return Finished();
 	    }
 	    else
 	    {
@@ -382,7 +382,7 @@ int dgbSurfDataReader::nextStep()
     }
 
     nrdone_++;
-    return MoreToDo;
+    return MoreToDo();
 }
 
 

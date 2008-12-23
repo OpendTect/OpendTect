@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.62 2008-12-01 15:31:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.63 2008-12-23 11:11:20 cvsdgb Exp $";
 
 #include "attribprocessor.h"
 
@@ -67,7 +67,7 @@ void Processor::addOutput( Output* output )
 
 int Processor::nextStep()
 {
-    if ( !provider_ || outputs_.isEmpty() ) return ErrorOccurred;
+    if ( !provider_ || outputs_.isEmpty() ) return ErrorOccurred();
 
     if ( !isinited_ )
 	init();
@@ -81,11 +81,11 @@ int Processor::nextStep()
     {
 	errmsg_ = provider_->errMsg().buf();
 	if ( errmsg_.size() )
-	    return ErrorOccurred;
+	    return ErrorOccurred();
     }
     useshortcuts_ ? useSCProcess( res ) : useFullProcess( res );
     if ( errmsg_.size() )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     provider_->resetMoved();
     provider_->resetZIntervals();

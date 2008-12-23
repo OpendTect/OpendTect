@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.3 2008-03-07 12:39:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.4 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -85,7 +85,7 @@ const char* SeisMerger::message() const
 int SeisMerger::nextStep()
 {
     if ( currdridx_ < 0 )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     if ( is2d_ && rdrs_.isEmpty() )
 	return writeFromBuf();
@@ -95,20 +95,20 @@ int SeisMerger::nextStep()
     {
 	deepErase( rdrs_ );
 	if ( !errmsg_.isEmpty() )
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
 
 	if ( is2d_ )
 	{
 	    trcbuf_.sort( true, SeisTrcInfo::TrcNr );
-	    return Executor::MoreToDo;
+	    return Executor::MoreToDo();
 	}
 
 	wrr_->close();
-	return Executor::Finished;
+	return Executor::Finished();
     }
 
     if ( is2d_ )
-	{ trcbuf_.add( newtrc ); return Executor::MoreToDo; }
+	{ trcbuf_.add( newtrc ); return Executor::MoreToDo(); }
 
     return writeTrc( newtrc );
 }
@@ -235,11 +235,11 @@ int SeisMerger::writeTrc( SeisTrc* trc )
     {
 	delete trc;
 	errmsg_ = wrr_->errMsg();
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
     }
 
     delete trc;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 
 }
 
@@ -249,7 +249,7 @@ int SeisMerger::writeFromBuf()
     if ( trcbuf_.isEmpty() )
     {
 	wrr_->close();
-	return Executor::Finished;
+	return Executor::Finished();
     }
 
     SeisTrcBuf tmp( false );

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.88 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.89 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -172,7 +172,7 @@ void SeisTrcReader::startWork()
 bool SeisTrcReader::isMultiConn() const
 {
     return !psioprov && !is2d && !entryis2d
-	&& ioobj && ioobj->hasConnType(StreamConn::sType)
+	&& ioobj && ioobj->hasConnType(StreamConn::sType())
 	&& ((IOStream*)ioobj)->multiConn();
 }
 
@@ -542,7 +542,7 @@ bool SeisTrcReader::readNext2D()
 	tbuf_->deepErase();
 
     int res = fetcher->doStep();
-    if ( res == Executor::ErrorOccurred )
+    if ( res == Executor::ErrorOccurred() )
     {
 	errmsg = fetcher->message();
 	return false;

@@ -14,7 +14,7 @@
 #include "debugmasks.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.23 2008-11-18 17:25:15 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.24 2008-12-23 11:05:50 cvsdgb Exp $";
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
@@ -223,7 +223,7 @@ const Translator* TranslatorGroup::getTemplate( const char* nm, bool usr ) const
 
 const char* Translator::connType() const
 {
-    return StreamConn::sType;
+    return StreamConn::sType();
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.58 2008-11-19 20:24:24 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.59 2008-12-23 11:05:50 cvsdgb Exp $";
 
 #include "pickset.h"
 
@@ -428,7 +428,7 @@ static const char* sKeyConnect = "Connect";
 void Pick::Set::fillPar( IOPar& par ) const
 {
     BufferString colstr;
-    if ( disp_.color_ != Color::NoColor )
+    if ( disp_.color_ != Color::NoColor() )
     {
 	disp_.color_.fill( colstr.buf() );
 	par.set( sKey::Color, colstr.buf() );

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.9 2008-03-24 21:07:07 cvskris Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.10 2008-12-23 11:08:31 cvsdgb Exp $";
 
 #include "emsticksettransl.h"
 
@@ -219,7 +219,7 @@ lmkEMStickSetReader::~lmkEMStickSetReader()
 
 int lmkEMStickSetReader::nextStep()
 {
-    if ( error ) return ErrorOccurred;
+    if ( error ) return ErrorOccurred();
 
     std::istream& strm = ((StreamConn*)conn)->iStream();
     
@@ -234,7 +234,7 @@ int lmkEMStickSetReader::nextStep()
 
     if ( !strm )
     {
-	return Finished;
+	return Finished();
     }
 
     int reqlen = mMAX(pointtypeinterval.stop, zinterval.stop );
@@ -253,7 +253,7 @@ int lmkEMStickSetReader::nextStep()
     reqlen = mMAX(reqlen, domainunitinterval.stop );
     reqlen = mMAX(reqlen, distancuniteinterval.stop );
 
-    if ( buffer.size()-1<reqlen ) { return ErrorOccurred; }
+    if ( buffer.size()-1<reqlen ) { return ErrorOccurred(); }
 
     Coord3 pos;
 
@@ -302,7 +302,7 @@ int lmkEMStickSetReader::nextStep()
 	else
 	{
 	    msg = "Unknown time unit";
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
     }
     else
@@ -319,17 +319,17 @@ int lmkEMStickSetReader::nextStep()
 		|| str=="TIME" && !SI().zIsTime() )
 	{
 	    msg = "Z domain is not equal to survey domain";
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
     }
 
     if ( pt==mLMK_START_PT && lastpt!=-1 && lastpt!=mLMK_END_PT )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     if ( lastpt==mLMK_END_PT )
     {
 	if ( pt!=mLMK_START_PT )
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 
 	currentstick = stickset.addStick(false);	
 	currentknot = 0;
@@ -338,7 +338,7 @@ int lmkEMStickSetReader::nextStep()
     stickset.setPos( currentstick, currentknot++, pos, false );
     lastpt = pt;
 
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -417,7 +417,7 @@ lmkEMStickSetWriter::~lmkEMStickSetWriter()
 int lmkEMStickSetWriter::nextStep()
 {
     if ( !stickset.nrSticks() )
-	return Finished;
+	return Finished();
 
     const EM::StickID stickid = stickset.stickID(currentsticknr);
     std::ostream& strm = ((StreamConn*)conn)->oStream();
@@ -445,9 +445,9 @@ int lmkEMStickSetWriter::nextStep()
 
     currentsticknr++;
     if ( currentsticknr>=stickset.nrSticks() )
-	return Finished;
+	return Finished();
 
-    return MoreToDo;
+    return MoreToDo();
 }
 
 

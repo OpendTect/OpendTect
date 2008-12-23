@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonsorter.cc,v 1.8 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonsorter.cc,v 1.9 2008-12-23 11:08:31 cvsdgb Exp $";
 
 #include "horizonsorter.h"
 
@@ -161,7 +161,7 @@ int HorizonSorter::nextStep()
 	init();
     }
 
-    if ( !iterator_ ) return Finished;
+    if ( !iterator_ ) return Finished();
 
     const int previnl = binid_.inl;
     while ( binid_.inl==previnl )
@@ -169,7 +169,7 @@ int HorizonSorter::nextStep()
 	if ( !iterator_->next(binid_) )
 	{
 	    sort();
-	    return Finished;
+	    return ErrorOccurred();
 	}
 
 	const int nrhors = horizons_.size();
@@ -193,5 +193,5 @@ int HorizonSorter::nextStep()
     }
 
     nrdone_++;
-    return MoreToDo;
+    return MoreToDo();
 }

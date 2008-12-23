@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobrunner.cc,v 1.38 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: jobrunner.cc,v 1.39 2008-12-23 11:05:50 cvsdgb Exp $";
 
 #include "jobrunner.h"
 #include "jobinfo.h"
@@ -541,7 +541,7 @@ int JobRunner::doCycle()
     updateJobInfo();
 
     if ( !haveIncomplete() )
-	return Finished;
+	return Finished();
 
     // Put idle hosts to work
     ObjectSet<HostNFailInfo> hinf( hostinfo_ );
@@ -556,7 +556,7 @@ int JobRunner::doCycle()
 	    assignJob( *hfi );
     }
 
-    return haveIncomplete() ? MoreToDo : Finished;
+    return haveIncomplete() ? MoreToDo() : Finished();
 }
 
 

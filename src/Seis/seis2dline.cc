@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.67 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.68 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -856,11 +856,11 @@ od_int64 totalNr() const	{ return totalnr; }
 int nextStep()
 {
     if ( curidx < 0 )
-	return ErrorOccurred;
+	return ErrorOccurred();
     if ( !strm.good() )
     {
 	curmsg = "Cannot write to file";
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
 
     for ( ; curidx<=lastidx && attrnm!=ls.attribute(curidx); )
@@ -871,9 +871,9 @@ int nextStep()
 	if ( ptswritten == 0 )
 	{
 	    curmsg = "No output created";
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
-	return Finished;
+	return Finished();
     }
 
     PosInfo::Line2DData geom;
@@ -882,8 +882,8 @@ int nextStep()
 	curmsg = "Couldn't get geometry for '";
 	curmsg += ls.lineKey( curidx );
 	curmsg += "'";
-	return totalnr == 1 ? ErrorOccurred
-	    		    : (curidx == lastidx ? Finished : WarningAvailable);
+	return totalnr == 1 ? ErrorOccurred()
+	    		    : (curidx == lastidx ? Finished() : WarningAvailable());
     }
 
     BufferString outstr;
@@ -908,12 +908,12 @@ int nextStep()
     if ( !strm.good() )
     {
 	curmsg = "Error during write to file";
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
 
     lnshandled++;
     curidx++;
-    return curidx > lastidx ? Finished : MoreToDo;
+    return curidx > lastidx ? Finished() : MoreToDo();
 }
 
     const Seis2DLineSet&	ls;

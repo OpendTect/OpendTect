@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.18 2008-12-04 13:28:43 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.19 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -165,7 +165,7 @@ int SEGY::Scanner::readNext()
 	    scanerrmsgs_.add( emsg );
 	}
 	closeTr();
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
 
     const SeisTrcInfo& ti = trc_.info();
@@ -186,7 +186,7 @@ int SEGY::Scanner::readNext()
     fd += sgyti;
 
     nrdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
@@ -209,7 +209,7 @@ int SEGY::Scanner::openNext()
     {
 	sd.close();
 	addFailed( "Cannot open this file" );
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
 
     tr_ = new SEGYSeisTrcTranslator( "SEG-Y", "SEGY" );
@@ -219,18 +219,18 @@ int SEGY::Scanner::openNext()
     {
 	addFailed( tr_->errMsg() );
 	closeTr();
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
 
     initFileData();
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
 int SEGY::Scanner::finish( bool allok )
 {
     dtctor_.finish();
-    return allok ? Executor::Finished : Executor::ErrorOccurred;
+    return allok ? Executor::Finished() : Executor::ErrorOccurred();
 }
 
 

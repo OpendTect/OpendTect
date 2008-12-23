@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.4 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.5 2008-12-23 11:14:07 cvsdgb Exp $";
 
 #include "prestackeventio.h"
 
@@ -236,32 +236,32 @@ void EventReader::setSelection( const HorSampling* hs )
 
 int EventReader::nextStep()
 {
-    if ( !eventmanager_ ) return Finished;
+    if ( !eventmanager_ ) return Finished();
 
     if ( !patchreaders_.size() )
     {
 	if ( !prepareWork() )
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
 	if ( !readHorizonIDs( fnm.buf() ) )
 	    return false;
 
-	return patchreaders_.size() ? MoreToDo : Finished;
+	return patchreaders_.size() ? MoreToDo() : Finished();
     }
 
     const int res = patchreaders_[0]->doStep();
-    if ( res<0 ) return ErrorOccurred;
+    if ( res<0 ) return ErrorOccurred();
     if ( !res )
     {
 	delete patchreaders_.remove( 0 );
 	if ( patchreaders_.size() )
-	    return MoreToDo;
+	    return MoreToDo();
         
-	return	Finished;
+	return	Finished();
     }
 
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -447,7 +447,7 @@ int EventWriter::nextStep()
 	    if ( !IOM().commitChanges( *ioobj_ ) )
 	    {
 		errmsg_ = "Cannot write to object database";
-		return ErrorOccurred;
+		return ErrorOccurred();
 	    }
 	}
 
@@ -460,7 +460,7 @@ int EventWriter::nextStep()
 		{
 		    errmsg_ = "Cannot remove ";
 		    errmsg_ += fnm;
-		    return ErrorOccurred;
+		    return ErrorOccurred();
 		}
 	    }
 
@@ -468,14 +468,14 @@ int EventWriter::nextStep()
 	    {
 		errmsg_ = "Cannot create directory ";
 		errmsg_ += fnm;
-		return ErrorOccurred;
+		return ErrorOccurred();
 	    }
 	}
 
 	eventmanager_.cleanUp( true );
 
 	if ( !writeHorizonIDs( fnm.buf() ) )
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 
 	const MultiDimStorage<EventSet*>& evstor = eventmanager_.getStorage();
 	int pos[] = { -1, -1 };
@@ -497,7 +497,7 @@ int EventWriter::nextStep()
 	}
 
 	if ( !rcols.size() )
-	    return Finished;
+	    return Finished();
 
 	HorSampling hrg( true );
 
@@ -534,7 +534,7 @@ int EventWriter::nextStep()
 		if ( reader->errMsg() )
 		{
 		    delete reader;
-		    return ErrorOccurred;
+		    return ErrorOccurred();
 		}
 
 		writer->setReader( reader );
@@ -548,22 +548,22 @@ int EventWriter::nextStep()
 	    patchwriters_ += writer;
 	}
 
-	return patchwriters_.size() ? MoreToDo : Finished;
+	return patchwriters_.size() ? MoreToDo() : Finished();
     }
 
     const int res = patchwriters_[0]->doStep();
-    if ( res<0 ) return ErrorOccurred;
+    if ( res<0 ) return ErrorOccurred();
     if ( !res )
     {
 	delete patchwriters_.remove( 0 );
 	if ( patchwriters_.size() )
-	    return MoreToDo;
+	    return MoreToDo();
         
 	eventmanager_.resetChangedFlag( true );
-	return	Finished;
+	return	Finished();
     }
 
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -672,16 +672,16 @@ EventDuplicator::~EventDuplicator()
 int EventDuplicator::nextStep()
 {
     if ( errMsg() ) //Catch error in prepareWork
-	return ErrorOccurred;	
+	return ErrorOccurred();	
 
     if ( !filestocopy_.size() )
-	return Finished;
+	return Finished();
 
     const int idx = filestocopy_.size()-1;
 
     const BufferString tonm( to_->fullUserExpr(true) );
     if ( !File_isDirectory(tonm.buf()) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     FilePath targetfile( filestocopy_[idx]->buf() );
     targetfile.setPath( tonm.buf() );
@@ -698,11 +698,11 @@ int EventDuplicator::nextStep()
 	errmsg_ += " to ";
 	errmsg_ += targetfile.fullPath().buf();
 	errorCleanup();
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
 
     filestocopy_.remove( idx );
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -1008,7 +1008,7 @@ const char* EventPatchReader::errMsg() const
 
 int EventPatchReader::nextStep()
 {
-    if ( !eventmanager_ ) return cFinished();
+    if ( !eventmanager_ ) return Finished();
 
     std::istream& strm = ((StreamConn*)conn_)->iStream();
 
@@ -1034,11 +1034,11 @@ int EventPatchReader::nextStep()
     }
 
     if ( headeridx_>=fileheader_.nrEvents() )
-	return cFinished();
+	return Finished();
 
     strm.seekg( fileheader_.getOffset( headeridx_ ), std::ios::beg );
     const int nrevents = readInt16( strm );
-    if ( !strm ) return cErrorOccurred();
+    if ( !strm ) return ErrorOccurred();
 
     EventSet* ge = eventmanager_->getEvents( curbid, false, true );
     ge->ref();
@@ -1050,7 +1050,7 @@ int EventPatchReader::nextStep()
 	if ( !strm )
 	{
 	    ge->unRef();
-	    return cErrorOccurred();
+	    return ErrorOccurred();
 	}
 
 	Event* pse = new Event( nrpicks, true );
@@ -1084,14 +1084,14 @@ int EventPatchReader::nextStep()
     {
 	deepErase( ge->events_ );
 	ge->unRef();
-	return cErrorOccurred();
+	return ErrorOccurred();
     }
 
     ge->unRefNoDelete();
     eventmanager_->reportChange( curbid );
 
     headeridx_++;
-    return cMoreToDo();
+    return MoreToDo();
 }
 
 
@@ -1228,7 +1228,7 @@ int EventPatchWriter::nextStep()
 	{
 	    delete reader_;
 	    reader_ = 0;
-	    return cMoreToDo();
+	    return MoreToDo();
 	}
 
 	return res;
@@ -1274,8 +1274,8 @@ int EventPatchWriter::nextStep()
 		 File_isWritable( filename_.buf() ) )
 	    {
 		return File_remove( filename_.buf(), mFile_NotRecursive )
-		    ? cFinished()
-		    : cErrorOccurred();
+		    ? Finished()
+		    : ErrorOccurred();
 	    }
 	}
 
@@ -1302,7 +1302,7 @@ int EventPatchWriter::nextStep()
 	    if ( !conn_->forWrite() )
 	    {
 		errmsg_ = "Cannot open connection";
-		return cErrorOccurred();
+		return ErrorOccurred();
 	    }
 	}
 
@@ -1312,7 +1312,7 @@ int EventPatchWriter::nextStep()
 	par.putTo( astream );
 	fileheaderoffset_ = strm.tellp();
 	if ( !fileheader_.toStream( strm, binary_ ) )
-	    return cErrorOccurred();
+	    return ErrorOccurred();
     }
 
     std::ostream& strm = conn_->oStream();
@@ -1320,7 +1320,7 @@ int EventPatchWriter::nextStep()
     {
 	strm.seekp( fileheaderoffset_, std::ios::beg );
 	fileheader_.toStream( strm, binary_ );
-	return cFinished();
+	return Finished();
     }
 
     int curoffset = strm.tellp();
@@ -1365,12 +1365,12 @@ int EventPatchWriter::nextStep()
     }
 
     if ( !strm )
-	return cErrorOccurred();
+	return ErrorOccurred();
 
     pses->ischanged_ = false;
 
     headeridx_++;
-    return cMoreToDo();
+    return MoreToDo();
 }
 
 

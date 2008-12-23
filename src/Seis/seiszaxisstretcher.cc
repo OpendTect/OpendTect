@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.2 2008-08-04 11:42:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.3 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seiszaxisstretcher.h"
 
@@ -109,7 +109,7 @@ int SeisZAxisStretcher::nextStep()
 {
     SeisTrc intrc;
     if ( !seisreader_->get(intrc) )
-	return Finished;
+	return Finished();
 
     BinID curbid = intrc.info().binid;
     if ( is2d_ )
@@ -136,10 +136,10 @@ int SeisZAxisStretcher::nextStep()
     outtrc_->info().binid = intrc.info().binid;
     outtrc_->info().coord = intrc.info().coord;
     if ( !seiswriter_->put( *outtrc_ ) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     nrdone_++;
-    return MoreToDo;
+    return MoreToDo();
 }
 
 

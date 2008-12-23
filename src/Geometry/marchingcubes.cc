@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.19 2008-12-04 16:15:11 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.20 2008-12-23 11:06:55 cvsdgb Exp $";
 
 #include "marchingcubes.h"
 
@@ -59,23 +59,23 @@ public:
 		    for ( int idx=0; idx<mWriteChunkSize; idx++ )
 		    {
 			if ( !models.next( idx_ ) )
-			    return Finished;
+			    return Finished();
 			
 			int pos[3];
 			if ( !models.getPos( idx_, pos ) )
-			    return ErrorOccurred;
+			    return ErrorOccurred();
 			
 			writeInt32( pos[mX], '\t' );
 			writeInt32( pos[mY], '\t' );
 			writeInt32( pos[mZ], '\t' );
 			
 			if ( !models.getRef(idx_,0).writeTo(strm_,binary_))
-			    return ErrorOccurred;
+			    return ErrorOccurred();
 
 			nrdone_++;
 		    }
 		    
-		    return MoreToDo;
+		    return MoreToDo();
 		}
 
 	void    writeInt32( int val, char post )
@@ -118,11 +118,11 @@ int nextStep()
     {
 	totalnr_ = readInt32();
 	if ( !totalnr_ )
-	    return Finished;
+	    return Finished();
     }
 
     if ( !strm_ )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     for ( int idx=0; idx<mWriteChunkSize; idx++ )
     {
@@ -133,7 +133,7 @@ int nextStep()
 
 	MarchingCubesModel model;
 	if ( !model.readFrom( strm_, dt_ ) )
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 
 	surface_.modelslock_.writeLock();
 	surface_.models_.add<MarchingCubesModel*,const int*, int*>
@@ -141,10 +141,10 @@ int nextStep()
 	surface_.modelslock_.writeUnLock();
 	nrdone_++;
 	if ( nrdone_==totalnr_ )
-	    return Finished;
+	    return Finished();
     }
     
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -622,7 +622,7 @@ public:
 	mc2i_.resultlock_.readUnLock();
 
 	if ( !prevvalue )
-	    return cFinished();
+	    return Finished();
 
 	const int neighborval = prevvalue>0
 	    ? prevvalue+MarchingCubesModel::cAxisSpacing
@@ -706,7 +706,7 @@ public:
 	    }
 	}
 
-	return cFinished();
+	return Finished();
     }
 
     void setIndices( int idx, int idy, int idz )

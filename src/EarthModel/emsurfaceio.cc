@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.114 2008-12-16 11:34:59 cvsraman Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.115 2008-12-23 11:08:31 cvsdgb Exp $";
 
 #include "emsurfaceio.h"
 
@@ -546,7 +546,7 @@ int dgbSurfaceReader::nextStep()
 	if ( !surface_ && !cube_ ) 
 	    msg_ = "Internal: No Output Set";
 
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
 
     std::istream& strm = conn_->iStream();
@@ -562,7 +562,7 @@ int dgbSurfaceReader::nextStep()
 
     if ( sectionindex_>=sectionids_.size() )
     {
-	if ( !surface_ ) return Finished;
+	if ( !surface_ ) return Finished();
 
 	int res = ExecutorGroup::nextStep();
 	if ( !res && !setsurfacepar_ )
@@ -571,7 +571,7 @@ int dgbSurfaceReader::nextStep()
 	    if ( !surface_->usePar(*par_) )
 	    {
 		msg_ = "Could not parse header";
-		return ErrorOccurred;
+		return ErrorOccurred();
 	    }
 
 	    surface_->setFullyLoaded( fullyread_ );
@@ -589,7 +589,7 @@ int dgbSurfaceReader::nextStep()
     if ( sectionindex_!=oldsectionindex_ )
     {
 	const int res = prepareNewSection(strm);
-	if ( res!=Finished )
+	if ( res!=Finished() )
 	    return res;
     }
 
@@ -597,14 +597,14 @@ int dgbSurfaceReader::nextStep()
     {
 	fullyread_ = false;
 	const int res = skipRow( strm );
-	if ( res==ErrorOccurred )
+	if ( res==ErrorOccurred() )
 	    return res;
-	else if ( res==Finished ) //Section change
-	    return MoreToDo;
+	else if ( res==Finished() ) //Section change
+	    return MoreToDo();
     }
 
     if ( !prepareRowRead(strm) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     const SectionID sectionid = sectionids_[sectionindex_];
     
@@ -630,7 +630,7 @@ int dgbSurfaceReader::nextStep()
     if ( !strm )
     {
 	msg_ = sMsgReadError();
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
 
     int colstep = colrange_.step;
@@ -669,17 +669,17 @@ int dgbSurfaceReader::nextStep()
     if ( !nrcols )
     {
 	goToNextRow();
-	return MoreToDo;
+	return MoreToDo();
     }
 
     if ( (version_==3 && !readVersion3Row(strm, firstcol, nrcols, colstep,
 		    		  	  noofcoltoskip) ) ||
          ( version_==2 && !readVersion2Row(strm, firstcol, nrcols) ) ||
          ( version_==1 && !readVersion1Row(strm, firstcol, nrcols) ) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     goToNextRow();
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -689,7 +689,7 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
     if ( version_==3 && sectionsel_.indexOf(sectionid)==-1 )
     {
 	sectionindex_++;
-	return MoreToDo;
+	return MoreToDo();
     }
 
     if ( version_==3 )
@@ -699,7 +699,7 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
     if ( !strm )
     {
 	msg_ = sMsgReadError();
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
 
     if ( nrrows_ )
@@ -708,7 +708,7 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 	if ( !strm )
 	{
 	    msg_ = sMsgReadError();
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
     }
     else
@@ -718,7 +718,7 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 	nrdone_ = sectionsread_ *
 	    ( readrowrange_ ? readrowrange_->nrSteps() : rowrange_.nrSteps() );
 
-	return MoreToDo;
+	return MoreToDo();
     }
 
     if ( version_==3 && readrowrange_ )
@@ -732,17 +732,17 @@ int dgbSurfaceReader::prepareNewSection( std::istream& strm )
 	    sectionsread_++;
 	    nrdone_ = sectionsread_ *
 	       (readrowrange_ ? readrowrange_->nrSteps() : rowrange_.nrSteps());
-	    return MoreToDo;
+	    return MoreToDo();
 	}
     }
 
     rowindex_ = 0;
 
     if ( version_==3 && !readRowOffsets( strm ) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     oldsectionindex_ = sectionindex_;
-    return Finished;
+    return Finished();
 }
 
 
@@ -863,10 +863,10 @@ int dgbSurfaceReader::skipRow( std::istream& strm )
 {
     if ( version_!=3 )
     {
-	if ( !isBinary() ) return ErrorOccurred;
+	if ( !isBinary() ) return ErrorOccurred();
 
 	const int nrcols = readInt32( strm );
-	if ( !strm ) return ErrorOccurred;
+	if ( !strm ) return ErrorOccurred();
 
 	int offset = 0;
 	if ( nrcols )
@@ -880,12 +880,12 @@ int dgbSurfaceReader::skipRow( std::istream& strm )
 	    offset += int32interpreter_->nrBytes(); //firstcol
 
 	    strm.seekg( offset, std::ios_base::cur );
-	    if ( !strm ) return ErrorOccurred;
+	    if ( !strm ) return ErrorOccurred();
 	}
     }
 
     goToNextRow();
-    return sectionindex_!=oldsectionindex_ ? Finished : MoreToDo;
+    return sectionindex_!=oldsectionindex_ ? Finished() : MoreToDo();
 }
 
 
@@ -1384,7 +1384,7 @@ od_int64 dgbSurfaceWriter::totalNr() const
 
 int dgbSurfaceWriter::nextStep()
 {
-    if ( !ioobj_ ) { msg_ = "No object info"; return ErrorOccurred; }
+    if ( !ioobj_ ) { msg_ = "No object info"; return ErrorOccurred(); }
 
     if ( !nrdone_ )
     {
@@ -1392,7 +1392,7 @@ int dgbSurfaceWriter::nextStep()
 	if ( !conn_ )
 	{
 	    msg_ = "Cannot open output surface file";
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
 
 	IOPar versionpar("Header 1");
@@ -1440,10 +1440,10 @@ int dgbSurfaceWriter::nextStep()
     std::ostream& strm = conn_->oStream();
 
     if ( sectionindex_!=oldsectionindex_ && !writeNewSection( strm ) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     if ( nrrows_ && !writeRow( strm ) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 	    
     rowindex_++;
     if ( rowindex_>=nrrows_ )
@@ -1452,7 +1452,7 @@ int dgbSurfaceWriter::nextStep()
 	if ( !strm )
 	{
 	    msg_ = sMsgWriteError();
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
 
 	for ( int idx=0; idx<nrrows_; idx++ )
@@ -1460,7 +1460,7 @@ int dgbSurfaceWriter::nextStep()
 	    if ( !writeInt64(strm,rowoffsettable_[idx],sEOL() ) )
 	    {
 		msg_ = sMsgWriteError();
-		return ErrorOccurred;
+		return ErrorOccurred();
 	    }
 	}
 
@@ -1470,7 +1470,7 @@ int dgbSurfaceWriter::nextStep()
 	if ( !strm )
 	{
 	    msg_ = sMsgWriteError();
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
 
 	sectionindex_++;
@@ -1478,12 +1478,12 @@ int dgbSurfaceWriter::nextStep()
 	if ( !strm )
 	{
 	    msg_ = sMsgWriteError();
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
     }
 
     nrdone_++;
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -1592,13 +1592,13 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
     {
 	sectionindex_++;
 	nrdone_++;
-	return MoreToDo;
+	return MoreToDo();
     }
 
     if ( !writeInt32(strm,firstrow_,sEOL()) )
     {
 	msg_ = sMsgWriteError();
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
 
     rowoffsettableoffset_ = strm.tellp();
@@ -1607,7 +1607,7 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 	if ( !writeInt64(strm,0,sEOL() ) )
 	{
 	    msg_ = sMsgWriteError();
-	    return ErrorOccurred;
+	    return ErrorOccurred();
 	}
     }
 

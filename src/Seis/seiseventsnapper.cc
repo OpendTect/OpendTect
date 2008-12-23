@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.7 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: seiseventsnapper.cc,v 1.8 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seiseventsnapper.h"
 #include "seistrc.h"
@@ -46,8 +46,8 @@ int SeisEventSnapper::nextStep()
     const SeisMSCProvider::AdvanceState res = mscprov_->advance();
     switch ( res )
     {
-	case SeisMSCProvider::Error: return ErrorOccurred;
-	case SeisMSCProvider::EndReached: return Finished;
+	case SeisMSCProvider::Error: return ErrorOccurred();
+	case SeisMSCProvider::EndReached: return Finished();
 	case SeisMSCProvider::NewPosition:
 	{
 	    SeisTrc* trc = mscprov_->get(0,0);
@@ -62,10 +62,10 @@ int SeisEventSnapper::nextStep()
 	    }
 	}
 	case SeisMSCProvider::Buffering:
-	    return MoreToDo;
+	    return MoreToDo();
     }
 
-    return Finished;
+    return Finished();
 }
 
 

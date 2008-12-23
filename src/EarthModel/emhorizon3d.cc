@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.110 2008-12-15 19:01:03 cvskris Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.111 2008-12-23 11:08:31 cvsdgb Exp $";
 
 #include "emhorizon3d.h"
 
@@ -77,7 +77,7 @@ int nextStep()
     {
 	sectionidx++;
 	if ( sectionidx >= horizon.geometry().nrSections() )
-	    return Finished;
+	    return Finished();
 
 	SectionID sectionid = horizon.geometry().sectionID(sectionidx);
 	inlrange = horizon.geometry().rowRange(sectionid);
@@ -110,7 +110,7 @@ int nextStep()
 
     inl += inlrange.step;
     nrdone++;
-    return MoreToDo;
+    return MoreToDo();
 }
 
 
@@ -175,7 +175,7 @@ int nextStep()
     if ( sectionidx_ >= sections_.size() )
     {
 	horizon_.enableGeometryChecks( true );
-	return Finished;
+	return Finished();
     }
 
     const BinIDValueSet& bvs = *sections_[sectionidx_];
@@ -184,14 +184,14 @@ int nextStep()
     {
 	sectionidx_++;
 	pos_.i = pos_.j = -1;
-	return MoreToDo;
+	return MoreToDo();
     }
 
     const int nrvals = bvs.nrVals();
     TypeSet<float> vals( nrvals, mUdf(float) );
     BinID bid;
     bvs.get( pos_, bid, vals );
-    if ( !hs_.includes(bid) ) return MoreToDo;
+    if ( !hs_.includes(bid) ) return MoreToDo();
 
     PosID posid( horizon_.id(), horizon_.sectionID(sectionidx_),
 		 bid.getSerialized() );
@@ -199,7 +199,7 @@ int nextStep()
     if ( res )
 	nrdone_++;
 
-    return MoreToDo;
+    return MoreToDo();
 }
 
 protected:

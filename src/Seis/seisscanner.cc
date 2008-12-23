@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.38 2008-12-04 13:28:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.39 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -200,7 +200,7 @@ void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 int SeisScanner::nextStep()
 {
     if ( *rdr_.errMsg() )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     int res = rdr_.get( trc_.info() );
     if ( res < 1 )
@@ -225,7 +225,7 @@ int SeisScanner::nextStep()
 	return res;
     }
     if ( res > 1 )
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
 
     if ( !rdr_.get( trc_ ) )
     {
@@ -237,16 +237,16 @@ int SeisScanner::nextStep()
 	else
 	    { curmsg_ += bid.inl; curmsg_ += "/"; curmsg_ += bid.crl; }
 	wrapUp();
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
     }
 
     if ( doValueWork() && !addTrc() )
-	{ dtctor_.finish(); wrapUp(); return Executor::ErrorOccurred; }
+	{ dtctor_.finish(); wrapUp(); return Executor::ErrorOccurred(); }
 
     if ( maxnrtrcs_ > -1 && dtctor_.nrPositions(false) >= maxnrtrcs_ )
-	{ dtctor_.finish(); wrapUp(); return Executor::Finished; }
+	{ dtctor_.finish(); wrapUp(); return Executor::Finished(); }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 

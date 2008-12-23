@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.2 2008-09-22 13:06:42 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubeswriter.cc,v 1.3 2008-12-23 11:11:20 cvsdgb Exp $";
 
 #include "attribdatacubeswriter.h"
 
@@ -66,13 +66,13 @@ int DataCubesWriter::nextStep()
     if ( !writer_ )
     {
 	PtrMan<IOObj> ioobj = IOM().get( mid_ );
-	if ( !ioobj ) return ErrorOccurred; 
+	if ( !ioobj ) return ErrorOccurred(); 
 
 	writer_ = new SeisTrcWriter( ioobj );
     }
 
     if ( !iterator_.next( currentpos_ ) )
-	return Finished;
+	return Finished();
 
     trc_.info().binid = currentpos_;
     trc_.info().coord = SI().transform( currentpos_ );
@@ -90,11 +90,11 @@ int DataCubesWriter::nextStep()
     }
     
     if ( !writer_->put( trc_ ) )
-	return ErrorOccurred;
+	return ErrorOccurred();
 
     nrdone_++;
     trc_.info().nr++;
-    return MoreToDo;
+    return MoreToDo();
 }  
 
 }; //namespace

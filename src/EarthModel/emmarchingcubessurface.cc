@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.8 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.9 2008-12-23 11:08:31 cvsdgb Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -100,9 +100,9 @@ public:
 
     int	nextStep()
     {
-	if ( !exec_ ) return ErrorOccurred;
+	if ( !exec_ ) return ErrorOccurred();
 	const int res = exec_->doStep();
-	if ( res==Finished )
+	if ( res==Finished() )
 	{
 	    surface_.setFullyLoaded( true );
 	    surface_.resetChangedFlag();
@@ -176,7 +176,7 @@ MarchingCubesSurfaceWriter( EM::MarchingCubesSurface& surface,
 
 int nextStep()
 {
-    if ( !exec_ ) return ErrorOccurred;
+    if ( !exec_ ) return ErrorOccurred();
     const int res = exec_->doStep();
     if ( !res )
 	surface_.resetChangedFlag();

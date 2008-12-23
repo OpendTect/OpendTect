@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.52 2008-12-04 13:26:55 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.53 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -284,12 +284,12 @@ int SeisSingleTraceProc::getNextTrc()
     { 
 	currentobj_++;
 	if ( currentobj_ == nrobjs_ )
-	    { wrapUp(); return Executor::Finished; }
+	    { wrapUp(); return Executor::Finished(); }
 	nextObj();
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
     else if ( rv < 0 )
-	{ curmsg_ = currdr.errMsg(); return Executor::ErrorOccurred; }
+	{ curmsg_ = currdr.errMsg(); return Executor::ErrorOccurred(); }
     else if ( rv == 2 )
 	return 2;
 
@@ -300,9 +300,9 @@ int SeisSingleTraceProc::getNextTrc()
 	{ nrskipped_++; return 2; }
 
     if ( !currdr.get(intrc_) )
-	{ curmsg_ = currdr.errMsg(); return Executor::ErrorOccurred; }
+	{ curmsg_ = currdr.errMsg(); return Executor::ErrorOccurred(); }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
@@ -356,7 +356,7 @@ int SeisSingleTraceProc::getFillTrc()
     }
 
     if ( fillbid_.inl > fillhs_.stop.inl )
-	{ wrapUp(); return Executor::Finished; }
+	{ wrapUp(); return Executor::Finished(); }
 
     SeisTrcReader& currdr = *rdrset_[currentobj_];
     if ( !currdr.seisTranslator()->goTo(fillbid_) )
@@ -380,7 +380,7 @@ int SeisSingleTraceProc::getFillTrc()
 	fillbid_.crl = fillhs_.start.crl;
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
@@ -434,7 +434,7 @@ bool SeisSingleTraceProc::writeTrc()
 int SeisSingleTraceProc::nextStep()
 {
     if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_] || !wrr_ )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
@@ -446,9 +446,9 @@ int SeisSingleTraceProc::nextStep()
 	    continue;
 
 	if ( !writeTrc() )
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
     }
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 

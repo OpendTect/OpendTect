@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.10 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.11 2008-12-23 11:08:30 cvsdgb Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -208,13 +208,13 @@ od_int64 Hor2DTo3D::nrDone() const
 int Hor2DTo3D::nextStep()
 {
     if ( sd_.isEmpty() )
-	{ msg_ = "No data in selected area"; return Executor::ErrorOccurred; }
+	{ msg_ = "No data in selected area"; return Executor::ErrorOccurred(); }
     else if ( !curinterp_ )
-	return Executor::Finished;
+	return Executor::Finished();
 
     int ret = curinterp_->doStep();
     msg_ = curinterp_->message();
-    if ( ret != Executor::Finished )
+    if ( ret != Executor::Finished() )
 	return ret;
 
     const Hor2DTo3DSectionData& sd = *sd_[cursectnr_];
@@ -243,7 +243,7 @@ int Hor2DTo3D::nextStep()
     
     cursectnr_++;
     if ( cursectnr_ >= sd_.size() )
-	return Executor::Finished;
+	return Executor::Finished();
     else
     {
 	Array2DInterpolator<float>* newinterp =
@@ -252,7 +252,7 @@ int Hor2DTo3D::nextStep()
 	delete curinterp_; curinterp_ = newinterp;
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 }

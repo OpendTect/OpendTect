@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.10 2008-12-15 04:50:59 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.11 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -168,13 +168,13 @@ const char* SeisImpBPSIF::message() const
 int SeisImpBPSIF::nextStep()
 {
     if ( fnames_.isEmpty() )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
     else if ( curfileidx_ < 0 )
-	return openNext() ? Executor::MoreToDo : Executor::ErrorOccurred;
+	return openNext() ? Executor::MoreToDo() : Executor::ErrorOccurred();
     else if ( datamgr_.needWrite() )
 	return writeData();
     else if ( endofinput_ )
-	return Executor::Finished;
+	return Executor::Finished();
 
     return binary_ ? readBinary() : readAscii();
 }
@@ -211,7 +211,7 @@ int SeisImpBPSIF::readAscii()
 	nrshots_++;
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
@@ -234,7 +234,7 @@ int SeisImpBPSIF::readBinary()
 	return fileEnded();
 
     nrshots_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
@@ -323,7 +323,7 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 int SeisImpBPSIF::fileEnded()
 {
     if ( openNext() )
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
 
     datamgr_.endReached();
     endofinput_ = true;
@@ -334,13 +334,13 @@ int SeisImpBPSIF::fileEnded()
 int SeisImpBPSIF::writeData()
 {
     if ( !datamgr_.needWrite() )
-	return datamgr_.isEmpty() ? Executor::Finished : Executor::MoreToDo;
+	return datamgr_.isEmpty() ? Executor::Finished() : Executor::MoreToDo();
 
     if ( !datamgr_.writeGather() )
     {
 	errmsg_ = datamgr_.errMsg();
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }

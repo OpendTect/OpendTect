@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.21 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.22 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -195,7 +195,7 @@ SeisPSCubeSeisTrcTranslator::~SeisPSCubeSeisTrcTranslator()
 
 const char* SeisPSCubeSeisTrcTranslator::connType() const
 {
-    return XConn::sType;
+    return XConn::sType();
 }
 
 static const char* sKeyOffsNr = "Default trace nr";

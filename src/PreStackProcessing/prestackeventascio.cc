@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.cc,v 1.1 2008-11-28 19:29:20 cvskris Exp $
+ RCS:		$Id: prestackeventascio.cc,v 1.2 2008-12-23 11:14:07 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,17 +46,17 @@ const char* EventExporter::nrDoneText() const
 int EventExporter::nextStep()
 {
     if ( !locations_.next( pos_ ) )
-	return cFinished();
+	return Finished();
 
     nrdone_++;
 
     const BinID bid = locations_.getBinID(pos_);
     if ( !hrg_.includes( bid ) )
-	return cMoreToDo();
+	return MoreToDo();
 
     RefMan<const EventSet> eventset = events_.getEvents( bid, true, false );
     if ( !eventset )
-	return cMoreToDo();
+	return MoreToDo();
 
     for ( int eventidx=0; eventidx<eventset->events_.size(); eventidx++ )
     {
@@ -86,7 +86,7 @@ int EventExporter::nextStep()
 	fileidx_++;
     }
 
-    return cMoreToDo();
+    return MoreToDo();
 }
 
 

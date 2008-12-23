@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.4 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.5 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seisrandlineto2d.h"
 #include "randomlinegeom.h"
@@ -100,14 +100,14 @@ SeisRandLineTo2D::~SeisRandLineTo2D()
 int SeisRandLineTo2D::nextStep()
 {
     if ( !rdr_ || !wrr_ || !totnr_ )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     SeisTrc trc;
     const int rv = rdr_->get( trc.info() );
-    if ( rv == 0 ) return Executor::Finished;
-    else if ( rv !=1 ) return Executor::ErrorOccurred;
+    if ( rv == 0 ) return Executor::Finished();
+    else if ( rv !=1 ) return Executor::ErrorOccurred();
 
-    if ( !rdr_->get(trc) ) return Executor::ErrorOccurred;
+    if ( !rdr_->get(trc) ) return Executor::ErrorOccurred();
 
     BinID bid = trc.info().binid;
     bool geommatching = false;
@@ -120,7 +120,7 @@ int SeisRandLineTo2D::nextStep()
 	}
     } while ( seldata_.binidValueSet().next(pos_) );
 
-    if ( !geommatching ) return Executor::ErrorOccurred;
+    if ( !geommatching ) return Executor::ErrorOccurred();
 
     float vals[4];
     seldata_.binidValueSet().get( pos_, bid, vals );
@@ -129,7 +129,7 @@ int SeisRandLineTo2D::nextStep()
     trc.info().nr = trcnr;
     trc.info().coord = coord;
     if ( !wrr_->put(trc) )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     nrdone_++;
     if ( seldata_.binidValueSet().next(pos_) )
@@ -143,11 +143,11 @@ int SeisRandLineTo2D::nextStep()
 	    trc.info().nr = nexttrcnr;
 	    trc.info().coord = nextcoord;
 	    if ( !wrr_->put(trc) )
-		return Executor::ErrorOccurred;
+		return Executor::ErrorOccurred();
 	}
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.43 2008-12-04 18:16:30 cvskris Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.44 2008-12-23 11:05:50 cvsdgb Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -169,7 +169,7 @@ void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 
 
 FlatView::Annotation::Annotation( bool drkbg )
-    : color_(drkbg ? Color::White : Color::Black)
+    : color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
 {
     x1_.name_ = "X1";
@@ -244,8 +244,8 @@ FlatView::Annotation::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
     , namealignment_( Alignment(OD::AlignHCenter,OD::AlignVCenter) )
-    , linestyle_( LineStyle::None, 1, Color::NoColor )
-    , fillcolor_( Color::NoColor )
+    , linestyle_( LineStyle::None, 1, Color::NoColor() )
+    , fillcolor_( Color::NoColor() )
     , close_( false )
     , x1rg_( 0 )
     , x2rg_( 0 )
@@ -359,7 +359,7 @@ void FlatView::Appearance::usePar( const IOPar& iop )
 void FlatView::Appearance::setDarkBG( bool yn )
 {
     darkbg_ = yn;
-    annot_.color_ = yn ? Color::White : Color::Black;
+    annot_.color_ = yn ? Color::White() : Color::Black();
     ddpars_.wva_.wigg_ = annot_.color_;
 }
 

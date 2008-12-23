@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.8 2008-09-22 13:11:25 cvskris Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.9 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -282,7 +282,7 @@ int SeisIOSimple::nextStep()
     else if ( isimp_ )
     {
 	int rv = importer_ ? importer_->nextStep() : -1;
-	if ( rv == Executor::Finished && importer_->nrSkipped() > 0 )
+	if ( rv == Executor::Finished() && importer_->nrSkipped() > 0 )
 	    UsrMsg( BufferString("Warning: ",importer_->nrSkipped(),
 				 " traces were rejected during import") );
 	return rv;
@@ -290,9 +290,9 @@ int SeisIOSimple::nextStep()
 
     int rv = readExpTrc();
     if ( rv < 0 )
-	return errmsg_.isEmpty() ? Executor::Finished : Executor::ErrorOccurred;
+	return errmsg_.isEmpty() ? Executor::Finished() : Executor::ErrorOccurred();
 
-    return rv == 0 ? Executor::MoreToDo : writeExpTrc();
+    return rv == 0 ? Executor::MoreToDo() : writeExpTrc();
 }
 
 
@@ -401,7 +401,7 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	trc.set( idx, val, 0 );
     }
 
-    return sd_.istrm->eof() ? Executor::Finished : Executor::MoreToDo;
+    return sd_.istrm->eof() ? Executor::Finished() : Executor::MoreToDo();
 }
 
 
@@ -456,7 +456,7 @@ int SeisIOSimple::writeExpTrc()
     }
 
     if ( data_.remnull_ && trc_.isNull() )
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
 
     if ( data_.havenr_ )
     {
@@ -535,8 +535,8 @@ int SeisIOSimple::writeExpTrc()
 	*sd_.ostrm << std::endl;
 
     if ( !sd_.ostrm->good() )
-	{ errmsg_ = "Error during write"; return Executor::ErrorOccurred; }
+	{ errmsg_ = "Error during write"; return Executor::ErrorOccurred(); }
 
     nrdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }

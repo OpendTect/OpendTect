@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.18 2008-10-01 10:51:39 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.19 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -101,7 +101,7 @@ od_int64 SeisImporter::totalNr() const
     { \
 	errmsg_ = rdr_->errmsg_; \
 	if ( !errmsg_.isEmpty() ) \
-	    return Executor::ErrorOccurred; \
+	    return Executor::ErrorOccurred(); \
 	atend = true; \
     }
 
@@ -125,12 +125,12 @@ int SeisImporter::nextStep()
     {
 	mDoRead( trc_ )
 	if ( !atend )
-	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred;
+	    return sortingOk(trc_) ? doWrite(trc_) : Executor::ErrorOccurred();
 
 	postproc_ = mkPostProc();
 	if ( !errmsg_.isEmpty() )
-	    return Executor::ErrorOccurred;
-	return postproc_ ? Executor::MoreToDo : Executor::Finished;
+	    return Executor::ErrorOccurred();
+	return postproc_ ? Executor::MoreToDo() : Executor::Finished();
     }
 
     return readIntoBuf();
@@ -151,7 +151,7 @@ int SeisImporter::doWrite( SeisTrc& trc )
     if ( wrr_.put(trc) )
     {
 	nrwritten_++;
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
 
     errmsg_ = wrr_.errMsg();
@@ -161,7 +161,7 @@ int SeisImporter::doWrite( SeisTrc& trc )
 	errmsg_ = "Cannot write trace";
     }
 
-    return Executor::ErrorOccurred;
+    return Executor::ErrorOccurred();
 }
 
 
@@ -175,11 +175,11 @@ int SeisImporter::readIntoBuf()
 	if ( nrread_ == 0 )
 	{
 	    errmsg_ = "No valid traces in input";
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
 	}
 
 	state_ = buf_.isEmpty() ? ReadWrite : WriteBuf;
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
 
     const bool is2d = Seis::is2D(geomtype_);
@@ -192,7 +192,7 @@ int SeisImporter::readIntoBuf()
     {
 	buf_.add( trc );
 	if ( !sortingOk(*trc) )
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
 	if ( !sortanal_ )
 	    state_ = WriteBuf;
 
@@ -215,12 +215,12 @@ int SeisImporter::readIntoBuf()
 	    if ( nreq > 999 )
 	    {
 		errmsg_ = "Input contains too many (1000+) identical positions";
-		return Executor::ErrorOccurred;
+		return Executor::ErrorOccurred();
 	    }
 	}
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
@@ -323,7 +323,7 @@ od_int64 totalNr() const	{ return totnr_; }
 int nextStep()
 {
     if ( !errmsg_.isEmpty() )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     trcnr_ += geom_->step.inl;
     if ( trcnr_ > geom_->stop.inl )
@@ -342,7 +342,7 @@ int nextStep()
 	    errmsg_ = "Cannot read ";
 	    errmsg_ += linenr_; errmsg_ += "/"; errmsg_ += trcnr_;
 	    errmsg_ += ":\n"; errmsg_ += tri_->errMsg();
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
 	}
 
 	Swap( trc_.info().binid.inl, trc_.info().binid.crl );
@@ -353,11 +353,11 @@ int nextStep()
 	    errmsg_ = "Cannot write ";
 	    errmsg_ += linenr_; errmsg_ += "/"; errmsg_ += trcnr_;
 	    errmsg_ += ":\n"; errmsg_ += wrr_->errMsg();
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
 	}
 	nrdone_++;
     }
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 int doFinal()
@@ -370,7 +370,7 @@ int doFinal()
 	errmsg_ = "No traces written during re-sorting.\n";
 	errmsg_ += "The imported cube remains to have swapped in/crosslines";
 	File_remove( tmpfnm, mFile_NotRecursive );
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
     }
 
     if ( !File_remove(targetfnm_,mFile_NotRecursive)
@@ -379,10 +379,10 @@ int doFinal()
 	errmsg_ = "Cannot rename the swapped in/crossline cube";
 	errmsg_ += "Please rename (by hand):\n";
 	errmsg_ += tmpfnm; errmsg_ += "\nto:"; errmsg_ += targetfnm_;
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
     }
 
-    return Executor::Finished;
+    return Executor::Finished();
 }
 
     BufferString		targetfnm_;

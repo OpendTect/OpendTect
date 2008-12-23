@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.29 2008-12-04 13:28:43 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.30 2008-12-23 11:08:31 cvsdgb Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -262,14 +262,14 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 int HorizonScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
-	{ dtctor_.finish(); return Executor::Finished; }
+	{ dtctor_.finish(); return Executor::ErrorOccurred(); }
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     TypeSet<float> data;
     const int ret = ascio_->getNextLine( data );
-    if ( ret < 0 ) return Executor::ErrorOccurred;
+    if ( ret < 0 ) return Executor::ErrorOccurred();
     if ( ret == 0 ) 
     {
 	fileidx_++;
@@ -277,10 +277,10 @@ int HorizonScanner::nextStep()
 	ascio_ = 0;
 	sections_ += bvalset_;
 	bvalset_ = 0;
-	return Executor::MoreToDo;
+	return Executor::MoreToDo();
     }
 
-    if ( data.size() < 3 ) return Executor::ErrorOccurred;
+    if ( data.size() < 3 ) return Executor::ErrorOccurred();
 
     if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size()-2, false );
 
@@ -342,7 +342,7 @@ int HorizonScanner::nextStep()
     }
 
     firsttime_ = false;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 

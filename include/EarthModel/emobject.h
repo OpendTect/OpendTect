@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.74 2008-10-17 16:06:44 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.75 2008-12-23 11:08:10 cvsdgb Exp $
 ________________________________________________________________________
 
 
@@ -72,7 +72,7 @@ class PosAttrib
 {
 public:
     			PosAttrib()
-			    : style_(MarkerStyle3D::Cube,5,Color::White) {}
+			    : style_(MarkerStyle3D::Cube,5,Color::White()) {}
 
     enum Type		{ PermanentControlNode, TemporaryControlNode,
 			  EdgeControlNode, TerminationNode, SeedNode };

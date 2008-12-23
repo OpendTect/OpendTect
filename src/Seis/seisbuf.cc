@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.44 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.45 2008-12-23 11:10:34 cvsdgb Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -534,12 +534,12 @@ int SeisBufReader::nextStep()
     SeisTrc* newtrc = new SeisTrc;
 
     int res = rdr_.get( newtrc->info() );
-    if ( res > 1 ) return Executor::MoreToDo;
-    if ( res == 0 ) return Executor::Finished;
+    if ( res > 1 ) return Executor::MoreToDo();
+    if ( res == 0 ) return Executor::Finished();
 
     if ( res < 0 || !rdr_.get(*newtrc) )
-	{ msg_ = rdr_.errMsg(); return Executor::ErrorOccurred; }
+	{ msg_ = rdr_.errMsg(); return Executor::ErrorOccurred(); }
 
     buf_.add( newtrc );
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
