@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.17 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.18 2008-12-23 13:40:47 cvsbert Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -81,13 +81,15 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
 	else
 	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
-	mesg += "Val="; mesg += *vdvalstr ? vdvalstr : "undef";
+	float val = *vdvalstr ? atof( vdvalstr ) : mUdf(float);
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : vdvalstr;
 	mesg += " ("; mesg += vdstr; mesg += ")";
     }
     if ( wvavalstr && !issame )
     {
 	mAddSep();
-	mesg += "Val="; mesg += *wvavalstr ? wvavalstr : "undef";
+	float val = *wvavalstr ? atof( wvavalstr ) : mUdf(float);
+	mesg += "Val="; mesg += mIsUdf(val) ? "undef" : wvavalstr;
 	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
 	mesg += " ("; mesg += wvastr; mesg += ")";
     }
