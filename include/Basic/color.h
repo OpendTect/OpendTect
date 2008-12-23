@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.16 2008-12-23 11:02:29 cvsdgb Exp $
+ RCS:		$Id: color.h,v 1.17 2008-12-23 14:44:49 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -58,12 +58,11 @@ public:
     void		fill(char*) const;
     bool		use(const char*);
 
+    static Color	Black()		{ return  Color( 0, 0, 0, 0 ); }
+    static Color	White()		{ return  Color( 255, 255, 255, 0 ); }
+    static Color	DgbColor()	{ return  Color( 0, 240, 0, 0 ); }	
+    static Color	LightGrey()	{ return  Color( 230, 230, 230, 0 ); }
     static Color	NoColor()	{ return  Color( 0, 0, 0, 255 ); }
-    static Color	Black()		{ return  Color( 0, 0, 0, 255 ); }
-    static Color	White()		{ return  Color( 0, 0, 0, 255 ); }
-    static Color	DgbColor()	{ return  Color( 0, 0, 0, 255 ); }	
-    static Color	Wheat()		{ return  Color( 0, 0, 0, 255 ); }
-    static Color	LightGrey()	{ return  Color( 0, 0, 0, 255 ); }
 
     static unsigned char getUChar( float v );
 

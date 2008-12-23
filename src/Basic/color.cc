@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.5 2008-12-23 11:03:30 cvsdgb Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.6 2008-12-23 14:44:49 cvsbert Exp $";
 
 #include "color.h"
 
@@ -12,12 +12,6 @@ static const char* rcsID = "$Id: color.cc,v 1.5 2008-12-23 11:03:30 cvsdgb Exp $
 #include "stdlib.h"
 #include "string.h"
 
-/*Color Color::NoColor	= Color( 0, 0, 0, 255 );
-Color Color::Black	= Color( 0, 0, 0 );
-Color Color::White	= Color( 255, 255, 255 );
-Color Color::DgbColor	= Color( 0, 240, 0 );
-Color Color::Wheat	= Color( 245, 222, 179 );
-Color Color::LightGrey	= Color( 230, 230, 230 );*/
 
 Color::Color( unsigned char r_, unsigned char g_,
 	      unsigned char b_, unsigned char t_ )
