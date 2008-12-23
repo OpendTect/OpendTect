@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.33 2008-12-22 22:41:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.34 2008-12-23 22:51:13 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -205,8 +205,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	else
 	    getSeis2DTitle( psv->traceNr(), psv->lineName(), title );	
 
-	uiFlatViewWin* viewwin = create2DViewer( title, psv->getDataPackID() );
-
+	uiFlatViewMainWin* viewwin = create2DViewer(title,psv->getDataPackID());
 	if ( viewwin )
 	{
     	    viewers2d_ += viewwin;
@@ -350,12 +349,11 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
-uiFlatViewWin* uiViewer3DMgr::create2DViewer( const BufferString& title, 
+uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title, 
 					      int dpid )
 {
-    uiFlatViewWin* viewwin = new uiFlatViewMainWin( 
-	    ODMainWin()->applMgr().seisServer()->appserv().parent(), 
-	    uiFlatViewMainWin::Setup(title) );
+    uiFlatViewMainWin* viewwin = new uiFlatViewMainWin( 
+	    ODMainWin(), uiFlatViewMainWin::Setup(title) );
     
     viewwin->setWinTitle( title );
     viewwin->setDarkBG( false );
@@ -384,10 +382,24 @@ uiFlatViewWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     vwr.setInitialSize( uiSize(pw,500) );  
     viewwin->addControl( new uiFlatViewStdControl( vwr,
 			 uiFlatViewStdControl::Setup().withstates(false) ) );
+    viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
     vwr.drawBitMaps();
     vwr.drawAnnot();
-    DPM(DataPackMgr::FlatID).release( dpid );
+    DPM(DataPackMgr::FlatID).release( dp );
     return viewwin;
+}
+
+
+void uiViewer3DMgr::viewer2DClosedCB( CallBacker* cb )
+{
+    const int idx = viewers2d_.indexOf( (uiFlatViewMainWin*) cb );
+    if ( idx==-1 )
+	return;
+
+    viewers2d_[idx]->windowClosed.remove(
+	    mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
+
+    viewers2d_.remove( idx );
 }
 
 
@@ -428,11 +440,8 @@ void uiViewer3DMgr::removeViewWin( int dpid )
 {
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
-	if ( viewers2d_[idx]->viewer().packID(false) !=dpid )
-	    continue;
-	
-	viewers2d_ -= viewers2d_[idx];
-	delete viewers2d_[idx];
+	if ( viewers2d_[idx]->viewer().packID(false) == dpid )
+    	    delete viewers2d_.remove( idx );
     }
 }
 
@@ -520,7 +529,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	    getSeis3DTitle( bid, ioobj->name(), title );
 	else
 	    getSeis2DTitle( trcnr, name2d, title );
-	uiFlatViewWin* viewwin = create2DViewer( title, dpid );
+	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
 	DPM(DataPackMgr::FlatID).release( gather );
 	if ( !viewwin )
 	    continue;
@@ -595,17 +604,17 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 
 void  uiViewer3DMgr::removeAllCB( CallBacker* )
 {
-    deepUnRef( viewers3d_ );
     deepErase( posdialogs_ );
     deepErase( viewers2d_ );
+    deepUnRef( viewers3d_ );
 }    
 
 
 void uiViewer3DMgr::surveyToBeChangedCB( CallBacker* )
 {
-    deepUnRef( viewers3d_ );
     deepErase( posdialogs_ );
     deepErase( viewers2d_ );
+    deepUnRef( viewers3d_ );
 }
 
 }; // Namespace

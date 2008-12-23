@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.42 2008-12-22 15:45:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.43 2008-12-23 22:51:13 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -237,7 +237,14 @@ bool Viewer3D::setPosition( const BinID& nb )
 	}
 
 	if ( PSVResetPos )
+	{
 	    bid_ = getNearBinID( nb );
+	    if ( bid_.inl==-1 || bid_.crl==-1 )
+	    {
+		uiMSG().warning("Can not read or no data at the section.");
+		bid_ = nb; //We still display the panel.
+	    }
+	}
     }
     else
 	bid_ = nb;
@@ -666,7 +673,14 @@ void Viewer3D::setTraceNr( int trcnr )
     	    }
 	    
     	    if ( PSVResetTraceNr )
-    		trcnr_ = getNearTraceNr( ioobj, trcnr );
+	    {
+		trcnr_ = getNearTraceNr( ioobj, trcnr );
+		if ( trcnr_==-1 )
+		{
+		    uiMSG().warning("Can not read or no data at the section.");
+		    trcnr_ = trcnr; //If no data, we still display the panel.
+		}
+	    }
     	}
 	else 
 	    trcnr_ = trcnr;

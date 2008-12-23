@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.13 2008-12-22 22:41:17 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.14 2008-12-23 22:51:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class uiVisPartServer;
-class uiFlatViewWin;
+class uiFlatViewMainWin;
 class uiMenuHandler;
 namespace PreStack { class ProcessManager; }
 
@@ -54,7 +54,7 @@ public:
 
 protected:
     
-    uiFlatViewWin*	create2DViewer(const BufferString&,int datapackid);
+    uiFlatViewMainWin*	create2DViewer(const BufferString&,int datapackid);
     int			getSceneID(int mnid);
     static void		getSeis2DTitle(int trnr,const char*,BufferString&);
     static void		getSeis3DTitle(const BinID&,const char*,BufferString&);
@@ -67,6 +67,7 @@ protected:
     void		surveyToBeChangedCB(CallBacker*);
     void		sessionRestoreCB(CallBacker*);
     void		sessionSaveCB(CallBacker*);
+    void		viewer2DClosedCB(CallBacker*);
     				//Saved 2DViewer for VD only.
 
     MenuItem		selectpsdatamenuitem_;
@@ -80,7 +81,7 @@ protected:
     PreStack::ProcessManager*		preprocmgr_;    
     ObjectSet<PreStackView::Viewer3D>	viewers3d_;
     ObjectSet<uiViewer3DPositionDlg>	posdialogs_;
-    ObjectSet<uiFlatViewWin>		viewers2d_;
+    ObjectSet<uiFlatViewMainWin>	viewers2d_;
 };
 
 }; //namespace
