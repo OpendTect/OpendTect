@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmuteasciio.cc,v 1.7 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
@@ -44,7 +44,7 @@ void MuteAscIO::createDescBody( Table::FormatDesc& fd, bool haveposinfo )
 	fd.bodyinfos_ += posinfo;
     }
 
-    fd.bodyinfos_ += new Table::TargetInfo( "Offset", FloatInpSpec(),
+    fd.bodyinfos_ += new Table::TargetInfo( sKey::Offset, FloatInpSpec(),
 					    Table::Required );
 
     Table::TargetInfo* bti = new Table::TargetInfo( "Z Values" , FloatInpSpec(),

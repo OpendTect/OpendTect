@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.45 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.46 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -476,7 +476,11 @@ void SeisTrcBufDataPack::getAuxInfo( int itrc, int isamp, IOPar& iop ) const
 
     const SeisTrc* trc = buf.get( itrc );
     trc->info().getInterestingFlds( gt_, iop );
-    iop.set( "Z", trc->info().samplePos(isamp) );
+
+    float z = trc->info().samplePos(isamp);
+    if ( SI().zIsTime() ) z *= 1000;
+    int z100 = mNINT(z*100); z = z100 / 100;
+    iop.set( "Z", z );
 }
 
 

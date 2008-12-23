@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vislight.cc,v 1.8 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vislight.cc,v 1.9 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "vislight.h"
 #include "iopar.h"
+#include "keystrs.h"
 
 #include <Inventor/nodes/SoPointLight.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
@@ -89,7 +90,7 @@ int Light::usePar( const IOPar& par )
 }
 
 
-const char* PointLight::positionstr = "Position";
+const char* PointLight::positionstr = sKey::Position;
 
 PointLight::PointLight()
     : Light( new SoPointLight )
@@ -173,7 +174,7 @@ int DirectionalLight::usePar( const IOPar& par )
 
 
 const char* SpotLight::directionstr = "Direction";
-const char* SpotLight::positionstr = "Position";
+const char* SpotLight::positionstr = sKey::Position;
 const char* SpotLight::coneanglestr = "Cone Angle";
 const char* SpotLight::dropoffratestr = "Drop Off Rate";
 

@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.16 2008-12-23 11:34:47 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.17 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
 #include "uiflatviewcontrol.h"
 #include "uiflatviewer.h"
 #include "uistatusbar.h"
+#include "keystrs.h"
 
 
 void uiFlatViewWin::createViewers( int nr )
@@ -64,56 +65,65 @@ void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
 void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 {
     mCBCapsuleUnpack(IOPar,pars,cb);
-    BufferString str;
-    BufferString tooltip;
-    if ( pars.indexOf( "X-coordinate" ) > 0 )
-    {
-	str += "X: ";
-	str += pars.find( "X-coordinate" );
-	str += "; ";
-    }
-    if ( pars.indexOf( "Y-coordinate" ) > 0 )
-    {
-	str += "Y: ";
-	str += pars.find( "Y-coordinate" );
-	str += "; ";
-    }
-    if ( pars.indexOf( "Z" ) > 0 )
-    {
-	str += "Z: ";
-	str += pars.find( "Z" );
-	str += "; ";
-    }
+    BufferString mesg;
+    int nrinfos = 0;
+#define mAddSep() if ( nrinfos++ ) mesg += "; ";
 
     const char* vdstr = pars.find( "Variable density data" );
-    const int vdstridx = pars.indexOf( "Variable density data" );
-    const char* wvastr = vdstr ? vdstr : pars.find( "Wiggle/VA data" );
-    const int wvastridx = pars.indexOf( "Wiggle/VA data" );
-    if ( pars.size()>2 )
+    const char* wvastr = pars.find( "Wiggle/VA data" );
+    const char* vdvalstr = pars.find( "VD Value" );
+    const char* wvavalstr = pars.find( "WVA Value" );
+    const bool issame = vdstr && wvastr && !strcmp(vdstr,wvastr);
+    if ( vdvalstr )
     {
-	if ( pars.find("VD Value") )
+	mAddSep();
+	if ( issame )
+	    { if ( !vdstr || !*vdstr ) vdstr = wvastr; }
+	else
+	    { if ( !vdstr || !*vdstr ) vdstr = "VD Val"; }
+	mesg += "Val="; mesg += *vdvalstr ? vdvalstr : "undef";
+	mesg += " ("; mesg += vdstr; mesg += ")";
+    }
+    if ( wvavalstr && !issame )
+    {
+	mAddSep();
+	mesg += "Val="; mesg += *wvavalstr ? wvavalstr : "undef";
+	if ( !wvastr || !*wvastr ) wvastr = "WVA Val";
+	mesg += " ("; mesg += wvastr; mesg += ")";
+    }
+
+    const char* valstr = pars.find( sKey::Offset );
+    if ( valstr && *valstr )
+	{ mAddSep(); mesg += "Offs="; mesg += valstr; }
+    valstr = pars.find( sKey::Azimuth );
+    if ( valstr && *valstr && strcmp(valstr,"0") )
+	{ mAddSep(); mesg += "Azim="; mesg += valstr; }
+
+    valstr = pars.find( "Z" );
+    if ( valstr && *valstr )
+	{ mAddSep(); mesg += "Z="; mesg += valstr; }
+    valstr = pars.find( sKey::Position );
+    if ( valstr && *valstr )
+	{ mAddSep(); mesg += "Pos="; mesg += valstr; }
+    else
+    {
+	valstr = pars.find( sKey::TraceNr );
+	if ( valstr && *valstr )
+	    { mAddSep(); mesg += "TrcNr="; mesg += valstr; }
+	else
 	{
-	    tooltip += "VD: ";
-	    tooltip += pars.getValue( vdstridx );
-	    tooltip += "; ";
-	    const int index = pars.indexOf( "VD Value" );
-	    str += "VD Value: ";
-	    str += pars.getValue( index );
-	    str += "; ";
-	}
-	if ( pars.find("WVA Value") && wvastr )
-	{
-	    tooltip += "WVA: ";
-	    tooltip += pars.getValue( wvastridx );
-	    tooltip += "; ";
-	    const int index = pars.indexOf( "WVA Value" );
-	    str += "WVA Value: ";
-	    str += pars.getValue( index );
-	    str += "; ";
+	    valstr = pars.find( "X" );
+	    if ( !valstr ) valstr = pars.find( "X-coordinate" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "X="; mesg += valstr; }
+	    valstr = pars.find( "Y" );
+	    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Y="; mesg += valstr; }
 	}
     }
-    statusBar()->setToolTip( 0, tooltip.buf() );
-    statusBar()->message( str.buf() );
+
+    statusBar()->message( mesg.buf() );
 }
 
 

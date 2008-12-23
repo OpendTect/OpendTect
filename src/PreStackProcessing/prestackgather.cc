@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.21 2008-12-22 19:26:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.22 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "prestackgather.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: prestackgather.cc,v 1.21 2008-12-22 19:26:36 cv
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
+#include "keystrs.h"
 
 using namespace PreStack;
 
@@ -40,6 +41,7 @@ Gather::Gather()
     , offsetisangle_( false )
     , iscorr_( false )
     , binid_( -1, -1 )
+    , coord_( 0, 0 )
     , zit_( SI().zIsTime() )
 {}
 
@@ -50,6 +52,7 @@ Gather::Gather( const Gather& gather )
     , offsetisangle_( gather.offsetisangle_ )
     , iscorr_( gather.iscorr_ )
     , binid_( gather.binid_ )
+    , coord_( gather.coord_ )
     , zit_( gather.zit_ )
     , azimuths_( gather.azimuths_ )
     , velocitymid_( gather.velocitymid_ )
@@ -134,6 +137,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 
     bool isset = false;
     StepInterval<double> zrg;
+    Coord crd( coord_ );
     for ( int idx=tbuf->size()-1; idx>-1; idx-- )
     {
 	const SeisTrc* trc = tbuf->get( idx );
@@ -145,6 +149,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	{
 	    isset = true;
 	    zrg.setFrom( trc->info().sampling.interval( trcsz ) );
+	    crd = trc->info().coord;
 	}
 	else
 	{
@@ -211,6 +216,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     ioobj.pars().get( sKeyStaticsID(), staticsmid_ );
     
     binid_ = bid;
+    coord_ = crd;
     setName( ioobj.name() );
 
     storagemid_ = ioobj.key();
@@ -221,8 +227,28 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 
 const char* Gather::dimName( bool dim0 ) const
 { 
-    return dim0 ? "Offset" : ( SI().zIsTime() ? "Time" : "Depth" );
+    return dim0 ? sKey::Offset : (SI().zIsTime() ? sKey::Time : sKey::Depth);
 }
+
+
+void Gather::getAuxInfo( int idim0, int idim1, IOPar& par ) const
+{
+    par.set( "X", coord_.x );
+    par.set( "Y", coord_.y );
+    float z = posData().position( false, idim1 );
+    if ( zit_ ) z *= 1000;
+    par.set( "Z", z );
+    par.set( sKey::Offset, getOffset(idim0) );
+    par.set( sKey::Azimuth, getAzimuth(idim0) );
+    if ( !is3D() )
+	par.set( sKey::TraceNr, binid_.crl );
+    else
+    {
+	BufferString str( 128, false ); binid_.fill( str.buf() );
+	par.set( sKey::Position, str );
+    }
+}
+
 
 
 const char* Gather::getSeis2DName() const

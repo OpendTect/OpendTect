@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.10 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.11 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -351,7 +351,7 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
     if ( !rev1 )
     {
 	if ( is2d )
-	    setIntByte( iop, "Trace number", thdef_.trnr, thdef_.trnrbytesz );
+	    setIntByte( iop, sKey::TraceNr, thdef_.trnr, thdef_.trnrbytesz );
 	else
 	{
 	    iop.set( "Positioning defined by",
@@ -378,8 +378,8 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
 	iop.set( sKeyOffsDef, offsdef_ );
     else if ( psdef_ != SrcRcvCoords )
     {
-	setIntByte( iop, "Offset", thdef_.offs, thdef_.offsbytesz );
+	setIntByte( iop, sKey::Offset, thdef_.offs, thdef_.offsbytesz );
 	if ( thdef_.azim < 255 )
-	    setIntByte( iop, "Azimuth", thdef_.azim, thdef_.azimbytesz );
+	    setIntByte( iop, sKey::Azimuth, thdef_.azim, thdef_.azimbytesz );
     }
 }

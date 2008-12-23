@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.20 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.21 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -396,7 +396,7 @@ static bool setIf( IOPar& iop, bool yn, const char* key, uiGenInput* inp,
 	else mHndlByte(sYCoordByte,185,true,"Y-coord");
 	else mHndlByte(sInlByte,189,!is2d,"In-line");
 	else mHndlByte(sCrlByte,193,!is2d,"Cross-line");
-	else mHndlByte(sTrNrByte,197,is2d,"Trace number");
+	else mHndlByte(sTrNrByte,197,is2d,sKey::TraceNr);
 	if ( fld )
 	{
 	    BufferString msg( "Please note that the byte for the " );

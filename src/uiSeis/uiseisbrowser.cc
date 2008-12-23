@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.36 2008-12-23 11:38:53 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.37 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -46,6 +46,7 @@ static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.36 2008-12-23 11:38:53 cvs
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "keystrs.h"
 #include <iostream>
 
 
@@ -721,7 +722,7 @@ uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
 	   			coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
-    BufferString label( is2d_ ? "Trace Number" : "BinID" );
+    BufferString label( is2d_ ? sKey::TraceNr : sKey::Position );
     PositionInpSpec bidinpspec( PositionInpSpec::Setup(false,is2d_,false) ); 
     trcnrbinidfld_ = new uiGenInput( valgrp, label.buf(), bidinpspec );
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );

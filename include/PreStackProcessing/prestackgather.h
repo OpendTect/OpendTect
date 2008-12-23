@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.16 2008-12-22 19:26:36 cvsyuancheng Exp $
+ RCS:		$Id: prestackgather.h,v 1.17 2008-12-23 12:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -44,6 +44,8 @@ public:
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
 	    				 const BinID&,BufferString* errmsg=0);
 
+    const Coord&		getCoord() const	{ return coord_; }
+
     				//for 3d only
     const BinID&		getBinID() const 	{ return binid_; }
 
@@ -57,6 +59,7 @@ public:
     bool			isLoaded() const	{ return arr2d_; }
 
     const char*			dimName(bool dim0) const;
+    void			getAuxInfo(int,int,IOPar&) const;
 
     static int			offsetDim()		{ return 0; }
     static int			zDim()			{ return 1; }
@@ -84,6 +87,7 @@ public:
     static const char*		sKeyPostStackDataID();
     static const char*		sKeyVelocityCubeID();
     static const char*		sKeyStaticsID();
+
 protected:
 
     MultiID			velocitymid_;
@@ -94,6 +98,7 @@ protected:
 
     bool			zit_;
     BinID			binid_;
+    Coord			coord_;
     TypeSet<float>		azimuths_;
 
     BufferString		linename_;

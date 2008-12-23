@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.50 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.51 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -278,6 +278,8 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
     {
 	mIOIOPar( set, BinIDInl, binid.inl );
 	mIOIOPar( set, BinIDCrl, binid.crl );
+	BufferString str( 120, false ); binid.fill( str.buf() );
+	iopar.set( sKey::Position, str );
     }
 
     mIOIOPar( set, CoordX, coord.x );

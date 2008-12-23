@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.41 2008-12-10 17:18:17 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.42 2008-12-23 12:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ namespace sKey
 
     extern const char*	Attribute	mImpl("Attribute");
     extern const char*	Attributes	mImpl("Attributes");
+    extern const char*	Azimuth		mImpl("Azimuth");
     extern const char*	Color		mImpl("Color");
     extern const char*	Cube		mImpl("Cube");
     extern const char*	DataType	mImpl("DataType");
@@ -54,9 +55,11 @@ namespace sKey
     extern const char*	Name		mImpl("Name");
     extern const char*	No		mImpl("No");
     extern const char*	None		mImpl("None");
+    extern const char*	Offset		mImpl("Offset");
     extern const char*	Output		mImpl("Output");
     extern const char*	Pars		mImpl("Parameters");
     extern const char*	Polygon		mImpl("Polygon");
+    extern const char*	Position	mImpl("Position");
     extern const char*	Random		mImpl("Random");
     extern const char*	Range		mImpl("Range");
     extern const char*	Scale		mImpl("Scale");
@@ -74,6 +77,7 @@ namespace sKey
     extern const char*	Time		mImpl("Time");
     extern const char*	TWT		mImpl("TWT");
     extern const char*	Title		mImpl("Title");
+    extern const char*	TraceNr		mImpl("Trace number");
     extern const char*	Type		mImpl("Type");
     extern const char*	Undef		mImpl("Undefined");
     extern const char*	Value		mImpl("Value");

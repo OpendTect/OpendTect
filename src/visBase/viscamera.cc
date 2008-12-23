@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscamera.cc,v 1.21 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: viscamera.cc,v 1.22 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "viscamera.h"
 #include "iopar.h"
+#include "keystrs.h"
 
 #include "UTMCamera.h"
 #include "Inventor/nodes/SoGroup.h"
@@ -20,7 +21,7 @@ mCreateFactoryEntry( visBase::Camera );
 namespace visBase
 {
 
-const char* Camera::sKeyPosition() 	{ return "Position"; }
+const char* Camera::sKeyPosition() 	{ return sKey::Position; }
 const char* Camera::sKeyOrientation() 	{ return "Orientation"; }
 const char* Camera::sKeyAspectRatio() 	{ return "Aspect ratio"; }
 const char* Camera::sKeyNearDistance() 	{ return "Near Distance"; }

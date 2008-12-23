@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vistext.cc,v 1.17 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vistext.cc,v 1.18 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "vistext.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vistext.cc,v 1.17 2008-11-25 15:35:27 cvsbert E
 #include "vistransform.h"
 #include "vismaterial.h"
 #include "separstr.h"
+#include "keystrs.h"
 
 #include <Inventor/nodes/SoFont.h>
 #include <Inventor/nodes/SoText2.h>
@@ -30,7 +31,7 @@ namespace visBase
 const char* Text::sKeyString() 		{ return "Text"; }
 const char* Text::sKeyFontSize() 	{ return "Font size"; }
 const char* Text::sKeyJustification() 	{ return "Justification"; }
-const char* Text::sKeyPosition() 	{ return "Position"; }
+const char* Text::sKeyPosition() 	{ return sKey::Position; }
 
 
 Text::Text()

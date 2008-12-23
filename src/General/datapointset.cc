@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.24 2008-12-08 12:51:23 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.25 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -288,7 +288,7 @@ void DataPointSet::initPVDS()
 	data_.add( new DataColDef("Selection status") );
     }
     if ( is2d_ )
-	data_.add( new DataColDef("Trace number") );
+	data_.add( new DataColDef(sKey::TraceNr) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.4 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.5 2008-12-23 12:51:22 cvsbert Exp $";
 
 #include "prestackmutedeftransl.h"
 #include "prestackmutedef.h"
@@ -17,8 +17,8 @@ static const char* rcsID = "$Id: prestackmutedeftransl.cc,v 1.4 2008-11-25 15:35
 #include "ioobj.h"
 #include "ptrman.h"
 #include "streamconn.h"
+#include "keystrs.h"
 
-static const char* sKeyPosition = "Position";
 static const char* sKeyPBMFSetup = "PBMF setup";
 
 defineTranslatorGroup(MuteDef,"Mute Definition");
@@ -93,7 +93,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	bool extrapol = true;
 	PointBasedMathFunction::InterpolType it =PointBasedMathFunction::Linear;
 
-	if ( astrm.hasKeyword(sKeyPosition) )
+	if ( astrm.hasKeyword(sKey::Position) )
 	{
 	    bid.use( astrm.value() );
 	    astrm.next();
@@ -165,7 +165,7 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
     for ( int imd=0; imd<md.size(); imd++ )
     {
 	char buf[80]; md.getPos(imd).fill( buf );
-	astrm.put( sKeyPosition, buf );
+	astrm.put( sKey::Position, buf );
 	const PointBasedMathFunction& pbmf = md.getFn( imd );
 	buf[0] =  pbmf.interpolType() == PointBasedMathFunction::Snap
 	 ? 'S' : (pbmf.interpolType() == PointBasedMathFunction::Poly
