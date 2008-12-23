@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.7 2008-09-22 13:17:03 cvskris Exp $
+ * ID       : $Id: tuthortools.h,v 1.8 2008-12-23 13:53:37 cvsbert Exp $
 -*/
 
 #include "executor.h"
@@ -62,7 +62,7 @@ class ThicknessFinder : public HorTools
 {
 public:
     			ThicknessFinder()
-			    : HorTools("Thickness Calculation")
+			    : HorTools("Calculating Thickness")
 			{}
 
     int			nextStep();
@@ -76,20 +76,20 @@ protected:
 };
 
 
-class HorSmoothener : public HorTools
+class HorSmoother : public HorTools
 {
 public:
-			HorSmoothener()
-			    : HorTools("Horizon Smoothing")
+			HorSmoother()
+			    : HorTools("Smoothing Horizon")
 			{}
 
     int			nextStep();
-    void		setWeaksmooth(bool weak)	{ weaksmooth_ = weak; }
+    void		setWeak( bool yn )	{ weak_ = yn; }
     Executor*		dataSaver(const MultiID&);
 protected:
 
     EM::SubID		subid_;
-    bool		weaksmooth_;
+    bool		weak_;
 };
 
 

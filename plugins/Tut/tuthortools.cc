@@ -6,7 +6,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tuthortools.cc,v 1.6 2008-09-22 13:17:03 cvskris Exp $";
+static const char* rcsID = "$Id: tuthortools.cc,v 1.7 2008-12-23 13:53:37 cvsbert Exp $";
 
 #include "tuthortools.h"
 #include "ioobj.h"
@@ -67,7 +67,7 @@ void Tut::ThicknessFinder::init( const char* attribname )
 int Tut::ThicknessFinder::nextStep()
 {
     if ( !iter_->next(bid_) )
-	return Executor::Finished;
+	return Executor::Finished();
 
     const EM::SubID subid = bid_.getSerialized();
     const float z1 = horizon1_->getPos( horizon1_->sectionID(0), subid ).z;
@@ -84,7 +84,7 @@ int Tut::ThicknessFinder::nextStep()
     horizon1_->auxdata.setAuxDataVal( dataidx_, posid_, val );
 
     nrdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
@@ -97,15 +97,15 @@ Executor* Tut::ThicknessFinder::dataSaver()
 ///////////////////////////////////////////////////////////////////////////////
 
 
-int Tut::HorSmoothener::nextStep()
+int Tut::HorSmoother::nextStep()
 {
     if ( !iter_->next(bid_) )
-	return Executor::Finished;
+	return Executor::Finished();
 
     int inl = bid_.r(); int crl = bid_.c();
     float sum = 0;
     int count = 0;
-    const int rad = weaksmooth_ ? 1 : 2;
+    const int rad = weak_ ? 1 : 2;
     for ( int idx=-rad; idx<=rad; idx++ )
     {
 	for ( int cdx=-rad; cdx<=rad; cdx++ )
@@ -131,11 +131,11 @@ int Tut::HorSmoothener::nextStep()
     horizon1_->setPos( horizon1_->sectionID(0), subid_, pos, false );
 
     nrdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 
-Executor* Tut::HorSmoothener::dataSaver( const MultiID& id )
+Executor* Tut::HorSmoother::dataSaver( const MultiID& id )
 {
     return horizon1_->geometry().saver( 0, &id );
 }

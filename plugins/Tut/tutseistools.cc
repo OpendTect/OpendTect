@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.9 2008-09-22 13:17:03 cvskris Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.10 2008-12-23 13:53:37 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "tutseistools.h"
@@ -114,28 +114,29 @@ bool Tut::SeisTools::createWriter()
 int Tut::SeisTools::nextStep()
 {
     if ( !rdr_ )
-	return createReader() ? Executor::MoreToDo : Executor::ErrorOccurred;
+	return createReader() ? Executor::MoreToDo()
+	    		      : Executor::ErrorOccurred();
 
     int rv = rdr_->get( trcin_.info() );
     if ( rv < 0 )
-	{ errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
+	{ errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
     else if ( rv == 0 )
-	return Executor::Finished;
+	return Executor::Finished();
     else if ( rv == 1 )
     {
 	if ( !rdr_->get(trcin_) )
-	    { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred; }
+	    { errmsg_ = rdr_->errMsg(); return Executor::ErrorOccurred(); }
 
 	trcout_ = trcin_;
 	handleTrace();
 
 	if ( !wrr_ && !createWriter() )
-	    return Executor::ErrorOccurred;
+	    return Executor::ErrorOccurred();
 	if ( !wrr_->put(trcout_) )
-	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
+	    { errmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred(); }
     }
 
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
 
 

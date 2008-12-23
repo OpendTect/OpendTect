@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uituthortools.cc,v 1.8 2008-10-08 06:16:52 cvsraman Exp $";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.9 2008-12-23 13:53:37 cvsbert Exp $";
 
 #include "uituthortools.h"
 #include "ctxtioobj.h"
@@ -24,7 +24,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 	, inctio2_(*mMkCtxtIOObj(EMHorizon3D))
     	, outctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, thickcalc_(0)
-	, smoothnr_(0)
+	, smoother_(0)
 {
     taskfld_= new uiGenInput( this, "Select Task",
 	    		BoolInpSpec(true, "Smooth a Horizon", 
@@ -38,9 +38,9 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
     outfld_ = new uiIOObjSel( this, outctio_, "Output Horizon" );
     outfld_->attach( alignedBelow, inpfld_ );
 
-    smoothfld_ = new uiGenInput( this, "Filter Strength",
+    strengthfld_ = new uiGenInput( this, "Filter Strength",
 	    		BoolInpSpec(true, "Low", "High") );
-    smoothfld_->attach( alignedBelow, outfld_ );
+    strengthfld_->attach( alignedBelow, outfld_ );
 
     inpfld2_ = new uiIOObjSel( this, inctio2_, "Input Bottom Horizon" );
     inpfld2_->attach( alignedBelow, inpfld_ );
@@ -62,7 +62,7 @@ uiTutHorTools::~uiTutHorTools()
     delete inctio_.ioobj; delete &inctio_;
     delete outctio_.ioobj; delete &outctio_;
     if( thickcalc_ ) delete thickcalc_;
-    if( smoothnr_ ) delete smoothnr_;
+    if( smoother_ ) delete smoother_;
 }
 
 
@@ -75,7 +75,7 @@ void uiTutHorTools::choiceSel( CallBacker* )
     inpfld2_->display( !mono );
     attribnamefld_->display( !mono );
     outfld_->display( mono );
-    smoothfld_->display( mono );
+    strengthfld_->display( mono );
 }
 
 
@@ -97,14 +97,14 @@ bool uiTutHorTools::initThicknessFinder()
 }
 
 
-bool uiTutHorTools::initHorSmoothener()
+bool uiTutHorTools::initHorSmoother()
 {
-    smoothnr_ = new Tut::HorSmoothener;
+    smoother_ = new Tut::HorSmoother;
     EM::Horizon3D* hor = loadHor(inctio_.ioobj);
     if ( !hor )
 	return false;
-    smoothnr_->setHorizons( hor );
-    smoothnr_->setWeaksmooth( smoothfld_->getBoolValue() ); 
+    smoother_->setHorizons( hor );
+    smoother_->setWeak( strengthfld_->getBoolValue() ); 
     return true;
 }
 
@@ -134,7 +134,7 @@ EM::Horizon3D* uiTutHorTools::loadHor( const IOObj* ioobj )
 
 void uiTutHorTools::saveData(bool geom)
 {
-    PtrMan<Executor> exec = geom ? smoothnr_->dataSaver(outctio_.ioobj->key())
+    PtrMan<Executor> exec = geom ? smoother_->dataSaver(outctio_.ioobj->key())
 				 : thickcalc_->dataSaver();
 
     if ( !exec )
@@ -161,10 +161,10 @@ bool uiTutHorTools::acceptOK( CallBacker* )
 	 	&& !uiMSG().askGoOn("Output horizon exists. Overwrite?") )
         return false;
 
-	if ( !initHorSmoothener() )
+	if ( !initHorSmoother() )
 	    return false; 
 	uiTaskRunner taskrunner( this );
-	retval = taskrunner.execute( *smoothnr_ );
+	retval = taskrunner.execute( *smoother_ );
     }
     else
     {
@@ -186,5 +186,3 @@ bool uiTutHorTools::acceptOK( CallBacker* )
 	saveData( smooth );
     return retval;
 }
-
-										

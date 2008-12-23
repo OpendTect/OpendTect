@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uituthortools.h,v 1.3 2007-06-08 06:18:32 cvsraman Exp $
+ * ID       : $Id: uituthortools.h,v 1.4 2008-12-23 13:53:37 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -28,7 +28,7 @@ public:
 protected:
 
     bool		initThicknessFinder();
-    bool                initHorSmoothener();
+    bool                initHorSmoother();
     void		saveData(bool);
     EM::Horizon3D*	loadHor(const IOObj*);
 
@@ -37,14 +37,14 @@ protected:
     CtxtIOObj&		outctio_;
 
     Tut::ThicknessFinder*	thickcalc_;
-    Tut::HorSmoothener*		smoothnr_;
+    Tut::HorSmoother*		smoother_;
 
     uiGenInput*		taskfld_;
     uiIOObjSel*		inpfld_;
     uiIOObjSel*         inpfld2_;
     uiGenInput*		selfld_;
     uiIOObjSel*		outfld_;
-    uiGenInput*		smoothfld_;
+    uiGenInput*		strengthfld_;
     uiGenInput*		attribnamefld_;
 
     void		choiceSel( CallBacker* );
