@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.12 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: conn.h,v 1.13 2008-12-23 11:02:29 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,8 +80,8 @@ public:
     void		close()
 			{ if ( conn_ ) conn_->close(); }
 
-    const char*		connType() const	{ return sType; }
-    static const char*	sType;
+    const char*		connType() const	{ return sType(); }
+    static const char*	sType()			{ return "X-Group"; }
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.24 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: executor.h,v 1.25 2008-12-23 11:02:29 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,6 @@ public:
     virtual		~Executor()			{}
 
     virtual int		doStep();
-
-    static const int	ErrorOccurred;		//!< -1
-    static const int	Finished;		//!< 0
-    static const int	MoreToDo;		//!< 1
-    static const int	WarningAvailable;	//!< 2
 
     virtual bool	execute(std::ostream* log=0,bool isfirst=true,
 	    			bool islast=true,int delaybetwnstepsinms=0);

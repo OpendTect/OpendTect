@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.13 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: task.h,v 1.14 2008-12-23 11:02:29 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,9 +75,10 @@ public:
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
-    static int	cMoreToDo()				{ return 1; }
-    static int	cFinished()				{ return 0; }
-    static int	cErrorOccurred()			{ return -1; }
+    static int	ErrorOccurred()				{ return -1; }
+    static int	Finished()				{ return 0; }
+    static int	MoreToDo()				{ return 1; }
+    static int	WarningAvailable()			{ return 2; }
 
     bool	execute();
 
