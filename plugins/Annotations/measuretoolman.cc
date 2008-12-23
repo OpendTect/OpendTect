@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: measuretoolman.cc,v 1.8 2008-12-22 12:31:04 cvsnageswara Exp $";
+static const char* rcsID = "$Id: measuretoolman.cc,v 1.9 2008-12-23 12:31:43 cvsnageswara Exp $";
 
 
 #include "measuretoolman.h"
@@ -31,7 +31,6 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     : appl_(appl)
     , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
     , measuredlg_(0)
-    , status_(false)		    
 {
     butidx_ = appl.menuMgr().coinTB()->addButton(
 	    "measure.png", mCB(this,MeasureToolMan,buttonClicked),
