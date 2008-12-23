@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.60 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.61 2008-12-23 09:51:33 cvsjaap Exp $";
 
 #include "uiiosurface.h"
 
@@ -234,6 +234,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     , colbut_(0)
     , stratlvlfld_(0)
 {
+    surfrange_.init( false );
+
     if ( setup.typ_ != EMHorizon2DTranslatorGroup::keyword )
     {
 	if ( setup.withsubsel_ )
@@ -276,23 +278,31 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 }
 
 
-uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
+uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf, 
 				const uiSurfaceWrite::Setup& setup )
     : uiIOSurface(p,false,setup.typ_)
     , displayfld_(0)
     , colbut_(0)
     , stratlvlfld_(0)
 {
+    surfrange_.init( false );
+
     if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword &&
 	 setup.typ_!=EMFaultStickSetTranslatorGroup::keyword &&
 	 setup.typ_!=EMFault3DTranslatorGroup::keyword &&
 	 setup.typ_!=polygonEMBodyTranslator::sKeyUserName() )
     {
-	if ( surf_.nrSections() > 1 )
+	if ( surf.nrSections() > 1 )
 	    mkSectionFld( false );
 
 	if ( setup.withsubsel_ )
+	{
     	    mkRangeFld();
+	    EM::SurfaceIOData sd;
+	    sd.use( surf );
+	    surfrange_ = sd.rg;
+	}
+
 	if ( sectionfld_ && rgfld_ )
 	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
@@ -311,7 +321,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
        displayfld_->setChecked( true );
     }
 
-    fillFields( surf_.multiID() );
+    fillFields( surf.multiID() );
 
     ioDataSelChg( 0 );
 }
@@ -361,14 +371,13 @@ Color uiSurfaceWrite::getColor() const
 void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 {
     bool issubsel = sectionfld_ &&
-		    sectionfld_->box()->size()!=sectionfld_->box()->nrSelected();
+		sectionfld_->box()->size()!=sectionfld_->box()->nrSelected();
 
-    if ( rgfld_ && !rgfld_->isAll() )
+    if ( !issubsel && rgfld_ && !rgfld_->isAll() )
     {
 	const HorSampling& hrg = rgfld_->envelope().hrg;
-	const HorSampling& maxhrg = SI().sampling(false).hrg;
-	issubsel = issubsel || hrg.inlRange()!=maxhrg.inlRange();
-	issubsel = issubsel || hrg.crlRange()!=maxhrg.crlRange();
+	issubsel = surfrange_.isEmpty() ? true :
+	    !hrg.includes(surfrange_.start) || !hrg.includes(surfrange_.stop);
     }
 
     if ( displayfld_ && issubsel )

@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.28 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:           $Id: uiiosurface.h,v 1.29 2008-12-23 09:51:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "horsampling.h"
 #include "uigroup.h"
 
 class BufferStringSet;
 class CtxtIOObj;
-class HorSampling;
 class IODirEntryList;
 class IOObj;
 class MultiID;
@@ -118,6 +118,7 @@ protected:
     uiCheckBox*		displayfld_;
     uiColorInput*       colbut_;
     uiStratLevelSel*    stratlvlfld_;
+    HorSampling		surfrange_;
 };
 
 
