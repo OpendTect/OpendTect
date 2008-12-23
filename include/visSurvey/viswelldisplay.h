@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.45 2008-12-19 16:08:58 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.46 2008-12-23 09:40:19 cvsbruno Exp $
 
 
 
@@ -93,8 +93,8 @@ public:
     	
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
-    void			setLogFillColor(const Color&,int,
-	    					    const char*,const bool);
+    void			setLogFillColor(const Color&,int, const char*
+	    					,const bool, const bool);
     const Color&		logFillColor(int) const;
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;

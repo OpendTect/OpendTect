@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.86 2008-12-19 16:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.87 2008-12-23 09:40:19 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -448,6 +448,7 @@ void WellDisplay::setOneLogDisplayed(bool yn)
     Color& lcolor = dpp( side.color_);\
     Color& seiscolor = dpp( side.seiscolor_);\
     bool isfilled = dpp(side.islogfill_);\
+    bool issinglefill = dpp(side.issinglecol_);\
     isdatarange = dpp(side.isdatarange_);\
     cliprate = dpp( side.cliprate_ );\
     if (iswelllog) \
@@ -459,7 +460,7 @@ void WellDisplay::setOneLogDisplayed(bool yn)
     well_->setLogFill( isfilled, lognr ); \
     setLogColor( lcolor, lognr ); \
     setLogLineWidth( dpp(side.size_), lognr );\
-    setLogFillColor( seiscolor, lognr, seqname, iswelllog );\
+    setLogFillColor( seiscolor, lognr, seqname, iswelllog, issinglefill );\
 }
 
 
@@ -500,11 +501,12 @@ const Color& WellDisplay::logColor( int lognr ) const
 
 
 void WellDisplay::setLogFillColor(const Color& color, int lognr, 
-				  const char* seqname, const bool isnoseismic )
+				  const char* seqname, const bool iswelllog, 
+				  const bool issinglecol)
 {
     Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
 					 : logparset_.getRight();
-    well_->setLogFillColorTab( seqname, lognr, color, isnoseismic ); 
+    well_->setLogFillColorTab( seqname, lognr, color, iswelllog, issinglecol ); 
 }
 
 

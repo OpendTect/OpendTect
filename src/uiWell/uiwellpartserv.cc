@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.35 2008-12-22 15:50:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.36 2008-12-23 09:40:19 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -96,15 +96,21 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     allapplied_ = false;
     Well::Data* wd = Well::MGR().get( mid );
     if ( !wd ) return false;
+
     uiWellDispPropDlg dlg( parent(), *wd );
     dlg.applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
-    bool rv = dlg.go();
+    bool rv = dlg.go(); 
+    //To remove in case propdlg show 
     if ( rv &&  dlg.savedefault_ == true )
     {
 	saveWellDispProps( allapplied_ ? 0 : wd );
 	wd->displayProperties().commitDefaults();
     }
+  
     return rv;
+    //uiWellDispPropDlg* propdlg = new uiWellDispPropDlg( parent(), *wd );
+    //propdlg->show();
+   // return true;
 }
 
 

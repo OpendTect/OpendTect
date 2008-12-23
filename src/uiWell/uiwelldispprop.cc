@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.9 2008-12-22 15:50:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.10 2008-12-23 09:40:19 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -143,6 +143,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     stylefld_->attach( alignedAbove, szfld_ );
     stylefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,
 	                                     isSeismicSel) );
+    stylefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,
+	                                     isStyleChanged) );
     stylefld_->valuechanged.notify( mCB(this,uiWellLogDispProperties,propChg) );
 
     rangefld_ = new uiGenInput( this, "data range",
@@ -269,7 +271,7 @@ void uiWellLogDispProperties::doPutToScreen()
     }
     repeatfld_->setValue( logprops().repeat_ );
     ovlapfld_->setValue( logprops().repeatovlap_);
-    seiscolorfld_->setColor( logprops().seiscolor_);
+    seiscolorfld_->setColor( logprops().seiscolor_ );
     filllogsfld_-> box() -> setText( logprops().fillname_ );
     singlfillcolfld_ -> setChecked(logprops().issinglecol_); 
 }
@@ -312,7 +314,7 @@ void uiWellLogDispProperties::isRepeatSel( CallBacker* )
     const bool isrepeat = ( repeatfld_-> isChecked()
 	    				 && repeatfld_->getIntValue() > 0 );
     const bool iswelllog = stylefld_->getBoolValue();
-    if (iswelllog)
+    if ( iswelllog )
     {
 	repeatfld_-> setValue( 1 );
         ovlapfld_-> setValue( 50 );
@@ -331,6 +333,12 @@ void uiWellLogDispProperties::isSeismicSel( CallBacker* )
     BufferString str = "Select ";
     str += "filling color";
     isFilledSel(0);
+}
+
+
+void uiWellLogDispProperties::isStyleChanged( CallBacker* )
+{
+	seiscolorfld_->setColor( Color::White );
 }
 
 

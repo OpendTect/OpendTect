@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.37 2008-12-19 16:08:58 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.38 2008-12-23 09:40:19 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -489,7 +489,8 @@ const Color& Well::logColor( int lognr ) const
 
 
 void Well::setLogFillColorTab( const char* seqname, int lognr,
-			       const Color& color, const bool isnoseismic )
+			       const Color& color, const bool iswelllog,
+       				const bool issinglecol	)
 {
 #define scolors2f(rgb) float(color.rgb())/255
 #define colors2f(rgb) float(Col.rgb())/255
@@ -503,7 +504,7 @@ void Well::setLogFillColorTab( const char* seqname, int lognr,
 
     for (int i=0; i<256; i++ )
     {
-	if ( (!isnoseismic) )
+	if ( (!iswelllog || ( iswelllog && issinglecol )) )
 	{
 	    colors[i][0] = scolors2f(r);
 	    colors[i][1] = scolors2f(g);

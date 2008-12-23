@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.7 2008-12-22 15:50:49 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.8 2008-12-23 09:40:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,7 @@ protected:
     void                isFilledSel(CallBacker*);
     void 		isRepeatSel(CallBacker*);
     void 		isSeismicSel(CallBacker*);
+    void 		isStyleChanged(CallBacker*);
     void 		recoverProp();
     void 		choiceSel(CallBacker*);
     void 		setRangeFields(Interval<float>&);
@@ -133,6 +134,7 @@ protected:
     void 		updateRange(CallBacker*);
     void 		updateFillRange(CallBacker*);
     void 		calcLogValueRange();
+//    void 		calcRange(const char*, Interval<float>);
     void 		calcFillLogValueRange();
     void  		setFldSensitive(bool);
     void 		logSel(CallBacker*);
@@ -151,7 +153,7 @@ protected:
     uiCheckBox*         logfillfld_;
     uiCheckBox*         singlfillcolfld_;
     uiComboBox*         coltablistfld_;
-    uiColorInput*       seiscolorfld_;
+    uiColorInput*	seiscolorfld_;
 
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.21 2008-12-19 16:08:58 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.22 2008-12-23 09:40:19 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,8 @@ public:
     void 			setTrackProperties(Color&,int);
 
     void			setLogFillColorTab(const char*,int,
-	    					   const Color&,const bool);
+	    					   const Color&,const bool,
+						   const bool);
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
 
