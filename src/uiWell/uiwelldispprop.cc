@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.11 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.12 2008-12-23 12:37:33 cvsdgb Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -338,7 +338,7 @@ void uiWellLogDispProperties::isSeismicSel( CallBacker* )
 
 void uiWellLogDispProperties::isStyleChanged( CallBacker* )
 {
-	seiscolorfld_->setColor( Color::White );
+	seiscolorfld_->setColor( Color::White() );
 }
 
 
