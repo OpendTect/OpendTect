@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.12 2008-12-23 12:37:33 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.13 2008-12-24 06:00:14 cvsnanne Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -304,7 +304,7 @@ void uiWellLogDispProperties::isFilledSel( CallBacker* )
     const bool issinglecol = singlfillcolfld_->isChecked();
     singlfillcolfld_->display( isfilled && iswelllog);
     coltablistfld_->display( iswelllog &&  isfilled && !issinglecol );
-    seiscolorfld_->display(  !iswelllog || issinglecol && isfilled );
+    seiscolorfld_->display( !iswelllog || (issinglecol && isfilled) );
     filllogsfld_->display( iswelllog &&  isfilled && !issinglecol );
 }
 
@@ -363,7 +363,7 @@ void uiWellLogDispProperties::logSel( CallBacker* )
     setFieldVals( false );
     BufferString fillname = filllogsfld_->box()->text();
     if ( mIsUdf(fillvaluerange_.start) || mIsUdf(fillvaluerange_.stop) ||
-	    fillvaluerange_.start == 0 && fillvaluerange_.stop == 0 )
+	    (fillvaluerange_.start == 0 && fillvaluerange_.stop == 0) )
     {
 	filllogsfld_-> box() -> setText( logsfld_->box() -> text() );
     }
