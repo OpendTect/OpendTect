@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.37 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.38 2008-12-24 08:41:16 cvsnanne Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -102,8 +102,6 @@ uiSeisBrowser::~uiSeisBrowser()
     delete &tbufbefore_;
     delete &tbufafter_;
     delete &ctrc_;
-
-    delete strcbufview_;
 }
 
 
@@ -176,15 +174,13 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
 void uiSeisBrowser::createMenuAndToolBar()
 {
     uitb_ = new uiToolBar( this, "Tool Bar" );
-    mAddButton("gotopos.png",goToPush,"",false );
-    mAddButton("info.png",infoPush,"",false );
-    if (!is2d_ )
-    {
-	crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true );
-    }
-    mAddButton("leftarrow.png",leftArrowPush,"",false );
-    mAddButton("rightarrow.png",rightArrowPush,"",false );
-    showwgglbutidx_ = mAddButton("viewflat.png",showWigglePush,"",false );
+    mAddButton("gotopos.png",goToPush,"",false);
+    mAddButton("info.png",infoPush,"",false);
+    if ( !is2d_ )
+	crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true);
+    mAddButton("leftarrow.png",leftArrowPush,"",false);
+    mAddButton("rightarrow.png",rightArrowPush,"",false);
+    showwgglbutidx_ = mAddButton("viewflat.png",showWigglePush,"",false);
 }
 
 
@@ -429,7 +425,7 @@ void uiSeisBrowser::goToPush( CallBacker* cb )
 	    trcselectionChanged( cb );
     }
     setTrcBufViewTitle();
-    if (strcbufview_)
+    if ( strcbufview_ )
         strcbufview_->handleBufChange();
 }
 
@@ -439,7 +435,7 @@ void uiSeisBrowser::rightArrowPush( CallBacker* cb )
     if ( !goTo( getNextBid(curBinID(),stepout_,false) ) )
 	return;
     setTrcBufViewTitle();
-    if (strcbufview_)
+    if ( strcbufview_ )
 	strcbufview_->handleBufChange();
     trcselectionChanged( cb );
 }
@@ -450,7 +446,7 @@ void uiSeisBrowser::leftArrowPush( CallBacker* cb )
     if ( !goTo( getNextBid(curBinID(),stepout_,true) ) )
 	return;
     setTrcBufViewTitle();
-    if (strcbufview_)
+    if ( strcbufview_ )
 	strcbufview_->handleBufChange();
     trcselectionChanged( cb );
 }
@@ -671,12 +667,13 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 void uiSeisBrowser::updateWiggleButtonStatus()
 {
     const bool turnon = !strcbufview_ || strcbufview_->isHidden();
-    uitb_->turnOn( showwgglbutidx_, turnon );
+    uitb_->turnOn( showwgglbutidx_, !turnon );
 }
 
 
 void uiSeisBrowser::trcbufViewerClosed( CallBacker* )
 {
+    strcbufview_ = 0;
     updateWiggleButtonStatus();
 }
 
