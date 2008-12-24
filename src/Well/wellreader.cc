@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.30 2008-12-24 12:28:13 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.31 2008-12-24 15:28:46 cvsjaap Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -376,7 +376,7 @@ void Well::Reader::readLogData( Well::Log& wl, std::istream& strm,
 	else
 	{
 	    strm.read( (char*)v, 2 * sizeof(float) );
-	    if ( bintype > 0 != __islittle__ )
+	    if ( (bintype > 0) != __islittle__ )
 	    {
 		SwapBytes( v, sizeof(float) );
 		SwapBytes( v+1, sizeof(float) );
