@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: sighndl.h,v 1.10 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:           $Id: sighndl.h,v 1.11 2008-12-24 12:45:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
 
-namespace DBG { void forceCrash(bool); }
+namespace DBG { mGlobal void forceCrash(bool); }
 
 /*!\brief asynchronous event handling and notification. */
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.9 2008-01-08 11:53:52 cvsbert Exp $
+ RCS:		$Id: strmoper.h,v 1.10 2008-12-24 12:47:14 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -22,12 +22,12 @@ class BufferString;
 namespace StrmOper
 {
 
-    bool	readBlock(std::istream&,void*,unsigned int nrbytes);
-    bool	writeBlock(std::ostream&,const void*,unsigned int nrbytes);
+    mGlobal bool readBlock(std::istream&,void*,unsigned int nrbytes);
+    mGlobal bool writeBlock(std::ostream&,const void*,unsigned int nrbytes);
 
-    bool	getNextChar(std::istream&,char&);
-    bool	wordFromLine(std::istream&,char*,int maxnrchars);
-    bool	readLine(std::istream&,BufferString* b=0);
+    mGlobal bool getNextChar(std::istream&,char&);
+    mGlobal bool wordFromLine(std::istream&,char*,int maxnrchars);
+    mGlobal bool readLine(std::istream&,BufferString* b=0);
 
 }
 
