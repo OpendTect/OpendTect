@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.13 2008-09-22 13:17:03 cvskris Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.14 2008-12-24 04:49:49 cvsraman Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -114,14 +114,14 @@ od_int64	totalNr() const		{ return totnr_; }
 int nextStep()
 {
     if ( !dl_ )
-	return Executor::ErrorOccurred;
+	return ErrorOccurred();
     if ( curnr_ >= totnr_ )
-	return Executor::Finished;
+	return Finished();
 
     pi_.addEntry( dl_->fullPath(curnr_) );
     curnr_++;
 
-    return curnr_ >= totnr_ ? Executor::Finished : Executor::MoreToDo;
+    return curnr_ >= totnr_ ? Finished() : MoreToDo();
 }
 
     ODMad::ProgInfo&	pi_;
