@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.4 2008-10-13 05:22:31 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.5 2008-12-24 08:02:16 cvsdgb Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -168,7 +168,7 @@ int nextStep()
     }
 
     dps_.dataChanged();
-    return MoreToDo;
+    return MoreToDo();
 }
 
 int finishWork()
@@ -177,9 +177,9 @@ int finishWork()
     if ( dps_.isEmpty() )
     {
 	msg_ = "No thickness values collected";
-	return ErrorOccurred;
+	return ErrorOccurred();
     }
-    return Finished;
+    return Finished();
 }
 
     const EM::Horizon3D& hor1_;

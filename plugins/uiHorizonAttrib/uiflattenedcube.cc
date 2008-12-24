@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.5 2008-09-22 13:17:03 cvskris Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.6 2008-12-24 08:02:16 cvsdgb Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -138,7 +138,10 @@ od_int64 totalNr() const	{ return totnr_; }
 int nextStep()
 {
     if ( !rdr_.get(intrc_) )
-	{ msg_ = rdr_.errMsg(); return msg_.isEmpty() ? Finished:ErrorOccurred; }
+    {
+	msg_ = rdr_.errMsg();
+	return msg_.isEmpty() ? Finished() : ErrorOccurred();
+    }
 
     if ( outtrc_.size() < 1 )
     {
@@ -160,18 +163,18 @@ int nextStep()
     outtrc_.info().refpos = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
     {
-    for ( int isamp=0; isamp<outtrc_.size(); isamp++ )
-    {
-	const float z = outtrc_.samplePos( isamp ) - zval_ + horz;
-	outtrc_.set( isamp, intrc_.getValue(z,icomp), icomp );
-    }
+	for ( int isamp=0; isamp<outtrc_.size(); isamp++ )
+	{
+	    const float z = outtrc_.samplePos( isamp ) - zval_ + horz;
+	    outtrc_.set( isamp, intrc_.getValue(z,icomp), icomp );
+	}
     }
 
     if ( !wrr_.put(outtrc_) )
-	{ msg_ = wrr_.errMsg(); return ErrorOccurred; }
+	{ msg_ = wrr_.errMsg(); return ErrorOccurred(); }
 
     nrdone_++;
-    return MoreToDo;
+    return MoreToDo();
 }
 
     SeisTrcReader&	rdr_;
