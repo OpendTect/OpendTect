@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.8 2008-12-23 09:40:19 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.9 2008-12-24 15:58:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,9 +133,7 @@ protected:
     void 		setFillRangeFields(Interval<float>&);
     void 		updateRange(CallBacker*);
     void 		updateFillRange(CallBacker*);
-    void 		calcLogValueRange();
-//    void 		calcRange(const char*, Interval<float>);
-    void 		calcFillLogValueRange();
+    void 		calcRange(const char*, Interval<float>&);
     void  		setFldSensitive(bool);
     void 		logSel(CallBacker*);
     void 		selNone();

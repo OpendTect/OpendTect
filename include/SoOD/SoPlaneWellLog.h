@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.14 2008-12-19 16:08:58 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.15 2008-12-24 15:58:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,8 @@ public:
     bool 		        getLogStyle() const;
     void			setShift(float,int);
     void   			setLogFill(bool,int);
+    void   			setLogFillTransparency(int);
+    void   			setLineTransparency(int);
     void 			setFillLogValue(int,const SbVec3f&,
 	                                        float,int);
 
@@ -93,6 +95,7 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(lineshape2);
     SO_KIT_CATALOG_ENTRY_HEADER(line1Switch);
     SO_KIT_CATALOG_ENTRY_HEADER(group1);
+    SO_KIT_CATALOG_ENTRY_HEADER(linematerial1);
     SO_KIT_CATALOG_ENTRY_HEADER(col1);
     SO_KIT_CATALOG_ENTRY_HEADER(coltri1);
     SO_KIT_CATALOG_ENTRY_HEADER(drawstyle1);
@@ -103,9 +106,12 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(triset1);
     SO_KIT_CATALOG_ENTRY_HEADER(material1);
     SO_KIT_CATALOG_ENTRY_HEADER(mbinding1);
+    SO_KIT_CATALOG_ENTRY_HEADER(linembinding1);
     SO_KIT_CATALOG_ENTRY_HEADER(hints1);
+    SO_KIT_CATALOG_ENTRY_HEADER(linehints1);
     SO_KIT_CATALOG_ENTRY_HEADER(line2Switch);
     SO_KIT_CATALOG_ENTRY_HEADER(group2);
+    SO_KIT_CATALOG_ENTRY_HEADER(linematerial2);
     SO_KIT_CATALOG_ENTRY_HEADER(col2);
     SO_KIT_CATALOG_ENTRY_HEADER(drawstyle2);
     SO_KIT_CATALOG_ENTRY_HEADER(coords2);
@@ -116,6 +122,8 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(material2);
     SO_KIT_CATALOG_ENTRY_HEADER(mbinding2);
     SO_KIT_CATALOG_ENTRY_HEADER(hints2);
+    SO_KIT_CATALOG_ENTRY_HEADER(linembinding2);
+    SO_KIT_CATALOG_ENTRY_HEADER(linehints2);
 
     void			GLRender(SoGLRenderAction*);
 
@@ -134,6 +142,8 @@ protected:
     
     
     void			buildLog(int,const SbVec3f&,int);
+    void			buildSimpleLog(int,const SbVec3f&,int);
+    void			buildFilledLog(int,const SbVec3f&,int);
     void			fillTriangles(const int, const bool,float,float,
 	   				      SoCoordinate3*,SbVec3f&,SbVec3f&);
     void			fillLogTriangles(const float,const int, float,

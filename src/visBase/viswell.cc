@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.38 2008-12-23 09:40:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.39 2008-12-24 15:58:12 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: viswell.cc,v 1.38 2008-12-23 09:40:19 cvsbruno 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoFaceSet.h>
+#include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoSwitch.h>
 
 mCreateFactoryEntry( visBase::Well );
@@ -173,11 +174,13 @@ const LineStyle& Well::lineStyle() const
     well##post##txt->setJustification( Text::Center ); 
 
 
-void Well::setWellName( const char* nm, Coord3 toppos, 
-					Coord3 botpos)
+void Well::setWellName( const char* nm, Coord3 toppos, Coord3 botpos,
+       				bool isnameabove, bool isnamebelow )
 {
-    msetWellName( nm, toppos, top );
-    msetWellName( nm, botpos, bot );
+    if (isnameabove)
+	msetWellName( nm, toppos, top );
+    if (isnamebelow)
+	msetWellName( nm, botpos, bot );
 }
 
 
@@ -197,7 +200,8 @@ bool Well::wellBotNameShown() const
 { return wellbottxt->isOn(); }
 
 
-void Well::addMarker( const Coord3& pos, const Color& color, const char* nm ) 
+void Well::addMarker( const Coord3& pos, const Color& color,
+       				const char* nm, bool issquare ) 
 {
     Marker* marker = Marker::create();
 
@@ -205,12 +209,23 @@ void Well::addMarker( const Coord3& pos, const Color& color, const char* nm )
     markershapesep->ref();
     SoCoordinate3* markercoords= new SoCoordinate3;
     markershapesep->addChild(markercoords);
-    markercoords->point.set1Value(0,-1,-1,0);
-    markercoords->point.set1Value(1,-1, 1,0);
-    markercoords->point.set1Value(2, 1, 1,0);
-    markercoords->point.set1Value(3, 1,-1,0);
-    SoFaceSet* markershape = new SoFaceSet;
-    markershape->numVertices.setValue(4);
+	
+	markercoords->point.set1Value(0,-1,-1,0);
+	markercoords->point.set1Value(1,-1, 1,0);
+	markercoords->point.set1Value(2, 1, 1,0);
+	markercoords->point.set1Value(3, 1,-1,0);
+	SoFaceSet* markershape = new SoFaceSet;
+	markershape->numVertices.setValue(4);
+    /*
+    if ( issquare )
+    {
+    }
+    else
+    {
+	SoSphere* markershape = new SoSphere;
+	markershape->radius(2);
+    }
+    */
     markershapesep->addChild(markershape);
 
     marker->setMarkerShape(markershapesep);
@@ -289,59 +304,70 @@ bool Well::markerNameShown() const
 { return markernmswitch->whichChild.getValue()==0; }
 
 
-void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
-		       const Interval<float>& range, bool sclog, int lognr )
+
+void Well::initializeData( int lognr, const Interval<float>& range,
+	                                        float& step, int& nrsamp )
 {
-    int nrsamp = crdvals.size();
-    float step = 1;
+    step = 1;
     if ( nrsamp > sMaxNrLogSamples )
     {
 	step = (float)nrsamp / sMaxNrLogSamples;
 	nrsamp = sMaxNrLogSamples;
     }
-
-    float prevval = 0;
     const bool rev = range.start > range.stop;
     for ( int i=0; i<log.size(); i++ )
-    {   
-        log[i]->setRevScale( rev, lognr );
-       // log[i]->clearLog( lognr );
+	log[i]->setRevScale( rev, lognr );
+}
+
+void Well::setSampleData( const TypeSet<Coord3Value>& crdvals,int idx,
+			  int nrsamp, float step, Coord3& pos,
+			  bool sclog, float prevval, int lognr
+			  ,const LinScaler& scaler, float& val)
+{
+    int index = mNINT(idx*step);
+    const Coord3Value& cv = crdvals[index];
+    pos = cv.coord ;
+    if ( transformation )
+	pos = transformation->transform( pos );
+    if ( mIsUdf(pos.z) ) return;
+	val = scaler.scale( cv.value );
+    if ( mIsUdf(val) )
+	val = 150;
+    else if ( val < 0 )
+	val = 0;
+    else if ( val > 100 )
+	val = 100;
+
+    if ( sclog )
+    {
+    val += 1;
+    val = ::log( val );
     }
+}
+
+
+void Well::setLogData( const TypeSet<Coord3Value>& crdvals, const char* lognm,
+		       const Interval<float>& range, bool sclog, int lognr )
+{
+    int nrsamp = crdvals.size();
+    float step;
+    initializeData( lognr, range, step, nrsamp );
     Interval<float> rg = range; rg.sort();
     LinScaler scaler( rg.start, 0, rg.stop, 100 );
+    Coord3 pos;
+    float val;
+    float prevval = 0;
+
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	int index = mNINT(idx*step);
-	const Coord3Value& cv = crdvals[index];
-	Coord3 pos( cv.coord );
-	if ( transformation )
-	    pos = transformation->transform( pos );
-	if ( mIsUdf(pos.z) ) continue;
+	setSampleData( crdvals, idx, nrsamp, step, pos, sclog,
+			prevval, lognr, scaler, val );
 
-	float val = scaler.scale( cv.value );
-	if ( mIsUdf(val) )
-	    val = prevval;
-	else if ( val < 0 )
-	    val = 0;
-	else if ( val > 100 )
-	    val = 100;
-
-	if ( sclog )
-	{
-	    val += 1;
-	    val = ::log( val );
-	}
-       
-
-    	for ( int i=0; i<log.size(); i++ )
-    	{   
-	    log[i]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z),
-				      val, lognr );
-	}
+	for ( int i=0; i<log.size(); i++ )
+	    log[i]->setLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
 	prevval = val;
     }
-
-    showLog( true, lognr );
+	showLog( true, lognr );
 }
 
 
@@ -350,51 +376,21 @@ void Well::setFillLogData( const TypeSet<Coord3Value>& crdvals,
        			bool sclog, int lognr )
 {
     int nrsamp = crdvals.size();
-    float step = 1;
-    if ( nrsamp > sMaxNrLogSamples )
-    {
-	step = (float)nrsamp / sMaxNrLogSamples;
-	nrsamp = sMaxNrLogSamples;
-    }
-
-    float prevval = 0;
-    const bool rev = range.start > range.stop;
-    for ( int i=0; i<log.size(); i++ )
-    {   
-        log[i]->setRevScale( rev, lognr );
-       // log[i]->clearLog( lognr );
-    }
+    float step;
+    initializeData( lognr, range, step, nrsamp );
     Interval<float> rg = range; rg.sort();
     LinScaler scaler( rg.start, 0, rg.stop, 100 );
+    Coord3 pos;
+    float val;
+    float prevval = 0;
+
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	int index = mNINT(idx*step);
-	const Coord3Value& cv = crdvals[index];
-	Coord3 pos( cv.coord );
-	if ( transformation )
-	    pos = transformation->transform( pos );
-	if ( mIsUdf(pos.z) ) continue;
+	setSampleData( crdvals, idx, nrsamp, step, pos, sclog,
+			prevval, lognr, scaler, val );
 
-	float val = scaler.scale( cv.value );
-	if ( mIsUdf(val) )
-	    val = prevval;
-	else if ( val < 0 )
-	    val = 0;
-	else if ( val > 100 )
-	    val = 100;
-
-	if ( sclog )
-	{
-	    val += 1;
-	    val = ::log( val );
-	}
-       
-
-    	for ( int i=0; i<log.size(); i++ )
-    	{   
-	    log[i]->setFillLogValue( idx, SbVec3f(pos.x,pos.y,pos.z),
-				      val, lognr );
-	}
+	for ( int i=0; i<log.size(); i++ )
+	    log[i]->setFillLogValue( idx, SbVec3f(pos.x,pos.y,pos.z), val, lognr );
 	prevval = val;
     }
 }
@@ -495,7 +491,7 @@ void Well::setLogFillColorTab( const char* seqname, int lognr,
 #define scolors2f(rgb) float(color.rgb())/255
 #define colors2f(rgb) float(Col.rgb())/255
 	
-    float colors[256][3];
+    float colors[257][3];
     int idx= ColTab::SM().indexOf(seqname);
     if (idx<0 || mIsUdf(idx))
 	idx=0;
@@ -518,6 +514,10 @@ void Well::setLogFillColorTab( const char* seqname, int lognr,
 	    colors[i][2] = colors2f(b);
 	}
     }
+	    colors[256][0] = 0;
+	    colors[256][1] = 0;
+	    colors[256][2] = 0;
+
     for ( int i=0; i<log.size(); i++ )
 	log[i]->setLogFillColorTab( colors, lognr );
 }

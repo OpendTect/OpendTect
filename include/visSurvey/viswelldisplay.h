@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.46 2008-12-23 09:40:19 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.47 2008-12-24 15:58:12 cvsbruno Exp $
 
 
 
@@ -77,6 +77,9 @@ public:
     void			setMarkerScreenSize(int);
     int				markerScreenSize() const;
     
+    void 			setWellData( const int, TypeSet<Coord3Value>&,
+	                           Interval<float>*, Interval<float>&,
+				   bool&, Well::Log& );
     void			createLogDisplay(int,Interval<float>*,bool,int);
     void			createFillLogDisplay(int,Interval<float>*,
 	    							bool,int);

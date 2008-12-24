@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.87 2008-12-23 09:40:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.88 2008-12-24 15:58:12 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -128,7 +128,8 @@ void WellDisplay::fullRedraw( CallBacker* )
     Color& tcolor = dpp(track_.color_);
     int twidth = dpp(track_.size_);
     well_->setTrackProperties( tcolor, twidth );
-    well_->setWellName( wd->name(), trackpos[0], trackpos[trackpos.size()-1] );
+    well_->setWellName( wd->name(), trackpos[0], trackpos[trackpos.size()-1],
+	   		 dpp( track_.dispabove_), dpp( track_.dispbelow_) ); 
     updateMarkers(0);
    
     BufferString leftname = dpp( left_.name_ );  
@@ -242,7 +243,8 @@ void WellDisplay::updateMarkers( CallBacker* )
 
 	well_->markersize = dpp(markers_.size_);
 	Color& mcolor = dpp(markers_.color_);
-	well_->addMarker( pos, mcolor, wellmarker->name() );
+	bool issquare = !(dpp( markers_.circular_ ));
+	well_->addMarker( pos, mcolor, wellmarker->name(), issquare );
     }
 }
 
@@ -275,19 +277,18 @@ mShowFunction( showMarkerName, markerNameShown )
 mShowFunction( showLogName, logNameShown )
      
 
-void WellDisplay::createLogDisplay( int logidx, Interval<float>* range,
-			            bool logrthm, int lognr)
-{
+
+void WellDisplay::setWellData( const int logidx, TypeSet<Coord3Value>& crdvals, 			      Interval<float>* range, Interval<float>& selrange			       	      ,bool& logrthm, Well::Log& wl )
+{ 
     if ( logidx < 0 ) { pErrMsg("Logidx < 0"); return;}
     Well::Data* wd = Well::MGR().get( wellid_ );
     if ( !wd || wd->logs().isEmpty() ) return;
 
-    Well::Log& wl = wd->logs().getLog( logidx );
+    wl = wd->logs().getLog( logidx );
     if ( wl.isEmpty() ) return;
     const int logsz = wl.size();
   
     const Well::Track& track = wd->track();
-    TypeSet<Coord3Value> crdvals;
 
     for ( int idx=0; idx<logsz; idx++ )
     {
@@ -304,49 +305,30 @@ void WellDisplay::createLogDisplay( int logidx, Interval<float>* range,
 	crdvals += cv;
      }
 
-    Interval<float> selrange( Interval<float>().setFrom(
+     selrange = ( Interval<float>().setFrom(
 		range ? *range : wl.selValueRange() ) );
     if ( !range )
 	logrthm = wl.dispLogarithmic();
-   
-    well_->setLogData( crdvals, wl.name(), selrange, logrthm, lognr );
 }
 
+
+void WellDisplay::createLogDisplay( int logidx, Interval<float>* range,
+			            bool logrthm, int lognr)
+{
+    Interval<float> selrange;
+    TypeSet<Coord3Value> crdvals;
+    Well::Log wl;
+    setWellData( logidx, crdvals, range, selrange, logrthm, wl);
+    well_->setLogData( crdvals, wl.name(), selrange, logrthm, lognr );
+}
 
 void WellDisplay::createFillLogDisplay( int logidx, Interval<float>* range,
 			            bool logrthm, int lognr)
 {
-    if ( logidx < 0 ) { pErrMsg("Logidx < 0"); return;}
-    Well::Data* wd = Well::MGR().get( wellid_ );
-    if ( !wd || wd->logs().isEmpty() ) return;
-
-    Well::Log& wl = wd->logs().getLog( logidx );
-    if ( wl.isEmpty() ) return;
-    const int logsz = wl.size();
-  
-    const Well::Track& track = wd->track();
+    Interval<float> selrange;
     TypeSet<Coord3Value> crdvals;
-
-    for ( int idx=0; idx<logsz; idx++ )
-    {
-	const float dah = wl.dah(idx);
-	Coord3 pos = track.getPos( dah );
-	if ( !pos.x && !pos.y && !pos.z ) continue;
-
-	if ( zistime_ )
-	    pos.z = wd->d2TModel()->getTime( dah );
-	else if ( zinfeet_ )
-	    mMeter2Feet(pos.z)
-	
-	Coord3Value cv( pos, wl.value(idx) );
-	crdvals += cv;
-     }
-
-    Interval<float> selrange( Interval<float>().setFrom(
-		range ? *range : wl.selValueRange() ) );
-    if ( !range )
-	logrthm = wl.dispLogarithmic();
-   
+    Well::Log wl;
+    setWellData( logidx, crdvals, range, selrange, logrthm, wl ) ;
     well_->setFillLogData( crdvals, wl.name(), selrange, logrthm, lognr );
 }
 

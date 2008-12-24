@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.13 2008-12-24 06:00:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.14 2008-12-24 15:58:12 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -223,7 +223,6 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
     BufferString selfilllbl( "Select log for filling color scale" );
     filllogsfld_ = new uiLabeledComboBox( this, selfilllbl );
-  //  filllogsfld_->box()->addItem("None");
     filllogsfld_->box()->addItems( lognames );
     filllogsfld_->attach( alignedBelow, coltablistfld_ );
     filllogsfld_->box()->selectionChanged.notify( mCB(this, 
@@ -427,7 +426,6 @@ void uiWellLogDispProperties::setFieldVals( bool def )
 }
 
 
-
 void uiWellLogDispProperties::updateRange( CallBacker* )
 {
 	const char* lognm = logsfld_->box()->textOfItem(
@@ -442,7 +440,7 @@ void uiWellLogDispProperties::updateRange( CallBacker* )
 	propChanged.trigger();
 	return;
 
-    calcLogValueRange();
+    calcRange( lognm, valuerange_ );
 
     if ( mIsUdf(valuerange_.start) || mIsUdf(valuerange_.stop) )
 	valuerange_.set(0,0);
@@ -461,7 +459,7 @@ void uiWellLogDispProperties::updateFillRange( CallBacker* )
 	if ( logno < 0 )
 	return;
 
-    calcFillLogValueRange();
+    calcRange( lognm, fillvaluerange_ );
 
     if ( mIsUdf(fillvaluerange_.start) || mIsUdf(fillvaluerange_.stop) )
 	fillvaluerange_.set(0,0);
@@ -472,53 +470,14 @@ void uiWellLogDispProperties::updateFillRange( CallBacker* )
 }
 
 
-void uiWellLogDispProperties::calcLogValueRange( )
-{
-    valuerange_.set( mUdf(float), -mUdf(float) );
-    const char* lognm =  logsfld_->box()->textOfItem(
-	                    logsfld_->box()->currentItem() ); 
-    for ( int idy=0; idy<wl_->size(); idy++ )
-    {
-	if ( !strcmp(lognm, wl_->getLog(idy).name()) )
-	{
-	    const int logno = wl_->indexOf( lognm );
-	    Interval<float> range = wl_->getLog(logno).valueRange();
-	    if ( valuerange_.start > range.start )
-	    valuerange_.start = range.start;
-	    if ( valuerange_.stop < range.stop )
-	    valuerange_.stop = range.stop;
-	}
-    }
-}
 
-
-void uiWellLogDispProperties::calcFillLogValueRange( )
-{
-    fillvaluerange_.set( mUdf(float), -mUdf(float) );
-    const char* lognm =  filllogsfld_->box()->textOfItem(
-	                    filllogsfld_->box()->currentItem() ); 
-    for ( int idy=0; idy<wl_->size(); idy++ )
-    {
-	if ( !strcmp(lognm,wl_->getLog(idy).name()) )
-	{
-	    const int logno = wl_->indexOf( lognm );
-	    Interval<float> range = wl_->getLog(logno).valueRange();
-	    if ( fillvaluerange_.start > range.start )
-		fillvaluerange_.start = range.start;
-	    if ( fillvaluerange_.stop < range.stop )
-		fillvaluerange_.stop = range.stop;
-	}
-    }
-}
-
-/*
 void uiWellLogDispProperties::calcRange( const char* lognm,
-       					        	Interval<float> valr )
+       					        	Interval<float>& valr )
 {
     valr.set( mUdf(float), -mUdf(float) );
     for ( int idy=0; idy<wl_->size(); idy++ )
     {
-	if ( !strcmp(lognm,wl_->getLog(idy).name()) )
+	if ( !strcmp(lognm, wl_->getLog(idy).name()) )
 	{
 	    const int logno = wl_->indexOf( lognm );
 	    Interval<float> range = wl_->getLog(logno).valueRange();
@@ -529,4 +488,4 @@ void uiWellLogDispProperties::calcRange( const char* lognm,
 	}
     }
 }
-*/
+

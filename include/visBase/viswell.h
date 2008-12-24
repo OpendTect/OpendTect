@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.22 2008-12-23 09:40:19 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.23 2008-12-24 15:58:12 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "visobject.h"
+#include "scaler.h"
 
 class Color;
 class Coord3;
@@ -49,14 +50,14 @@ public:
     void			setLineStyle(const LineStyle&);
     const LineStyle&		lineStyle() const;
 
-    void			setWellName(const char*,Coord3,Coord3);
+    void			setWellName(const char*,Coord3,Coord3,bool,bool);
     void			showWellTopName(bool);
     void			showWellBotName(bool);
     bool			wellTopNameShown() const;
     bool			wellBotNameShown() const;
 
     void			addMarker(const Coord3&,const Color&,
-	    				  const char*);
+	    				  const char*,bool);
     void			removeAllMarkers();
     void			setMarkerScreenSize(int);
     int				markerScreenSize() const;
@@ -66,10 +67,14 @@ public:
     void			showMarkerName(bool);
     bool			markerNameShown() const;
 
+    void 			initializeData(int,const Interval<float>&,
+	    						float&,int&);
+    void 			setSampleData(const TypeSet<Coord3Value>&,
+	    				      int, int,float,Coord3&,bool,float,
+					      int,const LinScaler&,float&);
     void			setLogData(const TypeSet<Coord3Value>&,
-	    			           const char* lognm,
-					   const Interval<float>& rg,
-					   bool scale,int nr);
+	    			           const char*,const Interval<float>&,
+					   bool,int);
     void			setFillLogData(const TypeSet<Coord3Value>&,
 	    			           const char* lognm,
 					   const Interval<float>& rg,
