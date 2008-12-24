@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: stratamp.cc,v 1.4 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: stratamp.cc,v 1.5 2008-12-24 06:42:55 cvsdgb Exp $";
 
 #include "stratamp.h"
 
@@ -70,15 +70,15 @@ int StratAmpCalc::init( const char* attribnm, bool addtotop )
 int StratAmpCalc::nextStep()
 {
     if ( !rdr_ || !tophorizon_ || dataidx_<0 )
-	return Executor::ErrorOccurred;
+	return Executor::ErrorOccurred();
 
     SeisTrc trc;
     const int rv = rdr_->get( trc.info() );
-    if ( rv == 0 ) return Executor::Finished;
-    else if ( rv == -1 ) return Executor::ErrorOccurred;
+    if ( rv == 0 ) return Executor::Finished();
+    else if ( rv == -1 ) return Executor::ErrorOccurred();
 
     const BinID bid = trc.info().binid;
-    if ( !rdr_->get(trc) ) return Executor::ErrorOccurred;
+    if ( !rdr_->get(trc) ) return Executor::ErrorOccurred();
 
     const EM::SubID subid = bid.getSerialized();
     float z1 = tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
@@ -119,5 +119,5 @@ int StratAmpCalc::nextStep()
     posid_.setSubID( subid );
     addtohor_->auxdata.setAuxDataVal( dataidx_, posid_, outval );
     nrdone_++;
-    return Executor::MoreToDo;
+    return Executor::MoreToDo();
 }
