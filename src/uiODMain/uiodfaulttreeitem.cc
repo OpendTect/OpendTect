@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.20 2008-12-18 09:51:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.21 2008-12-24 13:19:11 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -209,7 +209,7 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
 	return;
 
     mAddMenuItem( menu, &singlecolmnuitem_, faultdisplay_->arePanelsDisplayed(),
-		  !faultdisplay_->usesTexture() );
+		  !faultdisplay_->showingTexture() );
     mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
 		  faultdisplay_->arePanelsDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
@@ -280,7 +280,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==singlecolmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->useTexture( !faultdisplay_->usesTexture(), true );
+	faultdisplay_->useTexture( !faultdisplay_->showingTexture(), true );
 	visserv_->triggerTreeUpdate();
     }
     else if ( mnuid==removeselectedmnuitem_.id )

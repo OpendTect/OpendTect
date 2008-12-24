@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.32 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.33 2008-12-24 13:19:11 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -312,7 +312,7 @@ void FaultDisplay::setColor( Color nc )
 
 void FaultDisplay::updateSingleColor()
 {
-    const bool usesinglecolor = !validtexture_ || !usestexture_;
+    const bool usesinglecolor = !showingTexture();
 
     const Color prevcol = getMaterial()->getColor();
     const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White();
@@ -376,6 +376,10 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
 
 bool FaultDisplay::usesTexture() const
 { return usestexture_; }
+
+
+bool FaultDisplay::showingTexture() const
+{ return validtexture_ && usestexture_; }
 
 
 NotifierAccess* FaultDisplay::materialChange()
@@ -637,7 +641,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	updateSingleColor();
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
-	     if ( RowCol(cbdata.pid0.subID()).row==neareststick_ )
+	    if ( RowCol(cbdata.pid0.subID()).row==neareststick_ )
 		updateNearestStickMarker();
 	}
 	else

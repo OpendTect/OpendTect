@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.25 2008-10-15 15:06:36 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.26 2008-12-24 13:19:11 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -44,6 +44,7 @@ public:
 
     void			useTexture(bool yn,bool trigger=false);
     bool			usesTexture() const;
+    bool			showingTexture() const;
 
     void			setOnlyAtSectionsDisplay(bool yn);
     bool			getOnlyAtSectionsDisplay() const;

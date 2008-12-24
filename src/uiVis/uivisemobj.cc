@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.72 2008-12-09 15:11:56 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.73 2008-12-24 13:19:11 cvsjaap Exp $";
 
 #include "uivisemobj.h"
 
@@ -352,7 +352,7 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
 
     mAddMenuItem( menu, &singlecolmnuitem_, !emod->getOnlyAtSectionsDisplay(),
-	  	  !hordisp || (hordisp&&!hordisp->usesTexture()) );
+	  	  !hordisp || (hordisp&&!hordisp->showingTexture()) );
     mAddMenuItem( menu, &showonlyatsectionsmnuitem_, true,
 	          emod->getOnlyAtSectionsDisplay() );
 #ifdef __debug__
@@ -421,7 +421,7 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
     if ( mnuid==singlecolmnuitem_.id )
     {
-	if ( hordisp ) hordisp->useTexture( !hordisp->usesTexture(), true );
+	if ( hordisp ) hordisp->useTexture( !hordisp->showingTexture(), true );
 	visserv_->triggerTreeUpdate();
 	menu->setIsHandled(true);
     }
@@ -534,7 +534,7 @@ void uiVisEMObject::setOnlyAtSectionsDisplay( bool yn )
     {
 	bool usetexture = false;
 	if ( yn )
-	    showedtexture_ = hordisp->usesTexture();
+	    showedtexture_ = hordisp->showingTexture();
 	else 
 	    usetexture = showedtexture_;
 

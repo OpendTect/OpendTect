@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.12 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.13 2008-12-24 13:19:11 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -69,6 +69,7 @@ public:
 
     void			useTexture( bool yn, bool trigger );
     bool			usesTexture() const;
+    bool			showingTexture() const;
     void			setDepthAsAttrib(int);
 
     void			showManipulator(bool);
