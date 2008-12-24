@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.13 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: errh.h,v 1.14 2008-12-24 12:39:51 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -36,7 +36,7 @@ public:
 };
 
 
-void ErrMsg(const char*,bool progr=false);
+mGlobal void ErrMsg(const char*,bool progr=false);
 
 
 inline void programmerErrMsg( const char* msg, const char* cname,

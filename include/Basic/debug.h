@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.11 2007-03-06 11:42:39 cvsbert Exp $
+ RCS:		$Id: debug.h,v 1.12 2008-12-24 12:38:10 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,22 +36,22 @@ ________________________________________________________________________
 # ifdef __cpp__
 namespace DBG
 {
-    bool 		isOn( int flag=0xffff );
+    mGlobal bool isOn( int flag=0xffff ); 
 
-    void		message( const char* ); // default: to stderr
-    void		message( int flag, const char* msg );
-			   // { if ( isOn(flag) ) message(msg); }
-    void		putProgInfo(int,char**); //!< one line; more if isOn()
-    void		forceCrash(bool withdump);
+    mGlobal void message( const char* ); 		    // default: to stderr
+    mGlobal void message( int flag, const char* msg ); 
+// { if ( isOn(flag) ) message(msg); }
+    mGlobal void putProgInfo(int,char**); 		    //!< one line; more if isOn()
+    mGlobal void forceCrash(bool withdump); 
 };
 
 extern "C" {
 # endif
 
-int			od_debug_isOn( int flag );
-void			od_debug_message( const char* msg );
-void			od_debug_messagef( int flag, const char* msg );
-void			od_debug_putProgInfo(int,char**);
+    mGlobal int od_debug_isOn( int flag );
+    mGlobal void od_debug_message( const char* msg );
+    mGlobal void od_debug_messagef( int flag, const char* msg );
+    mGlobal void od_debug_putProgInfo(int,char**);
 
 # ifdef __cpp__
 }

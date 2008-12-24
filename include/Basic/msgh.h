@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: msgh.h,v 1.10 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: msgh.h,v 1.11 2008-12-24 12:41:59 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -42,7 +42,7 @@ public:
 };
 
 
-void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
+mGlobal  void UsrMsg(const char*,MsgClass::Type t=MsgClass::Info);
 //!< Will pass the message to the appropriate destination.
 
 
