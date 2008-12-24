@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.69 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.70 2008-12-24 14:11:26 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -341,7 +341,7 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
     zlbl->attach( leftOf, zunitgrp );
     uiRadioButton* meterbut = new uiRadioButton( zunitgrp, "meter" );
     uiRadioButton* feetbut = new uiRadioButton( zunitgrp, "feet" );
-    if ( SI().zIsTime() )
+    if ( SI().zIsTime() && wd.d2TModel() )
     {
 	uiRadioButton* secbut = new uiRadioButton( zunitgrp, "sec" );
 	uiRadioButton* msecbut = new uiRadioButton( zunitgrp, "msec" );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.40 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.41 2008-12-24 14:11:26 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -139,24 +139,32 @@ bool uiWellImportAsc::doWork()
     if ( zinfeet && !mIsUdf(info.surfaceelev) ) 
 	info.surfaceelev *= 0.3048;
 
-    StreamData sd = StreamProvider( wtinfld->fileName() ).makeIStream();
-    if ( !sd.usable() )
-	mErrRet( "Cannot open input file" )
+    BufferString fnm( wtinfld->fileName() );
+    if ( !fnm.isEmpty() )
+    {
+	StreamData sd = StreamProvider( wtinfld->fileName() ).makeIStream();
+	if ( !sd.usable() )
+	    mErrRet( "Cannot open input file" )
 
-    Well::WellAscIO wellascio(fd, *sd.istrm );
+	Well::WellAscIO wellascio(fd, *sd.istrm );
 
-    if ( !wellascio.getData( *well, true ) )
-	mErrRet( "Failed to convert into compatible data" );
+	if ( !wellascio.getData( *well, true ) )
+	    mErrRet( "Failed to convert into compatible data" );
 
-    sd.close();
+	sd.close();
+    }
 
     Well::AscImporter ascimp( *well );
 
     if ( SI().zIsTime() )
     {
-	const char* errmsg = ascimp.getD2T( d2tgrp->fileName(), d2tgrp->isTVD(),
-				d2tgrp->isTWT(), zinfeet );
-	if ( errmsg ) mErrRet( errmsg );
+	fnm = d2tgrp->fileName();
+	if ( !fnm.isEmpty() )
+	{
+	    const char* errmsg = ascimp.getD2T( fnm, d2tgrp->isTVD(),
+				    d2tgrp->isTWT(), zinfeet );
+	    if ( errmsg ) mErrRet( errmsg );
+	}
     }
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();
@@ -166,18 +174,24 @@ bool uiWellImportAsc::doWork()
 
     if ( !wtr->write(*well,*ctio.ioobj) ) mErrRet( "Cannot write well" );
 
-    uiMSG().message( "Welltrack successfully imported" );
+    uiMSG().message( "Well successfully created" );
     return false;
 }
 
 
 bool uiWellImportAsc::checkInpFlds()
 {
-    if ( ! *wtinfld->fileName() )
-	mErrRet( "Please select 'Well Track' file" )
-
-    if ( SI().zIsTime() && ! *d2tgrp->fileName() )
-	mErrRet( "Please select 'Depth to Time model' file" )
+    const bool havetrack = *wtinfld->fileName();
+    const bool haved2t = !SI().zIsTime() || *d2tgrp->fileName();
+    if ( !havetrack || !haved2t )
+    {
+	BufferString msg( "You need to have a " );
+	msg += havetrack ? "Depth/Time model" : "Track";
+	msg += "\nto be able to use and display the new well"
+	       "\nDo you want to continue?";
+	if ( !uiMSG().askGoOn(msg) )
+	    return false;
+    }
 
     if ( !outfld->commitInput(true) )
 	mErrRet( "Please select output" )

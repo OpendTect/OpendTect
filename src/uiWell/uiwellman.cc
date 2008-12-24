@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.39 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.40 2008-12-24 14:11:26 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.39 2008-11-25 15:35:26 cvsbert
 #include "welldata.h"
 #include "welllog.h"
 #include "welllogset.h"
+#include "welld2tmodel.h"
 #include "wellman.h"
 #include "wellmarker.h"
 #include "wellreader.h"
@@ -142,8 +143,6 @@ void uiWellMan::fillLogsFld()
 void uiWellMan::edMarkers( CallBacker* )
 {
     if ( !welldata || !wellrdr ) return;
-    if ( SI().zIsTime() && !wellrdr->getD2T() )
-	mErrRet( "Cannot add markers without depth to time model" );
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
@@ -172,14 +171,15 @@ void uiWellMan::edMarkers( CallBacker* )
 void uiWellMan::edD2T( CallBacker* )
 {
     if ( !welldata || !wellrdr ) return;
-    if ( !SI().zIsTime() || !wellrdr->getD2T() )
-	mErrRet( "No depth to time model" );
 
     Well::Data* wd;
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
 	wd = welldata;
+
+    if ( SI().zIsTime() && !wd->d2TModel() )
+	wd->setD2TModel( new Well::D2TModel );
 
 
     uiD2TModelDlg dlg( this, *wd );
@@ -197,8 +197,6 @@ void uiWellMan::edD2T( CallBacker* )
 void uiWellMan::addLogs( CallBacker* )
 {
     if ( !welldata || !wellrdr ) return;
-    if ( SI().zIsTime() && !wellrdr->getD2T() )
-	mErrRet( "Cannot add logs without depth to time model" );
 
     wellrdr->getLogs();
     uiLoadLogsDlg dlg( this, *welldata );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.4 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.5 2008-12-24 14:11:26 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 
@@ -38,15 +38,15 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, bool withunit, const char* lbl )
 
     if ( withunit )
     {
-	unitfld_ = new uiGenInput( this, "in",
+	unitfld_ = new uiGenInput( this, "Depth in",
 		BoolInpSpec(!SI().depthsInFeetByDefault(),"Meter","Feet") );
-	unitfld_->attach( rightTo, tvdfld_ );
+	unitfld_->attach( alignedBelow, tvdfld_ );
     }
 
     twtfld_ = new uiGenInput( this, "Time is",
 		BoolInpSpec(true,"One-way","Two-way traveltime") );
     twtfld_->setValue( false );
-    twtfld_->attach( alignedBelow, tvdfld_ );
+    twtfld_->attach( alignedBelow, unitfld_ ? unitfld_ : tvdfld_ );
 
     setHAlignObj( filefld_ );
 }
