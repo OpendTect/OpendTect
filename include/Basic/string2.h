@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.24 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: string2.h,v 1.25 2008-12-24 12:46:39 cvsranojay Exp $
 ________________________________________________________________________
 -*/
 
@@ -24,7 +24,7 @@ extern "C" {
 
 
 /*!> bluntly puts a '\0' on trailing white space. */
-void		removeTrailingBlanks(char*);
+mGlobal void removeTrailingBlanks(char*);
 /*!> advances given pointer to first non-whitespace. */
 #define mSkipBlanks(ptr) \
     { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
@@ -37,51 +37,51 @@ void		removeTrailingBlanks(char*);
 
 
 /*!> stricmp with option to compare part */
-mGlobal( int caseInsensitiveEqual(const char*,const char*,
-				     int nr_chars_to_match_0_is_all))
+mGlobal int caseInsensitiveEqual(const char*,const char*,
+				     int nr_chars_to_match_0_is_all);
 /*!> checks whether a string is the start of another string. */
-mGlobal(int matchString(const char* startstring,const char* maybebigger))
+mGlobal int matchString(const char* startstring,const char* maybebigger);
 /*!> is a case insensitive version of matchString */
-mGlobal(int matchStringCI(const char*,const char*))
+mGlobal int matchStringCI(const char*,const char*);
 
 /*!> fills a buffer with the next word (delimited by whitespace) in string.
      It returns a ptr just after the word. */
-mGlobal(const char* getNextWord(const char*,char*))
+mGlobal const char* getNextWord(const char*,char*);
 
 /*!> counts occurrences of a char in string */
-mGlobal(int countCharacter(const char*,char))
+mGlobal int countCharacter(const char*,char);
 /*!> replaces all occurrences of a char with another */
-mGlobal(void replaceCharacter(char*,char from,char to))
+mGlobal void replaceCharacter(char*,char from,char to);
 /*!> replaces all occurrences of a string with another */
-mGlobal(void replaceString(char*,const char* from,const char* to))
+mGlobal void replaceString(char*,const char* from,const char* to);
 /*!> removes all occurrences of a char */
-mGlobal(void removeCharacter(char*,char))
+mGlobal void removeCharacter(char*,char);
 /*!> cleans a string from non-alpha numeric by replacing with underscores.
      params: replace whitespace, replace slashes, replace dots */
-mGlobal(void cleanupString(char*,int,int,int))
+mGlobal void cleanupString(char*,int,int,int);
 /*!> tells whether a string holds a parseable number */
-mGlobal(int isNumberString(const char*,int int_only))
+mGlobal int isNumberString(const char*,int int_only);
 
 /*!> returns the string for an int in a static buffer. */
-mGlobal(const char* getStringFromInt(od_int32))
-mGlobal(const char* getStringFromUInt(od_uint32))
-mGlobal(const char* getStringFromInt64(od_int64))
-mGlobal(const char* getStringFromUInt64(od_uint64))
+mGlobal const char* getStringFromInt(od_int32);
+mGlobal const char* getStringFromUInt(od_uint32);
+mGlobal const char* getStringFromInt64(od_int64);
+mGlobal const char* getStringFromUInt64(od_uint64);
 
 /*!> Normally, pass null for fmt. Then it will do removal of
      trailing zeros and use %lf in more cases than std. */
-mGlobal(const char* getStringFromDouble(const char* fmt,double))
+mGlobal const char* getStringFromDouble(const char* fmt,double);
 /*!> is like getStringFromDouble, with special %f treatment. */
-mGlobal(const char* getStringFromFloat(const char* fmt,float))
+mGlobal const char* getStringFromFloat(const char* fmt,float);
 /*!> removes unwanted zeros and dots from a floating point in string. */
-mGlobal(void prettyNumber(char*,int is_float))
+mGlobal void prettyNumber(char*,int is_float);
 
 /*!> returns ptr to static buffer with "yes" or "No" */
-mGlobal(const char* getYesNoString(int))
+mGlobal const char* getYesNoString(int);
 /*!> returns 1 or 0 by inspecting string */
-mGlobal(int yesNoFromString(const char*))
+mGlobal int yesNoFromString(const char*);
 /*!> returns "th" or "st" or "nd" or "rd"; like in 1st, 2nd, 3rd etc. */
-mGlobal(const char* getRankPostFix(int))
+mGlobal const char* getRankPostFix(int);
 
 
 #ifdef __cpp__
