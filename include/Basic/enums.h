@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.12 2008-12-18 12:30:31 cvsranojay Exp $
+ RCS:		$Id: enums.h,v 1.13 2008-12-24 12:38:49 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,10 +128,10 @@ const char* MyClass::Typenames[] =
 #include "string2.h"
 
 #ifndef __cpp__
-mGlobal( int getEnum(const char*,char** namearr,int startnr,
-		     int nr_chars_to_match) )
-mGlobal( int getEnumDef(const char*,char** namearr,int startnr,
-			int nr_chars_to_match,int notfoundval) )
+mGlobal int getEnum(const char*,char** namearr,int startnr,
+		     int nr_chars_to_match);
+mGlobal int getEnumDef(const char*,char** namearr,int startnr,
+			int nr_chars_to_match,int notfoundval);
 #else
 
 #include "namedobj.h"

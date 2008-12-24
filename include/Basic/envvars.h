@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: envvars.h,v 1.3 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: envvars.h,v 1.4 2008-12-24 12:39:19 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,19 +20,19 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-mGlobal(const char* GetEnvVar(const char*))
+mGlobal const char* GetEnvVar(const char*);
 		/*!< getenv or other source */
-mGlobal(int GetEnvVarYN(const char*))
+mGlobal int GetEnvVarYN(const char*);
 		/*!< Returns 0=NO if not set or explicitly on 0 or "no". */
-mGlobal(int GetEnvVarIVal(const char*,int defltval))
-mGlobal(double GetEnvVarDVal(const char*,double defltval))
+mGlobal int GetEnvVarIVal(const char*,int defltval);
+mGlobal double GetEnvVarDVal(const char*,double defltval);
 
-mGlobal(char* GetOSEnvVar(const char*))
+mGlobal char* GetOSEnvVar(const char*);
 		/*!< Raw 'getenv' call */
-mGlobal(int SetEnvVar(const char* env,const char* val))
+mGlobal int SetEnvVar(const char* env,const char* val);
 		/*!< sets environment variable to a value. */
 
-mGlobal(char GetEnvSeparChar())
+mGlobal char GetEnvSeparChar();
 		/*!< The character separating entries in an env variable */
 
 #ifdef __cpp__

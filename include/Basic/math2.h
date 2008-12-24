@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.8 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: math2.h,v 1.9 2008-12-24 12:42:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,28 +27,28 @@ ________________________________________________________________________
 namespace Math
 {
 
-mGlobal( bool IsNormalNumber(float) )
+mGlobal bool IsNormalNumber(float);
 		/* Returns 0 for for infinite, NaN, and that sort of crap */
-mGlobal( float IntPowerOf(float,int) )
-mGlobal( float PowerOf(float,float) )
+mGlobal float IntPowerOf(float,int);
+mGlobal float PowerOf(float,float);
 		/*!< PowerOf(-2,2) returns -4. This may be mathematically
 		  incorrect, it delivers continuity with negative numbers */
-mGlobal( float ASin(float) )
+mGlobal float ASin(float);
 		/*!<Checks the input range before calling asin, and does thus
 		    avoid nan's due to roundoff errors. */
-mGlobal( float ACos(float) )
+mGlobal float ACos(float);
 		/*!<Checks the input range before calling acos, and does thus
 		    avoid nan's due to roundoff errors. */
-mGlobal( float Log(float) )
+mGlobal float Log(float);
                 /*!<Checks the input range before calling log, returns
 		    undefined if negative or zero value is given. */
-mGlobal( float Log10(float) )
+mGlobal float Log10(float);
                 /*!<Checks the input range before calling log10, returns
 		    mUdf(float) if negative or zero value is given. */
-mGlobal( float Sqrt(float) )
+mGlobal float Sqrt(float);
                 /*!<Checks the input range before calling sqrt, if negative
 		    value is given, zero is returned. */
-mGlobal( float Exp(float) )
+mGlobal float Exp(float);
                 /*!<Checks the input range before calling exp, if too large
 		    value is given, mUdf(float) is returned. */
 
@@ -58,16 +58,16 @@ inline float	degFromNorth( float azimuth )
 		    return deg < 0 ? deg + 360 : deg;
 		}
 
-mGlobal(int LCMOf(int,int))
-mGlobal(bool IsNormalNumber(double))
-mGlobal(double IntPowerOf(double,int))
-mGlobal(double PowerOf(double,double))
-mGlobal(double ASin(double))
-mGlobal(double ACos(double))
-mGlobal(double Log(double))
-mGlobal(double Log10(double))
-mGlobal(double Exp(double))
-mGlobal(double Sqrt(double))
+mGlobal int LCMOf(int,int);
+mGlobal bool IsNormalNumber(double);
+mGlobal double IntPowerOf(double,int);
+mGlobal double PowerOf(double,double);
+mGlobal double ASin(double);
+mGlobal double ACos(double);
+mGlobal double Log(double);
+mGlobal double Log10(double);
+mGlobal double Exp(double);
+mGlobal double Sqrt(double);
 
 } // namespace Math
 
