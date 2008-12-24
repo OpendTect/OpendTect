@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: posinfo.h,v 1.12 2008-12-24 12:43:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
 
 /*!\brief Position info for an entire 3D cube. */
 
-class CubeData : public ObjectSet<LineData>
+mClass CubeData : public ObjectSet<LineData>
 {
 public:
     			CubeData()		{}

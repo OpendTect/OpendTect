@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.15 2008-08-18 13:32:23 cvsyuancheng Exp $
+ RCS:		$Id: rcol.h,v 1.16 2008-12-24 12:44:36 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 template <class T> class TypeSet;
 
-class RCol 
+mClass RCol 
 {
 public:
     virtual		~RCol() {}
