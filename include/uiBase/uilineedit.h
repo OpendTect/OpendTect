@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.19 2008-12-24 05:52:49 cvsnanne Exp $
+ RCS:           $Id: uilineedit.h,v 1.20 2008-12-24 11:25:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,9 @@ public:
 
     void		setEdited(bool=true);
     bool		isEdited() const;
+
+    void		setCompleter(const BufferStringSet& bs,
+	    			     bool casesensitive=false);
 
     virtual void	setReadOnly(bool=true);
     virtual bool	isReadOnly() const;
