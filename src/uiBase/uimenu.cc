@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.51 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.52 2008-12-24 05:55:22 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -41,8 +41,10 @@ public:
 
     void			setIcon( const QPixmap& pm )
 				{
-    			    	    if ( bar() )	bar()->setIcon( pm );
-    			    	    if ( popup() )	bar()->setIcon( pm );
+    			    	    if ( bar() )
+					bar()->setWindowIcon( pm );
+    			    	    if ( popup() )
+					popup()->setWindowIcon( pm );
 				}
 
     void			setSensitive( bool yn )
@@ -241,7 +243,7 @@ void uiMenuItem::setText( const char* txt )
 { if ( qaction_ ) qaction_->setText( txt ); }
 
 const char* uiMenuItem::text() const
-{ return qaction_ ? qaction_->text() : ""; }
+{ return qaction_ ? mQStringToConstChar(qaction_->text()) : ""; }
 
 
 void uiMenuItem::setPixmap( const ioPixmap& pm )

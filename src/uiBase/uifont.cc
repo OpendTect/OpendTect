@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifont.cc,v 1.24 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uifont.cc,v 1.25 2008-12-24 05:49:25 cvsnanne Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -36,110 +36,106 @@ static const char* fDefKey = "Font.def";
 
 uiFont::uiFont( const char* key, const char* fam, int ps, FontData::Weight w,
 		bool it )
-	: mQtThing(new QFont(
-			QString((fam && *fam) ? fam : "helvetica"),
-			ps > 1 ? ps : 12 ,
-                        FontData::numWeight(w),it))
-	, mQFontMetrics( *new QFontMetrics( *mQtThing ))
+	: qfont_(new QFont(QString( fam && *fam ? fam : "helvetica"),
+			   ps > 1 ? ps : 12, FontData::numWeight(w),it))
+	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_( key )
 {}
 
 
 uiFont::uiFont( const char* key, FontData fdat )
-	: mQtThing( new QFont(
+	: qfont_( new QFont(
 		    QString( fdat.family() && *fdat.family()
 				? fdat.family() : "helvetica" ),
 		    fdat.pointSize() > 1 ? fdat.pointSize() : 12,
 		    FontData::numWeight(fdat.weight()),
 		    fdat.isItalic()))  
-	, mQFontMetrics( *new QFontMetrics( *mQtThing ))
+	, qfontmetrics_(*new QFontMetrics(*qfont_))
 	, key_( key )
 {}
 
 
 uiFont::uiFont( const uiFont& afont )
-	: mQtThing( new QFont( *afont.mQtThing ) )
-	, mQFontMetrics( *new QFontMetrics( *mQtThing ))
-	, key_( afont.key_ )
+	: qfont_(new QFont(*afont.qfont_))
+	, qfontmetrics_(*new QFontMetrics(*qfont_))
+	, key_(afont.key_)
 {} 
 
 
 uiFont::~uiFont()
 {
-    delete mQtThing;
-    delete &mQFontMetrics;
+    delete qfont_;
+    delete &qfontmetrics_;
 }
 
 
 uiFont& uiFont::operator=( const uiFont& tf )
 {
     if ( &tf != this )
-    {
         setFontData( tf.fontData() );
-    }
     return *this;
 }
 
 
 FontData uiFont::fontData() const
 {
-    return FontData( mQtThing->pointSize(), mQtThing->family(),
-		     FontData::enumWeight(mQtThing->weight()),
-		     mQtThing->italic() );
+    return FontData( qfont_->pointSize(), mQStringToConstChar(qfont_->family()),
+		     FontData::enumWeight(qfont_->weight()),
+		     qfont_->italic() );
 }
 
 
 void uiFont::setFontData( const FontData& fData )
 {
-    mQtThing->setFamily( fData.family() );
-    mQtThing->setPointSize( fData.pointSize() );
-    mQtThing->setWeight( fData.weight() );
-    mQtThing->setItalic( fData.isItalic() );
+    qfont_->setFamily( fData.family() );
+    qfont_->setPointSize( fData.pointSize() );
+    qfont_->setWeight( fData.weight() );
+    qfont_->setItalic( fData.isItalic() );
     updateMetrics();
 }
 
 
 void uiFont::updateMetrics()
 {
-    mQFontMetrics = QFontMetrics( *mQtThing );
+    qfontmetrics_ = QFontMetrics( *qfont_ );
 }
 
 
 int uiFont::height() const
 {
-    return mQFontMetrics.lineSpacing() + 2;
+    return qfontmetrics_.lineSpacing() + 2;
 }
 
 
 int uiFont::maxWidth() const
 {
-    return mQFontMetrics.maxWidth();
+    return qfontmetrics_.maxWidth();
 }
 
 
 int uiFont::avgWidth() const
 {
-    return mQFontMetrics.width(QChar('x'));
+    return qfontmetrics_.width(QChar('x'));
 }
 
 
 int uiFont::width(const char* str) const
 {
-    return mQFontMetrics.width( QString( str ));
+    return qfontmetrics_.width( QString( str ));
 }
 
 
 //! the inter-line spacing
 int uiFont::leading() const
 {
-    return mQFontMetrics.leading();
+    return qfontmetrics_.leading();
 }
 
 
 //! the distance from the base line to the uppermost line with pixels.
 int uiFont::ascent() const
 {
-    return mQFontMetrics.ascent();
+    return qfontmetrics_.ascent();
 }
 
 
@@ -152,9 +148,9 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
 				    parnt ? parnt->pbody()->qwidget() : 0, nm );
     if( ok ) 
     { 
-	*fnt.mQtThing = fontNew;
-        QFontMetrics metr( *fnt.mQtThing );
-	fnt.mQFontMetrics = metr;
+	*fnt.qfont_ = fontNew;
+        QFontMetrics metr( *fnt.qfont_ );
+	fnt.qfontmetrics_ = metr;
     }
     return ok;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidockwin.cc,v 1.30 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uidockwin.cc,v 1.31 2008-12-24 05:49:25 cvsnanne Exp $";
 
 #include "uidockwin.h"
 #include "uigroup.h"
@@ -167,10 +167,10 @@ void uiDockWin::setGroup( uiGroup* grp )
 
 
 void uiDockWin::setDockName( const char* nm )
-{ body_->qwidget()->setName( nm ); }
+{ body_->qwidget()->setObjectName( nm ); }
 
 const char* uiDockWin::getDockName() const
-{ return body_->qwidget()->name(); }
+{ return mQStringToConstChar( body_->qwidget()->objectName() ); }
 
 uiGroup* uiDockWin::topGroup()	    	   
 { return body_->uiCentralWidg(); }

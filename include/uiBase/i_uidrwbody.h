@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.26 2008-01-03 12:24:22 cvsnanne Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.27 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,11 +37,13 @@ public:
 					   uiParent* parent, const char* nm )
 			    : uiObjectBody(parent,nm)
 			    , T( parent && parent->pbody()? 
-				    parent->pbody()->managewidg() : 0 , nm )
+				    parent->pbody()->managewidg() : 0 )
                             , handle_(handle)
 			    , rubberband_(0)
 			    , havemousetracking_(false)
-                            {}
+                            {
+				T::setObjectName( nm );
+			    }
 
 #include		"i_uiobjqtbody.h"
 
@@ -138,7 +140,7 @@ void uiDrawableObjBody<C,T>::mousePressEvent( QMouseEvent* qev )
     }
     else
     {
-	OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+	OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button());
 	MouseEvent mev( bs, qev->x(), qev->y() );
 	handle_.getMouseEventHandler().triggerButtonPressed( mev );
     }
@@ -152,7 +154,7 @@ void uiDrawableObjBody<C,T>::mouseMoveEvent( QMouseEvent* qev )
 	rubberband_->extend( qev );
     else
     {
-	OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+	OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button());
 	MouseEvent mev( bs, qev->x(), qev->y() );
 	handle_.getMouseEventHandler().triggerMovement( mev );
     }
@@ -180,7 +182,7 @@ void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* qev )
     
     if ( !ishandled )
     {
-	OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+	OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button());
 	MouseEvent mev( bs, qev->x(), qev->y() );
 	handle_.getMouseEventHandler().triggerButtonReleased( mev );
     }
@@ -190,7 +192,7 @@ void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* qev )
 template <class C,class T>
 void uiDrawableObjBody<C,T>::mouseDoubleClickEvent( QMouseEvent* qev )
 {
-    OD::ButtonState bs = OD::ButtonState( qev->state() | qev->button() );
+    OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     MouseEvent mev( bs, qev->x(), qev->y() );
     handle_.getMouseEventHandler().triggerDoubleClick( mev );
 }
@@ -199,7 +201,7 @@ void uiDrawableObjBody<C,T>::mouseDoubleClickEvent( QMouseEvent* qev )
 template <class C,class T>
 void uiDrawableObjBody<C,T>::wheelEvent( QWheelEvent* qev )
 {
-    OD::ButtonState bs = OD::ButtonState( qev->state() | qev->buttons() );
+    OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->buttons() );
     MouseEvent mev( bs, qev->x(), qev->y(), // see uicanvas.cc 'delta2angle'
 		    qev->delta() * 0.002181661564992911886 );
     handle_.getMouseEventHandler().triggerWheel( mev );

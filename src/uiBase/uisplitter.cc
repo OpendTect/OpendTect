@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisplitter.cc,v 1.3 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uisplitter.cc,v 1.4 2008-12-24 05:55:22 cvsnanne Exp $";
 
 
 #include "uisplitter.h"
@@ -18,12 +18,12 @@ static const char* rcsID = "$Id: uisplitter.cc,v 1.3 2008-11-25 15:35:24 cvsbert
 #include <QSplitter>
 
 
-class uiSplitterBody : public uiObjBodyImplNoQtNm<uiSplitter,QSplitter>
+class uiSplitterBody : public uiObjBodyImpl<uiSplitter,QSplitter>
 {
 public:
 
 uiSplitterBody( uiSplitter& handle, uiParent* p, const char* nm )
-    : uiObjBodyImplNoQtNm<uiSplitter,QSplitter>(handle,p,nm)
+    : uiObjBodyImpl<uiSplitter,QSplitter>(handle,p,nm)
 {
 }
 

@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicursor.cc,v 1.11 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uicursor.cc,v 1.12 2008-12-24 05:49:25 cvsnanne Exp $";
 
 #include "uicursor.h"
 #include "pixmap.h"
 
-#include "qcursor.h"
-#include "qapplication.h"
+#include <QCursor>
+#include <QApplication>
 
 
 void uiCursorManager::initClass()
@@ -22,8 +22,9 @@ void uiCursorManager::initClass()
     MouseCursorManager::setMgr( &uimgr );
 }
 
+
 uiCursorManager::uiCursorManager()
-{ } 
+{} 
 
 
 uiCursorManager::~uiCursorManager()
@@ -45,12 +46,21 @@ void uiCursorManager::fillQCursor( const MouseCursor& mc, QCursor& qcursor )
 }
 
 
+static void setOverrideQCursor( const QCursor& qcursor, bool replace )
+{
+    if ( replace )
+	QApplication::changeOverrideCursor( qcursor );
+    else
+	QApplication::setOverrideCursor( qcursor );
+}
+
+
 void uiCursorManager::setOverrideShape( MouseCursor::Shape sh, bool replace )
 {
     Qt::CursorShape qshape = (Qt::CursorShape)(int) sh;
     QCursor qcursor;
     qcursor.setShape( qshape );
-    QApplication::setOverrideCursor( qcursor,  replace );
+    setOverrideQCursor( qcursor, replace );
 }
 
 
@@ -58,8 +68,8 @@ void uiCursorManager::setOverrideFile( const char* fn, int hotx, int hoty,
 				       bool replace )
 {
     ioPixmap pixmap( fn );
-    QApplication::setOverrideCursor( QCursor( *pixmap.qpixmap(), hotx, hoty ),
-	    			     replace );
+    QCursor qcursor( *pixmap.qpixmap(), hotx, hoty );
+    setOverrideQCursor( qcursor, replace );
 }
 
 
@@ -67,9 +77,8 @@ void uiCursorManager::setOverrideCursor( const MouseCursor& mc, bool replace )
 {
     QCursor qcursor;
     fillQCursor( mc, qcursor );
-    QApplication::setOverrideCursor( qcursor, replace );
+    setOverrideQCursor( qcursor, replace );
 }
-
 
 
 void uiCursorManager::restoreInternal()

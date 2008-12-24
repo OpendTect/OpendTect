@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.38 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.39 2008-12-24 05:55:22 cvsnanne Exp $";
 
 
 #include "uitextedit.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uitextedit.cc,v 1.38 2008-11-25 15:35:24 cvsber
 #include "strmprov.h"
 
 #include <iostream>
+#include <QTextDocument> 
 #include <QTextEdit> 
 
 
@@ -41,13 +42,13 @@ void uiTextEditBase::setText( const char* txt )
 
 const char* uiTextEditBase::text() const
 { 
-    result_ = qte().text().toAscii().data();
+    result_ = mQStringToConstChar( qte().toPlainText() );
     return result_.buf();
 }
 
 
 bool uiTextEditBase::isModified() const
-{ return qte().isModified(); }
+{ return qte().document()->isModified(); }
 
 
 void uiTextEditBase::readFromFile( const char* src, int wraplen )
@@ -153,20 +154,14 @@ bool uiTextEditBase::saveToFile( const char* src, int linelen, bool newlns )
 
     sd.close();
 
-    qte().setModified( false );
+    qte().document()->setModified( false );
     return true;
 }
 
 
 int uiTextEditBase::nrLines() const
 {
-    QTextBlock block;
-    int nrlines = 0;
-    for ( QTextBlock block=qte().document()->begin();
-				block.isValid(); block=block.next() )
-	nrlines++;
-
-    return nrlines;
+    return qte().document()->blockCount();
 }
 
 
@@ -186,7 +181,6 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p,
 				const char* nm, bool ro )
     : uiObjBodyImpl<uiTextEdit,QTextEdit>( handle, p, nm )
 {
-    setTextFormat( Qt::PlainText ); 
     setReadOnly( ro );
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
@@ -242,9 +236,6 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &handle))
 {
-    if ( plaintxt )
-	setTextFormat( Qt::PlainText ); 
-
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
     setPrefHeight( handle.defaultHeight() );

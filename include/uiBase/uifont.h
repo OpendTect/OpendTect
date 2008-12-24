@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uifont.h,v 1.7 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,27 +40,26 @@ public:
     uiFont&		 operator=(const uiFont&);
     
     FontData		fontData() const ;
-    void		setFontData( const FontData& ); 
+    void		setFontData(const FontData&); 
                         //!< Updates internal QFont and QFontMetrics.
 
-    inline const QFont&	qFont() const { return *mQtThing; } 
+    inline const QFont&	qFont() const { return *qfont_; } 
 
     int			height() const;
     int			leading() const; 
     int 		maxWidth() const;
     int 		avgWidth() const;
-    int 		width (const char* str) const;
+    int 		width(const char* str) const;
     int			ascent() const; 
     int			descent() const; 
 
     const char*		key() const		{ return key_; }
 
 protected: 
-    inline QFont*&	qFont_() { return mQtThing; } 
 
     // don't change order of these attributes!
-    QFont*		mQtThing; 
-    QFontMetrics&	mQFontMetrics; 
+    QFont*		qfont_; 
+    QFontMetrics&	qfontmetrics_; 
 
     BufferString	key_;
 

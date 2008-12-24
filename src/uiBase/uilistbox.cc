@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.95 2008-12-17 07:44:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.96 2008-12-24 05:49:25 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -87,7 +87,7 @@ private:
 uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt, 
 			const char* nm, bool ismultiselect,
 			int preferrednrlines, int preferredfieldwidth )
-    : uiObjBodyImpl<uiListBox,QListWidget>( handle, parnt, nm, true )
+    : uiObjBodyImpl<uiListBox,QListWidget>( handle, parnt, nm )
     , messenger_(*new i_listMessenger(this,&handle))
     , fieldwidth_(preferredfieldwidth)
     , prefnrlines_(preferrednrlines)

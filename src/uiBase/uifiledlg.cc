@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifiledlg.cc,v 1.43 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uifiledlg.cc,v 1.44 2008-12-24 05:49:25 cvsnanne Exp $";
 
 #include "uifiledlg.h"
 
@@ -43,7 +43,7 @@ ODFileDialog( QWidget* parent=0, const char* caption=0, bool modal=false )
 };
 
 
-QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
+QFileDialog::FileMode qmodeForUiMode( uiFileDialog::Mode mode )
 {
     switch( mode )
     {
@@ -53,6 +53,7 @@ QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
     case uiFileDialog::DirectoryOnly	: return QFileDialog::DirectoryOnly;
     case uiFileDialog::ExistingFiles	: return QFileDialog::ExistingFiles;
     }
+
     return QFileDialog::AnyFile;
 }
 
@@ -149,14 +150,14 @@ int uiFileDialog::go()
     fd->selectFile( QString(fname_) );
     fd->setAcceptMode( forread_ ? QFileDialog::AcceptOpen
 	    			: QFileDialog::AcceptSave );
-    fd->setMode( qmodeForUiMode(mode_) );
-    fd->setCaption( QString(caption_) );
+    fd->setFileMode( qmodeForUiMode(mode_) );
+    fd->setWindowTitle( QString(caption_) );
     fd->setConfirmOverwrite( confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )
 	fd->selectFilter( QString(selectedfilter_) );
-    
+
 #ifdef __win__
     fd->setViewMode( QFileDialog::Detail );
 #endif
@@ -164,11 +165,9 @@ int uiFileDialog::go()
     if ( fd->exec() != QDialog::Accepted )
     	return processExternalFilenames( dirname, flt );
 
-    QStringList list = fd->selectedFiles();
-    if (  list.size() )
-	fn = list[0].toAscii().constData();
-    else 
-	fn = fd->selectedFile().toAscii().constData();
+    QStringList selfiles = fd->selectedFiles();
+    if ( !selfiles.isEmpty() )
+	fn = mQStringToConstChar( selfiles[0] );
 
     selectedfilter_ = fd->selectedFilter().toAscii().constData();
 
@@ -176,14 +175,13 @@ int uiFileDialog::go()
     replaceCharacter( fn.buf(), '/', '\\' );
 #endif
 
-    for ( int idx=0; idx<list.size(); idx++ )
+    for ( int idx=0; idx<selfiles.size(); idx++ )
     {
-	BufferString* bs = new BufferString( list[idx].toAscii().constData() );
-
+	BufferString bs( mQStringToConstChar(selfiles[idx]) );
 #ifdef __win__
-	replaceCharacter( bs->buf(), '/', '\\' );
+	replaceCharacter( bs.buf(), '/', '\\' );
 #endif
-	filenames += bs;
+	filenames.add( bs );
     }
 
     return 1;
@@ -210,10 +208,10 @@ void uiFileDialog::list2String( const BufferStringSet& list,
 void uiFileDialog::string2List( const BufferString& string,
 				BufferStringSet& list )
 {
-    QStringList qlist = QStringList::split( (QString)filesep_,
-	    				    (QString)string );
+    QString qstr( string.buf() );
+    QStringList qlist = qstr.split( (QString)filesep_ );
     for ( int idx=0; idx<qlist.size(); idx++ )
-	list += new BufferString( qlist[idx].toAscii().constData() );
+	list.add( mQStringToConstChar(qlist[idx]) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.19 2008-08-11 12:03:51 cvsnanne Exp $
+ RCS:           $Id: uiparent.h,v 1.20 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ public:
 
     void		setStretch( int h, int v ){ mIfMO()->setStretch(h,v); }
 
-    const Color&	backgroundColor() const;
+    Color		backgroundColor() const;
     void		setBackgroundColor(const Color& c)
 			    { mIfMO()->setBackgroundColor(c); }
 

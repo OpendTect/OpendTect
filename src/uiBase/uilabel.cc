@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilabel.cc,v 1.12 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.13 2008-12-24 05:49:25 cvsnanne Exp $";
 
 
 #include "uilabel.h"
@@ -28,9 +28,10 @@ public:
     virtual int 	nrTxtLines() const		
 			{ 
 			    int nrl = 1;
-			    const char* txt = text();
-			    while( txt && *txt )
-				{ if( *txt == '\n' ) nrl++; txt++; }
+			    BufferString str = mQStringToConstChar( text() );
+			    char* txt = str.buf();
+			    while ( txt && *txt )
+				{ if ( *txt == '\n' ) nrl++; txt++; }
 
 			    return nrl; 
 			}
@@ -86,22 +87,22 @@ void uiLabel::setText( const char* txt )
 
 
 const char* uiLabel::text() const
-{ return body_->text(); }
+{ return mQStringToConstChar(body_->text()); }
 
 
-void uiLabel::setAlignment( int al )
+void uiLabel::setAlignment( OD::Alignment al )
 { 
-    int align = body_->alignment();
-    align &= Qt::AlignVertical_Mask;
-    
-    align |= al;
-
-    body_->setAlignment( align );
+    body_->setAlignment( (Qt::Alignment)al );
 }
 
 
-int uiLabel::alignment() const
+OD::Alignment uiLabel::alignment() const
 {
-    int align = body_->alignment();
-    return align & Qt::AlignHorizontal_Mask;
+    Qt::Alignment qtal =  body_->alignment();
+    if ( qtal.testFlag(Qt::AlignRight) )
+	return OD::AlignRight;
+    else if ( qtal.testFlag(Qt::AlignHCenter) )
+	return OD::AlignHCenter;
+
+    return OD::AlignLeft;
 }

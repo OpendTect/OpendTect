@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarray.cc,v 1.10 2008-12-23 11:32:18 cvsdgb Exp $";
+static const char* rcsID = "$Id: uirgbarray.cc,v 1.11 2008-12-24 05:55:22 cvsnanne Exp $";
 
 #include "uirgbarray.h"
 
 #include <QImage>
 #include <QColor>
+#include <QColormap>
 
 
 uiRGBArray::uiRGBArray( bool walpha )
@@ -74,7 +75,9 @@ void uiRGBArray::set( int i0, int i1, const Color& c )
 void uiRGBArray::clear( const Color& c )
 {
     QColor col( (QRgb)c.rgb() );
-    qimg_->fill( col.pixel() );
+    QColormap cmap = QColormap::instance();
+    uint pixel = cmap.pixel( col );
+    qimg_->fill( pixel );
 }
 
 

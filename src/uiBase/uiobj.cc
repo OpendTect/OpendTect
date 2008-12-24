@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.80 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.81 2008-12-24 05:55:22 cvsnanne Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -93,7 +93,7 @@ const ObjectSet<uiObjHandle>* uiParent::childList() const
 }
 
 
-const Color& uiParent::backgroundColor() const
+Color uiParent::backgroundColor() const
 {
     return mainObject() ? mainObject()->backgroundColor() : *new Color();
 }
@@ -225,16 +225,13 @@ void uiObject::setCursor( const MouseCursor& cursor )
 }
 
 
-const Color& uiObject::backgroundColor() const	
+Color uiObject::backgroundColor() const	
     { return mConstBody()->uibackgroundColor(); }
 
 
 void uiObject::setBackgroundColor(const Color& col)
     { mBody()->uisetBackgroundColor(col); }
 
-
-void uiObject::setBackgroundPixmap( const char* img[] )
-    { mBody()->uisetBackgroundPixmap( img ); }
 
 void uiObject::setBackgroundPixmap( const ioPixmap& pm )
     { mBody()->uisetBackgroundPixmap( pm ); }

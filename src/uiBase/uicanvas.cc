@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicanvas.cc,v 1.44 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uicanvas.cc,v 1.45 2008-12-24 05:55:21 cvsnanne Exp $";
 
 #include "uicanvas.h"
 #include "errh.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uicanvas.cc,v 1.44 2008-11-25 15:35:24 cvsbert 
 #include <QRubberBand>
 
 
-#define mButState( e ) ( e->state() | e->button() )
+#define mButState( e ) ( e->modifiers() | e->button() )
 
 class uiScrollViewBody;
 
@@ -305,7 +305,7 @@ void uiScrollViewBody::contentsMouseDoubleClickEvent ( QMouseEvent* e )
 
 void uiScrollViewBody::contentsWheelEvent( QWheelEvent* e )
 {
-    OD::ButtonState bSt = (OD::ButtonState)( e->state() | e->buttons() );
+    OD::ButtonState bSt = (OD::ButtonState)( e->modifiers() | e->buttons() );
     static const float delta2angle = M_PI / (180 * 8);
     MouseEvent evt( bSt, e->x(), e->y(), e->delta()*delta2angle );
     handle_.getMouseEventHandler().triggerWheel( evt );

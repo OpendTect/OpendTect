@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.47 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.48 2008-12-24 05:55:21 cvsnanne Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -120,14 +120,17 @@ uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )
 
 
 int uiComboBox::currentItem() const
-{ return body_->currentItem(); }
+{ return body_->currentIndex(); }
 
 
 void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
 {
     const char* txt = textOfItem( index );
     if ( index >= 0 && index < body_->count() )
-	body_->changeItem( *pixmap.qpixmap(), QString(txt), index );
+    {
+	body_->setItemText( index, QString(txt) );
+	body_->setItemIcon( index, *pixmap.qpixmap() );
+    }
 }
 
 
@@ -137,9 +140,8 @@ void uiComboBox::empty()
 
 const char* uiComboBox::text() const
 {
-    static QString ret;
-    ret = body_->currentText();
-    return ret;
+    rettxt_ = mQStringToConstChar( body_->currentText() );
+    return rettxt_.buf();
 }
 
 
@@ -150,7 +152,7 @@ void uiComboBox::setText( const char* txt )
 	setCurrentItem(txt);
     else
     {
-	bool iseditable = body_->editable();
+	bool iseditable = body_->isEditable();
 	if ( !iseditable ) body_->setEditable( true );
 	body_->setEditText( txt ? txt : "" );
 	if ( !iseditable ) body_->setEditable( false );
@@ -162,7 +164,9 @@ bool uiComboBox::isPresent( const char* txt ) const
 {
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
-	if ( body_->text(idx) == txt ) return true;
+	if ( body_->itemText(idx) == txt )
+	    return true;
+
     return false;
 }
 
@@ -170,8 +174,8 @@ bool uiComboBox::isPresent( const char* txt ) const
 const char* uiComboBox::textOfItem( int idx ) const
 {
     if ( idx < 0 || idx >= body_->count() ) return "";
-    const_cast<uiComboBox*>(this)->rettxt = (const char*)body_->text(idx);
-    return (const char*)rettxt;
+    rettxt_ = mQStringToConstChar( body_->itemText(idx) );
+    return rettxt_.buf();
 }
 
 
@@ -186,8 +190,8 @@ void uiComboBox::setCurrentItem( const char* txt )
     const int sz = body_->count();
     for ( int idx=0; idx<sz; idx++ )
     {
-	if ( body_->text(idx) == txt )
-	    { body_->setCurrentItem( idx ); return; }
+	if ( body_->itemText(idx) == txt )
+	    { body_->setCurrentIndex( idx ); return; }
     }
 }
 
@@ -196,15 +200,15 @@ void uiComboBox::setCurrentItem( int idx )
 {
     NotifyStopper stopper(selectionChanged);
 
-    if ( idx >= 0 && idx < body_->count() )
-	body_->setCurrentItem( idx );
+    if ( idx>=0 && idx<body_->count() )
+	body_->setCurrentIndex( idx );
 }
 
 
 void uiComboBox::setItemText( int idx, const char* txt )
 {
     if ( idx >= 0 && idx < body_->count() )
-	body_->changeItem( QString(txt), idx );
+	body_->setItemText( idx, QString(txt) );
 }
 
 
@@ -230,29 +234,29 @@ void uiComboBox::setReadOnly( bool yn )
 
 
 bool uiComboBox::isReadOnly() const
-{ return !body_->editable(); }
+{ return !body_->isEditable(); }
 
 
 void uiComboBox::addItem( const char* text ) 
-{ insertItem( text, -1 ); }
+{ body_->addItem( QString(text) ); }
 
 
 void uiComboBox::addItems( const BufferStringSet& bss )
 {
     for ( int idx=0; idx<bss.size(); idx++ )
-	insertItem( bss.get(idx), -1 );
+	addItem( bss.get(idx) );
 }
 
 
 void uiComboBox::insertItem( const char* text, int index )
 {
-    body_->insertItem( QString(text), index );
+    body_->insertItem( index, QString(text) );
 }
 
 
 void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
 {
-    body_->insertItem( *pm.qpixmap(), QString(text), index );
+    body_->insertItem( index, *pm.qpixmap(), QString(text) );
 }
 
 

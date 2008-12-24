@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitabstack.cc,v 1.20 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uitabstack.cc,v 1.21 2008-12-24 05:55:22 cvsnanne Exp $";
 
 #include "uitabstack.h"
 #include "uitabbar.h"
@@ -27,7 +27,7 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
     tabgrp_ = new uiGroup( this, nm );
     tabbar_ = new uiTabBar( this, nm );
 
-    tabgrp_->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
+    tabgrp_->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     tabgrp_->setBorder(10);
     tabgrp_->attach( stretchedBelow, tabbar_, 0 );
 

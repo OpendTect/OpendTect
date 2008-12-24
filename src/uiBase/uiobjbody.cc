@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.22 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.23 2008-12-24 05:55:22 cvsnanne Exp $";
 
 
 #include "uiobjbody.h"
@@ -18,8 +18,8 @@ static const char* rcsID = "$Id: uiobjbody.cc,v 1.22 2008-11-25 15:35:24 cvsbert
 #include "pixmap.h"
 #include "color.h"
 
-#include <qpixmap.h>
-#include <qtooltip.h>
+#include <QPixmap>
+#include <QToolTip>
 
 
 #define mParntBody( p ) dynamic_cast<uiParentBody*>( p->body() )
@@ -213,30 +213,27 @@ void uiObjectBody::setVSzPol( uiObject::SzPolicy pol )
 }
 
 
-const Color& uiObjectBody::uibackgroundColor() const
+Color uiObjectBody::uibackgroundColor() const
 {
-    return *new Color( qwidget()->backgroundColor().rgb() );
+    const QBrush& qbr = qwidget()->palette().brush(
+	    qwidget()->backgroundRole() );
+    return Color( qbr.color().rgb() );
 }
 
 
 void uiObjectBody::uisetBackgroundColor( const Color& col )
 {
-    QPalette palette;
-    palette.setColor( QPalette::Base,
-	    	      QColor(col.r(),col.g(),col.b()) );
-    qwidget()->setPalette( palette );
-}
-
-
-void uiObjectBody::uisetBackgroundPixmap( const char* img[] )
-{
-    qwidget()->setPaletteBackgroundPixmap( QPixmap(img) );
+    QPalette qpal( qwidget()->palette() );
+    qpal.setColor( QPalette::Base, QColor(col.r(),col.g(),col.b()) );
+    qwidget()->setPalette( qpal );
 }
 
 
 void uiObjectBody::uisetBackgroundPixmap( const ioPixmap& pm )
 {
-    qwidget()->setPaletteBackgroundPixmap( *pm.qpixmap() );
+    QPalette qpal;
+    qpal.setBrush( qwidget()->backgroundRole(), QBrush(*pm.qpixmap()) );
+    qwidget()->setPalette( qpal );
 }
 
 
@@ -490,7 +487,7 @@ void uiObjectBody::setToolTipBGColor( const Color& col )
 
 
 void uiObjectBody::uisetCaption( const char* str )
-    { qwidget()->setCaption( QString( str ) ); }
+    { qwidget()->setWindowTitle( QString(str) ); }
 
 i_LayoutItem* uiObjectBody::mkLayoutItem_( i_LayoutMngr& mngr )
     { return new i_uiLayoutItem( mngr , *this ); }

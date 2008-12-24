@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.48 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.49 2008-12-24 05:55:21 cvsnanne Exp $";
 
 #include "uimain.h"
 
@@ -193,7 +193,7 @@ void uiMain::setFont( const uiFont& font, bool PassToChildren )
 {   
     font_ = &font;
     if ( !app_ )  { pErrMsg("Huh?") ; return; }
-    app_->setFont( font_->qFont(), PassToChildren );
+    app_->setFont( font_->qFont() );
 }
 
 
@@ -242,7 +242,7 @@ uiMain& uiMain::theMain()
 
 
 void uiMain::flushX()        
-{ if ( app_ ) app_->flushX(); }
+{ if ( app_ ) app_->flush(); }
 
 
 void uiMain::setTopLevelCaption( const char* txt )

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: i_qtoolbut.h,v 1.4 2007-05-09 21:35:34 cvskris Exp $
+ RCS:           $Id: i_qtoolbut.h,v 1.5 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <qtoolbutton.h>
+#include <QToolButton>
 #include "callback.h"
 
 
@@ -21,8 +21,9 @@ class i_QToolButReceiver : public QObject, public CallBacker
   Q_OBJECT
 public:
     inline              i_QToolButReceiver(QObject* prnt=0, const char* nm=0)
-                            : QObject(prnt, nm)
-                            , pressed( this ) {}
+                            : QObject(prnt)
+                            , pressed( this )
+    			{ setObjectName( nm ); }
 
     Notifier<i_QToolButReceiver> pressed;
     const CallBacker*		 getCallBacker() const	{ return this; }

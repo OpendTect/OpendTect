@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.34 2008-11-28 10:06:13 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.35 2008-12-24 05:55:22 cvsnanne Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uispinbox.cc,v 1.34 2008-11-28 10:06:13 cvsnage
 #include <QValidator>
 #include <math.h>
 
-class uiSpinBoxBody : public uiObjBodyImplNoQtNm<uiSpinBox,QDoubleSpinBox>
+class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>
 {
 public:
 
@@ -63,9 +63,9 @@ private:
 
 
 uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
-    : uiObjBodyImplNoQtNm<uiSpinBox,QDoubleSpinBox>(handle,p,nm)
+    : uiObjBodyImpl<uiSpinBox,QDoubleSpinBox>(handle,p,nm)
     , messenger_(*new i_SpinBoxMessenger(this,&handle))
-    , dval(new QDoubleValidator(this,"Validator"))
+    , dval(new QDoubleValidator(this))
 {
     setHSzPol( uiObject::Small );
     setCorrectionMode( QAbstractSpinBox::CorrectToNearestValue );
@@ -291,7 +291,7 @@ void uiSpinBox::setPrefix( const char* suffix )
 const char* uiSpinBox::prefix() const
 {
     static BufferString res;
-    res = (const char*) body_->prefix();
+    res = mQStringToConstChar( body_->prefix() );
     return res;
 }
 
@@ -303,7 +303,7 @@ void uiSpinBox::setSuffix( const char* suffix )
 const char* uiSpinBox::suffix() const
 {
     static BufferString res;
-    res = (const char*) body_->suffix();
+    res = mQStringToConstChar( body_->suffix() );
     return res;
 }
 
@@ -334,6 +334,6 @@ uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt, int dec,
     sb = new uiSpinBox( this, dec, nm && *nm ? nm : txt );
     BufferString sblbl;
     lbl = new uiLabel( this, txt, sb );
-    lbl->setAlignment( uiLabel::AlignRight );
+    lbl->setAlignment( OD::AlignRight );
     setHAlignObj( sb );
 }

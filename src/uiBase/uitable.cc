@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.78 2008-12-11 10:56:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.79 2008-12-24 05:55:22 cvsnanne Exp $";
 
 
 #include "uitable.h"
@@ -55,7 +55,7 @@ CellObject::~CellObject()
 }
 
 
-class uiTableBody : public uiObjBodyImplNoQtNm<uiTable,QTableWidget>
+class uiTableBody : public uiObjBodyImpl<uiTable,QTableWidget>
 {
 public:
 			uiTableBody(uiTable&,uiParent*,const char*,int,int);
@@ -104,7 +104,7 @@ private:
 
 uiTableBody::uiTableBody( uiTable& handle, uiParent* parnt, const char* nm,
 			  int nrows, int ncols )
-    : uiObjBodyImplNoQtNm<uiTable,QTableWidget>(handle,parnt,nm)
+    : uiObjBodyImpl<uiTable,QTableWidget>(handle,parnt,nm)
     , messenger_ (*new i_tableMessenger(this,&handle))
 {
     if ( nrows >= 0 ) setLines( nrows );
@@ -860,7 +860,7 @@ Color uiTable::getColor( const RowCol& rc ) const
     QTableWidgetItem* itm = body_->getItem( rc, false );
     if ( !itm ) return Color(255,255,255);
 
-    const QColor qcol = itm->background();
+    const QColor qcol = itm->background().color();
     return Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 

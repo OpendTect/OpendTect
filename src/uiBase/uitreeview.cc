@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.47 2008-12-18 10:53:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.48 2008-12-24 05:55:21 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -32,7 +32,7 @@ static ODQtObjectSet<uiListViewItem,QTreeWidgetItem> odqtobjects_;
 #define mQitemFor(itm)		uiListViewItem::qitemFor(itm)
 #define mItemFor(itm)		uiListViewItem::itemFor(itm)
 
-class uiListViewBody : public uiObjBodyImplNoQtNm<uiListView,QTreeWidget>
+class uiListViewBody : public uiObjBodyImpl<uiListView,QTreeWidget>
 {
 
 public:
@@ -83,7 +83,7 @@ private:
 
 uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent, 
 				const char* nm, int nrl )
-    : uiObjBodyImplNoQtNm<uiListView,QTreeWidget>( handle, parent, nm )
+    : uiObjBodyImpl<uiListView,QTreeWidget>( handle, parent, nm )
     , messenger_( *new i_listVwMessenger(*this,handle) )
     , prefnrlines_( nrl )
     , lvhandle_(handle)
@@ -169,7 +169,7 @@ void uiListViewBody::mousePressEvent( QMouseEvent* event )
 
 bool uiListViewBody::moveItem( QKeyEvent* event )
 {
-    if ( event->state() != Qt::ShiftButton )
+    if ( event->modifiers() != Qt::ShiftModifier )
 	return false;
 
     QTreeWidgetItem* currentitem = currentItem();
@@ -580,7 +580,7 @@ void uiListViewItem::setText( const char* txt, int column )
 
 const char* uiListViewItem::text( int column ) const
 { 
-    rettxt = (const char*)qItem()->text( column );
+    rettxt = mQStringToConstChar( qItem()->text(column) );
     return rettxt;
 }
 

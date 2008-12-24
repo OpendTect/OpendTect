@@ -7,15 +7,45 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.18 2008-05-05 07:08:44 cvsnanne Exp $
+ RCS:           $Id: uilineedit.h,v 1.19 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-#include <userinputobj.h>
+#include "uiobj.h"
+#include "userinputobj.h"
 
 class uiLineEditBody;
+
+class uiIntValidator
+{
+public:
+    		uiIntValidator()
+		    : bottom_(-mUdf(int)), top_(mUdf(int))	{}
+    		uiIntValidator( int bot, int top )
+		    : bottom_(bot), top_(top)			{}
+
+    int		bottom_;
+    int		top_;
+};
+
+
+class uiFloatValidator
+{
+public:
+    		uiFloatValidator()
+		    : bottom_(-mUdf(float)), top_(mUdf(float))
+		    , nrdecimals_(1000), scnotation_(true)	{}
+    		uiFloatValidator( float bot, float top )
+		    : bottom_(bot), top_(top)
+		    , nrdecimals_(1000), scnotation_(true)	{}
+
+    float	bottom_;
+    float	top_;
+    int		nrdecimals_;
+    bool	scnotation_;	// If true, ScientificNotation is used
+};
+
 
 class uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 {
@@ -33,9 +63,12 @@ public:
     virtual bool	update_(const DataInpSpec&);
 
     void		setPasswordMode();
+    void		setValidator(const uiIntValidator&);
+    void		setValidator(const uiFloatValidator&);
 
     void		setMaxLength(int);
     int			maxLength() const;
+    void		setNrDecimals( int nrdec )	{ nrdecimals_ = nrdec; }
 
 			//! Moves the text cursor to the beginning of the line. 
     void		home();
@@ -65,6 +98,7 @@ private:
     uiLineEditBody*	body_;
     uiLineEditBody&	mkbody(uiParent*, const char*);
 
-    BufferString	result;
+    mutable BufferString result_;
+    int			nrdecimals_;
 };
 #endif

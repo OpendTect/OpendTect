@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimdiarea.cc,v 1.3 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimdiarea.cc,v 1.4 2008-12-24 05:55:22 cvsnanne Exp $";
 
 #include "uimdiarea.h"
 #include "i_qmdiarea.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uimdiarea.cc,v 1.3 2008-11-25 15:35:24 cvsbert 
 
 
 
-class uiMdiAreaBody : public uiObjBodyImplNoQtNm<uiMdiArea,QMdiArea>
+class uiMdiAreaBody : public uiObjBodyImpl<uiMdiArea,QMdiArea>
 { 	
 public:
     			uiMdiAreaBody(uiMdiArea&,uiParent*,const char*);
@@ -31,7 +31,7 @@ protected:
 
 
 uiMdiAreaBody::uiMdiAreaBody( uiMdiArea& handle, uiParent* p, const char* nm )
-    : uiObjBodyImplNoQtNm<uiMdiArea,QMdiArea>(handle,p,nm)
+    : uiObjBodyImpl<uiMdiArea,QMdiArea>(handle,p,nm)
     , messenger_(*new i_MdiAreaMessenger(this,&handle))
 {}
 
@@ -88,7 +88,7 @@ void uiMdiArea::tileVertical()
 
 	const int prefheight = widget->minimumHeight() + 
 	    			widget->parentWidget()->baseSize().height();
-	const int actheight = QMAX( avgheight, prefheight );
+	const int actheight = mMAX( avgheight, prefheight );
 
 	widget->setGeometry( 0, y, wswidth, actheight );
 	y += actheight;
@@ -128,7 +128,7 @@ void uiMdiArea::tileHorizontal()
 
 	const int prefwidth = widget->minimumWidth() + 
 	    			widget->parentWidget()->baseSize().width();
-	const int actwidth = QMAX( avgwidth, prefwidth );
+	const int actwidth = mMAX( avgwidth, prefwidth );
 
 	widget->setGeometry( x, 0, actwidth, wsheight );
 	x += actwidth;
@@ -206,7 +206,7 @@ const char* uiMdiArea::getActiveWin() const
 {
     static BufferString nm;
     QWidget* widget = body_->activeSubWindow();
-    nm = widget ? widget->caption().toAscii().constData() : "";
+    nm = widget ? mQStringToConstChar(widget->windowTitle()) : "";
     return nm.buf();
 }
 
@@ -231,7 +231,7 @@ uiMdiAreaGroup::uiMdiAreaGroup( const char* nm )
 
 void uiMdiAreaGroup::setTitle( const char* nm )
 {
-    qmdisubwindow_->setCaption( nm );
+    qmdisubwindow_->setWindowTitle( nm );
     changed.trigger();
 }
 
@@ -239,7 +239,7 @@ void uiMdiAreaGroup::setTitle( const char* nm )
 const char* uiMdiAreaGroup::getTitle() const
 {
     static BufferString title;
-    title = qmdisubwindow_->caption().toAscii().constData();
+    title = mQStringToConstChar( qmdisubwindow_->windowTitle() );
     return title.buf();
 }
 

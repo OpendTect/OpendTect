@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.47 2008-09-17 12:17:47 cvsjaap Exp $
+ RCS:           $Id: uiobjbody.h,v 1.48 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,12 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "uiparentbody.h"
 
+#include "color.h"
+
 class uiButtonGroup;
 class i_LayoutItem;
 class i_LayoutMngr;
 class ioPixmap;
-class Color;
 class Timer;
 
 class QCloseEvent;
@@ -43,7 +44,7 @@ public:
     virtual		~uiObjectBody();
 
     void		setToolTip(const char*);
-    static void		getToolTipBGColor( Color& );
+    static void		getToolTipBGColor(Color&);
     static void		setToolTipBGColor(const Color&);
 
     void 		display(bool yn,bool shrink=false,
@@ -53,9 +54,8 @@ public:
     bool		uiCloseOK()	{ return uiObjHandle().closeOK(); }
     bool		isDisplayed() const { return display_; }
 
-    const Color&	uibackgroundColor() const;
+    Color		uibackgroundColor() const;
     void              	uisetBackgroundColor(const Color&);
-    void		uisetBackgroundPixmap(const char**);
     void		uisetBackgroundPixmap(const ioPixmap&);
     void		uisetSensitive(bool yn=true);
     bool		uisensitive() const;
@@ -232,38 +232,11 @@ public:
 				       const char* nm )
 			    : uiObjectBody( parnt, nm )
 			    , T( parnt && parnt->pbody() ? 
-				     parnt->pbody()->managewidg() : 0 , nm )
-			    , handle_( handle )
-			    {
-			    }
-
-                        uiObjBodyImpl( C& handle, uiParent* parnt,
-					const char* nm, bool dummy ) 
-			    : uiObjectBody( parnt, nm )
-			    , T( parnt && parnt->pbody() ? 
 				     parnt->pbody()->managewidg() : 0 )
 			    , handle_( handle )
 			    {
-				// Use this when the objs constructor only wants
-				// a QWidget*, not a const char* nm
+				this->setObjectName( nm );
 			    }
-
-#include		"i_uiobjqtbody.h"
-
-};
-
-template <class C, class T>
-class uiObjBodyImplNoQtNm : public uiObjectBody, public T
-{
-public:
-
-uiObjBodyImplNoQtNm( C& handle, uiParent* parnt, const char* nm )
-    : uiObjectBody( parnt, nm )
-    , T( parnt && parnt->pbody() ? parnt->pbody()->managewidg() : 0 )
-    , handle_( handle )
-{
-    this->setObjectName( nm );
-}
 
 #include		"i_uiobjqtbody.h"
 

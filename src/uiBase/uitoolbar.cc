@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.49 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.50 2008-12-24 05:55:22 cvsnanne Exp $";
 
 #include "uitoolbar.h"
 
@@ -271,7 +271,7 @@ void uiToolBar::addObject( uiObject* obj )
 
 void uiToolBar::setLabel( const char* lbl )
 {
-    qtoolbar_->setLabel( QString(lbl) );
+    qtoolbar_->setWindowTitle( QString(lbl) );
     setName( lbl );
 }
 

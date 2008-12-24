@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.59 2008-09-17 12:17:47 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.60 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,9 +75,8 @@ public:
 
     void		setCursor(const MouseCursor&);
 
-    virtual const Color& backgroundColor() const;
+    virtual Color	backgroundColor() const;
     virtual void	setBackgroundColor(const Color&);
-    virtual void	setBackgroundPixmap(const char**);
     virtual void	setBackgroundPixmap(const ioPixmap&);
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
@@ -164,6 +163,10 @@ private:
 
     uiParent*		parent_;
 };
+
+
+#define mQStringToConstChar( str ) \
+    str.toAscii().constData()
 
 
 #define mTemplTypeDef(fromclass,templ_arg,toclass) \

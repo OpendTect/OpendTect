@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.162 2008-12-18 13:21:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.163 2008-12-24 05:55:21 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -79,7 +79,7 @@ public:
     uiStatusBar* 	uistatusbar();
     uiMenuBar* 		uimenubar();
 
-    virtual void        polish() { QMainWindow::polish(); }
+    virtual void        polish() { QMainWindow::ensurePolished(); }
 
     void		reDraw( bool deep )
 			{
@@ -203,7 +203,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 			      const char* nm, bool modal )
 	: uiParentBody(nm)
 	, QMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
-		      nm,getFlags(p,modal) )
+		      getFlags(p,modal) )
 	, handle_(uimw)
 	, initing(true)
 	, centralWidget_(0)
@@ -216,7 +216,12 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
 {
-    if ( nm && *nm ) setCaption( nm );
+    if ( nm && *nm )
+    {
+	setObjectName( nm );
+	setWindowTitle( nm );
+    }
+
     poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 
     iconsz_ = uiObject::iconSize();
@@ -698,7 +703,7 @@ void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::activateClose()			{ body_->activateClose(); }
 void uiMainWin::activateQDlg( int retval )	{ body_->activateQDlg(retval); }
-void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
+void uiMainWin::setCaption( const char* txt )	{ body_->setWindowTitle(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 bool uiMainWin::touch() 			{ return body_->touch(); }
@@ -833,7 +838,7 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
     if ( typ == Message )
     {
         const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
-	const char* buttext = qmb->buttonText( buttonnr );
+	const char* buttext = mQStringToConstChar( qmb->buttonText(buttonnr) );
 	return const_cast<char*>( buttext );
     }
 
@@ -1421,7 +1426,7 @@ void uiDialog::done( int i )			{ mBody->done( i ); }
 void uiDialog::setHSpacing( int s )		{ mBody->setHSpacing(s); }
 void uiDialog::setVSpacing( int s )		{ mBody->setVSpacing(s); }
 void uiDialog::setBorder( int b )		{ mBody->setBorder(b); }
-void uiDialog::setCaption( const char* txt )	{ mBody->setCaption(txt); }
+void uiDialog::setCaption( const char* txt )	{ mBody->setWindowTitle(txt); }
 void uiDialog::setTitleText( const char* txt )	{ mBody->setTitleText(txt); }
 void uiDialog::setOkText( const char* txt )	{ mBody->setOkText(txt); }
 void uiDialog::setCancelText( const char* txt )	{ mBody->setCancelText(txt);}

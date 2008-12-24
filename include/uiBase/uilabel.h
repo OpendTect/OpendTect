@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.10 2008-05-07 06:06:23 cvsnanne Exp $
+ RCS:           $Id: uilabel.h,v 1.11 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
+#include "draw.h"
 
 class uiGroup;
 class uiLabelBody;
@@ -35,19 +36,12 @@ public:
     virtual void        setText(const char*);
     const char*         text() const;
 
-    enum horAlign {
-        AlignAuto               = 0x0000,  
-        AlignLeft               = 0x0001,
-        AlignRight              = 0x0002,
-        AlignHCenter            = 0x0004
-    };
-
 /*! 
     setting an alignment only makes sense if you reserve space using
     setPrefWidthInChar();
 */
-    void		setAlignment( int );
-    int			alignment() const;
+    void		setAlignment(OD::Alignment);
+    OD::Alignment	alignment() const;
 
 private:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.30 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.31 2008-12-24 05:55:21 cvsnanne Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: uilineedit.cc,v 1.30 2008-11-25 15:35:24 cvsber
 #include <QApplication>
 #include <QEvent>
 #include <QSize> 
+#include <QIntValidator>
+#include <QDoubleValidator>
 
 
 class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
@@ -122,8 +124,8 @@ void uiLineEdit::activate( const char* txt, bool enter )
 
 const char* uiLineEdit::getvalue_() const
 {
-    const_cast<uiLineEdit*>(this)->result = (const char*)body_->text();
-    return result;
+    result_ = mQStringToConstChar( body_->text() );
+    return result_;
 }
 
 
@@ -140,68 +142,46 @@ void uiLineEdit::setPasswordMode()
     body_->setEchoMode( QLineEdit::Password );
 }
 
-//! Sets the maximum permitted length of the text
-void uiLineEdit::setMaxLength( int maxtxtlength )
+
+void uiLineEdit::setValidator( const uiIntValidator& val )
 {
-    body_->setMaxLength( maxtxtlength );
+    body_->setValidator( new QIntValidator(val.bottom_,val.top_,body_) );
 }
 
+
+void uiLineEdit::setValidator( const uiFloatValidator& val )
+{
+    QDoubleValidator* qdval =
+	new QDoubleValidator( val.bottom_, val.top_, val.nrdecimals_, body_ );
+    if ( !val.scnotation_ )
+	qdval->setNotation( QDoubleValidator::StandardNotation );
+    body_->setValidator( qdval );
+}
+
+
+void uiLineEdit::setMaxLength( int maxtxtlength )
+{ body_->setMaxLength( maxtxtlength ); }
 
 int uiLineEdit::maxLength() const
-{
-    return body_->maxLength();
-}
+{ return body_->maxLength(); }
 
-
-/*!  Sets the edited flag of this line edit to \a yn.  The edited flag
-is never read by uiLineEdit, and is changed to true whenever the user
-changes its contents.
-\sa isEdited()
-*/
 void uiLineEdit::setEdited( bool yn )
-{
-    body_->setEdited( yn );
-}
+{ body_->setModified( yn ); }
 
-
-/*!  Returns the edited flag of the line edit.  If this returns false,
-the line edit's contents have not been changed since the construction
-of the uiLineEdit (or the last call to setEdited( false ), if any).  If
-it returns true, the contents have been edited, or setEdited( true )
-has been called.
-
-\sa setEdited()
-*/
 bool uiLineEdit::isEdited() const
-{
-    return body_->edited();
-}
-
+{ return body_->isModified(); }
 
 void uiLineEdit::setReadOnly( bool yn )
-{
-    body_->setReadOnly( yn );
-}
-
+{ body_->setReadOnly( yn ); }
 
 bool uiLineEdit::isReadOnly() const
-{
-    return body_->isReadOnly();
-}
+{ return body_->isReadOnly(); }
 
 bool uiLineEdit::update_( const DataInpSpec& spec )
-{
-    setText( spec.text() );
-    return true;
-}
+{ setText( spec.text() ); return true; }
 
 void uiLineEdit::home()
-{
-    body_->home( false );
-}
+{ body_->home( false ); }
 
 void uiLineEdit::end()
-{
-    body_->end( false );
-}
-
+{ body_->end( false ); }

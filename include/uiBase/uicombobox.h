@@ -1,5 +1,5 @@
-#ifndef uiComboBox_H
-#define uiComboBox_H
+#ifndef uicombobox_h
+#define uicombobox_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.23 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uicombobox.h,v 1.24 2008-12-24 05:52:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,11 +82,12 @@ protected:
 
 private:
 
-    BufferString	rettxt;
+    mutable BufferString rettxt_;
 
     uiComboBoxBody*	body_;
     uiComboBoxBody&	mkbody(uiParent*,const char*);
 };
+
 
 
 class uiLabeledComboBox : public uiGroup
