@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.43 2008-12-23 22:51:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.44 2008-12-24 08:08:26 cvsnanne Exp $";
 
 #include "visprestackviewer.h"
 
@@ -261,8 +261,8 @@ bool Viewer3D::setPosition( const BinID& nb )
 
 bool Viewer3D::updateData()
 {
-    if ( is3DSeis() && (bid_.inl==-1 || bid_.crl==-1) || 
-	!is3DSeis() && !seis2d_ )
+    if ( (is3DSeis() && (bid_.inl==-1 || bid_.crl==-1)) || 
+	 (!is3DSeis() && !seis2d_) )
     {
 	turnOn(false);
 	return true;
