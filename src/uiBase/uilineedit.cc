@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.31 2008-12-24 05:55:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.32 2008-12-24 11:26:15 cvsraman Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -19,9 +19,9 @@ static const char* rcsID = "$Id: uilineedit.cc,v 1.31 2008-12-24 05:55:21 cvsnan
 #include <QApplication>
 #include <QEvent>
 #include <QSize> 
+#include <QCompleter>
 #include <QIntValidator>
 #include <QDoubleValidator>
-
 
 class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
 {
@@ -170,6 +170,18 @@ void uiLineEdit::setEdited( bool yn )
 
 bool uiLineEdit::isEdited() const
 { return body_->isModified(); }
+
+void uiLineEdit::setCompleter( const BufferStringSet& bs, bool cs )
+{
+    QStringList qsl;
+    for ( int idx=0; idx<bs.size(); idx++ )
+	qsl << QString( bs.get(idx) );
+
+    QCompleter* qc = new QCompleter( qsl, 0 );
+    qc->setCaseSensitivity( cs ? Qt::CaseSensitive : Qt::CaseInsensitive );
+    body_->setCompleter( qc );
+}
+
 
 void uiLineEdit::setReadOnly( bool yn )
 { body_->setReadOnly( yn ); }

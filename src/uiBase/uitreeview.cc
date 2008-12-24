@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.48 2008-12-24 05:55:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.49 2008-12-24 11:26:15 cvsraman Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -573,7 +573,7 @@ uiListViewItem::~uiListViewItem()
 void uiListViewItem::setText( const char* txt, int column )
 { 
     qtreeitem_->setText( column, QString(txt) );
-    if ( qtreeitem_->toolTip(column).isEmpty() )
+//    if ( qtreeitem_->toolTip(column).isEmpty() )
 	qtreeitem_->setToolTip( column, QString(txt) );
 }
 
