@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.17 2008-12-23 11:31:18 cvsdgb Exp $
+ RCS:		$Id: welllog.h,v 1.18 2008-12-24 12:28:13 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "sets.h"
 #include "welldahobj.h"
 #include "ranges.h"
 #include "color.h"
+#include "iopar.h"
 
 namespace Well
 {
@@ -50,9 +50,14 @@ public:
     const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
     static const char*	sKeyUnitLbl;
+    static const char*	sKeyHdrInfo;
+    static const char*	sKeyStorage;
 
     float*		valArr()			{ return val_.arr(); }
     const float*	valArr() const			{ return val_.arr(); }
+
+    IOPar&		pars()				{ return pars_; }
+    const IOPar&	pars() const			{ return pars_; }
 
 protected:
 
@@ -61,6 +66,7 @@ protected:
     Interval<float>	selrange_;
     BufferString	unitmeaslbl_;
     bool		displogrthm_;
+    IOPar		pars_;
 
     void		removeAux( int idx )		{ val_.remove(idx); }
     void		eraseAux()			{ val_.erase(); }

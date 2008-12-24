@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.10 2008-12-05 16:21:47 cvsbert Exp $
+ RCS:		$Id: wellreader.h,v 1.11 2008-12-24 12:28:13 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -38,8 +38,6 @@ public:
     bool		getMarkers() const;	//!< Read Markers only
     bool		getD2T() const;		//!< Read D2T model only
     bool		getDispProps() const;	//!< Read display props only
-    void		getLogInfo(BufferStringSet&) const;	
-    						//!< Read logheaders only
 
     bool		getInfo(std::istream&) const;
     bool		addLog(std::istream&) const;
@@ -47,6 +45,7 @@ public:
     bool		getD2T(std::istream&) const;
     bool		getDispProps(std::istream&) const;
 
+    void		getLogInfo(BufferStringSet&) const;
     Interval<float>	getLogDahRange(const char*) const;
     			//!< If no log with this name, returns [undef,undef]
 
@@ -54,10 +53,11 @@ protected:
 
     Data&		wd;
 
-    const char*		rdHdr(std::istream&,const char*) const;
     bool		getOldTimeWell(std::istream&) const;
-    Log*		rdLogHdr(std::istream&,int) const;
+    void		readLogData(Log&,std::istream&,int) const;
     bool		getTrack(std::istream&) const;
+
+    static Log*		rdLogHdr(std::istream&,int&,int);
 
 };
 

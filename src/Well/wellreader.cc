@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.29 2008-12-10 10:02:03 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.30 2008-12-24 12:28:13 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -102,14 +102,7 @@ bool Well::IO::removeAll( const char* ext ) const
 }
 
 
-Well::Reader::Reader( const char* f, Well::Data& w )
-	: Well::IO(f,true)
-    	, wd(w)
-{
-}
-
-
-const char* Well::Reader::rdHdr( std::istream& strm, const char* fileky ) const
+static const char* rdHdr( std::istream& strm, const char* fileky )
 {
     ascistream astrm( strm, true );
     if ( !astrm.isOfFileType(fileky) )
@@ -123,6 +116,13 @@ const char* Well::Reader::rdHdr( std::istream& strm, const char* fileky ) const
 
     static BufferString hdrln; hdrln = astrm.headerStartLine();
     return hdrln.buf();
+}
+
+
+Well::Reader::Reader( const char* f, Well::Data& w )
+	: Well::IO(f,true)
+    	, wd(w)
+{
 }
 
 
@@ -250,7 +250,8 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 
 	if ( rdHdr(*sd.istrm,sKeyLog) )
 	{
-	    PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, idx-1 );
+	    int bintyp = 0;
+	    PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, bintyp, idx-1 );
 	    strs.add( log->name() );
 	}
 	sd.close();
@@ -271,20 +272,18 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 
 	if ( !rdHdr(strm,sKeyLog) )
 	    { sd.close(); continue; }
-	PtrMan<Well::Log> log = rdLogHdr( strm, idx-1 );
+
+	int bintype = 0;
+	PtrMan<Well::Log> log = rdLogHdr( strm, bintype, wd.logs().size() );
 	if ( log->name() != nm )
 	    { sd.close(); continue; }
 
-	float dah, val;
-	strm >> dah >> val;
-	if ( !strm )
-	    { sd.close(); break; }
+	readLogData( *log, strm, bintype );
+	sd.close();
 
-	ret.start = dah;
-	while ( strm )
-	    strm >> dah >> val;
-	ret.stop = dah;
-	sd.close(); break;
+	ret.start = log->dah(0);
+	ret.stop = log->dah( log->size()-1 );
+	break;
     }
 
     return ret;
@@ -317,22 +316,33 @@ bool Well::Reader::getLogs() const
 }
 
 
-Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int idx ) const
+Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
 {
     Well::Log* newlog = new Well::Log;
     ascistream astrm( strm, false );
+    bool havehdrinfo = false;
+    bintype = 0;
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword(sKey::Name) )
 	    newlog->setName( astrm.value() );
 	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl) )
 	    newlog->setUnitMeasLabel( astrm.value() );
+	if ( astrm.hasKeyword(Well::Log::sKeyHdrInfo) )
+	    havehdrinfo = astrm.getYN();
+	if ( astrm.hasKeyword(Well::Log::sKeyStorage) )
+	    bintype = *astrm.value() == 'B' ? 1
+		    : (*astrm.value() == 'S' ? -1 : 0);
     }
     if ( newlog->name().isEmpty() )
     {
 	BufferString nm( "[" ); nm += idx+1; nm += "]";
 	newlog->setName( nm );
     }
+
+    if ( havehdrinfo )
+	newlog->pars().getFrom( astrm );
+
     return newlog;
 }
 
@@ -342,19 +352,40 @@ bool Well::Reader::addLog( std::istream& strm ) const
     if ( !rdHdr(strm,sKeyLog) )
 	return false;
 
-    Well::Log* newlog = rdLogHdr( strm, wd.logs().size() );
+    int bintype = 0;
+    Well::Log* newlog = rdLogHdr( strm, bintype, wd.logs().size() );
+    if ( !newlog )
+	return false;
 
-    float dah, val;
-    while ( strm )
-    {
-	strm >> dah >> val;
-	if ( !strm ) break;
-
-	newlog->addValue( dah, val );
-    }
+    readLogData( *newlog, strm, bintype );
 
     wd.logs().add( newlog );
     return true;
+}
+
+
+void Well::Reader::readLogData( Well::Log& wl, std::istream& strm,
+       				int bintype ) const
+{
+
+    float v[2];
+    while ( strm )
+    {
+	if ( !bintype )
+	    strm >> v[0] >> v[1];
+	else
+	{
+	    strm.read( (char*)v, 2 * sizeof(float) );
+	    if ( bintype > 0 != __islittle__ )
+	    {
+		SwapBytes( v, sizeof(float) );
+		SwapBytes( v+1, sizeof(float) );
+	    }
+	}
+	if ( !strm ) break;
+
+	wl.addValue( v[0], v[1] );
+    }
 }
 
 

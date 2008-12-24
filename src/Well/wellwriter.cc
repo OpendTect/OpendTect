@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.11 2008-12-05 16:21:47 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.12 2008-12-24 12:28:13 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: wellwriter.cc,v 1.11 2008-12-05 16:21:47 cvsber
 #include "strmprov.h"
 #include "keystrs.h"
 #include "separstr.h"
-#include "iopar.h"
+#include "envvars.h"
 #include <iostream>
 
 
@@ -124,12 +124,23 @@ bool Well::Writer::putLogs() const
 bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 {
     if ( !wrHdr(strm,sKeyLog) ) return false;
+((Well::Log&)wl).pars().set( "Hdr.1", "Val.1" );
+((Well::Log&)wl).pars().set( "Hdr.2", "Val.2" );
 
     ascostream astrm( strm );
     astrm.put( sKey::Name, wl.name() );
-    if ( *wl.unitMeasLabel() )
+    const bool haveunits = *wl.unitMeasLabel();
+    const bool havepars = !wl.pars().isEmpty();
+    if ( haveunits )
 	astrm.put( Well::Log::sKeyUnitLbl, wl.unitMeasLabel() );
+    astrm.putYN( Well::Log::sKeyHdrInfo, havepars );
+    static bool write_ascii = GetEnvVarYN( "OD_WRITE_LOGS_ASCII" );
+    const char* stortyp = write_ascii ? "Ascii"
+				      : (__islittle__ ? "Binary" : "Swapped");
+    astrm.put( Well::Log::sKeyStorage, stortyp );
     astrm.newParagraph();
+    if ( havepars )
+	wl.pars().putTo( astrm );
 
     Interval<int> wrintv( 0, wl.size()-1 );
     float dah, val;
@@ -146,15 +157,22 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 	    break;
     }
 
+    float v[2];
     for ( int idx=wrintv.start; idx<=wrintv.stop; idx++ )
     {
-	dah = wl.dah(idx); val = wl.value(idx);
-	if ( mIsUdf(dah) )
+	v[0] = wl.dah(idx); v[1] = wl.value(idx);
+	if ( mIsUdf(v[0]) )
 	    continue;
-	if ( mIsUdf(val) )
-	    strm << dah << '\t' << sKey::FloatUdf << '\n';
+
+	if ( !write_ascii )
+	    strm.write( (char*)v, 2*sizeof(float) );
 	else
-	    strm << dah << '\t' << val << '\n';
+	{
+	    if ( mIsUdf(v[1]) )
+		strm << dah << '\t' << sKey::FloatUdf << '\n';
+	    else
+		strm << v[0] << '\t' << v[1] << '\n';
+	}
     }
 
     return strm.good();
