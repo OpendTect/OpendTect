@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.6 2008-12-24 04:48:44 cvsdgb Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -62,7 +62,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     fillfld_->attach( alignedBelow, lsfld_ );
 
     fillcolfld_ = new uiColorInput( this,
-	    			    uiColorInput::Setup(Color::White) );
+	    			    uiColorInput::Setup(Color::White()) );
     fillcolfld_->attach( rightOf, fillfld_ );
     fillSel(0);
 }
@@ -74,7 +74,7 @@ void uiGMTPolylineGrp::reset()
     namefld_->clear();
     lsfld_->setStyle( LineStyle() );
     fillfld_->setChecked( false );
-    fillcolfld_->setColor( Color::White );
+    fillcolfld_->setColor( Color::White() );
     fillSel( 0 );
 }
 

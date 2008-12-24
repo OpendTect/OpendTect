@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcoastline.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtcoastline.cc,v 1.6 2008-12-24 04:48:44 cvsdgb Exp $";
 
 #include "uigmtcoastline.h"
 
@@ -75,11 +75,11 @@ uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     filldryfld_->attach( alignedBelow, fillwetfld_ );
 
     wetcolfld_ = new uiColorInput( this,
-	    			   uiColorInput::Setup(Color::White) );
+	    			   uiColorInput::Setup(Color::White()) );
     wetcolfld_->attach( rightOf, fillwetfld_ );
 
     drycolfld_ = new uiColorInput( this,
-	    			   uiColorInput::Setup(Color::DgbColor) );
+	    			   uiColorInput::Setup(Color::DgbColor()) );
     drycolfld_->attach( rightOf, filldryfld_ );
     reset();
     fillSel(0);

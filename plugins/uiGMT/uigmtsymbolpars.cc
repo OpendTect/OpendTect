@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtsymbolpars.cc,v 1.4 2008-12-24 04:48:44 cvsdgb Exp $";
 
 #include "uigmtsymbolpars.h"
 
@@ -34,7 +34,7 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p )
     sizefld_->attach( rightTo, lcb );
 
     outcolfld_ = new uiColorInput( this,
-	    			   uiColorInput::Setup(Color::Black)
+	    			   uiColorInput::Setup(Color::Black())
 				   .lbltxt("Outline color") );
     outcolfld_->attach( alignedBelow, lcb );
 
@@ -43,7 +43,7 @@ uiGMTSymbolPars::uiGMTSymbolPars( uiParent* p )
     fillfld_->attach( rightTo, outcolfld_ );
 
     fillcolfld_ = new uiColorInput( this,
-	    			    uiColorInput::Setup(Color::White) );
+	    			    uiColorInput::Setup(Color::White()) );
     fillcolfld_->attach( rightOf, fillfld_ );
     fillSel(0);
 }
@@ -53,9 +53,9 @@ void uiGMTSymbolPars::reset()
 {
     shapefld_->setCurrentItem( 0 );
     sizefld_->setValue( 0.2 );
-    outcolfld_->setColor( Color::Black );
+    outcolfld_->setColor( Color::Black() );
     fillfld_->setChecked( false );
-    fillcolfld_->setColor( Color::White );
+    fillcolfld_->setColor( Color::White() );
 }
 
 
