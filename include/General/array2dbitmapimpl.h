@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.10 2008-09-22 13:09:19 cvskris Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.11 2008-12-25 11:13:33 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ struct WVAA2DBitMapGenPars : public A2DBitMapGenPars
 
 /*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
 
-class WVAA2DBitMapGenerator : public A2DBitMapGenerator
+mClass WVAA2DBitMapGenerator : public A2DBitMapGenerator
 {
 public:
 
@@ -99,7 +99,7 @@ struct VDA2DBitMapGenPars : public A2DBitMapGenPars
 
 /*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
 
-class VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
+mClass VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
 {
 public:
 

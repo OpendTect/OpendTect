@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.19 2008-11-24 15:01:13 cvskris Exp $
+ RCS:		$Id: binidvalset.h,v 1.20 2008-12-25 11:13:33 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ class IOPar;
  */
 
 
-class BinIDValueSet
+mClass BinIDValueSet
 {
 public:
 

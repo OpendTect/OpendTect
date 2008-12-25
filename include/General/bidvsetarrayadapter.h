@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H.Huck
  Date:		March 2008
- RCS:		$Id: bidvsetarrayadapter.h,v 1.1 2008-03-21 15:48:00 cvshelene Exp $
+ RCS:		$Id: bidvsetarrayadapter.h,v 1.2 2008-12-25 11:13:33 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 //!\brief an adapter between Array2D and a BinIDValueSet
 
-class BIDValSetArrAdapter: 	public Array2D<float>
+mClass BIDValSetArrAdapter: 	public Array2D<float>
 {
 public:			
     			BIDValSetArrAdapter(const BinIDValueSet&,int);

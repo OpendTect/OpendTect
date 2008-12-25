@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.15 2008-05-29 11:32:02 cvssatyaki Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.16 2008-12-25 11:13:33 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ struct A2DBitMapGenPars
 
 /*! \brief Array2D<float>& + statistics */
 
-class A2DBitMapInpData
+mClass A2DBitMapInpData
 {
 public:
 
@@ -106,7 +106,7 @@ need a (usually linear) transformation in both directions for display.
 */
 
 
-class A2DBitMapPosSetup
+mClass A2DBitMapPosSetup
 {
 public:
 
@@ -176,7 +176,7 @@ protected:
 
 /*!\brief Generates Array2D bitmap from Array2D<float> */
 
-class A2DBitMapGenerator
+mClass A2DBitMapGenerator
 {
 public:
 

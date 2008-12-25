@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Component information
- RCS:		$Id: basiccompinfo.h,v 1.8 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: basiccompinfo.h,v 1.9 2008-12-25 11:13:33 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*!\brief Info on one component */
 
-class BasicComponentInfo : public NamedObject
+mClass BasicComponentInfo : public NamedObject
 {
 public:
 			BasicComponentInfo( const char* nm=0 )
