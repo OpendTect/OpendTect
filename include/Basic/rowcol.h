@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.23 2008-09-04 15:19:33 cvsnanne Exp $
+ RCS:		$Id: rowcol.h,v 1.24 2008-12-25 10:09:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 template <class T> class TypeSet;
 
-class RowCol : public RCol
+mClass RowCol : public RCol
 {
 public:
 		RowCol( int row_, int col_ ) : row(row_), col(col_)	{}
