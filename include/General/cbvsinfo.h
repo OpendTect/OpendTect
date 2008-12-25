@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.23 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.24 2008-12-25 11:16:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ If the SurvGeom has full rectangularity, cubedata can be ignored.
 
 */
 
-class CBVSInfo
+mClass CBVSInfo
 {
 public:
 

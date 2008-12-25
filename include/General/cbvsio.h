@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.13 2008-03-20 21:46:40 cvskris Exp $
+ RCS:		$Id: cbvsio.h,v 1.14 2008-12-25 11:16:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ supported.
 
 */
 
-class CBVSIO
+mClass CBVSIO
 {
 public:
 
@@ -66,7 +66,7 @@ protected:
 
 */
 
-class CBVSIOMgr
+mClass CBVSIOMgr
 {
 public:
 

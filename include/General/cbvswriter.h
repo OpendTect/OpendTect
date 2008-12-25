@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswriter.h,v 1.26 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:		$Id: cbvswriter.h,v 1.27 2008-12-25 11:16:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ For the inline/xline info, you have two choices:
 
 */
 
-class CBVSWriter : public CBVSIO
+mClass CBVSWriter : public CBVSIO
 {
 public:
 

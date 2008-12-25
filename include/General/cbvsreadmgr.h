@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		14-4-2001
  Contents:	Common Binary Volume Storage read manager
- RCS:		$Id: cbvsreadmgr.h,v 1.20 2005-12-16 11:15:21 cvsbert Exp $
+ RCS:		$Id: cbvsreadmgr.h,v 1.21 2008-12-25 11:16:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class CubeSampling;
 
 */
 
-class CBVSReadMgr : public CBVSIOMgr
+mClass CBVSReadMgr : public CBVSIOMgr
 {
 public:
 

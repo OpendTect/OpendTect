@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2005
- RCS:		$Id: classify.h,v 1.1 2005-11-03 15:41:26 cvsbert Exp $
+ RCS:		$Id: classify.h,v 1.2 2008-12-25 11:16:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 */
 
 template <class T>
-class WeightedClassCounter
+mClass WeightedClassCounter
 {
 public:
     		WeightedClassCounter( bool canbeneg=true )

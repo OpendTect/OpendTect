@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.27 2007-11-29 14:36:03 cvsbert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.28 2008-12-25 11:16:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ inlines, no matter whether the data is stored with descending inlines.
 
 */
 
-class CBVSReader : public CBVSIO
+mClass CBVSReader : public CBVSIO
 {
 public:
 

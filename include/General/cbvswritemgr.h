@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format writer
- RCS:		$Id: cbvswritemgr.h,v 1.14 2004-10-20 14:45:42 bert Exp $
+ RCS:		$Id: cbvswritemgr.h,v 1.15 2008-12-25 11:16:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ struct VBrickSpec
 
 /*!\brief Writer for CBVS file packs */
 
-class CBVSWriteMgr : public CBVSIOMgr
+mClass CBVSWriteMgr : public CBVSIOMgr
 {
 public:
 
