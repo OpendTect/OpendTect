@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.30 2008-12-05 23:14:37 cvskris Exp $
+ RCS:           $Id: arrayndutils.h,v 1.31 2008-12-25 06:36:10 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -131,7 +131,7 @@ The only requirement on the windowfunction is that it should give full taper
 at x=+-1 and no taper when x=0. Feel free to implement more functions!!
 
 */
-class ArrayNDWindow
+mClass ArrayNDWindow
 {
 public:
     enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett,
