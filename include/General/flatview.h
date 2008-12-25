@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.37 2008-12-23 11:05:17 cvsdgb Exp $
+ RCS:           $Id: flatview.h,v 1.38 2008-12-25 11:21:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,18 +32,18 @@ typedef Geom::PosRectangle<double> Rect;
 
 /*!\brief Annotation data for flat views */
 
-class Annotation
+mClass Annotation
 {
 public:
 
 
     //!\brief Things like well tracks, cultural data, 2-D line positions
-    class AuxData
+    mClass AuxData
     {
     public:
 	//!\brief explains what part of the an auxdata's appearance that may be
 	//!	  edited by the user
-	class EditPermissions
+	mClass EditPermissions
 	{
 	public:			EditPermissions();
 	    bool		onoff_;
@@ -140,12 +140,12 @@ public:
 
   */
 
-class DataDispPars
+mClass DataDispPars
 {
 public:
 
     //!\brief Common to VD and WVA
-    class Common
+    mClass Common
     {
     public:
 			Common();
@@ -162,7 +162,7 @@ public:
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
-    class VD : public Common
+    mClass VD : public Common
     {
     public:
 
@@ -172,7 +172,7 @@ public:
 
     };
     //!\brief Wiggle/Variable Area parameters
-    class WVA : public Common
+    mClass WVA : public Common
     {
     public:
 
@@ -221,7 +221,7 @@ public:
 
 /*!\brief Flat views: Appearance  */
 
-class Appearance
+mClass Appearance
 {
 public:
     			Appearance( bool drkbg=true )
@@ -278,7 +278,7 @@ protected:
 
   */
 
-class Viewer
+mClass Viewer
 {
 public:
 

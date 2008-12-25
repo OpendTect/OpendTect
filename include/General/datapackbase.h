@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.11 2008-07-09 11:37:32 cvshelene Exp $
+ RCS:		$Id: datapackbase.h,v 1.12 2008-12-25 11:21:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class BufferStringSet;
 
 /*!\brief DataPack for point data. */
     
-class PointDataPack : public DataPack
+mClass PointDataPack : public DataPack
 {
 public:
 
@@ -51,7 +51,7 @@ protected:
 
   */
     
-class FlatDataPack : public DataPack
+mClass FlatDataPack : public DataPack
 {
 public:
     				FlatDataPack(const char* categry,
@@ -107,7 +107,7 @@ private:
 
 /*!\brief DataPack for 2D data to be plotted on a Map. */
 
-class MapDataPack : public FlatDataPack
+mClass MapDataPack : public FlatDataPack
 {
 public:
     				MapDataPack(const char* categry,const char* nm,
@@ -143,7 +143,7 @@ protected:
 
 /*!\brief DataPack for volume data. */
     
-class CubeDataPack : public DataPack
+mClass CubeDataPack : public DataPack
 {
 public:
     				CubeDataPack(const char* categry,

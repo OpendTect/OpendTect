@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl & N. Hemstra
  Date:		September 2008
- RCS:		$Id: displaypropertylinks.h,v 1.2 2008-12-02 21:39:06 cvskris Exp $
+ RCS:		$Id: displaypropertylinks.h,v 1.3 2008-12-25 11:21:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ class DisplayPropertyLink;
 
 
 
-class DisplayLinkManager
+mClass DisplayLinkManager
 {
 public:
     				DisplayLinkManager();
@@ -85,7 +85,7 @@ protected:
 
 
 
-class DisplayPropertyHolder
+mClass DisplayPropertyHolder
 {
 public:
 			DisplayPropertyHolder(bool reg);
@@ -102,7 +102,7 @@ private:
 };
 
 
-class DisplayPropertyLink : public NamedObject
+mClass DisplayPropertyLink : public NamedObject
 {
 public:
     mDefineFactory1ParamInClass(DisplayPropertyLink,

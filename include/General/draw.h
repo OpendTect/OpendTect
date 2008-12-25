@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.22 2008-12-23 11:05:17 cvsdgb Exp $
+ RCS:           $Id: draw.h,v 1.23 2008-12-25 11:21:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ namespace OD
 }
 
 
-class Alignment
+mClass Alignment
 {
 public:
 			Alignment( OD::Alignment h=OD::AlignLeft,
@@ -47,7 +47,7 @@ public:
 #define mAlign(h,v) Alignment(OD::h,OD::v)
 
 
-class MarkerStyle2D
+mClass MarkerStyle2D
 {
 public:
 
@@ -80,7 +80,7 @@ public:
 };
 
 
-class MarkerStyle3D
+mClass MarkerStyle3D
 {
 public:
 
@@ -105,7 +105,7 @@ public:
 };
 
 
-class LineStyle
+mClass LineStyle
 {
 public:
 
@@ -136,7 +136,7 @@ public:
 };
 
 
-class ArrowHeadStyle
+mClass ArrowHeadStyle
 {
 public:
     enum Type		{ Line, Triangle, Square, Cross };
@@ -155,7 +155,7 @@ public:
 };
 
 
-class ArrowStyle
+mClass ArrowStyle
 {
 public:
 

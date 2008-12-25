@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.5 2007-10-03 12:51:48 cvskris Exp $
+ RCS:           $Id: flatposdata.h,v 1.6 2008-12-25 11:21:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
  
  */
 
-class FlatPosData
+mClass FlatPosData
 {
 public:
 				FlatPosData()

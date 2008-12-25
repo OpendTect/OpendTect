@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.23 2008-12-10 16:16:33 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.24 2008-12-25 11:25:59 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class StreamProvider;
 /*\brief An IOStream is a file (default), device or command entry in the omf. */
 
 
-class IOStream : public IOObject
+mClass IOStream : public IOObject
 {
 public:
 			IOStream(const char* nm=0,const char* id=0,

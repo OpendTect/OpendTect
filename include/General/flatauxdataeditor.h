@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.12 2008-07-02 14:37:53 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.13 2008-12-25 11:21:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace FlatView
    Users of the class have the choice if the editor should do the changes for
    them, or if they want to do changes themself, driven by the callback. */
 
-class AuxDataEditor : public CallBacker
+mClass AuxDataEditor : public CallBacker
 {
 public:
 			AuxDataEditor(Viewer&,MouseEventHandler&);

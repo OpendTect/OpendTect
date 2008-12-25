@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		25-7-1997
  Contents:	IOObj on other IOObj
- RCS:		$Id: iox.h,v 1.15 2008-11-18 17:25:15 cvsbert Exp $
+ RCS:		$Id: iox.h,v 1.16 2008-12-25 11:25:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 /*\brief is a X-Group entry in the omf, e.g. Seismic data based upon a
 Feature Set. */
 
-class IOX : public IOObject
+mClass IOX : public IOObject
 {
 public:
 			IOX(const char* nm=0,const char* ky=0,bool =0);

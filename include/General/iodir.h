@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.15 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: iodir.h,v 1.16 2008-12-25 11:25:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ the service access point.
 */
 
 
-class IODir : public NamedObject
+mClass IODir : public NamedObject
 {
 
     friend class	IOMan;

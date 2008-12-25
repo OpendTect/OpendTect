@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.10 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:           $Id: iodirentry.h,v 1.11 2008-12-25 11:25:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class TranslatorGroup;
 
 /*!\brief needed for manipulation. Used by user interface IOObj management. */
 
-class IODirEntry : public NamedObject
+mClass IODirEntry : public NamedObject
 {
 public:
 			IODirEntry(IOObj*,int,bool);
@@ -36,7 +36,7 @@ public:
 
 /*!\brief list of dir entries. */
 
-class IODirEntryList : public ObjectSet<IODirEntry>
+mClass IODirEntryList : public ObjectSet<IODirEntry>
 		     , public NamedObject
 {
 public:
