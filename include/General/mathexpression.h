@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.9 2008-01-25 10:06:47 cvshelene Exp $
+ RCS:           $Id: mathexpression.h,v 1.10 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ setVariable( int, float ). Then, the calculation can be done with getValue().
 
 -*/
 
-class MathExpression
+mClass MathExpression
 {
 public:
 

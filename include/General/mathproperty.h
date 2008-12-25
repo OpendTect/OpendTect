@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: mathproperty.h,v 1.5 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:		$Id: mathproperty.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ class MathExpression;
 
 /*!\brief Simple property */
 
-class ValueProperty : public Property
+mClass ValueProperty : public Property
 {
 public:
 
@@ -37,7 +37,7 @@ public:
 
 /*!\brief Calculated property */
 
-class MathProperty : public Property
+mClass MathProperty : public Property
 {
 public:
     			MathProperty( const PropertyRef* pr, const char* ds=0 )
@@ -67,7 +67,7 @@ protected:
 
 /*!\brief Property defined by other property */
 
-class IndirectProperty : public Property
+mClass IndirectProperty : public Property
 {
 public:
     			IndirectProperty( Property* pr )

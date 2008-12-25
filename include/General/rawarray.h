@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: rawarray.h,v 1.3 2006-11-07 11:44:27 cvsnanne Exp $
+ RCS:		$Id: rawarray.h,v 1.4 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief Raw binary data access.  */
 
-class RawDataArray
+mClass RawDataArray
 {
 public:
 			RawDataArray( int byts=4 )

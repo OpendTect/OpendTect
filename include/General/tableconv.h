@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconv.h,v 1.6 2008-09-22 13:09:19 cvskris Exp $
+ RCS:		$Id: tableconv.h,v 1.7 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace Table
 {
 
-class ImportHandler
+mClass ImportHandler
 {
 public:
     			ImportHandler( std::istream& strm )
@@ -56,7 +56,7 @@ protected:
 };
 
 
-class ExportHandler
+mClass ExportHandler
 {
 public:
     			ExportHandler( std::ostream& strm )
@@ -85,7 +85,7 @@ protected:
 
 
 
-class Converter : public Executor
+mClass Converter : public Executor
 {
 public:
     			Converter( ImportHandler& i, ExportHandler& o )

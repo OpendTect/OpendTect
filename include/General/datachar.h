@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.12 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:		$Id: datachar.h,v 1.13 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -35,7 +35,7 @@ DataCharacteristics( const T& ) \
 : BinDataDesc(ii,is,sizeof(T)), fmt(Ieee), littleendian(__islittle__) {}
 
 
-class DataCharacteristics : public BinDataDesc
+mClass DataCharacteristics : public BinDataDesc
 {
 public:
 

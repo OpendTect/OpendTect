@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jan 2005
  Contents:	Set with data vectors on positions
- RCS:		$Id: posvecdataset.h,v 1.9 2008-12-08 12:50:41 cvsbert Exp $
+ RCS:		$Id: posvecdataset.h,v 1.10 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class DataColDef;
 
 */
 
-class PosVecDataSet
+mClass PosVecDataSet
 {
 public:
     			PosVecDataSet(const char* nm=0);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.10 2008-07-02 12:10:08 cvsnanne Exp $
+ RCS:           $Id: menuhandler.h,v 1.11 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class BufferStringSet;
 class MenuItem;
 class MenuHandler;
 
-class MenuItemHolder : public CallBacker
+mClass MenuItemHolder : public CallBacker
 {
 public:
     				MenuItemHolder();
@@ -68,7 +68,7 @@ private:
 
 /*!A generic representation of an item in a menu. */
 
-class MenuItem : public MenuItemHolder
+mClass MenuItem : public MenuItemHolder
 {
 public:
     				MenuItem(const char* text=0,int placement=-1 );
@@ -158,7 +158,7 @@ inserted into the menu.
     \endcode
 */
     
-class MenuHandler : public MenuItemHolder
+mClass MenuHandler : public MenuItemHolder
 {
     				mRefCountImpl(MenuHandler);
 public:
@@ -202,7 +202,7 @@ protected:
      by an inheriting object in the shouldAddMenu(), shouldBeEnabled() and
      shouldBeChecked() functions. */
 
-class MenuItemHandler : public CallBacker
+mClass MenuItemHandler : public CallBacker
 {
 public:
 			MenuItemHandler(MenuHandler&,const char* nm,

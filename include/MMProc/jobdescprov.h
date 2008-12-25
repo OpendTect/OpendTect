@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.5 2005-10-20 07:15:23 cvsarend Exp $
+ RCS:		$Id: jobdescprov.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class IOPar;
 
  */
 
-class JobDescProv
+mClass JobDescProv
 {
 public:
 
@@ -52,7 +52,7 @@ in the IOPar for one of the strings from a BufferStringSet.
 
  */
 
-class KeyReplaceJobDescProv : public JobDescProv
+mClass KeyReplaceJobDescProv : public JobDescProv
 {
 public:
     			KeyReplaceJobDescProv(const IOPar&,const char* key,
@@ -84,7 +84,7 @@ The keying is either:
 
  */
 
-class InlineSplitJobDescProv : public JobDescProv
+mClass InlineSplitJobDescProv : public JobDescProv
 {
 public:
     			InlineSplitJobDescProv(const IOPar&,

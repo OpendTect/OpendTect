@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: tracedata.h,v 1.5 2006-12-12 17:45:06 cvsbert Exp $
+ RCS:		$Id: tracedata.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ constraints etc.).
 */
 
 
-class TraceData
+mClass TraceData
 {
 public:
 

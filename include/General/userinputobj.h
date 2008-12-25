@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/2/2002
- RCS:           $Id: userinputobj.h,v 1.13 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: userinputobj.h,v 1.14 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class BufferString;
 class BufferStringSet;
 template <class T> class ObjectSet;
 
-class UserInputObj
+mClass UserInputObj
 {
 public:
 

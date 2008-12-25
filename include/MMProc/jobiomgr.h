@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Oct 2004
- RCS:		$Id: jobiomgr.h,v 1.8 2005-04-21 14:37:26 cvsarend Exp $
+ RCS:		$Id: jobiomgr.h,v 1.9 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ template <class T> class ObjQueue;
  * between the communication thread and the GUI/manager thread.
  *
 */
-class StatusInfo
+mClass StatusInfo
 {
 public:
 			StatusInfo( char tg, int desc, int stat, int pid,
@@ -58,7 +58,7 @@ public:
   sets up a separate thread to maintain contact with client.
 
 */
-class JobIOMgr : public CallBacker
+mClass JobIOMgr : public CallBacker
 {
 public:
     enum		Mode { Work, Pause, Stop };

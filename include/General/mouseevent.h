@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.6 2007-08-29 16:22:58 cvsbert Exp $
+ RCS:           $Id: mouseevent.h,v 1.7 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "geometry.h"
 
-class MouseEvent
+mClass MouseEvent
 {
 public:
 
@@ -84,7 +84,7 @@ void MyClass::handleMouseClick( CallBacker* cb )
 
 */
 
-class MouseEventHandler : public CallBacker
+mClass MouseEventHandler : public CallBacker
 {
 public:
     				MouseEventHandler();

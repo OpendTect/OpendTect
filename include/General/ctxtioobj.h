@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.31 2008-10-02 14:35:32 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.32 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ we'll be blobbing stuff in the root of the survey.
 */
 
 
-class IOObjContext : public NamedObject
+mClass IOObjContext : public NamedObject
 {
 public:
 
@@ -110,7 +110,7 @@ don't want that, you'll have to just assign.
 
 
 
-class CtxtIOObj : public NamedObject
+mClass CtxtIOObj : public NamedObject
 {
 public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2007
- RCS:           $Id: keyboardevent.h,v 1.2 2008-07-03 13:02:05 cvskris Exp $
+ RCS:           $Id: keyboardevent.h,v 1.3 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "keyenum.h"
 #include "geometry.h"
 
-class KeyboardEvent
+mClass KeyboardEvent
 {
 public:
  				KeyboardEvent();
@@ -29,7 +29,7 @@ public:
 };
 
 
-class KeyboardEventHandler : public CallBacker
+mClass KeyboardEventHandler : public CallBacker
 {
 public:
     				KeyboardEventHandler();

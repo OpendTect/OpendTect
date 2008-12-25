@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: property.h,v 1.8 2006-12-22 10:51:41 cvsbert Exp $
+ RCS:		$Id: property.h,v 1.9 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ PropertyRefRepository& PrRR();
 
 /*!\brief Ref Data for a (usually petrophysical) property */
 
-class PropertyRef : public NamedObject
+mClass PropertyRef : public NamedObject
 {
 public:
 
@@ -58,7 +58,7 @@ protected:
 
 /*!\brief A (usually petrophysical) property of some object */
 
-class Property
+mClass Property
 {
 public:
 
@@ -87,7 +87,7 @@ protected:
 
   */
 
-class PropertyRefRepository
+mClass PropertyRefRepository
 {
 public:
 

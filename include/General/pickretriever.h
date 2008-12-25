@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: pickretriever.h,v 1.2 2007-08-17 09:27:05 cvsnanne Exp $
+ RCS:           $Id: pickretriever.h,v 1.3 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
    There should normally only be one instance in memory, and that should
    be accessed via PickRetriever::getInstance(). */
 
-class PickRetriever : public CallBacker
+mClass PickRetriever : public CallBacker
 { mRefCountImpl(PickRetriever);
 public:
     				PickRetriever();

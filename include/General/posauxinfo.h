@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jul 2002
  Contents:	PAuxiliary info on position
- RCS:		$Id: posauxinfo.h,v 1.5 2005-05-18 09:20:45 cvsbert Exp $
+ RCS:		$Id: posauxinfo.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class CubeSampling;
 
 /*!\brief Auxiliray data possibly needed at location. Mostly a seismic thing. */
 
-class PosAuxInfo
+mClass PosAuxInfo
 {
 public:
 
@@ -49,7 +49,7 @@ public:
 /*!\brief Selection of aux info at location.
 	  Note that BinID is always selected */
 
-class PosAuxInfoSelection
+mClass PosAuxInfoSelection
 {
 public:
 		PosAuxInfoSelection()

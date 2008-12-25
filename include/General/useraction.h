@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2007
- RCS:           $Id: useraction.h,v 1.2 2007-12-27 16:02:24 cvskris Exp $
+ RCS:           $Id: useraction.h,v 1.3 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class UserAction : public CallBacker
 {
 public:
-    class Setup
+    mClass Setup
     {
     public:
 		    Setup();

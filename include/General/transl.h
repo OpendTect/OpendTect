@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.29 2008-11-18 17:25:15 cvsbert Exp $
+ RCS:		$Id: transl.h,v 1.30 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -34,7 +34,7 @@ class Translator;
 #define mObjSelUnrelated	0
 #define mObjSelRelated		1
 #define mObjSelMatch		2
-int defaultSelector(const char*,const char*);
+mGlobal int defaultSelector(const char*,const char*);
 
 
 /*!\brief Group of Translators. Has a static factory.
@@ -51,7 +51,7 @@ int defaultSelector(const char*,const char*);
 
  */
 
-class TranslatorGroup
+mClass TranslatorGroup
 { mRefCountImpl(TranslatorGroup);
 public:
 
@@ -108,7 +108,7 @@ protected:
   define every Translator(Group)-related class.
  */
 
-class Translator : public CallBacker
+mClass Translator : public CallBacker
 {
 public:
     				Translator( const char* nm, const char* unm )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.69 2008-05-05 04:53:42 cvsnageswara Exp $
+ RCS:           $Id: datainpspec.h,v 1.70 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 class RCol2Coord;
 class IOPar;
 
-class DataType
+mClass DataType
 {
 public:
 
@@ -76,7 +76,7 @@ A DataInpSpec is a conceptual specification of intrinsic properties of data.
 With it, user interface parts can be constructed (uiGenInput).
 
 */
-class DataInpSpec
+mClass DataInpSpec
 {
 public:
 
@@ -504,7 +504,7 @@ typedef NumInpIntervalSpec<double>	DoubleInpIntervalSpec;
 
 
 /*! \brief Specifications for character string inputs. */
-class StringInpSpec : public DataInpSpec
+mClass StringInpSpec : public DataInpSpec
 {
 public:
 			StringInpSpec( const char* s=0 );
@@ -528,7 +528,7 @@ protected:
 
 /*! \brief Specifications for file-name inputs.
 */
-class FileNameInpSpec : public StringInpSpec
+mClass FileNameInpSpec : public StringInpSpec
 {
 public:
 				FileNameInpSpec( const char* fname=0 );
@@ -548,7 +548,7 @@ It does not change the underlying true/false texts.
 */
 
 
-class BoolInpSpec : public DataInpSpec
+mClass BoolInpSpec : public DataInpSpec
 {
 public:
 			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes,
@@ -590,7 +590,7 @@ protected:
 
 /*! \brief Specifications for list of character string inputs.
 */
-class StringListInpSpec : public DataInpSpec
+mClass StringListInpSpec : public DataInpSpec
 {
 public:
     			StringListInpSpec(const BufferStringSet&);
@@ -635,7 +635,7 @@ protected:
 
 /*! \brief Specifications for BinID/Coordinate/TrcNrs and offsets */
 
-class PositionInpSpec : public DataInpSpec
+mClass PositionInpSpec : public DataInpSpec
 {
 public:
 

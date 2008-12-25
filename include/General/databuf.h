@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		1-9-95
- RCS:		$Id: databuf.h,v 1.5 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: databuf.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief Raw data array with memory management. */
 
-class DataBuffer : public RawDataArray
+mClass DataBuffer : public RawDataArray
 {
 public:
 			DataBuffer(int n,int byts=4,bool setnull=false);

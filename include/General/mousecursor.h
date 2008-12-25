@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.4 2008-05-28 14:56:57 cvskris Exp $
+ RCS:           $Id: mousecursor.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 /*!Definition of a mouse cursor, can be either a predefined shape (from the
    enum, or a file. */
 
-class MouseCursor
+mClass MouseCursor
 {
 public:
     virtual		~MouseCursor()					{}
@@ -85,7 +85,7 @@ public:
 */
 
 
-class MouseCursorManager
+mClass MouseCursorManager
 {
 public:
 
@@ -118,7 +118,7 @@ protected:
     class is running out of scope.
 */
 
-class MouseCursorChanger
+mClass MouseCursorChanger
 {
 public:
 		MouseCursorChanger(const char* fnm, int hotx, int hoty);

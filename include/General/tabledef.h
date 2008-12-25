@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.17 2008-05-21 08:06:20 cvsnanne Exp $
+ RCS:		$Id: tabledef.h,v 1.18 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ namespace Table
  
  */
 
-class TargetInfo : public NamedObject
+mClass TargetInfo : public NamedObject
 {
 public:
 
@@ -200,7 +200,7 @@ protected:
 
 /*!\brief description of input our output data content */
 
-class FormatDesc : public NamedObject
+mClass FormatDesc : public NamedObject
 {
 public:
     			FormatDesc( const char* nm )

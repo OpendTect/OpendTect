@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.h,v 1.6 2008-04-08 14:35:23 cvskris Exp $
+ RCS:		$Id: zaxistransformdatapack.h,v 1.7 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class ZAxisTransform;
 */
 
 
-class ZAxisTransformDataPack : public FlatDataPack
+mClass ZAxisTransformDataPack : public FlatDataPack
 {
 public:
     				ZAxisTransformDataPack(const FlatDataPack&,

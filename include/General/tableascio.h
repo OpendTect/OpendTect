@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.7 2008-06-18 06:32:01 cvsraman Exp $
+ RCS:		$Id: tableascio.h,v 1.8 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ FileFormatRepository& FFR();
  
  */
 
-class AscIO
+mClass AscIO
 {
 public:
 
@@ -85,7 +85,7 @@ protected:
 /*!\brief Holds system- and user-defined formats for different data types
   ('groups') */
 
-class FileFormatRepository
+mClass FileFormatRepository
 {
 public:
 

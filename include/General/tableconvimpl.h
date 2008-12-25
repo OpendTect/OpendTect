@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: tableconvimpl.h,v 1.8 2006-08-11 10:52:45 cvsbert Exp $
+ RCS:		$Id: tableconvimpl.h,v 1.9 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 namespace Table
 {
 
-class WSImportHandler : public ImportHandler
+mClass WSImportHandler : public ImportHandler
 {
 public:
 
@@ -44,7 +44,7 @@ protected:
 };
 
 
-class CSVImportHandler : public ImportHandler
+mClass CSVImportHandler : public ImportHandler
 {
 public:
     			CSVImportHandler( std::istream& s )
@@ -68,7 +68,7 @@ protected:
 };
 
 
-class WSExportHandler : public ExportHandler
+mClass WSExportHandler : public ExportHandler
 {
 public:
 
@@ -90,7 +90,7 @@ protected:
 };
 
 
-class CSVExportHandler : public ExportHandler
+mClass CSVExportHandler : public ExportHandler
 {
 public:
     			CSVExportHandler( std::ostream& s )
@@ -105,7 +105,7 @@ protected:
 };
 
 
-class SQLInsertExportHandler : public ExportHandler
+mClass SQLInsertExportHandler : public ExportHandler
 {
 public:
 
@@ -145,7 +145,7 @@ protected:
 
   */
 
-class StartStopManipulator : public Converter::RowManipulator
+mClass StartStopManipulator : public Converter::RowManipulator
 {
 public:
 		StartStopManipulator()
@@ -187,7 +187,7 @@ protected:
 /*!\brief Only passes records where col(s) (don't) match expression(s) */
 
 
-class RecordMatcher : public Converter::RowManipulator
+mClass RecordMatcher : public Converter::RowManipulator
 {
 public:
     			RecordMatcher( bool a=true )
@@ -216,7 +216,7 @@ protected:
   */
 
 
-class DuplicateKeyRemover : public Converter::RowManipulator
+mClass DuplicateKeyRemover : public Converter::RowManipulator
 {
 public:
     			DuplicateKeyRemover()

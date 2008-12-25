@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2004
- RCS:		$Id: jobrunner.h,v 1.21 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: jobrunner.h,v 1.22 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class BufferStringSet;
 class FilePath;
 
 
-class HostNFailInfo
+mClass HostNFailInfo
 {
 public:
     			HostNFailInfo( const HostData& hd )
@@ -46,7 +46,7 @@ public:
 
 /*!\brief Runs all jobs defined by JobDescProv. */
 
-class JobRunner : public Executor
+mClass JobRunner : public Executor
 {
 public:
 

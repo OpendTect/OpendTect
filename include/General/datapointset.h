@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.22 2008-12-08 12:50:07 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.23 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ namespace Pos { class Filter; class Provider; }
 
 */
 
-class DataPointSet : public PointDataPack
+mClass DataPointSet : public PointDataPack
 {
 public:
 
@@ -49,7 +49,7 @@ public:
 
     /*!\brief Fast position based on BinID but more precise */
 
-    struct Pos
+    struct dll_export Pos
     {
 			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
 			Pos( const BinID& bid, float _z,

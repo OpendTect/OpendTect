@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabindex.h,v 1.5 2008-04-14 14:58:17 cvsbert Exp $
+ RCS:		$Id: coltabindex.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class Sequence;
  
  */
 
-class IndexedLookUpTable
+mClass IndexedLookUpTable
 {
 public:
 

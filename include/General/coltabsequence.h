@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.7 2008-12-12 19:53:21 cvskris Exp $
+ RCS:		$Id: coltabsequence.h,v 1.8 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ namespace ColTab
  
  */
 
-class Sequence : public NamedObject
+mClass Sequence : public NamedObject
 {
 public:
 
@@ -124,7 +124,7 @@ protected:
  
  */
 
-class SeqMgr : public CallBacker
+mClass SeqMgr : public CallBacker
 {
 public:
 

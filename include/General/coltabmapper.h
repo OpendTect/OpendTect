@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.9 2008-11-24 10:45:29 cvsnanne Exp $
+ RCS:		$Id: coltabmapper.h,v 1.10 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ struct MapperSetup
 };
 
 
-class Mapper
+mClass Mapper
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 2002
- RCS:		$Id: surfaceinfo.h,v 1.4 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: surfaceinfo.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief Surface info name/attribname with an ID (usually the EM-ID). */
 
-class SurfaceInfo
+mClass SurfaceInfo
 {
 public:
 		   	 SurfaceInfo( const char* nm, MultiID mi, int vi=-1, 

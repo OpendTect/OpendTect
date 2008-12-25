@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.4 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace Pos
 
 /*!\brief 3D provider based on CubeSampling */
 
-class RangeProvider3D : public Provider3D
+mClass RangeProvider3D : public Provider3D
 {
 public:
 
@@ -72,7 +72,7 @@ Can only be used if Line2DData is filled.
 
  */
 
-class RangeProvider2D : public Provider2D
+mClass RangeProvider2D : public Provider2D
 {
 public:
 

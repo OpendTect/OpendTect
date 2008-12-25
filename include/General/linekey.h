@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: linekey.h,v 1.6 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:           $Id: linekey.h,v 1.7 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ class IOPar;
 
 /*!\brief Key for a line in a line set */
 
-class LineKey : public BufferString
+mClass LineKey : public BufferString
 {
 public:
 
@@ -53,7 +53,7 @@ public:
 
 /*!\brief class providing a current line key */
 
-class LineKeyProvider
+mClass LineKeyProvider
 {
 public:
 

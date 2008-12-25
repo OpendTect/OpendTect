@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: datacoldef.h,v 1.4 2008-02-02 14:05:09 cvsbert Exp $
+ RCS:		$Id: datacoldef.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class UnitOfMeasure;
 
 */
 
-class DataColDef
+mClass DataColDef
 {
 public:
 				DataColDef( const char* nm, const char* ref=0,

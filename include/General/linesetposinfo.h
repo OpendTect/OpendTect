@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: linesetposinfo.h,v 1.1 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:		$Id: linesetposinfo.h,v 1.2 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace PosInfo
 
 /*!\brief Position info for a set of 2D lines */
 
-class LineSet2DData
+mClass LineSet2DData
 {
 public:
 

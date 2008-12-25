@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Oct 2008
- RCS:		$Id: posinfodetector.h,v 1.4 2008-12-04 09:59:38 cvsbert Exp $
+ RCS:		$Id: posinfodetector.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -23,7 +23,7 @@ namespace PosInfo
 
 /*!\brief Just hold inl, crl, x, y and offs. For 2D, crl=nr. */
 
-class CrdBidOffs
+mClass CrdBidOffs
 {
 public:
 		CrdBidOffs()
@@ -46,7 +46,7 @@ public:
     corresponding BinID or trace numbers and offsets if pre-stack. */
 
 
-class Detector
+mClass Detector
 {
 public:
 
