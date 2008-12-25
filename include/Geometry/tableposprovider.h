@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: tableposprovider.h,v 1.3 2008-02-13 13:28:00 cvsbert Exp $
+ RCS:           $Id: tableposprovider.h,v 1.4 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace Pos
 
 /*!\brief Provider based on BinIDValueSet table */
 
-class TableProvider3D : public Provider3D
+mClass TableProvider3D : public Provider3D
 {
 public:
 

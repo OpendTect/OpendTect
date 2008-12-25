@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.6 2008-05-30 08:33:12 cvsbert Exp $
+ RCS:           $Id: polyposprovider.h,v 1.7 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ namespace Pos
 
 /*!\brief Volume/Area provider based on Polygon */
 
-class PolyProvider3D : public Provider3D
+mClass PolyProvider3D : public Provider3D
 {
 public:
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.8 2007-12-27 16:04:27 cvskris Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.9 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class Line3;
 namespace Geometry
 {
 
-class CubicBezierSurfacePatch
+mClass CubicBezierSurfacePatch
 {
 public:
 			CubicBezierSurfacePatch(
@@ -50,7 +50,7 @@ public:
 
 
 
-class CubicBezierSurface : public ParametricSurface
+mClass CubicBezierSurface : public ParametricSurface
 {
 public:
     			CubicBezierSurface( const RCol& step=RowCol(1,1));

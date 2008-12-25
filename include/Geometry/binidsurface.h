@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.9 2007-12-27 16:07:46 cvskris Exp $
+RCS:           $Id: binidsurface.h,v 1.10 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Geometry
 {
 
 
-class BinIDSurface : public ParametricSurface
+mClass BinIDSurface : public ParametricSurface
 {
 public:
     			BinIDSurface(const RCol& step);

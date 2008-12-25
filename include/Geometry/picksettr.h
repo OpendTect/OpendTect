@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.9 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:		$Id: picksettr.h,v 1.10 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Pick { class Set; }
 template <class T> class ODPolygon;
 
 
-class PickSetTranslatorGroup : public TranslatorGroup
+mClass PickSetTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(PickSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PickSet)
@@ -30,7 +30,7 @@ public:
 };
 
 
-class PickSetTranslator : public Translator
+mClass PickSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PickSet)
@@ -57,7 +57,7 @@ public:
 };
 
 
-class dgbPickSetTranslator : public PickSetTranslator
+mClass dgbPickSetTranslator : public PickSetTranslator
 {			     isTranslator(dgb,PickSet)
 public:
 

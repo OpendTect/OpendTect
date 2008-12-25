@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2005
- RCS:		$Id: posvecdatasettr.h,v 1.1 2005-07-27 09:23:35 cvsbert Exp $
+ RCS:		$Id: posvecdatasettr.h,v 1.2 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class PosVecDataSet;
 
 
-class PosVecDataSetTranslatorGroup : public TranslatorGroup
+mClass PosVecDataSetTranslatorGroup : public TranslatorGroup
 {			     isTranslatorGroup(PosVecDataSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(PosVecDataSet)
@@ -28,7 +28,7 @@ public:
 };
 
 
-class PosVecDataSetTranslator : public Translator
+mClass PosVecDataSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(PosVecDataSet)
@@ -44,7 +44,7 @@ protected:
 };
 
 
-class odPosVecDataSetTranslator : public PosVecDataSetTranslator
+mClass odPosVecDataSetTranslator : public PosVecDataSetTranslator
 {			  isTranslator(od,PosVecDataSet)
 public:
 			mDefEmptyTranslatorConstructor(od,PosVecDataSet)

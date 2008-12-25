@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.24 2008-09-22 13:15:13 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.25 2008-12-25 11:57:53 cvsranojay Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.24 2008-09-22 13:1
 #define mBucketSize 16	
 
 
-class ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
+mClass ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
 {
 public:
     ExplicitMarchingCubesSurfaceUpdater( ExplicitMarchingCubesSurface& is,

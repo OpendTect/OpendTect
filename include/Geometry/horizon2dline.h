@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.6 2007-12-27 16:07:46 cvskris Exp $
+RCS:           $Id: horizon2dline.h,v 1.7 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace Geometry
 /*!A curve that goes along a fixed set of x,y coordinates with a varying
    z. */
 
-class Horizon2DLine : public RowColSurface
+mClass Horizon2DLine : public RowColSurface
 {
 public:
     			Horizon2DLine();

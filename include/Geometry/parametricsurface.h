@@ -5,7 +5,7 @@
 ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.15 2006-09-05 21:35:49 cvskris Exp $
+RCS:           $Id: parametricsurface.h,v 1.16 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ namespace Geometry
 
 class ParametricCurve;
 
-class ParametricSurface : public RowColSurface
+mClass ParametricSurface : public RowColSurface
 {
 public:
     			ParametricSurface(

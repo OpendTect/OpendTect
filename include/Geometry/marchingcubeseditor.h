@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2007
- RCS:           $Id: marchingcubeseditor.h,v 1.7 2008-09-22 13:15:13 cvskris Exp $
+ RCS:           $Id: marchingcubeseditor.h,v 1.8 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ the movement, and the factor is set by from the outside.
 */
 
 
-class MarchingCubesSurfaceEditor : public ParallelTask
+mClass MarchingCubesSurfaceEditor : public ParallelTask
 {
 public:
     			MarchingCubesSurfaceEditor(MarchingCubesSurface&);

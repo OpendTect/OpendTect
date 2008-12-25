@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: randomlinetr.h,v 1.2 2007-11-05 15:20:05 cvsbert Exp $
+ RCS:		$Id: randomlinetr.h,v 1.3 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace Geometry { class RandomLineSet; }
 class Conn;
 
-class RandomLineSetTranslatorGroup : public TranslatorGroup
+mClass RandomLineSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(RandomLineSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
@@ -27,7 +27,7 @@ public:
 };
 
 
-class RandomLineSetTranslator : public Translator
+mClass RandomLineSetTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
@@ -44,7 +44,7 @@ public:
 };
 
 
-class dgbRandomLineSetTranslator : public RandomLineSetTranslator
+mClass dgbRandomLineSetTranslator : public RandomLineSetTranslator
 {				isTranslator(dgb,RandomLineSet)
 public:
 

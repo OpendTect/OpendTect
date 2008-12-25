@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.8 2008-11-13 17:13:34 cvsyuancheng Exp $
+RCS:           $Id: polygonsurface.h,v 1.9 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace Geometry
     For Rcol variable rc, rc.r() represents polygonidx, rc.c() represents the 
     knots on the corresponding polygon. */
  
-class PolygonSurface : public RowColSurface
+mClass PolygonSurface : public RowColSurface
 {
 public:
     			PolygonSurface();

@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
-RCS:           $Id: parametriccurve.h,v 1.6 2006-05-01 07:43:02 cvsnanne Exp $
+RCS:           $Id: parametriccurve.h,v 1.7 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace Geometry
   parameterRange().stop and parameterRange().start.
 */
 
-class ParametricCurve : public Element
+mClass ParametricCurve : public Element
 {
 public:
     virtual Coord3 	computePosition( float ) const	= 0;

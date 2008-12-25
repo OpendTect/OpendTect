@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.10 2008-05-28 19:18:59 cvskris Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.11 2008-12-25 11:57:53 cvsranojay Exp $";
 
 #include "parametriccurve.h"
 
@@ -18,7 +18,7 @@ namespace Geometry
 {
 
 
-class CurveSqDistanceFunction : public FloatMathFunction
+mClass CurveSqDistanceFunction : public FloatMathFunction
 {
 public:
     			CurveSqDistanceFunction( const ParametricCurve& pc,

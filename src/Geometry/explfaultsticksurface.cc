@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.29 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.30 2008-12-25 11:57:53 cvsranojay Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.29 2008-12-11 06:3
 namespace Geometry {
 
 
-class ExplFaultStickTexturePositionExtracter : public ParallelTask
+mClass ExplFaultStickTexturePositionExtracter : public ParallelTask
 {
 public:
 ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss,
@@ -299,7 +299,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 #undef mKnot
 
 
-class ExplFaultStickSurfaceUpdater : public ParallelTask
+mClass ExplFaultStickSurfaceUpdater : public ParallelTask
 {
 public:
     ExplFaultStickSurfaceUpdater( ExplFaultStickSurface& efss,

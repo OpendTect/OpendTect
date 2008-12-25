@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.13 2008-06-10 19:38:13 cvsyuancheng Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.14 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class TaskRunner;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-class ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
+mClass ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
     				     public CallBacker
 {
 public:
@@ -102,7 +102,7 @@ wanted.
    2 = the coordinate on the z-axis.
 */
 
-class MarchingCubeTriangleTable
+mClass MarchingCubeTriangleTable
 {
 public:
     ObjectSet<char>		indices_;
@@ -115,7 +115,7 @@ public:
 /*!Lookup table with one MarchingCubeTriangleTable per position constellation.*/
 
 
-class MarchingCubeLookupTable
+mClass MarchingCubeLookupTable
 {
 public:
     				MarchingCubeLookupTable();

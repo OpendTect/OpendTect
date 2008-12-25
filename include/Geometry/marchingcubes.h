@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.8 2008-12-01 15:00:13 cvsyuancheng Exp $
+ RCS:           $Id: marchingcubes.h,v 1.9 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ class SeedBasedFloodFiller;
    volume's coordinates.
 */
 
-class MarchingCubesModel
+mClass MarchingCubesModel
 {
 public:
 				MarchingCubesModel();
@@ -76,7 +76,7 @@ public:
 };
 
 
-class MarchingCubesSurface : public CallBacker
+mClass MarchingCubesSurface : public CallBacker
 { mRefCountImpl(MarchingCubesSurface);
 public:
 
@@ -110,7 +110,7 @@ public:
 };
 
 
-class Implicit2MarchingCubes : public ParallelTask
+mClass Implicit2MarchingCubes : public ParallelTask
 {
 public:
     		Implicit2MarchingCubes(int posx, int posy, int posz,
@@ -133,7 +133,7 @@ protected:
 };
 
 
-class MarchingCubes2Implicit
+mClass MarchingCubes2Implicit
 {
 public:
 		MarchingCubes2Implicit(const MarchingCubesSurface&,

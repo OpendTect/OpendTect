@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.9 2008-10-30 19:13:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.10 2008-12-25 11:57:53 cvsranojay Exp $";
 
 #include "explplaneintersection.h"
 
@@ -85,7 +85,7 @@ struct ExplPlaneIntersectionExtractorPlane
 
 
 
-class ExplPlaneIntersectionExtractor : public ParallelTask
+mClass ExplPlaneIntersectionExtractor : public ParallelTask
 {
 public:
 ExplPlaneIntersectionExtractor( ExplPlaneIntersection& efss )

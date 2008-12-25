@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        J.C. Glas
 Date:          November 2008
-RCS:           $Id: faultstickset.h,v 1.2 2008-12-17 08:52:42 cvsjaap Exp $
+RCS:           $Id: faultstickset.h,v 1.3 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace Geometry
 {
 
-class FaultStickSet : public RowColSurface
+mClass FaultStickSet : public RowColSurface
 {
 public:
     			FaultStickSet();

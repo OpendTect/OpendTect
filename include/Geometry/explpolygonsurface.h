@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: explpolygonsurface.h,v 1.5 2008-12-01 15:14:21 cvsyuancheng Exp $
+ RCS:           $Id: explpolygonsurface.h,v 1.6 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class PolygonSurface;
 /*!A triangulated representation of a polygonsurface */
 
 
-class ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
+mClass ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
 {
 public:
 			ExplPolygonSurface(const PolygonSurface*,

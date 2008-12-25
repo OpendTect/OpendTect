@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: geeditor.h,v 1.3 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:           $Id: geeditor.h,v 1.4 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Geometry
 class TrackPlane;
 
 
-class ElementEditor : public CallBacker
+mClass ElementEditor : public CallBacker
 {
 public:
     			ElementEditor( Geometry::Element& element );

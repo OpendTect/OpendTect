@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.20 2008-12-23 11:06:55 cvsdgb Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.21 2008-12-25 11:57:53 cvsranojay Exp $";
 
 #include "marchingcubes.h"
 
@@ -30,7 +30,7 @@ const unsigned char MarchingCubesModel::cAxisSpacing = 255;
 const double  mInitValue = 1e+10;  
 
 
-class MarchingCubesSurfaceWriter: public Executor
+mClass MarchingCubesSurfaceWriter: public Executor
 {
 public:
     	MarchingCubesSurfaceWriter( std::ostream& strm, 
@@ -97,7 +97,7 @@ protected:
 
 
 
-class MarchingCubesSurfaceReader : public Executor
+mClass MarchingCubesSurfaceReader : public Executor
 {
 public:
 MarchingCubesSurfaceReader( std::istream& strm, MarchingCubesSurface& s,
@@ -515,7 +515,7 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-class MarchingCubes2ImplicitDistGen : public ParallelTask
+mClass MarchingCubes2ImplicitDistGen : public ParallelTask
 {
 public:
     MarchingCubes2ImplicitDistGen( MarchingCubes2Implicit& mc2i )
@@ -604,7 +604,7 @@ protected:
 };
 
 
-class MarchingCuebs2ImplicitFloodFiller : public SequentialTask
+mClass MarchingCuebs2ImplicitFloodFiller : public SequentialTask
 {
 public:
     MarchingCuebs2ImplicitFloodFiller( MarchingCubes2Implicit& mc2i,

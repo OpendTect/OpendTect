@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.10 2008-10-06 17:27:21 cvsyuancheng Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.11 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class ExplFaultStickTexturePositionExtracter;
 /*!A triangulated representation of a faultsticksurface */
 
 
-class ExplFaultStickSurface: public Geometry::IndexedShape,
+mClass ExplFaultStickSurface: public Geometry::IndexedShape,
 			     public CallBacker
 {
 public:

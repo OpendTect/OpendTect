@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        Y.C. Liu
  Date:          August 2008
  Contents:      Ranges
- RCS:           $Id: polygonsurfaceedit.h,v 1.2 2008-09-10 13:35:09 cvsyuancheng Exp $
+ RCS:           $Id: polygonsurfaceedit.h,v 1.3 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ namespace Geometry
 {
 class PolygonSurface;
 
-class PolygonSurfEditor : public ElementEditor
+mClass PolygonSurfEditor : public ElementEditor
 {
 public:
     		PolygonSurfEditor( Geometry::PolygonSurface& );

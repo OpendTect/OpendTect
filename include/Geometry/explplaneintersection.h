@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2008
- RCS:           $Id: explplaneintersection.h,v 1.1 2008-05-30 03:49:10 cvskris Exp $
+ RCS:           $Id: explplaneintersection.h,v 1.2 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace Geometry
     IndexedShape and one ore many planes. */
 
 
-class ExplPlaneIntersection: public Geometry::IndexedShape,
+mClass ExplPlaneIntersection: public Geometry::IndexedShape,
 			     public CallBacker
 {
 public:

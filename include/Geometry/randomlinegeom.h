@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.6 2007-12-01 15:34:57 cvsbert Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.7 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Geometry
 
 class RandomLineSet;
 
-class RandomLine : public NamedObject
+mClass RandomLine : public NamedObject
 {
 public:
     			RandomLine(const char* nm=0);
@@ -63,7 +63,7 @@ protected:
 };
 
 
-class RandomLineSet
+mClass RandomLineSet
 {
 public:
 

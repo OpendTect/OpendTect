@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: geeditorimpl.h,v 1.2 2005-01-14 13:11:55 kristofer Exp $
+ RCS:           $Id: geeditorimpl.h,v 1.3 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Geometry
 class TrackPlane;
 
 
-class ElementEditorImpl : public ElementEditor
+mClass ElementEditorImpl : public ElementEditor
 {
 public:
     		ElementEditorImpl( Element& elem,
@@ -47,7 +47,7 @@ protected:
 };
 
 
-class BinIDElementEditor : public ElementEditorImpl
+mClass BinIDElementEditor : public ElementEditorImpl
 {
 public:
 	    BinIDElementEditor( Geometry::Element& elem)
@@ -55,7 +55,7 @@ public:
 };
 
 
-class PlaneElementEditor : public ElementEditorImpl
+mClass PlaneElementEditor : public ElementEditorImpl
 {
 public:
 	    PlaneElementEditor( Element& elem, const Coord3& normal )

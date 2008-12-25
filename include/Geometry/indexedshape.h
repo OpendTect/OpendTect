@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.10 2008-05-30 04:53:57 cvsyuancheng Exp $
+RCS:           $Id: indexedshape.h,v 1.11 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Geometry
 /*!A geomtetry that is defined by a number of coordinates (defined outside
    the class), by specifying connections between the coordiates. */
 
-class IndexedGeometry
+mClass IndexedGeometry
 {
 public:
     enum	Type { Lines, Triangles, TriangleStrip, TriangleFan };
@@ -64,7 +64,7 @@ protected:
    is defined in an ObjectSet of IndexedGeometry. All IndexedGeometry share
    one common coordinate and normal list. */
 
-class IndexedShape
+mClass IndexedShape
 {
 public:
     virtual 		~IndexedShape();

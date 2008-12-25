@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          April 2006
 Contents:      Ranges
-RCS:           $Id: rowcolsurface.h,v 1.2 2007-12-27 16:07:46 cvskris Exp $
+RCS:           $Id: rowcolsurface.h,v 1.3 2008-12-25 11:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Geometry
 /*!Surface which positions are orgainzied in rows/cols. The number of
    columns in each row may vary. */
 
-class RowColSurface : public Element
+mClass RowColSurface : public Element
 {
 public:
     virtual void		getPosIDs(TypeSet<GeomPosID>&,bool=true) const;
