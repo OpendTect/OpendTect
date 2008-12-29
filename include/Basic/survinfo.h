@@ -1,5 +1,5 @@
-#ifndef survinfo_H
-#define survinfo_H
+#ifndef survinfo_h
+#define survinfo_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.83 2008-12-24 15:05:43 cvsjaap Exp $
+ RCS:		$Id: survinfo.h,v 1.84 2008-12-29 05:57:31 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ at the bottom part of the class too for some more public functions.
 mClass SurveyInfo : public NamedObject
 {
 
-    friend const SurveyInfo&	SI();
+    mGlobal friend const SurveyInfo&	SI();
 
 public:
 
