@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.44 2008-12-23 11:05:50 cvsdgb Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.45 2008-12-29 05:27:30 cvsnanne Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -158,6 +158,7 @@ void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 	}
 
 	setup.symmidval_ = symmidvalue_;
+	setup.autosym0_ = false;
     }
     else
     {
