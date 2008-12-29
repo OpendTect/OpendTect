@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2004
- RCS:           $Id: linekey.h,v 1.7 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:           $Id: linekey.h,v 1.8 2008-12-29 11:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
     void		fillPar(IOPar&,bool linename_is_iopar_name) const;
     bool		usePar(const IOPar&,bool linename_is_iopar_name);
 
-    static const char*	sKeyDefAttrib;
+    static const char*	sKeyDefAttrib()		{ return "Seis"; }
     static BufferString	defKey2DispName(const char* defkey,
 	    				const char* ioobjnm=0,
 					bool embed=true);
