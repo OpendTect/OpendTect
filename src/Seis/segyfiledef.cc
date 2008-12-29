@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.11 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.12 2008-12-29 11:29:27 cvsranojay Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -64,7 +64,7 @@ IOObj* SEGY::FileSpec::getIOObj( bool tmp ) const
     IOStream* iostrm;
     if ( tmp )
     {
-	BufferString idstr( "100010.", IOObj::tmpID );
+	BufferString idstr( "100010.", IOObj::tmpID() );
 	iostrm = new IOStream( fname_, idstr );
     }
     else
