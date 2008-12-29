@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.11 2008-06-11 11:40:54 cvsnageswara Exp $
+ RCS:		$Id: oddirs.h,v 1.12 2008-12-29 05:55:38 cvsranojay Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -26,19 +26,19 @@ extern "C" {
 
     /* Functions delivering files/directies in the 'survey data' scope */
 
-const char* GetBaseDataDir(void);
+mGlobal const char* GetBaseDataDir(void);
 /*!< Base data directory: DTECT_[WIN]DATA or from User Settings. */
 
-const char* GetDataDir(void);
+mGlobal const char* GetDataDir(void);
 /*!< Survey directory: GetBaseDataDir()/<current survey> */
 
-const char* GetProcFileName(const char*);
+mGlobal const char* GetProcFileName(const char*);
 /*!< Returns file name in GetDataDir()/Proc. Pass null for directory. */
 
 
     /* Functions delivering files/directies in the 'sytem' scope */
 
-const char* GetSoftwareDir(void);
+mGlobal const char* GetSoftwareDir(void);
 /*!< Directory of the installed software = $DTECT_[WIN]APPL 
 
  GetSoftwareDir returns the full path of the root of the release.
@@ -47,7 +47,7 @@ const char* GetSoftwareDir(void);
 
 */
 
-const char* GetApplSetupDir(void);
+mGlobal const char* GetApplSetupDir(void);
 /*!< Directory with setup files and scripts overruling current software
      release's default setup files.
     
@@ -63,14 +63,14 @@ typedef enum
     ODSetupLoc_SWDirOnly
 } ODSetupLocType;
 
-const char* GetSetupDataFileDir(ODSetupLocType);
+mGlobal const char* GetSetupDataFileDir(ODSetupLocType);
 /*!< Returns the name of the "data" subdir of the release or the
      site setup directory.
 */
 #define mGetApplSetupDataDir() GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly)
 #define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly)
 
-const char* GetSetupDataFileName(ODSetupLocType,const char*);
+mGlobal const char* GetSetupDataFileName(ODSetupLocType,const char*);
 /*!< Returns the name of a file in the "data" subdir of the release or the
      appl setup directory.
 
@@ -80,7 +80,7 @@ const char* GetSetupDataFileName(ODSetupLocType,const char*);
 #define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x)
 /*!< Usual choice: first look in ApplSetup, if not there, look in release */
 
-const char* GetPlfSubDir(void);
+mGlobal const char* GetPlfSubDir(void);
 /*!< Platform subdirectory for platforms
 
   Tries PLFSUBDIR, if not set: binsubdir, if not set: HDIR
@@ -88,14 +88,14 @@ const char* GetPlfSubDir(void);
  
  */
 
-const char* GetDocFileDir(const char* filedir);
+mGlobal const char* GetDocFileDir(const char* filedir);
 /*!< Location of Documentation */
 #define mGetUserDocDir()	GetDocFileDir("User")
 #define mGetProgrammerDocDir()	GetDocFileDir("Programmer")
 #define mGetSysAdmDocDir()	GetDocFileDir("SysAdm")
 
 
-const char* GetExecScript(int remote);
+mGlobal const char* GetExecScript(int remote);
 /*!< Location of launch script for external programs
   
   In GetSiteDataDir() or GetSoftwareDir(): bin/od_exec[_rmt][.bat]
@@ -112,8 +112,7 @@ const char* GetSoftwareUser(void);
 
 
     /* Functions delivering files/directies in the 'user-specific' scope */
-
-const char* GetPersonalDir(void);
+mGlobal const char* GetPersonalDir(void);
 /*!< Directory for personal settings: 'Home directory'
 
  This gets the user's home directory. Even on Windows, something will be
@@ -134,26 +133,26 @@ UNIX:
 
 */
 
-const char* GetSettingsDir(void);
+mGlobal const char* GetSettingsDir(void);
 /*!< Directory with the user settings
 
   Returns GetPersonalDir()/.od, unless DTECT_PERSONAL_DIR is set.
 
 */
 
-const char* GetSettingsFileName(const char*);
+mGlobal const char* GetSettingsFileName(const char*);
 /*!< Returns GetSettingsDir()/filenm */
 
 
     /* Function delivering files/directies in all scopes */
 
-const char* SearchODFile(const char*);
+mGlobal const char* SearchODFile(const char*);
 /*!< Search for a configuration file in all scopes.
  
   Starts with user-specific, then system, then survey data.
  */
 
-const char* GetScriptsDir(const char*);
+mGlobal const char* GetScriptsDir(const char*);
 
 
 #ifdef __cpp__
