@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.49 2008-12-24 11:26:15 cvsraman Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.50 2008-12-29 14:04:42 cvsjaap Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -89,6 +89,8 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent,
     , lvhandle_(handle)
     , actitem_( 0 )
     , actexpand_( true )
+    , actcolumn_( 0 )
+    , actleftclick_( true )
 {
     setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
@@ -208,6 +210,7 @@ static const QEvent::Type sQEventActButton = (QEvent::Type) (QEvent::User+1);
 void uiListViewBody::activateClick( uiListViewItem& uilvwitm, int column,
 				    bool leftclick )
 {
+    if ( actitem_ ) return;
     actitem_ = &uilvwitm;
     actcolumn_ = column; 
     actleftclick_ = leftclick;
@@ -218,6 +221,7 @@ void uiListViewBody::activateClick( uiListViewItem& uilvwitm, int column,
 
 void uiListViewBody::activateButton( uiListViewItem& uilvwitm, bool expand )
 {
+    if ( actitem_ ) return;
     actitem_ = &uilvwitm;
     actexpand_ = expand;
     QEvent* actevent = new QEvent( sQEventActButton );
@@ -266,6 +270,7 @@ bool uiListViewBody::event( QEvent* ev )
 	return QTreeWidget::event( ev );
 
     lvhandle_.activatedone.trigger();
+    actitem_ = 0;
     return true;
 }
 
