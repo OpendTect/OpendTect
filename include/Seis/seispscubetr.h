@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispscubetr.h,v 1.3 2008-08-06 12:05:46 cvsbert Exp $
+ RCS:		$Id: seispscubetr.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class SeisPS3DReader;
 namespace PosInfo { class CubeData; }
 
 
-class SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
+mClass SeisPSCubeSeisTrcTranslator : public SeisTrcTranslator
 {				    isTranslator(SeisPSCube,SeisTrc)
 public:
 

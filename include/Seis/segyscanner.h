@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.13 2008-12-04 13:28:43 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.14 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class FileDataSet;
 
 /*!\brief Scans SEG-Y file(s). For reports, you'd want to set rich info. */
 
-class Scanner : public Executor
+mClass Scanner : public Executor
 {
 public:
 

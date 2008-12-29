@@ -27,11 +27,11 @@ class SeisResampler;
 namespace Seis { class SelData; }
 
 
-class SeisIOSimple : public Executor
+mClass SeisIOSimple : public Executor
 {
 public:
 
-    class Data
+    mClass Data
     {
     public:
 			Data(const char*,Seis::GeomType);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: seisposkey.h,v 1.3 2008-11-26 14:43:46 cvsbert Exp $
+ RCS:		$Id: seisposkey.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Seis
 {
 
-class PosKey
+mClass PosKey
 {
 public:
 

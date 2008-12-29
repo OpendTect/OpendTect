@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.30 2008-12-04 13:26:55 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.31 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -23,7 +23,7 @@ namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 #define mSEGYTraceHeaderBytes	240
 
 
-class SEGYSeisTrcTranslator : public SeisTrcTranslator
+mClass SEGYSeisTrcTranslator : public SeisTrcTranslator
 {			      isTranslator(SEGY,SeisTrc)
 public:
 

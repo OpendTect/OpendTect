@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.19 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:		$Id: seisstor.h,v 1.20 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -28,7 +28,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief base class for seis reader and writer. */
 
-class SeisStoreAccess
+mClass SeisStoreAccess
 {
 public:
 

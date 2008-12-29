@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.11 2008-12-12 09:30:18 cvshelene Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.12 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class BufferStringSet;
 
 /*!\brief Info on IOObj for seismics */
 
-class SeisIOObjInfo
+mClass SeisIOObjInfo
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segydirectdef.h,v 1.10 2008-12-04 13:27:43 cvsbert Exp $
+ RCS:		$Id: segydirectdef.h,v 1.11 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class FileDataSet;
 class PosKeyList;
 
 
-class DirectDef
+mClass DirectDef
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2008
- RCS:		$Id: segydirecttr.h,v 1.4 2008-12-10 16:16:33 cvsbert Exp $
+ RCS:		$Id: segydirecttr.h,v 1.5 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class SEGYSeisTrcTranslator;
 
 /*!\brief reads from 3D PS data store reader based on SEG-Y files */
 
-class SEGYDirect3DPSReader : public ::SeisPS3DReader
+mClass SEGYDirect3DPSReader : public ::SeisPS3DReader
 {
 public:
 
@@ -49,7 +49,7 @@ protected:
 
 /*!\brief reads from 2D PS data store reader based on SEG-Y files */
 
-class SEGYDirect2DPSReader : public SeisPS2DReader
+mClass SEGYDirect2DPSReader : public SeisPS2DReader
 {
 public:
 
@@ -76,7 +76,7 @@ protected:
 
 
 
-class SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
+mClass SEGYDirectSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(SEGYDirect,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS3D)
@@ -88,7 +88,7 @@ public:
 };
 
 
-class SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
+mClass SEGYDirectSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(SEGYDirect,SeisPS2D)
 public:
     			mDefEmptyTranslatorConstructor(SEGYDirect,SeisPS2D)

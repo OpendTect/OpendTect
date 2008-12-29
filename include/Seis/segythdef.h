@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.7 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: segythdef.h,v 1.8 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ The actual buffer offset needs - 1.
 
 */
 
-class TrcHeaderDef
+mClass TrcHeaderDef
 {
 public:
 			TrcHeaderDef(

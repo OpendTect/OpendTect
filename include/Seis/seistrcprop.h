@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrcprop.h,v 1.9 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: seistrcprop.h,v 1.10 2008-12-29 11:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class SeisTrc;
 
 /*!\brief calculates properties of a trace component */
 
-class SeisTrcPropCalc
+mClass SeisTrcPropCalc
 {
 public:
 		SeisTrcPropCalc( const SeisTrc& t, int ic=0 )
@@ -47,7 +47,7 @@ protected:
   Component -1 (the default) changes all components.
  */
 
-class SeisTrcPropChg : public SeisTrcPropCalc
+mClass SeisTrcPropChg : public SeisTrcPropCalc
 {
 public:
 		SeisTrcPropChg( SeisTrc& t, int ic=-1 )

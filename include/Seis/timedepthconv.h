@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.7 2008-12-10 17:44:36 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.8 2008-12-29 11:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -30,7 +30,7 @@ template <class T> class ValueSeries;
 template <class T> class Array3D;
 
 
-class VelocityStretcher : public ZAxisTransform
+mClass VelocityStretcher : public ZAxisTransform
 {
 public:
     virtual bool		setVelData(const MultiID&)		= 0;
@@ -40,7 +40,7 @@ public:
 /*!ZAxisstretcher that converts from time to depth (or back) using a
    velocity model on disk. */
 
-class Time2DepthStretcher : public VelocityStretcher
+mClass Time2DepthStretcher : public VelocityStretcher
 {
 public:
     static const char*		sName();
@@ -93,7 +93,7 @@ protected:
    an Time2Depth converter to do the job. */
 
 
-class Depth2TimeStretcher : public VelocityStretcher
+mClass Depth2TimeStretcher : public VelocityStretcher
 {
 public:
     static const char*		sName();

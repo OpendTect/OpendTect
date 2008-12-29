@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.3 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.4 2008-12-29 11:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -28,7 +28,7 @@ class SeisTrc;
 /*!Stretches the zaxis from the input cube with a ZAxisTransform and writes it
    out into another volume. */
 
-class SeisZAxisStretcher : public Executor
+mClass SeisZAxisStretcher : public Executor
 {
 public:
     			SeisZAxisStretcher( const IOObj& in,

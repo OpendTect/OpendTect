@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.10 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.11 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -48,7 +48,7 @@ traces.
  */
 
 
-class SeisMSCProvider
+mClass SeisMSCProvider
 {
 public:
 

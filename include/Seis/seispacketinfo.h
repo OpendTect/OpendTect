@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 1995 / Nov 2008
- RCS:		$Id: seispacketinfo.h,v 1.1 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seispacketinfo.h,v 1.2 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace PosInfo { class CubeData; }
 /*!\brief Information for a packet of seismics, AKA tape header info */
 
 
-class SeisPacketInfo
+mClass SeisPacketInfo
 {
 public:
 

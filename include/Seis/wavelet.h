@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		24-3-1996
- RCS:		$Id: wavelet.h,v 1.15 2006-11-06 16:04:27 cvsbert Exp $
+ RCS:		$Id: wavelet.h,v 1.16 2008-12-29 11:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class Conn;
 class IOObj;
 
 
-class Wavelet : public NamedObject
+mClass Wavelet : public NamedObject
 {
 public:
 			Wavelet(const char* nm=0,int idxfsamp=0,
@@ -59,7 +59,7 @@ protected:
 };
 
 
-class WaveletTranslatorGroup : public TranslatorGroup
+mClass WaveletTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(Wavelet)
 public:
     			mDefEmptyTranslatorGroupConstructor(Wavelet)
@@ -67,7 +67,7 @@ public:
     const char*		 defExtension() const		{ return "wvlt"; }
 };
 
-class WaveletTranslator : public Translator
+mClass WaveletTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(Wavelet)
@@ -79,7 +79,7 @@ public:
 
 
 
-class dgbWaveletTranslator : public WaveletTranslator
+mClass dgbWaveletTranslator : public WaveletTranslator
 {			     isTranslator(dgb,Wavelet)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Wavelet)
@@ -90,7 +90,7 @@ public:
 };
 
 
-class WaveletAscIO : public Table::AscIO
+mClass WaveletAscIO : public Table::AscIO
 {
 public:
     				WaveletAscIO( const Table::FormatDesc& fd )

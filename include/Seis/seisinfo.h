@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.24 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.25 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ template <class T> class TypeSet;
 
 /*!\brief Information for a seismic trace, AKA trace header info */
 
-class SeisTrcInfo
+mClass SeisTrcInfo
 {
 public:
 			SeisTrcInfo()

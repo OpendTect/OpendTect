@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsread.h,v 1.9 2008-01-23 15:11:25 cvsbert Exp $
+ RCS:		$Id: seispsread.h,v 1.10 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace PosInfo { class CubeData; class Line2DData; }
 
 */
 
-class SeisPSReader
+mClass SeisPSReader
 {
 public:
 
@@ -47,7 +47,7 @@ public:
 
 /*!\brief reads from a 3D pre-stack seismic data store. */
 
-class SeisPS3DReader : public SeisPSReader
+mClass SeisPS3DReader : public SeisPSReader
 {
 public:
 
@@ -60,7 +60,7 @@ public:
 
 /*!\brief reads from a 2D pre-stack seismic data store. */
 
-class SeisPS2DReader : public SeisPSReader
+mClass SeisPS2DReader : public SeisPSReader
 {
 public:
     			SeisPS2DReader( const char* lnm )

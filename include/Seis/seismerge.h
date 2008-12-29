@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2008
- RCS:		$Id: seismerge.h,v 1.3 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seismerge.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class SeisTrcWriter;
 
 /*!\brief Merges 2D and 3D post-stack data */
 
-class SeisMerger : public Executor
+mClass SeisMerger : public Executor
 {
 public:
 

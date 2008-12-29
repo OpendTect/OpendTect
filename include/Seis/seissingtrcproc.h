@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.20 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.21 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ taken.
 
 */
 
-class SeisSingleTraceProc : public Executor
+mClass SeisSingleTraceProc : public Executor
 {
 public:
 

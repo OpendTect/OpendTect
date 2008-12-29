@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispswrite.h,v 1.4 2008-01-14 12:06:47 cvsbert Exp $
+ RCS:		$Id: seispswrite.h,v 1.5 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class BufferStringSet;
 
 */
 
-class SeisPSWriter
+mClass SeisPSWriter
 {
 public:
 

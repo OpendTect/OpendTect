@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2008
- RCS:		$Id: seismulticubeps.h,v 1.5 2008-09-22 11:55:09 cvsbert Exp $
+ RCS:		$Id: seismulticubeps.h,v 1.6 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class MultiID;
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */
 
-class MultiCubeSeisPSReader : public SeisPS3DReader
+mClass MultiCubeSeisPSReader : public SeisPS3DReader
 {
 public:
 
@@ -60,7 +60,7 @@ protected:
 };
 
 
-class MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
+mClass MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(MultiCube,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)

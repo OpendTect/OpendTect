@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.8 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.9 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ Notes:
 
 */
 
-class SeisImpBPSIF : public Executor
+mClass SeisImpBPSIF : public Executor
 {
 public:
 

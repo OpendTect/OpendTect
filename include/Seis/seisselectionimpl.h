@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselectionimpl.h,v 1.2 2007-12-04 16:01:42 cvsjaap Exp $
+ RCS:		$Id: seisselectionimpl.h,v 1.3 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Seis
 
 /*!\brief selection data in simple ranges */
 
-class RangeSelData : public SelData
+mClass RangeSelData : public SelData
 {
 public:
 
@@ -72,7 +72,7 @@ protected:
 
 /*!\brief selection data in a table */
 
-class TableSelData : public SelData
+mClass TableSelData : public SelData
 {
 public:
 
@@ -125,7 +125,7 @@ protected:
 
  */
 
-class PolySelData : public SelData
+mClass PolySelData : public SelData
 {
 public:
 

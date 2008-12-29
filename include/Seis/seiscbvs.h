@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.40 2008-05-13 14:00:38 cvsbert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.41 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -23,7 +23,7 @@ class VBrickSpec;
 class SeisTrcBuf;
 
 
-class CBVSSeisTrcTranslator : public SeisTrcTranslator
+mClass CBVSSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(CBVS,SeisTrc)
 public:
 

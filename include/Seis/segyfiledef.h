@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.10 2008-11-13 11:33:21 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.11 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace SEGY
 
 /*\brief Base class for SEG-Y parameter classes  */
 
-class FileDef
+mClass FileDef
 {
 public:
     			FileDef()		{}
@@ -46,7 +46,7 @@ public:
 
 /*\brief Definition of input and output file(s)  */
 
-class FileSpec
+mClass FileSpec
 {
 public:
     			FileSpec( const char* fnm=0 )
@@ -79,7 +79,7 @@ public:
 
 /*\brief Parameters that control the primary read/write process */
 
-class FilePars
+mClass FilePars
 {
 public:
     			FilePars( bool forread=true )
@@ -116,7 +116,7 @@ protected:
 
 /*\brief Options that control the actual read process */
 
-class FileReadOpts
+mClass FileReadOpts
 {
 public:
     			FileReadOpts( Seis::GeomType gt=Seis::Vol )

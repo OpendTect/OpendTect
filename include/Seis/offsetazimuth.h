@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: offsetazimuth.h,v 1.3 2007-06-21 21:26:28 cvskris Exp $
+ RCS:		$Id: offsetazimuth.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ The offset has a precision of 0.1 meter and have the range of -419430 and
 circle).
 */
 
-class OffsetAzimuth
+mClass OffsetAzimuth
 {
 public:
 			OffsetAzimuth() : offsetazi_( 0 ) 		{}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.13 2008-10-08 15:57:32 cvsbert Exp $
+ RCS:		$Id: seisscanner.h,v 1.14 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace PosInfo { class Detector; }
 #define mSeisScanMaxNrDistribVals 50000
 
 
-class SeisScanner : public Executor
+mClass SeisScanner : public Executor
 {
 public:
 

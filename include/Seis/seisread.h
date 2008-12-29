@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.32 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.33 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ Note: 2D Pre-Stack data cannot (yet) be read via this class.
 
 */
 
-class SeisTrcReader : public SeisStoreAccess
+mClass SeisTrcReader : public SeisStoreAccess
 {
 public:
 

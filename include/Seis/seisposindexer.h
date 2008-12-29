@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2008
- RCS:           $Id: seisposindexer.h,v 1.3 2008-12-02 16:10:39 cvsbert Exp $
+ RCS:           $Id: seisposindexer.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Seis
 {
 
-class PosKeyList
+mClass PosKeyList
 {
 public:
 
@@ -36,7 +36,7 @@ public:
 
 */
 
-class PosIndexer
+mClass PosIndexer
 {
 public:
 

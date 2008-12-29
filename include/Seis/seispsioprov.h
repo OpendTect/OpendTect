@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.14 2008-05-12 06:45:59 cvsraman Exp $
+ RCS:		$Id: seispsioprov.h,v 1.15 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ class IOObj;
 
  */
 
-class SeisPSIOProvider
+mClass SeisPSIOProvider
 {
 public:
 
@@ -79,7 +79,7 @@ protected:
 };
 
 
-class SeisPSIOProviderFactory
+mClass SeisPSIOProviderFactory
 {
 public:
 
@@ -112,21 +112,21 @@ SeisPSIOProviderFactory& SPSIOPF();
 //------
 //! Translator mechanism is only used for selection etc.
 
-class SeisPS3DTranslatorGroup : public TranslatorGroup
+mClass SeisPS3DTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisPS3D)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisPS3D)
 };
 
 
-class SeisPS3DTranslator : public Translator
+mClass SeisPS3DTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(SeisPS3D)
 };
 
 
-class CBVSSeisPS3DTranslator : public SeisPS3DTranslator
+mClass CBVSSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(CBVS,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(CBVS,SeisPS3D)
@@ -135,21 +135,21 @@ public:
 };
 
 
-class SeisPS2DTranslatorGroup : public TranslatorGroup
+mClass SeisPS2DTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisPS2D)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisPS2D)
 };
 
 
-class SeisPS2DTranslator : public Translator
+mClass SeisPS2DTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(SeisPS2D)
 };
 
 
-class CBVSSeisPS2DTranslator : public SeisPS2DTranslator
+mClass CBVSSeisPS2DTranslator : public SeisPS2DTranslator
 {			       isTranslator(CBVS,SeisPS2D)
 public:
     			mDefEmptyTranslatorConstructor(CBVS,SeisPS2D)

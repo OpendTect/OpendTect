@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpps.h,v 1.3 2008-08-19 09:32:53 cvsbert Exp $
+ RCS:		$Id: seisimpps.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class SeisPSImpLineBuf;
  */
 
 
-class SeisPSImpDataMgr
+mClass SeisPSImpDataMgr
 {
 public:
 

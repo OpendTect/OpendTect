@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.26 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seiswrite.h,v 1.27 2008-12-29 11:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class SeisPSWriter;
 class Seis2DLinePutter;
 
 
-class SeisTrcWriter : public SeisStoreAccess
+mClass SeisTrcWriter : public SeisStoreAccess
 {
 public:
 

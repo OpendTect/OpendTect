@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.5 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seispsmerge.h,v 1.6 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace Seis { class SelData; }
 
 */
 
-class SeisPSMerger : public Executor
+mClass SeisPSMerger : public Executor
 {
 public:
 			SeisPSMerger(const ObjectSet<IOObj>& in,

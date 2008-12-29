@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.10 2008-08-27 12:41:14 cvsbert Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.11 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -21,7 +21,7 @@ ________________________________________________________________________
 
 /*!\brief Array2D based on SeisTrcBuf. */
 
-class SeisTrcBufArray2D : public Array2D<float>
+mClass SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
@@ -58,7 +58,7 @@ protected:
 
 /*!\brief FlatDataPack based on SeisTrcBuf. */
 
-class SeisTrcBufDataPack : public FlatDataPack
+mClass SeisTrcBufDataPack : public FlatDataPack
 {
 public:
 

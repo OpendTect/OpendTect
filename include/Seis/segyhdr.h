@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.21 2008-11-21 11:43:46 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.22 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ namespace SEGY
  */
 
 
-class TxtHeader
+mClass TxtHeader
 {
 public:
     		TxtHeader(bool rev1=true); //!< rev1 only relevant when writing
@@ -72,7 +72,7 @@ protected:
  
  */
 
-class BinHeader
+mClass BinHeader
 {
 public:
 
@@ -121,7 +121,7 @@ public:
 };
 
 
-class TrcHeader
+mClass TrcHeader
 {
 public:
 

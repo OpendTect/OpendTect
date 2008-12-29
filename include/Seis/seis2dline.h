@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.41 2008-07-31 08:57:28 cvsumesh Exp $
+ RCS:		$Id: seis2dline.h,v 1.42 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ namespace Seis		{ class SelData; }
 
 /*!\brief interface for object that writes 2D seismic data */
 
-class Seis2DLinePutter
+mClass Seis2DLinePutter
 {
 public:
     virtual		~Seis2DLinePutter()	{}
@@ -50,7 +50,7 @@ public:
 
 /*!\brief Set of 2D lines comparable with 3D seismic cube */
 
-class Seis2DLineSet : public NamedObject
+mClass Seis2DLineSet : public NamedObject
 {
 public:
 			Seis2DLineSet( const char* fnm )
@@ -146,7 +146,7 @@ protected:
 /*!\brief Provides read/write to/from 2D seismic lines.
 	  Only interesting if you want to add your own 2D data I/O. */
 
-class Seis2DLineIOProvider
+mClass Seis2DLineIOProvider
 {
 public:
 
@@ -190,7 +190,7 @@ ObjectSet<Seis2DLineIOProvider>& S2DLIOPs();
 //------
 //! Translator mechanism is only used for selection etc.
 
-class TwoDSeisTrcTranslator : public SeisTrcTranslator
+mClass TwoDSeisTrcTranslator : public SeisTrcTranslator
 {			isTranslator(TwoD,SeisTrc) public:
 			TwoDSeisTrcTranslator( const char* s1, const char* s2 )
 			: SeisTrcTranslator(s1,s2)      {}

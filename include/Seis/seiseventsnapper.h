@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: seiseventsnapper.h,v 1.5 2008-10-06 17:26:16 cvsnanne Exp $
+ RCS:           $Id: seiseventsnapper.h,v 1.6 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class IOObj;
 class SeisMSCProvider;
 class SeisTrc;
 
-class SeisEventSnapper : public Executor
+mClass SeisEventSnapper : public Executor
 {
 public:
 				SeisEventSnapper(const IOObj&,BinIDValueSet&,

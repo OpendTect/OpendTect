@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.h,v 1.2 2008-09-22 13:11:25 cvskris Exp $
+ RCS:		$Id: seisrandlineto2d.h,v 1.3 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class SeisTrcWriter;
 namespace Seis { class TableSelData; }
 namespace Geometry { class RandomLine; }
 
-class SeisRandLineTo2D : public Executor
+mClass SeisRandLineTo2D : public Executor
 {
 public:
     			SeisRandLineTo2D(IOObj*,IOObj*,const LineKey&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.8 2008-10-01 10:51:39 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.9 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace Seis { class SelData; }
 
 /*!\brief Helps import or export of seismic data. */
 
-class SeisImporter : public Executor
+mClass SeisImporter : public Executor
 {
 public:
 
@@ -98,7 +98,7 @@ protected:
 };
 
 
-class SeisStdImporterReader : public SeisImporter::Reader
+mClass SeisStdImporterReader : public SeisImporter::Reader
 {
 public:
 			SeisStdImporterReader(const IOObj&,const char* nm);

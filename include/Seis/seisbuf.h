@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.21 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.22 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -26,7 +26,7 @@ By default, the traces are not managed, but can be destroyed with deepErase().
 buffer in which the traces are somehow related.
 */
 
-class SeisTrcBuf
+mClass SeisTrcBuf
 {
 public:
 
@@ -88,7 +88,7 @@ protected:
 };
 
 
-class SeisBufReader : public Executor
+mClass SeisBufReader : public Executor
 {
 public:
     			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);

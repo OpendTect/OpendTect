@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.14 2008-08-14 14:08:05 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.15 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class CBVSSeisTrcTranslator;
 
  */
 
-class SeisCBVSPSIO
+mClass SeisCBVSPSIO
 {
 public:
     			SeisCBVSPSIO(const char* dirnm);
@@ -72,7 +72,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-class SeisCBVSPS3DReader : public SeisPS3DReader
+mClass SeisCBVSPS3DReader : public SeisPS3DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -107,7 +107,7 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-class SeisCBVSPS2DReader : public SeisPS2DReader
+mClass SeisCBVSPS2DReader : public SeisPS2DReader
 		         , public SeisCBVSPSIO
 {
 public:
@@ -140,7 +140,7 @@ protected:
 
  */
 
-class SeisCBVSPS3DWriter : public SeisPSWriter
+mClass SeisCBVSPS3DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:
@@ -173,7 +173,7 @@ protected:
 
  */
 
-class SeisCBVSPS2DWriter : public SeisPSWriter
+mClass SeisCBVSPS2DWriter : public SeisPSWriter
 		         , public SeisCBVSPSIO
 {
 public:

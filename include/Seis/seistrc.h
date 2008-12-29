@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.33 2008-05-15 15:27:16 cvshelene Exp $
+ RCS:		$Id: seistrc.h,v 1.34 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ interpreted by DataInterpreters.
 
 */
 
-class SeisTrc
+mClass SeisTrc
 {
 public:
 
@@ -99,7 +99,7 @@ public:
     			//!< Added values can be first/last value of input,
     			//!< or zeros
 
-    static const char*	sKeyExtTrcToSI;
+    static const char*	sKeyExtTrcToSI()	{ return "Extend Traces To Survey Z Range"; }
 
 protected:
 
@@ -120,7 +120,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 
 */
 
-class SeisTrcValueSeries : public ValueSeries<float>
+mClass SeisTrcValueSeries : public ValueSeries<float>
 {
 public:
 
@@ -147,7 +147,7 @@ One of the components of a SeisTrc can be selected to form a ValueSeries.
 */
 
 
-class SeisTrcFunction : public FloatMathFunction
+mClass SeisTrcFunction : public FloatMathFunction
 {
 public:
     		SeisTrcFunction(const SeisTrc& trc, int icomp)

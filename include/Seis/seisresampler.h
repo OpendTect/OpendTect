@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisresampler.h,v 1.3 2005-03-15 10:45:31 cvsbert Exp $
+ RCS:		$Id: seisresampler.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ template <class T> class Interval;
 
  */
 
-class SeisResampler
+mClass SeisResampler
 {
 public:
 

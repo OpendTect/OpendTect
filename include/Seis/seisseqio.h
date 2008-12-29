@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.8 2008-01-23 15:11:08 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.9 2008-12-29 11:24:59 cvsranojay Exp $
 -*/
 
 #include "seistype.h"
@@ -27,7 +27,7 @@ class Bounds;
 
 /*!\brief Base class for Seismic Sequential IO classes */
 
-class SeqIO
+mClass SeqIO
 {
 public:
 
@@ -48,7 +48,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential input classes */
 
-class SeqInp : public SeqIO
+mClass SeqInp : public SeqIO
 {
 public:
 
@@ -77,7 +77,7 @@ protected:
  */
 
 
-class ODSeqInp : public SeqInp
+mClass ODSeqInp : public SeqInp
 {
 public:
 
@@ -113,7 +113,7 @@ protected:
 
 /*!\brief Base class for Seismic Sequential output classes */
 
-class SeqOut : public SeqIO
+mClass SeqOut : public SeqIO
 {
 public:
 
@@ -134,7 +134,7 @@ public:
  
  */
 
-class ODSeqOut : public SeqOut
+mClass ODSeqOut : public SeqOut
 {
 public:
 

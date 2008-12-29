@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.14 2008-11-25 11:37:46 cvsbert Exp $
+ RCS:		$Id: seistype.h,v 1.15 2008-12-29 11:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -47,8 +47,8 @@ namespace Seis
 			  Azimuth, Classification, UnknowData };
     bool		isAngle(DataType);
     const char*		nameOf(DataType);
-    DataType		dataTypeOf(const char*);
-    const char**	dataTypeNames();
+    mGlobal DataType		dataTypeOf(const char*);
+    mGlobal const char**	dataTypeNames();
 
     enum WaveType       { P, Sh, Sv, UnknowWave };
     const char*		nameOf(WaveType);

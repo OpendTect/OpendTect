@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselection.h,v 1.4 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:		$Id: seisselection.h,v 1.5 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace Seis
 
 /*!\brief setup for subselection of seismic data */
 
-class SelSetup
+mClass SelSetup
 {
 public:
 
@@ -77,7 +77,7 @@ public:
   
  */
 
-class SelData
+mClass SelData
 {
 public:
 

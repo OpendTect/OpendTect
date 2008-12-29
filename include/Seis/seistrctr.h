@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.55 2008-12-12 09:40:36 cvshelene Exp $
+ RCS:		$Id: seistrctr.h,v 1.56 2008-12-29 11:25:00 cvsranojay Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -79,14 +79,14 @@ SeisTrcReader and SeisTrcWriter do support it.
 */
 
 
-class SeisTrcTranslatorGroup : public TranslatorGroup
+mClass SeisTrcTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisTrc)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisTrc)
 };
 
 
-class SeisTrcTranslator : public Translator
+mClass SeisTrcTranslator : public Translator
 {
 public:
 
@@ -97,7 +97,7 @@ public:
 
     */
 
-    class ComponentData : public BasicComponentInfo
+    mClass ComponentData : public BasicComponentInfo
     {
 	friend class	SeisTrcTranslator;
 
@@ -121,7 +121,7 @@ public:
 
     */
 
-    class TargetComponentData : public ComponentData
+    mClass TargetComponentData : public ComponentData
     {
 	friend class	SeisTrcTranslator;
 

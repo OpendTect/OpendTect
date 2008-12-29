@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.8 2008-12-04 13:28:43 cvsbert Exp $
+ RCS:		$Id: segyfiledata.h,v 1.9 2008-12-29 11:24:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ struct RichTraceInfo : public TraceInfo
 
 /*\brief Data usually obtained by scanning a SEG-Y file. */
 
-class FileData : public ObjectSet<TraceInfo>
+mClass FileData : public ObjectSet<TraceInfo>
 {
 public:
 
@@ -110,7 +110,7 @@ public:
 };
 
 
-class FileDataSet : public ObjectSet<FileData>
+mClass FileDataSet : public ObjectSet<FileData>
 {
 public:
 
