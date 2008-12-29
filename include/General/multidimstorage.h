@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.5 2008-12-04 14:36:57 cvsyuancheng Exp $
+ RCS:		$Id: multidimstorage.h,v 1.6 2008-12-29 06:03:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,10 +106,11 @@ protected:
     TypeSet<int>			positions_;
     ObjectSet<MultiDimStorage<T> >	lowerdimstorage_;
     TypeSet<T>				onedimstorage_;
-
-    const int				nrdims_;
-    const int				nrvals_;
     bool				allowduplicates_;
+
+private:
+    int					nrdims_;
+    int					nrvals_;
 };
 
 
