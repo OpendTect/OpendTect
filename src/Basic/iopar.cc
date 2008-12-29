@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.75 2008-12-04 13:24:01 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.76 2008-12-29 10:47:53 cvsranojay Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -20,10 +20,6 @@ static const char* rcsID = "$Id: iopar.cc,v 1.75 2008-12-04 13:24:01 cvsbert Exp
 #include "color.h"
 #include "convert.h"
 #include "errh.h"
-
-const char* IOPar::sKeyDumpPretty = "_pretty";
-const char* IOPar::sKeyHdr = "->";
-const char* IOPar::sKeySubHdr = "-->";
 
 
 IOPar::IOPar( const char* nm )
@@ -1322,7 +1318,7 @@ bool IOPar::write( const char* fnm, const char* typ ) const
 bool IOPar::write( std::ostream& strm, const char* typ ) const
 {
 
-    if ( typ && !strcmp(typ,sKeyDumpPretty) )
+    if ( typ && !strcmp(typ,sKeyDumpPretty()) )
 	dumpPretty( strm );
     else
     {
@@ -1359,9 +1355,9 @@ void IOPar::dumpPretty( std::ostream& strm ) const
     for ( int idx=0; idx<size(); idx++ )
     {
 	const BufferString& ky = *keys_[idx];
-	if ( ky == sKeyHdr )
+	if ( ky == sKeyHdr() )
 	    { strm << "\n\n* " << vals_.get(idx) << " *\n\n"; continue; }
-	else if ( ky == sKeySubHdr )
+	else if ( ky == sKeySubHdr() )
 	    { strm << "\n  - " << vals_.get(idx) << "\n\n"; continue; }
 
 	BufferString keyprint( maxkeylen + 1, true );

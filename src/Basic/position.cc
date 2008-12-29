@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.63 2008-08-18 13:36:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.64 2008-12-29 10:49:04 cvsranojay Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: position.cc,v 1.63 2008-08-18 13:36:41 cvsyuanc
 #include <ctype.h>
 
 
-float BinIDValue::compareepsilon = 1e-5;
 float BinIDValues::udf = mUdf(float);
 
 
@@ -217,7 +216,7 @@ bool BinIDValues::operator ==( const BinIDValues& bvs ) const
 	return false;
 
     for ( int idx=0; idx<sz; idx++ )
-	if ( !mIsEqual(vals[idx],bvs.vals[idx],BinIDValue::compareepsilon) )
+	if ( !mIsEqual(vals[idx],bvs.vals[idx],BinIDValue::sCompareEpsilon()) )
 	    return false;
 
     return true;
