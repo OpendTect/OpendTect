@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.24 2008-11-18 17:25:15 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.25 2008-12-29 06:01:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class IOLink;
 
 /*\brief factory entry for IOObjs. Should deliver IOObj of certain type. */
 
-class IOObjProducer
+mClass IOObjProducer
 {
 public:
 
@@ -55,7 +55,7 @@ If a link is removed, the entire tree below it is removed.
 */
 
 
-class IOObj : public NamedObject
+mClass IOObj : public NamedObject
 {
 public:
 
@@ -112,8 +112,8 @@ public:
     virtual void	acquireNewKey();
     			//!< This will give the IOObj a new (free) ID
 
-    static const int	tmpID; //!< 99999
-    inline bool		isTmp() const	{ return key_.leafID() == tmpID; }
+    static const int	tmpID()		{ return  999999; }
+    inline bool		isTmp() const	{ return key_.leafID() == tmpID(); }
     bool		isReadDefault() const;
 
     static int		addProducer(IOObjProducer*);
