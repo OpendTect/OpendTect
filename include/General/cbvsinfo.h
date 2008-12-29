@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.24 2008-12-25 11:16:07 cvsranojay Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.25 2008-12-29 10:59:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
 				{ *this = ci; }
     CBVSInfo&			operator =(const CBVSInfo&);
 
-    struct SurvGeom
+    mStruct SurvGeom
     {
 				SurvGeom()
 				: fullyrectandreg(false)	{}
