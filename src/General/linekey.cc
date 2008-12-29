@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.11 2008-04-16 15:52:14 cvshelene Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.12 2008-12-29 11:06:11 cvsranojay Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
@@ -13,13 +13,11 @@ static const char* rcsID = "$Id: linekey.cc,v 1.11 2008-04-16 15:52:14 cvshelene
 #include "ioman.h"
 #include "keystrs.h"
 
-const char* LineKey::sKeyDefAttrib = "Seis";
-
 
 LineKey::LineKey( const char* lnm, const char* attrnm, bool showseis )
     	: BufferString(lnm)
 {
-    if ( attrnm && *attrnm && ( strcmp(attrnm,sKeyDefAttrib) || showseis ) )
+    if ( attrnm && *attrnm && ( strcmp(attrnm,sKeyDefAttrib()) || showseis ) )
 	{ *this += "|"; *this += attrnm; }
 }
 
@@ -37,7 +35,7 @@ BufferString LineKey::lineName() const
 
     char* ptr = strchr( ret.buf(), '|' );
     if ( ptr ) *ptr = '\0';
-
+cNoID
     removeTrailingBlanks( ret.buf() );
     return ret;
 }
@@ -45,14 +43,14 @@ BufferString LineKey::lineName() const
 
 BufferString LineKey::attrName() const
 {
-    const char* ptr = sKeyDefAttrib;
+    const char* ptr = sKeyDefAttrib();
     if ( !isEmpty() )
     {
 	ptr = strchr( buf(), '|' );
 	if ( ptr )
 	    { ptr++; mSkipBlanks(ptr); }
 	else
-	    ptr = sKeyDefAttrib;
+	    ptr = sKeyDefAttrib();
     }
 
     return BufferString( ptr );
