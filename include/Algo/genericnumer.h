@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.24 2008-08-26 08:18:30 cvsbert Exp $
+ RCS:           $Id: genericnumer.h,v 1.25 2008-12-29 10:53:05 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -119,7 +119,7 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 }
 
 
-float similarity(const FloatMathFunction&,const FloatMathFunction&, 
+mGlobal float similarity(const FloatMathFunction&,const FloatMathFunction&, 
 		 float x1, float x2, float dist, int sz, bool normalize );
 
 /*!> uses parabolic search for the position where a function gets
@@ -128,7 +128,7 @@ There is no use to have a tolerance lower than the square root of the system's
 float-precision. */
 
 
-bool findValue(const FloatMathFunction&,float x1,float x2,float& res,
+mGlobal bool findValue(const FloatMathFunction&,float x1,float x2,float& res,
 	       float targetval = 0,float tol=1e-5);
 
 
@@ -139,7 +139,7 @@ intervals should be used when searching for a solution. When a solution is
 found in an interval, a high precision search is started in that interval.
 */
 
-float findValueInAperture(const FloatMathFunction&,float startx, 
+mGlobal float findValueInAperture(const FloatMathFunction&,float startx, 
 	 	const Interval<float>& aperture,float dx,float target=0,
 		float tol=1e-5);
 
@@ -150,7 +150,7 @@ f((x1+x2)/2) should be less than f(x1) and f(x2). If no minima can be found,
 mUdf(float) is returned;
 */
 
-float findExtreme(const FloatMathFunction&,bool minima,float x1,float x2,
+mGlobal float findExtreme(const FloatMathFunction&,bool minima,float x1,float x2,
 		  float tol = 1e-5);
 
 
@@ -170,7 +170,7 @@ void reSample( const FloatMathFunction& input, const A& samplevals,
 /*!Computes the greatest common divisor from two intigers. Uses the algorithm
    published by Josef Stein. */
 
-unsigned int greatestCommonDivisor( unsigned int u, unsigned int v );
+mGlobal unsigned int greatestCommonDivisor( unsigned int u, unsigned int v );
 
 
 /*!>
