@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.27 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.28 2008-12-29 10:05:12 cvsranojay Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.27 2008-09-29 13:23:48 cvsbert Exp
 #include <stdlib.h>
 
 
-const int IOObj::tmpID = 999999;
+
 
 
 static ObjectSet<const IOObjProducer>& getProducers()

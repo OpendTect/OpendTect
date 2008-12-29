@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.88 2008-10-02 14:35:32 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.89 2008-12-29 10:05:12 cvsranojay Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -32,9 +32,15 @@ IOMan*	IOMan::theinst_	= 0;
 extern "C" void SetSurveyName(const char*);
 extern "C" const char* GetSurveyName();
 extern "C" void SetSurveyNameDirty();
-extern "C" const char* GetBaseDataDir();
+
 bool IOMAN_no_survchg_triggers = false;
 
+IOMan& IOM()
+{
+    if ( !IOMan::theinst_ )
+	{ IOMan::theinst_ = new IOMan; IOMan::theinst_->init(); }
+    return *IOMan::theinst_;
+}
 
 IOMan::IOMan( const char* rd )
 	: NamedObject("IO Manager")
@@ -625,7 +631,7 @@ void IOMan::getEntry( CtxtIOObj& ctio, bool mktmp )
     {
 	MultiID newkey( mktmp ? ctio.ctxt.getSelKey() : newKey() );
 	if ( mktmp )
-	    newkey.add( IOObj::tmpID );
+	    newkey.add( IOObj::tmpID() );
 	IOStream* iostrm = new IOStream( ctio.ctxt.name(), newkey, false );
 	dirPtr()->mkUniqueName( iostrm );
 	iostrm->setGroup( ctio.ctxt.trgroup->userName() );
