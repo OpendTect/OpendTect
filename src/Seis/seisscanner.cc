@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.39 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.40 2008-12-29 11:22:05 cvsranojay Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -118,7 +118,7 @@ void SeisScanner::report( IOPar& iopar ) const
     str += rdr_.ioObj()->name(); str += "'\n\n";
     iopar.setName( str );
 
-    iopar.add( IOPar::sKeyHdr, "Sampling info" );
+    iopar.add( IOPar::sKeyHdr(), "Sampling info" );
     iopar.set( "Z step", sampling_.step );
     iopar.set( "Z start in file", sampling_.start );
     iopar.set( "Z stop in file", zRange().stop );
@@ -129,7 +129,7 @@ void SeisScanner::report( IOPar& iopar ) const
     if ( nonnullsamplerg_.stop != nrsamples_-1 )
 	iopar.set( "Last non-zero sample", nonnullsamplerg_.stop + 1 );
 
-    iopar.add( IOPar::sKeyHdr, "Global stats" );
+    iopar.add( IOPar::sKeyHdr(), "Global stats" );
     iopar.set( "Number of null traces", (int)nrnulltraces_ );
     dtctor_.report( iopar );
     if ( !dtctor_.is2D() )
@@ -143,7 +143,7 @@ void SeisScanner::report( IOPar& iopar ) const
 
     if ( !mIsUdf(valrg_.start) )
     {
-	iopar.add( IOPar::sKeyHdr, "Data values" );
+	iopar.add( IOPar::sKeyHdr(), "Data values" );
 	iopar.set( "Minimum value", valrg_.start );
 	iopar.set( "Maximum value", valrg_.stop );
 	iopar.set( "Median value", distribvals_[nrdistribvals_/2] );
@@ -191,7 +191,7 @@ void SeisScanner::launchBrowser( const IOPar& startpar, const char* fnm ) const
 	fnm = GetProcFileName( "seisscan_tmp.txt" );
 
     IOPar iopar( startpar ); report( iopar );
-    iopar.write( fnm, IOPar::sKeyDumpPretty );
+    iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
     ExecuteScriptCommand( "FileBrowser", fnm );
 }

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.68 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.69 2008-12-29 11:22:54 cvsranojay Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -164,7 +164,7 @@ const char* Seis2DLineSet::attribute( int idx ) const
 {
     const char* res = idx >= 0 && idx < pars_.size()
 		    ? pars_[idx]->find(sKey::Attribute) : 0;
-    return res ? res : LineKey::sKeyDefAttrib;
+    return res ? res : LineKey::sKeyDefAttrib();
 }
 
 
@@ -665,7 +665,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
 {
     const BufferString lnm( lk.lineName() );
     const BufferString anm( lk.attrName() );
-    if ( anm == LineKey::sKeyDefAttrib )
+    if ( anm == LineKey::sKeyDefAttrib() )
 	const_cast<BufferString&>( anm ) = "";
 
     const bool haveln = !lnm.isEmpty();
@@ -679,7 +679,7 @@ const char* Seis2DLineSet::getCubeSampling( CubeSampling& cs,
 	if ( haveattr )
 	{
 	    BufferString curanm( attribute(iln) );
-	    if ( curanm == LineKey::sKeyDefAttrib ) curanm = "";
+	    if ( curanm == LineKey::sKeyDefAttrib() ) curanm = "";
 	    if ( anm != curanm )
 		continue;
 	}
@@ -796,7 +796,7 @@ void Seis2DLineSet::installPreSet( const IOPar& iop, const char* reallskey,
 }
 
 
-class Seis2DGeomDumper : public Executor
+mClass Seis2DGeomDumper : public Executor
 {
 public:
 
@@ -843,7 +843,7 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
     }
 
     if ( attrnm.isEmpty() )
-	attrnm = LineKey::sKeyDefAttrib;
+	attrnm = LineKey::sKeyDefAttrib();
     totalnr = lastidx - curidx + 1;
     curmsg = "Extracting geometry";
 }

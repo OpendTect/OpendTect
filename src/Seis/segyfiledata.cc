@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.15 2008-12-11 16:08:22 cvsbert Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.16 2008-12-29 11:19:31 cvsranojay Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -83,8 +83,8 @@ int SEGY::FileData::nrUsableTraces() const
 
 void SEGY::FileData::getReport( IOPar& iop ) const
 {
-    iop.add( IOPar::sKeyHdr, BufferString("Info for '",fname_.buf(),"'") );
-    iop.add( IOPar::sKeySubHdr, "General info" );
+    iop.add( IOPar::sKeyHdr(), BufferString("Info for '",fname_.buf(),"'") );
+    iop.add( IOPar::sKeySubHdr(), "General info" );
     const int nrtrcs = size();
     if ( nrtrcs < 1 )
 	{ iop.add( "Number of traces found", "0" ); return; }
@@ -132,7 +132,7 @@ void SEGY::FileData::getReport( IOPar& iop ) const
 	azimrg.include( azimuth(idx) );
     }
 
-    iop.add( IOPar::sKeySubHdr, "Ranges" );
+    iop.add( IOPar::sKeySubHdr(), "Ranges" );
     if ( Seis::is2D(geom_) )
 	iop.add( "Trace number range", nrrg.start, nrrg.stop );
     else

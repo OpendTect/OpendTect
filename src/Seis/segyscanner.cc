@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.19 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.20 2008-12-29 11:20:11 cvsranojay Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -79,7 +79,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 {
     const bool isrev1 = !forcerev0_ && (fds_.isEmpty() || fds_[0]->isrev1_);
 
-    iop.add( IOPar::sKeyHdr, "Provided information" );
+    iop.add( IOPar::sKeyHdr(), "Provided information" );
     FileSpec fs; fs.usePar( pars_ ); fs.getReport( iop, isrev1 );
     FilePars fp(true); fp.usePar( pars_ ); fp.getReport( iop, isrev1 );
     FileReadOpts fro(geom_); fro.usePar( pars_ ); fro.getReport( iop, isrev1 );
@@ -87,13 +87,13 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
     if ( fds_.isEmpty() )
     {
 	if ( failedfnms_.isEmpty() )
-	    iop.add( IOPar::sKeySubHdr, "No matching files found" );
+	    iop.add( IOPar::sKeySubHdr(), "No matching files found" );
 	else
 	    addErrReport( iop );
 	return;
     }
 
-    iop.add( IOPar::sKeyHdr, "Position scanning results" );
+    iop.add( IOPar::sKeyHdr(), "Position scanning results" );
     dtctor_.report( iop );
     addErrReport( iop );
 
@@ -104,7 +104,7 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 
 void SEGY::Scanner::addErrReport( IOPar& iop ) const
 {
-    iop.add( IOPar::sKeyHdr,  "Status" );
+    iop.add( IOPar::sKeyHdr(),  "Status" );
     for ( int idx=0; idx<fnms_.size(); idx++ )
     {
 	const char* fnm = fnms_.get( idx );
