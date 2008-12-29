@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.54 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: iopar.h,v 1.55 2008-12-29 10:44:13 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,9 +248,9 @@ public:
     const char*		mkKey(int) const;
 
     void		dumpPretty(std::ostream&) const;
-    static const char*	sKeyDumpPretty;
-    static const char*	sKeyHdr;
-    static const char*	sKeySubHdr;
+    static const char*	sKeyDumpPretty()         { return "_pretty"; }
+    static const char*	sKeyHdr()		 { return "->";	     }	
+    static const char*	sKeySubHdr()		 { return "-->";     }   	
 
 protected:
 
