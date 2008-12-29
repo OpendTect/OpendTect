@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.59 2008-12-23 11:05:50 cvsdgb Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.60 2008-12-29 10:00:14 cvsranojay Exp $";
 
 #include "pickset.h"
 
@@ -422,7 +422,6 @@ Pick::Set& Pick::Set::operator=( const Set& s )
 }
 
 
-const char* Pick::Set::sKeyMarkerType = "Marker Type";
 static const char* sKeyConnect = "Connect";
 
 void Pick::Set::fillPar( IOPar& par ) const
@@ -435,7 +434,7 @@ void Pick::Set::fillPar( IOPar& par ) const
     }
 
     par.set( sKey::Size, disp_.pixsize_ );
-    par.set( sKeyMarkerType, disp_.markertype_ );
+    par.set( sKeyMarkerType(), disp_.markertype_ );
     par.set( sKeyConnect, eString(Disp::Connection,disp_.connect_) );
     par.merge( pars_ );
 }
@@ -449,7 +448,7 @@ bool Pick::Set::usePar( const IOPar& par )
 
     disp_.pixsize_ = 3;
     par.get( sKey::Size, disp_.pixsize_ );
-    par.get( sKeyMarkerType, disp_.markertype_ );
+    par.get( sKeyMarkerType(), disp_.markertype_ );
 
     bool doconnect;
     par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
@@ -464,7 +463,7 @@ bool Pick::Set::usePar( const IOPar& par )
     pars_ = par;
     pars_.removeWithKey( sKey::Color );
     pars_.removeWithKey( sKey::Size );
-    pars_.removeWithKey( sKeyMarkerType );
+    pars_.removeWithKey( sKeyMarkerType() );
     pars_.removeWithKey( sKeyConnect );
     return true;
 }
