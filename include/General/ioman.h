@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.35 2008-10-02 14:35:32 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.36 2008-12-29 11:14:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ class Translator;
 class IOObjContext;
 
 class IOMan;
-inline IOMan& IOM();
 
 /*!\brief manages the 'Meta-'data store for the IOObj's. This info
 is read from the .omf files.
@@ -35,7 +34,7 @@ more instances is probably not a good idea, but it may work.
 
 */
 
-class IOMan : public NamedObject
+mClass IOMan : public NamedObject
 {
 public:
 
@@ -83,7 +82,7 @@ public:
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
 
-    class CustomDirData
+    mClass CustomDirData
     {
     public:
 			CustomDirData( const char* selkey, const char* dirnm,
@@ -139,17 +138,11 @@ private:
 
     friend class	IOObj;
     friend class	IODir;
-    friend IOMan&	IOM();
+    friend mGlobal	IOMan&	IOM();
 
 };
 
-
-inline IOMan& IOM()
-{
-    if ( !IOMan::theinst_ )
-	{ IOMan::theinst_ = new IOMan; IOMan::theinst_->init(); }
-    return *IOMan::theinst_;
-}
+mGlobal IOMan&	IOM();
 
 
 /*!\mainpage
