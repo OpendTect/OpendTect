@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.30 2008-12-23 11:08:31 cvsdgb Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.31 2008-12-29 11:44:34 cvsranojay Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -112,7 +112,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 
     if ( isxy_ != selxy_ )
     {
-	iopar.add( IOPar::sKeyHdr, "Warning" );
+	iopar.add( IOPar::sKeyHdr(), "Warning" );
 	const char* selected = selxy_ ? "X/Y" : "Inl/Crl";
 	const char* actual = isxy_ ? "X/Y" : "Inl/Crl";
 	iopar.add( "You have selected positions in", selected );
@@ -122,14 +122,14 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( msg.buf(), "" );
     }
 
-    iopar.add( IOPar::sKeyHdr, "Geometry" );
+    iopar.add( IOPar::sKeyHdr(), "Geometry" );
     dtctor_.report( iopar );
     if ( isgeom_ && valranges_.size() > 0 )
 	iopar.set( SI().zIsTime() ? "Time range (s)" : "Z Range",valranges_[0]);
 
     if ( valranges_.size() > firstattribidx )
     {
-	iopar.add( IOPar::sKeySubHdr, "Data values" );
+	iopar.add( IOPar::sKeySubHdr(), "Data values" );
 	for ( int idx=firstattribidx; idx<valranges_.size(); idx++ )
 	{
 	    const char* attrnm = fd_.bodyinfos_[idx+1]->name().buf();
@@ -140,11 +140,11 @@ void HorizonScanner::report( IOPar& iopar ) const
 	}
     }
     else
-	iopar.add( IOPar::sKeySubHdr, "No attribute data values" );
+	iopar.add( IOPar::sKeySubHdr(), "No attribute data values" );
 
     if ( !rejectedlines_.isEmpty() )
     {
-	iopar.add( IOPar::sKeyHdr, "Warning" );
+	iopar.add( IOPar::sKeyHdr(), "Warning" );
 	iopar.add( "These positions were rejected", "" );
 	for ( int idx=0; idx<rejectedlines_.size(); idx++ )
 	    iopar.add( toString(idx), rejectedlines_.get(idx).buf() );
@@ -169,7 +169,7 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile();
     IOPar iopar; report( iopar );
-    iopar.write( fnm, IOPar::sKeyDumpPretty );
+    iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
     ExecuteScriptCommand( "FileBrowser", fnm );
 }

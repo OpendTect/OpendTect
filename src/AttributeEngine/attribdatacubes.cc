@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.26 2008-09-16 10:03:20 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.27 2008-12-29 11:49:29 cvsranojay Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -182,7 +182,7 @@ bool DataCubes::includes( const BinIDValue& bidv ) const
 	return false;
 
     const float zpos = bidv.value/zstep-z0;
-    const float eps = bidv.compareepsilon/zstep;
+    const float eps = bidv.sCompareEpsilon()/zstep;
     return zpos>-eps && zpos<=zsz_-1+eps;
 }
 

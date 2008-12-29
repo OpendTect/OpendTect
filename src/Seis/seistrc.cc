@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.39 2008-06-04 11:35:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.40 2008-12-29 11:41:15 cvsranojay Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: seistrc.cc,v 1.39 2008-06-04 11:35:42 cvssatyak
 #include <math.h>
 #include <float.h>
 
-const char* SeisTrc::sKeyExtTrcToSI = "Extend Traces To Survey Z Range";
 const float SeisTrc::snapdist = 1e-3;
 
 

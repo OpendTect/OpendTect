@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.90 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.91 2008-12-29 11:49:29 cvsranojay Exp $";
 
 #include "attribengman.h"
 
@@ -143,7 +143,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 
     bool exttrctosi;
     BufferString basekey = IOPar::compKey( "Output",0 );
-    if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtTrcToSI ),
+    if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtTrcToSI() ),
 		      exttrctosi) )
 	storeoutp->setTrcGrow( exttrctosi );
     
