@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.39 2008-12-23 11:05:17 cvsdgb Exp $
+ RCS:		$Id: pickset.h,v 1.40 2008-12-29 06:05:08 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace Pick
 
 /*!\brief Pick location in space */
 
-class Location
+mClass Location
 {
 public:
 			Location( double x=0, double y=0, double z=0 )
@@ -83,7 +83,7 @@ public:
 
 /*!\brief Set of picks with something in common */
 
-class Set : public NamedObject
+mClass Set : public NamedObject
 	  , public TypeSet<Location>
 {
 public:
@@ -112,7 +112,7 @@ public:
     Disp		disp_;
     IOPar&		pars_;
 
-    static const char*	sKeyMarkerType;
+    static const char*	sKeyMarkerType()       { return "Marker Type"; }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 };
@@ -130,7 +130,7 @@ public:
  
  */
 
-class SetMgr : public NamedObject
+mClass SetMgr : public NamedObject
 {
 public:
 
@@ -215,7 +215,7 @@ inline SetMgr& Mgr()
 }; // namespace Pick
 
 
-class PickSetAscIO : public Table::AscIO
+mClass PickSetAscIO : public Table::AscIO
 {
 public:
     				PickSetAscIO( const Table::FormatDesc& fd )
