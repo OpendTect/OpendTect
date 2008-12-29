@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: picksettr.cc,v 1.18 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.19 2008-12-29 10:03:17 cvsranojay Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -108,7 +108,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 		ps.disp_.pixsize_ = astrm.getIValue();
 		astrm.next();
 	    }
-	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType) )
+	    if ( astrm.hasKeyword(Pick::Set::sKeyMarkerType()) )
 	    {
 		ps.disp_.markertype_ = astrm.getIValue();
 		astrm.next();
