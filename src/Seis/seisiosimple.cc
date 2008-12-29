@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.9 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.10 2008-12-29 11:41:50 cvsranojay Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -199,7 +199,7 @@ SeisIOSimple::~SeisIOSimple()
 }
 
 
-class SeisIOSimpleImportReader : public SeisImporter::Reader
+mClass SeisIOSimpleImportReader : public SeisImporter::Reader
 {
 public:
 

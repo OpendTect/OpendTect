@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.19 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.20 2008-12-29 11:41:49 cvsranojay Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -279,7 +279,7 @@ bool SeisImporter::sortingOk( const SeisTrc& trc )
 }
 
 
-class SeisInlCrlSwapper : public Executor
+mClass SeisInlCrlSwapper : public Executor
 {
 public:
 

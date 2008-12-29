@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seismulticubeps.cc,v 1.4 2008-09-02 10:54:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seismulticubeps.cc,v 1.5 2008-12-29 11:41:50 cvsranojay Exp $";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: seismulticubeps.cc,v 1.4 2008-09-02 10:54:17 cv
 static const char* sKeyFileType = "MultiCube Pre-Stack Seismics";
 
 
-class MultiCubeSeisPSIOProvider : public SeisPSIOProvider
+mClass MultiCubeSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
 			MultiCubeSeisPSIOProvider()

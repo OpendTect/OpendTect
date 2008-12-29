@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segydirect.cc,v 1.11 2008-12-04 15:55:27 cvsbert Exp $";
+static const char* rcsID = "$Id: segydirect.cc,v 1.12 2008-12-29 11:41:49 cvsranojay Exp $";
 
 #include "segydirectdef.h"
 #include "segyfiledata.h"
@@ -24,7 +24,7 @@ static const char* sKeyNrFiles = "Number of files";
 namespace SEGY
 {
 
-class PosKeyList : public Seis::PosKeyList
+mClass PosKeyList : public Seis::PosKeyList
 {
 public:
 
