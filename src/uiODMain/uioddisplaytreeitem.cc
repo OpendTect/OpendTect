@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.25 2008-12-16 12:10:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.26 2008-12-30 09:19:09 cvsumesh Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -47,7 +47,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
     return false;
 }
 
-
+static const int sHistogramIdx = 1100;
 static const int sAttribIdx = 1000;
 static const int sDuplicateIdx = 900;
 static const int sLinkIdx = 800;
@@ -61,6 +61,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , visserv_(ODMainWin()->applMgr().visServer())
     , addattribmnuitem_("&Add attribute",sAttribIdx)
     , duplicatemnuitem_("&Duplicate",sDuplicateIdx)
+    , displyhistgram_("&DisplayHistogram",sHistogramIdx)		   
     , linkmnuitem_("&Link ...",sLinkIdx)
     , lockmnuitem_("&Lock",sLockIdx)
     , hidemnuitem_("&Hide",sHideIdx )
@@ -250,9 +251,13 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &addattribmnuitem_,
 		      !visserv_->isLocked(displayid_) &&
 		      visserv_->canAddAttrib(displayid_), false );
+	mAddMenuItem( menu, &displyhistgram_, true, false );
     }
     else
+    {
 	mResetMenuItem( &addattribmnuitem_ );
+	mResetMenuItem( &displyhistgram_ );
+    }
 
     lockmnuitem_.text = getLockMenuText(); 
     mAddMenuItem( menu, &lockmnuitem_, true, false );
@@ -308,6 +313,10 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	uiODDataTreeItem* newitem = addAttribItem();
 	newitem->select();
 	menu->setIsHandled(true);
+    }
+    else if ( mnuid==displyhistgram_.id )
+    {
+	visserv_->displayHistogramsForAttrbs( displayID() );
     }
     else if ( mnuid==hidemnuitem_.id )
     {
