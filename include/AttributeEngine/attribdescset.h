@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.32 2008-12-12 09:40:36 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.33 2008-12-30 06:39:34 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,11 @@ public:
     				DescSet( bool is2d )
 				    : is2d_(is2d)
 			    	    , is2dset_(true)
-			    	    , descToBeRemoved(this)	    {}
+			    	    , descToBeRemoved(this)   {}
     				DescSet( bool is2d, bool is2dset )
 				    : is2d_(is2d)
 			    	    , is2dset_(is2dset)
-			    	    , descToBeRemoved(this)	    {}
+			    	    , descToBeRemoved(this)  {}
     				~DescSet() 		{ removeAll(); }
 
     DescSet*			clone() const;
@@ -56,8 +56,8 @@ public:
 
     int				nrDescs(bool inclstored=true,
 	    				bool inclhidden=true) const;
-    Desc*       		desc( int idx )		{ return descs[idx]; }
-    const Desc*       		desc( int idx ) const	{ return descs[idx]; }
+    Desc*       		desc( int idx )		{ return descs_[idx]; }
+    const Desc*       		desc( int idx ) const	{ return descs_[idx]; }
     Desc*       		getDesc(const DescID&);
     const Desc*			getDesc(const DescID&) const;
     DescID			getID(const Desc&) const;
@@ -70,6 +70,8 @@ public:
     Desc* 			getFirstStored(bool usesteering=true) const;
 
     void			removeDesc(const DescID&);
+    void                        moveDescUpDown(const DescID&,bool);
+    void                        sortDescSet();
     void			removeAll();
     int                 	removeUnused(bool removestored=false);
 				//!< Removes unused hidden attributes.
@@ -117,16 +119,16 @@ protected:
 
     DescID			getFreeID() const;
 
-    ObjectSet<Desc>		descs;
-    TypeSet<DescID>		ids;
-    BufferString		errmsg;
+    ObjectSet<Desc>		descs_;
+    TypeSet<DescID>		ids_;
+    BufferString		errmsg_;
     bool			is2d_;
 
 private:
 
     bool			is2dset_;
     				DescSet( const DescSet& )
-				    : descToBeRemoved(this)		{}
+				    : descToBeRemoved(this) {}
 				// crap. Don't even TRY to use. Use clone()!
 };
 
