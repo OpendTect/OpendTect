@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.8 2008-12-12 05:44:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.9 2008-12-30 04:25:44 cvsumesh Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.8 2008-12-12 05:44:20 cvs
 #include <QBrush>
 #include <QGraphicsItemGroup>
 #include <QPen>
+#include <QTransform>
 
 
 void uiGraphicsItem::show()	{ qgraphicsitem_->show(); }
@@ -45,8 +46,14 @@ void uiGraphicsItem::moveBy( float x, float y )
 void uiGraphicsItem::rotate( float angle )
 { qgraphicsitem_->rotate( angle ); }
 
-void uiGraphicsItem::scale( float x, float y )
-{ qgraphicsitem_->scale( x, y ); }
+void uiGraphicsItem::scale( float sx, float sy )
+{ qgraphicsitem_->scale( sx, sy ); }
+
+void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
+{
+    qgraphicsitem_->setTransform( QTransform().translate(x,y)
+	   			  .scale(sx,sy).translate(-x,-y) );
+}
 
 void uiGraphicsItem::setZValue( int x )
 { qgraphicsitem_->setZValue( x ); }

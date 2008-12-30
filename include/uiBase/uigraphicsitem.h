@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.7 2008-12-12 05:44:20 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.8 2008-12-30 04:24:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ public:
     void		setPos(float x,float y);
     void		moveBy(float x,float y);
     void		rotate(float angle);
-    void		scale(float x,float y);
+    void		scale(float sx,float sy);
+    void		scaleAroundXY(float sx,float sy,int x,int y);
     void		setZValue(int);
 
     virtual void	setPenStyle(const LineStyle&);
