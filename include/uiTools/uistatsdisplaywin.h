@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplaywin.h,v 1.3 2008-04-02 10:57:08 cvsbert Exp $
+ RCS:           $Id: uistatsdisplaywin.h,v 1.4 2008-12-30 09:05:27 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,14 +28,13 @@ public:
 						  bool ismodal=false);
 
     uiStatsDisplay&		statsDisplay()		{ return disp_; }
-    void			setData(const Stats::RunCalc<float>&);
+    void                        setData(const Stats::RunCalc<float>&);
     void			setDataName(const char*);
     void			setMarkValue(float,bool forx);
 
 protected:
 
     uiStatsDisplay&		disp_;
-
 };
 
 
