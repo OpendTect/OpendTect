@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.18 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.19 2008-12-30 06:34:55 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ namespace Attrib
 
 namespace Pick { class Set; }
 class uiAttrDescEd;
-class uiAttribCrossPlot;
 class uiAttrTypeSel;
 class uiGenInput;
 class uiLineEdit;
@@ -47,8 +46,8 @@ public:
 					  const char* prefgrp =0);
 			~uiAttribDescSetEd();
 
-    Attrib::DescSet*	getSet()		{ return attrset; }
-    const MultiID&	curSetID() const	{ return setid; }
+    Attrib::DescSet*	getSet()		{ return attrset_; }
+    const MultiID&	curSetID() const	{ return setid_; }
 
     void		autoSet();
     uiAttrDescEd*	curDescEd();
@@ -72,77 +71,83 @@ public:
 
 protected:
 
-    Attrib::DescSetMan*	inoutadsman;
-    Attrib::DescSetMan*	adsman;
-    Attrib::DescSet*	attrset;
-    Attrib::Desc*	prevdesc;
-    MultiID		setid;
-    ObjectSet<uiAttrDescEd> desceds;
-    ObjectSet<Attrib::Desc> attrdescs;
-    BufferStringSet&	userattrnames;
-    CtxtIOObj&		setctio;
-    MultiID		cancelsetid;
-    bool		updating_fields;
-    static BufferString	nmprefgrp;
+    Attrib::DescSetMan*		inoutadsman_;
+    Attrib::DescSetMan*		adsman_;
+    Attrib::DescSet*		attrset_;
+    Attrib::Desc*		prevdesc_;
+    MultiID			setid_;
+    ObjectSet<uiAttrDescEd> 	desceds_;
+    ObjectSet<Attrib::Desc> 	attrdescs_;
+    BufferStringSet&		userattrnames_;
+    CtxtIOObj&			setctio_;
+    MultiID			cancelsetid_;
+    bool			updating_fields_;
+    static BufferString		nmprefgrp_;
 
-    uiToolBar*		toolbar;
-    uiListBox*		attrlistfld;
-    uiAttrTypeSel*	attrtypefld;
-    uiPushButton*	rmbut;
-    uiPushButton*	addbut;
-    uiPushButton*	revbut;
-    uiLineEdit*		attrnmfld;
-    uiGenInput*		attrsetfld;
-    uiToolButton*       helpbut;
-    uiAttribCrossPlot*	uiattrxplot_;
+    uiToolBar*			toolbar_;
+    uiListBox*			attrlistfld_;
+    uiAttrTypeSel*		attrtypefld_;
+    uiPushButton*		rmbut_;
+    uiPushButton*		addbut_;
+    uiPushButton*		revbut_;
+    uiLineEdit*			attrnmfld_;
+    uiGenInput*			attrsetfld_;
+    uiToolButton*       	helpbut_;
+    uiToolButton*       	moveupbut_;
+    uiToolButton*       	movedownbut_;
+    uiToolButton*       	sortbut_;
 
-    void		attrTypSel(CallBacker*);
-    void		selChg(CallBacker*);
-    void		revPush(CallBacker*);
-    void		addPush(CallBacker*);
-    void		rmPush(CallBacker*);
-    void                helpButPush(CallBacker*);
 
-    void		newSet(CallBacker*);
-    void		openSet(CallBacker*);
-    void                openAttribSet(const IOObj*);
-    void		savePush(CallBacker*);
-    void		changeInput(CallBacker*);
-    void		defaultSet(CallBacker*);
-    void		getDefaultAttribsets(BufferStringSet&,BufferStringSet&);
-    void		importSet(CallBacker*);
-    void		importFile(CallBacker*);
-    void		job2Set(CallBacker*);
-    void		crossPlot(CallBacker*);
-    void		directShow(CallBacker*);
-    void		evalAttribute(CallBacker*);
-    void		importFromFile(const char*);
+    void			attrTypSel(CallBacker*);
+    void			selChg(CallBacker*);
+    void			revPush(CallBacker*);
+    void			addPush(CallBacker*);
+    void			rmPush(CallBacker*);
+    void			moveUpDownCB(CallBacker*);
+    void                	sortPush(CallBacker*);
+    void                	helpButPush(CallBacker*);
 
-    bool		offerSetSave();
-    bool		doSave(bool);
-    void		replaceStoredAttr();
-    void		removeNotUsedAttr();
+    void			newSet(CallBacker*);
+    void			openSet(CallBacker*);
+    void                	openAttribSet(const IOObj*);
+    void			savePush(CallBacker*);
+    void			changeInput(CallBacker*);
+    void			defaultSet(CallBacker*);
+    void			getDefaultAttribsets(BufferStringSet&,
+	    					     BufferStringSet&);
+    void			importSet(CallBacker*);
+    void			importFile(CallBacker*);
+    void			job2Set(CallBacker*);
+    void			crossPlot(CallBacker*);
+    void			directShow(CallBacker*);
+    void			evalAttribute(CallBacker*);
+    void			importFromFile(const char*);
+
+    void			setButStates();
+    bool			offerSetSave();
+    bool			doSave(bool);
+    void			replaceStoredAttr();
+    void			removeNotUsedAttr();
     //bool		hasInput(const Attrib::Desc&,const Attrib::DescID&);
 
-    bool		acceptOK(CallBacker*);
-    bool		rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*);
+    bool			rejectOK(CallBacker*);
 
-    void		newList(int);
-    void		updateFields(bool settype=true);
-    bool		doCommit(bool prevdesc=false);
-    void		handleSensitivity();
-    void		updateUserRefs();
-    bool		validName(const char*) const;
-    bool		setUserRef(Attrib::Desc*);
-    void		updateAttrName();
-    bool		doSetIO(bool);
-    Attrib::Desc*	createAttribDesc(bool checkuref=true);
+    void			newList(int);
+    void			updateFields(bool settype=true);
+    bool			doCommit(bool prevdesc=false);
+    void			handleSensitivity();
+    void			updateUserRefs();
+    bool			validName(const char*) const;
+    bool			setUserRef(Attrib::Desc*);
+    void			updateAttrName();
+    bool			doSetIO(bool);
+    Attrib::Desc*		createAttribDesc(bool checkuref=true);
 
-    void		createMenuBar();
-    void		createToolBar();
-    void		createGroups();
-    void		init();
-
+    void			createMenuBar();
+    void			createToolBar();
+    void			createGroups();
+    void			init();
 };
 
 
