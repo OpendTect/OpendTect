@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.387 2008-12-19 09:33:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.388 2008-12-30 09:12:55 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -46,6 +46,7 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.387 2008-12-19 09:33:29 cv
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uimpeman.h"
+#include "uimultirangeseldisplaywin.h"
 #include "uislicepos.h"
 #include "uiselsurvranges.h"
 #include "uiwellpropdlg.h"
@@ -75,6 +76,7 @@ const int uiVisPartServer::evShowSetupDlg		= 13;
 const int uiVisPartServer::evLoadPostponedData		= 14;
 const int uiVisPartServer::evToggleBlockDataLoad	= 15;
 const int uiVisPartServer::evDisableSelTracker		= 16;
+//const int uiVisPartServer::evColorTableChange		= 17;
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -110,6 +112,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , pickretriever_( new uiVisPickRetriever )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
+    , displayid_(-1)						      
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -1743,6 +1746,26 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
 }
 
 
+void uiVisPartServer::displayHistogramsForAttrbs( int displayid )
+{
+    displayid_ = displayid;
+    uiMultiRangeSelDispWin* multirgselwin =
+		       new uiMultiRangeSelDispWin( 0, getNrAttribs(displayid) );
+    multirgselwin->rangeChange.notify( mCB(this,uiVisPartServer,
+				histogramRngSelChanged) );
+
+    for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
+    {
+	multirgselwin->setDataPackID( idx,
+		getDataPackID(displayid,idx), getDataPackMgrID(displayid) );
+	multirgselwin->setColTabMapperSetupWthSeq( idx, 
+					   *getColTabMapperSetup(displayid,idx), 					   *getColTabSequence(displayid,idx) );
+    }
+
+    multirgselwin->go();
+}
+
+
 void uiVisPartServer::lock( int id, bool yn )
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
@@ -1772,6 +1795,15 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 }
 
 
+void uiVisPartServer::histogramRngSelChanged( CallBacker* cb )
+{
+    mDynamicCastGet(uiMultiRangeSelDispWin*,obj,cb);
+    setColTabMapperSetup( displayid_, obj->activeAttrbID(), 
+	    		  obj->activeMapperSetup() );
+    //sendEvent( evColorTableChange );
+}
+
+
 uiVisModeMgr::uiVisModeMgr( uiVisPartServer* p )
     : visserv(*p)
 {
@@ -1793,5 +1825,4 @@ bool uiVisModeMgr::allowTurnOn( int id, bool doclean )
     }
 
     return false;
-
 }

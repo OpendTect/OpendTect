@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.19 2008-12-12 06:04:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.20 2008-12-30 09:12:55 cvsumesh Exp $";
 
 #include "uivisisosurface.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: uivisisosurface.cc,v 1.19 2008-12-12 06:04:20 c
 #include "survinfo.h"
 #include "uiaxishandler.h"
 #include "uibutton.h"
-#include "uifunctiondisplay.h"
+#include "uihistogramdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uigeninput.h"
@@ -70,7 +70,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 
     uiStatsDisplay::Setup su; su.withtext(false);
     statsdisplay_ = new uiStatsDisplay( this, su );
-    statsdisplay_->setHistogram( histogram, rg );
+    statsdisplay_->funcDisp()->setHistogram( histogram, rg );
     statsdisplay_->attach( leftAlignedBelow, aboveisovaluefld_ );
  
     funcDisp().setDragMode( uiGraphicsView::NoDrag );
@@ -182,7 +182,7 @@ void uiVisIsoSurfaceThresholdDlg::doubleClick( CallBacker* cb )
 }
 
 
-uiFunctionDisplay& uiVisIsoSurfaceThresholdDlg::funcDisp()
+uiHistogramDisplay& uiVisIsoSurfaceThresholdDlg::funcDisp()
 {
     return *statsdisplay_->funcDisp();
 }
