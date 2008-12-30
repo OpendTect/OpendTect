@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.10 2008-12-12 10:31:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.11 2008-12-30 04:22:21 cvsumesh Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -98,7 +98,9 @@ uiRect* uiLineItem::lineRect()
 
 void uiLineItem::setPenColor( const Color& col )
 {
-    qlineitem_->pen().setColor( QColor(QRgb(col.rgb())) );
+    QPen qpen = qlineitem_->pen();
+    qpen.setColor( QColor(col.rgb()) );
+    qlineitem_->setPen( qpen );
 }
 
 
