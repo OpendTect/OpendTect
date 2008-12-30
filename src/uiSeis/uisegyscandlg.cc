@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.18 2008-12-15 13:46:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.19 2008-12-30 04:15:25 cvsnanne Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -203,12 +203,12 @@ void uiSEGYScanDlg::presentReport( uiParent* p, const SEGY::Scanner& sc,
     {
 	for ( int idx=0; idx<sc.warnings().size(); idx++ )
 	{
-	    if ( !idx ) rep.add( IOPar::sKeyHdr, "Warnings" );
+	    if ( !idx ) rep.add( IOPar::sKeyHdr(), "Warnings" );
 	    rep.add( toString(idx+1), sc.warnings().get(idx) );
 	}
     }
 
-    if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty) )
+    if ( fnm && *fnm && !rep.write(fnm,IOPar::sKeyDumpPretty()) )
 	uiMSG().warning( "Cannot write report to specified file" );
 
     uiDialog* dlg = new uiDialog( p,

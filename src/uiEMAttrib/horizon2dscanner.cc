@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.11 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: horizon2dscanner.cc,v 1.12 2008-12-30 04:18:40 cvsnanne Exp $";
 
 #include "horizon2dscanner.h"
 #include "binidvalset.h"
@@ -102,11 +102,11 @@ void Horizon2DScanner::report( IOPar& iopar ) const
     str += "\n\n";
     iopar.setName( str.buf() );
 
-    iopar.add( IOPar::sKeyHdr, "Geometry" );
+    iopar.add( IOPar::sKeyHdr(), "Geometry" );
     const int nrlines = validnms_.size();
     if ( !nrlines )
     {
-	iopar.add( IOPar::sKeySubHdr, "No valid line names found\n"
+	iopar.add( IOPar::sKeySubHdr(), "No valid line names found\n"
 		   "Make sure the line names match with those in survey" );
 	return;
     }
@@ -165,7 +165,7 @@ void Horizon2DScanner::launchBrowser( const char* fnm ) const
     if ( !fnm || !*fnm )
 	fnm = defaultUserInfoFile();
     IOPar iopar; report( iopar );
-    iopar.write( fnm, IOPar::sKeyDumpPretty );
+    iopar.write( fnm, IOPar::sKeyDumpPretty() );
 
     ExecuteScriptCommand( "FileBrowser", fnm );
 }

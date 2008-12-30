@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.50 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.51 2008-12-30 04:18:40 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -222,7 +222,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey), outseisid );
 
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
-    iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI),
+    iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
 	       transffld->scfmtfld->extendTrcToSI() );
 
     IOPar tmpiop;

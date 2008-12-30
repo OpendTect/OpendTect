@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.10 2008-12-30 04:15:25 cvsnanne Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -222,7 +222,7 @@ uiSEGYExpMore( uiSEGYExp* p, const IOObj& ii, const IOObj& oi, const char* anm )
     BufferString setupnm( "Exp " ); setupnm += uiSEGYFileSpec::sKeyLineNmToken;
 
     uiLabel* lbl = 0;
-    const bool isrealattrib = strcmp(attrnm_,LineKey::sKeyDefAttrib);
+    const bool isrealattrib = strcmp(attrnm_,LineKey::sKeyDefAttrib());
     if ( isrealattrib )
     {
 	BufferString lbltxt( "Attribute: " );

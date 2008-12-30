@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.49 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.50 2008-12-30 04:15:25 cvsnanne Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -66,7 +66,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     finpfld = 0; modefld = typefld = 0; oinpfld = 0; convertfld = 0;
     setTitleText( fromioobj ? "Specify transfer parameters"
 	    		    : "Create CBVS cube definition" );
-    tmpid_ = "100010."; tmpid_ += IOObj::tmpID;
+    tmpid_ = "100010."; tmpid_ += IOObj::tmpID();
 
     if ( fromioobj )
     {
