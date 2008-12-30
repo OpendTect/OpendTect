@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.71 2008-12-18 05:59:17 cvsnageswara Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.72 2008-12-30 06:42:54 cvsnageswara Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -30,9 +30,9 @@ DescSet* DescSet::clone() const
     DescSet* descset = new DescSet(is2d_,is2dset_);
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	Desc* nd = new Desc( *descs[idx] );
+	Desc* nd = new Desc( *descs_[idx] );
 	nd->setDescSet( descset );
-	descset->addDesc( nd, ids[idx] );
+	descset->addDesc( nd, ids_[idx] );
     }
 
     descset->updateInputs();
@@ -44,7 +44,7 @@ void DescSet::updateInputs()
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	Desc& dsc = *descs[idx];
+	Desc& dsc = *descs_[idx];
 	for ( int inpidx=0; inpidx<dsc.nrInputs(); inpidx++ )
 	{
 	    const Desc* oldinpdesc = dsc.getInput( inpidx );
@@ -60,9 +60,9 @@ DescID DescSet::addDesc( Desc* nd, DescID id )
 {
     nd->setDescSet( this );
     nd->ref();
-    descs += nd;
+    descs_ += nd;
     const DescID newid = id < 0 ? getFreeID() : id;
-    ids += newid;
+    ids_ += newid;
     return newid;
 }
 
@@ -71,18 +71,18 @@ DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
 {
     nd->setDescSet( this );
     nd->ref();
-    descs.insertAt( nd, idx );
+    descs_.insertAt( nd, idx );
     const DescID newid = id < 0 ? getFreeID() : id;
-    ids.insert( idx, newid );
+    ids_.insert( idx, newid );
     return newid;
 }
 
 
 Desc* DescSet::getDesc( const DescID& id )
 {
-    const int idx = ids.indexOf(id);
+    const int idx = ids_.indexOf(id);
     if ( idx==-1 ) return 0;
-    return descs[idx];
+    return descs_[idx];
 }
 
 
@@ -94,12 +94,12 @@ const Desc* DescSet::getDesc( const DescID& id ) const
 
 int DescSet::nrDescs( bool incstored, bool inchidden ) const
 {
-    int ret = descs.size();
+    int ret = descs_.size();
     if ( !incstored || !inchidden )
     {
-	for ( int idx=0; idx<descs.size(); idx++ )
+	for ( int idx=0; idx<descs_.size(); idx++ )
 	{
-	    const Desc& dsc = *descs[idx];
+	    const Desc& dsc = *descs_[idx];
 	    if ( !incstored && dsc.isStored() )
 		ret--;
 	    else if ( !inchidden && dsc.isHidden() )
@@ -112,28 +112,28 @@ int DescSet::nrDescs( bool incstored, bool inchidden ) const
 
 DescID DescSet::getID( const Desc& dsc ) const
 {
-    const int idx = descs.indexOf( &dsc );
-    return idx==-1 ? DescID::undef() : ids[idx];
+    const int idx = descs_.indexOf( &dsc );
+    return idx==-1 ? DescID::undef() : ids_[idx];
 }
 
 
 DescID DescSet::getID( int idx ) const
 {
-    if ( idx < 0 || idx >= ids.size() ) return DescID::undef();
-    return ids[idx];
+    if ( idx < 0 || idx >= ids_.size() ) return DescID::undef();
+    return ids_[idx];
 }
 
 
 void DescSet::getIds( TypeSet<DescID>& attribids ) const
-{ attribids = ids; }
+{ attribids = ids_; }
 
 
 void DescSet::getStoredIds( TypeSet<DescID>& attribids ) const
 {
-    for ( int idx=0; idx<descs.size(); idx++ )
+    for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	if ( descs[idx]->isStored() )
-	    attribids += ids[idx];
+	if ( descs_[idx]->isStored() )
+	    attribids += ids_[idx];
     }
 }
 
@@ -144,15 +144,15 @@ DescID DescSet::getID( const char* str, bool isusrref ) const
 
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	const Desc& dsc = *descs[idx];
+	const Desc& dsc = *descs_[idx];
 	if ( isusrref && dsc.isIdentifiedBy(str) )
-	    return ids[idx];
+	    return ids_[idx];
 	else if ( !isusrref )
 	{
 	    BufferString defstr;
 	    dsc.getDefStr( defstr );
 	    if ( defstr == str )
-		return ids[idx];
+		return ids_[idx];
 	}
     }
 
@@ -162,30 +162,70 @@ DescID DescSet::getID( const char* str, bool isusrref ) const
 
 void DescSet::removeDesc( const DescID& id )
 {
-    const int idx = ids.indexOf(id);
+    const int idx = ids_.indexOf(id);
     if ( idx==-1 ) return;
 
     descToBeRemoved.trigger( id );
-    if ( descs[idx]->descSet()==this )
-	descs[idx]->setDescSet(0);
+    if ( descs_[idx]->descSet()==this )
+	descs_[idx]->setDescSet(0);
 
-    descs[idx]->unRef();
-    descs.remove(idx);
-    ids.remove(idx);
+    descs_[idx]->unRef();
+    descs_.remove(idx);
+    ids_.remove(idx);
+}
+
+
+void DescSet::moveDescUpDown( const DescID& id, bool moveup )
+{
+    const int size = ids_.size();
+    const int selidx = ids_.indexOf( id );
+    int gotoidx = moveup ? selidx-1 : selidx+1;
+    while ( gotoidx>=0 && gotoidx<size
+	    && ( descs_[gotoidx]->isHidden() || descs_[gotoidx]->isStored() ) )
+	gotoidx += moveup ? -1 : 1;
+
+    if ( selidx==-1 || gotoidx==-1 ) return;
+    ids_.swap( selidx, gotoidx );
+    descs_.swap( selidx, gotoidx );
+}
+
+
+void DescSet::sortDescSet()
+{
+    const int nrdescs = descs_.size();
+    BufferStringSet userrefs;
+    for ( int idx=0; idx<nrdescs; idx++ )
+    	userrefs.add( descs_[idx]->userRef() );
+ 
+    int* sortindexes = userrefs.getSortIndexes();
+    ObjectSet<Desc> descscopy( descs_ );
+    TypeSet<DescID> idscopy( ids_ );
+    descs_.erase();
+    for ( int idx=0; idx<nrdescs; idx++ )
+    {
+	descs_ += descscopy[ sortindexes[idx] ];
+	ids_ += idscopy[ sortindexes[idx] ];
+    }
+
+    descscopy.erase();
+    delete sortindexes;
 }
 
 
 void DescSet::removeAll()
-{ while ( ids.size() ) removeDesc(ids[0]); }
+{
+    while ( ids_.size() )
+	removeDesc( ids_[0] ); 
+}
 
 
 void DescSet::fillPar( IOPar& par ) const
 {
     int maxid = 0;
 
-    for ( int idx=0; idx<descs.size(); idx++ )
+    for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Desc& dsc = *descs[idx];
+	const Desc& dsc = *descs_[idx];
 	IOPar apar;
 	BufferString defstr;
 	if ( !dsc.getDefStr(defstr) ) continue;
@@ -204,13 +244,13 @@ void DescSet::fillPar( IOPar& par ) const
 	    apar.set( key, getID( *dsc.getInput(input) ).asInt() );
 	}
 
-	par.mergeComp( apar, BufferString("",ids[idx].asInt()) );
+	par.mergeComp( apar, BufferString("",ids_[idx].asInt()) );
 
-	if ( ids[idx]>maxid ) maxid = ids[idx].asInt();
+	if ( ids_[idx]>maxid ) maxid = ids_[idx].asInt();
     }
 
     par.set( highestIDStr(), maxid );
-    if ( descs.size() > 0 )
+    if ( descs_.size() > 0 )
 	par.set( sKey::Type, is2D() ? "2D" : "3D" );
 }
 
@@ -256,11 +296,11 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 
 #define mHandleParseErr( str ) \
 { \
-    errmsg = str; \
+    errmsg_ = str; \
     if ( !errmsgs ) \
 	return false; \
 \
-    (*errmsgs) += new BufferString(errmsg); \
+    (*errmsgs) += new BufferString(errmsg_); \
     continue; \
 }
 
@@ -337,7 +377,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 {
     BufferStringSet* errmsgs = new BufferStringSet();
     Desc* newdesc = createDesc( attrname , descpar, defstring, errmsgs );
-    errmsg = errmsgs && !errmsgs->isEmpty() ? errmsgs->get(0) : "";
+    errmsg_ = errmsgs && !errmsgs->isEmpty() ? errmsgs->get(0) : "";
     delete errmsgs;
     return newdesc;
 }
@@ -360,11 +400,11 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 {
     for ( int idx=0; idx<nrdescsnosteer; idx++ )
     {
-	PtrMan<IOPar> descpar = copypar.subselect( toString(ids[idx].asInt()) );
+	PtrMan<IOPar> descpar=copypar.subselect( toString(ids_[idx].asInt()) );
 	if ( !descpar )
 	    { pErrMsg("Huh?"); continue; }
 
-	Desc& dsc = *descs[idx];
+	Desc& dsc = *descs_[idx];
 	for ( int input=0; input<dsc.nrInputs(); input++ )
 	{
 	    const char* key = IOPar::compKey( inputPrefixStr(), input );
@@ -445,7 +485,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
     for( int idx=0 ; idx<newsteeringdescs.size() ; idx++ )
 	addDesc( newsteeringdescs[idx], DescID( maxid+idx+1, true ) );
 
-    int nrdescsnosteer = ids.size()-newsteeringdescs.size();
+    int nrdescsnosteer = ids_.size()-newsteeringdescs.size();
     if ( !setAllInputDescs( nrdescsnosteer, copypar, errmsgs ) )
 	res = false;
 
@@ -492,11 +532,11 @@ bool DescSet::useOldSteeringPar( IOPar& par, ObjectSet<Desc>& newsteeringdescs,
 
 #define mHandleSteeringParseErr( str ) \
 { \
-    errmsg = str; \
+    errmsg_ = str; \
     if ( !errmsgs ) \
 	return false; \
 \
-    (*errmsgs) += new BufferString(errmsg); \
+    (*errmsgs) += new BufferString(errmsg_); \
 }
 
 
@@ -587,13 +627,13 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 
 
 const char* DescSet::errMsg() const
-{ return errmsg[0] ? (const char*) errmsg : 0; }
+{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
 
 
 DescID DescSet::getFreeID() const
 {
     DescID id(0,true);
-    while ( ids.indexOf(id)!=-1 )
+    while ( ids_.indexOf(id)!=-1 )
 	id.asInt()++;
 
     return id;
@@ -606,9 +646,9 @@ bool DescSet::is2D() const
 
     bool hasstoreddesc = false;
     bool is2dsetinallstoreddescs = true;    
-    for ( int idx=0; idx<descs.size(); idx++ )
+    for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Desc& dsc = *descs[idx];
+	const Desc& dsc = *descs_[idx];
 	if ( !dsc.isStored() )
 	    continue;
 	
@@ -635,9 +675,9 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 {
     TypeSet<int> outsreadyforthislk;
     TypeSet<DescID> outsreadyids;
-    for ( int idx=0; idx<descs.size(); idx++ )
+    for ( int idx=0; idx<descs_.size(); idx++ )
     {
-	const Desc& dsc = *descs[idx];
+	const Desc& dsc = *descs_[idx];
 	const bool outnrisok = dsc.selectedOutput() == selout;
 	if ( !dsc.isStored() || ( !outnrisok && selout>=0 ) )
 	    continue;
@@ -759,7 +799,7 @@ bool DescSet::isAttribUsed( const DescID& id ) const
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	const Desc& dsc = *descs[idx];
+	const Desc& dsc = *descs_[idx];
 	for ( int inpnr=0; inpnr<dsc.nrInputs(); inpnr++ )
 	{
 	    if ( dsc.inputId(inpnr) == id )
@@ -818,7 +858,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 {
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
-	const Desc& dsc = *descs[idx];
+	const Desc& dsc = *descs_[idx];
 	if ( !dsc.isStored() ) continue;
 
 	BufferString storedid = dsc.getStoredID();
