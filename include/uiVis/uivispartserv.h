@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.215 2008-12-18 11:15:54 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.h,v 1.216 2008-12-30 09:11:47 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,6 +252,8 @@ public:
 	    					  const ColTab::Sequence&);
 
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
+
+    void			displayHistogramsForAttrbs(int id);
     void			displaySceneColorbar(bool);
 
 				//General stuff
@@ -372,6 +374,7 @@ protected:
     int				eventattrib_;
     int				selattrib_;
     int				seltype_;
+    int				displayid_;
 
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
@@ -381,6 +384,8 @@ protected:
     void			vwAll(CallBacker*);
     void			toHome(CallBacker*);
     void			colTabChangeCB(CallBacker*);
+
+    void			histogramRngSelChanged(CallBacker*);
 
     MenuItem			resetmanipmnuitem_;
     MenuItem			changematerialmnuitem_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.10 2008-12-12 06:04:20 cvssatyaki Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.11 2008-12-30 09:11:47 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 
 class uiAxisHandler;
-class uiFunctionDisplay;
+class uiHistogramDisplay;
 class uiGenInput;
 class uiIOObjSel;
 class uiLineItem;
@@ -69,7 +69,7 @@ protected:
     float				initialvalue_;
 
     uiAxisHandler&	xAxis();
-    uiFunctionDisplay&	funcDisp();
+    uiHistogramDisplay&	funcDisp();
 };
 
 #endif
