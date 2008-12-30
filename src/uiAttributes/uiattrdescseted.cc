@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.77 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.78 2008-12-30 06:37:38 cvsnageswara Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -40,7 +40,6 @@ static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.77 2008-11-25 15:35:23 c
 
 #include "uiattrdesced.h"
 #include "uiattrgetfile.h"
-#include "uiattribcrossplot.h"
 #include "uiattribfactory.h"
 #include "uiattrinpdlg.h"
 #include "uiattrtypesel.h"
@@ -67,7 +66,7 @@ const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
 const char* uiAttribDescSetEd::sKeyAuto2DAttrSetID = "2DAttrset.Auto ID";
 const char* uiAttribDescSetEd::sKeyAuto3DAttrSetID = "3DAttrset.Auto ID";
 
-BufferString uiAttribDescSetEd::nmprefgrp( "" );
+BufferString uiAttribDescSetEd::nmprefgrp_( "" );
 
 static bool prevsavestate = true;
 static bool evaldlgpoppedup = false;
@@ -81,22 +80,21 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
 	.savebutton(true).savetext("Save on OK  ")
 	.menubar(true)
 	.modal(false))
-    , inoutadsman(adsm)
-    , userattrnames(*new BufferStringSet)
-    , setctio(*mMkCtxtIOObj(AttribDescSet))
-    , prevdesc(0)
-    , attrset(0)
+    , inoutadsman_(adsm)
+    , userattrnames_(*new BufferStringSet)
+    , setctio_(*mMkCtxtIOObj(AttribDescSet))
+    , prevdesc_(0)
+    , attrset_(0)
     , dirshowcb(this)
     , evalattrcb(this)
     , xplotcb(this)
-    , adsman(0)
-    , uiattrxplot_(0)
-    , updating_fields(false)
+    , adsman_(0)
+    , updating_fields_(false)
 {
     createMenuBar();
     createToolBar();
     createGroups();
-    attrtypefld->setGrp( prefgrp ? prefgrp : nmprefgrp.buf() );
+    attrtypefld_->setGrp( prefgrp ? prefgrp : nmprefgrp_.buf() );
 
     init();
 }
@@ -127,11 +125,11 @@ void uiAttribDescSetEd::createMenuBar()
 
 
 #define mAddButton(pm,func,tip) \
-    toolbar->addButton( pm, mCB(this,uiAttribDescSetEd,func), tip )
+    toolbar_->addButton( pm, mCB(this,uiAttribDescSetEd,func), tip )
 
 void uiAttribDescSetEd::createToolBar()
 {
-    toolbar = new uiToolBar( this, "AttributeSet tools" );
+    toolbar_ = new uiToolBar( this, "AttributeSet tools" );
     mAddButton( "newset.png", newSet, "New attribute set" );
     mAddButton( "openset.png", openSet, "Open attribute set" );
     mAddButton( "defset.png", defaultSet, "Open default attribute set" );
@@ -139,7 +137,7 @@ void uiAttribDescSetEd::createToolBar()
 	    	"Import attribute set from other survey" );
     mAddButton( "job2set.png", job2Set, "Reconstruct set from job file" );
     mAddButton( "saveset.png", savePush, "Save attribute set" );
-    toolbar->addSeparator();
+    toolbar_->addSeparator();
     mAddButton( "showattrnow.png", directShow, 
 	    	"Redisplay element with current attribute");
     mAddButton( "evalattr.png", evalAttribute, "Evaluate attribute" );
@@ -151,17 +149,31 @@ void uiAttribDescSetEd::createGroups()
 {
 //  Left part
     uiGroup* leftgrp = new uiGroup( this, "LeftGroup" );
-    attrsetfld = new uiGenInput( leftgrp, "Attribute set", StringInpSpec() );
-    attrsetfld->setReadOnly( true );
+    attrsetfld_ = new uiGenInput( leftgrp, "Attribute set", StringInpSpec() );
+    attrsetfld_->setReadOnly( true );
 
-    attrlistfld = new uiListBox( leftgrp, "Defined Attributes" );
-    attrlistfld->attach( ensureBelow, attrsetfld );
-    attrlistfld->setStretch( 2, 2 );
-    attrlistfld->selectionChanged.notify( mCB(this,uiAttribDescSetEd,selChg) );
+    attrlistfld_ = new uiListBox( leftgrp, "Defined Attributes" );
+    attrlistfld_->setStretch( 2, 2 );
+    attrlistfld_->selectionChanged.notify( mCB(this,uiAttribDescSetEd,selChg) );
+    attrlistfld_->attach( leftAlignedBelow, attrsetfld_ );
 
-    rmbut = new uiPushButton( leftgrp, "Remove selected", true );
-    rmbut->attach( centeredBelow, attrlistfld );
-    rmbut->activated.notify( mCB(this,uiAttribDescSetEd,rmPush) );
+    rmbut_ = new uiPushButton( leftgrp, "Remove selected", true );
+    rmbut_->attach( leftAlignedBelow, attrlistfld_ );
+    rmbut_->activated.notify( mCB(this,uiAttribDescSetEd,rmPush) );
+
+    sortbut_ = new uiToolButton( leftgrp, "Sort", ioPixmap("sort.png"),
+	    			 mCB(this,uiAttribDescSetEd,sortPush) );
+    sortbut_->attach( rightOf, rmbut_ );
+
+    moveupbut_ = new uiToolButton( leftgrp, "Move Up" );
+    moveupbut_->setArrowType( uiToolButton::UpArrow );
+    moveupbut_->attach( centeredRightOf, attrlistfld_ );
+    moveupbut_->activated.notify( mCB(this,uiAttribDescSetEd,moveUpDownCB) );
+
+    movedownbut_ = new uiToolButton( leftgrp, "Move Down" );
+    movedownbut_->setArrowType( uiToolButton::DownArrow );
+    movedownbut_->attach( alignedBelow, moveupbut_ );
+    movedownbut_->activated.notify( mCB(this,uiAttribDescSetEd,moveUpDownCB) );
 
 //  Right part
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
@@ -170,9 +182,9 @@ void uiAttribDescSetEd::createGroups()
     uiGroup* degrp = new uiGroup( rightgrp, "DescEdGroup" );
     degrp->setStretch( 1, 1 );
 
-    attrtypefld = new uiAttrTypeSel( degrp );
-    attrtypefld->selChg.notify( mCB(this,uiAttribDescSetEd,attrTypSel) );
-    desceds.allowNull();
+    attrtypefld_ = new uiAttrTypeSel( degrp );
+    attrtypefld_->selChg.notify( mCB(this,uiAttribDescSetEd,attrTypSel) );
+    desceds_.allowNull();
     for ( int idx=0; idx<uiAF().size(); idx++ )
     {
 	uiAttrDescEd::DomainType dt =
@@ -182,35 +194,35 @@ void uiAttribDescSetEd::createGroups()
 	    continue;
 
 	const char* attrnm = uiAF().getDisplayName(idx);
-	attrtypefld->add( uiAF().getGroupName(idx), attrnm );
-	const bool is2d = inoutadsman ? inoutadsman->is2D() : false;
+	attrtypefld_->add( uiAF().getGroupName(idx), attrnm );
+	const bool is2d = inoutadsman_ ? inoutadsman_->is2D() : false;
 	uiAttrDescEd* de = uiAF().create( degrp, attrnm, is2d, true );
-	desceds += de;
-	de->attach( alignedBelow, attrtypefld );
+	desceds_ += de;
+	de->attach( alignedBelow, attrtypefld_ );
     }
-    attrtypefld->update();
-    degrp->setHAlignObj( attrtypefld );
+    attrtypefld_->update();
+    degrp->setHAlignObj( attrtypefld_ );
 
     const ioPixmap pixmap( "contexthelp.png" );
-    helpbut = new uiToolButton( degrp, "&Help button", pixmap );
-    helpbut->activated.notify( mCB(this,uiAttribDescSetEd,helpButPush) );
-    helpbut->attach( rightTo, attrtypefld );
+    helpbut_ = new uiToolButton( degrp, "&Help button", pixmap );
+    helpbut_->activated.notify( mCB(this,uiAttribDescSetEd,helpButPush) );
+    helpbut_->attach( rightTo, attrtypefld_ );
 
-    attrnmfld = new uiLineEdit( rightgrp, "Attribute name" );
-    attrnmfld->setHSzPol( uiObject::Medium );
-    attrnmfld->attach( alignedBelow, degrp );
-    attrnmfld->returnPressed.notify( mCB(this,uiAttribDescSetEd,addPush) );
+    attrnmfld_ = new uiLineEdit( rightgrp, "Attribute name" );
+    attrnmfld_->setHSzPol( uiObject::Medium );
+    attrnmfld_->attach( alignedBelow, degrp );
+    attrnmfld_->returnPressed.notify( mCB(this,uiAttribDescSetEd,addPush) );
     uiLabel* lbl = new uiLabel( rightgrp, "Attribute name" );
-    lbl->attach( leftOf, attrnmfld );
+    lbl->attach( leftOf, attrnmfld_ );
 
-    addbut = new uiPushButton( rightgrp, "Add as new", true );
-    addbut->attach( alignedBelow, attrnmfld );
-    addbut->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
+    addbut_ = new uiPushButton( rightgrp, "Add as new", true );
+    addbut_->attach( alignedBelow, attrnmfld_ );
+    addbut_->activated.notify( mCB(this,uiAttribDescSetEd,addPush) );
 
-    revbut = new uiPushButton( rightgrp, "Revert changes", true );
-    revbut->attach( rightTo, addbut );
-    revbut->attach( rightBorder );
-    revbut->activated.notify( mCB(this,uiAttribDescSetEd,revPush) );
+    revbut_ = new uiPushButton( rightgrp, "Revert changes", true );
+    revbut_->attach( rightTo, addbut_ );
+    revbut_->attach( rightBorder );
+    revbut_->activated.notify( mCB(this,uiAttribDescSetEd,revPush) );
 
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
@@ -225,18 +237,18 @@ void uiAttribDescSetEd::createGroups()
 
 void uiAttribDescSetEd::init()
 {
-    delete attrset; attrset = 0;
-    attrset = inoutadsman->descSet()->clone();
-    adsman = new DescSetMan( inoutadsman->is2D(), attrset );
-    adsman->fillHist();
-    adsman->setSaved( inoutadsman->isSaved() );
+    delete attrset_; attrset_ = 0;
+    attrset_ = inoutadsman_->descSet()->clone();
+    adsman_ = new DescSetMan( inoutadsman_->is2D(), attrset_ );
+    adsman_->fillHist();
+    adsman_->setSaved( inoutadsman_->isSaved() );
 
-    setid = inoutadsman->attrsetid_;
+    setid_ = inoutadsman_->attrsetid_;
     bool autoset = false;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, autoset );
-    IOM().to( setctio.ctxt.getSelKey() );
-    setctio.setObj( IOM().get(setid) );
-    if ( autoset && !setctio.ioobj )
+    IOM().to( setctio_.ctxt.getSelKey() );
+    setctio_.setObj( IOM().get(setid_) );
+    if ( autoset && !setctio_.ioobj )
     {
         BufferString msg = "The Attribute-set selected for Auto-load ";
         msg += "is no longer valid\n";
@@ -276,7 +288,7 @@ void uiAttribDescSetEd::init()
 		    const char* filenm = dlg.getAttribfile();
 		    const char* attribnm = dlg.getAttribname();
 		    importFromFile( filenm );
-		    attrsetfld->setText( attribnm );
+		    attrsetfld_->setText( attribnm );
 		    Settings::common().setYN(uiAttribDescSetEd::
 			        sKeyUseAutoAttrSet, false);
 		    Settings::common().write();
@@ -287,21 +299,22 @@ void uiAttribDescSetEd::init()
 	else mSetAuto( false );
     }
     else
-    	attrsetfld->setText( setctio.ioobj ? setctio.ioobj->name() : "" );
+    	attrsetfld_->setText( setctio_.ioobj ? setctio_.ioobj->name() : "" );
 
-    cancelsetid = setid;
+    cancelsetid_ = setid_;
     newList(0);
 
     setSaveButtonChecked( prevsavestate );
+    setButStates();
 }
 
 
 uiAttribDescSetEd::~uiAttribDescSetEd()
 {
-    delete &userattrnames;
-    delete &setctio;
-    delete toolbar;
-    delete adsman;
+    delete &userattrnames_;
+    delete &setctio_;
+    delete toolbar_;
+    delete adsman_;
 }
 
 
@@ -309,7 +322,7 @@ void uiAttribDescSetEd::setSensitive( bool yn )
 {
     topGroup()->setSensitive( yn );
     menuBar()->setSensitive( yn );
-    toolbar->setSensitive( yn );
+    toolbar_->setSensitive( yn );
 }
 
 
@@ -327,12 +340,13 @@ void uiAttribDescSetEd::attrTypSel( CallBacker* )
 
 void uiAttribDescSetEd::selChg( CallBacker* )
 {
-    if ( updating_fields ) return;
+    if ( updating_fields_ ) return;
     	// Fix for continuous call during re-build of list
 
     doCommit( true );
     updateFields();
-    prevdesc = curDesc();
+    prevdesc_ = curDesc();
+    setButStates();
 }
 
 
@@ -346,31 +360,31 @@ void uiAttribDescSetEd::savePush( CallBacker* )
 bool uiAttribDescSetEd::doSave( bool endsave )
 {
     doCommit();
-    setctio.ctxt.forread = false;
-    IOObj* oldioobj = setctio.ioobj;
+    setctio_.ctxt.forread = false;
+    IOObj* oldioobj = setctio_.ioobj;
     bool needpopup = !oldioobj || !endsave;
     if ( needpopup )
     {
-	uiIOObjSelDlg dlg( this, setctio );
+	uiIOObjSelDlg dlg( this, setctio_ );
 	if ( !dlg.go() || !dlg.ioObj() ) return false;
 
-	setctio.ioobj = 0;
-	setctio.setObj( dlg.ioObj()->clone() );
+	setctio_.ioobj = 0;
+	setctio_.setObj( dlg.ioObj()->clone() );
     }
 
     if ( !doSetIO( false ) )
     {
-	if ( oldioobj != setctio.ioobj )
-	    setctio.setObj( oldioobj );
+	if ( oldioobj != setctio_.ioobj )
+	    setctio_.setObj( oldioobj );
 	return false;
     }
 
-    if ( oldioobj != setctio.ioobj )
+    if ( oldioobj != setctio_.ioobj )
 	delete oldioobj;
-    setid = setctio.ioobj->key();
+    setid_ = setctio_.ioobj->key();
     if ( !endsave )
-	attrsetfld->setText( setctio.ioobj->name() );
-    adsman->setSaved( true );
+	attrsetfld_->setText( setctio_.ioobj->name() );
+    adsman_->setSaved( true );
     return true;
 }
 
@@ -409,17 +423,17 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 {
     Desc* newdesc = createAttribDesc();
     if ( !newdesc ) return;
-    if ( attrset->addDesc(newdesc) < 0 )
-	{ uiMSG().error( attrset->errMsg() ); newdesc->unRef(); return; }
+    if ( attrset_->addDesc(newdesc) < 0 )
+	{ uiMSG().error( attrset_->errMsg() ); newdesc->unRef(); return; }
 
-    newList( attrdescs.size() );
-    adsman->setSaved( false );
+    newList( attrdescs_.size() );
+    adsman_->setSaved( false );
 }
 
 
 Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 {
-    BufferString newnmbs( attrnmfld->text() );
+    BufferString newnmbs( attrnmfld_->text() );
     char* newnm = newnmbs.buf();
     mSkipBlanks( newnm );
     removeTrailingBlanks( newnm );
@@ -431,13 +445,13 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 
     BufferString attribname = curde->attribName();
     if ( attribname.isEmpty() )
-	attribname = uiAF().attrNameOf( attrtypefld->attr() );
+	attribname = uiAF().attrNameOf( attrtypefld_->attr() );
 
     Desc* newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
 	mErrRetNull( "Cannot create attribdesc" )
 
-    newdesc->setDescSet( attrset );
+    newdesc->setDescSet( attrset_ );
     newdesc->ref();
     const char* res = curde->commit( newdesc );
     if ( res ) { newdesc->unRef(); mErrRetNull( res ); }
@@ -459,26 +473,62 @@ void uiAttribDescSetEd::rmPush( CallBacker* )
     Desc* curdesc = curDesc();
     if ( !curdesc ) return;
 
-    if ( attrset->isAttribUsed( curdesc->id() ) )
+    if ( attrset_->isAttribUsed( curdesc->id() ) )
     {
 	uiMSG().error( "Cannot remove this attribute. It is used\n"
 		       "as input for another attribute" );
 	return;
     }
 
-    const int curidx = attrdescs.indexOf( curdesc );
-    attrset->removeDesc( attrset->getID(*curdesc) );
+    const int curidx = attrdescs_.indexOf( curdesc );
+    attrset_->removeDesc( attrset_->getID(*curdesc) );
     newList( curidx );
     removeNotUsedAttr();
-    adsman->setSaved( false );
+    adsman_->setSaved( false );
+    setButStates();
 }
 
 
+void uiAttribDescSetEd::moveUpDownCB( CallBacker* cb )
+{
+    Desc* curdesc = curDesc();
+    if ( !curdesc ) return;
+
+    const bool moveup = cb == moveupbut_;
+    const int curidx = attrdescs_.indexOf( curdesc );
+    attrset_->moveDescUpDown( attrset_->getID(*curdesc), moveup );
+    newList( curidx );
+    attrlistfld_->setCurrentItem( moveup ? curidx-1 : curidx+1 );
+    adsman_->setSaved( false );
+    setButStates();
+}
+
+
+void uiAttribDescSetEd::setButStates()
+{
+    const int selidx = attrlistfld_->currentItem();
+    moveupbut_->setSensitive( selidx > 0 );
+    movedownbut_->setSensitive( selidx < attrlistfld_->size()-1 );
+    sortbut_->setSensitive( selidx > 0 );
+    int size = attrlistfld_->size();
+    sortbut_->setSensitive( size > 1);;
+}
+
+
+void uiAttribDescSetEd::sortPush( CallBacker* )
+{
+    attrset_->sortDescSet();
+    int size = attrdescs_.size();
+    for ( int idx=0; idx<size; idx++ )
+	newList( idx );
+}
+
+    
 void uiAttribDescSetEd::handleSensitivity()
 {
-    bool havedescs = !attrdescs.isEmpty();
-    rmbut->setSensitive( havedescs );
-    revbut->setSensitive( havedescs );
+    bool havedescs = !attrdescs_.isEmpty();
+    rmbut_->setSensitive( havedescs );
+    revbut_->setSensitive( havedescs );
 }
 
 
@@ -490,53 +540,54 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
     if ( saveButtonChecked() && !doSave(true) )
 	return false;
     
-    if ( inoutadsman )
-        inoutadsman->setSaved( adsman->isSaved() );
+    if ( inoutadsman_ )
+        inoutadsman_->setSaved( adsman_->isSaved() );
 
     prevsavestate = saveButtonChecked();
-    nmprefgrp = attrtypefld->group();
+    nmprefgrp_ = attrtypefld_->group();
     return true;
 }
 
 
 bool uiAttribDescSetEd::rejectOK( CallBacker* )
 {
-    setid = cancelsetid;
+    setid_ = cancelsetid_;
     return true;
 }
 
 
 void uiAttribDescSetEd::newList( int newcur )
 {
-    prevdesc = 0;
+    prevdesc_ = 0;
     updateUserRefs();
     // Fix for continuous call during re-build of list
-    updating_fields = true;
-    attrlistfld->empty();
-    attrlistfld->addItems( userattrnames );
-    updating_fields = false;	
+    updating_fields_ = true;
+    attrlistfld_->empty();
+    attrlistfld_->addItems( userattrnames_ );
+    updating_fields_ = false;	
     if ( newcur < 0 ) newcur = 0;
-    if ( newcur >= attrlistfld->size() ) newcur = attrlistfld->size()-1;
-    if ( !userattrnames.isEmpty() )
+    if ( newcur >= attrlistfld_->size() ) newcur = attrlistfld_->size()-1;
+    if ( !userattrnames_.isEmpty() )
     {
-	attrlistfld->setCurrentItem( newcur );
-	prevdesc = curDesc();
+	attrlistfld_->setCurrentItem( newcur );
+	prevdesc_ = curDesc();
     }
     updateFields();
     handleSensitivity();
+    setButStates();
 }
 
 
 void uiAttribDescSetEd::updateFields( bool set_type )
 {
-    updating_fields = true;
+    updating_fields_ = true;
     updateAttrName();
     Desc* desc = curDesc();
     uiAttrDescEd* curde = 0;
     if ( set_type )
     {
 	BufferString typenm = desc ? desc->attribName() : "RefTime";
-	attrtypefld->setAttr( uiAF().dispNameOf(typenm) );
+	attrtypefld_->setAttr( uiAF().dispNameOf(typenm) );
 	curde = curDescEd();
     }
     if ( !curde )
@@ -544,7 +595,7 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 
     BufferString attribname = curde ? curde->attribName() : "";
     if ( attribname.isEmpty() )
-	attribname = uiAF().attrNameOf( attrtypefld->attr() );
+	attribname = uiAF().attrNameOf( attrtypefld_->attr() );
     const bool isrightdesc = desc && attribname == desc->attribName();
 
     Desc* dummydesc = PF().createDescCopy( attribname );
@@ -552,36 +603,36 @@ void uiAttribDescSetEd::updateFields( bool set_type )
 	dummydesc = new Desc( "Dummy" );
     
     dummydesc->ref();
-    dummydesc->setDescSet( attrset );
-    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
-    for ( int idx=0; idx<desceds.size(); idx++ )
+    dummydesc->setDescSet( attrset_ );
+    const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
+    for ( int idx=0; idx<desceds_.size(); idx++ )
     {
-	uiAttrDescEd* de = desceds[idx];
+	uiAttrDescEd* de = desceds_[idx];
 	if ( !de ) continue;
 
 	if ( curde == de )
 	{
 	    if ( !isrightdesc )
 		dummydesc->ref();
-	    de->setDesc( isrightdesc ? desc : dummydesc, adsman );
+	    de->setDesc( isrightdesc ? desc : dummydesc, adsman_ );
 	}
 
-	de->setDescSet( attrset );
+	de->setDescSet( attrset_ );
 	const bool dodisp = de == curde;
 	de->display( dodisp );
     }
     dummydesc->unRef();
-    updating_fields = false;
+    updating_fields_ = false;
 }
 
 
 bool uiAttribDescSetEd::doCommit( bool useprev )
 {
-    Desc* usedesc = useprev ? prevdesc : curDesc();
+    Desc* usedesc = useprev ? prevdesc_ : curDesc();
     if ( !usedesc )
 	return false;
     
-    BufferString newattr = uiAF().attrNameOf( attrtypefld->attr() );
+    BufferString newattr = uiAF().attrNameOf( attrtypefld_->attr() );
     BufferString oldattr = usedesc->attribName();
     bool checkusrref = true;
     if ( oldattr != newattr )
@@ -597,23 +648,23 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	    checkusrref = false;
 	    DescID id = usedesc->id();
 	    TypeSet<DescID> attribids;
-	    attrset->getIds( attribids );
+	    attrset_->getIds( attribids );
 	    int oldattridx = attribids.indexOf( id );
 	    Desc* newdesc = createAttribDesc( checkusrref );
 	    if ( !newdesc ) return false;
 	    
-	    attrset->removeDesc( id );
-	    if ( attrset->errMsg() )
+	    attrset_->removeDesc( id );
+	    if ( attrset_->errMsg() )
 	    {
-		uiMSG().error( attrset->errMsg() );
+		uiMSG().error( attrset_->errMsg() );
 		newdesc->unRef();
 		return false;
 	    }
-	    attrset->insertDesc( newdesc, oldattridx, id );
-	    const int curidx = attrdescs.indexOf( curDesc() );
+	    attrset_->insertDesc( newdesc, oldattridx, id );
+	    const int curidx = attrdescs_.indexOf( curDesc() );
 	    newList( curidx );
 	    removeNotUsedAttr();
-	    adsman->setSaved( false );
+	    adsman_->setSaved( false );
 	    usedesc = newdesc;
 	}
 	else
@@ -640,43 +691,43 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 
 void uiAttribDescSetEd::updateUserRefs()
 {
-    BufferString selnm( attrlistfld ? attrlistfld->getText() : "" );
-    userattrnames.deepErase();
-    attrdescs.erase();
+    BufferString selnm( attrlistfld_ ? attrlistfld_->getText() : "" );
+    userattrnames_.deepErase();
+    attrdescs_.erase();
 
-    for ( int iattr=0; iattr<attrset->nrDescs(); iattr++ )
+    for ( int iattr=0; iattr<attrset_->nrDescs(); iattr++ )
     {
-	const DescID descid = attrset->getID( iattr );
-	Desc* desc = attrset->getDesc( descid );
+	const DescID descid = attrset_->getID( iattr );
+	Desc* desc = attrset_->getDesc( descid );
 	if ( !desc || desc->isHidden() || desc->isStored() ) continue;
 
-	attrdescs += desc;
-	userattrnames.add( desc->userRef() );
+	attrdescs_ += desc;
+	userattrnames_.add( desc->userRef() );
     }
 
-    int newselidx = userattrnames.indexOf( selnm );
+    int newselidx = userattrnames_.indexOf( selnm );
     if ( newselidx < 0 ) newselidx = 0;
 }
 
 
 Desc* uiAttribDescSetEd::curDesc() const
 {
-    int selidx = attrlistfld->currentItem();
+    int selidx = attrlistfld_->currentItem();
     uiAttribDescSetEd* nct = const_cast<uiAttribDescSetEd*>( this );
-    return selidx < 0 ? 0 : nct->attrdescs[selidx];
+    return selidx < 0 ? 0 : nct->attrdescs_[selidx];
 }
 
 
 uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 {
-    const char* attrstr = attrtypefld->attr();
+    const char* attrstr = attrtypefld_->attr();
     BufferString attrnm = uiAF().attrNameOf( attrstr );
     if ( !attrnm ) attrnm = attrstr;
 
     uiAttrDescEd* ret = 0;
-    for ( int idx=0; idx<desceds.size(); idx++ )
+    for ( int idx=0; idx<desceds_.size(); idx++ )
     {
-	uiAttrDescEd* de = desceds[idx];
+	uiAttrDescEd* de = desceds_[idx];
 	if ( !de ) continue;
 
 	if ( attrnm == de->attribName() )
@@ -688,7 +739,7 @@ uiAttrDescEd* uiAttribDescSetEd::curDescEd()
 
 void uiAttribDescSetEd::updateCurDescEd()
 {
-    curDescEd()->setDesc( curDesc(), adsman );
+    curDescEd()->setDesc( curDesc(), adsman_ );
 }
 
 
@@ -705,10 +756,10 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 	mErrRetFalse( "Please enter a name of at least 2 characters." );
 
     TypeSet<DescID> ids;
-    attrset->getIds( ids );
+    attrset_->getIds( ids );
     for ( int idx=0; idx<ids.size(); idx++ )
     {
-	const Desc& ad = *attrset->getDesc( ids[idx] );
+	const Desc& ad = *attrset_->getDesc( ids[idx] );
 	if ( !strcmp(ad.userRef(),newnm) )
 	{
 	    uiMSG().error( "The name you entered for the attribute already"
@@ -723,7 +774,7 @@ bool uiAttribDescSetEd::validName( const char* newnm ) const
 
 bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
 {
-    BufferString usertypednm( attrnmfld->text() );
+    BufferString usertypednm( attrnmfld_->text() );
     char* ptr = usertypednm.buf();
     mTrimBlanks( ptr );
     const BufferString newnm( ptr );
@@ -736,7 +787,7 @@ bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
 	{ uiMSG().error( res ); return false; }
 
     attrdesc->setUserRef( newnm );
-    int selidx = userattrnames.indexOf( attrlistfld->getText() );
+    int selidx = userattrnames_.indexOf( attrlistfld_->getText() );
     newList( selidx );
     return true;
 }
@@ -745,36 +796,36 @@ bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
 void uiAttribDescSetEd::updateAttrName()
 {
     Desc* curdesc = curDesc();
-    attrnmfld->setText( curdesc ? curdesc->userRef() : "" );
+    attrnmfld_->setText( curdesc ? curdesc->userRef() : "" );
 }
 
 
 bool uiAttribDescSetEd::doSetIO( bool forread )
 {
-    if ( !setctio.ioobj )
+    if ( !setctio_.ioobj )
     {
-	if ( setid.isEmpty() ) return false;
+	if ( setid_.isEmpty() ) return false;
 
-	setctio.ioobj = IOM().get( setid );
-	if ( !setctio.ioobj ) 
+	setctio_.ioobj = IOM().get( setid_ );
+	if ( !setctio_.ioobj ) 
 	    mErrRetFalse("Cannot find attribute set in data base")
     }
 
     BufferString bs;
     if ( ( forread && 
-	   !AttribDescSetTranslator::retrieve(*attrset,setctio.ioobj,bs) )
+	   !AttribDescSetTranslator::retrieve(*attrset_,setctio_.ioobj,bs) )
     || ( !forread && 
-	 !AttribDescSetTranslator::store(*attrset,setctio.ioobj,bs) ) )
+	 !AttribDescSetTranslator::store(*attrset_,setctio_.ioobj,bs) ) )
 	mErrRetFalse(bs)
     if ( !bs.isEmpty() )
 	pErrMsg( bs );
 
     if ( forread )
     {
-	adsman->setDescSet( attrset );
-	adsman->fillHist();
+	adsman_->setDescSet( attrset_ );
+	adsman_->fillHist();
     }	
-    setid = setctio.ioobj->key();
+    setid_ = setctio_.ioobj->key();
     return true;
 }
 
@@ -782,24 +833,24 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
 void uiAttribDescSetEd::newSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
-    adsman->inputHistory().clear();
+    adsman_->inputHistory().clear();
     updateFields();
 
-    attrset->removeAll();
-    setctio.ioobj = 0;
-    setid = -1;
+    attrset_->removeAll();
+    setctio_.ioobj = 0;
+    setid_ = -1;
     updateUserRefs();
     newList( -1 );
-    attrsetfld->setText( "" );
-    adsman->setSaved( true );
+    attrsetfld_->setText( "" );
+    adsman_->setSaved( true );
 }
 
 
 void uiAttribDescSetEd::openSet( CallBacker* )
 {
     if ( !offerSetSave() ) return;
-    setctio.ctxt.forread = true;
-    uiIOObjSelDlg dlg( this, setctio );
+    setctio_.ctxt.forread = true;
+    uiIOObjSelDlg dlg( this, setctio_ );
     if ( dlg.go() && dlg.ioObj() )
 	openAttribSet( dlg.ioObj() );
 
@@ -808,22 +859,22 @@ void uiAttribDescSetEd::openSet( CallBacker* )
 void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 {
     if ( !ioobj ) return;
-    IOObj* oldioobj = setctio.ioobj; setctio.ioobj = 0;
-    setctio.setObj( ioobj->clone() );
+    IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
+    setctio_.setObj( ioobj->clone() );
     if ( !doSetIO( true ) )
-	setctio.setObj( oldioobj );
+	setctio_.setObj( oldioobj );
     else
     {
 	delete oldioobj;
-	setid = setctio.ioobj->key();
+	setid_ = setctio_.ioobj->key();
 	newList( -1 );
-	attrsetfld->setText( setctio.ioobj->name() );
-	adsman->setSaved( true );
+	attrsetfld_->setText( setctio_.ioobj->name() );
+	adsman_->setSaved( true );
 	TypeSet<DescID> ids;
-	attrset->getIds( ids );
-	for ( int idx=0; idx<attrset->nrDescs(); idx++ )
+	attrset_->getIds( ids );
+	for ( int idx=0; idx<attrset_->nrDescs(); idx++ )
 	{
-	    Desc* ad = attrset->getDesc( ids[idx] );
+	    Desc* ad = attrset_->getDesc( ids[idx] );
 	    if ( !ad ) continue;
 	    if ( ad->isStored() && ad->isSatisfied()==2 )
 	    {
@@ -832,7 +883,7 @@ void uiAttribDescSetEd::openAttribSet( const IOObj* ioobj )
 		msg += "' will be removed\n";
 		msg += "Storage ID is no longer valid";
 		uiMSG().message( msg );
-		attrset->removeDesc( ad->id() );
+		attrset_->removeDesc( ad->id() );
 		idx--;
 	    }
 	}
@@ -858,7 +909,7 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
     const char* filenm = attribfiles[selitm]->buf();
 
     importFromFile( filenm );
-    attrsetfld->setText( attribnames[selitm]->buf() );
+    attrsetfld_->setText( attribnames[selitm]->buf() );
 }
 
 
@@ -900,7 +951,7 @@ static void gtDefaultAttribsets( const char* dirnm, bool is2d,
 void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 					      BufferStringSet& attribnames )
 {
-    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
+    const bool is2d = adsman_ ? adsman_->is2D() : attrset_->is2D();
     gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
 	    		 attribnames );
     gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
@@ -910,21 +961,21 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 void uiAttribDescSetEd::importFromFile( const char* filenm )
 {
     IOStream* iostrm = new IOStream( "tmp" );
-    iostrm->setGroup( setctio.ctxt.trgroup->userName() );
+    iostrm->setGroup( setctio_.ctxt.trgroup->userName() );
     iostrm->setTranslator( "dGB" );
     iostrm->setFileName( filenm );
-    IOObj* oldioobj = setctio.ioobj ? setctio.ioobj->clone() : 0;
-    setctio.setObj( iostrm );
+    IOObj* oldioobj = setctio_.ioobj ? setctio_.ioobj->clone() : 0;
+    setctio_.setObj( iostrm );
     if ( !doSetIO(true) )
-	setctio.setObj( oldioobj );
+	setctio_.setObj( oldioobj );
     else
     {
 	delete oldioobj;
-	setid = setctio.ioobj->key();
+	setid_ = setctio_.ioobj->key();
 	replaceStoredAttr();
 	newList( -1 );
-	attrsetfld->setText( "" );
-	setctio.ioobj = 0;
+	attrsetfld_->setText( "" );
+	setctio_.ioobj = 0;
     }
 }
 
@@ -946,22 +997,22 @@ void uiAttribDescSetEd::importSet( CallBacker* )
     {
 	FilePath fp( ptr ); fp.add( dlg.selFld()->getText() );
 	IOM().setRootDir( fp.fullPath() );
-	setctio.ctxt.forread = true;
-        uiIOObjSelDlg objdlg( this, setctio );
+	setctio_.ctxt.forread = true;
+        uiIOObjSelDlg objdlg( this, setctio_ );
 	if ( objdlg.go() && objdlg.ioObj() )
 	{
-	    IOObj* oldioobj = setctio.ioobj; setctio.ioobj = 0;
-	    setctio.setObj( objdlg.ioObj()->clone() );
+	    IOObj* oldioobj = setctio_.ioobj; setctio_.ioobj = 0;
+	    setctio_.setObj( objdlg.ioObj()->clone() );
 	    if ( !doSetIO( true ) )
-		setctio.setObj( oldioobj );
+		setctio_.setObj( oldioobj );
 	    else
 	    {
 		delete oldioobj;
-		setid = setctio.ioobj->key();
+		setid_ = setctio_.ioobj->key();
 		replaceStoredAttr();
 		newList( -1 );
-		attrsetfld->setText( "" );
-		setctio.ioobj = 0;
+		attrsetfld_->setText( "" );
+		setctio_.ioobj = 0;
 	    }
 	}
     }
@@ -974,7 +1025,7 @@ void uiAttribDescSetEd::importFile( CallBacker* )
 {
     if ( !offerSetSave() ) return;
 
-    uiGetFileForAttrSet dlg( this, true, inoutadsman->is2D() );
+    uiGetFileForAttrSet dlg( this, true, inoutadsman_->is2D() );
     if ( dlg.go() )
 	importFromFile( dlg.fileName() );
 }
@@ -983,26 +1034,26 @@ void uiAttribDescSetEd::importFile( CallBacker* )
 void uiAttribDescSetEd::job2Set( CallBacker* )
 {
     if ( !offerSetSave() ) return;
-    uiGetFileForAttrSet dlg( this, false, inoutadsman->is2D() );
+    uiGetFileForAttrSet dlg( this, false, inoutadsman_->is2D() );
     if ( dlg.go() )
     {
 	if ( dlg.attrSet().nrDescs(false,false) < 1 )
 	    mErrRet( "No usable attributes in file" )
 
 	IOPar iop; dlg.attrSet().fillPar( iop );
-	attrset->removeAll();
-	attrset->usePar( iop );
-	adsman->setSaved( false );
+	attrset_->removeAll();
+	attrset_->usePar( iop );
+	adsman_->setSaved( false );
 
-	setctio.setObj( 0 );
-	newList( -1 ); attrsetfld->setText( "" );
+	setctio_.setObj( 0 );
+	newList( -1 ); attrsetfld_->setText( "" );
     }
 }
 
 
 void uiAttribDescSetEd::crossPlot( CallBacker* )
 {
-    if ( !adsman || !adsman->descSet() ) return;
+    if ( !adsman_ || !adsman_->descSet() ) return;
     xplotcb.trigger();
 }
 
@@ -1028,7 +1079,7 @@ void uiAttribDescSetEd::evalAttribute( CallBacker* )
 bool uiAttribDescSetEd::offerSetSave()
 {
     doCommit( true );
-    bool saved = adsman->isSaved();
+    bool saved = adsman_->isSaved();
     BufferString msg( "Attribute set is not saved.\nSave now?" );
     if ( !saved && uiMSG().askGoOn( msg ) )
 	return doSave(false);
@@ -1038,33 +1089,33 @@ bool uiAttribDescSetEd::offerSetSave()
 
 void uiAttribDescSetEd::changeInput( CallBacker* )
 {
-    attrlistfld->empty();
+    attrlistfld_->empty();
     updateFields();
     replaceStoredAttr();
     newList(-1);
-    adsman->setSaved( false );
+    adsman_->setSaved( false );
 }
 
 
 void uiAttribDescSetEd::replaceStoredAttr()
 {
-    uiStoredAttribReplacer replacer( this, *attrset );
+    uiStoredAttribReplacer replacer( this, *attrset_ );
     replacer.go();
 }
 
 
 void uiAttribDescSetEd::removeNotUsedAttr()
 {
-     if ( attrset ) attrset->removeUnused();
+     if ( attrset_ ) attrset_->removeUnused();
 }
 
 
 bool uiAttribDescSetEd::is2D() const
 {
-    if ( adsman ) 
-	return adsman->is2D();
-    else if ( attrset ) 
-	return attrset->is2D();
+    if ( adsman_ ) 
+	return adsman_->is2D();
+    else if ( attrset_ ) 
+	return attrset_->is2D();
     else 
 	return false;
 }
