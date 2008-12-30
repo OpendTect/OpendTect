@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.24 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.25 2008-12-30 09:50:26 cvsraman Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -77,7 +77,8 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     else if ( mnuid == 1 )
     {
 	const IOObj* ioobj = selRandomLine();
-	load( *ioobj );
+	if ( ioobj )
+	    load( *ioobj );
     }
     else if ( mnuid>1 && mnuid<5 )
 	genRandLine( mnuid-2 );
