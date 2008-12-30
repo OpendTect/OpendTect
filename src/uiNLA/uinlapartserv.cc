@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.60 2008-12-23 11:37:58 cvsdgb Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.61 2008-12-30 09:16:18 cvsumesh Exp $";
 
 #include "uinlapartserv.h"
 
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uinlapartserv.cc,v 1.60 2008-12-23 11:37:58 cvs
 #include "welltransl.h"
 
 #include "uicombobox.h"
+#include "uihistogramdisplay.h"
 #include "uistatsdisplay.h"
 #include "uitaskrunner.h"
 #include "uigeninput.h"
@@ -140,8 +141,9 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     uiStatsDisplay::Setup su; su.withtext(false);
     statsfld_ = new uiStatsDisplay( graphgrp, su );
     statsfld_->setData( datavals.arr(), datavals.size() );
-    bsetup_.nrptsperclss = statsfld_->nrClasses() > 0
-		? statsfld_->nrInpVals() / statsfld_->nrClasses() : 1;
+    bsetup_.nrptsperclss = statsfld_->funcDisp()->nrClasses() > 0
+		? statsfld_->funcDisp()->nrInpVals() / 
+		  statsfld_->funcDisp()->nrClasses() : 1;
     statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
@@ -226,7 +228,7 @@ bool acceptOK( CallBacker* )
 	bsetup_.noiselvl *= 0.01;
     }
 
-    bsetup_.nrclasses = statsfld_->nrClasses();
+    bsetup_.nrclasses = statsfld_->funcDisp()->nrClasses();
     return true;
 }
 
