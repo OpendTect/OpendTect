@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.31 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.32 2008-12-31 06:15:27 cvsumesh Exp $";
 
 #include "pixmap.h"
 
@@ -102,7 +102,11 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height )
     : qpixmap_(0)
     , srcname_("[colortable]")
 {
-    if ( ctabin.size() == 0 )
+    bool validsz = true;
+    if ( width < 2 ) { width = 1; validsz = false; }
+    if ( height < 2 ) { height = 1; validsz = false; }
+
+    if ( ctabin.size() == 0 || !validsz )
     {
 	qpixmap_ = new QPixmap( width, height );
 	return;
