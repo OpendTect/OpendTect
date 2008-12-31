@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.25 2008-10-24 11:39:13 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.26 2008-12-31 10:44:39 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -29,10 +29,8 @@ static const char* sKeyGeneral = "General";
 static const char* sKeyUnits = "Units";
 static const char* sKeyLevel = "Level";
 
-namespace Strat
-{
 
-const UnitRepository& UnRepo()
+const Strat::UnitRepository& Strat::UnRepo()
 {
     static UnitRepository* unrepo = 0;
     if ( !unrepo )
@@ -55,13 +53,13 @@ const UnitRepository& UnRepo()
 }
 
 
-RefTree::~RefTree()
+Strat::RefTree::~RefTree()
 {
     deepErase( lvls_ );
 }
 
 
-bool RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
+bool Strat::RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
 {
     if ( !code || !*code )
 	use( dumpstr );
@@ -84,7 +82,7 @@ bool RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
 }
 
 
-bool RefTree::addCopyOfUnit( const UnitRef& ur, bool rev )
+bool Strat::RefTree::addCopyOfUnit( const Strat::UnitRef& ur, bool rev )
 {
     BufferString str;
     ur.fill( str );
@@ -99,7 +97,7 @@ bool RefTree::addCopyOfUnit( const UnitRef& ur, bool rev )
 }
 
 
-void RefTree::removeEmptyNodes()
+void Strat::RefTree::removeEmptyNodes()
 {
     UnitRef::Iter it( *this );
     ObjectSet<UnitRef> torem;
@@ -119,7 +117,7 @@ void RefTree::removeEmptyNodes()
 }
 
 
-void RefTree::addLevel( Level* l )
+void Strat::RefTree::addLevel( Strat::Level* l )
 {
     if ( l->id_ < 0 )
 	l->id_ = getFreeLevelID();
@@ -128,7 +126,7 @@ void RefTree::addLevel( Level* l )
 }
 
 
-const Level* RefTree::getLevel( const char* nm ) const
+const Strat::Level* Strat::RefTree::getLevel( const char* nm ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
@@ -139,7 +137,8 @@ const Level* RefTree::getLevel( const char* nm ) const
 }
 
 
-const Level* RefTree::getLevel( const UnitRef* u, bool top ) const
+const Strat::Level* Strat::RefTree::getLevel( const Strat::UnitRef* u,
+						bool top ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
@@ -150,7 +149,7 @@ const Level* RefTree::getLevel( const UnitRef* u, bool top ) const
 }
 
 
-const Level* RefTree::levelFromID( int id ) const
+const Strat::Level* Strat::RefTree::levelFromID( int id ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
@@ -161,7 +160,7 @@ const Level* RefTree::levelFromID( int id ) const
 }
 
 
-void RefTree::remove( const Level*& lvl )
+void Strat::RefTree::remove( const Strat::Level*& lvl )
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
@@ -177,7 +176,7 @@ void RefTree::remove( const Level*& lvl )
 }
 
 
-bool RefTree::write( std::ostream& strm ) const
+bool Strat::RefTree::write( std::ostream& strm ) const
 {
     ascostream astrm( strm );
     astrm.putHeader( filetype );
@@ -217,7 +216,8 @@ bool RefTree::write( std::ostream& strm ) const
 }
 
 
-void RefTree::untieLvlsFromUnit( const UnitRef* ur, bool freechildren )
+void Strat::RefTree::untieLvlsFromUnit( const Strat::UnitRef* ur,
+					bool freechildren )
 {
     Level* toplvl = const_cast<Level*>(getLevel( ur, true ));
     Level* baselvl = const_cast<Level*>(getLevel( ur, false ));
@@ -240,7 +240,7 @@ void RefTree::untieLvlsFromUnit( const UnitRef* ur, bool freechildren )
 }
 
 
-int RefTree::getFreeLevelID() const
+int Strat::RefTree::getFreeLevelID() const
 {
     int freeid = 0;
     while ( levelFromID( freeid ) )
@@ -250,15 +250,15 @@ int RefTree::getFreeLevelID() const
 }
 
 
-UnitRepository::UnitRepository()
-    	: curtreeidx_(-1)
+Strat::UnitRepository::UnitRepository()
+    : curtreeidx_(-1)
 {
     reRead();
     IOM().surveyChanged.notify( mCB(this,Strat::UnitRepository,survChg) );
 }
 
 
-UnitRepository::~UnitRepository()
+Strat::UnitRepository::~UnitRepository()
 {
     deepErase( trees_ );
     deepErase( liths_ );
@@ -266,13 +266,13 @@ UnitRepository::~UnitRepository()
 }
 
 
-void UnitRepository::survChg( CallBacker* )
+void Strat::UnitRepository::survChg( CallBacker* )
 {
     reRead();
 }
 
 
-void UnitRepository::reRead()
+void Strat::UnitRepository::reRead()
 {
     deepErase( trees_ );
     deepErase( liths_ );
@@ -291,7 +291,7 @@ void UnitRepository::reRead()
 }
 
 
-bool UnitRepository::write( Repos::Source src ) const
+bool Strat::UnitRepository::write( Repos::Source src ) const
 {
     const RefTree* tree = getTreeFromSource( src );
     if ( !tree )
@@ -311,8 +311,8 @@ bool UnitRepository::write( Repos::Source src ) const
 }
 
 
-void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
-       				      Repos::Source src )
+void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
+					     Repos::Source src )
 {
     const BufferString fnm( rfp.fileName(src) );
     SafeFileIO sfio( fnm );
@@ -375,7 +375,7 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 }
 
 
-int UnitRepository::findLith( const char* str ) const
+int Strat::UnitRepository::findLith( const char* str ) const
 {
     if ( !str ) return -1;
     for ( int idx=0; idx<liths_.size(); idx++ )
@@ -387,7 +387,7 @@ int UnitRepository::findLith( const char* str ) const
 }
 
 
-int UnitRepository::findLith( int lithid ) const
+int Strat::UnitRepository::findLith( int lithid ) const
 {
     for ( int idx=0; idx<liths_.size(); idx++ )
     {
@@ -398,7 +398,7 @@ int UnitRepository::findLith( int lithid ) const
 }
 
 
-void UnitRepository::addLith( const char* str, Repos::Source src )
+void Strat::UnitRepository::addLith( const char* str, Repos::Source src )
 {
     if ( !str || !*str ) return;
 
@@ -413,7 +413,7 @@ void UnitRepository::addLith( const char* str, Repos::Source src )
 }
 
 
-void UnitRepository::addLith( Lithology* newlith )
+void Strat::UnitRepository::addLith( Lithology* newlith )
 {
     if ( !newlith ) return;
 
@@ -424,7 +424,7 @@ void UnitRepository::addLith( Lithology* newlith )
 }
 
 
-BufferString UnitRepository::getLithName( int lithid ) const
+BufferString Strat::UnitRepository::getLithName( int lithid ) const
 {
     int idx = findLith( lithid );
     if ( idx<0 || idx>= liths_.size() ) return "";
@@ -432,7 +432,7 @@ BufferString UnitRepository::getLithName( int lithid ) const
 }
 
 
-int UnitRepository::getLithID( BufferString name ) const
+int Strat::UnitRepository::getLithID( BufferString name ) const
 {
     int idx = findLith( name );
     if ( idx<0 || idx>= liths_.size() ) return -1;
@@ -440,7 +440,7 @@ int UnitRepository::getLithID( BufferString name ) const
 }
 
 
-int UnitRepository::indexOf( const char* tnm ) const
+int Strat::UnitRepository::indexOf( const char* tnm ) const
 {
     for ( int idx=0; idx<trees_.size(); idx++ )
     {
@@ -451,14 +451,14 @@ int UnitRepository::indexOf( const char* tnm ) const
 }
 
 
-UnitRef* UnitRepository::fnd( const char* code ) const
+Strat::UnitRef* Strat::UnitRepository::fnd( const char* code ) const
 {
     return curtreeidx_ < 0 ? 0
 	 : const_cast<UnitRef*>( trees_[curtreeidx_]->find( code ) );
 }
 
 
-UnitRef* UnitRepository::fndAny( const char* code ) const
+Strat::UnitRef* Strat::UnitRepository::fndAny( const char* code ) const
 {
     const UnitRef* ref = find( code );
     if ( !ref )
@@ -476,7 +476,7 @@ UnitRef* UnitRepository::fndAny( const char* code ) const
 }
 
 
-UnitRef* UnitRepository::fnd( const char* code, int idx ) const
+Strat::UnitRef* Strat::UnitRepository::fnd( const char* code, int idx ) const
 {
     if ( idx < 0 )			return fnd(code);
     else if ( idx >= trees_.size() )	return 0;
@@ -485,7 +485,7 @@ UnitRef* UnitRepository::fnd( const char* code, int idx ) const
 }
 
 
-int UnitRepository::treeOf( const char* code ) const
+int Strat::UnitRepository::treeOf( const char* code ) const
 {
     if ( fnd(code,curtreeidx_) )
 	return curtreeidx_;
@@ -500,7 +500,8 @@ int UnitRepository::treeOf( const char* code ) const
 }
 
 
-const RefTree* UnitRepository::getTreeFromSource( Repos::Source src ) const
+const Strat::RefTree* Strat::UnitRepository::getTreeFromSource(
+					Repos::Source src ) const
 {
     const RefTree* tree = 0;
     for ( int idx=0; idx<trees_.size(); idx++ )
@@ -513,7 +514,7 @@ const RefTree* UnitRepository::getTreeFromSource( Repos::Source src ) const
 }
 
 
-void UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
+void Strat::UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
 {
     if ( tree( currentTree() )->source() == loc )
 	return;
@@ -543,7 +544,7 @@ void UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
 }
 
 
-void UnitRepository::replaceTree( RefTree* newtree, int treeidx )
+void Strat::UnitRepository::replaceTree( Strat::RefTree* newtree, int treeidx )
 {
     if ( treeidx == -1 )
 	treeidx = currentTree();
@@ -552,7 +553,7 @@ void UnitRepository::replaceTree( RefTree* newtree, int treeidx )
 }
 
 
-void UnitRepository::createDefaultTree()
+void Strat::UnitRepository::createDefaultTree()
 {
     RefTree* tree = new RefTree( "Stratigraphic tree", Repos::Survey );
     tree->addUnit( "base", "example of unit" );
@@ -560,7 +561,7 @@ void UnitRepository::createDefaultTree()
 }
 
 
-int UnitRepository::getFreeLithID() const
+int Strat::UnitRepository::getFreeLithID() const
 {
     int id = 0;
     while ( findLith(id)!=-1 )
@@ -568,5 +569,3 @@ int UnitRepository::getFreeLithID() const
 
     return id;
 }
-
-};//namespace
