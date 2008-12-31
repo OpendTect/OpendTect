@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.25 2008-08-28 05:58:40 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.26 2008-12-31 08:20:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,7 @@ public:
 
     void			setDefault(bool yn=true);
     void			setPixmap(const ioPixmap&);
-    ioPixmap*			getPixmap()
-    				{ return const_cast<ioPixmap*>(pixmap_); }
-    const ioPixmap*		getPixmap() const	{ return pixmap_; }
+    				//! Size of pixmap is 1/2 the size of button
 
     void			click();
 
@@ -80,8 +78,6 @@ private:
     uiPushButtonBody*		body_;
     uiPushButtonBody&		mkbody(uiParent*,const ioPixmap*,const char*,
 	    				bool);
-
-    const ioPixmap*		pixmap_;
 };
 
 

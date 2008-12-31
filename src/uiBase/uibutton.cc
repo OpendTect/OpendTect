@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.50 2008-12-24 05:55:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.51 2008-12-31 08:20:38 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -207,34 +207,29 @@ void uiButton::activate()
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm, bool ia )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm,ia) )
-    , pixmap_(0)
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm, const CallBack& cb,
 			    bool ia )
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm,ia) )
-    , pixmap_(0)
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, bool ia )
     : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm,ia) )
-    , pixmap_(new ioPixmap(pm))
 {}
 
 
 uiPushButton::uiPushButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, const CallBack& cb, bool ia )
     : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm,ia) )
-    , pixmap_(new ioPixmap(pm))
 {}
 
 
 uiPushButton::~uiPushButton()
 {
-    delete pixmap_;
 }
 
 
@@ -260,8 +255,7 @@ void uiPushButton::setDefault( bool yn )
 
 void uiPushButton::setPixmap( const ioPixmap& pm )
 {
-    delete pixmap_;
-    pixmap_ = new ioPixmap( pm );
+    body_->setIconSize( QSize(width()/2,height()/2) );
     body_->setIcon( *pm.qpixmap() );
 }
 
