@@ -5,7 +5,7 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.15 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.16 2008-12-31 13:09:14 cvsbert Exp $";
 
 #include "strmoper.h"
 #include "timefun.h"
@@ -98,18 +98,24 @@ bool StrmOper::readLine( std::istream& strm, BufferString* bs )
     static char bsbuf[1024+1];
 
     int bsidx = 0; char ch;
-    while ( getNextChar(strm,ch) && ch != '\n' )
-    {
-	if ( !bs ) continue;
+    bool getres = getNextChar(strm,ch);
+    if ( !getres ) return false;
 
-	bsbuf[bsidx] = ch;
-	bsidx++;
-	if ( bsidx == 1024 )
+    while ( ch != '\n' )
+    {
+	if ( bs )
 	{
-	    bsbuf[bsidx] = '\0';
-	    *bs += bsbuf;
-	    bsidx = 0;
+	    bsbuf[bsidx] = ch;
+	    bsidx++;
+	    if ( bsidx == 1024 )
+	    {
+		bsbuf[bsidx] = '\0';
+		*bs += bsbuf;
+		bsidx = 0;
+	    }
 	}
+	getres = getNextChar(strm,ch);
+	if ( !getres ) return false;
     }
 
     if ( bs && bsidx )
