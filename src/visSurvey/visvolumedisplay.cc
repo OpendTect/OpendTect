@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.96 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.97 2008-12-31 05:40:46 cvsranojay Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -64,7 +64,7 @@ VolumeDisplay::VolumeDisplay()
     , volren_(0)
     , as_(*new Attrib::SelSpec)
     , cache_(0)
-    , cacheid_(DataPack::cNoID)
+    , cacheid_(DataPack::cNoID())
     , slicemoving(this)
     , voltrans_(visBase::Transformation::create())
     , allowshading_(false)
@@ -750,7 +750,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     cache_ = 0;
 
     DPM( DataPackMgr::CubeID ).release( cacheid_ );
-    cacheid_ = DataPack::cNoID;
+    cacheid_ = DataPack::cNoID();
 
     scalarfield_->setScalarField( 0, true );
 
@@ -852,7 +852,7 @@ const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
 
 
 DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
-{ return attrib==0 ? cacheid_ : DataPack::cNoID; }
+{ return attrib==0 ? cacheid_ : DataPack::cNoID(); }
 
 
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,

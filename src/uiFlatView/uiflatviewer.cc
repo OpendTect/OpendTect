@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.68 2008-12-23 11:34:47 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.69 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -241,8 +241,8 @@ void uiFlatViewer::drawBitMaps()
     if ( datachgd )
 	dataChanged.trigger();
 
-    const bool hasdata = packID(false)!=DataPack::cNoID ||
-			 packID(true)!=DataPack::cNoID;
+    const bool hasdata = packID(false)!=DataPack::cNoID() ||
+			 packID(true)!=DataPack::cNoID();
     uiPoint offs( mUdf(int), mUdf(int) );
     if ( !wvabmpmgr_ )
     {

@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.6 2008-12-15 09:54:32 cvsranojay Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.7 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "volprocattrib.h"
 
@@ -195,7 +195,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     if ( !chain_ || !chain_->nrSteps() )
     {
 	errmsg_ = "There are no steps in the processing chain.";
-	return DataPack::cNoID;
+	return DataPack::cNoID();
     }
 
     chain_->setZSampling( SamplingData<float>( cs.zrg ), SI().zIsTime() );
@@ -203,14 +203,14 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     if ( !datacubes->setSizeAndPos(cs) )
     {
 	errmsg_ = "Cannot allocate enough memory.";
-	return DataPack::cNoID;
+	return DataPack::cNoID();
     }
 
     ChainExecutor executor( *chain_ );
     if ( !executor.setCalculationScope(datacubes) ) 
     {
 	errmsg_ = "Cannot calculate at this location";
-	return DataPack::cNoID;
+	return DataPack::cNoID();
     }
 
     if ( (tr && !tr->execute(executor)) || (!tr && !executor.execute() ) )
@@ -224,7 +224,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
     if ( !datacubes->nrCubes() )
     {
 	errmsg_ = "No output produced";
-	return DataPack::cNoID;
+	return DataPack::cNoID();
     }
 
     const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();

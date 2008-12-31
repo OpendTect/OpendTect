@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.30 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.31 2008-12-31 05:40:45 cvsranojay Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -42,7 +42,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
                                      "Manage wavelets",
                                      "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
-    , curid_(DataPack::cNoID)
+    , curid_(DataPack::cNoID())
 {
     createDefaultUI();
 
@@ -193,7 +193,7 @@ void uiSeisWvltMan::mkFileInfo()
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
     wvltfld->removePack( curid_ );
-    curid_ = DataPack::cNoID;
+    curid_ = DataPack::cNoID();
     if ( wvlt )
     {
 	const int wvltsz = wvlt->size();

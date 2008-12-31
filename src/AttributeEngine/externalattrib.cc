@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: externalattrib.cc,v 1.6 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: externalattrib.cc,v 1.7 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "externalattrib.h"
 
@@ -24,7 +24,7 @@ mImplFactory1Param(  ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
 
 DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, DataPack::ID )
-{ return DataPack::cNoID; }
+{ return DataPack::cNoID(); }
 
 
 bool ExtAttribCalc::createAttrib( ObjectSet<BinIDValueSet>& )
@@ -36,7 +36,7 @@ bool ExtAttribCalc::createAttrib( const BinIDValueSet&, SeisTrcBuf& buf )
 
 
 DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling&, const LineKey& )
-{ return DataPack::cNoID; }
+{ return DataPack::cNoID(); }
 
 
 DataPack::ID ExtAttribCalc::createAttrib( const CubeSampling& cs,

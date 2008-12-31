@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.34 2008-12-18 09:20:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.35 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -206,7 +206,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     }
 
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
-    if ( dpid > DataPack::cNoID )
+    if ( dpid > DataPack::cNoID() )
     {
 	mAddMenuItem( menu, &statisticsitem_, true, false )
 	mAddMenuItem( menu, &amplspectrumitem_, true, false )
@@ -230,7 +230,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 //TODO:remove when Z-transformed scenes are ok for 2D Viewer
 
     if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform
-	    && dpid>DataPack::cNoID )
+	    && dpid>DataPack::cNoID() )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );

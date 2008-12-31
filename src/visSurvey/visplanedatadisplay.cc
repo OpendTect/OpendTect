@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.209 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.210 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -796,7 +796,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 {
     return volumecache_.validIdx(attrib) &&  volumecache_[attrib] 
-	? volumecache_[attrib]->id() : DataPack::cNoID;
+	? volumecache_[attrib]->id() : DataPack::cNoID();
 }
 
 

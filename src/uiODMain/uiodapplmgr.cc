@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.279 2008-12-18 11:15:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.280 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -653,7 +653,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	{
 	    const DataPack::ID cacheid =
 				visserv_->getDataPackID( visid, attrib );
-	    if ( cacheid == DataPack::cNoID )
+	    if ( cacheid == DataPack::cNoID() )
 		useDefColTab( visid, attrib );
 
 	    CubeSampling cs = visserv_->getCubeSampling( visid, attrib );
@@ -679,20 +679,20 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		uiTaskRunner progm( &appl_ );
 		const DataPack::ID dpid =
 		    calc->createAttrib( cs, cacheid, &progm );
-		if ( dpid==DataPack::cNoID && !calc->errmsg_.isEmpty() )
+		if ( dpid==DataPack::cNoID() && !calc->errmsg_.isEmpty() )
 		{
 		    uiMSG().error( calc->errmsg_ );
 		    return false;
 		}
 
-		res = dpid != DataPack::cNoID;
+		res = dpid != DataPack::cNoID();
 		visserv_->setDataPackID( visid, attrib, dpid );
 		break;
 	    }
 
 	    attrserv_->setTargetSelSpec( myas );
 	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
-	    if ( newid == DataPack::cNoID )
+	    if ( newid == DataPack::cNoID() )
 	    {
 		visserv_->setCubeData( visid, attrib, 0 );
 		return false;
@@ -788,7 +788,7 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
     if ( format == uiVisPartServer::Cube )
     {
 	const CubeSampling cs = visserv_->getCubeSampling( visid );
-	DataPack::ID packid  = attrserv_->createOutput( cs, DataPack::cNoID );
+	DataPack::ID packid  = attrserv_->createOutput( cs, DataPack::cNoID() );
 	visserv_->setDataPackID( visid, attrib, packid );
     }
     else if ( format==uiVisPartServer::Traces )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.38 2008-12-23 11:34:47 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.39 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -228,7 +228,7 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
 	return;
 
     if ( dispfld_->currentItem() == 0 )
-	{ vwr_.usePack( wva, DataPack::cNoID, false ); return; }
+	{ vwr_.usePack( wva, DataPack::cNoID(), false ); return; }
 
     const BufferString datanm( dispfld_->text() );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
@@ -729,8 +729,8 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 
     putAllToScreen();
 
-    if ( withwva && vwr_.packID(true)==DataPack::cNoID &&
-	 vwr_.packID(false)!=DataPack::cNoID )
+    if ( withwva && vwr_.packID(true)==DataPack::cNoID() &&
+	 vwr_.packID(false)!=DataPack::cNoID() )
     {
 	showGroup( 1 );
     }

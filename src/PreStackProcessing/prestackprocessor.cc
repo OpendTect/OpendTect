@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.18 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.19 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "prestackprocessor.h"
 
@@ -116,7 +116,7 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 DataPack::ID Processor::getOutput( const BinID& relbid ) const
 {
     const Gather* res = outputs_[getRelBidOffset(relbid,outputstepout_)];
-    return res ? res->id() : DataPack::cNoID;
+    return res ? res->id() : DataPack::cNoID();
 }
 
 
@@ -295,7 +295,7 @@ DataPack::ID ProcessManager::getOutput() const
 {
     return processors_.size()
 	? processors_[processors_.size()-1]->getOutput(BinID(0,0))
-	: DataPack::cNoID;
+	: DataPack::cNoID();
 }
 
 

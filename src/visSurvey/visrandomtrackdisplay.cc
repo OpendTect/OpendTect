@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.105 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.106 2008-12-31 05:40:46 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -959,7 +959,7 @@ void RandomTrackDisplay::emptyCache( int attrib )
 	cache_.replace( attrib, 0 );
 
     DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
-    datapackids_[attrib] = DataPack::cNoID;
+    datapackids_[attrib] = DataPack::cNoID();
 }
 
 

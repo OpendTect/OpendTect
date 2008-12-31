@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.45 2008-12-29 05:27:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.46 2008-12-31 05:40:45 cvsranojay Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -462,9 +462,9 @@ void FlatView::Viewer::removePack( DataPack::ID id )
     if ( idx < 0 ) return;
 
     if ( wvapack_ && wvapack_->id() == id )
-	usePack( true, DataPack::cNoID, false );
+	usePack( true, DataPack::cNoID(), false );
     if ( vdpack_ && vdpack_->id() == id )
-	usePack( false, DataPack::cNoID, false );
+	usePack( false, DataPack::cNoID(), false );
 
     // Construction necessary because the release could trigger a new removePack
     const bool obs = obs_[idx];
@@ -479,7 +479,7 @@ void FlatView::Viewer::usePack( bool wva, DataPack::ID id, bool usedefs )
     DataPack::ID curid = packID( wva );
     if ( id == curid ) return;
 
-    if ( id == DataPack::cNoID )
+    if ( id == DataPack::cNoID() )
 	(wva ? wvapack_ : vdpack_) = 0;
     else if ( ids_.indexOf(id) < 0 )
     {
