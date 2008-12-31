@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: externalattribrandom.cc,v 1.3 2008-10-07 19:18:01 cvskris Exp $";
+static const char* rcsID = "$Id: externalattribrandom.cc,v 1.4 2008-12-31 05:43:40 cvsdgb Exp $";
 
 #include "externalattribrandom.h"
 
@@ -66,14 +66,14 @@ DataPack::ID Random::createAttrib( const CubeSampling& cs,
 {
     const Attrib::DataCubes* dc = 0;
     const Attrib::DataCubes* output = createAttrib( cs, dc );
-    if ( !output || !output->nrCubes() ) return DataPack::cNoID;
+    if ( !output || !output->nrCubes() ) return DataPack::cNoID();
 
     RefMan<Attrib::DataCubes> datacubes = new Attrib::DataCubes::DataCubes();
     if ( !datacubes->setSizeAndPos(cs) )
-	return DataPack::cNoID;
+	return DataPack::cNoID();
 
     if ( datacubes->nrCubes()<=0 && !datacubes->addCube() )
-	return DataPack::cNoID;
+	return DataPack::cNoID();
 
     const int nrinlines = datacubes->getInlSz();
     const int nrcrlines = datacubes->getCrlSz();
@@ -122,7 +122,7 @@ bool Random::createAttrib(const BinIDValueSet&, SeisTrcBuf&, TaskRunner*)
 
 DataPack::ID Random::createAttrib( const CubeSampling&, const LineKey&,
 				   TaskRunner*)
-{ return DataPack::cNoID; }
+{ return DataPack::cNoID(); }
 
 
 bool Random::isIndexes() const

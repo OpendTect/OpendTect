@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.44 2008-12-24 08:08:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.45 2008-12-31 05:43:40 cvsdgb Exp $";
 
 #include "visprestackviewer.h"
 
@@ -273,7 +273,7 @@ bool Viewer3D::updateData()
 
     if ( is3DSeis() )
     {
-	DataPack::ID displayid = DataPack::cNoID;
+	DataPack::ID displayid = DataPack::cNoID();
 	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
 	{
 	    displayid = preProcess();
@@ -292,10 +292,10 @@ bool Viewer3D::updateData()
 	    }
 	}
 
-	if ( displayid==DataPack::cNoID )
+	if ( displayid==DataPack::cNoID() )
 	{
 	    if ( haddata )
-		flatviewer_->setPack( false, DataPack::cNoID, false );
+		flatviewer_->setPack( false, DataPack::cNoID(), false );
 	    else
 		dataChangedCB( 0 );
 
@@ -317,7 +317,7 @@ bool Viewer3D::updateData()
 	{
 	    delete gather;
 	    if ( haddata )
-		flatviewer_->setPack( false, DataPack::cNoID, false );
+		flatviewer_->setPack( false, DataPack::cNoID(), false );
 	    else
 	    {
 		dataChangedCB( 0 );
