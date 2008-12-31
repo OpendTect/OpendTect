@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.6 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.7 2008-12-31 13:10:12 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -18,11 +18,13 @@ static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.6 2008-11-25 15:35:26 cv
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uistratlvlsel.h"
+#include "uistrattreewin.h"
 #include "uitable.h"
 
 #include "ctxtioobj.h"
 #include "filegen.h"
 #include "iopar.h"
+#include "pixmap.h"
 #include "survinfo.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -70,6 +72,15 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
     uiButton* rfbut = new uiPushButton( this, "&Read file",
 	    				mCB(this,uiMarkerDlg,rdFile), false );
     rfbut->attach( rightTo, unitfld_ ); rfbut->attach( rightBorder );
+
+    uiToolButton* sb = new uiToolButton( this, "Create new Levels",
+					ioPixmap("man_strat.png"),
+					mCB(this,uiMarkerDlg,doStrat) );
+    sb->setToolTip( "Edit Stratigraphy to define Levels" );
+    sb->attach( leftOf, rfbut );
+    unitfld_->attach( ensureLeftOf, sb );
+
+    setPrefWidthInChar( 60 );
 }
 
 
@@ -92,6 +103,12 @@ void uiMarkerDlg::mouseClick( CallBacker* )
     Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
 	table_->setColor( rc, newcol );
+}
+
+
+void uiMarkerDlg::doStrat( CallBacker* )
+{
+    StratTWin().popUp();
 }
 
 

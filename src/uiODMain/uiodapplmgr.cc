@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.280 2008-12-31 05:40:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.281 2008-12-31 13:10:12 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -339,7 +339,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 
 void uiODApplMgr::manStrat()
 {
-    const_cast<uiStratTreeWin&>(StratTWin()).show();
+    StratTWin().popUp();
 }
 
 

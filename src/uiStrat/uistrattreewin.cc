@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.22 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.23 2008-12-31 13:10:12 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -47,6 +47,12 @@ const uiStratTreeWin& StratTWin()
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true, false)
+    , levelCreated(this)
+    , levelChanged(this)
+    , levelRemoved(this)
+    , unitCreated(this)		//TODO support
+    , unitChanged(this)		//TODO support
+    , unitRemoved(this)		//TODO support
 {
     uistratmgr_ = new uiStratMgr( this );
     createMenus();
@@ -205,7 +211,9 @@ void uiStratTreeWin::rClickLvlCB( CallBacker* )
     }
     const int mnuid = mnu.exec();
     if ( mnuid<0 || mnuid>2 ) return;
-    if ( mnuid == 2 )
+    if ( mnuid != 2 )
+	editLevel( mnuid ? false : true );
+    else
     {
 	uistratmgr_->removeLevel( lvllistfld_->box()->getText() );
 	lvllistfld_->box()->removeItem( lvllistfld_->box()->currentItem() );
@@ -213,10 +221,8 @@ void uiStratTreeWin::rClickLvlCB( CallBacker* )
 	uitree_->listView()->triggerUpdate();
 	if ( lvllistfld_->box()->isEmpty() )
 	    lvllistfld_->box()->addItem( sNoLevelTxt );
-	return;
+	levelRemoved.trigger();
     }
-
-    editLevel( mnuid ? false : true );
 }
 
 
@@ -240,7 +246,10 @@ void uiStratTreeWin::editLevel( bool create )
     if ( !create )
 	newlvldlg.setLvlInfo( lvllistfld_->box()->getText() );
     if ( newlvldlg.go() )
+    {
 	updateLvlList( create );
+	create ? levelCreated.trigger() : levelChanged.trigger();
+    }
 }
 
 

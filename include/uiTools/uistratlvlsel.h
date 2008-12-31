@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.5 2008-02-26 09:17:39 cvsnanne Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.6 2008-12-31 13:10:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ protected:
 
     void		selLvlCB(CallBacker*);
     void		defineLvlCB(CallBacker*);
+    void		lvlModif(CallBacker*);
 };
 
 #endif

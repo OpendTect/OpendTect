@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.10 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.11 2008-12-31 13:10:12 cvsbert Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -20,28 +20,33 @@ static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.10 2008-11-25 15:35:26 cvs
 
 
 static const char* sNoLevelTxt	= "--Undefined--";
+static const char* sTiedToTxt	= "Tied to Level";
+
+static void getLvlNms( BufferStringSet& bss )
+{
+    bss.add( sNoLevelTxt );
+    for ( int idx=0; idx<Strat::RT().nrLevels(); idx++ )
+	bss.add( Strat::RT().levelFromIdx(idx)->name() );
+}
+
 
 uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
     : uiGroup(p)
     , levelChanged(this)
 {
-    BufferStringSet bfset;
-    bfset.add( sNoLevelTxt );
-    for ( int idx=0; idx<Strat::RT().nrLevels(); idx++ )
-	bfset.add( Strat::RT().levelFromIdx(idx)->name() );
+    BufferStringSet bss; getLvlNms( bss );
 
     uiObject* attachobj = 0;
     if ( wlbl )
     {
-	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, bfset,
-					         	"Tied to level",
-							 "Tied to level" );
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, bss, sTiedToTxt,
+							sTiedToTxt );
 	lvlnmfld_ = lcb->box();
 	attachobj = lcb->attachObj();
     }
     else
     {
-	lvlnmfld_ = new uiComboBox( this, bfset, "Tied to level" );
+	lvlnmfld_ = new uiComboBox( this, bss, sTiedToTxt );
 	lvlnmfld_->setStretch( 2, 2 );
 	attachobj = lvlnmfld_;
     }
@@ -55,6 +60,10 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
 	if ( attachobj )
 	    deflvlbut->attach( rightOf, attachobj );
     }
+
+    StratTWin().levelCreated.notify( mCB(this,uiStratLevelSel,lvlModif) );
+    StratTWin().levelChanged.notify( mCB(this,uiStratLevelSel,lvlModif) );
+    StratTWin().levelRemoved.notify( mCB(this,uiStratLevelSel,lvlModif) );
 
     setHAlignObj( lvlnmfld_ );
 }
@@ -101,5 +110,15 @@ void uiStratLevelSel::selLvlCB( CallBacker* )
 
 void uiStratLevelSel::defineLvlCB( CallBacker* )
 {
-    const_cast<uiStratTreeWin&>(StratTWin()).show();
+    StratTWin().popUp();
+}
+
+
+void uiStratLevelSel::lvlModif( CallBacker* )
+{
+    const Strat::Level* cursel = selectedLevel();
+    lvlnmfld_->empty();
+    BufferStringSet bss; getLvlNms( bss );
+    lvlnmfld_->addItems( bss );
+    lvlnmfld_->setCurrentItem( cursel ? cursel->name().buf() : sNoLevelTxt );
 }

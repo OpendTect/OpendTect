@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.54 2008-12-23 11:37:10 cvsdgb Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.55 2008-12-31 13:10:12 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.54 2008-12-23 11:37:10 cvsd
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uistratlvlsel.h"
+#include "uistrattreewin.h"
 #include "uitable.h"
 #include "uitextedit.h"
 
@@ -328,6 +329,12 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     tbl_->setColumnStretchable( 2, true );
     tbl_->setPrefWidth( 400 );
 
+    uiToolButton* sb = new uiToolButton( this, "Create new Levels",
+				ioPixmap("man_strat.png"),
+				mCB(this,uiSurfaceStratDlg,doStrat) );
+    sb->setToolTip( "Edit Stratigraphy to define Levels" );
+    sb->attach( rightOf, tbl_ );
+
     IOPar par;
     for ( int idx=0; idx<ids.size(); idx++ )
     {
@@ -349,6 +356,11 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 
 
 protected:
+
+void doStrat( CallBacker* )
+{
+    StratTWin().popUp();
+}
 
 void lvlChg( CallBacker* cb )
 {
