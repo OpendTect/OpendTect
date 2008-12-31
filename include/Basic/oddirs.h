@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.12 2008-12-29 05:55:38 cvsranojay Exp $
+ RCS:		$Id: oddirs.h,v 1.13 2008-12-31 07:13:49 cvsranojay Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -102,7 +102,7 @@ mGlobal const char* GetExecScript(int remote);
 */
 #define		mGetExecScript()	GetExecScript(0)
 
-const char* GetSoftwareUser(void);
+mGlobal const char* GetSoftwareUser(void);
 /*!< Sub-user of software: $DTECT_USER
 
  When multiple people want to run under a single account, they need to
