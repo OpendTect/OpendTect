@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.7 2008-11-26 06:13:35 cvssatyaki Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.8 2008-12-31 04:39:33 cvsranojay Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -204,7 +204,7 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& pos,
 
     // In UI, Y is positive downward
     const QPoint relvec( pos.x() - comingfrom.x(), comingfrom.y() - pos.y() );
-    const double ang( atan2(relvec.y(),relvec.x()) );
+    const double ang( atan2((double)relvec.y(),(double)relvec.x()) );
 
     const ArrowHeadStyle& headstyle = arrowstyle_.headstyle_;
     if ( headstyle.handedness_ == ArrowHeadStyle::TwoHanded )

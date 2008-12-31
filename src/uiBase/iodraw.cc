@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: iodraw.cc,v 1.49 2008-12-23 11:32:18 cvsdgb Exp $";
+static const char* rcsID = "$Id: iodraw.cc,v 1.50 2008-12-31 04:39:33 cvsranojay Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"
@@ -353,7 +353,7 @@ static void drawArrowHead( ioDrawTool& dt, const ArrowHeadStyle& hs,
 
     // In UI, Y is positive downward
     const uiPoint relvec( pos.x - comingfrom.x, comingfrom.y - pos.y );
-    const double ang( atan2(relvec.y,relvec.x) );
+    const double ang( atan2((double)relvec.y,(double)relvec.x) );
 
     if ( hs.handedness_ == ArrowHeadStyle::TwoHanded )
     {
