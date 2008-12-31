@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.8 2008-12-04 12:47:51 cvsumesh Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.9 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class Surface;
 
 /*!\brief Data interesting for Surface I/O */
 
-class SurfaceIOData
+mClass SurfaceIOData
 {
 public:
     			~SurfaceIOData()	{ clear(); }
@@ -45,7 +45,7 @@ public:
 };
 
 
-class SurfaceIODataSelection
+mClass SurfaceIODataSelection
 {
 public:
 

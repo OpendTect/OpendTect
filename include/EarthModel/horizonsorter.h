@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonsorter.h,v 1.4 2008-09-22 13:07:32 cvskris Exp $
+ RCS:		$Id: horizonsorter.h,v 1.5 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ template <class T> class Array3D;
 class HorSamplingIterator;
 
 
-class HorizonSorter : public Executor
+mClass HorizonSorter : public Executor
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.24 2007-09-04 17:05:49 cvsnanne Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.25 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ class SurfaceIODataSelection;
 */
 
 
-class SurfaceGeometry : public CallBacker
+mClass SurfaceGeometry : public CallBacker
 {
 public:
     			SurfaceGeometry(Surface&);
@@ -119,7 +119,7 @@ protected:
 };
 
 
-class RowColSurfaceGeometry : public SurfaceGeometry
+mClass RowColSurfaceGeometry : public SurfaceGeometry
 {
 public:
     			RowColSurfaceGeometry(Surface&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.36 2008-10-01 03:44:36 cvsnanne Exp $
+ RCS:		$Id: emfault.h,v 1.37 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class Fault;
 
 /*!\brief FaultGeometry base class */
 
-class FaultGeometry : public SurfaceGeometry
+mClass FaultGeometry : public SurfaceGeometry
 {
 protected:
     			FaultGeometry( Surface& surf )
@@ -34,7 +34,7 @@ protected:
 
 /*!\brief Fault base class */
 
-class Fault : public Surface
+mClass Fault : public Surface
 {
 public:
     virtual FaultGeometry&	geometry()			= 0;

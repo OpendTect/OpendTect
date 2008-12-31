@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.2 2008-09-05 15:43:03 cvskris Exp $
+ RCS:		$Id: embody.h,v 1.3 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ namespace EM
 
 /*!Implicit representation of a body. */
 
-struct ImplicitBody
+mStruct ImplicitBody
 {
     			ImplicitBody();
     virtual		~ImplicitBody();
@@ -38,7 +38,7 @@ struct ImplicitBody
 
 /*!A body that can deliver an implicit body. */
 
-class Body
+mClass Body
 { 
 public:
 

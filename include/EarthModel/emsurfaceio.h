@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.30 2008-12-04 12:47:51 cvsumesh Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.31 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ Surface Reader.
 
 */
 
-class dgbSurfaceReader : public ExecutorGroup
+mClass dgbSurfaceReader : public ExecutorGroup
 {
 public:
 			dgbSurfaceReader(const IOObj& ioobj,
@@ -223,7 +223,7 @@ Surface Writer.
 
 */
 
-class dgbSurfaceWriter : public ExecutorGroup
+mClass dgbSurfaceWriter : public ExecutorGroup
 {
 public:
 			dgbSurfaceWriter( const IOObj* ioobj,

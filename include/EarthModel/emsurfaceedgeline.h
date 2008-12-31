@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgeline.h,v 1.20 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: emsurfaceedgeline.h,v 1.21 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ EM::EdgeLineSegmentFactory fact##clss( clss::sClassName(), \
 
 class EdgeLineSegmentFactory;
 
-class EdgeLineSegment : public CallBacker
+mClass EdgeLineSegment : public CallBacker
 { 
 public:
     				mEdgeLineSegmentClone(EdgeLineSegment,Default);
@@ -168,7 +168,7 @@ private:
 };
 
 
-class EdgeLineSegmentFactory 
+mClass EdgeLineSegmentFactory 
 {
 public:
 			EdgeLineSegmentFactory( const char* nm,
@@ -181,7 +181,7 @@ public:
 };
 
 
-class EdgeLine : public CallBacker
+mClass EdgeLine : public CallBacker
 {
 public:
     			EdgeLine( EM::Horizon3D&, const EM::SectionID& );
@@ -250,7 +250,7 @@ protected:
 };
 
 
-class EdgeLineIterator
+mClass EdgeLineIterator
 {
 public:
     			EdgeLineIterator( const EM::EdgeLine& el_,
@@ -286,7 +286,7 @@ protected:
 };
 
 
-class EdgeLineSet : public CallBacker
+mClass EdgeLineSet : public CallBacker
 {
 public:
     			EdgeLineSet( EM::Horizon3D&, const EM::SectionID&);
@@ -331,7 +331,7 @@ protected:
 };
 
 
-class EdgeLineManager : public CallBacker
+mClass EdgeLineManager : public CallBacker
 {
 public:
     				EdgeLineManager(Horizon3D&);

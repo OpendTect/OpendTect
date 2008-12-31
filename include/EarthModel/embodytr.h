@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.3 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:		$Id: embodytr.h,v 1.4 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace EM { class Body; class PolygonBody; }
 
 typedef EM::Body 	EMBody;
 
-class EMBodyTranslatorGroup : public TranslatorGroup
+mClass EMBodyTranslatorGroup : public TranslatorGroup
 {		    isTranslatorGroup(EMBody)
 public:
 		    mDefEmptyTranslatorGroupConstructor(EMBody)
@@ -33,7 +33,7 @@ public:
 };
 
 
-class mcEMBodyTranslator : public Translator
+mClass mcEMBodyTranslator : public Translator
 {				 isTranslator(mc,EMBody)
 public:
 			mcEMBodyTranslator(const char* unm,const char* nm)
@@ -43,7 +43,7 @@ public:
 };
 
 
-class polygonEMBodyTranslator : public Translator
+mClass polygonEMBodyTranslator : public Translator
 {                               isTranslator(polygon,EMBody)
 public:
 			polygonEMBodyTranslator(const char* unm,const char* nm);

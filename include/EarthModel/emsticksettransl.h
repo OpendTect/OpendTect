@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsticksettransl.h,v 1.5 2008-05-13 14:00:38 cvsbert Exp $
+ RCS:		$Id: emsticksettransl.h,v 1.6 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ ________________________________________________________________________
 typedef EM::StickSet EMStickSet;
 
 
-class EMStickSetTranslatorGroup : public TranslatorGroup
+mClass EMStickSetTranslatorGroup : public TranslatorGroup
 {				  isTranslatorGroup(EMStickSet)
 public:
     				mDefEmptyTranslatorGroupConstructor(EMStickSet)
@@ -33,7 +33,7 @@ public:
 };
 
 
-class EMStickSetTranslator : public Translator
+mClass EMStickSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(EMStickSet)
@@ -54,7 +54,7 @@ public:
 };
 
 
-class lmkEMStickSetTranslator : public EMStickSetTranslator
+mClass lmkEMStickSetTranslator : public EMStickSetTranslator
 {				isTranslator(lmk,EMStickSet)
 public:
     			mDefEmptyTranslatorConstructor(lmk,EMStickSet)
@@ -81,7 +81,7 @@ public:
 };
 
 
-class lmkEMStickSetReader : public Executor
+mClass lmkEMStickSetReader : public Executor
 {
 public:
 			lmkEMStickSetReader(EM::StickSet&, Conn*,
@@ -118,7 +118,7 @@ protected:
 };
 
 
-class lmkEMStickSetWriter : public Executor
+mClass lmkEMStickSetWriter : public Executor
 {
 public:
 			lmkEMStickSetWriter(const EM::StickSet&,

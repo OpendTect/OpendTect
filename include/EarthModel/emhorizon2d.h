@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.15 2008-10-26 18:25:19 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.16 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace EM
 {
 class EMManager;
 
-class Horizon2DGeometry : public HorizonGeometry
+mClass Horizon2DGeometry : public HorizonGeometry
 {
 public:
 				Horizon2DGeometry(Surface&);
@@ -86,7 +86,7 @@ protected:
 position's subid is formed by RowCol( lineid, tracenr ).getSerialized(). If
 multiple z-values per trace is needed, multiple sections can be added. */
 
-class Horizon2D : public Horizon
+mClass Horizon2D : public Horizon
 { mDefineEMObjFuncs( Horizon2D );
 public:
 
@@ -111,7 +111,7 @@ protected:
 };
 
 
-class Horizon2DAscIO : public Table::AscIO
+mClass Horizon2DAscIO : public Table::AscIO
 {
 public:
     				Horizon2DAscIO( const Table::FormatDesc& fd,

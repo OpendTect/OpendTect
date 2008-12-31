@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.19 2008-09-22 13:07:32 cvskris Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.20 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ class Horizon3D;
 
 /*!\brief  Writes auxdata to file */
 
-class dgbSurfDataWriter : public Executor
+mClass dgbSurfDataWriter : public Executor
 {
 public:
     				dgbSurfDataWriter(const EM::Horizon3D& surf,
@@ -86,7 +86,7 @@ protected:
 
 /*!\brief Reads auxdata from file */
 
-class dgbSurfDataReader : public Executor
+mClass dgbSurfDataReader : public Executor
 {
 public:
     				dgbSurfDataReader(const char* filename);

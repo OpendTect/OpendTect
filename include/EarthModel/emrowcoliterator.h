@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emrowcoliterator.h,v 1.2 2006-11-06 10:33:51 cvsjaap Exp $
+ RCS:		$Id: emrowcoliterator.h,v 1.3 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace Geometry { class RowColSurface; }
 namespace EM
 {
 
-class RowColIterator : public EMObjectIterator
+mClass RowColIterator : public EMObjectIterator
 {
 public:
     			RowColIterator(const Surface&,const SectionID&,

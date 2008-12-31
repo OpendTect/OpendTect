@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.9 2008-11-17 15:42:38 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.10 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ process_attrib_em for computing data on, along or between 2 horizons.
 
 class Surface;
 
-class HorizonUtils
+mClass HorizonUtils
 {
 public:
 			HorizonUtils(){};

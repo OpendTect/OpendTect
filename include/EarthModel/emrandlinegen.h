@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: emrandlinegen.h,v 1.5 2008-10-03 12:22:42 cvsjaap Exp $
+ RCS:		$Id: emrandlinegen.h,v 1.6 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ class Horizon3DGeometry;
 
 /*!\brief Creates random lines along the contours of a surface */
 
-class RandomLineSetByContourGenerator
+mClass RandomLineSetByContourGenerator
 { 
 public:
 
@@ -63,7 +63,7 @@ protected:
 
 /*!\brief Creates random line from another by shifting it */
 
-class RandomLineByShiftGenerator
+mClass RandomLineByShiftGenerator
 { 
 public:
 

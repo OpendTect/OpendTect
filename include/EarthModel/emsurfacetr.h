@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.14 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.15 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,7 @@ typedef EM::FaultStickSet	EMFaultStickSet;
 
 /*!\brief Read/write EM::Horizon to storage */
 
-class EMHorizon3DTranslatorGroup : public TranslatorGroup
+mClass EMHorizon3DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon3D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon3D)
@@ -50,7 +50,7 @@ public:
 };
 
 
-class EMHorizon2DTranslatorGroup : public TranslatorGroup
+mClass EMHorizon2DTranslatorGroup : public TranslatorGroup
 {				   isTranslatorGroup(EMHorizon2D)
 public:
 				mDefEmptyTranslatorGroupConstructor(EMHorizon2D)
@@ -61,7 +61,7 @@ public:
 };
 
 
-class EMAnyHorizonTranslatorGroup : public TranslatorGroup
+mClass EMAnyHorizonTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(EMAnyHorizon)
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
@@ -70,7 +70,7 @@ public:
 };
 
 
-class EMFault3DTranslatorGroup : public TranslatorGroup
+mClass EMFault3DTranslatorGroup : public TranslatorGroup
 {			       isTranslatorGroup(EMFault3D)
 public:
     			mDefEmptyTranslatorGroupConstructor(EMFault3D)
@@ -81,7 +81,7 @@ public:
 };
 
 
-class EMFaultStickSetTranslatorGroup : public TranslatorGroup
+mClass EMFaultStickSetTranslatorGroup : public TranslatorGroup
 {				       isTranslatorGroup(EMFaultStickSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(EMFaultStickSet)
@@ -92,7 +92,7 @@ public:
 };
 
 
-class EMSurfaceTranslator : public Translator
+mClass EMSurfaceTranslator : public Translator
 {
 public:
     				EMSurfaceTranslator(const char* nm,
@@ -140,7 +140,7 @@ protected:
 };
 
 
-class dgbEMSurfaceTranslator : public EMSurfaceTranslator
+mClass dgbEMSurfaceTranslator : public EMSurfaceTranslator
 {
 public:
     				dgbEMSurfaceTranslator(const char*,const char*);
@@ -166,7 +166,7 @@ protected:
 };
 
 
-class dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMHorizon3DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon3D)
 public:
     				dgbEMHorizon3DTranslator(const char* unm,
@@ -181,7 +181,7 @@ protected:
 };
 
 
-class dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMHorizon2DTranslator : public dgbEMSurfaceTranslator
 {				 isTranslator(dgb,EMHorizon2D)
 public:
     				dgbEMHorizon2DTranslator(const char* unm,
@@ -196,7 +196,7 @@ protected:
 };
 
 
-class dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMFault3DTranslator : public dgbEMSurfaceTranslator
 {			       isTranslator(dgb,EMFault3D)
 public:
     				dgbEMFault3DTranslator(const char* unm,
@@ -211,7 +211,7 @@ protected:
 };
 
 
-class dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
+mClass dgbEMFaultStickSetTranslator : public dgbEMSurfaceTranslator
 {				     isTranslator(dgb,EMFaultStickSet)
 public:
     				dgbEMFaultStickSetTranslator(const char* unm,

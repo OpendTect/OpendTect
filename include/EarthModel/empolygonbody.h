@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		July 2008
- RCS:		$Id: empolygonbody.h,v 1.2 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:		$Id: empolygonbody.h,v 1.3 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ namespace EM
 {
 class PolygonBody;
 
-class PolygonBodyGeometry : public SurfaceGeometry
+mClass PolygonBodyGeometry : public SurfaceGeometry
 {
 public:
     			PolygonBodyGeometry(PolygonBody&);
@@ -67,7 +67,7 @@ protected:
 };
 
 
-class PolygonBody : public Surface, public Body
+mClass PolygonBody : public Surface, public Body
 { mDefineEMObjFuncs( PolygonBody );
 public:
     PolygonBodyGeometry&	geometry();

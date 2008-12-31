@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.67 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:		$Id: emsurface.h,v 1.68 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ class SurfaceGeometry;
 */
 
 
-class Surface : public EMObject
+mClass Surface : public EMObject
 {
 public:
     int				nrSections() const;

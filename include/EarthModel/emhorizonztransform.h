@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.9 2008-06-26 05:06:31 cvsnanne Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.10 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class Horizon;
 accordingly. In case of reverse faulting, the area between the two patches will
 not be included.  */
 
-class HorizonZTransform : public ZAxisTransform
+mClass HorizonZTransform : public ZAxisTransform
 			, public CallBacker
 {
 public:

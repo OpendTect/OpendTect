@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.6 2008-09-22 13:07:32 cvskris Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.7 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,11 +27,11 @@ class Horizon2D;
 class Horizon3D;
 class Hor2DTo3DSectionData;
 
-class Hor2DTo3D : public Executor
+mClass Hor2DTo3D : public Executor
 {
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
 				Setup(bool do_gridding);

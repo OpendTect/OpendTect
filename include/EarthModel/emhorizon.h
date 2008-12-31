@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: emhorizon.h,v 1.4 2008-02-26 09:17:32 cvsnanne Exp $
+ RCS:		$Id: emhorizon.h,v 1.5 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace EM
 {
 class EMManager;
 
-class HorizonGeometry : public RowColSurfaceGeometry
+mClass HorizonGeometry : public RowColSurfaceGeometry
 {
 protected:
     				HorizonGeometry( Surface& surf )
@@ -31,7 +31,7 @@ protected:
 };
 
 
-class Horizon : public Surface
+mClass Horizon : public Surface
 {
 public:
     virtual HorizonGeometry&		geometry()			= 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.75 2008-12-23 11:08:10 cvsdgb Exp $
+ RCS:		$Id: emobject.h,v 1.76 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ namespace EM
 {
 class EMManager;
 
-class EMObjectCallbackData
+mClass EMObjectCallbackData
 {
 public:
     		EMObjectCallbackData() 
@@ -57,7 +57,7 @@ The object is created by EMObject::createIterator, and the next() function is
 called until no more positions can be found. */
 
 
-class EMObjectIterator
+mClass EMObjectIterator
 {
 public:
     virtual		~EMObjectIterator() {}
@@ -68,7 +68,7 @@ public:
 };
 
 
-class PosAttrib
+mClass PosAttrib
 {
 public:
     			PosAttrib()
@@ -89,7 +89,7 @@ public:
 
 /*!\brief Earth Model Object */
 
-class EMObject : public CallBacker
+mClass EMObject : public CallBacker
 {
 mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
 { prepareForDelete(); delete this; } );

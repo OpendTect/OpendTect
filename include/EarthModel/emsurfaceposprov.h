@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.4 2008-03-12 21:58:29 cvsnanne Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.5 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ namespace Pos
  
  */
 
-class EMSurfaceProvider : public virtual Filter
+mClass EMSurfaceProvider : public virtual Filter
 {
 public:
 			EMSurfaceProvider();
@@ -116,7 +116,7 @@ protected:
 
 /*!\brief EMSurfaceProvider for 3D positioning */
 
-class EMSurfaceProvider3D : public Provider3D
+mClass EMSurfaceProvider3D : public Provider3D
 			  , public EMSurfaceProvider
 {
 public:
@@ -145,7 +145,7 @@ public:
 
 /*!\brief EMSurfaceProvider for 2D positioning */
 
-class EMSurfaceProvider2D : public Provider2D
+mClass EMSurfaceProvider2D : public Provider2D
 			  , public EMSurfaceProvider
 {
 public:

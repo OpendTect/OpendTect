@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.1 2008-09-30 12:47:40 cvsnanne Exp $
+ RCS:		$Id: emfault3d.h,v 1.2 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace EM
 {
 class EMManager;
 
-class Fault3DGeometry : public FaultGeometry
+mClass Fault3DGeometry : public FaultGeometry
 {
 public:
     			Fault3DGeometry(Surface&);
@@ -67,7 +67,7 @@ protected:
 /*!\brief 3D Fault
 */
 
-class Fault3D : public Surface
+mClass Fault3D : public Surface
 { mDefineEMObjFuncs( Fault3D );
 public:
     Fault3DGeometry&		geometry();
@@ -83,7 +83,7 @@ protected:
 };
 
 
-class Fault3DAscIO : public Table::AscIO
+mClass Fault3DAscIO : public Table::AscIO
 {
 public:
     				Fault3DAscIO( const Table::FormatDesc& fd )

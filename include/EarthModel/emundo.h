@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.3 2008-12-15 19:01:03 cvskris Exp $
+ RCS:		$Id: emundo.h,v 1.4 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace EM
 {
 class Horizon3D;
 
-class SetPosUndoEvent : public UndoEvent
+mClass SetPosUndoEvent : public UndoEvent
 {
 public:
 			SetPosUndoEvent( const Coord3& oldpos,
@@ -44,7 +44,7 @@ protected:
 
 
 // Undo for setting all positions on a horizon3d-section
-class SetAllHor3DPosUndoEvent : public UndoEvent
+mClass SetAllHor3DPosUndoEvent : public UndoEvent
 {
 public:
 			SetAllHor3DPosUndoEvent(EM::Horizon3D*,EM::SectionID,
@@ -67,7 +67,7 @@ protected:
 };
 
 
-class SetPosAttribUndoEvent : public UndoEvent
+mClass SetPosAttribUndoEvent : public UndoEvent
 {
 public:
 			SetPosAttribUndoEvent( const EM::PosID&,
@@ -86,7 +86,7 @@ protected:
 
 /*! Saves information from a EMObject::changePosID call */
 
-class PosIDChangeEvent : public UndoEvent
+mClass PosIDChangeEvent : public UndoEvent
 {
 public:
     			PosIDChangeEvent( const EM::PosID& from,

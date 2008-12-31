@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonmodifier.h,v 1.3 2008-01-29 10:29:22 cvsraman Exp $
+ RCS:		$Id: horizonmodifier.h,v 1.4 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace EM { class Horizon; }
 class HorSampling;
 
-class HorizonModifier
+mClass HorizonModifier
 {
 public:
 

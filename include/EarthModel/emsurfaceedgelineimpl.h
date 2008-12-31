@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceedgelineimpl.h,v 1.12 2008-02-20 21:39:16 cvskris Exp $
+ RCS:		$Id: emsurfaceedgelineimpl.h,v 1.13 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ namespace EM
 {
 
 
-class TerminationEdgeLineSegment : public EdgeLineSegment
+mClass TerminationEdgeLineSegment : public EdgeLineSegment
 {
 public:
 		    mEdgeLineSegmentClone(TerminationEdgeLineSegment, TermLine);
@@ -32,7 +32,7 @@ public:
 };
 
 
-class SurfaceConnectLine : public EdgeLineSegment
+mClass SurfaceConnectLine : public EdgeLineSegment
 {
 public:
     			mEdgeLineSegmentClone(SurfaceConnectLine,ConnLine);

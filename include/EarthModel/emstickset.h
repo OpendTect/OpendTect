@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emstickset.h,v 1.6 2005-10-06 19:13:37 cvskris Exp $
+ RCS:		$Id: emstickset.h,v 1.7 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ typedef SubID KnotID;
 
 class EMManager;
 
-class StickSet : public EMObject
+mClass StickSet : public EMObject
 {
 public:
     static const char*	typeStr();

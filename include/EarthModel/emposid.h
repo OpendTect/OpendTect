@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.22 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:		$Id: emposid.h,v 1.23 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ is an identifier for each position in the earthmodel. It has three parts,
 - a SubID, wich identifies the position on the section. 
 */
 
-class PosID
+mClass PosID
 {
 public:
     				PosID( ObjectID emobj=0,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.60 2008-12-15 19:01:03 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.61 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ namespace Pick { class Set; }
 namespace EM
 {
 
-class Horizon3DGeometry : public HorizonGeometry
+mClass Horizon3DGeometry : public HorizonGeometry
 {
 public:
 				Horizon3DGeometry(Surface&);
@@ -84,7 +84,7 @@ The grids are defined by knot-points in a matrix and the fillstyle inbetween
 the knots.
 */
 
-class Horizon3D : public Horizon
+mClass Horizon3D : public Horizon
 { mDefineEMObjFuncs( Horizon3D );
 public:
 
@@ -124,7 +124,7 @@ protected:
 };
 
 
-class Horizon3DAscIO : public Table::AscIO
+mClass Horizon3DAscIO : public Table::AscIO
 {
 public:
     				Horizon3DAscIO( const Table::FormatDesc& fd,

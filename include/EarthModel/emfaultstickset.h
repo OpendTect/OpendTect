@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C Glas
  Date:		November 2008
- RCS:		$Id: emfaultstickset.h,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:		$Id: emfaultstickset.h,v 1.2 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace EM
 {
 class EMManager;
 
-class FaultStickSetGeometry : public FaultGeometry
+mClass FaultStickSetGeometry : public FaultGeometry
 {
 public:
     			FaultStickSetGeometry(Surface&);
@@ -83,7 +83,7 @@ protected:
 /*!\brief Fault stick set
 */
 
-class FaultStickSet: public Fault
+mClass FaultStickSet: public Fault
 { mDefineEMObjFuncs( FaultStickSet );
 public:
     FaultStickSetGeometry&		geometry();

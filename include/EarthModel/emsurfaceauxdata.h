@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.6 2008-02-12 12:12:11 cvsnanne Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.7 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class Horizon3D;
 class PosID;
 
 
-class SurfaceAuxData 
+mClass SurfaceAuxData 
 {
 public:
 			SurfaceAuxData(Horizon3D&);

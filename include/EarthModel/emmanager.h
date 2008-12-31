@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.40 2008-12-04 12:47:51 cvsumesh Exp $
+ RCS:		$Id: emmanager.h,v 1.41 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ class SurfaceIODataSelection;
 
 */
 
-class EMManager : public CallBacker
+mClass EMManager : public CallBacker
 {
 public:
 			EMManager();

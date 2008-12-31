@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.2 2008-09-06 14:34:41 cvskris Exp $
+ RCS:		$Id: emmarchingcubessurface.h,v 1.3 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class MarchingCubesSurface;
 namespace EM
 {
 
-class MarchingCubesSurface : public Body, public EMObject
+mClass MarchingCubesSurface : public Body, public EMObject
 { mDefineEMObjFuncs( MarchingCubesSurface );
 public:
 

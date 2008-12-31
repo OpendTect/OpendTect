@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.12 2008-10-14 12:11:14 cvsbert Exp $
+ RCS:		$Id: horizonscanner.h,v 1.13 2008-12-31 09:08:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace EM { class Horizon3DAscIO; }
 namespace Table { class FormatDesc; }
 namespace PosInfo { class Detector; }
 
-class HorizonScanner : public Executor
+mClass HorizonScanner : public Executor
 {
 public:
 
