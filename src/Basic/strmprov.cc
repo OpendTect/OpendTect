@@ -43,7 +43,7 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.78 2008-12-31 10:46:01 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.79 2008-12-31 13:08:46 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -438,21 +438,23 @@ StreamData StreamProvider::makeIStream( bool binary ) const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-	if ( !File_exists(sd.fileName()) )
+	bool doesexist = File_exists( sd.fileName() );
+	if ( !doesexist )
 	{
 	    FilePath fp( fname );
 	    BufferString fullpath = fp.fullPath( FilePath::Local, true );
 	    if ( !File_exists(fullpath) )
 		fullpath = fp.fullPath( FilePath::Local, false );
 	    // Sometimes the filename _is_ weird, and the cleanup is wrong
-	    if ( File_exists(fullpath) )
+	    doesexist = File_exists( fullpath );
+	    if ( doesexist )
 		sd.setFileName( fullpath );
 	}
 
 	sd.istrm = new std::ifstream( sd.fileName(),
 		      binary ? std::ios_base::in | std::ios_base::binary 
 			     : std::ios_base::in );
-	if ( sd.istrm->bad() )
+	if ( doesexist ? sd.istrm->bad() : !sd.istrm->good() )
 	    { delete sd.istrm; sd.istrm = 0; }
 	return sd;
     }
