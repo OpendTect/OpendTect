@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.26 2008-12-30 09:19:09 cvsumesh Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.27 2008-12-31 08:24:27 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -47,7 +47,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
     return false;
 }
 
-static const int sHistogramIdx = 1100;
+static const int sHistogramIdx = 991;
 static const int sAttribIdx = 1000;
 static const int sDuplicateIdx = 900;
 static const int sLinkIdx = 800;
@@ -61,7 +61,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , visserv_(ODMainWin()->applMgr().visServer())
     , addattribmnuitem_("&Add attribute",sAttribIdx)
     , duplicatemnuitem_("&Duplicate",sDuplicateIdx)
-    , displyhistgram_("&DisplayHistogram",sHistogramIdx)		   
+    , displyhistgram_("&Display Histogram",sHistogramIdx)		   
     , linkmnuitem_("&Link ...",sLinkIdx)
     , lockmnuitem_("&Lock",sLockIdx)
     , hidemnuitem_("&Hide",sHideIdx )
