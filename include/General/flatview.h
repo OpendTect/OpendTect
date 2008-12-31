@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.38 2008-12-25 11:21:53 cvsranojay Exp $
+ RCS:           $Id: flatview.h,v 1.39 2008-12-31 05:33:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,7 +302,7 @@ public:
 			{ return wva ? wvapack_ : vdpack_; }
     DataPack::ID	packID( bool wva ) const
 			{ return pack(wva) ? pack(wva)->id()
-			    		   : ::DataPack::cNoID; }
+			    		   : ::DataPack::cNoID(); }
     const TypeSet< ::DataPack::ID>&	availablePacks() const
 							{ return ids_; }
 
