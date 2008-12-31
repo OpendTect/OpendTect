@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Feb 2004
- RCS:		$Id: unitofmeasure.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: unitofmeasure.h,v 1.7 2008-12-31 07:16:34 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 class UnitOfMeasureRepository;
 
-UnitOfMeasureRepository& UoMR();
+mGlobal UnitOfMeasureRepository& UoMR();
 
 
 /*!\brief Unit of Measure
