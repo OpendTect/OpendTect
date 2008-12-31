@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellwriter.h,v 1.5 2008-12-05 16:21:47 cvsbert Exp $
+ RCS:		$Id: wellwriter.h,v 1.6 2008-12-31 10:43:41 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -41,9 +41,12 @@ public:
     bool		putD2T(std::ostream&) const;
     bool		putDispProps(std::ostream&) const;
 
+    void		setBinaryWriteLogs( bool yn )	{ binwrlogs_ = yn; }
+
 protected:
 
     const Data&		wd;
+    bool		binwrlogs_;
 
     bool		wrHdr(std::ostream&,const char*) const;
     bool		putTrack(std::ostream&) const;

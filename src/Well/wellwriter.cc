@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.12 2008-12-24 12:28:13 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.13 2008-12-31 10:43:41 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: wellwriter.cc,v 1.12 2008-12-24 12:28:13 cvsber
 Well::Writer::Writer( const char* f, const Well::Data& w )
 	: Well::IO(f,false)
     	, wd(w)
+	, binwrlogs_(false)
 {
 }
 
@@ -134,9 +135,8 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
     if ( haveunits )
 	astrm.put( Well::Log::sKeyUnitLbl, wl.unitMeasLabel() );
     astrm.putYN( Well::Log::sKeyHdrInfo, havepars );
-    static bool write_ascii = GetEnvVarYN( "OD_WRITE_LOGS_ASCII" );
-    const char* stortyp = write_ascii ? "Ascii"
-				      : (__islittle__ ? "Binary" : "Swapped");
+    const char* stortyp = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
+				     : "Ascii";
     astrm.put( Well::Log::sKeyStorage, stortyp );
     astrm.newParagraph();
     if ( havepars )
@@ -164,7 +164,7 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 	if ( mIsUdf(v[0]) )
 	    continue;
 
-	if ( !write_ascii )
+	if ( binwrlogs_ )
 	    strm.write( (char*)v, 2*sizeof(float) );
 	else
 	{
