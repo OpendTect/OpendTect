@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.17 2008-10-21 13:20:22 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.18 2008-12-31 06:10:46 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ ________________________________________________________________________
 	  const BinID inputbid( relbid*BinID(SI().inlStep(),SI().crlStep()) );
 
 	  const DataPack::ID dpid = getDataPackFromSomewhere( inputbid );
-	  if ( dpid==DataPack::cNoID )
+	  if ( dpid==DataPack::cNoID() )
 	      return error;
 
 	  processmanager.setInput( relbid, dpid );
