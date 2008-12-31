@@ -43,7 +43,7 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.77 2008-12-10 11:59:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.78 2008-12-31 10:46:01 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -378,12 +378,59 @@ void StreamProvider::addPathIfNecessary( const char* path )
     fname = fp.fullPath();
 }
 
+#ifndef __win__
+
+#define mkUnLinked(fnm) fnm
+
+#else
+
+static const char* mkUnLinked( const char* fnm )
+{
+    if ( !fnm || !*fnm )
+	return fnm;
+
+    // Maybe the file itself is a link
+    static BufferString ret; ret = File_linkTarget(fnm);
+    if ( File_exists(ret) )
+	return ret.buf();
+
+    // Maybe there are links in the directories
+    FilePath fp( fnm );
+    int nrlvls = fp.nrLevels();
+    for ( int idx=0; idx<nrlvls; idx++ )
+    {
+	BufferString dirnm = fp.dirUpTo( idx );
+	const bool islink = File_isLink(dirnm);
+	if ( islink )
+	    dirnm = File_linkTarget( fp.dirUpTo(idx) );
+	if ( !File_exists(dirnm) )
+	    return fnm;
+
+	if ( islink )
+	{
+	    FilePath fp2( dirnm );
+	    for ( int ilvl=idx+1; ilvl<nrlvls; ilvl++ )
+		fp2.add( fp.dir(ilvl) );
+
+	    fp = fp2;
+	    nrlvls = fp.nrLevels();
+	}
+    }
+
+    ret = fp.fullPath();
+    return ret.buf();
+}
+
+#endif
+
 
 StreamData StreamProvider::makeIStream( bool binary ) const
 {
-    StreamData sd; sd.setFileName( fname );
+    StreamData sd;
+    sd.setFileName( mkUnLinked(fname) );
     if ( isbad || !*(const char*)fname )
 	return sd;
+
     if ( fname == sStdIO() || fname == sStdErr() )
     {
 	sd.istrm = &std::cin;
@@ -391,23 +438,22 @@ StreamData StreamProvider::makeIStream( bool binary ) const
     }
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-	FilePath fp( fname );
-
-	BufferString fullpath = fp.fullPath( FilePath::Local, true );
-
-	//Sometimes the filename _is_ weired, and the cleanup does the
-	//wrong thing.
-	if ( !File_exists(fullpath) )
-	    fullpath = fp.fullPath( FilePath::Local, false );
-
-	if ( File_exists(fullpath) )
+	if ( !File_exists(sd.fileName()) )
 	{
-	    sd.istrm = new std::ifstream( fullpath,
-			  binary ? std::ios_base::in | std::ios_base::binary 
-				 : std::ios_base::in );
-	    if ( sd.istrm->bad() )
-		{ delete sd.istrm; sd.istrm = 0; }
+	    FilePath fp( fname );
+	    BufferString fullpath = fp.fullPath( FilePath::Local, true );
+	    if ( !File_exists(fullpath) )
+		fullpath = fp.fullPath( FilePath::Local, false );
+	    // Sometimes the filename _is_ weird, and the cleanup is wrong
+	    if ( File_exists(fullpath) )
+		sd.setFileName( fullpath );
 	}
+
+	sd.istrm = new std::ifstream( sd.fileName(),
+		      binary ? std::ios_base::in | std::ios_base::binary 
+			     : std::ios_base::in );
+	if ( sd.istrm->bad() )
+	    { delete sd.istrm; sd.istrm = 0; }
 	return sd;
     }
 
@@ -438,7 +484,8 @@ StreamData StreamProvider::makeIStream( bool binary ) const
 
 StreamData StreamProvider::makeOStream( bool binary ) const
 {
-    StreamData sd; sd.setFileName( fname );
+    StreamData sd;
+    sd.setFileName( mkUnLinked(fname) );
     if ( isbad ||  !*(const char*)fname )
 	return sd;
 
@@ -452,9 +499,10 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 	sd.ostrm = &std::cerr;
 	return sd;
     }
+
     if ( type_ != StreamConn::Command && !hostname[0] )
     {
-	sd.ostrm = new std::ofstream( fname,
+	sd.ostrm = new std::ofstream( sd.fileName(),
 			  binary ? std::ios_base::out | std::ios_base::binary 
 				 : std::ios_base::out );
 	if ( sd.ostrm->bad() )
