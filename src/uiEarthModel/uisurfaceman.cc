@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.55 2008-12-31 13:10:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.56 2009-01-02 07:09:20 cvsraman Exp $";
 
 
 #include "uisurfaceman.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.55 2008-12-31 13:10:12 cvsb
 #include "oddirs.h"
 #include "pixmap.h"
 #include "strmprov.h"
+#include "survinfo.h"
 
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -274,6 +275,12 @@ void uiSurfaceMan::mkFileInfo()
 	{
 	    txt = "Inline range: "; mRangeTxt(inl);
 	    txt += "Crossline range: "; mRangeTxt(crl);
+	    if ( !sd.zrg.isUdf() )
+	    {
+		txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
+		txt += mNINT( sd.zrg.start * SI().zFactor() ); txt += " - ";
+		txt += mNINT( sd.zrg.stop * SI().zFactor() ); txt += "\n";
+	    }
 	}
     }
 
