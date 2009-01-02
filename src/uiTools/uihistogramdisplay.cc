@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.11 2008-12-30 09:08:50 cvsumesh Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.12 2009-01-02 12:51:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,14 +66,14 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
     const DataPack* datapack = dpman.obtain( dpid );
     if ( !datapack ) return false;
 
-    if ( dmid == DataPackMgr::CubeID )
+    if ( dmid == DataPackMgr::CubeID() )
     {
 	mDynamicCastGet(const ::CubeDataPack*,cdp,datapack);
 	const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
 	if ( !arr3d ) return false;
 	setData( arr3d->getData(), arr3d->info().getTotalSz() );
     }
-    else if ( dmid == DataPackMgr::FlatID )
+    else if ( dmid == DataPackMgr::FlatID() )
     {
 	mDynamicCastGet(const FlatDataPack*,fdp,datapack);
 	if ( !fdp ) return false;
