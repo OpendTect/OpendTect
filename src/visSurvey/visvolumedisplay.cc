@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.98 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.99 2009-01-02 12:41:11 cvsranojay Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -46,22 +46,22 @@ mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
 namespace visSurvey {
 
-const char* VolumeDisplay::sKeyVolumeID()   { return "Cube ID"; }
-const char* VolumeDisplay::sKeyVolRen()	    { return "Volren"; }
-const char* VolumeDisplay::sKeyInline()	    { return "Inline"; } 
-const char* VolumeDisplay::sKeyCrossLine()  { return "Crossline"; }
-const char* VolumeDisplay::sKeyTime()	    { return "Time"; }
+const char* VolumeDisplay::sKeyVolumeID()	{ return "Cube ID"; }
+const char* VolumeDisplay::sKeyVolRen()		{ return "Volren"; }
+const char* VolumeDisplay::sKeyInline()		{ return "Inline"; } 
+const char* VolumeDisplay::sKeyCrossLine()	{ return "Crossline"; }
+const char* VolumeDisplay::sKeyTime()		{ return "Time"; }
 
-const char* VolumeDisplay::sKeyNrSlices()   { return "Nr of slices"; }
-const char* VolumeDisplay::sKeySlice()	    { return "SliceID"; }
-const char* VolumeDisplay::sKeyTexture()    { return "TextureID"; }
+const char* VolumeDisplay::sKeyNrSlices()	{ return "Nr of slices"; }
+const char* VolumeDisplay::sKeySlice()		{ return "SliceID"; }
+const char* VolumeDisplay::sKeyTexture()	{ return "TextureID"; }
 
-const char* sKeyNrIsoSurfaces()	    { return "Nr Isosurfaces"; }
-const char* sKeyIsoValueStart()	    { return "Iso Value"; }
-const char* sKeyIsoOnStart()	    { return "Iso Surf On "; }
-const char* sKeySurfMode()	    { return "Surf Mode"; }
-const char* sKeySeedsMid()	    { return "Surf Seeds Mid"; }
-const char* sKeySeedsAboveIsov()    { return "Above IsoVal"; }
+const char* VolumeDisplay::sKeyNrIsoSurfaces()	{ return "Nr Isosurfaces"; }
+const char* VolumeDisplay::sKeyIsoValueStart()	{ return "Iso Value"; }
+const char* VolumeDisplay::sKeyIsoOnStart()	{ return "Iso Surf On "; }
+const char* VolumeDisplay::sKeySurfMode()	{ return "Surf Mode"; }
+const char* VolumeDisplay::sKeySeedsMid()	{ return "Surf Seeds Mid"; }
+const char* VolumeDisplay::sKeySeedsAboveIsov()	{ return "Above IsoVal"; }
 
 
 VolumeDisplay::VolumeDisplay()
