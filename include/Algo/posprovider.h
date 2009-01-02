@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.13 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:           $Id: posprovider.h,v 1.14 2009-01-02 11:23:42 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
 
     virtual bool	isProvider() const			{ return true; }
 
-    virtual Provider*	clone() const				= 0;
+    mGlobal virtual	Provider*	clone() const				= 0;
 
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
@@ -46,8 +46,8 @@ public:
     virtual int		estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
-    virtual float	estRatio(const Provider&) const;
-    virtual void	getCubeSampling(CubeSampling&) const;
+    mGlobal virtual float	estRatio(const Provider&) const;
+    mGlobal virtual void	getCubeSampling(CubeSampling&) const;
 
     static Provider*	make(const IOPar&,bool is2d);
 };
