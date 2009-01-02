@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.106 2008-12-31 05:40:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.107 2009-01-02 11:34:46 cvsranojay Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -123,7 +123,7 @@ RandomTrackDisplay::~RandomTrackDisplay()
 
     deepErase( cache_ );
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
 }
@@ -348,7 +348,7 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 
 bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const Attrib::FlatRdmTrcsDataPack*,dprdm,datapack);
     if ( !dprdm )
@@ -941,7 +941,7 @@ void RandomTrackDisplay::removeCache( int attrib )
     delete cache_[attrib];
     cache_.remove( attrib );
 
-    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
 }
 
@@ -958,7 +958,7 @@ void RandomTrackDisplay::emptyCache( int attrib )
     if ( cache_[attrib] ) delete cache_[attrib];
 	cache_.replace( attrib, 0 );
 
-    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_[attrib] = DataPack::cNoID();
 }
 

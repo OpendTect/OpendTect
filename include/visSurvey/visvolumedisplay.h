@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.61 2008-12-12 22:32:42 cvsyuancheng Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.62 2009-01-02 11:31:50 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -126,7 +126,7 @@ public:
     bool			setDataPackID(int attrib,DataPack::ID);
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
-	                                { return DataPackMgr::CubeID; }
+	                                { return DataPackMgr::CubeID(); }
     void			getMousePosInfo(const visBase::EventInfo&,
 	    			     		const Coord3&,BufferString& val,
 	    					BufferString& info) const;
@@ -222,28 +222,21 @@ protected:
     visBase::EventCatcher*	eventcatcher_;
 
 
-    static const char*		volumestr;
-    static const char*		inlinestr;
-    static const char*		crosslinestr;
-    static const char*		timestr;
-    static const char*		volrenstr;
-    static const char*		nrslicesstr;
-    static const char*		slicestr;
-    static const char*		texturestr;
+    static const char*		sKeyVolumeID();
+    static const char*		sKeyInline();
+    static const char*		sKeyCrossLine();
+    static const char*		sKeyTime();
+    static const char*		sKeyVolRen();
+    static const char*		sKeyNrSlices();
+    static const char*		sKeySlice();
+    static const char*		sKeyTexture();
 
-    static const char*		inlineposstr;
-    static const char*		crosslineposstr;
-    static const char*		timeposstr;
-    static const char*		inlineshowstr;
-    static const char* 		crosslineshowstr;
-    static const char* 		timeshowstr;
-
-    static const char*		sKeyNrIsoSurfaces() { return "Nr Isosurfaces"; }
-    static const char*		sKeyIsoValueStart() { return "Iso Value "; }
-    static const char*		sKeyIsoOnStart() { return "Iso Surf On "; }
-    static const char*		sKeySurfMode() { return "Surf Mode"; }
-    static const char*		sKeySeedsMid() { return "Surf Seeds Mid"; }
-    static const char*		sKeySeedsAboveIsov() { return "Above IsoVal"; }
+    static const char*		sKeyNrIsoSurfaces();
+    static const char*		sKeyIsoValueStart();
+    static const char*		sKeyIsoOnStart();
+    static const char*		sKeySurfMode();
+    static const char*		sKeySeedsMid();
+    static const char*		sKeySeedsAboveIsov();
 
 };
 

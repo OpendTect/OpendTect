@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.25 2008-12-18 23:06:04 cvsyuancheng Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.26 2009-01-02 11:31:50 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,7 @@ public:
     bool			setDataPackID(int attrib,DataPack::ID);
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
-				{ return DataPackMgr::FlatID; }
+				{ return DataPackMgr::FlatID(); }
 
     void			setTraceData(int attrib,
 	    				     const Attrib::Data2DHolder&);

@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.53 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.54 2009-01-02 11:34:46 cvsranojay Exp $";
 
 
 #include "visseis2ddisplay.h"
@@ -94,7 +94,7 @@ Seis2DDisplay::~Seis2DDisplay()
     if ( transformation_ ) transformation_->unRef();
     deepUnRef( cache_ );
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
     
@@ -209,7 +209,7 @@ const Interval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 
 bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const Flat2DDHDataPack*,dp2d,datapack);
     if ( !dp2d )
@@ -539,7 +539,7 @@ void Seis2DDisplay::removeCache( int attrib )
     if ( cache_[attrib] ) cache_[attrib]->unRef();
     cache_.remove( attrib );
 
-    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
 }
 

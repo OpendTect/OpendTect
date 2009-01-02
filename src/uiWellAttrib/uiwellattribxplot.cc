@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.21 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.22 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -244,7 +244,7 @@ bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps, int c1 )
 }
 
 
-#define mDPM DPM(DataPackMgr::PointID)
+#define mDPM DPM(DataPackMgr::PointID())
 #undef mErrRet
 #define mErrRet(s) { deepErase(dcds); if ( s ) uiMSG().error(s); return false; }
 

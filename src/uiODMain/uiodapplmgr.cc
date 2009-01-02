@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.281 2008-12-31 13:10:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.282 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -1522,7 +1522,7 @@ void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
     visserv_->setDataPackID( visid, attrib, newpack->id() );
     visserv_->setRandomPosData( visid, attrib, &data );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.34 2008-12-23 11:40:05 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.35 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -181,7 +181,7 @@ void uiAttribCrossPlot::lnmChg( CallBacker* )
 }
 
 
-#define mDPM DPM(DataPackMgr::PointID)
+#define mDPM DPM(DataPackMgr::PointID())
 
 #undef mErrRet
 #define mErrRet(s) \

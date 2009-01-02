@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.33 2008-12-12 06:01:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.34 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -69,7 +69,7 @@ void uiDataPointSet::stopCreateNotify( CallBacker* c )
 { creationCBS().removeWith( c ); }
 
 
-#define mDPM DPM(DataPackMgr::PointID)
+#define mDPM DPM(DataPackMgr::PointID())
 
 uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 				const uiDataPointSet::Setup& su )

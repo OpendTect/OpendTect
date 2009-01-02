@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.61 2008-12-24 13:19:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.62 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -49,14 +49,14 @@ mCreateFactoryEntry( visSurvey::HorizonDisplay );
 namespace visSurvey
 {
 
-const char* HorizonDisplay::sKeyTexture = "Use texture";
-const char* HorizonDisplay::sKeyColorTableID = "ColorTable ID";
-const char* HorizonDisplay::sKeyShift = "Shift";
-const char* HorizonDisplay::sKeyWireFrame = "WireFrame on";
-const char* HorizonDisplay::sKeyResolution = "Resolution";
-const char* HorizonDisplay::sKeyEdgeLineRadius = "Edgeline radius";
-const char* HorizonDisplay::sKeyRowRange = "Row range";
-const char* HorizonDisplay::sKeyColRange = "Col range";
+const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
+const char* HorizonDisplay::sKeyColorTableID()	{ return "ColorTable ID"; }
+const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
+const char* HorizonDisplay::sKeyWireFrame()	{ return "WireFrame on"; }
+const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
+const char* HorizonDisplay::sKeyEdgeLineRadius(){ return "Edgeline radius"; }
+const char* HorizonDisplay::sKeyRowRange()	{ return "Row range"; }
+const char* HorizonDisplay::sKeyColRange()	{ return "Col range"; }
 
 
 HorizonDisplay::HorizonDisplay()
@@ -103,7 +103,7 @@ HorizonDisplay::~HorizonDisplay()
 	zaxistransform_->unRef();
     }
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
 }
@@ -489,7 +489,7 @@ bool HorizonDisplay::removeAttrib( int attrib )
     coltabs_[attrib]->unRef();
     coltabs_.remove( attrib );
     enabled_.remove( attrib );
-    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
 
     delete as_[attrib];
@@ -651,7 +651,7 @@ void HorizonDisplay::createAndDispDataPack( int attrib, const char* nm,
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
     setDataPackID( attrib, newpack->id() );
     setRandomPosData( attrib, positions );
@@ -1633,14 +1633,14 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     if ( emobject_ && !emobject_->isFullyLoaded() )
     {
-	par.set( sKeyRowRange, displayedRowRange() );
-	par.set( sKeyColRange, displayedColRange() );
+	par.set( sKeyRowRange(), displayedRowRange() );
+	par.set( sKeyColRange(), displayedColRange() );
     }
 
-    par.setYN( sKeyTexture, usesTexture() );
-    par.setYN( sKeyWireFrame, usesWireframe() );
-    par.set( sKeyShift, getTranslation().z );
-    par.set( sKeyResolution, getResolution() );
+    par.setYN( sKeyTexture(), usesTexture() );
+    par.setYN( sKeyWireFrame(), usesWireframe() );
+    par.set( sKeyShift(), getTranslation().z );
+    par.set( sKeyResolution(), getResolution() );
 
     for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
     {
@@ -1675,22 +1675,22 @@ int HorizonDisplay::usePar( const IOPar& par )
     if ( !par.get(sKeyEarthModelID,parmid_) )
 	return -1;
 
-    par.get( sKeyRowRange, parrowrg_ );
-    par.get( sKeyColRange, parcolrg_ );
+    par.get( sKeyRowRange(), parrowrg_ );
+    par.get( sKeyColRange(), parcolrg_ );
 
-    if ( !par.getYN(sKeyTexture,usestexture_) )
+    if ( !par.getYN(sKeyTexture(),usestexture_) )
 	usestexture_ = true;
 
     bool usewireframe = false;
-    par.getYN( sKeyWireFrame, usewireframe );
+    par.getYN( sKeyWireFrame(), usewireframe );
     useWireframe( usewireframe );
 
     int resolution = 0;
-    par.get( sKeyResolution, resolution );
+    par.get( sKeyResolution(), resolution );
     setResolution( resolution );
 
     Coord3 shift( 0, 0, 0 );
-    par.get( sKeyShift, shift.z );
+    par.get( sKeyShift(), shift.z );
     setTranslation( shift );
 
     int nrattribs;
@@ -1754,7 +1754,7 @@ int HorizonDisplay::usePar( const IOPar& par )
     {
 	as_[0]->usePar( par );
 	int coltabid = -1;
-	par.get( sKeyColorTableID, coltabid );
+	par.get( sKeyColorTableID(), coltabid );
 	if ( coltabid>-1 )
 	{
 	    DataObject* dataobj = visBase::DM().getObject( coltabid );
@@ -1780,7 +1780,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 
 bool HorizonDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
     if ( !datapack ) return false;
 

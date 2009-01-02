@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.7 2008-12-31 05:40:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.8 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "volprocattrib.h"
 
@@ -229,7 +229,7 @@ DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
 
     const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
     Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack( did, *datacubes, 0 );
-    DPM( DataPackMgr::FlatID ).add( ndp );
+    DPM( DataPackMgr::FlatID() ).add( ndp );
 
     PtrMan<IOObj> ioobj = IOM().get( chain_->storageID() );
     if ( ioobj ) ndp->setName( ioobj->name() );

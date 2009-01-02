@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.15 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seispsioprov.h,v 1.16 2009-01-02 11:31:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ protected:
 
 };
 
-SeisPSIOProviderFactory& SPSIOPF();
+mGlobal SeisPSIOProviderFactory& SPSIOPF();
 
 
 //------

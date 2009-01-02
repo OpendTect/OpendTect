@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.25 2008-12-23 11:34:47 cvsdgb Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.26 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -133,7 +133,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     if ( !gen_ )
 	return true;
 
-    mObtainDataPackToLocalVar( pack, const FlatDataPack*, DataPackMgr::FlatID,
+    mObtainDataPackToLocalVar( pack, const FlatDataPack*, DataPackMgr::FlatID(),
 	                                   vwr_.packID(wva_) );
 
 
@@ -148,7 +148,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )
     {
 	delete bmp_; bmp_ = 0;
-	DPM(DataPackMgr::FlatID).release(pack);
+	DPM(DataPackMgr::FlatID()).release(pack);
 	return false;
     }
 
@@ -157,7 +157,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     gen_->setBitMap( *bmp_ );
     gen_->fill();
 
-    DPM(DataPackMgr::FlatID).release(pack);
+    DPM(DataPackMgr::FlatID()).release(pack);
     return true;
 }
 

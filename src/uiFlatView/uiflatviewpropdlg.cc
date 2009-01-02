@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.39 2008-12-31 05:40:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.40 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -30,7 +30,7 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
     : uiDlgGroup(p,lbl)
     , vwr_(vwr)
     , app_(vwr.appearance())
-    , dpm_(DPM(DataPackMgr::FlatID))
+    , dpm_(DPM(DataPackMgr::FlatID()))
 {
 }
 

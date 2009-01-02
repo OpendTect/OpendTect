@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.25 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.26 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -525,7 +525,7 @@ bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
 float DataPointSet::nrKBytes() const
 {
     const int twointsz = 2 * sizeof(int);
-    const float rowsz = kbfac_ * (twointsz + bivSet().nrVals()*sizeof(float));
+    const float rowsz = sKb2MbFac() * (twointsz + bivSet().nrVals()*sizeof(float));
     const int nrrows = bivSet().totalSize();
     return nrrows * (rowsz + twointsz);
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.12 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -56,13 +56,13 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 	setCaption( !datapack ? "No data" 
 	    : BufferString("Amplitude Spectrum for ",datapack->name()).buf() );
 
-    if ( dmid == DataPackMgr::CubeID )
+    if ( dmid == DataPackMgr::CubeID() )
     {
 	mDynamicCastGet(const ::CubeDataPack*,cdp,datapack);
 	const Array3D<float>* arr3d = cdp ? &cdp->data() : 0;
 	if ( arr3d ) setData( *arr3d );
     }
-    else if ( dmid == DataPackMgr::FlatID )
+    else if ( dmid == DataPackMgr::FlatID() )
     {
 	mDynamicCastGet(const FlatDataPack*,fdp,datapack);
 	const Array2D<float>* arr2d = fdp ? &fdp->data() : 0;

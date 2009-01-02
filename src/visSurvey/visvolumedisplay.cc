@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.97 2008-12-31 05:40:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.98 2009-01-02 11:34:46 cvsranojay Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -46,15 +46,22 @@ mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
 namespace visSurvey {
 
-const char* VolumeDisplay::volumestr = "Cube ID";
-const char* VolumeDisplay::volrenstr = "Volren";
-const char* VolumeDisplay::inlinestr = "Inline";
-const char* VolumeDisplay::crosslinestr = "Crossline";
-const char* VolumeDisplay::timestr = "Time";
+const char* VolumeDisplay::sKeyVolumeID()   { return "Cube ID"; }
+const char* VolumeDisplay::sKeyVolRen()	    { return "Volren"; }
+const char* VolumeDisplay::sKeyInline()	    { return "Inline"; } 
+const char* VolumeDisplay::sKeyCrossLine()  { return "Crossline"; }
+const char* VolumeDisplay::sKeyTime()	    { return "Time"; }
 
-const char* VolumeDisplay::nrslicesstr = "Nr of slices";
-const char* VolumeDisplay::slicestr = "SliceID ";
-const char* VolumeDisplay::texturestr = "TextureID";
+const char* VolumeDisplay::sKeyNrSlices()   { return "Nr of slices"; }
+const char* VolumeDisplay::sKeySlice()	    { return "SliceID"; }
+const char* VolumeDisplay::sKeyTexture()    { return "TextureID"; }
+
+const char* sKeyNrIsoSurfaces()	    { return "Nr Isosurfaces"; }
+const char* sKeyIsoValueStart()	    { return "Iso Value"; }
+const char* sKeyIsoOnStart()	    { return "Iso Surf On "; }
+const char* sKeySurfMode()	    { return "Surf Mode"; }
+const char* sKeySeedsMid()	    { return "Surf Seeds Mid"; }
+const char* sKeySeedsAboveIsov()    { return "Above IsoVal"; }
 
 
 VolumeDisplay::VolumeDisplay()
@@ -104,7 +111,7 @@ VolumeDisplay::~VolumeDisplay()
 	getMaterial()->change.remove( mCB(this,VolumeDisplay,materialChange) );
 
     delete &as_;
-    DPM( DataPackMgr::CubeID ).release( cacheid_ );
+    DPM( DataPackMgr::CubeID() ).release( cacheid_ );
     if ( cache_ ) cache_->unRef();
 
     TypeSet<int> children;
@@ -280,8 +287,8 @@ int VolumeDisplay::addSlice( int dim )
     slice->motion.notify( mCB(this,VolumeDisplay,sliceMoving) );
     slices_ += slice;
 
-    slice->setName( dim==cTimeSlice() ? timestr : 
-	    	   (dim==cCrossLine() ? crosslinestr : inlinestr) );
+    slice->setName( dim==cTimeSlice() ? sKeyTime() : 
+	    	   (dim==cCrossLine() ? sKeyCrossLine() : sKeyInline()) );
 
     addChild( slice->getInventorNode() );
     const CubeSampling cs = getCubeSampling( 0 );
@@ -344,7 +351,7 @@ void VolumeDisplay::showVolRen( bool yn )
 	volren_->ref();
 	volren_->setMaterial(0);
 	addChild( volren_->getInventorNode() );
-	volren_->setName( volrenstr );
+	volren_->setName( sKeyVolRen() );
     }
 
     if ( volren_ ) volren_->turnOn( yn );
@@ -749,7 +756,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     if ( cache_ ) cache_->unRef();
     cache_ = 0;
 
-    DPM( DataPackMgr::CubeID ).release( cacheid_ );
+    DPM( DataPackMgr::CubeID() ).release( cacheid_ );
     cacheid_ = DataPack::cNoID();
 
     scalarfield_->setScalarField( 0, true );
@@ -767,7 +774,7 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
     if ( attrib>0 ) return false;
 
-    DataPackMgr& dpman = DPM( DataPackMgr::CubeID );
+    DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
     const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
@@ -1007,19 +1014,19 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     if ( volren_ )
     {
 	int volid = volren_->id();
-	par.set( volumestr, volid );
+	par.set( sKeyVolumeID(), volid );
 	if ( saveids.indexOf( volid )==-1 ) saveids += volid;
     }
 
     const int textureid = scalarfield_->id();
-    par.set( texturestr, textureid );
+    par.set( sKeyTexture(), textureid );
     if ( saveids.indexOf(textureid) == -1 ) saveids += textureid;
 
     const int nrslices = slices_.size();
-    par.set( nrslicesstr, nrslices );
+    par.set( sKeyNrSlices(), nrslices );
     for ( int idx=0; idx<nrslices; idx++ )
     {
-	BufferString str( slicestr ); str += idx;
+	BufferString str( sKeySlice() ); str += idx;
 	const int sliceid = slices_[idx]->id();
 	par.set( str, sliceid );
 	if ( saveids.indexOf(sliceid) == -1 ) saveids += sliceid;
@@ -1058,7 +1065,7 @@ int VolumeDisplay::usePar( const IOPar& par )
     if ( !as_.usePar(par) ) return -1;
 
     int textureid;
-    if ( !par.get(texturestr,textureid) ) return false;
+    if ( !par.get(sKeyTexture(),textureid) ) return false;
 
     visBase::DataObject* dataobj = visBase::DM().getObject( textureid );
     if ( !dataobj ) return 0;
@@ -1076,7 +1083,7 @@ int VolumeDisplay::usePar( const IOPar& par )
     insertChild( 0, scalarfield_->getInventorNode() );
 
     int volid;
-    if ( par.get(volumestr,volid) )
+    if ( par.get(sKeyVolumeID(),volid) )
     {
 	dataobj = visBase::DM().getObject( volid );
 	if ( !dataobj ) return 0;
@@ -1100,10 +1107,10 @@ int VolumeDisplay::usePar( const IOPar& par )
 	removeChild( isosurfaces_[0]->id() );
 
     int nrslices = 0;
-    par.get( nrslicesstr, nrslices );
+    par.get( sKeyNrSlices(), nrslices );
     for ( int idx=0; idx<nrslices; idx++ )
     {
-	BufferString str( slicestr ); str += idx;
+	BufferString str( sKeySlice() ); str += idx;
 	int sliceid;
 	par.get( str, sliceid );
 	dataobj = visBase::DM().getObject( sliceid );
@@ -1115,9 +1122,9 @@ int VolumeDisplay::usePar( const IOPar& par )
 	slices_ += os;
 	addChild( os->getInventorNode() );
 	// set correct dimensions ...
-	if ( !strcmp(os->name(),inlinestr) )
+	if ( !strcmp(os->name(),sKeyInline()) )
 	    os->setDim( cInLine() );
-	else if ( !strcmp(os->name(),timestr) )
+	else if ( !strcmp(os->name(),sKeyTime()) )
 	    os->setDim( cTimeSlice() );
     }
 

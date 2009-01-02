@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.26 2008-12-24 13:19:11 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.27 2009-01-02 11:31:50 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -80,7 +80,7 @@ public:
     bool                        setDataPackID(int attrib,DataPack::ID);
     DataPack::ID                getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
-				{ return DataPackMgr::FlatID; }
+				{ return DataPackMgr::FlatID(); }
 
     bool			allowMaterialEdit() const 	{ return true; }
     bool			hasColor() const;
@@ -181,14 +181,14 @@ protected:
     BoolTypeSet				enabled_;
     bool				validtexture_;
 
-    static const char*			sKeyTexture;
-    static const char*			sKeyColorTableID;
-    static const char*			sKeyShift;
-    static const char*			sKeyWireFrame;
-    static const char*			sKeyResolution;
-    static const char*			sKeyEdgeLineRadius;
-    static const char*			sKeyRowRange;
-    static const char*			sKeyColRange;
+    static const char*			sKeyTexture();
+    static const char*			sKeyColorTableID();
+    static const char*			sKeyShift();
+    static const char*			sKeyWireFrame();
+    static const char*			sKeyResolution();
+    static const char*			sKeyEdgeLineRadius();
+    static const char*			sKeyRowRange();
+    static const char*			sKeyColRange();
 };
 
 

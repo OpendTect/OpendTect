@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.15 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.16 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "seisbufadapters.h"
 #include "seisinfo.h"
@@ -50,7 +50,7 @@ SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
     SeisTrcBufDataPack* dp =
 	new SeisTrcBufDataPack( tbuf, geom, (SeisTrcInfo::Fld)type, category );
     dp->setName( dpname );
-    DPM( DataPackMgr::FlatID ).add( dp );
+    DPM( DataPackMgr::FlatID() ).add( dp );
     viewer().addPack( dp->id() );
     return dp;
 }
@@ -67,7 +67,7 @@ SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
     SeisTrcBufDataPack* dp =
 	new SeisTrcBufDataPack( mybuf, geom, (SeisTrcInfo::Fld)type, category );
     dp->setName( dpname );
-    DPM( DataPackMgr::FlatID ).add( dp );
+    DPM( DataPackMgr::FlatID() ).add( dp );
     viewer().addPack( dp->id() );
     return dp;
 }

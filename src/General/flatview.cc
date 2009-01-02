@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.46 2008-12-31 05:40:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.47 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -375,7 +375,7 @@ FlatView::Viewer& vwr_;
 
 FlatView::Viewer::Viewer()
     : cbrcvr_(new FlatView_CB_Rcvr(*this))
-    , dpm_(DPM(DataPackMgr::FlatID))
+    , dpm_(DPM(DataPackMgr::FlatID()))
     , defapp_(0)
     , wvapack_(0)
     , vdpack_(0)

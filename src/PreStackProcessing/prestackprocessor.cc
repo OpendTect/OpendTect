@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.19 2008-12-31 05:40:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.20 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "prestackprocessor.h"
 
@@ -69,19 +69,19 @@ bool Processor::wantsInput( const BinID& bid ) const
 void Processor::setInput( const BinID& relbid, DataPack::ID id )
 {
     Gather* input = 0;
-    mObtainDataPack( input, Gather*, DataPackMgr::FlatID, id );
+    mObtainDataPack( input, Gather*, DataPackMgr::FlatID(), id );
 
     const BinID inputstepout = getInputStepout();
     const int offset = getRelBidOffset( relbid, inputstepout );
     if ( offset>=inputs_.size() )
     {
-	if ( input ) DPM( DataPackMgr::FlatID ).release( input->id() );
+	if ( input ) DPM( DataPackMgr::FlatID() ).release( input->id() );
 	return;
     }
 
     if ( inputs_[offset] )
     {
-	DPM( DataPackMgr::FlatID ).release( inputs_[offset]->id() );
+	DPM( DataPackMgr::FlatID() ).release( inputs_[offset]->id() );
     }
 
     inputs_.replace( offset, input );
@@ -151,7 +151,7 @@ bool Processor::prepareWork()
 
 		Gather* output = createOutputArray(*(inputs_[inputoffset]) );
 		outputs_ += output;
-		DPM( DataPackMgr::FlatID ).addAndObtain( output );
+		DPM( DataPackMgr::FlatID() ).addAndObtain( output );
 	    }
 	    else
 		outputs_ += 0;
@@ -392,7 +392,7 @@ bool ProcessManager::usePar( const IOPar& par )
 void Processor::freeArray( ObjectSet<Gather>& arr )
 {
     for ( int idx=0; idx<arr.size(); idx++ )
-	DPM( DataPackMgr::FlatID ).release( arr[idx] );
+	DPM( DataPackMgr::FlatID() ).release( arr[idx] );
 
     arr.erase();
 }

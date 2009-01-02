@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.31 2008-12-31 05:40:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.32 2009-01-02 11:34:46 cvsranojay Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -203,7 +203,7 @@ void uiSeisWvltMan::mkFileInfo()
 	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
 	memcpy( fva2d->getData(), wvlt->samples(), wvltsz * sizeof(float) );
 	dp->setName( wvlt->name() );
-	DPM( DataPackMgr::FlatID ).add( dp );
+	DPM( DataPackMgr::FlatID() ).add( dp );
 	curid_ = dp->id();
 	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
 	if ( SI().zIsTime() ) posns.scale( zfac );

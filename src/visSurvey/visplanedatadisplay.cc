@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.210 2008-12-31 05:40:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.211 2009-01-02 11:34:46 cvsranojay Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -143,13 +143,13 @@ PlaneDataDisplay::~PlaneDataDisplay()
     setDataTransform( 0 );
 
     for ( int idx=volumecache_.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID).release( volumecache_[idx] );
+	DPM(DataPackMgr::FlatID()).release( volumecache_[idx] );
 
     for ( int idy=0; idy<displaycache_.size(); idy++ )
     {
 	const TypeSet<DataPack::ID>& dpids = *displaycache_[idy];
 	for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	    DPM(DataPackMgr::FlatID).release( dpids[idx] );
+	    DPM(DataPackMgr::FlatID()).release( dpids[idx] );
     }
 
     deepErase( displaycache_ );
@@ -521,7 +521,7 @@ void PlaneDataDisplay::addCache()
 
 void PlaneDataDisplay::removeCache( int attrib )
 {
-    DPM(DataPackMgr::FlatID).release( volumecache_[attrib] );
+    DPM(DataPackMgr::FlatID()).release( volumecache_[attrib] );
     volumecache_.remove( attrib );
 
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
@@ -529,7 +529,7 @@ void PlaneDataDisplay::removeCache( int attrib )
 
     const TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID).release( dpids[idx] );
+	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
 
     delete displaycache_.remove( attrib );
     
@@ -556,7 +556,7 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
 
 void PlaneDataDisplay::emptyCache( int attrib )
 {
-    DPM(DataPackMgr::FlatID).release( volumecache_[attrib] );
+    DPM(DataPackMgr::FlatID()).release( volumecache_[attrib] );
     volumecache_.replace( attrib, 0 );
 
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
@@ -566,7 +566,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
     {
 	TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
     	for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	    DPM(DataPackMgr::FlatID).release( dpids[idx] );
+	    DPM(DataPackMgr::FlatID()).release( dpids[idx] );
 
 	dpids.erase();
     }
@@ -719,7 +719,7 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid )
     if ( attrib>=nrAttribs() )
 	return false;
 
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet( const Attrib::Flat3DDataPack*, f3ddp, datapack );
     if ( !f3ddp )
@@ -749,7 +749,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
     {
 	if ( f3ddp->getCubeIdx()==idx )
 	{
-	    DPM( DataPackMgr::FlatID ).obtain( f3ddp->id() );
+	    DPM( DataPackMgr::FlatID() ).obtain( f3ddp->id() );
 	    displaypacks += f3ddp;
 	    attridpids += f3ddp->id();
 	}
@@ -757,7 +757,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	{
 	    mDeclareAndTryAlloc( Attrib::Flat3DDataPack*, ndp,
 		 Attrib::Flat3DDataPack(f3ddp->descID(),f3ddp->cube(),idx) );
-	    DPM( DataPackMgr::FlatID ).addAndObtain( ndp );
+	    DPM( DataPackMgr::FlatID() ).addAndObtain( ndp );
 	    displaypacks += ndp;
 	    attridpids += ndp->id();
 	}
@@ -780,16 +780,16 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	    ztransformdp->setOutputCS( getCubeSampling(true,true) );
 	    ztransformdp->transform();
 
-	    DPM( DataPackMgr::FlatID ).addAndObtain( ztransformdp );
+	    DPM( DataPackMgr::FlatID() ).addAndObtain( ztransformdp );
 	    attridpids += ztransformdp->id();
-	    DPM( DataPackMgr::FlatID ).release( displaypacks[idx] );
+	    DPM( DataPackMgr::FlatID() ).release( displaypacks[idx] );
 	}
     }
 
     setDisplayDataPackIDs( attrib, attridpids );
     
     for ( int idx=0; idx<attridpids.size(); idx++ )
-	DPM( DataPackMgr::FlatID ).release( attridpids[idx] );
+	DPM( DataPackMgr::FlatID() ).release( attridpids[idx] );
 }
 
 
@@ -813,7 +813,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 			Array2DImpl<float> ( cs.hrg.nrInl(), cs.hrg.nrCrl() ) );
 	mDeclareAndTryAlloc( FlatDataPack*, fdp,
 	    FlatDataPack( Attrib::DataPackCommon::categoryStr(false), arr ) );
-        DPM(DataPackMgr::FlatID).addAndObtain( fdp );
+        DPM(DataPackMgr::FlatID()).addAndObtain( fdp );
         attridpids += fdp->id();
 
     	float* texturedataptr = arr->getData();    
@@ -833,7 +833,7 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     setDisplayDataPackIDs( attrib, attridpids );
 
     for ( int idx=0; idx<attridpids.size(); idx++ )
-	DPM(DataPackMgr::FlatID).release( attridpids[idx] );
+	DPM(DataPackMgr::FlatID()).release( attridpids[idx] );
 }
 
 
@@ -842,11 +842,11 @@ void PlaneDataDisplay::setDisplayDataPackIDs( int attrib,
 {
     TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID).release( dpids[idx] );
+	DPM(DataPackMgr::FlatID()).release( dpids[idx] );
 
     dpids = newdpids;
     for ( int idx=dpids.size()-1; idx>=0; idx-- )
-	DPM(DataPackMgr::FlatID).obtain( dpids[idx] );
+	DPM(DataPackMgr::FlatID()).obtain( dpids[idx] );
 
     updateFromDisplayIDs( attrib );
 }
@@ -880,7 +880,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
     for ( int idx=0; idx<sz; idx++ )
     {
 	int dpid = dpids[idx];
-	const DataPack* datapack = DPM(DataPackMgr::FlatID).obtain( dpid );
+	const DataPack* datapack = DPM(DataPackMgr::FlatID()).obtain( dpid );
 	mDynamicCastGet( const FlatDataPack*, fdp, datapack );
 	if ( !fdp )
 	{
@@ -888,7 +888,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 		texture_->turnOn( false );
 	    else
 		channels_->turnOn( false );
-	    DPM(DataPackMgr::FlatID).release( dpid );
+	    DPM(DataPackMgr::FlatID()).release( dpid );
 	    continue;
 	}
 
@@ -919,7 +919,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 
 		if ( !tmparr )
 		{
-		    DPM(DataPackMgr::FlatID).release( dpid );
+		    DPM(DataPackMgr::FlatID()).release( dpid );
 		    continue;
 		}
 
@@ -936,7 +936,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	rectangle_->setOriginalTextureSize( dparr.info().getSize(0),
 					    dparr.info().getSize(1) );
 	
-	DPM(DataPackMgr::FlatID).release( dpid );
+	DPM(DataPackMgr::FlatID()).release( dpid );
     }
    
     if ( texture_ )
