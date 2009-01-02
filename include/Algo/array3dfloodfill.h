@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.6 2008-12-11 06:32:29 cvsnanne Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.7 2009-01-02 11:22:01 cvsranojay Exp $
  ________________________________________________________________________
 
 -*/
@@ -161,7 +161,7 @@ Array3DFloodfill<T>::Array3DFloodfill( const Array3D<T>& input, T threshold,
 	arr[idx] = idx;
     }
     
-    std::random_shuffle( arr, arr+nrcompartments );
+    std::random_shuffle( mVarLenArr(arr), arr+nrcompartments );
     for ( int idx=0; idx<nrcompartments; idx++ )
 	permutation_ += arr[idx];
 }
