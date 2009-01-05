@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.163 2008-12-24 05:55:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.164 2009-01-05 16:17:25 cvsbert Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -918,6 +918,9 @@ void uiMainWin::saveSettings()
 
 void uiMainWin::readSettings()
 { body_->readSettings(); }
+
+void uiMainWin::raise()
+{ body_->raise(); }
 
 
 

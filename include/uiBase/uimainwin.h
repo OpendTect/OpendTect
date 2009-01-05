@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.64 2008-12-18 13:21:48 cvsbert Exp $
+ RCS:           $Id: uimainwin.h,v 1.65 2009-01-05 16:17:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,8 +90,9 @@ public:
 			//!< Default icon is set in uiMain
     void		setIconText(const char*);
 
-    virtual void        show();
+    virtual void	show();
     void                close();
+    void		raise();
 
     			 //! Force activation in GUI thread
     void		activateClose();
