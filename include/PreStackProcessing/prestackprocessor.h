@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.18 2008-12-31 06:10:46 cvsranojay Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.19 2009-01-05 09:43:26 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -126,7 +126,7 @@ protected:
 mDefineFactory( Processor, PF );
 /*!Orgainizes a number of PreStack::Processors into a chain which
    can be processed. */
-class ProcessManager : public CallBacker
+mClass ProcessManager : public CallBacker
 {
 public:
     				ProcessManager();

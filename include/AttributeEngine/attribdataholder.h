@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.18 2007-08-29 19:49:52 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.19 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ class DataCubes;
 
       */
 
-class DataHolder
+mClass DataHolder
 {
 public:
 			DataHolder( int z0, int nrsamples );
@@ -67,7 +67,7 @@ protected:
 
 /*!Class that holds 2d data seismic or attribute data. */
 
-class Data2DHolder
+mClass Data2DHolder
 { mRefCountImpl(Data2DHolder);
 public:
 

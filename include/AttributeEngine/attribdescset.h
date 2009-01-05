@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.33 2008-12-30 06:39:34 cvsnageswara Exp $
+ RCS:           $Id: attribdescset.h,v 1.34 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace Attrib
 {
 class Desc;
 
-class DescSet : public CallBacker
+mClass DescSet : public CallBacker
 {
 public:
     				DescSet( bool is2d )

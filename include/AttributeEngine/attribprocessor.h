@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.23 2008-09-22 13:06:42 cvskris Exp $
+ RCS:           $Id: attribprocessor.h,v 1.24 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class Desc;
 class Output;
 class Provider;
 
-class Processor : public Executor
+mClass Processor : public Executor
 {
 public:
     				Processor(Desc&,const char*,BufferString&);

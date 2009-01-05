@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribslice.h,v 1.4 2006-05-31 18:53:37 cvsnanne Exp $
+ RCS:           $Id: attribslice.h,v 1.5 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-class Slice : public Array2DImpl<float>
+mClass Slice : public Array2DImpl<float>
 { mRefCountImplNoDestructor(Slice);
 public:
 
@@ -51,7 +51,7 @@ protected:
  
  */
 
-class SliceSet : public ObjectSet<Slice>
+mClass SliceSet : public ObjectSet<Slice>
 { mRefCountImpl(SliceSet);
 public:
 

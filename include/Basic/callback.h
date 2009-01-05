@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.39 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: callback.h,v 1.40 2009-01-05 09:40:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ protected:
 
 /*!\brief TypeSet of CallBacks with a few extras. */
 
-class CallBackSet : public TypeSet<CallBack>
+mClass CallBackSet : public TypeSet<CallBack>
 {
 public:
 

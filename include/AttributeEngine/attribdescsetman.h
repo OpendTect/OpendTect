@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: attribdescsetman.h,v 1.2 2006-12-14 14:30:51 cvshelene Exp $
+ RCS:           $Id: attribdescsetman.h,v 1.3 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Attrib
 
 class DescSet;
 
-class DescSetMan
+mClass DescSetMan
 {
 public:
 

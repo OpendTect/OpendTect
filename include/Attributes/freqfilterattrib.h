@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.11 2008-05-20 11:47:38 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.12 2009-01-05 09:39:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ Output:                                 ||
 namespace Attrib
 {
 
-class FreqFilter: public Provider
+mClass FreqFilter: public Provider
 {
 public:
     static void		initClass();

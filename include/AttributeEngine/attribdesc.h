@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.44 2008-12-03 16:11:14 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.45 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class ValParam;
 
 typedef void(*DescStatusUpdater)(Desc&);
 
-class InputSpec
+mClass InputSpec
 {
 public:
     				InputSpec( const char* d, bool enabled_ )
@@ -58,7 +58,7 @@ public:
    Each Desc has DescID that is unique within it's DescSet.
  */
 
-class Desc
+mClass Desc
 { mRefCountImpl(Desc);
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: prestackprocessortransl.h,v 1.1 2008-10-21 13:31:01 cvskris Exp $
+ RCS:		$Id: prestackprocessortransl.h,v 1.2 2009-01-05 09:43:26 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ public:
 };
 
 
-class PreStackProcTranslator : public Translator
+mClass PreStackProcTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PreStackProc)

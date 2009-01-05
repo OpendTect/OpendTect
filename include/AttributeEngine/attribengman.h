@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.31 2008-05-28 16:50:44 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.32 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ class Data2DHolder;
 
 /*!\brief The Attribute engine Manager. */
 
-class EngineMan
+mClass EngineMan
 {
 public:
 			EngineMan();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.40 2008-08-14 09:24:13 cvsumesh Exp $
+ RCS:           $Id: attriboutput.h,v 1.41 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ class DataHolder;
 class DataCubes;
 class Data2DHolder;
 
-class Output
+mClass Output
 { mRefCountImpl(Output);
 public:
     				Output();
@@ -81,7 +81,7 @@ protected:
 };
 
 
-class DataCubesOutput : public Output
+mClass DataCubesOutput : public Output
 {
 public:
 				DataCubesOutput(const CubeSampling&);
@@ -112,7 +112,7 @@ protected:
 };
 
 
-class SeisTrcStorOutput : public Output
+mClass SeisTrcStorOutput : public Output
 {
 public:
 				SeisTrcStorOutput(const CubeSampling&,
@@ -171,7 +171,7 @@ protected:
 };
 
 
-class Trc2DVarZStorOutput : public SeisTrcStorOutput
+mClass Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
 				Trc2DVarZStorOutput(const LineKey&,
@@ -199,7 +199,7 @@ protected:
 };
 
 
-class TwoDOutput : public Output
+mClass TwoDOutput : public Output
 {
 public:
 				TwoDOutput(const Interval<int>&, 
@@ -228,7 +228,7 @@ protected:
 };
 
 
-class LocationOutput : public Output
+mClass LocationOutput : public Output
 {
 public:
     				LocationOutput(BinIDValueSet&);
@@ -262,7 +262,7 @@ protected:
 };
 
 
-class TrcSelectionOutput : public Output
+mClass TrcSelectionOutput : public Output
 {
 public:
     				TrcSelectionOutput(const BinIDValueSet&, 
@@ -288,7 +288,7 @@ protected:
 };
 
 
-class TableOutput : public Output
+mClass TableOutput : public Output
 {
 public:
     				TableOutput(DataPointSet&,int);

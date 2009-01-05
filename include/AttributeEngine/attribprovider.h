@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.70 2008-12-15 16:49:37 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.71 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ class ProviderTask;
 
 /*!\brief provides the actual output to ... */
 
-class Provider
+mClass Provider
 {				mRefCountImpl(Provider);
 
     friend class		ProviderTask;
@@ -349,7 +349,7 @@ protected:
 };
 
 
-int getSteeringIndex( const BinID& );
+mGlobal int getSteeringIndex( const BinID& );
 //!< For every position there is a single steering index ...?
 
 

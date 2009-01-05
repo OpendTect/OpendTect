@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          16-01-2008
- RCS:           $Id: attribparambase.h,v 1.1 2008-01-16 16:08:51 cvshelene Exp $
+ RCS:           $Id: attribparambase.h,v 1.2 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ AttribNameWithoutSpaces param1=value1 param2=value2,value3
 The parameter thus has a key (e.g. param1) and one or more associated values.
 */
 
-class Param
+mClass Param
 {
 public:
     				Param(const char* key);
@@ -84,7 +84,7 @@ protected:
 };
 
 
-class ValParam : public Param
+mClass ValParam : public Param
 {
 public:
     				ValParam(const char* key,DataInpSpec*);

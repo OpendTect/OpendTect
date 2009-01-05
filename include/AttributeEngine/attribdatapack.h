@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.22 2008-02-20 17:50:32 cvsyuancheng Exp $
+ RCS:		$Id: attribdatapack.h,v 1.23 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class DataHolderArray;
 
 /*!\brief Mixin to provide general services to Attrib data packs */
 
-class DataPackCommon
+mClass DataPackCommon
 {
 public:
     			DataPackCommon( DescID id )
@@ -55,7 +55,7 @@ protected:
 
 /*!\brief Base class Data Pack for 2D. */
 
-class Flat2DDataPack : public ::FlatDataPack
+mClass Flat2DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -81,7 +81,7 @@ protected:
 
 /*!\brief Data Pack from 2D attribute data. */
 
-class Flat2DDHDataPack : public Flat2DDataPack
+mClass Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
@@ -109,7 +109,7 @@ protected:
 
 /*!\brief Flat data pack from 3D attribute extraction */ 
 
-class Flat3DDataPack : public ::FlatDataPack
+mClass Flat3DDataPack : public ::FlatDataPack
 		     , public DataPackCommon
 {
 public:
@@ -149,7 +149,7 @@ protected:
 
 /*!\brief Volume data pack */ 
 
-class CubeDataPack : public ::CubeDataPack
+mClass CubeDataPack : public ::CubeDataPack
 		   , public DataPackCommon
 {
 public:
@@ -175,7 +175,7 @@ protected:
 
 /*!\brief Data Pack from random traces extraction. */
 
-class FlatRdmTrcsDataPack : public Flat2DDataPack
+mClass FlatRdmTrcsDataPack : public Flat2DDataPack
 {
 public:
     			FlatRdmTrcsDataPack(DescID,const SeisTrcBuf&,

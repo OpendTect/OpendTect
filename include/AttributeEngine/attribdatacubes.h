@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.15 2007-08-10 12:18:53 cvsnanne Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.16 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace Attrib
 the same sampling and size.
  */
 
-class DataCubes
+mClass DataCubes
 { mRefCountImpl(DataCubes);
 public:
     				DataCubes();

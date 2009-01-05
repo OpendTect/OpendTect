@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: attribdatacubeswriter.h,v 1.2 2008-09-22 13:06:42 cvskris Exp $
+ RCS:		$Id: attribdatacubeswriter.h,v 1.3 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Attrib
     
 class DataCubes;
 
-class DataCubesWriter : public Executor
+mClass DataCubesWriter : public Executor
 {
 public:
     			DataCubesWriter(MultiID&,Attrib::DataCubes&,

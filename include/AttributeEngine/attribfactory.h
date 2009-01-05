@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribfactory.h,v 1.4 2005-05-09 14:40:01 cvshelene Exp $
+ RCS:           $Id: attribfactory.h,v 1.5 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class Provider;
 
 typedef Provider* (*ProviderCreater)(Desc&);
 
-class ProviderFactory
+mClass ProviderFactory
 {
 public:
 			ProviderFactory();
@@ -40,7 +40,7 @@ protected:
     TypeSet<ProviderCreater>	creaters;
 };
 
-extern ProviderFactory& PF();
+mGlobal extern ProviderFactory& PF();
 
 }; //Namespace
 

@@ -7,19 +7,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribsteering.h,v 1.1 2005-02-01 14:05:34 kristofer Exp $
+ RCS:           $Id: attribsteering.h,v 1.2 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "position.h"
 #include "seistype.h"
-
+//#include "commondefs.h"
 namespace Attrib
 {
 
-BinID getSteeringPosition( int );
-int getSteeringIndex( const BinID& );
+mGlobal BinID getSteeringPosition( int );
+mGlobal int getSteeringIndex( const BinID& );
 
 
 }; //Namespace

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          July 2005
- RCS:           $Id: attribdescid.h,v 1.1 2005-07-29 13:08:11 cvsnanne Exp $
+ RCS:           $Id: attribdescid.h,v 1.2 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ AttribDesc ID
 namespace Attrib
 {
 
-class DescID
+mClass DescID
 {
 public:
 			DescID( int id, bool ) : id_(id)	{}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: attribdescsettr.h,v 1.1 2005-02-03 15:35:02 kristofer Exp $
+ RCS:		$Id: attribdescsettr.h,v 1.2 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 @$*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class Conn;
 namespace Attrib { class DescSet; }
 
-class AttribDescSetTranslatorGroup : public TranslatorGroup
+mClass AttribDescSetTranslatorGroup : public TranslatorGroup
 {			  isTranslatorGroup(AttribDescSet)
 public:
     			mDefEmptyTranslatorGroupConstructor(AttribDescSet)
@@ -26,7 +26,7 @@ public:
 };
 
 
-class AttribDescSetTranslator : public Translator
+mClass AttribDescSetTranslator : public Translator
 {
 public:
 			mDefEmptyTranslatorBaseConstructor(AttribDescSet)
@@ -46,7 +46,7 @@ public:
 
 
 
-class dgbAttribDescSetTranslator : public AttribDescSetTranslator
+mClass dgbAttribDescSetTranslator : public AttribDescSetTranslator
 {			     isTranslator(dgb,AttribDescSet)
 public:
 			mDefEmptyTranslatorConstructor(dgb,AttribDescSet)

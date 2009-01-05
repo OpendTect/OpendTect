@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.31 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:           $Id: attribparam.h,v 1.32 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ Subclasses are used to provide accurate parameter definition for parameters
 of each and every type
 */
 
-class BinIDParam : public ValParam
+mClass BinIDParam : public ValParam
 {
 public:
     				BinIDParam(const char*);
@@ -59,7 +59,7 @@ public:
 };
 
 
-class BoolParam : public ValParam
+mClass BoolParam : public ValParam
 {
 public:
     				BoolParam(const char*);
@@ -74,7 +74,7 @@ public:
 };
 
 
-class EnumParam : public ValParam
+mClass EnumParam : public ValParam
 {
 public:
     				EnumParam(const char*);
@@ -92,7 +92,7 @@ public:
 };
 
 
-class StringParam : public ValParam
+mClass StringParam : public ValParam
 {
 public:
     				StringParam(const char* key);
@@ -380,7 +380,7 @@ typedef NumGateParam<double>		DoubleGateParam;
 typedef NumGateParam<float>		ZGateParam;
 
 
-class SeisStorageRefParam : public StringParam
+mClass SeisStorageRefParam : public StringParam
 {
 public:
 				SeisStorageRefParam(const char* key);

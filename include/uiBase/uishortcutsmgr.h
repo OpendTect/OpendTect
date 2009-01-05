@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.6 2007-03-15 16:18:48 cvsbert Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.7 2009-01-05 09:46:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiShortcutsMgr;
 uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
 
 
-class uiKeyDesc
+mClass uiKeyDesc
 {
 public:
 			uiKeyDesc(const char* statestr=0,const char* keystr=0);
@@ -56,7 +56,7 @@ protected:
 };
 
 
-class uiShortcutsList
+mClass uiShortcutsList
 {
 public:
 
@@ -92,7 +92,7 @@ protected:
 };
 
 
-class uiShortcutsMgr
+mClass uiShortcutsMgr
 {
 public:
 			uiShortcutsMgr()			{};

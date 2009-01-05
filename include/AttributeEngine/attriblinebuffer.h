@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriblinebuffer.h,v 1.5 2006-12-11 11:23:23 cvshelene Exp $
+ RCS:           $Id: attriblinebuffer.h,v 1.6 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace Attrib
 
 class DataHolder;
 
-class DataHolderLineBuffer
+mClass DataHolderLineBuffer
 {
 public:
     			DataHolderLineBuffer();

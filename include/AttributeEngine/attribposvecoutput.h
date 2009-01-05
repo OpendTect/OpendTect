@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: attribposvecoutput.h,v 1.4 2008-09-22 13:06:42 cvskris Exp $
+ RCS:           $Id: attribposvecoutput.h,v 1.5 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace Attrib
 class EngineMan;
 class DescSet;
 
-class PosVecOutputGen : public Executor
+mClass PosVecOutputGen : public Executor
 {
 public:
 

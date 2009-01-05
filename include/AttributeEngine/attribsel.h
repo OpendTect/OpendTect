@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.17 2008-10-02 08:40:12 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.18 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ namespace Attrib
 class Desc;
 class DescSet;
 
-class SelSpec
+mClass SelSpec
 {
 public:
 			SelSpec( const char* r=0, DescID i=cAttribNotSel(),
@@ -116,7 +116,7 @@ protected:
 
 /*!\brief specifies current attribute choices (ID or output nr of NLA model). */
 
-class CurrentSel
+mClass CurrentSel
 {
 public:
 			CurrentSel()
@@ -131,7 +131,7 @@ public:
 
 /*!\brief supplies lists of available attribute input */
 
-class SelInfo
+mClass SelInfo
 {
 public:
 

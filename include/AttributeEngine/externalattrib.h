@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.10 2008-07-16 16:59:41 cvskris Exp $
+ RCS:		$Id: externalattrib.h,v 1.11 2009-01-05 09:49:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class DataCubes;
 /*! Generic class for attribs that does not come from the attribute engine. */
 
 
-class ExtAttribCalc
+mClass ExtAttribCalc
 {
 public:
     virtual			~ExtAttribCalc()			{}
