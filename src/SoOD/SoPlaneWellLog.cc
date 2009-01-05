@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.19 2008-12-24 15:58:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.20 2009-01-05 14:14:56 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -327,13 +327,9 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res )
 {
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
              lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
-    coords->point.deleteValues(0);
-    
     SoIndexedLineSet* lineset = SO_GET_ANY_PART( this,
 	     lognr==1 ? "lineset1":"lineset2" , SoIndexedLineSet );
-    lineset->coordIndex.deleteValues(0,-1);
-    lineset->materialIndex.deleteValues(0,-1);
-
+    
     SoMFVec3f& path = lognr==1 ? path1 : path2;
     SoMFFloat& log = lognr==1 ? log1 : log2;
     SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
@@ -385,21 +381,6 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res )
 
 void SoPlaneWellLog::buildLog(int lognr, const SbVec3f& projdir, int res )
 {
-	
-	SoSFBool& style = lognr==1 ? style1 : style2;
-	SoSFBool& filling = lognr==1 ? filling1 : filling2;
-	bool styleB = style.getValue();
-	bool fillingB = filling.getValue();
-
-	    if (styleB || (!styleB && fillingB) )
-		buildFilledLog( lognr, projdir, res );
-	    else
-		buildSimpleLog( lognr, projdir, res );
-}
-
-
-void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res )
-{
     SoCoordinate3* coords = SO_GET_ANY_PART( this,
              lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
     coords->point.deleteValues(0);
@@ -417,6 +398,29 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res )
 	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
     triset->coordIndex.deleteValues(0,-1);
     triset->materialIndex.deleteValues(0,-1);
+	
+    SoSFBool& style = lognr==1 ? style1 : style2;
+    SoSFBool& filling = lognr==1 ? filling1 : filling2;
+    bool styleB = style.getValue();
+    bool fillingB = filling.getValue();
+
+    if (styleB || (!styleB && fillingB) )
+	buildFilledLog( lognr, projdir, res );
+    else
+	buildSimpleLog( lognr, projdir, res );
+}
+
+
+void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res )
+{
+    SoCoordinate3* coords = SO_GET_ANY_PART( this,
+             lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
+    SoCoordinate3* coordtri = SO_GET_ANY_PART( this,
+	    lognr==1 ? "coordtri1" : "coordtri2", SoCoordinate3 );
+    SoIndexedLineSet* lineset = SO_GET_ANY_PART( this,
+	     lognr==1 ? "lineset1":"lineset2" , SoIndexedLineSet );
+    SoIndexedTriangleStripSet* triset = SO_GET_ANY_PART( this,
+	    lognr==1 ? "triset1" : "triset2", SoIndexedTriangleStripSet );
 
     SoMFVec3f& path = lognr==1 ? path1 : path2;
     SoMFFloat& log = lognr==1 ? log1 : log2;

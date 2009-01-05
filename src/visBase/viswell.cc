@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.39 2008-12-24 15:58:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.40 2009-01-05 14:14:56 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -177,10 +177,28 @@ const LineStyle& Well::lineStyle() const
 void Well::setWellName( const char* nm, Coord3 toppos, Coord3 botpos,
        				bool isnameabove, bool isnamebelow )
 {
-    if (isnameabove)
+    if ( isnameabove && !isnamebelow )
+    {
 	msetWellName( nm, toppos, top );
-    if (isnamebelow)
+	msetWellName( "", botpos, bot );
+    }
+
+    else if ( isnamebelow && !isnameabove )
+    {
 	msetWellName( nm, botpos, bot );
+	msetWellName( "", toppos, top );
+    }
+
+    else if ( isnameabove && isnamebelow )
+    {
+	msetWellName( nm, toppos, top );
+	msetWellName( nm, botpos, bot );
+    }
+    else
+    {
+	msetWellName( "", toppos, top );
+	msetWellName( "", botpos, bot );
+    }
 }
 
 
