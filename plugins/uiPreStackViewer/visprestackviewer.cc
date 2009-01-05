@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.45 2008-12-31 05:43:40 cvsdgb Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.46 2009-01-05 04:27:38 cvsnanne Exp $";
 
 #include "visprestackviewer.h"
 
@@ -205,9 +205,9 @@ DataPack::ID Viewer3D::preProcess()
 		continue;
 	    }
 
-	    DPM( DataPackMgr::FlatID ).addAndObtain( gather );
+	    DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
 	    preprocmgr_->setInput( relbid, gather->id() );
-	    DPM( DataPackMgr::FlatID ).release( gather );
+	    DPM( DataPackMgr::FlatID() ).release( gather );
 	}
     }
    
@@ -287,7 +287,7 @@ bool Viewer3D::updateData()
 	    }
 	    else
 	    {
-    		DPM(DataPackMgr::FlatID).add( gather );
+    		DPM(DataPackMgr::FlatID()).add( gather );
     		displayid = gather->id();
 	    }
 	}
@@ -326,7 +326,7 @@ bool Viewer3D::updateData()
 	}
 	else
 	{
-	    DPM(DataPackMgr::FlatID).add( gather );
+	    DPM(DataPackMgr::FlatID()).add( gather );
 	    flatviewer_->setPack( false, gather->id(), false, !haddata );
 	}
     }

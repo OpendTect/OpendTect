@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.31 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.32 2009-01-05 04:27:38 cvsnanne Exp $";
 
 #include "uigdexamacorr.h"
 #include "uigapdeconattrib.h"
@@ -113,7 +113,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 { \
     fddatapack = new Attrib::Flat2DDHDataPack( attribid_, *correctd2dh ); \
     fddatapack->setName( "autocorrelation" ); \
-    DPM(DataPackMgr::FlatID).add( fddatapack ); \
+    DPM(DataPackMgr::FlatID()).add( fddatapack ); \
 }
 
 
@@ -150,7 +150,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 { \
     fddatapack = new Attrib::Flat3DDataPack( attribid_, *correctoutput, 0 ); \
     fddatapack->setName( "autocorrelation" ); \
-    DPM(DataPackMgr::FlatID).add( fddatapack ); \
+    DPM(DataPackMgr::FlatID()).add( fddatapack ); \
 }
 
 void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,

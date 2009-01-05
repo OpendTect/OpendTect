@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.34 2008-12-23 22:51:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.35 2009-01-05 04:27:38 cvsnanne Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -217,7 +217,7 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uiAmplSpectrum* asd = new uiAmplSpectrum( menu->getParent() );
 	asd->setDeleteOnClose( true );
-	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID );
+	asd->setDataPackID( psv->getDataPackID(), DataPackMgr::FlatID() );
 	BufferString capt( "Amplitude spectrum for " );
 	capt += psv->getObjectName();
 	capt += " at ";
@@ -364,14 +364,14 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     vwr.appearance().ddpars_.show( false, true );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    DataPack* dp = DPM(DataPackMgr::FlatID).obtain( dpid );
+    DataPack* dp = DPM(DataPackMgr::FlatID()).obtain( dpid );
     if ( !dp )
 	return 0;
 
     mDynamicCastGet( const FlatDataPack*, fdp, dp );
     if ( !fdp )
     {
-	DPM(DataPackMgr::FlatID).release( dp );
+	DPM(DataPackMgr::FlatID()).release( dp );
 	return false;
     }
 
@@ -385,7 +385,7 @@ uiFlatViewMainWin* uiViewer3DMgr::create2DViewer( const BufferString& title,
     viewwin->windowClosed.notify( mCB(this,uiViewer3DMgr,viewer2DClosedCB) );
     vwr.drawBitMaps();
     vwr.drawAnnot();
-    DPM(DataPackMgr::FlatID).release( dp );
+    DPM(DataPackMgr::FlatID()).release( dp );
     return viewwin;
 }
 
@@ -521,8 +521,8 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	    continue;	    
 	}
 
-	DPM(DataPackMgr::FlatID).add( gather );
-	DPM(DataPackMgr::FlatID).obtain( dpid );
+	DPM(DataPackMgr::FlatID()).add( gather );
+	DPM(DataPackMgr::FlatID()).obtain( dpid );
 	
 	BufferString title;
 	if ( is3d )
@@ -530,7 +530,7 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 	else
 	    getSeis2DTitle( trcnr, name2d, title );
 	uiFlatViewMainWin* viewwin = create2DViewer( title, dpid );
-	DPM(DataPackMgr::FlatID).release( gather );
+	DPM(DataPackMgr::FlatID()).release( gather );
 	if ( !viewwin )
 	    continue;
 
