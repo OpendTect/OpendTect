@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.22 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: segyhdr.h,v 1.23 2009-01-05 11:19:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,7 @@ mClass TrcHeader
 public:
 
 			TrcHeader(unsigned char*,bool rev1,const TrcHeaderDef&);
+    void		initRead(); //!< must call once before first usage
 
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);
@@ -140,6 +141,7 @@ public:
     unsigned char*	buf;
     const TrcHeaderDef&	hdef;
     bool		isrev1;
+
     bool		isusable; // trid < 2 ; mostly ignored but not always
     bool		nonrectcoords; // counit == 1, 2 or 3
 

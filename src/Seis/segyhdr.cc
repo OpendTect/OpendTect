@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.67 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.68 2009-01-05 11:19:37 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -516,12 +516,17 @@ SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
     : buf(b)
     , hdef(hd)
     , needswap(false)
-    , isusable(true)
     , isrev1(rev1)
     , seqnr(1)
     , lineseqnr(1)
     , previnl(-1)
+    , isusable(true)
     , nonrectcoords(false)
+{
+}
+
+
+void SEGY::TrcHeader::initRead()
 {
     const int trid = IbmFormat::asShort( mGetBytes(28,2) );
     isusable = trid < 2 || trid > 10;
