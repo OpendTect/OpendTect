@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.53 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.54 2009-01-05 12:11:42 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -359,7 +359,8 @@ int SeisSingleTraceProc::getFillTrc()
 	{ wrapUp(); return Executor::Finished(); }
 
     SeisTrcReader& currdr = *rdrset_[currentobj_];
-    if ( !currdr.seisTranslator()->goTo(fillbid_) )
+    const bool wantbid = !currdr.selData() || currdr.selData()->isOK(fillbid_);
+    if ( !wantbid || !currdr.seisTranslator()->goTo(fillbid_) )
     {
 	worktrc_ = &intrc_;
 	*worktrc_ = *filltrc_;
