@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          July 2005
- RCS:           $Id: attribdescid.h,v 1.2 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribdescid.h,v 1.3 2009-01-05 10:38:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 /*! \brief
 AttribDesc ID
 */
+
+#include "commondefs.h"
 
 namespace Attrib
 {
