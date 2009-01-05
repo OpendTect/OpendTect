@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.28 2007-11-09 16:53:51 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.29 2009-01-05 09:26:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Attrib
 
 class DataHolder;
 
-class StorageProvider : public Provider
+mClass StorageProvider : public Provider
 {
 public:
 
