@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.7 2008-12-10 10:02:03 cvsbruno Exp $
+ RCS:		$Id: wellio.h,v 1.8 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class MultiID;
 namespace Well
 {
 
-class IO
+mClass IO
 {
 public:
 

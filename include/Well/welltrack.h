@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.14 2008-05-26 12:05:15 cvsbert Exp $
+ RCS:		$Id: welltrack.h,v 1.15 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ namespace Well
 {
 class D2TModel;
 
-class Track : public DahObj
+mClass Track : public DahObj
 {
 public:
 

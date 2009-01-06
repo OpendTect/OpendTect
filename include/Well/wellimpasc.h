@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.19 2008-08-13 09:21:58 cvsumesh Exp $
+ RCS:		$Id: wellimpasc.h,v 1.20 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace Well
 {
 class Data;
 
-class AscImporter
+mClass AscImporter
 {
 public:
 
@@ -40,7 +40,7 @@ public:
 	    			   bool depthinfeet);
     Data&		getWellData() 				{ return wd; }
 
-    class LasFileInfo
+    mClass LasFileInfo
     {
     public:
 			LasFileInfo()
@@ -85,7 +85,7 @@ protected:
 };
 
 
-class WellAscIO : public Table::AscIO
+mClass WellAscIO : public Table::AscIO
 {
 public:
     				WellAscIO( const Table::FormatDesc& fd,

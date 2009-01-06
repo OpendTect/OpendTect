@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.18 2008-12-24 12:28:13 cvsbert Exp $
+ RCS:		$Id: welllog.h,v 1.19 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-class Log : public DahObj
+mClass Log : public DahObj
 {
 public:
 
@@ -74,7 +74,7 @@ protected:
 };
 
 
-class LogDisplayPars
+mClass LogDisplayPars
 {
 public:
 			LogDisplayPars( const char* nm=0 )
@@ -110,7 +110,7 @@ public:
 };
 
 
-class LogDisplayParSet
+mClass LogDisplayParSet
 {
 public:
 			LogDisplayParSet ()

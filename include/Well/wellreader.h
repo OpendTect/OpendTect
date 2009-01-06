@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellreader.h,v 1.11 2008-12-24 12:28:13 cvsbert Exp $
+ RCS:		$Id: wellreader.h,v 1.12 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace Well
 class Data;
 class Log;
 
-class Reader : public IO
+mClass Reader : public IO
 {
 public:
 

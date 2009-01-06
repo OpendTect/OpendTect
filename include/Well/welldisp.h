@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.8 2008-12-23 11:31:18 cvsdgb Exp $
+ RCS:		$Id: welldisp.h,v 1.9 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Well
 
 /*!\brief Display properties of a well */
 
-class DisplayProperties
+mClass DisplayProperties
 {
 public:
 

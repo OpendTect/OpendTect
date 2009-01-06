@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.13 2008-12-05 15:19:20 cvsbert Exp $
+ RCS:		$Id: welldata.h,v 1.14 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class DisplayProperties;
 
 /*!\brief Infomation about a certain well */
 
-class Info : public ::NamedObject
+mClass Info : public ::NamedObject
 {
 public:
 
@@ -66,7 +66,7 @@ public:
 
 */
 
-class Data : public CallBacker
+mClass Data : public CallBacker
 {
 public:
 

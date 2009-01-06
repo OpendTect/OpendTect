@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.12 2005-12-02 16:53:15 cvshelene Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.13 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-class D2TModel : public DahObj
+mClass D2TModel : public DahObj
 {
 public:
 

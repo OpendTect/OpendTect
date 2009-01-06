@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.5 2008-02-26 09:17:36 cvsnanne Exp $
+ RCS:		$Id: wellmarker.h,v 1.6 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-class Marker : public ::NamedObject
+mClass Marker : public ::NamedObject
 {
 public:
 

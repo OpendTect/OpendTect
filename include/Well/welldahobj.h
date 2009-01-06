@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: welldahobj.h,v 1.6 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:		$Id: welldahobj.h,v 1.7 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Well
 {
 
-class DahObj : public ::NamedObject
+mClass DahObj : public ::NamedObject
 {
 public:
 

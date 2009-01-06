@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellman.h,v 1.6 2008-05-29 13:19:19 cvskris Exp $
+ RCS:		$Id: wellman.h,v 1.7 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace Well
 
 class Data;
 
-class Man
+mClass Man
 {
 public:
 

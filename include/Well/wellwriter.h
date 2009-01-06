@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellwriter.h,v 1.6 2008-12-31 10:43:41 cvsbert Exp $
+ RCS:		$Id: wellwriter.h,v 1.7 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace Well
 class Data;
 class Log;
 
-class Writer : public IO
+mClass Writer : public IO
 {
 public:
 

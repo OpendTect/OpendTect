@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: welltransl.h,v 1.8 2008-05-22 14:09:42 cvsbert Exp $
+ RCS:		$Id: welltransl.h,v 1.9 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class BufferStringSet;
 namespace Well { class Data; };
 
 
-class WellTranslatorGroup : public TranslatorGroup
+mClass WellTranslatorGroup : public TranslatorGroup
 {			    isTranslatorGroup(Well)
 public:
     			mDefEmptyTranslatorGroupConstructor(Well)
@@ -31,7 +31,7 @@ public:
 };
 
 
-class WellTranslator : public Translator
+mClass WellTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(Well)
@@ -52,7 +52,7 @@ public:
 };
 
 
-class dgbWellTranslator : public WellTranslator
+mClass dgbWellTranslator : public WellTranslator
 {			  isTranslator(dgb,Well)
 public:
     			mDefEmptyTranslatorConstructor(dgb,Well)

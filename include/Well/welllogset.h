@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.9 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:		$Id: welllogset.h,v 1.10 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ namespace Well
 
 class Log;
 
-class LogSet
+mClass LogSet
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.19 2008-09-22 13:13:13 cvskris Exp $
+ RCS:		$Id: wellextractdata.h,v 1.20 2009-01-06 10:57:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class Marker;
 
 /*!\brief Collects info about all wells in store */
 
-class InfoCollector : public ::Executor
+mClass InfoCollector : public ::Executor
 {
 public:
 
@@ -76,7 +76,7 @@ protected:
 /*!\brief Collects positions along selected well tracks. The DataPointSets will
   get new rows with the positions along the track. */
 
-class TrackSampler : public ::Executor
+mClass TrackSampler : public ::Executor
 {
 public:
 
@@ -136,7 +136,7 @@ protected:
 /*!\brief Collects positions along selected well tracks. Will add column
    to the DataPointSet. */
 
-class LogDataExtracter : public ::Executor
+mClass LogDataExtracter : public ::Executor
 {
 public:
 
