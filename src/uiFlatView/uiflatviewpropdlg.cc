@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.40 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.41 2009-01-06 20:41:43 cvsyuancheng Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -203,7 +203,7 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
 	useclipfld_->setValue( 2 );
 
     const bool udfrg = mIsUdf( pars.rg_.start ) && mIsUdf( pars.rg_.stop);
-    rgfld_->setValue( udfrg ? vwr_.getDataRange(true) : pars.rg_ );
+    rgfld_->setValue( udfrg ? vwr_.getDataRange(false) : pars.rg_ );
 
     symclipratiofld_->setValue( pars.clipperc_.start );
     assymclipratiofld_->setValue( pars.clipperc_ );
