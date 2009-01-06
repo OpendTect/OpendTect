@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.8 2008-12-23 09:40:19 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.9 2009-01-06 09:59:22 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -32,6 +32,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 	, applyAllReq(this)
 	, savedefault_(false)		   
 {
+     *orgprops_ = props_;
     wd_.dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );

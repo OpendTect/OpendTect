@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.14 2008-12-24 15:58:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.15 2009-01-06 09:59:22 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -256,32 +256,38 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
 void uiWellLogDispProperties::doPutToScreen()
 {
-    logsfld_-> box() -> setText( logprops().name_ );
+    logsfld_->box()-> setText( logprops().name_ );
+    filllogsfld_->box()-> setText( logprops().fillname_ );
+    repeatfld_->setValue( logprops().repeat_ );
+    ovlapfld_->setValue( logprops().repeatovlap_);
     stylefld_->setValue( logprops().iswelllog_ ); 
     rangefld_->setValue( logprops().range_ ); 
     coltablistfld_->setText( logprops().seqname_ ); 
     logfillfld_->setChecked( logprops().islogfill_ );
     clipratefld_->setValue( logprops().cliprate_ );
     cliprangefld_->setValue( logprops().isdatarange_ );
-    if ( mIsUdf( logprops().cliprate_ ) )
+    if ( mIsUdf( logprops().cliprate_) || logprops().cliprate_ > 100  )
     {
 	cliprangefld_->setValue( true );
 	clipratefld_->setValue( 0.0 );
     }
-    repeatfld_->setValue( logprops().repeat_ );
-    ovlapfld_->setValue( logprops().repeatovlap_);
     seiscolorfld_->setColor( logprops().seiscolor_ );
-    filllogsfld_-> box() -> setText( logprops().fillname_ );
-    singlfillcolfld_ -> setChecked(logprops().issinglecol_); 
+    singlfillcolfld_ -> setChecked( logprops().issinglecol_ ); 
 }
 
 
 void uiWellLogDispProperties::doGetFromScreen()
 {
     logprops().iswelllog_ = stylefld_->getBoolValue();
-    logprops().cliprate_ = clipratefld_->getfValue();
-    logprops().range_ = rangefld_->getFInterval();
     logprops().isdatarange_ = cliprangefld_->getBoolValue();
+    logprops().cliprate_ = clipratefld_->getfValue();
+    if ( mIsUdf( logprops().cliprate_) || logprops().cliprate_ > 100 )
+    {
+	logprops().cliprate_= 0.0;
+        logprops().isdatarange_ = true;
+    }
+    logprops().range_ = rangefld_->getFInterval();
+    logprops().issinglecol_ = singlfillcolfld_->isChecked();
     logprops().islogfill_ = logfillfld_->isChecked();
     logprops().seqname_ = coltablistfld_-> text();
     if ( stylefld_->getBoolValue() == true )
@@ -292,7 +298,6 @@ void uiWellLogDispProperties::doGetFromScreen()
     logprops().seiscolor_ = seiscolorfld_->color();
     logprops().name_ = logsfld_->box()->text();
     logprops().fillname_ = filllogsfld_->box()->text();
-    logprops().issinglecol_ = singlfillcolfld_->isChecked();
 }
 
 
@@ -382,8 +387,6 @@ void uiWellLogDispProperties::selNone()
     ovlapfld_->setValue( 0 );
     logfillfld_->setChecked( false );
     singlfillcolfld_->setChecked( false );
-    //filllogsfld_-> box() -> setText( "None" );
-    //logscfld_->setChecked( false );
 }
 
 
@@ -399,7 +402,6 @@ void uiWellLogDispProperties::setFldSensitive( bool yn )
     repeatfld_->setSensitive( yn );
     logfillfld_->setSensitive( yn );
     coltablistfld_->setSensitive( yn );
-    logfillfld_->setSensitive( yn );
     szfld_->setSensitive( yn );
     singlfillcolfld_->setSensitive( yn );
 }
