@@ -4,7 +4,7 @@ Build platforms/distributions:
 
 Linux 32: Fedora Core 3
 Linux 64: CentOS 4.5 (CentOS is a RH-clone)
-Mac:	  Mac OS X 10.5.5 (Leopard, Intel)
+Mac:	  Mac OS X 10.5.6 (Leopard, Intel)
 Solaris:  SunOS 5.8
 Windows:  CYGWIN_NT-5.1
 
@@ -26,4 +26,4 @@ Qt: 4.3.4
 
 FFTW: 3.0.1
 
-# $Id: RELEASEINFO.txt,v 1.4 2008-11-25 08:01:55 cvsnanne Exp $
+# $Id: RELEASEINFO.txt,v 1.5 2009-01-06 05:35:27 cvsnanne Exp $
