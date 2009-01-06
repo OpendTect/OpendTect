@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.5 2008-07-30 11:56:34 cvsjaap Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.6 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ namespace Attrib { class Data2DHolder; }
 namespace MPE
 {
 
-class Horizon2DSeedPicker : public EMSeedPicker
+mClass Horizon2DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);

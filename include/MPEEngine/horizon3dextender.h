@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dextender.h,v 1.6 2007-05-22 03:50:51 cvsnanne Exp $
+ RCS:           $Id: horizon3dextender.h,v 1.7 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace EM { class Horizon3D; };
 namespace MPE
 {
 
-class Horizon3DExtender : public SectionExtender
+mClass Horizon3DExtender : public SectionExtender
 {
 public:
     				Horizon3DExtender(EM::Horizon3D& surface_,

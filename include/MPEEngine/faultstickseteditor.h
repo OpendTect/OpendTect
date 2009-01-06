@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2008
- RCS:           $Id: faultstickseteditor.h,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:           $Id: faultstickseteditor.h,v 1.2 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-class FaultStickSetEditor : public ObjectEditor
+mClass FaultStickSetEditor : public ObjectEditor
 {
 public:
     				FaultStickSetEditor(EM::FaultStickSet&);

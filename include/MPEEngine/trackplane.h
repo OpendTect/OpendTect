@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: trackplane.h,v 1.8 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: trackplane.h,v 1.9 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ namespace MPE
 
 */
 
-class TrackPlane
+mClass TrackPlane
 {
 public:
     enum TrackMode	{ None, Extend, ReTrack, Erase, Move };

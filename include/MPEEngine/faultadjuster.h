@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: faultadjuster.h,v 1.2 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: faultadjuster.h,v 1.3 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ namespace EM { class Fault3D; };
 namespace MPE
 {
 
-class FaultAdjuster : public SectionAdjuster
+mClass FaultAdjuster : public SectionAdjuster
 {
 public:
     				FaultAdjuster(EM::Fault3D&,

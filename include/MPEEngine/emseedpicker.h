@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.22 2007-03-29 11:33:57 cvsjaap Exp $
+ RCS:           $Id: emseedpicker.h,v 1.23 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ handles adding of seeds and retracking of events based on new seeds.
 An instance of the class is usually avaiable from the each EMTracker.
 */
 
-class EMSeedPicker: public CallBacker
+mClass EMSeedPicker: public CallBacker
 {
 public:
     virtual		~EMSeedPicker() {}

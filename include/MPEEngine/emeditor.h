@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.18 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:           $Id: emeditor.h,v 1.19 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ namespace MPE
    which are listed by getAlongMovingStyleNames().
 */
 
-class ObjectEditor : public CallBacker
+mClass ObjectEditor : public CallBacker
 { mRefCountImpl( ObjectEditor );
 public:
     			ObjectEditor( EM::EMObject& );

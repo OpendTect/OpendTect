@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: horizoneditor.h,v 1.4 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace EM { class Horizon3D; };
 namespace MPE
 {
 
-class HorizonEditor : public ObjectEditor
+mClass HorizonEditor : public ObjectEditor
 {
 public:
     				HorizonEditor(EM::Horizon3D&);

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.6 2008-05-09 09:11:40 cvsnanne Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.7 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace MPE
 {
 
-class FaultSeedPicker : public EMSeedPicker
+mClass FaultSeedPicker : public EMSeedPicker
 {
 public:
     			FaultSeedPicker(MPE::EMTracker&);

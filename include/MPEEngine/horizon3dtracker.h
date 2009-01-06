@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.5 2008-02-20 20:19:33 cvskris Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.6 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ class Horizon3DSeedPicker;
 /*!\brief Horizon tracker
 */
 
-class Horizon3DTracker : public EMTracker
+mClass Horizon3DTracker : public EMTracker
 {
 public:
     				Horizon3DTracker(EM::Horizon3D* =0);

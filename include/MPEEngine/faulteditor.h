@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.5 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: faulteditor.h,v 1.6 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-class FaultEditor : public ObjectEditor
+mClass FaultEditor : public ObjectEditor
 {
 public:
     				FaultEditor(EM::Fault3D&);

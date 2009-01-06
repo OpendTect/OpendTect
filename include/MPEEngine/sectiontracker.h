@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.13 2008-03-10 15:40:58 cvsjaap Exp $
+ RCS:           $Id: sectiontracker.h,v 1.14 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class SectionExtender;
 class SectionAdjuster;
 
 
-class SectionTracker
+mClass SectionTracker
 {
 public:
     				SectionTracker( EM::EMObject&,

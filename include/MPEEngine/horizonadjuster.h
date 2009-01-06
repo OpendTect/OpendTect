@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.23 2008-02-07 18:59:33 cvskris Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.24 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace MPE
 
 class SectionExtender;
 
-class HorizonAdjuster : public SectionAdjuster
+mClass HorizonAdjuster : public SectionAdjuster
 {
 public:
 			HorizonAdjuster(EM::Horizon&,const EM::SectionID&);

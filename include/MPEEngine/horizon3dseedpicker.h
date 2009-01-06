@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon3dseedpicker.h,v 1.19 2007-05-22 04:08:58 cvsnanne Exp $
+ RCS:           $Id: horizon3dseedpicker.h,v 1.20 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace MPE
 {
 
-class Horizon3DSeedPicker : public EMSeedPicker
+mClass Horizon3DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon3DSeedPicker(MPE::EMTracker&);

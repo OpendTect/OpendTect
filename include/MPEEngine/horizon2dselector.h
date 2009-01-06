@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: horizon2dselector.h,v 1.1 2006-05-01 15:13:06 cvskris Exp $
+ RCS:           $Id: horizon2dselector.h,v 1.2 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 */
 
@@ -18,7 +18,7 @@ namespace EM { class Horizon2D; };
 namespace MPE
 {
 
-class Horizon2DSelector : public SectionSourceSelector
+mClass Horizon2DSelector : public SectionSourceSelector
 {
 public:
     				Horizon2DSelector(const EM::Horizon2D&,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: autotracker.h,v 1.6 2008-09-22 13:10:05 cvskris Exp $
+ RCS:           $Id: autotracker.h,v 1.7 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class SectionAdjuster;
 class SectionExtender;
 class EMTracker;
 
-class AutoTracker : public Executor
+mClass AutoTracker : public Executor
 {
 public:
 				AutoTracker(EMTracker&,const EM::SectionID&);

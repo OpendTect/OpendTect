@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: polygonsurfeditor.h,v 1.3 2008-09-10 21:36:50 cvsyuancheng Exp $
+ RCS:           $Id: polygonsurfeditor.h,v 1.4 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ template <class T> class Selector;
 namespace MPE
 {
 
-class PolygonBodyEditor : public ObjectEditor
+mClass PolygonBodyEditor : public ObjectEditor
 {
 public:
     				PolygonBodyEditor(EM::PolygonBody&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2006
- RCS:           $Id: horizon2dextender.h,v 1.3 2007-01-16 14:26:03 cvsjaap Exp $
+ RCS:           $Id: horizon2dextender.h,v 1.4 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ namespace EM { class Horizon2D; };
 namespace MPE
 {
 
-class Horizon2DExtender : public SectionExtender
+mClass Horizon2DExtender : public SectionExtender
 {
 public:
     			Horizon2DExtender(EM::Horizon2D&,

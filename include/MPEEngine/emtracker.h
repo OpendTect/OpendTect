@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.27 2008-02-20 20:19:33 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.28 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class SectionTracker;
 class TrackPlane;
 class EMSeedPicker;
 
-class EMTracker
+mClass EMTracker
 {
 public:
     				EMTracker( EM::EMObject* );

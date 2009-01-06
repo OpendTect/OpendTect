@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon2dtracker.h,v 1.3 2008-02-20 20:19:33 cvskris Exp $
+ RCS:		$Id: horizon2dtracker.h,v 1.4 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace MPE
 
 class Horizon2DSeedPicker;
 
-class Horizon2DTracker : public EMTracker
+mClass Horizon2DTracker : public EMTracker
 {
 public:
     			Horizon2DTracker(EM::Horizon2D* =0);

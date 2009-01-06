@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselector.h,v 1.7 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: sectionselector.h,v 1.8 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace MPE
 
 class TrackPlane;
 
-class SectionSourceSelector : public SequentialTask
+mClass SectionSourceSelector : public SequentialTask
 {
 public:
     				SectionSourceSelector(

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		March 2004
- RCS:		$Id: mpesetup.h,v 1.1 2005-03-11 16:56:32 cvsnanne Exp $
+ RCS:		$Id: mpesetup.h,v 1.2 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class IOPar;
 
 namespace MPE {
 
-class Setup
+mClass Setup
 {
 public:
     				Setup();
@@ -43,7 +43,7 @@ protected:
 
 typedef MPE::Setup MPESetup;
 
-class MPESetupTranslatorGroup : public TranslatorGroup
+mClass MPESetupTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(MPESetup)
 public:
 			mDefEmptyTranslatorGroupConstructor(MPESetup)
@@ -51,7 +51,7 @@ public:
 };
 
 
-class MPESetupTranslator : public Translator
+mClass MPESetupTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MPESetup)
@@ -74,7 +74,7 @@ public:
 };
     
 
-class dgbMPESetupTranslator : public MPESetupTranslator
+mClass dgbMPESetupTranslator : public MPESetupTranslator
 {				  isTranslator(dgb,MPESetup)
 public:
     			mDefEmptyTranslatorConstructor(dgb,MPESetup)

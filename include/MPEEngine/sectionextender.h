@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionextender.h,v 1.16 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: sectionextender.h,v 1.17 2009-01-06 10:48:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ namespace MPE
 
 class SectionSourceSelector;
 
-class SectionExtender : public SequentialTask
+mClass SectionExtender : public SequentialTask
 {
 public:
     				SectionExtender(const EM::SectionID& si = -1);
