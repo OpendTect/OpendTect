@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.13 2007-11-09 16:53:51 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.14 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ Output:
 namespace Attrib
 {
 
-class Position : public Provider
+mClass Position : public Provider
 {
 public:
     static void			initClass();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.15 2008-09-12 14:12:33 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.16 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class MathExpression;
 namespace Attrib
 {
 
-class Math : public Provider
+mClass Math : public Provider
 {
 public:
     static void			initClass();

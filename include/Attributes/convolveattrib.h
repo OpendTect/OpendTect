@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.14 2008-04-11 07:17:31 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.15 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
     
@@ -47,7 +47,7 @@ N       Subkernel N
 namespace Attrib
 {
 
-class Convolve : public Provider
+mClass Convolve : public Provider
 {
 public:
     static void			initClass();
@@ -96,7 +96,7 @@ protected:
 
     ObjectSet<const DataHolder>	inputdata_;
 
-    class Kernel
+    mClass Kernel
     {
     public:
 	const float*            getKernel() const;

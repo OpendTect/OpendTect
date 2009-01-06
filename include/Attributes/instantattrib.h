@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.8 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: instantattrib.h,v 1.9 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 namespace Attrib
 {
 
-class Instantaneous : public Provider
+mClass Instantaneous : public Provider
 {
 public:
     static void			initClass();

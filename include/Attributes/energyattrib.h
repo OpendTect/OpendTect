@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.13 2008-08-14 11:08:46 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.14 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ if Gradient is selected outputs will be : grad(Energy), grad(sqrt(Energy)), ...
 */
     
 
-class Energy: public Provider
+mClass Energy: public Provider
 {
 public:
     static void		initClass();

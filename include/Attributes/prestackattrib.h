@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.7 2008-10-24 04:34:24 cvsnageswara Exp $
+ RCS:           $Id: prestackattrib.h,v 1.8 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ Output:
 */
     
 
-class PreStack : public Provider
+mClass PreStack : public Provider
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2004
- RCS:           $Id: specdecompattrib.h,v 1.12 2008-12-15 16:50:22 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.h,v 1.13 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 -*/
 
@@ -41,7 +41,7 @@ namespace Attrib
 
 class DataHolder;
 
-class SpecDecomp : public Provider
+mClass SpecDecomp : public Provider
 {
 public:
     static void		initClass();

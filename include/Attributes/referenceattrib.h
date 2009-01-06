@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene PAYRAUDEAU
  Date:          July 2005
- RCS:           $Id: referenceattrib.h,v 1.9 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: referenceattrib.h,v 1.10 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ Outputs 2D:
 namespace Attrib
 {
 
-class Reference: public Provider
+mClass Reference: public Provider
 {
 public:
     static void		initClass();

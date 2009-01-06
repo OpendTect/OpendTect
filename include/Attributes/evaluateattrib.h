@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          19-10-2005
- RCS:           $Id: evaluateattrib.h,v 1.5 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: evaluateattrib.h,v 1.6 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ a set of attributes in one go;
 namespace Attrib
 {
 
-class Evaluate: public Provider
+mClass Evaluate: public Provider
 {
 public:
     static void			initClass();

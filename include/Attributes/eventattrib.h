@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.15 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:		$Id: eventattrib.h,v 1.16 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ amplitude withing a time gate.
 
 */
 
-class Event : public Provider
+mClass Event : public Provider
 {
 public:
     static void			initClass();

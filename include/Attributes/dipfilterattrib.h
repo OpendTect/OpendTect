@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: dipfilterattrib.h,v 1.10 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: dipfilterattrib.h,v 1.11 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ Inputs:
 namespace Attrib
 {
 
-class DipFilter : public Provider
+mClass DipFilter : public Provider
 {
 public:
     static void		initClass();

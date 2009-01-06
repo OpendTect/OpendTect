@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.14 2008-05-19 13:14:22 cvsbert Exp $
+ RCS:           $Id: shiftattrib.h,v 1.15 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ Output
 namespace Attrib
 {
 
-class Shift : public Provider
+mClass Shift : public Provider
 {
 public:
     static void			initClass();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.21 2007-11-09 16:53:51 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.22 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ Output:
 namespace Attrib
 {
 
-class Similarity : public Provider
+mClass Similarity : public Provider
 {
 public:
     static void			initClass();
@@ -109,7 +109,7 @@ protected:
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*		steeringdata_;
 
-    class SimiFunc : public FloatMathFunction
+    mClass SimiFunc : public FloatMathFunction
     {
     public:
 				SimiFunc(const ValueSeries<float>& func, int sz)

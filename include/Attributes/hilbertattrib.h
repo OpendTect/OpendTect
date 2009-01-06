@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.h,v 1.15 2008-12-01 04:03:31 cvsnageswara Exp $
+ RCS:           $Id: hilbertattrib.h,v 1.16 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Attrib
 */
 
 
-class Hilbert : public Provider
+mClass Hilbert : public Provider
 {
 public:
     static void			initClass();

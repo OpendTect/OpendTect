@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.17 2007-11-09 16:53:51 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.18 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ Outputs:
 namespace Attrib
 {
 
-class VolStats : public Provider
+mClass VolStats : public Provider
 {
 public:
     static void			initClass();

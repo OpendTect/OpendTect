@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.14 2007-12-05 14:01:04 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.15 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ namespace Attrib
 
 class DataHolder;
 
-class Frequency : public Provider
+mClass Frequency : public Provider
 {
 public:
     static void			initClass();
@@ -118,7 +118,7 @@ protected:
     Array1DImpl<float_complex>*	timedomain_;
     Array1DImpl<float_complex>*	freqdomain_;
 
-    class FreqFunc : public FloatMathFunction
+    mClass FreqFunc : public FloatMathFunction
     {
     public:
 				FreqFunc(const ValueSeries<float>& func, int sz)

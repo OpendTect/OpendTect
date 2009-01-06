@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          23-02-2006
- RCS:           $Id: fingerprintattrib.h,v 1.7 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.h,v 1.8 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ Output:
 namespace Attrib
 {
 
-class FingerPrint : public Provider
+mClass FingerPrint : public Provider
 {
 public:
     static void			initClass();

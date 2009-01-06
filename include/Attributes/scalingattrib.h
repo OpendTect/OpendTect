@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.15 2008-11-07 11:07:29 cvshelene Exp $
+ RCS:           $Id: scalingattrib.h,v 1.16 2009-01-06 10:29:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ Outputs:
 namespace Attrib
 {
 
-class Scaling: public Provider
+mClass Scaling: public Provider
 {
 public:
     static void		initClass();
