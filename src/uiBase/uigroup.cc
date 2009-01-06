@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.60 2009-01-06 06:51:09 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.61 2009-01-06 07:35:14 cvsnanne Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -283,7 +283,6 @@ void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
 
     finaliseChildren();
 
-    std::cout << "Name: " << name() << std::endl;
     if ( trigger_finalise_start_stop )
 	handle_.finaliseDone.trigger( handle_ );
 }
