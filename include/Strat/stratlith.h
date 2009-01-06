@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.5 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: stratlith.h,v 1.6 2009-01-06 05:34:47 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace Strat
 
 /*!\brief name and integer ID (in well logs). */
 
-class Lithology : public ::NamedObject
+mClass Lithology : public ::NamedObject
 {
 public:
 

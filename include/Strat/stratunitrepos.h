@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.18 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.19 2009-01-06 05:34:47 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ RefTree& eRT();
 /*!\brief Repository of all stratigraphic descriptions defining the building
 	  blocks of subsurface descriptions */
 
-class UnitRepository : public CallBacker
+mClass UnitRepository : public CallBacker
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.13 2007-09-12 09:16:17 cvshelene Exp $
+ RCS:		$Id: stratunitref.h,v 1.14 2009-01-06 05:34:47 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ class NodeUnitRef;
 
  */
 
-class UnitRef
+mClass UnitRef
 {
 public:
 
@@ -82,7 +82,7 @@ public:
 
     //! Iterator. When constructed, returns unit itself (regardless of Pol).
     //!< First next() goes to first (valid) unit.
-    class Iter
+    mClass Iter
     {
     public:
 
@@ -120,7 +120,7 @@ protected:
 
 /*!\brief UnitRef for units containing other units only */
 
-class NodeUnitRef : public UnitRef
+mClass NodeUnitRef : public UnitRef
 {
 public:
 
@@ -158,7 +158,7 @@ protected:
 
 /*!\brief UnitRef for layers */
 
-class LeafUnitRef : public UnitRef
+mClass LeafUnitRef : public UnitRef
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.6 2008-10-24 11:39:13 cvshelene Exp $
+ RCS:		$Id: stratreftree.h,v 1.7 2009-01-06 05:34:47 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class Level;
 
 /*!\brief Tree of UnitRef's  */
 
-class RefTree : public NodeUnitRef
+mClass RefTree : public NodeUnitRef
 {
 public:
 

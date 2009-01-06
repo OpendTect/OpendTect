@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jan 2004
- RCS:		$Id: stratlayer.h,v 1.2 2004-01-06 17:12:02 bert Exp $
+ RCS:		$Id: stratlayer.h,v 1.3 2009-01-06 05:34:47 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ namespace Strat
 
 /*!\brief data for a layer */
 
-class Layer : public Unit
+mClass Layer : public Unit
 {
 public:
 
