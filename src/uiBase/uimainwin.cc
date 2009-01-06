@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.164 2009-01-05 16:17:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.165 2009-01-06 03:30:29 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -703,7 +703,6 @@ void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::close()				{ body_->close(); }
 void uiMainWin::activateClose()			{ body_->activateClose(); }
 void uiMainWin::activateQDlg( int retval )	{ body_->activateQDlg(retval); }
-void uiMainWin::setCaption( const char* txt )	{ body_->setWindowTitle(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 bool uiMainWin::touch() 			{ return body_->touch(); }
@@ -711,6 +710,15 @@ bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
+
+void uiMainWin::setCaption( const char* txt )	{ body_->setWindowTitle(txt); }
+
+const char* uiMainWin::caption() const
+{
+    static BufferString capt;
+    capt = mQStringToConstChar( body_->windowTitle() );
+    return capt;
+}
 
 
 void uiMainWin::setDeleteOnClose( bool yn )
