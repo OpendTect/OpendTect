@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.1 2008-12-10 19:06:58 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.2 2009-01-06 12:31:44 cvsranojay Exp $";
 
 #include "batchprog.h"
 
@@ -290,16 +290,16 @@ bool BatchProgram::go( std::ostream& strm )
 		    continue;
 		}
 
-		DPM( DataPackMgr::FlatID ).addAndObtain( gather );
+		DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
 		procman->setInput( relbid, gather->id() );
-		DPM( DataPackMgr::FlatID ).release( gather );
+		DPM( DataPackMgr::FlatID() ).release( gather );
 	    }
 	}
 
 	if ( procman->prepareWork() || procman->process() )
 	{
 	    const DataPack* dp =
-		DPM(DataPackMgr::FlatID).obtain(procman->getOutput());
+		DPM(DataPackMgr::FlatID()).obtain(procman->getOutput());
 	    mDynamicCastGet( const PreStack::Gather*, gather, dp );
 	    if ( gather )
 	    {
@@ -341,7 +341,7 @@ bool BatchProgram::go( std::ostream& strm )
 		}
 	    }
 
-	    DPM(DataPackMgr::FlatID).release( dp );
+	    DPM(DataPackMgr::FlatID()).release( dp );
 	}
 
 	if ( geomtype==Seis::VolPS )
