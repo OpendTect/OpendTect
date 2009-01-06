@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.6 2008-12-04 18:17:10 cvskris Exp $
+ RCS:		$Id: visflatviewer.h,v 1.7 2009-01-06 20:37:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,9 @@ public:
     void			allowShading(bool yn);  
     void			replaceChannels(visBase::TextureChannels*);
     				/*!<Replaces internal texture. The new texture 
-				  will not be added to the scene. */	
+				  will not be added to the scene. */
+    Interval<float>		getDataRange(bool iswva) const;    
+
 protected:
     				~FlatViewer();
     
