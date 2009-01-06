@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.12 2008-02-20 10:44:26 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.13 2009-01-06 04:57:37 cvsdgb Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -17,7 +17,7 @@ if ( ! -d "$od_wdir" ) then
 endif
 
 cd "$od_wdir"
-cvs update -d -P
+cvs -q update -d -P
 
 ln -s Pmake/RootMakefile Makefile
 
@@ -59,9 +59,13 @@ if ( ! -e so ) ln -s ../so .
 ln -s ../lmhostid* .
 
 cd "$od_wdir/plugins"
-if ( ! -e Makefile ) ln -s Makefile.od Makefile
+if ( ! -e Makefile ) then
+    ln -s Makefile.od Makefile
+endif
 cd "$od_wdir/spec"
-if ( ! -e Makefile ) ln -s Makefile.od Makefile
+if ( ! -e Makefile ) then
+    ln -s Makefile.od Makefile
+endif
 
 
 # copy relevant libraries to $WORK/bin/$binsubdir/so
@@ -99,11 +103,17 @@ if ( $?OD_FFTWDIR ) then
 endif
 
 set missingpkgnms=
-if ( $qtdir == "" ) set missingpkgnms="Qt"
-if ( $coindir == "" ) set missingpkgnms="$missingpkgnms Coin"
-if ( $fftwdir == "" ) set missingpkgnms="$missingpkgnms FFTW"
+if ( $qtdir == "" ) then
+    set missingpkgnms="Qt"
+endif
+if ( $coindir == "" ) then
+    set missingpkgnms="$missingpkgnms Coin"
+endif
+if ( $fftwdir == "" ) then
+    set missingpkgnms="$missingpkgnms FFTW"
+endif
 
-if ( $missingpkgnms != "" ) then
+if ( ${missingpkgnms} != "" ) then
     echo "Make sure $missingpkgnms .so libs are"
     echo "copied or linked to $od_wdir/bin/$binsubdir/so"
     echo "See the end $0 for details on what needs to be linked"
