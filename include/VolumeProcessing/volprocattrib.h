@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: volprocattrib.h,v 1.4 2008-07-16 16:59:41 cvskris Exp $
+ RCS:		$Id: volprocattrib.h,v 1.5 2009-01-06 10:16:09 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ namespace VolProc
 class Chain;
 class ChainExecutor;
 /*
-class AttributeAdapter : public Attrib::Provider
+mClass AttributeAdapter : public Attrib::Provider
 {
 public:
     static void		initClass();
@@ -57,7 +57,7 @@ protected:
 
 /*!Adapter for a VolProc chain to external attribute calculation */
 
-class ExternalAttribCalculator : public Attrib::ExtAttribCalc
+mClass ExternalAttribCalculator : public Attrib::ExtAttribCalc
 {
 public:
     static void			initClass();

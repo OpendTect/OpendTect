@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volprocsmoother.h,v 1.4 2008-09-25 18:47:27 cvskris Exp $
+ RCS:		$Id: volprocsmoother.h,v 1.5 2009-01-06 10:16:09 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ template <class T> class Smoother3D;
 namespace VolProc
 {
     
-class Smoother : public Step
+mClass Smoother : public Step
 {
 public:
     static void		initClass();

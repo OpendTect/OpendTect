@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: volprochorinterfiller.h,v 1.3 2008-08-14 21:52:44 cvskris Exp $
+ RCS:		$Id: volprochorinterfiller.h,v 1.4 2009-01-06 10:16:09 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace VolProc
     gradient or to a fixed value at the bottom boundary. */
 
     
-class HorInterFiller : public Step
+mClass HorInterFiller : public Step
 {
 public:
     static void			initClass();

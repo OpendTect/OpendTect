@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.3 2008-11-24 15:55:47 cvskris Exp $
+ RCS:		$Id: velocitygridder.h,v 1.4 2009-01-06 10:16:09 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace Vel
 namespace VolProc
 {
 
-class VelGriddingStep : public VolProc::Step
+mClass VelGriddingStep : public VolProc::Step
 {
 public:
     static void		initClass();

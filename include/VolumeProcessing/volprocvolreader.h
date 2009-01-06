@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: volprocvolreader.h,v 1.1 2008-11-19 15:01:57 cvskris Exp $
+ RCS:		$Id: volprocvolreader.h,v 1.2 2009-01-06 10:16:09 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace VolProc
 /*! Reads in a volume. Will replace previous values if data is present
     in the read volume. */
     
-class VolumeReader : public Step
+mClass VolumeReader : public Step
 {
 public:
     static void		initClass();

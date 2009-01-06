@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: volproctrans.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:		$Id: volproctrans.h,v 1.2 2009-01-06 10:16:09 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ namespace VolProc { class Chain; }
 
 /*! Translator implementation for Volume Processing Setups. */
 
-class VolProcessingTranslatorGroup : public TranslatorGroup
+mClass VolProcessingTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(VolProcessing)
 public:
     			mDefEmptyTranslatorGroupConstructor(VolProcessing)
@@ -32,7 +32,7 @@ public:
 };
 
 
-class VolProcessingTranslator : public Translator
+mClass VolProcessingTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(VolProcessing)
@@ -49,7 +49,7 @@ public:
 };
 
 
-class dgbVolProcessingTranslator : public VolProcessingTranslator
+mClass dgbVolProcessingTranslator : public VolProcessingTranslator
 {			     isTranslator(dgb,VolProcessing)
 public:
 

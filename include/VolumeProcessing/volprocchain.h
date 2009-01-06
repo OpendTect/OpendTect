@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.5 2008-11-24 15:53:00 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.6 2009-01-06 10:16:09 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -38,7 +38,7 @@ class StepTask;
 
 /*!A chain of Steps that can be applied to a volume of scalars. */
 
-class Chain
+mClass Chain
 { mRefCountImpl(Chain);
 public:
     				Chain();
@@ -78,7 +78,7 @@ protected:
 
 /*!An algorithm/calculation/transoformation that takes one scalar volume as
    input, processes it, and puts the output in another volume. */
-class Step
+mClass Step
 {
 public:
     				Step(Chain&);
@@ -137,7 +137,7 @@ protected:
 
 mDefineFactory1Param( Step, Chain&, PS );
 
-class ChainExecutor : public Executor
+mClass ChainExecutor : public Executor
 {
 public:
 			ChainExecutor(Chain&);
