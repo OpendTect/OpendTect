@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.59 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.60 2009-01-06 06:51:09 cvsnageswara Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -140,6 +140,8 @@ protected:
     uiObject*		hcentreobj;
     uiObject*		halignobj;
 
+    virtual void	finalise(bool trigger_finalise_start_stop=true);
+
     virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
 			    { loMngr->addItem( b.mkLayoutItem( *loMngr ) ); }
 
@@ -271,6 +273,19 @@ void uiGroupParentBody::setHAlignObj( uiObject* obj )
     msg += ". Must be child or child-of-child.";
 
     pErrMsg(msg);
+}
+
+
+void uiGroupParentBody::finalise( bool trigger_finalise_start_stop )
+{
+    if ( trigger_finalise_start_stop )
+	handle_.finaliseStart.trigger( handle_ );
+
+    finaliseChildren();
+
+    std::cout << "Name: " << name() << std::endl;
+    if ( trigger_finalise_start_stop )
+	handle_.finaliseDone.trigger( handle_ );
 }
 
 
