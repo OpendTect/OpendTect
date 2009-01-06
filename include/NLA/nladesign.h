@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nladesign.h,v 1.5 2005-09-06 16:09:41 cvsbert Exp $
+ RCS:		$Id: nladesign.h,v 1.6 2009-01-06 05:22:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ two extra output nodes will be added ('Classification' and 'Confidence').
 
 */
 
-class NLADesign
+mClass NLADesign
 {
 public:
     			NLADesign()	{ clear(); }

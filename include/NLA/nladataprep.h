@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2005
- RCS:		$Id: nladataprep.h,v 1.3 2005-05-18 15:20:47 cvsbert Exp $
+ RCS:		$Id: nladataprep.h,v 1.4 2009-01-06 05:22:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ template <class T> class Interval;
 
 /*\brief Prepare data for usage in NLA training */
 
-class NLADataPreparer
+mClass NLADataPreparer
 {
 public:
     			NLADataPreparer( BinIDValueSet& bvs, int tc )

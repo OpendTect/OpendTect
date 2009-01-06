@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlamodel.h,v 1.5 2005-10-13 15:56:45 cvsbert Exp $
+ RCS:		$Id: nlamodel.h,v 1.6 2009-01-06 05:22:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class BufferString;
 /*\brief Minimum Interface for NLA models */
 
 
-class NLAModel
+mClass NLAModel
 {
 public:
 

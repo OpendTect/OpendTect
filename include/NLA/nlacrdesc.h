@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.9 2008-12-08 12:51:59 cvsbert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.10 2009-01-06 05:22:16 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class DataPointSet;
 
 /*\brief Description of how an NLA analysis Feature set is to be created */
 
-class NLACreationDesc
+mClass NLACreationDesc
 {
 public:
     			NLACreationDesc()	{ clear(); }
