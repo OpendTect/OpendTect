@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.h,v 1.2 2008-11-28 19:56:38 cvskris Exp $
+ RCS:		$Id: prestackeventascio.h,v 1.3 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ columns are as follows:
 */
 
 
-class EventExporter : public SequentialTask
+mClass EventExporter : public SequentialTask
 {
 public:
     			EventExporter(std::ostream& strm,EventManager&);

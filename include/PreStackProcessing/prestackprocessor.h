@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.19 2009-01-05 09:43:26 cvsranojay Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.20 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -70,7 +70,7 @@ class Gather;
 /*!Processes prestackdata at one cdp location. The algorithm is implemented
    in subclasses, and can be created by the PreStack::PF() factory. */
 
-class Processor : public ParallelTask
+mClass Processor : public ParallelTask
 {
 public:
     virtual			~Processor();

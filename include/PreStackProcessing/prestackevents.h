@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.6 2008-08-04 14:48:30 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.7 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ class VelocityPicks;
 
 /*!A Event is a set of picks on an event on a single prestack gather. */
 
-class Event
+mClass Event
 {
 public:
     			Event(int sz,bool quality);
@@ -74,7 +74,7 @@ public:
 
 
 /*!A EventSet is a set of Events on a single prestack gather. */
-class EventSet
+mClass EventSet
 { mRefCountImplWithDestructor(EventSet,virtual ~EventSet(), {});
 public:
     			EventSet();
@@ -93,7 +93,7 @@ public:
 /*!A EventManager is a set of EventsSet on multiple prestack
    gathers, and are identified under the same MultiID. */
 
-class EventManager : public CallBacker
+mClass EventManager : public CallBacker
 { mRefCountImpl(EventManager);
 public:
     struct DipSource
@@ -220,7 +220,7 @@ protected:
 };
 
 
-class SetPickUndo : public BinIDUndoEvent
+mClass SetPickUndo : public BinIDUndoEvent
 {
 public:
     			SetPickUndo(EventManager&,const BinID&,int horidx,
@@ -247,7 +247,7 @@ protected:
 };
 
 
-class SetEventUndo : public UndoEvent
+mClass SetEventUndo : public UndoEvent
 {
 public:
     			SetEventUndo(EventManager&,const BinID&,int horidx,

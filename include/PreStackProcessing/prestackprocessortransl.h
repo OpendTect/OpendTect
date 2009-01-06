@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: prestackprocessortransl.h,v 1.2 2009-01-05 09:43:26 cvsranojay Exp $
+ RCS:		$Id: prestackprocessortransl.h,v 1.3 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace PreStack { class ProcessManager; }
 
 
-class PreStackProcTranslatorGroup : public TranslatorGroup
+mClass PreStackProcTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(PreStackProc)
 public:
     			mDefEmptyTranslatorGroupConstructor(PreStackProc)
@@ -43,7 +43,7 @@ public:
 };
 
 
-class dgbPreStackProcTranslator : public PreStackProcTranslator
+mClass dgbPreStackProcTranslator : public PreStackProcTranslator
 {			     isTranslator(dgb,PreStackProc)
 public:
 

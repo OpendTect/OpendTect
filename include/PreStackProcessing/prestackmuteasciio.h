@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: prestackmuteasciio.h,v 1.4 2008-06-26 05:27:02 cvsumesh Exp $
+ RCS:		$Id: prestackmuteasciio.h,v 1.5 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace PreStack
 
 class MuteDef;
 
-class MuteAscIO : public Table::AscIO
+mClass MuteAscIO : public Table::AscIO
 {
 public:
 				MuteAscIO( const Table::FormatDesc& fd,

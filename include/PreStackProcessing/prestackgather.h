@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.17 2008-12-23 12:51:22 cvsbert Exp $
+ RCS:		$Id: prestackgather.h,v 1.18 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ class SeisTrcBufDataPack;
 namespace PreStack
 {
 
-class Gather : public FlatDataPack
+mClass Gather : public FlatDataPack
 {
 public:
     				Gather();

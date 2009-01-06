@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedeftransl.h,v 1.1 2007-03-15 17:28:52 cvskris Exp $
+ RCS:		$Id: prestackmutedeftransl.h,v 1.2 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace PreStack { class MuteDef; }
 
 
-class MuteDefTranslatorGroup : public TranslatorGroup
+mClass MuteDefTranslatorGroup : public TranslatorGroup
 {				      isTranslatorGroup(MuteDef)
 public:
     			mDefEmptyTranslatorGroupConstructor(MuteDef)
@@ -26,7 +26,7 @@ public:
 };
 
 
-class MuteDefTranslator : public Translator
+mClass MuteDefTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(MuteDef)
@@ -42,7 +42,7 @@ public:
 };
 
 
-class dgbMuteDefTranslator : public MuteDefTranslator
+mClass dgbMuteDefTranslator : public MuteDefTranslator
 {			     isTranslator(dgb,MuteDef)
 public:
 

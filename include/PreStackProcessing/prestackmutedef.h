@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.h,v 1.3 2007-07-11 21:06:34 cvsyuancheng Exp $
+ RCS:		$Id: prestackmutedef.h,v 1.4 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class PointBasedMathFunction;
 namespace PreStack
 {
 
-class MuteDef : public NamedObject
+mClass MuteDef : public NamedObject
 {
 public:
 

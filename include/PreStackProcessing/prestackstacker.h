@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackstacker.h,v 1.4 2008-09-22 13:10:42 cvskris Exp $
+ RCS:		$Id: prestackstacker.h,v 1.5 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ template <class T> class Interval;
 namespace PreStack
 {
 
-class Stack : public Processor
+mClass Stack : public Processor
 {
 public:
 

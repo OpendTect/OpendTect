@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.3 2008-09-22 13:10:42 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.4 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ class EventPatchReader;
 
 /*! Reader for prestack events. */
 
-class EventReader : public Executor
+mClass EventReader : public Executor
 {
 public:
     			EventReader(IOObj*,EventManager*);
@@ -87,7 +87,7 @@ protected:
 };
 
 
-class EventWriter : public Executor
+mClass EventWriter : public Executor
 {
 public:
     			EventWriter(IOObj*,EventManager&);
@@ -110,7 +110,7 @@ protected:
 };
 
 
-class EventDuplicator : public Executor
+mClass EventDuplicator : public Executor
 {
 public:
     			EventDuplicator(IOObj* from,IOObj* to);

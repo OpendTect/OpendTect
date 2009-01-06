@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.5 2008-09-22 13:10:42 cvskris Exp $
+ RCS:		$Id: prestackagc.h,v 1.6 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ namespace PreStack
 {
 
 
-class AGC : public Processor
+mClass AGC : public Processor
 {
 public:
     static void			initClass();

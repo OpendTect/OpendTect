@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.7 2008-09-22 13:10:42 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.8 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ namespace PreStack
 {
 class MuteDef;
 
-class Mute : public Processor
+mClass Mute : public Processor
 {
 public:
 

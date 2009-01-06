@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventtransl.h,v 1.1 2008-07-01 21:32:01 cvskris Exp $
+ RCS:		$Id: prestackeventtransl.h,v 1.2 2009-01-06 06:05:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class HorSampling;
 namespace PreStack { class EventManager; }
 
 
-class PSEventTranslatorGroup : public TranslatorGroup
+mClass PSEventTranslatorGroup : public TranslatorGroup
 { isTranslatorGroup(PSEvent);
 public:
     				mDefEmptyTranslatorGroupConstructor(PSEvent);
@@ -33,7 +33,7 @@ public:
 };
 
 
-class PSEventTranslator : public Translator
+mClass PSEventTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(PSEvent);
@@ -51,7 +51,7 @@ public:
 };
 
 
-class dgbPSEventTranslator : public PSEventTranslator
+mClass dgbPSEventTranslator : public PSEventTranslator
 { isTranslator(dgb,PSEvent)
 public:
     		mDefEmptyTranslatorConstructor(dgb,PSEvent);
