@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.31 2008-12-19 09:33:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.32 2009-01-06 16:15:52 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -54,8 +54,8 @@ bool uiODWellParentTreeItem::showSubMenu()
     if ( children_.size() > 1 )
     {
 	mnu.insertItem( new uiMenuItem( "Create Attribute Log ..." ), 2 );
-	mnu.insertItem( new uiMenuItem( "Select Log ..." ), 3 );
-	mnu.insertItem( new uiMenuItem("&Properties ..."), 4 );
+	//mnu.insertItem( new uiMenuItem( "Select Log ..." ), 3 );
+	//mnu.insertItem( new uiMenuItem("&Properties ..."), 4 );
 
 	mnu.insertSeparator( 40 );
 	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "&Show all" );
@@ -241,15 +241,15 @@ uiODWellTreeItem::~uiODWellTreeItem()
 
 void uiODWellTreeItem::initMenuItems()
 {
-    attrmnuitem_.text = "&Create attribute log...";
-    sellogmnuitem_.text = "Select logs ...";
     propertiesmnuitem_.text = "&Properties ...";
+    //sellogmnuitem_.text = "Select logs ...";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
     markernamemnuitem_.text = "Marker &names";
     showlogmnuitem_.text = "&Logs" ;
-    showmnuitem_.text = "&Show" ;
+    attrmnuitem_.text = "&Create attribute log...";
+    //showmnuitem_.text = "&Show" ;
     editmnuitem_.text = "&Edit Welltrack" ;
     storemnuitem_.text = "St&ore ...";
 
@@ -303,11 +303,11 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
-    mAddMenuItem( menu, &sellogmnuitem_, !islocked, false );
+   // mAddMenuItem( menu, &sellogmnuitem_, !islocked, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
-    mAddMenuItem( menu, &showmnuitem_, true, false );
+    //mAddMenuItem( menu, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
 	    					wd->wellTopNameShown() );
     mAddMenuItem( &showmnuitem_, &namebotmnuitem_, true,  
