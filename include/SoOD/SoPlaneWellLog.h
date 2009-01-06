@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.15 2008-12-24 15:58:12 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.16 2009-01-06 15:21:46 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,8 +146,8 @@ protected:
     void			buildFilledLog(int,const SbVec3f&,int);
     void			fillTriangles(const int, const bool,float,float,
 	   				      SoCoordinate3*,SbVec3f&,SbVec3f&);
-    void			fillLogTriangles(const float,const int, float,
-	    						SoCoordinate3*,SbVec3f&,SbVec3f&);
+    void			fillLogTriangles(const int,SoCoordinate3*,
+	    						SbVec3f&,SbVec3f&);
     SbVec3f 			getProjCoords(const SoMFVec3f&,const int, 
 	  				      const SbVec3f&, const SoSFFloat&,
 					      const float, int lognr);

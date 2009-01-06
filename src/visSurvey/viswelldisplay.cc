@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.88 2008-12-24 15:58:12 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.89 2009-01-06 15:21:46 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -243,8 +243,8 @@ void WellDisplay::updateMarkers( CallBacker* )
 
 	well_->markersize = dpp(markers_.size_);
 	Color& mcolor = dpp(markers_.color_);
-	bool issquare = !(dpp( markers_.circular_ ));
-	well_->addMarker( pos, mcolor, wellmarker->name(), issquare );
+	bool iscircular = !(dpp( markers_.circular_ ));
+	well_->addMarker( pos, mcolor, wellmarker->name(), iscircular );
     }
 }
 
@@ -463,11 +463,10 @@ void WellDisplay::setWellProperties( int lognr, Interval<float>& range)
     if ( !isdatarange )
     {
 	calcClippedRange( cliprate, range, wl );
-	//dpp( left_.range_) = range; //TODO update range?
+	//dpp( left_.range_) = range; //TODO? update range
 	//dpp( right_.range_) = range;
     }
 }
-
 
 
 void WellDisplay::setLogColor( const Color& col, int lognr )
@@ -754,7 +753,7 @@ void WellDisplay::addPick( Coord3 pos )
 	marker->setDisplayTransformation( transformation_ );
 	marker->setCenterPos( pos );
         marker->setScreenSize( mPickSz );
-	marker->setType( (MarkerStyle3D::Type)mPickType );
+	marker->setType( (MarkerStyle3D::Type)mPickSz );
 	marker->getMaterial()->setColor( lineStyle()->color_ );
     }
 }

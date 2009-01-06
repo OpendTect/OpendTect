@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.20 2009-01-05 14:14:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.21 2009-01-06 15:21:46 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -507,8 +507,7 @@ void SoPlaneWellLog::buildFilledLog(int lognr, const SbVec3f& projdir, int res )
 			    seisfillcrd, linecrd );
 
 	if ( !styleB && fillingB )
-	    fillLogTriangles( meanlogval, idx, logval, coordtri,
-				newcrd, linecrd );
+	    fillLogTriangles(  idx, coordtri, newcrd, linecrd );
 
 	triset->coordIndex.set1Value( 2*idx, 2*idx );
 	triset->coordIndex.set1Value( 2*idx+1, 2*idx+1 );
@@ -544,8 +543,7 @@ void SoPlaneWellLog::fillTriangles( const int idx, const bool styleB,
 }
 
 
-void SoPlaneWellLog::fillLogTriangles(const float meanlogval, const int idx,
-       					float logval, SoCoordinate3* coordtri,
+void SoPlaneWellLog::fillLogTriangles( const int idx, SoCoordinate3* coordtri,
 				       	SbVec3f& newcrd, SbVec3f& linecrd )
 {
     coordtri->point.set1Value( 2*idx, newcrd );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.40 2009-01-05 14:14:56 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.41 2009-01-06 15:21:46 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -31,7 +31,8 @@ static const char* rcsID = "$Id: viswell.cc,v 1.40 2009-01-05 14:14:56 cvsbruno 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoFaceSet.h>
-#include <Inventor/nodes/SoSphere.h>
+#include <Inventor/nodes/SoCylinder.h>
+#include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoSwitch.h>
 
 mCreateFactoryEntry( visBase::Well );
@@ -219,7 +220,7 @@ bool Well::wellBotNameShown() const
 
 
 void Well::addMarker( const Coord3& pos, const Color& color,
-       				const char* nm, bool issquare ) 
+       				const char* nm, bool iscircular ) 
 {
     Marker* marker = Marker::create();
 
@@ -227,24 +228,28 @@ void Well::addMarker( const Coord3& pos, const Color& color,
     markershapesep->ref();
     SoCoordinate3* markercoords= new SoCoordinate3;
     markershapesep->addChild(markercoords);
-	
+
+    if ( !iscircular )
+    {
+	marker->setType( MarkerStyle3D::Cube );
+	SoFaceSet* markershape = new SoFaceSet;
 	markercoords->point.set1Value(0,-1,-1,0);
 	markercoords->point.set1Value(1,-1, 1,0);
 	markercoords->point.set1Value(2, 1, 1,0);
 	markercoords->point.set1Value(3, 1,-1,0);
-	SoFaceSet* markershape = new SoFaceSet;
 	markershape->numVertices.setValue(4);
-    /*
-    if ( issquare )
-    {
+	markershapesep->addChild(markershape);
     }
     else
     {
-	SoSphere* markershape = new SoSphere;
-	markershape->radius(2);
-    }
-    */
-    markershapesep->addChild(markershape);
+	marker->setType( MarkerStyle3D::Cylinder );
+	SoCylinder* markershape = new SoCylinder;
+	markershape->height.setValue(0);
+	markershape->radius.setValue(1);
+	markershape->parts.setValue(SoCylinder::BOTTOM);
+	markershapesep->addChild(markershape);
+    }	
+
 
     marker->setMarkerShape(markershapesep);
     markershapesep->unref();
@@ -253,7 +258,6 @@ void Well::addMarker( const Coord3& pos, const Color& color,
     markergroup->addObject( marker );
     marker->setDisplayTransformation( transformation );
     marker->setCenterPos( pos );
-    //marker->setType( MarkerStyle3D::Cube );
     marker->getMaterial()->setColor( color );
     marker->setScreenSize( markersize );
     marker->turnOn( showmarkers );

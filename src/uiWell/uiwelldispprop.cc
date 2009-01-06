@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.15 2009-01-06 09:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.16 2009-01-06 15:21:46 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -113,7 +113,7 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
     : uiWellDispProperties(p,su,mp)
 {
     circfld_ = new uiGenInput( this, "Shape",
-			       BoolInpSpec(true,"Circular","Square") );
+			       BoolInpSpec(true,"Square","Circular") );
     circfld_->attach( alignedBelow, colfld_ );
     circfld_->valuechanged.notify( mCB(this,uiWellMarkersDispProperties,propChg) );
 }
