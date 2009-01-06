@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.45 2008-10-06 04:28:32 cvsnanne Exp $
+  - RCS:	$Id: plugins.html,v 1.46 2009-01-06 08:42:42 cvsdgb Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V3.2]</title>
@@ -199,8 +199,8 @@ extern "C" PluginInfo* GetuiHelloPluginInfo()
 }
 </pre></code>
 
-The plugin will now <a href=#autoload>auto-load</a> when put in the
-correct plugins directory. </p>
+The plugin will now <a href=#autoload>auto-load</a> when added to the
+auto-load system.</p>
 
 <p> The idea is to add a menu item 'Display Hello Message ...' to the
 'Utilities' menu of OpendTect. The Makefile and the example code are
@@ -281,7 +281,7 @@ access all menus and toolbars. </p>
 
 <h4>The <code>uiHelloMsgBringer</code></h4>
 
-<p> All dialog windows in OpendTect are objects of type
+<p>All dialog windows in OpendTect are objects of type
 <code>uiDialog</code> (in a few cases like the OpendTect main window
 itself they descend from <code>uiMainWin</code>). The
 <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code>
@@ -738,7 +738,7 @@ named 'z0_' in the corresponding DataHolders.</p>
 
 <a name=helpdoc><h2>Creating the Help Document</h2>
 
-<p> Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. In OpendTect, the help documents are stored in <i>$WORK/data/###Doc</i> directories. In case of our <i>Tutorial</i> plugin, the directory is called <i>tutDoc</i>. There are 4 key files in this directory:
+<p> Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. In OpendTect, the help documents are stored in <i>$WORK/doc/User/###</i> directories. In case of our <i>Tutorial</i> plugin, the directory is called <i>tut</i>. There are 4 key files in this directory:
 <ul>
 <li>.mnuinfo 			: This contains the name and start page of the help document as seen in the <i>Index</i> menu.
 <li>WindowLinkTable.txt		: This file contains the window links and corresponding codes as used in the UI.
@@ -751,7 +751,7 @@ named 'z0_' in the corresponding DataHolders.</p>
                               "Specify process parameters",
                               "tut:105.0.1") )
 </pre></code>  
-In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory <i>tutDoc</i> and <code>105.0.1</code> is the window link code of the corresponding help document.<p>
+In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory <i>tut</i> and <code>105.0.1</code> is the window link code of the corresponding help document.<p>
 
 <a name=autoload><h2>Installation and auto-loading</h2>
 
