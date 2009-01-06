@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunction.h,v 1.1 2008-07-22 17:39:21 cvskris Exp $
+ RCS:		$Id: velocityfunction.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -38,7 +38,7 @@ class FunctionSource;
    different for each subclass, but is typically user-picks, wells
    or velocity volumes. */
 
-class Function
+mClass Function
 { mRefCountImpl(Function)
 public:
 				Function(FunctionSource&);
@@ -75,7 +75,7 @@ private:
 /*!A source of Velocity functions of a certain sort. The FunctionSource
    can create Functions at certian BinID locations. */
 
-class FunctionSource : public CallBacker
+mClass FunctionSource : public CallBacker
 { mRefCountImplNoDestructor(FunctionSource);
 public:
     mDefineFactory1ParamInClass( FunctionSource, const MultiID&, factory );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		December 2008
- RCS:		$Id: velocityfunctioninterval.h,v 1.1 2008-12-18 21:39:10 cvskris Exp $
+ RCS:		$Id: velocityfunctioninterval.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class IntervalSource;
 /*!A velocity funcion that computes interval velocity from where from
    another velocity function with RMS velocity */
 
-class IntervalFunction : public Function
+mClass IntervalFunction : public Function
 {
 public:
 			IntervalFunction(IntervalSource&);
@@ -49,7 +49,7 @@ protected:
 };
 
 
-class IntervalSource : public FunctionSource
+mClass IntervalSource : public FunctionSource
 {
 public:
     			IntervalSource();

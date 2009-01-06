@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.1 2008-07-22 17:39:21 cvskris Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class GriddedSource;
 /*!A velocity funcion where the velocity is computed from
    Residual Moveout picks. */
 
-class GriddedFunction : public Function
+mClass GriddedFunction : public Function
 {
 public:
 			GriddedFunction(GriddedSource&);
@@ -57,7 +57,7 @@ protected:
 };
 
 
-class GriddedSource : public FunctionSource
+mClass GriddedSource : public FunctionSource
 {
 public:
     			GriddedSource();

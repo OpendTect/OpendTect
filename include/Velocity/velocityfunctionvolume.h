@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.1 2008-07-22 17:39:21 cvskris Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class VolumeFunctionSource;
 
 /*!VelocityFunction that gets its information from a Velocity Volume. */
 
-class VolumeFunction : public Function
+mClass VolumeFunction : public Function
 {
 public:
 			VolumeFunction(VolumeFunctionSource&);
@@ -48,7 +48,7 @@ protected:
 };
 
 
-class VolumeFunctionSource : public FunctionSource
+mClass VolumeFunctionSource : public FunctionSource
 {
 public:
     static void			initClass();
