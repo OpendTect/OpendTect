@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.23 2008-12-31 13:10:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.24 2009-01-06 08:16:18 cvsbert Exp $";
 
 #include "uistrattreewin.h"
 
@@ -46,7 +46,7 @@ const uiStratTreeWin& StratTWin()
 
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
-    : uiMainWin(p,"Manage Stratigraphy", 0, true, false)
+    : uiMainWin(p,"Manage Stratigraphy", 0, true)
     , levelCreated(this)
     , levelChanged(this)
     , levelRemoved(this)
@@ -67,10 +67,18 @@ uiStratTreeWin::~uiStratTreeWin()
     delete uitree_;
 }
 
+
+void uiStratTreeWin::popUp() const
+{
+    uiStratTreeWin& self = *const_cast<uiStratTreeWin*>(this);
+    self.show();
+    self.raise();
+}
+
     
 void uiStratTreeWin::createMenus()
 {
-    uiMenuBar* menubar =  menuBar();
+    uiMenuBar* menubar = menuBar();
     uiPopupMenu* viewmnu = new uiPopupMenu( this, "&View" );
     expandmnuitem_ = new uiMenuItem( mExpandTxt,
 				     mCB(this, uiStratTreeWin, setExpCB ) );

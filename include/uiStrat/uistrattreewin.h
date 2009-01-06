@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.13 2008-12-31 13:10:12 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.14 2009-01-06 08:16:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,7 @@ public:
 			uiStratTreeWin(uiParent*);
 			~uiStratTreeWin();
 
-    void		popUp() const
-    			{ const_cast<uiStratTreeWin*>(this)->show(); }
+    void		popUp() const;
 
     mutable Notifier<uiStratTreeWin>	levelCreated;
     mutable Notifier<uiStratTreeWin>	levelChanged;
