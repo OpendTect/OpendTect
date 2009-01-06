@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.14 2008-04-30 03:31:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.15 2009-01-06 10:10:48 cvsbert Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -32,6 +32,8 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
     	, geom_(gt)
     	, tst_(*new Tut::SeisTools)
 {
+    setHaveCredits( true );
+
     const CallBack choicecb( mCB(this,uiTutSeisTools,choiceSel) );
 
     // The input seismic object

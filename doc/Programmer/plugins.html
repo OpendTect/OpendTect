@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.46 2009-01-06 08:42:42 cvsdgb Exp $
+  - RCS:	$Id: plugins.html,v 1.47 2009-01-06 10:10:48 cvsbert Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V3.2]</title>
@@ -44,7 +44,7 @@ people to take over or even implement those things themselves. </p>
 <b>gcc/g++</b>. OpendTect is built with it, if you want to use another
 compiler (why?) you'll have to make all libs and supporting libs (Qt,
 COIN, fftw) yourself. The make itself should be pretty easy to get
-started, but there will probably be some porting to do, too. </p>
+started, but there will probably be some porting to do, too.</p>
 
 <br><br>
 <a name=concept><h2>The concept</h2>
@@ -159,7 +159,7 @@ inclusions: It's a directive to establish all kinds of variables in
 the make includes. By typing <code>make -n</code> again you'll see
 that Pmake added some directives for the compiler. </p>
 
-<p>If you really want to see this working, make sure you add:
+<p>If you really want to see this simple thing working, make sure you add:
 <code>OWNC++FLAGS := -DPLAN_A</code>
 to the make file (or specify make <code>OWNC++FLAGS=-DPLAN_A</code> on the command line).</p>
 
@@ -171,16 +171,11 @@ to the make file (or specify make <code>OWNC++FLAGS=-DPLAN_A</code> on the comma
 <h4>Intro</h4>
 
 <p> Adding menu items popping up your own dialogs is pretty easy once
-you get the hang of it. The uiArkCls plugin is a good example: it
-shows how to get hold of the parent menus, and what to do to get the
-CallBacks. You don't need to download the doc.arkcls however because
-the uiHello plugin code contains some example code to make things
-clear. Although we fear that you might be scared by this code when you
-first see it, we hope that after the explanations below you will see
-some beauty in it and start to like it. </p>
+you get the hang of it. Although we fear that you might be scared by this code when you first see it, we hope that after the explanations below you will see
+some beauty in it and start to like it.</p>
 
-<p> Look in uihellopi.cc - the else of the PLAN_A part. First of all, we nicely
-define the other standard plugin functions:
+<p>Look in uihellopi.cc - the else of the PLAN_A part. First of all,
+we nicely define the other standard plugin functions:
 
 <pre><code>extern "C" int GetuiHelloPluginType()
 {
@@ -199,8 +194,7 @@ extern "C" PluginInfo* GetuiHelloPluginInfo()
 }
 </pre></code>
 
-The plugin will now <a href=#autoload>auto-load</a> when added to the
-auto-load system.</p>
+The plugin will now <a href=#autoload>auto-load</a> when added to the auto-loaded plugins.</p>
 
 <p> The idea is to add a menu item 'Display Hello Message ...' to the
 'Utilities' menu of OpendTect. The Makefile and the example code are
@@ -248,7 +242,7 @@ function at the bottom of uihellopi.cc to find: </p>
 
 <p> As you can see, the ODMainWin() instance is passed to a new
 instance of <code>uiHelloMgr</code> which is programmed in the lines
-above it. This Manager object is needed as you will find that any
+above it. This Manager object is needed as you will find that most
 non-trivial GUI plugin will need some kind of top-level 'application
 management' object to drive it. </p>
 
@@ -281,12 +275,11 @@ access all menus and toolbars. </p>
 
 <h4>The <code>uiHelloMsgBringer</code></h4>
 
-<p>All dialog windows in OpendTect are objects of type
-<code>uiDialog</code> (in a few cases like the OpendTect main window
-itself they descend from <code>uiMainWin</code>). The
-<code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code>
-which means it has (by default) Ok and Cancel buttons, a window title,
-and so forth. The class contains a field for user input of the string
+<p> Most dialog windows in OpendTect are objects of type
+<code>uiDialog</code>. <code>uiDialog</code> inherits from <code>uiMainWin</code>, the base class without Ok and Cancel buttons, a window title,
+and so forth (all of those are optional BTW).
+The <code>uiHelloMsgBringer</code> class is such a <code>uiDialog</code>.
+The class contains a field for user input of the string
 to display as message. To make the example a bit lively, we added a
 field whether the message should be, eh, just a message, or a warning.
 You can see the <code>uiGenInput</code> class will serve both input
@@ -296,7 +289,7 @@ instance: </p>
 <code><pre>txtfld = new uiGenInput( this, "Hello message",
                          StringInpSpec("Hello world") );
 typfld = new uiGenInput( this, "Message type",
-                         BoolInpSpec("Info","Warning") );
+                         BoolInpSpec(true,"Info","Warning") );
 typfld->attach( alignedBelow, txtfld );
 </code></pre>
 
@@ -330,8 +323,8 @@ return true;
 </code></pre>
 
 
-<p> and the dialog disappears immediately after the message appears on
-the screen. </p>
+<p>and the dialog disappears immediately after the message appears on
+the screen and the user clicks OK.</p>
 
 <br>
 <br>
@@ -404,7 +397,7 @@ In the process, we'll see how to:
 
 <a name=tut><h4>The <code>Tut</code> plugin</h4>
 
-<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters from him (or her -- we don't want to get sued by the feminists). The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY. This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined) and LATE, which is typical
+<p> The responsibility of uiTut is limited to talking to the user and getting the input parameters. The real work is done behind the scene by the non-UI <b><code>Tut</code></b> plugin. And that is the reason why it is of type EARLY. This particular plugin tells OpendTect's application manager that it wants to be loaded early - i.e. before any build of tables, data structures or user interfaces are made. That is typical of 'Real Work' plugins. The alternatives are NONE (which is default so in that case a GetxxxxPluginType() need not be defined) and LATE, which is typical
 for UI plugins that want to start working when all objects have already been created.<p>
 
 <code><pre>extern "C" int GetTutPluginType()
@@ -736,7 +729,9 @@ named 'z0_' in the corresponding DataHolders.</p>
 
 <br>
 
-<a name=helpdoc><h2>Creating the Help Document</h2>
+<a name=helpdoc><h2>Creating the Help Documention</h2>
+
+<h3>The help system</h3>
 
 <p> Like any other commercial application, our plugin also needs a help document which a user can see by clicking on a button in the user interface. In OpendTect, the help documents are stored in <i>$WORK/doc/User/###</i> directories. In case of our <i>Tutorial</i> plugin, the directory is called <i>tut</i>. There are 4 key files in this directory:
 <ul>
@@ -751,7 +746,17 @@ named 'z0_' in the corresponding DataHolders.</p>
                               "Specify process parameters",
                               "tut:105.0.1") )
 </pre></code>  
-In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory <i>tut</i> and <code>105.0.1</code> is the window link code of the corresponding help document.<p>
+In the above code, <code>"tut:105.0.1"</code> is passed as the <i>help id</i>, where <code>tut</code> refers to the directory and <code>105.0.1</code> is the window link code of the corresponding help document.<p>
+
+<h3>The 'credits' documentation</h3>
+<p>From 3.3.2, OpendTect has the 'Credits' documentation, for aknowledging
+helpers, sponsors, idols, ....
+The structure is different from the user documentation described earlier. The base directory is <code>$WORK/doc/Credits</code>.</p>
+<p>If you want to tie certain windows to specific credits (as we want in OpendTect base), you can use the Help ID as reference. This should then go in the <code>index.txt</code> file. All files are opened by the browser via that key. It's easy to see, for example in <code>Credits/tut/index.txt</code> how this works. Note that the IDs in index.txt need no scope, the scope is already used to for the subdirectory (no scope is as usual 'base'). Then, and this is essential, you'll have to use <code>setHaveCredits( true );</code> in the constructor of your dialog. This will add the 'credits' button to the dialog.
+</p>
+<p>
+If you want to add credits, you should at least make an <code>index.html</code>. If it is present, an entry will be made in the top-level Help-Credits menu.
+</p>
 
 <a name=autoload><h2>Installation and auto-loading</h2>
 
@@ -825,12 +830,16 @@ odmain.dgb.alo. This way, each vendor can make his own .alo files,
 without interfering with others.</p>
 
 <p>A .alo file is nothing more then a simple list of plugins, without
-extensions. For example, this is what odmain.base.alo files look like:
+extensions. For example, here is part of the odmain.base.alo file:
 </p>
 
 <pre><code>
-uiSeisIOSimple
-VolumeRender
+Annotations
+Madagascar
+uiMadagascar
+CmdDriver
+GMT
+uiGMT
 </code></pre>
 
 <p> Note that for each platform, a specific .alo file must be created.
