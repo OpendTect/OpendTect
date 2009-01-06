@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.153 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.154 2009-01-06 09:04:15 cvsjaap Exp $";
 
 #include "uiempartserv.h"
 
@@ -496,10 +496,19 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
 
 bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 {
+    MultiID dummykey;
+    return storeObject( id, storeas, dummykey );
+}
+
+
+bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas,
+				  MultiID& storagekey ) const
+{
     mDynamicCastAll(id);
     if ( !object ) return false;
 
     PtrMan<Executor> exec = 0;
+    MultiID key = object->multiID();
 
     if ( storeas )
     {
@@ -512,10 +521,10 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 	    EM::SurfaceIODataSelection sel( sd );
 	    dlg.getSelection( sel );
 
-	    const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
+	    key = dlg.ioObj() ? dlg.ioObj()->key() : "";
 	    exec = surface->geometry().saver( &sel, &key );
-	    if ( exec && dlg.replaceInTree() ) 
-		surface->setMultiID( key );
+	    if ( exec && dlg.replaceInTree() )
+		    surface->setMultiID( key );
 	}
 	else
 	{
@@ -529,7 +538,10 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 		return false;
 
 	    if ( dlg.ioObj() )
-		object->setMultiID( dlg.ioObj()->key() );
+	    {
+		key = dlg.ioObj()->key();
+		object->setMultiID( key );
+	    }
 
 	    exec = object->saver();
 	}
@@ -540,6 +552,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
     if ( !exec )
 	return false;
 
+    storagekey = key;
     uiTaskRunner exdlg( parent() );
     return exdlg.execute( *exec );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.77 2008-11-24 10:59:18 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.78 2009-01-06 09:04:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,8 @@ public:
 
     bool		storeObject(const EM::ObjectID&,
 	    			    bool storeas=false) const;
+    bool		storeObject(const EM::ObjectID&,bool storeas,
+				    MultiID& storagekey) const;
     bool		storeAuxData(const EM::ObjectID&,
 	    			     BufferString& auxdataname,
 	    			     bool storeas=false) const;

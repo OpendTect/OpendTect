@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.39 2008-12-18 11:21:09 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.40 2009-01-06 09:04:15 cvsjaap Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -400,12 +400,15 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	const MultiID oldmid = ems->getStorageID(emid_);
 	mps->prepareSaveSetupAs( oldmid );
 
-	ems->storeObject( emid_, true );
+	MultiID storedmid;
+	ems->storeObject( emid_, true, storedmid );
 	applMgr()->visServer()->setObjectName( displayid_,
 		(const char*) ems->getName(emid_) );
 
-	const MultiID newmid = ems->getStorageID(emid_);
-	mps->saveSetupAs( newmid );
+	const MultiID midintree = ems->getStorageID(emid_);
+	EM::EMM().getObject(emid_)->setMultiID( storedmid );
+	mps->saveSetupAs( storedmid );
+	EM::EMM().getObject(emid_)->setMultiID( midintree );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
