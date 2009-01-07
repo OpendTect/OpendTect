@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.91 2008-12-29 11:49:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.92 2009-01-07 11:25:14 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -1018,6 +1018,7 @@ bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
 		    { refidx = ids; break; }
 	    }
 	    
+	    //TODO : handle multi components stored data 
 	    DescID descid = DescID::undef();
 	    if ( refidx > -1 )
 	    {
