@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.23 2008-12-23 11:35:51 cvsdgb Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.24 2009-01-07 06:03:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.23 2008-12-23 11:35:51 cvsdgb Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.24 2009-01-07 06:03:14 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -321,7 +321,6 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	    const uiPoint* itempos = itm->getPos();
 	    if ( (rectangleselection_ ? selectedarea.contains(*itempos) :
 		    odselectedpolygon_->isInside(*itempos,true,0)) &&
-		    y2selectablerg.contains(*itempos) &&
 		    yselectablerg.contains(*itempos) )
 	    {
 		selcoords_ += y1coords_[idx];
@@ -338,8 +337,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	    const uiPoint* itempos = itm->getPos();
 	    if ( (rectangleselection_ ? selectedarea.contains(*itempos) :
 		    odselectedpolygon_->isInside(*itempos,true,0)) &&
-		    y2selectablerg.contains(*itempos) &&
-		    yselectablerg.contains(*itempos) )
+		    y2selectablerg.contains(*itempos) )
 	    {
 		selcoords_ += y2coords_[idx];
 		selrowcols_ += y2rowcols_[idx];
@@ -750,7 +748,7 @@ void uiDataPointSetCrossPlotter::drawY1UserDefLine( const Interval<int>& xpixrg,
 	y1userdeflineitm_ = new uiLineItem();
 	scene().addItem( y1userdeflineitm_ );
     }
-    drawLine( *y1userdeflineitm_, userdefy1lp_, xah, yah, 0);//&xvalrg );
+    drawLine( *y1userdeflineitm_, userdefy1lp_, xah, yah, 0);
     y1userdeflineitm_->setPenStyle( y_.defaxsu_.style_ );
 }
 
@@ -777,7 +775,7 @@ void uiDataPointSetCrossPlotter::drawY2UserDefLine( const Interval<int>& xpixrg,
 	y2userdeflineitm_ = new uiLineItem();
 	scene().addItem( y2userdeflineitm_ );
     }
-    drawLine( *y2userdeflineitm_, userdefy2lp_, xah, yah, 0 );//&xvalrg );
+    drawLine( *y2userdeflineitm_, userdefy2lp_, xah, yah, 0 );
     y2userdeflineitm_->setPenStyle( y2_.defaxsu_.style_ );
 }
 
@@ -859,11 +857,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     setselparameterid_ = disptb_.addButton( " settings.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
 	    " Selection Settings " );
-/*
-    maniptb_.addButton( "delsel.png",
-			mCB(this,uiDataPointSetCrossPlotWin,delSel),
-			"Delete selected", false );
-*/
     maniptb_.addButton( "xplotprop.png",
 			mCB(this,uiDataPointSetCrossPlotWin,editProps),
 			"Properties", false );
@@ -911,7 +904,7 @@ void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
 			      			    : "polygonselect.png" );
     plotter_.setDragMode( plotter_.rectangleselection_ ?
 	    			uiGraphicsView::RubberBandDrag :
-	    			uiGraphicsView::ScrollHandDrag );
+	    			uiGraphicsView::NoDrag );
 }
 
 
