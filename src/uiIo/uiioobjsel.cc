@@ -7,24 +7,27 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.125 2008-12-19 07:34:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.126 2009-01-07 06:32:39 cvsnageswara Exp $";
 
 #include "uiioobjsel.h"
-#include "uiioobjmanip.h"
-#include "iodirentry.h"
-#include "uigeninput.h"
-#include "uistatusbar.h"
-#include "uilistbox.h"
-#include "uimsg.h"
+
 #include "ctxtioobj.h"
+#include "errh.h"
+#include "iodir.h"
+#include "iodirentry.h"
+#include "iolink.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "iostrm.h"
 #include "linekey.h"
 #include "transl.h"
-#include "ioman.h"
-#include "iostrm.h"
-#include "iolink.h"
-#include "iodir.h"
-#include "iopar.h"
-#include "errh.h"
+
+#include "uigeninput.h"
+#include "uiioobjmanip.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uistatusbar.h"
+
 
 static const MultiID udfmid( "-1" );
 
@@ -43,7 +46,7 @@ class uiIOObjSelGrpManipSubj : public uiIOObjManipGroupSubj
 public:
 
 uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
-    : uiIOObjManipGroupSubj(sg->listfld)
+    : uiIOObjManipGroupSubj(sg->listfld_)
     , selgrp_(sg)
     , manipgrp_(0)
 {
@@ -52,7 +55,7 @@ uiIOObjSelGrpManipSubj( uiIOObjSelGrp* sg )
 
 const MultiID* curID() const
 {
-    const int selidx = selgrp_->listfld->currentItem();
+    const int selidx = selgrp_->listfld_->currentItem();
     return selidx < 0 ? 0 : selgrp_->ioobjids_[selidx];
 }
 
@@ -68,7 +71,7 @@ const BufferStringSet& names() const
 
 void chgsOccurred()
 {
-    selgrp_->fullUpdate( selgrp_->listfld->currentItem() );
+    selgrp_->fullUpdate( selgrp_->listfld_->currentItem() );
 }
 
 void selChg( CallBacker* )
@@ -93,7 +96,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     : uiGroup(p)
     , ctio_(c)
     , ismultisel_(multisel && ctio_.ctxt.forread)
-    , nmfld(0)
+    , nmfld_(0)
     , manipgrpsubj(0)
     , newStatusMsg(this)
     , selectionChg(this)
@@ -102,48 +105,48 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 {
     IOM().to( ctio_.ctxt.getSelKey() );
 
-    topgrp = new uiGroup( this, "Top group" );
-    filtfld = new uiGenInput( topgrp, "Filter", "*" );
-    filtfld->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
+    topgrp_ = new uiGroup( this, "Top group" );
+    filtfld_ = new uiGenInput( topgrp_, "Filter", "*" );
+    filtfld_->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
     if ( !seltxt || !*seltxt )
     {
-	listfld = new uiListBox( topgrp );
-	filtfld->attach( centeredAbove, listfld );
-	topgrp->setHAlignObj( listfld );
+	listfld_ = new uiListBox( topgrp_ );
+	filtfld_->attach( centeredAbove, listfld_ );
+	topgrp_->setHAlignObj( listfld_ );
     }
     else
     {
-	uiLabeledListBox* llb = new uiLabeledListBox( topgrp, seltxt );
-	llb->attach( alignedBelow, filtfld );
-	topgrp->setHAlignObj( llb );
-	listfld = llb->box();
+	uiLabeledListBox* llb = new uiLabeledListBox( topgrp_, seltxt );
+	llb->attach( alignedBelow, filtfld_ );
+	topgrp_->setHAlignObj( llb );
+	listfld_ = llb->box();
     }
 
-    listfld->setName( "Objects list" );
+    listfld_->setName( "Objects list" );
     if ( ismultisel_ )
-	listfld->setMultiSelect( true );
-    listfld->setPrefHeightInChar( 8 );
+	listfld_->setMultiSelect( true );
+    listfld_->setPrefHeightInChar( 8 );
     fullUpdate( 0 );
 
     if ( ctio_.ioobj )
-        listfld->setCurrentItem( ctio_.ioobj->name() );
+        listfld_->setCurrentItem( ctio_.ioobj->name() );
 
     if ( !ctio_.ctxt.forread )
     {
-	nmfld = new uiGenInput( this, "Name" );
-	nmfld->attach( alignedBelow, topgrp );
-	nmfld->setElemSzPol( uiObject::SmallMax );
-	nmfld->setStretch( 2, 0 );
+	nmfld_ = new uiGenInput( this, "Name" );
+	nmfld_->attach( alignedBelow, topgrp_ );
+	nmfld_->setElemSzPol( uiObject::SmallMax );
+	nmfld_->setStretch( 2, 0 );
 
 	LineKey lk( ctio_.name() );
 	const BufferString nm( lk.lineName() );
 	if ( !nm.isEmpty() )
 	{
-	    nmfld->setText( nm );
-	    if ( listfld->isPresent( nm ) )
-		listfld->setCurrentItem( nm );
+	    nmfld_->setText( nm );
+	    if ( listfld_->isPresent( nm ) )
+		listfld_->setCurrentItem( nm );
 	    else
-		listfld->clear();
+		listfld_->clear();
 	}
     }
 
@@ -153,12 +156,13 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj );
     }
 
-    listfld->setHSzPol( uiObject::Wide );
-    listfld->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    listfld->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
-    if ( (nmfld && !*nmfld->text()) || !nmfld )
+    listfld_->setHSzPol( uiObject::Wide );
+    listfld_->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
+    listfld_->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
+    if ( (nmfld_ && !*nmfld_->text()) || !nmfld_ )
 	selChg( this );
-    setHAlignObj( topgrp );
+    setHAlignObj( topgrp_ );
+    finaliseDone.notify( mCB(this,uiIOObjSelGrp,setInitial) );
 }
 
 
@@ -171,11 +175,26 @@ uiIOObjSelGrp::~uiIOObjSelGrp()
 }
 
 
+void uiIOObjSelGrp::setInitial( CallBacker* )
+{
+    const char* presetnm = getNameField() ? getNameField()->text() : "";
+    if ( *presetnm )
+    {
+	if ( !getListField()->isPresent( presetnm ) )
+	    return;
+	else
+	    getListField()->setCurrentItem( presetnm );
+    }
+
+    selChg( 0 );
+}
+
+
 int uiIOObjSelGrp::nrSel() const
 {
     int nr = 0;
-    for ( int idx=0; idx<listfld->size(); idx++ )
-	if ( listfld->isSelected(idx) ) nr++;
+    for ( int idx=0; idx<listfld_->size(); idx++ )
+	if ( listfld_->isSelected(idx) ) nr++;
 
     return nr;
 }
@@ -189,9 +208,9 @@ uiIOObjManipGroup* uiIOObjSelGrp::getManipGroup()
 
 const MultiID& uiIOObjSelGrp::selected( int objnr ) const
 {
-    for ( int idx=0; idx<listfld->size(); idx++ )
+    for ( int idx=0; idx<listfld_->size(); idx++ )
     {
-	if ( listfld->isSelected(idx) )
+	if ( listfld_->isSelected(idx) )
 	    objnr--;
 	if ( objnr < 0 )
 	    return *ioobjids_[idx];
@@ -235,7 +254,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 {
     IOM().to( ctio_.ctxt.getSelKey() );
     IODirEntryList del( IOM().dirPtr(), ctio_.ctxt );
-    BufferString nmflt = filtfld->text();
+    BufferString nmflt = filtfld_->text();
     if ( !nmflt.isEmpty() && nmflt != "*" )
 	del.fill( IOM().dirPtr(), nmflt );
 
@@ -263,15 +282,15 @@ void uiIOObjSelGrp::setCur( int curidx )
     else if ( curidx < 0 )
 	curidx = 0;
     if ( ioobjnms_.size() )
-	listfld->setCurrentItem( curidx );
+	listfld_->setCurrentItem( curidx );
     selectionChg.trigger();
 }
 
 
 void uiIOObjSelGrp::fillListBox()
 {
-    listfld->empty();
-    listfld->addItems( ioobjnms_ );
+    listfld_->empty();
+    listfld_->addItems( ioobjnms_ );
 }
 
 
@@ -284,7 +303,7 @@ void uiIOObjSelGrp::toStatusBar( const char* txt )
 
 IOObj* uiIOObjSelGrp::getIOObj( int idx )
 {
-    bool issel = listfld->isSelected( idx );
+    bool issel = listfld_->isSelected( idx );
     if ( idx < 0 || !issel ) return 0;
 
     const MultiID& ky = *ioobjids_[idx];
@@ -294,21 +313,29 @@ IOObj* uiIOObjSelGrp::getIOObj( int idx )
 
 void uiIOObjSelGrp::selChg( CallBacker* cb )
 {
-    if ( ismultisel_ ) return;
-
-    PtrMan<IOObj> ioobj = getIOObj( listfld->currentItem() );
-    ctio_.setObj( ioobj ? ioobj->clone() : 0 );
-    if ( cb && nmfld )
-	nmfld->setText( ioobj ? ioobj->name() : "" );
-    BufferString nm( ioobj ? ioobj->fullUserExpr(ctio_.ctxt.forread) : "" );
-    int len = nm.size();
-    if ( len>44 )
+    BufferString info;
+    if ( ismultisel_ && nrSel()>1 )
     {
-	BufferString tmp( nm );
-	nm = "....";
-	nm += tmp.buf() + len - 40;
+	info += "Multiple objects selected (";
+	info += nrSel(); info += "/"; info += listfld_->size(); info += ")";
     }
-    toStatusBar( nm );
+    else
+    {
+	PtrMan<IOObj> ioobj = getIOObj( listfld_->currentItem() );
+	ctio_.setObj( ioobj ? ioobj->clone() : 0 );
+	if ( cb && nmfld_ )
+	    nmfld_->setText( ioobj ? ioobj->name() : "" );
+	info = ioobj ? ioobj->fullUserExpr(ctio_.ctxt.forread) : "";
+	const int len = info.size();
+	if ( len>44 )
+	{
+	    BufferString tmp( info );
+	    info = "....";
+	    info += tmp.buf() + len - 40;
+	}
+    }
+
+    toStatusBar( info );
     selectionChg.trigger();
 }
 
@@ -322,19 +349,19 @@ void uiIOObjSelGrp::setContext( const IOObjContext& c )
 
 bool uiIOObjSelGrp::processInput()
 {
-    int curitm = listfld->currentItem();
-    if ( !nmfld )
+    int curitm = listfld_->currentItem();
+    if ( !nmfld_ )
     {
 	if ( ismultisel_ )
 	{
 	    if ( nrSel() > 0 )
 		return true;
-	    uiMSG().error( "Please select at least one item"
-			    ", or press Cancel" );
+	    uiMSG().error( "Please select at least one item ",
+		           "or press Cancel" );
 	    return false;
 	}
 
-	PtrMan<IOObj> ioobj = getIOObj( listfld->currentItem() );
+	PtrMan<IOObj> ioobj = getIOObj( listfld_->currentItem() );
 	mDynamicCastGet(IOLink*,iol,ioobj.ptr())
 	if ( !ioobj || (iol && ctio_.ctxt.maychdir) )
 	{
@@ -346,7 +373,7 @@ bool uiIOObjSelGrp::processInput()
 	return true;
     }
 
-    LineKey lk( nmfld->text() );
+    LineKey lk( nmfld_->text() );
     const BufferString seltxt( lk.lineName() );
     int itmidx = ioobjnms_.indexOf( seltxt.buf() );
     if ( itmidx < 0 )
@@ -393,9 +420,9 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     ioobjnms_.add( ioobj->name() );
     ioobjids_ += new MultiID( ioobj->key() );
     fillListBox();
-    listfld->setCurrentItem( ioobj->name() );
-    if ( nmfld && ioobj->name() != seltxt )
-	nmfld->setText( ioobj->name() );
+    listfld_->setCurrentItem( ioobj->name() );
+    if ( nmfld_ && ioobj->name() != seltxt )
+	nmfld_->setText( ioobj->name() );
 
     ctio_.setObj( ioobj->clone() );
     selectionChg.trigger();
@@ -428,17 +455,14 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
 		    	mNoDlgTitle,"8.1.1")
-		.nrstatusflds(multisel?0:1))
-	, selgrp( 0 )
+		.nrstatusflds(1))
+	, selgrp_( 0 )
 {
     const bool ismultisel = multisel && c.ctxt.forread;
-    selgrp = new uiIOObjSelGrp( this, c, 0, multisel );
-    selgrp->getListField()->setHSzPol( uiObject::Wide );
-    if ( !ismultisel )
-    {
-	statusBar()->setTxtAlign( 0, OD::AlignRight );
-	selgrp->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
-    }
+    selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel );
+    selgrp_->getListField()->setHSzPol( uiObject::Wide );
+    statusBar()->setTxtAlign( 0, OD::AlignRight );
+    selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 
     BufferString nm( seltxt );
     if ( nm.isEmpty() )
@@ -467,24 +491,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     setCaption( caption );
 
     setOkText( "&Ok (Select)" );
-    finaliseDone.notify( mCB(this,uiIOObjSelDlg,setInitial) );
-    selgrp->getListField()->doubleClicked.notify(
+    selgrp_->getListField()->doubleClicked.notify(
 	    mCB(this,uiDialog,accept) );
-}
-
-
-void uiIOObjSelDlg::setInitial( CallBacker* )
-{
-    const char* presetnm = selgrp->getNameField()
-			 ? selgrp->getNameField()->text() : "";
-    if ( *presetnm )
-    {
-	if ( !selgrp->getListField()->isPresent( presetnm ) )
-	    return;
-	else
-	    selgrp->getListField()->setCurrentItem( presetnm );
-    }
-    selgrp->selChg( 0 );
 }
 
 
@@ -504,9 +512,9 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
 			 ? (const char*)c.ctxt.trgroup->userName() 
 			 : (const char*) c.ctxt.name() ),
 		  wclr, buttxt, keepmytxt )
-    , ctio(c)
-    , forread(c.ctxt.forread)
-    , seltxt(st)
+    , ctio_(c)
+    , forread_(c.ctxt.forread)
+    , seltxt_(st)
     , confirmovw_(true)
 {
     updateInput();
@@ -521,7 +529,7 @@ uiIOObjSel::~uiIOObjSel()
 bool uiIOObjSel::fillPar( IOPar& iopar, const char* ck ) const
 {
     iopar.set( IOPar::compKey(ck,"ID"),
-	       ctio.ioobj ? ctio.ioobj->key() : MultiID("") );
+	       ctio_.ioobj ? ctio_.ioobj->key() : MultiID("") );
     return true;
 }
 
@@ -531,7 +539,7 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* ck )
     const char* res = iopar.find( IOPar::compKey(ck,"ID") );
     if ( res && *res )
     {
-	ctio.setObj( MultiID(res) );
+	ctio_.setObj( MultiID(res) );
 	setInput( res );
     }
 }
@@ -539,7 +547,7 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* ck )
 
 void uiIOObjSel::updateInput()
 {
-    setInput( ctio.ioobj ? (const char*)ctio.ioobj->key() : "" );
+    setInput( ctio_.ioobj ? (const char*)ctio_.ioobj->key() : "" );
 }
 
 
@@ -559,7 +567,7 @@ void uiIOObjSel::obtainIOObj()
     const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
     {
-	ctio.setObj( 0 );
+	ctio_.setObj( 0 );
 	return;
     }
 
@@ -567,28 +575,28 @@ void uiIOObjSel::obtainIOObj()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( inp == itemusrnm && ctio.ioobj 
-			      && !strcmp(ctio.ioobj->name(), inp.buf()) )
+	if ( inp == itemusrnm && ctio_.ioobj 
+			      && !strcmp(ctio_.ioobj->name(), inp.buf()) )
 	    return;
     }
 
-    IOM().to( ctio.ctxt.getSelKey() );
+    IOM().to( ctio_.ctxt.getSelKey() );
     const IOObj* ioobj = (*IOM().dirPtr())[inp.buf()];
-    ctio.setObj( ioobj && ctio.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
+    ctio_.setObj( ioobj && ctio_.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
 }
 
 
 void uiIOObjSel::processInput()
 {
     obtainIOObj();
-    if ( ctio.ioobj || ctio.ctxt.forread )
+    if ( ctio_.ioobj || forread_ )
 	updateInput();
 }
 
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    IOM().to( ctio.ctxt.getSelKey() );
+    IOM().to( ctio_.ctxt.getSelKey() );
     return (*IOM().dirPtr())[nm];
 }
 
@@ -599,7 +607,7 @@ bool uiIOObjSel::commitInput( bool mknew )
     const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
     {
-	ctio.setObj( 0 );
+	ctio_.setObj( 0 );
 	return true;
     }
     if ( inp.isEmpty() )
@@ -608,7 +616,7 @@ bool uiIOObjSel::commitInput( bool mknew )
     processInput();
     if ( existingTyped() )
     {
-	if ( ctio.ioobj ) return true;
+	if ( ctio_.ioobj ) return true;
 	BufferString msg( "'" ); msg += getInput();
 	msg += "' already exists.\nPlease enter another name.";
 	uiMSG().error( msg );
@@ -616,26 +624,26 @@ bool uiIOObjSel::commitInput( bool mknew )
     }
     if ( !mknew ) return false;
 
-    ctio.setObj( createEntry( getInput() ) );
-    return ctio.ioobj;
+    ctio_.setObj( createEntry( getInput() ) );
+    return ctio_.ioobj;
 }
 
 
 void uiIOObjSel::doObjSel( CallBacker* )
 {
-    ctio.ctxt.forread = forread;
-    if ( !ctio.ctxt.forread )
-	ctio.setName( getInput() );
+    ctio_.ctxt.forread = forread_;
+    if ( !ctio_.ctxt.forread )
+	ctio_.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg ) return;
-    uiIOObjSelGrp* selgrp = dlg->selGrp();
-    if ( selgrp ) selgrp->setConfirmOverwrite( confirmovw_ );
+    uiIOObjSelGrp* selgrp_ = dlg->selGrp();
+    if ( selgrp_ ) selgrp_->setConfirmOverwrite( confirmovw_ );
 
     if ( !helpid_.isEmpty() )
 	dlg->setHelpID( helpid_ );
     if ( dlg->go() && dlg->ioObj() )
     {
-	ctio.setObj( dlg->ioObj()->clone() );
+	ctio_.setObj( dlg->ioObj()->clone() );
 	updateInput();
 	newSelection( dlg );
 	selok_ = true;
@@ -649,19 +657,19 @@ void uiIOObjSel::objSel()
 {
     const char* key = getKey();
     if ( specialitems.find(key) )
-	ctio.setObj( 0 );
+	ctio_.setObj( 0 );
     else
-	ctio.setObj( IOM().get(getKey()) );
+	ctio_.setObj( IOM().get(getKey()) );
 }
 
 
 uiIOObjRetDlg* uiIOObjSel::mkDlg()
 {
-    return new uiIOObjSelDlg( this, ctio, seltxt );
+    return new uiIOObjSelDlg( this, ctio_, seltxt_ );
 }
 
 
 IOObj* uiIOObjSel::createEntry( const char* nm )
 {
-    return mkEntry( ctio, nm );
+    return mkEntry( ctio_, nm );
 }
