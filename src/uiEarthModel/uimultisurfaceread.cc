@@ -7,47 +7,62 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.18 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.19 2009-01-07 07:01:16 cvsnageswara Exp $";
 
 #include "uimultisurfaceread.h"
 
-#include "uipossubsel.h"
-#include "uilistbox.h"
-#include "ioobj.h"
-#include "ctxtioobj.h"
 #include "uiioobjsel.h"
-#include "ioman.h"
-#include "iodirentry.h"
+#include "uilistbox.h"
+#include "uipossubsel.h"
+
+#include "ctxtioobj.h"
 #include "emmanager.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
-#include "uimsg.h"
+#include "ioman.h"
+#include "ioobj.h"
 
 
+uiMultiSurfaceReadDlg::uiMultiSurfaceReadDlg( uiParent* p, const char* type ) 
+    : uiDialog(p,uiDialog::Setup( BufferString( type," selection" ),
+				  BufferString( "Select Input ",type,"(s)" ),
+				  "104.3.1").nrstatusflds(1) )
+{
+    surfacefld_ = new uiMultiSurfaceRead( this, type );
+    surfacefld_->objselGrp()->newStatusMsg.notify( 
+				mCB(this,uiMultiSurfaceReadDlg,statusMsg) );
+    surfacefld_->singleSurfaceSelected.notify( mCB(this,uiDialog,accept) );
+}
+
+
+void uiMultiSurfaceReadDlg::statusMsg( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const char*,msg,cb);
+    toStatusBar( msg );
+}
+
+
+bool uiMultiSurfaceReadDlg::acceptOK( CallBacker* )
+{
+    return surfacefld_->objselGrp()->processInput();
+}
+
+
+// ***** uiMultiSurfaceRead *****
 uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
     : uiIOSurface(p,true,type)
     , singleSurfaceSelected(this)
 {
-    IOM().to( ctio_->ctxt.getSelKey() );
-    entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio_->ctxt );
-    entrylist_->sort();
-
-    BufferString lbl( "Select " ); lbl += type; lbl += "(s)";
-    surfacefld_ = new uiLabeledListBox( this, lbl, true,
-				       uiLabeledListBox::AboveMid );
-    for ( int idx=0; idx<entrylist_->size(); idx++ )
-	surfacefld_->box()->addItem( (*entrylist_)[idx]->name() );
-    surfacefld_->box()->setSelected( 0 );
-    surfacefld_->box()->selectionChanged.notify(
-	    				mCB(this,uiMultiSurfaceRead,selCB) );
-    surfacefld_->box()->doubleClicked.notify(
-	    				mCB(this,uiMultiSurfaceRead,dClck) );
+    ioobjselgrp_ = new uiIOObjSelGrp( this, ctio_->ctxt, "", true );
+    ioobjselgrp_->selectionChg.notify( mCB(this,uiMultiSurfaceRead,selCB) );
+    ioobjselgrp_->getListField()->doubleClicked.notify( 
+					mCB(this,uiMultiSurfaceRead,dClck) );
 
     mkSectionFld( true );
-    sectionfld_->attach( rightTo, surfacefld_ );
+    sectionfld_->attach( rightTo, ioobjselgrp_ );  
 
     mkRangeFld();
-    rgfld_->attach( leftAlignedBelow, surfacefld_ );
+    rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
     if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword) ||
 	 !strcmp(type,EMFaultStickSetTranslatorGroup::keyword) ||
@@ -63,7 +78,6 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
 
 uiMultiSurfaceRead::~uiMultiSurfaceRead()
 {
-    delete entrylist_;
 }
 
 
@@ -73,17 +87,21 @@ void uiMultiSurfaceRead::dClck( CallBacker* )
 }
 
 
-void uiMultiSurfaceRead::selCB( CallBacker* )
+void uiMultiSurfaceRead::selCB( CallBacker* cb )
 {
-    const int nrsel = surfacefld_->box()->nrSelected();
+    const int nrsel = ioobjselgrp_->nrSel();
+    if( nrsel == 0 )
+	return;
+
     if ( nrsel > 1 )
     {
 	EM::SurfaceIOData sd;
 	HorSampling hs( false );
-	for ( int idx=0; idx<surfacefld_->box()->size(); idx++ )
+	if ( !processInput() ) return;
+	for ( int idx=0; idx<nrsel; idx++ )
 	{
-	    if ( !surfacefld_->box()->isSelected(idx) ) continue;
-	    const MultiID& mid = (*entrylist_)[idx]->ioobj->key();
+	    const MultiID& mid = ioobjselgrp_->selected( idx );
+
 	    const char* res = EM::EMM().getSurfaceData( mid, sd );
 	    if ( res ) continue;
 	    if ( hs.isEmpty() )
@@ -100,10 +118,11 @@ void uiMultiSurfaceRead::selCB( CallBacker* )
 	return;
     }
 
-    for ( int idx=0; idx<surfacefld_->box()->size(); idx++ )
+    const int size = ioobjselgrp_->getListField()->size();
+    for ( int idx=0; idx<size; idx++ )
     {
-	if ( !surfacefld_->box()->isSelected(idx) ) continue;
-	fillFields( (*entrylist_)[idx]->ioobj->key() );
+	if ( !processInput() ) continue;
+	fillFields( ioobjselgrp_->selected( idx ) );
 	break;
     }
 }
@@ -112,11 +131,9 @@ void uiMultiSurfaceRead::selCB( CallBacker* )
 void uiMultiSurfaceRead::getSurfaceIds( TypeSet<MultiID>& mids ) const
 {
     mids.erase();
-    for ( int idx=0; idx<surfacefld_->box()->size(); idx++ )
-    {
-	if ( surfacefld_->box()->isSelected(idx) )
-	    mids += (*entrylist_)[idx]->ioobj->key();
-    }
+    const int nrsel = ioobjselgrp_->nrSel();
+    for ( int idx=0; idx<nrsel; idx++ )
+	mids += ioobjselgrp_->selected( idx );
 }
 
 
