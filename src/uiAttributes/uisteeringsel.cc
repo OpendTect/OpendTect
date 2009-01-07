@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.30 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.31 2009-01-07 06:43:12 cvsnageswara Exp $";
 
 
 #include "uisteeringsel.h"
@@ -270,11 +270,11 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 
 void uiSteerCubeSel::doFinalise( CallBacker* c )
 {
-    if ( ctio.ioobj ) return;
+    if ( ctio_.ioobj ) return;
 
     const MultiID& defid = SeisIOObjInfo::getDefault( sKey::Steering );
-    ctio.setObj( IOM().get(defid) );
-    if ( ctio.ioobj )
+    ctio_.setObj( IOM().get(defid) );
+    if ( ctio_.ioobj )
 	updateInput();
 }
 
@@ -304,10 +304,10 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
 	return DescID::undef();
     }
 
-    if ( !ctio.ioobj ) 
+    if ( !ctio_.ioobj ) 
 	return DescID::undef();
 
-    LineKey linekey( ctio.ioobj->key() );
+    LineKey linekey( ctio_.ioobj->key() );
     if ( is2D() ) linekey.setAttrName( attrNm() );
 
     for ( int idx=0; idx<ads->nrDescs(); idx++ )
@@ -329,7 +329,7 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( linekey );
 
-    BufferString userref = ctio.ioobj->name();
+    BufferString userref = ctio_.ioobj->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
     desc->setUserRef( userref );
     desc->updateParams();
@@ -356,7 +356,7 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
     const LineKey lk( keypar->getStringValue() );
     const MultiID mid( lk.lineName() );
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    ctio.setObj( ioobj ? ioobj->clone() : 0 );
+    ctio_.setObj( ioobj ? ioobj->clone() : 0 );
     updateInput();
     if ( is2D() )
 	setAttrNm( lk.attrName() );
