@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.154 2009-01-06 09:04:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.155 2009-01-07 06:56:29 cvsnageswara Exp $";
 
 #include "uiempartserv.h"
 
@@ -371,18 +371,15 @@ void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )
 void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
 				     const char* typ )
 {
-    BufferString lbl( typ ); lbl += " selection";
-    uiDialog dlg( parent(), uiDialog::Setup(lbl,0,"104.3.1") );
-    uiMultiSurfaceRead* uiobj = new uiMultiSurfaceRead( &dlg, typ );
-    uiobj->singleSurfaceSelected.notify( mCB(&dlg,uiDialog,accept) );
+    uiMultiSurfaceReadDlg dlg( parent(), typ );
     if ( !dlg.go() ) return;
 
     TypeSet<MultiID> surfaceids;
-    uiobj->getSurfaceIds( surfaceids );
+    dlg.iogrp()->getSurfaceIds( surfaceids );
 
     EM::SurfaceIOData sd;
     EM::SurfaceIODataSelection sel( sd );
-    uiobj->getSurfaceSelection( sel );
+    dlg.iogrp()->getSurfaceSelection( sel );
 
     PtrMan<Executor> exec = em_.objectLoader( surfaceids, &sel );
     if ( !exec ) return;
