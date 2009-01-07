@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.25 2008-12-16 16:54:40 cvskris Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.26 2009-01-07 11:22:49 cvshelene Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -420,8 +420,7 @@ void SpecDecomp::getCompNames( BufferStringSet& nms ) const
     nms.erase();
     const float fnyq = 0.5 / refstep;
     const char* basestr = "frequency = ";
-    BufferString suffixstr = "("; 
-    suffixstr += zIsTime() ? "Hz" : "cycles/mm"; suffixstr += ")";
+    BufferString suffixstr = zIsTime() ? " Hz" : " cycles/mm";
     for ( float freq=deltafreq_; freq<fnyq; freq+=deltafreq_ )
     {
 	BufferString tmpstr = basestr; tmpstr += freq; tmpstr += suffixstr;
