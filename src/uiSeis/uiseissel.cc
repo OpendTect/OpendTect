@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.64 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.65 2009-01-07 06:46:30 cvsnageswara Exp $";
 
 #include "uiseissel.h"
 
@@ -107,26 +107,26 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	titletxt += isps ? "Data Store" : (is2d ? "Line Set" : "Cube");
     setTitleText( titletxt );
 
-    uiGroup* topgrp = selgrp->getTopGroup();
+    uiGroup* topgrp = selgrp_->getTopGroup();
 
     if ( setup.selattr_ && is2d && !isps )
     {
-	if ( selgrp->getCtxtIOObj().ctxt.forread )
+	if ( selgrp_->getCtxtIOObj().ctxt.forread )
 	{
-	    attrfld_ = new uiGenInput( selgrp,"Attribute",StringListInpSpec() );
+	    attrfld_ = new uiGenInput(selgrp_,"Attribute",StringListInpSpec());
 
-	    if ( selgrp->getNameField() )
-		 attrfld_->attach( alignedBelow, selgrp->getNameField() );
+	    if ( selgrp_->getNameField() )
+		 attrfld_->attach( alignedBelow, selgrp_->getNameField() );
 	    else
 		attrfld_->attach( ensureBelow, topgrp );
 	}
 	else
 	{
-	    attrfld_ = new uiGenInput( selgrp, "Attribute" );
-	    attrlistfld_ = new uiListBox( selgrp, "Existing List" );
+	    attrfld_ = new uiGenInput( selgrp_, "Attribute" );
+	    attrlistfld_ = new uiListBox( selgrp_, "Existing List" );
 
-	    if ( selgrp->getNameField() )
-		attrlistfld_->attach( alignedBelow, selgrp->getNameField() );
+	    if ( selgrp_->getNameField() )
+		attrlistfld_->attach( alignedBelow, selgrp_->getNameField() );
 	    else
 		attrlistfld_->attach( ensureBelow, topgrp );
 
@@ -136,10 +136,10 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	}
     }
 
-    selgrp->getListField()->selectionChanged.notify(
+    selgrp_->getListField()->selectionChanged.notify(
 	    			mCB(this,uiSeisSelDlg,entrySel) );
-    if ( !selgrp->getCtxtIOObj().ctxt.forread && Seis::is2D(setup.geom_) )
-	selgrp->setConfirmOverwrite( false );
+    if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(setup.geom_) )
+	selgrp_->setConfirmOverwrite( false );
     entrySel(0);
 }
 
@@ -173,7 +173,7 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     oinf.getAttribNames( nms, true, 0, getDataType(), 
 	    		 allowcnstrsabsent_, include_ );
 
-    if ( selgrp->getCtxtIOObj().ctxt.forread )
+    if ( selgrp_->getCtxtIOObj().ctxt.forread )
 	attrfld_->newSpec( StringListInpSpec(nms), 0 );
     else
     {
@@ -310,7 +310,7 @@ void uiSeisSel::usePar( const IOPar& iop )
 void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
-    if ( ctio.ioobj ) ioobjkey = ctio.ioobj->key();
+    if ( ctio_.ioobj ) ioobjkey = ctio_.ioobj->key();
     setInput( LineKey(ioobjkey,attrnm) );
 }
 
@@ -319,14 +319,14 @@ void uiSeisSel::processInput()
 {
     obtainIOObj();
     attrnm = LineKey( getInput() ).attrName();
-    if ( ctio.ioobj || ctio.ctxt.forread )
+    if ( ctio_.ioobj || ctio_.ctxt.forread )
 	updateInput();
 }
 
 
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
-    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio, setup_ );
+    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio_, setup_ );
     dlg->usePar( dlgiopar );
     return dlg;
 }
