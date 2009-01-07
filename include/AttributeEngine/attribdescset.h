@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.34 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribdescset.h,v 1.35 2009-01-07 11:21:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,14 @@ public:
     DescID			insertDesc(Desc*,int,
 	    				   DescID newid=DescID(-1,true));
 				/*!< returns id of the attrib */
+
+    void			createAndAddMultOutDescs(const DescID&,
+	    						 const TypeSet<int>&,
+							 const BufferStringSet&,
+							 TypeSet<DescID>&);
+				/*!< Make sure all descs needed to compute
+				     attributes with multiple outputs
+				     are created and added */
 
     int				nrDescs(bool inclstored=true,
 	    				bool inclhidden=true) const;

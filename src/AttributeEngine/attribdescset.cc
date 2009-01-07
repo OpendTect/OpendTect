@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.72 2008-12-30 06:42:54 cvsnageswara Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.73 2009-01-07 11:21:55 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -902,6 +902,31 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 	    fms += defkey;
 	    attrdefs.add( fms );
 	}
+    }
+}
+
+
+void DescSet::createAndAddMultOutDescs( const DescID& targetid,
+	                                const TypeSet<int>& seloutputs,
+					const BufferStringSet& seloutnms,
+					TypeSet<DescID>& outdescids )
+{
+    const int nrseloutputs = seloutputs.size() ? seloutputs.size() : 1;
+    const Desc* basedesc = getDesc( targetid );
+    if ( !basedesc ) return;
+
+    for ( int idx=0; idx<nrseloutputs; idx++ )
+    {
+	if ( seloutputs[idx] == basedesc->selectedOutput() )
+	{
+	    outdescids += targetid;
+	    continue;
+	}
+
+	Desc* newdesc = new Desc( *basedesc );
+	newdesc->selectOutput( seloutputs[idx] );
+	newdesc->setUserRef( seloutnms[idx]->buf() );
+	outdescids += addDesc( newdesc );
     }
 }
 
