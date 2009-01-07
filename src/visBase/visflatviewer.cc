@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.18 2009-01-06 20:37:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.19 2009-01-07 04:41:01 cvsnanne Exp $";
 
 #include "visflatviewer.h"
 #include "arraynd.h"
@@ -168,7 +168,7 @@ void FlatViewer::replaceChannels( TextureChannels* nt )
 Interval<float> FlatViewer::getDataRange( bool wva ) const
 {
     Interval<float> res( mUdf(float),mUdf(float) );
-    if ( wva && !wvapack_ || !wva && !vdpack_ )
+    if ( (wva && !wvapack_) || (!wva && !vdpack_) )
 	return res;
     
     const Array2D<float>& arr = wva ? wvapack_->data() : vdpack_->data();
