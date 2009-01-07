@@ -7,18 +7,21 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layout.cc,v 1.79 2008-11-25 15:35:24 cvsbert Exp $";
-
-#include "uilayout.h"
-#include "errh.h"
+static const char* rcsID = "$Id: i_layout.cc,v 1.80 2009-01-07 05:02:28 cvsnanne Exp $";
 
 #include "i_layout.h"
 #include "i_layoutitem.h"
-#include "uiobjbody.h"
+
+#include "uilayout.h"
 #include "uimainwin.h"
+#include "uiobjbody.h"
+
+#include "envvars.h"
+#include "errh.h"
 #include "timer.h"
 
 #include <stdio.h>
+#include <iostream>
 
 #ifdef __debug__
 #define MAX_ITER	2000
@@ -26,11 +29,6 @@ static const char* rcsID = "$Id: i_layout.cc,v 1.79 2008-11-25 15:35:24 cvsbert 
 #define MAX_ITER	10000
 #endif
 
-
-#ifdef __extensive_debug__
-static BufferString jaap;
-bool arend_debug=false;
-#endif
 
 #define mFinalised() ( managedBody.uiObjHandle().mainwin()  ? \
 		     managedBody.uiObjHandle().mainwin()->finalised() : true )
@@ -40,9 +38,9 @@ i_LayoutMngr::i_LayoutMngr( QWidget* parnt,
     : QLayout(parnt)
     , NamedObject(name)
     , minimumDone(false), preferredDone(false), ismain(false)
-    , prefposStored( false )
+    , prefposStored(false)
     , managedBody(mngbdy), hspacing(-1), vspacing(8), borderspc(0)
-    , poptimer( *new Timer ), popped_up( false ) , timer_running( false )
+    , poptimer(*new Timer), popped_up(false), timer_running(false)
 {
     poptimer.tick.notify( mCB(this,i_LayoutMngr,popTimTick) );
 }
@@ -116,8 +114,8 @@ QSize i_LayoutMngr::minimumSize() const
 	    vsz = mPos.vNrPics();
 	}
 
-#ifdef __extensive_debug__
-	if ( arend_debug )
+#ifdef __debug__
+	if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
 	{
 	    BufferString msg;
 	    msg="Returning Minimum Size for ";
@@ -508,11 +506,14 @@ void i_LayoutMngr::resizeTo( const QRect& targetRect )
     isprefsz |= !popped_up;
 
 
-#ifdef __extensive_debug__
-    std::cout << "(Re)sizing:" << NamedObject::name();
-    if ( isprefsz ) std::cout << " yes"; else 
-	{ std::cout << " no " << hgrow << " ," << vgrow; }
-    std::cout << std::endl;
+#ifdef __debug__
+    if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
+    {
+	std::cout << "(Re)sizing:" << NamedObject::name();
+	if ( isprefsz ) std::cout << " yes"; else 
+	    { std::cout << " no " << hgrow << " ," << vgrow; }
+	std::cout << std::endl;
+    }
 #endif
 
     ObjectSet<resizeItem> resizeList;
@@ -546,8 +547,8 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 {
     if ( !mFinalised() ) return;
 
-#ifdef __extensive_debug__
-    if( arend_debug )
+#ifdef __debug__
+    if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") )
     {
 	std::cout << "setGeometry called on: ";
 	std::cout << NamedObject::name() << std::endl;
@@ -572,8 +573,8 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 
 	store2prefpos = !prefposStored || (hdif<10 && vdif<10);
 
-#ifdef __extensive_debug__
-	if( !store2prefpos )
+#ifdef __debug__
+	if ( GetEnvVarYN("DTECT_DEBUG_LAYOUT") && !store2prefpos )
 	{
 	    std::cout << "setGeometry called with wrong size on: ";
 	    std::cout << NamedObject::name() << std::endl;
