@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.41 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attriboutput.h,v 1.42 2009-01-07 14:28:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "bufstringset.h"
 #include "cubesampling.h"
 #include "ranges.h"
 #include "refcount.h"
@@ -136,6 +137,8 @@ public:
     void			setTrcGrow( bool yn )	{ growtrctosi_ = yn; }
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
 				{ outptypes_ = typ; }
+    void			setOutpNames( const BufferStringSet& nms )
+				{ outpnames_ = nms; }
     virtual TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    						TypeSet<float>&) const;
     virtual TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
@@ -168,6 +171,7 @@ protected:
     TypeSet<Seis::DataType>	outptypes_;
     bool			growtrctosi_;
     BufferString		datatype_;
+    BufferStringSet		outpnames_;
 };
 
 

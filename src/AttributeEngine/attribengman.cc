@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.92 2009-01-07 11:25:14 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.93 2009-01-07 14:28:05 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -147,6 +147,11 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 		      exttrctosi) )
 	storeoutp->setTrcGrow( exttrctosi );
     
+    BufferStringSet outnms;
+    for ( int idx=0; idx<ids.size(); idx++ )
+	outnms += new BufferString( attribset.getDesc( ids[idx] )->userRef() );
+
+    storeoutp->setOutpNames( outnms );
     proc->addOutput( storeoutp );
     return proc;
 }
