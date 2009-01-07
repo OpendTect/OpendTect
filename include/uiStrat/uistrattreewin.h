@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.14 2009-01-06 08:16:18 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.15 2009-01-07 15:58:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 
-class uiLabeledListBox;
+class uiListBox;
 class uiListViewItem;
 class uiMenuItem;
 class uiStratLevelDlg;
@@ -44,11 +44,16 @@ public:
     mutable Notifier<uiStratTreeWin>	unitCreated;
     mutable Notifier<uiStratTreeWin>	unitChanged;
     mutable Notifier<uiStratTreeWin>	unitRemoved;
+    mutable Notifier<uiStratTreeWin>	lithCreated;
+    mutable Notifier<uiStratTreeWin>	lithChanged;
+    mutable Notifier<uiStratTreeWin>	lithRemoved;
+    mutable Notifier<uiStratTreeWin>	newUnitSelected;
+    mutable Notifier<uiStratTreeWin>	newLevelSelected;
 
 protected:
 
     uiStratRefTree*		uitree_;
-    uiLabeledListBox*	 	lvllistfld_;
+    uiListBox*			lvllistfld_;
     uiStratLinkLvlUnitDlg*	linkunlvldlg_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
