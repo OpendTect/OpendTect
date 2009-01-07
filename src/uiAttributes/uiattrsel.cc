@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.31 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.32 2009-01-07 11:27:01 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -382,7 +382,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	}
 
 	DescSet& as = const_cast<DescSet&>( *attrdata_.attrset );
-	attrdata_.attribid = as.getStoredID( linekey, 0, true );
+	attrdata_.attribid = as.getStoredID( linekey, attrdata_.compnr, true );
 	if ( needattrmatch && attrdata_.attribid < 0 )
 	{
 	    BufferString msg( "Could not find the seismic data " );
