@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.9 2008-12-22 19:25:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.10 2009-01-07 16:06:19 cvsyuancheng Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -39,6 +39,13 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     if ( posspos.isUdf() ) posspos = StepInterval<int>( 1, mUdf(int), 1 );
     posfld_->setInterval( posspos );
 
+    uiLabeledSpinBox* steplsb = new uiLabeledSpinBox(this,"Step",0,"Step");
+    steplsb->attach( rightOf, lsb );
+    stepfld_ = steplsb->box();
+    stepfld_->setInterval( StepInterval<int>(posspos.step, 
+		posspos.stop-posspos.start,posspos.step) );
+    stepfld_->valueChanged.notify( mCB(this,uiViewer3DPositionDlg,stepCB) );
+
     applybox_ = new uiCheckBox( this, "Apply immediately",
 	    			mCB(this,uiViewer3DPositionDlg,boxSel) );
     applybox_->attach( alignedBelow, lsb );
@@ -47,7 +54,7 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
     finaliseDone.notify( mCB(this,uiViewer3DPositionDlg,atStart) );
-    viewer_.draggermoving.notify(  mCB(this,uiViewer3DPositionDlg,renewFld) );
+    viewer_.draggermoving.notify( mCB(this,uiViewer3DPositionDlg,renewFld) );
 }
 
 
@@ -65,6 +72,10 @@ void uiViewer3DPositionDlg::renewFld( CallBacker* )
 	    (isInl() ? viewer_.draggerPosition().crl 
 	     	     : viewer_.draggerPosition().inl) );
 }
+
+
+void uiViewer3DPositionDlg::stepCB( CallBacker* )
+{ posfld_->setStep( stepfld_->getValue() ); }
 
 
 void uiViewer3DPositionDlg::atStart( CallBacker* )
