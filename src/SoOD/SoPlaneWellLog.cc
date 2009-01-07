@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.21 2009-01-06 15:21:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.22 2009-01-07 10:47:30 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -186,7 +186,6 @@ void SoPlaneWellLog::setLineTransparency( int lognr )
 	     lognr==1 ? "mbinding1" : "mbinding2", SoMaterialBinding );
     mbinding->value.setValue(SoMaterialBindingElement::PER_VERTEX_INDEXED);
   
-
     SoShapeHints* linehints  = SO_GET_ANY_PART( this,
 	     lognr==1 ? "linehints1":"linehints2", SoShapeHints );
     linehints->vertexOrdering.setValue( SoShapeHints::COUNTERCLOCKWISE );
@@ -349,22 +348,30 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res )
 	step = (float)nrsamp / sMaxNrSamplesRot;
 	nrsamp = sMaxNrSamplesRot;
     }
-  
+
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
 	if ( revscale ) logval = maxval.getValue() - logval;
 	if ( logval < 0 ) logval = 0;
-
-	if ( logval <= 100 )
-	    lineset->materialIndex.set1Value( idx, 0 );
-	else
+	if ( logval > 100 )
 	{
 	    lineset->materialIndex.set1Value( idx, 1 );
-	    logval=prevval;
+	    if ( (idx>=1 && log[index-1] <= 100) || (idx<nrsamp && log[index+1] <= 100)) 
+	       lineset->coordIndex.set1Value( idx+1, SO_END_STRIP_INDEX);
 	}
+	else 
+	    lineset->materialIndex.set1Value( idx, 0 );
+    }
 
+    for ( int idx=0; idx<nrsamp; idx++ )
+    {
+	int index = int(idx*step+.5);
+	float logval = log[index];
+	if ( logval > 100 )
+	    logval=prevval;
+	
 	SbVec3f newcrd = path[index];
 	SbVec3f normal = getProjCoords( path, index, projdir, 
 				    maxval, logval, lognr );
@@ -372,7 +379,6 @@ void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res )
 	coords->point.set1Value( idx, linecrd );
 
 	lineset->coordIndex.set1Value( idx, idx );
-	lineset->coordIndex.set1Value( idx+1, SO_END_STRIP_INDEX );
 	prevval=logval;
     }
     currentres = res;
