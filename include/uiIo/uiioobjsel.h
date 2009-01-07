@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.56 2008-12-02 15:41:27 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.57 2009-01-07 06:31:01 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,9 +73,9 @@ public:
 
     void			setContext(const IOObjContext&);
     const CtxtIOObj&		getCtxtIOObj() const	{ return ctio_; }
-    uiGroup*			getTopGroup()		{ return topgrp; }
-    uiGenInput*			getNameField()		{ return nmfld; }
-    uiListBox*			getListField()		{ return listfld; }
+    uiGroup*			getTopGroup()		{ return topgrp_; }
+    uiGenInput*			getNameField()		{ return nmfld_; }
+    uiListBox*			getListField()		{ return listfld_; }
     uiIOObjManipGroup*		getManipGroup();
     const ObjectSet<MultiID>&	getIOObjIds() const	{ return ioobjids_; }
     void			setConfirmOverwrite( bool yn )
@@ -100,18 +100,19 @@ protected:
     friend class	uiIOObjSelDlg;
     friend class	uiIOObjSelGrpManipSubj;
     uiIOObjSelGrpManipSubj* manipgrpsubj;
-    uiListBox*		listfld;
-    uiGenInput*		nmfld;
-    uiGenInput*		filtfld;
-    uiGroup*		topgrp;
+    uiListBox*		listfld_;
+    uiGenInput*		nmfld_;
+    uiGenInput*		filtfld_;
+    uiGroup*		topgrp_;
 
     void		fullUpdate(int);
     void		newList();
     void		fillListBox();
     void		setCur(int);
-    void		toStatusBar( const char* );
-    bool		createEntry( const char* );
+    void		toStatusBar(const char*);
+    bool		createEntry(const char*);
 
+    void		setInitial(CallBacker*);
     void		selChg(CallBacker*);
     void		filtChg(CallBacker*);
     void		delPress(CallBacker*);
@@ -130,24 +131,19 @@ public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
 				      const char* seltxt=0,bool multisel=false);
 
-    int			nrSel() const		{ return selgrp->nrSel(); }
-    const MultiID&	selected( int i ) const	{ return selgrp->selected(i); }
-    const IOObj*	ioObj() const	{ return selgrp->getCtxtIOObj().ioobj; }
-
-    // virtual void	fillPar(IOPar& p) const	{ selgrp->fillPar(p); }
-    // virtual void	usePar(const IOPar& p)	{ selgrp->usePar(p); }
-
-    uiIOObjSelGrp*	selGrp()		{ return selgrp; }
-    bool		fillPar( IOPar& i ) const { return selgrp->fillPar(i); }
-    void		usePar( const IOPar& i ) { selgrp->usePar(i); }
+    int			nrSel() const		{ return selgrp_->nrSel(); }
+    const MultiID&	selected( int i ) const	{ return selgrp_->selected(i); }
+    const IOObj*	ioObj() const	{return selgrp_->getCtxtIOObj().ioobj;}
+    uiIOObjSelGrp*	selGrp()		{ return selgrp_; }
+    bool		fillPar( IOPar& i ) const {return selgrp_->fillPar(i);}
+    void		usePar( const IOPar& i ) { selgrp_->usePar(i); }
 
 protected:
 
-    bool		acceptOK(CallBacker*)	{return selgrp->processInput();}
+    bool		acceptOK(CallBacker*)	{return selgrp_->processInput();}
     void		statusMsgCB(CallBacker*);
-    void		setInitial(CallBacker*);
 
-    uiIOObjSelGrp*	selgrp;
+    uiIOObjSelGrp*	selgrp_;
 };
 
 
@@ -177,24 +173,24 @@ public:
 					{ return existingUsrName(getInput()); }
 					//!< returns false is typed input is
 					//!< not an existing IOObj name
-    CtxtIOObj&		ctxtIOObj()	{ return ctio; }
+    CtxtIOObj&		ctxtIOObj()	{ return ctio_; }
 
     virtual bool	fillPar(IOPar&,const char* compky=0) const;
     virtual void	usePar(const IOPar&,const char* compky=0);
 
-    void		setForRead( bool yn )		{ forread = yn; }
+    void		setForRead( bool yn )		{ forread_ = yn; }
     void		setUnselectables( const ObjectSet<MultiID>& s )
-			{ deepCopy( unselabls, s ); }
+			{ deepCopy( unselabls_, s ); }
 
     void		setHelpID( const char* id )	{ helpid_ = id; }
     void		setConfirmOverwrite( bool yn )	{ confirmovw_ = yn; }
 
 protected:
 
-    CtxtIOObj&		ctio;
-    bool		forread;
-    BufferString	seltxt;
-    ObjectSet<MultiID>	unselabls;
+    CtxtIOObj&		ctio_;
+    bool		forread_;
+    BufferString	seltxt_;
+    ObjectSet<MultiID>	unselabls_;
     BufferString	helpid_;
     bool		confirmovw_;
 
