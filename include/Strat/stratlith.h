@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratlith.h,v 1.6 2009-01-06 05:34:47 cvsranojay Exp $
+ RCS:		$Id: stratlith.h,v 1.7 2009-01-07 15:11:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 namespace Strat
 {
 
-/*!\brief name and integer ID (in well logs). */
+/*!\brief name and integer ID. */
 
 mClass Lithology : public ::NamedObject
 {
@@ -27,27 +27,22 @@ public:
 
 			Lithology( const char* nm=0 )
 			: NamedObject(nm)
-			, id_(0)
+			, id_(-1)
 			, porous_(false)
-			, src_(Repos::Temp)		{}
-
-     int		id() const			{ return id_; }
-     void		setId( int i )			{ id_ = i; }
-     bool		isPorous() const		{ return porous_; }
-     void		setIsPorous( bool yn )		{ porous_ = yn; }
-     Repos::Source	source() const			{ return src_; }
-     void		setSource( Repos::Source s )	{ src_ = s; }
+			, src_(Repos::Temp)	{}
+			Lithology( const Lithology& l )
+						{ *this = l; }
+     Lithology&		operator =(const Lithology&);
 
      static const Lithology& undef();
+     bool		isUdf() const		{ return this == &undef(); }
 
      void		fill(BufferString&) const;
      bool		use(const char*);
 
-protected:
-
-    int			id_;
-    bool		porous_;
-    Repos::Source	src_;
+     int		id_;
+     bool		porous_;
+     Repos::Source	src_;
 
 };
 

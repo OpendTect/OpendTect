@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.10 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.11 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -45,7 +45,7 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
 
 void uiStratUnitDlg::selLithCB( CallBacker* )
 {
-    uiLithoDlg lithdlg( this, uistratmgr_ );
+    uiStratLithoDlg lithdlg( this, uistratmgr_ );
     if ( lithdlg.go() )
 	unitlithfld_->setText( lithdlg.getLithName() );
 } 
@@ -78,51 +78,139 @@ bool uiStratUnitDlg::acceptOK( CallBacker* )
 }
 
 
-uiLithoDlg::uiLithoDlg( uiParent* p, uiStratMgr* uistratmgr )
+uiStratLithoDlg::uiStratLithoDlg( uiParent* p, uiStratMgr* uistratmgr )
     : uiDialog(p,uiDialog::Setup("Select Lithology",mNoDlgTitle,mTODOHelpID))
     , uistratmgr_(uistratmgr)
+    , prevlith_(0)
+    , nmfld_(0)
+    , lithAdd(this)
+    , lithChg(this)
+    , lithRem(this)
 {
-    BufferStringSet lithoset;
-    lithoset.add( sNoLithoTxt );
-    uistratmgr_->getLithoNames( lithoset );
-    
-    listlithfld_ = new uiLabeledListBox( this, lithoset, "Existing lithologies",
-	   				 false, uiLabeledListBox::AboveMid );
+    selfld_ = new uiListBox( this, "Lithology", false );
+    const CallBack cb( mCB(this,uiStratLithoDlg,selChg) );
+    selfld_->selectionChanged.notify( cb );
+    fillLiths();
+
     uiGroup* rightgrp = new uiGroup( this, "right group" );
-    uiLabel* lbl = new uiLabel( rightgrp,"Create new lithology with" );
-    lithnmfld_ = new uiGenInput( rightgrp, "Name", StringInpSpec() );
-    lithnmfld_->attach( alignedBelow, lbl );
-    CallBack cb = mCB(this,uiLithoDlg,newLithCB);
-    uiPushButton* newlithbut = new uiPushButton(rightgrp,"&Add as new",cb,true);
-    newlithbut->attach( alignedBelow, lithnmfld_ );
+    nmfld_ = new uiGenInput( rightgrp, "Name", StringInpSpec() );
+    isporbox_ = new uiCheckBox( rightgrp, "Porous" );
+    isporbox_->attach( alignedBelow, nmfld_ );
+    uiPushButton* newlithbut = new uiPushButton( rightgrp, "&Add as new",
+	    		mCB(this,uiStratLithoDlg,newLith), true );
+    newlithbut->attach( alignedBelow, isporbox_ );
+
     uiSeparator* sep = new uiSeparator( this, "Sep", false );
-    sep->attach( rightTo, listlithfld_ );
-    sep->attach( heightSameAs, listlithfld_ );
+    sep->attach( rightTo, selfld_ );
+    sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );
+
+    uiButton* rmbut = new uiPushButton( this, "&Remove selected",
+	    				mCB(this,uiStratLithoDlg,rmSel), true );
+    rmbut->attach( alignedBelow, rightgrp );
+
+    finaliseDone.notify( cb );
 }
 
 
-void uiLithoDlg::newLithCB( CallBacker* )
+void uiStratLithoDlg::fillLiths()
 {
-    if ( listlithfld_->box()->isPresent( lithnmfld_->text() )
-	 || !strcmp( lithnmfld_->text(), "" ) ) return;
-    uistratmgr_->createNewLith( lithnmfld_->text() );
+    BufferStringSet nms;
+    nms.add( sNoLithoTxt );
+    uistratmgr_->getLithoNames( nms );
+    selfld_->empty();
+    selfld_->addItems( nms );
+}
+    
 
-    listlithfld_->box()->addItem( lithnmfld_->text() );
-    listlithfld_->box()->setCurrentItem( lithnmfld_->text() );
+
+void uiStratLithoDlg::newLith( CallBacker* )
+{
+    const BufferString nm( nmfld_->text() );
+    if ( nm.isEmpty() ) return;
+
+    if ( selfld_->isPresent( nm ) )
+	{ uiMSG().error( "Please specify a new, unique name" ); return; }
+
+    uistratmgr_->createNewLith( nm, isporbox_->isChecked() );
+
+    selfld_->addItem( nm );
+    selfld_->setCurrentItem( nm );
+    lithAdd.trigger();
 }
 
 
-const char* uiLithoDlg::getLithName() const
+void uiStratLithoDlg::selChg( CallBacker* )
 {
-    const char* txt = listlithfld_->box()->getText();
+    if ( !nmfld_ ) return;
+
+    if ( prevlith_ )
+    {
+	BufferString newnm( nmfld_->text() );
+	const bool newpor = isporbox_->isChecked();
+	if ( newnm != prevlith_->name() || newpor != prevlith_->porous_ )
+	{
+	    if ( !prevlith_->isUdf() )
+		prevlith_->setName( nmfld_->text() );
+	    prevlith_->porous_ = isporbox_->isChecked();
+	    lithChg.trigger();
+	}
+    }
+    const BufferString nm( selfld_->getText() );
+    const Strat::Lithology* lith = uistratmgr_->getLith( nm );
+    if ( !lith ) lith = &Strat::Lithology::undef();
+    nmfld_->setText( lith->name() );
+    isporbox_->setChecked( lith->porous_ );
+    prevlith_ = const_cast<Strat::Lithology*>( lith );
+}
+
+
+void uiStratLithoDlg::rmSel( CallBacker* )
+{
+    int selidx = selfld_->currentItem();
+    if ( selidx < 0 ) return;
+
+    const Strat::Lithology* lith =
+			uistratmgr_->getLith( selfld_->textOfItem(selidx) );
+    if ( !lith || lith->isUdf() ) return;
+
+    prevlith_ = 0;
+    uistratmgr_->deleteLith( lith->id_ );
+    lithRem.trigger();
+    fillLiths();
+
+    if ( selidx >= selfld_->size() )
+	selidx = selfld_->size() - 1;
+
+    if ( selidx < 0 )
+	nmfld_->setText( "" );
+    else
+    {
+	selfld_->setCurrentItem( selidx );
+	selChg( 0 );
+    }
+}
+
+
+const char* uiStratLithoDlg::getLithName() const
+{
+    const char* txt = selfld_->getText();
     return !strcmp( txt, sNoLithoTxt ) ? 0 : txt;
 }
 
 
-void uiLithoDlg::setSelectedLith( const char* lithnm )
+void uiStratLithoDlg::setSelectedLith( const char* lithnm )
 {
-    listlithfld_->box()->setCurrentItem( lithnm );
+    const Strat::Lithology* lith = uistratmgr_->getLith( lithnm );
+    if ( !lith ) return;
+    selfld_->setCurrentItem( lithnm );
+}
+
+
+bool uiStratLithoDlg::acceptOK( CallBacker* )
+{
+    selChg( 0 );
+    return true;
 }
 
 

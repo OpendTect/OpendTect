@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.62 2009-01-07 06:53:53 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.63 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -253,8 +253,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     {
 	stratlvlfld_ = new uiStratLevelSel( this );
 	stratlvlfld_->attach( alignedBelow, objfld_ );
-	stratlvlfld_->levelChanged.notify(
-		mCB(this,uiSurfaceWrite,stratLvlChg) );
+	stratlvlfld_->selChange.notify( mCB(this,uiSurfaceWrite,stratLvlChg) );
     }
 
     if ( setup.withcolorfld_ )
@@ -352,14 +351,16 @@ bool uiSurfaceWrite::replaceInTree() const
 
 void uiSurfaceWrite::stratLvlChg( CallBacker* )
 {
-    const Color* col = stratlvlfld_ ? stratlvlfld_->getLevelColor() : 0;
-    if ( col ) colbut_->setColor( *col );
+    if ( !stratlvlfld_ ) return;
+    const Color col( stratlvlfld_->getColor() );
+    if ( col != Color::NoColor() )
+	colbut_->setColor( col );
 }
 
 
 int uiSurfaceWrite::getStratLevelID() const
 {
-    return stratlvlfld_ ? stratlvlfld_->getLevelID() : -1;
+    return stratlvlfld_ ? stratlvlfld_->getID() : -1;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.14 2009-01-06 05:34:47 cvsranojay Exp $
+ RCS:		$Id: stratunitref.h,v 1.15 2009-01-07 15:11:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -169,6 +169,7 @@ public:
 
     virtual bool	isLeaf() const		{ return true; }
     int			lithology() const	{ return lith_; }
+    void		setLithology( int l )	{ lith_ = l; }
 
     static const LeafUnitRef& undef();
 

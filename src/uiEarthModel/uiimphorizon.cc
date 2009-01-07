@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.111 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.112 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dchg.h"
@@ -178,8 +178,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 	stratlvlfld_ = new uiStratLevelSel( this );
 	stratlvlfld_->attach( alignedBelow, outputfld_ );
-	stratlvlfld_->levelChanged.notify(
-		mCB(this,uiImportHorizon,stratLvlChg) );
+	stratlvlfld_->selChange.notify( mCB(this,uiImportHorizon,stratLvlChg) );
 
 	colbut_ = new uiColorInput( this,
 		  		   uiColorInput::Setup(getRandStdDrawColor())
@@ -301,8 +300,10 @@ MultiID uiImportHorizon::getSelID() const
 
 void uiImportHorizon::stratLvlChg( CallBacker* )
 {
-    const Color* col = stratlvlfld_ ? stratlvlfld_->getLevelColor() : 0;
-    if ( col ) colbut_->setColor( *col );
+    if ( !stratlvlfld_ ) return;
+    const Color col( stratlvlfld_->getColor() );
+    if ( col != Color::NoColor() )
+	colbut_->setColor( col );
 }
     
 #define mErrRet(s) { uiMSG().error(s); return 0; }
@@ -506,7 +507,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 
     horizon->change.disable();
     horizon->setMultiID( mid );
-    horizon->setStratLevelID( stratlvlfld_->getLevelID() );
+    horizon->setStratLevelID( stratlvlfld_->getID() );
     horizon->setPreferredColor( colbut_->color() );
     horizon->ref();
     return horizon;

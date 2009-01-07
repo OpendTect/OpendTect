@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.11 2008-12-31 13:10:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.12 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -32,7 +32,7 @@ static void getLvlNms( BufferStringSet& bss )
 
 uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
     : uiGroup(p)
-    , levelChanged(this)
+    , selChange(this)
 {
     BufferStringSet bss; getLvlNms( bss );
 
@@ -41,84 +41,91 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
     {
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, bss, sTiedToTxt,
 							sTiedToTxt );
-	lvlnmfld_ = lcb->box();
+	selfld_ = lcb->box();
 	attachobj = lcb->attachObj();
     }
     else
     {
-	lvlnmfld_ = new uiComboBox( this, bss, sTiedToTxt );
-	lvlnmfld_->setStretch( 2, 2 );
-	attachobj = lvlnmfld_;
+	selfld_ = new uiComboBox( this, bss, sTiedToTxt );
+	selfld_->setStretch( 2, 2 );
+	attachobj = selfld_;
     }
-    lvlnmfld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selLvlCB) );
+    selfld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selCB) );
 
     if ( wdefine )
     {
 	uiPushButton* deflvlbut = new uiPushButton( this, "&Define Level",
-			mCB(this,uiStratLevelSel,defineLvlCB), true );
+			mCB(this,uiStratLevelSel,defCB), true );
 	deflvlbut->setHSzPol( uiPushButton::Medium );
 	if ( attachobj )
 	    deflvlbut->attach( rightOf, attachobj );
     }
 
-    StratTWin().levelCreated.notify( mCB(this,uiStratLevelSel,lvlModif) );
-    StratTWin().levelChanged.notify( mCB(this,uiStratLevelSel,lvlModif) );
-    StratTWin().levelRemoved.notify( mCB(this,uiStratLevelSel,lvlModif) );
+    StratTWin().levelCreated.notify( mCB(this,uiStratLevelSel,chgCB) );
+    StratTWin().levelChanged.notify( mCB(this,uiStratLevelSel,chgCB) );
+    StratTWin().levelRemoved.notify( mCB(this,uiStratLevelSel,chgCB) );
 
-    setHAlignObj( lvlnmfld_ );
+    setHAlignObj( selfld_ );
 }
 
 
-const Strat::Level* uiStratLevelSel::selectedLevel() const
+const Strat::Level* uiStratLevelSel::selected() const
 {
-    const int selidx = lvlnmfld_->currentItem();
+    const int selidx = selfld_->currentItem();
     if ( selidx == 0 ) return 0;
-    const Strat::Level* lvl = Strat::RT().getLevel( lvlnmfld_->text() );
+    const Strat::Level* lvl = Strat::RT().getLevel( selfld_->text() );
     return lvl;
 }
 
 
-const Color* uiStratLevelSel::getLevelColor() const
+int uiStratLevelSel::getID() const
 {
-    const Strat::Level* lvl = selectedLevel();
-    return lvl ? &lvl->color_ : 0;
-}
-
-
-int uiStratLevelSel::getLevelID() const
-{
-    const Strat::Level* lvl = selectedLevel();
+    const Strat::Level* lvl = selected();
     return lvl ? lvl->id_ : -1;
 }
 
 
-void uiStratLevelSel::setLevelID( int id )
+void uiStratLevelSel::setID( int id )
 {
     const Strat::Level* lvl = Strat::RT().levelFromID( id );
     if ( !lvl )
-	lvlnmfld_->setCurrentItem( (int)0 );
+	selfld_->setCurrentItem( (int)0 );
     else
-	lvlnmfld_->setCurrentItem( lvl->name() );
+	selfld_->setCurrentItem( lvl->name() );
 }
 
 
-void uiStratLevelSel::selLvlCB( CallBacker* )
+Color uiStratLevelSel::getColor() const
 {
-    levelChanged.trigger();
+    const Strat::Level* lvl = selected();
+    return lvl && lvl->id_ >= 0 ? lvl->color_ : Color::NoColor();
 }
 
 
-void uiStratLevelSel::defineLvlCB( CallBacker* )
+const char* uiStratLevelSel::getName() const
+{
+    const Strat::Level* lvl = selected();
+    return lvl && lvl->id_ >= 0 ? lvl->name() : "";
+}
+
+
+void uiStratLevelSel::selCB( CallBacker* )
+{
+    selChange.trigger();
+}
+
+
+void uiStratLevelSel::defCB( CallBacker* )
 {
     StratTWin().popUp();
 }
 
 
-void uiStratLevelSel::lvlModif( CallBacker* )
+void uiStratLevelSel::chgCB( CallBacker* )
 {
-    const Strat::Level* cursel = selectedLevel();
-    lvlnmfld_->empty();
+    const Strat::Level* cursel = selected();
+    selfld_->empty();
     BufferStringSet bss; getLvlNms( bss );
-    lvlnmfld_->addItems( bss );
-    lvlnmfld_->setCurrentItem( cursel ? cursel->name().buf() : sNoLevelTxt );
+    selfld_->addItems( bss );
+    selfld_->setCurrentItem( cursel ? cursel->name().buf() : sNoLevelTxt );
 }

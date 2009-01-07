@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.4 2008-12-31 13:10:12 cvsbert Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.5 2009-01-07 15:11:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class uiStratLevelSel;
 class uiGenInput;
 class uiTable;
 namespace Well { class Marker; class Track; }
@@ -36,11 +37,13 @@ protected:
     const Well::Track&		track_;
 
     int				getNrRows() const;
+    int				rowNrFor(uiStratLevelSel*) const;
     void			mouseClick(CallBacker*);
     void			doStrat(CallBacker*);
     void			rdFile(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			stratLvlChg(CallBacker*);
+    void			updateFromLevel(int,uiStratLevelSel*);
 };
 
 #endif

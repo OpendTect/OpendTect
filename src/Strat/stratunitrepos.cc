@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.26 2008-12-31 10:44:39 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.27 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -37,6 +37,7 @@ const Strat::UnitRepository& Strat::UnRepo()
     {
 	if ( DBG::isOn() ) DBG::message( "Creating Strat::UnitRepository" );
 	unrepo = new UnitRepository;
+	unrepo->reRead();
 	if ( DBG::isOn() )
 	{
 	    BufferString msg( "Total strat trees found: " );
@@ -184,6 +185,8 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     astrm.put( sKey::Name, treename_ );
     const UnitRepository& repo = UnRepo();
     BufferString str;
+    Lithology::undef().fill( str );
+    astrm.put( UnitRepository::sKeyLith, str );
     for ( int idx=0; idx<repo.nrLiths(); idx++ )
     {
 	const Lithology& lith = repo.lith( idx );
@@ -242,18 +245,15 @@ void Strat::RefTree::untieLvlsFromUnit( const Strat::UnitRef* ur,
 
 int Strat::RefTree::getFreeLevelID() const
 {
-    int freeid = 0;
-    while ( levelFromID( freeid ) )
-	freeid++;
-
-    return freeid;
+    return UnRepo().getNewLevelID();
 }
 
 
 Strat::UnitRepository::UnitRepository()
     : curtreeidx_(-1)
+    , lastlevelid_(-1)
+    , lastlithid_(-1)
 {
-    reRead();
     IOM().surveyChanged.notify( mCB(this,Strat::UnitRepository,survChg) );
 }
 
@@ -361,6 +361,8 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	IOPar iop; iop.getFrom( astrm );
 	lvl->getFrom( iop, *tree );
 	tree->addLevel( lvl );
+	if ( lvl->id_ > lastlevelid_ )
+	    lastlevelid_ = lvl->id_;
     }
 
     sfio.closeSuccess();
@@ -391,7 +393,7 @@ int Strat::UnitRepository::findLith( int lithid ) const
 {
     for ( int idx=0; idx<liths_.size(); idx++ )
     {
-	if ( liths_[idx]->id() == lithid )
+	if ( liths_[idx]->id_ == lithid )
 	    return idx;
     }
     return -1;
@@ -405,11 +407,22 @@ void Strat::UnitRepository::addLith( const char* str, Repos::Source src )
     Lithology* newlith = new Lithology;
     if ( !newlith->use(str) )
 	{ delete newlith; return; }
-    newlith->setSource( src );
+    if ( newlith->id_ < 0 )
+    {
+	newlith->id_ = -1;
+	Lithology* udf = const_cast<Lithology*>(&Lithology::undef());
+	*udf = *newlith;
+	delete newlith; return;
+    }
+
+    newlith->src_ = src;
     if ( findLith(newlith->name()) >= 0 )
 	unusedliths_ += newlith;
     else
 	liths_ += newlith;
+
+    if ( newlith->id_ > lastlithid_ )
+	lastlithid_ = newlith->id_;
 }
 
 
@@ -421,6 +434,28 @@ void Strat::UnitRepository::addLith( Lithology* newlith )
 	unusedliths_ += newlith;
     else
 	liths_ += newlith;
+}
+
+
+void Strat::UnitRepository::removeLith( int lid )
+{
+    if ( lid < 0 ) return;
+    int idx = findLith( lid );
+    if ( idx < 0 ) return;
+
+    for ( int idx=0; idx<trees_.size(); idx++ )
+    {
+	Strat::RefTree& tree = *trees_[idx];
+	Strat::UnitRef::Iter it( tree, Strat::UnitRef::Iter::Leaves );
+	while ( it.next() )
+	{
+	    LeafUnitRef* lur = (LeafUnitRef*)it.unit();
+	    if ( lur->lithology() == lid )
+		lur->setLithology( Strat::Lithology::undef().id_ );
+	}
+    }
+
+    delete liths_.remove( idx );
 }
 
 
@@ -436,7 +471,7 @@ int Strat::UnitRepository::getLithID( BufferString name ) const
 {
     int idx = findLith( name );
     if ( idx<0 || idx>= liths_.size() ) return -1;
-    return liths_[idx] ? liths_[idx]->id() : -1;
+    return liths_[idx] ? liths_[idx]->id_ : -1;
 }
 
 
@@ -558,14 +593,4 @@ void Strat::UnitRepository::createDefaultTree()
     RefTree* tree = new RefTree( "Stratigraphic tree", Repos::Survey );
     tree->addUnit( "base", "example of unit" );
     trees_ += tree;
-}
-
-
-int Strat::UnitRepository::getFreeLithID() const
-{
-    int id = 0;
-    while ( findLith(id)!=-1 )
-	id++;
-
-    return id;
 }

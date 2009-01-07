@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.13 2008-12-31 10:43:41 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.14 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: wellwriter.cc,v 1.13 2008-12-31 10:43:41 cvsber
 #include "errh.h"
 #include "strmprov.h"
 #include "keystrs.h"
-#include "separstr.h"
 #include "envvars.h"
 #include <iostream>
 
@@ -199,20 +198,11 @@ bool Well::Writer::putMarkers( std::ostream& strm ) const
     {
 	BufferString basekey; basekey += idx+1;
 	const Well::Marker& wm = *wd.markers()[idx];
-
-	BufferString key = IOPar::compKey( basekey, sKey::Name );
-	astrm.put( key, wm.name() );
-	key = IOPar::compKey( basekey, sKey::Desc );
-	FileMultiString fms;
-	fms += wm.istop_ ? "T" : "B"; fms += wm.desc_;
-	astrm.put( key, fms );
-	key = IOPar::compKey( basekey, sKey::Color );
-	BufferString bs; wm.color_.fill( bs.buf() );
-	astrm.put( key, bs );
-	key = IOPar::compKey( basekey, Well::Marker::sKeyDah );
-	astrm.put( key, wm.dah_ );
-	key = IOPar::compKey( basekey, sKey::StratRef );
-	astrm.put( key, wm.stratlevelid_ );
+	astrm.put( IOPar::compKey(basekey,sKey::Name), wm.name() );
+	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah), wm.dah() );
+	astrm.put( IOPar::compKey(basekey,sKey::StratRef), wm.levelID() );
+	BufferString bs; wm.color().fill( bs.buf() );
+	astrm.put( IOPar::compKey(basekey,sKey::Color), bs );
     }
 
     return strm.good();

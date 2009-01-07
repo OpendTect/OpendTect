@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.49 2008-12-24 12:28:13 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.50 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -13,6 +13,8 @@ static const char* rcsID = "$Id: well.cc,v 1.49 2008-12-24 12:28:13 cvsbert Exp 
 #include "welldisp.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+#include "stratlevel.h"
+#include "stratunitrepos.h"
 #include "idxable.h"
 #include "iopar.h"
 
@@ -256,6 +258,39 @@ void Well::Log::ensureAscZ()
 void Well::Log::setSelValueRange( const Interval<float>& newrg )
 {
     selrange_.setFrom( newrg );
+}
+
+
+Well::Marker::Marker( int lvlid, float dh )
+    : levelid_(lvlid)
+    , dah_(dh)
+{
+    const Strat::Level* lvl = level();
+    if ( lvl )
+    {
+	setName( lvl->name() );
+	setColor( lvl->color_ );
+    }
+}
+
+
+const Strat::Level* Well::Marker::level() const
+{
+    return levelid_ < 0 ? 0 : Strat::RT().levelFromID( levelid_ );
+}
+
+
+const BufferString& Well::Marker::name() const
+{
+    const Strat::Level* lvl = level();
+    return lvl ? lvl->name() : NamedObject::name();
+}
+
+
+Color Well::Marker::color() const
+{
+    const Strat::Level* lvl = level();
+    return lvl ? lvl->color_ : color_;
 }
 
 

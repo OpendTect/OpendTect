@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.31 2008-12-24 15:28:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.32 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -417,22 +417,24 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	if ( !iopar.get(key,bs) ) break;
 
 	Well::Marker* wm = new Well::Marker( bs );
-	key = IOPar::compKey( basekey, sKey::Desc );
-	if ( iopar.get(key,bs) )
-	{
-	    FileMultiString fms( bs );
-	    wm->istop_ = *fms[0] == 'T';
-	    wm->desc_ = fms[1];
-	}
-	key = IOPar::compKey( basekey, sKey::Color );
-	if ( iopar.get(key,bs) )
-	    wm->color_.use( bs.buf() );
+
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah );
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
-	wm->dah_ = atof( bs.buf() );
+	wm->setDah( atof( bs.buf() ) );
+
 	key = IOPar::compKey( basekey, sKey::StratRef );
-	iopar.get( key, wm->stratlevelid_ );
+	int lvlid = -1; iopar.get( key, lvlid );
+	wm->setLevelID( lvlid );
+
+	key = IOPar::compKey( basekey, sKey::Color );
+	if ( iopar.get(key,bs) )
+	{
+	    Color col( wm->color() );
+	    col.use( bs.buf() );
+	    wm->setColor( col );
+	}
+
 	wd.markers() += wm;
     }
 

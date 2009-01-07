@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.26 2008-12-23 11:36:33 cvsdgb Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.27 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "uistratreftree.h"
 
@@ -173,7 +173,7 @@ void uiStratRefTree::rClickCB( CallBacker* )
     }
     else if ( col == sLithoCol )
     {
-	uiLithoDlg lithdlg( lv_->parent(), uistratmgr_ );
+	uiStratLithoDlg lithdlg( lv_->parent(), uistratmgr_ );
 	lithdlg.setSelectedLith( lvit->text( sLithoCol ) );
 	if ( lithdlg.go() )
 	    lvit->setText( lithdlg.getLithName(), sLithoCol );

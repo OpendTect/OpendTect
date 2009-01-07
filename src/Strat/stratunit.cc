@@ -4,7 +4,7 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.13 2007-08-15 15:01:00 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.14 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
@@ -17,10 +17,7 @@ const Strat::Lithology& Strat::Lithology::undef()
 {
     static Strat::Lithology* udf = 0;
     if ( !udf )
-    {
 	udf = new Strat::Lithology( "Undefined" );
-	udf->setId( -1 );
-    }
     return *udf;
 }
 
@@ -29,8 +26,7 @@ const Strat::LeafUnitRef& Strat::LeafUnitRef::undef()
 {
     static Strat::LeafUnitRef* udf = 0;
     if ( !udf )
-	udf = new Strat::LeafUnitRef( 0, "undef",
-				      Strat::Lithology::undef().id(),
+	udf = new Strat::LeafUnitRef( 0, "undef", Strat::Lithology::undef().id_,
 				      "Undefined" );
     return *udf;
 }
@@ -42,6 +38,19 @@ const Strat::NodeUnitRef& Strat::NodeUnitRef::undef()
     if ( !udf )
 	udf = new Strat::NodeUnitRef( 0, "undef", "Undefined" );
     return *udf;
+}
+
+
+Strat::Lithology& Strat::Lithology::operator =( const Strat::Lithology& l )
+{
+    if ( this != &l )
+    {
+	setName( l.name() );
+	id_ = l.id_;
+	porous_ = l.porous_;
+	src_ = l.src_;
+    }
+    return *this;
 }
 
 

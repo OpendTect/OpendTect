@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.5 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.6 2009-01-07 15:11:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,10 @@ ________________________________________________________________________
 class BufferStringSet;
 class uiColorInput;
 class uiGenInput;
-class uiLabeledListBox;
+class uiListBox;
+class uiCheckBox;
 class uiStratMgr;
+namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create new stratigraphic unit */
 
@@ -46,20 +48,33 @@ protected:
 
 /*!\brief Displays a dialog to create new lithology */
 
-class uiLithoDlg : public uiDialog
+class uiStratLithoDlg : public uiDialog
 {
 public:
 
-			uiLithoDlg(uiParent*, uiStratMgr*);
+			uiStratLithoDlg(uiParent*, uiStratMgr*);
     const char*		getLithName() const;
     void		setSelectedLith(const char*);
 
+    Notifier<uiStratLithoDlg>	lithAdd;
+    Notifier<uiStratLithoDlg>	lithChg;
+    Notifier<uiStratLithoDlg>	lithRem;
+
 protected:
-    uiLabeledListBox*	listlithfld_;
-    uiGenInput*		lithnmfld_;
+
+    uiListBox*		selfld_;
+    uiGenInput*		nmfld_;
+    uiCheckBox*		isporbox_;
+
+    Strat::Lithology*	prevlith_;
     uiStratMgr*		uistratmgr_;
 
-    void		newLithCB(CallBacker*);
+    void		fillLiths();
+    void		newLith(CallBacker*);
+    void		selChg(CallBacker*);
+    void		rmSel(CallBacker*);
+
+    bool		acceptOK(CallBacker*);
 };
 
 

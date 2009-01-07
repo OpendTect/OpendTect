@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.49 2008-12-15 12:12:28 cvsranojay Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.50 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -18,6 +18,9 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.49 2008-12-15 12:12:28 cvsran
 #include "unitofmeasure.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "stratunitrepos.h"
+#include "stratreftree.h"
+#include "stratlevel.h"
 #include <iostream>
 
 
@@ -113,7 +116,10 @@ const char* Well::AscImporter::getMarkers( const char* fnm, bool istvd,
 	}
 
 	Well::Marker* newmrk = new Well::Marker( ptr );
-	newmrk->dah_ = z;
+	newmrk->setDah( z );
+	const Strat::Level* lvl = Strat::RT().getLevel( ptr );
+	if ( lvl )
+	    newmrk->setLevelID( lvl->id_ );
 	wd.markers() += newmrk;
     }
     sd.close();

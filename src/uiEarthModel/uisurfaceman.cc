@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.56 2009-01-02 07:09:20 cvsraman Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.57 2009-01-07 15:11:25 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -353,11 +353,11 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
 	tbl_->setColor( RowCol(idx,1), col );
 
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
-	levelsel->levelChanged.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
+	levelsel->selChange.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
 	tbl_->setCellGroup( RowCol(idx,2), levelsel );
 	int lvlid = -1;
 	par.get( sKey::StratRef, lvlid );
-	levelsel->setLevelID( lvlid );
+	levelsel->setID( lvlid );
     }
 }
 
@@ -372,11 +372,13 @@ void doStrat( CallBacker* )
 void lvlChg( CallBacker* cb )
 {
     mDynamicCastGet(uiStratLevelSel*,levelsel,cb) 
-    const Color* col = levelsel ? levelsel->getLevelColor() : 0;
-    if ( !col ) return;
+    if ( !levelsel ) return;
+
+    const Color col = levelsel->getColor();
+    if ( col == Color::NoColor() ) return;
 
     const RowCol rc = tbl_->getCell( levelsel );
-    tbl_->setColor( RowCol(rc.row,1), *col );
+    tbl_->setColor( RowCol(rc.row,1), col );
 }
 
 bool acceptOK( CallBacker* )
@@ -389,7 +391,7 @@ bool acceptOK( CallBacker* )
 
 	mDynamicCastGet(uiStratLevelSel*,levelsel,
 			tbl_->getCellGroup(RowCol(idx,2)))
-	const int lvlid = levelsel ? levelsel->getLevelID() : -1;
+	const int lvlid = levelsel ? levelsel->getID() : -1;
 	par.set( sKey::StratRef, lvlid );
 	EM::EMM().writePars( *objids_[idx], par );
     }

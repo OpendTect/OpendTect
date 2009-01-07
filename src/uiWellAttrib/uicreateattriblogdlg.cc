@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.8 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.9 2009-01-07 15:11:25 cvsbert Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -202,7 +202,7 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
     if ( topmarker == 0)
 	start = wd.track().dah(0);
     else 
-	start = wd.markers()[ topmarker-1 ]->dah_;
+	start = wd.markers()[ topmarker-1 ]->dah();
 
     if ( markernames_.size()-1 != bottommarker )
     {
@@ -213,7 +213,7 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
 	    uiMSG().error(msg);
 	    return false;
 	}
-	stop = wd.markers()[ bottommarker-1 ]->dah_;
+	stop = wd.markers()[ bottommarker-1 ]->dah();
     }
     else
 	stop = wd.track().dah( wd.track().size()-1 );

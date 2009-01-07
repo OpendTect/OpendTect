@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.19 2009-01-06 05:34:47 cvsranojay Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.20 2009-01-07 15:11:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,14 +56,17 @@ public:
     int			findLith(int) const;
     BufferString	getLithName(int lithid) const;
     int			getLithID(BufferString) const;
-    int			getFreeLithID() const;
     void		addLith(Lithology*);
+    void		removeLith(int lithid);
     static const char*	sKeyLith;
 
     void		copyCurTreeAtLoc(Repos::Source);
     const RefTree*	getTreeFromSource(Repos::Source) const;
     bool		write(Repos::Source) const;
     void		reRead();
+
+    int			getNewLithID() const	{ return ++lastlithid_; }
+    int			getNewLevelID() const	{ return ++lastlevelid_; }
 
 protected:
 
@@ -73,6 +76,8 @@ protected:
     ObjectSet<RefTree>	trees_;
     ObjectSet<Lithology> liths_;
     int			curtreeidx_;
+    mutable int		lastlevelid_;
+    mutable int		lastlithid_;
 
     UnitRef*		fnd(const char*) const;
     UnitRef*		fnd(const char*,int) const;
@@ -92,7 +97,7 @@ private:
 	    				Repos::Source);
     void		createDefaultTree();
 
-    inline const RefTree&	curTree() const	{ return *tree(curtreeidx_); }
+    inline const RefTree& curTree() const	{ return *tree(curtreeidx_); }
 
 };
 
@@ -102,13 +107,13 @@ inline const RefTree& RT()
 }
 
 
-inline UnitRepository& eUnRepo() //!< editable UnRepo
+inline UnitRepository& eUnRepo()		//!< editable UnRepo
 {
     return const_cast<UnitRepository&>( UnRepo() );
 }
 
 
-inline RefTree& eRT() //!< editable RefTree
+inline RefTree& eRT()				//!< editable RefTree
 {
     return const_cast<RefTree&>( eUnRepo().curTree() );
 }
