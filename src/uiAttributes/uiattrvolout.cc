@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.51 2008-12-30 04:18:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.52 2009-01-07 11:24:25 cvshelene Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiattrvolout.cc,v 1.51 2008-12-30 04:18:40 cvsn
 #include "attriboutput.h"
 #include "attribengman.h"
 #include "uiattrsel.h"
+#include "uimultoutsel.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uiseisfmtscale.h"
@@ -167,6 +168,18 @@ bool uiAttrVolOut::prepareProcessing()
 	IOM().commitChanges( *ctio.ioobj );
     }
 
+    Desc* seldesc = ads.getDesc( todofld->attribID() );
+    if ( seldesc )
+    {
+	uiMultOutSel multoutdlg( parent(), *seldesc );
+	if ( multoutdlg.doDisp() && multoutdlg.go() )
+	{
+	    seloutputs.erase();
+	    multoutdlg.getSelectedOutputs( seloutputs );
+	    multoutdlg.getSelectedOutNames( seloutnms );
+	}
+    }
+
     uiSeisIOObjInfo ioobjinfo( *ctio.ioobj, true );
     SeisIOObjInfo::SpaceInfo spi( transffld->spaceInfo() );
     subselpar.clear();
@@ -193,7 +206,14 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     IOPar attrpar( "Attribute Descriptions" );
     DescSet* clonedset = ads.optimizeClone( targetid );
     if ( !clonedset )
-	return false; 
+	return false;
+
+    const int nrseloutputs = seloutputs.size() ? seloutputs.size() : 1;
+    TypeSet<DescID> outdescids;
+    if ( seloutputs.size() )
+	clonedset->createAndAddMultOutDescs( targetid, seloutputs, seloutnms,
+					     outdescids );
+
     clonedset->fillPar( attrpar );
 
     for ( int idx=0; idx<attrpar.size(); idx++ )
@@ -207,9 +227,17 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     const BufferString keybase = IOPar::compKey( Output::outputstr, 0 );
     const BufferString attribkey =
 	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey );
-    iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), 1 );
 
-    iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
+    iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), nrseloutputs );
+
+    if ( seloutputs.size() )
+    {
+	if ( nrseloutputs != outdescids.size() ) return false;
+	for ( int idx=0; idx<nrseloutputs; idx++ )
+	    iop.set( IOPar::compKey(attribkey,idx), outdescids[idx].asInt() );
+    }
+    else
+	iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
 
     BufferString outseisid;
     outseisid += ctio.ioobj->key();
@@ -313,3 +341,4 @@ void uiAttrVolOut::addNLA( DescID& id )
     if ( errmsg.size() )
         uiMSG().error( errmsg );
 }
+

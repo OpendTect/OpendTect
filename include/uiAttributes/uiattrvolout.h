@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattrvolout.h,v 1.3 2005-08-19 14:52:20 cvshelene Exp $
+ RCS:           $Id: uiattrvolout.h,v 1.4 2009-01-07 11:24:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,9 @@ protected:
     uiAttrSel*		todofld;
     uiSeisTransfer*	transffld;
     uiSeisSel*		objfld;
+
+    TypeSet<int>	seloutputs;
+    BufferStringSet	seloutnms;
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
