@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.79 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.80 2009-01-07 14:33:02 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -703,6 +703,20 @@ void uiTable::setColumnReadOnly( int col, bool yn )
 	QTableWidgetItem* itm = body_->getItem( RowCol(row,col), true );
 	if ( itm ) itm->setFlags( yn ? flags_ro : flags );
     }
+}
+
+
+void uiTable::setCellReadOnly( const RowCol& rc, bool yn )
+{
+    QTableWidgetItem* itm = body_->item( rc.r(), rc.c() );
+    if ( itm ) itm->setFlags( yn ? flags_ro : flags );
+}
+
+
+bool uiTable::isCellReadOnly( const RowCol& rc ) const
+{
+    QTableWidgetItem* itm = body_->item( rc.r(), rc.c() );
+    return !itm->flags().testFlag( Qt::ItemIsEditable );
 }
 
 
