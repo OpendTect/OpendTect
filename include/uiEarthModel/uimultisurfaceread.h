@@ -7,15 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.h,v 1.5 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.h,v 1.6 2009-01-07 06:49:23 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiiosurface.h"
+#include "uidialog.h"
 
-class IODirEntryList;
-class uiLabeledListBox;
+class uiIOObjSelGrp;
+class uiDialog;
 
 /*! \brief ui for multiple surface read */
 
@@ -25,6 +26,8 @@ public:
 			uiMultiSurfaceRead(uiParent*,const char* type);
 			~uiMultiSurfaceRead();
 
+    uiIOObjSelGrp*	objselGrp()		{ return ioobjselgrp_;}
+
     void		getSurfaceIds(TypeSet<MultiID>&) const;
     void		getSurfaceSelection(EM::SurfaceIODataSelection&) const;
 
@@ -32,12 +35,26 @@ public:
 
 protected:
 
-    IODirEntryList*	entrylist_;
-    uiLabeledListBox*	surfacefld_;
+    uiIOObjSelGrp*	ioobjselgrp_;
 
-    void		dClck(CallBacker*);
+    void                dClck(CallBacker*);
     void		selCB(CallBacker*);
 };
 
+
+class uiMultiSurfaceReadDlg : public uiDialog
+{
+public:
+			uiMultiSurfaceReadDlg(uiParent*,const char* type);
+
+    uiMultiSurfaceRead*	iogrp()		{ return surfacefld_; }
+
+protected:
+
+    void		statusMsg(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
+    uiMultiSurfaceRead*	surfacefld_;
+};
 
 #endif
