@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.61 2008-12-23 09:51:33 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.62 2009-01-07 06:53:53 cvsnageswara Exp $";
 
 #include "uiiosurface.h"
 
@@ -78,8 +78,8 @@ void uiIOSurface::mkSectionFld( bool labelabove )
     sectionfld_ = new uiLabeledListBox( this, "Available patches", true,
 				     labelabove ? uiLabeledListBox::AboveMid 
 				     		: uiLabeledListBox::LeftTop );
-//  sectionfld_->setPrefHeightInChar( cListHeight );
-    sectionfld_->setStretch( 1, 1 );
+    sectionfld_->setPrefHeightInChar( cListHeight );
+    sectionfld_->setStretch( 2, 2 );
     sectionfld_->box()->selectionChanged.notify( 
 	    				mCB(this,uiIOSurface,ioDataSelChg) );
 }
@@ -89,6 +89,7 @@ void uiIOSurface::mkRangeFld()
 {
     rgfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     rgfld_->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
+    if ( sectionfld_ ) rgfld_->attach( ensureBelow, sectionfld_ );
 }
 
 
