@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.10 2009-01-07 16:06:19 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.11 2009-01-08 17:10:18 cvsyuancheng Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -35,7 +35,7 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 		    is3D() ? (isInl() ? "Crossline" : "Inline") : "Trace Nr",
 		    0 , "Position" );
     posfld_ = lsb->box();
-    StepInterval<int> posspos = vwr.getTraceRange();
+    StepInterval<int> posspos = vwr.getTraceRange( vwr.getPosition() );
     if ( posspos.isUdf() ) posspos = StepInterval<int>( 1, mUdf(int), 1 );
     posfld_->setInterval( posspos );
 

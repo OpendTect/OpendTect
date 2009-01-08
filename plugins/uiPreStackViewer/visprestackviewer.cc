@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.46 2009-01-05 04:27:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.47 2009-01-08 17:10:18 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -336,7 +336,7 @@ bool Viewer3D::updateData()
 }
 
 
-const StepInterval<int> Viewer3D::getTraceRange() const
+const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( mid_ );
 
@@ -349,11 +349,11 @@ const StepInterval<int> Viewer3D::getTraceRange() const
 	const PosInfo::CubeData& posinfo = rdr->posData();
 	if ( isOrientationInline() )
 	{
-	    const int inlidx = posinfo.indexOf( bid_.inl );
+	    const int inlidx = posinfo.indexOf( bid.inl );
 	    if ( inlidx==-1 )
 		return StepInterval<int>();
 
-	    const int seg = posinfo[inlidx]->nearestSegment( bid_.crl );
+	    const int seg = posinfo[inlidx]->nearestSegment( bid.crl );
 	    return posinfo[inlidx]->segments_[seg];
 	}
 	else
@@ -391,7 +391,7 @@ const StepInterval<int> Viewer3D::getTraceRange() const
 
 BinID Viewer3D::getNearBinID( const BinID& bid ) const
 {
-    const StepInterval<int> tracerg = getTraceRange();
+    const StepInterval<int> tracerg = getTraceRange( bid );
     if ( tracerg.isUdf() )
 	return BinID(-1,-1);
     

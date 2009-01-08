@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.23 2008-12-22 15:45:35 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.24 2009-01-08 17:10:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
     bool			isInlCrl() const 	{ return true; }
     bool			isOrientationInline() const;
     const Coord			getBaseDirection() const; 
-    const StepInterval<int>	getTraceRange() const;
+    const StepInterval<int>	getTraceRange(const BinID& bid) const;
 
     				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);

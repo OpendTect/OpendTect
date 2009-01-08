@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.35 2009-01-05 04:27:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.36 2009-01-08 17:10:18 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -342,6 +342,14 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     if ( viewer->getScene() )
 	viewer->getScene()->change.notifyIfNotNotified( 
 		mCB( this, uiViewer3DMgr, sceneChangeCB ) );
+
+    mDeclareAndTryAlloc( uiViewer3DPositionDlg*, dlg,
+	    uiViewer3DPositionDlg( menu->getParent(), *viewer ) );
+    if ( dlg ) 
+    {
+	posdialogs_.replace( posdialogs_.size()-1, dlg );
+	dlg->show();
+    }
 
     return true;
 }
