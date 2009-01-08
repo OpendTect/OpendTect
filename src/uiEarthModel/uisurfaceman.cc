@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.57 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.58 2009-01-08 11:11:27 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -255,9 +255,14 @@ void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 
 void uiSurfaceMan::mkFileInfo()
 {
-#define mRangeTxt(line) \
-    txt += sd.rg.start.line; txt += " - "; txt += sd.rg.stop.line; \
-    txt += " - "; txt += sd.rg.step.line; txt += "\n" \
+#define mAddRangeTxt(line) \
+    if ( sd.rg.start.line >= mUdf(int) ) \
+	txt += "-\n"; \
+    else \
+    { \
+	txt += sd.rg.start.line; txt += " - "; txt += sd.rg.stop.line; \
+	txt += " - "; txt += sd.rg.step.line; txt += "\n"; \
+    }
 
     BufferString txt;
     SurfaceIOData sd;
@@ -273,8 +278,8 @@ void uiSurfaceMan::mkFileInfo()
 	}
 	else
 	{
-	    txt = "Inline range: "; mRangeTxt(inl);
-	    txt += "Crossline range: "; mRangeTxt(crl);
+	    txt = "Inline range: "; mAddRangeTxt(inl)
+	    txt += "Crossline range: "; mAddRangeTxt(crl)
 	    if ( !sd.zrg.isUdf() )
 	    {
 		txt += "Z range"; txt += SI().getZUnitString(); txt += ": ";
