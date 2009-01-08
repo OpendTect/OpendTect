@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2005
- RCS:           $Id: vistransmgr.h,v 1.4 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:           $Id: vistransmgr.h,v 1.5 2009-01-08 11:01:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "commondefs.h"
 
 class HorSampling;
 namespace visBase { class Transformation; }
