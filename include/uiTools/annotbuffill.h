@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          04/09/2006
- RCS:           $Id: annotbuffill.h,v 1.5 2006-10-02 11:17:13 cvshelene Exp $
+ RCS:           $Id: annotbuffill.h,v 1.6 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,12 +26,12 @@ class uiRGBArray;
 typedef Geom::Point2D<double> dPoint;
 typedef Geom::Point2D<int> iPoint;
 
-class AnnotBufferFiller
+mClass AnnotBufferFiller
 {
 
 public:
 
-    class LineInfo
+    mClass LineInfo
     {
 	public:
 

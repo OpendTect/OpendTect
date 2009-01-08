@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2006
- RCS:           $Id: uicompoundparsel.h,v 1.2 2008-10-14 11:17:54 cvsnanne Exp $
+ RCS:           $Id: uicompoundparsel.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiPushButton;
  
  */
 
-class uiCompoundParSel : public uiGroup
+mClass uiCompoundParSel : public uiGroup
 {
 public:
 

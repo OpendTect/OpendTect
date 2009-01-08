@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.8 2008-09-03 19:43:42 cvskris Exp $
+ RCS:           $Id: uidlggroup.h,v 1.9 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ Dialog that either can be used standalone (with uiSingleGroupDlg) or
 in a tabstack (uiTabStackDlg) */
 
 
-class uiDlgGroup : public uiGroup
+mClass uiDlgGroup : public uiGroup
 {
 public:
     			uiDlgGroup(uiParent* p,const char* nm)
@@ -48,7 +48,7 @@ public:
 
 /*! Dialog with one uiDlgGroup. */
 
-class uiSingleGroupDlg : public uiDialog
+mClass uiSingleGroupDlg : public uiDialog
 {
 public:
 		uiSingleGroupDlg( uiParent* p,const uiDialog::Setup& st )
@@ -67,7 +67,7 @@ protected:
 
 
 /*! Dialog with multiple uiDlgGroup in a tabstack. */
-class uiTabStackDlg : public uiDialog
+mClass uiTabStackDlg : public uiDialog
 {
 public:
 			uiTabStackDlg(uiParent*,const uiDialog::Setup&);

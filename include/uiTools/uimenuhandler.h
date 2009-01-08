@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.4 2007-10-08 15:59:29 cvskris Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.5 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ Implementation of MenuHandler for the dGB-based userinterface.
 */
 
 
-class uiMenuHandler : public MenuHandler
+mClass uiMenuHandler : public MenuHandler
 {
 public:
     				uiMenuHandler( uiParent*, int id );

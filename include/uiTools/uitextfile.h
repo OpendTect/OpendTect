@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextfile.h,v 1.2 2008-09-09 10:52:11 cvsbert Exp $
+ RCS:           $Id: uitextfile.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,11 @@ class uiTextBrowser;
 class uiTable;
 
 
-class uiTextFile : public CallBacker
+mClass uiTextFile : public CallBacker
 {
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
 
@@ -84,11 +84,11 @@ protected:
 };
 
 
-class uiTextFileDlg : public uiDialog
+mClass uiTextFileDlg : public uiDialog
 {
 public:
 
-    class Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 

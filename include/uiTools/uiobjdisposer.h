@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2008
- RCS:           $Id: uiobjdisposer.h,v 1.1 2008-06-03 11:34:35 cvsbert Exp $
+ RCS:           $Id: uiobjdisposer.h,v 1.2 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class Timer;
  
  */
 
-class uiObjDisposer : public CallBacker
+mClass uiObjDisposer : public CallBacker
 { 	
 public:
 

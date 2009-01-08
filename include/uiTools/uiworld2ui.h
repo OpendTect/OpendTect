@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uiworld2ui.h,v 1.13 2007-02-27 22:33:35 cvskris Exp $
+ RCS:           $Id: uiworld2ui.h,v 1.14 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 #include "uigeom.h"
 
-class World2UiData
+mClass World2UiData
 {
 public:
 
@@ -44,7 +44,7 @@ public:
      the new wolrd X/Y range.
  */
 
-class uiWorld2Ui
+mClass uiWorld2Ui
 {
 public:
 

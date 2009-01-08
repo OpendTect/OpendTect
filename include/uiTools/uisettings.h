@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.12 2008-08-06 07:50:23 cvsnanne Exp $
+ RCS:		$Id: uisettings.h,v 1.13 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiGenInput;
 class LooknFeelSettings;
 
 
-class uiSettings : public uiDialog
+mClass uiSettings : public uiDialog
 {
 public:
 			uiSettings(uiParent*,const char* titl,
@@ -40,7 +40,7 @@ protected:
 };
 
 
-class uiLooknFeelSettings : public uiDialog
+mClass uiLooknFeelSettings : public uiDialog
 {
 public:
 			uiLooknFeelSettings(uiParent*,const char* titl);

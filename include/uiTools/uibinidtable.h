@@ -7,7 +7,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.h,v 1.4 2006-01-31 09:07:04 cvsnanne Exp $
+ RCS:           $Id: uibinidtable.h,v 1.5 2009-01-08 07:07:01 cvsranojay Exp $
  ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiGenInput;
 class uiTable;
 template <class T> class Interval;
 
-class uiBinIDTable : public uiGroup
+mClass uiBinIDTable : public uiGroup
 {
 public:
 			uiBinIDTable(uiParent*,bool withz);

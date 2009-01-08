@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2005
- RCS:           $Id: uivalseriestracker.h,v 1.4 2008-02-07 18:59:33 cvskris Exp $
+ RCS:           $Id: uivalseriestracker.h,v 1.5 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiGenInput;
 /*!User interface for EventTracker. */
 
 
-class uiEventTracker : public uiDlgGroup
+mClass uiEventTracker : public uiDlgGroup
 {
 public:
     			uiEventTracker(uiParent*,EventTracker&,

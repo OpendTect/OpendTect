@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.h,v 1.7 2005-09-30 14:12:58 cvskris Exp $
+ RCS:           $Id: uiwizard.h,v 1.8 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiGroup;
 
-class uiWizard : public uiDialog
+mClass uiWizard : public uiDialog
 {
 public:
 			uiWizard(uiParent*,uiDialog::Setup&);

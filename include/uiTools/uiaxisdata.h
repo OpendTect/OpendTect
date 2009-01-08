@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          Jul 2008
- RCS:           $Id: uiaxisdata.h,v 1.2 2008-10-27 11:13:07 cvssatyaki Exp $
+ RCS:           $Id: uiaxisdata.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiGraphicsScene;
 	# axis ranges
  */
 
-class uiAxisData
+mClass uiAxisData
 {
 public:
 

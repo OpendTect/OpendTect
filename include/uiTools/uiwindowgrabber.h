@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.h,v 1.2 2008-08-01 12:04:30 cvsjaap Exp $
+ RCS:           $Id: uiwindowgrabber.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiMainWin;
 
 /*!Dialog to specify the grab window and the output image file */
 
-class uiWindowGrabDlg : public uiDialog
+mClass uiWindowGrabDlg : public uiDialog
 {
 public:
 			uiWindowGrabDlg(uiParent*,bool desktop);
@@ -58,7 +58,7 @@ protected:
 
 /*!Grabs the screen area covered by a window or the whole desktop */
 
-class uiWindowGrabber: public CallBacker
+mClass uiWindowGrabber: public CallBacker
 {
 public:
 			uiWindowGrabber(uiParent*);

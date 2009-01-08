@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.34 2008-08-22 13:30:12 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.35 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class IOPar;
 
 /*! \brief UI element for selection of data objects */
 
-class uiIOSelect : public uiGroup
+mClass uiIOSelect : public uiGroup
 {
 public:
 
@@ -102,7 +102,7 @@ protected:
 };
 
 
-class uiIOFileSelect : public uiIOSelect
+mClass uiIOFileSelect : public uiIOSelect
 {
 public:
 			uiIOFileSelect(uiParent*,const char* txt,

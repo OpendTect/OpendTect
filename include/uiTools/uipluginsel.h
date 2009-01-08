@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.h,v 1.2 2006-09-26 18:53:32 cvskris Exp $
+ RCS:           $Id: uipluginsel.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 class uiCheckBox;
 
-class uiPluginSel : public uiDialog
+mClass uiPluginSel : public uiDialog
 {
 public:
     				uiPluginSel(uiParent*);

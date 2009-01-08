@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.35 2008-05-06 08:42:24 cvsnanne Exp $
+ RCS:           $Id: uigeninput.h,v 1.36 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ only if the uiGenInput has not been finalised yet.
 
 */
 
-class uiGenInput : public uiGroup
+mClass uiGenInput : public uiGroup
 {
 public:
 			uiGenInput( uiParent* p, const char* disptxt

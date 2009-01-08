@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiscaler.h,v 1.7 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiGenInput;
 class uiCheckBox;
 
 
-class uiScaler : public uiGroup
+mClass uiScaler : public uiGroup
 {
 public:
 

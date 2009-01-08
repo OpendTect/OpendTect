@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: uigridder2d.h,v 1.1 2008-03-24 20:15:38 cvskris Exp $
+ RCS:           $Id: uigridder2d.h,v 1.2 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class InverseDistanceGridder2D;
 class uiGenInput;
 
 
-class uiGridder2DSel : public uiDlgGroup
+mClass uiGridder2DSel : public uiDlgGroup
 {
 public:
     				uiGridder2DSel(uiParent*,const Gridder2D*);
@@ -37,7 +37,7 @@ protected:
     ObjectSet<Gridder2D>	gridders_;
 };
 
-class uiInverseDistanceGridder2D : public uiDlgGroup
+mClass uiInverseDistanceGridder2D : public uiDlgGroup
 {
 public:
     static void		initClass();

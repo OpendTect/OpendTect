@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.11 2008-09-09 10:52:10 cvsbert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.12 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,11 @@ class BufferStringSet;
 
 /*!\brief Select entry from list */
 
-class uiSelectFromList : public uiDialog
+mClass uiSelectFromList : public uiDialog
 { 	
 public:
 
-    class Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl, const BufferStringSet& its )
@@ -62,11 +62,11 @@ private:
 
 /*!\brief Get a name from user, whilst displaying names that already exist */
 
-class uiGetObjectName : public uiDialog
+mClass uiGetObjectName : public uiDialog
 { 	
 public:
 
-    class Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 			Setup( const char* wintitl,const BufferStringSet& its )

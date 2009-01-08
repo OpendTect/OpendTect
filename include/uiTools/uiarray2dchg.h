@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.h,v 1.3 2008-02-06 14:33:52 cvsbert Exp $
+ RCS:		$Id: uiarray2dchg.h,v 1.4 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiGenInput;
 class uiStepOutSel;
 
 
-class uiArr2DInterpolPars : public uiGroup
+mClass uiArr2DInterpolPars : public uiGroup
 {
 public:
 
@@ -41,7 +41,7 @@ protected:
 };
 
 
-class uiArr2DInterpolParsDlg : public uiDialog
+mClass uiArr2DInterpolParsDlg : public uiDialog
 {
 public:
 
@@ -56,7 +56,7 @@ public:
 };
 
 
-class uiArr2DFilterPars : public uiGroup
+mClass uiArr2DFilterPars : public uiGroup
 {
 public:
 
@@ -73,7 +73,7 @@ protected:
 };
 
 
-class uiArr2DFilterParsDlg : public uiDialog
+mClass uiArr2DFilterParsDlg : public uiDialog
 {
 public:
 

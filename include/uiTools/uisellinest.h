@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.h,v 1.10 2004-04-20 15:05:11 nanne Exp $
+ RCS:           $Id: uisellinest.h,v 1.11 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class LineStyle;
 Provides selection of linestyle, linecolor and linewidth
 */
 
-class uiSelLineStyle : public uiGroup
+mClass uiSelLineStyle : public uiGroup
 { 	
 public:
 				uiSelLineStyle(uiParent*,const LineStyle&,
@@ -62,7 +62,7 @@ protected:
 /*!\brief Dialog for linestyle selection
 */
 
-class LineStyleDlg : public uiDialog
+mClass LineStyleDlg : public uiDialog
 {
 public:
 			LineStyleDlg(uiParent*,const LineStyle&,

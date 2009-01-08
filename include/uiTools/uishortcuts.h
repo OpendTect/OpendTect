@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          06/12/2005
- RCS:           $Id: uishortcuts.h,v 1.5 2007-03-15 16:18:17 cvsbert Exp $
+ RCS:           $Id: uishortcuts.h,v 1.6 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiShortcutsList;
   shortcuts.
 */
 
-class uiShortcutsDlg : public uiDialog
+mClass uiShortcutsDlg : public uiDialog
 {
 public:
 		    	uiShortcutsDlg(uiParent*,const char* selkey);

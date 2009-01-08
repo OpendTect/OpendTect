@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.h,v 1.6 2008-12-30 09:07:24 cvsumesh Exp $
+ RCS:		$Id: uihistogramdisplay.h,v 1.7 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiTextItem;
 template <class T> class Array2D;
 namespace Stats { template <class T> class RunCalc; }
 
-class uiHistogramDisplay : public uiFunctionDisplay
+mClass uiHistogramDisplay : public uiFunctionDisplay
 {
 public:
 

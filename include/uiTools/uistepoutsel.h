@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.9 2008-07-09 10:49:00 cvsraman Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.10 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiSpinBox;
  
  */
 
-class uiStepOutSel : public uiGroup
+mClass uiStepOutSel : public uiGroup
 {
 public:
 

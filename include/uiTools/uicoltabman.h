@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.7 2008-11-26 06:59:15 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.h,v 1.8 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class uiSpinBox;
 class uiWorld2Ui;
 
 
-class uiColorTableMan : public uiDialog
+mClass uiColorTableMan : public uiDialog
 {
 public:
 				uiColorTableMan(uiParent*,ColTab::Sequence&);

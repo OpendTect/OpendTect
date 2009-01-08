@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.7 2008-12-18 10:01:02 cvssatyaki Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.8 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,10 +31,10 @@ class uiRGBArray;
 
  */
 
-class uiRGBArrayCanvas : public uiGraphicsView
+mClass uiRGBArrayCanvas : public uiGraphicsView
 {
 public:
-    class Setup
+    mClass Setup
     {
     public:
 			Setup( bool sb = true, bool hd = true,int w=0, int h=0 )

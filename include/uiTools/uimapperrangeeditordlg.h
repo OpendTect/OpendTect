@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.h,v 1.1 2008-12-30 09:07:24 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.h,v 1.2 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 class uiMapperRangeEditor;
 namespace ColTab { struct MapperSetup; class Sequence; };
 
-class uiMultiRangeSelDispWin : public uiDialog
+mClass uiMultiRangeSelDispWin : public uiDialog
 {
 public:
     					uiMultiRangeSelDispWin(uiParent*,int n);

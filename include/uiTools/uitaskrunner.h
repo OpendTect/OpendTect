@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.8 2008-06-05 19:55:22 cvskris Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.9 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class uiProgressBar;
 class Timer;
 
-class uiTaskRunner : public uiDialog
+mClass uiTaskRunner : public uiDialog
 		   , public TaskRunner
 { 	
 public:

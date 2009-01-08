@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabmarker.h,v 1.2 2008-07-16 09:30:39 cvsnanne Exp $
+ RCS:           $Id: uicoltabmarker.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiParent;
 class uiWorld2Ui;
 
 
-class uiColTabMarkerDlg : public uiDialog
+mClass uiColTabMarkerDlg : public uiDialog
 {
 public:
 				uiColTabMarkerDlg(uiParent*,ColTab::Sequence&);
@@ -43,7 +43,7 @@ protected:
 };
 
 
-class uiColTabMarkerCanvas : public uiCanvas
+mClass uiColTabMarkerCanvas : public uiCanvas
 {
 public:
 				uiColTabMarkerCanvas(uiParent*,

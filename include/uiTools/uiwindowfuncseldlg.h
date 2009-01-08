@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.5 2008-10-27 11:13:07 cvssatyaki Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.6 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class WindowFunction;
 
 /*!brief Displays a windowfunction. */
 
-class uiWindowFuncSelDlg : public uiDialog
+mClass uiWindowFuncSelDlg : public uiDialog
 {
 
 public:

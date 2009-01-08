@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.h,v 1.18 2008-12-05 10:47:40 cvsnanne Exp $
+ RCS:           $Id: uislicesel.h,v 1.19 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiSliceScroll;
 namespace Threads { class Mutex; };
 
 
-class uiSliceSel : public uiGroup
+mClass uiSliceSel : public uiGroup
 {
 public:
     enum Type			{ Inl, Crl, Tsl, Vol, TwoD };
@@ -79,7 +79,7 @@ protected:
 };
 
 
-class uiSliceSelDlg : public uiDialog
+mClass uiSliceSelDlg : public uiDialog
 {
 public:
     				uiSliceSelDlg(uiParent*,

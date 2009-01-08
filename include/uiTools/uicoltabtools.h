@@ -8,7 +8,7 @@ class uiRGBArray;
 class uiWorld2Ui;
 namespace ColTab { class Sequence; }
 
-class uiColorTableCanvas : public uiRGBArrayCanvas
+mClass uiColorTableCanvas : public uiRGBArrayCanvas
 {
 public:
 				uiColorTableCanvas(uiParent*,

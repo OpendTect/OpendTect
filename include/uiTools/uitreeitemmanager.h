@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.39 2008-12-18 11:25:04 cvsjaap Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.40 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class uiListViewItem;
 class uiListView;
 class uiParent;
 
-class uiTreeItem	: public CallBacker
+mClass uiTreeItem	: public CallBacker
 {
 public:
 
@@ -187,7 +187,7 @@ private:
 };
 
 
-class uiTreeTopItem : public uiTreeItem
+mClass uiTreeTopItem : public uiTreeItem
 {
 public:
     			uiTreeTopItem(uiListView*);
@@ -218,7 +218,7 @@ protected:
 };
 
 
-class uiTreeItemFactory
+mClass uiTreeItemFactory
 {
 public:
     virtual		~uiTreeItemFactory()		{}
@@ -227,7 +227,7 @@ public:
 };
 
 
-class uiTreeFactorySet : public CallBacker
+mClass uiTreeFactorySet : public CallBacker
 {
 public:
 					uiTreeFactorySet();

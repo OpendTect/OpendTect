@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabimport.h,v 1.1 2008-05-30 04:10:33 cvsnanne Exp $
+ RCS:           $Id: uicoltabimport.h,v 1.2 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiGenInput;
 class uiLabeledListBox;
 
 
-class uiColTabImport : public uiDialog
+mClass uiColTabImport : public uiDialog
 {
 public:
 				uiColTabImport(uiParent*);

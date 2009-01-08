@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.25 2008-05-08 06:00:37 cvsnanne Exp $
+ RCS:           $Id: uifileinput.h,v 1.26 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,11 +29,11 @@ you specify otherwise in the setup.
 
 */
 
-class uiFileInput : public uiGenInput
+mClass uiFileInput : public uiGenInput
 { 	
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
 			Setup(const char* filenm=0)

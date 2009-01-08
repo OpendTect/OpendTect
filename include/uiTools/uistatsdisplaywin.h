@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplaywin.h,v 1.4 2008-12-30 09:05:27 cvsumesh Exp $
+ RCS:           $Id: uistatsdisplaywin.h,v 1.5 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ namespace Stats { template <class T> class RunCalc; }
 
 /*!\brief Stats display main window. See uistatsdisplay.h for details. */
 
-class uiStatsDisplayWin : public uiMainWin
+mClass uiStatsDisplayWin : public uiMainWin
 {
 public:
 

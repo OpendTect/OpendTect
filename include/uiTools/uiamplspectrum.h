@@ -7,7 +7,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.3 2008-04-01 14:11:46 cvsbert Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.4 2009-01-08 07:07:01 cvsranojay Exp $
 ______________________________________________________________________
                        
 */   
@@ -25,7 +25,7 @@ template <class T> class Array3D;
 template <class T> class Array1DImpl;
 
 
-class uiAmplSpectrum : public uiMainWin
+mClass uiAmplSpectrum : public uiMainWin
 {
 public:
     				uiAmplSpectrum(uiParent*);

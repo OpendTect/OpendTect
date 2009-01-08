@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.h,v 1.7 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uigeninputdlg.h,v 1.8 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiGenInput;
 
 /*!\brief specifies how to get input from user - for uiGenInputDlg */
 
-class uiGenInputDlgEntry
+mClass uiGenInputDlgEntry
 {
 public:
     			uiGenInputDlgEntry( const char* t,
@@ -36,7 +36,7 @@ public:
 };
 
 
-class uiGenInputGrp : public uiGroup
+mClass uiGenInputGrp : public uiGroup
 {
 public:
 			uiGenInputGrp(uiParent*,const char* dlgtitle,
@@ -78,7 +78,7 @@ private:
 
 /*!\brief dialog with only uiGenInputs */
 
-class uiGenInputDlg : public uiDialog
+mClass uiGenInputDlg : public uiDialog
 { 	
 public:
 			uiGenInputDlg(uiParent*,const char* dlgtitle,

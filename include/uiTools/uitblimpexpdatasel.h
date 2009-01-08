@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.11 2007-10-05 11:09:43 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.12 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ namespace Table { class FormatDesc; }
  
  */
 
-class uiTableImpDataSel : public uiGroup
+mClass uiTableImpDataSel : public uiGroup
 {
 public:
 

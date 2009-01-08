@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: drawaxis2d.h,v 1.9 2008-11-14 04:35:10 cvssatyaki Exp $
+ RCS:           $Id: drawaxis2d.h,v 1.10 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ template <class T> class StepInterval;
 
  */
 
-class DrawAxis2D
+mClass DrawAxis2D
 {
 public:
 			DrawAxis2D(uiGraphicsView*);

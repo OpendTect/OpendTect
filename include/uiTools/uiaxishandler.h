@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.13 2008-12-12 10:32:18 cvssatyaki Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.14 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ class uiTextItem;
  
  */
 
-class uiAxisHandler : public NamedObject
+mClass uiAxisHandler : public NamedObject
 {
 public:
 

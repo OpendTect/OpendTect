@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2002
- RCS:		$Id: uiapplserv.h,v 1.10 2006-09-22 08:24:00 cvsnanne Exp $
+ RCS:		$Id: uiapplserv.h,v 1.11 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiApplPartServer;
 
 /*! \brief Services from application level to 'Part servers' */
 
-class uiApplService : public NamedObject
+mClass uiApplService : public NamedObject
 {
 public:
 			uiApplService( const char* nm = 0 )
@@ -45,7 +45,7 @@ which of its part servers is calling - proceeds with the right action.
  
 */
 
-class uiApplPartServer : public CallBacker
+mClass uiApplPartServer : public CallBacker
 {
 public:
 

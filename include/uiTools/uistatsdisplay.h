@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.10 2008-12-30 09:05:27 cvsumesh Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.11 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ template <class T> class Array2D;
 namespace Stats { template <class T> class RunCalc; }
 
 
-class uiStatsDisplay : public uiGroup
+mClass uiStatsDisplay : public uiGroup
 {
 public:
 

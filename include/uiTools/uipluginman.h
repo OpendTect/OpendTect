@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.h,v 1.3 2007-03-13 13:01:38 cvsbert Exp $
+ RCS:           $Id: uipluginman.h,v 1.4 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiCheckBox;
 
 /*!\brief Shows loaded plugins and allows adding */
 
-class uiPluginMan : public uiDialog
+mClass uiPluginMan : public uiDialog
 { 	
 public:
 			uiPluginMan(uiParent*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.3 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.4 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiWindowFuncSelDlg;
 
 /*!Selects a windowfunction and its eventual parameter. */
 
-class uiWindowFunctionSel : public uiGroup
+mClass uiWindowFunctionSel : public uiGroup
 {
 public:
     			uiWindowFunctionSel(uiParent*,const char* label,

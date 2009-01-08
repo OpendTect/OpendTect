@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.15 2008-12-23 11:42:11 cvsdgb Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.16 2009-01-08 07:07:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class uiGraphicsItemGroup;
  
  */
 
-class uiFunctionDisplay : public uiGraphicsView
+mClass uiFunctionDisplay : public uiGraphicsView
 {
 public:
 
