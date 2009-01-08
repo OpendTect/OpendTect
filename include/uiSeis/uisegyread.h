@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.11 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uisegyread.h,v 1.12 2009-01-08 16:31:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,8 @@ public:
     enum State		{ Cancelled, Finished, BasicOpts, Wait4Dialog,
 			  SetupImport, SetupScan };
     State		state() const		{ return state_; }
+
+    static CtxtIOObj*	getCtio(bool,Seis::GeomType);
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.26 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.27 2009-01-08 16:31:41 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -289,17 +289,23 @@ void uiSEGYRead::preScanReq( CallBacker* cb )
 }
 
 
-CtxtIOObj* uiSEGYRead::getCtio( bool forread ) const
+CtxtIOObj* uiSEGYRead::getCtio( bool forread, Seis::GeomType gt )
 {
     CtxtIOObj* ret = mMkCtxtIOObj( SeisTrc );
     IOObjContext& ctxt = ret->ctxt;
     ctxt.deftransl = ctxt.trglobexpr = "SEG-Y";
     ctxt.forread = forread;
-    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIs2D, Seis::is2D(geom_) );
-    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIsPS, Seis::isPS(geom_) );
+    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIs2D, Seis::is2D(gt) );
+    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIsPS, Seis::isPS(gt) );
     ctxt.includeconstraints = ctxt.allownonreaddefault = true;
     ctxt.allowcnstrsabsent = false;
     return ret;
+}
+
+
+CtxtIOObj* uiSEGYRead::getCtio( bool forread ) const
+{
+    return getCtio( forread, geom_ );
 }
 
 
