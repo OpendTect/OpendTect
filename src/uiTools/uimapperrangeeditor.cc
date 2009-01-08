@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.1 2008-12-30 09:08:50 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.2 2009-01-08 10:12:19 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,6 +122,8 @@ void uiMapperRangeEditor::drawText()
 
 void uiMapperRangeEditor::fixTextPos()
 {
+    if ( mIsUdf(minlinecurpos_) || mIsUdf(maxlinecurpos_) )
+	return;
     BufferString bsleft;
     bsleft += toString(minlinecurpos_);
     bsleft += " ";
@@ -250,6 +252,8 @@ void uiMapperRangeEditor::drawAgain()
 
 void uiMapperRangeEditor::fixLinesPos()
 {
+    if ( mIsUdf(minlinecurpos_) || mIsUdf(maxlinecurpos_) )
+	return;
     minline_->setLine( histogramdisp_->xAxis()->getPix(minlinecurpos_), 0,
     	  histogramdisp_->xAxis()->getPix(
 	      			     minlinecurpos_), histogramdisp_->height());
