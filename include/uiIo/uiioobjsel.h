@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.57 2009-01-07 06:31:01 cvsnageswara Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.58 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class uiListBox;
 /*! \brief Dialog letting the user select an object.
            It returns an IOObj* after successful go(). */
 
-class uiIOObjRetDlg : public uiDialog
+mClass uiIOObjRetDlg : public uiDialog
 {
 public:
 
@@ -46,7 +46,7 @@ public:
 /*! \brief Basic group for letting the user select an object. It 
 	   can be used standalone in a dialog, or as a part of dialogs. */
 
-class uiIOObjSelGrp : public uiGroup
+mClass uiIOObjSelGrp : public uiGroup
 {
 public:
 				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
@@ -125,7 +125,7 @@ This class may be subclassed to make selection more specific.
 
 */
 
-class uiIOObjSelDlg : public uiIOObjRetDlg
+mClass uiIOObjSelDlg : public uiIOObjRetDlg
 {
 public:
 			uiIOObjSelDlg(uiParent*,const CtxtIOObj&,
@@ -154,7 +154,7 @@ This class may be subclassed to make selection more specific.
 
 */
 
-class uiIOObjSel : public uiIOSelect
+mClass uiIOObjSel : public uiIOSelect
 {
 public:
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,

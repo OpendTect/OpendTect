@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uilatlong2coord.h,v 1.1 2008-03-18 15:39:54 cvsbert Exp $
+ RCS:           $Id: uilatlong2coord.h,v 1.2 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ class SurveyInfo;
 class uiGenInput;
 class uiCheckBox;
 
-class uiLatLong2CoordDlg : public uiDialog
+mClass uiLatLong2CoordDlg : public uiDialog
 {
 public:
 			uiLatLong2CoordDlg(uiParent*,const LatLong2Coord&,

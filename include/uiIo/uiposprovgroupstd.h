@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.10 2008-09-04 10:07:51 cvsnanne Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.11 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiIOFileSelect;
 
 /*! \brief UI for RangePosProvider */
 
-class uiRangePosProvGroup : public uiPosProvGroup
+mClass uiRangePosProvGroup : public uiPosProvGroup
 {
 public:
 
@@ -59,7 +59,7 @@ protected:
 
 /*! \brief UI for PolyPosProvider */
 
-class uiPolyPosProvGroup : public uiPosProvGroup
+mClass uiPolyPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiPolyPosProvGroup(uiParent*,
@@ -92,7 +92,7 @@ protected:
 
 /*! \brief UI for TablePosProvider */
 
-class uiTablePosProvGroup : public uiPosProvGroup
+mClass uiTablePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiTablePosProvGroup(uiParent*,

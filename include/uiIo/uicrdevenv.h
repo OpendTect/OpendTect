@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.h,v 1.3 2004-01-23 09:39:41 dgb Exp $
+ RCS:           $Id: uicrdevenv.h,v 1.4 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiFileInput;
 
-class uiCrDevEnv : public uiDialog
+mClass uiCrDevEnv : public uiDialog
 {
 public:
 

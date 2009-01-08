@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisip.h,v 1.1 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:           $Id: uisip.h,v 1.2 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class uiDialog;
  
  */
 
-class uiSurvInfoProvider
+mClass uiSurvInfoProvider
 {
 public:
 

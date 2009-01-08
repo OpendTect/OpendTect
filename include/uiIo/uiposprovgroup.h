@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.8 2008-09-04 10:07:51 cvsnanne Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.9 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-class uiPosProvGroup : public uiPosFiltGroup
+mClass uiPosProvGroup : public uiPosFiltGroup
 {
 public:
 

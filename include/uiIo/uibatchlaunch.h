@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.21 2008-05-08 05:08:58 cvsraman Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.22 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
 #ifdef HAVE_OUTPUT_OPTIONS
-class uiBatchLaunch : public uiDialog
+mClass uiBatchLaunch : public uiDialog
 {
 public:
 			uiBatchLaunch(uiParent*,const IOPar&,
@@ -61,11 +61,11 @@ protected:
 };
 #endif
 
-class uiFullBatchDialog : public uiDialog
+mClass uiFullBatchDialog : public uiDialog
 {
 protected:
 
-    class Setup
+    mClass Setup
     {
     public:
 			Setup(const char* txt)
@@ -114,7 +114,7 @@ protected:
 };
 
 
-class uiRestartBatchDialog : public uiFullBatchDialog
+mClass uiRestartBatchDialog : public uiFullBatchDialog
 {
 public:
 

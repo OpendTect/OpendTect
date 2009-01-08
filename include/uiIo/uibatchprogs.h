@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2003
- RCS:           $Id: uibatchprogs.h,v 1.7 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.h,v 1.8 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiLabeledComboBox;
 
 
 
-class uiBatchProgLaunch : public uiDialog
+mClass uiBatchProgLaunch : public uiDialog
 {
 public:
 

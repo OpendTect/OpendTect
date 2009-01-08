@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.7 2009-01-07 15:11:25 cvsbert Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.8 2009-01-08 07:26:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Strat { class Level; }
 
 /*!\brief used to tie an object ( Horizon, Marker... ) to a Strat::Level */
 
-class uiStratLevelSel : public uiGroup
+mClass uiStratLevelSel : public uiGroup
 {
 public:
 

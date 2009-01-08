@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfiltgroupstd.h,v 1.2 2008-12-02 13:57:38 cvsbert Exp $
+ RCS:           $Id: uiposfiltgroupstd.h,v 1.3 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiGenInput;
 
 /*! \brief UI for Random Position filter */
 
-class uiRandPosFiltGroup : public uiPosFiltGroup
+mClass uiRandPosFiltGroup : public uiPosFiltGroup
 {
 public:
 
@@ -42,7 +42,7 @@ protected:
 
 /*! \brief UI for Subsample Position filter */
 
-class uiSubsampPosFiltGroup : public uiPosFiltGroup
+mClass uiSubsampPosFiltGroup : public uiPosFiltGroup
 {
 public:
 

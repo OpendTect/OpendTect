@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfilterset.h,v 1.3 2008-03-12 22:00:13 cvsnanne Exp $
+ RCS:           $Id: uiposfilterset.h,v 1.4 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiListBox;
 
 /*! \brief lets user choose a way to provide positions */
 
-class uiPosFilterSet : public uiGroup
+mClass uiPosFilterSet : public uiGroup
 {
 public:
 
@@ -55,7 +55,7 @@ protected:
 };
 
 
-class uiPosFilterSetSel : public uiCompoundParSel
+mClass uiPosFilterSetSel : public uiCompoundParSel
 {
 public:
 

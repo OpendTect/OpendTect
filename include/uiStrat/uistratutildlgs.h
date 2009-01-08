@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.6 2009-01-07 15:11:25 cvsbert Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.7 2009-01-08 07:27:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace Strat { class Lithology; }
 
 /*!\brief Displays a dialog to create new stratigraphic unit */
 
-class uiStratUnitDlg : public uiDialog
+mClass uiStratUnitDlg : public uiDialog
 {
 public:
 
@@ -48,7 +48,7 @@ protected:
 
 /*!\brief Displays a dialog to create new lithology */
 
-class uiStratLithoDlg : public uiDialog
+mClass uiStratLithoDlg : public uiDialog
 {
 public:
 
@@ -80,7 +80,7 @@ protected:
 
 /*!\brief Displays a dialog to create new level */
 
-class uiStratLevelDlg : public uiDialog
+mClass uiStratLevelDlg : public uiDialog
 {
 public:
 
@@ -104,7 +104,7 @@ protected:
 
 /*!\brief Displays a dialog to link level and stratigraphic unit*/
 
-class uiStratLinkLvlUnitDlg : public uiDialog
+mClass uiStratLinkLvlUnitDlg : public uiDialog
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.6 2008-12-02 13:58:33 cvsbert Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.7 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ namespace Pick { class Set; }
 
 /*! \brief Dialog for creating (a) pick set(s) */
 
-class RandLocGenPars
+mClass RandLocGenPars
 {
 public:
 
@@ -52,7 +52,7 @@ public:
 };
 
 
-class uiCreatePicks : public uiDialog 
+mClass uiCreatePicks : public uiDialog 
 {
 public:
 			uiCreatePicks(uiParent*);
@@ -70,7 +70,7 @@ protected:
 };
 
 
-class uiGenPosPicks : public uiCreatePicks
+mClass uiGenPosPicks : public uiCreatePicks
 {
 public:
     			uiGenPosPicks(uiParent*,bool is2d); //!<TODO: 2D support
@@ -88,7 +88,7 @@ protected:
 };
 
 
-class uiGenRandPicks : public uiCreatePicks
+mClass uiGenRandPicks : public uiCreatePicks
 {
 public:
     const RandLocGenPars& randPars() const      { return randpars_; }
@@ -112,7 +112,7 @@ protected:
 };
 
 
-class uiGenRandPicks3D : public uiGenRandPicks 
+mClass uiGenRandPicks3D : public uiGenRandPicks 
 {
 public:
 			uiGenRandPicks3D(uiParent*,const BufferStringSet&);
@@ -130,7 +130,7 @@ protected:
 };
 
 
-class uiGenRandPicks2D : public uiGenRandPicks 
+mClass uiGenRandPicks2D : public uiGenRandPicks 
 {
 public:
     			uiGenRandPicks2D(uiParent*,const BufferStringSet&,

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H.Bril
  Date:          Oct 2004
- RCS:           $Id: ui2dsip.h,v 1.3 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:           $Id: ui2dsip.h,v 1.4 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uisip.h"
 
 
-class ui2DSurvInfoProvider : public uiSurvInfoProvider
+mClass ui2DSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.h,v 1.15 2008-10-09 17:43:42 cvsnanne Exp $
+ RCS:           $Id: uisurvmap.h,v 1.16 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiGraphicsScene;
 class SurveyInfo;
 
 
-class uiSurveyMap : public uiGraphicsView
+mClass uiSurveyMap : public uiGraphicsView
 {
 public:
 			uiSurveyMap(uiParent*);

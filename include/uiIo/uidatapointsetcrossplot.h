@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.12 2008-12-12 06:01:17 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.13 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ template <class T> class ODPolygon;
 
 /*!\brief Data Point Set Cross Plotter */
 
-class uiDataPointSetCrossPlotter : public uiGraphicsView
+mClass uiDataPointSetCrossPlotter : public uiGraphicsView
 {
 public:
 
@@ -73,7 +73,7 @@ public:
     void		dataChanged();
 
     //!< Only use if you know what you're doing
-    class AxisData : 	public uiAxisData
+    mClass AxisData : 	public uiAxisData
     {
 	public:
 				AxisData(uiDataPointSetCrossPlotter&,

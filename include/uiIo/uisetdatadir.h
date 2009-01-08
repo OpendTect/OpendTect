@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.h,v 1.2 2004-01-16 13:39:43 bert Exp $
+ RCS:           $Id: uisetdatadir.h,v 1.3 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiGenInput;
 class uiFileInput;
 
-class uiSetDataDir : public uiDialog
+mClass uiSetDataDir : public uiDialog
 {
 public:
 			uiSetDataDir(uiParent*);

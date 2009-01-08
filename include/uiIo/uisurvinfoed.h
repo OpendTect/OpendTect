@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.27 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.28 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiSurvInfoProvider;
 
 /*\brief The survey info editor */
 
-class uiSurveyInfoEditor : public uiDialog
+mClass uiSurveyInfoEditor : public uiDialog
 {
 
 public:

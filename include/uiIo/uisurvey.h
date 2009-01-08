@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.29 2008-10-09 17:43:42 cvsnanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.30 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiToolButton;
 
 /*!\brief The main survey selection dialog */
 
-class uiSurvey : public uiDialog
+mClass uiSurvey : public uiDialog
 {
 
 public:

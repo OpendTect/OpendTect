@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2006
- RCS:           $Id: uiioobj.h,v 1.2 2008-11-18 17:25:15 cvsbert Exp $
+ RCS:           $Id: uiioobj.h,v 1.3 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class CtxtIOObj;
 /*! \brief Dialog letting the user select an object.
            It returns an IOObj* after successful go(). */
 
-class uiIOObj
+mClass uiIOObj
 {
 public:
 				uiIOObj( IOObj& i, bool silent=false )

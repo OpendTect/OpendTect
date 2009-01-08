@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jun 2006
- RCS:           $Id: uipicksetmgr.h,v 1.2 2007-05-25 10:16:34 cvsbert Exp $
+ RCS:           $Id: uipicksetmgr.h,v 1.3 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace Pick { class Set; class SetMgr; };
 
 /*! \brief base class for management of a Pick::SetMgr */
 
-class uiPickSetMgr : public CallBacker
+mClass uiPickSetMgr : public CallBacker
 {
 public:
 			uiPickSetMgr(Pick::SetMgr&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.11 2007-10-15 12:38:37 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.12 2009-01-08 07:26:59 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace Strat {
 
 /*!\brief Displays a Strat::RefTree */
 
-class uiStratRefTree : public CallBacker 
+mClass uiStratRefTree : public CallBacker 
 {
 public:
 

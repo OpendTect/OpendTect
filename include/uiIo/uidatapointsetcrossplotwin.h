@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.7 2008-12-12 06:01:17 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.8 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiComboBox;
 
 /*!\brief Data Point Set Cross Plotter Main window */
 
-class uiDataPointSetCrossPlotWin : public uiMainWin
+mClass uiDataPointSetCrossPlotWin : public uiMainWin
 {
 public:
 

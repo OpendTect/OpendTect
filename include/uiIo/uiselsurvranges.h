@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.8 2008-12-11 16:08:06 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.9 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiLineEdit;
 
 /*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
-class uiSelZRange : public uiGroup
+mClass uiSelZRange : public uiGroup
 {
 public:
                         uiSelZRange(uiParent*,bool wstep,
@@ -44,7 +44,7 @@ protected:
 
 /*!\brief Selects range of trace numbers */
 
-class uiSelNrRange : public uiGroup
+mClass uiSelNrRange : public uiGroup
 {
 public:
     enum Type		{ Inl, Crl, Gen };
@@ -75,7 +75,7 @@ protected:
 
 /*!\brief Selects step(s) in inl/crl or trcnrs */
 
-class uiSelSteps : public uiGroup
+mClass uiSelSteps : public uiGroup
 {
 public:
 
@@ -94,7 +94,7 @@ protected:
 
 /*!\brief Selects sub-volume. Default will be SI() work area */
 
-class uiSelHRange : public uiGroup
+mClass uiSelHRange : public uiGroup
 {
 public:
                         uiSelHRange(uiParent*,bool wstep);
@@ -112,7 +112,7 @@ public:
 
 /*!\brief Selects sub-volume. Default will be SI() work volume */
 
-class uiSelSubvol : public uiGroup
+mClass uiSelSubvol : public uiGroup
 {
 public:
                         uiSelSubvol(uiParent*,bool wstep);
@@ -128,7 +128,7 @@ public:
 
 /*!\brief Selects sub-line. Default will be 1-udf and SI() z range */
 
-class uiSelSubline : public uiGroup
+mClass uiSelSubline : public uiGroup
 {
 public:
                         uiSelSubline(uiParent*,bool wstep);

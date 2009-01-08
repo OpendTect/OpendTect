@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.h,v 1.1 2006-02-28 16:33:24 cvsbert Exp $
+ RCS:           $Id: uisrchprocfiles.h,v 1.2 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class CtxtIOObj;
 
 /*!\brief Finds created objects in processing specification files */
 
-class uiSrchProcFiles : public uiDialog
+mClass uiSrchProcFiles : public uiDialog
 {
 public:
 			uiSrchProcFiles(uiParent*,CtxtIOObj&,

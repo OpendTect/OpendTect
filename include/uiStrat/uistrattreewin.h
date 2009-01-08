@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.15 2009-01-07 15:58:39 cvsbert Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.16 2009-01-08 07:27:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ const uiStratTreeWin& StratTWin();
 /*!\brief Main window for Stratigraphy display: holds the reference tree
   and the units description view */
 
-class uiStratTreeWin : public uiMainWin
+mClass uiStratTreeWin : public uiMainWin
 {
 public:
 

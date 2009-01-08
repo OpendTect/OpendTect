@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.13 2008-11-18 17:25:15 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.14 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class IODirEntryList;
 class BufferStringSet;
 
 
-class uiManipButGrp : public uiButtonGroup
+mClass uiManipButGrp : public uiButtonGroup
 {
 public:
     			uiManipButGrp(uiParent* p)
@@ -60,7 +60,7 @@ protected:
 class uiIOObjManipGroup;
 
 
-class uiIOObjManipGroupSubj : public CallBacker
+mClass uiIOObjManipGroupSubj : public CallBacker
 {
 public:
 				uiIOObjManipGroupSubj( uiObject* o )
@@ -80,7 +80,7 @@ public:
 
 /*! \brief Buttongroup to manipulate an IODirEntryList. */
 
-class uiIOObjManipGroup : public uiManipButGrp
+mClass uiIOObjManipGroup : public uiManipButGrp
 {
 public:
 

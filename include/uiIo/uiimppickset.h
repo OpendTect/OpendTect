@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.8 2008-04-30 06:52:31 cvsraman Exp $
+ RCS:           $Id: uiimppickset.h,v 1.9 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for pickset selection */
 
-class uiImpExpPickSet : public uiDialog
+mClass uiImpExpPickSet : public uiDialog
 {
 public:
 			uiImpExpPickSet(uiPickPartServer*,bool);

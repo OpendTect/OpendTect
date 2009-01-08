@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.39 2008-12-02 13:58:33 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.40 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace PosInfo { class Line2DData; }
 
 /*! \brief Service provider for application level - seismics */
 
-class uiPickPartServer  : public uiApplPartServer
+mClass uiPickPartServer  : public uiApplPartServer
 			, public uiPickSetMgr
 {
 public:

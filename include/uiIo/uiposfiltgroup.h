@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfiltgroup.h,v 1.3 2008-02-26 08:55:18 cvsbert Exp $
+ RCS:           $Id: uiposfiltgroup.h,v 1.4 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class IOPar;
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-class uiPosFiltGroup : public uiGroup
+mClass uiPosFiltGroup : public uiGroup
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uipossubsel.h,v 1.2 2008-04-24 10:32:01 cvsraman Exp $
+ RCS:           $Id: uipossubsel.h,v 1.3 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiPosProvSel;
  */
 
 
-class uiPosSubSel : public uiGroup
+mClass uiPosSubSel : public uiGroup
 {
 public:
 

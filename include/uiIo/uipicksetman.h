@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uipicksetman.h,v 1.2 2007-05-25 10:16:34 cvsbert Exp $
+ RCS:           $Id: uipicksetman.h,v 1.3 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 PickSet manager
 */
 
-class uiPickSetMan : public uiObjFileMan
+mClass uiPickSetMan : public uiObjFileMan
 {
 public:
     				uiPickSetMan(uiParent*);

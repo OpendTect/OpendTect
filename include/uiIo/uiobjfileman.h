@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.5 2007-08-29 09:50:43 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.6 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiIOObjSelGrp;
 class uiTextEdit;
 
 
-class uiObjFileMan : public uiDialog
+mClass uiObjFileMan : public uiDialog
 {
 public:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,

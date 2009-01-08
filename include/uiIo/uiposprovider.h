@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.12 2008-12-02 13:58:18 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.13 2009-01-08 07:23:07 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class CubeSampling;
 
 /*! \brief lets user choose a way to provide positions */
 
-class uiPosProvider : public uiGroup
+mClass uiPosProvider : public uiGroup
 {
 public:
 
@@ -66,7 +66,7 @@ protected:
 /*!\brief CompoundParSel to capture a user's Pos::Provider wishes */
 
 
-class uiPosProvSel : public uiCompoundParSel
+mClass uiPosProvSel : public uiCompoundParSel
 {
 public:
 
