@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.1 2008-12-30 09:08:50 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.2 2009-01-08 10:14:40 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,20 +26,37 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int n )
     , activectbmapper_(0)	      
     , rangeChange(this)			
 {
-    uiSeparator* sep = 0;
+    uiSeparator* sephor = 0;
+
     for ( int idx=0; idx<n; idx++ )
     {
 	uiMapperRangeEditor* rangeeditor =
 	    			new uiMapperRangeEditor( this, idx );
-	mapperrgeditors_ += rangeeditor;
-	if ( sep )
-	    rangeeditor->attach( ensureBelow, sep );
 	rangeeditor->rangeChanged.notify( mCB(this,uiMultiRangeSelDispWin,
-		    		       	       rangeChanged) );
-	sep = new uiSeparator( this, "H sep" );
-	sep->attach( stretchedBelow, rangeeditor );
-    }
+		    			      rangeChanged) );
+	mapperrgeditors_ += rangeeditor;
 
+	if ( (idx%2) == 0 )
+	{
+	    if ( sephor )
+	    {
+		rangeeditor->attach( ensureBelow, sephor );
+		rangeeditor->attach( centeredBelow, mapperrgeditors_[idx-2] );
+	    }
+	    sephor = new uiSeparator( this, "H sep" );
+	    sephor->attach( stretchedBelow, rangeeditor );
+	}
+	else
+	{
+	    if ( sephor )
+		rangeeditor->attach( rightAlignedAbove, sephor );
+	    rangeeditor->attach( centeredRightOf, mapperrgeditors_[idx-1] );
+	    if ( idx > 2 )
+	    rangeeditor->attach( centeredBelow, mapperrgeditors_[idx-2] );
+
+	}
+    }
+    
     setOkText( "Dismiss" );
     setCancelText( "" );
 }
