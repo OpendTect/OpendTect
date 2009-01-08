@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.27 2009-01-08 15:38:53 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.28 2009-01-08 16:34:49 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
 #include "compoundkey.h"
+#include "ioman.h"
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uidialog.h"
@@ -64,6 +65,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , needsave_(false)
 {
     uistratmgr_ = new uiStratMgr( this );
+    IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,shutdownCB ) );
     createMenu();
     createToolBar();
     createGroups();
@@ -76,6 +78,7 @@ uiStratTreeWin::~uiStratTreeWin()
 {
     delete uitree_;
     delete tb_;
+    IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,shutdownCB ) );
 }
 
 
@@ -342,4 +345,10 @@ bool uiStratTreeWin::closeOK()
     }
 
     return true;
-} 
+}
+
+
+void uiStratTreeWin::shutdownCB( CallBacker* )
+{
+    closeOK();
+}

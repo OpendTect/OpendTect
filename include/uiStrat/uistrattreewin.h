@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.18 2009-01-08 15:38:53 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.19 2009-01-08 16:34:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,7 @@ protected:
     void			setExpCB(CallBacker*);
     void			unitSelCB(CallBacker*);
     void			unitRenamedCB(CallBacker*);
+    void			shutdownCB(CallBacker*);
 
     uiStratMgr*			uistratmgr_;
 
