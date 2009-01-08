@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.55 2008-12-10 18:05:30 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.56 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -67,7 +67,7 @@ inl/crl/t to display coords, so the objects does not need any own transform.
 
 */
 
-class Scene : public visBase::Scene
+mClass Scene : public visBase::Scene
 {
 public:
     static Scene*		create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.47 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.48 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ class MPEEditor;
 class EdgeLineSetDisplay;
 
 
-class EMObjectDisplay :  public  visBase::VisualObjectImpl,
+mClass EMObjectDisplay :  public  visBase::VisualObjectImpl,
                          public visSurvey::SurveyObject
 {
 public:

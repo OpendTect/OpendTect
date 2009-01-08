@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		November 2008
- RCS:		$Id: visfaultsticksetdisplay.h,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $
+ RCS:		$Id: visfaultsticksetdisplay.h,v 1.2 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ class MPEEditor;
 /*!\brief Display class for FaultStickSets
 */
 
-class FaultStickSetDisplay : public visBase::VisualObjectImpl,
+mClass FaultStickSetDisplay : public visBase::VisualObjectImpl,
 			     public SurveyObject
 {
 public:

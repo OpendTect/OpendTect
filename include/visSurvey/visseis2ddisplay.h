@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.26 2009-01-02 11:31:50 cvsranojay Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.27 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ namespace visSurvey
 
 */
 
-class Seis2DDisplay : public MultiTextureSurveyObject
+mClass Seis2DDisplay : public MultiTextureSurveyObject
 {
 public:
     static Seis2DDisplay*	create()

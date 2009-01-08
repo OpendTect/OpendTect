@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.13 2008-12-24 13:19:11 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.14 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ class MPEEditor;
 
 */
 
-class FaultDisplay : public MultiTextureSurveyObject
+mClass FaultDisplay : public MultiTextureSurveyObject
 {
 public:
     static FaultDisplay*	create()

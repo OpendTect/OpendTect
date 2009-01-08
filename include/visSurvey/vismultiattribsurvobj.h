@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.18 2008-12-16 12:15:45 cvsnanne Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.19 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ namespace visSurvey
 */
 
 
-class MultiTextureSurveyObject : public visBase::VisualObjectImpl,
+mClass MultiTextureSurveyObject : public visBase::VisualObjectImpl,
 				 public SurveyObject,
 				 public DisplayPropertyHolder
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.36 2008-08-05 14:54:37 cvsjaap Exp $
+ RCS:		$Id: vismpe.h,v 1.37 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ namespace visSurvey
 
 */
 
-class MPEDisplay : public visBase::VisualObjectImpl,
+mClass MPEDisplay : public visBase::VisualObjectImpl,
 		   public visSurvey::SurveyObject
 {
 public:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.11 2008-11-10 11:17:12 cvsjaap Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.12 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -38,7 +38,7 @@ class EdgeLineSetDisplay;
 */
 
 
-class MPEEditor : public visBase::VisualObjectImpl
+mClass MPEEditor : public visBase::VisualObjectImpl
 {
 public:
     static MPEEditor*	create()

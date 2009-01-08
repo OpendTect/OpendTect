@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.110 2009-01-02 11:31:50 cvsranojay Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.111 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ class Scene;
     setting the requested orientation of the slice.
 */
 
-class PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
+mClass PlaneDataDisplay :  public visSurvey::MultiTextureSurveyObject
 {
 public:
 

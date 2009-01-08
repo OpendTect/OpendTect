@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          November 2005
- RCS:           $Id: vispolylinedisplay.h,v 1.2 2007-06-27 10:40:02 cvsraman Exp $
+ RCS:           $Id: vispolylinedisplay.h,v 1.3 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace visBase { class PolyLine; }
 namespace visSurvey
 {
 
-class PolyLineDisplay :     public visBase::VisualObjectImpl,
+mClass PolyLineDisplay :     public visBase::VisualObjectImpl,
                             public visSurvey::SurveyObject
 {
 public:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.62 2009-01-02 11:31:50 cvsranojay Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.63 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ namespace visSurvey
 
 class Scene;
 
-class VolumeDisplay : public visBase::VisualObjectImpl,
+mClass VolumeDisplay : public visBase::VisualObjectImpl,
 		      public SurveyObject
 {
 public:

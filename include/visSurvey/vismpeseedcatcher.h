@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.14 2007-03-23 11:34:53 cvsjaap Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.15 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ namespace visSurvey
 class EMObjectDisplay;
 
 
-class MPEClickInfo
+mClass MPEClickInfo
 {
     friend class MPEClickCatcher;
 public:
@@ -94,7 +94,7 @@ protected:
 };
 
 
-class MPEClickCatcher : public visBase::VisualObjectImpl
+mClass MPEClickCatcher : public visBase::VisualObjectImpl
 {
 public:
     static MPEClickCatcher*	create()

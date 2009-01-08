@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2005
- RCS:           $Id: vistransmgr.h,v 1.3 2008-12-10 18:05:30 cvskris Exp $
+ RCS:           $Id: vistransmgr.h,v 1.4 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace visSurvey
 
 class Scene;
 
-class SceneTransformManager
+mClass SceneTransformManager
 {
 public:
     				SceneTransformManager()

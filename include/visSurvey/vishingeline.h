@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: vishingeline.h,v 1.7 2004-11-16 09:30:23 kristofer Exp $
+ RCS:           $Id: vishingeline.h,v 1.8 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
           
@@ -25,7 +25,7 @@ namespace EM { class EdgeLineSet; };
 namespace visSurvey
 {
 
-class EdgeLineSetDisplay : public visBase::VisualObjectImpl
+mClass EdgeLineSetDisplay : public visBase::VisualObjectImpl
 {
 public:
     static EdgeLineSetDisplay*	create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.18 2008-12-12 22:30:32 cvsyuancheng Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.19 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ class Scene;
   shapes ++.
 */
 
-class LocationDisplay :	public visBase::VisualObjectImpl,
+mClass LocationDisplay :	public visBase::VisualObjectImpl,
 			public visSurvey::SurveyObject
 {
 public:

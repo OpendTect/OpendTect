@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.12 2007-10-30 20:19:40 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.13 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ class Scene;
 
 */
 
-class MarchingCubesDisplay : public visBase::VisualObjectImpl,
+mClass MarchingCubesDisplay : public visBase::VisualObjectImpl,
 			     public visSurvey::SurveyObject
 {
 public:

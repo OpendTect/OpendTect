@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.27 2009-01-02 11:31:50 cvsranojay Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.28 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace visSurvey
 {
 
 
-class HorizonDisplay : public EMObjectDisplay
+mClass HorizonDisplay : public EMObjectDisplay
 {
 public:
     static HorizonDisplay*	create()

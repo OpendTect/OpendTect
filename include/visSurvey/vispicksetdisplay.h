@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.61 2007-09-12 16:02:19 cvsnanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.62 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace visSurvey
   visualized by a number of shapes.
 */
 
-class PickSetDisplay : public LocationDisplay
+mClass PickSetDisplay : public LocationDisplay
 {
 public:
     static PickSetDisplay*	create()

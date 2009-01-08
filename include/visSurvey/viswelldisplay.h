@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.47 2008-12-24 15:58:12 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.48 2009-01-08 10:25:45 cvsranojay Exp $
 
 
 
@@ -48,7 +48,7 @@ class Scene;
 
 */
 
-class WellDisplay :	public visBase::VisualObjectImpl,
+mClass WellDisplay :	public visBase::VisualObjectImpl,
 			public visSurvey::SurveyObject
 {
 public:

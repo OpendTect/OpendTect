@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.93 2008-12-23 11:42:11 cvsdgb Exp $
+ RCS:		$Id: vissurvobj.h,v 1.94 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ namespace visSurvey
 /*!\brief Base class for all 'Display' objects
 */
 
-class SurveyObject
+mClass SurveyObject
 {
 public:
     virtual Coord3		getNormal(const Coord3& pos) const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.63 2009-01-02 11:31:50 cvsranojay Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.64 2009-01-08 10:25:45 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ class Scene;
     line can be changed by <code>setDepthInterval(const Interval<float>&)</code>
 */
 
-class RandomTrackDisplay : public MultiTextureSurveyObject
+mClass RandomTrackDisplay : public MultiTextureSurveyObject
 			    
 {
 public:
