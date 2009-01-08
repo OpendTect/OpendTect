@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackexpmute.h,v 1.1 2008-06-30 06:15:44 cvsumesh Exp $
+ RCS:		$Id: uiprestackexpmute.h,v 1.2 2009-01-08 08:56:15 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiIOObjSel;
 namespace PreStack
 {
 
-class uiExportMute : public uiDialog
+mClass uiExportMute : public uiDialog
 {
 public:
 			uiExportMute(uiParent*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.3 2008-08-05 20:01:29 cvskris Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.4 2009-01-08 09:00:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ namespace VolProc
 class Chain;
 class Step;
 
-class uiStepDialog : public uiDialog
+mClass uiStepDialog : public uiDialog
 {
 public:
     			uiStepDialog(uiParent*,const uiDialog::Setup&,
@@ -42,7 +42,7 @@ protected:
 };
 
 
-class uiChain : public uiDialog
+mClass uiChain : public uiDialog
 {
 public:
     mDefineFactory2ParamInClass( uiStepDialog, uiParent*, Step*, factory );

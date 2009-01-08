@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackmute.h,v 1.1 2007-03-26 21:12:02 cvskris Exp $
+ RCS:		$Id: uiprestackmute.h,v 1.2 2009-01-08 08:56:15 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ namespace PreStack
 class Mute;
 class Processor;
 
-class uiMute : public uiDialog
+mClass uiMute : public uiDialog
 {
 public:
 

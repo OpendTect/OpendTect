@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Satyaki Maitra
 Date:          July 2008
-RCS:           $Id: uihor2dfrom3ddlg.h,v 1.1 2008-07-17 10:06:57 cvssatyaki Exp $
+RCS:           $Id: uihor2dfrom3ddlg.h,v 1.2 2009-01-08 09:04:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiSelection2DParSel;
 class uiSurfaceRead;
 class uiSurfaceWrite;
 
-class uiHor2DFrom3DDlg : public uiDialog
+mClass uiHor2DFrom3DDlg : public uiDialog
 {
 public:
     				uiHor2DFrom3DDlg( uiParent* );

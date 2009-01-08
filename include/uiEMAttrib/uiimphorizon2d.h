@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.h,v 1.2 2008-07-31 11:48:05 cvsnageswara Exp $
+ RCS:           $Id: uiimphorizon2d.h,v 1.3 2009-01-08 09:04:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for Horizon Import */
 
-class uiImportHorizon2D : public uiDialog
+mClass uiImportHorizon2D : public uiDialog
 {
 public:
 			uiImportHorizon2D(uiParent*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.h,v 1.2 2008-11-19 15:22:02 cvshelene Exp $
+ RCS:           $Id: uiattremout.h,v 1.3 2009-01-08 09:04:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ Used for calculating attributes in relation with surfaces
 */
 
 
-class uiAttrEMOut : public uiFullBatchDialog
+mClass uiAttrEMOut : public uiFullBatchDialog
 {
 public:
     			uiAttrEMOut(uiParent*,const Attrib::DescSet&,

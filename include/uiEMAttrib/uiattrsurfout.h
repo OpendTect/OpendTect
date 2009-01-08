@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.6 2008-01-10 08:41:18 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.7 2009-01-08 09:04:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ Used for calculating attributes on surfaces
 */
 
 
-class uiAttrSurfaceOut : public uiAttrEMOut
+mClass uiAttrSurfaceOut : public uiAttrEMOut
 {
 public:
     			uiAttrSurfaceOut(uiParent*,const Attrib::DescSet&,

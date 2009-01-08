@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackprocessor.h,v 1.6 2008-10-21 13:31:53 cvskris Exp $
+ RCS:		$Id: uiprestackprocessor.h,v 1.7 2009-01-08 08:56:15 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ namespace PreStack
 class ProcessManager;
 class Processor;
 
-class uiProcessorManager : public uiGroup
+mClass uiProcessorManager : public uiGroup
 {
 public:
 				uiProcessorManager(uiParent*,ProcessManager&);

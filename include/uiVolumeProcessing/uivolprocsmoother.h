@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		February 2008
- RCS:		$Id: uivolprocsmoother.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
+ RCS:		$Id: uivolprocsmoother.h,v 1.3 2009-01-08 09:00:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace VolProc
 class Smoother;
 class Step;
 
-class uiSmoother : public uiStepDialog
+mClass uiSmoother : public uiStepDialog
 {
 public:
    static void			initClass();

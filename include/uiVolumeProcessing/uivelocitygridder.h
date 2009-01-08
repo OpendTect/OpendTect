@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocitygridder.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
+ RCS:		$Id: uivelocitygridder.h,v 1.3 2009-01-08 09:00:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ namespace VolProc
 
 class VelGriddingStep;
 
-class uiVelocityGridder : public uiStepDialog
+mClass uiVelocityGridder : public uiStepDialog
 {
 public:
     static void		initClass();

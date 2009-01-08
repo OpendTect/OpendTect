@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.4 2008-06-23 06:37:57 cvsraman Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.5 2009-01-08 09:04:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class NLAModel;
 
 /*! \brief Part Server for Attribute handling on EarthModel objects */
 
-class uiEMAttribPartServer : public uiApplPartServer
+mClass uiEMAttribPartServer : public uiApplPartServer
 {
 public:
 				uiEMAttribPartServer(uiApplService&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackexpevent.h,v 1.1 2008-11-28 19:51:53 cvskris Exp $
+ RCS:		$Id: uiprestackexpevent.h,v 1.2 2009-01-08 08:56:15 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace PreStack
 {
 
 
-class uiEventExport : public uiDialog
+mClass uiEventExport : public uiDialog
 {
 public:
     			uiEventExport(uiParent*, const MultiID*);

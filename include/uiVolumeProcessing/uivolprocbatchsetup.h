@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uivolprocbatchsetup.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:           $Id: uivolprocbatchsetup.h,v 1.2 2009-01-08 09:00:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class CtxtIOObj;
 namespace VolProc 
 {
 
-class uiBatchSetup : public uiFullBatchDialog
+mClass uiBatchSetup : public uiFullBatchDialog
 {
 
 public:

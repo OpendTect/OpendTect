@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: uivolprochorinterfiller.h,v 1.3 2008-08-14 21:52:44 cvskris Exp $
+ RCS:		$Id: uivolprochorinterfiller.h,v 1.4 2009-01-08 09:00:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace VolProc
 class Step;
 class HorInterFiller;
 
-class uiHorInterFiller : public uiStepDialog
+mClass uiHorInterFiller : public uiStepDialog
 {
 public:
    static void			initClass();

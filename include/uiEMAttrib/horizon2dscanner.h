@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.4 2008-09-22 13:13:46 cvskris Exp $
+ RCS:		$Id: horizon2dscanner.h,v 1.5 2009-01-08 09:04:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace PosInfo { class Line2DData; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
 
-class Horizon2DScanner : public Executor
+mClass Horizon2DScanner : public Executor
 {
 public:
 

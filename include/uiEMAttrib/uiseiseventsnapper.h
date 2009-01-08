@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.h,v 1.4 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.h,v 1.5 2009-01-08 09:04:20 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiSeisSel;
 
 /*! \brief Part Server for Wells */
 
-class uiSeisEventSnapper : public uiDialog
+mClass uiSeisEventSnapper : public uiDialog
 {
 public:
 			uiSeisEventSnapper(uiParent*,const IOObj*);
