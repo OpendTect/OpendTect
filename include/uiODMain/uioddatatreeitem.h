@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.12 2008-10-07 19:12:49 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.13 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace ColTab { class Sequence; };
 
 /*!Base class for a data treeitem. */
 
-class uiODDataTreeItem : public uiTreeItem
+mClass uiODDataTreeItem : public uiTreeItem
 {
 public:
 				uiODDataTreeItem(const char* parenttype);

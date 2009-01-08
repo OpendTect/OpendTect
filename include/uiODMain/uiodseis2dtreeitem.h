@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.8 2008-12-04 18:17:49 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.9 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ ________________________________________________________________________
 mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class Seis2DTreeItemFactory : public uiODTreeItemFactory
+mClass Seis2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -32,7 +32,7 @@ public:
 };
 
 
-class uiOD2DLineSetTreeItem : public uiODTreeItem
+mClass uiOD2DLineSetTreeItem : public uiODTreeItem
 {
 public:
     			uiOD2DLineSetTreeItem(const MultiID&);
@@ -74,7 +74,7 @@ protected:
 };
 
 
-class uiOD2DLineSetSubItem : public uiODDisplayTreeItem
+mClass uiOD2DLineSetSubItem : public uiODDisplayTreeItem
 {
 public:
 			uiOD2DLineSetSubItem(const char* nm,int displayid=-1);
@@ -103,7 +103,7 @@ private:
 };
 
 
-class uiOD2DLineSetAttribItem : public uiODAttribTreeItem
+mClass uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 {
 public:
 				uiOD2DLineSetAttribItem(const char* parenttype);

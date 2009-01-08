@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.18 2008-03-19 13:16:13 cvsbert Exp $
+ RCS:           $Id: uiodmain.h,v 1.19 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ uiODMain* ODMainWin();
 
 /*!\brief OpendTect application top level object */
 
-class uiODMain : public uiMainWin
+mClass uiODMain : public uiMainWin
 {
 public:
 
@@ -91,7 +91,7 @@ protected:
 
 private:
 
-    friend int		::ODMain(int,char**);
+    friend int		ODMain(int,char**);
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();

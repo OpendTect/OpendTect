@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Feb 2008
- RCS:		$Id: uiodeditattribcolordlg.h,v 1.3 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:		$Id: uiodeditattribcolordlg.h,v 1.4 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ class uiColorTable;
 class uiTreeItem;
 
 
-class uiODEditAttribColorDlg : public uiDialog
+mClass uiODEditAttribColorDlg : public uiDialog
 {
 public:
     				uiODEditAttribColorDlg(uiParent*,

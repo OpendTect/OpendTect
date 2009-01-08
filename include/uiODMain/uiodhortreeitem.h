@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.4 2008-12-04 18:17:49 cvskris Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.5 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class uiODHorizonTreeItemFactory : public uiODTreeItemFactory
+mClass uiODHorizonTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -29,7 +29,7 @@ public:
 };
 
 
-class uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
+mClass uiODHorizonTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizonTreeItem( int, bool dummy );
@@ -56,7 +56,7 @@ protected:
 mDefineItem( Horizon2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
+mClass uiODHorizon2DTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -66,7 +66,7 @@ public:
 };
 
 
-class uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
+mClass uiODHorizon2DTreeItem : public uiODEarthModelSurfaceTreeItem
 {
 public:
     			uiODHorizon2DTreeItem( int, bool dummy );

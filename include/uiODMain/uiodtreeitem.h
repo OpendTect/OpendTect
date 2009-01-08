@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.28 2008-12-04 14:49:42 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.29 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class uiPopupMenu;
 class uiSoViewer;
 
 
-class uiODTreeItem : public uiTreeItem
+mClass uiODTreeItem : public uiTreeItem
 {
 public:
     			uiODTreeItem(const char*);
@@ -39,7 +39,7 @@ protected:
 };
 
 
-class uiODTreeTop : public uiTreeTopItem
+mClass uiODTreeTop : public uiTreeTopItem
 {
 public:
 			uiODTreeTop(uiSoViewer*,uiListView*,
@@ -70,7 +70,7 @@ protected:
 
 
 
-class uiODTreeItemFactory : public uiTreeItemFactory
+mClass uiODTreeItemFactory : public uiTreeItemFactory
 {
 public:
 

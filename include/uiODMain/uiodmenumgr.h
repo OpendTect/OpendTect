@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.41 2008-12-11 21:42:29 cvskris Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.42 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class uiPopupMenu;
 
 */
 
-class uiODMenuMgr : public CallBacker
+mClass uiODMenuMgr : public CallBacker
 {
 
     friend class	uiODMain;

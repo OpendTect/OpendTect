@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.10 2008-12-30 09:18:09 cvsumesh Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.11 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ class uiODDataTreeItem;
 namespace Attrib { class SelSpec; }
 
 
-class uiODDisplayTreeItem : public uiODTreeItem
+mClass uiODDisplayTreeItem : public uiODTreeItem
 {
 public:
 

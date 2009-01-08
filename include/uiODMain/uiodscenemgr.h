@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.62 2008-12-09 21:43:21 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.63 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ class ZAxisTransform;
 
  */
 
-class uiODSceneMgr : public CallBacker
+mClass uiODSceneMgr : public CallBacker
 {
 public:
 
@@ -149,7 +149,7 @@ protected:
     uiLabel*			dummylbl;
     uiLabel*			rotlbl;
 
-    class Scene
+    mClass Scene
     {
     public:
 			Scene(uiWorkSpace*);
@@ -162,7 +162,7 @@ protected:
 	uiODTreeTop*	itemmanager_;
     };
 
-    class Viewer2D
+    mClass Viewer2D
     {
     public:
 			Viewer2D(uiODMain&,int visid);

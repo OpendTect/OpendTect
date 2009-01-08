@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.8 2008-12-05 22:53:10 cvsyuancheng Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.9 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uioddisplaytreeitem.h"
 
-class uiODVolrenParentTreeItem : public uiTreeItem
+mClass uiODVolrenParentTreeItem : public uiTreeItem
 {
     typedef uiTreeItem	inheritedClass;
 public:
@@ -33,7 +33,7 @@ protected:
 };
 
 
-class uiODVolrenTreeItemFactory : public uiODTreeItemFactory
+mClass uiODVolrenTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const   { return getName(); }
@@ -43,7 +43,7 @@ public:
 };
 
 
-class uiODVolrenTreeItem : public uiODDisplayTreeItem
+mClass uiODVolrenTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODVolrenTreeItem(int displayid_=-1);
@@ -77,7 +77,7 @@ protected:
 };
 
 
-class uiODVolrenSubTreeItem : public uiODDisplayTreeItem
+mClass uiODVolrenSubTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODVolrenSubTreeItem(int displayid);

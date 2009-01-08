@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.3 2007-10-11 12:16:31 cvsraman Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.4 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ namespace Attrib { class SelSpec; };
 
 /*! Implementation of uiODDataTreeItem for standard attribute displays. */
 
-class uiODAttribTreeItem : public uiODDataTreeItem
+mClass uiODAttribTreeItem : public uiODDataTreeItem
 {
 public:
     			uiODAttribTreeItem( const char* parenttype );

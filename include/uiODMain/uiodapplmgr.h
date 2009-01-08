@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.67 2008-12-10 18:10:02 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.68 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ namespace Pick { class Set; }
  
  */
 
-class uiODApplMgr : public CallBacker
+mClass uiODApplMgr : public CallBacker
 {
 public:
 

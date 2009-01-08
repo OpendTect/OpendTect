@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.8 2008-12-04 18:17:49 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.9 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ namespace visSurvey { class FaultDisplay; class FaultStickSetDisplay; }
 mDefineItem( FaultParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class uiODFaultTreeItemFactory : public uiODTreeItemFactory
+mClass uiODFaultTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -34,7 +34,7 @@ public:
 };
 
 
-class uiODFaultTreeItem : public uiODDisplayTreeItem
+mClass uiODFaultTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODFaultTreeItem( int, bool dummy );
@@ -67,7 +67,7 @@ protected:
 mDefineItem( FaultStickSetParent, TreeItem, TreeTop,mShowMenu mMenuOnAnyButton);
 
 
-class uiODFaultStickSetTreeItemFactory : public uiODTreeItemFactory
+mClass uiODFaultStickSetTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -77,7 +77,7 @@ public:
 };
 
 
-class uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
+mClass uiODFaultStickSetTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODFaultStickSetTreeItem(int,bool dummy);

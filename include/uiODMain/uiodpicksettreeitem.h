@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.13 2008-12-12 22:29:47 cvsyuancheng Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.14 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ mDefineItem( PickSetParent, TreeItem, TreeTop, \
     mShowMenu mMenuOnAnyButton );
 
 
-class uiODPickSetTreeItemFactory : public uiODTreeItemFactory
+mClass uiODPickSetTreeItemFactory : public uiODTreeItemFactory
 {
 public:
 
@@ -38,7 +38,7 @@ public:
 };
 
 
-class uiODPickSetTreeItem : public uiODDisplayTreeItem
+mClass uiODPickSetTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODPickSetTreeItem(int dispid,Pick::Set&);

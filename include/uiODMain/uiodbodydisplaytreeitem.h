@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.4 2008-12-04 18:17:49 cvskris Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.5 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ namespace visSurvey { class MarchingCubesDisplay; class PolygonSurfDisplay; }
 mDefineItem( BodyDisplayParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
+mClass uiODBodyDisplayTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -34,7 +34,7 @@ public:
 };
 
 
-class uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
+mClass uiODBodyDisplayTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODBodyDisplayTreeItem( int, bool dummy );

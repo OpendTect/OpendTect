@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.9 2008-12-04 18:17:49 cvskris Exp $
+ RCS:		$Id: uiodrandlinetreeitem.h,v 1.10 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
 namespace visSurvey { class RandomTrackDisplay; };
 
 
-class uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
+mClass uiODRandomLineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -39,7 +39,7 @@ public:
 };
 
 
-class uiODRandomLineTreeItem : public uiODDisplayTreeItem
+mClass uiODRandomLineTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODRandomLineTreeItem( int );

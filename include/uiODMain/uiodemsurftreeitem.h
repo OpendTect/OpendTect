@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.7 2008-12-18 11:21:09 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.8 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ class uiVisEMObject;
 class uiODDataTreeItem;
 
 
-class uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
+mClass uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
 {
 public:
 
@@ -60,7 +60,7 @@ private:
 };
 
 
-class uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
+mClass uiODEarthModelSurfaceDataTreeItem : public uiODAttribTreeItem
 {
 public:
     			uiODEarthModelSurfaceDataTreeItem( EM::ObjectID,

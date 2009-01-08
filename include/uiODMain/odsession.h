@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: odsession.h,v 1.6 2007-01-23 15:34:14 cvsbert Exp $
+ RCS:		$Id: odsession.h,v 1.7 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 /*!\brief dTect session save/restore */
 
-class ODSession
+mClass ODSession
 {
 public:
     			ODSession()		{}
@@ -67,7 +67,7 @@ protected:
 };
 
 
-class ODSessionTranslatorGroup : public TranslatorGroup
+mClass ODSessionTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODSession)
 public:
 			mDefEmptyTranslatorGroupConstructor(ODSession)
@@ -75,7 +75,7 @@ public:
 };
 
 
-class ODSessionTranslator : public Translator
+mClass ODSessionTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODSession)
@@ -98,7 +98,7 @@ public:
 };
     
 
-class dgbODSessionTranslator : public ODSessionTranslator
+mClass dgbODSessionTranslator : public ODSessionTranslator
 {				  isTranslator(dgb,ODSession)
 public:
     			mDefEmptyTranslatorConstructor(dgb,ODSession)

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Aug 2005
- RCS:           $Id: uiodhelpmenumgr.h,v 1.7 2008-12-18 16:03:51 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.h,v 1.8 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiODHelpDocInfo;
 
 /*!\brief The OpendTect help menu manager */
 
-class uiODHelpMenuMgr
+mClass uiODHelpMenuMgr
 {
 public:
     				uiODHelpMenuMgr(uiODMenuMgr*);

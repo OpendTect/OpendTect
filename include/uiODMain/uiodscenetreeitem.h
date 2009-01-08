@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodscenetreeitem.h,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodscenetreeitem.h,v 1.2 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uiodtreeitem.h"
 
 
-class uiODSceneTreeItem : public uiODTreeItem
+mClass uiODSceneTreeItem : public uiODTreeItem
 {
 public:
     			uiODSceneTreeItem(const char*,int);

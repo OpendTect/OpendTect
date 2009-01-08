@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.8 2008-12-04 18:17:49 cvskris Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.9 2009-01-08 10:47:25 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ class uiSliceSelDlg;
 class CubeSampling;
 
 
-class uiODPlaneDataTreeItem : public uiODDisplayTreeItem
+mClass uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 {
 public:
     			uiODPlaneDataTreeItem(int displayid,int dim,
@@ -56,7 +56,7 @@ protected:
 mDefineItem( InlineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class uiODInlineTreeItemFactory : public uiODTreeItemFactory
+mClass uiODInlineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -66,7 +66,7 @@ public:
 };
 
 
-class uiODInlineTreeItem : public uiODPlaneDataTreeItem
+mClass uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODInlineTreeItem( int displayid, bool rgba );
@@ -80,7 +80,7 @@ protected:
 mDefineItem( CrosslineParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
+mClass uiODCrosslineTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -90,7 +90,7 @@ public:
 };
 
 
-class uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
+mClass uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODCrosslineTreeItem( int displayid, bool rgba );
@@ -104,7 +104,7 @@ protected:
 mDefineItem( TimesliceParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
-class uiODTimesliceTreeItemFactory : public uiODTreeItemFactory
+mClass uiODTimesliceTreeItemFactory : public uiODTreeItemFactory
 {
 public:
     const char*		name() const { return typeid(*this).name(); }
@@ -114,7 +114,7 @@ public:
 };
 
 
-class uiODTimesliceTreeItem : public uiODPlaneDataTreeItem
+mClass uiODTimesliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
     			uiODTimesliceTreeItem( int displayid, bool rgba );
