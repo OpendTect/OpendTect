@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.15 2008-04-18 04:40:58 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.16 2009-01-08 10:32:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiLabeledComboBox;
 class uiLabeledSpinBox;
 class uiSoViewer;
 
-class uiPrintSceneDlg : public uiDialog
+mClass uiPrintSceneDlg : public uiDialog
 {
 public:
 			uiPrintSceneDlg(uiParent*,const ObjectSet<uiSoViewer>&);

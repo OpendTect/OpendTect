@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: uistereodlg.h,v 1.4 2004-03-02 13:31:09 nanne Exp $
+ RCS:           $Id: uistereodlg.h,v 1.5 2009-01-08 10:32:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiSliderExtra;
 class uiSoViewer;
 
-class uiStereoDlg : public uiDialog
+mClass uiStereoDlg : public uiDialog
 {
 public:
 			uiStereoDlg(uiParent*,ObjectSet<uiSoViewer>&);

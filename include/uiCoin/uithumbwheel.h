@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.h,v 1.5 2007-10-23 11:24:25 cvsjaap Exp $
+ RCS:           $Id: uithumbwheel.h,v 1.6 2009-01-08 10:32:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiThumbWheelBody;
 class QEvent;
 
-class uiThumbWheel : public uiObject
+mClass uiThumbWheel : public uiObject
 {
 friend class		i_ThumbWheelMessenger;
 public:

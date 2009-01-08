@@ -7,7 +7,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Dec 2002
- RCS:           $Id: keybindings.h,v 1.6 2006-12-13 08:18:33 cvsnanne Exp $
+ RCS:           $Id: keybindings.h,v 1.7 2009-01-08 10:32:11 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -24,7 +24,7 @@ separated by a `.  e.g. zoom = "Left`Control"
 */
 
 
-class KeyBindings
+mClass KeyBindings
 {
 public:
     				KeyBindings(const char* nm=0)
@@ -51,7 +51,7 @@ public:
 };
 
 
-class EventButton
+mClass EventButton
 {
 public:
                                 EventButton() {}
@@ -61,7 +61,7 @@ public:
 };
 
 
-class KeyBindMan
+mClass KeyBindMan
 {
 public:
                                 KeyBindMan();

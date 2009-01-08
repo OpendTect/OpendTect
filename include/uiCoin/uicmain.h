@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.h,v 1.5 2007-02-14 16:37:50 cvsdgb Exp $
+ RCS:           $Id: uicmain.h,v 1.6 2009-01-08 10:32:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief COIN - Qt main window */
 
-class uicMain : public uiMain
+mClass uicMain : public uiMain
 {
 public:
 			uicMain(int& argc,char** argv);
