@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.18 2008-11-04 23:08:37 cvskris Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.19 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class uiGroup;
 class IOPar;
 
 
-class uiVisColTabEd : public CallBacker
+mClass uiVisColTabEd : public CallBacker
 {
 public:
     				uiVisColTabEd(uiParent*,bool vert=true);
@@ -62,7 +62,7 @@ protected:
 };
 
 
-class uiColorBarDialog :  public uiDialog
+mClass uiColorBarDialog :  public uiDialog
 {
 public:
     				uiColorBarDialog( uiParent* , int coltabid,

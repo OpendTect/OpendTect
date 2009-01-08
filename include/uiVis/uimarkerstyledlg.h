@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uimarkerstyledlg.h,v 1.1 2006-08-09 10:04:41 cvsjaap Exp $
+ RCS:           $Id: uimarkerstyledlg.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiGenInput;
 class uiSliderExtra;
 
 
-class uiMarkerStyleDlg : public uiDialog
+mClass uiMarkerStyleDlg : public uiDialog
 {
 protected:
 

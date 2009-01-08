@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.h,v 1.10 2007-01-24 16:33:21 cvskris Exp $
+ RCS:           $Id: uimaterialdlg.h,v 1.11 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace visBase { class Material; class VisualObject; };
 namespace visSurvey { class SurveyObject; };
 
 
-class uiMaterialGrp : public uiDlgGroup
+mClass uiMaterialGrp : public uiDlgGroup
 {
 public:
 				uiMaterialGrp(uiParent*,
@@ -57,7 +57,7 @@ protected:
 };
 
 
-class uiLineStyleGrp : public uiDlgGroup
+mClass uiLineStyleGrp : public uiDlgGroup
 {
 public:
     				uiLineStyleGrp(uiParent*,
@@ -73,7 +73,7 @@ protected:
 };
 
 
-class uiPropertiesDlg : public uiTabStackDlg
+mClass uiPropertiesDlg : public uiTabStackDlg
 {
 public:
 				uiPropertiesDlg(uiParent*,

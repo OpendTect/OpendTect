@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: uiattribtransdlg.h,v 1.1 2006-03-09 17:07:43 cvskris Exp $
+ RCS:           $Id: uiattribtransdlg.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ namespace visSurvey { class SurveyObject; }
 class uiSliderExtra;
 
 
-class uiAttribTransDlg : public uiDialog
+mClass uiAttribTransDlg : public uiDialog
 {
 public:
     				uiAttribTransDlg( uiParent*,

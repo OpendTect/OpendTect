@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.1 2006-02-23 17:40:29 cvskris Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace visSurvey { class Scene; }
 
 /*! Dialog for scene properties. */
 
-class uiScenePropertyDlg : public uiDialog
+mClass uiScenePropertyDlg : public uiDialog
 {
 public:
 			uiScenePropertyDlg(uiParent*,visSurvey::Scene*,

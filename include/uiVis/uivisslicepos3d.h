@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2006
- RCS:           $Id: uivisslicepos3d.h,v 1.3 2006-07-25 11:02:52 cvsnanne Exp $
+ RCS:           $Id: uivisslicepos3d.h,v 1.4 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiVisPartServer;
 /*! \brief Toolbar for setting slice position
 */
 
-class uiSlicePos : public CallBacker
+mClass uiSlicePos : public CallBacker
 {
 public:		
 			uiSlicePos(uiParent*);

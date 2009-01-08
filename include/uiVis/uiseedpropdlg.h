@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseedpropdlg.h,v 1.1 2006-08-17 14:08:59 cvsjaap Exp $
+ RCS:           $Id: uiseedpropdlg.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiColorInput;
 class uiGenInput;
 class uiSliderExtra;
 
-class uiSeedPropDlg : public uiMarkerStyleDlg
+mClass uiSeedPropDlg : public uiMarkerStyleDlg
 {
 public:
     			uiSeedPropDlg(uiParent*,EM::EMObject*);

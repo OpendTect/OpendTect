@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.h,v 1.3 2006-12-28 11:46:33 cvsnanne Exp $
+ RCS:           $Id: uigridlinesdlg.h,v 1.4 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiSelLineStyle;
 
 namespace visSurvey { class PlaneDataDisplay; }
 
-class uiGridLinesDlg : public uiDialog
+mClass uiGridLinesDlg : public uiDialog
 {
 public:
 			uiGridLinesDlg(uiParent*,visSurvey::PlaneDataDisplay*);

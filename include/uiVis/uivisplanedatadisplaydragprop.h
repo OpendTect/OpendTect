@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: uivisplanedatadisplaydragprop.h,v 1.1 2007-02-01 22:59:16 cvskris Exp $
+ RCS:		$Id: uivisplanedatadisplaydragprop.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -17,7 +17,7 @@ namespace visSurvey { class PlaneDataDisplay; }
 
 class uiButtonStateEdit;
 
-class uiVisPlaneDataDisplayDragProp : public uiDlgGroup
+mClass uiVisPlaneDataDisplayDragProp : public uiDlgGroup
 {
 public:
     			uiVisPlaneDataDisplayDragProp(uiParent*,

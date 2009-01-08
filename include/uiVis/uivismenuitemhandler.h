@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivismenuitemhandler.h,v 1.1 2007-04-13 20:01:02 cvskris Exp $
+ RCS:		$Id: uivismenuitemhandler.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ Usage example:
 */
 
 
-class uiVisMenuItemHandler : public MenuItemHandler
+mClass uiVisMenuItemHandler : public MenuItemHandler
 {
 public:
     		uiVisMenuItemHandler(const char* classnm,uiVisPartServer&,

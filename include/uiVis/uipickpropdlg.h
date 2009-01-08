@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uipickpropdlg.h,v 1.5 2008-12-11 16:15:12 cvsyuancheng Exp $
+ RCS:           $Id: uipickpropdlg.h,v 1.6 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ namespace Pick { class Set; };
 namespace visSurvey { class PickSetDisplay; };
 
 
-class uiPickPropDlg : public uiMarkerStyleDlg
+mClass uiPickPropDlg : public uiMarkerStyleDlg
 {
 public:
 				uiPickPropDlg(uiParent* p,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.45 2008-12-18 11:15:54 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.46 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiVisPartServer;
 
 /*! \brief Dialog for tracking properties
 */
-class uiMPEMan : public CallBacker
+mClass uiMPEMan : public CallBacker
 {
 public:		
 				uiMPEMan(uiParent*,uiVisPartServer*);

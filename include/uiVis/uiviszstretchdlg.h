@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiviszstretchdlg.h,v 1.1 2008-12-10 18:05:30 cvskris Exp $
+ RCS:           $Id: uiviszstretchdlg.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ class uiCheckBox;
 class uiLabeledComboBox;
 class uiSliderExtra;
 
-class uiZStretchDlg : public uiDialog
+mClass uiZStretchDlg : public uiDialog
 {
 public:
 			uiZStretchDlg(uiParent*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.11 2008-12-30 09:11:47 cvsumesh Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.12 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ template <class T> class TypeSet;
 
 /*!\brief Dialog to set isovalue of an isosurface.  */
 
-class uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
+mClass uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 {
 public:
     		uiVisIsoSurfaceThresholdDlg(uiParent*,

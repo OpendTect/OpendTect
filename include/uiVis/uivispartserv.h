@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.216 2008-12-30 09:11:47 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.217 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ namespace ColTab { class Sequence; struct MapperSetup; };
 
 /*! \brief The Visualisation Part Server */
 
-class uiVisPartServer : public uiApplPartServer
+mClass uiVisPartServer : public uiApplPartServer
 {
     friend class 	uiMenuHandler;
     friend class        uiVisModeMgr;
@@ -418,7 +418,7 @@ protected:
 */
 
 
-class uiVisModeMgr 
+mClass uiVisModeMgr 
 {
 public:
 				uiVisModeMgr(uiVisPartServer*);

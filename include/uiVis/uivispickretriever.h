@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispickretriever.h,v 1.2 2007-08-17 09:27:05 cvsnanne Exp $
+ RCS:           $Id: uivispickretriever.h,v 1.3 2009-01-08 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 namespace visSurvey { class Scene; }
 
-class uiVisPickRetriever : public PickRetriever
+mClass uiVisPickRetriever : public PickRetriever
 {
 public:
     			uiVisPickRetriever();
