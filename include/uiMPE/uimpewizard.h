@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.27 2008-05-07 06:04:43 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.h,v 1.28 2009-01-08 09:11:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ namespace MPE {
 
 class uiSetupGroup;
 
-class Wizard : public uiWizard
+mClass Wizard : public uiWizard
 {
 public:
 			Wizard( uiParent*, uiMPEPartServer* );

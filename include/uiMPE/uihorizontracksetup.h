@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.9 2008-03-12 09:18:44 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.10 2009-01-08 09:11:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class SectionTracker;
 /*!\brief Horizon tracking setup dialog. */
 
 
-class uiHorizonSetupGroup : public uiSetupGroup
+mClass uiHorizonSetupGroup : public uiSetupGroup
 {
 public:
     static void			initClass();

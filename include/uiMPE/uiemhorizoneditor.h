@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uiemhorizoneditor.h,v 1.4 2005-09-20 16:02:23 cvsnanne Exp $
+ RCS:		$Id: uiemhorizoneditor.h,v 1.5 2009-01-08 09:11:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace MPE
 {
 class HorizonEditor;
 
-class uiEMHorizonEditor : public uiEMObjectEditor
+mClass uiEMHorizonEditor : public uiEMObjectEditor
 {
 
 public:

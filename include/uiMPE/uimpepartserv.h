@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.32 2008-12-18 11:15:54 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.33 2009-01-08 09:11:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace Attrib { class DescSet; class DataCubes; class Data2DHolder; }
 
 /*! \brief Implementation of Tracking part server interface */
 
-class uiMPEPartServer : public uiApplPartServer
+mClass uiMPEPartServer : public uiApplPartServer
 {
 public:
 				uiMPEPartServer(uiApplService&);

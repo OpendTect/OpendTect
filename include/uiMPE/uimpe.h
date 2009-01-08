@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.9 2007-03-29 11:36:16 cvsjaap Exp $
+ RCS:		$Id: uimpe.h,v 1.10 2009-01-08 09:11:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ class SectionTracker;
 \endcode
 */
 
-class uiEMEditor : public CallBacker
+mClass uiEMEditor : public CallBacker
 {
 public:
     			uiEMEditor(uiParent*);
@@ -76,7 +76,7 @@ typedef uiEMEditor*(*uiEMEditorCreationFunc)(uiParent*,MPE::ObjectEditor*);
     and a MPE::ObjectEditor*. Each class that wants to be able to procuce
     instances of itself must register itself with the addFactory startup. */
 
-class uiEMEditorFactory
+mClass uiEMEditorFactory
 {
 public:
     void		addFactory( uiEMEditorCreationFunc f );
@@ -94,7 +94,7 @@ protected:
     MPE::uiSetupGroupFactory. */
 
 
-class uiSetupGroup : public uiGroup
+mClass uiSetupGroup : public uiGroup
 {
 public:
 			uiSetupGroup(uiParent*,const char* helpref);
@@ -118,7 +118,7 @@ typedef uiSetupGroup*(*uiSetupGrpCreationFunc)(uiParent*,const char* typestr,
     be able to procuce instances of itself must register itself with the
     addFactory startup. */
 
-class uiSetupGroupFactory
+mClass uiSetupGroupFactory
 {
 public:
     void		addFactory(uiSetupGrpCreationFunc f);
@@ -137,7 +137,7 @@ protected:
     MPE::uiMPE(). */
 
 
-class uiMPEEngine 
+mClass uiMPEEngine 
 {
 public:
     uiEMEditorFactory		editorfact;
