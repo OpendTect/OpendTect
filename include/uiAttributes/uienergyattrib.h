@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uienergyattrib.h,v 1.7 2008-03-12 10:44:08 cvshelene Exp $
+ RCS:           $Id: uienergyattrib.h,v 1.8 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiGenInput;
 
 /*! \brief Energy Attribute ui */
 
-class uiEnergyAttrib : public uiAttrDescEd
+mClass uiEnergyAttrib : public uiAttrDescEd
 {
 public:
 

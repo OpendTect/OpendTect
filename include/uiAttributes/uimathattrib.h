@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.11 2008-05-14 15:09:26 cvshelene Exp $
+ RCS:           $Id: uimathattrib.h,v 1.12 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class MathExpression;
 
 /*! \brief Math Attribute description editor */
 
-class uiMathAttrib : public uiAttrDescEd
+mClass uiMathAttrib : public uiAttrDescEd
 {
 public:
 

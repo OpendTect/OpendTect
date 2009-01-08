@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.6 2008-08-18 08:54:52 cvsbert Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.7 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiSeisSel;
 
 /*! \brief PreStack Attribute ui */
 
-class uiPreStackAttrib : public uiAttrDescEd
+mClass uiPreStackAttrib : public uiAttrDescEd
 {
 public:
 

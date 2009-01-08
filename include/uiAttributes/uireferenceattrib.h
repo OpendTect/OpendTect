@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:           $Id: uireferenceattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uireferenceattrib.h,v 1.7 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiGenInput;
 
 /*! \brief Reference Attribute description editor */
 
-class uiReferenceAttrib : public uiAttrDescEd
+mClass uiReferenceAttrib : public uiAttrDescEd
 {
 public:
 

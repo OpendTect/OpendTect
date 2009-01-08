@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.5 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiParent;
 
 typedef uiAttrDescEd* (*uiAttrDescEdCreateFunc)(uiParent*,bool);
 
-class uiAttributeFactory
+mClass uiAttributeFactory
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.h,v 1.3 2006-10-24 15:21:36 cvshelene Exp $
+ RCS:           $Id: uievaluatedlg.h,v 1.4 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ class uiSliderExtra;
 class IOPar;
 
 
-class AttribParamGroup : public uiGroup
+mClass AttribParamGroup : public uiGroup
 {
 public:
 				AttribParamGroup(uiParent*,const uiAttrDescEd&,
@@ -65,7 +65,7 @@ protected:
 };
 
 
-class uiEvaluateDlg : public uiDialog
+mClass uiEvaluateDlg : public uiDialog
 {
 public:
 				uiEvaluateDlg(uiParent*,uiAttrDescEd&,

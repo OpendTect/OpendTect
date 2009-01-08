@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.15 2007-01-16 09:06:26 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.16 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ class calcFingParsObject;
 
 /*! \brief FingerPrint Attribute description editor */
 
-class uiFingerPrintAttrib : public uiAttrDescEd
+mClass uiFingerPrintAttrib : public uiAttrDescEd
 {
 public:
 

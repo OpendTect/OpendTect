@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uicoherencyattrib.h,v 1.5 2007-12-20 08:21:32 cvsbert Exp $
+ RCS:           $Id: uicoherencyattrib.h,v 1.6 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiStepOutSel;
 
 /*! \brief Coherency attribute description editor */
 
-class uiCoherencyAttrib : public uiAttrDescEd
+mClass uiCoherencyAttrib : public uiAttrDescEd
 {
 public:
 

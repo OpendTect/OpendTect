@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uiattrsrchprocfiles.h,v 1.3 2006-02-28 16:33:24 cvsbert Exp $
+ RCS:           $Id: uiattrsrchprocfiles.h,v 1.4 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uisrchprocfiles.h"
 
 
-class uiAttrSrchProcFiles : public uiSrchProcFiles
+mClass uiAttrSrchProcFiles : public uiSrchProcFiles
 {
 public:
 			uiAttrSrchProcFiles(uiParent*);

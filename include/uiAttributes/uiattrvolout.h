@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattrvolout.h,v 1.4 2009-01-07 11:24:25 cvshelene Exp $
+ RCS:           $Id: uiattrvolout.h,v 1.5 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiSeisTransfer;
 
 /*! \brief Dialog for creating volume output */
 
-class uiAttrVolOut : public uiFullBatchDialog
+mClass uiAttrVolOut : public uiFullBatchDialog
 {
 public:
 			uiAttrVolOut(uiParent*,const Attrib::DescSet&,

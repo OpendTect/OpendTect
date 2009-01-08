@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.19 2008-12-30 06:34:55 cvsnageswara Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.20 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ class uiToolButton;
 
 /*! \brief Editor for Attribute sets */
 
-class uiAttribDescSetEd : public uiDialog
+mClass uiAttribDescSetEd : public uiDialog
 {
 public:
 

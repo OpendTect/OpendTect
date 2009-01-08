@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uipositionattrib.h,v 1.7 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiStepOutSel;
 
 /*! \brief Position Attribute description editor */
 
-class uiPositionAttrib : public uiAttrDescEd
+mClass uiPositionAttrib : public uiAttrDescEd
 {
 public:
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2006
- RCS:           $Id: uiattrtypesel.h,v 1.1 2006-10-11 10:39:04 cvsbert Exp $
+ RCS:           $Id: uiattrtypesel.h,v 1.2 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiComboBox;
 
   */
 
-class uiAttrTypeSel : public uiGroup
+mClass uiAttrTypeSel : public uiGroup
 {
 public:
 				uiAttrTypeSel(uiParent*,bool sorted=true);

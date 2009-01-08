@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2003
- RCS:           $Id: uispecdecompattrib.h,v 1.7 2008-11-28 10:35:56 cvsnageswara Exp $
+ RCS:           $Id: uispecdecompattrib.h,v 1.8 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiLabeledSpinBox;
 
 /*! \brief Spectral Decomposition Attribute description editor */
 
-class uiSpecDecompAttrib : public uiAttrDescEd
+mClass uiSpecDecompAttrib : public uiAttrDescEd
 {
 public:
 

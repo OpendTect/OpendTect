@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.h,v 1.7 2008-08-13 14:58:56 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.h,v 1.8 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiWindowFunctionSel;
 
 /*! \brief Frequency Attribute description editor */
 
-class uiFrequencyAttrib : public uiAttrDescEd
+mClass uiFrequencyAttrib : public uiAttrDescEd
 {
 public:
 

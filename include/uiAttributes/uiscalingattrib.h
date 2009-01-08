@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.h,v 1.8 2008-12-05 04:35:24 cvsnanne Exp $
+ RCS:           $Id: uiscalingattrib.h,v 1.9 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiTable;
 
 /*! \brief Scaling Attribute description editor */
 
-class uiScalingAttrib : public uiAttrDescEd
+mClass uiScalingAttrib : public uiAttrDescEd
 {
 public:
 

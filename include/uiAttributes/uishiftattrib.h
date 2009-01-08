@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.h,v 1.7 2007-01-18 08:54:04 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.h,v 1.8 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiSteeringSel;
 
 /*! \brief Shift Attribute description editor */
 
-class uiShiftAttrib : public uiAttrDescEd
+mClass uiShiftAttrib : public uiAttrDescEd
 {
 public:
 

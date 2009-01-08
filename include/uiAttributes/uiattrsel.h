@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.12 2008-11-14 15:36:34 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.13 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiRadioButton;
 class uiLabeledSpinBox;
 
 
-class uiAttrSelData
+mClass uiAttrSelData
 {
 public:
 				uiAttrSelData( const Attrib::DescSet* a )
@@ -60,7 +60,7 @@ select any cube, which is then automatically added to the set.
 
 */
 
-class uiAttrSelDlg : public uiDialog
+mClass uiAttrSelDlg : public uiDialog
 {
 public:
 
@@ -120,7 +120,7 @@ latter case you must provide the attrib desc and the input number.
 */
 
 
-class uiAttrSel : public uiIOSelect
+mClass uiAttrSel : public uiIOSelect
 {
 public:
 			uiAttrSel(uiParent*,const Attrib::DescSet*,bool is2d,
@@ -175,7 +175,7 @@ protected:
 
 /*!\brief ui element for getting attribute with both real and imag part. */
 
-class uiImagAttrSel : public uiAttrSel
+mClass uiImagAttrSel : public uiAttrSel
 {
 public:
 			uiImagAttrSel(uiParent* p,const Attrib::DescSet* a,

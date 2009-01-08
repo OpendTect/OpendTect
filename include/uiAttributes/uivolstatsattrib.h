@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.7 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.8 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiStepOutSel;
 
 /*! \brief VolumeStatistics Attribute description editor */
 
-class uiVolumeStatisticsAttrib : public uiAttrDescEd
+mClass uiVolumeStatisticsAttrib : public uiAttrDescEd
 {
 public:
 

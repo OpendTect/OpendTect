@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          June 2007
- RCS:           $Id: uiautoattrdescset.h,v 1.2 2007-12-06 11:07:58 cvsraman Exp $
+ RCS:           $Id: uiautoattrdescset.h,v 1.3 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class IOObj;
 /*! \brief class for selecting Auto-load Attribute Set  */
 
 
-class uiAutoAttrSelDlg : public uiDialog
+mClass uiAutoAttrSelDlg : public uiDialog
 {
 public:
     				uiAutoAttrSelDlg(uiParent* p,bool);
@@ -57,7 +57,7 @@ protected:
 };
 
 
-class uiAutoAttrSetOpen : public uiDialog
+mClass uiAutoAttrSetOpen : public uiDialog
 {
 public:
 				uiAutoAttrSetOpen(uiParent*,BufferStringSet&,

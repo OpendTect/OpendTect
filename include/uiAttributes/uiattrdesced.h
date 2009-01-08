@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.22 2007-10-12 08:57:38 cvssulochana Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.23 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ using namespace Attrib;
 
 /*! \brief Description of attribute parameters to evaluate */
 
-class EvalParam
+mClass EvalParam
 {
 public:
     			EvalParam( const char* lbl, const char* par1=0,
@@ -56,7 +56,7 @@ public:
 
 /*! \brief Attribute description editor creater */
 
-class uiAttrDescEdCreater
+mClass uiAttrDescEdCreater
 {
 public:
     virtual			~uiAttrDescEdCreater()		{}
@@ -74,7 +74,7 @@ public:
 
  */
 
-class uiAttrDescEd : public uiGroup
+mClass uiAttrDescEd : public uiGroup
 {
 public:
 

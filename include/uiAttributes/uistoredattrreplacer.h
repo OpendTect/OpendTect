@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.3 2008-10-22 12:20:28 cvssatyaki Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.4 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Attrib
     class DescSet;
 };
 
-class uiStoredAttribReplacer
+mClass uiStoredAttribReplacer
 {
 public:
     				uiStoredAttribReplacer(uiParent*,

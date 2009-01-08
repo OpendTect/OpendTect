@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.11 2008-05-22 15:07:44 cvskris Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.12 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class ChangeTracker;
 class uiGenInput;
 class uiLabel;
 
-class uiSteerCubeSel : public uiSeisSel
+mClass uiSteerCubeSel : public uiSeisSel
 {
 public:
 
@@ -56,7 +56,7 @@ protected:
 
 /*!\brief Attribute Steering ui element: data + selection of type. */
 
-class uiSteeringSel : public uiGroup
+mClass uiSteeringSel : public uiGroup
 {
 public:
 				uiSteeringSel(uiParent*,

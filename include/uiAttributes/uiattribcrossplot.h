@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.8 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.9 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace PosInfo { class Line2DData; }
 namespace Pick { class Set; }
 
 
-class uiAttribCrossPlot : public uiDialog
+mClass uiAttribCrossPlot : public uiDialog
 {
 public:
 					uiAttribCrossPlot(uiParent*,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uidipfilterattrib.h,v 1.10 2007-02-12 09:53:53 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.h,v 1.11 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiLabeledSpinBox;
 
 /*! \brief DipFilter Attribute description editor */
 
-class uiDipFilterAttrib : public uiAttrDescEd
+mClass uiDipFilterAttrib : public uiAttrDescEd
 {
 public:
 

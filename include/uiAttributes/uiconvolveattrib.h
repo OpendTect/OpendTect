@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          Nov 2006
- RCS:           $Id: uiconvolveattrib.h,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiconvolveattrib.h,v 1.6 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiIOObjSel;
 
 /*! \brief Convolve Attribute description editor */
 
-class uiConvolveAttrib : public uiAttrDescEd
+mClass uiConvolveAttrib : public uiAttrDescEd
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.h,v 1.3 2008-02-04 07:33:09 cvsraman Exp $
+ RCS:           $Id: uiattr2dsel.h,v 1.4 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiListBox;
 class uiRadioButton;
 
 
-class uiAttr2DSelDlg : public uiDialog
+mClass uiAttr2DSelDlg : public uiDialog
 {
 public:
 

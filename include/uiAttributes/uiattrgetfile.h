@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uiattrgetfile.h,v 1.2 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uiattrgetfile.h,v 1.3 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiFileInput;
 namespace Attrib { class DescSet; }
 
 
-class uiGetFileForAttrSet : public uiDialog
+mClass uiGetFileForAttrSet : public uiDialog
 {
 public:
 			uiGetFileForAttrSet(uiParent*,bool isads,bool is2d);

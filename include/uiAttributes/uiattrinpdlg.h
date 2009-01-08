@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.8 2008-08-25 11:20:15 cvssatyaki Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.9 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class CtxtIOObj;
 class BufferStringSet;
 
 
-class uiAttrInpDlg : public uiDialog
+mClass uiAttrInpDlg : public uiDialog
 {
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,

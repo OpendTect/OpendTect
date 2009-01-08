@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Dec 2003
- RCS:           $Id: uisetpickdirs.h,v 1.5 2008-10-02 08:38:04 cvshelene Exp $
+ RCS:           $Id: uisetpickdirs.h,v 1.6 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace Pick { class Set; }
 
 /*! \brief */
 
-class uiSetPickDirs : public uiDialog
+mClass uiSetPickDirs : public uiDialog
 {
 public:
     				uiSetPickDirs(uiParent*,Pick::Set&,

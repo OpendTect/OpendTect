@@ -7,7 +7,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2005
- RCS:           $Id: uieventattrib.h,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uieventattrib.h,v 1.6 2009-01-08 08:50:11 cvsranojay Exp $
  ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiGenInput;
 
 /*! \brief Event Attributes description editor */
 
-class uiEventAttrib : public uiAttrDescEd
+mClass uiEventAttrib : public uiAttrDescEd
 {
 public:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.h,v 1.1 2005-06-09 13:12:35 cvsnanne Exp $
+ RCS:           $Id: attribsetcreator.h,v 1.2 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ namespace Attrib { class Desc; class DescSet; };
 class uiParent;
 
 
-class AttributeSetCreator
+mClass AttributeSetCreator
 {
 public:
 			AttributeSetCreator(uiParent*,

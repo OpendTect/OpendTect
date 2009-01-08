@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisimilarityattrib.h,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.h,v 1.6 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiSteeringSel;
 
 /*! \brief Similarity Attribute description editor */
 
-class uiSimilarityAttrib : public uiAttrDescEd
+mClass uiSimilarityAttrib : public uiAttrDescEd
 {
 public:
 

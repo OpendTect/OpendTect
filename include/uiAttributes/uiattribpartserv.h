@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.42 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.43 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ template <class T> class Array3D;
 
 /*! \brief Service provider for application level - Attributes */
 
-class uiAttribPartServer : public uiApplPartServer
+mClass uiAttribPartServer : public uiApplPartServer
 {
 public:
 			uiAttribPartServer(uiApplService&);

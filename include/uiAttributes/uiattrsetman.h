@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiattrsetman.h,v 1.1 2006-08-03 18:57:46 cvsnanne Exp $
+ RCS:           $Id: uiattrsetman.h,v 1.2 2009-01-08 08:50:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 AttributeSet manager
 */
 
-class uiAttrSetMan : public uiObjFileMan
+mClass uiAttrSetMan : public uiObjFileMan
 {
 public:
     				uiAttrSetMan(uiParent*);
