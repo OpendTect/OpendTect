@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.6 2008-05-30 04:55:52 cvsyuancheng Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.7 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class TextureCoords;
 
 /*!Visualisation for Geometry::IndexedShape. */
 
-class GeomIndexedShape : public VisualObjectImpl
+mClass GeomIndexedShape : public VisualObjectImpl
 {
 public:
     static GeomIndexedShape*	create()

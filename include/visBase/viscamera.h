@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscamera.h,v 1.17 2005-10-25 21:49:36 cvskris Exp $
+ RCS:		$Id: viscamera.h,v 1.18 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace visBase
 
 */
 
-class Camera : public DataObject
+mClass Camera : public DataObject
 {
 public:
     static Camera*	create()

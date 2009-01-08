@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		June 2003
- RCS:		$Id: viscoltabmod.h,v 1.4 2004-01-09 16:26:18 nanne Exp $
+ RCS:		$Id: viscoltabmod.h,v 1.5 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace visBase
 
 */
 
-class VisColTabMod : public DataObject
+mClass VisColTabMod : public DataObject
 {
 public:
     static VisColTabMod*	create()

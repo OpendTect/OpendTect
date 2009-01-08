@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visscene.h,v 1.16 2006-08-23 19:02:20 cvskris Exp $
+ RCS:		$Id: visscene.h,v 1.17 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ namespace visBase
     be common for the whole scene.
 */
 
-class Scene : public DataObjectGroup
+mClass Scene : public DataObjectGroup
 {
 public:
     static Scene*	create()

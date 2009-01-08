@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaceset.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: visfaceset.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ the first one.
 */
 
 
-class FaceSet : public IndexedShape
+mClass FaceSet : public IndexedShape
 {
 public:
     static FaceSet*	create()

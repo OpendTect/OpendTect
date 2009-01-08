@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Feb 2006
- RCS:           $Id: visrandomtrackdragger.h,v 1.2 2006-03-15 14:10:52 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdragger.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace visBase
 class Transformation;
 
 
-class RandomTrackDragger : public VisualObjectImpl
+mClass RandomTrackDragger : public VisualObjectImpl
 {
 public:
     static RandomTrackDragger*	create()

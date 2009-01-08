@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.17 2005-02-11 11:13:24 nanne Exp $
+ RCS:		$Id: visannot.h,v 1.18 2009-01-08 10:15:40 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ class PickStyle;
     axis.
 */
 
-class Annotation : public VisualObjectImpl
+mClass Annotation : public VisualObjectImpl
 {
 public:
     static Annotation*		create()

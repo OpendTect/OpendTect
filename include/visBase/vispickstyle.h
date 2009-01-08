@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispickstyle.h,v 1.1 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: vispickstyle.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace visBase
 
 */
 
-class PickStyle : public DataObject
+mClass PickStyle : public DataObject
 {
 public:
     static PickStyle*	create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.12 2008-05-30 05:00:52 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.13 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ class TextureInfo;
 class VisColorTab;
 class ColorSequence;
 
-class MultiTexture : public DataObject
+mClass MultiTexture : public DataObject
 {
 public:
     enum Operation		{ BLEND, ADD, REPLACE };

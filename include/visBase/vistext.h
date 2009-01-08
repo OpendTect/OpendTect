@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.13 2008-07-17 06:29:33 cvsnanne Exp $
+ RCS:		$Id: vistext.h,v 1.14 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ class SoTranslation;
 namespace visBase
 {
 
-class Text : public VisualObjectImpl
+mClass Text : public VisualObjectImpl
 {
 public:
     enum			Justification { Left, Right, Center };
@@ -68,7 +68,7 @@ on the screen. It is advisable to turn off the text when doing a viewAll,
 since their sizes will corrupt the bounding box calculation.
 */
 
-class Text2 : public Text
+mClass Text2 : public Text
 {
 public:
     static Text2*		create()
@@ -89,7 +89,7 @@ protected:
 
 /*!Text that is not rotated to face text. */
 
-class TextBox : public Text
+mClass TextBox : public Text
 {
 public:
     static TextBox*		create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visrandomtrack.h,v 1.27 2006-01-31 09:02:29 cvsnanne Exp $
+ RCS:		$Id: visrandomtrack.h,v 1.28 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ class VisColorTab;
 
 */
 
-class RandomTrack : public VisualObjectImpl
+mClass RandomTrack : public VisualObjectImpl
 {
 public:
     static RandomTrack*		create()

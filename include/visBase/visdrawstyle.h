@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdrawstyle.h,v 1.7 2008-12-17 13:08:34 cvsbruno Exp $
+ RCS:		$Id: visdrawstyle.h,v 1.8 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace visBase
 */
 
 
-class DrawStyle : public DataObject
+mClass DrawStyle : public DataObject
 {
 public:
     static DrawStyle*	create()

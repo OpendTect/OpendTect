@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Oct 2008
- RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.3 2008-12-04 13:45:59 cvskris Exp $
+ RCS:		$Id: visrgbatexturechannel2rgba.h,v 1.4 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace visBase
 Does also handle enable/disable of the channels. */
 
 
-class RGBATextureChannel2RGBA : public TextureChannel2RGBA
+mClass RGBATextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static RGBATextureChannel2RGBA*	create()

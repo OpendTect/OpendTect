@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture2.h,v 1.12 2005-03-11 12:25:59 cvskris Exp $
+ RCS:		$Id: vistexture2.h,v 1.13 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class VisColorTab;
 Used for creating a 2D texture
 */
 
-class Texture2 : public Texture
+mClass Texture2 : public Texture
 {
 public:
     static Texture2*	create()
@@ -79,7 +79,7 @@ To let the children share the same properties by default, use the
 share## functions.
 */
 
-class Texture2Set : public DataObject
+mClass Texture2Set : public DataObject
 {
 public:
     static Texture2Set*	create()

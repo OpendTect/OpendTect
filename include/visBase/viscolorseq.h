@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolorseq.h,v 1.9 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:		$Id: viscolorseq.h,v 1.10 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ ColorSequence describes a basic sequence of colors on a scale ranging from zero
 to one.
 */
 
-class ColorSequence : public DataObject
+mClass ColorSequence : public DataObject
 {
 public:
     static ColorSequence*	create()

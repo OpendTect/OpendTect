@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.23 2008-12-24 15:58:12 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.24 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ class Transformation;
 Base class for well display
 */
 
-class Well : public VisualObjectImpl
+mClass Well : public VisualObjectImpl
 {
 public:
     static Well*		create()

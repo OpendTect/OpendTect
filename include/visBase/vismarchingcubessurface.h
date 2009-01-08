@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.12 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.13 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class GeomIndexedShape;
 
 /*!Class to display ::MarchingCubesSurface or body sections. */
 
-class MarchingCubesSurface : public VisualObjectImpl
+mClass MarchingCubesSurface : public VisualObjectImpl
 {
 public:
     static MarchingCubesSurface*	create()

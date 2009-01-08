@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.7 2008-05-13 05:34:32 cvssatyaki Exp $
+ RCS:		$Id: visgridlines.h,v 1.8 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class DrawStyle;
 class IndexedPolyLine;
 class Transformation;
 
-class GridLines : public VisualObjectImpl
+mClass GridLines : public VisualObjectImpl
 {
 public:
     static GridLines*		create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistristripset.h,v 1.10 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vistristripset.h,v 1.11 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace visBase
 {
 
-class TriangleStripSet : public IndexedShape
+mClass TriangleStripSet : public IndexedShape
 {
 public:
     static TriangleStripSet*	create()

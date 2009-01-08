@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-06-2003
- RCS:		$Id: visdetail.h,v 1.4 2007-10-10 03:59:24 cvsnanne Exp $
+ RCS:		$Id: visdetail.h,v 1.5 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ class Coordinates;
 
 enum DetailType { Face };
 
-class Detail
+mClass Detail
 {
 public:
 			Detail( DetailType dt )
@@ -46,7 +46,7 @@ protected:
 };  
    
 
-class FaceDetail : public Detail
+mClass FaceDetail : public Detail
 {
 public:
 			FaceDetail( SoFaceDetail* d )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		10-10-2007
- RCS:		$Id: visellipsoid.h,v 1.1 2007-10-12 21:22:22 cvsyuancheng Exp $
+ RCS:		$Id: visellipsoid.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ streching a sphere from a scale vector "getWidth()".
 */
 
 
-class Ellipsoid : public Shape
+mClass Ellipsoid : public Shape
 {
 public:
     static Ellipsoid*	create()

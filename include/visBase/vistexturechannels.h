@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.6 2008-12-03 22:54:25 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.7 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace visBase
 class TextureChannel2RGBA;
 class ChannelInfo;
 
-class TextureChannels : public DataObject
+mClass TextureChannels : public DataObject
 {
 public:
     static TextureChannels*	create()

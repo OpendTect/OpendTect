@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2008
- RCS:		$Id: vistexturechannel2rgba.h,v 1.12 2008-12-09 16:16:38 cvskris Exp $
+ RCS:		$Id: vistexturechannel2rgba.h,v 1.13 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ TextureChannels class and convert them to RGBA textures in OpenGL, optionally
 with shaders. There should always be a non-shading way to fall back on.
 */
 
-class TextureChannel2RGBA : public DataObject
+mClass TextureChannel2RGBA : public DataObject
 {
 public:
     virtual void	setChannels(TextureChannels*);
@@ -76,7 +76,7 @@ protected:
 channel and blends it into an RGBA image. */
 
 
-class ColTabTextureChannel2RGBA : public TextureChannel2RGBA
+mClass ColTabTextureChannel2RGBA : public TextureChannel2RGBA
 {
 public:
     static ColTabTextureChannel2RGBA*	create()

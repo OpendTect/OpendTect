@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.52 2008-08-12 11:16:18 cvsnanne Exp $
+ RCS:		$Id: visdata.h,v 1.53 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ objects and is thus the only one that is allowed to delete it. The destructors
 on the inherited classes should thus be protected.
 */
 
-class DataObject : public CallBacker
+mClass DataObject : public CallBacker
 { mRefCountImpl(DataObject);
 public:
 

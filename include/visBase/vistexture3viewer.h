@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: vistexture3viewer.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: vistexture3viewer.h,v 1.13 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace visBase
 {
 class Texture3;
 
-class Texture3ViewerObject : public VisualObjectImpl
+mClass Texture3ViewerObject : public VisualObjectImpl
 {
 public:
     				Texture3ViewerObject( bool sel=true )
@@ -48,7 +48,7 @@ direction can be cut through the texture. The positions of the object in
 in front of it.
 */
 
-class Texture3Viewer : public VisualObjectImpl
+mClass Texture3Viewer : public VisualObjectImpl
 {
 public:
     static Texture3Viewer*	create()
@@ -79,7 +79,7 @@ protected:
 };
 
 
-class Texture3Slice : public Texture3ViewerObject
+mClass Texture3Slice : public Texture3ViewerObject
 {
 public:
     static Texture3Slice*	create()
@@ -104,7 +104,7 @@ protected:
 };
 
 
-class MovableTextureSlice : public Texture3ViewerObject
+mClass MovableTextureSlice : public Texture3ViewerObject
 {
 public:
     static MovableTextureSlice*	create()

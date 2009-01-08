@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visforegroundlifter.h,v 1.1 2007-02-09 20:19:47 cvskris Exp $
+ RCS:		$Id: visforegroundlifter.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ namespace visBase
 
 /*!Moves the following objects towards the camera. */
 
-class ForegroundLifter : public DataObject
+mClass ForegroundLifter : public DataObject
 {
 public:
     static ForegroundLifter*	create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.5 2008-10-17 05:05:26 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.6 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,9 +20,9 @@ namespace ColTab { class MapperSetup; class Sequence; }
 namespace visBase
 {
 
-class VisColorTab;
+mClass VisColorTab;
 
-class SceneColTab : public VisualObjectImpl
+mClass SceneColTab : public VisualObjectImpl
 {
 public:
     static SceneColTab*	create()

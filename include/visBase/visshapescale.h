@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshapescale.h,v 1.8 2004-09-22 10:07:32 kristofer Exp $
+ RCS:		$Id: visshapescale.h,v 1.9 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ a constant size is given to the object via setShape.
 
 */
 
-class ShapeScale : public DataObject
+mClass ShapeScale : public DataObject
 {
 public:
     static ShapeScale*	create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.14 2007-10-25 15:11:29 cvskris Exp $
+ RCS:           $Id: visdragger.h,v 1.15 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace visBase
 class Transformation;
 
 
-class Dragger : public DataObject
+mClass Dragger : public DataObject
 {
 public:
     static Dragger*		create()

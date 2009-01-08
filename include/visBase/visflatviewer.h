@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.7 2009-01-06 20:37:02 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.h,v 1.8 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class SplitTexture2Rectangle;
 
 /*!Implementation of FlatViewer::Viewer in 3D. */
 
-class FlatViewer : public FlatView::Viewer, public VisualObjectImpl
+mClass FlatViewer : public FlatView::Viewer, public VisualObjectImpl
 {
 public:
     static FlatViewer*		create()

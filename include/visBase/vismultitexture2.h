@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.20 2008-11-07 18:27:24 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.21 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class SoShaderParameterArray1f;
 namespace visBase
 {
 
-class MultiTexture2 : public MultiTexture
+mClass MultiTexture2 : public MultiTexture
 {
 public:
     static MultiTexture2*	create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislight.h,v 1.7 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: vislight.h,v 1.8 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ Base class for all lights
 
 */
 
-class Light : public DataObject
+mClass Light : public DataObject
 {
 public:
 
@@ -56,7 +56,7 @@ A point that illuminates light
 
 */
 
-class PointLight : public Light
+mClass PointLight : public Light
 {
 public:
     static PointLight*	create() mCreateDataObj( PointLight );
@@ -79,7 +79,7 @@ A light in a certain direction from a position at an infinite distance
 */
 
 
-class DirectionalLight : public Light
+mClass DirectionalLight : public Light
 {
 public:
     static DirectionalLight*	create() mCreateDataObj( DirectionalLight );
@@ -101,7 +101,7 @@ protected:
 */
 
 
-class SpotLight : public Light
+mClass SpotLight : public Light
 {
 public:
     static SpotLight*	create() mCreateDataObj( SpotLight );

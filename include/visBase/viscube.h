@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscube.h,v 1.13 2004-11-16 09:29:17 kristofer Exp $
+ RCS:		$Id: viscube.h,v 1.14 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ Cube is a basic cube that is settable in size.
 
 */
 
-class Cube : public Shape
+mClass Cube : public Shape
 {
 public:
     static Cube*	create()

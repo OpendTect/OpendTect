@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.14 2007-10-10 03:59:24 cvsnanne Exp $
+ RCS:		$Id: vismaterial.h,v 1.15 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ namespace visBase
 
 */
 
-class Material : public DataObject
+mClass Material : public DataObject
 {
 public:
     static Material*	create()

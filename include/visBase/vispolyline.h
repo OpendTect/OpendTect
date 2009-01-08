@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.13 2008-05-27 19:02:31 cvskris Exp $
+ RCS:		$Id: vispolyline.h,v 1.14 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class DrawStyle;
 
 */
 
-class PolyLine	: public VertexShape
+mClass PolyLine	: public VertexShape
 {
 public:
     static PolyLine*	create()
@@ -50,7 +50,7 @@ protected:
 };
 
 
-class IndexedPolyLine	: public IndexedShape
+mClass IndexedPolyLine	: public IndexedShape
 {
 public:
     static IndexedPolyLine*	create()
@@ -58,7 +58,7 @@ public:
 };
 
 
-class IndexedPolyLine3D	: public IndexedShape
+mClass IndexedPolyLine3D	: public IndexedShape
 {
 public:
     static IndexedPolyLine3D*	create()

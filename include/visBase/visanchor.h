@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visanchor.h,v 1.1 2007-02-15 23:38:28 cvskris Exp $
+ RCS:		$Id: visanchor.h,v 1.2 2009-01-08 10:15:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace visBase
 {
 
 
-class Anchor : public DataObjectGroup
+mClass Anchor : public DataObjectGroup
 {
 public:
     static Anchor*	create()

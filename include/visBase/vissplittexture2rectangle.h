@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.5 2008-11-18 17:29:03 cvskris Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.6 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class Coordinates;
    Object must be notified of MultiTexture2's size, splitting status and 
    used texture units. */
 
-class SplitTexture2Rectangle : public VisualObjectImpl
+mClass SplitTexture2Rectangle : public VisualObjectImpl
 {
 public:
     static SplitTexture2Rectangle* create()

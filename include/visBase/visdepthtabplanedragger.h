@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdepthtabplanedragger.h,v 1.9 2007-01-11 20:20:37 cvskris Exp $
+ RCS:		$Id: visdepthtabplanedragger.h,v 1.10 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ namespace visBase
 
 */
 
-class DepthTabPlaneDragger : public VisualObjectImpl
+mClass DepthTabPlaneDragger : public VisualObjectImpl
 {
 public:
     static DepthTabPlaneDragger*	create()

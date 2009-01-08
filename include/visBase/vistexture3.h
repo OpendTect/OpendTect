@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture3.h,v 1.6 2004-05-06 21:44:35 kristofer Exp $
+ RCS:		$Id: vistexture3.h,v 1.7 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ namespace visBase
 
 */
 
-class Texture3 : public Texture
+mClass Texture3 : public Texture
 {
 public:
     static Texture3*	create()

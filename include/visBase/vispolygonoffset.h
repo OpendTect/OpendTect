@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		June 2006
- RCS:		$Id: vispolygonoffset.h,v 1.1 2006-06-14 17:08:09 cvskris Exp $
+ RCS:		$Id: vispolygonoffset.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace visBase
 {
 /*!Class that manipulates the zbuffer. See coin for details. */
 
-class PolygonOffset : public DataObject
+mClass PolygonOffset : public DataObject
 {
 public:
     static PolygonOffset*	create()

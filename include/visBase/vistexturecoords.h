@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.5 2008-05-16 16:04:10 cvskris Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.6 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -28,7 +28,7 @@ namespace visBase
 
 */
 
-class TextureCoords : public DataObject
+mClass TextureCoords : public DataObject
 {
 public:
     static TextureCoords*	create()
@@ -57,7 +57,7 @@ protected:
 };
 
 
-class TextureCoordListAdapter : public Coord3List
+mClass TextureCoordListAdapter : public Coord3List
 {
 public:
     			TextureCoordListAdapter(TextureCoords&);

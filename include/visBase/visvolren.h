@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2004
- RCS:           $Id: visvolren.h,v 1.3 2007-10-12 19:14:34 cvskris Exp $
+ RCS:           $Id: visvolren.h,v 1.4 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class SoVolumeRender;
 namespace visBase
 {
 
-class VolrenDisplay : public visBase::VisualObjectImpl
+mClass VolrenDisplay : public visBase::VisualObjectImpl
 {
 public:
     static VolrenDisplay*	create()

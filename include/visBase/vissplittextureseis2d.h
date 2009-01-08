@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-8-2008
- RCS:		$Id: vissplittextureseis2d.h,v 1.2 2008-04-03 19:11:50 cvsyuancheng Exp $
+ RCS:		$Id: vissplittextureseis2d.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class Coordinates;
    size mMaxHorSz. should set path before having the shape. To split texture,
    make sure to set z pixels and texture units. */
 
-class SplitTextureSeis2D : public VisualObjectImpl
+mClass SplitTextureSeis2D : public VisualObjectImpl
 {
 public:
     static SplitTextureSeis2D*	create()

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Feb 2007
- RCS:		$Id: visimage.h,v 1.2 2007-02-08 22:45:14 cvskris Exp $
+ RCS:		$Id: visimage.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ namespace visBase
 
 /*!Displays an image that either is read from disk or in memory. */
 
-class Image : public DataObject
+mClass Image : public DataObject
 {
 public:
     static Image*	create()

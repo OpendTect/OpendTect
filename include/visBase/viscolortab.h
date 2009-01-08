@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.22 2008-09-23 10:40:08 cvshelene Exp $
+ RCS:		$Id: viscolortab.h,v 1.23 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ namespace visBase
 
 */
 
-class VisColorTab : public DataObject
+mClass VisColorTab : public DataObject
 {
 public:
     static VisColorTab*		create()

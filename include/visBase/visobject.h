@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.43 2008-10-30 13:02:02 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.44 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ class EventCatcher;
 
 /*!\brief Base class for all objects that are visual on the scene. */
 
-class VisualObject : public DataObject
+mClass VisualObject : public DataObject
 {
 public:
     virtual void		turnOn(bool)				= 0;
@@ -73,7 +73,7 @@ private:
 };
 
 
-class VisualObjectImpl : public VisualObject
+mClass VisualObjectImpl : public VisualObject
 {
 public:
     void		turnOn(bool);

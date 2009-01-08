@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.21 2008-05-27 19:47:55 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.22 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ public: \
     void		   set##clssname(clssname*)
 
 
-class Shape : public VisualObject
+mClass Shape : public VisualObject
 {
 public:
     void			turnOn(bool);
@@ -104,7 +104,7 @@ private:
 };
 
 
-class VertexShape : public Shape
+mClass VertexShape : public Shape
 {
 public:
 
@@ -157,7 +157,7 @@ private:
 #undef mDeclSetGetItem
 
 
-class IndexedShape : public VertexShape
+mClass IndexedShape : public VertexShape
 {
 public:
     int		nrCoordIndex() const;

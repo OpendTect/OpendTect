@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.18 2008-10-27 20:33:11 cvskris Exp $
+ RCS:		$Id: visdataman.h,v 1.19 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ class Factory;
 
 */
 
-class DataManager : public CallBacker
+mClass DataManager : public CallBacker
 {
 public:
     			DataManager();

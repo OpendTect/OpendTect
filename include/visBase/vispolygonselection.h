@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.3 2008-08-28 11:05:30 cvsraman Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.4 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ by mouse- movement. Once drawn, queries can be made whether points are
 inside or outside the polygon.
 */
 
-class PolygonSelection : public VisualObjectImpl
+mClass PolygonSelection : public VisualObjectImpl
 {
 public:
     static PolygonSelection*	create()
@@ -69,7 +69,7 @@ protected:
 };
 
 
-class PolygonCoord3Selector : public Selector<Coord3>
+mClass PolygonCoord3Selector : public Selector<Coord3>
 {
 public:
 				PolygonCoord3Selector(const PolygonSelection&);

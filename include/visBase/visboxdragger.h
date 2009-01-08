@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.11 2008-03-25 20:29:45 cvskris Exp $
+ RCS:		$Id: visboxdragger.h,v 1.12 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ template <class T> class Interval;
 namespace visBase
 {
 
-class BoxDragger : public DataObject
+mClass BoxDragger : public DataObject
 {
 public:
     static BoxDragger*		create()

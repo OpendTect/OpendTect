@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vissceneobj.h,v 1.12 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: vissceneobj.h,v 1.13 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class Transformation;
     scene.
 */
 
-class SceneObject : public DataObject
+mClass SceneObject : public DataObject
 {
 public:
     virtual SoNode*	getData()		= 0;

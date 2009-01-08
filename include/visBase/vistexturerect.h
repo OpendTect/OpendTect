@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistexturerect.h,v 1.31 2005-10-30 23:40:25 cvskris Exp $
+ RCS:		$Id: vistexturerect.h,v 1.32 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ class Texture2Set;
     The data is set via setData.
 */
 
-class TextureRect : public VisualObjectImpl
+mClass TextureRect : public VisualObjectImpl
 {
 public:
     static TextureRect*		create()

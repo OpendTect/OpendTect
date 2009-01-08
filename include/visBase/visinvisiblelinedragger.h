@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		October 2007
- RCS:		$Id: visinvisiblelinedragger.h,v 1.1 2007-10-18 19:14:33 cvskris Exp $
+ RCS:		$Id: visinvisiblelinedragger.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace visBase
 
 */
 
-class InvisibleLineDragger : public VisualObjectImpl
+mClass InvisibleLineDragger : public VisualObjectImpl
 {
 public:
     static InvisibleLineDragger*	create()

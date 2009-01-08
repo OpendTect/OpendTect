@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.h,v 1.2 2008-04-03 19:13:16 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexturerandomline.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class Coordinates;
 /*!Splitting a surface along random line into smaller blocks, where the random 
    line is a set of binids with some knots. Before having the shape, you have to   at least set the knots and depth range. */
 
-class SplitTextureRandomLine : public VisualObjectImpl
+mClass SplitTextureRandomLine : public VisualObjectImpl
 {
 public:
     static SplitTextureRandomLine*	create()

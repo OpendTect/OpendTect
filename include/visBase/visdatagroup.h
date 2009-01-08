@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.6 2007-09-07 15:33:11 cvskris Exp $
+ RCS:		$Id: visdatagroup.h,v 1.7 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace visBase
 {
 
 
-class DataObjectGroup : public DataObject
+mClass DataObjectGroup : public DataObject
 {
 public:
     static DataObjectGroup*	create()

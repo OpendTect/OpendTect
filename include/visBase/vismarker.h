@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2002
- RCS:		$Id: vismarker.h,v 1.19 2008-09-23 12:16:08 cvsbert Exp $
+ RCS:		$Id: vismarker.h,v 1.20 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ Size and shape are settable.
 
 */
 
-class Marker : public VisualObjectImpl
+mClass Marker : public VisualObjectImpl
 {
 public:
     static Marker*	create()

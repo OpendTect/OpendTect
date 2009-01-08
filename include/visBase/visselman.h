@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visselman.h,v 1.16 2006-05-29 08:02:32 cvsbert Exp $
+ RCS:		$Id: visselman.h,v 1.17 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ will associate him with when they want to add their CB to detect his selection.
 Secondly it has to give the DataObject that actually is selected.
 */
 
-class SelectionManager : public CallBacker
+mClass SelectionManager : public CallBacker
 {
 public:
 				SelectionManager();

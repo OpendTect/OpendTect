@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: vistransform.h,v 1.16 2006-08-03 18:46:38 cvskris Exp $
+ RCS:		$Id: vistransform.h,v 1.17 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ x' = x''/m; y' = y''/m; z'=z''/m;
 */
 
 
-class Transformation : public DataObject
+mClass Transformation : public DataObject
 {
 public:
     static Transformation*	create()
@@ -84,7 +84,7 @@ private:
 
 
 
-class Rotation : public DataObject
+mClass Rotation : public DataObject
 {
 public:
     static Rotation*	create()

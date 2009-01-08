@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.20 2008-03-17 21:09:14 cvskris Exp $
+ RCS:		$Id: visevent.h,v 1.21 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ class Detail;
     
 enum EventType		{ Any=7, MouseClick=1, Keyboard=2, MouseMovement=4 };
 
-class EventInfo
+mClass EventInfo
 {
 public:
     				EventInfo();
@@ -68,7 +68,7 @@ public:
 };
 
 
-class EventCatcher : public DataObject
+mClass EventCatcher : public DataObject
 {
 public:
     static EventCatcher*	create()

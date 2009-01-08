@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2006
- RCS:		$Id: visrotationdragger.h,v 1.2 2006-09-01 07:45:43 cvskris Exp $
+ RCS:		$Id: visrotationdragger.h,v 1.3 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ namespace visBase
 /*! Dragger for rotations. Rotation can either be free (i.e. a trackball type),
     or bound to be around the z axis. */
 
-class RotationDragger : public DataObject
+mClass RotationDragger : public DataObject
 {
 public:
     static RotationDragger*	create()

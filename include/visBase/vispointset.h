@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: vispointset.h,v 1.1 2006-04-19 22:20:13 cvskris Exp $
+ RCS:		$Id: vispointset.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class SoPointSet;
 namespace visBase
 {
 
-class PointSet	: public VertexShape
+mClass PointSet	: public VertexShape
 {
 public:
     static PointSet*	create()

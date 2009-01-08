@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.18 2008-05-27 19:47:24 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.19 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ getPos.
 set
 */
 
-class Coordinates : public DataObject
+mClass Coordinates : public DataObject
 {
 public:
 
@@ -99,7 +99,7 @@ protected:
 /*!Adapter between a CoordList and Coordinates. */
 
 
-class CoordListAdapter : public Coord3List
+mClass CoordListAdapter : public Coord3List
 {
 public:
     		CoordListAdapter(Coordinates&);

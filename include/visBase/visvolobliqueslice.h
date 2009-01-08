@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolobliqueslice.h,v 1.1 2007-01-05 21:57:25 cvskris Exp $
+ RCS:           $Id: visvolobliqueslice.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace visBase
 /*!\brief
 */
 
-class ObliqueSlice : public visBase::VisualObjectImpl
+mClass ObliqueSlice : public visBase::VisualObjectImpl
 {
 public:
     static ObliqueSlice*	create()

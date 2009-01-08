@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2002
- RCS:           $Id: visvolorthoslice.h,v 1.4 2007-10-12 19:14:34 cvskris Exp $
+ RCS:           $Id: visvolorthoslice.h,v 1.5 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class DepthTabPlaneDragger; class PickStyle;
 Slice that cuts orthogonal through a VolumeData.
 */
 
-class OrthogonalSlice : public visBase::VisualObjectImpl
+mClass OrthogonalSlice : public visBase::VisualObjectImpl
 {
 public:
     static OrthogonalSlice*	create()

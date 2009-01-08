@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vislevelofdetail.h,v 1.4 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: vislevelofdetail.h,v 1.5 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ resolution. Depending on how large parts of the screen the objects will fill,
 one of the versions will be used.
 */
 
-class LevelOfDetail : public DataObject
+mClass LevelOfDetail : public DataObject
 {
 public:
     static LevelOfDetail*	create()

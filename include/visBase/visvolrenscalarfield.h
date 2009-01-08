@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.7 2008-08-21 10:35:06 cvsnanne Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.8 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace visBase
 {
 class VisColorTab;
 
-class VolumeRenderScalarField : public DataObject
+mClass VolumeRenderScalarField : public DataObject
 {
 public:
 

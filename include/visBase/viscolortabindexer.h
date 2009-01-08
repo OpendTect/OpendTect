@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		January 2007
- RCS:		$Id: viscolortabindexer.h,v 1.4 2008-09-22 13:14:13 cvskris Exp $
+ RCS:		$Id: viscolortabindexer.h,v 1.5 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ assigned nrStep() as index, and are not present in the histogram.
 */
 
 
-class ColorTabIndexer : public ParallelTask
+mClass ColorTabIndexer : public ParallelTask
 {
 public:
 			ColorTabIndexer( const ValueSeries<float>& inp,

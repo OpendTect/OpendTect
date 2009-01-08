@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.22 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: vistexture.h,v 1.23 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -43,7 +43,7 @@ If ThreadWorker is set, it utilizes mt processing.
 
 */
 
-class Texture : public DataObject
+mClass Texture : public DataObject
 {
 public:
     enum		DataType { Color, Transparency,

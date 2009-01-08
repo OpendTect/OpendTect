@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.10 2008-06-03 21:36:28 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.11 2009-01-08 10:15:41 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ namespace visBase
 
 */
 
-class Normals : public DataObject
+mClass Normals : public DataObject
 {
 public:
     static Normals*	create()
@@ -67,7 +67,7 @@ protected:
     			
 };
 
-class NormalListAdapter : public Coord3List
+mClass NormalListAdapter : public Coord3List
 {
 public:
     		NormalListAdapter(Normals& n )
