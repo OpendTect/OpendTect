@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.30 2008-12-25 11:44:29 cvsranojay Exp $
+RCS:		$Id: transl.h,v 1.31 2009-01-08 12:27:19 cvsnanne Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -156,13 +156,11 @@ protected:
   //! In the class definition of a TranslatorGroup class
 #define isTranslatorGroup(clss) \
 public: \
-    static TranslatorGroup& theInst() { return *theinst_; } \
+    static TranslatorGroup& theInst();  \
     static int selector(const char*); \
     static const IOObjContext& ioContext(); \
     virtual const IOObjContext&	ioCtxt() const { return ioContext(); } \
     virtual int	objSelector( const char* s ) const { return selector(s); } \
-private: \
-    static RefMan<TranslatorGroup> theinst_;
 
 
   //! In the class definition of a Translator class
@@ -176,24 +174,26 @@ public: \
     } \
     static spec##clss##Translator* getInstance(); \
     static const char* translKey(); \
-    static int listID()	{ return listid_; } \
-private: \
-    static int			listid_;
+    static int listID()	; \
 
   //! In the source file of a TranslatorGroup class
 #define defineTranslatorGroup(clss,usrnm) \
-RefMan<TranslatorGroup> clss##TranslatorGroup::theinst_ \
-    = &TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );
+static RefMan<TranslatorGroup> clss##inst = \
+    &TranslatorGroup::addGroup( new clss##TranslatorGroup(#clss,usrnm) );\
+TranslatorGroup& clss##TranslatorGroup::theInst() \
+{ return *clss##inst; }
 
 
   //! In the source file of a Translator class
 #define defineTranslator(spec,clss,usrnm) \
-int spec##clss##Translator::listid_ \
+static int spec##clss##listid_ \
     = TranslatorGroup::getGroup( #clss , false ).add( \
 	    new spec##clss##Translator( #spec, usrnm ) ); \
+int spec##clss##Translator::listID()    { return spec##clss##listid_; }\
 spec##clss##Translator* spec##clss##Translator::getInstance() \
 { return new spec##clss##Translator(#clss,usrnm); } \
 const char* spec##clss##Translator::translKey() { return usrnm; }
+
 
 
   //! Convenience when the TranslatorGroup is not interesting 4 u.
