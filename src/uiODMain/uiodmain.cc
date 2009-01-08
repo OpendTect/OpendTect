@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.108 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.109 2009-01-08 16:16:19 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -642,6 +642,7 @@ bool uiODMain::closeOK()
 {
     saveSettings();
     applicationClosing.trigger();
+    IOM().applClosing();
 
     if ( failed_ ) return true;
 
