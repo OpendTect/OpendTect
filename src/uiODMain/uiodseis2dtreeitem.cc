@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.49 2008-12-19 06:33:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.50 2009-01-08 10:19:46 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -200,6 +200,15 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 	    BufferString attribname = "<Unselected>";
 	    if ( ds && ds->userRef() && *ds->userRef() )
 		attribname = ds->userRef();
+
+	    if ( ds && ds->isNLA() )
+	    {
+		attribname = ds->objectRef();
+		const char* nodenm = ds->userRef();
+		if ( IOObj::isKey(ds->userRef()) )
+		    nodenm = IOM().nameOf( ds->userRef(), false );
+		attribname += " ("; attribname += nodenm; attribname += ")";
+	    }
 
 	    displayedattribs.addIfNew( attribname );
 	}
