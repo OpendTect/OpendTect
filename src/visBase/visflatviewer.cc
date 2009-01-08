@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.19 2009-01-07 04:41:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.20 2009-01-08 22:45:51 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 #include "arraynd.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "dataclipper.h"
 #include "flatview.h"
 #include "vistexturechannels.h"
 #include "vissplittexture2rectangle.h"
@@ -167,26 +168,29 @@ void FlatViewer::replaceChannels( TextureChannels* nt )
 
 Interval<float> FlatViewer::getDataRange( bool wva ) const
 {
-    Interval<float> res( mUdf(float),mUdf(float) );
-    if ( (wva && !wvapack_) || (!wva && !vdpack_) )
-	return res;
-    
-    const Array2D<float>& arr = wva ? wvapack_->data() : vdpack_->data();
-    for ( int idx=0; idx<arr.info().getSize(0); idx++ )
+    const FlatView::DataDispPars::VD& vd = appearance().ddpars_.vd_;
+    if ( !vd.rg_.isUdf() )
+	return vd.rg_;
+ 
+    const float clipstop = mIsUdf(vd.clipperc_.stop) ? mUdf(float) 
+						     : vd.clipperc_.stop*0.01;
+    Interval<float> cliprate( vd.clipperc_.start*0.01, clipstop );
+   
+    DataClipper clipper;
+    clipper.putData( wva ? wvapack_->data() : vdpack_->data() );
+    clipper.fullSort();
+
+    Interval<float> res;
+    if ( mIsUdf(vd.symmidvalue_) )
     {
-	for ( int idy=0; idy<arr.info().getSize(1); idy++ )
-	{
-	    const float val = arr.get(idx,idy);
-	    if ( mIsUdf(val) )
-		return Interval<float>( mUdf(float),mUdf(float) );
-	    
-	    if ( res.isUdf() )
-		res.start = res.stop = val;
-	    else
-		res.include( val );
-	}
+	if ( mIsUdf(cliprate.stop) )
+	    clipper.getRange( cliprate.start, res );
+	else
+	    clipper.getRange( cliprate.start, cliprate.stop, res );
     }
-    
+    else
+	clipper.getSymmetricRange( cliprate.start, vd.symmidvalue_, res );
+
     return res;
 }
 

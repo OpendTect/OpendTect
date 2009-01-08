@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.11 2009-01-08 07:14:05 cvsranojay Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.12 2009-01-08 22:45:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ protected:
 
     uiObject*		lastcommonfld_;
 
+    void		updateNonclipRange(CallBacker*);
     void		useMidValSel(CallBacker*);
     void		dispSel(CallBacker*);
     void		clipSel(CallBacker*);
