@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmt2dlines.cc,v 1.8 2008-12-16 06:26:43 cvsraman Exp $";
+static const char* rcsID = "$Id: gmt2dlines.cc,v 1.9 2009-01-08 10:13:11 cvsnanne Exp $";
 
 #include "gmt2dlines.h"
 
@@ -67,10 +67,12 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     const IOObj* ioobj = IOM().get( id );
     if ( !ioobj ) mErrStrmRet("Cannot find lineset")
 
+    BufferString attribnm;
+    get( sKey::Attribute, attribnm );
+
     BufferStringSet linenms;
     get( ODGMT::sKeyLineNames, linenms );
     strm << "Posting 2D Lines " << ioobj->name() << " ...  ";
-    Seis2DLineSet lset( *ioobj );
 
     LineStyle ls;
     BufferString lsstr = find( ODGMT::sKeyLineStyle );
@@ -89,10 +91,12 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
+    Seis2DLineSet lset( *ioobj );
     for ( int idx=0; idx<linenms.size(); idx++ )
     {
 	PosInfo::Line2DData geom;
-	const int lidx = lset.indexOf( linenms.get(idx) );
+	LineKey lk( linenms.get(idx), attribnm );
+	const int lidx = lset.indexOf( lk );
 	if ( lidx<0  || !lset.getGeometry(lidx,geom) || geom.posns_.size()<11)
 	    continue;
 
