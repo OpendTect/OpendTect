@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.43 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.44 2009-01-08 10:08:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,14 +220,14 @@ protected:
 
 /*!\mainpage Attribute User Interface
 
- This part server's main task is handling the attribute set editor. Other
- services are selection and volume output.
+ The main thing here is handling the attribute set editor. Other
+ services of the uiAttribPartServer are selection and volume output.
 
  The Attribute set editor is a pretty complex piece of user interface. The left
  and top part of the window are fixed. They handle the 'common' things in
  attribute set editing. The right part is defined via the uiAttribFactory .
 
- The proble that was facing us was that we needed a user interface that could
+ The problem that was facing us was that we needed a user interface that could
  be dynamically extended. Further more,much of the needed functionality is
  common to all attributes. Thus, we defined:
 
@@ -241,8 +241,7 @@ protected:
  added to the factory to make it active.
 
  To see how such a new attribute can be created aswell as a user interface for
- it, take a look at the Coherency example in the programmer documentation on
- plugins.
+ it, take a look at the uiTut seismic 'attribute style' example.
 
 */
 
