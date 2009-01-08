@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.9 2005-01-24 11:13:42 kristofer Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.10 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ position in (0, 0, 0).
 	      
 */
 
-class SoShapeScale : public SoNode
+mClass SoShapeScale : public SoNode
 {
     SO_NODE_HEADER(SoShapeScale);
 public:

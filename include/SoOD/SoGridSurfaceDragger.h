@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Marc Gerritsen, Jeroen Post
  Date:          23-04-2003
- RCS:           $Id: SoGridSurfaceDragger.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: SoGridSurfaceDragger.h,v 1.3 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 class SbLineProjector;
 
 
-class SoGridSurfaceDragger : public SoDragger 
+mClass SoGridSurfaceDragger : public SoDragger 
 {
     SO_KIT_HEADER( SoGridSurfaceDragger );
     SO_KIT_CATALOG_ENTRY_HEADER( rotator );

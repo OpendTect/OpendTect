@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPolygonSelect.h,v 1.1 2008-06-18 21:53:08 cvskris Exp $
+ RCS:		$Id: SoPolygonSelect.h,v 1.2 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ class SoCache;
 */
 
 
-class SoPolygonSelect : public SoNode
+mClass SoPolygonSelect : public SoNode
 {
     SO_NODE_HEADER(SoPolygonSelect);
 public:

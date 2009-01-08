@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoRandomTrackLineDragger.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: SoRandomTrackLineDragger.h,v 1.8 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ typedef void SoRandomTrackLineDraggerCB(void * data,
 
 */
 
-class SoRandomTrackLineDragger : public SoBaseKit
+mClass SoRandomTrackLineDragger : public SoBaseKit
 {
     SO_KIT_HEADER(SoRandomTrackLineDragger);
     SO_KIT_CATALOG_ENTRY_HEADER(subDraggerSep);

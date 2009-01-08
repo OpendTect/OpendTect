@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.16 2009-01-06 15:21:46 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.17 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ class SoSwitch;
 
 */
 
-class SoPlaneWellLog : public SoBaseKit
+mClass SoPlaneWellLog : public SoBaseKit
 {
     typedef SoBaseKit inherited;
     SO_KIT_HEADER(SoPlaneWellLog);

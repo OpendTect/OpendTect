@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoColTabMultiTexture2.h,v 1.2 2007-09-07 16:21:59 cvskris Exp $
+ RCS:		$Id: SoColTabMultiTexture2.h,v 1.3 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,7 @@ class SoGLImage;
 All textures are put in a sequence in SoColTabMultiTexture2::image, and the sequence
 is processed from the start to the end to create one texture. */
 
-class SoColTabMultiTexture2 : public SoNode
+mClass SoColTabMultiTexture2 : public SoNode
 {
     SO_NODE_HEADER( SoColTabMultiTexture2 );
 public:

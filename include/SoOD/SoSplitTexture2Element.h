@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.6 2008-10-28 13:03:17 cvskris Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.7 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 /*!  Element that holds one image per texture unit.  */
 
-class SoSplitTexture2Element : public SoReplacedElement
+mClass SoSplitTexture2Element : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoSplitTexture2Element);
 public:

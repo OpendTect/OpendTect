@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.3 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ are organized in a grid where index=row*((sideSize+1)*spacing)+1)+col*spacing;
 */
 
 
-class SoMeshSurfaceBrickWire : public SoIndexedLineSet
+mClass SoMeshSurfaceBrickWire : public SoIndexedLineSet
 {
     typedef SoIndexedLineSet	inherited;
     SO_NODE_HEADER(SoMeshSurfaceBrickWire);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          October 2008
- RCS:           $Id: SoLockableSeparator.h,v 1.1 2008-10-30 13:00:40 cvskris Exp $
+ RCS:           $Id: SoLockableSeparator.h,v 1.2 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ func( action* a )			\
 
 /*!A separator with a lock, that is readlocked during all traversals. */
 
-class SoLockableSeparator : public SoSeparator
+mClass SoLockableSeparator : public SoSeparator
 {
     typedef SoSeparator inherited;
     SO_NODE_HEADER(SoLockableSeparor);

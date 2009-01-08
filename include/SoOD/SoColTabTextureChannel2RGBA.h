@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.6 2008-11-20 16:21:53 cvskris Exp $
+ RCS:           $Id: SoColTabTextureChannel2RGBA.h,v 1.7 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ colorsequence per channel, and outputs 4 texture channels (RGBA) on the state.
 */
 
 
-class SoColTabTextureChannel2RGBA : public SoNode
+mClass SoColTabTextureChannel2RGBA : public SoNode
 { SO_NODE_HEADER(SoColTabTextureChannel2RGBA);
 public:
     static		void initClass();

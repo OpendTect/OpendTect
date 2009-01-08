@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.1 2008-10-31 18:28:50 cvskris Exp $
+ RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.2 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ colorsequence per channel, and outputs 4 texture channels (RGBA) on the state.
 */
 
 
-class SoRGBATextureChannel2RGBA : public SoNode
+mClass SoRGBATextureChannel2RGBA : public SoNode
 { SO_NODE_HEADER(SoRGBATextureChannel2RGBA);
 public:
     static		void initClass();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfoElement.h,v 1.3 2007-09-13 19:35:49 cvsnanne Exp $
+ RCS:		$Id: SoCameraInfoElement.h,v 1.4 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 */
 
-class SoCameraInfoElement : public SoInt32Element
+mClass SoCameraInfoElement : public SoInt32Element
 {
     SO_ELEMENT_HEADER(SoCameraInfoElement);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.9 2008-10-28 13:03:17 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.10 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ class SoElement;
 */
 
 
-class SoSplitTexture2: public SoNode
+mClass SoSplitTexture2: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2);
 public:
     static		void initClass();
@@ -62,7 +62,7 @@ protected:
    image was put on the state.  If the requested part is outside the source
    texture, it is clamped to edge.*/
 
-class SoSplitTexture2Part: public SoNode
+mClass SoSplitTexture2Part: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2Part);
 public:
     static		void initClass();

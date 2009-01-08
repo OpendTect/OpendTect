@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoShaderTexture2.h,v 1.3 2007-02-02 23:10:35 cvskris Exp $
+ RCS:           $Id: SoShaderTexture2.h,v 1.4 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ class SoFieldSensor;
 class SoSensor;
 
 
-class SoShaderTexture2: public SoNode
+mClass SoShaderTexture2: public SoNode
 { SO_NODE_HEADER(SoShaderTexture2);
 public:
     static		void initClass();

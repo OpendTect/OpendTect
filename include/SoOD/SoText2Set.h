@@ -35,7 +35,7 @@
 #include <Inventor/SbBox3f.h>
 
 
-class SoText2Set : public SoShape
+mClass SoText2Set : public SoShape
 {
   typedef SoShape inherited;
 

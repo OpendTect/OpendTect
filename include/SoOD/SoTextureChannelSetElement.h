@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTextureChannelSetElement.h,v 1.3 2008-11-20 16:21:53 cvskris Exp $
+ RCS:		$Id: SoTextureChannelSetElement.h,v 1.4 2009-01-08 09:27:06 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class SbImage;
 
 /*!  Element that holds one image per texture unit.  */
 
-class SoTextureChannelSetElement : public SoReplacedElement
+mClass SoTextureChannelSetElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureChannelSetElement);
 public:
