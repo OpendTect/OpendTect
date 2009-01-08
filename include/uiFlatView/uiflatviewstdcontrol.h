@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.8 2008-05-29 11:46:21 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.9 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiToolBar;
 
 /*!\brief The standard tools to control uiFlatViewer(s). */
 
-class uiFlatViewStdControl : public uiFlatViewControl
+mClass uiFlatViewStdControl : public uiFlatViewControl
 {
 public:
 

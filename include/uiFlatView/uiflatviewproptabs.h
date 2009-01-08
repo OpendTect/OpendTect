@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.10 2008-05-29 11:46:21 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.11 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiColorTable;
     
 /*!\brief flat viewer properties tabs */
 
-class uiFlatViewPropTab : public uiDlgGroup
+mClass uiFlatViewPropTab : public uiDlgGroup
 {
 public:
 
@@ -46,7 +46,7 @@ protected:
     
 /*!\brief flat viewer data display properties tabs */
 
-class uiFlatViewDataDispPropTab : public uiFlatViewPropTab
+mClass uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
     			~uiFlatViewDataDispPropTab();
@@ -90,7 +90,7 @@ protected:
     
 /*!\brief flat viewer WVA display properties tabs */
 		     
-class uiFVWVAPropTab : public uiFlatViewDataDispPropTab
+mClass uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
@@ -121,7 +121,7 @@ protected:
 
 /*!\brief flat viewer VD display properties tabs */
 
-class uiFVVDPropTab : public uiFlatViewDataDispPropTab
+mClass uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
@@ -147,7 +147,7 @@ protected:
 
 /*!\brief flat viewer annotation properties tabs */
 
-class uiFVAnnotPropTab : public uiFlatViewPropTab
+mClass uiFVAnnotPropTab : public uiFlatViewPropTab
 {
 public:
 
@@ -169,7 +169,7 @@ protected:
     
     FlatView::Annotation& annot_;
 
-    class AxesGroup : public uiGroup
+    mClass AxesGroup : public uiGroup
     {
     public:
 			AxesGroup(uiParent*,FlatView::Annotation::AxisData&,

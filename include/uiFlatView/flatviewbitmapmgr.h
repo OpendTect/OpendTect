@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbitmapmgr.h,v 1.3 2008-04-23 09:36:19 cvshelene Exp $
+ RCS:           $Id: flatviewbitmapmgr.h,v 1.4 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 namespace FlatView
 {
 
-class BitMapMgr
+mClass BitMapMgr
 {
 public:
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.h,v 1.4 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: flatviewaxesdrawer.h,v 1.5 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class Viewer;
 
 /*!\brief Axis drawer for flat viewers */
 
-class AxesDrawer : public ::DrawAxis2D
+mClass AxesDrawer : public ::DrawAxis2D
 {
 public:
     			AxesDrawer(Viewer&,uiGraphicsView&);

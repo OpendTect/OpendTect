@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.24 2008-04-08 17:31:22 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.25 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace FlatView { class ZoomMgr; class Viewer; }
 
 /*!\brief Tools to control uiFlatViewer(s). */
 
-class uiFlatViewControl : public uiGroup
+mClass uiFlatViewControl : public uiGroup
 {
 public:
 

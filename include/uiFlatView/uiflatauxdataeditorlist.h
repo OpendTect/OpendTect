@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.h,v 1.6 2007-10-16 08:29:30 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.h,v 1.7 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace FlatView { class AuxDataEditor; }
 /*!A list with all auxdata in a FlatView::AuxDataEditor where the user
    can select which one should be active for new points. */
 
-class uiFlatViewAuxDataEditorList : public uiGroup
+mClass uiFlatViewAuxDataEditorList : public uiGroup
 {
 public:
 			uiFlatViewAuxDataEditorList(uiParent*);

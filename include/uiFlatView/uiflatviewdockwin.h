@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewdockwin.h,v 1.4 2007-03-02 14:28:02 cvshelene Exp $
+ RCS:           $Id: uiflatviewdockwin.h,v 1.5 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
 
-class uiFlatViewDockWin : public uiDockWin
+mClass uiFlatViewDockWin : public uiDockWin
 			, public uiFlatViewWin
 {
 public:

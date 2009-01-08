@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewzoommgr.h,v 1.4 2007-05-07 21:58:25 cvskris Exp $
+ RCS:           $Id: flatviewzoommgr.h,v 1.5 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace FlatView
 /*!\brief Manages zoom factors. Will always provide a new zoom when forward()
           called, using fwdFac(). For back, will stop at initial. */
 
-class ZoomMgr
+mClass ZoomMgr
 {
 public:
 

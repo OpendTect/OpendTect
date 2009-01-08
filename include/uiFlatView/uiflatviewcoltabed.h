@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		May 2008
- RCS:		$Id: uiflatviewcoltabed.h,v 1.3 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:		$Id: uiflatviewcoltabed.h,v 1.4 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ class uiGroup;
 class uiParent;
 
 
-class uiFlatViewColTabEd : public CallBacker
+mClass uiFlatViewColTabEd : public CallBacker
 {
 public:
     				uiFlatViewColTabEd(uiParent*,FlatView::Viewer&);

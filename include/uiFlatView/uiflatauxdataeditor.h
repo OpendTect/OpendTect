@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdataeditor.h,v 1.1 2007-04-04 18:19:49 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditor.h,v 1.2 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 class uiFlatViewer;
 
-class uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
+mClass uiFlatViewAuxDataEditor : public FlatView::AuxDataEditor
 {
 public:
 		uiFlatViewAuxDataEditor(uiFlatViewer&);

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.h,v 1.2 2007-11-07 16:54:46 cvskris Exp $
+ RCS:           $Id: uiflatviewthumbnail.h,v 1.3 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class MouseEventHandler;
 
 /*!\brief Shows a thumbnail with current position of a uiFlatViewer. */
 
-class uiFlatViewThumbnail : public uiCanvas
+mClass uiFlatViewThumbnail : public uiCanvas
 {
 public:
     			uiFlatViewThumbnail(uiParent*,uiFlatViewer&);

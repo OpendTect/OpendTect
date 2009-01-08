@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.8 2008-11-26 16:31:46 cvsbert Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.9 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiFlatViewControl;
 
 */
 
-class uiFlatViewWin
+mClass uiFlatViewWin
 {
 public:
 

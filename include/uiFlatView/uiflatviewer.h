@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.28 2008-12-18 23:06:58 cvsyuancheng Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.29 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ class uiTextItem;
 
 /*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
 
-class uiFlatViewer : public uiGroup
+mClass uiFlatViewer : public uiGroup
 		   , public FlatView::Viewer
 {
 public:

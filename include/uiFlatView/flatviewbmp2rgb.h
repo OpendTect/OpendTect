@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbmp2rgb.h,v 1.4 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: flatviewbmp2rgb.h,v 1.5 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace FlatView
 /*!\brief Draws bitmaps on RGBArray according to FlatView specs.
 	  Assumes bitmaps are 100% aligned with array, only sizes may differ. */
 
-class BitMap2RGB
+mClass BitMap2RGB
 {
 public:
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewmainwin.h,v 1.7 2008-10-27 11:21:08 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewmainwin.h,v 1.8 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
 
-class uiFlatViewMainWin : public uiMainWin
+mClass uiFlatViewMainWin : public uiMainWin
 			, public uiFlatViewWin
 {
 public:

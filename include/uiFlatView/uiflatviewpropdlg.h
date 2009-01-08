@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.11 2008-02-18 05:51:17 cvsraman Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.12 2009-01-08 07:14:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class BufferStringSet;
 class uiGenInput;
 
 		     
-class uiFlatViewPropDlg : public uiTabStackDlg
+mClass uiFlatViewPropDlg : public uiTabStackDlg
 {
 public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
