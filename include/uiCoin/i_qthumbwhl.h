@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: i_qthumbwhl.h,v 1.5 2009-01-08 10:32:11 cvsranojay Exp $
+ RCS:           $Id: i_qthumbwhl.h,v 1.6 2009-01-08 11:28:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class QString;
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
-mClass i_ThumbWheelMessenger : public QObject 
+class i_ThumbWheelMessenger : public QObject 
 {
     Q_OBJECT
     friend class	uiThumbWheelBody;
