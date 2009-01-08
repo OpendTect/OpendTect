@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.8 2009-01-08 07:26:59 cvsranojay Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.9 2009-01-08 10:15:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
 
 			uiStratLevelSel(uiParent*,bool withlabel=true,
 					bool withdefine=true);
+			~uiStratLevelSel();
 
     const Strat::Level*	selected() const;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.12 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratlvlsel.cc,v 1.13 2009-01-08 10:15:34 cvsbert Exp $";
 
 #include "uistratlvlsel.h"
 
@@ -66,6 +66,14 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
     StratTWin().levelRemoved.notify( mCB(this,uiStratLevelSel,chgCB) );
 
     setHAlignObj( selfld_ );
+}
+
+
+uiStratLevelSel::~uiStratLevelSel()
+{
+    StratTWin().levelCreated.remove( mCB(this,uiStratLevelSel,chgCB) );
+    StratTWin().levelChanged.remove( mCB(this,uiStratLevelSel,chgCB) );
+    StratTWin().levelRemoved.remove( mCB(this,uiStratLevelSel,chgCB) );
 }
 
 
