@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.25 2009-01-07 15:58:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.26 2009-01-08 13:30:18 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
 #include "compoundkey.h"
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uidialog.h"
 #include "uigeninput.h"
@@ -23,11 +24,12 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.25 2009-01-07 15:58:39 cv
 #include "uistratmgr.h"
 #include "uistratreftree.h"
 #include "uistratutildlgs.h"
+#include "uitoolbar.h"
 
-#define	mExpandTxt	"&Expand all"
-#define	mCollapseTxt	"&Collapse all"
-#define	mEditTxt	"&Edit"
-#define	mLockTxt	"&Lock"
+#define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
+#define	mCollapseTxt(domenu)	domenu ? "&Collapse all" : "Collapse all"
+#define	mEditTxt(domenu)	domenu ? "&Unlock" : "Unlock"
+#define	mLockTxt(domenu)	domenu ? "&Lock" : "Lock"
 
 
 static const char* sNoLevelTxt      = "--- Empty ---";
@@ -60,7 +62,8 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , lithRemoved(this)		//TODO support
 {
     uistratmgr_ = new uiStratMgr( this );
-    createMenus();
+    createMenu();
+    createToolBar();
     createGroups();
     setExpCB(0);
     editCB(0);
@@ -70,6 +73,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 uiStratTreeWin::~uiStratTreeWin()
 {
     delete uitree_;
+    delete tb_;
 }
 
 
@@ -81,29 +85,46 @@ void uiStratTreeWin::popUp() const
 }
 
     
-void uiStratTreeWin::createMenus()
+void uiStratTreeWin::createMenu()
 {
     uiMenuBar* menubar = menuBar();
-    uiPopupMenu* viewmnu = new uiPopupMenu( this, "&View" );
-    expandmnuitem_ = new uiMenuItem( mExpandTxt,
+    uiPopupMenu* mnu = new uiPopupMenu( this, "&Menu" );
+    expandmnuitem_ = new uiMenuItem( mExpandTxt(true),
 				     mCB(this, uiStratTreeWin, setExpCB ) );
-    viewmnu->insertItem( expandmnuitem_ );
-    menubar->insertItem( viewmnu );
-
-    uiPopupMenu* actmnu = new uiPopupMenu( this, "&Action" );
-    editmnuitem_ = new uiMenuItem( mEditTxt, mCB(this,uiStratTreeWin,editCB) );
-    actmnu->insertItem( editmnuitem_ );
+    mnu->insertItem( expandmnuitem_ );
+    mnu->insertSeparator();
+    editmnuitem_ = new uiMenuItem( mEditTxt(true),
+	    			   mCB(this,uiStratTreeWin,editCB) );
+    mnu->insertItem( editmnuitem_ );
     savemnuitem_ = new uiMenuItem( "&Save", mCB(this,uiStratTreeWin,saveCB) );
-    actmnu->insertItem( savemnuitem_ );
-    resetmnuitem_ = new uiMenuItem( "&Reset", mCB(this,uiStratTreeWin,resetCB));
-    actmnu->insertItem( resetmnuitem_ );
-    actmnu->insertSeparator();
+    mnu->insertItem( savemnuitem_ );
+    resetmnuitem_ = new uiMenuItem( "&Reset to last saved",
+	    			    mCB(this,uiStratTreeWin,resetCB));
+    mnu->insertItem( resetmnuitem_ );
+    mnu->insertSeparator();
     openmnuitem_ = new uiMenuItem( "&Open...", mCB(this,uiStratTreeWin,openCB));
-    actmnu->insertItem( openmnuitem_ );
+    mnu->insertItem( openmnuitem_ );
     saveasmnuitem_ = new uiMenuItem( "Save&As...",
 	    			     mCB(this,uiStratTreeWin,saveAsCB) );
-    actmnu->insertItem( saveasmnuitem_ );
-    menubar->insertItem( actmnu );	    
+    mnu->insertItem( saveasmnuitem_ );
+    menubar->insertItem( mnu );	    
+}
+
+#define mDefBut(but,fnm,cbnm,tt) \
+    but = new uiToolButton( tb_, 0, ioPixmap(fnm), \
+			    mCB(this,uiStratTreeWin,cbnm) ); \
+    but->setToolTip( tt ); \
+    tb_->addObject( but );
+
+
+void uiStratTreeWin::createToolBar()
+{
+    tb_ = new uiToolBar( this, "Stratigraphy Manager Tools" );
+    mDefBut(colexpbut_,"collapse_tree.png",setExpCB,mCollapseTxt(false));
+    tb_->addSeparator();
+    mDefBut(lockbut_,"unlock.png",editCB,mEditTxt(false));
+//    mDefBut(openbut_,"openset.png",openCB,"Open"); not implemented yet
+    mDefBut(savebut_,"saveset.png",saveCB,"Save");
 }
 
 
@@ -139,9 +160,12 @@ void uiStratTreeWin::createGroups()
 
 void uiStratTreeWin::setExpCB( CallBacker* )
 {
-    bool expand = !strcmp( expandmnuitem_->text(), mExpandTxt );
+    bool expand = !strcmp( expandmnuitem_->text(), mExpandTxt(true) );
     uitree_->expand( expand );
-    expandmnuitem_->setText( expand ? mCollapseTxt : mExpandTxt );
+    expandmnuitem_->setText( expand ? mCollapseTxt(true) : mExpandTxt(true) );
+    colexpbut_->setPixmap( expand ? ioPixmap("collapse_tree.png")
+	    			  : ioPixmap("expand_tree.png") );
+    colexpbut_->setToolTip( expand ? mCollapseTxt(false) : mExpandTxt(false) );
 }
 
 
@@ -169,9 +193,12 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
 
 void uiStratTreeWin::editCB( CallBacker* )
 {
-    bool doedit = !strcmp( editmnuitem_->text(), mEditTxt );
+    bool doedit = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uitree_->makeTreeEditable( doedit );
-    editmnuitem_->setText( doedit ? mLockTxt : mEditTxt );
+    editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
+    lockbut_->setPixmap( doedit ? ioPixmap("readonly.png")
+	    			: ioPixmap("unlock.png") );
+    lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
     if ( doedit )
 	uistratmgr_->createTmpTree( false );
 }
@@ -181,7 +208,7 @@ void uiStratTreeWin::resetCB( CallBacker* )
 {
     const Strat::RefTree* bcktree = uistratmgr_->getBackupTree();
     if ( !bcktree ) return;
-    bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt );
+    bool iseditmode = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uistratmgr_->reset( iseditmode );
     uitree_->setTree( bcktree, true );
     uitree_->expand( true );
@@ -214,7 +241,7 @@ void uiStratTreeWin::selLvlChgCB( CallBacker* )
 
 void uiStratTreeWin::rClickLvlCB( CallBacker* )
 {
-    if ( strcmp( editmnuitem_->text(), mLockTxt ) ) return;
+    if ( strcmp( editmnuitem_->text(), mLockTxt(true) ) ) return;
     int curit = lvllistfld_->currentItem();
     uiPopupMenu mnu( this, "Action" );
     mnu.insertItem( new uiMenuItem("Create &New ..."), 0 );

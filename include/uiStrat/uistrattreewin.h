@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.16 2009-01-08 07:27:00 cvsranojay Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.17 2009-01-08 13:30:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ class uiStratLinkLvlUnitDlg;
 class uiStratMgr;
 class uiStratRefTree;
 class uiStratTreeWin;
+class uiToolBar;
+class uiToolButton;
 namespace Strat{ class Level; }
 
 const uiStratTreeWin& StratTWin();
@@ -61,8 +63,14 @@ protected:
     uiMenuItem*			saveasmnuitem_;
     uiMenuItem*			openmnuitem_;
     uiMenuItem*			resetmnuitem_;
+    uiToolBar*			tb_;
+    uiToolButton*		colexpbut_;
+    uiToolButton*		lockbut_;
+    uiToolButton*		openbut_;
+    uiToolButton*		savebut_;
 
-    void			createMenus();
+    void			createMenu();
+    void			createToolBar();
     void			createGroups();
 
     void			fillLvlList();
