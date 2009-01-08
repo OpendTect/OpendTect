@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.58 2009-01-08 11:11:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.59 2009-01-08 11:31:09 cvsbert Exp $";
 
 
 #include "uisurfaceman.h"
@@ -256,7 +256,7 @@ void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 void uiSurfaceMan::mkFileInfo()
 {
 #define mAddRangeTxt(line) \
-    if ( sd.rg.start.line >= mUdf(int) ) \
+    if ( !haverg ) \
 	txt += "-\n"; \
     else \
     { \
@@ -270,10 +270,14 @@ void uiSurfaceMan::mkFileInfo()
     if ( !res )
     {
 	fillAttribList( sd.valnames );
+	const bool haverg = sd.rg.start.inl < mUdf(int);
 	if ( isCur2D() || isCurFault() )
 	{
 	    txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
-	    txt += sd.rg.stop.inl - sd.rg.start.inl + 1; 
+	    if ( haverg )
+		txt += sd.rg.stop.inl - sd.rg.start.inl + 1; 
+	    else
+		txt += "-";
 	    txt += "\n";
 	}
 	else
