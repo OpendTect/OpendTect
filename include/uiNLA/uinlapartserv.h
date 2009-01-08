@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.23 2008-12-08 12:51:59 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.24 2009-01-08 08:15:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ will expect that go() to be called again.
 
  */
 
-class uiNLAPartServer : public uiApplPartServer
+mClass uiNLAPartServer : public uiApplPartServer
 {
 public:
 			uiNLAPartServer(uiApplService&);
