@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.10 2008-07-21 08:49:38 cvsumesh Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.11 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 
 
-class uiSeisIOObjInfo
+mClass uiSeisIOObjInfo
 {
 public:
 

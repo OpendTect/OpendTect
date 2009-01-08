@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyreaddlg.h,v 1.3 2008-11-14 14:46:17 cvsbert Exp $
+ RCS:           $Id: uisegyreaddlg.h,v 1.4 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,11 @@ class uiSEGYFileOpts;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-class uiSEGYReadDlg : public uiDialog
+mClass uiSEGYReadDlg : public uiDialog
 {
 public :
 
-    class Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
 

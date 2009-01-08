@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.6 2008-10-21 14:14:15 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.7 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class SeisTrcReader;
 class SEGYSeisTrcTranslator;
 
 
-class uiSEGYExamine : public uiDialog
+mClass uiSEGYExamine : public uiDialog
 {
 public:
 

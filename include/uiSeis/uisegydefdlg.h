@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.9 2008-11-12 14:28:19 cvsbert Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.10 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class IOObj;
 
 /*!\brief Initial dialog for SEG-Y I/O. */
 
-class uiSEGYDefDlg : public uiDialog
+mClass uiSEGYDefDlg : public uiDialog
 {
 public:
 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uiseis2dgeom.h,v 1.2 2004-12-10 16:57:41 bert Exp $
+ RCS:           $Id: uiseis2dgeom.h,v 1.3 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiGenInput;
 class uiFileInput;
 
 
-class uiSeisDump2DGeom : public uiDialog
+mClass uiSeisDump2DGeom : public uiDialog
 {
 public:
                         uiSeisDump2DGeom(uiParent*,const IOObj* ioobj=0);

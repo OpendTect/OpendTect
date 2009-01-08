@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.15 2008-05-21 08:40:40 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.16 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class uiTable;
 class uiGenInput;
 
 
-class uiSeisBrowserInfoDlg : public uiDialog
+mClass uiSeisBrowserInfoDlg : public uiDialog
 {
     public :
 			uiSeisBrowserInfoDlg(uiParent*,const SeisTrc&,bool);
@@ -45,11 +45,11 @@ class uiSeisBrowserInfoDlg : public uiDialog
 };
 
 
-class uiSeisBrowser : public uiDialog
+mClass uiSeisBrowser : public uiDialog
 {
 public :
 
-    class Setup : public uiDialog::Setup
+    mClass Setup : public uiDialog::Setup
     {
     public:
     			Setup( const MultiID& mid, Seis::GeomType gt )

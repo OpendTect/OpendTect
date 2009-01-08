@@ -21,7 +21,7 @@ class uiSeparator;
 class uiSeisSubSel;
 
 
-class uiSeisIOSimple : public uiDialog
+mClass uiSeisIOSimple : public uiDialog
 {
 public:
 

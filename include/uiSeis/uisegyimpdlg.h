@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyimpdlg.h,v 1.9 2008-10-16 16:31:59 cvsbert Exp $
+ RCS:           $Id: uisegyimpdlg.h,v 1.10 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiSeisTransfer;
 
 /*!\brief Dialog to import SEG-Y files after basic setup. */
 
-class uiSEGYImpDlg : public uiSEGYReadDlg
+mClass uiSEGYImpDlg : public uiSEGYReadDlg
 {
 public :
 

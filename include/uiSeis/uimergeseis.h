@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.9 2008-03-07 12:39:46 cvsbert Exp $
+ RCS:           $Id: uimergeseis.h,v 1.10 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiSeisSel;
 class uiGenInput;
 
 
-class uiMergeSeis : public uiDialog
+mClass uiMergeSeis : public uiDialog
 {
 public:
                         uiMergeSeis(uiParent*);

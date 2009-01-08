@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.14 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.15 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 class uiToolButton;
 
 
-class uiSeisFileMan : public uiObjFileMan
+mClass uiSeisFileMan : public uiObjFileMan
 {
 public:
 			uiSeisFileMan(uiParent*);

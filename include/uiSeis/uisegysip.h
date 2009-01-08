@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2004
- RCS:           $Id: uisegysip.h,v 1.5 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:           $Id: uisegysip.h,v 1.6 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uisip.h"
 
 
-class uiSEGYSurvInfoProvider : public uiSurvInfoProvider
+mClass uiSEGYSurvInfoProvider : public uiSurvInfoProvider
 {
 public:
 

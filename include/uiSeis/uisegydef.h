@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydef.h,v 1.10 2008-11-12 14:28:19 cvsbert Exp $
+ RCS:           $Id: uisegydef.h,v 1.11 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace SEGY { class TrcHeaderDef; class FileSpec; class FilePars; }
 
 /*!\brief base class for specification of SEG-Y file stuff */
 
-class uiSEGYDefGroup : public uiGroup
+mClass uiSEGYDefGroup : public uiGroup
 {
 public:
     			uiSEGYDefGroup( uiParent* p, const char* grpnm,
@@ -48,10 +48,10 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y in- or output file(s) */
 
-class uiSEGYFileSpec : public uiSEGYDefGroup
+mClass uiSEGYFileSpec : public uiSEGYDefGroup
 {
 public:
-    class Setup
+    mClass Setup
     {
     public:
 			Setup()
@@ -90,7 +90,7 @@ protected:
 
 /*!\brief UI for Specification of SEG-Y information needed to examine */
 
-class uiSEGYFilePars : public uiSEGYDefGroup
+mClass uiSEGYFilePars : public uiSEGYDefGroup
 {
 public:
     			uiSEGYFilePars(uiParent*,bool forread,IOPar* iop=0);
@@ -122,11 +122,11 @@ protected:
  
  */
 
-class uiSEGYFileOpts : public uiSEGYDefGroup
+mClass uiSEGYFileOpts : public uiSEGYDefGroup
 {
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
 				Setup( Seis::GeomType gt,

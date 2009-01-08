@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          August 2008
- RCS:           $Id: uimultcomputils.h,v 1.3 2008-12-12 15:00:30 cvshelene Exp $
+ RCS:           $Id: uimultcomputils.h,v 1.4 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 class LineKey;
 class uiListBox;
 
-class uiMultCompDlg : public uiDialog
+mClass uiMultCompDlg : public uiDialog
 {
 public:
 			uiMultCompDlg(uiParent*,LineKey);

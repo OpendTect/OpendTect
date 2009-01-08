@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.9 2008-08-22 06:59:00 cvsnanne Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.10 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiSeisTransfer;
 
 /*!\brief Actually imports or just transfers data through selection */
 
-class uiSeisImpCBVS : public uiDialog
+mClass uiSeisImpCBVS : public uiDialog
 {
 public:
 

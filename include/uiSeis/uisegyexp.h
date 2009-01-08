@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyexp.h,v 1.3 2008-10-10 14:08:28 cvsbert Exp $
+ RCS:           $Id: uisegyexp.h,v 1.4 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiSEGYFileSpec;
 class uiSEGYExpTxtHeader;
 
 
-class uiSEGYExp : public uiDialog
+mClass uiSEGYExp : public uiDialog
 {
 public:
 

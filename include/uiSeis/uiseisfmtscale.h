@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.14 2008-10-01 10:51:39 cvsbert Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.15 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiGenInput;
 class uiSeisFmtScaleComp;
 
 
-class uiSeisFmtScale : public uiGroup
+mClass uiSeisFmtScale : public uiGroup
 {
 public:
 

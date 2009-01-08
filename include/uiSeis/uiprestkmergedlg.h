@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.h,v 1.4 2008-03-31 08:22:51 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.h,v 1.5 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiToolButton;
 /*! \brief: setup a dialog where the user can select a set of Pre-stack volumes and merge them into one. The priority order decides which volume to use in case of an overlap.
 */
 
-class uiPreStackMergeDlg : public uiDialog
+mClass uiPreStackMergeDlg : public uiDialog
 {
 public:
 
