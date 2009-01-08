@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.89 2008-12-29 10:05:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.90 2009-01-08 16:16:41 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -51,6 +51,7 @@ IOMan::IOMan( const char* rd )
     	, surveyToBeChanged(this)
     	, surveyChanged(this)
     	, afterSurveyChange(this)
+    	, applicationClosing(this)
 {
     rootdir = rd && *rd ? rd : GetDataDir();
     if ( !File_isDirectory(rootdir) )

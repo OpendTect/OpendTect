@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.36 2008-12-29 11:14:26 cvsranojay Exp $
+ RCS:		$Id: ioman.h,v 1.37 2009-01-08 16:16:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,8 @@ public:
     Notifier<IOMan>	surveyChanged;     // These restore OD to normal state
     Notifier<IOMan>	afterSurveyChange; // These operate in normal state
 
+    Notifier<IOMan>	applicationClosing; // 'Final' call ...
+
 private:
 
     enum State		{ Bad, NeedInit, Good };
@@ -138,7 +140,10 @@ private:
 
     friend class	IOObj;
     friend class	IODir;
+    friend class	uiODMain;
     friend mGlobal	IOMan&	IOM();
+
+    void		applClosing()	{ applicationClosing.trigger(); }
 
 };
 
