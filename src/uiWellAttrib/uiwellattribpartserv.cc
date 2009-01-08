@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.10 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.11 2009-01-08 15:47:48 cvsbert Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.10 2008-11-25 15:35
 #include "attribdescset.h"
 #include "uicreateattriblogdlg.h"
 #include "uiwellattribxplot.h"
+#include "uiwellimpsegyvsp.h"
 
 #include "ptrman.h"
 #include "ioobj.h"
@@ -30,6 +31,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.10 2008-11-25 15:35
 #include "uimsg.h"
 
 const int uiWellAttribPartServer::evShowPickSet	= 0;
+
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -60,6 +62,13 @@ void uiWellAttribPartServer::setAttribSet( const Attrib::DescSet& ads )
 void uiWellAttribPartServer::setNLAModel( const NLAModel* mdl )
 {
     nlamodel = mdl;
+}
+
+
+void uiWellAttribPartServer::importSEGYVSP()
+{
+    uiWellImportSEGYVSP dlg( parent() );
+    dlg.go();
 }
 
 

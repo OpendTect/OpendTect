@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.282 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.283 2009-01-08 15:47:48 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -284,6 +284,8 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 		wellserv_->importLogs();
 	    else if ( opt == 2 )
 		wellserv_->importMarkers();
+	    else if ( opt == 3 )
+		wellattrserv_->importSEGYVSP();
 
 	break;
 	case Man:	wellserv_->manageWells();	break;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.148 2008-12-11 21:42:52 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.149 2009-01-08 15:47:48 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -216,6 +216,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impwellasc, "&Logs ...", mImpWellAsciiLogsMnuItm );
     mInsertItem( impwellasc, "&Markers ...", mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
+    mInsertItem( impwell, "&SEG-Y VSP ...", mImpWellSEGYVSPMnuItm );
 
     impmnus_.erase();
     impmnus_.allowNull();
@@ -667,6 +668,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm: mDoOp(Imp,Wll,2); break;
+    case mImpWellSEGYVSPMnuItm: mDoOp(Imp,Wll,3); break;
     case mImpPickMnuItm: 	mDoOp(Imp,Pick,0); break;
     case mExpPickMnuItm: 	mDoOp(Exp,Pick,0); break;
     case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;

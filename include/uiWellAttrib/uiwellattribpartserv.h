@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.8 2009-01-08 09:18:28 cvsranojay Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.9 2009-01-08 15:47:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
     const NLAModel*		getNLAModel()		{ return nlamodel;}
+    void			importSEGYVSP();
 
     const char*			name() const		{ return "Wells"; }
 
