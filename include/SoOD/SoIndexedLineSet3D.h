@@ -9,7 +9,7 @@
 class SbBox3f;
 class SbVec3f;
 
-mClass SoIndexedLineSet3D : public SoIndexedShape
+class COIN_DLL_API SoIndexedLineSet3D : public SoIndexedShape
 {
     SO_NODE_HEADER(SoIndexedLineSet3D);
 public:

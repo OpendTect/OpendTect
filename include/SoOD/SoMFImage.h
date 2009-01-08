@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoMFImage.h,v 1.2 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:           $Id: SoMFImage.h,v 1.3 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ The SoMFPlane class is a container for SbImage values.
 This field is used where nodes, engines or other field containers needs to store
 multiple 2d or 3d images. */ 
 
-mClass SoMFImage : public SoMField
+class COIN_DLL_API SoMFImage : public SoMField
 {
     SO_MFIELD_HEADER( SoMFImage, SbImage, const SbImage& );
 

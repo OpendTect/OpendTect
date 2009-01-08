@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoManLevelOfDetail.h,v 1.5 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoManLevelOfDetail.h,v 1.6 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ to SO_MANLEVELOFDETAIL_AUTO
 */
 
 
-mClass SoManLevelOfDetail : public SoGroup {
+class COIN_DLL_API SoManLevelOfDetail : public SoGroup {
     typedef SoGroup inherited;
 
     SO_NODE_HEADER(SoManLevelOfDetail);

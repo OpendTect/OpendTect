@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoTextureChannelSet.h,v 1.2 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:           $Id: SoTextureChannelSet.h,v 1.3 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class SoSensor;
 */
 
 
-mClass SoTextureChannelSet : public SoNode
+class COIN_DLL_API SoTextureChannelSet : public SoNode
 { SO_NODE_HEADER(SoTextureChannelSet);
 public:
     static		void initClass();

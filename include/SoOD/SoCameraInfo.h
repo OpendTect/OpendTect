@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfo.h,v 1.3 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoCameraInfo.h,v 1.4 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -22,7 +22,7 @@ ________________________________________________________________________
 Puts information about the camera/rendertype into the state.
 */
 
-mClass SoCameraInfo : public SoNode
+class COIN_DLL_API SoCameraInfo : public SoNode
 {
     SO_NODE_HEADER(SoCameraInfo);
     typedef SoNode inherited;

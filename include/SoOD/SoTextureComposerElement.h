@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		September 2008
- RCS:		$Id: SoTextureComposerElement.h,v 1.6 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoTextureComposerElement.h,v 1.7 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class SbImage;
 /* Element that holds one the active texture units for for SoTextureComposer
    and their transparency status. */
 
-mClass SoTextureComposerElement : public SoReplacedElement
+class COIN_DLL_API SoTextureComposerElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureComposerElement);
 public:

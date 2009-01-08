@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraFacingZAxisRotation.h,v 1.2 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoCameraFacingZAxisRotation.h,v 1.3 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 */
 
-mClass SoCameraFacingZAxisRotation : public SoTransformation
+class COIN_DLL_API SoCameraFacingZAxisRotation : public SoTransformation
 {
     typedef SoTransformation inherited;
     SO_NODE_HEADER(SoCameraFacingZAxisRotation);

@@ -43,7 +43,7 @@ class SbColor;
 class SbVec2s;
 
 
-mClass LegendKit : public SoBaseKit {
+class COIN_DLL_API LegendKit : public SoBaseKit {
   typedef SoBaseKit inherited;
 
   SO_KIT_HEADER(LegendKit);

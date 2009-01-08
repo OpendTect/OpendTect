@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Sep 2008
- RCS:           $Id: SoTextureComposer.h,v 1.6 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:           $Id: SoTextureComposer.h,v 1.7 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ class SbImage;
 /*!  */
 
 
-mClass SoTextureComposer: public SoNode
+class COIN_DLL_API SoTextureComposer: public SoNode
 { SO_NODE_HEADER(SoTextureComposer);
 public:
     static		void initClass();
@@ -75,7 +75,7 @@ protected:
 };
 
 
-mClass SoTextureComposerInfo : public SoNode
+class COIN_DLL_API SoTextureComposerInfo : public SoNode
 { SO_NODE_HEADER(SoTextureComposerInfo );
 public:
     static		void initClass();

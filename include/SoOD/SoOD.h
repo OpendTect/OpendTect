@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.5 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoOD.h,v 1.6 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 /*!\brief A function that initiases the OpendTect Inventor classes. */
 
-mClass SoOD
+class SoOD
 {
 public:
 static int		supportsFragShading();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.7 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.8 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ A TabPlaneDragger where the moving on moves the dragger in z direction
 to how small the dragger is allowed to be.
 */
 
-mClass SoDepthTabPlaneDragger : public SoDragger
+class COIN_DLL_API SoDepthTabPlaneDragger : public SoDragger
 {
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoDepthTabPlaneDragger);

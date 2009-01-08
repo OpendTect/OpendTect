@@ -39,7 +39,7 @@
 class ViewportRegionP;
 
 
-mClass ViewportRegion : public SoNode {
+class COIN_DLL_API ViewportRegion : public SoNode {
   typedef SoNode inherited;
 
   SO_NODE_HEADER(ViewportRegion);

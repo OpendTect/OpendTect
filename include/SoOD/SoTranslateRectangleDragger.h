@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTranslateRectangleDragger.h,v 1.4 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoTranslateRectangleDragger.h,v 1.5 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ inserted in the prefixgroup.
 
 class SbLineProjector;
 
-mClass SoTranslateRectangleDragger : public SoDragger
+class COIN_DLL_API SoTranslateRectangleDragger : public SoDragger
 {
     SO_KIT_HEADER( SoTranslateRectangleDragger );
     

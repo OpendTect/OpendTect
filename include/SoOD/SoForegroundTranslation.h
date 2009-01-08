@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoForegroundTranslation.h,v 1.6 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoForegroundTranslation.h,v 1.7 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ it represents.
 
 */
 
-mClass SoForegroundTranslation : public SoNode
+class COIN_DLL_API SoForegroundTranslation : public SoNode
 {
     typedef SoNode		inherited;
     SO_NODE_HEADER(SoForegroundTranslation);

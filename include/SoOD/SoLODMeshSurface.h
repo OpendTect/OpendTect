@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoLODMeshSurface.h,v 1.8 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoLODMeshSurface.h,v 1.9 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -95,7 +95,7 @@ meshStyle
 */
 
 
-mClass SoLODMeshSurface : public SoShape
+class COIN_DLL_API SoLODMeshSurface : public SoShape
 {
     SO_NODE_HEADER(SoLODMeshSurface);
 public:

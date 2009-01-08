@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoScale3Dragger.h,v 1.3 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoScale3Dragger.h,v 1.4 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ class SoFieldSensor;
 
 class SbLineProjector;
 
-mClass SoScale3Dragger : public SoDragger
+class COIN_DLL_API SoScale3Dragger : public SoDragger
 {
     SO_KIT_HEADER( SoScale3Dragger );
 

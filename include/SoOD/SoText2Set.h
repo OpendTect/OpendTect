@@ -35,7 +35,7 @@
 #include <Inventor/SbBox3f.h>
 
 
-mClass SoText2Set : public SoShape
+class COIN_DLL_API SoText2Set : public SoShape
 {
   typedef SoShape inherited;
 

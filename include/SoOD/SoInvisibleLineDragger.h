@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		October 2007
- RCS:		$Id: SoInvisibleLineDragger.h,v 1.2 2009-01-08 09:27:06 cvsranojay Exp $
+ RCS:		$Id: SoInvisibleLineDragger.h,v 1.3 2009-01-08 09:48:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ read in SoInvisibleLineDragger::translation following a Motion or Start
 callback.
 */
 
-mClass SoInvisibleLineDragger : public SoDragger
+class COIN_DLL_API SoInvisibleLineDragger : public SoDragger
 {
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoInvisibleLineDragger);
