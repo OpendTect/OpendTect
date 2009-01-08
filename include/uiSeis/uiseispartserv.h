@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.32 2008-10-17 13:06:53 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.33 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ namespace Geometry { class RandomLine; }
 
 /*! \brief Seismic User Interface Part Server */
 
-class uiSeisPartServer : public uiApplPartServer
+mClass uiSeisPartServer : public uiApplPartServer
 {
 public:
 			uiSeisPartServer(uiApplService&);

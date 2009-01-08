@@ -20,7 +20,7 @@ class uiFileInput;
 class uiSeparator;
 class uiSeisSubSel;
 
-
+ 
 mClass uiSeisIOSimple : public uiDialog
 {
 public:

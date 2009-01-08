@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.33 2008-12-10 16:16:33 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.34 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiSeisIOObjInfo;
 class uiListBox;
 
-class uiSeisSel : public uiIOObjSel
+mClass uiSeisSel : public uiIOObjSel
 {
 public:
 
@@ -83,7 +83,7 @@ protected:
 };
 
 
-class uiSeisSelDlg : public uiIOObjSelDlg
+mClass uiSeisSelDlg : public uiIOObjSelDlg
 {
 public:
 
@@ -109,7 +109,7 @@ protected:
 };
 
 
-class uiSeisLineSel : public uiCompoundParSel
+mClass uiSeisLineSel : public uiCompoundParSel
 {
 public:
 

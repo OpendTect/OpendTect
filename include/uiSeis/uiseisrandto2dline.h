@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.h,v 1.1 2008-05-16 11:36:36 cvsraman Exp $
+ RCS:		$Id: uiseisrandto2dline.h,v 1.2 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiGenInput;
 
 namespace Geometry { class RandomLine; }
 
-class uiSeisRandTo2DLineDlg : public uiDialog
+mClass uiSeisRandTo2DLineDlg : public uiDialog
 {
 public:
     			uiSeisRandTo2DLineDlg(uiParent*,

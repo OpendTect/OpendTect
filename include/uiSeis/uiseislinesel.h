@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.9 2008-12-11 08:44:06 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.10 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class CtxtIOObj;
 class IOObj;
 
 
-class uiSeis2DLineSubSel : public uiDialog
+mClass uiSeis2DLineSubSel : public uiDialog
 {
 public:
     					uiSeis2DLineSubSel(uiParent*,
@@ -64,7 +64,7 @@ protected:
 };
 
 
-class uiSelection2DParSel : public uiCompoundParSel
+mClass uiSelection2DParSel : public uiCompoundParSel
 {
 public:
     				uiSelection2DParSel(uiParent*);

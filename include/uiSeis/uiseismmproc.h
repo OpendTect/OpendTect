@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uiseismmproc.h,v 1.37 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:           $Id: uiseismmproc.h,v 1.38 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class SeisJobExecProv;
 class uiLabeledListBox;
 
 
-class uiSeisMMProc : public uiDialog
+mClass uiSeisMMProc : public uiDialog
 {
 public:
                         uiSeisMMProc(uiParent*,const IOPar&,

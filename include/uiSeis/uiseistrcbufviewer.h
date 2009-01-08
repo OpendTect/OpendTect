@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.10 2008-01-10 11:16:13 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.11 2009-01-08 08:31:03 cvsranojay Exp $
 _______________________________________________________________________
 
 -*/
@@ -23,11 +23,11 @@ _______________________________________________________________________
 class BufferString;
 
 
-class uiSeisTrcBufViewer : public uiFlatViewMainWin
+mClass uiSeisTrcBufViewer : public uiFlatViewMainWin
 {
 public:
 
-    class Setup : public uiFlatViewMainWin::Setup
+    mClass Setup : public uiFlatViewMainWin::Setup
     {
     public:
 			Setup( const char* wintitl, const int nrvwrs)

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.26 2008-11-17 13:04:40 cvsumesh Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.27 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class uiSelSubline;
 class uiLineSel;
 
 
-class uiSeisSubSel : public uiGroup
+mClass uiSeisSubSel : public uiGroup
 {
 public:
 
@@ -68,7 +68,7 @@ protected:
 };
 
 
-class uiSeis3DSubSel : public uiSeisSubSel
+mClass uiSeis3DSubSel : public uiSeisSubSel
 {
 public:
 
@@ -80,7 +80,7 @@ public:
 };
 
 
-class uiSeis2DSubSel : public uiSeisSubSel
+mClass uiSeis2DSubSel : public uiSeisSubSel
 { 	
 public:
 

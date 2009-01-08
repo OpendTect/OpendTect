@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseiswvltman.h,v 1.8 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.9 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiFlatViewer;
 template <class T> class Array2D;
 
 
-class uiSeisWvltMan : public uiObjFileMan
+mClass uiSeisWvltMan : public uiObjFileMan
 {
 public:
 			uiSeisWvltMan(uiParent*);

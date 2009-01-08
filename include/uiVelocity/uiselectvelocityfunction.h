@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2006
- RCS:           $Id: uiselectvelocityfunction.h,v 1.1 2008-07-22 17:39:21 cvskris Exp $
+ RCS:           $Id: uiselectvelocityfunction.h,v 1.2 2009-01-08 08:37:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class FunctionSource;
 
 //!uiGroup to select a velocity function type
 
-class uiFunctionSel : public uiGroup
+mClass uiFunctionSel : public uiGroup
 {
 public:
 
@@ -61,7 +61,7 @@ protected:
 
 
 //!Base class for velocity function settings
-class uiFunctionSettings : public uiGroup
+mClass uiFunctionSettings : public uiGroup
 {
 public:
     mDefineFactory2ParamInClass( uiFunctionSettings, uiParent*,
@@ -76,7 +76,7 @@ public:
 
 
 
-class uiAddFunction : public uiDialog
+mClass uiAddFunction : public uiDialog
 {
 public:
     				uiAddFunction( uiParent* );
@@ -90,7 +90,7 @@ public:
 };
 
 
-class uiEditFunction : public uiDialog
+mClass uiEditFunction : public uiDialog
 {
 public:
     				uiEditFunction( uiParent*,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocityfunctionvolume.h,v 1.1 2008-07-22 17:39:21 cvskris Exp $
+ RCS:		$Id: uivelocityfunctionvolume.h,v 1.2 2009-01-08 08:37:00 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace Vel
 {
 class VolumeFunctionSource;
 
-class uiVolumeFunction : public uiFunctionSettings
+mClass uiVolumeFunction : public uiFunctionSettings
 {
 public:
     static void		initClass();

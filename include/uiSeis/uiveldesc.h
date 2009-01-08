@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.4 2008-12-19 22:15:12 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.5 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class CtxtIOObj;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
-class uiVelocityDesc : public uiGroup
+mClass uiVelocityDesc : public uiGroup
 {
 public:
     				uiVelocityDesc(uiParent*,const VelocityDesc&);
@@ -38,7 +38,7 @@ protected:
 
 
 /*!Dialog that allows the user to edit VelocityDesc information. */
-class uiVelocityDescDlg : public uiDialog
+mClass uiVelocityDescDlg : public uiDialog
 {
 public:
     			uiVelocityDescDlg(uiParent*,const IOObj* cursel);
@@ -60,7 +60,7 @@ protected:
 //!Field that selects a velocity volume, and edit it's properties/velocity tag
 
 
-class uiVelSel : public uiSeisSel
+mClass uiVelSel : public uiSeisSel
 {
 public:
     				uiVelSel(uiParent*,CtxtIOObj&,

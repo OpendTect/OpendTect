@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.25 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.26 2009-01-08 08:31:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,11 @@ class uiSeisFmtScale;
 namespace Seis { class SelData; }
 
 
-class uiSeisTransfer : public uiGroup
+mClass uiSeisTransfer : public uiGroup
 {
 public:
 
-    class Setup : public Seis::SelSetup
+    mClass Setup : public Seis::SelSetup
     {
     public:
 			Setup( Seis::GeomType gt )

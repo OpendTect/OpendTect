@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.h,v 1.2 2008-09-02 07:16:42 cvsumesh Exp $
+ RCS:		$Id: uivelocityfunctionimp.h,v 1.3 2009-01-08 08:37:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Table { class FormatDesc; }
 namespace Vel
 {
 
-class uiImportVelFunc : public uiDialog
+mClass uiImportVelFunc : public uiDialog
 {
 public:
     			uiImportVelFunc(uiParent*);
