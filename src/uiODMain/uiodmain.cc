@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.109 2009-01-08 16:16:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.110 2009-01-08 16:20:56 cvsbert Exp $";
 
 #include "uiodmain.h"
 
@@ -182,7 +182,6 @@ uiODMain::uiODMain( uicMain& a )
     , sessionSave(this)
     , sessionRestore(this)
     , justBeforeGo(this)
-    , applicationClosing(this)
 {
     BufferString icntxt( "OpendTect V", GetFullODVersion() );
     setIconText( icntxt.buf() );
@@ -641,7 +640,6 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 bool uiODMain::closeOK()
 {
     saveSettings();
-    applicationClosing.trigger();
     IOM().applClosing();
 
     if ( failed_ ) return true;

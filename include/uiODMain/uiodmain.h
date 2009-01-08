@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.19 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:           $Id: uiodmain.h,v 1.20 2009-01-08 16:20:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,6 @@ public:
     					//!< notification, to get/put data
 
     Notifier<uiODMain>	justBeforeGo;	//!< Scenes inited, auto-plugins loaded
-    Notifier<uiODMain>	applicationClosing;//!< Prepare for shutdown
 
     bool		askStore(bool& askedanything);
     			/*!< Asks user if session, picksets or attributesets

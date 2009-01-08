@@ -6,13 +6,14 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2009
- RCS:           $Id: uiwellimpsegyvsp.h,v 1.1 2009-01-08 15:47:48 cvsbert Exp $
+ RCS:           $Id: uiwellimpsegyvsp.h,v 1.2 2009-01-08 16:20:56 cvsbert Exp $
  _______________________________________________________________________
 
       -*/
 
 
 #include "uidialog.h"
+#include "iopar.h"
 class uiSEGYVSPBasicPars;
 
 
@@ -23,8 +24,12 @@ public:
 				~uiWellImportSEGYVSP();
 
 protected:
-    
+
     uiSEGYVSPBasicPars*		bparsfld_;
+
+    IOPar			sgypars_;
+
+    friend class		uiSEGYVSPBasicPars;
 
 };
 
