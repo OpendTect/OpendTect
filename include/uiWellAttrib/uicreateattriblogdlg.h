@@ -6,7 +6,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.h,v 1.3 2008-04-30 04:01:02 cvssatyaki Exp $
+ RCS:           $Id: uicreateattriblogdlg.h,v 1.4 2009-01-08 09:18:28 cvsranojay Exp $
  _______________________________________________________________________
 
       -*/
@@ -23,7 +23,7 @@ class uiAttrSel;
 class uiListBox;
 class uiGenInput;
 
-class uiCreateAttribLogDlg : public uiDialog
+mClass uiCreateAttribLogDlg : public uiDialog
 {
 public:
     				uiCreateAttribLogDlg(uiParent*,

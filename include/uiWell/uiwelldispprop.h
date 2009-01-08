@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.9 2008-12-24 15:58:12 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.10 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,11 @@ namespace Well
     class LogSet;
 }
 
-class uiWellDispProperties : public uiGroup
+mClass uiWellDispProperties : public uiGroup
 {
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
 			Setup( const char* sztxt=0, const char* coltxt=0 )
@@ -71,7 +71,7 @@ protected:
 };
 
 
-class uiWellTrackDispProperties : public uiWellDispProperties
+mClass uiWellTrackDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellTrackDispProperties(uiParent*,const Setup&,
@@ -90,7 +90,7 @@ protected:
 };
 
 
-class uiWellMarkersDispProperties : public uiWellDispProperties
+mClass uiWellMarkersDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellMarkersDispProperties(uiParent*,const Setup&,
@@ -108,7 +108,7 @@ protected:
 
 };
 
-class uiWellLogDispProperties : public uiWellDispProperties
+mClass uiWellLogDispProperties : public uiWellDispProperties
 {
 public:
     			uiWellLogDispProperties(uiParent*,const Setup&,

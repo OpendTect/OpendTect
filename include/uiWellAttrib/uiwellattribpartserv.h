@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.7 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.8 2009-01-08 09:18:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Pick { class Set; }
 
 /*! \brief Part Server for Wells */
 
-class uiWellAttribPartServer : public uiApplPartServer
+mClass uiWellAttribPartServer : public uiApplPartServer
 {
 public:
 				uiWellAttribPartServer(uiApplService&);

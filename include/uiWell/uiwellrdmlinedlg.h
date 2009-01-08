@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.6 2008-05-22 11:08:57 cvssatyaki Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.7 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ class uiWellPartServer;
 
 */
 
-class uiWell2RandomLineDlg : public uiDialog
+mClass uiWell2RandomLineDlg : public uiDialog
 {
 public:
     			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);

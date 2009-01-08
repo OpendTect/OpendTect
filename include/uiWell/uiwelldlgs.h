@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.28 2008-02-19 11:20:30 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.29 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ namespace Well { class Data; class D2TModel; };
 
 /*! \brief Dialog for D2T Model editing. */
 
-class uiD2TModelDlg : public uiDialog
+mClass uiD2TModelDlg : public uiDialog
 {
 public:
 				uiD2TModelDlg(uiParent*,Well::Data&);
@@ -62,7 +62,7 @@ protected:
 Dialog for loading logs from las file
 */
 
-class uiLoadLogsDlg : public uiDialog
+mClass uiLoadLogsDlg : public uiDialog
 {
 public:
     				uiLoadLogsDlg(uiParent*,Well::Data&);
@@ -85,7 +85,7 @@ protected:
 
 
 
-class uiExportLogs : public uiDialog
+mClass uiExportLogs : public uiDialog
 {
 public:
     				uiExportLogs(uiParent*,const Well::Data&,
@@ -109,7 +109,7 @@ protected:
 
 /*! \brief Dialog for storing edited or home-made wells */
 
-class uiStoreWellDlg : public uiDialog
+mClass uiStoreWellDlg : public uiDialog
 {
 public:
     				uiStoreWellDlg(uiParent*,const BufferString&);
@@ -141,7 +141,7 @@ protected:
 
 class uiColorInput;
 
-class uiNewWellDlg : public uiGetObjectName
+mClass uiNewWellDlg : public uiGetObjectName
 {
 public:
     				uiNewWellDlg(uiParent*);

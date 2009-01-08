@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:           2003
- RCS:           $Id: uiwellman.h,v 1.10 2007-08-29 12:21:50 cvsbert Exp $
+ RCS:           $Id: uiwellman.h,v 1.11 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ namespace Well { class Data; class Reader; };
 Well manager
 */
 
-class uiWellMan : public uiObjFileMan
+mClass uiWellMan : public uiObjFileMan
 {
 public:
     				uiWellMan(uiParent*);

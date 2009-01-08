@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.26 2008-12-17 13:08:34 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.27 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiWell2RandomLineDlg;
 
 /*! \brief Part Server for Wells */
 
-class uiWellPartServer : public uiApplPartServer
+mClass uiWellPartServer : public uiApplPartServer
 {
 public:
 				uiWellPartServer(uiApplService&);

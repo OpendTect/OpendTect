@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.8 2008-08-13 09:27:50 cvsumesh Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.9 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for well import from Ascii */
 
-class uiWellImportAsc : public uiDialog
+mClass uiWellImportAsc : public uiDialog
 {
 public:
 			uiWellImportAsc(uiParent*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.5 2009-01-07 15:11:25 cvsbert Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.6 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Well { class Marker; class Track; }
 
 /*! \brief Dialog for marker specifications */
 
-class uiMarkerDlg : public uiDialog
+mClass uiMarkerDlg : public uiDialog
 {
 public:
 				uiMarkerDlg(uiParent*,const Well::Track&);

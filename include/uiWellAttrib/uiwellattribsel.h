@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.h,v 1.4 2005-11-28 11:38:47 cvsnanne Exp $
+ RCS:           $Id: uiwellattribsel.h,v 1.5 2009-01-08 09:18:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ namespace Well { class Data; };
 
 /*! \brief Dialog for marker specifications */
 
-class uiWellAttribSel : public uiDialog
+mClass uiWellAttribSel : public uiDialog
 {
 public:
 				uiWellAttribSel(uiParent*,Well::Data&,

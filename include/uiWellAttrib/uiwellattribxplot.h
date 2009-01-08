@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.5 2008-11-14 05:36:19 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.6 2009-01-08 09:18:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Attrib { class DescSet; }
 namespace Pick { class Set; }
 
 
-class uiWellAttribCrossPlot : public uiDialog
+mClass uiWellAttribCrossPlot : public uiDialog
 {
 public:
 					uiWellAttribCrossPlot(uiParent*,

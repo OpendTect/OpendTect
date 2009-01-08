@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.h,v 1.2 2008-12-05 13:03:49 cvsbert Exp $
+ RCS:		$Id: uid2tmodelgrp.h,v 1.3 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiFileInput;
 class uiGenInput;
 
 
-class uiD2TModelGroup : public uiGroup
+mClass uiD2TModelGroup : public uiGroup
 {
 public:
     			uiD2TModelGroup(uiParent*,bool withunitfld,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.3 2008-12-19 09:33:29 cvsbruno Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.4 2009-01-08 09:16:21 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace Well { class Data; class DisplayProperties; };
 
 /*! \brief Dialog for well display properties. */
 
-class uiWellDispPropDlg : public uiDialog
+mClass uiWellDispPropDlg : public uiDialog
 {
 public:
 				uiWellDispPropDlg(uiParent*,Well::Data&);
