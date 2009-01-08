@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.78 2009-01-06 09:04:15 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.h,v 1.79 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 
 /*! \brief Earth Model UI Part Server */
 
-class uiEMPartServer : public uiApplPartServer
+mClass uiEMPartServer : public uiApplPartServer
 {
 public:
 			uiEMPartServer(uiApplService&);

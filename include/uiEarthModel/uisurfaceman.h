@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.17 2008-05-26 12:16:47 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.18 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ class uiListBox;
 class BufferStringSet;
 
 
-class uiSurfaceMan : public uiObjFileMan
+mClass uiSurfaceMan : public uiObjFileMan
 {
 public:
 			uiSurfaceMan(uiParent*,const char* typ);

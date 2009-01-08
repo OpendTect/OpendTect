@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.18 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.19 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ namespace EM { class Surface; class SurfaceIODataSelection; class Horizon3D; }
 
 /*! \brief Dialog for horizon export */
 
-class uiWriteSurfaceDlg : public uiDialog
+mClass uiWriteSurfaceDlg : public uiDialog
 {
 public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&);
@@ -44,7 +44,7 @@ protected:
 };
 
 
-class uiReadSurfaceDlg : public uiDialog
+mClass uiReadSurfaceDlg : public uiDialog
 {
 public:
 			uiReadSurfaceDlg(uiParent*,const char* type);
@@ -58,7 +58,7 @@ protected:
 };
 
 
-class uiStoreAuxData : public uiDialog
+mClass uiStoreAuxData : public uiDialog
 {
 public:
     			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
@@ -76,7 +76,7 @@ protected:
 };
 
 
-class uiCopySurface : public uiDialog
+mClass uiCopySurface : public uiDialog
 {
 public:
     			uiCopySurface(uiParent*,const IOObj&);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uisurfaceposprov.h,v 1.3 2008-03-10 16:35:14 cvsbert Exp $
+ RCS:           $Id: uisurfaceposprov.h,v 1.4 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class uiLabel;
 
 /*! \brief UI for SurfacePosProvider */
 
-class uiSurfacePosProvGroup : public uiPosProvGroup
+mClass uiSurfacePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiSurfacePosProvGroup(uiParent*,

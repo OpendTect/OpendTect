@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2006
- RCS:           $Id: uichangesurfacedlg.h,v 1.7 2008-12-15 19:01:44 cvskris Exp $
+ RCS:           $Id: uichangesurfacedlg.h,v 1.8 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ template <class T> class StepInterval;
 
 /*!\brief Base class for surface changers. At the moment only does horizons. */
 
-class uiChangeSurfaceDlg : public uiDialog
+mClass uiChangeSurfaceDlg : public uiDialog
 {
 public:
 				uiChangeSurfaceDlg(uiParent*,EM::Horizon3D*,
@@ -62,10 +62,10 @@ protected:
 
 
 
-class uiArr2DInterpolPars;
+mClass uiArr2DInterpolPars;
 
 
-class uiInterpolHorizonDlg : public uiChangeSurfaceDlg
+mClass uiInterpolHorizonDlg : public uiChangeSurfaceDlg
 {
 public:
 				uiInterpolHorizonDlg(uiParent*,EM::Horizon3D*);
@@ -91,7 +91,7 @@ protected:
 
 class uiStepOutSel;
 
-class uiFilterHorizonDlg : public uiChangeSurfaceDlg
+mClass uiFilterHorizonDlg : public uiChangeSurfaceDlg
 {
 public:
 				uiFilterHorizonDlg(uiParent*,EM::Horizon3D*);

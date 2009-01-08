@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.h,v 1.5 2008-02-06 10:20:33 cvsbert Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.h,v 1.6 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace EM { class Horizon2D; };
 
 /*! \brief Dialog to expand a 2D horizon to create a 3D horizon */
 
-class uiHor3DFrom2DDlg : public uiDialog
+mClass uiHor3DFrom2DDlg : public uiDialog
 {
 public:    
 				uiHor3DFrom2DDlg(uiParent*,

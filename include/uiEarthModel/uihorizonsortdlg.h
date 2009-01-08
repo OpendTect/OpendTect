@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2006
- RCS:           $Id: uihorizonsortdlg.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: uihorizonsortdlg.h,v 1.4 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace EM { class Horizon; }
 class IOPar;
 class uiIOObjSelGrp;
 
-class uiHorizonSortDlg : public uiDialog
+mClass uiHorizonSortDlg : public uiDialog
 {
 public:
 				uiHorizonSortDlg(uiParent*,bool is2d);

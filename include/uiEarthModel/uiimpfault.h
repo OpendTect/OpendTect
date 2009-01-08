@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.7 2008-10-01 03:44:37 cvsnanne Exp $
+ RCS:           $Id: uiimpfault.h,v 1.8 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for fault import */
 
-class uiImportFault : public uiDialog
+mClass uiImportFault : public uiDialog
 {
 public:
 			uiImportFault(uiParent*);

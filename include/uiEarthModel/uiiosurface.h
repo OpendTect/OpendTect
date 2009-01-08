@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.29 2008-12-23 09:51:33 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.h,v 1.30 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ namespace EM { class Surface; class SurfaceIODataSelection; };
 
 /*! \brief Base group for Surface input and output */
 
-class uiIOSurface : public uiGroup
+mClass uiIOSurface : public uiGroup
 {
 public:
 			~uiIOSurface();
@@ -77,11 +77,11 @@ protected:
 };
 
 
-class uiSurfaceWrite : public uiIOSurface
+mClass uiSurfaceWrite : public uiIOSurface
 {
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
 			Setup( const char* surftyp )
@@ -122,10 +122,10 @@ protected:
 };
 
 
-class uiSurfaceRead : public uiIOSurface
+mClass uiSurfaceRead : public uiIOSurface
 {
 public:
-    class Setup
+    mClass Setup
     {
     public:
 			Setup( const char* surftyp )

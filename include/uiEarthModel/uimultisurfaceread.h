@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.h,v 1.6 2009-01-07 06:49:23 cvsnageswara Exp $
+ RCS:           $Id: uimultisurfaceread.h,v 1.7 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiDialog;
 
 /*! \brief ui for multiple surface read */
 
-class uiMultiSurfaceRead : public uiIOSurface
+mClass uiMultiSurfaceRead : public uiIOSurface
 {
 public:
 			uiMultiSurfaceRead(uiParent*,const char* type);
@@ -42,7 +42,7 @@ protected:
 };
 
 
-class uiMultiSurfaceReadDlg : public uiDialog
+mClass uiMultiSurfaceReadDlg : public uiDialog
 {
 public:
 			uiMultiSurfaceReadDlg(uiParent*,const char* type);

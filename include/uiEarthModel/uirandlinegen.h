@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: uirandlinegen.h,v 1.5 2008-10-03 12:22:42 cvsjaap Exp $
+ RCS:           $Id: uirandlinegen.h,v 1.6 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiLabel;
 
 /*! \brief Generate random lines from contours of a horizon */
 
-class uiGenRanLinesByContour : public uiDialog
+mClass uiGenRanLinesByContour : public uiDialog
 {
 public:
 			uiGenRanLinesByContour(uiParent*);
@@ -64,7 +64,7 @@ protected:
 
 /*! \brief Generate random lines by shifting an existing */
 
-class uiGenRanLinesByShift : public uiDialog
+mClass uiGenRanLinesByShift : public uiDialog
 {
 public:
 			uiGenRanLinesByShift(uiParent*);
@@ -91,7 +91,7 @@ protected:
 
 /*! \brief Generate random line from polygon */
 
-class uiGenRanLineFromPolygon : public uiDialog
+mClass uiGenRanLineFromPolygon : public uiDialog
 {
 public:
 			uiGenRanLineFromPolygon(uiParent*);

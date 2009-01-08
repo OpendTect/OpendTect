@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.h,v 1.13 2004-12-17 12:31:09 bert Exp $
+ RCS:           $Id: uiexphorizon.h,v 1.14 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiSurfaceRead;
 
 /*! \brief Dialog for horizon export */
 
-class uiExportHorizon : public uiDialog
+mClass uiExportHorizon : public uiDialog
 {
 public:
 			uiExportHorizon(uiParent*);

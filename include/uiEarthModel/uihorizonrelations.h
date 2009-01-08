@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.h,v 1.4 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiLabeledListBox;
 class uiPushButton;
 class BufferStringSet;
 
-class uiHorizonRelationsDlg : public uiDialog
+mClass uiHorizonRelationsDlg : public uiDialog
 {
 public:
 			uiHorizonRelationsDlg(uiParent*,bool is2d);

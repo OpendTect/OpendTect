@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          June 2008
- RCS:           $Id: uiexport2dhorizon.h,v 1.1 2008-06-18 11:42:47 cvsraman Exp $
+ RCS:           $Id: uiexport2dhorizon.h,v 1.2 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class uiListBox;
 
 /*! \brief Dialog for 2D horizon export */
 
-class uiExport2DHorizon : public uiDialog
+mClass uiExport2DHorizon : public uiDialog
 {
 public:
 			uiExport2DHorizon(uiParent*,

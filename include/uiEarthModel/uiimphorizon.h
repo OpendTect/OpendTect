@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.24 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.25 2009-01-08 07:32:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ namespace EM { class Horizon3D; }
 
 /*! \brief Dialog for Horizon Import */
 
-class uiImportHorizon : public uiDialog
+mClass uiImportHorizon : public uiDialog
 {
 public:
 			uiImportHorizon(uiParent*,bool);
