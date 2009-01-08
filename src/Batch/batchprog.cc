@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.91 2008-10-24 09:24:35 cvsdgb Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.92 2009-01-08 16:25:14 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -171,6 +171,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 BatchProgram::~BatchProgram()
 {
     infoMsg( finishmsg_ );
+    IOM().applClosing();
 
     if( comm )
     {

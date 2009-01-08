@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.37 2009-01-08 16:16:41 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.38 2009-01-08 16:25:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,8 +140,9 @@ private:
 
     friend class	IOObj;
     friend class	IODir;
-    friend class	uiODMain;
     friend mGlobal	IOMan&	IOM();
+
+public:
 
     void		applClosing()	{ applicationClosing.trigger(); }
 
