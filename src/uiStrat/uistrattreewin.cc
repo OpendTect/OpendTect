@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.26 2009-01-08 13:30:18 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.27 2009-01-08 15:38:53 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.26 2009-01-08 13:30:18 cv
 #include "uilistbox.h"
 #include "uilistview.h"
 #include "uimenu.h"
+#include "uimsg.h"
 #include "uisplitter.h"
 #include "uistratmgr.h"
 #include "uistratreftree.h"
@@ -60,6 +61,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , lithCreated(this)		//TODO support
     , lithChanged(this)		//TODO support
     , lithRemoved(this)		//TODO support
+    , needsave_(false)
 {
     uistratmgr_ = new uiStratMgr( this );
     createMenu();
@@ -218,12 +220,14 @@ void uiStratTreeWin::resetCB( CallBacker* )
 void uiStratTreeWin::saveCB( CallBacker* )
 {
     uistratmgr_->save();
+    needsave_ = false;
 }
 
 
 void uiStratTreeWin::saveAsCB( CallBacker* )
 {
     uistratmgr_->saveAs();
+    needsave_ = false;
 }
 
 
@@ -236,6 +240,7 @@ void uiStratTreeWin::openCB( CallBacker* )
 void uiStratTreeWin::selLvlChgCB( CallBacker* )
 {
     newLevelSelected.trigger();
+    needsave_ = true;
 }
 
 
@@ -263,6 +268,7 @@ void uiStratTreeWin::rClickLvlCB( CallBacker* )
 	if ( lvllistfld_->isEmpty() )
 	    lvllistfld_->addItem( sNoLevelTxt );
 	levelRemoved.trigger();
+	needsave_ = true;
     }
 }
 
@@ -291,6 +297,8 @@ void uiStratTreeWin::editLevel( bool create )
 	updateLvlList( create );
 	create ? levelCreated.trigger() : levelChanged.trigger();
     }
+
+    needsave_ = true;
 }
 
 
@@ -316,5 +324,22 @@ void uiStratTreeWin::updateLvlList( bool create )
 
 void uiStratTreeWin::unitRenamedCB( CallBacker* )
 {
+    needsave_ = true;
     //TODO requires Qt4 to approve/cancel renaming ( name already in use...)
 }
+
+
+bool uiStratTreeWin::closeOK()
+{
+    if ( needsave_ || uistratmgr_->needSave() )
+    {
+	int res = uiMSG().askGoOnAfter( 
+			"Do you want to save this stratigraphic framework?" );
+	if ( res == 0 )
+	    uistratmgr_->save();
+	else if ( res == 2 )
+	    return false;
+    }
+
+    return true;
+} 
