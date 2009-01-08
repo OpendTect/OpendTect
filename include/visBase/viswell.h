@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.24 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:           $Id: viswell.h,v 1.25 2009-01-08 10:35:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,7 +82,7 @@ public:
     void			setLogColor(const Color&,int);
     const Color&		logColor(int) const;
     const Color&		logFillColor(int) const;
-    void			setLogFillColor(const Color&,int);
+    void			setSeismicColor(const Color&,int);
     void			clearLog(int);
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;

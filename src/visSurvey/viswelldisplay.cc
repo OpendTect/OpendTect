@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.90 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.91 2009-01-08 10:35:13 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -242,8 +242,13 @@ void WellDisplay::updateMarkers( CallBacker* )
 	    mMeter2Feet(pos.z)
 
 	well_->markersize = dpp(markers_.size_);
-	Color& mcolor = dpp(markers_.color_);
 	bool iscircular = !(dpp( markers_.circular_ ));
+	bool issinglemcol = dpp( markers_.issinglecol_);
+	Color mcolor;
+	if (issinglemcol)
+	    mcolor = dpp(markers_.color_);
+	else
+	    mcolor = wellmarker->color();
 	well_->addMarker( pos, mcolor, wellmarker->name(), iscircular );
     }
 }
@@ -487,7 +492,9 @@ void WellDisplay::setLogFillColor(const Color& color, int lognr,
 {
     Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
 					 : logparset_.getRight();
-    well_->setLogFillColorTab( seqname, lognr, color, iswelllog, issinglecol ); 
+    if (iswelllog)
+       well_->setLogFillColorTab(seqname, lognr, color, iswelllog, issinglecol);    else 
+	well_->setSeismicColor(color,lognr);
 }
 
 

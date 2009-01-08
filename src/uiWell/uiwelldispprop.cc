@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.16 2009-01-06 15:21:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.17 2009-01-08 10:35:13 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -116,18 +116,35 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 			       BoolInpSpec(true,"Square","Circular") );
     circfld_->attach( alignedBelow, colfld_ );
     circfld_->valuechanged.notify( mCB(this,uiWellMarkersDispProperties,propChg) );
+   
+    singlecolfld_ = new uiCheckBox( this, "use single color");
+    singlecolfld_ -> attach( rightOf, colfld_); 
+    colfld_->setSensitive( singlecolfld_->isChecked() );
+    singlecolfld_->activated.notify( mCB(this,uiWellMarkersDispProperties,
+					propChg) );
+    singlecolfld_->activated.notify( mCB(this,uiWellMarkersDispProperties,
+					setMarkerColSel));
+}
+
+
+void uiWellMarkersDispProperties::setMarkerColSel( CallBacker*  )
+{
+        bool issel = singlecolfld_->isChecked();
+   	colfld_->setSensitive( issel );
 }
 
 
 void uiWellMarkersDispProperties::doPutToScreen()
 {
     circfld_->setValue( mrkprops().circular_ );
+    singlecolfld_->setChecked( mrkprops().issinglecol_ );
 }
 
 
 void uiWellMarkersDispProperties::doGetFromScreen()
 {
     mrkprops().circular_ = circfld_->getBoolValue();
+    mrkprops().issinglecol_ = singlecolfld_->isChecked();
 }
 
 

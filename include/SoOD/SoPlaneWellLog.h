@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.18 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.19 2009-01-08 10:35:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
     void			setLineColor(const SbVec3f&,int);
     const SbVec3f&		lineColor(int) const;
     void			setLogFillColorTab(const float[][3],int);
+    void			setNonIndexedShapeColor(const SbVec3f&,int);
     void			setLineWidth(float,int);
     float			lineWidth(int) const;
     void			showLog(bool,int);
@@ -98,13 +99,19 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(linematerial1);
     SO_KIT_CATALOG_ENTRY_HEADER(col1);
     SO_KIT_CATALOG_ENTRY_HEADER(coltri1);
+    SO_KIT_CATALOG_ENTRY_HEADER(coltriseis1);
     SO_KIT_CATALOG_ENTRY_HEADER(drawstyle1);
     SO_KIT_CATALOG_ENTRY_HEADER(coords1);
     SO_KIT_CATALOG_ENTRY_HEADER(lineset1);
     SO_KIT_CATALOG_ENTRY_HEADER(trishape1);
+    SO_KIT_CATALOG_ENTRY_HEADER(NonIndexedtrishape1);
+    SO_KIT_CATALOG_ENTRY_HEADER(Indexedtrishape1);
     SO_KIT_CATALOG_ENTRY_HEADER(coordtri1);
+    SO_KIT_CATALOG_ENTRY_HEADER(coordtriseis1);
     SO_KIT_CATALOG_ENTRY_HEADER(triset1);
+    SO_KIT_CATALOG_ENTRY_HEADER(triseisset1);
     SO_KIT_CATALOG_ENTRY_HEADER(material1);
+    SO_KIT_CATALOG_ENTRY_HEADER(materialseis1);
     SO_KIT_CATALOG_ENTRY_HEADER(mbinding1);
     SO_KIT_CATALOG_ENTRY_HEADER(linembinding1);
     SO_KIT_CATALOG_ENTRY_HEADER(hints1);
@@ -117,9 +124,14 @@ public:
     SO_KIT_CATALOG_ENTRY_HEADER(coords2);
     SO_KIT_CATALOG_ENTRY_HEADER(lineset2);
     SO_KIT_CATALOG_ENTRY_HEADER(trishape2);
+    SO_KIT_CATALOG_ENTRY_HEADER(NonIndexedtrishape2);
+    SO_KIT_CATALOG_ENTRY_HEADER(Indexedtrishape2);
     SO_KIT_CATALOG_ENTRY_HEADER(coordtri2);
+    SO_KIT_CATALOG_ENTRY_HEADER(coordtriseis2);
     SO_KIT_CATALOG_ENTRY_HEADER(triset2);
+    SO_KIT_CATALOG_ENTRY_HEADER(triseisset2);
     SO_KIT_CATALOG_ENTRY_HEADER(material2);
+    SO_KIT_CATALOG_ENTRY_HEADER(materialseis2);
     SO_KIT_CATALOG_ENTRY_HEADER(mbinding2);
     SO_KIT_CATALOG_ENTRY_HEADER(hints2);
     SO_KIT_CATALOG_ENTRY_HEADER(linembinding2);
@@ -143,9 +155,8 @@ protected:
     
     void			buildLog(int,const SbVec3f&,int);
     void			buildSimpleLog(int,const SbVec3f&,int);
+    void			buildSeismicLog(int,const SbVec3f&,int);
     void			buildFilledLog(int,const SbVec3f&,int);
-    void			fillTriangles(const int, const bool,float,float,
-	   				      SoCoordinate3*,SbVec3f&,SbVec3f&);
     void			fillLogTriangles(const int,SoCoordinate3*,
 	    						SbVec3f&,SbVec3f&);
     SbVec3f 			getProjCoords(const SoMFVec3f&,const int, 

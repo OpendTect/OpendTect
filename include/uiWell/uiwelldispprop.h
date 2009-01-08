@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.10 2009-01-08 09:16:21 cvsranojay Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.11 2009-01-08 10:35:13 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,8 +103,10 @@ protected:
 
     virtual void	doPutToScreen();
     virtual void	doGetFromScreen();
+    void                setMarkerColSel(CallBacker*);
 
     uiGenInput*		circfld_;
+    uiCheckBox*		singlecolfld_;
 
 };
 

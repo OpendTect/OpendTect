@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.4 2008-12-17 13:08:34 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.5 2009-01-08 10:35:13 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -13,6 +13,13 @@ static const char* rcsID = "$Id: welldisp.cc,v 1.4 2008-12-17 13:08:34 cvsbruno 
 static const char* sKeyDisplayPos = "DisplayPos";
 static const char* sKeyShape = "Shape";
 static const char* sKeyStyle = "Log Style";
+static const char* sKeySingleColor = "Single Marker Color";
+static const char* sKeyFill = "Fill Log";
+static const char* sKeySingleCol = "Single Fill Color";
+static const char* sKeyDataRange = "Data Range Bool";
+static const char* sKeyOverlapp = "Log Overlapp";
+static const char* sKeyRepeatLog = "Log Number";
+static const char* sKeySeisColor = "Log Seismic Style Color";
 
 
 void Well::DisplayProperties::BasicProps::usePar( const IOPar& iop )
@@ -50,6 +57,8 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& iop )
     const char* res = iop.find( IOPar::compKey(subjectName(),sKeyShape) );
     if ( !res || !*res ) return;
     circular_ = *res != 'S';
+    iop.getYN( IOPar::compKey(subjectName(),sKeySingleColor),
+	     issinglecol_ );
 }
 
 
@@ -57,6 +66,8 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& iop ) const
 {
     iop.set( IOPar::compKey(subjectName(),sKeyShape),
 	     circular_ ? "Circular" : "Square" );
+    iop.setYN( IOPar::compKey(subjectName(),sKeySingleColor),
+	     issinglecol_ );
 }
 
 
@@ -64,6 +75,18 @@ void Well::DisplayProperties::Log::doUsePar( const IOPar& iop )
 {
     iop.getYN( IOPar::compKey(subjectName(),sKeyStyle),
 	       iswelllog_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeyFill),
+	       islogfill_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeySingleCol),
+	       issinglecol_ );
+    iop.getYN( IOPar::compKey(subjectName(),sKeyDataRange),
+	       isdatarange_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyRepeatLog),
+	       repeat_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyOverlapp),
+	       repeatovlap_ );
+    iop.get( IOPar::compKey(subjectName(),sKeySeisColor),
+	       seiscolor_ );
 }
 
 
@@ -71,6 +94,18 @@ void Well::DisplayProperties::Log::doFillPar( IOPar& iop ) const
 {
     iop.setYN( IOPar::compKey(subjectName(),sKeyStyle),
 	       iswelllog_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyFill),
+	       islogfill_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeySingleCol),
+	       issinglecol_ );
+    iop.setYN( IOPar::compKey(subjectName(),sKeyDataRange),
+	       isdatarange_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyRepeatLog),
+	       repeat_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyOverlapp),
+	       repeatovlap_ );
+    iop.set( IOPar::compKey(subjectName(),sKeySeisColor),
+	       seiscolor_ );
 }
 
 
@@ -78,6 +113,7 @@ void Well::DisplayProperties::usePar( const IOPar& iop )
 {
     track_.usePar( iop );
     markers_.usePar( iop );
+    left_.usePar( iop );
     right_.usePar( iop );
 }
 
@@ -87,6 +123,7 @@ void Well::DisplayProperties::fillPar( IOPar& iop ) const
     track_.fillPar( iop );
     markers_.fillPar( iop );
     left_.fillPar( iop );
+    right_.fillPar( iop );
 }
 
 
