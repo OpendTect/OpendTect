@@ -7,14 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.9 2008-12-30 04:25:44 cvsumesh Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.10 2009-01-08 11:52:33 cvsumesh Exp $";
 
 
 #include "uigraphicsitem.h"
 
+#include "uicursor.h"
+
 #include "draw.h"
 
 #include <QBrush>
+#include <QCursor>
 #include <QGraphicsItemGroup>
 #include <QPen>
 #include <QTransform>
@@ -111,6 +114,14 @@ void uiGraphicsItem::setFillColor( const Color& col )
 
     QBrush qbrush( QColor(QRgb(col.rgb())) );
     agsitm->setBrush( qbrush );
+}
+
+
+void uiGraphicsItem::setCursor( const MouseCursor& cursor )
+{
+    QCursor qcursor;
+    uiCursorManager::fillQCursor( cursor, qcursor );
+    qgraphicsitem_->setCursor( qcursor );
 }
 
 

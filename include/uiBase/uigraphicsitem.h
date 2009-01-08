@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.8 2008-12-30 04:24:49 cvsumesh Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.9 2009-01-08 11:51:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 class Color;
 class LineStyle;
+class MouseCursor;
 
 class QGraphicsItem;
 class QGraphicsItemGroup;
@@ -49,6 +50,8 @@ public:
     virtual void	setPenStyle(const LineStyle&);
     virtual void	setPenColor(const Color&);
     void		setFillColor(const Color&);
+
+    void		setCursor(const MouseCursor&);
 
     void		setParent(uiGraphicsItem*);
 
