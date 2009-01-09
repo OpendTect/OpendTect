@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.26 2009-01-08 10:37:54 cvsranojay Exp $
+ RCS:		$Id: uivisemobj.h,v 1.27 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -92,7 +92,6 @@ protected:
     MenuItem		wireframemnuitem_;
     MenuItem		trackmenuitem_;
     MenuItem		editmnuitem_;
-    MenuItem		shiftmnuitem_;
     MenuItem		removesectionmnuitem_;
     MenuItem		seedsmenuitem_;
     MenuItem		showseedsmnuitem_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.73 2008-12-24 13:19:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.74 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "uivisemobj.h"
 
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: uivisemobj.cc,v 1.73 2008-12-24 13:19:11 cvsjaa
 #include "survinfo.h"
 
 #include "uigeninputdlg.h"
-#include "uihorizonshiftdlg.h"
 #include "uimenu.h"
 #include "uimpe.h"
 #include "uimsg.h"
@@ -235,7 +234,6 @@ void uiVisEMObject::setUpConnections()
     wireframemnuitem_.checkable = true;
     editmnuitem_.text = "&Edit";
     editmnuitem_.checkable = true;
-    shiftmnuitem_.text = "&Shift ...";
     removesectionmnuitem_.text ="Remove &section";
     makepermnodemnuitem_.text = "Make control &permanent";
     removecontrolnodemnuitem_.text = "Remove &control";
@@ -369,8 +367,6 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 	!strcmp(getObjectType(displayid_),EM::Horizon3D::typeStr())
 	&& !visserv_->isLocked(displayid_) && !hastransform;
 
-    mAddMenuItem( menu, &shiftmnuitem_, enabmenu, false );
-
     trackmenuitem_.removeItems();
     seedsmenuitem_.removeItems();
 
@@ -477,40 +473,6 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	emod->enableEditing(turnon);
 	if ( turnon ) connectEditor();
 	menu->setIsHandled(true);
-    }
-    else if ( mnuid==shiftmnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	if ( hordisp )
-	{
-	    uiHorizonShiftDialog dlg( uiparent_, hordisp );
-	    bool res = dlg.go();
-	    if ( !res ) return;
-
-	    for ( int attrib=0; attrib<hordisp->nrAttribs(); attrib++ )
-	    {
-		if ( hordisp->hasDepth(attrib) )
-		    setDepthAsAttrib( attrib );
-		else if ( !hordisp->hasStoredAttrib(attrib) )
-		    visserv_->calculateAttrib( displayid_, attrib, false );
-		else
-		{
-		    uiMSG().error( "Cannot calculate this attribute on "
-			    	   "new location"
-				   "\nDepth will be displayed instead" );
-		    setDepthAsAttrib( attrib );
-		}
-	    }
-
-	    if ( res )
-	    {
-		emod->showPosAttrib( EM::EMObject::sSeedNode, false );
-		emod->enableEditing( false );
-		visserv_->sendDisableSelTrackerEvent();
-	    }
-
-	    visserv_->triggerTreeUpdate();
-	}
     }
     else if ( mnuid==removesectionmnuitem_.id )
     {

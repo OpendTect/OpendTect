@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.21 2008-12-02 22:44:09 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceauxdata.cc,v 1.22 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "emsurfaceauxdata.h"
 
@@ -50,6 +50,7 @@ void SurfaceAuxData::removeAll()
 {
     deepErase( auxdatanames );
     deepErase( auxdatainfo );
+    auxdatashift.erase();
     for ( int idx=0; idx<auxdata.size(); idx++ )
     {
 	if ( !auxdata[idx] ) continue;
@@ -74,10 +75,21 @@ const char* SurfaceAuxData::auxDataName( int dataidx ) const
 }
 
 
+float SurfaceAuxData::auxDataShift( int dataidx ) const
+{ return auxdatashift[dataidx]; }
+
+
 void SurfaceAuxData::setAuxDataName( int dataidx, const char* name )
 {
     if ( auxdatanames[dataidx] )
 	auxdatanames.replace( dataidx, new BufferString(name) );
+}
+
+
+void SurfaceAuxData::setAuxDataShift( int dataidx, float shift )
+{
+    if ( auxdatanames[dataidx] )
+	auxdatashift[dataidx] = shift;
 }
 
 
@@ -92,6 +104,7 @@ int SurfaceAuxData::auxDataIndex( const char* nm ) const
 int SurfaceAuxData::addAuxData( const char* name )
 {
     auxdatanames += new BufferString( name );
+    auxdatashift += 0.0;
     ObjectSet<TypeSet<float> >* newauxdata = new ObjectSet<TypeSet<float> >;
     auxdata += newauxdata;
     newauxdata->allowNull(true);
@@ -108,6 +121,7 @@ void SurfaceAuxData::removeAuxData( int dataidx )
 {
     delete auxdatanames[dataidx];
     auxdatanames.replace( dataidx, 0 );
+    auxdatashift[dataidx] = 0.0;
 
     deepEraseArr( *auxdata[dataidx] );
     delete auxdata[dataidx];

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.94 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vissurvobj.h,v 1.95 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -88,7 +88,10 @@ public:
 				     getMovementNotifier().
 				     \param whichobj refers to id of the
 				     moved object */
-    virtual bool		isInlCrl() const	    	{ return false;}
+
+    virtual void		setTranslation(const Coord3&)		{}
+    virtual Coord3		getTranslation() const
+    				{ return Coord3(0,0,0); }
 
     const char*			errMsg() const		    	{return errmsg;}
 
@@ -248,6 +251,7 @@ public:
     //later on: allow timeslices and horizons with horizontal viewer
     virtual bool		canBDispOn2DViewer() const	{ return false;}
     virtual bool		isVerticalPlane() const		{ return true;}
+    virtual bool		isInlCrl() const	    	{ return false;}
     
     static float		sDefMaxDist;
 

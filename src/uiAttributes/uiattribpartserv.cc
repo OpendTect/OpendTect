@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.105 2009-01-09 04:37:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.106 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -589,6 +589,24 @@ bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
     if ( !taskrunner.execute(*process) ) return false;
 
     posvals.setName( targetspecs_[0].userRef() );
+    return true;
+}
+
+
+bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
+				       int firstcol )
+{
+    PtrMan<EngineMan> aem = createEngMan();
+    if ( !aem ) return false;
+    
+    ExecutorGroup execgrp( "Calulating Attribute", true );
+    BufferString errmsg;
+
+    for ( int idx=0; idx<dpss.size(); idx++ )
+	execgrp.add( aem->getTableOutExecutor(*dpss[idx],errmsg,firstcol) );
+
+    uiTaskRunner taskrunner( parent() );
+    if ( !taskrunner.execute(execgrp) ) return false;
     return true;
 }
 

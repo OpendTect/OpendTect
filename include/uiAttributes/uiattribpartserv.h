@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.44 2009-01-08 10:08:40 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.45 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,6 @@ class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
-class DataPointSet;
 class Executor;
 class IOObj;
 class IOPar;
@@ -114,6 +113,8 @@ public:
     const Attrib::DataCubes* createOutput(const CubeSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(DataPointSet&,int firstcol =0);
+    bool		createOutput(ObjectSet<DataPointSet>&,
+	    			     int firstcol =0);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 	    				    TypeSet<BinID>* path);

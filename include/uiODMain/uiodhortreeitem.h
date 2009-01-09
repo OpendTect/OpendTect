@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.5 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.6 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uiodemsurftreeitem.h"
 
-
+class uEMHorizonShiftDialog;
 mDefineItem( HorizonParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
 
@@ -46,10 +46,12 @@ protected:
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
 
+    uEMHorizonShiftDialog* horshiftdlg_;
     MenuItem		algomnuitem_;
     MenuItem		fillholesmnuitem_;
     MenuItem		filterhormnuitem_;
     MenuItem		snapeventmnuitem_;
+    MenuItem		shiftmnuitem_;
 };
 
 

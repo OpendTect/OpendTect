@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.40 2009-01-06 09:04:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.41 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -205,7 +205,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( vals.size() )
 	{
 	    const int auxnr =
-		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1 );
+		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1,
+		       	applMgr()->EMServer()->shiftRange().atIndex(0) );
 	    BufferString auxdatanm;
 	    const bool saved =
 		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
@@ -240,6 +241,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->setSelSpec( displayID(), attribNr(),
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->createAndDispDataPack( displayID(), attribNr(), attrnm,&vals );
+	visserv->selectTexture( displayID(), attribNr(), 0 );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.61 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.62 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 */
 
 class BinIDValueSet;
+class DataPointSet;
 class BufferStringSet;
 class HorSampling;
 class Scaler;
@@ -62,6 +63,9 @@ public:
 
     bool			getBoundingPolygon(const SectionID&,
 	    					   Pick::Set&) const;
+    void			getDataPointSet( const SectionID&,
+	    					  DataPointSet&,
+						  float shift=0.0) const;
     void			fillBinIDValueSet(const SectionID&,
 	    					  BinIDValueSet&) const;
 

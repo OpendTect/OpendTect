@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.28 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.29 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -114,6 +114,7 @@ public:
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
+    void			setAttribShift(int attr,float shift);
 
     bool			usesWireframe() const;
     void			useWireframe(bool);
@@ -179,6 +180,7 @@ protected:
     TypeSet<DataPack::ID>		datapackids_;
     ObjectSet<visBase::VisColorTab>	coltabs_;
     BoolTypeSet				enabled_;
+    TypeSet<float>			shifts_;
     bool				validtexture_;
 
     static const char*			sKeyTexture();

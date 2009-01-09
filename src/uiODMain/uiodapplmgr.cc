@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.283 2009-01-08 15:47:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.284 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -284,8 +284,6 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 		wellserv_->importLogs();
 	    else if ( opt == 2 )
 		wellserv_->importMarkers();
-	    else if ( opt == 3 )
-		wellattrserv_->importSEGYVSP();
 
 	break;
 	case Man:	wellserv_->manageWells();	break;
@@ -1061,6 +1059,82 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	    h2d->geometry().syncLine( lset, lnm, ldat );
 	}
     }
+    else if ( evid == uiEMPartServer::evCalcShiftAttribute )
+    {
+	ObjectSet<DataPointSet> dpsset;
+	EMServer()->fillHorShiftDPS( dpsset );
+	const Attrib::SelSpec* as = visserv_->getSelSpec(
+		visserv_->getEventObjId(), emserv_->attribIdx() );
+	attrserv_->setTargetSelSpec( *as );
+	attrserv_->createOutput( dpsset );
+
+	TypeSet<DataPointSet::DataRow> drset;
+	BufferStringSet nmset;
+	DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
+	dps->bivSet().setNrVals( dpsset.size()+1 );
+
+	BinIDValueSet::Pos bvspos;
+	while ( dpsset[0]->bivSet().next(bvspos) )
+	{
+	    TypeSet<float> attribvals;
+	    attribvals += 0.0;
+	    BinID binid;
+	    for ( int idx=0; idx<dpsset.size(); idx++ )
+	    {
+		float zval=0;
+		float attribval=0;
+		dpsset[idx]->bivSet().get( bvspos, binid, zval, attribval );
+		attribvals += attribval;
+	    }
+	    dps->bivSet().add( binid, attribvals.arr() );
+	}
+	dps->dataChanged();
+	visServer()->setRandomPosData( visServer()->getEventObjId(),
+				       EMServer()->attribIdx(), dps );
+	visServer()->selectTexture( visServer()->getEventObjId(),
+				    EMServer()->attribIdx(),
+				    EMServer()->textureIdx() );
+    }
+    else if ( evid == uiEMPartServer::evHorizonShift )
+    {
+	visServer()->setTranslation( visServer()->getEventObjId(),
+				     Coord3(0,0,EMServer()->getShift()) );
+	if ( !mIsUdf(EMServer()->attribIdx()) )
+	    visServer()->selectTexture( visServer()->getEventObjId(),
+					EMServer()->attribIdx(),
+					EMServer()->textureIdx() );
+    }
+    else if ( evid == uiEMPartServer::evStoreShiftHorizons )
+    {
+	const int visid = visserv_->getEventObjId();
+	const uiVisPartServer::AttribFormat format = 
+	    				visserv_->getAttributeFormat( visid );
+	if ( format!=uiVisPartServer::RandomPos ) return false;
+
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	DataPointSet data( pts, nms, false, true );
+	visserv_->getRandomPosCache( visid, emserv_->attribIdx(), data );
+	if ( data.isEmpty() ) return false;
+
+	const MultiID mid = visserv_->getMultiID( visid );
+	const EM::ObjectID emid = emserv_->getObjectID( mid );
+	const int nrvals = data.bivSet().nrVals()-1;
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    BufferString auxdatanm( emserv_->getAttribBaseNm() );
+	    auxdatanm += "_";
+	    auxdatanm += emserv_->shiftRange().atIndex( idx );
+	    emserv_->setAuxData( emid, data, auxdatanm, idx+1,
+		   		 emserv_->shiftRange().atIndex(idx) );
+	    BufferString dummy;
+	    emserv_->storeAuxData( emid, dummy, false );
+	}
+    }
+    else if ( evid == uiEMPartServer::evShiftDlgOpened )
+	enableMenusAndToolBars( false );
+    else if ( evid == uiEMPartServer::evShiftDlgClosed )
+	enableMenusAndToolBars( true );
     else
 	pErrMsg("Unknown event from emserv");
 
@@ -1377,7 +1451,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int nrvals = data.bivSet().nrVals()-1;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    emserv_->setAuxData( emid, data, specs[idx].userRef(), idx+1 );
+	    emserv_->setAuxData( emid, data, specs[idx].userRef(), idx+1,
+		   emserv_->shiftRange().atIndex(idx) );
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
@@ -1401,7 +1476,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 }
 
 
-void uiODApplMgr::pageUpDownPressed( bool up )
+void uiODApplMgr::pageUpDownPressed( bool pageup )
 {
     const int visid = visserv_->getEventObjId();
     const int attrib = visserv_->getSelAttribNr();
@@ -1409,9 +1484,9 @@ void uiODApplMgr::pageUpDownPressed( bool up )
 	return;
 
     int texture = visserv_->selectedTexture( visid, attrib );
-    if ( texture<visserv_->nrTextures(visid,attrib)-1 && up )
+    if ( texture<visserv_->nrTextures(visid,attrib)-1 && !pageup )
 	texture++;
-    else if ( texture && !up )
+    else if ( texture && pageup )
 	texture--;
 
     visserv_->selectTexture( visid, attrib, texture );
@@ -1515,6 +1590,14 @@ void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
     DataPack::ID cacheid = visserv_->getDataPackID( visid, attrib );
     if ( cacheid == -1 )
 	useDefColTab( visid, attrib );
+    const int dpid = createMapDataPack( data, colnr );
+    visserv_->setDataPackID( visid, attrib, dpid );
+    visserv_->setRandomPosData( visid, attrib, &data );
+}
+
+
+int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
+{
     BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(data.bivSet(), colnr);
     MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
     StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop, 
@@ -1526,7 +1609,5 @@ void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
     newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
-    visserv_->setDataPackID( visid, attrib, newpack->id() );
-    visserv_->setRandomPosData( visid, attrib, &data );
+    return newpack->id();
 }
-

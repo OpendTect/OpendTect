@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.111 2008-12-23 11:08:31 cvsdgb Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.112 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "emhorizon3d.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: emhorizon3d.cc,v 1.111 2008-12-23 11:08:31 cvsd
 #include "arrayndimpl.h"
 #include "binidsurface.h"
 #include "binidvalset.h"
+#include "datapointset.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "emsurfaceauxdata.h"
@@ -458,7 +459,9 @@ SectionID Horizon3DGeometry::cloneSection( const SectionID& sid )
 
 
 void Horizon3DGeometry::setShift( float ns )
-{ shift_ = ns; }
+{
+    shift_ = ns;
+}
 
 
 float Horizon3DGeometry::getShift() const
@@ -567,6 +570,22 @@ Geometry::BinIDSurface* Horizon3DGeometry::createSectionGeometry() const
     res->checkSupport( checksupport_ );
 
     return res;
+}
+
+
+void Horizon3DGeometry::getDataPointSet( const SectionID& sid,
+					 DataPointSet& dps, float shift ) const
+{
+    BinIDValueSet& bidvalset = dps.bivSet();
+    bidvalset.setNrVals( 1 );
+    const int nrknots = sectionGeometry(sid)->nrKnots();
+    for ( int idx=0; idx<nrknots; idx++ )
+    {
+	const BinID bid = sectionGeometry( sid )->getKnotRowCol( idx );
+	Coord3 coord = sectionGeometry( sid )->getKnot( bid, false );
+	bidvalset.add( bid, coord.z + shift );
+    }
+    dps.dataChanged();
 }
 
 

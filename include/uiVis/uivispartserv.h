@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.217 2009-01-08 10:37:54 cvsranojay Exp $
+ RCS:           $Id: uivispartserv.h,v 1.218 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ namespace ColTab { class Sequence; struct MapperSetup; };
 
 /*! \brief The Visualisation Part Server */
 
-mClass uiVisPartServer : public uiApplPartServer
+class uiVisPartServer : public uiApplPartServer
 {
     friend class 	uiMenuHandler;
     friend class        uiVisModeMgr;
@@ -136,6 +136,7 @@ public:
     			/*!<Specify that the data is angles, i.e. -PI==PI. */
     bool		isAttribEnabled(int id,int attrib) const;
     void		enableAttrib(int id,int attrib,bool yn);
+    void		setTranslation(int visid,const Coord3& shift);
     
 			//Volume data stuff
     CubeSampling	getCubeSampling(int id,int attrib=-1) const;
@@ -418,7 +419,7 @@ protected:
 */
 
 
-mClass uiVisModeMgr 
+class uiVisModeMgr 
 {
 public:
 				uiVisModeMgr(uiVisPartServer*);

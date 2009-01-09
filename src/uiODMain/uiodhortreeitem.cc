@@ -7,12 +7,15 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.9 2008-12-18 11:15:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.10 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emobject.h"
+#include "emmanager.h"
+#include "datapointset.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
@@ -154,14 +157,14 @@ void uiODHorizonTreeItem::initNotify()
 BufferString uiODHorizonTreeItem::createDisplayName() const
 {
     const uiVisPartServer* cvisserv =
-	const_cast<uiODHorizonTreeItem*>(this)->applMgr()->visServer();
+	const_cast<uiODHorizonTreeItem*>(this)->visserv_;
 
     BufferString res = cvisserv->getObjectName( displayid_ );
 
     if (  uivisemobj_ && uivisemobj_->getShift() )
     {
 	res += " (";
-	res += uivisemobj_->getShift();
+	res += uivisemobj_->getShift() * SI().zFactor();
 	res += ")";
     }
 
@@ -180,11 +183,12 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
     uiODEarthModelSurfaceTreeItem::createMenuCB( cb );
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
 
     const bool hastransform = scene && scene->getDataTransform();
 
+    shiftmnuitem_.text = "Shift ..";
+    mAddMenuItem( menu, &shiftmnuitem_, true, false )
     if ( menu->menuID()!=displayID() || hastransform )
     {
 	mResetMenuItem( &fillholesmnuitem_ );
@@ -221,9 +225,27 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==snapeventmnuitem_.id )
     {
 	applMgr()->EMAttribServer()->snapHorizon( emid_ );
-	applMgr()->visServer()->setObjectName( displayid_,
+	visserv_->setObjectName( displayid_,
 		(const char*) applMgr()->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
+    }
+    else if ( mnuid==shiftmnuitem_.id )
+    {
+	BufferStringSet attribnames;
+	TypeSet<int> attribids;
+	const int nrattrib = visserv_->getNrAttribs( displayID());
+	for ( int idx=0; idx<nrattrib; idx++ )
+	{
+	    const Attrib::SelSpec* as =
+		visserv_->getSelSpec( displayID(), idx );
+	    if ( as->id() >= 0 )
+	    {
+		attribids += idx;
+		attribnames.add( as ? as->userRef() : "" );
+	    }
+	}
+	applMgr()->EMServer()->showHorShiftDlg( getUiParent(), emid_,
+						attribnames, attribids );
     }
     else
 	handled = false;
@@ -271,7 +293,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     else if ( mnuid == 1 )
     {
 	if ( !applMgr()->visServer()->
-			 clickablesInScene(EM::Horizon2D::typeStr(),sceneID()) )
+			clickablesInScene(EM::Horizon2D::typeStr(),sceneID()) )
 	    return true; 
 
 	//Will be restored by event (evWizardClosed) from mpeserv
@@ -371,6 +393,7 @@ void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
     }
 	
 }
+
 
 void uiODHorizon2DTreeItem::handleMenuCB( CallBacker* cb )
 {

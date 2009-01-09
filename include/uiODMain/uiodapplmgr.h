@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.68 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.69 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,6 +161,7 @@ public:
 				    { return otherformatvisid_; }
     int				otherFormatAttrib() const
 				    { return otherformatattrib_; }
+    int				createMapDataPack(const DataPointSet&,int col);
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.62 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.63 2009-01-09 09:44:08 cvssatyaki Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -75,6 +75,7 @@ HorizonDisplay::HorizonDisplay()
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[0]->ref();
+    shifts_ += 0.0;
     enabled_ += true;
     datapackids_ += -1;
 }
@@ -86,6 +87,7 @@ HorizonDisplay::~HorizonDisplay()
 
     setSceneEventCatcher( 0 );
     deepUnRef( coltabs_ );
+    shifts_.erase();
 
     if ( translation_ )
     {
@@ -415,6 +417,12 @@ void HorizonDisplay::selectTexture( int attrib, int textureidx )
     else
     {
 	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
+	const float shift = emsurf->auxdata.auxDataShift( textureidx );
+	shifts_[attrib] = shift;
+	emsurf->geometry().setShift( shift );
+	Coord3 tranl = getTranslation();
+	tranl.z = shift;
+	setTranslation( tranl );
 	setSelSpec( 0, Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()));
     }
 }
@@ -460,6 +468,7 @@ bool HorizonDisplay::addAttrib()
     coltabs_[curattrib]->setAutoScale( true );
     coltabs_[curattrib]->setClipRate( 0.025 );
     coltabs_[curattrib]->setSymMidval( mUdf(float) );
+    shifts_ += 0.0;
     enabled_ += true;
     datapackids_ += -1;
 
@@ -488,6 +497,7 @@ bool HorizonDisplay::removeAttrib( int attrib )
 
     coltabs_[attrib]->unRef();
     coltabs_.remove( attrib );
+    shifts_.remove( attrib );
     enabled_.remove( attrib );
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
@@ -510,6 +520,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
     as_.swap( a0, a1 );
     coltabs_.swap( a0, a1 );
     enabled_.swap( a0, a1 );
+    shifts_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
     return true;
 }
@@ -544,8 +555,20 @@ void HorizonDisplay::enableAttrib( int attribnr, bool yn )
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_);
 	if ( psurf )
 	    psurf->enableTexture( attribnr, yn );
+	
+	int attribidx = shifts_.size()-1;
+	if ( attribnr != 0 )
+	{
+	    while ( !isAttribEnabled(attribidx) && attribidx >= 0 )
+		attribidx--;
+	    emsurf->geometry().setShift( shifts_[attribidx] );
+	    Coord3 tranl = getTranslation();
+	    tranl.z = shifts_[attribidx];
+	    setTranslation( tranl );
+	}
     }
 }
 
@@ -557,6 +580,12 @@ bool HorizonDisplay::isAttribEnabled( int attribnr ) const
 
     mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
     return psurf ? psurf->isTextureEnabled(attribnr) : true;
+}
+
+
+void HorizonDisplay::setAttribShift( int attribnr, float shift )
+{
+    shifts_[attribnr] = shift;
 }
 
 
@@ -713,6 +742,8 @@ void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 	return;
     }
 
+    const float shift = getTranslation().z;
+    shifts_[attrib] = shift;
     //TODO make it compatible with multiple sections which all contain data
     //when (if) we are able to display all this info
     if ( sections_.size() )
@@ -768,15 +799,6 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
     Coord3 shift( nt ); shift.z *= -1;
     translation_->setTranslation( shift );
 
-    mDynamicCastGet(EM::Horizon3D*,horizon,emobject_);
-    if ( horizon ) horizon->geometry().setShift( -shift.z );
-
-    for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
-	if ( ps ) ps->inValidateCache(-1);
-    }
-   
     if ( getOnlyAtSectionsDisplay() )
 	setOnlyAtSectionsDisplay( true );		/* retrigger */
 }
@@ -870,6 +892,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
 {
     EMObjectDisplay::emChangeCB( cb );
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+    mDynamicCastGet(const EM::Horizon3D*,emhorizon,emobject_);
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	validtexture_ = false;

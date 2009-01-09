@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.7 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.8 2009-01-09 09:44:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -38,7 +38,7 @@ public:
     Executor*		auxDataSaver(int dataidx=0,bool overwrite=false);
 
     void		removeAll();
-    void		removeSection( const SectionID& sectionid );
+    void		removeSection(const SectionID&);
 
     int			nrAuxData() const;
     			/*!<\return	The number of data per node.
@@ -64,6 +64,9 @@ public:
     float		getAuxDataVal(int dataidx,const PosID& posid) const;
     void		setAuxDataVal(int dataidx,const PosID& posid,float val);
 
+    void		setAuxDataShift(int,float);
+    float		auxDataShift(int) const;
+
     bool		isChanged(int) const;
     void		resetChangedFlag();
 
@@ -81,6 +84,7 @@ protected:
     BufferStringSet				auxdatanames;
     BufferStringSet				auxdatainfo;
     ObjectSet<ObjectSet<TypeSet<float> > >	auxdata;
+    TypeSet<float>				auxdatashift;
 
     bool					changed;
 };
