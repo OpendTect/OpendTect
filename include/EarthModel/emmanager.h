@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.41 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emmanager.h,v 1.42 2009-01-09 10:36:47 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -119,7 +119,7 @@ protected:
 
 mDefineFactory1Param( EMObject, EMManager&, EMOF );
 
-EMManager& EMM();
+mGlobal EMManager& EMM();
 
 }; // Namespace
 
