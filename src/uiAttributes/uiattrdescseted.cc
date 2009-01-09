@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.78 2008-12-30 06:37:38 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.79 2009-01-09 04:38:26 cvsnanne Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -164,16 +164,19 @@ void uiAttribDescSetEd::createGroups()
     sortbut_ = new uiToolButton( leftgrp, "Sort", ioPixmap("sort.png"),
 	    			 mCB(this,uiAttribDescSetEd,sortPush) );
     sortbut_->attach( rightOf, rmbut_ );
+    sortbut_->setPrefWidth( 30 );
 
     moveupbut_ = new uiToolButton( leftgrp, "Move Up" );
     moveupbut_->setArrowType( uiToolButton::UpArrow );
     moveupbut_->attach( centeredRightOf, attrlistfld_ );
     moveupbut_->activated.notify( mCB(this,uiAttribDescSetEd,moveUpDownCB) );
+    moveupbut_->setPrefWidth( moveupbut_->prefVNrPics() );
 
     movedownbut_ = new uiToolButton( leftgrp, "Move Down" );
     movedownbut_->setArrowType( uiToolButton::DownArrow );
     movedownbut_->attach( alignedBelow, moveupbut_ );
     movedownbut_->activated.notify( mCB(this,uiAttribDescSetEd,moveUpDownCB) );
+    movedownbut_->setPrefWidth( movedownbut_->prefVNrPics() );
 
 //  Right part
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
