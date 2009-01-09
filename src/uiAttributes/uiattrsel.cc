@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.32 2009-01-07 11:27:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.33 2009-01-09 10:33:10 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -197,7 +197,6 @@ void uiAttrSelDlg::createSelectionFields()
 	filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
 	compfld_ = new uiLabeledSpinBox( this, "Component", 0, "Compfld" );
 	compfld_->box()->setInterval( StepInterval<int>(1,1,1) );
-	compfld_->box()->setSensitive( false );
 	compfld_->attach( rightTo, filtfld_ );
     }
 
@@ -314,7 +313,6 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     }
 
     compfld_->box()->setValue(1);
-    compfld_->box()->setSensitive( false );
     const MultiID key( ioobjkey.buf() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
@@ -323,7 +321,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     SeisTrcTranslator* transl = rdr.seisTranslator();
     if ( !transl ) return;
     compfld_->box()->setMaxValue( transl->componentInfo().size() );
-    compfld_->box()->setSensitive( true );
+    compfld_->display( transl->componentInfo().size()>1 );
 }
 
 
