@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.104 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.105 2009-01-09 04:37:37 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -531,7 +531,16 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
     {
 	if ( isstoredinl && !showinlprogress )
-	    process->execute();
+	{
+	    if ( !process->execute() )
+	    {
+		BufferString msg( process->message() );
+		if ( !msg.isEmpty() )
+		    uiMSG().error( msg );
+		delete process;
+		return 0;
+	    }
+	}
 	else
 	{
 	    uiTaskRunner taskrunner( parent() );
