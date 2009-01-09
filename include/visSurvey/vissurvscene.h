@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.56 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vissurvscene.h,v 1.57 2009-01-09 09:17:26 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -139,6 +139,8 @@ public:
     const char*			getZDomainKey() const
 				    { return zdomainkey_; }
 
+    void			setAnnotColor(const Color&);
+    const Color&		getAnnotColor();
     void			setMarkerPos( const Coord3& );
     void			setMarkerSize( float );
     float			getMarkerSize() const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visannot.h,v 1.18 2009-01-08 10:15:40 cvsranojay Exp $
+ RCS:		$Id: visannot.h,v 1.19 2009-01-09 09:17:26 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -15,12 +15,14 @@ ________________________________________________________________________
 
 
 #include "visobject.h"
+#include "color.h"
 #include "position.h"
 #include "sets.h"
 
 class SoSwitch;
 class SoCoordinate3;
 class AxisInfo;
+class Color;
 
 namespace visBase
 {
@@ -48,6 +50,9 @@ public:
     void			setCorner( int, float, float, float );
     Coord3			getCorner( int ) const;
     void			setText( int dim, const char * );
+    void			setTextColor(int dim,const Color&);
+    const Color&		getColor()		{ return annotcolor_; }
+    void			updateTextColor(const Color&);
 
     void			fillPar( IOPar&, TypeSet<int>& ) const;
     int				usePar( const IOPar& );
@@ -66,6 +71,7 @@ protected:
     
     SoSwitch*			textswitch;
     SoSwitch*			scaleswitch;
+    Color			annotcolor_;
 
     static const char*		textprefixstr;
     static const char*		cornerprefixstr;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.7 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.8 2009-01-09 09:17:26 cvssatyaki Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -32,6 +32,7 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     , hadannot_( scene->isAnnotTextShown() )
     , hadannotscale_( scene->isAnnotScaleShown() )
     , oldbgcolor_( viewer->getBackgroundColor() )
+    , annotcolor_( scene->getAnnotColor() )
     , oldmarkersize_( scene->getMarkerSize() )
     , oldmarkercolor_( scene->getMarkerColor() )
     , markersizefld_( 0 )
@@ -81,6 +82,11 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
 	    uiColorInput::Setup(oldmarkercolor_).lbltxt("Mouse marker color") );
     markercolfld_->attach( alignedBelow, markersizefld_ );
     markercolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
+    
+    annotcolfld_ = new uiColorInput( this,
+	    uiColorInput::Setup(annotcolor_).lbltxt("Annotation color") );
+    annotcolfld_->attach( alignedBelow, markercolfld_ );
+    annotcolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 }
 
 
@@ -100,6 +106,7 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
     scene->showAnnotText( annotfld_->isChecked() );
     scene->setMarkerSize( markersizefld_->sldr()->getValue() );
     scene->setMarkerColor( markercolfld_->color() );
+    scene->setAnnotColor( annotcolfld_->color() );
 }
 
 
@@ -111,6 +118,7 @@ bool uiScenePropertyDlg::rejectOK( CallBacker* )
     scene_->setMarkerSize( oldmarkersize_ );
     scene_->setMarkerColor( oldmarkercolor_ );
     viewer_->setBackgroundColor( oldbgcolor_ );
+    scene_->setAnnotColor( annotcolor_ );
     return true;
 }
 

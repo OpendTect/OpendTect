@@ -4,12 +4,13 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.26 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.27 2009-01-09 09:17:26 cvssatyaki Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
 #include "visdatagroup.h"
 #include "vispickstyle.h"
+#include "vismaterial.h"
 #include "ranges.h"
 #include "samplingdata.h"
 #include "linear.h"
@@ -38,6 +39,7 @@ Annotation::Annotation()
     , pickstyle(PickStyle::create())
     , texts(0)
 {
+    annotcolor_ = Color::White();
     pickstyle->ref();
     addChild( pickstyle->getInventorNode() );
     pickstyle->setStyle( PickStyle::Unpickable );
@@ -181,6 +183,25 @@ void Annotation::setText( int dim, const char* string )
 }
 
 
+void Annotation::setTextColor( int dim, const Color& col )
+{
+    Text2* text = (Text2*)texts->getObject( dim );
+    if ( text )
+	text->getMaterial()->setColor( col );
+}
+
+
+void Annotation::updateTextColor( const Color& col )
+{
+    annotcolor_ = col;
+    for ( int idx=0; idx<3; idx++ )
+    {
+	setTextColor( idx, annotcolor_ );
+    }
+    updateTextPos();
+}
+
+
 void Annotation::updateTextPos()
 {
     updateTextPos( 0 );
@@ -248,6 +269,7 @@ void Annotation::updateTextPos( int textid )
 	pos[dim] = val;
 	text->setPosition( pos );
 	text->setText( toString(val) );
+	text->getMaterial()->setColor( annotcolor_ );
     }
 }
 

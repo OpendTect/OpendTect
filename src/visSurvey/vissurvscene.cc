@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.112 2008-12-10 18:35:14 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.113 2009-01-09 09:17:26 cvssatyaki Exp $";
 
 #include "vissurvscene.h"
 
@@ -323,6 +323,19 @@ bool Scene::isAnnotShown() const
 void Scene::setAnnotText( int dim, const char* txt )
 {
     annot_->setText( dim, txt );
+}
+
+
+void Scene::setAnnotColor( const Color& col )
+{
+    annot_->getMaterial()->setColor( col );
+    annot_->updateTextColor( col );
+}
+
+
+const Color& Scene::getAnnotColor()
+{
+    return annot_->getColor();
 }
 
 
