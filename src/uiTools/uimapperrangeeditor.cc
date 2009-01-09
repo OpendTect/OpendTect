@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.2 2009-01-08 10:12:19 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.3 2009-01-09 05:43:03 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,11 +292,25 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
     if ( pointedpos < (minlinecurpos_+maxlinecurpos_)/2 )
     {
 	if ( pointedpos < lefttminval_ ) return false;
+
+	if ( !(histogramdisp_->xAxis()->getPix(pointedpos) >
+		    (histogramdisp_->xAxis()->getPix(minlinecurpos_)-10) &&
+	       histogramdisp_->xAxis()->getPix(pointedpos) <
+	            (histogramdisp_->xAxis()->getPix(minlinecurpos_)+10)) )
+	    return false;
+
 	minlinecurpos_ = pointedpos;
     }
     else
     {
 	if ( pointedpos > rightmaxval_ ) return false;
+
+	if ( !(histogramdisp_->xAxis()->getPix(pointedpos) >
+		    (histogramdisp_->xAxis()->getPix(maxlinecurpos_)-10) &&
+	       histogramdisp_->xAxis()->getPix(pointedpos) <
+	       	    (histogramdisp_->xAxis()->getPix(maxlinecurpos_)+10)) )
+	    return false;
+
 	maxlinecurpos_ = pointedpos;
     }
 
