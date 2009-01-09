@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.9 2008-04-03 16:12:44 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.10 2009-01-09 10:34:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -360,7 +360,7 @@ const char* Factory2Param<T,P0,P1>::getDefaultName() const
 
 
 #define mDefineFactory( T, funcname ) \
-::Factory<T>& funcname()
+mGlobal ::Factory<T>& funcname()
 
 
 #define mDefineFactoryInClass( T, funcname ) \
@@ -370,13 +370,13 @@ static ::Factory<T>& funcname()
 #define mImplFactory( T, funcname ) \
 ::Factory<T>& funcname() \
 { \
-    static ::Factory<T> inst; \
-    return inst; \
+    static PtrMan<::Factory<T> > inst = new ::Factory<T>; \
+    return *inst; \
 } 
 
 
 #define mDefineFactory1Param( T, P, funcname ) \
-::Factory1Param<T,P>& funcname()
+mGlobal ::Factory1Param<T,P>& funcname()
 
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
@@ -386,13 +386,13 @@ static ::Factory1Param<T,P>& funcname()
 #define mImplFactory1Param( T, P, funcname ) \
 ::Factory1Param<T,P>& funcname() \
 { \
-    static ::Factory1Param<T,P> inst; \
-    return inst; \
+    static PtrMan<::Factory1Param<T,P> > inst = new ::Factory1Param<T,P>; \
+    return *inst; \
 } 
 
 
 #define mDefineFactory2Param( T, P0, P1, funcname ) \
-::Factory2Param<T,P0,P1>& funcname()
+mGlobal ::Factory2Param<T,P0,P1>& funcname()
 
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
@@ -402,7 +402,7 @@ static ::Factory2Param<T,P0,P1>& funcname()
 #define mImplFactory2Param( T, P0, P1, funcname ) \
 ::Factory2Param<T,P0,P1>& funcname() \
 { \
-    static ::Factory2Param<T,P0,P1> inst; \
-    return inst; \
+    static PtrMan<::Factory2Param<T,P0,P1> > inst = new ::Factory2Param<T,P0,P1>; \
+    return *inst; \
 } 
 #endif
