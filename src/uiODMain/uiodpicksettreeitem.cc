@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.52 2008-12-12 22:29:47 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.53 2009-01-09 11:31:10 cvsnageswara Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -115,6 +115,7 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 #define mDisplayIdx	11
 #define mShowAllIdx	12
 #define mMergeIdx	13
+#define mLoadPolyIdx	14
 
 
 bool uiODPickSetParentTreeItem::showSubMenu()
@@ -125,6 +126,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );
+    mnu.insertItem( new uiMenuItem("Load &Polygon..."), mLoadPolyIdx );
     uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
     newmnu->insertItem( new uiMenuItem("&Empty ..."), mEmptyIdx );
     newmnu->insertItem( new uiMenuItem("&Polygon ..."), mPolygonIdx );
@@ -162,10 +164,10 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid<0 )
 	return false;
-    else if ( mnuid==mLoadIdx )
+    else if ( mnuid==mLoadIdx || mnuid==mLoadPolyIdx )
     {
 	display_on_add = true;
-	bool res = applMgr()->pickServer()->loadSets();
+	bool res = applMgr()->pickServer()->loadSets(mnuid==mLoadPolyIdx);
 	display_on_add = false;
 	if ( !res )
 	    return -1;

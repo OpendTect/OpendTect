@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.57 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.58 2009-01-09 11:31:10 cvsnageswara Exp $";
 
 #include "uipickpartserv.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uipickpartserv.cc,v 1.57 2008-12-03 09:13:56 cv
 #include "uipicksetman.h"
 
 #include "ioman.h"
+#include "keystrs.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "surfaceinfo.h"
@@ -74,10 +75,14 @@ void uiPickPartServer::fetchHors( bool is2d )
     sendEvent( is2d ? evGetHorInfo2D : evGetHorInfo3D );
 }
 
-bool uiPickPartServer::loadSets()
+bool uiPickPartServer::loadSets( bool poly )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
+    ctio->ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
+    ctio->ctxt.includeconstraints = poly;
+    ctio->ctxt.allowcnstrsabsent = !poly;
+
     uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;
 

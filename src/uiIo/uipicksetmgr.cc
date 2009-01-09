@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.6 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.7 2009-01-09 11:31:10 cvsnageswara Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -109,14 +109,21 @@ bool uiPickSetMgr::pickSetsStored() const
 
 bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 {
+    const bool ispoly = ps.disp_.connect_ != Pick::Set::Disp::None;
     const BufferString oldname = ps.name();
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( PickSet );
     ctio->ctxt.forread = false;
     ctio->ctxt.maychdir = false;
+
+    ctio->ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
+    ctio->ctxt.includeconstraints = ispoly;
+    ctio->ctxt.allowcnstrsabsent = !ispoly;
+
     ctio->setName( oldname );
     uiIOObjSelDlg dlg( parent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	return false;
+
 
     if ( !doStore( ps, *dlg.ioObj() ) )
 	return false;
