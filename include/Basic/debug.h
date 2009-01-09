@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		Jun 2003
- RCS:		$Id: debug.h,v 1.12 2008-12-24 12:38:10 cvsranojay Exp $
+ RCS:		$Id: debug.h,v 1.13 2009-01-09 10:32:43 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ extern "C" {
     mGlobal void od_debug_message( const char* msg );
     mGlobal void od_debug_messagef( int flag, const char* msg );
     mGlobal void od_debug_putProgInfo(int,char**);
+    mGlobal void od_putProgInfo(int,char**);
 
 # ifdef __cpp__
 }
