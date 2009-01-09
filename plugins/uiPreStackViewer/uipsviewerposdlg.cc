@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.11 2009-01-08 17:10:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.12 2009-01-09 11:02:26 cvsbert Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -31,6 +31,7 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     , applybox_(0)
     , applybut_(0)
 {
+    setCtrlStyle( LeaveOnly );
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
 		    is3D() ? (isInl() ? "Crossline" : "Inline") : "Trace Nr",
 		    0 , "Position" );
@@ -46,11 +47,11 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 		posspos.stop-posspos.start,posspos.step) );
     stepfld_->valueChanged.notify( mCB(this,uiViewer3DPositionDlg,stepCB) );
 
-    applybox_ = new uiCheckBox( this, "Apply immediately",
+    applybox_ = new uiCheckBox( this, "Immediate update",
 	    			mCB(this,uiViewer3DPositionDlg,boxSel) );
-    applybox_->attach( alignedBelow, lsb );
-    applybut_ = new uiPushButton( this, "&Apply now", true );
-    applybut_->attach( leftOf, applybox_ );
+    applybox_->attach( rightOf, steplsb );
+    applybut_ = new uiPushButton( this, "&Update Now", true );
+    applybut_->attach( rightBorder );
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
 
     finaliseDone.notify( mCB(this,uiViewer3DPositionDlg,atStart) );
@@ -94,7 +95,12 @@ void uiViewer3DPositionDlg::atStart( CallBacker* )
 void uiViewer3DPositionDlg::boxSel( CallBacker* c )
 {
     if ( applybut_ && applybox_ )
-	applybut_->display( !applybox_->isChecked() );
+    {
+	const bool nowon = applybox_->isChecked();
+	applybut_->display( !nowon );
+	if ( nowon )
+	    applyCB( c );
+    }
 }
 
 
@@ -179,12 +185,6 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
     }
 
     return true;
-}
-
-
-bool uiViewer3DPositionDlg::acceptOK( CallBacker* c )
-{
-    return applyCB( c );
 }
 
 

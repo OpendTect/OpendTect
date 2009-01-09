@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2008
- RCS:           $Id: uipsviewerposdlg.h,v 1.7 2009-01-07 16:06:19 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewerposdlg.h,v 1.8 2009-01-09 11:02:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,6 @@ protected:
 
     void		stepCB(CallBacker*);
     void		atStart(CallBacker*);
-    bool		acceptOK(CallBacker*);
     bool		applyCB(CallBacker*);
     
     PreStackView::Viewer3D& viewer_;
