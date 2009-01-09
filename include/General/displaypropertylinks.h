@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl & N. Hemstra
  Date:		September 2008
- RCS:		$Id: displaypropertylinks.h,v 1.3 2008-12-25 11:21:53 cvsranojay Exp $
+ RCS:		$Id: displaypropertylinks.h,v 1.4 2009-01-09 09:37:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,10 @@ public:
     				~DisplayLinkManager();
     static DisplayLinkManager&	getImpl();
 
+    int				nrHolders() const;
     int				addHolder(DisplayPropertyHolder*);
+    const DisplayPropertyHolder* getHolder(int) const;
+
     void			createPossibleLinks(DisplayPropertyHolder*,
 					ObjectSet<DisplayPropertyLink>&);
     				//!<DisplayPropertyLinks become yours

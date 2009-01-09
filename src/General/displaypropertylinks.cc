@@ -4,7 +4,7 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.3 2008-12-16 12:14:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.4 2009-01-09 09:37:52 cvsnanne Exp $";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"
@@ -117,6 +117,13 @@ int DisplayLinkManager::addHolder( DisplayPropertyHolder* hldr )
 
     return hldr->propertyHolderID();
 }
+
+
+int DisplayLinkManager::nrHolders() const
+{ return holders_.size(); }
+
+const DisplayPropertyHolder* DisplayLinkManager::getHolder( int idx ) const
+{ return holders_.validIdx(idx) ? holders_[idx] : 0; }
 
 
 void DisplayLinkManager::createPossibleLinks( DisplayPropertyHolder* hldr,
@@ -242,7 +249,7 @@ DisplayPropertyLink* DisplayLinkManager::getDisplayPropertyLink( int id )
 }
 
 
-void DisplayLinkManager::removeHolder(  DisplayPropertyHolder* hldr )
+void DisplayLinkManager::removeHolder( DisplayPropertyHolder* hldr )
 {
     Threads::MutexLocker lock( lock_ );
     if ( holders_.indexOf( hldr )==-1 )
