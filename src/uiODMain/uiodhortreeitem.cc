@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.10 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.11 2009-01-09 12:31:03 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -234,16 +234,29 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	BufferStringSet attribnames;
 	TypeSet<int> attribids;
 	const int nrattrib = visserv_->getNrAttribs( displayID());
+	bool depthdisplayed = false;
 	for ( int idx=0; idx<nrattrib; idx++ )
 	{
 	    const Attrib::SelSpec* as =
 		visserv_->getSelSpec( displayID(), idx );
-	    if ( as->id() >= 0 )
+	    if ( as->id() != as->cOtherAttrib() )
 	    {
+		if ( as->id() == as->cNoAttrib() )
+		{
+		    depthdisplayed = true;
+		    continue;
+		}
 		attribids += idx;
 		attribnames.add( as ? as->userRef() : "" );
 	    }
 	}
+	if ( attribnames.isEmpty() && !depthdisplayed )
+	{
+	    BufferString msg( "Horizons cant be shifted for surface data");
+	    uiMSG().error( msg );
+	    return;
+	}
+
 	applMgr()->EMServer()->showHorShiftDlg( getUiParent(), emid_,
 						attribnames, attribids );
     }
