@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.10 2009-01-09 10:34:29 cvsranojay Exp $
+ RCS:		$Id: factory.h,v 1.11 2009-01-09 10:49:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -370,7 +370,7 @@ static ::Factory<T>& funcname()
 #define mImplFactory( T, funcname ) \
 ::Factory<T>& funcname() \
 { \
-    static PtrMan<::Factory<T> > inst = new ::Factory<T>; \
+    static PtrMan< ::Factory<T> > inst = new ::Factory<T>; \
     return *inst; \
 } 
 
@@ -386,7 +386,7 @@ static ::Factory1Param<T,P>& funcname()
 #define mImplFactory1Param( T, P, funcname ) \
 ::Factory1Param<T,P>& funcname() \
 { \
-    static PtrMan<::Factory1Param<T,P> > inst = new ::Factory1Param<T,P>; \
+    static PtrMan< ::Factory1Param<T,P> > inst = new ::Factory1Param<T,P>; \
     return *inst; \
 } 
 
@@ -402,7 +402,8 @@ static ::Factory2Param<T,P0,P1>& funcname()
 #define mImplFactory2Param( T, P0, P1, funcname ) \
 ::Factory2Param<T,P0,P1>& funcname() \
 { \
-    static PtrMan<::Factory2Param<T,P0,P1> > inst = new ::Factory2Param<T,P0,P1>; \
+    static PtrMan< ::Factory2Param<T,P0,P1> > inst =\
+	    new ::Factory2Param<T,P0,P1>; \
     return *inst; \
 } 
 #endif
