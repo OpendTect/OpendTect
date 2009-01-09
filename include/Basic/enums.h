@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.14 2009-01-09 04:35:56 cvsnanne Exp $
+ RCS:		$Id: enums.h,v 1.15 2009-01-09 10:31:29 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,8 +176,8 @@ protected: \
 public:
 
 #define DeclareNameSpaceEnumUtils(enm) \
-    extern const EnumDef& enm##Def(); \
-    extern const char** enm##Names();\
+    mExtern const EnumDef& enm##Def(); \
+    mExtern const char** enm##Names();\
     extern const char* enm##names_[];\
     extern const EnumDef enm##definition_;
 
