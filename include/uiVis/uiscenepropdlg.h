@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.h,v 1.2 2009-01-08 10:37:54 cvsranojay Exp $
+ RCS:           $Id: uiscenepropdlg.h,v 1.3 2009-01-09 09:19:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ protected:
     Color			oldbgcolor_;
     float			oldmarkersize_;
     Color			oldmarkercolor_;
+    Color			annotcolor_;
     static bool			savestatus;
 
     uiCheckBox*			annotfld_;
@@ -56,6 +57,7 @@ protected:
     uiColorInput*		bgcolfld_;
     uiSliderExtra*		markersizefld_;
     uiColorInput*		markercolfld_;
+    uiColorInput*		annotcolfld_;
 };
 
 #endif
