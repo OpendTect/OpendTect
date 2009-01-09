@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiprogressbar.h,v 1.7 2007-05-14 06:55:01 cvsnanne Exp $
+ RCS:           $Id: uiprogressbar.h,v 1.8 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiProgressBarBody;
 
-class uiProgressBar : public uiObject
+mClass uiProgressBar : public uiObject
 {
 public:
 

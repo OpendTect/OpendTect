@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.11 2008-03-18 17:41:01 cvskris Exp $
+ RCS:           $Id: uicursor.h,v 1.12 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class ioPixmap;
 class QCursor;
 
-class uiCursorManager : public MouseCursorManager
+mClass uiCursorManager : public MouseCursorManager
 {
 public:
     static void	initClass();

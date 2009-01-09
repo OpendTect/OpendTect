@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.9 2007-08-13 12:48:58 cvsjaap Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.10 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ protected:
 };
 
 
-class uiButtonGroup : public uiParent
+mClass uiButtonGroup : public uiParent
 { 	
 friend class uiButtonGroupObj;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.20 2008-04-08 12:17:16 cvsnanne Exp $
+ RCS:           $Id: pixmap.h,v 1.21 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,7 @@ class uiRGBArray;
 
 */
 
-class ioPixmap : public NamedObject,
-		 public ioDrawAreaImpl
+mClass ioPixmap : public NamedObject, public ioDrawAreaImpl
 {
 public:
 			ioPixmap() : qpixmap_(0)		{}
@@ -81,7 +80,7 @@ protected:
 
 
 //!A pixmap with the depth of 2 (b/w)
-class ioBitmap : public ioPixmap
+mClass ioBitmap : public ioPixmap
 {
 public:
 			/*! \brief Constructs a bitmap from the file fileName. 

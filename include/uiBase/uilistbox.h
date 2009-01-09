@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.44 2008-12-17 07:44:40 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.45 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiPopupMenu;
 class QString;
 
 
-class uiListBox : public uiObject
+mClass uiListBox : public uiObject
 {
 friend class i_listMessenger;
 friend class uiListBoxBody;
@@ -147,7 +147,7 @@ private:
 };
 
 
-class uiLabeledListBox : public uiGroup
+mClass uiLabeledListBox : public uiGroup
 {
 public:
 

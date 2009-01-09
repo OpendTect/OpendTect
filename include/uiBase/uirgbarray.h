@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B. Bril & H. Huck
  Date:          08/09/06
- RCS:           $Id: uirgbarray.h,v 1.5 2008-04-09 11:07:02 cvsnanne Exp $
+ RCS:           $Id: uirgbarray.h,v 1.6 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class QImage;
 
 
-class uiRGBArray
+mClass uiRGBArray
 {
 public:
                         uiRGBArray(bool withalpha);

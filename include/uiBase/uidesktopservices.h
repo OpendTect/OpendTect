@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: uidesktopservices.h,v 1.2 2007-05-21 04:27:33 cvsnanne Exp $
+ RCS:           $Id: uidesktopservices.h,v 1.3 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "commondefs.h"
 
-class uiDesktopServices
+mClass uiDesktopServices
 {
 public:
     static bool		openUrl(const char* url);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2008
- RCS:           $Id: uimdiarea.h,v 1.1 2008-08-11 18:22:17 cvsnanne Exp $
+ RCS:           $Id: uimdiarea.h,v 1.2 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ protected:
 };
 
 
-class uiMdiArea : public uiObject
+mClass uiMdiArea : public uiObject
 { 	
 friend class		uiMdiAreaBody;
 friend class		i_MdiAreaMessenger;

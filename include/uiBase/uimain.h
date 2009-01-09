@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.13 2008-03-19 13:15:39 cvsbert Exp $
+ RCS:           $Id: uimain.h,v 1.14 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QWidget;
 class BufferStringSet;
 
 
-class uiMain
+mClass uiMain
 {
 public:
 			uiMain(int& argc,char** argv);

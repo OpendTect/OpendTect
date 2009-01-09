@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.51 2009-01-07 14:33:02 cvsbert Exp $
+ RCS:           $Id: uitable.h,v 1.52 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiLabel;
 class uiTableBody;
 
 
-class uiTable : public uiObject
+mClass uiTable : public uiObject
 {
 friend class		i_tableMessenger;
 friend class		uiTableBody;
@@ -50,7 +50,7 @@ public:
 	Interactive, Fixed, Stretch, ResizeToContents
     };
 
-    class Setup
+    mClass Setup
     {
     public:
 
@@ -252,7 +252,7 @@ public:
     void		setSelectionBehavior(SelectionBehavior);
     void		editCell(const RowCol&,bool replace=false);
 
-    class SelectionRange
+    mClass SelectionRange
     {
     public:
 			SelectionRange()

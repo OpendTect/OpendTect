@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.11 2008-12-12 05:46:51 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.12 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ class uiRect;
 class uiRectItem;
 class uiTextItem;
 
-class uiGraphicsScene : public NamedObject
+mClass uiGraphicsScene : public NamedObject
 {
 public:
 				uiGraphicsScene(const char*);

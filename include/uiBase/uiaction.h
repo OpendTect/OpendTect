@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uiaction.h,v 1.3 2008-07-04 04:19:38 cvsnanne Exp $
+ RCS:           $Id: uiaction.h,v 1.4 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class QAction;
 class ioPixmap;
 class MenuItem;
 
-class uiAction : public CallBacker
+mClass uiAction : public CallBacker
 {
 friend class		i_ActionMessenger;
 public:

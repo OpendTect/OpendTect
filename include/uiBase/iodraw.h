@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.h,v 1.10 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: iodraw.h,v 1.11 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class ioDrawTool;
     can give you a drawtool to do your job.
 
 */
-class ioDrawArea
+mClass ioDrawArea
 {
 public:
 			ioDrawArea()			{}

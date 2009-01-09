@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.16 2008-11-27 09:11:05 cvsbruno Exp $
+ RCS:           $Id: uicolor.h,v 1.17 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,10 +38,10 @@ static Color*	externalcolor = 0;
  
  */
 
-class uiColorInput : public uiGroup
+mClass uiColorInput : public uiGroup
 {
 public:
-    class Setup
+    mClass Setup
     {
     public:
 			Setup(const Color& col)

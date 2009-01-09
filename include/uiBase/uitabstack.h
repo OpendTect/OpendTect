@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.h,v 1.10 2008-09-03 16:31:07 cvskris Exp $
+ RCS:           $Id: uitabstack.h,v 1.11 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class uiTabBar;
     child-of-child."
    
 */
-class uiTabStack : public uiGroup
+mClass uiTabStack : public uiGroup
 {
 public:
 			uiTabStack(uiParent*,const char* nm,

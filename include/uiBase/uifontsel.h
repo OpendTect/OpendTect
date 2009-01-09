@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          25/9/2000
- RCS:           $Id: uifontsel.h,v 1.6 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uifontsel.h,v 1.7 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ bool	select( uiFont&, uiParent* parnt=0, const char* nm=0 );
 	     \return true if new font selected
 	*/
 
-class uiSetFonts : public uiDialog
+mClass uiSetFonts : public uiDialog
 {
 public:
 
@@ -40,7 +40,7 @@ protected:
 };
 
 
-class uiSelFonts : public uiDialog
+mClass uiSelFonts : public uiDialog
 {
 public:
 

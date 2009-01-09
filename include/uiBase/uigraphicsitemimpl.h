@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.7 2008-12-12 10:31:10 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.8 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ class ODGraphicsPointItem;
 template <class T> class ODPolygon;
 
 
-class uiEllipseItem : public uiGraphicsItem
+mClass uiEllipseItem : public uiGraphicsItem
 {
 public:
 				uiEllipseItem();
@@ -57,7 +57,7 @@ protected:
 };
 
 
-class uiLineItem : public uiGraphicsItem
+mClass uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
@@ -79,7 +79,7 @@ protected:
 };
 
 
-class uiPixmapItem : public uiGraphicsItem
+mClass uiPixmapItem : public uiGraphicsItem
 {
 public:
     				uiPixmapItem();
@@ -98,7 +98,7 @@ protected:
 };
 
 
-class uiPolygonItem : public uiGraphicsItem
+mClass uiPolygonItem : public uiGraphicsItem
 {
 public:
     			uiPolygonItem();
@@ -117,7 +117,7 @@ protected:
 };
 
 
-class uiPolyLineItem : public uiGraphicsItem
+mClass uiPolyLineItem : public uiGraphicsItem
 {
 public:
     				uiPolyLineItem();
@@ -135,7 +135,7 @@ protected:
 
 
 
-class uiRectItem : public uiGraphicsItem
+mClass uiRectItem : public uiGraphicsItem
 {
 public:
     			uiRectItem();
@@ -152,7 +152,7 @@ protected:
 };
 
 
-class uiTextItem : public uiGraphicsItem
+mClass uiTextItem : public uiGraphicsItem
 {
 public:
     			uiTextItem();
@@ -174,7 +174,7 @@ protected:
 };
 
 
-class uiMarkerItem : public uiGraphicsItem
+mClass uiMarkerItem : public uiGraphicsItem
 {
 public:
 				uiMarkerItem(const MarkerStyle2D&);
@@ -191,7 +191,7 @@ protected:
 };
 
 
-class uiPointItem : public uiGraphicsItem
+mClass uiPointItem : public uiGraphicsItem
 {
 public:
     				uiPointItem();
@@ -207,7 +207,7 @@ protected:
 };
 
 
-class uiArrowItem : public uiGraphicsItem
+mClass uiArrowItem : public uiGraphicsItem
 {
 public:
     				uiArrowItem();

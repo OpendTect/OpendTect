@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.10 2008-12-19 04:45:05 cvsnanne Exp $
+ RCS:           $Id: uistatusbar.h,v 1.11 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QStatusBar;
 class uiMainWin;
 
 
-class uiStatusBar : public uiObjHandle
+mClass uiStatusBar : public uiObjHandle
 {
 
     friend class	uiMainWinBody;

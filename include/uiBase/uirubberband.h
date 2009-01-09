@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: uirubberband.h,v 1.3 2007-03-29 16:13:36 cvsbert Exp $
+ RCS:		$Id: uirubberband.h,v 1.4 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class QMouseEvent;
 class QRubberBand;
 class QWidget;
 
-class uiRubberBand
+mClass uiRubberBand
 {
 public:
     			uiRubberBand(QWidget* p)

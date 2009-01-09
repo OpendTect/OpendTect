@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.34 2008-12-04 15:47:43 cvskris Exp $
+ RCS:           $Id: uitreeview.h,v 1.35 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class uiListViewBody;
 class uiListViewItem;
 class ioPixmap;
 
-class uiListView : public uiObject
+mClass uiListView : public uiObject
 {
     friend class		i_listVwMessenger;
     friend class		uiListViewBody;
@@ -169,13 +169,13 @@ private:
 
 */
 
-class uiListViewItem : public CallBacker
+mClass uiListViewItem : public CallBacker
 {
 public:
 
     enum			Type { Standard, CheckBox };
 
-    class Setup
+    mClass Setup
     {
     public:
 				Setup( const char* txt=0, 

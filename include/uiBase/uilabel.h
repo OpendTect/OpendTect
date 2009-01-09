@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.11 2008-12-24 05:52:49 cvsnanne Exp $
+ RCS:           $Id: uilabel.h,v 1.12 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiGroup;
 class uiLabelBody;
 
-class uiLabel : public uiObject
+mClass uiLabel : public uiObject
 {
 public:
 

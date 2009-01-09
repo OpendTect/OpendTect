@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.16 2008-09-03 16:31:07 cvskris Exp $
+ RCS:           $Id: uitabbar.h,v 1.17 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiTab;
 
 
 //! TabBar widget only. Normally you'd want to use the uiTabStack class.
-class uiTabBar : public uiObject
+mClass uiTabBar : public uiObject
 {
 friend class		i_tabbarMessenger;
 friend class		uiTabStack;
@@ -61,7 +61,7 @@ protected:
 };
 
 
-class uiTab : public NamedObject
+mClass uiTab : public NamedObject
 {
 friend class		uiTabBar;
 public:

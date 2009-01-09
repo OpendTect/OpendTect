@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.35 2008-08-28 05:58:40 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.36 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiPopupMenu;
 class uiToolBarBody;
 class QToolBar;
 
-class uiToolBar : public uiParent
+mClass uiToolBar : public uiParent
 {
 public:
     //! ToolBar Dock Identifier

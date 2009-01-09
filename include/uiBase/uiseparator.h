@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:           $Id: uiseparator.h,v 1.4 2007-04-11 16:32:52 cvsbert Exp $
+ RCS:           $Id: uiseparator.h,v 1.5 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 class uiSeparatorBody;
 
-class uiSeparator : public uiObject
+mClass uiSeparator : public uiObject
 {
 public:
 

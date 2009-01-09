@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.24 2008-12-24 05:52:49 cvsnanne Exp $
+ RCS:           $Id: uicombobox.h,v 1.25 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class BufferStringSet;
 class BufferString;
 template <class T> class ObjectSet;
 
-class uiComboBox : public uiObject, public UserInputObjImpl<int>
+mClass uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
 
@@ -90,7 +90,7 @@ private:
 
 
 
-class uiLabeledComboBox : public uiGroup
+mClass uiLabeledComboBox : public uiGroup
 {
 public:
 		uiLabeledComboBox(uiParent*,const char* lbl,

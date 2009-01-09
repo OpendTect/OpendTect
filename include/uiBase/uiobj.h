@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.60 2008-12-24 05:52:49 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.61 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class QWidget;
 
 /*!\ The base class for most UI elements. */
 
-class uiObject : public uiObjHandle
+mClass uiObject : public uiObjHandle
 {
     friend class	uiObjectBody;
     friend class	i_LayoutItem;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.48 2008-12-18 13:21:48 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.49 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ If you don't want to use the help system, simply pass null ('0').
 #define mNoDlgTitle	""
 
 
-class uiDialog : public uiMainWin
+mClass uiDialog : public uiMainWin
 { 	
     // impl: uimainwin.cc
     friend class	uiDialogBody;
@@ -45,7 +45,7 @@ public:
 	see general.h for background on Setup classes.
      */
 
-    class Setup
+    mClass Setup
     {
     public:
 

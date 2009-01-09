@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.18 2008-08-08 08:47:12 cvsnanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.19 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiObject;
 class uiMainWin;
 class QDockWidget;
 
-class uiDockWin : public uiParent
+mClass uiDockWin : public uiParent
 {
 public:
 			uiDockWin(uiParent* parnt=0, 

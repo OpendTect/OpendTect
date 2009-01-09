@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.66 2009-01-06 03:30:29 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.67 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,11 @@ class uiStatusBar;
 class uiToolBar;
 class QWidget;
 
-class uiMainWin : public uiParent
+mClass uiMainWin : public uiParent
 {
 friend class uiMainWinBody;
 public:
-    class Setup
+    mClass Setup
     {
     public:
 			Setup( const char* capt )

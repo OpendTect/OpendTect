@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.45 2008-09-08 12:35:19 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.46 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class QMenuBar;
 template<class T> class ObjectSet;
 
 
-class MenuItemSeparString : public SeparString
+mClass MenuItemSeparString : public SeparString
 {
 public:
     	MenuItemSeparString(const char* str=0) : SeparString(str,'`')	{}
@@ -82,7 +82,7 @@ protected:
     messenger, so Qt's signals can be relayed.
 */
 
-class uiMenuItem : public NamedObject
+mClass uiMenuItem : public NamedObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -147,7 +147,7 @@ private:
 };
 
 
-class uiPopupItem : public uiMenuItem
+mClass uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
@@ -168,7 +168,7 @@ protected:
 
 class QPixmap;
 
-class uiMenuBar : public uiMenuItemContainer
+mClass uiMenuBar : public uiMenuItemContainer
 {
 
     friend class		uiMainWinBody;
@@ -190,7 +190,7 @@ protected:
 };
 
 
-class uiPopupMenu : public uiMenuItemContainer
+mClass uiPopupMenu : public uiMenuItemContainer
 {
 
 public:                        

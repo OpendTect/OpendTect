@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: uisplashscreen.h,v 1.1 2007-02-06 21:27:05 cvsnanne Exp $
+ RCS:		$Id: uisplashscreen.h,v 1.2 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+
+#include "commondefs.h"
 
 class ioPixmap;
 class uiMainWin;
 class QSplashScreen;
 
-class uiSplashScreen
+mClass uiSplashScreen
 {
 public:
     				uiSplashScreen(const ioPixmap&);

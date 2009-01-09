@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uisplitter.h,v 1.2 2007-12-19 08:59:52 cvsnanne Exp $
+ RCS:           $Id: uisplitter.h,v 1.3 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ Example:
 
 */
 
-class uiSplitter : public uiObject
+mClass uiSplitter : public uiObject
 {
 public:
                         uiSplitter(uiParent*,const char* nm="Splitter", 

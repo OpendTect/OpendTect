@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.7 2008-12-24 05:52:49 cvsnanne Exp $
+ RCS:           $Id: uifont.h,v 1.8 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class Settings;
 class uiParent;
 class BufferStringSet;
 
-class uiFont 
+mClass uiFont 
 {			//!< font stuff that needs Qt.
 
     friend bool		select(uiFont&,uiParent*,const char*); 
@@ -68,7 +68,7 @@ protected:
 };
 
 
-class uiFontList : public CallBacker
+mClass uiFontList : public CallBacker
 {
     friend class	uiSetFonts;
 

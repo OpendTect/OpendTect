@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.20 2008-05-08 06:00:37 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.h,v 1.21 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class FileMultiString;
 /*!\brief Dialog to get a file or directory name from user
 */
 
-class uiFileDialog
+mClass uiFileDialog
 {
 public:
     //! File selection mode

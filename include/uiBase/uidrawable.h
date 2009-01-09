@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.13 2008-07-03 13:07:52 cvskris Exp $
+ RCS:           $Id: uidrawable.h,v 1.14 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "keyboardevent.h"
 
-class uiDrawableObj : public uiObject, public ioDrawArea
+mClass uiDrawableObj : public uiObject, public ioDrawArea
 {
     mTTFriend(C,T,uiDrawableObjBody);
 

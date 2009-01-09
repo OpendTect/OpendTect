@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.19 2008-07-25 07:08:01 cvsnanne Exp $
+ RCS:           $Id: uislider.h,v 1.20 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class uiLabel;
 class uiLineEdit;
 template <class T> class StepInterval;
 
-class uiSlider : public uiObject
+mClass uiSlider : public uiObject
 {
 public:
 
@@ -87,11 +87,11 @@ private:
 
 /*! Slider with label */
 
-class uiSliderExtra : public uiGroup
+mClass uiSliderExtra : public uiGroup
 {
 public:
 
-    class Setup
+    mClass Setup
     {
     public:
 			Setup(const char* l=0)

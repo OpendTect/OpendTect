@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uiobjectstack.h,v 1.1 2007-03-07 17:49:38 cvsnanne Exp $
+ RCS:           $Id: uiobjectstack.h,v 1.2 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 class uiGroup;
 class uiObjStackBody;
 
-class uiObjectStack : public uiObject
+mClass uiObjectStack : public uiObject
 {
 public:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.35 2008-02-26 06:23:21 cvsnanne Exp $
+ RCS:           $Id: uigroup.h,v 1.36 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ protected:
 };
 
 
-class uiGroup : public uiParent
+mClass uiGroup : public uiParent
 { 	
 friend class		uiGroupObjBody;
 friend class		uiGroupParentBody;

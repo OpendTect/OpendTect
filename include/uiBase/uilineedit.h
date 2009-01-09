@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.20 2008-12-24 11:25:09 cvsraman Exp $
+ RCS:           $Id: uilineedit.h,v 1.21 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class uiLineEditBody;
 
-class uiIntValidator
+mClass uiIntValidator
 {
 public:
     		uiIntValidator()
@@ -30,7 +30,7 @@ public:
 };
 
 
-class uiFloatValidator
+mClass uiFloatValidator
 {
 public:
     		uiFloatValidator()
@@ -47,7 +47,7 @@ public:
 };
 
 
-class uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
+mClass uiLineEdit : public UserInputObjImpl<const char*>, public uiObject
 {
 public:
 			//! pref_empty : return empty string/ null value

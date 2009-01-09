@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.9 2009-01-08 11:51:35 cvsumesh Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.10 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class QGraphicsItem;
 class QGraphicsItemGroup;
 
 
-class uiGraphicsItem : public CallBacker
+mClass uiGraphicsItem : public CallBacker
 {
 public:
 			~uiGraphicsItem()			{}
@@ -67,7 +67,7 @@ protected:
 };
 
 
-class uiGraphicsItemGroup : public uiGraphicsItem
+mClass uiGraphicsItemGroup : public uiGraphicsItem
 {
 public:
     			uiGraphicsItemGroup();

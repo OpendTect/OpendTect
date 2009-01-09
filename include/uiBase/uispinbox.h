@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.18 2008-12-04 12:20:26 cvsnanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.19 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiSpinBoxBody;
 class uiLabel;
 
 
-class uiSpinBox : public uiObject
+mClass uiSpinBox : public uiObject
 {
 friend class		uiSpinBoxBody;
 
@@ -105,7 +105,7 @@ private:
 };
 
 
-class uiLabeledSpinBox : public uiGroup
+mClass uiLabeledSpinBox : public uiGroup
 {
 public:
                 	uiLabeledSpinBox(uiParent*,const char* txt,

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.21 2008-10-02 08:36:23 cvshelene Exp $
+ RCS:           $Id: uimsg.h,v 1.22 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiStatusBar;
 class QWidget;
 
 
-class uiMsg
+mClass uiMsg
 {
     friend class uiMain;
     friend uiMsg& uiMSG();
@@ -77,7 +77,7 @@ inline uiMsg& uiMSG()
 
 
 //!Sets the uiMSG's main window temporary during the scope of the object
-class uiMsgMainWinSetter
+mClass uiMsgMainWinSetter
 {
 public:
     			uiMsgMainWinSetter( uiMainWin* np )

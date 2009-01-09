@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.20 2008-11-10 15:29:41 cvsbert Exp $
+ RCS:           $Id: uitextedit.h,v 1.21 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiTextEditBody;
 class uiTextBrowserBody;
 class QTextEdit;
 
-class uiTextEditBase : public uiObject
+mClass uiTextEditBase : public uiObject
 {
 public:
 			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
@@ -54,7 +54,7 @@ protected:
 
 
 
-class uiTextEdit : public uiTextEditBase
+mClass uiTextEdit : public uiTextEditBase
 {
 public:
                         uiTextEdit(uiParent* parnt,const char* nm="Text editor",
@@ -74,7 +74,7 @@ private:
 
 
 
-class uiTextBrowser : public uiTextEditBase
+mClass uiTextBrowser : public uiTextEditBase
 {
 friend class		i_BrowserMessenger;
 public:

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.26 2008-12-31 08:20:38 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.27 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class QEvent;
 
 
 //!\brief Button Abstract Base class
-class uiButton : public uiObject
+mClass uiButton : public uiObject
 {
 public:
 			uiButton(uiParent*,const char*,const CallBack*,
@@ -51,7 +51,7 @@ public:
   text. In principle, it could also get another appearance.
   */
 
-class uiPushButton : public uiButton
+mClass uiPushButton : public uiButton
 {
 public:
 				uiPushButton(uiParent*,const char* nm,
@@ -81,7 +81,7 @@ private:
 };
 
 
-class uiRadioButton : public uiButton
+mClass uiRadioButton : public uiButton
 {                        
 public:
 				uiRadioButton(uiParent*,const char*);
@@ -101,7 +101,7 @@ private:
 };
 
 
-class uiCheckBox: public uiButton
+mClass uiCheckBox: public uiButton
 {
 public:
 
@@ -124,7 +124,7 @@ private:
 };
 
 
-class uiToolButton : public uiButton
+mClass uiToolButton : public uiButton
 {
 public:
 				uiToolButton(uiParent*,const char*);
@@ -162,7 +162,7 @@ private:
 
 
 //! Button Abstract Base class
-class uiButtonBody
+mClass uiButtonBody
 {
     friend class        i_ButMessenger;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.25 2008-07-02 14:39:19 cvskris Exp $
+ RCS:           $Id: uigeom.h,v 1.26 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ typedef Geom::Point2D<int> uiPoint;
 typedef Geom::Point2D<double> uiWorldPoint;
 typedef Geom::PosRectangle<double> uiWorldRect;
 
-class uiSize : public Geom::Size2D<int>
+mClass uiSize : public Geom::Size2D<int>
 {
 public:
     			uiSize( const Geom::Size2D<int>& a )
@@ -36,7 +36,7 @@ public:
 };
 
 
-class uiRect  : public Geom::PixRectangle<int>
+mClass uiRect  : public Geom::PixRectangle<int>
 {
 public:
 
@@ -71,7 +71,7 @@ public:
 };
 
 
-class uiBorder
+mClass uiBorder
 {
 public:
     			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}

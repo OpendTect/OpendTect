@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.18 2008-09-08 12:31:06 cvsjaap Exp $
+ RCS:           $Id: uicanvas.h,v 1.19 2009-01-09 04:26:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 class uiCanvasBody;
 class uiScrollViewBody;
 
-class uiCanvas : public uiDrawableObj
+mClass uiCanvas : public uiDrawableObj
 {
 public:
 				uiCanvas(uiParent*,const Color&,const char*);
@@ -41,7 +41,7 @@ private:
 };
 
 
-class uiScrollView : public uiDrawableObj
+mClass uiScrollView : public uiDrawableObj
 {
 public:
 
