@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.74 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.75 2009-01-09 11:13:13 cvsranojay Exp $";
 
 #include "uivisemobj.h"
 
@@ -377,13 +377,13 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 		      hordisp->usesWireframe() );
    
     const TypeSet<EM::PosID>* seeds =
-			      emobj->getPosAttribList(EM::EMObject::sSeedNode);
-    showseedsmnuitem_.text = emod->showsPosAttrib(EM::EMObject::sSeedNode) ?
+			      emobj->getPosAttribList(EM::EMObject::sSeedNode());
+    showseedsmnuitem_.text = emod->showsPosAttrib(EM::EMObject::sSeedNode()) ?
 			    "&Hide" : "S&how" ;	
     mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_, seeds && seeds->size(),
 	    	  false );
     mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
-    lockseedsmnuitem_.text = emobj->isPosAttribLocked(EM::EMObject::sSeedNode) ?
+    lockseedsmnuitem_.text = emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
 			    "Un&lock" : "&Lock" ;	
     mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
     mAddMenuItem( &trackmenuitem_, &seedsmenuitem_, seedsmenuitem_.nrItems(),
@@ -452,8 +452,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     else if ( mnuid==showseedsmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	emod->showPosAttrib( EM::EMObject::sSeedNode,
-			     !emod->showsPosAttrib(EM::EMObject::sSeedNode) );
+	emod->showPosAttrib( EM::EMObject::sSeedNode(),
+			     !emod->showsPosAttrib(EM::EMObject::sSeedNode()) );
     }
     else if ( mnuid==seedpropmnuitem_.id )
     {
@@ -463,8 +463,8 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==lockseedsmnuitem_.id )
     {
-	emobj->lockPosAttrib( EM::EMObject::sSeedNode, 
-			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode) );
+	emobj->lockPosAttrib( EM::EMObject::sSeedNode(), 
+			!emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==editmnuitem_.id )
@@ -591,11 +591,11 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
     EM::EMObject* emobj = em.getObject(empid.objectID());
 
     mAddMenuItem( menu, &makepermnodemnuitem_,
-	          emobj->isPosAttrib(empid,EM::EMObject::sTemporaryControlNode),
+	          emobj->isPosAttrib(empid,EM::EMObject::sTemporaryControlNode()),
 		  false );
 
     mAddMenuItem( menu, &removecontrolnodemnuitem_,
-	emobj->isPosAttrib(empid,EM::EMObject::sPermanentControlNode),
+	emobj->isPosAttrib(empid,EM::EMObject::sPermanentControlNode()),
 	true);
 /*
     removenodenodemnuitem_ = emobj->isDefined(*empid)
@@ -636,16 +636,16 @@ void uiVisEMObject::handleNodeMenuCB( CallBacker* cb )
     if ( mnuid==makepermnodemnuitem_.id )
     {
 	menu->setIsHandled(true);
-        emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode,true);
-	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode,false);
-	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode,false);
+        emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode(),true);
+	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode(),false);
+	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode(),false);
     }
     else if ( mnuid==removecontrolnodemnuitem_.id )
     {
 	menu->setIsHandled(true);
-        emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode,false);
-	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode,false);
-	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode,false);
+        emobj->setPosAttrib(empid,EM::EMObject::sPermanentControlNode(),false);
+	emobj->setPosAttrib(empid,EM::EMObject::sTemporaryControlNode(),false);
+	emobj->setPosAttrib(empid,EM::EMObject::sEdgeControlNode(),false);
     }
 }
 
