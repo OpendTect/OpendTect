@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.20 2009-01-07 15:11:25 cvsbert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.21 2009-01-09 10:38:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,8 @@ namespace Strat
 class Lithology;
 class UnitRepository;
 
-const UnitRepository& UnRepo();
-const RefTree& RT();
+mGlobal const UnitRepository& UnRepo();
+mGlobal const RefTree& RT();
 RefTree& eRT();
 
 
