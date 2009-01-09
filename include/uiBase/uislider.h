@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.20 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uislider.h,v 1.21 2009-01-09 09:15:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     void		setMaxValue(float);
     float		maxValue() const;
     void		setStep(float);
+    void		setScale(float fact,float constant);
     float		step() const;
     void		setInterval(const StepInterval<float>&);
     void		getInterval(StepInterval<float>&) const;

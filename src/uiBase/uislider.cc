@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.37 2008-12-18 08:45:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.38 2009-01-09 09:15:20 cvssatyaki Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -135,6 +135,13 @@ float uiSlider::getLinearFraction() const
     float start = body_->minimum();
     float range = body_->maximum() - start;
     return range ? (body_->sliderPosition()-start)/range : 1.0;
+}
+
+
+void uiSlider::setScale( float fact, float constant )
+{
+    scaler_->factor = fact;
+    scaler_->constant = constant;
 }
 
 
