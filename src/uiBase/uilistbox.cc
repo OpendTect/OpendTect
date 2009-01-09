@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.96 2008-12-24 05:49:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.97 2009-01-09 04:40:07 cvsnanne Exp $";
 
 #include "uilistbox.h"
 
@@ -362,6 +362,7 @@ void uiListBox::addItem( const char* text, bool embed )
     QString qs;
     createQString( qs, text, embed );
     body_->addItem( qs );
+    setItemCheckable( size()-1, false ); // Qt bug
     setItemCheckable( size()-1, itemscheckable_ );
 }
 
@@ -396,6 +397,7 @@ void uiListBox::addItems( const BufferStringSet& strs )
     for ( int idx=0; idx<strs.size(); idx++ )
     {
 	body_->addItem( QString(strs.get(idx)) );
+	setItemCheckable( size()-1,  false ); // Qt bug
 	setItemCheckable( size()-1, itemscheckable_ );
     }
     setCurrentItem( curidx < 0 ? 0 : curidx );
