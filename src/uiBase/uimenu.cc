@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.52 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.53 2009-01-09 10:28:17 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -239,12 +239,16 @@ void uiMenuItem::setChecked( bool yn )
 }
 
 
+const char* uiMenuItem::text() const
+{
+    static BufferString txt;
+    txt = qaction_ ? mQStringToConstChar(qaction_->text()) : "";
+    return txt;
+}
+
+
 void uiMenuItem::setText( const char* txt )
 { if ( qaction_ ) qaction_->setText( txt ); }
-
-const char* uiMenuItem::text() const
-{ return qaction_ ? mQStringToConstChar(qaction_->text()) : ""; }
-
 
 void uiMenuItem::setPixmap( const ioPixmap& pm )
 { if ( qaction_ && pm.qpixmap() ) qaction_->setIcon( *pm.qpixmap() ); }
