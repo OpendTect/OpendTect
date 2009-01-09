@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.6 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.7 2009-01-09 04:35:56 cvsnanne Exp $";
 
 
 #include "veldesc.h"
@@ -40,8 +40,8 @@ VelocityDesc::VelocityDesc( Type t, SampleSpan sr )
 BufferString VelocityDesc::toString() const
 {
     SeparString res ( 0, '`' );
-    res.add( TypeNames[(int)type_] );
-    res.add( SampleSpanNames[(int)samplespan_] );
+    res.add( TypeNames()[(int)type_] );
+    res.add( SampleSpanNames()[(int)samplespan_] );
 
     return BufferString( res );
 }
@@ -53,10 +53,10 @@ bool VelocityDesc::fromString( const char* str )
     if ( sepstr.size()!=2 )
 	return false;
 
-    const int type = TypeDefinition.convert( sepstr[0] );
+    const int type = TypeDef().convert( sepstr[0] );
     if ( type==-1 ) return false;
 
-    const int samplespan = SampleSpanDefinition.convert( sepstr[1] );
+    const int samplespan = SampleSpanDef().convert( sepstr[1] );
     if ( samplespan==-1 ) return false;
 
     type_ = (Type) type;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.23 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.24 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "uiseisfmtscale.h"
 #include "uicompoundparsel.h"
@@ -65,7 +65,7 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
     , gt_(gt)
 {
     stortypfld_ = new uiGenInput( this, "Storage",
-		 StringListInpSpec(DataCharacteristics::UserTypeNames) );
+		 StringListInpSpec(DataCharacteristics::UserTypeNames()) );
     stortypfld_->setValue( data_.stor_ );
     if ( fixedfmtscl )
 	stortypfld_->setSensitive( false );
@@ -234,7 +234,8 @@ void uiSeisFmtScale::updateIOObj( IOObj* ioobj, bool commit ) const
     if ( !ioobj || Seis::is2D(gt_) ) return;
 
     const int tp = getFormat();
-    ioobj->pars().set( "Data storage", DataCharacteristics::UserTypeNames[tp] );
+    ioobj->pars().set( "Data storage",
+	    DataCharacteristics::UserTypeNames()[tp] );
     if ( horOptim() )
 	ioobj->pars().set( "Optimized direction", "Horizontal" );
     else

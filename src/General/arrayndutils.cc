@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.22 2008-09-09 17:22:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.23 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "arrayndutils.h"
 
@@ -47,7 +47,7 @@ ArrayNDWindow::~ArrayNDWindow()
 
 bool ArrayNDWindow::setType( ArrayNDWindow::WindowType wintype )
 {
-    BufferString winnm = ArrayNDWindow::WindowTypeNames[wintype];
+    BufferString winnm = ArrayNDWindow::WindowTypeNames()[wintype];
     float paramval = mUdf(float);
 
     switch( wintype )

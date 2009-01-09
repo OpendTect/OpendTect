@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: specdecompattrib.cc,v 1.26 2009-01-07 11:22:49 cvshelene Exp $";
+static const char* rcsID = "$Id: specdecompattrib.cc,v 1.27 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "specdecompattrib.h"
 #include "attribdataholder.h"
@@ -47,7 +47,7 @@ void SpecDecomp::initClass()
     desc->addParam( ttype );
 
     EnumParam* window = new EnumParam( windowStr() );
-    window->addEnums( ArrayNDWindow::WindowTypeNames );
+    window->addEnums( ArrayNDWindow::WindowTypeNames() );
     window->setRequired( false );
     window->setDefaultValue( ArrayNDWindow::CosTaper5 );
     window->setValue( 0 );
@@ -64,12 +64,12 @@ void SpecDecomp::initClass()
     desc->addParam( deltafreq );
 
     EnumParam* dwtwavelet = new EnumParam( dwtwaveletStr() );
-    dwtwavelet->addEnums( WaveletTransform::WaveletTypeNames );
+    dwtwavelet->addEnums( WaveletTransform::WaveletTypeNames() );
     dwtwavelet->setDefaultValue( WaveletTransform::Haar );
     desc->addParam( dwtwavelet );
 
     EnumParam* cwtwavelet = new EnumParam( cwtwaveletStr() );
-    cwtwavelet->addEnums( CWT::WaveletTypeNames );
+    cwtwavelet->addEnums( CWT::WaveletTypeNames() );
     cwtwavelet->setDefaultValue( CWT::Morlet );
     desc->addParam( cwtwavelet );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdrawstyle.cc,v 1.12 2008-12-18 09:22:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: visdrawstyle.cc,v 1.13 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "visdrawstyle.h"
 #include "iopar.h"
@@ -115,7 +115,7 @@ int DrawStyle::usePar( const IOPar& par )
     const char* stylepar = par.find( drawstylestr );
     if ( !stylepar ) return -1;
 
-    int enumid = getEnumDef( stylepar, StyleNames, 0, 1, -1 );
+    int enumid = getEnumDef( stylepar, StyleNames(), 0, 1, -1 );
     if ( enumid<0 ) return -1;
 
     setDrawStyle( (Style) enumid );
@@ -137,7 +137,7 @@ void DrawStyle::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     linestyle.toString( linestyleval );
     par.set( linestylestr, linestyleval );
 
-    par.set( drawstylestr, StyleNames[(int) getDrawStyle()] );
+    par.set( drawstylestr, StyleNames()[(int)getDrawStyle()] );
     par.set( pointsizestr, getPointSize() );
 }
 

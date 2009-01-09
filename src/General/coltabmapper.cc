@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.15 2008-11-24 10:45:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.16 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -87,10 +87,11 @@ void ColTab::setMapperDefaults( float cr, float sm, bool asym, bool histeq )
     Settings::common().write();
 }
 
-
-DefineEnumNames( ColTab::MapperSetup, Type, 1, "Types" )
-{ "Fixed", "Auto", "HistEq", 0 };
-
+namespace ColTab
+{
+    DefineEnumNames( MapperSetup, Type, 1, "Types" )
+    { "Fixed", "Auto", "HistEq", 0 };
+}
 
 ColTab::MapperSetup::MapperSetup()
     : type_(Auto)
@@ -144,7 +145,7 @@ bool ColTab::MapperSetup::operator!=( const ColTab::MapperSetup& b ) const
 
 void ColTab::MapperSetup::fillPar( IOPar& par ) const
 {
-    par.set( sKeyType(), TypeNames[(int) type_] );
+    par.set( sKeyType(), TypeNames()[(int)type_] );
     par.set( sKeyClipRate(), cliprate_ );
     par.set( sKeySymMidVal(), symmidval_ );
     par.setYN( sKeyAutoSym(), autosym0_ );

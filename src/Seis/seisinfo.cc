@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.52 2008-12-29 11:41:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.53 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -137,16 +137,16 @@ Seis::WaveType Seis::waveTypeOf( const char* s )
 { return eEnum(SeisEnum::WaveType,s); }
 
 const char** Seis::selTypeNames()
-{ return SeisEnum::SelTypeNames; }
+{ return SeisEnum::SelTypeNames(); }
 
 const char** Seis::geomTypeNames()
-{ return SeisEnum::GeomTypeNames; }
+{ return SeisEnum::GeomTypeNames(); }
 
 const char** Seis::dataTypeNames()
-{ return SeisEnum::DataTypeNames; }
+{ return SeisEnum::DataTypeNames(); }
 
 const char** Seis::waveTypeNames()
-{ return SeisEnum::WaveTypeNames; }
+{ return SeisEnum::WaveTypeNames(); }
 
 bool Seis::isAngle( Seis::DataType dt )
 { return dt==Seis::Phase || dt==Seis::Azimuth; }
@@ -259,7 +259,7 @@ int SeisTrcInfo::getDefaultAxisFld( Seis::GeomType gt,
 }
 
 
-#define mIOIOPar(fn,fld,memb) iopar.fn( FldNames[(int)fld], memb )
+#define mIOIOPar(fn,fld,memb) iopar.fn( FldNames()[(int)fld], memb )
 
 void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 {

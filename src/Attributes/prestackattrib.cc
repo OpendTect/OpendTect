@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.12 2008-10-23 18:56:06 cvskris Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.13 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "prestackattrib.h"
 
@@ -36,7 +36,7 @@ void PreStack::initClass()
 
 #define mDefEnumPar(var,typ) \
     epar = new EnumParam( var##Str() ); \
-    epar->addEnums( typ##Names ); \
+    epar->addEnums( typ##Names() ); \
     desc->addParam( epar )
 
     EnumParam*

@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.39 2008-10-02 14:35:32 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.40 2009-01-09 04:35:56 cvsnanne Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -36,16 +36,16 @@ DefineEnumNames(IOObjContext,StdSelType,1,"Std sel type") {
 };
 
 static const IOObjContext::StdDirData stddirdata[] = {
-	{ "100010", "Seismics", IOObjContext::StdSelTypeNames[0] },
-	{ "100020", "Surfaces", IOObjContext::StdSelTypeNames[1] },
-	{ "100030", "Locations", IOObjContext::StdSelTypeNames[2] },
-	{ "100040", "Features", IOObjContext::StdSelTypeNames[3] },
-	{ "100050", "WellInfo", IOObjContext::StdSelTypeNames[4] },
-	{ "100060", "NLAs", IOObjContext::StdSelTypeNames[5] },
-	{ "100070", "Misc", IOObjContext::StdSelTypeNames[6] },
-	{ "100080", "Attribs", IOObjContext::StdSelTypeNames[7] },
-	{ "100090", "Models", IOObjContext::StdSelTypeNames[8] },
-	{ "", "None", IOObjContext::StdSelTypeNames[9] },
+	{ "100010", "Seismics", IOObjContext::StdSelTypeNames()[0] },
+	{ "100020", "Surfaces", IOObjContext::StdSelTypeNames()[1] },
+	{ "100030", "Locations", IOObjContext::StdSelTypeNames()[2] },
+	{ "100040", "Features", IOObjContext::StdSelTypeNames()[3] },
+	{ "100050", "WellInfo", IOObjContext::StdSelTypeNames()[4] },
+	{ "100060", "NLAs", IOObjContext::StdSelTypeNames()[5] },
+	{ "100070", "Misc", IOObjContext::StdSelTypeNames()[6] },
+	{ "100080", "Attribs", IOObjContext::StdSelTypeNames()[7] },
+	{ "100090", "Models", IOObjContext::StdSelTypeNames()[8] },
+	{ "", "None", IOObjContext::StdSelTypeNames()[9] },
 	{ 0, 0, 0 }
 };
 
