@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.388 2008-12-30 09:12:55 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.389 2009-01-09 09:47:08 cvssatyaki Exp $";
 
 #include "uivispartserv.h"
 
@@ -645,6 +645,13 @@ void uiVisPartServer::selectTexture( int id, int attrib, int textureidx )
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->selectTexture( attrib, textureidx );
+}
+
+
+void uiVisPartServer::setTranslation( int id, const Coord3& shift )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->setTranslation( shift );
 }
 
 
