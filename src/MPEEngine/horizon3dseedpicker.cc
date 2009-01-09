@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.29 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.30 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -82,7 +82,7 @@ bool Horizon3DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 	    tracker_.snapPositions( propagatelist_ );
     }
 
-    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
 
     bool res = true;
 
@@ -115,8 +115,8 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
     const Coord3 oldpos = emobj->getPos(pid);
     BinID seedbid = SI().transform( oldpos );
 
-    const bool attribwasdef = emobj->isPosAttrib( pid, EM::EMObject::sSeedNode);
-    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode, false );
+    const bool attribwasdef = emobj->isPosAttrib( pid, EM::EMObject::sSeedNode());
+    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
 
     if ( environment || nrLineNeighbors(pid)+nrLateralNeighbors(pid)==0 )
 	emobj->unSetPos( pid, true );
@@ -136,7 +136,7 @@ bool Horizon3DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 		emobj->setPos( pid, oldpos, true );
 
 	    if  ( attribwasdef )
-		emobj->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+		emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
 	}
     }
 
@@ -202,7 +202,7 @@ void Horizon3DSeedPicker::processJunctions()
 	    continue;
 
 	const EM::PosID curpid = junctions_[idx+1];
-	emobj->setPosAttrib( curpid, EM::EMObject::sSeedNode, true );
+	emobj->setPosAttrib( curpid, EM::EMObject::sSeedNode(), true );
 
 	const EM::PosID nextpid = junctions_[idx+2];
 	if ( seedconmode_!=TrackFromSeeds || emobj->isDefined(nextpid) )
@@ -283,7 +283,7 @@ void Horizon3DSeedPicker::extendSeedListEraseInBetween(
 	curdefined = emobj->isDefined( curpid );
 
 	// running into a seed point
-	if ( emobj->isPosAttrib( curpid, EM::EMObject::sSeedNode ) )
+	if ( emobj->isPosAttrib( curpid, EM::EMObject::sSeedNode() ) )
 	{
 	    const bool onewaytracking = seedwasadded && !prevdefined &&
 					seedconmode_==TrackFromSeeds;
@@ -367,7 +367,7 @@ int Horizon3DSeedPicker::nrSeeds() const
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );  
     const TypeSet<EM::PosID>* seednodelist = 
-			emobj->getPosAttribList( EM::EMObject::sSeedNode );
+			emobj->getPosAttribList( EM::EMObject::sSeedNode() );
     return seednodelist ? seednodelist->size() : 0;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseedpropdlg.cc,v 1.4 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseedpropdlg.cc,v 1.5 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "uiseedpropdlg.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiseedpropdlg.cc,v 1.4 2008-11-25 15:35:26 cvsb
 uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
     : uiMarkerStyleDlg( p, "Seed properties" )
     , emobject_( emobj )
-    , markerstyle_( emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode) )
+    , markerstyle_( emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode()) )
 {
 }
 
@@ -70,5 +70,5 @@ void uiSeedPropDlg::colSel( CallBacker* )
 
 void uiSeedPropDlg::updateMarkerStyle()
 {
-    emobject_->setPosAttrMarkerStyle( EM::EMObject::sSeedNode, markerstyle_ );
+    emobject_->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), markerstyle_ );
 }

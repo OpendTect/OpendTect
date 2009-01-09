@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.21 2008-06-06 04:46:36 cvssatyaki Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.22 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "sectiontracker.h"
 
@@ -176,11 +176,11 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 void SectionTracker::getLockedSeeds( TypeSet<EM::SubID>& lockedseeds ) 
 {
     lockedseeds.erase();
-    if ( !emobject.isPosAttribLocked( EM::EMObject::sSeedNode ) )
+    if ( !emobject.isPosAttribLocked( EM::EMObject::sSeedNode() ) )
 	return;
 
     const TypeSet<EM::PosID>* seedlist = 
-	emobject.getPosAttribList( EM::EMObject::sSeedNode );
+	emobject.getPosAttribList( EM::EMObject::sSeedNode() );
     const int nrseeds = seedlist ? seedlist->size() : 0;
 
     for ( int idx=0; idx<nrseeds; idx++ )

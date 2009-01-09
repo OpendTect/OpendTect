@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.89 2008-12-18 11:15:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.90 2009-01-09 10:58:54 cvsranojay Exp $";
 
 
 #include "uimpewizard.h"
@@ -688,7 +688,7 @@ void Wizard::adjustSeedBox()
 
 	const Coord3 pos = emobj->getPos(pid);
 	if ( !pos.isDefined() || 
-	     !emobj->isPosAttrib( pid, EM::EMObject::sSeedNode ) )
+	     !emobj->isPosAttrib( pid, EM::EMObject::sSeedNode() ) )
 	    continue;
 
 	const BinID bid = SI().transform(pos);

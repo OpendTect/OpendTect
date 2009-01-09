@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.82 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.83 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "emobject.h"
 
@@ -23,11 +23,11 @@ using namespace EM;
 
 
 
-int EMObject::sPermanentControlNode	= PosAttrib::PermanentControlNode;
-int EMObject::sTemporaryControlNode	= PosAttrib::TemporaryControlNode;
-int EMObject::sEdgeControlNode		= PosAttrib::EdgeControlNode;
-int EMObject::sTerminationNode		= PosAttrib::TerminationNode;
-int EMObject::sSeedNode			= PosAttrib::SeedNode;
+int EMObject::sPermanentControlNode()	{ return PosAttrib::PermanentControlNode; }
+int EMObject::sTemporaryControlNode()	{ return PosAttrib::TemporaryControlNode; }
+int EMObject::sEdgeControlNode()	{ return PosAttrib::EdgeControlNode; }
+int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
+int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
 
 const char* EMObject::prefcolorstr 	= "Color";
 const char* EMObject::posattrprefixstr 	= "Pos Attrib ";

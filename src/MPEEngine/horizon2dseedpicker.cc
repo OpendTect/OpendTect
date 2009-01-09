@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.12 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.13 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -138,7 +138,7 @@ bool Horizon2DSeedPicker::addSeed(const Coord3& seedcrd, bool drop )
 	    tracker_.snapPositions( seedlist_ );
     }
 
-    hor->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+    hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
 
     const bool res = drop ? true : retrackOnActiveLine(rc.col,pickedposwasdef);
 
@@ -186,7 +186,7 @@ bool Horizon2DSeedPicker::removeSeed( const EM::PosID& pid, bool environment,
 	return false;
 
     mGetHorizon(hor,false);
-    hor->setPosAttrib( pid, EM::EMObject::sSeedNode, false );
+    hor->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
     if ( environment || !nrLineNeighbors(rc.col) )
 	hor->unSetPos( pid, true );
 
@@ -236,7 +236,7 @@ bool Horizon2DSeedPicker::retrackOnActiveLine( int startcol,
     for ( int idx=0; idx<junctions_.size(); idx+=2 )
     {
 	if ( hor->isDefined(junctions_[idx]) )
-	    hor->setPosAttrib(junctions_[idx+1], EM::EMObject::sSeedNode, true);
+	    hor->setPosAttrib(junctions_[idx+1], EM::EMObject::sSeedNode(), true);
     }
 
     return res;
@@ -285,7 +285,7 @@ void Horizon2DSeedPicker::extendSeedListEraseInBetween(
 	curdefined = hor->isDefined(curpid);
 	
 	// running into a seed point
-	if ( hor->isPosAttrib( curpid, EM::EMObject::sSeedNode ) )
+	if ( hor->isPosAttrib( curpid, EM::EMObject::sSeedNode() ) )
 	{
 	    const bool onewaytracking = seedwasadded && !prevdefined &&
 					seedconmode_==TrackFromSeeds;
@@ -429,7 +429,7 @@ int MPE::Horizon2DSeedPicker::nrSeeds() const
 {
     mGetHorizon(hor,false);
     const TypeSet<EM::PosID>* seednodelist = 
-			      hor->getPosAttribList( EM::EMObject::sSeedNode );
+			      hor->getPosAttribList( EM::EMObject::sSeedNode() );
     return seednodelist ? seednodelist->size() : 0;
 }
 

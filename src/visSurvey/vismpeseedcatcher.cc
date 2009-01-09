@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.32 2008-11-18 13:28:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.33 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -281,7 +281,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
     if ( !emobj ) 
 	return;
     
-    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode,
+    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode(),
 						       eventinfo.pickedobjids );
     info().setNode( nodepid );
 
@@ -373,7 +373,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     if ( !emobj ) 
 	return;
     
-    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode,
+    const EM::PosID nodepid = emod->getPosAttribPosID( EM::EMObject::sSeedNode(),
 						       eventinfo.pickedobjids );
     Coord3 nodepos = emobj->getPos( nodepid );
     info().setNode( nodepid );

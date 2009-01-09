@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizoneditor.cc,v 1.12 2008-12-15 09:55:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: horizoneditor.cc,v 1.13 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "horizoneditor.h"
 #include "geeditorimpl.h"
@@ -71,18 +71,18 @@ void HorizonEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
     ids.erase();
 
     const TypeSet<EM::PosID>* pids =
-	emobject.getPosAttribList( EM::EMObject::sPermanentControlNode );
+	emobject.getPosAttribList( EM::EMObject::sPermanentControlNode() );
 
     if ( pids ) ids = *pids;
 
-    pids = emobject.getPosAttribList( EM::EMObject::sTemporaryControlNode );
+    pids = emobject.getPosAttribList( EM::EMObject::sTemporaryControlNode() );
     if ( pids ) ids.createUnion( *pids );
 }
 
 
 bool HorizonEditor::addEditID( const EM::PosID& pid )
 {
-    emobject.setPosAttrib( pid, EM::EMObject::sPermanentControlNode, true,true);
+    emobject.setPosAttrib( pid, EM::EMObject::sPermanentControlNode(), true,true);
     EM::EMM().undo().setUserInteractionEnd(
 	    EM::EMM().undo().currentEventID() );
     return true;
@@ -91,7 +91,7 @@ bool HorizonEditor::addEditID( const EM::PosID& pid )
 
 bool HorizonEditor::removeEditID( const EM::PosID& pid )
 {
-    emobject.setPosAttrib( pid, EM::EMObject::sPermanentControlNode,false,true);
+    emobject.setPosAttrib( pid, EM::EMObject::sPermanentControlNode(),false,true);
     return true;
 }
 
@@ -181,8 +181,8 @@ void HorizonEditor::emChangeCB( CallBacker* cb )
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
     if (  cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
-	if ( cbdata.attrib==EM::EMObject::sPermanentControlNode ||
-	     cbdata.attrib==EM::EMObject::sTemporaryControlNode )
+	if ( cbdata.attrib==EM::EMObject::sPermanentControlNode() ||
+	     cbdata.attrib==EM::EMObject::sTemporaryControlNode() )
 	{
 	    editpositionchange.trigger();
 	}

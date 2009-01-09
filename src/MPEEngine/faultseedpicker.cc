@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.5 2008-05-09 09:11:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.6 2009-01-09 10:58:54 cvsranojay Exp $";
 
 #include "faultseedpicker.h"
 
@@ -78,7 +78,7 @@ bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
 	    return false;
 	}
 
-	fault->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+	fault->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
     }
     else if ( nrSeeds()==1 )
     {
@@ -99,7 +99,7 @@ bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
 	    return false;
 	}
 
-	fault->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+	fault->setPosAttrib( pid, EM::EMObject::sSeedNode(), true );
     }
     else
     {
@@ -139,7 +139,7 @@ bool FaultSeedPicker::removeSeed( const EM::PosID& pid, bool enviromment,
        				  bool retrack )
 {
     EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
-    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode, false );
+    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode(), false );
     emobj->unSetPos( pid, true );
     return true;
 }
