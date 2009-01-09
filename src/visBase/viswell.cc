@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.42 2009-01-08 10:35:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.43 2009-01-09 08:20:22 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -354,7 +354,7 @@ void Well::setSampleData( const TypeSet<Coord3Value>& crdvals,int idx,
     if ( mIsUdf(pos.z) ) return;
 	val = scaler.scale( cv.value );
     if ( mIsUdf(val) )
-	val = 150;
+	val = 105;
     else if ( val < 0 )
 	val = 0;
     else if ( val > 100 )
@@ -503,14 +503,6 @@ const Color& Well::logColor( int lognr ) const
     const int b = mNINT(col[2]*255);
     color.set( (unsigned char)r, (unsigned char)g, (unsigned char)b );
     return color;
-}
-
-
-void Well::setSeismicColor( const Color& col,  int lognr )
-{
-    for ( int i=0; i<log.size(); i++ )
-        log[i]->setNonIndexedShapeColor( SbVec3f(col2f(r),col2f(g),col2f(b)),
-	      				lognr );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.91 2009-01-08 10:35:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.92 2009-01-09 08:20:22 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -492,9 +492,7 @@ void WellDisplay::setLogFillColor(const Color& color, int lognr,
 {
     Well::LogDisplayPars* par = lognr==1 ? logparset_.getLeft()
 					 : logparset_.getRight();
-    if (iswelllog)
-       well_->setLogFillColorTab(seqname, lognr, color, iswelllog, issinglecol);    else 
-	well_->setSeismicColor(color,lognr);
+    well_->setLogFillColorTab(seqname, lognr, color, iswelllog, issinglecol); 
 }
 
 
