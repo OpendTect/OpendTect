@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.77 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:		$Id: emobject.h,v 1.78 2009-01-09 10:54:59 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -204,11 +204,11 @@ public:
     virtual bool		usePar( const IOPar& );
     virtual void		fillPar( IOPar& ) const;
 
-    static int			sPermanentControlNode;
-    static int			sTemporaryControlNode;
-    static int			sEdgeControlNode;
-    static int			sTerminationNode;
-    static int			sSeedNode;
+    static int			sPermanentControlNode();
+    static int			sTemporaryControlNode();
+    static int			sEdgeControlNode();
+    static int			sTerminationNode();
+    static int			sSeedNode();
 
     virtual const IOObjContext&	getIOObjContext() const = 0;
 
