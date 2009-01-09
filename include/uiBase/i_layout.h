@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.39 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: i_layout.h,v 1.40 2009-01-09 03:45:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,15 +15,11 @@ ________________________________________________________________________
 #include "uilayout.h"
 #include "uigeom.h"
 #include "uiobj.h"
+#include "sets.h"
 
-#include <qlayout.h>
-#include <qrect.h>
+#include <QLayout>
+#include <QRect>
 
-#ifdef USEQT3
-# include <qptrlist.h>
-#else
-# include "sets.h"
-#endif
 
 class resizeItem;
 class Timer;
@@ -47,7 +43,7 @@ public:
 			    )
 				{ pErrMsg("No attachment defined!!"); }
 			}
-#ifndef USEQT3
+
     inline bool		operator ==( const uiConstraint& oth ) const
 			{ return type == oth.type
 				&& other == oth.other
@@ -56,7 +52,6 @@ public:
 			}
     inline bool		operator !=( const uiConstraint& oth ) const
 			{ return !(*this == oth); }
-#endif
 
     bool		enabled()		{ return enabled_ ; }
     void		disable(bool yn=true)	{ enabled_ = !yn; }
@@ -68,15 +63,9 @@ protected:
     bool		enabled_;
 };
 
-#ifdef USEQT3
-mTemplTypeDef(QPtrList,uiConstraint,constraintList)
-mTemplTypeDef(QPtrListIterator,uiConstraint,constraintIterator)
-#else
+
 typedef TypeSet<uiConstraint> constraintList;
-#endif
-
 class i_LayoutItem;
-
 
 enum layoutMode { minimum=0, preferred=1, setGeom=2, all=3 };
        // all is used for setting cached positions dirty
@@ -131,14 +120,9 @@ public:
     virtual QSize 	sizeHint() const;
     virtual QSize 	minimumSize() const;
 
-#ifdef USEQT3
-    virtual QLayoutIterator iterator();
-    virtual QSizePolicy::ExpandData expanding() const;
-#else
     virtual QLayoutItem* itemAt( int idx ) const;
     virtual QLayoutItem* takeAt(int idx);
     virtual int		 count() const;
-#endif
 
     virtual void       	invalidate();
     virtual void       	updatedAlignment(layoutMode);
@@ -187,11 +171,7 @@ private:
 
     uiRect 		childrenRect( layoutMode m );
 
-#ifdef USEQT3
-    QPtrList<i_LayoutItem> childrenList;
-#else
     ObjectSet<i_LayoutItem> childrenList;
-#endif
 
     uiRect		layoutpos[ nLayoutMode ];
     QRect		prefGeometry;

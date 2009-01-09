@@ -1,5 +1,5 @@
-#ifndef UILAYOUT_H
-#define UILAYOUT_H
+#ifndef uilayout_h
+#define uilayout_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uilayout.h,v 1.7 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uilayout.h,v 1.8 2009-01-09 03:45:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
