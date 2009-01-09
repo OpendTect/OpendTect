@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.3 2009-01-09 05:43:03 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.4 2009-01-09 09:14:46 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapackbase.h"
+#include "mousecursor.h"
 #include "pixmap.h"
 
 uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
@@ -145,12 +146,15 @@ void uiMapperRangeEditor::fixTextPos()
 
 void uiMapperRangeEditor::drawLines()
 {
+    MouseCursor cursor;
+    cursor.shape_ = MouseCursor::SizeHor;
     if ( !minline_ )
     {
 	int ltlnpix = histogramdisp_->xAxis()->getPix( minlinecurpos_ );
 	minline_ = histogramdisp_->scene().addLine( ltlnpix, 0,
        					ltlnpix, histogramdisp_->height() );
 	minline_->setPenStyle( LineStyle(LineStyle::Solid,2,Color(0,255,0)) );
+	minline_->setCursor( cursor );
 	minline_->setZValue( 4 );
     }
 
@@ -160,6 +164,7 @@ void uiMapperRangeEditor::drawLines()
 	maxline_ = histogramdisp_->scene().addLine( rtlnpix, 0,
 				            rtlnpix, histogramdisp_->height() );
 	maxline_->setPenStyle( LineStyle(LineStyle::Solid,2,Color(0,255,0)) );
+	maxline_->setCursor( cursor );
 	maxline_->setZValue( 4 );
     }
 
