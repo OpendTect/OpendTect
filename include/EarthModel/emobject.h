@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.78 2009-01-09 10:54:59 cvsranojay Exp $
+ RCS:		$Id: emobject.h,v 1.79 2009-01-09 11:19:15 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,6 @@ public:
 		    : pid0( 0, 0, 0 )
 		    , pid1( 0, 0, 0 )
 		    , attrib( -1 )
-		    , textureid( -1 )
 		    , event( EMObjectCallbackData::Undef )
 		{}
 
@@ -50,7 +49,6 @@ public:
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
     int		attrib; //Used only with AttribChange
-    int		textureid; //Used in case of Horizon Shifting
 };
 
 
