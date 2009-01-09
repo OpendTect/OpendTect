@@ -7,31 +7,30 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscallout.cc,v 1.24 2008-12-10 18:08:17 cvskris Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.25 2009-01-09 04:31:25 cvsnanne Exp $";
 
 #include "viscallout.h"
 
-#include "pickset.h"
-#include "strmprov.h"
-#include "viscoord.h"
 #include "visanchor.h"
-#include "vistristripset.h"
-#include "vismarker.h"
+#include "viscoord.h"
+#include "visdragger.h"
 #include "visfaceset.h"
+#include "vismarker.h"
 #include "vismaterial.h"
+#include "vispolygonoffset.h"
 #include "vispolyline.h"
 #include "visrotationdragger.h"
-#include "visdragger.h"
-#include "vispolygonoffset.h"
+#include "vistristripset.h"
 #include "vistext.h"
 #include "vistransform.h"
 
-#include "Inventor/nodes/SoMaterial.h"
-#include "Inventor/nodes/SoSeparator.h"
+#include "pickset.h"
+#include "strmprov.h"
+#include "uidesktopservices.h"
 
-#ifndef USEQT3
-# include "uidesktopservices.h"
-#endif
+#include <Inventor/nodes/SoMaterial.h>
+#include <Inventor/nodes/SoSeparator.h>
+
 
 #define mTextLift 1
 
@@ -734,13 +733,7 @@ void CalloutDisplay::urlClickCB( CallBacker* cb )
     BufferString url;
     if ( (*set_)[child].text &&
 	    (*set_)[child].getText( CalloutDisplay::sKeyURL(), url ) )
-    {
-#ifdef USEQT3
-	uiMSG().error( "Cannot open file or url with Qt3" );
-#else
 	uiDesktopServices::openUrl( url );
-#endif
-    }
 }
 
 
