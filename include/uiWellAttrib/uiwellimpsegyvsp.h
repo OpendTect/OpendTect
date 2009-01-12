@@ -6,7 +6,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2009
- RCS:           $Id: uiwellimpsegyvsp.h,v 1.3 2009-01-12 12:42:45 cvsbert Exp $
+ RCS:           $Id: uiwellimpsegyvsp.h,v 1.4 2009-01-12 17:04:49 cvsbert Exp $
  _______________________________________________________________________
 
       -*/
@@ -15,9 +15,11 @@
 #include "uidialog.h"
 #include "iopar.h"
 #include "samplingdata.h"
-class uiGenInput;
-class uiIOObjSel;
+#include "bufstringset.h"
 class uiSEGYVSPBasicPars;
+class uiGenInput;
+class uiCheckBox;
+class uiIOObjSel;
 class SeisTrc;
 class CtxtIOObj;
 
@@ -36,18 +38,23 @@ protected:
     uiGenInput*			istimefld_;
     uiGenInput*			istvdfld_;
     uiGenInput*			unitfld_;
-    uiGenInput*			outsampfld_;
     uiGenInput*			lognmfld_;
+    uiGenInput*			outsampfld_;
+    uiCheckBox*			inpinftfld_;
+    uiCheckBox*			outinftfld_;
     uiSEGYVSPBasicPars*		bparsfld_;
     uiIOObjSel*			wellfld_;
-    SamplingData<float>		dispinpsamp_;
 
     IOPar			sgypars_;
     CtxtIOObj&			ctio_;
+    SamplingData<float>		dispinpsamp_;
+    BufferStringSet		existinglognms_;
 
     bool			inpIsTime() const;
     void			isTimeChg(CallBacker*);
-    void			initWin(CallBacker*);
+    void			wllSel(CallBacker*);
+    void			selLogNm(CallBacker*);
+    void			outSampChk(CallBacker*);
     bool			acceptOK(CallBacker*);
 
     friend class		uiSEGYVSPBasicPars;
