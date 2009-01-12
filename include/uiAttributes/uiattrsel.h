@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.13 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattrsel.h,v 1.14 2009-01-12 13:41:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiButtonGroup;
 class uiGenInput;
 class uiListBox;
 class uiRadioButton;
-class uiLabeledSpinBox;
+class uiLabeledComboBox;
 
 
 mClass uiAttrSelData
@@ -96,7 +96,7 @@ protected:
     uiListBox*		zdomoutfld_;
     uiGenInput*		filtfld_;
     uiGenInput*		attr2dfld_;
-    uiLabeledSpinBox*	compfld_;
+    uiLabeledComboBox*	compfld_;
 
     void		createSelectionButtons();
     void		createSelectionFields();

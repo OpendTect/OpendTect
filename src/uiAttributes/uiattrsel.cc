@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.33 2009-01-09 10:33:10 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.34 2009-01-12 13:41:06 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -41,7 +41,6 @@ static const char* rcsID = "$Id: uiattrsel.cc,v 1.33 2009-01-09 10:33:10 cvshele
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uispinbox.h"
 
 using namespace Attrib;
 
@@ -195,8 +194,7 @@ void uiAttrSelDlg::createSelectionFields()
 	filtfld_ = new uiGenInput( this, "Filter", "*" );
 	filtfld_->attach( alignedBelow, storoutfld_ );
 	filtfld_->valuechanged.notify( mCB(this,uiAttrSelDlg,filtChg) );
-	compfld_ = new uiLabeledSpinBox( this, "Component", 0, "Compfld" );
-	compfld_->box()->setInterval( StepInterval<int>(1,1,1) );
+	compfld_ = new uiLabeledComboBox( this, "Component", "Compfld" );
 	compfld_->attach( rightTo, filtfld_ );
     }
 
@@ -312,7 +310,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	attr2dfld_->newSpec( StringListInpSpec(nms), 0 );
     }
 
-    compfld_->box()->setValue(1);
+    compfld_->box()->setCurrentItem(0);
     const MultiID key( ioobjkey.buf() );
     PtrMan<IOObj> ioobj = IOM().get( key );
     SeisTrcReader rdr( ioobj );
@@ -320,7 +318,10 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 
     SeisTrcTranslator* transl = rdr.seisTranslator();
     if ( !transl ) return;
-    compfld_->box()->setMaxValue( transl->componentInfo().size() );
+    BufferStringSet compnms;
+    transl->getComponentNames( compnms );
+    compfld_->box()->empty();
+    compfld_->box()->addItems( compnms );
     compfld_->display( transl->componentInfo().size()>1 );
 }
 
@@ -360,7 +361,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     }
     else
     {
-	attrdata_.compnr = compfld_->box()->getValue() - 1;
+	attrdata_.compnr = compfld_->box()->currentItem();
 	const char* ioobjkey = attrinf_->ioobjids.get(selidx);
 	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
