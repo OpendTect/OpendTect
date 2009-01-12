@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.42 2009-01-08 22:45:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.43 2009-01-12 16:25:57 cvsyuancheng Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -151,8 +151,10 @@ void uiFlatViewDataDispPropTab::updateNonclipRange( CallBacker* )
     else
 	pars.clipperc_ = assymclipratiofld_->getFInterval();
 
-    pars.rg_ = Interval<float>( mUdf(float), mUdf(float) ); 
-    rgfld_->setValue( vwr_.getDataRange(false) );
+    pars.rg_ = Interval<float>( mUdf(float), mUdf(float) );
+    const Interval<float> nrg = vwr_.getDataRange(false);
+    rgfld_->setValue( nrg );
+    pars.rg_ = nrg; 
 }
 
 
