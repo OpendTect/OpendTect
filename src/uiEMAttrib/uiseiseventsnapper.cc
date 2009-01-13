@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.19 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.20 2009-01-13 05:47:11 cvsumesh Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -49,7 +49,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
     seisfld_ = new uiSeisSel( this, seisctio_, uiSeisSel::Setup(Seis::Vol) );
     seisfld_->attach( alignedBelow, horinfld_ );
 
-    BufferStringSet eventnms( VSEvent::TypeNames );
+    BufferStringSet eventnms( VSEvent::TypeNames() );
     eventnms.remove(0);
     eventfld_ = new uiGenInput( this, "Event", StringListInpSpec(eventnms) );
     eventfld_->attach( alignedBelow, seisfld_ );
