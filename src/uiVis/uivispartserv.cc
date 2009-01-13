@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.390 2009-01-13 08:23:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.391 2009-01-13 11:50:48 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -76,7 +76,7 @@ const int uiVisPartServer::evShowSetupDlg		= 13;
 const int uiVisPartServer::evLoadPostponedData		= 14;
 const int uiVisPartServer::evToggleBlockDataLoad	= 15;
 const int uiVisPartServer::evDisableSelTracker		= 16;
-//const int uiVisPartServer::evColorTableChange		= 17;
+const int uiVisPartServer::evColorTableChange		= 17;
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -1801,7 +1801,10 @@ void uiVisPartServer::histogramRngSelChanged( CallBacker* cb )
     mDynamicCastGet(uiMultiRangeSelDispWin*,obj,cb);
     setColTabMapperSetup( displayid_, obj->activeAttrbID(), 
 	    		  obj->activeMapperSetup() );
-    //sendEvent( evColorTableChange );
+
+    eventobjid_ = displayid_;
+    eventattrib_ = obj->activeAttrbID();
+    sendEvent( evColorTableChange );
 }
 
 
