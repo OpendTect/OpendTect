@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.101 2009-01-13 05:36:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.102 2009-01-13 13:52:02 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.101 2009-01-13 05:36:34 cvs
 #include "ptrman.h"
 #include "survinfo.h"
 #include "statrand.h"
+#include "iopar.h"
 
 #include "uibutton.h"
 #include "uicombobox.h"
@@ -101,6 +102,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	, x0fld(0)
 	, dirnamechanged(false)
 	, sipfld(0)
+	, lastsip_(0)
+	, impiop_(0)
 {
     static int sipidx = addInfoProvider( new uiCopySurveySIP );
 
@@ -179,59 +182,113 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->attach( stretchedBelow, pol2dfld, -2 );
 
-    const int nrprovs = survInfoProvs().size();
-    uiObject* sipobj = 0;
-    if ( nrprovs > 0 )
-    {
-	CallBack sipcb( mCB(this,uiSurveyInfoEditor,sipbutPush) );
-	int maxlen = 0;
-	for ( int idx=0; idx<nrprovs; idx++ )
-	{
-	    int len = strlen( survInfoProvs()[idx]->usrText() );
-	    if ( len > maxlen ) maxlen = len;
-	}
-
-	if ( nrprovs > 2 )
-	{
-	    sipobj = sipfld = new uiComboBox( this, "Input parameters" );
-	    sipfld->attach( alignedBelow, pathfld );
-	    sipfld->attach( ensureBelow, horsep1 );
-	    for ( int idx=0; idx<nrprovs; idx++ )
-	    {
-		BufferString txt( survInfoProvs()[idx]->usrText() );
-		txt += " ->>";
-		sipfld->addItem( txt );
-	    }
-	    sipfld->setCurrentItem( nrprovs-2 ); // last one before copy
-	    sipfld->setPrefWidthInChar( maxlen + 10 );
-	    uiPushButton* sipbut = new uiPushButton( this, "&Go", sipcb, false);
-	    sipbut->attach( rightOf, sipfld );
-	}
-	else
-	{
-	    uiPushButton* prevbut = 0;
-	    for ( int idx=0; idx<nrprovs; idx++ )
-	    {
-		uiPushButton* newpb = new uiPushButton( this,
-			survInfoProvs()[idx]->usrText(), sipcb, false );
-		sipbuts += newpb;
-		if ( prevbut )
-		    newpb->attach( rightOf, prevbut );
-		else
-		{
-		    newpb->attach( alignedBelow, pathfld );
-		    newpb->attach( ensureBelow, horsep1 );
-		    sipobj = newpb;
-		}
-		newpb->setPrefWidthInChar( maxlen + 6 );
-		prevbut = newpb;
-	    }
-	}
-    }
+    uiObject* sipobj = mkSIPFld( horsep1 );
 
     uiLabel* rglbl = new uiLabel( this, "Survey ranges:" );
     rglbl->attach( leftBorder );
     rglbl->attach( ensureBelow, horsep1 );
+    uiGroup* rangegrp = mkRangeGrp();
+    if ( sipobj )
+	rangegrp->attach( alignedBelow, sipobj ); 
+    else
+    {
+	rangegrp->attach( alignedBelow, pathfld ); 
+	rangegrp->attach( ensureBelow, rglbl ); 
+    }
+
+    uiSeparator* horsep2 = new uiSeparator( this );
+    horsep2->attach( stretchedBelow, rangegrp );
+
+    uiLabel* crdlbl = new uiLabel( this, "Coordinate settings:" );
+    crdlbl->attach( leftBorder );
+    crdlbl->attach( ensureBelow, horsep2 );
+    coordset = new uiGenInput( this, "", BoolInpSpec(true,"Easy","Advanced") );
+    coordset->attach( alignedBelow, rangegrp );
+    coordset->attach( rightTo, crdlbl );
+    coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));
+
+    mkCoordGrp();
+    crdgrp->attach( alignedBelow, rangegrp );
+    crdgrp->attach( ensureBelow, coordset );
+
+    mkTransfGrp();
+    trgrp->attach( alignedBelow, rangegrp );
+    trgrp->attach( ensureBelow, coordset );
+
+    applybut = new uiPushButton( this, "&Apply", true ); 
+    applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
+    applybut->attach( alignedBelow, crdgrp );
+    xyinftfld = new uiCheckBox( this, "Coordinates are in feet" );
+    xyinftfld->attach( rightTo, applybut );
+    xyinftfld->attach( rightBorder );
+
+    finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
+}
+
+
+uiSurveyInfoEditor::~uiSurveyInfoEditor()
+{
+    delete impiop_;
+}
+
+
+uiObject* uiSurveyInfoEditor::mkSIPFld( uiObject* horsep )
+{
+    const int nrprovs = survInfoProvs().size();
+    if ( nrprovs < 1 ) return 0;
+
+    CallBack sipcb( mCB(this,uiSurveyInfoEditor,sipbutPush) );
+    int maxlen = 0;
+    for ( int idx=0; idx<nrprovs; idx++ )
+    {
+	int len = strlen( survInfoProvs()[idx]->usrText() );
+	if ( len > maxlen ) maxlen = len;
+    }
+
+    uiObject* ret = 0;
+    if ( nrprovs > 2 )
+    {
+	ret = sipfld = new uiComboBox( this, "SIPs" );
+	sipfld->attach( alignedBelow, pathfld );
+	sipfld->attach( ensureBelow, horsep );
+	for ( int idx=0; idx<nrprovs; idx++ )
+	{
+	    BufferString txt( survInfoProvs()[idx]->usrText() );
+	    txt += " ->>";
+	    sipfld->addItem( txt );
+	}
+	sipfld->setCurrentItem( nrprovs-2 ); // last one before copy
+	sipfld->setPrefWidthInChar( maxlen + 10 );
+	uiPushButton* sipbut = new uiPushButton( this, "&Go", sipcb, false);
+	sipbut->attach( rightOf, sipfld );
+    }
+    else
+    {
+	uiPushButton* prevbut = 0;
+	for ( int idx=0; idx<nrprovs; idx++ )
+	{
+	    uiPushButton* newpb = new uiPushButton( this,
+		    survInfoProvs()[idx]->usrText(), sipcb, false );
+	    sipbuts += newpb;
+	    if ( prevbut )
+		newpb->attach( rightOf, prevbut );
+	    else
+	    {
+		newpb->attach( alignedBelow, pathfld );
+		newpb->attach( ensureBelow, horsep );
+		ret = newpb;
+	    }
+	    newpb->setPrefWidthInChar( maxlen + 6 );
+	    prevbut = newpb;
+	}
+    }
+
+    return ret;
+}
+
+
+uiGroup* uiSurveyInfoEditor::mkRangeGrp()
+{
     uiGroup* rangegrp = new uiGroup( this, "Survey ranges" );
     inlfld = new uiGenInput( rangegrp, "In-line range",
 			     IntInpIntervalSpec(true).setName("Inl Start",0)
@@ -245,14 +302,6 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	    	 	   DoubleInpIntervalSpec(true).setName("Z Start",0)
 	   					      .setName("Z Stop",1) 
 						      .setName("Z step",2) );
-    rangegrp->setHAlignObj( inlfld );
-    if ( sipobj )
-	rangegrp->attach( alignedBelow, sipobj ); 
-    else
-    {
-	rangegrp->attach( alignedBelow, pathfld ); 
-	rangegrp->attach( ensureBelow, rglbl ); 
-    }
     crlfld->attach( alignedBelow, inlfld );
     zfld->attach( alignedBelow, crlfld );
 
@@ -260,17 +309,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     zunitfld = new uiLabeledComboBox( rangegrp, zunitstrs, "Z unit" );
     zunitfld->attach( alignedBelow, zfld );
 
-    uiSeparator* horsep2 = new uiSeparator( this );
-    horsep2->attach( stretchedBelow, rangegrp );
+    rangegrp->setHAlignObj( inlfld );
+    return rangegrp;
+}
 
-    uiLabel* crdlbl = new uiLabel( this, "Coordinate settings:" );
-    crdlbl->attach( leftBorder );
-    crdlbl->attach( ensureBelow, horsep2 );
-    coordset = new uiGenInput( this, "", BoolInpSpec(true,"Easy","Advanced") );
-    coordset->attach( alignedBelow, rangegrp );
-    coordset->attach( rightTo, crdlbl );
-    coordset->valuechanged.notify( mCB(this,uiSurveyInfoEditor,chgSetMode));
 
+void uiSurveyInfoEditor::mkCoordGrp()
+{
     crdgrp = new uiGroup( this, "Coordinate settings" );
     PositionInpSpec::Setup psetup;
     ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
@@ -293,15 +338,18 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     xy2fld = new uiGenInput( crdgrp, "= (X,Y)",
 	    			PositionInpSpec(psetup).setName("X3",0)
 	   					       .setName("Y3",1) );
-    crdgrp->setHAlignObj( ic0fld );
-    crdgrp->attach( alignedBelow, rangegrp );
-    crdgrp->attach( ensureBelow, coordset );
     ic1fld->attach( alignedBelow, ic0fld );
     ic2fld->attach( alignedBelow, ic1fld );
     xy0fld->attach( rightOf, ic0fld );
     xy1fld->attach( rightOf, ic1fld );
     xy2fld->attach( rightOf, ic2fld );
 
+    crdgrp->setHAlignObj( ic0fld );
+}
+
+
+void uiSurveyInfoEditor::mkTransfGrp()
+{
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
     x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec().setName("X") );
     x0fld->setElemSzPol( uiObject::Small );
@@ -321,24 +369,13 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     ycrlfld->setElemSzPol( uiObject::Small );
     overrulefld = new uiCheckBox( trgrp, "Overrule easy settings" );
     overrulefld->setChecked( false );
-    trgrp->setHAlignObj( xinlfld );
-    trgrp->attach( alignedBelow, rangegrp );
-    trgrp->attach( ensureBelow, coordset );
     xinlfld->attach( rightOf, x0fld );
     xcrlfld->attach( rightOf, xinlfld );
     y0fld->attach( alignedBelow, x0fld );
     yinlfld->attach( rightOf, y0fld );
     ycrlfld->attach( rightOf, yinlfld );
     overrulefld->attach( alignedBelow, ycrlfld );
-
-    applybut = new uiPushButton( this, "&Apply", true ); 
-    applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
-    applybut->attach( alignedBelow, crdgrp );
-    xyinftfld = new uiCheckBox( this, "Coordinates are in feet" );
-    xyinftfld->attach( rightTo, applybut );
-    xyinftfld->attach( rightBorder );
-
-    finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
+    trgrp->setHAlignObj( xinlfld );
 }
 
 
@@ -721,6 +758,7 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 {
     const int sipidx = sipfld ? sipfld->currentItem() : sipbuts.indexOf( cb );
     if ( sipidx < 0 ) { pErrMsg("Huh?"); return; }
+    delete impiop_; impiop_ = 0; lastsip_ = 0;
 
     const int curzunititem = zunitfld->box()->currentItem();
     si_.setZUnit( curzunititem == 0, curzunititem == 1 );
@@ -749,6 +787,9 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 
     si_.setWSProjName( SI().getWSProjName() );
     si_.setWSPwd( SI().getWSPwd() );
+
+    lastsip_ = sip;
+    impiop_ = lastsip_->getImportPars();
 }
 
 

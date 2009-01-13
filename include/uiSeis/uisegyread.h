@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.12 2009-01-08 16:31:41 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.13 2009-01-13 13:52:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,14 +33,18 @@ public:
 
     enum Purpose	{ Import, SurvSetup, DirectDef };
     enum RevType	{ Rev0, WeakRev1, Rev1 };
+    enum State		{ Cancelled, Finished, BasicOpts, Wait4Dialog,
+			  SetupImport, SetupScan };
 
     struct Setup
     {
 			Setup( Purpose pp=Import )
 			    : purpose_(pp)
+			    , initialstate_(BasicOpts)
 			{ getDefaultTypes(geoms_,pp==SurvSetup);}
 
 	mDefSetupMemb(Purpose,	purpose)
+	mDefSetupMemb(State,	initialstate)
 	TypeSet<Seis::GeomType>	geoms_;	//!< Default all
 
 	bool		forScan() const		{ return purpose_ != Import; }
@@ -49,7 +53,7 @@ public:
 
     };
 
-			uiSEGYRead(uiParent*,const Setup&);
+			uiSEGYRead(uiParent*,const Setup&,const IOPar* iop=0);
 			~uiSEGYRead();
 
     void		use(const IOObj*,bool force);
@@ -64,8 +68,6 @@ public:
 			{ SEGY::Scanner* s = scanner_; scanner_ = 0; return s; }
 
     Notifier<uiSEGYRead> processEnded;
-    enum State		{ Cancelled, Finished, BasicOpts, Wait4Dialog,
-			  SetupImport, SetupScan };
     State		state() const		{ return state_; }
 
     static CtxtIOObj*	getCtio(bool,Seis::GeomType);

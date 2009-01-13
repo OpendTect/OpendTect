@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.27 2009-01-08 16:31:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.28 2009-01-13 13:52:02 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -56,11 +56,12 @@ void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms,
 }
 
 
-uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
+uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
+			const IOPar* iop )
     : setup_(su)
     , parent_(p)
     , geom_(SI().has3D()?Seis::Vol:Seis::Line)
-    , state_(BasicOpts)
+    , state_(su.initialstate_)
     , scanner_(0)
     , rev_(Rev0)
     , revpolnr_(2)
@@ -72,6 +73,8 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su )
     , rev1qdlg_(0)
     , processEnded(this)
 {
+    if ( iop )
+	usePar( *iop );
     nextAction();
 }
 
@@ -139,7 +142,7 @@ void uiSEGYRead::fillPar( IOPar& iop ) const
 void uiSEGYRead::usePar( const IOPar& iop )
 {
     pars_.merge( iop );
-    if ( iop.isTrue( SEGY::FileDef::sKeyForceRev0 ) ) rev_ = Rev0;
+    rev_ = iop.isTrue( SEGY::FileDef::sKeyForceRev0 ) ? Rev0 : Rev1;
 }
 
 

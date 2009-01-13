@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegysip.cc,v 1.18 2008-12-30 04:15:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisegysip.cc,v 1.19 2009-01-13 13:52:02 cvsbert Exp $";
 
 #include "uisegysip.h"
 #include "uisegyread.h"
@@ -29,8 +29,10 @@ class uiSEGYSIPMgrDlg : public uiDialog
 {
 public:
 
-uiSEGYSIPMgrDlg( uiParent* p, const uiDialog::Setup& su )
+uiSEGYSIPMgrDlg( uiSEGYSurvInfoProvider* sip, uiParent* p,
+		 const uiDialog::Setup& su )
     : uiDialog(p,su)
+    , sip_(sip)
 {
     new uiLabel( this, "To be able to scan your data\n"
 	    "You must define the specific properties of your SEG-Y file(s)" );
@@ -41,10 +43,12 @@ uiSEGYSIPMgrDlg( uiParent* p, const uiDialog::Setup& su )
 
 void atEnd( CallBacker* )
 {
+    sr_->fillPar( sip_->imppars_ );
     done( sr_->state() != uiSEGYRead::Cancelled ? 1 : 0 );
 }
 
-    uiSEGYRead*	sr_;
+    uiSEGYRead*			sr_;
+    uiSEGYSurvInfoProvider*	sip_;
 
 };
 
@@ -53,7 +57,7 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
 {
     uiDialog::Setup su( "Survey setup (SEG-Y)", mNoDlgTitle, mNoHelpID );
     su.oktext("").canceltext("");
-    return new uiSEGYSIPMgrDlg( p, su );
+    return new uiSEGYSIPMgrDlg( this, p, su );
 }
 
 #define mErrRet(s) { uiMSG().error(s); return; }
@@ -94,4 +98,12 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
 
     cs.zrg = scanner->zRange();
     return true;
+}
+
+
+void uiSEGYSurvInfoProvider::startImport( uiParent* p, const IOPar& iop )
+{
+    uiSEGYRead::Setup srsu( uiSEGYRead::Import );
+    srsu.initialstate_ = uiSEGYRead::SetupImport;
+    new uiSEGYRead( p, srsu, &iop );
 }

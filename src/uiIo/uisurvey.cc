@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.96 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.97 2009-01-13 13:52:02 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.96 2008-12-10 18:24:13 cvskris 
 #include "mousecursor.h"
 #include "uimain.h"
 #include "uifont.h"
+#include "uisip.h"
 #include "iodrawtool.h"
 #include "dirlist.h"
 #include "ioman.h"
@@ -41,6 +42,7 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.96 2008-12-10 18:24:13 cvskris 
 #include "cubesampling.h"
 #include "odver.h"
 #include "pixmap.h"
+#include "iopar.h"
 
 #include <iostream>
 #include <math.h>
@@ -136,6 +138,8 @@ uiSurvey::uiSurvey( uiParent* p )
     , initialsurvey_(GetSurveyName())
     , survinfo_(0)
     , survmap_(0)
+    , impiop_(0)
+    , impsip_(0)
 {
     SurveyInfo::produceWarnings( false );
     const int lbwidth = 250;
@@ -255,6 +259,7 @@ uiSurvey::uiSurvey( uiParent* p )
 
 uiSurvey::~uiSurvey()
 {
+    delete impiop_;
     delete survinfo_;
     delete survmap_;
 }
@@ -386,6 +391,7 @@ void uiSurvey::mkDirList()
 
 bool uiSurvey::survInfoDialog()
 {
+    delete impiop_; impsip_ = 0;
     uiSurveyInfoEditor dlg( this, *survinfo_ );
     dlg.survparchanged.notify( mCB(this,uiSurvey,updateInfo) );
     if ( !dlg.go() )
@@ -393,7 +399,8 @@ bool uiSurvey::survInfoDialog()
 
     updateSvyList();
     listbox_->setCurrentItem( dlg.dirName() );
-//    updateSvyFile();
+    impiop_ = dlg.impiop_; dlg.impiop_ = 0;
+    impsip_ = dlg.lastsip_;
     return true;
 }
 
@@ -627,6 +634,12 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     newSurvey();
     updateViewsGlobal();
+    if ( impiop_ && impsip_ )
+    {
+	IOM().to( "100010.3" );
+	impsip_->startImport( parent(), *impiop_ );
+    }
+
     return true;
 }
 

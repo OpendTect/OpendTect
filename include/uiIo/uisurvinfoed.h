@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.28 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.29 2009-01-13 13:52:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "ranges.h"
+class IOPar;
 class SurveyInfo;
 class uiCheckBox;
 class uiComboBox;
@@ -31,7 +32,9 @@ mClass uiSurveyInfoEditor : public uiDialog
 {
 
 public:
+
 			uiSurveyInfoEditor(uiParent*,SurveyInfo&);
+			~uiSurveyInfoEditor();
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
     const char*		dirName();
@@ -51,6 +54,8 @@ protected:
     BufferString	orgstorepath;
     const FileNameString rootdir;
     bool		isnew;
+    IOPar*		impiop_;
+    uiSurvInfoProvider*	lastsip_;
 
     uiGenInput*		survnmfld;
     uiGenInput*		dirnmfld;
@@ -83,6 +88,10 @@ protected:
     ObjectSet<CallBacker> sipbuts;
 
     bool		dirnamechanged;
+    uiObject*		mkSIPFld(uiObject*);
+    uiGroup*		mkRangeGrp();
+    void		mkCoordGrp();
+    void		mkTransfGrp();
     void		setValues();
     bool		setRanges();
     bool		setCoords();
@@ -96,6 +105,8 @@ protected:
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		updStatusBar(const char*);
+
+    friend class	uiSurvey;
 };
 
 #endif

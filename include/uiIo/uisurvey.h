@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.30 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uisurvey.h,v 1.31 2009-01-13 13:52:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,15 +15,17 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 
+class IOPar;
+class SurveyInfo;
 class uiLabel;
 class uiGraphicsScene;
 class uiGraphicsView;
 class uiListBox;
 class uiTextEdit;
-class SurveyInfo;
 class uiSurveyMap;
 class uiPushButton;
 class uiToolButton;
+class uiSurvInfoProvider;
 
 
 /*!\brief The main survey selection dialog */
@@ -68,6 +70,8 @@ protected:
     BufferString	initialdatadir_;
     BufferString	initialsurvey_;
     uiSurveyMap*	survmap_;
+    IOPar*		impiop_;
+    uiSurvInfoProvider*	impsip_;
 
     uiListBox*		listbox_;
     uiPushButton*	newbut_;
