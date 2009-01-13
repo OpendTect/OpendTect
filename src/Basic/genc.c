@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.97 2008-12-10 11:58:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.98 2009-01-13 07:47:35 cvsranojay Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -258,6 +258,10 @@ int SetEnvVar( const char* env, const char* val )
     if ( !env || !*env ) return mC_False;
     if ( !val ) val = "";
 
+#ifdef __msvc__
+    SetEnvironmentVariable( env, val );
+    return mC_True;
+#else
     buf = mMALLOC( strlen(env)+strlen(val) + 2, char );
     strcpy( buf, env );
     if ( *val ) strcat( buf, "=" );
@@ -265,6 +269,7 @@ int SetEnvVar( const char* env, const char* val )
 
     putenv( buf );
     return mC_True;
+#endif
 }
 
 
