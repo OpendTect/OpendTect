@@ -8,9 +8,9 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          Mar 2002
 <<<<<<< uivispartserv.h
- RCS:           $Id: uivispartserv.h,v 1.219 2009-01-13 08:23:43 cvsbruno Exp $
+ RCS:           $Id: uivispartserv.h,v 1.220 2009-01-13 11:38:23 cvsumesh Exp $
 =======
- RCS:           $Id: uivispartserv.h,v 1.219 2009-01-13 08:23:43 cvsbruno Exp $
+ RCS:           $Id: uivispartserv.h,v 1.220 2009-01-13 11:38:23 cvsumesh Exp $
 >>>>>>> 1.218
 ________________________________________________________________________
 
@@ -260,6 +260,7 @@ public:
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
     void			displayHistogramsForAttrbs(int id);
+    static const int		evColorTableChange;
     void			displaySceneColorbar(bool);
 
 				//General stuff
