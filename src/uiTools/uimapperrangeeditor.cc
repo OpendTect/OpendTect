@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.4 2009-01-09 09:14:46 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.5 2009-01-13 05:54:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,6 +305,9 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 	    return false;
 
 	minlinecurpos_ = pointedpos;
+	if ( !mIsUdf(ctbmapper_->symmidval_) )
+	    maxlinecurpos_ = ctbmapper_->symmidval_ + 
+			     ( ctbmapper_->symmidval_ - minlinecurpos_ );
     }
     else
     {
@@ -317,6 +320,9 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 	    return false;
 
 	maxlinecurpos_ = pointedpos;
+	if ( !mIsUdf(ctbmapper_->symmidval_) )
+	    minlinecurpos_ = ctbmapper_->symmidval_ -
+			     ( maxlinecurpos_ - ctbmapper_->symmidval_ );
     }
 
     return true;
