@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.19 2009-01-13 10:57:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.20 2009-01-13 15:07:59 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -96,6 +96,8 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
 
 void uiWellTrackDispProperties::doPutToScreen()
 {
+    NotifyStopper nsa( dispabovefld_->activated);
+    NotifyStopper nsb( dispbelowfld_->activated);
     dispbelowfld_->setChecked( trackprops().dispbelow_ );
     dispabovefld_->setChecked( trackprops().dispabove_ );
 }
@@ -256,7 +258,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
   
     lblo_ = new uiLabeledSpinBox( this, "Percentage overlap" );
     ovlapfld_ = lblo_ ->box();
-    ovlapfld_->setInterval( 0, 100, 10 );
+    ovlapfld_->setInterval( 0, 100, 20 );
     lblo_->attach( rightOf, lblr_ );
     ovlapfld_->valueChanging.notify(mCB(this,uiWellLogDispProperties,propChg) );
 
@@ -273,14 +275,20 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 
 void uiWellLogDispProperties::doPutToScreen()
 {
+    NotifyStopper nssfc( singlfillcolfld_->activated );
+    NotifyStopper nsslf( logfillfld_->activated );
+    NotifyStopper nso( ovlapfld_->valueChanging );
+    NotifyStopper nsr( repeatfld_->valueChanging );
+
     logsfld_->box()-> setText( logprops().name_ );
-    filllogsfld_->box()-> setText( logprops().fillname_ );
-    repeatfld_->setValue( logprops().repeat_ );
-    ovlapfld_->setValue( logprops().repeatovlap_);
-    stylefld_->setValue( logprops().iswelllog_ ); 
     rangefld_->setValue( logprops().range_ ); 
+    filllogsfld_->box()-> setText( logprops().fillname_ );
+    stylefld_->setValue( logprops().iswelllog_ ); 
     coltablistfld_->setText( logprops().seqname_ ); 
+    ovlapfld_->setValue( logprops().repeatovlap_ );
+    repeatfld_->setValue( logprops().repeat_ );
     logfillfld_->setChecked( logprops().islogfill_ );
+    singlfillcolfld_->setChecked( logprops().issinglecol_ ); 
     clipratefld_->setValue( logprops().cliprate_ );
     cliprangefld_->setValue( logprops().isdatarange_ );
     if ( mIsUdf( logprops().cliprate_) || logprops().cliprate_ > 100  )
@@ -289,7 +297,6 @@ void uiWellLogDispProperties::doPutToScreen()
 	clipratefld_->setValue( 0.0 );
     }
     seiscolorfld_->setColor( logprops().seiscolor_ );
-    singlfillcolfld_ -> setChecked( logprops().issinglecol_ ); 
 }
 
 
@@ -304,8 +311,8 @@ void uiWellLogDispProperties::doGetFromScreen()
         logprops().isdatarange_ = true;
     }
     logprops().range_ = rangefld_->getFInterval();
-    logprops().issinglecol_ = singlfillcolfld_->isChecked();
     logprops().islogfill_ = logfillfld_->isChecked();
+    logprops().issinglecol_ = singlfillcolfld_->isChecked();
     logprops().seqname_ = coltablistfld_-> text();
     if ( stylefld_->getBoolValue() == true )
 	logprops().repeat_ = 1;
@@ -377,9 +384,9 @@ void uiWellLogDispProperties::setRangeFields( Interval<float>& range )
 
 void uiWellLogDispProperties::logSel( CallBacker* )
 {
-    BufferString fillname = filllogsfld_->box()->text();
-    filllogsfld_-> box() -> setText( logsfld_->box() -> text() );
     setFieldVals( false );
+    BufferString fillname = filllogsfld_->box()->text();
+    filllogsfld_-> box() -> setText( logsfld_->box()->text() );
 }
 
 

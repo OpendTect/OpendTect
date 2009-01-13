@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.11 2009-01-13 10:57:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.12 2009-01-13 15:07:59 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -118,9 +118,8 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
     props_ = *orgprops_;
     wd_.dispparschanged.trigger();
     return true;
-    */
     getFromScreen();
-    wd_.dispparschanged.trigger();
+    wd_.dispparschanged.trigger();*/
     if ( saveButtonChecked() )
 	savedefault_ = true;
     else 
@@ -131,8 +130,10 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
 
 bool uiWellDispPropDlg::acceptOK( CallBacker* )
 {
+    /*
     getFromScreen();
     wd_.dispparschanged.trigger();
+    */
     if ( saveButtonChecked() )
 	savedefault_ = true;
     else 
