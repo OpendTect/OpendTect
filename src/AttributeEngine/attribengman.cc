@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.93 2009-01-07 14:28:05 cvshelene Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.94 2009-01-13 07:50:53 cvsranojay Exp $";
 
 #include "attribengman.h"
 
@@ -214,8 +214,8 @@ void EngineMan::setExecutorName( Executor* ex )
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, 
 					    const LineKey& lkey )
 {
-    const char* typestr = pars.find(IOPar::compKey( sKey::Output, sKey::Type ));
-    if ( !strcmp(typestr,sKey::Cube) )
+    const char* typestr = pars.find( IOPar::compKey(sKey::Output,sKey::Type) );
+    if ( typestr && !strcmp(typestr,sKey::Cube) )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
 	outp->setGeometry(cs_);
