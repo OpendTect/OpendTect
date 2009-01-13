@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.11 2009-01-13 08:23:43 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.12 2009-01-13 10:57:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ public:
     struct Track : public BasicProps
     {
 			Track()
-			    : dispabove_(true)
+			    : BasicProps(1)
+			    , dispabove_(true)
 			    , dispbelow_(true)		{}
 
 	virtual const char* subjectName() const		{ return "Track"; }
@@ -79,7 +80,7 @@ public:
 
 			Markers()
 			    : BasicProps(8)
-			    , circular_(true)	
+			    , circular_(false)	
 			    , issinglecol_(false)
 						{}
 
@@ -128,7 +129,7 @@ public:
 	float               repeatovlap_;
 	Color               linecolor_;
 	Color               seiscolor_;
-	const char*         seqname_;
+	BufferString        seqname_;
 
 
     protected:

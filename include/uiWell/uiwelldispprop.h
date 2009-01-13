@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.11 2009-01-08 10:35:13 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.12 2009-01-13 10:57:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class MultiID;
 class uiSpinBox;
+class uiLabeledSpinBox;
 class uiCheckBox;
 class uiColorInput;
 class uiGenInput;
@@ -143,11 +144,13 @@ protected:
 
 
     uiGenInput*		stylefld_;
-    uiGenInput*		repeatfld_;
     uiGenInput*         clipratefld_;
     uiGenInput*         rangefld_;
     uiGenInput*         cliprangefld_;
-    uiGenInput*         ovlapfld_;
+    uiSpinBox*          ovlapfld_;
+    uiSpinBox*		repeatfld_;
+    uiLabeledSpinBox*   lblo_;
+    uiLabeledSpinBox*   lblr_;
     uiLabeledComboBox*  logsfld_;
     uiLabeledComboBox*  filllogsfld_;
     uiCheckBox*         logfillfld_;

@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.6 2009-01-13 08:23:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.7 2009-01-13 10:57:42 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -149,8 +149,8 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
 	       repeatovlap_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftSeisColor),
 	       seiscolor_ );
-  //  iop.get( IOPar::compKey(subjectName(),sKeyLeftSeqname),
-//	       *seqname_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyLeftSeqname),
+	       seqname_ );
 }
 
 
@@ -182,8 +182,8 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
 	       repeatovlap_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightSeisColor),
 	       seiscolor_ );
-  //  iop.get( IOPar::compKey(subjectName(),sKeyRightSeqname),
-//	       *seqname_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyRightSeqname),
+	       seqname_ );
 }
 
 
@@ -215,8 +215,8 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
 	       repeatovlap_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftSeisColor),
 	       seiscolor_ );
-  //  iop.set( IOPar::compKey(subjectName(),sKeyLeftSeqname),
-//	       *seqname_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyLeftSeqname),
+	       seqname_ );
 }
 
 
@@ -248,8 +248,8 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
 	       repeatovlap_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightSeisColor),
 	       seiscolor_ );
-   // iop.set( IOPar::compKey(subjectName(),sKeyRightSeqname),
-//	       *seqname_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyRightSeqname),
+	       seqname_ );
 }
 
 
