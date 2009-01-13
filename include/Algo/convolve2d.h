@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.9 2008-12-05 23:14:37 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.10 2009-01-13 22:59:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -87,6 +87,40 @@ void Convolver2D<T>::setY( const Array2D<T>& y, int first0, int first1 )
 }
 
 
+#define mConvolver2DSetY( dim ) \
+const int firsty##dim = correlate_ \
+    ? -xshift##dim##_-zvar[dim]+yshift##dim##_ \
+    : zvar[dim]+xshift##dim##_+yshift##dim##_; \
+\
+const char y##dim##inc = correlate_ ? 1 : -1
+
+
+#define mConvolver2DSetIndex( dim ) \
+const int idy##dim = firsty##dim+idx##dim*y##dim##inc; \
+if ( idy##dim<0 ) \
+{ \
+    if ( correlate_ ) \
+    { \
+	idx##dim += (-idy##dim)-1; \
+	continue; \
+    } \
+ \
+    break; \
+} \
+ \
+if ( idy##dim>=ysz##dim ) \
+{ \
+    if ( correlate_ ) \
+	break; \
+ \
+    const int diff = idy##dim-(ysz##dim-1); \
+    idx##dim += diff-1; \
+    continue; \
+}
+
+
+
+
 template <class T> inline
 bool Convolver2D<T>::doWork( od_int64 start, od_int64 stop, int )
 {
@@ -103,33 +137,51 @@ bool Convolver2D<T>::doWork( od_int64 start, od_int64 stop, int )
     ArrayNDIter iterator( z_->info() );
     iterator.setPos( startpos );
 
+    const ValueSeries<T>* xstor_ = x_->getStorage();
+    const T* xptr_ = x_->getData();
+
+    const ValueSeries<T>* ystor_ = y_->getStorage();
+    const T* yptr_ = y_->getData();
+
     for ( int idx=start; idx<=stop; idx++ )
     {
 	const int* zvar = iterator.getPos();
 	T sum = 0;
 	T ysum = 0;
 	int nrsamples = 0;
+
+	mConvolver2DSetY( 0 );
+	mConvolver2DSetY( 1 );
+
 	for ( int idx0=0; idx0<xsz0; idx0++ )
 	{
-	    const int xvar0 = idx0-xshift0_;
-	    const int yvar0 = correlate_ ? xvar0-zvar[0] : zvar[0]-xvar0;
-	    const int idy0 = yvar0+yshift0_;
-	    if ( idy0<0 || idy0>=ysz0 )
-		continue;
+	    mConvolver2DSetIndex( 0 );
+
+	    const od_int64 yoffset = ystor_ || yptr_ ?
+		y_->info().getOffset( idy0, 0 ) : 0;
+
+            const od_int64 xoffset = xstor_ || xptr_ ?
+		x_->info().getOffset( idx0, 0 ) : 0;
 
 	    for ( int idx1=0; idx1<xsz1; idx1++ )
 	    {
-		const int xvar1 = idx1-xshift1_;
-		const int yvar1 = correlate_ ? xvar1-zvar[1] : zvar[1]-xvar1;
-		const int idy1 = yvar1+yshift1_;
-		if ( idy1<0 || idy1>=ysz1 )
-		    continue;
+		mConvolver2DSetIndex( 1 );
 
-		const T yval = y_->get( idy0, idy1 );
+		const T yval = yptr_
+		    ? yptr_[yoffset+idy1]
+		    : ystor_
+			? ystor_->value( yoffset+idy1 )
+			: y_->get( idy0, idy1 );
+
 		if ( mIsUdf(yval) )
 		    continue;
 
-		const T xval = x_->get( idx0, idx1 );
+		const T xval = xptr_
+		    ? xptr_[xoffset+idx1]
+		    : xstor_
+			? xstor_->value( xoffset+idx1 )
+			: x_->get( idx0, idx1 );
+
 		if ( mIsUdf(xval) )
 		    continue;
 
