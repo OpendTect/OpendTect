@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.20 2008-11-28 10:32:06 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.21 2009-01-13 03:32:09 cvsnanne Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -63,7 +63,7 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
 	    			mCB(this,uiSpecDecompAttrib,stepChg) );
 
     waveletfld_ = new uiGenInput( this, "Wavelet", 
-	    			 StringListInpSpec(CWT::WaveletTypeNames) );
+	    			 StringListInpSpec(CWT::WaveletTypeNames()) );
     waveletfld_->attach( alignedBelow, typefld_ );
 
     stepChg(0);

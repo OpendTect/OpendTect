@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.13 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.14 2009-01-13 03:32:09 cvsnanne Exp $";
 
 
 #include "uiprestackattrib.h"
@@ -38,25 +38,25 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     offsrgfld_->attach( alignedBelow, inpfld_ );
 
     calctypefld_ = new uiGenInput( this, "Calculation type",
-		   StringListInpSpec(SeisPSPropCalc::CalcTypeNames) );
+		   StringListInpSpec(SeisPSPropCalc::CalcTypeNames()) );
     calctypefld_->attach( alignedBelow, offsrgfld_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
     stattypefld_ = new uiGenInput( this, "Statistics type",
-				   StringListInpSpec(Stats::TypeNames) );
+				   StringListInpSpec(Stats::TypeNames()) );
     stattypefld_->attach( alignedBelow, calctypefld_ );
 
     lsqtypefld_ = new uiGenInput( this, "LSQ output",
-		  StringListInpSpec(SeisPSPropCalc::LSQTypeNames) );
+		  StringListInpSpec(SeisPSPropCalc::LSQTypeNames()) );
     lsqtypefld_->attach( alignedBelow, calctypefld_ );
 
     valaxtypefld_ = new uiGenInput( this, "Axis transformations",
-		     StringListInpSpec(SeisPSPropCalc::AxisTypeNames) );
+		     StringListInpSpec(SeisPSPropCalc::AxisTypeNames()) );
     valaxtypefld_->attach( alignedBelow, lsqtypefld_ );
     xlbl_ = new uiLabel( this, "X:" );
     xlbl_->attach( rightOf, valaxtypefld_ );
     offsaxtypefld_ = new uiGenInput( this, "",
-		    StringListInpSpec(SeisPSPropCalc::AxisTypeNames)
+		    StringListInpSpec(SeisPSPropCalc::AxisTypeNames())
 	   			      .setName("X") );
     offsaxtypefld_->attach( rightOf, xlbl_ );
 

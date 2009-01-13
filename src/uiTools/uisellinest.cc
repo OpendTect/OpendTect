@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisellinest.cc,v 1.24 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisellinest.cc,v 1.25 2009-01-13 03:32:09 cvsnanne Exp $";
 
 #include "uisellinest.h"
 #include "draw.h"
@@ -33,7 +33,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 {
     if ( wdraw )
     {
-	BufferStringSet itms( LineStyle::TypeNames );
+	BufferStringSet itms( LineStyle::TypeNames() );
 	stylesel = new uiComboBox( this, itms, "Line Style" );
 	stylesel->setCurrentItem( (int)linestyle.type_ );
 	stylesel->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.14 2009-01-07 06:46:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.15 2009-01-13 03:32:09 cvsnanne Exp $";
 
 #include "uiveldesc.h"
 
@@ -25,11 +25,11 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc )
     : uiGroup( p, "Velocity type selector" )
 {
     typefld_ = new uiGenInput( this, "Velocity type",
-	    		       StringListInpSpec( VelocityDesc::TypeNames ) );
-    typefld_->valuechanged.notify( mCB(this, uiVelocityDesc, velTypeChange) );
+			StringListInpSpec(VelocityDesc::TypeNames()) );
+    typefld_->valuechanged.notify( mCB(this,uiVelocityDesc,velTypeChange) );
 
     samplefld_ = new uiGenInput( this, "Sample span",
-	    StringListInpSpec( VelocityDesc::SampleSpanNames ) );
+			StringListInpSpec(VelocityDesc::SampleSpanNames()) );
     samplefld_->attach( alignedBelow, typefld_ );
 
     setHAlignObj( typefld_ );
