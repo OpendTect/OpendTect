@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.23 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: datapointset.h,v 1.24 2009-01-13 06:04:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
 
     /*!\brief Fast position based on BinID but more precise */
 
-    struct dll_export Pos
+    mStruct Pos
     {
 			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
 			Pos( const BinID& bid, float _z,
@@ -82,7 +82,7 @@ public:
     /*!\brief Data point with group. Group 0 means 'inactive',
       	      it can never be selected. */
 
-    struct DataRow
+    mStruct DataRow
     {
 			DataRow()
 			    : grp_(1)			{ setSel(false); }
