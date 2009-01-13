@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.100 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.101 2009-01-13 05:36:34 cvsumesh Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -172,7 +172,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     pathbut->activated.notify( mCB(this,uiSurveyInfoEditor,pathbutPush) );
 #endif
 
-    pol2dfld = new uiLabeledComboBox( this, SurveyInfo::Pol2DNames,
+    pol2dfld = new uiLabeledComboBox( this, SurveyInfo::Pol2DNames(),
 	    			      "Survey type" );
     pol2dfld->attach( alignedBelow, pathfld );
 
