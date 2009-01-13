@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.27 2009-01-08 09:16:21 cvsranojay Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.28 2009-01-13 08:23:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class Coord;
 class Color;
 template <class T> class Interval;
 class uiWell2RandomLineDlg;
+class uiWellDispPropDlg;
 
 /*! \brief Part Server for Wells */
 
@@ -52,7 +53,9 @@ public:
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
     void			rdmlnDlgClosed(CallBacker*);
+    void			wellPropDlgClosed(CallBacker*);
     Notifier<uiWellPartServer>	randLineDlgClosed;
+    Notifier<uiWellPartServer>	uiwellpropDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
 				{ previewids_ = ids; }
     TypeSet<int>&		getPreviewIds() 	{ return previewids_; }
@@ -73,12 +76,14 @@ public:
 protected:
 
     uiWell2RandomLineDlg*	rdmlinedlg_;
+    uiWellDispPropDlg*		uiwellpropdlg_;
     TypeSet<int>		previewids_;
 
     int				cursceneid_;
     bool			disponcreation_;
     const char*			multiid_;
     bool			allapplied_;
+    bool			isdisppropopened_;
 
     void			saveWellDispProps(const Well::Data*);
     void			saveWellDispProps(const Well::Data&,const MultiID&);

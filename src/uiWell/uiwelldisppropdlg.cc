@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.9 2009-01-06 09:59:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.10 2009-01-13 08:23:43 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -24,14 +24,15 @@ static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.9 2009-01-06 09:59:22 
 uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Well display properties",
 	   "",mTODOHelpID).savetext("Save as default").savebutton(true)
-					.savechecked(false))
-					//.modal(false))
+					.savechecked(false)
+				       	.modal(false))
 	, wd_(d)
 	, props_(d.displayProperties())
     	, orgprops_(new Well::DisplayProperties(d.displayProperties()))
 	, applyAllReq(this)
 	, savedefault_(false)		   
 {
+    setCtrlStyle( LeaveOnly );
      *orgprops_ = props_;
     wd_.dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
@@ -110,11 +111,20 @@ void uiWellDispPropDlg::applyAllPush( CallBacker* )
     *orgprops_ = props_;
 }
 
-
+//TODO remove function
 bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
+    /*
     props_ = *orgprops_;
     wd_.dispparschanged.trigger();
+    return true;
+    */
+    getFromScreen();
+    wd_.dispparschanged.trigger();
+    if ( saveButtonChecked() )
+	savedefault_ = true;
+    else 
+	savedefault_ = false;
     return true;
 }
 

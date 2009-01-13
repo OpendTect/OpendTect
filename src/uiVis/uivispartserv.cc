@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.389 2009-01-09 09:47:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.390 2009-01-13 08:23:43 cvsbruno Exp $";
 
 #include "uivispartserv.h"
 
@@ -112,7 +112,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , pickretriever_( new uiVisPickRetriever )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
-    , displayid_(-1)						      
+    , displayid_(-1)				
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -1328,14 +1328,8 @@ void uiVisPartServer::doWellDispPropDlg(
     Well::Data* wd = Well::MGR().get( wds[0]->getMultiID(), false );
     if ( !wd ) { pErrMsg( "Huh" ); return; }
 
-    uiWellDispPropDlg dlg( parent(), *wd );
-
-/*    if ( dlg.go() ) //TODO && condition.
-    {
-        wd->displayProperties().defaults() = wd->displayProperties();
-	wd->displayProperties().commitDefaults();
-    }*/
-
+    //uiwellpropdlg_ = new uiWellDispPropDlg( parent(), *wd );
+   // uiwellpropdlg_->go();
 }
 
 

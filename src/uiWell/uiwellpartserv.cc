@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.37 2009-01-08 10:35:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.38 2009-01-13 08:23:43 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -42,10 +42,13 @@ const int uiWellPartServer::evCleanPreview			=2;
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , rdmlinedlg_(0)
+    , uiwellpropdlg_(0)		    
     , cursceneid_(-1)
     , disponcreation_(false)
     , multiid_(0)
     , randLineDlgClosed(this)
+    , uiwellpropDlgClosed(this)
+    , isdisppropopened_(false)			       
 {
 }
 
@@ -53,6 +56,7 @@ uiWellPartServer::uiWellPartServer( uiApplService& a )
 uiWellPartServer::~uiWellPartServer()
 {
     delete rdmlinedlg_;
+    delete uiwellpropdlg_;
 }
 
 
@@ -96,22 +100,38 @@ bool uiWellPartServer::editDisplayProperties( const MultiID& mid )
     allapplied_ = false;
     Well::Data* wd = Well::MGR().get( mid );
     if ( !wd ) return false;
-
-    uiWellDispPropDlg dlg( parent(), *wd );
-    dlg.applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
-    bool rv = dlg.go(); 
-    //To remove in case propdlg show 
-    if ( rv &&  dlg.savedefault_ == true )
+    
+    if (isdisppropopened_ == false )
     {
-	wd->displayProperties().defaults() = wd->displayProperties();
-	saveWellDispProps( allapplied_ ? 0 : wd );
-	wd->displayProperties().commitDefaults();
+	uiwellpropdlg_ = new uiWellDispPropDlg( parent(), *wd );
+	isdisppropopened_ = true;
+	uiwellpropdlg_->applyAllReq.notify( mCB(this,uiWellPartServer,applyAll) );
+	uiwellpropdlg_->windowClosed.notify(mCB(this,uiWellPartServer,
+		    				wellPropDlgClosed));
+
+	bool rv = uiwellpropdlg_->go();    
     }
-  
-    return rv;
-    //uiWellDispPropDlg* propdlg = new uiWellDispPropDlg( parent(), *wd );
-    //propdlg->show();
-   // return true;
+    return true;
+}
+
+
+void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
+{
+    mDynamicCastGet(uiWellDispPropDlg*,dlg,cb)
+    if ( !dlg ) { pErrMsg("Huh"); return; }
+    const Well::Data& edwd = dlg->wellData();
+    const Well::DisplayProperties& edprops = edwd.displayProperties();
+
+    if ( dlg->savedefault_ == true )
+    {
+	edprops.defaults() = edprops;
+	saveWellDispProps( allapplied_ ? 0 : &edwd );
+	edprops.commitDefaults();
+    }
+
+    isdisppropopened_ = false;
+    sendEvent( evCleanPreview );
+    uiwellpropDlgClosed.trigger();
 }
 
 

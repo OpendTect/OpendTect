@@ -7,7 +7,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.218 2009-01-09 09:44:08 cvssatyaki Exp $
+<<<<<<< uivispartserv.h
+ RCS:           $Id: uivispartserv.h,v 1.219 2009-01-13 08:23:43 cvsbruno Exp $
+=======
+ RCS:           $Id: uivispartserv.h,v 1.219 2009-01-13 08:23:43 cvsbruno Exp $
+>>>>>>> 1.218
 ________________________________________________________________________
 
 -*/
@@ -34,6 +38,7 @@ class uiSlicePos;
 class uiToolBar;
 class uiVisModeMgr;
 class uiVisPickRetriever;
+class uiWellDispPropDlg;
 template <class T> class Selector;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
@@ -401,6 +406,7 @@ protected:
     bool			blockmenus_;
     uiVisPickRetriever*		pickretriever_;
     Notifier<uiVisPartServer>	nrsceneschange_;
+    uiWellDispPropDlg*		uiwellpropdlg_;
 };
 
 

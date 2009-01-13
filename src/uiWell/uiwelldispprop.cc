@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.17 2009-01-08 10:35:13 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.18 2009-01-13 08:23:43 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -387,6 +387,7 @@ void uiWellLogDispProperties::logSel( CallBacker* )
 	    (fillvaluerange_.start == 0 && fillvaluerange_.stop == 0) )
     {
 	filllogsfld_-> box() -> setText( logsfld_->box() -> text() );
+	logfillfld_-> setChecked( true );
     }
 }
 
@@ -402,7 +403,7 @@ void uiWellLogDispProperties::selNone()
     clipratefld_->setValue( 0.0 );
     repeatfld_->setValue( 0 );
     ovlapfld_->setValue( 0 );
-    logfillfld_->setChecked( false );
+    logfillfld_->setChecked( true );
     singlfillcolfld_->setChecked( false );
 }
 

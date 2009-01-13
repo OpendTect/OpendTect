@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.10 2009-01-08 10:35:13 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.11 2009-01-13 08:23:43 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,12 +40,20 @@ public:
 
 	void		usePar(const IOPar&);
 	void		fillPar(IOPar&) const;
+	void		useLeftPar(const IOPar&);
+	void		useRightPar(const IOPar&);
+	void		fillLeftPar(IOPar&) const;
+	void		fillRightPar(IOPar&) const;
 	virtual const char* subjectName() const		= 0;
 
     protected:
 
 	virtual void	doUsePar(const IOPar&)		{}
 	virtual void	doFillPar(IOPar&) const		{}
+	virtual void	doUseLeftPar(const IOPar&) {}
+	virtual void	doFillRightPar(IOPar&) const {}
+	virtual void	doUseRightPar(const IOPar&){}
+	virtual void	doFillLeftPar(IOPar&) const{}
 
     };
 
@@ -53,7 +61,7 @@ public:
     {
 			Track()
 			    : dispabove_(true)
-			    , dispbelow_(false)		{}
+			    , dispbelow_(true)		{}
 
 	virtual const char* subjectName() const		{ return "Track"; }
 
@@ -87,7 +95,6 @@ public:
 
     struct Log : public BasicProps
     {
-
 			Log()
 			    : name_("none")
 			    , fillname_("none")
@@ -99,10 +106,10 @@ public:
 			    , repeat_(5)
 			    , repeatovlap_(50)
 			    , linecolor_(Color::White())
-			    , islogfill_(false)
+			    , islogfill_(true)
 		            , isdatarange_(true)
 		            , seiscolor_(Color::White())
-			    , seqname_("AI")
+			    , seqname_("Rainbow")
 			    , issinglecol_(false)	{}
 
 	virtual const char* subjectName() const	{ return "Log"; }
@@ -110,7 +117,6 @@ public:
 	BufferString	    name_;
 	BufferString	    fillname_;
 	bool		    iswelllog_;
-
 	float               cliprate_;      
 	Interval<float>     range_;        
 	Interval<float>     fillrange_;       
@@ -127,8 +133,10 @@ public:
 
     protected:
 
-	virtual void	doUsePar(const IOPar&);
-	virtual void	doFillPar(IOPar&) const;
+	virtual void	doUseLeftPar(const IOPar&);
+	virtual void	doFillRightPar(IOPar&) const;
+	virtual void	doUseRightPar(const IOPar&);
+	virtual void	doFillLeftPar(IOPar&) const;
     };
 
     Track		track_;
