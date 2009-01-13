@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisip.h,v 1.4 2009-01-13 11:06:22 cvsbert Exp $
+ RCS:           $Id: uisip.h,v 1.5 2009-01-13 11:14:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class uiDialog;
   In some cases, the provider can also allow actual data import. After
   setting up the survey, the user can be automatically put into an import
   facility. If that is the case, you can return an IOPar in getImportPars()
-  that, when the time comes, will be used to call enableImport().
+  that, when the time comes, will be used to call startImport().
  
  */
 
@@ -52,7 +52,7 @@ public:
     virtual TDInfo		tdInfo() const		{ return Uknown; }
 
     virtual IOPar*		getImportPars() const	{ return 0; }
-    virtual void		enableImport(const IOPar&) {}
+    virtual void		startImport(uiParent*,const IOPar&) {}
 
 };
 
