@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.36 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uigeninput.h,v 1.37 2009-01-13 03:55:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ Returns true, if changes are accepted.
     virtual const char*	titleText();
     virtual void	setTitleText(const char*);
 
-    void 		setChecked( bool yn );
+    void 		setChecked(bool yn);
     bool		isChecked();
     bool		isCheckable()
     			{ return cbox ? true : false; }
@@ -214,6 +214,8 @@ Returns true, if changes are accepted.
     void		setWithCheck( bool yn=true )	{ withchk = yn; }
     void		setWithSelect( bool yn=true ) 
 			{ selText = yn ? "&Select" : "" ; }
+
+    void		setNrDecimals(int nrdec,int fldnr=0);
 
     Notifier<uiGenInput> checked;
     Notifier<uiGenInput> valuechanging;

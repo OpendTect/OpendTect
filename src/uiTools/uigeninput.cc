@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.86 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.87 2009-01-13 03:55:22 cvsnanne Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"
@@ -1129,3 +1129,16 @@ void uiGenInput::doSelect_( CallBacker* cb )
 void uiGenInput::doClear( CallBacker* )
 { clear(); }
 
+
+void uiGenInput::setNrDecimals( int nrdec, int fldnr )
+{
+    if ( !flds.validIdx(fldnr) ) return;
+
+    mDynamicCastGet(uiTextInputFld*,textinp,flds[fldnr])
+    if ( !textinp ) return;
+    mDynamicCastGet(uiLineEdit*,lineedit,textinp->mainObj())
+    if ( !lineedit ) return;
+
+    uiFloatValidator fv; fv.nrdecimals_ = nrdec;
+    lineedit->setValidator( fv );
+}
