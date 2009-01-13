@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.51 2009-01-13 10:18:22 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.52 2009-01-13 11:03:43 cvshelene Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -585,9 +585,8 @@ void uiListViewItem::setText( const char* txt, int column )
 
 const char* uiListViewItem::text( int column ) const
 { 
-    static BufferString coltxt;
-    coltxt = qItem() ? mQStringToConstChar(qItem()->text(column)) : "";
-    return coltxt;
+    rettxt = mQStringToConstChar( qItem()->text(column) );
+    return rettxt;
 }
 
 
