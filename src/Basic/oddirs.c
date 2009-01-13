@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.7 2008-12-29 10:46:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.8 2009-01-13 04:27:42 cvsnanne Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -462,7 +462,7 @@ const char* GetSoftwareUser()
 }
 
 
-static const char* getHomeDir( char* val )
+static void getHomeDir( char* val )
 {
     const char* dir;
 
