@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisip.h,v 1.2 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uisip.h,v 1.3 2009-01-13 11:04:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,11 @@ class uiDialog;
   to read a simple ascii file. In any case, this is the interface. The
   implementation should be added to the factory using 
   uiSurveyInfoEditor::addInfoProvider.
+
+  In some cases, the provider can also allow actual data import. After
+  setting up the survey, the user can be automatically put into an import
+  facility. If that is the case, you can return an IOPar in getImportPars()
+  that, when the time comes, will be used to call allowImport().
  
  */
 
@@ -45,6 +50,10 @@ public:
 
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
     virtual TDInfo		tdInfo() const		{ return Uknown; }
+
+    virtual IOPar*		getImportPars() const	{ return 0; }
+    virtual void		allowImport(const IOPar&) {}
+
 };
 
 
