@@ -7,11 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
-<<<<<<< uivispartserv.h
- RCS:           $Id: uivispartserv.h,v 1.220 2009-01-13 11:38:23 cvsumesh Exp $
-=======
- RCS:           $Id: uivispartserv.h,v 1.220 2009-01-13 11:38:23 cvsumesh Exp $
->>>>>>> 1.218
+ RCS:           $Id: uivispartserv.h,v 1.221 2009-01-13 11:44:36 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
