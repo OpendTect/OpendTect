@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.22 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.23 2009-01-13 05:42:48 cvsumesh Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -96,7 +96,7 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     belowfld_->attach( rightOf, abovefld_ );
 
     logresamplfld_ = new uiGenInput( this, "Log resampling method",
-		  StringListInpSpec(Well::LogDataExtracter::SamplePolNames) );
+		  StringListInpSpec(Well::LogDataExtracter::SamplePolNames()) );
     logresamplfld_->attach( alignedBelow, abovefld_ );
 
     setDescSet( d );
