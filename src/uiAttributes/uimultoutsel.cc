@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultoutsel.cc,v 1.1 2009-01-07 11:19:50 cvshelene Exp $";
+static const char* rcsID = "$Id: uimultoutsel.cc,v 1.2 2009-01-13 03:56:42 cvsnanne Exp $";
 
 #include "uimultoutsel.h"
 
@@ -20,6 +20,7 @@ using namespace Attrib;
 uiMultOutSel::uiMultOutSel( uiParent* p, const Desc& desc )
 	: uiDialog(p,Setup("Multiple components selection",
 		    	   "Select the outputs to compute", mTODOHelpID))
+	, outlistfld_(0)
 {
     BufferStringSet outnames;
     Desc* tmpdesc = new Desc( desc );
