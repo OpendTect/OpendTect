@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.109 2008-12-15 16:49:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.110 2009-01-13 04:00:54 cvsnanne Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -162,7 +162,6 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
     if ( !newprov->checkInpAndParsAtStart() )
     {
 	existing.remove( existing.indexOf(newprov), existing.size()-1 );
-	newprov->unRef();
 	BufferString attribnm = newprov->desc.attribName();
 	if ( attribnm == StorageProvider::attribName() )
 	{
@@ -175,6 +174,7 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    errstr += "\" of type \""; errstr += attribnm;
 	    errstr += "\" cannot be initialized";
 	}
+	newprov->unRef();
 	return 0;
     }
 
