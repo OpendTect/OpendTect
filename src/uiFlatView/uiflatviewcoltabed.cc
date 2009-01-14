@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcoltabed.cc,v 1.6 2008-11-26 06:57:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewcoltabed.cc,v 1.7 2009-01-14 11:15:50 cvsnanne Exp $";
 
 #include "uiflatviewcoltabed.h"
 
@@ -26,7 +26,7 @@ uiFlatViewColTabEd::uiFlatViewColTabEd( uiParent* p, FlatView::Viewer& vwr )
     , colTabChgd(this)
 {
     ColTab::SM().get( ddpars_.vd_.ctab_.buf(), colseq_ );
-    uicoltab_ = new uiColorTable( p, colseq_, false );
+    uicoltab_ = new uiColorTable( 0, colseq_, false );
     uicoltab_->setEnabManage( false );
     uicoltab_->seqChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
     uicoltab_->scaleChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged));
