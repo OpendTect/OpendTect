@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.9 2009-01-14 11:40:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.10 2009-01-14 12:09:46 cvssatyaki Exp $";
 
 #include "uiscenepropdlg.h"
 
@@ -97,6 +97,7 @@ void uiScenePropertyDlg::updateCB( CallBacker* cb )
     viewer_->setBackgroundColor( bgcolfld_->color() );
     annotfld_->setSensitive( survboxfld_->isChecked() );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
+    viewer_->setAxisAnnotColor( annotcolfld_->color() );
 }
 
 
@@ -144,7 +145,7 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
     for ( int idx=0; idx<viewers_.size(); idx++ )
     {
 	const_cast<uiSoViewer*>(viewers_[idx])->setBackgroundColor(
-					bgcolfld_->color() );
+		bgcolfld_->color() );
 	const_cast<uiSoViewer*>(viewers_[idx])->setAxisAnnotColor(
 		annotcolfld_->color() );
     }
