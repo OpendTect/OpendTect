@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.11 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.12 2009-01-14 12:29:51 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,9 @@ public:
     static BufferString	getDefTempStorDir(const char* storpth=0);
     static const char*	outputKey(const IOPar&);
 
-    static const char*	sKeySeisOutIDKey;
-    static const char*	sKeyOutputLS;
-    static const char*	sKeyWorkLS;
+    static const char*	sKeySeisOutIDKey();
+    static const char*	sKeyOutputLS();
+    static const char*	sKeyWorkLS();
 
 protected:
 

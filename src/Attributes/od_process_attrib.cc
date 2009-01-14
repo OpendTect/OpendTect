@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.24 2008-05-26 11:41:39 cvsbert Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.25 2009-01-14 12:23:49 cvsranojay Exp $";
 
 #include "batchprog.h"
 
@@ -100,8 +100,8 @@ bool BatchProgram::go( std::ostream& strm )
 	    mRetFileProb(sKey::TmpStor,tempdir,"is not writeable")
     }
 
-    Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS,
-	    			  SeisJobExecProv::sKeyWorkLS );
+    Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS(),
+	    			  SeisJobExecProv::sKeyWorkLS() );
 
     const char* selspec = pars().find( "Output.1.In-line range" );
     if ( selspec && *selspec )

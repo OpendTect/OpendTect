@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.32 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.33 2009-01-14 12:28:22 cvsranojay Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -31,9 +31,9 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.32 2008-12-03 09:13:56 c
 #include <iostream>
 #include <sstream>
 
-const char* SeisJobExecProv::sKeySeisOutIDKey = "Output Seismics Key";
-const char* SeisJobExecProv::sKeyOutputLS = "Output Line Set";
-const char* SeisJobExecProv::sKeyWorkLS = "Work Line Set";
+const char* SeisJobExecProv::sKeySeisOutIDKey()	    { return "Output Seismics Key"; }
+const char* SeisJobExecProv::sKeyOutputLS()	    { return "Output Line Set"; }
+const char* SeisJobExecProv::sKeyWorkLS()	    { return "Work Line Set"; }
 
 static const char* sKeyProcIs2D = "Processing is 2D";
 #define mOutKey(s) IOPar::compKey("Output.0",s)
@@ -81,7 +81,7 @@ SeisJobExecProv::~SeisJobExecProv()
 const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
     static BufferString res;
-    res = iopar.find( sKeySeisOutIDKey );
+    res = iopar.find( sKeySeisOutIDKey() );
     if ( res.isEmpty() ) res = mOutKey("Seismic.ID");
     return res.buf();
 }

@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.80 2008-11-25 11:37:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.81 2009-01-14 12:28:22 cvsranojay Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -24,8 +24,8 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.80 2008-11-25 11:37:46 cvsbert 
 #include "filegen.h"
 #include "errh.h"
 
-const char* CBVSSeisTrcTranslator::sKeyDataStorage = "Data storage";
-const char* CBVSSeisTrcTranslator::sKeyDefExtension = "cbvs";
+const char* CBVSSeisTrcTranslator::sKeyDataStorage()	{ return "Data storage"; }
+const char* CBVSSeisTrcTranslator::sKeyDefExtension()	{ return "cbvs"; }
 
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
@@ -511,7 +511,7 @@ void CBVSSeisTrcTranslator::usePar( const IOPar& iopar )
 {
     SeisTrcTranslator::usePar( iopar );
 
-    const char* res = iopar.find( sKeyDataStorage );
+    const char* res = iopar.find( sKeyDataStorage() );
     if ( res && *res )
 	preseldatatype = (DataCharacteristics::UserType)(*res-'0');
 

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.36 2008-12-29 11:41:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.37 2009-01-14 12:28:22 cvsranojay Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -81,7 +81,7 @@ SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )
 	, nringather_(1)
 {
     BufferString& sm = const_cast<BufferString&>( selmask_ );
-    sm = "*."; sm += CBVSSeisTrcTranslator::sKeyDefExtension;
+    sm = "*."; sm += CBVSSeisTrcTranslator::sKeyDefExtension();
 }
 
 
@@ -154,7 +154,7 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 
 void SeisCBVSPSIO::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( CBVSSeisTrcTranslator::sKeyDataStorage );
+    const char* res = iopar.find( CBVSSeisTrcTranslator::sKeyDataStorage() );
     if ( res && *res )
 	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
 }

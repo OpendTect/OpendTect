@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.118 2008-12-19 06:47:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.119 2009-01-14 12:28:22 cvsranojay Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -619,7 +619,7 @@ void uiSeisMMProc::jobPrepare( CallBacker* cb )
 	jobprov->preparePreSet( jobrunner->curJobIOPar(),
 				SeisJobExecProv::sKeyOutputLS );
 	jobrunner->curJobIOPar().set(
-		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS,sKey::FileName),
+		    IOPar::compKey(SeisJobExecProv::sKeyWorkLS(),sKey::FileName),
 		    lsfnm );
     }
 }

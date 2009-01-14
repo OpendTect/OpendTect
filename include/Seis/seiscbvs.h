@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.41 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seiscbvs.h,v 1.42 2009-01-14 12:29:51 cvsranojay Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -50,9 +50,9 @@ public:
     virtual bool	implRename(const IOObj*,const char*,
 	    			   const CallBack* cb=0) const;
     virtual bool	implSetReadOnly(const IOObj*,bool) const;
-    virtual const char*	defExtension() const	{ return sKeyDefExtension; }
-    static const char*	sKeyDefExtension;
-    static const char*	sKeyDataStorage;
+    const char*	defExtension() const	{ return sKeyDefExtension(); }
+    static const char*	sKeyDefExtension();
+    static const char*	sKeyDataStorage();
 
     bool		minimalHdrs() const		{ return minimalhdrs; }
     void		setMinimalHdrs( bool yn=true )	{ minimalhdrs = yn; }
