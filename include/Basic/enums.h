@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		4-2-1994
  Contents:	Enum <--> string conversion
- RCS:		$Id: enums.h,v 1.15 2009-01-09 10:31:29 cvsranojay Exp $
+ RCS:		$Id: enums.h,v 1.16 2009-01-14 10:56:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,12 +77,12 @@ public:
 
     enum			State { Good, Bad, Ugly };
     static const EnumDef&	StateDef();
-    static const char**		StateNamesGet();
-    static const char*		StateNames[];
+    static const char**		StateNames();
 
 protected:
 
-    static const EnumDef	StateDefinition;
+    static const char*		StateNames_[];
+    static const EnumDef	StateDefinition_;
 
 public:
 
@@ -90,12 +90,12 @@ public:
     Type			type() const { return type_; }
     void			setType(Type _e_) { type_ = _e_; }
     static const EnumDef&	TypeDef();
-    static const char**		TypeNamesGet();
-    static const char*		TypeNames[];
+    static const char**		TypeNames();
 
 protected:
 
-    static const EnumDef	TypeDefinition;
+    static const char*		TypeNames_[];
+    static const EnumDef	TypeDefinition_;
 
     Type			type_;
 
@@ -107,17 +107,17 @@ and, in myclass.cc:
 
 \code
 
-const EnumDef& MyClass::StateDef()    { return StateDefinition; }
-const EnumDef MyClass::StateDefinition      ("My class state",MyClass::Statenames,1);
+const EnumDef& MyClass::StateDef()    { return StateDefinition_; }
+const EnumDef MyClass::StateDefinition_("My class state",MyClass::Statenames,1);
 
-const char* MyClass::Statenames[] =
+const char* MyClass::Statenames_[] =
         { "Good", "Bad", "Not very handsome", 0 };
 
 
-const EnumDef& MyClass::TypeDef()   { return TypeDefinition; }
-const EnumDef MyClass::TypeDefinition     ( "My class type", MyClass::Typenames, 0 );
+const EnumDef& MyClass::TypeDef()   { return TypeDefinition_; }
+const EnumDef MyClass::TypeDefinition_( "My class type", MyClass::Typenames, 0 );
 
-const char* MyClass::Typenames[] =
+const char* MyClass::Typenames_[] =
         { "Yes", "No", "Not sure", 0 };
 
 \endcode
@@ -171,15 +171,15 @@ public: \
     static const EnumDef& enm##Def(); \
     static const char** enm##Names();\
 protected: \
-    static const char* enm##names_[];\
-    static const EnumDef enm##definition_; \
+    static const char* enm##Names_[];\
+    static const EnumDef enm##Definition_; \
 public:
 
 #define DeclareNameSpaceEnumUtils(enm) \
     mExtern const EnumDef& enm##Def(); \
     mExtern const char** enm##Names();\
-    extern const char* enm##names_[];\
-    extern const EnumDef enm##definition_;
+    extern const char* enm##Names_[];\
+    extern const EnumDef enm##Definition_;
 
 #define DeclareEnumUtilsWithVar(enm,varnm) \
 public: \
@@ -192,22 +192,22 @@ public:
 
 
 #define DefineEnumNames(clss,enm,deflen,prettynm) \
-const EnumDef clss::enm##definition_ \
-	( prettynm, clss::enm##names_, deflen ); \
+const EnumDef clss::enm##Definition_ \
+	( prettynm, clss::enm##Names_, deflen ); \
 const EnumDef& clss::enm##Def() \
-    { return enm##definition_; } \
+    { return enm##Definition_; } \
 const char** clss::enm##Names() \
-    { return enm##names_; }  \
-const char* clss::enm##names_[] =
+    { return enm##Names_; }  \
+const char* clss::enm##Names_[] =
 
 #define DefineNameSpaceEnumNames(nmspc,enm,deflen,prettynm) \
-const EnumDef nmspc::enm##definition_ \
-	( prettynm, nmspc::enm##names_, deflen ); \
+const EnumDef nmspc::enm##Definition_ \
+	( prettynm, nmspc::enm##Names_, deflen ); \
 const EnumDef& nmspc::enm##Def() \
-    { return nmspc::enm##definition_; } \
+    { return nmspc::enm##Definition_; } \
 const char** nmspc::enm##Names() \
-    { return nmspc::enm##names_; }  \
-const char* nmspc::enm##names_[] =
+    { return nmspc::enm##Names_; }  \
+const char* nmspc::enm##Names_[] =
 
 
 #define eString(enm,vr)	(enm##Def().convert((int)vr))
