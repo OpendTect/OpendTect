@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.26 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uigeom.h,v 1.27 2009-01-14 10:56:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,12 +217,12 @@ inline bool uiRect::rightToAtLeast( int ref )
 inline void uiRect::expandTo( const uiRect& oth )
 {
     checkCorners();
-    topLeft_.x = mMIN( topLeft_.x, oth.topLeft_.x );
-    topLeft_.y = mMIN( topLeft_.y, oth.topLeft_.y );
-    bottomRight_.x = mMAX( bottomRight_.x,
-			   oth.bottomRight_.x );
-    bottomRight_.y = mMAX( bottomRight_.y,
-			   oth.bottomRight_.y );
+    topleft_.x = mMIN( topleft_.x, oth.topleft_.x );
+    topleft_.y = mMIN( topleft_.y, oth.topleft_.y );
+    bottomright_.x = mMAX( bottomright_.x,
+			   oth.bottomright_.x );
+    bottomright_.y = mMAX( bottomright_.y,
+			   oth.bottomright_.y );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.34 2008-07-16 18:05:17 cvsnanne Exp $
+ RCS:           $Id: geometry.h,v 1.35 2009-01-14 10:56:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,30 +24,30 @@ template <class T>
 class Point2D
 {
 public:
-				Point2D ( T xx = 0, T yy = 0 );
+				Point2D(T xx=0,T yy=0);
     virtual			~Point2D()				{}
 
     template <class TT>
-    Point2D<T>&			setFrom(const Point2D<TT>& a);
+    Point2D<T>&			setFrom(const Point2D<TT>&);
 
-    inline void			setXY( T xx, T yy );
+    inline void			setXY(T xx,T yy);
     inline Point2D<T>&		zero();
-    inline Point2D<T>		operator -();
+    inline Point2D<T>		operator-();
 
-    virtual inline T&		operator[]( int idx );
-    virtual inline T		operator[]( int idx ) const;
+    virtual inline T&		operator[](int idx);
+    virtual inline T		operator[](int idx) const;
 
-    virtual inline bool		operator ==( const Point2D<T>& p ) const;
-    virtual inline bool		operator !=( const Point2D<T>& p ) const;
-    virtual inline Point2D<T>&	operator+=( T dist );
-    virtual inline Point2D<T>&	operator*=( T factor );
-    virtual inline Point2D<T>&	operator/=( T den );
-    inline Point2D<T>&		operator +=( const Point2D<T>& p );
-    inline Point2D<T>&		operator -=( const Point2D<T>& p );
-    inline Point2D<T>		operator +( const Point2D<T>& p ) const;
-    inline Point2D<T>		operator -( const Point2D<T>& p ) const;
-    inline Point2D<T>		operator *( const T factor ) const;
-    inline Point2D<T>		operator /( const T den ) const;
+    virtual inline bool		operator==(const Point2D<T>&) const;
+    virtual inline bool		operator!=(const Point2D<T>&) const;
+    virtual inline Point2D<T>&	operator+=(T dist);
+    virtual inline Point2D<T>&	operator*=(T factor);
+    virtual inline Point2D<T>&	operator/=(T den);
+    inline Point2D<T>&		operator+=(const Point2D<T>&);
+    inline Point2D<T>&		operator-=(const Point2D<T>&);
+    inline Point2D<T>		operator+(const Point2D<T>&) const;
+    inline Point2D<T>		operator-(const Point2D<T>&) const;
+    inline Point2D<T>		operator*(const T factor) const;
+    inline Point2D<T>		operator/(const T den) const;
 
     virtual inline bool		isDefined() const;
     virtual inline double	abs() const;
@@ -55,7 +55,7 @@ public:
     virtual inline double	distTo(const Point2D<T>&) const;
     virtual inline T		sqDistTo(const Point2D<T>&) const;
 
-    static Point2D<T>		udf() { return Point2D<T>( mUdf(T), mUdf(T) ); }
+    static Point2D<T>		udf() { return Point2D<T>(mUdf(T),mUdf(T)); }
     
     T 				x;
     T 				y;
@@ -70,18 +70,18 @@ class Size2D
 public:
 			Size2D( T w = 0 , T h = 0 );
 
-    inline bool		operator ==( const Size2D<T>& s ) const;
-    inline bool		operator !=( const Size2D<T>& s ) const;
+    inline bool		operator==(const Size2D<T>&) const;
+    inline bool		operator!=(const Size2D<T>&) const;
 
     inline T		width() const;
     inline T		height() const;
-    inline void		setWidth( T val );
-    inline void		setHeight( T val );
-    inline Size2D<T>	operator +( T val ) const;
-    inline Size2D<T>&	operator +=( T val );
-    inline Size2D<T>&	operator -=( T val );
-    inline Size2D<T>&	operator +=( const Size2D<T>& s );
-    inline Size2D<T>&	operator -=( const Size2D<T>& s );
+    inline void		setWidth(T val);
+    inline void		setHeight(T val);
+    inline Size2D<T>	operator+(T val) const;
+    inline Size2D<T>&	operator+=(T val);
+    inline Size2D<T>&	operator-=(T val);
+    inline Size2D<T>&	operator+=(const Size2D<T>&);
+    inline Size2D<T>&	operator-=(const Size2D<T>&);
 
 protected:
 
@@ -105,21 +105,21 @@ template <class T>
 class Rectangle
 {
 public:
-			Rectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) ;
-			Rectangle( const Point2D<T>& tl, const Point2D<T>& br);
+			Rectangle(T l=0,T t=0,T r=0,T b=0) ;
+			Rectangle(const Point2D<T>& tl,const Point2D<T>& br);
 
-    inline bool		operator ==( const Rectangle<T>& r ) const;
-    inline bool		operator !=( const Rectangle<T>& r ) const;
+    inline bool		operator==(const Rectangle<T>&) const;
+    inline bool		operator!=(const Rectangle<T>&) const;
 
     inline Point2D<T>	topLeft() const;
     inline Point2D<T>	topRight() const;
     inline Point2D<T>	bottomLeft() const;
     inline Point2D<T>	bottomRight() const;
     inline Point2D<T>	centre() const;
-    inline void		setTopLeft( Point2D<T> tl );
-    inline void		setBottomRight( Point2D<T> br );
-    inline void		setTopRight( Point2D<T> tr );
-    inline void		setBottomLeft( Point2D<T> tr );
+    inline void		setTopLeft(Point2D<T>);
+    inline void		setBottomRight(Point2D<T>);
+    inline void		setTopRight(Point2D<T>);
+    inline void		setBottomLeft(Point2D<T>);
     inline void		setTopBottom(const Interval<T>&);
     inline void		setLeftRight(const Interval<T>&);
 
@@ -136,17 +136,17 @@ public:
     inline T 		top() const;
     inline T 		right() const;
     inline T 		bottom() const;
-    inline void 	setLeft( T val );
-    inline void 	setTop( T val );
-    inline void 	setRight( T val );
-    inline void 	setBottom( T val );
+    inline void 	setLeft(T val);
+    inline void 	setTop(T val);
+    inline void 	setRight(T val);
+    inline void 	setBottom(T val);
 
-    void		checkCorners( bool leftislow=true, bool topislow=true );
+    void		checkCorners(bool leftislow=true,bool topislow=true);
     inline Size2D<T>	size() const;
     inline void 	zero();
 
-    inline Rectangle<T>&	operator +=( const Point2D<T>& p );
-    inline Rectangle<T>&	operator -=( const Point2D<T>& p );
+    inline Rectangle<T>& operator+=(const Point2D<T>&);
+    inline Rectangle<T>& operator-=(const Point2D<T>&);
 
     inline void		swapHor();
     inline void		swapVer();
@@ -156,8 +156,8 @@ protected:
     inline bool		revX() const;
     inline bool		revY() const;
 
-    Point2D<T>		topLeft_;
-    Point2D<T>		bottomRight_;
+    Point2D<T>		topleft_;
+    Point2D<T>		bottomright_;
 
 };
 
@@ -175,16 +175,16 @@ template <class T>
 class PixRectangle : public Rectangle<T>
 {
 public:
-			PixRectangle( T l = 0 , T t = 0, T r = 0 , T b = 0 ) ;
-			PixRectangle( Point2D<T> tl, Point2D<T> br ) ;
-			PixRectangle( const Rectangle<T>& );
+			PixRectangle(T l=0 , T t=0, T r=0 , T b=0 ) ;
+			PixRectangle(Point2D<T> tl,Point2D<T> br) ;
+			PixRectangle(const Rectangle<T>&);
 
-    inline bool		isInside( const Point2D<T>& p ) const;
-    inline bool		isOutside( const Point2D<T>& p ) const;
+    inline bool		isInside(const Point2D<T>&) const;
+    inline bool		isOutside(const Point2D<T>&) const;
     inline bool		isOnSide(const Point2D<T>&) const;
-    inline bool		contains( const Point2D<T>& p ) const;
-    inline bool		contains( const PixRectangle<T>& other ) const;
-    inline bool		isInside( const PixRectangle<T>& other ) const;
+    inline bool		contains(const Point2D<T>&) const;
+    inline bool		contains(const PixRectangle<T>&) const;
+    inline bool		isInside(const PixRectangle<T>&) const;
 
     inline PixRectangle<T> grownBy(double sidesincreasebyfactor=1) const;
 
@@ -222,13 +222,13 @@ public:
 
     inline bool		contains( const PosRectangle<T>& other, T eps ) const
 			{
-			    return contains(other.topLeft_,eps)
-				&& contains(other.bottomRight_,eps);
+			    return contains(other.topleft_,eps)
+				&& contains(other.bottomright_,eps);
 			}
     inline bool		isInside( const PosRectangle<T>& other, T eps ) const
 			{
-			    return other.isInside(this->topLeft_,eps)
-				&& other.isInside(this->bottomRight_,eps);
+			    return other.isInside(this->topleft_,eps)
+				&& other.isInside(this->bottomright_,eps);
 			}
 
     inline PosRectangle<T> grownBy(T sidesincreasebyfactor=1) const;
@@ -424,30 +424,30 @@ Size2D<T>& Size2D<T>::operator -=( const Size2D<T>& s )
 
 template <class T> inline
 Rectangle<T>::Rectangle( T l, T t, T r, T b ) 
-    : topLeft_( Point2D<T>(l,t)) 
-    , bottomRight_( Point2D<T>(r,b) )
+    : topleft_( Point2D<T>(l,t)) 
+    , bottomright_( Point2D<T>(r,b) )
 {}
 
 
 template <class T> inline
 Rectangle<T>::Rectangle( const Point2D<T>& tl, const Point2D<T>& br ) 
-    : topLeft_( tl ) , bottomRight_( br )
+    : topleft_( tl ) , bottomright_( br )
 {} 
 
 
 template <class T> inline
 bool Rectangle<T>::operator ==( const Rectangle<T>& r ) const
-{ return r.topLeft_ == topLeft_ && r.bottomRight_ == bottomRight_; }
+{ return r.topleft_ == topleft_ && r.bottomright_ == bottomright_; }
 
 
 template <class T> inline
 bool Rectangle<T>::operator !=( const Rectangle<T>& r ) const
-{ return r.topLeft_ != topLeft_ || r.bottomRight_ != bottomRight_; }
+{ return r.topleft_ != topleft_ || r.bottomright_ != bottomright_; }
 
 
 template <class T> inline
 Point2D<T> Rectangle<T>::topLeft() const
-{ return topLeft_; }
+{ return topleft_; }
 
 
 template <class T> inline
@@ -462,45 +462,45 @@ Point2D<T> Rectangle<T>::bottomLeft() const
 
 template <class T> inline
 Point2D<T> Rectangle<T>::bottomRight() const
-{ return bottomRight_; }
+{ return bottomright_; }
 
 
 template <class T> inline
 Point2D<T> Rectangle<T>::centre() const 		
 {
-    return Point2D<T>( (topLeft_.x+bottomRight_.x)/2,
-		       (topLeft_.y+bottomRight_.y)/2 ); 
+    return Point2D<T>( (topleft_.x+bottomright_.x)/2,
+		       (topleft_.y+bottomright_.y)/2 ); 
 }
 
 
 template <class T> inline
 void Rectangle<T>::setTopLeft( Point2D<T> tl )
-{ topLeft_ = tl; }
+{ topleft_ = tl; }
 
 
 template <class T> inline
 void Rectangle<T>::setBottomRight( Point2D<T> br )
-{ bottomRight_ = br; }
+{ bottomright_ = br; }
 
 
 template <class T> inline
 void Rectangle<T>::setTopRight( Point2D<T> tr )
-{ topLeft_.y = tr.y; bottomRight_.setX(tr.x); }
+{ topleft_.y = tr.y; bottomright_.x = tr.x; }
 
 
 template <class T> inline
 void Rectangle<T>::setBottomLeft( Point2D<T> tr )
-{ topLeft_.setX(tr.x); bottomRight_.y = tr.y; }
+{ topleft_.x = tr.x; bottomright_.y = tr.y; }
 
 
 template <class T> inline
 void Rectangle<T>::setTopBottom( const Interval<T>& rg )
-{ topLeft_.y = rg.start; bottomRight_.y = rg.stop; }
+{ topleft_.y = rg.start; bottomright_.y = rg.stop; }
 
 
 template <class T> inline
 void Rectangle<T>::setLeftRight( const Interval<T>& rg )
-{ topLeft_.x = rg.start; bottomRight_.x = rg.stop; }
+{ topleft_.x = rg.start; bottomright_.x = rg.stop; }
 
 
 template <class T> inline
@@ -529,42 +529,42 @@ T Rectangle<T>::height() const
 
 template <class T> inline
 T Rectangle<T>::left() const
-{ return topLeft_.x; }
+{ return topleft_.x; }
 
 
 template <class T> inline
 T Rectangle<T>::top() const
-{ return topLeft_.y; }
+{ return topleft_.y; }
 
 
 template <class T> inline
 T Rectangle<T>::right() const
-{ return bottomRight_.x; }
+{ return bottomright_.x; }
 
 
 template <class T> inline
 T Rectangle<T>::bottom() const
-{ return bottomRight_.y; }
+{ return bottomright_.y; }
 
 
 template <class T> inline
 void Rectangle<T>::setLeft( T val )
-{ topLeft_.x = val; }
+{ topleft_.x = val; }
 
 
 template <class T> inline
 void Rectangle<T>::setTop( T val )
-{ topLeft_.y = val; }
+{ topleft_.y = val; }
 
 
 template <class T> inline
 void Rectangle<T>::setRight( T val )
-{ bottomRight_.x = val; }
+{ bottomright_.x = val; }
 
 
 template <class T> inline
 void Rectangle<T>::setBottom( T val )
-{ bottomRight_.y = val; }
+{ bottomright_.y = val; }
 
 
 template <class T> inline
@@ -582,34 +582,34 @@ Size2D<T> Rectangle<T>::size() const
 
 template <class T> inline
 void Rectangle<T>::zero()
-{ topLeft_.zero(); bottomRight_.zero(); }
+{ topleft_.zero(); bottomright_.zero(); }
 
 
 template <class T> inline
 Rectangle<T>& Rectangle<T>::operator +=( const Point2D<T>& p )
-{ topLeft_ += p; bottomRight_ += p; return *this; }
+{ topleft_ += p; bottomright_ += p; return *this; }
 
 
 template <class T> inline
 Rectangle<T>& Rectangle<T>::operator -=( const Point2D<T>& p )
-{ topLeft_ -= p; bottomRight_ -= p; return *this; }
+{ topleft_ -= p; bottomright_ -= p; return *this; }
 
 
 template <class T> inline
 void Rectangle<T>::swapHor() 
 { 
-    T t = topLeft_.x; 
-    topLeft_.x = bottomRight_.x;
-    bottomRight_.x =  t;
+    T t = topleft_.x; 
+    topleft_.x = bottomright_.x;
+    bottomright_.x =  t;
 }
 
 
 template <class T> inline
 void Rectangle<T>::swapVer() 
 { 
-    T t = topLeft_.y; 
-    topLeft_.y = bottomRight_.y;
-    bottomRight_.y =  t;
+    T t = topleft_.y; 
+    topleft_.y = bottomright_.y;
+    bottomright_.y =  t;
 }
 
 
@@ -728,14 +728,14 @@ bool PixRectangle<T>::contains( const Point2D<T>& p ) const
 template <class T> inline
 bool PixRectangle<T>::contains( const PixRectangle<T>& other ) const
 {
-    return contains(other.topLeft_) && contains(other.bottomRight_);
+    return contains(other.topleft_) && contains(other.bottomright_);
 }
 
 
 template <class T> inline
 bool PixRectangle<T>::isInside( const PixRectangle<T>& other ) const
 {
-    return other.isInside(this->topLeft_) && other.isInside(this->bottomRight_);
+    return other.isInside(this->topleft_) && other.isInside(this->bottomright_);
 }
 
 
@@ -781,23 +781,23 @@ inline void Rectangle<T>::fitIn( const Rectangle<T>& r )
 {
     if ( revX() )
     {
-	if ( r.left() < left() ) topLeft_.x = r.left();
-	if ( r.right() > right() ) bottomRight_.x = r.right();
+	if ( r.left() < left() ) topleft_.x = r.left();
+	if ( r.right() > right() ) bottomright_.x = r.right();
     }
     else
     {
-	if ( r.left() > left() ) topLeft_.x = r.left();
-	if ( r.right() < right() ) bottomRight_.x = r.right();
+	if ( r.left() > left() ) topleft_.x = r.left();
+	if ( r.right() < right() ) bottomright_.x = r.right();
     }
     if ( revY() )
     {
-	if ( r.bottom() < bottom() ) bottomRight_.y = r.bottom();
-	if ( r.top() > top() ) topLeft_.y = r.top();
+	if ( r.bottom() < bottom() ) bottomright_.y = r.bottom();
+	if ( r.top() > top() ) topleft_.y = r.top();
     }
     else
     {
-	if ( r.bottom() > bottom() ) bottomRight_.y = r.bottom();
-	if ( r.top() < top() ) topLeft_.y = r.top();
+	if ( r.bottom() > bottom() ) bottomright_.y = r.bottom();
+	if ( r.top() < top() ) topleft_.y = r.top();
     }
 }
 
