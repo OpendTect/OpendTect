@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.90 2009-01-07 14:28:05 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.91 2009-01-14 07:16:18 cvsranojay Exp $";
 
 #include "attriboutput.h"
 
@@ -321,7 +321,14 @@ SeisTrcStorOutput::~SeisTrcStorOutput()
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
     errmsg_ = "";
-    PtrMan<IOPar> outppar = pars.subselect(IOPar::compKey( sKey::Output, 0 ) );
+    PtrMan<IOPar> outppar = pars.subselect( IOPar::compKey(sKey::Output,0) );
+    if ( !outppar ) outppar = pars.subselect( IOPar::compKey(sKey::Output,1) );
+    if ( !outppar )
+    {
+        errmsg_ = "Could not find Output keyword in parameter file";
+	return false;
+    }
+
     const char* storid = outppar->find( seisidkey );
     if ( !setStorageID( storid ) )
     {
