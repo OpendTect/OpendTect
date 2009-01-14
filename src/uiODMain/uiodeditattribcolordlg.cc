@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodeditattribcolordlg.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodeditattribcolordlg.cc,v 1.14 2009-01-14 06:08:47 cvsnanne Exp $";
 
 #include "uiodeditattribcolordlg.h"
 
@@ -29,14 +29,13 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 						const char* attrnm )
     : uiDialog(p,uiDialog::Setup("Color Settings",mNoDlgTitle,mTODOHelpID))
     , items_(set)
-    , itemusedineditor_(-1)
     , uicoltab_( 0 )
 {
     setCtrlStyle( LeaveOnly );
 
     if ( attrnm && *attrnm )
     {
-	BufferString titletext = "Color Settings : ";
+	BufferString titletext = "Color Settings: ";
 	titletext += attrnm;
 	setTitleText( titletext );
     }
@@ -47,22 +46,17 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     const ColTab::MapperSetup* colmapsetup = 0;
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	mDynamicCastGet(uiODAttribTreeItem*,item,items_[idx])
+	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
 	if ( !item ) continue;
 
-	colseq =
-	    visserv->getColTabSequence( item->displayID(), item->attribNr() );
+	const int did = item->displayID();
+	const int anr = item->attribNr();
+	colseq = visserv->getColTabSequence( did, anr );
+	if ( !colseq ) continue;
 
-	if ( !colseq )
-	    continue;
+	colmapsetup = visserv->getColTabMapperSetup( did, anr );
+	if ( !colmapsetup ) continue;
 
-	colmapsetup =
-	    visserv->getColTabMapperSetup( item->displayID(), item->attribNr());
-
-	if ( !colmapsetup )
-	    continue;
-
-	itemusedineditor_ = idx;
 	break;
     }
 
@@ -74,62 +68,55 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 
     uicoltab_ = new uiColorTable( this, *colseq, true );
     uicoltab_->setMapperSetup( colmapsetup );
+    uicoltab_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,seqChg) );
+    uicoltab_->scaleChanged.notify( mCB(this,uiODEditAttribColorDlg,mapperChg));
 }
 
 
-void uiODEditAttribColorDlg::doApply( CallBacker* )
+void uiODEditAttribColorDlg::seqChg( CallBacker* )
 {
-    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-
     MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    const ColTab::Sequence& newcoltab = uicoltab_->colTabSeq();
-    const ColTab::MapperSetup& newcolmapsetup = uicoltab_->colTabMapperSetup();
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const ColTab::Sequence& newcolseq = uicoltab_->colTabSeq();
 
     for ( int idx=0; idx<items_.size(); idx++ )
     {
-	mDynamicCastGet(uiODAttribTreeItem*,item,items_[idx])
+	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
 	if ( !item ) continue;
 
 	const int did = item->displayID();
 	const int anr = item->attribNr();
-
 	const ColTab::Sequence* colseq = visserv->getColTabSequence( did, anr );
-
-	const ColTab::MapperSetup* colmapsetup =
-	    visserv->getColTabMapperSetup( did, anr );
-
-	if ( colseq && *colseq!=newcoltab &&
-	     visserv->canSetColTabSequence(did) )
-	    visserv->setColTabSequence( did, anr, newcoltab );
-
-	if ( *colmapsetup!=newcolmapsetup )
-	    visserv->setColTabMapperSetup( did, anr, newcolmapsetup );
-
-	/*TODO: Raman I don't really understand what's happening here
-	if ( obj->autoScale()!=autoscale || obj->clipRate()!=cliprate
-	  				 || obj->symMidval()!=symval )
-	{
-	    obj->autoscalechange.enable( false );
-	    obj->setAutoScale( autoscale );
-	    obj->setClipRate( cliprate );
-	    obj->setSymMidval( symval );
-	    obj->autoscalechange.enable( true );
-	    obj->triggerAutoScaleChange();
-	    if ( autoscale && idx == itemusedineditor_ )
-	    {
-		ColTab::Sequence newcoltab = obj->colorSeq().colors();
-		uicoltab_->setTable( newcoltab );
-	    }
-	}
-	*/
+	if ( colseq && *colseq!=newcolseq && visserv->canSetColTabSequence(did))
+	    visserv->setColTabSequence( did, anr, newcolseq );
 
 	items_[idx]->updateColumnText( uiODSceneMgr::cColorColumn() );
     }
 }
 
 
+void uiODEditAttribColorDlg::mapperChg( CallBacker* )
+{
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const ColTab::MapperSetup& newcolmapsetup = uicoltab_->colTabMapperSetup();
+
+    for ( int idx=0; idx<items_.size(); idx++ )
+    {
+	mDynamicCastGet(uiODDataTreeItem*,item,items_[idx])
+	if ( !item ) continue;
+
+	const int did = item->displayID();
+	const int anr = item->attribNr();
+	const ColTab::MapperSetup* colmapsetup =
+	    visserv->getColTabMapperSetup( did, anr );
+	if ( colmapsetup && *colmapsetup!=newcolmapsetup )
+	    visserv->setColTabMapperSetup( did, anr, newcolmapsetup );
+    }
+}
+
+
 bool uiODEditAttribColorDlg::acceptOK( CallBacker* )
 {
-    doApply( 0 );
     return true;
 }
