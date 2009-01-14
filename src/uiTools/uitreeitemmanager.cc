@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.45 2008-12-19 14:53:52 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.46 2009-01-14 09:15:30 cvsjaap Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -444,10 +444,12 @@ void uiTreeTopItem::updateSelection( int selectionkey, bool dw )
     if ( selectionkey != prevselectionkey_ )
     {
 	prevselectionkey_ = selectionkey;
-	if ( selectionkey>=0 && listview_->itemNotified() )
+	if ( selectionkey>=0 && listview_->itemNotified() &&
+	     listview_->currentItem() && !listview_->currentItem()->parent() )
+	{
 	    listview_->activateClick( *listview_->itemNotified(), 0 );
+	}
     }
-
 }
 
 
