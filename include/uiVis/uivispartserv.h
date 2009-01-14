@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.223 2009-01-14 06:22:18 cvssatyaki Exp $
+ RCS:           $Id: uivispartserv.h,v 1.224 2009-01-14 08:23:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class SeisTrcBuf;
 class SurfaceInfo;
 class uiMenuHandler;
 class uiMPEMan;
+class uiMultiRangeSelDispWin;
 class uiPopupMenu;
 class uiSlicePos;
 class uiToolBar;
@@ -363,6 +364,8 @@ protected:
     uiMPEMan*			mpetools_;
     uiSlicePos*			slicepostools_;
     uiToolBar*			itemtools_;
+
+    uiMultiRangeSelDispWin*	multirgselwin_;
 
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;
