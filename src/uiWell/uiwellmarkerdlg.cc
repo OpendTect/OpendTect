@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.8 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.9 2009-01-14 15:34:53 cvshelene Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -99,7 +99,7 @@ int uiMarkerDlg::getNrRows() const
 void uiMarkerDlg::mouseClick( CallBacker* )
 {
     RowCol rc = table_->notifiedCell();
-    if ( rc.col != cColorCol ) return;
+    if ( rc.col != cColorCol || table_->isCellReadOnly(rc) ) return;
 
     Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
