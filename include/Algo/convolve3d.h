@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.9 2009-01-13 22:59:21 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.10 2009-01-14 17:20:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -171,7 +171,7 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 	mConvolver3DSetY( 1 );
 	mConvolver3DSetY( 2 );
 
-	for ( int idx0=0; idx0<xsz0; idx0++ )
+	for ( int idx0=0; idx0<xsz0 && shouldContinue(); idx0++ )
 	{
 	    mConvolver3DSetIndex( 0 );
 
@@ -218,6 +218,8 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 	else if ( normalize_ && !mIsZero(ysum,1e-8) )
 	    z_->setND( zvar, sum/ysum );
 	else z_->setND( zvar, sum );
+
+	reportNrDone( 1 );
 
 	if ( !iterator.next() && idx!=stop )
 	    return false;
