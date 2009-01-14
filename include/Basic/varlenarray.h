@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: varlenarray.h,v 1.3 2009-01-12 14:03:19 cvskris Exp $
+ RCS:		$Id: varlenarray.h,v 1.4 2009-01-14 07:20:36 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 # include "ptrman.h"
 
 # define mAllocVarLenArr( type, varnm, __size ) \
-  mDeclareAndTryAlloc( ArrPtrMan<type>, varnm, type [__size] );
+  ArrPtrMan<type> varnm; \
+  mTryAllocPtrMan( varnm, type [__size] );
 
 # define mVarLenArr(varnm)	varnm.ptr()
 
