@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.95 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:		$Id: vissurvobj.h,v 1.96 2009-01-14 05:21:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -204,8 +204,8 @@ public:
     				{ return false; }
     virtual DataPack::ID	getDataPackID(int attrib) const { return -1; }
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
-    virtual void		createAndDispDataPack(int,const char*,
-	    					      const DataPointSet*) {}
+    virtual void		createAndDispDataPack(int,
+	    					      const DataPointSet*){}
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling( int attrib ) const
@@ -222,6 +222,8 @@ public:
     virtual Interval<float>	getDataTraceRange() const
     				{ return Interval<float>(0,0); }
     virtual void		setTraceData(int attrib,SeisTrcBuf&);
+    virtual void		setAttribShift(int attr,const TypeSet<float>&)
+				{}
 
 				// Random pos
 				/*!< Every position is put in the DataPointSet

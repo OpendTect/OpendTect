@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.63 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.64 2009-01-14 05:21:03 cvssatyaki Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.63 2009-01-09 09:44:08
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
 #include "datapointset.h"
+#include "datacoldef.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
@@ -75,7 +76,13 @@ HorizonDisplay::HorizonDisplay()
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[0]->ref();
-    shifts_ += 0.0;
+    TypeSet<float> shift;
+    shift += 0.0;
+    shifts_ += shift;
+    curshiftidx_ += 0;
+    BufferStringSet* aatrnms = new BufferStringSet();
+    aatrnms->allowNull();
+    userrefs_ += aatrnms;
     enabled_ += true;
     datapackids_ += -1;
 }
@@ -88,6 +95,8 @@ HorizonDisplay::~HorizonDisplay()
     setSceneEventCatcher( 0 );
     deepUnRef( coltabs_ );
     shifts_.erase();
+    curshiftidx_.erase();
+    deepErase( userrefs_ );
 
     if ( translation_ )
     {
@@ -159,8 +168,6 @@ void HorizonDisplay::setSceneEventCatcher(visBase::EventCatcher* ec)
 	intersectionlines_[idx]->setSceneEventCatcher( ec );
 
 }
-
-
 
 
 EM::PosID HorizonDisplay::findClosestNode( const Coord3& pickedpos ) const
@@ -413,17 +420,19 @@ void HorizonDisplay::selectTexture( int attrib, int textureidx )
     if ( !emsurf || emsurf->auxdata.nrAuxData() == 0 ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
-	setSelSpec( 0, Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
+	setSelSpec( attrib,
+		    Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
     else
     {
-	BufferString attrnm = emsurf->auxdata.auxDataName( textureidx );
-	const float shift = emsurf->auxdata.auxDataShift( textureidx );
-	shifts_[attrib] = shift;
+	BufferString attrnm = userrefs_[attrib]->get( textureidx );
+	const float shift = (shifts_[attrib])[ textureidx ];
+	curshiftidx_[attrib] = textureidx;
 	emsurf->geometry().setShift( shift );
 	Coord3 tranl = getTranslation();
 	tranl.z = shift;
 	setTranslation( tranl );
-	setSelSpec( 0, Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()));
+	setSelSpec( attrib,
+		    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
     }
 }
 
@@ -468,7 +477,13 @@ bool HorizonDisplay::addAttrib()
     coltabs_[curattrib]->setAutoScale( true );
     coltabs_[curattrib]->setClipRate( 0.025 );
     coltabs_[curattrib]->setSymMidval( mUdf(float) );
-    shifts_ += 0.0;
+    TypeSet<float> shift;
+    shift += 0.0;
+    shifts_ += shift;
+    curshiftidx_ += 0;
+    BufferStringSet* aatrnms = new BufferStringSet();
+    aatrnms->allowNull();
+    userrefs_ += aatrnms;
     enabled_ += true;
     datapackids_ += -1;
 
@@ -498,6 +513,8 @@ bool HorizonDisplay::removeAttrib( int attrib )
     coltabs_[attrib]->unRef();
     coltabs_.remove( attrib );
     shifts_.remove( attrib );
+    curshiftidx_.remove( attrib );
+    userrefs_.remove( attrib );
     enabled_.remove( attrib );
     DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
     datapackids_.remove( attrib );
@@ -521,6 +538,8 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
     coltabs_.swap( a0, a1 );
     enabled_.swap( a0, a1 );
     shifts_.swap( a0, a1 );
+    curshiftidx_.swap( a0, a1 );
+    userrefs_.swap( a0, a1 );
     datapackids_.swap( a0, a1 );
     return true;
 }
@@ -555,20 +574,21 @@ void HorizonDisplay::enableAttrib( int attribnr, bool yn )
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_);
 	if ( psurf )
 	    psurf->enableTexture( attribnr, yn );
-	
-	int attribidx = shifts_.size()-1;
-	if ( attribnr != 0 )
-	{
-	    while ( !isAttribEnabled(attribidx) && attribidx >= 0 )
-		attribidx--;
-	    emsurf->geometry().setShift( shifts_[attribidx] );
-	    Coord3 tranl = getTranslation();
-	    tranl.z = shifts_[attribidx];
-	    setTranslation( tranl );
-	}
+    }
+    
+    mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_);
+    int attribidx = shifts_.size()-1;
+    if ( attribnr != 0 )
+    {
+	while ( !isAttribEnabled(attribidx) && attribidx >= 0 )
+	    attribidx--;
+	const float shift = shifts_[attribidx][(curshiftidx_[attribidx])];
+	emsurf->geometry().setShift( shift );
+	Coord3 tranl = getTranslation();
+	tranl.z = shift;
+	setTranslation( tranl );
     }
 }
 
@@ -583,9 +603,16 @@ bool HorizonDisplay::isAttribEnabled( int attribnr ) const
 }
 
 
-void HorizonDisplay::setAttribShift( int attribnr, float shift )
+void HorizonDisplay::setAttribShift( int attribnr, const TypeSet<float>& shifts)
 {
-    shifts_[attribnr] = shift;
+    if ( shifts_.size()-1 < attribnr )
+    {
+	TypeSet<float> shft;
+	shft += 0.0;
+	shifts_.setSize( attribnr+1, shft );
+	curshiftidx_.setSize( attribnr+1, 0 );
+    }
+    shifts_[ attribnr ] = shifts;
 }
 
 
@@ -638,6 +665,7 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 
     TypeSet<DataPointSet::DataRow> pts;
     BufferStringSet nms;
+    nms.add( "Depth" );
     DataPointSet positions( pts, nms, false, true );
     getRandomPos( positions );
 
@@ -660,19 +688,23 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 	    vals[1] = vals[0];
     }
 
-    createAndDispDataPack( attrib, "Depth", &positions );
+    createAndDispDataPack( attrib, &positions );
 }
 
 
-void HorizonDisplay::createAndDispDataPack( int attrib, const char* nm,
+void HorizonDisplay::createAndDispDataPack( int attrib,
 					    const DataPointSet* positions )
 {
-    bool isz = !strcmp(nm,"Depth");
+    BufferStringSet* attrnms = new BufferStringSet();
+    for ( int idx=0; idx<positions->nrCols(); idx++ )
+	attrnms->add( positions->colDef( idx ).name_ );
+    userrefs_.replace( attrib, attrnms );
+    bool isz = ( attrnms->size()==1 && !strcmp(attrnms->get(0).buf(),"Depth") );
     mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
 	    		 BIDValSetArrAdapter(positions->bivSet(), isz? 0 : 1) );
     const char* categorynm = isz ? "Surface Data" : "Geometry";
     mDeclareAndTryAlloc( MapDataPack*, newpack,
-	    		 MapDataPack( categorynm, nm, bvsarr) );
+	    		 MapDataPack( categorynm,attrnms->get(0).buf(),bvsarr));
     StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
 				SI().inlStep() );
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
@@ -742,8 +774,6 @@ void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 	return;
     }
 
-    const float shift = getTranslation().z;
-    shifts_[attrib] = shift;
     //TODO make it compatible with multiple sections which all contain data
     //when (if) we are able to display all this info
     if ( sections_.size() )

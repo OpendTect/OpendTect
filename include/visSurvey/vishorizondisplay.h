@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.29 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.30 2009-01-14 05:21:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "visemobjdisplay.h"
 
 class Executor;
-
+namespace EM { class Horizon3D; }
 namespace visBase { class ParametricSurface; class IndexedShape; }
 
 namespace visSurvey
@@ -75,8 +75,7 @@ public:
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
-    void			createAndDispDataPack(int,const char*,
-	    					      const DataPointSet*);
+    void			createAndDispDataPack(int,const DataPointSet*);
     bool                        setDataPackID(int attrib,DataPack::ID);
     DataPack::ID                getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
@@ -114,7 +113,7 @@ public:
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);
-    void			setAttribShift(int attr,float shift);
+    void			setAttribShift(int attr,const TypeSet<float>&);
 
     bool			usesWireframe() const;
     void			useWireframe(bool);
@@ -180,7 +179,9 @@ protected:
     TypeSet<DataPack::ID>		datapackids_;
     ObjectSet<visBase::VisColorTab>	coltabs_;
     BoolTypeSet				enabled_;
-    TypeSet<float>			shifts_;
+    TypeSet<int>			curshiftidx_;
+    TypeSet< TypeSet<float> >		shifts_;
+    ObjectSet<BufferStringSet>		userrefs_;
     bool				validtexture_;
 
     static const char*			sKeyTexture();

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.41 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.42 2009-01-14 05:21:03 cvssatyaki Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -234,13 +234,15 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	BufferStringSet attrnms;
+	TypeSet< float > shifts;
 	TypeSet<DataPointSet::DataRow> pts;
 	DataPointSet vals( pts, attrnms, false, true );
-	applMgr()->EMServer()->getAllAuxData( emid_, attrnms, vals );
+	applMgr()->EMServer()->getAllAuxData( emid_, vals, &shifts );
 	BufferString attrnm = attrnms.size() ? attrnms.get(0) : "";
 	visserv->setSelSpec( displayID(), attribNr(),
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
-	visserv->createAndDispDataPack( displayID(), attribNr(), attrnm,&vals );
+	visserv->createAndDispDataPack( displayID(), attribNr(), &vals );
+	visserv->setAttribShift( displayID(), attribNr(), shifts );
 	visserv->selectTexture( displayID(), attribNr(), 0 );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );

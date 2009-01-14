@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.156 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.157 2009-01-14 05:21:03 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.156 2009-01-09 09:44:08 cvs
 #include "cubesampling.h"
 #include "datainpspec.h"
 #include "datapointset.h"
+#include "datacoldef.h"
 #include "emfaultstickset.h"
 #include "emfault3d.h"
 #include "emhorizon2d.h"
@@ -35,6 +36,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.156 2009-01-09 09:44:08 cvs
 #include "parametricsurface.h"
 #include "pickset.h"
 #include "posinfo.h"
+#include "posvecdataset.h"
 #include "ptrman.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
@@ -776,30 +778,33 @@ void uiEMPartServer::horShifted( CallBacker* cb )
 
 
 bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
-				    BufferStringSet& nms,
-				    DataPointSet& data ) const
+				    DataPointSet& data,
+				    TypeSet<float>* shifts ) const
 {
     mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
+    BufferStringSet nms;
+    for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
+    {
+	if ( hor3d->auxdata.auxDataName(idx) )
+	{
+	    const char* nm = hor3d->auxdata.auxDataName( idx );
+	    *shifts += hor3d->auxdata.auxDataShift( idx );
+	    nms.add( nm );
+	    data.dataSet().add( new DataColDef(nm) );
+	}
+    }
+
     data.bivSet().allowDuplicateBids(false);
+
     for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
     {
 	const EM::SectionID sid = hor3d->sectionID( sidx );
 	if ( !hor3d->geometry().sectionGeometry(sid) )
 	    continue;
 
-	for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
-	{
-	    if ( hor3d->auxdata.auxDataName(idx) )
-		nms.add( hor3d->auxdata.auxDataName(idx) );
-	}
-
-	const int nrauxdata = nms.size()+1;
-	if ( data.bivSet().nrVals() < nrauxdata )
-	    data.bivSet().setNrVals( nrauxdata );
-	
-	mAllocVarLenArr( float, auxvals, nrauxdata );
+	mAllocVarLenArr( float, auxvals, nms.size()+1 );
 	auxvals[0] = 0;
 	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
@@ -819,7 +824,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	}
     }
     data.dataChanged();
-
+    
     return true;
 }
 

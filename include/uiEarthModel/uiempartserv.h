@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.80 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.81 2009-01-14 05:21:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,8 +112,8 @@ public:
 				   float shift);
     bool		getAuxData(const EM::ObjectID&,int auxdatanr,
 	    			   DataPointSet&) const;
-    bool		getAllAuxData(const EM::ObjectID&,BufferStringSet&,
-	    			      DataPointSet&) const;
+    bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
+	    			      TypeSet<float>* shfs=0) const;
     void		getDataPointSet(const EM::ObjectID&,
 	    				const EM::SectionID&, DataPointSet&,
 					float shift); 

@@ -7,7 +7,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.221 2009-01-13 11:44:36 cvsumesh Exp $
+<<<<<<< uivispartserv.h
+ RCS:           $Id: uivispartserv.h,v 1.222 2009-01-14 05:21:03 cvssatyaki Exp $
+=======
+ RCS:           $Id: uivispartserv.h,v 1.222 2009-01-14 05:21:03 cvssatyaki Exp $
+>>>>>>> 1.221
 ________________________________________________________________________
 
 -*/
@@ -147,8 +151,8 @@ public:
     bool		setDataPackID(int id,int attrib,DataPack::ID);
     DataPack::ID	getDataPackID(int id,int attrib) const;
     DataPackMgr::ID	getDataPackMgrID(int id) const;
-    void		createAndDispDataPack(int id,int attrib,const char*,
-	    				      const DataPointSet*);
+    void		createAndDispDataPack(int id,int attrib,
+	    				      const DataPointSet* );
 
     			//Trace data
     void		getDataTraceBids(int id,TypeSet<BinID>&) const;
@@ -216,6 +220,7 @@ public:
     void		calculateAllAttribs();
     bool		calculateAttrib(int id,int attrib,bool newsel,
 	    				bool ignorelocked=false);
+    void		setAttribShift(int id,int attr,const TypeSet<float>&);
 
     bool		canHaveMultipleTextures(int) const;
     int			nrTextures(int id,int attrib) const;

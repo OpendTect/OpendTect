@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.391 2009-01-13 11:50:48 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.392 2009-01-14 05:21:03 cvssatyaki Exp $";
 
 #include "uivispartserv.h"
 
@@ -112,7 +112,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , pickretriever_( new uiVisPickRetriever )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
-    , displayid_(-1)				
+    , displayid_(-1)						      
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -644,7 +644,11 @@ void uiVisPartServer::selectTexture( int id, int attrib, int textureidx )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->selectTexture( attrib, textureidx );
+    if ( so )
+    {
+	if ( isAttribEnabled(id,attrib) )
+	    so->selectTexture( attrib, textureidx );
+    }
 }
 
 
@@ -690,12 +694,20 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
 }
 
 
-void uiVisPartServer::createAndDispDataPack( int id, int attrib, const char* nm,
+void uiVisPartServer::createAndDispDataPack( int id, int attrib,
 					     const DataPointSet* dtps )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->createAndDispDataPack( attrib, nm, dtps );
+    if ( so ) so->createAndDispDataPack( attrib, dtps );
+}
+
+
+void uiVisPartServer::setAttribShift( int id, int attr,
+				      const TypeSet<float>& shifts )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( so ) so->setAttribShift( attr, shifts );
 }
 
 
@@ -1328,8 +1340,14 @@ void uiVisPartServer::doWellDispPropDlg(
     Well::Data* wd = Well::MGR().get( wds[0]->getMultiID(), false );
     if ( !wd ) { pErrMsg( "Huh" ); return; }
 
-    //uiwellpropdlg_ = new uiWellDispPropDlg( parent(), *wd );
-   // uiwellpropdlg_->go();
+    uiWellDispPropDlg dlg( parent(), *wd );
+
+/*    if ( dlg.go() ) //TODO && condition.
+    {
+        wd->displayProperties().defaults() = wd->displayProperties();
+	wd->displayProperties().commitDefaults();
+    }*/
+
 }
 
 
@@ -1801,9 +1819,6 @@ void uiVisPartServer::histogramRngSelChanged( CallBacker* cb )
     mDynamicCastGet(uiMultiRangeSelDispWin*,obj,cb);
     setColTabMapperSetup( displayid_, obj->activeAttrbID(), 
 	    		  obj->activeMapperSetup() );
-
-    eventobjid_ = displayid_;
-    eventattrib_ = obj->activeAttrbID();
     sendEvent( evColorTableChange );
 }
 
