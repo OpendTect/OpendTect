@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.394 2009-01-14 08:46:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.395 2009-01-14 09:44:20 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -1826,6 +1826,8 @@ void uiVisPartServer::histogramRngSelChanged( CallBacker* cb )
     mDynamicCastGet(uiMultiRangeSelDispWin*,obj,cb);
     setColTabMapperSetup( displayid_, obj->activeAttrbID(), 
 	    		  obj->activeMapperSetup() );
+    eventobjid_ = displayid_;
+    eventattrib_ = obj->activeAttrbID();
     sendEvent( evColorTableChange );
 }
 
