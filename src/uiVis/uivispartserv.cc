@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.393 2009-01-14 08:29:46 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.394 2009-01-14 08:46:00 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -1769,6 +1769,7 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
 
 void uiVisPartServer::displayHistogramsForAttrbs( int displayid )
 {
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     if ( multirgselwin_ )
     {
 	multirgselwin_->close();
