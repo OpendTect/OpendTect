@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.224 2009-01-14 08:23:52 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.225 2009-01-14 11:40:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -260,6 +260,7 @@ public:
     void			displayHistogramsForAttrbs(int id);
     static const int		evColorTableChange;
     void			displaySceneColorbar(bool);
+    const Color&		getSceneAnnotCol(int);
 
 				//General stuff
     bool			deleteAllObjects();

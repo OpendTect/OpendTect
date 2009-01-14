@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visscenecoltab.cc,v 1.9 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visscenecoltab.cc,v 1.10 2009-01-14 11:40:56 cvssatyaki Exp $";
 
 #include "visscenecoltab.h"
 
@@ -33,7 +33,7 @@ SceneColTab::SceneColTab()
     legendkit_->ref();
     legendkit_->setDiscreteMode( true );
     legendkit_->enableBackground( false );
-    legendkit_->setTickAndLinesColor( SbColor(170./255,170./255,170./255) );
+    setLegendColor( Color(170,170,170) );
     setColTabSequence( ColTab::Sequence("") );
 }
 
@@ -42,6 +42,13 @@ SceneColTab::~SceneColTab()
 {
     removeChild( legendkit_ );
     legendkit_->unref();
+}
+
+
+void SceneColTab::setLegendColor( const Color& col )
+{
+#define col2f(rgb) float(col.rgb())/255
+    legendkit_->setTickAndLinesColor( SbColor(col2f(r),col2f(g),col2f(b)) );
 }
 
 

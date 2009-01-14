@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.160 2008-12-18 11:26:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.161 2009-01-14 11:40:56 cvssatyaki Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -551,6 +551,11 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
     mDoAllScenes(sovwr_,showRotAxis,tb?tb->isOn():false);
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	const Color& col = applMgr().visServer()->getSceneAnnotCol( idx );
+	scenes_[idx]->sovwr_->setAxisAnnotColor( col );
+    }
 }
 
 

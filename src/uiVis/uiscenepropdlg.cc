@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.8 2009-01-09 09:17:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiscenepropdlg.cc,v 1.9 2009-01-14 11:40:56 cvssatyaki Exp $";
 
 #include "uiscenepropdlg.h"
 
 #include "vissurvscene.h"
+#include "visscenecoltab.h"
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uislider.h"
@@ -107,6 +108,7 @@ void uiScenePropertyDlg::updateScene( visSurvey::Scene* scene )
     scene->setMarkerSize( markersizefld_->sldr()->getValue() );
     scene->setMarkerColor( markercolfld_->color() );
     scene->setAnnotColor( annotcolfld_->color() );
+    scene->getSceneColTab()->setLegendColor( annotcolfld_->color() );
 }
 
 
@@ -140,8 +142,12 @@ bool uiScenePropertyDlg::acceptOK( CallBacker* )
     }
 
     for ( int idx=0; idx<viewers_.size(); idx++ )
+    {
 	const_cast<uiSoViewer*>(viewers_[idx])->setBackgroundColor(
 					bgcolfld_->color() );
+	const_cast<uiSoViewer*>(viewers_[idx])->setAxisAnnotColor(
+		annotcolfld_->color() );
+    }
 
     return true;
 }

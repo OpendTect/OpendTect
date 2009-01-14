@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.395 2009-01-14 09:44:20 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.396 2009-01-14 11:40:56 cvssatyaki Exp $";
 
 #include "uivispartserv.h"
 
@@ -1814,10 +1814,20 @@ bool uiVisPartServer::isLocked( int id ) const
 }
 
 
+const Color& uiVisPartServer::getSceneAnnotCol( int sceneid )
+{
+    return scenes_[ sceneid ]->getAnnotColor();
+}
+
+
 void uiVisPartServer::displaySceneColorbar( bool yn )
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	scenes_[idx]->getSceneColTab()->setLegendColor(
+		scenes_[idx]->getAnnotColor() );
 	scenes_[idx]->getSceneColTab()->turnOn( yn );
+    }
 }
 
 

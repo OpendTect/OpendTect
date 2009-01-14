@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.6 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.7 2009-01-14 11:40:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class LegendKit;
+class Color;
 namespace ColTab { class MapperSetup; class Sequence; }
 
 namespace visBase
@@ -28,6 +29,7 @@ public:
     static SceneColTab*	create()
 			mCreateDataObj(SceneColTab);
 
+    void		setLegendColor(const Color&);
     void		setColTabSequence(const ColTab::Sequence&);
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
 
