@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.27 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.28 2009-01-14 14:56:59 cvshelene Exp $";
 
 #include "uistratreftree.h"
 
@@ -134,8 +134,9 @@ void uiStratRefTree::makeTreeEditable( bool yn ) const
     uiListViewItem* lvit = lv_->firstItem();
     while ( lvit )
     {
-	lvit->setRenameEnabled( sUnitsCol, yn );
-	lvit->setRenameEnabled( sDescCol, yn );
+	lvit->setRenameEnabled( sUnitsCol, false );  //TODO
+	lvit->setRenameEnabled( sDescCol, false );   //TODO
+	lvit->setRenameEnabled( sLithoCol, false );
 	lvit->setDragEnabled( yn );
 	lvit->setDropEnabled( yn );
 	lvit = lvit->itemBelow();
@@ -146,38 +147,29 @@ void uiStratRefTree::makeTreeEditable( bool yn ) const
 void uiStratRefTree::rClickCB( CallBacker* )
 {
     uiListViewItem* lvit = lv_->itemNotified();
-    if ( !lvit || !lvit->renameEnabled(sUnitsCol) ) return;
+    if ( !lvit || !lvit->dragEnabled() ) return;
 
     int col = lv_->columnNotified();
-    if ( col == sUnitsCol || col == sDescCol )
-    {
-	uiPopupMenu mnu( lv_->parent(), "Action" );
-	mnu.insertItem( new uiMenuItem("&Specify level boundary ..."), 0 );
-	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 1 );
-	mnu.insertItem( new uiMenuItem("&Add unit ..."), 2 );
-	mnu.insertItem( new uiMenuItem("&Remove"), 3 );
-    /*    mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("Rename"), 4 );*/
+    uiPopupMenu mnu( lv_->parent(), "Action" );
+    mnu.insertItem( new uiMenuItem("&Specify level boundary ..."), 0 );
+    mnu.insertSeparator();
+    mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Add unit ..."), 2 );
+    mnu.insertItem( new uiMenuItem("&Remove"), 3 );
+    mnu.insertItem( new uiMenuItem("&Properties..."), 4 );
 
-	const int mnuid = mnu.exec();
-	if ( mnuid<0 ) return;
-	else if ( mnuid==0 )
-	    selBoundary();
-	else if ( mnuid==1 )
-	    insertSubUnit( lvit );
-	else if ( mnuid==2 )
-	    insertSubUnit( 0 );
-	else if ( mnuid==3 )
-	    removeUnit( lvit );
-    }
-    else if ( col == sLithoCol )
-    {
-	uiStratLithoDlg lithdlg( lv_->parent(), uistratmgr_ );
-	lithdlg.setSelectedLith( lvit->text( sLithoCol ) );
-	if ( lithdlg.go() )
-	    lvit->setText( lithdlg.getLithName(), sLithoCol );
-    }
+    const int mnuid = mnu.exec();
+    if ( mnuid<0 ) return;
+    else if ( mnuid==0 )
+	selBoundary();
+    else if ( mnuid==1 )
+	insertSubUnit( lvit );
+    else if ( mnuid==2 )
+	insertSubUnit( 0 );
+    else if ( mnuid==3 )
+	removeUnit( lvit );
+    else if ( mnuid==4 )
+	updateUnitProperties( lvit );
 }
 
 
@@ -196,8 +188,9 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	else
 	    newitem = new uiListViewItem( lv_, setup );
 
-	newitem->setRenameEnabled( sUnitsCol, true );
-	newitem->setRenameEnabled( sDescCol, true );
+	newitem->setRenameEnabled( sUnitsCol, false );	//TODO
+	newitem->setRenameEnabled( sDescCol, false );	//TODO
+	newitem->setRenameEnabled( sLithoCol, false );
 	newitem->setDragEnabled( true );
 	newitem->setDropEnabled( true );
 	ioPixmap* pm = createLevelPixmap(0);
@@ -233,6 +226,30 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
     }
 
     lv_->triggerUpdate();
+}
+
+
+void uiStratRefTree::updateUnitProperties( uiListViewItem* lvit )
+{
+    uiStratUnitDlg urdlg( lv_->parent(), uistratmgr_ );
+    urdlg.setTitleText("Update Unit Properties");
+    BufferString uncode = getCodeFromLVIt( lvit);
+    const UnitRef* unitref = uistratmgr_->getCurTree()->find( uncode );
+    if ( unitref )
+	urdlg.setUnitIsLeaf( unitref->isLeaf() );
+
+    urdlg.setUnitName( lvit->text(0) ); 
+    urdlg.setUnitDesc( lvit->text(1) ); 
+    urdlg.setUnitLith( lvit->text(sLithoCol) ); 
+    if ( urdlg.go() )
+    {
+	//TODO will require an update of all children
+	//lvit->setText( urdlg.getUnitName(), sUnitsCol ); 
+	lvit->setText( urdlg.getUnitDesc(), sDescCol ); 
+	lvit->setText( urdlg.getUnitLith(), sLithoCol );
+	uistratmgr_->updateUnitProps( uncode.buf(), urdlg.getUnitDesc(),
+				      urdlg.getUnitLith() );
+    }
 }
 
 

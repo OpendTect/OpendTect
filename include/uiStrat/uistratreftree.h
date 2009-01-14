@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.12 2009-01-08 07:26:59 cvsranojay Exp $
+ RCS:           $Id: uistratreftree.h,v 1.13 2009-01-14 14:56:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ protected:
 
     void		insertSubUnit(uiListViewItem*);
     void		removeUnit(uiListViewItem*);
+    void		updateUnitProperties(uiListViewItem*);
     void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
     ioPixmap*		createLevelPixmap(const Strat::UnitRef*) const;
     			//becomes yours!

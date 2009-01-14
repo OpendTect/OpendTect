@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.11 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.12 2009-01-14 14:56:59 cvshelene Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -28,8 +28,9 @@ static const char* sNoLithoTxt      = "---None---";
 
 
 uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Create Stratigraphic Unit",
-				 mNoDlgTitle,mTODOHelpID))
+    : uiDialog(p,uiDialog::Setup("Stratigraphic Unit Properties",
+				 "Specify properties of a new unit",
+				 mTODOHelpID))
     , uistratmgr_(uistratmgr)
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
@@ -75,6 +76,32 @@ bool uiStratUnitDlg::acceptOK( CallBacker* )
     if ( !strcmp( getUnitName(), "" ) )
 	{ uiMSG().error( "Please specify the unit name" ); return false; }
     return true;
+}
+
+
+void uiStratUnitDlg::setUnitName( const char* unitnm )
+{
+    unitnmfld_->setText( unitnm );
+    //TODO: rename unit needs extra work to update all the paths to the subunits
+    unitnmfld_->setSensitive(false);
+}
+
+
+void uiStratUnitDlg::setUnitDesc( const char* unitdesc )
+{
+    unitdescfld_->setText( unitdesc );
+}
+
+
+void uiStratUnitDlg::setUnitLith( const char* unitlithnm )
+{
+    unitlithfld_->setText( unitlithnm );
+}
+
+
+void uiStratUnitDlg::setUnitIsLeaf( bool yn )
+{
+    unitlithfld_->setSensitive( yn );
 }
 
 

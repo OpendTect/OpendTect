@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.7 2009-01-08 07:27:00 cvsranojay Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.8 2009-01-14 14:56:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,10 @@ public:
     const char*		getUnitName() const;	
     const char*		getUnitDesc() const;
     const char*		getUnitLith() const;
+    void		setUnitName(const char*);
+    void		setUnitDesc(const char*);
+    void		setUnitLith(const char*);
+    void		setUnitIsLeaf(bool);
 
 protected:
     uiGenInput*		unitnmfld_;
