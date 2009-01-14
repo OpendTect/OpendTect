@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.5 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:		$Id: velocitycalc.h,v 1.6 2009-01-14 17:33:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ template <class T> class ValueSeries;
    can be either RMO-velocities in time, or interval velocity in either depth or
    time. */
 
-mClass TimeDepthConverter
+class TimeDepthConverter
 {
 public:
     			TimeDepthConverter();
@@ -58,18 +58,43 @@ protected:
 
 
 /*! Computes moveout with anisotropy, according to the equation
-    by Alkhalifah and Tsvankin 1995. */
+by Alkhalifah and Tsvankin 1995. */
+
+
 bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 		     int nroffsets, const float* offsets, float* res );
 
 
 /*!Converts a series of Vrms to Vint. Vrms may contain undefined values, as
-   long as at least one is define.
-*/
+   long as at least one is define. */
 
 bool computeDix(const float* Vrms,const SamplingData<double>& sd,int nrvels,
-	                VelocityDesc::SampleSpan,float* Vint);
+		VelocityDesc::SampleSpan,float* Vint);
+
+/*!Converts a number of layers with Vrms to interval velocities.
+   Note that the times in t refers to the bottom of each layer, and t0
+   has the start time of the top layer. */
+
+bool computeDix(const float* Vrms, float t0, const float* t, int nrlayers,
+		float* Vint);
 
 
+bool computeVrms(const float* Vint,const SamplingData<double>& sd, int nrvels,
+		 VelocityDesc::SampleSpan,float* Vrms);
 
+/*!Converts a number of layers with Vint to rms velocities.
+   Note that the times in t refers to the bottom of each layer, and t0
+   has the start time of the top layer. */
+
+bool computeVrms(const float* Vint,float t0,const float* t,int nrlayers,
+		 float* Vrms);
+
+/*!Given an irregularly sampled Vrms, create a regularly sampled one. The
+   function assumes constant interval velocity before and after the input
+   interval.*/
+
+bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
+		const SamplingData<double>& sd_out,float* Vout, int nr_out);
+	        
+	        
 #endif

@@ -4,14 +4,16 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.5 2008-12-19 20:04:26 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.6 2009-01-14 17:33:37 cvskris Exp $";
 
 #include "velocitycalc.h"
 
 #include "idxable.h"
 #include "math2.h"
 #include "valseries.h"
+#include "varlenarray.h"
 #include "veldesc.h"
+#include "math2.h"
 
 
 TimeDepthConverter::TimeDepthConverter()
@@ -328,7 +330,7 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 
 
 bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
-	                     int nroffsets, const float* offsets, float* res )
+		     int nroffsets, const float* offsets, float* res )
 {
     const double t0_2 = t0*t0;
     const double v2 = Vrms*Vrms;
@@ -346,7 +348,7 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 	    const double offset4 = offset2*offset2;
 	    const double numerator = 2 * effectiveanisotropy * offset4;
 	    const double denominator =
-		    v2*(t0_2*v2+(1+2*effectiveanisotropy)*offset2);
+		v2*(t0_2*v2+(1+2*effectiveanisotropy)*offset2);
 
 	    double anisotropycontrib = 0;
 	    if ( denominator>0 )
@@ -366,48 +368,152 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 }
 
 
+#define mComputeDixImpl( first_t, timefetch ) \
+    if ( !nrvels ) \
+	return true; \
+ \
+    int idx_prev = -1; \
+    double v2t_prev = 0; \
+    double t_above = first_t; \
+ \
+    for ( int idx=0; idx<nrvels; idx++ ) \
+    { \
+	const double v = Vrms[idx]; \
+	if ( mIsUdf(v) ) \
+	    continue; \
+ \
+	double t_below = timefetch; \
+ \
+	const double v2t = t_below*v*v; \
+	const double numerator = v2t-v2t_prev; \
+	if ( numerator<0 ) \
+	    continue; \
+ \
+	const double vlayer = Math::Sqrt( numerator/(t_below-t_above) ); \
+ \
+	for ( int idy=idx_prev+1; idy<=idx; idy++ ) \
+	    Vint[idy] = vlayer; \
+ \
+	v2t_prev = v2t; \
+	t_above = t_below; \
+	idx_prev = idx; \
+    } \
+ \
+    for ( int idx=idx_prev+1; idx<nrvels; idx++ ) \
+	Vint[idx] = Vint[idx_prev]; \
+ \
+    return true;
+
 bool computeDix( const float* Vrms, const SamplingData<double>& sd, int nrvels,
-	                 VelocityDesc::SampleSpan span, float* Vint )
+		 VelocityDesc::SampleSpan span, float* Vint )
 {
-    if ( !nrvels )
-	return true;
-
-    int idx_prev = -1;
-    double v2t_prev = 0;
-    double t_above = 0;
-
     double spanadjustment = 0;
     if ( span==VelocityDesc::Centered )
 	spanadjustment = sd.step/2;
     else if ( span==VelocityDesc::Below )
 	spanadjustment = sd.step;
 
+    mComputeDixImpl( 0, sd.atIndex(idx)+spanadjustment );
+}
+
+
+bool computeDix( const float* Vrms, float t0, const float* t, int nrvels,
+		 float* Vint )
+{
+    mComputeDixImpl( t0, t[idx] );
+}
+
+
+bool computeVrms( const float* Vint, const SamplingData<double>& sd, int nrvels,
+		  VelocityDesc::SampleSpan span, float* Vrms )
+{
+    double spanadjustment = 0;
+    if ( span==VelocityDesc::Centered )
+	spanadjustment = sd.step/2;
+    else if ( span==VelocityDesc::Below )
+	spanadjustment = sd.step;
+
+    double t_above = 0;
+    int idx_prev = -1;
+    double v2t_prev = 0;
+
     for ( int idx=0; idx<nrvels; idx++ )
     {
-	const double v = Vrms[idx];
-	if ( mIsUdf(v) )
+	const double V_interval = Vint[idx];
+	if ( mIsUdf(V_interval) )
 	    continue;
 
-	double t_below = sd.atIndex( idx ) + spanadjustment;
+	double t_below = sd.atIndex(idx) + spanadjustment;
 
-	const double v2t = t_below*v*v;
-	const double numerator = v2t-v2t_prev;
-	if ( numerator<0 )
-	    continue;
-
-	const double vlayer = Math::Sqrt( numerator/(t_below-t_above) );
+	double dt = t_below - t_above;
+	double numerator = v2t_prev+V_interval*V_interval*dt;
+	float res = Math::Sqrt( numerator/t_below );
 
 	for ( int idy=idx_prev+1; idy<=idx; idy++ )
-	    Vint[idy] = vlayer;
+	    Vrms[idy] = res;
 
-	v2t_prev = v2t;
+	v2t_prev = numerator;
 	t_above = t_below;
 	idx_prev = idx;
     }
-
-    for ( int idx=idx_prev+1; idx<nrvels; idx++ )
-	Vint[idx] = Vint[idx_prev];
-
-    return true;
 }
 
+
+bool computeVrms( const float* Vint, float t0, const float* t, int nrvels,
+		  float* Vrms )
+{
+    double t_above = t0;
+    int idx_prev = -1;
+    double v2t_prev = 0;
+
+    for ( int idx=0; idx<nrvels; idx++ )
+    {
+	const double V_interval = Vint[idx];
+	if ( mIsUdf(V_interval) )
+	    continue;
+
+	double t_below = t[idx];
+
+	double dt = t_below - t_above;
+	double numerator = v2t_prev+V_interval*V_interval*dt;
+	float res = Math::Sqrt( numerator/(t_below-t0) );
+	//TODO: Check whether t0 should be subtracted above
+
+	for ( int idy=idx_prev+1; idy<=idx; idy++ )
+	    Vrms[idy] = res;
+
+	v2t_prev = numerator;
+	t_above = t_below;
+	idx_prev = idx;
+    }
+}
+
+
+bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
+		const SamplingData<double>& sd_out,float* Vout, int nr_out)
+{
+    if ( nr_out<=0 )
+	return true;
+
+    if ( nr_in<=0 )
+	return false;
+
+    TypeSet<float> Vint;
+    if ( !computeDix( Vin, t0_in, t_in, nr_in, Vint.arr() ) )
+	return false;
+
+    mAllocVarLenArr( float, Vint_sampled, nr_out );
+    if ( !Vint_sampled )
+	return false;
+
+    for ( int idx=0; idx<nr_out; idx++ )
+    {
+	const float t = sd_out.atIndex( idx );
+	int layer;
+	IdxAble::findFPPos( t_in, nr_in, t, 0, layer );
+	Vint_sampled[idx] = Vint[layer];
+    }
+
+    return computeVrms( (const float*)Vint_sampled, sd_out, nr_out,
+	    		VelocityDesc::Above, Vout );
+}
