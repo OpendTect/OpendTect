@@ -71,7 +71,7 @@ Attribute Descriptions
 15.Hidden: No
 15.Input.0: 0
 15.Input.1: 1
-16.Definition: Math expression=x0*cos(c0*PI/180)+x1*sin(c0*PI/180) constant0=90  output=0
+16.Definition: Math expression=x0*cos(c0*PI/180)-x1*sin(c0*PI/180) constant0=90  output=0
 16.UserRef: Phase rotation of angle c0 (degrees)
 16.Hidden: No
 16.Input.0: 0
