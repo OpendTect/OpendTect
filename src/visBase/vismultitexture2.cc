@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.59 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.60 2009-01-14 15:38:40 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -187,9 +187,13 @@ void MultiTexture2::swapTextures( int t0, int t1 )
 {
     if ( useshading_ )
     {
-	const float tmp = layeropacity_->value[t1];
+	float tmp = layeropacity_->value[t1];
 	layeropacity_->value.set1Value( t1, layeropacity_->value[t0] );
 	layeropacity_->value.set1Value( t0, tmp );
+
+	tmp = opacity_[t1];
+	opacity_[t1] = opacity_[t0];
+	opacity_[t0] = tmp;
     }
     else
     {
@@ -197,10 +201,6 @@ void MultiTexture2::swapTextures( int t0, int t1 )
 	texture_->opacity.set1Value( t1, texture_->opacity[t0] );
 	texture_->opacity.set1Value( t0, tmp );
     }
-
-    const float tmp = opacity_[t1];
-    opacity_[t1] = opacity_[t0];
-    opacity_[t0] = tmp;
 
     MultiTexture::swapTextures( t0, t1 );
 }
