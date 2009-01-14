@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.6 2005-03-30 11:19:22 cvsarend Exp $
+ RCS:		$Id: _execbatch.h,v 1.7 2009-01-14 07:24:02 cvsranojay Exp $
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 
@@ -20,13 +20,12 @@ ________________________________________________________________________
 
 #include "strmprov.h"
 #include "strmdata.h"
+#include "envvars.h"
 
 
 int Execute_batch( int* pargc, char** argv )
 {
-    BufferString envarg("DTECT_ARGV0=");
-    envarg += argv[0];
-    putenv( envarg.buf() );
+    SetEnvVar( "DTECT_ARGV0", argv[0] );
 
     PIM().setArgs( *pargc, argv ); PIM().loadAuto( false );
 
