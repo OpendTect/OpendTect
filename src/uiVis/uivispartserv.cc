@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.392 2009-01-14 05:21:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.393 2009-01-14 08:29:46 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -112,6 +112,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , pickretriever_( new uiVisPickRetriever )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
+    , multirgselwin_(0)
     , displayid_(-1)						      
 {
     menu_.ref();
@@ -147,6 +148,7 @@ uiVisPartServer::~uiVisPartServer()
     delete mpetools_;
     menu_.unRef();
     pickretriever_->unRef();
+    delete multirgselwin_;
 }
 
 
@@ -1767,21 +1769,25 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
 
 void uiVisPartServer::displayHistogramsForAttrbs( int displayid )
 {
+    if ( multirgselwin_ )
+    {
+	multirgselwin_->close();
+	delete multirgselwin_; multirgselwin_ = 0;
+    }
     displayid_ = displayid;
-    uiMultiRangeSelDispWin* multirgselwin =
-		       new uiMultiRangeSelDispWin( 0, getNrAttribs(displayid) );
-    multirgselwin->rangeChange.notify( mCB(this,uiVisPartServer,
+    multirgselwin_ = new uiMultiRangeSelDispWin( 0, getNrAttribs(displayid) );
+    multirgselwin_->rangeChange.notify( mCB(this,uiVisPartServer,
 				histogramRngSelChanged) );
 
     for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
     {
-	multirgselwin->setDataPackID( idx,
+	multirgselwin_->setDataPackID( idx,
 		getDataPackID(displayid,idx), getDataPackMgrID(displayid) );
-	multirgselwin->setColTabMapperSetupWthSeq( idx, 
+	multirgselwin_->setColTabMapperSetupWthSeq( idx, 
 					   *getColTabMapperSetup(displayid,idx), 					   *getColTabSequence(displayid,idx) );
     }
 
-    multirgselwin->go();
+    multirgselwin_->go();
 }
 
 
