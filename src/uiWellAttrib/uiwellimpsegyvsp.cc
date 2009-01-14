@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.3 2009-01-12 17:04:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.4 2009-01-14 17:09:40 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -28,6 +28,11 @@ static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.3 2009-01-12 17:04:49 c
 #include "welltransl.h"
 #include "welldata.h"
 #include "wellreader.h"
+#include "wellwriter.h"
+#include "wellman.h"
+#include "welllog.h"
+#include "welllogset.h"
+#include "welld2tmodel.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
 #include "filepath.h"
@@ -250,9 +255,90 @@ void uiWellImportSEGYVSP::outSampChk( CallBacker* )
 
 bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 {
-    const bool ist = inpIsTime();
-    StepInterval<float> outsamp( outsampfld_->getFStepInterval() );
+    if ( bparsfld_->fnm_.isEmpty() || sgypars_.isEmpty() )
+	mErrRet("Please define the input SEG-Y")
+    if ( !wellfld_->commitInput(false) )
+	mErrRet("Please select the output well")
+    const BufferString lognm( lognmfld_->text() );
+    if ( lognm.isEmpty() )
+	mErrRet("Please enter a valid name for the new log")
 
-    
+    SamplingData<float> inpsamp( mUdf(float), mUdf(float) );
+    StepInterval<float> outsamp( mUdf(float), mUdf(float), mUdf(float) );
+    if ( inpsampfld_->isChecked() )
+    {
+	inpsamp.start = inpsampfld_->getfValue( 0 ) * 0.001;
+	inpsamp.step = inpsampfld_->getfValue( 1 ) * 0.001;
+    }
+    if ( outsampfld_->isChecked() )
+	outsamp = outsampfld_->getFStepInterval();
+
+    SeisTrc trc;
+    if ( !fetchTrc(trc) )
+	return false;
+    if ( !mIsUdf(inpsamp.start) ) trc.info().sampling.start = inpsamp.start;
+    if ( !mIsUdf(inpsamp.step) ) trc.info().sampling.step = inpsamp.step;
+
+    createLog( trc, outsamp, lognm );
     return false;
+}
+
+
+bool uiWellImportSEGYVSP::fetchTrc( SeisTrc& trc )
+{
+    Translator* tr = ctio_.ioobj->getTranslator();
+    if ( !tr )
+	mErrRet("Internal: Cannot create SEG-Y Translator")
+    mDynamicCastGet(SEGYSeisTrcTranslator*,sgytr,tr)
+    if ( !sgytr )
+	mErrRet("Internal: not a SEG-Y object")
+
+    sgytr->usePar( sgypars_ );
+    bool rv = sgytr->read(trc);
+    delete tr;
+    return rv;
+}
+
+
+bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
+				     const StepInterval<float>& outsamp,
+				     const char* lognm )
+{
+    const MultiID key( ctio_.ioobj->key() );
+    const bool wasloaded = Well::MGR().isLoaded( key );
+
+    Well::Data* wd = Well::MGR().get( key );
+    if ( !wd )
+	mErrRet("Cannot load the selected well")
+    const bool ist = inpIsTime();
+    if ( ist && !wd->d2TModel() )
+	mErrRet("Selected well has no Depth vs Time model")
+
+    int wlidx = wd->logs().indexOf( lognm );
+    if ( wlidx >= 0 )
+	delete wd->logs().remove( wlidx );
+    Well::Log* wl = new Well::Log( lognm );
+    wl->pars().set( sKey::FileName, sgypars_.find(sKey::FileName) );
+
+    //TODO support all options, now just do all
+    for ( int isamp=0; isamp<trc.size(); isamp++ )
+    {
+	float z = trc.samplePos( isamp );
+	if ( ist )
+	    z = wd->d2TModel()->getDepth( z );
+	wl->addValue( z, trc.get(isamp,0) );
+    }
+
+    if ( wlidx >= 0 )
+	wd->logs().add( wl );
+
+    Well::Writer wtr( Well::IO::getMainFileName(*ctio_.ioobj), *wd );
+    wtr.putLogs();
+
+    if ( wasloaded )
+	Well::MGR().reload( key );
+    else
+	Well::MGR().release( key );
+
+    return true;
 }
