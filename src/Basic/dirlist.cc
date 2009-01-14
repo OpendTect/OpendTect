@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.12 2008-07-24 13:36:08 cvsbert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.13 2009-01-14 07:17:58 cvsranojay Exp $";
 
 #include "dirlist.h"
 #include "globexpr.h"
@@ -45,6 +45,8 @@ void DirList::update()
     dirnm += "\\*";
 
     mhndl = FindFirstFile( (const char*)dirnm, &dat );
+    if ( mhndl == INVALID_HANDLE_VALUE )
+	return;
 
     do
     {
