@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.h,v 1.2 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:		$Id: uimapperrangeeditor.h,v 1.3 2009-01-15 10:57:30 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,15 +29,15 @@ public:
     				uiMapperRangeEditor(uiParent*,int id);
 				~uiMapperRangeEditor();
 
-    uiHistogramDisplay*		histGramDisp()	       { return histogramdisp_;}
     int				ID()		       { return id_; }
 
     bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
     void                        setMarkValue(float,bool forx);
 
-    void			setColTabMapperSetupWthSeq(const 
-	    			  ColTab::MapperSetup&,const ColTab::Sequence&);
-    const ColTab::MapperSetup*  getColTabMapperSetup() { return ctbmapper_; }
+    void			setColTabMapperSetupWthSeq(
+	    				const ColTab::MapperSetup&,
+					const ColTab::Sequence&);
+    const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctbmapper_; }
     
     Notifier<uiMapperRangeEditor>	rangeChanged;
 
@@ -47,7 +47,7 @@ protected:
     int 			id_;
 
     ColTab::MapperSetup*        ctbmapper_;
-    const ColTab::Sequence*	ctbseq_;
+    ColTab::Sequence*		ctbseq_;
 
     uiLineItem*			minline_;
     uiLineItem*			maxline_;

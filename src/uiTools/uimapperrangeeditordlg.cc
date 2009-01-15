@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.3 2009-01-15 06:59:15 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.4 2009-01-15 10:58:11 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,9 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int n,
     , rangeChange(this)
     , dpm_(DPM(dmid))		       
 {
-    datapackids_.setSize( n );
+    setCtrlStyle( LeaveOnly );
 
+    datapackids_.setSize( n );
     uiSeparator* sephor = 0;
 
     for ( int idx=0; idx<n; idx++ )
@@ -60,16 +61,16 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int n,
 
 	}
     }
-    setCtrlStyle( LeaveOnly );
-    dpm_.packToBeRemoved.notifyIfNotNotified( mCB(this,uiMultiRangeSelDispWin,
-					      dataPackDeleted) );
+
+    dpm_.packToBeRemoved.notifyIfNotNotified(
+			mCB(this,uiMultiRangeSelDispWin,dataPackDeleted) );
 }
 
 
 uiMultiRangeSelDispWin::~uiMultiRangeSelDispWin()
 {
-    dpm_.packToBeRemoved.remove( mCB(this,uiMultiRangeSelDispWin,
-				 dataPackDeleted) );
+    dpm_.packToBeRemoved.remove(
+			mCB(this,uiMultiRangeSelDispWin,dataPackDeleted) );
 }
 
 
@@ -94,11 +95,11 @@ void uiMultiRangeSelDispWin::setColTabMapperSetupWthSeq( int idx,
 }
 
 
-void uiMultiRangeSelDispWin::rangeChanged( CallBacker* cb)
+void uiMultiRangeSelDispWin::rangeChanged( CallBacker* cb )
 {
     mDynamicCastGet(uiMapperRangeEditor*,obj,cb);
     activeattrbid_ = obj->ID();
-    activectbmapper_ = obj->getColTabMapperSetup();
+    activectbmapper_ = &obj->getColTabMapperSetup();
     rangeChange.trigger();
 }
 
@@ -106,5 +107,7 @@ void uiMultiRangeSelDispWin::rangeChanged( CallBacker* cb)
 void uiMultiRangeSelDispWin::dataPackDeleted( CallBacker* cb )
 {
     mDynamicCastGet(DataPack*,obj,cb);
-    mapperrgeditors_[datapackids_.indexOf(obj->id())]->setSensitive( false );
+    const int dpidx = datapackids_.indexOf( obj->id() );
+    if ( dpidx<0 ) return;
+    mapperrgeditors_[dpidx]->setSensitive( false );
 }
