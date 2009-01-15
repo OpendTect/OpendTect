@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.11 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.12 2009-01-15 07:05:52 cvsraman Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -140,11 +140,12 @@ class HorizonModifyDlg : public uiDialog
 {
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
-		  int nrcross )
+		  bool is2d, int nrcross )
     : uiDialog(p,Setup("Horizon relations","Solve crossings",mTODOHelpID))
     , mid1_(mid1)
     , mid2_(mid2)
-    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
+    , is2d_(is2d)
+    , ctio_(is2d ? mMkCtxtIOObj(EMHorizon2D) : mMkCtxtIOObj(EMHorizon3D))
 {
     BufferStringSet hornms;
     hornms.add( EM::EMM().objectName(mid1) );
@@ -168,8 +169,8 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
     savefld_->valuechanged.notify( mCB(this,HorizonModifyDlg,saveCB) );
     savefld_->attach( alignedBelow, modefld_ );
 
-    ctio_.ctxt.forread = false;
-    objfld_ = new uiIOObjSel( this, ctio_, "Horizon" );
+    ctio_->ctxt.forread = false;
+    objfld_ = new uiIOObjSel( this, *ctio_, "Horizon" );
     objfld_->display( false );
     objfld_->attach( alignedBelow, savefld_ );
 
@@ -180,8 +181,8 @@ HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 
 ~HorizonModifyDlg()
 {
-    delete ctio_.ioobj;
-    delete &ctio_;
+    delete ctio_->ioobj;
+    delete ctio_;
 }
 
 
@@ -204,7 +205,7 @@ void horSel( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    HorizonModifier modifier;
+    HorizonModifier modifier( is2d_ );
     modifier.setHorizons( mid1_, mid2_ );
     modifier.setMode( modefld_->getBoolValue() ? HorizonModifier::Shift
 					       : HorizonModifier::Remove );
@@ -225,7 +226,7 @@ bool acceptOK( CallBacker* )
 	if ( !objfld_->commitInput(true) )
 	    mErrRet("Please select output surface")
 
-	const MultiID& outmid = ctio_.ioobj->key();
+	const MultiID& outmid = ctio_->ioobj->key();
 	emobj->setMultiID( outmid );
 	mDynamicCastGet(EM::Surface*,surface,emobj)
 	exec = surface->geometry().saver( 0, &outmid );
@@ -237,10 +238,11 @@ bool acceptOK( CallBacker* )
 }
 
 protected:
+    bool	is2d_;
     MultiID	mid1_;
     MultiID	mid2_;
 
-    CtxtIOObj&	ctio_;
+    CtxtIOObj*	ctio_;
 
     uiGenInput*	horizonfld_;
     uiGenInput*	modefld_;
@@ -253,7 +255,7 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 {
     MouseCursorChanger chgr( MouseCursor::Wait );
 
-    HorizonSorter sorter( horids_ );
+    HorizonSorter sorter( horids_,is2d_ );
     sorter.setName( "Check crossings" );
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(sorter) ) return;
@@ -268,8 +270,13 @@ void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 		    					   horids_[idy] );
 	    if ( nrcrossings == 0 ) continue;
 
-	    HorizonModifyDlg dlg( this, horids_[idx], horids_[idy],
-		    		  nrcrossings );
+	    TypeSet<MultiID> sortedids;
+	    sorter.getSortedList( sortedids );
+	    const int idx1 = sortedids.indexOf( horids_[idx] );
+	    const int idx2 = sortedids.indexOf( horids_[idy] );
+	    HorizonModifyDlg dlg( this, sortedids[mMIN(idx1,idx2)],
+		    		  sortedids[mMAX(idx1,idx2)], is2d_,
+				  nrcrossings );
 	    dlg.go();
 	    count++;
 	}
