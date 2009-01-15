@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.6 2009-01-14 17:33:37 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.7 2009-01-15 04:03:32 cvsnanne Exp $";
 
 #include "velocitycalc.h"
 
@@ -456,6 +456,8 @@ bool computeVrms( const float* Vint, const SamplingData<double>& sd, int nrvels,
 	t_above = t_below;
 	idx_prev = idx;
     }
+
+    return true;
 }
 
 
@@ -486,6 +488,8 @@ bool computeVrms( const float* Vint, float t0, const float* t, int nrvels,
 	t_above = t_below;
 	idx_prev = idx;
     }
+
+    return true;
 }
 
 
