@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.32 2009-01-05 04:27:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigdexamacorr.cc,v 1.33 2009-01-15 09:14:36 cvsnanne Exp $";
 
 #include "uigdexamacorr.h"
 #include "uigapdeconattrib.h"
@@ -51,9 +51,9 @@ GapDeconACorrView::GapDeconACorrView( uiParent* p )
 
 GapDeconACorrView::~GapDeconACorrView()
 {
-    if ( dset_ ) delete dset_;
-    if ( examwin_ ) delete examwin_;
-    if ( qcwin_ ) delete qcwin_;
+    delete dset_;
+    delete examwin_;
+    delete qcwin_;
 }
 
 
@@ -197,7 +197,7 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
     else
     {
 	fvwin = new uiFlatViewMainWin( 0,
-		uiFlatViewMainWin::Setup( isqc ? qctitle_ : examtitle_ ) );
+		uiFlatViewMainWin::Setup(isqc?qctitle_:examtitle_,false) );
 	uiFlatViewer& vwr = fvwin->viewer();
 	vwr.setPack( false, dp->id(), false, true );
 	FlatView::Appearance& app = vwr.appearance();
