@@ -6,6 +6,7 @@ Input Seismics.ID: 100010.13
 Output Seismics.Name: Flattened Seis
 
 Reference horizon: 100020.11
+Reference Z: 3
 
 -- Set output sampling
 First In-line: 425
