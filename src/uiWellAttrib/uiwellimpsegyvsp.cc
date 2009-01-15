@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.4 2009-01-14 17:09:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.5 2009-01-15 15:17:30 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -279,22 +279,22 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
     if ( !mIsUdf(inpsamp.start) ) trc.info().sampling.start = inpsamp.start;
     if ( !mIsUdf(inpsamp.step) ) trc.info().sampling.step = inpsamp.step;
 
-    createLog( trc, outsamp, lognm );
+    if ( createLog(trc,outsamp,lognm) )
+	uiMSG().message( BufferString(lognm.buf()," created and saved") );
     return false;
 }
 
 
 bool uiWellImportSEGYVSP::fetchTrc( SeisTrc& trc )
 {
-    Translator* tr = ctio_.ioobj->getTranslator();
-    if ( !tr )
-	mErrRet("Internal: Cannot create SEG-Y Translator")
-    mDynamicCastGet(SEGYSeisTrcTranslator*,sgytr,tr)
-    if ( !sgytr )
-	mErrRet("Internal: not a SEG-Y object")
+    SEGYSeisTrcTranslator* tr = SEGYSeisTrcTranslator::getInstance();
+    tr->usePar( sgypars_ );
+    SEGY::FileSpec fs; fs.usePar( sgypars_ );
+    PtrMan<IOObj> ioobj = fs.getIOObj();
+    if ( !tr->initRead( ioobj->getConn(Conn::Read) ) )
+	mErrRet("Cannot open input file")
 
-    sgytr->usePar( sgypars_ );
-    bool rv = sgytr->read(trc);
+    bool rv = tr->read(trc);
     delete tr;
     return rv;
 }
@@ -329,8 +329,7 @@ bool uiWellImportSEGYVSP::createLog( const SeisTrc& trc,
 	wl->addValue( z, trc.get(isamp,0) );
     }
 
-    if ( wlidx >= 0 )
-	wd->logs().add( wl );
+    wd->logs().add( wl );
 
     Well::Writer wtr( Well::IO::getMainFileName(*ctio_.ioobj), *wd );
     wtr.putLogs();
