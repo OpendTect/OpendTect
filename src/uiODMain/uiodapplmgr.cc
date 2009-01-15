@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.286 2009-01-13 11:55:08 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.287 2009-01-15 15:55:29 cvsjaap Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -1517,20 +1517,21 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
 
 void uiODApplMgr::colSeqChg( CallBacker* )
 {
-    const int visid = visserv_->getEventObjId();
+    const int visid = visserv_->getSelObjectId();
     int attrib = visserv_->getSelAttribNr();
     if ( attrib == -1 ) attrib = 0;
     setHistogram( visid, attrib );
-    sceneMgr().updateSelectedTreeItem();
 
     visserv_->setColTabSequence( visid, attrib,
 	    appl_.colTabEd().getColTabSequence() );
+
+    sceneMgr().updateSelectedTreeItem();
 }
 
 
 void uiODApplMgr::colMapperChg( CallBacker* )
 {
-    const int visid = visserv_->getEventObjId();
+    const int visid = visserv_->getSelObjectId();
     int attrib = visserv_->getSelAttribNr();
     if ( attrib == -1 ) attrib = 0;
 

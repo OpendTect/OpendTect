@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.64 2009-01-14 05:21:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.65 2009-01-15 15:55:30 cvsjaap Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1030,6 +1030,30 @@ int HorizonDisplay::getColTabID(int attrib) const
 
     mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
     return psurf->getColTabID( attrib );
+}
+
+
+const ColTab::Sequence* HorizonDisplay::getColTabSequence( int attrib ) const
+{
+    if ( !usesTexture() || sections_.isEmpty() )
+	return 0;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
+    return psurf->getColTabSequence( attrib );
+}
+
+
+bool HorizonDisplay::canSetColTabSequence() const
+{ return usesTexture(); }
+
+
+void HorizonDisplay::setColTabSequence( int attr, ColTab::Sequence const& seq )
+{
+    if ( !usesTexture() || sections_.isEmpty() )
+	return;
+
+    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[0]);
+    psurf->setColTabSequence( attr, seq );
 }
 
 

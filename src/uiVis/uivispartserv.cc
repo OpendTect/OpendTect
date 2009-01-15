@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.397 2009-01-15 07:00:43 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.398 2009-01-15 15:55:29 cvsjaap Exp $";
 
 #include "uivispartserv.h"
 
@@ -524,6 +524,7 @@ void uiVisPartServer::removeAttrib( int id, int attrib )
     if ( !so ) return;
     
     so->removeAttrib( attrib );
+    selattrib_ = -1;
 }
 
 int uiVisPartServer::getNrAttribs( int id ) const

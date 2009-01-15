@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.30 2009-01-14 05:21:03 cvssatyaki Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.31 2009-01-15 15:55:29 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -110,6 +110,11 @@ public:
     float			maxDist() const;
 
     int				getColTabID(int) const;
+    const ColTab::Sequence*	getColTabSequence(int attrib) const;
+    bool			canSetColTabSequence() const;
+    void			setColTabSequence(int attrib,
+						  ColTab::Sequence const&);
+
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);

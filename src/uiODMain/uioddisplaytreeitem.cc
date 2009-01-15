@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.27 2008-12-31 08:24:27 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.28 2009-01-15 15:55:29 cvsjaap Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -312,6 +312,8 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	uiODDataTreeItem* newitem = addAttribItem();
 	newitem->select();
+	applMgr()->modifyColorTable( newitem->displayID(),
+				     newitem->attribNr() );
 	menu->setIsHandled(true);
     }
     else if ( mnuid==displyhistgram_.id )
