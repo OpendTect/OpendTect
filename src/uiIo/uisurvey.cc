@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.98 2009-01-15 16:08:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.99 2009-01-15 16:52:11 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -627,6 +627,11 @@ bool uiSurvey::rejectOK( CallBacker* )
 
 bool uiSurvey::acceptOK( CallBacker* )
 {
+    if ( listbox_->currentItem() < 0 )
+    {
+	uiMSG().error( "Please create a survey (or press Cancel)" );
+	return false;
+    }
     writeComments();
     SurveyInfo::produceWarnings( true );
     if ( !updateSvyFile() || !IOMan::newSurvey() )
