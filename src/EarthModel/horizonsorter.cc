@@ -7,25 +7,27 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonsorter.cc,v 1.10 2008-12-24 11:45:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonsorter.cc,v 1.11 2009-01-15 06:45:59 cvsraman Exp $";
 
 #include "horizonsorter.h"
 
 #include "arrayndimpl.h"
 #include "cubesampling.h"
-#include "emhorizon.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "ptrman.h"
 #include "survinfo.h"
 
 
-HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids )
+HorizonSorter::HorizonSorter( const TypeSet<MultiID>& ids, bool is2d )
     : Executor("Sort horizons")
     , unsortedids_(ids)
     , totalnr_( ids.size() * (SI().inlRange(true).width()+1) )
     , nrdone_(0)
     , iterator_(0)
     , result_(0)
+    , is2d_(is2d)
+    , linenames_(*new BufferStringSet)
 {
 }
 
@@ -34,6 +36,7 @@ HorizonSorter::~HorizonSorter()
 {
     delete result_;
     delete iterator_;
+    delete &linenames_;
     deepUnRef( horizons_ );
 }
 
@@ -41,10 +44,13 @@ HorizonSorter::~HorizonSorter()
 void HorizonSorter::init()
 {
     calcBoundingBox();
-    totalnr_ = hrg_.nrInl();
+    totalnr_ = is2d_ ? linenames_.size() : hrg_.nrInl();
 
-    delete iterator_;
-    iterator_ = new HorSamplingIterator( hrg_ );
+    if ( !is2d_ )
+    {
+	delete iterator_;
+	iterator_ = new HorSamplingIterator( hrg_ );
+    }
 
     delete result_;
     result_ = new Array3DImpl<int>( horizons_.size(), horizons_.size(), 2 );
@@ -57,6 +63,34 @@ void HorizonSorter::calcBoundingBox()
 {
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
+	if ( is2d_ )
+	{
+	    mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
+	    if ( !hor2d ) continue;
+
+	    const int sid = hor2d->sectionID( 0 );
+	    for ( int ldx=0; ldx<hor2d->geometry().nrLines(); ldx++ )
+	    {
+		const int lid = hor2d->geometry().lineID( ldx );
+		const char* linenm = hor2d->geometry().lineName( lid );
+
+		const Geometry::Horizon2DLine* geom =
+		    			hor2d->geometry().sectionGeometry(sid);
+		if ( !geom ) continue;
+
+		const int lidx = linenames_.indexOf(linenm);
+		if ( lidx < 0 )
+		{
+		    linenames_.add( linenm );
+		    trcrgs_ += geom->colRange( lid );
+		}
+		else
+		    trcrgs_[lidx].include( geom->colRange(lid) );
+	    }
+
+	    continue;
+	}
+
 	StepInterval<int> rrg = horizons_[idx]->geometry().rowRange();
 	StepInterval<int> crg = horizons_[idx]->geometry().colRange();
 	if ( !idx )
@@ -161,22 +195,47 @@ int HorizonSorter::nextStep()
 	init();
     }
 
-    if ( !iterator_ ) return Finished();
+    if ( !is2d_ && !iterator_ ) return Finished();
 
     const int previnl = binid_.inl;
     while ( binid_.inl==previnl )
     {
-	if ( !iterator_->next(binid_) )
+	if ( is2d_ )
+	{
+	    binid_.crl += trcrgs_[previnl].step;
+	    if ( binid_.crl > trcrgs_[previnl].stop )
+		binid_.inl++;
+	}
+
+	if ( ( !is2d_ && !iterator_->next(binid_) )
+	       || ( is2d_ && binid_.inl >= linenames_.size() ) )
 	{
 	    sort();
 	    return Finished();
 	}
 
+	if ( is2d_ && binid_.inl != previnl )
+	    binid_.crl = trcrgs_[binid_.inl].start;
+
 	const int nrhors = horizons_.size();
 	ArrPtrMan<float> depths = new float [nrhors];
 	for ( int idx=0; idx<nrhors; idx++ )
-	    depths[idx] = horizons_[idx]->getPos( horizons_[idx]->sectionID(0),
-						  binid_.getSerialized() ).z;
+	{
+	    const EM::SectionID sid = horizons_[idx]->sectionID(0);
+	    EM::SubID subid = binid_.getSerialized();
+	    if ( is2d_ )
+	    {	
+		mDynamicCastGet(EM::Horizon2D*,hor2d,horizons_[idx])
+		if ( !hor2d ) continue;
+
+		const int lidx = hor2d->geometry().lineIndex(
+						linenames_.get(binid_.inl) );
+		const int lid = hor2d->geometry().lineID( lidx );
+		subid = BinID( lid, binid_.crl ).getSerialized();
+	    }
+	    
+	    depths[idx] = horizons_[idx]->getPos( sid, subid ).z;
+	}
 
 	for ( int idx=0; idx<nrhors; idx++ )
 	{

@@ -7,22 +7,25 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonmodifier.h,v 1.4 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: horizonmodifier.h,v 1.5 2009-01-15 06:46:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emposid.h"
 #include "multiid.h"
+#include "ranges.h"
 
 namespace EM { class Horizon; }
-class HorSampling;
+class BinID;
+class BufferStringSet;
+class HorSamplingIterator;
 
 mClass HorizonModifier
 {
 public:
 
-				HorizonModifier();
+				HorizonModifier(bool is2d=false);
 				~HorizonModifier();
 
     enum ModifyMode		{ Shift, Remove };
@@ -35,12 +38,21 @@ public:
 
 protected:
 
-    void			getHorSampling(HorSampling&);
-    void			shiftNode(const EM::SubID&);
-    void			removeNode(const EM::SubID&);
+    bool			getNextNode(BinID&);
+    bool			getNextNode3D(BinID&);
+    bool			getNextNode2D(BinID&);
+    void			getLines(const EM::Horizon*);
+    float			getDepth2D(const EM::Horizon*,const BinID&);
+    void			shiftNode(const BinID&);
+    void			removeNode(const BinID&);
 
     EM::Horizon*		tophor_;
     EM::Horizon*		bothor_;
+
+    bool			is2d_;
+    BufferStringSet*		linenames_;
+    TypeSet<StepInterval<int> >	trcrgs_;
+    HorSamplingIterator*	iter_;
 
     ModifyMode			modifymode_;
     bool			topisstatic_;

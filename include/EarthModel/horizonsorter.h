@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonsorter.h,v 1.5 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: horizonsorter.h,v 1.6 2009-01-15 06:46:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,13 +22,15 @@ ________________________________________________________________________
 namespace EM { class Horizon; }
 template <class T> class Array3D;
 class HorSamplingIterator;
+class BufferStringSet;
 
 
 mClass HorizonSorter : public Executor
 {
 public:
 
-				HorizonSorter(const TypeSet<MultiID>&);
+				HorizonSorter(const TypeSet<MultiID>&,
+					      bool is2d=false);
 				~HorizonSorter();
 
     void			getSortedList(TypeSet<MultiID>&);
@@ -50,6 +52,10 @@ protected:
 
     int				totalnr_;
     int				nrdone_;
+
+    bool			is2d_;
+    BufferStringSet&		linenames_;
+    TypeSet<StepInterval<int> >	trcrgs_;
 
     HorSamplingIterator*	iterator_;
     BinID			binid_;
