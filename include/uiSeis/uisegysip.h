@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2004
- RCS:           $Id: uisegysip.h,v 1.7 2009-01-13 13:52:02 cvsbert Exp $
+ RCS:           $Id: uisegysip.h,v 1.8 2009-01-15 16:08:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ public:
     IOPar*		getImportPars() const
     			{ return imppars_.isEmpty() ? 0 : new IOPar(imppars_); }
     void		startImport(uiParent*,const IOPar&);
+    const char*		importAskQuestion() const;
 
     friend class	uiSEGYSIPMgrDlg;
     IOPar		imppars_;

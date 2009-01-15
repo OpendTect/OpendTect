@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.97 2009-01-13 13:52:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.98 2009-01-15 16:08:41 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -634,7 +634,8 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     newSurvey();
     updateViewsGlobal();
-    if ( impiop_ && impsip_ )
+    if ( impiop_ && impsip_
+      && uiMSG().askGoOn(impsip_->importAskQuestion()) )
     {
 	IOM().to( "100010.3" );
 	impsip_->startImport( parent(), *impiop_ );

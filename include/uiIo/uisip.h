@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisip.h,v 1.5 2009-01-13 11:14:07 cvsbert Exp $
+ RCS:           $Id: uisip.h,v 1.6 2009-01-15 16:08:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ public:
 
     virtual IOPar*		getImportPars() const	{ return 0; }
     virtual void		startImport(uiParent*,const IOPar&) {}
+    virtual const char*		importAskQuestion() const
+				{ return "Proceed to import?"; }
 
 };
 
