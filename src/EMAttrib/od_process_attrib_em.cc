@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.54 2008-12-03 07:04:32 cvsnageswara Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.55 2009-01-15 04:10:24 cvsnanne Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -321,8 +321,8 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     showHostName( strm );
-    Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS,
-				  SeisJobExecProv::sKeyWorkLS );
+    Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS(),
+				  SeisJobExecProv::sKeyWorkLS() );
 
     BufferString type;
     pars().get( IOPar::compKey( sKey::Output, sKey::Type ), type );
