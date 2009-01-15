@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewmainwin.h,v 1.8 2009-01-08 07:14:05 cvsranojay Exp $
+ RCS:           $Id: uiflatviewmainwin.h,v 1.9 2009-01-15 09:13:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,11 @@ public:
     struct Setup
     {
 					Setup( const char* wintitl,
-					       bool delonclose = true )
+					       bool delonclose=true )
 					    : wintitle_(wintitl)
 					    , nrviewers_(1)
 					    , nrstatusfields_(1)
-					    , deleteonclose_(true)
+					    , deleteonclose_(delonclose)
 					    , menubar_(false)		{}
 	mDefSetupMemb(BufferString,wintitle)
 	mDefSetupMemb(int,nrviewers)
