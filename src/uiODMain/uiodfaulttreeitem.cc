@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.21 2008-12-24 13:19:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.22 2009-01-15 10:34:00 cvsjaap Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -213,8 +213,7 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
 		  faultdisplay_->arePanelsDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
-		  !faultdisplay_->arePanelsDisplayed() &&
-		   faultdisplay_->areSticksDisplayed() );
+		  faultdisplay_->areSticksDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		  faultdisplay_->areIntersectionsDisplayed() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
@@ -262,20 +261,26 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displayplanemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->display( false, true );
+
+	const bool stickchecked = displaystickmnuitem_.checked;
+	const bool planechecked = displayplanemnuitem_.checked;
+	faultdisplay_->display( stickchecked || planechecked, !planechecked );
 	faultdisplay_->displayIntersections( false );
     }
     else if ( mnuid==displaystickmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->display( true, false );
+	const bool stickchecked = displaystickmnuitem_.checked;
+	const bool planechecked = displayplanemnuitem_.checked;
+	faultdisplay_->display( !stickchecked, stickchecked || planechecked );
 	faultdisplay_->displayIntersections( false );
     }
     else if ( mnuid==displayintersectionmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->display( false, false );
-	faultdisplay_->displayIntersections( true );
+	const bool interchecked = displayintersectionmnuitem_.checked;
+	faultdisplay_->display( false, interchecked );
+	faultdisplay_->displayIntersections( !interchecked );
     }
     else if ( mnuid==singlecolmnuitem_.id )
     {

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.33 2008-12-24 13:19:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.34 2009-01-15 10:34:00 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -270,13 +270,13 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
     mDynamicCastGet( MPE::FaultEditor*, fe, editor.ptr() );
-    faulteditor_ =  fe;
+    faulteditor_ = fe;
     if ( faulteditor_ ) faulteditor_->ref();
 
     viseditor_->setEditor( faulteditor_ );
     
     paneldisplay_->turnOn( true );
-    displaysticks_ = false;
+    displaysticks_ = emfault_->isEmpty();
 
     nontexturecol_ = emfault_->preferredColor();
     updateSingleColor();
@@ -398,8 +398,7 @@ void FaultDisplay::updateStickDisplay()
     const EM::SectionID sid = emfault_->sectionID( 0 );
 
     const bool dodisplay = displaysticks_ ||
-       (arePanelsDisplayed() && isManipulatorShown() ) ||
-       (arePanelsDisplayed() && emfault_->geometry().nrSticks(sid)==1 );
+	    (arePanelsDisplayed() && emfault_->geometry().nrSticks(sid)==1 );
     
     stickdisplay_->turnOn( dodisplay );
 }
@@ -408,7 +407,6 @@ void FaultDisplay::updateStickDisplay()
 void FaultDisplay::display( bool sticks, bool panels )
 {
     displaysticks_ = sticks;
-    updateStickDisplay();
 
     if ( neareststickmarker_ )
 	neareststickmarker_->turnOn( sticks );
@@ -417,6 +415,8 @@ void FaultDisplay::display( bool sticks, bool panels )
 
     if ( paneldisplay_ )
 	paneldisplay_->turnOn( panels );
+
+    updateStickDisplay();
 }
 
 
@@ -661,7 +661,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 
 void FaultDisplay::updateNearestStickMarker()
 {
-    if ( mIsUdf(neareststick_) || !isManipulatorShown() )
+    if ( mIsUdf(neareststick_) || !showmanipulator_ || !displaysticks_ )
 	neareststickmarker_->turnOn( false );
     else
     {
@@ -709,8 +709,7 @@ void FaultDisplay::showManipulator( bool yn )
 
 void FaultDisplay::updateManipulator()
 {
-    const bool show = showmanipulator_ &&
-    		      (areSticksDisplayed() || arePanelsDisplayed() );
+    const bool show = showmanipulator_ && areSticksDisplayed();
     if ( viseditor_ ) viseditor_->turnOn( show );
     neareststickmarker_->turnOn( show );
     if ( scene_ ) scene_->blockMouseSelection( show );
