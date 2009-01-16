@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.112 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.113 2009-01-16 09:52:20 cvsraman Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dchg.h"
@@ -124,6 +124,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     inpfld_->setDefaultSelectionDir( 
 			    IOObjContext::getDataDirName(IOObjContext::Surf) );
     inpfld_->setSelectMode( uiFileDialog::ExistingFiles );
+    inpfld_->valuechanged.notify( mCB(this,uiImportHorizon,formatSel) );
 
     ctio_.ctxt.forread = !isgeom_;
     ctio_.ctxt.maychdir = false;
