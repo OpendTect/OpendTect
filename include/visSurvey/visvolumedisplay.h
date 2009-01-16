@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.63 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.64 2009-01-16 09:33:23 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -134,6 +134,13 @@ public:
     void			setColorTab(visBase::VisColorTab&);
     visBase::VisColorTab&	getColorTab();
     const visBase::VisColorTab&	getColorTab() const;
+
+    const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
+    void			setColTabMapperSetup(int,
+					const ColTab::MapperSetup&);
+    const ColTab::Sequence*	getColTabSequence(int) const;
+    void			setColTabSequence(int,const ColTab::Sequence&);
+    bool			canSetColTabSequence() const;
 
     void			setMaterial(visBase::Material*);
     bool			allowMaterialEdit() const	{ return true; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.99 2009-01-02 12:41:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.100 2009-01-16 09:33:23 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -29,6 +29,8 @@ static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.99 2009-01-02 12:41:11 
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
 #include "cubesampling.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -1005,6 +1007,140 @@ SoNode* VolumeDisplay::getInventorNode()
 }
 
 
+void VolumeDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
+{
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.remove(
+	    mCB(this,VolumeDisplay,updateMouseCursorCB) );
+	eventcatcher_->unRef();
+    }
+
+    eventcatcher_ = ec;
+
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->ref();
+	eventcatcher_->eventhappened.notify(
+	    mCB(this,VolumeDisplay,updateMouseCursorCB) );
+    }
+}
+
+
+bool VolumeDisplay::isSelected() const
+{
+    return visBase::DM().selMan().selected().indexOf( id()) != -1;
+}
+
+
+void VolumeDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    char newstatus = 1; // 1=pan, 2=tabs
+    if ( cb )
+    {
+	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+	if ( eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
+	    newstatus = 0;
+	else
+	{
+	    //TODO determine if tabs
+	}
+    }
+
+    if ( !isSelected() || !isOn() || isLocked() )
+	newstatus = 0;
+
+    if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
+    else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::SizeAll;
+}
+
+
+VolumeDisplay::IsosurfaceSetting::IsosurfaceSetting()
+{
+    mode_ = 1;
+    seedsaboveisoval_ = -1;
+    seedsid_ = MultiID();
+}
+
+
+bool VolumeDisplay::IsosurfaceSetting::operator==( 
+	const IsosurfaceSetting& ns ) const
+{
+    return mode_==ns.mode_ && seedsaboveisoval_==ns.seedsaboveisoval_ &&
+	   seedsid_==ns.seedsid_ && 
+	   mIsEqual(isovalue_, ns.isovalue_, (isovalue_+ns.isovalue_)/2000 );
+}
+
+
+VolumeDisplay::IsosurfaceSetting& VolumeDisplay::IsosurfaceSetting::operator=(
+       const IsosurfaceSetting& ns )
+{
+    mode_ = ns.mode_;
+    seedsaboveisoval_ = ns.seedsaboveisoval_;
+    seedsid_ = ns.seedsid_;
+    isovalue_ = ns.isovalue_;
+
+    return *this;
+}
+
+
+bool VolumeDisplay::canSetColTabSequence() const
+{ return true; }
+
+
+void VolumeDisplay::setColTabSequence( int attr, const ColTab::Sequence& seq )
+{
+    if ( !scalarfield_ ) return;
+
+    visBase::VisColorTab& vt = scalarfield_->getColorTab();
+    vt.colorSeq().colors() = seq;
+    vt.colorSeq().colorsChanged();
+}
+
+
+const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
+{
+    if ( !scalarfield_ ) return 0;
+
+    visBase::VisColorTab& vt = scalarfield_->getColorTab();
+    return &vt.colorSeq().colors();
+}
+
+
+void VolumeDisplay::setColTabMapperSetup( int attrib,
+					  const ColTab::MapperSetup& ms )
+{
+    if ( !scalarfield_ ) return;
+
+    visBase::VisColorTab& vt = scalarfield_->getColorTab();
+    const bool autoscalechange =
+	ms.type_!=vt.colorMapper().setup_.type_ &&
+	ms.type_!=ColTab::MapperSetup::Fixed;
+
+    vt.colorMapper().setup_ = ms;
+    if ( autoscalechange )
+    {
+	vt.colorMapper().setup_.triggerAutoscaleChange();
+	vt.autoscalechange.trigger();
+    }
+    else
+    {
+	vt.colorMapper().setup_.triggerRangeChange();
+	vt.rangechange.trigger();
+    }
+}
+
+
+const ColTab::MapperSetup*
+    VolumeDisplay::getColTabMapperSetup( int attrib ) const
+{
+    if ( !scalarfield_ ) return 0;
+
+    visBase::VisColorTab& vt = scalarfield_->getColorTab();
+    return &vt.colorMapper().setup_;
+}
+
+
 void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
@@ -1174,83 +1310,6 @@ int VolumeDisplay::usePar( const IOPar& par )
 
     useSOPar( par );
     return 1;
-}
-
-
-void VolumeDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
-{
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(
-	    mCB(this,VolumeDisplay,updateMouseCursorCB) );
-	eventcatcher_->unRef();
-    }
-
-    eventcatcher_ = ec;
-
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->ref();
-	eventcatcher_->eventhappened.notify(
-	    mCB(this,VolumeDisplay,updateMouseCursorCB) );
-    }
-}
-
-
-bool VolumeDisplay::isSelected() const
-{
-    return visBase::DM().selMan().selected().indexOf( id()) != -1;
-}
-
-
-void VolumeDisplay::updateMouseCursorCB( CallBacker* cb )
-{
-    char newstatus = 1; // 1=pan, 2=tabs
-    if ( cb )
-    {
-	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-	if ( eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
-	    newstatus = 0;
-	else
-	{
-	    //TODO determine if tabs
-	}
-    }
-
-    if ( !isSelected() || !isOn() || isLocked() )
-	newstatus = 0;
-
-    if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
-    else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::SizeAll;
-}
-
-
-VolumeDisplay::IsosurfaceSetting::IsosurfaceSetting()
-{
-    mode_ = 1;
-    seedsaboveisoval_ = -1;
-    seedsid_ = MultiID();
-}
-
-
-bool VolumeDisplay::IsosurfaceSetting::operator==( 
-	const IsosurfaceSetting& ns ) const
-{
-    return mode_==ns.mode_ && seedsaboveisoval_==ns.seedsaboveisoval_ &&
-	   seedsid_==ns.seedsid_ && 
-	   mIsEqual(isovalue_, ns.isovalue_, (isovalue_+ns.isovalue_)/2000 );
-}
-
-
-VolumeDisplay::IsosurfaceSetting& VolumeDisplay::IsosurfaceSetting::operator=(
-       const IsosurfaceSetting& ns )
-{
-    mode_ = ns.mode_;
-    seedsaboveisoval_ = ns.seedsaboveisoval_;
-    seedsid_ = ns.seedsid_;
-    isovalue_ = ns.isovalue_;
-
-    return *this;
 }
 
 
