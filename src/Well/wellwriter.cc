@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.14 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.15 2009-01-16 09:53:44 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -124,8 +124,6 @@ bool Well::Writer::putLogs() const
 bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 {
     if ( !wrHdr(strm,sKeyLog) ) return false;
-((Well::Log&)wl).pars().set( "Hdr.1", "Val.1" );
-((Well::Log&)wl).pars().set( "Hdr.2", "Val.2" );
 
     ascostream astrm( strm );
     astrm.put( sKey::Name, wl.name() );
