@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.34 2009-01-15 10:34:00 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.35 2009-01-16 16:56:26 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -493,7 +493,7 @@ visBase::Transformation* FaultDisplay::getDisplayTransformation()
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
     if ( !emfault_ || !faulteditor_ || !isOn() || eventcatcher_->isHandled() ||
-	 !isSelected() )
+	 !isSelected() || !viseditor_ || !viseditor_->isOn() )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
