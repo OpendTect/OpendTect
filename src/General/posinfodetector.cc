@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: posinfodetector.cc,v 1.9 2008-12-04 13:28:34 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfodetector.cc,v 1.10 2009-01-16 09:46:40 cvsraman Exp $";
 
 #include "posinfodetector.h"
 #include "cubesampling.h"
@@ -221,7 +221,11 @@ bool PosInfo::Detector::applySortAnal()
     if ( !setup_.is2d_ )
 	allstd_ = allstd_ && sorting_.inlUpward() && inlSorted();
 
-    addFirst( cbobuf_[0] );
+    if ( cbobuf_.size() )
+	addFirst( cbobuf_[0] );
+    else
+	return false;
+
     for ( int idx=1; idx<cbobuf_.size(); idx++ )
 	addNext( cbobuf_[idx] );
 
