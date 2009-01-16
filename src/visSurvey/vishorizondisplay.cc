@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.65 2009-01-15 15:55:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.66 2009-01-16 06:10:40 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1039,7 +1039,7 @@ const ColTab::Sequence* HorizonDisplay::getColTabSequence( int attrib ) const
 	return 0;
 
     mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf->getColTabSequence( attrib );
+    return psurf ? psurf->getColTabSequence( attrib ) : 0;
 }
 
 
@@ -1047,13 +1047,40 @@ bool HorizonDisplay::canSetColTabSequence() const
 { return usesTexture(); }
 
 
-void HorizonDisplay::setColTabSequence( int attr, ColTab::Sequence const& seq )
+void HorizonDisplay::setColTabSequence( int attr, const ColTab::Sequence& seq )
 {
     if ( !usesTexture() || sections_.isEmpty() )
 	return;
 
-    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[0]);
-    psurf->setColTabSequence( attr, seq );
+    for ( int idx=0; idx<sections_.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	if ( psurf ) psurf->setColTabSequence( attr, seq );
+    }
+}
+
+
+void HorizonDisplay::setColTabMapperSetup( int attr,
+					   const ColTab::MapperSetup& ms )
+{
+    if ( !usesTexture() || sections_.isEmpty() )
+	return;
+
+    for ( int idx=0; idx<sections_.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	if ( psurf ) psurf->setColTabMapperSetup( attr, ms );
+    }
+}
+
+
+const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int attr) const
+{
+    if ( !usesTexture() || sections_.isEmpty() )
+	return 0;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
+    return psurf ? psurf->getColTabMapperSetup( attr ) : 0;
 }
 
 
