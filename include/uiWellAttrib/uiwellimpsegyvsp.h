@@ -6,7 +6,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2009
- RCS:           $Id: uiwellimpsegyvsp.h,v 1.5 2009-01-14 17:09:40 cvsbert Exp $
+ RCS:           $Id: uiwellimpsegyvsp.h,v 1.6 2009-01-16 15:02:55 cvsbert Exp $
  _______________________________________________________________________
 
       -*/
@@ -36,12 +36,13 @@ protected:
 
     uiGenInput*		inpsampfld_;
     uiGenInput*		istimefld_;
-    uiGenInput*		istvdfld_;
     uiGenInput*		unitfld_;
     uiGenInput*		lognmfld_;
-    uiGenInput*		outsampfld_;
+    uiGenInput*		outzrgfld_;
     uiCheckBox*		inpinftfld_;
     uiCheckBox*		outinftfld_;
+    uiCheckBox*		inpistvdfld_;
+    uiCheckBox*		outistvdfld_;
     uiSEGYVSPBasicPars*	bparsfld_;
     uiIOObjSel*		wellfld_;
 
@@ -49,6 +50,7 @@ protected:
     CtxtIOObj&		ctio_;
     SamplingData<float>	dispinpsamp_;
     BufferStringSet	existinglognms_;
+    bool		isdpth_;
 
     bool		inpIsTime() const;
     void		isTimeChg(CallBacker*);
@@ -58,7 +60,7 @@ protected:
 
     bool		acceptOK(CallBacker*);
     bool		fetchTrc(SeisTrc&);
-    bool		createLog(const SeisTrc&,const StepInterval<float>&,
+    bool		createLog(const SeisTrc&,const Interval<float>&,
 	    			  const char*);
 
     friend class	uiSEGYVSPBasicPars;
