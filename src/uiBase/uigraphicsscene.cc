@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.14 2009-01-09 04:40:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.15 2009-01-16 03:52:17 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -299,12 +299,12 @@ uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
 {
     uiArrowItem* arritem = new uiArrowItem();
     arritem->setArrowStyle( arrstyle );
-    const int arrsz = (int)sqrt( (head.x - tail.x)*(head.x - tail.x) +
-		      	         (tail.y - head.y)*(tail.y - head.y) );
+    const int arrsz = (int)sqrt( (float)(head.x - tail.x)*(head.x - tail.x) +
+		      	         (float)(tail.y - head.y)*(tail.y - head.y) );
     arritem->setArrowSize( arrsz );
     arritem->setPos( head.x, head.y );
     const uiPoint relvec( head.x - tail.x, tail.y - head.y );
-    const double ang = atan2(relvec.y,relvec.x) *180/M_PI;
+    const float ang = atan2((float)relvec.y,(float)relvec.x) *180/M_PI;
     arritem->rotate( ang );
     addItem( arritem );
     return arritem;
