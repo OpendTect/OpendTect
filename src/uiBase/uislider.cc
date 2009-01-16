@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uislider.cc,v 1.38 2009-01-09 09:15:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uislider.cc,v 1.39 2009-01-16 03:53:08 cvsnanne Exp $";
 
 #include "uislider.h"
 #include "i_qslider.h"
@@ -108,7 +108,7 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
     
     if ( dec < 0 ) dec = 0;
 
-    double factor = pow( 10, -dec );
+    double factor = pow( 10., -dec );
     scaler_ = new LinScaler( 0, factor );
 }
 
