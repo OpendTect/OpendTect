@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.13 2009-01-16 13:02:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.14 2009-01-16 14:55:26 cvsbert Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -71,6 +71,7 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
+    wd_.dispparschanged.remove( mCB(this,uiWellDispPropDlg,wdChg) );
 }
 
 
