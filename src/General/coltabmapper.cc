@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.16 2009-01-09 04:35:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.17 2009-01-16 04:49:32 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -101,7 +101,25 @@ ColTab::MapperSetup::MapperSetup()
     , maxpts_(2560)
     , nrsegs_(0)
     , start_(0), width_(1)
+    , rangeChange(this)
+    , autoscaleChange(this)
 {}
+
+
+ColTab::MapperSetup&
+    ColTab::MapperSetup::operator=( const ColTab::MapperSetup& ms )
+{
+    type_ = ms.type_;
+    cliprate_ = ms.cliprate_;
+    autosym0_ = ms.autosym0_;
+    symmidval_ = ms.symmidval_;
+
+    maxpts_ = ms.maxpts_;
+    nrsegs_ = ms.nrsegs_;
+    start_ = ms.start_;
+    width_ = ms.width_;
+    return *this;
+}
 
 
 bool ColTab::MapperSetup::operator==( const ColTab::MapperSetup& b ) const
@@ -169,6 +187,14 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 	   par.get( sKeyMaxPts(), maxpts_ ) &&
 	   par.get( sKeyRange(), start_, width_ );
 }
+
+
+void ColTab::MapperSetup::triggerRangeChange()
+{ rangeChange.trigger(); }
+
+void ColTab::MapperSetup::triggerAutoscaleChange()
+{ autoscaleChange.trigger(); }
+
 
 
 ColTab::Mapper::Mapper()

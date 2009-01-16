@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.10 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: coltabmapper.h,v 1.11 2009-01-16 04:49:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,12 +29,11 @@ namespace ColTab
   example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
  
  */
-struct MapperSetup
+struct MapperSetup : public CallBacker
 {
 			MapperSetup();
     enum Type		{ Fixed, Auto, HistEq };
     			DeclareEnumUtils(Type);
-
 
     mDefSetupClssMemb(MapperSetup,Type,type);
     mDefSetupClssMemb(MapperSetup,float,cliprate);	//!< Auto
@@ -46,17 +45,23 @@ struct MapperSetup
     mDefSetupClssMemb(MapperSetup,float,start);
     mDefSetupClssMemb(MapperSetup,float,width);
 
-    bool 		operator==(const MapperSetup&) const;
-    bool		operator!=(const MapperSetup&) const;
+    bool 			operator==(const MapperSetup&) const;
+    bool			operator!=(const MapperSetup&) const;
+    MapperSetup&		operator=(const MapperSetup&);
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
-    static const char*	sKeyType()		{ return "Type"; }
-    static const char*	sKeyClipRate()		{ return "Clip Rate"; }
-    static const char*	sKeyAutoSym()		{ return "Auto Sym"; }
-    static const char*	sKeySymMidVal()		{ return "Sym Mid Value"; }
-    static const char*	sKeyMaxPts()		{ return "Max Pts"; }
-    static const char*	sKeyRange()		{ return "Start_Width"; }
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
+    static const char*		sKeyType()	{ return "Type"; }
+    static const char*		sKeyClipRate()	{ return "Clip Rate"; }
+    static const char*		sKeyAutoSym()	{ return "Auto Sym"; }
+    static const char*		sKeySymMidVal()	{ return "Sym Mid Value"; }
+    static const char*		sKeyMaxPts()	{ return "Max Pts"; }
+    static const char*		sKeyRange()	{ return "Start_Width"; }
+
+    void			triggerRangeChange();
+    void			triggerAutoscaleChange();
+    Notifier<MapperSetup>	rangeChange;
+    Notifier<MapperSetup>	autoscaleChange;
 };
 
 
