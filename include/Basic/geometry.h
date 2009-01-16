@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.35 2009-01-14 10:56:01 cvsnanne Exp $
+ RCS:           $Id: geometry.h,v 1.36 2009-01-16 03:54:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -743,10 +743,10 @@ template <class T> inline
 PixRectangle<T> PixRectangle<T>::grownBy( double f ) const
 {
     f *= .5;
-    return PixRectangle<T>( iwiderPos(this->left(),this->right(),f),
-			    iwiderPos(this->top(),this->bottom(),f),
-			    iwiderPos(this->right(),this->left(),f),
-			    iwiderPos(this->bottom(),this->top(),f) );
+    return PixRectangle<T>( iwiderPos<T>(this->left(),this->right(),f),
+			    iwiderPos<T>(this->top(),this->bottom(),f),
+			    iwiderPos<T>(this->right(),this->left(),f),
+			    iwiderPos<T>(this->bottom(),this->top(),f) );
 }
 
 
