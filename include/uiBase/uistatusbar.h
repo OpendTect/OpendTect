@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2000
- RCS:           $Id: uistatusbar.h,v 1.11 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uistatusbar.h,v 1.12 2009-01-16 04:52:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ mClass uiStatusBar : public uiObjHandle
     friend class	uiMainWinBody;
 
 public:
+    			~uiStatusBar();
 
     int			addMsgFld(const char* lbltxt=0,
 	    			  const char* tooltip =0,

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatusbar.cc,v 1.14 2008-12-19 04:45:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistatusbar.cc,v 1.15 2009-01-16 04:52:51 cvsnanne Exp $";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
@@ -125,6 +125,13 @@ uiStatusBar::uiStatusBar( uiMainWin* parnt, const char* nm, QStatusBar& sb )
 {
 }
 
+
+uiStatusBar::~uiStatusBar()
+{
+    delete body_;
+}
+
+
 uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm, 
 				      QStatusBar& sb)	
 {
@@ -134,6 +141,7 @@ uiStatusBarBody& uiStatusBar::mkbody( uiMainWin* parnt, const char* nm,
 
     return *body_; 
 }
+
 
 void uiStatusBar::message( const char* msg, int fldidx, int msecs ) 
 {
