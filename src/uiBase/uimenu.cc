@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.53 2009-01-09 10:28:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.54 2009-01-16 03:51:39 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -325,7 +325,7 @@ uiMenuItem* uiMenuItemContainer::find( int id )
 uiMenuItem* uiMenuItemContainer::find( const MenuItemSeparString& str )
 {
     uiMenuItemContainer* parent = this;
-    for ( unsigned int idx=0; idx<str.size(); idx++ )
+    for ( int idx=0; idx<str.size(); idx++ )
     {
 	if ( !parent ) return 0;
 
