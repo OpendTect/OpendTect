@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.23 2009-01-16 03:35:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.24 2009-01-16 05:48:11 cvssatyaki Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -154,24 +154,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid == colsettingsmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const uiVisPartServer* visserv = applMgr()->visServer();
-	const uiAttribPartServer* attrserv = applMgr()->attrServer();
-	const Attrib::SelSpec* as = visserv->getSelSpec(displayID(),attribNr());
-	IOObj* ioobj = attrserv->getIOObj( *as );
-	if ( !ioobj ) return;
-
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	BufferString fnm = fp.fullPath();
-	IOPar iop;
-	const ColTab::Sequence& ctseq = *visserv->getColTabSequence(
-		displayID(), attribNr() );
-	const ColTab::MapperSetup& mapper = *visserv->getColTabMapperSetup(
-		displayID(), attribNr() );
-	iop.set( sKey::Name, ctseq.name() );
-	mapper.fillPar( iop );
-	iop.write( fnm, sKey::Pars );
-	delete ioobj;
+	applMgr()->saveDefColTab( displayID(), attribNr() );
     }
     else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {

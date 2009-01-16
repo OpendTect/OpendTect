@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.288 2009-01-16 03:35:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.289 2009-01-16 05:48:11 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -628,16 +628,16 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
     IOPar iop;
     if ( iop.read(fnm,sKey::Pars) )
     {
-	ColTab::MapperSetup* mapper = new ColTab::MapperSetup();
-	mapper->usePar( iop );
-	const char* ctname = iop.find( sKey::Name );
+	ColTab::MapperSetup mapper;
+	mapper.usePar( iop );
+	visserv_->setColTabMapperSetup( visid, attrib, mapper );
 	
-	appl_.colTabEd().colTab()->setSequence( ctname );
+	const char* ctname = iop.find( sKey::Name );
 	visserv_->setColTabSequence( visid, attrib, ColTab::Sequence(ctname) );
-	visserv_->setColTabMapperSetup( visid, attrib, *mapper );
-	appl_.colTabEd().colTab()->setMapperSetup( mapper );
+	
+	appl_.colTabEd().colTab()->setMapperSetup( &mapper );
+	appl_.colTabEd().colTab()->setSequence( ctname );
     }
-	//appl_.colTabEd().usePar( iop );
 }
 
 
