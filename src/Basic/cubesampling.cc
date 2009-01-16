@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.36 2008-09-26 07:46:59 cvsbert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.37 2009-01-16 04:51:08 cvsnanne Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -37,35 +37,30 @@ void HorSampling::set2DDef()
 }
 
 
-void CubeSampling::set2DDef()
-{
-    hrg.set2DDef();
-    zrg = SI().zRange(false);
-}
-
-
-void CubeSampling::init( bool tosi )
-{
-    hrg.init( tosi );
-    if ( tosi )
-	zrg = SI().zRange(false);
-    else
-	{ zrg.start = zrg.stop = 0; zrg.step = 1; }
-}
-
-
 HorSampling& HorSampling::set( const Interval<int>& inlrg,
-				const Interval<int>& crlrg )
+			       const Interval<int>& crlrg )
+{
+    setInlRange( inlrg );
+    setCrlRange( crlrg );
+    return *this;
+}
+
+
+void HorSampling::setInlRange( const Interval<int>& inlrg )
 {
     start.inl = inlrg.start; stop.inl = inlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,inlsrg,&inlrg)
     if ( inlsrg )
 	step.inl = inlsrg->step;
+}
+
+
+void HorSampling::setCrlRange( const Interval<int>& crlrg )
+{
     start.crl = crlrg.start; stop.crl = crlrg.stop;
     mDynamicCastGet(const StepInterval<int>*,crlsrg,&crlrg)
     if ( crlsrg )
 	step.crl = crlsrg->step;
-    return *this;
 }
 
 
@@ -312,6 +307,24 @@ void HorSampling::snapToSurvey()
 {
     SI().snap( start, BinID(-1,-1) );
     SI().snap( stop, BinID(1,1) );
+}
+
+
+
+void CubeSampling::set2DDef()
+{
+    hrg.set2DDef();
+    zrg = SI().zRange(false);
+}
+
+
+void CubeSampling::init( bool tosi )
+{
+    hrg.init( tosi );
+    if ( tosi )
+	zrg = SI().zRange(false);
+    else
+	{ zrg.start = zrg.stop = 0; zrg.step = 1; }
 }
 
 

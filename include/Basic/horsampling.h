@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: horsampling.h,v 1.3 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:           $Id: horsampling.h,v 1.4 2009-01-16 04:51:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ public:
 			
     StepInterval<int>	inlRange() const;
     StepInterval<int>	crlRange() const;
+    void		setInlRange(const Interval<int>&);
+    void		setCrlRange(const Interval<int>&);
 
     inline bool		includes( const BinID& bid ) const
 			{ return inlOK(bid.inl) && crlOK(bid.crl); }
