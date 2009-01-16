@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.52 2009-01-13 11:03:43 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.53 2009-01-16 12:52:26 cvshelene Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -481,6 +481,18 @@ uiListViewItem* uiListView::findItem( const char* text, int column,
 		      : Qt::MatchFixedString;
     QList<QTreeWidgetItem*> items =
 	lvbody()->findItems( QString(text), flags, column );
+
+    if ( items.isEmpty() && !casesensitive )
+    {
+	uiListViewItem* nextitem = firstItem();
+	while( nextitem )
+	{
+	    if ( !strcmp( nextitem->text( column ), text ) )
+		return nextitem;
+
+	    nextitem = nextitem->itemBelow();
+	}
+    }
 
     return items.isEmpty() ? 0 : mItemFor( items[0] );
 }
