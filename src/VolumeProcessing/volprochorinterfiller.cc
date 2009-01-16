@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.4 2008-08-14 21:52:44 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.5 2009-01-16 22:36:33 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -217,7 +217,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	else if ( !mIsUdf(topsample) && !mIsUdf(bottomsample) )
 	{
 	    const Interval<int> rg(topsample,bottomsample);
-	    dobg = !rg.includes( cursample, true );
+	    dobg = !rg.includes( cursample, false );
 	}
 	else if ( tophorizon_ && bottomhorizon_ )
 	    dobg = true;
