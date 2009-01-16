@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.70 2009-01-16 03:35:53 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.71 2009-01-16 06:26:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,6 +131,7 @@ public:
     void			pageUpDownPressed(bool up);
     void			resetServers();
     void			modifyColorTable(int visid,int attrib);
+    void			saveDefColTab(int visid,int attrib);
     NotifierAccess*		colorTableSeqChange();
     void			manSurvCB(CallBacker*)	  { manageSurvey(); }
     void			seisOut2DCB(CallBacker*)  { createVol(true); }
@@ -200,7 +201,6 @@ protected:
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
     void			useDefColTab(int visid,int attrib);
-    void			saveDefColTab(int visid,int attrib);
     void			setHistogram(int visid,int attrib);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
