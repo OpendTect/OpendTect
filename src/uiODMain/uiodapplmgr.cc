@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.289 2009-01-16 05:48:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.290 2009-01-16 06:00:52 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -613,9 +613,6 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
 {
     if ( appl_.isRestoringSession() ) return;
 
-    appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	    			true,
-				visserv_->getColTabMapperSetup(visid,attrib) );
     const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
     if ( !as ) return;
 
