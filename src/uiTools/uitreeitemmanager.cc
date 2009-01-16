@@ -8,13 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.46 2009-01-14 09:15:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.47 2009-01-16 07:47:49 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
-#include "uimenu.h"
+
 #include "errh.h"
 #include "uilistview.h"
+#include "uimenu.h"
 
 
 #define mEnabSelChg(yn) \
@@ -206,8 +207,10 @@ void uiTreeItem::moveItemToTop()
     if ( parent_ && parent_->getItem() && getItem() )
     {
 	uiListViewItem* item = getItem();
+	const bool issel = item->isSelected();
 	parent_->getItem()->takeItem( item );
 	parent_->getItem()->insertItem( 0, item );
+	item->setSelected( issel );
     }
     mEnabSelChg( true )
 }
@@ -439,17 +442,6 @@ void uiTreeTopItem::updateSelection( int selectionkey, bool dw )
     listview_->unNotify();
     uiTreeItem::updateSelection( selectionkey, true );
     listview_->triggerUpdate();
-
-    // Hack to highlight programmatically selected item (possibly a Qt bug).
-    if ( selectionkey != prevselectionkey_ )
-    {
-	prevselectionkey_ = selectionkey;
-	if ( selectionkey>=0 && listview_->itemNotified() &&
-	     listview_->currentItem() && !listview_->currentItem()->parent() )
-	{
-	    listview_->activateClick( *listview_->itemNotified(), 0 );
-	}
-    }
 }
 
 
@@ -457,7 +449,7 @@ void uiTreeTopItem::updateColumnText(int col)
 {
     //Is only impl to have it nicely together with updateSelection at the
     //public methods in the headerfile.
-    uiTreeItem::updateColumnText(col);
+    uiTreeItem::updateColumnText( col );
 }
 
 
