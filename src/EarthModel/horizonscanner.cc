@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.31 2008-12-29 11:44:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.32 2009-01-16 09:48:07 cvsraman Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -262,7 +262,7 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 int HorizonScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
-	{ dtctor_.finish(); return Executor::ErrorOccurred(); }
+	{ dtctor_.finish(); return Executor::Finished(); }
 
     if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
 	return Executor::ErrorOccurred();
