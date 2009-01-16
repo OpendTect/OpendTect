@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.12 2009-01-13 15:07:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldisppropdlg.cc,v 1.13 2009-01-16 13:02:33 cvsbruno Exp $";
 
 #include "uiwelldisppropdlg.h"
 
@@ -28,12 +28,10 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 				       	.modal(false))
 	, wd_(d)
 	, props_(d.displayProperties())
-    	, orgprops_(new Well::DisplayProperties(d.displayProperties()))
 	, applyAllReq(this)
 	, savedefault_(false)		   
 {
     setCtrlStyle( LeaveOnly );
-     *orgprops_ = props_;
     wd_.dispparschanged.notify( mCB(this,uiWellDispPropDlg,wdChg) );
 
     ts_ = new uiTabStack( this, "Well display porperties tab stack" );
@@ -73,7 +71,6 @@ uiWellDispPropDlg::uiWellDispPropDlg( uiParent* p, Well::Data& d )
 
 uiWellDispPropDlg::~uiWellDispPropDlg()
 {
-    delete orgprops_;
 }
 
 
@@ -108,18 +105,11 @@ void uiWellDispPropDlg::applyAllPush( CallBacker* )
 {
     getFromScreen();
     applyAllReq.trigger();
-    *orgprops_ = props_;
 }
 
 //TODO remove function
 bool uiWellDispPropDlg::rejectOK( CallBacker* )
 {
-    /*
-    props_ = *orgprops_;
-    wd_.dispparschanged.trigger();
-    return true;
-    getFromScreen();
-    wd_.dispparschanged.trigger();*/
     if ( saveButtonChecked() )
 	savedefault_ = true;
     else 
@@ -127,18 +117,5 @@ bool uiWellDispPropDlg::rejectOK( CallBacker* )
     return true;
 }
 
-
-bool uiWellDispPropDlg::acceptOK( CallBacker* )
-{
-    /*
-    getFromScreen();
-    wd_.dispparschanged.trigger();
-    */
-    if ( saveButtonChecked() )
-	savedefault_ = true;
-    else 
-	savedefault_ = false;
-    return true;
-}
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.43 2009-01-09 08:20:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.44 2009-01-16 13:02:33 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -87,7 +87,7 @@ Well::Well()
     markernames = DataObjectGroup::create();
     markernames->setSeparate( false );
     markernames->ref();
-    markernmswitch->addChild( markernames->getInventorNode() );
+   markernmswitch->addChild( markernames->getInventorNode() );
     markernmswitch->whichChild = 0;
 
     lognmswitch = new SoSwitch;
@@ -346,6 +346,7 @@ void Well::setSampleData( const TypeSet<Coord3Value>& crdvals,int idx,
 			  bool sclog, float prevval, int lognr
 			  ,const LinScaler& scaler, float& val)
 {
+    bool isvalundef = false;
     int index = mNINT(idx*step);
     const Coord3Value& cv = crdvals[index];
     pos = cv.coord ;
@@ -354,16 +355,19 @@ void Well::setSampleData( const TypeSet<Coord3Value>& crdvals,int idx,
     if ( mIsUdf(pos.z) ) return;
 	val = scaler.scale( cv.value );
     if ( mIsUdf(val) )
-	val = 105;
+    {
+	val = 105; //for undef value (>100), to be set transparent
+	isvalundef = true;
+    }
     else if ( val < 0 )
 	val = 0;
     else if ( val > 100 )
 	val = 100;
 
-    if ( sclog )
+    if ( sclog && !isvalundef )
     {
-    val += 1;
-    val = ::log( val );
+	val += 1;
+	val = ::log( val );
     }
 }
 
@@ -432,9 +436,12 @@ void Well::hideUnwantedLogs( int lognr, int rpt )
 }
 
 
-void Well::removeLog( const int rpt )
+void Well::removeLog( const int rpt, int lognr)
 {
     int lz=log.size();
+
+    for ( int k=0; k<lz; k++)
+	log[k]->resetLogData( lognr );
 
     for ( int i=1; i<=lz-rpt; i++ )
     {
@@ -450,7 +457,7 @@ void Well::setRepeat( int rpt )
 {
     if ( rpt < 0 || mIsUdf(rpt) ) rpt = 0; 
     int lz=log.size();
-   
+
     if (rpt > lz)   
     {
 	for ( int i=lz; i<rpt; i++ )
@@ -554,20 +561,29 @@ void Well::setLogLineWidth( float width, int lognr )
 
 float Well::logLineWidth( int lognr ) const
 {
-        return log[0]->lineWidth( lognr );
+    return log.size() ? log[0]->lineWidth( lognr ) : 0 ;
 }
 
 
-void Well::setLogWidth( int width )
+void Well::setLogWidth( int width, int lognr )
 {
-    for ( int i=0; i<log.size(); i++ )
-        log[i]->screenWidth.setValue( (float)width );
+    if (lognr == 1)
+    {
+	for ( int i=0; i<log.size(); i++ )
+	    log[i]->screenWidth1.setValue( (float)width );
+    }
+    else
+    {
+	for ( int i=0; i<log.size(); i++ )
+	    log[i]->screenWidth2.setValue( (float)width );
+    }
 }
 
 
 int Well::logWidth() const
 {
-       return mNINT(log[0]->screenWidth.getValue());
+    return log.size() ? mNINT(log[0]->screenWidth1.getValue()) 
+	|| mNINT(log[0]->screenWidth2.getValue()) : false;
 }
 
 
@@ -667,10 +683,6 @@ int Well::usePar( const IOPar& par )
 
     par.get( markerszstr, markersize );
     setMarkerScreenSize( markersize );
-
-    int logwidth = 10;
-    if ( par.get(logwidthstr,logwidth) )
-	setLogWidth( logwidth );
 
     return 1;
 }

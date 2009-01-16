@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.26 2009-01-09 08:20:22 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.27 2009-01-16 13:02:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ public:
     void			clearLog(int);
     void			setLogLineWidth(float,int);
     float			logLineWidth(int) const;
-    void			setLogWidth(int);
+    void			setLogWidth(int,int);
     int				logWidth() const;
     void			showLogs(bool);
     void			showLog(bool,int);
@@ -96,7 +96,7 @@ public:
     void			setLogFill(bool,int);
     void			setOverlapp(float,int);
     void			setRepeat(int);
-    void			removeLog(const int);
+    void			removeLog(const int, int);
     void			hideUnwantedLogs(int,int);
     void			showOneLog(bool,int,int);
     void 			setTrackProperties(Color&,int);

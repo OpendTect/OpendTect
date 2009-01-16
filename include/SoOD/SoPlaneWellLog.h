@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.20 2009-01-09 08:20:22 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.21 2009-01-16 13:02:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     static void			initClass();
 
     void			setMaterial();
+    void			resetLogData(int);
     void			setLineColor(const SbVec3f&,int);
     const SbVec3f&		lineColor(int) const;
     void			setLogFillColorTab(const float[][3],int);
@@ -88,7 +89,8 @@ public:
     SoSFBool  			style2;
     SoSFBool  			filling1;
     SoSFBool  			filling2;
-    SoSFFloat			screenWidth;
+    SoSFFloat			screenWidth1;
+    SoSFFloat			screenWidth2;
 
     SO_KIT_CATALOG_ENTRY_HEADER(topSeparator);
     SO_KIT_CATALOG_ENTRY_HEADER(lineshape1);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.398 2009-01-15 15:55:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.399 2009-01-16 13:02:33 cvsbruno Exp $";
 
 #include "uivispartserv.h"
 
@@ -1342,15 +1342,6 @@ void uiVisPartServer::doWellDispPropDlg(
 {
     Well::Data* wd = Well::MGR().get( wds[0]->getMultiID(), false );
     if ( !wd ) { pErrMsg( "Huh" ); return; }
-
-    uiWellDispPropDlg dlg( parent(), *wd );
-
-/*    if ( dlg.go() ) //TODO && condition.
-    {
-        wd->displayProperties().defaults() = wd->displayProperties();
-	wd->displayProperties().commitDefaults();
-    }*/
-
 }
 
 

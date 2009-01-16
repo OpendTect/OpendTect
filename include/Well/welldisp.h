@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.12 2009-01-13 10:57:42 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.13 2009-01-16 13:02:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,9 @@ public:
 		            , isdatarange_(true)
 		            , seiscolor_(Color::White())
 			    , seqname_("Rainbow")
-			    , issinglecol_(false)	{}
+			    , issinglecol_(false)
+			    , islogarithmic_(false) 
+		            , logwidth_ (40)	{}
 
 	virtual const char* subjectName() const	{ return "Log"; }
 
@@ -123,6 +125,7 @@ public:
 	Interval<float>     fillrange_;       
 	bool                logarithmic_;
 	bool                islogfill_;
+	bool                islogarithmic_;
 	bool                issinglecol_;
 	bool                isdatarange_;
 	int                 repeat_;
@@ -130,6 +133,7 @@ public:
 	Color               linecolor_;
 	Color               seiscolor_;
 	BufferString        seqname_;
+	int 		    logwidth_;
 
 
     protected:

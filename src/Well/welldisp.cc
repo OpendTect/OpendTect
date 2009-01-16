@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.7 2009-01-13 10:57:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.8 2009-01-16 13:02:33 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
@@ -28,6 +28,7 @@ static const char* sKeyLeftCliprate = "Left Cliprate";
 static const char* sKeyLeftFillRange = "Left Filled Log Range";
 static const char* sKeyLeftRange = "Left Log Range";
 static const char* sKeyLeftSeqname = "Left Sequence name";
+static const char* sKeyLeftLogWidth = "Left Log Width";
 static const char* sKeyRightColor = "Right Log Color";
 static const char* sKeyRightSize = "Right Log Size";
 static const char* sKeyRightStyle = "Right Log Style";
@@ -43,6 +44,7 @@ static const char* sKeyRightCliprate = "Right Cliprate";
 static const char* sKeyRightFillRange = "Right Filled Log Range";
 static const char* sKeyRightRange = "Right Log Range";
 static const char* sKeyRightSeqname = "Right Sequence name";
+static const char* sKeyRightLogWidth = "Right Log Width";
 
 
 void Well::DisplayProperties::BasicProps::usePar( const IOPar& iop )
@@ -151,6 +153,8 @@ void Well::DisplayProperties::Log::doUseLeftPar( const IOPar& iop )
 	       seiscolor_ );
     iop.get( IOPar::compKey(subjectName(),sKeyLeftSeqname),
 	       seqname_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyLeftLogWidth),
+	       logwidth_ );
 }
 
 
@@ -184,6 +188,8 @@ void Well::DisplayProperties::Log::doUseRightPar( const IOPar& iop )
 	       seiscolor_ );
     iop.get( IOPar::compKey(subjectName(),sKeyRightSeqname),
 	       seqname_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyRightLogWidth),
+	       logwidth_ );
 }
 
 
@@ -217,6 +223,8 @@ void Well::DisplayProperties::Log::doFillLeftPar( IOPar& iop ) const
 	       seiscolor_ );
     iop.set( IOPar::compKey(subjectName(),sKeyLeftSeqname),
 	       seqname_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyLeftLogWidth),
+	       logwidth_ );
 }
 
 
@@ -250,6 +258,8 @@ void Well::DisplayProperties::Log::doFillRightPar( IOPar& iop ) const
 	       seiscolor_ );
     iop.set( IOPar::compKey(subjectName(),sKeyRightSeqname),
 	       seqname_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyRightLogWidth),
+	       logwidth_ );
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.24 2009-01-09 08:20:22 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.25 2009-01-16 13:02:33 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -142,12 +142,15 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( style2, (0) );
     SO_KIT_ADD_FIELD( filling1, (0) );
     SO_KIT_ADD_FIELD( filling2, (0) );
-    SO_KIT_ADD_FIELD( screenWidth, (40) );
-    screenWidth.setValue( 40 );
+    SO_KIT_ADD_FIELD( screenWidth1, (40) );
+    SO_KIT_ADD_FIELD( screenWidth2, (40) );
+    screenWidth1.setValue( 40 );
+    screenWidth2.setValue( 40 );
 
     valuesensor->attach( &log1 );
     valuesensor->attach( &log2 );
-    valuesensor->attach( &screenWidth );
+    valuesensor->attach( &screenWidth1 );
+    valuesensor->attach( &screenWidth2 );
 
     clearLog(1);
     clearLog(2);
@@ -161,6 +164,16 @@ SoPlaneWellLog::~SoPlaneWellLog()
 {
     if (valuesensor) 
 	delete valuesensor;
+}
+
+void SoPlaneWellLog::resetLogData( int lognr )
+{
+    SoSFFloat& maxval = lognr==1 ? maxval1 : maxval2;
+    maxval.setValue( 0 ); 
+    SoSFFloat& fillmaxval = lognr==1 ? fillmaxval1 : fillmaxval2;
+    fillmaxval.setValue( 0 ); 
+    SoSFFloat& fillminval = lognr==1 ? fillminval1 : fillminval2;
+    fillminval.setValue( 0 ); 
 }
 
 
@@ -666,7 +679,9 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
     {
 	const SbViewVolume& vv = SoViewVolumeElement::get(state);
 	const SbViewportRegion& vp = SoViewportRegionElement::get(state);
-	float nsize = screenWidth.getValue() / 
+	float nsize1 = screenWidth1.getValue() / 
+	    				float(vp.getViewportSizePixels()[1]);
+	float nsize2 = screenWidth2.getValue() / 
 	    				float(vp.getViewportSizePixels()[1]);
 
 	SoSwitch* sw = SO_GET_ANY_PART( this, "line1Switch", SoSwitch );
@@ -675,7 +690,7 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 	if ( path1.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
 	    const int hnum = path1.getNum() / 2;
-	    worldwidth = vv.getWorldToScreenScale( path1[hnum], nsize );
+	    worldwidth = vv.getWorldToScreenScale( path1[hnum], nsize1 );
 	    
 	    buildLog( 1, projectiondir, newres );
 	}
@@ -684,7 +699,7 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 	if ( path2.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
 	    const int hnum = path2.getNum() / 2;
-	    worldwidth = vv.getWorldToScreenScale( path2[hnum], nsize );
+	    worldwidth = vv.getWorldToScreenScale( path2[hnum], nsize2 );
 	    buildLog( 2, projectiondir, newres );
 	}
 

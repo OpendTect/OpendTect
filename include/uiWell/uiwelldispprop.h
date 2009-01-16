@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.12 2009-01-13 10:57:42 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.13 2009-01-16 13:02:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,12 +151,15 @@ protected:
     uiSpinBox*		repeatfld_;
     uiLabeledSpinBox*   lblo_;
     uiLabeledSpinBox*   lblr_;
+    uiLabeledSpinBox*   logwidthfld_;
     uiLabeledComboBox*  logsfld_;
     uiLabeledComboBox*  filllogsfld_;
+    uiCheckBox*         logarithmfld_;
     uiCheckBox*         logfillfld_;
     uiCheckBox*         singlfillcolfld_;
     uiComboBox*         coltablistfld_;
     uiColorInput*	seiscolorfld_;
+    uiColorInput*	fillcolorfld_;
 
     Interval<float>     valuerange_;
     Interval<float>     fillvaluerange_;

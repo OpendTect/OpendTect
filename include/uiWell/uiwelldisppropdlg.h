@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldisppropdlg.h,v 1.4 2009-01-08 09:16:21 cvsranojay Exp $
+ RCS:           $Id: uiwelldisppropdlg.h,v 1.5 2009-01-16 13:02:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,6 @@ protected:
     void			wdChg(CallBacker*);
     void			applyAllPush(CallBacker*);
     bool			rejectOK(CallBacker*);
-    bool			acceptOK(CallBacker*);
 };
 
 
