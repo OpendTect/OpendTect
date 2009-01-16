@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.287 2009-01-15 15:55:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.288 2009-01-16 03:35:53 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.287 2009-01-15 15:55:29 cvsj
 #include "uiodtreeitem.h"
 
 #include "uiconvpos.h"
+#include "uicolortable.h"
 #include "mousecursor.h"
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
@@ -41,6 +42,8 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.287 2009-01-15 15:55:29 cvsj
 #include "attribdatacubes.h"
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
@@ -624,7 +627,38 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
     BufferString fnm = fp.fullPath();
     IOPar iop;
     if ( iop.read(fnm,sKey::Pars) )
-	appl_.colTabEd().usePar( iop );
+    {
+	ColTab::MapperSetup* mapper = new ColTab::MapperSetup();
+	mapper->usePar( iop );
+	const char* ctname = iop.find( sKey::Name );
+	
+	appl_.colTabEd().colTab()->setSequence( ctname );
+	visserv_->setColTabSequence( visid, attrib, ColTab::Sequence(ctname) );
+	visserv_->setColTabMapperSetup( visid, attrib, *mapper );
+	appl_.colTabEd().colTab()->setMapperSetup( mapper );
+    }
+	//appl_.colTabEd().usePar( iop );
+}
+
+
+void uiODApplMgr::saveDefColTab( int visid, int attrib )
+{
+    const Attrib::SelSpec* as = visserv_->getSelSpec(visid,attrib);
+    IOObj* ioobj = attrserv_->getIOObj( *as );
+    if ( !ioobj ) return;
+
+    FilePath fp( ioobj->fullUserExpr(true) );
+    fp.setExtension( "par" );
+    BufferString fnm = fp.fullPath();
+    IOPar iop;
+    const ColTab::Sequence& ctseq = *visserv_->getColTabSequence(
+	    visid, attrib );
+    const ColTab::MapperSetup& mapper = *visserv_->getColTabMapperSetup(
+	    visid, attrib );
+    iop.set( sKey::Name, ctseq.name() );
+    mapper.fillPar( iop );
+    iop.write( fnm, sKey::Pars );
+    delete ioobj;
 }
 
 

@@ -7,11 +7,13 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.22 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.23 2009-01-16 03:35:53 cvssatyaki Exp $";
 
 #include "uiodattribtreeitem.h"
 
 #include "attribsel.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "filepath.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -129,7 +131,7 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 
     if ( selattrmnuitem_.nrItems() )
 	mAddMenuItem( menu, &selattrmnuitem_,
-		!visserv->isLocked(displayID()), false );
+		      !visserv->isLocked(displayID()), false );
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
@@ -162,7 +164,12 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 	fp.setExtension( "par" );
 	BufferString fnm = fp.fullPath();
 	IOPar iop;
-	ODMainWin()->colTabEd().fillPar( iop );
+	const ColTab::Sequence& ctseq = *visserv->getColTabSequence(
+		displayID(), attribNr() );
+	const ColTab::MapperSetup& mapper = *visserv->getColTabMapperSetup(
+		displayID(), attribNr() );
+	iop.set( sKey::Name, ctseq.name() );
+	mapper.fillPar( iop );
 	iop.write( fnm, sKey::Pars );
 	delete ioobj;
     }

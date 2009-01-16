@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.69 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.70 2009-01-16 03:35:53 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,6 +200,7 @@ protected:
     void			colSeqChg(CallBacker*);
     void			colMapperChg(CallBacker*);
     void			useDefColTab(int visid,int attrib);
+    void			saveDefColTab(int visid,int attrib);
     void			setHistogram(int visid,int attrib);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();

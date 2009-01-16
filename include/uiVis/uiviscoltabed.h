@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.19 2009-01-08 10:37:54 cvsranojay Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.20 2009-01-16 03:35:53 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
     void			setPrefHeight(int);
     void			setPrefWidth(int);
     uiGroup*			colTabGrp()	{ return (uiGroup*)uicoltab_; }
+    uiColorTable*		colTab()	{ return uicoltab_; }
 
     bool			usePar(const IOPar&);
     void                        fillPar(IOPar&);
