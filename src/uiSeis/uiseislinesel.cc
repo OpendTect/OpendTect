@@ -8,13 +8,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.14 2008-12-11 08:45:10 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.15 2009-01-17 07:29:36 cvsumesh Exp $";
 
 #include "uiseislinesel.h"
 
 #include "uiseissel.h"
 #include "uilistbox.h"
-#include "uispinbox.h"
+//#include "uispinbox.h"
+#include "uiselsurvranges.h"
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
@@ -40,14 +41,18 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
 
 //  TODO: Replace by uiSelNrRange
-    lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
-    trc0fld_ = lsb_->box();
-    trc0fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc0Changed) );
-    trc1fld_ = new uiSpinBox( this, 0, "Trc Stop" );
-    trc1fld_->attach( rightTo, lsb_ );
-    trc1fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc1Changed) );
+//    lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
+//    trc0fld_ = lsb_->box();
+//    trc0fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc0Changed) );
+//    trc1fld_ = new uiSpinBox( this, 0, "Trc Stop" );
+//    trc1fld_->attach( rightTo, lsb_ );
+//    trc1fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc1Changed) );
     
-    lsb_->attach( alignedBelow, llb );
+//    lsb_->attach( alignedBelow, llb );
+    trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
+	   			  false, "Trace" );
+    trcrgfld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trcChanged) );
+    trcrgfld_->attach( alignedBelow, llb );
 
     lineSetSel( 0 );
 }   
@@ -93,9 +98,6 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
     lnmsfld_->empty();
     lnmsfld_->addItems( lnms );
 
-    lsb_->display( !lnms.isEmpty() );
-    trc1fld_->display( !lnms.isEmpty() );
-    
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
 	lnmsfld_->setItemCheckable( idx, true );
@@ -115,13 +117,12 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 	linetrcflrgs_ += trcitval;
     }
 
-    if ( lnms.size() && lsb_->box()->isDisplayed() && 
-	    		trc1fld_->isDisplayed() )
+    if ( lnms.size() )
     {
-	trc0fld_->setInterval( linetrcrgs_[0].start, linetrcrgs_[0].stop );
-	trc0fld_->setValue( linetrcrgs_[0].start );
-	trc1fld_->setInterval( linetrcrgs_[0].start, linetrcrgs_[0].stop );
-	trc1fld_->setValue( linetrcrgs_[0].stop );
+	StepInterval<int> interval( linetrcrgs_[0].start,
+				    linetrcrgs_[0].stop, 1 );
+	trcrgfld_->setValInterval( interval );
+	trcrgfld_->setRange( interval );
     }
 }
 
@@ -136,26 +137,21 @@ void uiSeis2DLineSubSel::lineSel( CallBacker* )
 	return;
 
     int curselno = lnmsfld_->currentItem(); 
-    
-    trc0fld_->setInterval( linetrcrgs_[curselno].start, 
-	    		   linetrcrgs_[curselno].stop );
-    trc0fld_->setValue( linetrcrgs_[curselno].start );
 
-    trc1fld_->setInterval( linetrcrgs_[curselno].start,
-	   		   linetrcrgs_[curselno].stop );
-    trc1fld_->setValue( linetrcrgs_[curselno].stop );
+    StepInterval<int> interval( linetrcrgs_[curselno].start,
+	    			linetrcrgs_[curselno].stop, 1 );
+
+    trcrgfld_->setValInterval( interval );
+    trcrgfld_->setRange( interval );
 }
 
 
-void uiSeis2DLineSubSel::trc0Changed( CallBacker* )
+void uiSeis2DLineSubSel::trcChanged( CallBacker* )
 {
-    linetrcflrgs_[ lnmsfld_->currentItem() ].start = trc0fld_->getValue();
-}
-
-
-void uiSeis2DLineSubSel::trc1Changed( CallBacker* )
-{
-    linetrcflrgs_[ lnmsfld_->currentItem() ].stop = trc1fld_->getValue();
+    linetrcflrgs_[ lnmsfld_->currentItem() ].start = 
+				trcrgfld_->getRange().start;
+    linetrcflrgs_[ lnmsfld_->currentItem() ].stop = 
+				trcrgfld_->getRange().stop;
 }
 
 
