@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.9 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.10 2009-01-17 07:28:06 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,9 @@ public:
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
+    void		setValInterval(const StepInterval<int>&);
+
+    Notifier<uiSelNrRange>	valueChanged;
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.15 2008-12-15 16:40:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.16 2009-01-17 07:28:38 cvsumesh Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -146,6 +146,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, icstopfld_(0)
 	, nrstopfld_(0)
 	, defstep_(1)
+    	, valueChanged(this)
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
@@ -172,6 +173,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, defstep_(limitrg.step)
 	, icstopfld_(0)
 	, nrstopfld_(0)
+	, valueChanged(this)
 {
     makeInpFields( lbltxt, limitrg, wstep, false );
     setRange( limitrg );
@@ -254,6 +256,7 @@ void uiSelNrRange::valChg( CallBacker* cb )
 	else
 	    startfld_->setValue( getStopVal() );
     }
+    valueChanged.trigger();
 }
 
 
@@ -270,6 +273,16 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
     setStopVal( rg.stop );
     if ( stepfld_ )
 	stepfld_->setValue( rg.step );
+}
+
+
+void uiSelNrRange::setValInterval( const StepInterval<int>& valintl )
+{
+    startfld_->setInterval( valintl );
+    if ( icstopfld_ )
+	icstopfld_->setInterval( valintl );
+    if ( stepfld_ )
+	stepfld_->setInterval( valintl );
 }
 
 
