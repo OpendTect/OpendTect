@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.4 2009-01-15 10:58:11 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.5 2009-01-17 07:03:29 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "datapackbase.h"
 
-uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int n,
+uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup("Histogram",
 				   mNoDlgTitle,mTODOHelpID).modal(false) )
@@ -30,10 +30,10 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int n,
 {
     setCtrlStyle( LeaveOnly );
 
-    datapackids_.setSize( n );
+    datapackids_.setSize( nr );
     uiSeparator* sephor = 0;
 
-    for ( int idx=0; idx<n; idx++ )
+    for ( int idx=0; idx<nr; idx++ )
     {
 	uiMapperRangeEditor* rangeeditor =
 	    			new uiMapperRangeEditor( this, idx );
