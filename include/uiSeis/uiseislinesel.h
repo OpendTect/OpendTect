@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.10 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.11 2009-01-17 07:30:01 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,8 @@ ________________________________________________________________________
 class uiLabeledSpinBox;
 class uiListBox;
 class uiSeisSel;
-class uiSpinBox;
+class uiSelNrRange;
+//class uiSpinBox;
 
 class CtxtIOObj;
 class IOObj;
@@ -47,9 +48,10 @@ protected:
     BufferStringSet 			sellines_;
     uiSeisSel*  			linesetfld_;
     uiListBox*  			lnmsfld_;
-    uiLabeledSpinBox*          	        lsb_;
-    uiSpinBox*                          trc0fld_;
-    uiSpinBox*                  	trc1fld_;
+    uiSelNrRange*			trcrgfld_;
+    //uiLabeledSpinBox*          	        lsb_;
+    //uiSpinBox*                          trc0fld_;
+    //uiSpinBox*                  	trc1fld_;
     CtxtIOObj&				lsctio_;
 
     TypeSet< Interval<int> > 		linetrcrgs_;
@@ -57,8 +59,7 @@ protected:
 
     void 				lineSetSel(CallBacker*);
     void 				lineSel(CallBacker*);
-    void				trc0Changed(CallBacker*);
-    void				trc1Changed(CallBacker*);
+    void				trcChanged(CallBacker*);
 
     virtual bool        		acceptOK(CallBacker*);
 };
