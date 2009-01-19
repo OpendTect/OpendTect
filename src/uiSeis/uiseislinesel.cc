@@ -8,13 +8,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.15 2009-01-17 07:29:36 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.16 2009-01-19 13:27:17 cvsumesh Exp $";
 
 #include "uiseislinesel.h"
 
 #include "uiseissel.h"
 #include "uilistbox.h"
-//#include "uispinbox.h"
 #include "uiselsurvranges.h"
 
 #include "bufstringset.h"
@@ -40,15 +39,6 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     lnmsfld_ = llb->box();
     lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
 
-//  TODO: Replace by uiSelNrRange
-//    lsb_ = new uiLabeledSpinBox( this, "Trace range", 0, "Trc Start" );
-//    trc0fld_ = lsb_->box();
-//    trc0fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc0Changed) );
-//    trc1fld_ = new uiSpinBox( this, 0, "Trc Stop" );
-//    trc1fld_->attach( rightTo, lsb_ );
-//    trc1fld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trc1Changed) );
-    
-//    lsb_->attach( alignedBelow, llb );
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
 	   			  false, "Trace" );
     trcrgfld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trcChanged) );
