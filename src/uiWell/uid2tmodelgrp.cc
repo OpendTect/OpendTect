@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.5 2008-12-24 14:11:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.6 2009-01-19 16:07:29 cvsbruno Exp $";
 
 #include "uid2tmodelgrp.h"
 
@@ -22,11 +22,15 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, bool withunit, const char* lbl )
     : uiGroup(p,"Depth to Time Model")
     , unitfld_(0)
 {
+    d2tmodelfld_ = new uiGenInput ( this, "Depth to time model",				  	 BoolInpSpec(true,"Provide file","Generate") );
+    d2tmodelfld_-> valuechanged.notify( mCB(this,uiD2TModelGroup,modelSel));
+
     BufferString filefldlbl( lbl && *lbl ? lbl : "Depth to Time model file" );
     filefld_ = new uiFileInput( this, filefldlbl,
 				uiFileInput::Setup().withexamine(true) );
     filefld_->setDefaultSelectionDir(
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
+    filefld_->attach( alignedBelow, d2tmodelfld_ );
 
     tvdfld_ = new uiGenInput( this, "Depth in D2T model file is",
 			      BoolInpSpec(true,"TVDSS","MD") );
@@ -51,6 +55,11 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, bool withunit, const char* lbl )
     setHAlignObj( filefld_ );
 }
 
+void uiD2TModelGroup::modelSel()
+{
+    const bool isd2tmprovided = d2tmodelfld_->getBoolValue();
+    filefld_->display( isd2tmprovided );
+}
 
 const char* uiD2TModelGroup::fileName() const
 { return filefld_->fileName(); }

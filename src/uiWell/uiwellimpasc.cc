@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.41 2008-12-24 14:11:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.42 2009-01-19 16:07:29 cvsbruno Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -185,10 +185,13 @@ bool uiWellImportAsc::checkInpFlds()
     const bool haved2t = !SI().zIsTime() || *d2tgrp->fileName();
     if ( !havetrack || !haved2t )
     {
-	BufferString msg( "You need to have a " );
+	BufferString msg( "" );
+	msg += havetrack? "Remember ":"";
+        msg +=	"you need to ";
+	msg += havetrack ? "generate a " : "have a ";
 	msg += havetrack ? "Depth/Time model" : "Track";
-	msg += "\nto be able to use and display the new well"
-	       "\nDo you want to continue?";
+	msg += "\nto be able to use and display the new well";
+	msg += havetrack? ".":"\nDo you want to continue ?";
 	if ( !uiMSG().askGoOn(msg) )
 	    return false;
     }

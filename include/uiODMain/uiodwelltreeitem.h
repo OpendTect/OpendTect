@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.6 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.7 2009-01-19 16:07:29 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,7 @@ protected:
     MenuItem		showmnuitem_;
     MenuItem		editmnuitem_;
     MenuItem		storemnuitem_;
+    MenuItem		gend2tm_;
 };
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.32 2009-01-06 16:15:52 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.33 2009-01-19 16:07:29 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -242,7 +242,7 @@ uiODWellTreeItem::~uiODWellTreeItem()
 void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
-    //sellogmnuitem_.text = "Select logs ...";
+    gend2tm_.text = "Generate depth/time model ...";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
@@ -303,7 +303,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
-   // mAddMenuItem( menu, &sellogmnuitem_, !islocked, false );
+    mAddMenuItem( menu, &gend2tm_, true, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
@@ -418,6 +418,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	    wd->showKnownPositions();
 	}
+    }
+    else if ( mnuid == gend2tm_.id )
+    {
+	menu->setIsHandled( true );
+	ODMainWin()->applMgr().wellServer()->createD2TModel( wellid );
     }
 }
 

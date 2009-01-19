@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.h,v 1.3 2009-01-08 09:16:21 cvsranojay Exp $
+ RCS:		$Id: uid2tmodelgrp.h,v 1.4 2009-01-19 16:07:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiFileInput;
 class uiGenInput;
-
+class uiCheckBox;
 
 mClass uiD2TModelGroup : public uiGroup
 {
@@ -28,6 +28,7 @@ public:
     bool		isTVD() const;
     bool		isTWT() const;
     bool		zInFeet() const;
+    void 		modelSel();
 
 protected:
 
@@ -35,6 +36,7 @@ protected:
     uiGenInput*		tvdfld_;
     uiGenInput*		unitfld_;
     uiGenInput*		twtfld_;
+    uiGenInput*         d2tmodelfld_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.38 2009-01-13 08:23:43 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.39 2009-01-19 16:07:29 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.38 2009-01-13 08:23:43 cv
 #include "wellwriter.h"
 #include "uiwellrdmlinedlg.h"
 #include "uiwelldisppropdlg.h"
+#include "uid2tmodelgendlg.h"
 #include "multiid.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
@@ -92,6 +93,16 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 	wellids += new MultiID( dlg.selected(idx) );
 
     return wellids.size();
+}
+
+
+bool uiWellPartServer::createD2TModel( const MultiID& mid )
+{
+    Well::Data* wd = Well::MGR().get( mid );
+    if ( !wd ) return false;
+
+    uid2tmdlg_ = new uiD2TModelGenDlg( parent(), *wd );
+    return uid2tmdlg_->go();
 }
 
 
