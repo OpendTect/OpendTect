@@ -7,23 +7,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: attribparamgroup.h,v 1.6 2006-10-25 09:39:59 cvshelene Exp $
+ RCS:           $Id: attribparamgroup.h,v 1.7 2009-01-19 13:21:01 cvshelene Exp $
 ________________________________________________________________________
 */
 
-/*!\brief AttribParam that contains many (a set) AttribParam of one kind.
+/*!\brief Attrib::Param that contains many (a set) Attrib::Param of one kind.
 
  It's made for parameters where you don't know how many are required. 
  An example can be positions, where the number of positions are unknown at 
  the beginning of parsing.
 
-The AttribParamGroup have a prefix and constructs parameter names on the form
+The Attrib::ParamGroup have a prefix and constructs parameter names on the form
 prefix + figure:
 
 pos0, pos1, ..., posN.
 
-The AttribParamGroup is constructed by:
- AttribParamGroup( int startsz, const char* prefix, const PT& templ ),
+The Attrib::ParamGroup is constructed by:
+Attrib::ParamGroup( int startsz, const char* prefix, const PT& templ ),
 
 where startsz is the number of instances at the beginning, templ is a
 a template for the parameters that should be constructed.
