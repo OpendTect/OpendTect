@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.11 2008-09-05 08:11:34 cvsjaap Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.12 2009-01-19 13:09:39 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,8 +76,7 @@ private slots:
 void itemSelectionChanged()
 {
     QList<QTreeWidgetItem*> items = sender_.selectedItems();
-    if ( items.size() > 0 )
-	setNotifiedItem( items[0] );
+    setNotifiedItem( items.size()>0 ? items[0] : 0 );
     receiver_.selectionChanged.trigger(receiver_);
 }
 
