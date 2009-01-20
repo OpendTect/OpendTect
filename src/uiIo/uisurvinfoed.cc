@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.102 2009-01-13 13:52:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.103 2009-01-20 13:01:02 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -72,6 +72,8 @@ uiDialog* dialog( uiParent* p )
 
 bool getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
 {
+    tdinf_ = Uknown;
+    inft_ = false;
     mDynamicCastGet(uiSelectFromList*,seldlg,dlg)
     if ( !seldlg ) return false;
 
@@ -85,8 +87,17 @@ bool getInfo( uiDialog* dlg, CubeSampling& cs, Coord crd[3] )
     crd[1] = survinfo->transform( cs.hrg.stop );
     crd[2] = survinfo->transform( BinID(cs.hrg.start.inl,cs.hrg.stop.crl) );
 
+    tdinf_ = survinfo->zIsTime() ? Time
+				 : (survinfo->zInFeet() ? DepthFeet : Depth);
+    inft_ = survinfo->xyInFeet();
     return true;
 }
+
+TDInfo tdInfo() const { return tdinf_; }
+bool xyInFeet() const { return inft_; }
+
+    TDInfo	tdinf_;
+    bool	inft_;
 
 };
 
@@ -774,6 +785,7 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
     if ( sip->tdInfo() != uiSurvInfoProvider::Uknown )
 	si_.setZUnit( sip->tdInfo() == uiSurvInfoProvider::Time,
 		      sip->tdInfo() == uiSurvInfoProvider::DepthFeet );
+    si_.setXYInFeet( sip->xyInFeet() );
 
     if ( mIsUdf(cs.zrg.start) )
 	cs.zrg = si_.zRange(false);
