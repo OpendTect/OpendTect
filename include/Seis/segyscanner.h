@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.14 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: segyscanner.h,v 1.15 2009-01-20 12:50:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ public:
     const PosInfo::Detector&	posInfoDetector() const { return dtctor_; }
 
     const BufferStringSet&	warnings() const	{ return trwarns_; }
+    const SEGYSeisTrcTranslator* translator() const	{ return tr_; }
 
 protected:
 
