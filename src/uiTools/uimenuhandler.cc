@@ -7,15 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenuhandler.cc,v 1.12 2008-12-09 08:50:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimenuhandler.cc,v 1.13 2009-01-20 06:45:55 cvsranojay Exp $";
 
 
 #include "uimenuhandler.h"
 #include "mousecursor.h"
 #include "uimenu.h"
 
-const int uiMenuHandler::fromTree = 1;
-const int uiMenuHandler::fromScene = 0;
+const int uiMenuHandler::fromTree()	{ return 1; }
+const int uiMenuHandler::fromScene()	{ return 0; }
 
 
 uiMenuHandler::uiMenuHandler( uiParent* uiparent, int ni )

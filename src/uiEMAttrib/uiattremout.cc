@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattremout.cc,v 1.6 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.7 2009-01-20 06:45:55 cvsranojay Exp $";
 
 
 #include "uiattremout.h"
@@ -79,7 +79,7 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey( idx );
-        iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
+        iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey(),nm),
 		   attrpar.getValue(idx) );
     }
 
@@ -110,11 +110,11 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
     BufferString key;
     BufferString tmpkey;
     static const BufferString keybase( IOPar::compKey( sKey::Output, 0 ) );
-    tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey );
+    tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), DescSet::highestIDStr() );
     iopar.set( key, 1 );
 
-    tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey );
+    tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), 0 );
     iopar.set( key, nladescid_ < 0 ? attrfld_->attribID().asInt() 
 	    			  : nladescid_.asInt() );

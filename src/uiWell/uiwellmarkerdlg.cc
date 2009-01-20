@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.9 2009-01-14 15:34:53 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.10 2009-01-20 06:45:55 cvsranojay Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -45,7 +45,7 @@ static const int cColorCol = 3;
 
 #define mFromFeetFac 0.3048
 #define mSetSIDepthInFeetDef(zinft) \
-    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt, zinft ); \
+    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
     SI().savePars()
 
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.51 2009-01-20 04:44:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.52 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -147,7 +147,7 @@ bool uiOD2DLineSetTreeItem::showSubMenu()
 	menuhandler_->ref();
     }
 
-    menuhandler_->executeMenu( uiMenuHandler::fromTree );
+    menuhandler_->executeMenu( uiMenuHandler::fromTree() );
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.26 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.27 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -182,7 +182,7 @@ void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
 	drawWVA( *wva, offs );
 }
 
-
+ 
 void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 				   const Geom::Point2D<int>& offs )
 {
@@ -191,8 +191,8 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
     const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
     ColTab::Sequence ctab( pars.ctab_.buf() );
 
-    const int minfill = (int)VDA2DBitMapGenPars::cMinFill;
-    const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill;
+    const int minfill = (int)VDA2DBitMapGenPars::cMinFill();
+    const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill();
     ColTab::IndexedLookUpTable ctindex( ctab, maxfill-minfill+1 );
 
     if ( pars.histeq_ && !clipperdata_.isEmpty() )
@@ -214,7 +214,7 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 	{
 	    if ( iy >= bmpsz.height() ) break;
 	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
-	    if ( bmpval == A2DBitMapGenPars::cNoFill )
+	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 
 	    Color col;
@@ -240,15 +240,15 @@ void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp,
 	{
 	    if ( iy >= bmpsz.height() ) break;
 	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
-	    if ( bmpval == A2DBitMapGenPars::cNoFill )
+	    if ( bmpval == A2DBitMapGenPars::cNoFill() )
 		continue;
 
 	    Color col( pars.wigg_ );
-	    if ( bmpval == WVAA2DBitMapGenPars::cLeftFill )
+	    if ( bmpval == WVAA2DBitMapGenPars::cLeftFill() )
 		col = pars.left_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cRightFill )
+	    else if ( bmpval == WVAA2DBitMapGenPars::cRightFill() )
 		col = pars.right_;
-	    else if ( bmpval == WVAA2DBitMapGenPars::cZeroLineFill )
+	    else if ( bmpval == WVAA2DBitMapGenPars::cZeroLineFill() )
 		col = pars.mid_;
 
 	    if ( col.isVisible() )

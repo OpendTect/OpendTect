@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.40 2008-12-12 18:44:20 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.41 2009-01-20 06:45:55 cvsranojay Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -126,7 +126,7 @@ uiODVolrenTreeItem::~uiODVolrenTreeItem()
 
 bool uiODVolrenTreeItem::showSubMenu()
 {
-    return visserv_->showMenu( displayid_, uiMenuHandler::fromTree );
+    return visserv_->showMenu( displayid_, uiMenuHandler::fromTree() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.47 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.48 2009-01-20 06:45:55 cvsranojay Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -343,18 +343,18 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	outseisid += outpfld_->attrNm();
     }
 
-    fillOutPar( iopar, Output::tskey, SeisTrcStorOutput::seisidkey, outseisid );
+    fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(), outseisid );
     
     BufferString outnm = is2d ? attrfld_->getAttrName() : outpfld_->getInput();
     iopar.set( sKey::Target, outnm );
 
-    BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey, 0);
+    BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
     BufferString key = IOPar::compKey( sKey::Geometry, tmpkey );
     iopar.set( key, ctio_.ioobj->key() );
 
     if ( !usesinglehor_ )
     {
-	tmpkey = IOPar::compKey( LocationOutput::surfidkey, 1);
+	tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 1);
 	key = IOPar::compKey( sKey::Geometry, tmpkey );
 	iopar.set( key, ctio2_.ioobj->key() );
     }
@@ -378,10 +378,10 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
 	if ( !is2d || ( seis2dsubsel && seis2dsubsel->isSingLine() ) )
 	{
-	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey);
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey());
 	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
 
-	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey);
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey());
 	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
 	}
     }

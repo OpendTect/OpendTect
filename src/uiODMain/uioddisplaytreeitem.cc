@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.28 2009-01-15 15:55:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.29 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -208,7 +208,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 
 bool uiODDisplayTreeItem::showSubMenu()
 {
-    return visserv_->showMenu( displayid_, uiMenuHandler::fromTree );
+    return visserv_->showMenu( displayid_, uiMenuHandler::fromTree() );
 }
 
 
@@ -270,7 +270,7 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
 		      visserv_->canDuplicate(displayid_) );
 
     const bool usehide =
-       menu->getMenuType()==uiMenuHandler::fromScene && !visserv_->isSoloMode();
+       menu->getMenuType()==uiMenuHandler::fromScene() && !visserv_->isSoloMode();
     mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
     mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),false);

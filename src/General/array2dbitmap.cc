@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.32 2008-11-14 04:47:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.33 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -15,18 +15,20 @@ static const char* rcsID = "$Id: array2dbitmap.cc,v 1.32 2008-11-14 04:47:31 cvs
 #include <math.h>
 #include <iostream>
 
-const char A2DBitMapGenPars::cNoFill		= -127;
-const char WVAA2DBitMapGenPars::cZeroLineFill	= -126;
-const char WVAA2DBitMapGenPars::cWiggFill	= -125;
-const char WVAA2DBitMapGenPars::cLeftFill	= -124;
-const char WVAA2DBitMapGenPars::cRightFill	= -123;
-const char VDA2DBitMapGenPars::cMinFill		= -120;
-const char VDA2DBitMapGenPars::cMaxFill		= 120;
+
+const char A2DBitMapGenPars::cNoFill()		{ return -127; }
+const char WVAA2DBitMapGenPars::cZeroLineFill()	{ return -126; }
+const char WVAA2DBitMapGenPars::cWiggFill()	{ return -125; }
+const char WVAA2DBitMapGenPars::cLeftFill()	{ return -124; }
+const char WVAA2DBitMapGenPars::cRightFill()	{ return -123; }
+const char VDA2DBitMapGenPars::cMinFill()	{ return -120; }
+const char VDA2DBitMapGenPars::cMaxFill()	{ return 120; }
 
 #define cNrFillSteps 241
 #define mMaxNrStatPts 5000
 #define mXPMStartLn '"'
 #define mXPMEndLn "\",\n"
+
 
 
 Interval<float> A2DBitMapInpData::scale( const Interval<float>& clipratio,
@@ -168,7 +170,7 @@ void A2DBitMapGenerator::initBitMap( A2DBitMap& bm )
 {
     const od_uint64 totsz = bm.info().getTotalSz();
     if ( totsz > 0 )
-	memset( bm.getData(), A2DBitMapGenPars::cNoFill, totsz*sizeof(char) );
+	memset( bm.getData(), A2DBitMapGenPars::cNoFill(), totsz*sizeof(char) );
 }
 
 
@@ -219,8 +221,8 @@ void A2DBitMapGenerator::fill()
 static inline int gtPrettyBMVal( char c )
 {
     static const float rgmax = 1000;
-    float v = (c - VDA2DBitMapGenPars::cMinFill) * (rgmax + 1)
-	    / (VDA2DBitMapGenPars::cMaxFill-VDA2DBitMapGenPars::cMinFill) - .5;
+    float v = (c - VDA2DBitMapGenPars::cMinFill()) * (rgmax + 1)
+	    / (VDA2DBitMapGenPars::cMaxFill()-VDA2DBitMapGenPars::cMinFill()) - .5;
     int ret = mNINT(v);
     return ret < 0 ? 0 : (ret > rgmax+.5 ? (int)rgmax : ret);
 }
@@ -348,17 +350,17 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
     if ( isleft && wvapars().fillleft_ )
     {
 	for ( int ix=valpix; ix<=midpix; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cLeftFill );
+	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cLeftFill() );
     }
 
     if ( !isleft && wvapars().fillright_ )
     {
 	for ( int ix=midpix; ix<=valpix; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cRightFill );
+	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cRightFill() );
     }
 
     if ( wvapars().drawmid_ && midpix >= 0 && midpix < setup_.nrXPix() )
-	bitmap_->set( midpix, iy, WVAA2DBitMapGenPars::cZeroLineFill );
+	bitmap_->set( midpix, iy, WVAA2DBitMapGenPars::cZeroLineFill() );
 
     if ( wvapars().drawwiggles_ && setup_.isInside(0,valdim0pos) )
     {
@@ -384,7 +386,7 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
 	}
 
 	for ( int ix=from; ix<=to; ix++ )
-	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cWiggFill );
+	    bitmap_->set( ix, iy, WVAA2DBitMapGenPars::cWiggFill() );
     }
 }
 
@@ -393,6 +395,7 @@ bool WVAA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
 {
     const int nrxpix = setup_.nrXPix(); const int nrypix = setup_.nrYPix();
 
+   
     strm << "/* XPM */\nstatic char*wva[]={\n";
     strm << '"' << nrxpix << ' ' << nrypix << ' ' << "5 1"
 		<< mXPMEndLn;
@@ -402,20 +405,19 @@ bool WVAA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
     strm << "\"w c #000000" << mXPMEndLn;
     strm << "\"e c #ffffff" << mXPMEndLn;
 
+  
     for ( int iy=0; iy<nrypix; iy++ )
     {
 	strm << mXPMStartLn;
 	for ( int ix=0; ix<nrxpix; ix++ )
 	{
 	    char c = bitmap_->get( ix, iy );
-	    switch ( c )
-	    {
-	    case WVAA2DBitMapGenPars::cWiggFill:	strm << 'w';	break;
-	    case WVAA2DBitMapGenPars::cZeroLineFill:	strm << '0';	break;
-	    case WVAA2DBitMapGenPars::cLeftFill:	strm << 'l';	break;
-	    case WVAA2DBitMapGenPars::cRightFill:	strm << 'r';	break;
-	    default:					strm << 'e';	break;
-	    }
+	    
+	    if ( c == WVAA2DBitMapGenPars::cWiggFill() )	    strm << 'w';
+	    else if ( c == WVAA2DBitMapGenPars::cZeroLineFill() )   strm << '0';
+	    else if ( c == WVAA2DBitMapGenPars::cLeftFill() ) 	    strm << 'I';
+	    else if ( c == WVAA2DBitMapGenPars::cRightFill() )	    strm << 'r';
+	    else						    strm << 'e';
 	}
 	strm << mXPMEndLn;
     }
@@ -430,7 +432,7 @@ bool WVAA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
 
 float VDA2DBitMapGenPars::offset( char c )
 {
-    return (c - cMinFill) / ((float)(cNrFillSteps - 1));
+    return (c - cMinFill()) / ((float)(cNrFillSteps - 1));
 }
 
 
@@ -661,7 +663,7 @@ void VDA2DBitMapGenerator::drawVal( int ix, int iy, float val )
     mPrepVal();
 
     const float valratio = (val - scalerg_.start) / scalewidth_;
-    const char bmval = (char)(VDA2DBitMapGenPars::cMinFill
+    const char bmval = (char)(VDA2DBitMapGenPars::cMinFill()
 	    		      + valratio * cNrFillSteps - .5);
     bitmap_->set( ix, iy, bmval );
 }
@@ -716,7 +718,7 @@ bool VDA2DBitMapGenerator::dumpXPM( std::ostream& strm ) const
 	strm << mXPMStartLn;
 	for ( int ix=0; ix<nrxpix; ix++ )
 	{
-	    int c = ((int)bitmap_->get(ix,iy)) - VDA2DBitMapGenPars::cMinFill;
+	    int c = ((int)bitmap_->get(ix,iy)) - VDA2DBitMapGenPars::cMinFill();
 	    if ( c < 0 || c >= cNrFillSteps )
 		strm << '.';
 	    else

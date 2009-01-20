@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.11 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatauxdataeditorlist.cc,v 1.12 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uiflatauxdataeditorlist.h"
 
@@ -135,7 +135,7 @@ void uiFlatViewAuxDataEditorList::pointSelectionChangedCB( CallBacker* cb )
 
 void uiFlatViewAuxDataEditorList:: rightClickedCB(CallBacker*)
 {
-    uimenuhandler_->executeMenu( uimenuhandler_->fromTree, 0 );
+    uimenuhandler_->executeMenu( uimenuhandler_->fromTree(), 0 );
 }
 
 

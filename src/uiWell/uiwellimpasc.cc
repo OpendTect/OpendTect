@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.42 2009-01-19 16:07:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.43 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -116,7 +116,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 {
     bool ret = checkInpFlds() && doWork();
 
-    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
+    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), !unitfld->getBoolValue() );
     SI().savePars();
     return ret;
 }

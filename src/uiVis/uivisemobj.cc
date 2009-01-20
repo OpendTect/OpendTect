@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.75 2009-01-09 11:13:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.76 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uivisemobj.h"
 
@@ -526,7 +526,7 @@ void uiVisEMObject::interactionLineRightClick( CallBacker* )
     interactionlinemenu_.handlenotifier.notify(
 	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,handleInteractionLineMenus));
 
-    interactionlinemenu_.executeMenu(uiMenuHandler::fromScene);
+    interactionlinemenu_.executeMenu(uiMenuHandler::fromScene());
 
     interactionlinemenu_.createnotifier.remove(
 	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,createInteractionLineMenus));
@@ -556,7 +556,7 @@ void uiVisEMObject::nodeRightClick( CallBacker* )
     nodemenu_.handlenotifier.notify(
 	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,handleNodeMenus));
 
-    nodemenu_.executeMenu(uiMenuHandler::fromScene);
+    nodemenu_.executeMenu(uiMenuHandler::fromScene());
 
     nodemenu_.createnotifier.remove(
 	    mCB(uimpeeditor.ptr(),MPE::uiEMEditor,createNodeMenus));
@@ -572,7 +572,7 @@ void uiVisEMObject::edgeLineRightClick( CallBacker* cb )
     if ( !edgelinedisplay ) return;
 
     edgelinemenu_.setID(edgelinedisplay->id());
-    edgelinemenu_.executeMenu(uiMenuHandler::fromScene);
+    edgelinemenu_.executeMenu(uiMenuHandler::fromScene());
     */
 }
 

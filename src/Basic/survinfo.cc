@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.112 2008-12-18 05:46:36 cvsranojay Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.113 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -33,15 +33,15 @@ static const char* sKeyYTransf = "Coord-Y-BinID";
 static const char* sKeyDefsFile = ".defs";
 static const char* sKeySurvDefs = "Survey defaults";
 static const char* sKeyLatLongAnchor = "Lat/Long anchor";
-const char* SurveyInfo::sKeyInlRange = "In-line range";
-const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
-const char* SurveyInfo::sKeyXRange = "X range";
-const char* SurveyInfo::sKeyYRange = "Y range";
-const char* SurveyInfo::sKeyZRange = "Z range";
-const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
-const char* SurveyInfo::sKeyDpthInFt = "Show depth in feet";
-const char* SurveyInfo::sKeyXYInFt = "XY in feet";
-const char* SurveyInfo::sKeySurvDataType = "Survey Data Type";
+const char* SurveyInfo::sKeyInlRange()	    { return "In-line range"; }
+const char* SurveyInfo::sKeyCrlRange()	    { return "Cross-line range"; }
+const char* SurveyInfo::sKeyXRange()	    { return "X range"; }
+const char* SurveyInfo::sKeyYRange()	    { return "Y range"; }
+const char* SurveyInfo::sKeyZRange()	    { return "Z range"; }
+const char* SurveyInfo::sKeyWSProjName()    { return "Workstation Project Name"; }
+const char* SurveyInfo::sKeyDpthInFt()	    { return "Show depth in feet"; }
+const char* SurveyInfo::sKeyXYInFt()	    { return "XY in feet"; }
+const char* SurveyInfo::sKeySurvDataType()  { return "Survey Data Type"; }
 
 
 static bool sDoWarnings = false;
@@ -184,23 +184,23 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	keyw = astream.keyWord();
 	if ( keyw == sKey::Name )
 	    si->setName( astream.value() );
-	else if ( keyw == sKeyWSProjName )
+	else if ( keyw == sKeyWSProjName() )
 	    si->wsprojnm_ = astream.value();
-	else if ( keyw == sKeyInlRange )
+	else if ( keyw == sKeyInlRange() )
 	{
 	    FileMultiString fms( astream.value() );
 	    si->cs_.hrg.start.inl = atoi(fms[0]);
 	    si->cs_.hrg.stop.inl = atoi(fms[1]);
 	    si->cs_.hrg.step.inl = atoi(fms[2]);
 	}
-	else if ( keyw == sKeyCrlRange )
+	else if ( keyw == sKeyCrlRange() )
 	{
 	    FileMultiString fms( astream.value() );
 	    si->cs_.hrg.start.crl = atoi(fms[0]);
 	    si->cs_.hrg.stop.crl = atoi(fms[1]);
 	    si->cs_.hrg.step.crl = atoi(fms[2]);
 	}
-	else if ( keyw == sKeyZRange )
+	else if ( keyw == sKeyZRange() )
 	{
 	    FileMultiString fms( astream.value() );
 	    si->cs_.zrg.start = atof(fms[0]);
@@ -215,12 +215,12 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 		si->zinfeet_ = *fms[3] == 'F';
 	    }
 	}
-	else if ( keyw == sKeySurvDataType )
+	else if ( keyw == sKeySurvDataType() )
 	{
 	    si->setSurvDataType( eEnum( Pol2D, astream.value()) );
 	    si->survdatatypeknown_ = true;
 	}
-	else if ( keyw == sKeyXYInFt )
+	else if ( keyw == sKeyXYInFt() )
 	    si->xyinfeet_ = astream.getYN();
 	else
 	    si->handleLineRead( keyw, astream.value() );
@@ -537,7 +537,7 @@ float SurveyInfo::zScale() const
 bool SurveyInfo::depthsInFeetByDefault() const
 {
     bool ret = zIsTime() ? false : zInFeet();
-    pars().getYN( sKeyDpthInFt, ret );
+    pars().getYN( sKeyDpthInFt(), ret );
     return ret;
 }
 
@@ -716,19 +716,19 @@ bool SurveyInfo::write( const char* basedir ) const
     }
 
     astream.put( sKey::Name, name() );
-    astream.put( sKeySurvDataType, eString ( Pol2D, getSurvDataType()) );
+    astream.put( sKeySurvDataType(), eString ( Pol2D, getSurvDataType()) );
     FileMultiString fms;
     fms += cs_.hrg.start.inl; fms += cs_.hrg.stop.inl; fms += cs_.hrg.step.inl;
-    astream.put( sKeyInlRange, fms );
+    astream.put( sKeyInlRange(), fms );
     fms = "";
     fms += cs_.hrg.start.crl; fms += cs_.hrg.stop.crl; fms += cs_.hrg.step.crl;
-    astream.put( sKeyCrlRange, fms );
+    astream.put( sKeyCrlRange(), fms );
     fms = ""; fms += cs_.zrg.start; fms += cs_.zrg.stop;
     fms += cs_.zrg.step; fms += zistime_ ? "T" : ( zinfeet_ ? "F" : "D" );
-    astream.put( sKeyZRange, fms );
+    astream.put( sKeyZRange(), fms );
 
     if ( !wsprojnm_.isEmpty() )
-	astream.put( sKeyWSProjName, wsprojnm_ );
+	astream.put( sKeyWSProjName(), wsprojnm_ );
 
     writeSpecLines( astream );
 
@@ -793,7 +793,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	ll2c_.fill( buf );
 	astream.put( sKeyLatLongAnchor, buf );
     }
-    astream.putYN( sKeyXYInFt, xyinfeet_ );
+    astream.putYN( sKeyXYInFt(), xyinfeet_ );
 }
 
 

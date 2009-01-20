@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.399 2009-01-16 13:02:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.400 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uivispartserv.h"
 
@@ -1533,7 +1533,7 @@ void uiVisPartServer::rightClickCB( CallBacker* cb )
     if ( vo && vo->rightClickedEventInfo() )
 	pickedpos = vo->rightClickedEventInfo()->worldpickedpos;
 
-    showMenu( id, uiMenuHandler::fromScene, 
+    showMenu( id, uiMenuHandler::fromScene(), 
 	      dataobj ? dataobj->rightClickedPath() : 0, pickedpos );
 }
 
@@ -1635,7 +1635,7 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(menu->menuID()));
     if ( !so ) return;
 
-    const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene &&
+    const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene() &&
 						!isSoloMode();
     mAddMenuItemCond( menu, &resetmanipmnuitem_, 
 	    	      so->isManipulated() && !isLocked(menu->menuID()), false,

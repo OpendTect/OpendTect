@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.70 2008-12-24 14:11:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.71 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -48,7 +48,7 @@ static const int nremptyrows = 5;
 
 #define mFromFeetFac 0.3048
 #define mSetSIDepthInFeetDef(zinft) \
-    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt, zinft ); \
+    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
     SI().savePars()
 
 uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.25 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.26 2009-01-20 06:45:55 cvsranojay Exp $";
 
 
 #include "uiattrsurfout.h"
@@ -95,7 +95,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
     uiAttrEMOut::fillPar( iopar );
     BufferString outid;
     outid += ctio_.ioobj->key();
-    fillOutPar( iopar, Output::surfkey, LocationOutput::surfidkey, outid );
+    fillOutPar( iopar, Output::surfkey(), LocationOutput::surfidkey(), outid );
 
     BufferString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() ) attrnm = attrfld_->getInput();

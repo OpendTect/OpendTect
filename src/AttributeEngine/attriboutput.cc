@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.91 2009-01-14 07:16:18 cvsranojay Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.92 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "attriboutput.h"
 
@@ -38,23 +38,23 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.91 2009-01-14 07:16:18 cvsr
 namespace Attrib
 {
 
-const char* Output::outputstr = sKey::Output;
-const char* Output::cubekey = sKey::Cube;
-const char* Output::surfkey = sKey::Surface;
-const char* Output::tskey = "Trace Selection";
-const char* Output::scalekey = sKey::Scale;
-const char* Output::varzlinekey = "Variable Z Line";
+const char* Output::outputstr()	    { return sKey::Output; }
+const char* Output::cubekey()	    { return sKey::Cube; }
+const char* Output::surfkey()	    { return sKey::Surface; }
+const char* Output::tskey()	    { return "Trace Selection"; }
+const char* Output::scalekey()	    { return sKey::Scale; }
+const char* Output::varzlinekey()   { return "Variable Z Line"; }
 
-const char* SeisTrcStorOutput::seisidkey = "Seismic.ID";
-const char* SeisTrcStorOutput::attribkey = sKey::Attributes;
-const char* SeisTrcStorOutput::inlrangekey = "In-line range";
-const char* SeisTrcStorOutput::crlrangekey = "Cross-line range";
-const char* SeisTrcStorOutput::depthrangekey = "Depth range";
+const char* SeisTrcStorOutput::seisidkey()	{ return "Seismic.ID"; }
+const char* SeisTrcStorOutput::attribkey()	{ return sKey::Attributes; }
+const char* SeisTrcStorOutput::inlrangekey()	{ return "In-line range"; }
+const char* SeisTrcStorOutput::crlrangekey()	{ return "Cross-line range"; }
+const char* SeisTrcStorOutput::depthrangekey()	{ return "Depth range"; }
 
-const char* LocationOutput::filenamekey = "Output.File name";
-const char* LocationOutput::locationkey = "Locations";
-const char* LocationOutput::attribkey = sKey::Attribute;
-const char* LocationOutput::surfidkey = "Surface.ID";
+const char* LocationOutput::filenamekey()	{ return "Output.File name"; }
+const char* LocationOutput::locationkey()	{ return "Locations"; }
+const char* LocationOutput::attribkey()		{ return sKey::Attribute; }
+const char* LocationOutput::surfidkey()		{ return "Surface.ID"; }
 
 
 Output::Output()
@@ -329,7 +329,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 	return false;
     }
 
-    const char* storid = outppar->find( seisidkey );
+    const char* storid = outppar->find( seisidkey() );
     if ( !setStorageID( storid ) )
     {
         errmsg_ = "Could not find output ID: "; errmsg_ += storid;
@@ -344,7 +344,7 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
     if ( sepstr[2] && *sepstr[2] && isDataType(sepstr[2]) )
 	datatype_ += sepstr[2];
 
-    const char* res = outppar->find( scalekey );
+    const char* res = outppar->find( scalekey() );
     if ( res )
     {
 	scaler_ = new LinScaler;

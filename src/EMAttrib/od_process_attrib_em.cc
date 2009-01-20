@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.55 2009-01-15 04:10:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.56 2009-01-20 06:47:50 cvsranojay Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -168,7 +168,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
     {
 	outpid = objidstr.buf();
 	BufferString basehorstr = sKey::Geometry; basehorstr += "."; 
-	basehorstr += LocationOutput::surfidkey; 
+	basehorstr += LocationOutput::surfidkey(); 
 	BufferString hor1str = basehorstr; hor1str += ".0";
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) ) 
 	    return false;
@@ -290,9 +290,9 @@ static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc,
 static HorSampling getHorSamp( IOPar* geompar )
 {
     HorSampling hsamp;
-    if ( !geompar->get( SurveyInfo::sKeyInlRange,
+    if ( !geompar->get( SurveyInfo::sKeyInlRange(),
 			hsamp.start.inl, hsamp.stop.inl )
-	 || !geompar->get( SurveyInfo::sKeyCrlRange,
+	 || !geompar->get( SurveyInfo::sKeyCrlRange(),
 			   hsamp.start.crl, hsamp.stop.crl ) )
     {
 	hsamp.start.inl = 0;
@@ -327,14 +327,14 @@ bool BatchProgram::go( std::ostream& strm )
     BufferString type;
     pars().get( IOPar::compKey( sKey::Output, sKey::Type ), type );
    
-    const bool iscubeoutp = !strcmp( type, Output::tskey );
+    const bool iscubeoutp = !strcmp( type, Output::tskey() );
 
     BufferString errmsg;
     MultiID outpid;
     ObjectSet<MultiID> midset;
     if ( !prepare( strm, pars(), 
-		   iscubeoutp ? SeisTrcStorOutput::seisidkey 
-		   	      : LocationOutput::surfidkey,
+		   iscubeoutp ? SeisTrcStorOutput::seisidkey() 
+		   	      : LocationOutput::surfidkey(),
 		   midset, errmsg, iscubeoutp, outpid ) )
 	mErrRetNoProc(errmsg);
 

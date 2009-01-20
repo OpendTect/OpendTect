@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.52 2009-01-07 11:24:25 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.53 2009-01-20 06:45:55 cvsranojay Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -219,14 +219,14 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
-        iop.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
+        iop.add( IOPar::compKey(SeisTrcStorOutput::attribkey(),nm),
 		 attrpar.getValue(idx) );
     }
 
     iop.set( IOPar::compKey(sKey::Output,sKey::Type), "Cube" );
-    const BufferString keybase = IOPar::compKey( Output::outputstr, 0 );
+    const BufferString keybase = IOPar::compKey( Output::outputstr(), 0 );
     const BufferString attribkey =
-	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey );
+	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey() );
 
     iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), nrseloutputs );
 
@@ -247,7 +247,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	outseisid += objfld->attrNm();
     }
 
-    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey), outseisid );
+    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey()), outseisid );
 
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
     iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI()),
@@ -290,7 +290,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     Scaler* sc = transffld->scfmtfld->getScaler();
     if ( sc )
     {
-	iop.set( IOPar::compKey(keybase,Output::scalekey), sc->toString() );
+	iop.set( IOPar::compKey(keybase,Output::scalekey()), sc->toString() );
 	delete sc;
     }
 
