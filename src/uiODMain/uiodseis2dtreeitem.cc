@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.50 2009-01-08 10:19:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.51 2009-01-20 04:44:00 cvsnanne Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -303,8 +303,8 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	const char* attribnm = storeditm_.getItem(itmidx)->text;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    mDynamicCastGet(uiOD2DLineSetSubItem*, lineitem, children_[idx] );
-	    lineitem->addStoredData(attribnm);
+	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
+	    lineitem->addStoredData( attribnm );
 	}
     }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as) )
@@ -312,7 +312,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
-	    mDynamicCastGet(uiOD2DLineSetSubItem*, lineitem, children_[idx] );
+	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
 	    lineitem->addAttrib( as );
 	}
     }
@@ -808,9 +808,9 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 
 bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
 {
-    const uiVisPartServer* visserv_ = applMgr()->visServer();
+    const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject( displayID() ))
+		    visserv->getObject( displayID() ))
     if ( !s2d ) return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -818,7 +818,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     const Attrib::DescID attribid = attrserv->getStoredID( lk, true );
     if ( attribid < 0 ) return false;
 
-    const Attrib::SelSpec* as = visserv_->getSelSpec(  displayID(),0 );
+    const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );
     Attrib::SelSpec myas( *as );
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
@@ -841,6 +841,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
+    applMgr()->modifyColorTable( displayID(), attribNr() );
 
     return true;
 }
@@ -848,9 +849,9 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
 
 void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
 {
-    const uiVisPartServer* visserv_ = applMgr()->visServer();
+    const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv_->getObject(displayID()))
+		    visserv->getObject(displayID()))
 
     CubeSampling cs;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
@@ -870,6 +871,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
+    applMgr()->modifyColorTable( displayID(), attribNr() );
 }
 
 
@@ -882,5 +884,5 @@ void uiOD2DLineSetAttribItem::clearAttrib()
 
     s2d->clearTexture( attribNr() );
     updateColumnText(0);
+    applMgr()->modifyColorTable( displayID(), attribNr() );
 }
-
