@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.8 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: tableascio.h,v 1.9 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class ExportHandler;
 class Converter;
 class FileFormatRepository;
 
-FileFormatRepository& FFR();
+mGlobal FileFormatRepository& FFR();
 
 
 /*!\brief Ascii I/O using Format Description.
@@ -118,7 +118,7 @@ protected:
 
     ObjectSet<Entry>	entries_;
 
-    friend FileFormatRepository& FFR();
+    mGlobal friend FileFormatRepository& FFR();
 
 };
 

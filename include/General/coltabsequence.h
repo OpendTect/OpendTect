@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.8 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: coltabsequence.h,v 1.9 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,7 @@ protected:
 
     ObjectSet<Sequence>	seqs_;
 
-    friend SeqMgr&	SM();
+    friend mGlobal SeqMgr&	SM();
 
     void		addFromPar(const IOPar&,bool);
     void		add( Sequence* seq )
@@ -159,7 +159,7 @@ protected:
     void		readColTabs();
 };
 
-SeqMgr& SM();
+mGlobal SeqMgr& SM();
 
 
 } // namespace ColTab

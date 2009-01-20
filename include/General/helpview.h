@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		18-8-2000
- RCS:		$Id: helpview.h,v 1.12 2008-12-18 16:03:51 cvsbert Exp $
+ RCS:		$Id: helpview.h,v 1.13 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,17 +28,17 @@ class IOPar;
 namespace HelpViewer
 {
 
-BufferString	getURLForWinID(const char* winid);
+mGlobal BufferString	getURLForWinID(const char* winid);
     			//!< Combines Link -> WinID -> URL
 
-BufferString	getCreditsURLForWinID(const char* winid);
+mGlobal BufferString	getCreditsURLForWinID(const char* winid);
     			//!< Finds link in the appropriate credits page
 
 
-BufferString	getLinkNameForWinID(const char*,const char*);
-BufferString	getURLForLinkName(const char*,const char*);
-BufferString	getCreditsFileName(const char* winid);
-bool		getCreditsData(const char* filenm,IOPar&);
+mGlobal BufferString	getLinkNameForWinID(const char*,const char*);
+mGlobal BufferString	getURLForLinkName(const char*,const char*);
+mGlobal BufferString	getCreditsFileName(const char* winid);
+mGlobal bool		getCreditsData(const char* filenm,IOPar&);
 
 
 };

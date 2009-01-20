@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.46 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.47 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
 };
 
 
-class uiMenuItemContainer : public uiObjHandle
+mClass uiMenuItemContainer : public uiObjHandle
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 

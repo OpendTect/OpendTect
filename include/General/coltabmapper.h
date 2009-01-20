@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.11 2009-01-16 04:49:32 cvsnanne Exp $
+ RCS:		$Id: coltabmapper.h,v 1.12 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace ColTab
   example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
  
  */
-struct MapperSetup : public CallBacker
+mStruct MapperSetup : public CallBacker
 {
 			MapperSetup();
     enum Type		{ Fixed, Auto, HistEq };

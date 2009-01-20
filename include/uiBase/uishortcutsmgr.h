@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          20/01/2006
- RCS:           $Id: uishortcutsmgr.h,v 1.7 2009-01-05 09:46:20 cvsranojay Exp $
+ RCS:           $Id: uishortcutsmgr.h,v 1.8 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QKeyEvent;
 
 
 class uiShortcutsMgr;
-uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
+mGlobal uiShortcutsMgr& SCMgr(); //!< This is where you get your shortcuts
 
 
 mClass uiKeyDesc

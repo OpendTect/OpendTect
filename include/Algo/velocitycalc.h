@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.6 2009-01-14 17:33:37 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.7 2009-01-20 04:38:45 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ template <class T> class ValueSeries;
    can be either RMO-velocities in time, or interval velocity in either depth or
    time. */
 
-class TimeDepthConverter
+mClass TimeDepthConverter
 {
 public:
     			TimeDepthConverter();

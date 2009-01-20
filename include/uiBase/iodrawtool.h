@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.31 2008-09-04 13:28:38 cvsbert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.32 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class QPen;
   ioDrawArea.
  */
 
-class ioDrawTool
+mClass ioDrawTool
 {
 public:
 

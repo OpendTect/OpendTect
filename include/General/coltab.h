@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltab.h,v 1.5 2008-11-24 10:45:29 cvsnanne Exp $
+ RCS:		$Id: coltab.h,v 1.6 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,13 +18,13 @@ ________________________________________________________________________
 namespace ColTab
 {
 
-    const char*		defSeqName();
-    float		defClipRate();
-    float		defSymMidval();
-    bool		defAutoSymmetry();
-    void		setMapperDefaults(float cr,float sm,bool autosym,
-	    				  bool histeq=false);
-    bool		defHistEq();
+    mGlobal const char*	    defSeqName();
+    mGlobal float	    defClipRate();
+    mGlobal float	    defSymMidval();
+    mGlobal bool	    defAutoSymmetry();
+    mGlobal void	    setMapperDefaults(float cr,float sm,bool autosym,
+	    		    bool histeq=false);
+    mGlobal bool	    defHistEq();
 }
 
 

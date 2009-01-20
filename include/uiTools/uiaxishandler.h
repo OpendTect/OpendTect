@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.14 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.15 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ protected:
 };
 
 //! draws line not outside box defined by X and Y value ranges
-void drawLine(uiLineItem&,const LinePars&,const uiAxisHandler& xah,
+mGlobal void drawLine(uiLineItem&,const LinePars&,const uiAxisHandler& xah,
 	      const uiAxisHandler& yah,const Interval<float>* xvalrg = 0);
 
 

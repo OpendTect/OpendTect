@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2008
- RCS:           $Id: uiobjdisposer.h,v 1.2 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uiobjdisposer.h,v 1.3 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,11 +39,11 @@ protected:
 				uiObjDisposer();
 
     void			doDel(CallBacker*);
-    friend uiObjDisposer*	uiOBJDISP();
+    mGlobal friend uiObjDisposer*	uiOBJDISP();
 
 };
 
-uiObjDisposer* uiOBJDISP();
+mGlobal uiObjDisposer* uiOBJDISP();
 
 
 #endif

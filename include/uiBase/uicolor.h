@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.17 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uicolor.h,v 1.18 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,11 +23,11 @@ class uiCheckBox;
 /*! \brief pops a selector box to select a new color 
      \return true if new color selected
 */
-bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
+mGlobal bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
 		    bool withtransp=false); 
 
 // To be used by cmddriver to select a color while closing the QColorDialog
-void		setExternalColor( const Color& );
+mGlobal void		setExternalColor( const Color& );
 static Color*	externalcolor = 0;
 
 

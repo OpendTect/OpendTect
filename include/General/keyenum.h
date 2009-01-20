@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          27/01/2006
- RCS:           $Id: keyenum.h,v 1.5 2008-07-03 13:01:12 cvskris Exp $
+ RCS:           $Id: keyenum.h,v 1.6 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -355,15 +355,15 @@ namespace OD
 	Cancel		= 0x01020001
     };
 
-    const char*		nameOf(ButtonState);
-    ButtonState		stateOf(const char*);
+    mGlobal const char*		nameOf(ButtonState);
+    mGlobal ButtonState		stateOf(const char*);
 
-    bool		leftMouseButton(ButtonState);
-    bool		middleMouseButton(ButtonState);
-    bool		rightMouseButton(ButtonState);
-    bool		shiftKeyboardButton(ButtonState);
-    bool		ctrlKeyboardButton(ButtonState);
-    bool		altKeyboardButton(ButtonState);
+    mGlobal bool    leftMouseButton(ButtonState);
+    mGlobal bool    middleMouseButton(ButtonState);
+    mGlobal bool    rightMouseButton(ButtonState);
+    mGlobal bool    shiftKeyboardButton(ButtonState);
+    mGlobal bool    ctrlKeyboardButton(ButtonState);
+    mGlobal bool    altKeyboardButton(ButtonState);
 };
 
 #endif

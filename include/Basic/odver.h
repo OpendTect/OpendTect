@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.7 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:		$Id: odver.h,v 1.8 2009-01-20 04:38:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ ________________________________________________________________________
 extern "C" {
 #endif
 
-    const char* GetFullODVersion();
+    mGlobal const char* GetFullODVersion();
 
 #ifdef __cpp__
 }
