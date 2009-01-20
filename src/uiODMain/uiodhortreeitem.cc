@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.11 2009-01-09 12:31:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.12 2009-01-20 14:04:59 cvsjaap Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -326,7 +326,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     }
     else if ( mnuid == 3 || mnuid == 4 )
     {
-	const bool onlyatsection = mnuid == 2;
+	const bool onlyatsection = mnuid == 3;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODHorizon2DTreeItem*,itm,children_[idx])
