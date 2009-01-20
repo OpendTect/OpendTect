@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.39 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.40 2009-01-20 11:42:11 cvsranojay Exp $";
 
 
 #include "uitextedit.h"
@@ -25,14 +25,13 @@ static const char* rcsID = "$Id: uitextedit.cc,v 1.39 2008-12-24 05:55:22 cvsnan
 #include <QTextEdit> 
 
 
-int uiTextEditBase::defaultwidth_ = 600;
-int uiTextEditBase::defaultheight_ = 450;
-
 
 uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     : uiObject(p,nm,bdy)
+    , defaultwidth_(600)
+    , defaultheight_(450)
 {
-    setFont( uiFontList::get(FontData::key(FontData::Fixed)) );
+    setFont( FontList().get(FontData::key(FontData::Fixed)) );
 }
 
 

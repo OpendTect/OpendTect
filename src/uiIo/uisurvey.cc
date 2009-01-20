@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.99 2009-01-15 16:52:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.100 2009-01-20 11:42:11 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -216,8 +216,8 @@ uiSurvey::uiSurvey( uiParent* p )
     inforight->attach( alignedBelow, rightgrp );
     inforight->attach( ensureBelow, horsep1 );
 
-    infoleft->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)) );
-    inforight->setFont( uiFontList::get(FontData::key(FontData::ControlSmall)));
+    infoleft->setFont( FontList().get(FontData::key(FontData::ControlSmall)) );
+    inforight->setFont( FontList().get(FontData::key(FontData::ControlSmall)));
 
     inllbl_ = new uiLabel( infoleft, "" ); 
     crllbl_ = new uiLabel( infoleft, "" );

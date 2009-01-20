@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjbody.cc,v 1.23 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobjbody.cc,v 1.24 2009-01-20 11:42:11 cvsranojay Exp $";
 
 
 #include "uiobjbody.h"
@@ -508,15 +508,8 @@ const uiFont* uiObjectBody::uifont() const
 {
     if ( !font_ )
     { 
-// TODO: implement new font handling. uiParent should have a get/set font 
-//       and all children should use this font.
-#if 0
-	const_cast<uiObjectBody*>(this)->font_ = 
-					&uiFontList::get(className(*this)); 
-#else
 	QFont qf( qwidget()->font() );
-	const_cast<uiObjectBody*>(this)->font_ = &uiFontList::getFromQfnt(&qf); 
-#endif
+	const_cast<uiObjectBody*>(this)->font_ = &FontList().getFromQfnt(&qf); 
 	const_cast<uiObjectBody*>(this)->qwidget()->setFont( font_->qFont() );
     }
 

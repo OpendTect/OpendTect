@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.49 2008-12-24 05:55:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.50 2009-01-20 11:42:11 cvsranojay Exp $";
 
 #include "uimain.h"
 
@@ -221,7 +221,7 @@ void uiMain::exit( int retcode )
 const uiFont* uiMain::font()
 {
     if ( !font_ )
-    { font_ = &uiFontList::get( className(*this) );  }
+    { font_ = &FontList().get( className(*this) );  }
 
     return font_;
 }

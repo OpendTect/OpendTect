@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.80 2009-01-07 14:33:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.81 2009-01-20 11:42:11 cvsranojay Exp $";
 
 
 #include "uitable.h"
@@ -421,7 +421,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , columnClicked(this)
     , activatedone(this)
 {
-    setFont( uiFontList::get(FontData::key(FontData::Fixed)) );
+    setFont( FontList().get(FontData::key(FontData::Fixed)) );
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
 

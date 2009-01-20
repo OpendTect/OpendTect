@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifont.cc,v 1.25 2008-12-24 05:49:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifont.cc,v 1.26 2009-01-20 11:42:11 cvsranojay Exp $";
 
 #include "uifontsel.h"
 #include "uifont.h"
@@ -29,8 +29,6 @@ static const char* rcsID = "$Id: uifont.cc,v 1.25 2008-12-24 05:49:25 cvsnanne E
 #include <qfontdialog.h> 
 #include <qfontmetrics.h> 
 
-bool uiFontList::inited = false;
-ObjectSet<uiFont> uiFontList::fonts;
 static const char* fDefKey = "Font.def";
 
 
@@ -158,6 +156,14 @@ bool select( uiFont& fnt, uiParent* parnt, const char* nm )
 
 //----------------------------------------------------------------------------
 
+
+uiFontList& uiFontList::getInst()
+{
+    static PtrMan<uiFontList> fl = new uiFontList;
+    return *fl;
+}
+
+
 uiFont& uiFontList::add( const char* key, const char* family, int pointSize,
                          FontData::Weight weight, bool isItalic )
 {
@@ -185,13 +191,13 @@ uiFont& uiFontList::getFromQfnt( QFont* qf )
 
 int uiFontList::nrKeys()
 {
-    return fonts.size(); 
+    return fonts_.size(); 
 }
 
 
 const char* uiFontList::key( int idx )
 {
-    return (const char*)fonts[idx]->key();
+    return (const char*)fonts_[idx]->key();
 }
 
 
@@ -199,8 +205,8 @@ void uiFontList::listKeys( BufferStringSet& ids )
 {
     initialise();
 
-    for ( int idx=0; idx<fonts.size(); idx++ )
-	ids.add( (const char*)fonts[idx]->key() );
+    for ( int idx=0; idx<fonts_.size(); idx++ )
+	ids.add( (const char*)fonts_[idx]->key() );
 }
 
 
@@ -208,11 +214,11 @@ uiFont& uiFontList::gtFont( const char* key, const FontData* fdat,
 			    const QFont* qf )
 {
     initialise();
-    if ( (!key || !*key) && !qf ) return *fonts[0]; 
+    if ( (!key || !*key) && !qf ) return *fonts_[0]; 
 
-    for ( int idx=0; idx<fonts.size(); idx++ )
+    for ( int idx=0; idx<fonts_.size(); idx++ )
     {
-	uiFont* fnt = fonts[ idx ];
+	uiFont* fnt = fonts_[ idx ];
 	if ( key && !strcmp(fnt->key(),key) ) 
 	{
 	    if ( fdat ) fnt->setFontData( *fdat );
@@ -226,11 +232,11 @@ uiFont& uiFontList::gtFont( const char* key, const FontData* fdat,
     }
 
     if ( !fdat )
-	return *fonts[0];
+	return *fonts_[0];
     else
     {
 	uiFont* nwFont = new uiFont( key, *fdat );
-	fonts += nwFont;
+	fonts_ += nwFont;
 	return *nwFont;
     }
 }
@@ -238,8 +244,8 @@ uiFont& uiFontList::gtFont( const char* key, const FontData* fdat,
 
 void uiFontList::initialise()
 {
-    if ( inited ) return;
-    inited = true;
+    if ( inited_ ) return;
+    inited_ = true;
     use( Settings::common() );
 }
 
@@ -297,9 +303,9 @@ void uiFontList::update( Settings& settings )
 {
     initialise();
     BufferString fdbuf;
-    for ( int idx=0; idx<fonts.size(); idx++ )
+    for ( int idx=0; idx<fonts_.size(); idx++ )
     {
-	uiFont& fnt = *fonts[idx];
+	uiFont& fnt = *fonts_[idx];
 	fnt.fontData().putTo( fdbuf );
 	settings.set( IOPar::compKey(fDefKey,fnt.key()), fdbuf );
     }
@@ -311,8 +317,8 @@ uiSetFonts::uiSetFonts( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup("Fonts",nm,"0.2.2").mainwidgcentered(true))
 {
     setCancelText( "" );
-    uiFontList::initialise();
-    const ObjectSet<uiFont>& fonts = uiFontList::fonts;
+    FontList().initialise();
+    const ObjectSet<uiFont>& fonts = FontList().fonts();
     uiButtonGroup* butgrp = new uiButtonGroup( this, "" );
     butgrp->setPrefWidthInChar( 25 );
     for ( int idx=0; idx<fonts.size(); idx++ )
@@ -333,10 +339,10 @@ void uiSetFonts::butPushed( CallBacker* obj )
     int idx = buttons.indexOf( sender );
     if ( idx < 0 ) { pErrMsg("idx < 0. Why?"); return; }
 
-    if ( select(*uiFontList::fonts[idx],sender->parent()) )
+    if ( select(*FontList().fonts()[idx],sender->parent()) )
     {
-	uiFontList::update( Settings::common() );
-	if ( !idx ) uiMain::theMain().setFont( uiFontList::get(), true );
+	FontList().update( Settings::common() );
+	if ( !idx ) uiMain::theMain().setFont( FontList().get(), true );
     }
 }
 
@@ -347,7 +353,7 @@ void uiSetFonts::butPushed( CallBacker* obj )
 uiSelFonts::uiSelFonts( uiParent* p, const char* nm, const char* winid )
 	: uiDialog(p,uiDialog::Setup("Fonts",nm,winid))
 {
-    uiFontList::listKeys( ids );
+    FontList().listKeys( ids );
 }
 
 
@@ -374,7 +380,7 @@ const char* uiSelFonts::resultFor( const char* str )
 	    return sels[idx]->box()->text();
     }
 
-    return uiFontList::key(0);
+    return FontList().key(0);
 }
 
 
