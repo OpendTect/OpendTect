@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.290 2009-01-16 06:00:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.291 2009-01-20 07:58:50 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -609,6 +609,38 @@ bool uiODApplMgr::pickSetsStored() const
 { return pickserv_->pickSetsStored(); }
 
 
+// TODO: Remove in v3.5
+static bool useOldDefColTab( const IOPar& par, ColTab::MapperSetup& ms,
+			     ColTab::Sequence& seq )
+{
+    BufferString seqnm;
+    bool autoscale = false;
+    float symmidval = mUdf(float);
+    float cliprate = mUdf(float);
+    Interval<float> coltabrange;
+    if ( !par.get("ColorSeq Name",seqnm) || seqnm.isEmpty() )
+	return false;
+    seq = ColTab::Sequence( seqnm.buf() );
+    par.getYN( "Auto scale", autoscale );
+    ms.type_ = autoscale ? ColTab::MapperSetup::Auto
+			 : ColTab::MapperSetup::Fixed;
+    if ( autoscale )
+    {
+	if ( par.get("Cliprate",cliprate) )
+	    ms.cliprate_ = cliprate;
+	if ( par.get("Symmetry Midvalue",symmidval) )
+	    ms.symmidval_ = symmidval;
+    }
+    else if ( par.get("Scale Factor",coltabrange) )
+    {
+	ms.start_ = coltabrange.start;
+	ms.width_ = coltabrange.width();
+    }
+
+    return true;
+}
+
+
 void uiODApplMgr::useDefColTab( int visid, int attrib )
 {
     if ( appl_.isRestoringSession() ) return;
@@ -626,14 +658,18 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
     if ( iop.read(fnm,sKey::Pars) )
     {
 	ColTab::MapperSetup mapper;
-	mapper.usePar( iop );
+	ColTab::Sequence seq;
+	if ( !useOldDefColTab(iop,mapper,seq) )
+	{
+	    const char* ctname = iop.find( sKey::Name );
+	    seq = ColTab::Sequence( ctname );
+	    mapper.usePar( iop );
+	}
+
 	visserv_->setColTabMapperSetup( visid, attrib, mapper );
-	
-	const char* ctname = iop.find( sKey::Name );
-	visserv_->setColTabSequence( visid, attrib, ColTab::Sequence(ctname) );
-	
+	visserv_->setColTabSequence( visid, attrib, seq );
 	appl_.colTabEd().colTab()->setMapperSetup( &mapper );
-	appl_.colTabEd().colTab()->setSequence( ctname );
+	appl_.colTabEd().colTab()->setSequence( &seq, true );
     }
 }
 
