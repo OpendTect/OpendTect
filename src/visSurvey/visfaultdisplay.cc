@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.35 2009-01-16 16:56:26 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.36 2009-01-20 09:46:04 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -281,6 +281,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     nontexturecol_ = emfault_->preferredColor();
     updateSingleColor();
     updateStickDisplay();
+    updateManipulator();
 
     return true;
 }
