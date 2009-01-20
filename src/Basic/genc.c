@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.98 2009-01-13 07:47:35 cvsranojay Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.99 2009-01-20 04:53:19 cvsranojay Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -28,8 +28,8 @@ static const char* rcsID = "$Id: genc.c,v 1.98 2009-01-13 07:47:35 cvsranojay Ex
 
 
 static int insysadmmode_ = 0;
-int InSysAdmMode() { return insysadmmode_; }
-void SetInSysAdmMode() { insysadmmode_ = 1; }
+mGlobal int InSysAdmMode() { return insysadmmode_; }
+mGlobal void SetInSysAdmMode() { insysadmmode_ = 1; }
 
 
 const char* GetLocalHostName()

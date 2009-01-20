@@ -7,10 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_DispMsg.cc,v 1.3 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: od_DispMsg.cc,v 1.4 2009-01-20 04:53:19 cvsranojay Exp $";
 
 
-#include "prog.h"
 #include "uimsg.h"
 #include "uimain.h"
 #include <iostream>

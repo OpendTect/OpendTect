@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.90 2009-01-08 16:16:41 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.91 2009-01-20 04:53:19 cvsranojay Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -33,7 +33,7 @@ extern "C" void SetSurveyName(const char*);
 extern "C" const char* GetSurveyName();
 extern "C" void SetSurveyNameDirty();
 
-bool IOMAN_no_survchg_triggers = false;
+mGlobal bool IOMAN_no_survchg_triggers = false;
 
 IOMan& IOM()
 {

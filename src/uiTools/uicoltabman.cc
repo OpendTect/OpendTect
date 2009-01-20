@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.23 2008-12-18 10:01:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.24 2009-01-20 04:53:19 cvsranojay Exp $";
 
 #include "uicoltabman.h"
 
@@ -15,7 +15,6 @@ static const char* rcsID = "$Id: uicoltabman.cc,v 1.23 2008-12-18 10:01:02 cvssa
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "draw.h"
-#include "iodrawtool.h"
 #include "keystrs.h"
 #include "settings.h"
 
