@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: ui2dsip.cc,v 1.7 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: ui2dsip.cc,v 1.8 2009-01-20 13:14:07 cvsbert Exp $";
 
 #include "ui2dsip.h"
 #include "uidialog.h"
@@ -25,18 +25,22 @@ ui2DDefSurvInfoDlg( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey setup for 2D only",
 				 "Specify survey characteristics","0.3.8"))
 {
-    trcdistfld = new uiGenInput( this, "Average trace distance",
+    trcdistfld = new uiGenInput( this, "Average trace distance (approx.)",
 	    			 FloatInpSpec() );
     DoubleInpSpec dis;
     xrgfld = new uiGenInput( this, "X-coordinate range", dis, dis );
     xrgfld->attach( alignedBelow, trcdistfld );
     yrgfld = new uiGenInput( this, "Y-coordinate range", dis, dis );
     yrgfld->attach( alignedBelow, xrgfld );
+    ismfld = new uiGenInput( this, "Above values are in",
+	    			    BoolInpSpec(true,"Meters","Feet") );
+    ismfld->attach( alignedBelow, yrgfld );
 }
 
     uiGenInput*		trcdistfld;
     uiGenInput*		xrgfld;
     uiGenInput*		yrgfld;
+    uiGenInput*		ismfld;
 
 };
 
@@ -52,6 +56,7 @@ uiDialog* ui2DSurvInfoProvider::dialog( uiParent* p )
 bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
 				      Coord crd[3] )
 {
+    xyft_ = false;
     if ( !din ) return false;
     mDynamicCastGet(ui2DDefSurvInfoDlg*,dlg,din)
     if ( !dlg ) { pErrMsg("Huh?"); return false; }
@@ -84,5 +89,6 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     crd[2] = Coord( c0.x, cmax.y );
 
     cs.zrg.start = cs.zrg.stop = mSetUdf(cs.zrg.step);
+    xyft_ = !dlg->ismfld->getBoolValue();
     return true;
 }
