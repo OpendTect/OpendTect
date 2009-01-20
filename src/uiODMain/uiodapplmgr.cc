@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.291 2009-01-20 07:58:50 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.292 2009-01-20 08:47:24 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -651,26 +651,26 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
     PtrMan<IOObj> ioobj = attrserv_->getIOObj( *as );
     if ( !ioobj ) return;
 
+    ColTab::MapperSetup mapper;
+    ColTab::Sequence seq( 0 );
     FilePath fp( ioobj->fullUserExpr(true) );
     fp.setExtension( "par" );
     BufferString fnm = fp.fullPath();
     IOPar iop;
     if ( iop.read(fnm,sKey::Pars) )
     {
-	ColTab::MapperSetup mapper;
-	ColTab::Sequence seq;
 	if ( !useOldDefColTab(iop,mapper,seq) )
 	{
 	    const char* ctname = iop.find( sKey::Name );
 	    seq = ColTab::Sequence( ctname );
 	    mapper.usePar( iop );
 	}
-
-	visserv_->setColTabMapperSetup( visid, attrib, mapper );
-	visserv_->setColTabSequence( visid, attrib, seq );
-	appl_.colTabEd().colTab()->setMapperSetup( &mapper );
-	appl_.colTabEd().colTab()->setSequence( &seq, true );
     }
+    
+    visserv_->setColTabMapperSetup( visid, attrib, mapper );
+    visserv_->setColTabSequence( visid, attrib, seq );
+    appl_.colTabEd().colTab()->setMapperSetup( &mapper );
+    appl_.colTabEd().colTab()->setSequence( &seq, true );
 }
 
 
