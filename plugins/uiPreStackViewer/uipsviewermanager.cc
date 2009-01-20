@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.36 2009-01-08 17:10:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.37 2009-01-20 12:42:28 cvsnanne Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -286,7 +286,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     {
 	viewer->setSectionDisplay( pdd ); 
 	BinID bid;
-	if (  menu->getMenuType() != uiMenuHandler::fromScene ) 
+	if (  menu->getMenuType() != uiMenuHandler::fromScene() ) 
 	{
 	    HorSampling hrg = pdd->getCubeSampling().hrg;
 	    bid = SI().transform((SI().transform(hrg.start)
@@ -299,7 +299,7 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
     else if ( s2d )
     {
 	int trcnr;
-	if ( menu->getMenuType() != uiMenuHandler::fromScene )
+	if ( menu->getMenuType() != uiMenuHandler::fromScene() )
 	    trcnr = s2d->getTraceNrRange().center();
 	else
 	    trcnr = s2d->getNearestTraceNr( pickedpos );
