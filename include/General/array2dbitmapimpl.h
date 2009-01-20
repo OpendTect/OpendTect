@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.11 2008-12-25 11:13:33 cvsranojay Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.12 2009-01-20 06:19:14 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 /*! \brief Common pars for A2DBitMapGenerators */
 
-struct WVAA2DBitMapGenPars : public A2DBitMapGenPars
+mStruct WVAA2DBitMapGenPars : public A2DBitMapGenPars
 {
 		WVAA2DBitMapGenPars()
 		  : drawwiggles_(true)
@@ -37,10 +37,10 @@ struct WVAA2DBitMapGenPars : public A2DBitMapGenPars
     				//!< If < 0, uses less than entire strip
     int		minpixperdim0_;	//!< Set to 0 or neg for dump everything
 
-    static const char	cZeroLineFill;		// => -126
-    static const char	cWiggFill;		// => -125
-    static const char	cLeftFill;		// => -124
-    static const char	cRightFill;		// => -123
+    static const char	cZeroLineFill();		// => -126
+    static const char	cWiggFill();		// => -125
+    static const char	cLeftFill();		// => -124
+    static const char	cRightFill();		// => -123
 
 };
 
@@ -82,15 +82,15 @@ protected:
 namespace Interpolate { template <class T> class Applier2D; }
 
 
-struct VDA2DBitMapGenPars : public A2DBitMapGenPars
+mStruct VDA2DBitMapGenPars : public A2DBitMapGenPars
 {
 			VDA2DBitMapGenPars()
 			: lininterp_(false)	{}
 
     bool		lininterp_;	//!< Use bi-linear interpol, not poly
 
-    static const char	cMinFill;	// => -120
-    static const char	cMaxFill;	// => 120
+    static const char	cMinFill();	// => -120
+    static const char	cMaxFill();	// => 120
 
     static float	offset(char);	//!< cMinFill -> 0, 0 -> 0.5
 

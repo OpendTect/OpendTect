@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.42 2009-01-07 14:28:05 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.43 2009-01-20 06:19:14 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,12 +66,12 @@ public:
     const LineKey&		curLineKey() const;
     virtual void		adjustInlCrlStep(const CubeSampling&)	{};
 
-    static const char*		outputstr;
-    static const char*          cubekey;
-    static const char*          tskey;
-    static const char*          surfkey;
-    static const char*          scalekey;
-    static const char*          varzlinekey;
+    static const char*		outputstr();
+    static const char*          cubekey();
+    static const char*          tskey();
+    static const char*          surfkey();
+    static const char*          scalekey();
+    static const char*          varzlinekey();
 
 protected:
 
@@ -147,11 +147,11 @@ public:
 
     bool 			isDataType(const char*) const;
 
-    static const char*		seisidkey;
-    static const char*		attribkey;
-    static const char*		inlrangekey;
-    static const char*		crlrangekey;
-    static const char*		depthrangekey;
+    static const char*		seisidkey();
+    static const char*		attribkey();
+    static const char*		inlrangekey();
+    static const char*		crlrangekey();
+    static const char*		depthrangekey();
 
 protected:
 
@@ -247,10 +247,10 @@ public:
 	    					TypeSet<float>&) const;
     
     //TODO : check where we want to put this: output?
-    static const char*		filenamekey;
-    static const char*		locationkey;
-    static const char*		attribkey;
-    static const char*		surfidkey;
+    static const char*		filenamekey();
+    static const char*		locationkey();
+    static const char*		attribkey();
+    static const char*		surfidkey();
 
 protected:
     BinIDValueSet&		bidvalset_;

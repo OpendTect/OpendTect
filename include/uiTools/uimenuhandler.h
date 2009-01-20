@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.5 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.6 2009-01-20 06:19:14 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,8 @@ public:
     void			set2DPickedPos(const Geom::Point2D<double>& pos)
 					{ positionxy_=pos; }
     
-    static const int		fromTree;
-    static const int		fromScene;
+    static const int		fromTree();
+    static const int		fromScene();
 
 protected:
     bool			executeMenuInternal();

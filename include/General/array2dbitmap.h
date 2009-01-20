@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.16 2008-12-25 11:13:33 cvsranojay Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.17 2009-01-20 06:19:14 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ typedef Array2D<char>	A2DBitMap;
 
 /*! \brief Array2D Bitmap generation parameters */
 
-struct A2DBitMapGenPars
+mStruct A2DBitMapGenPars
 {
 		A2DBitMapGenPars()
 		  : nointerpol_(false)
@@ -43,7 +43,7 @@ struct A2DBitMapGenPars
     float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
 
-    static const char cNoFill;	//!< -127, = background/transparent
+    static const char cNoFill();	//!< -127, = background/transparent
 
 };
 

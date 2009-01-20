@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.84 2008-12-29 05:57:31 cvsranojay Exp $
+ RCS:		$Id: survinfo.h,v 1.85 2009-01-20 06:19:14 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,15 +136,15 @@ public:
     bool		isReasonable(const Coord&) const;
 			//!< Checks if in or near survey
 
-    static const char*	sKeyInlRange;
-    static const char*	sKeyCrlRange;
-    static const char*	sKeyXRange;
-    static const char*	sKeyYRange;
-    static const char*	sKeyZRange;
-    static const char*	sKeyWSProjName;
-    static const char*	sKeyXYInFt;
-    static const char*	sKeyDpthInFt; //!< Not used by SI, just a UI default
-    static const char*	sKeySurvDataType;
+    static const char*	sKeyInlRange();
+    static const char*	sKeyCrlRange();
+    static const char*	sKeyXRange();
+    static const char*	sKeyYRange();
+    static const char*	sKeyZRange();
+    static const char*	sKeyWSProjName();
+    static const char*	sKeyXYInFt();
+    static const char*	sKeyDpthInFt(); //!< Not used by SI, just a UI default
+    static const char*	sKeySurvDataType();
 
     const IOPar&	pars() const			{ return pars_; }
     			// Project name will be stored
