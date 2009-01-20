@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.21 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uitextedit.h,v 1.22 2009-01-20 12:22:19 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,11 +31,11 @@ public:
     const char*		text() const;
     int			nrLines() const;
 
-    static int		defaultWidth()		  { return defaultwidth_; }
-    static void		setDefaultWidth( int w )  { defaultwidth_ = w; }
+    int			defaultWidth()		  { return defaultwidth_; }
+    void		setDefaultWidth( int w )  { defaultwidth_ = w; }
 
-    static int		defaultHeight()		  { return defaultheight_; }
-    static void		setDefaultHeight( int h ) { defaultheight_ = h; }
+    int			defaultHeight()		  { return defaultheight_; }
+    void		setDefaultHeight( int h ) { defaultheight_ = h; }
 
     bool		isModified() const;
 
@@ -45,8 +45,8 @@ protected:
     const QTextEdit&	qte() const 
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
-    static int          defaultwidth_;
-    static int          defaultheight_;
+    int			defaultwidth_;
+    int			defaultheight_;
     virtual int		maxLines() const		{ return -1; }
 
     mutable BufferString result_;
