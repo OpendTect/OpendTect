@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.38 2008-12-24 08:41:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.39 2009-01-20 11:16:16 cvsnageswara Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -174,13 +174,15 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
 void uiSeisBrowser::createMenuAndToolBar()
 {
     uitb_ = new uiToolBar( this, "Tool Bar" );
-    mAddButton("gotopos.png",goToPush,"",false);
-    mAddButton("info.png",infoPush,"",false);
+    mAddButton( "gotopos.png",goToPush,"Goto position",false );
+    mAddButton( "info.png",infoPush,"Information",false );
     if ( !is2d_ )
-	crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true);
-    mAddButton("leftarrow.png",leftArrowPush,"",false);
-    mAddButton("rightarrow.png",rightArrowPush,"",false);
-    showwgglbutidx_ = mAddButton("viewflat.png",showWigglePush,"",false);
+	crlwisebutidx_ = mAddButton( "crlwise.png",switchViewTypePush,
+				     "Switch to Crossline",true );
+    mAddButton( "leftarrow.png",leftArrowPush,"Move left",false );
+    mAddButton( "rightarrow.png",rightArrowPush,"Move right",false );
+    showwgglbutidx_ = mAddButton( "viewflat.png",showWigglePush,
+	    			  "Show Wiggle",false );
 }
 
 
