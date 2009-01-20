@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uifont.h,v 1.8 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uifont.h,v 1.9 2009-01-20 11:34:48 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,38 +74,46 @@ mClass uiFontList : public CallBacker
 
 public:
 
-    static int		nrKeys();
-    static const char*	key(int);
-    static void		listKeys(BufferStringSet&);
+			uiFontList() : inited_(false)	    {}
+    static uiFontList&	getInst();
 
-    static uiFont&	get(const char* key=0);
-    static uiFont&	getFromQfnt(QFont*);
+    int			nrKeys();
+    const char*		key(int);
+    void		listKeys(BufferStringSet&);
 
-    static uiFont&	add(const char* key,const FontData&);
-    static uiFont&	add(const char* key,
+    const ObjectSet<uiFont>&	fonts() const	{ return fonts_; }
+    ObjectSet<uiFont>&	fonts()			{ return fonts_; }
+
+    uiFont&		get(const char* key=0);
+    uiFont&		getFromQfnt(QFont*);
+
+    uiFont&		add(const char* key,const FontData&);
+    uiFont&		add(const char* key,
 			    const char* f=FontData::defaultFamily(),
 			    int ptsz=FontData::defaultPointSize(),
 			    FontData::Weight w=FontData::defaultWeight(),
 			    bool it=FontData::defaultItalic());
 
-    static void		use(const Settings&);
-    static void		update(Settings&);
+    void		use(const Settings&);
+    void		update(Settings&);
 
 protected:
 
-    static ObjectSet<uiFont> fonts;
-    static void		initialise();
-    static uiFont&	gtFont(const char* key,const FontData* =0,
+    ObjectSet<uiFont>	fonts_;
+    void		initialise();
+    uiFont&		gtFont(const char* key,const FontData* =0,
 			       const QFont* =0 );
-
 private:
 
-    static bool		inited;
+    bool		inited_;
 
-    static void		addOldGuess(const Settings&,const char*,int);
-    static void		removeOldEntries(Settings&);
+    void		addOldGuess(const Settings&,const char*,int);
+    void		removeOldEntries(Settings&);
 
 };
+
+
+#define FontList    uiFontList::getInst
 
 
 #endif
