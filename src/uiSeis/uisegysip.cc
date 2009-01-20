@@ -7,13 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegysip.cc,v 1.20 2009-01-15 16:08:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegysip.cc,v 1.21 2009-01-20 12:53:19 cvsbert Exp $";
 
 #include "uisegysip.h"
 #include "uisegyread.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "segyscanner.h"
+#include "segytr.h"
+#include "segyhdr.h"
 #include "posinfodetector.h"
 #include "cubesampling.h"
 #include "ptrman.h"
@@ -57,6 +59,7 @@ uiDialog* uiSEGYSurvInfoProvider::dialog( uiParent* p )
 {
     uiDialog::Setup su( "Survey setup (SEG-Y)", mNoDlgTitle, mNoHelpID );
     su.oktext("").canceltext("");
+    xyinft_ = false;
     return new uiSEGYSIPMgrDlg( this, p, su );
 }
 
@@ -97,6 +100,8 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
 	{ uiMSG().error( errmsg ); return false; }
 
     cs.zrg = scanner->zRange();
+    const SEGYSeisTrcTranslator* tr = scanner->translator();
+    xyinft_ = tr && tr->binHeader().mfeet == 2;
     return true;
 }
 
