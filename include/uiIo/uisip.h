@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisip.h,v 1.6 2009-01-15 16:08:41 cvsbert Exp $
+ RCS:           $Id: uisip.h,v 1.7 2009-01-20 12:39:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
 
     enum TDInfo			{ Uknown, Time, Depth, DepthFeet };
     virtual TDInfo		tdInfo() const		{ return Uknown; }
+    virtual bool		xyInFeet() const	{ return false; }
 
     virtual IOPar*		getImportPars() const	{ return 0; }
     virtual void		startImport(uiParent*,const IOPar&) {}
