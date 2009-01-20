@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.40 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.41 2009-01-20 10:29:23 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -127,7 +127,7 @@ public:
 
     virtual void		updateColumnText(int col);
     virtual void		updateCheckStatus();
-    
+
 protected:
     virtual int			uiListViewItemType() const;
     				/*!<\returns the uiListViewItem::Type that
@@ -213,8 +213,6 @@ protected:
     uiListView*		listview_;
     bool		disabrightclick_;
     bool		disabanyclick_;
-
-    int			prevselectionkey_;
 };
 
 
