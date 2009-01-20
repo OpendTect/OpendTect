@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.8 2008-12-31 04:39:33 cvsranojay Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.9 2009-01-20 12:09:29 cvsranojay Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -296,8 +296,8 @@ void ODGraphicsTextItem::setText( const char* txt )
 
 QRectF ODGraphicsTextItem::boundingRect() const
 {
-    const uiFont& font = uiFontList::get(
-	    			FontData::key(FontData::GraphicsSmall ) );
+    const uiFont& font = FontList().get(
+				FontData::key(FontData::GraphicsSmall ) );
     QFontMetrics fm( font.qFont() );
     QRectF rectf( fm.boundingRect( *text_ ) );
     return rectf;

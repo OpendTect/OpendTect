@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: iodraw.cc,v 1.50 2008-12-31 04:39:33 cvsranojay Exp $";
+static const char* rcsID = "$Id: iodraw.cc,v 1.51 2009-01-20 12:09:29 cvsranojay Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"
@@ -32,7 +32,7 @@ ioDrawTool::ioDrawTool( QPaintDevice* pd )
     , qpainterprepared_(false)
     , qpen_(*new QPen())
     , qpaintdev_(*pd)
-    , font_(&uiFontList::get())
+    , font_(&FontList().get())
     , areabgcolor_(Color::White())
     , usebgpattern_(false)
 {
