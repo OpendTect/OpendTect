@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocflow.cc,v 1.2 2007-12-20 16:18:54 cvsbert Exp $";
+static const char* rcsID = "$Id: madprocflow.cc,v 1.3 2009-01-20 10:54:43 cvsraman Exp $";
 
 #include "madprocflow.h"
 #include "madprocflowtr.h"
@@ -13,9 +13,10 @@ static const char* rcsID = "$Id: madprocflow.cc,v 1.2 2007-12-20 16:18:54 cvsber
 #include "seistype.h"
 #include "ascstream.h"
 
-static const char* sKeyInp = "Input";
-static const char* sKeyOutp = "Output";
-static const char* sKeyProc = "Proc";
+const char* ODMad::ProcFlow::sKeyInp()		{ return "Input"; }
+const char* ODMad::ProcFlow::sKeyOutp()		{ return "Output"; }
+const char* ODMad::ProcFlow::sKeyProc()		{ return "Proc"; }
+const char* ODMad::ProcFlow::sKeyNrProcs()	{ return "Nr Procs"; }
 
 defineTranslatorGroup(ODMadProcFlow,"Madagascar process flow");
 defineTranslator(dgb,ODMadProcFlow,mDGBKey);
@@ -25,14 +26,15 @@ mDefSimpleTranslatorioContextWithExtra(ODMadProcFlow,None,
 
 ODMad::ProcFlow::ProcFlow( const char* nm )
     : NamedObject(nm)
-    , inpiop_(sKeyInp)
-    , outiop_(sKeyOutp)
+    , inpiop_(sKeyInp())
+    , outiop_(sKeyOutp())
 {
 }
 
 
 ODMad::ProcFlow::~ProcFlow()
 {
+    deepErase( *this );
 }
 
 
@@ -45,6 +47,9 @@ ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
     if ( *res == *ODMad::sKeyMadagascar || *res == 'm' )
 	return ODMad::ProcFlow::Madagascar;
 
+    if ( *res == 'S' || *res == 's' )
+	return ODMad::ProcFlow::SU;
+
     Seis::GeomType gt = Seis::geomTypeOf( res );
     return (ODMad::ProcFlow::IOType)gt;
 }
@@ -56,6 +61,8 @@ void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 	iop.set( sKey::Type, Seis::nameOf((Seis::GeomType)iot) );
     else if ( iot == ODMad::ProcFlow::Madagascar )
 	iop.set( sKey::Type, ODMad::sKeyMadagascar );
+    else if ( iot == ODMad::ProcFlow::SU )
+	iop.set( sKey::Type, "SU" );
     else
 	iop.set( sKey::Type, sKey::None );
 }
@@ -63,30 +70,65 @@ void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 
 void ODMad::ProcFlow::fillPar( IOPar& iop ) const
 {
-    iop.mergeComp( inpiop_, sKeyInp );
-    iop.mergeComp( outiop_, sKeyOutp );
-    iop.set( sKeyProc, procs_ );
+    iop.mergeComp( inpiop_, sKeyInp() );
+    iop.mergeComp( outiop_, sKeyOutp() );
+    iop.set( sKeyNrProcs(), size() );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const char* key = IOPar::compKey( sKeyProc(), idx );
+	IOPar par;
+	(*this)[idx]->fillPar( par );
+	iop.mergeComp( par, key );
+    }
 }
 
 
 void ODMad::ProcFlow::usePar( const IOPar& iop )
 {
-    IOPar* subpar = iop.subselect( sKeyInp );
+    IOPar* subpar = iop.subselect( sKeyInp() );
     if ( subpar && subpar->size() )
 	inpiop_ = *subpar;
     else
 	inpiop_.clear();
     delete subpar;
 
-    subpar = iop.subselect( sKeyOutp );
+    subpar = iop.subselect( sKeyOutp() );
     if ( subpar && subpar->size() )
 	outiop_ = *subpar;
     else
 	outiop_.clear();
     delete subpar;
 
-    procs_.deepErase();
-    iop.get( "Proc", procs_ );
+    subpar = iop.subselect( sKeyProc() );
+    if ( !subpar )
+    {
+	BufferStringSet procs;
+	if ( !iop.get(sKeyProc(),procs) )
+	    return;
+
+	for ( int idx=0; idx<procs.size(); idx++ )
+	{
+	    ODMad::Proc* proc = new ODMad::Proc( procs.get(idx) );
+	    (*this) += proc;
+	}
+
+	return;
+    }
+
+    int nrprocs = mUdf(int);
+    iop.get( sKeyNrProcs(), nrprocs );
+    for ( int idx=0; idx<nrprocs; idx++ )
+    {
+	IOPar* procpar = subpar->subselect( idx );
+	if ( !procpar ) break;
+
+	ODMad::Proc* proc = new ODMad::Proc("");
+	if ( !proc->usePar(*procpar) )
+	    return;
+
+	(*this) += proc;
+	delete procpar;
+    }
 }
 
 

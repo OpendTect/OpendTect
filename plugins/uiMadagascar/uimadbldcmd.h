@@ -4,16 +4,20 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: uimadbldcmd.h,v 1.7 2007-12-11 15:18:26 cvsbert Exp $
+ * ID       : $Id: uimadbldcmd.h,v 1.8 2009-01-20 10:55:04 cvsraman Exp $
 -*/
 
 #include "uigroup.h"
-class uiLineEdit;
-class uiSplitter;
+
+class BufferStringSet;
+class uiCheckBox;
 class uiComboBox;
+class uiLineEdit;
 class uiListBox;
+class uiMadagascarBldPlotCmd;
+class uiSplitter;
 class uiTextEdit;
-namespace ODMad { class ProgDef; }
+namespace ODMad { class ProgDef; class Proc; }
 
 
 class uiMadagascarBldCmd : public uiGroup
@@ -23,11 +27,11 @@ public:
 			uiMadagascarBldCmd(uiParent*);
 			~uiMadagascarBldCmd();
 
-    void		setCmd(const char*);
+    void		setProc(const ODMad::Proc*);
 
     Notifier<uiMadagascarBldCmd> cmdAvailable;
     bool		isAdd() const	{ return cmdisadd_; }
-    const char*		command() const;
+    ODMad::Proc*	proc() const;
 
 protected:
 
@@ -36,9 +40,11 @@ protected:
     uiComboBox*		groupfld_;
     uiListBox*		progfld_;
     uiLineEdit*		cmdfld_;
+    uiMadagascarBldPlotCmd*		auxcmdfld_;
     uiLineEdit*		descfld_;
     uiLineEdit*		synopsfld_;
     uiLineEdit*		srchfld_;
+    uiCheckBox*		useauxfld_;
     uiTextEdit*		commentfld_;
 
     void		createMainPart(uiGroup*);
@@ -51,6 +57,7 @@ protected:
     void		doAdd(CallBacker*);
     void		dClick(CallBacker*);
     void		doSearch(CallBacker*);
+    void		auxSel(CallBacker*);
 
     void		setProgName(const char*);
     void		setInput(const ODMad::ProgDef*);
@@ -58,6 +65,5 @@ protected:
     void		setGroupProgs(const BufferString*);
 
 };
-
 
 #endif

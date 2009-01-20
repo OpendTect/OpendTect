@@ -4,21 +4,24 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.17 2008-05-05 05:42:18 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.18 2009-01-20 10:55:04 cvsraman Exp $";
 
 #include "uimadbldcmd.h"
-#include "uimsg.h"
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uicompoundparsel.h"
 #include "uilabel.h"
 #include "uilineedit.h"
 #include "uilistbox.h"
-#include "uicombobox.h"
-#include "uibutton.h"
+#include "uimsg.h"
 #include "uisplitter.h"
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uitextedit.h"
-#include "maddefs.h"
+
 #include "executor.h"
+#include "maddefs.h"
+#include "madproc.h"
 
 static const char* sKeyAll = "All";
 static const char* sKeySrchRes = "Search results";
@@ -68,6 +71,109 @@ static const char* separatePars( const char* cmd )
 
     return ret->buf();
 }
+
+
+class uiMadagascarBldPlotCmd : public uiCompoundParSel
+{
+public:
+
+    			uiMadagascarBldPlotCmd(uiParent*);
+			~uiMadagascarBldPlotCmd();
+
+    BufferString	getPlotCommand() const		{ return getSummary(); }
+    void		setPlotCmd(const char*);
+
+protected:
+
+    BufferString	createplotcmd_;
+    BufferString	viewplotcmd_;
+
+    BufferStringSet&	cmdlist_;
+
+    BufferString	getSummary() const;
+    void		doDlg(CallBacker*);
+};
+
+
+uiMadagascarBldPlotCmd::uiMadagascarBldPlotCmd( uiParent* p )
+  : uiCompoundParSel(p,"Plot Command","Create")
+  , cmdlist_(*new BufferStringSet)
+{
+    const ObjectSet<ODMad::ProgDef>& defs = ODMad::PI().defs();
+    for ( int idx=0; idx<defs.size(); idx++ )
+    {
+	const ODMad::ProgDef& def = *defs[idx];
+	if ( matchStringCI("plot",def.group_->buf())
+	  && strstr(def.synopsis_.buf(),"in.rsf") )
+	    cmdlist_.add( def.name_ );
+    }
+
+    butPush.notify( mCB(this,uiMadagascarBldPlotCmd,doDlg) );
+}
+
+
+uiMadagascarBldPlotCmd::~uiMadagascarBldPlotCmd()
+{
+    delete &cmdlist_;
+}
+
+
+void uiMadagascarBldPlotCmd::setPlotCmd( const char* cmd )
+{
+    createplotcmd_ = cmd;
+    char* pipechar = strchr( createplotcmd_.buf(), '|' );
+    if ( pipechar )
+    {
+	viewplotcmd_ = pipechar + 2;
+	*(pipechar-1) = '\0';
+    }
+    else
+	viewplotcmd_.setEmpty();
+
+    updateSummary();
+}
+
+
+BufferString uiMadagascarBldPlotCmd::getSummary() const
+{
+    BufferString retstr = createplotcmd_;
+    if ( !viewplotcmd_.isEmpty() )
+    {
+	retstr += " | ";
+	retstr += viewplotcmd_;
+    }
+
+    return retstr;
+}
+
+
+void uiMadagascarBldPlotCmd::doDlg( CallBacker* )
+{
+    uiDialog dlg( this, uiDialog::Setup("Create plot command","","") );
+    BufferString lbltxt = "Command to generate plot (e.g. sfwiggle)";
+    uiLabel* lbl1 = new uiLabel( &dlg, lbltxt.buf() );
+    uiLineEdit* genplotfld = new uiLineEdit( &dlg, "gen cmd" );
+    genplotfld->setCompleter( cmdlist_, true );
+    genplotfld->setvalue_( createplotcmd_.buf() );
+    genplotfld->attach( rightTo, lbl1 );
+
+    lbltxt = "Command to show plot (e.g. xtpen)";
+    uiLabel* lbl2 = new uiLabel( &dlg, lbltxt.buf() );
+    lbl2->attach( alignedBelow, lbl1 );
+    BufferStringSet penlist;
+    penlist.add( "xtpen" );
+    uiLineEdit* viewplotfld = new uiLineEdit( &dlg, "view cmd" );
+    viewplotfld->setCompleter( penlist, true );
+    viewplotfld->setvalue_( viewplotcmd_ );
+    viewplotfld->attach( rightTo, lbl2 );
+
+    if ( !dlg.go() )
+     return;
+
+    createplotcmd_ = genplotfld->getvalue_();
+    viewplotcmd_ = viewplotfld->getvalue_();
+}
+
 
 
 uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
@@ -169,16 +275,25 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
     if ( synopsfld_ )
 	cmdfld_->attach( alignedBelow, synopsfld_ );
 
+    useauxfld_ = new uiCheckBox( lowgrp, "Add Plot Command",
+	   			 mCB(this,uiMadagascarBldCmd,auxSel) );
+    useauxfld_->attach( alignedBelow, cmdfld_ );
+
+    auxcmdfld_ = new uiMadagascarBldPlotCmd( lowgrp );
+    auxcmdfld_->attach( alignedBelow, useauxfld_ );
+    auxcmdfld_->setStretch( 2, 0 );
+
     uiPushButton* addbut = new uiPushButton( lowgrp, "&Add", true );
     addbut->setToolTip( "Add to process flow" );
     addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
     uiPushButton* edbut = new uiPushButton( lowgrp, "&Replace", true );
     edbut->setToolTip( "Replace current command" );
     edbut->activated.notify( mCB(this,uiMadagascarBldCmd,doEdit) );
-    edbut->attach( rightTo, cmdfld_ );
+    edbut->attach( alignedBelow, auxcmdfld_ );
     addbut->attach( rightOf, edbut );
 
     lowgrp->setHAlignObj( synopsfld_ );
+    auxSel(0);
     return lowgrp;
 }
 
@@ -188,19 +303,32 @@ uiMadagascarBldCmd::~uiMadagascarBldCmd()
 }
 
 
-const char*  uiMadagascarBldCmd::command() const
+ODMad::Proc* uiMadagascarBldCmd::proc() const
 {
     const char* text = cmdfld_->text();
-    BufferString* comm = new BufferString( separateProgName(text,true) );
-    *comm += separatePars( text );
-    return comm->buf();
+    if ( !useauxfld_->isChecked() )
+	return new ODMad::Proc( text );
+
+    BufferString auxtxt = auxcmdfld_->getPlotCommand();
+    return new ODMad::Proc( text, auxtxt.buf() );
 }
 
 
-void uiMadagascarBldCmd::setCmd( const char* cmd )
+void uiMadagascarBldCmd::setProc( const ODMad::Proc* proc )
 {
-    setProgName( separateProgName( cmd, true ) );
-    cmdfld_->setText( cmd );
+    if ( !proc )
+    {
+	cmdfld_->setText( 0 );
+	useauxfld_->setChecked( false );
+	auxcmdfld_->setPlotCmd( 0 );
+	return;
+    }
+
+    setProgName( proc->progName() );
+    cmdfld_->setText( proc->getCommand() );
+    const char* auxcmd = proc->auxCommand();
+    useauxfld_->setChecked( auxcmd && *auxcmd );
+    auxcmdfld_->setPlotCmd( auxcmd );
 }
 
 
@@ -260,6 +388,12 @@ void uiMadagascarBldCmd::doSearch( CallBacker* )
 
     progfld_->setCurrentItem( 0 );
     progChg( 0 );
+}
+
+
+void uiMadagascarBldCmd::auxSel( CallBacker* )
+{
+    auxcmdfld_->setSensitive( useauxfld_->isChecked() );
 }
 
 
@@ -327,3 +461,6 @@ void uiMadagascarBldCmd::setInput( const ODMad::ProgDef* def )
 
 void uiMadagascarBldCmd::doAdd( CallBacker* )	{ mImplButFn( true ); }
 void uiMadagascarBldCmd::doEdit( CallBacker* )	{ mImplButFn( false ); }
+
+
+

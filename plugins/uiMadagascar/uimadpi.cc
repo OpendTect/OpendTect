@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.11 2008-09-23 11:07:59 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.12 2009-01-20 10:55:04 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -55,9 +55,10 @@ class uiMadagascarLink :  public CallBacker
 {
 public:
 			uiMadagascarLink(uiODMain&);
+			~uiMadagascarLink();
 
-    uiODMain&		appl;
     uiODMenuMgr&	mnumgr;
+    uiMadagascarMain*	madwin_;
 
     void		doMain(CallBacker*);
     void		insertItems(CallBacker* cb=0);
@@ -66,11 +67,17 @@ public:
 
 
 uiMadagascarLink::uiMadagascarLink( uiODMain& a )
-	: appl(a)
-    	, mnumgr(a.menuMgr())
+    	: mnumgr(a.menuMgr())
+        , madwin_(0)
 {
     mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,insertItems) );
     insertItems();
+}
+
+
+uiMadagascarLink::~uiMadagascarLink()
+{
+    delete madwin_;
 }
 
 
@@ -91,8 +98,10 @@ void uiMadagascarLink::doMain( CallBacker* )
 	return;
     }
 
-    uiMadagascarMain dlg( &appl );
-    dlg.go();
+    if ( !madwin_ )
+	madwin_ = new uiMadagascarMain( 0 );
+
+    madwin_->show();
 }
 
 

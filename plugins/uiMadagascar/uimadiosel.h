@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: uimadiosel.h,v 1.6 2008-04-25 11:09:46 cvsraman Exp $
+ * ID       : $Id: uimadiosel.h,v 1.7 2009-01-20 10:55:04 cvsraman Exp $
 -*/
 
 #include "uicompoundparsel.h"
@@ -55,6 +55,7 @@ public:
     			{ return isinp_; }
     bool		isNone() const;
     bool		isMad() const;
+    bool		isSU() const;
     inline bool		isOD() const	{ return !isMad() && !isNone(); }
     ODMad::ProcFlow::IOType ioType() const
 			{
@@ -78,7 +79,8 @@ protected:
     CtxtIOObj&		ctio2d_;
     CtxtIOObj&		ctiops3d_;
     CtxtIOObj&		ctiops2d_;
-    int			idx3d_, idx2d_, idxps3d_, idxps2d_, idxmad_, idxnone_;
+    int			idx3d_, idx2d_, idxps3d_, idxps2d_, idxmad_,
+			idxsu_, idxnone_;
     IOPar&		iop_;
     bool		isinp_;
 

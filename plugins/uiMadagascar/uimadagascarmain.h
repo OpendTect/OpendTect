@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.15 2008-06-05 12:02:08 cvsraman Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.16 2009-01-20 10:55:04 cvsraman Exp $
 -*/
 
 #include "uibatchlaunch.h"
@@ -25,9 +25,6 @@ public:
 			uiMadagascarMain(uiParent*);
 			~uiMadagascarMain();
 
-    bool		getFlow(ODMad::ProcFlow&);
-    void		setFlow(const ODMad::ProcFlow&);
-
 protected:
 
     CtxtIOObj&		ctio_;
@@ -40,6 +37,8 @@ protected:
     uiToolButton*	downbut_;
     uiToolButton*	rmbut_;
     uiMadagascarBldCmd*	bldfld_;
+
+    ODMad::ProcFlow&	procflow_;
 
     bool		rejectOK(CallBacker*);
     void		cmdAvail(CallBacker*);
@@ -56,6 +55,7 @@ protected:
     bool		prepareProcessing()	{ return true; }
     bool		fillPar(IOPar&);
     void		createMenus();
+    void		updateCaption();
     uiGroup*		crProcGroup(uiGroup*);
 
 };

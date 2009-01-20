@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.17 2008-06-05 12:02:08 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.18 2009-01-20 10:55:04 cvsraman Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -57,6 +57,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	mAdd( Seis::nameOf(Seis::LinePS), idxps2d_ );
     }
     mAdd( ODMad::sKeyMadagascar, idxmad_ );
+    mAdd( "SU", idxsu_ );
     mAdd( sKey::None, idxnone_ );
 
     typfld_ = new uiGenInput( this, isinp ? "Input" : "Output",
@@ -126,6 +127,12 @@ bool uiMadIOSelDlg::isMad() const
 }
 
 
+bool uiMadIOSelDlg::isSU() const
+{
+    return typfld_->getIntValue() == idxsu_;
+}
+
+
 Seis::GeomType uiMadIOSelDlg::geomType() const
 {
     const int choice = typfld_->getIntValue();
@@ -176,7 +183,10 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seisps3dfld_ ) seisps3dfld_->display( choice == idxps3d_ );
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
-    madfld_->display( choice == idxmad_ );
+    const bool filesel = choice == idxmad_ || choice == idxsu_;
+    madfld_->display( filesel );
+    if ( filesel )
+	madfld_->setFilter( choice == idxmad_ ? "*.rsf" : "*.su" );
 
     if ( subsel3dfld_ )
 	subsel3dfld_->display( choice == idx3d_ || choice == idxps3d_ );
@@ -224,7 +234,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     typSel( this );
     if ( iot == ODMad::ProcFlow::None ) return;
 
-    if ( iot == ODMad::ProcFlow::Madagascar )
+    if ( iot == ODMad::ProcFlow::Madagascar || iot == ODMad::ProcFlow::SU )
     {
 	BufferString txt;
 	if ( iop.get(sKey::FileName,txt) )
@@ -247,7 +257,7 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 {
     iop.clear();
     ODMad::ProcFlow::setIOType( iop, ioType() );
-    if ( isMad() )
+    if ( isMad() || isSU() )
 	iop.set( sKey::FileName, madfld_->fileName() );
     else if ( !isNone() )
     {
@@ -277,7 +287,7 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 
 bool uiMadIOSelDlg::getInp()
 {
-    if ( isMad() )
+    if ( isMad() || isSU() )
     {
 	const BufferString fnm( madfld_->fileName() );
 	if ( fnm.isEmpty() || (isinp_ && !File_exists(fnm)) )

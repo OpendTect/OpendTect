@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.13 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.14 2009-01-20 10:54:43 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -80,15 +80,13 @@ MadStream::MadStream( IOPar& par )
 void MadStream::initRead( IOPar* par )
 {
     BufferString inptyp = par->find( sKey::Type );
-    if ( inptyp == "None" || inptyp == "Madagascar" )
+    if ( inptyp == "None" || inptyp == "SU" )
+	return;
+
+    if ( inptyp == "Madagascar" )
     {
-	if ( inptyp=="None" )
-	    istrm_ = &std::cin;
-	else
-	{
-	    const char* filenm = par->find( sKey::FileName );
-	    istrm_ = StreamProvider(filenm).makeIStream().istrm;
-	}
+	const char* filenm = par->find( sKey::FileName );
+	istrm_ = StreamProvider(filenm).makeIStream().istrm;
 
 	fillHeaderParsFromStream();
 	if ( !headerpars_ ) mErrRet( "Error reading RSF header" );;
@@ -147,7 +145,6 @@ void MadStream::initWrite( IOPar* par )
     is2d_ = gt == Seis::Line || gt == Seis::LinePS;
     isps_ = gt == Seis::VolPS || gt == Seis::LinePS;
     istrm_ = &std::cin;
-    istrm_->sync();
     MultiID outpid;
     if ( !par->get(sKey::ID,outpid) ) mErrRet( "Output data ID missing" );
 
@@ -415,10 +412,12 @@ void MadStream::fillHeaderParsFromStream()
 
     headerpars_ = new IOPar;
     char linebuf[256], tag[4], *ptr;
-    while ( istrm_ && !istrm_->bad() && !istrm_->eof() )
+    if ( !istrm_ ) return;
+
+    while ( *istrm_ )
     {
 	int idx = 0, nullcount = 0;
-	while( nullcount<3 )
+	while( *istrm_ && nullcount<3 )
 	{
 	    if ( idx >= 255 )
 		mErrRet("Error reading RSF header")
@@ -522,11 +521,11 @@ bool MadStream::getNextPos( BinID& bid )
 
 bool MadStream::getNextTrace( float* arr )
 {
-    if ( istrm_ && !istrm_->bad() )
+    if ( istrm_ && *istrm_ )
     {
 	const int nrsamps = getNrSamples();
 	istrm_->read( (char*)arr, nrsamps*sizeof(float) );
-	return !istrm_->eof();
+	return *istrm_;
     }
     else if ( seisrdr_ )
     {

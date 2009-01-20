@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.23 2008-06-06 11:15:44 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.24 2009-01-20 10:55:04 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -36,9 +36,11 @@ const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	: uiFullBatchDialog(p,Setup("Madagascar processing").menubar(true)
-				   .procprognm("odmadexec") )
+				   .procprognm("odmadexec")
+				   .modal(false))
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)
+	, procflow_(*new ODMad::ProcFlow())
 	, needsave_(false)
 {
     setCtrlStyle( uiDialog::DoAndStay );
@@ -67,6 +69,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     uppgrp_->setHAlignObj( sep );
 
     setParFileNmDef( "Mad_Proc" );
+    updateCaption();
     finaliseDone.notify( mCB(this,uiMadagascarMain,setButStates) );
 }
 
@@ -74,6 +77,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 uiMadagascarMain::~uiMadagascarMain()
 {
     delete ctio_.ioobj; delete &ctio_;
+    delete &procflow_;
 }
 
 
@@ -138,11 +142,11 @@ void uiMadagascarMain::inpSel( CallBacker* cb )
     if ( cb )
 	needsave_ = true;
 
-    IOPar inpar;
+    IOPar& inpar = procflow_.input();
     infld_->fillPar( inpar );
     outfld_->useParIfNeeded( inpar );
 
-    IOPar outpar;
+    IOPar& outpar = procflow_.output();
     outfld_->fillPar( outpar );
     BufferString inptyp = inpar.find( sKey::Type );
     BufferString outptyp = outpar.find( sKey::Type );
@@ -159,74 +163,16 @@ void uiMadagascarMain::inpSel( CallBacker* cb )
 #undef mErrRet
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiMadagascarMain::getFlow( ODMad::ProcFlow& pf )
-{
-    if ( !infld_->fillPar(pf.input()) )
-	mErrRet("Please specify input parameters");
-    if ( !outfld_->fillPar(pf.output()) )
-	mErrRet("Please specify output parameters");
-
-    pf.procs().deepErase();
-    const int nrprocs = procsfld_->size();
-    for ( int idx=0; idx<nrprocs; idx++ )
-	pf.addProc( procsfld_->textOfItem(idx) );
-
-    const bool issinglemach = singmachfld_->getBoolValue();
-    if ( !issinglemach )
-    {
-	IOPar& inpar = pf.input();
-	IOPar& outpar = pf.output();
-	BufferString inptyp = inpar.find( sKey::Type );
-	BufferString outptyp = outpar.find( sKey::Type );
-	BufferString vol3dtypnm = Seis::nameOf( Seis::Vol );
-	if ( inptyp != vol3dtypnm || outptyp != vol3dtypnm )
-	    mErrRet("Multi-Machine processing supported for 3D volumes only")
-	
-	IOPar* subselpar = inpar.subselect( sKey::Subsel );
-	if ( !subselpar )
-	    subselpar = new IOPar;
-
-	BufferString subseltyp = subselpar->find( sKey::Type );
-	if ( subseltyp != sKey::Range )
-	{
-	    MultiID inpid;
-	    if ( !inpar.get(sKey::ID,inpid) )
-		mErrRet("Input ID missing")
-
-	    const SeisIOObjInfo info( inpid );
-	    CubeSampling cs;
-	    info.getRanges( cs );
-	    subselpar->set( sKey::Type, sKey::Range );
-	    cs.fillPar( *subselpar );
-	    inpar.mergeComp( *subselpar, sKey::Subsel );
-	}
-
-	outpar.mergeComp( *subselpar, sKey::Subsel );
-	delete subselpar;
-    }
-
-    return true;
-}
-
-
-void uiMadagascarMain::setFlow( const ODMad::ProcFlow& pf )
-{
-    infld_->usePar( pf.input() );
-    outfld_->usePar( pf.output() );
-    procsfld_->empty();
-    for ( int idx=0; idx<pf.procs().size(); idx++ )
-	procsfld_->addItem( pf.procs().get(idx) );
-}
-
-
 void uiMadagascarMain::cmdAvail( CallBacker* cb )
 {
-    const BufferString cmd = bldfld_->command();
-    if ( cmd.isEmpty() ) return;
+    ODMad::Proc* proc = bldfld_->proc();
+
+    if ( !proc ) return;
 
     if ( bldfld_->isAdd() )
     {
-	procsfld_->addItem( cmd );
+	procsfld_->addItem( proc->getSummary() );
+	procflow_ += proc;
 	needsave_ = true;
 	procsfld_->setCurrentItem( procsfld_->size() - 1 );
     }
@@ -235,7 +181,9 @@ void uiMadagascarMain::cmdAvail( CallBacker* cb )
 	const int curidx = procsfld_->currentItem();
 	if ( curidx < 0 ) return;
 	needsave_ = true;
-	procsfld_->setItemText( curidx, cmd );
+	procsfld_->setItemText( curidx, proc->getSummary() );
+	ODMad::Proc* prevproc = procflow_.replace( curidx, proc );
+	delete prevproc;
     }
 
     setButStates( this );
@@ -259,6 +207,8 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	if ( curidx < 0 ) return;
 	needsave_ = true;
 	procsfld_->removeItem( curidx );
+	ODMad::Proc* prevproc = procflow_.remove( curidx );
+	delete prevproc;
 	if ( curidx >= procsfld_->size() )
 	    curidx--;
     }
@@ -272,6 +222,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	    BufferString tmp( procsfld_->textOfItem(newcur) );
 	    procsfld_->setItemText( newcur, procsfld_->getText() );
 	    procsfld_->setItemText( curidx, tmp );
+	    procflow_.swap( curidx, newcur );
 	    curidx = newcur;
 	    needsave_ = true;
 	}
@@ -300,15 +251,19 @@ void uiMadagascarMain::selChg( CallBacker* cb )
     upbut_->setSensitive( sz > 1 && curidx > 0 );
     downbut_->setSensitive( sz > 1 && curidx >= 0 && curidx < sz-1 );
 
-    if ( cb == this || curidx < 0 || !bldfld_ ) return;
-    bldfld_->setCmd( procsfld_->textOfItem(curidx) );
+    if ( cb == this || !bldfld_ ) return;
+    const ODMad::Proc* proc = curidx < 0 ? 0 : procflow_[curidx];
+    bldfld_->setProc( proc );
 }
 
 
 void uiMadagascarMain::newFlow( CallBacker* )
 {
-    ODMad::ProcFlow pf;
-    setFlow( pf );
+    deepErase( procflow_ );
+    procflow_.setName( 0 );
+    procflow_.input().clear();
+    procflow_.output().clear();
+    updateCaption();
 }
 
 
@@ -325,13 +280,22 @@ void uiMadagascarMain::openFlow( CallBacker* )
     if ( dlg.go() )
     {
 	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg; ODMad::ProcFlow pf;
-	if ( !ODMadProcFlowTranslator::retrieve(pf,ctio_.ioobj,emsg) )
+	BufferString emsg;
+	deepErase( procflow_ );
+	procsfld_->empty();
+	if ( !ODMadProcFlowTranslator::retrieve(procflow_,ctio_.ioobj,emsg) )
 	    uiMSG().error( emsg );
 	else
 	{
-	    setFlow( pf );
+	    infld_->usePar( procflow_.input() );
+	    outfld_->usePar( procflow_.output() );
+	    for ( int idx=0; idx<procflow_.size(); idx++ )
+		procsfld_->addItem( procflow_[idx]->getSummary() );
+
+	    procsfld_->setCurrentItem( procsfld_->size() - 1 );
 	    needsave_ = false;
+	    procflow_.setName( ctio_.ioobj->name() );
+	    updateCaption();
 	}
     }
 }
@@ -344,12 +308,26 @@ void uiMadagascarMain::saveFlow( CallBacker* )
     if ( dlg.go() )
     {
 	ctio_.setObj( dlg.ioObj()->clone() );
-	BufferString emsg; ODMad::ProcFlow pf; getFlow( pf );
-	if ( !ODMadProcFlowTranslator::store(pf,ctio_.ioobj,emsg) )
+	BufferString emsg;
+	if ( !ODMadProcFlowTranslator::store(procflow_,ctio_.ioobj,emsg) )
 	    uiMSG().error( emsg );
 	else
+	{
 	    needsave_ = false;
+	    procflow_.setName( ctio_.ioobj->name() );
+	    updateCaption();
+	}
     }
+}
+
+
+void uiMadagascarMain::updateCaption()
+{
+    const char* flowname = procflow_.name();
+    BufferString caption = "Madagascar processing   [";
+    caption += flowname && *flowname ? flowname : "New Flow";
+    caption += "]";
+    setCaption( caption );
 }
 
 
@@ -365,11 +343,7 @@ void uiMadagascarMain::exportFlow( CallBacker* )
 
 bool uiMadagascarMain::fillPar( IOPar& iop )
 {
-    ODMad::ProcFlow pf;
-    if ( !getFlow(pf) )
-	return false;
-
-    pf.fillPar( iop );
+    procflow_.fillPar( iop );
     iop.set( sKeySeisOutIDKey, "Output.ID" );
     return true;
 }
