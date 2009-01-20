@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.39 2009-01-20 11:16:16 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.40 2009-01-20 12:01:41 cvsnageswara Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -372,7 +372,8 @@ uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
 {
     PositionInpSpec inpspec(
 	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
-    posfld_ = new uiGenInput( this, "New Position", inpspec );
+    posfld_ = new uiGenInput( this, "New Position", inpspec.setName("Inline",0)
+	    					    .setName("Crossline",1) );
 }
 
 bool acceptOK( CallBacker* )
