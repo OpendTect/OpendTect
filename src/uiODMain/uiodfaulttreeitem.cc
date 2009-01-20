@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.22 2009-01-15 10:34:00 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.23 2009-01-20 04:33:30 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -137,9 +137,9 @@ uiODFaultTreeItem::~uiODFaultTreeItem()
 {
     if ( faultdisplay_ )
     {
-	faultdisplay_->unRef();
 	faultdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultTreeItem,colorChCB));
+	faultdisplay_->unRef();
     }
 }
 
@@ -186,9 +186,9 @@ void uiODFaultTreeItem::prepareForShutdown()
     applMgr()->EMServer()->askUserToSave(emid_);
     if ( faultdisplay_ )
     {
-	faultdisplay_->unRef();
 	faultdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultTreeItem,colorChCB));
+	faultdisplay_->unRef();
     }
 
     faultdisplay_ = 0;
@@ -392,9 +392,9 @@ uiODFaultStickSetTreeItem::~uiODFaultStickSetTreeItem()
 {
     if ( faultsticksetdisplay_ )
     {
-	faultsticksetdisplay_->unRef();
 	faultsticksetdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
+	faultsticksetdisplay_->unRef();
     }
 }
 
@@ -442,9 +442,9 @@ void uiODFaultStickSetTreeItem::prepareForShutdown()
     applMgr()->EMServer()->askUserToSave(emid_);
     if ( faultsticksetdisplay_ )
     {
-	faultsticksetdisplay_->unRef();
 	faultsticksetdisplay_->materialChange()->remove(
 	    mCB(this,uiODFaultStickSetTreeItem,colorChCB) );
+	faultsticksetdisplay_->unRef();
     }
 
     faultsticksetdisplay_ = 0;
