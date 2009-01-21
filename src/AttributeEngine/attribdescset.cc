@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.73 2009-01-07 11:21:55 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.74 2009-01-21 17:41:50 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -632,11 +632,15 @@ const char* DescSet::errMsg() const
 
 DescID DescSet::getFreeID() const
 {
-    DescID id(0,true);
-    while ( ids_.indexOf(id)!=-1 )
-	id.asInt()++;
+    int highestid = -1;
+    for ( int idx=0; idx<ids_.size(); idx++ )
+    {
+	const int index = ids_[idx].asInt();
+	if ( index > highestid )
+	    highestid = index;
+    }
 
-    return id;
+    return DescID( highestid+1, true );
 }
 
 
