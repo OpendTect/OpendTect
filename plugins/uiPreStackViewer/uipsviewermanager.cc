@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.37 2009-01-20 12:42:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.38 2009-01-21 13:23:38 cvsbert Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -135,6 +135,16 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 }
 
 
+static void setDlgPos( uiMainWin* win, int idx )
+{
+    if ( !win ) return;
+    static uiMainWin::PopupArea puas[] =
+	{ uiMainWin::BottomRight, uiMainWin::BottomLeft,
+	     uiMainWin::TopRight, uiMainWin::TopLeft };
+    win->setPopupArea( puas[ idx % 4 ] );
+}
+
+
 void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
@@ -186,7 +196,10 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
 	    mDeclareAndTryAlloc( uiViewer3DPositionDlg*, dlg,
 		    uiViewer3DPositionDlg( menu->getParent(), *psv ) );
 	    if ( dlg )
+	    {
+		setDlgPos( dlg, idx );
 		posdialogs_.replace( idx, dlg );
+	    }
 	}
 
 	if ( posdialogs_[idx] )
@@ -347,7 +360,9 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	    uiViewer3DPositionDlg( menu->getParent(), *viewer ) );
     if ( dlg ) 
     {
-	posdialogs_.replace( posdialogs_.size()-1, dlg );
+	const int newidx = posdialogs_.size() - 1;
+	setDlgPos( dlg, newidx );
+	posdialogs_.replace( newidx, dlg );
 	dlg->show();
     }
 

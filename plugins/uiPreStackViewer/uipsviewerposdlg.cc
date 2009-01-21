@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.12 2009-01-09 11:02:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.13 2009-01-21 13:23:38 cvsbert Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -25,8 +25,8 @@ namespace PreStackView
 
 uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
 					      PreStackView::Viewer3D& vwr )
-    : uiDialog( p, Setup(vwr.getObjectName(),"Viewer position",
-			 mTODOHelpID).modal(false) )
+    : uiDialog( p, Setup(vwr.getObjectName(),mNoDlgTitle,mTODOHelpID)
+	    		.modal(false) )
     , viewer_(vwr)  
     , applybox_(0)
     , applybut_(0)
