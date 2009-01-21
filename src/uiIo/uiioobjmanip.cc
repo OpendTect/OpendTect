@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.35 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.36 2009-01-21 16:15:40 cvshelene Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -29,6 +29,9 @@ static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.35 2008-11-25 15:35:25 cvsb
 #include "filepath.h"
 #include "oddirs.h"
 #include "errh.h"
+
+static const char* sReadOnlyTxt		= "Set read only";
+static const char* sUnlockTxt		= "Unlock";
 
 uiManipButGrp::ButData::ButData( uiToolButton* b, const ioPixmap& p,
 				 const char* t )
@@ -135,9 +138,9 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s )
     const CallBack cb( mCB(this,uiIOObjManipGroup,tbPush) );
     locbut = addButton( FileLocation, cb, "Change location on disk" );
     renbut = addButton( Rename, cb, "Rename this object" );
-    robut = addButton( ReadOnly, cb, "Toggle read-only" );
+    robut = addButton( ReadOnly, cb, sReadOnlyTxt );
+    setAlternative( robut, ioPixmap("unlock.png"), sUnlockTxt);
     rembut = addButton( Remove, cb, "Remove this object" );
-    robut->setToggleButton( true );
     attach( rightOf, subj_.obj_ );
 }
 
@@ -178,7 +181,7 @@ void uiIOObjManipGroup::selChg()
     const bool isexisting = ioobj && ioobj->implExists(true);
     const bool isreadonly = isexisting && ioobj->implReadOnly();
     locbut->setSensitive( iostrm && !isreadonly );
-    robut->setOn( isreadonly );
+    useAlternative( robut, isreadonly );
     renbut->setSensitive( ioobj );
     rembut->setSensitive( ioobj && !isreadonly );
 }
@@ -354,7 +357,7 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr )
     if ( !exists ) return false;
 
     bool oldreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
-    bool newreadonly = robut->isOn();
+    bool newreadonly = strcmp ( robut->toolTip(), sUnlockTxt );
     if ( oldreadonly == newreadonly ) return false;
 
     bool res = tr ? tr->implSetReadOnly(ioobj,newreadonly)
