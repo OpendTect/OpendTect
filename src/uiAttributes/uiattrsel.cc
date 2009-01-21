@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.34 2009-01-12 13:41:06 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.35 2009-01-21 06:54:40 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -362,6 +362,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else
     {
 	attrdata_.compnr = compfld_->box()->currentItem();
+	if ( attrdata_.compnr< 0 ) attrdata_.compnr = 0;
 	const char* ioobjkey = attrinf_->ioobjids.get(selidx);
 	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
