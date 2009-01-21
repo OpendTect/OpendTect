@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.165 2009-01-06 03:30:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.166 2009-01-21 05:17:41 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -87,7 +87,8 @@ public:
 			    centralWidget_->reDraw( deep );
 			}
 
-    void		go()	{ finalise(); show(); }
+    void		go()
+			{ finalise(); show(); move( handle_.popuparea_ ); }
 
     virtual void	show() 
 			{
@@ -104,6 +105,8 @@ public:
 			    else 
 				looplevel__ = -1;
 			}
+
+    void		move(uiMainWin::PopupArea);
 
     void		close();
     
@@ -278,6 +281,18 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 
     initing = false;
 }
+
+
+void uiMainWinBody::move( uiMainWin::PopupArea pa )
+{
+    switch( pa )
+    {
+	case uiMainWin::TopLeft		: QWidget::move( 0, 0 );
+	case uiMainWin::TopRight	: QWidget::move( mUdf(int), 0 );
+	case uiMainWin::BottomLeft	: QWidget::move( 0, mUdf(int) );
+	case uiMainWin::BottomRight	: QWidget::move( mUdf(int), mUdf(int) );
+    };
+};
 
 
 uiMainWinBody::~uiMainWinBody()
@@ -632,6 +647,7 @@ uiMainWin::uiMainWin( uiParent* p, const uiMainWin::Setup& setup )
     : uiParent(setup.caption_,0)
     , body_(0)
     , parent_(p)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
 { 
@@ -648,7 +664,8 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		      int nrstatusflds, bool withmenubar, bool modal )
     : uiParent(nm,0)
     , body_(0)
-    , parent_(parnt)			
+    , parent_(parnt)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
 { 
@@ -663,6 +680,7 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     : uiParent(nm,0)
     , body_(0)			
     , parent_(parnt)
+    , popuparea_(Middle)
     , windowClosed(this)
     , activatedone(this)
 {}
@@ -915,6 +933,18 @@ uiMainWin* uiMainWin::gtUiWinIfIsBdy(QWidget* mwimpl)
 }
 
 
+void uiMainWin::setCornerPos( int x, int y )
+{ body_->QWidget::move( x, y ); }
+
+
+uiRect uiMainWin::geometry() const
+{
+    QRect qrect = body_->frameGeometry();
+    uiRect rect( qrect.left(), qrect.top(), qrect.right(), qrect.bottom() );
+    return rect;
+}
+
+
 void uiMainWin::setIcon( const ioPixmap& pm )
 { body_->setWindowIcon( *pm.qpixmap() ); }
 
@@ -1128,6 +1158,7 @@ int uiDialogBody::exec()
     if ( setup.fixedsize_ )
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
 
+    move( handle_.getPopupArea() );
     go();
 
     return uiResult();

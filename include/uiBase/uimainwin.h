@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.67 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.68 2009-01-21 05:17:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,13 @@ public:
 			//! get uiMainWin for mwimpl if it is a uiMainWinBody
     static uiMainWin*	gtUiWinIfIsBdy(QWidget* mwimpl);
 
+    enum PopupArea	{ TopLeft, TopRight, BottomLeft, BottomRight, Middle };
+    void		setPopupArea( PopupArea pa )	{ popuparea_ = pa; }
+    PopupArea		getPopupArea() const		{ return popuparea_; }
+    void		setCornerPos(int x,int y);
+    			//!Position of top-left corner in screen pixel coords
+    uiRect		geometry() const;
+
     bool		poppedUp() const;
     bool		touch(); //!< resets pop-up timer if !poppedUp yet
     bool		finalised() const;
@@ -163,6 +170,8 @@ protected:
 
     uiMainWinBody*	body_;
     uiParent*		parent_;
+
+    PopupArea		popuparea_;
 };
 
 #endif
