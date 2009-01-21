@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.40 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.41 2009-01-21 07:11:23 cvsnanne Exp $";
 
 
 #include "uitextedit.h"
@@ -182,8 +182,6 @@ uiTextEditBody::uiTextEditBody( uiTextEdit& handle, uiParent* p,
 {
     setReadOnly( ro );
     setStretch( 2, 2 );
-    setPrefWidth( handle.defaultWidth() );
-    setPrefHeight( handle.defaultHeight() );
 }
 
 
@@ -198,7 +196,10 @@ void uiTextEditBody::append( const char* txt)
 
 uiTextEdit::uiTextEdit( uiParent* parnt, const char* nm, bool ro )
     : uiTextEditBase( parnt, nm, mkbody(parnt,nm,ro) )		
-{}
+{
+    setPrefWidth( defaultWidth() );
+    setPrefHeight( defaultHeight() );
+}
 
 
 uiTextEditBody& uiTextEdit::mkbody(uiParent* parnt, const char* nm, bool ro)
