@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.28 2009-01-08 16:34:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.29 2009-01-21 15:10:41 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
@@ -126,6 +126,9 @@ void uiStratTreeWin::createToolBar()
 {
     tb_ = new uiToolBar( this, "Stratigraphy Manager Tools" );
     mDefBut(colexpbut_,"collapse_tree.png",setExpCB,mCollapseTxt(false));
+    tb_->addSeparator();
+    mDefBut(moveunitupbut_,"uparrow.png",moveUnitCB,"Move unit up");
+    mDefBut(moveunitdownbut_,"downarrow.png",moveUnitCB,"Move unit down");
     tb_->addSeparator();
     mDefBut(lockbut_,"unlock.png",editCB,mEditTxt(false));
 //    mDefBut(openbut_,"openset.png",openCB,"Open"); not implemented yet
@@ -351,4 +354,10 @@ bool uiStratTreeWin::closeOK()
 void uiStratTreeWin::shutdownCB( CallBacker* )
 {
     closeOK();
+}
+
+
+void uiStratTreeWin::moveUnitCB( CallBacker* cb )
+{
+    uitree_->moveUnit( cb == moveunitupbut_ );
 }

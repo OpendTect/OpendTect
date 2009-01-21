@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.53 2009-01-16 12:52:26 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.54 2009-01-21 15:10:41 cvshelene Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -498,6 +498,15 @@ uiListViewItem* uiListView::findItem( const char* text, int column,
 }
 
 
+int uiListView::indexOfItem( uiListViewItem* it ) const
+{
+    for ( int idx=0; idx<nrItems(); idx++ )
+	if ( getItem(idx) == it )
+	    return idx;
+
+    return -1;
+}
+
 /*!
     Removes and deletes all the items in this list view and triggers an
     update.
@@ -645,6 +654,14 @@ uiListViewItem* uiListViewItem::nextSibling() const
 }
 
 
+uiListViewItem* uiListViewItem::prevSibling() const
+{
+    if ( !qtreeitem_ || !qtreeitem_->parent() ) return 0;
+
+    return mItemFor( qtreeitem_->parent()->child( siblingIndex()-1 ) );
+}
+
+
 uiListViewItem* uiListViewItem::parent() const
 { return mItemFor( qItem()->parent() ); }
 
@@ -683,10 +700,10 @@ void uiListViewItem::removeItem( uiListViewItem* itm )
 void uiListViewItem::moveItem( uiListViewItem* after )
 {
     uiListViewItem* prnt = parent();
-    if ( !prnt ) return;
+    if ( !prnt || !after ) return;
 
-    prnt->takeItem( this );
     const int afterid = prnt->qItem()->indexOfChild( after->qItem() );
+    prnt->takeItem( this );
     prnt->insertItem( afterid, this );
 }
 

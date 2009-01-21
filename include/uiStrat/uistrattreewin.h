@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.19 2009-01-08 16:34:48 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.20 2009-01-21 15:10:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,8 @@ protected:
     uiToolButton*		lockbut_;
     uiToolButton*		openbut_;
     uiToolButton*		savebut_;
+    uiToolButton*		moveunitupbut_;
+    uiToolButton*		moveunitdownbut_;
 
     void			createMenu();
     void			createToolBar();
@@ -89,6 +91,7 @@ protected:
     void			setExpCB(CallBacker*);
     void			unitSelCB(CallBacker*);
     void			unitRenamedCB(CallBacker*);
+    void			moveUnitCB(CallBacker*);
     void			shutdownCB(CallBacker*);
 
     uiStratMgr*			uistratmgr_;

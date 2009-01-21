@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.35 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.36 2009-01-21 15:10:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ public:
     void		setShowToolTips(bool);
     bool		showToolTips() const;
 
+    int			indexOfItem(uiListViewItem*) const;
     uiListViewItem*	findItem(const char*,int,bool) const;
     uiParent*		parent()		{ return parent_; }
 
@@ -252,6 +253,7 @@ public:
     uiListViewItem*	firstChild() const;
     uiListViewItem*	lastChild() const;
     uiListViewItem*	nextSibling() const;
+    uiListViewItem*	prevSibling() const;
     uiListViewItem*	parent() const;
 
     uiListViewItem*	itemAbove();

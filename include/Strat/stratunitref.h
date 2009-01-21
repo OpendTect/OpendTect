@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.15 2009-01-07 15:11:25 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.16 2009-01-21 15:10:41 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -146,6 +146,8 @@ public:
     			{ UnitRef* r = refs_[uridx]; refs_ -= r; delete r; }
     UnitRef*		replace( int uridx, UnitRef* newur )
 			{ return refs_.replace( uridx, newur); }
+    void		swapChildren( int idx1, int idx2 )
+			{ refs_.swap( idx1, idx2 ); }
 
 protected:
 
