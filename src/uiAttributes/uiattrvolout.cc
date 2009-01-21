@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.53 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.54 2009-01-21 06:54:53 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -131,7 +131,11 @@ void uiAttrVolOut::attrSel( CallBacker* )
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
 		if ( ioobj )
 		{
-		    objfld->setInput( ioobj->key() );
+		    // TODO: Are all these calls necessary??
+		    objfld->setInput(
+			    LineKey(ioobj->key(),todofld->getAttrName()) );
+		    objfld->processInput();
+		    objfld->setAttrNm( todofld->getAttrName() );
 		    transffld->setInput( *ioobj );
 		}
 	    }
@@ -152,6 +156,20 @@ bool uiAttrVolOut::prepareProcessing()
     }
     else if ( !todofld->checkOutput(*ctio.ioobj) )
 	return false;
+
+    if ( todofld->is2D() )
+    {
+	const char* outputnm = objfld->getInput();
+	BufferString attrnm = LineKey( outputnm ).attrName();
+	if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
+	{
+	    const bool res = uiMSG().askGoOn(
+		"No attribute name given. Do you want to continue? "
+		"Click on 'Yes' if you want 'Seis' as attribute name. "
+		"Click on 'No' to provide another name." );
+	    if ( !res ) return false; 
+	}
+    }
 
     sel.ioobjkey = ctio.ioobj->key();
     sel.attrid = todofld->attribID();
