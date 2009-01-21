@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.51 2008-12-31 08:20:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.52 2009-01-21 15:49:08 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -108,12 +108,22 @@ public:
 			uiPushButtonBody(uiButton& handle, 
 				     uiParent* parnt, const char* txt)
 			    : uiButtonTemplBody<QPushButton>(handle,parnt,txt)
+			    , iconfrac_(0)
 			    {}
 
-			uiPushButtonBody( uiButton& handle, const ioPixmap& pm,
-				          uiParent* parnt, const char* txt)
+			uiPushButtonBody(uiButton& handle, const ioPixmap& pm,
+				         uiParent* parnt, const char* txt)
 			    : uiButtonTemplBody<QPushButton>
-					(handle,pm,parnt,txt)		{}
+					(handle,pm,parnt,txt)
+			    , iconfrac_(0)
+			    {}
+
+    void		setIconFrac(float icf)
+    			{
+			    if ( icf<=0.0 || icf>1.0 ) return;
+			    setIconSize( QSize(width()*icf, height()*icf) );
+			    iconfrac_ = icf;
+		       	}
 
     virtual QAbstractButton&    qButton()		{ return *this; }
 
@@ -121,6 +131,14 @@ protected:
 
     virtual void        notifyHandler( notifyTp tp ) 
 			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
+
+    void                resizeEvent(QResizeEvent* ev)
+			{
+			    setIconFrac( iconfrac_ );
+			    QPushButton::resizeEvent( ev );
+			}
+
+    float		iconfrac_;
 };
 
 
@@ -255,7 +273,7 @@ void uiPushButton::setDefault( bool yn )
 
 void uiPushButton::setPixmap( const ioPixmap& pm )
 {
-    body_->setIconSize( QSize(width()/2,height()/2) );
+    body_->setIconFrac( 0.5 );
     body_->setIcon( *pm.qpixmap() );
 }
 
