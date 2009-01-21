@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.65 2009-01-07 06:46:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.66 2009-01-21 07:31:54 cvsnanne Exp $";
 
 #include "uiseissel.h"
 
@@ -91,6 +91,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& setup )
     : uiIOObjSelDlg(p,getDlgCtio(c,setup),"",false)
     , attrfld_(0)
+    , attrlistfld_(0)
     , datatype_(0)
 {
     const bool is2d = Seis::is2D( setup.geom_ );
@@ -141,6 +142,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(setup.geom_) )
 	selgrp_->setConfirmOverwrite( false );
     entrySel(0);
+    if ( attrlistfld_ )
+	attrNmSel(0);
 }
 
 
