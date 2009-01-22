@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.400 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.401 2009-01-22 08:32:59 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -1776,6 +1776,9 @@ void uiVisPartServer::displayHistogramsForAttrbs( int displayid )
     for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
     {
 	multirgselwin_->setDataPackID( idx, getDataPackID(displayid,idx) );
+
+	if ( getColTabMapperSetup(displayid,idx) && 
+	     getColTabSequence(displayid,idx) )
 	multirgselwin_->setColTabMapperSetupWthSeq( idx, 
 					   *getColTabMapperSetup(displayid,idx), 					   *getColTabSequence(displayid,idx) );
     }
