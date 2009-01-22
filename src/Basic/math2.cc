@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: math2.cc,v 1.6 2008-10-22 11:32:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: math2.cc,v 1.7 2009-01-22 15:29:39 cvsbert Exp $";
 
 #include "math2.h"
 #include "undefval.h"
@@ -15,9 +15,14 @@ static const char* rcsID = "$Id: math2.cc,v 1.6 2008-10-22 11:32:39 cvsnanne Exp
 
 #ifndef __win__
 # include <unistd.h>
-# ifdef sun5
-#  include <ieeefp.h>
-# endif
+#endif
+#ifdef sun5
+# define mFloatLogFn log
+# define mFloatExpFn exp
+# include <ieeefp.h>
+#else
+# define mFloatLogFn logf
+# define mFloatExpFn expf
 #endif
 
 #define mTYPE float
@@ -29,8 +34,8 @@ static const char* rcsID = "$Id: math2.cc,v 1.6 2008-10-22 11:32:39 cvsnanne Exp
 
 float Math::Exp( float s )
 {
-    static const float maxval = logf( MAXFLOAT );
-    return s < maxval ? expf( s ) : mUdf(float);
+    static const float maxval = mFloatLogFn( MAXFLOAT );
+    return s < maxval ? mFloatExpFn( s ) : mUdf(float);
 }
 
 double Math::Exp( double s )
