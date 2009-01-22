@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.103 2009-01-20 13:01:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.104 2009-01-22 08:57:48 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -726,7 +726,13 @@ bool uiSurveyInfoEditor::setRanges()
 	mErrRet("Please specify a valid Z range")
 
     si_.setRange( cs, false );
-    si_.setXYInFeet( xyinftfld->isChecked() );
+    const bool inft = xyinftfld->isChecked();
+    if ( inft )
+	uiMSG().warning(
+		"Support for coordinates in feet has been added recently.\n"
+		"The impact of it is still being evaluated.\n"
+		"Please be on guard for unprepared parts of the software" );
+    si_.setXYInFeet( inft );
     return true;
 }
 
