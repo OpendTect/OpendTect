@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.166 2009-01-21 05:17:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.167 2009-01-22 04:34:40 cvsranojay Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -312,7 +312,7 @@ uiMainWinBody::~uiMainWinBody()
 
 void uiMainWinBody::popTimTick( CallBacker* )
 {
-    if ( popped_up ) { pErrMsg( "huh?" ); }
+    if ( popped_up ) { pErrMsg( "huh?" );  return; }
 	popped_up = true;
     moveDockWindows();
     if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
