@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	June 2007
   - Contents:	OpendTect hardware requirements
-  - RCS:	$Id: system_requirements.html,v 1.6 2009-01-22 10:15:53 cvsdgb Exp $
+  - RCS:	$Id: system_requirements.html,v 1.7 2009-01-22 10:43:08 cvsbert Exp $
  -->
 
 <body bgcolor="#eeeeee"><title>OpendTect Hardware and OS requirements</title>
@@ -33,7 +33,7 @@ OpendTect requires a recent well-patched <a href="http://opengl.org">OpenGL</a> 
 <br>
 Main stream and high-end GPUs within the series are recommended, since low-level GPUs keep showing poor performances through the generations.<br>
 Since OpendTect 3.0, shading functionaly requires special GPU features, present in the cards listed above.
-Nevertheless, under Linux environment, only nVidia provides drivers capabilities to use the shading feature. If you can't see any colors on graphic elements, try disabling shading (Utilities-Look and Feel).
+Nevertheless, under Linux, only nVidia provides drivers capable of using the shading feature. If you can't see any colors on graphic elements, try disabling shading (Utilities-Look and Feel).
 
 <h3>Memory</h3>
 
@@ -61,11 +61,15 @@ performance. Solaris support for the OpendTect GUI main program was stopped afte
 A modern Linux distribution is required. <b>Minimum</b>:
 <ul>
 <li><a href="http://www.novell.com/linux">SuSE</a> 10.0
-<li><a href="http://www.redhat.com">Red Hat</a> Enterprise 3
+<li><a href="http://www.redhat.com">Red Hat</a> Enterprise 3 (32 bits) and 4 (64 bits)
 <li><a href="http://fedoraproject.org">Fedora</a> core 3
 </ul>
+<p>
 For both SuSE and Red Hat-based distributions 32 or 64 bits releases are
 available. OpendTect is known to work under <a href="http://www.debian.org">Debian</a>, <a href="http://www.ubuntu.com">Ubuntu</a> and other distributions, as well as earlier versions of the main distributions, too.
+</p><p>
+A special version for Red Hat 3 / 64 bits is available at
+<a href="ftp://ftp.opendtect.org/pub/RH3_64">ftp://ftp.opendtect.org/pub/RH3_64</a>
 
 <h3>Solaris</h3>
 
