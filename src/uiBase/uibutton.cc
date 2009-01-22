@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.52 2009-01-21 15:49:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.53 2009-01-22 07:15:00 cvsnageswara Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -118,10 +118,11 @@ public:
 			    , iconfrac_(0)
 			    {}
 
-    void		setIconFrac(float icf)
+    void		setIconFrac( float icf )
     			{
 			    if ( icf<=0.0 || icf>1.0 ) return;
-			    setIconSize( QSize(width()*icf, height()*icf) );
+			    setIconSize(
+				QSize( int(width()*icf),int(height()*icf)) );
 			    iconfrac_ = icf;
 		       	}
 
