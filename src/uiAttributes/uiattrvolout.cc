@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.54 2009-01-21 06:54:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.55 2009-01-22 14:59:58 cvshelene Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -131,11 +131,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
 		if ( ioobj )
 		{
-		    // TODO: Are all these calls necessary??
 		    objfld->setInput(
 			    LineKey(ioobj->key(),todofld->getAttrName()) );
-		    objfld->processInput();
-		    objfld->setAttrNm( todofld->getAttrName() );
 		    transffld->setInput( *ioobj );
 		}
 	    }
@@ -312,7 +309,13 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	delete sc;
     }
 
-    iop.set( sKey::Target, todofld->getAttrName() );
+    BufferString attrnm = todofld->getAttrName();
+    if ( todofld->is2D() )
+    {
+	const char* outputnm = objfld->getInput();
+	attrnm = LineKey( outputnm ).attrName();
+    }
+    iop.set( sKey::Target, attrnm.buf() );
     BufferString linename;
     if ( todofld->is2D() )
     {
