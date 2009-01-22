@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.14 2008-12-09 16:16:38 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.15 2009-01-22 18:21:29 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -552,7 +552,7 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
     (*arr++) = col.r();
     (*arr++) = col.g();
     (*arr++) = col.b();
-    (*arr++) = col.t();
+    (*arr++) = 255-col.t();
 }
 
 
@@ -565,17 +565,7 @@ bool ColTabTextureChannel2RGBA::hasTransparency( int channelidx ) const
 	return true;
 
     const ColTab::Sequence& seq = coltabs_[channelidx];
-    bool found = false;
-    for ( int idx=seq.transparencySize()-1; idx>=0; idx-- )
-    {
-	if ( seq.transparency(idx).y>0 )
-	{
-	    found = true;
-	    break;
-	}
-    }
-
-    if ( !found )
+    if ( !seq.hasTransparency() )
 	return false;
 
     channels_->ref();
@@ -590,7 +580,14 @@ bool ColTabTextureChannel2RGBA::hasTransparency( int channelidx ) const
 
     for ( od_int64 idx=0; idx<nrpixels; idx++ )
     {
-	const float val = ((float) vals[idx])/(mNrColors-1);
+	unsigned char ucval = vals[idx];
+	if ( ucval==mUndefColIdx && seq.undefColor().t() )
+	{
+	    channels_->unRef();
+	    return true;
+	}
+
+	const float val = ((float) ucval)/(mNrColors-1);
 	if ( seq.transparencyAt( val ) )
 	{
 	    channels_->unRef();
