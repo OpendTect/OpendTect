@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.13 2008-10-20 07:21:29 cvsnanne Exp $
+ RCS:           $Id: undefval.h,v 1.14 2009-01-22 13:30:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,21 +205,18 @@ T& setUdf( T& u )
 //! Use this macro to set simple types to undefined
 #define mSetUdf(val) Values::setUdf(val)
 
+
+template <class T>
+inline bool dbgIsUdf( T val )
+    { return Values::isUdf( val ); }
+bool dbgIsUdf(float);
+bool dbgIsUdf(double);
+
 #ifdef __debug__
-
-    template <class T>
-    inline bool dbgIsUdf( T val )
-	{ return Values::isUdf( val ); }
-    bool dbgIsUdf(float);
-    bool dbgIsUdf(double);
-
 # define mIsUdf(val) dbgIsUdf(val)
-
 #else
-
 //! Use mIsUdf to check for undefinedness of simple types
 # define mIsUdf(val) Values::isUdf(val)
-
 #endif
 
 

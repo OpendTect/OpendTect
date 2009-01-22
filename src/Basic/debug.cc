@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.26 2008-09-29 13:23:47 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.27 2009-01-22 13:30:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.26 2008-09-29 13:23:47 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.27 2009-01-22 13:30:23 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -28,7 +28,6 @@ static const char* rcsID = "$Id: debug.cc,v 1.26 2008-09-29 13:23:47 cvsbert Exp
 
 static std::ostream* dbglogstrm = 0;
 
-#ifdef __debug__
 static bool doisudfmsgs = GetEnvVarYN( "OD_SHOW_NOT_NORMAL_NUMBER_MSGS" );
 bool dbgIsUdf( float val )
 {
@@ -44,7 +43,6 @@ bool dbgIsUdf( double val )
 			     return true; }
     return Values::isUdf( val );
 }
-#endif
 
 
 namespace DBG
