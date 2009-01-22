@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.15 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.16 2009-01-22 11:35:13 cvsjaap Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -211,26 +211,8 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 {
     EMObjectDisplay::emChangeCB( cb );
     mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-    if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
-    {
-	if ( !burstalertison_ )
-	{
-	    for ( int idx=0; idx<sids_.size(); idx++ )
-		updateSection( idx );
-	}
-    }
-    else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
-    {
-	if ( postponedposchanges_ )
-	{
-	    for ( int idx=0; idx<sids_.size(); idx++ )
-		updateSection( idx );
-	}
-    }
-    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
-    {
+    if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
 	getMaterial()->setColor( emobject_->preferredColor() );
-    }
 }
 
 
