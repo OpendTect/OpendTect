@@ -271,4 +271,20 @@ Standard color tables
 22.Transparency.0: 0`0
 22.Transparency.1: 1`0
 
+23.Name: Curvature
+23.Marker color: 0`240`0
+23.Undef color: 150`200`150`0
+23.Value-Color.0: 0`0`0`255`0
+23.Value-Color.1: 0.090452`85`170`255`0
+23.Value-Color.2: 0.175879`85`255`255`0
+23.Value-Color.3: 0.25`170`255`255`0
+23.Value-Color.4: 0.291457`255`255`255`0
+23.Value-Color.5: 0.356784`255`255`255`0
+23.Value-Color.6: 0.522613`91`91`91`0
+23.Value-Color.7: 0.673367`62`62`62`0
+23.Value-Color.8: 0.78392`255`170`127`0
+23.Value-Color.9: 1`255`255`0`0
+23.Transparency.0: 0`0
+23.Transparency.1: 1`0
+
 !
