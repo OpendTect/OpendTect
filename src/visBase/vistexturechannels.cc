@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.11 2008-12-04 13:55:32 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.12 2009-01-22 19:27:20 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -49,7 +49,8 @@ public:
     bool		setMappedData(int version,unsigned char*,
 	    			       TextureChannels::CachePolicy);
 
-    void		clipData();
+    void		clipData(int version);
+    			//!<If version==-1, all versions will be clipped
     bool		mapData(int version);
     int			getCurrentVersion() const;
     void		setCurrentVersion( int );
@@ -102,7 +103,7 @@ void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
 	mappers_[idx]->setup_ = setup;
 
     if ( setup.type_!=ColTab::MapperSetup::Fixed )
-	clipData();
+	clipData( -1 );
 
     reMapData();
 }
@@ -114,7 +115,7 @@ const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup( int channel ) cons
 }
 
 
-void ChannelInfo::clipData()
+void ChannelInfo::clipData( int version )
 {
     od_int64 sz = owner_.size_[0];
     sz *= owner_.size_[1];
@@ -122,13 +123,15 @@ void ChannelInfo::clipData()
 
     for ( int idx=0; idx<nrVersions(); idx++ )
     {
+	if ( version!=-1 && idx!=version )
+	    continue;
+
 	if ( !unmappeddata_[idx] )
 	    continue;
 
 	const ArrayValueSeries<float,float> valseries(
 		(float*) unmappeddata_[idx], false, sz );
 	mappers_[idx]->setData( &valseries, sz );
-	break;
     }
 }
 
@@ -231,7 +234,7 @@ bool ChannelInfo::setUnMappedData(int version, const float* data,
     }
 
     if ( mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
-	clipData();
+	clipData( version );
 
     return mapData( version );
 }
@@ -346,6 +349,7 @@ void ChannelInfo::setCurrentVersion( int nidx )
     }
 
     currentversion_ = nidx;
+    owner_.update( this, true );
 }
 
 
