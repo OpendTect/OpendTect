@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.5 2008-12-18 09:51:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.6 2009-01-23 21:54:54 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.5 2008-12-18 09:
 #include "empolygonbody.h"
 #include "emmarchingcubessurface.h"
 #include "emmanager.h"
+#include "emrandomposbody.h"
 
 #include "ioman.h"
 #include "ioobj.h"
@@ -31,6 +32,7 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.5 2008-12-18 09:
 #include "uipolygonsurfbezierdlg.h"
 #include "uivispartserv.h"
 #include "vismarchingcubessurfacedisplay.h"
+#include "visrandomposbodydisplay.h"
 #include "vispolygonsurfdisplay.h"
 
 
@@ -121,7 +123,8 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , removeselectedmnuitem_( "&Remove selection" )
     , newellipsoidmnuitem_("&Create body")				   
     , mcd_( 0 )
-    , plg_( 0 )	       
+    , plg_( 0 )
+    , rpb_( 0 ) 	       
 {
     displaybodymnuitem_.checkable = true;
     displaypolygonmnuitem_.checkable = true;
@@ -143,6 +146,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , newellipsoidmnuitem_("Make body")				   
     , mcd_( 0 )
     , plg_( 0 )	       
+    , rpb_( 0 ) 	       
 {
     displayid_ = id;
     displaybodymnuitem_.checkable = true;
@@ -155,16 +159,23 @@ uiODBodyDisplayTreeItem::~uiODBodyDisplayTreeItem()
 {
     if ( mcd_ )
     {
-	mcd_->unRef();
 	mcd_->materialChange()->remove(
-	    mCB(this,uiODBodyDisplayTreeItem,colorChCB));
+	    mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+	mcd_->unRef();
     }
 
     if ( plg_ )
     {
-	plg_->unRef();
 	plg_->materialChange()->remove(
-	    mCB(this,uiODBodyDisplayTreeItem,colorChCB));
+	    mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+	plg_->unRef();
+    }
+
+    if ( rpb_ ) 
+    {
+	rpb_->materialChange()->remove(
+		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+	rpb_->unRef();
     }
 }
 
@@ -176,6 +187,7 @@ bool uiODBodyDisplayTreeItem::init()
 	EM::EMObject* object = EM::EMM().getObject( emid_ );
 	mDynamicCastGet( EM::PolygonBody*, plg0, object );
 	mDynamicCastGet( EM::MarchingCubesSurface*, mcd0, object );
+	mDynamicCastGet( EM::RandomPosBody*, rpb0, object );
 	if ( plg0 )
 	{
 	    visSurvey::PolygonSurfDisplay* plg =
@@ -192,15 +204,29 @@ bool uiODBodyDisplayTreeItem::init()
 	    visSurvey::MarchingCubesDisplay* mcd =
 		visSurvey::MarchingCubesDisplay::create();
 	    displayid_ = mcd->id();
-	    mcd_ =mcd;
+	    mcd_ = mcd;
 	    mcd_->ref();
 	    mcd_->setEMID( emid_ );
 	    visserv_->addObject( mcd, sceneID(), true );
+	}
+	else if ( rpb0 )
+	{
+	    visSurvey::RandomPosBodyDisplay* rpb = 
+		visSurvey::RandomPosBodyDisplay::create();
+	    displayid_ = rpb->id();
+	    rpb_ = rpb;
+	    rpb_->ref();
+	    rpb_->setEMID( emid_ );
+	    visserv_->addObject( rpb, sceneID(), true );
 	}
     }
     else
     {
 	mDynamicCastGet( visSurvey::PolygonSurfDisplay*, plg,
+			 visserv_->getObject(displayid_) );
+	mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcd,
+			 visserv_->getObject(displayid_) );
+	mDynamicCastGet( visSurvey::RandomPosBodyDisplay*, rpb, 
 			 visserv_->getObject(displayid_) );
 	if ( plg )
 	{
@@ -208,26 +234,35 @@ bool uiODBodyDisplayTreeItem::init()
 	    plg_->ref();
 	    emid_ = plg->getEMID();
 	}
-	else
+	else if ( mcd )
 	{
-	    mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcd,
-		    visserv_->getObject(displayid_) );
-	    if ( mcd )
-	    {
-		mcd_ =mcd;
-		mcd_->ref();
-		emid_ = mcd->getEMID();
-    
-		if ( mcd_ && mcd_->materialChange() )
-	    	    mcd_->materialChange()->notify(
-	    		    mCB(this,uiODBodyDisplayTreeItem,colorChCB));
-	    }
+	    mcd_ = mcd;
+	    mcd_->ref();
+	    emid_ = mcd->getEMID();
 	}
+	else if ( rpb )
+	{
+	    rpb_ = rpb;
+	    rpb_->ref();
+	    emid_ = rpb->getEMID();
+	}	
     }
 
     if ( plg_ )
     {
 	plg_->materialChange()->notify(
+		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+    }
+    
+    if ( mcd_ )
+    {
+	mcd_->materialChange()->notify(
+		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+    }
+
+    if ( rpb_ )
+    {
+	rpb_->materialChange()->notify(
 		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
     }
     
@@ -246,22 +281,30 @@ void uiODBodyDisplayTreeItem::prepareForShutdown()
     applMgr()->EMServer()->askUserToSave(emid_);
     if ( mcd_ )
     {
-	mcd_->unRef();
 	mcd_->materialChange()->remove(
-	    mCB(this,uiODBodyDisplayTreeItem,colorChCB));
+	    mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+	mcd_->unRef();
     }
 
     mcd_ = 0;
 
     if ( plg_ )
     {
-	if ( plg_->materialChange() )
-    	    plg_->materialChange()->remove(
-		    mCB(this,uiODBodyDisplayTreeItem,colorChCB));
+	plg_->materialChange()->remove(
+		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
 	plg_->unRef();
     }
 
     plg_ = 0;
+
+    if ( rpb_ ) 
+    {
+	rpb_->materialChange()->remove( 
+		mCB(this,uiODBodyDisplayTreeItem,colorChCB) );
+	rpb_->unRef();
+    }
+
+    rpb_ = 0;
 }
 
 
@@ -276,6 +319,8 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
     mDynamicCastGet(visSurvey::PolygonSurfDisplay*,plg,
+	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
+    mDynamicCastGet(visSurvey::RandomPosBodyDisplay*,rpb,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
     if ( mcd )
     {
@@ -309,11 +354,17 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 	
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	mAddMenuItem( menu, &removeselectedmnuitem_, sel && sel->isOK(), true );
-	
+    
 	const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
-	    applMgr()->EMServer()->isFullyLoaded(emid_);
+	    			applMgr()->EMServer()->isFullyLoaded(emid_);
 	
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
+	mAddMenuItem( menu, &saveasmnuitem_, true, false );
+    }
+
+    if ( rpb )
+    {
+	mAddMenuItem( menu, &savemnuitem_, true, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }
 }
@@ -340,16 +391,18 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	
 	applMgr()->EMServer()->storeObject( emid_, saveas );
-	
-	if (saveas && plg_ && !applMgr()->EMServer()->getName(emid_).isEmpty())
+	const bool notempty = !applMgr()->EMServer()->getName(emid_).isEmpty();
+	if ( saveas && notempty )
 	{
-	    plg_->setName( applMgr()->EMServer()->getName(emid_));
-	    updateColumnText( uiODSceneMgr::cNameColumn() );
-	}
-	
-	if (saveas && mcd_ && !applMgr()->EMServer()->getName(emid_).isEmpty())
-	{
-	    mcd_->setName( applMgr()->EMServer()->getName(emid_));
+	    if ( plg_ )
+		plg_->setName( applMgr()->EMServer()->getName(emid_) );
+
+	    if ( rpb_ )
+		rpb_->setName( applMgr()->EMServer()->getName(emid_) );
+
+	    if ( mcd_ )
+		mcd_->setName( applMgr()->EMServer()->getName(emid_) );
+
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.14 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.15 2009-01-23 21:54:54 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,6 @@ public:
     void		showAllPicks(bool yn);
     Pick::Set&		getSet()			{ return set_; }
 
-
 protected:
 
     bool		init();
@@ -65,11 +64,12 @@ protected:
     MenuItem		storepolyasfaultmnuitem_;
     MenuItem		dirmnuitem_;
     MenuItem		onlyatsectmnuitem_;
-    MenuItem		addbodymnuitem_;
+    MenuItem		convertbodymnuitem_;
     MenuItem		propertymnuitem_;
     MenuItem		closepolyitem_;
     MenuItem		removeselectionmnuitem_;
 };
+
 
 
 #endif

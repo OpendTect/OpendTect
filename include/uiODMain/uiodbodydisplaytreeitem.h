@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.5 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.6 2009-01-23 21:54:54 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,8 @@ ________________________________________________________________________
 #include "emposid.h"
 
 
-namespace visSurvey { class MarchingCubesDisplay; class PolygonSurfDisplay; }
+namespace visSurvey { class MarchingCubesDisplay; class PolygonSurfDisplay; 
+		      class RandomPosBodyDisplay; }
 
 
 mDefineItem( BodyDisplayParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
@@ -63,6 +64,7 @@ protected:
     MenuItem				beziernrmnuitem_;
     visSurvey::MarchingCubesDisplay*	mcd_;
     visSurvey::PolygonSurfDisplay*	plg_;
+    visSurvey::RandomPosBodyDisplay*	rpb_;
 };
 
 
