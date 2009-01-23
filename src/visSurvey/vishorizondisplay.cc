@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.67 2009-01-23 09:28:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.68 2009-01-23 12:04:24 cvsumesh Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -584,11 +584,13 @@ void HorizonDisplay::enableAttrib( int attribnr, bool yn )
     {
 	while ( !isAttribEnabled(attribidx) && attribidx >= 0 )
 	    attribidx--;
-	const float shift = shifts_[attribidx][(curshiftidx_[attribidx])];
-	emsurf->geometry().setShift( shift );
-	Coord3 tranl = getTranslation();
-	tranl.z = shift;
-	setTranslation( tranl );
+	
+	const float zshift = attribidx < 0 ? 0
+	    : shifts_[attribidx][(curshiftidx_[attribidx])];
+	emsurf->geometry().setShift( zshift );
+	Coord3 transl = getTranslation();
+	transl.z = zshift;
+	setTranslation( transl );
     }
 }
 
