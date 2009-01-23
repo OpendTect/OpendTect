@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.74 2009-01-21 17:41:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.75 2009-01-23 07:38:08 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -201,6 +201,7 @@ void DescSet::sortDescSet()
     ObjectSet<Desc> descscopy( descs_ );
     TypeSet<DescID> idscopy( ids_ );
     descs_.erase();
+    ids_.erase();
     for ( int idx=0; idx<nrdescs; idx++ )
     {
 	descs_ += descscopy[ sortindexes[idx] ];
