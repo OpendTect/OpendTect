@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.10 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.11 2009-01-23 09:29:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 
     uiPoint*		getPos() const;
     void		setPos(float x,float y);
+    void		setPos(const uiPoint& pt); 
     void		moveBy(float x,float y);
     void		rotate(float angle);
     void		scale(float sx,float sy);
