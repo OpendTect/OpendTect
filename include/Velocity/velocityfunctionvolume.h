@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.3 2009-01-23 23:01:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "thread.h"
 #include "velocityfunction.h"
+#include "velocitycalc.h"
+
 
 class BinIDValueSet;
 class MultiID;
@@ -35,6 +37,11 @@ public:
 			VolumeFunction(VolumeFunctionSource&);
     bool		moveTo(const BinID&);
     StepInterval<float>	getAvailableZ() const;
+    StepInterval<float>	getLoadedZ() const;
+
+    void		enableExtrapolation(bool);
+    void		setStatics(float);
+    			//!<Only used with RMS velocities extrapolation
 
 protected:
 
@@ -45,6 +52,8 @@ protected:
     SamplingData<float>		velsampling_;
     TypeSet<float>		vel_;
 
+    bool			extrapolate_;
+    float			statics_;
 };
 
 
