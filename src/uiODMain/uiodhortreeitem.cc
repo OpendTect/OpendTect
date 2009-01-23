@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.12 2009-01-20 14:04:59 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.13 2009-01-23 07:47:21 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -138,10 +138,11 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int id, bool )
 
 void uiODHorizonTreeItem::initMenuItems()
 {
+    shiftmnuitem_.text = "&Shift ..";
     algomnuitem_.text = "&Algorithms";
     fillholesmnuitem_.text = "Fill &holes ...";
     filterhormnuitem_.text = "&Filter ...";
-    snapeventmnuitem_.text = "&Snap to event ...";
+    snapeventmnuitem_.text = "Snap to &event ...";
 }
 
 
@@ -187,10 +188,9 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 
     const bool hastransform = scene && scene->getDataTransform();
 
-    shiftmnuitem_.text = "Shift ..";
-    mAddMenuItem( menu, &shiftmnuitem_, true, false )
     if ( menu->menuID()!=displayID() || hastransform )
     {
+	mResetMenuItem( &shiftmnuitem_ );
 	mResetMenuItem( &fillholesmnuitem_ );
 	mResetMenuItem( &filterhormnuitem_ );
 	mResetMenuItem( &snapeventmnuitem_ );
@@ -201,6 +201,7 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &createflatscenemnuitem_, true, false );
 
 	const bool islocked = visserv_->isLocked( displayID() );
+	mAddMenuItem( menu, &shiftmnuitem_, !islocked, false )
 	mAddMenuItem( menu, &algomnuitem_, true, false );
 	mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
