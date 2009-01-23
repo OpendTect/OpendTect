@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.158 2009-01-23 09:28:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.159 2009-01-23 21:49:17 cvsyuancheng Exp $";
 
 #include "uiempartserv.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.158 2009-01-23 09:28:24 cvs
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "embodytr.h"
+#include "emrandomposbody.h"
 #include "emposid.h"
 #include "empolygonbody.h"
 #include "emsurfaceauxdata.h"
@@ -83,6 +84,7 @@ const int uiEMPartServer::evShiftDlgClosed	= 7;
     mDynamicCastGet(EM::Horizon2D*,hor2d,object) \
     mDynamicCastGet(EM::Horizon3D*,hor3d,object) \
     mDynamicCastGet(EM::Fault*,fault,object) \
+    mDynamicCastGet(EM::RandomPosBody*,randpos,object) \
     mDynamicCastGet(EM::PolygonBody*,polygon,object) \
     mDynamicCastGet(EM::MarchingCubesSurface*,mcsurface,object) \
 
@@ -355,6 +357,10 @@ void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )
     if ( !strcmp( translator, polygonEMBodyTranslator::sKeyUserName() ) )
     {
 	object = EM::EMM().createTempObject(EM::PolygonBody::typeStr());
+    }
+    else if ( !strcmp( translator, randposEMBodyTranslator::sKeyUserName() ) )
+    {
+	object = EM::EMM().createTempObject(EM::RandomPosBody::typeStr());
     }
     else if ( !strcmp( translator, mcEMBodyTranslator::sKeyUserName() ) )
     {
