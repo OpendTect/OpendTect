@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.10 2008-12-12 22:31:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.11 2009-01-23 21:57:29 cvsyuancheng Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -37,16 +37,16 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
     usedrawstylefld_->setChecked( hassty );
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
 
-    drawstylefld_ = new uiGenInput( this, "Connecting type", 
-	    BoolInpSpec( true, "Line", "Surface" ) );
+    drawstylefld_ = new uiGenInput( this, "with", 
+	    			    BoolInpSpec( true, "Line", "Surface" ) );
     drawstylefld_->setValue( hassty && !hasbody );
     drawstylefld_->valuechanged.notify( mCB(this,uiPickPropDlg,drawStyleCB) );
-    drawstylefld_->attach( alignedBelow, usedrawstylefld_ );
+    drawstylefld_->attach( rightOf, usedrawstylefld_ );
     
-    typefld->attach( alignedBelow, drawstylefld_ );
-    typefld->setName( "Marker shape" );
-    sliderfld->label()->setText( "Marker size" );
-    colselfld->setLblText( "Marker color" );
+    typefld->attach( alignedBelow, usedrawstylefld_ );
+    typefld->setName( "Shape" );
+    sliderfld->label()->setText( "Size" );
+    colselfld->setLblText( "Color" );
 
     drawSel( 0 );
 }
