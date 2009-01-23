@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.6 2009-01-19 16:07:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.7 2009-01-23 09:51:05 cvsbruno Exp $";
 
 #include "uid2tmodelgrp.h"
 
@@ -36,9 +36,9 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, bool withunit, const char* lbl )
 			      BoolInpSpec(true,"TVDSS","MD") );
     tvdfld_->setValue( false );
     tvdfld_->attach( alignedBelow, filefld_ );
-    uiLabel* uilbl = new uiLabel( this,
-	    	"(TVDSS won't work with horizontal sections)" );
-    uilbl->attach( rightOf, tvdfld_ );
+    
+    uilbl_ = new uiLabel( this, "(TVDSS won't work with horizontal sections)" );
+    uilbl_->attach( rightOf, tvdfld_ );
 
     if ( withunit )
     {
@@ -59,6 +59,8 @@ void uiD2TModelGroup::modelSel()
 {
     const bool isd2tmprovided = d2tmodelfld_->getBoolValue();
     filefld_->display( isd2tmprovided );
+    tvdfld_->display( isd2tmprovided );
+    uilbl_->display( isd2tmprovided );
 }
 
 const char* uiD2TModelGroup::fileName() const

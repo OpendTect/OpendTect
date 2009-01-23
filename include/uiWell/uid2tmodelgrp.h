@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.h,v 1.4 2009-01-19 16:07:29 cvsbruno Exp $
+ RCS:		$Id: uid2tmodelgrp.h,v 1.5 2009-01-23 09:51:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiFileInput;
 class uiGenInput;
 class uiCheckBox;
+class uiLabel;
 
 mClass uiD2TModelGroup : public uiGroup
 {
@@ -34,6 +35,7 @@ protected:
 
     uiFileInput*	filefld_;
     uiGenInput*		tvdfld_;
+    uiLabel*	        uilbl_;
     uiGenInput*		unitfld_;
     uiGenInput*		twtfld_;
     uiGenInput*         d2tmodelfld_;

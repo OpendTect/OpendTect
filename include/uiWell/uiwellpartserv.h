@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.29 2009-01-19 16:07:29 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.30 2009-01-23 09:51:05 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ template <class T> class Interval;
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
 class uiD2TModelGenDlg;
+class uiD2TMLogSelDlg;
 
 /*! \brief Part Server for Wells */
 
@@ -44,7 +45,8 @@ public:
     bool			selectWells(ObjectSet<MultiID>&);
 
     bool			editDisplayProperties(const MultiID&);
-    bool			createD2TModel(const MultiID&);
+    bool			createD2TModel(const MultiID&, const 
+	    				char*, const char*);
     bool			selectLogs(const MultiID&, 
 						Well::LogDisplayParSet*&);
     bool			hasLogs(const MultiID&) const;
@@ -80,6 +82,7 @@ protected:
     uiWell2RandomLineDlg*	rdmlinedlg_;
     uiWellDispPropDlg*		uiwellpropdlg_;
     uiD2TModelGenDlg*		uid2tmdlg_;
+    uiD2TMLogSelDlg*		uid2tmlogseldlg_;
     TypeSet<int>		previewids_;
 
     int				cursceneid_;

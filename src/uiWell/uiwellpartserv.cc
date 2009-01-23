@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.39 2009-01-19 16:07:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.40 2009-01-23 09:51:05 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.39 2009-01-19 16:07:29 cv
 #include "uiwellrdmlinedlg.h"
 #include "uiwelldisppropdlg.h"
 #include "uid2tmodelgendlg.h"
+#include "uid2tmlogseldlg.h"
 #include "multiid.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"
@@ -96,12 +97,17 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 }
 
 
-bool uiWellPartServer::createD2TModel( const MultiID& mid )
+bool uiWellPartServer::createD2TModel( const MultiID& mid, 
+				       const char* logname1, 
+				       const char* logname2 )
 {
     Well::Data* wd = Well::MGR().get( mid );
     if ( !wd ) return false;
-
-    uid2tmdlg_ = new uiD2TModelGenDlg( parent(), *wd );
+    if ( !mIsUdf(logname1) && !mIsUdf(logname2) )
+	uid2tmdlg_ = new uiD2TModelGenDlg( parent(), *wd, logname1, logname2 );
+    else
+	uid2tmdlg_ = new uiD2TModelGenDlg( parent(), *wd, "Sonic", "Density" );
+    //TODO : replace Sonic/Density by variable names
     return uid2tmdlg_->go();
 }
 

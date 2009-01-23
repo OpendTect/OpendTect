@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.33 2009-01-19 16:07:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.34 2009-01-23 09:51:05 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.33 2009-01-19 16:07:29 
 
 #include "uiattribpartserv.h"
 #include "uicreateattriblogdlg.h"
+#include "uid2tmlogseldlg.h"
+#include "uid2tmodelgendlg.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uilogselectdlg.h"
@@ -50,7 +52,8 @@ bool uiODWellParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&New WellTrack ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Tie Well to Seismic ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&New WellTrack ..."), 2 );
     if ( children_.size() > 1 )
     {
 	mnu.insertItem( new uiMenuItem( "Create Attribute Log ..." ), 2 );
@@ -99,6 +102,21 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
     else if ( mnuid == 1 )
     {
+	MultiID wid;
+	BufferString logname1, logname2;
+	uiD2TMLogSelDlg dlg ( getUiParent(), wid);
+	if ( dlg.go() );
+	{
+	logname1 = dlg.logname1_; logname2 = dlg.logname2_;
+	wid = dlg.wellid_;
+	ODMainWin()->applMgr().wellServer()->createD2TModel( wid, 
+							logname1, logname2 );
+	}
+    }
+
+
+    else if ( mnuid == 2 )
+    {
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	wd->setupPicking(true);
 	BufferString wellname;
@@ -111,7 +129,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	addChild( new uiODWellTreeItem(wd->id()), false );
     }
 
-    else if ( mnuid == 2 )
+    else if ( mnuid == 3 )
     {
 	ObjectSet<MultiID> wellids;
 	BufferStringSet list;
@@ -242,7 +260,7 @@ uiODWellTreeItem::~uiODWellTreeItem()
 void uiODWellTreeItem::initMenuItems()
 {
     propertiesmnuitem_.text = "&Properties ...";
-    gend2tm_.text = "Generate depth/time model ...";
+    gend2tm_.text = "Tie Well to Seismic ...";
     nametopmnuitem_.text = "Well name (&Top)";
     namebotmnuitem_.text = "Well name (&Bottom)";
     markermnuitem_.text = "&Markers";
@@ -422,7 +440,9 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == gend2tm_.id )
     {
 	menu->setIsHandled( true );
-	ODMainWin()->applMgr().wellServer()->createD2TModel( wellid );
+	BufferString logname1, logname2;
+	ODMainWin()->applMgr().wellServer()->createD2TModel( wellid, 
+							logname1, logname2 );
     }
 }
 
