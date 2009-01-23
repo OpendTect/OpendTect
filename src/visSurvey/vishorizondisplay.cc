@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.66 2009-01-16 06:10:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.67 2009-01-23 09:28:24 cvssatyaki Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -738,6 +738,7 @@ void HorizonDisplay::getRandomPos( DataPointSet& data ) const
 
 void HorizonDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 {
+    if ( attrib < 0 ) return;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);

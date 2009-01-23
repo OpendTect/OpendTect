@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.42 2009-01-14 05:21:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.43 2009-01-23 09:28:24 cvssatyaki Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -206,7 +206,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    const int auxnr =
 		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1,
-		       	applMgr()->EMServer()->shiftRange().atIndex(0) );
+		       	applMgr()->EMServer()->getShift() );
 	    BufferString auxdatanm;
 	    const bool saved =
 		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );

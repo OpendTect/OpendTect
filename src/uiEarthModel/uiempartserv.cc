@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.157 2009-01-14 05:21:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.158 2009-01-23 09:28:24 cvssatyaki Exp $";
 
 #include "uiempartserv.h"
 
@@ -188,7 +188,7 @@ float uiEMPartServer::getShift() const
 {
     if ( horshiftdlg_ )
 	return horshiftdlg_->curShift();
-    return 0.0;
+    return shiftrg_.atIndex( shiftidx_ );
 }
 
 
