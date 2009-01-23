@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.167 2009-01-22 04:34:40 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.168 2009-01-23 09:08:19 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -287,12 +287,16 @@ void uiMainWinBody::move( uiMainWin::PopupArea pa )
 {
     switch( pa )
     {
-	case uiMainWin::TopLeft		: QWidget::move( 0, 0 );
-	case uiMainWin::TopRight	: QWidget::move( mUdf(int), 0 );
-	case uiMainWin::BottomLeft	: QWidget::move( 0, mUdf(int) );
-	case uiMainWin::BottomRight	: QWidget::move( mUdf(int), mUdf(int) );
-    };
-};
+	case uiMainWin::TopLeft :
+	    QWidget::move( 0, 0 ); break;
+	case uiMainWin::TopRight :
+	    QWidget::move( mUdf(int), 0 ); break;
+	case uiMainWin::BottomLeft :
+	    QWidget::move( 0, mUdf(int) ); break;
+	case uiMainWin::BottomRight :
+	    QWidget::move( mUdf(int), mUdf(int) ); break;
+    }
+}
 
 
 uiMainWinBody::~uiMainWinBody()
