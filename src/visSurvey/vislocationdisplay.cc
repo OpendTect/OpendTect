@@ -4,11 +4,12 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.45 2008-12-12 22:30:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.46 2009-01-23 21:53:46 cvsyuancheng Exp $";
 
 #include "vislocationdisplay.h"
 
-#include "delaunay3d.h"
+#include "emrandomposbody.h"
+#include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -24,7 +25,7 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.45 2008-12-12 22:30:3
 #include "vispickstyle.h"
 #include "vispolyline.h"
 #include "vistransform.h"
-#include "vistristripset.h"
+#include "vispoints2triangulatedbody.h"
 #include "zaxistransform.h"
 
 namespace visSurvey {
@@ -61,7 +62,8 @@ LocationDisplay::LocationDisplay()
     , transformation_( 0 )
     , shoulddisplaybody_( false )			  
     , showall_( true )
-    , set_(0)
+    , set_( 0 )
+    , embody_( 0 )	       
     , manip_( this )
     , picksetmgr_( 0 )
     , waitsfordirectionid_( -1 )
@@ -82,6 +84,9 @@ LocationDisplay::LocationDisplay()
 
 LocationDisplay::~LocationDisplay()
 {
+    if ( embody_ )
+	embody_->unRef();
+
     setSceneEventCatcher( 0 );
     removeChild( group_->getInventorNode() );
     group_->unRef();
@@ -111,14 +116,62 @@ void LocationDisplay::setSet( Pick::Set* s )
 	return;
     }
 
-    set_ = s;
+    set_ = s; 
     setName( set_->name() );
     fullRedraw();
 
+    if ( !embody_ ) 
+    {
+    	mTryAlloc( embody_, EM::RandomPosBody(EM::EMM()) );
+	if ( !embody_ ) return;
+
+	embody_->ref();
+    	if ( !embody_->isOK() )
+    	{
+    	    embody_->unRef();
+    	    embody_ = 0;
+    	    return;
+    	}
+    
+	EM::EMM().addObject( embody_ );
+    	embody_->setPreferredColor( getMaterial()->getColor() );
+    }
+
+    embody_->copyFrom( *s );
+    
     if ( !showall_ && scene_ )
 	scene_->objectMoved( 0 );
 
     setLocationBodyDisplay();
+}
+
+
+MultiID LocationDisplay::getMultiID() const
+{
+    return embody_ ? embody_->multiID() : storedmid_;
+}
+
+
+EM::ObjectID LocationDisplay::getEMID() const
+{ return embody_ ? embody_->id() : -1; }
+
+
+bool LocationDisplay::setEMID( const EM::ObjectID& emid )
+{
+    if ( embody_ )
+	embody_->unRef();
+
+    embody_ = 0;
+    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
+    mDynamicCastGet( EM::RandomPosBody*, embody, emobject.ptr() );
+    if ( !embody )
+	return false;
+    
+    embody_ = embody;
+    embody_->ref();
+    
+    //TODO:do update;
+    return true;
 }
 
 
@@ -214,54 +267,42 @@ void LocationDisplay::displayLocationBody( bool yn )
 
 bool LocationDisplay::setLocationBodyDisplay()
 {
-    if ( !shoulddisplaybody_ || !set_ || !set_->size() )
-	return true;
+    if ( !shoulddisplaybody_ )
+	return false;
 
     if ( !bodydisplay_ )
     {
-	bodydisplay_ = visBase::TriangleStripSet::create();
+	bodydisplay_ = visBase::Points2TriangulatedBody::create();
 	bodydisplay_->ref();
-	bodydisplay_->setDisplayTransformation( transformation_ );
 	addChild( bodydisplay_->getInventorNode() );
     }
 
+    bodydisplay_->setDisplayTransformation( transformation_ );
+    if ( !bodydisplay_->getMaterial() )
+	bodydisplay_->setMaterial( visBase::Material::create() );
+
     TypeSet<Coord3> picks;
-    const float zscale = SI().zFactor();
-    for ( int idx=0; idx<set_->size(); idx++ )
+    if ( embody_ )
+    	picks = embody_->getPositions(); 
+    else
     {
-	Coord3 pos = (*set_)[idx].pos;
-	bodydisplay_->getCoordinates()->setPos( idx, pos );
+	if ( !set_ || !set_->size() )
+    	    return false;
 	
-	if ( datatransform_ ) pos.z = datatransform_->transformBack( pos );
-	pos.z  *= zscale;
-	picks += pos;
+	for ( int idx=0; idx<set_->size(); idx++ )
+	    picks += (*set_)[idx].pos;
     }
 
-    bodydisplay_->getCoordinates()->removeAfter( set_->size()-1 );
+    if ( set_ )
+	bodydisplay_->getMaterial()->setColor( set_->disp_.color_ );
 
-    DAGTetrahedraTree tree;
-    tree.setCoordList( picks, false );
-    
-    ParallelDTetrahedralator pdtri( tree );
-    if ( !pdtri.execute(true) )
-	return false;
-    
-    TypeSet<int> result;
-    if ( !tree.getSurfaceTriangles(result) )
-	return false;
-    
-    int cii = 0;
-    for ( int idx=0; idx<result.size()/3; idx++ )
+    if ( datatransform_ )
     {
-	bodydisplay_->setCoordIndex( cii++, result[3*idx] );
-	bodydisplay_->setCoordIndex( cii++, result[3*idx+2] );
-	bodydisplay_->setCoordIndex( cii++, result[3*idx+1] );
-	bodydisplay_->setCoordIndex( cii++, -1 );
+    	for ( int idx=0; idx<picks.size(); idx++ )
+    	    picks[idx].z = datatransform_->transformBack( picks[idx] );
     }
-    
-    bodydisplay_->removeCoordIndexAfter( cii-1 );
 
-    return true;
+    return  bodydisplay_->setPoints( picks );
 }
 
 
@@ -627,9 +668,28 @@ void LocationDisplay::dispChg( CallBacker* )
 }
 
 
+void LocationDisplay::setColor( Color nc )
+{
+    if ( embody_ )
+	embody_->setPreferredColor(nc);
+
+    if ( set_ )
+    	set_->disp_.color_ = nc;
+
+    if ( !bodydisplay_ ) return;
+
+    if ( !bodydisplay_->getMaterial() )
+	bodydisplay_->setMaterial( visBase::Material::create() );
+    bodydisplay_->getMaterial()->setColor( nc );
+}
+
+
 Color LocationDisplay::getColor() const
 {
-    return set_->disp_.color_;
+    if ( set_ )
+    	return set_->disp_.color_;
+
+    return Color::DgbColor();
 }
 
 
@@ -675,6 +735,9 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 
     if ( notif && picksetmgr_ )
     {
+	if ( picksetmgr_->indexOf(*set_)==-1 )
+	    picksetmgr_->set( MultiID(), set_ );
+
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
 				     set_, locidx );
 	picksetmgr_->reportChange( 0, cd );
