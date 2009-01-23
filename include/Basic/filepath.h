@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.8 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: filepath.h,v 1.9 2009-01-23 14:10:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,26 +15,39 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 
-/*!\brief File pathname tools */
+/*!\brief File pathname tools.
+
+  This class splits a full filename (with path) into the separate parts:
+  directories and possibly a filename (the last part does not have to be a
+  file name). That makes it easy to change the file name, or the path only,
+  or the extension, add directories, etc.
+  
+  To get the result after manipulation, use the fullPath().
+
+  fileName() returns the last part, pathOnly() returns all but the last part.
+  setFileName() replaces the last part, setPath() replaces all but the last
+  part.
+ 
+ */
 
 mClass FilePath
 {
 public:
     enum Style		{ Local, Unix, Windows };
 
-    			FilePath( const char* fnm=0 );
-			FilePath( const FilePath& fp );
+    			FilePath(const char* fullinp=0);
+			FilePath(const FilePath&);
 
-    FilePath&		operator =( const FilePath& fp );
-    FilePath&		operator =( const char* fnm );
-    bool		operator ==( const FilePath& fp ) const;
-    bool		operator ==( const char* fnm ) const;
-    bool		operator !=( const FilePath& fp ) const;
-    bool		operator !=( const char* fnm ) const;
+    FilePath&		operator =(const FilePath&);
+    FilePath&		operator =(const char* fullinp);
+    bool		operator ==(const FilePath&) const;
+    bool		operator ==(const char* fnm) const;
+    bool		operator !=(const FilePath&) const;
+    bool		operator !=(const char* fnm) const;
 
-    FilePath&		set(const char*);
+    FilePath&		set(const char* fullinp);
     FilePath&		add(const char*);	//!< at end
-    FilePath&		insert(const char*);	//!< after prefix
+    FilePath&		insert(const char*);	//!< after prefix at begin
     void		setFileName(const char*); //!< pass null to remove level
     void		setPath(const char*);	//!< including prefix
     void		setExtension(const char*,bool replace=true);
@@ -42,7 +55,7 @@ public:
 
     bool		isAbsolute() const;
 
-    BufferString	fullPath( Style f = Local, bool cleanup=true ) const;
+    BufferString	fullPath(Style s=Local,bool cleanup=true) const;
     const char*		prefix() const;
     int			nrLevels() const;
     const char*		extension() const;	//!< may return null
@@ -59,7 +72,7 @@ public:
     static BufferString	getTempName(const char* ext=0);
     static BufferString	mkCleanPath(const char* path, Style fmt);
 
-    static const char*	dirSep( Style stl );
+    static const char*	dirSep(Style);
     static const char*	sPrefSep;
 
 protected:
