@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.46 2009-01-23 21:53:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.47 2009-01-23 22:25:50 cvsyuancheng Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.46 2009-01-23 21:53:4
 #include "vispickstyle.h"
 #include "vispolyline.h"
 #include "vistransform.h"
-#include "vispoints2triangulatedbody.h"
+#include "visrandompos2body.h"
 #include "zaxistransform.h"
 
 namespace visSurvey {
@@ -272,7 +272,7 @@ bool LocationDisplay::setLocationBodyDisplay()
 
     if ( !bodydisplay_ )
     {
-	bodydisplay_ = visBase::Points2TriangulatedBody::create();
+	bodydisplay_ = visBase::RandomPos2Body::create();
 	bodydisplay_->ref();
 	addChild( bodydisplay_->getInventorNode() );
     }

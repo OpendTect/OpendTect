@@ -4,7 +4,7 @@
  * DATE     : January 2009
 -*/
 
-static const char* rcsID = "$Id: visrandomposbodydisplay.cc,v 1.1 2009-01-23 21:51:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandomposbodydisplay.cc,v 1.2 2009-01-23 22:25:50 cvsyuancheng Exp $";
 
 #include "visrandomposbodydisplay.h"
 
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: visrandomposbodydisplay.cc,v 1.1 2009-01-23 21:
 #include "iopar.h"
 #include "randcolor.h"
 #include "vismaterial.h"
-#include "vispoints2triangulatedbody.h"
+#include "visrandompos2body.h"
 #include "vistransform.h"
 
 mCreateFactoryEntry( visSurvey::RandomPosBodyDisplay );
@@ -45,7 +45,7 @@ RandomPosBodyDisplay::~RandomPosBodyDisplay()
 }
 
 
-bool RandomPosBodyDisplay::setVisBody( visBase::Points2TriangulatedBody* body )
+bool RandomPosBodyDisplay::setVisBody( visBase::RandomPos2Body* body )
 {
     if ( !body ) return false;
 
@@ -131,7 +131,7 @@ void RandomPosBodyDisplay::updateVisFromEM()
 
     if ( !displaybody_ )
     {
-	displaybody_ = visBase::Points2TriangulatedBody::create();
+	displaybody_ = visBase::RandomPos2Body::create();
 	displaybody_->ref();
 	displaybody_->setDisplayTransformation( transform_ );
 	displaybody_->setRightHandSystem( true );
