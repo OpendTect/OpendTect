@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.19 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.20 2009-01-23 07:48:55 cvsnanne Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -84,8 +84,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     mAddButton( "contexthelp.png", "Help", helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
-    txtfld->setPrefHeightInChar(6);
-    uiFont& fnt = uiFontList::add( "Non-prop",
+    uiFont& fnt = FontList().add( "Non-prop",
 	    FontData(FontData::defaultPointSize(),"Courier") );
     txtfld->setFont( fnt );
 
