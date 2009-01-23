@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.8 2009-01-22 22:25:59 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.9 2009-01-23 16:08:14 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -387,6 +387,9 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 	const double v2t = t_below*v*v; \
 	const double numerator = v2t-v2t_prev; \
 	if ( numerator<0 ) \
+	    continue; \
+ \
+	if ( t_below<t_above || mIsEqual(t_below,t_above,1e-5) ) \
 	    continue; \
  \
 	const double vlayer = Math::Sqrt( numerator/(t_below-t_above) ); \
