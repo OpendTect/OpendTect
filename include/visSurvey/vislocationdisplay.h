@@ -7,17 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.19 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.20 2009-01-23 21:56:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "emposid.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 
 class Sphere;
 class SoSeparator;
+namespace EM { class RandomPosBody; }
 namespace Pick { class Set; class Location; class SetMgr; }
 template <class T> class Selector;
 
@@ -29,7 +31,7 @@ namespace visBase
     class PickStyle;
     class PolyLine;
     class Transformation;
-    class TriangleStripSet;
+    class Points2TriangulatedBody;
 };
 
 
@@ -44,8 +46,8 @@ class Scene;
   shapes ++.
 */
 
-mClass LocationDisplay :	public visBase::VisualObjectImpl,
-			public visSurvey::SurveyObject
+mClass LocationDisplay : public visBase::VisualObjectImpl,
+			 public visSurvey::SurveyObject
 {
 public:
     virtual void		setSet(Pick::Set*); // once!
@@ -54,7 +56,7 @@ public:
     Pick::Set*			getSet()		{ return set_; }
     const Pick::Set*		getSet() const		{ return set_; }
 
-    MultiID			getMultiID() const 	{ return storedmid_; }
+    MultiID			getMultiID() const;
 
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
@@ -63,7 +65,9 @@ public:
     void			displayLocationBody(bool);
     bool			isLocationBodyDisplayed() const;
     bool			setLocationBodyDisplay();
-    visBase::TriangleStripSet*	getLocationBody() const { return bodydisplay_; }
+    visBase::Points2TriangulatedBody* getLocationBody() const; 
+    EM::ObjectID		getEMID() const;
+    bool			setEMID(const EM::ObjectID&);
 
     void                        createLine();
     void                        showLine(bool);
@@ -74,6 +78,8 @@ public:
 						BufferString&) const;
     virtual bool		hasColor() const	{ return true; }
     virtual Color		getColor() const;
+    virtual void		setColor(Color);
+
     virtual bool		isPicking() const;
     virtual void		otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,int);
@@ -123,6 +129,7 @@ protected:
     virtual void		setChg(CallBacker* cb);
     virtual void		dispChg(CallBacker* cb);
 
+    EM::RandomPosBody*		embody_;
     Pick::Set*			set_;
     Pick::SetMgr*		picksetmgr_;
     Notifier<LocationDisplay>	manip_;
@@ -137,7 +144,7 @@ protected:
     int				pickedsobjid_; //!< Picked SurveyObject ID
 
     bool			shoulddisplaybody_;
-    visBase::TriangleStripSet*	bodydisplay_;
+    visBase::Points2TriangulatedBody* bodydisplay_;
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
     visBase::DrawStyle*         drawstyle_;
