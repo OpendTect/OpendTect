@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.292 2009-01-20 08:47:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.293 2009-01-23 07:47:37 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -666,11 +666,12 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
 	    mapper.usePar( iop );
 	}
     }
-    
+
     visserv_->setColTabMapperSetup( visid, attrib, mapper );
     visserv_->setColTabSequence( visid, attrib, seq );
     appl_.colTabEd().colTab()->setMapperSetup( &mapper );
     appl_.colTabEd().colTab()->setSequence( &seq, true );
+    modifyColorTable( visid, attrib );
 }
 
 
@@ -844,7 +845,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
     }
 
-    setHistogram( visid, attrib );
+    modifyColorTable( visid, attrib );
     return res;
 }
 
