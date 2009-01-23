@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.4 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: embodytr.h,v 1.5 2009-01-23 21:48:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -19,16 +19,15 @@ ________________________________________________________________________
 class Executor;
 class IOObj;
 
-namespace EM { class Body; class PolygonBody; }
+namespace EM { class Body; class PolygonBody; class RandomPosBody; } 
 
 typedef EM::Body 	EMBody;
 
 mClass EMBodyTranslatorGroup : public TranslatorGroup
 {		    isTranslatorGroup(EMBody)
 public:
-		    mDefEmptyTranslatorGroupConstructor(EMBody)
-
-    const char*		defExtension() const	{ return "mc"; }
+		    	mDefEmptyTranslatorGroupConstructor(EMBody)
+    const char*		defExtension() const    { return "bdy"; }
     static const char*	sKeyword();
 };
 
@@ -39,7 +38,8 @@ public:
 			mcEMBodyTranslator(const char* unm,const char* nm)
 			    : Translator(unm,nm)			{}
 			~mcEMBodyTranslator()				{}
-    static const char*  sKeyUserName() { return "MCBody"; }
+    const char*		defExtension() const	{ return "mc"; }
+    static const char*  sKeyUserName()		{ return "MCBody"; }
 };
 
 
@@ -49,6 +49,7 @@ public:
 			polygonEMBodyTranslator(const char* unm,const char* nm);
 			~polygonEMBodyTranslator();
 
+    const char*		defExtension() const	{ return "plg"; }
     static const char*  sKeyUserName();
     static const IOObjContext&	getIOObjContext();
 
@@ -60,6 +61,18 @@ public:
 protected:
 
     BufferString	errmsg_;
+};
+
+
+mClass randposEMBodyTranslator : public Translator
+{                               isTranslator(randpos,EMBody)
+public:
+			randposEMBodyTranslator(const char* unm,const char* nm)
+    			    : Translator( unm, nm )			{}
+			~randposEMBodyTranslator()			{}
+
+    const char*		defExtension() const	{ return "rdpos"; }
+    static const char*	sKeyUserName()	{ return "RandomPosBody"; }
 };
 
 

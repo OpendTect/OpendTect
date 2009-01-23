@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initearthmodel.cc,v 1.7 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: initearthmodel.cc,v 1.8 2009-01-23 21:48:34 cvsyuancheng Exp $";
 
 
 #include "initearthmodel.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: initearthmodel.cc,v 1.7 2008-11-25 15:35:22 cvs
 #include "emmarchingcubessurface.h"
 #include "emhorizonztransform.h"
 #include "emobject.h"
+#include "emrandomposbody.h"
 #include "empolygonbody.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
@@ -32,6 +33,7 @@ void EarthModel::initStdClasses()
     EM::Horizon3D::initClass();
     EM::HorizonZTransform::initClass();
     EM::MarchingCubesSurface::initClass();
+    EM::RandomPosBody::initClass();
     EM::PolygonBody::initClass();
     Pos::EMSurfaceProvider3D::initClass();
     Pos::EMSurfaceProvider2D::initClass();

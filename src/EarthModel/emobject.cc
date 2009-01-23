@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.83 2009-01-09 10:58:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.84 2009-01-23 21:48:34 cvsyuancheng Exp $";
 
 #include "emobject.h"
 
@@ -23,8 +23,8 @@ using namespace EM;
 
 
 
-int EMObject::sPermanentControlNode()	{ return PosAttrib::PermanentControlNode; }
-int EMObject::sTemporaryControlNode()	{ return PosAttrib::TemporaryControlNode; }
+int EMObject::sPermanentControlNode() {return PosAttrib::PermanentControlNode;}
+int EMObject::sTemporaryControlNode() {return PosAttrib::TemporaryControlNode;}
 int EMObject::sEdgeControlNode()	{ return PosAttrib::EdgeControlNode; }
 int EMObject::sTerminationNode()	{ return PosAttrib::TerminationNode; }
 int EMObject::sSeedNode()		{ return PosAttrib::SeedNode; }
