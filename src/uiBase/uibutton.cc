@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.53 2009-01-22 07:15:00 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.54 2009-01-23 09:52:54 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -274,7 +274,7 @@ void uiPushButton::setDefault( bool yn )
 
 void uiPushButton::setPixmap( const ioPixmap& pm )
 {
-    body_->setIconFrac( 0.5 );
+    body_->setIconFrac( 0.7 );
     body_->setIcon( *pm.qpixmap() );
 }
 
