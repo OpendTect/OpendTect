@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.13 2009-01-23 07:47:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.14 2009-01-23 11:07:10 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -278,6 +278,11 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
     const bool hastransform = scene && scene->getDataTransform();
+    if ( hastransform )
+    {
+	uiMSG().message( "Cannot add 2D horizons to this scene (yet)" );
+	return false;
+    }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
