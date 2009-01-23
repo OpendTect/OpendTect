@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.20 2009-01-23 21:56:25 cvsyuancheng Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.21 2009-01-23 22:27:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ namespace visBase
     class PickStyle;
     class PolyLine;
     class Transformation;
-    class Points2TriangulatedBody;
+    class RandomPos2Body;
 };
 
 
@@ -65,7 +65,7 @@ public:
     void			displayLocationBody(bool);
     bool			isLocationBodyDisplayed() const;
     bool			setLocationBodyDisplay();
-    visBase::Points2TriangulatedBody* getLocationBody() const; 
+    visBase::RandomPos2Body*	getLocationBody() const; 
     EM::ObjectID		getEMID() const;
     bool			setEMID(const EM::ObjectID&);
 
@@ -144,7 +144,7 @@ protected:
     int				pickedsobjid_; //!< Picked SurveyObject ID
 
     bool			shoulddisplaybody_;
-    visBase::Points2TriangulatedBody* bodydisplay_;
+    visBase::RandomPos2Body*	bodydisplay_;
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
     visBase::DrawStyle*         drawstyle_;

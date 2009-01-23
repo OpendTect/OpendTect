@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: visrandomposbodydisplay.h,v 1.1 2009-01-23 21:51:40 cvsyuancheng Exp $
+ RCS:		$Id: visrandomposbodydisplay.h,v 1.2 2009-01-23 22:27:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "vissurvobj.h"
 
-namespace visBase { class Points2TriangulatedBody; class Transformation; }
+namespace visBase { class RandomPos2Body; class Transformation; }
 namespace EM { class RandomPosBody; }
 
 
@@ -48,7 +48,7 @@ public:
     mVisTrans*			getDisplayTransformation();
     void			setRightHandSystem(bool);
 
-    bool			setVisBody(visBase::Points2TriangulatedBody*);
+    bool			setVisBody(visBase::RandomPos2Body*);
     				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
@@ -62,9 +62,9 @@ protected:
     virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
     virtual int			usePar(const IOPar&);
 
-    visBase::Transformation*		transform_;
-    visBase::Points2TriangulatedBody*	displaybody_;
-    EM::RandomPosBody*			embody_;
+    visBase::Transformation*	transform_;
+    visBase::RandomPos2Body*	displaybody_;
+    EM::RandomPosBody*		embody_;
 };
 
 };
