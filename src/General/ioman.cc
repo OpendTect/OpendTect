@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.91 2009-01-20 04:53:19 cvsranojay Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.92 2009-01-23 10:41:16 cvsnanne Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -189,6 +189,7 @@ bool IOMan::isReady() const
     CallBackSet asccbs = IOM().afterSurveyChange.cbs; \
     CallBackSet rmcbs = IOM().entryRemoved.cbs; \
     CallBackSet dccbs = IOM().newIODir.cbs; \
+    CallBackSet apccbs = IOM().applicationClosing.cbs; \
     delete IOMan::theinst_; \
     IOMan::theinst_ = 0; \
     clearSelHists()
@@ -199,6 +200,7 @@ bool IOMan::isReady() const
     IOM().afterSurveyChange.cbs = asccbs; \
     IOM().entryRemoved.cbs = rmcbs; \
     IOM().newIODir.cbs = dccbs; \
+    IOM().applicationClosing.cbs = apccbs; \
     if ( dotrigger ) \
     { \
 	setupCustomDataDirs(-1); \
