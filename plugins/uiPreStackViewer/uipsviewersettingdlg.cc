@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.11 2008-12-22 19:25:37 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewersettingdlg.cc,v 1.12 2009-01-26 15:09:08 cvsbert Exp $";
 
 #include "uipsviewersettingdlg.h"
 
 #include "uibutton.h"
-#include "uipsviewerappeartab.h"
-#include "uipsviewercoltab.h"
+#include "uipsviewerscalingtab.h"
+#include "uipsviewerappearancetab.h"
 #include "uipsviewershapetab.h"
 #include "uipsviewerpreproctab.h"
 #include "visprestackviewer.h"
@@ -34,11 +34,11 @@ uiViewer3DSettingDlg::uiViewer3DSettingDlg( uiParent* p,
     shapetab_ = new uiViewer3DShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );
 
-    apptab_ = new uiViewer3DAppearTab( tabParent(), viewer, mgr );
+    apptab_ = new uiViewer3DAppearanceTab( tabParent(), viewer, mgr );
     addGroup( apptab_ );
 
-    coltab_ = new uiViewer3DColTab( tabParent(), viewer, mgr );
-    addGroup( coltab_ );
+    scaletab_ = new uiViewer3DScalingTab( tabParent(), viewer, mgr );
+    addGroup( scaletab_ );
 
     if ( viewer.is3DSeis() )
     {
@@ -58,15 +58,15 @@ bool uiViewer3DSettingDlg::acceptOK( CallBacker* cb )
 {
    if ( saveButtonChecked() )
    {
-       coltab_->saveAsDefault( true );
        apptab_->saveAsDefault( true );
+       scaletab_->saveAsDefault( true );
        shapetab_->saveAsDefault( true );
    }
 
    if ( applytoallfld_->isChecked() )
    {
-       coltab_->applyToAll( true );
        apptab_->applyToAll( true );
+       scaletab_->applyToAll( true );
        if ( preproctab_ ) 
 	   preproctab_->applyToAll( true );
        shapetab_->applyToAll( true );

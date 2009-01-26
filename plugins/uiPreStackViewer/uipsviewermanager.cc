@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.38 2009-01-21 13:23:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.39 2009-01-26 15:09:08 cvsbert Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -38,7 +38,6 @@ static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.38 2009-01-21 13:23:38
 #include "visprestackviewer.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
-#include "uipsviewercoltab.h"
 #include "uiamplspectrum.h"
 #include "uiobjdisposer.h"
 
