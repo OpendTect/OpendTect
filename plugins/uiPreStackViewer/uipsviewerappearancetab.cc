@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.1 2009-01-26 15:09:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.2 2009-01-26 16:08:15 cvsbert Exp $";
 
 #include "uipsviewerappearancetab.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uipsviewerappearancetab.cc,v 1.1 2009-01-26 15:
 #include "visflatviewer.h"
 #include "visprestackviewer.h"
 #include "survinfo.h"
+#include "samplingdata.h"
 
 
 namespace PreStackView
@@ -39,28 +40,33 @@ uiViewer3DAppearanceTab::uiViewer3DAppearanceTab( uiParent* p,
     uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
 
     const float zfac = SI().zFactor();
+    const bool xyinft = SI().xyInFeet();
     //TODO get from current settings
-    float curzstart = SI().zRange(true).start * zfac;
-    float curzstep = 1 * zfac;
+    SamplingData<float> curzsmp( SI().zRange(true).start * zfac, zfac );
     bool curhavezannot = false;
-    float curoffsstart = 0;
-    float curoffsstep = 1000;
+    SamplingData<float> curoffssmp( 0, xyinft ? 1000 : 2000 );
     bool curhaveoffsannot = false;
 
     zannotfld_ = new uiGenInput( this, "Z grid lines (start/step)",
-	    		FloatInpSpec(curzstart), FloatInpSpec(curzstep) );
+		    FloatInpSpec(curzsmp.start), FloatInpSpec(curzsmp.step) );
     zannotfld_->attach( alignedBelow, uicoltab_ );
     zannotfld_->setWithCheck( true );
     zannotfld_->setChecked( curhavezannot );
+    uiLabel* lbl = new uiLabel( this, SI().getZUnitString(true) );
+    lbl->attach( rightOf, zannotfld_ );
 
     offsannotfld_ = new uiGenInput( this, "Offset grid lines (start/step)",
-	    		FloatInpSpec(curoffsstart), FloatInpSpec(curoffsstep) );
+				    FloatInpSpec(curoffssmp.start),
+				    FloatInpSpec(curoffssmp.step) );
     offsannotfld_->attach( alignedBelow, zannotfld_ );
     offsannotfld_->setWithCheck( true );
     offsannotfld_->setChecked( curhaveoffsannot );
+    lbl = new uiLabel( this, xyinft ? "(ft)" : "(m)" );
+    lbl->attach( rightOf, offsannotfld_ );
 
     applybut_ = new uiPushButton( this, "Apply", true );
-    applybut_->activated.notify( mCB(this,uiViewer3DAppearanceTab,applyButPushedCB) );
+    applybut_->activated.notify(
+		mCB(this,uiViewer3DAppearanceTab,applyButPushedCB) );
     applybut_->attach( alignedBelow, offsannotfld_ );
 }
 
@@ -96,7 +102,30 @@ void uiViewer3DAppearanceTab::applyButPushedCB( CallBacker* cb )
     vwr_->appearance().ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
     vwr_->handleChange( FlatView::Viewer::VDPars );
 
-    //TODO make grid lines choices effective
+    //TODO store in actual vis settings rather than local variables
+    const float zfac = SI().zFactor();
+    SamplingData<float> zsmp( 0, zfac );
+    bool havezannot = zannotfld_->isChecked();
+    if ( havezannot )
+    {
+	zsmp.start = zannotfld_->getfValue( 0 ) / zfac;
+	zsmp.step = zannotfld_->getfValue( 1 ) / zfac;
+    }
+    SamplingData<float> offssmp( 0, 1000 );
+    bool haveoffsannot = offsannotfld_->isChecked();
+    if ( haveoffsannot )
+    {
+	offssmp.start = zannotfld_->getfValue( 0 );
+	offssmp.step = zannotfld_->getfValue( 1 );
+	/*
+		TODO Something to think about:
+		When coordinates are in feet, are offsets then also in feet?
+		Ask Kris ...!
+		If not, we need to scale here ...
+	if ( SI().xyInFeet() )
+	    { offssmp.start *= 0.3048; offssmp.step *= 0.3048; }
+	*/
+    }
 
     if ( !applyall_ )
 	return;
