@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2008
- RCS:           $Id: uipsviewerposdlg.h,v 1.8 2009-01-09 11:02:26 cvsbert Exp $
+ RCS:           $Id: uipsviewerposdlg.h,v 1.9 2009-01-26 12:03:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class uiLabel;
 class uiSpinBox;
-class uiPushButton;
 class uiCheckBox;
+class uiPushButton;
+class uiLabeledSpinBox;
 
 namespace PreStackView 
 { 
@@ -36,11 +38,15 @@ public:
 protected:
 
     uiSpinBox*		posfld_;
-    uiSpinBox*		stepfld_;
+    uiLabeledSpinBox*	stepfld_;
+    uiCheckBox*		oobox_;
     uiCheckBox*		applybox_;
     uiPushButton*	applybut_;
+    uiLabel*		steplbl_;
+    BufferString	ootxt_;
 
-    void		boxSel(CallBacker*);
+    void		ooBoxSel(CallBacker*);
+    void		applBoxSel(CallBacker*);
     void		posChg(CallBacker*);
     void		renewFld(CallBacker*);
 

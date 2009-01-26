@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.13 2009-01-21 13:23:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.14 2009-01-26 12:03:40 cvsbert Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -31,25 +31,29 @@ uiViewer3DPositionDlg::uiViewer3DPositionDlg( uiParent* p,
     , applybox_(0)
     , applybut_(0)
 {
+    ootxt_ = is3D() ? (isInl() ? "Crossline" : "Inline") : "Trace Nr";
     setCtrlStyle( LeaveOnly );
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
-		    is3D() ? (isInl() ? "Crossline" : "Inline") : "Trace Nr",
-		    0 , "Position" );
-    posfld_ = lsb->box();
+
+    oobox_ = new uiCheckBox( this, ootxt_ );
+    oobox_->setChecked( true );
+    oobox_->activated.notify( mCB(this,uiViewer3DPositionDlg,ooBoxSel) );
+
+    posfld_ = new uiSpinBox( this, 0, "Position" );
+    posfld_->attach( rightOf, oobox_ );
     StepInterval<int> posspos = vwr.getTraceRange( vwr.getPosition() );
     if ( posspos.isUdf() ) posspos = StepInterval<int>( 1, mUdf(int), 1 );
     posfld_->setInterval( posspos );
 
-    uiLabeledSpinBox* steplsb = new uiLabeledSpinBox(this,"Step",0,"Step");
-    steplsb->attach( rightOf, lsb );
-    stepfld_ = steplsb->box();
-    stepfld_->setInterval( StepInterval<int>(posspos.step, 
+    stepfld_ = new uiLabeledSpinBox(this,"Step",0,"Step");
+    stepfld_->attach( rightOf, posfld_ );
+    stepfld_->box()->setInterval( StepInterval<int>(posspos.step, 
 		posspos.stop-posspos.start,posspos.step) );
-    stepfld_->valueChanged.notify( mCB(this,uiViewer3DPositionDlg,stepCB) );
+    stepfld_->box()->valueChanged.notify(
+	    		mCB(this,uiViewer3DPositionDlg,stepCB) );
 
     applybox_ = new uiCheckBox( this, "Immediate update",
-	    			mCB(this,uiViewer3DPositionDlg,boxSel) );
-    applybox_->attach( rightOf, steplsb );
+	    			mCB(this,uiViewer3DPositionDlg,applBoxSel) );
+    applybox_->attach( rightOf, stepfld_ );
     applybut_ = new uiPushButton( this, "&Update Now", true );
     applybut_->attach( rightBorder );
     applybut_->activated.notify( mCB(this,uiViewer3DPositionDlg,applyCB) );
@@ -76,7 +80,7 @@ void uiViewer3DPositionDlg::renewFld( CallBacker* )
 
 
 void uiViewer3DPositionDlg::stepCB( CallBacker* )
-{ posfld_->setStep( stepfld_->getValue() ); }
+{ posfld_->setStep( stepfld_->box()->getValue() ); }
 
 
 void uiViewer3DPositionDlg::atStart( CallBacker* )
@@ -92,7 +96,21 @@ void uiViewer3DPositionDlg::atStart( CallBacker* )
 }
 
 
-void uiViewer3DPositionDlg::boxSel( CallBacker* c )
+void uiViewer3DPositionDlg::ooBoxSel( CallBacker* c )
+{
+    const bool dodisp = oobox_->isChecked();
+    posfld_->display( dodisp );
+    stepfld_->display( dodisp );
+    applybut_->display( dodisp );
+    applybox_->display( dodisp );
+    if ( dodisp ) applBoxSel( c );
+    oobox_->setText( dodisp ? ootxt_ : "Display" );
+
+    //TODO actually display or hide dep on dodisp
+}
+
+
+void uiViewer3DPositionDlg::applBoxSel( CallBacker* c )
 {
     if ( applybut_ && applybox_ )
     {
