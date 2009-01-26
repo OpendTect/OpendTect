@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.13 2008-11-25 13:46:17 cvsbert Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.14 2009-01-26 17:49:47 cvskris Exp $";
 
 #include "initalgo.h"
 
@@ -27,7 +27,8 @@ void Algo::initStdClasses()
     HanningWindow::initClass();
 
     InverseDistanceGridder2D::initClass();
-    TriangulatedNeighborhoodGridder2D::initClass();
+//TriangulatedNeighborhoodGridder2D::initClass();
+//Not good enough for production
     TriangulatedGridder2D::initClass();
 
     Pos::RandomFilter3D::initClass();
