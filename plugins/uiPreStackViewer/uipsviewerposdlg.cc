@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.14 2009-01-26 12:03:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewerposdlg.cc,v 1.15 2009-01-26 14:13:29 cvsbert Exp $";
 
 #include "uipsviewerposdlg.h"
 
@@ -99,14 +99,14 @@ void uiViewer3DPositionDlg::atStart( CallBacker* )
 void uiViewer3DPositionDlg::ooBoxSel( CallBacker* c )
 {
     const bool dodisp = oobox_->isChecked();
+    oobox_->setText( dodisp ? ootxt_ : "Display" );
+    viewer_.turnOn( dodisp );
+
     posfld_->display( dodisp );
     stepfld_->display( dodisp );
     applybut_->display( dodisp );
     applybox_->display( dodisp );
     if ( dodisp ) applBoxSel( c );
-    oobox_->setText( dodisp ? ootxt_ : "Display" );
-
-    //TODO actually display or hide dep on dodisp
 }
 
 
@@ -202,6 +202,13 @@ bool uiViewer3DPositionDlg::applyCB( CallBacker* )
 	posfld_->setValue( viewer_.traceNr() );
     }
 
+    return true;
+}
+
+
+bool uiViewer3DPositionDlg::rejectOK( CallBacker* )
+{
+    oobox_->setChecked( true );
     return true;
 }
 
