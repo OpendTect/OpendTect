@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.19 2009-01-27 05:37:25 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.20 2009-01-27 12:05:10 cvsraman Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -57,6 +57,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	mAdd( Seis::nameOf(Seis::LinePS), idxps2d_ );
     }
     mAdd( ODMad::sKeyMadagascar, idxmad_ );
+    idxsu_ = -1;
     if ( isinp )
 	mAdd( "SU", idxsu_ );
 
