@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.21 2008-11-28 10:34:26 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.22 2009-01-27 15:06:28 cvshelene Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -115,6 +115,13 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     {
 	initspec = new PositionInpSpec( bidpar->getValue() );
 	incrspec = new PositionInpSpec( bidpar->getValue() );
+	mDynamicCastGet( PositionInpSpec*,initspc,initspec )
+	mDynamicCastGet( PositionInpSpec*,incrspc,incrspec )
+	if ( desced_.is2D() )
+	{
+	    initspc->setup().is2d_ = true;
+	    incrspc->setup().is2d_ = true;
+	}
     }
     else if ( fpar )
     {
