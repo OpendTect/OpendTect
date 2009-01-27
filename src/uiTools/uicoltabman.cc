@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.24 2009-01-20 04:53:19 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.25 2009-01-27 10:17:24 cvsbert Exp $";
 
 #include "uicoltabman.h"
 
@@ -347,7 +347,7 @@ bool uiColorTableMan::acceptOK( CallBacker* )
 
 bool uiColorTableMan::rejectOK( CallBacker* )
 {
-    ctab_ = *orgctab_;
+    if ( orgctab_ ) ctab_ = *orgctab_;
     tableChanged.trigger();
     return true;
 }
