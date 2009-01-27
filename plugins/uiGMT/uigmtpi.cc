@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.16 2009-01-05 11:52:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.17 2009-01-27 08:52:23 cvsraman Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -98,7 +98,8 @@ public:
     uiODMain*		appl_;
     uiGMTMainWin*	dlg_;
 
-    void		updateMenu(CallBacker* cb=0);
+    void		updateToolBar(CallBacker*);
+    void		updateMenu(CallBacker*);
     void		createMap(CallBacker*);
 };
 
@@ -107,19 +108,27 @@ uiGMTMgr::uiGMTMgr( uiODMain* a )
 	: appl_(a)
 	, dlg_(0)
 {
-    appl_->menuMgr().dTectTBChanged.notify( mCB(this,uiGMTMgr,updateMenu) );
-    updateMenu();
+    appl_->menuMgr().dTectTBChanged.notify( mCB(this,uiGMTMgr,updateToolBar) );
+    appl_->menuMgr().dTectMnuChanged.notify( mCB(this,uiGMTMgr,updateMenu) );
+    updateToolBar(0);
+    updateMenu(0);
+}
+
+
+void uiGMTMgr::updateToolBar( CallBacker* )
+{
+    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png",
+	    				   mCB(this,uiGMTMgr,createMap),
+					   "GMT Mapping Tool" );
 }
 
 
 void uiGMTMgr::updateMenu( CallBacker* )
 {
     delete dlg_; dlg_ = 0;
-    const CallBack cb( mCB(this,uiGMTMgr,createMap) );
-    uiMenuItem* newitem = new uiMenuItem( "GMT Mapping Tool ...", cb );
+    uiMenuItem* newitem = new uiMenuItem( "GMT Mapping Tool ...",
+	    				  mCB(this,uiGMTMgr,createMap) );
     appl_->menuMgr().procMnu()->insertItem( newitem );
-    appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png", cb,
-					   "GMT Mapping Tool" );
 }
 
 

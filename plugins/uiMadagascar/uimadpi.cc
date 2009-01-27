@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.12 2009-01-20 10:55:04 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.13 2009-01-27 08:52:43 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -61,7 +61,8 @@ public:
     uiMadagascarMain*	madwin_;
 
     void		doMain(CallBacker*);
-    void		insertItems(CallBacker* cb=0);
+    void		updateToolBar(CallBacker*);
+    void		updateMenu(CallBacker*);
 
 };
 
@@ -70,8 +71,10 @@ uiMadagascarLink::uiMadagascarLink( uiODMain& a )
     	: mnumgr(a.menuMgr())
         , madwin_(0)
 {
-    mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,insertItems) );
-    insertItems();
+    mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,updateToolBar) );
+    mnumgr.dTectMnuChanged.notify( mCB(this,uiMadagascarLink,updateMenu) );
+    updateToolBar(0);
+    updateMenu(0);
 }
 
 
@@ -81,11 +84,20 @@ uiMadagascarLink::~uiMadagascarLink()
 }
 
 
-void uiMadagascarLink::insertItems( CallBacker* )
+void uiMadagascarLink::updateToolBar( CallBacker* )
 {
-    const CallBack cb( mCB(this,uiMadagascarLink,doMain) );
-    mnumgr.procMnu()->insertItem( new uiMenuItem("&Madagascar ...",cb) );
-    mnumgr.dtectTB()->addButton( "madagascar.png", cb, "Madagascar link" );
+    mnumgr.dtectTB()->addButton( "madagascar.png",
+	    			 mCB(this,uiMadagascarLink,doMain),
+				 "Madagascar link" );
+}
+
+
+void uiMadagascarLink::updateMenu( CallBacker* )
+{
+    delete madwin_; madwin_ = 0;
+    uiMenuItem* newitem = new uiMenuItem( "&Madagascar ...",
+	    				  mCB(this,uiMadagascarLink,doMain) );
+    mnumgr.procMnu()->insertItem( newitem );
 }
 
 
