@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.168 2009-01-23 09:08:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.169 2009-01-27 08:40:35 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -134,7 +134,8 @@ public:
     void		removeDockWin(uiDockWin*);
     void		addDockWin(uiDockWin&,uiMainWin::Dock);
 
-    virtual QMenu*	createPopupMenu()		{ return 0; }
+    virtual QMenu*	createPopupMenu()
+			{ return menubar ? 0 : QMainWindow::createPopupMenu(); }
 
     void		addToolBar(uiToolBar*);
     void		removeToolBar(uiToolBar*);
