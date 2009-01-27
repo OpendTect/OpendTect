@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.19 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.20 2009-01-27 12:48:01 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -161,7 +161,7 @@ int ODSessionTranslatorGroup::selector( const char* key )
     int retval = defaultSelector( theInst().userName(), key );
     if ( retval ) return retval;
 
-    if ( defaultSelector(ODSessionTranslator::keyword(),key) ) return 1;
+    if ( defaultSelector(ODSessionTranslator::keyword,key) ) return 1;
     return 0;
 }
 
