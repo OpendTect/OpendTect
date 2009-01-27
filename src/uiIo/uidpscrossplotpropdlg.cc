@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.7 2008-12-12 06:01:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidpscrossplotpropdlg.cc,v 1.8 2009-01-27 09:50:50 cvsbert Exp $";
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
@@ -228,6 +228,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),"User Defined")
     , plotter_(p->plotter())
     , hasy2_(plotter_.axisHandler(2))
+    , shwy2userdefline_(0)
 {
     uiLabel* y1lbl = new uiLabel( this, "Y1 =" );
     y1a0fld_ = new uiGenInput( this, "", FloatInpSpec(0) );
@@ -243,7 +244,7 @@ uiDPSUserDefTab( uiDataPointSetCrossPlotterPropDlg* p )
     shwy1userdefline_ = new uiCheckBox( this, "Show Y1 User Defined line" );
     shwy1userdefline_->attach( alignedBelow, y1a0fld_ );
     
-    if (  hasy2_ )
+    if ( hasy2_ )
     {
 	uiLabel* y2lbl = new uiLabel( this, "Y2 =" );
 	y2lbl->attach( alignedBelow, y1lbl );
@@ -275,13 +276,13 @@ void initFlds( CallBacker* )
     y1a0fld_->setValue( plotter_.userdefy1lp_.a0 );
     y1a1fld_->setValue( plotter_.userdefy1lp_.ax );
     
-    if (  hasy2_ )
+    if ( hasy2_ )
     {
 	y2a0fld_->setValue( plotter_.userdefy2lp_.a0 );
 	y2a1fld_->setValue( plotter_.userdefy2lp_.ax );
+	shwy2userdefline_->setChecked( plotter_.setup().showy2userdefline_ );
     }
     shwy1userdefline_->setChecked( plotter_.setup().showy1userdefline_ );
-    shwy2userdefline_->setChecked( plotter_.setup().showy2userdefline_ );
 }
 
 
@@ -289,13 +290,15 @@ bool acceptOK()
 {
     plotter_.userdefy1lp_.a0 = y1a0fld_->getfValue();
     plotter_.userdefy1lp_.ax = y1a1fld_->getfValue();
-    if ( hasy2_ )
+    if ( !hasy2_ )
+	plotter_.setup().showy2userdefline_ = false;
+    else
     {
 	plotter_.userdefy2lp_.a0 = y2a0fld_->getfValue();
 	plotter_.userdefy2lp_.ax = y2a1fld_->getfValue();
+	plotter_.setup().showy2userdefline_ = shwy2userdefline_->isChecked();
     }
     plotter_.setup().showy1userdefline_ = shwy1userdefline_->isChecked();
-    plotter_.setup().showy2userdefline_ = shwy2userdefline_->isChecked();
     return true;
 }
 
