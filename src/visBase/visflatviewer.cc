@@ -7,18 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.20 2009-01-08 22:45:51 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.21 2009-01-27 21:20:36 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 #include "arraynd.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "dataclipper.h"
-#include "flatview.h"
+#include "flatposdata.h"
+#include "linear.h"
+#include "survinfo.h"
+#include "viscoord.h"
+#include "vismaterial.h"
+#include "vispolyline.h"
 #include "vistexturechannels.h"
 #include "vissplittexture2rectangle.h"
 #include "vistexturechannel2rgba.h"
-
 
 mCreateFactoryEntry( visBase::FlatViewer );
 
@@ -31,6 +35,8 @@ FlatViewer::FlatViewer()
     , channels_( TextureChannels::create() )
     , channel2rgba_( ColTabTextureChannel2RGBA::create() )
     , rectangle_( SplitTexture2Rectangle::create() )
+    , x1gridlines_( visBase::IndexedPolyLine::create() )
+    , x2gridlines_( visBase::IndexedPolyLine::create() )
 {
     channel2rgba_->ref();
     channel2rgba_->allowShading( true );
@@ -49,6 +55,15 @@ FlatViewer::FlatViewer()
     rectangle_->setMaterial( 0 );
     rectangle_->removeSwitch();
     addChild( rectangle_->getInventorNode() );
+
+    x1gridlines_->ref();
+    x1gridlines_->setMaterial( visBase::Material::create() );
+    x1gridlines_->getMaterial()->setColor( Color(0,0,0,0) );
+    addChild( x1gridlines_->getInventorNode() );
+
+    x2gridlines_->ref();
+    x2gridlines_->setMaterial( x1gridlines_->getMaterial() );
+    addChild( x2gridlines_->getInventorNode() );
 }
 
 
@@ -57,6 +72,8 @@ FlatViewer::~FlatViewer()
     channels_->unRef();
     channel2rgba_->unRef();
     rectangle_->unRef();
+    x2gridlines_->unRef();
+    x1gridlines_->unRef();
 }
 
 
@@ -71,10 +88,14 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 		pErrMsg( "Not supported" );
 		break;
 	case All:	
-	case Annot:	
-		pErrMsg( "Not implemented yet" );
+	case Annot:
+	    {	
+		updateGridLines( true );
+		updateGridLines( false );
+
 		if ( dt!=All )
 		    break;
+	    }
 	case VDData:
 	    {
 		const FlatDataPack* dp = pack( false );
@@ -141,7 +162,62 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 			      const Coord3& c10, const Coord3& c11 )
 {
     rectangle_->setPosition( c00, c01, c10, c11 );
+
+    c00_ = c00;
+    c01_ = c01;
+    c10_ = c10;
+    c11_ = c11;
+    
+    updateGridLines( true );
+    updateGridLines( false );
 }    
+
+
+void FlatViewer::updateGridLines( bool x1 )
+{
+    const FlatPosData* posdata = pack(false) ? &pack(false)->posData() : 0;
+
+    visBase::IndexedPolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
+
+    if ( !posdata || (x1 && !appearance().annot_.x1_.showgridlines_ ) ||
+	 (!x1 && !appearance().annot_.x2_.showgridlines_ ) )
+    {
+	gridlines->turnOn( false );
+	return;
+    }
+
+    int coordidx = 0;
+    int ciidx = 0;
+    visBase::Coordinates* coords = gridlines->getCoordinates();
+    Interval<float> range;
+    range.setFrom( posdata->range( true ) );
+    AxisLayout layout( range );
+
+    float pos = layout.sd.start;
+    while ( pos<layout.stop && range.includes( pos ) )
+    {
+	const float relpos = (pos-range.start)/range.width();
+
+	const Coord3 startpos = x1
+	    ? c00_*(1-relpos)+c01_*relpos
+	    : c00_*(1-relpos)+c10_*relpos;
+	const Coord3 stoppos = x1
+	    ? c10_*(1-relpos)+c11_*relpos
+	    : c01_*(1-relpos)+c11_*relpos;
+	
+	coords->setPos( coordidx, startpos );
+	gridlines->setCoordIndex( ciidx++, coordidx++ );
+
+	coords->setPos( coordidx, stoppos );
+	gridlines->setCoordIndex( ciidx++, coordidx++ );
+	gridlines->setCoordIndex( ciidx++, -1 );
+
+	pos += layout.sd.step;
+    }
+
+    gridlines->removeCoordIndexAfter( ciidx-1 );
+    gridlines->turnOn( true );
+}
 
 
 void FlatViewer::allowShading( bool yn )
