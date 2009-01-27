@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: uitutwelltools.cc,v 1.2 2007-06-21 11:49:31 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutwelltools.cc,v 1.3 2009-01-27 11:33:28 cvsdgb Exp $";
 
 #include "uitutwelltools.h"
 #include "uigeninput.h"
@@ -99,7 +99,7 @@ bool uiTutWellTools::acceptOK( CallBacker* )
 	Well::Writer wtr( fname, *wd_ );
 
 	const int lognr = logset.size();
-	BufferString logfnm = wtr.getFileName( Well::IO::sExtLog, lognr );
+	BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr );
 	StreamProvider splog( logfnm );
 	StreamData sdo = splog.makeOStream();
 	wtr.putLog( *sdo.ostrm, logset.getLog(lognr-1) );
