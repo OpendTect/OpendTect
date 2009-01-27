@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.6 2009-01-15 10:58:11 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.7 2009-01-27 11:23:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,8 +87,9 @@ void uiMapperRangeEditor::setColTabMapperSetupWthSeq(
     ctbmapper_->type_ = ColTab::MapperSetup::Fixed;
     *ctbseq_ = cseq;
 
-    lefttminval_ = histogramdisp_->xVals()[0];
-    rightmaxval_ = histogramdisp_->xVals()[histogramdisp_->xVals().size()-1];
+    const bool nodata = histogramdisp_->xVals().isEmpty();
+    lefttminval_ =  nodata ? 0 : histogramdisp_->xVals().first();
+    rightmaxval_ = nodata ? 100 : histogramdisp_->xVals().last();
 
     minlinebasepos_ = minlinecurpos_ = ms.start_;
     maxlinebasepos_ = maxlinecurpos_ = ms.start_ + ms.width_;

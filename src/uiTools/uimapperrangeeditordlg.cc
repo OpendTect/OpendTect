@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.5 2009-01-17 07:03:29 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.6 2009-01-27 11:23:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,11 +37,11 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int nr,
     {
 	uiMapperRangeEditor* rangeeditor =
 	    			new uiMapperRangeEditor( this, idx );
-	rangeeditor->rangeChanged.notify( mCB(this,uiMultiRangeSelDispWin,
-		    			  rangeChanged) );
+	rangeeditor->rangeChanged.notify(
+		mCB(this,uiMultiRangeSelDispWin,rangeChanged) );
 	mapperrgeditors_ += rangeeditor;
 
-	if ( (idx%2) == 0 )
+	if ( idx%2 == 0 )
 	{
 	    if ( sephor )
 	    {
@@ -52,14 +52,7 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int nr,
 	    sephor->attach( stretchedBelow, rangeeditor );
 	}
 	else
-	{
-	    if ( sephor )
-		rangeeditor->attach( rightAlignedAbove, sephor );
 	    rangeeditor->attach( centeredRightOf, mapperrgeditors_[idx-1] );
-	    if ( idx > 2 )
-	    rangeeditor->attach( centeredBelow, mapperrgeditors_[idx-2] );
-
-	}
     }
 
     dpm_.packToBeRemoved.notifyIfNotNotified(
@@ -109,5 +102,6 @@ void uiMultiRangeSelDispWin::dataPackDeleted( CallBacker* cb )
     mDynamicCastGet(DataPack*,obj,cb);
     const int dpidx = datapackids_.indexOf( obj->id() );
     if ( dpidx<0 ) return;
+
     mapperrgeditors_[dpidx]->setSensitive( false );
 }
