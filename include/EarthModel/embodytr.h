@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.5 2009-01-23 21:48:34 cvsyuancheng Exp $
+ RCS:		$Id: embodytr.h,v 1.6 2009-01-27 21:40:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -24,16 +24,16 @@ namespace EM { class Body; class PolygonBody; class RandomPosBody; }
 typedef EM::Body 	EMBody;
 
 mClass EMBodyTranslatorGroup : public TranslatorGroup
-{		    isTranslatorGroup(EMBody)
+{			       isTranslatorGroup(EMBody)
 public:
 		    	mDefEmptyTranslatorGroupConstructor(EMBody)
     const char*		defExtension() const    { return "bdy"; }
-    static const char*	sKeyword();
+    static const char*	sKeyword()		{ return "Body"; }
 };
 
 
 mClass mcEMBodyTranslator : public Translator
-{				 isTranslator(mc,EMBody)
+{			    isTranslator(mc,EMBody)
 public:
 			mcEMBodyTranslator(const char* unm,const char* nm)
 			    : Translator(unm,nm)			{}
@@ -44,13 +44,13 @@ public:
 
 
 mClass polygonEMBodyTranslator : public Translator
-{                               isTranslator(polygon,EMBody)
+{				 isTranslator(polygon,EMBody)
 public:
 			polygonEMBodyTranslator(const char* unm,const char* nm);
 			~polygonEMBodyTranslator();
 
     const char*		defExtension() const	{ return "plg"; }
-    static const char*  sKeyUserName();
+    static const char*  sKeyUserName()		{ return "PolygonBody"; }
     static const IOObjContext&	getIOObjContext();
 
     Executor*		reader(const IOObj&,EM::PolygonBody&);
@@ -72,7 +72,7 @@ public:
 			~randposEMBodyTranslator()			{}
 
     const char*		defExtension() const	{ return "rdpos"; }
-    static const char*	sKeyUserName()	{ return "RandomPosBody"; }
+    static const char*	sKeyUserName()		{ return "RandomPosBody"; }
 };
 
 

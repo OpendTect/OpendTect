@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.6 2009-01-23 21:54:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.7 2009-01-27 21:40:25 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -364,7 +364,8 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 
     if ( rpb )
     {
-	mAddMenuItem( menu, &savemnuitem_, true, false );
+	const bool enablesave = applMgr()->EMServer()->isChanged(emid_);
+	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }
 }
