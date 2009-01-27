@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.32 2008-12-31 06:15:27 cvsumesh Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.33 2009-01-27 11:21:10 cvsnanne Exp $";
 
 #include "pixmap.h"
 
@@ -53,7 +53,7 @@ ioPixmap::ioPixmap( const char* xpm[] )
 
 
 ioPixmap::ioPixmap( int w, int h )
-    : qpixmap_(new QPixmap(w,h))
+    : qpixmap_(new QPixmap( w<2 ? 1 : w, h<2 ? 2 : h ))
     , srcname_("[created]")
 {
 }
