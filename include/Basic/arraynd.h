@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.34 2008-12-05 23:14:37 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.35 2009-01-27 22:52:54 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -21,6 +21,7 @@ to the constructor.
 
 #include "valseries.h"
 #include "arrayndinfo.h"
+#include "memsetter.h"
 #include "ptrman.h"
 #include <string.h>
 
@@ -225,20 +226,11 @@ T* ArrayND<T>::get1D( const int* i )
 template <class T> inline
 void ArrayND<T>::setAll( const T& val )
 {
-    T* tp = getData();
-    if ( tp )
-    {
-	T* endtp = tp + info().getTotalSz();
-	while ( tp != endtp ) *tp++ = val;
-	return;
-    }
-
     ValueSeries<T>* stor = getStorage();
     if ( stor )
     {
-	const od_int64 totnr = info().getTotalSz();
-	for ( od_int64 idx=0; idx<totnr; idx++ )
-	    stor->setValue( idx, val );
+	MemSetter<T> setter( *stor, val, info().getTotalSz() );
+	setter.execute();
 	return;
     }
 
