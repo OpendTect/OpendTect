@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.68 2009-01-05 11:19:37 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.69 2009-01-27 11:45:01 cvsranojay Exp $";
 
 
 #include "segyhdr.h"
@@ -27,19 +27,21 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.68 2009-01-05 11:19:37 cvsbert E
 #include <stdio.h>
 #include <math.h>
 
-const char* SEGY::TrcHeaderDef::sXCoordByte = "X-coord byte";
-const char* SEGY::TrcHeaderDef::sYCoordByte = "Y-coord byte";
-const char* SEGY::TrcHeaderDef::sInlByte = "In-line byte";
-const char* SEGY::TrcHeaderDef::sCrlByte = "Cross-line byte";
-const char* SEGY::TrcHeaderDef::sOffsByte = "Offset byte";
-const char* SEGY::TrcHeaderDef::sAzimByte = "Azimuth byte";
-const char* SEGY::TrcHeaderDef::sTrNrByte = "Trace number byte";
-const char* SEGY::TrcHeaderDef::sPickByte = "Pick byte";
-const char* SEGY::TrcHeaderDef::sInlByteSz = "Nr bytes for In-line";
-const char* SEGY::TrcHeaderDef::sCrlByteSz = "Nr bytes for Cross-line";
-const char* SEGY::TrcHeaderDef::sOffsByteSz = "Nr bytes for Offset";
-const char* SEGY::TrcHeaderDef::sAzimByteSz = "Nr bytes for Azimuth";
-const char* SEGY::TrcHeaderDef::sTrNrByteSz = "Nr bytes for trace number";
+const char* SEGY::TrcHeaderDef::sXCoordByte()	    { return "X-coord byte"; }
+const char* SEGY::TrcHeaderDef::sYCoordByte()	    { return "Y-coord byte"; }
+const char* SEGY::TrcHeaderDef::sInlByte()	    { return "In-line byte"; }
+const char* SEGY::TrcHeaderDef::sCrlByte()	    { return "Cross-line byte"; }
+const char* SEGY::TrcHeaderDef::sOffsByte()	    { return "Offset byte"; }
+const char* SEGY::TrcHeaderDef::sAzimByte()	    { return "Azimuth byte"; }
+const char* SEGY::TrcHeaderDef::sTrNrByte()	    { return "Trace number byte"; }
+const char* SEGY::TrcHeaderDef::sPickByte()	    { return "Pick byte"; }
+const char* SEGY::TrcHeaderDef::sInlByteSz()	    { return "Nr bytes for In-line"; }
+const char* SEGY::TrcHeaderDef::sCrlByteSz()	    { return "Nr bytes for Cross-line"; }
+const char* SEGY::TrcHeaderDef::sOffsByteSz()	    { return "Nr bytes for Offset"; }
+const char* SEGY::TrcHeaderDef::sAzimByteSz()	    { return "Nr bytes for Azimuth"; }
+const char* SEGY::TrcHeaderDef::sTrNrByteSz()	    { return "Nr bytes for trace number"; }
+
+
 bool SEGY::TxtHeader::info2d = false;
 
 
@@ -818,19 +820,19 @@ Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc )
 void SEGY::TrcHeaderDef::usePar( const IOPar& iopar )
 {
     const char*
-    mGtFromPar( sInlByte, inl );
-    mGtFromPar( sCrlByte, crl );
-    mGtFromPar( sOffsByte, offs );
-    mGtFromPar( sAzimByte, azim );
-    mGtFromPar( sTrNrByte, trnr );
-    mGtFromPar( sXCoordByte, xcoord );
-    mGtFromPar( sYCoordByte, ycoord );
-    mGtFromPar( sInlByteSz, inlbytesz );
-    mGtFromPar( sCrlByteSz, crlbytesz );
-    mGtFromPar( sOffsByteSz, offsbytesz );
-    mGtFromPar( sAzimByteSz, azimbytesz );
-    mGtFromPar( sTrNrByteSz, trnrbytesz );
-    mGtFromPar( sPickByte, pick );
+    mGtFromPar( sInlByte(), inl );
+    mGtFromPar( sCrlByte(), crl );
+    mGtFromPar( sOffsByte(), offs );
+    mGtFromPar( sAzimByte(), azim );
+    mGtFromPar( sTrNrByte(), trnr );
+    mGtFromPar( sXCoordByte(), xcoord );
+    mGtFromPar( sYCoordByte(), ycoord );
+    mGtFromPar( sInlByteSz(), inlbytesz );
+    mGtFromPar( sCrlByteSz(), crlbytesz );
+    mGtFromPar( sOffsByteSz(), offsbytesz );
+    mGtFromPar( sAzimByteSz(), azimbytesz );
+    mGtFromPar( sTrNrByteSz(), trnrbytesz );
+    mGtFromPar( sPickByte(), pick );
 }
 
 
@@ -850,17 +852,17 @@ void SEGY::TrcHeaderDef::fromSettings()
 
 void SEGY::TrcHeaderDef::fillPar( IOPar& iopar, const char* key ) const
 {
-    mPutToPar( sInlByte, inl );
-    mPutToPar( sCrlByte, crl );
-    mPutToPar( sOffsByte, offs );
-    mPutToPar( sAzimByte, azim );
-    mPutToPar( sTrNrByte, trnr );
-    mPutToPar( sXCoordByte, xcoord );
-    mPutToPar( sYCoordByte, ycoord );
-    mPutToPar( sInlByteSz, inlbytesz );
-    mPutToPar( sCrlByteSz, crlbytesz );
-    mPutToPar( sOffsByteSz, offsbytesz );
-    mPutToPar( sAzimByteSz, azimbytesz );
-    mPutToPar( sTrNrByteSz, trnrbytesz );
-    mPutToPar( sPickByte, pick );
+    mPutToPar( sInlByte(), inl );
+    mPutToPar( sCrlByte(), crl );
+    mPutToPar( sOffsByte(), offs );
+    mPutToPar( sAzimByte(), azim );
+    mPutToPar( sTrNrByte(), trnr );
+    mPutToPar( sXCoordByte(), xcoord );
+    mPutToPar( sYCoordByte(), ycoord );
+    mPutToPar( sInlByteSz(), inlbytesz );
+    mPutToPar( sCrlByteSz(), crlbytesz );
+    mPutToPar( sOffsByteSz(), offsbytesz );
+    mPutToPar( sAzimByteSz(), azimbytesz );
+    mPutToPar( sTrNrByteSz(), trnrbytesz );
+    mPutToPar( sPickByte(), pick );
 }

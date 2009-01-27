@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.40 2008-12-24 14:11:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.41 2009-01-27 11:45:02 cvsranojay Exp $";
 
 #include "uiwellman.h"
 
@@ -265,7 +265,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 
     logs2rem.deepErase();
 
-    if ( wellrdr->removeAll(Well::IO::sExtLog) )
+    if ( wellrdr->removeAll(Well::IO::sExtLog()) )
     {
 	Well::Writer wtr( fname, *welldata );
 	wtr.putLogs();
@@ -286,7 +286,7 @@ void uiWellMan::renameLogPush( CallBacker* )
     const int lognr = logsfld->currentItem() + 1;
     FilePath fp( fname ); fp.setExtension( 0 );
     BufferString logfnm = Well::IO::mkFileName( fp.fullPath(),
-	    					Well::IO::sExtLog, lognr );
+	    					Well::IO::sExtLog(), lognr );
     StreamProvider sp( logfnm );
     StreamData sdi = sp.makeIStream();
     bool res = wellrdr->addLog( *sdi.istrm );
@@ -337,12 +337,12 @@ void uiWellMan::mkFileInfo()
     BufferString bidstr; SI().transform(info.surfacecoord).fill( bidstr.buf() );
     BufferString posstr( bidstr ); posstr += " "; posstr += crdstr;
     const BufferString elevstr( toString(info.surfaceelev) );
-    mAddWellInfo(Well::Info::sKeycoord,posstr)
-    mAddWellInfo(Well::Info::sKeyelev,elevstr)
-    mAddWellInfo(Well::Info::sKeyuwid,info.uwid)
-    mAddWellInfo(Well::Info::sKeyoper,info.oper)
-    mAddWellInfo(Well::Info::sKeystate,info.state)
-    mAddWellInfo(Well::Info::sKeycounty,info.county)
+    mAddWellInfo(Well::Info::sKeycoord(),posstr)
+    mAddWellInfo(Well::Info::sKeyelev(),elevstr)
+    mAddWellInfo(Well::Info::sKeyuwid(),info.uwid)
+    mAddWellInfo(Well::Info::sKeyoper(),info.oper)
+    mAddWellInfo(Well::Info::sKeystate(),info.state)
+    mAddWellInfo(Well::Info::sKeycounty(),info.county)
 
     txt += getFileInfo();
     infofld->setText( txt );
@@ -371,13 +371,13 @@ double uiWellMan::getFileSize( const char* filenm, int& nrfiles ) const
     FilePath fp( filenm ); fp.setExtension( 0 );
     const BufferString basefnm( fp.fullPath() );
 
-    addSize( basefnm, Well::IO::sExtMarkers, totalsz, nrfiles );
-    addSize( basefnm, Well::IO::sExtD2T, totalsz, nrfiles );
+    addSize( basefnm, Well::IO::sExtMarkers(), totalsz, nrfiles );
+    addSize( basefnm, Well::IO::sExtD2T(), totalsz, nrfiles );
 
     for ( int idx=1; ; idx++ )
     {
 	BufferString fnmend( "^" ); fnmend += idx;
-	fnmend += Well::IO::sExtLog;
+	fnmend += Well::IO::sExtLog();
 	if ( !addSize(basefnm,fnmend,totalsz,nrfiles) )
 	    break;
     }

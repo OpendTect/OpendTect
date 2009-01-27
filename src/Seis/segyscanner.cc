@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.20 2008-12-29 11:20:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.21 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -54,7 +54,7 @@ void SEGY::Scanner::init( const FileSpec& fs )
     const int nrfiles = fs.nrFiles();
     for ( int idx=0; idx<nrfiles; idx++ )
 	fnms_.add( fs.getFileName(idx) );
-    pars_.getYN( FileDef::sKeyForceRev0, forcerev0_ );
+    pars_.getYN( FileDef::sKeyForceRev0(), forcerev0_ );
 }
 
 

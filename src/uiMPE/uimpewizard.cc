@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.90 2009-01-09 10:58:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.91 2009-01-27 11:45:01 cvsranojay Exp $";
 
 
 #include "uimpewizard.h"
@@ -66,7 +66,7 @@ static const char* sSeedPickOptionsInfo()
 
 static const char* sTrackInVolInfo( const BufferString& trackertype )
 {
-    if ( trackertype == EMHorizon2DTranslatorGroup::keyword ) return 
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword() ) return 
 	"The 2D horizon is auto-tracked from seeds picked on 2D lines.\n\n"
 	"Workflow:\n"
 	"1) Define settings.\n"
@@ -88,7 +88,7 @@ static const char* sTrackInVolInfo( const BufferString& trackertype )
 
 static const char* sLineTrackInfo( const BufferString& trackertype )
 {
-    if ( trackertype == EMHorizon2DTranslatorGroup::keyword ) return 
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword() ) return 
 	"The 2D horizon is auto-tracked between seeds picked on 2D lines.\n\n"
 	"Workflow:\n"
 	"1) Define settings.\n"
@@ -110,7 +110,7 @@ static const char* sLineTrackInfo( const BufferString& trackertype )
 
 static const char* sLineManualInfo( const BufferString& trackertype )
 {
-    if ( trackertype == EMHorizon2DTranslatorGroup::keyword )
+    if ( trackertype == EMHorizon2DTranslatorGroup::keyword() )
 	return 
 	"The 2D horizon is painted (linear interpolation) between seeds\n"
 	"picked on 2D lines.\n\n"
@@ -134,16 +134,16 @@ static const char* sLineManualInfo( const BufferString& trackertype )
 
 static const IOObjContext* getContext( const char* type )
 {
-    if ( !strcmp(type,EMFaultStickSetTranslatorGroup::keyword ) )
+    if ( !strcmp(type,EMFaultStickSetTranslatorGroup::keyword() ) )
 	return &EMFaultStickSetTranslatorGroup::ioContext();
 
-    if ( !strcmp(type,EMFault3DTranslatorGroup::keyword ) )
+    if ( !strcmp(type,EMFault3DTranslatorGroup::keyword() ) )
 	return &EMFault3DTranslatorGroup::ioContext();
 
-    if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword ) )
+    if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword() ) )
 	return &EMHorizon2DTranslatorGroup::ioContext();
 
-    if ( !strcmp(type,EMHorizon3DTranslatorGroup::keyword ) )
+    if ( !strcmp(type,EMHorizon3DTranslatorGroup::keyword() ) )
 	return &EMHorizon3DTranslatorGroup::ioContext();
 
     return 0;
@@ -238,7 +238,7 @@ uiGroup* Wizard::createTrackModePage()
 
 #define mDefSetupGrp( xsetupgrp, typ ) \
     xsetupgrp = uiMPE().setupgrpfact.create( \
-	    			grp, EM##typ##TranslatorGroup::keyword, 0 ); \
+	    			grp, EM##typ##TranslatorGroup::keyword(), 0 ); \
     xsetupgrp->attach( centeredAbove, lbl );
 
 uiGroup* Wizard::createSeedSetupPage()
@@ -374,7 +374,7 @@ bool Wizard::leaveNamePage( bool process )
 
 #define mSelectSeedConModeGrp( xmodegrp, typ ) \
     xmodegrp->display( false, true ); \
-    if ( trackertype == EM##typ##TranslatorGroup::keyword && \
+    if ( trackertype == EM##typ##TranslatorGroup::keyword() && \
 	 typ##SeedPicker::nrSeedConnectModes()>0 ) \
 	modegrp = xmodegrp; \
     xmodegrp->display( xmodegrp==modegrp, true );
@@ -420,7 +420,7 @@ bool Wizard::leaveTrackModePage( bool process )
 
 #define mSelectSetupGrp( xsetupgrp, typ ) \
     xsetupgrp->display( false, true ); \
-    if ( trackertype == EM##typ##TranslatorGroup::keyword ) \
+    if ( trackertype == EM##typ##TranslatorGroup::keyword() ) \
 	setupgrp = xsetupgrp; \
     xsetupgrp->display( xsetupgrp==setupgrp, true );
 
@@ -742,7 +742,7 @@ void Wizard::updateDialogTitle()
     // Must pad with double spaces to be safe in case of variable width fonts.
 
     const BufferString current( trackertype );
-    const BufferString longest( EMHorizon2DTranslatorGroup::keyword );
+    const BufferString longest( EMHorizon2DTranslatorGroup::keyword() );
     const int spacestoadd = longest.size() - current.size();
 
     BufferString str;

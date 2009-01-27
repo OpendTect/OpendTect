@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.293 2009-01-23 07:47:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.294 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -249,11 +249,11 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	case Man:
 	    if ( opt == 0 )
 		emserv_->manageSurfaces(
-				 EMAnyHorizonTranslatorGroup::keyword );
+				 EMAnyHorizonTranslatorGroup::keyword() );
 	    else if ( opt == 1 )
-		emserv_->manageSurfaces( EMHorizon2DTranslatorGroup::keyword );
+		emserv_->manageSurfaces( EMHorizon2DTranslatorGroup::keyword() );
 	    else if ( opt == 2 )
-		emserv_->manageSurfaces( EMHorizon3DTranslatorGroup::keyword );
+		emserv_->manageSurfaces( EMHorizon3DTranslatorGroup::keyword() );
 	    break;
 	}
     break;
@@ -263,17 +263,17 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	case Imp:	emserv_->importFault();	break;
 	case Exp:
 	    if ( opt == 0 )
-		emserv_->exportFault( EMFault3DTranslatorGroup::keyword );
+		emserv_->exportFault( EMFault3DTranslatorGroup::keyword() );
 	    else if ( opt == 1 )
-		emserv_->exportFault( EMFaultStickSetTranslatorGroup::keyword );
+		emserv_->exportFault( EMFaultStickSetTranslatorGroup::keyword() );
 	    break;
 	case Man:
 	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
 	    if ( opt == 1 )
 		emserv_->manageSurfaces(
-				    EMFaultStickSetTranslatorGroup::keyword );
+				    EMFaultStickSetTranslatorGroup::keyword() );
 	    else if ( opt == 2 )
-		emserv_->manageSurfaces( EMFault3DTranslatorGroup::keyword );
+		emserv_->manageSurfaces( EMFault3DTranslatorGroup::keyword() );
 	    break;
 	}
     break;

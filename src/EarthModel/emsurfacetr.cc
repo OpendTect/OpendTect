@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacetr.cc,v 1.29 2008-12-04 12:48:44 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfacetr.cc,v 1.30 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "emsurfacetr.h"
 
@@ -30,9 +30,9 @@ static const char* rcsID = "$Id: emsurfacetr.cc,v 1.29 2008-12-04 12:48:44 cvsum
 #include "settings.h"
 
 
-const char* EMHorizon3DTranslatorGroup::keyword = "Horizon";
+const char* EMHorizon3DTranslatorGroup::keyword()   { return "Horizon"; }
 
-mDefSimpleTranslatorSelector(EMHorizon3D,keyword)
+mDefSimpleTranslatorSelector(EMHorizon3D,keyword())
 
 const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 {
@@ -48,9 +48,9 @@ const IOObjContext& EMHorizon3DTranslatorGroup::ioContext()
 }
 
 
-const char* EMHorizon2DTranslatorGroup::keyword = "2D Horizon";
+const char* EMHorizon2DTranslatorGroup::keyword()	{ return "2D Horizon"; }
 
-mDefSimpleTranslatorSelector(EMHorizon2D,keyword)
+mDefSimpleTranslatorSelector(EMHorizon2D,keyword())
 
 const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 {
@@ -66,24 +66,24 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 }
 
 
-const char* EMAnyHorizonTranslatorGroup::keyword = "Any Horizon";
+const char* EMAnyHorizonTranslatorGroup::keyword()	{ return "Any Horizon"; }
 mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
 				       ctxt->trglobexpr=mDGBKey)
 
 int EMAnyHorizonTranslatorGroup::selector( const char* s )
 { 
-    int retval3d = defaultSelector( EMHorizon3DTranslatorGroup::keyword, s );
-    int retval2d = defaultSelector( EMHorizon2DTranslatorGroup::keyword, s );
+    int retval3d = defaultSelector( EMHorizon3DTranslatorGroup::keyword(), s );
+    int retval2d = defaultSelector( EMHorizon2DTranslatorGroup::keyword(), s );
     return retval3d ? retval3d : retval2d;
 }
 
 
-const char* EMFault3DTranslatorGroup::keyword = "Fault";
-mDefSimpleTranslatorSelector(EMFault3D,keyword)
+const char* EMFault3DTranslatorGroup::keyword()		{ return "Fault"; }
+mDefSimpleTranslatorSelector(EMFault3D,keyword())
 mDefSimpleTranslatorioContext(EMFault3D,Surf)
 
-const char* EMFaultStickSetTranslatorGroup::keyword = "FaultStickSet";
-mDefSimpleTranslatorSelector(EMFaultStickSet,keyword)
+const char* EMFaultStickSetTranslatorGroup::keyword()	{ return "FaultStickSet"; }
+mDefSimpleTranslatorSelector(EMFaultStickSet,keyword())
 mDefSimpleTranslatorioContext(EMFaultStickSet,Surf)
 
 

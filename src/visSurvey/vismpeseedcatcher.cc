@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.33 2009-01-09 10:58:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.34 2009-01-27 11:45:02 cvsranojay Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -82,7 +82,7 @@ visBase::Transformation* MPEClickCatcher::getDisplayTransformation()
 
 
 #define mCheckTracker( typestr, typekey, legalclick, condition ) \
-    if ( typestr && !strcmp(typestr,EM##typekey##TranslatorGroup::keyword) ) \
+    if ( typestr && !strcmp(typestr,EM##typekey##TranslatorGroup::keyword()) ) \
 	legalclick = legalclick || (condition); 
 
 #define mCheckPlaneDataDisplay( typ, dataobj, plane, legalclick ) \

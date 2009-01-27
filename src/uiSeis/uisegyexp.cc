@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.10 2008-12-30 04:15:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.11 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -365,7 +365,7 @@ bool uiSEGYExp::acceptOK( CallBacker* )
     PtrMan<IOObj> outioobj = fsfld_->getSpec().getIOObj( true );
     fpfld_->fillPar( outioobj->pars() );
     const bool is2d = Seis::is2D( geom_ );
-    outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D, is2d );
+    outioobj->pars().setYN( SeisTrcTranslator::sKeyIs2D(), is2d );
 
     const char* attrnm = seissel_->attrNm();
     const char* lnm = is2d && transffld_->selFld2D()

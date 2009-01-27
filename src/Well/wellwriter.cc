@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.15 2009-01-16 09:53:44 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.16 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -57,7 +57,7 @@ bool Well::Writer::put() const
 
 bool Well::Writer::putInfo() const
 {
-    StreamData sd = mkSD( sExtWell );
+    StreamData sd = mkSD( sExtWell() );
     if ( !sd.usable() ) return false;
 
     const bool isok = putInfo( *sd.ostrm );
@@ -68,16 +68,16 @@ bool Well::Writer::putInfo() const
 
 bool Well::Writer::putInfo( std::ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyWell) ) return false;
+    if ( !wrHdr(strm,sKeyWell()) ) return false;
 
     ascostream astrm( strm );
-    astrm.put( Well::Info::sKeyuwid, wd.info().uwid );
-    astrm.put( Well::Info::sKeyoper, wd.info().oper );
-    astrm.put( Well::Info::sKeystate, wd.info().state );
-    astrm.put( Well::Info::sKeycounty, wd.info().county );
+    astrm.put( Well::Info::sKeyuwid(), wd.info().uwid );
+    astrm.put( Well::Info::sKeyoper(), wd.info().oper );
+    astrm.put( Well::Info::sKeystate(), wd.info().state );
+    astrm.put( Well::Info::sKeycounty(), wd.info().county );
     char str[80]; wd.info().surfacecoord.fill( str );
-    astrm.put( Well::Info::sKeycoord, str );
-    astrm.put( Well::Info::sKeyelev, wd.info().surfaceelev );
+    astrm.put( Well::Info::sKeycoord(), str );
+    astrm.put( Well::Info::sKeyelev(), wd.info().surfaceelev );
     astrm.newParagraph();
 
     return putTrack( strm );
@@ -104,7 +104,7 @@ bool Well::Writer::putLogs() const
 {
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
-	StreamData sd = mkSD( sExtLog, idx+1 );
+	StreamData sd = mkSD( sExtLog(), idx+1 );
 	if ( !sd.usable() ) break;
 
 	const Well::Log& wl = wd.logs().getLog(idx);
@@ -123,18 +123,18 @@ bool Well::Writer::putLogs() const
 
 bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 {
-    if ( !wrHdr(strm,sKeyLog) ) return false;
+    if ( !wrHdr(strm,sKeyLog()) ) return false;
 
     ascostream astrm( strm );
     astrm.put( sKey::Name, wl.name() );
     const bool haveunits = *wl.unitMeasLabel();
     const bool havepars = !wl.pars().isEmpty();
     if ( haveunits )
-	astrm.put( Well::Log::sKeyUnitLbl, wl.unitMeasLabel() );
-    astrm.putYN( Well::Log::sKeyHdrInfo, havepars );
+	astrm.put( Well::Log::sKeyUnitLbl(), wl.unitMeasLabel() );
+    astrm.putYN( Well::Log::sKeyHdrInfo(), havepars );
     const char* stortyp = binwrlogs_ ? (__islittle__ ? "Binary" : "Swapped")
 				     : "Ascii";
-    astrm.put( Well::Log::sKeyStorage, stortyp );
+    astrm.put( Well::Log::sKeyStorage(), stortyp );
     astrm.newParagraph();
     if ( havepars )
 	wl.pars().putTo( astrm );
@@ -178,7 +178,7 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 
 bool Well::Writer::putMarkers() const
 {
-    StreamData sd = mkSD( sExtMarkers );
+    StreamData sd = mkSD( sExtMarkers() );
     if ( !sd.usable() ) return false;
 
     const bool isok = putMarkers( *sd.ostrm );
@@ -189,7 +189,7 @@ bool Well::Writer::putMarkers() const
 
 bool Well::Writer::putMarkers( std::ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyMarkers) ) return false;
+    if ( !wrHdr(strm,sKeyMarkers()) ) return false;
 
     ascostream astrm( strm );
     for ( int idx=0; idx<wd.markers().size(); idx++ )
@@ -197,7 +197,7 @@ bool Well::Writer::putMarkers( std::ostream& strm ) const
 	BufferString basekey; basekey += idx+1;
 	const Well::Marker& wm = *wd.markers()[idx];
 	astrm.put( IOPar::compKey(basekey,sKey::Name), wm.name() );
-	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah), wm.dah() );
+	astrm.put( IOPar::compKey(basekey,Well::Marker::sKeyDah()), wm.dah() );
 	astrm.put( IOPar::compKey(basekey,sKey::StratRef), wm.levelID() );
 	BufferString bs; wm.color().fill( bs.buf() );
 	astrm.put( IOPar::compKey(basekey,sKey::Color), bs );
@@ -211,7 +211,7 @@ bool Well::Writer::putD2T() const
 {
     if ( !wd.d2TModel() ) return true;
 
-    StreamData sd = mkSD( sExtD2T );
+    StreamData sd = mkSD( sExtD2T() );
     if ( !sd.usable() ) return false;
 
     const bool isok = putD2T( *sd.ostrm );
@@ -222,13 +222,13 @@ bool Well::Writer::putD2T() const
 
 bool Well::Writer::putD2T( std::ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyD2T) ) return false;
+    if ( !wrHdr(strm,sKeyD2T()) ) return false;
 
     ascostream astrm( strm );
     const Well::D2TModel& d2t = *wd.d2TModel();
     astrm.put( sKey::Name, d2t.name() );
     astrm.put( sKey::Desc, d2t.desc );
-    astrm.put( D2TModel::sKeyDataSrc, d2t.datasource );
+    astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );
     astrm.newParagraph();
 
     for ( int idx=0; idx<d2t.size(); idx++ )
@@ -239,7 +239,7 @@ bool Well::Writer::putD2T( std::ostream& strm ) const
 
 bool Well::Writer::putDispProps() const
 {
-    StreamData sd = mkSD( sExtDispProps );
+    StreamData sd = mkSD( sExtDispProps() );
     if ( !sd.usable() ) return false;
 
     const bool isok = putDispProps( *sd.ostrm );
@@ -250,7 +250,7 @@ bool Well::Writer::putDispProps() const
 
 bool Well::Writer::putDispProps( std::ostream& strm ) const
 {
-    if ( !wrHdr(strm,sKeyDispProps) ) return false;
+    if ( !wrHdr(strm,sKeyDispProps()) ) return false;
 
     ascostream astrm( strm );
     IOPar iop; wd.displayProperties().fillPar( iop );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.15 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.16 2009-01-27 11:44:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
 
     const char*			defExtension() const	{ return "hor"; }
 
-    static const char*		keyword;
+    static const char*		keyword();
 };
 
 
@@ -57,7 +57,7 @@ public:
 
     const char*			defExtension() const	{ return "2dh"; }
 
-    static const char*		keyword;
+    static const char*		keyword();
 };
 
 
@@ -66,7 +66,7 @@ mClass EMAnyHorizonTranslatorGroup : public TranslatorGroup
 public:
 			    mDefEmptyTranslatorGroupConstructor(EMAnyHorizon)
 
-    static const char*	    keyword;
+    static const char*	    keyword();
 };
 
 
@@ -77,7 +77,7 @@ public:
 
     const char*		defExtension() const { return "flt"; }
 
-    static const char*	keyword;
+    static const char*	keyword();
 };
 
 
@@ -88,7 +88,7 @@ public:
 
     const char*		defExtension() const { return "fss"; }
 
-    static const char*	keyword;
+    static const char*	keyword();
 };
 
 

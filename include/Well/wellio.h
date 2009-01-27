@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.8 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: wellio.h,v 1.9 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,16 +30,16 @@ public:
     const char*		getFileName(const char* ext,int nr=0) const;
     bool		removeAll(const char* ext) const;
 
-    static const char*	sKeyWell;
-    static const char*	sKeyLog;
-    static const char*	sKeyMarkers;
-    static const char*	sKeyD2T;
-    static const char*	sKeyDispProps;
-    static const char*	sExtWell;
-    static const char*	sExtLog;
-    static const char*	sExtMarkers;
-    static const char*	sExtD2T;
-    static const char*	sExtDispProps;
+    static const char*	sKeyWell();
+    static const char*	sKeyLog();
+    static const char*	sKeyMarkers();
+    static const char*	sKeyD2T();
+    static const char*	sKeyDispProps();
+    static const char*	sExtWell();
+    static const char*	sExtLog();
+    static const char*	sExtMarkers();
+    static const char*	sExtD2T();
+    static const char*	sExtDispProps();
 
     static const char*	getMainFileName(const IOObj&);
     static const char*	getMainFileName(const MultiID&);

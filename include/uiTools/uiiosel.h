@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.35 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uiiosel.h,v 1.36 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,9 +117,9 @@ public:
     void		usePar(const IOPar&);
 
 			// Some standard types of files
-    static IOPar&	ixtablehistory;
-    static IOPar&	devicehistory;
-    static IOPar&	tmpstoragehistory;
+    static IOPar&	ixtablehistory();
+    static IOPar&	devicehistory();
+    static IOPar&	tmpstoragehistory();
 
 protected:
 

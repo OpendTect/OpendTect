@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.20 2009-01-21 15:10:41 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.21 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiToolBar;
 class uiToolButton;
 namespace Strat{ class Level; }
 
-const uiStratTreeWin& StratTWin();
+mGlobal const uiStratTreeWin& StratTWin();
 
 /*!\brief Main window for Stratigraphy display: holds the reference tree
   and the units description view */

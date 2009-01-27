@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllog.h,v 1.19 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: welllog.h,v 1.20 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -49,9 +49,9 @@ public:
 
     const char*		unitMeasLabel() const		{ return unitmeaslbl_; }
     void		setUnitMeasLabel( const char* s ) { unitmeaslbl_ = s; }
-    static const char*	sKeyUnitLbl;
-    static const char*	sKeyHdrInfo;
-    static const char*	sKeyStorage;
+    static const char*	sKeyUnitLbl();
+    static const char*	sKeyHdrInfo();
+    static const char*	sKeyStorage();
 
     float*		valArr()			{ return val_.arr(); }
     const float*	valArr() const			{ return val_.arr(); }

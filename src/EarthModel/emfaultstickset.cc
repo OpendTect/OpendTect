@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfaultstickset.cc,v 1.3 2008-12-17 08:52:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.4 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "emfaultstickset.h"
 
@@ -19,7 +19,7 @@ static const char* rcsID = "$Id: emfaultstickset.cc,v 1.3 2008-12-17 08:52:42 cv
 
 namespace EM {
 
-mImplementEMObjFuncs( FaultStickSet, EMFaultStickSetTranslatorGroup::keyword ) 
+mImplementEMObjFuncs( FaultStickSet, EMFaultStickSetTranslatorGroup::keyword() ) 
 
 FaultStickSet::FaultStickSet( EMManager& em )
     : Fault(em)

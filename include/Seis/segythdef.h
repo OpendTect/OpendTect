@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.8 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: segythdef.h,v 1.9 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,19 +75,19 @@ public:
     void		fromSettings();
     void		fillPar(IOPar&,const char* key="SEG-Y") const;
 
-    static const char*	sXCoordByte;
-    static const char*	sYCoordByte;
-    static const char*	sInlByte;
-    static const char*	sInlByteSz;
-    static const char*	sCrlByte;
-    static const char*	sCrlByteSz;
-    static const char*	sTrNrByte;
-    static const char*	sTrNrByteSz;
-    static const char*	sOffsByte;
-    static const char*	sOffsByteSz;
-    static const char*	sAzimByte;
-    static const char*	sAzimByteSz;
-    static const char*	sPickByte;
+    static const char*	sXCoordByte();
+    static const char*	sYCoordByte();
+    static const char*	sInlByte();
+    static const char*	sInlByteSz();
+    static const char*	sCrlByte();
+    static const char*	sCrlByteSz();
+    static const char*	sTrNrByte();
+    static const char*	sTrNrByteSz();
+    static const char*	sOffsByte();
+    static const char*	sOffsByteSz();
+    static const char*	sAzimByte();
+    static const char*	sAzimByteSz();
+    static const char*	sPickByte();
 
     BufferString	linename;
     SeisPacketInfo*	pinfo;

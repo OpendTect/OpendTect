@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.51 2008-12-24 05:57:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.52 2009-01-27 11:45:02 cvsranojay Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -18,12 +18,12 @@ static const char* rcsID = "$Id: uiiosel.cc,v 1.51 2008-12-24 05:57:45 cvsnanne 
 #include "filegen.h"
 #include "keystrs.h"
 
-IOPar& uiIOFileSelect::ixtablehistory =
-			*new IOPar("IXTable selection history");
-IOPar& uiIOFileSelect::devicehistory =
-			*new IOPar("Device selection history");
-IOPar& uiIOFileSelect::tmpstoragehistory =
-			*new IOPar("Temporay storage selection history");
+IOPar& uiIOFileSelect::ixtablehistory()
+{ return *new IOPar("IXTable selection history"); }
+IOPar& uiIOFileSelect::devicehistory()
+{ return *new IOPar("Device selection history"); }
+IOPar& uiIOFileSelect::tmpstoragehistory()
+{ return *new IOPar("Temporay storage selection history"); }
 
 
 uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,

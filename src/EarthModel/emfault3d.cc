@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.4 2008-12-17 08:52:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.5 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "emfault3d.h"
 
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: emfault3d.cc,v 1.4 2008-12-17 08:52:42 cvsjaap 
 
 namespace EM {
 
-mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::keyword ) 
+mImplementEMObjFuncs( Fault3D, EMFault3DTranslatorGroup::keyword() ) 
 
 class FaultStickUndoEvent : public UndoEvent
 {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.13 2009-01-16 13:02:33 cvsbruno Exp $
+ RCS:		$Id: welldisp.h,v 1.14 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
 			DisplayProperties()		{}
 
 
-    struct BasicProps
+    mStruct BasicProps
     {
 			BasicProps( int sz=1 )
 			    : size_(sz)			{}
@@ -57,7 +57,7 @@ public:
 
     };
 
-    struct Track : public BasicProps
+    mStruct Track : public BasicProps
     {
 			Track()
 			    : BasicProps(1)
@@ -75,7 +75,7 @@ public:
 	virtual void	doFillPar(IOPar&) const;
     };
 
-    struct Markers : public BasicProps
+    mStruct Markers : public BasicProps
     {
 
 			Markers()
@@ -94,7 +94,7 @@ public:
 	virtual void	doFillPar(IOPar&) const;
     };
 
-    struct Log : public BasicProps
+    mStruct Log : public BasicProps
     {
 			Log()
 			    : name_("none")

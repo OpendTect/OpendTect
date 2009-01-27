@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.32 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.33 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -28,16 +28,16 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.32 2009-01-07 15:11:25 cvsber
 #include "bufstringset.h"
 #include <iostream>
 
-const char* Well::IO::sKeyWell = "Well";
-const char* Well::IO::sKeyLog = "Well Log";
-const char* Well::IO::sKeyMarkers = "Well Markers";
-const char* Well::IO::sKeyD2T = "Depth2Time Model";
-const char* Well::IO::sKeyDispProps = "Display Properties";
-const char* Well::IO::sExtWell = ".well";
-const char* Well::IO::sExtLog = ".wll";
-const char* Well::IO::sExtMarkers = ".wlm";
-const char* Well::IO::sExtD2T = ".wlt";
-const char* Well::IO::sExtDispProps = ".disp";
+const char* Well::IO::sKeyWell()	{ return "Well"; }
+const char* Well::IO::sKeyLog()		{ return "Well Log"; }
+const char* Well::IO::sKeyMarkers()	{ return "Well Markers"; }
+const char* Well::IO::sKeyD2T()		{ return "Depth2Time Model"; }
+const char* Well::IO::sKeyDispProps()	{ return "Display Properties"; }
+const char* Well::IO::sExtWell()	{ return ".well"; }
+const char* Well::IO::sExtLog()		{ return ".wll"; }
+const char* Well::IO::sExtMarkers()	{ return ".wlm"; }
+const char* Well::IO::sExtD2T()		{ return ".wlt"; }
+const char* Well::IO::sExtDispProps()	{ return ".disp"; }
 
 
 Well::IO::IO( const char* f, bool fr )
@@ -144,10 +144,10 @@ bool Well::Reader::get() const
 
 bool Well::Reader::getInfo() const
 {
-    StreamData sd = mkSD( sExtWell );
+    StreamData sd = mkSD( sExtWell() );
     if ( !sd.usable() ) return false;
 
-    wd.info().setName( getFileName(sExtWell) );
+    wd.info().setName( getFileName(sExtWell()) );
     const bool isok = getInfo( *sd.istrm );
 
     sd.close();
@@ -157,7 +157,7 @@ bool Well::Reader::getInfo() const
 
 bool Well::Reader::getInfo( std::istream& strm ) const
 {
-    const char* hdrln = rdHdr( strm, sKeyWell );
+    const char* hdrln = rdHdr( strm, sKeyWell() );
     if ( !hdrln )
 	return false;
     bool badhdr = *hdrln != 'd';
@@ -174,17 +174,17 @@ bool Well::Reader::getInfo( std::istream& strm ) const
     ascistream astrm( strm, false );
     while ( !atEndOfSection(astrm.next()) )
     {
-	if ( astrm.hasKeyword(Well::Info::sKeyuwid) )
+	if ( astrm.hasKeyword(Well::Info::sKeyuwid()) )
 	    wd.info().uwid = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeyoper) )
+	else if ( astrm.hasKeyword(Well::Info::sKeyoper()) )
 	    wd.info().oper = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeystate) )
+	else if ( astrm.hasKeyword(Well::Info::sKeystate()) )
 	    wd.info().state = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeycounty) )
+	else if ( astrm.hasKeyword(Well::Info::sKeycounty()) )
 	    wd.info().county = astrm.value();
-	else if ( astrm.hasKeyword(Well::Info::sKeycoord) )
+	else if ( astrm.hasKeyword(Well::Info::sKeycoord()) )
 	    wd.info().surfacecoord.use( astrm.value() );
-	else if ( astrm.hasKeyword(Well::Info::sKeyelev) )
+	else if ( astrm.hasKeyword(Well::Info::sKeyelev()) )
 	    wd.info().surfaceelev = astrm.getFValue();
     }
 
@@ -219,7 +219,7 @@ bool Well::Reader::getOldTimeWell( std::istream& strm ) const
     wd.info().setName( FilePath(basenm).fileName() );
 
     // create T2D
-    D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell );
+    D2TModel* d2t = new D2TModel( Well::D2TModel::sKeyTimeWell() );
     wd.setD2TModel( d2t );
     for ( int idx=0; idx<wd.track().size(); idx++ )
 	d2t->add( wd.track().dah(idx), wd.track().pos(idx).z );
@@ -245,10 +245,10 @@ void Well::Reader::getLogInfo( BufferStringSet& strs ) const
 {
     for ( int idx=1;  ; idx++ )
     {
-	StreamData sd = mkSD( sExtLog, idx );
+	StreamData sd = mkSD( sExtLog(), idx );
 	if ( !sd.usable() ) break;
 
-	if ( rdHdr(*sd.istrm,sKeyLog) )
+	if ( rdHdr(*sd.istrm,sKeyLog()) )
 	{
 	    int bintyp = 0;
 	    PtrMan<Well::Log> log = rdLogHdr( *sd.istrm, bintyp, idx-1 );
@@ -266,11 +266,11 @@ Interval<float> Well::Reader::getLogDahRange( const char* nm ) const
 
     for ( int idx=1;  ; idx++ )
     {
-	StreamData sd = mkSD( sExtLog, idx );
+	StreamData sd = mkSD( sExtLog(), idx );
 	if ( !sd.usable() ) break;
 	std::istream& strm = *sd.istrm;
 
-	if ( !rdHdr(strm,sKeyLog) )
+	if ( !rdHdr(strm,sKeyLog()) )
 	    { sd.close(); continue; }
 
 	int bintype = 0;
@@ -295,7 +295,7 @@ bool Well::Reader::getLogs() const
     bool rv = false;
     for ( int idx=1;  ; idx++ )
     {
-	StreamData sd = mkSD( sExtLog, idx );
+	StreamData sd = mkSD( sExtLog(), idx );
 	if ( !sd.usable() ) break;
 
 	if ( !addLog(*sd.istrm) )
@@ -326,11 +326,11 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
     {
 	if ( astrm.hasKeyword(sKey::Name) )
 	    newlog->setName( astrm.value() );
-	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl) )
+	if ( astrm.hasKeyword(Well::Log::sKeyUnitLbl()) )
 	    newlog->setUnitMeasLabel( astrm.value() );
-	if ( astrm.hasKeyword(Well::Log::sKeyHdrInfo) )
+	if ( astrm.hasKeyword(Well::Log::sKeyHdrInfo()) )
 	    havehdrinfo = astrm.getYN();
-	if ( astrm.hasKeyword(Well::Log::sKeyStorage) )
+	if ( astrm.hasKeyword(Well::Log::sKeyStorage()) )
 	    bintype = *astrm.value() == 'B' ? 1
 		    : (*astrm.value() == 'S' ? -1 : 0);
     }
@@ -349,7 +349,7 @@ Well::Log* Well::Reader::rdLogHdr( std::istream& strm, int& bintype, int idx )
 
 bool Well::Reader::addLog( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyLog) )
+    if ( !rdHdr(strm,sKeyLog()) )
 	return false;
 
     int bintype = 0;
@@ -391,7 +391,7 @@ void Well::Reader::readLogData( Well::Log& wl, std::istream& strm,
 
 bool Well::Reader::getMarkers() const
 {
-    StreamData sd = mkSD( sExtMarkers );
+    StreamData sd = mkSD( sExtMarkers() );
     if ( !sd.usable() ) return false;
 
     const bool isok = getMarkers( *sd.istrm );
@@ -402,7 +402,7 @@ bool Well::Reader::getMarkers() const
 
 bool Well::Reader::getMarkers( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyMarkers) )
+    if ( !rdHdr(strm,sKeyMarkers()) )
 	return false;
 
     ascistream astrm( strm, false );
@@ -418,7 +418,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 
 	Well::Marker* wm = new Well::Marker( bs );
 
-	key = IOPar::compKey( basekey, Well::Marker::sKeyDah );
+	key = IOPar::compKey( basekey, Well::Marker::sKeyDah() );
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
 	wm->setDah( atof( bs.buf() ) );
@@ -444,7 +444,7 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 
 bool Well::Reader::getD2T() const
 {
-    StreamData sd = mkSD( sExtD2T );
+    StreamData sd = mkSD( sExtD2T() );
     if ( !sd.usable() ) return false;
 
     const bool isok = getD2T( *sd.istrm );
@@ -455,7 +455,7 @@ bool Well::Reader::getD2T() const
 
 bool Well::Reader::getD2T( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyD2T) )
+    if ( !rdHdr(strm,sKeyD2T()) )
 	return false;
 
     ascistream astrm( strm, false );
@@ -466,7 +466,7 @@ bool Well::Reader::getD2T( std::istream& strm ) const
 	    d2t->setName( astrm.value() );
 	else if ( astrm.hasKeyword(sKey::Desc) )
 	    d2t->desc = astrm.value();
-	else if ( astrm.hasKeyword(Well::D2TModel::sKeyDataSrc) )
+	else if ( astrm.hasKeyword(Well::D2TModel::sKeyDataSrc()) )
 	    d2t->datasource = astrm.value();
     }
 
@@ -487,7 +487,7 @@ bool Well::Reader::getD2T( std::istream& strm ) const
 
 bool Well::Reader::getDispProps() const
 {
-    StreamData sd = mkSD( sExtDispProps );
+    StreamData sd = mkSD( sExtDispProps() );
     if ( !sd.usable() ) return false;
 
     const bool isok = getDispProps( *sd.istrm );
@@ -498,7 +498,7 @@ bool Well::Reader::getDispProps() const
 
 bool Well::Reader::getDispProps( std::istream& strm ) const
 {
-    if ( !rdHdr(strm,sKeyDispProps) )
+    if ( !rdHdr(strm,sKeyDispProps()) )
 	return false;
 
     ascistream astrm( strm, false );

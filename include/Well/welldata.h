@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.14 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: welldata.h,v 1.15 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,12 +48,12 @@ public:
     Coord		surfacecoord;
     float		surfaceelev;
 
-    static const char*	sKeyuwid;
-    static const char*	sKeyoper;
-    static const char*	sKeystate;
-    static const char*	sKeycounty;
-    static const char*	sKeycoord;
-    static const char*	sKeyelev;
+    static const char*	sKeyuwid();
+    static const char*	sKeyoper();
+    static const char*	sKeystate();
+    static const char*	sKeycounty();
+    static const char*	sKeycoord();
+    static const char*	sKeyelev();
 
 };
 

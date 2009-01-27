@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.120 2009-01-15 03:40:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.121 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -128,7 +128,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	{
 	    tmpstordirfld = new uiIOFileSelect( this,
 			    sKey::TmpStor, false, tmpstordir );
-	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory );
+	    tmpstordirfld->usePar( uiIOFileSelect::tmpstoragehistory() );
 	    if ( !tmpstordir.isEmpty() && File_isDirectory(tmpstordir) )
 		tmpstordirfld->setInput( tmpstordir );
 	    tmpstordirfld->selectDirectory( true );

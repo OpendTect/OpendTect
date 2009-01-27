@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.20 2008-12-12 09:30:18 cvshelene Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.21 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -84,7 +84,7 @@ void SeisIOObjInfo::setType()
     bool isps = false;
     if ( SeisTrcTranslator::isPS(*ioobj_) )
 	isps = true;
-    ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS, isps );
+    ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
 
     if ( !isps && strcmp(ioobj_->group(),mTranslGroupName(SeisTrc)) )
 	{ bad_ = true; return; }

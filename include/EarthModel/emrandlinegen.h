@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: emrandlinegen.h,v 1.6 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emrandlinegen.h,v 1.7 2009-01-27 11:44:11 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ mClass RandomLineSetByContourGenerator
 { 
 public:
 
-    struct Setup
+    mStruct Setup
     {
 			Setup(bool linezrgisrelative=true);
 

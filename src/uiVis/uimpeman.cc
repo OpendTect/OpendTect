@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.135 2008-12-18 11:19:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.136 2009-01-27 11:45:02 cvsranojay Exp $";
 
 #include "uimpeman.h"
 
@@ -938,7 +938,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 
 
 #define mAddSeedConModeItems( seedconmodefld, typ ) \
-    if ( emobj && emobj->getTypeStr() == EM##typ##TranslatorGroup::keyword ) \
+    if ( emobj && emobj->getTypeStr() == EM##typ##TranslatorGroup::keyword() ) \
     { \
 	for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
 	{ \

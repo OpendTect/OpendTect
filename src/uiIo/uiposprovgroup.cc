@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.19 2008-09-04 10:07:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.20 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -271,7 +271,7 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     psfld_->attach( alignedBelow, selfld_ );
     tffld_ = new uiIOFileSelect( this, sKey::FileName, true,
 	    			 GetDataDir(), true );
-    tffld_->getHistory( uiIOFileSelect::ixtablehistory );
+    tffld_->getHistory( uiIOFileSelect::ixtablehistory() );
     tffld_->attach( alignedBelow, selfld_ );
 
     setHAlignObj( selfld_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.159 2009-01-23 21:49:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.160 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uiempartserv.h"
 
@@ -322,20 +322,20 @@ void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 
 void uiEMPartServer::selectHorizons( TypeSet<EM::ObjectID>& ids, bool is2d )
 {
-    selectSurfaces( ids, is2d ? EMHorizon2DTranslatorGroup::keyword
-	    		      : EMHorizon3DTranslatorGroup::keyword );
+    selectSurfaces( ids, is2d ? EMHorizon2DTranslatorGroup::keyword()
+	    		      : EMHorizon3DTranslatorGroup::keyword() );
 }
 
 
 void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids, bool is2d )
 {
     if ( !is2d )
-	selectSurfaces( ids, EMFault3DTranslatorGroup::keyword );
+	selectSurfaces( ids, EMFault3DTranslatorGroup::keyword() );
 }
 
 
 void uiEMPartServer::selectFaultStickSets( TypeSet<EM::ObjectID>& ids )
-{  selectSurfaces( ids, EMFaultStickSetTranslatorGroup::keyword ); } 
+{  selectSurfaces( ids, EMFaultStickSetTranslatorGroup::keyword() ); } 
 
 
 void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )

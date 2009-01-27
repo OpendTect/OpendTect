@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.63 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.64 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uiiosurface.h"
 
@@ -45,13 +45,13 @@ uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* typ )
     , attrSelChange(this)
     , forread_(forread)
 {
-    if ( !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) )
+    if ( !strcmp(typ,EMHorizon2DTranslatorGroup::keyword()) )
 	ctio_ = mMkCtxtIOObj(EMHorizon2D);
-    else if (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) )
+    else if (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword()) )
 	ctio_ = mMkCtxtIOObj(EMHorizon3D);
-    else if ( !strcmp(typ,EMFaultStickSetTranslatorGroup::keyword) )
+    else if ( !strcmp(typ,EMFaultStickSetTranslatorGroup::keyword()) )
 	ctio_ = mMkCtxtIOObj(EMFaultStickSet);
-    else if ( !strcmp(typ,EMFault3DTranslatorGroup::keyword) )
+    else if ( !strcmp(typ,EMFault3DTranslatorGroup::keyword()) )
 	ctio_ = mMkCtxtIOObj(EMFault3D);
     else
 	ctio_ = new CtxtIOObj( polygonEMBodyTranslator::getIOObjContext() );
@@ -237,7 +237,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 {
     surfrange_.init( false );
 
-    if ( setup.typ_ != EMHorizon2DTranslatorGroup::keyword )
+    if ( setup.typ_ != EMHorizon2DTranslatorGroup::keyword() )
     {
 	if ( setup.withsubsel_ )
     	    mkRangeFld();
@@ -287,9 +287,9 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 {
     surfrange_.init( false );
 
-    if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword &&
-	 setup.typ_!=EMFaultStickSetTranslatorGroup::keyword &&
-	 setup.typ_!=EMFault3DTranslatorGroup::keyword &&
+    if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword() &&
+	 setup.typ_!=EMFaultStickSetTranslatorGroup::keyword() &&
+	 setup.typ_!=EMFault3DTranslatorGroup::keyword() &&
 	 setup.typ_!=polygonEMBodyTranslator::sKeyUserName() )
     {
 	if ( surf.nrSections() > 1 )

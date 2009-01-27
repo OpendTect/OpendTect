@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.7 2009-01-07 15:11:25 cvsbert Exp $
+ RCS:		$Id: wellmarker.h,v 1.8 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ public:
     const BufferString&	name() const;
     Color		color() const;
 
-    static const char*	sKeyDah;
+    static const char*	sKeyDah();
 
     // setName() and setColor() only used as fallback, if not attached to level
     void		setColor( Color col )	{ color_ = col; }

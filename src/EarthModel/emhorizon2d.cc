@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.24 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.25 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "emhorizon2d.h"
 
@@ -289,7 +289,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 }
 
 
-mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::keyword )
+mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::keyword() )
 
 
 Horizon2D::Horizon2D( EMManager& emm )

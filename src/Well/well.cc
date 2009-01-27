@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.50 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.51 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -18,18 +18,18 @@ static const char* rcsID = "$Id: well.cc,v 1.50 2009-01-07 15:11:25 cvsbert Exp 
 #include "idxable.h"
 #include "iopar.h"
 
-const char* Well::Info::sKeyuwid	= "Unique Well ID";
-const char* Well::Info::sKeyoper	= "Operator";
-const char* Well::Info::sKeystate	= "State";
-const char* Well::Info::sKeycounty	= "County";
-const char* Well::Info::sKeycoord	= "Surface coordinate";
-const char* Well::Info::sKeyelev	= "Surface elevation";
-const char* Well::D2TModel::sKeyTimeWell = "=Time";
-const char* Well::D2TModel::sKeyDataSrc	= "Data source";
-const char* Well::Marker::sKeyDah	= "Depth along hole";
-const char* Well::Log::sKeyUnitLbl	= "Unit of Measure";
-const char* Well::Log::sKeyHdrInfo	= "Header info";
-const char* Well::Log::sKeyStorage	= "Storage type";
+const char* Well::Info::sKeyuwid()	{ return "Unique Well ID"; }
+const char* Well::Info::sKeyoper()	{ return "Operator"; }
+const char* Well::Info::sKeystate()	{ return "State"; }
+const char* Well::Info::sKeycounty()	{ return "County"; }
+const char* Well::Info::sKeycoord()	{ return "Surface coordinate"; }
+const char* Well::Info::sKeyelev()	{ return "Surface elevation"; }
+const char* Well::D2TModel::sKeyTimeWell()	{ return "=Time"; }
+const char* Well::D2TModel::sKeyDataSrc()	{ return "Data source"; }
+const char* Well::Marker::sKeyDah()	{ return "Depth along hole"; }
+const char* Well::Log::sKeyUnitLbl()	{ return "Unit of Measure"; }
+const char* Well::Log::sKeyHdrInfo()	{ return "Header info"; }
+const char* Well::Log::sKeyStorage()	{ return "Storage type"; }
 
 
 float Well::DahObj::dahStep( bool ismin ) const
@@ -714,30 +714,30 @@ float Well::D2TModel::getVelocity( float dh ) const
 void Well::Info::fillPar(IOPar& par) const
 {
     par.set( mName, name() );
-    par.set( sKeyuwid, uwid );
-    par.set( sKeyoper, oper );
-    par.set( sKeystate, state );
-    par.set( sKeycounty, county );
+    par.set( sKeyuwid(), uwid );
+    par.set( sKeyoper(), oper );
+    par.set( sKeystate(), state );
+    par.set( sKeycounty(), county );
 
     BufferString coord;
     surfacecoord.fill( coord.buf() );
-    par.set( sKeycoord, coord );
+    par.set( sKeycoord(), coord );
 
-    par.set( sKeyelev, surfaceelev );
+    par.set( sKeyelev(), surfaceelev );
 }
 
 void Well::Info::usePar(const IOPar& par)
 {
     setName( par[mName] );
-    par.get( sKeyuwid, uwid );
-    par.get( sKeyoper, oper );
-    par.get( sKeystate, state );
-    par.get( sKeycounty, county );
+    par.get( sKeyuwid(), uwid );
+    par.get( sKeyoper(), oper );
+    par.get( sKeystate(), state );
+    par.get( sKeycounty(), county );
 
     BufferString coord;
-    par.get( sKeycoord, coord );
+    par.get( sKeycoord(), coord );
     surfacecoord.use( coord );
 
-    par.get( sKeyelev, surfaceelev );
+    par.get( sKeyelev(), surfaceelev );
 }
 

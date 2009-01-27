@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welld2tmodel.h,v 1.13 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: welld2tmodel.h,v 1.14 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -38,9 +38,9 @@ public:
     BufferString	desc;
     BufferString	datasource;
 
-    static const char*	sKeyTimeWell; //!< name of model for well that is only
+    static const char*	sKeyTimeWell(); //!< name of model for well that is only
     				      //!< known in time
-    static const char*	sKeyDataSrc;
+    static const char*	sKeyDataSrc();
 
     void		add( float d_ah, float tm )
 						{ dah_ += d_ah; t_ += tm; }

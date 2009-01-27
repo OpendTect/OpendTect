@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.12 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.13 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
     Seis::GeomType	geomType() const	{ return geomtype_; }
     const IOObj*	ioObj() const		{ return ioobj_; }
 
-    struct SpaceInfo
+    mStruct SpaceInfo
     {
 			SpaceInfo(int ns=-1,int ntr=-1,int bps=4);
 	int		expectednrsamps;

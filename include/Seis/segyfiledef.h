@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.11 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: segyfiledef.h,v 1.12 2009-01-27 11:44:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ public:
     virtual void	usePar(const IOPar&)				= 0;
     virtual void	getReport(IOPar&,bool isrev1=true) const	= 0;
 
-    static const char*	sKeySEGYRev;
-    static const char*	sKeyForceRev0;
+    static const char*	sKeySEGYRev();
+    static const char*	sKeyForceRev0();
 
 };
 
@@ -65,7 +65,7 @@ public:
     IOObj*		getIOObj(bool temporary=true) const;
 
     void		getMultiFromString(const char*);
-    static const char*	sKeyFileNrs;
+    static const char*	sKeyFileNrs();
 
     static void		ensureWellDefined(IOObj&);
     static void		fillParFromIOObj(const IOObj&,IOPar&);
@@ -97,9 +97,9 @@ public:
     static const char*	nameOfFmt(int fmt,bool forread);
     static int		fmtOf(const char*,bool forread);
 
-    static const char*	sKeyNrSamples;
-    static const char*	sKeyNumberFormat;
-    static const char*	sKeyByteSwap;
+    static const char*	sKeyNrSamples();
+    static const char*	sKeyNumberFormat();
+    static const char*	sKeyByteSwap();
 
     void		setForRead(bool);
 
@@ -148,12 +148,12 @@ public:
     float		timeShift(float) const;
     float		sampleIntv(float) const;
 
-    static const char*	sKeyICOpt;
-    static const char*	sKeyPSOpt;
-    static const char*	sKeyOffsDef;
-    static const char*	sKeyCoordScale;
-    static const char*	sKeyTimeShift;
-    static const char*	sKeySampleIntv;
+    static const char*	sKeyICOpt();
+    static const char*	sKeyPSOpt();
+    static const char*	sKeyOffsDef();
+    static const char*	sKeyCoordScale();
+    static const char*	sKeyTimeShift();
+    static const char*	sKeySampleIntv();
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);

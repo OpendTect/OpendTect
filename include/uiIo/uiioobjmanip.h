@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.14 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.15 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
 
 protected:
 
-    struct ButData
+    mStruct ButData
     {
 			ButData(uiToolButton*,const ioPixmap&,const char*);
 			~ButData();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.28 2009-01-13 13:52:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.29 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -114,8 +114,8 @@ void uiSEGYRead::nextAction()
 void uiSEGYRead::setGeomType( const IOObj& ioobj )
 {
     bool is2d = false; bool isps = false;
-    ioobj.pars().getYN( SeisTrcTranslator::sKeyIs2D, is2d );
-    ioobj.pars().getYN( SeisTrcTranslator::sKeyIsPS, isps );
+    ioobj.pars().getYN( SeisTrcTranslator::sKeyIs2D(), is2d );
+    ioobj.pars().getYN( SeisTrcTranslator::sKeyIsPS(), isps );
     geom_ = Seis::geomTypeOf( is2d, isps );
 }
 
@@ -135,14 +135,14 @@ void uiSEGYRead::fillPar( IOPar& iop ) const
 {
     iop.merge( pars_ );
     if ( rev_ == Rev0 )
-	iop.setYN( SEGY::FileDef::sKeyForceRev0, true );
+	iop.setYN( SEGY::FileDef::sKeyForceRev0(), true );
 }
 
 
 void uiSEGYRead::usePar( const IOPar& iop )
 {
     pars_.merge( iop );
-    rev_ = iop.isTrue( SEGY::FileDef::sKeyForceRev0 ) ? Rev0 : Rev1;
+    rev_ = iop.isTrue( SEGY::FileDef::sKeyForceRev0() ) ? Rev0 : Rev1;
 }
 
 
@@ -298,8 +298,8 @@ CtxtIOObj* uiSEGYRead::getCtio( bool forread, Seis::GeomType gt )
     IOObjContext& ctxt = ret->ctxt;
     ctxt.deftransl = ctxt.trglobexpr = "SEG-Y";
     ctxt.forread = forread;
-    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIs2D, Seis::is2D(gt) );
-    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIsPS, Seis::isPS(gt) );
+    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIs2D(), Seis::is2D(gt) );
+    ctxt.parconstraints.setYN( SeisTrcTranslator::sKeyIsPS(), Seis::isPS(gt) );
     ctxt.includeconstraints = ctxt.allownonreaddefault = true;
     ctxt.allowcnstrsabsent = false;
     return ret;

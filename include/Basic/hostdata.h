@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.24 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:           $Id: hostdata.h,v 1.25 2009-01-27 11:44:11 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ protected:
   The first entry will be the local host.
  
  */
-class HostDataList : public ObjectSet<HostData>
+mClass HostDataList : public ObjectSet<HostData>
 {
 public:
 			HostDataList( bool readhostfile=true );

@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.12 2008-12-29 11:29:27 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.13 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -12,17 +12,17 @@ static const char* rcsID = "$Id: segyfiledef.cc,v 1.12 2008-12-29 11:29:27 cvsra
 #include "keystrs.h"
 #include "separstr.h"
 
-const char* SEGY::FileDef::sKeyForceRev0 = "Force Rev0";
-const char* SEGY::FilePars::sKeyNrSamples = "Nr samples overrule";
-const char* SEGY::FilePars::sKeyNumberFormat = "Number format";
-const char* SEGY::FilePars::sKeyByteSwap = "Byte swapping";
-const char* SEGY::FileSpec::sKeyFileNrs = "File numbers";
-const char* SEGY::FileReadOpts::sKeyCoordScale = "Coordinate scaling overrule";
-const char* SEGY::FileReadOpts::sKeyTimeShift = "Start time overrule";
-const char* SEGY::FileReadOpts::sKeySampleIntv = "Sample rate overrule";
-const char* SEGY::FileReadOpts::sKeyICOpt = "IC -> XY";
-const char* SEGY::FileReadOpts::sKeyPSOpt = "Offset source";
-const char* SEGY::FileReadOpts::sKeyOffsDef = "Generate offsets";
+const char* SEGY::FileDef::sKeyForceRev0()	    { return "Force Rev0"; }
+const char* SEGY::FilePars::sKeyNrSamples()	    { return "Nr samples overrule"; }
+const char* SEGY::FilePars::sKeyNumberFormat()	    { return "Number format"; }
+const char* SEGY::FilePars::sKeyByteSwap()	    { return "Byte swapping"; }
+const char* SEGY::FileSpec::sKeyFileNrs()	    { return "File numbers"; }
+const char* SEGY::FileReadOpts::sKeyCoordScale()    { return "Coordinate scaling overrule"; }
+const char* SEGY::FileReadOpts::sKeyTimeShift()	    { return "Start time overrule"; }
+const char* SEGY::FileReadOpts::sKeySampleIntv()    { return "Sample rate overrule"; }
+const char* SEGY::FileReadOpts::sKeyICOpt()	    { return "IC -> XY"; }
+const char* SEGY::FileReadOpts::sKeyPSOpt()	    { return "Offset source"; }
+const char* SEGY::FileReadOpts::sKeyOffsDef()	    { return "Generate offsets"; }
 
 
 static const char* allsegyfmtoptions[] = {
@@ -90,14 +90,14 @@ void SEGY::FileSpec::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::FileName, fname_ );
     if ( mIsUdf(nrs_.start) )
-	iop.removeWithKey( sKeyFileNrs );
+	iop.removeWithKey( sKeyFileNrs() );
     else
     {
 	FileMultiString fms;
 	fms += nrs_.start; fms += nrs_.stop; fms += nrs_.step;
 	if ( zeropad_ )
 	    fms += zeropad_;
-	iop.set( sKeyFileNrs, fms );
+	iop.set( sKeyFileNrs(), fms );
     }
 }
 
@@ -105,7 +105,7 @@ void SEGY::FileSpec::fillPar( IOPar& iop ) const
 void SEGY::FileSpec::usePar( const IOPar& iop )
 {
     iop.get( sKey::FileName, fname_ );
-    getMultiFromString( iop.find(sKeyFileNrs) );
+    getMultiFromString( iop.find(sKeyFileNrs()) );
 }
 
 
@@ -147,7 +147,7 @@ void SEGY::FileSpec::ensureWellDefined( IOObj& ioobj )
 
     SEGY::FileSpec fs; fs.usePar( iop );
     iop.removeWithKey( sKey::FileName );
-    iop.removeWithKey( sKeyFileNrs );
+    iop.removeWithKey( sKeyFileNrs() );
 
     iostrm->setFileName( fs.fname_ );
     if ( !fs.isMultiFile() )
@@ -196,22 +196,22 @@ void SEGY::FilePars::setForRead( bool fr )
 void SEGY::FilePars::fillPar( IOPar& iop ) const
 {
     if ( ns_ > 0 )
-	iop.set( sKeyNrSamples, ns_ );
+	iop.set( sKeyNrSamples(), ns_ );
     else
-	iop.removeWithKey( sKeyNrSamples );
+	iop.removeWithKey( sKeyNrSamples() );
     if ( fmt_ != 0 )
-	iop.set( sKeyNumberFormat, nameOfFmt(fmt_,forread_) );
+	iop.set( sKeyNumberFormat(), nameOfFmt(fmt_,forread_) );
     else
-	iop.removeWithKey( sKeyNumberFormat );
-    iop.set( sKeyByteSwap, byteswap_ );
+	iop.removeWithKey( sKeyNumberFormat() );
+    iop.set( sKeyByteSwap(), byteswap_ );
 }
 
 
 void SEGY::FilePars::usePar( const IOPar& iop )
 {
-    iop.get( sKeyNrSamples, ns_ );
-    iop.get( sKeyByteSwap, byteswap_ );
-    fmt_ = fmtOf( iop.find(sKeyNumberFormat), forread_ );
+    iop.get( sKeyNrSamples(), ns_ );
+    iop.get( sKeyByteSwap(), byteswap_ );
+    fmt_ = fmtOf( iop.find(sKeyNumberFormat()), forread_ );
 }
 
 
@@ -283,29 +283,29 @@ static SEGY::FileReadOpts::ICvsXYType getICType( int opt )
 
 void SEGY::FileReadOpts::fillPar( IOPar& iop ) const
 {
-    iop.set( sKeyICOpt, getICOpt( icdef_ ) );
+    iop.set( sKeyICOpt(), getICOpt( icdef_ ) );
 
-    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByte,thdef_.inl);
-    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByteSz,thdef_.inlbytesz);
-    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sXCoordByte,thdef_.xcoord);
-    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sYCoordByte,thdef_.ycoord);
+    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByte(),thdef_.inl);
+    mFillIf(icdef_!=XYOnly,TrcHeaderDef::sInlByteSz(),thdef_.inlbytesz);
+    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sXCoordByte(),thdef_.xcoord);
+    mFillIf(icdef_!=ICOnly,TrcHeaderDef::sYCoordByte(),thdef_.ycoord);
 
     const bool is2d = Seis::is2D( geom_ );
-    mFillIf(is2d,TrcHeaderDef::sTrNrByte,thdef_.trnr);
-    mFillIf(is2d,TrcHeaderDef::sTrNrByteSz,thdef_.trnrbytesz);
+    mFillIf(is2d,TrcHeaderDef::sTrNrByte(),thdef_.trnr);
+    mFillIf(is2d,TrcHeaderDef::sTrNrByteSz(),thdef_.trnrbytesz);
 
-    mFillIf(!mIsUdf(coordscale_),sKeyCoordScale,coordscale_);
-    mFillIf(!mIsUdf(timeshift_),sKeyTimeShift,timeshift_);
-    mFillIf(!mIsUdf(sampleintv_),sKeySampleIntv,sampleintv_);
+    mFillIf(!mIsUdf(coordscale_),sKeyCoordScale(),coordscale_);
+    mFillIf(!mIsUdf(timeshift_),sKeyTimeShift(),timeshift_);
+    mFillIf(!mIsUdf(sampleintv_),sKeySampleIntv(),sampleintv_);
 
     if ( !Seis::isPS(geom_) ) return;
 
-    mFillIf(true,sKeyPSOpt,(int)psdef_);
-    mFillIf(psdef_==UsrDef,sKeyOffsDef,offsdef_);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByte,thdef_.offs);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByteSz,thdef_.offsbytesz);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByte,thdef_.azim);
-    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByteSz,thdef_.azimbytesz);
+    mFillIf(true,sKeyPSOpt(),(int)psdef_);
+    mFillIf(psdef_==UsrDef,sKeyOffsDef(),offsdef_);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByte(),thdef_.offs);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sOffsByteSz(),thdef_.offsbytesz);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByte(),thdef_.azim);
+    mFillIf(psdef_==InFile,TrcHeaderDef::sAzimByteSz(),thdef_.azimbytesz);
 
 }
 
@@ -314,15 +314,15 @@ void SEGY::FileReadOpts::usePar( const IOPar& iop )
 {
     thdef_.usePar( iop );
     int icopt = getICOpt( icdef_ );
-    iop.get( sKeyICOpt, icopt );
+    iop.get( sKeyICOpt(), icopt );
     icdef_ = getICType( icopt );
     int psopt = (int)psdef_;
-    iop.get( sKeyPSOpt, psopt );
+    iop.get( sKeyPSOpt(), psopt );
     psdef_ = (PSDefType)psopt;
-    iop.get( sKeyOffsDef, offsdef_ );
-    iop.get( sKeyCoordScale, coordscale_ );
-    iop.get( sKeyTimeShift, timeshift_ );
-    iop.get( sKeySampleIntv, sampleintv_ );
+    iop.get( sKeyOffsDef(), offsdef_ );
+    iop.get( sKeyCoordScale(), coordscale_ );
+    iop.get( sKeyTimeShift(), timeshift_ );
+    iop.get( sKeySampleIntv(), sampleintv_ );
 }
 
 
@@ -339,11 +339,11 @@ static void setIntByte( IOPar& iop, const char* nm,
 void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
 {
     if ( !mIsUdf(coordscale_) )
-	iop.set( sKeyCoordScale, coordscale_ );
+	iop.set( sKeyCoordScale(), coordscale_ );
     if ( !mIsUdf(timeshift_) )
-	iop.set( sKeyTimeShift, timeshift_ );
+	iop.set( sKeyTimeShift(), timeshift_ );
     if ( !mIsUdf(sampleintv_) )
-	iop.set( sKeySampleIntv, sampleintv_ );
+	iop.set( sKeySampleIntv(), sampleintv_ );
 
     const bool is2d = Seis::is2D( geom_ );
     const bool isps = Seis::isPS( geom_ );
@@ -363,8 +363,8 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
 	    }
 	    else
 	    {
-		iop.set( TrcHeaderDef::sXCoordByte, thdef_.xcoord );
-		iop.set( TrcHeaderDef::sYCoordByte, thdef_.ycoord );
+		iop.set( TrcHeaderDef::sXCoordByte(), thdef_.xcoord );
+		iop.set( TrcHeaderDef::sYCoordByte(), thdef_.ycoord );
 	    }
 	}
     }
@@ -375,7 +375,7 @@ void SEGY::FileReadOpts::getReport( IOPar& iop, bool rev1 ) const
     iop.set( "Offsets", psdef_ == UsrDef ? "User defined"
 	    : (psdef_ == InFile ? "In file" : "Source/Receiver coordinates") );
     if ( psdef_ == UsrDef )
-	iop.set( sKeyOffsDef, offsdef_ );
+	iop.set( sKeyOffsDef(), offsdef_ );
     else if ( psdef_ != SrcRcvCoords )
     {
 	setIntByte( iop, sKey::Offset, thdef_.offs, thdef_.offsbytesz );

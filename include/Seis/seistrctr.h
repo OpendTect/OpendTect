@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.56 2008-12-29 11:25:00 cvsranojay Exp $
+ RCS:		$Id: seistrctr.h,v 1.57 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -210,10 +210,10 @@ public:
     static bool		isPS(const IOObj&);
     bool		isPS() const			{ return is_prestack; }
 
-    static const char*	sKeyIs2D;
-    static const char*	sKeyIsPS;
-    static const char*	sKeyRegWrite;
-    static const char*	sKeySIWrite;
+    static const char*	sKeyIs2D();
+    static const char*	sKeyIsPS();
+    static const char*	sKeyRegWrite();
+    static const char*	sKeySIWrite();
 
     			// Use the following fns only if you _really_ know
     			// what you're doing.

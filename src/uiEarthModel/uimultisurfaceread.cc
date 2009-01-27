@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.19 2009-01-07 07:01:16 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.20 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -64,9 +64,9 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
     mkRangeFld();
     rgfld_->attach( leftAlignedBelow, ioobjselgrp_ );
 
-    if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword) ||
-	 !strcmp(type,EMFaultStickSetTranslatorGroup::keyword) ||
-         !strcmp(type,EMFault3DTranslatorGroup::keyword) )
+    if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword()) ||
+	 !strcmp(type,EMFaultStickSetTranslatorGroup::keyword()) ||
+         !strcmp(type,EMFault3DTranslatorGroup::keyword()) )
     {
 	sectionfld_->display( false, true );
 	rgfld_->display( false, true );

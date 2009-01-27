@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.59 2009-01-08 11:31:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.60 2009-01-27 11:45:01 cvsranojay Exp $";
 
 
 #include "uisurfaceman.h"
@@ -43,10 +43,10 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.59 2009-01-08 11:31:09 cvsb
 
 
 #define mGet( typ, hor2d, hor3d, anyhor, emfss, flt3d ) \
-    !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? hor2d : \
-    (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? hor3d : \
-    (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword) ? anyhor : \
-    (!strcmp(typ,EMFaultStickSetTranslatorGroup::keyword) ? emfss : flt3d) ) )
+    !strcmp(typ,EMHorizon2DTranslatorGroup::keyword()) ? hor2d : \
+    (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword()) ? hor3d : \
+    (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword()) ? anyhor : \
+    (!strcmp(typ,EMFaultStickSetTranslatorGroup::keyword()) ? emfss : flt3d) ) )
 
 #define mGetIoContext(typ) \
     mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
@@ -116,15 +116,15 @@ uiSurfaceMan::~uiSurfaceMan()
 bool uiSurfaceMan::isCur2D() const
 {
     return curioobj_ && 
-	   !strcmp(curioobj_->group(),EMHorizon2DTranslatorGroup::keyword);
+	   !strcmp(curioobj_->group(),EMHorizon2DTranslatorGroup::keyword());
 }
 
 
 bool uiSurfaceMan::isCurFault() const
 {
     return curioobj_ && 
-	( !strcmp(curioobj_->group(),EMFaultStickSetTranslatorGroup::keyword) ||
-	  !strcmp(curioobj_->group(),EMFault3DTranslatorGroup::keyword) );
+	( !strcmp(curioobj_->group(),EMFaultStickSetTranslatorGroup::keyword()) ||
+	  !strcmp(curioobj_->group(),EMFault3DTranslatorGroup::keyword()) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.15 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uidatapointset.h,v 1.16 2009-01-27 11:44:12 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     typedef DataPointSet::ColID	DColID;
     typedef DataPointSet::RowID	DRowID;
 
-    struct Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 				Setup(const char* wintitl,bool ismodal=false);
 

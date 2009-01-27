@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.8 2008-12-17 08:58:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.9 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uiexpfault.h"
 
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uiexpfault.cc,v 1.8 2008-12-17 08:58:23 cvsjaap
 #include <stdio.h>
 
 #define mGet( tp, fss, f3d ) \
-    !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword) ? fss : f3d
+    !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword()) ? fss : f3d
 
 #define mGetCtio(tp) \
     mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )

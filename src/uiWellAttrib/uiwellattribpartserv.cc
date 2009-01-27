@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.11 2009-01-08 15:47:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.12 2009-01-27 11:45:02 cvsranojay Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -129,7 +129,7 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
  
     if ( lognr > wd->logs().size() - 1 )
 	lognr =  wd->logs().size() - 1;
-    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog, lognr + 1 );
+    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog(), lognr + 1 );
     StreamProvider splog( logfnm );
     StreamData sdo = splog.makeOStream();
     wtr.putLog( *sdo.ostrm, wd->logs().getLog(lognr) );

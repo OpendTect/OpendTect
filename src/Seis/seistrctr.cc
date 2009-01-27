@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.89 2008-12-15 16:52:25 cvshelene Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.90 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -29,10 +29,10 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.89 2008-12-15 16:52:25 cvshele
 #include <math.h>
 
 
-const char* SeisTrcTranslator::sKeyIs2D = "Is2D";
-const char* SeisTrcTranslator::sKeyIsPS = "IsPS";
-const char* SeisTrcTranslator::sKeyRegWrite = "Enforce Regular Write";
-const char* SeisTrcTranslator::sKeySIWrite = "Enforce SurveyInfo Write";
+const char* SeisTrcTranslator::sKeyIs2D()	{ return "Is2D"; }
+const char* SeisTrcTranslator::sKeyIsPS()	{ return "IsPS"; }
+const char* SeisTrcTranslator::sKeyRegWrite()	{ return "Enforce Regular Write"; }
+const char* SeisTrcTranslator::sKeySIWrite()	{ return "Enforce SurveyInfo Write"; }
 
 
 mDefSimpleTranslatorSelector(SeisTrc,sKeySeisTrcTranslatorGroup)
@@ -85,7 +85,7 @@ SeisTrcTranslator::~SeisTrcTranslator()
 bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 {
     const bool trok = *ioobj.group() == '2' || *ioobj.translator() == '2';
-    return trok || internal_only ? trok : ioobj.pars().isTrue( sKeyIs2D );
+    return trok || internal_only ? trok : ioobj.pars().isTrue( sKeyIs2D() );
 }
 
 
@@ -546,10 +546,10 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
 
 void SeisTrcTranslator::usePar( const IOPar& iop )
 {
-    iop.getYN( sKeyIs2D, is_2d );
-    iop.getYN( sKeyIsPS, is_prestack );
-    iop.getYN( sKeyRegWrite, enforce_regular_write );
-    iop.getYN( sKeySIWrite, enforce_survinfo_write );
+    iop.getYN( sKeyIs2D(), is_2d );
+    iop.getYN( sKeyIsPS(), is_prestack );
+    iop.getYN( sKeyRegWrite(), enforce_regular_write );
+    iop.getYN( sKeySIWrite(), enforce_survinfo_write );
 }
 
 

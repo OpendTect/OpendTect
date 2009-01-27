@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.56 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.57 2009-01-27 11:45:01 cvsranojay Exp $";
 
 #include "uiexphorizon.h"
 
@@ -45,7 +45,7 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
     setCtrlStyle( DoAndStay );
 
     infld = new uiSurfaceRead( this,
-	    uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword)
+	    uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword())
 	    .withsubsel(true) );
     infld->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
