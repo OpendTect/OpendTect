@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.29 2009-01-21 15:10:41 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.30 2009-01-27 11:52:52 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
@@ -30,8 +30,10 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.29 2009-01-21 15:10:41 cv
 
 #define	mExpandTxt(domenu)	domenu ? "&Expand all" : "Expand all"
 #define	mCollapseTxt(domenu)	domenu ? "&Collapse all" : "Collapse all"
-#define	mEditTxt(domenu)	domenu ? "&Unlock" : "Unlock"
-#define	mLockTxt(domenu)	domenu ? "&Lock" : "Lock"
+
+//tricky: want to show action in menu and status on button
+#define	mEditTxt(domenu)	domenu ? "&Unlock" : "Toggle read only: locked"
+#define	mLockTxt(domenu)	domenu ? "&Lock" : "Toggle read only: editable"
 
 
 static const char* sNoLevelTxt      = "--- Empty ---";
@@ -131,6 +133,7 @@ void uiStratTreeWin::createToolBar()
     mDefBut(moveunitdownbut_,"downarrow.png",moveUnitCB,"Move unit down");
     tb_->addSeparator();
     mDefBut(lockbut_,"unlock.png",editCB,mEditTxt(false));
+    lockbut_->setToggleButton( true );
 //    mDefBut(openbut_,"openset.png",openCB,"Open"); not implemented yet
     mDefBut(savebut_,"saveset.png",saveCB,"Save");
 }
@@ -204,9 +207,10 @@ void uiStratTreeWin::editCB( CallBacker* )
     bool doedit = !strcmp( editmnuitem_->text(), mEditTxt(true) );
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt(true) : mEditTxt(true) );
-    lockbut_->setPixmap( doedit ? ioPixmap("readonly.png")
-	    			: ioPixmap("unlock.png") );
+    lockbut_->setPixmap( doedit ? ioPixmap("unlock.png")
+	    			: ioPixmap("readonly.png") );
     lockbut_->setToolTip( doedit ? mLockTxt(false) : mEditTxt(false) );
+    lockbut_->setOn( !doedit );
     if ( doedit )
 	uistratmgr_->createTmpTree( false );
 }
