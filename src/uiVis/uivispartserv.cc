@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.403 2009-01-28 09:10:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.404 2009-01-28 11:43:33 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -113,7 +113,8 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
     , multirgeditwin_(0)
-    , displayid_(-1)						      
+    , mapperrgeditordisplayid_(-1)
+    , mapperrgeditinact_(false)	  
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -780,6 +781,17 @@ void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
     so->setColTabMapperSetup( attrib, ms );
     if ( so->getScene() )
 	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
+
+    if ( multirgeditwin_ && (id == mapperrgeditordisplayid_) )
+    {
+	if ( mapperrgeditinact_ )
+	{
+	    mapperrgeditinact_ = false; 
+	    return;
+	}
+	else
+	    multirgeditwin_->setColTabMapperSetup( attrib, ms );
+    }
 }
 
 
@@ -807,6 +819,9 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
     so->setColTabSequence( attrib, seq );
     if ( so->getScene() )
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
+
+    if ( multirgeditwin_ && (id == mapperrgeditordisplayid_) )
+	multirgeditwin_->setColTabSeq( attrib, seq );
 }
 
 
@@ -1767,7 +1782,7 @@ void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
 	multirgeditwin_->close();
 	delete multirgeditwin_; multirgeditwin_ = 0;
     }
-    displayid_ = displayid;
+    mapperrgeditordisplayid_ = displayid;
     multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, getNrAttribs(displayid),
 	   					 getDataPackMgrID(displayid) );
     multirgeditwin_->rangeChange.notify( 
@@ -1831,10 +1846,12 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 
 void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
 {
+    mapperrgeditinact_ = true;
+
     mDynamicCastGet(uiMultiMapperRangeEditWin*,obj,cb);
-    setColTabMapperSetup( displayid_, obj->activeAttrbID(), 
+    setColTabMapperSetup( mapperrgeditordisplayid_, obj->activeAttrbID(), 
 	    		  obj->activeMapperSetup() );
-    eventobjid_ = displayid_;
+    eventobjid_ = mapperrgeditordisplayid_;
     eventattrib_ = obj->activeAttrbID();
     sendEvent( evColorTableChange );
 }
