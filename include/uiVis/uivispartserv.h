@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.225 2009-01-14 11:40:56 cvssatyaki Exp $
+ RCS:           $Id: uivispartserv.h,v 1.226 2009-01-28 08:05:43 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ class SeisTrcBuf;
 class SurfaceInfo;
 class uiMenuHandler;
 class uiMPEMan;
-class uiMultiRangeSelDispWin;
+class uiMultiMapperRangeEditWin;
 class uiPopupMenu;
 class uiSlicePos;
 class uiToolBar;
@@ -257,7 +257,7 @@ public:
 
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
-    void			displayHistogramsForAttrbs(int id);
+    void			displayMapperRangeEditForAttrbs(int id);
     static const int		evColorTableChange;
     void			displaySceneColorbar(bool);
     const Color&		getSceneAnnotCol(int);
@@ -366,7 +366,7 @@ protected:
     uiSlicePos*			slicepostools_;
     uiToolBar*			itemtools_;
 
-    uiMultiRangeSelDispWin*	multirgselwin_;
+    uiMultiMapperRangeEditWin*	multirgeditwin_;
 
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;
@@ -393,7 +393,7 @@ protected:
     void			toHome(CallBacker*);
     void			colTabChangeCB(CallBacker*);
 
-    void			histogramRngSelChanged(CallBacker*);
+    void			mapperRangeEditChanged(CallBacker*);
 
     MenuItem			resetmanipmnuitem_;
     MenuItem			changematerialmnuitem_;

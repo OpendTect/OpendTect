@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.401 2009-01-22 08:32:59 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.402 2009-01-28 08:06:29 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -112,7 +112,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , pickretriever_( new uiVisPickRetriever )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
-    , multirgselwin_(0)
+    , multirgeditwin_(0)
     , displayid_(-1)						      
 {
     menu_.ref();
@@ -148,7 +148,7 @@ uiVisPartServer::~uiVisPartServer()
     delete mpetools_;
     menu_.unRef();
     pickretriever_->unRef();
-    delete multirgselwin_;
+    delete multirgeditwin_;
 }
 
 
@@ -1759,31 +1759,34 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
 }
 
 
-void uiVisPartServer::displayHistogramsForAttrbs( int displayid )
+void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    if ( multirgselwin_ )
+    if ( multirgeditwin_ )
     {
-	multirgselwin_->close();
-	delete multirgselwin_; multirgselwin_ = 0;
+	multirgeditwin_->close();
+	delete multirgeditwin_; multirgeditwin_ = 0;
     }
     displayid_ = displayid;
-    multirgselwin_ = new uiMultiRangeSelDispWin( 0, getNrAttribs(displayid),
+    multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, getNrAttribs(displayid),
 	   					 getDataPackMgrID(displayid) );
-    multirgselwin_->rangeChange.notify( mCB(this,uiVisPartServer,
-				histogramRngSelChanged) );
+    multirgeditwin_->rangeChange.notify( 
+	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
 
     for ( int idx=0; idx<getNrAttribs(displayid); idx++ )
     {
-	multirgselwin_->setDataPackID( idx, getDataPackID(displayid,idx) );
+	multirgeditwin_->setDataPackID( idx, getDataPackID(displayid,idx) );
 
-	if ( getColTabMapperSetup(displayid,idx) && 
-	     getColTabSequence(displayid,idx) )
-	multirgselwin_->setColTabMapperSetupWthSeq( idx, 
-					   *getColTabMapperSetup(displayid,idx), 					   *getColTabSequence(displayid,idx) );
+	if ( getColTabMapperSetup(displayid,idx) )
+		multirgeditwin_->setColTabMapperSetup( idx,
+		    			*getColTabMapperSetup(displayid,idx) );
+
+	if ( getColTabSequence(displayid,idx) )
+	    multirgeditwin_->setColTabSeq( idx,
+		    			   *getColTabSequence(displayid,idx));
     }
 
-    multirgselwin_->go();
+    multirgeditwin_->go();
 }
 
 
@@ -1826,9 +1829,9 @@ void uiVisPartServer::displaySceneColorbar( bool yn )
 }
 
 
-void uiVisPartServer::histogramRngSelChanged( CallBacker* cb )
+void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
 {
-    mDynamicCastGet(uiMultiRangeSelDispWin*,obj,cb);
+    mDynamicCastGet(uiMultiMapperRangeEditWin*,obj,cb);
     setColTabMapperSetup( displayid_, obj->activeAttrbID(), 
 	    		  obj->activeMapperSetup() );
     eventobjid_ = displayid_;
