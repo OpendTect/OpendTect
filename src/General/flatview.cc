@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.47 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.48 2009-01-28 16:52:21 cvsyuancheng Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -24,6 +24,8 @@ namespace FlatView
 {
 
 const char* Annotation::sKeyAxes = "Axes";
+const char* Annotation::sKeyX1Sampl = "Axis 1 Sampling";
+const char* Annotation::sKeyX2Sampl = "Axis 2 Sampling";
 const char* Annotation::sKeyShwAnnot = "Show annotation";
 const char* Annotation::sKeyShwGridLines = "Show grid lines";
 const char* Annotation::sKeyIsRev = "Reversed";
@@ -169,6 +171,16 @@ void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 }
 
 
+FlatView::Annotation::AxisData::AxisData()
+    : reversed_(false)  
+    , sampling_(mUdf(float),mUdf(float) )
+{ showAll(false); }
+
+
+void FlatView::Annotation::AxisData::showAll( bool yn )
+{ showannot_ = showgridlines_ = yn; }
+
+
 FlatView::Annotation::Annotation( bool drkbg )
     : color_(drkbg ? Color::White() : Color::Black())
     , showaux_(true)
@@ -208,6 +220,8 @@ bool FlatView::Annotation::haveAux() const
 void FlatView::Annotation::fillPar( IOPar& iop ) const
 {
     mIOPDoAxes( set, sKey::Color, color_ );
+    mIOPDoAxes( set, sKeyX1Sampl, x1_.sampling_ );
+    mIOPDoAxes( set, sKeyX2Sampl, x2_.sampling_ );
     mIOPDoAxes2( set, sKey::Name, x1_.name_, x2_.name_ );
     mIOPDoAxes2( setYN, sKeyShwAnnot, x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( setYN, sKeyShwGridLines,x1_.showgridlines_,x2_.showgridlines_);
@@ -219,6 +233,8 @@ void FlatView::Annotation::fillPar( IOPar& iop ) const
 void FlatView::Annotation::usePar( const IOPar& iop )
 {
     mIOPDoAxes( get, sKey::Color, color_ );
+    mIOPDoAxes( get, sKeyX1Sampl, x1_.sampling_ );
+    mIOPDoAxes( get, sKeyX2Sampl, x2_.sampling_ );
     mIOPDoAxes2( get, sKey::Name, x1_.name_, x2_.name_ );
     mIOPDoAxes2( getYN, sKeyShwAnnot, x1_.showannot_, x2_.showannot_ );
     mIOPDoAxes2( getYN, sKeyShwGridLines,x1_.showgridlines_,x2_.showgridlines_);

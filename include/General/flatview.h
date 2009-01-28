@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.39 2008-12-31 05:33:53 cvsranojay Exp $
+ RCS:           $Id: flatview.h,v 1.40 2009-01-28 16:52:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "datapackbase.h"
 #include "draw.h"
+#include "samplingdata.h"
 
 class IOPar;
 class FlatView_CB_Rcvr;
@@ -84,14 +85,15 @@ public:
 
     struct AxisData
     {
-			AxisData() : reversed_(false)	{ showAll(false); }
+				AxisData();
 
-	BufferString	name_;
-	bool		showannot_;
-	bool		showgridlines_;
-	bool		reversed_;
+	BufferString		name_;
+	SamplingData<float>	sampling_;
+	bool			showannot_;
+	bool			showgridlines_;
+	bool			reversed_;
 
-	inline void	showAll( bool yn ) { showannot_ = showgridlines_ = yn; }
+	void			showAll(bool yn);
     };
 
 
@@ -123,6 +125,8 @@ public:
     void		usePar(const IOPar&);
 
     static const char*	sKeyAxes;
+    static const char*	sKeyX1Sampl;
+    static const char*	sKeyX2Sampl;
     static const char*	sKeyShwAnnot;
     static const char*	sKeyShwGridLines;
     static const char*	sKeyIsRev;
