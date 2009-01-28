@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.h,v 1.3 2009-01-15 06:58:56 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.h,v 1.4 2009-01-28 08:02:43 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,23 +20,24 @@ ________________________________________________________________________
 class uiMapperRangeEditor;
 namespace ColTab { struct MapperSetup; class Sequence; };
 
-mClass uiMultiRangeSelDispWin : public uiDialog
+mClass uiMultiMapperRangeEditWin : public uiDialog
 {
 public:
-    					uiMultiRangeSelDispWin(uiParent*,int n,
-						          DataPackMgr::ID dmid);
-					~uiMultiRangeSelDispWin();
+    					uiMultiMapperRangeEditWin(uiParent*,
+						int n,DataPackMgr::ID dmid);
+					~uiMultiMapperRangeEditWin();
 
     uiMapperRangeEditor*		getuiMapperRangeEditor(int);
     void				setDataPackID(int,DataPack::ID);
-    void				setColTabMapperSetupWthSeq(int,
-	    					     const ColTab::MapperSetup&,
-						     const ColTab::Sequence&);
+    void				setColTabMapperSetup(int,
+	    					const ColTab::MapperSetup&);
+    void				setColTabSeq(int,
+	    					const ColTab::Sequence&);
     int					activeAttrbID()
     					{ return activeattrbid_; }
     const ColTab::MapperSetup&		activeMapperSetup()
     					{ return *activectbmapper_; }
-    Notifier<uiMultiRangeSelDispWin> 	rangeChange;
+    Notifier<uiMultiMapperRangeEditWin> 	rangeChange;
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.h,v 1.3 2009-01-15 10:57:30 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.h,v 1.4 2009-01-28 08:02:43 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,9 @@ public:
     bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
     void                        setMarkValue(float,bool forx);
 
-    void			setColTabMapperSetupWthSeq(
-	    				const ColTab::MapperSetup&,
-					const ColTab::Sequence&);
+    void			setColTabMapperSetup(
+	    				const ColTab::MapperSetup&);
+    void			setColTabSeq(const ColTab::Sequence&);
     const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctbmapper_; }
     
     Notifier<uiMapperRangeEditor>	rangeChanged;
@@ -56,8 +56,8 @@ protected:
     uiPixmapItem*		centercoltab_;
     uiPixmapItem*		rightcoltab_;
 
-    uiTextItem*			minlineval_;
-    uiTextItem*			maxlineval_;
+    uiTextItem*			minlinevaltext_;
+    uiTextItem*			maxlinevaltext_;
 
     float			lefttminval_;
     float			rightmaxval_;
@@ -68,6 +68,8 @@ protected:
 
     bool			mousedown_;
 
+    void 			initSetUp();
+    void			draw();
     void			drawAgain();
     void			drawText();
     void			fixTextPos();

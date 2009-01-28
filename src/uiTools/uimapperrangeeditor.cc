@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.7 2009-01-27 11:23:34 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.8 2009-01-28 08:03:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,8 @@ ________________________________________________________________________
 uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
     : uiGroup( p, "Mapper with color slider group" )
     , id_(id)
-    , ctbmapper_(new ColTab::MapperSetup())
-    , ctbseq_(new ColTab::Sequence())
+    , ctbmapper_(0)
+    , ctbseq_(0)
     , minline_(0)
     , maxline_(0)
     , leftcoltab_(0)
@@ -38,8 +38,8 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
     , maxlinebasepos_(mUdf(float))
     , minlinecurpos_(mUdf(float))
     , maxlinecurpos_(mUdf(float))
-    , minlineval_(0)
-    , maxlineval_(0)
+    , minlinevaltext_(0)
+    , maxlinevaltext_(0)
     , mousedown_(0)
     , rangeChanged(this)
 {
@@ -60,7 +60,7 @@ uiMapperRangeEditor::~uiMapperRangeEditor()
 {
     delete minline_; delete maxline_;
     delete leftcoltab_; delete centercoltab_; delete rightcoltab_;
-    delete minlineval_; delete maxlineval_;
+    delete minlinevaltext_; delete maxlinevaltext_;
     delete ctbseq_;
     delete ctbmapper_;
 }
@@ -69,7 +69,9 @@ uiMapperRangeEditor::~uiMapperRangeEditor()
 bool uiMapperRangeEditor::setDataPackID( DataPack::ID dpid,
 					 DataPackMgr::ID dmid )
 {
-    return histogramdisp_->setDataPackID( dpid, dmid );
+    bool returnval = histogramdisp_->setDataPackID( dpid, dmid );
+    initSetUp();
+    return returnval;
 }
 
 
@@ -80,20 +82,42 @@ void uiMapperRangeEditor::setMarkValue( float val, bool forx )
 }
 
 
-void uiMapperRangeEditor::setColTabMapperSetupWthSeq(
-		const ColTab::MapperSetup& ms, const ColTab::Sequence& cseq )
+void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
+    ctbmapper_ = new ColTab::MapperSetup();
     *ctbmapper_ = ms;
     ctbmapper_->type_ = ColTab::MapperSetup::Fixed;
+    initSetUp();
+}
+
+
+void uiMapperRangeEditor::setColTabSeq( const ColTab::Sequence& cseq )
+{ 
+    ctbseq_ = new ColTab::Sequence();
     *ctbseq_ = cseq;
+    initSetUp();
+}
 
+
+void uiMapperRangeEditor::initSetUp()
+{
     const bool nodata = histogramdisp_->xVals().isEmpty();
-    lefttminval_ =  nodata ? 0 : histogramdisp_->xVals().first();
-    rightmaxval_ = nodata ? 100 : histogramdisp_->xVals().last();
+    lefttminval_ = nodata ? 0 : histogramdisp_->xVals().first();
+    rightmaxval_ = nodata ? 1 : histogramdisp_->xVals().last();
 
-    minlinebasepos_ = minlinecurpos_ = ms.start_;
-    maxlinebasepos_ = maxlinecurpos_ = ms.start_ + ms.width_;
+    if ( ctbmapper_ )
+    {
+	minlinebasepos_ = minlinecurpos_ = ctbmapper_->start_;
+	maxlinebasepos_ = maxlinecurpos_ = ctbmapper_->start_ + 
+	    					ctbmapper_->width_;
+    }
+    
+    draw();
+}
 
+
+void uiMapperRangeEditor::draw()
+{
     drawText();
     drawLines();
     drawPixmaps();
@@ -102,17 +126,22 @@ void uiMapperRangeEditor::setColTabMapperSetupWthSeq(
 
 void uiMapperRangeEditor::drawText()
 {
-    if ( !minlineval_ )
-	minlineval_ = histogramdisp_->scene().addText(
+    if ( mIsUdf(minlinecurpos_) || mIsUdf(maxlinecurpos_) )
+	return;
+
+    if ( !minlinevaltext_ )
+	minlinevaltext_ = histogramdisp_->scene().addText(
 		histogramdisp_->xAxis()->getPix(minlinecurpos_),
 		histogramdisp_->height()/3, toString(minlinecurpos_),
 		OD::AlignRight );
 
-    if ( !maxlineval_ )
-	maxlineval_ = histogramdisp_->scene().addText(
+    if ( !maxlinevaltext_ )
+	maxlinevaltext_ = histogramdisp_->scene().addText(
 		histogramdisp_->xAxis()->getPix(maxlinecurpos_),
 		histogramdisp_->height()/3, toString(maxlinecurpos_),
 		OD::AlignLeft );
+
+    fixTextPos();
 }
 
 
@@ -122,21 +151,24 @@ void uiMapperRangeEditor::fixTextPos()
 	return;
 
     BufferString bsleft( toString(minlinecurpos_), " " );
-    minlineval_->setText( bsleft.buf() );
-    minlineval_->setPos( histogramdisp_->xAxis()->getPix(minlinecurpos_),
+    minlinevaltext_->setText( bsleft.buf() );
+    minlinevaltext_->setPos( histogramdisp_->xAxis()->getPix(minlinecurpos_),
 			 histogramdisp_->height()/3 );
-    minlineval_->setAlignment( OD::AlignRight );
+    minlinevaltext_->setAlignment( OD::AlignRight );
 
     BufferString bsright( toString(maxlinecurpos_), " " );
-    maxlineval_->setText( bsright );
-    maxlineval_->setPos( histogramdisp_->xAxis()->getPix(maxlinecurpos_),
+    maxlinevaltext_->setText( bsright );
+    maxlinevaltext_->setPos( histogramdisp_->xAxis()->getPix(maxlinecurpos_),
 			 histogramdisp_->height()/3 );
-    maxlineval_->setAlignment( OD::AlignLeft );
+    maxlinevaltext_->setAlignment( OD::AlignLeft );
 }
 
 
 void uiMapperRangeEditor::drawLines()
 {
+    if ( mIsUdf(minlinecurpos_) || mIsUdf(maxlinecurpos_) )
+	return;
+
     MouseCursor cursor;
     cursor.shape_ = MouseCursor::SizeHor;
     if ( !minline_ )
@@ -165,6 +197,9 @@ void uiMapperRangeEditor::drawLines()
 
 void uiMapperRangeEditor::drawPixmaps()
 {
+    if ( !ctbseq_ || mIsUdf(minlinecurpos_) || mIsUdf(maxlinecurpos_) )
+       	return;
+
     //TODO this memory management sux... go for proper scaling.
     if ( leftcoltab_)
     { delete leftcoltab_; leftcoltab_ = 0; }

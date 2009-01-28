@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.6 2009-01-27 11:23:34 cvsnanne Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.7 2009-01-28 08:03:22 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "coltabsequence.h"
 #include "datapackbase.h"
 
-uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int nr,
+uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup("Histogram",
 				   mNoDlgTitle,mTODOHelpID).modal(false) )
@@ -38,7 +38,7 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int nr,
 	uiMapperRangeEditor* rangeeditor =
 	    			new uiMapperRangeEditor( this, idx );
 	rangeeditor->rangeChanged.notify(
-		mCB(this,uiMultiRangeSelDispWin,rangeChanged) );
+		mCB(this,uiMultiMapperRangeEditWin,rangeChanged) );
 	mapperrgeditors_ += rangeeditor;
 
 	if ( idx%2 == 0 )
@@ -56,39 +56,41 @@ uiMultiRangeSelDispWin::uiMultiRangeSelDispWin( uiParent* p, int nr,
     }
 
     dpm_.packToBeRemoved.notifyIfNotNotified(
-			mCB(this,uiMultiRangeSelDispWin,dataPackDeleted) );
+			mCB(this,uiMultiMapperRangeEditWin,dataPackDeleted) );
 }
 
 
-uiMultiRangeSelDispWin::~uiMultiRangeSelDispWin()
+uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 {
     dpm_.packToBeRemoved.remove(
-			mCB(this,uiMultiRangeSelDispWin,dataPackDeleted) );
+			mCB(this,uiMultiMapperRangeEditWin,dataPackDeleted) );
 }
 
 
-uiMapperRangeEditor* uiMultiRangeSelDispWin::getuiMapperRangeEditor( int idx )
+uiMapperRangeEditor* uiMultiMapperRangeEditWin::getuiMapperRangeEditor( int idx )
 {
     return mapperrgeditors_[idx];
 }
 
 
-void uiMultiRangeSelDispWin::setDataPackID( int idx, DataPack::ID dpid )
+void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 {
     mapperrgeditors_[idx]->setDataPackID( dpid, dpm_.id() );
     datapackids_.insert( idx, dpid );
 }
 
 
-void uiMultiRangeSelDispWin::setColTabMapperSetupWthSeq( int idx,
-						 const ColTab::MapperSetup& ms,
-       						 const ColTab::Sequence& ctseq )
-{
-    mapperrgeditors_[idx]->setColTabMapperSetupWthSeq( ms, ctseq );
-}
+void uiMultiMapperRangeEditWin::setColTabMapperSetup( int idx,
+						const ColTab::MapperSetup& ms )
+{ mapperrgeditors_[idx]->setColTabMapperSetup( ms ); }
 
 
-void uiMultiRangeSelDispWin::rangeChanged( CallBacker* cb )
+void uiMultiMapperRangeEditWin::setColTabSeq( int idx, 
+						const ColTab::Sequence& ctseq )
+{ mapperrgeditors_[idx]->setColTabSeq( ctseq ); }
+
+
+void uiMultiMapperRangeEditWin::rangeChanged( CallBacker* cb )
 {
     mDynamicCastGet(uiMapperRangeEditor*,obj,cb);
     activeattrbid_ = obj->ID();
@@ -97,7 +99,7 @@ void uiMultiRangeSelDispWin::rangeChanged( CallBacker* cb )
 }
 
 
-void uiMultiRangeSelDispWin::dataPackDeleted( CallBacker* cb )
+void uiMultiMapperRangeEditWin::dataPackDeleted( CallBacker* cb )
 {
     mDynamicCastGet(DataPack*,obj,cb);
     const int dpidx = datapackids_.indexOf( obj->id() );
