@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.40 2009-01-06 10:48:18 cvsranojay Exp $
+ RCS:           $Id: mpeengine.h,v 1.41 2009-01-28 12:24:01 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ class ObjectEditor;
 
 mClass Engine : public CallBacker
 {
-    friend Engine&		engine();
+    mGlobal friend Engine&		engine();
 
 public:
     				Engine();
@@ -159,7 +159,7 @@ protected:
 };
 
 
-Engine&	engine();
+mGlobal Engine&	engine();
 
 
 };
