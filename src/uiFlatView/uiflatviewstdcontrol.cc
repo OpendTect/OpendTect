@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.14 2008-11-26 06:57:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.15 2009-01-28 11:06:38 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -45,6 +45,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 	drawbut_->setToggleButton( true ); drawbut_->setOn( false );
 	tb_->addSeparator();
     }
+    else
+	vwr.setRubberBandingOn( true );
 
     mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
