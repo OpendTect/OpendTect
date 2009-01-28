@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.7 2009-01-28 08:03:22 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.8 2009-01-28 09:10:23 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uimultirangeseldisplaywin.h"
+#include "uimapperrangeeditordlg.h"
 
 #include "uicoltabtools.h"
 #include "uimapperrangeeditor.h"
