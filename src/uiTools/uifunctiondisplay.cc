@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.25 2008-12-23 11:33:10 cvsdgb Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.26 2009-01-28 12:02:10 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.25 2008-12-23 11:33:10
 #include "uigraphicsitemimpl.h"
 #include "mouseevent.h"
 #include "linear.h"
+#include <iostream>
 
 static const int cBoundarySz = 10;
 
@@ -33,7 +34,9 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , y2polygonitem_(0)
     , ypolylineitem_(0)
     , y2polylineitem_(0)
-    , markeritems_(0)
+    , ymarkeritems_(0)
+    , y2markeritems_(0)
+    , borderrectitem_(0)
     , pointSelected(this)
     , pointChanged(this)
     , mousedown_(this)
@@ -51,7 +54,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     asu.side( uiRect::Left ).noannot( !setup_.annoty_ );
     yax_ = new uiAxisHandler( &scene(), asu );
     xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
-    asu.side( uiRect::Right ).noannot( !setup_.annoty_ );
+    asu.side( uiRect::Right ).noannot( !setup_.annoty2_ );
     y2ax_ = new uiAxisHandler( &scene(), asu );
 
     if ( setup_.editable_ )
@@ -79,7 +82,8 @@ uiFunctionDisplay::~uiFunctionDisplay()
     delete y2ax_;
     if ( ypolyitem_ ) scene().removeItem( ypolyitem_ );
     if ( y2polyitem_ ) scene().removeItem( y2polyitem_ );
-    if ( markeritems_ ) scene().removeItem( markeritems_ );
+    if ( ymarkeritems_ ) scene().removeItem( ymarkeritems_ );
+    if ( y2markeritems_ ) scene().removeItem( y2markeritems_ );
 }
 
 void uiFunctionDisplay::reSized( CallBacker* )
@@ -194,130 +198,235 @@ void uiFunctionDisplay::getRanges(
 }
 
 
+void uiFunctionDisplay::setUpAxis( bool havey2 )
+{
+    xax_->setNewDevSize( width(), height() );
+    yax_->setNewDevSize( height(), width() );
+    if ( havey2 ) y2ax_->setNewDevSize( height(), width() );
+
+    xax_->plotAxis();
+    yax_->plotAxis();
+    if ( havey2 )
+	y2ax_->plotAxis();
+}
+
+
+void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
+{
+    const int nrpts = size();
+    const uiPoint closept( xax_->getPix(xax_->range().start),
+	    		   y2 ? y2ax_->getPix(yax_->range().start)
+	   		      : yax_->getPix(yax_->range().start) );
+    if ( y2 ? setup_.fillbelowy2_ : setup_.fillbelow_ )
+	ptlist += closept;
+
+    for ( int idx=0; idx<nrpts; idx++ )
+    {
+	const int xpix = xax_->getPix( y2 ? y2xvals_[idx]
+					  : xvals_[idx] );
+	const int ypix = y2 ? ( y2ax_->getPix(y2yvals_[idx]) )
+	    		    : ( yax_->getPix(yvals_[idx]) );
+	const uiPoint pt( xpix, y2 ? y2ax_->getPix(y2yvals_[idx])
+	       			   : yax_->getPix(yvals_[idx]) );
+	Interval<int> xpixintv( xax_->getPix(xax_->range().start),
+				xax_->getPix(xax_->range().stop) );
+	Interval<int> ypixintv( y2 ? y2ax_->getPix(y2ax_->range().start)
+				   : yax_->getPix(yax_->range().start),
+				y2 ? y2ax_->getPix(y2ax_->range().stop)
+				   : yax_->getPix(yax_->range().stop) );
+	if ( xpixintv.includes(xpix) && ypixintv.includes(ypix) )
+	    ptlist += pt;
+	
+	if ( idx == nrpts-1 && setup_.closepolygon_)
+	    ptlist += uiPoint( pt.x, closept.y );
+    }
+    
+}
+
+
+void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
+{
+    if ( setup_.drawscattery1_ ) return;
+    bool polydrawn = false;
+    if ( setup_.fillbelow_ )
+    {
+	if ( !ypolygonitem_ )
+	    ypolygonitem_ = scene().addPolygon( ptlist, setup_.fillbelow_ );
+	else
+	    ypolygonitem_->setPolygon( ptlist );
+	ypolygonitem_->setFillColor( setup_.ycol_ );
+	ypolyitem_ = ypolygonitem_;
+	polydrawn = true;
+    }
+    else if ( setup_.drawline_ )
+    {
+	if ( !ypolylineitem_ )
+	    ypolylineitem_ = scene().addPolyLine( ptlist );
+	else
+	    ypolylineitem_->setPolyLine( ptlist );
+	ypolyitem_ = ypolylineitem_;
+	polydrawn = true;
+    }
+
+    if ( polydrawn )
+    {
+	ypolyitem_->setPenColor( setup_.ycol_ );
+	ypolyitem_->setZValue( 1 );
+	ypolyitem_->setVisible( true );
+    }
+    else if ( ypolyitem_ )
+	ypolyitem_->setVisible( false );
+}
+
+
+void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
+				     bool havey2 )
+{
+    if ( setup_.drawscattery2_ ) return;
+    bool polydrawn = false;
+    if ( setup_.fillbelowy2_ )
+    {
+	if ( !y2polygonitem_ )
+	    y2polygonitem_ = scene().addPolygon( ptlist, setup_.fillbelowy2_ );
+	else
+	    y2polygonitem_->setPolygon( ptlist );
+	y2polygonitem_->setFillColor(
+		setup_.fillbelowy2_ ? setup_.y2col_ : Color::NoColor());
+	y2polyitem_ = y2polygonitem_;
+	polydrawn = true;
+    }
+    else if ( setup_.drawline_ )
+    {
+	if ( !y2polylineitem_ )
+	    y2polylineitem_ = scene().addPolyLine( ptlist );
+	else
+	    y2polylineitem_->setPolyLine( ptlist );
+	y2polyitem_ = y2polylineitem_;
+	polydrawn = true;
+    }
+
+    if ( polydrawn )
+    {
+	y2polyitem_->setPenColor( setup_.y2col_ );
+	y2polyitem_->setZValue( 0 );
+	y2polyitem_->setVisible( true );
+    }
+    else if ( y2polyitem_ && !havey2)
+	y2polyitem_->setVisible( false );
+}
+
+void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
+{
+    //TODO removing of all items not perfirmance effective,
+        // some other method should be applied
+    if ( isy2 ? !y2markeritems_ : !ymarkeritems_ )
+    {
+	if ( isy2 )
+	{
+	    if ( !setup_.drawscattery2_ )
+	    {
+		if ( y2markeritems_ )
+		    y2markeritems_->setVisible( false );
+		return;
+	    }
+	    
+	    y2markeritems_ = new uiGraphicsItemGroup();
+	    scene().addItemGrp( y2markeritems_ );
+	}
+	else
+	{
+	    if ( !setup_.drawscattery1_ )
+	    {
+		if ( ymarkeritems_ )
+		    ymarkeritems_->setVisible( false );
+		return;
+	    }
+	    
+	    ymarkeritems_ = new uiGraphicsItemGroup();
+	    scene().addItemGrp( ymarkeritems_ );
+	}
+    }
+    else
+    {
+	if ( isy2 && y2markeritems_ )
+	    y2markeritems_->removeAll( true );
+	else if ( ymarkeritems_ )
+	    ymarkeritems_->removeAll( true );
+    }
+
+    uiGraphicsItemGroup* curitmgrp = isy2 ? y2markeritems_ : ymarkeritems_;
+    curitmgrp->setVisible( true );
+    const MarkerStyle2D mst( MarkerStyle2D::Square, 1,
+			     isy2 ? setup_.y2col_ : setup_.ycol_ );
+    for ( int idx=0; idx<ptlist.size(); idx++ )
+    {
+	if ( idx < curitmgrp->getSize() )
+	{
+	    uiGraphicsItem* itm = curitmgrp->getUiItem(idx);
+	    itm->setPos( ptlist[idx].x, ptlist[idx].y );
+	    itm->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
+	}
+	else
+	{
+	    uiMarkerItem* markeritem = new uiMarkerItem( mst );
+	    markeritem->setPos( ptlist[idx].x, ptlist[idx].y );
+	    markeritem->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
+	    curitmgrp->add( markeritem );
+	}
+    }
+    if ( ptlist.size() < curitmgrp->getSize() )
+    {
+	for ( int idx=ptlist.size(); idx<curitmgrp->getSize(); idx++ )
+	    curitmgrp->getUiItem(idx)->setVisible( false );
+    }
+    curitmgrp->setZValue( 1 );
+}
+
+
+void uiFunctionDisplay::drawBorder()
+{
+    if ( setup_.drawborder_ )
+    {
+	if ( !borderrectitem_ )
+	{
+	    borderrectitem_ = scene().addRect( width()/2, height()/2,
+		    width()-yAxis(false)->pixAfter()-yAxis(false)->pixBefore(),
+		    height()-xAxis()->pixAfter()-xAxis()->pixBefore() );
+	}
+	else
+	    borderrectitem_->setRect( xAxis()->pixBefore(),
+		    		      yAxis(false)->pixAfter(),
+		    		      width()-xAxis()->pixAfter() -
+				      xAxis()->pixBefore() - 10,
+		    		      height()-yAxis(false)->pixAfter() -
+				      yAxis(false)->pixBefore() - 10 );
+	borderrectitem_->setPos(xAxis()->pixBefore(),yAxis(false)->pixAfter());
+    }
+    if ( borderrectitem_ )
+	borderrectitem_->setVisible( setup_.drawborder_ );
+}
+
+
 void uiFunctionDisplay::draw()
 {
     if ( yvals_.isEmpty() ) return;
     const bool havey2 = !y2xvals_.isEmpty();
 
-    xax_->setNewDevSize( width(), height() );
-    yax_->setNewDevSize( height(), width() );
-    if ( havey2 ) y2ax_->setNewDevSize( height(), width() );
-
-    if ( setup_.annotx_ )
-	xax_->plotAxis();
-    if ( setup_.annoty_ )
-    {
-	yax_->plotAxis();
-	if ( havey2 )
-	    y2ax_->plotAxis();
-    }
+    setUpAxis( havey2 );
 
     TypeSet<uiPoint> yptlist, y2ptlist;
-    const int nrpts = size();
-    const uiPoint closept( xax_->getPix(xax_->range().start),
-	    		   yax_->getPix(yax_->range().start) );
-    if ( setup_.fillbelow_ )
-	yptlist += closept;
-
-    for ( int idx=0; idx<nrpts; idx++ )
-    {
-	const int xpix = xax_->getPix( xvals_[idx] );
-	const uiPoint pt( xpix, yax_->getPix(yvals_[idx]) );
-	yptlist += pt;
-	if ( setup_.fillbelow_ && idx == nrpts-1 )
-	{
-	    yptlist += uiPoint( pt.x, closept.y );
-	    yptlist += closept;
-	}
-
-    }
-
+    getPointSet( yptlist, false );
     if ( havey2 )
-    {
-	if ( setup_.fillbelowy2_ )
-	    y2ptlist += closept;
-	Interval<int> xpixintv( xax_->getPix(xax_->range().start),
-				xax_->getPix(xax_->range().stop) );
-	for ( int idx=0; idx<y2xvals_.size(); idx++ )
-	{
-	    const int xpix = xax_->getPix( y2xvals_[idx] );
-	    if ( xpixintv.includes(xpix) )
-		y2ptlist += uiPoint( xpix, y2ax_->getPix(y2yvals_[idx]) );
-	}
-	if ( setup_.fillbelowy2_ )
-	    y2ptlist += uiPoint( xpixintv.stop, closept.y );
-    }
+	getPointSet( y2ptlist, true );
 
+    drawYCurve( yptlist );
+    drawY2Curve( y2ptlist, havey2 );
+    drawMarker(yptlist,false);
     if ( havey2 )
-    {
-	if ( setup_.fillbelowy2_ )
-	{
-	    if ( !y2polygonitem_ )
-		y2polygonitem_ = scene().addPolygon( y2ptlist,
-						     setup_.fillbelowy2_ );
-	    else
-		y2polygonitem_->setPolygon( y2ptlist );
-	    y2polygonitem_->setFillColor( setup_.fillbelowy2_ ? setup_.y2col_ :
-							        Color::NoColor());
-	    y2polyitem_ = y2polygonitem_;
-	}
-	else
-	{
-	    if ( !y2polylineitem_ )
-		y2polylineitem_ = scene().addPolyLine( y2ptlist );
-	    else
-		y2polylineitem_->setPolyLine( y2ptlist );
-	    y2polyitem_ = y2polylineitem_;
-	}
-
-	y2polyitem_->setPenColor( setup_.y2col_ );
-	y2polyitem_->setZValue( 0 );
-    }
-    {
-	if ( setup_.fillbelow_ )
-	{
-	    if ( !ypolygonitem_ )
-		ypolygonitem_ = scene().addPolygon( y2ptlist,
-						     setup_.fillbelow_ );
-	    else
-		ypolygonitem_->setPolygon( yptlist );
-	    ypolygonitem_->setFillColor( setup_.ycol_ );
-	    ypolyitem_ = ypolygonitem_;
-	}
-	else
-	{
-	    if ( !ypolylineitem_ )
-		ypolylineitem_ = scene().addPolyLine( y2ptlist );
-	    else
-		ypolylineitem_->setPolyLine( yptlist );
-	    ypolyitem_ = ypolylineitem_;
-	}
-    }
-
-    ypolyitem_->setPenColor( setup_.ycol_ );
-    ypolyitem_->setZValue( 1 );
-    if ( setup_.pointsz_ > 0 )
-    {
-	if ( !markeritems_ )
-	{
-	    markeritems_ = new uiGraphicsItemGroup();
-	    scene().addItemGrp( markeritems_ );
-	}
-	else
-	    markeritems_->removeAll( true );
-
-	const MarkerStyle2D mst( MarkerStyle2D::Square, setup_.pointsz_,
-				 setup_.ycol_ );
-	for ( int idx=0; idx<nrpts; idx++ )
-	{
-	    const int xpix = xax_->getPix( xvals_[idx] );
-	    const uiPoint pt( xpix, yax_->getPix(yvals_[idx]) );
-	    uiMarkerItem* markeritem = new uiMarkerItem( mst );
-	    markeritem->setPos( pt.x, pt.y );
-	    markeritems_->add( markeritem );
-	}
-	markeritems_->setZValue( 1 );
-    }
+	drawMarker(y2ptlist,true);
+    else if ( y2markeritems_ )
+	y2markeritems_->setVisible( false );
+    drawBorder();
 
     LineStyle ls;
     if ( !mIsUdf(xmarkval_) )

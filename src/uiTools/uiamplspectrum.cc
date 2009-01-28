@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
                    
 -*/   
-static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.12 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiamplspectrum.cc,v 1.13 2009-01-28 12:02:10 cvssatyaki Exp $";
 
 #include "uiamplspectrum.h"
 
@@ -31,7 +31,7 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     , fft_(0)
 {
     uiFunctionDisplay::Setup su;
-    su.fillbelow(true).canvaswidth(600).canvasheight(400);
+    su.fillbelow(true).canvaswidth(600).canvasheight(400).drawborder(true);
     disp_ = new uiFunctionDisplay( this, su );
     disp_->xAxis()->setName( SI().zIsTime() ? "Frequency (Hz)" 
 	    				    : "Wavenumber (/m)" );

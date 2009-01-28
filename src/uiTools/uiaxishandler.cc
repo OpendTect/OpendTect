@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.19 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.20 2009-01-28 12:02:10 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -201,13 +201,21 @@ void uiAxisHandler::plotAxis()
 {
     drawAxisLine();
 
+    if ( setup_.noannot_ ) 
+    {
+	if ( gridlineitmgrp_ )
+	    gridlineitmgrp_->removeAll( true );
+	return;
+    }
+    
     if ( gridlineitmgrp_ )
     {
 	if ( gridlineitmgrp_->getSize() > 0 )
 	{
 	    for ( int idx=0; idx<gridlineitmgrp_->getSize(); idx++ )
 	    {
-		mDynamicCastGet(uiLineItem*,lineitm,gridlineitmgrp_->getUiItem(idx))
+		mDynamicCastGet(uiLineItem*,
+				lineitm,gridlineitmgrp_->getUiItem(idx))
 		uiRect* linerect = lineitm->lineRect();
 	    }
 	}
@@ -229,8 +237,6 @@ void uiAxisHandler::plotAxis()
 		drawGridLine( getRelPosPix(relpos) );
 	}
     }
-
-    if ( setup_.noannot_ ) return;
 
     LineStyle ls( setup_.style_ );
     ls.width_ = 1; ls.type_ = LineStyle::Solid;
@@ -478,6 +484,7 @@ void uiAxisHandler::drawGridLine( int pix )
     lineitem->setZValue( 3 );
     lineitem->setPenStyle( setup_.style_ );
     gridlineitmgrp_->add( lineitem );
+    gridlineitmgrp_->setVisible( setup_.style_.isVisible() );
 }
 
 

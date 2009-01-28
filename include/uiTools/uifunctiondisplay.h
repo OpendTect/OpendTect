@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.16 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.17 2009-01-28 12:02:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiGraphicsItem;
 class uiAxisHandler;
 class uiPolygonItem;
 class uiPolyLineItem;
+class uiRectItem;
 class uiGraphicsItemGroup;
 
 /*!\brief displays a function of (X,Y) pairs on a canvas - optionally a Y2.
@@ -50,12 +51,17 @@ public:
 				    , border_(20,10,20,10)
 				    , annotx_(true)
 				    , annoty_(true)
+				    , annoty2_(true)
 				    , pointsz_(0)
 				    , ptsnaptol_(0.01)
 				    , editable_(false)
 				    , fillbelow_(false)
 				    , fillbelowy2_(false)
-				    , drawline_(true)	{}
+				    , drawscattery1_(false)
+				    , drawscattery2_(false)
+				    , drawborder_(false)
+				    , closepolygon_(true)
+				    , drawline_(true) {}
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
@@ -70,11 +76,16 @@ public:
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(bool,annotx)
 	mDefSetupMemb(bool,annoty)
+	mDefSetupMemb(bool,annoty2)
 	mDefSetupMemb(int,pointsz)		//!< If > 0, points are drawn
 	mDefSetupMemb(bool,editable)		//!< Add/remove/change Y1 pts
 	mDefSetupMemb(bool,fillbelow)		//!< Y1 will get fill
 	mDefSetupMemb(bool,fillbelowy2)		//!< Y2 will get fill
-	mDefSetupMemb(bool,drawline)
+	mDefSetupMemb(bool,drawline)		//!< Y1 & Y2 will be polylines
+	mDefSetupMemb(bool,drawscattery1)		//!< draw Markers
+	mDefSetupMemb(bool,drawscattery2)		//!< draw Markers
+	mDefSetupMemb(bool,closepolygon)
+	mDefSetupMemb(bool,drawborder)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
     };
 
@@ -116,7 +127,9 @@ protected:
     uiPolygonItem*		y2polygonitem_;
     uiPolyLineItem*		ypolylineitem_;
     uiPolyLineItem*		y2polylineitem_;
-    uiGraphicsItemGroup*	markeritems_;
+    uiRectItem*			borderrectitem_;
+    uiGraphicsItemGroup*	ymarkeritems_;
+    uiGraphicsItemGroup*	y2markeritems_;
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;
     TypeSet<float>		y2yvals_;
@@ -132,6 +145,13 @@ protected:
     void			mouseMove(CallBacker*);
     void			mouseDClick(CallBacker*);
 
+    void			setUpAxis(bool y2);
+    void			getPointSet(TypeSet<uiPoint>&,bool y2);
+    void			drawYCurve(const TypeSet<uiPoint>&);
+    void			drawY2Curve(const TypeSet<uiPoint>&,bool havy2);
+    void			drawMarker(const TypeSet<uiPoint>&,
+	    				   bool y2=false);
+    void			drawBorder();
     bool			setSelPt();
     void			reSized( CallBacker* );
     void			getRanges(const TypeSet<float>&,
