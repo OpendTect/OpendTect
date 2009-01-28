@@ -1,6 +1,6 @@
 
-#ifndef uimultirangeseldisplaywin_h
-#define uimultirangeseldisplaywin_h
+#ifndef uimapperrangeeditordlg_h
+#define uimapperrangeeditordlg_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.h,v 1.4 2009-01-28 08:02:43 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.h,v 1.5 2009-01-28 09:09:21 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
