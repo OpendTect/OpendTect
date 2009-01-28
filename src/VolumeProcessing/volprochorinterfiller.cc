@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.5 2009-01-16 22:36:33 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.6 2009-01-28 22:22:44 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -176,6 +176,8 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
     SamplingData<double> cursampling;
     if ( usegradient_ )
 	cursampling.step = gradient_ * output_->zstep;
+    else if ( topsample==bottomsample )
+	cursampling.step = 0;
     else
 	cursampling.step = (topvalue_-bottomvalue_)/(topsample-bottomsample);
 
