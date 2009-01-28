@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.226 2009-01-28 08:05:43 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.227 2009-01-28 11:42:36 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -367,6 +367,7 @@ protected:
     uiToolBar*			itemtools_;
 
     uiMultiMapperRangeEditWin*	multirgeditwin_;
+    bool			mapperrgeditinact_;
 
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;
@@ -382,7 +383,7 @@ protected:
     int				eventattrib_;
     int				selattrib_;
     int				seltype_;
-    int				displayid_;
+    int				mapperrgeditordisplayid_;
 
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);
