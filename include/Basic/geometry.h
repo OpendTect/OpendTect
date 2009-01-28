@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.36 2009-01-16 03:54:50 cvsnanne Exp $
+ RCS:           $Id: geometry.h,v 1.37 2009-01-28 05:45:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "ranges.h"
 #include "math2.h"
+
 
 namespace Geom
 {
@@ -335,7 +336,7 @@ bool Point2D<T>::isDefined() const
 
 template <class T> inline
 double Point2D<T>::abs() const
-{ return Math::Sqrt( (double)sqAbs() ); }
+{ return ::Math::Sqrt( (double)sqAbs() ); }
 
 
 template <class T> inline
@@ -345,7 +346,7 @@ T Point2D<T>::sqAbs() const
 
 template <class T> inline
 double Point2D<T>::distTo( const Point2D<T>& pt ) const
-{ return Math::Sqrt( (double)sqDistTo(pt) ); }
+{ return ::Math::Sqrt( (double)sqDistTo(pt) ); }
 
 
 template <class T> inline
