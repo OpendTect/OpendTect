@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.8 2009-01-28 09:10:23 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.9 2009-01-28 11:41:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,12 +69,18 @@ uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 
 uiMapperRangeEditor* uiMultiMapperRangeEditWin::getuiMapperRangeEditor( int idx )
 {
-    return mapperrgeditors_[idx];
+    if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
+	return 0;
+    else 
+	return mapperrgeditors_[idx];
 }
 
 
 void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 {
+    if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
+	return;
+
     mapperrgeditors_[idx]->setDataPackID( dpid, dpm_.id() );
     datapackids_.insert( idx, dpid );
 }
@@ -82,12 +88,22 @@ void uiMultiMapperRangeEditWin::setDataPackID( int idx, DataPack::ID dpid )
 
 void uiMultiMapperRangeEditWin::setColTabMapperSetup( int idx,
 						const ColTab::MapperSetup& ms )
-{ mapperrgeditors_[idx]->setColTabMapperSetup( ms ); }
+{
+   if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
+      return;
+   
+   mapperrgeditors_[idx]->setColTabMapperSetup( ms ); 
+}
 
 
 void uiMultiMapperRangeEditWin::setColTabSeq( int idx, 
 						const ColTab::Sequence& ctseq )
-{ mapperrgeditors_[idx]->setColTabSeq( ctseq ); }
+{
+    if ( idx < 0 || idx > (mapperrgeditors_.size()-1) )
+	return;
+
+    mapperrgeditors_[idx]->setColTabSeq( ctseq ); 
+}
 
 
 void uiMultiMapperRangeEditWin::rangeChanged( CallBacker* cb )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.8 2009-01-28 08:03:22 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.9 2009-01-28 11:41:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,9 @@ void uiMapperRangeEditor::setMarkValue( float val, bool forx )
 
 void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 {
+    if ( ctbmapper_ )
+    { delete ctbmapper_; ctbmapper_ = 0; }
+
     ctbmapper_ = new ColTab::MapperSetup();
     *ctbmapper_ = ms;
     ctbmapper_->type_ = ColTab::MapperSetup::Fixed;
@@ -93,6 +96,9 @@ void uiMapperRangeEditor::setColTabMapperSetup( const ColTab::MapperSetup& ms )
 
 void uiMapperRangeEditor::setColTabSeq( const ColTab::Sequence& cseq )
 { 
+    if ( ctbseq_ )
+    { delete ctbseq_; ctbseq_ = 0; }
+    
     ctbseq_ = new ColTab::Sequence();
     *ctbseq_ = cseq;
     initSetUp();
