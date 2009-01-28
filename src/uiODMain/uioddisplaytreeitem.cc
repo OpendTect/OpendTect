@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.29 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.30 2009-01-28 08:07:40 cvsumesh Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -318,7 +318,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==displyhistgram_.id )
     {
-	visserv_->displayHistogramsForAttrbs( displayID() );
+	visserv_->displayMapperRangeEditForAttrbs( displayID() );
     }
     else if ( mnuid==hidemnuitem_.id )
     {
