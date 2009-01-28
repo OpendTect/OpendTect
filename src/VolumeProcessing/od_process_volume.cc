@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.11 2008-09-03 20:53:02 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.12 2009-01-28 22:21:44 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -50,21 +50,23 @@ bool BatchProgram::go( std::ostream& strm )
     if ( !cs.usePar( pars() ) )
 	strm << "Could not read ranges - Will process full survey\n";
     
-    VolProc::ChainExecutor pce( *chain );
+    PtrMan<VolProc::ChainExecutor> pce = new VolProc::ChainExecutor( *chain );
     RefMan<Attrib::DataCubes> cube = new Attrib::DataCubes;
 
     cube->setSizeAndPos( cs );
-    if ( !pce.setCalculationScope( cube ) )
+    if ( !pce->setCalculationScope( cube ) )
     {
 	strm << "Could not set calculation scope!";
 	return false;
     } 
 
-    if ( !pce.execute( &strm ) )
+    if ( !pce->execute( &strm ) )
     {
 	strm << "Unexecutable Chain!";
 	return false;
     }	
+
+    pce = 0; //delete all internal volumes.
    
     MultiID outputid;
     pars().get( VolProcessingTranslatorGroup::sKeyOutputID(), outputid );
