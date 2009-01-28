@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.294 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.295 2009-01-28 07:13:38 cvsnageswara Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -1447,7 +1447,11 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int visid = visserv_->getEventObjId();
 	const int attrib = visserv_->getSelAttribNr();
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
+	{
+	    uiMSG().error( "Please select an attribute element in the tree" );
 	    return false;
+	}
+
 	visserv_->setSelSpec( visid, attrib, as );
 	getNewData( visid, attrib );
 	sceneMgr().updateTrees();
@@ -1537,9 +1541,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int visid = visserv_->getEventObjId();
 	const int attrib = visserv_->getSelAttribNr();
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
-					visserv_->getSelSpec( visid, attrib ));
+					visserv_->getSelSpec(visid,attrib) );
 	//set user chosen name stocked in objectRef during evaluation process
-	as->setUserRef( as->objectRef() );
+	if ( as ) as->setUserRef( as->objectRef() );
 	sceneMgr().updateTrees();
     }
     else
