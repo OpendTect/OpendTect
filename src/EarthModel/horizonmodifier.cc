@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonmodifier.cc,v 1.5 2009-01-15 06:45:59 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonmodifier.cc,v 1.6 2009-01-28 06:31:30 cvsraman Exp $";
 
 
 #include "horizonmodifier.h"
@@ -105,7 +105,11 @@ bool HorizonModifier::getNextNode2D( BinID& bid )
 
     if ( !linenames_ || !linenames_->size() ) return false;
 
-    bid.crl += trcrgs_[bid.inl].step;
+    if ( bid.crl < trcrgs_[bid.inl].start )
+	bid.crl = trcrgs_[bid.inl].start;
+    else
+	bid.crl += trcrgs_[bid.inl].step;
+
     if ( bid.crl > trcrgs_[bid.inl].stop )
     {
 	bid.inl++;
@@ -220,8 +224,9 @@ void HorizonModifier::shiftNode( const BinID& bid )
     if ( !mIsUdf(newz) )
 	newz += extrashift;
 
-    dynamichor->setPos( dynamichor->sectionID(0), dynamicsubid,
-	    		Coord3(0,0,newz), false );
+    Coord3 pos = dynamichor->getPos( dynamichor->sectionID(0), dynamicsubid );
+    pos.z = newz;
+    dynamichor->setPos( dynamichor->sectionID(0), dynamicsubid, pos, false );
 }
 
 
