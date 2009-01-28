@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.40 2009-01-23 09:51:05 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.41 2009-01-28 08:17:49 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.40 2009-01-23 09:51:05 cv
 #include "wellwriter.h"
 #include "uiwellrdmlinedlg.h"
 #include "uiwelldisppropdlg.h"
-#include "uid2tmodelgendlg.h"
+#include "uid2tmodelgen.h"
 #include "uid2tmlogseldlg.h"
 #include "multiid.h"
 #include "ioobj.h"
@@ -103,12 +103,19 @@ bool uiWellPartServer::createD2TModel( const MultiID& mid,
 {
     Well::Data* wd = Well::MGR().get( mid );
     if ( !wd ) return false;
+    BufferString wname;
+    wname = "Tie ";
+    wname += wd->name();
+    wname += " to Seismic";
+
     if ( !mIsUdf(logname1) && !mIsUdf(logname2) )
-	uid2tmdlg_ = new uiD2TModelGenDlg( parent(), *wd, logname1, logname2 );
+	uid2tmgen_ = new uiD2TModelGen( parent(), *wd, logname1, logname2,
+	       							wname );
     else
-	uid2tmdlg_ = new uiD2TModelGenDlg( parent(), *wd, "Sonic", "Density" );
+	uid2tmgen_ = new uiD2TModelGen( parent(), *wd, "Sonic", "Density",
+	       							wname );
     //TODO : replace Sonic/Density by variable names
-    return uid2tmdlg_->go();
+    return true;
 }
 
 

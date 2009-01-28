@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.30 2009-01-23 09:51:05 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.31 2009-01-28 08:17:49 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class Color;
 template <class T> class Interval;
 class uiWell2RandomLineDlg;
 class uiWellDispPropDlg;
-class uiD2TModelGenDlg;
+class uiD2TModelGen;
 class uiD2TMLogSelDlg;
 
 /*! \brief Part Server for Wells */
@@ -81,7 +81,7 @@ protected:
 
     uiWell2RandomLineDlg*	rdmlinedlg_;
     uiWellDispPropDlg*		uiwellpropdlg_;
-    uiD2TModelGenDlg*		uid2tmdlg_;
+    uiD2TModelGen*		uid2tmgen_;
     uiD2TMLogSelDlg*		uid2tmlogseldlg_;
     TypeSet<int>		previewids_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.8 2009-01-23 09:51:05 cvsbruno Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.9 2009-01-28 08:17:49 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 class uiCreateAttribLogDlg;
 class uiD2TMLogSelDlg;
-class uiD2TModelGenDlg;
 
 mClass uiODWellParentTreeItem : public uiODTreeItem
 {
