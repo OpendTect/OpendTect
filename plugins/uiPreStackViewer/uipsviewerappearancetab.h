@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          May 2008
- RCS:           $Id: uipsviewerappearancetab.h,v 1.1 2009-01-26 15:09:08 cvsbert Exp $
+ RCS:           $Id: uipsviewerappearancetab.h,v 1.2 2009-01-29 22:16:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,19 @@ public:
 protected:
 
     void			applyButPushedCB(CallBacker*);
+    void			updateZFlds(CallBacker*);
+    void			updateOffsFlds(CallBacker*);
     
     uiColorTable*       	uicoltab_;
     uiLabel*            	uicoltablbl_; 
-    uiGenInput*            	zannotfld_; 
-    uiGenInput*            	offsannotfld_; 
+    uiLabel*            	zgridrangelbl_; 
+    uiLabel*            	offsgridrangelbl_; 
+    uiGenInput*            	zgridfld_; 
+    uiGenInput*            	zgridautofld_; 
+    uiGenInput*            	zgridrangefld_; 
+    uiGenInput*            	offsgridfld_; 
+    uiGenInput*            	offsgridautofld_; 
+    uiGenInput*            	offsgridrangefld_; 
     uiPushButton*		applybut_;
     uiViewer3DMgr&		mgr_;
     visBase::FlatViewer*	vwr_;
