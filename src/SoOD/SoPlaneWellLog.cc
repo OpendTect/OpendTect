@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.25 2009-01-16 13:02:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.26 2009-01-29 06:03:34 cvsranojay Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -461,8 +461,9 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 	nrsamp = sMaxNrSamplesRot;
     }
 
-    int coloridx[2*nrsamp+1]; 
-    int indices[2*nrsamp+1];
+    int* coloridx = new int [2*nrsamp+1];  
+    int* indices = new int [2*nrsamp+1];
+
     for ( int i=0; i<2*nrsamp+1; i++ )
     {
 	indices[i] = i;
@@ -505,6 +506,9 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
     triset->coordIndex.setValues( 0, 2*nrsamp, indices );
     triset->materialIndex.setValues( 0, 2*nrsamp, coloridx );
     currentres = res;
+
+    delete [] coloridx;
+    delete [] indices;
 }
 
 

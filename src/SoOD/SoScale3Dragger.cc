@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: SoScale3Dragger.cc,v 1.2 2007-10-30 19:49:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: SoScale3Dragger.cc,v 1.3 2009-01-29 06:03:34 cvsranojay Exp $";
 
 
 #include "SoScale3Dragger.h"
@@ -36,7 +36,7 @@ void SoScale3Dragger::initClass()
     SO_KIT_ADD_CATALOG_ENTRY( nm, SoSeparator, true, nm##Switch, \
 	    		      nm##Active, true ); \
     SO_KIT_ADD_CATALOG_ENTRY( nm##Active, SoSeparator, true, nm##Switch, \
-	    		      , true )
+	    		      "", true )
 
 SoScale3Dragger::SoScale3Dragger()
     : lineProj_ ( new SbLineProjector )
@@ -78,7 +78,7 @@ SoScale3Dragger::SoScale3Dragger()
     SO_KIT_ADD_CATALOG_ENTRY(wireframePickStyle,SoPickStyle,false,geomSeparator,
 	    		     wireframe, true );
     SO_KIT_ADD_CATALOG_ENTRY( wireframe, SoIndexedLineSet, false, geomSeparator,
-	    		      , true );
+		    	      "", true );
 
 
     mAddTransCatalogEntries(xMaxTrans);

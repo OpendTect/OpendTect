@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.13 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.14 2009-01-29 06:03:34 cvsranojay Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -77,7 +77,7 @@ int nextStep()
 
     BinID bid;
     const int nrvals = bvalset_->nrVals();
-    float vals[nrvals];
+    mAllocVarLenArr( float, vals, nrvals )
     for ( int idx=0; idx<nrvals; idx++ )
 	vals[idx] = mUdf(float);
 
@@ -107,7 +107,7 @@ int nextStep()
     }
 
     curtrcnr_ = bid.crl;
-    float prevvals[nrvals];
+    mAllocVarLenArr( float, prevvals, nrvals )
     BinID prevbid;
     bool dointerpol = false;
     if ( prevtrcnr_ >= 0 && abs(curtrcnr_-prevtrcnr_) > 1 )

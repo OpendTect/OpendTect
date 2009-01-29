@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.18 2008-02-26 20:49:14 cvskris Exp $";
+static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.19 2009-01-29 06:03:34 cvsranojay Exp $";
 
 
 #include "SoDepthTabPlaneDragger.h"
@@ -39,6 +39,10 @@ static const char* rcsID = "$Id: SoDepthTabPlaneDragger.cc,v 1.18 2008-02-26 20:
 #include <Inventor/projectors/SbLineProjector.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
 
+#ifdef win
+# include <float.h>
+# define isnan _isnan
+#endif
 
 
 #define WHATKIND_NONE      0
