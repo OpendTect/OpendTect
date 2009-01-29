@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.69 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.70 2009-01-29 06:05:15 cvsranojay Exp $";
 
 
 #include "segyhdr.h"
@@ -27,19 +27,22 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.69 2009-01-27 11:45:01 cvsranoja
 #include <stdio.h>
 #include <math.h>
 
-const char* SEGY::TrcHeaderDef::sXCoordByte()	    { return "X-coord byte"; }
-const char* SEGY::TrcHeaderDef::sYCoordByte()	    { return "Y-coord byte"; }
-const char* SEGY::TrcHeaderDef::sInlByte()	    { return "In-line byte"; }
-const char* SEGY::TrcHeaderDef::sCrlByte()	    { return "Cross-line byte"; }
-const char* SEGY::TrcHeaderDef::sOffsByte()	    { return "Offset byte"; }
-const char* SEGY::TrcHeaderDef::sAzimByte()	    { return "Azimuth byte"; }
-const char* SEGY::TrcHeaderDef::sTrNrByte()	    { return "Trace number byte"; }
-const char* SEGY::TrcHeaderDef::sPickByte()	    { return "Pick byte"; }
-const char* SEGY::TrcHeaderDef::sInlByteSz()	    { return "Nr bytes for In-line"; }
-const char* SEGY::TrcHeaderDef::sCrlByteSz()	    { return "Nr bytes for Cross-line"; }
-const char* SEGY::TrcHeaderDef::sOffsByteSz()	    { return "Nr bytes for Offset"; }
-const char* SEGY::TrcHeaderDef::sAzimByteSz()	    { return "Nr bytes for Azimuth"; }
-const char* SEGY::TrcHeaderDef::sTrNrByteSz()	    { return "Nr bytes for trace number"; }
+namespace SEGY
+{
+const char* TrcHeaderDef::sXCoordByte()	{ return "X-coord byte"; }
+const char* TrcHeaderDef::sYCoordByte()	{ return "Y-coord byte"; }
+const char* TrcHeaderDef::sInlByte()	{ return "In-line byte"; }
+const char* TrcHeaderDef::sCrlByte()	{ return "Cross-line byte"; }
+const char* TrcHeaderDef::sOffsByte()	{ return "Offset byte"; }
+const char* TrcHeaderDef::sAzimByte()	{ return "Azimuth byte"; }
+const char* TrcHeaderDef::sTrNrByte()	{ return "Trace number byte"; }
+const char* TrcHeaderDef::sPickByte()	{ return "Pick byte"; }
+const char* TrcHeaderDef::sInlByteSz()	{ return "Nr bytes for In-line"; }
+const char* TrcHeaderDef::sCrlByteSz()	{ return "Nr bytes for Cross-line"; }
+const char* TrcHeaderDef::sOffsByteSz()	{ return "Nr bytes for Offset"; }
+const char* TrcHeaderDef::sAzimByteSz()	{ return "Nr bytes for Azimuth"; }
+const char* TrcHeaderDef::sTrNrByteSz()	{ return "Nr bytes for trace number"; }
+}
 
 
 bool SEGY::TxtHeader::info2d = false;

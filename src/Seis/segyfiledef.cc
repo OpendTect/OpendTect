@@ -4,7 +4,7 @@
  * DATE     : Sep 2008
 -*/
 
-static const char* rcsID = "$Id: segyfiledef.cc,v 1.13 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyfiledef.cc,v 1.14 2009-01-29 06:05:15 cvsranojay Exp $";
 
 #include "segyfiledef.h"
 #include "iopar.h"
@@ -12,17 +12,21 @@ static const char* rcsID = "$Id: segyfiledef.cc,v 1.13 2009-01-27 11:45:01 cvsra
 #include "keystrs.h"
 #include "separstr.h"
 
-const char* SEGY::FileDef::sKeyForceRev0()	    { return "Force Rev0"; }
-const char* SEGY::FilePars::sKeyNrSamples()	    { return "Nr samples overrule"; }
-const char* SEGY::FilePars::sKeyNumberFormat()	    { return "Number format"; }
-const char* SEGY::FilePars::sKeyByteSwap()	    { return "Byte swapping"; }
-const char* SEGY::FileSpec::sKeyFileNrs()	    { return "File numbers"; }
-const char* SEGY::FileReadOpts::sKeyCoordScale()    { return "Coordinate scaling overrule"; }
-const char* SEGY::FileReadOpts::sKeyTimeShift()	    { return "Start time overrule"; }
-const char* SEGY::FileReadOpts::sKeySampleIntv()    { return "Sample rate overrule"; }
-const char* SEGY::FileReadOpts::sKeyICOpt()	    { return "IC -> XY"; }
-const char* SEGY::FileReadOpts::sKeyPSOpt()	    { return "Offset source"; }
-const char* SEGY::FileReadOpts::sKeyOffsDef()	    { return "Generate offsets"; }
+namespace SEGY
+{
+const char* FileDef::sKeyForceRev0()	   { return "Force Rev0"; }
+const char* FilePars::sKeyNrSamples()	   { return "Nr samples overrule"; }
+const char* FilePars::sKeyNumberFormat()   { return "Number format"; }
+const char* FilePars::sKeyByteSwap()	   { return "Byte swapping"; }
+const char* FileSpec::sKeyFileNrs()	   { return "File numbers"; }
+const char* FileReadOpts::sKeyTimeShift()  { return "Start time overrule"; }
+const char* FileReadOpts::sKeySampleIntv() { return "Sample rate overrule"; }
+const char* FileReadOpts::sKeyICOpt()	   { return "IC -> XY"; }
+const char* FileReadOpts::sKeyPSOpt()	   { return "Offset source"; }
+const char* FileReadOpts::sKeyOffsDef()	   { return "Generate offsets"; }
+const char* FileReadOpts::sKeyCoordScale()
+{ return "Coordinate scaling overrule"; }
+}
 
 
 static const char* allsegyfmtoptions[] = {
