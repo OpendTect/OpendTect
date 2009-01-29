@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.21 2009-01-27 21:20:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.22 2009-01-29 22:15:46 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 #include "arraynd.h"
@@ -37,6 +37,8 @@ FlatViewer::FlatViewer()
     , rectangle_( SplitTexture2Rectangle::create() )
     , x1gridlines_( visBase::IndexedPolyLine::create() )
     , x2gridlines_( visBase::IndexedPolyLine::create() )
+    , grid1smp_( mUdf(float), mUdf(float) )				
+    , grid2smp_( mUdf(float), mUdf(float) )				
 {
     channel2rgba_->ref();
     channel2rgba_->allowShading( true );
@@ -173,6 +175,10 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 }    
 
 
+const SamplingData<float> FlatViewer::getGridSampling( bool x1 ) const
+{ return x1 ? grid1smp_ : grid2smp_; }
+
+
 void FlatViewer::updateGridLines( bool x1 )
 {
     const FlatPosData* posdata = pack(false) ? &pack(false)->posData() : 0;
@@ -186,24 +192,32 @@ void FlatViewer::updateGridLines( bool x1 )
 	return;
     }
 
-    int coordidx = 0;
-    int ciidx = 0;
-    visBase::Coordinates* coords = gridlines->getCoordinates();
+    const SamplingData<float>* sd = x1 ? &appearance().annot_.x1_.sampling_
+				       : &appearance().annot_.x2_.sampling_;
     Interval<float> range;
-    range.setFrom( posdata->range( true ) );
+    range.setFrom( posdata->range( x1 ) );
     AxisLayout layout( range );
+    if ( x1 )
+	grid1smp_ = layout.sd;
+    else
+	grid2smp_ = layout.sd;
 
-    float pos = layout.sd.start;
-    while ( pos<layout.stop && range.includes( pos ) )
+    if ( mIsUdf(sd->start) || mIsUdf(sd->step) )
+	sd = &layout.sd;
+
+    int coordidx = 0, ciidx = 0;
+    visBase::Coordinates* coords = gridlines->getCoordinates();
+    float pos = sd->start;
+    while ( range.includes( pos ) )
     {
 	const float relpos = (pos-range.start)/range.width();
 
-	const Coord3 startpos = x1
-	    ? c00_*(1-relpos)+c01_*relpos
-	    : c00_*(1-relpos)+c10_*relpos;
+	const Coord3 startpos = x1 
+	    ? c00_*(1-relpos)+c10_*relpos
+	    : c00_*(1-relpos)+c01_*relpos;
 	const Coord3 stoppos = x1
-	    ? c10_*(1-relpos)+c11_*relpos
-	    : c01_*(1-relpos)+c11_*relpos;
+	    ? c01_*(1-relpos)+c11_*relpos
+	    : c10_*(1-relpos)+c11_*relpos;
 	
 	coords->setPos( coordidx, startpos );
 	gridlines->setCoordIndex( ciidx++, coordidx++ );
@@ -212,7 +226,7 @@ void FlatViewer::updateGridLines( bool x1 )
 	gridlines->setCoordIndex( ciidx++, coordidx++ );
 	gridlines->setCoordIndex( ciidx++, -1 );
 
-	pos += layout.sd.step;
+	pos += sd->step;
     }
 
     gridlines->removeCoordIndexAfter( ciidx-1 );

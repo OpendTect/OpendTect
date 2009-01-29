@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.9 2009-01-27 21:20:36 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.h,v 1.10 2009-01-29 22:15:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,8 @@ public:
     void			replaceChannels(visBase::TextureChannels*);
     				/*!<Replaces internal texture. The new texture 
 				  will not be added to the scene. */
-    Interval<float>		getDataRange(bool iswva) const;   
+    Interval<float>		getDataRange(bool iswva) const;  
+    const SamplingData<float>	getGridSampling(bool x1) const; 
 
 protected:
     				~FlatViewer();
@@ -54,6 +55,7 @@ protected:
     visBase::IndexedPolyLine*	x2gridlines_;
 
     Coord3			c00_, c01_, c10_, c11_;
+    SamplingData<float>		grid1smp_, grid2smp_;
 };
 
 }; // Namespace
