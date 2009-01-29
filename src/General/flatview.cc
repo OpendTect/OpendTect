@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.48 2009-01-28 16:52:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.49 2009-01-29 22:15:02 cvsyuancheng Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -173,8 +173,10 @@ void FlatView::DataDispPars::Common::fill( ColTab::MapperSetup& setup ) const
 
 FlatView::Annotation::AxisData::AxisData()
     : reversed_(false)  
-    , sampling_(mUdf(float),mUdf(float) )
-{ showAll(false); }
+    , sampling_( mUdf(float), mUdf(float) )
+    , showannot_( false )
+    , showgridlines_( false )			 
+{}
 
 
 void FlatView::Annotation::AxisData::showAll( bool yn )
