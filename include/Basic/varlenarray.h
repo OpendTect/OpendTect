@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: varlenarray.h,v 1.4 2009-01-14 07:20:36 cvsranojay Exp $
+ RCS:		$Id: varlenarray.h,v 1.5 2009-01-29 12:39:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #else
 
 # define mAllocVarLenArr( type, varnm, __size ) \
-  type varnm[__size]
+  type varnm[__size];
 # define mVarLenArr(varnm)	varnm
 
 #endif
