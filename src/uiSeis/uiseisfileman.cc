@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.78 2009-01-29 22:42:43 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.79 2009-01-29 22:51:17 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -89,8 +89,6 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 	ps2dbut = manipgrp->addButton( ioPixmap("man_ps2d.png"),
 		mCB(this,uiSeisFileMan,manPS2D), "Manage 2D Pre-Stack data" );
     }
-    if ( have2d && have3d )
-	ps3dbut->attach( rightBorder );
 
     selChg(0);
 }
