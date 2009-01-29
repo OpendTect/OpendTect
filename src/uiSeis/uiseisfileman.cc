@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.77 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.78 2009-01-29 22:42:43 cvskris Exp $";
 
 
 #include "uiseisfileman.h"
@@ -80,17 +80,14 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     uiToolButton* ps3dbut = 0; uiToolButton* ps2dbut = 0;
     if ( have3d )
     {
-	ps3dbut = new uiToolButton( this, "&Pre-Stack",
-			ioPixmap(have2d ? "man_ps3d.png" : "man_ps.png"),
-			mCB(this,uiSeisFileMan,manPS3D) );
-	ps3dbut->setToolTip( "Manage 3D Pre-Stack data" );
+	ps3dbut = manipgrp->addButton(
+	    ioPixmap(have2d ? "man_ps3d.png" : "man_ps.png"),
+	    mCB(this,uiSeisFileMan,manPS3D), "Manage 3D Pre-Stack data" );
     }
     if ( have2d )
     {
-	ps2dbut = new uiToolButton( this, "Pre-Stack &2D",
-			ioPixmap(have3d ? "man_ps2d.png" : "man_ps.png"),
-			mCB(this,uiSeisFileMan,manPS2D) );
-	ps2dbut->setToolTip( "Manage 2D Pre-Stack data" );
+	ps2dbut = manipgrp->addButton( ioPixmap("man_ps2d.png"),
+		mCB(this,uiSeisFileMan,manPS2D), "Manage 2D Pre-Stack data" );
     }
     if ( have2d && have3d )
 	ps3dbut->attach( rightBorder );
