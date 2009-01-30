@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.27 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.28 2009-01-30 05:06:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiCheckBoxBody;
 class uiPushButtonBody;
 class uiRadioButtonBody;
 class uiToolButtonBody;
+class QAbstractButton;
 
 class uiPopupMenu;
 class ioPixmap;
@@ -43,6 +44,7 @@ public:
     			//! Force activation in GUI thread
     void		activate();
     Notifier<uiButton>	activatedone;
+    QAbstractButton*	qButton();
 };
 
 

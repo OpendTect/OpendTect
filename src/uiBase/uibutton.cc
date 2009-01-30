@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.54 2009-01-23 09:52:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.55 2009-01-30 05:06:31 cvssatyaki Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
 
+#include "uibuttongroup.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
 #include "pixmap.h"
@@ -205,6 +206,9 @@ uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
     , activatedone( this )
 {
     if ( cb ) activated.notify(*cb);
+
+    mDynamicCastGet(uiButtonGroup*,butgrp,parnt)
+    if ( butgrp ) butgrp->addButton( this );
 }
 
 
@@ -221,6 +225,12 @@ const char* uiButton::text()
 void uiButton::activate()
 {
     dynamic_cast<uiButtonBody*>( body() )->activate();
+}
+
+
+QAbstractButton* uiButton::qButton()
+{
+    return dynamic_cast<QAbstractButton*>( body() );
 }
 
 
