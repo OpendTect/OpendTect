@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.47 2009-01-08 17:10:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.48 2009-01-30 21:23:06 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -66,6 +66,8 @@ Viewer3D::Viewer3D()
     , posside_( true )
     , autowidth_( true )
     , preprocmgr_( 0 )			
+    , reader_( 0 )
+    , ioobj_( 0 )
 {
     setMaterial( 0 );
     planedragger_->ref();
@@ -144,6 +146,9 @@ Viewer3D::~Viewer3D()
 		    mCB( this, Viewer3D, seis2DMovedCB ) );
 	seis2d_->unRef();
     }
+
+    delete reader_;
+    delete ioobj_;
 }
 
 
@@ -153,14 +158,25 @@ void Viewer3D::allowShading( bool yn )
 
 BufferString Viewer3D::getObjectName() const
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
-    return ioobj->name();
+    return ioobj_->name();
 }
 
 
 void Viewer3D::setMultiID( const MultiID& mid )
 { 
     mid_ = mid;
+    delete ioobj_; ioobj_ = IOM().get( mid_ );
+    delete reader_; reader_ = 0;
+    if ( !ioobj_ )
+	return;
+
+    if ( section_ )
+	reader_ = SPSIOPF().get3DReader( *ioobj_ );
+    else if ( seis2d_ )
+	reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->name() );
+
+    if ( !reader_ )
+	return;
 
     if ( seis2d_ && seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify(
@@ -181,6 +197,9 @@ bool Viewer3D::setPreProcessor( PreStack::ProcessManager* mgr )
 
 DataPack::ID Viewer3D::preProcess()
 {
+    if ( !ioobj_ || !reader_ )
+	return -1;
+
     if ( !preprocmgr_ || !preprocmgr_->nrProcessors() || !preprocmgr_->reset() )
 	return -1;
 
@@ -196,10 +215,10 @@ DataPack::ID Viewer3D::preProcess()
 	    if ( !preprocmgr_->wantsInput(relbid) )
 		continue;
 	 
-	    const BinID inputbid = bid_ +
+	    const BinID inputbid = bid_ + 
 		relbid*BinID(SI().inlStep(),SI().crlStep());
 	    PreStack::Gather* gather = new PreStack::Gather;
-	    if ( !gather->readFrom( mid_, inputbid ) )
+	    if ( !gather->readFrom(*ioobj_,*reader_,inputbid) )
 	    {
 		delete gather;
 		continue;
@@ -224,19 +243,19 @@ bool Viewer3D::setPosition( const BinID& nb )
 	return true;
 
     PtrMan<PreStack::Gather> gather = new PreStack::Gather;
-    if ( !gather->readFrom(mid_,nb) )
+    if ( !ioobj_ || !reader_ || !gather->readFrom( *ioobj_, *reader_, nb ) )
     {
-	static bool PSVNodataMSGShown3D = false;
-	static bool PSVResetPos = true;
-	if ( !PSVNodataMSGShown3D )
+	static bool shown3d = false;
+	static bool resetpos = true;
+	if ( !shown3d )
 	{
-	    PSVResetPos = 
+	    resetpos = 
 		uiMSG().askGoOn("There is no data at the selected location.\n"
     			"Do you want to find a nearby location to continue?");
-	    PSVNodataMSGShown3D = true;
+	    shown3d = true;
 	}
 
-	if ( PSVResetPos )
+	if ( resetpos )
 	{
 	    bid_ = getNearBinID( nb );
 	    if ( bid_.inl==-1 || bid_.crl==-1 )
@@ -262,7 +281,7 @@ bool Viewer3D::setPosition( const BinID& nb )
 bool Viewer3D::updateData()
 {
     if ( (is3DSeis() && (bid_.inl==-1 || bid_.crl==-1)) || 
-	 (!is3DSeis() && !seis2d_) )
+	 (!is3DSeis() && !seis2d_) || !ioobj_ || !reader_ )
     {
 	turnOn(false);
 	return true;
@@ -281,10 +300,8 @@ bool Viewer3D::updateData()
 	}
 	else
 	{
-	    if ( !gather->readFrom( mid_, bid_ ) )
-	    {
+	    if ( !gather->readFrom( *ioobj_, *reader_, bid_ ) )
 		delete gather;
-	    }
 	    else
 	    {
     		DPM(DataPackMgr::FlatID()).add( gather );
@@ -306,14 +323,7 @@ bool Viewer3D::updateData()
     }
     else
     {
-	PtrMan<IOObj> ioobj = IOM().get( mid_ );
-	if ( !ioobj ) 
-	{
-	    delete gather;
-	    return false;
-	}
-
-	if ( !gather->readFrom( *ioobj, trcnr_, seis2d_->name() ) )
+	if ( !gather->readFrom( *ioobj_, *reader_, BinID(0,trcnr_) ) )
 	{
 	    delete gather;
 	    if ( haddata )
@@ -338,15 +348,13 @@ bool Viewer3D::updateData()
 
 const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
-
     if ( is3DSeis() )
     {
-	PtrMan<SeisPS3DReader> rdr = SPSIOPF().get3DReader( *ioobj );
-	if ( !rdr ) 
+	mDynamicCastGet( SeisPS3DReader*, rdr3d, reader_ );
+	if ( !rdr3d ) 
 	    return StepInterval<int>();
 
-	const PosInfo::CubeData& posinfo = rdr->posData();
+	const PosInfo::CubeData& posinfo = rdr3d->posData();
 	if ( isOrientationInline() )
 	{
 	    const int inlidx = posinfo.indexOf( bid.inl );
@@ -365,15 +373,11 @@ const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
     }
     else
     {
-	if ( !seis2d_ ) 
+	mDynamicCastGet( SeisPS2DReader*, rdr2d, reader_ );
+	if ( !seis2d_ || !rdr2d ) 
 	    return StepInterval<int>();
 
-    	PtrMan<SeisPS2DReader> rdr = 
-	    SPSIOPF().get2DReader(*ioobj,seis2d_->name());
-    	if ( !rdr ) 
-	    return StepInterval<int>();
-    
-	TypeSet<PosInfo::Line2DPos>  posnrs = rdr->posData().posns_;
+	TypeSet<PosInfo::Line2DPos>  posnrs = rdr2d->posData().posns_;
 	const int nrtraces = posnrs.size();
 	if ( !nrtraces )
 	     return StepInterval<int>();
@@ -411,13 +415,13 @@ BinID Viewer3D::getNearBinID( const BinID& bid ) const
 }
 
 
-int Viewer3D::getNearTraceNr( const IOObj* ioobj, int trcnr ) const
+int Viewer3D::getNearTraceNr( int trcnr ) const
 {
-    PtrMan<SeisPS2DReader> rdr = SPSIOPF().get2DReader(*ioobj,seis2d_->name());
-    if ( !rdr )
+    mDynamicCastGet(SeisPS2DReader*, rdr2d, reader_ );
+    if ( !rdr2d )
 	return -1;
 
-    TypeSet<PosInfo::Line2DPos>  posnrs = rdr->posData().posns_;
+    TypeSet<PosInfo::Line2DPos>  posnrs = rdr2d->posData().posns_;
     if ( !posnrs.size() )
 	return -1;
 
@@ -589,6 +593,9 @@ void Viewer3D::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
     if ( !section_ ) return;
     section_->ref();
 
+    if ( ioobj_ && !reader_ )
+    	reader_ = SPSIOPF().get3DReader( *ioobj_ );
+
     const int ctid = pdd->getColTabID(0);
     visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
     mDynamicCastGet(visBase::VisColorTab*,vct,obj);
@@ -651,30 +658,30 @@ bool Viewer3D::is3DSeis() const
 
 void Viewer3D::setTraceNr( int trcnr )
 {
-    if ( trcnr_ == trcnr ) 
+    if ( trcnr_==trcnr ) 
 	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( mid_ );
     if ( !seis2d_ )
 	trcnr_ = trcnr;
     else
     {
     	PtrMan<PreStack::Gather> gather = new PreStack::Gather;
-    	if ( !gather->readFrom( *ioobj, trcnr, seis2d_->name() ) )
+    	if ( !ioobj_ || !reader_ ||
+	     !gather->readFrom(*ioobj_,*reader_,BinID(0,trcnr)) )
     	{
-    	    static bool PSVNodataMSGShown2D = false;
-    	    static bool PSVResetTraceNr = true;
-    	    if ( !PSVNodataMSGShown2D )
+    	    static bool show2d = false;
+    	    static bool resettrace = true;
+    	    if ( !show2d )
     	    {
-		PSVResetTraceNr = uiMSG().askGoOn(
+		resettrace = uiMSG().askGoOn(
 			"There is no data at the selected location.\n"
 			"Do you want to find a nearby location to continue?" );
-    		PSVNodataMSGShown2D = true;
+    		show2d = true;
     	    }
 	    
-    	    if ( PSVResetTraceNr )
+    	    if ( resettrace )
 	    {
-		trcnr_ = getNearTraceNr( ioobj, trcnr );
+		trcnr_ = getNearTraceNr( trcnr );
 		if ( trcnr_==-1 )
 		{
 		    uiMSG().warning("Can not read or no data at the section.");
@@ -716,6 +723,9 @@ bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 
     seis2d_ = s2d;
     seis2d_->ref();
+     if ( ioobj_ && !reader_ )
+	 reader_ = SPSIOPF().get2DReader( *ioobj_, seis2d_->name() );
+
     setTraceNr( trcnr );
     if ( trcnr_<0 ) return false;
 

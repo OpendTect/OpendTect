@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.24 2009-01-08 17:10:18 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.25 2009-01-30 21:23:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "iopar.h"
 
 class IOObj;
+class SeisPSReader;
 
 namespace PreStack { class ProcessManager; }
 namespace visBase 
@@ -114,7 +115,7 @@ protected:
     void				sectionMovedCB(CallBacker*);
     void				seis2DMovedCB(CallBacker*);
     bool				updateData();
-    int					getNearTraceNr(const IOObj*,int) const;
+    int					getNearTraceNr(int) const;
     BinID				getNearBinID(const BinID& pos) const;
 
     void				draggerMotion(CallBacker*);
@@ -142,6 +143,9 @@ protected:
     float				width_;
     Interval<float>			offsetrange_;
     Interval<float>			zrg_;
+
+    SeisPSReader*			reader_;
+    IOObj*				ioobj_;
 };
 
 }; //namespace
