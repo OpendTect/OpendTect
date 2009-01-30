@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.12 2009-01-14 14:56:59 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.13 2009-01-30 16:04:23 cvshelene Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -110,9 +110,6 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p, uiStratMgr* uistratmgr )
     , uistratmgr_(uistratmgr)
     , prevlith_(0)
     , nmfld_(0)
-    , lithAdd(this)
-    , lithChg(this)
-    , lithRem(this)
 {
     selfld_ = new uiListBox( this, "Lithology", false );
     const CallBack cb( mCB(this,uiStratLithoDlg,selChg) );
@@ -163,7 +160,6 @@ void uiStratLithoDlg::newLith( CallBacker* )
 
     selfld_->addItem( nm );
     selfld_->setCurrentItem( nm );
-    lithAdd.trigger();
 }
 
 
@@ -178,9 +174,11 @@ void uiStratLithoDlg::selChg( CallBacker* )
 	if ( newnm != prevlith_->name() || newpor != prevlith_->porous_ )
 	{
 	    if ( !prevlith_->isUdf() )
+	    {
 		prevlith_->setName( nmfld_->text() );
-	    prevlith_->porous_ = isporbox_->isChecked();
-	    lithChg.trigger();
+		prevlith_->porous_ = isporbox_->isChecked();
+		uistratmgr_->lithChanged.trigger();
+	    }
 	}
     }
     const BufferString nm( selfld_->getText() );
@@ -203,7 +201,6 @@ void uiStratLithoDlg::rmSel( CallBacker* )
 
     prevlith_ = 0;
     uistratmgr_->deleteLith( lith->id_ );
-    lithRem.trigger();
     fillLiths();
 
     if ( selidx >= selfld_->size() )

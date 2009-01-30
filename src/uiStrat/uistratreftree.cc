@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.29 2009-01-21 15:10:41 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.30 2009-01-30 16:04:23 cvshelene Exp $";
 
 #include "uistratreftree.h"
 
 #include "pixmap.h"
 #include "stratreftree.h"
 #include "stratunitref.h"
+#include "stratunitrepos.h"
 #include "uigeninput.h"
 #include "uilistview.h"
 #include "uimenu.h"
@@ -327,6 +328,28 @@ void uiStratRefTree::updateLvlsPixmaps()
     }
 }
 
+
+void uiStratRefTree::updateLithoCol()
+{
+    UnitRef::Iter it( *uistratmgr_->getCurTree() );
+    UnitRef* un = it.unit();
+    while ( un )
+    {
+	if ( un->isLeaf() )
+	{
+	    mDynamicCastGet( LeafUnitRef*, lur, un )
+	    int lithidx = Strat::UnRepo().findLith( lur->lithology() );
+	    if ( lithidx<0 )
+	    {
+		uiListViewItem* lvit = lv_->findItem(un->code().buf(),0,false);
+		if ( lvit )
+		    lvit->setText( "", sLithoCol );
+	    }
+	}
+	if ( !it.next() ) break;
+	un = it.unit();
+    }
+}
 
 
 #define mUpdateLvlInfo(loc,istop)\

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.30 2009-01-27 11:52:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.31 2009-01-30 16:04:23 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
@@ -35,7 +35,6 @@ static const char* rcsID = "$Id: uistrattreewin.cc,v 1.30 2009-01-27 11:52:52 cv
 #define	mEditTxt(domenu)	domenu ? "&Unlock" : "Toggle read only: locked"
 #define	mLockTxt(domenu)	domenu ? "&Lock" : "Toggle read only: editable"
 
-
 static const char* sNoLevelTxt      = "--- Empty ---";
 
 using namespace Strat;
@@ -50,6 +49,9 @@ const uiStratTreeWin& StratTWin()
     return *stratwin;
 }
 
+#define mAskStratMgrNotif(nm) \
+    CallBack nm##cb = mCB( this,uiStratTreeWin,nm##CB );\
+    uistratmgr_->nm.notify( nm##cb );
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true)
@@ -60,7 +62,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     , unitCreated(this)		//TODO support
     , unitChanged(this)		//TODO support
     , unitRemoved(this)		//TODO support
-    , newUnitSelected(this)	//TODO support
+    , newUnitSelected(this)
     , lithCreated(this)		//TODO support
     , lithChanged(this)		//TODO support
     , lithRemoved(this)		//TODO support
@@ -68,6 +70,12 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 {
     uistratmgr_ = new uiStratMgr( this );
     IOM().applicationClosing.notify( mCB(this,uiStratTreeWin,shutdownCB ) );
+    mAskStratMgrNotif(unitCreated)
+    mAskStratMgrNotif(unitChanged)
+    mAskStratMgrNotif(unitRemoved)
+    mAskStratMgrNotif(lithCreated)
+    mAskStratMgrNotif(lithChanged)
+    mAskStratMgrNotif(lithRemoved)
     createMenu();
     createToolBar();
     createGroups();
@@ -83,6 +91,14 @@ uiStratTreeWin::~uiStratTreeWin()
     IOM().applicationClosing.remove( mCB(this,uiStratTreeWin,shutdownCB ) );
 }
 
+#define mImplCBFunctions(nm)\
+    void uiStratTreeWin::nm##CB(CallBacker*) { nm.trigger(); }
+
+mImplCBFunctions(unitCreated)
+mImplCBFunctions(unitChanged)
+mImplCBFunctions(unitRemoved)
+mImplCBFunctions(lithCreated)
+mImplCBFunctions(lithChanged)
 
 void uiStratTreeWin::popUp() const
 {
@@ -181,7 +197,9 @@ void uiStratTreeWin::setExpCB( CallBacker* )
 
 
 void uiStratTreeWin::unitSelCB(CallBacker*)
-{ /*
+{
+    newUnitSelected.trigger();
+    /*
     uiListViewItem* item = uitree_->listView()->selectedItem();
     BufferString bs;
     
@@ -365,3 +383,11 @@ void uiStratTreeWin::moveUnitCB( CallBacker* cb )
 {
     uitree_->moveUnit( cb == moveunitupbut_ );
 }
+
+
+void uiStratTreeWin::lithRemovedCB( CallBacker* cb )
+{
+    uitree_->updateLithoCol();
+    lithRemoved.trigger();
+}
+

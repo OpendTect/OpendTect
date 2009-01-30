@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.8 2009-01-14 14:56:59 cvshelene Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.9 2009-01-30 16:04:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,10 +59,6 @@ public:
 			uiStratLithoDlg(uiParent*, uiStratMgr*);
     const char*		getLithName() const;
     void		setSelectedLith(const char*);
-
-    Notifier<uiStratLithoDlg>	lithAdd;
-    Notifier<uiStratLithoDlg>	lithChg;
-    Notifier<uiStratLithoDlg>	lithRem;
 
 protected:
 

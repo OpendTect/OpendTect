@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.21 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.22 2009-01-30 16:04:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,14 +43,21 @@ public:
     mutable Notifier<uiStratTreeWin>	levelCreated;
     mutable Notifier<uiStratTreeWin>	levelChanged;
     mutable Notifier<uiStratTreeWin>	levelRemoved;
-    mutable Notifier<uiStratTreeWin>	unitCreated;
-    mutable Notifier<uiStratTreeWin>	unitChanged;
-    mutable Notifier<uiStratTreeWin>	unitRemoved;
-    mutable Notifier<uiStratTreeWin>	lithCreated;
-    mutable Notifier<uiStratTreeWin>	lithChanged;
-    mutable Notifier<uiStratTreeWin>	lithRemoved;
     mutable Notifier<uiStratTreeWin>	newUnitSelected;
     mutable Notifier<uiStratTreeWin>	newLevelSelected;
+
+#define mCreateCoupledNotifCB(nm) \
+public: \
+    mutable Notifier<uiStratTreeWin> nm;\
+protected: \
+    void nm##CB(CallBacker*);
+
+    mCreateCoupledNotifCB( unitCreated )
+    mCreateCoupledNotifCB( unitChanged )
+    mCreateCoupledNotifCB( unitRemoved )
+    mCreateCoupledNotifCB( lithCreated )
+    mCreateCoupledNotifCB( lithChanged )
+    mCreateCoupledNotifCB( lithRemoved )
 
 protected:
 
@@ -93,6 +100,7 @@ protected:
     void			unitRenamedCB(CallBacker*);
     void			moveUnitCB(CallBacker*);
     void			shutdownCB(CallBacker*);
+
 
     uiStratMgr*			uistratmgr_;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.14 2009-01-21 15:10:41 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.15 2009-01-30 16:04:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
     void                expand(bool) const;
     void                makeTreeEditable(bool) const;
     void		updateLvlsPixmaps();
+    void		updateLithoCol();
     void		moveUnit(bool);
 
 protected:
