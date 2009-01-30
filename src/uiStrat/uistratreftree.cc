@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.30 2009-01-30 16:04:23 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.31 2009-01-30 16:07:11 cvshelene Exp $";
 
 #include "uistratreftree.h"
 
@@ -209,7 +209,7 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	BufferString codestr = getCodeFromLVIt( newitem );
 	BufferString description = newitem->text(1);
 	BufferString lithonm = newitem->text(2);
-	uistratmgr_->addUnit( codestr.buf(), lithonm, description, true );
+	uistratmgr_->addUnit( codestr.buf(), lithonm, description, false );
     }
 }
 
