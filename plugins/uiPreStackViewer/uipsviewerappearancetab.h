@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          May 2008
- RCS:           $Id: uipsviewerappearancetab.h,v 1.2 2009-01-29 22:16:32 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewerappearancetab.h,v 1.3 2009-01-30 21:23:42 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidlggroup.h"
+#include "samplingdata.h"
 
 class uiColorTable;
 class uiLabel;
@@ -43,6 +44,10 @@ protected:
     void			applyButPushedCB(CallBacker*);
     void			updateZFlds(CallBacker*);
     void			updateOffsFlds(CallBacker*);
+    void			updateFlds(uiGenInput* gridfld,
+	    				   uiGenInput* autofld,
+					   uiGenInput* rgfld,
+					   uiLabel* lblfld,bool x1);
     
     uiColorTable*       	uicoltab_;
     uiLabel*            	uicoltablbl_; 
@@ -59,6 +64,8 @@ protected:
     visBase::FlatViewer*	vwr_;
     bool			applyall_;
     bool			savedefault_;
+    SamplingData<float>		manuzsampl_;
+    SamplingData<float>		manuoffssampl_;
 };
 
 
