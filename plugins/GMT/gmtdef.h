@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.10 2008-10-01 05:20:18 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.11 2009-01-30 07:06:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ namespace ODGMT
 					 "-", 0 };
     static const char*	sResolKeys[] = { "f", "h", "i", "l", "c" };
 
+    static const char*	sKeyAttribName = "Attribute name";
     static const char*	sKeyClosePS = "Close PostScript";
     static const char*	sKeyColSeq = "Color sequence";
     static const char*	sKeyCustomComm = "Custom command";
@@ -68,6 +69,7 @@ namespace ODGMT
     static const char*	sKeyWellNames = "Well names";
     static const char*	sKeyXRange = "X Range";
     static const char*	sKeyYRange = "Y Range";
+    static const char*	sKeyZVals = "Z values";
 };
 
 

@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtcontour.cc,v 1.7 2008-12-16 06:26:43 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtcontour.cc,v 1.8 2009-01-30 07:06:12 cvsraman Exp $";
 
 #include "gmtcontour.h"
 
 #include "coltabsequence.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "filepath.h"
@@ -51,8 +52,14 @@ const char* GMTContour::userRef() const
 
 bool GMTContour::fillLegendPar( IOPar& par ) const
 {
-    BufferString str = find( sKey::Name );
-    par.set( sKey::Name, str );
+    par.set( sKey::Name, find(sKey::Name) );
+    BufferString attrnm = find( ODGMT::sKeyAttribName );
+    BufferString str = "\""; str += attrnm;
+    if ( attrnm == ODGMT::sKeyZVals )
+	str += SI().getZUnitString();
+
+    str += "\"";
+    par.set( ODGMT::sKeyAttribName, str.buf() );
     bool drawcontour = false;
     getYN( ODGMT::sKeyDrawContour, drawcontour );
     if ( drawcontour )
@@ -89,6 +96,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     strm << "Loading horizon " << hornm << " ...  ";
     strm.flush();
     EM::SurfaceIOData sd;
+    EM::EMM().getSurfaceData( id, sd );
     PtrMan<IOPar> subpar = subselect( sKey::Selection );
     if ( !subpar )
 	mErrStrmRet("Missing subselection")
@@ -104,8 +112,25 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( !obj )
 	mErrStrmRet("Failed");
 
+    mDynamicCastGet( EM::Horizon3D*, hor, obj );
+    if ( !hor )
+	mErrStrmRet("Failed");
+
     strm << "Done" << std::endl;
-    obj->ref();
+    hor->ref();
+
+    BufferString attribnm = find( ODGMT::sKeyAttribName );
+    const bool isz = attribnm == ODGMT::sKeyZVals;
+    if ( !isz )
+    {
+	strm << "Loading surface data \"" << attribnm << "\" ... ";
+	const int selidx = sd.valnames.indexOf( attribnm.buf() );
+	PtrMan<Executor> exec = hor->auxdata.auxDataLoader( selidx );
+	if ( !exec || !exec->execute() )
+	    mErrStrmRet("Failed");
+
+	strm << "Done" << std::endl;
+    }
 
     FilePath fp( fnm );
     fp.setExtension( "cpt" );
@@ -137,19 +162,24 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     HorSamplingIterator iter( sd.rg );
     BinID bid;
-    EM::SectionID sid = obj->sectionID( 0 );
+    EM::SectionID sid = hor->sectionID( 0 );
     const float fac = SI().zFactor();
+    const int dataidx = isz ? -1 : hor->auxdata.auxDataIndex( attribnm.buf() );
     while ( iter.next(bid) )
     {
-	EM::SubID subid = bid.getSerialized();
-	Coord3 pos = obj->getPos( sid, subid );
+	EM::PosID posid( hor->id(), sid, bid.getSerialized() );
+	Coord3 pos = hor->getPos( posid );
 	if ( !pos.isDefined() )
 	    continue;
 
-	*sdata.ostrm << pos.x << " " << pos.y << " " << fac*pos.z << std::endl;
+	const float val = isz ? pos.z * fac
+	    		      : hor->auxdata.getAuxDataVal( dataidx, posid );
+	if ( mIsUdf(val) ) continue;
+
+	*sdata.ostrm << pos.x << " " << pos.y << " " << val << std::endl;
     }
 
-    obj->unRef();
+    hor->unRef();
     sdata.close();
     strm << "Done" << std::endl;
     strm << "Regridding 25 X 25 ...  ";
@@ -162,7 +192,6 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     strm << "Done" << std::endl;
 
-    mDynamicCastGet(EM::Horizon3D*,hor,obj)
     Pick::Set ps;
     BufferString finalgrd = fileName( fp.fullPath() );
     if ( hor->geometry().getBoundingPolygon(hor->sectionID(0),ps) )

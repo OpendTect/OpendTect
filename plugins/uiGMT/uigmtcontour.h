@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.h,v 1.5 2008-10-01 05:20:28 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.h,v 1.6 2009-01-30 07:01:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,10 +46,11 @@ protected:
     CtxtIOObj&		ctio_;
     EM::Horizon3D*	hor_;
     EM::SurfaceIOData&	sd_;
+    Interval<float>	valrg_;
 
     uiIOObjSel*		inpfld_;
     uiPosSubSel*	subselfld_;
-    uiPushButton*	readbut_;
+    uiComboBox*		attribfld_;
     uiGenInput*		rgfld_;
     uiPushButton*	resetbut_;
     uiGenInput*		nrcontourfld_;

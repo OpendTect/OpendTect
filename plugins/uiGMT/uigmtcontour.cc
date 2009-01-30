@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.9 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.10 2009-01-30 07:01:54 cvsraman Exp $";
 
 #include "uigmtcontour.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uigmtcontour.cc,v 1.9 2008-12-10 18:24:14 cvskr
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "gmtpar.h"
@@ -63,16 +64,15 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     subselfld_->attach( alignedBelow, inpfld_ );
     subselfld_->selChange.notify( mCB(this,uiGMTContourGrp,selChg) );
 
-    readbut_ = new uiPushButton( this, "Read Horizon",
-	    			 mCB(this,uiGMTContourGrp,readCB), false );
-    readbut_->attach( alignedBelow, subselfld_ );
-    readbut_->setSensitive( false );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Select Attribute" );
+    attribfld_ = lcb->box();
+    attribfld_->selectionChanged.notify( mCB(this,uiGMTContourGrp,readCB) );
+    lcb->attach( alignedBelow, subselfld_ );
 
-    BufferString ztag = "Z range ";
-    ztag += SI().getZUnitString( true );
-    rgfld_ = new uiGenInput( this, ztag, IntInpIntervalSpec(true) );
+    BufferString ztag = "Value range ";
+    rgfld_ = new uiGenInput( this, ztag, FloatInpIntervalSpec(true) );
     rgfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
-    rgfld_->attach( alignedBelow, readbut_ );
+    rgfld_->attach( alignedBelow, lcb );
 
     nrcontourfld_ = new uiGenInput( this, "Number of contours",
 	    			    IntInpSpec() );
@@ -171,28 +171,30 @@ void uiGMTContourGrp::objSel( CallBacker* )
     CubeSampling cs;
     cs.hrg = sd_.rg;
     subselfld_->setInput( cs );
-    resetCB( 0 );
+    attribfld_->empty();
+    attribfld_->addItem( ODGMT::sKeyZVals );
+    if ( sd_.valnames.size() )
+    {
+	attribfld_->addItems( sd_.valnames );
+	attribfld_->setSensitive( true );	
+    }
+    else
+	attribfld_->setSensitive( false );
+
+    readCB(0);
 }
 
 
 void uiGMTContourGrp::resetCB( CallBacker* )
 {
-    if ( sd_.zrg.isUdf() )
+    if ( valrg_.isUdf() )
     {
 	rgfld_->clear();
 	nrcontourfld_->clear();
-	readbut_->setSensitive( true );
-	return;
     }
 
-    const float fac = SI().zFactor();
-    const float samp = SI().zStep() * fac;
-    Interval<float> zintv( sd_.zrg.start*fac, sd_.zrg.stop*fac );
-    zintv.start = samp * mNINT(zintv.start/samp);
-    zintv.stop = samp * mNINT(zintv.stop/samp);
-    AxisLayout zaxis( zintv );
-    const StepInterval<int> zrg( mNINT(zintv.start), mNINT(zintv.stop),
-	    		   mNINT(zaxis.sd.step/5) );
+    AxisLayout zaxis( valrg_ );
+    const StepInterval<float> zrg( valrg_.start, valrg_.stop, zaxis.sd.step/5 );
     rgfld_->setValue( zrg );
     nrcontourfld_->setValue( zrg.nrSteps() + 1 );
     resetbut_->setSensitive( false );
@@ -205,7 +207,7 @@ void uiGMTContourGrp::selChg( CallBacker* cb )
     if ( hs == sd_.rg )
 	return;
 
-    readbut_->setSensitive( true );
+    readCB(0);
     resetbut_->setSensitive( false );
 }
 
@@ -215,7 +217,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
     if ( !cb || !rgfld_ || !nrcontourfld_ ) return;
 
     mDynamicCastGet(uiGenInput*,fld,cb)
-    StepInterval<int> datarg = rgfld_->getIStepInterval();
+    StepInterval<float> datarg = rgfld_->getFStepInterval();
     rgfld_->valuechanged.disable();
     if ( fld == rgfld_ )
     {
@@ -255,7 +257,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
     }
 
     rgfld_->valuechanged.enable();
-    if ( !sd_.zrg.isUdf() )
+    if ( !valrg_.isUdf() )
 	resetbut_->setSensitive( true );
 }
 
@@ -272,20 +274,40 @@ void uiGMTContourGrp::readCB( CallBacker* )
     if ( ( !hor_ || hor_->multiID()!=ioobj->key() ) && !loadHor() )
 	return;
 
-    Interval<float> rg( SI().zRange(false).stop, SI().zRange(false).start );
+    BufferString attrnm = attribfld_->textOfItem( attribfld_->currentItem() );
+    const bool isz = attrnm == ODGMT::sKeyZVals;
+    int dataidx = -1;
+    if ( !isz )
+    {
+	const int selidx = sd_.valnames.indexOf( attrnm.buf() );
+	PtrMan<Executor> exec = hor_->auxdata.auxDataLoader( selidx );
+	if ( exec ) exec->execute();
+
+	dataidx = hor_->auxdata.auxDataIndex( attrnm.buf() );
+    }
+
+    Interval<float> rg( mUdf(float), -mUdf(float) );
     HorSamplingIterator iter( hs );
     BinID bid;
     EM::SectionID sid = hor_->sectionID( 0 );
     while ( iter.next(bid) )
     {
-	EM::SubID subid = bid.getSerialized();
-	Coord3 pos = hor_->getPos(sid,subid);
-	if ( pos.isDefined() )
-	    rg.include( pos.z, false );
+	EM::PosID posid( hor_->id(), sid, bid.getSerialized() );
+	const float val = isz ? hor_->getPos( posid ).z
+	    		      : hor_->auxdata.getAuxDataVal( dataidx, posid );
+	if ( !mIsUdf(val) )
+	    rg.include( val, false );
     }
 
-    sd_.zrg = rg;
-    readbut_->setSensitive( false );
+    if ( isz )
+    {
+	rg.scale( SI().zFactor() );
+	const float samp = SI().zStep() * SI().zFactor();
+	rg.start = samp * mNINT(rg.start/samp);
+	rg.stop = samp * mNINT(rg.stop/samp);
+    }
+
+    valrg_ = rg;
     resetCB( 0 );
 }
 
@@ -338,10 +360,12 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 
     inpfld_->fillPar( par );
     par.set( sKey::Name, ctio_.ioobj->name() );
+    const int attribidx = attribfld_->currentItem();
+    par.set( ODGMT::sKeyAttribName, attribfld_->textOfItem(attribidx) );
     IOPar subpar;
     subselfld_->fillPar( subpar );
     par.mergeComp( subpar, sKey::Selection );
-    StepInterval<int> rg = rgfld_->getIStepInterval();
+    StepInterval<float> rg = rgfld_->getFStepInterval();
     if ( mIsUdf(rg.start) || mIsUdf(rg.stop) || mIsUdf(rg.step) )
 	mErrRet("Invalid data range")
 
@@ -370,12 +394,16 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 bool uiGMTContourGrp::usePar( const IOPar& par )
 {
     inpfld_->usePar( par );
+    const char* attribname = par.find( ODGMT::sKeyAttribName );
+    if ( attribname && *attribname )
+	attribfld_->setCurrentItem( attribname );
+
     PtrMan<IOPar> subpar = par.subselect( sKey::Selection );
     if ( !subpar )
 	return false;
 
     subselfld_->usePar( *subpar );
-    StepInterval<int> rg;
+    StepInterval<float> rg;
     par.get( ODGMT::sKeyDataRange, rg );
     rgfld_->setValue( rg );
     nrcontourfld_->setValue( rg.nrSteps() + 1 );
