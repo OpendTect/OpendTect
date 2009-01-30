@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.22 2009-01-29 22:15:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.23 2009-01-30 21:22:28 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
+
 #include "arraynd.h"
-#include "coltabsequence.h"
 #include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "dataclipper.h"
 #include "flatposdata.h"
 #include "linear.h"
@@ -37,8 +38,6 @@ FlatViewer::FlatViewer()
     , rectangle_( SplitTexture2Rectangle::create() )
     , x1gridlines_( visBase::IndexedPolyLine::create() )
     , x2gridlines_( visBase::IndexedPolyLine::create() )
-    , grid1smp_( mUdf(float), mUdf(float) )				
-    , grid2smp_( mUdf(float), mUdf(float) )				
 {
     channel2rgba_->ref();
     channel2rgba_->allowShading( true );
@@ -175,14 +174,21 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 }    
 
 
-const SamplingData<float> FlatViewer::getGridSampling( bool x1 ) const
-{ return x1 ? grid1smp_ : grid2smp_; }
+const SamplingData<float> FlatViewer::getDefaultGridSampling( bool x1 ) const
+{
+    const FlatPosData* posdata = pack(false) ? &pack(false)->posData() : 0;
+    if ( !posdata )
+	return SamplingData<float>( 0, 1 );
+
+    Interval<float> range; range.setFrom( posdata->range( x1 ) );
+    AxisLayout layout( range );
+    return layout.sd;
+}
 
 
 void FlatViewer::updateGridLines( bool x1 )
 {
     const FlatPosData* posdata = pack(false) ? &pack(false)->posData() : 0;
-
     visBase::IndexedPolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
 
     if ( !posdata || (x1 && !appearance().annot_.x1_.showgridlines_ ) ||
@@ -192,22 +198,15 @@ void FlatViewer::updateGridLines( bool x1 )
 	return;
     }
 
-    const SamplingData<float>* sd = x1 ? &appearance().annot_.x1_.sampling_
-				       : &appearance().annot_.x2_.sampling_;
-    Interval<float> range;
-    range.setFrom( posdata->range( x1 ) );
-    AxisLayout layout( range );
-    if ( x1 )
-	grid1smp_ = layout.sd;
-    else
-	grid2smp_ = layout.sd;
-
-    if ( mIsUdf(sd->start) || mIsUdf(sd->step) )
-	sd = &layout.sd;
+    Interval<float> range; range.setFrom( posdata->range( x1 ) );
+    SamplingData<float> sd = x1 ? appearance().annot_.x1_.sampling_
+				: appearance().annot_.x2_.sampling_;
+    if ( mIsUdf(sd.start) || mIsUdf(sd.step) )
+	sd = getDefaultGridSampling( x1 );
 
     int coordidx = 0, ciidx = 0;
     visBase::Coordinates* coords = gridlines->getCoordinates();
-    float pos = sd->start;
+    float pos = sd.start;
     while ( range.includes( pos ) )
     {
 	const float relpos = (pos-range.start)/range.width();
@@ -226,7 +225,7 @@ void FlatViewer::updateGridLines( bool x1 )
 	gridlines->setCoordIndex( ciidx++, coordidx++ );
 	gridlines->setCoordIndex( ciidx++, -1 );
 
-	pos += sd->step;
+	pos += sd.step;
     }
 
     gridlines->removeCoordIndexAfter( ciidx-1 );
