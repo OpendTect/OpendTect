@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.76 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.77 2009-01-30 13:50:46 cvsjaap Exp $";
 
 #include "uivisemobj.h"
 
@@ -348,9 +348,15 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     const EM::SectionID sid = emod->getSectionID(menu->getPath());
 
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
+    mDynamicCastGet( visSurvey::Horizon2DDisplay*, hor2ddisp, getDisplay() );
 
-    mAddMenuItem( menu, &singlecolmnuitem_, !emod->getOnlyAtSectionsDisplay(),
-	  	  !hordisp || (hordisp&&!hordisp->showingTexture()) );
+    if ( hor2ddisp )
+	mResetMenuItem( &singlecolmnuitem_ )
+    else
+	mAddMenuItem( menu, &singlecolmnuitem_,
+		      !emod->getOnlyAtSectionsDisplay(),
+		      !hordisp || (hordisp&&!hordisp->showingTexture()) );
+
     mAddMenuItem( menu, &showonlyatsectionsmnuitem_, true,
 	          emod->getOnlyAtSectionsDisplay() );
 #ifdef __debug__
