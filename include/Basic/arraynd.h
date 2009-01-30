@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.35 2009-01-27 22:52:54 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.36 2009-01-30 17:57:42 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -229,8 +229,14 @@ void ArrayND<T>::setAll( const T& val )
     ValueSeries<T>* stor = getStorage();
     if ( stor )
     {
-	MemSetter<T> setter( *stor, val, info().getTotalSz() );
-	setter.execute();
+	if ( stor->canSetAll() )
+	    stor->setAll( val );
+	else
+	{
+	    MemSetter<T> setter( *stor, val, info().getTotalSz() );
+	    setter.execute();
+	}
+
 	return;
     }
 
