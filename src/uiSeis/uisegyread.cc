@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.29 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.30 2009-01-30 05:08:31 cvssatyaki Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -337,7 +337,7 @@ uiSEGYReadRev1Question( uiParent* p, int pol )
     uiButtonGroup* bgrp = new uiButtonGroup( this, "" );
     for ( int idx=0; rev1txts[idx]; idx++ )
 	buts_ += new uiRadioButton( bgrp, rev1txts[idx] );
-    bgrp->setRadioButtonExclusive( true );
+    bgrp->setExclusive( true );
     buts_[pol-1]->setChecked( true );
 
     dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );

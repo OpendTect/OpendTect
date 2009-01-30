@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.161 2009-01-14 11:40:56 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.162 2009-01-30 05:08:31 cvssatyaki Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -577,7 +577,7 @@ uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
 				   "Select area to take snapshot",mTODOHelpID) )
 {
     butgrp_ = new uiButtonGroup( this, "Area type" );
-    butgrp_->setRadioButtonExclusive( true );
+    butgrp_->setExclusive( true );
     uiRadioButton* but0 = new uiRadioButton( butgrp_, "Scene" );
     uiRadioButton* but1 = new uiRadioButton( butgrp_, "Window" );
     uiRadioButton* but2 = new uiRadioButton( butgrp_, "Desktop" );

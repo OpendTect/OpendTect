@@ -7,196 +7,74 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuttongroup.cc,v 1.17 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uibuttongroup.cc,v 1.18 2009-01-30 05:08:31 cvssatyaki Exp $";
 
 #include "uibuttongroup.h"
-#include "uiobjbody.h"
+#include "uibutton.h"
 
-#include <Q3ButtonGroup>
+#include <QButtonGroup>
 #include <QAbstractButton>
 
-#include "errh.h"
 
-class uiButtonGroupObjBody;
-class uiButtonGroupParentBody;
-
-
-class uiButtonGroupObjBody : public uiObjectBody  , public Q3ButtonGroup
+uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm, bool vertical )
+    : uiGroup( p ,nm )
+    , prevbutton_(0)
+    , vertical_(vertical)
 {
-public:
-			uiButtonGroupObjBody(uiButtonGroupObj& handle, 
-					uiParent* parnt, const char* txt, 
-                                        bool vertical, int strips )
-			: uiObjectBody( parnt, txt )
-			, Q3ButtonGroup(strips, vertical ? Qt::Horizontal
-							 : Qt::Vertical,
-					txt,
-					parnt && parnt->pbody() ?
-					parnt->pbody()->managewidg() : 0, txt )
-			, handle_( handle )	{}
-
-    virtual		~uiButtonGroupObjBody()	{}
-
-#define mHANDLE_OBJ	uiButtonGroupObj
-#define mQWIDGET_BASE	QWidget
-#define mQWIDGET_BODY	Q3ButtonGroup
-#include		"i_uiobjqtbody.h"
-
-public:
-
-    void		setPrntBody (uiButtonGroupParentBody* pb)
-			{ prntbody_ = pb; }
-
-protected:
-
-    uiButtonGroupParentBody*	prntbody_;
-
-};
-
-
-class uiButtonGroupParentBody : public uiParentBody
-{ 	
-    friend class	uiButtonGroupObjBody;
-
-public:
-			uiButtonGroupParentBody( uiButtonGroup& handle, 
-					 uiButtonGroupObjBody& objbdy,
-					 uiParent* parnt=0,
-					 const char* nm="uiButtonGroupObjBody") 
-                            : uiParentBody(nm)
-                            , handle_(handle)
-			    , objbody_(objbdy) {}
-
-    virtual void	attachChild( constraintType tp,
-				     uiObject* child,
-				     uiObject* other, int margin,
-				     bool reciprocal )
-			{ pErrMsg("Cannot do attachments in uiButtonGroups"); }
-
-protected:
-
-    uiButtonGroup&		handle_;
-
-    virtual const QWidget* 	qwidget_() const    
-    				{ return objbody_.qwidget(); }
-    virtual const QWidget* 	managewidg_() const 
-    				{ return objbody_.qwidget();}
-
-private:
-
-    uiButtonGroupObjBody&	objbody_;
-
-};
-
-
-uiButtonGroupObj::uiButtonGroupObj( uiButtonGroup* uibg, uiParent* p, 
-				    const char* nm, bool vertical, int strips )
-    : uiObject( p, nm )
-    , uibutgrp_( uibg )
-{
-    body_ = new uiButtonGroupObjBody( *this, p, nm, vertical, strips );
-    setBody( body_ );
-
-    uibutgrp_->deleteNotify( mCB(this,uiButtonGroupObj,grpDel) );
-    body_->deleteNotify( mCB(this,uiButtonGroupObj,bodyDel) );
-}
-
-
-uiButtonGroupObj::~uiButtonGroupObj()
-{ if(uibutgrp_) { uibutgrp_->grpobj_ =0; delete uibutgrp_; }  }
-
-
-const ObjectSet<uiObjHandle>* uiButtonGroupObj::childList() const
-{ return uibutgrp_ ? uibutgrp_->childList() : 0; }
-
-
-void uiButtonGroupObj::bodyDel( CallBacker* cb )
-{
-    if( body_ == cb ) body_ = 0;
-    else pErrMsg("huh?");
-}
-
-
-void uiButtonGroupObj::grpDel( CallBacker* cb )
-{
-    if( cb == uibutgrp_ ) uibutgrp_ = 0;
-    else pErrMsg("huh?");
-}
-
-
-uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
-			      bool vertical, int strips )
-    : uiParent( nm, 0 )
-    , grpobj_( 0 )
-    , body_( 0 )
-{
-    grpobj_ = new uiButtonGroupObj( this, p, nm, vertical, strips );
-    uiButtonGroupObjBody* grpbdy = 
-	    dynamic_cast<uiButtonGroupObjBody*>( grpobj_->body() );
-
-#ifdef __debug__
-    if( !grpbdy ) { pErrMsg("Huh") ; return; }
-#endif
-
-    body_ =  new uiButtonGroupParentBody( *this, *grpbdy, p, nm);
-    setBody( body_ );
-
-    grpobj_->body_->setPrntBody( body_ );
-
-    p->manageChld( *grpobj_, *grpobj_->body_ );
-    displayFrame( false );
+    qbuttongrp_ = new QButtonGroup();
 }
 
 
 uiButtonGroup::~uiButtonGroup()
 {
-    if ( grpobj_ ) { grpobj_->uibutgrp_ = 0; delete grpobj_; }
-	if ( body_ )
-	{
-	    uiButtonGroupParentBody* bd = body_;
-	    body_ = 0;
-	    delete bd;
-	}
+    delete qbuttongrp_;
+}
+
+
+void uiButtonGroup::addButton( uiButton* button )
+{
+    qbuttongrp_->addButton( button->qButton() );
+    button->setStretch( grpobj_->width(), grpobj_->height() );
+    if ( prevbutton_ )
+	button->attach( vertical_ ? leftAlignedBelow : rightTo, prevbutton_ );
+    prevbutton_ = button;
 }
 
 
 void uiButtonGroup::selectButton( int id )
 {
-    grpobj_->body_->setButton( id );
+    if ( qbuttongrp_->button( id ) )
+	qbuttongrp_->button( id )->setDown( true );
 }
 
 
 int uiButtonGroup::selectedId() const
-{
-    QAbstractButton* selbut = grpobj_->body_->selected();
-    return grpobj_->body_->id( selbut );
-}
+{ return qbuttongrp_->checkedId(); }
 
 
 int uiButtonGroup::nrButtons() const
-{
-    return grpobj_->body_->count();
-}
+{ return qbuttongrp_->buttons().size(); }
 
 
 void uiButtonGroup::setSensitive( int id, bool yn )
 {
-    QAbstractButton* but = grpobj_->body_->find( id );
+    QAbstractButton* but = qbuttongrp_->button( id );
     if ( but ) but->setEnabled( yn );
 }
 
 
+// TODO: implement displayFrame / isFrameDisplayed
 void uiButtonGroup::displayFrame( bool yn )
-{ grpobj_->body_->setFlat( !yn ); }
+{}
 
 
 bool uiButtonGroup::isFrameDisplayed() const
-{ return grpobj_->body_->isFlat(); }
+{ return false; }
 
 
-void uiButtonGroup::setRadioButtonExclusive( bool yn )
-{ grpobj_->body_->setRadioButtonExclusive( yn ); }
+void uiButtonGroup::setExclusive( bool yn )
+{ qbuttongrp_->setExclusive( yn ); }
 
 
-bool uiButtonGroup::isRadioButtonExclusive() const
-{ return grpobj_->body_->isRadioButtonExclusive(); }
+bool uiButtonGroup::isExclusive() const
+{ return qbuttongrp_->exclusive(); }

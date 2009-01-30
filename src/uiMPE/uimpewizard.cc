@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.91 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.92 2009-01-30 05:08:31 cvssatyaki Exp $";
 
 
 #include "uimpewizard.h"
@@ -198,7 +198,7 @@ uiIOObjSelGrp* Wizard::createNamePage()
 
 #define mDefSeedConModeGrp( xmodegrp, typ ) \
     xmodegrp = new uiButtonGroup( grp, "Mode" ); \
-    xmodegrp->setRadioButtonExclusive( true ); \
+    xmodegrp->setExclusive( true ); \
     for ( int idx=0; idx<typ##SeedPicker::nrSeedConnectModes(); idx++ ) \
     { \
 	uiRadioButton* butptr = new uiRadioButton( xmodegrp, \

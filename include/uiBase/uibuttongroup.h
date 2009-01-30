@@ -7,53 +7,26 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.10 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.11 2009-01-30 05:08:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
-#include "uiparent.h"
-#include "callback.h"
+#include "uigroup.h"
 
-class uiButtonGroupBody;
+class QButtonGroup;
+class uiButton;
 
-class uiButtonGroup;
-class uiButtonGroupObjBody;
-class uiButtonGroupParentBody;
 
-class uiButtonGroupObj : public uiObject
+mClass uiButtonGroup : public uiGroup
 { 	
-friend class uiButtonGroup;
-protected:
-			uiButtonGroupObj( uiButtonGroup*, uiParent*, 
-					  const char* nm, bool vertical=true, 
-					  int strips=1 );
 public:
+			uiButtonGroup(uiParent*,const char* nm="uiButtonGrp",
+				      bool vertical=true);
+			~uiButtonGroup();
 
-    virtual		~uiButtonGroupObj();
-    
-    const ObjectSet<uiObjHandle>* childList() const;
-
-protected:
-    uiButtonGroupObjBody*	body_;
-    uiButtonGroup*		uibutgrp_;
-
-    void		bodyDel( CallBacker* );
-    void		grpDel( CallBacker* );
-};
-
-
-mClass uiButtonGroup : public uiParent
-{ 	
-friend class uiButtonGroupObj;
-
-public:
-			uiButtonGroup( uiParent*, const char* nm="uiButtonGrp",
-				       bool vertical=true, int strips=1 ); 
-
-    virtual		~uiButtonGroup();
-
+    void		addButton(uiButton*);
     void		selectButton(int id);
     int			selectedId() const;
     int			nrButtons() const;
@@ -61,15 +34,14 @@ public:
 
     void		displayFrame(bool);
     bool		isFrameDisplayed() const;
-    void		setRadioButtonExclusive(bool);
-    bool		isRadioButtonExclusive() const;
+    void		setExclusive(bool);
+    bool		isExclusive() const;
 
 protected:
 
-    uiButtonGroupObj*		grpobj_;
-    uiButtonGroupParentBody*	body_;
-
-    virtual uiObject*		mainobject()	{ return grpobj_; }
+    QButtonGroup*	qbuttongrp_;
+    uiButton*		prevbutton_;
+    bool		vertical_;
 };
 
 #endif
