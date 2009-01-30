@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.20 2008-09-23 14:47:57 cvshelene Exp $
+ RCS:           $Id: valseries.h,v 1.21 2009-01-30 17:45:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 #include "errh.h"
+#include "memsetter.h"
 
 /*\brief Interface to a series of values
 
@@ -33,6 +34,9 @@ public:
     virtual T		value(od_int64) const		= 0;
     virtual bool	writable() const		{ return false; }
     virtual void	setValue(od_int64,T)		{}
+
+    virtual bool	canSetAll() const		{ return false; }
+    virtual void	setAll(T)			{}
 
     virtual bool	reSizeable() const		{ return false; }
     virtual bool	setSize(od_int64) 		{ return false; }
@@ -58,6 +62,8 @@ public:
     inline T*		arr();
     inline const T*	arr() const;
     inline bool		writable() const;
+    inline bool		canSetAll() const;
+    inline void		setAll(T);
 
     inline od_int64	getOffset() const;
     inline void		setOffset(od_int64 no);
@@ -92,6 +98,9 @@ public:
     RT		value( od_int64 idx ) const	{ return ptr_[idx]; }
     bool	writable() const		{ return true; }
     void	setValue( od_int64 idx, RT v )	{ ptr_[idx] = (AT) v; }
+
+    bool	canSetAll() const		{ return writable(); }
+    void	setAll(RT);
 
     const RT*	arr() const			mImplArr;
     RT*		arr()				mImplArr;
@@ -129,6 +138,9 @@ public:
     RT		value( od_int64 idx ) const;
     bool	writable() const		{ return true; }
     void	setValue(od_int64 idx, RT v);
+
+    bool	canSetAll() const		{ return writable(); }
+    void	setAll(RT);
 
     const RT*	arr() const;
     RT*		arr();
@@ -172,6 +184,22 @@ void OffsetValueSeries<T>::setValue( od_int64 idx, T v )
 
 
 template <class T> inline
+void OffsetValueSeries<T>::setAll( T v )
+{
+    if ( writable_ )
+	src_.setAll( v );
+    else
+	pErrMsg("Attempting to write to write-protected array");
+}
+
+
+
+template <class T> inline
+bool OffsetValueSeries<T>::canSetAll() const
+{ return writable_ && src_.canSetAll(); }
+
+
+template <class T> inline
 T* OffsetValueSeries<T>::arr()
 { T* p = src_.arr(); return p ? p+off_ : 0; }
 
@@ -207,6 +235,17 @@ ArrayValueSeries<RT,AT>::ArrayValueSeries( od_int64 sz )
     : ptr_( 0 ), mine_(true), cursize_( -1 )
 {
     setSize( sz );
+}
+
+
+template <class RT, class AT>
+void ArrayValueSeries<RT,AT>::setAll( RT val )
+{
+    if ( cursize_<=0 )
+    {
+	MemSetter<AT> setter( ptr_, (AT) val, cursize_ );
+	setter.execute();
+    }
 }
 
 
@@ -276,6 +315,32 @@ void MultiArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
 
     idx -= arridx*chunksize_;
     ptrs_[arridx][idx] = v;
+}
+
+
+template <class RT, class AT> inline
+void MultiArrayValueSeries<RT,AT>::setAll( RT val )
+{
+    if ( cursize_<=0 )
+	return;
+
+    MemSetter<AT> memsetter;
+    memsetter.setValue( (AT) val );
+
+    for ( int idx=ptrs_.size()-1; idx>=0; idx-- )
+    {
+	const od_int64 nextstart = (idx+1)*chunksize_;
+	od_int64 curchunksize = chunksize_;
+	if ( nextstart>cursize_ )
+	{
+	    od_int64 diff = nextstart-cursize_;
+	    curchunksize -= diff;
+	}
+
+	memsetter.setPointer( ptrs_[idx] );
+	memsetter.setSize( curchunksize );
+	memsetter.execute();
+    }
 }
 
 
