@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.23 2009-01-30 21:22:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.24 2009-02-02 15:17:26 cvsyuancheng Exp $";
 
 #include "visflatviewer.h"
 
@@ -188,6 +188,13 @@ const SamplingData<float> FlatViewer::getDefaultGridSampling( bool x1 ) const
 
 void FlatViewer::updateGridLines( bool x1 )
 {
+    if ( channel2rgba_->getSequence(0) )
+    {
+    	const Color markcolor = channel2rgba_->getSequence(0)->markColor();
+    	x1gridlines_->getMaterial()->setColor( markcolor );
+    	x2gridlines_->getMaterial()->setColor( markcolor );
+    }
+
     const FlatPosData* posdata = pack(false) ? &pack(false)->posData() : 0;
     visBase::IndexedPolyLine* gridlines = x1 ? x1gridlines_ : x2gridlines_;
 
