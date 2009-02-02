@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.4 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.5 2009-02-02 11:30:41 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ protected:
     void			getUserRef(const Attrib::DescID&,
 					   BufferStringSet&) const;
     void			getStoredIds();
+    void			handleSingleInput();
+    void			handleMultiInput();
     bool			hasInput(const Attrib::Desc&,
 					 const Attrib::DescID&) const;
     Attrib::DescSet& 		attrset_;
