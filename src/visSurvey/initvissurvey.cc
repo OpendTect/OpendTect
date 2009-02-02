@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvissurvey.cc,v 1.4 2009-01-23 21:53:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: initvissurvey.cc,v 1.5 2009-02-02 23:44:41 cvsyuancheng Exp $";
 
 
 #include "initvissurvey.h"
@@ -18,9 +18,10 @@ static const char* rcsID = "$Id: initvissurvey.cc,v 1.4 2009-01-23 21:53:46 cvsy
 #include "vismpeeditor.h"
 #include "vismpeseedcatcher.h"
 #include "vispicksetdisplay.h"
-#include "visrandomposbodydisplay.h"
 #include "visplanedatadisplay.h"
+#include "vispolygonbodydisplay.h"
 #include "vispolylinedisplay.h"
+#include "visrandomposbodydisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vissurvscene.h"
@@ -44,6 +45,7 @@ void initStdClasses()
     PickSetDisplay::initClass();
     RandomPosBodyDisplay::initClass();
     PlaneDataDisplay::initClass();
+    PolygonBodyDisplay::initClass();
     PolyLineDisplay::initClass();
     RandomTrackDisplay::initClass();
     Seis2DDisplay::initClass();

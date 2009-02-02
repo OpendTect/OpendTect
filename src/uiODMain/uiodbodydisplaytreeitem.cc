@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.8 2009-02-02 21:52:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.9 2009-02-02 23:44:41 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -33,7 +33,7 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.8 2009-02-02 21:
 #include "uivispartserv.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "visrandomposbodydisplay.h"
-#include "vispolygonsurfdisplay.h"
+#include "vispolygonbodydisplay.h"
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
@@ -96,7 +96,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 uiTreeItem* uiODBodyDisplayTreeItemFactory::create( int visid,
 						      uiTreeItem* ) const
 {
-    mDynamicCastGet(visSurvey::PolygonSurfDisplay*,plg,
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
     if ( plg )
 	return new uiODBodyDisplayTreeItem( visid, true );
@@ -190,8 +190,8 @@ bool uiODBodyDisplayTreeItem::init()
 	mDynamicCastGet( EM::RandomPosBody*, rpb0, object );
 	if ( plg0 )
 	{
-	    visSurvey::PolygonSurfDisplay* plg =
-		visSurvey::PolygonSurfDisplay::create();
+	    visSurvey::PolygonBodyDisplay* plg =
+		visSurvey::PolygonBodyDisplay::create();
 	    displayid_ = plg->id();
 	    plg_ = plg;
 	    plg_->ref();
@@ -222,7 +222,7 @@ bool uiODBodyDisplayTreeItem::init()
     }
     else
     {
-	mDynamicCastGet( visSurvey::PolygonSurfDisplay*, plg,
+	mDynamicCastGet( visSurvey::PolygonBodyDisplay*, plg,
 			 visserv_->getObject(displayid_) );
 	mDynamicCastGet( visSurvey::MarchingCubesDisplay*, mcd,
 			 visserv_->getObject(displayid_) );
@@ -318,7 +318,7 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::MarchingCubesDisplay*,mcd,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
-    mDynamicCastGet(visSurvey::PolygonSurfDisplay*,plg,
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
     mDynamicCastGet(visSurvey::RandomPosBodyDisplay*,rpb,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
