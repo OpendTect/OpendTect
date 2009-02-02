@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.7 2009-01-27 21:40:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.8 2009-02-02 21:52:02 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -322,6 +322,9 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
     mDynamicCastGet(visSurvey::RandomPosBodyDisplay*,rpb,
 	    ODMainWin()->applMgr().visServer()->getObject(displayID()));
+	
+    const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
+			    applMgr()->EMServer()->isFullyLoaded(emid_);
     if ( mcd )
     {
 	if ( mcd->hasInitialShape() )
@@ -332,9 +335,7 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 	}
 	else
 	{
-	    mAddMenuItem( menu, &savemnuitem_,
-			  applMgr()->EMServer()->isChanged(emid_) &&
-			  applMgr()->EMServer()->isFullyLoaded(emid_) &&
+	    mAddMenuItem( menu, &savemnuitem_, enablesave && 
 			  !applMgr()->EMServer()->isShifted(emid_), false );
 	    mAddMenuItem( menu, &saveasmnuitem_, true, false );
 	    mResetMenuItem( &newellipsoidmnuitem_ );
@@ -354,9 +355,6 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 	
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	mAddMenuItem( menu, &removeselectedmnuitem_, sel && sel->isOK(), true );
-    
-	const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
-	    			applMgr()->EMServer()->isFullyLoaded(emid_);
 	
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
@@ -364,7 +362,6 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 
     if ( rpb )
     {
-	const bool enablesave = applMgr()->EMServer()->isChanged(emid_);
 	mAddMenuItem( menu, &savemnuitem_, enablesave, false );
 	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }

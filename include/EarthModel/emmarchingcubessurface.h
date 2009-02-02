@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.3 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emmarchingcubessurface.h,v 1.4 2009-02-02 21:52:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -30,11 +30,12 @@ public:
     virtual SectionID		sectionID(int) const		{ return 0; }
     virtual bool		canSetSectionName() const	{ return false;}
 
-    const Geometry::Element*	sectionGeometry(const SectionID&) const;
-    Geometry::Element*		sectionGeometry(const SectionID&);
-
+    Geometry::Element*		sectionGeometry(const SectionID&) { return 0; }
+    const Geometry::Element*	sectionGeometry(const SectionID&) const
+								  { return 0; }
     virtual Executor*		loader();
     virtual Executor*		saver();
+    virtual Executor*		saver(IOObj*);
     virtual bool		isEmpty() const;
 
     const IOObjContext&		getIOObjContext() const;

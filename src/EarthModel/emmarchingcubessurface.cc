@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.10 2009-01-27 21:40:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.11 2009-02-02 21:52:02 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -217,20 +217,6 @@ EM::MarchingCubesSurface::~MarchingCubesSurface()
 }
 
 
-
-const Geometry::Element*
-EM::MarchingCubesSurface::sectionGeometry( const SectionID& sid ) const
-{
-    return 0;
-}
-
-
-Geometry::Element* EM::MarchingCubesSurface::sectionGeometry( const SectionID& sid )
-{
-    return 0;
-}
-
-
 Executor* EM::MarchingCubesSurface::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
@@ -247,10 +233,25 @@ Executor* EM::MarchingCubesSurface::loader()
 
 Executor* EM::MarchingCubesSurface::saver()
 {
-    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    return saver( 0 );
+}
+
+
+Executor* EM::MarchingCubesSurface::saver( IOObj* inpioobj )
+{
+    PtrMan<IOObj> myioobj = 0;
+    IOObj* ioobj = 0;
+    if ( inpioobj )
+	ioobj = inpioobj;
+    else
+    {
+	myioobj = IOM().get( multiID() );
+	ioobj = myioobj;
+    }
+
     if ( !ioobj )
 	return 0;
-
+    
     Conn* conn = ioobj->getConn( Conn::Write );
     if ( !conn )
 	return 0;
