@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.9 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.10 2009-02-02 11:36:23 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,10 @@ mClass uiAttrInpDlg : public uiDialog
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
 				     bool issteer,bool is2d);
-			uiAttrInpDlg(uiParent*,bool issteer,bool is2d);
+			//!<Use for multi input case
+			uiAttrInpDlg(uiParent*,bool hasseis,
+				     bool hassteer,bool is2d);
+			//!<Use for single input case
 			~uiAttrInpDlg();
 
     bool		is2D() const 		{ return is2d_ ; }
@@ -45,11 +48,9 @@ protected:
 
     CtxtIOObj&		ctio_;
     CtxtIOObj&		ctiosteer_;
-    bool		issteer_;
     bool		multiinpcube_;
     bool		is2d_;
 
-    void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
 };
 

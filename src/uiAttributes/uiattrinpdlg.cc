@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.18 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.19 2009-02-02 11:36:23 cvsnageswara Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -35,12 +35,13 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 				 "101.1.2"))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
     , ctiosteer_(*mMkCtxtIOObj(SeisTrc))
-    , issteer_(issteer)
     , multiinpcube_(true)
     , is2d_(is2d)
+    , seisinpfld_(0)
+    , steerinpfld_(0)
 {
     setCtxtIO();
-    
+
     ctio_.ctxt.includeconstraints = issteer;
     ctio_.ctxt.allowcnstrsabsent = !issteer;
 
@@ -68,25 +69,32 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 }
 
 
-uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool issteer, bool is2d )
+uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
+       			    bool is2d )
     : uiDialog(p,uiDialog::Setup("Attribute set definition",
-		       issteer ? "Select Seismic & Steering input"
+		       hassteer ? "Select Seismic & Steering input"
 			       : "Select Seismic input",
 				 "101.1.2"))
     , ctio_(*mMkCtxtIOObj(SeisTrc))
     , ctiosteer_(*mMkCtxtIOObj(SeisTrc))
-    , issteer_(issteer)
     , multiinpcube_(false)
     , is2d_(is2d)
+    , seisinpfld_(0)
+    , steerinpfld_(0)
+    , inpfld_(0)
 {
     setCtxtIO();
-    seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(
-				 is2d ? Seis::Line : Seis::Vol)
-				 .seltxt("Input Seismics Cube")
-	   			 .datatype(sKey::Steering)
-				 .allowcnstrsabsent(true)
-	   			 .include(false) ); 
-    if ( issteer )
+    if ( hasseis )
+    {
+	seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(
+				     is2d ? Seis::Line : Seis::Vol)
+				     .seltxt("Input Seismics Cube")
+				     .datatype(sKey::Steering)
+				     .allowcnstrsabsent(true)
+				     .include(false) ); 
+    }
+
+    if ( hassteer )
     {
 	steerinpfld_ = new uiSeisSel( this, ctiosteer_, uiSeisSel::Setup(
 				      is2d ? Seis::Line : Seis::Vol )
@@ -94,7 +102,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool issteer, bool is2d )
 	       			      .datatype(sKey::Steering)
 				      .allowcnstrsabsent(false)
 	       			      .include(true) );
-	steerinpfld_->attach( alignedBelow, seisinpfld_ );
+	if ( hasseis ) steerinpfld_->attach( alignedBelow, seisinpfld_ );
     }
 }
 
@@ -128,18 +136,16 @@ bool uiAttrInpDlg::acceptOK( CallBacker* )
     }
     else
     {
-	if ( !seisinpfld_->commitInput( false ) )
+	if ( seisinpfld_ && !seisinpfld_->commitInput( false ) )
 	{
 	    uiMSG().error( "Please, select input" );
 	    return false;
 	}
-	if ( issteer_ )
+
+	if ( steerinpfld_ && !steerinpfld_->commitInput( false ) )
 	{
-	    if ( !steerinpfld_->commitInput( false ) )
-	    {
-		uiMSG().error( "Please, select input" );
-		return false;
-	    }
+	    uiMSG().error( "Please, select input" );
+	    return false;
 	}
     }
 
@@ -156,19 +162,19 @@ uiAttrInpDlg::~uiAttrInpDlg()
 
 const char* uiAttrInpDlg::getUserRef() const
 {
-    return inpfld_->getInput();
+    return inpfld_ ? inpfld_->getInput() : 0;
 }
 
 
 const char* uiAttrInpDlg::getSeisRef() const
 {
-    return seisinpfld_->getInput();
+    return seisinpfld_ ? seisinpfld_->getInput() : 0;
 }
 
 
 const char* uiAttrInpDlg::getSteerRef() const
 {
-    return issteer_ ? steerinpfld_->getInput() : 0;
+    return steerinpfld_ ? steerinpfld_->getInput() : 0;
 }
 
 
@@ -177,7 +183,7 @@ const char* uiAttrInpDlg::getKey() const
     static LineKey lk;
     lk.setLineName( ctio_.ioobj->key() );
     if ( is2D() )
-	lk.setAttrName( issteer_ ? sKey::Steering : inpfld_->attrNm() );
+	lk.setAttrName( inpfld_->attrNm() );
 
     return lk;
 }
@@ -189,19 +195,15 @@ const char* uiAttrInpDlg::getSeisKey() const
     lk.setLineName( ctio_.ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( seisinpfld_->attrNm() );
-
     return lk;
 }
 
 
 const char* uiAttrInpDlg::getSteerKey() const
 {
-    if ( !issteer_ )
-	return 0;
     static LineKey lk;
     lk.setLineName( ctiosteer_.ioobj->key() );
     if ( is2D() )
 	lk.setAttrName( steerinpfld_->attrNm() );
-
     return lk;
 }
