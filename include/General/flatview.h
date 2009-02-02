@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.40 2009-01-28 16:52:21 cvsyuancheng Exp $
+ RCS:           $Id: flatview.h,v 1.41 2009-02-02 10:25:22 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 class IOPar;
 class FlatView_CB_Rcvr;
 
-namespace ColTab { class MapperSetup; };
+namespace ColTab { struct MapperSetup; };
 
 
 namespace FlatView
@@ -83,7 +83,7 @@ public:
 	void			empty();
     };
 
-    struct AxisData
+    mStruct AxisData
     {
 				AxisData();
 
