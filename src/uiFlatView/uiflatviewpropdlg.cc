@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.45 2009-01-20 06:00:01 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiflatviewpropdlg.cc,v 1.46 2009-02-02 21:55:17 cvsyuancheng Exp $";
 
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
@@ -740,7 +740,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     , applycb_(applcb)
     , selannot_(selannot)
 {
-    vwr_.fillPar( initialpar_ );
+    vwr_.fillAppearancePar( initialpar_ );
 
     if ( withwva )
     {
@@ -787,14 +787,14 @@ void uiFlatViewPropDlg::putAllToScreen()
 void uiFlatViewPropDlg::doApply( CallBacker* cb )
 {
     acceptOK( cb );
-    vwr_.fillPar( initialpar_ );
+    vwr_.fillAppearancePar( initialpar_ );
     applycb_.doCall( this );
 }
 
 
 bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
 {
-    vwr_.usePar( initialpar_ );
+    vwr_.useAppearancePar( initialpar_ );
     return true;
 }
 

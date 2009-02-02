@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.39 2009-01-26 15:09:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.40 2009-02-02 21:55:17 cvsyuancheng Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -602,7 +602,7 @@ void uiViewer3DMgr::sessionSaveCB( CallBacker* )
 	    continue;
 
 	IOPar viewerpar;
-	viewers2d_[idx]->viewer().fillPar( viewerpar );
+	viewers2d_[idx]->viewer().fillApperancePar( viewerpar );
 	viewerpar.set( sKeyBinID(), gather->getBinID() );
 	viewerpar.set( sKeyMultiID(), gather->getStorageID() );
 	viewerpar.set( sKeyTraceNr(), gather->getSeis2DTraceNr() );

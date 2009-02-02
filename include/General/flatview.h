@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.41 2009-02-02 10:25:22 cvsranojay Exp $
+ RCS:           $Id: flatview.h,v 1.42 2009-02-02 21:55:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -317,9 +317,12 @@ public:
     enum DataChangeType	{ None, All, Annot, WVAData, VDData, WVAPars, VDPars };
     virtual void	handleChange(DataChangeType,bool dofill=true)	= 0;
 
-    virtual void	fillPar( IOPar& iop ) const
+    			//!Does not store any data, just how data is displayed
+    virtual void	fillAppearancePar( IOPar& iop ) const
 			{ appearance().fillPar( iop ); }
-    virtual void	usePar( const IOPar& iop )
+    			/*!Does not retrieve any data, just how data is
+			  displayed */
+    virtual void	useAppearancePar( const IOPar& iop )
 			{ appearance().usePar( iop ); }
 
     void		storeDefaults(const char* key) const;

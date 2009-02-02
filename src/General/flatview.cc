@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.49 2009-01-29 22:15:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.50 2009-02-02 21:55:17 cvsyuancheng Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -534,7 +534,7 @@ bool FlatView::Viewer::isVisible( bool wva ) const
 void FlatView::Viewer::storeDefaults( const char* ky ) const
 {
     Settings& setts = Settings::fetch( "flatview" );
-    IOPar iop; fillPar( iop );
+    IOPar iop; fillAppearancePar( iop );
     setts.mergeComp( iop, ky );
     setts.write();
 }
@@ -545,6 +545,6 @@ void FlatView::Viewer::useStoredDefaults( const char* ky )
     Settings& setts = Settings::fetch( "flatview" );
     IOPar* iop = setts.subselect( ky );
     if ( iop && iop->size() )
-	usePar( *iop );
+	useAppearancePar( *iop );
     delete iop;
 }
