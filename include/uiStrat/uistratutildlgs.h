@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.9 2009-01-30 16:04:23 cvshelene Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.10 2009-02-02 12:40:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ protected:
     void		newLith(CallBacker*);
     void		selChg(CallBacker*);
     void		rmSel(CallBacker*);
+    void		renameCB(CallBacker*);
 
     bool		acceptOK(CallBacker*);
 };

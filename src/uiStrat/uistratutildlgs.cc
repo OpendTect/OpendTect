@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.13 2009-01-30 16:04:23 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratutildlgs.cc,v 1.14 2009-02-02 12:40:07 cvshelene Exp $";
 
 #include "uistratutildlgs.h"
 
@@ -129,9 +129,13 @@ uiStratLithoDlg::uiStratLithoDlg( uiParent* p, uiStratMgr* uistratmgr )
     sep->attach( heightSameAs, selfld_ );
     rightgrp->attach( rightTo, sep );
 
+    uiButton* renamebut = new uiPushButton( this, "Re&name selected",
+				    mCB(this,uiStratLithoDlg,renameCB), true );
+    renamebut->attach( alignedBelow, rightgrp );
+
     uiButton* rmbut = new uiPushButton( this, "&Remove selected",
 	    				mCB(this,uiStratLithoDlg,rmSel), true );
-    rmbut->attach( alignedBelow, rightgrp );
+    rmbut->attach( alignedBelow, renamebut );
 
     finaliseDone.notify( cb );
 }
@@ -156,7 +160,10 @@ void uiStratLithoDlg::newLith( CallBacker* )
     if ( selfld_->isPresent( nm ) )
 	{ uiMSG().error( "Please specify a new, unique name" ); return; }
 
-    uistratmgr_->createNewLith( nm, isporbox_->isChecked() );
+    const Strat::Lithology* lith =
+		    uistratmgr_->createNewLith( nm, isporbox_->isChecked() );
+    if ( !lith ) lith = &Strat::Lithology::undef();
+    prevlith_ = const_cast<Strat::Lithology*>( lith );
 
     selfld_->addItem( nm );
     selfld_->setCurrentItem( nm );
@@ -169,16 +176,11 @@ void uiStratLithoDlg::selChg( CallBacker* )
 
     if ( prevlith_ )
     {
-	BufferString newnm( nmfld_->text() );
 	const bool newpor = isporbox_->isChecked();
-	if ( newnm != prevlith_->name() || newpor != prevlith_->porous_ )
+	if ( newpor != prevlith_->porous_ && !prevlith_->isUdf() )
 	{
-	    if ( !prevlith_->isUdf() )
-	    {
-		prevlith_->setName( nmfld_->text() );
-		prevlith_->porous_ = isporbox_->isChecked();
-		uistratmgr_->lithChanged.trigger();
-	    }
+	    prevlith_->porous_ = isporbox_->isChecked();
+	    uistratmgr_->lithChanged.trigger();
 	}
     }
     const BufferString nm( selfld_->getText() );
@@ -187,6 +189,19 @@ void uiStratLithoDlg::selChg( CallBacker* )
     nmfld_->setText( lith->name() );
     isporbox_->setChecked( lith->porous_ );
     prevlith_ = const_cast<Strat::Lithology*>( lith );
+}
+
+
+void uiStratLithoDlg::renameCB( CallBacker* )
+{
+    Strat::Lithology* lith = const_cast<Strat::Lithology*>(
+				uistratmgr_->getLith( selfld_->getText() ) );
+    if ( !lith || lith->isUdf() ) return;
+
+    lith->setName( nmfld_->text() );
+    selfld_->setItemText( selfld_->currentItem(), nmfld_->text() );
+    uistratmgr_->lithChanged.trigger();
+    prevlith_ = lith;
 }
 
 
