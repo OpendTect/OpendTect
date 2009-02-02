@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.10 2009-01-08 09:11:18 cvsranojay Exp $
+ RCS:		$Id: uimpe.h,v 1.11 2009-02-02 10:22:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,7 @@ public:
 
 /*! Access function for an instance (and normally the only instance) of
   MPE::uiMPEEngine. */
-uiMPEEngine& uiMPE();
+mGlobal uiMPEEngine& uiMPE();
 
 };
 
