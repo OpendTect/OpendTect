@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.12 2009-01-28 22:21:44 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.13 2009-02-02 15:53:01 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -34,9 +34,9 @@ bool BatchProgram::go( std::ostream& strm )
     if ( !VolProcessingTranslator::retrieve( *chain, ioobj, errmsg ) )
     {
    	 chain = 0;
-	 strm << "Could not open storage: " << chainid <<
-	     	 ". Error description: ";
-	 strm << errmsg.buf();
+	 strm << "Could not open volume processing: \"" << ioobj->name() <<
+	     "\". Error description: ";
+
 	 return false;
     }
 
