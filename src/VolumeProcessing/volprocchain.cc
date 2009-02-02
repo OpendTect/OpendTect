@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.6 2008-12-23 11:15:22 cvsdgb Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.7 2009-02-02 16:05:28 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -356,25 +356,45 @@ bool Chain::usePar( const IOPar& par )
 {
     deepErase( steps_ );
 
+    const char* parseerror = "Parsing error";
+
     int nrsteps;
     if ( !par.get( sKeyNrSteps(), nrsteps ) )
+    {
+	errmsg_ = parseerror;
 	return false;
+    }
+
 
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	PtrMan<IOPar> steppar = par.subselect( toString(idx) );
 	if ( !steppar )
-	    continue;
+	{
+	    errmsg_ = parseerror;
+	    return false;
+	}
 
 	BufferString type;
 	if ( !steppar->get( sKeyStepType(), type ) )
-	    continue;
+	{
+	    errmsg_ = parseerror;
+	    return false;
+	}
 
 	Step* step = PS().create( type.buf(), *this );
-	if ( !step ) continue;
+	if ( !step )
+	{
+	    errmsg_ = "Cannot create Volume processing step ";
+	    errmsg_ += type.buf();
+	    errmsg_ += ". Perhaps all plugins are not loaded?";
+	    return false;
+	}
 
 	if ( !step->usePar( *steppar ) )
 	{
+	    errmsg_ = "Cannot parse Volume Processing's parameters: ";
+	    errmsg_ += step->errMsg();
 	    delete step;
 	    continue;
 	}
