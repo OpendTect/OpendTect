@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.43 2009-01-28 11:06:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.44 2009-02-02 08:01:06 cvsnanne Exp $";
 
 #include "uiflatviewcontrol.h"
 #include "flatviewzoommgr.h"
@@ -17,9 +17,10 @@ static const char* rcsID = "$Id: uiflatviewcontrol.cc,v 1.43 2009-01-28 11:06:38
 #include "uirgbarraycanvas.h"
 #include "uigraphicsscene.h"
 #include "uiworld2ui.h"
-#include "uiobjdisposer.h"
-#include "datapackbase.h"
 #include "bufstringset.h"
+#include "datapackbase.h"
+#include "uiobjdisposer.h"
+
 
 #define mDefBut(butnm,grp,fnm,cbnm,tt) \
     butnm = new uiToolButton( grp, 0, ioPixmap(fnm), \
@@ -241,23 +242,23 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx, bool dowva )
     const int selannot = vwr.getAnnotChoices( annots ); 
 
     if ( propdlg_ ) delete propdlg_;
-    propdlg_ = new uiFlatViewPropDlg( vwr.attachObj()->parent(), vwr,
+    propdlg_ = new uiFlatViewPropDlg( 0, vwr,
 				  mCB(this,uiFlatViewControl,applyProperties),
 	   			  annots.size() ? &annots : 0, selannot,
 	   			  withwva_ && dowva );
-    propdlg_->windowClosed.notify(mCB(this,uiFlatViewControl,propDlgClosed));
+    propdlg_->windowClosed.notify( mCB(this,uiFlatViewControl,propDlgClosed) );
     propdlg_->go();
 }
 
 
 void uiFlatViewControl::propDlgClosed( CallBacker* )
 {
-    if ( propdlg_->uiResult() != 1 )
-	return;
-
-    applyProperties(0);
-    if ( propdlg_->saveButtonChecked() )
-	saveProperties( propdlg_->viewer() );
+    if ( propdlg_->uiResult() == 1 )
+    {
+	applyProperties(0);
+	if ( propdlg_->saveButtonChecked() )
+	    saveProperties( propdlg_->viewer() );
+    }
 
     uiOBJDISP()->go( propdlg_ );
     propdlg_ = 0;
