@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.20 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.21 2009-02-02 09:36:50 cvsjaap Exp $";
 
 #include "cmddriver.h"
 
@@ -27,6 +27,11 @@ static const char* rcsID = "$Id: cmddriverpi.cc,v 1.20 2008-11-25 15:35:21 cvsbe
 #include "plugins.h"
 #include "timer.h"
 
+
+namespace CmdDrive 
+{
+
+
 extern "C" int GetCmdDriverPluginType()
 {
     return PI_AUTO_INIT_LATE;
@@ -42,6 +47,7 @@ extern "C" PluginInfo* GetCmdDriverPluginInfo()
 	"Used for testing and general 'scripting'." };
     return &retpii;
 }
+
 
 static const char* autoexecfnm = "autoexec.cmd";
 
@@ -211,7 +217,6 @@ void uiCmdDriverMgr::autoStart( CallBacker* cb )
 }
 
 
-
 void uiCmdDriverMgr::survChg( CallBacker* cb )
 {
     if ( CmdDriver::nowExecuting() )
@@ -257,3 +262,6 @@ extern "C" const char* InitCmdDriverPlugin( int, char** )
     (void)new uiCmdDriverMgr( *ODMainWin() );
     return 0;
 }
+
+
+}; // namespace CmdDrive
