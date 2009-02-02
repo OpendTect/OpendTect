@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.47 2009-01-23 22:25:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.48 2009-02-02 21:39:03 cvsyuancheng Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -270,6 +270,9 @@ bool LocationDisplay::setLocationBodyDisplay()
     if ( !shoulddisplaybody_ )
 	return false;
 
+    if ( embody_->getPositions().size()!=set_->size() )
+	embody_->copyFrom( *set_ );
+	
     if ( !bodydisplay_ )
     {
 	bodydisplay_ = visBase::RandomPos2Body::create();
