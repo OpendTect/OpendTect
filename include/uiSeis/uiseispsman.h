@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseispsman.h,v 1.6 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiseispsman.h,v 1.7 2009-02-02 11:24:56 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ protected:
 
     void		mkFileInfo();
 
+    void		copyPush(CallBacker*);
     void                mergePush(CallBacker*);
     void                mkMultiPush(CallBacker*);
 };

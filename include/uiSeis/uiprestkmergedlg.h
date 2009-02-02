@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.h,v 1.5 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiprestkmergedlg.h,v 1.6 2009-02-02 11:24:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,28 @@ protected:
     
     CtxtIOObj&          inctio_;
     CtxtIOObj&          outctio_;
+};
+
+
+mClass uiPreStackCopyDlg : public uiDialog
+{
+public:
+
+    			uiPreStackCopyDlg(uiParent*);
+    			~uiPreStackCopyDlg();
+
+protected:
+
+    void		objSel(CallBacker*);
+    bool		acceptOK(CallBacker*);
+
+    uiIOObjSel*		inpfld_;
+    uiIOObjSel*		outpfld_;
+    uiPosSubSel*	subselfld_;
+    
+    CtxtIOObj&          inctio_;
+    CtxtIOObj&          outctio_;
+
 };
 
 #endif

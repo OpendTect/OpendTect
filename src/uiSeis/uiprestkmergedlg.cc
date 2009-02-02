@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.12 2009-02-02 11:25:04 cvsraman Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.11 2008-11-25 15:35:26 
 #include "uilabel.h"
 #include "cubesampling.h"
 #include "pixmap.h"
+#include "posinfo.h"
 #include "ptrman.h"
 #include "iodir.h"
 #include "iodirentry.h"
@@ -32,7 +33,7 @@ static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.11 2008-11-25 15:35:26 
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seispsmerge.h"
-#include "seisselection.h"
+#include "seisselectionimpl.h"
 #include "seissingtrcproc.h"
 #include "transl.h"
 #include "uiioobjsel.h"
@@ -268,6 +269,87 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 	sd = Seis::SelData::get( iop );
     }
     PtrMan<SeisPSMerger> Exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
+	    					  sd );
+    uiTaskRunner dlg( this );
+    return dlg.execute( *Exec );
+}
+
+
+uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Copy Pre-Stack Data",
+				 "",
+				 "109.0.0"))
+    , inctio_(*mMkCtxtIOObj(SeisPS3D))
+    , outctio_(*mMkCtxtIOObj(SeisPS3D))
+{
+    inpfld_ = new uiIOObjSel( this, inctio_, "Input Volume" );
+    inpfld_->selectiondone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
+
+    uiPosSubSel::Setup psssu( false, false );
+    psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
+	 .withstep( true );
+    subselfld_ = new uiPosSubSel( this, psssu );
+    subselfld_->attach( alignedBelow, inpfld_ );
+
+    outctio_.ctxt.forread = false;
+    outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
+    outpfld_->attach( alignedBelow, subselfld_ );
+}
+
+
+uiPreStackCopyDlg::~uiPreStackCopyDlg()
+{
+    delete &inctio_; delete &outctio_;
+}
+
+
+void uiPreStackCopyDlg::objSel( CallBacker* )
+{
+    if ( !inpfld_->commitInput(false) || !inctio_.ioobj )
+	return;
+
+    SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inctio_.ioobj );
+    if ( !rdr ) return;
+
+    HorSampling hs;
+    StepInterval<int> inlrg, crlrg;
+    rdr->posData().getInlRange( inlrg );
+    rdr->posData().getCrlRange( crlrg );
+    hs.set( inlrg, crlrg );
+    IOPar iop;
+    Seis::RangeSelData(hs).fillPar( iop );
+    subselfld_->usePar( iop );
+}
+
+
+bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
+{
+    if ( !inpfld_->commitInput(false) )
+    {
+	uiMSG().error( "Please select the input data set" );
+	return false;
+    }
+
+    if ( !outpfld_->commitInput(true) )
+    {
+	uiMSG().error( "Please enter an output data set name" );
+	return false;
+    }
+
+    if ( outctio_.ioobj->implExists(false)
+	      && !uiMSG().askGoOn("Output data set exists. Overwrite?") )
+	return false;
+
+    PtrMan<Seis::SelData> sd = 0;
+    if ( !subselfld_->isAll() )
+    {
+	IOPar iop; subselfld_->fillPar( iop );
+	sd = Seis::SelData::get( iop );
+    }
+
+    ObjectSet<IOObj> selobjs;
+    selobjs += inctio_.ioobj;
+    PtrMan<SeisPSMerger> Exec = new SeisPSMerger( selobjs, *outctio_.ioobj,
 	    					  sd );
     uiTaskRunner dlg( this );
     return dlg.execute( *Exec );
