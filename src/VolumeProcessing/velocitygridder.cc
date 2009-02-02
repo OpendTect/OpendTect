@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.6 2008-12-23 11:15:22 cvsdgb Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.7 2009-02-02 15:51:11 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: velocitygridder.cc,v 1.6 2008-12-23 11:15:22 cv
 #include "gridder2d.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "progressmeter.h"
 #include "survinfo.h"
 #include "velocityfunction.h"
 #include "velocityfunctiongrid.h"
@@ -76,7 +77,8 @@ public:
     int				nextStep();
 
     BinID			getNextBid();
-    void			report1Done();
+    bool			report1Done();
+    				//!<Returns false if process should continue
     od_int64			nrDone() const;
 
     VelGriddingStep&		getStep() { return step_; }
@@ -117,10 +119,15 @@ VelGriddingStepTask::VelGriddingStepTask( VelGriddingStep& step )
 }
 
 
-void VelGriddingStepTask::report1Done()
+bool VelGriddingStepTask::report1Done()
 {
+    if ( progressmeter_ )
+	++(*progressmeter_);
+
     Threads::MutexLocker lock( lock_ );
     nrdone_++;
+
+    return shouldContinue();
 }
 
 
@@ -242,7 +249,8 @@ od_int64 VelGriddingFromFuncTask::totalNr() const
 }
 
 
-bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop, int thread )
+bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop,
+				      int thread )
 {
     Attrib::DataCubes* output = task_.getStep().getOutput();
     const bool zit = task_.getStep().getChain().zIsT();
@@ -253,7 +261,7 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop, int thread 
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
     func->setDesiredZRange( zrg );
 
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const BinID bid = task_.getNextBid();
 
@@ -271,10 +279,11 @@ bool VelGriddingFromFuncTask::doWork( od_int64 start, od_int64 stop, int thread 
 	    output->setValue( 0, inlidx, crlidx, idy, vel );
 	}
 
-	task_.report1Done();
-
 	Threads::MutexLocker lock( lock_ );
 	completedbids_.add( bid );
+
+	if ( !task_.report1Done() )
+	    break;
     }
 
     return true;
@@ -326,7 +335,7 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int threa
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
 
     Gridder2D* gridder = gridders_[thread];
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
 	const BinID bid = task_.getNextBid();
 	const Coord coord = SI().transform( bid );
@@ -386,10 +395,11 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int threa
 		: sum/wsum;
 	}
 
-	task_.report1Done();
-
 	Threads::MutexLocker lock( lock_ );
 	completedbids_.add( bid );
+
+	if ( !task_.report1Done() )
+	    break;
     }
 
     return true;
@@ -503,30 +513,50 @@ bool VelGriddingStep::usePar( const IOPar& par )
 
     for ( int idx=0; idx<nrsources; idx++ )
     {
+	const char* parseerror = "Parse error";
+
 	const BufferString idxstr( 0, idx, 0 );
 	PtrMan<IOPar> sourcepar = par.subselect( idxstr.buf() );
 	if ( !sourcepar )
-	    continue;
+	{
+	    errmsg_ = parseerror;
+	    return false;
+	}
 
 	BufferString sourcetype;
 	if ( !sourcepar->get( sKeyType(), sourcetype ) )
-	    continue;
+	{
+	    errmsg_ = parseerror;
+	    return false;
+	}
 
 	MultiID mid;
 	if ( !sourcepar->get( sKeyID(), mid ) )
-	    continue;
+	{
+	    errmsg_ = parseerror;
+	    return false;
+	}
 
 	Vel::FunctionSource* source =
 	    Vel::FunctionSource::factory().create( sourcetype.buf(), mid );
 	if ( !source )
-	    continue;
+	{
+	    errmsg_ = "Cannot create a velocoty source of type ";
+	    errmsg_ += sourcetype.buf();
+	    errmsg_ += ". Perhaps all plugins are not loaded.\n";
+	    return false;
+	}
 
 	source->ref();
 
 	if ( !source->usePar( *sourcepar ) )
 	{
+	    errmsg_ = "Cannot parse velocoty source's paramters (";
+	    errmsg_ += sourcetype.buf();
+	    errmsg_ += " ).";
+
 	    source->unRef();
-	    continue;
+	    return false;
 	}
 
 	sources_ += source;

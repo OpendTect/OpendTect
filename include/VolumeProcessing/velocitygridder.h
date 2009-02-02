@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.4 2009-01-06 10:16:09 cvsranojay Exp $
+ RCS:		$Id: velocitygridder.h,v 1.5 2009-02-02 15:51:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,8 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
+    const char*		errMsg() const		{ return errmsg_.buf(); }
+
     static const char*	sType()			{ return "Gridding"; }
     static const char*	sUserName()		{ return sType(); }
     static const char*	sKeyType()		{ return "Type"; }
@@ -67,6 +69,7 @@ protected:
 
     Gridder2D*				gridder_;
     ObjectSet<Vel::FunctionSource>	sources_;
+    BufferString			errmsg_;
 };
 
 
