@@ -7,30 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.7 2008-12-01 15:32:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.8 2009-02-03 23:01:04 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
-#include "arraynd.h"
-#include "arrayndimpl.h"
-#include "delaunay3d.h"
 #include "embodytr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
-#include "emsurfacetr.h"
-#include "errh.h"
-#include "explpolygonsurface.h"
-#include "indexedshape.h"
 #include "ioman.h"
-#include "mousecursor.h"
-#include "positionlist.h"
-#include "rowcol.h"
-#include "survinfo.h"
-#include "sortedtable.h"
-#include "tabledef.h"
-#include "trigonometry.h"
 #include "undo.h"
-#include "unitofmeasure.h"
 
 namespace EM {
 
@@ -193,86 +178,12 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
      if ( rrg.isUdf() )
 	 return 0;
 
-     const float zscale = SI().zFactor();
      TypeSet<Coord3> pts;
      for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
-	 surf->getCubicBezierCurve( plg, pts, zscale );
-     
-    Interval<float> zrg;
-    StepInterval<int> inlrg, crlrg;
-    inlrg.step = SI().inlStep();
-    crlrg.step = SI().crlStep();
-   
-    for ( int idx=0; idx<pts.size(); idx++ )
-    {
-	const BinID bid = SI().transform( pts[idx] );
-	if ( !idx )
-	{
-	    inlrg.start = inlrg.stop = bid.inl;
-	    crlrg.start = crlrg.stop = bid.crl;
-	    zrg.start = zrg.stop = pts[idx].z;
-	}
-	else
-	{
-	    inlrg.include( bid.inl ); 
-	    crlrg.include( bid.crl );
-	    zrg.include( pts[idx].z );
-	}
-    }
-
-    for ( int idx=0; idx<pts.size(); idx++ )
-	 pts[idx].z *= zscale;
-
-     DAGTetrahedraTree dagtree;
-     if ( !dagtree.setCoordList( pts, false ) )
-	 return 0;
-
-     ParallelDTetrahedralator triangulator( dagtree );
-     if ( !triangulator.execute(true) )
-	 return 0;
-
-    mDeclareAndTryAlloc( Array3D<char>*, intarr, 
-	    		 Array3DImpl<char>(inlrg.nrSteps()+1,crlrg.nrSteps()+1,
-			     		   mNINT(zrg.width()/SI().zStep())+1) );
-    if ( !intarr )
-	return 0;
+	 surf->getCubicBezierCurve( plg, pts, SI().zFactor() );
     
-    mDeclareAndTryAlloc( ImplicitBody*, res, ImplicitBody );
-    if ( !res )
-    {
- 	delete intarr;
-	return 0;
-    }
-
-    //Initial all the points outside the body.
-    memset( intarr->getData(), 1, sizeof(char)*intarr->info().getTotalSz() );
-    
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-    PtrMan<Explicit2ImplicitBodyExtracter> extractor = 
-	new Explicit2ImplicitBodyExtracter(dagtree, inlrg, crlrg, zrg, *intarr);
-
-    Array3D<float>* arr = new Array3DConv<float,char>(intarr);
-    if ( !arr )
-    {
-	delete intarr;
-	delete res;
-	return 0;
-    }
-
-    res->arr_ = arr;
-    res->threshold_ = 0;
-    res->inlsampling_.start = inlrg.start;
-    res->inlsampling_.step = inlrg.step;
-    res->crlsampling_.start = crlrg.start;
-    res->crlsampling_.step = crlrg.step;    
-    res->zsampling_.start = zrg.start;
-    res->zsampling_.step = SI().zStep();
-
-    if ( !extractor->execute() )
-	res = 0;
-    
-    cursorchanger.restore();
-    return res;
+     ImplicitBodyCreater impbodycreator;
+     return impbodycreator.createImplicitBody( pts, tr ); 
 }
 
 

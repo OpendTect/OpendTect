@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: emrandomposbody.h,v 1.1 2009-01-23 21:46:46 cvsyuancheng Exp $
+ RCS:		$Id: emrandomposbody.h,v 1.2 2009-02-03 23:01:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,8 +52,8 @@ public:
     virtual Executor*		saver(IOObj*);
     virtual Executor*		loader();
 
-    ImplicitBody*               createImplicitBody(TaskRunner*) const 
-    				{ return 0; } 
+    ImplicitBody*               createImplicitBody(TaskRunner*) const; 
+    
 protected:
 
     TypeSet<Coord3>		locations_;
