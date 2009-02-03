@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.8 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uicoltabman.h,v 1.9 2009-02-03 08:31:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ protected:
     uiPushButton*       	removebut_;
     uiPushButton*       	importbut_;
     uiColorInput*       	undefcolfld_;
+    uiColorInput*       	markercolfld_;
     uiCheckBox*			segmentfld_;
     uiSpinBox*			nrsegbox_;
     uiWorld2Ui*			w2uictabcanvas_;
@@ -82,6 +83,7 @@ protected:
     void			updateSegmentFields();
 
     void			undefColSel(CallBacker*);
+    void			markerColChgd(CallBacker*);
     void			rightClick(CallBacker*);
     void			doSegmentize();
     void			importColTab(CallBacker*);

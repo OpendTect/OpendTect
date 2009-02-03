@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.15 2009-01-20 04:38:46 cvsranojay Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.16 2009-02-03 08:31:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,9 @@ public:
     {
 			Setup( uiRect::Side s, int w=0, int h=0 )
 			    : side_(s)
-			    , noannot_(false)
+			    , noaxisline_(false)
+			    , noaxisannot_(false)
+			    , nogridline_(false)
 			    , width_(w)
 			    , height_(h)
 			    , islog_(false)	{}
@@ -62,7 +64,9 @@ public:
 	mDefSetupMemb(int, width)
 	mDefSetupMemb(int, height)
 	mDefSetupMemb(bool,islog)
-	mDefSetupMemb(bool,noannot)
+	mDefSetupMemb(bool,noaxisline)
+	mDefSetupMemb(bool,noaxisannot)
+	mDefSetupMemb(bool,nogridline)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
 	mDefSetupMemb(BufferString,name)
@@ -98,6 +102,8 @@ public:
     void		newDevSize(); //!< Call this when appropriate
     void		setNewDevSize(int devsz, int anotherdim ); //!< Call this when appropriate
 
+    void		createAnnotItems();
+    void		createGridLines();
     void		drawGridLine(int); //!< Already called by plotAxis
 
 protected:

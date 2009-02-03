@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.20 2009-01-28 12:02:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.21 2009-02-03 08:31:27 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -167,7 +167,7 @@ int uiAxisHandler::getPix( float pos ) const
 int uiAxisHandler::pixToEdge() const
 {
     int ret = setup_.border_.get(setup_.side_);
-    if ( setup_.noannot_ ) return ret;
+    if ( setup_.noaxisannot_ ) return ret;
 
     ret += ticsz_ + (isHor() ? wdthy_ : wdthx_);
     return ret;
@@ -197,18 +197,38 @@ Interval<int> uiAxisHandler::pixRange() const
 }
 
 
-void uiAxisHandler::plotAxis()
+void uiAxisHandler::createAnnotItems()
 {
-    drawAxisLine();
-
-    if ( setup_.noannot_ ) 
-    {
-	if ( gridlineitmgrp_ )
-	    gridlineitmgrp_->removeAll( true );
-	return;
-    }
+    if ( !annottxtitmgrp_ && setup_.noaxisannot_ ) return;
     
-    if ( gridlineitmgrp_ )
+    if ( !annottxtitmgrp_ && !setup_.noaxisannot_ )
+    {
+	annottxtitmgrp_ = new uiGraphicsItemGroup();
+	scene_->addItemGrp( annottxtitmgrp_ );
+    }
+    else if ( annottxtitmgrp_ )
+	annottxtitmgrp_->removeAll( true );
+    if ( !annotlineitmgrp_ && !setup_.noaxisannot_ )
+    {
+	annotlineitmgrp_ = new uiGraphicsItemGroup();
+	scene_->addItemGrp( annotlineitmgrp_ );
+    }
+    else if ( annotlineitmgrp_ )
+	annotlineitmgrp_->removeAll( true );
+    
+    if ( setup_.noaxisannot_ ) return;
+    for ( int idx=0; idx<pos_.size(); idx++ )
+    {
+	LineStyle ls;
+	const float relpos = pos_[idx] / endpos_;
+	annotPos( getRelPosPix(relpos), strs_.get(idx), ls );
+    }
+}
+
+
+void uiAxisHandler::createGridLines()
+{
+    if ( gridlineitmgrp_ && !setup_.nogridline_ && !setup_.noaxisannot_ )
     {
 	if ( gridlineitmgrp_->getSize() > 0 )
 	{
@@ -222,13 +242,17 @@ void uiAxisHandler::plotAxis()
     }
     if ( setup_.style_.isVisible() )
     {
-	if ( !gridlineitmgrp_ )
+	if ( !gridlineitmgrp_ && !setup_.nogridline_ && !setup_.noaxisannot_ )
 	{
 	    gridlineitmgrp_ = new uiGraphicsItemGroup();
 	    scene_->addItemGrp( gridlineitmgrp_ );
+	    gridlineitmgrp_->setZValue( 2 );
 	}
-	else
+	else if ( gridlineitmgrp_ )
 	    gridlineitmgrp_->removeAll( true );
+
+	if ( setup_.nogridline_ && setup_.noaxisannot_ ) return;
+	
 	Interval<int> toplot( 0, pos_.size()-1 );
 	for ( int idx=0; idx<pos_.size(); idx++ )
 	{
@@ -237,36 +261,37 @@ void uiAxisHandler::plotAxis()
 		drawGridLine( getRelPosPix(relpos) );
 	}
     }
+}
 
-    LineStyle ls( setup_.style_ );
-    ls.width_ = 1; ls.type_ = LineStyle::Solid;
-    if ( !annottxtitmgrp_ )
+
+void uiAxisHandler::plotAxis()
+{
+    drawAxisLine();
+
+    if ( setup_.nogridline_ ) 
     {
-	annottxtitmgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( annottxtitmgrp_ );
+	if ( gridlineitmgrp_ )
+	    gridlineitmgrp_->removeAll( true );
     }
-    else
-	annottxtitmgrp_->removeAll( true );
-    if ( !annotlineitmgrp_ )
-    {
-	annotlineitmgrp_ = new uiGraphicsItemGroup();
-	scene_->addItemGrp( annotlineitmgrp_ );
-    }
-    else
-	annotlineitmgrp_->removeAll( true );
-    for ( int idx=0; idx<pos_.size(); idx++ )
-    {
-	const float relpos = pos_[idx] / endpos_;
-	annotPos( getRelPosPix(relpos), strs_.get(idx), ls );
-    }
+    
+    createAnnotItems();  
 
     if ( !name().isEmpty() )
 	drawName();
+
+    if ( setup_.noaxisannot_ ) return;
+    createGridLines();
 }
 
 
 void uiAxisHandler::drawAxisLine()
 {
+    if ( setup_.noaxisline_ )
+    {
+	if( axislineitm_ )
+	    axislineitm_->setVisible(false );
+	return;
+    }
     LineStyle ls( setup_.style_ );
     ls.type_ = LineStyle::Solid;
 
@@ -415,6 +440,7 @@ void uiAxisHandler::annotAtEnd( const char* txt )
 
 void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 {
+    if ( setup_.noaxisannot_ ) return;
     const int edgepix = pixToEdge();
     if ( isHor() )
     {
@@ -458,6 +484,7 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 
 void uiAxisHandler::drawGridLine( int pix )
 {
+    if ( setup_.nogridline_ ) return;
     const uiAxisHandler* hndlr = beghndlr_ ? beghndlr_ : endhndlr_;
     int endpix = setup_.border_.get( uiRect::across(setup_.side_) );
     if ( hndlr )
@@ -481,7 +508,6 @@ void uiAxisHandler::drawGridLine( int pix )
 	lineitem->setLine( endpix, pix, width_ - startpix, pix );
 	break;
     }
-    lineitem->setZValue( 3 );
     lineitem->setPenStyle( setup_.style_ );
     gridlineitmgrp_->add( lineitem );
     gridlineitmgrp_->setVisible( setup_.style_.isVisible() );

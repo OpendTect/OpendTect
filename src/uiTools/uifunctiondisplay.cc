@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.26 2009-01-28 12:02:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.27 2009-02-03 08:31:27 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -48,13 +48,21 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     gatherInfo();
     uiAxisHandler::Setup asu( uiRect::Bottom, setup_.canvaswidth_,
 	    		      setup_.canvasheight_ );
-    asu.noannot( !setup_.annotx_ );
+    asu.noaxisline( setup_.noxaxis_ );
+    asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annotx_ );
+    asu.nogridline( asu.noaxisline_ ? true : setup_.noxgridline_ );
     asu.border_ = setup_.border_;
     xax_ = new uiAxisHandler( &scene(), asu );
-    asu.side( uiRect::Left ).noannot( !setup_.annoty_ );
+    asu.noaxisline( setup_.noyaxis_ );
+    asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty_ );
+    asu.nogridline( asu.noaxisline_ ? true : setup_.noygridline_ );
+    asu.side( uiRect::Left );
     yax_ = new uiAxisHandler( &scene(), asu );
+    asu.noaxisline( setup_.noy2axis_ );
+    asu.noaxisannot( asu.noaxisline_ ? true : !setup_.annoty2_ );
+    asu.nogridline( setup_.noy2gridline_ );
     xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
-    asu.side( uiRect::Right ).noannot( !setup_.annoty2_ );
+    asu.side( uiRect::Right );
     y2ax_ = new uiAxisHandler( &scene(), asu );
 
     if ( setup_.editable_ )
@@ -246,7 +254,7 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 
 void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 {
-    if ( setup_.drawscattery1_ ) return;
+    //if ( setup_.drawscattery1_ ) return;
     bool polydrawn = false;
     if ( setup_.fillbelow_ )
     {
@@ -258,7 +266,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 	ypolyitem_ = ypolygonitem_;
 	polydrawn = true;
     }
-    else if ( setup_.drawline_ )
+    else if ( setup_.drawliney_ )
     {
 	if ( !ypolylineitem_ )
 	    ypolylineitem_ = scene().addPolyLine( ptlist );
@@ -271,7 +279,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
     if ( polydrawn )
     {
 	ypolyitem_->setPenColor( setup_.ycol_ );
-	ypolyitem_->setZValue( 1 );
+	ypolyitem_->setZValue( setup_.curvzval_ );
 	ypolyitem_->setVisible( true );
     }
     else if ( ypolyitem_ )
@@ -282,7 +290,7 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 				     bool havey2 )
 {
-    if ( setup_.drawscattery2_ ) return;
+    //if ( setup_.drawscattery2_ ) return;
     bool polydrawn = false;
     if ( setup_.fillbelowy2_ )
     {
@@ -295,7 +303,7 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 	y2polyitem_ = y2polygonitem_;
 	polydrawn = true;
     }
-    else if ( setup_.drawline_ )
+    else if ( setup_.drawliney2_ )
     {
 	if ( !y2polylineitem_ )
 	    y2polylineitem_ = scene().addPolyLine( ptlist );
@@ -308,7 +316,7 @@ void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
     if ( polydrawn )
     {
 	y2polyitem_->setPenColor( setup_.y2col_ );
-	y2polyitem_->setZValue( 0 );
+	y2polyitem_->setZValue( setup_.curvzval_ );
 	y2polyitem_->setVisible( true );
     }
     else if ( y2polyitem_ && !havey2)
@@ -379,7 +387,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	for ( int idx=ptlist.size(); idx<curitmgrp->getSize(); idx++ )
 	    curitmgrp->getUiItem(idx)->setVisible( false );
     }
-    curitmgrp->setZValue( 1 );
+    curitmgrp->setZValue( setup_.curvzval_ );
 }
 
 
@@ -474,6 +482,12 @@ bool uiFunctionDisplay::setSelPt()
     }
     selpt_ = -1;
     if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ ) return false;
+    if ( newsel == 0 || newsel == xvals_.size() - 1 )
+    {
+	selpt_ == -1;
+	return false;
+    }
+
     selpt_ = newsel;
     return true;
 }

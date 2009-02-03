@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.25 2009-01-27 10:17:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.26 2009-02-03 08:31:27 cvssatyaki Exp $";
 
 #include "uicoltabman.h"
 
@@ -69,11 +69,11 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     uiGroup* rightgrp = new uiGroup( this, "Right" );
 
     uiFunctionDisplay::Setup su;
-    su.annotx(false).annoty(false).border(uiBorder(0,0,0,2))
-      .xrg(Interval<float>(0,1)).yrg(Interval<float>(0,255))
-      .canvaswidth(mTransWidth).canvasheight(mTransHeight)
-      .ycol(Color(255,0,0)).y2col(Color(190,190,190))
-      .fillbelowy2(true).editable(true).pointsz(3).ptsnaptol(0.08);
+    su.border(uiBorder(4,0,0,2)).xrg(Interval<float>(0,1)).editable(true)
+      .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth)
+      .canvasheight(mTransHeight).drawscattery1(true) .ycol(Color(255,0,0))
+      .y2col(Color(190,190,190)).drawliney2(false).fillbelowy2(true)
+      .pointsz(3).ptsnaptol(0.08).noxaxis(true).noyaxis(true).noy2axis(true);
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
     cttranscanvas_->pointChanged.notify( mCB(this,uiColorTableMan,transptChg) );
     cttranscanvas_->pointSelected.notify( mCB(this,uiColorTableMan,transptSel));
@@ -106,13 +106,21 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     nrsegbox_->valueChanging.notify( mCB(this,uiColorTableMan,nrSegmentsCB) );
     nrsegbox_->attach( rightTo, segmentfld_ );
 
-    undefcolfld_ = new uiColorInput( rightgrp, uiColorInput::
-	    Setup( ctab_.undefColor()).lbltxt("Undefined color") );
+    uiColorInput::Setup cisetup( ctab_.undefColor());
+    cisetup.lbltxt("Undefined color");
+    undefcolfld_ = new uiColorInput( rightgrp, cisetup );
     undefcolfld_->enableAlphaSetting( true );
     undefcolfld_->colorchanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, nrsegbox_ );
     undefcolfld_->attach( ensureBelow, segmentfld_ );
 
+    markercolfld_ = new uiColorInput(
+	rightgrp,uiColorInput::Setup(ctab_.markColor()).lbltxt("Marker color"));
+    markercolfld_->enableAlphaSetting( true );
+    markercolfld_->colorchanged.notify(
+	    mCB(this,uiColorTableMan,markerColChgd) );
+    markercolfld_->attach( alignedBelow, undefcolfld_ );
+    
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
     splitter->addGroup( leftgrp );
     splitter->addGroup( rightgrp );
@@ -202,6 +210,7 @@ void uiColorTableMan::selChg( CallBacker* cb )
 
     markercanvas_->update();
     undefcolfld_->setColor( ctab_.undefColor() );
+    markercolfld_->setColor( ctab_.markColor() );
 
     TypeSet<float> xvals;
     TypeSet<float> yvals;
@@ -311,6 +320,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 	return false;
 
     newctab.setUndefColor( undefcolfld_->color() );
+    newctab.setMarkColor( markercolfld_->color() );
 
     IOPar* ctpar = new IOPar;
     newctab.fillPar( *ctpar );
@@ -331,6 +341,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 bool uiColorTableMan::acceptOK( CallBacker* )
 {
     ctab_.undefColor() = undefcolfld_->color();
+    ctab_.markColor() = markercolfld_->color();
 
     if ( !(ctab_==*orgctab_) )
 	issaved_ = false;
@@ -357,6 +368,13 @@ void uiColorTableMan::undefColSel( CallBacker* )
 {
     ctab_.setUndefColor( undefcolfld_->color() );
     ctabcanvas_->setRGB();
+    tableChanged.trigger();
+}
+
+
+void uiColorTableMan::markerColChgd( CallBacker* )
+{
+    ctab_.setMarkColor( markercolfld_->color() );
     tableChanged.trigger();
 }
 
