@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.48 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.49 2009-02-03 13:57:12 cvshelene Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -343,9 +343,15 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	outseisid += outpfld_->attrNm();
     }
 
-    fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(), outseisid );
+    fillOutPar( iopar, Output::tskey(), SeisTrcStorOutput::seisidkey(),
+		outseisid );
     
-    BufferString outnm = is2d ? attrfld_->getAttrName() : outpfld_->getInput();
+    BufferString outnm = outpfld_->getInput();
+    if ( is2d )
+    {
+	const char* outputnm = outpfld_->getInput();
+	outnm = LineKey( outputnm ).attrName();
+    }
     iopar.set( sKey::Target, outnm );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey(), 0);
