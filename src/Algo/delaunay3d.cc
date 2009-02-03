@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.16 2008-12-12 15:47:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.17 2009-02-03 23:01:41 cvsyuancheng Exp $";
 
 #include "arraynd.h"
 #include "delaunay3d.h"
@@ -12,8 +12,6 @@ static const char* rcsID = "$Id: delaunay3d.cc,v 1.16 2008-12-12 15:47:55 cvsyua
 #include "survinfo.h"
 #include "trigonometry.h"
 #include "varlenarray.h"
-
-#include <iostream>
 
 
 ParallelDTetrahedralator::ParallelDTetrahedralator( DAGTetrahedraTree& dagt )
@@ -136,7 +134,7 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
     const int crlsz = crlrg_.nrSteps()+1;
     const double zstep = SI().zStep();
     const double zscale = SI().zFactor();
-    const int zsz = mNINT(zrg_.width()/zstep)+1;
+    const int zsz = mNINT(zrg_.width()/(zscale*zstep))+1;
     const TypeSet<Coord3>& knots = dagtree_.coordList();
     
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone() )
@@ -157,8 +155,8 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 	    const Coord c = knots[triangles_[3*ti+2]].coord();
 	    const Coord d0 = a-b;
 	    const Coord d1 = a-c;
-	    const double cosd01 = fabs(d0.dot(d1))-sqrt(d0.dot(d0)*d1.dot(d1));
-	    if ( mIsZero(cosd01, 1e-4) )
+	    const double flatti = fabs(d0.dot(d1))-sqrt(d0.dot(d0)*d1.dot(d1));
+	    if ( mIsZero(flatti,1e-4) )
 		continue;
 	    
 	    if ( pointInTriangle2D( pos, knots[triangles_[3*ti]].coord(),
@@ -168,52 +166,45 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 	}
 	
 	const int tisz = tis.size();
-	mAllocVarLenArr( int, zzeros, tisz );
-	if ( !tisz || tis.size()==1 ) //Ouside has been set to be 1.
-	{ 
-	    if ( tis.size()==1 )
-		pErrMsg("On edge?");
-	    
+	if ( tisz < 2 ) //Outside has been set to be 1.
 	    continue;
-	}
-	else
+	
+	mAllocVarLenArr( int, zzeros, tisz );
+	for ( int ti=0; ti<tisz; ti++ )
 	{
-	    for ( int ti=0; ti<tisz; ti++ )
-	    {
-		const Coord3 v0 = knots[triangles_[3*tis[ti]]];
-		const Coord3 v1 = knots[triangles_[3*tis[ti]+1]];
-		const Coord3 v2 = knots[triangles_[3*tis[ti]+2]];
-		
-		Line3 line( Coord3(v0.coord(),0), Coord3(pos-v0.coord(),0) );
-		Line3 edge( Coord3(v1.coord(),0), Coord3((v2-v1).coord(),0) );
-		
-		double tedge, tline;
-		edge.closestPoint(line,tedge,tline);
-		
-		const Coord intersect = edge.getPoint( tedge ).coord();
-		const double d1 = Coord3(v1.coord()-intersect,0).abs();
-		const double d2 = Coord3(v2.coord()-intersect,0).abs();
-		const double edgez = (v1.z*d2+v2.z*d1)/(d1+d2);
-
-		const double a = Coord3(v0.coord()-pos,0).abs();
-		const double b = Coord3(intersect-pos, 0).abs();
-		const double z = (fabs(edgez)*a+fabs(v0.z)*b)/(zscale*(a+b));
-		zzeros[ti] = zrg_.nearestIndex( z, zstep );
-		
-		lock_.lock();
-		array_.set( inlidx, crlidx, zzeros[ti], 0 );
-		lock_.unLock();
-	    }
+	    const Coord3 v0 = knots[triangles_[3*tis[ti]]];
+	    const Coord3 v1 = knots[triangles_[3*tis[ti]+1]];
+	    const Coord3 v2 = knots[triangles_[3*tis[ti]+2]];
 	    
-	    sort_array( mVarLenArr(zzeros), tisz );
-	    for ( int idz=0; idz<tisz/2; idz++ )
+	    Line3 line( Coord3(v0.coord(),0), Coord3(pos-v0.coord(),0) );
+	    Line3 edge( Coord3(v1.coord(),0), Coord3((v2-v1).coord(),0) );
+	    
+	    double tedge, tline;
+	    edge.closestPoint(line,tedge,tline);
+	    
+	    const Coord intersect = edge.getPoint( tedge ).coord();
+	    const double d1 = Coord3(v1.coord()-intersect,0).abs();
+	    const double d2 = Coord3(v2.coord()-intersect,0).abs();
+	    const double edgez = (v1.z*d2+v2.z*d1)/(d1+d2);
+
+	    const double a = Coord3(v0.coord()-pos,0).abs();
+	    const double b = Coord3(intersect-pos, 0).abs();
+	    const double z = (fabs(edgez)*a+fabs(v0.z)*b)/(zscale*(a+b));
+	    zzeros[ti] = zrg_.nearestIndex( z, zstep );
+	    
+	    lock_.lock();
+	    array_.set( inlidx, crlidx, zzeros[ti], 0 );
+	    lock_.unLock();
+	}
+	
+	sort_array( mVarLenArr(zzeros), tisz );
+	for ( int idz=0; idz<tisz/2; idz++ )
+	{
+	    for ( int k=zzeros[idz*2]+1; k<zzeros[idz*2+1]; k++ )
 	    {
-		for ( int k=zzeros[idz*2]+1; k<zzeros[idz*2+1]; k++ )
-		{
-		    lock_.lock();
-		    array_.set( inlidx, crlidx, k, -1 );
-		    lock_.unLock();
-		}
+		lock_.lock();
+		array_.set( inlidx, crlidx, k, -1 );
+		lock_.unLock();
 	    }
 	}
     }
