@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.31 2009-01-30 16:04:23 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.32 2009-02-03 16:31:41 cvshelene Exp $";
 
 #include "uistrattreewin.h"
 
@@ -81,6 +81,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     createGroups();
     setExpCB(0);
     editCB(0);
+    moveUnitCB(0);
 }
 
 
@@ -198,6 +199,7 @@ void uiStratTreeWin::setExpCB( CallBacker* )
 
 void uiStratTreeWin::unitSelCB(CallBacker*)
 {
+    moveUnitCB(0);
     newUnitSelected.trigger();
     /*
     uiListViewItem* item = uitree_->listView()->selectedItem();
@@ -381,7 +383,11 @@ void uiStratTreeWin::shutdownCB( CallBacker* )
 
 void uiStratTreeWin::moveUnitCB( CallBacker* cb )
 {
-    uitree_->moveUnit( cb == moveunitupbut_ );
+    if ( cb) 
+	uitree_->moveUnit( cb == moveunitupbut_ );
+
+    moveunitupbut_->setSensitive( uitree_->canMoveUnit( true ) );
+    moveunitdownbut_->setSensitive( uitree_->canMoveUnit( false ) );
 }
 
 

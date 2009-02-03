@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistratreftree.cc,v 1.31 2009-01-30 16:07:11 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratreftree.cc,v 1.32 2009-02-03 16:31:41 cvshelene Exp $";
 
 #include "uistratreftree.h"
 
@@ -402,4 +402,21 @@ void uiStratRefTree::moveUnit( bool up )
     curit->setOpen( isexpanded );
     lv_->setCurrentItem(curit);
     uistratmgr_->moveUnit( getCodeFromLVIt( curit ).buf(), up );
+}
+
+
+bool uiStratRefTree::canMoveUnit( bool up )
+{
+    uiListViewItem* curit = lv_->currentItem();
+    if ( !curit ) return false;
+
+    uiListViewItem* target = up ? curit->prevSibling() : curit->nextSibling();
+
+    if ( !target && lv_->findItem( curit->text(), 0, true ) ) //may be main unit
+    {
+	int curidx = lv_->indexOfItem(curit);
+	return !( (curidx<=0 && up) || (!up && curidx>= lv_->nrItems()-1 ) );
+    }
+
+    return target;
 }
