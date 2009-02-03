@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.33 2009-01-14 12:28:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.34 2009-02-03 09:06:43 cvshelene Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -28,6 +28,7 @@ static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.33 2009-01-14 12:28:22 c
 #include "ptrman.h"
 #include "survinfo.h"
 #include "cubesampling.h"
+#include "separstr.h"
 #include <iostream>
 #include <sstream>
 
@@ -141,6 +142,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	if ( !outkeyword ) outkeyword = "Output.0.Seismic.ID";
 	ioobjkey = iopar_.find( outkeyword );
 	delete outls_; outls_ = inpls;
+	BufferString datatype;
 	if ( ioobjkey )
 	{
 	    IOObj* outioobj = IOM().get( ioobjkey );
@@ -149,8 +151,12 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 		outls_ = new Seis2DLineSet( outioobj->fullUserExpr(true) );
 		delete outioobj;
 	    }
+	    //Look for DataType specification
+	    SeparString sepstr( ioobjkey, '|' );
+	    if ( sepstr[2] && *sepstr[2] )
+		datatype += sepstr[2];
 	}
-	inpls->addLineKeys( *outls_, attrnm );
+	inpls->addLineKeys( *outls_, attrnm, 0, datatype.buf() );
 	if ( inpls != outls_ )
 	    delete inpls;
     }

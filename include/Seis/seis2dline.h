@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.42 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seis2dline.h,v 1.43 2009-02-03 09:06:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ public:
     				//!< May return null.
     				//!< will return replacer if linekey exists
     bool		addLineKeys(Seis2DLineSet&,const char* attrnm,
-				    const char* lnm=0);
+				    const char* lnm=0,const char* datatype=0);
     				//!< if lnm == null, add attrib to all lines
     				//!< will commit to file
 
