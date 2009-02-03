@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.14 2009-01-19 04:40:50 cvsranojay Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.15 2009-02-03 06:22:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidatapointset.h"
 #include "datapointset.h"
 #include "uigraphicsview.h"
+#include "uigeom.h"
 #include "uiaxisdata.h"
 #include "rowcol.h"
 
@@ -97,11 +98,24 @@ public:
     void 			drawRegrLine(uiAxisHandler&,
 	    				     const Interval<int>&);
 
+    void			prepareItems(bool y2);
+    void			addItemIfNew(int itmidx,MarkerStyle2D&,
+	    				uiGraphicsItemGroup*,uiAxisHandler&,
+					uiDataPointSet::DRowID);
+    void			setItem(uiGraphicsItem*,bool y2,
+	    				uiDataPointSet::DRowID,const uiPoint&,
+					const AxisData&);
+    void			setAnnotEndTxt(uiAxisHandler&);
+    bool			drawPoints(uiGraphicsItemGroup*,
+	    				   const AxisData&,bool y2,
+	    				   MarkerStyle2D&);
+
     const ObjectSet<Coord3>&	getSelCoords() const	{ return selcoords_; }
     void			setSceneSelectable( bool yn )	
 				{ selectable_ = yn; }
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections();
+    void			getSelectableRanges();
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
@@ -122,8 +136,6 @@ public:
     LinePars&			userdefy1lp_;
     LinePars&			userdefy2lp_;
     
-    TypeSet<RowCol>		y1rowcols_;
-    TypeSet<RowCol>		y2rowcols_;
     TypeSet<RowCol>		selrowcols_;
 
     void			drawY1UserDefLine(const Interval<int>&,bool);
@@ -161,13 +173,16 @@ protected:
     bool			selectable_;
     bool			mousepressed_;
     int				eachrow_;
+    int				eachcount_;
     int				curgrp_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
+    Interval<int>		usedxpixrg_;
     bool			selrowisy2_;
 
-    ObjectSet<Coord3>		y1coords_;
-    ObjectSet<Coord3>		y2coords_;
+    uiRect			selectedarea_;
+    uiRect			yselectablerg_;
+    uiRect			y2selectablerg_;
     ObjectSet<Coord3>		selcoords_;
     ODPolygon<int>*		odselectedpolygon_;
  
