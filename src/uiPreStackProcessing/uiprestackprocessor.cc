@@ -4,10 +4,12 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.9 2008-10-21 13:31:53 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.10 2009-02-04 16:48:00 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
+#include "ioman.h"
+#include "ioobj.h"
 #include "ptrman.h"
 #include "prestackprocessor.h"
 #include "prestackprocessortransl.h"
@@ -28,6 +30,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     : uiGroup( p )
     , manager_( man )
     , change( this )
+    , changed_( false )
 {
     manager_.fillPar( restorepar_ );
 
@@ -72,9 +75,15 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
     loadbutton_ = new uiPushButton( this, "Load",
 	    mCB(this, uiProcessorManager,loadCB), false );
     loadbutton_->attach( alignedBelow, factorylist_ );
+    
+    savebutton_ = new uiPushButton( this, "Save", 
+	    mCB(this, uiProcessorManager,saveCB), true );
+    savebutton_->attach( rightOf, loadbutton_ );
+    savebutton_->setSensitive( false );
+
     saveasbutton_ = new uiPushButton( this, "Save as",
 	    mCB(this, uiProcessorManager,saveAsCB), false );
-    saveasbutton_->attach( rightOf, loadbutton_ );
+    saveasbutton_->attach( rightOf, savebutton_ );
 
     updateList();
     updateButtons();
@@ -84,6 +93,14 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 bool uiProcessorManager::restore()
 {
     return manager_.usePar( restorepar_ );
+}
+
+
+void uiProcessorManager::setLastMid( const MultiID& mid )
+{
+    lastmid_ = mid;
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    savebutton_->setSensitive( ioobj );
 }
 
 
@@ -149,6 +166,7 @@ void uiProcessorManager::showPropDialog( int idx )
     {
 	change.trigger();
 	manager_.notifyChange();
+	changed_ = true;
     }
 	
 }
@@ -197,6 +215,7 @@ void uiProcessorManager::addProcessorCB( CallBacker* )
     processorlist_->selectAll(false);
     updateButtons();
     change.trigger();
+    changed_ = true;
 }
 
 
@@ -211,6 +230,7 @@ void uiProcessorManager::removeProcessorCB( CallBacker* )
 
     updateButtons();
     change.trigger();
+    changed_ = true;
 }
 
 
@@ -225,6 +245,7 @@ void uiProcessorManager::moveUpCB( CallBacker* )
 
     updateButtons();
     change.trigger();
+    changed_ = true;
 }
 
 
@@ -239,6 +260,7 @@ void uiProcessorManager::moveDownCB( CallBacker* )
     processorlist_->setSelected( idx+1, true );
     updateButtons();
     change.trigger();
+    changed_ = true;
 }
 
 
@@ -266,15 +288,27 @@ void uiProcessorManager::loadCB( CallBacker* )
 	{
 	    updateList();
 	    updateButtons();
+	    lastmid_ = dlg.ioObj()->key();
+	    savebutton_->setSensitive( true );
 	}
     }
 
-    if ( selcontext.ioobj )
-	delete selcontext.ioobj;
+    delete selcontext.ioobj;
+    changed_ = false;
 }
 
 
-void uiProcessorManager::saveAsCB( CallBacker* )
+bool uiProcessorManager::save()
+{
+    PtrMan<IOObj> ioobj = IOM().get( lastmid_ );
+    if ( ioobj )
+	return doSave( *ioobj );
+
+    return doSaveAs();
+}
+
+
+bool uiProcessorManager::doSaveAs()
 {
     CtxtIOObj selcontext = PreStackProcTranslatorGroup::ioContext();
     selcontext.ctxt.forread = false;
@@ -282,15 +316,50 @@ void uiProcessorManager::saveAsCB( CallBacker* )
     uiIOObjSelDlg dlg( this, selcontext );
     if ( dlg.go() && dlg.ioObj() )
     {
-	BufferString errmsg;
-	if ( !PreStackProcTranslator::store( manager_, dlg.ioObj(), errmsg) )
-	    uiMSG().error( errmsg.buf() );
+	if ( doSave( *dlg.ioObj() ) )
+	{
+	    lastmid_ = dlg.ioObj()->key();
+	    savebutton_->setSensitive( true );
+	    delete selcontext.ioobj;
+	    return true;
+	}
     }
 
-    if ( selcontext.ioobj )
-	delete selcontext.ioobj;
+    delete selcontext.ioobj;
+    return false;
 }
 
 
+void uiProcessorManager::saveAsCB( CallBacker* )
+{
+    doSaveAs();
+}
+
+
+void uiProcessorManager::saveCB( CallBacker* )
+{
+    PtrMan<IOObj> ioobj = IOM().get( lastmid_ );
+    if ( !ioobj )
+    {
+	uiMSG().error("No name selected");
+	return;
+    }
+
+    doSave( *ioobj );
+}
+
+
+bool uiProcessorManager::doSave( const IOObj& ioobj )
+{
+    BufferString errmsg;
+    if ( !PreStackProcTranslator::store( manager_, &ioobj, errmsg) )
+    {
+	uiMSG().error( errmsg.buf() );
+	return false;
+    }
+
+    changed_ = false;
+    return true;
+}
 
 }; //namespace
