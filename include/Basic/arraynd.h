@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.36 2009-01-30 17:57:42 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.37 2009-02-04 16:54:17 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -289,15 +289,16 @@ void ArrayND<T>::getAll( T* ptr ) const
     const T* tp = getData();
     if ( tp )
     {
-	memcpy( ptr, tp, sizeof(T)*totalsz );
+	MemCopier<T> cpier( ptr, tp, totalsz );
+	cpier.execute();
 	return;
     }
 
     const ValueSeries<T>* stor = getStorage();
     if ( stor )
     {
-	for ( od_int64 idx=0; idx<totalsz; idx++, ptr++ )
-	    *ptr = stor->value( idx );
+	MemCopier<T> cpier( ptr, *stor, totalsz );
+	cpier.execute();
 	return;
     }
 

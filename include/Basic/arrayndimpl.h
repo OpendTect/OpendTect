@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.60 2008-12-05 23:14:37 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.61 2009-02-04 16:54:17 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -411,7 +411,10 @@ void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
     const int nr = in_.getTotalSz();
 
     if ( templ.getData() )
-	memcpy( this->getData(), templ.getData(),sizeof(T)*nr );
+    {
+	MemCopier<T> cpier( this->getData(), templ.getData(), nr );
+	cpier.execute();
+    }
     else
     {
 	for ( int idx=0; idx<nr; idx++ )
@@ -486,9 +489,8 @@ void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 
     if ( templ.getData() )
     {
-	const int nr = in_.getTotalSz();
-	memcpy( this->getData(),
-		templ.getData(),sizeof(T)*nr );
+	MemCopier<T> cpier( this->getData(), templ.getData(), in_.getTotalSz());
+	cpier.execute();
     }
     else
     {
@@ -580,8 +582,8 @@ void Array3DImpl<T>::copyFrom( const Array3D<T>& templ )
 
     if ( templ.getData() )
     {
-	const int nr = in_.getTotalSz();
-	memcpy( this->getData(), templ.getData(),sizeof(T)*nr );
+	MemCopier<T> cpier( this->getData(), templ.getData(),in_.getTotalSz() );
+	cpier.execute();
     }
     else
     {
@@ -669,13 +671,12 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 
     if ( templ.getData() )
     {
-	const int nr = in_->getTotalSz();
-	memcpy( this->getData(), templ.getData(),sizeof(T)*nr );
+	MemCopier<T> cpier( this->getData(), templ.getData(),in_->getTotalSz());
+	cpier.execute();
     }
     else
     {
 	ArrayNDIter iter( *in_ );
-
 	do
 	{
 	    set(iter.getPos(), templ.get(iter.getPos));
