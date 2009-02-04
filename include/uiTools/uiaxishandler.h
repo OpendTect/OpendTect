@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.17 2009-02-04 12:01:55 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.18 2009-02-04 12:04:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,8 +71,9 @@ public:
 	mDefSetupMemb(LineStyle,style)
 	mDefSetupMemb(BufferString,name)
 
-	Setup&		setAnnot( bool yn )
-			{ noaxisline_ = noaxisannot_ = nogridline_ = !yn; }
+	Setup&		noannot( bool yn )
+			{ noaxisline_ = noaxisannot_ = nogridline_ = !yn;
+			  return *this; }
     };
 
 			uiAxisHandler(uiGraphicsScene*,const Setup&);
