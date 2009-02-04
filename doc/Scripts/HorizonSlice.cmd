@@ -6,7 +6,7 @@ Mon Jan 28 11:36:39 2008
 Comment "----------Creating Output Using HorizonSlice---------"
 Case Insensitive
 
-Menu "processing`Create Volume output`Along horizons"
+Menu "Processing`Create Volume output`Along horizon"
 Button "Select Quantity*"
 Button "Stored"
 ListClick "Select Data" "Median Dip Filtered*" Double
@@ -26,7 +26,7 @@ Ok
 Sleep 10
 
 TreeMenu "Inline" "Add"
-TreeMenu "Inline`425" "Position"
+TreeMenu "Inline`*" "Position"
 Window "Positioning"
 Input "Inl nr" 320
 Ok
@@ -34,11 +34,7 @@ Ok
 Button "Stored"
 ListClick "Select Data" "Mediandip_HorSlice_Demo0" Double
 
-Button "Make snapshot"
-Button "Scene"
-Ok
-Input "Select filename" "$SNAPSHOTSDIR$/MediandipFilt_AlongHor.jpg"
-Ok
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Horizongrid-mediandip-FS4.png"
 
 TreeMenu "Inline`*" "Remove"
 Menu "Survey`Manage`Seismics"

@@ -8,7 +8,7 @@ Comment "------Calculating Thickness Between 2 selected Horizons--------"
 Case Insensitive
 
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" 1 Double
+ListClick "Objects list" 1 Double
 Wheel "vRotate" 45
 TreeMenu "Horizon`*" "Calculate Isopach"
 Button "Select Calculate to"
@@ -19,7 +19,7 @@ Ok
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/Demo-Isopach.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_Demo-Isopach.jpg"
 Ok
 Wheel "vRotate" -45
 

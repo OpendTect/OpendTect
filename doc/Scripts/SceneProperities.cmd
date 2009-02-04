@@ -11,7 +11,7 @@ TreeMenu "Inline" "Add"
 TreeMenu "Inline`*`*" "Select Attribute`Stored*`Median Dip*"
 
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" 1 Double
+ListClick "Objects list" 1 Double
 TreeMenu "Horizon`*" "Add attribute"
 TreeMenu "Horizon`*`<right-click>" "Select Att*`Stored*`Median Dip*"
 
@@ -43,7 +43,7 @@ Ok
 Button "Make Snapshot"
 Button "Window"
 Ok
-Input "Filename" "$SNAPSHOTSDIR$/Flatten_scene.png"
+Input "Filename" "$SNAPSHOTSDIR$/$IDX$_Flatten_scene.png"
 Ok
 
 Menu "Survey`Select/Setup"

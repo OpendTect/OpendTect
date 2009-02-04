@@ -10,18 +10,13 @@ Comment "------------Link file to all Scripts---------------------"
 Case Insensitive
 
 Menu "View`Toolbars`Graphical tools" On
+#don't change order.
 
 Include "$SCRIPTSDIR$/AddAttributetoTree.cmd"
 Include "$SCRIPTSDIR$/EvalutionEnergyAttrib.cmd"
+
 Include "$SCRIPTSDIR$/AllAttributes.cmd"
-Include "$SCRIPTSDIR$/Attrib_onInl.cmd"
-Include "$SCRIPTSDIR$/Attrib_onCrl.cmd"
-Include "$SCRIPTSDIR$/Attrib_onTimeSlice.cmd"
-Include "$SCRIPTSDIR$/Attrib_onVol.cmd"
-Include "$SCRIPTSDIR$/Attrib_onRandLine.cmd"
 Include "$SCRIPTSDIR$/PickSet.cmd"
-Include "$SCRIPTSDIR$/Attrib_onHorizon.cmd"
-Include "$SCRIPTSDIR$/Attrib_onWell.cmd"
 
 Include "$SCRIPTSDIR$/AttributeCrossplot.cmd" 
 Include "$SCRIPTSDIR$/AttributeWellCrossplot.cmd"
@@ -32,6 +27,7 @@ Include "$SCRIPTSDIR$/HorizonSlice.cmd"
 Include "$SCRIPTSDIR$/BetweenHorizon.cmd"
 Include "$SCRIPTSDIR$/Horizon-Isopach.cmd"
 Include "$SCRIPTSDIR$/HorizonFillHoles.cmd"
+Include "$SCRIPTSDIR$/TreeitemHorizon.cmd"  //Add to cvs//
 Include "$SCRIPTSDIR$/StratalAmp.cmd"
 
 Include "$SCRIPTSDIR$/rgb-Array-Canvas.cmd"
@@ -41,11 +37,16 @@ Include "$SCRIPTSDIR$/CreateChronoStratigraphy.cmd"
 Include "$SCRIPTSDIR$/CreateSteeringCube.cmd"
 
 Include "$SCRIPTSDIR$/ExportData.cmd"
+#................Problem while Importing..(well properties).......
 Include "$SCRIPTSDIR$/ImportData.cmd"
 Include "$SCRIPTSDIR$/SEGY-Load.cmd"
 
 Include "$SCRIPTSDIR$/CreateSeismicOutput.cmd"
 Include "$SCRIPTSDIR$/CreateChimneyCube.cmd"
 Include "$SCRIPTSDIR$/CreateFaultCube.cmd"
+Include "$SCRIPTSDIR$/UVQ_waveformSegm.cmd"   //Add to cvs
+Include "$SCRIPTSDIR$/GMT.cmd"   //Add to cvs
+Include "$SCRIPTSDIR$/ImportSeismicAttributeSet.cmd"   //Add to cvs
+Include "$SCRIPTSDIR$/ManageWells.cmd"  //Add to cvs
 
 End

@@ -19,20 +19,21 @@ Ok
 Comment "------Adding MedianDipFilteredSeismic to Trree item Inline----"
 
 TreeMenu "Inline" "Add"
-Input "Slice position" 320
+TreeMenu "inline`425" "Position"
+Window "Positioning"
+Input "Inl nr" 320
+Ok
 Button "Stored"
-
-
 ListClick "Select Data" "Median Dip*" Double
 #Color_Apply
-Combo "Table selection" "Grey scales" Double
+Combo "Table selection" "Grey scales" 
 TreeMenu "Inline`*`Median Dip*" "Show Amplitude Spectrum" 
 Window "Amplitude Spectrum*"
-Snapshot "$SNAPSHOTSDIR$/Inl320-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Inl320-AmpSpect.png" CurWin
 Close
 TreeMenu "Inline`*`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SNAPSHOTSDIR$/Inl320-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Inl320-Histogram.png" CurWin
 Close
 
 Comment "------Adding MedianDipFilteredSeismic to Trree item Crossline----"
@@ -46,11 +47,11 @@ ListClick "Select Data" "Median Dip*" Double
 Combo "Table selection" "Altimetric"
 TreeMenu "Crossline`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SNAPSHOTSDIR$/Crl825-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Crl825-AmpSpect.png" CurWin
 Close
 TreeMenu "Crossline`*`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SNAPSHOTSDIR$/Crl825-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Crl825-Histogram.png" CurWin
 Close
 
 Comment "------Adding MedianDipFilteredSeismic to Trree item TimeSlice----"
@@ -62,18 +63,17 @@ ListClick "Select Data" "Median Dip*" Double
 Combo "Table selection" "Brown 4grades"
 TreeMenu "Timeslice`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SNAPSHOTSDIR$/TS925-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_TS925-AmpSpect.png" CurWin
 Close
 TreeMenu "Timeslice`*`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SNAPSHOTSDIR$/TS925-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_TS925-Histogram.png" CurWin
 Close
 
 Comment "------Adding MedianDipFilteredSeismic to Trree item Volume----"
 
 TreeMenu "Volume" "Add"
-Button "Cancel"
-TreeMenu "Volume`<right-click>" "Position"
+TreeMenu "Volume`*" "Position"
 
 Input "Inl Start" 300
 Input "Inl Stop" 400
@@ -86,14 +86,14 @@ Button "Stored"
 ListClick "Select Data" "Median Dip*" Double
 TreeButton "Volume`Median Dip*`Volren" On
 Sleep 3
-Combo "Table selection" "Flames"
-TreeMenu "Volume`Median Dip*" "Show Amplitude Spectrum"
+#Combo "Table selection" "Flames"
+TreeMenu "Volume`*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SNAPSHOTSDIR$/Vol-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Vol-AmpSpect.png" CurWin
 Close
 TreeMenu "Volume`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SNAPSHOTSDIR$/Vol-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Vol-Histogram.png" CurWin
 Close
 
 Comment "-----Adding MedianDipFilteredSeismic to Trree item RandomLine----"
@@ -109,15 +109,15 @@ TableFill "BinID Table" 3 2 1200
 Ok
 Button "Stored"
 ListClick "Select Data" "Median Dip*" Double
-Combo "Table selection" "Red-White-Blue"
 TreeMenu "Random line`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SNAPSHOTSDIR$/Randomline-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Randomline-AmpSpect.png" CurWin
 Close
 TreeMenu "Random line`*`Median Dip*" "Show Histogram"
 Window "Data statistics"
-Snapshot "$SNAPSHOTSDIR$/Randomline-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Randomline-Histogram.png" CurWin
 Close
+Combo "Table selection" "Red-White-Blue"
 
 Comment "------------Loading PickSet- ---------------"
 
@@ -127,36 +127,52 @@ ListClick "Objects list" 1 Double
 Comment "------------Loading Horizon-------------------"
 
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" 1 Double
+ListClick "Objects list" 1 Double
 
 TreeMenu "Horizon`*" "Add attribute"
 TreeMenu "Horizon`*`<right-click>" "Select Att*`Stored*`Median Dip*"
 TreeMenu "Horizon`*`Median*" "Show Histogram"
 Window "Data statistics"
-Snapshot "$SNAPSHOTSDIR$/Horizon-histogram.png"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Horizon-histogram.png"
 Close
 TreeMenu "Horizon`*`Median*" "Show Amplitude*"
 Window "Amplitude Spectrum*"
-Snapshot "$SNAPSHOTSDIR$/Horizon-AmpSpect.png"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_Horizon-AmpSpect.png"
 Close
 TreeMenu "Horizon`*" "Tracking`Wireframe"
 
+Comment "------------Loading Fault------------------"
+TreeMenu "Fault" "Load"
+ListClick "Objects list" "TestFault" Double
+
+
+Comment "------------Loading FaultStickSet------------------"
+TreeMenu "FaultStickSet" "Load"
+ListClick "Objects list" 1 Double
 
 Comment "--------------Loading Well---------------"
 
 TreeMenu "Well" "Load"
-ListClick "Objects list" 1 Double
+ListClick "Objects list" "F03-2" Double
 TreeMenu "Well`*" "Create attribute log"
 Button "Select Input*"
 Button "Stored"
 ListClick "Select Data" "Median Dip*" Double
 Input "Log name" "Testlog"
 Ok
-TreeMenu "Well`*" "Select logs" 
-Combo "Select Left log" "Testlog"
-Button "Select Log Color"
+TreeMenu "Well`*" "Properties" 
+Window "Well display*"
+Tab "Well display*" "Left Log"
+Combo "Select log" 2
+Button "log filled" Off
+Tab "Well display*" "Right Log"
+Combo "Select log" 3
+Button "log filled" On
+Tab "Well display*" "Track"
+Input "Line thickness" 2
+Button "Line color"
 ColorOk Red 2
-Ok
+Button "Dismiss"
 
 Comment "--------------Annotations-----------------"
 
@@ -178,7 +194,7 @@ Sleep 8
 Menu "Survey`Session`Save"
 Input "Name" "DemoTreeItems"
 Ok
-Snapshot "$SNAPSHOTSDIR$/AllTreeItems.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/$IDX$_AllTreeItems.png" ODMain
 Sleep 4
 
 Wheel "hRotate" -20
@@ -192,8 +208,23 @@ TreeMenu "Volume`*" "Remove"
 TreeMenu "Random line`*" "Remove"
 TreeMenu "PickSet`*" "Remove"
 TreeMenu "Horizon`*" "Remove"
+TreeMenu "Fault`*" "Remove"
+TreeMenu "FaultStickSet`*" "Remove"
 TreeMenu "Well`*" "Remove"
+
+Button "Manage well data"
+ListClick "Objects list" "F03-2"
+ListClick "Available logs" "Testlog"
+Button "Remove selected log"
+Button "Yes"
+Button "Dismiss"
+
 TreeButton "Annotations`Arrows`*" Off
+Menu "Survey`Session`Restore"
+ListClick "Objects list" "DemoTreeItems"
+Button "Remove this object"
+Button "Yes"
+Button "Cancel"
 
 Comment "-----------RandomLine Create From wells-----------------"
 
@@ -206,7 +237,7 @@ Input "Name" "RanLineOnWells"
 Ok
 Button "Display Random Line*" On
 Ok
-TreeMenu "Random line`*`<right-click>" "Select Attribute`Stored Cubes`Median Dip*"
+TreeMenu "Random line`*`*" "Select Attribute`Stored Cubes`Median Dip*"
 
 TreeMenu "Well" "Load"
 ListSelect "Objects list" 1 4 On
@@ -214,7 +245,7 @@ Ok
 
 Wheel "hRotate" 30
 Wheel "vRotate" 40
-Snapshot "$SNAPSHOTSDIR$/wells-atRandomLine.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/$IDX$_wells-atRandomLine.png" ODMain
 Sleep 3
 Wheel "vRotate" -40
 Wheel "hRotate" -30
@@ -222,5 +253,14 @@ Wheel "hRotate" -30
 TreeMenu "Random line`*" "Remove"
 TreeMenu "Well" "Remove all items"
 Button "Yes"
+
+TreeMenu "Random line" "Generate`From Wells"
+Window "Create Random*"
+Button "Select Output*"
+ListClick "Objects list" "RanLineOnWells"
+Button "Remove this*"
+Button "Yes"
+Button "Cancel"
+Button "Cancel"
 
 End

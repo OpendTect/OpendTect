@@ -8,7 +8,7 @@ Wheel "vRotate" 85
 Comment "---------Filling Holes in a Horizon---------------"
 
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" 1 Double
+ListClick "Objects list" 1 Double
 TreeMenu "Horizon`*" "Algorithms`Snap to event"
 Button "Select Input Cube"
 ListClick "Objects list" "Median Dip Filtered Seis*" Double
@@ -24,7 +24,7 @@ Ok
 Button "Make snapshot"
 Button "Window"
 Ok
-Input "Filename" "$SNAPSHOTSDIR$/FS4-Snap-to-event.png"
+Input "Filename" "$SNAPSHOTSDIR$/$IDX$_FS4-Snap-to-event.png"
 Ok
 Sleep 3
 Wheel "vRotate" -85
@@ -44,9 +44,10 @@ Button "Select Output Surface"
 Input "Name" "FS4-without Holes"
 Ok
 Ok
-
-TreeMenu "Horizon`FS4-Snap-to-event" "Remove"
-Button "No"
+TreeMenu "Horizon`*" "Remove"
+#Button "No"
+#TreeMenu "Horizon`FS4-Snap-to-event" "Remove"
+#Button "No"
 
 Comment "---------Diaplaying Horizon without Holes------------"
 Menu "Scenes`New"
@@ -54,15 +55,15 @@ Menu "Scenes`Tile`Horizontal"
 Wheel "vRotate" 85
 
 TreeMenu "Tree scene 1" "Horizon" "Load"
-ListClick "Select Horizon*" "FS4-with Holes" Double
+ListClick "Objects list" "FS4-with Holes" Double
 
 TreeMenu "Tree scene 2" "Horizon" "Load"
-ListClick "Select Horizon*" "FS4-without Holes" Double
+ListClick "Objects list" "FS4-without Holes" Double
 
 Button "Make snapshot"
 Button "Window"
 Ok
-Input "Filename" "$SNAPSHOTSDIR$/horizon-fill-holes.png"
+Input "Filename" "$SNAPSHOTSDIR$/$IDX$_horizon-fill-holes.png"
 Ok
 Wheel "vRotate" -85
 

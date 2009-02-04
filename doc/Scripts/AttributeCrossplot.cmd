@@ -5,19 +5,14 @@ Mon Jan 28 11:36:39 2008
 
 Comment "----------Script for Attribute Crossplot---------------"
 
-Case Insensitive
-Menu "Analysis`Attributes"
-Window "Attribute Set 3D"
-Button "New attribute set"
-OnError Continue
-Button "No"
-OnError Stop
-Combo "Attribute group" "<All>"
-Button "Save on OK" off
+Include "$SCRIPTSDIR$/AttributeSet3DWindowPrepare.cmd"
 Include "$SCRIPTSDIR$/coherency.cmd"
 Include "$SCRIPTSDIR$/convolve.cmd"
 Include "$SCRIPTSDIR$/energy.cmd"
 Include "$SCRIPTSDIR$/frequency.cmd"
+Ok
+Menu "Analysis`Attributes"
+Window "Attribute Set 3D"
 
 Button "Cross-Plot attributes"
 Window "Attribute cross-plotting"
@@ -41,7 +36,7 @@ Button "Set data for X"
 TableClick "Data Table" ColHead "CoherencyAttrib"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/CoherencyAttrCrossplot.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_CoherencyAttrCrossplot.png" CurWin
 Sleep 2
 Window "300/500*"
 Close
@@ -51,7 +46,7 @@ Button "UnSelect as Y data"
 TableClick "Data Table" ColHead "ConvolveAtt*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/ConvAttrCrossplot.png"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_ConvAttrCrossplot.png"
 Sleep 2
 Window "300/500*"
 Close
@@ -61,7 +56,7 @@ Button "UnSelect as Y data"
 TableClick "Data Table" ColHead "EnergyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/EnergyAttrCrossplot.png"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_EnergyAttrCrossplot.png"
 Sleep 2
 Window "300/500*"
 Close
@@ -71,7 +66,7 @@ Button "UnSelect as Y data"
 TableClick "Data Table" ColHead "FrequencyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/FreqAttrCrossplot.png"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_FreqAttrCrossplot.png"
 Sleep 2
 Window "300/500*"
 Close

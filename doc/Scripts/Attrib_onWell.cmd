@@ -15,7 +15,7 @@ Ok
 
 TreeMenu "Well`F03-2" "Select logs"
 Combo "Select Left log" "CoherencyAttr_onF03-2"
-Button "Select Log Color"
+Button "Select Line Color"
 ColorOk Red 2
 Ok
 

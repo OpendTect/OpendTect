@@ -4,36 +4,6 @@ Mon Jun 28 11:36:39 2008
 !
 
 Case Insensitive
-Comment "----------Importing Seismic Data--------------"
-
-Menu "Survey`Import`Seismics`SEG-Y"
-Window "SEG-Y tool"
-Input "Input SEG-Y*" "$EXPORTDIR$/SeisExport.sgy"
-Ok
-Window "Determine SEG-Y*"
-Ok
-
-Window "SEG-Y Scan"
-Button "Select Volume sub*"
-Input "Inline start" 320
-Input "Inline stop" 320
-Ok
-Button "Select Output Cube"
-Input "Name" "SeisImport"
-Ok
-Ok
-Ok
-#Window "SEG-Y Examiner""
-#Button "Dismiss"
-Comment "---------Displaying Above imported Seismics---------"
-TreeMenu "Inline" "Add"
-TreeMenu "Inline`*" "Position"
-Window "Positioning"
-Input "Inl nr" 320
-Ok
-Button "Stored"
-ListClick "Select Data" "Median Dip Filtered*" Double
-
 
 Comment "-------------Importing Horizon----------"
 Menu "Survey`Import`Horizons`Ascii`Geometry 3D"
@@ -43,13 +13,12 @@ Ok
 Button "Select Horizon" 
 Input "Name" "Horizon-Import"
 Ok
+Button "Display after import" Off
 Button "Go"
 Button "Dismiss"
-
 Comment "-----------Displaying Above Imported Horizon-------"
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" "Horizon-Import" Double
-
+ListClick "Objects list" "Horizon-Import" Double
 
 Comment "----------------Importing Pickset------------"
 Menu "Survey`Import`Picksets"
@@ -67,57 +36,100 @@ Comment "--------Displaying Above Imported pickset--------"
 TreeMenu "Pickset" "Load"
 ListClick "Objects list" "Pickset-Import" Double
 
-
-Comment "---------------Importing Well------------"
-Menu "Survey`Import`Wells`Ascii`Track"
-Input "Well Track File" "$DATADIR$/WellInfo/Track/F02-1.track"
-Button "Define Format definition"
-Input "[MD]" "col:4"
+Comment "----------------Importing Fault------------"
+Menu "Survey`Import`Faults`Ascii 3D"
+Input "Input ascii file" "$EXPORTDIR$/FaultExport.asc"
+Button "Define Format defi*"
+Input "[Stick*" "col:4"
 Ok
-Input "Depth to Time model*" "$DATADIR$/WellInfo/DT_model/F02-01_TD.txt"
-Input "Elevation above*" 10
-Button "Select Output Well"
-Input "Name" "F02-1-Import"
+Button "Select Output Fault"
+Input "Name" "TestFaultImport"
 Ok
 Button "Go"
 Ok
 Button "Dismiss"
-Comment "---------------Displaying above Imported Well---------------"
-TreeMenu "Well" "Load"
-ListClick "Objects list" "F02-1-Import" Double
-TreeMenu "Well`*" "Properties"
-Button "Color"
-ColorOK Blue 4
+
+Comment "----------------Displaying above ImportedFault-----"
+TreeMenu "Fault" "Load"
+ListClick "Objects list" "TestFaultImport" Double
+
+Comment "----------------Importing FaultStickSet--------"
+Menu "Survey`Import`Faults`Ascii 3D"
+Window "Import Faults"
+Input "Input ascii*" "FaultSickSetExport.asc"
+Button "Define Format*"
+Input "[Stick*" "col:5"
+Ok
+Button "Select Output Fault"
+Input "Name" "TestFaultStickSetImport"
+Button "Go"
+Ok
+Button "Dismiss"
+Comment "------------Displaying above ImportedFaultStickSet--------"
+#-------todo
+
+Comment "----------Importing CBVS----------------"
+Menu "Survey`Import`Seismics`CBVS"
+Input "Select (First) CBVS*" "$DATADIR$/Seismics/Median_Dip_Filtered_Seismics.cbvs"
+Combo "Cube type" "Generated attribute*"
+Button "Copy the data" On
+Button "Volume subsel*"
+Input "Inline start" 320
+Input "Inline stop" 320
+Ok
+Button "Select Output Cube"
+Input "Name" "CBVS-Import"
+Ok
+Ok
 Ok
 
+Comment "----------Importing Seismic Data--------------"
 
-Comment "----------------Importing Fault------------"
-#Menu "Survey`Import`Faults`Ascii 3D"
-#Input "Input ascii file" "$EXPORTDIR$/Export/FaultExport.asc"
-#Button "Define Format defi*"
-#Ok
-#Button "Select Output Fault"
-#Input "Name" "TestFaultImport.flt"
-#Ok
-#Button "Dismiss"
+Menu "Survey`Import`Seismics`SEG-Y"
+Window "SEG-Y tool"
+Input "Input SEG-Y*" "$EXPORTDIR$/SeisExport.sgy"
+Ok
+
+Window "SEG-Y Scan"
+Button "Select Volume sub*"
+Input "Inline start" 320
+Input "Inline stop" 320
+Ok
+Button "Select Output Cube"
+Input "Name" "SeisImport"
+Ok
+Ok
+Ok
+Comment "---------Displaying Above imported Seismics---------"
+TreeMenu "Inline" "Add"
+TreeMenu "Inline`*" "Position"
+Window "Positioning"
+Input "Inl nr" 320
+Ok
+Button "Stored"
+ListClick "Select Data" "Median Dip Filtered*" Double
 
 Wheel "hRotate" 45
 Wheel "vRotate" 45
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/TreeItems-imported"
+Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_TreeItems-imported"
 Ok
 
 TreeMenu "Inline`*" "Remove"
 TreeMenu "PickSet`*" "Remove"
 TreeMenu "Horizon`*" "Remove"
-Treemenu "Well`*" "Remove"
+TreeMenu "Fault`*" "Remove"
+
 Wheel "vRotate" -45
 Wheel "hRotate" -45
 
 Button "Manage seismic data"
 ListClick "Objects list" "SeisImport"
+Button "Remove this object"
+Button "Yes"
+ListClick "Objects list" "CBVS-Import"
 Button "Remove this object"
 Button "Yes"
 Button "Dismiss"
@@ -128,14 +140,14 @@ Button "Remove this object"
 Button "Yes"
 Button "Dismiss"
 
-Button "Manage well data"
-ListClick "Objects list" "F02-1-Import"
+Button "Manage Pick Sets"
+ListClick "Objects list" "Pickset-Import"
 Button "Remove this object"
 Button "Yes"
 Button "Dismiss"
 
-Button "Manage Pick Sets"
-ListClick "Objects list" "Pickset-Import"
+Button "Manage faults"
+ListClick "Objects list" "TestFaultImport"
 Button "Remove this object"
 Button "Yes"
 Button "Dismiss"

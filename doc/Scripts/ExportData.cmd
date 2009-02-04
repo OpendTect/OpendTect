@@ -5,7 +5,6 @@ Mon Jun 18 11:36:39 2008
 
 Case Insensitive
 Comment "----------Exporting Seismics----------"
-
 Menu "Survey`Export`Seismics`SEG-Y`3D"
 Button "Select Input Cube"
 ListClick "Objects list" "Median Dip Filtered*" Double
@@ -19,7 +18,6 @@ Input "Output SEG-Y file" "$EXPORTDIR$/SeisExport.sgy"
 Ok
 
 Comment "----------Exporting Horizons---------------"
-
 Menu "Survey`Export`Horizons`Ascii 3D"
 Button "Select Input Surface"
 ListClick "Objects list" 1 Double
@@ -29,7 +27,6 @@ Ok
 Button "Dismiss"
 
 Comment "-----------Exporting PickSet--------------------"
-
 Menu "Survey`Export`Picksets"
 Button "Select Input PickSet"
 ListClick "Objects list" 1 Double
@@ -38,12 +35,27 @@ Button "Go"
 Ok
 Button "Dismiss"
 
-Comment "-----------Exporting Fault--------------------"
+Comment "------------Exporting Well-------------------"
+Menu "Survey`Manage`Wells"
+ListClick "Objects list" 2
+ListClick "Available logs" 2
+Button "Export log"
+Input "Output file" "$EXPORTDIR$/WellExport.dat"
+Ok
+Button "Dismiss"
 
-#Menu "Survey`Export`Faults`Ascii"
-#Button "Select Input Fault"
-#ListClick "Objects list" "TestFault" Double
-#Input "Output Ascii file" "$EXPORTDIR$/FaultExport.asc"
-#Ok
+Comment "-----------Exporting Fault--------------------"
+Menu "Survey`Export`Faults`Ascii"
+Button "Select Input Fault"
+ListClick "Objects list" "TestFault" Double
+Input "Output Ascii file" "$EXPORTDIR$/FaultExport.asc"
+Ok
+
+Comment "-----------Exporting FaultSickSet--------------------"
+Menu "Survey`Export`FaultStickSets`Ascii"
+Button "Select Input Fault" 
+ListClick "Objects list" "FaultStickSet" Double
+Input "Output Ascii file" "$EXPORTDIR$/FaultSickSetExport.asc"
+Ok
 
 End

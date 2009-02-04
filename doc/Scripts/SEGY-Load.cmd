@@ -13,33 +13,40 @@ Input "Survey directory name" "TestTutorial"
 Input "Full Survey name" "TestSurvey"
 Input "Location on disk" "$BASEDIR$"
 Combo "Survey type" "Only 3D"
-Comment "------------"
-
-Combo "Input parameters" "Scan SEG-Y*"
+Combo "SIPs" "Scan SEG-Y*"
 Button "Go"
-Input "Input file" "$IMPORTDIR$/tut.sgy"
+Comment "---------------------"
+
+Window "SEG-Y tool"
+Input "Input SEG-Y file(s)" "$IMPORTDIR$/tut.sgy"
+Combo "File type" "3D Volume"
+Ok
+Window "SEG-Y Scan"
+Button "Coordinates"
+Tab "SEG-Y def*" "Coordinates"
 Input "X-coord byte" 81
 Input "Y-coord byte" 85
 Ok
 Ok
 Ok
+Button "Yes"
 
 #Importing SEG-Y data or Converting SEG-Y to CBVS_format
 
 Comment "---------Importing SEG-Y data-------------"
 
-Menu "Survey`Import`Seismics`SEG-Y`3D"
-#Button "Define SEG-Y*"
+Window "SEG-Y Scan"
+Button "Coordinates"
+Tab "SEG-Y def*" "Coordinates"
+Input "X-coord byte" 81
+Input "Y-coord byte" 85
 Button "Select Volume*"
 Combo "Volume subselection" "All"
-#Input "Inline Start" 300
-#Input "Inline stop" 305
 Ok
 
 Button "Select Output Cube"
 Input "Name" "test-tut-survey"
 Ok
-
 Ok
 Ok
 
@@ -54,7 +61,7 @@ Button "Stored"
 ListClick "Select Data" 1 Double
 
 Menu "View`Z-scale"
-Input "Z scale value" 15
+Input "Z stretch value" 15
 Button "Fit to scene"
 Ok
 Wheel "hRotate" 90
@@ -62,14 +69,12 @@ Wheel "hRotate" 90
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/tut-segy-load.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_tut-segy-load.jpg"
 Ok
-Wheel "hRotate" -90
 
 Menu "Survey`Select/Setup"
 Button "Remove"
 Button "Yes"
-ListClick "Select Data" "F3_Demo_for_Test"
-Ok
+ListClick "Select Data" "F3_Demo_for_Test" Double
 
 End

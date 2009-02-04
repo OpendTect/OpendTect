@@ -36,8 +36,8 @@ Ok
 
 Comment "----------Apply Attibute On data----------"
 
-Menu "Windows`New"
-Menu "Windows`Tile`Horizontal"
+Menu "Scenes`New"
+Menu "Scenes`Tile`Horizontal"
 
 TreeMenu "Tree Scene 1" "Inline" "Add"
 TreeMenu "Tree Scene 1" "Inline`*`*" "Select Attribute`Stored Cubes`Median Dip Filter*"
@@ -45,7 +45,7 @@ TreeMenu "Tree Scene 1" "Inline`*`*" "Select Attribute`Stored Cubes`Median Dip F
 TreeMenu "Tree Scene 2" "Inline" "Add"
 TreeMenu "Tree Scene 2" "Inline`*`*" "Select Attribute`Attributes`Wavelet-on-MedianDip"
 
-Snapshot "$SNAPSHOTSDIR$/ManageWavelet.png" "ODMain"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_ManageWavelet.png" ODMain
 
 Sleep 2
 #Window "OpendTect Main Window"
@@ -54,6 +54,9 @@ Ok
 Button "No"
 Menu "Survey`Manage`Wavelets"
 ListClick "Objects list" "TestWavelet"
+Button "Rename this object"
+Input "New name" "New-TestWavelet"
+ListClick "Objects list" "New-TestWavelet"
 Button "Remove this Object"
 Button "Yes"
 Button "Dismiss"

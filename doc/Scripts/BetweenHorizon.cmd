@@ -5,9 +5,6 @@ Mon Jan 28 11:36:39 2008
 
 Comment "----------Creating Output Using BetweenHorizons-------------"
 
-#Menu "Survey`Select/Setup"
-#Ok
-
 Case Insensitive
 Menu "processing`Create Volume output`Between horizons"
 Button "Select Quantity*"
@@ -40,7 +37,7 @@ ListClick "Select Data" "Test-zone" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename"  "$SNAPSHOTSDIR$/betHor-testzone_1.jpg" 
+Input "Select filename"  "$SNAPSHOTSDIR$/$IDX$_betHor-testzone_1.jpg" 
 Ok
 
 TreeMenu "Inline`*" "Remove"
