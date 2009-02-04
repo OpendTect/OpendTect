@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.13 2009-01-09 04:35:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.14 2009-02-04 18:35:32 cvskris Exp $";
 
 #include "prestackattrib.h"
 
@@ -14,10 +14,12 @@ static const char* rcsID = "$Id: prestackattrib.cc,v 1.13 2009-01-09 04:35:56 cv
 #include "attribparam.h"
 #include "prestackprocessortransl.h"
 #include "prestackprocessor.h"
+#include "prestackgather.h"
 
-#include "seispsprop.h"
+#include "prestackprop.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
+#include "survinfo.h"
 
 #include "ioman.h"
 #include "ioobj.h"
@@ -26,9 +28,9 @@ static const char* rcsID = "$Id: prestackattrib.cc,v 1.13 2009-01-09 04:35:56 cv
 namespace Attrib
 {
 
-mAttrDefCreateInstance(PreStack)
+mAttrDefCreateInstance(PSAttrib)
     
-void PreStack::initClass()
+void PSAttrib::initClass()
 {
     mAttrStartInitClass
 
@@ -40,11 +42,11 @@ void PreStack::initClass()
     desc->addParam( epar )
 
     EnumParam*
-    mDefEnumPar(calctype,SeisPSPropCalc::CalcType);
+    mDefEnumPar(calctype,::PreStack::PropCalc::CalcType);
     mDefEnumPar(stattype,Stats::Type);
-    mDefEnumPar(lsqtype,SeisPSPropCalc::LSQType);
-    mDefEnumPar(valaxis,SeisPSPropCalc::AxisType);
-    mDefEnumPar(offsaxis,SeisPSPropCalc::AxisType);
+    mDefEnumPar(lsqtype,::PreStack::PropCalc::LSQType);
+    mDefEnumPar(valaxis,::PreStack::PropCalc::AxisType);
+    mDefEnumPar(offsaxis,::PreStack::PropCalc::AxisType);
 
     desc->addParam( new BoolParam( useazimStr(), false, false ) );
     IntParam* ipar = new IntParam( componentStr(), 0 , false );
@@ -64,11 +66,13 @@ void PreStack::initClass()
 }
 
 
-PreStack::PreStack( Desc& ds )
+PSAttrib::PSAttrib( Desc& ds )
     : Provider(ds)
     , psrdr_(0)
     , propcalc_(0)
     , preprocessor_( 0 )
+    , psioobj_( 0 )
+    , component_( 0 )
 {
     if ( !isOK() ) return;
 
@@ -84,21 +88,21 @@ PreStack::PreStack( Desc& ds )
     mGetEnum(tmp_##var,var##Str()); \
     setup_.var##_ = (typ)tmp_##var
 
-    mGetSetupEnumPar(calctype,SeisPSPropCalc::CalcType);
+    mGetSetupEnumPar(calctype,::PreStack::PropCalc::CalcType);
     mGetSetupEnumPar(stattype,Stats::Type);
-    mGetSetupEnumPar(lsqtype,SeisPSPropCalc::LSQType);
-    mGetSetupEnumPar(valaxis,SeisPSPropCalc::AxisType);
-    mGetSetupEnumPar(offsaxis,SeisPSPropCalc::AxisType);
+    mGetSetupEnumPar(lsqtype,::PreStack::PropCalc::LSQType);
+    mGetSetupEnumPar(valaxis,::PreStack::PropCalc::AxisType);
+    mGetSetupEnumPar(offsaxis,::PreStack::PropCalc::AxisType);
 
     bool useazim = setup_.useazim_;
     mGetBool( useazim, useazimStr() ); setup_.useazim_ = useazim;
-    mGetInt( setup_.component_, componentStr() );
+    mGetInt( component_, componentStr() );
     mGetInt( setup_.aperture_, apertureStr() );
 
     BufferString preprocessstr;
     mGetString( preprocessstr, preProcessStr() );
-    const MultiID preprocessmid( preprocessstr );
-    PtrMan<IOObj> preprociopar = IOM().get( preprocessmid );
+    preprocid_ = preprocessstr;
+    PtrMan<IOObj> preprociopar = IOM().get( preprocid_ );
     if ( preprociopar )
     {
 	preprocessor_ = new ::PreStack::ProcessManager;
@@ -112,15 +116,16 @@ PreStack::PreStack( Desc& ds )
 }
 
 
-PreStack::~PreStack()
+PSAttrib::~PSAttrib()
 {
     delete propcalc_;
     delete psrdr_;
+    delete psioobj_;
     delete preprocessor_;
 }
 
 
-bool PreStack::getInputOutput( int input, TypeSet<int>& res ) const
+bool PSAttrib::getInputOutput( int input, TypeSet<int>& res ) const
 {
     Interval<float>& rg = const_cast<Interval<float>&>(setup_.offsrg_);
     if ( rg.start > 1e28 ) rg.start = 0;
@@ -130,35 +135,89 @@ bool PreStack::getInputOutput( int input, TypeSet<int>& res ) const
 }
 
 
-bool PreStack::getInputData( const BinID& relpos, int zintv )
+bool PSAttrib::getInputData( const BinID& relpos, int zintv )
 {
-    return psrdr_ && propcalc_->goTo( currentbid+relpos );
+    if ( !psrdr_ )
+	return false;
+
+    if ( preprocessor_ )
+    {
+	if ( !preprocessor_->reset() || !preprocessor_->prepareWork() )
+	    return false;
+
+	const BinID stepout = preprocessor_->getInputStepout();
+	const BinID stepoutstep( SI().inlRange(true).step,
+				 SI().crlRange(true).step );
+	::PreStack::Gather* gather = 0;
+	for ( int inlidx=-stepout.inl; inlidx<=stepout.inl; inlidx++ )
+	{
+	    for ( int crlidx=-stepout.crl; crlidx<=stepout.crl; crlidx++ )
+	    {
+		const BinID relbid( inlidx, crlidx );
+		if ( !preprocessor_->wantsInput(relbid) )
+		    continue;
+
+		const BinID bid = currentbid+relpos+relbid*stepoutstep;
+
+		mTryAlloc( gather, ::PreStack::Gather );
+		if ( !gather )
+		    return false;
+
+		if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
+		    continue;
+
+		DPM(DataPackMgr::FlatID()).add( gather );
+		preprocessor_->setInput( relbid, gather->id() );
+		gather = 0;
+	    }
+	}
+
+	if ( !preprocessor_->process() )
+	    return false;
+
+	propcalc_->setGather( preprocessor_->getOutput() );
+	return true;
+    }
+
+    const BinID bid = currentbid+relpos;
+
+    mDeclareAndTryAlloc( ::PreStack::Gather*, gather, ::PreStack::Gather );
+    if ( !gather )
+	return false;
+
+    if ( !gather->readFrom( *psioobj_, *psrdr_, bid, component_ ) )
+	return false;
+
+    DPM(DataPackMgr::FlatID()).add( gather );
+    propcalc_->setGather( gather->id() );
+    return true;
 }
 
 
 #define mErrRet(s1,s2,s3) { errmsg = BufferString(s1,s2,s3); return; }
 
-void PreStack::prepPriorToBoundsCalc()
+void PSAttrib::prepPriorToBoundsCalc()
 {
-    IOObj* ioobj = IOM().get( psid_ );
-    if ( !ioobj )
+    delete psioobj_;
+    psioobj_ = IOM().get( psid_ );
+    if ( !psioobj_ )
 	mErrRet("Cannot find pre-stack data store ",psid_," in object manager")
 
     if ( desc.is2D() )
-	psrdr_ = SPSIOPF().get2DReader( *ioobj, curlinekey_.lineName().buf() );
+	psrdr_ = SPSIOPF().get2DReader(*psioobj_,curlinekey_.lineName().buf());
     else
-	psrdr_ = SPSIOPF().get3DReader( *ioobj );
-    delete ioobj;
+	psrdr_ = SPSIOPF().get3DReader( *psioobj_ );
+
     if ( !psrdr_ )
 	mErrRet("Cannot create reader for ",psid_," pre-stack data store")
     const char* emsg = psrdr_->errMsg();
-    if ( emsg && *emsg ) mErrRet("PS Reader: ",emsg,"")
+    if ( emsg && *emsg ) mErrRet("PS Reader: ",emsg,"");
 
-    propcalc_ = new SeisPSPropCalc( *psrdr_, setup_ );
+    mTryAlloc( propcalc_, ::PreStack::PropCalc( setup_ ) );
 }
 
 
-bool PreStack::computeData( const DataHolder& output, const BinID& relpos,
+bool PSAttrib::computeData( const DataHolder& output, const BinID& relpos,
 			  int z0, int nrsamples, int threadid ) const
 {
     if ( !propcalc_ )

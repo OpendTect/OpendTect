@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.7 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.8 2009-02-04 18:35:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ namespace Attrib { class Desc; };
 class uiLabel;
 class uiGenInput;
 class uiSeisSel;
-
+namespace PreStack { class uiProcSel; }
 
 /*! \brief PreStack Attribute ui */
 
@@ -33,22 +33,25 @@ public:
 
 protected:
 
-    uiSeisSel*		inpfld_;
-    uiGenInput*		offsrgfld_;
-    uiGenInput*		calctypefld_;
-    uiGenInput*		stattypefld_;
-    uiGenInput*		lsqtypefld_;
-    uiGenInput*		offsaxtypefld_;
-    uiGenInput*		valaxtypefld_;
-    uiGenInput*		useazimfld_;
-    uiLabel*		xlbl_;
+    uiSeisSel*				inpfld_;
+    uiGenInput*				dopreprocessfld_;
+    PreStack::uiProcSel*		preprocsel_;
+    uiGenInput*				offsrgfld_;
+    uiGenInput*				calctypefld_;
+    uiGenInput*				stattypefld_;
+    uiGenInput*				lsqtypefld_;
+    uiGenInput*				offsaxtypefld_;
+    uiGenInput*				valaxtypefld_;
+    uiGenInput*				useazimfld_;
+    uiLabel*				xlbl_;
 
-    CtxtIOObj&		ctio_;
+    CtxtIOObj&				ctio_;
 
     bool		setParameters(const Attrib::Desc&);
     bool		getParameters(Attrib::Desc&);
 
     void		calcTypSel(CallBacker*);
+    void		doPreProcSel(CallBacker*);
 
     			mDeclReqAttribUIFns
 };

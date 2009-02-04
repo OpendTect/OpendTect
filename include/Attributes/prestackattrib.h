@@ -7,20 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.8 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:           $Id: prestackattrib.h,v 1.9 2009-02-04 18:35:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "attribprovider.h"
-#include "seispsprop.h"
+#include "prestackprop.h"
 #include "multiid.h"
 
 class SeisPSReader;
-namespace PreStack { class ProcessManager; }
+class IOObj;
 
-using PreStack::ProcessManager;
+namespace PreStack { class ProcessManager; }
 
 
 namespace Attrib
@@ -28,7 +28,7 @@ namespace Attrib
 
 /*!\brief "Pre-Stack Attribute"
 
-PreStack calctype= axistype= lsqtype= offsaxis= valaxis= useazim= comp= aperture=
+PreStack calctype= axistype= lsqtype= offsaxis= valaxis= useazim= comp= aperture= preprocessor=
 
 Outputs a standard attribute from pre-stack data.
 
@@ -39,14 +39,15 @@ Output:
 0		Attribute
 */
     
-
-mClass PreStack : public Provider
+//Classname should really be PreStack, but compiler complains and mixes up
+//with PreStack namespace.
+mClass PSAttrib : public Provider
 {
 public:
 
     static void		initClass();
 
-			PreStack(Desc&);
+			PSAttrib(Desc&);
 
     static const char*  attribName()		{ return "PreStack"; }
     static const char*  offStartStr()		{ return "offstart"; }
@@ -61,12 +62,13 @@ public:
     static const char*  componentStr()		{ return "comp"; }
     static const char*  apertureStr()		{ return "aperture"; }
 
-    const SeisPSPropCalc::Setup& setup() const	{ return setup_; }
-    const MultiID		psID() const	{ return psid_; }
+    const ::PreStack::PropCalc::Setup&	setup() const	{ return setup_; }
+    const MultiID&			psID() const	{ return psid_; }
+    const MultiID&			preProcID() const { return preprocid_; }
 
 protected:
 
-			~PreStack();
+			~PSAttrib();
     static Provider*    createInstance(Desc&);
 
     bool		allowParallelComputation() const	{ return false;}
@@ -77,12 +79,15 @@ protected:
     void		prepPriorToBoundsCalc();
 
     MultiID			psid_;
+    IOObj*			psioobj_;
     Interval<float>		offsrg_;
-    SeisPSPropCalc::Setup 	setup_;
+    ::PreStack::PropCalc::Setup setup_;
+    int				component_;
     SeisPSReader*		psrdr_;
-    SeisPSPropCalc*		propcalc_;
+    ::PreStack::PropCalc*	propcalc_;
 
-    ProcessManager*		preprocessor_;
+    ::PreStack::ProcessManager*	preprocessor_;
+    MultiID			preprocid_;
     int				dataidx_;
     const DataHolder*		inputdata_;
 };

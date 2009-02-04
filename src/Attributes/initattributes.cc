@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initattributes.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: initattributes.cc,v 1.4 2009-02-04 18:35:32 cvskris Exp $";
 
 #include "initattributes.h"
 #include "coherencyattrib.h"
@@ -45,7 +45,7 @@ void Attributes::initStdClasses()
     Attrib::Hilbert::initClass();
     Attrib::Instantaneous::initClass();
     Attrib::Math::initClass();
-    Attrib::PreStack::initClass();
+    Attrib::PSAttrib::initClass();
     Attrib::Position::initClass();
     Attrib::Reference::initClass();
     Attrib::Scaling::initClass();
