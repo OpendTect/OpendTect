@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.18 2009-02-03 08:31:27 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.19 2009-02-04 12:26:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,17 @@ public:
 	mDefSetupMemb(bool,closepolygon)
 	mDefSetupMemb(bool,drawborder)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
+
+	Setup&		drawline( bool yn )
+			{ noxgridline_ = noygridline_ = noy2gridline_ = !yn;
+			  return *this; }
+	Setup&		drawscatter( bool yn )
+			{ drawscattery1_ = drawscattery2_ = yn; return *this; }
+	Setup&		annot( bool yn )
+			{ annotx_ = annoty_ = annoty2_ = yn; return *this; }
+	Setup&		axes( bool yn )
+			{ noxaxis_ = noyaxis_ = noy2axis_ = !yn; return *this; }
+
     };
 
 				uiFunctionDisplay(uiParent*,const Setup&);
