@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.22 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.23 2009-02-04 14:22:09 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -72,8 +72,8 @@ Gather::~Gather()
 {}
 
 
-bool Gather::readFrom( const MultiID& mid, const BinID& bid, 
-			   BufferString* errmsg )
+bool Gather::readFrom( const MultiID& mid, const BinID& bid, int comp,
+		       BufferString* errmsg )
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
@@ -83,12 +83,12 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
 	return false;
     }
 
-    return readFrom( *ioobj, bid, errmsg );
+    return readFrom( *ioobj, bid, comp, errmsg );
 }
 
 
-bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, 
-			   BufferString* errmsg )
+bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, int comp,
+		       BufferString* errmsg )
 {
     PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, bid.inl );
     if ( !rdr )
@@ -100,12 +100,12 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid,
     }
 
     linename_.setEmpty();
-    return readFrom( ioobj, *rdr, bid, errmsg );
+    return readFrom( ioobj, *rdr, bid, comp, errmsg );
 }
 
 
 bool Gather::readFrom( const IOObj& ioobj, const int tracenr, 
-		       const char* linename, BufferString* errmsg )
+		       const char* linename, int comp, BufferString* errmsg )
 {
     PtrMan<SeisPSReader> rdr = SPSIOPF().get2DReader( ioobj, linename );
     if ( !rdr )
@@ -118,12 +118,12 @@ bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 
     linename_ = linename;
 
-    return readFrom( ioobj, *rdr, BinID(0,tracenr), errmsg );
+    return readFrom( ioobj, *rdr, BinID(0,tracenr), comp, errmsg );
 }
 
 
 bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid, 
-		       BufferString* errmsg )
+		       int comp, BufferString* errmsg )
 {
     PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
     if ( !rdr.getGather(bid,*tbuf) )
@@ -188,7 +188,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 	const SeisTrc* trc = tbuf->get( trcidx );
 	for ( int idx=0; idx<nrsamples; idx++ )
 	{
-	    const float val = trc->getValue( zrg.atIndex( idx ), 0 );
+	    const float val = trc->getValue( zrg.atIndex( idx ), comp );
 	    arr2d_->set( trcidx, idx, val );
 	}
 

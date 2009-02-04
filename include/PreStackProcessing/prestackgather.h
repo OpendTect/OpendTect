@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.18 2009-01-06 06:05:40 cvsranojay Exp $
+ RCS:		$Id: prestackgather.h,v 1.19 2009-02-04 14:22:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,11 +38,14 @@ public:
     bool			setSize( int nroff, int nrz );
 
     bool			readFrom(const MultiID&, const BinID&,
-	    				 BufferString* errmsg=0);
+	    				 int component=0,
+					 BufferString* errmsg=0);
     bool			readFrom(const IOObj&, const BinID&,
-	    				 BufferString* errmsg=0);
+	    				 int component=0,
+					 BufferString* errmsg=0);
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
-	    				 const BinID&,BufferString* errmsg=0);
+	    				 const BinID&,int component=0,
+					 BufferString* errmsg=0);
 
     const Coord&		getCoord() const	{ return coord_; }
 
@@ -51,7 +54,7 @@ public:
 
 				//for 2D only.
     bool			readFrom(const IOObj&, const int tracenr, 
-	    				 const char* linename,
+	    				 const char* linename,int comp,
     					 BufferString* errmsg=0);
     int				getSeis2DTraceNr() const { return binid_.crl; }
     const char*			getSeis2DName() const;
