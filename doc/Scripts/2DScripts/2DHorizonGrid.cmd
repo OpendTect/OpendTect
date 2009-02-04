@@ -7,7 +7,7 @@ Comment "----------Creating 2D-Horizon Grid-----------"
 
 Case Insensitive
 TreeMenu "2D Horizon" "Load"
-ListClick "Select 2D Hori*" 1 Double
+ListClick "Objects list" 1 Double
 
 TreeMenu "2D Horizon`*" "Derive 3D horizon"
 Input "Search radius" 150
@@ -29,14 +29,14 @@ Sleep 65
 
 Window "OpendTect*"
 TreeMenu "Horizon" "Load"
-ListClick "Select Horizon*" "TestHorizon" Double
+ListClick "Objects list" "TestHorizon" Double
 TreeMenu "Horizon`*`Z values" "Select Attribute`Surface data*"
 ListClick "Select Data*" "LS5k-2dHorGrid" Double
 
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SNAPSHOTSDIR$/2d-horizon-grid"
+Input "Select filename" "$SNAPSHOTSDIR$/$IDX$_2d-horizon-grid"
 Ok
 
 TreeMenu "Horizon`*" "Remove"

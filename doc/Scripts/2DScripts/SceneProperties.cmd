@@ -28,7 +28,7 @@ ColorOK Black 2
 Button "Apply to all scenes" On
 Ok
 
-Snapshot "$SNAPSHOTSDIR$/2d-sceneproperties.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d-sceneproperties.png" ODMain
 
 Menu "Survey`Select/Setup"
 Ok

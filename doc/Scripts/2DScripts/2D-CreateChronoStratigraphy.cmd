@@ -54,7 +54,7 @@ ListClick "Objects list" "LS 5k" Double
 ListClick "Select Data from List" "i5007" Double
 TreeMenu "Tree scene 2" "2D Seismics`*`*`*" "Select Attr*`Stored 2D Data`Seis"
 
-Snapshot "$SNAPSHOTSDIR$/2D-ChronoStrat.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2D-ChronoStrat.png" ODMain
 Wheel "hRotate" -55
 Slider "Zoom Slider" 15
 

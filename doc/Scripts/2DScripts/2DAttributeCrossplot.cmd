@@ -27,7 +27,7 @@ Button "Set data for X"
 TableClick "Data Table" ColHead "CoherencyAttrib"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/2d_coherencyattr_crossplot.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d_coherencyattr_crossplot.png" CurWin
 Window "[all] step*"
 Close
 
@@ -37,7 +37,7 @@ Button "UnSelect as Y Data"
 TableClick "Data Table" ColHead "ConvolveAtt*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/2d_convolveattr_crossplot.png" Curwin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d_convolveattr_crossplot.png" Curwin
 Window "[all] step*"
 Close
 
@@ -47,7 +47,7 @@ Button "UnSelect as Y Data"
 TableClick "Data Table" ColHead "EnergyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/2d_Energyattr_crossplot.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d_Energyattr_crossplot.png" CurWin
 Window "[all] step*"
 Close
 
@@ -57,7 +57,7 @@ Button "UnSelect as Y Data"
 TableClick "Data Table" ColHead "EventAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SNAPSHOTSDIR$/2d_EVentattr_crossplot.png"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d_EVentattr_crossplot.png" Curwin
 Window "[all] step*"
 Close
 

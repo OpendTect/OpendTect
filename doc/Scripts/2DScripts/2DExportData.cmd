@@ -9,6 +9,7 @@ Comment "----------Exporting 2D seismic Data----------"
 Menu "Survey`Export`Seismics`SEG-Y`2D"
 Button "Select Input Line Set"
 ListClick "Objects list" "LS 5k" double
+Combo "Line name" "i5007"
 Input "Select Output SEG-Y file" "$EXPORTDIR$/Seis2D-Export.sgy"
 Ok
 Comment "----------Exporting 2D Horizon----------"

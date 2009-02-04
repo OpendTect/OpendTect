@@ -13,7 +13,7 @@ ListSelect "Select output nodes" 1 On
 Ok
 Ok
 Sleep 8
-Snapshot "$SNAPSHOTSDIR$/2d-NNTrain.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d-NNTrain.png" CurWin
 Ok
 Button "Dismiss"
 
@@ -34,7 +34,7 @@ TreeMenu "Tree scene 2" "2D Seismics`*`*`*" "Select Att*`Neural Net*`Segment"
 Wheel "hRotate" -45
 Slider "Zoom Slider" 20
 Sleep 3
-Snapshot "$SNAPSHOTSDIR$/2d-NNTrain-data.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d-NNTrain-data.png" ODMain
 
 Menu "Survey`Select/Setup"
 Ok

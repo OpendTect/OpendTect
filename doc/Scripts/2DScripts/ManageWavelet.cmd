@@ -47,7 +47,7 @@ ListClick "Select Data from List" "i5007" Double
 TreeMenu "Tree Scene 2" "2d Seismics`*`*`*" "Select*`Attributes`Wavelet*"
 Wheel "hRotate" -45
 
-Snapshot "$SNAPSHOTSDIR$/2d-ManageWavelet.png" "ODMain"
+Snapshot "$SNAPSHOTSDIR$/$IDX$_2d-ManageWavelet.png" ODMain
 
 Sleep 2
 Menu "Survey`Select/Setup"
