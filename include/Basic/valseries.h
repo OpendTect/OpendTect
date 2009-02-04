@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.21 2009-01-30 17:45:24 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.22 2009-02-04 16:53:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -281,8 +281,14 @@ MultiArrayValueSeries<RT, AT>::MultiArrayValueSeries(
     ptrs_.allowNull( true );
     if ( setSize( mavs.cursize_ ) && ptrs_.size() == mavs.ptrs_.size() )
     {
+	MemCopier<AT> cpier;
 	for ( int idx=0; idx<ptrs_.size(); idx++ )
-	    memcpy( ptrs_[idx], mavs.ptrs_[idx], sizeof(float)*chunksize_ );
+	{
+	    cpier.setInput( mavs.ptrs_[idx] );
+	    cpier.setOutput( ptrs_[idx] );
+	    cpier.setSize( chunksize_ );
+	    cpier.execute();
+	}
     }
 }
 
@@ -325,7 +331,7 @@ void MultiArrayValueSeries<RT,AT>::setAll( RT val )
 	return;
 
     MemSetter<AT> memsetter;
-    memsetter.setValue( (AT) val );
+    memsetter.setValue( (AT)val );
 
     for ( int idx=ptrs_.size()-1; idx>=0; idx-- )
     {
@@ -337,7 +343,7 @@ void MultiArrayValueSeries<RT,AT>::setAll( RT val )
 	    curchunksize -= diff;
 	}
 
-	memsetter.setPointer( ptrs_[idx] );
+	memsetter.setTarget( ptrs_[idx] );
 	memsetter.setSize( curchunksize );
 	memsetter.execute();
     }
