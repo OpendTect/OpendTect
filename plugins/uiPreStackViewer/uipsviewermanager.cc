@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.42 2009-02-03 14:19:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.43 2009-02-05 20:25:38 cvskris Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -533,9 +533,9 @@ void uiViewer3DMgr::sessionRestoreCB( CallBacker* )
 
 	PreStack::Gather* gather = new PreStack::Gather;
 	int dpid;
-	if ( is3d && gather->readFrom(mid,bid) )
+	if ( is3d && gather->readFrom(mid,bid,0) )
 	    dpid = gather->id();
-	else if ( gather->readFrom( *ioobj, trcnr, name2d ) )
+	else if ( gather->readFrom( *ioobj, trcnr, name2d,0 ) )
 	    dpid = gather->id();
 	else 
 	{
