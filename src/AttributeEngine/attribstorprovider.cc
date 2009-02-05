@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.82 2008-12-12 09:40:36 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.83 2009-02-05 10:46:05 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -158,18 +158,46 @@ bool StorageProvider::checkInpAndParsAtStart()
 	SeisTrcTranslator::getRanges( mid, storedvolume_, lk );
     else
     {
-	const Seis2DLineSet* lset = mscprov_->reader().lineSet();
+	Seis2DLineSet* lset = mscprov_->reader().lineSet();
 	if ( !lset )
 	    mErrRet( "2D seismic data/No line set found" );
 
-	const int lineidx = lset->indexOf( lk.buf() );
+	int lineidx = lset->indexOf( lk.buf() );
 	if ( lineidx == -1 )
 	{
-	    storedvolume_.hrg.start.inl = storedvolume_.hrg.start.crl = 0;
-	    storedvolume_.hrg.stop.inl = storedvolume_.hrg.step.inl = 1;
-	    storedvolume_.hrg.stop.crl = SI().maxNrTraces(true);
+	    storedvolume_.hrg.start.inl = 0;
+	    storedvolume_.hrg.stop.inl = 1;
+	    storedvolume_.hrg.include( BinID( 0,0 ) );
+	    storedvolume_.hrg.include( BinID( 0,SI().maxNrTraces(true) ) );
 	    storedvolume_.hrg.step.crl = 1; // what else?
-	    storedvolume_.zrg = SI().sampling(true).zrg;
+	    BufferStringSet candidatelines;
+	    lset->getLineNamesWithAttrib( candidatelines, lk.attrName() );
+	    for ( int idx=0; idx<candidatelines.size(); idx++ )
+	    {
+		bool foundone = false;
+		LineKey tmplk( candidatelines.get(idx).buf(), lk.attrName() );
+		lineidx = lset->indexOf( tmplk );
+		if ( lineidx> -1 )
+		{
+		    StepInterval<int> trcrg; StepInterval<float> zrg;
+		    if ( lset->getRanges( lineidx, trcrg, zrg ) )
+		    {
+			if ( foundone )
+			{
+			    storedvolume_.hrg.include( BinID(0,trcrg.start) );
+			    storedvolume_.hrg.include( BinID(0,trcrg.stop) );
+			    storedvolume_.zrg.include( zrg );
+			}
+			else
+			{
+			    storedvolume_.hrg.start.crl = trcrg.start;
+			    storedvolume_.hrg.stop.crl = trcrg.stop;
+			    storedvolume_.zrg = zrg;
+			}
+			foundone = true;
+		    }
+		}
+	    }
 	}
 	else
 	{
