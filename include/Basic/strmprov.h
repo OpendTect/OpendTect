@@ -8,13 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.26 2008-12-29 10:52:01 cvsranojay Exp $
+ RCS:		$Id: strmprov.h,v 1.27 2009-02-05 11:07:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "streamconn.h"
 class CallBack;
+class TaskRunner;
+class BufferStringSet;
 
 
 /*!\brief provides I/O stream for disk or tape file or system command.
@@ -44,7 +46,6 @@ public:
     void	set(const char*);
     bool	rename(const char*,const CallBack* cb=0);
     		//!< renames if file. if successful, does a set()
-    		//!< Uses sendCBMsg if cb provided
 
     bool	skipFiles(int) const;
 		//!< Skips files if tape
@@ -52,36 +53,35 @@ public:
 		//!< Rewinds if tape
     bool	offline() const;
 		//!< Checks whether tape is offline
-    bool	bad() const				{ return isbad; }
+    bool	bad() const				{ return isbad_; }
 
     bool	exists(int forread) const;
     bool	remove(bool recursive=true) const;
     bool	setReadOnly(bool yn) const;
     bool	isReadOnly() const;
 
-    StreamData	makeOStream( bool binary=true ) const;
-		/*!< 'inbg' will execute in background if remote
-		   On win32, binary mode differs from text mode. 
-		    Use binary=false when explicitly reading txt files.
-		 */
-    StreamData	makeIStream( bool binary=true ) const;
+    StreamData	makeOStream(bool binary=true) const;
+		/*!< On win32, binary mode differs from text mode. 
+		    Use binary=false when explicitly reading txt files. */
+    StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
 		//!< see makeOStream remark
     bool	executeCommand(bool inbg=false) const;
     		//!< If type is Command, execute command without opening pipe
+    		//!< 'inbg' will execute in background if remote
 
     const char*	fullName() const;
-    const char*	hostName() const			{return hostname.buf();}
-    const char*	fileName() const			{ return fname.buf(); }
-    const char*	command() const				{ return fname.buf(); }
-    long	blockSize() const			{ return blocksize; }
+    const char*	hostName() const		{ return hostname_.buf(); }
+    const char*	fileName() const		{ return fname_.buf(); }
+    const char*	command() const			{ return fname_.buf(); }
+    long	blockSize() const		{ return blocksize_; }
 
-    void	setHostName( const char* hname )	{ hostname = hname; }
-    void	setFileName( const char* fn )		{ fname = fn; }
-    void	setCommand( const char* fn )		{ fname = fn; }
-    void	setBlockSize( long bs )			{ blocksize = bs; }
+    void	setHostName( const char* hname ) { hostname_ = hname; }
+    void	setFileName( const char* fn )	{ fname_ = fn; }
+    void	setCommand( const char* fn )	{ fname_ = fn; }
+    void	setBlockSize( long bs )		{ blocksize_ = bs; }
     void	addPathIfNecessary(const char*);
 		//!< adds given path if stored filename is relative
-    void	setRemExec( const char* s )		{ rshcomm = s; }
+    void	setRemExec( const char* s )		{ rshcomm_ = s; }
 
     StreamConn::Type	type()				{ return type_; }
     bool		isNormalFile() const;
@@ -89,20 +89,29 @@ public:
     static const char*	sStdIO();
     static const char*	sStdErr();
 
-    static void	sendCBMsg(const CallBack*,const char*);
-    		//!< The callback will be called with a const char* capsule
+    static bool		isPreLoaded(const char*,bool isid);
+			    //!< If isid, a single hit will return true
+    static void		getPreLoaded(BufferStringSet&,bool ids=false);
+			    //!< If isid, all unique ids
+    static bool		preLoad(const char*,TaskRunner&,const char* id=0);
+    static void		unLoad(const char*,bool isid=false);
+			    //!< If isid, unload all with this id
 
 protected:
 
-    BufferString	fname;
-    BufferString	hostname;
-    BufferString	rshcomm;
+    BufferString	fname_;
+    BufferString	hostname_;
+    BufferString	rshcomm_;
 
-    long		blocksize;
-    bool		isbad;
+    long		blocksize_;
+    bool		isbad_;
     StreamConn::Type	type_;
 
     void		mkOSCmd(bool) const;
+    static StreamData	makePLIStream(int);
+
+    static void	sendCBMsg(const CallBack*,const char*);
+    		//!< The callback will be called with a const char* capsule
 
 };
 

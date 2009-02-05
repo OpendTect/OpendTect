@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.11 2008-12-24 12:45:08 cvsranojay Exp $
+ RCS:		$Id: streamconn.h,v 1.12 2009-02-05 11:07:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,25 +42,22 @@ public:
 
     virtual		~StreamConn();
 
-    std::istream&	iStream() const
-    				{ return *const_cast<std::istream*>(sd.istrm); }
-    std::ostream&	oStream() const
-    				{ return *const_cast<std::ostream*>(sd.ostrm); }
-    FILE*		fp() const
-    				{ return const_cast<FILE*>(sd.fp); }
-    StreamData&		streamData() const
-				{ return *const_cast<StreamData*>(&sd); }
+    const std::istream&	iStream() const		{ return *sd_.istrm; }
+    std::istream&	iStream()		{ return *sd_.istrm; }
+    const std::ostream&	oStream() const		{ return *sd_.ostrm; }
+    std::ostream&	oStream()		{ return *sd_.ostrm; }
+    const StreamData&	streamData() const	{ return sd_; }
+    StreamData&		streamData()		{ return sd_; }
+    FILE*		fp() const		{ return sd_.filePtr(); }
 
     virtual State	state() const		{ return state_; }
     virtual bool	bad() const;
-
-    bool		doIO(void*,unsigned int nrbytes);
     void		clearErr();
-
+    bool		doIO(void*,unsigned int nrbytes);
     void		close();
 
-    const char*		fileName() const	{ return sd.fileName(); }
-    void		setFileName( const char* s ) { sd.setFileName(s); }
+    const char*		fileName() const	{ return sd_.fileName(); }
+    void		setFileName( const char* s ) { sd_.setFileName(s); }
 
     const char*		connType() const	{ return sType(); }
     bool		isStream() const	{ return true; }
@@ -70,10 +67,10 @@ public:
 
 private:
 
-    StreamData		sd;
+    StreamData		sd_;
     State		state_;
-    bool		mine;
-    bool		closeondel;
+    bool		mine_;
+    bool		closeondel_;
 
 };
 

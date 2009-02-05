@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.30 2008-12-23 12:01:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.31 2009-02-05 11:07:28 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -149,86 +149,86 @@ DefineEnumNames(StreamConn,Type,0,"Type")
 
 
 StreamConn::StreamConn()
-	: mine(true)
+	: mine_(true)
 	, state_(Bad)
-	, closeondel(false)
+	, closeondel_(false)
 {
 }
 
 
 StreamConn::StreamConn( std::istream* s )
-	: mine(true)
+	: mine_(true)
 	, state_(Read)
-	, closeondel(false)
+	, closeondel_(false)
 {
-    sd.istrm = s;
+    sd_.istrm = s;
     (void)bad();
 }
 
 
 StreamConn::StreamConn( std::ostream* s )
-	: mine(true)
+	: mine_(true)
 	, state_(Write)
-	, closeondel(false)
+	, closeondel_(false)
 {
-    sd.ostrm = s;
+    sd_.ostrm = s;
     (void)bad();
 }
 
 
 StreamConn::StreamConn( StreamData& strmdta )
-	: mine(true)
-	, closeondel(false)
+	: mine_(true)
+	, closeondel_(false)
 {
-    strmdta.transferTo(sd);
+    strmdta.transferTo(sd_);
 
-    if		( !sd.usable() )	state_ = Bad;
-    else if	( sd.istrm )		state_ = Read;
-    else if	( sd.ostrm )		state_ = Write;
+    if		( !sd_.usable() )	state_ = Bad;
+    else if	( sd_.istrm )		state_ = Read;
+    else if	( sd_.ostrm )		state_ = Write;
 }
 
 
 StreamConn::StreamConn( std::istream& s, bool cod )
-	: mine(false)
+	: mine_(false)
 	, state_(Read)
-	, closeondel(cod)
+	, closeondel_(cod)
 {
-    sd.istrm = &s;
+    sd_.istrm = &s;
     (void)bad();
 }
 
 
 StreamConn::StreamConn( std::ostream& s, bool cod )
-	: mine(false)
+	: mine_(false)
 	, state_(Write)
-	, closeondel(cod)
+	, closeondel_(cod)
 {
-    sd.ostrm = &s;
+    sd_.ostrm = &s;
     (void)bad();
 }
 
 
 StreamConn::StreamConn( const char* nm, State s )
-	: mine(true)
+	: mine_(true)
 	, state_(s)
-	, closeondel(false)
+	, closeondel_(false)
 {
     switch ( state_ )
     {
     case Read:
-	if ( !nm || !*nm ) sd.istrm = &std::cin;
+	if ( !nm || !*nm ) sd_.istrm = &std::cin;
 	else
 	{
 	    StreamProvider sp( nm );
-	    sd = sp.makeIStream();
+	    sd_ = sp.makeIStream();
 	}
     break;
     case Write:
-	if ( !nm || !*nm ) sd.ostrm = &std::cout;
+	if ( !nm || !*nm ) sd_.ostrm = &std::cout;
 	else
 	{
 	    StreamProvider sp( nm );
-	    sd = sp.makeOStream();
+	    sd_ = sp.makeOStream();
 	}
     break;
     default:
@@ -249,7 +249,7 @@ bool StreamConn::bad() const
 {
     if ( state_ == Bad )
 	return true;
-    else if ( !sd.usable() )
+    else if ( !sd_.usable() )
 	const_cast<StreamConn*>(this)->state_ = Bad;
     return state_ == Bad;
 }
@@ -264,19 +264,19 @@ void StreamConn::clearErr()
 
 void StreamConn::close()
 {
-    if ( mine )
-	sd.close();
-    else if ( closeondel )
+    if ( mine_ )
+	sd_.close();
+    else if ( closeondel_ )
     {
-	if ( state_ == Read && sd.istrm && sd.istrm != &std::cin )
+	if ( state_ == Read && sd_.istrm && sd_.istrm != &std::cin )
 	{
-	    mDynamicCastGet(std::ifstream*,s,sd.istrm)
+	    mDynamicCastGet(std::ifstream*,s,sd_.istrm)
 	    if ( s ) s->close();
 	}
-	else if ( state_ == Write && sd.ostrm
-	       && sd.ostrm != &std::cout && sd.ostrm != &std::cerr )
+	else if ( state_ == Write && sd_.ostrm
+	       && sd_.ostrm != &std::cout && sd_.ostrm != &std::cerr )
 	{
-	    mDynamicCastGet(std::ofstream*,s,sd.ostrm)
+	    mDynamicCastGet(std::ofstream*,s,sd_.ostrm)
 	    if ( s ) s->close();
 	}
     }
