@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: fixedstreambuf.h,v 1.1 2009-02-05 10:54:41 cvsbert Exp $
+ RCS:		$Id: fixedstreambuf.h,v 1.2 2009-02-05 11:06:52 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -49,6 +49,7 @@ virtual fixedstreambuf* setbuf( char_type* b, streamsize n )
     buf_ = b; sz_ = n;
     setg( buf_, buf_, buf_ + sz_ );
     setp( buf_, buf_ + sz_ );
+    return this;
 }
 
 virtual pos_type seekoff( off_type offs, ios_base::seekdir sd,
@@ -81,6 +82,7 @@ streamsize xsgetn( char_type* s, streamsize n )
     if ( toget > (egptr() - gptr()) )
 	toget = egptr() - gptr();
     memcpy( s, gptr(), toget );
+    return toget;
 }
 
 streamsize xsputn( const char_type* s, streamsize n )
@@ -89,6 +91,7 @@ streamsize xsputn( const char_type* s, streamsize n )
     if ( toput > (epptr() - pptr()) )
 	toput = epptr() - pptr();
     memcpy( pptr(), s, toput );
+    return toput;
 }
 
     char_type*	buf_;
