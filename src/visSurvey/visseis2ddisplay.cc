@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.54 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.55 2009-02-05 21:55:16 cvsyuancheng Exp $";
 
 
 #include "visseis2ddisplay.h"
@@ -255,9 +255,8 @@ void Seis2DDisplay::setData( int attrib,
 
     const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
 
-    const bool hastransform = datatransform_;
     StepInterval<float> arrayzrg;
-    arrayzrg.setFrom( getZRange(!hastransform) );
+    arrayzrg.setFrom( getZRange(!datatransform_) );
     arrayzrg.step = sd.step;
     const int arrzsz = arrayzrg.nrSteps()+1;
     StepInterval<int> arraysrg( mNINT(arrayzrg.start/sd.step),
@@ -279,9 +278,7 @@ void Seis2DDisplay::setData( int attrib,
     texture_->setNrVersions( attrib, nrseries );
     for ( int sidx=0; sidx<nrseries; sidx++ )
     {
-	float* arrptr = arr->getData();
-	for ( int idx=0; idx<totalsz; idx++ )
-	    (*arrptr++) = mUdf(float);
+	arr->setAll( mUdf(float) );
 
 	for ( int dataidx=0; dataidx<data2dh.size(); dataidx++ )
 	{
