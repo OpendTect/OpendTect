@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.12 2009-02-02 11:25:04 cvsraman Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.13 2009-02-05 06:04:03 cvsraman Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -275,13 +275,14 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 }
 
 
-uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p )
+uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p, const MultiID& key )
     : uiDialog(p,uiDialog::Setup("Copy Pre-Stack Data",
 				 "",
 				 "109.0.0"))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
 {
+    inctio_.setObj( key );
     inpfld_ = new uiIOObjSel( this, inctio_, "Input Volume" );
     inpfld_->selectiondone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 
@@ -294,6 +295,7 @@ uiPreStackCopyDlg::uiPreStackCopyDlg( uiParent* p )
     outctio_.ctxt.forread = false;
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
     outpfld_->attach( alignedBelow, subselfld_ );
+    finaliseDone.notify( mCB(this,uiPreStackCopyDlg,objSel) );
 }
 
 
