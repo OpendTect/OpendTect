@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.11 2008-06-04 09:43:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.12 2009-02-05 14:48:23 cvsbert Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -89,7 +89,7 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 	mnu->insertItem( new uiMenuItem("&Horizon ...",
 					mCB(this,uiTutMgr,doHor)) );
     }
-    	mnumgr.utilMnu()->insertItem( mnu );
+    mnumgr.toolsMnu()->insertItem( mnu );
 }
 
 void uiTutMgr::insertSubMenu()

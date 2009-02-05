@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.42 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.43 2009-02-05 14:48:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ public:
     uiPopupMenu*	utilMnu()		{ return utilmnu_; }
     uiPopupMenu*	helpMnu()		{ return helpmnu_; }
     uiPopupMenu*	settMnu()		{ return settmnu_; }
+    uiPopupMenu*	toolsMnu()		{ return toolsmnu_; }
 
     uiPopupMenu*	getBaseMnu(uiODApplMgr::ActType);
     			//! < Within Survey menu
@@ -98,6 +99,7 @@ protected:
     uiPopupMenu*	manmnu_;
     uiPopupMenu*	helpmnu_;
     uiPopupMenu*	settmnu_;
+    uiPopupMenu*	toolsmnu_;
     ObjectSet<uiPopupMenu> impmnus_;
     ObjectSet<uiPopupMenu> expmnus_;
 

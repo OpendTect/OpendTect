@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.150 2009-01-15 15:17:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.151 2009-02-05 14:48:23 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -481,10 +481,13 @@ void uiODMenuMgr::fillUtilMenu()
     mInsertItem( settmnu_, "&Keyboard shortcuts ...", mSettShortcutsMnuItm );
     mInsertItem( settmnu_, "&General ...", mSettGeneral );
 
-    mInsertItem( utilmnu_, "&Batch programs ...", mBatchProgMnuItm );
+    toolsmnu_ = new uiPopupMenu( &appl_, "&Tools" );
+    utilmnu_->insertItem( toolsmnu_ );
+
+    mInsertItem( toolsmnu_, "&Batch programs ...", mBatchProgMnuItm );
+    mInsertItem( toolsmnu_, "&Position conversion ...", mPosconvMnuItm );
+    mInsertItem( toolsmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
-    mInsertItem( utilmnu_, "&Position conversion ...", mPosconvMnuItm );
-    mInsertItem( utilmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
 	mInsertItem( utilmnu_, "Show &log file ...", mShwLogFileMnuItm );
@@ -494,7 +497,7 @@ void uiODMenuMgr::fillUtilMenu()
     const bool enabdpdump = GetEnvVarYN( "OD_ENABLE_DATAPACK_DUMP" );
 #endif
     if ( enabdpdump )
-	mInsertItem( utilmnu_, "Data pack dump ...", mDumpDataPacksMnuItm );
+	mInsertItem( toolsmnu_, "Data pack dump ...", mDumpDataPacksMnuItm );
 }
 
 

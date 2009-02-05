@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.21 2009-02-02 09:36:50 cvsjaap Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.22 2009-02-05 14:48:23 cvsbert Exp $";
 
 #include "cmddriver.h"
 
@@ -142,7 +142,7 @@ uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
 {
     uiODMenuMgr& mnumgr = appl_.menuMgr();
     cmddrvmnu_ = new uiPopupMenu( &appl_, "Command &Driver" );
-    mnumgr.utilMnu()->insertItem( cmddrvmnu_ );
+    mnumgr.toolsMnu()->insertItem( cmddrvmnu_ );
     runcmddrvitm_ = new uiMenuItem( "&Run ...",
 				    mCB(this,uiCmdDriverMgr,doIt) );
     cmddrvmnu_->insertItem( runcmddrvitm_ );
