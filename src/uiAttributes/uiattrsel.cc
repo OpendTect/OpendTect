@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.35 2009-01-21 06:54:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.36 2009-02-06 20:11:49 cvskris Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -98,7 +98,10 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	    if ( seltyp == 1 )
 		attrcur = attrinf_->attrnms.indexOf( desc->userRef() );
 	    else if ( storoutfld_ )
+	    {
 		storcur = attrinf_->ioobjnms.indexOf( desc->userRef() );
+		//2D attrib is set in cubeSel, called from doFinalize
+	    }
 	}
 	else
 	{
@@ -307,7 +310,25 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
     {
 	BufferStringSet nms;
 	SelInfo::getAttrNames( ioobjkey.buf(), nms );
+
+	int attridx = 0;
+	const Desc* desc = attrdata_.attribid < 0 ? 0 :
+			    attrdata_.attrset->getDesc( attrdata_.attribid );
+	const Attrib::ValParam* param = desc
+	    ? desc->getValParam( Attrib::StorageProvider::keyStr() )
+	    : 0;
+
+	if ( param && param->getStringValue( 0 ) )
+	{
+	    const LineKey lk( param->getStringValue( 0 ) );
+	    const BufferString linename = lk.lineName();
+	    if ( linename == ioobjkey )
+		attridx = nms.indexOf( lk.attrName().buf() );
+	}
+
 	attr2dfld_->newSpec( StringListInpSpec(nms), 0 );
+	if ( attridx<0 ) attridx=0;
+	attr2dfld_->setValue( attridx );
     }
 
     compfld_->box()->setCurrentItem(0);
