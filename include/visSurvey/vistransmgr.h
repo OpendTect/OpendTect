@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2005
- RCS:           $Id: vistransmgr.h,v 1.5 2009-01-08 11:01:19 cvshelene Exp $
+ RCS:           $Id: vistransmgr.h,v 1.6 2009-02-06 05:52:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ protected:
     Scene*			scene_;
 };
 
-SceneTransformManager& STM();
+mGlobal SceneTransformManager& STM();
 
 } // namespace visSurvey
 
