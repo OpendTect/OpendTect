@@ -7,12 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.20 2008-12-29 05:54:24 cvsranojay Exp $
+ RCS:		$Id: commondefs.h,v 1.21 2009-02-06 05:26:41 cvsranojay Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
 
 -*/
+
+#include "plfdefs.h"
 
 #define mSWAP(x,y,tmp)		{ tmp = x; x = y; y = tmp; }
 #define mNINT(x)		( (int)((x)>0 ? (x)+.5 : (x)-.5) )
