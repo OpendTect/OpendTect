@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.31 2009-01-08 12:27:19 cvsnanne Exp $
+RCS:		$Id: transl.h,v 1.32 2009-02-06 12:12:04 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -218,18 +218,18 @@ const char* spec##clss##Translator::translKey() { return usrnm; }
   //! Use this in your header file to comply with the concept, so you
   //! can make use of OpendTect object selection, retrieval etc.
 #define mDeclEmptyTranslatorBundle(clss,fmt,defext) \
-struct clss##TranslatorGroup : public TranslatorGroup \
+mClass clss##TranslatorGroup : public TranslatorGroup \
 {		   	isTranslatorGroup(clss) \
     			mDefEmptyTranslatorGroupConstructor(clss) \
     const char*		defExtension() const	{ return defext; } \
 }; \
  \
-struct clss##Translator : public Translator \
-{ \
+mClass clss##Translator : public Translator \
+{ public: \
     			mDefEmptyTranslatorBaseConstructor(clss) \
 }; \
  \
-struct fmt##clss##Translator : public clss##Translator \
+mClass fmt##clss##Translator : public clss##Translator \
 {			isTranslator(fmt,clss) \
     			mDefEmptyTranslatorConstructor(fmt,clss) \
 };
