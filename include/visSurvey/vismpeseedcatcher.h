@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.15 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.16 2009-02-06 05:50:38 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 #include "attribdatacubes.h"
+#include "attribdataholder.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "geomelement.h"
@@ -24,7 +25,7 @@ ________________________________________________________________________
 namespace Geometry { class ElementEditor; }
 namespace MPE { class ObjectEditor; }
 namespace EM { class EdgeLineSet; }
-namespace Attrib { class SelSpec; class DataCubes; class Data2DHolder; }
+namespace Attrib { class SelSpec; }
 namespace visBase { class Marker; class Dragger; }
 
 
