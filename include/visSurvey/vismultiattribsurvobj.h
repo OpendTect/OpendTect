@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.19 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.20 2009-02-06 05:51:54 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ namespace visBase
     class TextureChannel2RGBA;
 };
 
+namespace ColTab  { struct MapperSetup; class Sequence; }
 
 namespace visSurvey
 {
