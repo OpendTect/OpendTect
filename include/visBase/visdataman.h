@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.19 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: visdataman.h,v 1.20 2009-02-06 05:45:44 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -80,7 +80,7 @@ protected:
     static const char*		sKeySelManPrefix();
 };
 
-DataManager& DM();
+mGlobal DataManager& DM();
 
 };
 
