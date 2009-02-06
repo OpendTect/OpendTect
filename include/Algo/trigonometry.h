@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.37 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:		$Id: trigonometry.h,v 1.38 2009-02-06 05:23:33 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -445,10 +445,10 @@ public:
 };
 
 
-Sphere cartesian2Spherical(const Coord3&,bool math);
+mGlobal Sphere cartesian2Spherical(const Coord3&,bool math);
 	    /*!< math=true: transformation done in math-system
 		 math=false: transformation done in geo-system */
-Coord3 spherical2Cartesian(const Sphere&,bool math);
+mGlobal Coord3 spherical2Cartesian(const Sphere&,bool math);
 	    /*!< math=true: transformation done in math-system
 		 math=false: transformation done in geo-system */
 

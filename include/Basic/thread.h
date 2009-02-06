@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.33 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: thread.h,v 1.34 2009-02-06 05:27:40 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -257,7 +257,7 @@ private:
   * The user settings contain a 'Nr Processors' entry.
   */
 
-int getNrProcessors();
+mGlobal int getNrProcessors();
 
 
 #define mThreadDeclareMutexedVar(T,var) \
