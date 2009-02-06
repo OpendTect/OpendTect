@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.7 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.8 2009-02-06 05:48:58 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ class SbImage;
 
 template <class T> class Array2D;
 
-namespace ColTab { class Mapper; class MapperSetup; };
+namespace ColTab { class Mapper; struct MapperSetup; };
 
 namespace visBase
 {

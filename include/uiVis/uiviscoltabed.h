@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.20 2009-01-16 03:35:53 cvssatyaki Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.21 2009-02-06 05:43:48 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 namespace visBase { class VisColorTab; }
-namespace ColTab { class Sequence; class MapperSetup; }
+namespace ColTab { class Sequence; struct MapperSetup; }
 class uiColorTable;
 class uiGroup;
 class IOPar;

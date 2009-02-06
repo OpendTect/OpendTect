@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.14 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uicolortable.h,v 1.15 2009-02-06 05:41:47 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class uiColorTableCanvas;
 class uiComboBox;
 class uiLineEdit;
 
-namespace ColTab { class Sequence; class MapperSetup; }
+namespace ColTab { class Sequence; struct MapperSetup; }
 
 mClass uiColorTable : public uiGroup
 {

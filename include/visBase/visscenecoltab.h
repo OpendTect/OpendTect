@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.7 2009-01-14 11:40:56 cvssatyaki Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.8 2009-02-06 05:46:57 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class LegendKit;
 class Color;
-namespace ColTab { class MapperSetup; class Sequence; }
+namespace ColTab { struct MapperSetup; class Sequence; }
 
 namespace visBase
 {
