@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.55 2009-01-22 14:59:58 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.56 2009-02-06 12:35:16 cvsnanne Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -80,6 +80,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     objfld = new uiSeisSel( uppgrp_, ctio,
 			    uiSeisSel::Setup(is2d,false).selattr(true));
     objfld->attach( alignedBelow, transffld );
+    objfld->setConfirmOverwrite( !is2d );
 
     uppgrp_->setHAlignObj( transffld );
 
@@ -133,6 +134,8 @@ void uiAttrVolOut::attrSel( CallBacker* )
 		{
 		    objfld->setInput(
 			    LineKey(ioobj->key(),todofld->getAttrName()) );
+		    objfld->processInput();
+		    objfld->setAttrNm( todofld->getAttrName() );
 		    transffld->setInput( *ioobj );
 		}
 	    }
