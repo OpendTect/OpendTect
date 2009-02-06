@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.27 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.28 2009-02-06 12:12:42 cvsbert Exp $";
 
 #include "uiimpfault.h"
 
 #include "ctxtioobj.h"
 #include "emfault3d.h"
-#include "emfaulttransl.h"
+#include "lmkemfaulttransl.h"
 #include "emmanager.h"
 #include "filegen.h"
 #include "ioobj.h"
