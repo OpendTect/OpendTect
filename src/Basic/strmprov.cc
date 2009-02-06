@@ -10,6 +10,7 @@
 #include <string.h>
 #include <fstream>
 #include <iostream>
+#include "strmprov.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -30,7 +31,6 @@
 # define mStdIOFileBuf __gnu_cxx::stdio_filebuf<char>
 #endif
 
-#include "strmprov.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "string2.h"
@@ -92,7 +92,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.80 2009-02-05 11:07:28 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.81 2009-02-06 05:56:18 cvsranojay Exp $";
 
 static BufferString oscommand( 2048, false );
 
