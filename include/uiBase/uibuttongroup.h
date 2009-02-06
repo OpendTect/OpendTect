@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.11 2009-01-30 05:08:31 cvssatyaki Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.12 2009-02-06 07:09:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ public:
 				      bool vertical=true);
 			~uiButtonGroup();
 
-    void		addButton(uiButton*);
+    int			addButton(uiButton*);
     void		selectButton(int id);
     int			selectedId() const;
     int			nrButtons() const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuttongroup.cc,v 1.18 2009-01-30 05:08:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uibuttongroup.cc,v 1.19 2009-02-06 07:09:42 cvssatyaki Exp $";
 
 #include "uibuttongroup.h"
 #include "uibutton.h"
@@ -31,20 +31,22 @@ uiButtonGroup::~uiButtonGroup()
 }
 
 
-void uiButtonGroup::addButton( uiButton* button )
+int uiButtonGroup::addButton( uiButton* button )
 {
-    qbuttongrp_->addButton( button->qButton() );
+    int id = qbuttongrp_->buttons().size();
+    qbuttongrp_->addButton( button->qButton(), id );
     button->setStretch( grpobj_->width(), grpobj_->height() );
     if ( prevbutton_ )
 	button->attach( vertical_ ? leftAlignedBelow : rightTo, prevbutton_ );
     prevbutton_ = button;
+    return id;
 }
 
 
 void uiButtonGroup::selectButton( int id )
 {
     if ( qbuttongrp_->button( id ) )
-	qbuttongrp_->button( id )->setDown( true );
+	qbuttongrp_->button( id )->setChecked( true );
 }
 
 
