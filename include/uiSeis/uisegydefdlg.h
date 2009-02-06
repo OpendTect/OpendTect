@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegydefdlg.h,v 1.10 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uisegydefdlg.h,v 1.11 2009-02-06 05:39:56 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ mClass uiSEGYDefDlg : public uiDialog
 {
 public:
 
-    struct Setup : public uiDialog::Setup
+    mStruct Setup : public uiDialog::Setup
     {
 					Setup();
 
