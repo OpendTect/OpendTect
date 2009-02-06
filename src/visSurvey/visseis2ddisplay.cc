@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.56 2009-02-06 04:44:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.57 2009-02-06 20:14:04 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -266,8 +266,6 @@ void Seis2DDisplay::setData( int attrib,
 			 Array2DImpl<float>( trcnrrg_.width()+1, arrzsz ) );
     if ( !arr->isOK() )
 	return;
-
-    const int totalsz = arr->info().getTotalSz();
 
     const DataHolder* firstdh = data2dh.dataset_[0];
     TypeSet<int> valididxs = firstdh->validSeriesIdx();
