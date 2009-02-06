@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.106 2008-12-10 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.107 2009-02-06 14:48:27 cvsbert Exp $";
 
 #include "uiseispartserv.h"
 
@@ -50,6 +50,7 @@ static const char* rcsID = "$Id: uiseispartserv.cc,v 1.106 2008-12-10 16:16:33 c
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltman.h"
+#include "uiseispreloadmgr.h"
 #include "uiselsimple.h"
 #include "uisurvey.h"
 #include "uitaskrunner.h"
@@ -107,6 +108,13 @@ bool uiSeisPartServer::exportSeis( int opt )
 void uiSeisPartServer::manageSeismics()
 {
     uiSeisFileMan dlg( appserv().parent() );
+    dlg.go();
+}
+
+
+void uiSeisPartServer::managePreLoad()
+{
+    uiSeisPreLoadMgr dlg( appserv().parent() );
     dlg.go();
 }
 

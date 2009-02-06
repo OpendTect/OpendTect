@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.33 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.34 2009-02-06 14:48:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ public:
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 
     void		manageSeismics();
+    void		managePreLoad();
     void		importWavelets();
     void		manageWavelets();
 

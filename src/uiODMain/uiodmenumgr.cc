@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.151 2009-02-05 14:48:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.152 2009-02-06 14:48:27 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -169,6 +169,10 @@ void uiODMenuMgr::fillSurveyMenu()
     manmnu_ = new uiPopupMenu( &appl_, "&Manage");
     fillManMenu();
     surveymnu_->insertItem( manmnu_ );
+
+    preloadmnu_ = new uiPopupMenu( &appl_, "&Pre-load");
+    mInsertItem( preloadmnu_, "&Seismics ...", mPreLoadSeisMnuItm );
+    surveymnu_->insertItem( preloadmnu_ );
 
     surveymnu_->insertSeparator();
     mInsertItem( surveymnu_, "E&xit", mExitMnuItm );
@@ -692,6 +696,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManNLAMnuItm:		mDoOp(Man,NLA,0); break;
     case mManSessMnuItm:	mDoOp(Man,Sess,0); break;
     case mManStratMnuItm:	mDoOp(Man,Strat,0); break;
+
+    case mPreLoadSeisMnuItm:	applMgr().manPreLoad(uiODApplMgr::Seis); break;
 
     case mExitMnuItm: 		appl_.exit(); break;
 

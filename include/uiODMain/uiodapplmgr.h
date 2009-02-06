@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.71 2009-01-16 06:26:33 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.72 2009-02-06 14:48:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!
+    void			manPreLoad(ObjType);
 
     // Processing menu operations
     void			editAttribSet();

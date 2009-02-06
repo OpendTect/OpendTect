@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.43 2009-02-05 14:48:23 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.44 2009-02-06 14:48:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ protected:
     uiPopupMenu*	impmnu_;
     uiPopupMenu*	expmnu_;
     uiPopupMenu*	manmnu_;
+    uiPopupMenu*	preloadmnu_;
     uiPopupMenu*	helpmnu_;
     uiPopupMenu*	settmnu_;
     uiPopupMenu*	toolsmnu_;

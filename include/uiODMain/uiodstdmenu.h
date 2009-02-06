@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.54 2009-01-08 15:47:48 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.55 2009-02-06 14:48:27 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #define mFileImpMnu		(mFileMnu + 200)
 #define mFileExpMnu		(mFileMnu + 300)
 #define mFileManMnu		(mFileMnu + 400)
+#define mFilePreLoadMnu		(mFileMnu + 600)
 
 #define mManSurveyMnuItm	(mFileMnu + 10)
 #define mExitMnuItm		(mFileMnu + 20)
@@ -85,6 +86,7 @@ ________________________________________________________________________
 #define mManNLAMnuItm		(mFileManMnu + 80)
 #define mManSessMnuItm		(mFileManMnu + 90)
 #define mManStratMnuItm		(mFileManMnu + 95)
+#define mPreLoadSeisMnuItm	(mFilePreLoadMnu + 10)
 
 
 /* 'Processing' menu */
