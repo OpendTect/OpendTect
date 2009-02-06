@@ -92,7 +92,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.81 2009-02-06 05:56:18 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.82 2009-02-06 12:43:05 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -366,6 +366,28 @@ void StreamProvider::unLoad( const char* key, bool isid )
 	int plid = getPLID( key, isid );
 	if ( plid < 0 ) return;
 	delete plds.removeFast( plid );
+    }
+}
+
+
+void StreamProvider::getPreLoadedIDs( BufferStringSet& bss )
+{
+    bss.erase();
+    ObjectSet<StreamProviderPreLoadedData>& plds = PLDs();
+    for ( int idx=0; idx<plds.size(); idx++ )
+	bss.addIfNew( plds[idx]->id_ );
+}
+
+
+void StreamProvider::getPreLoadedFileNames( const char* id,
+					    BufferStringSet& bss )
+{
+    bss.erase();
+    ObjectSet<StreamProviderPreLoadedData>& plds = PLDs();
+    for ( int idx=0; idx<plds.size(); idx++ )
+    {
+	if ( !id || plds[idx]->id_ == id )
+	    bss.add( plds[idx]->name_ );
     }
 }
 
