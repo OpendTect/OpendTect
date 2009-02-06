@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: visrandompos2body.h,v 1.1 2009-01-23 22:24:57 cvsyuancheng Exp $
+ RCS:		$Id: visrandompos2body.h,v 1.2 2009-02-06 20:46:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "position.h"
 
+class SoShapeHints;
 
 namespace visBase
 {
@@ -44,12 +45,18 @@ public:
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
 
+    void			renderOneSide(int side);
+    				/*!< 0 = visisble from both sides.
+				     1 = visisble from positive side
+				     -1 = visisble from negative side. */
+
 protected:
     				~RandomPos2Body();
 
     TypeSet<Coord3>		picks_;			
     TriangleStripSet*		triset_;
-    Transformation*		transformation_;			
+    Transformation*		transformation_;
+    SoShapeHints*		hints_;
 };
 
 

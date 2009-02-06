@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandompos2body.cc,v 1.1 2009-01-23 22:24:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visrandompos2body.cc,v 1.2 2009-02-06 20:46:05 cvsyuancheng Exp $";
 
 #include "visrandompos2body.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: visrandompos2body.cc,v 1.1 2009-01-23 22:24:57 
 #include "vistransform.h"
 #include "vistristripset.h"
 
+#include <Inventor/nodes/SoShapeHints.h>
 
 mCreateFactoryEntry( visBase::RandomPos2Body );
 
@@ -26,8 +27,11 @@ namespace visBase
 RandomPos2Body::RandomPos2Body()
     : VisualObjectImpl( false )
     , transformation_( 0 )
-    , triset_( 0 )				       
-{}
+    , triset_( 0 )
+    , hints_( new SoShapeHints )		  
+{
+    addChild( hints_ );
+}
 
 
 RandomPos2Body::~RandomPos2Body()
@@ -40,6 +44,24 @@ RandomPos2Body::~RandomPos2Body()
     }
 }
 
+
+void RandomPos2Body::renderOneSide( int side )
+{
+    hints_->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+    
+    if ( side==0 )
+    {
+	hints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+    }
+    else if ( side==1 )
+    {
+	hints_->shapeType = SoShapeHints::SOLID;
+    }
+    else
+    {
+	hints_->shapeType = SoShapeHints::SOLID;
+    }
+}
 
 bool RandomPos2Body::setPoints( const TypeSet<Coord3>& pts )
 {
