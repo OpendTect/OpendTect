@@ -7,8 +7,8 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.55 2009-02-05 21:55:16 cvsyuancheng Exp $";
 
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.56 2009-02-06 04:44:33 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -893,9 +893,12 @@ void Seis2DDisplay::clearTexture( int attribnr )
 Seis2DDisplay* Seis2DDisplay::getSeis2DDisplay( const MultiID& lineset,
 						const char* linenm )
 {
-    for ( int idx=0; idx<=visBase::DM().highestID(); idx++ )
+    TypeSet<int> ids;
+    visBase::DM().getIds( typeid(visSurvey::Seis2DDisplay), ids );
+
+    for ( int idx=0; idx<ids.size(); idx++ )
     {
-	DataObject* dataobj = visBase::DM().getObject( idx );
+	DataObject* dataobj = visBase::DM().getObject( ids[idx] );
 	mDynamicCastGet( Seis2DDisplay*, s2dd, dataobj );
 	if (s2dd && lineset==s2dd->lineSetID() &&
 	    !strcmp(linenm,s2dd->getLineName()) )
