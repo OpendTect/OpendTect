@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.30 2007-02-14 10:13:13 cvsbert Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.31 2009-02-06 05:33:02 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 class QLayoutItem;
 
 //! Wrapper around QLayoutItem class. Stores some dGB specific layout info.
-class i_LayoutItem : public uiBody, public NamedObject
+mClass i_LayoutItem : public uiBody, public NamedObject
 {   
     friend class		i_LayoutMngr;
     friend class		i_LayoutIterator;
@@ -166,7 +166,7 @@ private:
 
 
 //! Wrapper around QLayoutItems that have been wrapped by a i_QObjWrp wrapper and therefore have a reference to a uiObject.
-class i_uiLayoutItem : public i_LayoutItem
+mClass i_uiLayoutItem : public i_LayoutItem
 {
 public:
 			i_uiLayoutItem( i_LayoutMngr& mngr, uiObjectBody& obj )

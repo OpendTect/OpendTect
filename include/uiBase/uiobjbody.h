@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.48 2008-12-24 05:52:49 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.49 2009-02-06 05:36:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,7 @@ class QWidget;
 
 #define USE_DISPLAY_TIMER 1
 
-
-class uiObjectBody : public uiBody, public NamedObject
+mClass uiObjectBody : public uiBody, public NamedObject
 {
 friend class 		i_uiLayoutItem; 
 
