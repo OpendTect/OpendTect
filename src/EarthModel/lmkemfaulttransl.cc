@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.1 2009-02-06 12:12:42 cvsbert Exp $";
+static const char* rcsID = "$Id: lmkemfaulttransl.cc,v 1.2 2009-02-09 11:12:30 cvsbert Exp $";
 
 #include "lmkemfaulttransl.h"
 
@@ -48,6 +48,7 @@ lmkEMFault3DReader::lmkEMFault3DReader( EM::Fault3D& fault_, Conn* conn_,
     , conn( conn_ )
     , lastpt( -1 )
     , useinlcrl(false)
+    , lastnode(0,0)
     , xinterval(-1,-1)
     , yinterval(-1,-1)
     , zinterval(-1,-1)
@@ -206,34 +207,28 @@ int lmkEMFault3DReader::nextStep()
     str[pointtypeinterval.width()+1] = 0;
     int pt = atoi( str.buf() );
 
-    if ( domainunitinterval.start!=-1 )
+    float zfac = 0.001;
+    if ( domainunitinterval.start != -1 )
     {
 	str = &buffer[domainunitinterval.start-1];
-	str[domainunitinterval.width()+1] = 0;
-	if ( str=="ms" )
-	    pos.z /= 1000;
-	else
-	{
-	    msg = "Unknown time unit";
-	    return ErrorOccurred();
-	}
-    }
-    else
-    {
-	pos.z /= 1000;
-    }
+	str[domainunitinterval.width()+1] = '\0';
+	if ( str == "m" )
+	    zfac = 1;
+	else if ( str == "ft" )
+	    zfac = 0.3048;
+	else if ( str != "ms" )
+	    { msg = "Unknown time unit"; return ErrorOccurred(); }
 
-    if ( domaininterval.start!=-1 )
-    {
 	str = &buffer[domaininterval.start-1];
 	str[domaininterval.width()+1] = 0;
-	if ( (str!="TIME" && SI().zIsTime()) ||
-	     (str=="TIME" && !SI().zIsTime()) )
+	const bool ist = str == "TIME";
+	if ( (ist && SI().zIsTime()) || (ist && !SI().zIsTime()) )
 	{
 	    msg = "Z domain is not equal to survey domain";
 	    return ErrorOccurred();
 	}
     }
+    pos.z *= zfac;
 
     RowCol newnode( lastnode.row, lastnode.col+1 );
     if ( pt==mLMK_START_PT && lastpt!=-1 && lastpt!=mLMK_END_PT )
@@ -244,11 +239,16 @@ int lmkEMFault3DReader::nextStep()
 	if ( pt!=mLMK_START_PT )
 	    return ErrorOccurred();
 
-	newnode.row++;
-	newnode.col = 0;
+	newnode.row++; newnode.col = 0;
+	fault.geometry().insertStick( 0, newnode.row, newnode.col, pos,
+			Coord3(0,1,0), false );
+    }
+    else
+    {
+	const EM::SubID subid( newnode.getSerialized() );
+	fault.geometry().insertKnot( 0, subid, pos, false );
     }
 
-    //fault.setPos( newnode, pos, false );
     lastnode = newnode;
     lastpt = pt;
 
