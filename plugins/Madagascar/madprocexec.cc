@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.4 2009-01-20 10:54:43 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.5 2009-02-09 05:18:49 cvsraman Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -80,7 +80,6 @@ bool ODMad::ProcExec::init()
 	if ( !comm || !*comm )
 	    return false;
 
-	std::cerr << "Command = " << comm << std::endl;
 	if ( stage_ == Start && ( inptyp == ODMad::ProcFlow::None
 		    		|| inptyp == ODMad::ProcFlow::SU ) )
 	{
@@ -104,6 +103,12 @@ bool ODMad::ProcExec::init()
 	else
 	    procstream_ = StreamProvider( comm ).makeOStream();
 
+	if ( !procstream_.usable() )
+	{
+	    strm_ << "Failed to create output stream" << std::endl;
+	    return false;
+	}
+
 	if ( !madstream_->putHeader(*procstream_.ostrm) )
 	{
 	    strm_ << "Failed to get RSF header" << std::endl;
@@ -116,7 +121,10 @@ bool ODMad::ProcExec::init()
 	    plotcomm += getPlotString();
 	    plotstream_ = StreamProvider( plotcomm.buf() ).makeOStream();
 	    if ( !madstream_->putHeader(*plotstream_.ostrm) )
+	    {
+		strm_ << "Failed to put RSF header in plot stream" << std::endl;
 		return false;
+	    }
 	}
 
 	const int trcsize = madstream_->getNrSamples();
@@ -130,9 +138,7 @@ bool ODMad::ProcExec::init()
 #define mAddNewExec \
     BufferString fname = FilePath::getTempName( "par" ); \
     pars_.write( fname, sKey::Pars ); \
-    ret += GetExecScript( false ); \
-    ret += " "; ret += "odmadexec"; \
-    ret += " "; ret += fname
+    ret += "odmadexec"; ret += " "; ret += fname
 
 const char* ODMad::ProcExec::getProcString()
 {
@@ -165,7 +171,6 @@ const char* ODMad::ProcExec::getProcString()
 	    pars_.set( sKeyFlowStage(), eString(ODMad::ProcExec::FlowStage,
 						Finish) );
 	    pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
-	    ret = "";
 	    mAddNewExec;
 	}
 
@@ -208,6 +213,7 @@ const char* ODMad::ProcExec::getProcString()
 		break;
 	    }
 
+	    ret += GetExecScript( false ); ret += " ";
 	    mAddNewExec;
 	    pars_.set( sKeyCurProc(), curprocidx );
 	    break;
@@ -226,6 +232,7 @@ const char* ODMad::ProcExec::getProcString()
 						    Finish) );
 		pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
 		ret += " | ";
+		ret += GetExecScript( false ); ret += " ";
 		mAddNewExec;
 	    }
 	}
