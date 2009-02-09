@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.22 2009-02-09 18:09:32 cvsyuancheng Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.23 2009-02-09 19:16:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -134,7 +134,6 @@ protected:
 
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
-    visBase::DrawStyle*         drawstyle_;
     visBase::EventCatcher*	eventcatcher_;
     visBase::PolyLine*          polyline_;
     visBase::Transformation*	transformation_;

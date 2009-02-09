@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.49 2009-02-09 18:09:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.50 2009-02-09 19:16:30 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.49 2009-02-09 18:09:3
 #include "viscoord.h"
 #include "visevent.h"
 #include "visdataman.h"
-#include "visdrawstyle.h"
 #include "vismaterial.h"
 #include "vispickstyle.h"
 #include "vispolyline.h"
