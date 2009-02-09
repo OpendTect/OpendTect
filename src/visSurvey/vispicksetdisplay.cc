@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.97 2008-06-16 19:46:46 cvskris Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.98 2009-02-09 18:09:32 cvsyuancheng Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -18,7 +18,8 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.97 2008-06-16 19:46:46
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
-
+#include "visrandompos2body.h"
+#include "zaxistransform.h"
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
 
@@ -26,15 +27,23 @@ namespace visSurvey {
 
 const char* PickSetDisplay::sKeyNrPicks()       { return "No Picks"; }
 const char* PickSetDisplay::sKeyPickPrefix()    { return "Pick "; }
+const char* PickSetDisplay::sKeyDisplayBody()	{ return "Show Body"; }
+
 
 
 PickSetDisplay::PickSetDisplay()
+    : bodydisplay_( 0 )
+    , shoulddisplaybody_( false )  
 {}
 
 
 PickSetDisplay::~PickSetDisplay()
 {
-    if ( polyline_ ) removeChild( polyline_->getInventorNode() );
+    if ( polyline_ ) 
+	removeChild( polyline_->getInventorNode() );
+
+    if ( bodydisplay_ ) 
+	bodydisplay_->unRef();
 }
 
 
@@ -42,6 +51,78 @@ void PickSetDisplay::getPickingMessage( BufferString& str ) const
 {
     str = "Picking ("; str += set_ ? set_->size() : 0; str += ")";
 }
+
+
+void PickSetDisplay::setColor( Color nc )
+{
+    if ( set_ )
+	set_->disp_.color_ = nc;
+    
+    if ( !bodydisplay_ ) return;
+    
+    if ( !bodydisplay_->getMaterial() )
+	bodydisplay_->setMaterial( visBase::Material::create() );
+
+    bodydisplay_->getMaterial()->setColor( nc );
+}
+
+
+void PickSetDisplay::setDisplayTransformation( visBase::Transformation* newtr )
+{
+    visSurvey::LocationDisplay::setDisplayTransformation( newtr );
+    if ( bodydisplay_ )
+	bodydisplay_->setDisplayTransformation( newtr );
+}
+
+
+visBase::Transformation* PickSetDisplay::getDisplayTransformation()
+{
+    return transformation_;
+}
+
+
+bool PickSetDisplay::isBodyDisplayed() const
+{
+    return bodydisplay_ && shoulddisplaybody_;
+}
+
+
+void PickSetDisplay::displayBody( bool yn )
+{
+    shoulddisplaybody_ = yn;
+    if ( bodydisplay_ )
+	bodydisplay_->turnOn( yn );
+}
+
+
+bool PickSetDisplay::setBodyDisplay()
+{
+    if ( !shoulddisplaybody_ || !set_ || !set_->size() )
+	return false;
+    
+    if ( !bodydisplay_ )
+    {
+	bodydisplay_ = visBase::RandomPos2Body::create();
+	bodydisplay_->ref();
+	addChild( bodydisplay_->getInventorNode() );
+    }
+    
+    if ( !bodydisplay_->getMaterial() )
+	bodydisplay_->setMaterial( visBase::Material::create() );
+    bodydisplay_->getMaterial()->setColor( set_->disp_.color_ );
+    bodydisplay_->setDisplayTransformation( transformation_ );
+    
+    TypeSet<Coord3> picks;
+    for ( int idx=0; idx<set_->size(); idx++ )
+    {
+	picks += (*set_)[idx].pos;
+    	if ( datatransform_ )
+	    picks[idx].z = datatransform_->transformBack( picks[idx] );
+    }
+    
+    return  bodydisplay_->setPoints( picks );
+}
+
 
 
 visBase::VisualObject* PickSetDisplay::createLocation() const
@@ -73,6 +154,20 @@ Coord3 PickSetDisplay::getPosition( int loc ) const
 {
     mDynamicCastGet( visBase::Marker*, marker, group_->getObject(loc) );
     return marker->getDirection();
+}
+
+
+void PickSetDisplay::locChg( CallBacker* cb )
+{
+    LocationDisplay::locChg( cb );
+    setBodyDisplay();
+}
+
+
+void PickSetDisplay::setChg( CallBacker* cb )
+{
+    LocationDisplay::setChg( cb );
+    setBodyDisplay();
 }
 
 
@@ -134,8 +229,19 @@ int PickSetDisplay::isMarkerClick( const TypeSet<int>& path ) const
 }
 
 
+void PickSetDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    LocationDisplay::fillPar( par, saveids );
+    par.set( sKeyDisplayBody(), shoulddisplaybody_ );
+}
+
+
 int PickSetDisplay::usePar( const IOPar& par )
 {
+    bool showbody = false;
+    par.getYN( sKeyDisplayBody(), showbody );
+    displayBody( showbody );
+
     int nopicks = 0;
     if ( par.get(sKeyNrPicks(),nopicks) ) // old format
     {

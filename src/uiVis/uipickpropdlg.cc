@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.11 2009-01-23 21:57:29 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipickpropdlg.cc,v 1.12 2009-02-09 18:09:32 cvsyuancheng Exp $";
 
 #include "uipickpropdlg.h"
 
@@ -32,7 +32,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set,
 {
     setTitleText( "Specity picks style" );
     usedrawstylefld_ = new uiCheckBox( this, "Connect picks" );
-    const bool hasbody = psd && psd->isLocationBodyDisplayed();
+    const bool hasbody = psd && psd->isBodyDisplayed();
     const bool hassty = set_.disp_.connect_==Pick::Set::Disp::Close || hasbody;
     usedrawstylefld_->setChecked( hassty );
     usedrawstylefld_->activated.notify( mCB(this,uiPickPropDlg,drawSel) );
@@ -62,7 +62,7 @@ void uiPickPropDlg::drawSel( CallBacker* )
 	set_.disp_.connect_ = Pick::Set::Disp::None;
     	Pick::Mgr().reportDispChange( this, set_ );
 	if ( psd_ )
-	    psd_->displayLocationBody( false );
+	    psd_->displayBody( false );
     }
     else 
 	drawStyleCB( 0 );
@@ -73,7 +73,7 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 {
     const bool showline = drawstylefld_->getBoolValue();
     if ( psd_ )
-    	psd_->displayLocationBody( !showline );
+    	psd_->displayBody( !showline );
 
     if ( showline )
     {
@@ -88,7 +88,7 @@ void uiPickPropDlg::drawStyleCB( CallBacker* )
 	
     	if ( needtriangulate_ )
     	{
-    	    psd_->setLocationBodyDisplay();
+    	    psd_->setBodyDisplay();
     	    needtriangulate_ = false;
     	}
     }

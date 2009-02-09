@@ -4,12 +4,10 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.48 2009-02-02 21:39:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.49 2009-02-09 18:09:32 cvsyuancheng Exp $";
 
 #include "vislocationdisplay.h"
 
-#include "emrandomposbody.h"
-#include "emmanager.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -25,7 +23,6 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.48 2009-02-02 21:39:0
 #include "vispickstyle.h"
 #include "vispolyline.h"
 #include "vistransform.h"
-#include "visrandompos2body.h"
 #include "zaxistransform.h"
 
 namespace visSurvey {
@@ -60,17 +57,14 @@ LocationDisplay::LocationDisplay()
     , group_( visBase::DataObjectGroup::create() )
     , eventcatcher_( 0 )
     , transformation_( 0 )
-    , shoulddisplaybody_( false )			  
     , showall_( true )
     , set_( 0 )
-    , embody_( 0 )	       
     , manip_( this )
     , picksetmgr_( 0 )
     , waitsfordirectionid_( -1 )
     , waitsforpositionid_( -1 )
     , datatransform_( 0 )
     , pickstyle_( 0 )
-    , bodydisplay_( 0 )		     
     , polyline_(0)
     , needline_(false)
     , pickedsobjid_(-1)
@@ -84,9 +78,6 @@ LocationDisplay::LocationDisplay()
 
 LocationDisplay::~LocationDisplay()
 {
-    if ( embody_ )
-	embody_->unRef();
-
     setSceneEventCatcher( 0 );
     removeChild( group_->getInventorNode() );
     group_->unRef();
@@ -95,7 +86,6 @@ LocationDisplay::~LocationDisplay()
     setSetMgr( 0 );
 
     if ( pickstyle_ ) pickstyle_->unRef();
-    if ( bodydisplay_ ) bodydisplay_->unRef();
 
     if ( datatransform_ )
     {
@@ -120,58 +110,8 @@ void LocationDisplay::setSet( Pick::Set* s )
     setName( set_->name() );
     fullRedraw();
 
-    if ( !embody_ ) 
-    {
-    	mTryAlloc( embody_, EM::RandomPosBody(EM::EMM()) );
-	if ( !embody_ ) return;
-
-	embody_->ref();
-    	if ( !embody_->isOK() )
-    	{
-    	    embody_->unRef();
-    	    embody_ = 0;
-    	    return;
-    	}
-    
-	EM::EMM().addObject( embody_ );
-    	embody_->setPreferredColor( getMaterial()->getColor() );
-    }
-
-    embody_->copyFrom( *s );
-    
     if ( !showall_ && scene_ )
 	scene_->objectMoved( 0 );
-
-    setLocationBodyDisplay();
-}
-
-
-MultiID LocationDisplay::getMultiID() const
-{
-    return embody_ ? embody_->multiID() : storedmid_;
-}
-
-
-EM::ObjectID LocationDisplay::getEMID() const
-{ return embody_ ? embody_->id() : -1; }
-
-
-bool LocationDisplay::setEMID( const EM::ObjectID& emid )
-{
-    if ( embody_ )
-	embody_->unRef();
-
-    embody_ = 0;
-    RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
-    mDynamicCastGet( EM::RandomPosBody*, embody, emobject.ptr() );
-    if ( !embody )
-	return false;
-    
-    embody_ = embody;
-    embody_->ref();
-    
-    //TODO:do update;
-    return true;
 }
 
 
@@ -248,64 +188,6 @@ void LocationDisplay::showAll( bool yn )
 
 	vo->turnOn( true );
     }
-}
-
-
-bool LocationDisplay::isLocationBodyDisplayed() const
-{ 
-    return bodydisplay_ && shoulddisplaybody_; 
-}
-
-
-void LocationDisplay::displayLocationBody( bool yn )
-{
-    shoulddisplaybody_ = yn;
-    if ( bodydisplay_ )
-	bodydisplay_->turnOn( yn );
-}
-
-
-bool LocationDisplay::setLocationBodyDisplay()
-{
-    if ( !shoulddisplaybody_ )
-	return false;
-
-    if ( embody_->getPositions().size()!=set_->size() )
-	embody_->copyFrom( *set_ );
-	
-    if ( !bodydisplay_ )
-    {
-	bodydisplay_ = visBase::RandomPos2Body::create();
-	bodydisplay_->ref();
-	addChild( bodydisplay_->getInventorNode() );
-    }
-
-    bodydisplay_->setDisplayTransformation( transformation_ );
-    if ( !bodydisplay_->getMaterial() )
-	bodydisplay_->setMaterial( visBase::Material::create() );
-
-    TypeSet<Coord3> picks;
-    if ( embody_ )
-    	picks = embody_->getPositions(); 
-    else
-    {
-	if ( !set_ || !set_->size() )
-    	    return false;
-	
-	for ( int idx=0; idx<set_->size(); idx++ )
-	    picks += (*set_)[idx].pos;
-    }
-
-    if ( set_ )
-	bodydisplay_->getMaterial()->setColor( set_->disp_.color_ );
-
-    if ( datatransform_ )
-    {
-    	for ( int idx=0; idx<picks.size(); idx++ )
-    	    picks[idx].z = datatransform_->transformBack( picks[idx] );
-    }
-
-    return  bodydisplay_->setPoints( picks );
 }
 
 
@@ -673,17 +555,8 @@ void LocationDisplay::dispChg( CallBacker* )
 
 void LocationDisplay::setColor( Color nc )
 {
-    if ( embody_ )
-	embody_->setPreferredColor(nc);
-
     if ( set_ )
     	set_->disp_.color_ = nc;
-
-    if ( !bodydisplay_ ) return;
-
-    if ( !bodydisplay_->getMaterial() )
-	bodydisplay_->setMaterial( visBase::Material::create() );
-    bodydisplay_->getMaterial()->setColor( nc );
 }
 
 
@@ -746,7 +619,6 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	picksetmgr_->reportChange( 0, cd );
     }
 
-    setLocationBodyDisplay();
     if ( !hasText() ) return true;
 
     if ( !(*set_)[locidx].text || !(*set_)[locidx].text->size() )
@@ -766,11 +638,9 @@ void LocationDisplay::removePick( int removeidx )
 
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				 set_, removeidx );
-    picksetmgr_->reportChange( 0, cd );
-
     set_->remove( removeidx );
+    picksetmgr_->reportChange( 0, cd );
     
-    setLocationBodyDisplay();
     if ( needline_ ) createLine();
 }
 
@@ -860,7 +730,6 @@ void LocationDisplay::setPosition(int idx, const Pick::Location& nl )
 	return;
     
     (*set_)[idx] = nl;
-    setLocationBodyDisplay();
 }
 
 
@@ -880,9 +749,6 @@ void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
     if ( polyline_ )
 	polyline_->setDisplayTransformation( transformation_ );
 
-    if ( bodydisplay_ )
-	bodydisplay_->setDisplayTransformation( transformation_ );
-
     for ( int idx=0; idx<group_->size(); idx++ )
 	group_->getObject(idx)->setDisplayTransformation( transformation_ );
 }
@@ -897,8 +763,6 @@ visBase::Transformation* LocationDisplay::getDisplayTransformation()
 void LocationDisplay::setRightHandSystem( bool yn )
 {
     visBase::VisualObjectImpl::setRightHandSystem( yn );
-    if ( bodydisplay_ )
-	bodydisplay_->setRightHandSystem( yn );
 }
 
 

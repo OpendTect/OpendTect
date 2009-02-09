@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.54 2009-01-23 21:54:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.55 2009-02-09 18:09:32 cvsyuancheng Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -315,7 +315,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &propertymnuitem_, true, false );
     mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
 
-    const bool hasbody = psd && psd->isLocationBodyDisplayed();
+    const bool hasbody = psd && psd->isBodyDisplayed();
     mAddMenuItem( menu, &convertbodymnuitem_, hasbody, false )
 
     mAddMenuItem( menu, &dirmnuitem_, true, false );
@@ -370,7 +370,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	uiPickPropDlg dlg( getUiParent(), set_ , psd );
 	dlg.go();
 	
-	convertbodymnuitem_.enabled = psd ? psd->isLocationBodyDisplayed() 
+	convertbodymnuitem_.enabled = psd ? psd->isBodyDisplayed() 
 	    				  : false;
     }
     else if( mnuid==removeselectionmnuitem_.id )

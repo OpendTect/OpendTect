@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.62 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.63 2009-02-09 18:09:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class BufferString;
 class SoSeparator;
-namespace visBase { class PolyLine; class DrawStyle; }
+namespace visBase { class PolyLine; class DrawStyle; class RandomPos2Body; }
 
 namespace visSurvey
 {
@@ -38,9 +38,20 @@ public:
 
     void			getPickingMessage(BufferString&) const;
 
+    void			displayBody(bool);
+    bool			isBodyDisplayed() const;
+    bool			setBodyDisplay();
+    visBase::RandomPos2Body*	getDisplayBody() const	{ return bodydisplay_; }
+
+    void			setDisplayTransformation(
+	    				visBase::Transformation*);
+    visBase::Transformation*	getDisplayTransformation();
+
+    void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
 protected:
+
     visBase::VisualObject*	createLocation() const;
     void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
@@ -48,9 +59,17 @@ protected:
     int				isMarkerClick(const TypeSet<int>&) const;
 
     void			dispChg(CallBacker*);
+    void			locChg(CallBacker*);
+    void			setChg(CallBacker*);
+    bool			hasColor() const	{ return true; }
+    void			setColor(Color);
 
     static const char*		sKeyNrPicks();
     static const char*		sKeyPickPrefix();
+    static const char*		sKeyDisplayBody();
+
+    visBase::RandomPos2Body*	bodydisplay_;
+    bool			shoulddisplaybody_;
 };
 
 } // namespace visSurvey

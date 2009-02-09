@@ -7,19 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.21 2009-01-23 22:27:18 cvsyuancheng Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.22 2009-02-09 18:09:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "emposid.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 
 class Sphere;
 class SoSeparator;
-namespace EM { class RandomPosBody; }
 namespace Pick { class Set; class Location; class SetMgr; }
 template <class T> class Selector;
 
@@ -31,7 +29,6 @@ namespace visBase
     class PickStyle;
     class PolyLine;
     class Transformation;
-    class RandomPos2Body;
 };
 
 
@@ -56,19 +53,12 @@ public:
     Pick::Set*			getSet()		{ return set_; }
     const Pick::Set*		getSet() const		{ return set_; }
 
-    MultiID			getMultiID() const;
+    MultiID			getMultiID() const	{ return storedmid_; }
 
     void			fullRedraw(CallBacker* =0);
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
     
-    void			displayLocationBody(bool);
-    bool			isLocationBodyDisplayed() const;
-    bool			setLocationBodyDisplay();
-    visBase::RandomPos2Body*	getLocationBody() const; 
-    EM::ObjectID		getEMID() const;
-    bool			setEMID(const EM::ObjectID&);
-
     void                        createLine();
     void                        showLine(bool);
     bool                        lineShown() const;
@@ -129,7 +119,6 @@ protected:
     virtual void		setChg(CallBacker* cb);
     virtual void		dispChg(CallBacker* cb);
 
-    EM::RandomPosBody*		embody_;
     Pick::Set*			set_;
     Pick::SetMgr*		picksetmgr_;
     Notifier<LocationDisplay>	manip_;
@@ -143,8 +132,6 @@ protected:
     int				mousepressid_;
     int				pickedsobjid_; //!< Picked SurveyObject ID
 
-    bool			shoulddisplaybody_;
-    visBase::RandomPos2Body*	bodydisplay_;
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
     visBase::DrawStyle*         drawstyle_;
