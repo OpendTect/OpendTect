@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.37 2009-02-04 16:54:17 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.38 2009-02-09 21:01:55 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -21,6 +21,7 @@ to the constructor.
 
 #include "valseries.h"
 #include "arrayndinfo.h"
+#include "varlenarray.h"
 #include "memsetter.h"
 #include "ptrman.h"
 #include <string.h>
@@ -248,6 +249,73 @@ void ArrayND<T>::setAll( const T& val )
 }
 
 
+template <class T>
+mClass ArrayNDGetAll : public ParallelTask
+{
+public:
+    		ArrayNDGetAll( T* ptr, const ArrayND<T>& arr )
+		    : ptr_( ptr )
+		    , arr_( arr )
+		    , totalnr_( arr.info().getTotalSz() )
+		    , vs_( 0 )
+		{}
+
+    		ArrayNDGetAll( ValueSeries<T>& vs, const ArrayND<T>& arr )
+		    : ptr_( vs.arr() )
+		    , arr_( arr )
+		    , totalnr_( arr.info().getTotalSz() )
+		    , vs_( vs.arr() ? 0 : &vs )
+		{}
+
+    bool	doWork( od_int64 start, od_int64 stop, int )
+		{
+		    mAllocVarLenArr( int, pos, arr_.info().getNDim() );
+		    if ( !arr_.info().getArrayPos( start, pos ) )
+			return false;
+
+		    ArrayNDIter iterator( arr_.info() );
+		    iterator.setPos( (int*) pos );
+
+		    if ( vs_ )
+		    {
+			for ( od_int64 idx=start; idx<=stop; idx++ )
+			{
+			    vs_->setValue( idx,
+				    arr_.getND( iterator.getPos() ) );
+			    if ( idx==stop )
+				break;
+
+			    if ( !iterator.next() )
+				return false;
+			}
+		    }
+		    else
+		    {
+			T* res = ptr_ + start;
+			for ( od_int64 idx=start; idx<=stop; idx++, res++ )
+			{
+			    *res = arr_.getND( iterator.getPos() );
+			    if ( idx==stop )
+				break;
+
+			    if ( !iterator.next() )
+				return false;
+			}
+		    }
+
+		    return true;
+		}
+		    
+    od_int64	totalNr() const { return totalnr_; }
+protected:
+
+    od_int64		totalnr_;
+    const ArrayND<T>&	arr_;
+    T*			ptr_;
+    ValueSeries<T>*	vs_;
+};
+
+
 template <class T> inline
 void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
 {
@@ -269,13 +337,8 @@ void ArrayND<T>::getAll( ValueSeries<T>& vs ) const
 	return;
     }
 
-    ArrayNDIter iterator( info() );
-    for ( od_int64 idx=0; idx<totalsz; idx++ )
-    {
-	vs.setValue( idx, getND( iterator.getPos() ) );
-	if ( idx!=totalsz-1 && !iterator.next() )
-	    return;
-    }
+    ArrayNDGetAll<T> getter( vs, *this );
+    getter.execute();
 }
 
 
@@ -302,12 +365,8 @@ void ArrayND<T>::getAll( T* ptr ) const
 	return;
     }
 
-    ArrayNDIter iterator( info() );
-    do
-    {
-	*ptr = getND( iterator.getPos() );
-	ptr++;
-    } while ( iterator.next() );
+    ArrayNDGetAll<T> getter( ptr, *this );
+    getter.execute();
 }
 
 #endif
