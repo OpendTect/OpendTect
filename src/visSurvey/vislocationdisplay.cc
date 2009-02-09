@@ -4,10 +4,11 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.50 2009-02-09 19:16:30 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.51 2009-02-09 21:30:03 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
+#include "draw.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
