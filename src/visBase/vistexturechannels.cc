@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.12 2009-01-22 19:27:20 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.13 2009-02-10 20:58:23 cvsyuancheng Exp $";
 
 #include "vistexturechannels.h"
 
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: vistexturechannels.cc,v 1.12 2009-01-22 19:27:2
 #include "coltabmapper.h"
 
 #define mNrColors	255
-#define mUndefColIdx	255
 
 
 mCreateFactoryEntry( visBase::TextureChannels );
@@ -271,30 +270,15 @@ bool ChannelInfo::mapData( int version )
 	ownsmappeddata_[version] = true;
     }
 
-    if ( mapData( *mappers_[version],
-		  unmappeddata_[version], mappeddata_[version], sz ) )
+    ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], sz, mNrColors, 
+	    unmappeddata_[version], mappeddata_[version] );
+    if ( maptask.execute() )
     {
 	owner_.update( this, true );
 	return true;
     }
 
     return false;
-}
-
-
-bool ChannelInfo::mapData( const ColTab::Mapper& mapper,
-			   const float* unmapped, unsigned char* mapped,
-			   od_int64 sz)
-{
-    unsigned char* stopptr = mapped+sz;
-    while ( mapped!=stopptr )
-    {
-	*mapped = ColTab::Mapper::snappedPosition(&mapper,*unmapped,
-						   mNrColors,mUndefColIdx);
-	mapped++; unmapped++;
-    }
-
-    return true;
 }
 
 
