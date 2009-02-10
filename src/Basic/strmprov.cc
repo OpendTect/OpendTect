@@ -95,7 +95,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.84 2009-02-10 16:33:19 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.85 2009-02-10 16:57:17 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -454,6 +454,21 @@ void StreamProvider::getPreLoadedFileNames( const char* id,
 	if ( !id || pld.id_ == id )
 	    bss.add( pld.name() );
     }
+}
+
+
+int StreamProvider::getPreLoadedDataPackID( const char* fnm )
+{
+    ObjectSet<StreamProviderPreLoadedData>& plds = PLDs();
+    for ( int idx=0; idx<plds.size(); idx++ )
+    {
+	const StreamProviderPreLoadedData& pld = *plds[idx];
+	if ( !pld.isOK() ) continue;
+
+	if ( pld.name() == fnm )
+	    return pld.dp_->id();
+    }
+    return -1;
 }
 
 

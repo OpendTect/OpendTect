@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.28 2009-02-06 12:43:05 cvsbert Exp $
+ RCS:		$Id: strmprov.h,v 1.29 2009-02-10 16:57:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     static void		getPreLoadedIDs(BufferStringSet&);
     static void		getPreLoadedFileNames(const char* id,BufferStringSet&);
 			    //!< pass null id for all files
+    static int		getPreLoadedDataPackID(const char*);
 
 protected:
 
