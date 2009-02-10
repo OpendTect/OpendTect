@@ -92,7 +92,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.82 2009-02-06 12:43:05 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.83 2009-02-10 14:16:04 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -264,7 +264,7 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     if ( sd_.usable() )
     {
 	bufsz_ = File_getKbSize( nm ) + 1;
-	bufsz_ * 1024;
+	bufsz_ *= 1024;
 	mTryAlloc(data_,char [ bufsz_ ])
     }
 
@@ -278,12 +278,18 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
     delete [] data_;
 }
 
+const char* message() const { return "Reading file data"; }
+const char* nrDoneText() const { return "MBs read"; }
+od_int64 nrDone() const { return filesz_ / 1024; }
+od_int64 totalNr() const { return bufsz_ / 1024; }
+
 int nextStep()
 {
     if ( !sd_.usable() ) return ErrorOccurred();
 
     std::istream& strm = *sd_.istrm;
     strm.read( data_ + chunkidx_ * mPreLoadChunkSz, mPreLoadChunkSz );
+    chunkidx_++;
     if ( strm.good() )
     {
 	filesz_ += mPreLoadChunkSz;
