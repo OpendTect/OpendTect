@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.1 2009-02-10 15:22:13 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.2 2009-02-10 16:32:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,34 @@ protected:
     friend class	DataPackMgr;
 };
 
+/*!\brief Simple DataPack based on an unstructured char array buffer. */
+
+mClass BufferDataPack : public DataPack
+{
+public:
+
+    			BufferDataPack( char* b=0, od_int64 s=0,
+					const char* catgry="Buffer" )
+			    : DataPack(catgry)
+			    , buf_(b)
+			    , sz_(s)		{}
+			~BufferDataPack()	{ delete [] buf_; }
+
+    char*		buf()			{ return buf_; }
+    char const*		buf() const		{ return buf_; }
+    od_int64		size() const		{ return sz_; }
+    void		setBuf( char* b, od_int64 s )
+			{ delete [] buf_; sz_ = s; buf_ = b; }
+
+    virtual float	nrKBytes() const	{ return sz_*sKb2MbFac(); }
+
+protected:
+
+    char*		buf_;
+    od_int64		sz_;
+
+};
+
 
 /*!\brief Manages DataPacks
 
@@ -119,10 +147,11 @@ public:
     Notifier<DataPackMgr> packToBeRemoved;	//!< Passed CallBacker* = Pack
 
 			// Standard mgr IDs take the low integer numbers
-    static const ID	PointID();	//!< Sets of 'unconnected' points: 1
-    static const ID	CubeID();	//!< Cube/Block (N1xN2xN3) data: 2
-    static const ID	FlatID();	//!< Flat (N1xN2) data: 3
-    static const ID	SurfID();	//!< Surface (triangulated) data: 4
+    static const ID	BufID();	//!< Simple data buffer: 1
+    static const ID	PointID();	//!< Sets of 'unconnected' points: 2
+    static const ID	CubeID();	//!< Cube/Block (N1xN2xN3) data: 3
+    static const ID	FlatID();	//!< Flat (N1xN2) data: 4
+    static const ID	SurfID();	//!< Surface (triangulated) data: 5
 
     			// Convenience to get info without any obtain()
     const char*		nameOf(DataPack::ID) const;

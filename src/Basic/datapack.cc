@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.1 2009-02-10 15:22:13 cvsbert Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.2 2009-02-10 16:32:57 cvsbert Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -12,10 +12,11 @@ static const char* rcsID = "$Id: datapack.cc,v 1.1 2009-02-10 15:22:13 cvsbert E
 #include "keystrs.h"
 #include <iostream>
 
-const DataPackMgr::ID DataPackMgr::PointID()	{ return 1; }
-const DataPackMgr::ID DataPackMgr::CubeID()	{ return 2; }
-const DataPackMgr::ID DataPackMgr::FlatID()	{ return 3; }
-const DataPackMgr::ID DataPackMgr::SurfID()	{ return 4; }
+const DataPackMgr::ID DataPackMgr::BufID()	{ return 1; }
+const DataPackMgr::ID DataPackMgr::PointID()	{ return 2; }
+const DataPackMgr::ID DataPackMgr::CubeID()	{ return 3; }
+const DataPackMgr::ID DataPackMgr::FlatID()	{ return 4; }
+const DataPackMgr::ID DataPackMgr::SurfID()	{ return 5; }
 const char* DataPack::sKeyCategory()		{ return "Category"; }
 const float DataPack::sKb2MbFac()		{ return 0.0009765625; }
 
