@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.113 2009-01-16 09:52:20 cvsraman Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.114 2009-02-10 11:34:30 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dchg.h"
@@ -148,8 +148,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
 
-    scanbut_ = new uiPushButton( this, "Scan Input File",
-	    			 mCB(this,uiImportHorizon,scanPush), false );
+    scanbut_ = new uiPushButton( this, "Scan &Input File",
+	    			 mCB(this,uiImportHorizon,scanPush), true );
     scanbut_->attach( alignedBelow, dataselfld_);
 
     sep = new uiSeparator( this, "H sep" );

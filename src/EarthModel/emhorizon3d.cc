@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.113 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.114 2009-02-10 11:34:30 cvsbert Exp $";
 
 #include "emhorizon3d.h"
 
@@ -45,53 +45,60 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const BufferStringSet& attribnames, const int start,
        		 HorSampling hs	)
     : Executor("Data Import")
-    , horizon(hor)
-    , sections(sects)
-    , startidx(start)
-    , totalnr(0)
-    , nrdone(0)
+    , horizon_(hor)
+    , bvss_(sects)
+    , startidx_(start)
+    , totalnr_(0)
+    , nrdone_(0)
     , hs_(hs)
+    , inl_(0)
+    , sectionidx_(-1)
+    , nrattribs_(-1)
 {
-    for ( int idx=0; idx<sections.size(); idx++ )
-    {
-	const BinIDValueSet& bvs = *sections[idx];
-	totalnr += bvs.nrInls();
-    }
+    if ( bvss_.isEmpty() || attribnames.isEmpty() )
+	{ msg_ = "Internal error: empty input"; return; }
+    nrattribs_ = attribnames.size();
+    for ( int idx=0; idx<bvss_.size(); idx++ )
+	totalnr_ += bvss_[idx]->nrInls();
+    if ( totalnr_ < 1 )
+	{ msg_ = "No valid data found"; return; }
 
-    const int nrattribs = attribnames.size();
-    for ( int attribidx=0; attribidx<nrattribs; attribidx++ )
+    for ( int iattr=0; iattr<nrattribs_; iattr++ )
     {
-	BufferString nm = attribnames.get( attribidx );
+	BufferString nm = attribnames.get( iattr );
 	if ( nm.isEmpty() )
-	    { nm = "Imported attribute "; nm += attribidx; }
-
-	attrindexes += horizon.auxdata.addAuxData( nm.buf() );
+	    { nm = "Imported attribute "; nm += iattr + 1; }
+	attrindexes_ += horizon_.auxdata.addAuxData( nm.buf() );
     }
 
-    sectionidx = -1;
+    if ( nrattribs_ == 1 )
+	{ msg_ = "Getting "; msg_ += attribnames.get( 0 ); }
+    else
+	msg_ = "Getting horizon attribute values";
 }
 
 
 int nextStep()
 {
-    if ( sectionidx == -1 || inl > inlrange.stop )
+    if ( nrattribs_ < 0 ) return ErrorOccurred();
+
+    if ( sectionidx_ == -1 || inl_ > inlrg_.stop )
     {
-	sectionidx++;
-	if ( sectionidx >= horizon.geometry().nrSections() )
+	sectionidx_++;
+	if ( sectionidx_ >= horizon_.geometry().nrSections() )
 	    return Finished();
 
-	SectionID sectionid = horizon.geometry().sectionID(sectionidx);
-	inlrange = horizon.geometry().rowRange(sectionid);
-	crlrange = horizon.geometry().colRange(sectionid);
-	inl = inlrange.start;
+	SectionID sectionid = horizon_.geometry().sectionID(sectionidx_);
+	inlrg_ = horizon_.geometry().rowRange(sectionid);
+	crlrg_ = horizon_.geometry().colRange(sectionid);
+	inl_ = inlrg_.start;
     }
 
-    PosID posid( horizon.id(), horizon.geometry().sectionID(sectionidx) );
-    const BinIDValueSet& bvs = *sections[sectionidx];
-    const int nrattribs = attrindexes.size();
-    for ( int crl=crlrange.start; crl<=crlrange.stop; crl+=crlrange.step )
+    PosID posid( horizon_.id(), horizon_.geometry().sectionID(sectionidx_) );
+    const BinIDValueSet& bvs = *bvss_[sectionidx_];
+    for ( int crl=crlrg_.start; crl<=crlrg_.stop; crl+=crlrg_.step )
     {
-	const BinID bid(inl,crl);
+	const BinID bid( inl_, crl );
 	if ( !hs_.includes(bid) ) continue;
 
 	BinIDValueSet::Pos pos = bvs.findFirst( bid );
@@ -100,41 +107,43 @@ int nextStep()
 	const float* vals = bvs.getVals( pos );
 	if ( !vals ) continue;
 	posid.setSubID( bid.getSerialized() );
-	int idx = 0;
-	for ( int attridx=0; attridx<nrattribs; attridx++ )
+	for ( int iattr=0; iattr<nrattribs_; iattr++ )
 	{
-	    const float val = vals[attridx+startidx];
+	    const float val = vals[iattr+startidx_];
 	    if ( !mIsUdf(val) )
-		horizon.auxdata.setAuxDataVal( attrindexes[idx++], posid, val );
+		horizon_.auxdata.setAuxDataVal( attrindexes_[iattr],
+						posid, val );
 	}
     }
 
-    inl += inlrange.step;
-    nrdone++;
+    inl_ += inlrg_.step;
+    nrdone_++;
     return MoreToDo();
 }
 
 
-const char*	message() const		{ return "Importing aux data"; }
-od_int64	totalNr() const		{ return totalnr; }
-od_int64	nrDone() const		{ return nrdone; }
-const char*	nrDoneText() const	{ return "Nr positions imported"; }
+const char*	message() const		{ return msg_; }
+od_int64	totalNr() const		{ return totalnr_; }
+od_int64	nrDone() const		{ return nrdone_; }
+const char*	nrDoneText() const	{ return "Positions handled"; }
 
 protected:
 
-    const ObjectSet<BinIDValueSet>&	sections;
-    Horizon3D&			horizon;
-    StepInterval<int>		inlrange;
-    StepInterval<int>		crlrange;
+    const ObjectSet<BinIDValueSet>&	bvss_;
+    Horizon3D&			horizon_;
+    const HorSampling		hs_;
+    BufferString		msg_;
+    int				nrattribs_;
+    int				startidx_;
+    TypeSet<int>		attrindexes_;
 
-    int				inl;
-    int				sectionidx;
-    int				startidx;
-    TypeSet<int>		attrindexes;
+    int				inl_;
+    StepInterval<int>		inlrg_;
+    StepInterval<int>		crlrg_;
+    int				sectionidx_;
 
-    HorSampling			hs_;
-    int				totalnr;
-    int				nrdone;
+    int				totalnr_;
+    int				nrdone_;
 };
 
 
@@ -146,58 +155,60 @@ HorizonImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 		 const HorSampling& hs )
     : Executor("Horizon Import")
     , horizon_(hor)
-    , sections_(sects)
+    , bvss_(sects)
     , totalnr_(0)
     , nrdone_(0)
     , hs_(hs)
-
+    , sectionidx_(0)
+    , nrvals_(-1)
+    , msg_("Adding nodes")
 {
-    for ( int idx=0; idx<sections_.size(); idx++ )
+    if ( bvss_.isEmpty() ) return;
+    nrvals_ = bvss_[0]->nrVals();
+    const RowCol step( hs_.step.inl, hs_.step.crl );
+    horizon_.geometry().setStep( step, step );
+
+    for ( int idx=0; idx<bvss_.size(); idx++ )
     {
-	const BinIDValueSet& bvs = *sections_[idx];
+	const BinIDValueSet& bvs = *bvss_[idx];
+	if ( bvs.nrVals() != nrvals_ )
+	    { msg_ = "Incompatible sections"; return; }
+
 	totalnr_ += bvs.totalSize();
-	const RowCol step( hs_.step.inl, hs_.step.crl );
-	horizon_.geometry().setStep( step, step );
 	horizon_.geometry().addSection( 0, false );
     }
 
-    horizon_.enableGeometryChecks(false);
-    sectionidx_ = 0;
+    horizon_.enableGeometryChecks( false );
 }
 
 
-const char*	message() const		{ return "Importing ..."; }
+const char*	message() const		{ return msg_; }
 od_int64	totalNr() const		{ return totalnr_; }
 od_int64	nrDone() const		{ return nrdone_; }
-const char*	nrDoneText() const	{ return "Nr positions imported"; }
+const char*	nrDoneText() const	{ return "Positions handled"; }
 
 int nextStep()
-{	
-    if ( sectionidx_ >= sections_.size() )
+{
+    if ( nrvals_ == -1 ) return ErrorOccurred();
+
+    if ( sectionidx_ >= bvss_.size() )
     {
 	horizon_.enableGeometryChecks( true );
 	return Finished();
     }
 
-    const BinIDValueSet& bvs = *sections_[sectionidx_];
-    bool haspos = bvs.next( pos_ );
-    if ( !haspos )
-    {
-	sectionidx_++;
-	pos_.i = pos_.j = -1;
+    const BinIDValueSet& bvs = *bvss_[sectionidx_];
+    if ( !bvs.next(pos_) )
+	{ sectionidx_++; pos_.reset(); return MoreToDo(); }
+
+    BinID bid; bvs.get( pos_, bid );
+    if ( !hs_.includes(bid) )
 	return MoreToDo();
-    }
 
-    const int nrvals = bvs.nrVals();
-    TypeSet<float> vals( nrvals, mUdf(float) );
-    BinID bid;
-    bvs.get( pos_, bid, vals );
-    if ( !hs_.includes(bid) ) return MoreToDo();
-
-    PosID posid( horizon_.id(), horizon_.sectionID(sectionidx_),
-		 bid.getSerialized() );
-    bool res = horizon_.setPos( posid, Coord3(0,0,vals[0]), false );
-    if ( res )
+    const PosID posid( horizon_.id(), horizon_.sectionID(sectionidx_),
+			bid.getSerialized() );
+    const float z = bvs.getVals(pos_)[ 0 ];
+    if ( horizon_.setPos( posid, Coord3(0,0,z), false ) )
 	nrdone_++;
 
     return MoreToDo();
@@ -205,10 +216,12 @@ int nextStep()
 
 protected:
 
-    const ObjectSet<BinIDValueSet>&	sections_;
+    const ObjectSet<BinIDValueSet>&	bvss_;
     Horizon3D&		horizon_;
     BinIDValueSet::Pos	pos_;
     HorSampling		hs_;
+    BufferString	msg_;
+    int			nrvals_;
 
     int			sectionidx_;
     int			totalnr_;
