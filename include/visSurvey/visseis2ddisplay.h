@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.27 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.28 2009-02-10 21:51:54 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -120,6 +120,8 @@ public:
 
 protected:
 				~Seis2DDisplay();
+    friend			class Seis2DTextureDataArrayFiller;
+    
     virtual void		addCache();
     void			removeCache(int);
     void			swapCache(int,int);

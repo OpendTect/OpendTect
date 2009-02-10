@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.57 2009-02-06 20:14:04 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.58 2009-02-10 21:51:54 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.57 2009-02-06 20:14:04 
 #include "posinfo.h"
 #include "seisinfo.h"
 #include "survinfo.h"
+#include "task.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -51,6 +52,91 @@ const char* Seis2DDisplay::sKeyTrcNrRange()	{ return "Trc Nr Range"; }
 const char* Seis2DDisplay::sKeyZRange()		{ return "Z Range"; }
 const char* Seis2DDisplay::sKeyShowLineName()	{ return "Show linename"; }
 const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
+
+class Seis2DTextureDataArrayFiller: public ParallelTask
+{
+public:
+
+Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d, 
+			      const Attrib::Data2DHolder& dh,  int seriesid, 
+			      Array2DImpl<float>& array )
+    : data2dh_( dh )
+    , arr_( array )	
+    , valseridx_( dh.dataset_[0]->validSeriesIdx()[seriesid] )
+    , s2d_( s2d )			  
+{}
+
+      	
+od_int64 totalNr() const { return data2dh_.size(); }
+
+private:
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    const int nrsamp = data2dh_.dataset_[0]->nrsamples_;
+   
+    const SamplingData<float>& sd = data2dh_.trcinfoset_[0]->sampling; 
+    Interval<float> zrg = s2d_.getZRange(!s2d_.datatransform_);
+    const int arrzsz = arr_.info().getSize(1);
+    StepInterval<int> arraysrg( mNINT(zrg.start/sd.step),
+				mNINT(zrg.stop/sd.step),1 );
+
+    const float firstz = data2dh_.dataset_[0]->z0_*sd.step;
+    const int firstdhsample = sd.nearestIndex( firstz );
+    const bool samplebased = 
+	mIsEqual( sd.getIndex(firstz),firstdhsample,1e-3 ) && 
+	mIsEqual( sd.step, s2d_.geometry_.zrg_.step, 1e-3 );
+
+    if ( !samplebased )
+    {
+	pErrMsg("Not impl");
+	return false;
+    }
+
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    {
+	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
+	if ( !s2d_.trcnrrg_.includes(trcnr) )
+	{
+	    reportNrDone( 1 );
+	    continue;
+	}
+
+	const int trcidx = trcnr-s2d_.trcnrrg_.start;
+	const DataHolder* dh = data2dh_.dataset_[idx];
+	if ( !dh )
+	{
+	    reportNrDone( 1 );
+	    continue;
+	}
+	
+	const ValueSeries<float>* dataseries = dh->series( valseridx_ );
+	for ( int idy=0; idy<nrsamp; idy++ )
+	{
+	    const int smp = firstdhsample+idy;
+	    const float val = dh->dataPresent(smp)
+		? dataseries->value( smp-dh->z0_ )
+		: mUdf(float);
+	    const int arrzidx = arraysrg.getIndex( smp );
+	    if ( arrzidx<0 || arrzidx>=arrzsz ) 
+	    {
+		reportNrDone( 1 );
+		continue;
+	    }
+	    
+	    arr_.set( trcidx, arrzidx, val );
+	}
+
+	reportNrDone( 1 );
+    }
+
+    return true;
+}
+   
+    Array2DImpl<float>&			arr_;
+    const Attrib::Data2DHolder&		data2dh_;
+    const Seis2DDisplay&		s2d_;
+    const int				valseridx_;
+};
 
 
 Seis2DDisplay::Seis2DDisplay()
@@ -278,44 +364,9 @@ void Seis2DDisplay::setData( int attrib,
     {
 	arr->setAll( mUdf(float) );
 
-	for ( int dataidx=0; dataidx<data2dh.size(); dataidx++ )
-	{
-	    const int trcnr = data2dh.trcinfoset_[dataidx]->nr;
-	    if ( !trcnrrg_.includes(trcnr) )
-		continue;
-
-	    const int trcidx = trcnr-trcnrrg_.start;
-
-	    const DataHolder* dh = data2dh.dataset_[dataidx];
-	    if ( !dh )
-		continue;
-
-	    const float firstz = data2dh.dataset_[0]->z0_ * sd.step;
-	    const float firstdhsamplef = sd.getIndex( firstz );
-	    const int firstdhsample = sd.nearestIndex( firstz );
-	    const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3)
-				&&  mIsEqual(sd.step,geometry_.zrg_.step,1e-3 );
-	    const ValueSeries<float>* dataseries = dh->series( valididxs[sidx]);
-
-	    if ( samplebased )
-	    {
-		const int nrsamp = data2dh.dataset_[0]->nrsamples_;
-		for ( int idx=0; idx<nrsamp; idx++ )
-		{
-		    const int sample = firstdhsample+idx;
-		    const float val = dh->dataPresent(sample) ?
-			dataseries->value( sample-dh->z0_ ) : mUdf(float);
-		    const int arrzidx = arraysrg.getIndex( sample );
-		    if ( arrzidx<0 ||  arrzidx>=arrzsz ) continue;
-
-		    arr->set( trcidx, arrzidx, val );
-		}
-	    }
-	    else
-	    {
-		pErrMsg("Not impl"); 
-	    }
-	}
+	Seis2DTextureDataArrayFiller arrayfiller( *this, data2dh, sidx, *arr );
+	if ( !arrayfiller.execute() )
+	    continue;
 
 	PtrMan<Array2D<float> > tmparr = 0;
 	Array2D<float>* usedarr = 0;
