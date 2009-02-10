@@ -11,6 +11,9 @@
 #include <fstream>
 #include <iostream>
 #include "strmprov.h"
+#include "datapack.h"
+#include "keystrs.h"
+#include "iopar.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -92,7 +95,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.83 2009-02-10 14:16:04 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.84 2009-02-10 16:33:19 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -248,47 +251,90 @@ void StreamData::setFileName( const char* f )
 }
 
 
+class StreamProviderPreLoadDataPack : public BufferDataPack
+{
+public:
+
+StreamProviderPreLoadDataPack( char* b, od_int64 s,
+				const char* nm, const char* ki )
+    : BufferDataPack(b,s,"Pre-loaded file")
+    , keyid_(ki)
+{
+    setName( nm );
+}
+
+void dumpInfo( IOPar& iop ) const
+{
+    BufferDataPack::dumpInfo( iop );
+    iop.set( IOPar::compKey("Object",sKey::ID), keyid_ );
+}
+
+    BufferString	keyid_;
+
+};
+
+
 class StreamProviderPreLoadedData : public Executor
 {
 public:
 
 StreamProviderPreLoadedData( const char* nm, const char* id )
     : Executor(BufferString("Pre-loading '",nm,"'"))
-    , name_(nm)
+    , dp_(0)
     , id_(id)
-    , bufsz_(0)
     , filesz_(0)
     , chunkidx_(0)
+    , msg_("Reading file data")
 {
     sd_ = StreamProvider(nm).makeIStream(true,false);
-    if ( sd_.usable() )
+    if ( !sd_.usable() )
+	{ msg_ = "Cannot open '"; msg_ += nm; msg_ += "'"; }
+    else
     {
-	bufsz_ = File_getKbSize( nm ) + 1;
-	bufsz_ *= 1024;
-	mTryAlloc(data_,char [ bufsz_ ])
+	int bufsz = File_getKbSize( nm ) + 1;
+	bufsz *= 1024;
+	char* buf = 0;
+	mTryAlloc(buf,char [ bufsz ])
+	if ( !buf )
+	{
+	    msg_ = "Failed to allocate "; msg_ += bufsz / 1024;
+	    msg_ += " kb of memory";
+	}
+	else
+	{
+	    dp_ = new StreamProviderPreLoadDataPack( buf, bufsz, nm, id );
+	    DPM(DataPackMgr::BufID()).addAndObtain( dp_ );
+	}
     }
 
-    if ( !data_ )
+    if ( !dp_ )
 	sd_.close();
+}
+
+const BufferString& name() const
+{
+    static BufferString none;
+    return dp_ ? dp_->name() : none;
 }
 
 ~StreamProviderPreLoadedData()
 {
     sd_.close();
-    delete [] data_;
+    if ( dp_ )
+	DPM(DataPackMgr::BufID()).release( dp_->id() );
 }
 
-const char* message() const { return "Reading file data"; }
+const char* message() const { return msg_.buf(); }
 const char* nrDoneText() const { return "MBs read"; }
 od_int64 nrDone() const { return filesz_ / 1024; }
-od_int64 totalNr() const { return bufsz_ / 1024; }
+od_int64 totalNr() const { return dp_ ? dp_->size() / 1024 : -1; }
 
 int nextStep()
 {
-    if ( !sd_.usable() ) return ErrorOccurred();
+    if ( !isOK() ) return ErrorOccurred();
 
     std::istream& strm = *sd_.istrm;
-    strm.read( data_ + chunkidx_ * mPreLoadChunkSz, mPreLoadChunkSz );
+    strm.read( dp_->buf() + chunkidx_ * mPreLoadChunkSz, mPreLoadChunkSz );
     chunkidx_++;
     if ( strm.good() )
     {
@@ -310,13 +356,17 @@ bool go( TaskRunner& tr )
     return tr.execute( *this );
 }
 
-    const BufferString	name_;
+bool isOK() const
+{
+    return dp_;
+}
+
     const BufferString	id_;
     StreamData		sd_;
-    char*		data_;
+    BufferDataPack*	dp_;
     int			chunkidx_;
-    od_int64		bufsz_;
     od_int64		filesz_;
+    BufferString	msg_;
 
     char		buf_[mPreLoadChunkSz];
 
@@ -335,8 +385,10 @@ static int getPLID( const char* key, bool isid )
     const ObjectSet<StreamProviderPreLoadedData>& plds = PLDs();
     for ( int idx=0; idx<plds.size(); idx++ )
     {
-	if ( (!isid && plds[idx]->name_ == key)
-	  || (isid && plds[idx]->id_ == key) )
+	const StreamProviderPreLoadedData& pld = *plds[idx];
+	if ( !pld.isOK() ) continue;
+
+	if ( (!isid && pld.name() == key) || (isid && pld.id_ == key) )
 	    return idx;
     }
     return -1;
@@ -355,7 +407,7 @@ bool StreamProvider::preLoad( const char* fnm, TaskRunner& tr, const char* id )
 
     StreamProviderPreLoadedData* newpld =
 			new StreamProviderPreLoadedData( fnm, id );
-    if ( newpld->go(tr) )
+    if ( newpld->go(tr) && newpld->isOK() )
 	PLDs() += newpld;
     else
 	{ delete newpld; newpld = 0; }
@@ -381,7 +433,11 @@ void StreamProvider::getPreLoadedIDs( BufferStringSet& bss )
     bss.erase();
     ObjectSet<StreamProviderPreLoadedData>& plds = PLDs();
     for ( int idx=0; idx<plds.size(); idx++ )
-	bss.addIfNew( plds[idx]->id_ );
+    {
+	const StreamProviderPreLoadedData& pld = *plds[idx];
+	if ( pld.isOK() )
+	    bss.addIfNew( pld.id_ );
+    }
 }
 
 
@@ -392,8 +448,11 @@ void StreamProvider::getPreLoadedFileNames( const char* id,
     ObjectSet<StreamProviderPreLoadedData>& plds = PLDs();
     for ( int idx=0; idx<plds.size(); idx++ )
     {
-	if ( !id || plds[idx]->id_ == id )
-	    bss.add( plds[idx]->name_ );
+	const StreamProviderPreLoadedData& pld = *plds[idx];
+	if ( !pld.isOK() ) continue;
+
+	if ( !id || pld.id_ == id )
+	    bss.add( pld.name() );
     }
 }
 
@@ -401,9 +460,9 @@ void StreamProvider::getPreLoadedFileNames( const char* id,
 StreamData StreamProvider::makePLIStream( int plid )
 {
     StreamProviderPreLoadedData& pld = *PLDs()[plid];
-    StreamData ret; ret.setFileName( pld.name_ );
+    StreamData ret; ret.setFileName( pld.name() );
     std::fixedstreambuf* fsb
-		= new std::fixedstreambuf( pld.data_, pld.filesz_, false );
+		= new std::fixedstreambuf( pld.dp_->buf(), pld.filesz_, false );
     ret.istrm = new std::istream( fsb );
     return ret;
 }
