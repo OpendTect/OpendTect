@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.12 2009-01-20 04:38:46 cvsranojay Exp $
+ RCS:		$Id: coltabmapper.h,v 1.13 2009-02-10 20:49:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include "coltab.h"
 #include "ranges.h"
 #include "valseries.h"
+
+#define mUndefColIdx    255
 
 class DataClipper;
 class IOPar;
@@ -99,6 +101,59 @@ protected:
     od_int64			vssz_;
 
 };
+
+
+/*!Takes a Mapper, unmapped data and maps it.*/
+template <class T>
+mClass MapperTask : public ParallelTask
+{
+public:    
+    				MapperTask(const ColTab::Mapper& map,
+					   od_int64 sz,int nrsteps,
+					   const float* unmapped,T* mapped);
+    od_int64			totalNr() const;
+private:    
+    bool			doWork(od_int64 start,od_int64 stop,int);
+
+    const ColTab::Mapper&	mapper_;
+    od_int64			totalsz_;
+    const float*		unmapped_;
+    T*				mapped_;
+    int				nrsteps_;
+};
+
+
+template <class T> inline
+MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps, 
+			   const float* unmapped, T* mapped )
+    : mapper_( map )
+    , totalsz_( sz )
+    , nrsteps_( nrsteps )		    
+    , unmapped_( unmapped )
+    , mapped_( mapped )
+{}		       
+
+
+template <class T> inline
+od_int64 MapperTask<T>::totalNr() const
+{ return totalsz_; }
+
+template <class T> inline
+bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
+{
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
+    {
+	*mapped_ = ColTab::Mapper::snappedPosition( &mapper_, *unmapped_, 
+						    nrsteps_, mUndefColIdx );
+	mapped_++; 
+	unmapped_++;
+
+	reportNrDone( 1 );
+    }
+    
+    return true;
+}
+
 
 } // namespace ColTab
 
