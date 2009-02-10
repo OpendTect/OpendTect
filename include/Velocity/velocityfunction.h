@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunction.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
+ RCS:		$Id: velocityfunction.h,v 1.3 2009-02-10 21:42:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,7 @@ mClass Function
 { mRefCountImpl(Function)
 public:
 				Function(FunctionSource&);
+    const FunctionSource&	getSource() const 	{ return source_; }
 
     virtual const VelocityDesc&	getDesc() const;
 
