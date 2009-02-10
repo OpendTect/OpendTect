@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.15 2009-01-22 18:21:29 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.16 2009-02-10 20:55:10 cvsyuancheng Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -17,6 +17,8 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.15 2009-01-22 18:
 #include "coltabsequence.h"
 #include "coltab.h"
 #include "simpnumer.h"
+#include "task.h"
+#include "thread.h"
 
 #include "SoColTabTextureChannel2RGBA.h"
 #include "SoTextureComposer.h"
@@ -31,13 +33,66 @@ static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.15 2009-01-22 18:
 #include "SoOD.h"
 
 #define mNrColors	255
-#define mUndefColIdx	255
 #define mLayersPerUnit	4
 
 mCreateFactoryEntry( visBase::ColTabTextureChannel2RGBA );
 
 namespace visBase
 {
+
+class ColTabSequenceTransparencyCheck : public ParallelTask
+{
+public:
+
+ColTabSequenceTransparencyCheck( const unsigned char* cols, const unsigned char* vals, 
+				 od_int64 sz )
+    : found_( false )
+    , vals_( vals )
+    , cols_( cols )
+    , totalnr_( sz )
+{}
+
+bool hasTransparency() const	{ return found_; }
+od_int64 totalNr() const	{ return totalnr_; }
+
+private:
+
+bool doWork( od_int64 start, od_int64 stop, int threadid )
+{
+    for ( od_int64 idx=start; idx<=stop; idx++ )
+    {
+	unsigned char ucval = vals_[idx];
+	if ( cols_[ucval*4]+3 )
+	{
+	    Threads::MutexLocker lock( foundlock_ );
+	    found_ = true;
+	    break;
+	}
+
+	if ( idx%10000 )
+	    continue;
+
+	reportNrDone( 10000 );
+
+	if ( !shouldContinue() )
+	    break;
+
+	Threads::MutexLocker lock( foundlock_ );
+	if ( found_ )
+	    break;
+    }
+    
+    return true;
+}
+
+    od_int64			totalnr_;
+    const unsigned char*	vals_;
+    const unsigned char*	cols_;
+
+    Threads::Mutex		foundlock_;
+    bool			found_;
+};
+
 
 TextureChannel2RGBA::TextureChannel2RGBA()
     : channels_( 0 )
@@ -567,36 +622,25 @@ bool ColTabTextureChannel2RGBA::hasTransparency( int channelidx ) const
     const ColTab::Sequence& seq = coltabs_[channelidx];
     if ( !seq.hasTransparency() )
 	return false;
-
+    
     channels_->ref();
     const SbImage& channel = channels_->getChannels()[channelidx];
-
+    
     SbVec3s size;
-    int dummy2;
-    const unsigned char* vals = channel.getValue( size, dummy2 );
+    int dummy;
+    const unsigned char* vals = channel.getValue( size, dummy );
     od_int64 nrpixels = size[0];
     nrpixels *= size[1];
     nrpixels *= size[2];
-
-    for ( od_int64 idx=0; idx<nrpixels; idx++ )
-    {
-	unsigned char ucval = vals[idx];
-	if ( ucval==mUndefColIdx && seq.undefColor().t() )
-	{
-	    channels_->unRef();
-	    return true;
-	}
-
-	const float val = ((float) ucval)/(mNrColors-1);
-	if ( seq.transparencyAt( val ) )
-	{
-	    channels_->unRef();
-	    return true;
-	}
-    }
-
     channels_->unRef();
-    return false;
+
+    TypeSet<unsigned char> cols;
+    getColors( channelidx, cols );
+
+    ColTabSequenceTransparencyCheck trspcheck( cols.arr(), vals, nrpixels );
+    trspcheck.execute();
+
+    return trspcheck.hasTransparency();
 }
 
 
