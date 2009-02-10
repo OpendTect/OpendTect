@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.13 2009-02-10 20:58:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.14 2009-02-10 21:51:04 cvsyuancheng Exp $";
 
 #include "vistexturechannels.h"
 
@@ -53,9 +53,6 @@ public:
     bool		mapData(int version);
     int			getCurrentVersion() const;
     void		setCurrentVersion( int );
-
-    static bool		mapData(const ColTab::Mapper&,const float*,
-	    			unsigned char*, od_int64 sz);
 
     ObjectSet<unsigned char>			mappeddata_;
     BoolTypeSet					ownsmappeddata_;
