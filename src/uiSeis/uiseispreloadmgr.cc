@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.2 2009-02-10 14:16:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.3 2009-02-10 16:57:35 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.2 2009-02-10 14:16:50 c
 #include "ptrman.h"
 #include "filepath.h"
 #include "filegen.h"
+#include "datapack.h"
 #include "uimsg.h"
 #include "uilistbox.h"
 #include "uibutton.h"
@@ -123,15 +124,24 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     disptxt += "\nDirectory: "; disptxt += fp.pathOnly();
     disptxt += "\nFile name"; if ( nrfiles > 1 ) disptxt += "s";
     disptxt += ": "; disptxt += fp.fileName();
-    for ( int idx=1; idx<nrfiles; idx++ )
+    float totmem = 0;
+    for ( int idx=0; idx<nrfiles; idx++ )
     {
-	if ( idx < nrfiles-1 && idx > 3 )
+	const char* fnm = fnms.get(idx).buf();
+	int dpid = StreamProvider::getPreLoadedDataPackID( fnm );
+	totmem += DPM(DataPackMgr::BufID()).nrKBytesOf( dpid );
+
+	if ( idx == 0 || (idx < nrfiles-1 && idx > 3) )
 	    continue;
+
 	fp.set( fnms.get(idx) );
 	disptxt += " "; disptxt += fp.fileName();
 	if ( nrfiles > 5 && idx == 3 )
 	    disptxt += " ...";
     }
+
+    totmem /= 1024; const int memmb = mNINT(totmem);
+    disptxt += "\nTotal memory in MB: "; disptxt += memmb;
     infofld_->setText( disptxt );
 }
 
