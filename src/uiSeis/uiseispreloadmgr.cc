@@ -4,36 +4,42 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.1 2009-02-06 14:48:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.2 2009-02-10 14:16:50 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
+#include "seistrctr.h"
 #include "strmprov.h"
+#include "cbvsio.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "ptrman.h"
 #include "filepath.h"
+#include "filegen.h"
 #include "uimsg.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uitextedit.h"
+#include "uiioobjsel.h"
+#include "uitaskrunner.h"
 
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     : uiDialog(p,Setup("Pre-load manager","Pre-loaded seismic data",
 			mTODOHelpID))
 {
+    setCtrlStyle( LeaveOnly );
     uiGroup* topgrp = new uiGroup( this, "Top group" );
     listfld_ = new uiListBox( topgrp, "Loaded entries" );
+    listfld_->selectionChanged.notify( mCB(this,uiSeisPreLoadMgr,selChg) );
     topgrp->setHAlignObj( listfld_ );
 
     uiButtonGroup* bgrp = new uiButtonGroup( topgrp, "Manip buttons" );
     bgrp->attach( rightOf, listfld_ );
-#   define mAddBut(str,cbfn) \
-    but = new uiPushButton( bgrp, str, mCB(this,uiSeisPreLoadMgr,cbfn), false ); \
-    bgrp->addButton( but )
-    uiPushButton* mAddBut("Add Cube",cubeLoadPush);
+#   define mAddBut(s,fn) \
+    new uiPushButton( bgrp, s, mCB(this,uiSeisPreLoadMgr,fn), false )
+    mAddBut("Add Cube",cubeLoadPush);
     mAddBut("Add Lines",linesLoadPush);
     mAddBut("Add 3D Pre-Stack lines",ps3DPush);
     mAddBut("Add 2D Pre-Stack lines",ps2DPush);
@@ -44,20 +50,22 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     infofld_->attach( widthSameAs, topgrp );
     infofld_->setPrefHeightInChar( 5 );
 
-    finaliseDone.notify( mCB(this,uiSeisPreLoadMgr,initWin) );
+    finaliseDone.notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
 }
 
 
-void uiSeisPreLoadMgr::initWin( CallBacker* )
+void uiSeisPreLoadMgr::fullUpd( CallBacker* )
 {
     fillList();
-    selChg(0);
 }
 
 
 void uiSeisPreLoadMgr::fillList()
 {
+    listfld_->empty();
     StreamProvider::getPreLoadedIDs( ids_ );
+    if ( ids_.isEmpty() ) return;
+
     for ( int idx=0; idx<ids_.size(); idx++ )
     {
 	const MultiID ky( ids_.get(idx) );
@@ -70,6 +78,8 @@ void uiSeisPreLoadMgr::fillList()
 	}
 	listfld_->addItem( ioobj->name() );
     }
+
+    listfld_->setSelected( 0 );
 }
 
 
@@ -128,7 +138,33 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 
 void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 {
-    uiMSG().error( "TODO: implement pre-load cube" );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
+    ctio->ctxt.trglobexpr = "CBVS";
+    uiIOObjSelDlg dlg( this, *ctio );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    const BufferString basefnm = CBVSIOMgr::baseFileName(
+				    dlg.ioObj()->fullUserExpr(true) );
+    const MultiID keyid( dlg.ioObj()->key() );
+    const char* id = keyid.buf();
+
+    if ( StreamProvider::isPreLoaded(id,true) )
+    {
+	if ( !uiMSG().askGoOn("This cube is already pre-loaded.\n"
+		    	      "Do you want to re-load?") )
+	    return;
+	StreamProvider::unLoad( id, true );
+    }
+
+    uiTaskRunner tr( this );
+    for ( int idx=0; true; idx++ )
+    {
+	const BufferString fnm( CBVSIOMgr::getFileName(basefnm,idx) );
+	if ( !File_exists(fnm) || !StreamProvider::preLoad(fnm,tr,id) )
+	    break;
+    }
+
+    fullUpd( 0 );
 }
 
 
@@ -161,7 +197,7 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
-    StreamProvider::unLoad( ids_.get(selidx) );
+    StreamProvider::unLoad( ids_.get(selidx), true );
     fillList();
     int newselidx = selidx;
     if ( newselidx >= ids_.size() )

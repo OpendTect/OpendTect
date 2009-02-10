@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: uiseispreloadmgr.h,v 1.1 2009-02-06 14:48:27 cvsbert Exp $
+ RCS:           $Id: uiseispreloadmgr.h,v 1.2 2009-02-10 14:16:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ protected:
     BufferStringSet	ids_;
 
     void		fillList();
-    void		initWin(CallBacker*);
+    void		fullUpd(CallBacker*);
     void		selChg(CallBacker*);
     void		cubeLoadPush(CallBacker*);
     void		linesLoadPush(CallBacker*);
