@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.h,v 1.12 2009-02-06 07:09:35 cvssatyaki Exp $
+ RCS:           $Id: uibuttongroup.h,v 1.13 2009-02-10 14:16:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,9 @@ public:
 protected:
 
     QButtonGroup*	qbuttongrp_;
-    uiButton*		prevbutton_;
+    ObjectSet<uiButton>	uibuts_;
     bool		vertical_;
+
 };
 
 #endif

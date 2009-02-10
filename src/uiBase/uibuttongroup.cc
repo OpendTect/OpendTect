@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibuttongroup.cc,v 1.19 2009-02-06 07:09:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uibuttongroup.cc,v 1.20 2009-02-10 14:16:35 cvsbert Exp $";
 
 #include "uibuttongroup.h"
 #include "uibutton.h"
@@ -18,7 +18,6 @@ static const char* rcsID = "$Id: uibuttongroup.cc,v 1.19 2009-02-06 07:09:42 cvs
 
 uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm, bool vertical )
     : uiGroup( p ,nm )
-    , prevbutton_(0)
     , vertical_(vertical)
 {
     qbuttongrp_ = new QButtonGroup();
@@ -36,9 +35,10 @@ int uiButtonGroup::addButton( uiButton* button )
     int id = qbuttongrp_->buttons().size();
     qbuttongrp_->addButton( button->qButton(), id );
     button->setStretch( grpobj_->width(), grpobj_->height() );
-    if ( prevbutton_ )
-	button->attach( vertical_ ? leftAlignedBelow : rightTo, prevbutton_ );
-    prevbutton_ = button;
+    if ( !uibuts_.isEmpty() )
+	button->attach( vertical_ ? leftAlignedBelow : rightTo,
+			uibuts_[uibuts_.size()-1] );
+    uibuts_ += button;
     return id;
 }
 
@@ -55,7 +55,7 @@ int uiButtonGroup::selectedId() const
 
 
 int uiButtonGroup::nrButtons() const
-{ return qbuttongrp_->buttons().size(); }
+{ return uibuts_.size(); }
 
 
 void uiButtonGroup::setSensitive( int id, bool yn )
