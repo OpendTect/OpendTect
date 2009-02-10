@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.30 2008-12-25 11:57:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.31 2009-02-10 21:26:19 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -108,9 +108,16 @@ bool doWork( od_int64 start, od_int64 stop, int )
 	}
     }
     
-    dpset_.dataChanged();
     return true;
 }
+
+
+bool doFinish( bool success )
+{
+    dpset_.dataChanged();
+    return success;
+}
+
 
 
 bool processPixelOnStick( int stickidx, int knotpos, Coord3& pos )
