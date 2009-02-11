@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.13 2009-02-10 20:49:10 cvsyuancheng Exp $
+ RCS:		$Id: coltabmapper.h,v 1.14 2009-02-11 15:24:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,12 +141,15 @@ od_int64 MapperTask<T>::totalNr() const
 template <class T> inline
 bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 {
+    T* result = mapped_+start;
+    const float* inp = unmapped_+start;
+
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	*mapped_ = ColTab::Mapper::snappedPosition( &mapper_, *unmapped_, 
+	*result = ColTab::Mapper::snappedPosition( &mapper_, *inp, 
 						    nrsteps_, mUndefColIdx );
-	mapped_++; 
-	unmapped_++;
+	result++; 
+	inp++;
 
 	reportNrDone( 1 );
     }
