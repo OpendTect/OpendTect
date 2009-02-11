@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.104 2009-01-22 08:57:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.105 2009-02-11 12:27:40 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -61,9 +61,9 @@ const char* usrText() const
 
 uiDialog* dialog( uiParent* p )
 {
-    BufferStringSet survlist;
-    uiSurvey::getSurveyList( survlist );
-    uiSelectFromList::Setup setup( "Surveys", survlist );
+    survlist_.deepErase();
+    uiSurvey::getSurveyList( survlist_ );
+    uiSelectFromList::Setup setup( "Surveys", survlist_ );
     setup.dlgtitle( "Select survey" );
     uiSelectFromList* dlg = new uiSelectFromList( p, setup );
     return dlg;
@@ -98,6 +98,7 @@ bool xyInFeet() const { return inft_; }
 
     TDInfo	tdinf_;
     bool	inft_;
+    BufferStringSet survlist_;
 
 };
 
