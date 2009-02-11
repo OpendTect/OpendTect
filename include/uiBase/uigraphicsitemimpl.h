@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.9 2009-02-11 07:18:24 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.10 2009-02-11 07:26:59 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,6 @@ public:
     ODGraphicsPolyLineItem* 	qPolyLineItem()
     				{ return qpolylineitem_; }
     void			setPolyLine(const TypeSet<uiPoint>&);
-    void			setPenStyle(const LineStyle&);
 
 protected:
 
