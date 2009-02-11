@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.28 2009-02-10 11:53:00 cvsraman Exp $";
+static const char* rcsID = "$Id: flatviewbitmap.cc,v 1.29 2009-02-11 06:05:32 cvsraman Exp $";
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
@@ -157,7 +157,7 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     gen_->setBitMap( *bmp_ );
     gen_->fill();
 
-//    DPM(DataPackMgr::FlatID()).release(pack);
+    DPM(DataPackMgr::FlatID()).release(pack);
     return true;
 }
 
