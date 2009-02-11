@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.20 2009-01-08 16:20:56 cvsbert Exp $
+ RCS:           $Id: uiodmain.h,v 1.21 2009-02-11 10:36:53 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ protected:
 
 private:
 
-    friend int		ODMain(int,char**);
+    mGlobal friend int		ODMain(int,char**);
 
     bool		ensureGoodDataDir();
     bool		ensureGoodSurveySetup();
