@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.12 2009-01-27 11:45:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.13 2009-02-11 11:01:17 cvsranojay Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -30,7 +30,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.12 2009-01-27 11:45
 #include "welllog.h"
 #include "uimsg.h"
 
-const int uiWellAttribPartServer::evShowPickSet	= 0;
+const int uiWellAttribPartServer::evShowPickSet()	{ return 0; }
 
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
@@ -92,7 +92,7 @@ void uiWellAttribPartServer::showPickSet( CallBacker* )
 {
     selpickset_ = attrset->is2D() ? xplotwin2d_->getSelectedPts() :
 			 	    xplotwin3d_->getSelectedPts();
-    sendEvent( evShowPickSet );
+    sendEvent( evShowPickSet() );
 }
 
 

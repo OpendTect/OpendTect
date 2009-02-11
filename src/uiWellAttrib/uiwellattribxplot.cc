@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.23 2009-01-13 05:42:48 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.24 2009-02-11 11:01:17 cvsranojay Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -122,7 +122,7 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
     if ( !tr.execute(wic) ) return;
 
     BufferStringSet markernms, lognms;
-    markernms.add( Well::TrackSampler::sKeyDataStart );
+    markernms.add( Well::TrackSampler::sKeyDataStart() );
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
 	IOObj* ioobj = IOM().get( *wic.ids()[iid] );
@@ -137,7 +137,7 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
 	for ( int imrk=0; imrk<mrkrs.size(); imrk++ )
 	    markernms.addIfNew( mrkrs[imrk]->name() );
     }
-    markernms.add( Well::TrackSampler::sKeyDataEnd );
+    markernms.add( Well::TrackSampler::sKeyDataEnd() );
 
     for ( int idx=0; idx<lognms.size(); idx++ )
 	logsfld_->addItem( lognms.get(idx) );

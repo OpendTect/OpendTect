@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.160 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.161 2009-02-11 10:47:18 cvsranojay Exp $";
 
 #include "uiempartserv.h"
 
@@ -66,14 +66,14 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.160 2009-01-27 11:45:01 cvs
 
 #include <math.h>
 
-const int uiEMPartServer::evDisplayHorizon	= 0;
-const int uiEMPartServer::evRemoveTreeObject	= 1;
-const int uiEMPartServer::evSyncGeometry	= 2;
-const int uiEMPartServer::evCalcShiftAttribute	= 3;
-const int uiEMPartServer::evHorizonShift	= 4;
-const int uiEMPartServer::evStoreShiftHorizons	= 5;
-const int uiEMPartServer::evShiftDlgOpened	= 6;
-const int uiEMPartServer::evShiftDlgClosed	= 7;
+const int uiEMPartServer::evDisplayHorizon()	    { return 0; }
+const int uiEMPartServer::evRemoveTreeObject()	    { return 1; }
+const int uiEMPartServer::evSyncGeometry()	    { return 2; }
+const int uiEMPartServer::evCalcShiftAttribute()    { return 3; }
+const int uiEMPartServer::evHorizonShift()	    { return 4; }
+const int uiEMPartServer::evStoreShiftHorizons()    { return 5; }
+const int uiEMPartServer::evShiftDlgOpened()	    { return 6; }
+const int uiEMPartServer::evShiftDlgClosed()	    { return 7; }
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
@@ -137,7 +137,7 @@ bool uiEMPartServer::import3DHorizon( bool isgeom )
     {
 	const MultiID mid = dlg.getSelID();	
 	selemid_ = em_.getObjectID(mid);
-	sendEvent( evDisplayHorizon );
+	sendEvent( evDisplayHorizon() );
     }
 
     return res;
@@ -270,7 +270,7 @@ void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 void uiEMPartServer::removeTreeObject( const EM::ObjectID& emid )
 {
     selemid_ = emid;
-    sendEvent( evRemoveTreeObject );
+    sendEvent( evRemoveTreeObject() );
 }
 
 
@@ -278,7 +278,7 @@ void uiEMPartServer::syncGeometry( CallBacker* cb )
 {
     mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
     selemid_ = emid;
-    sendEvent( evSyncGeometry );
+    sendEvent( evSyncGeometry() );
 }
 
 
@@ -295,7 +295,7 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
     {
 	const MultiID mid = dlg.getSelID();
 	selemid_ = em_.getObjectID(mid);
-	sendEvent( evDisplayHorizon );
+	sendEvent( evDisplayHorizon() );
     }
 }
 
@@ -721,7 +721,7 @@ void uiEMPartServer::showHorShiftDlg( uiParent* p, const EM::ObjectID& emid,
     setup.shiftrg(shiftrg_);
     setup.shiftidx(shiftidx_);
     horshiftdlg_ = new uiHorizonShiftDialog( p, setup );
-    sendEvent( uiEMPartServer::evShiftDlgOpened );
+    sendEvent( uiEMPartServer::evShiftDlgOpened() );
     horshiftdlg_->calcAttribPushed.notify( mCB(this,uiEMPartServer,calcDPS) );
     horshiftdlg_->horShifted.notify( mCB(this,uiEMPartServer,horShifted) );
     horshiftdlg_->windowClosed.notify( mCB(this,uiEMPartServer,shiftDlgClosed));
@@ -735,9 +735,9 @@ void uiEMPartServer::shiftDlgClosed( CallBacker* cb )
     if ( horshiftdlg_->uiResult()==1 && horshiftdlg_->doStore() )
     {
 	shiftattrbasename_ = horshiftdlg_->getAttribName();
-	sendEvent( uiEMPartServer::evStoreShiftHorizons );
+	sendEvent( uiEMPartServer::evStoreShiftHorizons() );
     }
-    sendEvent( uiEMPartServer::evShiftDlgClosed );
+    sendEvent( uiEMPartServer::evShiftDlgClosed() );
 }
 
 
@@ -746,7 +746,7 @@ void uiEMPartServer::calcDPS( CallBacker* cb )
     shiftrg_ = horshiftdlg_->shiftIntv();
     shiftidx_ = horshiftdlg_->curShiftIdx();
     setAttribIdx( horshiftdlg_->attribIdx() );
-    sendEvent( uiEMPartServer::evCalcShiftAttribute );
+    sendEvent( uiEMPartServer::evCalcShiftAttribute() );
 }
 
 
@@ -779,7 +779,7 @@ void uiEMPartServer::horShifted( CallBacker* cb )
     shiftrg_ = horshiftdlg_->shiftIntv();
     shiftidx_ = horshiftdlg_->curShiftIdx();
     setAttribIdx( horshiftdlg_->attribIdx() );
-    sendEvent( uiEMPartServer::evHorizonShift );
+    sendEvent( uiEMPartServer::evHorizonShift() );
 }
 
 

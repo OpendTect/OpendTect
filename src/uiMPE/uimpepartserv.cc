@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.71 2008-12-18 11:15:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.72 2009-02-11 10:49:14 cvsranojay Exp $";
 
 #include "uimpepartserv.h"
 
@@ -32,18 +32,18 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.71 2008-12-18 11:15:54 cvs
 #include "uimpewizard.h"
 #include "uimsg.h"
 
-const int uiMPEPartServer::evGetAttribData	= 0;
-const int uiMPEPartServer::evStartSeedPick	= 1;
-const int uiMPEPartServer::evEndSeedPick	= 2;
-const int uiMPEPartServer::evAddTreeObject	= 3;
-const int uiMPEPartServer::evShowToolbar	= 4;
-const int uiMPEPartServer::evInitFromSession	= 5;
-const int uiMPEPartServer::evRemoveTreeObject	= 6;
-const int uiMPEPartServer::evWizardClosed	= 7;
-const int uiMPEPartServer::evCreate2DSelSpec	= 8;
-const int uiMPEPartServer::evMPEDispIntro	= 9;
-const int uiMPEPartServer::evUpdateTrees	= 10;
-const int uiMPEPartServer::evUpdateSeedConMode	= 11;
+const int uiMPEPartServer::evGetAttribData()	    { return 0; }
+const int uiMPEPartServer::evStartSeedPick()	    { return 1; }
+const int uiMPEPartServer::evEndSeedPick()	    { return 2; }
+const int uiMPEPartServer::evAddTreeObject()	    { return 3; }
+const int uiMPEPartServer::evShowToolbar()	    { return 4; }
+const int uiMPEPartServer::evInitFromSession()	    { return 5; }
+const int uiMPEPartServer::evRemoveTreeObject()	    { return 6; }
+const int uiMPEPartServer::evWizardClosed()	    { return 7; }
+const int uiMPEPartServer::evCreate2DSelSpec()	    { return 8; }
+const int uiMPEPartServer::evMPEDispIntro()	    { return 9; }
+const int uiMPEPartServer::evUpdateTrees()	    { return 10; }
+const int uiMPEPartServer::evUpdateSeedConMode()    { return 11; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -392,7 +392,7 @@ void uiMPEPartServer::loadAttribData()
 	     marginfraction*desiredcs.nrZ() < mincs.nrZ() )
 	    continue;
 	    
-	sendEvent( evGetAttribData );
+	sendEvent( evGetAttribData() );
     }
 }
 
@@ -630,11 +630,11 @@ bool uiMPEPartServer::usePar( const IOPar& par )
     bool res = MPE::engine().usePar( par );
     if ( res )
     {
-	if ( !sendEvent(evInitFromSession) )
+	if ( !sendEvent(evInitFromSession()) )
 	    return false;
 
 	if ( MPE::engine().nrTrackersAlive() )
-	    sendEvent( evShowToolbar );
+	    sendEvent( evShowToolbar() );
 
 	loadAttribData();
     }

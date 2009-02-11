@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.81 2009-01-14 05:21:03 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.82 2009-02-11 10:39:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,14 +126,14 @@ public:
 
     void		removeUndo();
 
-    static const int	evDisplayHorizon;
-    static const int	evRemoveTreeObject;
-    static const int	evSyncGeometry;
-    static const int	evCalcShiftAttribute;
-    static const int	evHorizonShift;
-    static const int	evStoreShiftHorizons;
-    static const int	evShiftDlgOpened;
-    static const int	evShiftDlgClosed;
+    static const int	evDisplayHorizon();
+    static const int	evRemoveTreeObject();
+    static const int	evSyncGeometry();
+    static const int	evCalcShiftAttribute();
+    static const int	evHorizonShift();
+    static const int	evStoreShiftHorizons();
+    static const int	evShiftDlgOpened();
+    static const int	evShiftDlgClosed();
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }

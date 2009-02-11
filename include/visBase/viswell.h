@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.27 2009-01-16 13:02:33 cvsbruno Exp $
+ RCS:           $Id: viswell.h,v 1.28 2009-02-11 10:32:42 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,15 +111,15 @@ public:
     int				usePar(const IOPar& par);
     int				markersize;
     
-    static const char*		linestylestr;
-    static const char*		showwelltopnmstr;
-    static const char*		showwellbotnmstr;
-    static const char*		showmarkerstr;
-    static const char*		markerszstr;
-    static const char*		showmarknmstr;
-    static const char*		showlogsstr;
-    static const char*		showlognmstr;
-    static const char*		logwidthstr;
+    static const char*		linestylestr();
+    static const char*		showwelltopnmstr();
+    static const char*		showwellbotnmstr();
+    static const char*		showmarkerstr();
+    static const char*		markerszstr();
+    static const char*		showmarknmstr();
+    static const char*		showlogsstr();
+    static const char*		showlognmstr();
+    static const char*		logwidthstr();
 
 protected:
     				~Well();

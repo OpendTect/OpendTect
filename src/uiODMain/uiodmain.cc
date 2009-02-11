@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.110 2009-01-08 16:20:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.111 2009-02-11 10:54:37 cvsranojay Exp $";
 
 #include "uiodmain.h"
 
@@ -141,7 +141,7 @@ int ODMain( int argc, char** argv )
     manODMainWin( odmain );
 
     bool dodlg = true;
-    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup, dodlg );
+    Settings::common().getYN( uiPluginSel::sKeyDoAtStartup(), dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
     if ( dodlg && pimdata.size() )
     {

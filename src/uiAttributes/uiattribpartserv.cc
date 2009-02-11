@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.106 2009-01-09 09:44:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.107 2009-02-11 10:44:17 cvsranojay Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -67,19 +67,19 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.106 2009-01-09 09:44:08
 
 using namespace Attrib;
 
-const int uiAttribPartServer::evDirectShowAttr	 = 0;
-const int uiAttribPartServer::evNewAttrSet	 = 1;
-const int uiAttribPartServer::evAttrSetDlgClosed = 2;
-const int uiAttribPartServer::evEvalAttrInit 	 = 3;
-const int uiAttribPartServer::evEvalCalcAttr	 = 4;
-const int uiAttribPartServer::evEvalShowSlice	 = 5;
-const int uiAttribPartServer::evEvalStoreSlices	 = 6;
-const int uiAttribPartServer::evEvalUpdateName	 = 7;
-const int uiAttribPartServer::evShowSelPtPickSet = 8;
-const int uiAttribPartServer::objNLAModel2D	 = 100;
-const int uiAttribPartServer::objNLAModel3D	 = 101;
+const int uiAttribPartServer::evDirectShowAttr()    { return 0; }
+const int uiAttribPartServer::evNewAttrSet()	    { return 1; }
+const int uiAttribPartServer::evAttrSetDlgClosed()  { return 2; }
+const int uiAttribPartServer::evEvalAttrInit()	    { return 3; }
+const int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
+const int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
+const int uiAttribPartServer::evEvalStoreSlices()   { return 6; }
+const int uiAttribPartServer::evEvalUpdateName()    { return 7; }
+const int uiAttribPartServer::evShowSelPtPickSet()  { return 8; }
+const int uiAttribPartServer::objNLAModel2D()	    { return 100; }
+const int uiAttribPartServer::objNLAModel3D()	    { return 101; }
 
-const char* uiAttribPartServer::attridstr_ = "Attrib ID";
+const char* uiAttribPartServer::attridstr()	    { return "Attrib ID"; }
 
 
 uiAttribPartServer::uiAttribPartServer( uiApplService& a )
@@ -168,7 +168,7 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
     DescSetMan* adsman = getAdsMan( is2d );
     adsman->attrsetid_ = "";
     set2DEvent( is2d );
-    sendEvent( evNewAttrSet );
+    sendEvent( evNewAttrSet() );
     return true;
 }
 
@@ -224,7 +224,7 @@ bool uiAttribPartServer::editSet( bool is2d )
 void uiAttribPartServer::sendPickEvent( CallBacker* )
 {
     selptps_ = new Pick::Set( uiattrxplot_->getSelectedPts() );
-    sendEvent( evShowSelPtPickSet );
+    sendEvent( evShowSelPtPickSet() );
 }
 
 
@@ -259,18 +259,18 @@ void uiAttribPartServer::attrsetDlgCloseTimTick( CallBacker* )
 	adsman->setDescSet( attrsetdlg_->getSet()->clone() );
 	adsman->attrsetid_ = attrsetdlg_->curSetID();
 	set2DEvent( is2d );
-	sendEvent( evNewAttrSet );
+	sendEvent( evNewAttrSet() );
     }
 
     delete attrsetdlg_;
     attrsetdlg_ = 0;
-    sendEvent( evAttrSetDlgClosed );
+    sendEvent( evAttrSetDlgClosed() );
 }
 
 
 const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 {
-    return (NLAModel*)getObject( is2d ? objNLAModel2D : objNLAModel3D );
+    return (NLAModel*)getObject( is2d ? objNLAModel2D() : objNLAModel3D() );
 }
 
 
@@ -319,7 +319,7 @@ void uiAttribPartServer::directShowAttr( CallBacker* cb )
     DescSet* edads = const_cast<DescSet*>(dirshwattrdesc_->descSet());
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( ed->is2D(), edads, false );
     mAssignAdsMan(ed->is2D(),tmpadsman);
-    sendEvent( evDirectShowAttr );
+    sendEvent( evDirectShowAttr() );
     mAssignAdsMan(ed->is2D(),kpman);
 }
 
@@ -1130,7 +1130,7 @@ void uiAttribPartServer::showEvalDlg( CallBacker* )
     uiAttrDescEd* ade = attrsetdlg_->curDescEd();
     if ( !ade ) return;
 
-    sendEvent( evEvalAttrInit );
+    sendEvent( evEvalAttrInit() );
     if ( !alloweval_ ) mErrRet( "Evaluation of attributes only possible on\n"
 			       "Inlines, Crosslines, Timeslices and Surfaces.");
 
@@ -1153,7 +1153,7 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
     if ( !evaldlg ) { pErrMsg("cb is not uiEvaluateDlg*"); return; }
 
     if ( evaldlg->storeSlices() )
-	sendEvent( evEvalStoreSlices );
+	sendEvent( evEvalStoreSlices() );
     
     Desc* curdesc = attrsetdlg_->curDesc();
     BufferString curusrref = curdesc->userRef();
@@ -1170,7 +1170,7 @@ void uiAttribPartServer::evalDlgClosed( CallBacker* cb )
 	attrsetdlg_->updateCurDescEd();
     }
 
-    sendEvent( evEvalUpdateName );
+    sendEvent( evEvalUpdateName() );
     attrsetdlg_->setSensitive( true );
 }
 
@@ -1187,7 +1187,7 @@ void uiAttribPartServer::calcEvalAttrs( CallBacker* cb )
     PtrMan<DescSetMan> tmpadsman = new DescSetMan( is2d, ads, false );
     mAssignAdsMan(is2d,tmpadsman);
     set2DEvent( is2d );
-    sendEvent( evEvalCalcAttr );
+    sendEvent( evEvalCalcAttr() );
     mAssignAdsMan(is2d,kpman);
 }
 
@@ -1198,7 +1198,7 @@ void uiAttribPartServer::showSliceCB( CallBacker* cb )
     if ( sel < 0 ) return;
 
     sliceidx_ = sel;
-    sendEvent( evEvalShowSlice );
+    sendEvent( evEvalShowSlice() );
 }
 
 
@@ -1261,6 +1261,6 @@ void uiAttribPartServer::usePar( const IOPar& iopar, bool is2d )
 	    uiMSG().error( errmsg );
 
 	set2DEvent( is2d );
-	sendEvent( evNewAttrSet );
+	sendEvent( evNewAttrSet() );
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.296 2009-02-06 14:48:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.297 2009-02-11 10:51:13 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -337,19 +337,6 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	{
 	default:	manStrat();	break;
 	}
-    break;
-    }
-}
-
-
-void uiODApplMgr::manPreLoad( ObjType ot )
-{
-    switch ( ot )
-    {
-    case Seis:
-	seisserv_->managePreLoad();
-    break;
-    default:
     break;
     }
 }
@@ -956,8 +943,8 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 {
     if ( aps == attrserv_ )
     {
-	bool isnlamod2d = id == uiAttribPartServer::objNLAModel2D;
-	bool isnlamod3d = id == uiAttribPartServer::objNLAModel3D;
+	bool isnlamod2d = id == uiAttribPartServer::objNLAModel2D();
+	bool isnlamod3d = id == uiAttribPartServer::objNLAModel3D();
 	if ( isnlamod2d || isnlamod3d  )
 	{
 	    if ( nlaserv_ )
@@ -974,7 +961,7 @@ void* uiODApplMgr::deliverObject( const uiApplPartServer* aps, int id )
 
 bool uiODApplMgr::handleMPEServEv( int evid )
 {
-    if ( evid == uiMPEPartServer::evAddTreeObject )
+    if ( evid == uiMPEPartServer::evAddTreeObject() )
     {
 	const int trackerid = mpeserv_->activeTrackerID();
 	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
@@ -986,7 +973,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	sceneMgr().updateTrees();
 	return true;
     }
-    else if ( evid == uiMPEPartServer::evRemoveTreeObject )
+    else if ( evid == uiMPEPartServer::evRemoveTreeObject() )
     {
 	const int trackerid = mpeserv_->activeTrackerID();
 	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
@@ -1009,24 +996,24 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	sceneMgr().updateTrees();
 	return true;
     }
-    else if ( evid == uiMPEPartServer::evStartSeedPick )
+    else if ( evid == uiMPEPartServer::evStartSeedPick() )
     {
 	//Turn off everything
 
 	visserv_->turnSeedPickingOn( true );
 	sceneMgr().setToViewMode( false );
     }
-    else if ( evid==uiMPEPartServer::evEndSeedPick )
+    else if ( evid==uiMPEPartServer::evEndSeedPick() )
     {
 	visserv_->turnSeedPickingOn( false );
     }
-    else if ( evid==uiMPEPartServer::evWizardClosed )
+    else if ( evid==uiMPEPartServer::evWizardClosed() )
     {
 	enableMenusAndToolBars( true );
 	enableTree( true );
 	visserv_->reportMPEWizardActive( false );
     }
-    else if ( evid==uiMPEPartServer::evGetAttribData )
+    else if ( evid==uiMPEPartServer::evGetAttribData() )
     {
 	const Attrib::SelSpec* as = mpeserv_->getAttribSelSpec();
 	if ( !as ) return false;
@@ -1037,7 +1024,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	    				attrserv_->createOutput( cs, cache );
 	mpeserv_->setAttribData(*as, newdata );
     }
-    else if ( evid==uiMPEPartServer::evCreate2DSelSpec )
+    else if ( evid==uiMPEPartServer::evCreate2DSelSpec() )
     {
 	LineKey lk( mpeserv_->get2DLineSet(), mpeserv_->get2DAttribName() );
 	const Attrib::DescID attribid = attrServer()->getStoredID( lk, true );
@@ -1046,15 +1033,15 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	const Attrib::SelSpec as( mpeserv_->get2DAttribName(), attribid );
 	mpeserv_->set2DSelSpec( as );
     }
-    else if ( evid==uiMPEPartServer::evShowToolbar )
+    else if ( evid==uiMPEPartServer::evShowToolbar() )
 	visserv_->showMPEToolbar();
-    else if ( evid==uiMPEPartServer::evMPEDispIntro )
+    else if ( evid==uiMPEPartServer::evMPEDispIntro() )
 	visserv_->introduceMPEDisplay();
-    else if ( evid==uiMPEPartServer::evInitFromSession )
+    else if ( evid==uiMPEPartServer::evInitFromSession() )
 	visserv_->initMPEStuff();
-    else if ( evid==uiMPEPartServer::evUpdateTrees )
+    else if ( evid==uiMPEPartServer::evUpdateTrees() )
 	sceneMgr().updateTrees();
-    else if ( evid==uiMPEPartServer::evUpdateSeedConMode )
+    else if ( evid==uiMPEPartServer::evUpdateSeedConMode() )
 	visserv_->updateSeedConnectMode();
     else
 	pErrMsg("Unknown event from mpeserv");
@@ -1065,7 +1052,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 
 bool uiODApplMgr::handleWellServEv( int evid )
 {
-    if ( evid == uiWellPartServer::evPreviewRdmLine )
+    if ( evid == uiWellPartServer::evPreviewRdmLine() )
     {
 	TypeSet<Coord> coords;
 	wellserv_->getRdmLineCoordinates( coords );
@@ -1073,7 +1060,7 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	//enableTree( false );
 	//enableMenusAndToolBars( false );
     }
-    if ( evid == uiWellPartServer::evCleanPreview )
+    if ( evid == uiWellPartServer::evCleanPreview() )
     {
 	cleanPreview();
 	enableTree( true );
@@ -1086,7 +1073,7 @@ bool uiODApplMgr::handleWellServEv( int evid )
 
 bool uiODApplMgr::handleWellAttribServEv( int evid )
 {
-    if ( evid == uiWellAttribPartServer::evShowPickSet )
+    if ( evid == uiWellAttribPartServer::evShowPickSet() )
 	pickserv_->setPickSet( wellattrserv_->getSelPickSet() );
     return true;
 }
@@ -1094,7 +1081,7 @@ bool uiODApplMgr::handleWellAttribServEv( int evid )
 
 bool uiODApplMgr::handleEMServEv( int evid )
 {
-    if ( evid == uiEMPartServer::evDisplayHorizon )
+    if ( evid == uiEMPartServer::evDisplayHorizon() )
     {
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
@@ -1105,7 +1092,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	sceneMgr().updateTrees();
 	return true;
     }
-    else if ( evid == uiEMPartServer::evRemoveTreeObject )
+    else if ( evid == uiEMPartServer::evRemoveTreeObject() )
     {
 	const EM::ObjectID emid = emserv_->selEMID();
 	const MultiID mid = emserv_->getStorageID(emid);
@@ -1127,7 +1114,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	sceneMgr().updateTrees();
 	return true;
     }
-    else if ( evid == uiEMPartServer::evSyncGeometry )
+    else if ( evid == uiEMPartServer::evSyncGeometry() )
     {
 	mDynamicCastGet( EM::Horizon2D*, h2d, emserv_->selEMObject() );
 	for ( int lidx=0; h2d && lidx<h2d->geometry().nrLines(); lidx++ )
@@ -1142,7 +1129,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	    h2d->geometry().syncLine( lset, lnm, ldat );
 	}
     }
-    else if ( evid == uiEMPartServer::evCalcShiftAttribute )
+    else if ( evid == uiEMPartServer::evCalcShiftAttribute() )
     {
 	ObjectSet<DataPointSet> dpsset;
 	EMServer()->fillHorShiftDPS( dpsset );
@@ -1178,7 +1165,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 				    EMServer()->attribIdx(),
 				    EMServer()->textureIdx() );
     }
-    else if ( evid == uiEMPartServer::evHorizonShift )
+    else if ( evid == uiEMPartServer::evHorizonShift() )
     {
 	visServer()->setTranslation( visServer()->getEventObjId(),
 				     Coord3(0,0,EMServer()->getShift()) );
@@ -1187,7 +1174,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 					EMServer()->attribIdx(),
 					EMServer()->textureIdx() );
     }
-    else if ( evid == uiEMPartServer::evStoreShiftHorizons )
+    else if ( evid == uiEMPartServer::evStoreShiftHorizons() )
     {
 	const int visid = visserv_->getEventObjId();
 	const uiVisPartServer::AttribFormat format = 
@@ -1214,9 +1201,9 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
-    else if ( evid == uiEMPartServer::evShiftDlgOpened )
+    else if ( evid == uiEMPartServer::evShiftDlgOpened() )
 	enableMenusAndToolBars( false );
-    else if ( evid == uiEMPartServer::evShiftDlgClosed )
+    else if ( evid == uiEMPartServer::evShiftDlgClosed() )
 	enableMenusAndToolBars( true );
     else
 	pErrMsg("Unknown event from emserv");
@@ -1227,15 +1214,15 @@ bool uiODApplMgr::handleEMServEv( int evid )
 
 bool uiODApplMgr::handlePickServEv( int evid )
 {
-    if ( evid == uiPickPartServer::evGetHorInfo3D )
+    if ( evid == uiPickPartServer::evGetHorInfo3D() )
     {
 	emserv_->getAllSurfaceInfo( pickserv_->horInfos(), false );
     }
-    else if ( evid == uiPickPartServer::evGetHorInfo2D )
+    else if ( evid == uiPickPartServer::evGetHorInfo2D() )
     {
 	emserv_->getAllSurfaceInfo( pickserv_->horInfos(), true );
     }
-    else if ( evid == uiPickPartServer::evGetHorDef3D )
+    else if ( evid == uiPickPartServer::evGetHorDef3D() )
     {
 	TypeSet<EM::ObjectID> horids;
 	const ObjectSet<MultiID>& storids = pickserv_->selHorIDs();
@@ -1252,19 +1239,19 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	emserv_->getSurfaceDef3D( horids, pickserv_->genDef(),
 			       pickserv_->selHorSampling() );
     }
-    else if ( evid == uiPickPartServer::evGetHorDef2D )
+    else if ( evid == uiPickPartServer::evGetHorDef2D() )
 	emserv_->getSurfaceDef2D( pickserv_->selHorIDs(),
 				  pickserv_->lineGeoms(),
 				  pickserv_->selectLines(),
 				  pickserv_->getPos2D(),
 				  pickserv_->getHor2DZRgs() );
-    else if ( evid == uiPickPartServer::evFillPickSet )
+    else if ( evid == uiPickPartServer::evFillPickSet() )
 	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );
-    else if ( evid == uiPickPartServer::evGet2DLineInfo )
+    else if ( evid == uiPickPartServer::evGet2DLineInfo() )
 	seisserv_->get2DLineInfo( pickserv_->lineSets(),
 				  pickserv_->lineSetIds(),
 				  pickserv_->lineNames());
-    else if ( evid == uiPickPartServer::evGet2DLineDef )
+    else if ( evid == uiPickPartServer::evGet2DLineDef() )
     {
 	BufferStringSet& lnms = pickserv_->selectLines();
 	for ( int idx=0; idx<lnms.size(); idx++ )
@@ -1294,27 +1281,27 @@ bool uiODApplMgr::handleVisServEv( int evid )
     int visid = visserv_->getEventObjId();
     visserv_->unlockEvent();
 
-    if ( evid == uiVisPartServer::evUpdateTree )
+    if ( evid == uiVisPartServer::evUpdateTree() )
 	sceneMgr().updateTrees();
-    else if ( evid == uiVisPartServer::evDeSelection
-	   || evid == uiVisPartServer::evSelection )
+    else if ( evid == uiVisPartServer::evDeSelection()
+	   || evid == uiVisPartServer::evSelection() )
 	sceneMgr().updateSelectedTreeItem();
-    else if ( evid == uiVisPartServer::evGetNewData )
+    else if ( evid == uiVisPartServer::evGetNewData() )
 	return getNewData( visid, visserv_->getEventAttrib() );
-    else if ( evid == uiVisPartServer::evInteraction )
+    else if ( evid == uiVisPartServer::evInteraction() )
 	sceneMgr().setItemInfo( visid );
-    else if ( evid == uiVisPartServer::evMouseMove ||
-	      evid==uiVisPartServer::evPickingStatusChange )
+    else if ( evid == uiVisPartServer::evMouseMove() ||
+	      evid==uiVisPartServer::evPickingStatusChange() )
 	sceneMgr().updateStatusBar();
-    else if ( evid == uiVisPartServer::evViewModeChange )
+    else if ( evid == uiVisPartServer::evViewModeChange() )
 	sceneMgr().setToViewMode( visserv_->isViewMode() );
-    else if ( evid == uiVisPartServer::evSelectAttrib )
+    else if ( evid == uiVisPartServer::evSelectAttrib() )
 	return selectAttrib( visid, visserv_->getEventAttrib() );
-    else if ( evid == uiVisPartServer::evViewAll )
+    else if ( evid == uiVisPartServer::evViewAll() )
 	sceneMgr().viewAll(0);
-    else if ( evid == uiVisPartServer::evToHomePos )
+    else if ( evid == uiVisPartServer::evToHomePos() )
 	sceneMgr().toHomePos(0);
-    else if ( evid == uiVisPartServer::evShowSetupDlg )
+    else if ( evid == uiVisPartServer::evShowSetupDlg() )
     {
 	mGetSelTracker( tracker );
 	const MPE::EMSeedPicker* seedpicker = tracker ? 
@@ -1323,17 +1310,17 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	mpeserv_->showSetupDlg( emid, sid, true );
 	visserv_->updateMPEToolbar();
     }
-    else if ( evid == uiVisPartServer::evLoadPostponedData )
+    else if ( evid == uiVisPartServer::evLoadPostponedData() )
 	mpeserv_->loadPostponedVolume();
-    else if ( evid == uiVisPartServer::evToggleBlockDataLoad )
+    else if ( evid == uiVisPartServer::evToggleBlockDataLoad() )
 	mpeserv_->blockDataLoading( !mpeserv_->isDataLoadingBlocked() );
-    else if ( evid == uiVisPartServer::evDisableSelTracker )
+    else if ( evid == uiVisPartServer::evDisableSelTracker() )
     {
 	mGetSelTracker( tracker );
 	if ( tracker )
 	    tracker->enable( false );
     }
-    else if ( evid == uiVisPartServer::evColorTableChange )
+    else if ( evid == uiVisPartServer::evColorTableChange() )
 	modifyColorTable( visserv_->getEventObjId(), 
 			  visserv_->getEventAttrib() );
     else
@@ -1345,7 +1332,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 
 bool uiODApplMgr::handleNLAServEv( int evid )
 {
-    if ( evid == uiNLAPartServer::evPrepareWrite )
+    if ( evid == uiNLAPartServer::evPrepareWrite() )
     {
 	// Before NLA model can be written, the AttribSet's IOPar must be
 	// made available as it almost certainly needs to be stored there.
@@ -1358,14 +1345,14 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	(cleanads ? cleanads : ads)->fillPar( iopar );
 	delete cleanads;
     }
-    else if ( evid == uiNLAPartServer::evPrepareRead )
+    else if ( evid == uiNLAPartServer::evPrepareRead() )
     {
 	bool saved = attrserv_->setSaved(nlaserv_->is2DEvent());
         const char* msg = "Current attribute set is not saved.\nSave now?";
         if ( !saved && uiMSG().askGoOn( msg ) )
 	    attrserv_->saveSet(nlaserv_->is2DEvent());
     }
-    else if ( evid == uiNLAPartServer::evReadFinished )
+    else if ( evid == uiNLAPartServer::evReadFinished() )
     {
 	// New NLA Model available: replace the attribute set!
 	// Create new attrib set from NLA model's IOPar
@@ -1373,7 +1360,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
 	wellattrserv_->setNLAModel( &nlaserv_->getModel() );
     }
-    else if ( evid == uiNLAPartServer::evGetInputNames )
+    else if ( evid == uiNLAPartServer::evGetInputNames() )
     {
 	// Construct the choices for input nodes.
 	// Should be:
@@ -1384,14 +1371,14 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	if ( nlaserv_->inputNames().size() == 0 )
 	    { uiMSG().error( "No usable input" ); return false; }
     }
-    else if ( evid == uiNLAPartServer::evGetStoredInput )
+    else if ( evid == uiNLAPartServer::evGetStoredInput() )
     {
 	BufferStringSet linekeys;
 	nlaserv_->getNeededStoredInputs( linekeys );
 	for ( int idx=0; idx<linekeys.size(); idx++ )
             attrserv_->addToDescSet( linekeys.get(idx), nlaserv_->is2DEvent() );
     }
-    else if ( evid == uiNLAPartServer::evGetData )
+    else if ( evid == uiNLAPartServer::evGetData() )
     {
 	// OK, the input and output nodes are known.
 	// Query the server and make sure the relevant data is extracted
@@ -1417,13 +1404,13 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 
 	const char* res = nlaserv_->prepareInputData( dpss );
-	if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel) )
+	if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel()) )
 	    uiMSG().warning( res );
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
 	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D() );
 	deepErase(dpss);
     }
-    else if ( evid == uiNLAPartServer::evSaveMisclass )
+    else if ( evid == uiNLAPartServer::evSaveMisclass() )
     {
 	const DataPointSet& dps = nlaserv_->dps();
 	BinIDValueSet mcpicks( 1, true );
@@ -1434,7 +1421,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	}
 	pickserv_->setMisclassSet( mcpicks );
     }
-    else if ( evid == uiNLAPartServer::evCreateAttrSet )
+    else if ( evid == uiNLAPartServer::evCreateAttrSet() )
     {
 	Attrib::DescSet attrset(nlaserv_->is2DEvent());
 	if ( !attrserv_->createAttributeSet(nlaserv_->modelInputs(),&attrset) )
@@ -1442,7 +1429,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	attrset.fillPar( nlaserv_->modelPars() );
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
     }
-    else if ( evid == uiNLAPartServer::evShowSelPts )
+    else if ( evid == uiNLAPartServer::evShowSelPts() )
 	pickserv_->setPickSet( nlaserv_->getSelectedPts() );
     else
 	pErrMsg("Unknown event from nlaserv");
@@ -1453,7 +1440,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 
 bool uiODApplMgr::handleAttribServEv( int evid )
 {
-    if ( evid==uiAttribPartServer::evDirectShowAttr )
+    if ( evid==uiAttribPartServer::evDirectShowAttr() )
     {
 	Attrib::SelSpec as;
 	attrserv_->getDirectShowAttrSpec( as );
@@ -1469,15 +1456,15 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	getNewData( visid, attrib );
 	sceneMgr().updateTrees();
     }
-    else if ( evid==uiAttribPartServer::evNewAttrSet )
+    else if ( evid==uiAttribPartServer::evNewAttrSet() )
 	mpeserv_->setCurrentAttribDescSet(
 				attrserv_->curDescSet(attrserv_->is2DEvent()) );
-    else if ( evid==uiAttribPartServer::evAttrSetDlgClosed )
+    else if ( evid==uiAttribPartServer::evAttrSetDlgClosed() )
     {
 	enableMenusAndToolBars( true );
 	enableSceneManipulation( true );
     }
-    else if ( evid==uiAttribPartServer::evEvalAttrInit )
+    else if ( evid==uiAttribPartServer::evEvalAttrInit() )
     {
 	const uiVisPartServer::AttribFormat format = 
 	    	visserv_->getAttributeFormat( visserv_->getEventObjId() );
@@ -1485,7 +1472,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const bool allowstorage = format==uiVisPartServer::RandomPos;
 	attrserv_->setEvaluateInfo( alloweval, allowstorage );
     }
-    else if ( evid==uiAttribPartServer::evEvalCalcAttr )
+    else if ( evid==uiAttribPartServer::evEvalCalcAttr() )
     {
 	const int visid = visserv_->getEventObjId();
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
@@ -1510,7 +1497,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	}
 	sceneMgr().updateTrees();
     }
-    else if ( evid==uiAttribPartServer::evEvalShowSlice )
+    else if ( evid==uiAttribPartServer::evEvalShowSlice() )
     {
 	const int visid = visserv_->getEventObjId();
 	const int sliceidx = attrserv_->getSliceIdx();
@@ -1520,7 +1507,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	modifyColorTable( visid, attrnr );
 	sceneMgr().updateTrees();
     }
-    else if ( evid==uiAttribPartServer::evEvalStoreSlices )
+    else if ( evid==uiAttribPartServer::evEvalStoreSlices() )
     {
 	const int visid = visserv_->getEventObjId();
 	const int attrnr =
@@ -1547,9 +1534,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
-    else if ( evid == uiAttribPartServer::evShowSelPtPickSet )
+    else if ( evid == uiAttribPartServer::evShowSelPtPickSet() )
 	pickserv_->setPickSet( attrserv_->getSelPickSet() );
-    else if ( evid==uiAttribPartServer::evEvalUpdateName )
+    else if ( evid==uiAttribPartServer::evEvalUpdateName() )
     {
 	const int visid = visserv_->getEventObjId();
 	const int attrib = visserv_->getSelAttribNr();

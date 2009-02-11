@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.404 2009-01-28 11:43:33 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.405 2009-02-11 10:58:49 cvsranojay Exp $";
 
 #include "uivispartserv.h"
 
@@ -61,22 +61,22 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.404 2009-01-28 11:43:33 cv
 #include "viswelldisplay.h"
 
 
-const int uiVisPartServer::evUpdateTree			= 0;
-const int uiVisPartServer::evSelection			= 1;
-const int uiVisPartServer::evDeSelection		= 2;
-const int uiVisPartServer::evGetNewData			= 3;
-const int uiVisPartServer::evMouseMove			= 4;
-const int uiVisPartServer::evInteraction		= 5;
-const int uiVisPartServer::evSelectAttrib		= 6;
-const int uiVisPartServer::evViewAll			= 9;
-const int uiVisPartServer::evToHomePos			= 10;
-const int uiVisPartServer::evPickingStatusChange	= 11;
-const int uiVisPartServer::evViewModeChange		= 12;
-const int uiVisPartServer::evShowSetupDlg		= 13;
-const int uiVisPartServer::evLoadPostponedData		= 14;
-const int uiVisPartServer::evToggleBlockDataLoad	= 15;
-const int uiVisPartServer::evDisableSelTracker		= 16;
-const int uiVisPartServer::evColorTableChange		= 17;
+const int uiVisPartServer::evUpdateTree()	    { return 0; }
+const int uiVisPartServer::evSelection()	    { return 1; }
+const int uiVisPartServer::evDeSelection()	    { return 2; }
+const int uiVisPartServer::evGetNewData()	    { return 3; }
+const int uiVisPartServer::evMouseMove()	    { return 4; }
+const int uiVisPartServer::evInteraction()	    { return 5; }
+const int uiVisPartServer::evSelectAttrib()	    { return 6; }
+const int uiVisPartServer::evViewAll()		    { return 9; }
+const int uiVisPartServer::evToHomePos()	    { return 10; }
+const int uiVisPartServer::evPickingStatusChange()  { return 11; }
+const int uiVisPartServer::evViewModeChange()	    { return 12; }
+const int uiVisPartServer::evShowSetupDlg()	    { return 13; }
+const int uiVisPartServer::evLoadPostponedData()    { return 14; }
+const int uiVisPartServer::evToggleBlockDataLoad()  { return 15; }
+const int uiVisPartServer::evDisableSelTracker()    { return 16; }
+const int uiVisPartServer::evColorTableChange()	    { return 17; }
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -299,14 +299,14 @@ void uiVisPartServer::shareObject( int sceneid, int id )
 
     scene->addObject( dobj );
     eventmutex_.lock();
-    sendEvent( evUpdateTree );
+    sendEvent( evUpdateTree() );
 }
 
 
 void uiVisPartServer::triggerTreeUpdate()
 {
     eventmutex_.lock();
-    sendEvent( evUpdateTree );
+    sendEvent( evUpdateTree() );
 }
 
 
@@ -404,8 +404,8 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
 
     eventmutex_.lock();
     eventobjid_ = id;
-    sendEvent( evSelection );
-    sendEvent( evPickingStatusChange );
+    sendEvent( evSelection() );
+    sendEvent( evPickingStatusChange() );
 
     mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
     if ( so && so->getScene() )
@@ -929,7 +929,7 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
     viewmode_ = yn;
     toggleDraggers();
     if ( notify )
-	sendEvent(evViewModeChange);
+	sendEvent(evViewModeChange());
 }
 
 
@@ -1077,10 +1077,10 @@ void uiVisPartServer::setZStretch()
 
 
 void uiVisPartServer::vwAll( CallBacker* )
-{ eventmutex_.lock(); sendEvent( evViewAll ); }
+{ eventmutex_.lock(); sendEvent( evViewAll() ); }
 
 void uiVisPartServer::toHome( CallBacker* )
-{ eventmutex_.lock(); sendEvent( evToHomePos ); }
+{ eventmutex_.lock(); sendEvent( evToHomePos() ); }
 
 
 bool uiVisPartServer::setWorkingArea()
@@ -1249,19 +1249,19 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 
 bool uiVisPartServer::sendShowSetupDlgEvent()
 {
-    return sendEvent( evShowSetupDlg );
+    return sendEvent( evShowSetupDlg() );
 }
 
 
 bool uiVisPartServer::sendPickingStatusChangeEvent()
 {
-   return sendEvent( evPickingStatusChange );
+   return sendEvent( evPickingStatusChange() );
 }
 
 
 bool uiVisPartServer::sendDisableSelTrackerEvent()
 {
-   return sendEvent( evDisableSelTracker );
+   return sendEvent( evDisableSelTracker() );
 }
 
 
@@ -1310,13 +1310,13 @@ void uiVisPartServer::getPickingMessage( BufferString& str ) const
 
 void uiVisPartServer::loadPostponedData() const
 {
-    sendEvent( evLoadPostponedData );
+    sendEvent( evLoadPostponedData() );
 }
 
 
 void uiVisPartServer::toggleBlockDataLoad() const
 {
-    sendEvent( evToggleBlockDataLoad );
+    sendEvent( evToggleBlockDataLoad() );
 }
 
 
@@ -1372,7 +1372,7 @@ bool uiVisPartServer::selectAttrib( int id, int attrib )
     eventmutex_.lock();
     eventobjid_ = id;
     eventattrib_ = attrib;
-    return sendEvent( evSelectAttrib );
+    return sendEvent( evSelectAttrib() );
 }
 
 
@@ -1414,7 +1414,7 @@ bool uiVisPartServer::calculateAttrib( int id, int attrib, bool newselect,
     eventmutex_.lock();
     eventobjid_ = id;
     eventattrib_ = attrib;
-    return sendEvent( evGetNewData );
+    return sendEvent( evGetNewData() );
 }
 
 
@@ -1461,8 +1461,8 @@ bool uiVisPartServer::resetManipulation( int id )
 
     eventmutex_.lock();
     eventobjid_ = id;
-    sendEvent( evInteraction );
-    sendEvent( evUpdateTree );
+    sendEvent( evInteraction() );
+    sendEvent( evUpdateTree() );
 
     return so;
 }
@@ -1565,10 +1565,10 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
 
     eventmutex_.lock();
     eventobjid_ = sel;
-    sendEvent( evSelection );
+    sendEvent( evSelection() );
 
     eventmutex_.lock();
-    sendEvent( evPickingStatusChange );
+    sendEvent( evPickingStatusChange() );
 }
 
 
@@ -1598,10 +1598,10 @@ void uiVisPartServer::deselectObjCB( CallBacker* cb )
     eventmutex_.lock();
     eventobjid_ = oldsel;
     selattrib_ = -1;
-    sendEvent( evDeSelection );
+    sendEvent( evDeSelection() );
 
     eventmutex_.lock();
-    sendEvent( evPickingStatusChange );
+    sendEvent( evPickingStatusChange() );
 }
 
 
@@ -1612,7 +1612,7 @@ void uiVisPartServer::interactionCB( CallBacker* cb )
     {
 	eventmutex_.lock();
 	eventobjid_ = dataobj->id();
-	sendEvent( evInteraction );
+	sendEvent( evInteraction() );
     }
 }
 
@@ -1639,7 +1639,7 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
     mouseposval_ = scene->getMousePosValue();
     mouseposstr_ = scene->getMousePosString();
     zfactor_ = scene->getDataTransform() ? 1 : SI().zFactor();
-    sendEvent( evMouseMove );
+    sendEvent( evMouseMove() );
 }
 
 
@@ -1853,7 +1853,7 @@ void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
 	    		  obj->activeMapperSetup() );
     eventobjid_ = mapperrgeditordisplayid_;
     eventattrib_ = obj->activeAttrbID();
-    sendEvent( evColorTableChange );
+    sendEvent( evColorTableChange() );
 }
 
 

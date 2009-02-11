@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.27 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:		$Id: uivisemobj.h,v 1.28 2009-02-11 10:35:05 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ public:
 			     turns on wireframe, singlecolor and full res if
 			     a tracker if found. */
 
-    static const char*	trackingmenutxt;
+    static const char*	trackingmenutxt();
 
 protected:
     void		setUpConnections();

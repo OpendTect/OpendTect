@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.45 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.46 2009-02-11 10:40:05 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,27 +63,27 @@ public:
 
     const char*		name() const			{ return "Attributes"; }
 
-    static const int	evDirectShowAttr;
+    static const int	evDirectShowAttr();
     			//!< User requested direct redisplay of curAttrDesc()
-    static const int	evNewAttrSet;
+    static const int	evNewAttrSet();
     			//!< FYI
-    static const int	evAttrSetDlgClosed;
+    static const int	evAttrSetDlgClosed();
     			//!< AttributeSet window closes
-    static const int	evEvalAttrInit;
+    static const int	evEvalAttrInit();
     			//!< Initialization of evaluation dialog
-    static const int	evEvalCalcAttr;
+    static const int	evEvalCalcAttr();
     			//!< User wants to evaluate current attribute
-    static const int	evEvalShowSlice;
+    static const int	evEvalShowSlice();
     			//!< Display slice
-    static const int	evEvalStoreSlices;
+    static const int	evEvalStoreSlices();
     			//!< Store slices
-    static const int	evShowSelPtPickSet;
+    static const int	evShowSelPtPickSet();
     			//!< Show Selected Points from CrossPlot in Workspace
-    static const int	evEvalUpdateName;
+    static const int	evEvalUpdateName();
     			//!< Update name in tree after evaluation dlg closed
-    static const int	objNLAModel2D;
+    static const int	objNLAModel2D();
     			//!< Request current 2D NLAModel* via getObject()
-    static const int	objNLAModel3D;
+    static const int	objNLAModel3D();
     			//!< Request current 3D NLAModel* via getObject()
 
     void		handleAutoSet();
@@ -208,7 +208,7 @@ protected:
     void		insertNumerousItems(const BufferStringSet&,
 	    				    const Attrib::SelSpec&,bool,bool);
 
-    static const char*	attridstr_;
+    static const char*	attridstr();
     BufferString	nlaname_;
 
     bool		alloweval_;

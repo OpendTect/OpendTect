@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginsel.cc,v 1.11 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uipluginsel.cc,v 1.12 2009-02-11 10:56:35 cvsranojay Exp $";
 
 #include "uipluginsel.h"
 #include "uibutton.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: uipluginsel.cc,v 1.11 2008-11-25 15:35:26 cvsbe
 #include "odver.h"
 #include <math.h>
 
-const char* uiPluginSel::sKeyDoAtStartup = "dTect.Select Plugins";
+const char* uiPluginSel::sKeyDoAtStartup()	{ return "dTect.Select Plugins"; }
 
 
 uiPluginSel::uiPluginSel( uiParent* p )
@@ -98,7 +98,7 @@ bool uiPluginSel::rejectOK( CallBacker* )
 
     if ( !saveButtonChecked() )
     {
-	Settings::common().setYN( sKeyDoAtStartup, false );
+	Settings::common().setYN( sKeyDoAtStartup(), false );
 	Settings::common().write();
     }
 

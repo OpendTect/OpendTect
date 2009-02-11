@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.63 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.64 2009-02-11 11:07:09 cvsranojay Exp $";
 
 #include "vismpe.h"
 
@@ -805,7 +805,7 @@ float MPEDisplay::maxDist() const
     const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
     float maxzdist = zfactor * scene_->getZStretch() * SI().zStep() / 2;
     return engine_.trackPlane().boundingBox().nrZ()==1 
-					? maxzdist : SurveyObject::sDefMaxDist;
+					? maxzdist : SurveyObject::sDefMaxDist();
 }
 
 

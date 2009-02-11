@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.11 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.12 2009-02-11 11:04:16 cvsranojay Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -20,8 +20,8 @@ mCreateFactoryEntry( visBase::DataObjectGroup );
 namespace visBase
 {
 
-const char* DataObjectGroup::nokidsstr = "Number of Children";
-const char* DataObjectGroup::kidprefix = "Child ";
+const char* DataObjectGroup::nokidsstr()	{ return "Number of Children"; }
+const char* DataObjectGroup::kidprefix()	{ return "Child "; }
 
 DataObjectGroup::DataObjectGroup()
     : group_ ( 0 )
@@ -172,12 +172,12 @@ void DataObjectGroup::fillPar( IOPar& par, TypeSet<int>& saveids)const
 {
     DataObject::fillPar( par, saveids );
     
-    par.set( nokidsstr, objects_.size() );
+    par.set( nokidsstr(), objects_.size() );
     
     BufferString key;
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	key = kidprefix;
+	key = kidprefix();
 	key += idx;
 
 	int saveid = objects_[idx]->id();
@@ -194,14 +194,14 @@ int DataObjectGroup::usePar( const IOPar& par )
     if ( res!= 1 ) return res;
 
     int nrkids;
-    if ( !par.get( nokidsstr, nrkids ) )
+    if ( !par.get( nokidsstr(), nrkids ) )
 	return -1;
 
     BufferString key;
     TypeSet<int> ids;
     for ( int idx=0; idx<nrkids; idx++ )
     {
-	key = kidprefix;
+	key = kidprefix();
 	key += idx;
 
 	int newid;

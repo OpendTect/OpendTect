@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.58 2009-01-09 11:31:10 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.59 2009-02-11 10:48:04 cvsranojay Exp $";
 
 #include "uipickpartserv.h"
 
@@ -30,13 +30,13 @@ static const char* rcsID = "$Id: uipickpartserv.cc,v 1.58 2009-01-09 11:31:10 cv
 #include "statrand.h"
 #include "ptrman.h"
 
-const int uiPickPartServer::evGetHorInfo2D = 0;
-const int uiPickPartServer::evGetHorInfo3D = 1;
-const int uiPickPartServer::evGetHorDef3D = 2;
-const int uiPickPartServer::evGetHorDef2D = 3;
-const int uiPickPartServer::evFillPickSet = 4;
-const int uiPickPartServer::evGet2DLineInfo = 5;
-const int uiPickPartServer::evGet2DLineDef = 6;
+const int uiPickPartServer::evGetHorInfo2D()	{ return 0; }
+const int uiPickPartServer::evGetHorInfo3D()	{ return 1; } 
+const int uiPickPartServer::evGetHorDef3D()	{ return 2; }
+const int uiPickPartServer::evGetHorDef2D()	{ return 3; }
+const int uiPickPartServer::evFillPickSet()	{ return 4; }
+const int uiPickPartServer::evGet2DLineInfo()	{ return 5; }
+const int uiPickPartServer::evGet2DLineDef()	{ return 6; }
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
@@ -72,7 +72,7 @@ void uiPickPartServer::impexpSet( bool import )
 void uiPickPartServer::fetchHors( bool is2d )
 {
     deepErase( hinfos_ );
-    sendEvent( is2d ? evGetHorInfo2D : evGetHorInfo3D );
+    sendEvent( is2d ? evGetHorInfo2D() : evGetHorInfo3D() );
 }
 
 bool uiPickPartServer::loadSets( bool poly )
@@ -161,7 +161,7 @@ bool uiPickPartServer::createRandomSet( bool is2d )
     {
 	deepErase( linesets_ );
 	linenms_.erase();
-	sendEvent( evGet2DLineInfo );
+	sendEvent( evGet2DLineInfo() );
 	uiGenRandPicks2D dlg( parent(), hornms, linesets_, linenms_ );
 	mHandleDlg();
 	if ( !mkRandLocs2D(*newps,dlg.randPars()) )
@@ -198,7 +198,7 @@ bool uiPickPartServer::mkRandLocs3D( Pick::Set& ps, const RandLocGenPars& rp )
 	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
 	if ( do2hors )
 	    selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
-	sendEvent( evGetHorDef3D );
+	sendEvent( evGetHorDef3D() );
     }
     else
     {
@@ -241,7 +241,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     selectlines_ = rp.linenms_;
     deepErase( linegeoms_ );
     deepErase( selhorids_ );
-    sendEvent( evGet2DLineDef );
+    sendEvent( evGet2DLineDef() );
     if ( !linegeoms_.size() ) return false;
 
     coords2d_.erase();
@@ -252,7 +252,7 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 	    selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
 
 	hor2dzrgs_.erase();
-	sendEvent( evGetHorDef2D );
+	sendEvent( evGetHorDef2D() );
     }
     else
     {
@@ -342,5 +342,5 @@ void uiPickPartServer::fillZValsFrmHor( Pick::Set* ps, int horidx )
 {
     ps_ = ps;
     horid_ = hinfos_[horidx]->multiid;
-    sendEvent( evFillPickSet );
+    sendEvent( evFillPickSet() );
 }

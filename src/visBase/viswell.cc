@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.44 2009-01-16 13:02:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.45 2009-02-11 11:04:16 cvsranojay Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -42,15 +42,15 @@ namespace visBase
 
 static const int sMaxNrLogSamples = 2000;
 
-const char* Well::linestylestr	= "Line style";
-const char* Well::showwelltopnmstr = "Show top name";
-const char* Well::showwellbotnmstr = "Show bottom name";
-const char* Well::showmarkerstr = "Show markers";
-const char* Well::showmarknmstr	= "Show markername";
-const char* Well::markerszstr	= "Marker size";
-const char* Well::showlogsstr	= "Show logs";
-const char* Well::showlognmstr	= "Show logname";
-const char* Well::logwidthstr 	= "Screen width";
+const char* Well::linestylestr()	{ return "Line style"; }
+const char* Well::showwelltopnmstr()	{ return "Show top name"; }
+const char* Well::showwellbotnmstr()	{ return "Show bottom name"; }
+const char* Well::showmarkerstr()	{ return "Show markers"; }
+const char* Well::showmarknmstr()	{ return "Show markername"; }
+const char* Well::markerszstr()		{ return "Marker size"; }
+const char* Well::showlogsstr()		{ return "Show logs"; }
+const char* Well::showlognmstr()	{ return "Show logname"; }
+const char* Well::logwidthstr()		{ return "Screen width"; }
 
 
 Well::Well()
@@ -642,16 +642,16 @@ void Well::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     BufferString linestyle;
     lineStyle().toString( linestyle );
-    par.set( linestylestr, linestyle );
+    par.set( linestylestr(), linestyle );
 
-    par.setYN( showwelltopnmstr, welltoptxt->isOn() );
-    par.setYN( showwellbotnmstr, wellbottxt->isOn() );
-    par.setYN( showmarkerstr, markersShown() );
-    par.setYN( showmarknmstr, markerNameShown() );
-    par.setYN( showlogsstr, logsShown() );
-    par.setYN( showlognmstr, logNameShown() );
-    par.set( markerszstr, markersize );
-    par.set( logwidthstr, logWidth() );
+    par.setYN( showwelltopnmstr(), welltoptxt->isOn() );
+    par.setYN( showwellbotnmstr(), wellbottxt->isOn() );
+    par.setYN( showmarkerstr(), markersShown() );
+    par.setYN( showmarknmstr(), markerNameShown() );
+    par.setYN( showlogsstr(), logsShown() );
+    par.setYN( showlognmstr(), logNameShown() );
+    par.set( markerszstr(), markersize );
+    par.set( logwidthstr(), logWidth() );
 }
 
 
@@ -661,7 +661,7 @@ int Well::usePar( const IOPar& par )
     if ( res!=1 ) return res;
 
     BufferString linestyle;
-    if ( par.get(linestylestr,linestyle) )
+    if ( par.get(linestylestr(),linestyle) )
     {
 	LineStyle lst;
 	lst.fromString( linestyle );
@@ -674,14 +674,14 @@ int Well::usePar( const IOPar& par )
     func( doshow );
 
     bool doshow;
-    mParGetYN(showwelltopnmstr,showWellTopName);
-    mParGetYN(showwellbotnmstr,showWellBotName);
-    mParGetYN(showmarkerstr,showMarkers);	showmarkers = doshow;
-    mParGetYN(showmarknmstr,showMarkerName);
-    mParGetYN(showlogsstr,showLogs);
-    mParGetYN(showlognmstr,showLogName);
+    mParGetYN(showwelltopnmstr(),showWellTopName);
+    mParGetYN(showwellbotnmstr(),showWellBotName);
+    mParGetYN(showmarkerstr(),showMarkers);	showmarkers = doshow;
+    mParGetYN(showmarknmstr(),showMarkerName);
+    mParGetYN(showlogsstr(),showLogs);
+    mParGetYN(showlognmstr(),showLogName);
 
-    par.get( markerszstr, markersize );
+    par.get( markerszstr(), markersize );
     setMarkerScreenSize( markersize );
 
     return 1;

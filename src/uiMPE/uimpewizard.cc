@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.92 2009-01-30 05:08:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.93 2009-02-11 10:49:55 cvsranojay Exp $";
 
 
 #include "uimpewizard.h"
@@ -437,7 +437,7 @@ bool Wizard::prepareSeedSetupPage()
     setupgrp->setSectionTracker( sectiontracker );
     setupgrp->setAttribSet( mpeserv->getCurAttrDescSet(tracker->is2D()) ); 
 
-    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick() );
     EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
 
     if ( currentPageIdx()==lastPage() )
@@ -484,7 +484,7 @@ bool Wizard::leaveSeedSetupPage( bool process )
     setButtonSensitive( uiDialog::CANCEL, true );
     if ( !process )
     {
-	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+	mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick() );
 	restoreObject();
 	return true;
     }
@@ -568,7 +568,7 @@ void Wizard::restoreObject()
     // And after io-stuff removal which needs valid MultiID 
     if ( objectcreated )
     {
-	mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject );
+	mpeserv->sendEvent( ::uiMPEPartServer::evRemoveTreeObject() );
     }
 
     if ( trackercreated )
@@ -588,7 +588,7 @@ void Wizard::restoreObject()
 bool Wizard::isClosing( bool iscancel )
 {
     mpeserv->blockDataLoading( true );
-    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick );
+    mpeserv->sendEvent( uiMPEPartServer::evEndSeedPick() );
     mpeserv->blockDataLoading( false );
     if ( iscancel )
     {
@@ -603,16 +603,16 @@ bool Wizard::isClosing( bool iscancel )
 	    mpeserv->expandActiveVolume(seedbox);
 
 	if ( !seedpicker->doesModeUseVolume() )
-	    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick );
+	    mpeserv->sendEvent( uiMPEPartServer::evStartSeedPick() );
 	
 	mpeserv->blockDataLoading( false );
 	mpeserv->postponeLoadingCurVol();
-	mpeserv->sendEvent( uiMPEPartServer::evMPEDispIntro );
-	mpeserv->sendEvent( uiMPEPartServer::evShowToolbar );
+	mpeserv->sendEvent( uiMPEPartServer::evMPEDispIntro() );
+	mpeserv->sendEvent( uiMPEPartServer::evShowToolbar() );
 	if ( seedpicker->doesModeUseSetup() )
 	    mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
     }
-    mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed );
+    mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed() );
     return true;
 }
 
@@ -631,7 +631,7 @@ void Wizard::colorChangeCB( CallBacker* )
     {
 	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	emobj->setPreferredColor( colorfld->color() );
-	mpeserv->sendEvent( uiMPEPartServer::evUpdateTrees );
+	mpeserv->sendEvent( uiMPEPartServer::evUpdateTrees() );
     }
 }
 
@@ -778,7 +778,7 @@ bool Wizard::createTracker()
 	    engine().getEditor(objid,true);
 
 	mpeserv->activetrackerid_ = id;
-	if ( !mpeserv->sendEvent( ::uiMPEPartServer::evAddTreeObject ) )
+	if ( !mpeserv->sendEvent( ::uiMPEPartServer::evAddTreeObject() ) )
 	{
 	    pErrMsg("Could not add treeitem");
 	    engine().removeTracker( id );
@@ -823,7 +823,7 @@ void Wizard::seedModeChange( CallBacker* )
     infofld->setText( infotext );
     mGetSeedPicker();
     seedpicker->setSeedConnectMode( newmode );
-    mpeserv->sendEvent( uiMPEPartServer::evUpdateSeedConMode );
+    mpeserv->sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
 
     displayPage( sSeedSetupPage, seedpicker->doesModeUseSetup() );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.41 2009-01-09 11:31:10 cvsnageswara Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.42 2009-02-11 10:38:26 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,13 +53,13 @@ public:
     void			setPickSet(const Pick::Set&);
     void			fillZValsFrmHor(Pick::Set*,int);
 
-    static const int		evGetHorInfo2D;
-    static const int		evGetHorInfo3D;
-    static const int		evGetHorDef3D;
-    static const int            evGetHorDef2D;
-    static const int            evFillPickSet;
-    static const int		evGet2DLineInfo;
-    static const int		evGet2DLineDef;
+    static const int		evGetHorInfo2D();
+    static const int		evGetHorInfo3D();
+    static const int		evGetHorDef3D();
+    static const int            evGetHorDef2D();
+    static const int            evFillPickSet();
+    static const int		evGet2DLineInfo();
+    static const int		evGet2DLineDef();
 
 
 				// Interaction stuff

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.7 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: visdatagroup.h,v 1.8 2009-02-11 10:32:06 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,8 +75,8 @@ public:
 protected:
     virtual			~DataObjectGroup();
 
-    static const char*		nokidsstr;
-    static const char*		kidprefix;
+    static const char*		nokidsstr();
+    static const char*		kidprefix();
     virtual SoGroup*		createGroup();
     void			ensureGroup();
     SoGroup*			group_;

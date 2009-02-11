@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.113 2009-01-09 09:17:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.114 2009-02-11 11:07:10 cvsranojay Exp $";
 
 #include "vissurvscene.h"
 
@@ -591,12 +591,12 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	if ( saveids.indexOf(objid) == -1 )
 	    saveids += objid;
 
-	BufferString key = kidprefix; key += nrkids;
+	BufferString key = kidprefix(); key += nrkids;
 	par.set( key, objid );
 	nrkids++;
     }
 
-    par.set( nokidsstr, nrkids );
+    par.set( nokidsstr(), nrkids );
     
     par.setYN( sKeyShowAnnot(), isAnnotTextShown() );
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );

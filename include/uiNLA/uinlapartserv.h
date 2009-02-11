@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.24 2009-01-08 08:15:26 cvsranojay Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.25 2009-02-11 10:37:22 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,25 +55,25 @@ public:
     bool		willDoExtraction() const;
     const BufferStringSet& modelInputs() const;
 
-    static const int	evPrepareWrite;
+    static const int	evPrepareWrite();
     			//!< need to fill modelPars()
-    static const int	evPrepareRead;
+    static const int	evPrepareRead();
     			//!< is FYI
-    static const int	evReadFinished;
+    static const int	evReadFinished();
     			//!< is FYI
-    static const int	evGetInputNames;
+    static const int	evGetInputNames();
     			//!< need to fill inputNames()
-    static const int	evGetStoredInput;
+    static const int	evGetStoredInput();
 			//!< need to put stored data into attrset
-    static const int	evGetData;
+    static const int	evGetData();
     			//!< need to fill vdsTrain() and vdsTest()
-    static const int	evSaveMisclass;
+    static const int	evSaveMisclass();
     			//!< use misclass analysis VDS; user wants it.
-    static const int	evCreateAttrSet;
+    static const int	evCreateAttrSet();
     			//!< create attributeset from GDI NN
-    static const int	evShowSelPts;
+    static const int	evShowSelPts();
     			//!< create attributeset from GDI NN
-    static const char*	sKeyUsrCancel;
+    static const char*	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
 
     			// Following should be filled on events

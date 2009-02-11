@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.41 2009-01-28 08:17:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.42 2009-02-11 11:00:00 cvsranojay Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -37,8 +37,8 @@ static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.41 2009-01-28 08:17:49 cv
 #include "errh.h"
 
 
-const int uiWellPartServer::evPreviewRdmLine			=0;
-const int uiWellPartServer::evCleanPreview			=2;
+const int uiWellPartServer::evPreviewRdmLine()	    { return 0; }
+const int uiWellPartServer::evCleanPreview()	    { return 2; }
 
 
 uiWellPartServer::uiWellPartServer( uiApplService& a )
@@ -154,7 +154,7 @@ void uiWellPartServer::wellPropDlgClosed( CallBacker* cb)
     }
 
     isdisppropopened_ = false;
-    sendEvent( evCleanPreview );
+    sendEvent( evCleanPreview() );
     uiwellpropDlgClosed.trigger();
 }
 
@@ -241,14 +241,14 @@ void uiWellPartServer::rdmlnDlgClosed( CallBacker* )
 {
     multiid_ = rdmlinedlg_->getRandLineID();
     disponcreation_ = rdmlinedlg_->dispOnCreation();
-    sendEvent( evCleanPreview );
+    sendEvent( evCleanPreview() );
     randLineDlgClosed.trigger();
 }
 
 
 void uiWellPartServer::sendPreviewEvent()
 {
-    sendEvent( evPreviewRdmLine );
+    sendEvent( evPreviewRdmLine() );
 }
 
 

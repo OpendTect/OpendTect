@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.21 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.22 2009-02-11 10:57:46 cvsranojay Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -42,7 +42,7 @@ uiPluginMan::uiPluginMan( uiParent* p )
     selatstartfld = new uiCheckBox( leftgrp, "Select auto-loaded at startup" ); 
     selatstartfld->attach( alignedBelow, loadbut );
     selatstartfld->setChecked(
-	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup) );
+	    Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup()) );
 
     infofld = new uiTextEdit( this, "Info" );
     infofld->attach( rightOf, leftgrp );
@@ -166,11 +166,11 @@ void uiPluginMan::loadPush( CallBacker* )
 
 bool uiPluginMan::rejectOK( CallBacker* )
 {
-    const bool oldyn = Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup);
+    const bool oldyn = Settings::common().isTrue(uiPluginSel::sKeyDoAtStartup());
     const bool newyn = selatstartfld->isChecked();
     if ( oldyn != newyn )
     {
-	Settings::common().setYN( uiPluginSel::sKeyDoAtStartup, newyn );
+	Settings::common().setYN( uiPluginSel::sKeyDoAtStartup(), newyn );
 	Settings::common().write();
     }
     return true;

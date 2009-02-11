@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uipluginsel.h,v 1.4 2009-02-11 10:35:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ public:
     				uiPluginSel(uiParent*);
     int				nrPlugins() const { return pluginnms_.size(); }
 
-    static const char*		sKeyDoAtStartup;
+    static const char*		sKeyDoAtStartup();
 
 protected:
 

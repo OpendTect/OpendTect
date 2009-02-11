@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.93 2009-01-16 13:02:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.94 2009-02-11 11:07:10 cvsranojay Exp $";
 
 #include "viswelldisplay.h"
 
@@ -610,7 +610,7 @@ int WellDisplay::usePar( const IOPar& par )
 
 // Support for old sessions
     BufferString linestyle;
-    if ( par.get(visBase::Well::linestylestr,linestyle) )
+    if ( par.get(visBase::Well::linestylestr(),linestyle) )
     {
 	LineStyle lst;
 	lst.fromString( linestyle );
@@ -618,9 +618,9 @@ int WellDisplay::usePar( const IOPar& par )
     }
 
     bool wellnmshown;
-    if ( par.getYN(visBase::Well::showwelltopnmstr,wellnmshown) )
+    if ( par.getYN(visBase::Well::showwelltopnmstr(),wellnmshown) )
 	showWellTopName( wellnmshown );
-    if ( par.getYN(visBase::Well::showwellbotnmstr,wellnmshown) )
+    if ( par.getYN(visBase::Well::showwellbotnmstr(),wellnmshown) )
 	showWellBotName( wellnmshown );
 
     useSOPar( par );

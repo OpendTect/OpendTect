@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.20 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: wellextractdata.h,v 1.21 2009-02-11 10:30:00 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,15 +105,15 @@ public:
     const BufferStringSet&	ioObjIds() const	{ return ids; }
     ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss; }
 
-    static const char*	sKeyTopMrk;
-    static const char*	sKeyBotMrk;
-    static const char*	sKeyLimits;
-    static const char*	sKeySelRadius;
-    static const char*	sKeyDataStart;
-    static const char*	sKeyDataEnd;
-    static const char*	sKeyLogNm;
-    static const char*	sKeyFor2D;
-    static const char*	sKeyDahCol;
+    static const char*	sKeyTopMrk();
+    static const char*	sKeyBotMrk();
+    static const char*	sKeyLimits();
+    static const char*	sKeySelRadius();
+    static const char*	sKeyDataStart();
+    static const char*	sKeyDataEnd();
+    static const char*	sKeyLogNm();
+    static const char*	sKeyFor2D();
+    static const char*	sKeyDahCol();
 
 protected:
 
@@ -150,7 +150,7 @@ public:
     BufferString	lognm_;
     SamplePol		samppol_;
     static const char*	sKeySamplePol;
-    static const char*	sKeyLogNm; //!< equals address of TrackSampler's
+    static const char*	sKeyLogNm(); //!< equals address of TrackSampler's
 
     void		usePar(const IOPar&);
 

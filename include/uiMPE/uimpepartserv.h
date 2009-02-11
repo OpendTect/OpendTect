@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.33 2009-01-08 09:11:18 cvsranojay Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.34 2009-02-11 10:37:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
     int				activeTrackerID() const;
     				/*!< returns the trackerid of the last event */
 
-    static const int		evGetAttribData;
+    static const int		evGetAttribData();
     bool			is2D() const;
     				/*!<If attrib is 2D, check for a selspec. If
 				    selspec is returned, calculate the attrib.
@@ -88,25 +88,25 @@ public:
     void			setAttribData(const Attrib::SelSpec&,
 					      const Attrib::Data2DHolder*);
 
-    static const int		evCreate2DSelSpec;
+    static const int		evCreate2DSelSpec();
     const MultiID&		get2DLineSet() const;
     const char*			get2DLineName() const;
     const char*			get2DAttribName() const;
     void			set2DSelSpec(const Attrib::SelSpec&);
 
-    static const int		evStartSeedPick;
-    static const int		evEndSeedPick;
+    static const int		evStartSeedPick();
+    static const int		evEndSeedPick();
 
-    static const int		evAddTreeObject;
+    static const int		evAddTreeObject();
     				/*!<Get trackerid via activeTrackerID */
-    static const int		evRemoveTreeObject;
+    static const int		evRemoveTreeObject();
     				/*!<Get trackerid via activeTrackerID */
-    static const int		evUpdateTrees;
-    static const int		evUpdateSeedConMode;
-    static const int		evShowToolbar;
-    static const int		evMPEDispIntro;
-    static const int		evWizardClosed;
-    static const int		evInitFromSession;
+    static const int		evUpdateTrees();
+    static const int		evUpdateSeedConMode();
+    static const int		evShowToolbar();
+    static const int		evMPEDispIntro();
+    static const int		evWizardClosed();
+    static const int		evInitFromSession();
 
     bool			isDataLoadingBlocked() const;
     void			blockDataLoading(bool);

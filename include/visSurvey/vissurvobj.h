@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.96 2009-01-14 05:21:03 cvssatyaki Exp $
+ RCS:		$Id: vissurvobj.h,v 1.97 2009-02-11 10:31:27 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ class NotifierAccess;
 class SeisTrcBuf;
 class ZAxisTransform;
 
-namespace ColTab  { class MapperSetup; class Sequence; }
+namespace ColTab  { struct MapperSetup; class Sequence; }
 
 namespace visBase { class Transformation; class EventInfo; };
 namespace Attrib  { class SelSpec; class DataCubes; }
@@ -56,7 +56,7 @@ public:
 				    \param pos Position to be checked in
 				     	   displayspace.
 				 \ */
-    virtual float		maxDist() const		{ return sDefMaxDist; }
+    virtual float		maxDist() const		{ return sDefMaxDist(); }
     				/*<\Returns maximum allowed distance between 
 				    pick and object. If calcDist() > maxDist()
 				    pick will not be displayed. */
@@ -255,7 +255,7 @@ public:
     virtual bool		isVerticalPlane() const		{ return true;}
     virtual bool		isInlCrl() const	    	{ return false;}
     
-    static float		sDefMaxDist;
+    static float		sDefMaxDist();
 
     static const char*		sKeyColTabID()	{ return "Colortable ID"; }
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }

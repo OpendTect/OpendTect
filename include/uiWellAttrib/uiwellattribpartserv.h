@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.9 2009-01-08 15:47:48 cvsbert Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.10 2009-02-11 10:33:18 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ public:
 				uiWellAttribPartServer(uiApplService&);
 				~uiWellAttribPartServer();
 
-    static const int		evShowPickSet;
+    static const int		evShowPickSet();
 
     void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.9 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.10 2009-02-11 11:01:17 cvsranojay Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -62,10 +62,10 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     }
 
     // TODO: Get markers from all wells
-    markernames_.add( Well::TrackSampler::sKeyDataStart );
+    markernames_.add( Well::TrackSampler::sKeyDataStart() );
     for ( int idx=0; idx<Well::MGR().wells()[0]->markers().size(); idx++ )
 	markernames_.add( Well::MGR().wells()[0]->markers()[idx]->name() );
-    markernames_.add( Well::TrackSampler::sKeyDataEnd );
+    markernames_.add( Well::TrackSampler::sKeyDataEnd() );
 
     StringListInpSpec slis( markernames_ );
     topmrkfld_ = new uiGenInput( this, "Extract between",

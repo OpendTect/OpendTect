@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.61 2008-12-30 09:16:18 cvsumesh Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.62 2009-02-11 10:50:33 cvsranojay Exp $";
 
 #include "uinlapartserv.h"
 
@@ -44,16 +44,16 @@ static const char* rcsID = "$Id: uinlapartserv.cc,v 1.61 2008-12-30 09:16:18 cvs
 
 #include <iostream>
 
-const int uiNLAPartServer::evPrepareWrite	= 0;
-const int uiNLAPartServer::evPrepareRead	= 1;
-const int uiNLAPartServer::evReadFinished	= 2;
-const int uiNLAPartServer::evGetInputNames	= 3;
-const int uiNLAPartServer::evGetStoredInput	= 4;
-const int uiNLAPartServer::evGetData		= 5;
-const int uiNLAPartServer::evSaveMisclass	= 6;
-const int uiNLAPartServer::evCreateAttrSet	= 7;
-const int uiNLAPartServer::evShowSelPts		= 8;
-const char* uiNLAPartServer::sKeyUsrCancel	= "User cancel";
+const int uiNLAPartServer::evPrepareWrite()	{ return 0; }
+const int uiNLAPartServer::evPrepareRead()	{ return 1; }
+const int uiNLAPartServer::evReadFinished()	{ return 2; }
+const int uiNLAPartServer::evGetInputNames()	{ return 3; }
+const int uiNLAPartServer::evGetStoredInput()	{ return 4; }
+const int uiNLAPartServer::evGetData()		{ return 5; }
+const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
+const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
+const int uiNLAPartServer::evShowSelPts()	{ return 8; }
+const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
 
 
 uiNLAPartServer::uiNLAPartServer( uiApplService& a )
@@ -382,7 +382,7 @@ const char* uiNLAPartServer::convertToClasses(
     BufferStringSet usels;
     uiLithCodeMan dlg( appserv().parent(), lcd.codes, usels, valnm );
     if ( !dlg.go() )
-	return sKeyUsrCancel;
+	return sKeyUsrCancel();
 
     lcd.useUserSels( usels );
     for ( int iset=0; iset<dpss.size(); iset++ )
@@ -521,7 +521,7 @@ void uiNLAPartServer::showPickSet( CallBacker* )
 				uidps_->selptcoord_[idx]->z );
 	*selptps_ += pickloc;
     }
-    sendEvent( evShowSelPts );
+    sendEvent( evShowSelPts() );
 
 }
 
@@ -583,7 +583,7 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 
     // allow user to view and edit data
     if ( !doDPSDlg() )
-	mErrRet(sKeyUsrCancel)
+	mErrRet(sKeyUsrCancel())
 
     bool allok = true;
     if ( crdesc.isdirect && !crdesc.design.classification )
@@ -607,5 +607,5 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     if ( allok )
 	return 0;
 
-    mErrRet(sKeyUsrCancel)
+    mErrRet(sKeyUsrCancel())
 }

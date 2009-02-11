@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.227 2009-01-28 11:42:36 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.228 2009-02-11 10:34:30 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ namespace ColTab { class Sequence; struct MapperSetup; };
 
 /*! \brief The Visualisation Part Server */
 
-class uiVisPartServer : public uiApplPartServer
+mClass uiVisPartServer : public uiApplPartServer
 {
     friend class 	uiMenuHandler;
     friend class        uiVisModeMgr;
@@ -200,16 +200,16 @@ public:
     int			getEventAttrib() const;
     			/*<\returns the attrib that triggered the event */
 
-    static const int	evUpdateTree;
+    static const int	evUpdateTree();
     void		triggerTreeUpdate();
 
-    static const int	evSelection;
+    static const int	evSelection();
     			/*<! Get the id with getEventObjId() */
 
-    static const int	evDeSelection;
+    static const int	evDeSelection();
     			/*<! Get the id with getEventObjId() */
 
-    static const int	evGetNewData;
+    static const int	evGetNewData();
     			/*!< Get the id with getEventObjId() */
     			/*!< Get the attrib with getEventAttrib() */
     			/*!< Get selSpec with getSelSpec */
@@ -224,7 +224,7 @@ public:
     void		selectTexture(int id,int attrib,int texture);
     int			selectedTexture(int id,int attrib) const;
 
-    static const int	evMouseMove;
+    static const int	evMouseMove();
     Coord3		getMousePos(bool xyt) const;
 			/*!< If !xyt mouse pos will be in inl, crl, t */
     float		zFactor() const			{ return zfactor_; }
@@ -233,16 +233,16 @@ public:
     void		getObjectInfo(int id,BufferString&) const;
 
 
-    static const int	evSelectAttrib;
+    static const int	evSelectAttrib();
 
-    static const int	evInteraction;
+    static const int	evInteraction();
     			/*<! Get the id with getEventObjId() */
     BufferString	getInteractionMsg(int id) const;
     			/*!< Returns dragger position or
 			     Nr positions in picksets */
 
-    static const int	evViewAll;
-    static const int	evToHomePos;
+    static const int	evViewAll();
+    static const int	evToHomePos();
 
     				// ColorTable stuff
     void			fillDispPars(int id,int attrib,
@@ -258,7 +258,7 @@ public:
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
     void			displayMapperRangeEditForAttrbs(int id);
-    static const int		evColorTableChange;
+    static const int		evColorTableChange();
     void			displaySceneColorbar(bool);
     const Color&		getSceneAnnotCol(int);
 
@@ -266,7 +266,7 @@ public:
     bool			deleteAllObjects();
     void			setZStretch();
     bool			setWorkingArea();
-    static const int		evViewModeChange;
+    static const int		evViewModeChange();
     void			setViewMode(bool yn,bool notify=true);
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
     bool                        isSoloMode() const;
@@ -285,9 +285,9 @@ public:
 
     				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
-    static const int		evPickingStatusChange;
+    static const int		evPickingStatusChange();
     bool			sendPickingStatusChangeEvent(); 
-    static const int		evDisableSelTracker;
+    static const int		evDisableSelTracker();
     bool			sendDisableSelTrackerEvent(); 
 
     bool			isMPEWizardActive() const;
@@ -300,13 +300,13 @@ public:
 				     the selman. */
     void			getPickingMessage(BufferString&) const;
 
-    static const int		evLoadPostponedData;
+    static const int		evLoadPostponedData();
     void 			loadPostponedData() const;
     
-    static const int		evToggleBlockDataLoad;
+    static const int		evToggleBlockDataLoad();
     void 			toggleBlockDataLoad() const;
 
-    static const int		evShowSetupDlg;
+    static const int		evShowSetupDlg();
     bool			sendShowSetupDlgEvent();
     
     void			showMPEToolbar(bool yn=true);

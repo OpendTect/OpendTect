@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.50 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.51 2009-02-11 11:07:46 cvsranojay Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -35,18 +35,20 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.50 2009-01-07 15:11:25 c
 #include <iostream>
 #include <math.h>
 
-
-const char* Well::TrackSampler::sKeyTopMrk = "Top marker";
-const char* Well::TrackSampler::sKeyBotMrk = "Bottom marker";
-const char* Well::TrackSampler::sKeyLimits = "Extraction extension";
-const char* Well::TrackSampler::sKeySelRadius = "Selection radius";
-const char* Well::TrackSampler::sKeyDataStart = "<Start of data>";
-const char* Well::TrackSampler::sKeyDataEnd = "<End of data>";
-const char* Well::TrackSampler::sKeyLogNm = "Log name";
-const char* Well::TrackSampler::sKeyFor2D = "For 2D";
-const char* Well::TrackSampler::sKeyDahCol = "Create DAH column";
-const char* Well::LogDataExtracter::sKeyLogNm = Well::TrackSampler::sKeyLogNm;
-static const char* sKeyDAHColName = "<DAH>";
+namespace Well
+{
+const char* TrackSampler::sKeyTopMrk()	    { return "Top marker"; }
+const char* TrackSampler::sKeyBotMrk()	    { return "Bottom marker"; }
+const char* TrackSampler::sKeyLimits()	    { return "Extraction extension"; }
+const char* TrackSampler::sKeySelRadius()   { return "Selection radius"; }
+const char* TrackSampler::sKeyDataStart()   { return "<Start of data>"; }
+const char* TrackSampler::sKeyDataEnd()	    { return "<End of data>"; }
+const char* TrackSampler::sKeyLogNm()	    { return "Log name"; }
+const char* TrackSampler::sKeyFor2D()	    { return "For 2D"; }
+const char* TrackSampler::sKeyDahCol()	    { return "Create DAH column"; }
+const char* LogDataExtracter::sKeyLogNm()   { return Well::TrackSampler::sKeyLogNm(); }
+static const char* sKeyDAHColName()	    { return "<DAH>"; }
+}
 
 DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
 		Well::LogDataExtracter::sKeySamplePol)
@@ -111,8 +113,8 @@ Well::TrackSampler::TrackSampler( const BufferStringSet& i,
 				  ObjectSet<DataPointSet>& d,
        				  bool ztm )
 	: Executor("Well data extraction")
-	, topmrkr(sKeyDataStart)
-	, botmrkr(sKeyDataEnd)
+	, topmrkr(sKeyDataStart())
+	, botmrkr(sKeyDataEnd())
 	, above(0)
     	, below(0)
     	, locradius(0)
@@ -130,13 +132,13 @@ Well::TrackSampler::TrackSampler( const BufferStringSet& i,
 
 void Well::TrackSampler::usePar( const IOPar& pars )
 {
-    pars.get( sKeyTopMrk, topmrkr );
-    pars.get( sKeyBotMrk, botmrkr );
-    pars.get( sKeyLogNm, lognms );
-    pars.get( sKeyLimits, above, below );
-    pars.get( sKeySelRadius, locradius );
-    pars.getYN( sKeyDahCol, mkdahcol );
-    pars.getYN( sKeyFor2D, for2d );
+    pars.get( sKeyTopMrk(), topmrkr );
+    pars.get( sKeyBotMrk(), botmrkr );
+    pars.get( sKeyLogNm(), lognms );
+    pars.get( sKeyLimits(), above, below );
+    pars.get( sKeySelRadius(), locradius );
+    pars.getYN( sKeyDahCol(), mkdahcol );
+    pars.getYN( sKeyFor2D(), for2d );
 }
 
 
@@ -165,7 +167,7 @@ int Well::TrackSampler::nextStep()
 	dahcolnr = -1;
     else
     {
-	dps->dataSet().add( new DataColDef(sKeyDAHColName) );
+	dps->dataSet().add( new DataColDef(sKeyDAHColName()) );
 	dahcolnr = dps->nrCols() - 1;
     }
 
@@ -235,9 +237,9 @@ void Well::TrackSampler::getLimitPos( const ObjectSet<Marker>& markers,
 				      bool isstart, float& val ) const
 {
     const BufferString& mrknm = isstart ? topmrkr : botmrkr;
-    if ( mrknm == sKeyDataStart )
+    if ( mrknm == sKeyDataStart() )
 	val = fulldahrg.start;
-    else if ( mrknm == sKeyDataEnd )
+    else if ( mrknm == sKeyDataEnd() )
 	val = fulldahrg.stop;
     else
     {
@@ -349,7 +351,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 
 void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
-    pars.get( sKeyLogNm, lognm_ );
+    pars.get( sKeyLogNm(), lognm_ );
     const char* res = pars.find( sKeySamplePol );
     if ( res && *res ) samppol_ = eEnum(SamplePol,res);
 }
@@ -415,7 +417,7 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 	return;
     const Well::Log& wl = wd.logs().getLog( wlidx );
 
-    const int dahcolidx = dps.indexOf( sKeyDAHColName );
+    const int dahcolidx = dps.indexOf( sKeyDAHColName() );
     bool usegenalgo = dahcolidx >= 0 || !track.alwaysDownward();
     int opt = GetEnvVarIVal("DTECT_LOG_EXTR_ALGO",0);
     if ( opt == 1 ) usegenalgo = false;

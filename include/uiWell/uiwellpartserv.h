@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.31 2009-01-28 08:17:49 cvsbruno Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.32 2009-02-11 10:33:50 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,8 @@ public:
     void			setSceneID( int id )	{ cursceneid_ = id; }
     int				getSceneID() const	{ return cursceneid_; }
 
-    static const int            evPreviewRdmLine;
-    static const int		evCleanPreview;
+    static const int            evPreviewRdmLine();
+    static const int		evCleanPreview();
     
 protected:
 
