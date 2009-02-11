@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.9 2009-01-20 12:09:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.10 2009-02-11 07:18:24 cvssatyaki Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -77,6 +77,7 @@ void ODGraphicsPointItem::drawPoint( QPainter* painter )
 ODGraphicsMarkerItem::ODGraphicsMarkerItem()
     : QAbstractGraphicsShapeItem()
     , mstyle_( new MarkerStyle2D() )
+    , fill_(false)
 {}
 
 
@@ -118,6 +119,8 @@ void ODGraphicsMarkerItem::paint( QPainter* painter,
 
 void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 {
+    if ( fill_ )
+	painter.setBrush( QColor(QRgb(mstyle_->color_.rgb())) );
     switch ( mstyle_->type_ )
     {
 	case MarkerStyle2D::Square:
@@ -129,7 +132,8 @@ void ODGraphicsMarkerItem::drawMarker( QPainter& painter )
 	
 	case MarkerStyle2D::Circle:
 	{
-	    painter.drawEllipse( 0, 0, mstyle_->size_ / 2, mstyle_->size_ / 2 );
+	    painter.drawEllipse( -mstyle_->size_, -mstyle_->size_,
+				 2*mstyle_->size_, 2*mstyle_->size_ );
 	    break;
 	}
 	
@@ -225,22 +229,22 @@ void ODGraphicsArrowItem::drawArrowHead( QPainter& painter, const QPoint& pos,
 	    case ArrowHeadStyle::Cross:
 	    {
 		painter.drawLine( pos, QPoint(getEndPoint(pos,
-				  getAddedAngle(0,.25),headstyle.sz_/2)) );
+				  getAddedAngle(ang,.25),headstyle.sz_/2)) );
 		painter.drawLine( pos, QPoint(getEndPoint(pos,
-				  getAddedAngle(0,.75),headstyle.sz_/2)) );
+				  getAddedAngle(ang,.75),headstyle.sz_/2)) );
 		painter.drawLine( pos, QPoint(getEndPoint(pos,
-				  getAddedAngle(0,-.25),headstyle.sz_/2)) );
+				  getAddedAngle(ang,-.25),headstyle.sz_/2)) );
 		painter.drawLine( pos, QPoint(getEndPoint(pos,
-				  getAddedAngle(0,-.75),headstyle.sz_/2)) );
+				  getAddedAngle(ang,-.75),headstyle.sz_/2)) );
 		break;
 	    }
 	    case ArrowHeadStyle::Triangle:
 	    case ArrowHeadStyle::Line:
 	    {
 		const QPoint rightend = getEndPoint( pos,
-		    getAddedAngle(0,headangfac), headstyle.sz_ );
+		    getAddedAngle( ang,headangfac), headstyle.sz_ );
 		const QPoint leftend = getEndPoint( pos,
-		    getAddedAngle(0,-headangfac), headstyle.sz_ );
+		    getAddedAngle( ang,-headangfac), headstyle.sz_ );
 		painter.drawLine( pos, rightend );
 		painter.drawLine( pos, leftend );
 		if ( headstyle.type_ == ArrowHeadStyle::Triangle )
@@ -347,8 +351,8 @@ QRectF ODGraphicsPolyLineItem::boundingRect() const
 
 
 void ODGraphicsPolyLineItem::paint( QPainter* painter,
-				  const QStyleOptionGraphicsItem* option,
-				  QWidget* widget )
+				    const QStyleOptionGraphicsItem* option,
+				    QWidget* widget )
 {
     painter->setPen( pen() );
     painter->drawPolyline( qpolygon_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.12 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.13 2009-02-11 07:18:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class ioPixmap;
 class MarkerStyle2D;
 
 class uiArrowItem;
+class uiDialog;
 class uiEllipseItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
@@ -93,6 +94,10 @@ public:
     double			width() const;
     double			height() const;
 
+    void			saveAsImage(const char*,int,int,int);
+    void			saveAsPDF(const char*,int);
+    void			saveAsPS(const char*,int);
+    void			saveAsPDF_PS(const char*,bool pdf_or_ps,int);
     void			setSceneRect(float x,float y,float w,float h);
 
     const bool			isMouseEventActive() const	
@@ -102,6 +107,11 @@ public:
     QGraphicsScene*		qGraphicsScene()
     				{ return (QGraphicsScene*)odgraphicsscene_; }
 
+    void			save();
+    void			setSaveDialog( uiDialog* dlg )
+				{ savedlg_ = dlg; }
+
+    bool			ctrlpressed_;
 protected:
 
     ObjectSet<uiGraphicsItem>	items_;
@@ -110,6 +120,7 @@ protected:
     MouseEventHandler		mousehandler_;
     KeyboardEventHandler	keyboardhandler_;
     bool			ismouseeventactive_;
-};
 
+    uiDialog*			savedlg_;
+};
 #endif

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.11 2008-12-30 04:22:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.12 2009-02-11 07:18:24 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -382,6 +382,12 @@ uiMarkerItem::~uiMarkerItem()
 void uiMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
 {
     qmarkeritem_->setMarkerStyle( mstyle );
+}
+
+
+void uiMarkerItem::setFill( bool fill )
+{
+    qmarkeritem_->setFill( fill );
 }
 
 

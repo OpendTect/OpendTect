@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.7 2008-12-23 11:42:11 cvsdgb Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.8 2009-02-11 07:18:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,13 +55,13 @@ public:
 	    		              QWidget*);
     void 			drawMarker(QPainter&);
     void			setMarkerStyle(const MarkerStyle2D&);
-    void			setAngle( float angle )	  { angle_ = angle; }
+    void			setFill( bool fill )	  { fill_ = fill; }
     void			setSideLength( int side ) { side_ = side; }
 
 protected:
     QRectF			boundingrect_;
     MarkerStyle2D*		mstyle_;	
-    float			angle_;	
+    bool			fill_;	
     int 			side_;	
     const QPoint* 		qpoint_;	
 };

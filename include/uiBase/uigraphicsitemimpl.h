@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.8 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.9 2009-02-11 07:18:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,6 @@ mClass uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
-			uiLineItem(float x1,float y1,float x2,float y2);
     			uiLineItem(QGraphicsLineItem*);
 			~uiLineItem();
 
@@ -126,6 +125,7 @@ public:
     ODGraphicsPolyLineItem* 	qPolyLineItem()
     				{ return qpolylineitem_; }
     void			setPolyLine(const TypeSet<uiPoint>&);
+    void			setPenStyle(const LineStyle&);
 
 protected:
 
@@ -183,6 +183,7 @@ public:
 
     ODGraphicsMarkerItem*  	qMarkerItem()	{ return qmarkeritem_; }
     void			setMarkerStyle(const MarkerStyle2D&);
+    void			setFill(bool);
 
 protected:
 

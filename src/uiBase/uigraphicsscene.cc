@@ -7,19 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.15 2009-01-16 03:52:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.16 2009-02-11 07:18:24 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
 
 #include "draw.h"
+#include "oddirs.h"
+#include "filepath.h"
 #include "odgraphicsitem.h"
+#include "uidialog.h"
 #include "uigraphicsitemimpl.h"
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QImage>
+#include <QKeyEvent>
 #include <QPainter>
 #include <QPoint>
+#include <QPrinter>
+#include <QString>
 
 #include <math.h>
 
@@ -35,6 +42,7 @@ public:
 
     void		setBackgroundOpaque( bool yn )	{ bgopaque_ = yn; }
 protected:
+    virtual void	keyPressEvent(QKeyEvent * qkeyevent);
     virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
     virtual void	mousePressEvent(QGraphicsSceneMouseEvent*);
     virtual void	mouseReleaseEvent(QGraphicsSceneMouseEvent*);
@@ -60,6 +68,20 @@ void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 }
 
 
+void ODGraphicsScene::keyPressEvent( QKeyEvent * qkeyevent )
+{
+    OD::KeyboardKey key = OD::KeyboardKey( qkeyevent->key() );
+    OD::ButtonState modifier = OD::ButtonState( (int)qkeyevent->modifiers() );
+    if ( modifier == OD::ControlButton )
+	uiscene_.ctrlpressed_ = true;
+    if ( key == OD::P && uiscene_.ctrlpressed_ )
+    {
+	uiscene_.ctrlpressed_ = false;
+	uiscene_.save();
+    }
+}
+
+
 void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 {
     MouseEvent mev( mousepressedbs_, (int)qev->scenePos().x(),
@@ -75,6 +97,10 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     if ( bs == OD::LeftButton )
 	startpos_ = QPoint( (int)qev->scenePos().x(),(int)qev->scenePos().y() );
+    /*if ( bs == OD::RightButton )
+	uiscene_.saveAsImage();
+    if ( bs == OD::MidButton )
+	uiscene_.saveAsPDF();*/
     mousepressedbs_ = bs;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
@@ -82,7 +108,22 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
     QGraphicsScene::mousePressEvent( qev );
 }
 
+/*class uiSavaImageAsDlg : public uiDialog
+{
+public:
 
+uiSavaImageAsDlg( uiParent* p )
+    :uiDialog( p, uiDialog::Setup("Save Image As","","") )
+{
+    saveinpfld_ = new uiFileInput( this, "Filename", uiFileInput::Setup()
+	    					     .forread(false) );
+    saveinpfld_->valuechanged.notify( mCB(this,uiSavaImageAsDlg,saveImage) );
+}
+
+void saveImage( CallBacker* )
+{
+}
+};*/
 void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
@@ -117,8 +158,11 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
     , mousehandler_(MouseEventHandler())
+    , keyboardhandler_(KeyboardEventHandler())
     , ismouseeventactive_(true)
+    , ctrlpressed_(false)
     , odgraphicsscene_(new ODGraphicsScene(*this))
+    , savedlg_(0)
 {
     odgraphicsscene_->setObjectName( nm );
 }
@@ -382,3 +426,51 @@ double uiGraphicsScene::height() const
 
 void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
 { odgraphicsscene_->setSceneRect( x, y, w, h ); }
+
+
+void uiGraphicsScene::save()
+{
+    if ( savedlg_ )
+	savedlg_->go();
+}
+
+
+void uiGraphicsScene::saveAsImage( const char* filename, int width,
+				   int height, int resolution )
+{
+    QString fileName( filename );
+    QPainter *pngPainter = new QPainter();
+    QImage *image = new QImage( QSize(width,height), QImage::Format_ARGB32);
+    pngPainter->begin(image);
+    qGraphicsScene()->render(pngPainter);
+    pngPainter->end();
+    image->save(fileName);
+    delete pngPainter;
+    delete image;
+}
+
+
+void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
+       				    int resolution )
+{
+    QString fileName( filename );
+    QPainter *pdfPainter = new QPainter();
+    QPrinter *pdfPrinter = new QPrinter();
+    pdfPrinter->setOutputFormat(aspdf ? QPrinter::PdfFormat 
+	    			      : QPrinter::PostScriptFormat );
+    pdfPrinter->setPageSize( QPrinter::A4 );
+    pdfPrinter->setFullPage(true);
+    pdfPrinter->setOutputFileName(fileName);
+    pdfPainter->begin(pdfPrinter);
+    qGraphicsScene()->render(pdfPainter);
+    pdfPainter->end();
+    delete pdfPainter;
+    delete pdfPrinter;
+}
+
+
+void uiGraphicsScene::saveAsPDF( const char* filename, int resolution )
+{ saveAsPDF_PS( filename, true, resolution ); }
+
+void uiGraphicsScene::saveAsPS( const char* filename, int resolution )
+{ saveAsPDF_PS( filename, false, resolution ); }
