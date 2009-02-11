@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.55 2008-12-29 10:44:13 cvsranojay Exp $
+ RCS:		$Id: iopar.h,v 1.56 2009-02-11 10:17:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "namedobj.h"
 #include "sets.h"
-#include "ranges.h"
+#include "samplingdata.h"
 
 class BinID;
 class BufferString;
@@ -26,7 +26,6 @@ class MultiID;
 class SeparString;
 class ascistream;
 class ascostream;
-template <class T> class SamplingData;
 
 /*\brief generalised set of parameters of the keyword-value type.
 
@@ -48,32 +47,31 @@ mClass IOPar : public NamedObject
 public:
 			IOPar(const char* nm=0); //!< empty
 			IOPar(ascistream&);
-			~IOPar();
 			IOPar(const IOPar&);
+			~IOPar();
     IOPar&		operator =(const IOPar&);
     bool		operator ==( const IOPar& iop ) const
 			{ return isEqual(iop); }
-    void		getFrom(ascistream&);
-    void		putTo(ascostream&) const;
-    inline bool		isEmpty() const		{ return size() == 0; }
-
-			// serialisation
-    void		getFrom(const char*);
-    void		getParsFrom(const char*);
-    void		putTo(BufferString&) const;
-    void		putParsTo(BufferString&) const;
 
     int			size() const;
+    inline bool		isEmpty() const		{ return size() == 0; }
+    bool		isEqual(const IOPar&,bool need_same_order=false) const;
+
     int			indexOf(const char* key) const;
     const char*		getKey(int) const;
     const char*		getValue(int) const;
     bool		setKey(int,const char*);
-			//!< Will fail if key is empty or already present
     void		setValue(int,const char*);
     void		remove(int);
     void		remove(const char* key);
+    bool		hasKey( const char* s ) const
+			{ return find(s) ? true : false; }
+    const char*		findKeyFor(const char*,int nr=0) const;
+				//!< returns null if value not found
+    void		removeWithKey(const char* globexpression);
+				//!< removes all entries with key matching
+				//!< this glob expression
 
-    bool		isEqual(const IOPar&,bool include_order=false) const;
     void		clear();
 			//!< remove all entries
     void		merge(const IOPar&);
@@ -92,14 +90,6 @@ public:
 			//!< removes with key that start with number.
     void		mergeComp(const IOPar&,const char*);
 			//!< merge entries, where IOPar's entries get a prefix
-
-    bool		hasKey( const char* s ) const
-			{ return find(s) ? true : false; }
-    const char*		findKeyFor(const char*,int nr=0) const;
-				//!< returns null if value not found
-    void		removeWithKey(const char* globexpression);
-				//!< removes all entries with key matching
-				//!< this glob expression
 
 // GET functions
 
@@ -138,12 +128,6 @@ public:
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
 
-    bool		get(const char*,Interval<int>&) const;
-    bool		get(const char*,Interval<float>&) const;
-    bool		get(const char*,Interval<double>&) const;
-    bool		get(const char*,SamplingData<int>&) const;
-    bool		get(const char*,SamplingData<float>&) const;
-    bool		get(const char*,SamplingData<double>&) const;
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
@@ -153,15 +137,20 @@ public:
     bool		get(const char*,BufferString&) const;
     bool		get(const char*,BufferString&,BufferString&) const;
     bool		get(const char*,BufferStringSet&) const;
+    template <class T>
+    bool		get(const char*,Interval<T>&) const;
+    template <class T>
+    bool		get(const char*,SamplingData<T>&) const;
 
     bool		getPtr(const char*,void*&) const;
 
 #define mIOParDeclFns(type) \
-    bool		getSc(const char*,type&,type applied_scale, \
+    bool		getScaled(const char*,type&,type applied_scale, \
 	    		      bool set_to_undef_if_not_found) const; \
-    bool		getSc(const char*,type&,type&,type,bool) const; \
-    bool		getSc(const char*,type&,type&,type&,type,bool) const;\
-    bool		getSc(const char*,type&,type&,type&,type&,type, \
+    bool		getScaled(const char*,type&,type&,type,bool) const; \
+    bool		getScaled(const char*,type&,type&,type&,type, \
+	    			  bool) const; \
+    bool		getScaled(const char*,type&,type&,type&,type&,type, \
 	    		      bool) const
     			mIOParDeclFns(float);
     			mIOParDeclFns(double);
@@ -208,12 +197,6 @@ public:
     void		setPtr(const char*,void*);
 
     void		set(const char*,const char*,const char*);
-    void		set(const char*,const Interval<int>&);
-    void		set(const char*,const Interval<float>&);
-    void		set(const char*,const Interval<double>&);
-    void		set(const char*,const SamplingData<int>&);
-    void		set(const char*,const SamplingData<float>&);
-    void		set(const char*,const SamplingData<double>&);
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);
@@ -224,6 +207,10 @@ public:
     void		set(const char*,const BufferString&,
 	    				const BufferString&);
     void		set(const char*,const BufferStringSet&);
+    template <class T>
+    void		set(const char*,const Interval<T>&);
+    template <class T>
+    void		set(const char*,const SamplingData<T>&);
 
     void		set(const char*,const TypeSet<int>&);
     void		set(const char*,const TypeSet<od_uint32>&);
@@ -232,8 +219,18 @@ public:
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
 
+
 // I/O  functions
 
+    // to/from string: 'serialisation'
+    void		getFrom(const char*);
+    void		getParsFrom(const char*);
+    void		putTo(BufferString&) const;
+    void		putParsTo(BufferString&) const;
+
+    // to/from file
+    void		getFrom(ascistream&);
+    void		putTo(ascostream&) const;
     bool		read(const char* filename,const char* filetype,
 	    			bool chktype=false);
     			//!< filetype null will assume no file header
@@ -244,10 +241,8 @@ public:
     			//!< If filetype is set to null no ascstream header
     			//!< sKeyDumpPretty calls dumpPretty.
     bool		write(std::ostream&,const char* filetyp) const;
-
-    const char*		mkKey(int) const;
-
     void		dumpPretty(std::ostream&) const;
+
     static const char*	sKeyDumpPretty()         { return "_pretty"; }
     static const char*	sKeyHdr()		 { return "->";	     }	
     static const char*	sKeySubHdr()		 { return "-->";     }   	
@@ -261,24 +256,34 @@ protected:
 
 
 template <class T>
-inline void use( const TypeSet<T>& ts, IOPar& iopar, const char* basekey=0 )
+inline bool IOPar::get( const char* k, Interval<T>& i ) const
 {
-    const int sz = ts.size();
-    for ( int idx=0; idx<sz; idx++ )
-	iopar.set( IOPar::compKey(basekey,idx+1), ts[idx] );
+    mDynamicCastGet(StepInterval<T>*,si,&i)
+    return si ? get( k, i.start, i.stop, si->step )
+	      : get( k, i.start, i.stop );
 }
 
 
 template <class T>
-inline void use( const IOPar& iopar, TypeSet<T>& ts, const char* basekey=0 )
+inline void IOPar::set( const char* k, const Interval<T>& i )
 {
-    T t;
-    for ( int idx=0; ; idx++ )
-    {
-	if ( !iopar.get( IOPar::compKey(basekey,idx), t ) )
-	    { if ( idx ) return; else continue; }
-	ts += t;
-    }
+    mDynamicCastGet(const StepInterval<T>*,si,&i)
+    if ( si )	set( k, i.start, i.stop, si->step );
+    else	set( k, i.start, i.stop );
+}
+
+
+template <class T>
+inline bool IOPar::get( const char* k, SamplingData<T>& sd ) const
+{
+    return get( k, sd.start, sd.step );
+}
+
+
+template <class T>
+inline void IOPar::set( const char* k, const SamplingData<T>& sd )
+{
+    set( k, sd.start, sd.step );
 }
 
 

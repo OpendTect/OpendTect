@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.76 2008-12-29 10:47:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.77 2009-02-11 10:17:52 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: iopar.cc,v 1.76 2008-12-29 10:47:53 cvsranojay 
 #include "color.h"
 #include "convert.h"
 #include "errh.h"
+
+const int cMaxTypeSetItemsPerLine = 100;
 
 
 IOPar::IOPar( const char* nm )
@@ -124,7 +126,7 @@ const char* IOPar::getValue( int nr ) const
 
 bool IOPar::setKey( int nr, const char* s )
 {
-    if ( nr >= size() || !s || !*s || keys_.indexOf(s) >= 0 )
+    if ( nr >= size() || !s || !*s )
 	return false;
 
     keys_.get(nr) = s;
@@ -530,13 +532,13 @@ mDefGetI4Val(od_uint64,strtoull(ptr, &endptr, 0));
 
 #define mDefGetFVals(typ) \
 bool IOPar::get( const char* k, typ& v ) const \
-{ return getSc(k,v,1,false); } \
+{ return getScaled(k,v,1,false); } \
 bool IOPar::get( const char* k, typ& v1, typ& v2 ) const \
-{ return getSc(k,v1,v2,1,false); } \
+{ return getScaled(k,v1,v2,1,false); } \
 bool IOPar::get( const char* k, typ& v1, typ& v2, typ& v3 ) const \
-{ return getSc(k,v1,v2,v3,1,false); } \
+{ return getScaled(k,v1,v2,v3,1,false); } \
 bool IOPar::get( const char* k, typ& v1, typ& v2, typ& v3, typ& v4 ) const \
-{ return getSc(k,v1,v2,v3,v4,1,false); }
+{ return getScaled(k,v1,v2,v3,v4,1,false); }
 
 mDefGetFVals(float)
 mDefGetFVals(double)
@@ -568,231 +570,128 @@ static bool iopget_typeset( const IOPar& iop, const char* s, TypeSet<T>& res )
 }
 
 
-bool IOPar::get( const char* s, TypeSet<int>& res ) const
+template <class T>
+static void iopset_typeset( IOPar& iop, const char* keyw, 
+			    const TypeSet<T>& vals )
 {
-    return iopget_typeset( *this, s, res );
-}
+    const int nrvals = vals.size();
 
-
-bool IOPar::get( const char* s, TypeSet<od_uint32>& res ) const
-{
-    return iopget_typeset( *this, s, res );
-}
-
-
-bool IOPar::get( const char* s, TypeSet<od_int64>& res ) const
-{
-    return iopget_typeset( *this, s, res );
-}
-
-
-bool IOPar::get( const char* s, TypeSet<od_uint64>& res ) const
-{
-    return iopget_typeset( *this, s, res );
-}
-
-
-bool IOPar::get( const char* s, TypeSet<double>& res ) const
-{
-    return iopget_typeset( *this, s, res );
-}
-
-
-bool IOPar::get( const char* s, TypeSet<float>& res ) const
-{
-    return iopget_typeset( *this, s, res );
-}
-
-
-bool IOPar::getSc( const char* s, float& f, float sc, bool udf ) const
-{
-    const char* ptr = find( s );
-    if ( ptr && *ptr )
+    int validx = 0; 
+    int keyidx = 0;
+   
+    while ( validx != nrvals )
     {
-	Conv::udfset( f, ptr );
-	if ( !mIsUdf(f) ) f *= sc;
-	return true;
+	T val = vals[ validx++ ];
+	FileMultiString fms( Conv::to<const char*>(val) );
+
+	for ( int cnt=1; cnt<cMaxTypeSetItemsPerLine; cnt++ )
+	{
+	    if ( validx == nrvals ) break;
+	    
+	    val = vals[ validx++ ];
+	    fms += Conv::to<const char*>( val );
+	}
+	
+	BufferString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
+	iop.set( newkey, fms );
+	keyidx++;
     }
-    else if ( udf )
-	Values::setUdf(f);
-
-    return false;
 }
 
-
-bool IOPar::getSc( const char* s, double& d, double sc, bool udf ) const
-{
-    const char* ptr = find( s );
-    if ( ptr && *ptr )
-    {
-	d = atof( ptr );
-	if ( !mIsUdf(d) ) d *= sc;
-	return true;
-    }
-    else if ( udf )
-	Values::setUdf(d);
-
-    return false;
+#define mDefTSFns(typ) \
+bool IOPar::get( const char* s, TypeSet<typ>& res ) const \
+{ \
+    return iopget_typeset( *this, s, res ); \
+} \
+\
+void IOPar::set( const char* keyw, const TypeSet<typ>& vals ) \
+{ \
+    iopset_typeset( *this, keyw, vals ); \
 }
 
+mDefTSFns(int)
+mDefTSFns(od_uint32)
+mDefTSFns(od_int64)
+mDefTSFns(od_uint64)
+mDefTSFns(float)
+mDefTSFns(double)
 
-bool IOPar::getSc( const char* s, float& f1, float& f2, float sc,
-		   bool udf ) const
+
+template <class T>
+static bool iopget_scaled( const IOPar& iop, const char* s,
+			   T** vptrs, int nrvals, T sc, bool setudf )
 {
-    double d1 = f1, d2 = f2;
-    if ( getSc( s, d1, d2, sc, udf ) )
-	{ f1 = (float)d1; f2 = (float)d2; return true; }
-    return false;
-}
-
-
-bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float sc,
-		   bool udf ) const
-{
-    double d1=f1, d2=f2, d3=f3;
-    if ( getSc( s, d1, d2, d3, sc, udf ) )
-	{ f1 = (float)d1; f2 = (float)d2; f3 = (float)d3; return true; }
-    return false;
-}
-
-
-bool IOPar::getSc( const char* s, float& f1, float& f2, float& f3, float& f4,
-		   float sc, bool udf ) const
-{
-    double d1=f1, d2=f2, d3=f3, d4=f4;
-    if ( getSc( s, d1, d2, d3, d4, sc, udf ) )
-    {
-	f1 = (float)d1; f2 = (float)d2; f3 = (float)d3; f4 = (float)d4;
-	return true;
-    }
-    return false;
-
-}
-
-
-bool IOPar::getSc( const char* s, double& d1, double& d2, double sc,
-		 bool udf ) const
-{
-    const char* ptr = find( s );
+    const char* ptr = iop.find( s );
     bool havedata = false;
-    if ( udf || (ptr && *ptr) )
+    if ( setudf || (ptr && *ptr) )
     {
 	FileMultiString fms = ptr;
-	ptr = fms[0];
-	if ( *ptr )
+	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    havedata = true;
-	    d1 = atof( ptr );
-	    if ( !mIsUdf(d1) ) d1 *= sc;
+	    ptr = fms[idx];
+	    T& f( *(vptrs[idx]) );
+	    if ( *ptr )
+	    {
+		havedata = true;
+		Conv::udfset( f, ptr );
+		if ( !mIsUdf(f) ) f *= sc;
+	    }
+	    else if ( setudf )
+		Values::setUdf(f);
 	}
-	else if ( udf )
-	    Values::setUdf(d1);
-
-	ptr = fms[1];
-	if ( *ptr )
-	{
-	    havedata = true;
-	    d2 = atof( ptr );
-	    if ( !mIsUdf(d2) ) d2 *= sc;
-	}
-	else if ( udf )
-	    Values::setUdf(d2);
     }
     return havedata;
 }
 
 
-bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3, double sc,
-		 bool udf ) const
+bool IOPar::getScaled( const char* s, float& f, float sc, bool udf ) const
 {
-    const char* ptr = find( s );
-    bool havedata = false;
-    if ( udf || (ptr && *ptr) )
-    {
-	FileMultiString fms = ptr;
-	ptr = fms[0];
-	if ( *ptr )
-	{
-	    d1 = atof( ptr );
-	    if ( !mIsUdf(d1) ) d1 *= sc;
-	    havedata = true;
-	}
-	else if ( udf )
-	    Values::setUdf(d1);
-
-	ptr = fms[1];
-	if ( *ptr )
-	{
-	    d2 = atof( ptr );
-	    if ( !mIsUdf(d2) ) d2 *= sc;
-	    havedata = true;
-	}
-	else if ( udf )
-	    Values::setUdf(d2);
-
-	ptr = fms[2];
-	if ( *ptr )
-	{
-	    d3 = atof( ptr );
-	    if ( !mIsUdf(d3) ) d3 *= sc;
-	    havedata = true;
-	}
-	else if ( udf )
-	    Values::setUdf(d3);
-    }
-    return havedata;
+    float* vptrs[1]; vptrs[0] = &f;
+    return iopget_scaled( *this, s, vptrs, 1, sc, udf );
+}
+bool IOPar::getScaled( const char* s, double& f, double sc, bool udf ) const
+{
+    double* vptrs[1]; vptrs[0] = &f;
+    return iopget_scaled( *this, s, vptrs, 1, sc, udf );
+}
+bool IOPar::getScaled( const char* s, float& f1, float& f2, float sc,
+		       bool udf ) const
+{
+    float* vptrs[2]; vptrs[0] = &f1; vptrs[1] = &f2;
+    return iopget_scaled( *this, s, vptrs, 2, sc, udf );
+}
+bool IOPar::getScaled( const char* s, double& f1, double& f2, double sc,
+		       bool udf ) const
+{
+    double* vptrs[2]; vptrs[0] = &f1; vptrs[1] = &f2;
+    return iopget_scaled( *this, s, vptrs, 2, sc, udf );
+}
+bool IOPar::getScaled( const char* s, float& f1, float& f2, float& f3, float sc,
+		       bool udf ) const
+{
+    float* vptrs[3]; vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3;
+    return iopget_scaled( *this, s, vptrs, 3, sc, udf );
+}
+bool IOPar::getScaled( const char* s, double& f1, double& f2, double& f3,
+			double sc, bool udf ) const
+{
+    double* vptrs[3]; vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3;
+    return iopget_scaled( *this, s, vptrs, 3, sc, udf );
 }
 
-
-bool IOPar::getSc( const char* s, double& d1, double& d2, double& d3,
-		   double& d4, double sc, bool udf ) const
+bool IOPar::getScaled( const char* s, float& f1, float& f2, float& f3,
+			float& f4, float sc, bool udf ) const
 {
-    const char* ptr = find( s );
-    bool havedata = false;
-    if ( udf || (ptr && *ptr) )
-    {
-	FileMultiString fms = ptr;
-	ptr = fms[0];
-	if ( *ptr )
-	{
-	    havedata = true;
-	    d1 = atof( ptr );
-	    if ( !mIsUdf(d1) ) d1 *= sc;
-	}
-	else if ( udf )
-	    Values::setUdf(d1);
-
-	ptr = fms[1];
-	if ( *ptr )
-	{
-	    havedata = true;
-	    d2 = atof( ptr );
-	    if ( !mIsUdf(d2) ) d2 *= sc;
-	}
-	else if ( udf )
-	    Values::setUdf(d2);
-
-	ptr = fms[2];
-	if ( *ptr )
-	{
-	    havedata = true;
-	    d3 = atof( ptr );
-	    if ( !mIsUdf(d3) ) d3 *= sc;
-	}
-	else if ( udf )
-	    Values::setUdf(d3);
-
-	ptr = fms[3];
-	if ( *ptr )
-	{
-	    havedata = true;
-	    d4 = atof( ptr );
-	    if ( !mIsUdf(d4) ) d4 *= sc;
-	}
-	else if ( udf )
-	    Values::setUdf(d4);
-    }
-    return havedata;
+    float* vptrs[4];
+    vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3; vptrs[3] = &f4;
+    return iopget_scaled( *this, s, vptrs, 4, sc, udf );
+}
+bool IOPar::getScaled( const char* s, double& f1, double& f2, double& f3,
+		       double& f4, double sc, bool udf ) const
+{
+    double* vptrs[4];
+    vptrs[0] = &f1; vptrs[1] = &f2; vptrs[2] = &f3; vptrs[3] = &f4;
+    return iopget_scaled( *this, s, vptrs, 4, sc, udf );
 }
 
 
@@ -891,61 +790,6 @@ void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
     else
 	setValue( idx, fms );
 }
-
-
-const int mMaxFMSLineSize = 100;
-
-template <class T>
-static void iopset_typeset( IOPar& iop, const char* keyw, 
-			    const TypeSet<T>& vals )
-{
-    const int nrvals = vals.size();
-
-    int validx = 0; 
-    int keyidx = 0;
-   
-    while ( validx != nrvals )
-    {
-	T val = vals[ validx++ ];
-	FileMultiString fms( Conv::to<const char*>(val) );
-
-	for ( int cnt=1; cnt<mMaxFMSLineSize; cnt++ )
-	{
-	    if ( validx == nrvals ) break;
-	    
-	    val = vals[ validx++ ];
-	    fms += Conv::to<const char*>( val );
-	}
-	
-	BufferString newkey = keyidx ? IOPar::compKey(keyw,keyidx) : keyw;
-	iop.set( newkey, fms );
-	keyidx++;
-    }
-}
-
-
-void IOPar::set( const char* keyw, const TypeSet<int>& vals ) 
-{ return iopset_typeset( *this, keyw, vals ); }
-
-
-void IOPar::set( const char* keyw, const TypeSet<od_uint32>& vals ) 
-{ return iopset_typeset( *this, keyw, vals ); }
-
-
-void IOPar::set( const char* keyw, const TypeSet<od_int64>& vals )
-{ return iopset_typeset( *this, keyw, vals ); }
-
-
-void IOPar::set( const char* keyw, const TypeSet<od_uint64>& vals )
-{ return iopset_typeset( *this, keyw, vals ); }
-
-
-void IOPar::set( const char* keyw, const TypeSet<float>& vals )
-{ return iopset_typeset( *this, keyw, vals ); }
-
-
-void IOPar::set( const char* keyw, const TypeSet<double>& vals )
-{ return iopset_typeset( *this, keyw, vals ); }
 
 
 void IOPar::set( const char* s, int i1, int i2, float f )
@@ -1065,92 +909,6 @@ void IOPar::set( const char* s, const MultiID& mid )
 {
     set( s, mid.buf() );
 }
-
-
-bool IOPar::get( const char* s, SamplingData<int>& sd ) const
-{
-    return get( s, sd.start, sd.step );
-}
-
-bool IOPar::get( const char* s, SamplingData<float>& sd ) const
-{
-    return get( s, sd.start, sd.step );
-}
-
-bool IOPar::get( const char* s, SamplingData<double>& sd ) const
-{
-    return get( s, sd.start, sd.step );
-}
-
-bool IOPar::get( const char* s, Interval<int>& rg ) const
-{
-    mDynamicCastGet(StepInterval<int>*,si,&rg)
-    if ( si )
-	return get( s, rg.start, rg.stop, si->step );
-    else
-	return get( s, rg.start, rg.stop );
-}
-
-bool IOPar::get( const char* s, Interval<float>& rg ) const
-{
-    mDynamicCastGet(StepInterval<float>*,si,&rg)
-    if ( si )
-	return get( s, rg.start, rg.stop, si->step );
-    else
-	return get( s, rg.start, rg.stop );
-}
-
-bool IOPar::get( const char* s, Interval<double>& rg ) const
-{
-    mDynamicCastGet(StepInterval<double>*,si,&rg)
-    if ( si )
-	return get( s, rg.start, rg.stop, si->step );
-    else
-	return get( s, rg.start, rg.stop );
-}
-
-void IOPar::set( const char* s, const Interval<int>& rg )
-{
-    mDynamicCastGet(const StepInterval<int>*,si,&rg)
-    if ( si )
-	set( s, rg.start, rg.stop, si->step );
-    else
-	set( s, rg.start, rg.stop );
-}
-
-void IOPar::set( const char* s, const Interval<float>& rg )
-{
-    mDynamicCastGet(const StepInterval<float>*,si,&rg)
-    if ( si )
-	set( s, rg.start, rg.stop, si->step );
-    else
-	set( s, rg.start, rg.stop );
-}
-
-void IOPar::set( const char* s, const Interval<double>& rg )
-{
-    mDynamicCastGet(const StepInterval<double>*,si,&rg)
-    if ( si )
-	set( s, rg.start, rg.stop, si->step );
-    else
-	set( s, rg.start, rg.stop );
-}
-
-void IOPar::set( const char* s, const SamplingData<double>& sd )
-{
-    set( s, sd.start, sd.step );
-}
-
-void IOPar::set( const char* s, const SamplingData<float>& sd )
-{
-    set( s, sd.start, sd.step );
-}
-
-void IOPar::set( const char* s, const SamplingData<int>& sd )
-{
-    set( s, sd.start, sd.step );
-}
-
 
 
 bool IOPar::get( const char* s, Color& c ) const
