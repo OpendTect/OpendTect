@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.25 2009-02-03 06:22:02 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.26 2009-02-11 11:38:09 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.25 2009-02-03 06:22:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.26 2009-02-11 11:38:09 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -549,6 +549,8 @@ void uiDataPointSetCrossPlotter::getSelectableRanges()
     const uiAxisHandler* xah = x_.axis_;
     const uiAxisHandler* yah = y_.axis_;
     const uiAxisHandler* y2ah = y2_.axis_;
+    if ( !xah || !yah )
+	return;
     yselectablerg_ = uiRect( xah->getPix(desiredxrg_.start),
 			     yah->getPix(desiredyrg_.stop), 
 			     xah->getPix(desiredxrg_.stop),
@@ -771,7 +773,6 @@ void uiDataPointSetCrossPlotter::drawData(
 	regrlineitm_->setLine( 0, 0, 0, 0 );
     drawY1UserDefLine( usedxpixrg_, setup_.showy1userdefline_ );
     drawY2UserDefLine( usedxpixrg_, setup_.showy2userdefline_ );
-    std::cout<<"Total size"<<selcoords_.size()<<std::endl;
 }
 
 
@@ -884,27 +885,27 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     disptb_.turnOn( showy2tbid_, plotter_.doy2_ );
     setselecttbid_ = disptb_.addButton( "view.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,setSelectable),
-		  "Set Selectable", true );
+		  "Set selectable", true );
     disptb_.turnOn( setselecttbid_, true );
 
 
-    showselptswsbid_ = disptb_.addButton( "picks.png",
+    showselptswstbid_ = disptb_.addButton( "picks.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
-		  "Show selected points in WorkSpace", true );
+		  "Show selected points in workSpace", true );
     disptb_.turnOn( setselecttbid_, true );
 
-    selectionmodechangebutid_ = disptb_.addButton( "rectangleselect.png",
+    selmodechgtbid_ = disptb_.addButton( "rectangleselect.png",
 	   mCB(this,uiDataPointSetCrossPlotWin,setSelectionMode) ,
-	   "Selection Mode" ); 
-    disptb_.turnOn( selectionmodechangebutid_, plotter_.isRubberBandingOn() );
+	   "Selection mode" ); 
+    disptb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
-    removeselid_ = disptb_.addButton( " trashcan.png",
+    disptb_.addButton( " trashcan.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections), 
-	    " Remove all selections " );
+	    "Remove all selections" );
     
-    setselparameterid_ = disptb_.addButton( " settings.png",
+    disptb_.addButton( " settings.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
-	    " Selection Settings " );
+	    "Selection settings" );
     maniptb_.addButton( "xplotprop.png",
 			mCB(this,uiDataPointSetCrossPlotWin,editProps),
 			"Properties", false );
@@ -924,8 +925,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
     }
 
-    disptb_.setSensitive( selectionmodechangebutid_, false );
-    disptb_.setSensitive( showselptswsbid_, false );
+    disptb_.setSensitive( selmodechgtbid_, false );
+    disptb_.setSensitive( showselptswstbid_, false );
     plotter_.setPrefWidth( 600 );
     plotter_.setPrefHeight( 500 );
 }
@@ -947,7 +948,7 @@ void uiDataPointSetCrossPlotWin::closeNotif( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelectionMode( CallBacker* )
 {
     plotter_.rectangleselection_ = !plotter_.rectangleselection_;
-    disptb_.setPixmap( selectionmodechangebutid_,
+    disptb_.setPixmap( selmodechgtbid_,
 	   	       plotter_.rectangleselection_ ? "rectangleselect.png"
 			      			    : "polygonselect.png" );
     plotter_.setDragMode( plotter_.rectangleselection_ ?
@@ -1067,9 +1068,9 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
     plotter_.setSceneSelectable( !disptb_.isOn(setselecttbid_) );
     selfld_->setSensitive( plotter_.isY2Shown() ? !disptb_.isOn(setselecttbid_)
 	    					: false );
-    disptb_.setSensitive( selectionmodechangebutid_,
+    disptb_.setSensitive( selmodechgtbid_,
 	    		  !disptb_.isOn(setselecttbid_) );
-    disptb_.setSensitive( showselptswsbid_,
+    disptb_.setSensitive( showselptswstbid_,
 	    		  !disptb_.isOn(setselecttbid_) );
     if ( plotter_.isRubberBandingOn() )
     plotter_.setDragMode( plotter_.rectangleselection_ ?

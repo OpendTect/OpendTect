@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.8 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.9 2009-02-11 11:38:09 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,11 +47,9 @@ protected:
     uiComboBox*			selfld_;
 
     int				showy2tbid_;
-    int				showselptswsbid_;
-    int				selectionmodechangebutid_;
+    int				showselptswstbid_;
+    int				selmodechgtbid_;
     int				setselecttbid_;
-    int				removeselid_;
-    int				setselparameterid_;
 
     void			closeNotif(CallBacker*);
     void			showY2(CallBacker*);
