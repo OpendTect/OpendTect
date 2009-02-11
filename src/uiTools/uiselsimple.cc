@@ -7,40 +7,73 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsimple.cc,v 1.14 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsimple.cc,v 1.15 2009-02-11 12:04:18 cvsbert Exp $";
 
 #include "uiselsimple.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
+#include "globexpr.h"
 #include "bufstringset.h"
 
 
 uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 	: uiDialog(p,sup)
+	, setup_(sup)
 	, selfld_(0)
-	, sel_(-1)
 {
-    const int sz = sup.items_.size();
+    const int sz = setup_.items_.size();
     if ( sz < 1 )
 	{ new uiLabel(this,"No items available for selection"); return; }
 
+    filtfld_ = new uiGenInput( this, "Filter", "*" );
+    filtfld_->valuechanged.notify( mCB(this,uiSelectFromList,filtChg) );
+
     selfld_ = new uiListBox( this );
     selfld_->setName("Select Data from List");
-    selfld_->addItems( sup.items_ );
-    if ( sup.current_ < 1 )
+    selfld_->addItems( setup_.items_ );
+    if ( setup_.current_ < 1 )
 	selfld_->setCurrentItem( 0 );
     else
-	selfld_->setCurrentItem( sup.current_ );
+	selfld_->setCurrentItem( setup_.current_ );
+    selfld_->attach( centeredBelow, filtfld_ );
 
     selfld_->setHSzPol( uiObject::Wide );
     selfld_->doubleClicked.notify( mCB(this,uiDialog,accept) );
 }
 
 
+void uiSelectFromList::filtChg( CallBacker* )
+{
+    const char* filt = filtfld_->text();
+    if ( !filt || !*filt ) filt = "*";
+
+    BufferString cursel( selfld_->getText() );
+    selfld_->empty();
+    GlobExpr ge( filt );
+    for ( int idx=0; idx<setup_.items_.size(); idx++ )
+    {
+	const char* itm = setup_.items_.get( idx );
+	if ( ge.matches(itm) )
+	    selfld_->addItem( itm );
+    }
+
+    if ( selfld_->isPresent(cursel) )
+	selfld_->setCurrentItem( cursel );
+    else
+	selfld_->setCurrentItem( 0 );
+}
+
+
 bool uiSelectFromList::acceptOK( CallBacker* )
 {
-    sel_ = selfld_ ? selfld_->currentItem() : -1;
+    if ( !selfld_ ) return false;
+
+    const int selidx = selfld_->currentItem();
+    if ( selidx < 0 ) return false;
+
+    const char* seltxt = selfld_->textOfItem( selidx );
+    setup_.current_ = setup_.items_.indexOf( seltxt );
     return true;
 }
 

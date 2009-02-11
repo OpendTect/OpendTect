@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.12 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uiselsimple.h,v 1.13 2009-02-11 12:04:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,16 +41,20 @@ public:
 			uiSelectFromList(uiParent*,const Setup&);
 			~uiSelectFromList()	{}
 
-    int			selection() const	{ return sel_; }
+    int			selection() const	{ return setup_.current_; }
     			//!< -1 = no selection made (cancelled or 0 list items)
 
     uiListBox*		selFld()		{ return selfld_; }
+    uiGenInput*		filtFld()		{ return filtfld_; }
 
 protected:
 
-    int			sel_;
-    uiListBox*		selfld_;
+    Setup		setup_;
 
+    uiListBox*		selfld_;
+    uiGenInput*		filtfld_;
+
+    void		filtChg(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 private:
