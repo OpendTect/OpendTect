@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.16 2009-02-11 07:18:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.17 2009-02-11 10:02:21 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -97,10 +97,6 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     if ( bs == OD::LeftButton )
 	startpos_ = QPoint( (int)qev->scenePos().x(),(int)qev->scenePos().y() );
-    /*if ( bs == OD::RightButton )
-	uiscene_.saveAsImage();
-    if ( bs == OD::MidButton )
-	uiscene_.saveAsPDF();*/
     mousepressedbs_ = bs;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
@@ -108,22 +104,7 @@ void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
     QGraphicsScene::mousePressEvent( qev );
 }
 
-/*class uiSavaImageAsDlg : public uiDialog
-{
-public:
 
-uiSavaImageAsDlg( uiParent* p )
-    :uiDialog( p, uiDialog::Setup("Save Image As","","") )
-{
-    saveinpfld_ = new uiFileInput( this, "Filename", uiFileInput::Setup()
-	    					     .forread(false) );
-    saveinpfld_->valuechanged.notify( mCB(this,uiSavaImageAsDlg,saveImage) );
-}
-
-void saveImage( CallBacker* )
-{
-}
-};*/
 void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
