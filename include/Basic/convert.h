@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.10 2008-11-21 14:58:20 cvsbert Exp $
+ RCS:           $Id: convert.h,v 1.11 2009-02-11 15:47:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,8 +115,8 @@ inline void set( type& _to, const char* const& s ) \
 	    Values::setUdf( _to ); \
 } 
 
-mConvDefFromStrToFn( int, strtol(s,&endptr,0) )
-mConvDefFromStrToFn( od_uint32, strtoul(s,&endptr,0) )
+mConvDefFromStrToFn( int, (int)strtol(s,&endptr,0) )
+mConvDefFromStrToFn( od_uint32, (od_uint32)strtoul(s,&endptr,0) )
 mConvDefFromStrToFn( od_int64, strtoll(s,&endptr,0) )
 mConvDefFromStrToFn( od_uint64, strtoull(s,&endptr,0) )
 mConvDefFromStrToFn( double, strtod(s,&endptr) )
