@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.298 2009-02-11 12:19:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.299 2009-02-11 16:20:15 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -349,8 +349,16 @@ void uiODApplMgr::manStrat()
 
 void uiODApplMgr::manPreLoad( ObjType ot )
 {
-// TODO: implement (Bert?)
+    switch ( ot )
+    {
+    case Seis:
+	seisserv_->managePreLoad();
+    break;
+    default:
+    break;
+    }
 }
+
 
 
 void uiODApplMgr::enableMenusAndToolBars( bool yn )
