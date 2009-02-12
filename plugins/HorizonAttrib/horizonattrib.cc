@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.12 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.13 2009-02-12 22:10:28 cvskris Exp $";
 
 #include "horizonattrib.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: horizonattrib.cc,v 1.12 2008-11-25 15:35:21 cvs
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -66,6 +67,7 @@ Horizon::Horizon( Desc& dsc )
     : Provider(dsc)
     , inputdata_(0)
     , horizon_(0)
+    , horizon2dlineid_( mUdf(int) )
 { 
     BufferString idstr = desc.getValParam( sKeyHorID() )->getStringValue();
     horid_ = MultiID( idstr.buf() );
@@ -182,6 +184,19 @@ void Horizon::prepareForComputeData()
 	horizon_->ref();
     }
 
+    if ( desc.is2D() )
+    {
+	mDynamicCastGet(EM::Horizon2D*,hor2d,hor);
+	const int lineidx = 
+	    hor2d->geometry().lineIndex( curlinekey_.lineName() );
+	if ( lineidx==-1 )
+	    horizon2dlineid_ = mUdf(int);
+	else
+	{
+	    horizon2dlineid_ = hor2d->geometry().lineID( lineidx );
+	}
+    }
+
     Provider::prepareForComputeData();
 }
 
@@ -191,9 +206,17 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 {
     if ( !horizon_ ) return false;
 
-    const BinID bid = currentbid + relpos;
+    RowCol rc = currentbid + relpos;
+    if ( desc.is2D() )
+    {
+	if ( mIsUdf(horizon2dlineid_) )
+	    return false;
+
+	rc = RowCol( horizon2dlineid_, currentbid.crl+relpos.crl );
+    }
+
     const EM::PosID posid( horizon_->id(), horizon_->sectionID(0),
-	    		   bid.getSerialized() );
+	    		   rc.getSerialized() );
     const float zval = horizon_->getPos( posid ).z;
 
     float outputvalue = mUdf(float);

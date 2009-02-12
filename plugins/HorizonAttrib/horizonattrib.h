@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.6 2008-10-20 09:58:36 cvsraman Exp $
+ RCS:           $Id: horizonattrib.h,v 1.7 2009-02-12 22:10:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ protected:
     EM::Horizon*	horizon_;
     const DataHolder*	inputdata_;
     int			dataidx_;
+    int			horizon2dlineid_;
 };
 
 } // namespace Attrib
