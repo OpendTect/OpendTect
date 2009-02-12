@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.26 2009-02-11 11:38:09 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.27 2009-02-12 09:59:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.26 2009-02-11 11:38:09 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.27 2009-02-12 09:59:07 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -99,7 +99,7 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidps,
 			    const uiDataPointSetCrossPlotter::Setup& su )
-    : uiGraphicsView(p,"Data PointSet CrossPlotter" )
+    : uiGraphicsView(p,"Data pointset crossplotter" )
     , dps_(uidps.pointSet())
     , uidps_(uidps)
     , parent_(p)
@@ -281,9 +281,7 @@ void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
 
 void uiDataPointSetCrossPlotter::drawPolygon( CallBacker* )
 {
-    if ( !selectable_ )
-	return;
-    if ( rectangleselection_ || !mousepressed_ )
+    if ( !selectable_ || rectangleselection_ || !mousepressed_ )
 	return;
     if ( odselectedpolygon_ )
 	odselectedpolygon_->add( getCursorPos() );
@@ -298,7 +296,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	return;
     if ( !rectangleselection_ && odselectedpolygon_->isSelfIntersecting() )
     {
-	uiMSG().error( " Polygon drawn is not a valid one " );
+	uiMSG().error( "Polygon drawn is not a valid one" );
 	return;
     }
     uiPoint pt;
@@ -612,6 +610,7 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 	y2ptitems_->removeAll( true );
 }
 
+
 void uiDataPointSetCrossPlotter::prepareItems( bool y2 )
 {
     if ( y2 ? !y2ptitems_ : !yptitems_ )
@@ -899,16 +898,16 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	   "Selection mode" ); 
     disptb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
-    disptb_.addButton( " trashcan.png",
+    disptb_.addButton( "trashcan.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections), 
 	    "Remove all selections" );
     
-    disptb_.addButton( " settings.png",
+    disptb_.addButton( "settings.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
 	    "Selection settings" );
+
     maniptb_.addButton( "xplotprop.png",
-			mCB(this,uiDataPointSetCrossPlotWin,editProps),
-			"Properties", false );
+	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
 
     const int nrgrps = uidps_.groupNames().size();
     if ( nrgrps > 1 )
@@ -1062,16 +1061,13 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 {
-    plotter_.setDragMode( !disptb_.isOn(setselecttbid_ )
-	   		  ? uiGraphicsView::RubberBandDrag
-	   		  : uiGraphicsView::ScrollHandDrag );
-    plotter_.setSceneSelectable( !disptb_.isOn(setselecttbid_) );
-    selfld_->setSensitive( plotter_.isY2Shown() ? !disptb_.isOn(setselecttbid_)
-	    					: false );
-    disptb_.setSensitive( selmodechgtbid_,
-	    		  !disptb_.isOn(setselecttbid_) );
-    disptb_.setSensitive( showselptswstbid_,
-	    		  !disptb_.isOn(setselecttbid_) );
+    const bool isoff = !disptb_.isOn(setselecttbid_ );
+    plotter_.setDragMode( isoff ? uiGraphicsView::RubberBandDrag
+			        : uiGraphicsView::ScrollHandDrag );
+    plotter_.setSceneSelectable( isoff );
+    selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
+    disptb_.setSensitive( selmodechgtbid_, isoff );
+    disptb_.setSensitive( showselptswstbid_, isoff );
     if ( plotter_.isRubberBandingOn() )
     plotter_.setDragMode( plotter_.rectangleselection_ ?
 	    			uiGraphicsView::RubberBandDrag :
@@ -1087,9 +1083,7 @@ void uiDataPointSetCrossPlotWin::showY2( CallBacker* )
 
 
 void uiDataPointSetCrossPlotWin::showPtsInWorkSpace( CallBacker* )
-{
-    showSelPts.trigger();
-}
+{ showSelPts.trigger(); }
 
 
 void uiDataPointSetCrossPlotWin::selOption( CallBacker* )
@@ -1129,11 +1123,6 @@ void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
 {
     selfld_->setCurrentItem( 0 );
     selfld_->setSensitive( yn );
-}
-
-
-void uiDataPointSetCrossPlotWin::delSel( CallBacker* )
-{
 }
 
 
