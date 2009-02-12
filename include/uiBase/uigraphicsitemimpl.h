@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.10 2009-02-11 07:26:59 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.11 2009-02-12 06:48:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ mClass uiEllipseItem : public uiGraphicsItem
 {
 public:
 				uiEllipseItem();
+				uiEllipseItem(const uiRect&);
 				uiEllipseItem(QGraphicsEllipseItem*);
 				~uiEllipseItem();
 
@@ -61,6 +62,7 @@ mClass uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
+    			uiLineItem(const uiPoint&,const uiPoint&);
     			uiLineItem(QGraphicsLineItem*);
 			~uiLineItem();
 
@@ -82,6 +84,7 @@ mClass uiPixmapItem : public uiGraphicsItem
 {
 public:
     				uiPixmapItem();
+    				uiPixmapItem(const ioPixmap&);
     				uiPixmapItem(ODGraphicsPixmapItem*);
 				~uiPixmapItem();
 
@@ -101,6 +104,8 @@ mClass uiPolygonItem : public uiGraphicsItem
 {
 public:
     			uiPolygonItem();
+    			uiPolygonItem(const TypeSet<uiPoint>&,bool fill);
+    			uiPolygonItem(const ODPolygon<int>&,bool fill);
     			uiPolygonItem(QGraphicsPolygonItem*);
 			~uiPolygonItem();
 
@@ -120,6 +125,7 @@ mClass uiPolyLineItem : public uiGraphicsItem
 {
 public:
     				uiPolyLineItem();
+    				uiPolyLineItem(const TypeSet<uiPoint>&);
 				~uiPolyLineItem();
 
     ODGraphicsPolyLineItem* 	qPolyLineItem()
@@ -138,6 +144,7 @@ mClass uiRectItem : public uiGraphicsItem
 {
 public:
     			uiRectItem();
+    			uiRectItem(int x, int y, int width, int height);
     			uiRectItem(QGraphicsRectItem*);
 			~uiRectItem();
 
@@ -155,6 +162,7 @@ mClass uiTextItem : public uiGraphicsItem
 {
 public:
     			uiTextItem();
+    			uiTextItem(int x,int y,const char*,const Alignment&);
     			uiTextItem(QGraphicsTextItem*);
 			~uiTextItem();
 

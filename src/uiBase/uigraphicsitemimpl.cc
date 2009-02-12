@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.12 2009-02-11 07:18:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.13 2009-02-12 06:48:23 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -31,6 +31,13 @@ uiEllipseItem::uiEllipseItem( QGraphicsEllipseItem* qtobj )
     : uiGraphicsItem(qtobj)
     , qellipseitem_(qtobj)
 {}
+
+
+uiEllipseItem::uiEllipseItem( const uiRect& rect )
+    : uiGraphicsItem(mkQtObj())
+{
+    setRect( rect );
+}
 
 
 uiEllipseItem::~uiEllipseItem()
@@ -64,6 +71,13 @@ uiLineItem::uiLineItem( QGraphicsLineItem* qtobj )
 {}
 
 
+uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos )
+    : uiGraphicsItem(mkQtObj())
+{
+    setLine( startpos, endpos );
+}
+
+
 uiLineItem::~uiLineItem()
 {
     delete qlineitem_;
@@ -91,8 +105,10 @@ void uiLineItem::setLine( const uiPoint& from, const uiPoint& to )
 
 uiRect* uiLineItem::lineRect()
 {
-    return new uiRect( (int)qlineitem_->line().x1(),(int)qlineitem_->line().y1(),
-	    	       (int)qlineitem_->line().x2(),(int)qlineitem_->line().y2() );
+    return new uiRect( (int)qlineitem_->line().x1(),
+	    	       (int)qlineitem_->line().y1(),
+	    	       (int)qlineitem_->line().x2(),
+		       (int)qlineitem_->line().y2() );
 }
 
 
@@ -122,6 +138,13 @@ uiPixmapItem::uiPixmapItem( ODGraphicsPixmapItem* qtobj )
     : uiGraphicsItem(qtobj)
     , qpixmapitem_(qtobj)
 {}
+
+
+uiPixmapItem::uiPixmapItem( const ioPixmap& pixmap )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPixmap( pixmap );
+}
 
 
 uiPixmapItem::~uiPixmapItem()
@@ -167,6 +190,23 @@ uiPolygonItem::uiPolygonItem()
 {}
 
 
+uiPolygonItem::uiPolygonItem( const ODPolygon<int>& polygon, bool dofill )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPolygon( polygon );
+    if ( dofill )
+	fill();
+}
+
+
+uiPolygonItem::uiPolygonItem( const TypeSet<uiPoint>& polygon, bool dofill )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPolygon( polygon );
+    if ( dofill )
+	fill();
+}
+
 uiPolygonItem::~uiPolygonItem()
 {
     delete qpolygonitem_;
@@ -210,6 +250,13 @@ uiPolyLineItem::uiPolyLineItem()
 {}
 
 
+uiPolyLineItem::uiPolyLineItem( const TypeSet<uiPoint>& ptlist )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPolyLine( ptlist );
+}
+
+
 uiPolyLineItem::~uiPolyLineItem()
 {
     delete qpolylineitem_;
@@ -243,6 +290,13 @@ uiRectItem::uiRectItem( QGraphicsRectItem* qtobj )
 {}
 
 
+uiRectItem::uiRectItem( int x, int y, int width, int height )
+    : uiGraphicsItem(mkQtObj())
+{
+    setRect( x, y, width, height );
+}
+
+
 uiRectItem::~uiRectItem()
 {
     delete qrectitem_;
@@ -272,6 +326,15 @@ uiTextItem::uiTextItem( QGraphicsTextItem* qtobj )
     : uiGraphicsItem(qtobj)
     , qtextitem_( qtobj )
 {}
+
+
+uiTextItem::uiTextItem( int x, int y, const char* txt, const Alignment& al)
+    : uiGraphicsItem(mkQtObj())
+{
+    setText( txt );
+    setPos( x, y );
+    setAlignment( al );
+}
 
 
 uiTextItem::~uiTextItem()
