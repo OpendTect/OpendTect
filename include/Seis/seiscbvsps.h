@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.15 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.16 2009-02-12 10:56:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ class CBVSSeisTrcTranslator;
   In 2D, things are a bit more 'normal'. Every trace number is an inline
   and the crosslines are simply sequence numbers for the vaious offsets.
 
+  You can make an instance of this class, to construct file names.
+
  */
 
 mClass SeisCBVSPSIO
@@ -39,8 +41,11 @@ public:
     			SeisCBVSPSIO(const char* dirnm);
 			// Check errMsg() to see failure
     virtual		~SeisCBVSPSIO();
+    const char*		errMsg() const		{ return errmsg_.buf(); } 
 
     BufferString	get2DFileName(const char* lnm) const;
+    bool		get3DFileNames(BufferStringSet&,
+	    				const Interval<int>* inlrg=0) const;
 
     void		usePar(const IOPar&);
     void		setPrefStorType( DataCharacteristics::UserType ut )
@@ -48,6 +53,8 @@ public:
 
     bool		getSampleNames(BufferStringSet&) const;
     bool		setSampleNames(const BufferStringSet&) const;
+
+    const char*		ext() const	{ return selmask_.buf()+1; }
 
 protected:
 
@@ -64,8 +71,7 @@ protected:
     bool		goTo(int,int) const;
     bool		prepGather(int,SeisTrcBuf&) const;
     bool		startWrite(const char*,const SeisTrc&);
-
-    const char*		ext() const	{ return selmask_.buf()+1; }
+    static int		getInlNr(const char*);
 
 };
 
@@ -78,12 +84,11 @@ mClass SeisCBVSPS3DReader : public SeisPS3DReader
 public:
 
     			SeisCBVSPS3DReader(const char* dirnm,int inl=mUdf(int));
-			// Check errMsg() to see failure
 			~SeisCBVSPS3DReader();
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
     bool		getSampleNames( BufferStringSet& bss ) const
@@ -113,12 +118,11 @@ mClass SeisCBVSPS2DReader : public SeisPS2DReader
 public:
 
     			SeisCBVSPS2DReader(const char* dirnm,const char* lnm);
-			// Check errMsg() to see failure
 			~SeisCBVSPS2DReader();
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
 
     SeisTrc*		getTrace(const BinID&,int) const;
     bool		getGather(const BinID&,SeisTrcBuf&) const;
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
 
     const PosInfo::Line2DData& posData() const	{ return posdata_; }
     bool		getSampleNames( BufferStringSet& bss ) const
@@ -146,11 +150,10 @@ mClass SeisCBVSPS3DWriter : public SeisPSWriter
 public:
 
     			SeisCBVSPS3DWriter(const char* dirnm);
-			// Check errMsg() to see failure
 			~SeisCBVSPS3DWriter();
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
 
     bool		put(const SeisTrc&);
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
     void		close();
 
     bool		setSampleNames( const BufferStringSet& bss ) const
@@ -179,10 +182,9 @@ mClass SeisCBVSPS2DWriter : public SeisPSWriter
 public:
 
     			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
-			// Check errMsg() to see failure
+    const char*		errMsg() const	{ return SeisCBVSPSIO::errMsg(); } 
 
     bool		put(const SeisTrc&);
-    const char*		errMsg() const		{ return errmsg_.buf(); } 
     void		close();
 
     bool		setSampleNames( const BufferStringSet& bss ) const

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.37 2009-01-14 12:28:22 cvsranojay Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.38 2009-02-12 10:56:45 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -108,6 +108,53 @@ BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 
     fnm = fp.fullPath();
     return fnm;
+}
+
+
+int SeisCBVSPSIO::getInlNr( const char* filenm )
+{
+    BufferString fnm( filenm );
+    char* ptr = fnm.buf();
+    while ( *ptr && !isdigit(*ptr) ) ptr++;
+    while ( *ptr && isdigit(*ptr) ) ptr++;
+    *ptr = '\0';
+    return fnm.isEmpty() ? -1 : atoi( fnm.buf() );
+}
+
+
+bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
+				   const Interval<int>* inlrg ) const
+{
+    bss.deepErase();
+    if ( !dirNmOK(true) )
+	return false;
+
+    DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	if ( inlrg )
+	{
+	    const int inl = getInlNr( dl.get(idx) );
+	    if ( inl < 1 || !inlrg->includes(inl) )
+		continue;
+
+	    mDynamicCastGet(const StepInterval<int>*,si,inlrg)
+	    if ( si )
+	    {
+		int snpinl = si->snap( inl );
+		if ( snpinl != inl ) continue;
+	    }
+	}
+
+	bss.add( dl.fullPath(idx) );
+    }
+
+    if ( bss.isEmpty() )
+    {
+	errmsg_ = "No matching files found in data store";
+	return false;
+    }
+    return true;
 }
 
 
@@ -288,14 +335,9 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	BufferString fnm( dl.get(idx) );
-	char* ptr = fnm.buf();
-	while ( *ptr && !isdigit(*ptr) ) ptr++;
-	while ( *ptr && isdigit(*ptr) ) ptr++;
-	*ptr = '\0';
-	if ( fnm.isEmpty() ) continue;
-
-	addInl( atoi(fnm.buf()) );
+	const int inl = getInlNr( dl.get(idx) );
+	if ( inl > 0 )
+	    addInl( inl );
     }
 
     if ( posdata_.size() < 1 )
