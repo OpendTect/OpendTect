@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.14 2008-12-23 22:51:13 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.15 2009-02-12 15:01:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class uiVisPartServer;
 class uiFlatViewMainWin;
 class uiMenuHandler;
+class uiViewer3DPositionDlg;
 namespace PreStack { class ProcessManager; }
 
 namespace PreStackView
@@ -62,11 +63,14 @@ protected:
     void		removeViewWin(int dpid);
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
+    uiViewer3DPositionDlg* mkNewPosDialog(const uiMenuHandler*,Viewer3D&);
+
     void		removeAllCB(CallBacker*);
     void		sceneChangeCB(CallBacker*);
     void		surveyToBeChangedCB(CallBacker*);
     void		sessionRestoreCB(CallBacker*);
     void		sessionSaveCB(CallBacker*);
+    void		posDlgClose(CallBacker*);
     void		viewer2DClosedCB(CallBacker*);
     				//Saved 2DViewer for VD only.
 

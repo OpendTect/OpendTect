@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.43 2009-02-05 20:25:38 cvskris Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.44 2009-02-12 15:01:52 cvsbert Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -47,7 +47,7 @@ namespace PreStackView
 
 uiViewer3DMgr::uiViewer3DMgr()
     : selectpsdatamenuitem_( "D&isplay PS Gather" )
-    , positionmenuitem_( "P&osition ..." )  
+    , positionmenuitem_( "&Show position window ..." )  
     , proptymenuitem_( "&Properties ..." )				 
     , viewermenuitem_( "View in &2D Panel" )
     , amplspectrumitem_( "&Amplitude spectrum ..." )
@@ -115,21 +115,23 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &selectpsdatamenuitem_ );
 
     mDynamicCastGet( PreStackView::Viewer3D*, psv, dataobj.ptr() );
-    if ( psv )
+    const int idxof = psv ? viewers3d_.indexOf(psv) : -1;
+    if ( idxof < 0  )
     {
-    	mAddMenuItem( menu, &positionmenuitem_, true, false );
-	mAddMenuItem( menu, &proptymenuitem_, true, false );
-    	mAddMenuItem( menu, &viewermenuitem_, true, false ); 
-    	mAddMenuItem( menu, &amplspectrumitem_, true, false ); 
-    	mAddMenuItem( menu, &removemenuitem_, true, false ); 
-    }
-    else
-    {
-	mResetMenuItem( &positionmenuitem_ );
 	mResetMenuItem( &proptymenuitem_ );
 	mResetMenuItem( &viewermenuitem_ );
 	mResetMenuItem( &amplspectrumitem_ );
+	mResetMenuItem( &positionmenuitem_ );
 	mResetMenuItem( &removemenuitem_ );
+    }
+    else
+    {
+	mAddMenuItem( menu, &proptymenuitem_, true, false );
+    	mAddMenuItem( menu, &viewermenuitem_, true, false ); 
+    	mAddMenuItem( menu, &amplspectrumitem_, true, false ); 
+	if ( !posdialogs_[idxof] )
+	    mAddMenuItem( menu, &positionmenuitem_, true, false )
+    	mAddMenuItem( menu, &removemenuitem_, true, false ); 
     }
 }
 
@@ -187,22 +189,14 @@ void uiViewer3DMgr::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const int idx = viewers3d_.indexOf( psv );
-	if ( idx==-1 )
-	    return;
-
-	if ( !posdialogs_[idx] )
+	if ( idx >= 0 )
 	{
-	    mDeclareAndTryAlloc( uiViewer3DPositionDlg*, dlg,
-		    uiViewer3DPositionDlg( menu->getParent(), *psv ) );
+	    uiViewer3DPositionDlg* dlg = 0;
+	    if ( !posdialogs_[idx] )
+		dlg = mkNewPosDialog( menu, *psv );
 	    if ( dlg )
-	    {
-		setDlgPos( dlg, idx );
-		posdialogs_.replace( idx, dlg );
-	    }
+		dlg->raise();
 	}
-
-	if ( posdialogs_[idx] )
-	    posdialogs_[idx]->show();
     }
     else if ( mnuid==viewermenuitem_.id )
     {
@@ -355,17 +349,40 @@ bool uiViewer3DMgr::add3DViewer( const uiMenuHandler* menu,
 	viewer->getScene()->change.notifyIfNotNotified( 
 		mCB( this, uiViewer3DMgr, sceneChangeCB ) );
 
+    mkNewPosDialog( menu, *viewer );
+    return true;
+}
+
+
+uiViewer3DPositionDlg* uiViewer3DMgr::mkNewPosDialog( const uiMenuHandler* menu,
+						PreStackView::Viewer3D& vwr )
+{
     mDeclareAndTryAlloc( uiViewer3DPositionDlg*, dlg,
-	    uiViewer3DPositionDlg( menu->getParent(), *viewer ) );
+	    uiViewer3DPositionDlg( menu->getParent(), vwr ) );
     if ( dlg ) 
     {
+	dlg->setDeleteOnClose( true );
+	dlg->windowClosed.notify( mCB(this,uiViewer3DMgr,posDlgClose) );
 	const int newidx = posdialogs_.size() - 1;
 	setDlgPos( dlg, newidx );
 	posdialogs_.replace( newidx, dlg );
 	dlg->show();
     }
 
-    return true;
+    return dlg;
+}
+
+
+void uiViewer3DMgr::posDlgClose( CallBacker* cb )
+{
+    for ( int idx=0; idx<posdialogs_.size(); idx++ )
+    {
+	if ( posdialogs_[idx] == cb )
+	{
+	    posdialogs_.replace( idx, 0 );
+	    return;
+	}
+    }
 }
 
 

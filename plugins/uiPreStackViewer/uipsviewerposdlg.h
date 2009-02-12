@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          August 2008
- RCS:           $Id: uipsviewerposdlg.h,v 1.10 2009-01-26 14:13:29 cvsbert Exp $
+ RCS:           $Id: uipsviewerposdlg.h,v 1.11 2009-02-12 15:01:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ public:
 
     			uiViewer3DPositionDlg(uiParent*,
 					      PreStackView::Viewer3D&);
+			~uiViewer3DPositionDlg();
 
     bool		is3D() const;
     bool		isInl() const;
