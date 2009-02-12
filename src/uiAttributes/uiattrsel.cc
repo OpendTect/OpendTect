@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.36 2009-02-06 20:11:49 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.37 2009-02-12 16:19:08 cvshelene Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -388,7 +388,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	LineKey linekey( ioobjkey );
 	if ( SelInfo::is2D(ioobjkey) )
 	{
-	    attrdata_.outputnr = attr2dfld_->getIntValue();
+	    int attrnr = attr2dfld_->getIntValue();
 	    BufferStringSet nms;
 	    SelInfo::getAttrNames( ioobjkey, nms );
 	    if ( nms.isEmpty() )
@@ -396,8 +396,11 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 		uiMSG().error( "No data available" );
 		return false;
 	    }
-	    const char* attrnm = attrdata_.outputnr >= nms.size() ? 0
-				    : nms.get(attrdata_.outputnr).buf();
+
+	    if ( attrnr>=nms.size() )
+		attrnr = 0;
+
+	    const char* attrnm = nms.get(attrnr).buf();
 	    if ( needattrmatch )
 		linekey.setAttrName( attrnm );
 	}
@@ -522,11 +525,28 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     lk.setLineName( ad ? ad->userRef() : "" );
     if ( is2d_ && ad && ad->isStored() )
     {
-	BufferString defstr; ad->getDefStr( defstr );
+	const Attrib::ValParam* param = ad
+	    ? ad->getValParam( Attrib::StorageProvider::keyStr() )
+	    : 0;
+
 	BufferStringSet nms;
-	SelInfo::getAttrNames( defstr, nms );
-	if ( outnr >= 0 && outnr < nms.size() )
-	    lk.setAttrName( nms.get(outnr) );
+	int attrnr = 0;
+	if ( param && param->getStringValue( 0 ) )
+	{
+	    const LineKey realkey = param->getStringValue(0);
+	    const MultiID mid = realkey.lineName().buf();
+	    SelInfo::getAttrNames( mid, nms );
+	    BufferString attrnm = realkey.attrName();
+	    if ( attrnm.isEmpty() )
+		attrnm = LineKey::sKeyDefAttrib();
+	    attrnr = nms.indexOf( attrnm );
+	}
+
+	if ( attrnr >= 0 && attrnr < nms.size() )
+	    lk.setAttrName( nms.get(attrnr) );
+
+	if ( strcmp(ad->userRef(), lk ) )
+	    const_cast<Desc*>( ad )->setUserRef( lk.buf() );
     }
 
     usrnm = lk;
@@ -577,17 +597,27 @@ void uiAttrSel::processInput()
     if ( !attrdata_.attrset ) return;
 
     BufferString inp = getInput();
-    char* attr2d = strchr( inp.buf(), '|' );
     DescSet& as = const_cast<DescSet&>( *attrdata_.attrset );
     attrdata_.attribid = as.getID( inp, true );
     attrdata_.outputnr = -1;
-    if ( attrdata_.attribid >= 0 && attr2d )
+    if ( attrdata_.attribid >= 0 && is2D() )
     {
-	const Desc& ad = *attrdata_.attrset->getDesc(attrdata_.attribid);
-	BufferString defstr; ad.getDefStr( defstr );
+	const char* attr2d = strchr( inp.buf(), '|' );
+	if ( !attr2d )
+	    attr2d = LineKey::sKeyDefAttrib();
+
+	const Desc* ad = attrdata_.attrset->getDesc( attrdata_.attribid );
+	const Attrib::ValParam* param = ad
+		    ? ad->getValParam( Attrib::StorageProvider::keyStr() )
+		    : 0;
+
 	BufferStringSet nms;
-	SelInfo::getAttrNames( defstr, nms );
-	attrdata_.outputnr = nms.indexOf( attr2d );
+	if ( param && param->getStringValue( 0 ) )
+	{
+	    const MultiID mid =
+		    LineKey(param->getStringValue(0)).lineName().buf();
+	    SelInfo::getAttrNames( mid, nms );
+	}
     }
     else if ( attrdata_.attribid < 0 && attrdata_.nlamodel )
     {
