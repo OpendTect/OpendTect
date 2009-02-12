@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.92 2009-01-23 10:41:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.93 2009-02-12 12:00:07 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -184,6 +184,7 @@ bool IOMan::isReady() const
 #define mDestroyInst(dotrigger) \
     if ( dotrigger && !IOMAN_no_survchg_triggers ) \
 	IOM().surveyToBeChanged.trigger(); \
+    StreamProvider::unLoadAll(); \
     CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs; \
     CallBackSet sccbs = IOM().surveyChanged.cbs; \
     CallBackSet asccbs = IOM().afterSurveyChange.cbs; \

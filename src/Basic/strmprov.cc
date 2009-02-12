@@ -95,7 +95,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.86 2009-02-12 10:56:04 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.87 2009-02-12 12:00:07 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -428,6 +428,12 @@ void StreamProvider::unLoad( const char* key, bool isid )
 	if ( plid < 0 ) return;
 	delete plds.removeFast( plid );
     }
+}
+
+
+void StreamProvider::unLoadAll()
+{
+    deepErase( PLDs() );
 }
 
 
