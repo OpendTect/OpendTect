@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.12 2008-12-25 11:21:53 cvsranojay Exp $
+ RCS:		$Id: datapackbase.h,v 1.13 2009-02-12 22:07:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "datapack.h"
 #include "position.h"
+#include "samplingdata.h"
 template <class T> class Array2D;
 template <class T> class Array3D;
 
@@ -141,9 +142,43 @@ protected:
     TypeSet<BufferString>	axeslbls_;
 };
 
-/*!\brief DataPack for volume data. */
+
+
+/*!\brief DataPack for volume data, where the dims correspond to 
+          inl/crl/z . */
     
-mClass CubeDataPack : public DataPack
+class VolumeDataPack : public DataPack
+{
+public:
+
+    virtual Array3D<float>&	data();	
+    const Array3D<float>&	data() const;
+
+    virtual const char*		dimName(char dim) const;
+    virtual double		getPos(char dim,int idx) const;
+    int				size(char dim) const;
+    virtual float		nrKBytes() const;
+    virtual void       		dumpInfo(IOPar&) const;
+
+
+protected:
+    				VolumeDataPack(const char* categry,
+					     Array3D<float>*);
+				//!< Array3D become mine (of course)
+				~VolumeDataPack();
+
+    				VolumeDataPack(const char* category);
+				//!< For this you have to overload data()
+				//!< and the destructor
+
+    Array3D<float>*		arr3d_;
+};
+
+/*!\brief DataPack for volume data, where the dims correspond to 
+          inl/crl/z .
+*/
+    
+mClass CubeDataPack : public VolumeDataPack
 {
 public:
     				CubeDataPack(const char* categry,
@@ -151,22 +186,13 @@ public:
 				//!< Array2D become mine (of course)
 				~CubeDataPack();
 
-    virtual Array3D<float>&	data()			{ return *arr3d_; }
-    const Array3D<float>&	data() const
-				{ return const_cast<CubeDataPack*>(this)
-							->data(); }
-
     CubeSampling&		sampling()		{ return cs_; }
     const CubeSampling&		sampling() const	{ return cs_; }
     virtual void		getAuxInfo(int,int,int,IOPar&) const {}
     				//!< int,int,int = Array3D position
     Coord3			getCoord(int,int,int) const;
     				//!< int,int,int = Array3D position
-
-    virtual float		nrKBytes() const;
-    virtual void       		dumpInfo(IOPar&) const;
-
-    virtual int			size(int dim) const;
+    void       			dumpInfo(IOPar&) const;
 
 protected:
 
@@ -174,7 +200,6 @@ protected:
 				//!< For this you have to overload data()
 				//!< and the destructor
 
-    Array3D<float>*		arr3d_;
     CubeSampling&		cs_;
 
 private:

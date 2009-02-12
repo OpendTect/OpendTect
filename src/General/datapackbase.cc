@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapackbase.cc,v 1.1 2009-02-10 15:22:13 cvsbert Exp $";
+static const char* rcsID = "$Id: datapackbase.cc,v 1.2 2009-02-12 22:07:21 cvskris Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -292,9 +292,69 @@ const char* MapDataPack::dimName( bool dim0 ) const
 }
 
 
-CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
-    : DataPack(cat)
+Array3D<float>& VolumeDataPack::data()
+{ return *arr3d_; }
+
+
+const Array3D<float>& VolumeDataPack::data() const
+{ return const_cast<VolumeDataPack*>(this)->data(); }
+
+
+const char* VolumeDataPack::dimName( char dim ) const
+{
+    if ( !dim ) return "X0";
+    if ( dim==1 ) return "X1";
+
+    return "X2";
+}
+
+
+double VolumeDataPack::getPos(char dim,int idx) const
+{ return idx; }
+
+
+void VolumeDataPack::dumpInfo( IOPar& par ) const
+{
+    DataPack::dumpInfo( par );
+    par.set( "Dimensions", size(0), size(1), size(2) );
+}
+
+
+VolumeDataPack::VolumeDataPack( const char* categry,
+				Array3D<float>* arr )
+    : DataPack( categry )
     , arr3d_(arr ? arr : new Array3DImpl<float>(0,0,0))
+{}
+
+
+
+VolumeDataPack::VolumeDataPack( const char* cat )
+    : DataPack(cat)
+    , arr3d_(0)
+{}
+
+
+float VolumeDataPack::nrKBytes() const
+{
+    static const float kbfac = ((float)sizeof(float)) / 1024.0;
+    float ret = size(0) * kbfac;
+    return size( 1 ) * ret * size( 2 );
+}
+
+
+VolumeDataPack::~VolumeDataPack()
+{ delete arr3d_; }
+
+
+int VolumeDataPack::size( char dim ) const
+{ return arr3d_ ? arr3d_->info().getSize( dim ) : 0; }
+
+
+
+
+
+CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
+    : VolumeDataPack(cat)
     , cs_(*new CubeSampling(true))
 {
     init();
@@ -302,8 +362,7 @@ CubeDataPack::CubeDataPack( const char* cat, Array3D<float>* arr )
 
 
 CubeDataPack::CubeDataPack( const char* cat )
-    : DataPack(cat)
-    , arr3d_(0)
+    : VolumeDataPack(cat)
     , cs_(*new CubeSampling(true))
 {
     // We cannot call init() here: size() does not dispatch virtual here
@@ -334,19 +393,9 @@ Coord3 CubeDataPack::getCoord( int i0, int i1, int i2 ) const
 }
 
 
-float CubeDataPack::nrKBytes() const
-{
-    static const float kbfac = ((float)sizeof(float)) / 1024.0;
-    float ret = size(0) * kbfac;
-    return size( 1 ) * ret * size( 2 );
-}
-
-
 void CubeDataPack::dumpInfo( IOPar& iop ) const
 {
-    DataPack::dumpInfo( iop );
-    iop.set( sKey::Type, "Cube" );
-    iop.set( "Dimensions", size(0), size(1), size(2) );
+    VolumeDataPack::dumpInfo( iop );
 
     const CubeSampling& cs = sampling();
     iop.set( "Positions.inl", cs.hrg.start.inl, cs.hrg.stop.inl,
@@ -355,10 +404,3 @@ void CubeDataPack::dumpInfo( IOPar& iop ) const
 	    		      cs.hrg.step.crl );
     iop.set( "Positions.z", cs.zrg.start, cs.zrg.stop, cs.zrg.step );
 }
-
-
-int CubeDataPack::size( int dim ) const
-{
-    return data().info().getSize( dim );
-}
-
