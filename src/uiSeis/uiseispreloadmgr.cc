@@ -4,11 +4,13 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.3 2009-02-10 16:57:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.4 2009-02-12 10:56:21 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
+#include "seispsioprov.h"
+#include "seiscbvsps.h"
 #include "strmprov.h"
 #include "cbvsio.h"
 #include "ioobj.h"
@@ -17,6 +19,8 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.3 2009-02-10 16:57:35 c
 #include "filepath.h"
 #include "filegen.h"
 #include "datapack.h"
+#include "survinfo.h"
+
 #include "uimsg.h"
 #include "uilistbox.h"
 #include "uibutton.h"
@@ -24,6 +28,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.3 2009-02-10 16:57:35 c
 #include "uitextedit.h"
 #include "uiioobjsel.h"
 #include "uitaskrunner.h"
+#include "uiselsurvranges.h"
 
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
@@ -36,14 +41,30 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     listfld_->selectionChanged.notify( mCB(this,uiSeisPreLoadMgr,selChg) );
     topgrp->setHAlignObj( listfld_ );
 
+    const bool has2d = SI().has2D();
+    const bool has3d = SI().has3D();
     uiButtonGroup* bgrp = new uiButtonGroup( topgrp, "Manip buttons" );
     bgrp->attach( rightOf, listfld_ );
 #   define mAddBut(s,fn) \
     new uiPushButton( bgrp, s, mCB(this,uiSeisPreLoadMgr,fn), false )
-    mAddBut("Add Cube",cubeLoadPush);
-    mAddBut("Add Lines",linesLoadPush);
-    mAddBut("Add 3D Pre-Stack lines",ps3DPush);
-    mAddBut("Add 2D Pre-Stack lines",ps2DPush);
+    if ( has3d )
+	mAddBut("Add Cube",cubeLoadPush);
+    if ( has2d )
+	mAddBut("Add Lines",linesLoadPush);
+    if ( has3d )
+    {
+	if ( has2d )
+	    mAddBut("Add 3D Pre-Stack data",ps3DPush);
+	else
+	    mAddBut("Add Pre-Stack data",ps3DPush);
+    }
+    if ( has2d )
+    {
+	if ( has3d )
+	    mAddBut("Add 2D Pre-Stack lines",ps2DPush);
+	else
+	    mAddBut("Add Pre-Stack data",ps2DPush);
+    }
     mAddBut("Unload Selected",unloadPush);
 
     infofld_ = new uiTextEdit( this, "Info" );
@@ -109,7 +130,6 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 
     switch ( gt )
     {
-	//TODO
 	case Seis::Vol:
 	break;
 	case Seis::Line:
@@ -186,7 +206,57 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
 
 void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 {
-    uiMSG().error( "TODO: implement pre-load PS 3D data" );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS3D);
+    ctio->ctxt.trglobexpr = "CBVS";
+    uiIOObjSelDlg dlg( this, *ctio, "Select the data store (part)" );
+    uiSelNrRange* inlrgfld = new uiSelNrRange( &dlg, uiSelNrRange::Inl, false );
+    inlrgfld->attach( alignedBelow, dlg.selGrp()->attachObj() );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    FilePath fp( dlg.ioObj()->fullUserExpr(true) );
+    const MultiID keyid( dlg.ioObj()->key() );
+    const char* id = keyid.buf();
+    Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
+
+    SeisCBVSPSIO psio( dlg.ioObj()->fullUserExpr(true) );
+    BufferStringSet fnms;
+    if ( !psio.get3DFileNames(fnms,&inlrg) )
+	{ uiMSG().error( psio.errMsg() ); return; }
+
+    if ( StreamProvider::isPreLoaded(id,true) )
+	StreamProvider::unLoad( id, true );
+
+    uiTaskRunner tr( this ); BufferStringSet notpl;
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	const char* fnm = fnms.get( idx );
+	if ( !StreamProvider::preLoad(fnm,tr,id) )
+	    notpl.add( fnm );
+    }
+
+    if ( !notpl.isEmpty() )
+    {
+	if ( notpl.size() == fnms.size() )
+	    uiMSG().warning( "Could not pre-load any file" );
+	else
+	{
+	    BufferString msg( "In directory '" );
+	    FilePath fp( notpl.get(0) );
+	    msg += fp.pathOnly(); msg += "', failed to pre-load:";
+	    for ( int idx=0; idx<notpl.size(); idx++ )
+	    {
+		fp.set( notpl.get(idx) );
+		if ( idx % 10 == 0 )
+		    msg += "\n";
+		else
+		    msg += ", ";
+		msg += fp.fileName();
+	    }
+	    uiMSG().warning( msg );
+	}
+    }
+
+    fullUpd( 0 );
 }
 
 
