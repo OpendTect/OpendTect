@@ -95,7 +95,7 @@ static const char* mkUnLinked( const char* fnm )
 #endif
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.85 2009-02-10 16:57:17 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.86 2009-02-12 10:56:04 cvsbert Exp $";
 
 static BufferString oscommand( 2048, false );
 
@@ -279,13 +279,16 @@ class StreamProviderPreLoadedData : public Executor
 public:
 
 StreamProviderPreLoadedData( const char* nm, const char* id )
-    : Executor(BufferString("Pre-loading '",nm,"'"))
+    : Executor("Pre-loading data")
     , dp_(0)
     , id_(id)
     , filesz_(0)
     , chunkidx_(0)
-    , msg_("Reading file data")
+    , msg_("Reading '")
+    , fnm_(nm)
 {
+    FilePath fp( nm ); msg_ += fp.fileName(); msg_ += "'";
+
     sd_ = StreamProvider(nm).makeIStream(true,false);
     if ( !sd_.usable() )
 	{ msg_ = "Cannot open '"; msg_ += nm; msg_ += "'"; }
@@ -311,17 +314,16 @@ StreamProviderPreLoadedData( const char* nm, const char* id )
 	sd_.close();
 }
 
-const BufferString& name() const
-{
-    static BufferString none;
-    return dp_ ? dp_->name() : none;
-}
-
 ~StreamProviderPreLoadedData()
 {
     sd_.close();
     if ( dp_ )
 	DPM(DataPackMgr::BufID()).release( dp_->id() );
+}
+
+const BufferString& fileName() const
+{
+    return dp_ ? dp_->name() : fnm_;
 }
 
 const char* message() const { return msg_.buf(); }
@@ -367,6 +369,7 @@ bool isOK() const
     int			chunkidx_;
     od_int64		filesz_;
     BufferString	msg_;
+    BufferString	fnm_;
 
     char		buf_[mPreLoadChunkSz];
 
@@ -388,7 +391,7 @@ static int getPLID( const char* key, bool isid )
 	const StreamProviderPreLoadedData& pld = *plds[idx];
 	if ( !pld.isOK() ) continue;
 
-	if ( (!isid && pld.name() == key) || (isid && pld.id_ == key) )
+	if ( (!isid && pld.fileName() == key) || (isid && pld.id_ == key) )
 	    return idx;
     }
     return -1;
@@ -452,7 +455,7 @@ void StreamProvider::getPreLoadedFileNames( const char* id,
 	if ( !pld.isOK() ) continue;
 
 	if ( !id || pld.id_ == id )
-	    bss.add( pld.name() );
+	    bss.add( pld.fileName() );
     }
 }
 
@@ -465,7 +468,7 @@ int StreamProvider::getPreLoadedDataPackID( const char* fnm )
 	const StreamProviderPreLoadedData& pld = *plds[idx];
 	if ( !pld.isOK() ) continue;
 
-	if ( pld.name() == fnm )
+	if ( pld.fileName() == fnm )
 	    return pld.dp_->id();
     }
     return -1;
@@ -475,7 +478,7 @@ int StreamProvider::getPreLoadedDataPackID( const char* fnm )
 StreamData StreamProvider::makePLIStream( int plid )
 {
     StreamProviderPreLoadedData& pld = *PLDs()[plid];
-    StreamData ret; ret.setFileName( pld.name() );
+    StreamData ret; ret.setFileName( pld.fileName() );
     std::fixedstreambuf* fsb
 		= new std::fixedstreambuf( pld.dp_->buf(), pld.filesz_, false );
     ret.istrm = new std::istream( fsb );
