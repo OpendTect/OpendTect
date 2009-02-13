@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.h,v 1.16 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:		$Id: eventattrib.h,v 1.17 2009-02-13 14:25:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,8 @@ protected:
 	    				ValueSeriesEvent<float,float> nextev, 
 					int dir,VSEvent::Type,int,int) const;
 
-    void			singleEvent(TypeSet<float>&,int,int) const;
-    void			multipleEvents(TypeSet<float>&,int,int) const;
+    void			singleEvent(const DataHolder&,int,int) const;
+    void			multipleEvents(const DataHolder&,int,int) const;
 
     const DataHolder*		inputdata;
 
