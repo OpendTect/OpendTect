@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.21 2009-02-11 10:36:53 cvsranojay Exp $
+ RCS:           $Id: uiodmain.h,v 1.22 2009-02-13 04:19:08 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ class uiODSceneMgr;
 class uiVisColTabEd;
 
 
-uiODMain* ODMainWin();
+mGlobal uiODMain* ODMainWin();
 //!< Top-level access for plugins
 
 
