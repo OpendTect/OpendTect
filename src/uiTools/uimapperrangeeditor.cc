@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.9 2009-01-28 11:41:37 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.10 2009-02-13 05:35:38 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ uiMapperRangeEditor::uiMapperRangeEditor( uiParent* p, int id )
 	    		     mCB(this,uiMapperRangeEditor,mouseMoved) );
     histogramdisp_->reSize.notify(
 	    		     mCB(this,uiMapperRangeEditor,histogramResized));
+    xax_ = histogramdisp_->xAxis();
 }
 
 
@@ -137,13 +138,13 @@ void uiMapperRangeEditor::drawText()
 
     if ( !minlinevaltext_ )
 	minlinevaltext_ = histogramdisp_->scene().addText(
-		histogramdisp_->xAxis()->getPix(minlinecurpos_),
+		xax_->getPix(minlinecurpos_),
 		histogramdisp_->height()/3, toString(minlinecurpos_),
 		OD::AlignRight );
 
     if ( !maxlinevaltext_ )
 	maxlinevaltext_ = histogramdisp_->scene().addText(
-		histogramdisp_->xAxis()->getPix(maxlinecurpos_),
+		xax_->getPix(maxlinecurpos_),
 		histogramdisp_->height()/3, toString(maxlinecurpos_),
 		OD::AlignLeft );
 
@@ -158,14 +159,14 @@ void uiMapperRangeEditor::fixTextPos()
 
     BufferString bsleft( toString(minlinecurpos_), " " );
     minlinevaltext_->setText( bsleft.buf() );
-    minlinevaltext_->setPos( histogramdisp_->xAxis()->getPix(minlinecurpos_),
-			 histogramdisp_->height()/3 );
+    minlinevaltext_->setPos( xax_->getPix(minlinecurpos_),
+			     histogramdisp_->height()/3 );
     minlinevaltext_->setAlignment( OD::AlignRight );
 
     BufferString bsright( toString(maxlinecurpos_), " " );
     maxlinevaltext_->setText( bsright );
-    maxlinevaltext_->setPos( histogramdisp_->xAxis()->getPix(maxlinecurpos_),
-			 histogramdisp_->height()/3 );
+    maxlinevaltext_->setPos( xax_->getPix(maxlinecurpos_),
+			     histogramdisp_->height()/3 );
     maxlinevaltext_->setAlignment( OD::AlignLeft );
 }
 
@@ -179,7 +180,7 @@ void uiMapperRangeEditor::drawLines()
     cursor.shape_ = MouseCursor::SizeHor;
     if ( !minline_ )
     {
-	int ltlnpix = histogramdisp_->xAxis()->getPix( minlinecurpos_ );
+	int ltlnpix = xax_->getPix( minlinecurpos_ );
 	minline_ = histogramdisp_->scene().addLine( ltlnpix, 0,
        					ltlnpix, histogramdisp_->height() );
 	minline_->setPenStyle( LineStyle(LineStyle::Solid,2,Color(0,255,0)) );
@@ -189,7 +190,7 @@ void uiMapperRangeEditor::drawLines()
 
     if ( !maxline_ )
     {
-	int rtlnpix = histogramdisp_->xAxis()->getPix( maxlinecurpos_ );
+	int rtlnpix = xax_->getPix( maxlinecurpos_ );
 	maxline_ = histogramdisp_->scene().addLine( rtlnpix, 0,
 				            rtlnpix, histogramdisp_->height() );
 	maxline_->setPenStyle( LineStyle(LineStyle::Solid,2,Color(0,255,0)) );
@@ -216,13 +217,13 @@ void uiMapperRangeEditor::drawPixmaps()
     if ( rightcoltab_ )
     { delete rightcoltab_; rightcoltab_ = 0; }
 
-    const int ltlnpix = histogramdisp_->xAxis()->getPix( minlinecurpos_ );
-    const int rtlnpix = histogramdisp_->xAxis()->getPix( maxlinecurpos_ );
+    const int ltlnpix = xax_->getPix( minlinecurpos_ );
+    const int rtlnpix = xax_->getPix( maxlinecurpos_ );
 
     if ( !leftcoltab_ )
     {
 	ioPixmap pixmapleft( ltlnpix-
-		            histogramdisp_->xAxis()->getPix(lefttminval_), 20 );
+		            xax_->getPix(lefttminval_), 20 );
 	pixmapleft.fill( ctbseq_->color(0) );
 	leftcoltab_ = histogramdisp_->scene().addPixmap( pixmapleft );
     }
@@ -235,8 +236,7 @@ void uiMapperRangeEditor::drawPixmaps()
 
     if ( !rightcoltab_ )
     {
-	ioPixmap pixmapright( 
-		    histogramdisp_->xAxis()->getPix(rightmaxval_)-rtlnpix, 20 );
+	ioPixmap pixmapright( xax_->getPix(rightmaxval_)-rtlnpix, 20 );
 	pixmapright.fill( ctbseq_->color(1) );
 	rightcoltab_ = histogramdisp_->scene().addPixmap( pixmapright );
     }
@@ -247,13 +247,13 @@ void uiMapperRangeEditor::drawPixmaps()
 
 void uiMapperRangeEditor::fixPixmapsPos()
 {
-    const int ltminpix = histogramdisp_->xAxis()->getPix( lefttminval_ );
-    const int lfbspospix = histogramdisp_->xAxis()->getPix( minlinebasepos_ );
-    const int lflnpix = histogramdisp_->xAxis()->getPix( minlinecurpos_ );
+    const int ltminpix = xax_->getPix( lefttminval_ );
+    const int lfbspospix = xax_->getPix( minlinebasepos_ );
+    const int lflnpix = xax_->getPix( minlinecurpos_ );
 
-    const int rtlnpix = histogramdisp_->xAxis()->getPix( maxlinecurpos_ );
-    const int rtbspospix = histogramdisp_->xAxis()->getPix( maxlinebasepos_ );
-    const int rtmxapix = histogramdisp_->xAxis()->getPix( rightmaxval_ );
+    const int rtlnpix = xax_->getPix( maxlinecurpos_ );
+    const int rtbspospix = xax_->getPix( maxlinebasepos_ );
+    const int rtmxapix = xax_->getPix( rightmaxval_ );
 
     // TODO: make scaling alive 
     if ( leftcoltab_ )
@@ -291,12 +291,11 @@ void uiMapperRangeEditor::fixLinesPos()
 {
     if ( mIsUdf(minlinecurpos_) || mIsUdf(maxlinecurpos_) )
 	return;
-    minline_->setLine( histogramdisp_->xAxis()->getPix(minlinecurpos_), 0,
-    	  histogramdisp_->xAxis()->getPix(
-	      			     minlinecurpos_), histogramdisp_->height());
-    maxline_->setLine( histogramdisp_->xAxis()->getPix(maxlinecurpos_), 0,
-	  			histogramdisp_->xAxis()->getPix(maxlinecurpos_),
-				histogramdisp_->height());
+
+    minline_->setLine( xax_->getPix(minlinecurpos_), 0,
+		       xax_->getPix(minlinecurpos_), histogramdisp_->height());
+    maxline_->setLine( xax_->getPix(maxlinecurpos_), 0,
+	  	       xax_->getPix(maxlinecurpos_), histogramdisp_->height());
 }
 
 
@@ -319,21 +318,18 @@ void uiMapperRangeEditor::histogramResized( CallBacker* cb )
 bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
 {
     mGetMousePos();
-
-    if ( !pressedonly && fabs(histogramdisp_->xAxis()->getPix(maxlinecurpos_)-
-			  histogramdisp_->xAxis()->getPix(minlinecurpos_)) <=1 )
+     const int diff = xax_->getPix(maxlinecurpos_) - xax_->getPix(minlinecurpos_);
+    if ( !pressedonly && fabs(float(diff)) <= 1 )
 	return false;
 
-    const float pointedpos = histogramdisp_->xAxis()->getVal(ev.pos().x);
+    const float pointedpos = xax_->getVal(ev.pos().x);
 
     if ( pointedpos < (minlinecurpos_+maxlinecurpos_)/2 )
     {
 	if ( pointedpos < lefttminval_ ) return false;
 
-	if ( !(histogramdisp_->xAxis()->getPix(pointedpos) >
-		    (histogramdisp_->xAxis()->getPix(minlinecurpos_)-10) &&
-	       histogramdisp_->xAxis()->getPix(pointedpos) <
-	            (histogramdisp_->xAxis()->getPix(minlinecurpos_)+10)) )
+	if ( !(xax_->getPix(pointedpos) > (xax_->getPix(minlinecurpos_)-10) &&
+	       xax_->getPix(pointedpos) < (xax_->getPix(minlinecurpos_)+10)) )
 	    return false;
 
 	minlinecurpos_ = pointedpos;
@@ -345,10 +341,8 @@ bool uiMapperRangeEditor::changeLinePos( bool pressedonly )
     {
 	if ( pointedpos > rightmaxval_ ) return false;
 
-	if ( !(histogramdisp_->xAxis()->getPix(pointedpos) >
-		    (histogramdisp_->xAxis()->getPix(maxlinecurpos_)-10) &&
-	       histogramdisp_->xAxis()->getPix(pointedpos) <
-	       	    (histogramdisp_->xAxis()->getPix(maxlinecurpos_)+10)) )
+	if ( !(xax_->getPix(pointedpos) > (xax_->getPix(maxlinecurpos_)-10) &&
+	       xax_->getPix(pointedpos) < (xax_->getPix(maxlinecurpos_)+10)) )
 	    return false;
 
 	maxlinecurpos_ = pointedpos;

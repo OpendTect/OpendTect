@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.h,v 1.4 2009-01-28 08:02:43 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditor.h,v 1.5 2009-02-13 05:34:03 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ class uiHistogramDisplay;
 class uiLineItem;
 class uiPixmapItem;
 class uiTextItem;
+class uiAxisHandler;
+
 namespace ColTab { struct MapperSetup; class Sequence; }
 
 mClass uiMapperRangeEditor : public uiGroup
@@ -45,6 +47,7 @@ protected:
 	
     uiHistogramDisplay*		histogramdisp_;    
     int 			id_;
+    uiAxisHandler*		xax_;
 
     ColTab::MapperSetup*        ctbmapper_;
     ColTab::Sequence*		ctbseq_;
