@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.5 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.6 2009-02-13 14:19:05 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -191,7 +191,11 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
 
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadVol() )
-	uiMSG().error( spl.errMsg() );
+    {
+	const char* emsg = spl.errMsg();
+	if ( emsg && *emsg )
+	    uiMSG().error( emsg );
+    }
 
     fullUpd( 0 );
 }
@@ -219,26 +223,10 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
     uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadPS3D(&inlrg) )
-	uiMSG().error( spl.errMsg() );
-
-    BufferStringSet notpl;
-    if ( !spl.loadVol() )
-	uiMSG().error( spl.errMsg() );
-    else if ( !notpl.isEmpty() )
     {
-	BufferString msg( "In directory '" );
-	FilePath fp( notpl.get(0) );
-	msg += fp.pathOnly(); msg += "', failed to pre-load:";
-	for ( int idx=0; idx<notpl.size(); idx++ )
-	{
-	    fp.set( notpl.get(idx) );
-	    if ( idx % 10 == 0 )
-		msg += "\n";
-	    else
-		msg += ", ";
-	    msg += fp.fileName();
-	}
-	uiMSG().warning( msg );
+	const char* emsg = spl.errMsg();
+	if ( emsg && *emsg )
+	    uiMSG().error( emsg );
     }
 
     fullUpd( 0 );

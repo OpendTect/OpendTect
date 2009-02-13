@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.1 2009-02-13 13:35:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.2 2009-02-13 14:19:05 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -38,7 +38,6 @@ Interval<int> Seis::PreLoader::inlRange() const
 
 
 #define mGetIOObj() \
-    notloaded_.erase(); \
     PtrMan<IOObj> ioobj = getIOObj(); \
     if ( !ioobj ) \
 	return false; \
@@ -55,11 +54,12 @@ bool Seis::PreLoader::loadVol() const
 
     const BufferString basefnm = CBVSIOMgr::baseFileName(
 					    ioobj->fullUserExpr(true) );
+    TaskRunner& tr = getTr();
     for ( int idx=0; true; idx++ )
     {
 	const BufferString fnm( CBVSIOMgr::getFileName(basefnm,idx) );
 	if ( !File_exists(fnm)
-	  || !StreamProvider::preLoad(fnm,getTr(),id_.buf()) )
+	  || !StreamProvider::preLoad(fnm,tr,id_.buf()) )
 	{
 	    if ( idx )
 		break;
@@ -67,7 +67,6 @@ bool Seis::PreLoader::loadVol() const
 	    {
 		errmsg_ = "Cannot load '"; errmsg_ += fnm;
 		errmsg_ += "'"; return false;
-		notloaded_.add( fnm );
 	    }
 	}
     }
@@ -88,23 +87,18 @@ bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 
     mUnLoadIfLoaded();
 
+    TaskRunner& tr = getTr();
     for ( int idx=0; idx<fnms.size(); idx++ )
     {
 	const char* fnm = fnms.get( idx );
-	if ( !StreamProvider::preLoad(fnm,getTr(),id_.buf()) )
-	    notloaded_.add( fnm );
-    }
-
-    if ( notloaded_.size() == fnms.size() )
-    {
-	if ( notloaded_.size() > 1 )
-	    errmsg_ = "Could not pre-load any required file";
-	else
+	if ( !File_exists(fnm) )
+	    continue;
+	else if ( !StreamProvider::preLoad(fnm,tr,id_.buf()) )
 	{
 	    errmsg_ = "Could not pre-load '";
-	    errmsg_ += fnms.get( 0 ); errmsg_ += "'";
+	    errmsg_ += fnm; errmsg_ += "'";
+	    return false;
 	}
-	return false;
     }
 
     return true;

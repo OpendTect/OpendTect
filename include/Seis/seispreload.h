@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.1 2009-02-13 13:35:48 cvsbert Exp $
+ RCS:           $Id: seispreload.h,v 1.2 2009-02-13 14:19:05 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,6 @@ public:
     void		unLoad() const;
 
     const char*		errMsg() const			{ return errmsg_; }
-    const BufferStringSet& notLoaded() const		{ return notloaded_; }
 
 protected:
 
@@ -53,7 +52,6 @@ protected:
     TaskRunner*		tr_;
     TaskRunner		deftr_;
     mutable BufferString errmsg_;
-    mutable BufferStringSet notloaded_;
 
     TaskRunner&		getTr() const
     			{ return *((TaskRunner*)(tr_ ? tr_ : &deftr_)); }
