@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.16 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.17 2009-02-13 19:01:35 cvsyuancheng Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.16 2008-11-25 15:35:
 
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
+#include <Inventor/nodes/SoShapeHints.h>
 #include <SoIndexedTriangleFanSet.h>
 #include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/SoDB.h>
@@ -39,7 +40,10 @@ GeomIndexedShape::GeomIndexedShape()
     , lineradius_( -1 )
     , lineconstantonscreen_( false )
     , linemaxsize_( -1 )
+    , hints_( new SoShapeHints )			
 {
+    addChild( hints_ );
+
     setLockable();
     coords_->ref();
     addChild( coords_->getInventorNode() );
@@ -57,6 +61,25 @@ GeomIndexedShape::~GeomIndexedShape()
     coords_->unRef();
     normals_->unRef();
     texturecoords_->unRef();
+}
+
+
+void GeomIndexedShape::renderOneSide( int side )
+{
+    hints_->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
+    
+    if ( side==0 )
+    {
+	hints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+    }
+    else if ( side==1 )
+    {
+	hints_->shapeType = SoShapeHints::SOLID;
+    }
+    else
+    {
+	hints_->shapeType = SoShapeHints::SOLID;
+    }
 }
 
 

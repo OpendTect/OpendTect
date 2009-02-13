@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.7 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.8 2009-02-13 19:01:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 namespace Geometry { class IndexedShape; class IndexedGeometry; }
 
+class SoShapeHints;
 class SoIndexedShape;
 class TaskRunner;
 
@@ -50,10 +51,14 @@ public:
 						float maxworldsize=-1);
     				/*!<If radius is less than 0, a normal
 				    line will be drawn. */
-
+    void			renderOneSide(int side);
+    				/*!< 0 = visisble from both sides.
+				     1 = visisble from positive side
+				     -1 = visisble from negative side. */
 protected:
 						~GeomIndexedShape();
 
+    SoShapeHints*				hints_;
     Coordinates*				coords_;
     Normals*					normals_;
     TextureCoords*				texturecoords_;
