@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.1 2009-02-02 23:43:34 cvsyuancheng Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.2 2009-02-13 22:23:20 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,7 @@ namespace visBase
     class IndexedPolyLine3D;
 };
 
-namespace EM { class PolygonBody; struct ImplicitBody; }
+namespace EM { class PolygonBody; }
 namespace MPE { class PolygonBodyEditor; }
 namespace Geometry { class ExplPolygonSurface; class ExplPlaneIntersection; }
 
@@ -84,7 +84,6 @@ public:
     void			touchAll(bool,bool updatemarker=false);
     EM::PolygonBody*		getEMPolygonBody() const 
     				{ return empolygonsurf_; }
-    EM::ImplicitBody*		generateImplicitBody();
     void			removeSelection(const Selector<Coord3>&);
 
 protected:

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.1 2009-02-02 23:43:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vispolygonbodydisplay.cc,v 1.2 2009-02-13 22:23:20 cvsyuancheng Exp $";
 
 #include "vispolygonbodydisplay.h"
 
@@ -753,15 +753,6 @@ void PolygonBodyDisplay::otherObjectsMoved(
 
     if ( areIntersectionsDisplayed() ) 
 	intersectiondisplay_->touch( false );
-}
-
-
-EM::ImplicitBody* PolygonBodyDisplay::generateImplicitBody()
-{
-    if ( !empolygonsurf_ )
-	return 0;
-    
-    return empolygonsurf_->createImplicitBody( 0 );
 }
 
 
