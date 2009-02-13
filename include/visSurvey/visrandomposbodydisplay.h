@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		January 2009
- RCS:		$Id: visrandomposbodydisplay.h,v 1.2 2009-01-23 22:27:18 cvsyuancheng Exp $
+ RCS:		$Id: visrandomposbodydisplay.h,v 1.3 2009-02-13 19:03:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ public:
     				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
+    EM::RandomPosBody*		getEMBody() const	{ return embody_; }
 
 protected:
 
