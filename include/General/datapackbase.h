@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.13 2009-02-12 22:07:21 cvskris Exp $
+ RCS:		$Id: datapackbase.h,v 1.14 2009-02-13 05:32:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,7 @@ protected:
 /*!\brief DataPack for volume data, where the dims correspond to 
           inl/crl/z . */
     
-class VolumeDataPack : public DataPack
+mClass VolumeDataPack : public DataPack
 {
 public:
 
