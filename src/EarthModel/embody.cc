@@ -7,22 +7,43 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embody.cc,v 1.3 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: embody.cc,v 1.4 2009-02-13 21:18:37 cvsyuancheng Exp $";
 
 #include "embody.h"
-#include "arraynd.h"
 #include "embodytr.h"
 
+namespace EM
+{
 
-EM::ImplicitBody::ImplicitBody() : arr_( 0 ), threshold_( mUdf(float) )	{}
+ImplicitBody::ImplicitBody() 
+    : arr_( 0 )
+    , threshold_( mUdf(float) )	
+{}
 
-EM::ImplicitBody::~ImplicitBody()
+ImplicitBody::~ImplicitBody()
 { delete arr_; }
 
 
-EM::ImplicitBody* EM::Body::createImplicitBody( TaskRunner* ) const
+ImplicitBody ImplicitBody::operator =( const ImplicitBody& ib )
+{
+    threshold_ = ib.threshold_;
+    inlsampling_ = ib.inlsampling_;
+    crlsampling_ = ib.crlsampling_;
+    zsampling_ = ib.zsampling_;
+    arr_ = ib.arr_;
+
+    return *this;
+}
+
+
+ImplicitBody* Body::createImplicitBody( TaskRunner* ) const
 { return 0; }
 
 
-const IOObjContext& EM::Body::getBodyContext() const
+const IOObjContext& Body::getBodyContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
+
+
+
+}; //end namespace
+
