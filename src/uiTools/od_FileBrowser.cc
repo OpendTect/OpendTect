@@ -7,17 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.12 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: od_FileBrowser.cc,v 1.13 2009-02-13 11:10:39 cvsranojay Exp $";
 
 #include "uitextfile.h"
 #include "uimain.h"
 
 #include "prog.h"
-#include <unistd.h>
 #include <iostream>
 
+#ifndef __msvc__
+# include <unistd.h>
+#endif
+
 #ifdef __win__
-#include "filegen.h"
+# include "filegen.h"
 #endif
 
 int main( int argc, char ** argv )
