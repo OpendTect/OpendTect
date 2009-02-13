@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.93 2009-02-11 10:49:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.94 2009-02-13 14:18:29 cvsjaap Exp $";
 
 
 #include "uimpewizard.h"
@@ -55,7 +55,7 @@ const int Wizard::sFinalizePage		= 3;
 static const char* sSeedPickOptionsInfo()
 {
     return
-	"\n\nSeed Pick Options:\n"
+	"\nSeed Pick Options:\n"
 	"*   left mouse-click on plane  =  pick seed & local track\n"
 	"       + Ctrl-Shift  =  drop seed\n"
 	"*   left mouse-click on seed  =  local retrack\n"
@@ -228,7 +228,7 @@ uiGroup* Wizard::createTrackModePage()
     infolbl->attach( alignedBelow, sep );
 
     infofld = new uiTextEdit( grp, "Info", true );
-    infofld->setPrefHeightInChar( 9 );
+    infofld->setPrefHeightInChar( 12 );
     infofld->setPrefWidthInChar( 80 );
     infofld->attach( alignedBelow, infolbl );
 
