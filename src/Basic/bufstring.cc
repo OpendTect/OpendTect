@@ -4,11 +4,13 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.14 2008-12-10 10:46:30 cvsranojay Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.15 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "bufstring.h"
-
+#include "bufstringset.h"
+#include "iopar.h"
 #include "general.h"
+
 #include <iostream>
 #include <stdlib.h>
 #include "string2.h"
@@ -281,4 +283,174 @@ std::istream& operator >>( std::istream& s, BufferString& bs )
     bs = stdstr.c_str();
 #endif
     return s;
+}
+
+
+
+BufferStringSet::BufferStringSet()
+    : ManagedObjectSet<BufferString>(false)
+{
+}
+
+
+
+BufferStringSet::BufferStringSet( const char* arr[], int len )
+    : ManagedObjectSet<BufferString>(false)
+{
+    if ( len < 0 )
+	for ( int idx=0; arr[idx]; idx++ )
+	    add( arr[idx] );
+    else
+	for ( int idx=0; idx<len; idx++ )
+	    add( arr[idx] );
+}
+
+
+BufferStringSet& BufferStringSet::operator =( const BufferStringSet& bss )
+{
+    ManagedObjectSet<BufferString>::operator =( bss );
+    return *this;
+}
+
+
+bool BufferStringSet::operator ==( const BufferStringSet& bss ) const
+{
+    if ( size() != bss.size() ) return false;
+
+    for ( int idx=0; idx<size(); idx++ )
+	if ( get(idx) != bss.get(idx) )
+	    return false;
+
+    return true;
+}
+
+
+int BufferStringSet::indexOf( const char* s ) const
+{
+    if ( !s ) s = "";
+    return ::indexOf( *this, s );
+}
+
+
+BufferStringSet& BufferStringSet::add( const char* s )
+{
+    *this += new BufferString(s);
+    return *this;
+}
+
+
+BufferStringSet& BufferStringSet::add( const BufferString& s )
+{
+    *this += new BufferString(s);
+    return *this;
+}
+
+
+BufferStringSet& BufferStringSet::add( const BufferStringSet& bss,
+				       bool allowdup )
+{
+    for ( int idx=0; idx<bss.size(); idx++ )
+    {
+	const char* s = bss.get( idx );
+	if ( allowdup || indexOf(s) < 0 )
+	    add( s );
+    }
+    return *this;
+}
+
+
+bool BufferStringSet::addIfNew( const char* s )
+{
+    if ( indexOf(s) < 0 )
+	{ add( s ); return true; }
+    return false;
+}
+
+
+bool BufferStringSet::addIfNew( const BufferString& s )
+{
+    return addIfNew( s.buf() );
+}
+
+
+int BufferStringSet::maxLength() const
+{
+    int ret = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const int len = get(idx).size();
+	if ( len > ret )
+	    ret = len;
+    }
+    return ret;
+}
+
+
+void BufferStringSet::sort( BufferStringSet* slave )
+{
+    int* idxs = getSortIndexes();
+    const int sz = size();
+    ObjectSet<BufferString> tmp;
+    ObjectSet<BufferString>* tmpslave = slave ? new ObjectSet<BufferString> : 0;
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	tmp += (*this)[idx];
+	if ( tmpslave )
+	    *tmpslave += (*slave)[idx];
+    }
+    ObjectSet<BufferString>::erase();
+    if ( slave )
+	slave->ObjectSet<BufferString>::erase();
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	*this += tmp[ idxs[idx] ];
+	if ( tmpslave )
+	    *slave += (*tmpslave)[ idxs[idx] ];
+    }
+
+    delete [] idxs;
+    delete tmpslave;
+}
+
+
+int* BufferStringSet::getSortIndexes() const
+{
+    const int sz = size();
+    if ( sz < 1 ) return 0;
+
+    int* idxs = new int [ sz ];
+    for ( int idx=0; idx<sz; idx++ )
+	idxs[idx] = idx;
+
+    int tmp;
+    for ( int d=sz/2; d>0; d=d/2 )
+	for ( int i=d; i<sz; i++ )
+	    for ( int j=i-d; j>=0 && get(idxs[j])>get(idxs[j+d]); j-=d )
+		mSWAP( idxs[j+d], idxs[j], tmp )
+
+    return idxs;
+}
+
+
+void BufferStringSet::fillPar( IOPar& iopar ) const
+{
+    BufferString key;
+    for( int idx=0; idx<size(); idx++ )
+    { 
+	key = idx;
+	iopar.set( key, *(*this)[idx] );
+    }
+}
+
+
+void BufferStringSet::usePar( const IOPar& iopar )
+{
+    BufferString key;
+    for( int idx=0; ;idx++ )
+    { 
+	key = idx;
+	if ( !iopar.find(key) ) return;
+	add( iopar[key] );
+    }
 }

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: envvars.h,v 1.4 2008-12-24 12:39:19 cvsranojay Exp $
+ RCS:		$Id: envvars.h,v 1.5 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#ifndef gendefs_H
+#ifndef gendefs_h
 #include "gendefs.h"
 #endif
 

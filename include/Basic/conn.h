@@ -1,5 +1,5 @@
-#ifndef conn_H
-#define conn_H
+#ifndef conn_h
+#define conn_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.13 2008-12-23 11:02:29 cvsdgb Exp $
+ RCS:		$Id: conn.h,v 1.14 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

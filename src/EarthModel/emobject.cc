@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.84 2009-01-23 21:48:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.85 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "emobject.h"
 
@@ -345,7 +345,7 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( idy==-1 && yn )
 	posids += pid;
     else if ( idy!=-1 && !yn )
-	posids.removeFast( idy );
+	posids.remove( idy, false );
     else 
 	return;
 

@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.18 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: threadwork.h,v 1.19 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "sets.h"
+#include "objectset.h"
 #include "callback.h"
 
 class SequentialTask;

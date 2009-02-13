@@ -8,14 +8,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Feb 2001
  Contents:	Binary data interpretation
- RCS:		$Id: bindatadesc.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: bindatadesc.h,v 1.12 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include <gendefs.h>
+#include "gendefs.h"
 
-#define mDeclConstr(T,ii,is) \
+#define mDeclBinDataDescConstr(T,ii,is) \
 	BinDataDesc( const T* ) { set( ii, is, sizeof(T) ); } \
 	BinDataDesc( const T& ) { set( ii, is, sizeof(T) ); }
 
@@ -79,14 +79,14 @@ public:
     virtual void	dump(unsigned char&,unsigned char&) const;
     virtual void	set(unsigned char,unsigned char);
 
-			mDeclConstr(signed char,true,true)
-			mDeclConstr(short,true,true)
-			mDeclConstr(int,true,true)
-			mDeclConstr(unsigned char,true,false)
-			mDeclConstr(unsigned short,true,false)
-			mDeclConstr(unsigned int,true,false)
-			mDeclConstr(float,false,true)
-			mDeclConstr(double,false,true)
+			mDeclBinDataDescConstr(signed char,true,true)
+			mDeclBinDataDescConstr(short,true,true)
+			mDeclBinDataDescConstr(int,true,true)
+			mDeclBinDataDescConstr(unsigned char,true,false)
+			mDeclBinDataDescConstr(unsigned short,true,false)
+			mDeclBinDataDescConstr(unsigned int,true,false)
+			mDeclBinDataDescConstr(float,false,true)
+			mDeclBinDataDescConstr(double,false,true)
 
     inline bool		operator ==( const BinDataDesc& dc ) const
 			{ return isEqual(dc); }
@@ -129,7 +129,7 @@ protected:
 
 };
 
-#undef mDeclConstr
+#undef mDeclBinDataDescConstr
 
 
 #endif

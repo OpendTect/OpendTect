@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.100 2009-01-16 09:33:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.101 2009-02-13 13:31:15 cvsbert Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -325,7 +325,7 @@ void VolumeDisplay::removeChild( int displayid )
 	    VisualObjectImpl::removeChild( slices_[idx]->getInventorNode() );
 	    slices_[idx]->motion.remove( mCB(this,VolumeDisplay,sliceMoving) );
 	    slices_[idx]->unRef();
-	    slices_.removeFast(idx);
+	    slices_.remove(idx,false);
 	    return;
 	}
     }
@@ -337,8 +337,8 @@ void VolumeDisplay::removeChild( int displayid )
 	    VisualObjectImpl::removeChild(
 		    isosurfaces_[idx]->getInventorNode() );
 	    isosurfaces_[idx]->unRef();
-	    isosurfaces_.removeFast(idx);
-	    isosurfsettings_.removeFast(idx);
+	    isosurfaces_.remove(idx,false);
+	    isosurfsettings_.remove(idx,false);
 	    return;
 	}
     }

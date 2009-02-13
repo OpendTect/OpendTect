@@ -4,15 +4,14 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.4 2009-02-12 10:56:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.5 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seispsioprov.h"
-#include "seiscbvsps.h"
+#include "seispreload.h"
 #include "strmprov.h"
-#include "cbvsio.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "ptrman.h"
@@ -94,7 +93,7 @@ void uiSeisPreLoadMgr::fillList()
 	PtrMan<IOObj> ioobj = IOM().get( ky );
 	if ( !ioobj )
 	{
-	    StreamProvider::unLoad( ky.buf(), true );
+	    Seis::PreLoader(ky).unLoad();
 	    ids_.remove( idx ); idx--;
 	    continue;
 	}
@@ -111,10 +110,11 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     if ( ids_.isEmpty() || selidx < 0 )
 	{ infofld_->setText(""); return; }
 
-    const MultiID ky( ids_.get(selidx) );
-    PtrMan<IOObj> ioobj = IOM().get( ky );
+    const MultiID ky( ids_.get(selidx).buf() );
+    Seis::PreLoader spl( ky );
+    PtrMan<IOObj> ioobj = spl.getIOObj();
     if ( !ioobj )
-	{ infofld_->setText("Internal error: cannot find IOObj"); return; }
+	{ infofld_->setText(spl.errMsg()); return; }
 
     SeisIOObjInfo ioinf( *ioobj );
     if ( !ioinf.isOK() )
@@ -134,8 +134,14 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 	break;
 	case Seis::Line:
 	break;
-	case Seis::VolPS:
-	break;
+	case Seis::VolPS: {
+	    Interval<int> rg = spl.inlRange();
+	    if ( !mIsUdf(rg.start) )
+	    {
+		disptxt += "\nInline range: ";
+		disptxt += rg.start; disptxt += "-"; disptxt += rg.stop;
+	    }
+	} break;
 	case Seis::LinePS:
 	break;
     }
@@ -173,26 +179,19 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    const BufferString basefnm = CBVSIOMgr::baseFileName(
-				    dlg.ioObj()->fullUserExpr(true) );
-    const MultiID keyid( dlg.ioObj()->key() );
-    const char* id = keyid.buf();
-
+    Seis::PreLoader spl( dlg.ioObj()->key() );
+    const char* id = spl.id().buf();
     if ( StreamProvider::isPreLoaded(id,true) )
     {
 	if ( !uiMSG().askGoOn("This cube is already pre-loaded.\n"
 		    	      "Do you want to re-load?") )
 	    return;
-	StreamProvider::unLoad( id, true );
+	spl.unLoad();
     }
 
-    uiTaskRunner tr( this );
-    for ( int idx=0; true; idx++ )
-    {
-	const BufferString fnm( CBVSIOMgr::getFileName(basefnm,idx) );
-	if ( !File_exists(fnm) || !StreamProvider::preLoad(fnm,tr,id) )
-	    break;
-    }
+    uiTaskRunner tr( this ); spl.setRunner( tr );
+    if ( !spl.loadVol() )
+	uiMSG().error( spl.errMsg() );
 
     fullUpd( 0 );
 }
@@ -208,52 +207,38 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS3D);
     ctio->ctxt.trglobexpr = "CBVS";
-    uiIOObjSelDlg dlg( this, *ctio, "Select the data store (part)" );
-    uiSelNrRange* inlrgfld = new uiSelNrRange( &dlg, uiSelNrRange::Inl, false );
-    inlrgfld->attach( alignedBelow, dlg.selGrp()->attachObj() );
+    uiIOObjSelDlg dlg( this, *ctio, "Select data store/part to load" );
+    dlg.setCaption( "Select data store" );
+    uiSelNrRange* inlrgfld = new uiSelNrRange( dlg.selGrp()->getTopGroup(),
+	    				uiSelNrRange::Inl, false );
+    inlrgfld->attach( centeredBelow, dlg.selGrp()->getListField() );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    FilePath fp( dlg.ioObj()->fullUserExpr(true) );
-    const MultiID keyid( dlg.ioObj()->key() );
-    const char* id = keyid.buf();
+    Seis::PreLoader spl( dlg.ioObj()->key() );
+    const char* id = spl.id().buf();
     Interval<int> inlrg; assign(inlrg,inlrgfld->getRange());
+    uiTaskRunner tr( this ); spl.setRunner( tr );
+    if ( !spl.loadPS3D(&inlrg) )
+	uiMSG().error( spl.errMsg() );
 
-    SeisCBVSPSIO psio( dlg.ioObj()->fullUserExpr(true) );
-    BufferStringSet fnms;
-    if ( !psio.get3DFileNames(fnms,&inlrg) )
-	{ uiMSG().error( psio.errMsg() ); return; }
-
-    if ( StreamProvider::isPreLoaded(id,true) )
-	StreamProvider::unLoad( id, true );
-
-    uiTaskRunner tr( this ); BufferStringSet notpl;
-    for ( int idx=0; idx<fnms.size(); idx++ )
+    BufferStringSet notpl;
+    if ( !spl.loadVol() )
+	uiMSG().error( spl.errMsg() );
+    else if ( !notpl.isEmpty() )
     {
-	const char* fnm = fnms.get( idx );
-	if ( !StreamProvider::preLoad(fnm,tr,id) )
-	    notpl.add( fnm );
-    }
-
-    if ( !notpl.isEmpty() )
-    {
-	if ( notpl.size() == fnms.size() )
-	    uiMSG().warning( "Could not pre-load any file" );
-	else
+	BufferString msg( "In directory '" );
+	FilePath fp( notpl.get(0) );
+	msg += fp.pathOnly(); msg += "', failed to pre-load:";
+	for ( int idx=0; idx<notpl.size(); idx++ )
 	{
-	    BufferString msg( "In directory '" );
-	    FilePath fp( notpl.get(0) );
-	    msg += fp.pathOnly(); msg += "', failed to pre-load:";
-	    for ( int idx=0; idx<notpl.size(); idx++ )
-	    {
-		fp.set( notpl.get(idx) );
-		if ( idx % 10 == 0 )
-		    msg += "\n";
-		else
-		    msg += ", ";
-		msg += fp.fileName();
-	    }
-	    uiMSG().warning( msg );
+	    fp.set( notpl.get(idx) );
+	    if ( idx % 10 == 0 )
+		msg += "\n";
+	    else
+		msg += ", ";
+	    msg += fp.fileName();
 	}
+	uiMSG().warning( msg );
     }
 
     fullUpd( 0 );
@@ -277,7 +262,9 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     if ( !uiMSG().askGoOn( msg ) )
 	return;
 
-    StreamProvider::unLoad( ids_.get(selidx), true );
+    Seis::PreLoader spl( MultiID(ids_.get(selidx)) );
+    spl.unLoad();
+
     fillList();
     int newselidx = selidx;
     if ( newselidx >= ids_.size() )

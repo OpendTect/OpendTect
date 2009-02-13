@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.44 2008-12-04 12:48:44 cvsumesh Exp $";
+static const char* rcsID = "$Id: emsurfacegeometry.cc,v 1.45 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "emsurfacegeometry.h"
 
@@ -929,7 +929,7 @@ int SurfaceGeometry::findPos( const CubeSampling& cs,
 	if ( nodebid.inl<cs.hrg.start.inl || nodebid.inl>cs.hrg.stop.inl ||
 	     nodebid.crl<cs.hrg.start.crl || nodebid.crl>cs.hrg.stop.crl )
 	{
-	    posids.removeFast( idx-- );
+	    posids.remove( idx--, false );
 	    continue;
 	}
     }

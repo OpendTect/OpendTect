@@ -1,5 +1,5 @@
-#ifndef genc_H
-#define genc_H
+#ifndef genc_h
+#define genc_h
 
 /*+
 ________________________________________________________________________
@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.37 2008-12-24 12:41:20 cvsranojay Exp $
+ RCS:		$Id: genc.h,v 1.38 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
 
 -*/
 
-#ifndef gendefs_H
+#ifndef gendefs_h
 #include "gendefs.h"
 #endif
 

@@ -1,5 +1,5 @@
-#ifndef general_H
-#define general_H
+#ifndef general_h
+#define general_h
 
 /*+
 ________________________________________________________________________
@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.18 2009-01-14 07:20:36 cvsranojay Exp $
+ RCS:		$Id: general.h,v 1.19 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#ifndef genc_H
-#include <genc.h>
+#ifndef genc_h
+#include "genc.h"
 #endif
 
 #ifdef __cpp__

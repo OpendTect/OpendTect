@@ -1,5 +1,5 @@
-#ifndef ascstream_H
-#define ascstream_H
+#ifndef ascstream_h
+#define ascstream_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.19 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: ascstream.h,v 1.20 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

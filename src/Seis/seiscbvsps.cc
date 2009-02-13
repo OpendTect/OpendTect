@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.38 2009-02-12 10:56:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.39 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -125,7 +125,7 @@ int SeisCBVSPSIO::getInlNr( const char* filenm )
 bool SeisCBVSPSIO::get3DFileNames( BufferStringSet& bss,
 				   const Interval<int>* inlrg ) const
 {
-    bss.deepErase();
+    bss.erase();
     if ( !dirNmOK(true) )
 	return false;
 
@@ -166,7 +166,7 @@ bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
     StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
     if ( !sd.usable() ) return false;
 
-    nms.deepErase();
+    nms.erase();
     BufferString nm;
     while ( StrmOper::readLine(*sd.istrm,&nm) )
 	nms.add( nm.buf() );

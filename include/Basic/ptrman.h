@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: ptrman.h,v 1.14 2006-11-23 19:08:58 cvskris Exp $
+ RCS:           $Id: ptrman.h,v 1.15 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <general.h>
+#include "general.h"
 
 
 // We have to make 3 macros because of compiler restrictions

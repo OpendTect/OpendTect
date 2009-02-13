@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.77 2009-02-11 10:17:52 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.78 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -26,16 +26,16 @@ const int cMaxTypeSetItemsPerLine = 100;
 
 IOPar::IOPar( const char* nm )
 	: NamedObject(nm)
-	, keys_(*new BufferStringSet(true))
-	, vals_(*new BufferStringSet(true))
+	, keys_(*new BufferStringSet)
+	, vals_(*new BufferStringSet)
 {
 }
 
 
 IOPar::IOPar( ascistream& astream )
 	: NamedObject("")
-	, keys_(*new BufferStringSet(true))
-	, vals_(*new BufferStringSet(true))
+	, keys_(*new BufferStringSet)
+	, vals_(*new BufferStringSet)
 {
     getFrom( astream );
 }
@@ -43,8 +43,8 @@ IOPar::IOPar( ascistream& astream )
 
 IOPar::IOPar( const IOPar& iop )
 	: NamedObject(iop.name())
-	, keys_(*new BufferStringSet(true))
-	, vals_(*new BufferStringSet(true))
+	, keys_(*new BufferStringSet)
+	, vals_(*new BufferStringSet)
 {
     for ( int idx=0; idx<iop.size(); idx++ )
 	add( iop.keys_.get(idx), iop.vals_.get(idx) );
@@ -860,8 +860,6 @@ bool IOPar::get( const char* s, BufferStringSet& bss ) const
     bss.erase();
     FileMultiString fms( res );
     const int sz = fms.size();
-    if ( sz )
-	bss.setIsOwner( true );
     for ( int idx=0; idx<sz; idx++ )
 	bss.add( fms[idx] );
     return true;

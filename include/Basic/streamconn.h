@@ -1,5 +1,5 @@
-#ifndef streamconn_H
-#define streamconn_H
+#ifndef streamconn_h
+#define streamconn_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.12 2009-02-05 11:07:28 cvsbert Exp $
+ RCS:		$Id: streamconn.h,v 1.13 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

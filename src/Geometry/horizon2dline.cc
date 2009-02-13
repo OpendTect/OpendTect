@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dline.cc,v 1.12 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: horizon2dline.cc,v 1.13 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "horizon2dline.h"
 
@@ -137,8 +137,8 @@ void Horizon2DLine::removeRow( int id )
 	return;
 
     delete rows_[rowidx];
-    rows_.removeFast( rowidx );
-    colsampling_.removeFast( rowidx );
+    rows_.remove( rowidx, false );
+    colsampling_.remove( rowidx, false );
     if ( !rowidx )
 	firstrow_++;
     else

@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.10 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: compoundkey.h,v 1.11 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#ifndef general_H
+#ifndef general_h
 #include <general.h>
 #endif
 #include <stdlib.h>

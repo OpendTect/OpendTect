@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.6 2009-01-16 15:02:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.7 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -203,7 +203,7 @@ uiWellImportSEGYVSP::~uiWellImportSEGYVSP()
 void uiWellImportSEGYVSP::wllSel( CallBacker* )
 {
     if ( !ctio_.ioobj ) return;
-    existinglognms_.deepErase();
+    existinglognms_.erase();
     const char* nm = Well::IO::getMainFileName( *ctio_.ioobj );
     if ( !nm || !*nm ) return;
     Well::Data wd; Well::Reader wr( nm, wd );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.32 2008-12-03 09:53:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.33 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "attribsel.h"
 #include "attribdesc.h"
@@ -238,7 +238,7 @@ SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod,
 
 void SelInfo::fillStored( const char* filter )
 {
-    ioobjnms.deepErase(); ioobjids.deepErase();
+    ioobjnms.erase(); ioobjids.erase();
 
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();

@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.10 2008-12-01 15:14:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.11 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -309,7 +309,7 @@ void ExplPolygonSurface::removeFromGeometries( const IndexedGeometry* ig )
     const int idx = geometries_.indexOf( ig );
 
     if ( idx!=-1 )
-	geometries_.removeFast( idx );
+	geometries_.remove( idx, false );
 
     geometrieslock_.writeUnLock();
 }

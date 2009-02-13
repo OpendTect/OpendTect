@@ -1,5 +1,5 @@
-#ifndef bufstring_H
-#define bufstring_H
+#ifndef bufstring_h
+#define bufstring_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.35 2008-12-24 12:36:07 cvsranojay Exp $
+ RCS:		$Id: bufstring.h,v 1.36 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

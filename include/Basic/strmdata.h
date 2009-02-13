@@ -1,5 +1,5 @@
-#ifndef strmdata_H
-#define strmdata_H
+#ifndef strmdata_h
+#define strmdata_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-4-1996
  Contents:	Data on any stream
- RCS:		$Id: strmdata.h,v 1.12 2009-02-05 11:07:28 cvsbert Exp $
+ RCS:		$Id: strmdata.h,v 1.13 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

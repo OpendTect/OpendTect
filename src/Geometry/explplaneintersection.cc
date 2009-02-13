@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.10 2008-12-25 11:57:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.11 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "explplaneintersection.h"
 
@@ -501,9 +501,9 @@ void ExplPlaneIntersection::removePlane( int id )
 {
     const int idx = planeids_.indexOf( id );
 
-    planeids_.removeFast( idx );
-    delete planepts_.removeFast( idx );
-    planenormals_.removeFast( idx );
+    planeids_.remove( idx, false );
+    delete planepts_.remove( idx, false );
+    planenormals_.remove( idx, false );
 
     needsupdate_ = true;
 }

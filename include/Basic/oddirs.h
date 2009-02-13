@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.13 2008-12-31 07:13:49 cvsranojay Exp $
+ RCS:		$Id: oddirs.h,v 1.14 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -16,7 +16,7 @@ Beware that all functions may return a pointer to *the same* static buffer!
 
 -*/
 
-#ifndef gendefs_H
+#ifndef gendefs_h
 #include "gendefs.h"
 #endif
 

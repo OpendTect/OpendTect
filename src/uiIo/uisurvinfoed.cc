@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.105 2009-02-11 12:27:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.106 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -61,7 +61,7 @@ const char* usrText() const
 
 uiDialog* dialog( uiParent* p )
 {
-    survlist_.deepErase();
+    survlist_.erase();
     uiSurvey::getSurveyList( survlist_ );
     uiSelectFromList::Setup setup( "Surveys", survlist_ );
     setup.dlgtitle( "Select survey" );

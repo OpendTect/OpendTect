@@ -1,5 +1,5 @@
-#ifndef executor_H
-#define executor_H
+#ifndef executor_h
+#define executor_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.25 2008-12-23 11:02:29 cvsdgb Exp $
+ RCS:		$Id: executor.h,v 1.26 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

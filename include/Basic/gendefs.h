@@ -1,14 +1,13 @@
-#ifndef gendefs_H
-#define gendefs_H
+#ifndef gendefs_h
+#define gendefs_h
 
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	A.H.Bril
- Date:		1-9-1995
- Contents:	General definitions for every module
- RCS:		$Id: gendefs.h,v 1.37 2006-03-12 13:39:09 cvsbert Exp $
+ Author:	Bert
+ Date:		Sep 1995
+ RCS:		$Id: gendefs.h,v 1.38 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
  This file contains general defines that are so basic they can (read: MUST)
@@ -28,8 +27,12 @@ ________________________________________________________________________
 
 -*/
 
-#include "undefval.h"
+#ifndef undefval_h
+# include "undefval.h"
+#endif
+#ifndef commondefs_h
 #include "commondefs.h"
+#endif
 
 
 #endif

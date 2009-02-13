@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.70 2009-02-03 09:06:43 cvshelene Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.71 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -51,7 +51,7 @@ bool TwoDSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 	nms.add( lg.lineKey(iln) );
     for ( int iln=0; iln<nrlines; iln++ )
 	lg.remove( nms.get(iln) );
-    nms.deepErase();
+    nms.erase();
 
     return File_remove( fnm, mFile_NotRecursive );
 }

@@ -1,5 +1,5 @@
-#ifndef selector_H
-#define selector_H
+#ifndef selector_h
+#define selector_h
 
 /*+
 ________________________________________________________________________
@@ -8,13 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.7 2008-06-19 15:44:50 cvskris Exp $
+ RCS:		$Id: selector.h,v 1.8 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <ranges.h>
-#include <sets.h>
+#include "ranges.h"
 
 
 /*!\brief interface for classes that select on basis of a key.

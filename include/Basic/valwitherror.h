@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: valwitherror.h,v 1.7 2008-08-18 13:32:23 cvsyuancheng Exp $
+ RCS:           $Id: valwitherror.h,v 1.8 2009-02-13 13:31:15 cvsbert Exp $
 ________________________________________________________________________
 
 ValWithError is a value with a known error (variance), and that knows
@@ -18,7 +18,7 @@ that it will work on complex data, although not tested.
 @$*/
 
 #include <math.h>
-#include <gendefs.h>
+#include "gendefs.h"
 
 template <class A>
 class ValWithError

@@ -1,5 +1,5 @@
-#ifndef position_H
-#define position_H
+#ifndef position_h
+#define position_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.55 2008-12-29 10:50:10 cvsranojay Exp $
+ RCS:		$Id: position.h,v 1.56 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

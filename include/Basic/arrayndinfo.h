@@ -6,13 +6,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.12 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.13 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 
 */
 
-#include <gendefs.h>
+#include "gendefs.h"
 
 /*!
 Contains the information about the size of ArrayND, and

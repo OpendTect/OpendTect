@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2001
- RCS:		$Id: globexpr.h,v 1.4 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: globexpr.h,v 1.5 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include <general.h>
+#include "general.h"
 
 /*!\brief Glob-expression matching like UNIX shells
 

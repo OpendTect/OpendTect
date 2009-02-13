@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.21 2009-02-03 08:31:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.22 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -79,7 +79,7 @@ void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 
 void uiAxisHandler::reCalc()
 {
-    pos_.erase(); strs_.deepErase();
+    pos_.erase(); strs_.erase();
 
     StepInterval<float> annotrg( rg_ );
     annotrg.start = annotstart_;

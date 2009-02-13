@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.45 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribdesc.h,v 1.46 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "seistype.h"
 #include "attribdescid.h"
+#include "typeset.h"
 
 
 namespace Attrib

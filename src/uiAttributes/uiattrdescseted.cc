@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.80 2009-01-22 15:58:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.81 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -696,7 +696,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 void uiAttribDescSetEd::updateUserRefs()
 {
     BufferString selnm( attrlistfld_ ? attrlistfld_->getText() : "" );
-    userattrnames_.deepErase();
+    userattrnames_.erase();
     attrdescs_.erase();
 
     for ( int iattr=0; iattr<attrset_->nrDescs(); iattr++ )

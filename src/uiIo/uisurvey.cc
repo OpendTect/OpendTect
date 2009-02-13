@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.100 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.101 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -384,7 +384,7 @@ void uiSurvey::dataRootPushed( CallBacker* )
 
 void uiSurvey::mkDirList()
 {
-    dirlist_.deepErase();
+    dirlist_.erase();
     getSurveyList( dirlist_ );
 }
 

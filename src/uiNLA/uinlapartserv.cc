@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.62 2009-02-11 10:50:33 cvsranojay Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.63 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -327,7 +327,7 @@ void selChg( CallBacker* sender )
 
 bool acceptOK( CallBacker* )
 {
-    usrsels.deepErase();
+    usrsels.erase();
     for ( int idx=0; idx<optflds.size(); idx++ )
     {
 	uiComboBox* cb = optflds[idx];
@@ -570,7 +570,7 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	    // change design output nodes to new nodes
 	    BufferStringSet& outps = const_cast<BufferStringSet&>(
 		    				crdesc.design.outputs );
-	    outps.deepErase();
+	    outps.erase();
 	    const int newnrvals = vds.data().nrVals();
 	    for ( int idx=orgnrvals; idx<newnrvals; idx++ )
 		outps.add( vds.colDef(idx).ref_ );

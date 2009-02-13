@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.2 2009-02-10 16:32:57 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.3 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "namedobj.h"
-#include "sets.h"
+#include "objectset.h"
 #include "thread.h"
 #include <iosfwd>
 

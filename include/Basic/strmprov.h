@@ -1,5 +1,5 @@
-#ifndef strmprov_H
-#define strmprov_H
+#ifndef strmprov_h
+#define strmprov_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.30 2009-02-12 12:00:07 cvsbert Exp $
+ RCS:		$Id: strmprov.h,v 1.31 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

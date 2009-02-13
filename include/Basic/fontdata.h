@@ -6,13 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:           $Id: fontdata.h,v 1.12 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <enums.h>
-#include <bufstring.h>
+#include "enums.h"
+#include "bufstring.h"
 
 
 mClass FontData

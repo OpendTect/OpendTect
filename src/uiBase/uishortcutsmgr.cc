@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.12 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uishortcutsmgr.cc,v 1.13 2009-02-13 13:31:15 cvsbert Exp $";
 
 
 #include "uishortcutsmgr.h"
@@ -182,7 +182,7 @@ uiShortcutsList& uiShortcutsList::operator =( const uiShortcutsList& scl )
 
 void uiShortcutsList::empty()
 {
-    keydescs_.erase(); names_.deepErase();
+    keydescs_.erase(); names_.erase();
 }
 
 

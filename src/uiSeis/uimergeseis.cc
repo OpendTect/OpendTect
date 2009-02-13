@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimergeseis.cc,v 1.42 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimergeseis.cc,v 1.43 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uimergeseis.h"
 
@@ -38,7 +38,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
 {
     IOM().to( ctio_.ctxt.getSelKey() );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
-    BufferStringSet ioobjnms("Stored seismic data");
+    BufferStringSet ioobjnms;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	if ( ioobjs[idx]->isReadDefault() )

@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: rcol2coord.h,v 1.8 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
-#include <position.h>
-#include <rowcol.h>
+#include "position.h"
+#include "rowcol.h"
 
 template <class T> class StepInterval;
 

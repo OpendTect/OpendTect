@@ -1,5 +1,5 @@
-#ifndef strmoper_H
-#define strmoper_H
+#ifndef strmoper_h
+#define strmoper_h
 
 /*
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.10 2008-12-24 12:47:14 cvsranojay Exp $
+ RCS:		$Id: strmoper.h,v 1.11 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 */

@@ -7,14 +7,14 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.20 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: plugins.h,v 1.21 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sharedlibs.h"
 #include "bufstring.h"
-#include "sets.h"
+#include "objectset.h"
 
 #ifdef __cpp__
 extern "C" {

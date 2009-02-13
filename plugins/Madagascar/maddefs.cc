@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.14 2008-12-24 04:49:49 cvsraman Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.15 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -28,7 +28,7 @@ ODMad::ProgInfo::ProgInfo()
 void ODMad::ProgInfo::cleanUp()
 {
     deepErase( defs_ );
-    groups_.deepErase();
+    groups_.erase();
 }
 
 

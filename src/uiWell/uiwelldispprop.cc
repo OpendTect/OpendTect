@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.21 2009-01-16 13:02:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.22 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -214,9 +214,8 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
 							   propChg) );
 
     BufferStringSet lognames;
-    lognames.setIsOwner(false);
     for ( int idx=0; idx< wl_->size(); idx++ )
-    lognames.addIfNew( wl_->getLog(idx).name() );
+	lognames.addIfNew( wl_->getLog(idx).name() );
     lognames.sort();
     BufferString sellbl( "Select log" );
     logsfld_ = new uiLabeledComboBox( this, sellbl );

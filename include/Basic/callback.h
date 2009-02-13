@@ -1,5 +1,5 @@
-#ifndef callback_H
-#define callback_H
+#ifndef callback_h
+#define callback_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.40 2009-01-05 09:40:29 cvsranojay Exp $
+ RCS:		$Id: callback.h,v 1.41 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

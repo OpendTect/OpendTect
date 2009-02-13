@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.31 2008-11-10 11:17:12 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.32 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "vismpeeditor.h"
 
@@ -193,10 +193,10 @@ void MPEEditor::removeDragger( int idx )
     removeChild( draggers[idx]->getInventorNode() );
     draggers[idx]->unRef();
     draggersshapesep[idx]->unRef();
-    draggers.removeFast(idx);
-    posids.removeFast(idx);
-    draggersshapesep.removeFast(idx);
-    draggermarkers.removeFast(idx);
+    draggers.remove(idx,false);
+    posids.remove(idx,false);
+    draggersshapesep.remove(idx,false);
+    draggermarkers.remove(idx,false);
 }
 
 

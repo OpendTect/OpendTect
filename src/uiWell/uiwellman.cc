@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.41 2009-01-27 11:45:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.42 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -263,7 +263,7 @@ void uiWellMan::removeLogPush( CallBacker* )
 	}
     }
 
-    logs2rem.deepErase();
+    logs2rem.erase();
 
     if ( wellrdr->removeAll(Well::IO::sExtLog()) )
     {

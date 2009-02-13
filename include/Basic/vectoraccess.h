@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.25 2008-10-23 19:22:09 cvskris Exp $
+ RCS:		$Id: vectoraccess.h,v 1.26 2009-02-13 13:31:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ public:
     inline void		swap( unsigned int i, unsigned int j )
 			{ std::swap( v[i], v[j] ); }
 
-    inline void		fill( const T& val )
+    inline void		fillWith( const T& val )
 			{
 			    const int sz = size();
 			    T* arr = sz ? &v[0] : 0;

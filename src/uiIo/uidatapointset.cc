@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.34 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.35 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -873,7 +873,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     tbl_->clearTable();
     dps_ = *newdps;
-    grpnames_.deepErase();
+    grpnames_.erase();
     dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
 
     const int nrcols = initVars();

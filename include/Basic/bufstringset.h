@@ -8,13 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.11 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: bufstringset.h,v 1.12 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstring.h"
-#include "sets.h"
+#include "manobjectset.h"
 
 mClass IOPar;
 
@@ -25,79 +25,32 @@ mClass IOPar;
 
  */
 
-mClass BufferStringSet : public ObjectSet<BufferString>
+mClass BufferStringSet : public ManagedObjectSet<BufferString>
 {
 public:
-    			BufferStringSet( bool ownr=true ) : owner_(ownr) {}
+    			BufferStringSet();
 			BufferStringSet(const char* arr[],int len=-1);
-			BufferStringSet(const BufferStringSet&);
-	    		~BufferStringSet()	{ if ( owner_ ) deepErase(); }
-    void		deepErase()		{ ::deepErase(*this); }
     BufferStringSet&	operator =(const BufferStringSet&);
     bool		operator ==(const BufferStringSet&) const;
 
-    BufferStringSet&	add( const char* s )
-    			{ *this += new BufferString(s); return *this; }
-    bool		addIfNew(const char*);	//!< returns whether added
-    void		add(const BufferStringSet&,bool allowduplicates);
-    						//!< makes copies
     BufferString&	get( int idx )		{ return *((*this)[idx]); }
     const BufferString&	get( int idx ) const	{ return *((*this)[idx]); }
-    int			indexOf(const char*) const; //!< returns -1 if not found
+    int			indexOf(const char*) const;
 
-    inline int		maxLength() const;
+    BufferStringSet&	add(const char*);
+    BufferStringSet&	add(const BufferString&);
+    BufferStringSet&	add(const BufferStringSet&,bool allowduplicates);
+    bool		addIfNew(const char*);	//!< returns whether added
+    bool		addIfNew(const BufferString&);
+
+    int			maxLength() const;
     void		sort(BufferStringSet* slave=0);
     int*		getSortIndexes() const; //!< returns new int [size()]
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    // Overriding ObjectSet's methods - different in case of being owner
-    virtual void	erase();	// becomes deepErase if owner
-    virtual BufferString* remove(int);	// etc.
-    virtual void	remove(int,int);
-
-    bool		isOwner() const		{ return owner_; }
-    void		setIsOwner( bool yn )	{ owner_ = yn; }
-
-protected:
-
-    bool		owner_;
-
 };
-
-
-mClass NamedBufferStringSet : public BufferStringSet
-{
-public:
-    			NamedBufferStringSet( const char* nm=0, bool ownr=true )
-			    : BufferStringSet(ownr)
-			    , name_(nm)			{}
-
-    const BufferString&	name() const			{ return name_; }
-    void		setName( const char* nm )	{ name_ = nm; }
-
-    virtual void	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
-
-protected:
-
-    BufferString	name_;
-
-};
-
-
-inline int BufferStringSet::maxLength() const
-{
-    int ret = 0;
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	const int len = get(idx).size();
-	if ( len > ret )
-	    ret = len;
-    }
-    return ret;
-}
 
 
 #endif

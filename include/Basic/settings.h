@@ -1,5 +1,5 @@
-#ifndef Settings_H
-#define Settings_H
+#ifndef settings_h
+#define settings_h
 
 /*+
 ________________________________________________________________________
@@ -7,27 +7,28 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		4-11-1995
- RCS:		$Id: settings.h,v 1.9 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: settings.h,v 1.10 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "iopar.h"
+
+
 /*!\brief Settings hold the user settings. It is an IOPar.
 
-  The common() settings are for OpendTect itself. If a plugin needs some
-  stored defaults, just call fetch( yourkey ), and a new Settings
-  instance will be made. You can provide defaults in a file yourkeySettings
-  which must be located in OD's data subdirectory.
+  The common() settings are basic, global user settings.
+  For a specific subject or from a plugin, just call fetch( yourkey ),
+  and a new Settings instance will be made if necessary. You can provide
+  defaults in a file yourkeySettings which must be located in OD's data
+  subdirectory.
 
   The data is stored in ~/.od/settings (common) and ~/.od/settings_yourkey
   for other keys. If $DTECT_USER is set, '.$DTECT_USER' is appended to the
   filename.
 
 */
-
-
-#include <iopar.h>
 
 
 mClass Settings : public IOPar

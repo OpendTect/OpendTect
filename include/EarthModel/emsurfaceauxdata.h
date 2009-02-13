@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.8 2009-01-09 09:44:08 cvssatyaki Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.9 2009-02-13 13:31:15 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "typeset.h"
 #include "bufstringset.h"
 #include "emposid.h"
 

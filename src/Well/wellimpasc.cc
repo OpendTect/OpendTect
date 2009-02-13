@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.50 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.51 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -34,7 +34,7 @@ inline static StreamData getSD( const char* fnm )
 
 Well::AscImporter::~AscImporter()
 {
-    unitmeasstrs_.deepErase();
+    unitmeasstrs_.erase();
 }
 
 

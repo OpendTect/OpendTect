@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.16 2009-02-12 10:56:45 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.17 2009-02-13 13:31:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
     BufferString	get2DFileName(const char* lnm) const;
     bool		get3DFileNames(BufferStringSet&,
 	    				const Interval<int>* inlrg=0) const;
+    static int		getInlNr(const char* filenm);
 
     void		usePar(const IOPar&);
     void		setPrefStorType( DataCharacteristics::UserType ut )
@@ -71,7 +72,6 @@ protected:
     bool		goTo(int,int) const;
     bool		prepGather(int,SeisTrcBuf&) const;
     bool		startWrite(const char*,const SeisTrc&);
-    static int		getInlNr(const char*);
 
 };
 

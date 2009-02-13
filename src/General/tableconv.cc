@@ -4,7 +4,7 @@
  * DATE     : Jul 2006
 -*/
 
-static const char* rcsID = "$Id: tableconv.cc,v 1.13 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: tableconv.cc,v 1.14 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "tableconvimpl.h"
 #include "string2.h"
@@ -124,7 +124,7 @@ bool Table::Converter::handleImpState( Table::ImportHandler::State impstate )
 		rowsdone_++;
 	}
 
-	row_.deepErase();
+	row_.erase();
 	imphndlr_.newRow();
 
     return true; }

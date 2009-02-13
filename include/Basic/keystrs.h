@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.42 2008-12-23 12:51:22 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.43 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
  
-#include <gendefs.h>
+#include "gendefs.h"
 
 #undef mImpl
 

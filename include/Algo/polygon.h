@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.15 2008-09-23 14:07:40 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.16 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -459,7 +459,7 @@ void ODPolygon<T>::convexHull()
     for ( int idx=size()-1; idx>=0; idx-- )
     {
 	if ( pivot == getVertex(idx) )
-	    poly_.removeFast( idx );
+	    poly_.remove( idx, false );
     }
 
     // Angular sort of all pivot-to-point segments

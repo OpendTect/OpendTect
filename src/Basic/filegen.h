@@ -1,5 +1,5 @@
-#ifndef filegen_H
-#define filegen_H
+#ifndef filegen_h
+#define filegen_h
 
 /*+
 ________________________________________________________________________
@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.22 2008-12-24 12:40:30 cvsranojay Exp $
+ RCS:		$Id: filegen.h,v 1.23 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <gendefs.h>
+#include "gendefs.h"
 
 
 #ifdef __cpp__

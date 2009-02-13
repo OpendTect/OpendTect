@@ -1,5 +1,5 @@
-#ifndef dirlist_H
-#define dirlist_H
+#ifndef dirlist_h
+#define dirlist_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		18-4-1996
- RCS:		$Id: dirlist.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: dirlist.h,v 1.8 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/

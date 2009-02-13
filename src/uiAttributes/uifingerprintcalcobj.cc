@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.11 2008-12-03 09:13:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintcalcobj.cc,v 1.12 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "uifingerprintcalcobj.h"
 #include "attribdesc.h"
@@ -112,7 +112,7 @@ calcFingParsObject::calcFingParsObject( uiParent* p )
 calcFingParsObject::~calcFingParsObject()
 {
     deepErase(posset_);
-    reflist_->deepErase();
+    reflist_->erase();
 }
 
 

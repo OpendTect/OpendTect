@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.31 2009-02-10 21:26:19 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.32 2009-02-13 13:31:15 cvsbert Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -1070,7 +1070,7 @@ void ExplFaultStickSurface::removeFromGeometries( const IndexedGeometry* ig )
     const int idx = geometries_.indexOf( ig );
 
     if ( idx!=-1 )
-	geometries_.removeFast( idx );
+	geometries_.remove( idx, false );
 
     geometrieslock_.writeUnLock();
 }

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K Tingdahl
  Date:		April 2003
- RCS:		$Id: toplist.h,v 1.3 2004-01-08 09:13:39 kristofer Exp $
+ RCS:		$Id: toplist.h,v 1.4 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <sets.h>
+#include "typeset.h"
 
 /*!\brief
 is a class that holds a "top N" list with the N highest (or lowest) values

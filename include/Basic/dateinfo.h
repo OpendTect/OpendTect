@@ -1,12 +1,12 @@
-#ifndef datainfo_H
-#define datainfo_H
+#ifndef dateinfo_h
+#define dateinfo_h
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-3-96
- RCS:		$Id: dateinfo.h,v 1.6 2008-12-18 09:22:47 cvsbert Exp $
+ RCS:		$Id: dateinfo.h,v 1.7 2009-02-13 13:31:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
