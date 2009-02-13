@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.5 2009-02-13 21:18:37 cvsyuancheng Exp $
+ RCS:		$Id: embody.h,v 1.6 2009-02-13 21:34:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,9 +52,9 @@ public:
     				//!<Should be mapped to EMObject::ref()
     virtual void		unRefBody()	= 0;
     				//!<Should be mapped to EMObject::unRef()
-    virtual bool		useBodyPar(const IOPar&);
+    virtual bool		useBodyPar(const IOPar&)	{ return true; }
     				//!<Should be mapped to EMObject::usePar;
-    virtual void                fillBodyPar(IOPar&) const;
+    virtual void                fillBodyPar(IOPar&) const	= 0;
     				//!<Should be mapped to EMObject::fillPar;
 protected:
     				~Body()		{}
