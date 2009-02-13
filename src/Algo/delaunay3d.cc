@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.17 2009-02-03 23:01:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.18 2009-02-13 19:05:17 cvsyuancheng Exp $";
 
 #include "arraynd.h"
 #include "delaunay3d.h"
@@ -147,7 +147,7 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 	TypeSet<int> tis;
 	for ( int ti=0; ti<triangles_.size()/3; ti++ )
 	{
-	    if ( triangles_[ti]==-1 )
+	    if ( triangles_[3*ti]==-1 )
 		continue;
 	    
 	    const Coord a = knots[triangles_[3*ti]].coord();
@@ -157,11 +157,9 @@ bool Explicit2ImplicitBodyExtracter::doWork( od_int64 start, od_int64 stop, int)
 	    const Coord d1 = a-c;
 	    const double flatti = fabs(d0.dot(d1))-sqrt(d0.dot(d0)*d1.dot(d1));
 	    if ( mIsZero(flatti,1e-4) )
-		continue;
+		continue;//TODO::special case
 	    
-	    if ( pointInTriangle2D( pos, knots[triangles_[3*ti]].coord(),
-			knots[triangles_[3*ti+1]].coord(),
-			knots[triangles_[3*ti+2]].coord(), 1e-3) )
+	    if ( pointInTriangle2D( pos, a, b, c, 1e-3) )
 		tis += ti;
 	}
 	
@@ -643,8 +641,8 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
 
 
 char DAGTetrahedraTree::locationToTriangle( const Coord3& pt, const Coord3& a, 
-	const Coord3& b, const Coord3& c, double& signeddist, double& closestedgedist,
-	char& dupidx, char& edgeidx ) const
+	const Coord3& b, const Coord3& c, double& signeddist, 
+	double& closestedgedist, char& dupidx, char& edgeidx ) const
 {
     const Coord3 normal = (b-a).cross(c-b).normalize();
     signeddist = (a-pt).dot(normal);
@@ -662,8 +660,8 @@ char DAGTetrahedraTree::locationToTriangle( const Coord3& pt, const Coord3& a,
 	const Coord3& v0 = idx==0 ? a : (idx==1 ? b : c);
 	const Coord3& v1 = idx==0 ? b : (idx==1 ? c : a);
 	bool duponfirst;
-	const char res = 
-	    isOnEdge( pt+signeddist*normal, v0, v1, normal, duponfirst, edgesqdist[idx]);
+	const char res = isOnEdge( pt+signeddist*normal, v0, v1, normal, 
+				   duponfirst, edgesqdist[idx] );
 	const double dist = Math::Sqrt(fabs(edgesqdist[idx]));
 	
 	if ( res==cIsDuplicate() )
