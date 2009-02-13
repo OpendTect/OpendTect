@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Marc Gerritsen, Jeroen Post
  Date:          23-04-2003
- RCS:           $Id: SoGridSurfaceDragger.h,v 1.4 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:           $Id: SoGridSurfaceDragger.h,v 1.5 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,12 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFVec4f.h>
 
+#include "soodbasic.h"
+
 class SbLineProjector;
 
 
-class COIN_DLL_API SoGridSurfaceDragger : public SoDragger 
+mClass SoGridSurfaceDragger : public SoDragger 
 {
     SO_KIT_HEADER( SoGridSurfaceDragger );
     SO_KIT_CATALOG_ENTRY_HEADER( rotator );

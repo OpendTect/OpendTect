@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.3 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:           $Id: SoRGBATextureChannel2RGBA.h,v 1.4 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
 
+#include "soodbasic.h"
+
 class SoFieldSensor;
 class SoSensor;
 class SoElement;
@@ -31,7 +33,7 @@ colorsequence per channel, and outputs 4 texture channels (RGBA) on the state.
 */
 
 
-class COIN_DLL_API SoRGBATextureChannel2RGBA : public SoNode
+mClass SoRGBATextureChannel2RGBA : public SoNode
 { SO_NODE_HEADER(SoRGBATextureChannel2RGBA);
 public:
     static		void initClass();

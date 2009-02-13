@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          October 2008
- RCS:           $Id: SoLockableSeparator.h,v 1.3 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:           $Id: SoLockableSeparator.h,v 1.4 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/threads/SbRWMutex.h>
+
+#include "soodbasic.h"
 
 #define mImplFunc( func, action )	\
 func( action* a )			\
@@ -28,7 +30,7 @@ func( action* a )			\
 
 /*!A separator with a lock, that is readlocked during all traversals. */
 
-class COIN_DLL_API SoLockableSeparator : public SoSeparator
+mClass SoLockableSeparator : public SoSeparator
 {
     typedef SoSeparator inherited;
     SO_NODE_HEADER(SoLockableSeparor);

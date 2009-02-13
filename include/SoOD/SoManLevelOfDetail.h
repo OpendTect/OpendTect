@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoManLevelOfDetail.h,v 1.6 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoManLevelOfDetail.h,v 1.7 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/fields/SoMFFloat.h>
 #include <Inventor/fields/SoSFInt32.h>
+
+#include "soodbasic.h"
 
 #define SO_MANLEVELOFDETAIL_AUTO (-1)
 
@@ -28,7 +30,7 @@ to SO_MANLEVELOFDETAIL_AUTO
 */
 
 
-class COIN_DLL_API SoManLevelOfDetail : public SoGroup {
+mClass SoManLevelOfDetail : public SoGroup {
     typedef SoGroup inherited;
 
     SO_NODE_HEADER(SoManLevelOfDetail);

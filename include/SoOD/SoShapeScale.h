@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoShapeScale.h,v 1.11 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoShapeScale.h,v 1.12 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/nodes/SoSubNode.h>
+
+#include "soodbasic.h"
 
 
 /*!\brief
@@ -30,7 +32,7 @@ position in (0, 0, 0).
 	      
 */
 
-class COIN_DLL_API SoShapeScale : public SoNode
+mClass SoShapeScale : public SoNode
 {
     SO_NODE_HEADER(SoShapeScale);
 public:

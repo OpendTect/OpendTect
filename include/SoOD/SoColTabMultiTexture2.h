@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoColTabMultiTexture2.h,v 1.4 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoColTabMultiTexture2.h,v 1.5 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -21,8 +21,8 @@ ________________________________________________________________________
 #include <Inventor/fields/SoMFShort.h>
 #include <Inventor/SbTime.h>
 
-
 #include "SoMFImage.h"
+#include "soodbasic.h"
 
 
 class SoFieldSensor;
@@ -34,7 +34,7 @@ class SoGLImage;
 All textures are put in a sequence in SoColTabMultiTexture2::image, and the sequence
 is processed from the start to the end to create one texture. */
 
-class COIN_DLL_API SoColTabMultiTexture2 : public SoNode
+mClass SoColTabMultiTexture2 : public SoNode
 {
     SO_NODE_HEADER( SoColTabMultiTexture2 );
 public:

@@ -29,11 +29,13 @@
 #include <Inventor/fields/SoSFString.h>
 #include <Inventor/fields/SoSFVec3d.h>
 
+#include "soodbasic.h"
+
 class SbMatrix;
 class SoState;
 
 
-class UTMPosition : public SoTransformation {
+mClass UTMPosition : public SoTransformation {
   typedef SoTransformation inherited;
 
   SO_NODE_HEADER(UTMPosition);

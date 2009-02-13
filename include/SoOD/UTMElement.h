@@ -28,8 +28,10 @@
 #include <Inventor/elements/SoSubElement.h>
 #include <Inventor/SbLinear.h>
 
+#include "soodbasic.h"
 
-class UTMElement : public SoElement {
+
+mClass UTMElement : public SoElement {
   typedef SoElement inherited;
 
   SO_ELEMENT_HEADER(UTMElement);

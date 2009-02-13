@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoTextureChannelSetElement.h,v 1.5 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoTextureChannelSetElement.h,v 1.6 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,11 +17,13 @@ ________________________________________________________________________
 #include <Inventor/SbLinear.h>
 #include <Inventor/lists/SbList.h>
 
+#include "soodbasic.h"
+
 class SbImage;
 
 /*!  Element that holds one image per texture unit.  */
 
-class COIN_DLL_API SoTextureChannelSetElement : public SoReplacedElement
+mClass SoTextureChannelSetElement : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoTextureChannelSetElement);
 public:

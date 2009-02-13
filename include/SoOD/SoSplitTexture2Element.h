@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.8 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.9 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,9 +18,11 @@ ________________________________________________________________________
 #include <Inventor/SbLinear.h>
 #include <SoSplitTexture2.h>
 
+#include "soodbasic.h"
+
 /*!  Element that holds one image per texture unit.  */
 
-class COIN_DLL_API SoSplitTexture2Element : public SoReplacedElement
+mClass SoSplitTexture2Element : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoSplitTexture2Element);
 public:

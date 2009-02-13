@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPerspectiveSel.h,v 1.5 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoPerspectiveSel.h,v 1.6 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include <Inventor/fields/SoMFVec3f.h>
 #include <Inventor/fields/SoSFVec3f.h>
 
-class COIN_DLL_API SoPerspectiveSel : public SoGroup
+#include "soodbasic.h"
+
+mClass SoPerspectiveSel : public SoGroup
 {
     typedef SoGroup inherited;
 

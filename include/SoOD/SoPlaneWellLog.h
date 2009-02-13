@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.21 2009-01-16 13:02:33 cvsbruno Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.22 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFShort.h>
 #include <Inventor/SbLinear.h>
+
+#include "soodbasic.h"
 
 class SoBaseColor;
 class SoCoordinate3;
@@ -35,7 +37,7 @@ class SoSwitch;
 
 */
 
-class COIN_DLL_API SoPlaneWellLog : public SoBaseKit
+mClass SoPlaneWellLog : public SoBaseKit
 {
     typedef SoBaseKit inherited;
     SO_KIT_HEADER(SoPlaneWellLog);

@@ -35,11 +35,11 @@
 #include <SoWinLeaveScope.h>
 #endif // win
 
+#include "soodbasic.h"
 
 class ViewportRegionP;
 
-
-class COIN_DLL_API ViewportRegion : public SoNode {
+mClass ViewportRegion : public SoNode {
   typedef SoNode inherited;
 
   SO_NODE_HEADER(ViewportRegion);

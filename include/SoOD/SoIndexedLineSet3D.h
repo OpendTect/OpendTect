@@ -6,10 +6,12 @@
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFBool.h>
 
+#include "soodbasic.h"
+
 class SbBox3f;
 class SbVec3f;
 
-class COIN_DLL_API SoIndexedLineSet3D : public SoIndexedShape
+mClass SoIndexedLineSet3D : public SoIndexedShape
 {
     SO_NODE_HEADER(SoIndexedLineSet3D);
 public:

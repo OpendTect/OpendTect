@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2003
- RCS:           $Id: SoArrow.h,v 1.1 2003-11-28 15:39:11 nanne Exp $
+ RCS:           $Id: SoArrow.h,v 1.2 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFFloat.h>
+
+#include "soodbasic.h"
 
 
 /*! \brief
@@ -23,7 +25,7 @@ ________________________________________________________________________
 */
 
 
-class SoArrow : public SoShape
+mClass SoArrow : public SoShape
 {
     typedef SoShape inherited;
     SO_NODE_HEADER(SoArrow);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfo.h,v 1.4 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoCameraInfo.h,v 1.5 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,11 +18,13 @@ ________________________________________________________________________
 
 #include "Inventor/fields/SoSFInt32.h"
 
+#include "soodbasic.h"
+
 /*!\brief
 Puts information about the camera/rendertype into the state.
 */
 
-class COIN_DLL_API SoCameraInfo : public SoNode
+mClass SoCameraInfo : public SoNode
 {
     SO_NODE_HEADER(SoCameraInfo);
     typedef SoNode inherited;

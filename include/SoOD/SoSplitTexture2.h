@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.11 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.12 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,8 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFShort.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
+
+#include "soodbasic.h"
 
 class SbVec2s;
 class SoGLDisplayList;
@@ -37,7 +39,7 @@ class SoElement;
 */
 
 
-class COIN_DLL_API SoSplitTexture2: public SoNode
+mClass SoSplitTexture2: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2);
 public:
     static		void initClass();
@@ -62,7 +64,7 @@ protected:
    image was put on the state.  If the requested part is outside the source
    texture, it is clamped to edge.*/
 
-class COIN_DLL_API SoSplitTexture2Part: public SoNode
+mClass SoSplitTexture2Part: public SoNode
 { SO_NODE_HEADER(SoSplitTexture2Part);
 public:
     static		void initClass();

@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.8 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoDepthTabPlaneDragger.h,v 1.9 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include <Inventor/draggers/SoDragger.h>
+
+#include "soodbasic.h"
 
 
 class SbLineProjector;
@@ -25,7 +27,7 @@ A TabPlaneDragger where the moving on moves the dragger in z direction
 to how small the dragger is allowed to be.
 */
 
-class COIN_DLL_API SoDepthTabPlaneDragger : public SoDragger
+mClass SoDepthTabPlaneDragger : public SoDragger
 {
     typedef SoDragger inherited;
     SO_KIT_HEADER(SoDepthTabPlaneDragger);

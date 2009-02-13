@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoIndexedTriangleFanSet.h,v 1.4 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoIndexedTriangleFanSet.h,v 1.5 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "Inventor/nodes/SoIndexedShape.h"
+
+#include "soodbasic.h"
 
 
 /*!\brief
@@ -31,7 +33,7 @@ This saves quite much mem compared with stripsets.
 
 */
 
-class COIN_DLL_API SoIndexedTriangleFanSet : public SoIndexedShape
+mClass SoIndexedTriangleFanSet : public SoIndexedShape
 {
     SO_NODE_HEADER(SoIndexedTriangleFanSet);
 public:

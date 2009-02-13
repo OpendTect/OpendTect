@@ -30,10 +30,12 @@
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/fields/SoSFVec3d.h>
 
+#include "soodbasic.h"
+
 class SoState;
 
 
-class UTMCamera : public SoPerspectiveCamera {
+mClass UTMCamera : public SoPerspectiveCamera {
   typedef SoPerspectiveCamera inherited;
 
   SO_NODE_HEADER(UTMCamera);

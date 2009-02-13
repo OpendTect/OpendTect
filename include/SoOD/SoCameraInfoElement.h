@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfoElement.h,v 1.5 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoCameraInfoElement.h,v 1.6 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,11 +15,13 @@ ________________________________________________________________________
 
 #include <Inventor/elements/SoInt32Element.h>
 
+#include "soodbasic.h"
+
 /*!\brief
 
 */
 
-class COIN_DLL_API SoCameraInfoElement : public SoInt32Element
+mClass SoCameraInfoElement : public SoInt32Element
 {
     SO_ELEMENT_HEADER(SoCameraInfoElement);
 

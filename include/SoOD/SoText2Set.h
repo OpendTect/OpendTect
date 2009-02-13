@@ -34,8 +34,10 @@
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbBox3f.h>
 
+#include "soodbasic.h"
 
-class COIN_DLL_API SoText2Set : public SoShape
+
+mClass SoText2Set : public SoShape
 {
   typedef SoShape inherited;
 

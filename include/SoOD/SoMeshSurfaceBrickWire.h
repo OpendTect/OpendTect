@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.4 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoMeshSurfaceBrickWire.h,v 1.5 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "Inventor/fields/SoMFVec3f.h"
 #include "Inventor/fields/SoSFShort.h"
 #include "Inventor/lists/SbList.h"
+
+#include "soodbasic.h"
 
 
 class SbVec3f;
@@ -31,7 +33,7 @@ are organized in a grid where index=row*((sideSize+1)*spacing)+1)+col*spacing;
 */
 
 
-class COIN_DLL_API SoMeshSurfaceBrickWire : public SoIndexedLineSet
+mClass SoMeshSurfaceBrickWire : public SoIndexedLineSet
 {
     typedef SoIndexedLineSet	inherited;
     SO_NODE_HEADER(SoMeshSurfaceBrickWire);

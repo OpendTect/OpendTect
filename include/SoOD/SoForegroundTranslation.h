@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoForegroundTranslation.h,v 1.7 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:		$Id: SoForegroundTranslation.h,v 1.8 2009-02-13 10:47:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "Inventor/nodes/SoSubNode.h"
 #include "Inventor/fields/SoSFFloat.h"
 
+#include "soodbasic.h"
+
 /*!\brief
 A class that moves the objects further down the traversal towards the camera,
 so they can be clearly viewed. An example is wireframes that should be visible
@@ -25,7 +27,7 @@ it represents.
 
 */
 
-class COIN_DLL_API SoForegroundTranslation : public SoNode
+mClass SoForegroundTranslation : public SoNode
 {
     typedef SoNode		inherited;
     SO_NODE_HEADER(SoForegroundTranslation);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoShaderTexture2.h,v 1.5 2009-01-08 09:48:12 cvsnanne Exp $
+ RCS:           $Id: SoShaderTexture2.h,v 1.6 2009-02-13 10:47:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,13 +18,15 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/misc/SoGLImage.h>
 
+#include "soodbasic.h"
+
 class SbVec2s;
 class SoGLDisplayList;
 class SoFieldSensor;
 class SoSensor;
 
 
-class COIN_DLL_API SoShaderTexture2: public SoNode
+mClass SoShaderTexture2: public SoNode
 { SO_NODE_HEADER(SoShaderTexture2);
 public:
     static		void initClass();
