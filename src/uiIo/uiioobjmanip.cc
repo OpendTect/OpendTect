@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.37 2009-01-27 11:52:52 cvshelene Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.38 2009-02-13 05:46:32 cvsnanne Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -138,7 +138,6 @@ uiIOObjManipGroup::uiIOObjManipGroup( uiIOObjManipGroupSubj& s )
     robut = addButton( ReadOnly, cb, "Toggle Read only : locked" );
     setAlternative( robut, ioPixmap("unlock.png"),
 		    "Toggle Read only : editable");
-    robut->setToggleButton( true );
     rembut = addButton( Remove, cb, "Remove this object" );
     attach( rightOf, subj_.obj_ );
 }
@@ -181,7 +180,6 @@ void uiIOObjManipGroup::selChg()
     const bool isreadonly = isexisting && ioobj->implReadOnly();
     locbut->setSensitive( iostrm && !isreadonly );
     useAlternative( robut, !isreadonly );
-    robut->setOn( isreadonly );
     renbut->setSensitive( ioobj );
     rembut->setSensitive( ioobj && !isreadonly );
 }
@@ -353,13 +351,13 @@ bool uiIOObjManipGroup::readonlyEntry( IOObj* ioobj, Translator* tr )
 {
     if ( !ioobj ) { pErrMsg("Huh"); return false; }
 
-    bool exists = tr ? tr->implExists(ioobj,true) : ioobj->implExists(true);
+    const bool exists = tr ? tr->implExists(ioobj,true)
+			   : ioobj->implExists(true);
     if ( !exists ) return false;
 
-    bool oldreadonly = tr ? tr->implReadOnly(ioobj) : ioobj->implReadOnly();
-    bool newreadonly = robut->isOn();
-    if ( oldreadonly == newreadonly ) return false;
-
+    const bool oldreadonly = tr ? tr->implReadOnly(ioobj)
+				: ioobj->implReadOnly();
+    bool newreadonly = !oldreadonly;
     bool res = tr ? tr->implSetReadOnly(ioobj,newreadonly)
 		: ioobj->implSetReadOnly(newreadonly);
 
