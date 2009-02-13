@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.17 2009-01-16 04:49:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.18 2009-02-13 05:10:09 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -183,7 +183,7 @@ bool ColTab::MapperSetup::usePar( const IOPar& par )
 
     return par.get( sKeyClipRate(), cliprate_ ) &&
 	   par.get( sKeySymMidVal(), symmidval_ ) &&
-	   par.getYN( sKeyAutoSym(), autosym0_ );
+	   par.getYN( sKeyAutoSym(), autosym0_ ) &&
 	   par.get( sKeyMaxPts(), maxpts_ ) &&
 	   par.get( sKeyRange(), start_, width_ );
 }
