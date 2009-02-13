@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.12 2009-02-13 21:20:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.13 2009-02-13 22:24:12 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -274,6 +274,14 @@ Executor* EM::MarchingCubesSurface::saver( IOObj* inpioobj )
 
 bool EM::MarchingCubesSurface::isEmpty() const
 { return mcsurface_->isEmpty(); }
+
+
+void EM::MarchingCubesSurface::fillBodyPar( IOPar& par ) const
+{ EM::EMObject::fillPar( par ); }
+
+
+bool EM::MarchingCubesSurface::useBodyPar( const IOPar& par )
+{ return EM::EMObject::usePar( par ); }
 
 
 const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const

@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.3 2009-02-13 21:20:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.4 2009-02-13 22:24:12 cvsyuancheng Exp $";
 
 #include "emrandomposbody.h"
 
@@ -342,6 +342,9 @@ ImplicitBody* EM::RandomPosBody::createImplicitBody( TaskRunner* tr ) const
 
 bool EM::RandomPosBody::useBodyPar( const IOPar& par )
 {
+    if ( !EM::EMObject::usePar( par ) )
+	return false;
+
     ids_.erase();
     if ( !par.get( sKeySubIDs(), ids_ ) )
 	return false;
@@ -363,6 +366,7 @@ bool EM::RandomPosBody::useBodyPar( const IOPar& par )
 
 void EM::RandomPosBody::fillBodyPar( IOPar& par ) const
 {
+    EM::EMObject::fillPar( par );
     par.set( sKeySubIDs(), ids_ );
     for ( int idx=0; idx<locations_.size(); idx++ )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.6 2009-02-13 21:59:25 cvsyuancheng Exp $
+ RCS:		$Id: emmarchingcubessurface.h,v 1.7 2009-02-13 22:24:12 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -55,8 +55,8 @@ public:
     void			refBody();
     void			unRefBody();
     
-    void			fillBodyPar(IOPar&) const	{;}
-    bool			useBodyPar(const IOPar&)	{ return true; }
+    void			fillBodyPar(IOPar&) const;
+    bool			useBodyPar(const IOPar&);
 
 
 protected:

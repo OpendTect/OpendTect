@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.9 2009-02-13 21:20:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.10 2009-02-13 22:24:12 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
@@ -209,11 +209,19 @@ void EM::PolygonBody::unRefBody()
 
 
 bool PolygonBody::useBodyPar( const IOPar& par )
-{ return geometry().usePar(par); }
+{ 
+    if ( !EM::EMObject::usePar( par ) )
+	return false;
+
+    return geometry().usePar(par); 
+}
 
 
 void PolygonBody::fillBodyPar( IOPar& par ) const
-{ geometry().fillPar( par ); }
+{
+    EM::EMObject::fillPar( par ); 
+    geometry().fillPar( par ); 
+}
     
 
 Executor* PolygonBody::saver()
