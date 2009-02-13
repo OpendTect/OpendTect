@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.4 2009-02-02 21:52:02 cvsyuancheng Exp $
+ RCS:		$Id: emmarchingcubessurface.h,v 1.5 2009-02-13 21:20:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,9 @@ public:
     void			setZSampling(const SamplingData<float>&);
 
     ImplicitBody*		createImplicitBody(TaskRunner*) const;
+    void			refBody();
+    void			unRefBody();
+
 
 protected:
 

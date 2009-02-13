@@ -9,11 +9,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.2 2009-02-03 23:01:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.3 2009-02-13 21:20:03 cvsyuancheng Exp $";
 
 #include "emrandomposbody.h"
 
 #include "ascstream.h"
+#include "embodyoperator.h"
 #include "embodytr.h"
 #include "emmanager.h"
 #include "executor.h"
@@ -181,6 +182,18 @@ EM::RandomPosBody::~RandomPosBody()
 {}
 
 
+void EM::RandomPosBody::refBody()
+{
+    EM::EMObject::ref();
+}
+
+
+void EM::RandomPosBody::unRefBody()
+{
+    EM::EMObject::unRef();
+}
+
+
 void EM::RandomPosBody::copyFrom( const Pick::Set& ps )
 {
     locations_.erase();
@@ -322,8 +335,40 @@ const IOObjContext& EM::RandomPosBody::getIOObjContext() const
 
 ImplicitBody* EM::RandomPosBody::createImplicitBody( TaskRunner* tr ) const
 {
-    ImplicitBodyCreater impbodycreater;
-    return impbodycreater.createImplicitBody( locations_, tr );
+    BodyOperator bodyopt;
+    return bodyopt.createImplicitBody( locations_, tr ); 
+}
+
+
+bool EM::RandomPosBody::useBodyPar( const IOPar& par )
+{
+    ids_.erase();
+    if ( !par.get( sKeySubIDs(), ids_ ) )
+	return false;
+
+    locations_.erase();
+    for ( int idx=0; idx<ids_.size(); idx++ )
+    {
+	Coord3 pos( Coord3::udf() );
+       	BufferString skeypos("Location pos"); skeypos += ids_[idx]; 
+	if (!par.get( skeypos.buf(), pos ) )
+	    return false;
+
+	locations_ += pos;
+    }
+
+    return true;
+}
+
+
+void EM::RandomPosBody::fillBodyPar( IOPar& par ) const
+{
+    par.set( sKeySubIDs(), ids_ );
+    for ( int idx=0; idx<locations_.size(); idx++ )
+    {
+       	BufferString skeypos("Location pos"); skeypos += ids_[idx]; 
+	par.set( skeypos.buf(), locations_[idx] );
+    }
 }
 
 

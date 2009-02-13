@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.11 2009-02-02 21:52:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.12 2009-02-13 21:20:03 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -217,6 +217,18 @@ EM::MarchingCubesSurface::~MarchingCubesSurface()
 }
 
 
+void EM::MarchingCubesSurface::refBody()
+{
+    EM::EMObject::ref();
+}
+
+
+void EM::MarchingCubesSurface::unRefBody()
+{
+    EM::EMObject::unRef();
+}
+
+
 Executor* EM::MarchingCubesSurface::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
@@ -278,8 +290,7 @@ const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
 }
 
 
-ImplicitBody*
-EM::MarchingCubesSurface::createImplicitBody( TaskRunner* tr ) const
+ImplicitBody*EM::MarchingCubesSurface::createImplicitBody( TaskRunner* tr ) const
 {
     if ( !mcsurface_ )
 	return 0;
@@ -313,6 +324,7 @@ EM::MarchingCubesSurface::createImplicitBody( TaskRunner* tr ) const
 	delete intarr;
 	return 0;
     }
+
     Array3D<float>* arr = new Array3DConv<float,int>(intarr);
     if ( !arr )
     {
@@ -343,6 +355,7 @@ EM::MarchingCubesSurface::createImplicitBody( TaskRunner* tr ) const
 
     res->threshold_ = m2i.threshold();
     mcsurface_->modelslock_.readUnLock();
+
     return res;
 }
 

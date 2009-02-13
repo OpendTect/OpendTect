@@ -7,14 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.8 2009-02-03 23:01:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.9 2009-02-13 21:20:03 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
+#include "embodyoperator.h"
 #include "embodytr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
 #include "ioman.h"
+#include "survinfo.h"
 #include "undo.h"
 
 namespace EM {
@@ -166,7 +168,6 @@ PolygonBody::PolygonBody( EMManager& em )
 PolygonBody::~PolygonBody()
 {}
 
-
 ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
 {
     const EM::SectionID sid = sectionID( 0 );
@@ -181,9 +182,9 @@ ImplicitBody* PolygonBody::createImplicitBody( TaskRunner* tr ) const
      TypeSet<Coord3> pts;
      for ( int plg=rrg.start; plg<=rrg.stop; plg += rrg.step )
 	 surf->getCubicBezierCurve( plg, pts, SI().zFactor() );
-    
-     ImplicitBodyCreater impbodycreator;
-     return impbodycreator.createImplicitBody( pts, tr ); 
+   
+     BodyOperator bodyopt;
+     return bodyopt.createImplicitBody( pts, tr ); 
 }
 
 
@@ -199,11 +200,25 @@ const IOObjContext& PolygonBody::getIOObjContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
 
 
-Executor* PolygonBody::saver()
-{
-    return saver( 0 );
-}
+void EM::PolygonBody::refBody()
+{ EM::EMObject::ref(); }
+
+
+void EM::PolygonBody::unRefBody()
+{ EM::EMObject::unRef(); }
+
+
+bool PolygonBody::useBodyPar( const IOPar& par )
+{ return geometry().usePar(par); }
+
+
+void PolygonBody::fillBodyPar( IOPar& par ) const
+{ geometry().fillPar( par ); }
     
+
+Executor* PolygonBody::saver()
+{ return saver( 0 ); }
+
 
 Executor* PolygonBody::saver( IOObj* inpioobj )
 {

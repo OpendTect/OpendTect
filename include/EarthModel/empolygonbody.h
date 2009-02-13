@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		July 2008
- RCS:		$Id: empolygonbody.h,v 1.3 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: empolygonbody.h,v 1.4 2009-02-13 21:20:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,11 @@ public:
     Executor*                   saver(IOObj*);
 
     ImplicitBody*		createImplicitBody(TaskRunner*) const;
+    void			refBody();
+    void			unRefBody();
+
+    bool			useBodyPar(const IOPar&);
+    void			fillBodyPar(IOPar&) const;
 
 protected:
     const IOObjContext&		getIOObjContext() const;
