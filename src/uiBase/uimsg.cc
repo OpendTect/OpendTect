@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.37 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.38 2009-02-13 14:17:22 cvsbert Exp $";
 
 
 #include "uimsg.h"
@@ -93,7 +93,8 @@ void uiMsg::setNextCaption( const char* s )
     MouseCursorChanger cc( MouseCursor::Arrow )
 #define mPrepTxt() \
     mPrepCursor(); \
-    BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3
+    BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3; \
+    if ( msg.isEmpty() ) return
 #define mCapt(s) QString( getCaptn(s) )
 #define mTxt QString( msg.buf() )
 
