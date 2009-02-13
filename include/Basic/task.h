@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.14 2008-12-23 11:02:29 cvsdgb Exp $
+ RCS:		$Id: task.h,v 1.15 2009-02-13 14:18:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,8 +218,18 @@ private:
 mClass TaskRunner
 {
 public:
-    virtual 		~TaskRunner()		{}
-    virtual bool	execute(Task& t)	{ return t.execute(); }
+
+			TaskRunner() : execres_(false)	{}
+    virtual 		~TaskRunner()			{}
+
+    virtual bool	execute(Task& t)
+    			{ return (execres_ = t.execute()); }
+    virtual bool	execResult() const		{ return execres_; }
+
+protected:
+
+    bool		execres_;
+
 };
 
 #endif

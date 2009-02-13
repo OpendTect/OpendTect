@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.13 2008-12-19 04:45:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.14 2009-02-13 14:18:43 cvsbert Exp $";
 
 #include "uitaskrunner.h"
 
@@ -55,7 +55,7 @@ uiTaskRunner::~uiTaskRunner()
 bool uiTaskRunner::execute( Task& t )
 {
     if ( task_ )
-	return t.execute();
+	return (execres_ = t.execute());
 
     MouseCursorChanger mousecursor( MouseCursor::Arrow );
 
@@ -69,7 +69,7 @@ bool uiTaskRunner::execute( Task& t )
     execnm_ = task_->name();
 
     updateFields();
-    return go();
+    return (execres_ = go());
 }
 
 
@@ -242,5 +242,6 @@ bool uiTaskRunner::rejectOK( CallBacker* )
     finalizeTask();
     uitaskrunnerthreadmutex_.unLock();
 
+    execres_ = false;
     return true;
 }
