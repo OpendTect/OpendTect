@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.32 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.33 2009-02-16 17:13:12 cvsbert Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uibatchprogs.cc,v 1.32 2008-11-25 15:35:25 cvsb
 #include "strmprov.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "manobjectset.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "envvars.h"
@@ -80,18 +81,18 @@ public:
 };
 
 
-class BatchProgInfoList : public ObjectSet<BatchProgInfo>
+class BatchProgInfoList : public ManagedObjectSet<BatchProgInfo>
 {
 public:
 
 			BatchProgInfoList();
-			~BatchProgInfoList()	{ deepErase(*this); }
 
     void		getEntries(const char*);
 };
 
 
 BatchProgInfoList::BatchProgInfoList()
+    : ManagedObjectSet<BatchProgInfo>(false)
 {
     const char* fromenv = GetEnvVar( "OD_BATCH_PROGRAMS_FILE" );
     if ( fromenv && *fromenv )

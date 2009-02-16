@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsinfo.h,v 1.25 2008-12-29 10:59:28 cvsranojay Exp $
+ RCS:		$Id: cbvsinfo.h,v 1.26 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "posauxinfo.h"
+#include "rcol2coord.h"
 #include "basiccompinfo.h"
 #include "samplingdata.h"
 #include "posinfo.h"

@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: iodirentry.h,v 1.11 2008-12-25 11:25:59 cvsranojay Exp $
+ RCS:           $Id: iodirentry.h,v 1.12 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "multiid.h"
 #include "namedobj.h"
-#include "sets.h"
+#include "objectset.h"
 class IOObj;
 class IODir;
 class IOObjContext;

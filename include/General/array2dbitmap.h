@@ -6,13 +6,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.17 2009-01-20 06:19:14 cvsranojay Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.18 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
-#include "sets.h"
 #include "arraynd.h"
 #include "dataclipper.h"
 

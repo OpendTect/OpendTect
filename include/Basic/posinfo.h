@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.12 2008-12-24 12:43:52 cvsranojay Exp $
+ RCS:		$Id: posinfo.h,v 1.13 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "sets.h"
+#include "manobjectset.h"
+#include "typeset.h"
 #include "cubesampling.h"
 #include "indexinfo.h"
 #include "position.h"
@@ -65,18 +66,18 @@ public:
 
 /*!\brief Position info for an entire 3D cube. */
 
-mClass CubeData : public ObjectSet<LineData>
+mClass CubeData : public ManagedObjectSet<LineData>
 {
 public:
-    			CubeData()		{}
+    			CubeData()
+			    : ManagedObjectSet<LineData>(false)	{}
     			CubeData(const BinID& start,const BinID& stop,
 				 const BinID& step);
     			CubeData( const CubeData& cd )
-						{ *this = cd; }
-			~CubeData()		{ deepErase(*this); }
+			    : ManagedObjectSet<LineData>(false)
+								{ *this = cd; }
     CubeData&		operator =(const CubeData&);
 
-    void		deepCopy(const CubeData&);
     int			totalSize() const;
     int			indexOf(int inl) const;
     bool		includes(int inl,int crl) const;
@@ -89,7 +90,7 @@ public:
     bool		haveCrlStepInfo() const;
     bool		isFullyRectAndReg() const;
 
-    void		add( LineData* ld )	{ *this += ld; }
+    CubeData&		add( LineData* ld )	{ *this += ld; return *this; }
 
     void		limitTo(const HorSampling&);
     void		merge(const CubeData&,bool incl);

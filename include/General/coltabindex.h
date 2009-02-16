@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabindex.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: coltabindex.h,v 1.7 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "coltab.h"
-#include "sets.h"
+#include "typeset.h"
 
 
 namespace ColTab

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2005
- RCS:		$Id: classify.h,v 1.2 2008-12-25 11:16:07 cvsranojay Exp $
+ RCS:		$Id: classify.h,v 1.3 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "sets.h"
+#include "typeset.h"
 
 
 /*!\brief Finds out which class is the best from a series of weighted

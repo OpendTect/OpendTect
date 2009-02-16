@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.h,v 1.25 2009-01-27 11:44:11 cvsranojay Exp $
+ RCS:           $Id: hostdata.h,v 1.26 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
 #include "filepath.h"
+#include "manobjectset.h"
 
 class HostDataList;
 class ShareData;
@@ -147,11 +148,10 @@ protected:
   The first entry will be the local host.
  
  */
-mClass HostDataList : public ObjectSet<HostData>
+mClass HostDataList : public ManagedObjectSet<HostData>
 {
 public:
-			HostDataList( bool readhostfile=true );
-    virtual		~HostDataList()		{ deepErase(*this); }
+			HostDataList(bool readhostfile=true);
 
     int			defNiceLevel() const	{ return defnicelvl_; }
     int			firstPort() const	{ return portnr_; }

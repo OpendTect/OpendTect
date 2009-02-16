@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.10 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:           $Id: mathexpression.h,v 1.11 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <sets.h>
-#include <gendefs.h>
 #include "bufstringset.h"
+template <class T> class TypeSet;
 
 
 /*!\brief parses a string with a mathematical expression.

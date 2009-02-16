@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hostdata.cc,v 1.39 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: hostdata.cc,v 1.40 2009-02-16 17:13:12 cvsbert Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -139,7 +139,8 @@ FilePath HostData::convPath( PathType pt, const FilePath& fp,
 }
 
 HostDataList::HostDataList( bool readhostfile )
-    	: realaliases_(false)
+    	: ManagedObjectSet<HostData>(false)
+	, realaliases_(false)
     	, rshcomm_("rsh")
     	, defnicelvl_(19)
     	, portnr_(1963)

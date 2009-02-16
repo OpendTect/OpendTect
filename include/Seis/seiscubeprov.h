@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.11 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.12 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "rowcol.h"
-#include "sets.h"
+#include "objectset.h"
 class IOObj;
 class BinID;
 class MultiID;

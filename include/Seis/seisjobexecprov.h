@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.12 2009-01-14 12:29:51 cvsranojay Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.13 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class CtxtIOObj;
 class JobRunner;
 class JobDescProv;
 class Seis2DLineSet;
+template <class T> class TypeSet;
 
 /*!\brief Provides job runners and postprocessor for seismic processing.
 

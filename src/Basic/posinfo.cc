@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.16 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.17 2009-02-16 17:13:12 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -183,6 +183,7 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
 
 PosInfo::CubeData::CubeData( const BinID& b1, const BinID& b2,
 			     const BinID& stp )
+	: ManagedObjectSet<LineData>( false )
 {
     BinID start( b1 ); BinID stop( b2 ); BinID step( stp );
     if ( start.inl > stop.inl ) Swap( start.inl, stop.inl );
@@ -203,19 +204,11 @@ PosInfo::CubeData& PosInfo::CubeData::operator =( const PosInfo::CubeData& cd )
 {
     if ( &cd != this )
     {
-	deepErase( *this );
+	erase();
 	for ( int idx=0; idx<cd.size(); idx++ )
 	    *this += new PosInfo::LineData( *cd[idx] );
     }
     return *this;
-}
-
-
-void PosInfo::CubeData::deepCopy( const PosInfo::CubeData& cd )
-{
-    deepErase( *this );
-    for ( int idx=0; idx<cd.size(); idx++ )
-	(*this) += new PosInfo::LineData( *cd[idx] );
 }
 
 

@@ -8,15 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Jul 2002
  Contents:	PAuxiliary info on position
- RCS:		$Id: posauxinfo.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: posauxinfo.h,v 1.7 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <rcol2coord.h>
-#include <basiccompinfo.h>
-#include <scaler.h>
-#include <sets.h>
+#include "position.h"
 class CubeSampling;
 
 

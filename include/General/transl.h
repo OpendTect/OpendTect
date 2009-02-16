@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
-RCS:		$Id: transl.h,v 1.32 2009-02-06 12:12:04 cvsbert Exp $
+RCS:		$Id: transl.h,v 1.33 2009-02-16 17:13:12 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -19,7 +19,7 @@ description of IOObj context.
 */
 
 #include "refcount.h"
-#include "sets.h"
+#include "objectset.h"
 #include "selector.h"
 #include "callback.h"
 #include "bufstring.h"
