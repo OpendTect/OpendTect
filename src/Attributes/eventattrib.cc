@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: eventattrib.cc,v 1.28 2009-02-13 14:12:06 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.cc,v 1.29 2009-02-16 09:19:28 cvshelene Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -216,7 +216,7 @@ void Event::singleEvent( const DataHolder& output, int nrsamples, int z0 ) const
 	    }
 	}
 
-	if ( cursample > ev.pos && cursample < nextev.pos )
+	if ( cursample >= ev.pos && cursample <= nextev.pos )
 	{
 	    if ( isOutputEnabled(0) )
 	    {
