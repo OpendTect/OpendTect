@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.6 2009-02-16 15:36:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultsticksetdisplay.cc,v 1.7 2009-02-16 16:02:28 cvsjaap Exp $";
 
 #include "visfaultsticksetdisplay.h"
 
@@ -604,8 +604,9 @@ void FaultStickSetDisplay::emChangeCB( CallBacker* cb )
 	    const Coord3 curpos = emfss_->getPos( cbdata.pid0 ); 
 	    const Coord3 newpos = s2dd->getNearestSubPos( curpos, true );
 
-	    NotifyStopper notifystopper( emfss_->change );
+	    emfss_->change.remove( mCB(this,FaultStickSetDisplay,emChangeCB) );
 	    emfss_->setPos( cbdata.pid0, newpos, false );
+	    emfss_->change.notify( mCB(this,FaultStickSetDisplay,emChangeCB) );
 	}
     }
     updateSticks();
