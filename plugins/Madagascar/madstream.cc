@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.14 2009-01-20 10:54:43 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.15 2009-02-16 17:10:35 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -291,8 +291,7 @@ void MadStream::fillHeaderParsFromSeis()
 	{
 	    if ( !pinfo.cubedata ) mErrRet( "Incomplete Geometry Information" );
 
-	    PosInfo::CubeData newcd = *(new PosInfo::CubeData);
-	    newcd.deepCopy( *pinfo.cubedata );
+	    PosInfo::CubeData newcd( *pinfo.cubedata );
 	    if ( rangesel && !rangesel->isAll() )
 		newcd.limitTo( rangesel->cubeSampling().hrg );
 
@@ -302,8 +301,6 @@ void MadStream::fillHeaderParsFromSeis()
 		nrtrcs = newcd.totalSize();
 		mWriteToPosFile( newcd )
 	    }
-	    
-	    newcd.erase();		// Because the pointers are not mine!
 	}
 	
 	if ( !needposfile )
@@ -368,8 +365,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
     else
     {
 	mDynamicCastGet(SeisPS3DReader*,rdr,psrdr_);
-	PosInfo::CubeData& newcd( *new PosInfo::CubeData );
-	newcd.deepCopy( rdr->posData() );
+	PosInfo::CubeData newcd( rdr->posData() );
 	if ( seldata )
 	{
 	    HorSampling hs;
