@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocexec.cc,v 1.5 2009-02-09 05:18:49 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocexec.cc,v 1.6 2009-02-16 11:39:42 cvsraman Exp $";
 
 #include "envvars.h"
 #include "filepath.h"
@@ -198,12 +198,16 @@ const char* ODMad::ProcExec::getProcString()
 	const char* plotcmd = procflow[pidx]->auxCommand();
 	const bool hasplot = plotcmd && *plotcmd;
 	const bool endproc = pidx == procflow.size()-1;
-	const bool nooutput = procflow.ioType(false) == ODMad::ProcFlow::None;
+	const bool nooutput = outtyp == ODMad::ProcFlow::None;
 	if ( hasplot )
 	{
 	    FlowStage newstage = endproc && nooutput ? Finish : Intermediate;
 	    pars_.set( sKeyCurProc(), pidx + 1 );
 	    pars_.set( sKey::LogFile, StreamProvider::sStdErr() );
+	    pars_.set( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),sKey::Type ),
+		       "Madagascar" );
+	    pars_.remove( IOPar::compKey(ODMad::ProcFlow::sKeyInp(),
+					 sKey::FileName) );
 	    pars_.set( sKeyFlowStage(), eString(ODMad::ProcExec::FlowStage,
 						newstage) );
 	    ret += " | ";
