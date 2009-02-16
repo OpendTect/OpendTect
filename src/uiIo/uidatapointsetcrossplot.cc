@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.27 2009-02-12 09:59:07 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.28 2009-02-16 10:29:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.27 2009-02-12 09:59:07 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.28 2009-02-16 10:29:24 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -212,11 +212,12 @@ void uiDataPointSetCrossPlotter::dataChanged()
     desiredy2rg_ = y2_.rg_;
     calcStats();
     setDraw();
+    drawDeSelectedItems();
     drawContent();
 }
 
 
-void uiDataPointSetCrossPlotter::removeSelections()
+void uiDataPointSetCrossPlotter::drawDeSelectedItems()
 {
     for (  int idx=0; idx<yptitems_->getSize(); idx++ )
     {
@@ -233,8 +234,15 @@ void uiDataPointSetCrossPlotter::removeSelections()
 	    y2ptitems_->getUiItem(idx)->setSelected( false );
 	}
     }
+}
+
+
+void uiDataPointSetCrossPlotter::removeSelections()
+{
+    drawDeSelectedItems();
     selcoords_.erase();
     selrowcols_.erase();
+    deepErase( selectedareaset_ );
     if ( odselectedpolygon_ )
     {	
 	odselectedpolygon_->erase();
@@ -303,37 +311,8 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     selectedarea_ = uiRect( rectangleselection_ ? selstartpos_ : pt,
 			    rectangleselection_ ? getCursorPos() : pt );
     getSelectableRanges();
+    selectedareaset_ += new uiRect( selectedarea_ );
     
-    if ( isy1selectable_ )
-    {
-	for ( int idx=0; idx<yptitems_->getSize(); idx++ )
-	{
-	    uiGraphicsItem* itm = yptitems_->getUiItem(idx);
-	    const uiPoint* itempos = itm->getPos();
-	    if ( (rectangleselection_ ? selectedarea_.contains(*itempos) :
-		    odselectedpolygon_->isInside(*itempos,true,0)) &&
-		    yselectablerg_.contains(*itempos) )
-	    {
-		itm->setPenColor( Color::DgbColor() );
-		itm->setSelected( true );
-	    }
-	}
-    }
-    if ( isy2selectable_ && y2ptitems_ && isY2Shown() )
-    {
-	for ( int idx=0; idx<y2ptitems_->getSize(); idx++ )
-	{
-	    uiGraphicsItem* itm = y2ptitems_->getUiItem(idx);
-	    const uiPoint* itempos = itm->getPos();
-	    if ( (rectangleselection_ ? selectedarea_.contains(*itempos) :
-		    odselectedpolygon_->isInside(*itempos,true,0)) &&
-		    y2selectablerg_.contains(*itempos) )
-	    {
-		itm->setPenColor( Color(100,230,220) );
-		itm->setSelected( true );
-	    }
-	}
-    }
     pointsSelected.trigger();
     reDrawNeeded.trigger();
 }
@@ -694,6 +673,39 @@ void uiDataPointSetCrossPlotter::setAnnotEndTxt( uiAxisHandler& yah )
 }
 
 
+void uiDataPointSetCrossPlotter::checkSelection( uiGraphicsItem* item,
+						 bool isy2 )
+{
+    if ( !item ) return;
+    for ( int idx=0; idx<selectedareaset_.size(); idx++ )
+    {
+	uiRect* selarea = selectedareaset_[idx];
+	if ( isy1selectable_ && !isy2 )
+	{
+	    const uiPoint* itempos = item->getPos();
+	    if ( (rectangleselection_ ? selarea->contains(*itempos) :
+		    odselectedpolygon_->isInside(*itempos,true,0)) &&
+		    yselectablerg_.contains(*itempos) )
+	    {
+		item->setPenColor( Color::DgbColor() );
+		item->setSelected( true );
+	    }
+	}
+	if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
+	{
+	    const uiPoint* itempos = item->getPos();
+	    if ( (rectangleselection_ ? selarea->contains(*itempos) :
+		    odselectedpolygon_->isInside(*itempos,true,0)) &&
+		    y2selectablerg_.contains(*itempos) )
+	    {
+		item->setPenColor( Color(100,230,220) );
+		item->setSelected( true );
+	    }
+	}
+    }
+}
+
+
 bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2,
 	MarkerStyle2D& mstyle )
@@ -722,6 +734,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	addItemIfNew( itmidx, mstyle, curitmgrp, yah, rid );
 
 	setItem( curitmgrp->getUiItem(itmidx), isy2, rid, pt, yad );
+	checkSelection( curitmgrp->getUiItem(itmidx), isy2 );
 	nrptsdisp++;
 	if ( nrptsdisp > 1 )
 	    usedxpixrg_.include( pt.x );
@@ -1008,6 +1021,8 @@ void valueChanged( CallBacker* cb )
 
 void checkRange( uiGenInput* fld, const Interval<float>& rg )
 {
+    if ( !fld ) return;
+
     if ( fld->getFInterval().start < rg.start )
 	fld->setValue( rg.start, 0 );
     if ( fld->getFInterval().stop > rg.stop )
@@ -1016,12 +1031,14 @@ void checkRange( uiGenInput* fld, const Interval<float>& rg )
 	fld->setValue( rg );
 }
 
+
 void getSelRanges( Interval<float>& xrg, Interval<float>& yrg,
 		   Interval<float>& y2rg )
 {
     xrg = xrgfld_->getFInterval();
     yrg = yrgfld_->getFInterval();
-    y2rg = y2rgfld_->getFInterval();
+    if ( y2rgfld_ )
+	y2rg = y2rgfld_->getFInterval();
 }
 
 

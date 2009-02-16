@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.15 2009-02-03 06:22:02 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.16 2009-02-16 10:29:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,12 +109,14 @@ public:
     bool			drawPoints(uiGraphicsItemGroup*,
 	    				   const AxisData&,bool y2,
 	    				   MarkerStyle2D&);
+    void			drawDeSelectedItems();
 
     const ObjectSet<Coord3>&	getSelCoords() const	{ return selcoords_; }
     void			setSceneSelectable( bool yn )	
 				{ selectable_ = yn; }
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections();
+    void			checkSelection(uiGraphicsItem*,bool);
     void			getSelectableRanges();
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
@@ -181,6 +183,7 @@ protected:
     bool			selrowisy2_;
 
     uiRect			selectedarea_;
+    ObjectSet<uiRect>		selectedareaset_;
     uiRect			yselectablerg_;
     uiRect			y2selectablerg_;
     ObjectSet<Coord3>		selcoords_;

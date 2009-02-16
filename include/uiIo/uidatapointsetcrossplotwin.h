@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.9 2009-02-11 11:38:09 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.10 2009-02-16 10:29:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,6 @@ protected:
     void			setSelectionDomain(CallBacker*);
     void			eachChg(CallBacker*);
     void			grpChg(CallBacker*);
-    void			delSel(CallBacker*);
     void			editProps(CallBacker*);
     void			selOption(CallBacker*);
 };
