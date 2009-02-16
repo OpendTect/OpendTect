@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.79 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.80 2009-02-16 17:14:40 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -73,15 +73,20 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 
 SEGYSeisTrcTranslator::~SEGYSeisTrcTranslator()
 {
+    cleanUp();
+    delete txthead_;
+    delete &binhead_;
+    delete &trchead_;
+}
+
+
+void SEGYSeisTrcTranslator::cleanUp()
+{
     SeisTrcTranslator::cleanUp();
 
     delete storinterp; storinterp = 0;
     delete [] blockbuf; blockbuf = 0;
     headerbufread = headerdone = false;
-
-    delete txthead_;
-    delete &binhead_;
-    delete &trchead_;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.31 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: segytr.h,v 1.32 2009-02-16 17:14:40 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -55,6 +55,7 @@ public:
     SEGY::FileReadOpts&	fileReadOpts()		{ return fileopts_; }
 
     bool		implShouldRemove(const IOObj*) const { return false; }
+    void		cleanUp();
 
 protected:
 
