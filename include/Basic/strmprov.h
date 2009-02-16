@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.31 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: strmprov.h,v 1.32 2009-02-16 17:13:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,9 @@ public:
     static bool		isPreLoaded(const char*,bool isid);
 			    //!< If isid, a single hit will return true
     static bool		preLoad(const char*,TaskRunner&,const char* id);
+    			    //!< id can be anything, usually MultiID though
+    static bool		preLoad(const BufferStringSet&,TaskRunner&,
+	    			const char* id);
     			    //!< id can be anything, usually MultiID though
     static void		getPreLoadedIDs(BufferStringSet&);
     static void		getPreLoadedFileNames(const char* id,BufferStringSet&);

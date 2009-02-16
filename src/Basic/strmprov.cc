@@ -5,6 +5,8 @@
  * FUNCTION : Stream Provider functions
 -*/
 
+static const char* rcsID = "$Id: strmprov.cc,v 1.89 2009-02-16 17:13:39 cvsbert Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,6 +48,10 @@
 #include "executor.h"
 #include "fixedstreambuf.h"
 
+
+static BufferString oscommand( 2048, false );
+const char* StreamProvider::sStdIO()	{ return "Std-IO"; }
+const char* StreamProvider::sStdErr()	{ return "Std-Err"; }
 #define mPreLoadChunkSz 8388608
 		// 8 MB
 
@@ -94,13 +100,6 @@ static const char* mkUnLinked( const char* fnm )
 
 #endif
 
-
-static const char* rcsID = "$Id: strmprov.cc,v 1.88 2009-02-13 13:31:15 cvsbert Exp $";
-
-static BufferString oscommand( 2048, false );
-
-const char* StreamProvider::sStdIO()	{ return "Std-IO"; }
-const char* StreamProvider::sStdErr()	{ return "Std-Err"; }
 
 bool ExecOSCmd( const char* comm, bool inbg )
 {
@@ -196,6 +195,8 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 }
 
 
+//---- StreamData ----
+
 StreamData& StreamData::operator =( const StreamData& sd )
 {
     if ( this != &sd )
@@ -249,6 +250,9 @@ void StreamData::setFileName( const char* f )
     fname_ = f ? new char [strlen(f)+1] : 0;
     if ( fname_ ) strcpy( fname_, f );
 }
+
+
+//---- Pre-loaded data ----
 
 
 class StreamProviderPreLoadDataPack : public BufferDataPack
@@ -350,6 +354,7 @@ int nextStep()
 	return Finished();
     }
 
+    msg_ = "Read error for '"; msg_ += fnm_; msg_ += "'";
     return ErrorOccurred();
 }
 
@@ -375,12 +380,94 @@ bool isOK() const
 
 };
 
+
 static ObjectSet<StreamProviderPreLoadedData>& PLDs()
 {
     static ObjectSet<StreamProviderPreLoadedData>* plds = 0;
     if ( !plds ) plds = new ObjectSet<StreamProviderPreLoadedData>;
     return *plds;
 }
+
+
+class StreamProviderDataPreLoader : public Executor
+{
+public:
+
+StreamProviderDataPreLoader( const BufferStringSet& nms, const char* id )
+    : Executor("Pre-loading data")
+    , id_(id)
+    , curpld_(0)
+    , curnmidx_(-1)
+    , totnr_(0)
+    , nrdone_(0)
+{
+    for ( int idx=0; idx<nms.size(); idx++ )
+    {
+	const char* fnm = nms.get( idx );
+	if ( !File_exists(fnm) )
+	    continue;
+
+	fnms_.add( fnm );
+	totnr_ += File_getKbSize( fnm );
+    }
+    mkNewPLD();
+}
+
+bool mkNewPLD()
+{
+    if ( curpld_ )
+    {
+	if ( curpld_->isOK() )
+	{
+	    PLDs() += curpld_;
+	    nrdone_ += curpld_->nrDone();
+	}
+	else
+	{
+	    totnr_ -= File_getKbSize( curpld_->fnm_ );
+	    delete curpld_;
+	}
+    }
+
+    curpld_ = 0;
+    curnmidx_++;
+
+    if ( curnmidx_ < fnms_.size() )
+    {
+	const char* fnm = fnms_.get( curnmidx_ );
+	if ( StreamProvider::isPreLoaded(fnm,false) )
+	    StreamProvider::unLoad(fnm,false);
+	curpld_ = new StreamProviderPreLoadedData( fnm, id_ );
+    }
+
+    return curpld_;
+}
+
+const char* message() const	{ return curpld_ ? curpld_->message() : ""; }
+const char* nrDoneText() const	{ return curpld_ ? curpld_->nrDoneText() : ""; }
+od_int64 totalNr() const	{ return totnr_; }
+od_int64 nrDone() const	
+{ return nrdone_ + (curpld_ ? curpld_->nrDone() : 0); }
+
+int nextStep()
+{
+    if ( !curpld_ ) return Executor::Finished();
+
+    int res = curpld_->nextStep();
+    if ( res != Executor::Finished() )
+	return res;
+    else
+	return mkNewPLD() ? Executor::MoreToDo() : Executor::Finished();
+}
+
+    const BufferString		id_;
+    BufferStringSet		fnms_;
+    int				curnmidx_;
+    od_int64			totnr_;
+    od_int64			nrdone_;
+    StreamProviderPreLoadedData* curpld_;
+
+};
 
 
 static int getPLID( const char* key, bool isid )
@@ -406,7 +493,7 @@ bool StreamProvider::isPreLoaded( const char* key, bool isid )
 
 bool StreamProvider::preLoad( const char* fnm, TaskRunner& tr, const char* id )
 {
-    if ( !fnm || !*fnm || getPLID(fnm,false) >= 0 ) return true;
+    if ( !fnm || !*fnm || isPreLoaded(fnm,false) ) return true;
 
     StreamProviderPreLoadedData* newpld =
 			new StreamProviderPreLoadedData( fnm, id );
@@ -416,6 +503,16 @@ bool StreamProvider::preLoad( const char* fnm, TaskRunner& tr, const char* id )
 	{ delete newpld; newpld = 0; }
 
     return newpld;
+}
+
+
+bool StreamProvider::preLoad( const BufferStringSet& fnms, TaskRunner& tr,
+				const char* id )
+{
+    if ( fnms.isEmpty() ) return true;
+
+    StreamProviderDataPreLoader exec( fnms, id );
+    return tr.execute( exec );
 }
 
 
