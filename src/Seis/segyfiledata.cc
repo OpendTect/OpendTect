@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Sep 2008
 -*/
-static const char* rcsID = "$Id: segyfiledata.cc,v 1.16 2008-12-29 11:19:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyfiledata.cc,v 1.17 2009-02-16 17:15:32 cvsbert Exp $";
 
 #include "segyfiledata.h"
 #include "iopar.h"
@@ -24,7 +24,8 @@ static bool writeascii = !__islittle__ || GetEnvVarYN("OD_WRITE_SEGYDEF_ASCII");
 
 
 SEGY::FileData::FileData( const char* fnm, Seis::GeomType gt )
-    : fname_(fnm)
+    : ManagedObjectSet<TraceInfo>(false)
+    , fname_(fnm)
     , geom_(gt)
     , trcsz_(-1)
     , sampling_(SI().zRange(false).start,SI().zRange(false).step)

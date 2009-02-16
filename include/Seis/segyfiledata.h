@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledata.h,v 1.9 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: segyfiledata.h,v 1.10 2009-02-16 17:15:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "seisposkey.h"
 #include "samplingdata.h"
+#include "manobjectset.h"
 #include "iopar.h"
 
 class ascostream;
@@ -71,13 +72,13 @@ struct RichTraceInfo : public TraceInfo
 
 /*\brief Data usually obtained by scanning a SEG-Y file. */
 
-mClass FileData : public ObjectSet<TraceInfo>
+mClass FileData : public ManagedObjectSet<TraceInfo>
 {
 public:
 
     			FileData(const char* fnm,Seis::GeomType);
-			FileData( const FileData& fd )	{ *this = fd; }
-			~FileData()			{ deepErase(*this); }
+    			FileData( const FileData& fd )
+			: ManagedObjectSet<TraceInfo>(false)	{ *this = fd; }
     FileData&		operator =(const FileData&);
 
     BufferString	fname_;
@@ -110,7 +111,7 @@ public:
 };
 
 
-mClass FileDataSet : public ObjectSet<FileData>
+mClass FileDataSet : public ManagedObjectSet<FileData>
 {
 public:
 
@@ -125,16 +126,16 @@ public:
 	int		trcidx_;
     };
 
-    			FileDataSet( const IOPar& iop )	{ pars_ = iop; }
-    			FileDataSet( const FileDataSet& fds )
-			    				{ *this = fds; }
-    			~FileDataSet()			{ deepErase(*this); }
+    			FileDataSet( const IOPar& iop )
+			: ManagedObjectSet<FileData>(false)	{ pars_ = iop; }
+    			FileDataSet( const FileDataSet& fd )
+			: ManagedObjectSet<FileData>(false)	{ *this = fd; }
     FileDataSet&	operator =(const FileDataSet&);
 
     bool		toNext(TrcIdx&,bool allownull=true,
 	    			bool allownotusable=false) const;
 
-    const IOPar&	pars() const			{ return pars_; }
+    const IOPar&	pars() const				{ return pars_; }
 
 protected:
 
