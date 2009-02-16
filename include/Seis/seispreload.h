@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.2 2009-02-13 14:19:05 cvsbert Exp $
+ RCS:           $Id: seispreload.h,v 1.3 2009-02-16 17:17:56 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -38,7 +38,7 @@ public:
 
     bool		loadVol() const;
     bool		loadLines(const BufferStringSet& lnms,
-	    			  const char* attrnm=0) const;
+	    			  const BufferStringSet& attrnms) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
     bool		loadPS2D(const char* lnm) const;
 

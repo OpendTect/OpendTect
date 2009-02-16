@@ -3,12 +3,14 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.2 2009-02-13 14:19:05 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.3 2009-02-16 17:17:56 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"
 #include "seispsioprov.h"
+#include "seiscbvs2d.h"
 #include "seiscbvsps.h"
+#include "seis2dline.h"
 #include "filegen.h"
 #include "ioman.h"
 #include "strmprov.h"
@@ -37,38 +39,60 @@ Interval<int> Seis::PreLoader::inlRange() const
 }
 
 
-#define mGetIOObj() \
+#define mPrepIOObj(is2dln) \
     PtrMan<IOObj> ioobj = getIOObj(); \
     if ( !ioobj ) \
 	return false; \
-    if ( strcmp(ioobj->translator(),"CBVS") ) \
-	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; }
+    if ( !is2dln && strcmp(ioobj->translator(),"CBVS") ) \
+	{ errmsg_ = "Cannot pre-load other than CBVS data"; return false; } \
+    TaskRunner& trunnr = getTr()
 
-#define mUnLoadIfLoaded() \
-    if ( StreamProvider::isPreLoaded(id_.buf(),true) ) \
-	StreamProvider::unLoad( id_.buf(), true )
 
 bool Seis::PreLoader::loadVol() const
 {
-    mGetIOObj(); mUnLoadIfLoaded();
+    mPrepIOObj( false );
 
+    BufferStringSet fnms;
     const BufferString basefnm = CBVSIOMgr::baseFileName(
-					    ioobj->fullUserExpr(true) );
-    TaskRunner& tr = getTr();
+				 ioobj->fullUserExpr(true) );
     for ( int idx=0; true; idx++ )
     {
 	const BufferString fnm( CBVSIOMgr::getFileName(basefnm,idx) );
-	if ( !File_exists(fnm)
-	  || !StreamProvider::preLoad(fnm,tr,id_.buf()) )
-	{
-	    if ( idx )
-		break;
-	    else
-	    {
-		errmsg_ = "Cannot load '"; errmsg_ += fnm;
-		errmsg_ += "'"; return false;
-	    }
-	}
+	if ( File_exists(fnm) )
+	    fnms.add( fnm );
+	else
+	    break;
+    }
+
+    return StreamProvider::preLoad( fnms, trunnr, id_.buf() );
+}
+
+
+bool Seis::PreLoader::loadLines( const BufferStringSet& lnms,
+				 const BufferStringSet& attrnms ) const
+{
+    if ( lnms.isEmpty() || attrnms.isEmpty() )
+	{ errmsg_ = "Internal: No line or no attr requested"; return false; }
+    mPrepIOObj( true );
+
+    Seis2DLineSet ls( *ioobj );
+    const int nrlns = ls.nrLines();
+    if ( nrlns < 1 )
+    {
+	errmsg_ = "Line Set '"; errmsg_ += ioobj->name();
+	errmsg_ += "' contains no data";
+	return false;
+    }
+
+    BufferStringSet fnms;
+    for ( int iln=0; iln<nrlns; iln++ )
+    {
+	const char* lnm = ls.lineName( iln );
+	const char* attrnm = ls.attribute( iln );
+	if ( lnms.indexOf(lnm) < 0 || attrnms.indexOf(attrnm) < 0 )
+	    continue;
+
+	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ls.getInfo(iln)) );
     }
 
     return true;
@@ -77,31 +101,26 @@ bool Seis::PreLoader::loadVol() const
 
 bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 {
-    mGetIOObj();
+    mPrepIOObj( false );
 
     SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
     BufferStringSet fnms;
     if ( !psio.get3DFileNames(fnms,inlrg) )
 	{ errmsg_ = psio.errMsg(); return false; }
-    if ( fnms.isEmpty() ) return true;
 
-    mUnLoadIfLoaded();
+    return fnms.isEmpty() ? true
+	 : StreamProvider::preLoad( fnms, trunnr, id_.buf() );
+}
 
-    TaskRunner& tr = getTr();
-    for ( int idx=0; idx<fnms.size(); idx++ )
-    {
-	const char* fnm = fnms.get( idx );
-	if ( !File_exists(fnm) )
-	    continue;
-	else if ( !StreamProvider::preLoad(fnm,tr,id_.buf()) )
-	{
-	    errmsg_ = "Could not pre-load '";
-	    errmsg_ += fnm; errmsg_ += "'";
-	    return false;
-	}
-    }
 
-    return true;
+bool Seis::PreLoader::loadPS2D( const char* lnm ) const
+{
+    mPrepIOObj( false );
+
+    SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
+    const BufferString fnm( psio.get2DFileName(lnm) );
+    return fnm.isEmpty() ? true
+	 : StreamProvider::preLoad( fnm, trunnr, id_.buf() );
 }
 
 
