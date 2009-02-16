@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellman.h,v 1.7 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: wellman.h,v 1.8 2009-02-16 11:05:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ protected:
 
 			Man()				{}
     static Man*		mgr_;
-    friend Man&		MGR();
+    mGlobal friend Man&	MGR();
 
     ObjectSet<Data>	wells_;
     ObjectSet<MultiID>	keys_;
@@ -53,11 +53,7 @@ protected:
 
 };
 
-inline Man& MGR()
-{
-    if ( !::Well::Man::mgr_ ) ::Well::Man::mgr_ = new ::Well::Man;
-    return *::Well::Man::mgr_;
-}
+mGlobal Man& MGR();
 
 }; // namespace Well
 
