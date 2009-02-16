@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seiscbvs2d.h,v 1.10 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seiscbvs2d.h,v 1.11 2009-02-16 17:17:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,10 @@ public:
 private:
 
     static int		factid;
+
+public:
+
+    static const char*	getFileName(const IOPar&);
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.43 2008-12-29 11:41:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.44 2009-02-16 17:17:15 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -25,6 +25,10 @@ static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.43 2008-12-29 11:41:49 cvsran
 #include "ptrman.h"
 
 
+int SeisCBVS2DLineIOProvider::factid
+	= (S2DLIOPs() += new SeisCBVS2DLineIOProvider).size() - 1;
+
+
 static BufferString getFileName( const char* fnm )
 {
     BufferString ret = fnm;
@@ -43,9 +47,10 @@ static BufferString getFileName( const IOPar& iop )
     return getFileName( iop.find( sKey::FileName ) );
 }
 
-
-int SeisCBVS2DLineIOProvider::factid
-	= (S2DLIOPs() += new SeisCBVS2DLineIOProvider).size() - 1;
+const char* SeisCBVS2DLineIOProvider::getFileName( const IOPar& iop )
+{
+    return getFileName(iop);
+}
 
 
 SeisCBVS2DLineIOProvider::SeisCBVS2DLineIOProvider()
