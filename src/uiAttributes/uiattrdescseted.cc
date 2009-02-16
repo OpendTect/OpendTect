@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.81 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.82 2009-02-16 17:11:48 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -91,7 +91,6 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
     , adsman_(0)
     , updating_fields_(false)
 {
-    setHaveCredits( true );
     createMenuBar();
     createToolBar();
     createGroups();
