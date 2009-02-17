@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.4 2009-02-17 13:17:26 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.5 2009-02-17 15:12:03 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -11,7 +11,9 @@ static const char* rcsID = "$Id: seispreload.cc,v 1.4 2009-02-17 13:17:26 cvsber
 #include "seiscbvs2d.h"
 #include "seiscbvsps.h"
 #include "seis2dline.h"
+#include "filepath.h"
 #include "filegen.h"
+#include "keystrs.h"
 #include "ioman.h"
 #include "strmprov.h"
 #include "cbvsio.h"
@@ -36,6 +38,36 @@ Interval<int> Seis::PreLoader::inlRange() const
 
     if ( mIsUdf(ret.stop) ) ret.start = ret.stop;
     return ret;
+}
+
+
+void Seis::PreLoader::getLineKeys( BufferStringSet& lks ) const
+{
+    lks.erase(); PtrMan<IOObj> ioobj = getIOObj();
+    if ( !ioobj ) return;
+
+    BufferStringSet fnms;
+    StreamProvider::getPreLoadedFileNames( id_.buf(), fnms );
+    if ( fnms.isEmpty() ) return;
+    BufferStringSet nms;
+    for ( int idx=0; idx<fnms.size(); idx++ )
+    {
+	FilePath fp( fnms.get(idx) );
+	nms.add( fp.fileName() );
+    }
+
+    Seis2DLineSet ls( *ioobj );
+    const int nrlns = ls.nrLines();
+    for ( int iln=0; iln<nrlns; iln++ )
+    {
+	const IOPar& iop = ls.getInfo( iln );
+	const char* fnm = iop.find( sKey::FileName );
+	if ( !fnm ) continue;
+
+	const int idxof = nms.indexOf( fnm );
+	if ( idxof >= 0 )
+	    lks.add( ls.lineKey(iln).buf() );
+    }
 }
 
 

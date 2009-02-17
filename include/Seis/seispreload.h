@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.3 2009-02-16 17:17:56 cvsbert Exp $
+ RCS:           $Id: seispreload.h,v 1.4 2009-02-17 15:12:03 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,7 @@ public:
     IOObj*		getIOObj() const;
     Interval<int>	inlRange() const;
     			//!< PS 3D only. If nothing there: ret.start==mUdf(int)
+    void		getLineKeys(BufferStringSet&) const;
 
     bool		loadVol() const;
     bool		loadLines(const BufferStringSet& lnms,

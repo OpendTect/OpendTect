@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: uiseispreloadmgr.h,v 1.2 2009-02-10 14:16:50 cvsbert Exp $
+ RCS:           $Id: uiseispreloadmgr.h,v 1.3 2009-02-17 15:12:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,9 @@ protected:
     void		ps3DPush(CallBacker*);
     void		ps2DPush(CallBacker*);
     void		unloadPush(CallBacker*);
+
+    BufferString	getLinesText(const BufferStringSet&) const;
+    BufferString	getFilesText(const BufferStringSet&,float&) const;
 
 };
 

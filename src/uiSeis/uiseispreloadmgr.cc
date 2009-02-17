@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.7 2009-02-17 13:17:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.8 2009-02-17 15:12:03 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -125,8 +125,7 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     const Seis::GeomType gt = ioinf.geomType();
     BufferStringSet fnms;
     StreamProvider::getPreLoadedFileNames( ky.buf(), fnms );
-    const int nrfiles = fnms.size();
-    if ( nrfiles < 1 )
+    if ( fnms.isEmpty() )
 	{ infofld_->setText("No files"); return; }
 
     BufferString disptxt( "Data type: " ); disptxt += Seis::nameOf( gt );
@@ -135,8 +134,10 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
     {
 	case Seis::Vol:
 	break;
-	case Seis::Line:
-	break;
+	case Seis::Line: {
+	    BufferStringSet lks; spl.getLineKeys( lks );
+	    disptxt += getLinesText( lks );
+	} break;
 	case Seis::VolPS: {
 	    Interval<int> rg = spl.inlRange();
 	    if ( !mIsUdf(rg.start) )
@@ -149,29 +150,66 @@ void uiSeisPreLoadMgr::selChg( CallBacker* )
 	break;
     }
 
+    float totmem; disptxt += getFilesText( fnms, totmem );
+    totmem /= 1024; const int memmb = mNINT(totmem);
+    disptxt += "\nTotal memory in MB: "; disptxt += memmb;
+    infofld_->setText( disptxt );
+}
+
+
+BufferString uiSeisPreLoadMgr::getLinesText( const BufferStringSet& lks ) const
+{
+    BufferStringSet lnms, attrnms;
+    for ( int idx=0; idx<lks.size(); idx++ )
+    {
+	const LineKey lk( lks.get(idx) );
+	lnms.addIfNew( lk.lineName() );
+	attrnms.addIfNew( lk.attrName() );
+    }
+
+    BufferString txt;
+    if ( lnms.isEmpty() )
+	{ txt = "-"; return txt; }
+
+    txt += "\nLine"; txt += lnms.size() < 2 ? ":" : "s:";
+    for ( int iln=0; iln<lnms.size(); iln++ )
+	{ txt += iln ? ", " : " "; txt += lnms.get( iln ); }
+    txt += "\nAttribute"; txt += attrnms.size() < 2 ? ":" : "s:";
+    for ( int iattr=0; iattr<attrnms.size(); iattr++ )
+	{ txt += iattr ? ", " : " "; txt += attrnms.get( iattr ); }
+
+    return txt;
+}
+
+
+BufferString uiSeisPreLoadMgr::getFilesText( const BufferStringSet& fnms,
+						float& totmem ) const
+{
+    BufferString txt; const int nrfiles = fnms.size();
+
     FilePath fp( fnms.get(0) );
-    disptxt += "\nDirectory: "; disptxt += fp.pathOnly();
-    disptxt += "\nFile name"; if ( nrfiles > 1 ) disptxt += "s";
-    disptxt += ": "; disptxt += fp.fileName();
-    float totmem = 0;
+    txt += "\nDirectory: "; txt += fp.pathOnly();
+    txt += "\nFile name"; if ( nrfiles > 1 ) txt += "s";
+    txt += ": "; txt += fp.fileName();
+    totmem = 0; const bool needdots = nrfiles > 4;
     for ( int idx=0; idx<nrfiles; idx++ )
     {
 	const char* fnm = fnms.get(idx).buf();
 	int dpid = StreamProvider::getPreLoadedDataPackID( fnm );
 	totmem += DPM(DataPackMgr::BufID()).nrKBytesOf( dpid );
 
-	if ( idx == 0 || (idx < nrfiles-1 && idx > 3) )
+	if ( idx == 0 || (idx < nrfiles-1 && idx > 2) )
 	    continue;
 
 	fp.set( fnms.get(idx) );
-	disptxt += " "; disptxt += fp.fileName();
-	if ( nrfiles > 5 && idx == 3 )
-	    disptxt += " ...";
+	txt += " "; txt += fp.fileName();
+	if ( needdots && idx == 2 )
+	    txt += " ...";
     }
+    if ( needdots )
+	{ txt += " ("; txt += nrfiles; txt += " files)"; }
 
-    totmem /= 1024; const int memmb = mNINT(totmem);
-    disptxt += "\nTotal memory in MB: "; disptxt += memmb;
-    infofld_->setText( disptxt );
+    return txt;
 }
 
 
@@ -297,6 +335,7 @@ void uiSeisPreLoadMgr::linesLoadPush( CallBacker* )
     if ( !dlg.go() ) return;
 
     Seis::PreLoader spl( dlg.ctio_.ioobj->key() );
+    uiTaskRunner tr( this ); spl.setRunner( tr );
     if ( !spl.loadLines(dlg.lnms_,dlg.attrnms_) )
     {
 	const char* emsg = spl.errMsg();
