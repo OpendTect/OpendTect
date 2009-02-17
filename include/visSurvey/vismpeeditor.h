@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.12 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.13 2009-02-17 17:41:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -107,6 +107,7 @@ protected:
     ObjectSet<visBase::Dragger>		draggers;
     ObjectSet<visBase::DataObjectGroup>	draggersshapesep;
     ObjectSet<visBase::Marker>		draggermarkers;
+    visBase::DataObjectGroup*		dummyemptysep_;
     TypeSet<EM::PosID>			posids;
     float				markersize;
 

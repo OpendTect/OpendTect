@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.32 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.33 2009-02-17 17:41:22 cvsyuancheng Exp $";
 
 #include "vismpeeditor.h"
 
@@ -51,6 +51,9 @@ MPEEditor::MPEEditor()
     activenodematerial = visBase::Material::create();
     activenodematerial->ref();
     activenodematerial->setColor( Color(255,0,0) );
+
+    dummyemptysep_ = visBase::DataObjectGroup::create();
+    dummyemptysep_->ref();
 }
 
 
@@ -74,6 +77,7 @@ MPEEditor::~MPEEditor()
 
     if ( activenodematerial ) activenodematerial->unRef();
     if ( nodematerial ) nodematerial->unRef();
+    dummyemptysep_->unRef();
 }
 
 
@@ -246,6 +250,8 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	}
 
 	dragger->setRotation( rotationaxis, angle );
+	dragger->setOwnShape( dummyemptysep_, "xAxisFeedback" );
+	dragger->setOwnShape( dummyemptysep_, "yAxisFeedback" );
     }
     else 
     {
