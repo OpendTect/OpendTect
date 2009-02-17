@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.51 2009-02-09 21:30:03 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.52 2009-02-17 13:34:02 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -247,8 +247,8 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
 	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos;
-	    const float zfactor = scene_ ? scene_->getZScale(): SI().zScale();
-	    dir.z *= -zfactor; //convert to right dir-domain
+	    const float zscale = scene_ ? scene_->getZScale(): SI().zScale();
+	    dir.z *= -zscale; //convert to right dir-domain
 	    if ( dir.sqAbs()>=0 )
 	    {
 		 (*set_)[waitsfordirectionid_].dir =
