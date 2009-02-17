@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.27 2009-01-07 15:11:25 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.28 2009-02-17 13:10:00 cvshelene Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -197,6 +197,7 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     astrm.newParagraph();
     astrm.put( sKeyUnits );
     UnitRef::Iter it( *this );
+    if ( !it.unit() ) return strm.good();
     const UnitRef& firstun = *it.unit(); firstun.fill( str );
     astrm.put( firstun.fullCode(), str );
     
