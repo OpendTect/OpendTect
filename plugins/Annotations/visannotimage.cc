@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visannotimage.cc,v 1.10 2008-12-10 18:08:17 cvskris Exp $";
+static const char* rcsID = "$Id: visannotimage.cc,v 1.11 2009-02-17 13:33:18 cvskris Exp $";
 
 #include "visannotimage.h"
 
@@ -228,7 +228,7 @@ void ImageDisplay::setPosition( int idx, const Pick::Location& pick )
 
 void ImageDisplay::updateCoords(CallBacker*)
 {
-    const float zscale = scene_ ? scene_->getZStretch() : 1;
+    const float zscale = scene_ ? scene_->getZStretch()*scene_->getZScale() : 1;
     const float size = set_ ? set_->disp_.pixsize_ : 100;
     visBase::Coordinates* facecoords = shape_->getCoordinates();
     facecoords->setPos( 0, Coord3(-size,0,-2*size/zscale) );

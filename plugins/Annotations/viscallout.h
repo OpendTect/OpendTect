@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.10 2008-06-12 08:14:51 cvsnanne Exp $
+ RCS:		$Id: viscallout.h,v 1.11 2009-02-17 13:33:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -93,6 +93,7 @@ public:
     void			setMarkerMaterial(visBase::Material*);
     void			setBoxMaterial(visBase::Material*);
     void			setTextMaterial(visBase::Material*);
+    void			setZScale(float s)	{ zscale_ = s; }
     void			setScale(visBase::Transformation*);
     visBase::Transformation*	getScale() { return scale_; }
     void			reportChangedScale() { updateArrow(); }
@@ -140,6 +141,8 @@ protected:
     visBase::TextBox*		backtext_;
 
     bool			isdragging_;
+    float			zscale_;
+
 };
 
 

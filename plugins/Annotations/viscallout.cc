@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscallout.cc,v 1.25 2009-01-09 04:31:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.26 2009-02-17 13:33:18 cvskris Exp $";
 
 #include "viscallout.h"
 
+#include "survinfo.h"
 #include "visanchor.h"
 #include "viscoord.h"
 #include "visdragger.h"
@@ -68,6 +69,7 @@ Callout::Callout()
     , rotfeedbackactive_( visBase::TriangleStripSet::create() )
     , translationdragger_( visBase::Dragger::create() )
     , scale_( 0 )
+    , zscale_( SI().zScale() )
     , displaytrans_( 0 )
     , isdragging_( false )
     , moved( this )
@@ -171,6 +173,7 @@ Sphere Callout::getDirection() const
     Coord3 textpos = fronttext_->position();
     textpos = Coord3( textpos.x, 0, textpos.y );
     if ( scale_ ) textpos = scale_->transform( textpos );
+    textpos.z *= zscale_;
 
     Sphere res;
     res.theta = atan2( textpos.x, textpos.z );
@@ -200,6 +203,7 @@ void Callout::setPick( const Pick::Location& loc )
 
     Coord3 textpos( sin(loc.dir.theta)*loc.dir.radius, 0,
 	            cos(loc.dir.theta)*loc.dir.radius );
+    textpos.z /= zscale_;
     if ( scale_ ) textpos = scale_->transformBack( textpos );
 
     fronttext_->setPosition( Coord3(textpos.x,textpos.z, mTextLift ));
@@ -742,7 +746,7 @@ void CalloutDisplay::setScaleTransform( visBase::DataObject* dobj ) const
     if ( !scene_ ) return;
     mDynamicCastGet(Callout*,call,dobj)
     call->getScale()->
-	setScale(Coord3(1,1,2/scene_->getZStretch()));
+	setScale(Coord3(1,1,2/(scene_->getZScale()*scene_->getZStretch())) );
 }
 
 
@@ -779,6 +783,8 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
 	res->setScale( visBase::Transformation::create() );
 	setScaleTransform( res );
     }
+
+    res->setZScale( scene_->getZScale() );
 
     return res;
 }
