@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.32 2009-01-16 06:10:40 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.33 2009-02-17 14:21:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -62,7 +62,7 @@ public:
     
     int				nrAttribs() const;
     bool			addAttrib();
-    bool			canAddAttrib() const;
+    bool			canAddAttrib(int nrattribstoadd=1) const;
     bool			removeAttrib(int attrib);
     bool			swapAttribs(int attrib0,int attrib1);
     void			setAttribTransparency(int,unsigned char);

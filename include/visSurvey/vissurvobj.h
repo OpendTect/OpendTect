@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.97 2009-02-11 10:31:27 cvsranojay Exp $
+ RCS:		$Id: vissurvobj.h,v 1.98 2009-02-17 14:21:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -155,7 +155,7 @@ public:
     virtual AttribFormat	getAttributeFormat() const;
     virtual bool		canHaveMultipleAttribs() const { return false; }
     virtual int			nrAttribs() const;
-    virtual bool		canAddAttrib() const;
+    virtual bool		canAddAttrib(int nrattribstoadd=1) const;
     virtual bool		addAttrib()		   { return false; }
     virtual bool		canRemoveAttrib() const;
     virtual bool		removeAttrib(int attrib)   { return false; }

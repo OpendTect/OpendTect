@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.68 2009-01-23 12:04:24 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.69 2009-02-17 14:21:03 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -458,13 +458,13 @@ int HorizonDisplay::nrAttribs() const
 { return as_.size(); }
 
 
-bool HorizonDisplay::canAddAttrib() const
+bool HorizonDisplay::canAddAttrib( int nr ) const
 {
     mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
     const int maxnr = psurf ? psurf->maxNrTextures() : 0;
     if ( !maxnr ) return true;
 
-    return nrAttribs()<maxnr;
+    return nrAttribs()+nr<=maxnr;
 }
 
 

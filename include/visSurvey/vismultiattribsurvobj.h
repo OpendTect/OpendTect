@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.20 2009-02-06 05:51:54 cvsranojay Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.21 2009-02-17 14:21:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,7 @@ public:
     visBase::TextureChannel2RGBA* getChannel2RGBA();
 
     bool			canHaveMultipleAttribs() const;
-    bool			canAddAttrib() const;
+    bool			canAddAttrib(int nrattribstoadd=1) const;
     bool			canRemoveAttrib() const;
     int				nrAttribs() const;
     bool			addAttrib();

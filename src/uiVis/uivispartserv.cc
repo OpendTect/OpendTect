@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.406 2009-02-17 06:30:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.407 2009-02-17 14:21:03 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -484,10 +484,10 @@ bool uiVisPartServer::canHaveMultipleAttribs( int id ) const
 }
 
 
-bool uiVisPartServer::canAddAttrib( int id ) const
+bool uiVisPartServer::canAddAttrib( int id, int nr ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->canAddAttrib() : false;
+    return so ? so->canAddAttrib(nr) : false;
 }
 
 
