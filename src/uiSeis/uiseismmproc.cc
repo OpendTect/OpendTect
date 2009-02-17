@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.121 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.122 2009-02-17 15:39:05 cvshelene Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -761,6 +761,7 @@ bool uiSeisMMProc::wrapUp( bool force )
 
     progrfld->append( "Processing completed" );
     setCtrlStyle( LeaveOnly );
+    button(uiDialog::CANCEL)->display(false);
     rmTmpSeis( jobprov );
     delete jobrunner; jobrunner = 0;
     return true;
