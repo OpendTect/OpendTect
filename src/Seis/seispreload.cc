@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.3 2009-02-16 17:17:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.4 2009-02-17 13:17:26 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -95,7 +95,8 @@ bool Seis::PreLoader::loadLines( const BufferStringSet& lnms,
 	fnms.add( SeisCBVS2DLineIOProvider::getFileName(ls.getInfo(iln)) );
     }
 
-    return true;
+    return fnms.isEmpty() ? true
+	 : StreamProvider::preLoad( fnms, trunnr, id_.buf() );
 }
 
 
