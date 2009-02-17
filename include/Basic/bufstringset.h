@@ -5,10 +5,10 @@
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	A.H.Bril
+ Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.12 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.13 2009-02-17 15:11:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,24 +18,24 @@ ________________________________________________________________________
 
 mClass IOPar;
 
-/*!\brief Set of BufferString objects
- 
-  The default is that the set owns the strings, in which case the strings
-  are automatically deleted on destruction of the set.
-
- */
+/*!\brief Set of BufferString objects */
 
 mClass BufferStringSet : public ManagedObjectSet<BufferString>
 {
 public:
     			BufferStringSet();
 			BufferStringSet(const char* arr[],int len=-1);
+    			BufferStringSet( const BufferStringSet& bss )
+			    : ManagedObjectSet<BufferString>(false)
+						{ *this = bss; }
     BufferStringSet&	operator =(const BufferStringSet&);
     bool		operator ==(const BufferStringSet&) const;
 
     BufferString&	get( int idx )		{ return *((*this)[idx]); }
     const BufferString&	get( int idx ) const	{ return *((*this)[idx]); }
     int			indexOf(const char*) const;
+    inline bool		isPresent( const char* s ) const
+    						{ return indexOf(s) >= 0; }
 
     BufferStringSet&	add(const char*);
     BufferStringSet&	add(const BufferString&);
