@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.9 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.10 2009-02-17 07:16:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,9 +15,10 @@ ________________________________________________________________________
 
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
+
+#include "uimenuhandler.h"
 #include "multiid.h"
 #include "ranges.h"
-
 
 mDefineItem( Seis2DParent, TreeItem, TreeTop, mShowMenu mMenuOnAnyButton );
 
