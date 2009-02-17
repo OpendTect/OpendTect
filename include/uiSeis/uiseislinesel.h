@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.12 2009-01-19 13:25:33 cvsumesh Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.13 2009-02-17 06:34:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,19 +39,18 @@ public:
 
     void				setSelLines(const BufferStringSet&);
     const BufferStringSet&		getSelLines() const { return sellines_;}
-    const Interval<int>			getLineTrcRange(int idx) const;
+    Interval<int>			getTrcRange(const char* lnm) const;
 
 protected:
 
-    int					nroflines_;				
     BufferStringSet 			sellines_;
     uiSeisSel*  			linesetfld_;
     uiListBox*  			lnmsfld_;
     uiSelNrRange*			trcrgfld_;
     CtxtIOObj&				lsctio_;
 
-    TypeSet< Interval<int> > 		linetrcrgs_;
-    TypeSet< Interval<int> >		linetrcflrgs_;
+    TypeSet< StepInterval<int> > 	maxtrcrgs_;
+    TypeSet< StepInterval<int> >	trcrgs_;
 
     void 				lineSetSel(CallBacker*);
     void 				lineSel(CallBacker*);

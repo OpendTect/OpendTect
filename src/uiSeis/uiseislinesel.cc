@@ -1,4 +1,3 @@
-
 /*+
 ________________________________________________________________________
 
@@ -8,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.16 2009-01-19 13:27:17 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.17 2009-02-17 06:34:30 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -27,7 +26,7 @@ static const char* rcsID = "$Id: uiseislinesel.cc,v 1.16 2009-01-19 13:27:17 cvs
 
 uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
-				   mNoDlgTitle,mNoHelpID) )
+				   mNoDlgTitle,mTODOHelpID) )
     , lsctio_(lsctio)
 {
     linesetfld_ = new uiSeisSel( this, lsctio_,
@@ -37,11 +36,12 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     uiLabeledListBox* llb = new uiLabeledListBox( this, "Line names", false );
     llb->attach( alignedBelow, linesetfld_ );
     lnmsfld_ = llb->box();
+    lnmsfld_->setItemsCheckable( true );
     lnmsfld_->selectionChanged.notify( mCB(this,uiSeis2DLineSubSel,lineSel) );
 
     trcrgfld_ = new uiSelNrRange( this, StepInterval<int>(),
 	   			  false, "Trace" );
-    trcrgfld_->valueChanged.notify( mCB(this,uiSeis2DLineSubSel,trcChanged) );
+    trcrgfld_->rangeChanged.notify( mCB(this,uiSeis2DLineSubSel,trcChanged) );
     trcrgfld_->attach( alignedBelow, llb );
 
     lineSetSel( 0 );
@@ -84,64 +84,59 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
     SeisIOObjInfo oinf( lsctio_.ioobj );
     BufferStringSet lnms;
     oinf.getLineNames( lnms );   
-
     lnmsfld_->empty();
     lnmsfld_->addItems( lnms );
+    maxtrcrgs_.erase();
+    trcrgs_.erase();
 
     for ( int idx=0; idx<lnms.size(); idx++ )
     {
-	lnmsfld_->setItemCheckable( idx, true );
-
-	StepInterval<int> trcrg;
-	StepInterval<float> zrg;
-
 	BufferStringSet attrbnms;
 	oinf.getAttribNamesForLine( lnms.get(idx).buf(), attrbnms );
-	LineKey lk( lnms.get(idx).buf(),
-		    (attrbnms.size() > 0 ? attrbnms.get(0) : 0) );
-	oinf.getRanges( lk, trcrg, zrg );
+	StepInterval<int> globtrcrg( mUdf(int), -mUdf(int), 1 );
+	for ( int attridx=0; attridx<attrbnms.size(); attridx++ )
+	{
+	    StepInterval<int> trcrg;
+	    StepInterval<float> zrg;
+	    LineKey lk( lnms.get(idx).buf(), attrbnms.get(attridx) );
+	    oinf.getRanges( lk, trcrg, zrg );
+	    globtrcrg.include( trcrg, false );
+	}
 
-	Interval<int> trcitval( trcrg.start, trcrg.stop );
-
-	linetrcrgs_ += trcitval;
-	linetrcflrgs_ += trcitval;
+	maxtrcrgs_ += globtrcrg;
+	trcrgs_ += globtrcrg;
     }
 
-    if ( lnms.size() )
-    {
-	StepInterval<int> interval( linetrcrgs_[0].start,
-				    linetrcrgs_[0].stop, 1 );
-	trcrgfld_->setValInterval( interval );
-	trcrgfld_->setRange( interval );
-    }
+    lineSel(0);
 }
 
 
-const Interval<int> uiSeis2DLineSubSel::getLineTrcRange( int idx ) const
-{ return linetrcflrgs_[idx]; }
+Interval<int> uiSeis2DLineSubSel::getTrcRange( const char* nm ) const
+{
+    const int idx = lnmsfld_->indexOf( nm );
+    return idx<0 ? Interval<int>(0,0) : (Interval<int>)trcrgs_[idx];
+}
 
 
 void uiSeis2DLineSubSel::lineSel( CallBacker* )
 {
-    if ( linetrcrgs_.isEmpty() )
+    NotifyStopper ns( trcrgfld_->rangeChanged );
+    const int curitm = lnmsfld_->currentItem(); 
+    if ( trcrgs_.isEmpty() || curitm<0 )
 	return;
 
-    int curselno = lnmsfld_->currentItem(); 
-
-    StepInterval<int> interval( linetrcrgs_[curselno].start,
-	    			linetrcrgs_[curselno].stop, 1 );
-
-    trcrgfld_->setValInterval( interval );
-    trcrgfld_->setRange( interval );
+    trcrgfld_->setLimitRange( maxtrcrgs_[curitm] );
+    trcrgfld_->setRange( trcrgs_[curitm] );
 }
 
 
 void uiSeis2DLineSubSel::trcChanged( CallBacker* )
 {
-    linetrcflrgs_[ lnmsfld_->currentItem() ].start = 
-				trcrgfld_->getRange().start;
-    linetrcflrgs_[ lnmsfld_->currentItem() ].stop = 
-				trcrgfld_->getRange().stop;
+    const int curitm = lnmsfld_->currentItem();
+    if ( curitm<0 ) return;
+
+    trcrgs_[curitm].start = trcrgfld_->getRange().start;
+    trcrgs_[curitm].stop = trcrgfld_->getRange().stop;
 }
 
 
@@ -149,7 +144,6 @@ bool uiSeis2DLineSubSel::acceptOK( CallBacker* )
 {
     sellines_.erase();
     lnmsfld_->getCheckedItems( sellines_ );
-    
     return true;
 }
 
@@ -187,28 +181,21 @@ void uiSelection2DParSel::doDlg( CallBacker* )
 
 void uiSelection2DParSel::fillPar( IOPar& par )
 {
-    SeisIOObjInfo oinf( lsctio_->ioobj );
-    BufferStringSet lnms;
-    oinf.getLineNames( lnms );
-
     par.set( "LineSet.ID", getIOObj()->key() );
 
-    IOPar linespar;
-    BufferString key;
+    BufferString mergekey;
+    IOPar lspar;
     for ( int idx=0; idx<sellines_.size(); idx++ )
     {
-	key = idx;
-
-	IOPar lntrcpar;
-	lntrcpar.set( sKey::Name, sellines_[idx]->buf() );
-	
-	Interval<int> trcitval = linesel_->getLineTrcRange(
-				          lnms.indexOf(sellines_[idx]->buf()) );
-	lntrcpar.set( sKey::TrcRange, trcitval );
-	linespar.mergeComp( lntrcpar, key );
+	IOPar linepar;
+	linepar.set( sKey::Name, sellines_[idx]->buf() );
+	Interval<int> trcrg = linesel_->getTrcRange( sellines_.get(idx) );
+	linepar.set( sKey::TrcRange, trcrg );
+	mergekey = idx;
+	lspar.mergeComp( linepar, mergekey );
     }
 
-    par.mergeComp( linespar, sKey::LineKey );
+    par.mergeComp( lspar, sKey::LineKey );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.16 2009-01-17 07:28:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.17 2009-02-17 06:34:30 cvsnanne Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -146,7 +146,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, icstopfld_(0)
 	, nrstopfld_(0)
 	, defstep_(1)
-    	, valueChanged(this)
+    	, rangeChanged(this)
 {
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
@@ -173,7 +173,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, StepInterval<int> limitrg, bool wstep,
 	, defstep_(limitrg.step)
 	, icstopfld_(0)
 	, nrstopfld_(0)
-	, valueChanged(this)
+	, rangeChanged(this)
 {
     makeInpFields( lbltxt, limitrg, wstep, false );
     setRange( limitrg );
@@ -256,7 +256,8 @@ void uiSelNrRange::valChg( CallBacker* cb )
 	else
 	    startfld_->setValue( getStopVal() );
     }
-    valueChanged.trigger();
+
+    rangeChanged.trigger();
 }
 
 
@@ -276,13 +277,13 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
 }
 
 
-void uiSelNrRange::setValInterval( const StepInterval<int>& valintl )
+void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
 {
-    startfld_->setInterval( valintl );
+    startfld_->setInterval( limitrg );
     if ( icstopfld_ )
-	icstopfld_->setInterval( valintl );
+	icstopfld_->setInterval( limitrg );
     if ( stepfld_ )
-	stepfld_->setInterval( valintl );
+	stepfld_->setInterval( limitrg );
 }
 
 

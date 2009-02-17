@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.10 2009-01-17 07:28:06 cvsumesh Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.11 2009-02-17 06:34:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,14 +50,14 @@ public:
     enum Type		{ Inl, Crl, Gen };
 
                         uiSelNrRange(uiParent*,Type,bool wstep);
-			uiSelNrRange(uiParent*,StepInterval<int>,bool,
-				     const char*);
+			uiSelNrRange(uiParent*,StepInterval<int> limit,
+				     bool wstep,const char*);
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
-    void		setValInterval(const StepInterval<int>&);
+    void		setLimitRange(const StepInterval<int>&);
 
-    Notifier<uiSelNrRange>	valueChanged;
+    Notifier<uiSelNrRange>	rangeChanged;
 
 protected:
 
