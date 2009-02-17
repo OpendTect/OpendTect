@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.228 2009-02-11 10:34:30 cvsranojay Exp $
+ RCS:           $Id: uivispartserv.h,v 1.229 2009-02-17 06:30:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,17 +35,14 @@ class uiSlicePos;
 class uiToolBar;
 class uiVisModeMgr;
 class uiVisPickRetriever;
-class uiWellDispPropDlg;
 template <class T> class Selector;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
 namespace FlatView  { class DataDispPars; }
-namespace Threads   { class Mutex; };
-namespace Tracking  { class TrackManager; };
-namespace visBase   { class DataObject; };
-namespace visSurvey { class Scene; class WellDisplay; };
-namespace ColTab { class Sequence; struct MapperSetup; };
-
+namespace Threads   { class Mutex; }
+namespace visBase   { class DataObject; }
+namespace visSurvey { class Scene; }
+namespace ColTab { class Sequence; struct MapperSetup; }
 
 
 /*! \brief The Visualisation Part Server */
@@ -93,8 +90,6 @@ public:
 			/*!< Gets a scenes' children or a volumes' parts
 			     If id==-1, it will give the ids of the
 			     scenes */
-
-    void		doWellDispPropDlg(ObjectSet<visSurvey::WellDisplay>&);
 
     bool		hasAttrib(int) const;
     enum AttribFormat	{ None, Cube, Traces, RandomPos, OtherFormat };
@@ -409,7 +404,6 @@ protected:
     bool			blockmenus_;
     uiVisPickRetriever*		pickretriever_;
     Notifier<uiVisPartServer>	nrsceneschange_;
-    uiWellDispPropDlg*		uiwellpropdlg_;
 };
 
 

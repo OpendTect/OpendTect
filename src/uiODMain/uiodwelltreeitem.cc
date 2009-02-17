@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.35 2009-01-28 08:17:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.36 2009-02-17 06:30:17 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -362,7 +362,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	Well::LogDisplayParSet* logparset = wd->getLogParSet();
-	if( applMgr()->wellServer()->selectLogs( wellid, logparset ) )
+	if ( applMgr()->wellServer()->selectLogs(wellid,logparset) )
 	{
 	    wd->displayRightLog();
 	    wd->displayLeftLog();
@@ -372,9 +372,6 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	ODMainWin()->applMgr().wellServer()->editDisplayProperties( wellid );
-	for ( int idx=0; idx<children_.size(); idx++ );
-	ObjectSet<visSurvey::WellDisplay> vwds; vwds += wd;
-	visserv_->doWellDispPropDlg( vwds );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
     }
     else if ( mnuid == nametopmnuitem_.id )
@@ -401,11 +398,11 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == showlogmnuitem_.id )
     {
        	menu->setIsHandled( true );
-	if( wd->getLogParSet()->getLeft()->name_ == "None"
-	    && wd->getLogParSet()->getRight()->name_ == "None" )
+	if ( wd->getLogParSet()->getLeft()->name_ == "None" &&
+	     wd->getLogParSet()->getRight()->name_ == "None" )
 	{
 	    Well::LogDisplayParSet* logparset = wd->getLogParSet();
-	    if( applMgr()->wellServer()->selectLogs( wellid, logparset ) )
+	    if ( applMgr()->wellServer()->selectLogs(wellid,logparset) )
 	    {
 	        wd->displayRightLog();
 	        wd->displayLeftLog();
@@ -440,8 +437,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	BufferString logname1, logname2;
-	ODMainWin()->applMgr().wellServer()->createD2TModel( wellid, 
-							logname1, logname2 );
+	ODMainWin()->applMgr().wellServer()->createD2TModel(
+						wellid, logname1, logname2 );
     }
 }
 

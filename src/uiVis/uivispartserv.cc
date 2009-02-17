@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.405 2009-02-11 10:58:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.406 2009-02-17 06:30:17 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -18,13 +18,26 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.405 2009-02-11 10:58:49 cv
 #include "flatview.h"
 #include "iopar.h"
 #include "oddirs.h"
+#include "mousecursor.h"
 #include "seisbuf.h"
 #include "separstr.h"
 #include "survinfo.h"
-#include "uivispickretriever.h"
 #include "zaxistransform.h"
 
-#include "viscolortab.h"
+#include "uiattribtransdlg.h"
+#include "uifiledlg.h"
+#include "uimaterialdlg.h"
+#include "uimenuhandler.h"
+#include "uimsg.h"
+#include "uimpeman.h"
+#include "uimapperrangeeditordlg.h"
+#include "uiselsurvranges.h"
+#include "uislicepos.h"
+#include "uiwellpropdlg.h"
+#include "uitoolbar.h"
+#include "uivispickretriever.h"
+#include "uiviszstretchdlg.h"
+
 #include "visdataman.h"
 #include "visemobjdisplay.h"
 #include "visevent.h"
@@ -32,33 +45,11 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.405 2009-02-11 10:58:49 cv
 #include "visobject.h"
 #include "visselman.h"
 #include "vispolygonselection.h"
+#include "visscenecoltab.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
-#include "visscenecoltab.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
-
-#include "uiattribtransdlg.h"
-#include "uicolor.h"
-#include "mousecursor.h"
-#include "uifiledlg.h"
-#include "uimaterialdlg.h"
-#include "uimenuhandler.h"
-#include "uimsg.h"
-#include "uimpeman.h"
-#include "uimapperrangeeditordlg.h"
-#include "uislicepos.h"
-#include "uiselsurvranges.h"
-#include "uiwellpropdlg.h"
-#include "uitoolbar.h"
-#include "uiviszstretchdlg.h"
-
-#include "uiwelldisppropdlg.h"
-#include "welldata.h"
-#include "welldisp.h"
-#include "envvars.h"
-#include "wellman.h"
-#include "viswelldisplay.h"
 
 
 const int uiVisPartServer::evUpdateTree()	    { return 0; }
@@ -1349,14 +1340,6 @@ void uiVisPartServer::removeObject( int id, int sceneid )
     const int idx = scene->getFirstIdx( id );
     if ( idx!=-1 ) 
 	scene->removeObject( idx );
-}
-
-
-void uiVisPartServer::doWellDispPropDlg(
-			ObjectSet<visSurvey::WellDisplay>& wds )
-{
-    Well::Data* wd = Well::MGR().get( wds[0]->getMultiID(), false );
-    if ( !wd ) { pErrMsg( "Huh" ); return; }
 }
 
 
