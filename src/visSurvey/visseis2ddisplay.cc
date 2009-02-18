@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.59 2009-02-13 19:02:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.60 2009-02-18 20:50:30 cvsyuancheng Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -862,9 +862,9 @@ Coord Seis2DDisplay::getNormal( int trcnr ) const
     Coord pos = geometry_.posns_[posid].coord_;
     Coord v1;
     if ( posid+1<sz )    
-	v1 = geometry_.posns_[posid-1].coord_- pos; 
+	v1 = geometry_.posns_[posid+1].coord_- pos; 
     else if ( posid-1>=0 )
-	v1 = pos - geometry_.posns_[posid+1].coord_;
+	v1 = pos - geometry_.posns_[posid-1].coord_;
 
     if ( v1.x == 0 )
 	return Coord( 1, 0 );
