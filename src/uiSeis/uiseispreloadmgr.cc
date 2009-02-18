@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.9 2009-02-18 13:22:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.10 2009-02-18 14:04:08 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -374,25 +374,70 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 }
 
 
+class uiSeisPreLoadMgrPS2DSel : public uiIOObjSelDlg
+{
+public:
+
+uiSeisPreLoadMgrPS2DSel( uiParent* p, CtxtIOObj& ctio )
+    : uiIOObjSelDlg( p, ctio, "Select data store" )
+{
+    setCaption( "Pre-load data" );
+    uiLabeledListBox* llb = new uiLabeledListBox( selGrp(), "Lines to load",
+					  true, uiLabeledListBox::AboveMid );
+    lnmsfld_ = llb->box();
+    llb->attach( rightOf, selGrp()->getTopGroup() );
+    selGrp()->selectionChg.notify( mCB(this,uiSeisPreLoadMgrPS2DSel,dsSel) );
+}
+
+void dsSel( CallBacker* )
+{
+    lnmsfld_->empty();
+    selGrp()->processInput();
+    if ( !ioObj() ) return;
+
+    SeisIOObjInfo sii( *ioObj() );
+    lnms_.erase();
+    sii.getLineNames( lnms_ );
+    lnmsfld_->addItems( lnms_ );
+    lnmsfld_->selectAll();
+}
+
+bool acceptOK( CallBacker* )
+{
+    if ( !ioObj() )
+    {
+	uiMSG().error( "Please select a 2D Pre-Stack Data Store" );
+	return false;
+    }
+    lnms_.erase();
+    lnmsfld_->getSelectedItems( lnms_ );
+    if ( lnms_.isEmpty() )
+    {
+	uiMSG().error( "Please select one or more lines" );
+	return false;
+    }
+
+    return true;
+}
+
+    uiListBox*	lnmsfld_;
+
+    BufferStringSet lnms_;
+
+};
+
+
 void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS2D);
     ctio->ctxt.trglobexpr = "CBVS";
-    uiIOObjSelDlg dlg( this, *ctio, "Select data store" );
-    dlg.setCaption( "Select data store" );
-    uiGenInput* lnmfld = new uiGenInput( dlg.selGrp()->getTopGroup(),
-	    				"Line name" );
-    lnmfld->attach( centeredBelow, dlg.selGrp()->getListField() );
+    uiSeisPreLoadMgrPS2DSel dlg( this, *ctio );
     if ( !dlg.go() || !dlg.ioObj() ) return;
-
-    const char* lnm = lnmfld->text();
-    if ( (!lnm || !*lnm) && !uiMSG().askGoOn("Load all available lines?") )
-	return;
 
     Seis::PreLoader spl( dlg.ioObj()->key() );
     const char* id = spl.id().buf();
     uiTaskRunner tr( this ); spl.setRunner( tr );
-    if ( !spl.loadPS2D(lnm) )
+    if ( !spl.loadPS2D(dlg.lnms_) )
     {
 	const char* emsg = spl.errMsg();
 	if ( emsg && *emsg )
