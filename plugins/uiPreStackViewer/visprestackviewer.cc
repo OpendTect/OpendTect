@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.49 2009-02-18 12:37:33 cvsbert Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.50 2009-02-18 20:48:59 cvsyuancheng Exp $";
 
 #include "visprestackviewer.h"
 
@@ -700,6 +700,14 @@ void Viewer3D::setTraceNr( int trcnr )
 }
 
 
+#define mResetSeis2DPlane() \
+    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) ); \
+    basedirection_ = SI().binID2Coord().transformBackNoSnap( \
+	    seis2d_->getNormal( trcnr_ )) - orig; \
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( \
+	    seis2d_->getCoord(trcnr_) );
+
+
 bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 {
     if ( !s2d ) return false;
@@ -738,11 +746,7 @@ bool Viewer3D::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 	flatviewer_->handleChange( FlatView::Viewer::VDPars );
     }
 
-    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
-    basedirection_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getNormal( trcnr_ ) ) - orig;
-    seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getCoord(trcnr_)); 
+    mResetSeis2DPlane();
 
     if ( seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
@@ -757,13 +761,7 @@ void Viewer3D::seis2DMovedCB( CallBacker* )
     if ( !seis2d_ || trcnr_<0 )
 	return;
     
-    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
-    basedirection_ = SI().binID2Coord().transformBackNoSnap(
-	    seis2d_->getNormal( trcnr_ ) ) - orig;
-
-    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
-	    seis2d_->getCoord(trcnr_))-orig;
-
+    mResetSeis2DPlane();
     dataChangedCB(0);
 }    
 
