@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hostdata.cc,v 1.40 2009-02-16 17:13:12 cvsbert Exp $";
+static const char* rcsID = "$Id: hostdata.cc,v 1.41 2009-02-18 07:06:03 cvsraman Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -375,10 +375,8 @@ void HostDataList::handleLocal()
 	{
 	    // Ensure this is the first entry
 	    if ( idx != 0 )
-	    {
-		*this -= hd;
-		insertAt( hd, 0 );
-	    }
+		swap( idx, 0 );
+
 	    localhd = hd;
 	    break;
 	}
@@ -388,10 +386,8 @@ void HostDataList::handleLocal()
 
 	    // Ensure this is the first entry
 	    if ( idx != 0 )
-	    {
-		*this -= hd;
-		insertAt( hd, 0 );
-	    }
+		swap( idx, 0 );
+
 	    localhd = hd;
 	    break;
 	}
