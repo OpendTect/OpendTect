@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.2 2009-02-18 07:14:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.3 2009-02-18 13:21:31 cvsbert Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -33,7 +33,9 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 
     Settings& setts( Settings::fetch(sKeySnapshot) );
     PtrMan<IOPar> ctiopar = setts.subselect( 1 );
-    usePar( *ctiopar );
+    if ( ctiopar )
+	usePar( *ctiopar );
+
     finaliseDone.notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
     updateFilter();
 }
