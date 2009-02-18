@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.76 2008-12-10 11:58:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.77 2009-02-18 08:37:50 cvsnanne Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -218,10 +218,16 @@ const char* File_getTime( const char* fnm )
     hfile = CreateFile(fname1, GENERIC_READ, FILE_SHARE_READ, NULL,
 	    		OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if ( hfile == INVALID_HANDLE_VALUE )
+    {
+	CloseHandle( hfile );
 	return 0;
+    }
 
     if ( !GetFileTime(hfile,&ftCreate,&ftAccess,&ftWrite) )
+    {
+	CloseHandle( hfile );
 	return 0;
+    }
 
     // convert the created time to local time
     FileTimeToSystemTime( &ftWrite, &stUTC );
@@ -229,7 +235,7 @@ const char* File_getTime( const char* fnm )
 
     sprintf( buf, "%02d-%02d-%d %02d:%02d", stLocal.wDay, stLocal.wMonth,
 	     stLocal.wYear, stLocal.wHour, stLocal.wMinute );
-
+    CloseHandle( hfile );
     return buf;
 
 #else
