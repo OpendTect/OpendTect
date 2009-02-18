@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.87 2009-01-13 03:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.88 2009-02-18 16:26:27 cvshelene Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"
@@ -616,8 +616,8 @@ protected:
 
 /*!
 
-creates a new InpFld and attaches it rightTo the last one
-already present in 'flds'.
+creates a new InpFld and attaches it rightTo the last one already present in
+'flds', except if this is a position: in this case it will be alignedBelow it.
 
 */
 uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
@@ -676,10 +676,10 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 
     if ( ! fld ) { pErrMsg("huh"); fld = new uiTextInputFld( this, desc ); }
 
-
+    const bool ispos = desc.type().form() == DataType::position;
     uiObject* other= flds.size() ? flds[ flds.size()-1 ]->mainObj() : 0;
     if ( other )
-	fld->mainObj()->attach( rightTo, other );
+	fld->mainObj()->attach( ispos ? alignedBelow : rightTo, other );
 
     flds += fld;
 

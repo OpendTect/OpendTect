@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.22 2009-01-27 15:06:28 cvshelene Exp $";
+static const char* rcsID = "$Id: uievaluatedlg.cc,v 1.23 2009-02-18 16:26:27 cvshelene Exp $";
 
 #include "uievaluatedlg.h"
 #include "uigeninput.h"
@@ -180,17 +180,21 @@ void AttribParamGroup::updatePars( Attrib::Desc& desc, int idx )
 	bidpar->setValue( bid.inl, 0 );
 	bidpar->setValue( bid.crl, 1 );
 
-	/*
-	if ( bidpar1 )
+	ValParam* valpar2 = desc.getValParam( parstr2_ );
+	mDynamicCastGet(BinIDParam*,bidpar2,valpar2)
+	if ( bidpar2 )
 	{
-	    bidpar1->inl = initfld->getBinID(1).inl + 
+	    BinID bid2;
+	    bid2.inl = initfld->getBinID(1).inl + 
 					idx * incrfld->getBinID(1).inl;
-	    bidpar1->crl = initfld->getBinID(1).crl + 
+	    bid2.crl = initfld->getBinID(1).crl + 
 					idx * incrfld->getBinID(1).crl;
-	    label_ += "&["; label_ += bidpar1->inl; 
-	    label_ += ","; label_ += bidpar1->crl; label_ += "]";
+	    bidpar2->setValue( bid2.inl, 0 );
+	    bidpar2->setValue( bid2.crl, 1 );
+
+	    evallbl_ += "&["; evallbl_ += bid2.inl; 
+	    evallbl_ += ","; evallbl_ += bid2.crl; evallbl_ += "]";
 	}
-	*/
     }
     else if ( fpar )
     {
