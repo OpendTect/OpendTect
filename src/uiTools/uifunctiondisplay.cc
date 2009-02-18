@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.27 2009-02-03 08:31:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.28 2009-02-18 06:52:52 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uigraphicssaveimagedlg.h"
 #include "mouseevent.h"
 #include "linear.h"
 #include <iostream>
@@ -76,6 +77,9 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 	getMouseEventHandler().doubleClick.notify(
 				mCB(this,uiFunctionDisplay,mouseDClick) );
     }
+
+    scene().setSaveDialog( new uiGraphicsSaveImageDlg(p,&scene()) );
+    setToolTip( "Press Ctrl-P to save as image" );
     reSize.notify( mCB(this,uiFunctionDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
@@ -97,6 +101,10 @@ uiFunctionDisplay::~uiFunctionDisplay()
 void uiFunctionDisplay::reSized( CallBacker* )
 {
     draw();
+}
+
+void uiFunctionDisplay::saveImageAs( CallBacker* )
+{
 }
 
 

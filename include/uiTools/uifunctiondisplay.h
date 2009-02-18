@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.19 2009-02-04 12:26:30 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.20 2009-02-18 06:52:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,6 +181,7 @@ protected:
     void			drawBorder();
     bool			setSelPt();
     void			reSized( CallBacker* );
+    void			saveImageAs( CallBacker* );
     void			getRanges(const TypeSet<float>&,
 	    				  const TypeSet<float>&,
 					  const Interval<float>&,
