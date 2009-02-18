@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.10 2009-02-18 14:04:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.11 2009-02-18 17:12:19 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -22,16 +22,19 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.10 2009-02-18 14:04:08 
 #include "filegen.h"
 #include "datapack.h"
 #include "survinfo.h"
+#include "preloads.h"
 
 #include "uimsg.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
+#include "uisplitter.h"
 #include "uitextedit.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uiselsurvranges.h"
+#include "pixmap.h"
 
 
 uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
@@ -70,10 +73,21 @@ uiSeisPreLoadMgr::uiSeisPreLoadMgr( uiParent* p )
     }
     mAddBut("Unload Selected",unloadPush);
 
+    uiToolButton* opentb = new uiToolButton( topgrp, "Retrieve pre-loads",
+	     ioPixmap("openpreload.png"), mCB(this,uiSeisPreLoadMgr,openPush) );
+    opentb->attach( leftAlignedBelow, listfld_ );
+    uiToolButton* savetb = new uiToolButton( topgrp, "Save pre-loads",
+	     ioPixmap("savepreload.png"), mCB(this,uiSeisPreLoadMgr,savePush) );
+    savetb->attach( rightAlignedBelow, listfld_ );
+
     infofld_ = new uiTextEdit( this, "Info" );
     infofld_->attach( alignedBelow, topgrp );
     infofld_->attach( widthSameAs, topgrp );
     infofld_->setPrefHeightInChar( 5 );
+
+    uiSplitter* spl = new uiSplitter( this, "Splitter", false );
+    spl->addGroup( topgrp );
+    spl->addObject( infofld_ );
 
     finaliseDone.notify( mCB(this,uiSeisPreLoadMgr,fullUpd) );
 }
@@ -470,4 +484,30 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
 	listfld_->setCurrentItem( newselidx );
     else
 	selChg( 0 );
+}
+
+
+void uiSeisPreLoadMgr::openPush( CallBacker* )
+{
+    CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext(), IOObjContext::Misc );
+    ctio.ctxt.forread = true;
+    uiIOObjSelDlg dlg( this, ctio, "Select pre-load settings" );
+    if ( !dlg.go() )
+	{ delete ctio.ioobj; return; }
+
+    uiMSG().error( "TODO: impl open pre-loaded" );
+    delete ctio.ioobj;
+}
+
+
+void uiSeisPreLoadMgr::savePush( CallBacker* )
+{
+    CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext(), IOObjContext::Misc );
+    ctio.ctxt.forread = false;
+    uiIOObjSelDlg dlg( this, ctio, "Select pre-load settings" );
+    if ( !dlg.go() )
+	{ delete ctio.ioobj; return; }
+
+    uiMSG().error( "TODO: impl save pre-loaded" );
+    delete ctio.ioobj;
 }

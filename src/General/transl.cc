@@ -12,9 +12,12 @@
 #include "iopar.h"
 #include "errh.h"
 #include "debugmasks.h"
+#include "preloads.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.24 2008-12-23 11:05:50 cvsdgb Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.25 2009-02-18 17:12:19 cvsbert Exp $";
+
+mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 
 
 TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )

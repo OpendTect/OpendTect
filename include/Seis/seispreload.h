@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.5 2009-02-18 13:22:03 cvsbert Exp $
+ RCS:           $Id: seispreload.h,v 1.6 2009-02-18 17:12:19 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -39,15 +39,23 @@ public:
     			//!< Line 2D only.
 
     bool		loadVol() const;
+    bool		loadLines() const;
     bool		loadLines(const BufferStringSet& lnms,
 	    			  const BufferStringSet& attrnms) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
-    bool		loadPS2D(const char* lnm) const; //!< lnm empty=all
+    bool		loadPS2D(const char* lnm=0) const;	//!< null => all
     bool		loadPS2D(const BufferStringSet&) const;
 
     void		unLoad() const;
-
     const char*		errMsg() const			{ return errmsg_; }
+
+    static void		load(const IOPar&,TaskRunner* tr=0);
+    			//!< Seis.N.[loadObj_fmt]
+    static void		loadObj(const IOPar&,TaskRunner* tr=0);
+    			//!< sKey::ID and optional subselections
+
+    static const char*	sKeyLines();
+    static const char*	sKeyAttrs();
 
 protected:
 
