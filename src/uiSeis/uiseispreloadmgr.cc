@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.8 2009-02-17 15:12:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.9 2009-02-18 13:22:03 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.8 2009-02-17 15:12:03 c
 #include "uibuttongroup.h"
 #include "uitextedit.h"
 #include "uiioobjsel.h"
+#include "uigeninput.h"
 #include "uitaskrunner.h"
 #include "uiselsurvranges.h"
 
@@ -375,7 +376,30 @@ void uiSeisPreLoadMgr::ps3DPush( CallBacker* )
 
 void uiSeisPreLoadMgr::ps2DPush( CallBacker* )
 {
-    uiMSG().error( "TODO: implement pre-load PS 2D data" );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisPS2D);
+    ctio->ctxt.trglobexpr = "CBVS";
+    uiIOObjSelDlg dlg( this, *ctio, "Select data store" );
+    dlg.setCaption( "Select data store" );
+    uiGenInput* lnmfld = new uiGenInput( dlg.selGrp()->getTopGroup(),
+	    				"Line name" );
+    lnmfld->attach( centeredBelow, dlg.selGrp()->getListField() );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
+
+    const char* lnm = lnmfld->text();
+    if ( (!lnm || !*lnm) && !uiMSG().askGoOn("Load all available lines?") )
+	return;
+
+    Seis::PreLoader spl( dlg.ioObj()->key() );
+    const char* id = spl.id().buf();
+    uiTaskRunner tr( this ); spl.setRunner( tr );
+    if ( !spl.loadPS2D(lnm) )
+    {
+	const char* emsg = spl.errMsg();
+	if ( emsg && *emsg )
+	    uiMSG().error( emsg );
+    }
+
+    fullUpd( 0 );
 }
 
 

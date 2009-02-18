@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.4 2009-02-17 15:12:03 cvsbert Exp $
+ RCS:           $Id: seispreload.h,v 1.5 2009-02-18 13:22:03 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -36,12 +36,14 @@ public:
     Interval<int>	inlRange() const;
     			//!< PS 3D only. If nothing there: ret.start==mUdf(int)
     void		getLineKeys(BufferStringSet&) const;
+    			//!< Line 2D only.
 
     bool		loadVol() const;
     bool		loadLines(const BufferStringSet& lnms,
 	    			  const BufferStringSet& attrnms) const;
     bool		loadPS3D(const Interval<int>* inlrg=0) const;
-    bool		loadPS2D(const char* lnm) const;
+    bool		loadPS2D(const char* lnm) const; //!< lnm empty=all
+    bool		loadPS2D(const BufferStringSet&) const;
 
     void		unLoad() const;
 

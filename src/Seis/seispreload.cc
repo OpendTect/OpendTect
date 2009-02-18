@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.5 2009-02-17 15:12:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.6 2009-02-18 13:22:03 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -149,11 +149,29 @@ bool Seis::PreLoader::loadPS3D( const Interval<int>* inlrg ) const
 bool Seis::PreLoader::loadPS2D( const char* lnm ) const
 {
     mPrepIOObj( false );
+    BufferStringSet lnms;
+    if ( lnm && *lnm )
+	lnms.add( lnm );
+    else
+	SPSIOPF().getLineNames( *ioobj, lnms );
 
+    return loadPS2D( lnms );
+}
+
+
+bool Seis::PreLoader::loadPS2D( const BufferStringSet& lnms ) const
+{
+    if ( lnms.isEmpty() )
+	return true;
+
+    mPrepIOObj( false );
+
+    BufferStringSet fnms;
     SeisCBVSPSIO psio( ioobj->fullUserExpr(true) );
-    const BufferString fnm( psio.get2DFileName(lnm) );
-    return fnm.isEmpty() ? true
-	 : StreamProvider::preLoad( fnm, trunnr, id_.buf() );
+    for ( int idx=0; idx<lnms.size(); idx++ )
+	fnms.add( psio.get2DFileName(lnms.get(idx)) );
+
+    return StreamProvider::preLoad( fnms, trunnr, id_.buf() );
 }
 
 
