@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visdatagroup.cc,v 1.12 2009-02-11 11:04:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: visdatagroup.cc,v 1.13 2009-02-18 14:18:46 cvsjaap Exp $";
 
 #include "visdatagroup.h"
 #include "visdataman.h"
@@ -35,7 +35,7 @@ DataObjectGroup::~DataObjectGroup()
 {
     deepUnRef( objects_ );
 
-    group_->unref();
+    if ( group_ ) group_->unref();
 }
 
 
