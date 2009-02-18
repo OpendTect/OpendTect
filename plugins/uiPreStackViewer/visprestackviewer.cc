@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.48 2009-01-30 21:23:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.49 2009-02-18 12:37:33 cvsbert Exp $";
 
 #include "visprestackviewer.h"
 
@@ -421,14 +421,14 @@ int Viewer3D::getNearTraceNr( int trcnr ) const
     if ( !rdr2d )
 	return -1;
 
-    TypeSet<PosInfo::Line2DPos>  posnrs = rdr2d->posData().posns_;
-    if ( !posnrs.size() )
+    const TypeSet<PosInfo::Line2DPos>& posnrs = rdr2d->posData().posns_;
+    if ( posnrs.isEmpty() )
 	return -1;
 
     int mindist=-1, residx;
     for ( int idx=0; idx<posnrs.size(); idx++ )
     {
-	const int dist = abs(posnrs[idx].nr_-trcnr);
+	const int dist = abs( posnrs[idx].nr_ - trcnr );
 	if ( mindist==-1 || mindist>dist )
 	{
 	    mindist = dist;
