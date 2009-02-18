@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.13 2009-02-11 07:18:24 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.14 2009-02-18 06:48:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "bufstringset.h"
 #include "color.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
@@ -54,6 +55,7 @@ public:
     void			addItem(uiGraphicsItem*);
     void			addItemGrp(uiGraphicsItemGroup*);
     int				nrItems() const;
+    int				getDPI() const;
 
     uiTextItem*			addText(const char*);
     uiTextItem*                 addText(int x,int y,const char*,
@@ -107,11 +109,11 @@ public:
     QGraphicsScene*		qGraphicsScene()
     				{ return (QGraphicsScene*)odgraphicsscene_; }
 
+    BufferStringSet		supportedImageFormat();
     void			save();
     void			setSaveDialog( uiDialog* dlg )
 				{ savedlg_ = dlg; }
 
-    bool			ctrlpressed_;
 protected:
 
     ObjectSet<uiGraphicsItem>	items_;

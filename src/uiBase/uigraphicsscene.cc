@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.17 2009-02-11 10:02:21 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.18 2009-02-18 06:48:20 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -19,14 +19,18 @@ static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.17 2009-02-11 10:02:21 c
 #include "uidialog.h"
 #include "uigraphicsitemimpl.h"
 
+#include <QList>
+#include <QByteArray>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QImage>
+#include <QImageWriter>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QPoint>
 #include <QPrinter>
 #include <QString>
+#include <QX11Info>
 
 #include <math.h>
 
@@ -42,7 +46,7 @@ public:
 
     void		setBackgroundOpaque( bool yn )	{ bgopaque_ = yn; }
 protected:
-    virtual void	keyPressEvent(QKeyEvent * qkeyevent);
+    virtual void	keyPressEvent(QKeyEvent* qkeyevent);
     virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
     virtual void	mousePressEvent(QGraphicsSceneMouseEvent*);
     virtual void	mouseReleaseEvent(QGraphicsSceneMouseEvent*);
@@ -68,17 +72,12 @@ void ODGraphicsScene::drawBackground( QPainter* painter, const QRectF& rect )
 }
 
 
-void ODGraphicsScene::keyPressEvent( QKeyEvent * qkeyevent )
+void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
 {
     OD::KeyboardKey key = OD::KeyboardKey( qkeyevent->key() );
     OD::ButtonState modifier = OD::ButtonState( (int)qkeyevent->modifiers() );
-    if ( modifier == OD::ControlButton )
-	uiscene_.ctrlpressed_ = true;
-    if ( key == OD::P && uiscene_.ctrlpressed_ )
-    {
-	uiscene_.ctrlpressed_ = false;
+    if ( key == OD::P && modifier == OD::ControlButton )
 	uiscene_.save();
-    }
 }
 
 
@@ -141,11 +140,11 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     , mousehandler_(MouseEventHandler())
     , keyboardhandler_(KeyboardEventHandler())
     , ismouseeventactive_(true)
-    , ctrlpressed_(false)
     , odgraphicsscene_(new ODGraphicsScene(*this))
     , savedlg_(0)
 {
     odgraphicsscene_->setObjectName( nm );
+    odgraphicsscene_->setBackgroundBrush( Qt::white );
 }
 
 
@@ -158,6 +157,16 @@ uiGraphicsScene::~uiGraphicsScene()
 int uiGraphicsScene::nrItems() const
 {
     return odgraphicsscene_->items().size();
+}
+
+
+BufferStringSet uiGraphicsScene::supportedImageFormat()
+{
+    BufferStringSet imageformats;
+    QList<QByteArray> imgfrmts = QImageWriter::supportedImageFormats();
+    for ( int idx=0; idx<imgfrmts.size(); idx++ )
+	imageformats.add( imgfrmts[idx].data() );
+    return imageformats;
 }
 
 
@@ -405,6 +414,9 @@ double uiGraphicsScene::width() const
 double uiGraphicsScene::height() const
 { return odgraphicsscene_->height(); }
 
+int uiGraphicsScene::getDPI() const
+{ return QX11Info::appDpiX(); }
+
 void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
 { odgraphicsscene_->setSceneRect( x, y, w, h ); }
 
@@ -420,13 +432,15 @@ void uiGraphicsScene::saveAsImage( const char* filename, int width,
 				   int height, int resolution )
 {
     QString fileName( filename );
-    QPainter *pngPainter = new QPainter();
-    QImage *image = new QImage( QSize(width,height), QImage::Format_ARGB32);
-    pngPainter->begin(image);
-    qGraphicsScene()->render(pngPainter);
-    pngPainter->end();
+    QPainter *imagepainter = new QPainter();
+    QImage* image = new QImage( QSize(width,height), QImage::Format_ARGB32);
+    image->setDotsPerMeterX( resolution*254 );
+    image->setDotsPerMeterY( resolution*254 );
+    imagepainter->begin(image);
+    qGraphicsScene()->render(imagepainter);
+    imagepainter->end();
     image->save(fileName);
-    delete pngPainter;
+    delete imagepainter;
     delete image;
 }
 
