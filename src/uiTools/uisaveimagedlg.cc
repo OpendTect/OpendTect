@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.1 2009-02-18 06:35:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.2 2009-02-18 07:14:29 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -37,8 +37,8 @@ static const char* imageformatdescs[] =
     "JPEG (*.jpg *.jpeg)",
     "PNG (*.png)",
     "Bitmap (*.bmp)",
-    "XPM (*.xpm)",
     "XBM (*.xbm)",
+    "XPM (*.xpm)",
     0
 };
 
