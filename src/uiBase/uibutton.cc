@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.55 2009-01-30 05:06:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.56 2009-02-19 06:59:03 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uibutton.cc,v 1.55 2009-01-30 05:06:31 cvssatya
 #include <QMenu>
 #include <QPushButton>
 #include <QRadioButton>
+#include <QResizeEvent>
 #include <QToolButton>
 
 static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
@@ -106,26 +107,30 @@ protected:
 class uiPushButtonBody : public uiButtonTemplBody<QPushButton>
 {
 public:
-			uiPushButtonBody(uiButton& handle, 
-				     uiParent* parnt, const char* txt)
+			uiPushButtonBody( uiButton& handle, 
+					  uiParent* parnt, const char* txt )
 			    : uiButtonTemplBody<QPushButton>(handle,parnt,txt)
-			    , iconfrac_(0)
+			    , iconfrac_(0.75)
 			    {}
 
-			uiPushButtonBody(uiButton& handle, const ioPixmap& pm,
-				         uiParent* parnt, const char* txt)
+			uiPushButtonBody( uiButton& handle, const ioPixmap& pm,
+				          uiParent* parnt, const char* txt )
 			    : uiButtonTemplBody<QPushButton>
 					(handle,pm,parnt,txt)
-			    , iconfrac_(0)
+			    , iconfrac_(0.75)
 			    {}
 
     void		setIconFrac( float icf )
-    			{
+			{
 			    if ( icf<=0.0 || icf>1.0 ) return;
-			    setIconSize(
-				QSize( int(width()*icf),int(height()*icf)) );
+#ifdef __win__
+			    setIconSize( qbutsize_ );
+#else
+			    setIconSize( QSize(mNINT(width()*icf),
+					       mNINT(height()*icf)) );
+#endif
 			    iconfrac_ = icf;
-		       	}
+			}
 
     virtual QAbstractButton&    qButton()		{ return *this; }
 
@@ -134,13 +139,15 @@ protected:
     virtual void        notifyHandler( notifyTp tp ) 
 			{ if ( tp == uiButtonBody::clicked ) doNotify(); }
 
-    void                resizeEvent(QResizeEvent* ev)
+    void		resizeEvent( QResizeEvent* ev )
 			{
+			    if ( ev ) qbutsize_ = ev->size();
 			    setIconFrac( iconfrac_ );
 			    QPushButton::resizeEvent( ev );
 			}
 
     float		iconfrac_;
+    QSize		qbutsize_;
 };
 
 
