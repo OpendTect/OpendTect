@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.28 2009-02-16 10:29:24 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.29 2009-02-19 12:27:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.28 2009-02-16 10:29:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.29 2009-02-19 12:27:48 cvsbert Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -911,9 +911,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	   "Selection mode" ); 
     disptb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
-    disptb_.addButton( "trashcan.png",
+    disptb_.addButton( "clearselection.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections), 
-	    "Remove all selections" );
+	    "Clear selection" );
     
     disptb_.addButton( "settings.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
