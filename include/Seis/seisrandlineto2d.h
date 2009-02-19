@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.h,v 1.3 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seisrandlineto2d.h,v 1.4 2009-02-19 10:30:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ mClass SeisRandLineTo2D : public Executor
 {
 public:
     			SeisRandLineTo2D(IOObj*,IOObj*,const LineKey&,
-					 Interval<int>,
+					 const int& trcinit,
 					 const Geometry::RandomLine&);
 			~SeisRandLineTo2D();
 
