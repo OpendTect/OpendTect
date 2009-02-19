@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.16 2009-01-22 11:35:13 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.17 2009-02-19 07:01:04 cvsnanne Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.16 2009-01-22 11:35:
 #include "visseis2ddisplay.h"
 #include "viscoord.h"
 #include "vistransform.h"
+#include "zaxistransform.h"
 
 mCreateFactoryEntry( visSurvey::Horizon2DDisplay );
 
@@ -32,6 +33,7 @@ namespace visSurvey
 {
 
 Horizon2DDisplay::Horizon2DDisplay()
+    : zaxistransform_(0)
 {
     points_.allowNull(true);
 }
@@ -130,8 +132,8 @@ bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z,
 void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 {
     const EM::SectionID sid = emobject_->sectionID( idx );
-    mDynamicCastGet( const Geometry::RowColSurface*, rcs,
-	    	     emobject_->sectionGeometry( sid ) );
+    mDynamicCastGet(const Geometry::RowColSurface*,rcs,
+	    	    emobject_->sectionGeometry(sid));
 
     visBase::IndexedPolyLine* pl = lines_[idx];
     visBase::PointSet* ps = points_[idx];
@@ -331,6 +333,40 @@ bool Horizon2DDisplay::setEMObject( const EM::ObjectID& newid )
 
     getMaterial()->setColor( emobject_->preferredColor() );
     return true;
+}
+
+
+bool Horizon2DDisplay::setDataTransform( ZAxisTransform* zat )
+{
+    const bool haddatatransform = zaxistransform_;
+    CallBack cb = mCB(this,Horizon2DDisplay,zAxisTransformChg);
+    if ( zaxistransform_ )
+    {
+	if ( zaxistransform_->changeNotifier() )
+	    zaxistransform_->changeNotifier()->remove( cb );
+	zaxistransform_->unRef();
+	zaxistransform_ = 0;
+    }
+
+    zaxistransform_ = zat;
+    if ( zaxistransform_ )
+    {
+	zaxistransform_->ref();
+	if ( zaxistransform_->changeNotifier() )
+	    zaxistransform_->changeNotifier()->notify( cb );
+    }
+
+    return true;
+}
+
+
+const ZAxisTransform* Horizon2DDisplay::getDataTransform() const
+{ return zaxistransform_; }
+
+
+void Horizon2DDisplay::zAxisTransformChg( CallBacker* )
+{
+    // TODO: implement
 }
 
 

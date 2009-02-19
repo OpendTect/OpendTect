@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.9 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.10 2009-02-19 07:01:04 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -20,13 +20,14 @@ ________________________________________________________________________
 
 namespace visBase { class DrawStyle; class IndexedPolyLine; class PointSet; }
 namespace EM { class Horizon2D; }
+class ZAxisTransform;
 
 namespace visSurvey
 {
 
 class Seis2DDisplay;
 
-mClass Horizon2DDisplay :  public  EMObjectDisplay
+mClass Horizon2DDisplay : public EMObjectDisplay
 {
 public:
     static Horizon2DDisplay*	create()
@@ -34,6 +35,9 @@ public:
     void			setDisplayTransformation(mVisTrans*);
 
     EM::SectionID		getSectionID(int visid) const;
+
+    bool			setDataTransform(ZAxisTransform*);
+    const ZAxisTransform*	getDataTransform() const;
 
 protected:
     				~Horizon2DDisplay();
@@ -60,6 +64,9 @@ protected:
 	    				const ObjectSet<const Seis2DDisplay>&);
     void			updateSeedsOnSections(
 	    				const ObjectSet<const Seis2DDisplay>&);
+
+    void			zAxisTransformChg(CallBacker*);
+    ZAxisTransform*		zaxistransform_;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
