@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.11 2009-02-18 17:12:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.12 2009-02-19 13:26:28 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.11 2009-02-18 17:12:19 
 #include "ioobj.h"
 #include "ioman.h"
 #include "iodirentry.h"
+#include "ascstream.h"
 #include "ptrman.h"
 #include "filepath.h"
 #include "filegen.h"
@@ -487,27 +488,58 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return; }
+
 void uiSeisPreLoadMgr::openPush( CallBacker* )
 {
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext(), IOObjContext::Misc );
     ctio.ctxt.forread = true;
-    uiIOObjSelDlg dlg( this, ctio, "Select pre-load settings" );
-    if ( !dlg.go() )
-	{ delete ctio.ioobj; return; }
+    uiIOObjSelDlg dlg( this, ctio, "Open pre-load settings" );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    uiMSG().error( "TODO: impl open pre-loaded" );
+    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     delete ctio.ioobj;
+    StreamData sd( StreamProvider(fnm).makeIStream() );
+    if ( !sd.usable() )
+	mErrRet( BufferString("Cannot open input file:\n",fnm) )
+
+    ascistream astrm( *sd.istrm,true );
+    IOPar iop( astrm );
+    if ( iop.isEmpty() )
+	mErrRet( "No valid objects found" )
+
+    uiTaskRunner tr( this );
+    Seis::PreLoader::load( iop, &tr );
+    fullUpd( 0 );
 }
 
 
 void uiSeisPreLoadMgr::savePush( CallBacker* )
 {
+    if ( ids_.isEmpty() ) return;
+
     CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext(), IOObjContext::Misc );
     ctio.ctxt.forread = false;
-    uiIOObjSelDlg dlg( this, ctio, "Select pre-load settings" );
-    if ( !dlg.go() )
-	{ delete ctio.ioobj; return; }
+    uiIOObjSelDlg dlg( this, ctio, "Save pre-load settings" );
+    if ( !dlg.go() || !dlg.ioObj() ) return;
 
-    uiMSG().error( "TODO: impl save pre-loaded" );
+    const BufferString fnm( dlg.ioObj()->fullUserExpr(true) );
     delete ctio.ioobj;
+    StreamData sd( StreamProvider(fnm).makeOStream() );
+    if ( !sd.usable() )
+	mErrRet( BufferString("Cannot open output file:\n",fnm) )
+
+    IOPar alliop;
+    for ( int iobj=0; iobj<ids_.size(); iobj++ )
+    {
+	const MultiID id( ids_.get(iobj).buf() );
+	IOPar iop; const BufferString parkey( "Seis.", iobj );
+	Seis::PreLoader spl( id ); spl.fillPar( iop );
+	alliop.mergeComp( iop, parkey );
+    }
+
+    ascostream astrm( *sd.ostrm );
+    if ( !astrm.putHeader("Pre-loads") )
+	mErrRet( BufferString("Cannot write to output file:\n",fnm) )
+    alliop.putTo( astrm );
 }
