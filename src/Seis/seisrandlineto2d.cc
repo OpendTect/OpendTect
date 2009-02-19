@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.5 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.6 2009-02-19 10:30:14 cvsraman Exp $";
 
 #include "seisrandlineto2d.h"
 #include "randomlinegeom.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.5 2008-12-23 11:10:34 c
 #include "survinfo.h"
 
 SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
-				    const LineKey& lk, Interval<int> trcinit,
+				    const LineKey& lk, const int& trcinit,
 				    const Geometry::RandomLine& rln )
     : Executor("Saving 2D Line")
     , rdr_(0)
@@ -35,11 +35,9 @@ SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
 	wrr_->setSelData( seldata );
     }
 
-    const int trstart = trcinit.start;
-    const int trstep = trcinit.stop;
     if ( rln.nrNodes() < 2 ) return;
 
-    int trcnr = trstart;
+    int trcnr = trcinit;
     const Interval<float> zrg = rln.zRange();
     TypeSet<float> vals( 4, 0 );
     BinID startbid = rln.nodePosition( 0 );
@@ -50,7 +48,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
     seldata_.binidValueSet().allowDuplicateBids( true );
     seldata_.binidValueSet().setNrVals( 4 );
     seldata_.binidValueSet().add( startbid, vals );
-    trcnr += trstep;
+    trcnr += 1;
     for ( int idx=1; idx<rln.nrNodes(); idx++ )
     {
 	const BinID& stopbid = rln.nodePosition( idx );
@@ -70,14 +68,14 @@ SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
 	    vals[3] = (float)trcnr;
 	    const BinID curbid = SI().transform(curpos);
 	    seldata_.binidValueSet().add( curbid, vals );
-	    trcnr += trstep;
+	    trcnr += 1;
 	}
 
 	vals[0] = zrg.stop;
 	vals[1] = stoppos.x; vals[2] = stoppos.y;
 	vals[3] = (float)trcnr;
 	seldata_.binidValueSet().add( stopbid, vals );
-	trcnr += trstep;
+	trcnr += 1;
 	startbid = stopbid;
 	startpos = stoppos;
     }
