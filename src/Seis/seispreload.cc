@@ -3,7 +3,7 @@
  * AUTHOR   : Bert
  * DATE     : Nov 2008
 -*/
-static const char* rcsID = "$Id: seispreload.cc,v 1.7 2009-02-18 17:12:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seispreload.cc,v 1.8 2009-02-19 13:26:15 cvsbert Exp $";
 
 #include "seispreload.h"
 #include "seistrctr.h"
@@ -34,13 +34,13 @@ IOObj* Seis::PreLoader::getIOObj() const
 
 Interval<int> Seis::PreLoader::inlRange() const
 {
-    Interval<int> ret( -mUdf(int), mUdf(int) );
+    Interval<int> ret( mUdf(int), -mUdf(int) );
     BufferStringSet fnms;
     StreamProvider::getPreLoadedFileNames( id_.buf(), fnms );
     for ( int idx=0; idx<fnms.size(); idx++ )
-	ret.include( SeisCBVSPSIO::getInlNr( fnms.get(idx) ) );
+	ret.include( SeisCBVSPSIO::getInlNr( fnms.get(idx) ), false );
 
-    if ( mIsUdf(ret.stop) ) ret.start = ret.stop;
+    if ( mIsUdf(ret.start) ) ret.stop = ret.start;
     return ret;
 }
 
@@ -215,8 +215,8 @@ void Seis::PreLoader::load( const IOPar& iniop, TaskRunner* tr )
 
     for ( int ipar=0; ; ipar++ )
     {
-	PtrMan<IOPar> objiop = iniop.subselect( ipar );
-	if ( !iop || iop->isEmpty() )
+	PtrMan<IOPar> objiop = iop->subselect( ipar );
+	if ( !objiop || objiop->isEmpty() )
 	    { if ( ipar ) break; continue; }
 	loadObj( *objiop, tr );
     }
@@ -250,7 +250,7 @@ void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 		if ( attrs.isEmpty() ) oinf.getAttribNames(attrs);
 		spl.loadLines( lnms, attrs );
 	    }
-	 } break;
+	} break;
 	case Seis::VolPS: {
 	    Interval<int> nrrg; Interval<int>* toload = 0;
 	    if ( iop.get(sKey::Range,nrrg) )
@@ -263,6 +263,49 @@ void Seis::PreLoader::loadObj( const IOPar& iop, TaskRunner* tr )
 		spl.loadPS2D();
 	    else
 		spl.loadPS2D( lnms );
+	} break;
+    }
+}
+
+
+void Seis::PreLoader::fillPar( IOPar& iop ) const
+{
+    SeisIOObjInfo oinf( id_ );
+    if ( !oinf.isOK() ) return;
+    iop.set( sKey::ID, id_.buf() );
+    const Seis::GeomType gt = oinf.geomType();
+
+    switch ( gt )
+    {
+	case Seis::Vol:
+	break;
+	case Seis::Line: {
+	    BufferStringSet lks; getLineKeys( lks );
+	    if ( lks.isEmpty() ) break;
+	    BufferStringSet lnms, attrs;
+	    for ( int idx=0; idx<lks.size(); idx++ )
+	    {
+		const LineKey lk( lks.get(idx) );
+		lnms.addIfNew( lk.lineName() );
+		attrs.addIfNew( lk.attrName() );
+	    }
+	    iop.set( sKeyLines(), lnms ); iop.set( sKeyAttrs(), attrs );
+	} break;
+	case Seis::VolPS: {
+	    iop.set( sKey::Range, inlRange() );
+	} break;
+	case Seis::LinePS: {
+	    BufferStringSet fnms;
+	    StreamProvider::getPreLoadedFileNames( id_.buf(), fnms );
+	    if ( fnms.isEmpty() ) break;
+	    BufferStringSet lnms;
+	    for ( int idx=0; idx<fnms.size(); idx++ )
+	    {
+		FilePath fp( fnms.get(idx) );
+		fp.setExtension( 0, true );
+		lnms.add( fp.fileName() );
+	    }
+	    iop.set( sKeyLines(), lnms );
 	} break;
     }
 }
