@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.78 2009-02-11 10:59:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.79 2009-02-19 07:53:57 cvsnanne Exp $";
 
 #include "uivisemobj.h"
 
@@ -49,6 +49,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     , edgelinemenu_( *new uiMenuHandler(uip,-1) )
     , showedtexture_(true)
 {
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
+
     nodemenu_.ref();
     interactionlinemenu_.ref();
     edgelinemenu_.ref();
@@ -56,10 +58,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
     visSurvey::EMObjectDisplay* emod = getDisplay();
     if ( !emod ) return;
 
+    visSurvey::Scene* scene = emod->getScene();
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
-
-    MouseCursorChanger cursorchanger( MouseCursor::Wait );
-
     const MultiID mid = emod->getMultiID();
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
     if ( !EM::EMM().getObject(emid) )
@@ -114,7 +114,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    {
 		emid = -1;
 		emobject->unRef();
-		emod->unRef();
+		if ( scene ) visserv_->removeObject( emod, scene->id() );
+		delete exec;
 		return;
 	    }
 
@@ -123,7 +124,11 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	}
     }
 
-    if ( !emod->setEMObject(emid) ) { emod->unRef(); return; }
+    if ( !emod->setEMObject(emid) )
+    {
+	if ( scene ) visserv_->removeObject( emod, scene->id() );
+	return;
+    }
 
     if ( hordisp && hordisp->usesTexture() )
     {
