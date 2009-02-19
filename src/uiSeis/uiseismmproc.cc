@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.122 2009-02-17 15:39:05 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.123 2009-02-19 06:38:00 cvsnanne Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -569,6 +569,8 @@ void uiSeisMMProc::stopPush( CallBacker* )
 
 void uiSeisMMProc::vwLogPush( CallBacker* )
 {
+    if ( !jobrunner ) return;
+
     BufferString hostnm( curUsedMachName() );
     const HostNFailInfo* hfi = 0;
     const ObjectSet<HostNFailInfo>& hi = jobrunner->hostInfo();
