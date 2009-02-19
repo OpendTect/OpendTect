@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.98 2009-02-17 14:21:03 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.99 2009-02-19 07:02:36 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -191,6 +191,8 @@ public:
 					    BufferString& val,
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
+	    					IOPar&) const	{}
     virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
 
     				/*!<Returns a mouse cursor that will
