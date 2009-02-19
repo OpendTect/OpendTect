@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2009
- RCS:           $Id: seispreload.h,v 1.6 2009-02-18 17:12:19 cvsbert Exp $
+ RCS:           $Id: seispreload.h,v 1.7 2009-02-19 13:25:53 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,7 @@ public:
     			//!< Seis.N.[loadObj_fmt]
     static void		loadObj(const IOPar&,TaskRunner* tr=0);
     			//!< sKey::ID and optional subselections
+    void		fillPar(IOPar&) const;
 
     static const char*	sKeyLines();
     static const char*	sKeyAttrs();
