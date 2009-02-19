@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.4 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.5 2009-02-19 10:29:38 cvsraman Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -39,8 +39,7 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
     linenmfld_ = new uiGenInput( this, "Line Name", StringInpSpec(rln.name()) );
     linenmfld_->attach( alignedBelow, outpfld_ );
 
-    trcnrfld_ = new uiGenInput( this, "Trace Nr (Start/Step)",
-	    			IntInpIntervalSpec( Interval<int>(1,1) ) );
+    trcnrfld_ = new uiGenInput( this, "First Trace Nr", IntInpSpec(1) );
     trcnrfld_->attach( alignedBelow, linenmfld_ );
 }
 
@@ -66,13 +65,13 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     if ( linenm.isEmpty() )
 	mErrRet("Missing Line Name\nPlease enter a Line Name")
 
-    Interval<int> trcinp = trcnrfld_->getIInterval();
-    if ( mIsUdf(trcinp.start) || trcinp.start <= 0
-	 || mIsUdf(trcinp.stop) || trcinp.stop <= 0 )
-	mErrRet("Please specify how you want the traces to be numbered")
+    const int trcnrstart = trcnrfld_->getIntValue();
+    if ( mIsUdf(trcnrstart) || trcnrstart <= 0 )
+	mErrRet("Please specify a valid starting trace number")
 
     LineKey lk( linenm, attrnm );
-    SeisRandLineTo2D exec( inctio_.ioobj, outctio_.ioobj, lk, trcinp, randln_ );
+    SeisRandLineTo2D exec( inctio_.ioobj, outctio_.ioobj, lk, trcnrstart,
+	    		   randln_ );
     uiTaskRunner dlg( this );
     if ( !dlg.execute(exec) )
 	return false;
