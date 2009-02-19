@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.39 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.40 2009-02-19 13:25:33 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -113,7 +113,8 @@ BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 
 int SeisCBVSPSIO::getInlNr( const char* filenm )
 {
-    BufferString fnm( filenm );
+    FilePath fp( filenm );
+    BufferString fnm( fp.fileName() );
     char* ptr = fnm.buf();
     while ( *ptr && !isdigit(*ptr) ) ptr++;
     while ( *ptr && isdigit(*ptr) ) ptr++;
