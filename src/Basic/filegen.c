@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.77 2009-02-18 08:37:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.78 2009-02-19 07:14:17 cvsnanne Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -410,13 +410,12 @@ int File_copy( const char* from, const char* to, int recursive )
 
 int File_remove( const char* fname, int recursive )
 {
-
 #ifdef __win__
-	
+
     if ( !File_exists(fname) )
 	return mC_True;
 
-    if ( recursive )
+    if ( File_isDirectory(fname) )
     { 
 	char* cmd;
 	int len, retval;
@@ -424,7 +423,10 @@ int File_remove( const char* fname, int recursive )
 	len = strlen( fname ) + 30;
 	cmd = mMALLOC(len,char);
 
-	strcpy( cmd, "rd /S /Q \"" );
+	strcpy( cmd, "rd /Q" );
+	if ( recursive )
+	    strcat( cmd, " /S" );
+	strcat( cmd, " \"" );
 	strcat( cmd, fname );
 	strcat( cmd, "\"" );
 
@@ -480,7 +482,6 @@ int File_remove( const char* fname, int recursive )
 
 int File_makeWritable( const char* fname, int recursive, int yn )
 {
-
 #ifdef __win__
 
     FileNameString cmd;
