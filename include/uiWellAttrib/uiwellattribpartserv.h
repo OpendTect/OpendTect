@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.10 2009-02-11 10:33:18 cvsranojay Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.11 2009-02-20 11:34:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class MultiID;
 class NLAModel;
 class uiWellAttribCrossPlot;
+class uiD2TModelGenWin;
 
 namespace Attrib { class DescSet; }
 namespace Pick { class Set; }
@@ -43,6 +44,7 @@ public:
     void			doXPlot();
 
     const Pick::Set&		getSelPickSet() const	{ return *selpickset_; }
+    bool                        createD2TModel(const MultiID&);
 
 protected:
 
@@ -52,6 +54,7 @@ protected:
     void 			showPickSet(CallBacker*);
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
+    uiD2TModelGenWin*           uid2tmgenwin_;
     const Pick::Set*		selpickset_;
 };
 

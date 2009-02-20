@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewwin.h,v 1.9 2009-01-08 07:14:05 cvsranojay Exp $
+ RCS:           $Id: uiflatviewwin.h,v 1.10 2009-02-20 11:34:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ public:
     virtual void	addControl(uiFlatViewControl*)	{}
     virtual uiMainWin*	dockParent()			= 0;
     virtual uiParent*	viewerParent()			= 0;
+
+    virtual void	setInitialSize(int w,int h);
 
 protected:
 

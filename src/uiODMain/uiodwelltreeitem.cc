@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.36 2009-02-17 06:30:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.37 2009-02-20 11:34:18 cvsbruno Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -19,7 +19,6 @@ static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.36 2009-02-17 06:30:17 
 
 #include "uiattribpartserv.h"
 #include "uicreateattriblogdlg.h"
-#include "uid2tmlogseldlg.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uilogselectdlg.h"
@@ -101,16 +100,8 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
     else if ( mnuid == 1 )
     {
-	MultiID wid;
-	BufferString logname1, logname2;
-	uiD2TMLogSelDlg dlg ( getUiParent(), wid);
-	if ( dlg.go() );
-	{
-	logname1 = dlg.logname1_; logname2 = dlg.logname2_;
-	wid = dlg.wellid_;
-	ODMainWin()->applMgr().wellServer()->createD2TModel( wid, 
-							logname1, logname2 );
-	}
+	 MultiID wid;
+	 ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wid );
     }
 
 
@@ -436,9 +427,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == gend2tm_.id )
     {
 	menu->setIsHandled( true );
-	BufferString logname1, logname2;
-	ODMainWin()->applMgr().wellServer()->createD2TModel(
-						wellid, logname1, logname2 );
+	ODMainWin()->applMgr().wellAttribServer()->createD2TModel( wellid );
     }
 }
 

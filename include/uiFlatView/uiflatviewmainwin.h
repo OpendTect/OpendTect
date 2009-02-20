@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewmainwin.h,v 1.9 2009-01-15 09:13:51 cvsnanne Exp $
+ RCS:           $Id: uiflatviewmainwin.h,v 1.10 2009-02-20 11:34:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewwin.h"
 #include "uimainwin.h"
+#include "uigroup.h"
 
 
 /*!\brief (Non-modal) main window containing one or more uiFlatViewer(s). */
@@ -45,9 +46,10 @@ public:
 
     void		addControl(uiFlatViewControl*);
     void		displayInfo(CallBacker*);
+    void		setInitialSize(int w,int h);
 
-    virtual uiMainWin*	dockParent()			{ return this; }
-    virtual uiParent*	viewerParent()			{ return this; }
+    virtual uiMainWin*	dockParent()	{ return this; }
+    virtual uiParent*	viewerParent()	{ return this; }
 
 };
 

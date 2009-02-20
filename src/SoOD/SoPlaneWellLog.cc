@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.26 2009-01-29 06:03:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.27 2009-02-20 11:34:18 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -372,7 +372,7 @@ void SoPlaneWellLog::buildLog(int lognr, const SbVec3f& projdir, int res )
 	buildSimpleLog( lognr, projdir, res );
 }
 
-#define sMaxNrSamplesRot 25
+#define sMaxNrSamplesRot 15
 void SoPlaneWellLog::buildSimpleLog(int lognr, const SbVec3f& projdir, int res) 
 {
     SoIndexedLineSet* lineset = SO_GET_ANY_PART( this,
@@ -611,8 +611,9 @@ SbVec3f SoPlaneWellLog::getProjCoords( const SoMFVec3f& path, const int index,
     SbVec3f normalshift = getNormal( pt1, pt2, projdir );
     normal.normalize();
     
-    const float scaledmeanval = val * worldwidth / maxval.getValue();
-    const float fact = scaledmeanval / normal.length();
+    float maxvalF = maxval.getValue();
+    const float scaledmeanval = val * worldwidth / maxvalF;
+    const float fact = (maxvalF == 0) ? 0 : scaledmeanval / normal.length();
     normal *= lognr==1 ?  -fact : fact;
     return ( normal );
 } 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.32 2009-02-11 10:33:50 cvsranojay Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.33 2009-02-20 11:34:18 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,6 @@ public:
     bool			selectWells(ObjectSet<MultiID>&);
 
     bool			editDisplayProperties(const MultiID&);
-    bool			createD2TModel(const MultiID&, const 
-	    				char*, const char*);
     bool			selectLogs(const MultiID&, 
 						Well::LogDisplayParSet*&);
     bool			hasLogs(const MultiID&) const;

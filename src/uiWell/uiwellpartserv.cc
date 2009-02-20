@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.44 2009-02-20 09:37:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.45 2009-02-20 11:34:18 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -92,14 +92,6 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 	wellids += new MultiID( dlg.selected(idx) );
 
     return wellids.size();
-}
-
-
-bool uiWellPartServer::createD2TModel( const MultiID& mid, 
-				       const char* logname1, 
-				       const char* logname2 )
-{
-    return true;
 }
 
 

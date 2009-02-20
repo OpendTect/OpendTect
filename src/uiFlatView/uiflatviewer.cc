@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.70 2009-01-28 11:06:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.71 2009-02-20 11:34:18 cvsbruno Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -62,6 +62,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
     , dispParsChanged(this)
     , control_(0)
 {
+    setStretch( 2, 2 ); canvas_.setStretch( 2, 2 );
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.reSize.notify( mCB(this,uiFlatViewer,reDraw) );
     canvas_.reDrawNeeded.notify( mCB(this,uiFlatViewer,reDraw) );
@@ -124,8 +125,8 @@ void uiFlatViewer::setExtraBorders( const uiSize& lfttp, const uiSize& rghtbt )
 
 void uiFlatViewer::setInitialSize( uiSize sz )
 {
-    canvas_.setPrefWidth( sz.width() );
-    canvas_.setPrefHeight( sz.height() );
+    setPrefWidth( sz.width() ); setPrefHeight( sz.height() );
+    canvas_.setPrefWidth( sz.width() ); canvas_.setPrefHeight( sz.height() );
 }
 
 

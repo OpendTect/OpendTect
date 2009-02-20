@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.163 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.164 2009-02-20 11:34:18 cvsbruno Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -1136,11 +1136,15 @@ void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
 	controlparent = &appl_;
     }
 
-    uiFlatViewer& vwr = viewwin_->viewer();
-    vwr.setInitialSize( uiSize(600,400) );
-    vwr.appearance().setDarkBG( wantdock );
-    vwr.appearance().setGeoDefaults(isvert);
-    vwr.appearance().annot_.setAxesAnnot(true);
-    viewwin_->addControl( new uiFlatViewStdControl( vwr,
-		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
+    viewwin_->setInitialSize( 600, 400 );
+    for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
+    {
+	uiFlatViewer& vwr = viewwin_->viewer( ivwr );
+	vwr.appearance().setDarkBG( wantdock );
+	vwr.appearance().setGeoDefaults(isvert);
+	vwr.appearance().annot_.setAxesAnnot(true);
+	if ( ivwr == 0 )
+	    viewwin_->addControl( new uiFlatViewStdControl( vwr,
+			uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
+    }
 }

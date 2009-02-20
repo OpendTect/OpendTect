@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.18 2008-12-23 13:40:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.19 2009-02-20 11:34:18 cvsbruno Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -21,8 +21,11 @@ void uiFlatViewWin::createViewers( int nr )
 {
     for ( int idx=0; idx<nr; idx++ )
     {
-	uiFlatViewer* vwr = new uiFlatViewer( viewerParent() );
+	//TODO Nanne: with group in between nothing is right
+	uiFlatViewer* vwr = new uiFlatViewer( dockParent() );
+	//uiFlatViewer* vwr = new uiFlatViewer( viewerParent() );
 	vwrs_ += vwr;
+	vwr->setStretch( 2, 2 );
 	handleNewViewer( vwr );
     }
 }
@@ -41,9 +44,9 @@ void uiFlatViewWin::setDarkBG( bool yn )
 	vwrs_[idx]->appearance().setDarkBG( yn );
     }
 
+    dockParent()->setBackgroundColor( yn ? Color::Black() : Color::White() );
     viewerParent()->setBackgroundColor( yn ? Color::Black() : Color::White() );
 }
-
 
 uiFlatViewMainWin::uiFlatViewMainWin( uiParent* p,
 				      const uiFlatViewMainWin::Setup& setup )
@@ -59,6 +62,21 @@ void uiFlatViewMainWin::addControl( uiFlatViewControl* fvc )
     if ( !fvc ) return;
 
     fvc->infoChanged.notify(mCB(this,uiFlatViewMainWin,displayInfo) );
+}
+
+
+void uiFlatViewWin::setInitialSize( int w, int h )
+{
+    int vwrw = w / vwrs_.size(); int vwrh = h / vwrs_.size();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+	vwrs_[idx]->setInitialSize( uiSize(vwrw,vwrh) );
+}
+
+
+void uiFlatViewMainWin::setInitialSize( int w, int h )
+{
+    uiFlatViewWin::setInitialSize( w, h );
+    setPrefWidth( w ); setPrefHeight( h );
 }
 
 
