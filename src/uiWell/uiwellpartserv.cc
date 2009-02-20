@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.42 2009-02-11 11:00:00 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellpartserv.cc,v 1.43 2009-02-20 08:30:36 cvsbruno Exp $";
 
 
 #include "uiwellpartserv.h"
@@ -101,20 +101,6 @@ bool uiWellPartServer::createD2TModel( const MultiID& mid,
 				       const char* logname1, 
 				       const char* logname2 )
 {
-    Well::Data* wd = Well::MGR().get( mid );
-    if ( !wd ) return false;
-    BufferString wname;
-    wname = "Tie ";
-    wname += wd->name();
-    wname += " to Seismic";
-
-    if ( !mIsUdf(logname1) && !mIsUdf(logname2) )
-	uid2tmgen_ = new uiD2TModelGen( parent(), *wd, logname1, logname2,
-	       							wname );
-    else
-	uid2tmgen_ = new uiD2TModelGen( parent(), *wd, "Sonic", "Density",
-	       							wname );
-    //TODO : replace Sonic/Density by variable names
     return true;
 }
 
