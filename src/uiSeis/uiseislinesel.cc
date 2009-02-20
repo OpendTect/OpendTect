@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.17 2009-02-17 06:34:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.18 2009-02-20 07:29:19 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -86,6 +86,7 @@ void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
     oinf.getLineNames( lnms );   
     lnmsfld_->empty();
     lnmsfld_->addItems( lnms );
+    lnmsfld_->setItemsChecked( true );
     maxtrcrgs_.erase();
     trcrgs_.erase();
 
