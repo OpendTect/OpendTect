@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.3 2009-02-18 13:21:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.4 2009-02-20 09:21:39 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.3 2009-02-18 13:2
 #include "uispinbox.h"
 
 #include "iopar.h"
+#include "filepath.h"
 #include "settings.h"
 
 static const char* sKeySnapshot = "snapshot";
@@ -58,7 +59,19 @@ void uiGraphicsSaveImageDlg::getSupportedFormats( const char** imagefrmt,
 	idy++;
     }
 
-    filters += "PDF (*.pdf);;PS (*.ps)"; 
+    filters += ";;PDF (*.pdf);;Postscript (*.ps)"; 
+    filters_ = filters;
+}
+
+
+const char* uiGraphicsSaveImageDlg::getExtension()
+{
+    FilePath fp( fileinputfld_->fileName() );
+    const BufferString ext( fp.extension() );
+    if ( ext == "pdf" || !strncmp(fileinputfld_->selectedFilter(),"PDF",3) )
+	return "pdf";
+
+    return uiSaveImageDlg::getExtension();
 }
 
 
@@ -71,14 +84,15 @@ void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
 
 bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 {
-    if ( type_ == Image )
-	scene_->saveAsImage( fileinputfld_->fileName(), (int)sizepix_.width(),
-	       		     (int)sizepix_.height(), dpifld_->getIntValue() );
-    else if ( type_ == PostScript )
+    BufferString ext( getExtension() );
+    if ( ext == "pdf" ) 
+	scene_->saveAsPDF( fileinputfld_->fileName(), dpifld_->getIntValue() );
+    else if ( ext == "ps" || ext == "eps" )
 	scene_->saveAsPS( fileinputfld_->fileName(), dpifld_->getIntValue() );
     else
-	scene_->saveAsPDF( fileinputfld_->fileName(), dpifld_->getIntValue() );
-    
+	scene_->saveAsImage( fileinputfld_->fileName(), (int)sizepix_.width(),
+	       		     (int)sizepix_.height(), dpifld_->getIntValue() );
+
     write2Dsettings();
     return true;
 }

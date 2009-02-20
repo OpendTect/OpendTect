@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.1 2009-02-18 06:35:29 cvssatyaki Exp $
+ RCS:           $Id: uisaveimagedlg.h,v 1.2 2009-02-20 09:21:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,7 @@ mClass uiSaveImageDlg : public uiDialog
 {
 public:
 			uiSaveImageDlg(uiParent*,const uiDialog::Setup&);
-    enum FileType	{ Image, PDF, PostScript };
 
-    FileType		type_;
     Notifier<uiSaveImageDlg>	sizesChanged;
 
     void		sPixels2Inch(const Geom::Size2D<float>&,

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uigraphicssaveimagedlg.h,v 1.1 2009-02-18 06:35:29 cvssatyaki Exp $
+ RCS:           $Id: uigraphicssaveimagedlg.h,v 1.2 2009-02-20 09:21:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ protected:
   
     float 		initaspectratio_;
 
+    const char*		getExtension();
     void		getSupportedFormats(const char** imagefrmt,
 					    const char** frmtdesc,
 					    BufferString& filters);

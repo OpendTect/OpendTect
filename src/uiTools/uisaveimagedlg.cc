@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.2 2009-02-18 07:14:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.3 2009-02-20 09:21:39 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -30,7 +30,7 @@ static const char* sKeySnapshot = "snapshot";
 BufferString uiSaveImageDlg::dirname_ = "";
 
 static const char* imageformats[] =
-{ "jpg", "png", "bmp", "eps", "xpm", "xbm", "pdf", "ps", 0 };
+{ "jpg", "png", "bmp", "xbm", "xpm", "ps", "eps", 0 };
 
 static const char* imageformatdescs[] =
 {
@@ -39,6 +39,8 @@ static const char* imageformatdescs[] =
     "Bitmap (*.bmp)",
     "XBM (*.xbm)",
     "XPM (*.xpm)",
+    "Postscript (*.ps)",
+    "EPS (*.eps)",
     0
 };
 
@@ -55,7 +57,6 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, const uiDialog::Setup& su )
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
-    , type_(Image)
 {
     uiParent* fldabove = 0;
 
@@ -250,7 +251,8 @@ void uiSaveImageDlg::updateSizes()
 void uiSaveImageDlg::fileSel( CallBacker* )
 {
     BufferString filename = fileinputfld_->fileName();
-    addFileExtension( filename );
+    if ( !File_isDirectory(filename) )
+	addFileExtension( filename );
     fileinputfld_->setFileName( filename );
 }
 
@@ -295,21 +297,13 @@ const char* uiSaveImageDlg::getExtension()
     for ( int idx=0; imageformats[idx]; idx++ )
     {
 	if ( ext == imageformats[idx] )
-	{
-	    if ( !strcmp(ext,"pdf") )
-		type_ = PDF;
-	    else if ( !strcmp(ext,"ps") )
-		type_ = PostScript;
-	    else
-		type_ = Image;
-	    ifmt = idx; break;
-	}
+	    { ifmt = idx; break; }
     }
 
     if ( ifmt < 0 )
     {
 	ifmt = 0;
-	const char* selectedfilter = fileinputfld_->selectedFilter();
+	selfilter_ = fileinputfld_->selectedFilter();
 	BufferString filter;
 	for ( int idx=0; idx<filters_.size(); idx++ )
 	{
@@ -317,13 +311,8 @@ const char* uiSaveImageDlg::getExtension()
 	    {
 		if ( !filter.isEmpty() )
 		{
-		    if ( !strcmp(selectedfilter,filter.buf()) )
-		    {
-			selfilter_ = filter;
+		    if ( filter == selfilter_ )
 			break;
-		    }
-		    if ( filter.size()>1 )
-			ifmt ++;
 		}
 		filter.setEmpty();
 		continue;
@@ -333,6 +322,12 @@ const char* uiSaveImageDlg::getExtension()
 	    tempstr[0] = filters_[idx];
 	    tempstr[1] = '\0';
 	    filter += tempstr;
+	}
+
+	for ( int idx=0; imageformatdescs[idx]; idx++ )
+	{
+	    if ( !strncmp(imageformatdescs[idx],filter.buf(),3) )
+		ifmt = idx;
 	}
     }
 
@@ -395,6 +390,7 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
     updateSizes();
     return true;
 }
+
 
 void uiSaveImageDlg::setFldVals( CallBacker* )
 {
