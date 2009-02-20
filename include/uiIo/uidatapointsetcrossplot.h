@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.16 2009-02-16 10:29:33 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.17 2009-02-20 09:15:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,10 @@ ________________________________________________________________________
 #include "uidatapointset.h"
 #include "datapointset.h"
 #include "uigraphicsview.h"
-#include "uigeom.h"
 #include "uiaxisdata.h"
-#include "rowcol.h"
 
 class Coord;
+class RowCol;
 class ioDrawTool;
 class uiComboBox;
 class uiParent;
@@ -31,6 +30,7 @@ class uiPolygonItem;
 class uiLineItem;
 class uiGraphicsItemGroup;
 class uiGraphicsItem;
+class uiRect;
 template <class T> class ODPolygon;
 
 /*!\brief Data Point Set Cross Plotter */
@@ -143,17 +143,15 @@ public:
     void			drawY1UserDefLine(const Interval<int>&,bool);
     void			drawY2UserDefLine(const Interval<int>&,bool);
 
-    int				width_;
-    int				height_;
     void			showY2(bool);
     void 			drawContent( bool withaxis = true );
-    bool                        isy1selectable_;
-    bool                        isy2selectable_;
-    bool                        rectangleselection_;
     bool                        isY2Shown() const;
+    bool			isRectSelection() const	
+    				{ return rectangleselection_; }
+    void			setRectSelection( bool yn )
+				{ rectangleselection_ = yn; }
 protected:
 
-    uiParent*			parent_;
     uiPoint			selstartpos_;
     uiDataPointSet&		uidps_;
     const DataPointSet&		dps_;
@@ -174,6 +172,7 @@ protected:
     bool			dobd_;
     bool			selectable_;
     bool			mousepressed_;
+    bool                        rectangleselection_;
     int				eachrow_;
     int				eachcount_;
     int				curgrp_;
@@ -182,10 +181,13 @@ protected:
     Interval<int>		usedxpixrg_;
     bool			selrowisy2_;
 
-    uiRect			selectedarea_;
-    ObjectSet<uiRect>		selectedareaset_;
-    uiRect			yselectablerg_;
-    uiRect			y2selectablerg_;
+    uiRect&			selectedarea_;
+    ObjectSet<uiRect>		selrectareaset_;
+    ObjectSet< ODPolygon<int> > selpolyareaset_;
+    uiRect&			yselectablerg_;
+    uiRect&			y2selectablerg_;
+    bool                        isy1selectable_;
+    bool                        isy2selectable_;
     ObjectSet<Coord3>		selcoords_;
     ODPolygon<int>*		odselectedpolygon_;
  
