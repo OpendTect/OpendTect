@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.57 2009-01-09 09:17:26 cvssatyaki Exp $
+ RCS:		$Id: vissurvscene.h,v 1.58 2009-02-20 08:43:34 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,13 +15,12 @@ ________________________________________________________________________
 
 #include "visscene.h"
 #include "bufstring.h"
+#include "cubesampling.h"
 #include "position.h"
 
-class HorSampling;
-class CubeSampling;
+class Color;
 class MouseCursor;
 class ZAxisTransform;
-class Color;
 template <class T> class Selector;
 
 namespace visBase
@@ -85,6 +84,7 @@ public:
     void			addInlCrlTObject(visBase::DataObject*);
     virtual void		removeObject(int idx);
 
+    const CubeSampling&		getCubeSampling() const		{ return cs_; }
     void			setAnnotationCube(const CubeSampling&);
     void			showAnnotText(bool);
     bool			isAnnotTextShown() const;
@@ -183,6 +183,7 @@ protected:
     float			zscale_;
     BufferString		zdomainkey_;
     bool			allowshading_;
+    CubeSampling		cs_;
 
     static const char*		sKeyShowAnnot();
     static const char*		sKeyShowScale();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.114 2009-02-11 11:07:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.115 2009-02-20 08:43:34 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -181,6 +181,7 @@ bool Scene::isRightHandSystem() const
 
 void Scene::setAnnotationCube( const CubeSampling& cs )
 {
+    cs_ = cs;
     if ( !annot_ ) return;
 
     BinID c0( cs.hrg.start.inl, cs.hrg.start.crl ); 
