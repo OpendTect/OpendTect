@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.49 2009-01-16 13:02:33 cvsbruno Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.50 2009-02-20 08:42:01 cvsnanne Exp $
 
 
 
 -*/
 
-#include "coltabsequence.h"
+
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "multiid.h"
@@ -24,7 +24,7 @@ class LineStyle;
 
 namespace visBase
 {
-    class DataGroup;
+    class DataObjectGroup;
     class EventCatcher;
     class EventInfo;
     class Transformation;
@@ -34,9 +34,10 @@ namespace visBase
 namespace Well
 {
     class Data;
-    class Track;
+    class Log;
     class LogDisplayPars;
     class LogDisplayParSet;
+    class Track;
 }
 
 namespace visSurvey
@@ -190,7 +191,7 @@ protected:
     static const char*		sKeyLog2SeisFillColor;
 };
 
-};
+} // namespace visSurvey
 
 
 #endif
