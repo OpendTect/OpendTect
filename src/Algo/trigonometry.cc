@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.46 2008-12-01 15:12:34 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.47 2009-02-20 21:10:13 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -225,11 +225,8 @@ Line2::Line2( const Coord& point, const Coord& vector )
 
 double Line2::distanceToPoint( const Coord& point ) const
 {
-    const Coord p0p1( point.x - origin_.x, point.y - origin_.y );
-
-    double crossproductabs = dir_.x*p0p1.y-dir_.y*p0p1.x;
-
-    return Math::Sqrt(crossproductabs*crossproductabs / dir_.sqAbs());
+    const double t = closestPoint( point );
+    return (point-getPoint(t)).abs();
 }
 
 
@@ -324,7 +321,7 @@ bool Line3::closestPoint( const Line3& line, double& t_this,
 
     const Coord3 diff(line.x0_-x0_,line.y0_-y0_,line.z0_-z0_);
     double deter = dir1.x*dir0.y-dir1.y*dir0.x;
-    if ( !mIsZero(deter, 1e-3) )
+    if ( !mIsZero(deter, 1e-4) )
     {
     	t_line = -(diff.x*dir0.y-diff.y*dir0.x)/deter;
     	t_this = (dir1.x*diff.y-dir1.y*diff.x)/deter;
@@ -335,7 +332,7 @@ bool Line3::closestPoint( const Line3& line, double& t_this,
     else
     {
 	deter = dir1.x*dir0.z-dir1.z*dir0.x;
-	if ( !mIsZero(deter, 1e-3) )
+	if ( !mIsZero(deter, 1e-4) )
 	{    
     	    t_line = -(diff.x*dir0.z-diff.z*dir0.x)/deter;    
     	    t_this = (dir1.x*diff.z-dir1.z*diff.x)/deter;
@@ -346,10 +343,11 @@ bool Line3::closestPoint( const Line3& line, double& t_this,
 	else
 	{
 	    deter = dir1.y*dir0.z-dir1.z*dir0.y;
-	    if ( mIsZero(deter, 1e-3) )
+	    if ( mIsZero(deter, 1e-4) ) //Cross product 0, then parallel
 	    {
-		pErrMsg("How could be?");
-		return false;
+		t_line = 1;
+		t_this = 1;
+		return true;
 	    }
 	    
 	    t_line = -(diff.y*dir0.z-diff.z*dir0.y)/deter;      
