@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.18 2009-02-20 07:29:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.19 2009-02-20 08:47:04 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -45,7 +45,16 @@ uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     trcrgfld_->attach( alignedBelow, llb );
 
     lineSetSel( 0 );
-}   
+
+    finaliseDone.notify( mCB(this,uiSeis2DLineSubSel,finalised) );
+}
+
+
+void uiSeis2DLineSubSel::finalised( CallBacker* )
+{
+    if ( !lsctio_.ioobj )
+	linesetfld_->doSel( 0 );
+}
 
 
 void uiSeis2DLineSubSel::setSelLines( const BufferStringSet& sellines )

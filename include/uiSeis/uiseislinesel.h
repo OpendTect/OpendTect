@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.13 2009-02-17 06:34:30 cvsnanne Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.14 2009-02-20 08:47:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ protected:
     TypeSet< StepInterval<int> > 	maxtrcrgs_;
     TypeSet< StepInterval<int> >	trcrgs_;
 
+    void				finalised(CallBacker*);
     void 				lineSetSel(CallBacker*);
     void 				lineSel(CallBacker*);
     void				trcChanged(CallBacker*);
