@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.11 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:           $Id: delaunay3d.h,v 1.12 2009-02-20 21:12:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,6 @@ ________________________________________________________________________
 #include "position.h"
 #include "sets.h"
 #include "task.h"
-#include "thread.h"
-
-template<class T> class Array3D;
 
 /*<Delaunay triangulation for 3D points. Should make sure all the points are 
    defined. */
@@ -61,9 +58,6 @@ public:
 			   return -1, 0, 1 respectively. */
     
     bool		getConnections(int pointidx,TypeSet<int>&) const;
-    bool		getTetrahedrasExcept(const TypeSet<int>& exceptions,
-	    				     TypeSet<int>& result) const;
-    bool		getTetrahedraTriangles(TypeSet<int>&) const;
     bool		getTetrahedras(TypeSet<int>&) const;
     			/*<Coord indices are sorted in fours, i.e.
 			   ci[0], ci[1], ci[2], ci[3] is the first tetrahedra
@@ -166,33 +160,6 @@ protected:
     TypeSet<int>	permutation_;
     bool		israndom_;
     DAGTetrahedraTree&	tree_;
-};
-
-/*<Given a triangulated body, extract position value on each trace based on 
-   threshhold value. The arr's size is based on inlrg, crlrg, zrg. Here pt on
-   surface will be set to 0, inside to be -1, outside to be 1. */
-mClass Explicit2ImplicitBodyExtracter : public ParallelTask
-{
-public:
-  		Explicit2ImplicitBodyExtracter( const DAGTetrahedraTree&,
-    						const StepInterval<int>& inlrg,
-    						const StepInterval<int>& crlrg,
-    						const Interval<float>& zrg,
-    						Array3D<char>& arr);
-protected:
-
-    od_int64			totalNr() const;
-    bool			doPrepare(int);
-    bool			doWork(od_int64,od_int64,int);
-
-    const DAGTetrahedraTree&	dagtree_;
-    const Interval<float>&	zrg_;
-    const StepInterval<int>&	inlrg_;
-    const StepInterval<int>&	crlrg_;
-
-    Threads::Mutex		lock_;
-    TypeSet<int>		triangles_;
-    Array3D<char>&		array_;
 };
 
 
