@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellwriter.h,v 1.7 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: wellwriter.h,v 1.8 2009-02-23 16:06:42 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ public:
     bool		put() const;		//!< Just write all
 
     bool		putInfo() const;	//!< Write Info only
+    bool		putTrack() const;	//!< Write track only
     bool		putLogs() const;	//!< Write logs only
     bool		putMarkers() const;	//!< Write Markers only
     bool		putD2T() const;		//!< Write D2T model only

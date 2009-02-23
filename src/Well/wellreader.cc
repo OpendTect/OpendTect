@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.33 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.34 2009-02-23 16:06:42 cvsbruno Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -29,11 +29,13 @@ static const char* rcsID = "$Id: wellreader.cc,v 1.33 2009-01-27 11:45:01 cvsran
 #include <iostream>
 
 const char* Well::IO::sKeyWell()	{ return "Well"; }
+const char* Well::IO::sKeyTrack()	{ return "Track"; }
 const char* Well::IO::sKeyLog()		{ return "Well Log"; }
 const char* Well::IO::sKeyMarkers()	{ return "Well Markers"; }
 const char* Well::IO::sKeyD2T()		{ return "Depth2Time Model"; }
 const char* Well::IO::sKeyDispProps()	{ return "Display Properties"; }
 const char* Well::IO::sExtWell()	{ return ".well"; }
+const char* Well::IO::sExtTrack()	{ return ".track"; }
 const char* Well::IO::sExtLog()		{ return ".wll"; }
 const char* Well::IO::sExtMarkers()	{ return ".wlm"; }
 const char* Well::IO::sExtD2T()		{ return ".wlt"; }
@@ -134,6 +136,7 @@ bool Well::Reader::get() const
     else if ( wd.d2TModel() )
 	return true;
 
+    getTrack();
     getLogs();
     getMarkers();
     getD2T();
@@ -238,6 +241,17 @@ bool Well::Reader::getTrack( std::istream& strm ) const
 	wd.track().addPoint( c, c.z, dah );
     }
     return wd.track().size();
+}
+
+
+bool Well::Reader::getTrack() const
+{
+    StreamData sd = mkSD( sExtTrack() );
+    if ( !sd.usable() ) return false;
+
+    const bool isok = getTrack( *sd.istrm );
+    sd.close();
+    return isok;
 }
 
 

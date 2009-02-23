@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.42 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.43 2009-02-23 16:06:42 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -39,6 +39,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.42 2009-02-13 13:31:15 cvsbert
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitextedit.h"
+#include "uitoolbar.h"
 #include "uiwelldlgs.h"
 #include "uiwellmarkerdlg.h"
 
@@ -72,20 +73,27 @@ uiWellMan::uiWellMan( uiParent* p )
     butgrp->addButton( "export.png", mCB(this,uiWellMan,exportLogs),
 	    	       "Export log" );
     butgrp->attach( rightOf, logsfld );
-    
-    uiPushButton* markerbut = new uiPushButton( this, "&Markers", false);
-    markerbut->activated.notify( mCB(this,uiWellMan,edMarkers) );
+
+    uiToolButton* markerbut = new uiToolButton( this, "Markers",
+	   	 "edmarkers.png", mCB(this,uiWellMan, edMarkers) );
+    markerbut->setToolTip( "Markers" );
+    markerbut->attach( alignedBelow, selgrp );
     markerbut->attach( ensureBelow, selgrp );
     markerbut->attach( ensureBelow, logsgrp );
-
-    uiPushButton* d2tbut = 0;
+    uiToolButton* welltrackbut = new uiToolButton( this, "Well Track",
+	   	 "edwelltrack.png", mCB(this,uiWellMan, edWellTrack) );
+    welltrackbut->setToolTip( "Well Track" );
+    welltrackbut->attach( rightOf, markerbut );
+    
+    uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	d2tbut = new uiPushButton( this, "&Depth/Time Model", false );
-	d2tbut->activated.notify( mCB(this,uiWellMan,edD2T) );
-	d2tbut->attach( rightOf, markerbut );
+	d2tbut = new uiToolButton( this, "Depth/Time Model",
+	       		   		 "z2t.png", mCB(this,uiWellMan, edD2T));
+	d2tbut->setToolTip( "Depth/Time Model" );
+	d2tbut->attach( rightOf, welltrackbut );
     }
-
+    
     infofld->attach( ensureBelow, markerbut );
     selChg( this );
 }
@@ -168,6 +176,27 @@ void uiWellMan::edMarkers( CallBacker* )
 }
 
 
+void uiWellMan::edWellTrack( CallBacker* )
+{
+    if ( !welldata || !wellrdr ) return;
+
+    Well::Data* wd;
+    if ( Well::MGR().isLoaded( curioobj_->key() ) )
+	wd = Well::MGR().get( curioobj_->key() );
+    else
+	wd = welldata;
+
+    uiWellTrackDlg dlg( this, *wd );
+    if ( !dlg.go() ) return;
+
+    Well::Writer wtr( fname, *wd );
+    if ( !wtr.putTrack( ) )
+	uiMSG().error( "Cannot write new track to disk" );
+
+    wd->trackchanged.trigger();
+}
+
+
 void uiWellMan::edD2T( CallBacker* )
 {
     if ( !welldata || !wellrdr ) return;
@@ -180,7 +209,6 @@ void uiWellMan::edD2T( CallBacker* )
 
     if ( SI().zIsTime() && !wd->d2TModel() )
 	wd->setD2TModel( new Well::D2TModel );
-
 
     uiD2TModelDlg dlg( this, *wd );
     if ( !dlg.go() ) return;

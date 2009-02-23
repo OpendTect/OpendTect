@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.29 2009-01-08 09:16:21 cvsranojay Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.30 2009-02-23 16:06:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,11 +28,37 @@ class uiTable;
 class Coord3;
 class CtxtIOObj;
 class StreamData;
+class uiTableImpDataSel;
 
-namespace Well { class Data; class D2TModel; };
+namespace Table { class FormatDesc; }
+namespace Well { class Data; class Track; class D2TModel; };
 
 
 /*! \brief Dialog for D2T Model editing. */
+
+mClass uiWellTrackDlg : public uiDialog
+{
+public:
+				uiWellTrackDlg(uiParent*,Well::Data&);
+				~uiWellTrackDlg();
+
+protected:
+
+    Well::Data&			wd;
+    Well::Track&		track;
+    Well::Track*		orgtrack;
+
+    Table::FormatDesc&		fd;
+    uiTable*			table;
+    uiGenInput*			unitfld;
+
+    void			fillTable();
+    void			updNow(CallBacker*);
+    void			readNew(CallBacker*);
+    bool			rejectOK(CallBacker*);
+    bool			acceptOK(CallBacker*);
+};
+
 
 mClass uiD2TModelDlg : public uiDialog
 {

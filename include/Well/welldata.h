@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welldata.h,v 1.15 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:		$Id: welldata.h,v 1.16 2009-02-23 16:06:42 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
 
     Notifier<Well::Data>	d2tchanged;
     Notifier<Well::Data>	markerschanged;
+    Notifier<Well::Data>	trackchanged;
     Notifier<Well::Data>	dispparschanged;
 
 protected:

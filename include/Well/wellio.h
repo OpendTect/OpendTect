@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.9 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:		$Id: wellio.h,v 1.10 2009-02-23 16:06:42 cvsbruno Exp $
 ________________________________________________________________________
 
 
@@ -31,11 +31,13 @@ public:
     bool		removeAll(const char* ext) const;
 
     static const char*	sKeyWell();
+    static const char*	sKeyTrack();
     static const char*	sKeyLog();
     static const char*	sKeyMarkers();
     static const char*	sKeyD2T();
     static const char*	sKeyDispProps();
     static const char*	sExtWell();
+    static const char*	sExtTrack();
     static const char*	sExtLog();
     static const char*	sExtMarkers();
     static const char*	sExtD2T();

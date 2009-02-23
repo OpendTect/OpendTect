@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.71 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.72 2009-02-23 16:06:42 cvsbruno Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.71 2009-01-20 06:45:55 cvsran
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitable.h"
+#include "uitblimpexpdatasel.h"
 #include "uiwellpartserv.h"
 
 #include "ctxtioobj.h"
@@ -34,6 +35,7 @@ static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.71 2009-01-20 06:45:55 cvsran
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "tabledef.h"
 #include "welld2tmodel.h"
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -43,10 +45,168 @@ static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.71 2009-01-20 06:45:55 cvsran
 #include "welltrack.h"
 
 
-static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
+#define mFromFeetFac 0.3048
+static const char* trackcollbls[] = { "X", "Y", "Z", 0 };
 static const int nremptyrows = 5;
 
-#define mFromFeetFac 0.3048
+uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
+	: uiDialog(p,uiDialog::Setup("Well Track",
+				     "Edit Well Track",
+				     ""))
+	, wd(d)
+    	, track(d.track())
+    	, orgtrack(new Well::Track(d.track()))
+	, fd( *Well::WellAscIO::getDesc() )
+
+{
+    table = new uiTable( this, uiTable::Setup().rowdesc("Point")
+	    				       .rowgrow(true) 
+					       .defrowlbl(""), "Table" );
+    table->setColumnLabels( trackcollbls );
+    table->setNrRows( nremptyrows );
+
+    uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
+    uiButton* updnowbut = new uiPushButton( actbutgrp, "&Update display",
+	    				    mCB(this,uiWellTrackDlg,updNow),
+					    true );
+    uiButton* readbut = new uiPushButton( actbutgrp, "&Read new",
+	    				    mCB(this,uiWellTrackDlg,readNew),
+					    false );
+    readbut->attach( rightOf, updnowbut );
+    actbutgrp->attach( centeredBelow, table );
+
+    fillTable();
+}
+
+
+void uiWellTrackDlg::fillTable()
+{
+    const int sz = track.nrPoints();
+    if ( !sz ) return;
+    table->setNrRows( sz + nremptyrows );
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	table->setValue( RowCol(idx,0), track.pos(idx).x );
+	table->setValue( RowCol(idx,1), track.pos(idx).y );
+	table->setValue( RowCol(idx,2), track.pos(idx).z );
+    }
+}
+
+
+uiWellTrackDlg::~uiWellTrackDlg()
+{
+    delete orgtrack;
+    delete &fd;
+}
+
+
+class uiWellTrackReadDlg : public uiDialog
+{
+public:
+
+uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
+    	: uiDialog(p,uiDialog::Setup("Read new Well Track",
+		    		     "Specify new Well Track",""))
+	,track(track)							  
+{
+    wtinfld = new uiFileInput( this, "Well Track File",
+    uiFileInput::Setup().withexamine(true) );
+    wtinfld->setDefaultSelectionDir(
+		    IOObjContext::getDataDirName(IOObjContext::WllInf) );
+    
+    uiTableImpDataSel* dataselfld = new uiTableImpDataSel( this, fd, 0 );
+    dataselfld->attach( alignedBelow, wtinfld );
+}
+
+
+bool acceptOK( CallBacker* )
+{
+    track.erase();
+    fnm = wtinfld->fileName();
+    if ( File_isEmpty(fnm.buf()) )
+	{ uiMSG().error( "Invalid input file" ); return false; }
+    return true;
+}
+
+    uiFileInput*	wtinfld;
+    BufferString	fnm;
+    Well::Track&        track;
+};
+
+
+void uiWellTrackDlg::readNew( CallBacker* )
+{
+    uiWellTrackReadDlg dlg( this, fd, track );
+    if ( !dlg.go() ) return;
+
+    BufferString fnm( dlg.fnm );
+    if ( !fnm.isEmpty() )
+    {
+	StreamData sd = StreamProvider( fnm ).makeIStream();
+	if ( !sd.usable() )
+	uiMSG().error( "Cannot open input file" );
+
+	Well::WellAscIO wellascio(fd, *sd.istrm );
+	if ( !wellascio.getData( wd, true ) )
+	uiMSG().error( "Failed to convert into compatible data" );
+
+	sd.close();
+	
+	table->clearTable();
+	fillTable();
+	wd.trackchanged.trigger();
+    }
+    else
+	uiMSG().error( "Please select a file" );
+}
+
+
+void uiWellTrackDlg::updNow( CallBacker* )
+{
+    track.erase();
+    const int nrrows = table->nrRows();
+    for ( int idx=0; idx<nrrows; idx++ )
+    {
+	const char* sval = table->text( RowCol(idx,0) );
+	if ( !sval || !*sval ) continue;
+	float xval = atof(sval);
+	sval = table->text( RowCol(idx,1) );
+	if ( !sval || !*sval ) continue;
+	float yval = atof(sval);
+	sval = table->text( RowCol(idx,2) );
+	if ( !sval || !*sval ) continue;
+	float zval = atof(sval);
+	const Coord3& curcoord = Coord3( xval, yval, zval);
+	track.addPoint( curcoord, track.value( idx ) );
+    }
+    if ( track.nrPoints() > 1 )
+	wd.trackchanged.trigger();
+    else
+	uiMSG().error( "Please define at least two points." );
+}
+
+
+bool uiWellTrackDlg::rejectOK( CallBacker* )
+{
+    track = *orgtrack;
+    wd.trackchanged.trigger();
+    return true;
+}
+
+
+bool uiWellTrackDlg::acceptOK( CallBacker* )
+{
+    updNow( 0 );
+    return track.nrPoints() > 1;
+}
+
+
+
+// ==================================================================
+
+
+static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
 #define mSetSIDepthInFeetDef(zinft) \
     SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
     SI().savePars()

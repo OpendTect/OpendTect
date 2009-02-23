@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.94 2009-02-11 11:07:10 cvsranojay Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.95 2009-02-23 16:06:42 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -149,7 +149,6 @@ void WellDisplay::fullRedraw( CallBacker* )
 	logsnumber_ = logsnumber_ >repeatr ? logsnumber_ : repeatr ;
 	displayRightLog();
     }
-    
 }
 
 
@@ -199,6 +198,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 
     wellid_ = multiid;
     fullRedraw(0);
+    wd->trackchanged.notify( mCB(this,WellDisplay,fullRedraw) );
     wd->markerschanged.notify( mCB(this,WellDisplay,updateMarkers) );
     wd->dispparschanged.notify( mCB(this,WellDisplay,fullRedraw) );
 
