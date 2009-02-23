@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.35 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.36 2009-02-23 04:53:00 cvsnanne Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -439,8 +439,10 @@ void uiDataPointSet::rowSel( CallBacker* cb )
 
 void uiDataPointSet::selChg( CallBacker* )
 {
-    const RowCol rc( tbl_->notifiedCell() );
-    handleGroupChg( dRowID(rc.r()) );
+    const ObjectSet<uiTable::SelectionRange>& selrgs = tbl_->selectedRanges();
+    if ( selrgs.isEmpty() ) return;
+
+    handleGroupChg( dRowID(selrgs[0]->firstrow_) );
 }
 
 
