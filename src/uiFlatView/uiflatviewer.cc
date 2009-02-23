@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.71 2009-02-20 11:34:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.72 2009-02-23 05:54:26 cvsumesh Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -343,6 +343,9 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
 
 void uiFlatViewer::drawAnnot()
 {
+    if ( mainwin() && !mainwin()->finalised() )
+	return;
+
     const FlatView::Annotation& annot = appearance().annot_;
 
     drawGridAnnot( annot.color_.isVisible() );
