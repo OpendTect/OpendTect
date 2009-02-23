@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.11 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: SoColTabTextureChannel2RGBA.cc,v 1.12 2009-02-23 21:39:42 cvskris Exp $";
 
 
 #include "SoColTabTextureChannel2RGBA.h"
@@ -275,6 +275,17 @@ void SoColTabTextureChannel2RGBA::getTransparencyStatus(
     SbVec3s seqsize; int seqbytesperpixel;
     unsigned const char* channel =
 	channels[channelidx].getValue( seqsize, seqbytesperpixel );
+
+    if ( !channel )
+    {
+	if ( !fullopacity )
+	    fullopacity = -1;
+
+	if ( !fulltransparency )
+	    fulltransparency = 1;
+
+	return;
+    }
 
     const unsigned char* colseq =
 	colorsequences[channelidx].getValue( seqsize, seqbytesperpixel );
