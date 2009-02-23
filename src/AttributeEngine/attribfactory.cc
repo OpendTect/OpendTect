@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribfactory.cc,v 1.7 2006-09-06 17:23:50 cvskris Exp $";
+static const char* rcsID = "$Id: attribfactory.cc,v 1.8 2009-02-23 05:59:11 cvsranojay Exp $";
 
 #include "attribfactory.h"
 
@@ -76,7 +76,7 @@ int ProviderFactory::indexOf( const char* nm ) const
 
 ProviderFactory& PF()
 {
-    static ProviderFactory factory;
+    static ProviderFactory& factory = *new ProviderFactory();
     return factory;
 }
 
