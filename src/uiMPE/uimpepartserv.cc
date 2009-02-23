@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.72 2009-02-11 10:49:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.73 2009-02-23 06:02:33 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -280,6 +280,13 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 
 
 void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
+				     DataPack::ID datapackid )
+{
+    MPE::engine().setAttribData( spec, datapackid );
+}
+
+
+void uiMPEPartServer::setAttribData( const Attrib::SelSpec& spec,
 				     const Attrib::DataCubes* slcset )
 {
     MPE::engine().setAttribData( spec, slcset );
@@ -395,6 +402,11 @@ void uiMPEPartServer::loadAttribData()
 	sendEvent( evGetAttribData() );
     }
 }
+
+
+DataPack::ID uiMPEPartServer::getAttribCacheID(
+					const Attrib::SelSpec& spec ) const
+{ return MPE::engine().getAttribCacheID( spec ); }
 
 
 const Attrib::DataCubes*
