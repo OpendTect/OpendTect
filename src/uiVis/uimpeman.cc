@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.136 2009-01-27 11:45:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.137 2009-02-23 06:08:10 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -294,12 +294,11 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	engine.setActive2DLine( lset, lname );
 
-	RefMan<const Attrib::DataCubes> cached =
-	    				clickcatcher->info().getObjData();
-	if ( cached )
+	DataPack::ID datapackid = clickcatcher->info().getObjDataPackID();
+	if ( datapackid > DataPack::cNoID() )
 	{
 	    engine.setAttribData( *clickcatcher->info().getObjDataSelSpec(),
-				  cached );
+				  datapackid );
 	}
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
@@ -351,10 +350,10 @@ void uiMPEMan::seedClick( CallBacker* )
 				   clickcatcher->info().getObjDataSelSpec();
 	    if ( clickedas && !engine.cacheIncludes(*clickedas,newvolume) )
 	    {
-		RefMan<const Attrib::DataCubes> clickeddata = 
-					    clickcatcher->info().getObjData();
-		if ( clickeddata )
-		    engine.setAttribData( *clickedas, clickeddata );
+		DataPack::ID datapackid =
+				clickcatcher->info().getObjDataPackID();
+		if ( datapackid > DataPack::cNoID() )
+		    engine.setAttribData( *clickedas, datapackid );
 	    }
 
 	    for ( int idx=0; idx<displays.size(); idx++ )
