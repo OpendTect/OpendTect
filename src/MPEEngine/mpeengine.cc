@@ -8,12 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.85 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.86 2009-02-23 05:59:51 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
 #include "attribsel.h"
 #include "attribdatacubes.h"
+#include "attribdatapack.h"
+#include "attribdataholder.h"
 #include "bufstringset.h"
 #include "ctxtioobj.h"
 #include "emeditor.h"
@@ -348,10 +350,99 @@ int Engine::getCacheIndexOf( const Attrib::SelSpec& as ) const
 }
 
 
-const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as) const
+DataPack::ID Engine::getAttribCacheID( const Attrib::SelSpec& as ) const
 {
+    DataPack::ID datapackid= DataPack::cNoID();
+    const int idx = getCacheIndexOf(as);
+    if ( idx < 0 || idx > attribcachedatapackids_.size() )
+	return datapackid;
+    
+    datapackid = attribcachedatapackids_[idx];
+    
+    return datapackid;
+}
+
+
+const Attrib::DataCubes* Engine::getAttribCache( DataPack::ID datapackid )
+{
+    //TODO ultimate goal is to remove any communication through DataCube
+    DataPack* datapack = DPM( DataPackMgr::FlatID() ).obtain( datapackid, true);
+    if ( !datapack )
+	datapack = DPM( DataPackMgr::CubeID() ).obtain( datapackid, true );
+
+    mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
+    if ( cdp ) return &cdp->cube();
+    else
+    {
+	mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
+	if ( fdp ) return &fdp->cube();
+	else 
+	{
+	    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack);
+	    if ( dp2d )
+	    {
+		const Attrib::Data2DHolder* cache = 0;
+		cache = &dp2d->dataholder();
+		if ( cache )
+		{
+		    Attrib::DataCubes* cube = 0;
+		    mTryAlloc( cube, Attrib::DataCubes );
+		    if ( !cache->fillDataCube(*cube) )
+			return 0;
+		    else
+			return cube;
+		}
+	    }
+	}
+    }
+    return 0;
+}
+
+
+const Attrib::DataCubes* Engine::getAttribCache(const Attrib::SelSpec& as)
+{
+    //TODO ultimate goal is to remove any communication through DataCube
     const int idx = getCacheIndexOf(as);
     return idx>=0 && idx<attribcache_.size() ? attribcache_[idx] : 0;
+}
+
+
+bool Engine::setAttribData( const Attrib::SelSpec& as,
+			    DataPack::ID cacheid )
+{
+    //TODO ultimate goal is to remove any communication through DataCube
+    const int idx = getCacheIndexOf(as);
+    if ( idx>=0 && idx<attribcachedatapackids_.size() )
+    {
+	attribcache_[idx]->unRef();
+	if ( cacheid <= DataPack::cNoID() )
+	{
+	    attribcachedatapackids_.remove( idx );
+	    attribbkpcachedatapackids_.remove( idx );
+	    attribcache_.remove( idx );
+	    attribcachespecs_.remove( idx );
+	}
+	else
+	{
+	    attribcachedatapackids_[idx] = cacheid;
+	    const Attrib::DataCubes* newdata = getAttribCache( cacheid );
+	    attribcache_.replace( idx, newdata );
+	    newdata->ref();
+	}
+    }
+    else if ( cacheid > DataPack::cNoID() )
+    {
+	attribcachespecs_ += as.is2D() ?
+	    new CacheSpecs( as, active2DLineSetID(), active2DLineName() ) :
+	    new CacheSpecs( as ) ;
+
+	attribcachedatapackids_ += cacheid;
+	const Attrib::DataCubes* newdata = getAttribCache( cacheid );
+	attribcache_ += newdata;
+	newdata->ref();
+    }
+
+    return true;
 }
 
 
@@ -388,7 +479,7 @@ bool Engine::setAttribData( const Attrib::SelSpec& as,
 
 
 bool Engine::cacheIncludes( const Attrib::SelSpec& as, 
-			    const CubeSampling& cs ) const
+			    const CubeSampling& cs )
 {
     const Attrib::DataCubes* cache = getAttribCache( as );
     if ( !cache ) 
@@ -404,10 +495,13 @@ bool Engine::cacheIncludes( const Attrib::SelSpec& as,
 
 void Engine::swapCacheAndItsBackup()
 {
+    const TypeSet<DataPack::ID> tempcachedatapackids = attribcachedatapackids_;
     const ObjectSet<const Attrib::DataCubes> tempcache = attribcache_;
     const ObjectSet<CacheSpecs> tempcachespecs = attribcachespecs_;
+    attribcachedatapackids_ = attribbkpcachedatapackids_;
     attribcache_ = attribbackupcache_;
     attribcachespecs_ = attribbackupcachespecs_;
+    attribbkpcachedatapackids_ = tempcachedatapackids;
     attribbackupcache_ = tempcache;
     attribbackupcachespecs_ = tempcachespecs;
 }
