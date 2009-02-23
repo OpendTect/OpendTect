@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.1 2009-02-13 21:14:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.2 2009-02-23 04:39:28 cvsnanne Exp $";
 
 #include "embodyoperator.h"
 
@@ -433,8 +433,8 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( !triangulator.execute(true) )
 	return 0;
     
-    PtrMan<Explicit2ImplicitBodyExtracter> extractor =
-	new Explicit2ImplicitBodyExtracter(dagtree,inlrg,crlrg,zrg,*chararr);
+//    PtrMan<Explicit2ImplicitBodyExtracter> extractor =
+//	new Explicit2ImplicitBodyExtracter(dagtree,inlrg,crlrg,zrg,*chararr);
     Array3D<float>* arr = new Array3DConv<float,char>(chararr);
     if ( !arr )
     {
@@ -443,8 +443,8 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	return 0;
     }
     
-    if ( !extractor->execute() )
-	res = 0;
+//    if ( !extractor->execute() )
+//	res = 0;
     
     res->arr_ = arr;
     res->threshold_ = 0;
