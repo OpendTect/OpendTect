@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.41 2009-01-28 12:24:01 cvsranojay Exp $
+ RCS:           $Id: mpeengine.h,v 1.42 2009-02-23 05:57:36 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ a static inistanciation of that can be retrieved by MPE::engine().
 #include "callback.h"
 #include "color.h"
 #include "cubesampling.h"
+#include "datapack.h"
 #include "emposid.h"
 #include "trackplane.h"
 
@@ -99,12 +100,15 @@ public:
 			     this attrib, given that the activearea
 			     should be tracked. */
     int			getCacheIndexOf(const Attrib::SelSpec&) const;
+    DataPack::ID	getAttribCacheID(const Attrib::SelSpec&) const;
     const Attrib::DataCubes*
-			getAttribCache(const Attrib::SelSpec&) const;
+			getAttribCache(const Attrib::SelSpec&);
+    bool		setAttribData( const Attrib::SelSpec&,
+	    			       DataPack::ID);
     bool		setAttribData( const Attrib::SelSpec&,
 				       const Attrib::DataCubes*);
     bool		cacheIncludes(const Attrib::SelSpec&,
-				      const CubeSampling&) const;
+				      const CubeSampling&);
     void		swapCacheAndItsBackup();
 
     			/*Editors */
@@ -120,6 +124,7 @@ public:
 
 protected:
     int				getFreeID();
+    const Attrib::DataCubes*    getAttribCache(DataPack::ID);
 
     BufferString		errmsg_;
     CubeSampling		activevolume_;
@@ -145,9 +150,11 @@ protected:
 	MultiID			linesetid_;
 	BufferString		linename_;
     };
-	
+
+    TypeSet<DataPack::ID>  		attribcachedatapackids_;   
     ObjectSet<const Attrib::DataCubes>	attribcache_;
     ObjectSet<CacheSpecs>		attribcachespecs_;
+    TypeSet<DataPack::ID>               attribbkpcachedatapackids_;
     ObjectSet<const Attrib::DataCubes>	attribbackupcache_;
     ObjectSet<CacheSpecs>		attribbackupcachespecs_;
 
