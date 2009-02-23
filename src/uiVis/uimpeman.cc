@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.137 2009-02-23 06:08:10 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.138 2009-02-23 17:05:19 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -384,7 +384,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker->removeSeed( pid, true, true );
 	else if ( clickcatcher->info().isShiftClicked() )
 	    seedpicker->removeSeed( pid, true, false );
-	else if ( !emobj->isDefined(pid) )
+	else 
 	    seedpicker->addSeed( seedpos, false );
     }
     else
