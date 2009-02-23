@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.17 2009-02-20 09:15:40 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.18 2009-02-23 06:02:13 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "datapointset.h"
 #include "uigraphicsview.h"
 #include "uiaxisdata.h"
+#include "rowcol.h"
 
 class Coord;
 class RowCol;
