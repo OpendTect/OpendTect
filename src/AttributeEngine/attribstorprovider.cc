@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.83 2009-02-05 10:46:05 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.84 2009-02-23 14:08:44 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -617,8 +617,9 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
     trcrange.widen( 0.001 * trc->info().sampling.step );
     for ( int idx=0; idx<data.nrsamples_; idx++ )
     {
-	const float curt = needinterp ? exacttime + (offset+idx)*refstep 
-				      : (z0+idx)*refstep;
+	const float relzpos = ((float)(offset+idx))*refstep;
+	const float curt = needinterp ? exacttime + relzpos
+				       : (z0+idx)*refstep;
 	int compidx = -1;
 	for ( int idy=0; idy<outputinterest.size(); idy++ )
 	{
