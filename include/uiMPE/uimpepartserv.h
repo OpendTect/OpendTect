@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.34 2009-02-11 10:37:54 cvsranojay Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.35 2009-02-23 06:01:41 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "cubesampling.h"
+#include "datapack.h"
 #include "emposid.h"
 #include "emtracker.h"
 
@@ -82,7 +83,10 @@ public:
 				 	     attrib if tracking should
 					     be possible in the activeVolume. */
     const Attrib::SelSpec*	getAttribSelSpec() const;
+    DataPack::ID		getAttribCacheID(const Attrib::SelSpec&) const;
     const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
+    void			setAttribData(const Attrib::SelSpec&,
+	    				      DataPack::ID);
     void			setAttribData(const Attrib::SelSpec&,
 					      const Attrib::DataCubes*);
     void			setAttribData(const Attrib::SelSpec&,
