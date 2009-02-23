@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiattribfactory.h,v 1.5 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattribfactory.h,v 1.6 2009-02-23 06:00:56 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,11 +69,11 @@ protected:
 
     Entry*		getEntry(const char*,bool) const;
 
-    friend uiAttributeFactory&	uiAF();
+    friend mGlobal uiAttributeFactory&	uiAF();
     void			fillStd();
 };
 
-uiAttributeFactory& uiAF();
+mGlobal uiAttributeFactory& uiAF();
 
 
 #endif
