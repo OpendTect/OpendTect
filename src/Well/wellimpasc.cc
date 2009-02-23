@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.51 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.52 2009-02-23 16:06:32 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -504,7 +504,7 @@ bool  Well::WellAscIO::getData( Well::Data& wd, bool tosurf ) const
 	if ( !mIsUdf(getfValue(3)) )
 	    dah = getfValue(3);
 	else
-	    dah = c.distTo( prevc );
+	    dah += c.distTo( prevc );
 
 	wd.track().addPoint( c, c.z, dah );
 	prevc = c;
