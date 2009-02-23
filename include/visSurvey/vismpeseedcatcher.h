@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeseedcatcher.h,v 1.16 2009-02-06 05:50:38 cvsranojay Exp $
+ RCS:		$Id: vismpeseedcatcher.h,v 1.17 2009-02-23 06:04:48 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
 #include "cubesampling.h"
+#include "datapack.h"
 #include "emposid.h"
 #include "geomelement.h"
 
@@ -52,6 +53,7 @@ public:
     const Coord3&		getPos() const;
     int				getObjID() const;
     const CubeSampling&		getObjCS() const;
+    DataPack::ID		getObjDataPackID() const;
     const Attrib::DataCubes*	getObjData() const;
     const Attrib::SelSpec*	getObjDataSelSpec() const;
 
@@ -71,6 +73,7 @@ protected:
     void			setPos(const Coord3&);
     void			setObjID(int);
     void			setObjCS(const CubeSampling&);
+    void			setObjDataPackID(DataPack::ID);
     void			setObjData(const Attrib::DataCubes*);
     void			setObjDataSelSpec(const Attrib::SelSpec*);
 
@@ -92,6 +95,7 @@ protected:
     RefMan<const Attrib::Data2DHolder>	linedata_;
     MultiID				lineset_;
     BufferString			linename_;
+    DataPack::ID			datapackid_;
 };
 
 
