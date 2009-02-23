@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.299 2009-02-11 16:20:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.300 2009-02-23 05:34:48 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -670,7 +670,7 @@ void uiODApplMgr::useDefColTab( int visid, int attrib )
     fp.setExtension( "par" );
     BufferString fnm = fp.fullPath();
     IOPar iop;
-    if ( iop.read(fnm,sKey::Pars) )
+    if ( iop.read(fnm,sKey::Pars) && !iop.isEmpty() )
     {
 	if ( !useOldDefColTab(iop,mapper,seq) )
 	{
