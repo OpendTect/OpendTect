@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.22 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.23 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uisimilarityattrib.h"
 #include "similarityattrib.h"
@@ -64,7 +64,7 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.14")
 
 {
-    inpfld = getInpFld();
+    inpfld = getInpFld( is2d );
 
     gatefld = new uiGenInput( this, gateLabel(),
 			      FloatInpIntervalSpec().setName("Z start",0)

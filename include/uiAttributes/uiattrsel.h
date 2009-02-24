@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.14 2009-01-12 13:41:06 cvshelene Exp $
+ RCS:           $Id: uiattrsel.h,v 1.15 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,12 +32,11 @@ class uiLabeledComboBox;
 mClass uiAttrSelData
 {
 public:
-				uiAttrSelData( const Attrib::DescSet* a )
-				: attrset(a), attribid(-1,true)
-				, nlamodel(0), outputnr(-1), compnr(-1)
-				, shwcubes(true)	{}
 
-    const Attrib::DescSet*	attrset;
+				uiAttrSelData(bool is2d);
+				uiAttrSelData(const Attrib::DescSet&,
+					      bool fillwithdefault=true);
+
     Attrib::DescID		attribid;
     const NLAModel*		nlamodel;
     int				outputnr;
@@ -45,7 +44,15 @@ public:
     bool			shwcubes;
     BufferString		zdomainkey;
 
-    const Attrib::DescSet&	attrSet() const	{ return *attrset; }
+    bool			is2D() const;
+    const Attrib::DescSet&	attrSet() const		{ return *attrset; }
+    void			setAttrSet( const Attrib::DescSet* ds )
+						    { if ( ds ) attrset = ds; }
+
+protected:
+
+    const Attrib::DescSet*	attrset;
+
 };
 
 
@@ -65,7 +72,7 @@ mClass uiAttrSelDlg : public uiDialog
 public:
 
 			uiAttrSelDlg(uiParent*,const char* seltxt,
-				     const uiAttrSelData&,bool is2d=false,
+				     const uiAttrSelData&,
 				     Attrib::DescID ignoreid=
 				     		Attrib::DescID(-1,true));
 			~uiAttrSelDlg();
@@ -76,6 +83,8 @@ public:
     int			outputNr() const	{ return attrdata_.outputnr; }
 			//!< -1 if not selected
     const char*		zDomainKey() const	{ return zdomainkey_; }
+
+    bool		is2D() const		{ return attrdata_.is2D(); }
 
 protected:
 
@@ -123,17 +132,16 @@ latter case you must provide the attrib desc and the input number.
 mClass uiAttrSel : public uiIOSelect
 {
 public:
-			uiAttrSel(uiParent*,const Attrib::DescSet*,bool is2d,
+			uiAttrSel(uiParent*,const Attrib::DescSet&,
 				  const char* txt=0,
 				  Attrib::DescID curid=Attrib::DescID::undef());
-			uiAttrSel(uiParent*,const char*,
-				  const uiAttrSelData&,bool is2d);
+			uiAttrSel(uiParent*,const char*,const uiAttrSelData&);
 			~uiAttrSel()		{}
 
     Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
     int			outputNr() const	{ return attrdata_.outputnr; }
-    bool		is2D() const		{ return is2d_; }
-    bool		is3D() const		{ return !is2d_; }
+    inline bool		is2D() const		{ return attrdata_.is2D(); }
+    inline bool		is3D() const		{ return !is2D(); }
 
     void		setDescSet(const Attrib::DescSet*);
 			//!< This function has to be called before getHistory !
@@ -178,11 +186,11 @@ protected:
 mClass uiImagAttrSel : public uiAttrSel
 {
 public:
-			uiImagAttrSel(uiParent* p,const Attrib::DescSet* a,
-				      bool is2d, const char* txt=0,
+			uiImagAttrSel( uiParent* p, const Attrib::DescSet& a,
+				      const char* txt=0,
 				      Attrib::DescID curid=
 				      		Attrib::DescID(-1,true))
-			: uiAttrSel(p,a,is2d,txt,curid)	{}
+			: uiAttrSel(p,a,txt,curid)	{}
 
     inline Attrib::DescID realID() const		{ return attribID(); }
     Attrib::DescID	imagID() const;

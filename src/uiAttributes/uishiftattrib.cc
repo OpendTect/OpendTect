@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishiftattrib.cc,v 1.19 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uishiftattrib.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uishiftattrib.h"
 #include "shiftattrib.h"
@@ -29,7 +29,7 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.13")
 
 {
-    inpfld_ = getInpFld();
+    inpfld_ = getInpFld( is2d );
 
     uiStepOutSel::Setup setup( is2d );
     setup.seltxt( "Shift" ).allowneg( true );

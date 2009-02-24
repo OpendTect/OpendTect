@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.20 2009-01-27 12:05:10 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.21 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -30,10 +30,10 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
 		    BufferString("Specify the ",isinp?"input to":"output of",
 					 " the processing flow"),"103.5.1") )
-	, ctio3d_(*mMkCtxtIOObj(SeisTrc))
-    	, ctio2d_(*mMkCtxtIOObj(SeisTrc))
-	, ctiops3d_(*mMkCtxtIOObj(SeisPS3D))
-	, ctiops2d_(*mMkCtxtIOObj(SeisPS2D))
+	, ctio3d_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,isinp))
+	, ctio2d_(*uiSeisSel::mkCtxtIOObj(Seis::Line,isinp))
+	, ctiops3d_(*uiSeisSel::mkCtxtIOObj(Seis::VolPS,isinp))
+	, ctiops2d_(*uiSeisSel::mkCtxtIOObj(Seis::LinePS,isinp))
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
     	, idx3d_(-1), idx2d_(-1)
@@ -42,8 +42,6 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 {
     const bool have2d = SI().has2D();
     const bool have3d = SI().has3D();
-    ctio3d_.ctxt.forread = ctio2d_.ctxt.forread
-      = ctiops3d_.ctxt.forread = ctiops2d_.ctxt.forread = isinp;
     BufferStringSet seistypes;
 #   define mAdd(s,idx) { seistypes.add( s ); idx = seistypes.size() - 1; }
     if ( have3d )

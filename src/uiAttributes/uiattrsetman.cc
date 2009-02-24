@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsetman.cc,v 1.5 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsetman.cc,v 1.6 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiattrsetman.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiattrsetman.cc,v 1.5 2008-11-25 15:35:24 cvsbe
 #include "attribdescset.h"
 #include "attribdescsettr.h"
 #include "ctxtioobj.h"
+#include "survinfo.h"
 
 static const int cPrefWidth = 75;
 
@@ -68,7 +69,7 @@ void uiAttrSetMan::mkFileInfo()
     if ( !curioobj_ ) { infofld->setText( "" ); return; }
 
     BufferString txt;
-    Attrib::DescSet attrset(false,false);
+    Attrib::DescSet attrset( !SI().has3D() );
     if ( !AttribDescSetTranslator::retrieve(attrset,curioobj_,txt) )
     {
 	BufferString msg( "Read error: '" ); msg += txt; msg += "'";
@@ -82,8 +83,7 @@ void uiAttrSetMan::mkFileInfo()
 	const int nrattrs = attrset.nrDescs( false, false );
 	const int nrwithstor = attrset.nrDescs( true, false );
 	const int nrstor = nrwithstor - nrattrs;
-	const bool is2d = attrset.is2D();
-	txt = "Type: "; txt += is2d ? "2D" : "3D";
+	txt = "Type: "; txt += attrset.is2D() ? "2D" : "3D";
 	if ( nrstor > 0 )
 	{
 	    txt += "\nInput"; txt += nrstor == 1 ? ": " : "s: "; 

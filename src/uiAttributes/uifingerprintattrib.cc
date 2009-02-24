@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 ________________________________________________________________________
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.52 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.53 2009-02-24 14:08:23 cvsbert Exp $";
 -*/
 
 #include "uifingerprintattrib.h"
@@ -217,10 +217,11 @@ static void setAttrSelName( ObjectSet<uiAttrSel>& flds )
 
 void uiFingerPrintAttrib::initTable( int nrrows )
 {
-    attribflds_.erase(); 
+    attribflds_.erase();
+    const uiAttrSelData asd( is2d_ );
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
+	uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
 	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
 	table_->setCellGroup( RowCol(idx,0), attrbox );
@@ -233,7 +234,8 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
 {
     const int newrow = table_->newCell().row;
-    uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
+    const uiAttrSelData asd( is2d_ );
+    uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
     table_->setCellGroup( RowCol(newrow,0), attrbox );
@@ -573,7 +575,7 @@ void uiFingerPrintAttrib::fillIn2DPos(CallBacker*)
 {
     if ( !is2d_ ) return;
 
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
+    PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( Seis::Line, true );
     uiSeisSelDlg dlg( this, *ctio,
 	    	      uiSeisSel::Setup(Seis::Line).selattr(false) );
     if ( !dlg.go() || !dlg.ioObj() ) return;

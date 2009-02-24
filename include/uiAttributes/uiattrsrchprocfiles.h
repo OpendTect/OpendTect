@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uiattrsrchprocfiles.h,v 1.4 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattrsrchprocfiles.h,v 1.5 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,13 +17,13 @@ ________________________________________________________________________
 mClass uiAttrSrchProcFiles : public uiSrchProcFiles
 {
 public:
-			uiAttrSrchProcFiles(uiParent*);
+			uiAttrSrchProcFiles(uiParent*,bool is2d);
 			~uiAttrSrchProcFiles();
 
 protected:
 
     CtxtIOObj*		ctioptr_;
-    CtxtIOObj&		mkCtio();
+    CtxtIOObj&		mkCtio(bool);
 
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.24 2009-01-27 15:06:28 cvshelene Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.25 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,8 +142,9 @@ protected:
     bool		zIsTime() const;
 
     ChangeTracker	chtr_;
-    uiAttrSel*		getInpFld(const char* txt=0,const uiAttrSelData* =0);
-    uiImagAttrSel*	getImagInpFld();
+    uiAttrSel*		getInpFld(bool is2d,const char* txt=0);
+    uiAttrSel*		getInpFld(const uiAttrSelData&,const char* txt=0);
+    uiImagAttrSel*	getImagInpFld(bool is2d);
    
     BufferString        helpid_;
     BufferString	attrnm_;

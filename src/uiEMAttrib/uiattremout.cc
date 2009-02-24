@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattremout.cc,v 1.7 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.8 2009-02-24 14:08:23 cvsbert Exp $";
 
 
 #include "uiattremout.h"
@@ -37,7 +37,7 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 {
     setTitleText( "" );
 
-    attrfld_ = new uiAttrSel(uppgrp_, &ads_, ads_.is2D(), "Quantity to output");
+    attrfld_ = new uiAttrSel( uppgrp_, ads_, "Quantity to output" );
     attrfld_->setNLAModel( nlamodel_ );
     attrfld_->selectiondone.notify( mCB(this,uiAttrEMOut,attribSel) );
 }

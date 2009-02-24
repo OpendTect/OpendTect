@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.12 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.13 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     				   inl=false: AttribSelSpec for crossline comp*/
 
     static const IOObjContext&	ioContext();
+    static CtxtIOObj*		mkCtxtIOObj(bool is2d,bool forread);
 
 protected:
 

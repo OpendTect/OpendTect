@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.9 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.10 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
+#include "uiseissel.h"
 #include "uisrchprocfiles.h"
 #include "uifileinput.h"
 #include "uibutton.h"
@@ -66,7 +67,7 @@ uiGetFileForAttrSet::~uiGetFileForAttrSet()
 
 void uiGetFileForAttrSet::srchDir( CallBacker* )
 {
-    uiAttrSrchProcFiles dlg( this );
+    uiAttrSrchProcFiles dlg( this, attrset_.is2D() );
     if ( dlg.go() )
     {
 	fileinpfld->setFileName( dlg.fileName() );
@@ -122,16 +123,16 @@ bool uiGetFileForAttrSet::acceptOK( CallBacker* )
 }
 
 
-uiAttrSrchProcFiles::uiAttrSrchProcFiles( uiParent* p )
-    : uiSrchProcFiles(p,mkCtio(),"Output.0.Seismic.ID")
+uiAttrSrchProcFiles::uiAttrSrchProcFiles( uiParent* p, bool is2d )
+    : uiSrchProcFiles(p,mkCtio(is2d),"Output.0.Seismic.ID")
 {
     setHelpID( "101.1.4" );
 }
 
 
-CtxtIOObj& uiAttrSrchProcFiles::mkCtio()
+CtxtIOObj& uiAttrSrchProcFiles::mkCtio( bool is2d )
 {
-    ctioptr_ = mMkCtxtIOObj(SeisTrc);
+    ctioptr_ = uiSeisSel::mkCtxtIOObj(is2d?Seis::Line:Seis::Vol,true);
     ctioptr_->ctxt.forread = true;
     ctioptr_->ctxt.parconstraints.set( sKey::Type, sKey::Attribute );
     ctioptr_->ctxt.includeconstraints = true;

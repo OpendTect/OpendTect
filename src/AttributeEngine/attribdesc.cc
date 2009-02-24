@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.69 2008-11-24 11:06:39 cvsnageswara Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.70 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "attribdesc.h"
 
@@ -52,9 +52,7 @@ Desc::Desc( const char* attribname, DescStatusUpdater updater )
     , seloutput_( 0 )
     , hidden_( false )
     , is2d_( false )
-    , is2dset_( false )
     , needprovinit_( false )
-    , is2ddetected_( false )
 {
     if ( strchr( attribname, ' ' ) )
 	pErrMsg("Space character is not permitted in attribute names");
@@ -73,8 +71,6 @@ Desc::Desc( const Desc& a )
     , userref_( a.userref_ )
     , needprovinit_( a.needprovinit_ )
     , is2d_(a.is2d_)
-    , is2dset_(a.is2dset_)
-    , is2ddetected_(a.is2ddetected_)
 {
     inputs_.allowNull(true);
 
@@ -105,10 +101,8 @@ const char* Desc::attribName() const		{ return attribname_; }
 void Desc::setDescSet( DescSet* nds )
 {
     descset_ = nds;
-    if ( !nds ) return;
-    if ( isStored() ) return;
-    is2d_ = nds->is2D();
-    is2dset_ = nds->is2DSet();
+    if ( nds )
+	set2D( nds->is2D() );
 }
 
 DescSet* Desc::descSet() const			{ return descset_; }
@@ -151,7 +145,6 @@ bool Desc::parseDefStr( const char* defstr )
     BufferStringSet keys, vals;
     getKeysVals( defstr, keys, vals );
 
-    is2ddetected_ = false;
     for ( int idx=0; idx<params_.size(); idx++ )
     {
 	bool found = false;
@@ -289,26 +282,10 @@ Desc* Desc::getInput( int input )
 { return input>=0 && input<inputs_.size() ? inputs_[input] : 0; }
 
 
-//keep it for backward compatibility with 2.4
-bool Desc::is2D() const
-{
-    if ( is2dset_ || is2ddetected_ )
-	return is2d_;
-    
-    const ValParam* keypar = getValParam( StorageProvider::keyStr() );
-    if ( !keypar ) return false;
-
-    MultiID key = keypar->getStringValue();
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    is2d_ = ioobj && SeisTrcTranslator::is2D( *ioobj );
-    is2ddetected_ = true;
-    return is2d_;
-}
 
 #define mErrRet(msg) \
     const_cast<Desc*>(this)->errmsg_ = msg;\
     return Error;\
-
 
 
 Desc::SatisfyLevel Desc::isSatisfied() const
@@ -401,7 +378,6 @@ DescID Desc::inputId( int idx ) const
 void Desc::addParam( Param* param )
 {
     params_ += param;
-    is2ddetected_ = false;
 }
 
 
@@ -745,13 +721,6 @@ void Desc::changeStoredID( const char* newid )
 
     ValParam* keypar = getValParam( StorageProvider::keyStr() );
     keypar->setValue( newid );
-}
-
-
-void Desc::set2D( bool is2dstudy )
-{
-    is2dset_ = true;
-    is2d_ = is2dstudy;
 }
 
 

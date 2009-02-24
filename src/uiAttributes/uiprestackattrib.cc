@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.15 2009-02-04 18:35:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.16 2009-02-24 14:08:23 cvsbert Exp $";
 
 
 #include "uiprestackattrib.h"
@@ -32,7 +32,7 @@ mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp)
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.17")
-	, ctio_(is2d?*mMkCtxtIOObj(SeisPS2D):*mMkCtxtIOObj(SeisPS3D))
+	, ctio_(*uiSeisSel::mkCtxtIOObj(is2d?Seis::LinePS:Seis::VolPS,true))
 {
     inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
     dopreprocessfld_ = new uiGenInput( this, "Preprocess",

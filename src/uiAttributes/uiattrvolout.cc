@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.56 2009-02-06 12:35:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.57 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -49,7 +49,7 @@ const char* uiAttrVolOut::sKeyMaxInlRg = "Maximum Inline Range";
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 			    const NLAModel* n, MultiID id )
 	: uiFullBatchDialog(p,Setup("Process"))
-	, ctio(mkCtxtIOObj())
+	, ctio(mkCtxtIOObj(ad))
     	, subselpar(*new IOPar)
     	, sel(*new CurrentSel)
 	, ads(const_cast<DescSet&>(ad))
@@ -61,9 +61,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     bool is2d = ad.is2D();
     setTitleText( is2d ? "Create 2D seismic output":"Create 3D seismic output");
 
-    uiAttrSelData attrdata( &ad );
+    uiAttrSelData attrdata( ad );
     attrdata.nlamodel = nlamodel;
-    todofld = new uiAttrSel( uppgrp_, "Quantity to output", attrdata, is2d);
+    todofld = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
     transffld = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
@@ -73,7 +73,6 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 	transffld->selFld2D()->singLineSel.notify(
 				mCB(this,uiAttrVolOut,singLineSel) );
 
-    ctio.ctxt.forread = false;
     ctio.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
     ctio.ctxt.includeconstraints = false;
     ctio.ctxt.allowcnstrsabsent = true;
@@ -97,9 +96,9 @@ uiAttrVolOut::~uiAttrVolOut()
 }
 
 
-CtxtIOObj& uiAttrVolOut::mkCtxtIOObj()
+CtxtIOObj& uiAttrVolOut::mkCtxtIOObj( const Attrib::DescSet& ad )
 {
-    return *mMkCtxtIOObj(SeisTrc);
+    return *uiSeisSel::mkCtxtIOObj( Seis::geomTypeOf(ad.is2D(),false), false );
 }
 
 

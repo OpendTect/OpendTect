@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.19 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"
@@ -33,7 +33,7 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
     	, is1fld(0)
     	, stepoutfld(0)
 {
-    inpfld = getImagInpFld();
+    inpfld = getImagInpFld(is2d);
 
     if ( Settings::common().isTrue("Attribs.Enable Coh type 2") )
     {

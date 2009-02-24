@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.34 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiseissel.h,v 1.35 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ public:
     virtual bool	existingTyped() const;
     virtual void	updateInput();
 
-    static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType);
+    static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType,bool forread);
     				//!< returns new default CtxtIOObj
 
 protected:

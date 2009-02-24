@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.35 2009-01-07 11:21:55 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.36 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,15 +27,10 @@ class Desc;
 mClass DescSet : public CallBacker
 {
 public:
-    				DescSet( bool is2d )
-				    : is2d_(is2d)
-			    	    , is2dset_(true)
-			    	    , descToBeRemoved(this)   {}
-    				DescSet( bool is2d, bool is2dset )
-				    : is2d_(is2d)
-			    	    , is2dset_(is2dset)
-			    	    , descToBeRemoved(this)  {}
-    				~DescSet() 		{ removeAll(); }
+    				DescSet(bool is2d);
+    				~DescSet() 	{ removeAll(); }
+    bool			isEmpty() const
+    						{ return descs_.isEmpty(); }
 
     DescSet*			clone() const;
     DescSet*			optimizeClone(const DescID& targetid) const;
@@ -112,8 +107,7 @@ public:
     				//!<DescID`definition string
     void			fillInAttribColRefs(BufferStringSet&) const;
 
-    bool                        is2DSet() const         { return is2dset_; }
-    bool			is2D() const;
+    inline bool			is2D() const		{ return is2d_; }
     const char*			errMsg() const;
     static const char*		highestIDStr()		{ return "MaxNrKeys"; }
     static const char*		definitionStr()		{ return "Definition"; }
@@ -134,7 +128,6 @@ protected:
 
 private:
 
-    bool			is2dset_;
     				DescSet( const DescSet& )
 				    : descToBeRemoved(this) {}
 				// crap. Don't even TRY to use. Use clone()!

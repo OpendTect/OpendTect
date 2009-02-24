@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.25 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.26 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
@@ -162,18 +162,23 @@ void uiAttrDescEd::fillOutput( Attrib::Desc& desc, int selout )
 }
 
 
-uiAttrSel* uiAttrDescEd::getInpFld( const char* txt, const uiAttrSelData* asd )
+uiAttrSel* uiAttrDescEd::getInpFld( bool is2d, const char* txt )
 {
-    uiAttrSel* fld = asd ? new uiAttrSel( this, txt, *asd, is2d_ )
-			 : new uiAttrSel( this, 0, is2d_, txt );
-    return fld;
+    uiAttrSelData asd( is2d );
+    return new uiAttrSel( this, asd.attrSet(), txt );
 }
 
 
-uiImagAttrSel* uiAttrDescEd::getImagInpFld()
+uiAttrSel* uiAttrDescEd::getInpFld( const uiAttrSelData& asd, const char* txt )
 {
-    uiImagAttrSel* fld = new uiImagAttrSel( this, 0, is2d_, 0 );
-    return fld;
+    return new uiAttrSel( this, txt, asd );
+}
+
+
+uiImagAttrSel* uiAttrDescEd::getImagInpFld( bool is2d )
+{
+    uiAttrSelData asd( is2d );
+    return new uiImagAttrSel( this, asd.attrSet() );
 }
 
 

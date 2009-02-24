@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.10 2009-02-02 11:36:23 cvsnageswara Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.11 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,6 @@ public:
 
     bool		is2D() const 		{ return is2d_ ; }
 
-    void 		setCtxtIO();
     const char*		getUserRef() const;
     const char*		getSeisRef() const;
     const char*		getSteerRef() const;
@@ -52,6 +51,8 @@ protected:
     bool		is2d_;
 
     bool		acceptOK(CallBacker*);
+    CtxtIOObj& 		getCtxtIO(bool);
+
 };
 
 #endif

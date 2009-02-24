@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.107 2009-02-11 10:44:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.108 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -124,7 +124,7 @@ uiAttribPartServer::~uiAttribPartServer()
 	const bool is2d = typ==2; \
 	PtrMan<IOObj> ioobj = IOM().get( id ); \
 	BufferString bs; \
-	DescSet* attrset = new DescSet( is2d, true ); \
+	DescSet* attrset = new DescSet( is2d ); \
 	AttribDescSetTranslator::retrieve( *attrset, ioobj, bs ); \
 	adsman##typ##d_->setDescSet( attrset ); \
 	adsman##typ##d_->attrsetid_ = id; \
@@ -278,12 +278,12 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zkey,
        				       bool is2d )
 {
     DescSetMan* adsman = getAdsMan( is2d );
-    uiAttrSelData attrdata( adsman->descSet() );
+    uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.attribid = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
     attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel(is2d);
     attrdata.zdomainkey = zkey;
-    uiAttrSelDlg dlg( parent(), "View Data", attrdata, false );
+    uiAttrSelDlg dlg( parent(), "View Data", attrdata );
     if ( !dlg.go() )
 	return false;
 
@@ -1000,9 +1000,9 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 		zdomain2dmnuitem_.findItem(mnuid);
 
     DescSetMan* adsman = getAdsMan( is2d );
-    uiAttrSelData attrdata( adsman->descSet() );
+    uiAttrSelData attrdata( *adsman->descSet() );
     attrdata.nlamodel = getNLAModel(is2d);
-    SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, is2d );
+    SelInfo attrinf( &attrdata.attrSet(), attrdata.nlamodel, is2d );
     const MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
     const MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_

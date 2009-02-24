@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.75 2009-01-23 07:38:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.76 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -21,13 +21,41 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.75 2009-01-23 07:38:08 cvs
 #include "separstr.h"
 #include "gendefs.h"
 #include "seisioobjinfo.h"
+#include "survinfo.h"
 
 namespace Attrib
 {
 
+DescSet::DescSet( bool is2d )
+    : is2d_(is2d)
+    , descToBeRemoved(this)
+{
+    if ( is2d_ )
+    {
+	BufferString defls = SI().pars().find( sKey::DefLineSet );
+	if ( defls.isEmpty() )
+	{
+	    BufferStringSet lsnms;
+	    SeisIOObjInfo::get2DLineInfo( lsnms );
+	    if ( lsnms.size() != 1 )
+		return;
+	    defls = lsnms.get( 0 );
+	}
+	LineKey lk( defls, SI().pars().find( sKey::DefAttribute ) );
+	(void)getStoredID( lk.buf() );
+    }
+    else
+    {
+	const char* defcubeid = SI().pars().find( sKey::DefCube );
+	if ( defcubeid && *defcubeid )
+	    (void)getStoredID( defcubeid );
+    }
+}
+
+
 DescSet* DescSet::clone() const
 {
-    DescSet* descset = new DescSet(is2d_,is2dset_);
+    DescSet* descset = new DescSet(is2d_);
     for ( int idx=0; idx<nrDescs(); idx++ )
     {
 	Desc* nd = new Desc( *descs_[idx] );
@@ -434,10 +462,14 @@ bool DescSet::setAllInputDescs( int nrdescsnosteer, const IOPar& copypar,
 }
 
 
-//TODO use 2D/3D info
 bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 {
+    const char* typestr = par.find( sKey::Type );
+    if ( typestr )
+	is2d_ = *typestr == '2';
+
     removeAll();
+
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
     IOPar copypar(par);
@@ -645,37 +677,6 @@ DescID DescSet::getFreeID() const
 }
 
 
-bool DescSet::is2D() const
-{
-    if ( is2dset_ ) return is2d_;
-
-    bool hasstoreddesc = false;
-    bool is2dsetinallstoreddescs = true;    
-    for ( int idx=0; idx<descs_.size(); idx++ )
-    {
-	const Desc& dsc = *descs_[idx];
-	if ( !dsc.isStored() )
-	    continue;
-	
-	hasstoreddesc = true;
-	if ( is2dsetinallstoreddescs ) 
-	    is2dsetinallstoreddescs = dsc.is2DSet();
-	
-	if ( dsc.is2D() )
-	{
-	    const_cast<DescSet*>(this)->is2d_ = true;
-	    const_cast<DescSet*>(this)->is2dset_ = true;
-	    break;
-	}
-    }
-
-    if ( is2dsetinallstoreddescs && hasstoreddesc )
-	const_cast<DescSet*>(this)->is2dset_ = true;
-    
-    return is2dset_ ? is2d_ : false;
-}
-
-
 DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 {
     TypeSet<int> outsreadyforthislk;
@@ -752,7 +753,7 @@ DescSet* DescSet::optimizeClone( const DescID& targetnode ) const
 
 DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
 {
-    DescSet* res = new DescSet(is2d_,is2dset_);
+    DescSet* res = new DescSet(is2d_);
     TypeSet<DescID> needednodes = targets;
     while ( needednodes.size() )
     {

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattrvolout.h,v 1.5 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattrvolout.h,v 1.6 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ protected:
 
 private:
 
-    CtxtIOObj&		mkCtxtIOObj();
+    CtxtIOObj&		mkCtxtIOObj(const Attrib::DescSet&);
 
 };
 

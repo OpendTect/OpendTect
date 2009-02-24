@@ -7,12 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.19 2009-02-02 11:36:23 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiattrinpdlg.h"
 
 #include "bufstringset.h"
-#include "uiseissel.h"
+#include "uisteeringsel.h"
 #include "uitextedit.h"
 #include "seistrctr.h"
 #include "seisselection.h"
@@ -33,18 +33,13 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 		       issteer ? "Select Steering input"
 			       : "Select Seismic input",
 				 "101.1.2"))
-    , ctio_(*mMkCtxtIOObj(SeisTrc))
-    , ctiosteer_(*mMkCtxtIOObj(SeisTrc))
+    , ctio_(getCtxtIO(is2d))
+    , ctiosteer_(*uiSteerCubeSel::mkCtxtIOObj(is2d,true))
     , multiinpcube_(true)
     , is2d_(is2d)
     , seisinpfld_(0)
     , steerinpfld_(0)
 {
-    setCtxtIO();
-
-    ctio_.ctxt.includeconstraints = issteer;
-    ctio_.ctxt.allowcnstrsabsent = !issteer;
-
     BufferString infotxt( "Provide input for the following attributes: " );
     uiLabel* infolbl = new uiLabel( this, infotxt );
 
@@ -58,13 +53,10 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->setText( txt );
     txtfld->attach( alignedBelow, infolbl );
     
-    inpfld_ = new uiSeisSel( this, ctio_,
+    inpfld_ = new uiSeisSel( this, issteer ? ctiosteer_ : ctio_,
 			uiSeisSel::Setup( is2d ? Seis::Line : Seis::Vol )
 			.seltxt( issteer ? "Input Steering cube" 
-					 : "Input Seismics") 
-	   		.datatype(sKey::Steering)
-			.allowcnstrsabsent(!issteer)
-	   		.include(issteer) ); 
+					 : "Input Seismics") ); 
     inpfld_->attach( alignedBelow, txtfld );
 }
 
@@ -72,81 +64,62 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
        			    bool is2d )
     : uiDialog(p,uiDialog::Setup("Attribute set definition",
-		       hassteer ? "Select Seismic & Steering input"
-			       : "Select Seismic input",
+	       hassteer ? (hasseis ? "Select Seismic & Steering input"
+			: "Select Steering input") : "Select Seismic input",
 				 "101.1.2"))
-    , ctio_(*mMkCtxtIOObj(SeisTrc))
-    , ctiosteer_(*mMkCtxtIOObj(SeisTrc))
+    , ctio_(getCtxtIO(is2d))
+    , ctiosteer_(*uiSteerCubeSel::mkCtxtIOObj(is2d,true))
     , multiinpcube_(false)
     , is2d_(is2d)
     , seisinpfld_(0)
     , steerinpfld_(0)
     , inpfld_(0)
 {
-    setCtxtIO();
     if ( hasseis )
     {
 	seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(
 				     is2d ? Seis::Line : Seis::Vol)
-				     .seltxt("Input Seismics Cube")
-				     .datatype(sKey::Steering)
-				     .allowcnstrsabsent(true)
-				     .include(false) ); 
+				     .seltxt("Input Seismics Cube") ); 
     }
 
     if ( hassteer )
     {
 	steerinpfld_ = new uiSeisSel( this, ctiosteer_, uiSeisSel::Setup(
 				      is2d ? Seis::Line : Seis::Vol )
-				      .seltxt("Input Steering cube")
-	       			      .datatype(sKey::Steering)
-				      .allowcnstrsabsent(false)
-	       			      .include(true) );
+				      .seltxt("Input Steering cube") );
 	if ( hasseis ) steerinpfld_->attach( alignedBelow, seisinpfld_ );
     }
 }
 
 
-void uiAttrInpDlg::setCtxtIO()
+CtxtIOObj& uiAttrInpDlg::getCtxtIO( bool is2d )
 {
     IOM().setRootDir( GetDataDir() ); 
-    IOM().to( ctio_.ctxt.getSelKey() ); 
-    ctio_.ctxt.forread = true;
-    ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-    ctio_.ctxt.includeconstraints = false;
-    ctio_.ctxt.allowcnstrsabsent = true;
-    
-    IOM().to( ctiosteer_.ctxt.getSelKey() ); 
-    ctiosteer_.ctxt.forread = true;
-    ctiosteer_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-    ctiosteer_.ctxt.includeconstraints = true;
-    ctiosteer_.ctxt.allowcnstrsabsent = false;
+    IOM().to( SeisTrcTranslatorGroup::ioContext().getSelKey() ); 
+    return *uiSeisSel::mkCtxtIOObj( is2d?Seis::Line:Seis::Vol, true );
 }
 
+
+#define mErrRetSelInp() \
+    { \
+	uiMSG().error( "Please select the input for the attributes" ); \
+	return false; \
+    }
 
 bool uiAttrInpDlg::acceptOK( CallBacker* )
 {
     if ( multiinpcube_ ) 
     {
 	if ( !inpfld_->commitInput( false ) )
-	{
-	    uiMSG().error( "Please, select input" );
-	    return false;
-	}
+	    mErrRetSelInp()
     }
     else
     {
 	if ( seisinpfld_ && !seisinpfld_->commitInput( false ) )
-	{
-	    uiMSG().error( "Please, select input" );
-	    return false;
-	}
+	    mErrRetSelInp()
 
 	if ( steerinpfld_ && !steerinpfld_->commitInput( false ) )
-	{
-	    uiMSG().error( "Please, select input" );
-	    return false;
-	}
+	    mErrRetSelInp()
     }
 
     return true;

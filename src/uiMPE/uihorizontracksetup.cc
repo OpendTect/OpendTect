@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.21 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.22 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -88,8 +88,10 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
 
-    inpfld = new uiAttrSel( grp, attrset_, attrset_ ? attrset_->is2D() : false,
-	    		    "Input data" );
+    if ( attrset_ )
+	inpfld = new uiAttrSel( grp, *attrset_, "Input data" );
+    else
+	inpfld = new uiAttrSel( grp, "Input data", uiAttrSelData(false) );
     grp->setHAlignObj( inpfld );
 
     evfld = new uiGenInput( grp, "Event type",

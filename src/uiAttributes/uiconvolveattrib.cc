@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.11 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.12 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -67,7 +67,7 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.1")
     	, ctio_(*mGetCtxtIOObj(Wavelet,Seis))
 {
-    inpfld_ = getInpFld();
+    inpfld_ = getInpFld( is2d );
 
     kernelfld_ = new uiGenInput( this, "Filter type",
                                 StringListInpSpec( kerstrs ) );

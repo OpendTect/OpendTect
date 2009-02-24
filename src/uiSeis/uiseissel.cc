@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.67 2009-02-20 10:34:06 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.68 2009-02-24 14:08:24 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -251,11 +251,34 @@ uiSeisSel::~uiSeisSel()
 }
 
 
-CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt )
+CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 {
-    return !Seis::isPS(gt) ?	mMkCtxtIOObj(SeisTrc)
-	:  (Seis::is2D(gt) ?	mGetCtxtIOObj(SeisPS2D,Seis)
-			   :	mGetCtxtIOObj(SeisPS3D,Seis));
+    const bool is2d = Seis::is2D( gt );
+    CtxtIOObj* ret;
+    if ( Seis::isPS(gt) )
+    {
+	ret = is2d ? mGetCtxtIOObj(SeisPS2D,Seis)
+		   : mGetCtxtIOObj(SeisPS3D,Seis);
+	if ( forread && !is2d )
+	{
+	    const char* defpsid = SI().pars().find( sKey::DefPS3D );
+	    if ( defpsid && *defpsid )
+		ret->setObj( MultiID(defpsid) );
+	}
+    }
+    else
+    {
+	ret = mMkCtxtIOObj(SeisTrc);
+	if ( forread && !is2d )
+	{
+	    const char* defcubeid = SI().pars().find( sKey::DefCube );
+	    if ( defcubeid && *defcubeid )
+		ret->setObj( MultiID(defcubeid) );
+	}
+    }
+
+    ret->ctxt.forread = forread;
+    return ret;
 }
 
 

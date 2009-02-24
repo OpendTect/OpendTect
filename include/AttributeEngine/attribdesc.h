@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.46 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.47 2009-02-24 14:08:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,9 +113,8 @@ public:
     				/*!<Generates list of attributes this attribute
 				    is dependant on. */
 
-    bool			is2D() const;
-    void			set2D(bool);
-    bool			is2DSet() const		{ return is2dset_; }
+    bool			is2D() const		{ return is2d_; }
+    void			set2D( bool yn )	{ is2d_ = yn; }
 
     enum SatisfyLevel		{ AllOk, Warning, Error };
     SatisfyLevel		isSatisfied() const;
@@ -177,9 +176,7 @@ protected:
     bool			issteering_;
     bool			hidden_;
     bool			needprovinit_;
-    mutable bool 		is2d_;
-    mutable bool 		is2ddetected_;
-    bool 			is2dset_;
+    bool 			is2d_;
 
     TypeSet<InputSpec>		inputspecs_;
     ObjectSet<Desc>		inputs_;

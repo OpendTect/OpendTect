@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.11 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.12 2009-02-24 14:08:23 cvsbert Exp $";
 
 
 #include "uireferenceattrib.h"
@@ -55,7 +55,7 @@ uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.11")
     
 {
-    inpfld = getInpFld();
+    inpfld = getInpFld( is2d );
     
     outpfld3d = new uiGenInput( this, "Desired Output",
 				   StringListInpSpec(outpstrs3d) );

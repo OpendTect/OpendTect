@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.31 2009-01-07 06:43:12 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.32 2009-02-24 14:08:23 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -295,25 +295,36 @@ const IOObjContext& uiSteerCubeSel::ioContext()
 }
 
 
+CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
+{
+    CtxtIOObj* ret = mMkCtxtIOObj(SeisTrc);
+    ret->ctxt = ioContext();
+    ret->ctxt.forread = forread;
+    if ( forread && !is2d )
+    {
+	ret->setObj( IOM().getFirst(ret->ctxt) );
+	const char* defcubeid = SI().pars().find( "Default.Cube.Steering" );
+	if ( defcubeid && *defcubeid )
+	    ret->setObj( MultiID(defcubeid) );
+			     
+    }
+    return ret;
+}
+
+
 DescID uiSteerCubeSel::getDipID( int dipnr ) const
 {
-    const DescSet* ads = attrdata_.attrset;
-    if ( !ads )
-    {
-	pErrMsg( "No attribdescset set");
-	return DescID::undef();
-    }
-
-    if ( !ctio_.ioobj ) 
+    const DescSet& ads = attrdata_.attrSet();
+    if ( !ctio_.ioobj || ads.isEmpty() ) 
 	return DescID::undef();
 
     LineKey linekey( ctio_.ioobj->key() );
     if ( is2D() ) linekey.setAttrName( attrNm() );
 
-    for ( int idx=0; idx<ads->nrDescs(); idx++ )
+    for ( int idx=0; idx<ads.nrDescs(); idx++ )
     {
-	const DescID descid = ads->getID( idx );
-	const Desc* desc = ads->getDesc( descid );
+	const DescID descid = ads.getID( idx );
+	const Desc* desc = ads.getDesc( descid );
 	if ( !desc->isStored() || desc->selectedOutput()!=dipnr )
 	    continue;
 
@@ -334,13 +345,13 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
     desc->setUserRef( userref );
     desc->updateParams();
 
-    return const_cast<DescSet*>(ads)->addDesc( desc );
+    return const_cast<DescSet&>(ads).addDesc( desc );
 }
 
 
 void uiSteerCubeSel::setDescSet( const DescSet* ads )
 {
-    attrdata_.attrset = ads;
+    attrdata_.setAttrSet( ads );
 }
 
 
@@ -366,5 +377,5 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
 void uiSteerCubeSel::fillSelSpec( SelSpec& as, bool inldip )
 {
     as.set( 0, inldip ? inlDipID() : crlDipID(), false, "" );
-    as.setRefFromID( *attrdata_.attrset );
+    as.setRefFromID( attrdata_.attrSet() );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.14 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.15 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -43,7 +43,7 @@ uiSEGYImpDlg::uiSEGYImpDlg( uiParent* p,
 			const uiSEGYReadDlg::Setup& su, IOPar& iop )
     : uiSEGYReadDlg(p,su,iop)
     , morebut_(0)
-    , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_))
+    , ctio_(*uiSeisSel::mkCtxtIOObj(su.geom_,false))
 {
     ctio_.ctxt.forread = false;
     if ( setup().dlgtitle_.isEmpty() )

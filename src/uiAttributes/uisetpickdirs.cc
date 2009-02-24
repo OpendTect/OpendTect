@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.13 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.14 2009-02-24 14:08:23 cvsbert Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -65,31 +65,25 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 	return;
     }
 
+    const bool is2d = ads_ ? ads_->is2D() : false;
     const bool havesteer = true;
     if ( havesteer )
     {
 	dirinpfld_ = new uiGenInput( this, "Direction from", 
 			BoolInpSpec(true,"Steering cube","Attributes") );
 	dirinpfld_->valuechanged.notify( mCB(this,uiSetPickDirs,dirinpSel) );
-    	steerctio_ = mMkCtxtIOObj( SeisTrc );
-	steerctio_->ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-	steerctio_->ctxt.includeconstraints = true;
-	steerctio_->ctxt.allowcnstrsabsent = false;
-	steerctio_->ctxt.forread = true;
-	steerfld_ = new uiSteerCubeSel( this, *steerctio_, ads_, ads_->is2D(),
-					"Steering cube" );
+    	steerctio_ = uiSteerCubeSel::mkCtxtIOObj( is2d, true );
+	steerfld_ = new uiSteerCubeSel( this, *steerctio_, ads_, is2d );
 	steerfld_->attach( alignedBelow, dirinpfld_ );
     }
 
-    uiAttrSelData ad( ads_ );
-    ad.nlamodel = nlamdl_;
-    const bool is2d = ads_ ? ads_->is2D() : false;
-    phifld_ = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])",
-	    		    ad, is2d );
+    uiAttrSelData asd( *ads_ );
+    asd.nlamodel = nlamdl_;
+    phifld_ = new uiAttrSel( this, "Azimuth Angle ~ North (phi=[0-360])", asd );
     if ( dirinpfld_ )
 	phifld_->attach( alignedBelow, dirinpfld_ );
     thetafld_ = new uiAttrSel( this, "Dip Angle ~ Horizontal (theta=[-90-90])", 
-	    		      ad, is2d );
+	    		      asd );
     thetafld_->attach( alignedBelow, phifld_ );
 
     finaliseDone.notify( mCB(this,uiSetPickDirs,dirinpSel) );

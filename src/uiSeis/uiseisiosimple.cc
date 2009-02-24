@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.16 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.17 2009-02-24 14:08:24 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -60,7 +60,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 				  : "Export seismics to simple flat file",
 			      "Specify parameters for I/O",
 			      imp ? "103.0.11" : "103.0.12") )
-    	, ctio(*uiSeisSel::mkCtxtIOObj(gt))
+    	, ctio(*uiSeisSel::mkCtxtIOObj(gt,!imp))
     	, sdfld(0)
 	, havenrfld(0)
 	, nrdeffld(0)
@@ -77,7 +77,6 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     	, geom_(gt)
 {
     data().clear( survChanged() );
-    ctio.ctxt.forread = !isimp_;
     const bool is2d = is2D();
     const bool isps = isPS();
 

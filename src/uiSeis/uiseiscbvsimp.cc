@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.50 2008-12-30 04:15:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.51 2009-02-24 14:08:24 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.50 2008-12-30 04:15:25 cvs
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uiseissel.h"
 #include "uiseisioobjinfo.h"
 #include "uiseistransf.h"
 #include "uitaskrunner.h"
@@ -39,7 +40,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 		    	   "Specify import parameters",
 			   "103.0.1"))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
-	, outctio_(*mMkCtxtIOObj(SeisTrc))
+	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     	, modefld(0)
 {
     init( false );
@@ -51,8 +52,8 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 	: uiDialog(p,Setup("Copy cube data",
 		    	   "Specify copy parameters",
 			   "103.1.1"))
-	, inctio_(*mMkCtxtIOObj(SeisTrc))
-	, outctio_(*mMkCtxtIOObj(SeisTrc))
+	, inctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
+	, outctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
     	, modefld(0)
 {
     if ( ioobj ) inctio_.ioobj = ioobj->clone();

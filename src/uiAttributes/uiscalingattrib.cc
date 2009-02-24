@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.21 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.22 2009-02-24 14:08:23 cvsbert Exp $";
 
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
@@ -54,7 +54,7 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.12")
 
 {
-    inpfld = getInpFld();
+    inpfld = getInpFld( is2d );
 
     typefld = new uiGenInput( this, "Type", StringListInpSpec(scalingtypestr) );
     typefld->valuechanged.notify( mCB(this,uiScalingAttrib,typeSel) );
