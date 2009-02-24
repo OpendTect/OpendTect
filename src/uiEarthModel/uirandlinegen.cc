@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.14 2009-02-24 04:52:14 cvsnanne Exp $";
 
 #include "uirandlinegen.h"
 
@@ -95,6 +95,7 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     
     dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
     dispfld_->attach( alignedBelow, outfld_ );
+    dispfld_->setChecked( true );
 
     finaliseDone.notify( cb );
 }
@@ -220,6 +221,7 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     
     dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
     dispfld_->attach( alignedBelow, outfld_ );
+    dispfld_->setChecked( true );
 }
 
 
@@ -298,6 +300,7 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     outfld_->attach( alignedBelow, zrgfld_ );
     dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
     dispfld_->attach( alignedBelow, outfld_ );
+    dispfld_->setChecked( true );
 }
 
 
