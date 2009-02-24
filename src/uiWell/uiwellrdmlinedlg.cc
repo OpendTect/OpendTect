@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.20 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.21 2009-02-24 04:37:13 cvsnanne Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -97,6 +97,7 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
     previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
     outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
     dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_->setChecked( true );
 }
 
 
