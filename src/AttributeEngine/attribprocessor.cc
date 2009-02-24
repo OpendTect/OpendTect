@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.63 2008-12-23 11:11:20 cvsdgb Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.64 2009-02-24 11:55:15 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -221,7 +221,18 @@ void Processor::init()
     TypeSet<int> globaloutputinterest;
     CubeSampling globalcs;
     defineGlobalOutputSpecs( globaloutputinterest, globalcs );
-    if ( is2d_ ) provider_->adjust2DLineStoredVolume();
+    if ( is2d_ )
+    {
+	provider_->adjust2DLineStoredVolume();
+	mDynamicCastGet( Trc2DVarZStorOutput*, trcvarzoutp, outputs_[0] );
+	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
+	if ( trcvarzoutp || taboutp )
+	{
+	    float maxdist = provider_->getMaxDistBetwTrcs();
+	    if ( trcvarzoutp ) trcvarzoutp->setMaxDistBetwTrcs( maxdist );
+	    if ( taboutp ) taboutp->setMaxDistBetwTrcs( maxdist );
+	}
+    }
     computeAndSetRefZStep();
     provider_->prepPriorToBoundsCalc();    
 

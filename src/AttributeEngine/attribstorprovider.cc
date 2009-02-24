@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.84 2009-02-23 14:08:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.85 2009-02-24 11:55:15 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.84 2009-02-23 14:08:4
 #include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "linesetposinfo.h"
 #include "multiid.h"
 #include "ptrman.h"
 #include "seis2dline.h"
@@ -750,5 +751,33 @@ void StorageProvider::checkClassType( const SeisTrc* trc,
 	idx++;
     }
 }
+
+
+float StorageProvider::getMaxDistBetwTrcs() const
+{
+    const SeisTrcReader& reader = mscprov_->reader();
+    if ( !reader.is2D() ) return mUdf(float);
+
+    const Seis2DLineSet* lset = reader.lineSet();
+    PosInfo::LineSet2DData ls2ddata;
+    if ( !lset || !lset->getGeometry(ls2ddata) )
+	return mUdf(float);
+
+    float maxdist = 0;
+    for ( int lidx=0; lidx<ls2ddata.nrLines(); lidx++ )
+    {
+	const PosInfo::Line2DData l2dd = ls2ddata.lineData( lidx );
+	for ( int pidx=0; pidx<l2dd.posns_.size()-1; pidx++ )
+	{
+	    const float dist =
+		l2dd.posns_[pidx].coord_.distTo( l2dd.posns_[pidx+1].coord_ );
+	    if ( dist > maxdist )
+		maxdist = dist;
+	}
+    }
+
+    return mIsZero(maxdist, 1e-3) ? mUdf(float) : maxdist;
+}
+
 
 }; // namespace Attrib

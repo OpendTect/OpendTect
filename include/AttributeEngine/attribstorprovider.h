@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.29 2009-01-05 09:26:17 cvsranojay Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.30 2009-02-24 11:55:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
 	    				bool firstcheck=false);
     bool		getPossibleVolume(int outp,CubeSampling&);
     BinID		getStepoutStep() const;
+    float		getMaxDistBetwTrcs() const;
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
     void		fillDataCubesWithTrc(DataCubes*) const;

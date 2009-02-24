@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.43 2009-01-20 06:19:14 cvsranojay Exp $
+ RCS:           $Id: attriboutput.h,v 1.44 2009-02-24 11:55:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,6 +192,8 @@ public:
 
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
+    void			setMaxDistBetwTrcs( float maxdist )
+						{ maxdisttrcs_ = maxdist; }
 protected:
 
     const CubeSampling		getCS();
@@ -200,6 +202,7 @@ protected:
     float			stdtrcsz_;
     float			stdstarttime_;
     float			outval_;
+    float			maxdisttrcs_;
 };
 
 
@@ -310,6 +313,8 @@ public:
     TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
 	    					TypeSet<float>&) const;
     
+    void			setMaxDistBetwTrcs( float maxdist )
+						{ maxdisttrcs_ = maxdist; }
 protected:
     DataPointSet&		datapointset_;
     int				classstatus_; 	// -1 Unknow 
@@ -317,7 +322,9 @@ protected:
     					      	//  1 Classification
 
     bool			arebiddupl_;	
-    int				firstattrcol_;	
+    int				firstattrcol_;
+    float			maxdisttrcs_;
+    TypeSet<float>		distpicktrc_;
 
     void			computeAndSetVals(const DataHolder&,float,
 	    					  float,float*,float&,bool&);

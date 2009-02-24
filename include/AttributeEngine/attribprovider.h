@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.71 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribprovider.h,v 1.72 2009-02-24 11:55:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,7 @@ public:
     float                       getRefStep() const; 
     
     virtual BinID		getStepoutStep() const;
+    virtual float		getMaxDistBetwTrcs() const;
     ObjectSet<Provider>&	getInputs() 		{ return inputs; }
     BinID			getTrcInfoBid() const	{ return trcinfobid; }
     BufferString         	errMsg() const;

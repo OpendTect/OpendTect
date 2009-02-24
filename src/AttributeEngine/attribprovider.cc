@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.110 2009-01-13 04:00:54 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.111 2009-02-24 11:55:15 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1490,5 +1490,19 @@ void Provider::getCompNames( BufferStringSet& nms ) const
     nms.erase();
     nms.add( desc.attribName() );
 }
+
+
+float Provider::getMaxDistBetwTrcs() const
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] )
+	{
+	    float tmp = inputs[idx]->getMaxDistBetwTrcs();
+	    if ( !mIsUdf(tmp) ) return tmp;
+	}
+
+    return mUdf(float);
+}
+
 
 }; // namespace Attrib

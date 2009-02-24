@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.92 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.93 2009-02-24 11:55:15 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -1075,8 +1075,10 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 	    {
 		const double distn = coord.distTo( poszvalues_->coord(idx) );
 		const double distnp1 = coord.distTo(poszvalues_->coord(idx+1));
-		rowid = distn < distnp1 ? idx : idx+1;
-		break;
+		if ( distn<distnp1 && distn<=maxdisttrcs_/2 )
+		    { rowid = idx; break; }
+		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 )
+		    { rowid = idx+1; break; }
 	    }
 	}
     }
@@ -1126,6 +1128,7 @@ TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     ((Seis::TableSelData*)seldata_)->binidValueSet() = datapointset_.bivSet();
 
     arebiddupl_ = areBIDDuplicated();
+    distpicktrc_ = TypeSet<float>( datapointset.size(), mUdf(float) );
 }
 
 
@@ -1145,7 +1148,10 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	    {
 		const double distn = coord.distTo( datapointset_.coord(idx) );
 		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
-		rid = distn < distnp1 ? idx : idx+1;
+		if ( distn<distnp1 && distn<=maxdisttrcs_/2 )
+		    { rid = idx; break; }
+		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 )
+		    { rid = idx+1; break; }
 	    }
 	}
     }
@@ -1284,10 +1290,27 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 	    {
 		const double distn = coord.distTo( datapointset_.coord(idx) );
 		const double distnp1 = coord.distTo(datapointset_.coord(idx+1));
-		rid = distn < distnp1 ? idx : idx+1;
-		break;
+		if ( distn<distnp1 && distn<=maxdisttrcs_/2 &&
+		    ( mIsUdf(distpicktrc_[idx]) || distn<distpicktrc_[idx]) )
+		{
+		    rid = idx;
+		    const_cast<TableOutput*>(this)->distpicktrc_[idx] = distn;
+		    break;
+		}
+		else if ( distnp1<distn && distnp1<=maxdisttrcs_/2 &&
+		    ( mIsUdf(distpicktrc_[idx+1]) || distn<distpicktrc_[idx+1]))
+		{
+		    rid = idx+1;
+		    const_cast<TableOutput*>(this)->distpicktrc_[idx+1]=distnp1;
+		    break;
+		}
 	    }
 	}
+    }
+    else
+    {
+	const double dist = coord.distTo(datapointset_.coord(rid));
+	const_cast<TableOutput*>(this)->distpicktrc_[rid]=dist;
     }
 
     if ( rid< 0 ) return sampleinterval;
