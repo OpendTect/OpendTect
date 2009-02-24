@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.22 2009-02-05 14:48:23 cvsbert Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.23 2009-02-24 15:12:53 cvsjaap Exp $";
 
 #include "cmddriver.h"
+#include "cmdrecorder.h"
 
 #include "uidialog.h"
 #include "uifileinput.h"
@@ -59,15 +60,18 @@ public:
 
     uiODMain&		appl_;
     CmdDriver*		drv_;
+    CmdRecorder*	rec_;
     Timer*		tim_;
     uiPopupMenu*	cmddrvmnu_;
     uiMenuItem*		runcmddrvitm_;
     uiMenuItem*		nameguideitm_;
+    uiMenuItem*		cmdrecorditm_;
     void		handleAutoExecution();
     void		doIt(CallBacker*);
     void		autoStart(CallBacker*);
     void		delayedStart(CallBacker*);
     void		toolTipChange(CallBacker*);
+    void		cmdRecordChange(CallBacker*);
     void		survChg(CallBacker*);
 
 };
@@ -135,9 +139,52 @@ bool acceptOK( CallBacker* )
 BufferString uiCmdDriverInps::lastinp_;
 
 
+class uiCmdRecordInps : public uiDialog
+{
+public:
+
+uiCmdRecordInps( uiParent* p, CmdRecorder& cmdrec )
+        : uiDialog(p,Setup("Command recording", "Specify output command file",
+			   "0.0.0"))
+	, rec_(cmdrec)
+{
+    outfld_ = new uiFileInput( this, "Output command file",
+			       uiFileInput::Setup(lastoutput_)
+				.filter("*.cmd")
+				.forread(false) );
+    outfld_->setDefaultSelectionDir( GetScriptsDir(0) );
+}
+
+bool acceptOK( CallBacker* )
+{
+    FilePath fp( outfld_->fileName() );
+    fp.setExtension( ".cmd" );
+    if ( !File_isWritable(fp.pathOnly()) ||
+	 (File_exists(fp.fullPath()) && !File_isWritable(fp.fullPath())) )
+    {
+	uiMSG().error( "Command file cannot be written" );
+	return false;
+    }
+
+    rec_.setOutputFile( fp.fullPath() );
+    lastoutput_ = fp.fullPath();
+    return true;
+}
+
+    uiFileInput*	outfld_;
+    CmdRecorder&	rec_;
+
+    static BufferString	lastoutput_;
+
+};
+
+BufferString uiCmdRecordInps::lastoutput_ = GetScriptsDir("rec.cmd");
+
+
 uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
     	: appl_(a)
     	, drv_(0)
+	, rec_(0)
     	, tim_(0)
 {
     uiODMenuMgr& mnumgr = appl_.menuMgr();
@@ -152,6 +199,11 @@ uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
     nameguideitm_->setCheckable( true );
     nameguideitm_->setChecked( GetEnvVarYN("DTECT_USE_TOOLTIP_NAMEGUIDE") );
     toolTipChange(0);
+
+    rec_ = new CmdRecorder( cmddrvmnu_ );
+    cmdrecorditm_ = new uiMenuItem( "&Start recording ...",
+				    mCB(this,uiCmdDriverMgr,cmdRecordChange) );
+    cmddrvmnu_->insertItem( cmdrecorditm_ );
 
     handleAutoExecution();
 }
@@ -254,6 +306,26 @@ void uiCmdDriverMgr::doIt( CallBacker* cb )
 void uiCmdDriverMgr::toolTipChange( CallBacker* cb )
 {
     uiObject::useNameToolTip( nameguideitm_->isChecked() );
+}
+
+
+void uiCmdDriverMgr::cmdRecordChange( CallBacker* cb )
+{
+    if ( !rec_ ) return;
+
+    if ( rec_->isRecording() )
+    {
+	cmdrecorditm_->setText( "&Start recording ..." );
+	rec_->stop();
+    }
+    else
+    {
+	uiCmdRecordInps* dlg = new uiCmdRecordInps( &appl_, *rec_ );
+	if ( dlg->go() && rec_->start() )
+	    cmdrecorditm_->setText( "&Stop recording" );
+
+	delete dlg;
+    }
 }
 
 
