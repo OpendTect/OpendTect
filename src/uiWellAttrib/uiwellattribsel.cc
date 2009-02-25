@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.22 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.23 2009-02-25 05:15:13 cvsranojay Exp $";
 
 #include "uiwellattribsel.h"
 
@@ -41,7 +41,7 @@ uiWellAttribSel::uiWellAttribSel( uiParent* p, Well::Data& wd,
     , wd_(wd)
     , sellogidx_(-1)
 {
-    attribfld = new uiAttrSel( this, &attrset_, attrset_.is2D() );
+    attribfld = new uiAttrSel( this, &attrset_ );
     attribfld->setNLAModel( nlamodel_ );
     attribfld->selectiondone.notify( mCB(this,uiWellAttribSel,selDone) );
 
