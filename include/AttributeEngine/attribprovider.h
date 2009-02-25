@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.72 2009-02-24 11:55:15 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.73 2009-02-25 10:56:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,7 @@ public:
     BinID			getCurrentPosition() const;
     virtual bool		setCurrentPosition(const BinID&);
     void			updateCurrentInfo();
+    virtual bool		needStoredInput() const;
 
     void			addLocalCompZIntervals(
 						const TypeSet<Interval<int> >&);

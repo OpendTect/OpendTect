@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.111 2009-02-24 11:55:15 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.112 2009-02-25 10:56:01 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -860,7 +860,7 @@ BinID Provider::getStepoutStep() const
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
     {
-	if ( !inputs[idx] ) continue;
+	if ( !inputs[idx] || !inputs[idx]->needStoredInput() ) continue;
 	BinID bid = inputs[idx]->getStepoutStep();
 	if ( bid.inl!=0 && bid.crl!=0 ) return bid;
     }
@@ -1504,5 +1504,20 @@ float Provider::getMaxDistBetwTrcs() const
     return mUdf(float);
 }
 
+
+bool Provider::needStoredInput() const
+{
+    bool needinput = false;
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] && inputs[idx]->needStoredInput() )
+	{
+	    needinput = true;
+	    break;
+	}
+    }
+
+    return needinput;
+}
 
 }; // namespace Attrib

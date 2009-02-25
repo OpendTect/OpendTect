@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.8 2009-02-04 18:35:32 cvskris Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.9 2009-02-25 10:56:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
 
 			uiPreStackAttrib(uiParent*,bool);
 			~uiPreStackAttrib();
+
+    void                getEvalParams(TypeSet<EvalParam>&) const;
 
 protected:
 

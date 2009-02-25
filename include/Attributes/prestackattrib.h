@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.9 2009-02-04 18:35:32 cvskris Exp $
+ RCS:           $Id: prestackattrib.h,v 1.10 2009-02-25 10:56:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,6 @@ protected:
 
     MultiID			psid_;
     IOObj*			psioobj_;
-    Interval<float>		offsrg_;
     ::PreStack::PropCalc::Setup setup_;
     int				component_;
     SeisPSReader*		psrdr_;

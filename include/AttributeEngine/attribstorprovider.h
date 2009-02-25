@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.30 2009-02-24 11:55:15 cvshelene Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.31 2009-02-25 10:56:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     void		updateStorageReqs(bool all=true);
     void		adjust2DLineStoredVolume();
     void		fillDataCubesWithTrc(DataCubes*) const;
+    bool		needStoredInput() const	{ return true; }
 
 protected:
 

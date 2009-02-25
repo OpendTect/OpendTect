@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.64 2009-02-24 11:55:15 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.65 2009-02-25 10:56:01 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -127,9 +127,7 @@ void Processor::useFullProcess( int& res )
 
     provider_->updateCurrentInfo();
     const SeisTrcInfo* curtrcinfo = provider_->getCurrentTrcInfo();
-    const bool needsinput = !provider_->getDesc().isStored() && 
-			    provider_->getDesc().nrInputs();
-    if ( !curtrcinfo && needsinput )
+    if ( !curtrcinfo && provider_->needStoredInput() )
     {
 	errmsg_ = "No trace info available";
 	return;

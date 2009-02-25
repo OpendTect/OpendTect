@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.16 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.17 2009-02-25 10:56:01 cvshelene Exp $";
 
 
 #include "uiprestackattrib.h"
@@ -161,4 +161,11 @@ void uiPreStackAttrib::calcTypSel( CallBacker* )
 void uiPreStackAttrib:: doPreProcSel(CallBacker*)
 {
     preprocsel_->display( dopreprocessfld_->getBoolValue() );
+}
+
+
+void uiPreStackAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( "Offset start", PSAttrib::offStartStr() );
+    params += EvalParam( "Offset stop", PSAttrib::offStopStr() );
 }
