@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.33 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.34 2009-02-26 16:47:52 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -40,7 +40,7 @@ IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads, 
 			      bool is2d, bool withconstdir)
     : uiGroup(p,"Steering selection")
-    , ctio_( *new CtxtIOObj(uiSteerCubeSel::ioContext()) )
+    , ctio_( *uiSteerCubeSel::mkCtxtIOObj(is2d,true) )
     , descset_(ads)
     , typfld_(0)
     , inpfld_(0)

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.44 2009-02-24 14:08:23 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.45 2009-02-26 16:47:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ namespace sKey
     extern const char*	DefAttribute	mImpl("Default.Attribute");
     extern const char*	DefPS3D		mImpl("Default.PS3D Data Store");
     extern const char*	DefPS2D		mImpl("Default.PS2D Data Store");
+    extern const char*	DefWavelet	mImpl("Default.Wavelet");
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.12 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.13 2009-02-26 16:47:52 cvsbert Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.12 2009-02-24 14:08:23 
 #include "wavelet.h"
 #include "transl.h"
 #include "ioman.h"
+#include "survinfo.h"
 
 using namespace Attrib;
 
@@ -89,6 +90,8 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 		       StringListInpSpec( is2d_ ? outpstrs2d : outpstrs3d) );
     outpfld_->attach( alignedBelow, kernelfld_ );
 
+    const char* wvltid = SI().pars().find( sKey::DefWavelet );
+    if ( wvltid && *wvltid ) ctio_.setObj( MultiID(wvltid) );
     waveletfld_ = new uiIOObjSel( this, ctio_ );
     waveletfld_->attach( alignedBelow, kernelfld_ );
     waveletfld_->display(false);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.26 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.27 2009-02-26 16:47:52 cvsbert Exp $";
 
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
@@ -165,7 +165,7 @@ void uiAttrDescEd::fillOutput( Attrib::Desc& desc, int selout )
 uiAttrSel* uiAttrDescEd::getInpFld( bool is2d, const char* txt )
 {
     uiAttrSelData asd( is2d );
-    return new uiAttrSel( this, asd.attrSet(), txt );
+    return new uiAttrSel( this, asd.attrSet(), txt, asd.attribid );
 }
 
 
