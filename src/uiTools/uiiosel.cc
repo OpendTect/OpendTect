@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.52 2009-01-27 11:45:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.53 2009-02-26 04:58:51 cvsnanne Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -67,7 +67,7 @@ void uiIOSelect::stretchHor( bool yn )
 }
 
 
-void uiIOSelect::doFinalise()
+void uiIOSelect::doFinalise( CallBacker* )
 {
     updateFromEntries();
 }

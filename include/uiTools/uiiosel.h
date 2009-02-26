@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.36 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:           $Id: uiiosel.h,v 1.37 2009-02-26 04:58:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ protected:
     virtual void	objSel()		{}
 			//!< notification when user selects from combo
 
-    void		doFinalise();
+    void		doFinalise(CallBacker*);
 
 };
 

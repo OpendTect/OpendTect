@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.88 2009-02-18 16:26:27 cvshelene Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.89 2009-02-26 04:58:51 cvsnanne Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"
@@ -803,7 +803,7 @@ void uiGenInput::updateSpecs()
 }
 
 
-void uiGenInput::doFinalise()
+void uiGenInput::doFinalise( CallBacker* )
 {
     if ( finalised )		return;
     if ( inputs.isEmpty() )	{ pErrMsg("Knurft: No inputs"); return; }

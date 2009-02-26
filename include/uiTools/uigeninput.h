@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.37 2009-01-13 03:55:22 cvsnanne Exp $
+ RCS:           $Id: uigeninput.h,v 1.38 2009-02-26 04:58:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,7 @@ protected:
 
 			//! DataInpField factory
     uiInputFld& 	createInpFld(const DataInpSpec&);
-    void		doFinalise();
+    void		doFinalise(CallBacker*);
     inline DataInpSpec*	spec( int nr )
 			{
 			    return const_cast<DataInpSpec*>
