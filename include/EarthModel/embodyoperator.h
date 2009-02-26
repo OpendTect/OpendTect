@@ -7,17 +7,23 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: embodyoperator.h,v 1.1 2009-02-13 21:14:15 cvsyuancheng Exp $
+ RCS:		$Id: embodyoperator.h,v 1.2 2009-02-26 15:09:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "arrayndinfo.h"
 #include "enums.h"
 #include "iopar.h"
+#include "task.h"
 
 class TaskRunner;
 class Coord3;
+class Plane3;
+class DAGTetrahedraTree;
+
+template<class T> class Array3D;
 template <class T> class TypeSet;
 
 namespace EM
@@ -29,7 +35,7 @@ class ImplicitBody;
 /*!Operators for implicit body. Each BodyOperator has two children, either a
    Body or a BodyOperator. */
 
-class BodyOperator
+mClass BodyOperator
 { 
 public:
     			BodyOperator();
@@ -87,6 +93,37 @@ protected:
     int			childid_;
 
     Action		action_;
+};
+
+
+/*<Given a triangulated body, extract position value on each trace based on 
+   threshhold value. The arr's size is based on inlrg, crlrg, zrg. The value at
+   each point is the min distance to the body, inside to be negative, and 
+   outside to be positive. */
+mClass Expl2ImplBodyExtracter : public ParallelTask
+{
+public:
+			Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree, 
+						const StepInterval<int>& inlrg,
+						const StepInterval<int>& crlrg,
+						const StepInterval<float>& zrg,
+						Array3D<float>& arr);
+    
+    od_int64		totalNr() const;
+
+private:
+
+    bool		doPrepare(int nrthreads);
+    bool		doWork(od_int64,od_int64,int);
+
+    const DAGTetrahedraTree&	tree_;    
+    StepInterval<float>		zrg_;
+    const StepInterval<int>&	inlrg_;
+    const StepInterval<int>&	crlrg_;
+    Array3D<float>&		arr_;
+    TypeSet<int>		tri_;
+    TypeSet<Plane3>		planes_;
+    TypeSet<Coord3>		pts_;
 };
 
 

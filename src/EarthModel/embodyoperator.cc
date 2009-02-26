@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.2 2009-02-23 04:39:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.3 2009-02-26 15:09:05 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: embodyoperator.cc,v 1.2 2009-02-23 04:39:28 cvs
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "task.h"
+#include "trigonometry.h"
 
 
 namespace EM
@@ -36,7 +37,9 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
     , crlrg_( crlrg )	       
     , zrg_( zrg )
     , action_( act )		 
-{}
+{
+    zrg_.scale( SI().zScale() );
+}
 
 od_int64 totalNr() const { return arr_.info().getTotalSz(); }
 		       
@@ -44,70 +47,107 @@ protected:
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )    
 {
+    int p[3], id0[3], id1[3];
+    bool incube[2];
     for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
     {
-	int p[3];
 	arr_.info().getArrayPos( idx, p );
 	
-	const int idx0 = b0_.inlsampling_.nearestIndex( inlrg_.atIndex(p[0]) );
-	const int idx1 = b1_.inlsampling_.nearestIndex( inlrg_.atIndex(p[0]) );
-	const int idy0 = b0_.crlsampling_.nearestIndex( crlrg_.atIndex(p[1]) );
-	const int idy1 = b1_.crlsampling_.nearestIndex( crlrg_.atIndex(p[1]) );
-	const int idz0 = b0_.zsampling_.nearestIndex( zrg_.atIndex(p[2]) );
-	const int idz1 = b1_.zsampling_.nearestIndex( zrg_.atIndex(p[2]) );
-	const bool incube0 = b0_.arr_->info().validPos( idx0, idy0, idz0 );
-	const bool incube1 = b1_.arr_->info().validPos( idx1, idy1, idz1 );
+	id0[0] = b0_.inlsampling_.nearestIndex( inlrg_.atIndex(p[0]) );
+	id0[1] = b0_.crlsampling_.nearestIndex( crlrg_.atIndex(p[1]) );
+	id0[2] = b0_.zsampling_.nearestIndex( zrg_.atIndex(p[2]) );
+	id1[0] = b1_.inlsampling_.nearestIndex( inlrg_.atIndex(p[0]) );
+	id1[1] = b1_.crlsampling_.nearestIndex( crlrg_.atIndex(p[1]) );
+	id1[2] = b1_.zsampling_.nearestIndex( zrg_.atIndex(p[2]) );
+	
+	incube[0] = b0_.arr_->info().validPos(id0[0], id0[1], id0[2]);
+	incube[1] = b1_.arr_->info().validPos(id1[0], id1[1], id1[2]);
 
 	char pos0 = cOutsde(), pos1 = cOutsde();
-	if ( incube0 )
+	float v0 = mUdf(float), v1 = mUdf(float);
+	if ( incube[0] )
 	{
-	    const float v0 = b0_.arr_->get(idx0,idy0,idz0);
+	    v0 = b0_.arr_->get( id0[0], id0[1], id0[2] );
 	    pos0 = (v0<b0_.threshold_) ? cInside() 
 		 : (v0>b0_.threshold_ ? cOutsde() : cOnbody());
 	}
 
-	if ( incube1 )
+	if ( incube[1] )
 	{
-	    const float v1 = b1_.arr_->get(idx1,idy1,idz1);
+	    v1 = b1_.arr_->get( id1[0], id1[1], id1[2] );
 	    pos1 = (v1<b1_.threshold_) ? cInside() 
 		 : (v1>b1_.threshold_ ? cOutsde() : cOnbody());
 	}
-	
-	arr_.set( p[0], p[1], p[2], getVal(incube0,incube1,pos0,pos1) );
+		
+	const float val = getVal( incube[0], incube[1], pos0, pos1, v0, v1 );
+	arr_.set( p[0], p[1], p[2], val );
     }
 
     return true;
 }
 
 
-char getVal( bool incube0, bool incube1, char p0, char p1 ) const
+float getVal( bool incube0, bool incube1, char p0, char p1, float v0, 
+	      float v1 ) const
 {
     if ( !incube0 || !incube1 )
     {
 	if ( incube0 )
-	    return action_==BodyOperator::IntSect ? cOutsde() : p0;
+	    return action_==BodyOperator::IntSect ? fabs(v0) : v0;
 	else if ( incube1 )
-	    return action_==BodyOperator::Union ? p1 : cOutsde();
+	    return action_==BodyOperator::Union ? v1 : fabs(v1);
 	else
-	    return cOutsde();
+	    return 1;
     }
 
+    float v[2] = { fabs(v0), fabs(v1) };
     if ( action_==BodyOperator::Union )
     {
-	return (p0==cInside() || p1==cInside()) ? cInside() : 
-	    ( (p0==cOnbody() || p1==cOnbody()) ? cOnbody() : cOutsde() );
+	if ( p0==cInside() )
+	    return p1==cInside() ? -mMAX(v[0],v[1]) : -v[0];
+	else if ( p1==cInside() )
+	    return p0==cInside() ? -mMAX(v[0],v[1]) : -v[1];
+	else if ( p0==cOnbody() || p1==cOnbody() )
+	    return 0;
+	else
+	    return mMIN(v[0],v[1]);
+
+	/* Binary sign.
+	return (p0==cInside() || p1==cInside()) ? cInside() :
+	       ( (p0==cOnbody() || p1==cOnbody()) ? cOnbody() : cOutsde() );*/
+
     }
     else if ( action_==BodyOperator::IntSect )
     {
+	if ( p0==cInside() && p1==cInside() )
+	    return -mMIN(v[0],v[1]);
+	else if ( (p0==cOnbody() && p1==cInside()) || 
+		  (p0==cInside() && p1==cOnbody()) || 
+		  (p0==cOnbody() && p1==cOnbody()) )
+	    return 0;
+	else
+	    return mMAX(v[0],v[1]);
+
+	/* Binary sign.
 	return (p0==cInside() && p1==cInside()) ? cInside() : 
 	    ( ((p0==cOnbody() && p1==cInside()) || 
 	       (p0==cInside() && p1==cOnbody()) || 
-	       (p0==cOnbody() && p1==cOnbody())) ? cOnbody() : cOutsde() );
+	       (p0==cOnbody() && p1==cOnbody())) ? cOnbody() : cOutsde() );*/
     }
     else 
     {
+	if ( p0==cOutsde() ) 
+	    return p1==cInside() ? mMAX(v[0],v[1]) : v[0];
+	else if ( p1==cInside() ) 
+	    return mMAX(v[0],v[1]);
+	else if ( p0==cInside() && p1==cOutsde() ) 
+	    return -mMIN(v[0],v[1]);
+	else
+    	    return 0;
+
+	/* Binary sign.
 	return (p0==cOutsde() || p1==cInside()) ? cOutsde() : 
-	    ( (p0==cInside() && p1==cOutsde()) ? cInside() : cOnbody() );
+	    ( (p0==cInside() && p1==cOutsde()) ? cInside() : cOnbody() );*/
     }
 }
 
@@ -120,9 +160,95 @@ char getVal( bool incube0, bool incube1, char p0, char p1 ) const
     Array3D<float>&		arr_;
     const StepInterval<int>&	inlrg_;
     const StepInterval<int>&	crlrg_;
-    const StepInterval<float>&	zrg_;
+    StepInterval<float>		zrg_;
     BodyOperator::Action	action_;
 };
+
+
+
+Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
+	const StepInterval<int>& inlrg,	const StepInterval<int>& crlrg,
+	const StepInterval<float>& zrg,	Array3D<float>& arr )
+    : tree_( tree )
+    , arr_( arr )
+    , inlrg_( inlrg )
+    , crlrg_( crlrg )
+    , zrg_( zrg )
+{
+    zrg_.scale( SI().zScale() );
+}
+
+
+bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
+{
+    const TypeSet<Coord3>& crds = tree_.coordList();
+    for ( int idx=0; idx<crds.size(); idx++ )
+	pts_ += Coord3( crds[idx].coord(), crds[idx].z*SI().zScale() );
+
+    tree_.getSurfaceTriangles( tri_ );
+    for ( int idx=0; idx<tri_.size()/3; idx++ )
+    {
+	planes_ += Plane3( pts_[tri_[3*idx]], pts_[tri_[3*idx+1]], 
+			   pts_[tri_[3*idx+2]] );
+    }
+
+    return planes_.size();
+}
+
+
+od_int64 Expl2ImplBodyExtracter::totalNr() const
+{ return arr_.info().getTotalSz(); }
+
+
+bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
+{
+    int p[3]; BinID bid; Coord3 pos;
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone() )
+    {
+	arr_.info().getArrayPos( idx, p );
+	bid = BinID( inlrg_.atIndex(p[0]), crlrg_.atIndex(p[1]) );
+	pos = Coord3( SI().transform(bid), zrg_.atIndex(p[2]) );
+
+	char firstsign = 0; 
+	bool isinside = true;
+	float dist, mindist;
+	for ( int pl=0; pl<planes_.size(); pl++ )
+	{
+	    dist = planes_[pl].distanceToPoint( pos, true );
+	    if ( mIsZero(dist,1e-5) )
+	    {
+		if ( pointInTriangle3D( pos, pts_[tri_[3*pl]],
+			    pts_[tri_[3*pl+1]],	pts_[tri_[3*pl+2]], 1e-5 ) )
+		{
+		    mindist = dist;
+		    isinside = false;
+		    break;
+		}
+		else
+		    continue;
+	    }
+	
+	    if ( isinside )
+	    {
+		if ( firstsign==0 ) 
+		{
+		    firstsign = dist>0 ? 1 : -1;
+		    mindist = fabs(dist);
+		}
+		else if ( (firstsign==1 && dist<0) || (firstsign==-1 && dist>0))
+		    isinside = false;
+	    }
+
+	    if ( dist<0 ) dist = -dist;
+
+	    if ( mindist>dist ) mindist = dist;
+	}
+
+	arr_.set( p[0], p[1], p[2], isinside ? -mindist : mindist );
+    }
+
+    return true;
+}
 
 
 BodyOperator::BodyOperator()
@@ -333,25 +459,19 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     }
 
     //Add one layer to the cube to make MarchingCubes display boundary nicely.
-    if ( newinlrg.start-newinlrg.step>=0 )
-	newinlrg.start -= newinlrg.step;
-    if ( newcrlrg.start-newcrlrg.step>=0 )
-	newcrlrg.start -= newcrlrg.step;
-    if ( newzrg.start-newzrg.step>=0 )
-	newzrg.start -= newzrg.step;
+    if ( newinlrg.start-newinlrg.step>=0 ) newinlrg.start -= newinlrg.step;
+    if ( newcrlrg.start-newcrlrg.step>=0 ) newcrlrg.start -= newcrlrg.step;
+    if ( newzrg.start-newzrg.step>=0 ) newzrg.start -= newzrg.step;
 
     newinlrg.stop += newinlrg.step;
     newcrlrg.stop += newcrlrg.step;
     newzrg.stop += newzrg.step;
 
-    const int insz = newinlrg.nrSteps()+1;
-    const int crsz = newcrlrg.nrSteps()+1;
-    const int zsz = mNINT(newzrg.width()/newzrg.step)+1;
-    
     mTryAlloc(res,ImplicitBody);
     if ( !res ) return false;
     
-    mDeclareAndTryAlloc(Array3D<float>*,arr,Array3DImpl<float>(insz,crsz,zsz));
+    mDeclareAndTryAlloc(Array3D<float>*,arr,Array3DImpl<float>(
+		newinlrg.nrSteps()+1,newcrlrg.nrSteps()+1,newzrg.nrSteps()+1));
     if ( !arr )
     {
 	res = 0;
@@ -381,9 +501,10 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( bodypts.size()<3 )
 	return 0;
     
-    Interval<float> zrg;
+    const float zscale = SI().zFactor();
     StepInterval<int> inlrg( 0, 0, SI().inlStep() );
     StepInterval<int> crlrg( 0, 0, SI().crlStep() );
+    StepInterval<float> zrg( 0, 0, zscale*SI().zStep() );
     
     for ( int idx=0; idx<bodypts.size(); idx++ )
     {
@@ -403,27 +524,33 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 	}
     }
     
-    const float zscale = SI().zFactor();
-    mDeclareAndTryAlloc( Array3D<char>*, chararr, 
-	    Array3DImpl<char>( inlrg.nrSteps()+1, crlrg.nrSteps()+1,
-			       mNINT(zrg.width()/(zscale*SI().zStep()))+1 ) );
-    if ( !chararr )
-	return 0; 
-   
-    chararr->setAll( 1 );
+    if ( inlrg.start-inlrg.step>=0 ) inlrg.start -= inlrg.step;
+    if ( crlrg.start-crlrg.step>=0 ) crlrg.start -= crlrg.step;
+    if ( zrg.start-zrg.step>=0 ) zrg.start -= zrg.step;
+
+    inlrg.stop += inlrg.step;
+    crlrg.stop += crlrg.step;
+    zrg.stop += zrg.step;
+    
+    mDeclareAndTryAlloc( Array3D<float>*, arr, Array3DImpl<float>( 
+		inlrg.nrSteps()+1, crlrg.nrSteps()+1, zrg.nrSteps()+1 ) );
+    if ( !arr ) return 0; 
 
     mDeclareAndTryAlloc(ImplicitBody*,res,ImplicitBody);
     if ( !res )
     {
-	delete chararr;
+	delete arr;
 	return 0;
     }
     
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
     
     TypeSet<Coord3> pts = bodypts;
-    for ( int idx=0; idx<bodypts.size(); idx++ )
-	pts[idx].z *= zscale;
+    if ( !mIsZero(zscale-1,1e-5) )
+    {
+    	for ( int idx=0; idx<bodypts.size(); idx++ )
+    	    pts[idx].z *= zscale;
+    }
 
     DAGTetrahedraTree dagtree;
     if ( !dagtree.setCoordList( pts, false ) )
@@ -432,20 +559,14 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     ParallelDTetrahedralator triangulator( dagtree );
     if ( !triangulator.execute(true) )
 	return 0;
-    
-//    PtrMan<Explicit2ImplicitBodyExtracter> extractor =
-//	new Explicit2ImplicitBodyExtracter(dagtree,inlrg,crlrg,zrg,*chararr);
-    Array3D<float>* arr = new Array3DConv<float,char>(chararr);
-    if ( !arr )
-    {
-	delete chararr;
-	delete res;
-	return 0;
-    }
-    
-//    if ( !extractor->execute() )
-//	res = 0;
-    
+   
+    TypeSet<int> triangles;
+    dagtree.getSurfaceTriangles(triangles);
+
+    PtrMan<Expl2ImplBodyExtracter> extract = new
+	Expl2ImplBodyExtracter( dagtree, inlrg, crlrg, zrg, *arr );
+    extract->execute();
+
     res->arr_ = arr;
     res->threshold_ = 0;
     res->inlsampling_.start = inlrg.start;
@@ -453,7 +574,7 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     res->crlsampling_.start = crlrg.start;
     res->crlsampling_.step  = crlrg.step;
     res->zsampling_.start   = zrg.start;
-    res->zsampling_.step    = zscale*SI().zStep();
+    res->zsampling_.step    = zrg.step;
     
     cursorchanger.restore();
     return res;
