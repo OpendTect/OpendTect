@@ -7,9 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.12 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.13 2009-02-26 06:54:48 cvsraman Exp $";
 
 #include "uihorizonattrib.h"
+#include "uicontourtreeitem.h"
 #include "uiempartserv.h"
 #include "uistratamp.h"
 #include "uiflattenedcube.h"
@@ -57,23 +58,24 @@ public:
     void		doFlattened(CallBacker*);
     void		doIsopach(CallBacker*);
     void		doIsopachThruMenu(CallBacker*);
+    void		doContours(CallBacker*);
 
     uiODMain*		appl_;
     uiVisMenuItemHandler flattenmnuitemhndlr_;
     uiVisMenuItemHandler isopachmnuitemhndlr_;
+    uiVisMenuItemHandler contourmnuitemhndlr_;
 };
 
 
+#define mMkPars(txt,fun) \
+    visSurvey::HorizonDisplay::getStaticClassName(), \
+    *a->applMgr().visServer(),txt,mCB(this,uiHorAttribPIMgr,fun)
+
 uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
-    	, flattenmnuitemhndlr_(visSurvey::HorizonDisplay::getStaticClassName(),
-				*a->applMgr().visServer(),
-				"Write &Flattened cube ...",
-				mCB(this,uiHorAttribPIMgr,doFlattened))
-    	, isopachmnuitemhndlr_(visSurvey::HorizonDisplay::getStaticClassName(),
-				*a->applMgr().visServer(),
-				"Calculate &Isopach ...",
-				mCB(this,uiHorAttribPIMgr,doIsopach))
+    	, flattenmnuitemhndlr_(mMkPars("Write &Flattened cube ...",doFlattened))
+    	, isopachmnuitemhndlr_(mMkPars("Calculate &Isopach ...",doIsopach))
+	, contourmnuitemhndlr_(mMkPars("Display &Contours",doContours))
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.dTectMnuChanged.notify(mCB(this,uiHorAttribPIMgr,updateMenu));
@@ -149,6 +151,26 @@ void uiHorAttribPIMgr::doIsopachThruMenu( CallBacker* )
     uiIsopachMaker dlg( appl_, -1 );
     if ( !dlg.go() )
 	return;
+}
+
+
+void uiHorAttribPIMgr::doContours( CallBacker* cb )
+{
+    const int displayid = contourmnuitemhndlr_.getDisplayID();
+    uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
+    if ( !parent )
+	return;
+
+    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    const int attrib = visserv->addAttrib( displayid );
+    Attrib::SelSpec spec("Contours", Attrib::SelSpec::cOtherAttrib(), false, 0);
+    spec.setDefString( "Cont Def" );
+    visserv->setSelSpec( displayid, attrib, spec );
+    visserv->enableAttrib( displayid, attrib, false );
+
+    uiContourTreeItem* newitem = new uiContourTreeItem(typeid(*parent).name());
+    parent->addChild( newitem, false );
+    parent->updateColumnText( uiODSceneMgr::cNameColumn() );
 }
 
 
