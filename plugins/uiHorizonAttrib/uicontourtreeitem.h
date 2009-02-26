@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.1 2009-02-26 06:54:48 cvsraman Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.2 2009-02-26 08:46:31 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ protected:
     bool			init();
 
     void			removeAll();
+    void			removeLabels();
     void			checkCB(CallBacker*);
     void			propChangeCB(CallBacker*);
     void			visClosingCB(CallBacker*);

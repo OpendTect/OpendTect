@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.1 2009-02-26 06:54:48 cvsraman Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.2 2009-02-26 08:46:31 cvsraman Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -210,10 +210,9 @@ void uiContourTreeItem::visClosingCB( CallBacker* )
 
 void uiContourTreeItem::removeAll()
 {
-    uiVisPartServer* visserv = applMgr()->visServer();
     if ( lines_ )
     {
-	visserv->removeObject( lines_, sceneID() );
+	applMgr()->visServer()->removeObject( lines_, sceneID() );
 
 	lines_->unRef();
 	lines_ = 0;
@@ -231,11 +230,20 @@ void uiContourTreeItem::removeAll()
 	material_ = 0;
     }
 
+    removeLabels();
+}
+
+
+void uiContourTreeItem::removeLabels()
+{
+    uiVisPartServer* visserv = applMgr()->visServer();
     for ( int idx=0; idx<labels_.size(); idx++ )
     {
 	visserv->removeObject( labels_[idx], sceneID() );
 	labels_[idx]->unRef();
     }
+
+    labels_.erase();
 }
 
 
@@ -358,6 +366,7 @@ void uiContourTreeItem::computeContours()
     float contourval = contoursampling_.start;
     lines_->getCoordinates()->removeAfter( -1 );
     lines_->removeCoordIndexAfter( -1 );
+    removeLabels();
     while ( contourval < rg_.stop*fac )
     {
 	ObjectSet<ODPolygon<float> > isocontours;
