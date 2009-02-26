@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.13 2009-02-26 06:54:48 cvsraman Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.14 2009-02-26 11:27:07 cvsraman Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -26,6 +26,9 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.13 2009-02-26 06:54:48 cvs
 #include "emobject.h"
 #include "emmanager.h"
 #include "plugins.h"
+
+
+static const char* sKeyContours = "Contours";
 
 extern "C" int GetuiHorizonAttribPluginType()
 {
@@ -75,7 +78,7 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 	: appl_(a)
     	, flattenmnuitemhndlr_(mMkPars("Write &Flattened cube ...",doFlattened))
     	, isopachmnuitemhndlr_(mMkPars("Calculate &Isopach ...",doIsopach))
-	, contourmnuitemhndlr_(mMkPars("Display &Contours",doContours))
+	, contourmnuitemhndlr_(mMkPars("Add &Contour Display",doContours),995)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.dTectMnuChanged.notify(mCB(this,uiHorAttribPIMgr,updateMenu));
@@ -161,9 +164,18 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
     if ( !parent )
 	return;
 
+    const uiTreeItem* item = parent->findChild( sKeyContours );
+    if ( item )
+    {
+	mDynamicCastGet(const uiContourTreeItem*,conitm,item);
+	if ( conitm )
+	    return;
+    }
+
     uiVisPartServer* visserv = appl_->applMgr().visServer();
     const int attrib = visserv->addAttrib( displayid );
-    Attrib::SelSpec spec("Contours", Attrib::SelSpec::cOtherAttrib(), false, 0);
+    Attrib::SelSpec spec( sKeyContours, Attrib::SelSpec::cOtherAttrib(),
+	    		  false, 0 );
     spec.setDefString( "Cont Def" );
     visserv->setSelSpec( displayid, attrib, spec );
     visserv->enableAttrib( displayid, attrib, false );
