@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.4 2008-08-01 00:06:24 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.5 2009-02-26 13:37:41 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -105,10 +105,17 @@ void Event::setSize( int sz, bool doquality )
 
 void Event::removePick( int idx )
 {
+    if ( sz_<=0 )
+    {
+	pErrMsg( "Trying to remove non-existing pick" );
+	return;
+    }
+
     sz_--;
-    float* pick = new float[sz_];
-    OffsetAzimuth* offsetazimuth = new OffsetAzimuth[sz_];
-    unsigned char* pickquality = pickquality_ ? new unsigned char[sz_] : 0;
+    float* pick = sz_ ? new float[sz_] : 0;
+    OffsetAzimuth* offsetazimuth = sz_ ? new OffsetAzimuth[sz_] : 0;
+    unsigned char* pickquality = pickquality_ && sz_
+	? new unsigned char[sz_] : 0;
 
     for ( int idy=0; idy<sz_; idy++ )
     {
@@ -791,9 +798,14 @@ SetPickUndo::SetPickUndo( EventManager& man, const BinID& bid, int horidx,
     RefMan<EventSet> events = manager_.getEvents( bid, false, false );
     Event* event = events->events_[horidx_];
     const int idx = event->indexOf( oa_ );
-    newdepth_ = event->pick_[idx];
-    if ( event->pickquality_ )
-	newquality_ = event->pickquality_[idx];
+    if ( idx==-1 )
+	newdepth_ = mUdf(float);
+    else
+    {
+	newdepth_ = event->pick_[idx];
+	if ( event->pickquality_ )
+	    newquality_ = event->pickquality_[idx];
+    }
 }
 
 
