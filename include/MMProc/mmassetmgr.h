@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: mmassetmgr.h,v 1.1 2008-07-01 14:18:23 cvsbert Exp $
+ RCS:		$Id: mmassetmgr.h,v 1.2 2009-02-26 06:52:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace MMProc
 
 /*!\brief Knows available nodes and decides which to use. */
 
-class AssetMgr : public NamedObject
+mClass AssetMgr : public NamedObject
 {
 public:
     			AssetMgr( const char* nm )
@@ -34,7 +34,7 @@ public:
     static int		add(AssetMgr*);
 };
 
-const ObjectSet<MMProc::AssetMgr>& ASMGRS();
+mGlobal const ObjectSet<MMProc::AssetMgr>& ASMGRS();
 
 
 }; // namespace MMProc

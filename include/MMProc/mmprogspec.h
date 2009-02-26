@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: mmprogspec.h,v 1.1 2008-07-01 14:18:23 cvsbert Exp $
+ RCS:		$Id: mmprogspec.h,v 1.2 2009-02-26 06:52:37 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace MMProc
 
 /*!\brief Distributed computing specification */
 
-class ProgSpec : public NamedObject
+mClass ProgSpec : public NamedObject
 {
 public:
 
@@ -62,7 +62,7 @@ protected:
 
 };
 
-ObjectSet<ProgSpec>& PRSPS();
+mGlobal ObjectSet<ProgSpec>& PRSPS();
 
 
 }; // namespace MMProc
