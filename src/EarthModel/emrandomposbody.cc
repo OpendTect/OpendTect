@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emrandomposbody.cc,v 1.4 2009-02-13 22:24:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emrandomposbody.cc,v 1.5 2009-02-26 22:39:42 cvsyuancheng Exp $";
 
 #include "emrandomposbody.h"
 
@@ -33,7 +33,7 @@ class RandomPosBodyReader : public Executor
 {
 public:
 
-    RandomPosBodyReader( EM::RandomPosBody& rdposbody, Conn* conn )
+    RandomPosBodyReader( RandomPosBody& rdposbody, Conn* conn )
 	: Executor( "RandomPos Loader" )
 	, conn_( conn )
 	, rdposbody_( rdposbody )
@@ -97,14 +97,14 @@ public:
     od_int64    	totalNr() const { return totalnr_; }
     od_int64    	nrDone() const	{ return nrdone_; }
     static const char*	sKeyRandomPosBodyFileType() 
-    			{ return EM::RandomPosBody::typeStr(); }
+    			{ return RandomPosBody::typeStr(); }
     static const char*	sKeyNrPositions() { return "Nr positions"; }
 
 protected:
 
     static const char*		sInvalidFile() { return "Invalid file"; }
 
-    EM::RandomPosBody&		rdposbody_;
+    RandomPosBody&		rdposbody_;
     Conn*			conn_;
     int				nrdone_;
     int				totalnr_;
@@ -116,7 +116,7 @@ class RandomPosBodyWriter : public Executor
 {
 public:
 
-    RandomPosBodyWriter( EM::RandomPosBody& rdposbody, Conn* conn )
+    RandomPosBodyWriter( RandomPosBody& rdposbody, Conn* conn )
 	: Executor( "RandomPos Writer" )
 	, conn_( conn )
 	, rdposbody_( rdposbody )
@@ -126,7 +126,7 @@ public:
 	    mRetErr( "Internal error: bad connection" );
 	
 	ascostream astream( ((StreamConn*)conn_)->oStream() );
-	astream.putHeader( EM::RandomPosBody::typeStr() );
+	astream.putHeader( RandomPosBody::typeStr() );
 	if ( !astream.stream().good() )
 	    mRetErr( "Cannot write to output Pick Set file" );
 
@@ -164,37 +164,34 @@ public:
 
 protected:
 
-    EM::RandomPosBody&		rdposbody_;
+    RandomPosBody&		rdposbody_;
     Conn*			conn_;
     int				nrdone_;
     BufferString		errmsg_;
 };    
 
 
-mImplementEMObjFuncs( EM::RandomPosBody, "RandomPosBody" );   
+mImplementEMObjFuncs( RandomPosBody, randposEMBodyTranslator::sKeyUserName() ); 
 
-EM::RandomPosBody::RandomPosBody( EMManager& man )
+
+RandomPosBody::RandomPosBody( EMManager& man )
     : EMObject( man )
 {}
 
 
-EM::RandomPosBody::~RandomPosBody()
+RandomPosBody::~RandomPosBody()
 {}
 
 
-void EM::RandomPosBody::refBody()
-{
-    EM::EMObject::ref();
-}
+void RandomPosBody::refBody()
+{ EMObject::ref(); }
 
 
-void EM::RandomPosBody::unRefBody()
-{
-    EM::EMObject::unRef();
-}
+void RandomPosBody::unRefBody()
+{ EMObject::unRef(); }
 
 
-void EM::RandomPosBody::copyFrom( const Pick::Set& ps )
+void RandomPosBody::copyFrom( const Pick::Set& ps )
 {
     locations_.erase();
     ids_.erase();
@@ -207,7 +204,7 @@ void EM::RandomPosBody::copyFrom( const Pick::Set& ps )
 }
 
 
-void EM::RandomPosBody::setPositions( const TypeSet<Coord3>& pts )
+void RandomPosBody::setPositions( const TypeSet<Coord3>& pts )
 {
     locations_.erase();
     locations_ = pts;
@@ -218,7 +215,7 @@ void EM::RandomPosBody::setPositions( const TypeSet<Coord3>& pts )
 }
 
 
-bool EM::RandomPosBody::addPos( const Coord3& np )
+bool RandomPosBody::addPos( const Coord3& np )
 {
     if ( locations_.indexOf(np)!=-1 )
 	return false;
@@ -230,14 +227,11 @@ bool EM::RandomPosBody::addPos( const Coord3& np )
 }
 
 
-Coord3 EM::RandomPosBody::getPos( const EM::PosID& posid ) const
-{
-    return getPos( posid.sectionID(), posid.subID() );
-}
+Coord3 RandomPosBody::getPos( const PosID& posid ) const
+{ return getPos( posid.sectionID(), posid.subID() ); }
 
 
-Coord3 EM::RandomPosBody::getPos( const EM::SectionID& sid, 
-				  const EM::SubID& subid ) const
+Coord3 RandomPosBody::getPos( const SectionID& sid, const SubID& subid ) const
 {
     if ( sid!=sectionID(0) )
 	return Coord3::udf();
@@ -247,15 +241,13 @@ Coord3 EM::RandomPosBody::getPos( const EM::SectionID& sid,
 }
 
 
-bool EM::RandomPosBody::setPos( const EM::PosID& posid, const Coord3& pos, 
-				bool addtohistory )
-{
-    return setPos( posid.sectionID(), posid.subID(), pos, addtohistory );
-}
+bool RandomPosBody::setPos( const PosID& posid, const Coord3& pos, 
+			    bool addtohistory )
+{ return setPos( posid.sectionID(), posid.subID(), pos, addtohistory ); }
 
 
-bool EM::RandomPosBody::setPos( const EM::SectionID& sid, const EM::SubID& sub,
-				const Coord3& pos, bool addtohistory )
+bool RandomPosBody::setPos( const SectionID& sid, const SubID& sub,
+			    const Coord3& pos, bool addtohistory )
 {
     if ( sid!=sectionID(0) || sub<0 )
 	return false;
@@ -273,7 +265,7 @@ bool EM::RandomPosBody::setPos( const EM::SectionID& sid, const EM::SubID& sub,
 }
 
 
-Executor* EM::RandomPosBody::saver( IOObj* inpioobj )
+Executor* RandomPosBody::saver( IOObj* inpioobj )
 {
     PtrMan<IOObj> myioobj = 0;
     IOObj* ioobj = 0;
@@ -299,13 +291,11 @@ Executor* EM::RandomPosBody::saver( IOObj* inpioobj )
 }
 
 
-Executor* EM::RandomPosBody::saver()
-{
-    return saver( 0 );
-}
+Executor* RandomPosBody::saver()
+{ return saver( 0 ); }
 
 
-Executor* EM::RandomPosBody::loader()
+Executor* RandomPosBody::loader()
 {
     PtrMan<IOObj> ioobj = IOM().get( multiID() );
     if ( !ioobj )
@@ -319,7 +309,7 @@ Executor* EM::RandomPosBody::loader()
 }
 
 
-const IOObjContext& EM::RandomPosBody::getIOObjContext() const
+const IOObjContext& RandomPosBody::getIOObjContext() const
 {
     static IOObjContext* res = 0;
     if ( !res )
@@ -333,16 +323,16 @@ const IOObjContext& EM::RandomPosBody::getIOObjContext() const
 }
 
 
-ImplicitBody* EM::RandomPosBody::createImplicitBody( TaskRunner* tr ) const
+ImplicitBody* RandomPosBody::createImplicitBody( TaskRunner* tr ) const
 {
     BodyOperator bodyopt;
     return bodyopt.createImplicitBody( locations_, tr ); 
 }
 
 
-bool EM::RandomPosBody::useBodyPar( const IOPar& par )
+bool RandomPosBody::useBodyPar( const IOPar& par )
 {
-    if ( !EM::EMObject::usePar( par ) )
+    if ( !EMObject::usePar( par ) )
 	return false;
 
     ids_.erase();
@@ -364,9 +354,9 @@ bool EM::RandomPosBody::useBodyPar( const IOPar& par )
 }
 
 
-void EM::RandomPosBody::fillBodyPar( IOPar& par ) const
+void RandomPosBody::fillBodyPar( IOPar& par ) const
 {
-    EM::EMObject::fillPar( par );
+    EMObject::fillPar( par );
     par.set( sKeySubIDs(), ids_ );
     for ( int idx=0; idx<locations_.size(); idx++ )
     {

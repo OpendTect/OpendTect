@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.13 2009-02-13 22:24:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.14 2009-02-26 22:39:42 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -199,7 +199,8 @@ protected:
 
 
 
-mImplementEMObjFuncs( EM::MarchingCubesSurface, "MarchingCubesSurface" );
+mImplementEMObjFuncs( EM::MarchingCubesSurface, 
+		      mcEMBodyTranslator::sKeyUserName() );
 
 
 EM::MarchingCubesSurface::MarchingCubesSurface( EM::EMManager& emm )
