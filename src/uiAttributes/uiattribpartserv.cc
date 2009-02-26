@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.108 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.109 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -175,8 +175,7 @@ bool uiAttribPartServer::replaceSet( const IOPar& iopar, bool is2d )
 
 bool uiAttribPartServer::addToDescSet( const char* key, bool is2d )
 {
-    DescID id = getAdsMan( is2d )->descSet()->getStoredID( key );
-    return id < 0 ? false : true;
+    return getAdsMan( is2d )->descSet()->getStoredID( key ).isValid();
 }
 
 
@@ -256,7 +255,7 @@ void uiAttribPartServer::attrsetDlgCloseTimTick( CallBacker* )
     {
 	bool is2d = attrsetdlg_->getSet()->is2D();
 	DescSetMan* adsman = getAdsMan( is2d );
-	adsman->setDescSet( attrsetdlg_->getSet()->clone() );
+	adsman->setDescSet( new Attrib::DescSet( *attrsetdlg_->getSet() ) );
 	adsman->attrsetid_ = attrsetdlg_->curSetID();
 	set2DEvent( is2d );
 	sendEvent( evNewAttrSet() );
@@ -289,7 +288,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zkey,
 
     attrdata.attribid = dlg.attribID();
     attrdata.outputnr = dlg.outputNr();
-    const bool isnla = attrdata.attribid < 0 && attrdata.outputnr >= 0;
+    const bool isnla = !attrdata.attribid.isValid() && attrdata.outputnr >= 0;
     IOObj* ioobj = IOM().get( adsman->attrsetid_ );
     BufferString attrsetnm = ioobj ? ioobj->name() : "";
     selspec.set( 0, isnla ? DescID(attrdata.outputnr,true) : attrdata.attribid,
@@ -848,8 +847,6 @@ MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as,
 
     const bool isstored = ds && ds->getDesc( as.id() ) 
 	? ds->getDesc( as.id() )->isStored() : false;
-    const bool isnla = as.isNLA();
-    const bool hasid = as.id() >= 0;
     const BufferStringSet bfset = is2d ? get2DStoredLSets( attrinf )
 				       : attrinf.ioobjnms;
     int nritems = bfset.size();
@@ -951,7 +948,7 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 	DescSet* dset = is2d ? adsman2d_->descSet() : adsman3d_->descSet();
 	SelInfo attrinf( dset, nlamodel );
 	const bool isnla = as.isNLA();
-	const bool hasid = as.id() >= 0;
+	const bool hasid = as.id().isValid();
 	const int start = 0; const int stop = attrinf.nlaoutnms.size();
 	mInsertItems(nlaoutnms,nlamnuitem,isnla);
     }

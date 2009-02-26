@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.14 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.15 2009-02-26 13:00:53 cvsbert Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -49,7 +49,7 @@ uiSetPickDirs::uiSetPickDirs( uiParent* p, Pick::Set& s,
 				     "Specify directions for picks",
 				     "105.1.1"))
 	, ps_( s )
-	, ads_( a ? a->clone() : new DescSet(false) )
+	, ads_( a ? new DescSet(*a) : new DescSet(false) )
 	, nlamdl_( n )
 	, dirinpfld_( 0 )
 	, phifld_( 0 )
@@ -208,7 +208,7 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
 	    steerfld_->setDescSet( createdset_ );
 
 	const DescID inldipid = steerfld_->inlDipID();
-	if ( inldipid < 0 ) mErrRet( "Cannot read Steering Cube" )
+	if ( !inldipid.isValid() ) mErrRet( "Cannot read Steering Cube" )
 
 	ids += inldipid;
 	ids += steerfld_->crlDipID();
@@ -216,16 +216,18 @@ bool uiSetPickDirs::getAndCheckAttribSelection( DataPointSet& loc )
     else
     {
 	const DescID phiid = getAttribID( phifld_, nlaids );
-	if ( phiid < 0 ) mErrRet( "No valid attribute selected for Phi" )
+	if ( !phiid.isValid() )
+	    mErrRet( "No valid attribute selected for Phi" )
 	ids += phiid;
 	const DescID thetaid = getAttribID( thetafld_, nlaids );
-	if ( thetaid < 0 ) mErrRet( "No valid attribute selected for Theta" );
+	if ( !thetaid.isValid() )
+	    mErrRet( "No valid attribute selected for Theta" );
 	ids += thetaid;
     }
 
     if ( !createdset_ )
-	createdset_ = ads_->nrDescs() ? ads_->clone()
-	    			      : new DescSet( ads_->is2D() );
+	createdset_ = ads_->isEmpty() ? new DescSet( ads_->is2D() )
+    				      : new DescSet( *ads_ );
 
     if ( !createdset_->getDesc( ids[0] ) && usesteering_ )
     {
@@ -285,7 +287,7 @@ DescID uiSetPickDirs::getAttribID( uiAttrSel* attrfld,
     const DescID attribid = attrfld->attribID();
     const int outputnr = attrfld->outputNr();
     DescID newid( DescID::undef() );
-    if ( attribid >= 0 )
+    if ( attribid.isValid() )
 	newid = attribid;
     else if ( outputnr >= 0 && nlaids.size() > outputnr )
 	newid = nlaids[outputnr];

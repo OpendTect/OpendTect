@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.36 2009-02-24 14:08:23 cvsbert Exp $
+ RCS:           $Id: attribdescset.h,v 1.37 2009-02-26 13:00:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,11 +28,11 @@ mClass DescSet : public CallBacker
 {
 public:
     				DescSet(bool is2d);
-    				~DescSet() 	{ removeAll(); }
-    bool			isEmpty() const
-    						{ return descs_.isEmpty(); }
+    				DescSet(const DescSet&);
+    				~DescSet() 		{ removeAll( false ); }
+    DescSet&			operator =(const DescSet&);
+    bool			isEmpty() const	{ return descs_.isEmpty(); }
 
-    DescSet*			clone() const;
     DescSet*			optimizeClone(const DescID& targetid) const;
     DescSet*      		optimizeClone(const TypeSet<DescID>&) const;
     DescSet*      		optimizeClone(const BufferStringSet&) const;
@@ -42,11 +42,10 @@ public:
     				/*!< Updates inputs for all descs in descset.
 				     Necessary after cloning */
 
-    DescID			addDesc(Desc*,DescID newid=DescID(-1,true));
+    DescID			addDesc(Desc*,DescID newid=DescID());
 				/*!< returns id of the attrib */
     
-    DescID			insertDesc(Desc*,int,
-	    				   DescID newid=DescID(-1,true));
+    DescID			insertDesc(Desc*,int,DescID newid=DescID());
 				/*!< returns id of the attrib */
 
     void			createAndAddMultOutDescs(const DescID&,
@@ -61,8 +60,10 @@ public:
 	    				bool inclhidden=true) const;
     Desc*       		desc( int idx )		{ return descs_[idx]; }
     const Desc*       		desc( int idx ) const	{ return descs_[idx]; }
-    Desc*       		getDesc(const DescID&);
-    const Desc*			getDesc(const DescID&) const;
+    Desc*       		getDesc( const DescID& id )
+    							{ return gtDesc(id); }
+    const Desc*       		getDesc( const DescID& id ) const
+    							{ return gtDesc(id); }
     DescID			getID(const Desc&) const;
     DescID			getID(int) const;
     DescID			getID(const char* ref,bool isusrref) const;
@@ -75,7 +76,7 @@ public:
     void			removeDesc(const DescID&);
     void                        moveDescUpDown(const DescID&,bool);
     void                        sortDescSet();
-    void			removeAll();
+    void			removeAll(bool kpdefault);
     int                 	removeUnused(bool removestored=false);
 				//!< Removes unused hidden attributes.
 				//!< Removed stored attribs if not available
@@ -123,14 +124,17 @@ protected:
 
     ObjectSet<Desc>		descs_;
     TypeSet<DescID>		ids_;
-    BufferString		errmsg_;
     bool			is2d_;
+    BufferString		errmsg_;
 
 private:
 
-    				DescSet( const DescSet& )
-				    : descToBeRemoved(this) {}
-				// crap. Don't even TRY to use. Use clone()!
+    Desc*			gtDesc(const DescID&) const;
+
+public:
+
+    DescID			ensureDefStoredPresent() const;
+
 };
 
 } // namespace Attrib

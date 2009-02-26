@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.57 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.58 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -173,7 +173,7 @@ bool uiAttrVolOut::prepareProcessing()
     sel.ioobjkey = ctio.ioobj->key();
     sel.attrid = todofld->attribID();
     sel.outputnr = todofld->outputNr();
-    if ( sel.outputnr < 0 && sel.attrid < 0 )
+    if ( sel.outputnr < 0 && !sel.attrid.isValid() )
     {
 	uiMSG().error( "Please select the output quantity" );
 	return false;
@@ -218,8 +218,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
 	addNLA( nlamodelid );
     }
-    const DescID targetid = nlamodelid < 0 ? todofld->attribID() : nlamodelid;
-
+    const DescID targetid = nlamodelid.isValid() ? nlamodelid
+						 : todofld->attribID();
     IOPar attrpar( "Attribute Descriptions" );
     DescSet* clonedset = ads.optimizeClone( targetid );
     if ( !clonedset )

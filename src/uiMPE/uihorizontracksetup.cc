@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.22 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.23 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -273,7 +273,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     inpfld->processInput();
     Attrib::SelSpec as;
     inpfld->fillSelSpec( as );
-    if ( as.id() < 0 )
+    if ( !as.id().isValid() )
 	mErrRet( "Please select the seismic data to track on" );
     if ( !horadj_->getAttributeSel(0) || *horadj_->getAttributeSel(0)!=as )
     {

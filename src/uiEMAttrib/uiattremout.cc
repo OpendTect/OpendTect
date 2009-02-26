@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattremout.cc,v 1.8 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattremout.cc,v 1.9 2009-02-26 13:00:53 cvsbert Exp $";
 
 
 #include "uiattremout.h"
@@ -46,7 +46,7 @@ uiAttrEMOut::uiAttrEMOut( uiParent* p, const DescSet& ad,
 bool uiAttrEMOut::prepareProcessing()
 {
     attrfld_->processInput();
-    if ( attrfld_->attribID() < 0 && attrfld_->outputNr() < 0 )
+    if ( !attrfld_->attribID().isValid() && attrfld_->outputNr() < 0 )
     {
 	uiMSG().error( "Please select the output quantity" );
 	return false;
@@ -68,7 +68,8 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 	if ( !addNLA( nladescid_ ) )	return false;
     }
 
-    const DescID targetid = nladescid_ < 0 ? attrfld_->attribID() : nladescid_;
+    const DescID targetid = nladescid_.isValid() ? nladescid_
+			  : attrfld_->attribID();
     DescSet* clonedset = ads_.optimizeClone( targetid );
     if ( !clonedset )
 	return false;
@@ -116,8 +117,8 @@ void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 
     tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey() );
     key = IOPar::compKey( tmpkey.buf(), 0 );
-    iopar.set( key, nladescid_ < 0 ? attrfld_->attribID().asInt() 
-	    			  : nladescid_.asInt() );
+    iopar.set( key, nladescid_.isValid() ? nladescid_.asInt()
+	    				 : attrfld_->attribID().asInt() );
 
     key = IOPar::compKey( keybase.buf(), idlbl );
     iopar.set( key, outid );

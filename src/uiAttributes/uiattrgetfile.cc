@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.10 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrgetfile.cc,v 1.11 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiattrgetfile.h"
 #include "uiattrsrchprocfiles.h"
@@ -87,7 +87,7 @@ void uiGetFileForAttrSet::selChg( CallBacker* )
 	if ( subpar ) iop = *subpar;
     }
 
-    attrset_.removeAll(); attrset_.usePar( iop );
+    attrset_.removeAll( false ); attrset_.usePar( iop );
     const int nrgood = attrset_.nrDescs( false, false );
     BufferString txt( nrgood == 1  ? "Attribute: "
 			: (nrgood ? "Attributes:\n"

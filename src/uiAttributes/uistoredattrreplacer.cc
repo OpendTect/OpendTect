@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.6 2009-02-02 11:30:41 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.7 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -66,7 +66,7 @@ void uiStoredAttribReplacer::handleSingleInput()
     uiAttrInpDlg dlg( parent_, hasseis, hassteer, attrset_.is2D() );
     if ( !dlg.go() )
     {
-	attrset_.removeAll();
+	attrset_.removeAll( true );
 	return;
     }
 
@@ -130,7 +130,7 @@ void uiStoredAttribReplacer::handleMultiInput()
 	uiAttrInpDlg dlg( parent_, usrrefs, issteer, is2d_ );
 	if ( !dlg.go() )
 	{
-	    attrset_.removeAll();
+	    attrset_.removeAll( true );
 	    return;
 	}
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.32 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.33 2009-02-26 13:00:53 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -204,7 +204,7 @@ DescID uiSteeringSel::descID()
     inpfld_->processInput();
     const DescID inldipid = inpfld_->inlDipID();
     const DescID crldipid = inpfld_->crlDipID();
-    if ( inldipid < 0 && crldipid < 0 )
+    if ( !inldipid.isValid() || !crldipid.isValid() )
     {
 	uiMSG().error( "Selected Steering input is not valid" );
 	return DescID::undef();

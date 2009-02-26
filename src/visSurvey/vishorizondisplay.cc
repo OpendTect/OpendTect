@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.69 2009-02-17 14:21:03 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.70 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1162,7 +1162,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
     for ( int idx=as_.size()-1; idx>=0; idx-- )
     {
-	if ( as_[idx]->id()<-1 )
+	if ( as_[idx]->id().isUnselInvalid() )
 	    return;
 
 	if ( !psurf->isTextureEnabled(idx) ||

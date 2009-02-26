@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.14 2009-02-20 11:34:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.15 2009-02-26 13:00:53 cvsbert Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -57,7 +57,7 @@ uiWellAttribPartServer::~uiWellAttribPartServer()
 void uiWellAttribPartServer::setAttribSet( const Attrib::DescSet& ads )
 {
     delete attrset;
-    attrset = ads.clone();
+    attrset = new Attrib::DescSet( ads );
 }
 
 

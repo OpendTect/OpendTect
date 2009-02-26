@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.51 2008-12-23 11:41:38 cvsdgb Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.52 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "horizonadjuster.h"
 
@@ -246,7 +246,7 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 void HorizonAdjuster::getNeededAttribs(
 	ObjectSet<const Attrib::SelSpec>& specs ) const
 {
-    if ( !attribsel_ || attribsel_->id()<0 )
+    if ( !attribsel_ || !attribsel_->id().isValid() )
 	return;
 
     for ( int idx=specs.size()-1; idx>=0; idx-- )
@@ -317,7 +317,7 @@ void HorizonAdjuster::setAttributeSel( int idx, const Attrib::SelSpec& as )
 
 bool HorizonAdjuster::hasInitializedSetup() const
 {
-   return ( attribsel_ && attribsel_->id()>=0 );
+   return ( attribsel_ && attribsel_->id().isValid() );
 }
 
 

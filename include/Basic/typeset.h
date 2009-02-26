@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.1 2009-02-13 13:31:15 cvsbert Exp $
+ RCS:		$Id: typeset.h,v 1.2 2009-02-26 13:00:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
     inline TypeSet<T>&		operator =(const TypeSet<T>&);
 
     inline virtual int		size() const	{ return vec_.size(); }
-    inline virtual void		setSize(int, T val=T());
+    inline virtual void		setSize(int,T val=T());
 				/*!<\param val value assigned to new items */
     inline virtual void		setCapacity( int sz );
 				/*!<Allocates mem only, no size() change */
@@ -55,8 +55,9 @@ public:
     inline T&			last();
     inline const T&		last() const;
     inline virtual bool		validIdx(int) const;
-    inline virtual int		indexOf(const T&,bool forward=true,
-	    				 int start=-1) const;
+    inline virtual int		indexOf(T,bool forward=true,int start=-1) const;
+    inline bool			isPresent( const T& t ) const
+    						{ return indexOf(t) >= 0; }
 
     inline TypeSet<T>&		operator +=(const T&);
     inline TypeSet<T>&		operator -=(const T&);
@@ -228,7 +229,7 @@ const T& TypeSet<T>::last() const	{ return vec_[size()-1]; }
 
 
 template <class T> inline
-int TypeSet<T>::indexOf( const T& typ, bool forward, int start ) const
+int TypeSet<T>::indexOf( T typ, bool forward, int start ) const
 {
     const T* ptr = arr();
     if ( forward )
@@ -320,10 +321,10 @@ inline void TypeSet<T>::createDifference( const TypeSet<T>& ts, bool kporder )
     const unsigned int sz = ts.size();
     for ( unsigned int idx=0; idx<sz; idx++ )
     {
-	const T& typ = ts[idx];
+	const T typ = ts[idx];
 	for ( int idy=0; idy<size(); idy++ )
 	{
-	    if ( vec_[idy]==typ )
+	    if ( vec_[idy] == typ )
 		remove( idy--, kporder );
 	}
     }

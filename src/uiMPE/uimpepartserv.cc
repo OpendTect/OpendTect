@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.73 2009-02-23 06:02:33 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.74 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uimpepartserv.h"
 
@@ -596,7 +596,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	{
 	    const Attrib::SelSpec* as =
 			st->adjuster()->getAttributeSel( asidx );
-	    if ( !as || as->id()<0 ) continue;
+	    if ( !as || !as->id().isValid() ) continue;
 	    Attrib::DescID newid( -1, true );
 	    const Attrib::Desc* usedad = newads.getDesc( as->id() );
 	    if ( !usedad ) continue;
@@ -613,7 +613,7 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 		}
 	    }
 
-	    if ( newid < 0 )
+	    if ( !newid.isValid() )
 	    {
 		Attrib::DescSet* set = 
 		    const_cast<Attrib::DescSet*>( attrset );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.24 2009-02-11 11:01:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.25 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -150,9 +150,7 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
 
 void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
 {
-    IOPar iop; newads.fillPar( iop );
-    Attrib::DescSet& ads = const_cast<Attrib::DescSet&>( ads_ );
-    ads.removeAll(); ads.usePar( iop );
+    const_cast<Attrib::DescSet&>( ads_ ) = newads;
     adsChg();
 }
 

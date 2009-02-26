@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.38 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.39 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -47,37 +47,25 @@ static const Attrib::DescSet emptyads3d( false );
 
 using namespace Attrib;
 
-uiAttrSelData::uiAttrSelData( bool is2d )
-    : attrset(is2d ? &emptyads2d : &emptyads3d)
-    , attribid(-1,true)
-    , nlamodel(0)
-    , outputnr(-1)
-    , compnr(-1)
-    , shwcubes(true)
-{
-    const_cast<Attrib::DescSet*>(attrset)->removeAll();
+#define mImplConstr \
+    , attribid(-1,true) \
+    , nlamodel(0) \
+    , outputnr(-1) \
+    , compnr(-1) \
+    , shwcubes(true) \
+{ \
+    if ( fillwithdef ) \
+	attribid = attrset->ensureDefStoredPresent(); \
 }
+
+uiAttrSelData::uiAttrSelData( bool is2d, bool fillwithdef )
+    : attrset(is2d ? &emptyads2d : &emptyads3d)
+    mImplConstr
 
 
 uiAttrSelData::uiAttrSelData( const Attrib::DescSet& aset, bool fillwithdef )
     : attrset(&aset)
-    , attribid(-1,true)
-    , nlamodel(0)
-    , outputnr(-1)
-    , compnr(-1)
-    , shwcubes(true)
-{
-    if ( attrset->isEmpty() || !fillwithdef ) return;
-    Attrib::DescSet ads( attrset->is2D() );
-    if ( ads.isEmpty() ) return;
-
-    const Attrib::Desc& defdesc = *ads.desc( 0 );
-    for ( int idx=0; idx<attrset->nrDescs(); idx++ )
-    {
-	if ( attrset->desc(idx)->isIdenticalTo(defdesc) )
-	    { attribid = DescID( idx, true ); break; }
-    }
-}
+    mImplConstr
 
 
 bool uiAttrSelData::is2D() const
@@ -131,8 +119,8 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
     }
     else
     {
-	const Desc* desc = attrdata_.attribid < 0 ? 0 :
-	    		attrdata_.attrSet().getDesc( attrdata_.attribid );
+	const Desc* desc = attrdata_.attribid.isValid()
+	    		? attrdata_.attrSet().getDesc( attrdata_.attribid ) : 0;
 	if ( desc )
 	{
 	    seltyp = desc->isStored() ? 0 : 1;
@@ -353,8 +341,8 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	SelInfo::getAttrNames( ioobjkey.buf(), nms );
 
 	int attridx = 0;
-	const Desc* desc = attrdata_.attribid < 0 ? 0 :
-			    attrdata_.attrSet().getDesc( attrdata_.attribid );
+	const Desc* desc = attrdata_.attribid.isValid()
+	    		? attrdata_.attrSet().getDesc( attrdata_.attribid ) : 0;
 	const Attrib::ValParam* param = desc
 	    ? desc->getValParam( Attrib::StorageProvider::keyStr() )
 	    : 0;
@@ -448,7 +436,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 
 	DescSet& as = const_cast<DescSet&>( attrdata_.attrSet() );
 	attrdata_.attribid = as.getStoredID( linekey, attrdata_.compnr, true );
-	if ( needattrmatch && attrdata_.attribid < 0 )
+	if ( needattrmatch && !attrdata_.attribid.isValid() )
 	{
 	    BufferString msg( "Could not find the seismic data " );
 	    msg += attrdata_.attribid == DescID::undef() ? "in object manager"
@@ -542,7 +530,7 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
     if ( outnrstr ) *outnrstr++ = '\0';
     const DescID attrid( atoi(buf.buf()), true );
     const int outnr = outnrstr ? atoi( outnrstr ) : 0;
-    if ( attrid < 0 )
+    if ( !attrid.isValid() )
     {
 	if ( !attrdata_.nlamodel || outnr < 0 )
 	    return "";
@@ -596,7 +584,7 @@ void uiAttrSel::getHistory( const IOPar& iopar )
 
 bool uiAttrSel::getRanges( CubeSampling& cs ) const
 {
-    if ( attrdata_.attribid < 0 )
+    if ( !attrdata_.attribid.isValid() )
 	return false;
 
     const Desc* desc = attrdata_.attrSet().getDesc( attrdata_.attribid );
@@ -629,7 +617,7 @@ void uiAttrSel::processInput()
     DescSet& as = const_cast<DescSet&>( attrdata_.attrSet() );
     attrdata_.attribid = as.getID( inp, true );
     attrdata_.outputnr = -1;
-    if ( attrdata_.attribid >= 0 && is2D() )
+    if ( attrdata_.attribid.isValid() && is2D() )
     {
 	const char* attr2d = strchr( inp.buf(), '|' );
 	if ( !attr2d )
@@ -648,7 +636,7 @@ void uiAttrSel::processInput()
 	    SelInfo::getAttrNames( mid, nms );
 	}
     }
-    else if ( attrdata_.attribid < 0 && attrdata_.nlamodel )
+    else if ( !attrdata_.attribid.isValid() && attrdata_.nlamodel )
     {
 	const BufferStringSet& outnms( attrdata_.nlamodel->design().outputs );
 	const BufferString nodenm = IOObj::isKey(inp) ? IOM().nameOf(inp)
@@ -669,7 +657,7 @@ void uiAttrSel::processInput()
 
 void uiAttrSel::fillSelSpec( SelSpec& as ) const
 {
-    const bool isnla = attrdata_.attribid < 0 && attrdata_.outputnr >= 0;
+    const bool isnla = !attrdata_.attribid.isValid() && attrdata_.outputnr >= 0;
     if ( isnla )
 	as.set( 0, DescID(attrdata_.outputnr,true), true, "" );
     else
@@ -703,7 +691,7 @@ const char* uiAttrSel::getAttrName() const
 
 bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 {
-    if ( attrdata_.attribid < 0 && attrdata_.outputnr < 0 )
+    if ( !attrdata_.attribid.isValid() && attrdata_.outputnr < 0 )
     {
 	uiMSG().error( "Please select the input" );
 	return false;
@@ -716,7 +704,7 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
     }
 
     //TODO this is pretty difficult to get right
-    if ( attrdata_.attribid < 0 )
+    if ( !attrdata_.attribid.isValid() )
 	return true;
 
     const Desc& ad = *attrdata_.attrSet().getDesc( attrdata_.attribid );

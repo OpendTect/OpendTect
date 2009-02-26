@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.15 2009-02-24 14:08:23 cvsbert Exp $
+ RCS:           $Id: uiattrsel.h,v 1.16 2009-02-26 13:00:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,9 @@ mClass uiAttrSelData
 {
 public:
 
-				uiAttrSelData(bool is2d);
+				uiAttrSelData(bool is2d,bool fillwithdef=true);
 				uiAttrSelData(const Attrib::DescSet&,
-					      bool fillwithdefault=true);
+					      bool fillwithdef=true);
 
     Attrib::DescID		attribid;
     const NLAModel*		nlamodel;

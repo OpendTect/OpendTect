@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.301 2009-02-23 06:09:20 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.302 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -721,9 +721,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     }
 
     Attrib::SelSpec myas( *as );
-    if ( myas.id()!=Attrib::DescID::undef() )
+    if ( myas.id() != Attrib::DescID::undef() )
 	attrserv_->updateSelSpec( myas );
-    if ( myas.id()<-1 )
+    if ( myas.id().isUnselInvalid() )
     {
 	uiMSG().error( "Cannot find selected attribute" );
 	return false;
@@ -1040,7 +1040,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	LineKey lk( mpeserv_->get2DLineSet(), mpeserv_->get2DAttribName() );
 	const Attrib::DescID attribid = attrServer()->getStoredID( lk, true );
-	if ( attribid<0 ) return false;
+	if ( !attribid.isValid() ) return false;
 
 	const Attrib::SelSpec as( mpeserv_->get2DAttribName(), attribid );
 	mpeserv_->set2DSelSpec( as );

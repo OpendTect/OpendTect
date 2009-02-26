@@ -4,7 +4,7 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: attribdescsettr.cc,v 1.5 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescsettr.cc,v 1.6 2009-02-26 13:00:52 cvsbert Exp $";
 
 #include "attribdescsettr.h"
 #include "attrfact.h"
@@ -61,7 +61,7 @@ const char* dgbAttribDescSetTranslator::read( Attrib::DescSet& ads, Conn& conn )
     IOPar iopar, bupar;
     iopar.read( ((StreamConn&)conn).iStream(), mTranslGroupName(AttribDescSet));
     ads.fillPar( bupar );
-    ads.removeAll();
+    ads.removeAll( false );
     BufferStringSet parseerrmsgs;
     ads.usePar( iopar, &parseerrmsgs );
 

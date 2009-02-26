@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.76 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.77 2009-02-26 13:00:52 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -30,41 +30,46 @@ DescSet::DescSet( bool is2d )
     : is2d_(is2d)
     , descToBeRemoved(this)
 {
-    if ( is2d_ )
-    {
-	BufferString defls = SI().pars().find( sKey::DefLineSet );
-	if ( defls.isEmpty() )
-	{
-	    BufferStringSet lsnms;
-	    SeisIOObjInfo::get2DLineInfo( lsnms );
-	    if ( lsnms.size() != 1 )
-		return;
-	    defls = lsnms.get( 0 );
-	}
-	LineKey lk( defls, SI().pars().find( sKey::DefAttribute ) );
-	(void)getStoredID( lk.buf() );
-    }
-    else
-    {
-	const char* defcubeid = SI().pars().find( sKey::DefCube );
-	if ( defcubeid && *defcubeid )
-	    (void)getStoredID( defcubeid );
-    }
+    ensureDefStoredPresent();
 }
 
 
-DescSet* DescSet::clone() const
+DescSet::DescSet( const DescSet& ds )
+    : is2d_(ds.is2d_)
+    , descToBeRemoved(this)
 {
-    DescSet* descset = new DescSet(is2d_);
-    for ( int idx=0; idx<nrDescs(); idx++ )
-    {
-	Desc* nd = new Desc( *descs_[idx] );
-	nd->setDescSet( descset );
-	descset->addDesc( nd, ids_[idx] );
-    }
+    *this = ds;
+}
 
-    descset->updateInputs();
-    return descset;
+
+DescID DescSet::ensureDefStoredPresent() const
+{
+    BufferString idstr; DescID retid;
+
+    if ( is2d_ )
+	idstr = LineKey( SI().pars().find(sKey::DefLineSet),
+			 SI().pars().find(sKey::DefAttribute) );
+    else
+	idstr = SI().pars().find( sKey::DefCube );
+
+    if ( !idstr.isEmpty() )
+	retid = const_cast<DescSet*>(this)->getStoredID( idstr.buf() );
+
+    return retid;
+}
+
+
+DescSet& DescSet::operator =( const DescSet& ds )
+{
+    if ( &ds != this )
+    {
+	removeAll( false );
+	is2d_ = ds.is2d_;
+	for ( int idx=0; idx<ds.nrDescs(); idx++ )
+	    addDesc( new Desc( *ds.descs_[idx] ), ds.ids_[idx] );
+	updateInputs();
+    }
+    return *this;
 }
 
 
@@ -86,10 +91,9 @@ void DescSet::updateInputs()
 
 DescID DescSet::addDesc( Desc* nd, DescID id )
 {
-    nd->setDescSet( this );
-    nd->ref();
+    nd->setDescSet( this ); nd->ref();
     descs_ += nd;
-    const DescID newid = id < 0 ? getFreeID() : id;
+    const DescID newid = id.isValid() ? id : getFreeID();
     ids_ += newid;
     return newid;
 }
@@ -97,26 +101,19 @@ DescID DescSet::addDesc( Desc* nd, DescID id )
 
 DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
 {
-    nd->setDescSet( this );
-    nd->ref();
+    nd->setDescSet( this ); nd->ref();
     descs_.insertAt( nd, idx );
-    const DescID newid = id < 0 ? getFreeID() : id;
+    const DescID newid = id.isValid() ? id : getFreeID();
     ids_.insert( idx, newid );
     return newid;
 }
 
 
-Desc* DescSet::getDesc( const DescID& id )
+Desc* DescSet::gtDesc( const DescID& id ) const
 {
     const int idx = ids_.indexOf(id);
-    if ( idx==-1 ) return 0;
-    return descs_[idx];
-}
-
-
-const Desc* DescSet::getDesc( const DescID& id ) const
-{
-    return const_cast<DescSet*>(this)->getDesc(id);
+    if ( idx < 0 ) return 0;
+    return const_cast<Desc*>( descs_[idx] );
 }
 
 
@@ -241,10 +238,12 @@ void DescSet::sortDescSet()
 }
 
 
-void DescSet::removeAll()
+void DescSet::removeAll( bool kpdef )
 {
     while ( ids_.size() )
 	removeDesc( ids_[0] ); 
+    if ( kpdef )
+	ensureDefStoredPresent();
 }
 
 
@@ -275,7 +274,7 @@ void DescSet::fillPar( IOPar& par ) const
 
 	par.mergeComp( apar, BufferString("",ids_[idx].asInt()) );
 
-	if ( ids_[idx]>maxid ) maxid = ids_[idx].asInt();
+	if ( ids_[idx].asInt() > maxid ) maxid = ids_[idx].asInt();
     }
 
     par.set( highestIDStr(), maxid );
@@ -468,7 +467,7 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
     if ( typestr )
 	is2d_ = *typestr == '2';
 
-    removeAll();
+    removeAll( false );
 
     int maxid = 1024;
     par.get( highestIDStr(), maxid );
@@ -660,7 +659,9 @@ bool DescSet::createSteeringDesc( const IOPar& steeringpar,
 
 
 const char* DescSet::errMsg() const
-{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
+{
+    return errmsg_.isEmpty() ? 0 : errmsg_.buf();
+}
 
 
 DescID DescSet::getFreeID() const
@@ -688,9 +689,8 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 	if ( !dsc.isStored() || ( !outnrisok && selout>=0 ) )
 	    continue;
 
-	const ValParam* keypar = dsc.getValParam( StorageProvider::keyStr() );
-	const char* curlk = keypar->getStringValue();
-	if ( !strcmp(lk,curlk) )
+	const ValParam& keypar = *dsc.getValParam( StorageProvider::keyStr() );
+	if ( !strcmp(lk,keypar.getStringValue()) )
 	{
 	    if ( selout>=0 ) return dsc.id();
 	    outsreadyforthislk += dsc.selectedOutput();
@@ -698,21 +698,28 @@ DescID DescSet::getStoredID( const char* lk, int selout, bool create )
 	}
     }
 
-    if ( !create ) return DescID::undef();
+    if ( !create )
+	return DescID::undef();
+
+    const int out0idx = outsreadyforthislk.indexOf( 0 );
+    const int nrcomps = SeisIOObjInfo::getNrCompAvail( lk );
+    if ( nrcomps < 2 )
+	return out0idx != -1 ? outsreadyids[out0idx] 
+			     : createStoredDesc( lk, 0, BufferString("") );
 
     const int startidx = selout<0 ? 0 : selout; 
     const int stopidx = selout<0 ? SeisIOObjInfo::getNrCompAvail( lk ) : selout;
-    const int out0idx = outsreadyforthislk.indexOf( 0 );
-    BufferStringSet bss;
-    SeisIOObjInfo::getCompNames( lk, bss );
-    const BufferString curstr = bss.validIdx(startidx) ? bss.get(startidx) : "";
-    DescID did = out0idx != -1 ? outsreadyids[out0idx] 
-			       : createStoredDesc( lk, startidx, curstr );
+    BufferStringSet bss; SeisIOObjInfo::getCompNames( lk, bss );
+    const BufferString& curstr = bss.validIdx(startidx)
+				? bss.get(startidx) : BufferString::empty();
+    const DescID retid = out0idx != -1
+			? outsreadyids[out0idx] 
+			: createStoredDesc( lk, startidx, curstr );
     for ( int idx=startidx+1; idx<stopidx; idx++ )
-	if ( outsreadyforthislk.indexOf(idx)<0 )
+	if ( !outsreadyforthislk.isPresent(idx) )
 	    createStoredDesc( lk, idx, *bss[idx] );
 
-    return did;
+    return retid;
 }
 
 
@@ -737,8 +744,8 @@ DescID DescSet::createStoredDesc( const char* lk, int selout,
     }
     newdesc->setUserRef( userref );
     newdesc->selectOutput( selout );
-    ValParam* keypar = newdesc->getValParam( StorageProvider::keyStr() );
-    keypar->setValue( lk );
+    ValParam& keypar = *newdesc->getValParam( StorageProvider::keyStr() );
+    keypar.setValue( lk );
     newdesc->updateParams();
     return addDesc( newdesc );
 }
@@ -780,7 +787,7 @@ DescSet* DescSet::optimizeClone( const TypeSet<DescID>& targets ) const
     }
 
     if ( res->nrDescs() == 0 )
-	{ delete res; res = clone(); }
+	{ delete res; res = new DescSet(*this); }
 
     res->updateInputs();
     return res;

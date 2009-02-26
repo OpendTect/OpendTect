@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.40 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.41 2009-02-26 13:00:52 cvsbert Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -263,7 +263,7 @@ void uiGapDeconAttrib::examPush( CallBacker* cb )
 
     if ( positiondlg_->posdlg_->uiResult() == 1 )
     {
-	DescSet* dset = ads_->clone();
+	DescSet* dset = new DescSet( *ads_ );
 	DescID inpid = inpfld_->attribID();
 	DescID gapdecid = createGapDeconDesc( inpid, inpid, dset, true );
 	acorrview_->setAttribID( gapdecid );
@@ -519,7 +519,7 @@ void uiGapDeconAttrib::qCPush( CallBacker* cb )
     {
 	DescID inp0id = DescID::undef();
 	DescID inp1id = DescID::undef();
-	DescSet* dset = ads_->clone();
+	DescSet* dset = new DescSet( *ads_ );
 	prepareInputDescs( inp0id, inp1id, dset );
 	DescID gapdecid = createGapDeconDesc( inp0id, inp1id, dset, false );
 	DescID autocorrid = createGapDeconDesc( gapdecid, inp1id, dset, true );

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.52 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.53 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -582,7 +582,8 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	{
 	    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
 	    {
-		if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
+		if ( s2d->getSelSpec(idx)
+		  && s2d->getSelSpec(idx)->id().isValid() )
 		    visserv_->calculateAttrib( displayid_, idx, false );
 	    }
 	}
@@ -683,7 +684,7 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
     s2d->setZRange( newzrg );
     for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
     {
-	if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
+	if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id().isValid() )
 	    visserv_->calculateAttrib( displayid_, idx, false );
     }
 }
@@ -767,7 +768,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     if ( nla && nla->nrItems() )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
-    mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, as.id()>=0, false );
+    mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, as.id().isValid(), false );
 }
 
 
@@ -816,7 +817,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     LineKey lk( s2d->lineSetID(), attribnm );
     const Attrib::DescID attribid = attrserv->getStoredID( lk, true );
-    if ( attribid < 0 ) return false;
+    if ( !attribid.isValid() ) return false;
 
     const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );
     Attrib::SelSpec myas( *as );

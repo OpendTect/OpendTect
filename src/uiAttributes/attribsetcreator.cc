@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.9 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.10 2009-02-26 13:00:53 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -163,7 +163,7 @@ bool acceptOK( CallBacker* )
 	}
 
 	const DescID descid = attrset->getID( sel.labelText(), true );
-	if ( descid < 0 )
+	if ( !descid.isValid() )
 	{
 	    BufferString msg( "There is a problem importing '" );
 	    msg += sel.labelText();
@@ -179,7 +179,7 @@ bool acceptOK( CallBacker* )
 	else
 	{
 	    const DescID inpid = attrset->getStoredID( ioobj->key(), 0, true );
-	    if ( inpid < 0 ) return false;
+	    if ( !inpid.isValid() ) return false;
 
 	    for ( int iinp=0; iinp<ad.nrInputs(); iinp++ )
 		ad.setInput( iinp, attrset->getDesc(inpid) );
@@ -209,7 +209,7 @@ AttributeSetCreator::AttributeSetCreator( uiParent* p_,
 	const BufferString& uref = *inps_[idx];
 	Desc* ad = getDesc( uref );
 	if ( !ad )
-	    { attrset->removeAll(); attrset = 0; return; }
+	    { attrset->removeAll( false ); attrset = 0; return; }
 
 	if ( ad->isStored() )
 	    directs += new BufferString( uref );

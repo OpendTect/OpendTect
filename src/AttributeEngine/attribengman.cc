@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.94 2009-01-13 07:50:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.95 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "attribengman.h"
 
@@ -237,14 +237,14 @@ void EngineMan::setNLAModel( const NLAModel* m )
 void EngineMan::setAttribSet( const DescSet* ads )
 {
     delete inpattrset;
-    inpattrset = ads ? ads->clone() : 0;
+    inpattrset = ads ? new DescSet( *ads ) : 0;
 }
 
 
 const char* EngineMan::getCurUserRef() const
 {
     const int idx = curattridx;
-    if ( attrspecs_.isEmpty() || attrspecs_[idx].id() < 0 ) return "";
+    if ( attrspecs_.isEmpty() || !attrspecs_[idx].id().isValid() ) return "";
 
     SelSpec& ss = const_cast<EngineMan*>(this)->attrspecs_[idx];
     if ( attrspecs_[idx].isNLA() )
@@ -374,8 +374,8 @@ DescSet* EngineMan::createNLAADS( DescID& nladescid, BufferString& errmsg,
        				  const DescSet* addtoset )
 {
     if ( attrspecs_.isEmpty() ) return 0;
-    DescSet* descset = addtoset ? addtoset->clone() 
-				: new DescSet(attrspecs_[0].is2D());
+    DescSet* descset = addtoset ? new DescSet( *addtoset ) 
+				: new DescSet( attrspecs_[0].is2D() );
     if ( !addtoset && !descset->usePar(nlamodel->pars()) )
     {
 	errmsg = descset->errMsg();
@@ -423,10 +423,10 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
     {
 	const char* inpname = desc->inputSpec(idx).getDesc();
 	DescID descid = descset.getID( inpname, true );
-	if ( descid < 0 && IOObj::isKey(inpname) )
+	if ( !descid.isValid() && IOObj::isKey(inpname) )
 	{
 	    descid = descset.getID( inpname, false );
-	    if ( descid < 0 )
+	    if ( !descid.isValid() )
 	    {
 		// It could be 'storage', but it's not yet in the set ...
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(inpname) );
@@ -440,7 +440,7 @@ void EngineMan::addNLADesc( const char* specstr, DescID& nladescid,
 		    idpar->setValue( inpname );
 		    stordesc->setUserRef( ioobj->name() );
 		    descid = descset.addDesc( stordesc );
-		    if ( descid < 0 )
+		    if ( !descid.isValid() )
 		    {
 			errmsg = "NLA input '";
 			errmsg += inpname;

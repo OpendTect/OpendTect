@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.82 2009-02-16 17:11:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.83 2009-02-26 13:00:53 cvsbert Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -241,7 +241,7 @@ void uiAttribDescSetEd::createGroups()
 void uiAttribDescSetEd::init()
 {
     delete attrset_; attrset_ = 0;
-    attrset_ = inoutadsman_->descSet()->clone();
+    attrset_ = new Attrib::DescSet( *inoutadsman_->descSet() );
     adsman_ = new DescSetMan( inoutadsman_->is2D(), attrset_ );
     adsman_->fillHist();
     adsman_->setSaved( inoutadsman_->isSaved() );
@@ -426,7 +426,7 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 {
     Desc* newdesc = createAttribDesc();
     if ( !newdesc ) return;
-    if ( attrset_->addDesc(newdesc) < 0 )
+    if ( !attrset_->addDesc(newdesc).isValid() )
 	{ uiMSG().error( attrset_->errMsg() ); newdesc->unRef(); return; }
 
     newList( attrdescs_.size() );
@@ -839,7 +839,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
     adsman_->inputHistory().clear();
     updateFields();
 
-    attrset_->removeAll();
+    attrset_->removeAll( true );
     setctio_.ioobj = 0;
     setid_ = -1;
     updateUserRefs();
@@ -1043,9 +1043,7 @@ void uiAttribDescSetEd::job2Set( CallBacker* )
 	if ( dlg.attrSet().nrDescs(false,false) < 1 )
 	    mErrRet( "No usable attributes in file" )
 
-	IOPar iop; dlg.attrSet().fillPar( iop );
-	attrset_->removeAll();
-	attrset_->usePar( iop );
+	*attrset_ = dlg.attrSet();
 	adsman_->setSaved( false );
 
 	setctio_.setObj( 0 );
