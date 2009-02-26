@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.18 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.19 2009-02-26 22:34:43 cvsyuancheng Exp $";
 
 #include "uimaterialdlg.h"
 
@@ -16,10 +16,13 @@ static const char* rcsID = "$Id: uimaterialdlg.cc,v 1.18 2008-11-25 15:35:26 cvs
 #include "uislider.h"
 #include "uitabstack.h"
 #include "uivisplanedatadisplaydragprop.h"
+#include "uivispolygonsurfbezierdlg.h"
 #include "vismaterial.h"
 #include "visobject.h"
 #include "vissurvobj.h"
 #include "visplanedatadisplay.h"
+#include "vispolygonbodydisplay.h"
+
 
 uiLineStyleGrp::uiLineStyleGrp( uiParent* p, visSurvey::SurveyObject* so )
     : uiDlgGroup(p,"Line style")
@@ -63,6 +66,10 @@ uiPropertiesDlg::uiPropertiesDlg( uiParent* p, visSurvey::SurveyObject* so )
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,so);
     if ( pdd )
 	addGroup( new uiVisPlaneDataDisplayDragProp(tabstack_->tabGroup(),pdd));
+    
+    mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,so);
+    if ( plg )
+	addGroup( new uiVisPolygonSurfBezierDlg(tabstack_->tabGroup(),plg) );
 
     setCancelText( "" );
 }
