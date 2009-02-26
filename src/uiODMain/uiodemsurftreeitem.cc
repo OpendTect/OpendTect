@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.44 2009-02-11 10:51:48 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.45 2009-02-26 06:52:48 cvsraman Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -126,6 +126,7 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 {
     applMgr()->EMServer()->askUserToSave(emid_);
+    uiTreeItem::prepareForShutdown();
 }
 
 
