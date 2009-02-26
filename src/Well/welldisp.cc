@@ -4,14 +4,16 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: welldisp.cc,v 1.8 2009-01-16 13:02:33 cvsbruno Exp $";
+static const char* rcsID = "$Id: welldisp.cc,v 1.9 2009-02-26 13:30:33 cvsbruno Exp $";
 
 #include "welldisp.h"
 #include "settings.h"
 #include "keystrs.h"
 
 static const char* sKeyDisplayPos = "DisplayPos";
+static const char* sKeyTrackNameSize = "Track Name Size";
 static const char* sKeyShape = "Shape";
+static const char* sKeyMarkerNameSize = "Marker Name Size";
 static const char* sKeySingleColor = "Single Marker Color";
 static const char* sKeyLeftColor = "Left Log Color";
 static const char* sKeyLeftSize = "Left Log Size";
@@ -94,6 +96,8 @@ void Well::DisplayProperties::Track::doUsePar( const IOPar& iop )
 {
     iop.getYN( IOPar::compKey(subjectName(),sKeyDisplayPos),
 	       dispabove_, dispbelow_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyTrackNameSize),
+	       nmsize_ );
 }
 
 
@@ -101,6 +105,8 @@ void Well::DisplayProperties::Track::doFillPar( IOPar& iop ) const
 {
     iop.setYN( IOPar::compKey(subjectName(),sKeyDisplayPos),
 	       dispabove_, dispbelow_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyTrackNameSize),
+	       nmsize_ );
 }
 
 
@@ -111,6 +117,8 @@ void Well::DisplayProperties::Markers::doUsePar( const IOPar& iop )
     circular_ = *res != 'S';
     iop.getYN( IOPar::compKey(subjectName(),sKeySingleColor),
 	     issinglecol_ );
+    iop.get( IOPar::compKey(subjectName(),sKeyMarkerNameSize),
+	     nmsize_ );
 }
 
 
@@ -120,6 +128,8 @@ void Well::DisplayProperties::Markers::doFillPar( IOPar& iop ) const
 	     circular_ ? "Circular" : "Square" );
     iop.setYN( IOPar::compKey(subjectName(),sKeySingleColor),
 	     issinglecol_ );
+    iop.set( IOPar::compKey(subjectName(),sKeyMarkerNameSize),
+	     nmsize_ );
 }
 
 

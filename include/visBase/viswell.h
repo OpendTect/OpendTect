@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.h,v 1.28 2009-02-11 10:32:42 cvsranojay Exp $
+ RCS:           $Id: viswell.h,v 1.29 2009-02-26 13:30:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,14 +50,15 @@ public:
     void			setLineStyle(const LineStyle&);
     const LineStyle&		lineStyle() const;
 
-    void			setWellName(const char*,Coord3,Coord3,bool,bool);
+    void			setWellName(const char*,Coord3,Coord3,bool,
+	    					bool,int);
     void			showWellTopName(bool);
     void			showWellBotName(bool);
     bool			wellTopNameShown() const;
     bool			wellBotNameShown() const;
 
     void			addMarker(const Coord3&,const Color&,
-	    				  const char*,bool);
+	    				  const char*,bool, int size);
     void			removeAllMarkers();
     void			setMarkerScreenSize(int);
     int				markerScreenSize() const;

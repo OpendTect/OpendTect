@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Dec 2008
- RCS:           $Id: uiwelldispprop.h,v 1.13 2009-01-16 13:02:33 cvsbruno Exp $
+ RCS:           $Id: uiwelldispprop.h,v 1.14 2009-02-26 13:30:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,7 @@ protected:
 
     uiCheckBox*		dispabovefld_;
     uiCheckBox*		dispbelowfld_;
+    uiLabeledSpinBox*	nmsizefld_;
 };
 
 
@@ -108,6 +109,7 @@ protected:
 
     uiGenInput*		circfld_;
     uiCheckBox*		singlecolfld_;
+    uiLabeledSpinBox*	nmsizefld_;
 
 };
 

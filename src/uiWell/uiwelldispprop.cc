@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.22 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.23 2009-02-26 13:30:33 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -90,6 +90,12 @@ uiWellTrackDispProperties::uiWellTrackDispProperties( uiParent* p,
     uiLabel* lbl = new uiLabel( this, "Display well name" , dispabovefld_ );
     lbl = new uiLabel( this, "track" );
     lbl->attach( rightOf, dispbelowfld_ );
+
+    nmsizefld_ = new uiLabeledSpinBox( this, "Name size" );
+    nmsizefld_->box()->setInterval(10,30,6);
+    nmsizefld_->box()->valueChanging.notify(mCB(this,uiWellTrackDispProperties,
+							propChg) );
+    nmsizefld_->attach( alignedBelow, dispabovefld_  );
     doPutToScreen();
 }
 
@@ -100,6 +106,7 @@ void uiWellTrackDispProperties::doPutToScreen()
     NotifyStopper nsb( dispbelowfld_->activated);
     dispbelowfld_->setChecked( trackprops().dispbelow_ );
     dispabovefld_->setChecked( trackprops().dispabove_ );
+    nmsizefld_->box()->setValue( trackprops().nmsize_ );
 }
 
 
@@ -107,6 +114,7 @@ void uiWellTrackDispProperties::doGetFromScreen()
 {
     trackprops().dispbelow_ = dispbelowfld_->isChecked();
     trackprops().dispabove_ = dispabovefld_->isChecked();
+    trackprops().nmsize_ =  nmsizefld_->box()->getValue();
 }
 
 
@@ -127,6 +135,13 @@ uiWellMarkersDispProperties::uiWellMarkersDispProperties( uiParent* p,
 					propChg) );
     singlecolfld_->activated.notify( mCB(this,uiWellMarkersDispProperties,
 					setMarkerColSel));
+   
+    nmsizefld_ = new uiLabeledSpinBox( this, "Name size" );
+    nmsizefld_->box()->setInterval(10,30,6);
+    nmsizefld_->box()->valueChanging.notify(mCB(this,uiWellMarkersDispProperties,
+							propChg) );
+    nmsizefld_->attach( alignedBelow, circfld_ );
+   
     doPutToScreen();
 }
 
@@ -142,6 +157,7 @@ void uiWellMarkersDispProperties::doPutToScreen()
 {
     circfld_->setValue( mrkprops().circular_ );
     singlecolfld_->setChecked( mrkprops().issinglecol_ );
+    nmsizefld_->box()->setValue( mrkprops().nmsize_ );
 }
 
 
@@ -149,6 +165,7 @@ void uiWellMarkersDispProperties::doGetFromScreen()
 {
     mrkprops().circular_ = circfld_->getBoolValue();
     mrkprops().issinglecol_ = singlecolfld_->isChecked();
+    mrkprops().nmsize_ =  nmsizefld_->box()->getValue();
 }
 
 

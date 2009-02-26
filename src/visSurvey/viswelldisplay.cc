@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.95 2009-02-23 16:06:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.96 2009-02-26 13:30:33 cvsbruno Exp $";
 
 #include "viswelldisplay.h"
 
@@ -129,7 +129,8 @@ void WellDisplay::fullRedraw( CallBacker* )
     int twidth = dpp(track_.size_);
     well_->setTrackProperties( tcolor, twidth );
     well_->setWellName( wd->name(), trackpos[0], trackpos[trackpos.size()-1],
-	   		 dpp( track_.dispabove_), dpp( track_.dispbelow_) ); 
+	   		 dpp( track_.dispabove_), dpp( track_.dispbelow_),
+	                 dpp( track_.nmsize_ ) ); 
     updateMarkers(0);
    
     BufferString leftname = dpp( left_.name_ );  
@@ -244,12 +245,9 @@ void WellDisplay::updateMarkers( CallBacker* )
 	well_->markersize = dpp(markers_.size_);
 	bool iscircular = !(dpp( markers_.circular_ ));
 	bool issinglemcol = dpp( markers_.issinglecol_);
-	Color mcolor;
-	if (issinglemcol)
-	    mcolor = dpp(markers_.color_);
-	else
-	    mcolor = wellmarker->color();
-	well_->addMarker( pos, mcolor, wellmarker->name(), iscircular );
+	int nmsize = dpp(markers_.nmsize_); 
+	Color mcolor = issinglemcol ? dpp(markers_.color_) : wellmarker->color();
+	well_->addMarker( pos, mcolor, wellmarker->name(), iscircular, nmsize );
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viswell.cc,v 1.45 2009-02-11 11:04:16 cvsranojay Exp $";
+static const char* rcsID = "$Id: viswell.cc,v 1.46 2009-02-26 13:30:33 cvsbruno Exp $";
 
 #include "viswell.h"
 #include "vispolyline.h"
@@ -166,9 +166,10 @@ const LineStyle& Well::lineStyle() const
     return ls;
 }
 
-#define msetWellName( nm, pos, post ) \
+#define msetWellName( nm, pos, post, sz ) \
     well##post##txt->setDisplayTransformation( transformation ); \
     well##post##txt->setText( nm ); \
+    well##post##txt->setSize( sz ); \
     if ( !SI().zRange(true).includes(pos.z) ) \
 	pos.z = SI().zRange(true).limitValue( pos.z ); \
     well##post##txt->setPosition( pos ); \
@@ -176,29 +177,29 @@ const LineStyle& Well::lineStyle() const
 
 
 void Well::setWellName( const char* nm, Coord3 toppos, Coord3 botpos,
-       				bool isnameabove, bool isnamebelow )
+       				bool isnameabove, bool isnamebelow, int sz )
 {
     if ( isnameabove && !isnamebelow )
     {
-	msetWellName( nm, toppos, top );
-	msetWellName( "", botpos, bot );
+	msetWellName( nm, toppos, top, sz );
+	msetWellName( "", botpos, bot, sz );
     }
 
     else if ( isnamebelow && !isnameabove )
     {
-	msetWellName( nm, botpos, bot );
-	msetWellName( "", toppos, top );
+	msetWellName( nm, botpos, bot, sz );
+	msetWellName( "", toppos, top, sz );
     }
 
     else if ( isnameabove && isnamebelow )
     {
-	msetWellName( nm, toppos, top );
-	msetWellName( nm, botpos, bot );
+	msetWellName( nm, toppos, top, sz );
+	msetWellName( nm, botpos, bot, sz );
     }
     else
     {
-	msetWellName( "", toppos, top );
-	msetWellName( "", botpos, bot );
+	msetWellName( "", toppos, top, sz );
+	msetWellName( "", botpos, bot, sz );
     }
 }
 
@@ -220,7 +221,7 @@ bool Well::wellBotNameShown() const
 
 
 void Well::addMarker( const Coord3& pos, const Color& color,
-       				const char* nm, bool iscircular ) 
+		    const char* nm, bool iscircular, int nmsize)
 {
     Marker* marker = Marker::create();
 
@@ -265,6 +266,7 @@ void Well::addMarker( const Coord3& pos, const Color& color,
     Text2* markernm = Text2::create();
     markernm->setDisplayTransformation( transformation );
     markernm->setText( nm );
+    markernm->setSize( nmsize );
     markernm->setPosition( pos );
     markernm->setJustification( Text::Left );
     markernames->addObject( markernm );

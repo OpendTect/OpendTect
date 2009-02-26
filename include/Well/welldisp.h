@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bruno
  Date:		Dec 2008
- RCS:		$Id: welldisp.h,v 1.14 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:		$Id: welldisp.h,v 1.15 2009-02-26 13:30:33 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,12 +62,16 @@ public:
 			Track()
 			    : BasicProps(1)
 			    , dispabove_(true)
-			    , dispbelow_(true)		{}
+			    , dispbelow_(true)	
+			    , nmsize_(10)
+		       	    {}
+
 
 	virtual const char* subjectName() const		{ return "Track"; }
 
 	bool		dispabove_;
 	bool		dispbelow_;
+	int 		nmsize_;
 
     protected:
 
@@ -82,11 +86,13 @@ public:
 			    : BasicProps(8)
 			    , circular_(false)	
 			    , issinglecol_(false)
-						{}
+			    , nmsize_(10)
+			    {}
 
 	virtual const char* subjectName() const	{ return "Markers"; }
 	bool		circular_;
 	bool 		issinglecol_;
+	int 		nmsize_;
 
     protected:
 
