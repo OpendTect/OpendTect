@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.7 2009-02-02 23:44:41 cvsyuancheng Exp $
+ RCS:		$Id: uiodbodydisplaytreeitem.h,v 1.8 2009-02-26 22:23:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -61,7 +61,6 @@ protected:
     MenuItem				displayintersectionmnuitem_;
     MenuItem				removeselectedmnuitem_;
     MenuItem				displaymnuitem_;
-    MenuItem				beziernrmnuitem_;
     visSurvey::MarchingCubesDisplay*	mcd_;
     visSurvey::PolygonBodyDisplay*	plg_;
     visSurvey::RandomPosBodyDisplay*	rpb_;

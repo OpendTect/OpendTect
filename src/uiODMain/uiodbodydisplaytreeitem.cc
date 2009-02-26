@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.9 2009-02-02 23:44:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.10 2009-02-26 22:23:10 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -29,7 +29,6 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.9 2009-02-02 23:
 #include "uimenuhandler.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "uipolygonsurfbezierdlg.h"
 #include "uivispartserv.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "visrandomposbodydisplay.h"
@@ -38,8 +37,7 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.9 2009-02-02 23:
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
    : uiODTreeItem( "Body" )
-{
-}
+{}
 
 
 bool uiODBodyDisplayParentTreeItem::showSubMenu()
@@ -116,7 +114,6 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , savemnuitem_("&Save")
     , saveasmnuitem_("Save &as ...")
     , displaymnuitem_( "&Display ..." )
-    , beziernrmnuitem_( "Polygon smo&oth" )			      
     , displaybodymnuitem_ ( "&Body" )
     , displaypolygonmnuitem_( "&Picked polygons" )			    
     , displayintersectionmnuitem_( "&Intersections" )
@@ -138,7 +135,6 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
     , displaymnuitem_( "Display ..." )				   
-    , beziernrmnuitem_( "Polygon smooth" )			      
     , displaybodymnuitem_ ( "Body" )
     , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
@@ -351,7 +347,6 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
 		      plg_->areIntersectionsDisplayed() );
 	mAddMenuItem( menu, &displaymnuitem_, true, true );
-	mAddMenuItem( menu, &beziernrmnuitem_, true, true );
 	
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	mAddMenuItem( menu, &removeselectedmnuitem_, sel && sel->isOK(), true );
@@ -434,19 +429,6 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	plg_->removeSelection( *visserv_->getCoordSelector(sceneID()) );
-    }
-    else if ( mnuid==beziernrmnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	Geometry::PolygonSurface* body = !plg_->getEMPolygonBody() ? 0 :
-	    plg_->getEMPolygonBody()->geometry().sectionGeometry( 0 );
-	if ( body )
-	{
-    	    uiPolygonSurfBezierDlg dlg( getUiParent(), body );
-    	    dlg.go();
-	
-	    plg_->touchAll( false, true );
-	}
     }
 }
 
