@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.24 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.25 2009-02-27 19:11:40 cvskris Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -135,7 +135,8 @@ void FilePath::setFileName( const char* fnm )
 
 void FilePath::setPath( const char* pth )
 {
-    BufferString fnm( lvls_.size() ? lvls_.get(lvls_.size()-1) : 0 );
+    BufferString fnm( lvls_.size() ?
+	    lvls_.get(lvls_.size()-1).buf() : (const char*) 0 );
     set( pth );
     if ( !fnm.isEmpty() )
 	add( fnm );
