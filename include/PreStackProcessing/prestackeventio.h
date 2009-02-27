@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.4 2009-01-06 06:05:40 cvsranojay Exp $
+ RCS:		$Id: prestackeventio.h,v 1.5 2009-02-27 16:17:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,8 @@ public:
     bool		getBoundingBox(Interval<int>& inlrg,
 	    			       Interval<int>& crlrg ) const;
     			//!<Only after first nextStep, or prepareWork
+			
+    const char*		message() const;
 
     static int		encodeEventType(VSEvent::Type);
     static VSEvent::Type decodeEventType(int);
@@ -67,7 +69,7 @@ public:
     static const char*	sKeyNrHorizons()	{ return "Nr Horizons"; }
     static const char*	sKeyHorizonID()		{ return "Horizon ID"; }
     static const char*	sKeyNextHorizonID()	{ return "Next Horizon ID"; }
-    static const char*	sKeyHorizonRef()	{ return "Horizon EM Reference"; }
+    static const char*	sKeyHorizonRef()	{return "Horizon EM Reference";}
     static const char*	sHorizonFileName()	{ return "horizoninfo"; }
     static const char*	sHorizonFileType()	{ return "PS Horizon info"; }
     static const char*	sHorizonFileVersion()	{ return "PS Horizon version"; }
@@ -84,6 +86,8 @@ protected:
     const HorSampling*				horsel_;
 
     ObjectSet<SequentialTask>			patchreaders_;	
+
+    BufferString				msg_;
 };
 
 

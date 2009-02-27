@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.5 2008-12-23 11:14:07 cvsdgb Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.6 2009-02-27 16:17:51 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -234,6 +234,10 @@ void EventReader::setSelection( const HorSampling* hs )
 { horsel_ = hs; }
 
 
+const char* EventReader::message() const
+{ return msg_.isEmpty() ? 0 : msg_.buf(); }
+
+
 int EventReader::nextStep()
 {
     if ( !eventmanager_ ) return Finished();
@@ -241,14 +245,22 @@ int EventReader::nextStep()
     if ( !patchreaders_.size() )
     {
 	if ( !prepareWork() )
+	{
+	    //ErrMsg set in prepareWork
 	    return ErrorOccurred();
+	}
 
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
 	if ( !readHorizonIDs( fnm.buf() ) )
-	    return false;
+	{
+	    msg_ = "Error: Cannot read horizon information";
+	    return ErrorOccurred();
+	}
 
 	return patchreaders_.size() ? MoreToDo() : Finished();
     }
+
+    msg_ = "Reading events";
 
     const int res = patchreaders_[0]->doStep();
     if ( res<0 ) return ErrorOccurred();
@@ -269,7 +281,12 @@ bool EventReader::prepareWork()
 {
     const BufferString fnm( ioobj_->fullUserExpr(true) );
     if ( !File_isDirectory(fnm.buf()) )
+    {
+	msg_ = "Error: ";
+	msg_ += fnm;
+	msg_ += " is not a directory";
 	return false;
+    }
 
     BufferString mask = "*.";
     mask += PSEventTranslatorGroup::sDefExtension();
@@ -354,7 +371,7 @@ bool EventReader::readHorizonIDs(const char* fnm)
 
     FilePath horidfnm;
     horidfnm.setPath( fnm );
-    horidfnm.setFileName( EventReader::sHorizonFileName() );
+    horidfnm.add( EventReader::sHorizonFileName() );
 
     IOPar par;
     if ( !par.read( horidfnm.fullPath().buf(),
