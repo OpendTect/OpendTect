@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.83 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.84 2009-02-27 10:26:27 cvsnanne Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -392,7 +392,7 @@ bool uiAttribDescSetEd::doSave( bool endsave )
 }
 
 
-void uiAttribDescSetEd::autoSet()
+void uiAttribDescSetEd::autoSet( CallBacker* )
 {
     const bool is2d = is2D();
     uiAutoAttrSelDlg dlg( this, is2d );
