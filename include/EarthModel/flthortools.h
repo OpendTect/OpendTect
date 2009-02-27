@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.7 2008-11-18 19:15:25 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.8 2009-02-27 12:05:28 nanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public:
 
     bool		calculate();
 
+    const char*		lineName() const	{ return linenm_; }
     const char		getPos(int trcnr,float z) const;
     const CubeSampling&	area() const		{ return cs_; }
 
@@ -90,6 +91,7 @@ protected:
     const EM::Horizon2D&	bothor_;
 
     int				sticknr_;
+    BufferString		linenm_;
 };
 
 
@@ -101,9 +103,10 @@ class FaultStickThrow
 {
 public:
 			FaultStickThrow(const EM::FaultStickSet&,int sticknr,
-				     const EM::Horizon2D&,const EM::Horizon2D&);
+			     const EM::Horizon2D&,const EM::Horizon2D&);
 			~FaultStickThrow();
 
+    const char*		lineName() const	{ return linenm_; }
     float		getValue(float z,bool negtopos) const;
 
 
@@ -118,6 +121,7 @@ protected:
     const EM::Horizon2D& bothor_;
 
     int			sticknr_;
+    BufferString	linenm_;
 
     float		topzneg_;
     float		topzpos_;

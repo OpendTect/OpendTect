@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.12 2008-11-25 15:36:06 bert Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.13 2009-02-27 12:05:28 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -71,7 +71,7 @@ bool FaultStickSubSampler::execute()
 		crds_ += knot2;
 		found = true;
 	    }
-	    else
+	    else if ( curz>knot1.z && curz<knot2.z )
 	    {
 		Coord newcrd = knot1.coord() + (knot2.coord()-knot1.coord())*
 					    (curz-knot1.z)/(knot2.z-knot1.z);
@@ -196,6 +196,8 @@ FaultHorizon2DLocationField::FaultHorizon2DLocationField(
     flt_.ref();
     tophor_.ref();
     bothor_.ref();
+
+    linenm_ = flt.geometry().lineName( EM::SectionID(0), sticknr_ );
 }
 
 
@@ -226,15 +228,20 @@ bool FaultHorizon2DLocationField::calculate()
     if ( !ls.getGeometry(lineidx,lineposinfo) )
 	return false;
 
-    PosInfo::Line2DPos firstpos, lastpos;
-    if ( !lineposinfo.getPos(crds.first(),firstpos) ||
-	 !lineposinfo.getPos(crds.last(),lastpos) )
+    PosInfo::Line2DPos pos2d;
+    Interval<int> trcrg( mUdf(int), -mUdf(int) );
+    for ( int idx=0; idx<crds.size(); idx++ )
+    {
+	if ( lineposinfo.getPos(crds[idx],pos2d) )
+	    trcrg.include( pos2d.nr_, false );
+    }
+
+    if ( mIsUdf(trcrg.start) )
 	return false;
 
     const int lidxtop = tophor_.geometry().lineIndex( lnm );
     const int lidxbot = bothor_.geometry().lineIndex( lnm );
 
-    Interval<int> trcrg( firstpos.nr_, lastpos.nr_ ); trcrg.sort();
     cs_.hrg.set( Interval<int>(0,0), trcrg );
     Interval<float> zrg =
 	tophor_.geometry().sectionGeometry(sid)->zRange(lidxtop);
@@ -307,6 +314,7 @@ FaultStickThrow::FaultStickThrow( const EM::FaultStickSet& flt, int sticknr,
     tophor_.ref();
     bothor_.ref();
 
+    linenm_ = flt.geometry().lineName( EM::SectionID(0), sticknr_ );
     topzneg_ = topzpos_, botzneg_, botzpos_ = mUdf(float);
     init();
 }
