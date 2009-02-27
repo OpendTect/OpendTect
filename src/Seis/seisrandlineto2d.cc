@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.6 2009-02-19 10:30:14 cvsraman Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.7 2009-02-27 08:54:45 cvsraman Exp $";
 
 #include "seisrandlineto2d.h"
 #include "randomlinegeom.h"
@@ -130,19 +130,21 @@ int SeisRandLineTo2D::nextStep()
 	return Executor::ErrorOccurred();
 
     nrdone_++;
-    if ( seldata_.binidValueSet().next(pos_) )
+    while ( seldata_.binidValueSet().next(pos_) )
     {
 	const BinID nextbid = seldata_.binidValueSet().getBinID( pos_ );
-	if ( nextbid == bid )
-	{
-	    seldata_.binidValueSet().get( pos_, bid, vals );
-	    const Coord nextcoord( vals[1], vals[2] );
-	    const int nexttrcnr = mNINT( vals[3] );
-	    trc.info().nr = nexttrcnr;
-	    trc.info().coord = nextcoord;
-	    if ( !wrr_->put(trc) )
-		return Executor::ErrorOccurred();
-	}
+	if ( nextbid != bid )
+	    break;
+
+	seldata_.binidValueSet().get( pos_, bid, vals );
+	const Coord nextcoord( vals[1], vals[2] );
+	const int nexttrcnr = mNINT( vals[3] );
+	trc.info().nr = nexttrcnr;
+	trc.info().coord = nextcoord;
+	if ( !wrr_->put(trc) )
+	    return Executor::ErrorOccurred();
+
+	nrdone_++;
     }
 
     return Executor::MoreToDo();
