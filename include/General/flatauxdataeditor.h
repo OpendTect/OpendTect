@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.13 2008-12-25 11:21:53 cvsranojay Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.14 2009-02-27 16:08:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,9 @@ public:
 				      If selPtIdx()==-1, position should be
 				      			 added,
 				      else		 point moved. */
-    Notifier<AuxDataEditor>	removeSelected;
+    CNotifier<AuxDataEditor,bool> removeSelected;
+    				/*!<Boolean is true if this is the end
+				    of user interaction */
 
     void			setSelectionPolygonRectangle(bool);
     				//!<If not rectangle, it's a polygon
@@ -96,6 +98,12 @@ public:
     MenuHandler*	getMenuHandler();
 
 protected:
+    void		getPointSelections(
+	    		    const ObjectSet<Annotation::AuxData>& polygon,
+			    TypeSet<int>& ids, TypeSet<int>& idxs) const;
+			/*!<Each point within the limits of the polygons
+			    will be put in the typesets.*/
+
     bool		removeSelectionPolygon();
     			//!<Returns true if viewer must be notified.
     void		mousePressCB(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.25 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: flatauxdataeditor.cc,v 1.26 2009-02-27 16:08:10 cvskris Exp $";
 
 #include "flatauxdataeditor.h"
 
@@ -187,6 +187,17 @@ const LineStyle& AuxDataEditor::getSelectionPolygonLineStyle() const
 void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 	                                TypeSet<int>& idxs) const
 {
+    getPointSelections( polygonsel_, ids, idxs );
+}
+
+
+
+void AuxDataEditor::getPointSelections(
+	const ObjectSet<Annotation::AuxData>& polygonsel,
+	TypeSet<int>& ids, TypeSet<int>& idxs) const
+{
+    ids.erase();
+    idxs.erase();
     RCol2Coord polytrans;
     polytrans.set3Pts( curview_.topLeft(), curview_.topRight(),
 	    curview_.bottomLeft(), 
@@ -194,16 +205,16 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 	    RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
 	    mousearea_.bottomLeft().y );
 
-    for ( int idx=0; idx<polygonsel_.size(); idx++ )
+    for ( int idx=0; idx<polygonsel.size(); idx++ )
     {
-	if ( polygonsel_[idx]->poly_.size()<3 )
+	if ( polygonsel[idx]->poly_.size()<3 )
 	    continue;
 
 	TypeSet<Geom::Point2D<int> > displayselpoly;
-	for ( int idy=0; idy<polygonsel_[idx]->poly_.size(); idy++ )
+	for ( int idy=0; idy<polygonsel[idx]->poly_.size(); idy++ )
 	{
 	    const RowCol& rc =
-		polytrans.transformBack(polygonsel_[idx]->poly_[idy]);
+		polytrans.transformBack(polygonsel[idx]->poly_[idy]);
 	    displayselpoly += Geom::Point2D<int>( rc.row, rc.col );
 	}
 
@@ -225,7 +236,7 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 		    trans.transformBack(auxdata_[idy]->poly_[idz]);
 		const Geom::Point2D<int> testpos( rc.row, rc.col );
 
-		if ( !polygon.isInside( Geom::Point2D<int>(rc.row,rc.col), true, 1 ) )
+		if ( !polygon.isInside( testpos, true, 1 ) )
 		    continue;
 
 		ids += auxdataid;
@@ -250,7 +261,11 @@ void AuxDataEditor::removePolygonSelected( int dataid )
     TypeSet<int> ids;
     TypeSet<int> idxs;
 
-    getPointSelections( ids, idxs );
+
+    ObjectSet<Annotation::AuxData> polygonsel;
+    deepCopy( polygonsel, polygonsel_ );
+
+    getPointSelections( polygonsel, ids, idxs );
 
     while ( ids.size() )
     {
@@ -268,8 +283,14 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 		}
 	    }
 
-	    seldatasetidx_ = 0;
-	    removeSelected.trigger();
+	    seldatasetidx_ = ids_.indexOf( curdataid );
+	    removeSelected.trigger( !ids.size(), this );
+
+	    if ( !ids.size() )
+		break;
+
+	    getPointSelections( polygonsel, ids, idxs );
+	    //Update, since ids may have changed.
 	}
 	else
 	{
@@ -404,7 +425,7 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	 !ev.altStatus() && seldatasetidx_!=-1 &&
 	 allowremove_[seldatasetidx_] && selptidx_.size() )
     {
-	removeSelected.trigger();
+	removeSelected.trigger( true, this );
 
 	if ( doedit_[seldatasetidx_] )
 	{
