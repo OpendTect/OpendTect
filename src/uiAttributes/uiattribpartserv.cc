@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.109 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.110 2009-02-27 10:25:46 cvsnanne Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -475,10 +475,10 @@ EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs,
 DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
 					       DataPack::ID cacheid )
 {
-    const bool isflat = cs.isFlat();
-    DataPackMgr& dpman = DPM( isflat ? DataPackMgr::FlatID()
-	    			     : DataPackMgr::CubeID() );
-    const DataPack* datapack = dpman.obtain( cacheid, true );
+    DataPack* datapack = DPM( DataPackMgr::FlatID() ).obtain( cacheid, true );
+    if ( !datapack )
+	datapack = DPM( DataPackMgr::CubeID() ).obtain( cacheid, true );
+
     const Attrib::DataCubes* cache = 0;
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
     if ( cdp ) cache = &cdp->cube();
@@ -487,12 +487,16 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
     const DataCubes* output = createOutput( cs, cache );
     if ( !output || !output->nrCubes() ) return -1;
 
+    const bool isflat = cs.isFlat();
     DataPack* newpack;
     if ( isflat )
 	newpack = new Attrib::Flat3DDataPack( targetID(false), *output, 0 );
     else
 	newpack = new Attrib::CubeDataPack( targetID(false), *output, 0 );
     newpack->setName( targetspecs_[0].userRef() );
+
+    DataPackMgr& dpman = DPM( isflat ? DataPackMgr::FlatID()
+	    			     : DataPackMgr::CubeID() );
     dpman.add( newpack );
     return newpack->id();
 }
