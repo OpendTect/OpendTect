@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.3 2009-02-26 15:09:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.4 2009-03-02 06:14:03 cvsranojay Exp $";
 
 #include "embodyoperator.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: embodyoperator.cc,v 1.3 2009-02-26 15:09:05 cvs
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "task.h"
-#include "trigonometry.h"
+
 
 
 namespace EM
