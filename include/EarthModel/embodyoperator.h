@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: embodyoperator.h,v 1.2 2009-02-26 15:09:04 cvsyuancheng Exp $
+ RCS:		$Id: embodyoperator.h,v 1.3 2009-03-02 06:13:19 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "enums.h"
 #include "iopar.h"
 #include "task.h"
+#include "trigonometry.h"
 
 class TaskRunner;
 class Coord3;
