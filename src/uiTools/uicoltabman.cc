@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.26 2009-02-03 08:31:27 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.27 2009-03-02 06:46:41 cvssatyaki Exp $";
 
 #include "uicoltabman.h"
 
@@ -69,8 +69,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     uiGroup* rightgrp = new uiGroup( this, "Right" );
 
     uiFunctionDisplay::Setup su;
-    su.border(uiBorder(4,0,0,2)).xrg(Interval<float>(0,1)).editable(true)
-      .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth)
+    su.border(uiBorder(5,10,0,5)).xrg(Interval<float>(0,1)).editable(true)
+      .yrg(Interval<float>(0,255)).canvaswidth(mTransWidth).closepolygon(false)
       .canvasheight(mTransHeight).drawscattery1(true) .ycol(Color(255,0,0))
       .y2col(Color(190,190,190)).drawliney2(false).fillbelowy2(true)
       .pointsz(3).ptsnaptol(0.08).noxaxis(true).noyaxis(true).noy2axis(true);

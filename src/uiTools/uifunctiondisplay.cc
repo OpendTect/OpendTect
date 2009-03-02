@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.28 2009-02-18 06:52:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.29 2009-03-02 06:46:41 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -40,7 +40,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , borderrectitem_(0)
     , pointSelected(this)
     , pointChanged(this)
-    , mousedown_(this)
+    , mousedown_(false)
 {
     setZoomOnCtrlScroll( false );
     setPrefWidth( setup_.canvaswidth_ );
@@ -490,7 +490,7 @@ bool uiFunctionDisplay::setSelPt()
     }
     selpt_ = -1;
     if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ ) return false;
-    if ( newsel == 0 || newsel == xvals_.size() - 1 )
+    if ( newsel < 0 || newsel > xvals_.size() - 1 )
     {
 	selpt_ == -1;
 	return false;
@@ -516,7 +516,8 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 {
     if ( !mousedown_ ) return; mousedown_ = false;
     mGetMousePos();
-    if ( !isctrl || selpt_ < 0 || xvals_.size() < 3 ) return;
+    if ( !isctrl || selpt_ < 0 || selpt_ >= xvals_.size()-1
+	 || xvals_.size() < 3 ) return;
 
     xvals_.remove( selpt_ );
     yvals_.remove( selpt_ );
@@ -564,8 +565,19 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
     mGetMousePos();
     if ( !isnorm ) return;
 
-    const float xval = xax_->getVal(ev.pos().x);
-    const float yval = yax_->getVal(ev.pos().y);
+    float xval = xax_->getVal(ev.pos().x);
+    float yval = yax_->getVal(ev.pos().y);
+    
+    if ( xval > xax_->range().stop )
+	xval = xax_->range().stop;
+    else if ( xval < xax_->range().start )
+	xval = xax_->range().start;
+
+    if ( yval > yax_->range().stop )
+	yval = yax_->range().stop;
+    else if ( yval < yax_->range().start )
+	yval = yax_->range().start;
+
     if ( xval > xvals_[xvals_.size()-1] )
     {
 	xvals_ += xval; yvals_ += yval;
