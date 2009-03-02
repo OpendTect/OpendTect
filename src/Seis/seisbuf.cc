@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.46 2008-12-23 12:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.47 2009-03-02 23:06:38 cvsyuancheng Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -125,22 +125,23 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
     if ( sz < 2 || isSorted(ascending,fld) )
 	return;
 
-    ArrPtrMan<int> idxs = new int [sz];
-    ArrPtrMan<float> vals = new float [sz];
-    const double offs = get(0)->info().getValue( fld );
+    mAllocVarLenArr( int, idxs, sz );
+    mAllocVarLenArr( float, vals, sz );
+    const double offs = trcs[0]->info().getValue( fld );
     for ( int idx=0; idx<sz; idx++ )
     {
 	idxs[idx] = idx;
-	vals[idx] = (float)(get(idx)->info().getValue( fld ) - offs);
+	vals[idx] = (float)(trcs[idx]->info().getValue( fld ) - offs);
     }
     sort_coupled( (float*)vals, (int*)idxs, sz );
     ObjectSet<SeisTrc> tmp;
     for ( int idx=0; idx<sz; idx++ )
-	tmp += get( idxs[idx] );
+	tmp += trcs[idxs[idx]];
 
-    erase();
+    trcs.erase();
+
     for ( int idx=0; idx<sz; idx++ )
-	add( tmp[ascending ? idx : sz - idx - 1] );
+	trcs += tmp[ascending ? idx : sz - idx - 1];
 }
 
 
