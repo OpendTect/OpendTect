@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.56 2009-01-20 06:47:50 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.57 2009-03-02 05:47:46 cvsnanne Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -96,7 +96,7 @@ protected:
 static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 			    bool stepout )
 {
-    DescSet initialset( false, false );
+    DescSet initialset( false );
     PtrMan<IOPar> attribs = iopar.subselect("Attributes");
     if ( !initialset.usePar( *attribs ) )
 	mErrRet( initialset.errMsg() )
@@ -375,7 +375,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     StorageProvider::initClass();
-    DescSet attribset(false,false);
+    DescSet attribset( false );
     PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes );
     if ( !attribset.usePar(*attribs) )
 	mErrRetNoProc( attribset.errMsg() )
