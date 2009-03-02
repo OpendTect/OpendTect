@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.18 2009-02-18 06:48:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.19 2009-03-02 05:31:56 cvsranojay Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -30,9 +30,12 @@ static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.18 2009-02-18 06:48:20 c
 #include <QPoint>
 #include <QPrinter>
 #include <QString>
-#include <QX11Info>
-
 #include <math.h>
+
+#if !defined( __win__ ) && !defined( __mac__ )
+# include <QX11Info>
+#endif
+
 
 
 class ODGraphicsScene : public QGraphicsScene
@@ -415,7 +418,15 @@ double uiGraphicsScene::height() const
 { return odgraphicsscene_->height(); }
 
 int uiGraphicsScene::getDPI() const
-{ return QX11Info::appDpiX(); }
+{
+// TODO: move to Basic
+#if defined( __win__ ) || defined( __mac__ )
+    return 100;
+#else
+    return QX11Info::appDpiX();
+#endif
+}
+
 
 void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
 { odgraphicsscene_->setSceneRect( x, y, w, h ); }
