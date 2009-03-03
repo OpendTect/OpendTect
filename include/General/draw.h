@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.23 2008-12-25 11:21:53 cvsranojay Exp $
+ RCS:           $Id: draw.h,v 1.24 2009-03-03 19:11:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ mClass MarkerStyle3D
 public:
 
     enum Type		{ None=-1,
-			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross };
+			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross, Point };
 			DeclareEnumUtils(Type)
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
