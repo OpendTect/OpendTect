@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.407 2009-02-17 14:21:03 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.408 2009-03-03 08:04:33 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -456,15 +456,17 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
     }
 
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
-    if ( so )
-	so->getChildren( childids );
+    if ( so ) so->getChildren( childids );
 }
 
 
-uiVisPartServer::AttribFormat uiVisPartServer::getAttributeFormat(int id) const
+uiVisPartServer::AttribFormat
+    uiVisPartServer::getAttributeFormat( int id, int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    switch ( so ? so->getAttributeFormat() : visSurvey::SurveyObject::None )
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
+    if ( !so ) return None;
+
+    switch ( so->getAttributeFormat(attrib) )
     {
 	case visSurvey::SurveyObject::None		: return None;
 	case visSurvey::SurveyObject::Cube		: return Cube;

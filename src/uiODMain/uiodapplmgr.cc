@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.302 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.303 2009-03-03 08:04:33 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -730,7 +730,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
     } 
 
     bool res = false;
-    switch ( visserv_->getAttributeFormat(visid) )
+    switch ( visserv_->getAttributeFormat(visid,attrib) )
     {
 	case uiVisPartServer::Cube :
 	{
@@ -867,7 +867,8 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 {
     /* Perhaps better to merge this with uiODApplMgr::getNewData(), 
        for now it works */
-    uiVisPartServer::AttribFormat format = visserv_->getAttributeFormat( visid);
+    uiVisPartServer::AttribFormat format =
+				visserv_->getAttributeFormat( visid, attrib );
     if ( format == uiVisPartServer::Cube )
     {
 	const CubeSampling cs = visserv_->getCubeSampling( visid );
@@ -1190,7 +1191,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
     {
 	const int visid = visserv_->getEventObjId();
 	const uiVisPartServer::AttribFormat format = 
-	    				visserv_->getAttributeFormat( visid );
+				visserv_->getAttributeFormat( visid, -1 );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
 	TypeSet<DataPointSet::DataRow> pts;
@@ -1452,12 +1453,12 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 
 bool uiODApplMgr::handleAttribServEv( int evid )
 {
+    const int visid = visserv_->getEventObjId();
+    const int attrib = visserv_->getSelAttribNr();
     if ( evid==uiAttribPartServer::evDirectShowAttr() )
     {
 	Attrib::SelSpec as;
 	attrserv_->getDirectShowAttrSpec( as );
-	const int visid = visserv_->getEventObjId();
-	const int attrib = visserv_->getSelAttribNr();
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( "Please select an attribute element in the tree" );
@@ -1479,20 +1480,18 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvalAttrInit() )
     {
 	const uiVisPartServer::AttribFormat format = 
-	    	visserv_->getAttributeFormat( visserv_->getEventObjId() );
+				visserv_->getAttributeFormat( visid, attrib );
 	const bool alloweval = !( format==uiVisPartServer::None );
 	const bool allowstorage = format==uiVisPartServer::RandomPos;
 	attrserv_->setEvaluateInfo( alloweval, allowstorage );
     }
     else if ( evid==uiAttribPartServer::evEvalCalcAttr() )
     {
-	const int visid = visserv_->getEventObjId();
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
 
 	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
 	BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
 	as.setObjectRef( savedusrref );
-	const int attrib = visserv_->getSelAttribNr();
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( "Please select an attribute element in the tree" );
@@ -1511,7 +1510,6 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evEvalShowSlice() )
     {
-	const int visid = visserv_->getEventObjId();
 	const int sliceidx = attrserv_->getSliceIdx();
 	const int attrnr =
 	    visserv_->getSelAttribNr()==-1 ? 0 : visserv_->getSelAttribNr();
@@ -1521,11 +1519,10 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     }
     else if ( evid==uiAttribPartServer::evEvalStoreSlices() )
     {
-	const int visid = visserv_->getEventObjId();
 	const int attrnr =
 	    visserv_->getSelAttribNr()==-1 ? 0 : visserv_->getSelAttribNr();
 	const uiVisPartServer::AttribFormat format = 
-	    				visserv_->getAttributeFormat( visid );
+				visserv_->getAttributeFormat( visid, attrib );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
 	TypeSet<DataPointSet::DataRow> pts;
@@ -1550,8 +1547,6 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	pickserv_->setPickSet( attrserv_->getSelPickSet() );
     else if ( evid==uiAttribPartServer::evEvalUpdateName() )
     {
-	const int visid = visserv_->getEventObjId();
-	const int attrib = visserv_->getSelAttribNr();
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
 					visserv_->getSelSpec(visid,attrib) );
 	//set user chosen name stocked in objectRef during evaluation process

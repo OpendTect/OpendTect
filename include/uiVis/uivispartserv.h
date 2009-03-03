@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.230 2009-02-17 14:21:03 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.231 2009-03-03 08:04:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,7 @@ public:
 			   \var	OtherFormat
 				This object wants data in a different format. */
 
-    AttribFormat	getAttributeFormat(int id) const;
+    AttribFormat	getAttributeFormat(int id,int attrib) const;
     bool		canHaveMultipleAttribs(int id) const;
     bool		canAddAttrib(int id,int nrattribstoadd=1) const;
     bool		canRemoveAttrib(int id) const;
