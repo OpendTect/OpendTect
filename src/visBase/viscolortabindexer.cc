@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.9 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.10 2009-03-03 11:30:36 cvsnanne Exp $";
 
 #include "viscolortabindexer.h"
 
@@ -97,7 +97,8 @@ bool ColorTabIndexer::doWork( od_int64 start, od_int64 stop, int threadid )
 	    int colorindex = colortab_->colIndex( datacacheptr_[idx] );
 	    if ( colorindex < 0 ) colorindex = 0;
 	    indexcache_[idx] = colorindex;
-	    histogram[colorindex]++;
+	    if ( colorindex<nrhistogramsteps_ )
+		histogram[colorindex]++;
 	}
     }
     else
@@ -107,7 +108,8 @@ bool ColorTabIndexer::doWork( od_int64 start, od_int64 stop, int threadid )
 	    int colorindex = colortab_->colIndex(datacache_->value(idx));
 	    if ( colorindex < 0 ) colorindex = 0;
 	    indexcache_[idx] = colorindex;
-	    histogram[colorindex]++;
+	    if ( colorindex<nrhistogramsteps_ )
+	        histogram[colorindex]++;
 	}
     }
 
