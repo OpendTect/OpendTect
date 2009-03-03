@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.10 2009-03-03 21:02:17 cvskris Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.11 2009-03-03 22:13:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ mClass uiTaskRunner : public uiDialog
 		   , public TaskRunner
 { 	
 public:
-			uiTaskRunner(uiParent*);
+			uiTaskRunner(uiParent*,bool dispmsgonerr=true);
 			~uiTaskRunner();
 
     bool		execute(Task& t);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.15 2009-03-03 21:02:17 cvskris Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.16 2009-03-03 22:13:49 cvskris Exp $";
 
 #include "uitaskrunner.h"
 
@@ -23,7 +23,7 @@ static const char* rcsID = "$Id: uitaskrunner.cc,v 1.15 2009-03-03 21:02:17 cvsk
 #include <math.h>
 
 
-uiTaskRunner::uiTaskRunner( uiParent* p ) 
+uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr ) 
     : uiDialog( p, uiDialog::Setup("Executing",mNoDlgTitle,mNoHelpID)
 	.nrstatusflds( -1 )
 	.oktext("Pause")
@@ -32,7 +32,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p )
     , tim_(*new Timer("") )
     , execnm_("")
     , statemutex_( *new Threads::Mutex )
-    , dispmsgonerr_( true )
+    , dispmsgonerr_( dispmsgonerr )
 {
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
