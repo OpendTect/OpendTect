@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.16 2009-02-26 13:00:52 cvsbert Exp $
+ RCS:           $Id: uiattrsel.h,v 1.17 2009-03-03 13:00:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,11 +186,9 @@ protected:
 mClass uiImagAttrSel : public uiAttrSel
 {
 public:
-			uiImagAttrSel( uiParent* p, const Attrib::DescSet& a,
-				      const char* txt=0,
-				      Attrib::DescID curid=
-				      		Attrib::DescID(-1,true))
-			: uiAttrSel(p,a,txt,curid)	{}
+			uiImagAttrSel( uiParent* p, const char* txt,
+					const uiAttrSelData& asd )
+			: uiAttrSel(p,txt,asd)	{}
 
     inline Attrib::DescID realID() const		{ return attribID(); }
     Attrib::DescID	imagID() const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.26 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.27 2009-03-03 13:00:50 cvsbert Exp $";
 
 #include "uimathattrib.h"
 #include "mathattrib.h"
@@ -134,7 +134,7 @@ void uiMathAttrib::updateDisplay( bool userecfld )
 	attribflds_.erase();
 
 	xtable_->setNrRows( nrxvars_ );
-	const uiAttrSelData asd( is2d_ );
+	const uiAttrSelData asd( is2d_, false );
 	for ( int idx=0; idx<nrxvars_; idx++ )
 	{
 	    uiAttrSel* attrbox = new uiAttrSel( 0, 0, asd );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.58 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.59 2009-03-03 13:00:50 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -61,7 +61,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     bool is2d = ad.is2D();
     setTitleText( is2d ? "Create 2D seismic output":"Create 3D seismic output");
 
-    uiAttrSelData attrdata( ad );
+    uiAttrSelData attrdata( ad, false );
     attrdata.nlamodel = nlamodel;
     todofld = new uiAttrSel( uppgrp_, "Quantity to output", attrdata );
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
