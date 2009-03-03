@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscolortab.cc,v 1.48 2008-12-18 21:25:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.49 2009-03-03 06:03:24 cvsnanne Exp $";
 
 #include "viscolortab.h"
 
@@ -53,7 +53,7 @@ VisColorTab::~VisColorTab()
 {
     if ( viscolseq_ )
     {
-	viscolseq_->change.remove( mCB(this,VisColorTab,colorseqchanged) );
+	viscolseq_->change.remove( mCB(this,VisColorTab,colorseqChanged) );
 	viscolseq_->unRef();
     }
 
@@ -169,7 +169,7 @@ void VisColorTab::setColorSeq( ColorSequence* ns )
 {
     if ( viscolseq_ )
     {
-	viscolseq_->change.remove( mCB(this,VisColorTab,colorseqchanged) );
+	viscolseq_->change.remove( mCB(this,VisColorTab,colorseqChanged) );
 	viscolseq_->unRef();
     }
 
@@ -180,7 +180,7 @@ void VisColorTab::setColorSeq( ColorSequence* ns )
     indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
 	    					  sNrColors, ctmapper_ );
 
-    viscolseq_->change.notify( mCB(this,VisColorTab,colorseqchanged) );
+    viscolseq_->change.notify( mCB(this,VisColorTab,colorseqChanged) );
     sequencechange.trigger();
 }
 
@@ -193,7 +193,7 @@ ColorSequence& VisColorTab::colorSeq()
 { return *viscolseq_; }
 
 
-void VisColorTab::colorseqchanged()
+void VisColorTab::colorseqChanged( CallBacker* )
 {
     indextable_->update();
     sequencechange.trigger();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.23 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: viscolortab.h,v 1.24 2009-03-03 06:03:24 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -81,7 +81,7 @@ public:
 protected:
     virtual			~VisColorTab();
 
-    void			colorseqchanged();
+    void			colorseqChanged(CallBacker*);
 
     ColTab::Mapper*		ctmapper_;
     ColTab::IndexedLookUpTable*	indextable_;
