@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.4 2009-01-23 23:01:55 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.5 2009-03-03 20:00:13 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -46,6 +46,20 @@ bool VolumeFunction::moveTo( const BinID& bid )
     }
 
     return true;
+}
+
+
+void VolumeFunction::enableExtrapolation( bool yn )
+{
+    extrapolate_ = yn;
+    removeCache();
+}
+
+
+void VolumeFunction::setStatics( float statics )
+{
+    statics_ = statics;
+    removeCache();
 }
 
 
