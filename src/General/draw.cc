@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.70 2008-10-27 11:07:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.71 2009-03-03 18:52:40 cvskris Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -18,11 +18,11 @@ The main chunk is color table related.
 // First some implementations for a couple of header files ...
 
 DefineEnumNames(MarkerStyle2D,Type,2,"Marker type")
-    { "None", "Square", "Circle", "Cross", 0 };
+{ "None", "Square", "Circle", "Cross", 0 };
 DefineEnumNames(MarkerStyle3D,Type,0,"Marker type")
-    { "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", 0 };
+{ "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", "Point", 0 };
 DefineEnumNames(LineStyle,Type,0,"Line style")
-    { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
+{ "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 
 
 // Then some draw.h stuff
