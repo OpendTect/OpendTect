@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.5 2009-02-27 16:17:51 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.6 2009-03-03 22:12:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,7 @@ namespace PreStack
 
 class EventManager;
 class EventPatchReader;
+class EventPatchWriter;
 
 /*! Reader for prestack events. */
 
@@ -54,7 +55,8 @@ public:
 	    			       Interval<int>& crlrg ) const;
     			//!<Only after first nextStep, or prepareWork
 			
-    const char*		message() const;
+    const char*		message() const		{ return "Loading events"; }
+    const char*		errMsg() const;
 
     static int		encodeEventType(VSEvent::Type);
     static VSEvent::Type decodeEventType(int);
@@ -85,9 +87,9 @@ protected:
     const BinIDValueSet*			bidsel_;
     const HorSampling*				horsel_;
 
-    ObjectSet<SequentialTask>			patchreaders_;	
+    ObjectSet<EventPatchReader>			patchreaders_;	
 
-    BufferString				msg_;
+    BufferString				errmsg_;
 };
 
 
@@ -99,6 +101,7 @@ public:
 
     int			nextStep();
     const char*		errMsg() const;
+    const char*		message() const		{ return "Storing events"; }
 
     static const char*	sKeyISamp() { return "In-line sampling"; }
     static const char*	sKeyCSamp() { return "Cross-line sampling"; }
@@ -107,7 +110,7 @@ protected:
 
     bool			writeHorizonIDs( const char* fnm ) const;
 
-    ObjectSet<SequentialTask>	patchwriters_;	
+    ObjectSet<EventPatchWriter>	patchwriters_;	
     IOObj*			ioobj_;
     EventManager&		eventmanager_;
     BufferString		errmsg_;

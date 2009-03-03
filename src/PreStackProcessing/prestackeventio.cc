@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.6 2009-02-27 16:17:51 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.7 2009-03-03 22:12:46 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -234,8 +234,8 @@ void EventReader::setSelection( const HorSampling* hs )
 { horsel_ = hs; }
 
 
-const char* EventReader::message() const
-{ return msg_.isEmpty() ? 0 : msg_.buf(); }
+const char* EventReader::errMsg() const
+{ return errmsg_.isEmpty() ? 0 : errmsg_.buf(); }
 
 
 int EventReader::nextStep()
@@ -253,17 +253,22 @@ int EventReader::nextStep()
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
 	if ( !readHorizonIDs( fnm.buf() ) )
 	{
-	    msg_ = "Error: Cannot read horizon information";
+	    errmsg_ = "Error: Cannot read horizon information";
 	    return ErrorOccurred();
 	}
 
 	return patchreaders_.size() ? MoreToDo() : Finished();
     }
 
-    msg_ = "Reading events";
+    errmsg_ = "Reading events";
 
     const int res = patchreaders_[0]->doStep();
-    if ( res<0 ) return ErrorOccurred();
+    if ( res<0 )
+    {
+	errmsg_ = patchreaders_[0]->errMsg();
+	return ErrorOccurred();
+    }
+
     if ( !res )
     {
 	delete patchreaders_.remove( 0 );
@@ -282,9 +287,9 @@ bool EventReader::prepareWork()
     const BufferString fnm( ioobj_->fullUserExpr(true) );
     if ( !File_isDirectory(fnm.buf()) )
     {
-	msg_ = "Error: ";
-	msg_ += fnm;
-	msg_ += " is not a directory";
+	errmsg_ = "Error: ";
+	errmsg_ += fnm;
+	errmsg_ += " is not a directory";
 	return false;
     }
 
@@ -376,24 +381,33 @@ bool EventReader::readHorizonIDs(const char* fnm)
     IOPar par;
     if ( !par.read( horidfnm.fullPath().buf(),
 		    EventReader::sHorizonFileType(), true ) )
+    {
+	errmsg_ = "Cannot read ";
+	errmsg_ += horidfnm.fullPath().buf();
 	return false;
+    }
 
     int nrhors, nexthor;
     if ( !par.get( EventReader::sKeyNrHorizons(), nrhors ) ||
 	 !par.get( EventReader::sKeyNextHorizonID(), nexthor ) )
+    {
+	errmsg_ = "Cannot parse ";
+	errmsg_ += horidfnm.fullPath().buf();
 	return false;
+    }
 
     NotifyStopper stopper( eventmanager_->change );
     for ( int idx=0; idx<nrhors; idx++ )
     {
 	const BufferString key( "", idx );
-	PtrMan<IOPar> horpar = par.subselect( key.buf() );
-	if ( !horpar )
-	    return false;
-
 	int id;
-	if ( !horpar->get( EventReader::sKeyHorizonID(), id ) )
+	PtrMan<IOPar> horpar = par.subselect( key.buf() );
+	if ( !horpar || !horpar->get( EventReader::sKeyHorizonID(), id ) )
+	{
+	    errmsg_ = "Cannot parse horizon ";
+	    errmsg_ += key.buf();
 	    return false;
+	}
 
 	eventmanager_->addHorizon( id );
 
@@ -415,11 +429,17 @@ bool EventReader::readHorizonIDs(const char* fnm)
     if ( par.get( sKeyPrimaryDipSource(), dipsourcestr ) )
     {
 	if ( primarydipsource.use( dipsourcestr.buf() ) )
+	{
+	    errmsg_ = "Cannot parse primary dip-source";
 	    return false;
+	}
 
 	if ( !par.get( sKeySecondaryDipSource(), dipsourcestr ) ||
 	     !secondarydipsource.use( dipsourcestr.buf() ) )
+	{
+	    errmsg_ = "Cannot parse secondary dip-source";
 	    return false;
+	}
     }
 
     eventmanager_->setDipSource( primarydipsource, true );
@@ -535,7 +555,7 @@ int EventWriter::nextStep()
 
 	    FilePath filename;
 	    filename.setPath( fnm.buf() );
-	    filename.setFileName( filenamebase.buf() );
+	    filename.add( filenamebase.buf() );
 	    filename.setExtension( PSEventTranslatorGroup::sDefExtension() );
 
 	    EventPatchWriter* writer =
@@ -569,7 +589,12 @@ int EventWriter::nextStep()
     }
 
     const int res = patchwriters_[0]->doStep();
-    if ( res<0 ) return ErrorOccurred();
+    if ( res<0 )
+    {
+	errmsg_ = patchwriters_[0]->errMsg();
+	return ErrorOccurred();
+    }
+
     if ( !res )
     {
 	delete patchwriters_.remove( 0 );
@@ -617,7 +642,7 @@ bool EventWriter::writeHorizonIDs( const char* fnm ) const
 
     FilePath horidfnm;
     horidfnm.setPath( fnm );
-    horidfnm.setFileName( EventReader::sHorizonFileName() );
+    horidfnm.add( EventReader::sHorizonFileName() );
 
     par.set( sKey::Color, eventmanager_.getColor() );
 
@@ -1055,7 +1080,15 @@ int EventPatchReader::nextStep()
 
     strm.seekg( fileheader_.getOffset( headeridx_ ), std::ios::beg );
     const int nrevents = readInt16( strm );
-    if ( !strm ) return ErrorOccurred();
+    if ( !strm )
+    {
+	errmsg_ = "Could not read nr events from ";
+	errmsg_ += ((StreamConn*)conn_)->fileName();
+	errmsg_ += ". Binid=";
+	errmsg_ += curbid.inl; errmsg_ += "/"; errmsg_ += curbid.crl;
+
+	return ErrorOccurred();
+    }
 
     EventSet* ge = eventmanager_->getEvents( curbid, false, true );
     ge->ref();
@@ -1066,7 +1099,15 @@ int EventPatchReader::nextStep()
 	const int nrpicks = readUInt8( strm );
 	if ( !strm )
 	{
+	    deepErase( ge->events_ );
 	    ge->unRef();
+
+	    errmsg_ = "Could not read nr picks from ";
+	    errmsg_ += ((StreamConn*)conn_)->fileName();
+	    errmsg_ += ". Binid=";
+	    errmsg_ += curbid.inl; errmsg_ += "/"; errmsg_ += curbid.crl;
+	    errmsg_ += ". Event nr="; errmsg_ +=idx;
+
 	    return ErrorOccurred();
 	}
 
@@ -1094,14 +1135,19 @@ int EventPatchReader::nextStep()
 	    pse->offsetazimuth_[idy].setFrom( readInt32( strm ) );
 	}
 
-	ge->events_ += pse;
-    }
+	if ( !strm )
+	{
+	    deepErase( ge->events_ );
+	    ge->unRef();
+	    errmsg_ = "Could not event from ";
+	    errmsg_ += ((StreamConn*)conn_)->fileName();
+	    errmsg_ += ". Binid=";
+	    errmsg_ += curbid.inl; errmsg_ += "/"; errmsg_ += curbid.crl;
+	    errmsg_ += ". Event nr="; errmsg_ += idx;
+	    return ErrorOccurred();
+	}
 
-    if ( !strm )
-    {
-	deepErase( ge->events_ );
-	ge->unRef();
-	return ErrorOccurred();
+	ge->events_ += pse;
     }
 
     ge->unRefNoDelete();
@@ -1329,7 +1375,11 @@ int EventPatchWriter::nextStep()
 	par.putTo( astream );
 	fileheaderoffset_ = strm.tellp();
 	if ( !fileheader_.toStream( strm, binary_ ) )
+	{
+	    errmsg_ = "Cannot write file header to stream ";
+	    errmsg_ += filename_.buf();
 	    return ErrorOccurred();
+	}
     }
 
     std::ostream& strm = conn_->oStream();
@@ -1382,7 +1432,12 @@ int EventPatchWriter::nextStep()
     }
 
     if ( !strm )
+    {
+	errmsg_ = "Was not able to write to stream ";
+	errmsg_ += filename_.buf();
+
 	return ErrorOccurred();
+    }
 
     pses->ischanged_ = false;
 
