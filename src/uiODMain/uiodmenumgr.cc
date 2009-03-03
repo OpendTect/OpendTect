@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.152 2009-02-06 14:48:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.153 2009-03-03 12:26:02 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -262,7 +262,7 @@ void uiODMenuMgr::fillExportMenu()
     expmnus_.erase();
     expmnus_.allowNull();
     expmnus_ += expseis; expmnus_ += exphor;
-    expmnus_+= 0; expmnus_+=0; expmnus_+= 0;
+    expmnus_+= expflt; expmnus_+=0; expmnus_+= 0;
 }
 
 
