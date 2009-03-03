@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.9 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.10 2009-03-03 21:02:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ public:
     bool		execute(Task& t);
     const char*		lastMsg() const		{ return prevmessage_.buf(); }
     int			getState() const	{ return state_; }
+    void		displayMsgOnError(bool yn)	{ dispmsgonerr_ = yn; }
 
 protected:
 
@@ -44,6 +45,7 @@ protected:
     int			prevpercentage_;
     BufferString	prevmessage_;
     BufferString	prevnrdonetext_;
+    bool		dispmsgonerr_;
 
     Threads::Mutex&	statemutex_;	
     int			state_; //-1 finished in error

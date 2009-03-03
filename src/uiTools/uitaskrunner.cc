@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.14 2009-02-13 14:18:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.15 2009-03-03 21:02:17 cvskris Exp $";
 
 #include "uitaskrunner.h"
 
@@ -32,6 +32,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p )
     , tim_(*new Timer("") )
     , execnm_("")
     , statemutex_( *new Threads::Mutex )
+    , dispmsgonerr_( true )
 {
     progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
@@ -205,7 +206,7 @@ void uiTaskRunner::timerTick( CallBacker* )
 	    uitaskrunnerthreadmutex_.unLock();
 	}
 
-	if ( state<0 )
+	if ( state<0 && dispmsgonerr_ )
 	    uiMSG().error( message );
 
 	done( state<0 ? 0 : 1 );
