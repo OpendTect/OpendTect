@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.111 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.112 2009-03-03 08:06:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -78,7 +78,7 @@ public:
     int				nrResolutions() const;
     void			setResolution(int);
 
-    SurveyObject::AttribFormat	getAttributeFormat() const;
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib=-1) const;
 
     CubeSampling		getCubeSampling(int attrib=-1) const;
     CubeSampling		getCubeSampling(bool manippos,
@@ -103,9 +103,6 @@ public:
 	    					BufferString& val,
 	    					BufferString& info) const;
     void			getObjectInfo(BufferString&) const;
-
-    virtual void		fillPar(IOPar&, TypeSet<int>&) const;
-    virtual int			usePar(const IOPar&);
 
     virtual float		calcDist(const Coord3&) const;
     virtual float		maxDist() const;
@@ -134,8 +131,13 @@ public:
    
     const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib);
 
+    virtual const char*		getDisplayPropertyHolderName() const;
+
     static const char*		sKeyDepthKey()		{ return "DepthKey"; }
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
+
+    virtual void		fillPar(IOPar&, TypeSet<int>&) const;
+    virtual int			usePar(const IOPar&);
 
 protected:
 
@@ -193,9 +195,11 @@ protected:
     CubeSampling			csfromsession_;
     BinID				curicstep_;
     float				curzstep_;
-    ZAxisTransform*			datatransform_;
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
+
+    ZAxisTransform*			datatransform_;
+    mutable int				voiidx_;
 
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}

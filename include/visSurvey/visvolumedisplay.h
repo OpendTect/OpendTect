@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.64 2009-01-16 09:33:23 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.65 2009-03-03 08:06:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -109,7 +109,7 @@ public:
     NotifierAccess*		getManipulationNotifier() {return &slicemoving;}
     BufferString		getManipulationString() const;
 
-    visSurvey::SurveyObject::AttribFormat getAttributeFormat() const;
+    SurveyObject::AttribFormat	getAttributeFormat(int attrib) const;
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
     const TypeSet<float>* 	getHistogram(int attrib) const;
     int				getColTabID(int attrib) const;

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.45 2009-02-17 14:21:03 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.46 2009-03-03 08:06:37 cvsnanne Exp $";
 
 #include "vissurvobj.h"
 
@@ -16,7 +16,7 @@ namespace visSurvey {
 
     float SurveyObject::sDefMaxDist()	{ return 10; }
 
-SurveyObject::AttribFormat SurveyObject::getAttributeFormat() const
+SurveyObject::AttribFormat SurveyObject::getAttributeFormat( int attrib ) const
 { return SurveyObject::None; }
 
 int SurveyObject::nrAttribs() const

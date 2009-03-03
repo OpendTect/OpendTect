@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.14 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.15 2009-03-03 08:06:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,7 @@ public:
     virtual int			nrResolutions() const;
     virtual void		setResolution(int);
 
-    SurveyObject::AttribFormat	getAttributeFormat() const
+    SurveyObject::AttribFormat	getAttributeFormat(int) const
 				{ return SurveyObject::RandomPos; }
     void			getRandomPos(DataPointSet&) const;
     void			setRandomPosData(int,const DataPointSet*); 

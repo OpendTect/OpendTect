@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.101 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.102 2009-03-03 08:06:37 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -55,7 +55,7 @@ const char* VolumeDisplay::sKeyCrossLine()	{ return "Crossline"; }
 const char* VolumeDisplay::sKeyTime()		{ return "Time"; }
 
 const char* VolumeDisplay::sKeyNrSlices()	{ return "Nr of slices"; }
-const char* VolumeDisplay::sKeySlice()		{ return "SliceID"; }
+const char* VolumeDisplay::sKeySlice()		{ return "SliceID "; }
 const char* VolumeDisplay::sKeyTexture()	{ return "TextureID"; }
 
 const char* VolumeDisplay::sKeyNrIsoSurfaces()	{ return "Nr Isosurfaces"; }
@@ -743,7 +743,7 @@ const TypeSet<float>* VolumeDisplay::getHistogram( int attrib ) const
 { return attrib ? 0 : &scalarfield_->getHistogram(); }
 
 
-visSurvey::SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat() const
+SurveyObject::AttribFormat VolumeDisplay::getAttributeFormat( int ) const
 { return visSurvey::SurveyObject::Cube; }
 
 
@@ -1162,7 +1162,7 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
     par.set( sKeyNrSlices(), nrslices );
     for ( int idx=0; idx<nrslices; idx++ )
     {
-	BufferString str( sKeySlice() ); str += idx;
+	BufferString str( sKeySlice(), idx );
 	const int sliceid = slices_[idx]->id();
 	par.set( str, sliceid );
 	if ( saveids.indexOf(sliceid) == -1 ) saveids += sliceid;
@@ -1246,7 +1246,7 @@ int VolumeDisplay::usePar( const IOPar& par )
     par.get( sKeyNrSlices(), nrslices );
     for ( int idx=0; idx<nrslices; idx++ )
     {
-	BufferString str( sKeySlice() ); str += idx;
+	BufferString str( sKeySlice(), idx );
 	int sliceid;
 	par.get( str, sliceid );
 	dataobj = visBase::DM().getObject( sliceid );

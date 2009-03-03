@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.99 2009-02-19 07:02:36 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.100 2009-03-03 08:06:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -152,7 +152,7 @@ public:
 				   	This object wants attribdata of a
 					different kind. */
 
-    virtual AttribFormat	getAttributeFormat() const;
+    virtual AttribFormat	getAttributeFormat(int attrib=-1) const;
     virtual bool		canHaveMultipleAttribs() const { return false; }
     virtual int			nrAttribs() const;
     virtual bool		canAddAttrib(int nrattribstoadd=1) const;

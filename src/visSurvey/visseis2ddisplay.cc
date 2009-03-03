@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.60 2009-02-18 20:50:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.61 2009-03-03 08:06:37 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -569,7 +569,7 @@ int Seis2DDisplay::getResolution() const
 { return resolution_; }
 
 
-SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat() const
+SurveyObject::AttribFormat Seis2DDisplay::getAttributeFormat( int ) const
 { return SurveyObject::OtherFormat; }
 
 

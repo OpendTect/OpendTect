@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.70 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.71 2009-03-03 08:06:37 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -24,21 +24,22 @@ static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.70 2009-02-26 13:00:53
 #include "isocontourtracer.h"
 #include "survinfo.h"
 #include "mpeengine.h"
+
+#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vishingeline.h"
 #include "vismarker.h"
+#include "vismaterial.h"
 #include "vismpe.h"
 #include "visparametricsurface.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
-#include "vismaterial.h"
 #include "vistransform.h"
-#include "viscolortab.h"
 #include "zaxistransform.h"
 
 #include <math.h>
@@ -446,7 +447,7 @@ int HorizonDisplay::selectedTexture( int attrib ) const
 }
 
 
-SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat() const
+SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat( int ) const
 {
     if ( sections_.isEmpty() ) return SurveyObject::None;
     mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);

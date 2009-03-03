@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.107 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.108 2009-03-03 08:06:37 cvsnanne Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -22,17 +22,18 @@ static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.107 2009-01-02 11:
 #include "scaler.h"
 #include "keystrs.h"
 #include "survinfo.h"
+#include "ptrman.h"
+
+#include "viscolortab.h"
+#include "viscoord.h"
 #include "visdataman.h"
 #include "vismaterial.h"
+#include "vismultitexture2.h"
 #include "visrandomtrack.h"
 #include "visrandomtrackdragger.h"
 #include "vissplittexturerandomline.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
-#include "viscolortab.h"
-#include "viscoord.h"
-#include "vismultitexture2.h"
-#include "ptrman.h"
 
 #include <math.h>
 
@@ -641,7 +642,7 @@ BinID RandomTrackDisplay::snapPosition( const BinID& binid_ ) const
 }
 
 
-SurveyObject::AttribFormat RandomTrackDisplay::getAttributeFormat() const
+SurveyObject::AttribFormat RandomTrackDisplay::getAttributeFormat( int ) const
 { return SurveyObject::Traces; }
 
 

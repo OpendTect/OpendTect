@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.213 2009-02-11 11:37:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.214 2009-03-03 08:06:37 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -56,6 +56,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , curicstep_(SI().inlStep(),SI().crlStep())
     , curzstep_(SI().zStep())
     , datatransform_( 0 )
+    , voiidx_(-1)
     , moving_(this)
     , movefinished_(this)
     , orientation_( Inline )
@@ -315,7 +316,7 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     {
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->remove(
-		    mCB(this, PlaneDataDisplay, dataTransformCB ));
+		    mCB(this,PlaneDataDisplay,dataTransformCB) );
 	datatransform_->unRef();
 	datatransform_ = 0;
     }
@@ -327,7 +328,7 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
 	updateRanges( false, !haddatatransform );
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->notify(
-		    mCB(this, PlaneDataDisplay, dataTransformCB ));
+		    mCB(this,PlaneDataDisplay,dataTransformCB) );
     }
 
     return true;
@@ -503,8 +504,15 @@ void PlaneDataDisplay::setResolution( int res )
 }
 
 
-SurveyObject::AttribFormat PlaneDataDisplay::getAttributeFormat() const
+SurveyObject::AttribFormat
+    PlaneDataDisplay::getAttributeFormat( int attrib ) const
 {
+    const char* zdomain = attrib>=0 && attrib<nrAttribs() 
+				? getSelSpec(attrib)->zDomainKey() : 0;
+    const bool alreadytransformed = zdomain && *zdomain;
+    if ( alreadytransformed )
+	return SurveyObject::Cube;
+
     return datatransform_ && orientation_==Timeslice
 	? SurveyObject::RandomPos
 	: SurveyObject::Cube;
@@ -607,9 +615,20 @@ CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
 
 void PlaneDataDisplay::getRandomPos( DataPointSet& pos ) const
 {
-    const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
-    HorSamplingIterator iter( cs.hrg );
+    if ( !datatransform_ ) return;
 
+    const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
+    if ( datatransform_->needsVolumeOfInterest() )
+    {
+	if ( voiidx_<0 )
+	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	else
+	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+
+	datatransform_->loadDataIfMissing( voiidx_ );
+    }
+
+    HorSamplingIterator iter( cs.hrg );
     BinIDValue curpos;
     curpos.value = cs.zrg.start;
     while ( iter.next(curpos.binid) )
@@ -1196,6 +1215,22 @@ SurveyObject* PlaneDataDisplay::duplicate() const
 }
 
 
+const char* PlaneDataDisplay::getDisplayPropertyHolderName() const
+{
+    static BufferString dphnm;
+    dphnm = "";
+    if ( getScene() )
+	dphnm += BufferString( getScene()->name(), " - " );
+    if ( orientation_==Inline )
+    { dphnm += "inl:"; dphnm += getCubeSampling(true,true).hrg.start.inl; }
+    else if ( orientation_==Crossline )
+    { dphnm += "crl:"; dphnm += getCubeSampling(true,true).hrg.start.crl; }
+    else
+    { dphnm += "z:"; dphnm += getCubeSampling(true,true).zrg.start; }
+    return dphnm;
+}
+
+
 void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     MultiTextureSurveyObject::fillPar( par, saveids );
@@ -1247,6 +1282,4 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 }
 
 
-
 } // namespace visSurvey
-
