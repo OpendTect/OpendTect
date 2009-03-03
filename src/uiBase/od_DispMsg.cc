@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_DispMsg.cc,v 1.4 2009-01-20 04:53:19 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_DispMsg.cc,v 1.5 2009-03-03 11:19:20 cvsbert Exp $";
 
 
 #include "uimsg.h"
@@ -33,7 +33,10 @@ int main( int argc, char** argv )
     msg = "";
     for ( ; argidx<argc; argidx++ )
     {
-	msg += argv[argidx];
+	BufferString nextarg( argv[argidx] );
+	replaceString( nextarg.buf(), "-+-", "\n" );
+
+	msg += nextarg;
 	if ( argidx < argc-1 )
 	    msg += " ";
     }
