@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.93 2009-02-24 11:55:15 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.94 2009-03-04 13:14:36 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -677,8 +677,10 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     if ( !arebiddupl_ )
     {
 	float* vals = bidvalset_.getVals( pos );
-	if ( !datarg.includes( mNINT( (vals[0]/refstep)-0.5 ) ) 
-	     && !datarg.includes( mNINT( (vals[0]/refstep)-0.5 ) ) )
+	//Do not use mNINT: we want to get previous sample
+	//0.05 to deal with float precision pb
+	const int prevz = (int)( (vals[0]/refstep)+0.05 );
+	if ( !datarg.includes( prevz ) && !datarg.includes( prevz + 1 ) )
 	    return;
 	
 	for ( int comp=0; comp<desoutputs_.size(); comp++ )
@@ -691,8 +693,10 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     while ( true )
     {
 	float* vals = bidvalset_.getVals( pos );
-	const int lowz = mNINT( (vals[0]/refstep)-0.5 );
-	const int highz = mNINT( (vals[0]/refstep)+0.5 );
+	//Do not use mNINT: we want to get previous sample
+	//0.05 to deal with float precision pb
+	const int lowz = (int)( vals[0]/refstep + 0.05 );
+	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
 			      && datarg.includes(highz);
@@ -711,8 +715,10 @@ void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
 					bool& isfirstz )
 {
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
-    const int lowz = mNINT( (vals[0]/refstep)-0.5 );
-    const int highz = mNINT( (vals[0]/refstep)+0.5 );
+    //Do not use mNINT: we want to get previous sample
+    //0.05 to deal with float precision pb
+    const int lowz = (int)( vals[0]/refstep + 0.05 );
+    const int highz = lowz + 1;
     if ( isfirstz )
 	firstz = vals[0];
     for ( int comp=0; comp<desoutputs_.size(); comp++ )
@@ -763,12 +769,14 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
     while ( pos.valid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
-	int zidx = mNINT( (vals[0]/zstep) -0.5 ); 
+	//Do not use mNINT: we want to get previous sample
+	//0.05 to deal with float precision pb
+	const int zidx = (int)( vals[0]/zstep + 0.05 );
 	Interval<int> interval( zidx, zidx );
 	if ( arebiddupl_ )
 	{
-	    interval.start = mNINT( (vals[0]/zstep) -0.5 )-1;
-	    interval.stop =  mNINT( (vals[0]/zstep) +0.5 )+1;
+	    interval.start = zidx - 1;
+	    interval.stop =  zidx + 2;
 	}
 	bool intvadded = sampleinterval.addIfNew( interval );
 	if ( intvadded )
@@ -1166,8 +1174,10 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     if ( !arebiddupl_ )
     {
 	float* vals = datapointset_.getValues( rid );
-	if ( !datarg.includes( mNINT( (datapointset_.z(rid)/refstep)-0.5 ) ) 
-	     && !datarg.includes( mNINT( (datapointset_.z(rid)/refstep)-0.5 ) ))
+	//Do not use mNINT: we want to get previous sample
+	//0.05 to deal with float precision pb
+	const int prevz = (int)( (datapointset_.z(rid)/refstep)+0.05 );
+	if ( !datarg.includes( prevz ) && !datarg.includes( prevz + 1 ) )
 	    return;
 	
 	for ( int comp=0; comp<desoutputs_.size(); comp++ )
@@ -1183,8 +1193,10 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	
 	const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );
-	const int lowz = mNINT( (zval/refstep)-0.5 );
-	const int highz = mNINT( (zval/refstep)+0.5 );
+	//Do not use mNINT: we want to get previous sample
+	//0.05 to deal with float precision pb
+	const int lowz = (int)( (zval/refstep)+0.05 );
+	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
 			      && datarg.includes(highz);
@@ -1199,8 +1211,10 @@ void TableOutput::computeAndSetVals( const DataHolder& data, float refstep,
 					bool& isfirstz )
 {
     const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
-    const int lowz = mNINT( (zval/refstep)-0.5 );
-    const int highz = mNINT( (zval/refstep)+0.5 );
+    //Do not use mNINT: we want to get previous sample
+    //0.05 to deal with float precision pb
+    const int lowz = (int)( (zval/refstep)+0.05 );
+    const int highz = lowz + 1;
     if ( isfirstz )
 	firstz = zval;
     for ( int comp=0; comp<desoutputs_.size(); comp++ )
@@ -1331,12 +1345,14 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
 				    int rid, float zstep ) const
 {
     const float zval = datapointset_.z(rid);
-    int zidx = mNINT( (zval/zstep) -0.5 ); 
+    //Do not use mNINT: we want to get previous sample
+    //0.05 to deal with float precision pb
+    const int zidx = (int)( (zval/zstep)+0.05 );
     Interval<int> interval( zidx, zidx );
     if ( arebiddupl_ )
     {
-	interval.start = mNINT( (zval/zstep) -0.5 )-1;
-	interval.stop =  mNINT( (zval/zstep) +0.5 )+1;
+	interval.start = zidx - 1;
+	interval.stop =  zidx + 2;
     }
     bool intvadded = sampintv.addIfNew( interval );
     if ( intvadded )
