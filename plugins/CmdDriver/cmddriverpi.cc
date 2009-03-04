@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.23 2009-02-24 15:12:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.24 2009-03-04 11:22:11 cvsjaap Exp $";
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -150,8 +150,9 @@ uiCmdRecordInps( uiParent* p, CmdRecorder& cmdrec )
 {
     outfld_ = new uiFileInput( this, "Output command file",
 			       uiFileInput::Setup(lastoutput_)
-				.filter("*.cmd")
-				.forread(false) );
+				    .filter("*.cmd")
+				    .forread(false)
+				    .confirmoverwrite(false) );
     outfld_->setDefaultSelectionDir( GetScriptsDir(0) );
 }
 
@@ -159,11 +160,17 @@ bool acceptOK( CallBacker* )
 {
     FilePath fp( outfld_->fileName() );
     fp.setExtension( ".cmd" );
+
     if ( !File_isWritable(fp.pathOnly()) ||
 	 (File_exists(fp.fullPath()) && !File_isWritable(fp.fullPath())) )
     {
 	uiMSG().error( "Command file cannot be written" );
 	return false;
+    }
+    if ( File_exists(fp.fullPath()) )
+    {
+	if ( !uiMSG().askGoOn("Overwrite existing command file?") )
+	    return false;
     }
 
     rec_.setOutputFile( fp.fullPath() );
