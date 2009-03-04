@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.38 2009-02-13 14:17:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.39 2009-03-04 10:45:55 cvsjaap Exp $";
 
 
 #include "uimsg.h"
@@ -111,42 +111,71 @@ static const char* getCaptn( const char* s )
 }
 
 
+void uiMsg::markCmdRecEvent( int retval, const char* buttxt0,
+			     const char* buttxt1, const char* buttxt2 )
+{
+    uiMainWin* mw = uimainwin_; 
+    if ( !mw ) mw = uiMainWin::activeWindow();
+    if ( !mw ) mw = uiMain::theMain().topLevel();
+    if ( !mw ) return;
+
+    BufferString msg( "QMsgBoxBut " );
+    msg += !retval ? buttxt0 : ( retval==1 ? buttxt1 : buttxt2 );
+
+    mw->markCmdRecEvent( false, msg );
+}
+
+
 #define mDeclArgs const char* text, const char* p2, const char* p3
 
 void uiMsg::message( mDeclArgs )
 {
     mPrepTxt();
+    const char* oktxt = "&Ok";
     QMessageBox::information( popParnt(), mCapt("Information"), mTxt,
-	    		      QString("&Ok") );
+	    		      QString(oktxt) );
+    markCmdRecEvent( 0, oktxt );
 }
 
 
 void uiMsg::warning( mDeclArgs )
 {
     mPrepTxt();
-    QMessageBox::warning( popParnt(), mCapt("Warning"), mTxt, QString("&Ok") );
+    const char* oktxt = "&Ok";
+    QMessageBox::warning( popParnt(), mCapt("Warning"), mTxt, QString(oktxt) );
+    markCmdRecEvent( 0, oktxt );
 }
 
 
 void uiMsg::error( mDeclArgs )
 {
     mPrepTxt();
-    QMessageBox::critical( popParnt(), mCapt("Error"), mTxt, QString("&Ok") );
+    const char* oktxt = "&Ok";
+    QMessageBox::critical( popParnt(), mCapt("Error"), mTxt, QString(oktxt) );
+    markCmdRecEvent( 0, oktxt );
 }
 
 
 int uiMsg::notSaved( const char* text, bool cancelbutt )
 {
     mPrepCursor();
+    const char* savetxt = "&Save";
+    const char* dontsavetxt = "&Don't save";
+    const char* canceltxt = "&Cancel";
+
 #if QT_VERSION < 0x030200
 # define mQuestion information
 #else
 # define mQuestion question
 #endif
-    int res = QMessageBox::mQuestion( popParnt(), mCapt("Data not saved"),
-	       QString(text), QString("&Save"), QString("&Don't save"),
-	       cancelbutt ? QString("&Cancel") : QString::null, 0, 2 );
+    const int res = QMessageBox::mQuestion( popParnt(),
+				mCapt("Data not saved"), QString(text),
+				QString(savetxt),
+				QString(dontsavetxt),
+				cancelbutt ? QString(canceltxt) : QString::null,
+			       	0, 2 );
 
+    markCmdRecEvent( res, savetxt, dontsavetxt, canceltxt );
     return res == 0 ? 1 : (res == 1 ? 0 : -1);
 }
 
@@ -155,19 +184,26 @@ void uiMsg::about( const char* text )
 {
     mPrepCursor();
     QMessageBox::about( popParnt(), mCapt("About"), QString(text) );
+    markCmdRecEvent( 0, "OK" );
 }
 
 
 bool uiMsg::askGoOn( const char* text, bool yn )
 {
     mPrepCursor();
-    return !QMessageBox::warning( popParnt(),
-				  mCapt("Please specify"), QString(text),
-				  QString(yn?"&Yes":"&Ok"),
-				  QString(yn?"&No":"&Cancel"),
-				  QString::null,0,1);
-}
 
+    const char* oktxt = yn ? "&Yes" : "&Ok";
+    const char* canceltxt = yn ? "&No" : "&Cancel";
+
+    const int res = QMessageBox::warning( popParnt(),
+				mCapt("Please specify"), QString(text),
+				QString(oktxt),
+				QString(canceltxt),
+				QString::null, 0, 1 );
+
+    markCmdRecEvent( res, oktxt,canceltxt );
+    return !res;
+}
 
 
 int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
@@ -180,21 +216,31 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
 	textyes = "&Yes";
     if ( !textno || !*textno )
 	textno = "&No";
-    return QMessageBox::warning( popParnt(), mCapt("Please specify"),
-	    			 QString(text),
-				 QString(textyes), QString(textno),
-				 QString(cnclmsg), 0, 2 );
+
+    const int res = QMessageBox::warning( popParnt(),
+				mCapt("Please specify"), QString(text),
+				QString(textyes),
+				QString(textno),
+				QString(cnclmsg), 0, 2 );
+
+    markCmdRecEvent( res, textyes, textno, cnclmsg );
+    return res;
 }
 
 
 bool uiMsg::showMsgNextTime( const char* text, const char* ntmsg )
 {
     mPrepCursor();
+    const char* oktxt = "&Ok";
     if ( !ntmsg || !*ntmsg )
 	ntmsg = "&Don't show this message again";
-    return !QMessageBox::warning( popParnt(), mCapt("Information"),
-	    			  QString(text),
-				  QString("&Ok"),
-				  QString(ntmsg),
-				  QString::null,0,1);
+
+    const int res = QMessageBox::warning( popParnt(),
+				mCapt("Information"), QString(text),
+				QString(oktxt),
+				QString(ntmsg),
+				QString::null, 0, 1 );
+
+    markCmdRecEvent( res, oktxt, ntmsg );
+    return !res;
 }

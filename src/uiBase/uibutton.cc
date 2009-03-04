@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.56 2009-02-19 06:59:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.57 2009-03-04 10:45:55 cvsjaap Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -92,7 +92,12 @@ protected:
     i_ButMessenger&     messenger_;
     int                 idInGroup;
 
-    void		doNotify()	{ handle_.activated.trigger(handle_); }
+    void		doNotify()
+			{
+			    handle_.markCmdRecEvent( true );
+			    handle_.activated.trigger(handle_);
+			    handle_.markCmdRecEvent( false );
+			}
 
     bool 		handleEvent( const QEvent* ev )
 			{ 

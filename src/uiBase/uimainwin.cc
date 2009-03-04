@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.169 2009-01-27 08:40:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.170 2009-03-04 10:45:55 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -340,6 +340,8 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
+    handle_.markCmdRecEvent( true, "Close" );
+
     if ( handle_.closeOK() )
     {
 	handle_.windowClosed.trigger( handle_ );
@@ -347,6 +349,8 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
     }
     else
 	ce->ignore();
+
+     handle_.markCmdRecEvent( false );
 }
 
 
@@ -1214,11 +1218,15 @@ void uiDialogBody::done_( int v )
 
 void uiDialogBody::closeEvent( QCloseEvent* ce )
 {
+    handle_.markCmdRecEvent( true, "Close" );
+
     reject(0);
     if ( reslt == -1 )
 	ce->ignore();
     else
 	ce->accept();
+
+    handle_.markCmdRecEvent( false );
 }
 
 

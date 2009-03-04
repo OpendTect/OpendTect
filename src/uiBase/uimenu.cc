@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.54 2009-01-16 03:51:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.55 2009-03-04 10:45:55 cvsjaap Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -279,6 +279,35 @@ void uiMenuItem::activate()
 {
     QEvent* activateevent = new QEvent( sQEventActivate );
     QApplication::postEvent( &messenger_ , activateevent );
+}
+
+
+CallBack* uiMenuItem::cmdrecorder_ = 0;
+
+
+void uiMenuItem::markCmdRecEvent( bool begin, const char* msg )
+{
+    if ( cmdrecorder_ )
+    {
+	BufferString actstr( begin ? "Begin " : "End " );
+	actstr += msg;
+	CBCapsule<const char*> caps( actstr, this );
+	cmdrecorder_->doCall( &caps );
+    }
+}
+
+void uiMenuItem::unsetCmdRecorder()
+{
+    if ( cmdrecorder_ )
+	delete cmdrecorder_;
+    cmdrecorder_ = 0;
+}
+
+
+void uiMenuItem::setCmdRecorder( const CallBack& cb )
+{
+    unsetCmdRecorder();
+    cmdrecorder_ = new CallBack( cb );
 }
 
 

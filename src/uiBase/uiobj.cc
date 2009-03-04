@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.81 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.82 2009-03-04 10:45:55 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -38,6 +38,36 @@ void uiObjHandle::clear()
 
 bool uiObjHandle::finalised() const
 { return body() ? body()->finalised() : false; }
+
+
+CallBack* uiObjHandle::cmdrecorder_ = 0;
+
+
+void uiObjHandle::markCmdRecEvent( bool begin, const char* msg )
+{
+    if ( cmdrecorder_ )
+    {
+	BufferString actstr( begin ? "Begin " : "End " );
+	actstr += msg;
+	CBCapsule<const char*> caps( actstr, this );
+	cmdrecorder_->doCall( &caps );
+    }
+}
+
+
+void uiObjHandle::unsetCmdRecorder()
+{
+    if ( cmdrecorder_ )
+	delete cmdrecorder_;
+    cmdrecorder_ = 0;
+}
+
+
+void uiObjHandle::setCmdRecorder( const CallBack& cb )
+{
+    unsetCmdRecorder();
+    cmdrecorder_ = new CallBack( cb );
+}
 
 
 uiParent::uiParent( const char* nm, uiParentBody* b )

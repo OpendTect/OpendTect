@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.47 2009-01-20 04:38:46 cvsranojay Exp $
+ RCS:           $Id: uimenu.h,v 1.48 2009-03-04 10:43:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,10 @@ public:
 
     int				id() const		{ return id_; }
 
+    static void			setCmdRecorder(const CallBack&);
+    static void			unsetCmdRecorder();
+    void			markCmdRecEvent(bool start,const char* msg=0);
+
 protected:
 
     void 			setId( int newid )	{ id_ = newid; }
@@ -144,6 +148,7 @@ private:
     bool			checked_;
     bool			enabled_;
 
+    static CallBack*		cmdrecorder_;
 };
 
 
