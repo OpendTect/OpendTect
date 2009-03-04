@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.6 2009-03-04 15:45:01 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -29,7 +29,8 @@ uiSEGYReadDlg::Setup::Setup( Seis::GeomType gt )
 
 
 uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
-			const uiSEGYReadDlg::Setup& su, IOPar& iop )
+			const uiSEGYReadDlg::Setup& su, IOPar& iop,
+       			bool forsurvsetup )
     : uiDialog(p,su)
     , setup_(su)
     , pars_(iop)
@@ -45,6 +46,8 @@ uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
 	optsgrp_ = new uiGroup( this, "Opts group" );
 	uiSEGYFileOpts::Setup osu( setup_.geom_, uiSEGYRead::Import,
 				   setup_.rev_ );
+	if ( forsurvsetup )
+	    osu.purpose( uiSEGYRead::SurvSetup );
 	optsfld_ = new uiSEGYFileOpts( optsgrp_, osu, &iop );
 	optsfld_->readParsReq.notify( mCB(this,uiSEGYReadDlg,readParsCB) );
 	optsfld_->preScanReq.notify( mCB(this,uiSEGYReadDlg,preScanCB) );

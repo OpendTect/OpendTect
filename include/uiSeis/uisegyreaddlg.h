@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2008
- RCS:           $Id: uisegyreaddlg.h,v 1.4 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uisegyreaddlg.h,v 1.5 2009-03-04 15:45:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ public :
 	mDefSetupMemb(uiSEGYRead::RevType,rev)	// default Rev0
     };
 
-			uiSEGYReadDlg(uiParent*,const Setup&,IOPar&);
+			uiSEGYReadDlg(uiParent*,const Setup&,IOPar&,
+					bool forsurvsetup=false);
 			~uiSEGYReadDlg();
 
     void		updatePars()		{ getParsFromScreen(true); }
