@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.33 2008-12-03 16:00:55 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.34 2009-03-04 13:15:46 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -14,6 +14,7 @@ SRC.cc	:=	initsood.cc \
 		SoCameraFacingZAxisRotation.cc \
 		SoDepthTabPlaneDragger.cc \
 		SoForegroundTranslation.cc \
+		SoIndexedPointSet.cc \
 		SoIndexedTriangleFanSet.cc \
 		SoLODMeshSurface.cc \
 		SoLockableSeparator.cc \
