@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.68 2009-02-24 14:08:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.69 2009-03-04 11:11:22 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -36,8 +36,8 @@ static const char* rcsID = "$Id: uiseissel.cc,v 1.68 2009-02-24 14:08:24 cvsbert
 
 static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
 {
-    if ( setup.seltxt_ )
-	return setup.seltxt_;
+    if ( !setup.seltxt_.isEmpty() )
+	return setup.seltxt_.buf();
 
     switch ( setup.geom_ )
     {
@@ -92,12 +92,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     : uiIOObjSelDlg(p,getDlgCtio(c,setup),"",false)
     , attrfld_(0)
     , attrlistfld_(0)
-    , datatype_(0)
+    , datatype_(setup.datatype_)
 {
     const bool is2d = Seis::is2D( setup.geom_ );
     const bool isps = Seis::isPS( setup.geom_ );
 
-    if ( setup.datatype_ )     datatype_ = setup.datatype_;
     allowcnstrsabsent_ = setup.allowcnstrsabsent_;
     include_ = setup.include_;
 
@@ -196,12 +195,12 @@ void uiSeisSelDlg::attrNmSel( CallBacker* )
 
 const char* uiSeisSelDlg::getDataType()
 {
-    if ( !datatype_ )
+    if ( datatype_.isEmpty() )
 	return 0;
 
     static BufferString typekey;
     typekey.setEmpty();
-    switch ( Seis::dataTypeOf(datatype_) )
+    switch ( Seis::dataTypeOf(datatype_.buf()) )
     {
 	case Seis::Dip:
 	    typekey += sKey::Steering;
@@ -236,18 +235,24 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
-uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& setup )
-	: uiIOObjSel(p,c,gtSelTxt(setup,c.ctxt.forread),setup.withclear_)
-	, dlgiopar(*new IOPar)
-    	, setup_(setup)
+uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
+	: uiIOObjSel(p,c,mkSetup(su,c.ctxt.forread))
+    	, seissetup_(mkSetup(su,c.ctxt.forread))
 {
-    adaptCtxt( c.ctxt, setup_, false );
+    adaptCtxt( c.ctxt, seissetup_, false );
 }
 
 
 uiSeisSel::~uiSeisSel()
 {
-    delete &dlgiopar;
+}
+
+
+uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
+{
+    uiSeisSel::Setup ret( su );
+    ret.seltxt_ = gtSelTxt( su, forread );
+    return ret;
 }
 
 
@@ -284,18 +289,18 @@ CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 
 void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 {
-    ((uiSeisSelDlg*)dlg)->fillPar( dlgiopar );
-    setAttrNm( dlgiopar.find( sKey::Attribute ) );
+    ((uiSeisSelDlg*)dlg)->fillPar( dlgiopar_ );
+    setAttrNm( dlgiopar_.find( sKey::Attribute ) );
 }
 
 
 void uiSeisSel::setAttrNm( const char* nm )
 {
-    attrnm = nm;
-    if ( attrnm.isEmpty() )
-	dlgiopar.removeWithKey( sKey::Attribute );
+    attrnm_ = nm;
+    if ( attrnm_.isEmpty() )
+	dlgiopar_.removeWithKey( sKey::Attribute );
     else
-	dlgiopar.set( sKey::Attribute, nm );
+	dlgiopar_.set( sKey::Attribute, nm );
     updateInput();
 }
 
@@ -305,9 +310,9 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
     if ( !txt || !*txt ) return "";
 
     LineKey lk( txt );
-    curusrnm = uiIOObjSel::userNameFromKey( lk.lineName() );
-    curusrnm = LineKey( curusrnm, lk.attrName() );
-    return curusrnm.buf();
+    curusrnm_ = uiIOObjSel::userNameFromKey( lk.lineName() );
+    curusrnm_ = LineKey( curusrnm_, lk.attrName() );
+    return curusrnm_.buf();
 }
 
 
@@ -320,7 +325,7 @@ bool uiSeisSel::existingTyped() const
 
 bool uiSeisSel::fillPar( IOPar& iop ) const
 {
-    iop.merge( dlgiopar );
+    iop.merge( dlgiopar_ );
     return uiIOObjSel::fillPar( iop );
 }
 
@@ -328,8 +333,8 @@ bool uiSeisSel::fillPar( IOPar& iop ) const
 void uiSeisSel::usePar( const IOPar& iop )
 {
     uiIOObjSel::usePar( iop );
-    dlgiopar.merge( iop );
-    attrnm = iop.find( sKey::Attribute );
+    dlgiopar_.merge( iop );
+    attrnm_ = iop.find( sKey::Attribute );
 }
 
 
@@ -337,14 +342,14 @@ void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
     if ( ctio_.ioobj ) ioobjkey = ctio_.ioobj->key();
-    setInput( LineKey(ioobjkey,attrnm) );
+    setInput( LineKey(ioobjkey,attrnm_) );
 }
 
 
 void uiSeisSel::processInput()
 {
     obtainIOObj();
-    attrnm = LineKey( getInput() ).attrName();
+    attrnm_ = LineKey( getInput() ).attrName();
     if ( ctio_.ioobj || ctio_.ctxt.forread )
 	updateInput();
 }
@@ -352,8 +357,8 @@ void uiSeisSel::processInput()
 
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
-    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio_, setup_ );
-    dlg->usePar( dlgiopar );
+    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio_, seissetup_ );
+    dlg->usePar( dlgiopar_ );
     return dlg;
 }
 

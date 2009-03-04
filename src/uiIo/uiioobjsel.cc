@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.126 2009-01-07 06:32:39 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.127 2009-03-04 11:11:22 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiioobjsel.cc,v 1.126 2009-01-07 06:32:39 cvsna
 #include "iostrm.h"
 #include "linekey.h"
 #include "transl.h"
+#include "strmprov.h"
 
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
@@ -259,15 +260,39 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
 	del.fill( IOM().dirPtr(), nmflt );
 
     ioobjnms_.erase();
+    dispnms_.erase();
     deepErase( ioobjids_ );
     for ( int idx=0; idx<del.size(); idx++ )
     {
-	BufferString nm = del[idx]->name();
-	char* ptr = nm.buf();
-	mSkipBlanks( ptr );
-	ioobjnms_.add( ptr );
-	ioobjids_ += new MultiID(
-			del[idx]->ioobj ? del[idx]->ioobj->key() : udfmid );
+	const IOObj* ioobj = del[idx]->ioobj;
+	if ( !ioobj )
+	{
+	    BufferString nm = del[idx]->name();
+	    char* ptr = nm.buf();
+	    mSkipBlanks( ptr );
+	    dispnms_.add( ptr );
+	    ioobjnms_.add( ptr );
+	    ioobjids_ += new MultiID( udfmid );
+	}
+	else
+	{
+	    const MultiID ky( del[idx]->ioobj->key() );
+	    ioobjids_ += new MultiID( ky );
+	    ioobjnms_.add( ioobj->name() );
+	    BufferString dispnm;
+	    const bool isdef = IOObj::isSurveyDefault(ky);
+	    const bool ispl = StreamProvider::isPreLoaded(ky.buf(),true);
+	    if ( isdef )
+		dispnm += "> ";
+	    if ( ispl )
+		dispnm += "/ ";
+	    dispnm += ioobj->name();
+	    if ( ispl )
+		dispnm += " \\";
+	    if ( isdef )
+		dispnm += " <";
+	    dispnms_.add( dispnm );
+	}
     }
 
     fillListBox();
@@ -281,7 +306,7 @@ void uiIOObjSelGrp::setCur( int curidx )
 	curidx = ioobjnms_.size() - 1;
     else if ( curidx < 0 )
 	curidx = 0;
-    if ( ioobjnms_.size() )
+    if ( !ioobjnms_.isEmpty() )
 	listfld_->setCurrentItem( curidx );
     selectionChg.trigger();
 }
@@ -290,7 +315,7 @@ void uiIOObjSelGrp::setCur( int curidx )
 void uiIOObjSelGrp::fillListBox()
 {
     listfld_->empty();
-    listfld_->addItems( ioobjnms_ );
+    listfld_->addItems( dispnms_ );
 }
 
 
@@ -418,6 +443,7 @@ bool uiIOObjSelGrp::createEntry( const char* seltxt )
     }
 
     ioobjnms_.add( ioobj->name() );
+    dispnms_.add( ioobj->name() );
     ioobjids_ += new MultiID( ioobj->key() );
     fillListBox();
     listfld_->setCurrentItem( ioobj->name() );
@@ -503,19 +529,25 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 }
 
 
-uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
-			bool wclr, const char* st, const char* buttxt, 
-			bool keepmytxt )
-    : uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
-		  txt ? txt :
-		     (c.ctxt.name().isEmpty()
-			 ? (const char*)c.ctxt.trgroup->userName() 
-			 : (const char*) c.ctxt.name() ),
-		  wclr, buttxt, keepmytxt )
+#define mSelTxt(txt) \
+    txt ? txt \
+        : (c.ctxt.name().isEmpty() ? c.ctxt.trgroup->userName().buf() \
+				   : c.ctxt.name().buf())
+
+uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
+    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt)),
+	    	 mCB(this,uiIOObjSel,doObjSel))
     , ctio_(c)
-    , forread_(c.ctxt.forread)
-    , seltxt_(st)
-    , confirmovw_(true)
+    , setup_(mSelTxt(txt))
+{
+    updateInput();
+}
+
+
+uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
+    : uiIOSelect(p,uiIOSelect::Setup(su.seltxt_),mCB(this,uiIOObjSel,doObjSel))
+    , ctio_(c)
+    , setup_(su)
 {
     updateInput();
 }
@@ -589,7 +621,7 @@ void uiIOObjSel::obtainIOObj()
 void uiIOObjSel::processInput()
 {
     obtainIOObj();
-    if ( ctio_.ioobj || forread_ )
+    if ( ctio_.ioobj || ctio_.ctxt.forread )
 	updateInput();
 }
 
@@ -631,13 +663,12 @@ bool uiIOObjSel::commitInput( bool mknew )
 
 void uiIOObjSel::doObjSel( CallBacker* )
 {
-    ctio_.ctxt.forread = forread_;
     if ( !ctio_.ctxt.forread )
 	ctio_.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg ) return;
     uiIOObjSelGrp* selgrp_ = dlg->selGrp();
-    if ( selgrp_ ) selgrp_->setConfirmOverwrite( confirmovw_ );
+    if ( selgrp_ ) selgrp_->setConfirmOverwrite( setup_.confirmoverwr_ );
 
     if ( !helpid_.isEmpty() )
 	dlg->setHelpID( helpid_ );
@@ -665,7 +696,7 @@ void uiIOObjSel::objSel()
 
 uiIOObjRetDlg* uiIOObjSel::mkDlg()
 {
-    return new uiIOObjSelDlg( this, ctio_, seltxt_ );
+    return new uiIOObjSelDlg( this, ctio_, setup_.seltxt_ );
 }
 
 

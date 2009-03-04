@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.37 2009-02-26 04:58:51 cvsnanne Exp $
+ RCS:           $Id: uiiosel.h,v 1.38 2009-03-04 11:11:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,22 @@ mClass uiIOSelect : public uiGroup
 {
 public:
 
-			uiIOSelect(uiParent*,const CallBack& do_selection,
-				   const char* txt,
-				   bool withclear=false,
-				   const char* buttontxt="&Select",
-				   bool keepmytxt=false);
+    class Setup
+    {
+    public:
+			Setup( const char* seltext=0 )
+			    : seltxt_(seltext)
+			    , withclear_(false)
+			    , buttontxt_("&Select")
+			    , keepmytxt_(false)		{}
+
+	mDefSetupMemb(BufferString,seltxt)
+	mDefSetupMemb(BufferString,buttontxt)
+	mDefSetupMemb(bool,withclear)
+	mDefSetupMemb(bool,keepmytxt)
+    };
+
+			uiIOSelect(uiParent*,const Setup&,const CallBack&);
 			~uiIOSelect();
 
     bool		isEmpty() const;

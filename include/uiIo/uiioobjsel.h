@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.58 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.59 2009-03-04 11:11:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,7 @@ protected:
     CtxtIOObj		ctio_;
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
+    BufferStringSet	dispnms_;
     bool		ismultisel_;
     bool		confirmoverwrite_;
     bool		asked2overwrite_;
@@ -157,11 +158,19 @@ This class may be subclassed to make selection more specific.
 mClass uiIOObjSel : public uiIOSelect
 {
 public:
-			uiIOObjSel(uiParent*,CtxtIOObj&,const char* txt=0,
-				   bool wthclear=false,
-				   const char* selectionlabel=0,
-				   const char* buttontxt="&Select", 
-				   bool keepmytxt=false);
+
+    class Setup : public uiIOSelect::Setup
+    {
+    public:
+			Setup( const char* seltext=0 )
+			    : uiIOSelect::Setup(seltext)
+			    , confirmoverwr_(true)		{}
+
+	mDefSetupMemb(bool,confirmoverwr)
+    };
+
+			uiIOObjSel(uiParent*,CtxtIOObj&,const char* seltxt=0);
+			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
 			~uiIOObjSel();
 
     bool		commitInput(bool mknew);
@@ -178,21 +187,20 @@ public:
     virtual bool	fillPar(IOPar&,const char* compky=0) const;
     virtual void	usePar(const IOPar&,const char* compky=0);
 
-    void		setForRead( bool yn )		{ forread_ = yn; }
+    void		setForRead( bool yn )	{ ctio_.ctxt.forread = yn; }
     void		setUnselectables( const ObjectSet<MultiID>& s )
-			{ deepCopy( unselabls_, s ); }
+						{ deepCopy( unselabls_, s ); }
 
-    void		setHelpID( const char* id )	{ helpid_ = id; }
-    void		setConfirmOverwrite( bool yn )	{ confirmovw_ = yn; }
+    void		setHelpID( const char* id ) { helpid_ = id; }
+    void		setConfirmOverwrite( bool yn )
+						{ setup_.confirmoverwr_ = yn; }
 
 protected:
 
     CtxtIOObj&		ctio_;
-    bool		forread_;
-    BufferString	seltxt_;
+    Setup		setup_;
     ObjectSet<MultiID>	unselabls_;
     BufferString	helpid_;
-    bool		confirmovw_;
 
     void		doObjSel(CallBacker*);
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.21 2009-03-04 11:11:22 cvsbert Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -52,11 +52,10 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     txtfld->setPrefWidthInChar( 40 );
     txtfld->setText( txt );
     txtfld->attach( alignedBelow, infolbl );
-    
-    inpfld_ = new uiSeisSel( this, issteer ? ctiosteer_ : ctio_,
-			uiSeisSel::Setup( is2d ? Seis::Line : Seis::Vol )
-			.seltxt( issteer ? "Input Steering cube" 
-					 : "Input Seismics") ); 
+
+    uiSeisSel::Setup sssu( is2d, false );
+    sssu.seltxt( issteer ? "Input Steering cube" : "Input Seismics" );
+    inpfld_ = new uiSeisSel( this, issteer ? ctiosteer_ : ctio_, sssu );
     inpfld_->attach( alignedBelow, txtfld );
 }
 
@@ -75,19 +74,19 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool hasseis, bool hassteer,
     , steerinpfld_(0)
     , inpfld_(0)
 {
+    uiSeisSel::Setup sssu( is2d, false );
     if ( hasseis )
     {
-	seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(
-				     is2d ? Seis::Line : Seis::Vol)
-				     .seltxt("Input Seismics Cube") ); 
+	sssu.seltxt( "Input Seismics" );
+	seisinpfld_ = new uiSeisSel( this, ctio_, sssu );
     }
 
     if ( hassteer )
     {
-	steerinpfld_ = new uiSeisSel( this, ctiosteer_, uiSeisSel::Setup(
-				      is2d ? Seis::Line : Seis::Vol )
-				      .seltxt("Input Steering cube") );
-	if ( hasseis ) steerinpfld_->attach( alignedBelow, seisinpfld_ );
+	sssu.seltxt( "Input Steering" );
+	steerinpfld_ = new uiSeisSel( this, ctiosteer_, sssu );
+	if ( hasseis )
+	    steerinpfld_->attach( alignedBelow, seisinpfld_ );
     }
 }
 

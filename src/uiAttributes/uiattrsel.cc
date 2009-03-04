@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.39 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.40 2009-03-04 11:11:22 cvsbert Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -458,7 +458,8 @@ bool uiAttrSelDlg::acceptOK( CallBacker* )
 
 uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 			DescID curid )
-    : uiIOSelect(p,mCB(this,uiAttrSel,doSel),txt?txt:"Input Data")
+    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:"Input Data"),
+		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ads)
     , ignoreid(DescID::undef())
 {
@@ -468,7 +469,8 @@ uiAttrSel::uiAttrSel( uiParent* p, const DescSet& ads, const char* txt,
 
 
 uiAttrSel::uiAttrSel( uiParent* p, const char* txt, const uiAttrSelData& ad )
-    : uiIOSelect(p,mCB(this,uiAttrSel,doSel),txt?txt:"Input Data")
+    : uiIOSelect(p,uiIOSelect::Setup(txt?txt:"Input Data"),
+		 mCB(this,uiAttrSel,doSel))
     , attrdata_(ad)
     , ignoreid(DescID::undef())
 {

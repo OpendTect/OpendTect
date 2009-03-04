@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.72 2009-02-23 16:06:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.73 2009-03-04 11:11:22 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -663,7 +663,7 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 //============================================================================
 
 uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
-    : uiDialog(p,uiDialog::Setup("Store Well Dialog",
+    : uiDialog(p,uiDialog::Setup("Store Well",
 				 "Specify well parameters", "107.0.1"))
     , ctio_(*mMkCtxtIOObj(Well))
     , usemodelfld(0)
@@ -698,9 +698,9 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
 #endif
 
     ctio_.ctxt.forread = false;
-    outfld = new uiIOObjSel( this, ctio_, "Output Well", false, 0,
-	    		     "Select", true );
-
+    uiIOObjSel::Setup su( "Output Well" );
+    su.keepmytxt( true );
+    outfld = new uiIOObjSel( this, ctio_, su );
     if ( topgrp )
 	outfld->attach( alignedBelow, topgrp );
 

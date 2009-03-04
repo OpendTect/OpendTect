@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.35 2009-02-24 14:08:23 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.36 2009-03-04 11:11:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,32 +22,28 @@ mClass uiSeisSel : public uiIOObjSel
 {
 public:
 
-    struct Setup
+    struct Setup : public uiIOObjSel::Setup
     {
 			Setup( Seis::GeomType gt )
 			    : geom_(gt)
 			    , selattr_(gt==Seis::Line)
-			    , withclear_(false)
-			    , seltxt_(0)
-			    , datatype_(0)
+			    , allowsetdefault_(true)
 			    , allowcnstrsabsent_(false)
 			    , include_(true)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
-			    , withclear_(false)
-			    , seltxt_(0)
-			    , datatype_(0)
+			    , allowsetdefault_(true)
 			    , allowcnstrsabsent_(false)
 			    , include_(true)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,selattr)
-	mDefSetupMemb(bool,withclear)
-	mDefSetupMemb(const char*,seltxt)
-	mDefSetupMemb(const char*,datatype)
+	mDefSetupMemb(bool,allowsetdefault)
 	mDefSetupMemb(bool,allowcnstrsabsent)
 	mDefSetupMemb(bool,include)
+	mDefSetupMemb(BufferString,datatype)
+	mDefSetupMemb(BufferString,defaultkey)
     };
 
 			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
@@ -56,12 +52,12 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    inline Seis::GeomType geomType() const { return setup_.geom_; }
-    inline bool		is2D() const	{ return Seis::is2D(setup_.geom_); }
-    inline bool		isPS() const	{ return Seis::isPS(setup_.geom_); }
+    inline Seis::GeomType geomType() const { return seissetup_.geom_; }
+    inline bool		is2D() const	{ return Seis::is2D(seissetup_.geom_); }
+    inline bool		isPS() const	{ return Seis::isPS(seissetup_.geom_); }
 
     void		setAttrNm(const char*);
-    const char*		attrNm() const	{ return attrnm.buf(); }
+    const char*		attrNm() const	{ return attrnm_.buf(); }
     virtual void	processInput();
     virtual bool	existingTyped() const;
     virtual void	updateInput();
@@ -71,12 +67,12 @@ public:
 
 protected:
 
-    Setup		setup_;
-    BufferString	orgkeyvals;
-    BufferString	attrnm;
-    mutable BufferString curusrnm;
-    IOPar&		dlgiopar;
+    Setup		seissetup_;
+    BufferString	attrnm_;
+    mutable BufferString curusrnm_;
+    IOPar		dlgiopar_;
 
+    Setup		mkSetup(const Setup&,bool);
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual const char*	userNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
@@ -100,7 +96,7 @@ protected:
     uiListBox*		attrlistfld_;
     uiGenInput*		attrfld_;
     bool		allowcnstrsabsent_;	//2D only
-    const char*		datatype_;		//2D only
+    BufferString	datatype_;		//2D only
     bool		include_;		//2D only, datatype_ companion
 
     void		entrySel(CallBacker*);

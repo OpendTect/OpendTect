@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.53 2009-02-26 04:58:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.54 2009-03-04 11:11:22 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -26,31 +26,30 @@ IOPar& uiIOFileSelect::tmpstoragehistory()
 { return *new IOPar("Temporay storage selection history"); }
 
 
-uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
-			bool withclear, const char* buttontxt, bool keepmytxt )
+uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
 	: uiGroup(p)
 	, doselcb_(butcb)
 	, selectiondone(this)
 	, specialitems(*new IOPar)
-    	, keepmytxt_(keepmytxt)
+    	, keepmytxt_(su.keepmytxt_)
 {
-    if ( withclear ) addSpecialItem( "" );
+    if ( su.withclear_ ) addSpecialItem( "" );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, txt, txt );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, su.seltxt_,
+	    						  su.seltxt_ );
     inp_ = lcb->box(); lbl_ = lcb->label();
     inp_->setReadOnly( false );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
     lbl_->setAlignment( OD::AlignRight );
 
-    selbut_ = new uiPushButton( this, buttontxt, false );
-    selbut_->setName( BufferString( buttontxt, " ",  txt ) );
+    selbut_ = new uiPushButton( this, su.buttontxt_, false );
+    selbut_->setName( BufferString( su.buttontxt_, " ", su.seltxt_ ) );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
     selbut_->attach( rightOf, lcb );
 
     setHAlignObj( lcb );
     setHCentreObj( lcb );
     mainObject()->finaliseStart.notify( mCB(this,uiIOSelect,doFinalise) );
-
 }
 
 
@@ -337,7 +336,8 @@ void uiIOSelect::setLabelText( const char* s )
 
 uiIOFileSelect::uiIOFileSelect( uiParent* p, const char* txt, bool frrd,
 				const char* inp, bool wclr )
-	: uiIOSelect(p,mCB(this,uiIOFileSelect,doFileSel),txt,wclr)
+	: uiIOSelect(p,uiIOSelect::Setup(txt).withclear(wclr),
+			mCB(this,uiIOFileSelect,doFileSel))
 	, forread(frrd)
 	, seldir(false)
 {

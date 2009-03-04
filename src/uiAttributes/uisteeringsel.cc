@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.34 2009-02-26 16:47:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.35 2009-03-04 11:11:22 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -254,13 +254,20 @@ void uiSteeringSel::setType( int nr, bool nochg )
 }
 
 
+static uiSeisSel::Setup mkSeisSelSetup( bool is2d, const char* txt )
+{
+    uiSeisSel::Setup sssu( is2d, false );
+    sssu.selattr( is2d )
+	.datatype( is2d ? sKey::Steering : "" )
+	.allowcnstrsabsent( !is2d ).include( is2d )
+	.seltxt( txt );
+    return sssu;
+}
+
+
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 				const DescSet* ads, bool is2d, const char* txt )
-	: uiSeisSel( p, c, uiSeisSel::Setup(is2d,false)
-				   .selattr(is2d).seltxt("Steering Data")
-	       			   .datatype(is2d ? sKey::Steering : 0)
-				   .allowcnstrsabsent(!is2d)
-				   .include(is2d) )
+	: uiSeisSel( p, c, mkSeisSelSetup(is2d,txt) )
 	, attrdata_( ads )
 {
     c.ctxt.allowcnstrsabsent = is2d;
