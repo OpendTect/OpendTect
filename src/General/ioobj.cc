@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.28 2008-12-29 10:05:12 cvsranojay Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.29 2009-03-04 11:10:31 cvsbert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: ioobj.cc,v 1.28 2008-12-29 10:05:12 cvsranojay 
 #include "transl.h"
 #include "oddirs.h"
 #include "ascstream.h"
+#include "survinfo.h"
 #include "separstr.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -293,6 +294,15 @@ bool IOObj::isReadDefault() const
     bool isrddef = tr->isReadDefault();
     delete tr;
     return isrddef;
+}
+
+
+bool IOObj::isSurveyDefault( const MultiID& ky )
+{
+    IOPar* dpar = SI().pars().subselect( "Default" );
+    if ( !dpar || dpar->isEmpty() ) return false;
+
+    return dpar->findKeyFor( ky );
 }
 
 

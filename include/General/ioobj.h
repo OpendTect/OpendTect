@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.27 2009-01-20 04:38:46 cvsranojay Exp $
+ RCS:		$Id: ioobj.h,v 1.28 2009-03-04 11:10:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,8 @@ public:
 
     static bool		isKey(const char*);
     			//!< Returns whether given string may be a valid key
+    static bool		isSurveyDefault(const MultiID&);
+    			//!< Checks the 'Default.' entries in SI().pars()
 
     Translator*		getTranslator() const;
     			//!< returns a subclass of Translator according to
