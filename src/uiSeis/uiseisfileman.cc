@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.79 2009-01-29 22:51:17 cvskris Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.80 2009-03-04 12:39:16 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -48,7 +48,7 @@ static const int cPrefWidth = 50;
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
-                                     "Manage seismic cubes",
+                                     "Manage seismic data",
                                      "103.1.0").nrstatusflds(1),
 	    	   SeisTrcTranslatorGroup::ioContext() )
 {
@@ -77,18 +77,27 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 
     const bool have2d = SI().has2D();
     const bool have3d = SI().has3D();
-    uiToolButton* ps3dbut = 0; uiToolButton* ps2dbut = 0;
+    uiButtonGroup* bgrp = new uiButtonGroup( this, "PS buttons" );
     if ( have3d )
     {
-	ps3dbut = manipgrp->addButton(
-	    ioPixmap(have2d ? "man_ps3d.png" : "man_ps.png"),
-	    mCB(this,uiSeisFileMan,manPS3D), "Manage 3D Pre-Stack data" );
+	const char* ttt = have2d ? "Manage 3D Pre-Stack data"
+	    			 : "Manage Pre-Stack data";
+	uiToolButton* tb = new uiToolButton( bgrp, ttt,
+			   ioPixmap(have2d ? "man_ps3d.png" : "man_ps.png"),
+			   mCB(this,uiSeisFileMan,manPS3D) );
+	tb->setToolTip( ttt );
     }
     if ( have2d )
     {
-	ps2dbut = manipgrp->addButton( ioPixmap("man_ps2d.png"),
-		mCB(this,uiSeisFileMan,manPS2D), "Manage 2D Pre-Stack data" );
+	const char* ttt = have3d ? "Manage 2D Pre-Stack data"
+	    			 : "Manage Pre-Stack data";
+	uiToolButton* tb = new uiToolButton( bgrp, ttt,
+			   ioPixmap(have3d ? "man_ps2d.png" : "man_ps.png"),
+			   mCB(this,uiSeisFileMan,manPS2D) );
+	tb->setToolTip( ttt );
     }
+    bgrp->attach( centeredRightOf, selgrp );
+    bgrp->displayFrame( true );
 
     selChg(0);
 }
