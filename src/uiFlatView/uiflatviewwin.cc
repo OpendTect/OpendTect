@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.19 2009-02-20 11:34:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiflatviewwin.cc,v 1.20 2009-03-05 04:26:39 cvsraman Exp $";
 
 #include "uiflatviewmainwin.h"
 #include "uiflatviewdockwin.h"
@@ -140,6 +140,14 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 	    if ( !valstr ) valstr = pars.find( "Y-coordinate" );
 	    if ( valstr && *valstr )
 		{ mAddSep(); mesg += "Y="; mesg += valstr; }
+	    valstr = pars.find( "Inline" );
+	    if ( !valstr ) valstr = pars.find( "In-line" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Inline="; mesg += valstr; }
+	    valstr = pars.find( "Crossline" );
+	    if ( !valstr ) valstr = pars.find( "Cross-line" );
+	    if ( valstr && *valstr )
+		{ mAddSep(); mesg += "Crossline="; mesg += valstr; }
 	}
     }
 
