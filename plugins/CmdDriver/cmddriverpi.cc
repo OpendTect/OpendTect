@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.24 2009-03-04 11:22:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.25 2009-03-05 09:04:57 cvsjaap Exp $";
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -53,7 +53,7 @@ extern "C" PluginInfo* GetCmdDriverPluginInfo()
 static const char* autoexecfnm = "autoexec.cmd";
 
 
-class uiCmdDriverMgr : public CallBacker
+mClass uiCmdDriverMgr : public CallBacker
 {
 public:
     			uiCmdDriverMgr(uiODMain&);
@@ -77,7 +77,7 @@ public:
 };
 
 
-class uiCmdDriverInps : public uiDialog
+mClass uiCmdDriverInps : public uiDialog
 {
 public:
 
@@ -139,7 +139,7 @@ bool acceptOK( CallBacker* )
 BufferString uiCmdDriverInps::lastinp_;
 
 
-class uiCmdRecordInps : public uiDialog
+mClass uiCmdRecordInps : public uiDialog
 {
 public:
 
