@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.59 2009-03-04 11:11:22 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.60 2009-03-05 08:47:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,7 @@ mClass uiIOObjSel : public uiIOSelect
 {
 public:
 
-    class Setup : public uiIOSelect::Setup
+    mClass Setup : public uiIOSelect::Setup
     {
     public:
 			Setup( const char* seltext=0 )
