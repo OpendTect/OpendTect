@@ -7,15 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.16 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.17 2009-03-05 15:04:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "executor.h"
 #include "multiid.h"
-#include "safefileio.h"
 #include "seistype.h"
 #include "samplingdata.h"
 #include "position.h"
@@ -28,21 +26,7 @@ class uiSeisTrcBufViewer;
 class SeisTrcBufDataPack;
 class uiTable;
 class uiGenInput;
-
-
-mClass uiSeisBrowserInfoDlg : public uiDialog
-{
-    public :
-			uiSeisBrowserInfoDlg(uiParent*,const SeisTrc&,bool);
-	void		setTrace(const SeisTrc&);
-  
-    protected:
-	bool		is2d_;
-	uiGenInput*	coordfld_;
-	uiGenInput*	trcnrbinidfld_;
-	uiGenInput*	zrangefld_;
-	uiGenInput*	samplefld_;
-};
+class uiSeisBrowserInfoVwr;
 
 
 mClass uiSeisBrowser : public uiDialog
@@ -90,16 +74,16 @@ public :
 
 protected:
 
-    CBVSSeisTrcTranslator* tr_;
-    CBVSSeisTrcTranslator* tro_;
-    CBVSSeisTrcTranslator* tri_;
+    const Setup		setup_;
+    uiSeisBrowserInfoVwr* infovwr_;
+    uiSeisTrcBufViewer*	trcbufvwr_;
+
     SeisTrcBuf&		tbuf_;
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;
-    uiSeisTrcBufViewer*	strcbufview_;
-    uiSeisBrowserInfoDlg*  infodlg_;
-    const uiSeisBrowser::Setup& setup_;
-    BufferString	title;
+    CBVSSeisTrcTranslator* tr_;
+    CBVSSeisTrcTranslator* tro_;
+    CBVSSeisTrcTranslator* tri_;
 
     bool		crlwise_;
     int			crlwisebutidx_;
@@ -127,6 +111,7 @@ protected:
 	
     void		goToPush(CallBacker*);
     void		infoPush(CallBacker*);
+    void		infoClose(CallBacker*);
     void		rightArrowPush(CallBacker*);
     void		leftArrowPush(CallBacker*);
     void		switchViewTypePush(CallBacker*);

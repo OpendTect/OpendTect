@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.40 2009-01-20 12:01:41 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.41 2009-03-05 15:04:07 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -23,12 +23,16 @@ static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.40 2009-01-20 12:01:41 cvs
 #include "uitable.h"
 #include "uitoolbar.h"
 #include "uitextedit.h"
+#include "uiseparator.h"
+#include "uiamplspectrum.h"
+#include "uifunctiondisplay.h"
 
 #include "cbvsreadmgr.h"
 #include "cubesampling.h"
 #include "datainpspec.h"
 #include "datapack.h"
 #include "executor.h"
+#include "arrayndimpl.h"
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -51,6 +55,30 @@ static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.40 2009-01-20 12:01:41 cvs
 
 
 
+class uiSeisBrowserInfoVwr : public uiAmplSpectrum
+{
+public :
+
+			uiSeisBrowserInfoVwr(uiParent*,const SeisTrc&,bool);
+
+    void		setTrace(const SeisTrc&);
+  
+protected:
+
+    bool		is2d_;
+
+    uiGenInput*		coordfld_;
+    uiGenInput*		trcnrbinidfld_;
+    uiGenInput*		minamplfld_;
+    uiGenInput*		maxamplfld_;
+    uiGenInput*		minamplatfld_;
+    uiGenInput*		maxamplatfld_;
+
+};
+
+
+
+
 uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
 			      bool is2d)
     : uiDialog(p,setup)
@@ -69,8 +97,8 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
     , compnr_(0)
     , nrcomps_(1)
     , sd_(0)
-    , infodlg_(0)
-    , strcbufview_(0)
+    , infovwr_(0)
+    , trcbufvwr_(0)
     , setup_(setup)
 {
     if ( !openData(setup) )
@@ -316,19 +344,22 @@ void uiSeisBrowser::fillUdf( SeisTrc& trc )
 }
 
 
+static const char* getZValStr( float z )
+{
+    static BufferString txt;
+    float dispz = SI().zFactor() * z * 10;
+    int idispz = mNINT( dispz );
+    dispz = idispz * 0.1;
+    txt = dispz;
+    return txt.buf();
+}
+
+
 void uiSeisBrowser::fillTable()
 {
     const CBVSInfo& info = tr_->readMgr()->info();
-    const float zfac = SI().zFactor();
-    BufferString lbl;
     for ( int idx=0; idx<info.nrsamples; idx++ )
-    {
-	float dispz = zfac * info.sd.atIndex( idx ) * 10;
-	int idispz = mNINT( dispz );
-	dispz = idispz * 0.1;
-	lbl = dispz;
-	tbl_->setRowLabel( idx, lbl );
-    }
+	tbl_->setRowLabel( idx, getZValStr(info.sd.atIndex(idx)) );
 
     for ( int idx=0; idx<tbuf_.size(); idx++ )
     {
@@ -404,17 +435,31 @@ void uiSeisBrowser::infoPush( CallBacker* )
 {
     const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_ 
 					      : *tbuf_.get(tbl_->currentCol());
+    const bool hadinfo = infovwr_;
+    if ( !infovwr_ )
+    {
+	infovwr_ = new uiSeisBrowserInfoVwr( this, trc, is2d_ );
+	infovwr_->windowClosed.notify( mCB(this,uiSeisBrowser,infoClose) );
+    }
+    infovwr_->setTrace( trc );
+    infovwr_->show();
+}
 
-    if ( !infodlg_ )
-	infodlg_ = new uiSeisBrowserInfoDlg( this, trc, is2d_ );
-    infodlg_->go();
+
+void uiSeisBrowser::infoClose( CallBacker* )
+{
+    infovwr_ = 0;
 }
 
 
 void uiSeisBrowser::trcselectionChanged( CallBacker* )
 {
-    if ( infodlg_ && tbl_->currentCol() >= 0 )
-	infodlg_->setTrace( *tbuf_.get(tbl_->currentCol()) );
+    if ( infovwr_ )
+    {
+	const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_ 
+				      : *tbuf_.get(tbl_->currentCol());
+	infovwr_->setTrace( trc );
+    }
 }
 
 
@@ -428,8 +473,8 @@ void uiSeisBrowser::goToPush( CallBacker* cb )
 	    trcselectionChanged( cb );
     }
     setTrcBufViewTitle();
-    if ( strcbufview_ )
-        strcbufview_->handleBufChange();
+    if ( trcbufvwr_ )
+        trcbufvwr_->handleBufChange();
 }
 
 
@@ -438,8 +483,8 @@ void uiSeisBrowser::rightArrowPush( CallBacker* cb )
     if ( !goTo( getNextBid(curBinID(),stepout_,false) ) )
 	return;
     setTrcBufViewTitle();
-    if ( strcbufview_ )
-	strcbufview_->handleBufChange();
+    if ( trcbufvwr_ )
+	trcbufvwr_->handleBufChange();
     trcselectionChanged( cb );
 }
 
@@ -449,8 +494,8 @@ void uiSeisBrowser::leftArrowPush( CallBacker* cb )
     if ( !goTo( getNextBid(curBinID(),stepout_,true) ) )
 	return;
     setTrcBufViewTitle();
-    if ( strcbufview_ )
-	strcbufview_->handleBufChange();
+    if ( trcbufvwr_ )
+	trcbufvwr_->handleBufChange();
     trcselectionChanged( cb );
 }
 
@@ -460,8 +505,8 @@ void uiSeisBrowser::switchViewTypePush( CallBacker* )
     crlwise_ = uitb_->isOn( crlwisebutidx_ );
     doSetPos( curBinID(), true );
     setTrcBufViewTitle();
-    if ( strcbufview_ )
-	strcbufview_->handleBufChange();
+    if ( trcbufvwr_ )
+	trcbufvwr_->handleBufChange();
 }
 
 
@@ -640,14 +685,14 @@ bool uiSeisBrowser::storeChgdData()
 
 void uiSeisBrowser::showWigglePush( CallBacker* )
 {
-    if ( strcbufview_ )
-	strcbufview_->start();
+    if ( trcbufvwr_ )
+	trcbufvwr_->start();
     else
     {
 	const char* name = IOM().nameOf( setup_.id_ );
-	uiSeisTrcBufViewer::Setup stbvsetup( title, 1 );
-	strcbufview_ = new uiSeisTrcBufViewer( this, stbvsetup );
-	SeisTrcBufDataPack* dp = strcbufview_->setTrcBuf
+	uiSeisTrcBufViewer::Setup stbvsetup( "", 1 );
+	trcbufvwr_ = new uiSeisTrcBufViewer( this, stbvsetup );
+	SeisTrcBufDataPack* dp = trcbufvwr_->setTrcBuf
 	                            ( &tbuf_, setup_.geom_, "Seismics", name);
 	if ( (dp->trcBuf().isEmpty()) )
 	{
@@ -655,10 +700,10 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 	    return;
 	}
 	dp->trcBufArr2D().setBufMine( false );
-	strcbufview_->getViewer()->usePack( true, dp->id(), false );
-	strcbufview_->start();
-	strcbufview_->handleBufChange();
-	strcbufview_->windowClosed.notify(
+	trcbufvwr_->getViewer()->usePack( true, dp->id(), false );
+	trcbufvwr_->start();
+	trcbufvwr_->handleBufChange();
+	trcbufvwr_->windowClosed.notify(
 			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
     }
 
@@ -669,14 +714,14 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 
 void uiSeisBrowser::updateWiggleButtonStatus()
 {
-    const bool turnon = !strcbufview_ || strcbufview_->isHidden();
+    const bool turnon = !trcbufvwr_ || trcbufvwr_->isHidden();
     uitb_->turnOn( showwgglbutidx_, !turnon );
 }
 
 
 void uiSeisBrowser::trcbufViewerClosed( CallBacker* )
 {
-    strcbufview_ = 0;
+    trcbufvwr_ = 0;
     updateWiggleButtonStatus();
 }
 
@@ -690,31 +735,34 @@ void uiSeisBrowser::valChgReDraw( CallBacker* )
     SeisTrc* trace = tbuf_.get( rc.col );
     const float chgdval = tbl_->getfValue( rc );
     trace->set( rc.row, chgdval, compnr_ );
-    if ( strcbufview_ )
-	strcbufview_->handleBufChange();
+    if ( trcbufvwr_ )
+	trcbufvwr_->handleBufChange();
 }
 
 
 void uiSeisBrowser::setTrcBufViewTitle()
 {
+    if ( !trcbufvwr_ ) return;
+
     BufferString title( "Central Trace: " );
-    title += curBinID().inl; title += "/";
+    if ( !Seis::is2D(setup_.geom_) )
+	{ title += curBinID().inl; title += "/"; }
     title += curBinID().crl;
-    if ( strcbufview_ )
-        strcbufview_->setWinTitle( title );
+
+    trcbufvwr_->setWinTitle( title );
 
 }
 
 
 
-uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
+uiSeisBrowserInfoVwr::uiSeisBrowserInfoVwr( uiParent* p, const SeisTrc& trc,
 					    bool is2d )
-    : uiDialog(p,uiDialog::Setup("Selected Trace Information",
-				 mNoDlgTitle,mNoHelpID)
-	    	.modal(false) )
+    : uiAmplSpectrum(p)
     , is2d_(is2d)  
 {
-    setCtrlStyle( LeaveOnly );
+    setDeleteOnClose( true );
+    setCaption( "Trace information" );
+
     uiGroup* valgrp = new uiGroup( this, "Values group" );
 
     PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) ); 
@@ -728,20 +776,41 @@ uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
-    const BufferString lbl( "Z-Range ", SI().getZUnitString() );
-    zrangefld_ = new uiGenInput( valgrp, lbl, FloatInpIntervalSpec(true) );
-    zrangefld_->attach( alignedBelow, trcnrbinidfld_ );
-    zrangefld_->setReadOnly();
+    minamplfld_ = new uiGenInput( valgrp, "Minimum amplitude", FloatInpSpec() );
+    minamplfld_->attach( alignedBelow, trcnrbinidfld_ );
+    minamplfld_->setElemSzPol( uiObject::Small );
+    minamplfld_->setReadOnly();
+    minamplatfld_ = new uiGenInput( valgrp, "at", FloatInpSpec() );
+    minamplatfld_->attach( rightOf, minamplfld_ );
+    minamplatfld_->setElemSzPol( uiObject::Small );
+    minamplatfld_->setReadOnly();
+    uiLabel* lbl = new uiLabel( valgrp, SI().getZUnitString() );
+    lbl->attach( rightOf, minamplatfld_ );
 
-    samplefld_ = new uiGenInput( valgrp, "Number of samples", FloatInpSpec() );
-    samplefld_->attach( alignedBelow, zrangefld_ );
-    samplefld_->setReadOnly();
-    
+    maxamplfld_ = new uiGenInput( valgrp, "Maximum amplitude", FloatInpSpec() );
+    maxamplfld_->attach( alignedBelow, minamplfld_ );
+    maxamplfld_->setElemSzPol( uiObject::Small );
+    maxamplfld_->setReadOnly();
+    maxamplatfld_ = new uiGenInput( valgrp, "at", FloatInpSpec() );
+    maxamplatfld_->attach( rightOf, maxamplfld_ );
+    maxamplatfld_->setElemSzPol( uiObject::Small );
+    maxamplatfld_->setReadOnly();
+    lbl = new uiLabel( valgrp, SI().getZUnitString() );
+    lbl->attach( rightOf, maxamplatfld_ );
+
+    uiSeparator* sep = new uiSeparator( this, "Hor sep" );
+    sep->attach( stretchedBelow, disp_ );
+    valgrp->attach( centeredBelow, disp_ );
+    valgrp->attach( ensureBelow, sep );
+
+    setPrefHeightInChar( 20 );
+    setPrefWidthInChar( 50 );
+
     setTrace( trc );
 }
 
 
-void uiSeisBrowserInfoDlg::setTrace( const SeisTrc& trc )
+void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 {
     coordfld_->setValue( trc.info().coord );
     if ( is2d_ )
@@ -749,9 +818,26 @@ void uiSeisBrowserInfoDlg::setTrace( const SeisTrc& trc )
     else
 	trcnrbinidfld_->setValue( trc.info().binid );
 
-    StepInterval<float> intv( trc.startPos(), trc.samplePos(trc.size()-1),
-			      trc.info().sampling.step );
-    intv.scale( SI().zFactor() );
-    zrangefld_->setValue( intv );
-    samplefld_->setValue( trc.size() );
+    if ( trc.size() < 1 ) return;
+
+    const float v0 = trc.get( 0, 0 );
+    const float z0 = trc.info().samplePos( 0 );
+    Interval<float> amplrg( v0, v0 );
+    Interval<float> peakzs( z0, z0 );
+    Array2DImpl<float> a2d( 1, trc.size() );
+    for ( int idx=0; idx<trc.size(); idx++ )
+    {
+	const float v = trc.get( idx, 0 );
+	if ( v < amplrg.start )
+	    { amplrg.start = v; peakzs.start = trc.info().samplePos(idx); }
+	if ( v > amplrg.stop )
+	    { amplrg.stop = v; peakzs.stop = trc.info().samplePos(idx); }
+	a2d.set( 0, idx, v );
+    }
+    minamplfld_->setValue( amplrg.start );
+    minamplatfld_->setText( getZValStr(peakzs.start) );
+    maxamplfld_->setValue( amplrg.stop );
+    maxamplatfld_->setText( getZValStr(peakzs.stop) );
+
+    setData( a2d );
 }
