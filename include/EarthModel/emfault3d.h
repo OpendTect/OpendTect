@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.2 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emfault3d.h,v 1.3 2009-03-05 08:00:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 
@@ -15,11 +15,12 @@ ________________________________________________________________________
 
 #include "emfault.h"
 #include "tableascio.h"
-
+#include "emfaultstickset.h"
 
 namespace Table { class FormatDesc; }
 
 namespace Geometry { class FaultStickSurface; }
+namespace Geometry { class FaultStickSet; }
 
 namespace EM
 {
@@ -67,7 +68,7 @@ protected:
 /*!\brief 3D Fault
 */
 
-mClass Fault3D : public Surface
+mClass Fault3D : public Fault
 { mDefineEMObjFuncs( Fault3D );
 public:
     Fault3DGeometry&		geometry();
@@ -83,15 +84,16 @@ protected:
 };
 
 
-mClass Fault3DAscIO : public Table::AscIO
+mClass FaultAscIO : public Table::AscIO
 {
 public:
-    				Fault3DAscIO( const Table::FormatDesc& fd )
+    				FaultAscIO( const Table::FormatDesc& fd )
 				    : Table::AscIO(fd)		{}
-    static Table::FormatDesc*	getDesc();
+    static Table::FormatDesc*	getDesc(bool is2d);
 
-    bool			get(std::istream&,EM::Fault3D&) const;
-
+    bool			get(std::istream&,EM::Fault&,
+	    			    const MultiID* linesetmid=0,
+				    bool is2d=false) const;
 protected:
     bool			isXY() const;
 };

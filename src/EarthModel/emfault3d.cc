@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.5 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.6 2009-03-05 08:00:16 cvsnageswara Exp $";
 
 #include "emfault3d.h"
 
@@ -159,7 +159,7 @@ protected:
 
     
 Fault3D::Fault3D( EMManager& em )
-    : Surface(em)
+    : Fault(em)
     , geometry_( *this )
 {
     geometry_.addSection( "", false );
@@ -406,17 +406,15 @@ bool Fault3DGeometry::usePar( const IOPar& par )
 }
 
 
-// ***** Fault3DAscIO *****
+// ***** FaultAscIO *****
 
-Table::FormatDesc* Fault3DAscIO::getDesc()
+Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Fault3D" );
+    Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
 
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", FloatInpSpec(),
-	    						Table::Required );
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y",
+	    				FloatInpSpec(), Table::Required );
     posinfo->form(0).add( FloatInpSpec() );
-//    posinfo->add( posinfo->form(0).duplicate("Inl/Crl") );
-//  Maybe support Inl/Crl later
     fd->bodyinfos_ += posinfo;
 
     Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
@@ -426,11 +424,15 @@ Table::FormatDesc* Fault3DAscIO::getDesc()
     fd->bodyinfos_ += zti;
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
 	    				     Table::Optional );
+    if ( is2d )
+	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
+						 Table::Required );
+
     return fd;
 }
 
 
-bool Fault3DAscIO::isXY() const
+bool FaultAscIO::isXY() const
 {
     const Table::TargetInfo* posinfo = fd_.bodyinfos_[0];
     return !posinfo || posinfo->selection_.form_ == 0;
@@ -443,6 +445,7 @@ struct FaultStick
 
     int			stickidx_;
     TypeSet<Coord3>	crds_;
+    BufferString	lnm_;
 
 Coord3 getNormal() const
 {
@@ -466,7 +469,8 @@ Coord3 getNormal() const
 };
 
 
-bool Fault3DAscIO::get( std::istream& strm, EM::Fault3D& flt ) const
+bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, 
+       			   const MultiID* linesetmid, bool is2d ) const
 {
     getHdrVals( strm );
 
@@ -493,6 +497,9 @@ bool Fault3DAscIO::get( std::istream& strm, EM::Fault3D& flt ) const
 	crd.y = getfValue( 1 );
 	crd.z = getfValue( 2 );
 	const int stickidx = getIntValue( 3 );
+	BufferString lnm;
+	if ( is2d )
+	    lnm = text( 4 );
 	if ( !hasstickidx && !mIsUdf(stickidx) )
 	    hasstickidx = true;
 
@@ -507,6 +514,7 @@ bool Fault3DAscIO::get( std::istream& strm, EM::Fault3D& flt ) const
 		stick->crds_ += crd;
 		sticks += stick;
 		curstickidx = stickidx;
+		stick->lnm_ = lnm;
 	    }
 	    else
 	    {
@@ -556,10 +564,23 @@ bool Fault3DAscIO::get( std::istream& strm, EM::Fault3D& flt ) const
 
 	// TODO: sort sticks
 
-	bool res = flt.geometry().insertStick( sid, stick->stickidx_, 0,
-					       stick->crds_[0],
-					       stick->getNormal(), false );
-	if ( !res ) continue;
+	if ( is2d )
+	{
+	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
+	    bool res = fss->geometry().insertStick( sid, stick->stickidx_,
+		    				   0, stick->crds_[0],
+						   stick->getNormal(),
+						   linesetmid, stick->lnm_,
+						   false );
+	    if ( !res ) continue;
+	}
+	else
+	{
+    	    bool res = flt.geometry().insertStick( sid, stick->stickidx_, 0,
+						   stick->crds_[0],
+						   stick->getNormal(), false );
+	    if ( !res ) continue;
+	}
 
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
@@ -572,6 +593,5 @@ bool Fault3DAscIO::get( std::istream& strm, EM::Fault3D& flt ) const
     deepErase( sticks );
     return true;
 }
-
 
 } // namespace EM
