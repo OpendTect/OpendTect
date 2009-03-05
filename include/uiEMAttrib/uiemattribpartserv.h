@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.5 2009-01-08 09:04:20 cvsranojay Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.6 2009-03-05 06:23:43 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
 				{ descset_ = ads; }
 
     void			import2DHorizon() const;
+    void			import2DFaultStickset(const char* type);
 
 protected:
 

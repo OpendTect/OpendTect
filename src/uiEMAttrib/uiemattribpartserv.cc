@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.5 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.6 2009-03-05 06:23:43 cvsnageswara Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.5 2008-11-25 15:35:25
 #include "ioman.h"
 #include "ioobj.h"
 
+#include "uiimpfaultstickset2d.h"
 
 uiEMAttribPartServer::uiEMAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -59,4 +60,11 @@ void uiEMAttribPartServer::import2DHorizon() const
 {
     uiImportHorizon2D dlg( parent() );
     dlg.go();
+}
+
+
+void uiEMAttribPartServer::import2DFaultStickset( const char* type )
+{
+    uiImportFaultStickSet2D fssdlg( parent(), type );
+    fssdlg.go();
 }
