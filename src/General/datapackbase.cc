@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapackbase.cc,v 1.2 2009-02-12 22:07:21 cvskris Exp $";
+static const char* rcsID = "$Id: datapackbase.cc,v 1.3 2009-03-05 09:16:32 cvsraman Exp $";
 
 #include "datapackbase.h"
 #include "arrayndimpl.h"
@@ -66,8 +66,8 @@ FlatDataPack::~FlatDataPack()
 
 Coord3 FlatDataPack::getCoord( int i0, int i1 ) const
 {
-    return Coord3( posdata_.range(true).atIndex(i0),
-		   posdata_.range(false).atIndex(i1), 0 );
+    return Coord3( posData().range(true).atIndex(i0),
+		   posData().range(false).atIndex(i1), 0 );
 }
 
 
@@ -119,10 +119,9 @@ int FlatDataPack::size( bool dim0 ) const
 
 MapDataPack::MapDataPack( const char* cat, const char* nm, Array2D<float>* arr )
     : FlatDataPack(cat,arr)
-    , isposcoord_(true)
+    , isposcoord_(false)
     , xyrotarr2d_(0)
-    , mainisset1_(true)
-    , fakeposdata_(*new FlatPosData)
+    , xyrotposdata_(*new FlatPosData)
     , axeslbls_(4,"")
 {
     setName( nm );
@@ -132,26 +131,25 @@ MapDataPack::MapDataPack( const char* cat, const char* nm, Array2D<float>* arr )
 MapDataPack::~MapDataPack()
 {
     delete xyrotarr2d_;
-    delete &fakeposdata_;
-}
-
-
-Coord MapDataPack::get2DCoord( int i0, int i1 ) const
-{
-    const float x = posdata_.range(true).atIndex(i0);
-    const float y = posdata_.range(false).atIndex(i1);
-    if ( isposcoord_ ) return Coord( x, y );
-
-    const BinID bid( mNINT(x), mNINT(y) );
-    return SI().transform( bid );
+    delete &xyrotposdata_;
 }
 
 
 void MapDataPack::getAuxInfo( int idim0, int idim1, IOPar& par ) const
 {
-    Coord pos = get2DCoord( idim0, idim1 );
-    par.set( "X", pos.x );
-    par.set( "Y", pos.y );
+    const Coord3 pos = getCoord( idim0, idim1 );
+    if ( isposcoord_ )
+    {
+	const BinID bid = SI().transform( Coord(pos.x,pos.y) );
+	par.set( axeslbls_[2], bid.inl );
+	par.set( axeslbls_[3], bid.crl );
+    }
+    else
+    {
+	const Coord pos2d = SI().transform( BinID(mNINT(pos.x),mNINT(pos.y)) );
+	par.set( axeslbls_[0], pos2d.x );
+	par.set( axeslbls_[1], pos2d.y );
+    }
 }
 
 
@@ -164,9 +162,16 @@ float MapDataPack::getValAtIdx( int idx, int idy ) const
 }
 
 
+void MapDataPack::setPosCoord( bool isposcoord )
+{
+    isposcoord_ = isposcoord;
+    if ( isposcoord_ && !xyrotarr2d_ )
+	createXYRotArray();
+}
+
+
 void MapDataPack::createXYRotArray()
 {
-    isposcoord_ = false; //tmp disabled to avoid endless loop with posData()
     float anglenorth = SI().computeAngleXInl();
     int inlsz = arr2d_->info().getSize(0);
     int crlsz = arr2d_->info().getSize(1);
@@ -175,8 +180,8 @@ void MapDataPack::createXYRotArray()
     int length = mNINT( truelength );
     int width = mNINT( truewidth );
     HorSampling hsamp;
-    StepInterval<double> tmpirg ( posData().range(true) );
-    StepInterval<double> tmpcrg ( posData().range(false) );
+    StepInterval<double> tmpirg( posdata_.range(true) );
+    StepInterval<double> tmpcrg( posdata_.range(false) );
     hsamp.set( StepInterval<int>((int)tmpirg.start,(int)tmpirg.stop,
 				 (int)tmpirg.step),
 	       StepInterval<int>((int)tmpcrg.start,(int)tmpcrg.stop,
@@ -225,21 +230,20 @@ void MapDataPack::createXYRotArray()
 	    xyrotarr2d_->set( idx, idy, val );
 	}
     }
-    fakeposdata_.setRange( true, 
-	    		   StepInterval<double>( startpt.x, stoppt.x, xstep ) );
-    fakeposdata_.setRange( false,
-	    		   StepInterval<double>( startpt.y, stoppt.y, ystep ) );
-    isposcoord_ = true; //we now have both inl/crl and X/Y positioning
+
+    xyrotposdata_.setRange( true,
+	    		    StepInterval<double>(startpt.x,stoppt.x,xstep) );
+    xyrotposdata_.setRange( false,
+	    		    StepInterval<double>(startpt.y,stoppt.y,ystep) );
 }
 
 
-void MapDataPack::setPropsAndInit( StepInterval<double> dim0rg,
-				   StepInterval<double> dim1rg,
+void MapDataPack::setPropsAndInit( StepInterval<double> inlrg,
+				   StepInterval<double> crlrg,
 				   bool isposcoord, BufferStringSet* dimnames )
 {
-    setPosCoord( isposcoord );
-    posData().setRange( true, dim0rg );
-    posData().setRange( false, dim1rg );
+    posdata_.setRange( true, inlrg );
+    posdata_.setRange( false, crlrg );
     if ( dimnames )
     {
 	for ( int setidx=0; setidx<dimnames->size(); setidx+=2 )
@@ -247,48 +251,50 @@ void MapDataPack::setPropsAndInit( StepInterval<double> dim0rg,
 			 dimnames->get(setidx+1), !setidx );
     }
 
-    if ( !isposcoord && mainisset1_ )
-	setPosCoord( true );
+    setPosCoord( isposcoord );
+}
+
+
+void MapDataPack::setRange( StepInterval<double> dim0rg,
+			    StepInterval<double> dim1rg, bool forxy )
+{
+    FlatPosData& posdata = forxy ? xyrotposdata_ : posdata_;
+    posdata.setRange( true, dim0rg );
+    posdata.setRange( false, dim1rg );
 }
 
 
 Array2D<float>& MapDataPack::data()
 {
-    if ( mainisset1_ && !xyrotarr2d_ )
-	createXYRotArray();
-
-    return mainisset1_ && xyrotarr2d_ ? *xyrotarr2d_ : *arr2d_;
+    return isposcoord_ ? *xyrotarr2d_ : *arr2d_;
 }
 
 
 FlatPosData& MapDataPack::posData()
 {
-    if ( isposcoord_ && !xyrotarr2d_ )
-	createXYRotArray();
-
-    return mainisset1_ && xyrotarr2d_ ? fakeposdata_ : posdata_;
+    return isposcoord_ ? xyrotposdata_ : posdata_;
 }
 
 
-void MapDataPack::setDimNames( const char* x1lbl, const char* x2lbl, bool set1 )
+void MapDataPack::setDimNames( const char* xlbl, const char* ylbl, bool forxy )
 {
-    if ( set1 )
+    if ( forxy )
     {
-	axeslbls_[0] = x1lbl;
-	axeslbls_[1] = x2lbl;
+	axeslbls_[0] = xlbl;
+	axeslbls_[1] = ylbl;
     }
     else
     {
-	axeslbls_[2] = x1lbl;
-	axeslbls_[3] = x2lbl;
+	axeslbls_[2] = xlbl;
+	axeslbls_[3] = ylbl;
     }    
 }
 
 
 const char* MapDataPack::dimName( bool dim0 ) const
 {
-    return dim0 ? mainisset1_ ? axeslbls_[0].buf() : axeslbls_[1].buf()
-		: mainisset1_ ? axeslbls_[2].buf() : axeslbls_[3].buf();
+    return dim0 ? isposcoord_ ? axeslbls_[0].buf() : axeslbls_[2].buf()
+		: isposcoord_ ? axeslbls_[1].buf() : axeslbls_[3].buf();
 }
 
 
