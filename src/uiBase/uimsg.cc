@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.39 2009-03-04 10:45:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.40 2009-03-05 09:43:20 cvsnanne Exp $";
 
 
 #include "uimsg.h"
@@ -21,16 +21,22 @@ static const char* rcsID = "$Id: uimsg.cc,v 1.39 2009-03-04 10:45:55 cvsjaap Exp
 #include "uiparentbody.h"
 
 #undef Ok
-#include <qmessagebox.h>
-#include <iostream>
+#include <QMessageBox>
 
 uiMsg* uiMsg::theinst_ = 0;
+uiMsg& uiMSG()
+{
+    if ( !uiMsg::theinst_ )
+	uiMsg::theinst_ = new uiMsg;
+    return *uiMsg::theinst_;
+}
 
 
 uiMsg::uiMsg()
 	: uimainwin_(0)
 {
 }
+
 
 uiMainWin* uiMsg::setMainWin( uiMainWin* m )
 {
@@ -82,6 +88,7 @@ static BufferString& gtCaptn()
 	captn = new BufferString;
     return *captn;
 }
+
 
 void uiMsg::setNextCaption( const char* s )
 {
@@ -163,12 +170,7 @@ int uiMsg::notSaved( const char* text, bool cancelbutt )
     const char* dontsavetxt = "&Don't save";
     const char* canceltxt = "&Cancel";
 
-#if QT_VERSION < 0x030200
-# define mQuestion information
-#else
-# define mQuestion question
-#endif
-    const int res = QMessageBox::mQuestion( popParnt(),
+    const int res = QMessageBox::question( popParnt(),
 				mCapt("Data not saved"), QString(text),
 				QString(savetxt),
 				QString(dontsavetxt),

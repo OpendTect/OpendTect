@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.23 2009-03-04 10:43:27 cvsjaap Exp $
+ RCS:           $Id: uimsg.h,v 1.24 2009-03-05 09:43:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class QWidget;
 mClass uiMsg
 {
     friend class uiMain;
-    friend uiMsg& uiMSG();
+    mGlobal friend uiMsg& uiMSG();
 
 public:
 
@@ -70,12 +70,7 @@ private:
     uiMainWin*		uimainwin_;
 };
 
-inline uiMsg& uiMSG()
-{
-    if ( !uiMsg::theinst_ )
-	uiMsg::theinst_ = new uiMsg;
-    return *uiMsg::theinst_;
-}
+mGlobal uiMsg& uiMSG();
 
 
 //!Sets the uiMSG's main window temporary during the scope of the object
