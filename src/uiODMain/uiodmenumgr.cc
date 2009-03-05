@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.153 2009-03-03 12:26:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.154 2009-03-05 08:07:30 cvsnageswara Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -186,10 +186,12 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* impseis = new uiPopupMenu( &appl_, "&Seismics" );
     uiPopupMenu* imphor = new uiPopupMenu( &appl_, "&Horizons" );
     uiPopupMenu* impfault = new uiPopupMenu( &appl_, "&Faults" );
+    uiPopupMenu* impfaultstick = new uiPopupMenu( &appl_, "F&aultStickSets" );
     uiPopupMenu* impwell = new uiPopupMenu( &appl_, "&Wells" );
     impmnu_->insertItem( impseis );
     impmnu_->insertItem( imphor );
     impmnu_->insertItem( impfault );
+    impmnu_->insertItem( impfaultstick );
     impmnu_->insertItem( impwell );
     mInsertItem( impmnu_, "&Picksets ...", mImpPickMnuItm );
     mInsertItem( impmnu_, "&Wavelets ...", mImpWvltMnuItm );
@@ -214,6 +216,8 @@ void uiODMenuMgr::fillImportMenu()
     imphor->insertItem( imphorasc );
 
     mInsertItem( impfault, "&Ascii 3D ...", mImpFaultMnuItm );
+    mInsertItem( impfaultstick, "&Ascii 3D ...", mImpFaultSSAscii3DMnuItm );
+    mInsertItem( impfaultstick, "&Ascii 2D ...", mImpFaultSSAscii2DMnuItm );
 
     uiPopupMenu* impwellasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
@@ -251,7 +255,7 @@ void uiODMenuMgr::fillExportMenu()
     uiPopupMenu* expflt = new uiPopupMenu( &appl_, "&Faults" );
     mInsertItem( expflt, "&Ascii ...", mExpFltAsciiMnuItm );
     expmnu_->insertItem( expflt );
-    uiPopupMenu* expfltss = new uiPopupMenu( &appl_, "&FaultStickSets" );
+    uiPopupMenu* expfltss = new uiPopupMenu( &appl_, "F&aultStickSets" );
     mInsertItem( expfltss, "&Ascii ...", mExpFltSSAsciiMnuItm );
     expmnu_->insertItem( expfltss );
 
@@ -671,7 +675,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpHorAscii3DMnuItm: 	mDoOp(Exp,Hor,0); break;
     case mExpHorAscii2DMnuItm:    mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm: 	mDoOp(Exp,Flt,0); break;
-    case mExpFltSSAsciiMnuItm: 	mDoOp(Exp,Flt,1); break;
+    case mExpFltSSAsciiMnuItm: mDoOp(Exp,Flt,1); break;			
     case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
     case mImpWellAsciiMarkersMnuItm: mDoOp(Imp,Wll,2); break;
@@ -680,6 +684,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpPickMnuItm: 	mDoOp(Exp,Pick,0); break;
     case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm: 	mDoOp(Imp,Flt,0); break;
+    case mImpFaultSSAscii3DMnuItm: 	mDoOp(Imp,Flt,1); break;
+    case mImpFaultSSAscii2DMnuItm: 	mDoOp(Imp,Flt,2); break;
+
     case mImpMuteDefMnuItm:	mDoOp(Imp,MDef,0); break;
     case mExpMuteDefMnuItm:     mDoOp(Exp,MDef,0); break;
     case mImpVelocityMnuItm:	mDoOp(Imp,Vel,0); break;			
