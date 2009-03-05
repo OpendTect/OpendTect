@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.9 2009-01-23 16:08:14 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.10 2009-03-05 13:23:54 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -523,4 +523,35 @@ bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
 
     return computeVrms( (const float*)Vint_sampled, sd_out, nr_out,
 	    		VelocityDesc::Above, Vout );
+}
+
+
+void computeResidualMoveouts( float z0, float rmo, float refoffset,
+			      int nroffsets, bool outputdepth,
+			      const float* offsets, float* output )
+{
+    const bool alludf =
+	    (outputdepth && mIsUdf(z0)) || mIsUdf(rmo) || mIsUdf(refoffset) ||
+	    mIsZero(refoffset,1e-5);
+
+    for ( int idx=0; idx<nroffsets; idx++, offsets++, output++ )
+    {
+	if ( alludf )
+	{
+	    *output = mUdf(float);
+	    continue;
+	}
+
+	const float offset = *offsets;
+	if ( mIsUdf(offset) )
+	{
+	    *output = mUdf(float);
+	    continue;
+	}
+
+	const float ratio = offset/refoffset;
+	*output = rmo * ratio * ratio;
+	if ( outputdepth )
+	    *output += z0;
+    }
 }

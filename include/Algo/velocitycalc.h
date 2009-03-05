@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.8 2009-01-28 04:07:37 cvsranojay Exp $
+ RCS:		$Id: velocitycalc.h,v 1.9 2009-03-05 13:23:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,8 +93,18 @@ mGlobal bool computeVrms(const float* Vint,float t0,const float* t,int nrlayers,
    function assumes constant interval velocity before and after the input
    interval.*/
 
-mGlobal bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
-		const SamplingData<double>& sd_out,float* Vout, int nr_out);
+mGlobal bool sampleVrms(const float* Vin,float t0_in,const float* t_in,
+			int nr_in, const SamplingData<double>& sd_out,
+			float* Vout, int nr_out);
+
+
+/*!Given a residual moveout at a reference offset, comput the residual moveout
+ *    at other offsets */
+
+mGlobal void computeResidualMoveouts( float z0, float rmo, float refoffset,
+				      int nroffsets, bool outputdepth,
+				      const float* offsets, float* output );
+
 	        
 	        
 #endif
