@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.h,v 1.5 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uiexpfault.h,v 1.6 2009-03-05 08:38:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ protected:
     uiGenInput*		coordfld_;
     uiCheckBox*		stickfld_;
     uiCheckBox*		nodefld_;
+    uiCheckBox*		linenmfld_;
     uiFileInput*	outfld_;
 
     CtxtIOObj&		ctio_;

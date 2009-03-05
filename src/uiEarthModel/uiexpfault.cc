@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.10 2009-02-06 12:12:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.11 2009-03-05 08:38:18 cvsnageswara Exp $";
 
 #include "uiexpfault.h"
 
+#include "bufstring.h"
 #include "ctxtioobj.h"
 #include "emfault3d.h"
 #include "emfaultstickset.h"
@@ -45,8 +46,11 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup(mGetTitle(typ),
 				 "Specify output format","104.1.1"))
     , ctio_(mGetCtio(typ))
+    , linenmfld_(0)
 {
-    infld_ = new uiIOObjSel( this, ctio_, "Input Fault" );
+    BufferString inplbl( "Input ");
+    inplbl += typ;
+    infld_ = new uiIOObjSel( this, ctio_, inplbl );
 
     coordfld_ = new uiGenInput( this, "Write coordinates as",
 				BoolInpSpec(true,"X/Y","Inl/Crl") );
@@ -60,11 +64,18 @@ uiExportFault::uiExportFault( uiParent* p, const char* typ )
     nodefld_->attach( rightTo, stickfld_ );
     uiLabel* lbl = new uiLabel( this, "Write", stickfld_ );
 
+    if ( mGet(typ,true,false) )
+    {
+	linenmfld_ = new uiCheckBox( this, "Write line name if picked on 2D" );
+	linenmfld_->setChecked( true );
+	linenmfld_->attach( alignedBelow, stickfld_ );
+    }
+
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		       uiFileInput::Setup().forread(false) );
     outfld_->setDefaultSelectionDir(
 		IOObjContext::getDataDirName(IOObjContext::Surf) );
-    outfld_->attach( alignedBelow, stickfld_ );
+    outfld_->attach( alignedBelow, linenmfld_ ? linenmfld_ : stickfld_ );
 }
 
 
@@ -98,6 +109,7 @@ static Coord3 getCoord( EM::EMObject* emobj, EM::SectionID sid, int stickidx,
     return fss->getKnot( RowCol(sticknr,knotnr) );
 }
 
+
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiExportFault::writeAscii()
@@ -127,11 +139,10 @@ bool uiExportFault::writeAscii()
 	mErrRet( "Cannot open output file" );
     }
 
+    BufferString str;
     const bool doxy = coordfld_->getBoolValue();
     const bool inclstickidx = stickfld_->isChecked();
     const bool inclknotidx = nodefld_->isChecked();
-
-    BufferString str;
     const EM::SectionID sectionid = emobj->sectionID( 0 );
     const int nrsticks = nrSticks( emobj.ptr(), sectionid );
     for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
@@ -164,8 +175,19 @@ bool uiExportFault::writeAscii()
 	    if ( inclknotidx )
 		*sdo.ostrm << '\t' << knotidx;
 
-	    *sdo.ostrm << '\n';
+	    if ( fss )
+	    {
+    		bool pickedon2d =
+		    fss->geometry().pickedOn2DLine( sectionid, stickidx );
+		if ( pickedon2d && linenmfld_->isChecked() )
+		{
+		    const char* linenm =
+			fss->geometry().lineName( sectionid, stickidx );
+		    *sdo.ostrm << '\t' << linenm;
+		}
+	    }
 
+	    *sdo.ostrm << '\n';
 	}
     }
 
