@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.14 2009-02-13 05:32:17 cvsranojay Exp $
+ RCS:		$Id: datapackbase.h,v 1.15 2009-03-05 09:14:32 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,18 +117,20 @@ public:
 
     Array2D<float>&		data();
     FlatPosData&		posData();
-    void			setDimNames(const char*,const char*,bool set1);
+    void			setDimNames(const char*,const char*,bool forxy);
     const char*			dimName( bool dim0 ) const;
 
     				//!< Alternatively, it can be in Inl/Crl
     bool			posDataIsCoord() const	{ return isposcoord_; }
-    void			setPosCoord(bool yn)	{ isposcoord_ = yn; }
-    Coord			get2DCoord(int,int) const;
+    void			setPosCoord(bool yn);
     				//!< int,int = Array2D position
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const;
-    void			setPropsAndInit(StepInterval<double> dim0rg,
-	    					StepInterval<double> dim1rg,
+    void			setPropsAndInit(StepInterval<double> inlrg,
+	    					StepInterval<double> crlrg,
 						bool,BufferStringSet*);
+    void			setRange( StepInterval<double> dim0rg,
+	    				  StepInterval<double> dim1rg,
+					  bool forxy );
 
 protected:
 
@@ -136,9 +138,8 @@ protected:
     float			getValAtIdx(int,int) const;
     
     Array2D<float>*		xyrotarr2d_;
-    FlatPosData&		fakeposdata_;
+    FlatPosData&		xyrotposdata_;
     bool			isposcoord_;
-    bool			mainisset1_; //for maps X/Y is the default set1
     TypeSet<BufferString>	axeslbls_;
 };
 
