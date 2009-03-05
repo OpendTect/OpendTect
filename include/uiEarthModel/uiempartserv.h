@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.82 2009-02-11 10:39:03 cvsranojay Exp $
+ RCS:           $Id: uiempartserv.h,v 1.83 2009-03-05 06:37:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
     bool		import3DHorizon(bool isgeom);
     bool		export3DHorizon();
     bool		export2DHorizon();
-    bool		importFault();
+    bool		importFault(const char* type);
     bool		exportFault(const char* type);
 
     void		showHorShiftDlg(uiParent*,const EM::ObjectID&,

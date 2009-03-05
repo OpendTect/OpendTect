@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.28 2009-02-06 12:12:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.29 2009-03-05 06:37:22 cvsnageswara Exp $";
 
 #include "uiimpfault.h"
 
+#include "bufstring.h"
 #include "ctxtioobj.h"
+#include "emfault.h"
 #include "emfault3d.h"
-#include "lmkemfaulttransl.h"
 #include "emmanager.h"
 #include "filegen.h"
 #include "ioobj.h"
+#include "lmkemfaulttransl.h"
 #include "streamconn.h"
 #include "strmdata.h"
 #include "strmprov.h"
@@ -26,42 +28,65 @@ static const char* rcsID = "$Id: uiimpfault.cc,v 1.28 2009-02-06 12:12:42 cvsber
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "uitblimpexpdatasel.h"
 #include "uitaskrunner.h"
+#include "uitblimpexpdatasel.h"
+#include "uidatapointset.h"
 
-#include <iostream>
+#define mGet( tp, fss, f3d ) \
+    !strcmp(tp,EMFaultStickSetTranslatorGroup::keyword()) ? fss : f3d
+
+#define mGetCtio(tp) \
+    mGet( tp, *mMkCtxtIOObj(EMFaultStickSet), *mMkCtxtIOObj(EMFault3D) )
+#define mGetTitle(tp) \
+    mGet( tp, "Import FaultStickSet", "Import Fault" )
 
 
-uiImportFault::uiImportFault( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import Faults","Specify fault parameters",
+uiImportFault::uiImportFault( uiParent* p, const char* type ) 
+    : uiDialog(p,uiDialog::Setup(mGetTitle(type),"Specify parameters",
 				 "104.1.0"))
-    , ctio_(*mMkCtxtIOObj(EMFault3D))
-    , fd_(*EM::Fault3DAscIO::getDesc())
+    , ctio_(mGetCtio(type))
+    , isfss_(mGet(type,true,false))
+    , fd_(0)
+    , type_(type)
+    , typefld_(0)
 {
     setCtrlStyle( DoAndStay );
+}
 
+
+void uiImportFault::createUI()
+{
     infld_ = new uiFileInput( this, "Input ascii file",
 		uiFileInput::Setup().withexamine(true)
 		.defseldir(IOObjContext::getDataDirName(IOObjContext::Surf)) );
 
-    BufferStringSet types; types.add( "Plain ascii" ).add( "Landmark format" );
-    typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
-    typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
-    typefld_->attach( alignedBelow, infld_ );
+    if ( !isfss_ ) 
+    {
+	BufferStringSet types; types.add( "Plain ascii" )
+	    			    .add( "Landmark format" );
+    	typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
+	typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
+	typefld_->attach( alignedBelow, infld_ );
 
-    formatfld_ = new uiFileInput( this, "Input Landmark formatfile",
-	    			  uiFileInput::Setup().filter("*.fault_fmt") );
-    formatfld_->setDefaultSelectionDir(
-		IOObjContext::getDataDirName(IOObjContext::Surf) );
-    formatfld_->attach( alignedBelow, typefld_ );
+	formatfld_ = new uiFileInput( this, "Input Landmark formatfile",
+				      uiFileInput::Setup().
+				      		   filter("*.fault_fmt") );
+	formatfld_->setDefaultSelectionDir(
+		    IOObjContext::getDataDirName(IOObjContext::Surf) );
+	formatfld_->attach( alignedBelow, typefld_ );
+    }
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "104.1.2" );
-    dataselfld_->attach( alignedBelow, typefld_ );
+    dataselfld_ = new uiTableImpDataSel( this, *fd_, "104.1.2" );
+    if ( !isfss_  )
+	dataselfld_->attach( alignedBelow, typefld_ );
+    else
+	dataselfld_->attach( alignedBelow, infld_ );
 
     ctio_.ctxt.forread = false;
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Fault" );
+    BufferString labl( "Output " );
+    labl += type_;
+    outfld_ = new uiIOObjSel( this, ctio_, labl );
     outfld_->attach( alignedBelow, dataselfld_ );
-
     typeSel( 0 );
 }
 
@@ -74,6 +99,8 @@ uiImportFault::~uiImportFault()
 
 void uiImportFault::typeSel( CallBacker* )
 {
+    if ( !typefld_ ) return;
+
     const int tp = typefld_->getIntValue();
     dataselfld_->display( tp == 0 );
     formatfld_->display( tp == 1 );
@@ -85,23 +112,26 @@ void uiImportFault::typeSel( CallBacker* )
     if ( fault ) fault->unRef(); \
     return false; }
 
-EM::Fault3D* uiImportFault::createFault() const
+EM::Fault* uiImportFault::createFault() const
 {
     const char* fltnm = outfld_->getInput();
     EM::EMManager& em = EM::EMM();
-    const EM::ObjectID emid = em.createObject( EM::Fault3D::typeStr(), fltnm );
-    mDynamicCastGet(EM::Fault3D*,fault,em.getObject(emid))
+    const char* typestr = isfss_ ? EM::FaultStickSet::typeStr()
+				 : EM::Fault3D::typeStr();
+    const EM::ObjectID emid = em.createObject( typestr, fltnm );
+    mDynamicCastGet(EM::Fault*,fault,em.getObject(emid))
     return fault;
 }
 
 
 bool uiImportFault::handleLMKAscii()
 {
-    EM::Fault3D* fault = createFault();
-    if ( !fault )
+    EM::Fault* fault = createFault();
+    mDynamicCastGet(EM::Fault3D*,fault3d,fault)
+    if ( !fault3d )
 	mErrRet( "Cannot create fault" );
 
-    fault->ref();
+    fault3d->ref();
 
     PtrMan<lmkEMFault3DTranslator> transl =
 	lmkEMFault3DTranslator::getInstance();
@@ -109,7 +139,7 @@ bool uiImportFault::handleLMKAscii()
     Conn* conn = new StreamConn( sd.istrm );
 
     PtrMan<Executor> exec =
-	transl->reader( *fault, conn, formatfld_->fileName() ); 
+	transl->reader( *fault3d, conn, formatfld_->fileName() ); 
 
     if ( !exec )
 	mErrRet( "Cannot import fault" );
@@ -125,7 +155,7 @@ bool uiImportFault::handleLMKAscii()
 
 bool uiImportFault::handleAscii()
 {
-    EM::Fault3D* fault = createFault();
+    EM::Fault* fault = createFault();
     if ( !fault )
 	mErrRet( "Cannot create fault" )
 
@@ -135,30 +165,27 @@ bool uiImportFault::handleAscii()
     if ( !sd.usable() )
 	mErrRet( "Cannot open input file" )
 
-    EM::Fault3DAscIO ascio( fd_ );
-    bool res = ascio.get( *sd.istrm, *fault );
-    if ( !res )
-	mErrRet( "Cannot import fault" )
+    mDynamicCastGet(EM::Fault3D*,fault3d,fault)
+    mDynamicCastGet(EM::FaultStickSet*,fss,fault)
+    const char* tp = fault3d ? "fault" : "faultstickset";
 
+    const bool res = getFromAscIO( *sd.istrm, *fault );
+    if ( !res )
+	mErrRet( BufferString("Cannot import ",tp) );
     PtrMan<Executor> exec = fault->saver();
-    res = exec->execute();
-    if ( !res )
-	mErrRet( "Cannot save fault" )
-
+    bool isexec = exec->execute();
+    if ( !isexec )
+	mErrRet( BufferString("Cannot save ",tp) );
     fault->unRef();
-    uiMSG().message( "Fault successfully imported" );
+    uiMSG().message( "Import successful" );
     return false;
 }
 
 
-bool uiImportFault::acceptOK( CallBacker* )
+bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 {
-    if ( !checkInpFlds() ) return false;
-
-    if ( typefld_->getIntValue() == 0 )
-	return handleAscii();
-
-    return handleLMKAscii();
+    EM::FaultAscIO ascio( *fd_ );
+    return ascio.get( strm, flt, 0, false );
 }
 
 
@@ -172,19 +199,41 @@ bool uiImportFault::checkInpFlds()
     else if ( !File_exists(infld_->fileName()) )
 	mErrRet( "Input file does not exist" )
 
-    if ( typefld_->getIntValue() == 1 )
+    if( !isfss_ )
     {
-	if ( !*formatfld_->fileName() )
-	    mErrRet( "Please select the format file" )
-	else if ( !File_exists(formatfld_->fileName()) )
-	    mErrRet( "Format file does not exist" )
+	if ( typefld_->getIntValue() == 1 )
+	{
+	    if ( !*formatfld_->fileName() )
+		mErrRet( "Please select the format file" )
+	    else if ( !File_exists(formatfld_->fileName()) )
+		mErrRet( "Format file does not exist" )
+	}
     }
 
     if ( !outfld_->commitInput(true) )
 	mErrRet( "Please select the output" )
 
     if ( !dataselfld_->commit() )
-	mErrRet( "Please define data format" );
+	return false;
 
     return true;
+}
+
+
+uiImportFault3D::uiImportFault3D( uiParent* p, const char* type )
+    : uiImportFault(p,type)
+{
+    fd_ = EM::FaultAscIO::getDesc(false);
+    createUI();
+}
+
+
+bool uiImportFault3D::acceptOK( CallBacker* )
+{
+    if ( !checkInpFlds() ) return false;
+
+    if ( typefld_ && typefld_->getIntValue()!=0 )
+	return handleLMKAscii();
+
+    return handleAscii();
 }

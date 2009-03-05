@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.161 2009-02-11 10:47:18 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.162 2009-03-05 06:37:22 cvsnageswara Exp $";
 
 #include "uiempartserv.h"
 
@@ -160,9 +160,9 @@ bool uiEMPartServer::export3DHorizon()
 }
 
 
-bool uiEMPartServer::importFault()
+bool uiEMPartServer::importFault( const char* type )
 {
-    uiImportFault dlg( parent() );
+    uiImportFault3D dlg( parent(), type );
     return dlg.go();
 }
 
