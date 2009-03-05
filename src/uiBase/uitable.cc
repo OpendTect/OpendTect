@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.81 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.82 2009-03-05 09:47:28 cvsnanne Exp $";
 
 
 #include "uitable.h"
@@ -146,7 +146,7 @@ void uiTableBody::mouseReleaseEvent( QMouseEvent* event )
 void uiTableBody::setLines( int prefnrlines )
 { 
     setRowCount( prefnrlines );
-    if ( prefnrlines > 0 )
+    if ( !finalised() && prefnrlines > 0 )
     {
 	QHeaderView* vhdr = verticalHeader();
 	const QSize qsz = vhdr->sizeHint();
