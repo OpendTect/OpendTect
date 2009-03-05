@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uivisslicepos3d.cc,v 1.10 2009-03-05 08:53:53 cvsnanne Exp $";
 
 #include "uislicepos.h"
 
@@ -119,7 +119,8 @@ void uiSlicePos::setBoxRanges()
     NotifyStopper posstop( posbox->valueChanging );
     NotifyStopper stepstop( stepbox->valueChanged );
 
-    const CubeSampling& survey = SI().sampling( true );
+    const CubeSampling& survey = curpdd_->getScene() ?
+	curpdd_->getScene()->getCubeSampling() : SI().sampling( true );
     const Display::Orientation orientation = curpdd_->getOrientation();
     if ( orientation == Display::Inline )
     {
