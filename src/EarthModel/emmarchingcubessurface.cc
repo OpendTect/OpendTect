@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.14 2009-02-26 22:39:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.15 2009-03-06 22:04:33 cvsyuancheng Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.14 2009-02-26 22:
 #include "datachar.h"
 #include "executor.h"
 #include "embodytr.h"
+#include "embodyoperator.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -206,6 +207,7 @@ mImplementEMObjFuncs( EM::MarchingCubesSurface,
 EM::MarchingCubesSurface::MarchingCubesSurface( EM::EMManager& emm )
     : EMObject( emm )
     , mcsurface_( new ::MarchingCubesSurface )
+    , operator_( 0 )					      
 {
     mcsurface_->ref();
     setPreferredColor( getRandomColor( false ) );
@@ -215,6 +217,7 @@ EM::MarchingCubesSurface::MarchingCubesSurface( EM::EMManager& emm )
 EM::MarchingCubesSurface::~MarchingCubesSurface()
 {
     mcsurface_->unRef();
+    delete operator_;
 }
 
 
@@ -277,14 +280,6 @@ bool EM::MarchingCubesSurface::isEmpty() const
 { return mcsurface_->isEmpty(); }
 
 
-void EM::MarchingCubesSurface::fillBodyPar( IOPar& par ) const
-{ EM::EMObject::fillPar( par ); }
-
-
-bool EM::MarchingCubesSurface::useBodyPar( const IOPar& par )
-{ return EM::EMObject::usePar( par ); }
-
-
 const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
 {
     static IOObjContext* res = 0;
@@ -299,10 +294,58 @@ const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
 }
 
 
-ImplicitBody*EM::MarchingCubesSurface::createImplicitBody( TaskRunner* tr ) const
+bool EM::MarchingCubesSurface::useBodyPar( const IOPar& par )
+{ return EM::EMObject::usePar( par ); }
+
+
+void EM::MarchingCubesSurface::fillBodyPar( IOPar& par ) const
+{ EM::EMObject::fillPar( par ); }
+
+
+void EM::MarchingCubesSurface::setBodyOperator( BodyOperator* op )
+{
+    if ( operator_ ) delete operator_;
+    operator_ = op;
+}
+
+
+void EM::MarchingCubesSurface::createBodyOperator()
+{
+    if ( operator_ ) delete operator_;
+    operator_ = new EM::BodyOperator();
+}
+
+
+bool EM::MarchingCubesSurface::regenerateMCBody( TaskRunner* tr )
+{
+    if ( !operator_ || !mcsurface_ ) 
+	return false;
+
+    ImplicitBody* body = 0;
+    if ( !operator_->createImplicitBody( body, tr ) || !body )
+	return false;
+
+    setInlSampling( body->inlsampling_ );
+    setCrlSampling( body->crlsampling_ );
+    setZSampling( body->zsampling_ );
+
+    return mcsurface_->setVolumeData( 0, 0, 0, *body->arr_, body->threshold_ );
+}
+
+
+ImplicitBody*EM::MarchingCubesSurface::createImplicitBody( TaskRunner* t ) const
 {
     if ( !mcsurface_ )
+    {
+	if ( operator_ )
+    	{
+    	    ImplicitBody* body = 0;
+    	    if ( operator_->createImplicitBody(body, t) && body )
+    		return body;
+    	}
+
 	return 0;
+    }
 
     mcsurface_->modelslock_.readLock();
     Interval<int> inlrg, crlrg, zrg;
@@ -367,7 +410,6 @@ ImplicitBody*EM::MarchingCubesSurface::createImplicitBody( TaskRunner* tr ) cons
 
     return res;
 }
-
 
 
 bool  EM::MarchingCubesSurface::setSurface( ::MarchingCubesSurface* ns )
