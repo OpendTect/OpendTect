@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.37 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.38 2009-03-06 07:13:00 cvsnanne Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -149,7 +149,11 @@ bool Settings::doRead( bool ext )
     sfio.closeSuccess();
 
     if ( empty_initially )
+    {
+	if ( __ismac__ )
+	    set( "Font.def.Control", "Helvetica`10`Normal`No" );
 	write( false );
+    }
     else if ( iscommon && stream.majorVersion() < 3 )
     {
 	handleLegacyPar( *this, "Color table", "coltabs" );
