@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.27 2008-12-29 11:25:00 cvsranojay Exp $
+ RCS:		$Id: seiswrite.h,v 1.28 2009-03-06 14:35:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
     bool		isMultiComp() const;
     bool		isMultiConn() const;
 
+    void		writeBluntly( bool yn=true )	{ makewrready = !yn; }
+
     Seis2DLinePutter*	linePutter()			{ return putter; }
     const Seis2DLinePutter* linePutter() const		{ return putter; }
 
@@ -67,11 +69,17 @@ public:
     IOPar&		lineAuxPars()			{ return lineauxiopar; }
     void 		setDataType( const char* dt ) 	{ datatype = dt; } 
 
+    static const char*	sKeyWriteBluntly();
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+
 protected:
 
     bool		prepared;
     int			nrtrcs;
     int			nrwritten;
+    SeisTrc&		worktrc;
+    bool		makewrready;
 
     void		init();
     void		startWork();

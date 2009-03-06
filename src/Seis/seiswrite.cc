@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.49 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.50 2009-03-06 14:35:50 cvsbert Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -23,12 +23,15 @@ static const char* rcsID = "$Id: seiswrite.cc,v 1.49 2008-11-25 15:35:22 cvsbert
 
 
 #define mCurLineKey (lkp ? lkp->lineKey() : seldata->lineKey())
+const char* SeisTrcWriter::sKeyWriteBluntly() { return "Write bluntly"; }
 
 
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
     	, lineauxiopar(*new IOPar)
 	, lkp(l)
+	, worktrc(*new SeisTrc)
+	, makewrready(true)
 {
     init();
 }
@@ -38,6 +41,8 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is2d, bool isps )
 	: SeisStoreAccess(fnm,is2d,isps)
     	, lineauxiopar(*new IOPar)
 	, lkp(0)
+	, worktrc(*new SeisTrc)
+	, makewrready(true)
 {
     init();
 }
@@ -55,6 +60,7 @@ SeisTrcWriter::~SeisTrcWriter()
 {
     close();
     delete &lineauxiopar;
+    delete &worktrc;
 }
 
 
@@ -240,19 +246,25 @@ bool SeisTrcWriter::put2D( const SeisTrc& trc )
 
 
 
-bool SeisTrcWriter::put( const SeisTrc& trc )
+bool SeisTrcWriter::put( const SeisTrc& intrc )
 {
-    if ( !prepared ) prepareWork(trc);
+    const SeisTrc* trc = &intrc;
+    if ( makewrready && !intrc.isWriteReady() )
+    {
+	intrc.getWriteReady( worktrc );
+	trc = &worktrc;
+    }
+    if ( !prepared ) prepareWork(*trc);
 
     nrtrcs++;
-    if ( seldata && seldata->selRes( trc.info().binid ) )
+    if ( seldata && seldata->selRes( trc->info().binid ) )
 	return true;
 
     if ( psioprov )
     {
 	if ( !pswriter )
 	    return false;
-	if ( !pswriter->put(trc) )
+	if ( !pswriter->put(*trc) )
 	{
 	    errmsg = pswriter->errMsg();
 	    return false;
@@ -260,14 +272,14 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     }
     else if ( is2d )
     {
-	if ( !put2D(trc) )
+	if ( !put2D(*trc) )
 	    return false;
     }
     else
     {
-	if ( !ensureRightConn(trc,false) )
+	if ( !ensureRightConn(*trc,false) )
 	    return false;
-	else if ( !strl()->write(trc) )
+	else if ( !strl()->write(*trc) )
 	{
 	    errmsg = strl()->errMsg();
 	    strl()->close(); delete trl; trl = 0;
@@ -277,6 +289,22 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 
     nrwritten++;
     return true;
+}
+
+
+void SeisTrcWriter::usePar( const IOPar& iop )
+{
+    SeisStoreAccess::usePar( iop );
+    bool wrbl = !makewrready;
+    iop.getYN( sKeyWriteBluntly(), wrbl );
+    makewrready = !wrbl;
+}
+
+
+void SeisTrcWriter::fillPar( IOPar& iop ) const
+{
+    SeisStoreAccess::fillPar( iop );
+    iop.setYN( sKeyWriteBluntly(), !makewrready );
 }
 
 

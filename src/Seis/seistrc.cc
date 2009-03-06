@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.40 2008-12-29 11:41:15 cvsranojay Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.41 2009-03-06 14:35:50 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -180,6 +180,59 @@ SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
     }
 
     return newtrc;
+}
+
+
+bool SeisTrc::isWriteReady() const
+{
+    const float nsr = info_.sampling.start / info_.sampling.step;
+    const float intnsr = (float)( mNINT(nsr) );
+    return mIsEqual( nsr, intnsr, mDefEps );
+}
+
+
+void SeisTrc::getWriteReady( SeisTrc& trc ) const
+{
+    if ( isWriteReady() )
+	{ trc = *this; return; }
+
+    const int sz = size();
+    const int nrcomps = nrComponents();
+    trc.info_ = info_;
+    trc.reSize( sz, false );
+    const int nsr = mNINT( info_.sampling.start / info_.sampling.step );
+    trc.info_.sampling.start = nsr * info_.sampling.step;
+    if ( sz < 2 )
+    {
+	if ( sz == 1 )
+	{
+	    for ( int icomp=0; icomp<nrcomps; icomp++ )
+		trc.set( 0, get(0,icomp), icomp );
+	    return;
+	}
+    }
+
+#define mGetVal(isamp,icomp) getValue(trc.info_.sampling.atIndex(isamp),icomp)
+
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	if ( trc.info_.sampling.start < info_.sampling.start )
+	{
+	    trc.set( 0, get(0,icomp), icomp );
+	    trc.set( sz-1, mGetVal(sz-1,icomp), icomp );
+	}
+	else
+	{
+	    trc.set( sz-1, get(sz-1,icomp), icomp );
+	    trc.set( 0, mGetVal(0,icomp), icomp );
+	}
+    }
+
+    for ( int icomp=0; icomp<nrcomps; icomp++ )
+    {
+	for ( int isamp=1; isamp<sz-1; isamp++ )
+	    trc.set( isamp, mGetVal(isamp,icomp), icomp );
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.34 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seistrc.h,v 1.35 2009-03-06 14:35:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,11 @@ public:
     			//!< Added values can be first/last value of input,
     			//!< or zeros
 
-    static const char*	sKeyExtTrcToSI()	{ return "Extend Traces To Survey Z Range"; }
+    bool		isWriteReady() const;
+    void		getWriteReady(SeisTrc&) const;
+
+    static const char*	sKeyExtTrcToSI()
+    			{ return "Extend Traces To Survey Z Range"; }
 
 protected:
 
