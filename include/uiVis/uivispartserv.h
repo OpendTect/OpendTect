@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.231 2009-03-03 08:04:33 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.232 2009-03-06 16:09:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,6 +249,7 @@ public:
     bool			canSetColTabSequence(int id) const;
     void			setColTabSequence(int id,int attrib,
 	    					  const ColTab::Sequence&);
+    bool			canHandleColTabSeqTrans(int id,int attr) const;
 
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 

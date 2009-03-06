@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.305 2009-03-06 15:31:34 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.306 2009-03-06 16:09:51 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -1607,8 +1607,9 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
     coltabattribnr_ = attrib;
 
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	    			true,
-				visserv_->getColTabMapperSetup(visid,attrib) );
+	true, visserv_->getColTabMapperSetup(visid,attrib),
+	visserv_->canHandleColTabSeqTrans(visid,attrib));
+
     setHistogram( visid, attrib );
 }
 
@@ -1639,8 +1640,8 @@ void uiODApplMgr::colMapperChg( CallBacker* )
 
     //Autoscale may have changed ranges, so update.
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	    			true,
-				visserv_->getColTabMapperSetup(visid,attrib) );
+	true, visserv_->getColTabMapperSetup(visid,attrib),
+	visserv_->canHandleColTabSeqTrans(visid,attrib) );
 }
 
 

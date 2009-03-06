@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.100 2009-03-03 08:06:33 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.101 2009-03-06 16:09:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,7 +56,7 @@ public:
 				    \param pos Position to be checked in
 				     	   displayspace.
 				 \ */
-    virtual float		maxDist() const		{ return sDefMaxDist(); }
+    virtual float		maxDist() const		{ return sDefMaxDist();}
     				/*<\Returns maximum allowed distance between 
 				    pick and object. If calcDist() > maxDist()
 				    pick will not be displayed. */
@@ -168,6 +168,7 @@ public:
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
     virtual bool		canSetColTabSequence() const	{ return false;}
     virtual void		setColTabSequence(int,const ColTab::Sequence&);
+    virtual bool		canHandleColTabSeqTrans(int) const;
     virtual bool 		isClassification(int attr) const {return false;}
     virtual void		setClassification(int attrib,bool yn)	{}
     virtual bool 		isAngle(int attrib) const	 {return false;}

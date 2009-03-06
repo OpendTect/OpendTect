@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.13 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.14 2009-03-06 16:09:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,31 +53,33 @@ public:
     static MarchingCubesDisplay*create()
 				mCreateDataObj(MarchingCubesDisplay);
 
-    MultiID			getMultiID() const;
-    bool			isInlCrl() const	{ return true; }
+    MultiID		getMultiID() const;
+    bool		isInlCrl() const	{ return true; }
 
-    bool			hasColor() const	{ return true; }
-    Color			getColor() const;
-    void			setColor(Color);
-    bool			allowMaterialEdit() const { return true; }
-    NotifierAccess*		materialChange();
+    bool		hasColor() const	{ return true; }
+    Color		getColor() const;
+    void		setColor(Color);
+    bool		allowMaterialEdit() const { return true; }
+    NotifierAccess*	materialChange();
 
-    void			setDisplayTransformation(mVisTrans*);
-    mVisTrans*			getDisplayTransformation();
-    void			setRightHandSystem(bool);
+    bool		canHandleColTabSeqTrans(int) const { return false; }
+
+    void		setDisplayTransformation(mVisTrans*);
+    mVisTrans*		getDisplayTransformation();
+    void		setRightHandSystem(bool);
 
 
-    bool			setVisSurface(visBase::MarchingCubesSurface*);
-    				//!<Creates an EMObject for it.
-    bool			setEMID(const EM::ObjectID&);
-    EM::ObjectID		getEMID() const;
+    bool		setVisSurface(visBase::MarchingCubesSurface*);
+    			//!<Creates an EMObject for it.
+    bool		setEMID(const EM::ObjectID&);
+    EM::ObjectID	getEMID() const;
 
-    void			showManipulator(bool);
-    bool			isManipulatorShown() const;
+    void		showManipulator(bool);
+    bool		isManipulatorShown() const;
 
-    bool			hasInitialShape();
-    bool			createInitialBody(bool allowswap);
-    void			removeInitialDragger();
+    bool		hasInitialShape();
+    bool		createInitialBody(bool allowswap);
+    void		removeInitialDragger();
 
 protected:
 

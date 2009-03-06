@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.408 2009-03-03 08:04:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.409 2009-03-06 16:09:51 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -793,6 +793,13 @@ const ColTab::Sequence*
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getColTabSequence( attrib ) : 0;
+}
+
+
+bool uiVisPartServer:: canHandleColTabSeqTrans( int id, int attrib ) const
+{
+    mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id))
+    return so ? so-> canHandleColTabSeqTrans( attrib ) : false;
 }
 
 

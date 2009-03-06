@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.37 2008-11-04 23:08:37 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.38 2009-03-06 16:09:51 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -47,11 +47,12 @@ uiVisColTabEd::~uiVisColTabEd()
 
 
 void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
-			       const ColTab::MapperSetup* setup )
+			       const ColTab::MapperSetup* setup,
+       			       bool enabletrans )
 {
-    bool enabled;
     uicoltab_->setSequence( seq, editseq, true );
     uicoltab_->setMapperSetup( setup, true );
+    uicoltab_->enableTransparencyEdit( enabletrans );
 
     /*TODO trigger something
 

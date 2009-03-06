@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.21 2009-02-06 05:43:48 cvsranojay Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.22 2009-03-06 16:09:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,8 @@ public:
 
     void			setColTab(const ColTab::Sequence*,
 	    				  bool editseq,
-	    				  const ColTab::MapperSetup*);
+	    				  const ColTab::MapperSetup*,
+					  bool edittrans);
     const ColTab::Sequence&	getColTabSequence() const;
     const ColTab::MapperSetup&	getColTabMapperSetup() const;
 
