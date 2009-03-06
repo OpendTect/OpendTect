@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.72 2009-02-06 14:48:27 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.73 2009-03-06 15:31:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,11 +137,13 @@ public:
     void			manSurvCB(CallBacker*)	  { manageSurvey(); }
     void			seisOut2DCB(CallBacker*)  { createVol(true); }
     void			seisOut3DCB(CallBacker*)  { createVol(false); }
+    void			createVolProcOutput(CallBacker*);
     void			xPlot(CallBacker*)	  { doXPlot(); }
     void			editAttr2DCB(CallBacker*)
 				    { editAttribSet(true); }
     void			editAttr3DCB(CallBacker*)
 				    { editAttribSet(false);}
+    void			editVolProc(CallBacker*);
 
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.154 2009-03-05 08:07:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.155 2009-03-06 15:31:34 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -317,7 +317,13 @@ void uiODMenuMgr::fillProcMenu()
     procmnu_->clear();
 
     uiPopupMenu* voitm = new uiPopupMenu( &appl_, "&Create Volume output" );
-    create2D3DMnu( voitm, "&Cube", mSeisOut2DMnuItm, mSeisOut3DMnuItm );
+    create2D3DMnu( voitm, "&Attribute", mSeisOut2DMnuItm, mSeisOut3DMnuItm );
+    if ( SI().has3D() )
+    {
+	voitm->insertItem(
+	    new uiMenuItem("Volume processing ...",
+			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
+    }
     create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
 	    	   mCompBetweenHor3DMnuItm );
     create2D3DMnu( voitm, "&Along horizon", mCompAlongHor2DMnuItm,
@@ -329,6 +335,7 @@ void uiODMenuMgr::fillProcMenu()
     uiPopupMenu* grditm = new uiPopupMenu( &appl_, "Create Grid output");
     create2D3DMnu( grditm, "&Grid", mCreateSurf2DMnuItm, mCreateSurf3DMnuItm );
     procmnu_->insertItem( grditm );
+
 }
 
 
@@ -525,8 +532,11 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
     }
     else if ( survtype == SurveyInfo::No2D )
     {
-	mAddTB(dtecttb_,"attributes.png","Edit attributes",false,editAttr3DCB);
-	mAddTB(dtecttb_,"out_vol.png","Create seismic output",false,seisOut3DCB);
+	mAddTB( dtecttb_,"attributes.png","Edit attributes",false,editAttr3DCB);
+	mAddTB( dtecttb_,"out_vol.png","Create seismic output",false,
+		seisOut3DCB);
+	mAddTB( dtecttb_,"volprocsetup64.png","Edit Volume Processing",false,
+		editVolProc);
     }
     else
     {
