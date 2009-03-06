@@ -7,18 +7,24 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.4 2009-03-02 06:14:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.5 2009-03-06 22:04:55 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
 #include "arrayndimpl.h"
 #include "delaunay3d.h"
 #include "embody.h"
+#include "embodytr.h"
+#include "emmanager.h"
+#include "empolygonbody.h"
+#include "emmarchingcubessurface.h"
+#include "emrandomposbody.h"
 #include "mousecursor.h"
 #include "survinfo.h"
 #include "task.h"
-
-
+#include "ioman.h"
+#include "ioobj.h"
+#include "executor.h"
 
 namespace EM
 {
@@ -252,55 +258,70 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 
 
 BodyOperator::BodyOperator()
-    : inputbody0_( 0 )
-    , inputbody1_( 0 )
-    , inputbodyop0_( 0 )
+    : inputbodyop0_( 0 )
     , inputbodyop1_( 0 )
-    , id_( 0 )
-    , childid_( -1 )	       
+    , inputbody0_( 0 )
+    , inputbody1_( 0 )
+    , id_( getFreeID() )
     , action_( Union )			       
 {}
 
 
-#define mRemoveBodyImpl( bodynr ) \
-	if ( inputbodyop##bodynr##_ ) \
-	{ \
-	    delete inputbodyop##bodynr##_; \
-	    inputbodyop##bodynr##_ = 0; \
-	} \
-	if ( inputbody##bodynr##_ ) \
-	{ \
-	    inputbody##bodynr##_->unRefBody(); \
-	    inputbody##bodynr##_ = 0; \
-	}
-
 BodyOperator::~BodyOperator()
 {
-    mRemoveBodyImpl( 0 );
-    mRemoveBodyImpl( 1 );
+    delete inputbodyop0_;
+    delete inputbodyop1_;
+}
+
+
+int BodyOperator::getFreeID()
+{
+    static int id = 0;
+    return id++;
 }
 
 
 bool BodyOperator::isOK() const
 {
-    return (inputbody0_ || (inputbodyop0_&&inputbodyop0_->isOK()) ) && 
-	   (inputbody1_ || (inputbodyop1_&&inputbodyop1_->isOK()) );
-}
-
-
-void BodyOperator::setInput( bool body0, Body* bd )
-{
-    if ( body0 )
+    if ( inputbodyop0_ )
     {
-	mRemoveBodyImpl( 0 );
-	inputbody0_ = bd;
-	if ( inputbody0_ ) inputbody0_->refBody();
+	if ( !inputbodyop0_->isOK() )
+	    return false;
     }
     else
     {
-	mRemoveBodyImpl( 1 );
-	inputbody1_ = bd;
-	if ( inputbody1_ ) inputbody1_->refBody();
+	if ( !IOM().get(inputbody0_) )
+	    return false;
+    }
+
+    if ( inputbodyop1_ )
+    {
+	if ( !inputbodyop1_->isOK() )
+	    return false;
+    }
+    else
+    {
+	if ( !IOM().get(inputbody1_) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+void BodyOperator::setInput( bool body0, const MultiID& mid )
+{
+    if ( body0 )
+    {
+	if ( inputbodyop0_ ) delete inputbodyop0_;
+	inputbodyop0_ = 0;
+	inputbody0_ = mid;
+    }
+    else
+    {
+	if ( inputbodyop1_ ) delete inputbodyop1_;
+	inputbodyop1_ = 0;
+	inputbody1_ = mid;
     }
 }
 
@@ -309,19 +330,15 @@ void BodyOperator::setInput( bool body0, BodyOperator* bo )
 {
     if ( body0 )
     {
-	mRemoveBodyImpl( 0 );
+	if ( inputbodyop0_ ) delete inputbodyop0_;
 	inputbodyop0_ = bo;
+	inputbody0_ = MultiID(0);
     }
     else
     {
-	mRemoveBodyImpl( 1 );
+	if ( inputbodyop1_ ) delete inputbodyop1_;
 	inputbodyop1_ = bo;
-    }
-
-    if ( bo )
-    {
-	id_ = bo->getID();
-	childid_ = id_+1;
+	inputbody1_ = MultiID(0);
     }
 }
 
@@ -330,31 +347,92 @@ void BodyOperator::setAction( Action act )
 { action_ = act; }
 
 
-void BodyOperator::setParent( BodyOperator* parent )
-{
-    if ( !parent )
-	return;
+BodyOperator* BodyOperator::getChildOprt( bool body0 ) const
+{ return body0 ? inputbodyop0_ : inputbodyop1_; }
 
-    id_ = parent->getChildID();
-    childid_ = id_+1;
+
+bool BodyOperator::getChildOprt( int freeid, BodyOperator& res )
+{
+   if ( freeid==id_ )
+   {
+       res = *this;
+       return true;
+   }
+
+   for ( int idx=0; idx<2; idx++ )
+   {
+       if ( getChildOprt(!idx) )
+	   return getChildOprt(!idx)->getChildOprt( freeid, res );
+   }
+
+    return false; 
 }
 
+
+ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
+{
+    ImplicitBody* body = 0;
+    BodyOperator* oprt = body0 ? inputbodyop0_ : inputbodyop1_;
+    if ( !oprt )
+    {
+	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
+	//RefMan<EM::EMObject> emobj = EMM().loadIfNotFullyLoaded( mid, tr );
+	//mDynamicCastGet( Body*, bdy, emobj.ptr() );
+	//if ( !bdy ) return 0;	return bdy->createImplicitBody( tr );
+
+	const char* translt = IOM().get( mid )->translator();
+	EM::EMObject* obj = 0;
+	if ( !strcmp( translt, polygonEMBodyTranslator::sKeyUserName() ) )
+	{
+	    obj = EMM().createTempObject(EM::PolygonBody::typeStr());
+	}
+	else if ( !strcmp( translt, randposEMBodyTranslator::sKeyUserName() ) )
+	{
+	    obj = EMM().createTempObject(EM::RandomPosBody::typeStr());
+	}
+	else if ( !strcmp( translt, mcEMBodyTranslator::sKeyUserName() ) )
+	{
+	    obj = EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
+	}
+
+	if ( !obj ) return 0;
+	obj->ref();
+	
+	obj->setMultiID( mid );
+	if ( !obj->loader() || !obj->loader()->execute() )
+	{
+	    obj->unRef();
+	    return 0;
+	}
+	
+	mDynamicCastGet( Body*, embody, obj );
+	if ( !embody ) 
+	{
+	    obj->unRef();
+	    return 0;
+	}
+
+	body = embody->createImplicitBody( tr );
+	obj->unRef();
+    }
+    else if ( !oprt->createImplicitBody( body, tr ) )
+    {
+	delete body;
+	body = 0;
+    }
+	
+    return body;
+}
 
 bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
 {
     if ( !isOK() ) return false;
 
-    //Create two implicit bodies.
-    ImplicitBody* b0;
-    if ( inputbody0_ ) 
-	b0 = inputbody0_->createImplicitBody( tr );
-    else if ( !inputbodyop0_->createImplicitBody( b0, tr ) )
-	return false;
+    ImplicitBody* b0 = getOperandBody( true, tr );
+    if ( !b0 ) return false;
 
-    ImplicitBody* b1;
-    if ( inputbody1_ ) 
-	b1 = inputbody1_->createImplicitBody( tr );
-    else if ( !inputbodyop1_->createImplicitBody( b1, tr ) )
+    ImplicitBody* b1 = getOperandBody( false, tr );
+    if ( !b1 ) 
     {
 	delete b0;
 	return false;
@@ -364,25 +442,11 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     if ( !b0 || !b1 )
     {
 	if ( action_==IntSect )
-	{
-	    delete b0;
-	    delete b1;
 	    res = 0;
-	}
 	else if ( action_==Union )
-	{
 	    res = b0 ? b0 : b1;
-	}
 	else
-	{
-	    if ( !b1 )
-		res = b0;
-	    else
-	    {
-		delete b1;
-		res = 0;
-	    }
-	}
+	    res = !b1 ? b0 : 0;
 
 	return true;
     }
@@ -390,8 +454,6 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     //Case 2: two bodies exist but there is no array for at least one of them.
     if ( !b0->arr_ || !b1->arr_ )
     {
-	delete b0;
-	delete b1;
 	res = 0;
 	return true;//May discuss more similar to case 1.
     }
@@ -468,13 +530,20 @@ bool BodyOperator::createImplicitBody( ImplicitBody*& res, TaskRunner* tr) const
     newzrg.stop += newzrg.step;
 
     mTryAlloc(res,ImplicitBody);
-    if ( !res ) return false;
-    
+    if ( !res )
+    {
+	delete b0;
+	delete b1;
+	return false;
+    }
+
     mDeclareAndTryAlloc(Array3D<float>*,arr,Array3DImpl<float>(
 		newinlrg.nrSteps()+1,newcrlrg.nrSteps()+1,newzrg.nrSteps()+1));
     if ( !arr )
     {
 	res = 0;
+	delete b0;
+	delete b1;
 	return false;
     }
    
@@ -583,13 +652,15 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
 
 bool BodyOperator::usePar( const IOPar& par )
 {
-    if ( (inputbody0_ && !inputbody0_->useBodyPar(par)) ||
-	 (inputbody1_ && !inputbody1_->useBodyPar(par)) ||
-	 (inputbodyop0_ && !inputbodyop0_->usePar(par)) ||
-	 (inputbodyop1_ && !inputbodyop1_->usePar(par)) )
+    
+    par.get( sKeyBodyID0(), inputbody0_ );
+    par.get( sKeyBodyID1(), inputbody1_ );
+    
+    if( (inputbodyop0_ && !inputbodyop0_->usePar(par)) ||
+   	(inputbodyop1_ && !inputbodyop1_->usePar(par)) )
 	return false;
 
-    if ( !par.get( sKeyID(), id_ ) ||  !par.get( sKeyChildID(), childid_ ) )
+    if ( !par.get( sKeyID(), id_ ) )
 	return false;
 
     int act;
@@ -604,13 +675,12 @@ bool BodyOperator::usePar( const IOPar& par )
 
 void BodyOperator::fillPar( IOPar& par )
 {
-    if ( inputbody0_ )  inputbody0_->fillBodyPar(par);
-    if ( inputbody1_ )  inputbody1_->fillBodyPar(par);
     if ( inputbodyop0_ )  inputbodyop0_->fillPar(par);
     if ( inputbodyop1_ )  inputbodyop1_->fillPar(par);
-
+    
+    par.set( sKeyBodyID0(), inputbody0_ );
+    par.set( sKeyBodyID1(), inputbody1_ );
     par.set( sKeyID(), id_ );
-    par.set( sKeyChildID(), childid_ );
     
     const int act = action_==Union ? 0 : (action_==IntSect ? 1 : 2);
     par.set( sKeyAction(), act );
