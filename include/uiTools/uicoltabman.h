@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.9 2009-02-03 08:31:27 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.h,v 1.10 2009-03-06 16:04:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,8 @@ class uiWorld2Ui;
 mClass uiColorTableMan : public uiDialog
 {
 public:
-				uiColorTableMan(uiParent*,ColTab::Sequence&);
+				uiColorTableMan(uiParent*,ColTab::Sequence&,
+						bool enabletrans );
 				~uiColorTableMan();
 
     const ColTab::Sequence&	currentColTab()	const	{ return ctab_; }
@@ -63,6 +64,8 @@ protected:
 
     bool			issaved_;
     int				selidx_;
+
+    bool			enabletrans_;
 
     void			doFinalise(CallBacker*);
     void			reDraw(CallBacker*);

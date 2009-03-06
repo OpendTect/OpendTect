@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.31 2008-12-09 11:19:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.32 2009-03-06 16:04:00 cvskris Exp $";
 
 #include "uicolortable.h"
 
@@ -53,6 +53,7 @@ uiColorTable::uiColorTable( uiParent* p, const ColTab::Sequence& colseq, bool ve
 	    .type(ColTab::MapperSetup::Auto)
 	    .symmidval(mUdf(float))
 	    .cliprate(ColTab::defClipRate())) )
+    , enabletrans_( true )
 {
     minfld_ = new uiLineEdit( this, "Min" );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
@@ -428,9 +429,13 @@ void uiColorTable::makeSymmetrical( CallBacker* )
 }
 
 
+void uiColorTable::enableTransparencyEdit( bool yn )
+{ enabletrans_ = yn; }
+
+
 void uiColorTable::doManage( CallBacker* )
 {
-    uiColorTableMan coltabman( this, coltabseq_ );
+    uiColorTableMan coltabman( this, coltabseq_, enabletrans_ );
     coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
     coltabman.tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
     coltabman.setHistogram( histogram_ );

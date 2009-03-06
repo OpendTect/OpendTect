@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.27 2009-03-02 06:46:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.28 2009-03-06 16:04:00 cvskris Exp $";
 
 #include "uicoltabman.h"
 
@@ -42,7 +42,8 @@ static const char* sKeyEdited = "Edited";
 static const char* sKeyOwn = "Own";
 
 
-uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
+uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
+       				  bool enabletrans )
     : uiDialog(p,uiDialog::Setup("Colortable Manager",
 				 "Add, remove, change colortables",
 				 "50.1.1"))
@@ -51,6 +52,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     , issaved_(true)
     , tableChanged(this)
     , tableAddRem(this)
+    , enabletrans_( enabletrans )
 {
     setShrinkAllowed( false );
 
@@ -75,8 +77,13 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
       .y2col(Color(190,190,190)).drawliney2(false).fillbelowy2(true)
       .pointsz(3).ptsnaptol(0.08).noxaxis(true).noyaxis(true).noy2axis(true);
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
-    cttranscanvas_->pointChanged.notify( mCB(this,uiColorTableMan,transptChg) );
-    cttranscanvas_->pointSelected.notify( mCB(this,uiColorTableMan,transptSel));
+    if ( enabletrans_ )
+    {
+	cttranscanvas_->pointChanged.notify(
+		mCB(this,uiColorTableMan,transptChg) );
+	cttranscanvas_->pointSelected.notify(
+		mCB(this,uiColorTableMan,transptSel));
+    }
     cttranscanvas_->setStretch( 0, 0 );
 
     markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
@@ -109,7 +116,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     uiColorInput::Setup cisetup( ctab_.undefColor());
     cisetup.lbltxt("Undefined color");
     undefcolfld_ = new uiColorInput( rightgrp, cisetup );
-    undefcolfld_->enableAlphaSetting( true );
+    undefcolfld_->enableAlphaSetting( enabletrans_ );
     undefcolfld_->colorchanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, nrsegbox_ );
     undefcolfld_->attach( ensureBelow, segmentfld_ );
@@ -212,14 +219,17 @@ void uiColorTableMan::selChg( CallBacker* cb )
     undefcolfld_->setColor( ctab_.undefColor() );
     markercolfld_->setColor( ctab_.markColor() );
 
-    TypeSet<float> xvals;
-    TypeSet<float> yvals;
-    for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
+    if ( enabletrans_ )
     {
-	xvals += ctab_.transparency(idx).x;
-	yvals += ctab_.transparency(idx).y;
+	TypeSet<float> xvals;
+	TypeSet<float> yvals;
+	for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
+	{
+	    xvals += ctab_.transparency(idx).x;
+	    yvals += ctab_.transparency(idx).y;
+	}
+	cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
     }
-    cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
 
     delete orgctab_;
     orgctab_ = new ColTab::Sequence( ctab_ );

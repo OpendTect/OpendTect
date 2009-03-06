@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.15 2009-02-06 05:41:47 cvsranojay Exp $
+ RCS:           $Id: uicolortable.h,v 1.16 2009-03-06 16:04:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
     			/*!If ptr is null, mapper edit will be disabled. */
     void		setHistogram(const TypeSet<float>*);
     void		setInterval(const Interval<float>&);
+    void		enableTransparencyEdit(bool);
 
     void                setEnabManage( bool yn )	{ enabmanage_ = yn; }
 
@@ -65,6 +66,8 @@ protected:
     uiLineEdit*		minfld_;
     uiLineEdit*		maxfld_;
     uiComboBox*		selfld_;
+
+    bool		enabletrans_;
 
     void		updateRgFld();
     void		canvasreDraw(CallBacker*);
