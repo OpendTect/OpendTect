@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.7 2009-02-13 22:24:12 cvsyuancheng Exp $
+ RCS:		$Id: emmarchingcubessurface.h,v 1.8 2009-03-06 21:58:14 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,8 @@ class MarchingCubesSurface;
 
 namespace EM
 {
+
+class BodyOperator;    
 
 mClass MarchingCubesSurface : public Body, public EMObject
 { mDefineEMObjFuncs( MarchingCubesSurface );
@@ -41,7 +43,7 @@ public:
     const IOObjContext&		getIOObjContext() const;
 
     ::MarchingCubesSurface&	surface() { return *mcsurface_; }
-    const ::MarchingCubesSurface&surface() const { return *mcsurface_; }
+    const ::MarchingCubesSurface& surface() const { return *mcsurface_; }
     bool			setSurface(::MarchingCubesSurface*);
 
     const SamplingData<int>&	inlSampling() const	{ return inlsampling_; }
@@ -52,19 +54,27 @@ public:
     void			setZSampling(const SamplingData<float>&);
 
     ImplicitBody*		createImplicitBody(TaskRunner*) const;
+
     void			refBody();
     void			unRefBody();
-    
-    void			fillBodyPar(IOPar&) const;
+
+    EM::BodyOperator*		getBodyOperator() const	{ return operator_; }
+    void			createBodyOperator();
+    void			setBodyOperator(EM::BodyOperator*);
+    				/*<Set operator only, to use it, call 
+				   regenerateMCBody() to update the surface.*/
+    bool			regenerateMCBody(TaskRunner* tr=0);
+
     bool			useBodyPar(const IOPar&);
-
-
+    void			fillBodyPar(IOPar&) const;
+    
 protected:
 
     SamplingData<int>		inlsampling_;
     SamplingData<int>		crlsampling_;
     SamplingData<float>		zsampling_;
     ::MarchingCubesSurface*	mcsurface_;
+    EM::BodyOperator*		operator_;
 };
 
 
