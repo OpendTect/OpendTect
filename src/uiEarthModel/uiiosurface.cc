@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.64 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.65 2009-03-06 08:14:54 cvsjaap Exp $";
 
 #include "uiiosurface.h"
 
@@ -244,8 +244,13 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 	if ( sectionfld_ && rgfld_ )
 	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
-    
-    mkObjFld( "Output Surface" );
+
+    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
+	mkObjFld( "Output Stickset" );
+    else
+	mkObjFld( "Output Surface" );
+
+
     if ( rgfld_ )
 	objfld_->attach( alignedBelow, rgfld_ );
 
@@ -307,7 +312,11 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf,
 	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
     
-    mkObjFld( "Output Surface" );
+    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
+	mkObjFld( "Output Stickset" );
+    else
+	mkObjFld( "Output Surface" );
+
     if ( rgfld_ )
     {
 	objfld_->attach( alignedBelow, rgfld_ );
@@ -398,7 +407,11 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     : uiIOSurface(p,true,setup.typ_)
 {
-    mkObjFld( "Input Surface" );
+    if ( setup.typ_ == EMFaultStickSetTranslatorGroup::keyword() )
+	mkObjFld( "Input Stickset" );
+    else
+	mkObjFld( "Input Surface" );
+
     uiGroup* attachobj = objfld_;
 
     if ( setup.withsectionfld_ )
