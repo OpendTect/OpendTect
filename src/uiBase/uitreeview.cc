@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.54 2009-01-21 15:10:41 cvshelene Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.55 2009-03-06 07:32:44 cvsnanne Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -120,6 +120,8 @@ void uiListViewBody::keyPressEvent( QKeyEvent* event )
     }
 
     uiListViewItem* currentitem = lvhandle_.currentItem();
+    if ( !currentitem ) return;
+
     uiKeyDesc kd( event );
     CBCapsule<uiKeyDesc> cbc( kd, this );
     currentitem->keyPressed.trigger( &cbc );
@@ -181,24 +183,22 @@ bool uiListViewBody::moveItem( QKeyEvent* event )
     if ( !parent ) return false;
 
     QTreeWidget* treewidget = currentitem->treeWidget();
-    QTreeWidgetItem* moveafteritem = 0;
+    const int childidx = parent->indexOfChild( currentitem );
+    int newchildidx = -1;
     if ( event->key() == Qt::Key_Up )
-    {
-	QTreeWidgetItem* itmabove = treewidget->itemAbove( currentitem );
-	moveafteritem = itmabove ? treewidget->itemAbove( itmabove ) : 0;
-    }
+	newchildidx = childidx - 1;
     else if ( event->key() == Qt::Key_Down )
-	moveafteritem = currentitem->treeWidget()->itemBelow( currentitem );
+	newchildidx = childidx + 1;
 
-    if ( !moveafteritem )
+    if ( newchildidx<0 || newchildidx>=parent->childCount() )
 	return false;
 
-    const int moveafteritemid = moveafteritem->indexOfChild( moveafteritem );
-    const int currentitemid = moveafteritem->indexOfChild( currentitem );
-    parent->takeChild( currentitemid );
-    parent->insertChild( moveafteritemid, currentitem );
+    const bool isopen = currentitem->isExpanded();
+    parent->takeChild( childidx );
+    parent->insertChild( newchildidx, currentitem );
+    currentitem->setExpanded( isopen );
     setCurrentItem( currentitem );
-    
+
     return true;
 }
 
@@ -599,13 +599,12 @@ uiListViewItem::~uiListViewItem()
 void uiListViewItem::setText( const char* txt, int column )
 { 
     qtreeitem_->setText( column, QString(txt) );
-//    if ( qtreeitem_->toolTip(column).isEmpty() )
-	qtreeitem_->setToolTip( column, QString(txt) );
+    qtreeitem_->setToolTip( column, QString(txt) );
 }
 
 
 const char* uiListViewItem::text( int column ) const
-{ 
+{
     rettxt = mQStringToConstChar( qItem()->text(column) );
     return rettxt;
 }
@@ -665,7 +664,7 @@ uiListViewItem* uiListViewItem::prevSibling() const
 uiListViewItem* uiListViewItem::parent() const
 { return mItemFor( qItem()->parent() ); }
 
- 
+
 uiListViewItem* uiListViewItem::itemAbove()
 { return mItemFor( qItem()->treeWidget()->itemAbove(qItem()) ); }
 
@@ -684,8 +683,8 @@ uiListView* uiListViewItem::listView() const
 
 void uiListViewItem::takeItem( uiListViewItem* itm )
 { 
-     const int childid = qItem()->indexOfChild( itm->qItem() );
-     qItem()->takeChild( childid );
+    const int childid = qItem()->indexOfChild( itm->qItem() );
+    qItem()->takeChild( childid );
 }
 
 
