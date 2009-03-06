@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.46 2009-02-11 10:40:05 cvsranojay Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.47 2009-03-06 15:28:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,8 @@ namespace Attrib
     class SelInfo;
     class SelSpec;
 };
+
+namespace VolProc { class Chain; }
 
 class BinID;
 class BinIDValueSet;
@@ -160,6 +162,11 @@ public:
     const Pick::Set&	getSelPickSet()			{ return *selptps_; }
     void		showXPlot(CallBacker*);
 
+    void		editVolProc();
+    void		createVolProcOutput(const char* dlgcaption=0,
+	    				    const IOPar* extrapar=0 );
+    			//!<extrapar will be added to created volume's IOObj
+
 protected:
 
     MenuItem            stored2dmnuitem_;
@@ -216,6 +223,8 @@ protected:
     int			sliceidx_;
     Attrib::DescSet*	evalset;
     TypeSet<Attrib::SelSpec> targetspecs_;
+
+    VolProc::Chain*	volprocchain_;
 };
 
 

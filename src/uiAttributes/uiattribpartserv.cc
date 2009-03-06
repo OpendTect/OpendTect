@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.110 2009-02-27 10:25:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.111 2009-03-06 15:28:20 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -48,6 +48,9 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.110 2009-02-27 10:25:46
 #include "seisinfo.h"
 #include "survinfo.h"
 #include "settings.h"
+#include "volprocchain.h"
+#include "uivolprocchain.h"
+#include "uivolprocbatchsetup.h"
 
 #include "uiattrdesced.h"
 #include "uiattrdescseted.h"
@@ -93,6 +96,7 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     	, attrsetclosetim_("Attrset dialog close")
 	, stored2dmnuitem_("&Stored 2D Data")
 	, stored3dmnuitem_("Stored &Cubes")
+	, volprocchain_( 0 )
 {
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -112,7 +116,32 @@ uiAttribPartServer::~uiAttribPartServer()
     delete adsman3d_;
     delete attrsetdlg_;
     delete selptps_;
+    if ( volprocchain_ ) volprocchain_->unRef();
     deepErase( linesets2dmnuitem_ );
+}
+
+
+void uiAttribPartServer::editVolProc()
+{
+    if ( !volprocchain_ )
+    {
+	volprocchain_ = new VolProc::Chain;
+	volprocchain_->ref();
+    }
+
+    VolProc::uiChain dlg( parent(), *volprocchain_ );
+    dlg.go();
+}
+
+
+void uiAttribPartServer::createVolProcOutput( const char* caption,
+					      const IOPar* extrapar )
+{
+    if ( !caption ) caption = "Create Volume processing output";
+    VolProc::uiBatchSetup dlg( parent(), extrapar );
+    dlg.setCaption( caption );
+    dlg.setTitleText( caption );
+    dlg.go();
 }
 
 
