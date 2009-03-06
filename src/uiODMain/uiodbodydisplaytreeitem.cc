@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.10 2009-02-26 22:23:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.11 2009-03-06 22:05:25 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -27,12 +27,14 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.10 2009-02-26 22
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "visrandomposbodydisplay.h"
 #include "vispolygonbodydisplay.h"
+#include "uivisbodyoperatordlg.h"
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
@@ -44,7 +46,8 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&New ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&New polygon body..."), 1 );
+    mnu.insertItem( new uiMenuItem("&New body combination..."), 2 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -66,23 +69,60 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	if ( !plg )
 	    return false;
 
-	if ( plg )
-	{
-	    plg->setPreferredColor( getRandomColor(false) );
-	    BufferString newname = "<New body ";
-	    static int polygonsurfnr = 1;
-	    newname += polygonsurfnr++;
-	    newname += ">";
-	    plg->setName( newname.buf() );
-	    plg->setFullyLoaded( true );
-	    addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
-	    
-	    uiVisPartServer* visserv = applMgr()->visServer();
-	    visserv->showMPEToolbar();
-	    visserv->turnSeedPickingOn( true );
-	}
+	plg->setPreferredColor( getRandomColor(false) );
+	BufferString newname = "<New body ";
+	static int polygonsurfnr = 1;
+	newname += polygonsurfnr++;
+	newname += ">";
+	plg->setName( newname.buf() );
+	plg->setFullyLoaded( true );
+	addChild( new uiODBodyDisplayTreeItem( plg->id() ), false );
 	
-	return true;
+	uiVisPartServer* visserv = applMgr()->visServer();
+	visserv->showMPEToolbar();
+	visserv->turnSeedPickingOn( true );
+    }
+    else if ( mnuid == 2 )
+    {
+	static bool ask = false;
+	static bool confirmed = true;
+	if ( !ask )
+	{
+	    confirmed = 
+		uiMSG().askGoOn( "The body operation is still under testing.\n"
+		       "It may not be stable, do you want to continue?");
+	    ask = true;
+	}
+
+	if ( !confirmed ) return false;
+
+	RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( 
+		EM::MarchingCubesSurface::typeStr() );
+	if ( !emobj ) return false;
+	
+	mDynamicCastGet( EM::MarchingCubesSurface*, mcs, emobj.ptr() );
+	if ( !mcs ) return false;
+
+	mcs->setPreferredColor( getRandomColor(false) );
+	
+	BufferString nm = "<New body "; 
+	static int surfnr = 1;
+	nm += surfnr++; 
+	nm += ">";
+	mcs->setName( nm.buf() );
+	mcs->setFullyLoaded( true );
+
+	if ( !mcs->getBodyOperator() )
+	    mcs->createBodyOperator();
+	
+	uiVisBodyOperatorDlg dlg( getUiParent(), *mcs->getBodyOperator() ); 
+	const int res = dlg.go();
+
+	MouseCursorChanger bodyopration( MouseCursor::Wait );
+	if ( !res || !mcs->regenerateMCBody(0) )
+	    return false;
+
+	addChild( new uiODBodyDisplayTreeItem( mcs->id() ), false );
     }
     else
 	handleStandardItems( mnuid );
@@ -92,7 +132,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 
 
 uiTreeItem* uiODBodyDisplayTreeItemFactory::create( int visid,
-						      uiTreeItem* ) const
+						    uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::PolygonBodyDisplay*,plg,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -118,7 +158,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , displaypolygonmnuitem_( "&Picked polygons" )			    
     , displayintersectionmnuitem_( "&Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
-    , newellipsoidmnuitem_("&Create body")				   
+    , newellipsoidmnuitem_( "&Create body" )				 
     , mcd_( 0 )
     , plg_( 0 )
     , rpb_( 0 ) 	       
@@ -139,7 +179,7 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
-    , newellipsoidmnuitem_("Make body")				   
+    , newellipsoidmnuitem_( "Make body" )				   
     , mcd_( 0 )
     , plg_( 0 )	       
     , rpb_( 0 ) 	       
