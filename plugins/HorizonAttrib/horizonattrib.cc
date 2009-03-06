@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.13 2009-02-12 22:10:28 cvskris Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.14 2009-03-06 05:04:25 cvsnanne Exp $";
 
 #include "horizonattrib.h"
 
@@ -133,6 +133,8 @@ void Horizon::prepareForComputeData()
 	    {
 		horizon_ = hor;
 		horizon_->ref();
+		if ( desc.is2D() )
+		    fillLineID();
 		return;
 	    }
 	    else if ( !desc.is2D() )
@@ -185,19 +187,18 @@ void Horizon::prepareForComputeData()
     }
 
     if ( desc.is2D() )
-    {
-	mDynamicCastGet(EM::Horizon2D*,hor2d,hor);
-	const int lineidx = 
-	    hor2d->geometry().lineIndex( curlinekey_.lineName() );
-	if ( lineidx==-1 )
-	    horizon2dlineid_ = mUdf(int);
-	else
-	{
-	    horizon2dlineid_ = hor2d->geometry().lineID( lineidx );
-	}
-    }
+	fillLineID();
 
     Provider::prepareForComputeData();
+}
+
+
+void Horizon::fillLineID()
+{
+    mDynamicCastGet(EM::Horizon2D*,hor2d,horizon_);
+    const int lineidx = hor2d->geometry().lineIndex( curlinekey_.lineName() );
+    horizon2dlineid_ = lineidx==-1 ? mUdf(int)
+				  : hor2d->geometry().lineID( lineidx );
 }
 
 

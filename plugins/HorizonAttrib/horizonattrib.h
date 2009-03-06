@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.7 2009-02-12 22:10:28 cvskris Exp $
+ RCS:           $Id: horizonattrib.h,v 1.8 2009-03-06 05:04:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ protected:
 	    			    int z0,int nrsamples,int threadid) const;
 
     virtual bool	allowParallelComputation() const { return true; }
+
+    void		fillLineID();
 
     MultiID		horid_;
     BufferString	surfdatanm_;
