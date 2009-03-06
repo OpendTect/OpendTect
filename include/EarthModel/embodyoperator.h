@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: embodyoperator.h,v 1.3 2009-03-02 06:13:19 cvsranojay Exp $
+ RCS:		$Id: embodyoperator.h,v 1.4 2009-03-06 21:59:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "arrayndinfo.h"
 #include "enums.h"
 #include "iopar.h"
+#include "multiid.h"
 #include "task.h"
 #include "trigonometry.h"
 
@@ -59,40 +60,37 @@ public:
 			   triangulated body for a set of random points. Users
 			   don't have to set any action or body. */
 
-    void		setInput(bool body0,Body*);
-    			//!<Body becomes mine
+    void		setInput(bool body0,const MultiID&);
     void		setInput(bool body0,BodyOperator*);
     			//!<BodyOperator becomes mine
+    BodyOperator*	getChildOprt( bool body0 ) const;
+    bool		getChildOprt(int freeid,BodyOperator&);
 
-    Action		getAction() const		{ return action_; }
     void		setAction(Action);
-
-    void		setParent(BodyOperator*);
-    			/*<The parent gives us the id of myself. */
+    Action		getAction() const		{ return action_; }
     int			getID() const			{ return id_; }
     			/*<If id_ is 0, it is on the top of a tree struct. */
-    int			getChildID() const		{ return childid_; }
-    			/*<If is -1, it does not have BodyOperator child, 
-			   otherwise, childid = id+1. */
+    static int		getFreeID();
 
     bool		usePar(const IOPar&);
     void		fillPar(IOPar&);
 
     static const char*	sKeyID()		{ return "ID"; }
-    static const char*	sKeyChildID()		{ return "ChildID"; }
     static const char*	sKeyAction()		{ return "Action"; }
+    static const char*	sKeyBodyID0()		{ return "BodyID0"; }
+    static const char*	sKeyBodyID1()		{ return "BodyID1"; }
 
 protected:
 
-    Body*		inputbody0_;
+    ImplicitBody*	getOperandBody(bool body0,TaskRunner* tr) const;
+
+    MultiID		inputbody0_;
     BodyOperator*	inputbodyop0_;
 
-    Body*		inputbody1_;
+    MultiID		inputbody1_;
     BodyOperator*	inputbodyop1_;
 
     int			id_;
-    int			childid_;
-
     Action		action_;
 };
 
