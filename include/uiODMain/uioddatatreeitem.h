@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.13 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.14 2009-03-09 09:34:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
 protected:
 
     int				uiListViewItemType() const;
-    bool			init();
+    virtual bool		init();
 
     virtual void		checkCB(CallBacker*);
     bool			shouldSelect(int) const;
