@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.6 2009-03-09 21:05:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.7 2009-03-09 22:11:40 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -566,10 +566,9 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( bodypts.size()<3 )
 	return 0;
     
-    const float zscale = SI().zFactor();
     StepInterval<int> inlrg( 0, 0, SI().inlStep() );
     StepInterval<int> crlrg( 0, 0, SI().crlStep() );
-    StepInterval<float> zrg( 0, 0, zscale*SI().zStep() );
+    StepInterval<float> zrg( 0, 0, SI().zStep() );
     
     for ( int idx=0; idx<bodypts.size(); idx++ )
     {
@@ -592,10 +591,14 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     if ( inlrg.start-inlrg.step>=0 ) inlrg.start -= inlrg.step;
     if ( crlrg.start-crlrg.step>=0 ) crlrg.start -= crlrg.step;
     if ( zrg.start-zrg.step>=0 ) zrg.start -= zrg.step;
+    if ( inlrg.stop+inlrg.step<=SI().inlRange(true).stop )
+    	inlrg.stop += inlrg.step;
 
-    inlrg.stop += inlrg.step;
-    crlrg.stop += crlrg.step;
-    zrg.stop += zrg.step;
+    if ( crlrg.stop+crlrg.step<=SI().crlRange(true).stop )
+	crlrg.stop += crlrg.step;
+
+    if ( zrg.stop+zrg.step<=SI().zRange(true).stop )
+    	zrg.stop += zrg.step;
     
     mDeclareAndTryAlloc( Array3D<float>*, arr, Array3DImpl<float>( 
 		inlrg.nrSteps()+1, crlrg.nrSteps()+1, zrg.nrSteps()+1 ) );
@@ -611,6 +614,7 @@ ImplicitBody* BodyOperator::createImplicitBody( const TypeSet<Coord3>& bodypts,
     MouseCursorChanger cursorchanger(MouseCursor::Wait);
     
     TypeSet<Coord3> pts = bodypts;
+    const float zscale = SI().zFactor();
     if ( !mIsZero(zscale-1,1e-5) )
     {
     	for ( int idx=0; idx<bodypts.size(); idx++ )
