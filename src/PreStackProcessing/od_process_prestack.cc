@@ -4,19 +4,12 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.2 2009-01-06 12:31:44 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.3 2009-03-09 22:07:59 cvskris Exp $";
 
 #include "batchprog.h"
 
-//#include "attribdescset.h"
-//#include "attribdescsettr.h"
-//#include "attribengman.h"
-//#include "attriboutput.h"
-//#include "attribprocessor.h"
-//#include "attribstorprovider.h"
 #include "cubesampling.h"
 #include "envvars.h"
-//#include "filegen.h"
 #include "prestackprocessor.h"
 #include "hostdata.h"
 #include "ioman.h"
