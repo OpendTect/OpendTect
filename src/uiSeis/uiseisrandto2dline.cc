@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.5 2009-02-19 10:29:38 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.6 2009-03-09 09:33:17 cvsnanne Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -34,6 +34,7 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
 
     outctio_.ctxt.forread = false;
     outpfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Line) );
+    outpfld_->setConfirmOverwrite( false );
     outpfld_->attach( alignedBelow, inpfld_ );
 
     linenmfld_ = new uiGenInput( this, "Line Name", StringInpSpec(rln.name()) );
