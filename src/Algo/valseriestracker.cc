@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.7 2008-07-11 17:45:05 cvskris Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.8 2009-03-09 16:34:20 cvsjaap Exp $";
 
 #include "valseriestracker.h"
 
@@ -482,8 +482,17 @@ bool EventTracker::snap( float threshold )
 	    }
 	    else
 	    {
-		if ( upampl==dnampl && fabs(upevent.pos-dnevent.pos)<1 )
-		    eventpos = (upevent.pos + dnevent.pos) / 2;
+		if ( upampl==dnampl )
+		{
+		    if( fabs(upevent.pos-dnevent.pos)<1 )
+			eventpos = (upevent.pos + dnevent.pos) / 2;
+		    else 
+		    {
+			const float updiff = fabs( targetdepth_-upevent.pos );
+			const float dndiff = fabs( targetdepth_-dnevent.pos );
+			eventpos = updiff<dndiff ? upevent.pos : dnevent.pos;
+		    }
+		}
 		else
 		    eventpos = upampl>dnampl ? upevent.pos : dnevent.pos;
 	    }
