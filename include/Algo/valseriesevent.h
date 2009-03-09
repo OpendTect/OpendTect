@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.13 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:		$Id: valseriesevent.h,v 1.14 2009-03-09 16:09:15 cvsjaap Exp $
 ________________________________________________________________________
 
 */
@@ -356,8 +356,8 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 	if ( mIsUdf(ev.pos) )
 	    break;
 
-	if ( ( inc > 0 && ev.pos <= pg.start ) || 
-	     ( inc < 0 && ev.pos >= pg.start ) )
+	if ( ( inc > 0 && ev.pos < pg.start ) || 
+	     ( inc < 0 && ev.pos > pg.start ) )
 	    occ++;
 	else
 	    break;
