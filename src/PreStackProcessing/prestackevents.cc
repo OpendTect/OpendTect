@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.5 2009-02-26 13:37:41 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.6 2009-03-09 22:10:39 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -214,7 +214,8 @@ EventManager::EventManager()
     , changebid_( -1, -1 )
     , forceReload( this )
     , change( this )
-    , reloadbids_( *new BinIDValueSet( 0, false ) )
+    , reloadbids_( new BinIDValueSet( 0, false ) )
+    , notificationqueue_( new BinIDValueSet( 0, false ) )
     , changebidmutex_( *new Threads::Mutex )
     , eventmutex_( *new Threads::Mutex )
     , nexthorid_( 0 )
@@ -234,7 +235,8 @@ EventManager::~EventManager()
     if ( !events_.isEmpty() )
 	pErrMsg("Leaving unreffed picks. Memory leak");
 
-    delete &reloadbids_;
+    delete reloadbids_;
+    delete notificationqueue_;
     delete &changebidmutex_;
     delete &eventmutex_;
     delete primarydipreader_;
@@ -328,6 +330,9 @@ void EventManager::setNextHorizonID( int ni )
 
 void EventManager::setColor( const Color& col )
 {
+    if ( color_==col )
+	return;
+
     color_ = col;
     auxdatachanged_ = true;
     reportChange( BinID(-1,-1) );
@@ -364,7 +369,7 @@ EventManager::getDipSource( bool primary ) const
 
 Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
 {
-    reloadbids_.empty();
+    reloadbids_->empty();
     storageid_ = mid;
     if ( !reload )
 	return 0;
@@ -377,7 +382,7 @@ Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
 
     forceReload.trigger();
     cleanUp( false );
-    Executor* loader = load( reloadbids_ );
+    Executor* loader = load( *reloadbids_ );
     if ( !loader )
 	reportChange( BinID(-1,-1) );
 
@@ -511,6 +516,9 @@ void EventManager::resetChangedFlag( bool horflagonly )
 
 EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 {
+    if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
+	return 0;
+
     int arrpos[2];
 
     Threads::MutexLocker lock( eventmutex_ );
@@ -570,18 +578,42 @@ void EventManager::cleanUp( bool keepchanged )
 
 
 void EventManager::addReloadPositions( const BinIDValueSet& bvs )
-{ reloadbids_.append( bvs ); }
+{ reloadbids_->append( bvs ); }
 
 
 void EventManager::addReloadPosition( const BinID& bid )
-{ reloadbids_.add( bid ); }
+{ reloadbids_->add( bid ); }
+
+
+void EventManager::blockChange( bool yn, bool sendnow )
+{
+    if ( !yn )
+	change.disable();
+    else
+    {
+	change.enable();
+	if ( sendnow )
+	{
+	    BinIDValueSet::Pos pos;
+	    while ( notificationqueue_->next(pos) )
+		reportChange( notificationqueue_->getBinID( pos ) );
+	}
+
+	notificationqueue_->empty();
+    }
+}
 
 
 void EventManager::reportChange( const BinID& bid )
 {
     Threads::MutexLocker lock( changebidmutex_ );
-    changebid_ = bid;
-    change.trigger();
+    if ( !change.isEnabled() )
+	notificationqueue_->add( bid );
+    else
+    {
+	changebid_ = bid;
+	change.trigger();
+    }
 }
 
 
@@ -854,6 +886,8 @@ bool SetPickUndo::doWork( float nd, unsigned char nq )
 	    event->pickquality_[idx] = nq;
     }
 
+    events->ischanged_ = true;
+
     manager_.reportChange( bid_ );
 
     return true;
@@ -918,6 +952,7 @@ bool SetEventUndo::addEvent()
     ev->eventtype_ = eventtype_;
 
     events->events_.insertAt( ev, horidx_ );
+    events->ischanged_ = true;
 
     manager_.reportChange( bid_ );
 

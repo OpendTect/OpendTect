@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.7 2009-01-06 06:05:40 cvsranojay Exp $
+ RCS:		$Id: prestackevents.h,v 1.8 2009-03-09 22:10:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -163,9 +163,17 @@ public:
     MultiDimStorage<EventSet*>&	getStorage() { return events_; }
 
     Notifier<EventManager>		change;
+    					/*!<\note Dont enable/disable,
+					    	  use blockChange if needed. */
     const BinID&			changeBid() const  { return changebid_;}
 					/*!<Can be -1 if general
 					   (name/color/horid) change. */
+    void				blockChange(bool yn,bool sendall);
+     					/*!<Turns off notification, but 
+					    class will record changes. If
+ 					    sendall is on when turning off the
+					    block, all recorded changes will
+ 					    be triggered. */
 
     Notifier<EventManager> 		forceReload;
     					/*!<When triggered, all
@@ -205,7 +213,8 @@ protected:
 
     BinID			changebid_;
     Threads::Mutex&		changebidmutex_;
-    BinIDValueSet&		reloadbids_;
+    BinIDValueSet*		notificationqueue_;
+    BinIDValueSet*		reloadbids_;
 
     int				nexthorid_;
     int				auxdatachanged_;
