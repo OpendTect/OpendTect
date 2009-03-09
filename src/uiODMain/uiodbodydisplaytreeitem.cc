@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.11 2009-03-06 22:05:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.12 2009-03-09 17:56:11 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.11 2009-03-06 22
 #include "mousecursor.h"
 #include "randcolor.h"
 #include "selector.h"
+#include "uibodyoperatordlg.h"
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -34,7 +35,6 @@ static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.11 2009-03-06 22
 #include "vismarchingcubessurfacedisplay.h"
 #include "visrandomposbodydisplay.h"
 #include "vispolygonbodydisplay.h"
-#include "uivisbodyoperatordlg.h"
 
 
 uiODBodyDisplayParentTreeItem::uiODBodyDisplayParentTreeItem()
@@ -115,7 +115,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	if ( !mcs->getBodyOperator() )
 	    mcs->createBodyOperator();
 	
-	uiVisBodyOperatorDlg dlg( getUiParent(), *mcs->getBodyOperator() ); 
+	uiBodyOperatorDlg dlg( getUiParent(), *mcs->getBodyOperator() ); 
 	const int res = dlg.go();
 
 	MouseCursorChanger bodyopration( MouseCursor::Wait );
