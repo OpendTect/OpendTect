@@ -1,0 +1,328 @@
+/*+
+___________________________________________________________________
+
+ CopyRight: 	(C) dGB Beheer B.V.
+ Author: 	Yuancheng Liu
+ Date: 		Feb 2009
+___________________________________________________________________
+
+-*/
+static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.1 2009-03-09 17:55:13 cvsyuancheng Exp $";
+
+#include "uibodyoperatordlg.h"
+
+#include "ctxtioobj.h"
+#include "embodyoperator.h"
+#include "embodytr.h"
+#include "uibutton.h"
+#include "uicombobox.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+#include "uilistview.h"
+
+uiBodyOperatorDlg::uiBodyOperatorDlg( uiParent* p, EM::BodyOperator& op )
+    : uiDialog(p,uiDialog::Setup("Body operation",mNoDlgTitle,mNoHelpID) )
+    , oprt_( op )
+{
+    setOkText( "Compute" );  
+
+    tree_ = new uiListView( this, "Operation tree", 9 );
+    uiLabel* label0 = new uiLabel( this, "Operation tree" );
+    label0->attach( centeredAbove, tree_ );
+    tree_->setHScrollBarMode( uiListView::Auto );
+    tree_->setVScrollBarMode( uiListView::Auto );
+    tree_->setSelectionBehavior(uiListView::SelectRows);
+    tree_->leftButtonClicked.notify( mCB(this,uiBodyOperatorDlg,itemClick) );
+
+    BufferStringSet labels;
+    labels.add( "Implicit body" );
+    labels.add( "Action" );
+    tree_->addColumns( labels );
+    tree_->setColumnWidth( 0, 160 );
+    tree_->setColumnWidth( 1, 30 );
+
+    uiListViewItem* output = new uiListViewItem(tree_,uiListViewItem::Setup());
+    output->setText( "Output body", 0 );
+    output->setText( "Operator", 1 );
+    output->setOpen( true );
+    bodyOprand item = bodyOprand();
+    item.defined = true;
+    listinfo_ += item;
+    listsaved_ += output;
+
+    uiListViewItem* c0 = new uiListViewItem( output, uiListViewItem::Setup() );
+    c0->setText( "input" );
+    uiListViewItem* c1 = new uiListViewItem( output, uiListViewItem::Setup() );
+    c1->setText( "input" );
+    listinfo_ += bodyOprand();
+    listinfo_ += bodyOprand();
+    listsaved_ += c0;
+    listsaved_ += c1;
+   
+    BufferStringSet btype;
+    btype.add( "Stored body" );
+    btype.add( "Operator" ); 
+    typefld_ = new uiLabeledComboBox( this, btype, "Input type" );
+    typefld_->attach( rightOf, tree_ );
+    typefld_->box()->selectionChanged.notify(
+	    mCB(this,uiBodyOperatorDlg,typeSel) ); 
+    uiLabel* label1 = new uiLabel( this, "Operands" );
+    label1->attach( centeredAbove, typefld_ );
+
+    bodyselfld_ = new uiGenInput( this, "Input", StringInpSpec() );
+    bodyselfld_->attach( alignedBelow, typefld_ );
+    bodyselbut_ = new uiPushButton( this, "&Select", false );
+    bodyselbut_->attach( rightOf, bodyselfld_ );
+    bodyselbut_->activated.notify( mCB(this,uiBodyOperatorDlg,bodySel) );
+    
+    BufferStringSet operators;
+    operators.add( "Union" );
+    operators.add( "Intersection" );
+    operators.add( "Minus" );
+    oprselfld_ = new uiLabeledComboBox( this, operators, "Operator" );
+    oprselfld_->attach( alignedBelow, typefld_ );
+    oprselfld_->box()->selectionChanged.notify(
+	    mCB(this,uiBodyOperatorDlg,oprSel) );
+
+    unionbut_ = new uiToolButton( this, "&Union", "set_union.png" );
+    unionbut_->attach( rightOf, oprselfld_ );
+    intersectbut_ = new uiToolButton( this, "&Intersect", "set_intersect.png" );
+    intersectbut_->attach( rightOf, oprselfld_ );
+    minusbut_ = new uiToolButton( this, "&Minus", "set_minus.png" );
+    minusbut_->attach( rightOf, oprselfld_ );
+
+    typefld_->display( false );
+    turnOffAll();    
+}
+
+
+uiBodyOperatorDlg::~uiBodyOperatorDlg()
+{ listinfo_.erase(); }
+
+
+void uiBodyOperatorDlg::turnOffAll()
+{
+    bodyselfld_->display( false );
+    bodyselbut_->display( false );
+
+    oprselfld_->display( false );
+    unionbut_->display( false );
+    minusbut_->display( false );
+    intersectbut_->display( false );
+}
+
+
+#define mDisplyAction( item, curidx ) \
+    oprselfld_->box()->setCurrentItem( item==sKeyUdf() ? 0 : item ); \
+    if ( item==sKeyIntSect() ) \
+    { \
+ 	intersectbut_->display( true ); \
+	listinfo_[curidx].act = sKeyIntSect(); \
+	tree_->selectedItem()->setText( "Intersection", 1 ); \
+	tree_->selectedItem()->setPixmap( 1, "set_intersect.png" ); \
+    } \
+    else if ( item==sKeyMinus() )  \
+    { \
+	minusbut_->display( true ); \
+	listinfo_[curidx].act = sKeyMinus(); \
+	tree_->selectedItem()->setText( "Minus", 1 ); \
+	tree_->selectedItem()->setPixmap( 1, "set_minus.png" ); \
+    } \
+    else \
+    { \
+	unionbut_->display( true ); \
+	listinfo_[curidx].act = sKeyUnion(); \
+	tree_->selectedItem()->setText( "Union", 1 ); \
+	tree_->selectedItem()->setPixmap( 1, "set_union.png" ); \
+    } 
+
+
+void uiBodyOperatorDlg::typeSel( CallBacker* cb )
+{
+    const bool isbodyitem = typefld_->box()->currentItem()==0;
+    uiListViewItem* cur = tree_->selectedItem();
+    const int curidx = listsaved_.indexOf( cur );
+    
+    if ( !isbodyitem )
+    {
+	turnOffAll();
+	oprselfld_->display( true );
+	mDisplyAction( listinfo_[curidx].act, curidx );
+	if ( tree_->selectedItem()->nrChildren() )
+	    return;
+
+	uiListViewItem* c0 = new uiListViewItem(cur,uiListViewItem::Setup());
+	c0->setText( "input" );
+	uiListViewItem* c1 = new uiListViewItem(cur,uiListViewItem::Setup());
+	c1->setText( "input" );
+
+	cur->setOpen( true );
+
+	listinfo_ += bodyOprand();
+	listinfo_ += bodyOprand();
+	listsaved_ += c0;
+	listsaved_ += c1;
+    }
+    else
+    {
+	if ( cur->nrChildren() )
+	{
+	    for ( int cid=cur->nrChildren()-1; cid>=0; cid-- )
+	    {
+		deleteAllChildInfo( cur->getChild(cid) );
+		cur->removeItem( cur->getChild(cid) );
+	    }
+
+	    listinfo_[curidx].act = -1;
+	    listinfo_[curidx].defined = false;
+	    cur->setText( "", 1 );
+	    cur->setPixmap( 1, "" );
+	}
+
+	itemClick( cb );
+    }
+}
+
+
+void uiBodyOperatorDlg::deleteAllChildInfo( uiListViewItem* curitem )
+{
+    if ( !curitem->nrChildren() )
+    {
+	int idx = listsaved_.indexOf( curitem );
+	if ( idx==-1 )
+	{
+	    pErrMsg("Hmm"); return;
+	}
+
+	listsaved_.remove( idx );
+	listsaved_.remove( idx );
+	listinfo_.remove( idx );
+	listinfo_.remove( idx );
+	return;
+    }
+
+    for ( int cid=curitem->nrChildren()-1; cid>=0; cid-- )
+	deleteAllChildInfo( curitem->getChild(cid) );
+}
+
+
+void uiBodyOperatorDlg::oprSel( CallBacker* )
+{
+    turnOffAll();
+    oprselfld_->display( true );
+  
+    const int item = oprselfld_->box()->currentItem();
+    const int curidx = listsaved_.indexOf( tree_->selectedItem() );
+    listinfo_[curidx].defined = true;
+
+    mDisplyAction( item, curidx );
+}
+
+
+void uiBodyOperatorDlg::itemClick( CallBacker* cb )
+{
+    typefld_->display( true );
+    const int curidx = listsaved_.indexOf( tree_->selectedItem() );
+    const char item = listinfo_[curidx].act!=sKeyUdf() ? listinfo_[curidx].act 
+						       : sKeyUnion();
+    typefld_->setSensitive( tree_->firstItem()!=tree_->selectedItem() );
+    if ( !tree_->selectedItem()->nrChildren() )
+    {
+	turnOffAll();
+
+    	bodyselfld_->display( true );
+    	bodyselbut_->display( true );
+	typefld_->box()->setCurrentItem( 0 );
+	bodyselfld_->setText( listinfo_[curidx].defined ? 
+		tree_->selectedItem()->text() : "" );
+    }
+    else 
+    {
+	turnOffAll();
+    	oprselfld_->display( true );
+	mDisplyAction( item, curidx );
+	typefld_->box()->setCurrentItem( 1 );
+    }
+}
+
+
+void uiBodyOperatorDlg::bodySel( CallBacker* )
+{
+    CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
+    context.ctxt.forread = true;
+    
+    uiIOObjSelDlg dlg( parent(), context );
+    if ( !dlg.go() || !dlg.ioObj() )
+	return;
+    
+    tree_->selectedItem()->setText( dlg.ioObj()->name() );
+    bodyselfld_->setText( dlg.ioObj()->name() );
+
+    const int curidx = listsaved_.indexOf( tree_->selectedItem() );
+    listinfo_[curidx].mid = dlg.ioObj()->key();
+    listinfo_[curidx].defined = true;
+}
+
+
+bool uiBodyOperatorDlg::acceptOK( CallBacker* )
+{
+    for ( int idx=0; idx<listinfo_.size(); idx++ )
+    {
+	if ( !listinfo_[idx].defined )
+	    return false;
+
+	if ( (!listinfo_[idx].mid.isEmpty() && listinfo_[idx].act!=sKeyUdf()) 
+	    || (listinfo_[idx].mid.isEmpty() && listinfo_[idx].act==sKeyUdf()) )
+	    return false;
+    }
+
+    setOprator( listsaved_[0], oprt_ );
+    return oprt_.isOK();
+}
+
+#define mDefineAction( act, opt ) \
+    if ( act==sKeyUnion() ) \
+	opt.setAction( EM::BodyOperator::Union ); \
+    else if ( act==sKeyIntSect() ) \
+	opt.setAction( EM::BodyOperator::IntSect ); \
+    else if ( act==sKeyMinus() ) \
+	opt.setAction( EM::BodyOperator::Minus ); 
+
+
+void uiBodyOperatorDlg::setOprator( uiListViewItem* lv, EM::BodyOperator& opt )
+{
+    if ( !lv || !lv->nrChildren() ) return;
+
+    const int lvidx = listsaved_.indexOf( lv );
+    mDefineAction( listinfo_[lvidx].act, opt );
+
+    for ( int idx=0; idx<2; idx++ )
+    {
+	uiListViewItem* child = !idx ? lv->firstChild() : lv->lastChild();
+	if ( child->nrChildren() )
+	{
+	    EM::BodyOperator* childoprt = new EM::BodyOperator();
+	    opt.setInput( idx, childoprt );
+	    setOprator( child, *childoprt );
+	}
+	else 
+	{
+	    const int chilidx = listsaved_.indexOf( child );
+	    opt.setInput( idx, listinfo_[chilidx].mid );
+	}
+    }
+}
+
+
+uiBodyOperatorDlg::bodyOprand::bodyOprand()
+{
+    defined = false;  
+    mid = 0;
+    act = sKeyUdf();
+}
+
+
+bool uiBodyOperatorDlg::bodyOprand::operator==( const bodyOprand& v ) const
+{ return mid==v.mid && act==v.act; }
