@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.13 2009-02-27 12:05:28 nanne Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.14 2009-03-09 11:59:51 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -397,7 +397,7 @@ float FaultStickThrow::getValue( float z, bool negtopos ) const
 	else
 	{
 	    const float fact = (botshift-topshift) / (botzpos_-topzpos_);
-	    thr = topshift + fact*(z-topzpos_);
+	    thr = -(topshift + fact*(z-topzpos_));
 	}
     }
 
