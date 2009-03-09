@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.1 2009-03-09 17:55:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uibodyoperatordlg.cc,v 1.2 2009-03-09 21:04:14 cvsyuancheng Exp $";
 
 #include "uibodyoperatordlg.h"
 
@@ -150,6 +150,7 @@ void uiBodyOperatorDlg::typeSel( CallBacker* cb )
 	turnOffAll();
 	oprselfld_->display( true );
 	mDisplyAction( listinfo_[curidx].act, curidx );
+	listinfo_[curidx].defined = true;
 	if ( tree_->selectedItem()->nrChildren() )
 	    return;
 
@@ -282,21 +283,18 @@ bool uiBodyOperatorDlg::acceptOK( CallBacker* )
     return oprt_.isOK();
 }
 
-#define mDefineAction( act, opt ) \
-    if ( act==sKeyUnion() ) \
-	opt.setAction( EM::BodyOperator::Union ); \
-    else if ( act==sKeyIntSect() ) \
-	opt.setAction( EM::BodyOperator::IntSect ); \
-    else if ( act==sKeyMinus() ) \
-	opt.setAction( EM::BodyOperator::Minus ); 
-
 
 void uiBodyOperatorDlg::setOprator( uiListViewItem* lv, EM::BodyOperator& opt )
 {
     if ( !lv || !lv->nrChildren() ) return;
 
     const int lvidx = listsaved_.indexOf( lv );
-    mDefineAction( listinfo_[lvidx].act, opt );
+    if ( listinfo_[lvidx].act==sKeyUnion() ) 
+	opt.setAction( EM::BodyOperator::Union ); 
+    else if ( listinfo_[lvidx].act==sKeyIntSect() ) 
+	opt.setAction( EM::BodyOperator::IntSect ); 
+    else if ( listinfo_[lvidx].act==sKeyMinus() ) 
+	opt.setAction( EM::BodyOperator::Minus ); 
 
     for ( int idx=0; idx<2; idx++ )
     {
@@ -304,13 +302,13 @@ void uiBodyOperatorDlg::setOprator( uiListViewItem* lv, EM::BodyOperator& opt )
 	if ( child->nrChildren() )
 	{
 	    EM::BodyOperator* childoprt = new EM::BodyOperator();
-	    opt.setInput( idx, childoprt );
+	    opt.setInput( idx==0, childoprt );
 	    setOprator( child, *childoprt );
 	}
 	else 
 	{
 	    const int chilidx = listsaved_.indexOf( child );
-	    opt.setInput( idx, listinfo_[chilidx].mid );
+	    opt.setInput( idx==0, listinfo_[chilidx].mid );
 	}
     }
 }
