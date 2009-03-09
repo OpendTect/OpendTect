@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.5 2009-03-06 22:04:55 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.6 2009-03-09 21:05:04 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -376,10 +376,6 @@ ImplicitBody* BodyOperator::getOperandBody( bool body0, TaskRunner* tr ) const
     if ( !oprt )
     {
 	const MultiID mid = body0 ? inputbody0_ : inputbody1_;
-	//RefMan<EM::EMObject> emobj = EMM().loadIfNotFullyLoaded( mid, tr );
-	//mDynamicCastGet( Body*, bdy, emobj.ptr() );
-	//if ( !bdy ) return 0;	return bdy->createImplicitBody( tr );
-
 	const char* translt = IOM().get( mid )->translator();
 	EM::EMObject* obj = 0;
 	if ( !strcmp( translt, polygonEMBodyTranslator::sKeyUserName() ) )
