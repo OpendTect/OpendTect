@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.60 2008-12-29 10:00:14 cvsranojay Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.61 2009-03-10 05:21:05 cvsnanne Exp $";
 
 #include "pickset.h"
 
@@ -377,11 +377,11 @@ void Pick::SetMgr::removeCBs( CallBacker* cb )
 
 void Pick::SetMgr::survChg( CallBacker* )
 {
-    locationChanged.cbs.erase();
-    setToBeRemoved.cbs.erase();
-    setAdded.cbs.erase();
-    setChanged.cbs.erase();
-    setDispChanged.cbs.erase();
+    locationChanged.cbs_.erase();
+    setToBeRemoved.cbs_.erase();
+    setAdded.cbs_.erase();
+    setChanged.cbs_.erase();
+    setDispChanged.cbs_.erase();
     deepErase( pss_ );
     ids_.erase();
     changed_.erase();

@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.93 2009-02-12 12:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.94 2009-03-10 05:21:05 cvsnanne Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -185,23 +185,23 @@ bool IOMan::isReady() const
     if ( dotrigger && !IOMAN_no_survchg_triggers ) \
 	IOM().surveyToBeChanged.trigger(); \
     StreamProvider::unLoadAll(); \
-    CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs; \
-    CallBackSet sccbs = IOM().surveyChanged.cbs; \
-    CallBackSet asccbs = IOM().afterSurveyChange.cbs; \
-    CallBackSet rmcbs = IOM().entryRemoved.cbs; \
-    CallBackSet dccbs = IOM().newIODir.cbs; \
-    CallBackSet apccbs = IOM().applicationClosing.cbs; \
+    CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs_; \
+    CallBackSet sccbs = IOM().surveyChanged.cbs_; \
+    CallBackSet asccbs = IOM().afterSurveyChange.cbs_; \
+    CallBackSet rmcbs = IOM().entryRemoved.cbs_; \
+    CallBackSet dccbs = IOM().newIODir.cbs_; \
+    CallBackSet apccbs = IOM().applicationClosing.cbs_; \
     delete IOMan::theinst_; \
     IOMan::theinst_ = 0; \
     clearSelHists()
 
 #define mFinishNewInst(dotrigger) \
-    IOM().surveyToBeChanged.cbs = s2bccbs; \
-    IOM().surveyChanged.cbs = sccbs; \
-    IOM().afterSurveyChange.cbs = asccbs; \
-    IOM().entryRemoved.cbs = rmcbs; \
-    IOM().newIODir.cbs = dccbs; \
-    IOM().applicationClosing.cbs = apccbs; \
+    IOM().surveyToBeChanged.cbs_ = s2bccbs; \
+    IOM().surveyChanged.cbs_ = sccbs; \
+    IOM().afterSurveyChange.cbs_ = asccbs; \
+    IOM().entryRemoved.cbs_ = rmcbs; \
+    IOM().newIODir.cbs_ = dccbs; \
+    IOM().applicationClosing.cbs_ = apccbs; \
     if ( dotrigger ) \
     { \
 	setupCustomDataDirs(-1); \

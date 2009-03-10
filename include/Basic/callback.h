@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.41 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: callback.h,v 1.42 2009-03-10 05:21:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,25 +54,25 @@ mClass CallBack
 {
 public:
 			CallBack( CallBacker* o=0, CallBackFunction f=0 )
-			{ obj = o; fn = f; }
+			{ obj_ = o; fn_ = f; }
     inline int		operator==( const CallBack& cb ) const
-			{ return obj == cb.obj && fn == cb.fn; }
+			{ return obj_ == cb.obj_ && fn_ == cb.fn_; }
     inline int		operator!=( const CallBack& cb ) const
-			{ return obj != cb.obj || fn != cb.fn; }
+			{ return obj_ != cb.obj_ || fn_ != cb.fn_; }
 
     inline bool		willCall() const
-			{ return obj && fn; }
+			{ return obj_ && fn_; }
     inline void		doCall( CallBacker* o )
-			{ if ( obj && fn ) (obj->*fn)( o ); }
+			{ if ( obj_ && fn_ ) (obj_->*fn_)( o ); }
 
-    inline CallBacker*		cbObj()			{ return obj; }
-    inline const CallBacker*	cbObj() const		{ return obj; }
-    inline CallBackFunction	cbFn() const		{ return fn; }
+    inline CallBacker*		cbObj()			{ return obj_; }
+    inline const CallBacker*	cbObj() const		{ return obj_; }
+    inline CallBackFunction	cbFn() const		{ return fn_; }
 
 protected:
 
-    CallBacker*		obj;
-    CallBackFunction	fn;
+    CallBacker*		obj_;
+    CallBackFunction	fn_;
 
 };
 
@@ -194,23 +194,26 @@ mClass NotifierAccess
 
 public:
 
-			NotifierAccess() : enabled( true )	{}
+			NotifierAccess()
+			    : enabled_(true)			{}
     virtual		~NotifierAccess()			{}
 
     virtual void	notify(const CallBack&)			=0;
     virtual void	notifyIfNotNotified(const CallBack&)	=0;
     virtual void	remove(const CallBack&)			=0;
 
-    bool		enable(bool newstatus=true){return doEnable(newstatus);}
+    bool		enable( bool newstatus=true )
+    			{ return doEnable(newstatus); }
     			/*!<\return previous status */
-    bool		disable()	{ return doEnable(false);}
+    bool		disable()		{ return doEnable(false); }
     			/*!<\return previous status */
+    bool		isEnabled() const	{ return enabled_; }
 
 protected:
 
-    bool		enabled;
-    inline bool		doEnable(bool newstatus=true)
-    			{bool res=enabled; enabled=newstatus; return res;}
+    bool		enabled_;
+    inline bool		doEnable( bool newstatus=true )
+    			{ bool res=enabled_; enabled_=newstatus; return res; }
     			/*!<\return previous status */
 };
 
@@ -233,24 +236,31 @@ mClass NamedNotifierSet
 {
 public:
 				~NamedNotifierSet()
-				{ deepErase( names ); }
+				{ deepErase( names_ ); }
 
-    void			add( const char* nm, NotifierAccess& na )
-				{ names += new std::string(nm); notifs += &na;}
+    void			add(const char* nm,NotifierAccess&);
     NotifierAccess*		find(const char*) const;
 
 protected:
 
-    ObjectSet<NotifierAccess>	notifs;
-    ObjectSet<std::string>	names;
+    ObjectSet<NotifierAccess>	notifs_;
+    ObjectSet<std::string>	names_;
 
 };
 
+
+inline void NamedNotifierSet::add( const char* nm, NotifierAccess& na )
+{
+    names_ += new std::string( nm );
+    notifs_ += &na;
+}
+
+
 inline NotifierAccess* NamedNotifierSet::find( const char* nm ) const
 {
-    for ( int idx=0; idx<names.size(); idx++ )
-	if ( *names[idx] == nm )
-	    return const_cast<NotifierAccess*>( notifs[idx] );
+    for ( int idx=0; idx<names_.size(); idx++ )
+	if ( *names_[idx] == nm )
+	    return const_cast<NotifierAccess*>( notifs_[idx] );
     return 0;
 }
 
@@ -261,26 +271,25 @@ mClass i_Notifier : public NotifierAccess
 {
 public:
 
-    virtual void	notify( const CallBack& cb )	{ cbs += cb; }
+    virtual void	notify( const CallBack& cb )	{ cbs_ += cb; }
     virtual void	notifyIfNotNotified( const CallBack& cb )
-			{ if ( cbs.indexOf(cb)==-1 ) notify(cb); }
-    virtual void	remove( const CallBack& cb )	{ cbs -= cb; }
+			{ if ( cbs_.indexOf(cb)==-1 ) notify(cb); }
+    virtual void	remove( const CallBack& cb )	{ cbs_ -= cb; }
     virtual void	removeWith(CallBacker*);
 
-    CallBackSet		cbs;
-    CallBacker*		cber;
+    CallBackSet		cbs_;
+    CallBacker*		cber_;
 
 			i_Notifier()	{}
-
 };
 
 
 inline void i_Notifier::removeWith( CallBacker* cb )
 {
-    if ( cber == cb )
-	{ cbs.erase(); cber = 0; return; }
+    if ( cber_ == cb )
+	{ cbs_.erase(); cber_ = 0; return; }
 
-    cbs.removeWith( cb );
+    cbs_.removeWith( cb );
 }
 
 
@@ -328,10 +337,10 @@ public:
 
 // protected: (should be used by T class only)
 
-			Notifier( T* c ) 			{ cber = c; }
+			Notifier( T* c ) 			{ cber_ = c; }
 
     inline void		trigger( CallBacker* c=0, CallBacker* exclude=0 )
-			{ cbs.doCall(c ? c : cber, &enabled, exclude); }
+			{ cbs_.doCall(c ? c : cber_, &enabled_, exclude); }
 
 };
 
@@ -395,20 +404,20 @@ public:
 
 // almost protected (as above):
 
-			CNotifier( T* cb )	{ cber = cb; }
+			CNotifier( T* cb )	{ cber_ = cb; }
 
     inline void		trigger( CallBacker* cb=0 )
 			{
-			    if( !enabled ) return; 
+			    if( !enabled_ ) return; 
 			    C c;
 			    trigger(c,cb);
 			}
 
     inline void		trigger( C c, CallBacker* cb=0 )
 			{
-			    if( !enabled ) return; 
-			    CBCapsule<C> caps( c, cb ? cb : cber );
-			    cbs.doCall( &caps, &enabled );
+			    if( !enabled_ ) return; 
+			    CBCapsule<C> caps( c, cb ? cb : cber_ );
+			    cbs_.doCall( &caps, &enabled_ );
 			}
 };
 
