@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.6 2009-03-10 12:29:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.7 2009-03-10 13:45:08 cvsbert Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -138,6 +138,7 @@ void uiHor2DFrom3DDlg::set2DHorizon( EM::Horizon2D& horizon2d )
 	}
     }
 }
+
 
 bool uiHor2DFrom3DDlg::doDisplay() const
 {
