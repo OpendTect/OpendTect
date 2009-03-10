@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.70 2009-01-29 06:05:15 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.71 2009-03-10 15:06:08 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -765,10 +765,21 @@ void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.binid.inl = ti.binid.crl = 0;
     mGetIntVal(binid.inl,inl);
     mGetIntVal(binid.crl,crl);
-    mGetIntVal(nr,trnr);
     mGetIntVal(offset,offs);
     mGetIntVal(azimuth,azim);
     ti.azimuth *= M_PI / 360;
+    if ( hdef.trnr < 254 )
+	{ mGetIntVal(nr,trnr); }
+    else
+    {
+	// Trick to set trace number to sequence number if byte location is 255
+	static int seqnr;
+	if ( hdef.trnr == 254 )
+	    seqnr++;
+	else
+	    { seqnr = 1; const_cast<SEGY::TrcHeaderDef&>(hdef).trnr = 254; }
+	ti.nr = seqnr;
+    }
 
     if ( isrev1 )
 	getRev1Flds( ti, buf, needswap );
