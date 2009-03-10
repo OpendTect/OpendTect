@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.80 2009-02-16 17:14:40 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.81 2009-03-10 15:20:49 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -187,8 +187,9 @@ void SEGYSeisTrcTranslator::addWarn( int nr, const char* detail )
     }
     else if ( nr == cSEGYWarnNonrectCoord )
     {
-	msg = "Geographic coordinates found - not supported\nFirst occurrence ";
-	msg = detail;
+	msg = "Geographic coordinates found, which are not supported.\n"
+	      "The positions will not be correct.\nFirst occurrence ";
+	msg += detail;
     }
 
     SeisTrcTranslator::addWarn( nr, msg );
@@ -482,7 +483,7 @@ bool SEGYSeisTrcTranslator::goToTrace( int nr )
 
 const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 {
-    static BufferString msg;
+    static BufferString ret;
     int usecur = 1; const bool is2d = Seis::is2D(fileopts_.geomType());
     if ( is2d )
     {
@@ -495,22 +496,22 @@ const char* SEGYSeisTrcTranslator::getTrcPosStr() const
 	    usecur = mIsUdf(prevbinid.inl) ? -1 : 0;
     }
 
-    msg = usecur ? "at " : "after ";
+    ret = usecur ? "at " : "after ";
     if ( usecur < 0 )
-	{ msg += "start of data"; return msg.buf(); }
+	{ ret += "start of data"; return ret.buf(); }
 
     if ( is2d )
-	{ msg += "trace number "; msg += usecur ? curtrcnr : prevtrcnr; }
+	{ ret += "trace number "; ret += usecur ? curtrcnr : prevtrcnr; }
     else
     {
 	const BinID bid( usecur ? curbinid : prevbinid );
-	msg += "position "; msg += bid.inl; msg += "/"; msg += bid.crl;
+	ret += "position "; ret += bid.inl; ret += "/"; ret += bid.crl;
     }
 
     if ( Seis::isPS(fileopts_.geomType()) )
-	{ msg += " (offset "; msg += usecur ? curoffs : prevoffs; msg += ")"; }
+	{ ret += " (offset "; ret += usecur ? curoffs : prevoffs; ret += ")"; }
 
-    return msg.buf();
+    return ret.buf();
 }
 
 
