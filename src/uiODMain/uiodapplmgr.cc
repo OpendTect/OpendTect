@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.307 2009-03-10 06:57:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.308 2009-03-10 12:55:01 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -451,6 +451,10 @@ void uiODApplMgr::createVol( bool is2d )
     }
     attrserv_->outputVol( nlaid, is2d );
 }
+
+
+void uiODApplMgr::processTime2Depth( CallBacker* )
+{ seisserv_->processTime2Depth(); }
 
 
 void uiODApplMgr::doXPlot()

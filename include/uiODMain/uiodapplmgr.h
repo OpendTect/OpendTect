@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.74 2009-03-10 06:57:05 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.75 2009-03-10 12:55:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ public:
     				//!< This plots between attribs.
     void			createHorOutput(int,bool);
     void			reStartProc();
+    void			processTime2Depth(CallBacker* =0);
 
     // View menu operations
     void			setWorkingArea();
