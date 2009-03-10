@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.7 2009-03-09 22:11:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.8 2009-03-10 22:10:17 cvsyuancheng Exp $";
 
 #include "embodyoperator.h"
 
@@ -43,9 +43,7 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
     , crlrg_( crlrg )	       
     , zrg_( zrg )
     , action_( act )		 
-{
-    zrg_.scale( SI().zScale() );
-}
+{}
 
 od_int64 totalNr() const { return arr_.info().getTotalSz(); }
 		       
@@ -188,14 +186,11 @@ Expl2ImplBodyExtracter::Expl2ImplBodyExtracter( const DAGTetrahedraTree& tree,
 bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
 {
     const TypeSet<Coord3>& crds = tree_.coordList();
-    for ( int idx=0; idx<crds.size(); idx++ )
-	pts_ += Coord3( crds[idx].coord(), crds[idx].z*SI().zScale() );
-
     tree_.getSurfaceTriangles( tri_ );
     for ( int idx=0; idx<tri_.size()/3; idx++ )
     {
-	planes_ += Plane3( pts_[tri_[3*idx]], pts_[tri_[3*idx+1]], 
-			   pts_[tri_[3*idx+2]] );
+	planes_ += Plane3( crds[tri_[3*idx]], crds[tri_[3*idx+1]], 
+			   crds[tri_[3*idx+2]] );
     }
 
     return planes_.size();
@@ -209,6 +204,7 @@ od_int64 Expl2ImplBodyExtracter::totalNr() const
 bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 {
     int p[3]; BinID bid; Coord3 pos;
+    const TypeSet<Coord3>& crds = tree_.coordList();
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone() )
     {
 	arr_.info().getArrayPos( idx, p );
@@ -223,8 +219,8 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 	    dist = planes_[pl].distanceToPoint( pos, true );
 	    if ( mIsZero(dist,1e-5) )
 	    {
-		if ( pointInTriangle3D( pos, pts_[tri_[3*pl]],
-			    pts_[tri_[3*pl+1]],	pts_[tri_[3*pl+2]], 1e-5 ) )
+		if ( pointInTriangle3D( pos, crds[tri_[3*pl]],
+			    crds[tri_[3*pl+1]],	crds[tri_[3*pl+2]], 1e-5 ) )
 		{
 		    mindist = dist;
 		    isinside = false;

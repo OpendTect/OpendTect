@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: embodyoperator.h,v 1.4 2009-03-06 21:59:23 cvsyuancheng Exp $
+ RCS:		$Id: embodyoperator.h,v 1.5 2009-03-10 22:10:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -122,7 +122,6 @@ private:
     Array3D<float>&		arr_;
     TypeSet<int>		tri_;
     TypeSet<Plane3>		planes_;
-    TypeSet<Coord3>		pts_;
 };
 
 
