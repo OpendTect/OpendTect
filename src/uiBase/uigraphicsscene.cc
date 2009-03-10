@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.19 2009-03-02 05:31:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.20 2009-03-10 06:58:31 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -432,6 +432,13 @@ void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
 { odgraphicsscene_->setSceneRect( x, y, w, h ); }
 
 
+uiRect uiGraphicsScene::sceneRect()
+{
+    QRectF qrect = odgraphicsscene_->sceneRect();
+    return uiRect( (int)qrect.x(), (int)qrect.y(), (int)qrect.width(), (int)qrect.height() );
+}
+
+
 void uiGraphicsScene::save()
 {
     if ( savedlg_ )
@@ -460,18 +467,19 @@ void uiGraphicsScene::saveAsPDF_PS( const char* filename, bool aspdf,
        				    int resolution )
 {
     QString fileName( filename );
-    QPainter *pdfPainter = new QPainter();
-    QPrinter *pdfPrinter = new QPrinter();
-    pdfPrinter->setOutputFormat(aspdf ? QPrinter::PdfFormat 
-	    			      : QPrinter::PostScriptFormat );
-    pdfPrinter->setPageSize( QPrinter::A4 );
-    pdfPrinter->setFullPage(true);
-    pdfPrinter->setOutputFileName(fileName);
-    pdfPainter->begin(pdfPrinter);
-    qGraphicsScene()->render(pdfPainter);
-    pdfPainter->end();
-    delete pdfPainter;
-    delete pdfPrinter;
+    QPrinter* pdfprinter = new QPrinter();
+    pdfprinter->setOutputFormat( aspdf ? QPrinter::PdfFormat
+				       : QPrinter::PostScriptFormat );
+    pdfprinter->setPageSize( QPrinter::A4 );
+    pdfprinter->setFullPage( true );
+    pdfprinter->setOutputFileName( filename );
+
+    QPainter* pdfpainter = new QPainter();
+    pdfpainter->begin( pdfprinter );
+    qGraphicsScene()->render( pdfpainter );
+    pdfpainter->end();
+    delete pdfpainter;
+    delete pdfprinter;
 }
 
 
