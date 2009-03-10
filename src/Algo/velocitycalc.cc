@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.10 2009-03-05 13:23:54 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.11 2009-03-10 12:52:51 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -20,6 +20,7 @@ TimeDepthConverter::TimeDepthConverter()
     : times_( 0 )
     , depths_( 0 )
     , sz_( 0 )
+    , errmsg_( 0 )
 {}
 
 
@@ -41,26 +42,65 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
     delete [] times_; times_ = 0;
     delete [] depths_; depths_ = 0;
 
+    PtrMan<ValueSeries<float> > ownvint = 0;
+    const ValueSeries<float>* vint = &vel;
+
     switch ( vd.type_ )
     {
 	case VelocityDesc::RMS:
 	{
-	    if ( !istime ) break;
-	    //TODO:: Do dix
-	    break;
+	    if ( !istime )
+	    {
+		errmsg_ = "Cannot use RMS velocities in depth";
+		break;
+	    }
+	    
+	    mDeclareAndTryAlloc( float*, ptr, float[sz] );
+	    if ( !ptr )
+	    {
+		errmsg_ = "Out of memory";
+		break;
+	    }
+
+	    ownvint = new ArrayValueSeries<float,float>( ptr, true, sz );
+	    if ( !ownvint || !ownvint->isOK() )
+	    {
+		errmsg_ = "Out of memory";
+		break;
+	    }
+
+	    const float* vrms = vel.arr();
+	    ArrPtrMan<float> ownvrms = 0;
+	    if ( !vrms ) 
+	    {
+		mTryAlloc( ownvrms, float[sz] );
+		vrms = ownvrms.ptr();
+	    }
+
+	    if ( !vrms ) 
+	    {
+		errmsg_ = "Out of memory";
+		break;
+	    }
+
+	    if ( !computeDix( vrms, sd, sz, vd.samplespan_, ownvint->arr() ) )
+		break;
+
+	    //Don't break, go into Vint
 	}
 	case VelocityDesc::Interval:
 	{
 	    if ( istime )
 	    {
 		mTryAlloc( depths_, float[sz] );
-		if ( !depths_ || !calcDepths(vel,sz,sd,vd.samplespan_,depths_) )
+		if ( !depths_ ||
+		     !calcDepths(*vint,sz,sd,vd.samplespan_,depths_) )
 		{ delete [] depths_; depths_ = 0; break; }
 	    }
 	    else
 	    {
 		mTryAlloc( times_, float[sz] );
-		if ( !times_ || !calcTimes(vel,sz,sd,vd.samplespan_,times_) )
+		if ( !times_ || !calcTimes(*vint,sz,sd,vd.samplespan_,times_) )
 		{ delete [] times_; times_ = 0; break; }
 	    }
 
@@ -245,7 +285,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     if ( !velsz ) return true;
 
     float prevvel = vels.value(0);
-    double depth = sd.start * prevvel;
+    double depth = sd.start * prevvel/2;
     depths[0] = depth;
 
     for ( int idx=1; idx<velsz; idx++ )
@@ -253,14 +293,14 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 	const float curvel = vels.value( idx );
 
 	if ( ss==VelocityDesc::Above )
-	    depth += sd.step*curvel;
+	    depth += sd.step*curvel/2; //time is TWT
 	else if ( ss==VelocityDesc::Centered )
 	{
-	    depth += sd.step * prevvel/2;
-	    depth += sd.step * curvel/2;
+	    depth += sd.step * prevvel/4; //time is TWT
+	    depth += sd.step * curvel/4; //time is TWT
 	}
 	else
-	    depth += sd.step * prevvel;
+	    depth += sd.step * prevvel/2; //time is TWT
 
 	depths[idx] = depth;
 	prevvel = curvel;
@@ -312,14 +352,14 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 	const float curvel = vels.value( idx );
 
 	if ( ss==VelocityDesc::Above )
-	    time += sd.step/curvel;
+	    time += sd.step*2/curvel; //time is TWT
 	else if ( ss==VelocityDesc::Centered )
 	{
-	    time += sd.step / prevvel/2;
-	    time += sd.step / curvel/2;
+	    time += sd.step / prevvel; //time is TWT
+	    time += sd.step / curvel; //time is TWT
 	}
 	else
-	    time += sd.step / prevvel;
+	    time += sd.step*2 / prevvel; //time is TWT
 
 	times[idx] = time;
 	prevvel = curvel;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.9 2009-03-05 13:23:54 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.10 2009-03-10 12:52:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ public:
 			~TimeDepthConverter();
 
     bool		isOK() const;
+
+    const char*		errMsg() const;
 
     bool		setVelocityModel(const ValueSeries<float>&, int sz,
 	    				 const SamplingData<double>&,
@@ -54,12 +56,13 @@ protected:
     float*			times_;
     int				sz_;
     SamplingData<double>	sd_;
+
+    const char*			errmsg_;
 };
 
 
 /*! Computes moveout with anisotropy, according to the equation
 by Alkhalifah and Tsvankin 1995. */
-
 
 mGlobal bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 		     int nroffsets, const float* offsets, float* res );
@@ -68,8 +71,8 @@ mGlobal bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 /*!Converts a series of Vrms to Vint. Vrms may contain undefined values, as
    long as at least one is define. */
 
-mGlobal bool computeDix(const float* Vrms,const SamplingData<double>& sd,int nrvels,
-		VelocityDesc::SampleSpan,float* Vint);
+mGlobal bool computeDix(const float* Vrms,const SamplingData<double>& sd,
+			int nrvels,VelocityDesc::SampleSpan,float* Vint);
 
 /*!Converts a number of layers with Vrms to interval velocities.
    Note that the times in t refers to the bottom of each layer, and t0
