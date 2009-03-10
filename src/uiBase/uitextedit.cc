@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitextedit.cc,v 1.41 2009-01-21 07:11:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitextedit.cc,v 1.42 2009-03-10 06:59:12 cvsnanne Exp $";
 
 
 #include "uitextedit.h"
@@ -32,6 +32,8 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
     , defaultheight_(450)
 {
     setFont( FontList().get(FontData::key(FontData::Fixed)) );
+    setPrefWidth( defaultwidth_ );
+    setPrefHeight( defaultheight_ );
 }
 
 
@@ -237,8 +239,6 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
     , messenger_( *new i_BrowserMessenger(this, &handle))
 {
     setStretch( 2, 2 );
-    setPrefWidth( handle.defaultWidth() );
-    setPrefHeight( handle.defaultHeight() );
 }
 
 
