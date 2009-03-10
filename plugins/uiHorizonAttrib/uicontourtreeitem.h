@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          Feb 2009
- RCS:           $Id: uicontourtreeitem.h,v 1.2 2009-02-26 08:46:31 cvsraman Exp $
+ RCS:           $Id: uicontourtreeitem.h,v 1.3 2009-03-10 06:02:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "externalattrib.h"
 
 class BinID;
+class visContourLabels;
 
 template <class T> class Array2DImpl;
 
@@ -72,6 +73,7 @@ protected:
     visBase::DrawStyle*		drawstyle_;
     visBase::Material*		material_;
     ObjectSet<visBase::Text2>	labels_;
+    visContourLabels*		labelgrp_;
     
     Color			color_;
     int				linewidth_;

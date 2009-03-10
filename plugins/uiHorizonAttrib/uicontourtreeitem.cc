@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.2 2009-02-26 08:46:31 cvsraman Exp $";
+static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.3 2009-03-10 06:02:20 cvsraman Exp $";
 
 
 #include "uicontourtreeitem.h"
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: uicontourtreeitem.cc,v 1.2 2009-02-26 08:46:31 
 #include "vismaterial.h"
 #include "vispolyline.h"
 #include "vistext.h"
+#include "vistransform.h"
 
 
 static const int cMinNrNodesForLbl = 25;
@@ -93,12 +94,14 @@ void lsChanged( CallBacker* )
     propertyChanged.trigger();
 }
 
-void stepChanged( CallBacker* )
+void stepChanged( CallBacker* cb )
 {
     const int step = stepfld_->getIntValue();
     if ( step < 1 || step > (int)rg_.width() )
     {
-	uiMSG().error( "Please specify a valid value for step" );
+	if ( cb )
+	    uiMSG().error( "Please specify a valid value for step" );
+
 	stepfld_->setValue( sd_.step );
 	return;
     }
@@ -130,6 +133,38 @@ void startChanged( CallBacker* )
 };
 
 
+mClass visContourLabels : public visBase::VisualObjectImpl
+{
+public:
+
+visContourLabels()
+    : VisualObjectImpl(false)
+    , transformation_(0)
+{}
+
+~visContourLabels()
+{
+    if ( transformation_ )
+	transformation_->unRef();
+}
+
+void addLabel( visBase::Text2* label )
+{
+    label->setDisplayTransformation( transformation_ );
+    addChild( label->getInventorNode() );
+}
+
+void setDisplayTransformation( visBase::Transformation* nt )
+{
+    if ( transformation_ ) transformation_->unRef();
+    transformation_ = nt;
+    if ( transformation_ ) transformation_->ref();
+}
+
+    visBase::Transformation*	transformation_;
+};
+
+
 void uiContourTreeItem::initClass()
 { uiODDataTreeItem::factory().addCreator( create, 0 ); }
 
@@ -139,6 +174,7 @@ uiContourTreeItem::uiContourTreeItem( const char* parenttype )
     , lines_( 0 )
     , drawstyle_( 0 )
     , material_(0)
+    , labelgrp_(0)
     , linewidth_( 1 )
     , arr_( 0 )
     , rg_(mUdf(float),-mUdf(float))
@@ -197,8 +233,7 @@ void uiContourTreeItem::checkCB(CallBacker*)
 	newstatus = parent_->isChecked();
 
     if ( lines_ ) lines_->turnOn( newstatus );
-    for ( int idx=0; idx<labels_.size(); idx++ )
-	labels_[idx]->turnOn( newstatus );
+    if ( labelgrp_ ) labelgrp_->turnOn( newstatus );
 }
 
 
@@ -237,12 +272,14 @@ void uiContourTreeItem::removeAll()
 void uiContourTreeItem::removeLabels()
 {
     uiVisPartServer* visserv = applMgr()->visServer();
-    for ( int idx=0; idx<labels_.size(); idx++ )
+    if ( labelgrp_ )
     {
-	visserv->removeObject( labels_[idx], sceneID() );
-	labels_[idx]->unRef();
+	visserv->removeObject( labelgrp_, sceneID() );
+	labelgrp_->unRef();
+	labelgrp_ = 0;
     }
 
+    deepUnRef( labels_ );
     labels_.erase();
 }
 
@@ -438,7 +475,14 @@ void uiContourTreeItem::addText( const Coord3& pos, const char* txt )
     label->setSize( 12 );
     label->setMaterial( material_ );
     label->ref();
-    applMgr()->visServer()->addObject( label, sceneID(), false );
+    if ( !labelgrp_ )
+    {
+	labelgrp_ = new visContourLabels;
+	labelgrp_->ref();
+	applMgr()->visServer()->addObject( labelgrp_, sceneID(), false );
+    }
+
+    labelgrp_->addLabel( label );
     labels_ += label;
 }
 
