@@ -6,16 +6,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uisaveimagedlg.h,v 1.2 2009-02-20 09:21:39 cvssatyaki Exp $
+ RCS:           $Id: uisaveimagedlg.h,v 1.3 2009-03-10 06:35:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "geometry.h"
 #include "bufstringset.h"
+#include "geometry.h"
+#include "ptrman.h"
 
 class IOPar;
+class Settings;
 class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
@@ -25,7 +27,7 @@ class uiLabeledSpinBox;
 mClass uiSaveImageDlg : public uiDialog
 {
 public:
-			uiSaveImageDlg(uiParent*,const uiDialog::Setup&);
+			uiSaveImageDlg(uiParent*);
 
     Notifier<uiSaveImageDlg>	sizesChanged;
 
@@ -38,7 +40,7 @@ public:
     void		sInch2Cm(const Geom::Size2D<float>&,
 	    			     Geom::Size2D<float>&);
     void		createGeomInpFlds(uiParent*);
-    void                fillPar(IOPar&);
+    void                fillPar(IOPar&,bool is2d);
     bool                usePar(const IOPar&);
 
 protected:
@@ -53,7 +55,10 @@ protected:
     
     BufferString	filters_;
     BufferString	selfilter_;
+    Settings&		settings_;
 
+    void		getSettingsPar(PtrMan<IOPar>&,BufferString);
+    void		setSizeInPix(int width, int height);
     void		updateFilter();
     virtual void	getSupportedFormats(const char** imgfrmt,
 	    				    const char** frmtdesc,
@@ -67,7 +72,7 @@ protected:
     void		sizeChg(CallBacker*);
     void		dpiChg(CallBacker*);
     void		surveyChanged(CallBacker*);
-    virtual void	setFldVals(CallBacker*);
+    virtual void	setFldVals(CallBacker*)			{}
 
 
     Geom::Size2D<float> sizepix_;
@@ -80,13 +85,13 @@ protected:
 
     void		updateSizes();
     virtual const char*	getExtension();
+    virtual void	writeToSettings()		{}
 
     static const char*  sKeyType()	{ return "Type"; }
     static const char*  sKeyHeight()    { return "Height"; }
     static const char*  sKeyWidth()     { return "Width"; }
     static const char*  sKeyUnit()      { return "Unit"; }
     static const char*  sKeyRes()       { return "Resolution"; }
-    static const char*  sKeyLockAR()    { return "Lock aspect ratio"; }
     static const char*  sKeyFileType()  { return "File type"; }
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.3 2009-02-20 09:21:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.4 2009-03-10 06:35:42 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -52,13 +52,20 @@ static StepInterval<float> sPixelSizeRange(1,9999,1);
 	if ( fldabove ) fld->attach( alignedBelow, fldabove ); \
 	fldabove = fld
 
-uiSaveImageDlg::uiSaveImageDlg( uiParent* p, const uiDialog::Setup& su )
-    : uiDialog(p,su)
+uiSaveImageDlg::uiSaveImageDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Create snapshot",
+				 "Enter image size and filename","50.0.1")
+	    	 .savebutton(true).savetext("Save settings on OK"))
     , sizesChanged(this)
     , heightfld_(0)
     , screendpi_(0)
+    , settings_( Settings::fetch(sKeySnapshot) )
 {
     uiParent* fldabove = 0;
+
+    useparsfld_ = new uiGenInput( this, "Get size from",
+				  BoolInpSpec(true,"Settings","Screen") );
+    useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
 
     if ( dirname_.isEmpty() )
 	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
@@ -69,10 +76,6 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p, const uiDialog::Setup& su )
 	   			    .allowallextensions(false) );
     fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
 
-    useparsfld_ = new uiGenInput( this, "Use parameters from",
-				  BoolInpSpec(true,"Settings","Screen") );
-    useparsfld_->attach( alignedBelow, fileinputfld_ );
-    useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
 
     setSaveButtonChecked( true );
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
@@ -123,11 +126,11 @@ void uiSaveImageDlg::sInch2Cm( const Geom::Size2D<float>& from,
 void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
 {
     widthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
-    widthfld_->box()->valueChanged.notify( mCB(this,uiSaveImageDlg,sizeChg) );
+    widthfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
     mAttachToAbove( widthfld_ );
 
     heightfld_ = new uiLabeledSpinBox( this, "Height", 2 );
-    heightfld_->box()->valueChanged.notify( mCB(this,uiSaveImageDlg,sizeChg) );
+    heightfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
     mAttachToAbove( heightfld_ );
 
     const char* units[] = { "cm", "inches", "pixels", 0 };
@@ -137,7 +140,7 @@ void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
     unitfld_->attach( rightTo, widthfld_ );
 
     lockfld_ = new uiCheckBox( this, "Lock aspect ratio" );
-    lockfld_->setChecked( true );
+    lockfld_->setChecked( false );
     lockfld_->activated.notify( mCB(this,uiSaveImageDlg,lockChg) );
     lockfld_->attach( alignedBelow, unitfld_ );
 
@@ -228,20 +231,20 @@ void uiSaveImageDlg::updateSizes()
 	sizecm_.setWidth( width );
 	sizecm_.setHeight( height );
 	sCm2Inch( sizecm_, sizeinch_ );
-	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getfValue() );
+	sInch2Pixels( sizeinch_, sizepix_, screendpi_ );
     }
     else if ( sel == 1 )
     {
 	sizeinch_.setWidth( width );
 	sizeinch_.setHeight( height );
 	sInch2Cm( sizeinch_, sizecm_ );
-	sInch2Pixels( sizeinch_, sizepix_, dpifld_->getfValue() );
+	sInch2Pixels( sizeinch_, sizepix_, screendpi_ );
     }
     else
     {
 	sizepix_.setWidth( width );
 	sizepix_.setHeight( height );
-	sPixels2Inch( sizepix_, sizeinch_, dpifld_->getfValue() );
+	sPixels2Inch( sizepix_, sizeinch_, screendpi_ );
 	sInch2Cm( sizeinch_, sizecm_ );
     }
     sizesChanged.trigger();
@@ -251,6 +254,8 @@ void uiSaveImageDlg::updateSizes()
 void uiSaveImageDlg::fileSel( CallBacker* )
 {
     BufferString filename = fileinputfld_->fileName();
+    if ( filename.isEmpty() ) return;
+    
     if ( !File_isDirectory(filename) )
 	addFileExtension( filename );
     fileinputfld_->setFileName( filename );
@@ -335,37 +340,55 @@ const char* uiSaveImageDlg::getExtension()
 }
 
 
-void uiSaveImageDlg::fillPar( IOPar& par ) 
+void uiSaveImageDlg::getSettingsPar( PtrMan<IOPar>& ctiopar,
+				     BufferString typenm )
+{
+    for( int idx=0; ; idx++ )
+    {
+	BufferString settstyp;
+	IOPar* tmppar = settings_.subselect( idx );
+	if ( !tmppar )
+	{
+	    if (!idx) continue;
+	    return;
+	}
+	tmppar->get( sKeyType(), settstyp );
+	if ( typenm == settstyp )
+	{
+	    ctiopar = tmppar;
+	    return;
+	}
+    }
+}
+
+
+void uiSaveImageDlg::fillPar( IOPar& par, bool is2d ) 
 {
     if ( !heightfld_ ) return;
-    par.set( sKeyType(), "2D" );
+    par.set( sKeyType(), is2d ? "2D" : "3D" );
     par.set( sKeyHeight(), heightfld_->box()->getFValue() );
     par.set( sKeyWidth(), widthfld_->box()->getFValue() );
     par.set( sKeyUnit(), unitfld_->text() );
     par.set( sKeyRes(), dpifld_->getIntValue() );
-    par.setYN( sKeyLockAR(), lockfld_->isChecked() );
     par.set( sKeyFileType(), getExtension() );
 }
 
 
 bool uiSaveImageDlg::usePar( const IOPar& par )
 {
+    NotifyStopper notifstop( widthfld_->box()->valueChanging );
+    NotifyStopper notifstop1( heightfld_->box()->valueChanging );
     if ( !heightfld_ ) return false;
 
     BufferString res;
     if ( par.get(sKeyUnit(),res) )
 	unitfld_->setText( res );
-    unitChg(0);
 
     float val;
     if ( par.get(sKeyHeight(),val) )
 	heightfld_->box()->setValue( val );
     if ( par.get(sKeyWidth(),val) )
 	widthfld_->box()->setValue( val );
-
-    bool lockar = true;
-    par.getYN( sKeyLockAR(), lockar );
-    lockfld_->setChecked( lockar );
 
     int dpi;
     if ( par.get(sKeyRes(),dpi) )
@@ -392,6 +415,11 @@ bool uiSaveImageDlg::usePar( const IOPar& par )
 }
 
 
-void uiSaveImageDlg::setFldVals( CallBacker* )
+void uiSaveImageDlg::setSizeInPix( int width, int height )
 {
+    sizepix_.setWidth( width );
+    sizepix_.setHeight( height );
+    sPixels2Inch( sizepix_, sizeinch_, screendpi_ );
+    sInch2Cm( sizeinch_, sizecm_ );
+    unitChg( 0 );
 }

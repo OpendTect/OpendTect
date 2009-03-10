@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.42 2009-02-20 09:21:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.43 2009-03-10 06:35:42 cvssatyaki Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -48,9 +48,7 @@ static StepInterval<float> sPixelSizeRange(1,9999,1);
 
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<uiSoViewer>& vwrs )
-    : uiSaveImageDlg(p,uiDialog::Setup("Create snapshot",
-	 "Enter image size and filename","50.0.1").savebutton(true)
-	 .savetext("Save settings on OK"))
+    : uiSaveImageDlg(p)
     , viewers_(vwrs)
     , scenefld_(0)
     , dovrmlfld_(0)
@@ -100,15 +98,18 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     {
 	if ( showvrml )
 	    createGeomInpFlds( dovrmlfld_ );
-	else
+	else if ( scenefld_ )
 	    createGeomInpFlds( scenefld_ );
+	else
+	    createGeomInpFlds( useparsfld_ );
     }
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
     sceneSel(0);
-    Settings& setts( Settings::fetch(sKeySnapshot) );
-    PtrMan<IOPar> ctiopar = setts.subselect( 2 );
-    usePar( *ctiopar );
+    PtrMan<IOPar> ctiopar;
+    getSettingsPar( ctiopar, BufferString("3D") );
+    if ( ctiopar.ptr() )
+	usePar( *ctiopar );
     updateFilter();
 }
 
@@ -142,14 +143,19 @@ void uiPrintSceneDlg::setFldVals( CallBacker* )
 {
     if ( useparsfld_->getBoolValue() )
     {
-	Settings& setts( Settings::fetch(sKeySnapshot) );
-	PtrMan<IOPar> ctiopar = setts.subselect( 2 );
-	usePar( *ctiopar );
+	lockfld_->setChecked( false );
+	lockfld_->setSensitive( true );
+	PtrMan<IOPar> ctiopar;
+	getSettingsPar( ctiopar, BufferString("3D") );
+	if ( ctiopar.ptr() )
+	    usePar( *ctiopar );
     }
     else
     {
+	//dpifld_->setValue( (int)screendpi_ );
 	sceneSel( 0 );
-	dpifld_->setValue( (int)screendpi_ );
+	lockfld_->setChecked( true );
+	lockfld_->setSensitive( false );
     }
 }
 
@@ -168,17 +174,14 @@ void uiPrintSceneDlg::typeSel( CallBacker* )
 
 void uiPrintSceneDlg::sceneSel( CallBacker* )
 {
-    if ( useparsfld_->getBoolValue() )
-	return;
     const int vwridx = scenefld_ ? scenefld_->box()->currentItem() : 0;
     const uiSoViewer* vwr = viewers_[vwridx];
     const SbVec2s& winsz = vwr->getViewportSizePixels();
     aspectratio_ = (float)winsz[0] / winsz[1];
-    sizepix_.setWidth( winsz[0] );
-    sizepix_.setHeight(  winsz[1] );
-    sPixels2Inch( sizepix_, sizeinch_, dpifld_->getfValue() );
-    sInch2Cm( sizeinch_, sizecm_ );
-    unitChg(0);
+    
+    if ( useparsfld_->getBoolValue() )
+	return;
+    setSizeInPix( (int)winsz[0], (int)winsz[1] );
 }
 
 
@@ -240,7 +243,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     prevsavestate = saveButtonChecked();
     if ( prevsavestate )
-	write3Dsettings();
+	writeToSettings();
 	
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
 
@@ -266,14 +269,14 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 }
 
 
-void uiPrintSceneDlg::write3Dsettings()
+void uiPrintSceneDlg::writeToSettings()
 {
-    Settings& setts( Settings::fetch(sKeySnapshot) );
-    setts.clear();
-    IOPar iop;
-    fillPar( iop );
-    setts.mergeComp( iop, getStringFromInt(1) );
-    if ( !setts.write() )
+    PtrMan<IOPar> ctiopar;
+    getSettingsPar( ctiopar, BufferString("3D") );
+    if ( ctiopar )
+	fillPar( *ctiopar, false );
+    settings_.mergeComp( *ctiopar, getStringFromInt(1) );
+    if ( !settings_.write() )
 	uiMSG().error( "Cannot write settings" );
 }
 

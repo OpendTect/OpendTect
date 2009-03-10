@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          February 2009
- RCS:           $Id: uigraphicssaveimagedlg.h,v 1.2 2009-02-20 09:21:39 cvssatyaki Exp $
+ RCS:           $Id: uigraphicssaveimagedlg.h,v 1.3 2009-03-10 06:35:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ protected:
     void		getSupportedFormats(const char** imagefrmt,
 					    const char** frmtdesc,
 					    BufferString& filters);
-    void		write2Dsettings();
+    void		writeToSettings();
     void		setAspectRatio(CallBacker*);
     void		setFldVals(CallBacker*);
     bool		acceptOK(CallBacker*);

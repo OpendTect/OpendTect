@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.4 2009-02-20 09:21:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.5 2009-03-10 06:35:42 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.4 2009-02-20 09:2
 #include "uifileinput.h"
 #include "uimsg.h"
 #include "uispinbox.h"
+#include "uibutton.h"
 
 #include "iopar.h"
 #include "filepath.h"
@@ -24,16 +25,15 @@ static const char* sKeySnapshot = "snapshot";
 
 uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 	uiGraphicsScene* scene )
-    : uiSaveImageDlg(p,uiDialog::Setup("Save Image As",
-		"Enter image size and filename","50.0.1"))
+    : uiSaveImageDlg(p)
     , scene_(scene)
 {
     screendpi_ = scene->getDPI();
-    createGeomInpFlds( 0 );
+    createGeomInpFlds( useparsfld_ );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
-    Settings& setts( Settings::fetch(sKeySnapshot) );
-    PtrMan<IOPar> ctiopar = setts.subselect( 1 );
+    PtrMan<IOPar> ctiopar;
+    getSettingsPar( ctiopar, BufferString("2D") );
     if ( ctiopar )
 	usePar( *ctiopar );
 
@@ -84,6 +84,7 @@ void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
 
 bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 {
+    if ( !filenameOK() ) return false;
     BufferString ext( getExtension() );
     if ( ext == "pdf" ) 
 	scene_->saveAsPDF( fileinputfld_->fileName(), dpifld_->getIntValue() );
@@ -93,19 +94,20 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 	scene_->saveAsImage( fileinputfld_->fileName(), (int)sizepix_.width(),
 	       		     (int)sizepix_.height(), dpifld_->getIntValue() );
 
-    write2Dsettings();
+    if ( saveButtonChecked() )
+	writeToSettings();
     return true;
 }
 
 
-void uiGraphicsSaveImageDlg::write2Dsettings()
+void uiGraphicsSaveImageDlg::writeToSettings()
 {
-    Settings& setts( Settings::fetch(sKeySnapshot) );
-    setts.clear();
-    IOPar iop;
-    fillPar( iop );
-    setts.mergeComp( iop, getStringFromInt(0) );
-    if ( !setts.write() )
+    PtrMan<IOPar> ctiopar;
+    getSettingsPar( ctiopar, BufferString("2D") );
+    if ( ctiopar.ptr() )
+	fillPar( *ctiopar, true );
+    settings_.mergeComp( *ctiopar, getStringFromInt(0) );
+    if ( !settings_.write() )
 	uiMSG().error( "Cannot write settings" );
 }
 
@@ -114,22 +116,20 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
 {
     if ( useparsfld_->getBoolValue() )
     {
-	Settings& setts( Settings::fetch(sKeySnapshot) );
-	PtrMan<IOPar> ctiopar = setts.subselect( 1 );
-	usePar( *ctiopar );
+	lockfld_->setChecked( false );
+	lockfld_->setSensitive( true );
+	PtrMan<IOPar> ctiopar;
+	getSettingsPar( ctiopar, BufferString("2D") );
+	if ( ctiopar.ptr() )
+	    usePar( *ctiopar );
 	aspectratio_ = (float) widthfld_->box()->getFValue() /
 	    		       heightfld_->box()->getFValue();
     }
     else
     {
+	lockfld_->setChecked( true );
+	lockfld_->setSensitive( false );
 	aspectratio_ = initaspectratio_;
-	heightfld_->box()->setValue( scene_->height() );
-	widthfld_->box()->setValue( scene_->width() );
-	dpifld_->setValue( (int)screendpi_ );
-	sizepix_.setWidth( scene_->width() );
-	sizepix_.setHeight( scene_->height() );
-	sPixels2Inch( sizepix_, sizeinch_, dpifld_->getfValue() );
-	sInch2Cm( sizeinch_, sizecm_ );
-	unitChg( 0 );
+	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
     }
 }

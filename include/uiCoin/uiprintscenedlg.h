@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.17 2009-02-18 06:52:52 cvssatyaki Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.18 2009-03-10 06:35:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ protected:
     uiGenInput*		selfld_;
 
     const char*		getExtension();
-    void		write3Dsettings();
+    void		writeToSettings();
     void		getSupportedFormats(const char** imagefrmt,
 					    const char** frmtdesc,
 					    BufferString& filters);
