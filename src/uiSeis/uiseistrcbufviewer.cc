@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.16 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseistrcbufviewer.cc,v 1.17 2009-03-10 08:35:12 cvsbert Exp $";
 
 #include "seisbufadapters.h"
 #include "seisinfo.h"
@@ -25,7 +25,7 @@ uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
 					const uiSeisTrcBufViewer::Setup& setup )
     : uiFlatViewMainWin( p, setup )      
 {
-    viewer().setInitialSize( uiSize(400,500) );
+    viewer().setInitialSize( uiSize(200,500) );
     FlatView::Appearance& app = viewer().appearance();
     app.setDarkBG( false );
     app.annot_.setAxesAnnot( true );
@@ -45,13 +45,20 @@ SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
 				Seis::GeomType geom, const char* category,
 				const char* dpname )
 {
-    const int type =  tbuf->get(0)->info().getDefaultAxisFld( geom,
-	    		&tbuf->get(1)->info() );
+    if ( !tbuf ) return 0;
+    const int sz = tbuf->size();
+    if ( sz < 1 ) return 0;
+    const int type = sz < 2 ? (int)SeisTrcInfo::TrcNr
+	: tbuf->get(0)->info().getDefaultAxisFld( geom, &tbuf->get(1)->info() );
+
     SeisTrcBufDataPack* dp =
 	new SeisTrcBufDataPack( tbuf, geom, (SeisTrcInfo::Fld)type, category );
     dp->setName( dpname );
     DPM( DataPackMgr::FlatID() ).add( dp );
     viewer().addPack( dp->id() );
+
+    int w = 250 + sz; if ( w > 600 ) w = 600;
+    viewer().setInitialSize( uiSize(w,500) );
     return dp;
 }
 
@@ -60,16 +67,7 @@ SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
 				Seis::GeomType geom, const char* category,
 				const char* dpname )
 {
-    SeisTrcBuf* mybuf = new SeisTrcBuf( tbuf );
-    const int type =  mybuf->get(0)->info().getDefaultAxisFld( geom,
-	    	    	&mybuf->get(1)->info() );
-
-    SeisTrcBufDataPack* dp =
-	new SeisTrcBufDataPack( mybuf, geom, (SeisTrcInfo::Fld)type, category );
-    dp->setName( dpname );
-    DPM( DataPackMgr::FlatID() ).add( dp );
-    viewer().addPack( dp->id() );
-    return dp;
+    return setTrcBuf( new SeisTrcBuf( tbuf ), geom, category, dpname );
 }
 
 

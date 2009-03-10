@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.41 2009-03-05 15:04:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.42 2009-03-10 08:35:12 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -210,7 +210,7 @@ void uiSeisBrowser::createMenuAndToolBar()
     mAddButton( "leftarrow.png",leftArrowPush,"Move left",false );
     mAddButton( "rightarrow.png",rightArrowPush,"Move right",false );
     showwgglbutidx_ = mAddButton( "viewflat.png",showWigglePush,
-	    			  "Show Wiggle",false );
+	    			  "Show Wiggles",false );
 }
 
 
@@ -820,24 +820,38 @@ void uiSeisBrowserInfoVwr::setTrace( const SeisTrc& trc )
 
     if ( trc.size() < 1 ) return;
 
-    const float v0 = trc.get( 0, 0 );
-    const float z0 = trc.info().samplePos( 0 );
+    float v0, z0 = mUdf(float); int isamp;
+    for ( isamp=0; isamp<trc.size(); isamp++ )
+    {
+	const float v = trc.get( isamp, 0 );
+	if ( !mIsUdf(v) )
+	    { v0 = v; z0 = trc.info().samplePos( isamp ); break; }
+    }
+    if ( mIsUdf(z0) ) return;
+
     Interval<float> amplrg( v0, v0 );
     Interval<float> peakzs( z0, z0 );
-    Array2DImpl<float> a2d( 1, trc.size() );
-    for ( int idx=0; idx<trc.size(); idx++ )
+    TypeSet<float> vals;
+    for ( ; isamp<trc.size(); isamp++ )
     {
-	const float v = trc.get( idx, 0 );
+	const float v = trc.get( isamp, 0 );
+	if ( mIsUdf(v) || mIsUdf(-v) || !Math::IsNormalNumber(v) )
+	    continue;
+
+	vals += v;
 	if ( v < amplrg.start )
-	    { amplrg.start = v; peakzs.start = trc.info().samplePos(idx); }
+	    { amplrg.start = v; peakzs.start = trc.info().samplePos(isamp); }
 	if ( v > amplrg.stop )
-	    { amplrg.stop = v; peakzs.stop = trc.info().samplePos(idx); }
-	a2d.set( 0, idx, v );
+	    { amplrg.stop = v; peakzs.stop = trc.info().samplePos(isamp); }
     }
+
     minamplfld_->setValue( amplrg.start );
     minamplatfld_->setText( getZValStr(peakzs.start) );
     maxamplfld_->setValue( amplrg.stop );
     maxamplatfld_->setText( getZValStr(peakzs.stop) );
 
+    Array2DImpl<float> a2d( 1, vals.size() );
+    for ( int idx=0; idx<vals.size(); idx++ )
+	a2d.set( 0, idx, vals[idx] );
     setData( a2d );
 }
