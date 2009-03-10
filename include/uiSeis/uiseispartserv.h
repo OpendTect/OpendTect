@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.34 2009-02-06 14:48:27 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.35 2009-03-10 12:46:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,12 +54,14 @@ public:
     static void		get2DStoredAttribs(const MultiID&,const char* linenm,
 	    				   BufferStringSet&);
     static void		get2DStoredAttribsPartingDataType(const MultiID&,
-	                             const char* libenm,BufferStringSet& attribs,
-				                     const char* datatypenm);
+				    const char* libenm,BufferStringSet& attribs,
+				    const char* datatypenm);
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
     void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
+
+    void		processTime2Depth() const;
 
     void		manageSeismics();
     void		managePreLoad();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.107 2009-02-06 14:48:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.108 2009-03-10 12:46:51 cvskris Exp $";
 
 #include "uiseispartserv.h"
 
@@ -54,6 +54,7 @@ static const char* rcsID = "$Id: uiseispartserv.cc,v 1.107 2009-02-06 14:48:27 c
 #include "uiselsimple.h"
 #include "uisurvey.h"
 #include "uitaskrunner.h"
+#include "uibatchtime2depthsetup.h"
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
@@ -282,5 +283,12 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 {
     uiSeisRandTo2DLineDlg dlg( appserv().parent(), rln );
+    dlg.go();
+}
+
+
+void uiSeisPartServer::processTime2Depth() const
+{
+    uiBatchTime2DepthSetup dlg( appserv().parent() );
     dlg.go();
 }
