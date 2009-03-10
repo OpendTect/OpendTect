@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: empolygonbody.cc,v 1.10 2009-02-13 22:24:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: empolygonbody.cc,v 1.11 2009-03-10 15:36:28 cvsyuancheng Exp $";
 
 #include "empolygonbody.h"
 
@@ -487,6 +487,10 @@ bool PolygonBodyGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     knotstr += " polygon "; knotstr += polygonnr; \
     knotstr += " knot "; knotstr += knotidx;
 
+#define mDefPlgBezierNr( bez, sid ) \
+    BufferString bez("BezierCurve nr of section "); bez += sid; 
+
+
 void PolygonBodyGeometry::fillPar( IOPar& par ) const
 {
     for ( int idx=0; idx<nrSections(); idx++ )
@@ -494,6 +498,9 @@ void PolygonBodyGeometry::fillPar( IOPar& par ) const
 	int sid = sectionID( idx );
 	const Geometry::PolygonSurface* pol = sectionGeometry( sid );
 	if ( !pol ) continue;
+
+	mDefPlgBezierNr( bez, sid );
+	par.set( bez.buf(), pol->getBezierCurveSmoothness() );
 
 	StepInterval<int> polygonrg = pol->rowRange();
 	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop; 
@@ -514,6 +521,11 @@ bool PolygonBodyGeometry::usePar( const IOPar& par )
 	Geometry::PolygonSurface* pol = sectionGeometry( sid );
 	if ( !pol ) return false;
 
+	int beziernr;
+	mDefPlgBezierNr( bez, sid );
+	par.get( bez.buf(), beziernr );
+	pol->setBezierCurveSmoothness( beziernr );
+	
 	StepInterval<int> polygonrg = pol->rowRange();
 	for ( int polygonnr=polygonrg.start; polygonnr<=polygonrg.stop; 
 		polygonnr++ )
