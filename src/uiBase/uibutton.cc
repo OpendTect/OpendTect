@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.57 2009-03-04 10:45:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.58 2009-03-10 06:57:33 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uibutton.cc,v 1.57 2009-03-04 10:45:55 cvsjaap 
 #include "uibuttongroup.h"
 #include "uimenu.h"
 #include "uiobjbody.h"
+#include "uitoolbar.h"
 #include "pixmap.h"
 #include "settings.h"
 
@@ -199,6 +200,7 @@ public:
 			    : uiButtonTemplBody<QToolButton>(handle,parnt,txt)
 			    {}
 
+
     virtual QAbstractButton&    qButton()		{ return *this; }
 
 
@@ -366,10 +368,15 @@ void uiCheckBox::click()
 }
 
 
+// For some reason it is necessary to set the preferred width. Otherwise the
+// button will reserve +- 3 times it's own width, which looks bad
+
 static int preftbsz = -1;
 #define mSetDefPrefSzs() \
     if ( preftbsz < 0 ) \
-	body_->setIconSize( QSize(iconSize(),iconSize()) );
+	body_->setIconSize( QSize(iconSize(),iconSize()) ); \
+    mDynamicCastGet(uiToolBar*,tb,parnt) \
+    if ( !tb ) setPrefWidth( prefVNrPics() );
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
