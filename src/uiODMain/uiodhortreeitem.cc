@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.15 2009-03-10 06:57:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.16 2009-03-10 12:25:53 cvsranojay Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -30,7 +30,6 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.15 2009-03-10 06:57:05 c
 #include "uiodscenemgr.h"
 #include "uivisemobj.h"
 #include "uivispartserv.h"
-
 
 #include "visemobjdisplay.h"
 #include "vissurvscene.h"
@@ -332,7 +331,8 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     else if ( mnuid == 2 )
     {
 	uiHor2DFrom3DDlg dlg( getUiParent() );
-	dlg.go();
+	if( dlg.go() && dlg.doDisplay() )
+	    addChild( new uiODHorizon2DTreeItem(dlg.getEMObjID()), true );
     }
     else if ( mnuid == 3 || mnuid == 4 )
     {
@@ -364,8 +364,8 @@ uiTreeItem* uiODHorizon2DTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 // uiODHorizon2DTreeItem
 
-uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& mid_ )
-    : uiODEarthModelSurfaceTreeItem( mid_ )
+uiODHorizon2DTreeItem::uiODHorizon2DTreeItem( const EM::ObjectID& objid )
+    : uiODEarthModelSurfaceTreeItem( objid )
 { initMenuItems(); }
 
 
