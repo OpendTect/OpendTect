@@ -7,7 +7,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.4 2009-01-08 07:07:01 cvsranojay Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.5 2009-03-10 06:33:51 cvssatyaki Exp $
 ______________________________________________________________________
                        
 */   

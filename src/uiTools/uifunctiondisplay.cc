@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.29 2009-03-02 06:46:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.30 2009-03-10 06:33:51 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -413,10 +413,11 @@ void uiFunctionDisplay::drawBorder()
 	    borderrectitem_->setRect( xAxis()->pixBefore(),
 		    		      yAxis(false)->pixAfter(),
 		    		      width()-xAxis()->pixAfter() -
-				      xAxis()->pixBefore() - 10,
+				      xAxis()->pixBefore() ,
 		    		      height()-yAxis(false)->pixAfter() -
-				      yAxis(false)->pixBefore() - 10 );
+				      yAxis(false)->pixBefore() );
 	borderrectitem_->setPos(xAxis()->pixBefore(),yAxis(false)->pixAfter());
+	borderrectitem_->setPenStyle( setup_.borderstyle_ );
     }
     if ( borderrectitem_ )
 	borderrectitem_->setVisible( setup_.drawborder_ );

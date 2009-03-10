@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.14 2009-02-18 06:48:20 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.15 2009-03-10 06:33:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ public:
     void			saveAsPS(const char*,int);
     void			saveAsPDF_PS(const char*,bool pdf_or_ps,int);
     void			setSceneRect(float x,float y,float w,float h);
+    uiRect			sceneRect();
 
     const bool			isMouseEventActive() const	
     				{ return ismouseeventactive_; }

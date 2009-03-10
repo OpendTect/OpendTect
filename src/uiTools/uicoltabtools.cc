@@ -7,7 +7,7 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.13 2008-12-12 06:02:40 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.14 2009-03-10 06:33:51 cvssatyaki Exp $";
 
 #include "uicoltabtools.h"
 #include "uicanvas.h"

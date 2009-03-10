@@ -6,15 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabmarker.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uicoltabmarker.h,v 1.4 2009-03-10 06:33:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "uicanvas.h"
+#include "uigraphicsview.h"
 
 namespace ColTab{ class Sequence; }
+class MouseEventHandler;
+class uiGraphicsItemGroup;
 class uiTable;
 class uiParent;
 class uiWorld2Ui;
@@ -43,7 +45,7 @@ protected:
 };
 
 
-mClass uiColTabMarkerCanvas : public uiCanvas
+mClass uiColTabMarkerCanvas : public uiGraphicsView
 {
 public:
 				uiColTabMarkerCanvas(uiParent*,
@@ -57,8 +59,10 @@ protected:
 
     uiWorld2Ui*                 w2ui_;
     uiParent*	                parent_;
+    uiGraphicsItemGroup*	markerlineitmgrp_;
     int		                selidx_;
     ColTab::Sequence&           ctab_;
+    MouseEventHandler&		meh_;
 
     void                        addMarker(float,bool);
     void                        removeMarker(int);

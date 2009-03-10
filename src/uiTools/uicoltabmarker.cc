@@ -7,11 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.4 2008-12-23 11:33:10 cvsdgb Exp $";
+static const char* rcsID = "$Id: uicoltabmarker.cc,v 1.5 2009-03-10 06:33:51 cvssatyaki Exp $";
 
 #include "uicoltabmarker.h"
 
 #include "uicolor.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsitem.h"
+#include "uigraphicsitemimpl.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uitable.h"
@@ -187,21 +190,25 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 
 // ***** uiColTabMarkerCanvas ****
 uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
-    : uiCanvas(p,Color::White(),"Marker Canvas")
+    : uiGraphicsView(p,"Marker Canvas")
     , parent_(p)
     , ctab_(ctab)
     , markerChanged(this)
+    , markerlineitmgrp_(0)
+    , meh_(scene().getMouseEventHandler())
 {
+    setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
+    setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
     selidx_ = mUdf(int);
     w2ui_ = new uiWorld2Ui( uiWorldRect(0,255,1,0), uiSize(1,1) );
 
-    preDraw.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
+    reDrawNeeded.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
+    reSize.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
 
-    MouseEventHandler& meh = getMouseEventHandler();
-    meh.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
-    meh.movement.notify( mCB(this,uiColTabMarkerCanvas,mouseMove) );
-    meh.doubleClick.notify( mCB(this,uiColTabMarkerCanvas,mouse2Clk) );
-    meh.buttonReleased.notify(mCB(this,uiColTabMarkerCanvas,mouseRelease) );
+    meh_.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
+    meh_.movement.notify( mCB(this,uiColTabMarkerCanvas,mouseMove) );
+    meh_.doubleClick.notify( mCB(this,uiColTabMarkerCanvas,mouse2Clk) );
+    meh_.buttonReleased.notify(mCB(this,uiColTabMarkerCanvas,mouseRelease) );
 }
 
 
@@ -213,27 +220,36 @@ uiColTabMarkerCanvas::~uiColTabMarkerCanvas()
 
 void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
-    ioDrawTool& dt = drawTool();
-    w2ui_->set( uiWorldRect(0,255,1,0),
-	        uiSize(dt.getDevWidth(),dt.getDevHeight()) );
+    scene().setSceneRect( 0, 0, width(), height() );
+    w2ui_->set( uiRect(0,0,width()-5,height()-5), uiWorldRect(0,255,1,0) );
 
-    dt.setLineStyle( LineStyle(LineStyle::Solid,3) );
+    if ( !markerlineitmgrp_ )
+    {
+	markerlineitmgrp_ = new uiGraphicsItemGroup();
+	scene().addItem( markerlineitmgrp_ );
+    }
+    else
+	markerlineitmgrp_->removeAll( true );
+
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
 	const float val = ctab_.position(idx);
 	uiWorldPoint wpt = uiWorldPoint( val, 0 );
 	uiPoint pt( w2ui_->transform(wpt) );
-	dt.drawLine( pt.x, 0, pt.x, 15 );
+	uiLineItem* lineitem = new uiLineItem();
+	lineitem->setLine( pt.x, 0, pt.x, 15 );
+	lineitem->setPenStyle( LineStyle(LineStyle::Solid,3) );
+	markerlineitmgrp_->add( lineitem );
     }
 }
 
 
 void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
 {
-    if ( getMouseEventHandler().isHandled() )
+    if ( meh_.isHandled() )
 	return;
 
-    const MouseEvent& ev = getMouseEventHandler().event();
+    const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
 
     selidx_ = -1;
@@ -288,14 +304,14 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     }
 
     selidx_ = -1;
-    getMouseEventHandler().setHandled( true );
+    meh_.setHandled( true );
 }
 
 
 void uiColTabMarkerCanvas::markerChgd( CallBacker* )
 {
     markerChanged.trigger();
-    update();
+    reDrawNeeded.trigger();
 }
 
 
@@ -311,7 +327,7 @@ void uiColTabMarkerCanvas::addMarker( float pos, bool withcolsel )
 	    ctab_ = coltab;
     }
 
-    update();
+    reDrawNeeded.trigger();
 }
 
 
@@ -319,7 +335,7 @@ void uiColTabMarkerCanvas::removeMarker( int markeridx )
 {
     ctab_.removeColor( markeridx );
     markerChanged.trigger();
-    update();
+    reDrawNeeded.trigger();
 }
 
 
@@ -337,36 +353,36 @@ bool uiColTabMarkerCanvas::changeColor( int markeridx )
 
 void uiColTabMarkerCanvas::mouse2Clk( CallBacker* cb )
 {
-    if ( getMouseEventHandler().isHandled() )
+    if ( meh_.isHandled() )
     return;
 
-    const MouseEvent& ev = getMouseEventHandler().event();
+    const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
     addMarker( wpt.x, true );
     selidx_ = -1;
-    getMouseEventHandler().setHandled( true );
+    meh_.setHandled( true );
 }
 
 
 void uiColTabMarkerCanvas::mouseRelease( CallBacker* )
 {
-    if ( getMouseEventHandler().isHandled() )
+    if ( meh_.isHandled() )
 	return;
 
     selidx_ = -1;
-    update();
-    getMouseEventHandler().setHandled( true );
+    reDrawNeeded.trigger();
+    meh_.setHandled( true );
 }
 
 
 void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
 {
-    NotifyStopper notifstop( getMouseEventHandler().buttonPressed );
-    if ( getMouseEventHandler().isHandled() )
+    NotifyStopper notifstop( meh_.buttonPressed );
+    if ( meh_.isHandled() )
 	return;
     if ( selidx_<=0 || selidx_==ctab_.size()-1 ) return;
 
-    const MouseEvent& ev = getMouseEventHandler().event();
+    const MouseEvent& ev = meh_.event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
     float changepos = wpt.x;
 
@@ -386,7 +402,7 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
 	else
 	    position = changepos;
 	ctab_.changePos( selidx_, position );
-	update();
+	reDrawNeeded.trigger();
 	return;
     }
 
@@ -417,8 +433,8 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
     ctab_.changePos( leftidx, positionleft );
     ctab_.changePos( rightidx, positionright );
 
-    update();
-    getMouseEventHandler().setHandled( true );
+    reDrawNeeded.trigger();
+    meh_.setHandled( true );
     markerChanged.trigger();
 }
 

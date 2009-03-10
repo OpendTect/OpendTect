@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.20 2009-02-18 06:52:52 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.21 2009-03-10 06:33:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
 				    , drawscattery1_(false)
 				    , drawscattery2_(false)
 				    , drawborder_(false)
+				    , borderstyle_(LineStyle())
 				    , closepolygon_(true)
 				    , drawliney_(true)
 				    , drawliney2_(true) {}
@@ -102,6 +103,7 @@ public:
 	mDefSetupMemb(bool,drawscattery2)		//!< draw Markers
 	mDefSetupMemb(bool,closepolygon)
 	mDefSetupMemb(bool,drawborder)
+	mDefSetupMemb(LineStyle,borderstyle)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
 
 	Setup&		drawline( bool yn )
