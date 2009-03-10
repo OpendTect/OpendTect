@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.69 2009-03-04 11:11:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.70 2009-03-10 15:21:24 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -240,6 +240,8 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& su )
     	, seissetup_(mkSetup(su,c.ctxt.forread))
 {
     adaptCtxt( c.ctxt, seissetup_, false );
+    if ( !c.ctxt.forread && Seis::is2D(seissetup_.geom_) )
+	seissetup_.confirmoverwr_ = setup_.confirmoverwr_ = false;
 }
 
 
