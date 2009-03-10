@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.12 2009-03-09 17:56:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.13 2009-03-10 22:10:40 cvsyuancheng Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -90,7 +90,8 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
 	{
 	    confirmed = 
 		uiMSG().askGoOn( "The body operation is still under testing.\n"
-		       "It may not be stable, do you want to continue?");
+		     "It may not be stable or may take long time to process.\n"
+		     "Do you want to continue?");
 	    ask = true;
 	}
 
