@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.14 2009-01-23 11:07:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.15 2009-03-10 06:57:05 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -218,14 +218,17 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
 
+    uiEMPartServer* emserv = applMgr()->EMServer();
+    uiEMAttribPartServer* emattrserv = applMgr()->EMAttribServer();
+    uiAttribPartServer* attrserv = applMgr()->attrServer();
     bool handled = true;
     if ( mnuid==fillholesmnuitem_.id )
-	applMgr()->EMServer()->fillHoles( emid_ );
+	emserv->fillHoles( emid_ );
     else if ( mnuid==filterhormnuitem_.id )
-	applMgr()->EMServer()->filterSurface( emid_ );
+	emserv->filterSurface( emid_ );
     else if ( mnuid==snapeventmnuitem_.id )
     {
-	applMgr()->EMAttribServer()->snapHorizon( emid_ );
+	emattrserv->snapHorizon( emid_ );
 	visserv_->setObjectName( displayid_,
 		(const char*) applMgr()->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -258,8 +261,9 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 	}
 
-	applMgr()->EMServer()->showHorShiftDlg( getUiParent(), emid_,
-						attribnames, attribids );
+	emattrserv->setDescSet( attrserv->curDescSet(false) );
+	emattrserv->showHorShiftDlg( getUiParent(), emid_,
+				     attribnames, attribids );
     }
     else
 	handled = false;

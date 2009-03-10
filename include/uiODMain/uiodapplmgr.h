@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.73 2009-03-06 15:31:34 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.74 2009-03-10 06:57:05 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,6 +194,7 @@ protected:
     bool			handleWellServEv(int);
     bool			handleWellAttribServEv(int);
     bool			handleEMServEv(int);
+    bool			handleEMAttribServEv(int);
     bool			handlePickServEv(int);
     bool			handleVisServEv(int);
     bool			handleNLAServEv(int);

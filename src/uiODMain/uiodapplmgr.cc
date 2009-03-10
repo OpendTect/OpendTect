@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.306 2009-03-06 16:09:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.307 2009-03-10 06:57:05 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -81,6 +81,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.306 2009-03-06 16:09:51 cvsk
 #include "uistrattreewin.h"
 #include "uisurvey.h"
 #include "uitoolbar.h"
+#include "uiodemsurftreeitem.h"
 #include "uiviscoltabed.h"
 #include "uiveldesc.h"
 #include "veldesc.h"
@@ -961,6 +962,8 @@ bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 	return handleAttribServEv(evid);
     else if ( aps == emserv_ )
 	return handleEMServEv(evid);
+    else if ( aps == emattrserv_ )
+	return handleEMAttribServEv(evid);
     else if ( aps == wellserv_ )
 	return handleWellServEv(evid);
     else if ( aps == wellattrserv_ )
@@ -1161,13 +1164,34 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	    h2d->geometry().syncLine( lset, lnm, ldat );
 	}
     }
-    else if ( evid == uiEMPartServer::evCalcShiftAttribute() )
+    else
+	pErrMsg("Unknown event from emserv");
+
+    return true;
+}
+
+
+bool uiODApplMgr::handleEMAttribServEv( int evid )
+{
+    if ( evid == uiEMAttribPartServer::evCalcShiftAttribute() )
     {
 	ObjectSet<DataPointSet> dpsset;
-	EMServer()->fillHorShiftDPS( dpsset );
-	const Attrib::SelSpec* as = visserv_->getSelSpec(
-		visserv_->getEventObjId(), emserv_->attribIdx() );
-	attrserv_->setTargetSelSpec( *as );
+	EMAttribServer()->fillHorShiftDPS( dpsset );
+	uiTreeItem* parent = sceneMgr().findItem( visserv_->getEventObjId() );
+	if ( !parent ) return false;
+
+	if ( emattrserv_->attribIdx() < 0 )
+	{
+	    uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
+			visserv_->getEventObjId(), 0, typeid(*parent).name() );
+	    parent->addChild( itm, false );
+	    emattrserv_->setAttribIdx(
+		    visserv_->addAttrib(visserv_->getEventObjId()) );
+	}
+
+	const Attrib::SelSpec as( emattrserv_->getAttribBaseNm(),
+				  emattrserv_->attribID() );
+	attrserv_->setTargetSelSpec( as );
 	attrserv_->createOutput( dpsset );
 
 	TypeSet<DataPointSet::DataRow> drset;
@@ -1192,21 +1216,24 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	}
 	dps->dataChanged();
 	visServer()->setRandomPosData( visServer()->getEventObjId(),
-				       EMServer()->attribIdx(), dps );
+				       EMAttribServer()->attribIdx(), dps );
+	visserv_->setSelSpec( visserv_->getEventObjId(),
+			      EMAttribServer()->attribIdx(), as );
 	visServer()->selectTexture( visServer()->getEventObjId(),
-				    EMServer()->attribIdx(),
-				    EMServer()->textureIdx() );
+				    EMAttribServer()->attribIdx(),
+				    EMAttribServer()->textureIdx() );
+	parent->updateColumnText( uiODSceneMgr::cNameColumn() );
     }
-    else if ( evid == uiEMPartServer::evHorizonShift() )
+    else if ( evid == uiEMAttribPartServer::evHorizonShift() )
     {
 	visServer()->setTranslation( visServer()->getEventObjId(),
-				     Coord3(0,0,EMServer()->getShift()) );
-	if ( !mIsUdf(EMServer()->attribIdx()) )
+				     Coord3(0,0,EMAttribServer()->getShift()) );
+	if ( !mIsUdf(EMAttribServer()->attribIdx()) )
 	    visServer()->selectTexture( visServer()->getEventObjId(),
-					EMServer()->attribIdx(),
-					EMServer()->textureIdx() );
+					EMAttribServer()->attribIdx(),
+					EMAttribServer()->textureIdx() );
     }
-    else if ( evid == uiEMPartServer::evStoreShiftHorizons() )
+    else if ( evid == uiEMAttribPartServer::evStoreShiftHorizons() )
     {
 	const int visid = visserv_->getEventObjId();
 	const uiVisPartServer::AttribFormat format = 
@@ -1216,7 +1243,7 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;
 	DataPointSet data( pts, nms, false, true );
-	visserv_->getRandomPosCache( visid, emserv_->attribIdx(), data );
+	visserv_->getRandomPosCache( visid, emattrserv_->attribIdx(), data );
 	if ( data.isEmpty() ) return false;
 
 	const MultiID mid = visserv_->getMultiID( visid );
@@ -1224,21 +1251,21 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	const int nrvals = data.bivSet().nrVals()-1;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    BufferString auxdatanm( emserv_->getAttribBaseNm() );
+	    BufferString auxdatanm( emattrserv_->getAttribBaseNm() );
 	    auxdatanm += "_";
-	    auxdatanm += emserv_->shiftRange().atIndex( idx );
+	    auxdatanm += emattrserv_->shiftRange().atIndex( idx );
 	    emserv_->setAuxData( emid, data, auxdatanm, idx+1,
-		   		 emserv_->shiftRange().atIndex(idx) );
+		   		 emattrserv_->shiftRange().atIndex(idx) );
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
-    else if ( evid == uiEMPartServer::evShiftDlgOpened() )
+    else if ( evid == uiEMAttribPartServer::evShiftDlgOpened() )
 	enableMenusAndToolBars( false );
-    else if ( evid == uiEMPartServer::evShiftDlgClosed() )
+    else if ( evid == uiEMAttribPartServer::evShiftDlgClosed() )
 	enableMenusAndToolBars( true );
     else
-	pErrMsg("Unknown event from emserv");
+	pErrMsg("Unknown event from emattrserv");
 
     return true;
 }
@@ -1557,7 +1584,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    emserv_->setAuxData( emid, data, specs[idx].userRef(), idx+1,
-		   emserv_->shiftRange().atIndex(idx) );
+			         emattrserv_->shiftRange().atIndex(idx) );
 	    BufferString dummy;
 	    emserv_->storeAuxData( emid, dummy, false );
 	}

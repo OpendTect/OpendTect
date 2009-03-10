@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.83 2009-03-05 06:37:21 cvsnageswara Exp $
+ RCS:           $Id: uiempartserv.h,v 1.84 2009-03-10 06:57:05 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ class BufferStringSet;
 class MultiID;
 class SurfaceInfo;
 class uiPopupMenu;
-class uiHorizonShiftDialog;
 
 namespace Pick { class Set; }
 namespace PosInfo { class Line2DData; }
@@ -52,15 +51,11 @@ public:
     bool		importFault(const char* type);
     bool		exportFault(const char* type);
 
-    void		showHorShiftDlg(uiParent*,const EM::ObjectID&,
-	    				const BufferStringSet&,
-					const TypeSet<int>&);
     MultiID		getStorageID(const EM::ObjectID&) const;
     EM::ObjectID	getObjectID(const MultiID&) const;
 
     BufferString	getName(const EM::ObjectID&) const;
     const char*		getType(const EM::ObjectID&) const;
-    float		getShift() const;
 
     int			nrAttributes(const EM::ObjectID&) const;
     bool		isGeometryChanged(const EM::ObjectID&) const;
@@ -114,10 +109,6 @@ public:
 	    			   DataPointSet&) const;
     bool		getAllAuxData(const EM::ObjectID&,DataPointSet&,
 	    			      TypeSet<float>* shfs=0) const;
-    void		getDataPointSet(const EM::ObjectID&,
-	    				const EM::SectionID&, DataPointSet&,
-					float shift); 
-    void		fillHorShiftDPS(ObjectSet<DataPointSet>&);
     BinIDValueSet*	interpolateAuxData(const EM::ObjectID&,const char* nm);
     BinIDValueSet*	filterAuxData(const EM::ObjectID&,const char* nm);
 
@@ -129,24 +120,10 @@ public:
     static const int	evDisplayHorizon();
     static const int	evRemoveTreeObject();
     static const int	evSyncGeometry();
-    static const int	evCalcShiftAttribute();
-    static const int	evHorizonShift();
-    static const int	evStoreShiftHorizons();
-    static const int	evShiftDlgOpened();
-    static const int	evShiftDlgClosed();
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
     EM::EMObject*	selEMObject();
-    void		setAttribIdx( int idx )		{ attribidx_ = idx; }
-    int			attribIdx() const		{ return attribidx_; }
-    					    //Works only in case of Shift Dlg
-    int			textureIdx() const; //Works only in case of Shift Dlg
-    const StepInterval<float>& shiftRange() const	{ return shiftrg_; }
-    void		setShiftRange( const StepInterval<float>& rg )
-    							{ shiftrg_ = rg; }
-    const char*		getAttribBaseNm() const		
-    			{ return shiftattrbasename_.buf(); }
 
     void		removeTreeObject(const EM::ObjectID&);  
 
@@ -158,18 +135,10 @@ protected:
     BinIDValueSet*	changeAuxData(const EM::ObjectID&,const char* nm,
 	    			      bool interp);
 
-    void		calcDPS(CallBacker*);
-    void		horShifted(CallBacker*);
-    void		shiftDlgClosed(CallBacker*);
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
-    uiHorizonShiftDialog* horshiftdlg_;
     
     bool		disponcreation_;
-    StepInterval<float> shiftrg_;
-    int			shiftidx_;
-    int			attribidx_;
-    BufferString	shiftattrbasename_;
 };
 
 
