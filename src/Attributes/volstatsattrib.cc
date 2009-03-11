@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.41 2008-09-22 12:37:05 cvsnageswara Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.42 2009-03-11 13:51:14 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -262,7 +262,7 @@ void VolStats::prepPriorToBoundsCalc()
 
 const Interval<float>* VolStats::reqZMargin( int inp, int ) const
 {
-    return inp ? 0 : &reqgate_;
+    return &reqgate_;
 }
 
 
@@ -307,7 +307,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    float shift = 0;
 	    if ( dosteer_ )
 		shift = getInputValue( *steeringdata_, steerindexes_[posidx],
-					0, z0 );
+					idz, z0 );
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 
@@ -330,7 +330,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		float shift = 0;
 		if ( dosteer_ )
 		    shift = getInputValue( *steeringdata_,steerindexes_[posidx],
-					    isamp, z0 );
+					    isamp+samplegate.stop, z0 );
 
 		ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 
