@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.3 2009-03-05 08:00:16 cvsnageswara Exp $
+ RCS:		$Id: emfault3d.h,v 1.4 2009-03-11 08:18:46 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -89,9 +89,11 @@ mClass FaultAscIO : public Table::AscIO
 public:
     				FaultAscIO( const Table::FormatDesc& fd )
 				    : Table::AscIO(fd)		{}
+
     static Table::FormatDesc*	getDesc(bool is2d);
 
     bool			get(std::istream&,EM::Fault&,
+				    bool sortsticks=false, 
 	    			    const MultiID* linesetmid=0,
 				    bool is2d=false) const;
 protected:

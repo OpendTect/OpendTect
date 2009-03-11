@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 -*/
 
-static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.1 2009-03-05 06:23:43 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiimpfaultstickset2d.cc,v 1.2 2009-03-11 08:18:46 cvsjaap Exp $";
 
 #include "uiimpfaultstickset2d.h"
 
@@ -50,7 +50,7 @@ bool uiImportFaultStickSet2D::getFromAscIO( std::istream& strm, EM::Fault& flt )
     const MultiID setid = setids_[setidx];
 
     EM::FaultAscIO ascio( *fd_ );
-    return ascio.get( strm, flt, &setid, true );
+    return ascio.get( strm, flt, false, &setid, true );
 }
 
 

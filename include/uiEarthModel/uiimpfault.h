@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.9 2009-03-05 06:37:21 cvsnageswara Exp $
+ RCS:           $Id: uiimpfault.h,v 1.10 2009-03-11 08:18:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ protected:
     uiFileInput*	formatfld_;
     uiGenInput*		typefld_;
     uiIOObjSel*		outfld_;
+    uiGenInput*		sortsticksfld_;
     CtxtIOObj&		ctio_;
     Table::FormatDesc*	fd_;
     uiTableImpDataSel*	dataselfld_;

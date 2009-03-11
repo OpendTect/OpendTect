@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.6 2009-03-05 08:00:16 cvsnageswara Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.7 2009-03-11 08:18:46 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -412,8 +412,8 @@ Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Fault" );
 
-    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y",
-	    				FloatInpSpec(), Table::Required );
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", FloatInpSpec(),
+	    						Table::Required );
     posinfo->form(0).add( FloatInpSpec() );
     fd->bodyinfos_ += posinfo;
 
@@ -427,7 +427,6 @@ Table::FormatDesc* FaultAscIO::getDesc( bool is2d )
     if ( is2d )
 	fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
 						 Table::Required );
-
     return fd;
 }
 
@@ -447,42 +446,86 @@ struct FaultStick
     TypeSet<Coord3>	crds_;
     BufferString	lnm_;
 
-Coord3 getNormal() const
+
+double distTo( const FaultStick& fs, double zscale ) const
 {
-    int oninl = 0;
-    int oncrl = 0;
-    const BinID firstbid = SI().transform( crds_[0] );
-    for ( int idx=1; idx<crds_.size(); idx++ )
+/*  Take distance between the two end points of each stick. Difference
+    of both distances is minimum amount of rope required to connect both
+    sticks when moving freely. Our distance measure equals the amount of
+    extra rope required when both sticks are fixed in space. */
+   
+    if ( crds_.isEmpty() || fs.crds_.isEmpty() )
+	return mUdf(double);
+   
+    Coord3 a0 = crds_[0];
+    Coord3 a1 = crds_[crds_.size()-1];
+    Coord3 b0 = fs.crds_[0];
+    Coord3 b1 = fs.crds_[fs.crds_.size()-1];
+
+    if ( zscale==MAXDOUBLE )
     {
-	const BinID bid = SI().transform( crds_[idx] );
-	if ( bid.inl == firstbid.inl ) oninl++;
-	if ( bid.crl == firstbid.crl ) oncrl++;
+	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; 
+    }
+    else 
+    {
+	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale;
     }
 
-    if ( oninl == 0 && oncrl == 0 )
+    const double mindist  = fabs( a0.distTo(a1)-b0.distTo(b1) );
+    const double straight = a0.distTo(b0) + a1.distTo(b1) - mindist;
+    const double crossed  = a0.distTo(b1) + a1.distTo(b0) - mindist;
+
+    return mMIN( straight, crossed );
+}
+
+
+Coord3 getNormal() const
+{
+    int oninl = 0; int oncrl = 0; int ontms = 0;
+
+    for ( int idx=0; idx<crds_.size()-1; idx++ )
+    {
+	const BinID bid0 = SI().transform( crds_[idx] );
+	for ( int idy=idx+1; idy<crds_.size(); idy++ )
+	{
+	    const BinID bid1 = SI().transform( crds_[idy] );
+	    if ( bid0.inl == bid1.inl )
+		oninl++;
+	    if ( bid0.crl == bid1.crl )
+		oncrl++;
+	    if ( fabs(crds_[idx].z-crds_[idy].z) < fabs(0.5*SI().zStep()) )
+		ontms++;
+	}
+    }
+
+    if ( ontms==oninl && ontms==oncrl )
+	return Coord3::udf();
+
+    if ( ontms>=oncrl && ontms>=oninl )
 	return Coord3( 0, 0, 1 );
 
-    return oninl>oncrl ? Coord3( SI().binID2Coord().rowDir(), 0 )
-		       : Coord3( SI().binID2Coord().colDir(), 0 );
+    if ( oninl==oncrl )
+	return Coord3( Coord::udf(), 0 );
+
+    return oncrl>oninl ? Coord3( SI().binID2Coord().colDir(), 0 )
+		       : Coord3( SI().binID2Coord().rowDir(), 0 );
 }
 
 };
 
-
-bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, 
-       			   const MultiID* linesetmid, bool is2d ) const
+bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
+		      const MultiID* linesetmid, bool is2d ) const
 {
     getHdrVals( strm );
 
     Coord3 crd;
-    Coord3 normal( 1, 0, 0 );
     const SectionID sid = flt.sectionID( 0 );
     int curstickidx = -1;
     bool hasstickidx = false;
 
-    bool oninl = false;
-    bool oncrl = false;
-    int linenr;
+    bool oninl = false; bool oncrl = false; bool ontms = false;
+
+    float firstz; 
     BinID firstbid;
 
     ObjectSet<FaultStick> sticks;
@@ -497,10 +540,12 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt,
 	crd.y = getfValue( 1 );
 	crd.z = getfValue( 2 );
 	const int stickidx = getIntValue( 3 );
+
 	BufferString lnm;
 	if ( is2d )
 	    lnm = text( 4 );
-	if ( !hasstickidx && !mIsUdf(stickidx) )
+
+	if ( sticks.isEmpty() && !mIsUdf(stickidx) )
 	    hasstickidx = true;
 
 	if ( !crd.isDefined() )
@@ -508,53 +553,134 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt,
 
 	if ( hasstickidx )
 	{
-	    if ( stickidx != curstickidx )
+	    if ( !mIsUdf(stickidx) && stickidx!=curstickidx )
 	    {
-		FaultStick* stick = new FaultStick( stickidx );
-		stick->crds_ += crd;
-		sticks += stick;
 		curstickidx = stickidx;
-		stick->lnm_ = lnm;
-	    }
-	    else
-	    {
-		FaultStick* stick = sticks[ sticks.size()-1 ];
-		stick->crds_ += crd;
+		sticks += new FaultStick( curstickidx );
 	    }
 	}
 	else
 	{
 	    const BinID curbid = SI().transform( crd );
-	    if ( sticks.isEmpty() )
-	    {
-		curstickidx = 0;
-		FaultStick* stick = new FaultStick( curstickidx );
-		stick->crds_ += crd;
-		sticks += stick;
-		firstbid = curbid;
-	    }
-	    else if ( (oninl && curbid.inl!=firstbid.inl) || 
-		      (oncrl && curbid.crl!=firstbid.crl) )
+	    
+	    oninl = oninl && curbid.inl==firstbid.inl;
+	    oncrl = oncrl && curbid.crl==firstbid.crl;
+	    ontms = ontms && fabs(crd.z-firstz) < fabs(0.5*SI().zStep());
+
+	    if ( !oninl && !oncrl && !ontms )
 	    {
 		curstickidx++;
-		FaultStick* stick = new FaultStick( curstickidx );
-		stick->crds_ += crd;
-		sticks += stick;
-		firstbid = curbid;
-		oninl = false;
-		oncrl = false;
-	    }
-	    else
-	    {
-		const BinID bid = SI().transform( crd );
-		oninl = bid.inl == firstbid.inl;
-		oncrl = bid.crl == firstbid.crl;
+		sticks += new FaultStick( stickidx );
 
-		FaultStick* stick = sticks[ sticks.size()-1 ];
-		stick->crds_ += crd;
+		firstbid = curbid; firstz = crd.z;
+		oninl = true; oncrl = true; ontms = true;
+	    }
+	}
+
+	sticks[ sticks.size()-1 ]->crds_ += crd;
+	sticks[ sticks.size()-1 ]->lnm_ += lnm;
+    }
+
+    // Analyse normals
+    bool sticksontimeslice = false;
+    bool sticksoninlcrl = false;
+
+    TypeSet<Coord3> normals;
+    for ( int idx=0; idx<sticks.size(); idx++ )
+    {
+	normals += sticks[idx]->getNormal();
+	if ( mIsZero(normals[idx].z, mDefEps) )
+	    sticksoninlcrl = true;
+	else if ( normals[idx].isDefined() )
+	    sticksontimeslice = true;
+    }
+
+    double zscale = SI().zScale();
+    if ( sticksoninlcrl && !sticksontimeslice )
+	zscale = 0;
+    if ( !sticksoninlcrl && sticksontimeslice )
+	zscale = MAXDOUBLE;
+
+    // Geometrically based stick sort
+    if ( sortsticks && !hasstickidx && sticks.size()>2 )
+    {
+	double mindist = MAXDOUBLE;
+	int minidx0, minidx1;
+
+	for ( int idx=0; idx<sticks.size()-1; idx++ )
+	{
+	    for ( int idy=idx+1; idy<sticks.size(); idy++ )
+	    {
+		const double dist = sticks[idx]->distTo( *sticks[idy], zscale );
+		if ( dist < mindist )
+		{
+		    mindist = dist;
+		    minidx0 = idx;
+		    minidx1 = idy;
+		}
+	    }
+	}
+	sticks.swap( 0, minidx0 );
+	sticks.swap( 1, minidx1 );
+
+	for ( int tailidx=1; tailidx<sticks.size()-1; tailidx++ )
+	{
+	    mindist = MAXDOUBLE;
+	    bool reverse = false;
+	    for ( int idy=tailidx+1; idy<sticks.size(); idy++ )
+	    {
+		const double dist0 = sticks[0]->distTo( *sticks[idy], zscale );
+		const double dist1 = sticks[tailidx]->distTo( *sticks[idy],
+							      zscale );
+		if ( mMIN(dist0,dist1) < mindist )
+		{
+		    mindist = mMIN( dist0, dist1 );
+		    minidx0 = idy;
+		    reverse = dist0 < dist1;
+		}
+	    }
+	    for ( int idx=0; reverse && idx<tailidx*0.5; idx++ )
+		sticks.swap( idx, tailidx-idx );
+
+	    sticks.swap( tailidx+1, minidx0 );
+	}
+    }
+
+    // Index-based stick sort
+    if ( sortsticks && hasstickidx )
+    {
+	for ( int idx=0; idx<sticks.size()-1; idx++ )
+	{
+	    for ( int idy=idx+1; idy<sticks.size(); idy++ )
+	    {
+		if ( sticks[idx]->stickidx_ > sticks[idy]->stickidx_ )
+		    sticks.swap( idx, idy );
 	    }
 	}
     }
+
+    // Consult neighboring sticks to resolve undefined normals
+    for ( int idx=0; idx<sticks.size(); idx++ )
+    {
+	if ( normals[idx].isDefined() )
+	    continue;
+
+	for ( int idy=(idx ? idx-1 : idx+1); idy<sticks.size(); idy++ )
+	{
+	    if ( !normals[idy].isDefined() )
+		continue;
+	    if ( mIsUdf(normals[idx].z) || normals[idx].z==normals[idy].z )
+	    {
+		normals[idx] = normals[idy];
+		break;
+	    }
+	}
+	if ( !normals[idx].isDefined() )
+	    normals[idx] = Coord3( SI().binID2Coord().rowDir(), 0 );
+    }
+
+    //Create fault
+    int sticknr = !sticks.isEmpty() && hasstickidx ? sticks[0]->stickidx_ : 0;
 
     for ( int idx=0; idx<sticks.size(); idx++ )
     {
@@ -562,36 +688,33 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt,
 	if ( stick->crds_.isEmpty() )
 	    continue;
 
-	// TODO: sort sticks
-
 	if ( is2d )
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
-	    bool res = fss->geometry().insertStick( sid, stick->stickidx_,
-		    				   0, stick->crds_[0],
-						   stick->getNormal(),
-						   linesetmid, stick->lnm_,
-						   false );
-	    if ( !res ) continue;
+	    bool res = fss->geometry().insertStick( sid, sticknr, 0,
+					stick->crds_[0], normals[idx],
+					linesetmid, stick->lnm_, false );
 	}
 	else
 	{
-    	    bool res = flt.geometry().insertStick( sid, stick->stickidx_, 0,
-						   stick->crds_[0],
-						   stick->getNormal(), false );
+	    bool res = flt.geometry().insertStick( sid, sticknr, 0,
+					stick->crds_[0], normals[idx], false );
 	    if ( !res ) continue;
 	}
 
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
-	    const RowCol rc( stick->stickidx_, crdidx );
+	    const RowCol rc( sticknr, crdidx );
 	    flt.geometry().insertKnot( sid, rc.getSerialized(),
 		    		       stick->crds_[crdidx], false );
 	}
+
+	sticknr++;
     }
 
     deepErase( sticks );
     return true;
 }
+
 
 } // namespace EM

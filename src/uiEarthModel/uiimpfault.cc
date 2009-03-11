@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.29 2009-03-05 06:37:22 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.30 2009-03-11 08:18:46 cvsjaap Exp $";
 
 #include "uiimpfault.h"
 
@@ -49,6 +49,7 @@ uiImportFault::uiImportFault( uiParent* p, const char* type )
     , fd_(0)
     , type_(type)
     , typefld_(0)
+    , sortsticksfld_(0)
 {
     setCtrlStyle( DoAndStay );
 }
@@ -74,11 +75,15 @@ void uiImportFault::createUI()
 	formatfld_->setDefaultSelectionDir(
 		    IOObjContext::getDataDirName(IOObjContext::Surf) );
 	formatfld_->attach( alignedBelow, typefld_ );
+
+	sortsticksfld_ = new uiGenInput( this, "Stick order",
+				    BoolInpSpec(true,"sorted","as in file") );
+	sortsticksfld_->attach( alignedBelow, typefld_ );
     }
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "104.1.2" );
     if ( !isfss_  )
-	dataselfld_->attach( alignedBelow, typefld_ );
+	dataselfld_->attach( alignedBelow, sortsticksfld_ );
     else
 	dataselfld_->attach( alignedBelow, infld_ );
 
@@ -104,6 +109,7 @@ void uiImportFault::typeSel( CallBacker* )
     const int tp = typefld_->getIntValue();
     dataselfld_->display( tp == 0 );
     formatfld_->display( tp == 1 );
+    sortsticksfld_->display( tp == 0 );
 }
 
 
@@ -185,7 +191,9 @@ bool uiImportFault::handleAscii()
 bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 {
     EM::FaultAscIO ascio( *fd_ );
-    return ascio.get( strm, flt, 0, false );
+    const bool sortsticks = sortsticksfld_ ? sortsticksfld_->getBoolValue() :
+					     false;
+    return ascio.get( strm, flt, sortsticks, 0, false );
 }
 
 
