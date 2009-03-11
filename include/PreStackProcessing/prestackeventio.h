@@ -7,16 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.6 2009-03-03 22:12:46 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.7 2009-03-11 18:54:26 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "executor.h"
-#include "cubesampling.h"
-#include "sets.h"
 #include "bufstringset.h"
+#include "cubesampling.h"
+#include "iopar.h"
+#include "sets.h"
 #include "valseriesevent.h"
 
 class IOObj;
@@ -54,6 +55,8 @@ public:
     bool		getBoundingBox(Interval<int>& inlrg,
 	    			       Interval<int>& crlrg ) const;
     			//!<Only after first nextStep, or prepareWork
+    static bool		readSamplingData(const IOObj&,SamplingData<int>& inl,
+	    				SamplingData<int>& crl);
 			
     const char*		message() const		{ return "Loading events"; }
     const char*		errMsg() const;
@@ -67,12 +70,15 @@ public:
     static const char*	sKeyFloatDataChar() 	{ return "Float dc"; }
     static const char*	sKeyPrimaryDipSource()	{ return "Primary dip"; }
     static const char*	sKeySecondaryDipSource(){ return "Secondary dip"; }
+    static const char*	sKeyISamp() 		{ return "In-line sampling"; }
+    static const char*	sKeyCSamp() 		{ return "Cross-line sampling";}
 
     static const char*	sKeyNrHorizons()	{ return "Nr Horizons"; }
     static const char*	sKeyHorizonID()		{ return "Horizon ID"; }
     static const char*	sKeyNextHorizonID()	{ return "Next Horizon ID"; }
     static const char*	sKeyHorizonRef()	{return "Horizon EM Reference";}
-    static const char*	sHorizonFileName()	{ return "horizoninfo"; }
+    static const char*	sOldHorizonFileName()	{ return "horizoninfo"; }
+    static const char*	sAuxDataFileName()	{ return "auxdata"; }
     static const char*	sHorizonFileType()	{ return "PS Horizon info"; }
     static const char*	sHorizonFileVersion()	{ return "PS Horizon version"; }
 
@@ -80,7 +86,7 @@ public:
 
 protected:
     void					addReader( const char* fnm );
-    bool					readHorizonIDs(const char* fnm);
+    bool					readAuxData(const char* fnm);
 
     const IOObj*				ioobj_;
     EventManager*				eventmanager_;
@@ -103,15 +109,14 @@ public:
     const char*		errMsg() const;
     const char*		message() const		{ return "Storing events"; }
 
-    static const char*	sKeyISamp() { return "In-line sampling"; }
-    static const char*	sKeyCSamp() { return "Cross-line sampling"; }
 
 protected:
 
-    bool			writeHorizonIDs( const char* fnm ) const;
+    bool			writeAuxData(const char* fnm);
 
     ObjectSet<EventPatchWriter>	patchwriters_;	
     IOObj*			ioobj_;
+    IOPar			auxinfo_;
     EventManager&		eventmanager_;
     BufferString		errmsg_;
 };

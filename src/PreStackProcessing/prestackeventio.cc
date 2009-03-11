@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.7 2009-03-03 22:12:46 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.8 2009-03-11 18:54:26 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: prestackeventio.cc,v 1.7 2009-03-03 22:12:46 cv
 #include "filegen.h"
 #include "filepath.h"
 #include "iopar.h"
-#include "ioman.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "prestackevents.h"
@@ -155,11 +154,14 @@ EventReader::EventReader( IOObj* ioobj, EventManager* events )
     , ioobj_( ioobj )
     , bidsel_( 0 )
     , horsel_( 0 )
-{}
+{
+    if ( eventmanager_ ) eventmanager_->blockChange( true, true );
+}
 
 
 EventReader::~EventReader()
 {
+    if ( eventmanager_ ) eventmanager_->blockChange( false, true );
     delete ioobj_;
     deepErase( patchreaders_ );
 }
@@ -251,7 +253,7 @@ int EventReader::nextStep()
 	}
 
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
-	if ( !readHorizonIDs( fnm.buf() ) )
+	if ( !readAuxData( fnm.buf() ) )
 	{
 	    errmsg_ = "Error: Cannot read horizon information";
 	    return ErrorOccurred();
@@ -282,6 +284,34 @@ int EventReader::nextStep()
 }
 
 
+bool EventReader::readSamplingData( const IOObj& ioobj,
+	 	SamplingData<int>& inlsampling, SamplingData<int>& crlsampling )
+{
+    const BufferString fnm( ioobj.fullUserExpr(true) );
+    if ( !File_isDirectory(fnm.buf()) )
+	return false;
+
+    FilePath horidfnm;
+    horidfnm.setFileName( EventReader::sAuxDataFileName() );
+    horidfnm.setPath( fnm );
+
+    IOPar par;
+    if ( par.read( horidfnm.fullPath().buf(),
+		   EventReader::sHorizonFileType(), true ) )
+    {
+	if ( par.get( sKeyISamp(), inlsampling.start, inlsampling.step ) &&
+	     par.get( sKeyCSamp(), crlsampling.start, crlsampling.step ) )
+	return true;
+    }
+
+    IOPar& pars = ioobj.pars();
+
+    return pars.get(sKeyISamp(), inlsampling.start, inlsampling.step ) && 
+	   pars.get(sKeyCSamp(), crlsampling.start, crlsampling.step );
+}
+
+
+
 bool EventReader::prepareWork()
 {
     const BufferString fnm( ioobj_->fullUserExpr(true) );
@@ -290,6 +320,14 @@ bool EventReader::prepareWork()
 	errmsg_ = "Error: ";
 	errmsg_ += fnm;
 	errmsg_ += " is not a directory";
+	return false;
+    }
+
+    SamplingData<int> inlsampling;
+    SamplingData<int> crlsampling;
+    if ( !readSamplingData( *ioobj_, inlsampling, crlsampling ) )
+    {
+	errmsg_ = "Error: Cannot read sampling";
 	return false;
     }
 
@@ -310,6 +348,10 @@ bool EventReader::prepareWork()
 		 getFromString( filehrg.start.crl, sepstr[2], -1 ) &&
 		 getFromString( filehrg.stop.crl, sepstr[3], -1 ) )
 	    {
+		if ( inlsampling.snap( filehrg.start.inl )!=filehrg.start.inl ||
+		     crlsampling.snap( filehrg.start.crl )!=filehrg.start.crl )
+		    continue;
+
 		HorSampling dummy;
 		if ( horsel_ && horsel_->getInterSection(filehrg,dummy))
 		    usefile = true;
@@ -366,7 +408,7 @@ void EventReader::addReader( const char* fnm )
 }
 
 
-bool EventReader::readHorizonIDs(const char* fnm)
+bool EventReader::readAuxData(const char* fnm)
 {
     if ( !eventmanager_ )
 	return false;
@@ -376,7 +418,10 @@ bool EventReader::readHorizonIDs(const char* fnm)
 
     FilePath horidfnm;
     horidfnm.setPath( fnm );
-    horidfnm.add( EventReader::sHorizonFileName() );
+    horidfnm.add( EventReader::sAuxDataFileName() );
+
+    if ( !File_exists(horidfnm.fullPath().buf() ) )
+	horidfnm.setFileName( sOldHorizonFileName() );
 
     IOPar par;
     if ( !par.read( horidfnm.fullPath().buf(),
@@ -454,11 +499,14 @@ EventWriter::EventWriter( IOObj* ioobj, EventManager& events )
     : Executor( "Writing Pre-stack events" )
     , eventmanager_( events )
     , ioobj_( ioobj )
-{}
+{
+    eventmanager_.blockChange( true, true );
+}
 
 
 EventWriter::~EventWriter()
 {
+    eventmanager_.blockChange( false, true );
     delete ioobj_;
     deepErase( patchwriters_ );
 }
@@ -470,23 +518,18 @@ int EventWriter::nextStep()
     {
 	SamplingData<int> inlsampling;
 	SamplingData<int> crlsampling;
-	IOPar& pars = ioobj_->pars();
-	if ( !pars.get(sKeyISamp(), inlsampling.start, inlsampling.step )
-	  || !pars.get(sKeyCSamp(), crlsampling.start, crlsampling.step ) )
+	if ( !EventReader::readSamplingData(*ioobj_,inlsampling, crlsampling ) )
 	{
 	    const StepInterval<int> inlrg = SI().inlRange(false);
 	    const StepInterval<int> crlrg = SI().crlRange(false);
 	    inlsampling.start = inlrg.start; inlsampling.step = inlrg.step*25;
 	    crlsampling.start = crlrg.start; crlsampling.step = crlrg.step*25;
-	    pars.set( sKeyISamp(), inlsampling.start, inlsampling.step );
-	    pars.set( sKeyCSamp(), crlsampling.start, crlsampling.step );
-
-	    if ( !IOM().commitChanges( *ioobj_ ) )
-	    {
-		errmsg_ = "Cannot write to object database";
-		return ErrorOccurred();
-	    }
 	}
+
+	auxinfo_.set( EventReader::sKeyISamp(), inlsampling.start,
+		      inlsampling.step );
+	auxinfo_.set( EventReader::sKeyCSamp(), crlsampling.start,
+		      crlsampling.step );
 
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
 	if ( !File_exists( fnm.buf() ) || !File_isDirectory( fnm.buf() ) )
@@ -511,7 +554,7 @@ int EventWriter::nextStep()
 
 	eventmanager_.cleanUp( true );
 
-	if ( !writeHorizonIDs( fnm.buf() ) )
+	if ( !writeAuxData( fnm.buf() ) )
 	    return ErrorOccurred();
 
 	const MultiDimStorage<EventSet*>& evstor = eventmanager_.getStorage();
@@ -601,7 +644,7 @@ int EventWriter::nextStep()
 	if ( patchwriters_.size() )
 	    return MoreToDo();
         
-	eventmanager_.resetChangedFlag( true );
+	eventmanager_.resetChangedFlag( false );
 	return	Finished();
     }
 
@@ -613,12 +656,11 @@ const char* EventWriter::errMsg() const
 { return errmsg_[0] ? errmsg_.buf() : 0; }
 
 
-bool EventWriter::writeHorizonIDs( const char* fnm ) const
+bool EventWriter::writeAuxData( const char* fnm )
 {
-    IOPar par;
-    par.set( EventReader::sKeyNrHorizons(),
+    auxinfo_.set( EventReader::sKeyNrHorizons(),
 	     eventmanager_.getHorizonIDs().size());
-    par.set( EventReader::sKeyNextHorizonID(),
+    auxinfo_.set( EventReader::sKeyNextHorizonID(),
 	     eventmanager_.nextHorizonID(false) );
 
     for ( int idx=eventmanager_.getHorizonIDs().size()-1; idx>=0; idx-- )
@@ -628,26 +670,26 @@ bool EventWriter::writeHorizonIDs( const char* fnm ) const
 	horpar.set( EventReader::sKeyHorizonID(), id );
 
 	const BufferString key( "", idx );
-	par.mergeComp( horpar, key.buf() );
+	auxinfo_.mergeComp( horpar, key.buf() );
     }
 
     BufferString dipsource;
     eventmanager_.getDipSource( true ).fill( dipsource );
     if ( !dipsource.isEmpty() )
-	par.set( EventReader::sKeyPrimaryDipSource(), dipsource.buf() );
+	auxinfo_.set( EventReader::sKeyPrimaryDipSource(), dipsource.buf() );
 
     eventmanager_.getDipSource( false ).fill( dipsource );
     if ( !dipsource.isEmpty() )
-	par.set( EventReader::sKeySecondaryDipSource(), dipsource.buf() );
+	auxinfo_.set( EventReader::sKeySecondaryDipSource(), dipsource.buf() );
 
     FilePath horidfnm;
     horidfnm.setPath( fnm );
-    horidfnm.add( EventReader::sHorizonFileName() );
+    horidfnm.add( EventReader::sAuxDataFileName() );
 
-    par.set( sKey::Color, eventmanager_.getColor() );
+    auxinfo_.set( sKey::Color, eventmanager_.getColor() );
 
-    return par.write( horidfnm.fullPath().buf(),
-	              EventReader::sHorizonFileType() );
+    return auxinfo_.write( horidfnm.fullPath().buf(),
+	                   EventReader::sHorizonFileType() );
 }
 
 
@@ -1151,7 +1193,6 @@ int EventPatchReader::nextStep()
     }
 
     ge->unRefNoDelete();
-    eventmanager_->reportChange( curbid );
 
     headeridx_++;
     return MoreToDo();
@@ -1439,7 +1480,9 @@ int EventPatchWriter::nextStep()
 	return ErrorOccurred();
     }
 
-    pses->ischanged_ = false;
+    //pses->ischanged_ = false;
+    //eventmanager_->reportChange( curbid );
+    //done by resetChangeFlag by end of EventWriter.
 
     headeridx_++;
     return MoreToDo();
