@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.13 2008-11-27 13:26:22 cvshelene Exp $
+ RCS:		$Id: samplingdata.h,v 1.14 2009-03-11 16:47:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     template <class IT> inline float	getIndex(IT val) const;
     template <class IT> inline int	nearestIndex(IT x) const;
     template <class IT> inline T	atIndex(IT idx) const;
+    template <class IT> inline T	snap(IT idx) const;
 
     T					start;
     T					step;
@@ -98,6 +99,12 @@ template <class T>
 template <class IT> inline
 int SamplingData<T>::nearestIndex( IT x ) const
 { float fidx = getIndex(x); return mNINT(fidx); }
+
+
+template <class T>
+template <class IT> inline
+T SamplingData<T>::snap( IT val ) const
+{ return start + step * ((T) nearestIndex(val) ); }
 
 
 template <class T>
