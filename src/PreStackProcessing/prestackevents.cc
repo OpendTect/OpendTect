@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.6 2009-03-09 22:10:39 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.7 2009-03-11 15:52:20 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -216,8 +216,8 @@ EventManager::EventManager()
     , change( this )
     , reloadbids_( new BinIDValueSet( 0, false ) )
     , notificationqueue_( new BinIDValueSet( 0, false ) )
-    , changebidmutex_( *new Threads::Mutex )
-    , eventmutex_( *new Threads::Mutex )
+    , changebidmutex_( *new Threads::Mutex(true) )
+    , eventmutex_( *new Threads::Mutex(true) )
     , nexthorid_( 0 )
     , auxdatachanged_( false )
     , primarydipreader_( 0 )
@@ -499,6 +499,7 @@ bool EventManager::isChanged() const
 
 void EventManager::resetChangedFlag( bool horflagonly )
 {
+    bool change = auxdatachanged_;
     auxdatachanged_ = false;
     if ( !horflagonly )
     {
@@ -506,11 +507,15 @@ void EventManager::resetChangedFlag( bool horflagonly )
 	while ( events_.next( pos, false ) )
 	{
 	    EventSet* ge = events_.getRef( pos, 0 );
+	    if ( ge->ischanged_ )
+		change = true;
+
 	    ge->ischanged_ = false;
 	}
     }
 
-    reportChange( BinID(-1,-1) );
+    if ( change )
+	reportChange( BinID(-1,-1) );
 }
 
 
