@@ -4,10 +4,11 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.37 2008-09-08 17:18:18 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.38 2009-03-11 14:15:12 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
+#include "debug.h"
 #include "settings.h"
 #include "debugmasks.h"
 #include "debug.h"
@@ -20,42 +21,53 @@ static const char* rcsID = "$Id: thread.cc,v 1.37 2008-09-08 17:18:18 cvskris Ex
 #endif
 
 
-Threads::Mutex::Mutex()
+Threads::Mutex::Mutex( bool deadlockdetection )
 {
-    pthread_mutexattr_init( &attr );
-    pthread_mutex_init( &mutex, &attr );
+    pthread_mutexattr_init( &attr_ );
+    if ( deadlockdetection )
+	pthread_mutexattr_settype( &attr_, PTHREAD_MUTEX_ERRORCHECK );
+
+    pthread_mutex_init( &mutex_, &attr_ );
 }
 
 
 //!Implemented since standard copy constuctor will hang the system
-Threads::Mutex::Mutex( const Mutex& )
+Threads::Mutex::Mutex( const Mutex& m )
 {
-    pthread_mutexattr_init( &attr );
-    pthread_mutex_init( &mutex, &attr );
+    pthread_mutexattr_init( &attr_ );
+    pthread_mutex_init( &mutex_, &attr_ );
 }
 
 
 Threads::Mutex::~Mutex()
 {
-    pthread_mutex_destroy( &mutex );
-    pthread_mutexattr_destroy( &attr );
+    pthread_mutex_destroy( &mutex_ );
+    pthread_mutexattr_destroy( &attr_ );
 }
+
 
 int Threads::Mutex::lock()
 { 
-    return pthread_mutex_lock( &mutex ); 
+    const int res = pthread_mutex_lock( &mutex_ ); 
+    if ( res==EDEADLK )
+    {
+	pErrMsg( "Deadlock detected" );
+	DBG::forceCrash(true);
+    }
+
+    return res;
 }
 
 
 int Threads::Mutex::unLock()
 {
-    return pthread_mutex_unlock( &mutex );
+    return pthread_mutex_unlock( &mutex_ );
 }
 
 
 bool Threads::Mutex::tryLock()
 {
-    return pthread_mutex_trylock( &mutex ) != EBUSY;
+    return pthread_mutex_trylock( &mutex_ ) != EBUSY;
 }
 
 
@@ -249,43 +261,43 @@ void Threads::ReadWriteLock::convWriteToPermissive()
 
 Threads::ConditionVar::ConditionVar()
 {
-    pthread_condattr_init( &condattr );
-    pthread_cond_init( &cond, &condattr );
+    pthread_condattr_init( &condattr_ );
+    pthread_cond_init( &cond_, &condattr_ );
 }
 
 
 //!Implemented since standard copy constuctor will hang the system
 Threads::ConditionVar::ConditionVar( const ConditionVar& )
 {
-    pthread_condattr_init( &condattr );
-    pthread_cond_init( &cond, &condattr );
+    pthread_condattr_init( &condattr_ );
+    pthread_cond_init( &cond_, &condattr_ );
 }
 
 
 Threads::ConditionVar::~ConditionVar()
 {
-    pthread_cond_destroy( &cond );
-    pthread_condattr_destroy( &condattr );
+    pthread_cond_destroy( &cond_ );
+    pthread_condattr_destroy( &condattr_ );
 }
 
 
 int Threads::ConditionVar::wait()
 {
-    return pthread_cond_wait( &cond, &mutex );
+    return pthread_cond_wait( &cond_, &mutex_ );
 }
 
 
 int Threads::ConditionVar::signal(bool all)
 {
-    return all 	? pthread_cond_broadcast( &cond )
-		: pthread_cond_signal( &cond );
+    return all 	? pthread_cond_broadcast( &cond_ )
+		: pthread_cond_signal( &cond_ );
 }
 
 
 Threads::Thread::Thread( void (func)(void*) )
-    	: id(0)
+    	: id_(0)
 {
-    pthread_create( &id, 0, (void* (*)(void*)) func, 0 );
+    pthread_create( &id_, 0, (void* (*)(void*)) func, 0 );
 }
 
 
@@ -298,24 +310,24 @@ static void* thread_exec_fn( void* obj )
 
 
 Threads::Thread::Thread( const CallBack& cbin )
-    	: id(0)
+    	: id_(0)
     	, cb(cbin)
 {
     if ( !cb.willCall() ) return;
-    pthread_create( &id, 0, thread_exec_fn, (void*)(&cb) );
+    pthread_create( &id_, 0, thread_exec_fn, (void*)(&cb) );
 }
 
 
 void Threads::Thread::stop()
 {
-    pthread_join( id, 0 );
+    pthread_join( id_, 0 );
     delete this;
 }
 
 
 void Threads::Thread::detach()
 {
-    pthread_detach( id );
+    pthread_detach( id_ );
 }
 
 

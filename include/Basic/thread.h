@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.34 2009-02-06 05:27:40 cvsranojay Exp $
+ RCS:		$Id: thread.h,v 1.35 2009-03-11 14:15:12 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -42,7 +42,7 @@ the thread that has locked it will unlock it.
 mClass Mutex
 {
 public:
-			Mutex();
+			Mutex( bool deadlockdetection=false );
 			Mutex(const Mutex&);
     virtual		~Mutex();	
 
@@ -58,12 +58,9 @@ public:
 
 protected:
 
-    pthread_mutex_t 	mutex;
-    pthread_mutexattr_t	attr;
-
+    pthread_mutex_t 	mutex_;
+    pthread_mutexattr_t	attr_;
 };
-
-
 
 
 /*!\brief Is an object that is convenient to use when a mutex should be
@@ -149,8 +146,8 @@ public:
 
 protected:
 
-    pthread_cond_t		cond;
-    pthread_condattr_t		condattr;
+    pthread_cond_t		cond_;
+    pthread_condattr_t		condattr_;
 
 };
 
@@ -234,12 +231,12 @@ public:
 				*/
 
     unsigned long int		ID() const
-				{ return (unsigned long int)id; }
+				{ return (unsigned long int)id_; }
     				//!< debugging purposes
 
 protected:
 
-    pthread_t			id;
+    pthread_t			id_;
 
 private:
 
