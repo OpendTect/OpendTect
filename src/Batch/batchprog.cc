@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.92 2009-01-08 16:25:14 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.93 2009-03-12 15:51:31 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.92 2009-01-08 16:25:14 cvsbert
 #include "mmsockcommunic.h"
 #include "keystrs.h"
 #include "ascstream.h"
+#include "debugmasks.h"
 
 #ifndef __msvc__
 #include <unistd.h>
@@ -153,12 +154,17 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	IOMan::newSurvey();
     else
     {
-#ifdef __debug__
-	const char* oldsnm = IOM().surveyName();
-	if ( !oldsnm ) oldsnm = "<empty>";
-	std::cerr << "Using survey from par file: " << res << ". was: "
-	    	  << oldsnm << std::endl;
-#endif
+	if ( DBG::isOn(DBG_PROGSTART) )
+	{
+	    const char* oldsnm = IOM().surveyName();
+	    if ( !oldsnm ) oldsnm = "<empty>";
+	    if ( strcmp(res,oldsnm) )
+	    {
+		BufferString msg( "Using survey from par file: ", res,
+				  ". was: " ); msg += oldsnm;
+		infoMsg( msg );
+	    }
+	}
 	IOMan::setSurvey( res );
     }
 
@@ -173,7 +179,7 @@ BatchProgram::~BatchProgram()
     infoMsg( finishmsg_ );
     IOM().applClosing();
 
-    if( comm )
+    if ( comm )
     {
 	MMSockCommunic::State s = comm->state();
 
@@ -263,7 +269,7 @@ bool BatchProgram::errorMsg( const char* msg, bool cc_stderr )
 }
 
 
-bool BatchProgram::infoMsg( const char* msg, bool cc_stdout)
+bool BatchProgram::infoMsg( const char* msg, bool cc_stdout )
 {
     if ( sdout.ostrm )
 	*sdout.ostrm << '\n' << msg << '\n' << std::endl;
