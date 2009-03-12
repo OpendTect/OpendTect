@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.156 2009-03-10 12:58:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.157 2009-03-12 14:59:32 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -42,6 +42,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     , dTectTBChanged(this)
     , dTectMnuChanged(this)
     , helpmgr_(0)
+    , inviewmode_(false)
 {
     surveymnu_ = new uiPopupMenu( &appl_, "&Survey" );
     analmnu_ = new uiPopupMenu( &appl_, "&Analysis" );
@@ -116,8 +117,9 @@ void uiODMenuMgr::updateStereoMenu()
 
 void uiODMenuMgr::updateViewMode( bool isview )
 {
-    cointb_->turnOn( viewid_, isview );
-    cointb_->turnOn( actid_, !isview );
+    if ( inviewmode_ == isview )
+	return;
+    toggViewMode( 0 );
 }
 
 
@@ -131,7 +133,14 @@ void uiODMenuMgr::enableMenuBar( bool yn )
 { appl_.menuBar()->setSensitive( yn ); }
 
 void uiODMenuMgr::enableActButton( bool yn )
-{ cointb_->setSensitive( actid_, yn ); }
+{
+    if ( yn )
+	{ cointb_->setSensitive( actviewid_, true ); return; }
+
+    if ( !inviewmode_ )
+	toggViewMode(0);
+    cointb_->setSensitive( actviewid_, false );
+}
 
 
 #define mInsertItem(menu,txt,id) \
@@ -582,8 +591,9 @@ static bool sIsPolySelect = true;
 
 void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
-    viewid_ = mAddTB(cointb_,"view.png","View mode",true,viewMode);
-    actid_ = mAddTB(cointb_,"pick.png","Interact mode",true,actMode);
+    actviewid_ = cointb_->addButton( "altpick.png",
+	    		mCB(this,uiODMenuMgr,toggViewMode),
+	    		"Switch view mode", false );
     mAddTB(cointb_,"home.png","To home position",false,toHomePos);
     mAddTB(cointb_,"set_home.png","Save home position",false,saveHomePos);
     mAddTB(cointb_,"view_all.png","View all",false,viewAll);
@@ -608,8 +618,6 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 
     soloid_ = mAddTB(cointb_,"solo.png","Display current element only",
 		     true,soloMode);
-
-    cointb_->turnOn( actid_, true );
 }
 
 
@@ -847,6 +855,18 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
     dtecttb_->clear();
     fillDtectTB( &applMgr() );
+}
+
+
+void uiODMenuMgr::toggViewMode( CallBacker* cb )
+{
+    inviewmode_ = !inviewmode_;
+    cointb_->setPixmap( actviewid_,
+	    		inviewmode_ ? "altview.png" : "altpick.png" );
+    if ( inviewmode_ )
+	sceneMgr().viewMode( cb );
+    else
+	sceneMgr().actMode( cb );
 }
 
 

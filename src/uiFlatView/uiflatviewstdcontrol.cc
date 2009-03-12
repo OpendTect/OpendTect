@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.16 2009-03-12 03:34:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.17 2009-03-12 14:59:32 cvsbert Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -33,22 +33,16 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,true,setup.withwva_)
     , vwr_(vwr)
-    , manipbut_(0)
     , ctabed_(0)
+    , manip_(false)
     , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
     , propertiesmnuitem_("Properties...",100)
+    , manipdrawbut_(0)
 {
     tb_ = new uiToolBar( mainwin(), "Flat Viewer Tools" );
     if ( setup.withstates_ )
-    {
-	mDefBut(manipbut_,"view.png",stateCB,"View mode (zoom)");
-	manipbut_->setToggleButton( true ); manipbut_->setOn( true );
-	mDefBut(drawbut_,"pick.png",stateCB,"Interact mode");
-	drawbut_->setToggleButton( true ); drawbut_->setOn( false );
-	tb_->addSeparator();
-    }
-    else
-	vwr.setRubberBandingOn( true );
+	{ mDefBut(manipdrawbut_,"altpick.png",stateCB,"Switch view mode"); }
+    vwr_.setRubberBandingOn( !manip_ );
 
     mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
@@ -204,16 +198,11 @@ void uiFlatViewStdControl::parsCB( CallBacker* but )
 
 void uiFlatViewStdControl::stateCB( CallBacker* but )
 {
-    if ( !manipbut_ ) return;
+    if ( !manipdrawbut_ ) return;
+    manip_ = !manip_;
 
-    const bool ismanip = (but == manipbut_ && manipbut_->isOn())
-		      || (but == drawbut_ && !drawbut_->isOn());
-
-    if ( but == manipbut_ )
-	drawbut_->setOn( !ismanip );
-    else
-	manipbut_->setOn( ismanip );
-    vwr_.setRubberBandingOn( !manipbut_->isOn() );
+    manipdrawbut_->setPixmap( manip_ ? "altview.png" : "altpick.png" );
+    vwr_.setRubberBandingOn( !manip_ );
 }
 
 
