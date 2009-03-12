@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.15 2009-01-28 11:06:38 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.16 2009-03-12 03:34:52 cvsnanne Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.15 2009-01-28 11:06
 #include "uibutton.h"
 #include "uimainwin.h"
 #include "uimenuhandler.h"
+#include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
 #include "mouseevent.h"
 #include "pixmap.h"
@@ -33,6 +34,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     : uiFlatViewControl(vwr,setup.parent_,true,setup.withwva_)
     , vwr_(vwr)
     , manipbut_(0)
+    , ctabed_(0)
     , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
     , propertiesmnuitem_("Properties...",100)
 {
@@ -50,16 +52,19 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
-    uiToolButton* 
-    mDefBut(fliplrbut,"flip_lr.png",flipCB,"Flip left/right");
+    uiToolButton* mDefBut(fliplrbut,"flip_lr.png",flipCB,"Flip left/right");
 
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
 
-    toolbar_ = new uiToolBar( mainwin(), "Color Table" );
-    ctabed_ = new uiFlatViewColTabEd( this, vwr );
-    ctabed_->colTabChgd.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
-    toolbar_->addObject( ctabed_->colTabGrp()->attachObj() );
+    if ( setup.withcoltabed_ )
+    {
+	uiToolBar* coltabtb = new uiToolBar( mainwin(), "Color Table" );
+	ctabed_ = new uiFlatViewColTabEd( this, vwr );
+	ctabed_->colTabChgd.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
+	coltabtb->addObject( ctabed_->colTabGrp()->attachObj() );
+	coltabtb->display( vwr.rgbCanvas().prefHNrPics()>400 );
+    }
 
     if ( !setup.helpid_.isEmpty() )
     {
@@ -68,7 +73,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     }
 
     vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
-    vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,setColTab) );
+    vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,dispChgCB) );
 
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
@@ -104,9 +109,10 @@ void uiFlatViewStdControl::updatePosButtonStates()
 }
 
 
-void uiFlatViewStdControl::setColTab( CallBacker* )
+void uiFlatViewStdControl::dispChgCB( CallBacker* )
 {
-    ctabed_->setColTab( vwr_ );
+    if ( ctabed_ )
+	ctabed_->setColTab( vwr_ );
 }
 
 
