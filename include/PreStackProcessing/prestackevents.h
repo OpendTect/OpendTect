@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.8 2009-03-09 22:10:39 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.9 2009-03-12 16:15:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -150,10 +150,12 @@ public:
 
 
     Executor*			commitChanges();
-    Executor*			load(const BinIDValueSet&);
+    Executor*			load(const BinIDValueSet&,bool trigger);
 
     bool			isChanged() const;
     void			resetChangedFlag(bool onlyhorflag);
+    Notifier<EventManager>	resetChangeStatus;
+    				//!<Triggers when the chang flags are reseted
 
     EventSet*			getEvents(const BinID&,bool load,bool create);
     const EventSet*		getEvents(const BinID&) const;

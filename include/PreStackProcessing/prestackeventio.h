@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.7 2009-03-11 18:54:26 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.8 2009-03-12 16:15:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -39,7 +39,7 @@ class EventPatchWriter;
 mClass EventReader : public Executor
 {
 public:
-    			EventReader(IOObj*,EventManager*);
+    			EventReader(IOObj*,EventManager*,bool trigger);
 			//!<If not mgr is given, only prepareWork &
 			//!<getPositions can be run, no real work
     			~EventReader();
@@ -96,6 +96,7 @@ protected:
     ObjectSet<EventPatchReader>			patchreaders_;	
 
     BufferString				errmsg_;
+    bool					trigger_;
 };
 
 

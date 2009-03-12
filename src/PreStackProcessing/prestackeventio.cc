@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.8 2009-03-11 18:54:26 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.9 2009-03-12 16:15:32 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -148,12 +148,13 @@ protected:
 
 
 //EventReader
-EventReader::EventReader( IOObj* ioobj, EventManager* events )
+EventReader::EventReader( IOObj* ioobj, EventManager* events, bool trigger )
     : Executor( "Reading Pre-stack events" )
     , eventmanager_( events )
     , ioobj_( ioobj )
     , bidsel_( 0 )
     , horsel_( 0 )
+    , trigger_( trigger )
 {
     if ( eventmanager_ ) eventmanager_->blockChange( true, true );
 }
@@ -161,7 +162,7 @@ EventReader::EventReader( IOObj* ioobj, EventManager* events )
 
 EventReader::~EventReader()
 {
-    if ( eventmanager_ ) eventmanager_->blockChange( false, true );
+    if ( eventmanager_ ) eventmanager_->blockChange( false, trigger_ );
     delete ioobj_;
     deepErase( patchreaders_ );
 }
@@ -506,7 +507,7 @@ EventWriter::EventWriter( IOObj* ioobj, EventManager& events )
 
 EventWriter::~EventWriter()
 {
-    eventmanager_.blockChange( false, true );
+    eventmanager_.blockChange( false, false );
     delete ioobj_;
     deepErase( patchwriters_ );
 }

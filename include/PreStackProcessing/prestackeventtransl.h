@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventtransl.h,v 1.2 2009-01-06 06:05:40 cvsranojay Exp $
+ RCS:		$Id: prestackeventtransl.h,v 1.3 2009-03-12 16:15:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -39,13 +39,14 @@ public:
     			mDefEmptyTranslatorBaseConstructor(PSEvent);
     virtual Executor*	createReader(PreStack::EventManager&,
 	    			     const BinIDValueSet*,
-				     const HorSampling*, IOObj* )	= 0;
+				     const HorSampling*,IOObj*,
+				     bool trigger)	= 0;
     virtual Executor*	createWriter(PreStack::EventManager&,IOObj*) = 0;
     virtual Executor*	createSaveAs(PreStack::EventManager&,IOObj*)	= 0;
     virtual Executor*	createOptimizer(IOObj*)				= 0;
 
     static Executor*	reader(PreStack::EventManager&, const BinIDValueSet*,
-				     const HorSampling*, IOObj* );
+				     const HorSampling*, IOObj*, bool trigger );
     static Executor*	writer(PreStack::EventManager&,IOObj*);
     static Executor*	writeAs(PreStack::EventManager&,IOObj*);
 };
@@ -57,7 +58,7 @@ public:
     		mDefEmptyTranslatorConstructor(dgb,PSEvent);
     Executor*	createReader(PreStack::EventManager&,
 	    			     const BinIDValueSet*,
-				     const HorSampling*,IOObj*);
+				     const HorSampling*,IOObj*,bool);
     Executor*	createWriter(PreStack::EventManager&,IOObj*);
     Executor*	createSaveAs(PreStack::EventManager&,IOObj*);
     Executor*	createOptimizer(IOObj*) { return 0; }

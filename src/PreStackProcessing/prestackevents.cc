@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.8 2009-03-11 18:54:26 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.9 2009-03-12 16:15:32 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -214,6 +214,7 @@ EventManager::EventManager()
     , changebid_( -1, -1 )
     , forceReload( this )
     , change( this )
+    , resetChangeStatus( this )
     , reloadbids_( new BinIDValueSet( 0, false ) )
     , notificationqueue_( new BinIDValueSet( 0, false ) )
     , changebidmutex_( *new Threads::Mutex(true) )
@@ -382,10 +383,10 @@ Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
 
     forceReload.trigger();
     cleanUp( false );
-    Executor* loader = load( *reloadbids_ );
-    if ( !loader )
-	reportChange( BinID(-1,-1) );
 
+    Executor* loader = load( *reloadbids_, true );
+    reportChange( BinID(-1,-1) ); //since blocked by loader, it will fire when
+    				  //loading finished
     return loader;
 }
 
@@ -419,7 +420,7 @@ bool EventManager::getHorRanges( HorSampling& hrg ) const
 	return !first;
 
 
-    PtrMan<EventReader> reader = new EventReader(ioobj,0);
+    PtrMan<EventReader> reader = new EventReader(ioobj,0,false);
     if ( !reader->prepareWork() )
 	return false;
 
@@ -455,7 +456,7 @@ bool EventManager::getLocations( BinIDValueSet& bvs ) const
     if ( !ioobj )
 	true;
 
-    PtrMan<EventReader> reader = new EventReader(ioobj,0);
+    PtrMan<EventReader> reader = new EventReader(ioobj,0,false);
     return reader->prepareWork() && reader->getPositions( bvs );
 }
 
@@ -473,11 +474,11 @@ Executor* EventManager::commitChanges()
 }
 
 
-Executor* EventManager::load( const BinIDValueSet& bidset )
+Executor* EventManager::load( const BinIDValueSet& bidset, bool trigger )
 {
     IOObj* ioobj = IOM().get( storageid_ );
     if ( !ioobj ) return 0;
-    return PSEventTranslator::reader( *this, &bidset, 0, ioobj );
+    return PSEventTranslator::reader( *this, &bidset, 0, ioobj, trigger );
 }
 
 
@@ -515,7 +516,7 @@ void EventManager::resetChangedFlag( bool horflagonly )
     }
 
     if ( haschange )
-	reportChange( BinID(-1,-1) );
+	resetChangeStatus.trigger();
 }
 
 
@@ -533,7 +534,7 @@ EventSet* EventManager::getEvents( const BinID& bid, bool doload, bool create )
 	{
 	    BinIDValueSet bidvalset(0,false);
 	    bidvalset.add( bid );
-	    PtrMan<Executor> loader = load( bidvalset );
+	    PtrMan<Executor> loader = load( bidvalset, false );
 	    if ( loader )
 	    {
 		lock.unLock();

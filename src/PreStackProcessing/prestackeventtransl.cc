@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventtransl.cc,v 1.1 2008-07-01 21:32:01 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventtransl.cc,v 1.2 2009-03-12 16:15:32 cvskris Exp $";
 
 #include "prestackeventtransl.h"
 
@@ -34,13 +34,14 @@ const IOObjContext& PSEventTranslatorGroup::ioContext()
 
 
 Executor* PSEventTranslator::reader( PreStack::EventManager& pse,
-       const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj )
+       const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj,
+       bool trigger )
 {
     mDynamicCastGet( PSEventTranslator*, t, ioobj->getTranslator() );
     if ( !t ) { return 0; }
 
     PtrMan<PSEventTranslator> trans = t;
-    return t->createReader( pse, bvs, hs, ioobj );
+    return t->createReader( pse, bvs, hs, ioobj, trigger );
 }
 
 
@@ -65,13 +66,14 @@ Executor* PSEventTranslator::writeAs( PreStack::EventManager& pse, IOObj* ioobj 
 
 
 Executor* dgbPSEventTranslator::createReader( PreStack::EventManager& pse,
-	const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj )
+	const BinIDValueSet* bvs, const HorSampling* hs, IOObj* ioobj,
+        bool trigger )
 {
     mDynamicCastGet( PSEventTranslator*, t, ioobj->getTranslator() );
     if ( !t ) { return 0; }
     PtrMan<PSEventTranslator> trans = t;
 
-    PreStack::EventReader* res = new PreStack::EventReader(ioobj,&pse);
+    PreStack::EventReader* res = new PreStack::EventReader(ioobj,&pse,trigger);
     res->setSelection( bvs );
     res->setSelection( hs );
     return res;
