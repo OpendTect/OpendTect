@@ -7,65 +7,88 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.1 2009-03-03 19:13:39 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.2 2009-03-12 20:41:53 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "arrayndimpl.h"
+
+class SoState;
+class SoCoordinate3;
+class SoIndexedLineSet;
+class SoIndexedTriangleStripSet;
+class SoTextureComposer;
+class ZAxisTransform;
+
+namespace Geometry { class BinIDSurface; }
+
 
 #define mHorizonSectionNrRes	6
 #define mHorizonSectionSideSize	62
+
 namespace visBase
 {
 class PolyLine;
-class HorizonSectionPart;
+class HorizonSectionTile;
 
 mClass HorizonSection : public VisualObjectImpl
 {
 public:
-    HorizonSection*		create()
-				mCreateDataObj(HorizonSection*);
+    static HorizonSection*	create() mCreateDataObj(HorizonSection);
 
     void			setDisplayTransformation(Transformation*);
     Transformation*		getDisplayTransformation();
-    
     void			setZAxisTransform(ZAxisTransform*);
 
     void			setGeometry(Geometry::BinIDSurface*);
 
-protected:
+    void			useWireframe(bool);
+    bool			usesWireframe() const;
+    
+    char			nrResolutions() const;
+    char			currentResolution() const;
+    void			setResolution(char);
 
+protected:
+    				~HorizonSection();
     void			geomChangeCB(CallBacker*);
     void			updateResolutions(CallBacker*);
 
     Geometry::BinIDSurface*	geometry_;
 
-    Array2D<HorizonSectionTile>	tiles_;
+    Array2DImpl<HorizonSectionTile*> tiles_;
     visBase::PolyLine*		wireframelines_;
+
+    Transformation*		transformation_;
+    ZAxisTransform*		zaxistransform_;
 };
 
 class HorizonSectionTile
 {
 public:
-		HorizonSectionTile();
-		~HorizonSectionTile();
-    void	setResolution(int);
-    		//!<Sets the resolution. -1 means resolution will vary
-    int		getActualResolution() const;
-    void	updateResolution(SoState*);
-    void	setNeighbor(int,HorizonSectionPart*);
-    void	setPos(int row,int col,const Coord3&);
+				HorizonSectionTile();
+				~HorizonSectionTile();
+    void			setResolution(int);
+    				//!<Resolution -1 means it will vary
+    int				getActualResolution() const;
+    void			updateResolution(SoState*);
+    void			setNeighbor(int,HorizonSectionTile*);
+    void			setPos(int row,int col,const Coord3&);
 
-    void	updateGlue();
+    void			updateGlue();
 
 protected:
-    void	tesselateGlue();
-    void	tesselateResolution(int);
 
-    HorizonSectionPart*		neighbors_[9];
+    void			tesselateGlue();
+    void			tesselateResolution(int);
+
+    HorizonSectionTile*		neighbors_[9];
     int				neighborresolutions_[9];
+
+    int				resolution_;
 
     SoLockableSeparator*	root_;
     SoCoordinate3*		coords_;

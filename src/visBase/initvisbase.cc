@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.14 2009-01-23 22:25:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.15 2009-03-12 20:41:53 cvsyuancheng Exp $";
 
 
 #include "initvisbase.h"
@@ -30,6 +30,7 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.14 2009-01-23 22:25:50 cvsyu
 #include "visforegroundlifter.h"
 #include "visgeomindexedshape.h"
 #include "visgridlines.h"
+#include "vishorizonsection.h"
 #include "visimage.h"
 #include "vislevelofdetail.h"
 #include "vislight.h"
@@ -102,6 +103,7 @@ void initStdClasses()
     ForegroundLifter::initClass();
     GeomIndexedShape::initClass();
     GridLines::initClass();
+    HorizonSection::initClass();
     Image::initClass();
     InvisibleLineDragger::initClass();
     LevelOfDetail::initClass();
