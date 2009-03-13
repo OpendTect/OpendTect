@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.56 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: position.h,v 1.57 2009-03-13 10:26:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,6 +183,7 @@ public:
     int		inl;
     int		crl;
 
+    static const BinID&	udf();
 };
 
 
