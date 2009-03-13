@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.4 2009-03-10 06:35:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.5 2009-03-13 10:20:54 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -342,24 +342,7 @@ const char* uiSaveImageDlg::getExtension()
 
 void uiSaveImageDlg::getSettingsPar( PtrMan<IOPar>& ctiopar,
 				     BufferString typenm )
-{
-    for( int idx=0; ; idx++ )
-    {
-	BufferString settstyp;
-	IOPar* tmppar = settings_.subselect( idx );
-	if ( !tmppar )
-	{
-	    if (!idx) continue;
-	    return;
-	}
-	tmppar->get( sKeyType(), settstyp );
-	if ( typenm == settstyp )
-	{
-	    ctiopar = tmppar;
-	    return;
-	}
-    }
-}
+{ ctiopar = settings_.subselect( typenm.buf() ); }
 
 
 void uiSaveImageDlg::fillPar( IOPar& par, bool is2d ) 

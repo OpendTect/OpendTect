@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.43 2009-03-10 06:35:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.44 2009-03-13 10:20:54 cvssatyaki Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -108,9 +108,19 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     sceneSel(0);
     PtrMan<IOPar> ctiopar;
     getSettingsPar( ctiopar, BufferString("3D") );
+    
     if ( ctiopar.ptr() )
-	usePar( *ctiopar );
+    {
+	if ( !usePar(*ctiopar) )
+	    useparsfld_->setValue( false );
+    }
+    else
+	useparsfld_->setValue( false );
+
     updateFilter();
+    
+    if ( nrfiletypes>0 )
+	unitChg( 0 );
 }
 
 
@@ -147,12 +157,15 @@ void uiPrintSceneDlg::setFldVals( CallBacker* )
 	lockfld_->setSensitive( true );
 	PtrMan<IOPar> ctiopar;
 	getSettingsPar( ctiopar, BufferString("3D") );
+	
 	if ( ctiopar.ptr() )
-	    usePar( *ctiopar );
+	{
+	    if ( !usePar(*ctiopar) )
+		useparsfld_->setValue( false );
+	}
     }
     else
     {
-	//dpifld_->setValue( (int)screendpi_ );
 	sceneSel( 0 );
 	lockfld_->setChecked( true );
 	lockfld_->setSensitive( false );
@@ -271,11 +284,9 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
 void uiPrintSceneDlg::writeToSettings()
 {
-    PtrMan<IOPar> ctiopar;
-    getSettingsPar( ctiopar, BufferString("3D") );
-    if ( ctiopar )
-	fillPar( *ctiopar, false );
-    settings_.mergeComp( *ctiopar, getStringFromInt(1) );
+    IOPar iopar;
+    fillPar( iopar, false );
+    settings_.mergeComp( iopar, "3D" );
     if ( !settings_.write() )
 	uiMSG().error( "Cannot write settings" );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.5 2009-03-10 06:35:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.6 2009-03-13 10:20:54 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -35,10 +35,22 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     PtrMan<IOPar> ctiopar;
     getSettingsPar( ctiopar, BufferString("2D") );
     if ( ctiopar )
-	usePar( *ctiopar );
+    {
+	if ( !usePar(*ctiopar) )
+	{
+	    useparsfld_->setValue( false );
+	    setFldVals( 0 );
+	}
+    }
+    else
+    {
+	useparsfld_->setValue( false );
+	setFldVals( 0 );
+    }
 
     finaliseDone.notify( mCB(this,uiGraphicsSaveImageDlg,setAspectRatio) );
     updateFilter();
+    unitChg(0);
 }
 
 
@@ -102,11 +114,9 @@ bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
 
 void uiGraphicsSaveImageDlg::writeToSettings()
 {
-    PtrMan<IOPar> ctiopar;
-    getSettingsPar( ctiopar, BufferString("2D") );
-    if ( ctiopar.ptr() )
-	fillPar( *ctiopar, true );
-    settings_.mergeComp( *ctiopar, getStringFromInt(0) );
+    IOPar iopar;
+    fillPar( iopar, true );
+    settings_.mergeComp( iopar, "2D" );
     if ( !settings_.write() )
 	uiMSG().error( "Cannot write settings" );
 }
@@ -121,7 +131,10 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
 	PtrMan<IOPar> ctiopar;
 	getSettingsPar( ctiopar, BufferString("2D") );
 	if ( ctiopar.ptr() )
-	    usePar( *ctiopar );
+	{
+	    if ( !usePar(*ctiopar) )
+		useparsfld_->setValue( false );
+	}
 	aspectratio_ = (float) widthfld_->box()->getFValue() /
 	    		       heightfld_->box()->getFValue();
     }
