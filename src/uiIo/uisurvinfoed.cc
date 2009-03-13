@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.106 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.107 2009-03-13 12:18:53 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -40,7 +40,6 @@ static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.106 2009-02-13 13:31:15 cvs
 
 
 extern "C" const char* GetBaseDataDir();
-extern bool IOMAN_no_survchg_triggers;
 
 
 static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
@@ -164,10 +163,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	fulldirpath = dirnm;
     }
 
-    IOMAN_no_survchg_triggers = true;
     IOMan::setSurvey( orgdirname );
     SurveyInfo::theinst_ = SurveyInfo::read( fulldirpath );
-    IOMAN_no_survchg_triggers = false;
 
     dirnmfld = new uiGenInput( this, "Survey directory name", 
 			       StringInpSpec( isnew ? "" : orgdirname.buf()) );

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.101 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.102 2009-03-13 12:18:53 cvsbert Exp $";
 
 #include "uisurvey.h"
 
@@ -52,7 +52,7 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.101 2009-02-13 13:31:15 cvsbert
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
-extern bool IOMAN_no_survchg_triggers;
+extern bool IOMAN_survchg_triggers;
 
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
@@ -490,7 +490,6 @@ bool uiSurvey::updateSvyFile()
 
     newSurvey();
     SetSurveyName( seltxt );
-
     return true;
 }
 
@@ -614,11 +613,9 @@ bool uiSurvey::rejectOK( CallBacker* )
 	}
     }
 
-    IOMAN_no_survchg_triggers = true;
     IOMan::setSurvey( initialsurvey_ );
     SurveyInfo::theinst_ = SurveyInfo::read(
 	FilePath(initialdatadir_).add(initialsurvey_).fullPath() );
-    IOMAN_no_survchg_triggers = false;
 
     SurveyInfo::produceWarnings( true );
     return true;
@@ -634,15 +631,21 @@ bool uiSurvey::acceptOK( CallBacker* )
     }
     writeComments();
     SurveyInfo::produceWarnings( true );
-    if ( !updateSvyFile() || !IOMan::newSurvey() )
-    { SurveyInfo::produceWarnings( false ); return false; }
+
+    if ( initialsurvey_ != listbox_->getText()
+      || initialdatadir_ != GetBaseDataDir() )
+	IOMAN_survchg_triggers = true;
+    const bool cansetnewsurv = updateSvyFile() && IOMan::newSurvey();
+    IOMAN_survchg_triggers = false;
+    if ( !cansetnewsurv )
+	{ SurveyInfo::produceWarnings( false ); return false; }
 
     newSurvey();
     updateViewsGlobal();
     if ( impiop_ && impsip_
       && uiMSG().askGoOn(impsip_->importAskQuestion()) )
     {
-	IOM().to( "100010.3" );
+	IOM().to( "100010" );
 	impsip_->startImport( parent(), *impiop_ );
     }
 
