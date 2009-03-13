@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.61 2009-02-04 16:54:17 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.62 2009-03-13 21:22:55 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -20,6 +20,10 @@ ________________________________________________________________________
 #include "thread.h"
 
 #include <fstream>
+
+#ifdef __debug__
+#include "debug.h"
+#endif
 
 
 #define mChunkSz 1024
@@ -392,6 +396,14 @@ mImplSetStorage( Array1DImpl );
 template <class T> inline
 void Array1DImpl<T>::set( int pos, T v )	
 {
+#ifdef __debug__
+    if ( !in_.validPos( pos ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
+
     if ( ptr_ ) ptr_[pos] = v;
     else stor_->setValue(pos,v);
 }
@@ -399,7 +411,16 @@ void Array1DImpl<T>::set( int pos, T v )
 
 template <class T> inline
 T Array1DImpl<T>::get( int pos ) const
-{ return ptr_ ? ptr_[pos] : stor_->value(pos); }
+{
+#ifdef __debug__
+    if ( !in_.validPos( pos ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
+    return ptr_ ? ptr_[pos] : stor_->value(pos);
+}
 
 
 template <class T> inline
@@ -467,6 +488,13 @@ mImplSetStorage( Array2DImpl );
 template <class T> inline
 void Array2DImpl<T>::set( int p0, int p1, T v )
 {
+#ifdef __debug__
+    if ( !in_.validPos( p0, p1 ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 offset = in_.getOffset( p0, p1 );
     if ( ptr_ ) ptr_[offset] = v;
     else stor_->setValue( offset, v );
@@ -476,6 +504,13 @@ void Array2DImpl<T>::set( int p0, int p1, T v )
 template <class T> inline
 T Array2DImpl<T>::get( int p0, int p1 ) const
 {
+#ifdef __debug__
+    if ( !in_.validPos( p0, p1 ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 offset = in_.getOffset( p0, p1);
     return ptr_ ? ptr_[offset] : stor_->value( offset );
 }
@@ -559,6 +594,13 @@ mImplSetStorage( Array3DImpl );
 template <class T> inline
 void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
 {
+#ifdef __debug__
+    if ( !in_.validPos( p0, p1, p2 ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 offset = in_.getOffset( p0, p1, p2 );
     if ( ptr_ ) ptr_[offset] = v;
     else stor_->setValue( offset, v );
@@ -569,6 +611,13 @@ void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
 template <class T> inline
 T Array3DImpl<T>::get( int p0, int p1, int p2 ) const
 {
+#ifdef __debug__
+    if ( !in_.validPos( p0, p1, p2 ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 offset = in_.getOffset( p0, p1, p2 );
     return ptr_ ? ptr_[offset] : stor_->value( offset );
 }
@@ -688,6 +737,13 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 template <class T> inline
 void ArrayNDImpl<T>::setND( const int* pos, T v )
 {
+#ifdef __debug__
+    if ( !in_->validPos( pos ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 offset = in_->getOffset(pos);
     if ( ptr_ ) ptr_[offset] = v ;
     else stor_->setValue( offset, v);
@@ -697,6 +753,13 @@ void ArrayNDImpl<T>::setND( const int* pos, T v )
 template <class T> inline
 T ArrayNDImpl<T>::getND( const int* pos ) const
 {
+#ifdef __debug__
+    if ( !in_->validPos( pos ) )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 offset = in_->getOffset(pos);
     return ptr_ ? ptr_[offset] : stor_->value( offset );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.22 2009-02-04 16:53:11 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.23 2009-03-13 21:22:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,11 @@ ________________________________________________________________________
 #include "gendefs.h"
 #include "errh.h"
 #include "memsetter.h"
+
+#ifdef __debug__
+#include "debug.h"
+#endif
+
 
 /*\brief Interface to a series of values
 
@@ -95,9 +100,9 @@ public:
 
     bool	isOK() const			{ return ptr_; }
 
-    RT		value( od_int64 idx ) const	{ return ptr_[idx]; }
+    RT		value( od_int64 idx ) const;
     bool	writable() const		{ return true; }
-    void	setValue( od_int64 idx, RT v )	{ ptr_[idx] = (AT) v; }
+    void	setValue( od_int64 idx, RT v );
 
     bool	canSetAll() const		{ return writable(); }
     void	setAll(RT);
@@ -239,6 +244,36 @@ ArrayValueSeries<RT,AT>::ArrayValueSeries( od_int64 sz )
 
 
 template <class RT, class AT>
+RT ArrayValueSeries<RT,AT>::value( od_int64 idx ) const
+{
+#ifdef __debug__
+    if ( idx<0 || idx>=cursize_ )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
+
+    return ptr_[idx];
+}
+
+
+template <class RT, class AT>
+void ArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
+{
+#ifdef __debug__
+    if ( idx<0 || idx>=cursize_ )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
+
+    ptr_[idx] = (AT) v;
+}
+
+
+template <class RT, class AT>
 void ArrayValueSeries<RT,AT>::setAll( RT val )
 {
     if ( cursize_<=0 )
@@ -303,6 +338,13 @@ MultiArrayValueSeries<RT,AT>::~MultiArrayValueSeries()
 template <class RT, class AT> inline
 RT MultiArrayValueSeries<RT,AT>::value( od_int64 idx ) const
 {
+#ifdef __debug__
+    if ( idx<0 || idx>=cursize_ )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 arridx = idx/chunksize_;
     if ( arridx>=ptrs_.size() )
 	return RT();
@@ -315,6 +357,13 @@ RT MultiArrayValueSeries<RT,AT>::value( od_int64 idx ) const
 template <class RT, class AT> inline
 void MultiArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
 {
+#ifdef __debug__
+    if ( idx<0 || idx>=cursize_ )
+    {
+	pErrMsg("Invalid access");
+	DBG::forceCrash(true);
+    }
+#endif
     const od_int64 arridx = idx/chunksize_;
     if ( arridx>=ptrs_.size() )
 	return;
