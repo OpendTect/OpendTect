@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Feb 2009
- RCS:           $Id: uihorizonshiftdlg.h,v 1.1 2009-03-10 06:53:21 cvssatyaki Exp $
+ RCS:           $Id: uihorizonshiftdlg.h,v 1.2 2009-03-13 08:45:47 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiCheckBox;
 class uiGenInput;
 class uiGenInput;
 class uiSliderExtra;
-class uiToolButton;
+class uiPushButton;
 template <class T> class StepInterval;
 namespace EM { class Horizon3D; }
 namespace Attrib { class DescSet; }
@@ -33,16 +33,7 @@ namespace Attrib { class DescSet; }
 class uiHorizonShiftDialog : public uiDialog
 {
 public:
-    struct Setup
-    {			Setup(const EM::ObjectID& objid,
-	    		      const BufferStringSet& attrname,
-			      const TypeSet<int>& ids )
-			    : emid_(objid)		{}
-	mDefSetupMemb(EM::ObjectID,emid)
-	mDefSetupMemb(StepInterval<float>,shiftrg)
-	mDefSetupMemb(int,shiftidx)
-    };
-			uiHorizonShiftDialog(uiParent*,const Setup& setup,
+			uiHorizonShiftDialog(uiParent*,const EM::ObjectID& id,
 					     const Attrib::DescSet& );
 			~uiHorizonShiftDialog();
     const EM::Horizon3D&	horizon3D()		{ return *emhor3d_; }
@@ -64,6 +55,7 @@ public:
 
 protected:
 
+    void			setNameFldSensitive(CallBacker*);
     void			setSliderRange(CallBacker*);
     void			calcAttrib(CallBacker*);
     void			shiftCB(CallBacker*);
@@ -72,7 +64,7 @@ protected:
     uiAttrSel*			attrinpfld_;
     uiGenInput*			rangeinpfld_;
     uiSliderExtra*		slider_;
-    uiToolButton*		calbut_;
+    uiPushButton*		calbut_;
     uiCheckBox*			storefld_;
     uiGenInput*			namefld_;
 

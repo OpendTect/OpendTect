@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.7 2009-03-10 06:57:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiemattribpartserv.cc,v 1.8 2009-03-13 08:45:47 cvssatyaki Exp $";
 
 
 #include "uiemattribpartserv.h"
@@ -80,16 +80,10 @@ float uiEMAttribPartServer::getShift() const
 }
 
 
-void uiEMAttribPartServer::showHorShiftDlg( uiParent* p, const EM::ObjectID& id,
-					    const BufferStringSet& attribnms,
-				      	    const TypeSet<int>& attrids )
+void uiEMAttribPartServer::showHorShiftDlg( uiParent* p,const EM::ObjectID& id )
 {
-    uiHorizonShiftDialog::Setup setup( id, attribnms, attrids );
-    setup.shiftrg(shiftrg_);
-    setup.shiftidx(shiftidx_);
-    
     setAttribIdx( -1 );
-    horshiftdlg_ = new uiHorizonShiftDialog( p, setup, *descset_ );
+    horshiftdlg_ = new uiHorizonShiftDialog( p, id, *descset_ );
     sendEvent( uiEMAttribPartServer::evShiftDlgOpened() );
     horshiftdlg_->calcAttribPushed.notify(
 	    mCB(this,uiEMAttribPartServer,calcDPS) );

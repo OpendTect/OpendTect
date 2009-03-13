@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.7 2009-03-10 06:57:05 cvssatyaki Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.8 2009-03-13 08:45:47 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,7 @@ public:
     void			setDescSet( const Attrib::DescSet* ads )
 				{ descset_ = ads; }
 
-    void			showHorShiftDlg(uiParent*,const EM::ObjectID&,
-	    					const BufferStringSet&,
-						const TypeSet<int>&);
+    void			showHorShiftDlg(uiParent*,const EM::ObjectID&);
     void			getDataPointSet(const EM::ObjectID&,
 					const EM::SectionID&, DataPointSet&,
 					float shift); 

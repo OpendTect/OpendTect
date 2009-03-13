@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.16 2009-03-10 12:25:53 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.17 2009-03-13 08:45:47 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -234,35 +234,8 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==shiftmnuitem_.id )
     {
-	BufferStringSet attribnames;
-	TypeSet<int> attribids;
-	const int nrattrib = visserv_->getNrAttribs( displayID());
-	bool depthdisplayed = false;
-	for ( int idx=0; idx<nrattrib; idx++ )
-	{
-	    const Attrib::SelSpec* as =
-		visserv_->getSelSpec( displayID(), idx );
-	    if ( as->id() != as->cOtherAttrib() )
-	    {
-		if ( as->id() == as->cNoAttrib() )
-		{
-		    depthdisplayed = true;
-		    continue;
-		}
-		attribids += idx;
-		attribnames.add( as ? as->userRef() : "" );
-	    }
-	}
-	if ( attribnames.isEmpty() && !depthdisplayed )
-	{
-	    BufferString msg( "Horizons cant be shifted for surface data");
-	    uiMSG().error( msg );
-	    return;
-	}
-
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
-	emattrserv->showHorShiftDlg( getUiParent(), emid_,
-				     attribnames, attribids );
+	emattrserv->showHorShiftDlg( getUiParent(), emid_ );
     }
     else
 	handled = false;

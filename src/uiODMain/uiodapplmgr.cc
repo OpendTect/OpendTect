@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.308 2009-03-10 12:55:01 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.309 2009-03-13 08:45:47 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -1267,7 +1267,30 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
     else if ( evid == uiEMAttribPartServer::evShiftDlgOpened() )
 	enableMenusAndToolBars( false );
     else if ( evid == uiEMAttribPartServer::evShiftDlgClosed() )
+    {
 	enableMenusAndToolBars( true );
+	
+	const int visid = visserv_->getEventObjId();
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	DataPointSet data( pts, nms, false, true );
+	visserv_->getRandomPosCache( visid, emattrserv_->attribIdx(), data );
+	if ( data.isEmpty() ) return false;
+	const int texturenr = emattrserv_->textureIdx() + 1;
+	const int nrvals = data.bivSet().nrVals();
+	bool valkept = false;
+	for ( int idx=0; idx<nrvals; idx++ )
+	{
+	    if ( idx != texturenr && idx !=0 )
+		data.bivSet().removeVal( valkept ? 1 : 0 );
+	    else
+		valkept = true;
+	}
+	TypeSet<float> curshift;
+	curshift += emattrserv_->getShift();
+	visserv_->setRandomPosData( visid, emattrserv_->attribIdx(), &data );
+	visserv_->setAttribShift( visid, emattrserv_->attribIdx(), curshift );
+    }
     else
 	pErrMsg("Unknown event from emattrserv");
 
