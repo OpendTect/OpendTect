@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.80 2009-02-19 09:44:01 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.81 2009-03-16 08:46:42 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,8 @@ class IOObj;
 class IOObjContext;
 
 namespace Geometry { class Element; }
+
+template <class T> class Selector;
 
 namespace EM
 {
@@ -180,6 +182,7 @@ public:
 						      const MarkerStyle3D&);
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
+    void			removeSelected(const Selector<Coord3>&);
 
     CNotifier<EMObject,const EMObjectCallbackData&>	change;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.42 2009-01-09 10:36:47 cvsranojay Exp $
+ RCS:		$Id: emmanager.h,v 1.43 2009-03-16 08:46:42 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "callback.h"
 #include "factory.h"
+#include "position.h"
 #include "ptrman.h"
 #include "ranges.h"
 #include "multiid.h"
@@ -28,6 +29,8 @@ class IOObjContext;
 class TaskRunner;
 class Executor;
 class uiEMPartServer;
+
+template <class T> class Selector;
 
 namespace EM
 {
@@ -105,6 +108,8 @@ public:
     void		syncGeometry(const ObjectID&);
     void		burstAlertToAll(bool yn);
 
+    void		removeSelected(const ObjectID&,const Selector<Coord3>&);
+    
     IOPar*		getSurfacePars(const IOObj&) const;
 
     bool		readPars(const MultiID&,IOPar&) const;
