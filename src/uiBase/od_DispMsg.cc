@@ -7,12 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_DispMsg.cc,v 1.5 2009-03-03 11:19:20 cvsbert Exp $";
+static const char* rcsID = "$Id: od_DispMsg.cc,v 1.6 2009-03-16 09:40:45 cvsranojay Exp $";
 
 
 #include "uimsg.h"
 #include "uimain.h"
 #include <iostream>
+
+#ifdef __msvc__
+#include "winmain.h"
+#endif
+
 
 int main( int argc, char** argv )
 {
