@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.93 2009-03-12 15:51:31 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.94 2009-03-16 10:39:54 cvsranojay Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -41,21 +41,37 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.93 2009-03-12 15:51:31 cvsbert
 #endif
 
 
-BatchProgram* BatchProgram::inst;
+BatchProgram* BatchProgram::inst_ = 0;
 
-BatchProgram::BatchProgram( int* pac, char** av )
+BatchProgram& BP()
+{
+    if ( !BatchProgram::inst_ )
+	BatchProgram::inst_ = new BatchProgram;
+    return *BatchProgram::inst_;
+}
+
+
+BatchProgram::BatchProgram()
 	: NamedObject("")
-	, pargc(pac)
-	, argv_(av)
+	, pargc(0)
+	, argv_(0)
 	, argshift(2)
 	, stillok(false)
-	, fullpath(av[0])
+	, fullpath("")
 	, finishmsg_("Finished batch processing.")
 	, inbg(false)
 	, sdout(*new StreamData)
 	, iopar(new IOPar)
 	, comm(0)
+{}
+
+
+void BatchProgram::init( int* pac, char** av )
 {
+    pargc = pac;
+    argv_ = av;
+    fullpath = argv_[0];
+
     od_putProgInfo( *pargc, argv_ );
 
     BufferString masterhost;

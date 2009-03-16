@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.37 2008-08-04 12:19:41 cvsraman Exp $
+ RCS:		$Id: batchprog.h,v 1.38 2009-03-16 10:36:11 cvsranojay Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "bufstringset.h"
 #include "genc.h"
+
 #include <iosfwd>
 class IOPar;
 class IOObj;
@@ -43,8 +44,10 @@ class MMSockCommunic;
 
 */
 
-class BatchProgram : public NamedObject
+
+mClass BatchProgram : public NamedObject
 {
+    mGlobal friend	BatchProgram& BP();
 public:
 
     const IOPar&	pars() const		{ return *iopar; }
@@ -78,13 +81,14 @@ public:
 protected:
 
     friend int		Execute_batch(int*,char**);
-    friend const BatchProgram& BP();
+    
     friend class	MMSockCommunic;
 
-			BatchProgram(int*,char**);
+			BatchProgram();
 			~BatchProgram();
 
-    static BatchProgram* inst;
+    void		init(int*,char**);
+    static BatchProgram* inst_;
 
     int*		pargc;
     char**		argv_;
@@ -115,7 +119,8 @@ private:
 
 
 int Execute_batch(int*,char**);
-inline const BatchProgram& BP() { return *BatchProgram::inst; }
+mGlobal BatchProgram& BP();
+
 
 #ifdef __prog__
 # ifdef __win__
