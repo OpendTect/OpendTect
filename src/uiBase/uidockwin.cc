@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidockwin.cc,v 1.32 2009-01-09 10:28:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidockwin.cc,v 1.33 2009-03-16 09:26:56 cvsranojay Exp $";
 
 #include "uidockwin.h"
 #include "uigroup.h"
@@ -16,10 +16,7 @@ static const char* rcsID = "$Id: uidockwin.cc,v 1.32 2009-01-09 10:28:17 cvsnann
 
 #include <QDockWidget>
 
-#if defined( __mac__ ) || defined( __win__ )
-# define _redraw_hack_
-# include "timer.h"
-#endif
+
 
 
 class uiDockWinBody : public uiParentBody, public QDockWidget
@@ -42,45 +39,11 @@ protected:
 
     virtual void	finalise();
 
-#ifdef _redraw_hack_
 
-// the doc windows are not correctly drawn on the mac at pop-up
-
-    virtual void        resizeEvent( QResizeEvent* ev )
-    {
-	QDockWidget::resizeEvent(ev);
-
-	if ( redrtimer.isActive() ) redrtimer.stop();
-	redrtimer.start( 300, true );
-    }
-
-// not at moves...
-    virtual void        moveEvent( QMoveEvent* ev )
-    {
-	QDockWidget::moveEvent(ev);
-
-	if ( redrtimer.isActive() ) redrtimer.stop();
-	redrtimer.start( 300, true );
-    }
-
-    void		redrTimTick( CallBacker* cb )
-    {
-	//TODO: check this out.  Are scenes deleted or 'just' hidden??
-	if ( isHidden() ) return;
-
-	hide();
-	show();
-    }
-
-    static Timer	redrtimer;
-    CallBack		mycallback_;
-#endif
 
 };
 
-#ifdef _redraw_hack_
-Timer uiDockWinBody::redrtimer;
-#endif
+
 
 
 uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt, 
@@ -90,14 +53,8 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
-#ifdef _redraw_hack_
-	, mycallback_( mCB(this, uiDockWinBody, redrTimTick) )
-#endif
+
 {
-#ifdef _redraw_hack_
-    redrtimer.tick.notify( mycallback_ );
-    redrtimer.start( 500, true );
-#endif
 
     QDockWidget::setFeatures( QDockWidget::DockWidgetMovable | 
 	    		      QDockWidget::DockWidgetFloatable );
@@ -120,9 +77,7 @@ void uiDockWinBody::construct()
 
 uiDockWinBody::~uiDockWinBody( )
 {
-#ifdef _redraw_hack_
-    redrtimer.tick.remove( mycallback_ );
-#endif
+
     delete centralWidget_; centralWidget_ = 0;
 }
 
