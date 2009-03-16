@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.12 2009-01-30 14:59:41 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.13 2009-03-16 12:54:23 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -390,7 +390,7 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     if ( !ioobjinfo->checkSpaceLeft(transffld_->spaceInfo()) )
 	return false;
 
-    SEGY::TxtHeader::info2d = is2d;
+    SEGY::TxtHeader::info2D() = is2d;
     Executor* exec = transffld_->getTrcProc( inioobj, outioobj,
 				    "Export seismic data", "Putting traces",
 				    attrnm, linenm );
@@ -425,6 +425,6 @@ bool uiSEGYExp::doWork( const IOObj& inioobj, const IOObj& outioobj,
     rv = dlg.execute( *exec );
     execptrman.erase();
 
-    SEGY::TxtHeader::info2d = false;
+    SEGY::TxtHeader::info2D() = false;
     return rv;
 }

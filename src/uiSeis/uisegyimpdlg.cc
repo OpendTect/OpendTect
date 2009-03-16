@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.15 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.16 2009-03-16 12:54:23 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -263,7 +263,7 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
 	    return false;
     }
 
-    SEGY::TxtHeader::info2d = is2d;
+    SEGY::TxtHeader::info2D() = is2d;
     transffld_->scfmtfld->updateIOObj( const_cast<IOObj*>(&outioobj), true );
     PtrMan<SeisTrcWriter> wrr = new SeisTrcWriter( &outioobj );
     SeisStdImporterReader* rdr = new SeisStdImporterReader( inioobj, "SEG-Y" );
@@ -305,6 +305,6 @@ bool uiSEGYImpDlg::impFile( const IOObj& inioobj, const IOObj& outioobj,
     if ( rv && !is2d && ioobjinfo )
 	rv = ioobjinfo->provideUserInfo();
 
-    SEGY::TxtHeader::info2d = false;
+    SEGY::TxtHeader::info2D() = false;
     return rv;
 }
