@@ -7,7 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odftp.cc,v 1.2 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: odftp.cc,v 1.3 2009-03-16 12:33:57 cvsnanne Exp $";
+
+#include "odftp.h"
+
+#include <QFtp>
 
 
 ODFtp::ODFtp()
@@ -18,7 +22,7 @@ ODFtp::ODFtp()
     , listInfo(this)
     , readyRead(this)
     , stateChanged(this)
-    , qftp_(*new QFtp)
+    , qftp_(new QFtp)
 {
     error_ = false;
     nrdone_ = 0;

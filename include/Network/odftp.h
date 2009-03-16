@@ -7,19 +7,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odftp.h,v 1.2 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: odftp.h,v 1.3 2009-03-16 12:33:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "callbacker.h"
+#include "callback.h"
 
 class QFtp;
 
 
 class ODFtp : public CallBacker
 {
+friend class QFtpConnector;
+
 public:
     			ODFtp();	
 
