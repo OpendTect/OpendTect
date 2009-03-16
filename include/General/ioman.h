@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.40 2009-03-16 12:28:17 cvsranojay Exp $
+ RCS:		$Id: ioman.h,v 1.41 2009-03-16 12:42:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,16 +73,6 @@ public:
     bool		permRemove(const MultiID&);
 
     const char*		surveyName() const;
-    static bool		newSurvey();
-			/*!< if an external source has changed
-				the .od/survey, force re-read it. */
-    static void		setSurvey(const char*);
-			/*!< will remove existing IO manager and
-			     set the survey to 'name', thus bypassing the
-			     .od/survey file */
-    static void		enableSurveyChangeTriggers(bool);
-    			/*!< if set to true, survey change notifiers will be
-			     triggered */
 
     mClass CustomDirData
     {
@@ -146,7 +136,19 @@ private:
 
 public:
 
+    // Don't use these functions unless you really know what you're doing
+
     void		applClosing()	{ applicationClosing.trigger(); }
+    static bool		newSurvey();
+			/*!< if an external source has changed
+				the .od/survey, force re-read it. */
+    static void		setSurvey(const char*);
+			/*!< will remove existing IO manager and
+			     set the survey to 'name', thus bypassing the
+			     .od/survey file */
+    static void		enableSurveyChangeTriggers(bool);
+    			/*!< if set to true, survey change notifiers will be
+			     triggered */
 
 };
 
