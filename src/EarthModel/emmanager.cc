@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.80 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.81 2009-03-16 08:47:17 cvsumesh Exp $";
 
 #include "emmanager.h"
 
@@ -21,8 +21,10 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.80 2009-01-27 11:45:01 cvsrano
 #include "iodirentry.h"
 #include "iopar.h"
 #include "ioman.h"
+#include "mousecursor.h"
 #include "ptrman.h"
 #include "undo.h"
+#include "selector.h"
 
 
 EM::EMManager& EM::EMM()
@@ -375,6 +377,17 @@ void EMManager::burstAlertToAll( bool yn )
 	EM::EMObject* emobj = getObject( oid );
 	emobj->setBurstAlert( yn );
     }
+}
+
+
+void EMManager::removeSelected( const ObjectID& id, 
+				const Selector<Coord3>& selector )
+{
+    EM::EMObject* emobj = getObject( id );
+    emobj->ref();
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+    emobj->removeSelected( selector );
+    emobj->unRef();
 }
 
 

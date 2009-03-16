@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.85 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.86 2009-03-16 08:47:17 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: emobject.cc,v 1.85 2009-02-13 13:31:15 cvsbert 
 #include "ioobj.h"
 #include "iopar.h"
 #include "ptrman.h"
+#include "selector.h"
 
 using namespace EM;
 
@@ -421,6 +422,24 @@ bool EMObject::isPosAttribLocked( int attr ) const
 {
     const int idx=attribs_.indexOf( attr );
     return idx!=-1 ? posattribs_[idx]->locked_ : false; 
+}
+
+
+void EMObject::removeSelected( const Selector<Coord3>& selector )
+{
+    if ( !selector.isOK() )
+	return;
+
+    PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
+    while ( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	if ( selector.includes(getPos(pid)) )
+	    unSetPos( pid, true );
+    }
 }
 
 
