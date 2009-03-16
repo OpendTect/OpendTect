@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.20 2009-01-06 06:05:40 cvsranojay Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.21 2009-03-16 14:19:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "datapack.h"
 #include "factory.h"
+#include "keystrs.h"
 #include "position.h"
 #include "sets.h"
 #include "task.h"
@@ -108,6 +109,7 @@ public:
 				    number of samples in gather and run it
 				    parallel vertically.*/
 
+
 protected:
     				Processor( const char* nm );
     virtual Gather*		createOutputArray(const Gather& input) const;
@@ -159,6 +161,14 @@ public:
     bool			usePar(const IOPar&);
 
     const char*			errMsg() const	{ return errmsg_.buf(); }
+
+    //Keys for process_prestack
+    static const char*		sKeyLineKey()	{ return sKey::LineKey; }
+    static const char*		sKeySetup(){ return "Processing Setup"; }
+    static const char*		sKeyCDPRange(){ return "CDP Range"; }
+    static const char*		sKeyInputData()	{ return "Input"; }
+    static const char*		sKeyOutputData(){ return "Output"; }
+
 
 protected:
 
