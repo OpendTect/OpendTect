@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		3-8-1995
- RCS:		$Id: ioman.h,v 1.39 2009-02-16 17:13:12 cvsbert Exp $
+ RCS:		$Id: ioman.h,v 1.40 2009-03-16 12:28:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,9 @@ public:
 			/*!< will remove existing IO manager and
 			     set the survey to 'name', thus bypassing the
 			     .od/survey file */
+    static void		enableSurveyChangeTriggers(bool);
+    			/*!< if set to true, survey change notifiers will be
+			     triggered */
 
     mClass CustomDirData
     {

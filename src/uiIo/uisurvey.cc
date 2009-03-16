@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.102 2009-03-13 12:18:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.103 2009-03-16 12:29:08 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -52,7 +52,8 @@ static const char* rcsID = "$Id: uisurvey.cc,v 1.102 2009-03-13 12:18:53 cvsbert
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
-extern bool IOMAN_survchg_triggers;
+
+
 
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
@@ -634,9 +635,9 @@ bool uiSurvey::acceptOK( CallBacker* )
 
     if ( initialsurvey_ != listbox_->getText()
       || initialdatadir_ != GetBaseDataDir() )
-	IOMAN_survchg_triggers = true;
+	IOMan::enableSurveyChangeTriggers( true );
     const bool cansetnewsurv = updateSvyFile() && IOMan::newSurvey();
-    IOMAN_survchg_triggers = false;
+    IOMan::enableSurveyChangeTriggers( false );
     if ( !cansetnewsurv )
 	{ SurveyInfo::produceWarnings( false ); return false; }
 
