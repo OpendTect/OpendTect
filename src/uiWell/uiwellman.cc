@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.43 2009-02-23 16:06:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.44 2009-03-16 13:17:15 cvsbruno Exp $";
 
 #include "uiwellman.h"
 
@@ -205,7 +205,11 @@ void uiWellMan::edD2T( CallBacker* )
     if ( Well::MGR().isLoaded( curioobj_->key() ) )
 	wd = Well::MGR().get( curioobj_->key() );
     else
+    {
+	if ( !welldata->d2TModel() )
+	    wellrdr->getD2T();
 	wd = welldata;
+    }
 
     if ( SI().zIsTime() && !wd->d2TModel() )
 	wd->setD2TModel( new Well::D2TModel );
