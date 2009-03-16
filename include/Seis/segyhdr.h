@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.23 2009-01-05 11:19:37 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.24 2009-03-16 10:44:36 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,7 @@ namespace SEGY
   On construction, the 'txt' buffer is filled with data for writing the header.
   If used for reading, fill the buffer yourself and use getFrom.
  
- */
-
+*/
 
 mClass TxtHeader
 {
@@ -49,7 +48,7 @@ public:
 
     unsigned char txt_[SegyTxtHeaderLength];
 
-    static bool	info2d;
+    static bool& info2D();
 
     void	dump(std::ostream&) const;
 

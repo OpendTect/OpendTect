@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.71 2009-03-10 15:06:08 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.72 2009-03-16 10:45:02 cvsranojay Exp $";
 
 
 #include "segyhdr.h"
@@ -45,8 +45,8 @@ const char* TrcHeaderDef::sTrNrByteSz()	{ return "Nr bytes for trace number"; }
 }
 
 
-bool SEGY::TxtHeader::info2d = false;
-
+static bool sInfo2D = false;
+bool& SEGY::TxtHeader::info2D()  { return sInfo2D; }
 
 static void Ebcdic2Ascii(unsigned char*,int);
 static void Ascii2Ebcdic(unsigned char*,int);
@@ -166,7 +166,7 @@ void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
     mPutBytePos( 6, "X-coordinate: ", xcoord );
     mPutBytePos( 7, "Y-coordinate: ", ycoord );
 
-    if ( info2d )
+    if ( sInfo2D )
     {
 	mPutBytePosSize( 8, "Trace number: ", trnr );
 	if ( !thd.linename.isEmpty() )
@@ -620,7 +620,7 @@ void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
     mSTHPutShort(1,34); // duse
     mSTHPutShort(1,38); // counit
 
-    const bool is2d = SEGY::TxtHeader::info2d;
+    const bool is2d = SEGY::TxtHeader::info2D();
     if ( !is2d && ti.binid.inl != previnl )
 	lineseqnr = 1;
     previnl = ti.binid.inl;
