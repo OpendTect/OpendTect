@@ -7,7 +7,9 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Aug 2003
  Contents:	Plugins
- RCS:		$Id: plugins.h,v 1.21 2009-02-13 13:31:14 cvsbert Exp $
+
+ RCS:		$Id: plugins.h,v 1.22 2009-03-16 11:52:34 cvsranojay Exp $
+
 ________________________________________________________________________
 
 -*/
@@ -82,6 +84,10 @@ mClass PluginManager
 {
 public:
 
+    mGlobal friend PluginManager& PIM();
+    
+    static PluginManager&	getInstance();
+
     void			setArgs(int argc,char** argv);
     					//!< Mandatory
     void			loadAuto(bool late);
@@ -129,12 +135,10 @@ public:
 private:
 
     				PluginManager();
-    friend PluginManager&	PIM();
-
+    
     int				argc_;
     char**			argv_;
     ObjectSet<Data>		data_;
-    static PluginManager*	theinst_;
 
     BufferString		userdir_;
     BufferString		appdir_;
@@ -149,12 +153,8 @@ private:
 
 };
 
-inline PluginManager& PIM()
-{
-    if ( !PluginManager::theinst_ )
-	PluginManager::theinst_ = new PluginManager;
-    return *PluginManager::theinst_;
-}
+mGlobal PluginManager& PIM();
+
 
 #endif /* End of C++ only section */
 

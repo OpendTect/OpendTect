@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.57 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.58 2009-03-16 11:54:12 cvsranojay Exp $";
 
 
 #include "plugins.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: plugins.cc,v 1.57 2008-11-25 15:35:22 cvsbert E
 #include "strmprov.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "ptrman.h"
 #include "errh.h"
 
 #ifndef __win__
@@ -26,7 +27,6 @@ static const char* rcsID = "$Id: plugins.cc,v 1.57 2008-11-25 15:35:22 cvsbert E
 
 #include "debugmasks.h"
 
-PluginManager* PluginManager::theinst_ = 0;
 static const char* sPluginDir = "plugins";
 static const char* sKeyNoDispName = "??";
 
@@ -478,4 +478,11 @@ void PluginManager::loadAuto( bool late )
 	    UsrMsg( msg );
 	}
     }
+}
+
+
+PluginManager& PIM()
+{
+    static PtrMan<PluginManager> inst = new PluginManager;
+    return *inst;
 }
