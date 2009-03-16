@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.17 2009-03-13 08:45:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.18 2009-03-16 08:51:00 cvsumesh Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.17 2009-03-13 08:45:47 c
 #include "emobject.h"
 #include "emmanager.h"
 #include "datapointset.h"
+#include "selector.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
@@ -32,6 +33,7 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.17 2009-03-13 08:45:47 c
 #include "uivispartserv.h"
 
 #include "visemobjdisplay.h"
+#include "vishorizondisplay.h"
 #include "vissurvscene.h"
 
 
@@ -142,6 +144,7 @@ void uiODHorizonTreeItem::initMenuItems()
     fillholesmnuitem_.text = "Fill &holes ...";
     filterhormnuitem_.text = "&Filter ...";
     snapeventmnuitem_.text = "Snap to &event ...";
+    removeselectionmnuitem_.text = "&Remove selection";
 }
 
 
@@ -187,6 +190,8 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 
     const bool hastransform = scene && scene->getDataTransform();
 
+    const Selector<Coord3>* selector = visserv_->getCoordSelector( sceneID() );
+
     if ( menu->menuID()!=displayID() || hastransform )
     {
 	mResetMenuItem( &shiftmnuitem_ );
@@ -194,6 +199,8 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &filterhormnuitem_ );
 	mResetMenuItem( &snapeventmnuitem_ );
 	mResetMenuItem( &createflatscenemnuitem_ );
+	if ( selector )
+    	    mResetMenuItem( &removeselectionmnuitem_ );
     }
     else
     {
@@ -205,6 +212,8 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &filterhormnuitem_, !islocked, false );
 	mAddMenuItem( &algomnuitem_, &snapeventmnuitem_, !islocked, false );
+	mAddMenuItem( menu, &removeselectionmnuitem_, (!islocked && selector), 
+		      false );
     }
 }
 
@@ -236,6 +245,13 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     {
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
 	emattrserv->showHorShiftDlg( getUiParent(), emid_ );
+    }
+    else if ( mnuid==removeselectionmnuitem_.id )
+    {
+	const Selector<Coord3>* sel = 
+	    applMgr()->visServer()->getCoordSelector( sceneID() );
+	if ( sel && sel->isOK() )
+	    EM::EMM().removeSelected( emid_, *sel );
     }
     else
 	handled = false;
