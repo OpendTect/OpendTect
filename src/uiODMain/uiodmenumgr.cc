@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.157 2009-03-12 14:59:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.158 2009-03-16 16:31:14 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -335,6 +335,9 @@ void uiODMenuMgr::fillProcMenu()
 	voitm->insertItem(
 	    new uiMenuItem("Time - deph conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
+	voitm->insertItem(
+	    new uiMenuItem("Pre Stack processing ...",
+			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
     }
     create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
 	    	   mCompBetweenHor3DMnuItm );

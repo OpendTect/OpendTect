@@ -7,13 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.309 2009-03-13 08:45:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.310 2009-03-16 16:31:14 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodmenumgr.h"
 #include "uiodtreeitem.h"
 
+#include "uibatchprestackproc.h"
 #include "uiconvpos.h"
 #include "uicolortable.h"
 #include "mousecursor.h"
@@ -455,6 +456,13 @@ void uiODApplMgr::createVol( bool is2d )
 
 void uiODApplMgr::processTime2Depth( CallBacker* )
 { seisserv_->processTime2Depth(); }
+
+
+void uiODApplMgr::processPreStack( CallBacker* )
+{
+    PreStack::uiBatchProcSetup dlg( &appl_, false );
+    dlg.go();
+}
 
 
 void uiODApplMgr::doXPlot()
