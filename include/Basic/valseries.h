@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.23 2009-03-13 21:22:55 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.24 2009-03-17 22:07:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,7 @@ template <class RT, class AT>
 RT ArrayValueSeries<RT,AT>::value( od_int64 idx ) const
 {
 #ifdef __debug__
-    if ( idx<0 || idx>=cursize_ )
+    if ( idx<0 || (cursize_>=0 && idx>=cursize_ ) )
     {
 	pErrMsg("Invalid access");
 	DBG::forceCrash(true);
@@ -262,7 +262,7 @@ template <class RT, class AT>
 void ArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
 {
 #ifdef __debug__
-    if ( idx<0 || idx>=cursize_ )
+    if ( idx<0 || (cursize_>=0 && idx>=cursize_ ) )
     {
 	pErrMsg("Invalid access");
 	DBG::forceCrash(true);
