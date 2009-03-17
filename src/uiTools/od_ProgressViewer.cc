@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.21 2009-03-16 09:39:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.22 2009-03-17 07:02:45 cvsranojay Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -29,10 +29,6 @@ static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.21 2009-03-16 09:39:47
 #include "sighndl.h"
 #include "strmprov.h"
 #include "timer.h"
-
-#ifdef __msvc__
-# include "winmain.h"
-#endif
 
 #define mBufLen 81
 
