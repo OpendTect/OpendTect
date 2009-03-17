@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.30 2009-03-10 06:33:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.31 2009-03-17 06:29:36 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -493,7 +493,7 @@ bool uiFunctionDisplay::setSelPt()
     if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ ) return false;
     if ( newsel < 0 || newsel > xvals_.size() - 1 )
     {
-	selpt_ == -1;
+	selpt_ = -1;
 	return false;
     }
 
