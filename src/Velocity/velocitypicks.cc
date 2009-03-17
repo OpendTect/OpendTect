@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.1 2009-03-05 13:25:32 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.2 2009-03-17 20:25:20 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -58,6 +58,7 @@ PicksMgr& VPM()
 
 
 const char* Picks::sKeyIsVelPick()	{ return "Velocity Picks"; }
+const char* Picks::sKeyVelocityPicks()	{ return "Velocity Picks"; }
 const char* Picks::sKeyRefOffset()	{ return "Reference offset"; }
 const char* Picks::sKeyGatherID()	{ return "Gather"; }
 const char* Picks::sKeyNrHorizons()	{ return "Nr Horizons"; }
@@ -354,6 +355,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
 {
     par.clear();
 
+    par.set( sKey::Type, sKeyVelocityPicks() );
     par.set(sKeyGatherID(),gatherid_);
     par.setYN( sKeyIsVelPick(), true );
 }
@@ -907,6 +909,8 @@ const IOObjContext& Picks::getStorageContext()
     {
 	ptr = new IOObjContext(PickSetTranslatorGroup::ioContext());
 	ptr->setName( "RMO picks" );
+
+	//Should eventually become sKey::Type, sKeyVelocityPicks
 	ptr->parconstraints.setYN( sKeyIsVelPick(), getYesNoString(true) );
 	ptr->includeconstraints = true;
 	ptr->allowcnstrsabsent = false;

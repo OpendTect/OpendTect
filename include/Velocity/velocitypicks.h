@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.1 2009-03-05 13:25:32 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.2 2009-03-17 20:25:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -136,6 +136,7 @@ public:
 				    be horizon depth, second will be velocity.*/
 
     static const char*		sKeyIsVelPick();
+    static const char*		sKeyVelocityPicks();
     static const char*		sKeyRefOffset();
     static const char*		sKeyGatherID();
     static const char*		sKeyNrHorizons();
