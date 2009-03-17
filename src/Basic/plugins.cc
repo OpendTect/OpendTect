@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.59 2009-03-16 12:42:52 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.60 2009-03-17 09:13:12 cvsbert Exp $";
 
 
 #include "plugins.h"
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: plugins.cc,v 1.59 2009-03-16 12:42:52 cvsbert E
 #include "strmprov.h"
 #include "envvars.h"
 #include "oddirs.h"
-#include "ptrman.h"
 #include "errh.h"
 
 #ifndef __win__
@@ -483,6 +482,6 @@ void PluginManager::loadAuto( bool late )
 
 PluginManager& PIM()
 {
-    static PtrMan<PluginManager> inst = new PluginManager;
+    static PluginManager* inst = new PluginManager;
     return *inst;
 }
