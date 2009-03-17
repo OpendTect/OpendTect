@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.1 2009-03-12 20:41:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.2 2009-03-17 08:18:50 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -296,7 +296,7 @@ void HorizonSectionTile::updateResolution( SoState* state )
     if ( resolution_==-1 || !triangles_[resolution_] )
 	return;
 
-    const int resstep = (int)pow( 2, resolution_ ); 
+    const int resstep = (int)Math::IntPowerOf( 2.f, resolution_ ); 
     const int blocksz = resolution_ != 0 ? mHorizonSectionSideSize/resstep 
 					 : mHorizonSectionSideSize-1;
     const int gluenr = mHorizonSectionSideSize-resstep*blocksz;
@@ -400,7 +400,7 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
     
     if ( resolution_!=-1 )
     {
-	const int resstep = (int)pow( 2, resolution_ );
+	const int resstep = (int)pow( (float)2, (float)resolution_ );
 	if ( !mHorizonSectionSideSize % resstep )
     	    needsretesselation_[resolution_] = true;
     }
