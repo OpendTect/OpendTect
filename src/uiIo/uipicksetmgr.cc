@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.8 2009-03-17 20:21:15 cvskris Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.9 2009-03-17 20:38:06 cvskris Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -239,7 +239,8 @@ void uiPickSetMgr::mergeSets( MultiID& mid )
     if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj,msg) )
 	uiMSG().error( msg );
 
-    ctioout_.ioobj->pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
-    IOM().commitChanges( *ioobj );
+    dlg.ctioout_.ioobj->pars().set( sKey::Type,
+	    PickSetTranslatorGroup::sKeyPickSet() );
+    IOM().commitChanges( *dlg.ctioout_.ioobj );
     deepErase( pssread );
 }
