@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.30 2009-01-30 05:08:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.31 2009-03-17 12:53:18 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -34,6 +34,7 @@ static const char* rcsID = "$Id: uisegyread.cc,v 1.30 2009-01-30 05:08:31 cvssat
 #include "oddirs.h"
 #include "filepath.h"
 #include "timefun.h"
+#include "odusginfo.h"
 
 static const char* sKeySEGYRev1Pol = "SEG-Y Rev. 1 policy";
 
@@ -58,7 +59,8 @@ void uiSEGYRead::Setup::getDefaultTypes( TypeSet<Seis::GeomType>& geoms,
 
 uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 			const IOPar* iop )
-    : setup_(su)
+    : Usage::Client("SEG-Y")
+    , setup_(su)
     , parent_(p)
     , geom_(SI().has3D()?Seis::Vol:Seis::Line)
     , state_(su.initialstate_)
@@ -73,6 +75,9 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
     , rev1qdlg_(0)
     , processEnded(this)
 {
+    usginfo_.action_ = setup_.forScan() ? "Scan" : "Import";
+    sendUsageInfo();
+
     if ( iop )
 	usePar( *iop );
     nextAction();
@@ -83,6 +88,8 @@ uiSEGYRead::uiSEGYRead( uiParent* p, const uiSEGYRead::Setup& su,
 
 void uiSEGYRead::closeDown()
 {
+    usginfo_.start_ = false;
+    sendUsageInfo();
     uiOBJDISP()->go( this );
     processEnded.trigger();
 }

@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusginfo.h,v 1.1 2009-03-12 15:51:31 cvsbert Exp $
+ RCS:           $Id: odusginfo.h,v 1.2 2009-03-17 12:53:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "gendefs.h"
+#include "bufstring.h"
+#include <iosfwd>
 
 
 namespace Usage
@@ -22,14 +23,20 @@ mClass Info
 {
 public:
 
-    			Info( const char* grp, const char* act )
+    			Info( const char* grp, const char* act=0,
+			      const char* aux=0 )
 			    : group_(grp)
-			    , action_(act)	{}
+			    , action_(act)
+    			    , aux_(aux)
+    			    , start_(true)		{}
 
     BufferString	group_;
     BufferString	action_;
+    BufferString	aux_;
+    bool		start_;
 
-    BufferString	auxinfo_;
+    std::ostream&	dump(std::ostream&) const;
+    BufferString&	dump(BufferString&) const;
 
 };
 

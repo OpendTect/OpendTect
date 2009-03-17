@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgserver.cc,v 1.1 2009-03-12 15:51:31 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgserver.cc,v 1.2 2009-03-17 12:53:18 cvsbert Exp $";
 
 #include "odusgserver.h"
 #include "odusgbaseadmin.h"
@@ -45,7 +45,7 @@ bool Usage::Server::go()
 	{
 	    logstrm_ << "\n\t" << Time_getFullDateString() << '\n';
 	    Usage::Info inf( "dGB", itm % 30 ? "NN" : "DS" );
-	    inf.auxinfo_ = toString(itm);
+	    inf.aux_ = toString(itm);
 	    Administrator::dispatch( inf );
 	}
 	Time_sleep( 1 );

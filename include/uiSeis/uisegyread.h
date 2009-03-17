@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uisegyread.h,v 1.13 2009-01-13 13:52:02 cvsbert Exp $
+ RCS:           $Id: uisegyread.h,v 1.14 2009-03-17 12:53:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seistype.h"
+#include "odusgclient.h"
 #include "iopar.h"
 class IOObj;
 class uiParent;
@@ -28,6 +29,7 @@ class uiSEGYReadRev1Question;
 /*!\brief 'Server' for SEG-Y Reading */
 
 mClass uiSEGYRead : public CallBacker
+		  , public Usage::Client
 {
 public:
 

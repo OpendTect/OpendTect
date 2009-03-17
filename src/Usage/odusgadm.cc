@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgadm.cc,v 1.1 2009-03-12 15:51:31 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgadm.cc,v 1.2 2009-03-17 12:53:18 cvsbert Exp $";
 
 #include "odusgbaseadmin.h"
 #include "odusginfo.h"
@@ -89,8 +89,7 @@ void Usage::Administrator::toLogFile( const char* msg ) const
 bool Usage::BaseAdministrator::handle( Usage::Info& inf )
 {
     BufferString msg( "BaseAdministrator::handle - " );
-    msg += inf.group_; msg += "/"; msg += inf.action_;
-    msg += " aux="; msg += inf.auxinfo_;
+    inf.dump( msg );
     toLogFile( msg );
     return true;
 }
