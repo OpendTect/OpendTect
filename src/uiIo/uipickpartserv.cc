@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.59 2009-02-11 10:48:04 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.60 2009-03-17 20:21:15 cvskris Exp $";
 
 #include "uipickpartserv.h"
 
@@ -79,9 +79,12 @@ bool uiPickPartServer::loadSets( bool poly )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
-    ctio->ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
-    ctio->ctxt.includeconstraints = poly;
-    ctio->ctxt.allowcnstrsabsent = !poly;
+    if ( poly )
+    {
+	ctio->ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
+	ctio->ctxt.includeconstraints = true;
+	ctio->ctxt.allowcnstrsabsent = false;
+    }
 
     uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;

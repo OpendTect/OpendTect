@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.36 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.37 2009-03-17 20:21:15 cvskris Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -169,11 +169,15 @@ bool uiImpExpPickSet::doImport()
     {
 	ps.disp_.connect_ = Pick::Set::Disp::Close;
 	ctio_.ioobj->pars().set( sKey::Type, sKey::Polygon );
-	IOM().commitChanges( *ctio_.ioobj );
     }
     else
+    {
 	ps.disp_.connect_ = Pick::Set::Disp::None;
+	ctio_.ioobj->pars().set( sKey::Type,
+		PickSetTranslatorGroup::sKeyPickSet() );
+    }
 
+    IOM().commitChanges( *ctio_.ioobj );
     BufferString errmsg;
     if ( !PickSetTranslator::store(ps,ctio_.ioobj,errmsg) )
 	mErrRet(errmsg);

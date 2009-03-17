@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.7 2009-01-09 11:31:10 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.8 2009-03-17 20:21:15 cvskris Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -137,6 +137,8 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
 {
     BufferString bs;
+    ioobj.pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
+    IOM().commitChanges( ioobj );
     if ( !PickSetTranslator::store( ps, &ioobj, bs ) )
 	{ uiMSG().error(bs); return false; }
 
@@ -237,5 +239,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid )
     if ( !PickSetTranslator::store(resset,dlg.ctioout_.ioobj,msg) )
 	uiMSG().error( msg );
 
+    ctioout_.ioobj->pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
+    IOM().commitChanges( *ioobj );
     deepErase( pssread );
 }

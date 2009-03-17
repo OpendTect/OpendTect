@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.17 2008-12-04 19:46:13 cvskris Exp $
+ RCS:           $Id: treeitem.h,v 1.18 2009-03-17 20:21:15 cvskris Exp $
 ________________________________________________________________________
 
 

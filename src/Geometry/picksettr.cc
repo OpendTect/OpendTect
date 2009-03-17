@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: picksettr.cc,v 1.19 2008-12-29 10:03:17 cvsranojay Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.20 2009-03-17 20:21:15 cvskris Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -19,14 +19,20 @@ static const char* rcsID = "$Id: picksettr.cc,v 1.19 2008-12-29 10:03:17 cvsrano
 #include "iopar.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "separstr.h"
 #include "streamconn.h"
 #include "ioman.h"
 #include "polygon.h"
 #include "errh.h"
 #include "keystrs.h"
 
-mDefSimpleTranslatorioContext(PickSet,Loc)
-
+mDefSimpleTranslatorioContextWithExtra( PickSet, Loc,
+	FileMultiString fms;
+	fms.add( sKey::Polygon );
+	fms.add( sKeyPickSet() );
+	ctxt->parconstraints.set( sKey::Type, fms.buf() );
+	ctxt->includeconstraints=true;
+	ctxt->allowcnstrsabsent=true;)
 
 int PickSetTranslatorGroup::selector( const char* key )
 {

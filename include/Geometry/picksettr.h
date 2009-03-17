@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.10 2008-12-25 11:55:38 cvsranojay Exp $
+ RCS:		$Id: picksettr.h,v 1.11 2009-03-17 20:21:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ public:
     			mDefEmptyTranslatorGroupConstructor(PickSet)
 
     const char*		defExtension() const		{ return "pck"; }
+    static const char*	sKeyPickSet()			{ return "PickSet"; }
 };
 
 
