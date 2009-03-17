@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.39 2008-12-18 09:51:03 cvsbert Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.40 2009-03-17 18:25:03 cvskris Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -274,12 +274,14 @@ bool AnnotTreeItem::showSubMenu()
 
 #define mDelCtioRet { delete ctio->ioobj; delete ctio; return false; }
 
+
 bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
     CtxtIOObj* ctio = mGetCtxtIOObj(PickSet,Loc);
     ctio->ctxt.forread = true;
     ctio->ctxt.parconstraints.set( sKey::Type, managerName(), oldSelKey() );
     ctio->ctxt.includeconstraints = true;
+    ctio->ctxt.allowcnstrsabsent = false;
     uiIOObjSelDlg dlg( getUiParent(), *ctio );
     if ( !dlg.go() || !dlg.ioObj() )
 	mDelCtioRet;
@@ -451,6 +453,7 @@ char SubItem::createIOEntry( const char* nm, bool overwrite, MultiID& mid,
     ctio.ctxt.maychdir = false;
     ctio.ctxt.parconstraints.set( sKey::Type, mannm );
     ctio.ctxt.includeconstraints = true;
+    ctio.ctxt.allowcnstrsabsent = false;
     ctio.setName( nm );
     ctio.fillObj();
     if ( !ctio.ioobj )
@@ -488,6 +491,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
 	ctio.ctxt.maychdir = false;
 	ctio.ctxt.parconstraints.set( sKey::Type, managerName() );
 	ctio.ctxt.includeconstraints = true;
+	ctio.ctxt.allowcnstrsabsent = false;
 	ctio.setName( nm );
 	uiIOObjSelDlg dlg( getUiParent(), ctio );
 	if ( !dlg.go() )
