@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: externalattribrandom.cc,v 1.4 2008-12-31 05:43:40 cvsdgb Exp $";
+static const char* rcsID = "$Id: externalattribrandom.cc,v 1.5 2009-03-17 12:58:07 cvskris Exp $";
 
 #include "externalattribrandom.h"
 
@@ -170,7 +170,7 @@ void RandomManager::createMenuCB( CallBacker* cb )
     }
 
     mAddMenuItem( menu, &addrandomattribmnuitem_,
-	    	  !islocked && so->canAddAttrib(), false );
+	    	  !islocked && so->canAddAttrib( 1 ), false );
 }
     
 
