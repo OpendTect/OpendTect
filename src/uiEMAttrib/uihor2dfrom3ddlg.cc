@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.7 2009-03-10 13:45:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.8 2009-03-18 04:51:02 cvsnanne Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -57,15 +57,30 @@ bool uiHor2DFrom3DDlg::acceptOK( CallBacker* )
     if ( !checkFlds() )
 	return false;
 
-    PtrMan<Executor> loader = EM::EMM().objectLoader(
-	    			hor3dsel_->selIOObj()->key() );
-    uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*loader) ) return false;
+    const MultiID mid = hor3dsel_->selIOObj()->key();
+    const EM::ObjectID oid = EM::EMM().getObjectID( mid );
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( oid );
+    if ( !emobj || !emobj->isFullyLoaded() )
+    {
+	emobj = EM::EMM().createTempObject( hor3dsel_->selIOObj()->group() );
+	if ( !emobj )
+	{
+	    uiMSG().error( "Cannot read or create 3D horizon" );
+	    return false;
+	}
+
+	emobj->setMultiID( mid );
+	PtrMan<Executor> loader = EM::EMM().objectLoader( mid );
+	uiTaskRunner taskrunner( this );
+	if ( !taskrunner.execute(*loader) )
+	    return false;
+    }
 
     const char* horizonnm = out2dfld_->getObjSel()->getInput();
     EM::Horizon2D* horizon2d = create2dHorizon( horizonnm );
     if ( !horizon2d )
 	return false;
+
     set2DHorizon( *horizon2d );
     horizon2d->ref();
     
