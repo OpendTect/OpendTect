@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.21 2009-03-10 06:33:51 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.22 2009-03-18 12:40:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,8 @@ public:
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
 
 	Setup&		drawline( bool yn )
+			{ drawliney_ = drawliney_ = yn; return *this; }
+	Setup&		drawgridlines( bool yn )
 			{ noxgridline_ = noygridline_ = noy2gridline_ = !yn;
 			  return *this; }
 	Setup&		drawscatter( bool yn )
