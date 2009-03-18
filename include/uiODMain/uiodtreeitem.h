@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.30 2009-03-18 09:27:09 cvsranojay Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.31 2009-03-18 11:20:25 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
 				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 
-    static const char*	sceneidkey();
+    static const char*	sceneidkey;
     static const char*	viewerptr;
     static const char*	applmgrstr;
     static const char*	scenestr;
