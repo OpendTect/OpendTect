@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.86 2009-03-04 13:14:36 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.87 2009-03-18 09:30:35 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -399,8 +399,12 @@ bool StorageProvider::setMSCProvSelData()
 	for ( int idp=0; idp<parents.size(); idp++ )
 	{
 	    if ( !parents[idp] ) continue;
-	    desiredvolume = parents[idp]->getDesiredVolume();
-	    if ( desiredvolume ) break;
+
+	    if ( parents[idp]->getDesiredVolume() )
+	    {
+		setDesiredVolume( *parents[idp]->getDesiredVolume() );
+		break;
+	    }
 	}
 	if ( !desiredvolume )
 	    return true;
