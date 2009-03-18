@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.29 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.30 2009-03-18 09:27:09 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
 				    uiODApplMgr*,uiTreeFactorySet*);
 			~uiODTreeTop();
 
-    static const char*	sceneidkey;
+    static const char*	sceneidkey();
     static const char*	viewerptr;
     static const char*	applmgrstr;
     static const char*	scenestr;
@@ -89,7 +89,7 @@ public:
     
 
 #define mDefineItem( type, inherited, parentitem, extrapublic ) \
-class uiOD##type##TreeItem : public uiOD##inherited \
+mClass uiOD##type##TreeItem : public uiOD##inherited \
 { \
     typedef uiOD##inherited inheritedClass; \
 public: \
