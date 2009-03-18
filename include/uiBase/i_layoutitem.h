@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.31 2009-02-06 05:33:02 cvsranojay Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.32 2009-03-18 11:12:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "i_layout.h"
 #include "uiobjbody.h"
-#include "uihandle.h"
-#include <qsize.h>
-#include <qwidget.h>
+
+#include <QSize>
+#include <QWidget>
 
 class QLayoutItem;
 
