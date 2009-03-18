@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.2 2009-03-17 20:25:20 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.3 2009-03-18 17:52:57 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -645,7 +645,7 @@ bool Picks::load( const IOObj* ioobj )
     storageid_ = ioobj->key();
 
     ::Pick::Set pickset( ioobj->name() );
-    if ( !PickSetTranslator::retrieve( pickset, ioobj, errmsg_ ) )
+    if ( !PickSetTranslator::retrieve( pickset, ioobj, true, errmsg_ ) )
 	return false;
 
     if ( !usePar( pickset.pars_ ) )

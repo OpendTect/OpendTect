@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.52 2009-02-17 13:34:02 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.53 2009-03-18 17:52:58 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -909,7 +909,7 @@ int LocationDisplay::usePar( const IOPar& par )
 	BufferString bs;
 	PtrMan<IOObj> ioobj = IOM().get( storedmid_ );
 	if ( ioobj )
-	    PickSetTranslator::retrieve( *newps, ioobj, bs );
+	    PickSetTranslator::retrieve( *newps, ioobj, true, bs );
 
 	if ( !newps->name() || !*newps->name() )
 	    newps->setName( name() );

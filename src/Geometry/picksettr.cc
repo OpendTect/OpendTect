@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: picksettr.cc,v 1.20 2009-03-17 20:21:15 cvskris Exp $";
+static const char* rcsID = "$Id: picksettr.cc,v 1.21 2009-03-18 17:52:58 cvskris Exp $";
 
 #include "picksetfact.h"
 #include "pickset.h"
@@ -46,7 +46,7 @@ int PickSetTranslatorGroup::selector( const char* key )
 
 
 bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
-				  BufferString& bs )
+				  bool checkdir, BufferString& bs )
 {
     if ( !ioobj ) { bs = "Cannot find object in data base"; return false; }
     mDynamicCastGet(PickSetTranslator*,t,ioobj->getTranslator())
@@ -55,7 +55,7 @@ bool PickSetTranslator::retrieve( Pick::Set& ps, const IOObj* ioobj,
     PtrMan<Conn> conn = ioobj->getConn( Conn::Read );
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
-    bs = tr->read( ps, *conn );
+    bs = tr->read( ps, *conn, checkdir );
     return bs.isEmpty();
 }
 
@@ -78,7 +78,8 @@ bool PickSetTranslator::store( const Pick::Set& ps, const IOObj* ioobj,
 }
 
 
-const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
+const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn,
+					bool checkdir )
 {
     if ( !conn.forRead() || !conn.isStream() )
 	return "Internal error: bad connection";
@@ -138,7 +139,7 @@ const char* dgbPickSetTranslator::read( Pick::Set& ps, Conn& conn )
 	astrm.next();
 	while ( !atEndOfSection(astrm) )
 	{
-	    if ( !loc.fromString( astrm.keyWord() ) )
+	    if ( !loc.fromString( astrm.keyWord(), true, checkdir ) )
 		break;
 	    ps += loc;
 	    astrm.next();
@@ -240,7 +241,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
 	    ErrMsg( msg ); return false;
 	}
 	ps = createdps = new Pick::Set;
-	if ( !retrieve(*createdps,ioobj,msg) )
+	if ( !retrieve(*createdps,ioobj,true,msg) )
 	    { ErrMsg( msg ); delete createdps; return false; }
     }
 
@@ -256,7 +257,7 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
 						 BufferString& emsg )
 {
     Pick::Set ps; BufferString msg;
-    if ( !PickSetTranslator::retrieve(ps,&ioobj,msg) )
+    if ( !PickSetTranslator::retrieve(ps,&ioobj,true,msg) )
     {
 	emsg = "Cannot read polygon '"; emsg += ioobj.name();
 	emsg += "':\n"; emsg += msg;

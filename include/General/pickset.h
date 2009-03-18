@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.40 2008-12-29 06:05:08 cvsranojay Exp $
+ RCS:		$Id: pickset.h,v 1.41 2009-03-18 17:52:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,10 @@ public:
 			{ return !(*this == pl); }
     void		operator =(const Location&);
 
-    bool		fromString(const char*,bool doxy=true);
+    bool		fromString(const char*,bool doxy=true,
+	    			  bool checkdir=true);
+    			/*!<If checkdir is true, a more rigourous test is done
+			    on dir. */
     void		toString(BufferString&) const;
 
     Coord3		pos;

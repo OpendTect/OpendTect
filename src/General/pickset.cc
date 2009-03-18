@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.61 2009-03-10 05:21:05 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.62 2009-03-18 17:52:57 cvskris Exp $";
 
 #include "pickset.h"
 
@@ -91,7 +91,7 @@ static double getNextVal( char*& str )
 }
 
 
-bool Pick::Location::fromString( const char* s, bool doxy )
+bool Pick::Location::fromString( const char* s, bool doxy, bool testdir )
 {
     if ( !s || !*s ) return false;
 
@@ -141,12 +141,18 @@ bool Pick::Location::fromString( const char* s, bool doxy )
     // See if there's a direction, too
     xread = getNextVal( str );
     yread = getNextVal( str );
-    if ( !mIsUdf(yread) )
+    zread = getNextVal( str );
+
+    if ( testdir )
     {
-	zread = getNextVal( str );
-	if ( mIsUdf(zread) ) zread = 0;
-	dir = Sphere( xread, yread, zread );
+	if ( !mIsUdf(yread) )
+	{
+	    if ( mIsUdf(zread) ) zread = 0;
+	    dir = Sphere( xread, yread, zread );
+	}
     }
+    else
+	dir = Sphere( xread, yread, zread );
 
     return true;
 }

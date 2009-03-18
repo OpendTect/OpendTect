@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: tableposprovider.cc,v 1.2 2008-02-13 13:28:00 cvsbert Exp $";
+static const char* rcsID = "$Id: tableposprovider.cc,v 1.3 2009-03-18 17:52:58 cvskris Exp $";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -83,7 +83,7 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
 	if ( ioobj )
 	{
 	    BufferString msg; Pick::Set ps;
-	    if ( PickSetTranslator::retrieve(ps,ioobj,msg) )
+	    if ( PickSetTranslator::retrieve(ps,ioobj,true,msg) )
 	    {
 		for ( int idx=0; idx<ps.size(); idx++ )
 		{

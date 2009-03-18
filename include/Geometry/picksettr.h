@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.11 2009-03-17 20:21:15 cvskris Exp $
+ RCS:		$Id: picksettr.h,v 1.12 2009-03-18 17:52:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,12 +36,13 @@ mClass PickSetTranslator : public Translator
 public:
     			mDefEmptyTranslatorBaseConstructor(PickSet)
 
-    virtual const char*	read(Pick::Set&,Conn&)		= 0;
+    virtual const char*	read(Pick::Set&,Conn&,bool checkdir=true)	= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const Pick::Set&,Conn&)	= 0;
+    virtual const char*	write(const Pick::Set&,Conn&)			= 0;
 			//!< returns err msg or null on success
 
-    static bool		retrieve(Pick::Set&,const IOObj*,BufferString&);
+    static bool		retrieve(Pick::Set&,const IOObj*,bool checkdir,
+	    			 BufferString&);
     static bool		store(const Pick::Set&,const IOObj*,BufferString&);
 
     static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&);
@@ -64,7 +65,7 @@ public:
 
     			mDefEmptyTranslatorConstructor(dgb,PickSet)
 
-    const char*		read(Pick::Set&,Conn&);
+    const char*		read(Pick::Set&,Conn&,bool checkdir=true);
     const char*		write(const Pick::Set&,Conn&);
 
 };

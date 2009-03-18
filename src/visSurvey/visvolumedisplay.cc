@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.102 2009-03-03 08:06:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.103 2009-03-18 17:52:58 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -544,7 +544,7 @@ bool VolumeDisplay::updateSeedBasedSurface( int idx, TaskRunner* tr )
     {
 	BufferString ermsg;
 	if ( !PickSetTranslator::retrieve( seeds,
-		    IOM().get(isosurfsettings_[idx].seedsid_), ermsg ) )
+		    IOM().get(isosurfsettings_[idx].seedsid_), true, ermsg ) )
 	    return false;
     }
 

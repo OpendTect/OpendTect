@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.9 2009-03-17 20:38:06 cvskris Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.10 2009-03-18 17:52:57 cvskris Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -216,7 +216,7 @@ void uiPickSetMgr::mergeSets( MultiID& mid )
 	    Pick::Set* newset = new Pick::Set;
 	    IOObj* ioobj = IOM().get( ky );
 	    BufferString msg;
-	    if ( PickSetTranslator::retrieve(*newset,ioobj,msg) )
+	    if ( PickSetTranslator::retrieve(*newset,ioobj,true, msg) )
 		{ pss += newset; pssread += newset; }
 	    else
 		uiMSG().warning( msg );

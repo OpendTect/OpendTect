@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: gmtlocations.cc,v 1.7 2008-12-16 06:26:43 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtlocations.cc,v 1.8 2009-03-18 17:52:58 cvskris Exp $";
 
 #include "gmtlocations.h"
 
@@ -79,7 +79,7 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
     strm << "Posting Locations " << setobj->name() << " ...  ";
     Pick::Set set;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(set,setobj,errmsg) )
+    if ( !PickSetTranslator::retrieve(set,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
     Color outcol; get( sKey::Color, outcol );
@@ -172,7 +172,7 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
     strm << "Posting Polyline " << setobj->name() << " ...  ";
     Pick::Set set;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(set,setobj,errmsg) )
+    if ( !PickSetTranslator::retrieve(set,setobj,true,errmsg) )
 	mErrStrmRet( errmsg )
 
     LineStyle ls;

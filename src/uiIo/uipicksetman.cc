@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetman.cc,v 1.8 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetman.cc,v 1.9 2009-03-18 17:52:57 cvskris Exp $";
 
 #include "uipicksetman.h"
 #include "uipicksetmgr.h"
@@ -49,7 +49,7 @@ void uiPickSetMan::mkFileInfo()
 
     BufferString txt;
     Pick::Set ps;
-    if ( !PickSetTranslator::retrieve(ps,curioobj_,txt) )
+    if ( !PickSetTranslator::retrieve(ps,curioobj_,true, txt) )
     {
 	BufferString msg( "Read error: '" ); msg += txt; msg += "'";
 	txt = msg;

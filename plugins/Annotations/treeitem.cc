@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.40 2009-03-17 18:25:03 cvskris Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.41 2009-03-18 17:53:39 cvskris Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -120,7 +120,7 @@ uiTreeItem* TreeItemFactory::create( int visid, uiTreeItem* treeitem ) const
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	Pick::Set* ps = new Pick::Set;
 	BufferString bs;
-	PickSetTranslator::retrieve(*ps,ioobj,bs);
+	PickSetTranslator::retrieve(*ps,ioobj,true,bs);
 	mgr.set( mid, ps );
 
 	setidx = mgr.indexOf(mid);
@@ -290,7 +290,7 @@ bool AnnotTreeItem::readPicks( Pick::Set& ps )
 	ps.disp_.pixsize_= defScale();
 
     BufferString bs;
-    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),bs) )
+    if ( !PickSetTranslator::retrieve(ps,dlg.ioObj(),true,bs) )
     { uiMSG().error( bs ); mDelCtioRet; }
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );

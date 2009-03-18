@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipickpartserv.cc,v 1.60 2009-03-17 20:21:15 cvskris Exp $";
+static const char* rcsID = "$Id: uipickpartserv.cc,v 1.61 2009-03-18 17:52:57 cvskris Exp $";
 
 #include "uipickpartserv.h"
 
@@ -100,7 +100,7 @@ bool uiPickPartServer::loadSets( bool poly )
 
 	Pick::Set* newps = new Pick::Set;
 	BufferString bs;
-	if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
+	if ( PickSetTranslator::retrieve(*newps,ioobj,true, bs) )
 	{
 	    setmgr_.set( ioobj->key(), newps );
 	    retval = true;
