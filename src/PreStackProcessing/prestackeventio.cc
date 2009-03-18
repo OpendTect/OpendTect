@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.9 2009-03-12 16:15:32 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.10 2009-03-18 19:47:46 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -58,10 +58,14 @@ public:
     int			getOffset(int) const;
     void		setOffset(int,int);
 
+    const char*		errMsg() const 	{ return errmsg_; }
+
 protected:
 
     int					nrevents_;
     char*				buffptr_;
+
+    const char*				errmsg_;
 
     const DataInterpreter<int>*		int32interpreter_;
     const DataInterpreter<short>*	int16interpreter_;
@@ -375,7 +379,8 @@ bool EventReader::prepareWork()
 	if ( !usefile )
 	    continue;
 
-	addReader( dirlist.fullPath(idx) );
+	if ( !addReader( dirlist.fullPath(idx) ) )
+	    return false;
     }
 
     return true;
@@ -383,7 +388,7 @@ bool EventReader::prepareWork()
 
 
 
-void EventReader::addReader( const char* fnm )
+bool EventReader::addReader( const char* fnm )
 {
     Conn* conn = new StreamConn( fnm, Conn::Read );
 
@@ -391,8 +396,10 @@ void EventReader::addReader( const char* fnm )
 
     if ( reader->errMsg() )
     {
+	errmsg_ = "Cannot add patch reader. Reader said: ";
+	errmsg_ += reader->errMsg();
 	delete reader;
-	return;
+	return false;
     }
 
     reader->setSelection( bidsel_ );
@@ -406,6 +413,8 @@ void EventReader::addReader( const char* fnm )
     {
 	patchreaders_ += reader;
     }
+
+    return true;
 }
 
 
@@ -614,6 +623,7 @@ int EventWriter::nextStep()
 
 		if ( reader->errMsg() )
 		{
+		    errmsg_ = reader->errMsg();
 		    delete reader;
 		    return ErrorOccurred();
 		}
@@ -766,7 +776,12 @@ int EventDuplicator::nextStep()
 
     const BufferString tonm( to_->fullUserExpr(true) );
     if ( !File_isDirectory(tonm.buf()) )
+    {
+	errmsg_ = tonm.buf();
+	errmsg_ += " is not a directory";
+
 	return ErrorOccurred();
+    }
 
     FilePath targetfile( filestocopy_[idx]->buf() );
     targetfile.setPath( tonm.buf() );
@@ -808,6 +823,7 @@ EventPatchFileHeader::EventPatchFileHeader()
     , int32interpreter_( 0 )
     , int16interpreter_( 0 )
     , nrevents_( 0 )
+    , errmsg_( 0 )
 {}
 
 
@@ -823,14 +839,21 @@ bool EventPatchFileHeader::fromStream( std::istream& strm )
 	const int sz = int32interpreter_->nrBytes();
 	ArrPtrMan<char> buf = new char [sz];
 	if ( !strm.read(buf,sz) )
+	{
+	    errmsg_ = "Cannot read stream";
 	    return false;
+	}
 
 	nrevents = int16interpreter_->get(buf,0);
     }
     else
     {
 	strm >> nrevents;
-	if ( !strm ) return false;
+	if ( !strm )
+	{
+	    errmsg_ = "Cannot read stream";
+	    return false;
+	}
     }
 
     setNrEvents( nrevents );
@@ -843,6 +866,7 @@ bool EventPatchFileHeader::fromStream( std::istream& strm )
 	    nrevents_ = 0;
 	    delete [] buffptr_;
 	    buffptr_ = 0;
+	    errmsg_ = "Cannot read binary header";
 	    return false;
 	}
 
@@ -861,6 +885,7 @@ bool EventPatchFileHeader::fromStream( std::istream& strm )
 	    nrevents_ = 0;
 	    delete [] buffptr_;
 	    buffptr_ = 0;
+	    errmsg_ = "Cannot read text header";
 	    return false;
 	}
 
@@ -908,7 +933,13 @@ bool EventPatchFileHeader::toStream( std::ostream& strm, bool binary )
 	}
     }
 
-    return strm;
+    if ( !strm )
+    {
+	errmsg_ = "Cannot write header";
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -977,8 +1008,7 @@ void EventPatchFileHeader::setOffset( int idx, int offsetval )
 }
 
 
-EventPatchReader::EventPatchReader( Conn* conn,
-	EventManager* events )
+EventPatchReader::EventPatchReader( Conn* conn, EventManager* events )
     : conn_( conn )
     , eventmanager_( events )
     , horsel_( 0 )
@@ -992,7 +1022,8 @@ EventPatchReader::EventPatchReader( Conn* conn,
 {
     if ( !conn_ || !conn_->forRead() )
     {
-	errmsg_ = "Cannot open connection";
+	errmsg_ = "Cannot open connection ";
+	errmsg_ += ((StreamConn*)conn_)->fileName();
 	return;
     }
 
@@ -1000,7 +1031,9 @@ EventPatchReader::EventPatchReader( Conn* conn,
     ascistream astream( strm );
     if ( !astream.isOfFileType( EventReader::sFileType() ) )
     {
-	errmsg_ = "Invalid filetype";
+	errmsg_ = "Invalid filetype on ";
+	errmsg_ += ((StreamConn*)conn_)->fileName();
+
 	return;
     }
 
@@ -1037,7 +1070,12 @@ EventPatchReader::EventPatchReader( Conn* conn,
     }
 
     if ( !fileheader_.fromStream( strm ) )
-	errmsg_ = "Could not read file header";
+    {
+	errmsg_ = "Could not read file header from ";
+	errmsg_ += ((StreamConn*)conn_)->fileName();
+	errmsg_ += ". File header reader said: ";
+	errmsg_ += fileheader_.errMsg();
+    }
 }
 
 

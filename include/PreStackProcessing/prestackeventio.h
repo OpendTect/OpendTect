@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.8 2009-03-12 16:15:32 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.9 2009-03-18 19:47:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,7 @@ public:
     int						nextStep();
 
 protected:
-    void					addReader( const char* fnm );
+    bool					addReader( const char* fnm );
     bool					readAuxData(const char* fnm);
 
     const IOObj*				ioobj_;
