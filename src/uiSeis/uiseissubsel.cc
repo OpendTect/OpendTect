@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.59 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.60 2009-03-18 11:52:52 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -319,14 +319,14 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
     if ( isSingLine() )
     {
 	const int lidx = lnmsfld_->getIntValue();
-	if ( lidx < 0 || lidx >= trcrgs_.size() || lidx >= zrgs_.size() )
-	    return;
-
-	CubeSampling cs;
-	StepInterval<int> inlrg( 0, 0, 1 );
-	cs.hrg.set( inlrg, trcrgs_[lidx] );
-	cs.zrg = zrgs_[lidx];
-	selfld_->provSel()->setInputLimit( cs );
+	if ( lidx >= 0 && lidx < trcrgs_.size() && lidx < zrgs_.size() )
+	{
+	    CubeSampling cs;
+	    StepInterval<int> inlrg( 0, 0, 1 );
+	    cs.hrg.set( inlrg, trcrgs_[lidx] );
+	    cs.zrg = zrgs_[lidx];
+	    selfld_->provSel()->setInputLimit( cs );
+	}
     }
 
     lineSel.trigger();
