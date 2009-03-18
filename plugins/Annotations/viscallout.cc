@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscallout.cc,v 1.26 2009-02-17 13:33:18 cvskris Exp $";
+static const char* rcsID = "$Id: viscallout.cc,v 1.27 2009-03-18 04:47:43 cvsnanne Exp $";
 
 #include "viscallout.h"
 
@@ -784,7 +784,8 @@ visBase::VisualObject* CalloutDisplay::createLocation() const
 	setScaleTransform( res );
     }
 
-    res->setZScale( scene_->getZScale() );
+    if ( scene_ )
+	res->setZScale( scene_->getZScale() );
 
     return res;
 }
