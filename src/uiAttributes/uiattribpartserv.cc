@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.111 2009-03-06 15:28:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.112 2009-03-18 13:49:53 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -62,7 +62,7 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.111 2009-03-06 15:28:20
 #include "uiioobjsel.h"
 #include "uimenu.h"
 #include "uimsg.h"
-#include "uimultcompdlg.h"
+#include "uimultcomputils.h"
 #include "uiseisioobjinfo.h"
 #include "uisetpickdirs.h"
 
