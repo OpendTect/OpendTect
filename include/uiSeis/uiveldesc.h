@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.5 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiveldesc.h,v 1.6 2009-03-18 18:30:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,8 @@ class CtxtIOObj;
 mClass uiVelocityDesc : public uiGroup
 {
 public:
-    				uiVelocityDesc(uiParent*,const VelocityDesc&);
+    				uiVelocityDesc(uiParent*,const VelocityDesc&,
+					       bool withsamplespan=true);
 
     VelocityDesc		get() const;
     void			set(const VelocityDesc&);

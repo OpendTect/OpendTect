@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.15 2009-01-13 03:32:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.16 2009-03-18 18:30:32 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -21,16 +21,21 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.15 2009-01-13 03:32:09 cvsnann
 
 
 
-uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc )
+uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc,
+       bool withspan )
     : uiGroup( p, "Velocity type selector" )
+    , samplefld_( 0 )
 {
     typefld_ = new uiGenInput( this, "Velocity type",
 			StringListInpSpec(VelocityDesc::TypeNames()) );
     typefld_->valuechanged.notify( mCB(this,uiVelocityDesc,velTypeChange) );
 
-    samplefld_ = new uiGenInput( this, "Sample span",
+    if ( withspan )
+    {
+	samplefld_ = new uiGenInput( this, "Sample span",
 			StringListInpSpec(VelocityDesc::SampleSpanNames()) );
-    samplefld_->attach( alignedBelow, typefld_ );
+	samplefld_->attach( alignedBelow, typefld_ );
+    }
 
     setHAlignObj( typefld_ );
     set( desc );
@@ -39,14 +44,15 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc )
 
 void uiVelocityDesc::velTypeChange( CallBacker* )
 {
-    samplefld_->display( typefld_->getIntValue() );
+    if ( samplefld_ )
+	samplefld_->display( typefld_->getIntValue() );
 }
 
 
 void uiVelocityDesc::set( const VelocityDesc& desc )
 {
     typefld_->setValue( desc.type_ );
-    samplefld_->setValue( desc.samplespan_ );
+    if ( samplefld_ ) samplefld_->setValue( desc.samplespan_ );
     velTypeChange( 0 );
 }
 
@@ -54,7 +60,9 @@ void uiVelocityDesc::set( const VelocityDesc& desc )
 VelocityDesc uiVelocityDesc::get() const
 {
     return VelocityDesc( (VelocityDesc::Type) typefld_->getIntValue(),
-	    		 (VelocityDesc::SampleSpan) samplefld_->getIntValue());
+	    samplefld_
+	    ? (VelocityDesc::SampleSpan) samplefld_->getIntValue()
+	    :  VelocityDesc::Centered);
 }
 
 
@@ -67,7 +75,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel )
 
     volsel_ = new uiSeisSel( this, ctxt_, uiSeisSel::Setup(Seis::Vol) );
     volsel_->selectiondone.notify( mCB(this,uiVelocityDescDlg,volSelChange) );
-    veldesc_ = new uiVelocityDesc( this, VelocityDesc() );
+    veldesc_ = new uiVelocityDesc( this, VelocityDesc(), true );
     veldesc_->attach( alignedBelow, volsel_ );
 
     volSelChange( 0 );
