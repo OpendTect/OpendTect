@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		5-12-1995
- RCS:		$Id: prog.h,v 1.15 2009-03-17 13:41:22 cvsbert Exp $
+ RCS:		$Id: prog.h,v 1.16 2009-03-18 05:04:04 cvsranojay Exp $
 ________________________________________________________________________
 
  Include this file in any executable program you make. The file is actually
@@ -38,7 +38,7 @@ extern "C" {
 
 int main( int argc, char** argv );
 
-#ifdef _win__
+#ifdef __win__
 int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		      LPTSTR lpCmdLine, int nCmdShow )
 {
