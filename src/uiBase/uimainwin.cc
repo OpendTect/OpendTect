@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.170 2009-03-04 10:45:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.171 2009-03-18 14:25:16 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -92,6 +92,7 @@ public:
 
     virtual void	show() 
 			{
+			    handle_.markCmdRecEvent( true, "WinPopUp" );
 			    QMainWindow::show();
 
 			    if( poptimer.isActive() )

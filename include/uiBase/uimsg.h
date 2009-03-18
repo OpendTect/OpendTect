@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.24 2009-03-05 09:43:20 cvsnanne Exp $
+ RCS:           $Id: uimsg.h,v 1.25 2009-03-18 14:25:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,8 @@ protected:
 
 private:
 
-    void		markCmdRecEvent(int retval,const char* buttxt0,
+    void		beginCmdRecEvent();
+    void		endCmdRecEvent(int retval,const char* buttxt0,
 				const char* buttxt1=0,const char* buttxt2=0); 
 
     uiMainWin*		uimainwin_;

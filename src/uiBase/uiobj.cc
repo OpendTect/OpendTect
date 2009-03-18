@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.82 2009-03-04 10:45:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.83 2009-03-18 14:25:16 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -44,10 +44,18 @@ CallBack* uiObjHandle::cmdrecorder_ = 0;
 
 
 void uiObjHandle::markCmdRecEvent( bool begin, const char* msg )
+{ markCmdRecEvent( (od_uint64) 0, begin, msg ); }
+
+
+void uiObjHandle::markCmdRecEvent( od_uint64 id, bool begin, const char* msg )
 {
     if ( cmdrecorder_ )
     {
-	BufferString actstr( begin ? "Begin " : "End " );
+	BufferString actstr;
+	if ( id )
+	    actstr += toString( id );
+
+	actstr += begin ? " Begin " : " End ";
 	actstr += msg;
 	CBCapsule<const char*> caps( actstr, this );
 	cmdrecorder_->doCall( &caps );
