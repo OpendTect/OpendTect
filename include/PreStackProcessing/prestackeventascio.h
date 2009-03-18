@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.h,v 1.3 2009-01-06 06:05:40 cvsranojay Exp $
+ RCS:		$Id: prestackeventascio.h,v 1.4 2009-03-18 19:28:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,10 @@ public:
     			~EventExporter();
     void		setHRange(const HorSampling& hrg);
 
-    od_int64		nrDone() const { return nrdone_; }
-    od_int64		totalNr() const { return locations_.totalSize(); }
+    od_int64		nrDone() const	{ return nrdone_; }
+    od_int64		totalNr() const	{ return locations_.totalSize(); }
+
+    const char*		message() const	{ return message_; }
     int			nextStep();
     const char*		nrDoneText() const;
 
@@ -60,6 +62,7 @@ protected:
 
     int				nrdone_;
     int				fileidx_;
+    const char*			message_;
 };
 
 

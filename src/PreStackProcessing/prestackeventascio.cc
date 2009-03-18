@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		November 2008
- RCS:		$Id: prestackeventascio.cc,v 1.2 2008-12-23 11:14:07 cvsdgb Exp $
+ RCS:		$Id: prestackeventascio.cc,v 1.3 2009-03-18 19:28:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "prestackeventascio.h"
+#include "executor.h"
 
 namespace PreStack
 {
@@ -21,6 +22,7 @@ EventExporter::EventExporter( std::ostream& strm, EventManager& events )
     , nrdone_( 0 )
     , fileidx_( 0 )
     , locations_( 0, false )
+    , message_( "" )
 {
     events_.ref();
     events_.getLocations( locations_ );
@@ -38,55 +40,81 @@ void EventExporter::setHRange( const HorSampling& hrg )
 
 
 const char* EventExporter::nrDoneText() const
-{ return "CDP's processed"; }
+{ return "CDP's exported"; }
 
 #define mWrite( var ) strm_ << (var) << '\t';
+#define mBatchSize    10000
+
 
 
 int EventExporter::nextStep()
 {
-    if ( !locations_.next( pos_ ) )
-	return Finished();
+    bool isatend = false;
+    message_ = "Reading";
 
-    nrdone_++;
-
-    const BinID bid = locations_.getBinID(pos_);
-    if ( !hrg_.includes( bid ) )
-	return MoreToDo();
-
-    RefMan<const EventSet> eventset = events_.getEvents( bid, true, false );
-    if ( !eventset )
-	return MoreToDo();
-
-    for ( int eventidx=0; eventidx<eventset->events_.size(); eventidx++ )
+    BinIDValueSet currentbatch( 0, false );
+    for ( int idx=0; idx<mBatchSize; idx++ )
     {
-	const Event& event = *eventset->events_[eventidx];
-	if ( event.sz_==0 )
-	    continue;
-
-	float inldip = 0, crldip = 0;
-	events_.getDip( BinIDValue( bid, event.pick_[0]), event.horid_,
-			inldip, crldip );
-
-	for ( int pickidx=0; pickidx<event.sz_; pickidx++ )
+	if ( !locations_.next( pos_ ) )
 	{
-	    mWrite( bid.inl );
-	    mWrite( bid.crl );
-	    mWrite( fileidx_ );
-	    mWrite( inldip );
-	    mWrite( crldip );
-	    mWrite( (int) event.quality_ );
-	    mWrite( event.offsetazimuth_[pickidx].azimuth() );
-	    mWrite( event.offsetazimuth_[pickidx].offset() );
-	    mWrite( event.pick_[pickidx] );
-	    mWrite( event.pickquality_ ? event.pickquality_[pickidx] : 255 );
-	    strm_ << '\n';
+	    isatend = true;
+	    break;
 	}
 
-	fileidx_++;
+	const BinID bid = locations_.getBinID(pos_);
+	if ( !hrg_.includes( bid ) )
+	    continue;
+
+	currentbatch.add( bid );
     }
 
-    return MoreToDo();
+
+    PtrMan<Executor> exec = events_.load( currentbatch, false );
+    if ( !exec || !exec->execute() )
+	return ErrorOccurred();
+
+    message_ = "Writing";
+    BinIDValueSet::Pos pos;
+
+    while ( currentbatch.next( pos ) )
+    {
+	const BinID bid = currentbatch.getBinID( pos );
+	RefMan<const EventSet> eventset = events_.getEvents( bid, false,false );
+	if ( !eventset )
+	    return ErrorOccurred();
+
+	for ( int eventidx=0; eventidx<eventset->events_.size(); eventidx++ )
+	{
+	    const Event& event = *eventset->events_[eventidx];
+	    if ( event.sz_==0 )
+		continue;
+
+	    float inldip = 0, crldip = 0;
+	    events_.getDip( BinIDValue( bid, event.pick_[0]), event.horid_,
+			    inldip, crldip );
+
+	    for ( int pickidx=0; pickidx<event.sz_; pickidx++ )
+	    {
+		mWrite( bid.inl );
+		mWrite( bid.crl );
+		mWrite( fileidx_ );
+		mWrite( inldip );
+		mWrite( crldip );
+		mWrite( (int) event.quality_ );
+		mWrite( event.offsetazimuth_[pickidx].azimuth() );
+		mWrite( event.offsetazimuth_[pickidx].offset() );
+		mWrite( event.pick_[pickidx] );
+		mWrite( event.pickquality_ ? event.pickquality_[pickidx] : 255 );
+		strm_ << '\n';
+	    }
+
+	    fileidx_++;
+	}
+
+	nrdone_++;
+    }
+
+    return isatend ? Finished() : MoreToDo();
 }
 
 
