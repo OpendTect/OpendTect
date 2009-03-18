@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.11 2009-03-10 12:52:51 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.12 2009-03-18 17:47:18 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -563,6 +563,53 @@ bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
 
     return computeVrms( (const float*)Vint_sampled, sd_out, nr_out,
 	    		VelocityDesc::Above, Vout );
+}
+
+
+bool sampleVint( const float* Vin,const float* t_in, int nr_in,
+		 VelocityDesc::SampleSpan inputspan,
+		 const SamplingData<double>& sd_out, float* Vout, int nr_out)
+{
+    if ( !nr_in )
+	return false;
+
+    int compartment = 0;
+    const float eps = sd_out.step/1e3;
+
+
+    for ( int idx=0; idx<nr_out; idx++ )
+    {
+	const float z = sd_out.atIndex( idx );
+	if ( z<=t_in[0] )
+	    Vout[idx] = Vin[0];
+	else if ( z>=t_in[nr_in-1] )
+	    Vout[idx] = Vin[nr_in-1];
+	else
+	{
+	    for ( ; compartment<nr_in-1; compartment++ )
+	    {
+		if ( t_in[compartment]>z )
+		    continue;
+
+		break;
+	    }
+
+	    if ( inputspan==VelocityDesc::Below ||
+		    mIsEqual( z,t_in[compartment], eps ) )
+		Vout[idx] = Vin[compartment];
+	    else if ( inputspan==VelocityDesc::Above ||
+		    mIsEqual(z, t_in[compartment+1],eps) )
+	        Vout[idx] = Vin[compartment+1];
+	    else
+	    {
+		const float rel = (z-t_in[compartment]) /
+				  (t_in[compartment+1]-t_in[compartment] );
+		Vout[idx] = rel*Vin[compartment+1]+(1-rel)*Vin[compartment];
+	    }
+	}
+    }
+
+    return true;
 }
 
 

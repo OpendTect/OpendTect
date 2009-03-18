@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.10 2009-03-10 12:52:51 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.11 2009-03-18 17:47:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,19 +78,19 @@ mGlobal bool computeDix(const float* Vrms,const SamplingData<double>& sd,
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
-mGlobal bool computeDix(const float* Vrms, float t0, const float* t, int nrlayers,
-		float* Vint);
+mGlobal bool computeDix(const float* Vrms, float t0, const float* t,
+			int nrlayers, float* Vint);
 
 
-mGlobal bool computeVrms(const float* Vint,const SamplingData<double>& sd, int nrvels,
-		 VelocityDesc::SampleSpan,float* Vrms);
+mGlobal bool computeVrms(const float* Vint,const SamplingData<double>& sd,
+			 int nrvels, VelocityDesc::SampleSpan,float* Vrms);
 
 /*!Converts a number of layers with Vint to rms velocities.
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
 mGlobal bool computeVrms(const float* Vint,float t0,const float* t,int nrlayers,
-		 float* Vrms);
+		         float* Vrms);
 
 /*!Given an irregularly sampled Vrms, create a regularly sampled one. The
    function assumes constant interval velocity before and after the input
@@ -101,6 +101,14 @@ mGlobal bool sampleVrms(const float* Vin,float t0_in,const float* t_in,
 			float* Vout, int nr_out);
 
 
+/*!Given an irregularly sampled Vint, create a regularly sampled one. The
+   function assumes constant interval velocity before and after the input
+   interval.*/
+
+mGlobal bool sampleVint(const float* Vint,const float* t_in, int nr_in,
+			VelocityDesc::SampleSpan inputspan,
+			const SamplingData<double>& sd_out, float* Vout,
+			int nr_out);
 /*!Given a residual moveout at a reference offset, comput the residual moveout
  *    at other offsets */
 
