@@ -4,12 +4,13 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.17 2009-02-24 14:08:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.18 2009-03-18 11:04:03 cvshelene Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
 #include "uiseissubsel.h"
 #include "uiseissel.h"
+#include "uimultcomputils.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uitaskrunner.h"
@@ -60,19 +61,19 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 				  : "Export seismics to simple flat file",
 			      "Specify parameters for I/O",
 			      imp ? "103.0.11" : "103.0.12") )
-    	, ctio(*uiSeisSel::mkCtxtIOObj(gt,!imp))
-    	, sdfld(0)
-	, havenrfld(0)
-	, nrdeffld(0)
-    	, inldeffld(0)
-    	, subselfld(0)
-    	, isxyfld(0)
-    	, lnmfld(0)
-    	, isascfld(0)
-    	, haveoffsbut(0)
-    	, haveazimbut(0)
-	, pspposlbl(0)
-	, offsdeffld(0)
+    	, ctio_(*uiSeisSel::mkCtxtIOObj(gt,!imp))
+    	, sdfld_(0)
+	, havenrfld_(0)
+	, nrdeffld_(0)
+    	, inldeffld_(0)
+    	, subselfld_(0)
+    	, isxyfld_(0)
+    	, lnmfld_(0)
+    	, isascfld_(0)
+    	, haveoffsbut_(0)
+    	, haveazimbut_(0)
+	, pspposlbl_(0)
+	, offsdeffld_(0)
     	, isimp_(imp)
     	, geom_(gt)
 {
@@ -84,61 +85,61 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     if ( isimp_ )
     {
 	mkIsAscFld();
-	fnmfld = new uiFileInput( this, "Input file", uiFileInput::Setup("")
+	fnmfld_ = new uiFileInput( this, "Input file", uiFileInput::Setup("")
 			.forread( true )
 			.withexamine( true ) );
-	fnmfld->attach( alignedBelow, isascfld );
+	fnmfld_->attach( alignedBelow, isascfld_ );
     }
     else
     {
-	seisfld = new uiSeisSel( this, ctio, uiSeisSel::Setup(geom_) );
-	seisfld->selectiondone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
+	seisfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_) );
+	seisfld_->selectiondone.notify( mCB(this,uiSeisIOSimple,inpSeisSel) );
 	sep = mkDataManipFlds();
     }
 
-    haveposfld = new uiGenInput( this,
+    haveposfld_ = new uiGenInput( this,
 	    		isimp_ ? "Traces start with a position"
 			      : "Output a position for every trace",
 	   		BoolInpSpec(true) );
-    haveposfld->setValue( data().havepos_ );
-    haveposfld->valuechanged.notify( mCB(this,uiSeisIOSimple,haveposSel) );
-    haveposfld->attach( alignedBelow, isimp_ ? fnmfld->attachObj()
-	    				     : remnullfld->attachObj() );
-    if ( sep ) haveposfld->attach( ensureBelow, sep );
+    haveposfld_->setValue( data().havepos_ );
+    haveposfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,haveposSel) );
+    haveposfld_->attach( alignedBelow, isimp_ ? fnmfld_->attachObj()
+	    				     : remnullfld_->attachObj() );
+    if ( sep ) haveposfld_->attach( ensureBelow, sep );
 
-    uiObject* attachobj = haveposfld->attachObj();
+    uiObject* attachobj = haveposfld_->attachObj();
     if ( is2d )
     {
 	BufferString txt( isimp_ ? "Trace number included"
 				 : "Include trace number");
 	txt += " (preceeding X/Y)";
-	havenrfld = new uiGenInput( this, txt, BoolInpSpec(true) );
-	havenrfld->setValue( data().havenr_ );
-	havenrfld->attach( alignedBelow, attachobj );
-	havenrfld->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
-	attachobj = havenrfld->attachObj();
+	havenrfld_ = new uiGenInput( this, txt, BoolInpSpec(true) );
+	havenrfld_->setValue( data().havenr_ );
+	havenrfld_->attach( alignedBelow, attachobj );
+	havenrfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havenrSel) );
+	attachobj = havenrfld_->attachObj();
     }
     else
     {
-	isxyfld = new uiGenInput( this, isimp_ ? "Position in file is"
+	isxyfld_ = new uiGenInput( this, isimp_ ? "Position in file is"
 					       : "Position in file will be",
 				 BoolInpSpec(true,"X Y","Inline Xline") );
-	isxyfld->setValue( data().isxy_ );
-	isxyfld->attach( alignedBelow, attachobj );
-	if ( !isimp_ ) attachobj = isxyfld->attachObj();
+	isxyfld_->setValue( data().isxy_ );
+	isxyfld_->attach( alignedBelow, attachobj );
+	if ( !isimp_ ) attachobj = isxyfld_->attachObj();
     }
 
     if ( isimp_ )
     {
 	if ( !is2d )
 	{
-	    inldeffld = new uiGenInput( this, "Inline definition: start, step",
+	    inldeffld_ = new uiGenInput( this, "Inline definition: start, step",
 				IntInpSpec(data().inldef_.start)
 						.setName("Inl def start"),
 			  	IntInpSpec(data().inldef_.step)
 						.setName("Inl def step") );
-	    inldeffld->attach( alignedBelow, attachobj );
-	    crldeffld = new uiGenInput( this,
+	    inldeffld_->attach( alignedBelow, attachobj );
+	    crldeffld_ = new uiGenInput( this,
 			"Xline definition: start, step, # per inline",
 			   IntInpSpec(data().crldef_.start)
 			   			.setName("Crl def start"),
@@ -146,64 +147,64 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 			   			.setName("Crl def step"),
 			   IntInpSpec(data().nrcrlperinl_)
 			   			.setName("per inl") );
-	    crldeffld->attach( alignedBelow, inldeffld );
-	    attachobj = crldeffld->attachObj();
+	    crldeffld_->attach( alignedBelow, inldeffld_ );
+	    attachobj = crldeffld_->attachObj();
 	}
 	else
 	{
-	    nrdeffld = new uiGenInput( this,
+	    nrdeffld_ = new uiGenInput( this,
 		    "Trace number definition: start, step",
 		    IntInpSpec(data().nrdef_.start).setName("Trc def start"),
 		    IntInpSpec(data().nrdef_.step).setName("Trc def step") );
-	    nrdeffld->attach( alignedBelow, attachobj );
-	    startposfld = new uiGenInput( this,
+	    nrdeffld_->attach( alignedBelow, attachobj );
+	    startposfld_ = new uiGenInput( this,
 					  "Start position (X, Y, Trace number)",
 					  PositionInpSpec(data().startpos_) );
-	    startposfld->attach( alignedBelow, haveposfld );
-	    stepposfld = new uiGenInput( this, "Step in X/Y/Number",
+	    startposfld_->attach( alignedBelow, haveposfld_ );
+	    stepposfld_ = new uiGenInput( this, "Step in X/Y/Number",
 					 PositionInpSpec(data().steppos_) );
-	    stepposfld->attach( alignedBelow, startposfld );
-	    startnrfld = new uiGenInput( this, "",
+	    stepposfld_->attach( alignedBelow, startposfld_ );
+	    startnrfld_ = new uiGenInput( this, "",
 		    			 IntInpSpec(data().nrdef_.start) );
-	    startnrfld->setElemSzPol( uiObject::Small );
-	    startnrfld->attach( rightOf, startposfld );
-	    stepnrfld = new uiGenInput( this, "",
+	    startnrfld_->setElemSzPol( uiObject::Small );
+	    startnrfld_->attach( rightOf, startposfld_ );
+	    stepnrfld_ = new uiGenInput( this, "",
 		    			IntInpSpec(data().nrdef_.step) );
-	    stepnrfld->setElemSzPol( uiObject::Small );
-	    stepnrfld->attach( rightOf, stepposfld );
-	    attachobj = stepposfld->attachObj();
+	    stepnrfld_->setElemSzPol( uiObject::Small );
+	    stepnrfld_->attach( rightOf, stepposfld_ );
+	    attachobj = stepposfld_->attachObj();
 	}
 	if ( isps )
 	{
-	    haveoffsbut = new uiCheckBox( this, "Offset",
+	    haveoffsbut_ = new uiCheckBox( this, "Offset",
 		    			 mCB(this,uiSeisIOSimple,haveoffsSel) );
-	    haveoffsbut->attach( alignedBelow, attachobj );
-	    haveoffsbut->setChecked( data().haveoffs_ );
-	    haveazimbut = new uiCheckBox( this, "Azimuth" );
-	    haveazimbut->attach( rightOf, haveoffsbut );
-	    haveazimbut->setChecked( data().haveazim_ );
-	    pspposlbl = new uiLabel( this, "Position includes", haveoffsbut );
+	    haveoffsbut_->attach( alignedBelow, attachobj );
+	    haveoffsbut_->setChecked( data().haveoffs_ );
+	    haveazimbut_ = new uiCheckBox( this, "Azimuth" );
+	    haveazimbut_->attach( rightOf, haveoffsbut_ );
+	    haveazimbut_->setChecked( data().haveazim_ );
+	    pspposlbl_ = new uiLabel( this, "Position includes", haveoffsbut_ );
 	    const float stopoffs =
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
-	    offsdeffld = new uiGenInput( this,
+	    offsdeffld_ = new uiGenInput( this,
 		    	   "Offset definition: start, stop, step",
 			   FloatInpSpec(data().offsdef_.start).setName("Start"),
 			   FloatInpSpec(stopoffs).setName("Stop"),
 		   	   FloatInpSpec(data().offsdef_.step).setName("Step") );
-	    offsdeffld->attach( alignedBelow, haveoffsbut );
-	    attachobj = offsdeffld->attachObj();
+	    offsdeffld_->attach( alignedBelow, haveoffsbut_ );
+	    attachobj = offsdeffld_->attachObj();
 	}
     }
 
-    havesdfld = new uiGenInput( this, isimp_
+    havesdfld_ = new uiGenInput( this, isimp_
 	    			    ? "File start contains sampling info"
 				    : "Put sampling info in file start",
 				    BoolInpSpec(true)
 				      .setName("Info in file start Yes",0)
 	   			      .setName("Info in file start No",1) );
-    havesdfld->setValue( data().havesd_ );
-    havesdfld->attach( alignedBelow, attachobj );
-    havesdfld->valuechanged.notify( mCB(this,uiSeisIOSimple,havesdSel) );
+    havesdfld_->setValue( data().havesd_ );
+    havesdfld_->attach( alignedBelow, attachobj );
+    havesdfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,havesdSel) );
 
     if ( isimp_ )
     {
@@ -213,42 +214,42 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )
 	    { sd.start *= 1000; sd.step *= 1000; }
-	sdfld = new uiGenInput( this, txt, 
+	sdfld_ = new uiGenInput( this, txt, 
 			DoubleInpSpec(sd.start).setName("SampInfo start"),
 			DoubleInpSpec(sd.step).setName("SampInfo step"),
 			IntInpSpec(data().nrsamples_).setName("Nr samples") );
-	sdfld->attach( alignedBelow, havesdfld );
+	sdfld_->attach( alignedBelow, havesdfld_ );
 	sep = mkDataManipFlds();
-	seisfld = new uiSeisSel( this, ctio, uiSeisSel::Setup(geom_));
-	seisfld->attach( alignedBelow, remnullfld );
+	seisfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_));
+	seisfld_->attach( alignedBelow, multcompfld_ );
 	if ( is2d )
 	{
-	    lnmfld = new uiGenInput( this,
+	    lnmfld_ = new uiGenInput( this,
 		    		     isps ? "Line name" : "Line name in Set" );
-	    lnmfld->attach( alignedBelow, seisfld );
+	    lnmfld_->attach( alignedBelow, seisfld_ );
 	}
     }
     else
     {
 	mkIsAscFld();
-	isascfld->attach( alignedBelow, havesdfld );
-	fnmfld = new uiFileInput( this, "Output file", uiFileInput::Setup("")
+	isascfld_->attach( alignedBelow, havesdfld_ );
+	fnmfld_ = new uiFileInput( this, "Output file", uiFileInput::Setup("")
 			.forread( false )
 			.withexamine( false ) );
-	fnmfld->attach( alignedBelow, isascfld );
+	fnmfld_->attach( alignedBelow, isascfld_ );
     }
 
-    fnmfld->setDefaultSelectionDir( FilePath(data().fname_).pathOnly() );
+    fnmfld_->setDefaultSelectionDir( FilePath(data().fname_).pathOnly() );
     finaliseDone.notify( mCB(this,uiSeisIOSimple,initFlds) );
 }
 
 
 void uiSeisIOSimple::mkIsAscFld()
 {
-    isascfld = new uiGenInput( this, "File type",
+    isascfld_ = new uiGenInput( this, "File type",
 	    		       BoolInpSpec(true,"Ascii","Binary") );
-    isascfld->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
-    isascfld->setValue( data().isasc_ );
+    isascfld_->valuechanged.notify( mCB(this,uiSeisIOSimple,isascSel) );
+    isascfld_->setValue( data().isasc_ );
 }
 
 
@@ -256,24 +257,28 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 {
     uiSeparator* sep = new uiSeparator( this, "sep inp and outp pars" );
     if ( isimp_ )
-	sep->attach( stretchedBelow, sdfld );
+	sep->attach( stretchedBelow, sdfld_ );
     else
     {
-	subselfld = uiSeisSubSel::get( this, Seis::SelSetup(geom_)
+	subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(geom_)
 						.onlyrange(false) );
-	subselfld->attachObj()->attach( alignedBelow, seisfld );
+	subselfld_->attachObj()->attach( alignedBelow, seisfld_ );
     }
 
-    scalefld = new uiScaler( this, 0, true );
-    scalefld->attach( alignedBelow, isimp_ ? sdfld->attachObj()
-	    				   : subselfld->attachObj() );
-    if ( isimp_ ) scalefld->attach( ensureBelow, sep );
-    remnullfld = new uiGenInput( this, "Null traces",
+    scalefld_ = new uiScaler( this, 0, true );
+    scalefld_->attach( alignedBelow, isimp_ ? sdfld_->attachObj()
+	    				   : subselfld_->attachObj() );
+    if ( isimp_ ) scalefld_->attach( ensureBelow, sep );
+    remnullfld_ = new uiGenInput( this, "Null traces",
 				 BoolInpSpec(true,"Discard","Pass") );
-    remnullfld->attach( alignedBelow, scalefld );
+    remnullfld_->attach( alignedBelow, scalefld_ );
+
+    multcompfld_ = new uiMultCompSel( this );
+    multcompfld_->attach( alignedBelow, remnullfld_ );
+    multcompfld_->setSensitive( false );
 
     if ( !isimp_ )
-	sep->attach( stretchedBelow, remnullfld );
+	sep->attach( stretchedBelow, multcompfld_ );
 
     return sep;
 }
@@ -290,46 +295,51 @@ void uiSeisIOSimple::initFlds( CallBacker* cb )
 
 void uiSeisIOSimple::havesdSel( CallBacker* )
 {
-    if ( sdfld )
-	sdfld->display( !havesdfld->getBoolValue() );
+    if ( sdfld_ )
+	sdfld_->display( !havesdfld_->getBoolValue() );
 }
 
 
 void uiSeisIOSimple::inpSeisSel( CallBacker* )
 {
-    seisfld->commitInput( !isimp_ );
-    if ( ctio.ioobj )
-	subselfld->setInput( *ctio.ioobj );
+    seisfld_->commitInput( !isimp_ );
+    if ( ctio_.ioobj )
+    {
+	subselfld_->setInput( *ctio_.ioobj );
+	LineKey lkey( ctio_.ioobj->key() );
+	multcompfld_->setUpList( lkey );
+	multcompfld_->setSensitive( multcompfld_->allowChoice() );
+    }
 }
 
 
 
 void uiSeisIOSimple::isascSel( CallBacker* )
 {
-    fnmfld->enableExamine( isascfld->getBoolValue() );
+    fnmfld_->enableExamine( isascfld_->getBoolValue() );
 }
 
 
 void uiSeisIOSimple::haveposSel( CallBacker* cb )
 {
-    const bool havenopos = !haveposfld->getBoolValue();
+    const bool havenopos = !haveposfld_->getBoolValue();
 
-    if ( isxyfld ) isxyfld->display( !havenopos );
-    if ( havenrfld ) havenrfld->display( !havenopos );
+    if ( isxyfld_ ) isxyfld_->display( !havenopos );
+    if ( havenrfld_ ) havenrfld_->display( !havenopos );
 
     if ( isimp_ )
     {
 	if ( !is2D() )
 	{
-	    inldeffld->display( havenopos );
-	    crldeffld->display( havenopos );
+	    inldeffld_->display( havenopos );
+	    crldeffld_->display( havenopos );
 	}
 	else
 	{
-	    startposfld->display( havenopos );
-	    startnrfld->display( havenopos );
-	    stepposfld->display( havenopos );
-	    stepnrfld->display( havenopos );
+	    startposfld_->display( havenopos );
+	    startnrfld_->display( havenopos );
+	    stepposfld_->display( havenopos );
+	    stepnrfld_->display( havenopos );
 	}
     }
 
@@ -340,21 +350,21 @@ void uiSeisIOSimple::haveposSel( CallBacker* cb )
 
 void uiSeisIOSimple::havenrSel( CallBacker* cb )
 {
-    if ( !nrdeffld ) return;
-    nrdeffld->display( haveposfld->getBoolValue()
-	    	    && !havenrfld->getBoolValue() );
+    if ( !nrdeffld_ ) return;
+    nrdeffld_->display( haveposfld_->getBoolValue()
+	    	    && !havenrfld_->getBoolValue() );
 }
 
 
 void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
 {
-    if ( !pspposlbl || !haveoffsbut ) return;
-    const bool havepos = haveposfld->getBoolValue();
-    const bool haveoffs = haveoffsbut->isChecked();
-    haveoffsbut->display( havepos );
-    haveazimbut->display( havepos );
-    offsdeffld->display( !havepos || !haveoffs );
-    pspposlbl->display( havepos );
+    if ( !pspposlbl_ || !haveoffsbut_ ) return;
+    const bool havepos = haveposfld_->getBoolValue();
+    const bool haveoffs = haveoffsbut_->isChecked();
+    haveoffsbut_->display( havepos );
+    haveazimbut_->display( havepos );
+    offsdeffld_->display( !havepos || !haveoffs );
+    pspposlbl_->display( havepos );
 }
 
 
@@ -362,12 +372,12 @@ void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
 
 bool uiSeisIOSimple::acceptOK( CallBacker* )
 {
-    if ( !isascfld ) return true;
+    if ( !isascfld_ ) return true;
 
-    BufferString fnm( fnmfld->fileName() );
+    BufferString fnm( fnmfld_->fileName() );
     if ( isimp_ && !File_exists(fnm) )
 	mErrRet("Input file does not exist or is unreadable")
-    if ( !seisfld->commitInput(isimp_) )
+    if ( !seisfld_->commitInput(isimp_) )
 	mErrRet( isimp_ ? "Please choose a name for the imported data"
 		       : "Please select the input seismics")
 
@@ -375,48 +385,48 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     if ( is2D() )
     {
 	BufferString linenm;
-	if ( lnmfld )
+	if ( lnmfld_ )
 	{
-	    linenm = lnmfld->text();
+	    linenm = lnmfld_->text();
 	    if ( linenm.isEmpty() )
 		mErrRet( "Please enter a line name" )
 	    data().linekey_.setLineName( linenm );
 	}
-	data().linekey_.setAttrName( seisfld->attrNm() );
+	data().linekey_.setAttrName( seisfld_->attrNm() );
     }
 
-    data().seiskey_ = ctio.ioobj->key();
+    data().seiskey_ = ctio_.ioobj->key();
     data().fname_ = fnm;
 
-    data().setScaler( scalefld->getScaler() );
-    data().remnull_ = remnullfld->getBoolValue();
+    data().setScaler( scalefld_->getScaler() );
+    data().remnull_ = remnullfld_->getBoolValue();
 
-    data().isasc_ = isascfld->getBoolValue();
-    data().havesd_ = havesdfld->getBoolValue();
-    if ( sdfld && !data().havesd_ )
+    data().isasc_ = isascfld_->getBoolValue();
+    data().havesd_ = havesdfld_->getBoolValue();
+    if ( sdfld_ && !data().havesd_ )
     {
-	data().sd_.start = sdfld->getfValue(0);
-	data().sd_.step = sdfld->getfValue(1);
+	data().sd_.start = sdfld_->getfValue(0);
+	data().sd_.step = sdfld_->getfValue(1);
 	if ( SI().zIsTime() )
 	    { data().sd_.start *= 0.001; data().sd_.step *= 0.001; }
-	data().nrsamples_ = sdfld->getIntValue(2);
+	data().nrsamples_ = sdfld_->getIntValue(2);
     }
 
-    data().havepos_ = haveposfld->getBoolValue();
+    data().havepos_ = haveposfld_->getBoolValue();
     data().havenr_ = false;
     if ( data().havepos_ )
     {
-	data().isxy_ = is2D() || isxyfld->getBoolValue();
-	data().havenr_ = is2D() && havenrfld->getBoolValue();
+	data().isxy_ = is2D() || isxyfld_->getBoolValue();
+	data().havenr_ = is2D() && havenrfld_->getBoolValue();
 	if ( isimp_ && data().havenr_ )
 	{
-	    data().nrdef_.start = nrdeffld->getIntValue(0);
-	    data().nrdef_.step = nrdeffld->getIntValue(1);
+	    data().nrdef_.start = nrdeffld_->getIntValue(0);
+	    data().nrdef_.step = nrdeffld_->getIntValue(1);
 	}
 	if ( isPS() )
 	{
-	    data().haveoffs_ = haveoffsbut->isChecked();
-	    data().haveazim_ = haveazimbut->isChecked();
+	    data().haveoffs_ = haveoffsbut_->isChecked();
+	    data().haveazim_ = haveazimbut_->isChecked();
 	}
     }
     else if ( isimp_ )
@@ -424,21 +434,21 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	data().haveoffs_ = false;
 	if ( is2D() )
 	{
-	    data().startpos_ = startposfld->getCoord();
-	    data().steppos_ = stepposfld->getCoord();
-	    data().nrdef_.start = startnrfld->getIntValue();
-	    data().nrdef_.step = stepnrfld->getIntValue();
+	    data().startpos_ = startposfld_->getCoord();
+	    data().steppos_ = stepposfld_->getCoord();
+	    data().nrdef_.start = startnrfld_->getIntValue();
+	    data().nrdef_.step = stepnrfld_->getIntValue();
 	}
 	else
 	{
-	    data().inldef_.start = inldeffld->getIntValue(0);
-	    data().inldef_.step = inldeffld->getIntValue(1);
+	    data().inldef_.start = inldeffld_->getIntValue(0);
+	    data().inldef_.step = inldeffld_->getIntValue(1);
 	    if ( data().inldef_.step == 0 ) data().inldef_.step = 1;
-	    data().crldef_.start = crldeffld->getIntValue(0);
-	    data().crldef_.step = crldeffld->getIntValue(1);
+	    data().crldef_.start = crldeffld_->getIntValue(0);
+	    data().crldef_.step = crldeffld_->getIntValue(1);
 	    if ( data().crldef_.step == 0 ) data().crldef_.step = 1;
-	    int nrcpi = crldeffld->getIntValue(2);
-	    if ( nrcpi == 0 || crldeffld->isUndef(2) )
+	    int nrcpi = crldeffld_->getIntValue(2);
+	    if ( nrcpi == 0 || crldeffld_->isUndef(2) )
 	    {
 		uiMSG().error( "Please define the number of Xlines per Inline");
 		return false;
@@ -449,20 +459,20 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     if ( isPS() && !data().haveoffs_ )
     {
-	data().offsdef_.start = offsdeffld->getfValue( 0 );
-	data().offsdef_.step = offsdeffld->getfValue( 2 );
-	const float offsstop = offsdeffld->getfValue( 1 );
+	data().offsdef_.start = offsdeffld_->getfValue( 0 );
+	data().offsdef_.step = offsdeffld_->getfValue( 2 );
+	const float offsstop = offsdeffld_->getfValue( 1 );
 	data().nroffsperpos_ =
 			data().offsdef_.nearestIndex( offsstop ) + 1;
     }
 
-    if ( subselfld )
+    if ( subselfld_ )
     {
-	subselfld->fillPar( data().subselpars_ );
-	if ( !subselfld->isAll() )
+	subselfld_->fillPar( data().subselpars_ );
+	if ( !subselfld_->isAll() )
 	{
 	    CubeSampling cs;
-	    subselfld->getSampling( cs.hrg ); subselfld->getZRange( cs.zrg );
+	    subselfld_->getSampling( cs.hrg ); subselfld_->getZRange( cs.zrg );
 	    data().setResampler( new SeisResampler(cs,is2D()) );
 	}
     }

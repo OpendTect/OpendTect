@@ -17,6 +17,7 @@ class uiSeisSel;
 class uiCheckBox;
 class uiGenInput;
 class uiFileInput;
+class uiMultCompSel;
 class uiSeparator;
 class uiSeisSubSel;
 
@@ -29,32 +30,33 @@ public:
 
 protected:
 
-    uiFileInput*	fnmfld;
-    uiGenInput*		isascfld;
-    uiGenInput*		is2dfld;
-    uiGenInput*		havesdfld;
-    uiGenInput*		sdfld;
-    uiGenInput*		haveposfld;
-    uiGenInput*		havenrfld;
-    uiGenInput*		isxyfld;
-    uiGenInput*		inldeffld;
-    uiGenInput*		crldeffld;
-    uiGenInput*		nrdeffld;
-    uiGenInput*		startposfld;
-    uiGenInput*		startnrfld;
-    uiGenInput*		stepposfld;
-    uiGenInput*		stepnrfld;
-    uiGenInput*		offsdeffld;
-    uiGenInput*		remnullfld;
-    uiGenInput*		lnmfld;
-    uiLabel*		pspposlbl;
-    uiCheckBox*		haveoffsbut;
-    uiCheckBox*		haveazimbut;
-    uiScaler*		scalefld;
-    uiSeisSel*		seisfld;
-    uiSeisSubSel*	subselfld;
+    uiFileInput*	fnmfld_;
+    uiGenInput*		isascfld_;
+    uiGenInput*		is2dfld_;
+    uiGenInput*		havesdfld_;
+    uiGenInput*		sdfld_;
+    uiGenInput*		haveposfld_;
+    uiGenInput*		havenrfld_;
+    uiGenInput*		isxyfld_;
+    uiGenInput*		inldeffld_;
+    uiGenInput*		crldeffld_;
+    uiGenInput*		nrdeffld_;
+    uiGenInput*		startposfld_;
+    uiGenInput*		startnrfld_;
+    uiGenInput*		stepposfld_;
+    uiGenInput*		stepnrfld_;
+    uiGenInput*		offsdeffld_;
+    uiGenInput*		remnullfld_;
+    uiGenInput*		lnmfld_;
+    uiLabel*		pspposlbl_;
+    uiCheckBox*		haveoffsbut_;
+    uiCheckBox*		haveazimbut_;
+    uiScaler*		scalefld_;
+    uiSeisSel*		seisfld_;
+    uiSeisSubSel*	subselfld_;
+    uiMultCompSel*	multcompfld_;
 
-    CtxtIOObj&		ctio;
+    CtxtIOObj&		ctio_;
     Seis::GeomType	geom_;
     bool		isimp_;
 
