@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.3 2008-12-23 11:39:31 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.4 2009-03-18 18:45:26 cvskris Exp $";
 
 #include "uiselectvelocityfunction.h"
 
@@ -174,8 +174,10 @@ uiAddFunction::uiAddFunction( uiParent* p )
     , typesel_( 0 )
 {
     const BufferStringSet& sourceclasses =
-	uiFunctionSettings::factory().getNames();
-    typesel_ = new uiGenInput( this, "Type", StringListInpSpec(sourceclasses));
+	uiFunctionSettings::factory().getNames( false );
+    const BufferStringSet& sourceusernames =
+	uiFunctionSettings::factory().getNames( true );
+    typesel_ = new uiGenInput( this, "Type",StringListInpSpec(sourceusernames));
     typesel_->valuechanged.notify(
 			    mCB(this,uiAddFunction,typeSelChangeCB));
 

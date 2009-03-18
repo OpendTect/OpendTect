@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.37 2009-03-17 20:21:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.38 2009-03-18 18:45:26 cvskris Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -190,7 +190,7 @@ bool uiImpExpPickSet::doExport()
 {
     Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,ctio_.ioobj,errmsg) )
+    if ( !PickSetTranslator::retrieve(ps,ctio_.ioobj,true, errmsg) )
 	mErrRet(errmsg);
 
     const char* fname = filefld_->fileName();

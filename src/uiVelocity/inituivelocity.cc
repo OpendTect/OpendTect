@@ -4,10 +4,11 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: inituivelocity.cc,v 1.2 2009-02-02 07:03:23 cvsranojay Exp $";
+static const char* rcsID = "$Id: inituivelocity.cc,v 1.3 2009-03-18 18:45:26 cvskris Exp $";
 
 #include "inituivelocity.h"
 #include "uivelocityfunctionvolume.h"
+#include "uivelocityfunctionstored.h"
 
 namespace uiVelocity
 {
@@ -15,6 +16,7 @@ namespace uiVelocity
 void initStdClasses()
 {
     Vel::uiVolumeFunction::initClass();
+    Vel::uiStoredFunction::initClass();
 }
 
 }; //namespace

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.6 2009-03-18 18:45:26 cvskris Exp $";
 
 #include "uivelocityfunctionimp.h"
 
@@ -25,28 +25,18 @@ static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.5 2008-11-25 15:35
 #include "picksettr.h"
 #include "strmprov.h"
 #include "tabledef.h"
-#include "velocityasciio.h"
-#include "velocityasctransl.h"
-#include "velocityascdata.h"
+#include "velocityfunctionascio.h"
+#include "velocityfunctionstored.h"
+#include "uiveldesc.h"
 
 namespace Vel
 {
 
-static const char* typeoptions[] = 
-{
-    "Unknown",
-    "Interval",
-    "RMO",
-    "Avg",
-    0
-};    	
-
-
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
-    : uiDialog( p,uiDialog::Setup( "Import Velocity",
+    : uiDialog( p,uiDialog::Setup( "Import Velocity Function",
 				   "Specify Parameters","103.2.8") )
-    , ctio_( *mMkCtxtIOObj(VelocityAscData) )  
-    , fd_( *VelocityAscIO::getDesc() )
+    , ctio_( *new CtxtIOObj( StoredFunctionSource::ioContext() ) )
+    , fd_( *FunctionAscIO::getDesc() )
 {
     setCtrlStyle( DoAndStay );
 
@@ -54,16 +44,15 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 	    		       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Type" );
-    lcb->attach( alignedBelow, inpfld_ );
-    typefld_ = lcb->box();
-    typefld_->addItems( typeoptions );
+    typefld_ = new uiVelocityDesc( this,
+	    VelocityDesc( VelocityDesc::Interval, VelocityDesc::Above), true );
+    typefld_->attach( alignedBelow, inpfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, lcb );
+    sep->attach( stretchedBelow, typefld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.9" );
-    dataselfld_->attach( alignedBelow, lcb );
+    dataselfld_->attach( alignedBelow, typefld_ );
     dataselfld_->attach( ensureBelow, sep );
 
     sep = new uiSeparator( this, "H sep" );
@@ -87,7 +76,7 @@ uiImportVelFunc::~uiImportVelFunc()
 
 void uiImportVelFunc::formatSel( CallBacker* )
 {
-    VelocityAscIO::updateDesc( fd_ );
+    FunctionAscIO::updateDesc( fd_ );
 }
 
 
@@ -95,10 +84,8 @@ void uiImportVelFunc::formatSel( CallBacker* )
 
 bool uiImportVelFunc::acceptOK( CallBacker* )
 {
-    BinIDValueSet bidvalset( 2, true);
-    VelocityAscData veldata( bidvalset );
-    veldata.setType( BufferString(
-		         typefld_->textOfItem(typefld_->currentItem())) );
+    BinIDValueSet bidvalset( 0, true);
+    const VelocityDesc desc = typefld_->get();
 
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select the input file" );
@@ -107,9 +94,9 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !sd.usable() )
 	 mErrRet( "Cannot open input file" )
 
-    VelocityAscIO velascio( fd_, *sd.istrm );
+    FunctionAscIO velascio( fd_, *sd.istrm );
 
-    if ( !velascio.getVelocityAscData(veldata) )    
+    if ( !velascio.getVelocityData(bidvalset) )    
 	mErrRet( "Failed to convert into compatible data" );
 
     sd.close();
@@ -117,15 +104,10 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
     if ( !outfld_->commitInput(true) )
 	mErrRet( "Please select the output" )
 
-    VelocityAscDataTranslator* tr = 
-		(VelocityAscDataTranslator*)ctio_.ioobj->getTranslator();
-    if ( !tr ) return false;
-
-    BufferString bs;
-    const bool retval = tr->store( veldata, ctio_.ioobj, bs );
-
-    if ( !retval )
-        mErrRet( bs.buf() );	
+    RefMan<StoredFunctionSource> functions = new StoredFunctionSource;
+    functions->setData( bidvalset, desc, true ); //set ZisT
+    if ( !functions->store( ctio_.ioobj->key() ) )
+	mErrRet( "Cannot store velocity functions" );
 
     uiMSG().message( "Import finished successfully" );
     return false;

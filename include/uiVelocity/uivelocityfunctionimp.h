@@ -1,4 +1,3 @@
-
 #ifndef uivelocityfunctionimp_h
 #define uivelocityfunctionimp_h
 
@@ -8,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.h,v 1.3 2009-01-08 08:37:00 cvsranojay Exp $
+ RCS:		$Id: uivelocityfunctionimp.h,v 1.4 2009-03-18 18:45:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +18,7 @@ class uiFileInput;
 class uiIOObjSel;
 class CtxtIOObj;
 class uiTableImpDataSel;
-class uiComboBox;
+class uiVelocityDesc;
 
 namespace Table { class FormatDesc; }
 
@@ -35,7 +34,7 @@ public:
 protected:
 	
     uiFileInput*	inpfld_;
-    uiComboBox*	typefld_;
+    uiVelocityDesc*	typefld_;
     uiIOObjSel*		outfld_;
 
     CtxtIOObj&          ctio_;
