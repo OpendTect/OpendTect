@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.158 2009-03-16 16:31:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.159 2009-03-18 12:31:25 cvskris Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -205,7 +205,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impmnu_, "&Picksets ...", mImpPickMnuItm );
     mInsertItem( impmnu_, "&Wavelets ...", mImpWvltMnuItm );
     mInsertItem( impmnu_, "&Mute Function ...", mImpMuteDefMnuItm );
-    mInsertItem( impmnu_, "&Velocity ...", mImpVelocityMnuItm );
+    mInsertItem( impmnu_, "&Velocity Functions ...", mImpVelocityMnuItm );
 
     mInsertItem( impseis, "SEG-&Y ...", mImpSeisSEGYMnuItm );
     mInsertItem( impseis, "SEG-Y &Pre-stack scanned ...",
