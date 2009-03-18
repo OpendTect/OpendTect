@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.113 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.114 2009-03-18 14:02:10 cvshelene Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -820,8 +820,8 @@ float SurveyInfo::computeAngleXInl() const
 {
     Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
     Coord xy2 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
-    const double xdiff = fabs( xy2.x - xy1.x );
-    const double ydiff = fabs( xy2.y - xy1.y );
+    const double xdiff = xy2.x - xy1.x;
+    const double ydiff = xy2.y - xy1.y;
     return mIsZero(xdiff,1e-3) ? M_PI/2 : atan( ydiff / xdiff );
 }
 
