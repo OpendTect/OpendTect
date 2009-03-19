@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.7 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.8 2009-03-19 14:01:24 cvshelene Exp $";
 
 #include "uistoredattrreplacer.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uistoredattrreplacer.cc,v 1.7 2009-02-26 13:00:
 #include "sets.h"
 #include "bufstringset.h"
 
+#include "uimsg.h"
 #include "uiparent.h"
 #include "uiattrinpdlg.h"
 
@@ -56,6 +57,11 @@ void uiStoredAttribReplacer::go()
 
 void uiStoredAttribReplacer::handleSingleInput()
 {
+    if ( !storedids_.size() )
+    {
+	uiMSG().error( "Please create an attribute first." );
+	return;
+    }
     Desc* ad = attrset_.getDesc( storedids_[0].firstid_ );
     const bool hassteer = noofsteer_ > 0;
     const bool hasseis = noofseis_ > 0;
