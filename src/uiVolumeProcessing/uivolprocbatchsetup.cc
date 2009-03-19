@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.2 2008-08-12 18:16:07 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.3 2009-03-19 13:27:12 cvsbert Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -17,13 +17,15 @@ static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.2 2008-08-12 18:16:0
 #include "uipossubsel.h"
 #include "uiioobjsel.h"
 #include "uiseissel.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 
 
 namespace VolProc
 {
 
-uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf )
+uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf,
+			    const IOObj* initialioobj )
     : uiFullBatchDialog( p,
 	    uiFullBatchDialog::Setup("Volume Processing output")
 	    .procprognm("process_volume" ) )
@@ -31,7 +33,10 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf )
     , setupctxt_(*mGetCtxtIOObj(VolProcessing,Misc))
     , outputctxt_(*mMkCtxtIOObj(SeisTrc))
 {
-    setTitleText( "Create volume output" );
+    setCtrlStyle( DoAndStay );
+    if ( initialioobj )
+	setupctxt_.setObj( initialioobj->clone() );
+    setTitleText( "Build output volume" );
     setupctxt_.ctxt.forread = true;
     setupsel_ = new uiIOObjSel( uppgrp_, setupctxt_ );
 
@@ -42,6 +47,11 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf )
     outputsel_ = new uiSeisSel( uppgrp_, outputctxt_,
 	    			uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, possubsel_ );
+
+    static const char* typnms[] = { "Velocity", "Density", "Impedance", 0 };
+    outputtypefld_ = new uiGenInput( uppgrp_, "Output cube type",
+				     StringListInpSpec(typnms) );
+    outputtypefld_->attach( alignedBelow, outputsel_ );
 
     uppgrp_->setHAlignObj( setupsel_ );
 
@@ -94,6 +104,8 @@ bool uiBatchSetup::fillPar( IOPar& par )
 	    return false;
 	}
     }
+
+    //TODO : use outputtypefld_ to set type
 
     return true;
 }

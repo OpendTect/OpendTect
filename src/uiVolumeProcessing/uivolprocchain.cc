@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.7 2008-09-10 13:09:37 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.8 2009-03-19 13:27:12 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uivolprocchain.cc,v 1.7 2008-09-10 13:09:37 cvs
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uimenu.h"
+#include "uitoolbar.h"
 
 
 namespace VolProc
@@ -60,93 +60,110 @@ bool uiStepDialog::acceptOK( CallBacker* )
 }
 
 
-uiChain::uiChain( uiParent* p, Chain& man )
-    : uiDialog( p, uiDialog::Setup("Volume Processing Setup",0,"dgb:104.0.3")
-	    .savetext("Save on OK").savebutton(true).savechecked(true)
+uiChain::uiChain( uiParent* p, Chain& chn )
+    : uiDialog( p, uiDialog::Setup("Volume Builder Setup",0,"dgb:104.0.3")
 	    .menubar(true) )
-    , chain_( man )
+    , chain_(chn)
+    , ctio_(*mMkCtxtIOObj(VolProcessing))
 {
-    setCancelText( 0 );
+    ctio_.ctxt.forread = false;
+    ctio_.setObj( IOM().get(chain_.storageID()) );
 
-    uiPopupMenu* filemnu = new uiPopupMenu(this, "File" );
-    newmenu_ = new uiMenuItem( "New",
-	    mCB(this,uiChain,newButtonCB) );
-    filemnu->insertItem( newmenu_ );
-    newmenu_->setEnabled(false);  //No impl yet
+    uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
+    tb->addButton( "openflow.png", mCB(this,uiChain,readPush),
+	    	   "Read builder setup", false );
+    tb->addButton( "saveflow.png", mCB(this,uiChain,savePush),
+	    	   "Save builder setup", false );
 
-    loadmenu_ = new uiMenuItem( "Load",
-	    mCB(this,uiChain,loadButtonCB) );
-    filemnu->insertItem( loadmenu_ );
+    uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
-    savemenu_ = new uiMenuItem( "Save",
-	    mCB(this,uiChain,saveButtonCB) );
-    filemnu->insertItem( savemenu_ );
-
-    saveasmenu_ = new uiMenuItem( "Save As",
-	    mCB(this,uiChain,saveAsButtonCB) );
-    filemnu->insertItem( saveasmenu_ );
-
-    menuBar()->insertItem( filemnu );
-
-    uiLabel* availablelabel = new uiLabel( this, "Available steps" );
-    factorylist_ = new uiListBox( this, PS().getNames(true) );
+    uiLabel* availablelabel = new uiLabel( flowgrp, "Available steps" );
+    factorylist_ = new uiListBox( flowgrp, PS().getNames(true) );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
 
-    addstepbutton_ = new uiPushButton( this, "Add",
-	    mCB(this,uiChain,addStepCB), true );
+    addstepbutton_ = new uiPushButton( flowgrp, "Add",
+	    mCB(this,uiChain,addStepPush), true );
     addstepbutton_->attach( rightOf, factorylist_ );
+    flowgrp->setHAlignObj( addstepbutton_ );
 
-    removestepbutton_ = new uiPushButton( this, "Remove",
-	    mCB(this,uiChain,removeStepCB), true);
+    removestepbutton_ = new uiPushButton( flowgrp, "Remove",
+	    mCB(this,uiChain,removeStepPush), true);
     removestepbutton_->attach( alignedBelow, addstepbutton_ );
 
-    steplist_ = new uiListBox( this );
+    steplist_ = new uiListBox( flowgrp );
     steplist_->attach( rightOf, addstepbutton_ );
     steplist_->selectionChanged.notify(
 	    mCB(this,uiChain,stepClickCB) );
     steplist_->doubleClicked.notify(
 	    mCB(this,uiChain,stepDoubleClickCB) );
 
-    uiLabel* label = new uiLabel( this, "Used steps" );
+    uiLabel* label = new uiLabel( flowgrp, "Used steps" );
     label->attach( alignedAbove, steplist_ );
     label->attach( rightTo, availablelabel );
 
-    moveupbutton_ = new uiPushButton( this, "Move Up",
+    moveupbutton_ = new uiPushButton( flowgrp, "Move Up",
 	    mCB(this,uiChain,moveUpCB), true );
     moveupbutton_->attach( rightOf, steplist_ );
 
-    movedownbutton_ = new uiPushButton( this, "Move Down",
+    movedownbutton_ = new uiPushButton( flowgrp, "Move Down",
 	    mCB(this,uiChain,moveDownCB), true);
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
-    propertiesbutton_ = new uiPushButton( this, "Settings",
+    propertiesbutton_ = new uiPushButton( flowgrp, "Settings",
 	    mCB(this,uiChain,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
+
+    objfld_ = new uiIOObjSel( this, ctio_, "Volume Builder Setup" );
+    objfld_->setConfirmOverwrite( false );
+    objfld_->attach( alignedBelow, flowgrp );
 
     updateList();
     updateButtons();
 }
 
 
+uiChain::~uiChain()
+{
+    delete ctio_.ioobj; delete &ctio_;
+}
+
+
+void uiChain::updObj( const IOObj& ioobj )
+{
+    chain_.setStorageID( ioobj.key() );
+    ctio_.setObj( ioobj.clone() );
+    objfld_->updateInput();
+}
+
+
+const MultiID& uiChain::storageID() const
+{
+    return chain_.storageID();
+}
+
+
 bool uiChain::acceptOK(CallBacker*)
 {
-    if ( saveButtonChecked() )
-	return doSave();
+    if ( !objfld_->commitInput(true) )
+    {
+	uiMSG().error( "Please enter a name for this builder setup" );
+	return false;
+    }
 
-    return true;
+    chain_.setStorageID( ctio_.ioobj->key() );
+    return doSave();
 }
 
 
 bool uiChain::doSave()
 {
-    PtrMan<IOObj> ioobj = IOM().get( chain_.storageID() );
-    if ( !ioobj )
+    if ( !ctio_.ioobj )
 	return doSaveAs();
 
     BufferString errmsg;
-    if ( VolProcessingTranslator::store( chain_, ioobj, errmsg ) )
+    if ( VolProcessingTranslator::store( chain_, ctio_.ioobj, errmsg ) )
 	return true;
 
      uiMSG().error( errmsg );
@@ -156,19 +173,18 @@ bool uiChain::doSave()
 
 bool uiChain::doSaveAs()
 {
-     CtxtIOObj context( VolProcessingTranslatorGroup::ioContext(), 0 );
-     context.ctxt.forread = false;
-     uiIOObjSelDlg dlg( this, context );
+     uiIOObjSelDlg dlg( this, ctio_, "Volume Builder Setup" );
      if ( !dlg.go() || !dlg.nrSel() )
 	 return false;
 
      BufferString errmsg;
      if ( VolProcessingTranslator::store( chain_, dlg.ioObj(), errmsg ) )
      {
-	 chain_.setStorageID( dlg.ioObj()->key() );
+	 updObj( *dlg.ioObj() );
 	 return true;
      }
 
+     ctio_.setObj( IOM().get(chain_.storageID()) );
      uiMSG().error( errmsg );
      return false;
 }
@@ -236,21 +252,20 @@ void uiChain::showPropDialog( int idx )
 }
 
 
-void uiChain::loadButtonCB( CallBacker* )
+void uiChain::readPush( CallBacker* )
 {
-     CtxtIOObj context( VolProcessingTranslatorGroup::ioContext(), 0 );
      IOPar* par = new IOPar;
      par->setYN( VolProcessingTranslatorGroup::sKeyIsVolProcSetup(),
-	         getYesNoString(true));
-     context.setPar( par );
-     uiIOObjSelDlg dlg( this, context );
+	         toString(true));
+     ctio_.setPar( par );
+     uiIOObjSelDlg dlg( this, ctio_ );
      if ( !dlg.go() || !dlg.nrSel() )
 	 return;
 
      BufferString errmsg;
      if ( VolProcessingTranslator::retrieve( chain_, dlg.ioObj(), errmsg ) )
      {
-	 chain_.setStorageID( dlg.ioObj()->key() );
+	 updObj( *dlg.ioObj() );
 	 updateList();
 	 return;
      }
@@ -260,15 +275,10 @@ void uiChain::loadButtonCB( CallBacker* )
 }
 
 
-void uiChain::saveButtonCB(CallBacker* cb)
+void uiChain::savePush(CallBacker* cb)
 {
-    doSave();
+    doSaveAs();
 }
-
-
-void uiChain::saveAsButtonCB(CallBacker*)
-{ doSaveAs(); }
-
 
 
 void uiChain::factoryClickCB(CallBacker*)
@@ -300,7 +310,7 @@ void uiChain::stepDoubleClickCB(CallBacker*)
 }
 
 
-void uiChain::addStepCB(CallBacker*)
+void uiChain::addStepPush(CallBacker*)
 {
     const int sel = factorylist_->nextSelected(-1);
     if ( sel == -1 )
@@ -317,7 +327,7 @@ void uiChain::addStepCB(CallBacker*)
 }
 
 
-void uiChain::removeStepCB(CallBacker*)
+void uiChain::removeStepPush(CallBacker*)
 {
     const int idx = steplist_->nextSelected(-1);
     if ( idx<0 )

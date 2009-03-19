@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.47 2009-03-06 15:28:20 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.48 2009-03-19 13:27:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,9 +162,10 @@ public:
     const Pick::Set&	getSelPickSet()			{ return *selptps_; }
     void		showXPlot(CallBacker*);
 
-    void		editVolProc();
+    void		doVolProc();
     void		createVolProcOutput(const char* dlgcaption=0,
-	    				    const IOPar* extrapar=0 );
+	    				    const IOPar* extrapar=0,
+					    const IOObj* ioobj=0);
     			//!<extrapar will be added to created volume's IOObj
 
 protected:

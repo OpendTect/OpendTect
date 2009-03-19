@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.112 2009-03-18 13:49:53 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.113 2009-03-19 13:27:11 cvsbert Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -121,7 +121,7 @@ uiAttribPartServer::~uiAttribPartServer()
 }
 
 
-void uiAttribPartServer::editVolProc()
+void uiAttribPartServer::doVolProc()
 {
     if ( !volprocchain_ )
     {
@@ -130,22 +130,27 @@ void uiAttribPartServer::editVolProc()
     }
 
     VolProc::uiChain dlg( parent(), *volprocchain_ );
-    dlg.go();
+    if ( dlg.go() )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( volprocchain_->storageID() );
+	createVolProcOutput(0,0,ioobj);
+    }
 }
 
 
 void uiAttribPartServer::createVolProcOutput( const char* caption,
-					      const IOPar* extrapar )
+					    const IOPar* extrapar,
+   					    const IOObj* ioobj )
 {
-    if ( !caption ) caption = "Create Volume processing output";
-    VolProc::uiBatchSetup dlg( parent(), extrapar );
+    if ( !caption ) caption = "Create Volume Builder output";
+    VolProc::uiBatchSetup dlg( parent(), extrapar, ioobj );
     dlg.setCaption( caption );
     dlg.setTitleText( caption );
     dlg.go();
 }
 
 
-#define mUseAutoAttrSet( typ ) \
+#define mUseAutoAttrSet( typ ) { \
     MultiID id = \
 	SI().pars().find( uiAttribDescSetEd::sKeyAuto##typ##DAttrSetID ); \
     if ( id ) \
@@ -157,6 +162,7 @@ void uiAttribPartServer::createVolProcOutput( const char* caption,
 	AttribDescSetTranslator::retrieve( *attrset, ioobj, bs ); \
 	adsman##typ##d_->setDescSet( attrset ); \
 	adsman##typ##d_->attrsetid_ = id; \
+    } \
     }
 
 
@@ -166,10 +172,8 @@ void uiAttribPartServer::handleAutoSet()
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
     if ( douse )
     {
-	if ( SI().has2D() )
-	{ mUseAutoAttrSet( 2 ); }
-	if ( SI().has3D() )
-	{ mUseAutoAttrSet( 3 ); }
+	if ( SI().has2D() ) mUseAutoAttrSet(2)
+	if ( SI().has3D() ) mUseAutoAttrSet(3)
     }
 }
 

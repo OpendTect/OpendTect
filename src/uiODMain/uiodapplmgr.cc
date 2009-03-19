@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.310 2009-03-16 16:31:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.311 2009-03-19 13:27:11 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -412,8 +412,8 @@ void uiODApplMgr::editAttribSet( bool is2d )
 }
 
 
-void uiODApplMgr::editVolProc( CallBacker* )
-{ attrserv_->editVolProc(); }
+void uiODApplMgr::doVolProc( CallBacker* )
+{ attrserv_->doVolProc(); }
 
 
 void uiODApplMgr::createVolProcOutput(CallBacker*)

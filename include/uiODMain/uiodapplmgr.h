@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.76 2009-03-16 16:31:14 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.77 2009-03-19 13:27:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ public:
 				    { editAttribSet(true); }
     void			editAttr3DCB(CallBacker*)
 				    { editAttribSet(false);}
-    void			editVolProc(CallBacker*);
+    void			doVolProc(CallBacker*);
 
     void			enableMenusAndToolBars(bool);
     void			enableTree(bool);

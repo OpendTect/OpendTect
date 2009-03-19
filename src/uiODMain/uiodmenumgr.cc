@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.159 2009-03-18 12:31:25 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.160 2009-03-19 13:27:12 cvsbert Exp $";
 
 #include "uiodmenumgr.h"
 
@@ -330,13 +330,13 @@ void uiODMenuMgr::fillProcMenu()
     if ( SI().has3D() )
     {
 	voitm->insertItem(
-	    new uiMenuItem("Volume processing ...",
+	    new uiMenuItem("Volume &Builder ...",
 			mCB(&applMgr(),uiODApplMgr,createVolProcOutput)) );
 	voitm->insertItem(
-	    new uiMenuItem("Time - deph conversion ...",
+	    new uiMenuItem("&Time - deph conversion ...",
 			mCB(&applMgr(),uiODApplMgr,processTime2Depth)) );
 	voitm->insertItem(
-	    new uiMenuItem("Pre Stack processing ...",
+	    new uiMenuItem("&Pre Stack processing ...",
 			mCB(&applMgr(),uiODApplMgr,processPreStack)) );
     }
     create2D3DMnu( voitm, "&Between horizons", mCompBetweenHor2DMnuItm,
@@ -550,8 +550,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,"attributes.png","Edit attributes",false,editAttr3DCB);
 	mAddTB( dtecttb_,"out_vol.png","Create seismic output",false,
 		seisOut3DCB);
-	mAddTB( dtecttb_,"volprocsetup64.png","Edit Volume Processing",false,
-		editVolProc);
+	mAddTB( dtecttb_,"volproc.png","Volume Builder",false,doVolProc);
     }
     else
     {
