@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.32 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.33 2009-03-19 09:01:55 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -41,7 +41,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Wavelet management",
                                      "Manage wavelets",
                                      "103.3.0").nrstatusflds(1),
-	    	   WaveletTranslatorGroup::ioContext() )
+	    	   WaveletTranslatorGroup::ioContext(), sKey::DefWavelet )
     , curid_(DataPack::cNoID())
 {
     createDefaultUI();

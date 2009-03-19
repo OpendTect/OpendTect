@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.80 2009-03-04 12:39:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.81 2009-03-19 09:01:55 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -50,7 +50,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
                                      "Manage seismic data",
                                      "103.1.0").nrstatusflds(1),
-	    	   SeisTrcTranslatorGroup::ioContext() )
+	    	   SeisTrcTranslatorGroup::ioContext(),
+		   SI().has3D() ? sKey::DefCube : 0)
 {
     ctxt_.trglobexpr = "CBVS`2D";
     createDefaultUI();
@@ -119,6 +120,8 @@ void uiSeisFileMan::ownSelChg()
     const bool doesexist = curioobj_ && curioobj_->implExists(true);
     cpym2dbut->setSensitive( is2d || doesexist );
     browsebut->setSensitive( !is2d && doesexist );
+    if ( mkdefbut )
+	mkdefbut->setSensitive( !is2d && doesexist );
 }
 
 

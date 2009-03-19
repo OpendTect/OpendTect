@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.21 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.22 2009-03-19 09:01:55 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
 #include "uiioobjsel.h"
+#include "uiioobjmanip.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "dirlist.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: uiobjfileman.cc,v 1.21 2008-11-25 15:35:25 cvsb
 #include "filegen.h"
 #include "filepath.h"
 #include "streamconn.h"
+#include "survinfo.h"
 
 #include "uilistbox.h"
 #include "uitextedit.h"
@@ -29,10 +31,12 @@ static const int cPrefWidth = 30;
 
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
-			    const IOObjContext& ctxt )
+			    const IOObjContext& ctxt, const char* defky )
     : uiDialog(p,s)
     , curioobj_(0)
     , ctxt_(*new IOObjContext(ctxt))
+    , defkey_(defky)
+    , mkdefbut(0)
 {
     setCtrlStyle( LeaveOnly );
 }
@@ -51,6 +55,10 @@ void uiObjFileMan::createDefaultUI()
     selgrp = new uiIOObjSelGrp( this, CtxtIOObj(ctxt_), 0, false );
     selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp->getListField()->setHSzPol( uiObject::Medium );
+
+    if ( !defkey_.isEmpty() )
+	mkdefbut = selgrp->getManipGroup()->addButton( "makedefault.png",
+		mCB(this,uiObjFileMan,makeDefault), "Set as default" );
 
     infofld = new uiTextEdit( this, "Object Info", true );
     infofld->attach( ensureBelow, selgrp );
@@ -75,6 +83,15 @@ void uiObjFileMan::selChg( CallBacker* cb )
     if ( curioobj_ )
 	GetFreeMBOnDiskMsg( GetFreeMBOnDisk(curioobj_), msg );
     toStatusBar( msg );
+}
+
+
+void uiObjFileMan::makeDefault( CallBacker* )
+{
+    if ( !curioobj_ ) return;
+    SI().getPars().set( defkey_, curioobj_->key() );
+    SI().savePars();
+    selgrp->fullUpdate( curioobj_->key() );
 }
 
 

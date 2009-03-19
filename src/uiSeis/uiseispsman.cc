@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispsman.cc,v 1.11 2009-02-05 06:04:03 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseispsman.cc,v 1.12 2009-03-19 09:01:55 cvsbert Exp $";
 
 
 #include "uiseispsman.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiseispsman.cc,v 1.11 2009-02-05 06:04:03 cvsra
 #include "uiioobjsel.h"
 #include "uiseismulticubeps.h"
 #include "posinfo.h"
+#include "keystrs.h"
 
 
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
@@ -26,7 +27,8 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
                                      "Manage Pre-stack seismics",
                                      "103.4.0").nrstatusflds(1),
 	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
-		        : SeisPS3DTranslatorGroup::ioContext() )
+		        : SeisPS3DTranslatorGroup::ioContext(),
+		   is2d ? sKey::DefPS2D : sKey::DefPS3D)
     , is2d_(is2d)
 {
     createDefaultUI();
