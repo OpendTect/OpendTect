@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.34 2009-03-04 13:15:46 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.35 2009-03-19 14:46:30 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -36,6 +36,7 @@ SRC.cc	:=	initsood.cc \
 		SoTextureChannelSetElement.cc \
 	 	SoTextureComposer.cc \
 		SoTextureComposerElement.cc \
+		SoTextureMipMapBiasElement.cc \
 		SoTranslateRectangleDragger.cc \
 		SoRandomTrackLineDragger.cc \
 		SoGridSurfaceDragger.cc \
