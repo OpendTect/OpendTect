@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uivolprocbatchsetup.h,v 1.3 2009-03-19 13:27:11 cvsbert Exp $
+ RCS:           $Id: uivolprocbatchsetup.h,v 1.4 2009-03-19 16:12:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class CtxtIOObj;
 class uiIOObjSel;
 class uiPosSubSel;
 class uiGenInput;
+class uiVelocityDesc;
 
 
 namespace VolProc 
@@ -44,7 +45,11 @@ protected:
     uiIOObjSel*		setupsel_;
     uiPosSubSel*	possubsel_;
     uiIOObjSel*		outputsel_;
-    uiGenInput*		outputtypefld_;
+    uiGenInput*		outisvelfld_;
+    uiVelocityDesc*	uiveldesc_;
+
+    void		outTypChg(CallBacker*);
+    void		outSel(CallBacker*);
 
 };
 

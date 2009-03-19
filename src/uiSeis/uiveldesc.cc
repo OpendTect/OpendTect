@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.16 2009-03-18 18:30:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.17 2009-03-19 16:12:28 cvsbert Exp $";
 
 #include "uiveldesc.h"
 
@@ -21,8 +21,7 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.16 2009-03-18 18:30:32 cvskris
 
 
 
-uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc,
-       bool withspan )
+uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     : uiGroup( p, "Velocity type selector" )
     , samplefld_( 0 )
 {
@@ -30,7 +29,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc,
 			StringListInpSpec(VelocityDesc::TypeNames()) );
     typefld_->valuechanged.notify( mCB(this,uiVelocityDesc,velTypeChange) );
 
-    if ( withspan )
+    if ( !vsu || vsu->withspan_ )
     {
 	samplefld_ = new uiGenInput( this, "Sample span",
 			StringListInpSpec(VelocityDesc::SampleSpanNames()) );
@@ -38,7 +37,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc,
     }
 
     setHAlignObj( typefld_ );
-    set( desc );
+    set( vsu ? vsu->desc_ : VelocityDesc() );
 }
 
 
@@ -66,16 +65,39 @@ VelocityDesc uiVelocityDesc::get() const
 }
 
 
-uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel )
-    : uiDialog( this, uiDialog::Setup("Edit velocity information",0,mNoHelpID) )
-    , ctxt_(*mGetCtxtIOObj(SeisTrc,Seis))
+bool uiVelocityDesc::updateAndCommit( IOObj& ioobj )
 {
-    ctxt_.ctxt.forread = true;
-    if ( sel ) ctxt_.ioobj = sel->clone();
+    const VelocityDesc desc = get();
 
-    volsel_ = new uiSeisSel( this, ctxt_, uiSeisSel::Setup(Seis::Vol) );
+    if ( desc.type_ != VelocityDesc::Unknown )
+	desc.fillPar( ioobj.pars() );
+    else
+    {
+	ioobj.pars().remove( VelocityDesc::sKeyVelocityDesc() );
+	ioobj.pars().remove( VelocityDesc::sKeyIsVelocity() );
+    }
+    
+    if ( !IOM().commitChanges(ioobj) )
+    {
+	uiMSG().error("Cannot write velocity information");
+	return false;
+    }
+
+    return true;
+}
+
+
+uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel,
+				      const uiVelocityDesc::Setup* vsu )
+    : uiDialog( this, uiDialog::Setup("Edit velocity information",0,mNoHelpID) )
+    , ctxt_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
+{
+    if ( sel ) ctxt_.setObj( sel->clone() );
+
+    uiSeisSel::Setup ssu( Seis::Vol ); ssu.seltxt( "Velocity cube" );
+    volsel_ = new uiSeisSel( this, ctxt_, ssu );
     volsel_->selectiondone.notify( mCB(this,uiVelocityDescDlg,volSelChange) );
-    veldesc_ = new uiVelocityDesc( this, VelocityDesc(), true );
+    veldesc_ = new uiVelocityDesc( this, vsu );
     veldesc_->attach( alignedBelow, volsel_ );
 
     volSelChange( 0 );
@@ -84,8 +106,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel )
 
 uiVelocityDescDlg::~uiVelocityDescDlg()
 {
-    delete ctxt_.ioobj;
-    delete &ctxt_;
+    delete ctxt_.ioobj; delete &ctxt_;
 }
 
 
@@ -117,32 +138,14 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 	return false;
     }
 
-    const VelocityDesc desc = veldesc_->get();
-
-    if ( desc.type_==VelocityDesc::Unknown )
-    {
-	ctxt_.ioobj->pars().remove( VelocityDesc::sKeyVelocityDesc() );
-	ctxt_.ioobj->pars().remove( VelocityDesc::sKeyIsVelocity() );
-    }
-    else
-    {
-	veldesc_->get().fillPar( ctxt_.ioobj->pars() );
-    }
-    
-    if ( !IOM().commitChanges(*ctxt_.ioobj) )
-    {
-	uiMSG().error("Cannot write velocity information");
-	return false;
-    }
-
-    return true;
+    return veldesc_->updateAndCommit( *ctxt_.ioobj );
 }
 
 
 uiVelSel::uiVelSel(uiParent* p, CtxtIOObj& ctxt, const uiSeisSel::Setup& setup )
     : uiSeisSel( p, ctxt, setup )
 {
-    editcubebutt_ = new uiPushButton( this, ctio_.ioobj ? "Edit" : "Add",
+    editcubebutt_ = new uiPushButton( this, ctio_.ioobj ? "Edit" : "Create",
 				      mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, selbut_ );
 }
@@ -177,7 +180,5 @@ void uiVelSel::editCB(CallBacker*)
 void uiVelSel::updateInput()
 {
     uiSeisSel::updateInput();
-    editcubebutt_->setText( ctio_.ioobj ? "Edit" : "Add" );
+    editcubebutt_->setText( ctio_.ioobj ? "Edit ..." : "Create ..." );
 }
-
-

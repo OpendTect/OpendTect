@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.6 2009-03-18 18:30:32 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.7 2009-03-19 16:12:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,11 +23,23 @@ class CtxtIOObj;
 mClass uiVelocityDesc : public uiGroup
 {
 public:
-    				uiVelocityDesc(uiParent*,const VelocityDesc&,
-					       bool withsamplespan=true);
+
+    mClass Setup
+    {
+    public:
+				Setup( const VelocityDesc* vd=0, bool ws=true )
+				    : withspan_(ws)
+				{ if ( vd ) desc_ = *vd; }
+
+	mDefSetupMemb(VelocityDesc,desc)
+	mDefSetupMemb(bool,withspan)
+    };
+
+    				uiVelocityDesc(uiParent*,const Setup* s=0);
 
     VelocityDesc		get() const;
     void			set(const VelocityDesc&);
+    bool			updateAndCommit(IOObj&);
 
 protected:
 
@@ -42,19 +54,22 @@ protected:
 mClass uiVelocityDescDlg : public uiDialog
 {
 public:
-    			uiVelocityDescDlg(uiParent*,const IOObj* cursel);
+    			uiVelocityDescDlg(uiParent*,const IOObj* cursel=0,
+					  const uiVelocityDesc::Setup* s=0);
 			~uiVelocityDescDlg();
 
    IOObj*		getSelection() const;
    			//!<returned object must be managed by caller
 
 protected:
+
    bool			acceptOK(CallBacker*);
    void			volSelChange(CallBacker*);
 
    uiSeisSel*		volsel_;
    uiVelocityDesc*	veldesc_;
    CtxtIOObj&		ctxt_;
+
 };
 
 

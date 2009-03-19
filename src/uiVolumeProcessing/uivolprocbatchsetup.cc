@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.3 2009-03-19 13:27:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.4 2009-03-19 16:12:28 cvsbert Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -18,13 +18,12 @@ static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.3 2009-03-19 13:27:1
 #include "uiioobjsel.h"
 #include "uiseissel.h"
 #include "uigeninput.h"
+#include "uiveldesc.h"
 #include "uimsg.h"
 
 
-namespace VolProc
-{
 
-uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf,
+VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf,
 			    const IOObj* initialioobj )
     : uiFullBatchDialog( p,
 	    uiFullBatchDialog::Setup("Volume Processing output")
@@ -47,25 +46,29 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf,
     outputsel_ = new uiSeisSel( uppgrp_, outputctxt_,
 	    			uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, possubsel_ );
+    outputsel_->selectiondone.notify( mCB(this,uiBatchSetup,outSel) );
 
     static const char* typnms[] = { "Velocity", "Density", "Impedance", 0 };
-    outputtypefld_ = new uiGenInput( uppgrp_, "Output cube type",
-				     StringListInpSpec(typnms) );
-    outputtypefld_->attach( alignedBelow, outputsel_ );
+    outisvelfld_ = new uiGenInput( uppgrp_, "Output type",
+				     BoolInpSpec(true,"Velocity","Other") );
+    outisvelfld_->attach( alignedBelow, outputsel_ );
+    outisvelfld_->valuechanged.notify( mCB(this,uiBatchSetup,outTypChg) );
+    uiveldesc_ = new uiVelocityDesc( uppgrp_ );
+    uiveldesc_->attach( alignedBelow, outisvelfld_ );
 
     uppgrp_->setHAlignObj( setupsel_ );
 
     addStdFields( false, true );
 }
 
-uiBatchSetup::~uiBatchSetup()
+VolProc::uiBatchSetup::~uiBatchSetup()
 {
     delete setupctxt_.ioobj; delete &setupctxt_;
     delete outputctxt_.ioobj; delete &outputctxt_;
 }
 
 
-bool uiBatchSetup::prepareProcessing()
+bool VolProc::uiBatchSetup::prepareProcessing()
 {
     if ( !setupsel_->commitInput(true) )
     {
@@ -83,7 +86,7 @@ bool uiBatchSetup::prepareProcessing()
 }
 
 
-bool uiBatchSetup::fillPar( IOPar& par )
+bool VolProc::uiBatchSetup::fillPar( IOPar& par )
 {
     if ( !setupctxt_.ioobj || !outputctxt_.ioobj )
 	return false; 
@@ -95,21 +98,43 @@ bool uiBatchSetup::fillPar( IOPar& par )
 
     par.set( VolProcessingTranslatorGroup::sKeyOutputID(),
 	     outputctxt_.ioobj->key() );
+
+    bool needcommit = false; bool commitfailed = false;
     if ( extraomf_ )
     {
 	outputctxt_.ioobj->pars().merge( *extraomf_ );
-	if ( !IOM().commitChanges( *outputctxt_.ioobj ) )
+	needcommit = true;
+    }
+    if ( outisvelfld_->getBoolValue() )
+    {
+	commitfailed = !uiveldesc_->updateAndCommit( *outputctxt_.ioobj );
+	needcommit = false;
+    }
+
+    if ( commitfailed || needcommit )
+    {
+	if ( commitfailed || !IOM().commitChanges( *outputctxt_.ioobj ) )
 	{
 	    uiMSG().error("Cannot write .omf file, check file permissions");
 	    return false;
 	}
     }
 
-    //TODO : use outputtypefld_ to set type
-
     return true;
 }
 
-}; //namespace
+
+void VolProc::uiBatchSetup::outTypChg( CallBacker* )
+{
+    uiveldesc_->display( outisvelfld_->getBoolValue() );
+}
 
 
+void VolProc::uiBatchSetup::outSel( CallBacker* )
+{
+    if ( !outputsel_->commitInput(true) || !outputctxt_.ioobj ) return;
+    VelocityDesc vd;
+    const bool isvel = vd.usePar( outputctxt_.ioobj->pars() );
+    uiveldesc_->set( vd );
+    outisvelfld_->setValue( isvel );
+}

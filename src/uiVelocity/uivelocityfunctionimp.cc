@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.6 2009-03-18 18:45:26 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.7 2009-03-19 16:12:28 cvsbert Exp $";
 
 #include "uivelocityfunctionimp.h"
 
@@ -44,8 +44,10 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 	    		       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
-    typefld_ = new uiVelocityDesc( this,
-	    VelocityDesc( VelocityDesc::Interval, VelocityDesc::Above), true );
+    uiVelocityDesc::Setup su;
+    su.desc_.type_ = VelocityDesc::Interval;
+    su.desc_.samplespan_ = VelocityDesc::Above;
+    typefld_ = new uiVelocityDesc( this, &su );
     typefld_->attach( alignedBelow, inpfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
