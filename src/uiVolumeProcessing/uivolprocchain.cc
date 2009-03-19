@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.8 2009-03-19 13:27:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.9 2009-03-19 13:30:54 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -259,6 +259,7 @@ void uiChain::readPush( CallBacker* )
 	         toString(true));
      ctio_.setPar( par );
      uiIOObjSelDlg dlg( this, ctio_ );
+     dlg.selGrp()->setConfirmOverwrite( false );
      if ( !dlg.go() || !dlg.nrSel() )
 	 return;
 
