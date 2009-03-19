@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.2 2009-03-17 20:25:20 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.3 2009-03-19 08:50:30 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ namespace Vel
 
 class PicksMgr;
 
-class Pick
+mClass Pick
 {
 public:
     			Pick(float depth=mUdf(float),
@@ -52,7 +52,7 @@ public:
 
 /*!Holds picks that the user has done, typically in a semblance plot. */
 
-class Picks : public CallBacker
+mClass Picks : public CallBacker
 { mRefCountImpl(Picks);
 public:
     			Picks();
@@ -174,7 +174,7 @@ protected:
 };
 
 
-class PicksMgr : public CallBacker
+mClass PicksMgr : public CallBacker
 {
 public:
     				PicksMgr();
@@ -194,7 +194,7 @@ protected:
 };
 
 
-PicksMgr& VPM();
+mGlobal PicksMgr& VPM();
 
 const IOObjContext& getRMOPickStorageContext();
 
