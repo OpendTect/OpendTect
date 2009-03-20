@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.127 2009-03-04 11:11:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.128 2009-03-20 13:28:26 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -613,7 +613,7 @@ void uiIOObjSel::obtainIOObj()
     }
 
     IOM().to( ctio_.ctxt.getSelKey() );
-    const IOObj* ioobj = (*IOM().dirPtr())[inp.buf()];
+    const IOObj* ioobj = (*IOM().dirPtr())[MultiID(inp.buf())];
     ctio_.setObj( ioobj && ctio_.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
 }
 
