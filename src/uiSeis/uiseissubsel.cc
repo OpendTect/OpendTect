@@ -7,11 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.60 2009-03-18 11:52:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.61 2009-03-20 09:30:25 cvsnanne Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
-#include "uiseislinesel.h"
 #include "uicompoundparsel.h"
 #include "uipossubsel.h"
 #include "uiposprovider.h"
