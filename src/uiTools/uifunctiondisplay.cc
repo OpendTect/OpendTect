@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.31 2009-03-17 06:29:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.32 2009-03-20 11:45:02 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -262,7 +262,6 @@ void uiFunctionDisplay::getPointSet( TypeSet<uiPoint>& ptlist, bool y2 )
 
 void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 {
-    //if ( setup_.drawscattery1_ ) return;
     bool polydrawn = false;
     if ( setup_.fillbelow_ )
     {
@@ -298,7 +297,6 @@ void uiFunctionDisplay::drawYCurve( const TypeSet<uiPoint>& ptlist )
 void uiFunctionDisplay::drawY2Curve( const TypeSet<uiPoint>& ptlist,
 				     bool havey2 )
 {
-    //if ( setup_.drawscattery2_ ) return;
     bool polydrawn = false;
     if ( setup_.fillbelowy2_ )
     {
@@ -361,13 +359,6 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	    ymarkeritems_ = new uiGraphicsItemGroup();
 	    scene().addItemGrp( ymarkeritems_ );
 	}
-    }
-    else
-    {
-	if ( isy2 && y2markeritems_ )
-	    y2markeritems_->removeAll( true );
-	else if ( ymarkeritems_ )
-	    ymarkeritems_->removeAll( true );
     }
 
     uiGraphicsItemGroup* curitmgrp = isy2 ? y2markeritems_ : ymarkeritems_;
