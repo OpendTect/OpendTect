@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: tcpserver.h,v 1.1 2009-03-18 04:24:39 cvsnanne Exp $
+ RCS:           $Id: tcpserver.h,v 1.2 2009-03-20 06:15:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class QTcpServer;
 class QTcpServerComm;
 
 
-class TcpServer : public CallBacker
+mClass TcpServer : public CallBacker
 {
 friend class QTcpServerComm;
 
