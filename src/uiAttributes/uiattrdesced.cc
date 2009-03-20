@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.29 2009-03-20 07:44:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.30 2009-03-20 08:35:00 cvssatyaki Exp $";
 
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
@@ -37,8 +37,6 @@ const char* uiAttrDescEd::sKeyFreqGrp = "Frequency";
 const char* uiAttrDescEd::sKeyPatternGrp = "Patterns";
 const char* uiAttrDescEd::sKeyStatsGrp = "Statistics";
 const char* uiAttrDescEd::sKeyPositionGrp = "Positions";
-const char* uiAttrDescEd::sKeyDipGrp = "Dip";
-const char* uiAttrDescEd::sKeySSISGrp = "SSIS";
 
 
 const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
