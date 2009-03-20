@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.25 2009-02-24 14:08:23 cvsbert Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.26 2009-03-20 07:44:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,6 +161,7 @@ protected:
     static const char*	sKeyStatsGrp;
     static const char*	sKeyPositionGrp;
     static const char*	sKeyDipGrp;
+    static const char*	sKeySSISGrp;
 
 private:
 
