@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.49 2009-02-03 13:57:12 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.50 2009-03-20 13:29:39 cvsbert Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -483,10 +483,12 @@ void uiAttrTrcSelOut::attribSel( CallBacker* cb )
     setParFileNmDef( attrfld_->getInput() );
     if ( ads_.is2D() )
     {
-	const Desc* desc = ads_.getFirstStored();
+	const Desc* desc = ads_.getDesc( attrfld_->attribID() );
+	if ( !desc )
+	    desc = ads_.getFirstStored();
 	if ( desc )
 	{
-	    BufferString storedid = desc->getStoredID();
+	    BufferString storedid = desc->getStoredID( true );
 	    if ( !storedid.isEmpty() )
 	    {
 		PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
