@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: safefileio.h,v 1.4 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: safefileio.h,v 1.5 2009-03-20 18:54:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 #include <iosfwd>
 
 
-/*!\brief Protects file IO when you can't afford to have partly written things after write errors or have a file garbled by multiple access.
+/*!\brief Protects file IO when you can't afford to have partly written things
+  after write errors or have a file garbled by multiple access.
  
   Use the locking only when multiple processes can concurrently write to
   the same file. For most purposes, you won't need the locking, which is kind
@@ -57,6 +58,8 @@ public:
 			{ doClose( keeplock, false ); }
     bool		closeSuccess( bool keeplock=false )
 			{ return doClose( keeplock, true ); }
+
+    const char*		fileName() const	{ return filenm_.buf(); }
 
     // Some setup variables
     bool		usebakwhenmissing_;	//!< default=true
