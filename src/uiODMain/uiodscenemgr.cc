@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.164 2009-02-20 11:34:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.165 2009-03-20 10:42:27 cvsjaap Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -232,8 +232,6 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
 	menuMgr().setCameraPixmap( isperspective );
 	zoomslider_->setSensitive( isperspective );
     }
-
-    wsp_->cursorReset();
 
     if ( name ) setSceneName( sceneid, name );
 
@@ -764,7 +762,9 @@ int uiODSceneMgr::getActiveSceneID() const
 
 void uiODSceneMgr::wspChanged( CallBacker* )
 {
+    const bool wasparalysed = wsp_->paralyse( true );
     menuMgr().updateSceneMenu();
+    wsp_->paralyse( wasparalysed );
     activeSceneChanged.trigger();
 }
 
@@ -933,8 +933,12 @@ void uiODSceneMgr::disabRightClick( bool yn )
 
 void uiODSceneMgr::disabTrees( bool yn )
 {
+    const bool wasparalysed = wsp_->paralyse( true );
+
     for ( int idx=0; idx<scenes_.size(); idx++ )
 	scenes_[idx]->lv_->setSensitive( !yn );
+
+    wsp_->paralyse( wasparalysed );
 }
 
 
