@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexamine.cc,v 1.13 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexamine.cc,v 1.14 2009-03-20 09:31:28 cvsnanne Exp $";
 
 #include "uisegyexamine.h"
 #include "uitextedit.h"
@@ -306,6 +306,7 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 	tbl_->setRowLabel( ival, rownm );
     }
 
+    tbl_->resizeRowsToContents();
     tbl_->resizeHeaderToContents( false );
 }
 
