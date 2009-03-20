@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.107 2009-03-13 12:18:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.108 2009-03-20 11:11:37 cvsbert Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -166,11 +166,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     IOMan::setSurvey( orgdirname );
     SurveyInfo::theinst_ = SurveyInfo::read( fulldirpath );
 
-    dirnmfld = new uiGenInput( this, "Survey directory name", 
-			       StringInpSpec( isnew ? "" : orgdirname.buf()) );
-    survnmfld = new uiGenInput( this, "Full Survey name",
+    survnmfld = new uiGenInput( this, "Survey name",
 	    			StringInpSpec(si_.name()) );
-    survnmfld->attach( alignedBelow, dirnmfld );
 
     pathfld = new uiGenInput( this, "Location on disk",
 	    			StringInpSpec(orgstorepath) );
@@ -527,9 +524,16 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 
 #define mUseAdvanced() (overrulefld->isChecked() && !coordset->getBoolValue())
 
-bool uiSurveyInfoEditor::appButPushed()
+void uiSurveyInfoEditor::appButPushed( CallBacker* )
 {
-    if ( !setRanges() ) return false;
+    doApply();
+}
+
+
+bool uiSurveyInfoEditor::doApply()
+{
+    if ( !setSurvName() || !setRanges() )
+	return false;
 
     if ( !mUseAdvanced() )
     {
@@ -543,8 +547,8 @@ bool uiSurveyInfoEditor::appButPushed()
 	ycrlfld->setValue( si_.b2c_.getTransform(false).c );
 	overrulefld->setChecked( false );
     }
-    else
-	if ( !setRelation() ) return false;
+    else if ( !setRelation() )
+	return false;
 
     survparchanged.trigger();
     return true;
@@ -579,33 +583,31 @@ bool uiSurveyInfoEditor::rejectOK( CallBacker* )
     return true;
 }
 
-bool uiSurveyInfoEditor::acceptOK( CallBacker* )
+bool uiSurveyInfoEditor::setSurvName()
 {
-    const char* newdirnminp = dirnmfld->text();
-    if ( !newdirnminp || !*newdirnminp )
+    BufferString newsurvnm( survnmfld->text() );
+    if ( newsurvnm.size() < 2 )
     {
-	uiMSG().error( "Please specify the short survey (directory) name." );
+	uiMSG().error( "Please specify a valid survey name" );
 	return false;
     }
-    BufferString newdirnm = newdirnminp;
-    cleanupString( newdirnm.buf(), mC_False, mC_True, mC_True );
-    if ( newdirnm != newdirnminp )
-	dirnmfld->setText( newdirnm );
+    si_.setName( newsurvnm );
+    return true;
+}
 
-    dirnamechanged = orgdirname != newdirnm;
-    si_.dirname = newdirnm;
-    si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld->box()->currentItem() );
 
-    if ( !appButPushed() )
+bool uiSurveyInfoEditor::acceptOK( CallBacker* )
+{
+    if ( !doApply() )
 	return false;
-    else if ( mUseAdvanced() )
-	si_.get3Pts( si_.set3coords, si_.set3binids, si_.set3binids[2].crl );
 
-    BufferString newstorepath = pathfld->text();
-
-    BufferString olddir = FilePath(orgstorepath).add(orgdirname).fullPath();
-    BufferString newdir = FilePath(newstorepath).add(newdirnm).fullPath();
+    const BufferString newstorepath( pathfld->text() );
+    const BufferString newdirnm( dirName() );
+    const BufferString olddir(
+	    		FilePath(orgstorepath).add(orgdirname).fullPath() );
+    const BufferString newdir( FilePath(newstorepath).add(newdirnm).fullPath());
     const bool storepathchanged = orgstorepath != newstorepath;
+    dirnamechanged = orgdirname != newdirnm;
 
     if ( !isnew )
     {
@@ -651,7 +653,6 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	    return false;
     }
 
-    si_.dirname = newdirnm;
     BufferString linkpos = FilePath(rootdir).add(newdirnm).fullPath(); 
     if ( File_exists(linkpos) )
     {
@@ -670,6 +671,11 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 	}
     }
 
+    si_.dirname = newdirnm;
+    si_.setSurvDataType( (SurveyInfo::Pol2D)pol2dfld->box()->currentItem() );
+    if ( mUseAdvanced() )
+	si_.get3Pts( si_.set3coords, si_.set3binids, si_.set3binids[2].crl );
+
     if ( !si_.write(rootdir) )
     {
         uiMSG().error( "Failed to write survey info.\nNo changes committed." );
@@ -680,11 +686,11 @@ bool uiSurveyInfoEditor::acceptOK( CallBacker* )
 }
 
 
-const char* uiSurveyInfoEditor::dirName()
+const char* uiSurveyInfoEditor::dirName() const
 {
-    orgdirname = dirnmfld->text();
-    cleanupString( orgdirname.buf(), mC_False, mC_False, mC_True );
-    return orgdirname;
+    static BufferString ret; ret = survnmfld->text();
+    cleanupString( ret.buf(), mC_False, mC_False, mC_True );
+    return ret.buf();
 }
 
 
@@ -693,10 +699,6 @@ const char* uiSurveyInfoEditor::dirName()
 
 bool uiSurveyInfoEditor::setRanges()
 {
-    BufferString survnm( survnmfld->text() );
-    if ( survnm.isEmpty() ) survnm = dirnmfld->text();
-    si_.setName( survnm );
-
     StepInterval<int> irg( inlfld->getIStepInterval() );
     StepInterval<int> crg( crlfld->getIStepInterval() );
     CubeSampling cs( si_.sampling(false) );

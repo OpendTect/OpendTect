@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.29 2009-01-13 13:52:02 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.30 2009-03-20 11:11:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ public:
 			~uiSurveyInfoEditor();
 
     bool		dirnmChanged() const	{ return dirnamechanged; }
-    const char*		dirName();
+    const char*		dirName() const;
     Notifier<uiSurveyInfoEditor> survparchanged;
 
     static int		addInfoProvider(uiSurvInfoProvider*);
@@ -58,7 +58,6 @@ protected:
     uiSurvInfoProvider*	lastsip_;
 
     uiGenInput*		survnmfld;
-    uiGenInput*		dirnmfld;
     uiGenInput*		pathfld;
     uiGenInput*		inlfld;
     uiGenInput*		crlfld;
@@ -94,9 +93,10 @@ protected:
     void		mkTransfGrp();
     void		setValues();
     bool		setRanges();
+    bool		setSurvName();
     bool		setCoords();
     bool		setRelation();
-    bool		appButPushed();
+    bool		doApply();
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
     void		sipbutPush(CallBacker*);
@@ -105,6 +105,7 @@ protected:
     void		chgSetMode(CallBacker*);
     void		pathbutPush(CallBacker*);
     void		updStatusBar(const char*);
+    void		appButPushed(CallBacker*);
 
     friend class	uiSurvey;
 };
