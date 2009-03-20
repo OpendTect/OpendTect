@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.56 2009-02-11 10:17:52 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.57 2009-03-20 18:54:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,7 +235,7 @@ public:
 	    			bool chktype=false);
     			//!< filetype null will assume no file header
     			//!< uses set(). no clear() done
-    void		read(std::istream&,const char* filetype,
+    bool		read(std::istream&,const char* filetype,
 	    			bool chktype=false);
     bool		write(const char* filename,const char* filetype) const;
     			//!< If filetype is set to null no ascstream header

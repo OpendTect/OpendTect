@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.78 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.79 2009-03-20 18:54:29 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -1039,13 +1039,13 @@ bool IOPar::read( const char* fnm, const char* typ, bool chktyp )
 {
     StreamData sd = StreamProvider(fnm).makeIStream();
     if ( !sd.usable() ) return false;
-    read( *sd.istrm, typ, chktyp );
+    const bool res = read( *sd.istrm, typ, chktyp );
     sd.close();
-    return true;
+    return res;
 }
 
 
-void IOPar::read( std::istream& strm, const char* typ, bool chktyp )
+bool IOPar::read( std::istream& strm, const char* typ, bool chktyp )
 {
     const bool havetyp = typ && *typ;
     ascistream astream( strm, havetyp ? true : false );
@@ -1055,9 +1055,12 @@ void IOPar::read( std::istream& strm, const char* typ, bool chktyp )
 	msg += astream.fileType();
 	msg += "' should be: '"; msg += typ; msg += "'";
 	ErrMsg( msg );
+	return false;
     }
     else
 	getFrom( astream );
+
+    return true;
 }
 
 
