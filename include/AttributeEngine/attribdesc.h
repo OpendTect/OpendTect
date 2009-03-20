@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.47 2009-02-24 14:08:23 cvsbert Exp $
+ RCS:           $Id: attribdesc.h,v 1.48 2009-03-20 12:25:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ public:
     				/*!<If hidden, it won't show up in UI. */
 
     bool			isStored() const;
-    BufferString		getStoredID() const;
+    BufferString		getStoredID(bool recursive=false) const;
 
     void			setNeedProvInit( bool yn=true )
     				{ needprovinit_ = yn; }

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.70 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.71 2009-03-20 12:25:57 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -614,7 +614,7 @@ bool Desc::isStored() const
 }
 
 
-BufferString Desc::getStoredID() const
+BufferString Desc::getStoredID( bool recursive ) const
 {
     BufferString str;
     if ( isStored() )
@@ -622,6 +622,18 @@ BufferString Desc::getStoredID() const
 	const ValParam* keypar = getValParam( StorageProvider::keyStr() );
 	str = keypar->getStringValue();
     }
+    else if ( recursive )
+    {
+	for ( int idx=0; idx<nrInputs(); idx++ )
+	{
+	    const Desc* tmpdesc = getInput( idx );
+	    if ( tmpdesc )
+		str = tmpdesc->getStoredID( true );
+	    if ( !str.isEmpty() )
+		break;
+	}
+    }
+
     return str;
 }
 
