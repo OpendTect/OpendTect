@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.16 2009-03-19 09:01:55 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.17 2009-03-20 09:21:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ protected:
     void		manPS3D(CallBacker*);
     void		manPS2D(CallBacker*);
     void		makeDefault(CallBacker*);
+    const char*		getDefKey() const;
 
     void		mkFileInfo();
     double		getFileSize(const char*,int&) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.22 2009-03-19 09:01:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.23 2009-03-20 09:21:33 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiobjfileman.cc,v 1.22 2009-03-19 09:01:55 cvsb
 
 #include "uilistbox.h"
 #include "uitextedit.h"
+#include "uibutton.h"
 
 
 static const int cPrefHeight = 10;
@@ -72,6 +73,9 @@ void uiObjFileMan::selChg( CallBacker* cb )
 {
     delete curioobj_;
     curioobj_ = selgrp->nrSel() > 0 ? IOM().get(selgrp->selected(0)) : 0;
+    curimplexists_ = curioobj_ && curioobj_->implExists(true);
+    if ( mkdefbut )
+	mkdefbut->setSensitive( curimplexists_ );
 
     ownSelChg();
     if ( curioobj_ )
@@ -89,7 +93,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
 void uiObjFileMan::makeDefault( CallBacker* )
 {
     if ( !curioobj_ ) return;
-    SI().getPars().set( defkey_, curioobj_->key() );
+    SI().getPars().set( getDefKey(), curioobj_->key() );
     SI().savePars();
     selgrp->fullUpdate( curioobj_->key() );
 }
