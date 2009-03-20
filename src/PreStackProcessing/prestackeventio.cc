@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.10 2009-03-18 19:47:46 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.11 2009-03-20 19:34:43 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: prestackeventio.cc,v 1.10 2009-03-18 19:47:46 c
 #include "prestackevents.h"
 #include "prestackeventtransl.h"
 #include "rowcol.h"
+#include "safefileio.h"
 #include "samplingdata.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -144,7 +145,7 @@ protected:
     bool			binary_;
     EventManager&		eventmanager_;
     BufferString		filename_;
-    StreamConn*			conn_;
+    SafeFileIO			fileio_;
     HorSampling			horsel_;
     int				fileheaderoffset_;
     BufferString		errmsg_;
@@ -260,14 +261,13 @@ int EventReader::nextStep()
 	const BufferString fnm( ioobj_->fullUserExpr(true) );
 	if ( !readAuxData( fnm.buf() ) )
 	{
-	    errmsg_ = "Error: Cannot read horizon information";
+	    if ( errmsg_.isEmpty() )
+		errmsg_ = "Error: Cannot read horizon information";
 	    return ErrorOccurred();
 	}
 
 	return patchreaders_.size() ? MoreToDo() : Finished();
     }
-
-    errmsg_ = "Reading events";
 
     const int res = patchreaders_[0]->doStep();
     if ( res<0 )
@@ -342,35 +342,39 @@ bool EventReader::prepareWork()
     const DirList dirlist( fnm.buf(), DirList::FilesOnly, mask.buf() );
     for ( int idx=0; idx<dirlist.size(); idx++ )
     {
+	if ( File_isEmpty( dirlist.fullPath(idx) ) )
+	   continue;
+ 
+       const SeparString sepstr( dirlist[idx]->buf(), '_' );
+       HorSampling filehrg;
+       if ( !getFromString( filehrg.start.inl, sepstr[0], -1 ) ||
+	    !getFromString( filehrg.stop.inl, sepstr[1], -1 ) ||
+	    !getFromString( filehrg.start.crl, sepstr[2], -1 ) ||
+	    !getFromString( filehrg.stop.crl, sepstr[3], -1 ) )
+	    continue;
+
+      if ( inlsampling.snap( filehrg.start.inl )!=filehrg.start.inl ||
+	   crlsampling.snap( filehrg.start.crl )!=filehrg.start.crl )
+	    continue;
+
 	bool usefile = true;
 	if ( bidsel_ || horsel_ )
 	{
 	    usefile = false;
-	    SeparString sepstr( dirlist[idx]->buf(), '_' );
-	    HorSampling filehrg;
-	    if ( getFromString( filehrg.start.inl, sepstr[0], -1 ) &&
-		 getFromString( filehrg.stop.inl, sepstr[1], -1 ) &&
-		 getFromString( filehrg.start.crl, sepstr[2], -1 ) &&
-		 getFromString( filehrg.stop.crl, sepstr[3], -1 ) )
+
+	    HorSampling dummy;
+	    if ( horsel_ && horsel_->getInterSection(filehrg,dummy))
+		usefile = true;
+
+	    if ( !usefile && bidsel_ )
 	    {
-		if ( inlsampling.snap( filehrg.start.inl )!=filehrg.start.inl ||
-		     crlsampling.snap( filehrg.start.crl )!=filehrg.start.crl )
-		    continue;
-
-		HorSampling dummy;
-		if ( horsel_ && horsel_->getInterSection(filehrg,dummy))
-		    usefile = true;
-
-		if ( !usefile && bidsel_ )
+		BinIDValueSet::Pos pos;
+		while ( bidsel_->next(pos,true) )
 		{
-		    BinIDValueSet::Pos pos;
-		    while ( bidsel_->next(pos,true) )
+		    if ( filehrg.includes( bidsel_->getBinID(pos) ))
 		    {
-			if ( filehrg.includes( bidsel_->getBinID(pos) ))
-			{
-			    usefile = true;
-			    break;
-			}
+			usefile = true;
+			break;
 		    }
 		}
 	    }
@@ -430,24 +434,38 @@ bool EventReader::readAuxData(const char* fnm)
     horidfnm.setPath( fnm );
     horidfnm.add( EventReader::sAuxDataFileName() );
 
-    if ( !File_exists(horidfnm.fullPath().buf() ) )
+    BufferString auxfilenm = horidfnm.fullPath();
+
+    if ( !File_exists( auxfilenm ) )
 	horidfnm.setFileName( sOldHorizonFileName() );
 
-    IOPar par;
-    if ( !par.read( horidfnm.fullPath().buf(),
-		    EventReader::sHorizonFileType(), true ) )
+    auxfilenm = horidfnm.fullPath();
+
+    SafeFileIO fileio( auxfilenm );
+    if ( !fileio.open( true ) )
     {
-	errmsg_ = "Cannot read ";
-	errmsg_ += horidfnm.fullPath().buf();
+	errmsg_ = "Cannot open ";
+	errmsg_ += auxfilenm;
 	return false;
     }
+
+    IOPar par;
+    if ( !par.read( fileio.istrm(), EventReader::sHorizonFileType(), true ) )
+    {
+	errmsg_ = "Cannot read ";
+	errmsg_ += auxfilenm;
+	fileio.closeFail();
+	return false;
+    }
+
+    fileio.closeSuccess();
 
     int nrhors, nexthor;
     if ( !par.get( EventReader::sKeyNrHorizons(), nrhors ) ||
 	 !par.get( EventReader::sKeyNextHorizonID(), nexthor ) )
     {
 	errmsg_ = "Cannot parse ";
-	errmsg_ += horidfnm.fullPath().buf();
+	errmsg_ += auxfilenm;
 	return false;
     }
 
@@ -611,28 +629,30 @@ int EventWriter::nextStep()
 	    filename.add( filenamebase.buf() );
 	    filename.setExtension( PSEventTranslatorGroup::sDefExtension() );
 
+	    const BufferString patchfnm = filename.fullPath().buf();
+
 	    EventPatchWriter* writer =
-		new EventPatchWriter( filename.fullPath().buf(), eventmanager_);
+		new EventPatchWriter( patchfnm.buf(), eventmanager_);
 
-	    StreamConn* conn = new StreamConn( filename.fullPath().buf(),
-		    			       Conn::Read );
-	    if ( conn && conn->forRead() )
+	    if ( !File_isEmpty(patchfnm.buf()) )
 	    {
-		EventPatchReader* reader =
-		    new EventPatchReader( conn, &eventmanager_ );
-
-		if ( reader->errMsg() )
+		StreamConn* conn = new StreamConn( patchfnm.buf(), Conn::Read );
+		if ( conn && conn->forRead() )
 		{
-		    errmsg_ = reader->errMsg();
-		    delete reader;
-		    return ErrorOccurred();
-		}
+		    EventPatchReader* reader =
+				new EventPatchReader( conn, &eventmanager_ );
 
-		writer->setReader( reader );
-	    }
-	    else
-	    {
-		delete conn;
+		    if ( reader->errMsg() )
+		    {
+			errmsg_ = reader->errMsg();
+			delete reader;
+			return ErrorOccurred();
+		    }
+
+		    writer->setReader( reader );
+		}
+		else
+		    delete conn;
 	    }
 
 	    writer->setSelection( hrg );
@@ -699,8 +719,33 @@ bool EventWriter::writeAuxData( const char* fnm )
 
     auxinfo_.set( sKey::Color, eventmanager_.getColor() );
 
-    return auxinfo_.write( horidfnm.fullPath().buf(),
-	                   EventReader::sHorizonFileType() );
+    SafeFileIO fileio( horidfnm.fullPath().buf(), false );
+    if ( !fileio.open( false ) )
+    {
+	errmsg_ = "Cannot open ";
+	errmsg_ += horidfnm.fullPath().buf();
+	errmsg_ += " for writing";
+
+	return false;
+    }
+	     
+    if ( !auxinfo_.write( fileio.ostrm(), EventReader::sHorizonFileType() ) )
+    {
+	errmsg_ = "Cannot write to ";
+	errmsg_ += horidfnm.fullPath().buf();
+	fileio.closeFail();
+	return false;
+    }
+
+    if ( !fileio.closeSuccess() )
+    {
+	errmsg_ = "Cannot close ";
+	errmsg_ += horidfnm.fullPath().buf();
+
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -1318,20 +1363,20 @@ float EventPatchReader::readFloat( std::istream& strm ) const
 
 
 EventPatchWriter::EventPatchWriter( const char* filename, EventManager& ev )
-    : conn_( 0 )
-    , filename_( filename )
-    , eventmanager_( ev )
+    : eventmanager_( ev )
     , headeridx_( 0 )
     , horsel_( true )
     , reader_( 0 )
     , binary_( false )
+    , fileio_( filename )
 {
+    fileio_.usebakwhenmissing_ = false;
+    fileio_.removebakonsuccess_ = true;
 }
 
 
 EventPatchWriter::~EventPatchWriter()
 {
-    delete conn_;
     delete reader_;
 }
 
@@ -1413,10 +1458,10 @@ int EventPatchWriter::nextStep()
 
 	if ( !bids.size() )
 	{
-	    if ( File_exists( filename_.buf() ) &&
-		 File_isWritable( filename_.buf() ) )
+	    if ( File_exists( fileio_.fileName() ) &&
+		 File_isWritable( fileio_.fileName() ) )
 	    {
-		return File_remove( filename_.buf(), mFile_NotRecursive )
+		return File_remove( fileio_.fileName(), mFile_NotRecursive )
 		    ? Finished()
 		    : ErrorOccurred();
 	    }
@@ -1439,17 +1484,14 @@ int EventPatchWriter::nextStep()
 
 	hrg.fillPar( par );
 
-	if ( !conn_ )
+	if ( !fileio_.open( false ) )
 	{
-	    conn_ = new StreamConn( filename_.buf(), Conn::Write );
-	    if ( !conn_->forWrite() )
-	    {
-		errmsg_ = "Cannot open connection";
-		return ErrorOccurred();
-	    }
+	    errmsg_ = "Cannot open file ";
+	    errmsg_ += fileio_.fileName();
+	    return ErrorOccurred();
 	}
 
-	std::ostream& strm = conn_->oStream();
+	std::ostream& strm = fileio_.ostrm();
 	ascostream astream( strm );
 	astream.putHeader( EventReader::sFileType() );
 	par.putTo( astream );
@@ -1457,16 +1499,24 @@ int EventPatchWriter::nextStep()
 	if ( !fileheader_.toStream( strm, binary_ ) )
 	{
 	    errmsg_ = "Cannot write file header to stream ";
-	    errmsg_ += filename_.buf();
+	    errmsg_ += fileio_.fileName();
+	    fileio_.closeFail();
 	    return ErrorOccurred();
 	}
     }
 
-    std::ostream& strm = conn_->oStream();
+    std::ostream& strm = fileio_.ostrm();
     if ( headeridx_>=fileheader_.nrEvents() )
     {
 	strm.seekp( fileheaderoffset_, std::ios::beg );
 	fileheader_.toStream( strm, binary_ );
+	if ( !fileio_.closeSuccess() )
+	{
+	    errmsg_ = "Cannot close file ";
+	    errmsg_ += fileio_.fileName();
+	    return ErrorOccurred();
+	}
+
 	return Finished();
     }
 
@@ -1514,8 +1564,9 @@ int EventPatchWriter::nextStep()
     if ( !strm )
     {
 	errmsg_ = "Was not able to write to stream ";
-	errmsg_ += filename_.buf();
+	errmsg_ += fileio_.fileName();
 
+	fileio_.closeFail();
 	return ErrorOccurred();
     }
 
