@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.59 2009-03-03 13:00:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.60 2009-03-20 13:30:07 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -113,31 +113,30 @@ void uiAttrVolOut::singLineSel( CallBacker* )
 }
 
 
+#define mSetObjFld(s) { objfld->setInputText( s ); objfld->processInput(); }
+
 void uiAttrVolOut::attrSel( CallBacker* )
 {
     CubeSampling cs;
     const bool is2d = todofld->is2D();
     if ( todofld->getRanges(cs) )
 	transffld->selfld->setInput( cs );
-    if ( is2d )
+
+    const Attrib::Desc* desc = ads.getDesc( todofld->attribID() );
+    if ( !desc ) mSetObjFld("")
+    else if ( !is2d )
+	mSetObjFld( desc->isStored() ? "" : todofld->getInput() )
+    else
     {
-	MultiID key;
-	const Desc* desc = ads.getFirstStored();
-	if ( desc )
+	const BufferString attrnm( todofld->getInput() );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(desc->getStoredID(true)) );
+	if ( !ioobj )
+	    mSetObjFld( LineKey("",attrnm) )
+	else
 	{
-	    BufferString storedid = desc->getStoredID();
-	    if ( !storedid.isEmpty() )
-	    {
-		PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
-		if ( ioobj )
-		{
-		    objfld->setInput(
-			    LineKey(ioobj->key(),todofld->getAttrName()) );
-		    objfld->processInput();
-		    objfld->setAttrNm( todofld->getAttrName() );
-		    transffld->setInput( *ioobj );
-		}
-	    }
+	    mSetObjFld( LineKey(ioobj->key(),attrnm) )
+	    objfld->setAttrNm( attrnm );
+	    transffld->setInput( *ioobj );
 	}
     }
 
