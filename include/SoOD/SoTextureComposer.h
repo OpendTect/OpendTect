@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Sep 2008
- RCS:           $Id: SoTextureComposer.h,v 1.8 2009-02-13 10:47:31 cvsnanne Exp $
+ RCS:           $Id: SoTextureComposer.h,v 1.9 2009-03-21 02:05:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,8 @@ class SoElement;
 class SbImage;
 
 
-/*!  */
+/*!Picks up SoTextureComposerSetElement's image and sends parts of it
+   to OpenGL */
 
 
 mClass SoTextureComposer: public SoNode

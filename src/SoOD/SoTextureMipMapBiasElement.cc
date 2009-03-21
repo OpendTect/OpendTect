@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureMipMapBiasElement.cc,v 1.1 2009-03-19 14:46:30 cvskris Exp $";
+static const char* rcsID = "$Id: SoTextureMipMapBiasElement.cc,v 1.2 2009-03-21 02:05:05 cvskris Exp $";
 
 #include "SoTextureMipMapBiasElement.h"
 
@@ -57,6 +57,12 @@ void SoTextureMipMapBiasElement::set( SoState* const state, SoNode* node,
 
 void SoTextureMipMapBiasElement::setElt( float bias )
 {
-    bias_ = bias;
+    bias_ = 0;
     glTexEnvf( GL_TEXTURE_FILTER_CONTROL, GL_TEXTURE_LOD_BIAS, bias_ );
+
+    GLfloat largest_supported_anisotropy;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,
+	    &largest_supported_anisotropy);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+	    largest_supported_anisotropy);
 }

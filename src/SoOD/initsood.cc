@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initsood.cc,v 1.13 2009-03-19 14:46:30 cvskris Exp $";
+static const char* rcsID = "$Id: initsood.cc,v 1.14 2009-03-21 02:05:05 cvskris Exp $";
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
@@ -39,6 +39,7 @@ static const char* rcsID = "$Id: initsood.cc,v 1.13 2009-03-19 14:46:30 cvskris 
 #include "SoShaderTexture2.h"
 #include "SoSplitTexture2.h"
 #include "SoSplitTexture2Element.h"
+#include "SoTextureAnisotropicFilterElement.h"
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
 #include "SoTextureChannelSet.h"
@@ -64,6 +65,7 @@ void SoOD::initStdClasses()
     SoTextureComposerElement::initClass();
     SoTextureChannelSetElement::initClass();
     SoTextureMipMapBiasElement::initClass();
+    SoTextureAnisotropicFilterElement::initClass();
 
     //Then fields
     SoMFImage::initClass();

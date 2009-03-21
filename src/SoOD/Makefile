@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.35 2009-03-19 14:46:30 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.36 2009-03-21 02:05:05 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ SRC.cc	:=	initsood.cc \
 		SoSplitTexture2.cc \
 		SoSplitTexture2Element.cc \
 		SoText2Set.cc \
+		SoTextureAnisotropicFilterElement.cc \
 		SoTextureChannelSet.cc \
 		SoTextureChannelSetElement.cc \
 	 	SoTextureComposer.cc \
