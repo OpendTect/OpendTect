@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.42 2009-03-11 13:51:14 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.43 2009-03-23 11:11:30 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -262,7 +262,7 @@ void VolStats::prepPriorToBoundsCalc()
 
 const Interval<float>* VolStats::reqZMargin( int inp, int ) const
 {
-    return &reqgate_;
+    return inp ? &gate_ : &reqgate_;
 }
 
 
