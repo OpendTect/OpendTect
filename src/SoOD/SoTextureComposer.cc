@@ -7,12 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.15 2009-03-21 02:05:05 cvskris Exp $";
+static const char* rcsID = "$Id: SoTextureComposer.cc,v 1.16 2009-03-23 15:38:53 cvskris Exp $";
 
 
 #include "SoTextureComposer.h"
 #include "SoTextureComposerElement.h"
-#include "SoTextureAnisotropicFilterElement.h"
 
 #include <Inventor/misc/SoGLImage.h>
 #include <Inventor/C/glue/gl.h>
@@ -45,7 +44,6 @@ void SoTextureComposer::initClass()
     SO_ENABLE( SoGLRenderAction, SoGLTexture3EnabledElement );
     SO_ENABLE( SoGLRenderAction, SoGLTextureEnabledElement );
     SO_ENABLE( SoGLRenderAction, SoTextureComposerElement );
-    SO_ENABLE( SoGLRenderAction, SoTextureAnisotropicFilterElement );
 
     SO_ENABLE( SoCallbackAction, SoTexture3EnabledElement );
     SO_ENABLE( SoCallbackAction, SoTextureImageElement );
@@ -262,7 +260,6 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
     const float quality = SoTextureQualityElement::get(state);
     SoTextureUnitElement::set( state, this, unit );
 
-
     if ( needregenration_ )
     {
 	for ( int idx=0; idx<sz[mSlowDim]; idx++ )
@@ -343,9 +340,6 @@ void SoTextureComposer::GLRenderUnit( int unit, SoState* state,
 	cc_glglue_instance( SoGLCacheContextElement::get(state) );
 
     const int maxunits = cc_glglue_max_texture_units(glue);
-
-    SoTextureAnisotropicFilterElement::set( state, this, 
-	    SoTextureAnisotropicFilterElement::maxAnisotropy() );
 
     if ( unit==0 )
     {
