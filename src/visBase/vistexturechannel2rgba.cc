@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.18 2009-03-23 15:33:55 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.19 2009-03-23 20:12:15 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -44,29 +44,52 @@ mClass ColTabSequenceTransparencyCheck : public ParallelTask
 {
 public:
 
-ColTabSequenceTransparencyCheck( const unsigned char* cols, const unsigned char* vals, 
-				 od_int64 sz )
-    : found_( false )
+ColTabSequenceTransparencyCheck( const unsigned char* cols,
+				 const unsigned char* vals, od_int64 sz,
+				 bool findintermediate )
+    : finished_( false )
     , vals_( vals )
     , cols_( cols )
     , totalnr_( sz )
+    , findintermediate_( findintermediate )
+    , result_( SoTextureComposerInfo::cHasNoTransparency() )
 {}
 
-bool hasTransparency() const	{ return found_; }
+
+
+char getTransparency() const	{ return result_; }
+
+
 od_int64 totalNr() const	{ return totalnr_; }
 
 private:
 
 bool doWork( od_int64 start, od_int64 stop, int threadid )
 {
+    char localresult( SoTextureComposerInfo::cHasNoTransparency() );
+
     for ( od_int64 idx=start; idx<=stop; idx++ )
     {
 	unsigned char ucval = vals_[idx];
-	if ( cols_[ucval*4]+3 )
+	unsigned char trans = cols_[ucval*4+3];
+
+	if ( trans )
 	{
-	    Threads::MutexLocker lock( foundlock_ );
-	    found_ = true;
-	    break;
+	    if ( trans==255 )
+	    {
+		if ( localresult==SoTextureComposerInfo::cHasNoTransparency() )
+		{
+		    localresult =
+			SoTextureComposerInfo::cHasNoIntermediateTransparency();
+		    if ( !findintermediate_ )
+			break;
+		}
+	    }
+	    else
+	    {
+		localresult = SoTextureComposerInfo::cHasTransparency();
+		break;
+	    }
 	}
 
 	if ( idx%10000 )
@@ -77,11 +100,21 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( !shouldContinue() )
 	    break;
 
-	Threads::MutexLocker lock( foundlock_ );
-	if ( found_ )
+	Threads::MutexLocker lock( resultlock_ );
+	if ( finished_ )
 	    break;
     }
-    
+
+    Threads::MutexLocker lock( resultlock_ );
+
+    if ( !findintermediate_ )
+	finished_ = true;
+
+    if ( localresult==SoTextureComposerInfo::cHasTransparency() )
+	result_ = localresult;
+    else if ( result_==SoTextureComposerInfo::cHasNoTransparency() )
+	result_ = localresult;
+
     return true;
 }
 
@@ -89,8 +122,10 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
     const unsigned char*	vals_;
     const unsigned char*	cols_;
 
-    Threads::Mutex		foundlock_;
-    bool			found_;
+    Threads::Mutex		resultlock_;
+    bool			finished_;
+    bool			findintermediate_;
+    char			result_;
 };
 
 
@@ -414,7 +449,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	layeropacity_->value.deleteValues( nrchannels, -1 );
 
     int firstlayer = -1;
-    bool firstlayerhastrans;
+    char firstlayertrans;
 
     numlayers_->value.setValue( nrchannels );
 
@@ -426,8 +461,8 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 	if ( enabled_[idx] && vals )
 	{
 	    firstlayer = idx;
-	    firstlayerhastrans = hasTransparency(idx);
-	    if ( !firstlayerhastrans )
+	    firstlayertrans = getTextureTransparency(idx);
+	    if ( firstlayertrans==SoTextureComposerInfo::cHasNoTransparency() )
 		break;
 	}
     }
@@ -443,9 +478,7 @@ void ColTabTextureChannel2RGBA::setShadingVars()
 		enabled_[idx] && vals ? (float) opacity_[idx]/255 : 0.0 );
 	}
 
-	tci_->transparencyInfo = firstlayerhastrans
-	    ? SoTextureComposerInfo::cHasTransparency()
-	    : SoTextureComposerInfo::cHasNoTransparency();
+	tci_->transparencyInfo = firstlayertrans;
     }
 
     startlayer_->value.setValue( firstlayer );
@@ -611,18 +644,24 @@ void ColTabTextureChannel2RGBA::getColors( int channelidx,
 }
 
 
-bool ColTabTextureChannel2RGBA::hasTransparency( int channelidx ) const
+char ColTabTextureChannel2RGBA::getTextureTransparency( int channelidx ) const
 {
-    if ( opacity_[channelidx]!=255 )
-	return true;
-
     if ( !enabled_[channelidx] )
-	return true;
+	return SoTextureComposerInfo::cHasNoIntermediateTransparency();
 
     const ColTab::Sequence& seq = coltabs_[channelidx];
     if ( !seq.hasTransparency() )
-	return false;
-    
+	return SoTextureComposerInfo::cHasNoTransparency();
+
+    bool hastrans = false;
+    if ( opacity_[channelidx]!=255 )
+    {
+	if ( opacity_[channelidx]==0 )
+	    return SoTextureComposerInfo::cHasNoIntermediateTransparency();
+	else
+	    hastrans = true;
+    }
+
     channels_->ref();
     const SbImage& channel = channels_->getChannels()[channelidx];
     
@@ -637,10 +676,18 @@ bool ColTabTextureChannel2RGBA::hasTransparency( int channelidx ) const
     TypeSet<unsigned char> cols;
     getColors( channelidx, cols );
 
-    ColTabSequenceTransparencyCheck trspcheck( cols.arr(), vals, nrpixels );
+    ColTabSequenceTransparencyCheck trspcheck( cols.arr(), vals, nrpixels,true);
     trspcheck.execute();
 
-    return trspcheck.hasTransparency();
+    if ( trspcheck.getTransparency()==
+	    SoTextureComposerInfo::cHasNoTransparency() )
+    {
+	return hastrans
+	    ? SoTextureComposerInfo::cHasTransparency()
+	    : SoTextureComposerInfo::cHasNoTransparency();
+    }
+
+    return trspcheck.getTransparency();
 }
 
 
