@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.55 2009-03-04 10:45:55 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.56 2009-03-23 05:08:48 cvsnanne Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -65,102 +65,96 @@ class uiMenuItemContainerBodyImpl : public uiMenuItemContainerBody
 			 , public uiBodyImpl<uiMenuItemContainer,T>
 {
 public:
-			uiMenuItemContainerBodyImpl(uiMenuItemContainer& handle, 
-				       uiParent* parnt,
-				       T& qThing )
-			    : uiBodyImpl<uiMenuItemContainer,T>
-				( handle, parnt, qThing )
-			    , qmenu_( &qThing ) {}
+uiMenuItemContainerBodyImpl( uiMenuItemContainer& handle, uiParent* parnt,
+			     T& qThing )
+    : uiBodyImpl<uiMenuItemContainer,T>( handle, parnt, qThing )
+    , qmenu_( &qThing )
+{}
 
-			~uiMenuItemContainerBodyImpl()		{}
-
-
-    int			getIndexFromID( int id )
-			{
-			    if ( id < 0 ) return -1;
-			    for ( int idx=0; idx<itms_.size(); idx++ )
-				if ( itms_[idx]->id() == id )
-				    return idx;
-			    return -1;
-			}
+~uiMenuItemContainerBodyImpl()
+{}
 
 
-    int			addItem( uiMenuItem* it, int id )
-			{
-			    QString nm( it->name() );
-			    i_MenuMessenger* msgr__ = it->messenger();
-			    QAction* action = qmenu_->addAction( nm, msgr__,
-				    SLOT(activated()) );
-			    init( it, action, id, -1 );
-			    return id;
-			}
+int getIndexFromID( int id )
+{
+    if ( id < 0 ) return -1;
+    for ( int idx=0; idx<itms_.size(); idx++ )
+	if ( itms_[idx]->id() == id )
+	    return idx;
+    return -1;
+}
 
-    int			addItem( uiPopupMenu* pmnu, int id )
-			{
-			    uiPopupItem* it = &pmnu->item();
-			    QMenu* pu = pmnu->body_->popup();
-			    pu->setTitle( it->name().buf() );
-			    QAction* action = qmenu_->addMenu( pu );
-			    init( it, action, id, -1 );
-			    return id;
-			}
 
-    int			insertMenu( uiPopupMenu* pmnu, uiPopupMenu* before )
-			{
-			    const int beforeidx = before ?
-				getIndexFromID( before->item().id() ) : -1;
-			    QAction* actionbefore = before ?
-				before->item().qaction_ : 0;
+int addItem( uiMenuItem* it, int id )
+{
+    QString nm( it->name() );
+    i_MenuMessenger* msgr = it->messenger();
+    QAction* action = qmenu_->addAction( nm, msgr, SLOT(activated()) );
+    init( it, action, id, -1 );
+    return id;
+}
 
-			    uiPopupItem* it = &pmnu->item();
-			    QMenu* pu = pmnu->body_->popup();
-			    pu->setTitle( it->name().buf() );
-			    QAction* action =
-				qmenu_->insertMenu( actionbefore, pu );
-			    init( it, action, it->id(), beforeidx );
-			    return it->id();
-			}
 
-    void		init( uiMenuItem* it, QAction* action, int id, int idx )
-			{
-			    it->setId( id );
-			    it->setMenu( this );
-			    it->setAction( action );
-			    if ( it->isChecked() )
-				action->setChecked( it->isChecked() );
-			    action->setEnabled( it->isEnabled() );
-			    if ( idx>=0 )
-			    {
-				itms_.insertAt( it, idx );
-				actions_.insertAt( action, idx );
-			    }
-			    else
-			    {
-				itms_ += it;
-				actions_ += action;
-			    }
-			}
+int addItem( uiPopupMenu* pmnu, int id )
+{
+    uiPopupItem* it = &pmnu->item();
+    QMenu* pu = pmnu->body_->popup();
+    pu->setTitle( it->name().buf() );
+    QAction* action = qmenu_->addMenu( pu );
+    init( it, action, id, -1 );
+    return id;
+}
 
-    void		clear()
-    			{
-			    qmenu_->clear();
-			    deepErase(itms_);
-			    actions_.erase();
-			}
 
-    QMenuBar*		bar()
-    			{
-			    mDynamicCastGet(QMenuBar*,qbar,qmenu_)
-			    return qbar;
-			}
+int insertMenu( uiPopupMenu* pmnu, uiPopupMenu* before )
+{
+    const int beforeidx = before ? getIndexFromID( before->item().id() ) : -1;
+    QAction* actionbefore = before ? before->item().qaction_ : 0;
+    uiPopupItem* it = &pmnu->item();
+    QMenu* pu = pmnu->body_->popup();
+    pu->setTitle( it->name().buf() );
+    QAction* action = qmenu_->insertMenu( actionbefore, pu );
+    init( it, action, it->id(), beforeidx );
+    return it->id();
+}
 
-    QMenu*		popup()
-    			{
-			    mDynamicCastGet(QMenu*,qpopup,qmenu_)
-			    return qpopup;
-			}
 
-    virtual const QWidget* managewidg_() const 	{ return qmenu_; }
+void init( uiMenuItem* it, QAction* action, int id, int idx )
+{
+    it->setId( id );
+    it->setMenu( this );
+    it->setAction( action );
+    if ( it->isChecked() )
+	action->setChecked( it->isChecked() );
+    action->setEnabled( it->isEnabled() );
+    if ( idx>=0 )
+    {
+	itms_.insertAt( it, idx );
+	actions_.insertAt( action, idx );
+    }
+    else
+    {
+	itms_ += it;
+	actions_ += action;
+    }
+}
+
+
+void clear()
+{
+    qmenu_->clear();
+    deepErase(itms_);
+    actions_.erase();
+}
+
+QMenuBar* bar()
+{ mDynamicCastGet(QMenuBar*,qbar,qmenu_) return qbar; }
+
+QMenu* popup()
+{ mDynamicCastGet(QMenu*,qpopup,qmenu_) return qpopup; }
+
+virtual const QWidget* managewidg_() const
+{ return qmenu_; }
 
 private:
 
@@ -316,7 +310,7 @@ void uiMenuItem::setCmdRecorder( const CallBack& cb )
 
 uiMenuItemContainer::uiMenuItemContainer( const char* nm, uiBody* b,
 					  uiMenuItemContainerBody* db )
-    : uiObjHandle( nm, b )
+    : uiBaseObject( nm, b )
     , body_( db )				{}
 
 
@@ -393,12 +387,12 @@ int uiMenuItemContainer::insertItem( uiPopupMenu* it, int id )
 int uiMenuItemContainer::insertMenu( uiPopupMenu* pm, uiPopupMenu* before )
 { return body_->insertMenu( pm, before ); }
 
-void uiMenuItemContainer::insertSeparator( int idx ) 
+void uiMenuItemContainer::insertSeparator() 
 {
     if ( body_->bar() )
-	body_->bar()->insertSeparator( idx );
+	body_->bar()->addSeparator();
     else if ( body_->popup() )
-	body_->popup()->insertSeparator( idx );
+	body_->popup()->addSeparator();
 }
 
 
@@ -432,10 +426,11 @@ void uiMenuItemContainer::removeItem( int id )
 
 uiMenuBar::uiMenuBar( uiParent* parnt, const char* nm )
     : uiMenuItemContainer( nm, 0, 0 )
-{ 
+{
+    QMenuBar* qmenubar = new QMenuBar( parnt->body()->qwidget() );
+    qmenubar->setObjectName( nm );
     uiMenuItemContainerBodyImpl<QMenuBar>* bd =
-		    new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt,
-				*new QMenuBar(parnt->body()->qwidget(),nm ) );
+	new uiMenuItemContainerBodyImpl<QMenuBar>( *this, parnt, *qmenubar );
     body_ = bd;
     setBody( bd );
 }

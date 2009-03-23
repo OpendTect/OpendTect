@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.61 2009-01-06 07:35:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.62 2009-03-23 05:08:48 cvsnanne Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -142,7 +142,7 @@ protected:
 
     virtual void	finalise(bool trigger_finalise_start_stop=true);
 
-    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
+    virtual void        manageChld_( uiBaseObject& o, uiObjectBody& b )
 			    { loMngr->addItem( b.mkLayoutItem( *loMngr ) ); }
 
     virtual void	attachChild ( constraintType tp,
@@ -558,7 +558,7 @@ uiGroupObj::~uiGroupObj()
     { if(uigrp_) { uigrp_->grpobj_ =0; delete uigrp_; }  }
 
 
-const ObjectSet<uiObjHandle>* uiGroupObj::childList() const
+const ObjectSet<uiBaseObject>* uiGroupObj::childList() const
     { return uigrp_ ? uigrp_->childList() : 0; }
 
 

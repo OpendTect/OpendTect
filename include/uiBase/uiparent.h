@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.21 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uiparent.h,v 1.22 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uilayout.h"
 
 class MouseCursor;
-class uiObjHandle;
 class uiObjectBody;
 class uiObject;
 class uiMainWin;
@@ -24,24 +23,24 @@ class Color;
 class uiParentBody;
 
 
-mClass uiParent : public uiObjHandle
+mClass uiParent : public uiBaseObject
 {
 friend class uiParentBody;
 friend class uiObjectBody;
 public:
-			uiParent( const char* nm, uiParentBody* );
+			uiParent(const char* nm,uiParentBody*);
 
-    void		addChild( uiObjHandle& );
-    void		manageChld( uiObjHandle&, uiObjectBody& );
-    void                attachChild ( constraintType tp, uiObject* child,
-				      uiObject* other, int margin,
-				      bool reciprocal );
+    void		addChild(uiBaseObject&);
+    void		manageChld(uiBaseObject&,uiObjectBody&);
+    void                attachChild(constraintType tp,uiObject* child,
+				    uiObject* other,int margin,
+				    bool reciprocal);
 
-    const ObjectSet<uiObjHandle>* childList() const;
+    const ObjectSet<uiBaseObject>* childList() const;
 
     virtual uiMainWin*	mainwin()		{ return 0; }
 
-    uiObject*		mainObject()			{ return mainobject(); }
+    uiObject*		mainObject()		{ return mainobject(); }
     const uiObject*	mainObject() const
 			    { return const_cast<uiParent*>(this)->mainobject();}
 

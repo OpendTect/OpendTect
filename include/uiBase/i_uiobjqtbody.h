@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: i_uiobjqtbody.h,v 1.5 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: i_uiobjqtbody.h,v 1.6 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
     uiGroup*		uiCentralWidg()		{ return centralWidget_; }
 
 
-    virtual void        addChild( uiObjHandle& child )
+    virtual void        addChild( uiBaseObject& child )
 			{ 
 			    if ( !initing && centralWidget_ ) 
 				centralWidget_->addChild( child );
@@ -73,7 +73,7 @@ public:
 				uiParentBody::addChild( child );
 			}
 
-    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
+    virtual void        manageChld_( uiBaseObject& o, uiObjectBody& b )
 			{ 
 			    if ( !initing && centralWidget_ ) 
 				centralWidget_->manageChld( o, b );

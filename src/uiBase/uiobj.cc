@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.83 2009-03-18 14:25:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.84 2009-03-23 05:08:48 cvsnanne Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -30,24 +30,24 @@ DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
 
 //#define pbody()		static_cast<uiParentBody*>( body() )
 
-void uiObjHandle::finalise()
+void uiBaseObject::finalise()
 { if ( body() ) body()->finalise(); }
 
-void uiObjHandle::clear()
+void uiBaseObject::clear()
 { if ( body() ) body()->clear(); }
 
-bool uiObjHandle::finalised() const
+bool uiBaseObject::finalised() const
 { return body() ? body()->finalised() : false; }
 
 
-CallBack* uiObjHandle::cmdrecorder_ = 0;
+CallBack* uiBaseObject::cmdrecorder_ = 0;
 
 
-void uiObjHandle::markCmdRecEvent( bool begin, const char* msg )
+void uiBaseObject::markCmdRecEvent( bool begin, const char* msg )
 { markCmdRecEvent( (od_uint64) 0, begin, msg ); }
 
 
-void uiObjHandle::markCmdRecEvent( od_uint64 id, bool begin, const char* msg )
+void uiBaseObject::markCmdRecEvent( od_uint64 id, bool begin, const char* msg )
 {
     if ( cmdrecorder_ )
     {
@@ -63,7 +63,7 @@ void uiObjHandle::markCmdRecEvent( od_uint64 id, bool begin, const char* msg )
 }
 
 
-void uiObjHandle::unsetCmdRecorder()
+void uiBaseObject::unsetCmdRecorder()
 {
     if ( cmdrecorder_ )
 	delete cmdrecorder_;
@@ -71,7 +71,7 @@ void uiObjHandle::unsetCmdRecorder()
 }
 
 
-void uiObjHandle::setCmdRecorder( const CallBack& cb )
+void uiBaseObject::setCmdRecorder( const CallBack& cb )
 {
     unsetCmdRecorder();
     cmdrecorder_ = new CallBack( cb );
@@ -79,13 +79,13 @@ void uiObjHandle::setCmdRecorder( const CallBack& cb )
 
 
 uiParent::uiParent( const char* nm, uiParentBody* b )
-    : uiObjHandle( nm, b )
+    : uiBaseObject( nm, b )
 {}
 
 
-void uiParent::addChild( uiObjHandle& child )
+void uiParent::addChild( uiBaseObject& child )
 {
-    mDynamicCastGet(uiObjHandle*,thisuiobj,this);
+    mDynamicCastGet(uiBaseObject*,thisuiobj,this);
     if ( thisuiobj && child == thisuiobj ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
@@ -97,9 +97,9 @@ void uiParent::addChild( uiObjHandle& child )
 }
 
 
-void uiParent::manageChld( uiObjHandle& child, uiObjectBody& bdy )
+void uiParent::manageChld( uiBaseObject& child, uiObjectBody& bdy )
 {
-    if ( &child == static_cast<uiObjHandle*>(this) ) return;
+    if ( &child == static_cast<uiBaseObject*>(this) ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
     uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
@@ -112,7 +112,7 @@ void uiParent::manageChld( uiObjHandle& child, uiObjectBody& bdy )
 void uiParent::attachChild ( constraintType tp, uiObject* child,
 			     uiObject* other, int margin, bool reciprocal )
 {
-    if ( child == static_cast<uiObjHandle*>(this) ) return;
+    if ( child == static_cast<uiBaseObject*>(this) ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 
     uiParentBody* b = dynamic_cast<uiParentBody*>( body() );
@@ -123,7 +123,7 @@ void uiParent::attachChild ( constraintType tp, uiObject* child,
 }
 
 
-const ObjectSet<uiObjHandle>* uiParent::childList() const 
+const ObjectSet<uiBaseObject>* uiParent::childList() const 
 {
     uiParentBody* uipb = 
 	    dynamic_cast<uiParentBody*>( const_cast<uiParent*>(this)->body() );
@@ -167,7 +167,7 @@ Color uiObject::normaltooltipcolor_;
 static ObjectSet<uiObject> uiobjectlist_;
 
 uiObject::uiObject( uiParent* p, const char* nm )
-    : uiObjHandle( nm, 0 )
+    : uiBaseObject( nm, 0 )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
@@ -179,7 +179,7 @@ uiObject::uiObject( uiParent* p, const char* nm )
 }
 
 uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
-    : uiObjHandle( nm, &b )
+    : uiBaseObject( nm, &b )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
@@ -208,7 +208,7 @@ uiObject::SzPolicy uiObject::szPol(bool hor) const
 
 void uiObject::setName( const char* nm )
 {
-    uiObjHandle::setName( nm );
+    uiBaseObject::setName( nm );
     doSetToolTip();
 }
 

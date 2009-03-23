@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.12 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uibody.h,v 1.13 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uihandle.h>
-#include <uiparent.h>
+#include "uiparent.h"
 
 class QWidget;
 
@@ -51,55 +50,30 @@ template <class C, class T>
 class uiBodyImpl : public uiBody
 {
 public:
-                        uiBodyImpl( C& handle, 
-					   uiParent* parnt, 
-					   T& qthing_ ) 
+                        uiBodyImpl( C& handle, uiParent* parnt, T& qthing ) 
 			    : uiBody()
-			    , qthing__( &qthing_ )
-			    , handle_( handle )
+			    , qthing_(&qthing)
+			    , handle_(handle)
 			    {}
 
 
 
-    T*			qthing()			{ return qthing__; }
-    const T*		qthing() const			{ return qthing__; }
+    T*			qthing()			{ return qthing_; }
+    const T*		qthing() const			{ return qthing_; }
 
     inline const C&	handle()			{ return handle_; }
 
 protected:
 
     virtual const QWidget* qwidget_() const		
-			    { return dynamic_cast<QWidget*>( qthing__ ); }
+			    { return dynamic_cast<QWidget*>( qthing_ ); }
 
-    T*			qthing__;
+    T*			qthing_;
 
 private:
 
     C&			handle_;
 
 };
-
-#if 0
-/*! \brief Simple delegating implementation of uiBody.
-
-Useful when a Qt object is already made, such as a QStatusBar, QMenuBar, etc.
-
-*/
-template <class C, class T>
-class uiBodyImpl : public uiBodyImpl<C,T>
-{
-public:
-                        uiBodyImpl( C& handle, uiParent* parnt,
-					      T& qthing_ ) 
-			    : uiBodyImpl<C,T>( handle,parnt,qthing_ ) {}
-
-protected:
-
-    virtual const QWidget* qwidget_() const		{ return 0; }
-
-};
-
-
-#endif
 
 #endif

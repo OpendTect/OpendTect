@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.61 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.62 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uihandle.h"
+#include "uibaseobject.h"
 #include "uigeom.h"
 #include "uilayout.h"
 #include "color.h"
@@ -31,7 +31,7 @@ class QWidget;
 
 /*!\ The base class for most UI elements. */
 
-mClass uiObject : public uiObjHandle
+mClass uiObject : public uiBaseObject
 {
     friend class	uiObjectBody;
     friend class	i_LayoutItem;
@@ -130,7 +130,7 @@ public:
     const QWidget*	qwidget() const
 			{ return const_cast<uiObject*>(this)->qwidget(); }
 
-    virtual const ObjectSet<uiObjHandle>* childList() const	{ return 0; }
+    virtual const ObjectSet<uiBaseObject>* childList() const	{ return 0; }
 
     Notifier<uiObject>	closed;
 			//!< Triggered when object closes.
@@ -243,7 +243,7 @@ from the Qt header files, there is a mechanism where the 'ui' class has a
 
 Almost every 'visible' object is a uiObject. Besides the different subclasses,
 there is also the uiGroup which is just another uiObject. The windows holding
-these are (like uiObjects) uiObjHandle's. The uiMainWin is a subclass, and
+these are (like uiObjects) uiBaseObject's. The uiMainWin is a subclass, and
 the ubiquitous uiDialog.
 
 */

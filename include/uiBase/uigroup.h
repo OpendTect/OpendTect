@@ -1,5 +1,5 @@
-#ifndef uigroup_H
-#define uigroup_H
+#ifndef uigroup_h
+#define uigroup_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.36 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uigroup.h,v 1.37 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
 
     uiGroup*		group() const		{ return uigrp_; }
 
-    const ObjectSet<uiObjHandle>* childList() const;
+    const ObjectSet<uiBaseObject>* childList() const;
 
 protected:
 

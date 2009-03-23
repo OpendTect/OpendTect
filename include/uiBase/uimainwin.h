@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.68 2009-01-21 05:17:20 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.69 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
-#include "uihandle.h"
 #include "mousecursor.h"
 
 class uiDockWin;

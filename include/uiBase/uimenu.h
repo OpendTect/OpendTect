@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.48 2009-03-04 10:43:27 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.49 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uihandle.h"
+#include "uibaseobject.h"
 #include "separstr.h"
 
 
@@ -41,7 +41,7 @@ public:
 };
 
 
-mClass uiMenuItemContainer : public uiObjHandle
+mClass uiMenuItemContainer : public uiBaseObject
 {
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
@@ -64,7 +64,8 @@ public:
 				  	      item is selected
 			        */
     int				insertMenu(uiPopupMenu*,uiPopupMenu* before);
-    void			insertSeparator(int idx=-1);
+    void			insertSeparator(int) { insertSeparator(); }
+    void			insertSeparator();
 
     void			removeItem(int id);
     void			clear();

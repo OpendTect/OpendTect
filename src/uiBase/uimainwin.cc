@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.171 2009-03-18 14:25:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.172 2009-03-23 05:08:48 cvsnanne Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -101,10 +101,8 @@ public:
 			    popped_up = false;
 			    poptimer.start( 100, true );
 
-			    if ( modal_ )	
-				looplevel__ = qApp->enter_loop();
-			    else 
-				looplevel__ = -1;
+			    if ( modal_ )
+				eventloop_.exec();
 			}
 
     void		move(uiMainWin::PopupArea);
@@ -183,6 +181,8 @@ protected:
     ObjectSet<uiDockWin> dockwins_;
 
 private:
+
+    QEventLoop		eventloop_;
 
     int			iconsz_;
     bool		modal_;
@@ -362,7 +362,7 @@ void uiMainWinBody::close()
     handle_.windowClosed.trigger( handle_ );
 
     if ( modal_ )
-	qApp->exit_loop();
+	eventloop_.exit();
 
     QMainWindow::hide();
 
@@ -1080,7 +1080,7 @@ public:
     void		setVSpacing( int spc )	{ dlgGroup->setVSpacing(spc); }
     void		setBorder( int b )	{ dlgGroup->setBorder( b ); }
 
-    virtual void        addChild( uiObjHandle& child )
+    virtual void        addChild( uiBaseObject& child )
 			{ 
 			    if ( !initing ) 
 				dlgGroup->addChild( child );
@@ -1088,7 +1088,7 @@ public:
 				uiMainWinBody::addChild( child );
 			}
 
-    virtual void        manageChld_( uiObjHandle& o, uiObjectBody& b )
+    virtual void        manageChld_( uiBaseObject& o, uiObjectBody& b )
 			{ 
 			    if ( !initing ) 
 				dlgGroup->manageChld( o, b );

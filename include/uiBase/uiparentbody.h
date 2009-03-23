@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiparentbody.h,v 1.15 2008-03-11 20:49:44 cvskris Exp $
+ RCS:           $Id: uiparentbody.h,v 1.16 2009-03-23 05:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 
     virtual		~uiParentBody()		{ deleteAllChildren(); }
 
-    virtual void	addChild( uiObjHandle& child )
+    virtual void	addChild( uiBaseObject& child )
 			{ 
 			    if ( children_.indexOf(&child )!=-1 )
 				return;
@@ -42,7 +42,7 @@ public:
 			}
 
 			//! child becomes mine.
-    void		manageChld( uiObjHandle& child, uiObjectBody& b)
+    void		manageChld( uiBaseObject& child, uiObjectBody& b)
 			{
 			    addChild( child );
 			    manageChld_(child,b);
@@ -52,7 +52,7 @@ public:
 				     uiObject* other, int margin,
 				     bool reciprocal ) =0;
 
-    const ObjectSet<uiObjHandle>* childList() const	{ return &children_; }
+    const ObjectSet<uiBaseObject>* childList() const	{ return &children_; }
 
     bool		finalised() const	{ return finalised_; }
     virtual void 	finalise()		{ finaliseChildren(); }
@@ -70,21 +70,21 @@ protected:
 		{
 		    //avoid the problems from childDel() removal from
 		    //children_
-		    ObjectSet<uiObjHandle> childrencopy = children_;
+		    ObjectSet<uiBaseObject> childrencopy = children_;
 		    children_.erase(); 
 		    deepErase( childrencopy );
 		}
 
     void	childDel( CallBacker* cb )
 		{
-		    uiObjHandle* obj = static_cast<uiObjHandle*>( cb );
+		    uiBaseObject* obj = static_cast<uiBaseObject*>( cb );
 		    if ( obj ) children_ -= obj;
 		}
 
     virtual const QWidget*	managewidg_() const			= 0;
-    virtual void		manageChld_(uiObjHandle&,uiObjectBody&)	{}
+    virtual void		manageChld_(uiBaseObject&,uiObjectBody&) {}
 
-    ObjectSet<uiObjHandle>	children_;
+    ObjectSet<uiBaseObject>	children_;
 
 private:
 
