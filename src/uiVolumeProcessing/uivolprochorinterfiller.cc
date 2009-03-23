@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.9 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.10 2009-03-23 11:02:00 cvsbert Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -26,28 +26,25 @@ namespace VolProc
 
 void uiHorInterFiller::initClass()
 {
-    VolProc::uiChain::factory().addCreator( create, HorInterFiller::sKeyType() );
+    uiChain::factory().addCreator( create, HorInterFiller::sKeyType() );
 }    
 
 
 uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
-    : uiStepDialog( p, uiDialog::Setup( HorInterFiller::sUserName(),
-		HorInterFiller::sUserName(), mTODOHelpID ),
-		    hf )
+    : uiStepDialog( p, HorInterFiller::sUserName(), hf )
     , horinterfiller_( hf )
-    , topctxt_( 0 )
-    , bottomctxt_( 0 )
+    , topctio_(mGetCtxtIOObj(EMHorizon3D,Surf))
+    , bottomctio_(mGetCtxtIOObj(EMHorizon3D,Surf))
 {
     const char* hortxt = "Horizon";
+    topctio_->ctxt.forread = bottomctio_->ctxt.forread = true;
+
     usetophorfld_ = new uiGenInput( this, "Top boundary",
 		    BoolInpSpec(hf->getTopHorizonID(),hortxt, "Survey top") );
     usetophorfld_->valuechanged.notify(mCB(this, uiHorInterFiller,updateFlds));
-    usetophorfld_->attach( alignedBelow, namefld_ );
-    topctxt_ = mGetCtxtIOObj(EMHorizon3D,Surf);
-    topctxt_->ctxt.forread = true;
     if ( hf->getTopHorizonID() )
-	topctxt_->setObj( *hf->getTopHorizonID() );
-    tophorfld_ = new uiIOObjSel( this, *topctxt_, "Top Horizon" );
+	topctio_->setObj( *hf->getTopHorizonID() );
+    tophorfld_ = new uiIOObjSel( this, *topctio_, "Top Horizon" );
     tophorfld_->attach( alignedBelow, usetophorfld_ );
     topvalfld_ = new uiGenInput( this, "Top Value", 
 	    			 FloatInpSpec( hf->getTopValue() ) );
@@ -59,11 +56,9 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
 	    mCB(this, uiHorInterFiller,updateFlds) );
     usebottomhorfld_->attach( alignedBelow, topvalfld_ );
 
-    bottomctxt_ = mGetCtxtIOObj(EMHorizon3D,Surf);
-    bottomctxt_->ctxt.forread = true;
     if ( hf->getBottomHorizonID() )
-	bottomctxt_->setObj( *hf->getBottomHorizonID() );
-    bottomhorfld_ = new uiIOObjSel( this, *bottomctxt_, "Bottom Horizon" );
+	bottomctio_->setObj( *hf->getBottomHorizonID() );
+    bottomhorfld_ = new uiIOObjSel( this, *bottomctio_, "Bottom Horizon" );
     bottomhorfld_->attach( alignedBelow, usebottomhorfld_ );
 
     usegradientfld_ = new uiGenInput( this, "Slope type",
@@ -82,17 +77,15 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
 	                            FloatInpSpec( hf->getBottomValue() ) ); 
     bottomvalfld_->attach( alignedBelow, usegradientfld_ );
 
+    addNameFld( bottomvalfld_ );
     updateFlds( 0 );
 }
 
 
 uiHorInterFiller::~uiHorInterFiller()
 {
-    delete topctxt_->ioobj;
-    delete topctxt_;
-
-    delete bottomctxt_->ioobj;
-    delete bottomctxt_;
+    delete topctio_->ioobj; delete topctio_;
+    delete bottomctio_->ioobj; delete bottomctio_;
 }
 
 

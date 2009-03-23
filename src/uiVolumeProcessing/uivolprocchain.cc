@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.9 2009-03-19 13:30:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.10 2009-03-23 11:02:00 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uivolprocchain.cc,v 1.9 2009-03-19 13:30:54 cvs
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitoolbar.h"
+#include "uiseparator.h"
 
 
 namespace VolProc
@@ -29,39 +30,53 @@ namespace VolProc
 mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiChain::factory );
 
 
-uiStepDialog::uiStepDialog(uiParent* p,const uiDialog::Setup& s,Step* step)
-    : uiDialog( p, s )
-    , step_( step )
+uiStepDialog::uiStepDialog( uiParent* p, const char* stepnm, Step* step )
+    : uiDialog( p, uiDialog::Setup("Edit step",stepnm,mTODOHelpID) )
+    , step_(step)
 {
-    const char* key = step_->type();
-    const char* username = step_->userName();
-    const int keyidx = PS().getNames(false).indexOf( key );
-    const char* displayname = username
-	? username
-	: PS().getNames(true)[keyidx]->buf();
+}
 
-    namefld_ = new uiGenInput( this, sKey::Name,
-	    		       StringInpSpec( displayname ) );
+
+void uiStepDialog::addNameFld( uiObject* alignobj )
+{
+    uiSeparator* sep = 0;
+    if ( alignobj )
+    {
+	sep = new uiSeparator( this, "namefld sep" );
+	sep->attach( stretchedBelow, alignobj );
+    }
+    namefld_ = new uiGenInput( this, "Name for this step", step_->userName() );
+    if ( alignobj )
+    {
+	namefld_->attach( ensureBelow, sep );
+	namefld_->attach( alignedBelow, alignobj );
+    }
+}
+
+
+void uiStepDialog::addNameFld( uiGroup* aligngrp )
+{
+    uiObject* alignobj = aligngrp ? aligngrp->attachObj() : 0;
+    addNameFld( alignobj );
 }
 
 
 bool uiStepDialog::acceptOK( CallBacker* )
 {
-    const char* key = step_->type();
-    const int keyidx = PS().getNames(false).indexOf( key );
-
-    BufferString nm = namefld_->text();
-    if ( nm==PS().getNames(true)[keyidx]->buf() )
-	step_->setUserName( 0 );
-    else
-	step_->setUserName( nm.buf() );
+    const BufferString nm( namefld_->text() );
+    if ( nm.isEmpty() )
+    {
+	uiMSG().error( "Please enter a name for this step" );
+	return false;
+    }
+    step_->setUserName( nm.buf() );
 
     return true;
 }
 
 
 uiChain::uiChain( uiParent* p, Chain& chn )
-    : uiDialog( p, uiDialog::Setup("Volume Builder Setup",0,"dgb:104.0.3")
+    : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",0,mTODOHelpID)
 	    .menubar(true) )
     , chain_(chn)
     , ctio_(*mMkCtxtIOObj(VolProcessing))
@@ -71,9 +86,9 @@ uiChain::uiChain( uiParent* p, Chain& chn )
 
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
     tb->addButton( "openflow.png", mCB(this,uiChain,readPush),
-	    	   "Read builder setup", false );
+	    	   "Read stored setup", false );
     tb->addButton( "saveflow.png", mCB(this,uiChain,savePush),
-	    	   "Save builder setup", false );
+	    	   "Save setup now", false );
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
 
@@ -83,17 +98,15 @@ uiChain::uiChain( uiParent* p, Chain& chn )
 	    mCB(this,uiChain,factoryClickCB) );
     factorylist_->attach( ensureBelow, availablelabel );
 
-    addstepbutton_ = new uiPushButton( flowgrp, "Add",
-	    mCB(this,uiChain,addStepPush), true );
-    addstepbutton_->attach( rightOf, factorylist_ );
-    flowgrp->setHAlignObj( addstepbutton_ );
-
-    removestepbutton_ = new uiPushButton( flowgrp, "Remove",
-	    mCB(this,uiChain,removeStepPush), true);
-    removestepbutton_->attach( alignedBelow, addstepbutton_ );
+    addstepbutton_ = new uiToolButton( flowgrp, "Add button",
+					mCB(this,uiChain,addStepPush) );
+    ((uiToolButton*)addstepbutton_)->setArrowType( uiToolButton::RightArrow );
+    addstepbutton_->setToolTip( "Add step" );
+    addstepbutton_->attach( centeredRightOf, factorylist_ );
 
     steplist_ = new uiListBox( flowgrp );
-    steplist_->attach( rightOf, addstepbutton_ );
+    steplist_->attach( rightTo, factorylist_ );
+    steplist_->attach( ensureRightOf, addstepbutton_ );
     steplist_->selectionChanged.notify(
 	    mCB(this,uiChain,stepClickCB) );
     steplist_->doubleClicked.notify(
@@ -103,19 +116,31 @@ uiChain::uiChain( uiParent* p, Chain& chn )
     label->attach( alignedAbove, steplist_ );
     label->attach( rightTo, availablelabel );
 
-    moveupbutton_ = new uiPushButton( flowgrp, "Move Up",
-	    mCB(this,uiChain,moveUpCB), true );
+    moveupbutton_ = new uiToolButton( flowgrp, "Up button",
+					mCB(this,uiChain,moveUpCB) );
+    ((uiToolButton*)moveupbutton_)->setArrowType( uiToolButton::UpArrow );
+    moveupbutton_->setToolTip( "Move step up" );
     moveupbutton_->attach( rightOf, steplist_ );
 
-    movedownbutton_ = new uiPushButton( flowgrp, "Move Down",
-	    mCB(this,uiChain,moveDownCB), true);
+    movedownbutton_ = new uiToolButton( flowgrp, "Up button",
+					mCB(this,uiChain,moveUpCB) );
+    ((uiToolButton*)movedownbutton_)->setArrowType( uiToolButton::DownArrow );
+    movedownbutton_->setToolTip( "Move step down" );
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
-    propertiesbutton_ = new uiPushButton( flowgrp, "Settings",
-	    mCB(this,uiChain,propertiesCB), false );
+    propertiesbutton_ = new uiPushButton( flowgrp, "S&ettings",
+			    mCB(this,uiChain,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
-    objfld_ = new uiIOObjSel( this, ctio_, "Volume Builder Setup" );
+    removestepbutton_ = new uiToolButton( flowgrp, "Remove",
+	    				  ioPixmap("trashcan.png"),
+					  mCB(this,uiChain,removeStepPush) );
+    movedownbutton_->setToolTip( "Remove step from flow" );
+    removestepbutton_->attach( alignedBelow, propertiesbutton_ );
+
+    flowgrp->setHAlignObj( steplist_ );
+
+    objfld_ = new uiIOObjSel( this, ctio_, "On OK, store As" );
     objfld_->setConfirmOverwrite( false );
     objfld_->attach( alignedBelow, flowgrp );
 
@@ -230,25 +255,23 @@ void uiChain::updateButtons()
 }
 
 
-void uiChain::showPropDialog( int idx )
+bool uiChain::showPropDialog( int idx )
 {
     Step* step = chain_.getStep( idx );
-    if ( !step ) return;
+    if ( !step ) return false;
 
     PtrMan<uiStepDialog> dlg = factory().create( step->type(), this, step );
-
     if ( !dlg )
     {
-	mTryAlloc( dlg, uiStepDialog( this,
-		    uiDialog::Setup("Select name","Select name",mNoHelpID),
-		    	step ) );
-	if ( !dlg )
-	    return;
+	dlg = new uiStepDialog( this, "Name", step );
+	uiObject* uio = 0; dlg->addNameFld( uio );
     }
 
-    if ( dlg->go() )
+    bool ret = dlg->go();
+    if ( ret )
 	updateList();
 
+    return ret;
 }
 
 
@@ -323,20 +346,34 @@ void uiChain::addStepPush(CallBacker*)
 
     chain_.addStep( step );
     updateList();
-    steplist_->selectAll(false);
+    steplist_->selectAll( false );
+    int curitm = steplist_->size() - 1;
+    steplist_->setCurrentItem( curitm );
+    if ( !showPropDialog(curitm) )
+    {
+	chain_.removeStep( curitm );
+	updateList();
+	curitm--;
+	if ( curitm >= 0 )
+	    steplist_->setCurrentItem( curitm );
+    }
     updateButtons();
 }
 
 
 void uiChain::removeStepPush(CallBacker*)
 {
-    const int idx = steplist_->nextSelected(-1);
-    if ( idx<0 )
+    int curitm = steplist_->nextSelected(-1);
+    if ( curitm < 0 )
 	return;
 
-    chain_.removeStep( idx );
+    chain_.removeStep( curitm );
     updateList();
     steplist_->selectAll(false);
+    if ( curitm >= steplist_->size() )
+	curitm--;
+    if ( curitm >= 0 )
+	steplist_->setCurrentItem( curitm );
 
     updateButtons();
 }

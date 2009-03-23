@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.5 2009-03-19 13:27:11 cvsbert Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.6 2009-03-23 11:02:00 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "iopar.h"
 #include "factory.h"
-#include "uidialog.h"
+#include "uivolprocstepdlg.h"
 class IOObj;
 class CtxtIOObj;
 class uiListBox;
@@ -31,27 +31,12 @@ namespace VolProc
 class Chain;
 class Step;
 
-mClass uiStepDialog : public uiDialog
-{
-public:
-    			uiStepDialog(uiParent*,const uiDialog::Setup&,
-				     Step*);
-
-    bool		acceptOK(CallBacker*);
-
-protected:
-
-    uiGenInput*		namefld_;
-    Step*		step_;
-
-};
-
 
 mClass uiChain : public uiDialog
 {
 public:
 
-    mDefineFactory2ParamInClass( uiStepDialog, uiParent*, Step*, factory );
+    mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
 
 				uiChain(uiParent*,Chain&);
 				~uiChain();
@@ -66,7 +51,7 @@ protected:
     void			updateList();
     void			updateButtons();
     void			updObj(const IOObj&);
-    void			showPropDialog(int);
+    bool			showPropDialog(int);
 
     void			readPush(CallBacker*);
     void			savePush(CallBacker*);

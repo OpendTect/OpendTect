@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.8 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.9 2009-03-23 11:02:00 cvsbert Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -27,19 +27,17 @@ namespace VolProc
 
 void uiSmoother::initClass()
 {
-    VolProc::uiChain::factory().addCreator( create, Smoother::sKeyType() );
+    uiChain::factory().addCreator( create, Smoother::sKeyType() );
 }    
 
 
 uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
-    : uiStepDialog( p, uiDialog::Setup( Smoother::sUserName(),
-		    Smoother::sUserName(), mTODOHelpID ), hf )
+    : uiStepDialog( p, Smoother::sUserName(), hf )
     , smoother_( hf )
 {
     operatorselfld_ = new uiWindowFunctionSel( this, "Operator",
 	    		smoother_->getOperatorName(),
 			smoother_->getOperatorParam() );
-    operatorselfld_->attach( alignedBelow, namefld_ );
 
     uiLabel* label = new uiLabel( this, "Stepout" );
     label->attach( alignedBelow, operatorselfld_ );
@@ -72,11 +70,7 @@ uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     zlenfld_->attach( alignedBelow, crllenfld_ );
 
     stepoutgroup->setHAlignObj( zlenfld_ );
-}
-
-
-uiSmoother::~uiSmoother()
-{
+    addNameFld( stepoutgroup );
 }
 
 

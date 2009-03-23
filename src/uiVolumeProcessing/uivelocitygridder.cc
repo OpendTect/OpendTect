@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.4 2008-11-24 15:55:11 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.5 2009-03-23 11:02:00 cvsbert Exp $";
 
 #include "uivelocitygridder.h"
 
@@ -22,7 +22,7 @@ namespace VolProc
 
 void uiVelocityGridder::initClass()
 {
-    VolProc::uiChain::factory().addCreator( create, VelGriddingStep::sType() );
+    uiChain::factory().addCreator( create, VelGriddingStep::sType() );
 }
 
 
@@ -36,24 +36,19 @@ uiStepDialog* uiVelocityGridder::create( uiParent* p, VolProc::Step* ro )
 
 
 uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
-    : uiStepDialog( p, uiDialog::Setup(VelGriddingStep::sUserName(),
-		VelGriddingStep::sUserName(),"dgb:104.1.2"),
-	   	    ro )
+    : uiStepDialog( p, VelGriddingStep::sUserName(), ro )
     , operation_( ro )
 {
     griddersel_ = new uiGridder2DSel( this, ro->getGridder() );
-    griddersel_->attach( alignedBelow, namefld_ );
 
     uiLabel* label = new uiLabel( this, "Velocity sources" );
     label->attach( alignedBelow, griddersel_ );
 
     velfuncsel_ = new Vel::uiFunctionSel( this, operation_->getSources(), 0 );
     velfuncsel_->attach( alignedBelow, label );
+
+    addNameFld( velfuncsel_ );
 }
-
-
-uiVelocityGridder::~uiVelocityGridder()
-{}
 
 
 bool uiVelocityGridder::acceptOK( CallBacker* cb )
@@ -62,11 +57,12 @@ bool uiVelocityGridder::acceptOK( CallBacker* cb )
 	return false;
 
     if ( !operation_ ) return true;
+
     operation_->setSources( velfuncsel_->getVelSources() );
     operation_->setGridder( griddersel_->getSel()->clone() );
+
     return true;
 }
-
 
 
 }; //namespace

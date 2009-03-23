@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.1 2008-11-19 15:01:57 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.2 2009-03-23 11:02:00 cvsbert Exp $";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"
@@ -24,33 +24,43 @@ namespace VolProc
 
 void uiVolumeReader::initClass()
 {
-    VolProc::uiChain::factory().addCreator(create, VolumeReader::sKeyType() );
+    uiChain::factory().addCreator(create, VolumeReader::sKeyType() );
 }    
 
 
 uiVolumeReader::uiVolumeReader( uiParent* p, VolumeReader* vr )
-    : uiStepDialog( p, uiDialog::Setup( VolumeReader::sUserName(),
-		    VolumeReader::sUserName(), mTODOHelpID ),
-		    vr )
+    : uiStepDialog( p, VolumeReader::sUserName(), vr )
     , volumereader_( vr )
-    , seisctxt_( new CtxtIOObj( SeisTrcTranslatorGroup::ioContext() ) )
+    , ctio_(uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
 {
-    const char* hortxt = "Horizon";
-
     if ( vr )
-	seisctxt_->setObj( vr->getVolumeID() );
+	ctio_->setObj( vr->getVolumeID() );
+    else
+	ctio_->setObj( 0 );
 
-    seisctxt_->ctxt.forread = true;
+    seissel_ = new uiSeisSel( this, *ctio_, uiSeisSel::Setup(false,false) );
+    seissel_->selectiondone.notify( mCB(this,uiVolumeReader,volSel) );
 
-    seissel_ = new uiSeisSel( this, *seisctxt_, uiSeisSel::Setup(false,false) );
-    seissel_->attach( alignedBelow, namefld_ );
+    addNameFld( seissel_ );
+    finaliseDone.notify( mCB(this,uiVolumeReader,volSel) );
 }
 
 
 uiVolumeReader::~uiVolumeReader()
 {
-    delete seisctxt_->ioobj;
-    delete seisctxt_;
+    delete ctio_->ioobj; delete ctio_;
+}
+
+
+void uiVolumeReader::volSel( CallBacker* )
+{
+    if ( !*namefld_->text() )
+    {
+	seissel_->processInput();
+	const IOObj* ioobj = seissel_->ctxtIOObj().ioobj;
+	if ( ioobj )
+	    namefld_->setText( ioobj->name() );
+    }
 }
 
 
