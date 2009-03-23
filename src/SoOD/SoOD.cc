@@ -4,15 +4,17 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.18 2007-12-14 05:15:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.19 2009-03-23 20:11:21 cvskris Exp $";
 
 
 #include "SoOD.h"
 
 #include "Inventor/nodes/SoFragmentShader.h"
 
-#ifndef win
+#ifdef lux
 extern "C" { extern void* glXGetCurrentContext(); }
+#elif mac
+extern "C" { extern void* coin_gl_current_context(); }
 #endif
 
 int SoOD::supportsFragShading()
@@ -22,8 +24,10 @@ int SoOD::supportsFragShading()
     {
 #ifdef win
 	if ( wglGetCurrentContext() )
-#else
+#elif lux
 	if ( glXGetCurrentContext() )
+#else
+	if ( coin_gl_current_context() )
 #endif
 	    answer = SoFragmentShader::isSupported(
 		    		SoShaderObject::GLSL_PROGRAM) ? 1 : -1;
