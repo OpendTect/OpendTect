@@ -4,7 +4,7 @@
  * DATE     : 28-2-1996
  * FUNCTION : Data buffers and collections of buffers (trace data)
 -*/
-static const char* rcsID = "$Id: databuf.cc,v 1.18 2009-01-30 14:40:13 cvsbert Exp $";
+static const char* rcsID = "$Id: databuf.cc,v 1.19 2009-03-23 08:11:18 cvsbert Exp $";
 
 
 #include "tracedata.h"
@@ -71,31 +71,32 @@ DataBuffer& DataBuffer::operator=( const DataBuffer& tb )
 }
 
 
-void DataBuffer::reSize( int n, bool copy )
+void DataBuffer::reSize( int newsz, bool copy )
 {
-    if ( n < 0 ) n = 0;
-    if ( n == nelem_ )
+    if ( newsz < 0 )
+	newsz = 0;
+    if ( newsz == nelem_ )
 	return;
 
-    if ( n == 0 || !copy || nelem_ < 0 )
+    if ( newsz == 0 || !copy || nelem_ < 0 )
     {
 	delete [] data_; data_ = 0;
-	if ( n )
-	    { mTryAlloc( data_, unsigned char [ n * bytes_ ] ); }
+	if ( newsz )
+	    { mTryAlloc( data_, unsigned char [ newsz * bytes_ ] ); }
     }
     else
     {
 	unsigned char* olddata = data_;
-	mTryAlloc( data_, unsigned char [ n * bytes_ ] );
+	mTryAlloc( data_, unsigned char [ newsz * bytes_ ] );
 	if ( data_ )
 	{
-	    memcpy( data_, olddata, bytes_ * (n > nelem_ ? nelem_ : n) );
-	    if ( nelem_ < n )
-		memset( data_, 0, bytes_ * (n - nelem_) );
+	    memcpy( data_, olddata, bytes_*(newsz > nelem_ ? nelem_ : newsz) );
+	    if ( nelem_ < newsz )
+		memset( data_+(nelem_*bytes_), 0, bytes_ * (newsz - nelem_) );
 	}
 	delete [] olddata;
     }
-    nelem_ = data_ ? n : 0;
+    nelem_ = data_ ? newsz : 0;
 }
 
 
