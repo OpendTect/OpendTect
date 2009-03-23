@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.13 2009-02-26 16:47:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.14 2009-03-23 16:11:49 cvsbert Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -120,6 +120,15 @@ void uiConvolveAttrib::kernelSel( CallBacker* cb )
 }
 
 
+static void setFldInp( uiIOObjSel* fld, const char* str )
+{
+    IOObj* ioobj = IOM().get( MultiID(str) );
+    if ( !ioobj ) return;
+    fld->ctxtIOObj().setObj( ioobj );
+    fld->updateInput();
+}
+
+
 bool uiConvolveAttrib::setParameters( const Desc& desc )
 {
     if ( strcmp(desc.attribName(),Convolve::attribName()) )
@@ -129,9 +138,7 @@ bool uiConvolveAttrib::setParameters( const Desc& desc )
     mIfGetEnum( Convolve::shapeStr(), shape, shapefld_->setValue(shape) )
     mIfGetInt( Convolve::sizeStr(), size, szfld_->box()->setValue(size) )
     mIfGetString( Convolve::waveletStr(), wavidstr,
-		  IOObj* ioobj = IOM().get( MultiID(wavidstr) );
-		  waveletfld_->ctxtIOObj().setObj( ioobj );
-		  waveletfld_->updateInput() )
+	    	  setFldInp(waveletfld_,wavidstr) )
 
     kernelSel(0);
     return true;
