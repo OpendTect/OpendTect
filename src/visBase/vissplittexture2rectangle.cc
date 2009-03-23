@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.8 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.9 2009-03-23 15:33:55 cvskris Exp $";
 
 #include "vissplittexture2rectangle.h"
 
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: vissplittexture2rectangle.cc,v 1.8 2008-11-25 1
 #include "SoTextureComposer.h"
 
 #include <Inventor/nodes/SoIndexedFaceSet.h>
+#include <Inventor/nodes/SoComplexity.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
@@ -47,6 +48,12 @@ SplitTexture2Rectangle::SplitTexture2Rectangle()
     addChild( shapehint );
     shapehint->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
     shapehint->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+
+    SoComplexity* complexity = new SoComplexity;
+    complexity->textureQuality.setValue( 0.9 );
+    complexity->type.setIgnored( true );
+    complexity->value.setIgnored( true );
+    addChild( complexity );
 
     if ( getMaterial() ) getMaterial()->setColor( Color(255,255,255) , 0 );
     updateFaceSets();
