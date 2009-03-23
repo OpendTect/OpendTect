@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.54 2009-03-04 11:11:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.55 2009-03-23 16:11:31 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -299,7 +299,7 @@ void uiIOSelect::doSel( CallBacker* )
 
 void uiIOSelect::selDone( CallBacker* )
 {
-    objSel();
+    processInput();
     selectiondone.trigger();
 }
 
