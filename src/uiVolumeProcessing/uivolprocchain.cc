@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.11 2009-03-24 12:33:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.12 2009-03-24 13:26:57 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -123,7 +123,7 @@ uiChain::uiChain( uiParent* p, Chain& chn )
     moveupbutton_->attach( rightOf, steplist_ );
 
     movedownbutton_ = new uiToolButton( flowgrp, "Up button",
-					mCB(this,uiChain,moveUpCB) );
+					mCB(this,uiChain,moveDownCB) );
     ((uiToolButton*)movedownbutton_)->setArrowType( uiToolButton::DownArrow );
     movedownbutton_->setToolTip( "Move step down" );
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
