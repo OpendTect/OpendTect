@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uieventfreqattrib.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uieventfreqattrib.cc,v 1.4 2009-03-24 14:24:28 cvshelene Exp $";
 
 #include "uieventfreqattrib.h"
 #include "eventfreqattrib.h"
@@ -23,7 +23,7 @@ mInitAttribUI(uiEventFreqAttrib,EventFreq,"Event Frequency",sKeyFreqGrp)
 uiEventFreqAttrib::uiEventFreqAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d)
 {
-    inpfld_ = getInpFld( "Input" );
+    inpfld_ = getInpFld( is2d, "Input" );
     typfld_ = new uiGenInput( this, "Output",
 	    		      BoolInpSpec(true,"Frequency","Phase") );
     typfld_->attach( alignedBelow, inpfld_ );
