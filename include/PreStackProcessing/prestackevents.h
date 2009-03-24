@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.9 2009-03-12 16:15:32 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.10 2009-03-24 04:12:34 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -96,7 +96,7 @@ public:
 mClass EventManager : public CallBacker
 { mRefCountImpl(EventManager);
 public:
-    struct DipSource
+    mStruct DipSource
     {
 			DipSource();
 	enum Type	{ None, Horizon, SteeringVolume };
