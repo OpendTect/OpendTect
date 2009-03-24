@@ -7,8 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.160 2009-03-19 13:27:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.161 2009-03-24 04:44:35 cvsranojay Exp $";
 
+#include "uibutton.h"
 #include "uiodmenumgr.h"
 
 #include "uicrdevenv.h"
@@ -24,6 +25,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.160 2009-03-19 13:27:12 cvsb
 #include "uitextfile.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "uimsg.h"
 
 #include "dirlist.h"
 #include "envvars.h"
@@ -575,13 +577,24 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
 void uiODMenuMgr::fillManTB()
 {
-    mAddTB(mantb_,"man_seis.png","Manage seismic data",false,manSeis);
-    mAddTB(mantb_,"man_hor.png","Manage horizons",false,manHor);
+    const int seisid = mAddTB(mantb_,"man_seis.png","Manage seismic data",false,manSeis);
+    const int horid = mAddTB(mantb_,"man_hor.png","Manage horizons",false,manHor);
     mAddTB(mantb_,"man_flt.png","Manage faults",false,manFlt);
     mAddTB(mantb_,"man_wll.png","Manage well data",false,manWll);
     mAddTB(mantb_,"man_picks.png","Manage Pick Sets",false,manPick);
     mAddTB(mantb_,"man_wvlt.png","Manage Wavelets",false,manWvlt);
     mAddTB(mantb_,"man_strat.png","Manage Stratigraphy",false,manStrat);
+ 
+    if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
+    {
+	uiPopupMenu* mnuhr = new uiPopupMenu( &appl_, "horizon Menu" );
+	mnuhr->insertItem(
+	    new uiMenuItem("2D Horizons",mCB(this,uiODMenuMgr,handleClick)), mManHor2DMnuItm );
+	mnuhr->insertItem(
+	    new uiMenuItem("3D Horizons",mCB(this,uiODMenuMgr,handleClick)), mManHor3DMnuItm );
+
+	mantb_ ->setButtonMenu( horid, *mnuhr );
+    }
 }
 
 
@@ -590,6 +603,10 @@ static bool sIsPolySelect = true;
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm, mCB(scenemgr,uiODSceneMgr,fn), txt, togg )
+
+#define mAddMnuItm(mnu,txt,fn,fnm,idx) {\
+    uiMenuItem* itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,fn) ); \
+    mnu->insertItem( itm, idx ); itm->setPixmap( ioPixmap(fnm) ); }
 
 void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 {
@@ -601,9 +618,21 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddTB(cointb_,"view_all.png","View all",false,viewAll);
     cameraid_ = mAddTB(cointb_,"orthographic.png",
 	    	       "Switch to orthographic camera",false,switchCameraType);
-    mAddTB(cointb_,"cube_inl.png","View Inl",false,viewInl);
-    mAddTB(cointb_,"cube_crl.png","View Crl",false,viewCrl);
-    mAddTB(cointb_,"cube_z.png","View Z",false,viewZ);
+    
+    curviewmode_ = 0;
+    viewselectid_ = cointb_->addButton( "cube_inl.png",
+					mCB(this,uiODMenuMgr,handleViewClick),
+					"View Inline", false );
+
+    uiPopupMenu* vwmnu = new uiPopupMenu( &appl_, "View Menu" );
+    mAddMnuItm( vwmnu, "View Inline", handleViewClick, "cube_inl.png", 0 );
+    mAddMnuItm( vwmnu, "View Crossline", handleViewClick, "cube_crl.png", 1 );
+    mAddMnuItm( vwmnu, "View Z", handleViewClick, "cube_z.png", 2 );
+    mAddMnuItm( vwmnu, "View North", handleViewClick, "view_N.png", 3 );
+    mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "View_NZ.png", 4 );
+    cointb_->setButtonMenu( viewselectid_, *vwmnu );
+
+
     axisid_ = mAddTB(cointb_,"axis.png","Display rotation axis",
 	    	     true,showRotAxis);
     coltabid_ = cointb_->addButton( "colorbar.png",
@@ -623,12 +652,48 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
 }
 
 
+void uiODMenuMgr::handleViewClick( CallBacker* cb )
+{
+    mDynamicCastGet(uiMenuItem*,itm,cb)
+    mDynamicCastGet(uiToolButton*,tb,cb)
+
+    if ( tb )
+    {
+	sceneMgr().setViewSelectMode( curviewmode_ );
+	return;
+    }
+
+    if ( !itm ) return;
+   
+    int itmid = itm->id();
+    BufferString pm( "cube_inl.png" );
+    BufferString tt( "View Inline" );
+    curviewmode_ = uiSoViewer::Inl;
+    switch( itmid )
+    {
+	case 1: pm = "cube_crl.png"; tt = "View Crossline";
+		curviewmode_ = uiSoViewer::Crl; break;
+	case 2: pm = "cube_z.png"; tt = "View Z";
+		curviewmode_ = uiSoViewer::Z; break;
+	case 3: pm = "view_N.png"; tt = "View North"; 
+		curviewmode_ = uiSoViewer::Y; break;
+	case 4: pm = "View_NZ.png"; tt = "View North Z"; 
+		curviewmode_ = uiSoViewer::YZ; break; 
+    }
+
+    cointb_->setPixmap( viewselectid_, pm );
+    cointb_->setToolTip( viewselectid_, tt );
+    sceneMgr().setViewSelectMode( curviewmode_ );
+}
+
+
 void uiODMenuMgr::handleToolClick( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuItem*,itm,cb)
     if ( !itm ) return;
 
     const bool ispoly = itm->id() == 0;
+  
     cointb_->setPixmap( polyselectid_, ispoly ? "polygonselect.png"
 	    				      : "rectangleselect.png" );
     cointb_->setToolTip( polyselectid_, ispoly ? "Polygon Selection mode"
@@ -856,7 +921,9 @@ void uiODMenuMgr::showLogFile()
 void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 {
     dtecttb_->clear();
+    mantb_->clear();
     fillDtectTB( &applMgr() );
+    fillManTB();
 }
 
 
