@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.63 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.64 2009-03-24 04:41:08 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,7 @@ public:
 
     static int			cNameColumn()		{ return 0; }
     static int			cColorColumn()		{ return 1; }
+    void			setViewSelectMode(int);
 
 protected:
 

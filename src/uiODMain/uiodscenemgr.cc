@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.165 2009-03-20 10:42:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.166 2009-03-24 04:45:02 cvsranojay Exp $";
 
 #include "uiodscenemgr.h"
 #include "scene.xpm"
@@ -543,6 +543,11 @@ void uiODSceneMgr::viewInl( CallBacker* )
 { mDoAllScenes(sovwr_,viewPlane,uiSoViewer::Inl); }
 void uiODSceneMgr::viewCrl( CallBacker* )
 { mDoAllScenes(sovwr_,viewPlane,uiSoViewer::Crl); }
+
+void uiODSceneMgr::setViewSelectMode( int md )
+{
+    mDoAllScenes(sovwr_,viewPlane,(uiSoViewer::PlaneType)md);
+}
 
 
 void uiODSceneMgr::showRotAxis( CallBacker* cb )
