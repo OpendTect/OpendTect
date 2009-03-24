@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.69 2009-03-23 05:08:44 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.70 2009-03-24 13:25:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,7 @@ public:
 
     			 //! Force activation in GUI thread
     void		activateClose();
+    void		activateShow(int minnormmax);
     void		activateQDlg(int retval);
     void		activateGrab(const char* filenm,int zoom=1,
 				     const char* format=0,int quality=-1);
@@ -103,6 +104,8 @@ public:
 
     Notifier<uiMainWin> activatedone;
 
+    bool		isMaximized() const;
+    bool		isMinimized() const;
     bool		isHidden() const;
     bool		isModal() const;
 

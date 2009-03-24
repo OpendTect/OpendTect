@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.172 2009-03-23 05:08:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.173 2009-03-24 13:26:25 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -110,6 +110,7 @@ public:
     void		close();
     
     void		activateClose();  //! force activation in GUI thread
+    void		activateShow( int minnormmax );
     void		activateQDlg( int retval ); 
     void		activateGrab( const char* filenm, int zoom=1,
 				      const char* format=0, int quality=-1 );
@@ -172,6 +173,8 @@ protected:
 
     MouseCursor::Shape	actcursor_;
     static QCursor*	actqcursor_;
+
+    int			actminnormmax_;
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
@@ -404,14 +407,24 @@ bool uiMainWinBody::grabAndSave( const char* filenm, int zoom,
 QCursor* uiMainWinBody::actqcursor_ = 0;
 
 static const QEvent::Type sQEventActClose  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActQDlg   = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActGrab   = (QEvent::Type) (QEvent::User+2);
-static const QEvent::Type sQEventActCursor = (QEvent::Type) (QEvent::User+3);
+static const QEvent::Type sQEventActShow   = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActQDlg   = (QEvent::Type) (QEvent::User+2);
+static const QEvent::Type sQEventActGrab   = (QEvent::Type) (QEvent::User+3);
+static const QEvent::Type sQEventActCursor = (QEvent::Type) (QEvent::User+4);
 
 bool uiMainWinBody::event( QEvent* ev )
 {
     if ( ev->type() == sQEventActClose )
 	close(); 
+    else if ( ev->type() == sQEventActShow )
+    {
+	if ( actminnormmax_ > 1 )
+	    showMaximized();
+	else if ( actminnormmax_ < 1 )
+	    showMinimized();
+	else
+	    showNormal();
+    }
     else if ( ev->type() == sQEventActQDlg )
 	closeQDlgChild( qdlgretval_, false );
 	// Using parentcheck=true would be neat, but it turns out that
@@ -464,6 +477,14 @@ void uiMainWinBody::activateClose()
 {
     QEvent* actcloseevent = new QEvent( sQEventActClose );
     QApplication::postEvent( this, actcloseevent );
+}
+
+
+void uiMainWinBody::activateShow( int minnormmax )
+{
+    actminnormmax_ = minnormmax;
+    QEvent* actshowevent = new QEvent( sQEventActShow );
+    QApplication::postEvent( this, actshowevent );
 }
 
 
@@ -736,6 +757,8 @@ bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
 bool uiMainWin::touch() 			{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
+bool uiMainWin::isMaximized() const		{ return body_->isMaximized(); }
+bool uiMainWin::isMinimized() const		{ return body_->isMinimized(); }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
 
@@ -760,6 +783,10 @@ void uiMainWin::activateGrab( const char* filenm, int zoom,
 
 void uiMainWin::activateCmdCursor( MouseCursor::Shape mcs )
 { body_->activateCmdCursor( mcs ); }
+
+
+void uiMainWin::activateShow( int minnormmax )
+{ body_->activateShow( minnormmax ); }
 
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
