@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.13 2009-03-10 22:10:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.14 2009-03-24 14:07:53 cvskris Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -159,7 +159,6 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( const EM::ObjectID& oid )
     , displaypolygonmnuitem_( "&Picked polygons" )			    
     , displayintersectionmnuitem_( "&Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
-    , newellipsoidmnuitem_( "&Create body" )				 
     , mcd_( 0 )
     , plg_( 0 )
     , rpb_( 0 ) 	       
@@ -180,7 +179,6 @@ uiODBodyDisplayTreeItem::uiODBodyDisplayTreeItem( int id, bool dummy )
     , displaypolygonmnuitem_( "Picked polygons" )			    
     , displayintersectionmnuitem_( "Intersections" )
     , removeselectedmnuitem_( "&Remove selection" )
-    , newellipsoidmnuitem_( "Make body" )				   
     , mcd_( 0 )
     , plg_( 0 )	       
     , rpb_( 0 ) 	       
@@ -364,19 +362,9 @@ void uiODBodyDisplayTreeItem::createMenuCB( CallBacker* cb )
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
     if ( mcd )
     {
-	if ( mcd->hasInitialShape() )
-	{
-	    mAddMenuItem( menu, &newellipsoidmnuitem_, true, false );
-	    mResetMenuItem( &savemnuitem_ );
-	    mResetMenuItem( &saveasmnuitem_ );
-	}
-	else
-	{
-	    mAddMenuItem( menu, &savemnuitem_, enablesave && 
-			  !applMgr()->EMServer()->isShifted(emid_), false );
-	    mAddMenuItem( menu, &saveasmnuitem_, true, false );
-	    mResetMenuItem( &newellipsoidmnuitem_ );
-	}
+	mAddMenuItem( menu, &savemnuitem_, enablesave && 
+		      !applMgr()->EMServer()->isShifted(emid_), false );
+	mAddMenuItem( menu, &saveasmnuitem_, true, false );
     }
 
     if ( plg )
@@ -439,14 +427,6 @@ void uiODBodyDisplayTreeItem::handleMenuCB( CallBacker* cb )
 
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
-    }
-    else if ( mnuid==newellipsoidmnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	MouseCursorChanger cursorchanger( MouseCursor::Wait );
-
-	if ( mcd_->createInitialBody( true ) )
-	    mcd_->removeInitialDragger();
     }
     else if ( mnuid==displaybodymnuitem_.id )
     {
