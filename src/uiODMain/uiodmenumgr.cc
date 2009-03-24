@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.161 2009-03-24 04:44:35 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.162 2009-03-24 12:11:59 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -577,8 +577,10 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 
 void uiODMenuMgr::fillManTB()
 {
-    const int seisid = mAddTB(mantb_,"man_seis.png","Manage seismic data",false,manSeis);
-    const int horid = mAddTB(mantb_,"man_hor.png","Manage horizons",false,manHor);
+    const int seisid =
+	mAddTB(mantb_,"man_seis.png","Manage seismic data",false,manSeis);
+    const int horid =
+	mAddTB(mantb_,"man_hor.png","Manage horizons",false,manHor);
     mAddTB(mantb_,"man_flt.png","Manage faults",false,manFlt);
     mAddTB(mantb_,"man_wll.png","Manage well data",false,manWll);
     mAddTB(mantb_,"man_picks.png","Manage Pick Sets",false,manPick);
@@ -588,11 +590,10 @@ void uiODMenuMgr::fillManTB()
     if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
     {
 	uiPopupMenu* mnuhr = new uiPopupMenu( &appl_, "horizon Menu" );
-	mnuhr->insertItem(
-	    new uiMenuItem("2D Horizons",mCB(this,uiODMenuMgr,handleClick)), mManHor2DMnuItm );
-	mnuhr->insertItem(
-	    new uiMenuItem("3D Horizons",mCB(this,uiODMenuMgr,handleClick)), mManHor3DMnuItm );
-
+	mnuhr->insertItem( new uiMenuItem("2D Horizons",
+		    mCB(this,uiODMenuMgr,handleClick)), mManHor2DMnuItm );
+	mnuhr->insertItem( new uiMenuItem("3D Horizons",
+		    mCB(this,uiODMenuMgr,handleClick)), mManHor3DMnuItm );
 	mantb_ ->setButtonMenu( horid, *mnuhr );
     }
 }
@@ -897,11 +898,21 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     }
 }
 
+
+void uiODMenuMgr::manHor( CallBacker* )
+{
+    int opt = 0;
+    if ( SI().getSurvDataType() == SurveyInfo::No2D )
+	opt = 2;
+    else if ( SI().getSurvDataType() == SurveyInfo::Only2D )
+	opt = 1;
+    mDoOp(Man,Hor,opt);
+}
+
 #define mDefManCBFn(typ) \
     void uiODMenuMgr::man##typ( CallBacker* ) { mDoOp(Man,typ,0); }
 
 mDefManCBFn(Seis)
-mDefManCBFn(Hor)
 mDefManCBFn(Flt)
 mDefManCBFn(Wll)
 mDefManCBFn(Pick)
