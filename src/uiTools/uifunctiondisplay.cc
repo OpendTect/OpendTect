@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.32 2009-03-20 11:45:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.33 2009-03-24 08:53:00 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -508,7 +508,7 @@ void uiFunctionDisplay::mouseRelease( CallBacker* )
 {
     if ( !mousedown_ ) return; mousedown_ = false;
     mGetMousePos();
-    if ( !isctrl || selpt_ < 0 || selpt_ >= xvals_.size()-1
+    if ( !isctrl || selpt_ <= 0 || selpt_ >= xvals_.size()-1
 	 || xvals_.size() < 3 ) return;
 
     xvals_.remove( selpt_ );

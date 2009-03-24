@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.29 2009-03-10 06:33:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.30 2009-03-24 08:53:00 cvssatyaki Exp $";
 
 #include "uicoltabman.h"
 
@@ -86,7 +86,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab,
 	cttranscanvas_->pointSelected.notify(
 		mCB(this,uiColorTableMan,transptSel));
     }
-    cttranscanvas_->setStretch( 0, 0 );
+    cttranscanvas_->setStretch( 2, 0 );
 
     markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
     markercanvas_->setPrefWidth( mTransWidth );
