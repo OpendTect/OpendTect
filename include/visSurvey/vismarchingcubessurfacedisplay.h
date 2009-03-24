@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.14 2009-03-06 16:09:51 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.15 2009-03-24 14:08:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -74,48 +74,17 @@ public:
     bool		setEMID(const EM::ObjectID&);
     EM::ObjectID	getEMID() const;
 
-    void		showManipulator(bool);
-    bool		isManipulatorShown() const;
-
-    bool		hasInitialShape();
-    bool		createInitialBody(bool allowswap);
-    void		removeInitialDragger();
-
 protected:
 
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     virtual			~MarchingCubesDisplay();
     void			updateVisFromEM(bool onlyshape);
-    void			initialDraggerMovedCB(CallBacker*);
-    void			initialDraggerMovingCB(CallBacker*);
-    void			kernelDraggerMovedCB(CallBacker*);
-    void			kernelDraggerMovingCB(CallBacker*);
     virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
     virtual int			usePar(const IOPar&);
-    void			factorDrag(CallBacker*);
-    void			setDragDirection(CallBacker*);
-    void			setNormalLine(Coord3& center,Coord3& width);
-    Array3D<unsigned char>*	createKernel(int xsz, int ysz, int zsz ) const;
 
-    visBase::BoxDragger*		initialdragger_;
     visBase::MarchingCubesSurface*	displaysurface_;
     EM::MarchingCubesSurface*		emsurface_;
-    MarchingCubesSurfaceEditor*		surfaceeditor_;
-    visBase::InvisibleLineDragger*	factordragger_;
-    bool				allowdrag_;
-    visBase::EventCatcher*		eventcatcher_;
-    visBase::Ellipsoid*			initialellipsoid_;
-    visBase::PickStyle*			kernelpickstyle_;
-    visBase::Ellipsoid*			kernelellipsoid_;
-    visBase::Dragger*			kerneldragger_;
-    visBase::IndexedPolyLine*		normalline_;
-
-    double				minsampleinlsz_;
-    double				minsamplecrlsz_;
-    double				minsamplezsz_;
-    Coord3				kernelsize_;
-    CubeSampling			previoussample_;
 };
 
 };
