@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.1 2009-03-16 16:31:14 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchprestackproc.cc,v 1.2 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uibatchprestackproc.h"
 
@@ -74,13 +74,13 @@ bool uiBatchProcSetup::prepareProcessing()
 	return false;
     }
 
-    if ( !inputsel_->commitInput(true) )
+    if ( !inputsel_->commitInput() )
     {
 	uiMSG().error("Please select an input volume");
 	return false;
     }
 
-    if ( !outputsel_->commitInput(true) )
+    if ( !outputsel_->commitInput() )
     {
 	uiMSG().error("Please enter an output name");
 	return false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.45 2009-02-26 16:47:52 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.46 2009-03-24 12:33:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,13 +112,11 @@ namespace sKey
     extern const char*	LogFile		mImpl("Log file");
     extern const char*	Version		mImpl("Version");
 
+    extern const char*	Default		mImpl("Default");
     extern const char*	DefCube		mImpl("Default.Cube");
     extern const char*	DefLineSet	mImpl("Default.LineSet");
-    extern const char*	DefLine		mImpl("Default.Line");
     extern const char*	DefAttribute	mImpl("Default.Attribute");
-    extern const char*	DefPS3D		mImpl("Default.PS3D Data Store");
-    extern const char*	DefPS2D		mImpl("Default.PS2D Data Store");
-    extern const char*	DefWavelet	mImpl("Default.Wavelet");
+    extern const char*	DefLine		mImpl("Default.Line");
 };
 
 

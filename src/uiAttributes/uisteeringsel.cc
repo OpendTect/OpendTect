@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisteeringsel.cc,v 1.35 2009-03-04 11:11:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uisteeringsel.cc,v 1.36 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "uisteeringsel.h"
@@ -277,11 +277,11 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 
 void uiSteerCubeSel::doFinalise( CallBacker* c )
 {
-    if ( ctio_.ioobj ) return;
+    if ( workctio_.ioobj ) return;
 
     const MultiID& defid = SeisIOObjInfo::getDefault( sKey::Steering );
-    ctio_.setObj( IOM().get(defid) );
-    if ( ctio_.ioobj )
+    workctio_.setObj( IOM().get(defid) );
+    if ( workctio_.ioobj )
 	updateInput();
 }
 
@@ -322,10 +322,10 @@ CtxtIOObj* uiSteerCubeSel::mkCtxtIOObj( bool is2d, bool forread )
 DescID uiSteerCubeSel::getDipID( int dipnr ) const
 {
     const DescSet& ads = attrdata_.attrSet();
-    if ( !ctio_.ioobj || ads.isEmpty() ) 
+    if ( !workctio_.ioobj || ads.isEmpty() ) 
 	return DescID::undef();
 
-    LineKey linekey( ctio_.ioobj->key() );
+    LineKey linekey( workctio_.ioobj->key() );
     if ( is2D() ) linekey.setAttrName( attrNm() );
 
     for ( int idx=0; idx<ads.nrDescs(); idx++ )
@@ -347,7 +347,7 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
     ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
     keypar->setValue( linekey );
 
-    BufferString userref = ctio_.ioobj->name();
+    BufferString userref = workctio_.ioobj->name();
     userref += dipnr==0 ? "_inline_dip" : "_crline_dip";
     desc->setUserRef( userref );
     desc->updateParams();
@@ -374,7 +374,7 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
     const LineKey lk( keypar->getStringValue() );
     const MultiID mid( lk.lineName() );
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    ctio_.setObj( ioobj ? ioobj->clone() : 0 );
+    workctio_.setObj( ioobj ? ioobj->clone() : 0 );
     updateInput();
     if ( is2D() )
 	setAttrNm( lk.attrName() );

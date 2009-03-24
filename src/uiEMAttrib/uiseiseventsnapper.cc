@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.20 2009-01-13 05:47:11 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.21 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "uiseiseventsnapper.h"
@@ -37,9 +37,9 @@ static const char* rcsID = "$Id: uiseiseventsnapper.cc,v 1.20 2009-01-13 05:47:1
 
 uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
     : uiDialog(p,Setup("Snap horizon to seismic event",mNoDlgTitle,"104.0.11"))
-    , horinctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
+    , horinctio_(*mMkCtxtIOObj(EMHorizon3D))
     , horoutctio_(*mMkCtxtIOObj(EMHorizon3D))
-    , seisctio_(*mMkCtxtIOObj(SeisTrc))
+    , seisctio_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,true))
     , horizon_(0)
 {
     if ( inp )
@@ -125,7 +125,7 @@ bool uiSeisEventSnapper::saveHorizon()
     const bool saveas = savefld_ && savefld_->getBoolValue();
     if ( !saveas )
 	exec = horizon_->saver();
-    else if ( !horoutfld_->commitInput(true) )
+    else if ( !horoutfld_->commitInput() )
 	mErrRet( "Cannot continue: write permission problem" )
     else
     {
@@ -143,8 +143,8 @@ bool uiSeisEventSnapper::saveHorizon()
 
 bool uiSeisEventSnapper::acceptOK( CallBacker* )
 {
-    if ( !seisctio_.ioobj )
-	mErrRet( "Please select Seismics" )
+    if ( !seisfld_->commitInput() )
+	mErrRet( "Please select the seismics" )
     if ( !readHorizon() )
 	mErrRet( "Cannot read horizon" );
 

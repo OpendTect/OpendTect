@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.17 2009-03-19 16:12:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.18 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiveldesc.h"
 
@@ -118,7 +118,7 @@ IOObj* uiVelocityDescDlg::getSelection() const
 
 void uiVelocityDescDlg::volSelChange(CallBacker*)
 {
-    volsel_->commitInput( false );
+    volsel_->commitInput();
     veldesc_->display( ctxt_.ioobj );
     if ( !ctxt_.ioobj )
 	return;
@@ -131,7 +131,7 @@ void uiVelocityDescDlg::volSelChange(CallBacker*)
 
 bool uiVelocityDescDlg::acceptOK(CallBacker*)
 {
-    volsel_->commitInput( false );
+    volsel_->commitInput();
     if ( !ctxt_.ioobj )
     {
 	uiMSG().error( "Cannot find selected object" );
@@ -145,7 +145,7 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 uiVelSel::uiVelSel(uiParent* p, CtxtIOObj& ctxt, const uiSeisSel::Setup& setup )
     : uiSeisSel( p, ctxt, setup )
 {
-    editcubebutt_ = new uiPushButton( this, ctio_.ioobj ? "Edit" : "Create",
+    editcubebutt_ = new uiPushButton( this, workctio_.ioobj ? "Edit" : "Create",
 				      mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, selbut_ );
 }
@@ -169,9 +169,9 @@ const IOObjContext& uiVelSel::ioContext()
 
 void uiVelSel::editCB(CallBacker*)
 {
-    uiVelocityDescDlg dlg( this, ctio_.ioobj );
+    uiVelocityDescDlg dlg( this, workctio_.ioobj );
     if ( dlg.go() )
-	ctio_.setObj( dlg.getSelection() );
+	workctio_.setObj( dlg.getSelection() );
 
     updateInput();
 }
@@ -180,5 +180,5 @@ void uiVelSel::editCB(CallBacker*)
 void uiVelSel::updateInput()
 {
     uiSeisSel::updateInput();
-    editcubebutt_->setText( ctio_.ioobj ? "Edit ..." : "Create ..." );
+    editcubebutt_->setText( workctio_.ioobj ? "Edit ..." : "Create ..." );
 }

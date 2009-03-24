@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uituthortools.cc,v 1.9 2008-12-23 13:53:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.10 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uituthortools.h"
 #include "ctxtioobj.h"
@@ -20,7 +20,7 @@ uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( "Tut Horizon tools",
 			      "Specify process parameters",
 			      "tut:105.0.2") )
-    	, inctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
+    	, inctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, inctio2_(*mMkCtxtIOObj(EMHorizon3D))
     	, outctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, thickcalc_(0)
@@ -153,9 +153,9 @@ bool uiTutHorTools::acceptOK( CallBacker* )
     bool retval = 0;
     if( smooth )
     {
-	if ( !inpfld_->commitInput(false) )
+	if ( !inpfld_->commitInput() )
 	    mErrRet("Missing Input\nPlease select the input horizon")
-	if ( !outfld_->commitInput(true) )
+	if ( !outfld_->commitInput() )
 	    mErrRet("Missing Output\nPlease select the output horizon")
 	else if ( outctio_.ioobj->implExists(false)
 	 	&& !uiMSG().askGoOn("Output horizon exists. Overwrite?") )
@@ -168,9 +168,9 @@ bool uiTutHorTools::acceptOK( CallBacker* )
     }
     else
     {
-	if( !inpfld_->commitInput(false) )
+	if( !inpfld_->commitInput() )
 	    mErrRet("Missing Input\nPlease select the Top Horizon")
-	if( !inpfld2_->commitInput(false) )
+	if( !inpfld2_->commitInput() )
 	    mErrRet("Missing Input\nPlease select the Bottom Horizon")
 	if( inctio_.ioobj->key()==inctio2_.ioobj->key()
 		&& !uiMSG().askGoOn("Input horizon same as Output. Continue?") )

@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.12 2009-02-19 13:26:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.13 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -318,7 +318,7 @@ void lsSel( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
-    if ( !lssel_->commitInput(false) || !ctio_.ioobj )
+    if ( !lssel_->commitInput() || !ctio_.ioobj )
     {
 	uiMSG().error( "Please select a Line Set" );
 	return false;
@@ -492,8 +492,9 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
 
 void uiSeisPreLoadMgr::openPush( CallBacker* )
 {
-    CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext(), IOObjContext::Misc );
+    CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
+    ctio.fillDefault();
     uiIOObjSelDlg dlg( this, ctio, "Open pre-load settings" );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
@@ -518,7 +519,7 @@ void uiSeisPreLoadMgr::savePush( CallBacker* )
 {
     if ( ids_.isEmpty() ) return;
 
-    CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext(), IOObjContext::Misc );
+    CtxtIOObj ctio( PreLoadsTranslatorGroup::ioContext() );
     ctio.ctxt.forread = false;
     uiIOObjSelDlg dlg( this, ctio, "Save pre-load settings" );
     if ( !dlg.go() || !dlg.ioObj() ) return;

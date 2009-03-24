@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.10 2009-03-23 11:02:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.11 2009-03-24 12:33:52 cvsbert Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -33,8 +33,8 @@ void uiHorInterFiller::initClass()
 uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     : uiStepDialog( p, HorInterFiller::sUserName(), hf )
     , horinterfiller_( hf )
-    , topctio_(mGetCtxtIOObj(EMHorizon3D,Surf))
-    , bottomctio_(mGetCtxtIOObj(EMHorizon3D,Surf))
+    , topctio_(mMkCtxtIOObj(EMHorizon3D))
+    , bottomctio_(mMkCtxtIOObj(EMHorizon3D))
 {
     const char* hortxt = "Horizon";
     topctio_->ctxt.forread = bottomctio_->ctxt.forread = true;
@@ -107,6 +107,9 @@ uiStepDialog* uiHorInterFiller::create( uiParent* parent, Step* ps )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+
 bool uiHorInterFiller::acceptOK( CallBacker* cb )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
@@ -114,61 +117,43 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 	return false;
 
     if ( mIsUdf( topvalfld_->getfValue() ) )
-    {
-	uiMSG().error("Top value must be set");
-	return false;
-    }
+	mErrRet("Please provide the Top value")
 
-    if ( usegradientfld_->getBoolValue() && mIsUdf(gradientfld_->getfValue() ) )
-    {
-	uiMSG().error("Gradient must be set");
-	return false;
-    }
+    const bool usegradient = usegradientfld_->getBoolValue();
+    const bool usetophor = usetophorfld_->getBoolValue();
+    const bool usebothor = usebottomhorfld_->getBoolValue();
 
-    if ( !usegradientfld_->getBoolValue() && mIsUdf(bottomvalfld_->getfValue()))
-    {
-	uiMSG().error("Bottom value must be set");
-	return false;
-    }
+    if ( usegradient && mIsUdf(gradientfld_->getfValue() ) )
+	mErrRet("Please provide the Gradient")
+    else if ( !usegradient && mIsUdf(bottomvalfld_->getfValue()))
+	mErrRet("Please provide the Bottom value")
 
-    if ( (usetophorfld_->getBoolValue() && !tophorfld_->existingTyped()) ||
-	 (usebottomhorfld_->getBoolValue() && !bottomhorfld_->existingTyped()) )
-    {
-	uiMSG().error("Non-existing horizon selected");
-	return false;
-    }
+    if ( (usetophor && !tophorfld_->commitInput()) )
+	mErrRet("Please select the top horizon")
+    if ( (usebothor && !bottomhorfld_->commitInput()) )
+	mErrRet("Please select the bottom horizon")
 
-    if ( usetophorfld_->getBoolValue() && usebottomhorfld_->getBoolValue() &&
-	 tophorfld_->ctxtIOObj().ioobj->key()==
-	 bottomhorfld_->ctxtIOObj().ioobj->key() )
-    {
-	uiMSG().error("Top and bottom horizons cannot be the same" );
-	return false;
-    }
+    if ( usetophor && usebothor && tophorfld_->ctxtIOObj().ioobj->key()
+			        == bottomhorfld_->ctxtIOObj().ioobj->key() )
+	mErrRet("Top and bottom horizons cannot be the same")
 
-    if ( usetophorfld_->getBoolValue() )
+    if ( !usetophor )
+	horinterfiller_->setTopHorizon( 0 );
+    else
     {
 	const MultiID mid = tophorfld_->ctxtIOObj().ioobj->key();
 	if ( !horinterfiller_->setTopHorizon( &mid ) )
-	{
-	    uiMSG().error( "Could not set top horizon" );
-	    return false;
-	}
+	    mErrRet("Cannot use top horizon")
     }
-    else
-	horinterfiller_->setTopHorizon( 0 );
 
-    if ( usebottomhorfld_->getBoolValue() )
+    if ( !usebothor )
+	horinterfiller_->setBottomHorizon( 0 );
+    else
     {
 	const MultiID mid = bottomhorfld_->ctxtIOObj().ioobj->key();
 	if ( !horinterfiller_->setBottomHorizon( &mid ) )
-	{
-	    uiMSG().error( "Could not set bottom horizon" );
-	    return false;
-	}
+	    mErrRet("Cannot use bottom horizon")
     }
-    else
-	horinterfiller_->setBottomHorizon( 0 );
 
     horinterfiller_->setTopValue( topvalfld_->getfValue() );
     horinterfiller_->setBottomValue( bottomvalfld_->getfValue() );

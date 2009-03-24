@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.129 2009-03-23 16:10:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.130 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiioobjsel.cc,v 1.129 2009-03-23 16:10:43 cvsbe
 #include "linekey.h"
 #include "transl.h"
 #include "strmprov.h"
+#include "survinfo.h"
 
 #include "uigeninput.h"
 #include "uiioobjmanip.h"
@@ -537,31 +538,50 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
     : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt)),
 	    	 mCB(this,uiIOObjSel,doObjSel))
-    , ctio_(c)
+    , inctio_(c)
+    , workctio_(*new CtxtIOObj(c))
     , setup_(mSelTxt(txt))
 {
+    fillDefault();
     updateInput();
 }
 
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     : uiIOSelect(p,uiIOSelect::Setup(su.seltxt_),mCB(this,uiIOObjSel,doObjSel))
-    , ctio_(c)
+    , inctio_(c)
+    , workctio_(*new CtxtIOObj(c))
     , setup_(su)
 {
+    fillDefault();
     updateInput();
 }
 
 
 uiIOObjSel::~uiIOObjSel()
 {
+    delete workctio_.ioobj; delete &workctio_;
+}
+
+
+void uiIOObjSel::fillDefault()
+{
+    if ( setup_.filldef_ && !workctio_.ioobj && workctio_.ctxt.forread )
+	workctio_.fillDefault();
+}
+
+
+void uiIOObjSel::setForRead( bool yn )
+{
+    inctio_.ctxt.forread = workctio_.ctxt.forread = yn;
+    fillDefault();
 }
 
 
 bool uiIOObjSel::fillPar( IOPar& iopar, const char* ck ) const
 {
     iopar.set( IOPar::compKey(ck,"ID"),
-	       ctio_.ioobj ? ctio_.ioobj->key() : MultiID("") );
+	       workctio_.ioobj ? workctio_.ioobj->key() : MultiID("") );
     return true;
 }
 
@@ -571,7 +591,7 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* ck )
     const char* res = iopar.find( IOPar::compKey(ck,"ID") );
     if ( res && *res )
     {
-	ctio_.setObj( MultiID(res) );
+	workctio_.setObj( MultiID(res) );
 	setInput( res );
     }
 }
@@ -579,7 +599,7 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* ck )
 
 void uiIOObjSel::updateInput()
 {
-    setInput( ctio_.ioobj ? (const char*)ctio_.ioobj->key() : "" );
+    setInput( workctio_.ioobj ? (const char*)workctio_.ioobj->key() : "" );
 }
 
 
@@ -598,48 +618,46 @@ void uiIOObjSel::obtainIOObj()
     LineKey lk( getInput() );
     const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
-    {
-	ctio_.setObj( 0 );
-	return;
-    }
+	{ workctio_.setObj( 0 ); return; }
 
     int selidx = getCurrentItem();
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( inp == itemusrnm && ctio_.ioobj 
-			      && !strcmp(ctio_.ioobj->name(), inp.buf()) )
+	if ( inp == itemusrnm && workctio_.ioobj 
+			      && !strcmp(workctio_.ioobj->name(), inp.buf()) )
 	    return;
     }
 
-    IOM().to( ctio_.ctxt.getSelKey() );
+    IOM().to( workctio_.ctxt.getSelKey() );
     const IOObj* ioobj = (*IOM().dirPtr())[ inp.buf() ];
-    ctio_.setObj( ioobj && ctio_.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
+    workctio_.setObj( ioobj && workctio_.ctxt.validIOObj(*ioobj)
+	    	    ? ioobj->clone() : 0 );
 }
 
 
 void uiIOObjSel::processInput()
 {
     obtainIOObj();
-    if ( ctio_.ioobj || ctio_.ctxt.forread )
+    if ( workctio_.ioobj || workctio_.ctxt.forread )
 	updateInput();
 }
 
 
 bool uiIOObjSel::existingUsrName( const char* nm ) const
 {
-    IOM().to( ctio_.ctxt.getSelKey() );
+    IOM().to( workctio_.ctxt.getSelKey() );
     return (*IOM().dirPtr())[nm];
 }
 
 
-bool uiIOObjSel::commitInput( bool mknew )
+bool uiIOObjSel::commitInput()
 {
     LineKey lk( getInput() );
     const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
     {
-	ctio_.setObj( 0 );
+	workctio_.setObj( 0 ); inctio_.setObj( 0 );
 	return true;
     }
     if ( inp.isEmpty() )
@@ -648,23 +666,29 @@ bool uiIOObjSel::commitInput( bool mknew )
     processInput();
     if ( existingTyped() )
     {
-	if ( ctio_.ioobj ) return true;
+	if ( workctio_.ioobj )
+	{
+	    inctio_.setObj( workctio_.ioobj->clone() );
+	    return true;
+	}
+
 	BufferString msg( "'" ); msg += getInput();
 	msg += "' already exists.\nPlease enter another name.";
 	uiMSG().error( msg );
 	return false;
     }
-    if ( !mknew ) return false;
+    if ( workctio_.ctxt.forread ) return false;
 
-    ctio_.setObj( createEntry( getInput() ) );
-    return ctio_.ioobj;
+    workctio_.setObj( createEntry( getInput() ) );
+    inctio_.setObj( workctio_.ioobj ? workctio_.ioobj->clone() : 0 );
+    return inctio_.ioobj;
 }
 
 
 void uiIOObjSel::doObjSel( CallBacker* )
 {
-    if ( !ctio_.ctxt.forread )
-	ctio_.setName( getInput() );
+    if ( !workctio_.ctxt.forread )
+	workctio_.setName( getInput() );
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg ) return;
     uiIOObjSelGrp* selgrp_ = dlg->selGrp();
@@ -674,7 +698,7 @@ void uiIOObjSel::doObjSel( CallBacker* )
 	dlg->setHelpID( helpid_ );
     if ( dlg->go() && dlg->ioObj() )
     {
-	ctio_.setObj( dlg->ioObj()->clone() );
+	workctio_.setObj( dlg->ioObj()->clone() );
 	updateInput();
 	newSelection( dlg );
 	selok_ = true;
@@ -688,19 +712,19 @@ void uiIOObjSel::objSel()
 {
     const char* key = getKey();
     if ( specialitems.find(key) )
-	ctio_.setObj( 0 );
+	workctio_.setObj( 0 );
     else
-	ctio_.setObj( IOM().get(getKey()) );
+	workctio_.setObj( IOM().get(getKey()) );
 }
 
 
 uiIOObjRetDlg* uiIOObjSel::mkDlg()
 {
-    return new uiIOObjSelDlg( this, ctio_, setup_.seltxt_ );
+    return new uiIOObjSelDlg( this, workctio_, setup_.seltxt_ );
 }
 
 
 IOObj* uiIOObjSel::createEntry( const char* nm )
 {
-    return mkEntry( ctio_, nm );
+    return mkEntry( workctio_, nm );
 }

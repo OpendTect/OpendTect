@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.27 2008-12-15 19:01:03 cvskris Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.28 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -47,9 +47,9 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
 {
     if ( !horizon_ )
     {
-	ctioin_ = mGetCtxtIOObj( EMHorizon3D, Surf );
+	ctioin_ = mMkCtxtIOObj( EMHorizon3D );
 	ctioin_->ctxt.forread = true;
-	inputfld_ = new uiIOObjSel( this, *ctioin_, "Select Horizon" );
+	inputfld_ = new uiIOObjSel( this, *ctioin_, "Input Horizon" );
     }
 
     if ( !horizon_ )
@@ -243,13 +243,12 @@ bool uiChangeSurfaceDlg::saveHorizon()
 
 bool uiChangeSurfaceDlg::acceptOK( CallBacker* )
 {
-    if ( inputfld_ && !inputfld_->commitInput(false) )
+    if ( inputfld_ && !inputfld_->commitInput() )
 	mErrRet( "Please select input horizon" )
 
     const bool savetodisk = outputfld_;
     const bool saveasnew = savefld_ && savefld_->getBoolValue();
-    if ( savetodisk && savefld_->getBoolValue() && 
-	 !outputfld_->commitInput(true) )
+    if ( savetodisk && savefld_->getBoolValue() && !outputfld_->commitInput() )
 	mErrRet( "Please select output horizon" )
 
     if ( !horizon_ && !readHorizon() )

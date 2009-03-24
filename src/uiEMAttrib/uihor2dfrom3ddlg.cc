@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.8 2009-03-18 04:51:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihor2dfrom3ddlg.cc,v 1.9 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uihor2dfrom3ddlg.h"
 
@@ -115,11 +115,11 @@ EM::Horizon2D* uiHor2DFrom3DDlg::create2dHorizon( const char* horizonnm )
 
 bool uiHor2DFrom3DDlg::checkFlds()
 {
-    if ( !hor3dsel_->getObjSel()->commitInput(false) )
+    if ( !hor3dsel_->getObjSel()->commitInput() )
 	mErrRet( "Pease select a valid 3d Horizon. " )
     if ( linesetinpsel_->getSummary().isEmpty() )
 	mErrRet( "Pease select a valid Lineset. " )
-    if ( !out2dfld_->getObjSel()->commitInput(false) )
+    if ( !out2dfld_->getObjSel()->commitInput() )
 	mErrRet( "Enter the output surface where you want to write. " )
     return true;
 }

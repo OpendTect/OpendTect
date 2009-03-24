@@ -8,7 +8,7 @@ Date:		June 2008
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackimpmute.cc,v 1.10 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackimpmute.cc,v 1.11 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiprestackimpmute.h"
 #include "uifileinput.h"
@@ -134,7 +134,7 @@ bool uiImportMute::acceptOK( CallBacker* )
 
     sd.close();
     
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet( "Please select the output" )
 		    
     MuteDefTranslator* tr = (MuteDefTranslator*)ctio_.ioobj->getTranslator();

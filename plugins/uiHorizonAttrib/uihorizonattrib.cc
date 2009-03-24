@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.13 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.14 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -36,8 +36,7 @@ mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp)
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.100")
-    , horctio_( is2d ? *mGetCtxtIOObj(EMHorizon2D,Surf)
-	    	    : *mGetCtxtIOObj(EMHorizon3D,Surf) )
+    , horctio_( is2d ? *mMkCtxtIOObj(EMHorizon2D) : *mMkCtxtIOObj(EMHorizon3D) )
     , nrouttypes_( 2 )
 {
     inpfld_ = getInpFld( is2d );

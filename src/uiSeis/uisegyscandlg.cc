@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.21 2009-03-04 15:45:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.22 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -116,7 +116,7 @@ bool uiSEGYScanDlg::doWork( const IOObj& )
 		mErrRet("Please select the line name",0)
 	}
 
-        if ( !outfld_->commitInput(true) )
+        if ( !outfld_->commitInput() )
 	    mErrRet("Please enter a name for the output data store file",0)
 
 	pathnm = ctio_.ioobj->fullUserExpr( Conn::Write );

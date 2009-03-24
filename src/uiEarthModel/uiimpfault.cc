@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.30 2009-03-11 08:18:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.31 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiimpfault.h"
 
@@ -218,7 +218,7 @@ bool uiImportFault::checkInpFlds()
 	}
     }
 
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet( "Please select the output" )
 
     if ( !dataselfld_->commit() )

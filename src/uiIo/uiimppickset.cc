@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.38 2009-03-18 18:45:26 cvskris Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.39 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -235,7 +235,7 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( !import_ && filenm.isEmpty() )
 	mErrRet( "Please select output file" );
 
-    if ( !objfld_->commitInput( true ) )
+    if ( !objfld_->commitInput() )
 	mErrRet( "Please select PickSet" );
 
     if ( import_ )

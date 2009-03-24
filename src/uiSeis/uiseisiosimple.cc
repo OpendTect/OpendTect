@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.18 2009-03-18 11:04:03 cvshelene Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.19 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -302,7 +302,7 @@ void uiSeisIOSimple::havesdSel( CallBacker* )
 
 void uiSeisIOSimple::inpSeisSel( CallBacker* )
 {
-    seisfld_->commitInput( !isimp_ );
+    seisfld_->commitInput();
     if ( ctio_.ioobj )
     {
 	subselfld_->setInput( *ctio_.ioobj );
@@ -377,7 +377,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     BufferString fnm( fnmfld_->fileName() );
     if ( isimp_ && !File_exists(fnm) )
 	mErrRet("Input file does not exist or is unreadable")
-    if ( !seisfld_->commitInput(isimp_) )
+    if ( !seisfld_->commitInput() )
 	mErrRet( isimp_ ? "Please choose a name for the imported data"
 		       : "Please select the input seismics")
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirandlinegen.cc,v 1.14 2009-02-24 04:52:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: uirandlinegen.cc,v 1.15 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uirandlinegen.h"
 
@@ -39,16 +39,14 @@ static const char* rcsID = "$Id: uirandlinegen.cc,v 1.14 2009-02-24 04:52:14 cvs
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
 			 "109.0.1") )
-    , horctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
+    , horctio_(*mMkCtxtIOObj(EMHorizon3D))
     , polyctio_(*mMkCtxtIOObj(PickSet))
     , rlsctio_(*mMkCtxtIOObj(RandomLineSet))
 {
-    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    horctio_.setObj( IOM().getIfOnlyOne(mTranslGroupName(EMHorizon3D)) );
+    IOM().to( horctio_.ctxt.getSelKey() );
     rlsctio_.ctxt.forread = false;
     polyctio_.ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
     polyctio_.ctxt.allowcnstrsabsent = false;
-    polyctio_.fillIfOnlyOne( IOObjContext::Loc );
 
     infld_ = new uiIOObjSel( this, horctio_, "Input Horizon" );
     polyfld_ = new uiIOObjSel( this, polyctio_, "Within polygon (optional)" );
@@ -138,12 +136,12 @@ void uiGenRanLinesByContour::isrelChg( CallBacker* )
 
 bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 {
-    if ( !infld_->commitInput(false) )
+    if ( !infld_->commitInput() )
 	mErrRet("Please select the input horizon")
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet("Please select the output random line set")
 
-    polyfld_->commitInput( false );
+    polyfld_->commitInput();
     PtrMan< ODPolygon<float> > poly = 0;
     if ( polyctio_.ioobj )
     {
@@ -196,7 +194,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
 			 "109.0.2") )
-    , inctio_(*mGetCtxtIOObj(RandomLineSet,Loc))
+    , inctio_(*mMkCtxtIOObj(RandomLineSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
     outctio_.ctxt.forread = false;
@@ -247,9 +245,9 @@ const char* uiGenRanLinesByShift::getNewSetID() const
 
 bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 {
-    if ( !infld_->commitInput(false) )
+    if ( !infld_->commitInput() )
 	mErrRet("Please select the input random line (set)")
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet("Please select the output random line (set)")
 
     Geometry::RandomLineSet inprls; BufferString msg;
@@ -291,7 +289,6 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     outctio_.ctxt.forread = false;
     inctio_.ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
     inctio_.ctxt.allowcnstrsabsent = false;
-    inctio_.fillIfOnlyOne( IOObjContext::Loc );
 
     infld_ = new uiIOObjSel( this, inctio_, "Input Polygon" );
     zrgfld_ = new uiSelZRange( this, true );
@@ -326,9 +323,9 @@ bool uiGenRanLineFromPolygon::dispOnCreation()
 
 bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
 {
-    if ( !infld_->commitInput(false) )
+    if ( !infld_->commitInput() )
 	mErrRet("Please select the input polygon")
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet("Please select the output random line")
 
     PtrMan< ODPolygon<float> > poly = 0;

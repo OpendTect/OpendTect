@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.21 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.22 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -297,7 +297,7 @@ bool uiMadIOSelDlg::getInp()
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
-	if ( !seisSel(gt)->commitInput(!isinp_) )
+	if ( !seisSel(gt)->commitInput() )
 	{
 	    mErrRet(Seis::isPS(gt) ? "data store" : "seismics")
 	    if ( !isinp_ && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)

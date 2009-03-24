@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.74 2009-03-16 13:17:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.75 2009-03-24 12:33:52 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -747,7 +747,7 @@ bool uiStoreWellDlg::checkInpFlds()
 	}
     }
 	    
-    if ( !outfld->commitInput(true) )
+    if ( !outfld->commitInput() )
 	mErrRet( "Please select an output" )
 
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.41 2009-03-18 17:53:39 cvskris Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.42 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -277,7 +277,7 @@ bool AnnotTreeItem::showSubMenu()
 
 bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
-    CtxtIOObj* ctio = mGetCtxtIOObj(PickSet,Loc);
+    CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
     ctio->ctxt.forread = true;
     ctio->ctxt.parconstraints.set( sKey::Type, managerName(), oldSelKey() );
     ctio->ctxt.includeconstraints = true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.3 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtrandlines.cc,v 1.4 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uigmtrandlines.h"
 
@@ -91,7 +91,7 @@ void uiGMTRandLinesGrp::reset()
 
 void uiGMTRandLinesGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	return;
 
     namefld_->setText( ctio_.ioobj->name() );
@@ -125,7 +125,7 @@ void uiGMTRandLinesGrp::labelSel( CallBacker* )
 
 bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	mErrRet("Please select the Random line(set)")
 
     inpfld_->fillPar( par );

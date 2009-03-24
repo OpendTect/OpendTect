@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsetcreator.cc,v 1.10 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsetcreator.cc,v 1.11 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "attribsetcreator.h"
@@ -125,7 +125,7 @@ void cubeSel( CallBacker* cb )
     mDynamicCastGet(uiIOObjSel*,cursel,cb)
     if ( !cursel ) { pErrMsg("Huh"); return; }
 
-    cursel->commitInput(false);
+    cursel->commitInput();
     const IOObj* ioobj = cursel->ctxtIOObj().ioobj;
     if ( !ioobj ) return;
     int curidx = indexOf( sels, cursel );
@@ -152,7 +152,7 @@ bool acceptOK( CallBacker* )
     for ( int isel=0; isel<sels.size(); isel++ )
     {
 	uiIOObjSel& sel = *sels[isel];
-	sel.commitInput(false);
+	sel.commitInput();
 	const IOObj* ioobj = sel.ctxtIOObj().ioobj;
 	if ( !ioobj )
 	{

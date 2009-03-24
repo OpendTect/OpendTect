@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.26 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiattrsurfout.cc,v 1.27 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "uiattrsurfout.h"
@@ -38,7 +38,7 @@ using namespace Attrib;
 uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
     : uiAttrEMOut( p, ad, n, mid, "Create surface output" )
-    , ctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
+    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
 {
     setHelpID( "104.4.0" );
 
@@ -80,7 +80,7 @@ void uiAttrSurfaceOut::objSel( CallBacker* )
 
 bool uiAttrSurfaceOut::prepareProcessing()
 {
-    if ( !objfld_->commitInput(false) )
+    if ( !objfld_->commitInput() )
     {
 	uiMSG().error( "Please select surface" );
 	return false;

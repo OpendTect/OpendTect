@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.13 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.14 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uihorizonsortdlg.h"
 
@@ -31,10 +31,9 @@ static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.13 2008-11-25 15:35:25 
 
 uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup("Horizon sorter","Select horizons",""))
+    , ctio_(is2d ? *mMkCtxtIOObj(EMHorizon2D) : *mMkCtxtIOObj(EMHorizon3D))
 {
-    PtrMan<CtxtIOObj> ctio = is2d ? mGetCtxtIOObj( EMHorizon2D, Surf )
-				  : mGetCtxtIOObj( EMHorizon3D, Surf );
-    ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio, "Select horizons", true );
+    ioobjselgrp_ = new uiIOObjSelGrp( this, ctio_, "Select horizons", true );
     if ( ioobjselgrp_->getListField() )
 	ioobjselgrp_->getListField()->setHSzPol( uiObject::WideVar );
 }
@@ -43,6 +42,7 @@ uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d )
 uiHorizonSortDlg::~uiHorizonSortDlg()
 {
     deepUnRef( horizons_ );
+    delete &ctio_; delete ctio_.ioobj;
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.5 2008-12-24 08:02:16 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.6 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -94,7 +94,7 @@ void uiIsopachMaker::toHorSel( CallBacker* )
 
 bool uiIsopachMaker::acceptOK( CallBacker* )
 {
-    horsel_->commitInput( false );
+    horsel_->commitInput();
     if ( !ctio_.ioobj )
 	mErrRet("Please provide the isopach horizon")
 
@@ -198,10 +198,10 @@ int finishWork()
 
 bool uiIsopachMaker::doWork()
 {
-    if ( saveattr_ && !basesel_->commitInput(false) )
+    if ( saveattr_ && !basesel_->commitInput() )
 	mErrRet("Please select base horizon" )
 
-    if ( !horsel_->commitInput(false) )
+    if ( !horsel_->commitInput() )
 	mErrRet("Please select the horizon")
     uiTaskRunner tr( this );
     

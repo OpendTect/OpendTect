@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.21 2009-02-24 04:37:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwellrdmlinedlg.cc,v 1.22 2009-03-24 12:33:52 cvsbert Exp $";
 
 #include "uiwellrdmlinedlg.h"
 
@@ -396,7 +396,7 @@ void uiWell2RandomLineDlg::ptsSel( CallBacker* cb )
 
 bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
 {
-    if ( !outfld_->commitInput(true) || !outctio_.ioobj )
+    if ( !outfld_->commitInput() || !outctio_.ioobj )
     {
 	uiMSG().error( " Please specify the output " );
 	return false;

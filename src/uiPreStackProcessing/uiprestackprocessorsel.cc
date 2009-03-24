@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.1 2009-02-04 16:48:00 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.2 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiprestackprocessorsel.h"
 
@@ -51,7 +51,7 @@ void uiProcSel::setSel( const MultiID& mid )
 
 bool uiProcSel::getSel( MultiID& mid ) const
 {
-    if ( !selfld_->commitInput(true) )
+    if ( !selfld_->commitInput() )
 	return false;
 
     mid = ctio_.ioobj->key();
@@ -61,7 +61,7 @@ bool uiProcSel::getSel( MultiID& mid ) const
 
 void uiProcSel::selDoneCB( CallBacker* cb )
 {
-    if ( selfld_->commitInput(true) )
+    if ( selfld_->commitInput() )
 	editbut_->setText( ctio_.ioobj ? "Edit ..." : "Add ..." );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.114 2009-02-10 11:34:30 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.115 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dchg.h"
@@ -426,7 +426,7 @@ bool uiImportHorizon::checkInpFlds()
     if ( !outpnm || !*outpnm )
 	mErrRet( "Please select output horizon" )
 
-    if ( !outputfld_->commitInput(true) )
+    if ( !outputfld_->commitInput() )
 	return false;
 
     if ( isgeom_ && ctio_.ioobj->implExists(false)

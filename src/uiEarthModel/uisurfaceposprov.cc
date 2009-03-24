@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.4 2008-12-10 18:24:13 cvskris Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.5 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -39,7 +39,6 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
 	new uiLabel( this, "Not implemented for 2D" );
 	return;
     }
-    ctio1_.fillIfOnlyOne( IOObjContext::Surf );
     surf1fld_ = new uiIOObjSel( this, ctio1_, "Surface" );
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
@@ -119,8 +118,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 {
     if ( !surf1fld_ ) return false;
 
-    surf1fld_->processInput();
-    if ( !ctio1_.ioobj )
+    if ( !surf1fld_->commitInput() )
 	mErrRet("Please select the surface")
     iop.set( mGetSurfKey(id1), ctio1_.ioobj->key() );
 
@@ -128,8 +126,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 	iop.removeWithKey( mGetSurfKey(id2) );
     else
     {
-	surf2fld_->processInput();
-	if ( !ctio2_.ioobj )
+	if ( !surf2fld_->commitInput() )
 	    mErrRet("Please select the bottom surface")
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.70 2009-03-10 15:21:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.71 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -254,6 +254,7 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
 {
     uiSeisSel::Setup ret( su );
     ret.seltxt_ = gtSelTxt( su, forread );
+    ret.filldef( false );
     return ret;
 }
 
@@ -261,27 +262,19 @@ uiSeisSel::Setup uiSeisSel::mkSetup( const uiSeisSel::Setup& su, bool forread )
 CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 {
     const bool is2d = Seis::is2D( gt );
+
     CtxtIOObj* ret;
     if ( Seis::isPS(gt) )
     {
-	ret = is2d ? mGetCtxtIOObj(SeisPS2D,Seis)
-		   : mGetCtxtIOObj(SeisPS3D,Seis);
-	if ( forread && !is2d )
-	{
-	    const char* defpsid = SI().pars().find( sKey::DefPS3D );
-	    if ( defpsid && *defpsid )
-		ret->setObj( MultiID(defpsid) );
-	}
+	ret = is2d ? mMkCtxtIOObj(SeisPS2D) : mMkCtxtIOObj(SeisPS3D);
+	if ( forread )
+	    ret->fillDefault();
     }
     else
     {
 	ret = mMkCtxtIOObj(SeisTrc);
-	if ( forread && !is2d )
-	{
-	    const char* defcubeid = SI().pars().find( sKey::DefCube );
-	    if ( defcubeid && *defcubeid )
-		ret->setObj( MultiID(defcubeid) );
-	}
+	if ( forread )
+	    ret->fillDefaultWithKey( is2d ? sKey::DefLineSet : sKey::DefCube );
     }
 
     ret->ctxt.forread = forread;
@@ -343,7 +336,7 @@ void uiSeisSel::usePar( const IOPar& iop )
 void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
-    if ( ctio_.ioobj ) ioobjkey = ctio_.ioobj->key();
+    if ( workctio_.ioobj ) ioobjkey = workctio_.ioobj->key();
     setInput( LineKey(ioobjkey,attrnm_) );
 }
 
@@ -352,14 +345,14 @@ void uiSeisSel::processInput()
 {
     obtainIOObj();
     attrnm_ = LineKey( getInput() ).attrName();
-    if ( ctio_.ioobj || ctio_.ctxt.forread )
+    if ( workctio_.ioobj || workctio_.ctxt.forread )
 	updateInput();
 }
 
 
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
-    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio_, seissetup_ );
+    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
     dlg->usePar( dlgiopar_ );
     return dlg;
 }

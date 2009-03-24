@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.36 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.37 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -191,7 +191,7 @@ CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 bool uiCopySurface::acceptOK( CallBacker* )
 {
     if ( !inpfld->processInput() ) return false;
-    if ( !outfld->commitInput(true) )
+    if ( !outfld->commitInput() )
 	mErrRet("Please select output surface")
 
     const IOObj* ioobj = inpfld->selIOObj();

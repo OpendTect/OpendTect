@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimergeseis.cc,v 1.43 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uimergeseis.cc,v 1.44 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uimergeseis.h"
 
@@ -89,7 +89,7 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 
 bool uiMergeSeis::getInput( ObjectSet<IOPar>& inpars, IOPar& outpar )
 {
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
     {
         uiMSG().error( "Please enter an output Seismic data set name" );
         return false;

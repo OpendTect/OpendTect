@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.6 2009-03-09 09:33:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.7 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -53,9 +53,9 @@ uiSeisRandTo2DLineDlg::~uiSeisRandTo2DLineDlg()
 
 bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
 	mErrRet("Missing Input\nPlease select the input seismics")
-    if ( !outpfld_->commitInput(true) )
+    if ( !outpfld_->commitInput() )
 	mErrRet("Missing Output\nPlease select a lineset for output")
 
     BufferString attrnm = outpfld_->attrNm();

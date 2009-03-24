@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.1 2009-03-10 12:46:51 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.2 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -58,19 +58,19 @@ uiBatchTime2DepthSetup::~uiBatchTime2DepthSetup()
 
 bool uiBatchTime2DepthSetup::prepareProcessing()
 {
-    if ( !velsel_->commitInput(true) )
+    if ( !velsel_->commitInput() )
     {
 	uiMSG().error("Please select a velocity volume");
 	return false;
     }
 
-    if ( !inputsel_->commitInput(true) )
+    if ( !inputsel_->commitInput() )
     {
 	uiMSG().error("Please select an input volume");
 	return false;
     }
 
-    if ( !outputsel_->commitInput(true) )
+    if ( !outputsel_->commitInput() )
     {
 	uiMSG().error("Please enter an output name");
 	return false;

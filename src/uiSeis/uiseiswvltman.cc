@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.33 2009-03-19 09:01:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.34 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -41,7 +41,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Wavelet management",
                                      "Manage wavelets",
                                      "103.3.0").nrstatusflds(1),
-	    	   WaveletTranslatorGroup::ioContext(), sKey::DefWavelet )
+	    	   WaveletTranslatorGroup::ioContext() )
     , curid_(DataPack::cNoID())
 {
     createDefaultUI();
@@ -143,7 +143,7 @@ uiSeisWvltManCrWvlt( uiParent* p )
 
 bool acceptOK( CallBacker* )
 {
-    if ( !wvltfld->commitInput(true) )
+    if ( !wvltfld->commitInput() )
 	mErrRet( "Please enter a name for the new Wavelet" );
 
     const float sr = srfld->getfValue();

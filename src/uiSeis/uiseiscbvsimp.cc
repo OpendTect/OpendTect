@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.51 2009-02-24 14:08:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiscbvsimp.cc,v 1.52 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiseiscbvsimp.h"
 #include "uiseisioobjinfo.h"
@@ -154,7 +154,7 @@ void uiSeisImpCBVS::typeChg( CallBacker* )
     bool issteer = typefld ? typefld->getIntValue() == 2 : false;
     if ( oinpfld )
     {
-	oinpfld->commitInput(false);
+	oinpfld->commitInput();
 	if ( !inctio_.ioobj ) return;
 	const char* res = inctio_.ioobj->pars().find( "Type" );
 	issteer = res && *res == 'S';
@@ -215,7 +215,7 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
 
 bool uiSeisImpCBVS::acceptOK( CallBacker* )
 {
-    if ( !outfld->commitInput(true) )
+    if ( !outfld->commitInput() )
     {
 	uiMSG().error( "Please choose a valid name for the output data" );
 	return false;
@@ -224,7 +224,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     const bool dolink = modefld && !modefld->getBoolValue();
     if ( oinpfld )
     {
-	if ( !oinpfld->commitInput(false) )
+	if ( !oinpfld->commitInput() )
 	{
 	    uiMSG().error( "Please select an input cube" );
 	    return false;

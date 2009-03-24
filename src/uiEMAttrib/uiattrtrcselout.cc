@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.50 2009-03-20 13:29:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrtrcselout.cc,v 1.51 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "uiattrtrcselout.h"
@@ -307,19 +307,19 @@ bool uiAttrTrcSelOut::prepareProcessing()
 {
     if ( !uiAttrEMOut::prepareProcessing() ) return false;
 
-    if ( !objfld_->commitInput(false) )
+    if ( !objfld_->commitInput() )
     {
 	uiMSG().error( "Please select first surface" );
 	return false;
     }
 
-    if ( !usesinglehor_ && !obj2fld_->commitInput(false) )
+    if ( !usesinglehor_ && !obj2fld_->commitInput() )
     {
 	uiMSG().error( "Please select second surface" );
 	return false;
     }
 
-    bool haveoutput = outpfld_->commitInput( true );
+    bool haveoutput = outpfld_->commitInput();
     if ( !haveoutput || !ctioout_.ioobj )
     {
 	uiMSG().error( "Please select output" );
@@ -502,8 +502,8 @@ void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 
 void uiAttrTrcSelOut::objSel( CallBacker* cb )
 {
-    if ( !objfld_->commitInput(false) || 
-	 ( !usesinglehor_ && !obj2fld_->commitInput(false) ) ) 
+    if ( !objfld_->commitInput() || 
+	 ( !usesinglehor_ && !obj2fld_->commitInput() ) ) 
 	return;
     
     HorSampling horsampling;

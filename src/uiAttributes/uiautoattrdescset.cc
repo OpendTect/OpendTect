@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.6 2009-03-24 04:46:13 cvsraman Exp $";
+static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.7 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiautoattrdescset.h"
 
@@ -118,7 +118,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 				BufferStringSet& anm)
 	: uiDialog(p,uiDialog::Setup("Open Attribute Set",
 	                             "Select an Attribute-Set to open",		                                      "100.0.0"))
-        , ctio_(*mGetCtxtIOObj(AttribDescSet,Attr))
+        , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, attribfiles_(afl)
 	, attribnames_(anm)
 {

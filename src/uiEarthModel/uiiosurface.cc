@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.65 2009-03-06 08:14:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.66 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -344,7 +344,7 @@ bool uiSurfaceWrite::processInput()
 	return false;
     }
 
-    if ( !objfld_->commitInput(true) )
+    if ( !objfld_->commitInput() )
     {
 	uiMSG().error( "Please select an output surface" );
 	return false;
@@ -453,7 +453,7 @@ void uiSurfaceRead::setIOObj( const MultiID& mid )
 
 bool uiSurfaceRead::processInput()
 {
-    if ( !objfld_->commitInput(false) )
+    if ( !objfld_->commitInput() )
     {
 	uiMSG().error( "Please select input" );
 	return false;

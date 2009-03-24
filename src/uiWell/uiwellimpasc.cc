@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.43 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.44 2009-03-24 12:33:52 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -196,7 +196,7 @@ bool uiWellImportAsc::checkInpFlds()
 	    return false;
     }
 
-    if ( !outfld->commitInput(true) )
+    if ( !outfld->commitInput() )
 	mErrRet( "Please select output" )
 
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.7 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.8 2009-03-24 12:33:52 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -269,7 +269,7 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 {
     if ( bparsfld_->fnm_.isEmpty() || sgypars_.isEmpty() )
 	mErrRet("Please define the input SEG-Y")
-    if ( !wellfld_->commitInput(false) )
+    if ( !wellfld_->commitInput() )
 	mErrRet("Please select the output well")
     const BufferString lognm( lognmfld_->text() );
     if ( lognm.isEmpty() )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.12 2009-01-15 07:05:52 cvsraman Exp $";
+static const char* rcsID = "$Id: uihorizonrelations.cc,v 1.13 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uihorizonrelations.h"
 
@@ -223,7 +223,7 @@ bool acceptOK( CallBacker* )
 	exec = emobj->saver();
     else
     {
-	if ( !objfld_->commitInput(true) )
+	if ( !objfld_->commitInput() )
 	    mErrRet("Please select output surface")
 
 	const MultiID& outmid = ctio_->ioobj->key();

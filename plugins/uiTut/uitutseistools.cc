@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.15 2009-01-06 10:10:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.16 2009-03-24 12:33:51 cvsbert Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -96,9 +96,9 @@ void uiTutSeisTools::choiceSel( CallBacker* )
 bool uiTutSeisTools::acceptOK( CallBacker* )
 {
     // Get cubes and check
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
 	mErrRet("Missing Input\nPlease select the input seismics")
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet("Missing Output\nPlease enter a name for the output seismics")
     else if ( outctio_.ioobj->implExists(false)
 	   && !uiMSG().askGoOn("Output cube exists. Overwrite?") )

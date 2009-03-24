@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobjfileman.cc,v 1.23 2009-03-20 09:21:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiobjfileman.cc,v 1.24 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "uiobjfileman.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: uiobjfileman.cc,v 1.23 2009-03-20 09:21:33 cvsb
 #include "filepath.h"
 #include "streamconn.h"
 #include "survinfo.h"
+#include "keystrs.h"
+#include "transl.h"
 
 #include "uilistbox.h"
 #include "uitextedit.h"
@@ -32,12 +34,10 @@ static const int cPrefWidth = 30;
 
 
 uiObjFileMan::uiObjFileMan( uiParent* p, const uiDialog::Setup& s,
-			    const IOObjContext& ctxt, const char* defky )
+			    const IOObjContext& ctxt )
     : uiDialog(p,s)
     , curioobj_(0)
     , ctxt_(*new IOObjContext(ctxt))
-    , defkey_(defky)
-    , mkdefbut(0)
 {
     setCtrlStyle( LeaveOnly );
 }
@@ -57,9 +57,8 @@ void uiObjFileMan::createDefaultUI()
     selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
     selgrp->getListField()->setHSzPol( uiObject::Medium );
 
-    if ( !defkey_.isEmpty() )
-	mkdefbut = selgrp->getManipGroup()->addButton( "makedefault.png",
-		mCB(this,uiObjFileMan,makeDefault), "Set as default" );
+    mkdefbut = selgrp->getManipGroup()->addButton( "makedefault.png",
+	    mCB(this,uiObjFileMan,makeDefault), "Set as default" );
 
     infofld = new uiTextEdit( this, "Object Info", true );
     infofld->attach( ensureBelow, selgrp );
@@ -74,8 +73,7 @@ void uiObjFileMan::selChg( CallBacker* cb )
     delete curioobj_;
     curioobj_ = selgrp->nrSel() > 0 ? IOM().get(selgrp->selected(0)) : 0;
     curimplexists_ = curioobj_ && curioobj_->implExists(true);
-    if ( mkdefbut )
-	mkdefbut->setSensitive( curimplexists_ );
+    mkdefbut->setSensitive( curimplexists_ );
 
     ownSelChg();
     if ( curioobj_ )
@@ -96,6 +94,15 @@ void uiObjFileMan::makeDefault( CallBacker* )
     SI().getPars().set( getDefKey(), curioobj_->key() );
     SI().savePars();
     selgrp->fullUpdate( curioobj_->key() );
+}
+
+
+const char* uiObjFileMan::getDefKey() const
+{
+    static BufferString ret;
+    ctxt_.fillTrGroup();
+    ret = IOPar::compKey(sKey::Default,ctxt_.trgroup->userName());
+    return ret.buf();
 }
 
 

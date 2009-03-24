@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.6 2008-12-24 08:02:16 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.7 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -94,7 +94,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 {
     if ( !seisselin_ ) return true;
 
-    seisselin_->commitInput( false );
+    seisselin_->commitInput();
     if ( !inctio_.ioobj )
 	mErrRet("Please provide the input seismic cube")
 
@@ -104,7 +104,7 @@ bool uiWriteFlattenedCube::acceptOK( CallBacker* )
     if ( !SI().zRange(false).includes(zval) )
 	mErrRet("Please provide a Z value inside the survey Z Range")
 
-    seisselout_->commitInput( true );
+    seisselout_->commitInput();
     if ( !outctio_.ioobj )
 	mErrRet("Please enter a name for the new cube")
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.7 2009-03-19 16:12:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.8 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uivelocityfunctionimp.h"
 
@@ -103,7 +103,7 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 
     sd.close();
 
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet( "Please select the output" )
 
     RefMan<StoredFunctionSource> functions = new StoredFunctionSource;

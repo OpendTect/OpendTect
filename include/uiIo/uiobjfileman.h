@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiobjfileman.h,v 1.8 2009-03-20 09:21:33 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.h,v 1.9 2009-03-24 12:33:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,7 @@ mClass uiObjFileMan : public uiDialog
 {
 public:
 				uiObjFileMan(uiParent*,const uiDialog::Setup&,
-					     const IOObjContext&,
-					     const char* survdefaultkey=0);
+					     const IOObjContext&);
 				~uiObjFileMan();
 
     static BufferString		getFileSizeString(double);
@@ -38,14 +37,13 @@ protected:
 
     IOObj*			curioobj_;
     IOObjContext&		ctxt_;
-    BufferString		defkey_;
     bool			curimplexists_;
 
     void			createDefaultUI();
     BufferString		getFileInfo();
-    virtual void		mkFileInfo()			=0;
+    virtual void		mkFileInfo()			= 0;
     virtual double		getFileSize(const char*,int&) const;
-    virtual const char*		getDefKey() const	{ return defkey_.buf();}
+    virtual const char*		getDefKey() const;
 
     void			selChg(CallBacker*);
     virtual void		ownSelChg()		{}

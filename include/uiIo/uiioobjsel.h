@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.60 2009-03-05 08:47:49 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.61 2009-03-24 12:33:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,11 +120,7 @@ protected:
     IOObj*		getIOObj(int);
 };
 
-/*! \brief Dialog for selection of IOObjs
-
-This class may be subclassed to make selection more specific.
-
-*/
+/*! \brief Dialog for selection of IOObjs */
 
 mClass uiIOObjSelDlg : public uiIOObjRetDlg
 {
@@ -153,6 +149,13 @@ protected:
 
 This class may be subclassed to make selection more specific.
 
+User gets the possibility to select an object of a certain type. On creation,
+the object makes a copy of your CtxtIOObj. When needed, you can do
+commitInput() to get the selection in your input CtxtIOObj;
+
+You *have* to do commitInput() to get any selection! Other functions like
+processInput() are special stuff for special situations.
+
 */
 
 mClass uiIOObjSel : public uiIOSelect
@@ -164,16 +167,28 @@ public:
     public:
 			Setup( const char* seltext=0 )
 			    : uiIOSelect::Setup(seltext)
-			    , confirmoverwr_(true)		{}
+			    , confirmoverwr_(true)
+			    , filldef_(true)		{}
 
 	mDefSetupMemb(bool,confirmoverwr)
+	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
     };
 
 			uiIOObjSel(uiParent*,CtxtIOObj&,const char* seltxt=0);
 			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
 			~uiIOObjSel();
 
-    bool		commitInput(bool mknew);
+    bool		commitInput();
+    CtxtIOObj&		ctxtIOObj( bool work=false )
+    					{ return work ? workctio_ : inctio_; }
+
+    virtual bool	fillPar(IOPar&,const char* compky=0) const;
+    virtual void	usePar(const IOPar&,const char* compky=0);
+
+    void		setForRead(bool);
+    void		setConfirmOverwrite( bool yn )
+					{ setup_.confirmoverwr_ = yn; }
+    void		setHelpID( const char* id ) { helpid_ = id; }
 
     virtual void	updateInput();	//!< updates from CtxtIOObj
     virtual void	processInput(); //!< Match user typing with existing
@@ -182,24 +197,12 @@ public:
 					{ return existingUsrName(getInput()); }
 					//!< returns false is typed input is
 					//!< not an existing IOObj name
-    CtxtIOObj&		ctxtIOObj()	{ return ctio_; }
-
-    virtual bool	fillPar(IOPar&,const char* compky=0) const;
-    virtual void	usePar(const IOPar&,const char* compky=0);
-
-    void		setForRead( bool yn )	{ ctio_.ctxt.forread = yn; }
-    void		setUnselectables( const ObjectSet<MultiID>& s )
-						{ deepCopy( unselabls_, s ); }
-
-    void		setHelpID( const char* id ) { helpid_ = id; }
-    void		setConfirmOverwrite( bool yn )
-						{ setup_.confirmoverwr_ = yn; }
 
 protected:
 
-    CtxtIOObj&		ctio_;
+    CtxtIOObj&		inctio_;
+    CtxtIOObj&		workctio_;
     Setup		setup_;
-    ObjectSet<MultiID>	unselabls_;
     BufferString	helpid_;
 
     void		doObjSel(CallBacker*);
@@ -207,6 +210,7 @@ protected:
     virtual const char*	userNameFromKey(const char*) const;
     virtual void	objSel();
 
+    void		fillDefault();
     virtual void	newSelection(uiIOObjRetDlg*)		{}
     virtual uiIOObjRetDlg* mkDlg();
     virtual IOObj*	createEntry(const char*);

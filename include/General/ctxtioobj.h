@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.32 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.33 2009-03-24 12:33:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,8 +116,6 @@ public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
 			: NamedObject(""), ctxt(ct), ioobj(o), iopar(0)
 			{ setLinked(&ctxt); }
-			CtxtIOObj(const IOObjContext&,IOObjContext::StdSelType);
-				//!< Calls fillIfOnlyOne
 			CtxtIOObj( const CtxtIOObj& ct )
 			: NamedObject(""), ctxt(ct.ctxt)
 			, ioobj(ct.ioobj?ct.ioobj->clone():0)
@@ -131,8 +129,13 @@ public:
     int			fillObj(bool mktmpifnew=false);
 			//!< If ioobj not valid, fills using ctxt.name()
 			//!< 0 = fail, 1=existing found, 2=new made
-    void		fillIfOnlyOne(IOObjContext::StdSelType);
+    void		fillIfOnlyOne();
 				//!< replaces ioobj if there's only one
+				//!< That one must match the preconditions
+    void		fillDefault(bool alsoifonlyone=true);
+				//!< gets Default.xx or does fillIfOnlyOne()
+    void		fillDefaultWithKey(const char*,bool alsoifonlyone=true);
+				//!< With alternate key
 
     IOObjContext	ctxt;
     IOObj*		ioobj;

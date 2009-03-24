@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtlocations.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtlocations.cc,v 1.6 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uigmtlocations.h"
 
@@ -64,7 +64,7 @@ void uiGMTLocationsGrp::reset()
 
 void uiGMTLocationsGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
 	return;
 
     IOObj* ioobj = ctio_.ioobj;
@@ -77,7 +77,7 @@ void uiGMTLocationsGrp::objSel( CallBacker* )
 
 bool uiGMTLocationsGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	mErrRet("Please select a pickset")
 
     inpfld_->fillPar( par );

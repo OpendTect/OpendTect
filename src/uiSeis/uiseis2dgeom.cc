@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.15 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uiseis2dgeom.cc,v 1.16 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
@@ -75,7 +75,7 @@ uiSeisDump2DGeom::~uiSeisDump2DGeom()
 
 void uiSeisDump2DGeom::seisSel( CallBacker* )
 {
-    seisfld->commitInput( false );
+    seisfld->commitInput();
     BufferStringSet lnms;
     if ( ctio.ioobj )
     {
@@ -89,7 +89,7 @@ void uiSeisDump2DGeom::seisSel( CallBacker* )
 
 bool uiSeisDump2DGeom::acceptOK( CallBacker* )
 {
-    if ( !seisfld->commitInput(false) )
+    if ( !seisfld->commitInput() )
     {
         uiMSG().error( "Please enter the input line set" );
         return false;

@@ -4,11 +4,12 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.40 2009-01-09 04:35:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.41 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "transl.h"
@@ -16,6 +17,8 @@ static const char* rcsID = "$Id: ctxtioobj.cc,v 1.40 2009-01-09 04:35:56 cvsnann
 #include "separstr.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "survinfo.h"
+#include "keystrs.h"
 
 static const char* sKeySelConstr = "Selection.Constraints";
 
@@ -304,25 +307,46 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 }
 
 
-CtxtIOObj::CtxtIOObj( const IOObjContext& ct, IOObjContext::StdSelType st )
-    : NamedObject(""), ctxt(ct), ioobj(0), iopar(0)
+void CtxtIOObj::fillIfOnlyOne()
 {
-    setLinked(&ctxt);
-    fillIfOnlyOne( st );
+    ctxt.fillTrGroup();
+
+    IOM().to( ctxt.getSelKey() );
+    const IODir& iodir = *IOM().dirPtr();
+    int ivalid = -1;
+    for ( int idx=0; idx<iodir.size(); idx++ )
+    {
+	if ( ctxt.validIOObj(*iodir[idx]) )
+	{
+	    if ( ivalid >= 0 )
+		return;
+	    else
+		ivalid = idx;
+	}
+    }
+
+    if ( ivalid >= 0 )
+	setObj( iodir[ivalid]->clone() );
 }
 
 
-void CtxtIOObj::fillIfOnlyOne( IOObjContext::StdSelType st )
+void CtxtIOObj::fillDefault( bool oone2 )
 {
-    if ( !ctxt.trgroup ) return;
-    IOM().to( MultiID(IOObjContext::getStdDirData(st)->id) );
-    IOObj* res = IOM().getIfOnlyOne(ctxt.trgroup->userName());
-    if ( !res ) return;
+    ctxt.fillTrGroup();
+    return fillDefaultWithKey(
+		IOPar::compKey(sKey::Default,ctxt.trgroup->userName().buf()),
+		oone2 );
+}
 
-    if ( ctxt.validIOObj(*res) )
-	setObj( res );
-    else
-	delete res;
+
+void CtxtIOObj::fillDefaultWithKey( const char* parky, bool oone2 )
+{
+    const char* kystr = SI().pars().find( parky );
+    if ( kystr && *kystr )
+	setObj( IOM().get(MultiID(kystr)) );
+
+    if ( !ioobj && oone2 )
+	fillIfOnlyOne();
 }
 
 

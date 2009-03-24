@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.20 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.21 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -155,7 +155,6 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
 {
     ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
     ctio_.ctxt.allowcnstrsabsent = false;
-    ctio_.fillIfOnlyOne( IOObjContext::Loc );
     polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon );
 
     uiGroup* attachobj = polyfld_;
@@ -237,7 +236,7 @@ void uiPolyPosProvGroup::setExtractionDefaults()
 
 bool uiPolyPosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !polyfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !polyfld_->commitInput() || !ctio_.ioobj )
 	return false;
     ky = ctio_.ioobj->key();
     return true;
@@ -261,7 +260,6 @@ uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    ctio_.fillIfOnlyOne( IOObjContext::Loc );
     const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
 
     selfld_ = new uiGenInput( this, "Data from",
@@ -330,7 +328,7 @@ void uiTablePosProvGroup::getSummary( BufferString& txt ) const
 
 bool uiTablePosProvGroup::getID( MultiID& ky ) const
 {
-    if ( !selfld_->getBoolValue() || !psfld_->commitInput(false) )
+    if ( !selfld_->getBoolValue() || !psfld_->commitInput() )
 	return false;
     ky = ctio_.ioobj->key();
     return true;

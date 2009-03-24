@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.21 2009-03-04 11:11:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrinpdlg.cc,v 1.22 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiattrinpdlg.h"
 
@@ -109,15 +109,15 @@ bool uiAttrInpDlg::acceptOK( CallBacker* )
 {
     if ( multiinpcube_ ) 
     {
-	if ( !inpfld_->commitInput( false ) )
+	if ( !inpfld_->commitInput() )
 	    mErrRetSelInp()
     }
     else
     {
-	if ( seisinpfld_ && !seisinpfld_->commitInput( false ) )
+	if ( seisinpfld_ && !seisinpfld_->commitInput() )
 	    mErrRetSelInp()
 
-	if ( steerinpfld_ && !steerinpfld_->commitInput( false ) )
+	if ( steerinpfld_ && !steerinpfld_->commitInput() )
 	    mErrRetSelInp()
     }
 

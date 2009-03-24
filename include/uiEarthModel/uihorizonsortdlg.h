@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2006
- RCS:           $Id: uihorizonsortdlg.h,v 1.4 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uihorizonsortdlg.h,v 1.5 2009-03-24 12:33:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,10 +21,12 @@ namespace EM { class Horizon; }
 
 class IOPar;
 class uiIOObjSelGrp;
+class CtxtIOObj;
 
 mClass uiHorizonSortDlg : public uiDialog
 {
 public:
+
 				uiHorizonSortDlg(uiParent*,bool is2d);
 				~uiHorizonSortDlg();
 
@@ -36,6 +38,7 @@ public:
     CubeSampling		getBoundingBox() const	{ return bbox_; }
 
 protected:
+
     bool			acceptOK(CallBacker*);
     void			getSelectedHorizons(TypeSet<MultiID>&) const;
 
@@ -43,6 +46,8 @@ protected:
 
     CubeSampling		bbox_;
     ObjectSet<EM::Horizon>	horizons_;
+    CtxtIOObj&			ctio_;
+
 };
 
 #endif

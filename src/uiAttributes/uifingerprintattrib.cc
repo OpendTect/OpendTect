@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 ________________________________________________________________________
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.53 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.54 2009-03-24 12:33:51 cvsbert Exp $";
 -*/
 
 #include "uifingerprintattrib.h"
@@ -102,7 +102,7 @@ class uiFPAdvancedDlg: public uiDialog
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.5")
-    , ctio_(*mGetCtxtIOObj(PickSet,Loc))
+    , ctio_(*mMkCtxtIOObj(PickSet))
     , refposfld_(0)
     , linesetfld_(0)
     , linefld_(0)
@@ -673,7 +673,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
        				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup("FingerPrint attribute advanced options",
 				   "Specify advanced options", "101.3.2") )
-    , ctio_(*mGetCtxtIOObj(PickSet,Loc))
+    , ctio_(*mMkCtxtIOObj(PickSet))
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", false );

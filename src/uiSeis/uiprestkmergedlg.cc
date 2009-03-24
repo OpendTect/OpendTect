@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.13 2009-02-05 06:04:03 cvsraman Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.14 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -217,7 +217,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	selobjs_ += ioobj;
     }
 
-    if ( !outpfld_->commitInput(true) )
+    if ( !outpfld_->commitInput() )
     {
 	uiMSG().error( "Please enter an output data set name" );
 	return false;
@@ -307,7 +307,7 @@ uiPreStackCopyDlg::~uiPreStackCopyDlg()
 
 void uiPreStackCopyDlg::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) || !inctio_.ioobj )
+    if ( !inpfld_->commitInput() || !inctio_.ioobj )
 	return;
 
     SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inctio_.ioobj );
@@ -326,13 +326,13 @@ void uiPreStackCopyDlg::objSel( CallBacker* )
 
 bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
     {
 	uiMSG().error( "Please select the input data set" );
 	return false;
     }
 
-    if ( !outpfld_->commitInput(true) )
+    if ( !outpfld_->commitInput() )
     {
 	uiMSG().error( "Please enter an output data set name" );
 	return false;

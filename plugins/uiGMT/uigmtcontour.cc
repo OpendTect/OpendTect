@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtcontour.cc,v 1.10 2009-01-30 07:01:54 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtcontour.cc,v 1.11 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uigmtcontour.h"
 
@@ -155,7 +155,7 @@ void uiGMTContourGrp::drawSel( CallBacker* )
 
 void uiGMTContourGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
 	return;
 
     IOObj* ioobj = ctio_.ioobj;
@@ -264,7 +264,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
 void uiGMTContourGrp::readCB( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
 	return;
 
     IOObj* ioobj = ctio_.ioobj;
@@ -355,7 +355,7 @@ bool uiGMTContourGrp::loadHor()
 
 bool uiGMTContourGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	mErrRet("Please select a Horizon")
 
     inpfld_->fillPar( par );

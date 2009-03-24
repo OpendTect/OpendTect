@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.60 2009-03-20 13:30:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.61 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -147,7 +147,7 @@ void uiAttrVolOut::attrSel( CallBacker* )
 
 bool uiAttrVolOut::prepareProcessing()
 {
-    if ( !objfld->commitInput(true) || !ctio.ioobj )
+    if ( !objfld->commitInput() || !ctio.ioobj )
     {
 	uiMSG().error( "Please enter an output Seismic data set name" );
 	return false;

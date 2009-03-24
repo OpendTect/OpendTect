@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.6 2008-12-24 04:48:44 cvsdgb Exp $";
+static const char* rcsID = "$Id: uigmtpolyline.cc,v 1.7 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uigmtpolyline.h"
 
@@ -81,7 +81,7 @@ void uiGMTPolylineGrp::reset()
 
 void uiGMTPolylineGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
 	return;
 
     IOObj* ioobj = ctio_.ioobj;
@@ -103,7 +103,7 @@ void uiGMTPolylineGrp::fillSel( CallBacker* )
 
 bool uiGMTPolylineGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	mErrRet("Please select a polygon")
 
     inpfld_->fillPar( par );

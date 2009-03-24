@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.10 2009-03-23 11:02:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.11 2009-03-24 12:33:52 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -171,7 +171,7 @@ const MultiID& uiChain::storageID() const
 
 bool uiChain::acceptOK(CallBacker*)
 {
-    if ( !objfld_->commitInput(true) )
+    if ( !objfld_->commitInput() )
     {
 	uiMSG().error( "Please enter a name for this builder setup" );
 	return false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.10 2009-03-18 17:52:57 cvskris Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.11 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -174,8 +174,7 @@ bool acceptOK( CallBacker* )
 	uiMSG().error( "Please select at least two sets" );
 	return false;
     }
-
-    if ( !outfld->commitInput(true) )
+    else if ( !outfld->commitInput() )
     {
 	uiMSG().error( "Cannot create the output set" );
 	return false;

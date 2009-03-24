@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackmute.cc,v 1.5 2008-08-15 12:21:29 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackmute.cc,v 1.6 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiprestackmute.h"
 
@@ -36,7 +36,7 @@ uiDialog* uiMute::create( uiParent* p, Processor* sgp )
 uiMute::uiMute( uiParent* p, Mute* sgmute )
     : uiDialog( p, uiDialog::Setup("Mute setup",0,"103.2.2") )
     , processor_( sgmute )
-    , ctio_( *mGetCtxtIOObj(MuteDef,Misc) )
+    , ctio_( *mMkCtxtIOObj(MuteDef) )
 {
     mutedeffld_ = new uiIOObjSel( this, ctio_ );
     topfld_ = new uiGenInput( this, "Mute type",
@@ -58,7 +58,7 @@ bool uiMute::acceptOK(CallBacker*)
 
     if ( mutedeffld_->isEmpty() )
 	processor_->setEmptyMute();
-    else if ( !mutedeffld_->commitInput(false) || !ctio_.ioobj )
+    else if ( !mutedeffld_->commitInput() || !ctio_.ioobj )
     {
 	uiMSG().error("Cannot find mute");
 	return false;

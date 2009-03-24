@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmt2dlines.cc,v 1.6 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uigmt2dlines.h"
 
@@ -106,7 +106,7 @@ void uiGMT2DLinesGrp::reset()
 
 void uiGMT2DLinesGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	return;
 
     namefld_->setText( ctio_.ioobj->name() );
@@ -132,7 +132,7 @@ void uiGMT2DLinesGrp::labelSel( CallBacker* )
 
 bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
 {
-    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+    if ( !inpfld_->commitInput() || !ctio_.ioobj )
 	mErrRet("Please select a lineset")
 
     if ( !linelistfld_->nrSelected() )

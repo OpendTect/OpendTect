@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismulticubeps.cc,v 1.6 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uiseismulticubeps.h"
 #include "uilistbox.h"
@@ -206,7 +206,7 @@ void uiSeisMultiCubePS::fullUpdate()
 bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 {
     recordEntryOffs();
-    if ( !outfld_->commitInput(true) )
+    if ( !outfld_->commitInput() )
 	mErrRet("Please enter the output name")
 
     for ( int idx=0; idx<selentries_.size(); idx++ )

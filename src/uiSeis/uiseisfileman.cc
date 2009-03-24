@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.82 2009-03-20 09:21:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.83 2009-03-24 12:33:51 cvsbert Exp $";
 
 
 #include "uiseisfileman.h"
@@ -50,8 +50,7 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
                                      "Manage seismic data",
                                      "103.1.0").nrstatusflds(1),
-	    	   SeisTrcTranslatorGroup::ioContext(),
-		   SI().has3D() ? sKey::DefCube : sKey::DefLineSet)
+	    	   SeisTrcTranslatorGroup::ioContext())
 {
     ctxt_.trglobexpr = "CBVS`2D";
     createDefaultUI();

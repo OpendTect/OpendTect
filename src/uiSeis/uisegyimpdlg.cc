@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.16 2009-03-16 12:54:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyimpdlg.cc,v 1.17 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uisegyimpdlg.h"
 
@@ -230,7 +230,7 @@ bool doImp( const FilePath& fp )
 
 bool uiSEGYImpDlg::doWork( const IOObj& inioobj )
 {
-    if ( !seissel_->commitInput(true) )
+    if ( !seissel_->commitInput() )
     {
 	uiMSG().error( "Please select the output data" );
 	return false;

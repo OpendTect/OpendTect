@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.7 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.8 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -114,7 +114,7 @@ void uiStratAmpCalc::inpSel( CallBacker* )
 
 void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
 {
-    if ( inpfld_->commitInput(false) )
+    if ( inpfld_->commitInput() )
     {
 	SeisIOObjInfo info( *seisctio_.ioobj );
 	CubeSampling cs;
@@ -122,14 +122,14 @@ void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
 	hs.limitTo( cs.hrg );
     }
 
-    if ( horfld1_->commitInput(false) )
+    if ( horfld1_->commitInput() )
     {
 	EM::SurfaceIOData sd;
 	EM::EMM().getSurfaceData( horctio1_.ioobj->key(), sd );
 	hs.limitTo( sd.rg );
     }
 
-    if ( horfld2_->commitInput(false) )
+    if ( horfld2_->commitInput() )
     {
 	EM::SurfaceIOData sd;
 	EM::EMM().getSurfaceData( horctio2_.ioobj->key(), sd );
@@ -142,14 +142,14 @@ void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
 
 bool uiStratAmpCalc::checkInpFlds()
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput() )
 	mErrRet( "Missing Input\nPlease select the input seismics" );
     
-    if ( usesingle_ && !horfld1_->commitInput(false) )
+    if ( usesingle_ && !horfld1_->commitInput() )
 	mErrRet( "Missing Input\nPlease select the input Horizon" );
     if ( !usesingle_ )
     {
-	if ( !horfld1_->commitInput(false) || !horfld2_->commitInput(false) )
+	if ( !horfld1_->commitInput() || !horfld2_->commitInput() )
 	    mErrRet( "Missing Input\nPlease Check Top / Bottom Horizon" );
     }
 

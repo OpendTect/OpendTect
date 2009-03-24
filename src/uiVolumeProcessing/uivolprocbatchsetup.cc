@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.4 2009-03-19 16:12:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.5 2009-03-24 12:33:52 cvsbert Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -29,8 +29,8 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf,
 	    uiFullBatchDialog::Setup("Volume Processing output")
 	    .procprognm("process_volume" ) )
     , extraomf_( extraomf )
-    , setupctxt_(*mGetCtxtIOObj(VolProcessing,Misc))
-    , outputctxt_(*mMkCtxtIOObj(SeisTrc))
+    , setupctxt_(*mMkCtxtIOObj(VolProcessing))
+    , outputctxt_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
 {
     setCtrlStyle( DoAndStay );
     if ( initialioobj )
@@ -42,7 +42,6 @@ VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf,
     possubsel_ = new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,true) );
     possubsel_->attach( alignedBelow, setupsel_ );
 
-    outputctxt_.ctxt.forread = false;
     outputsel_ = new uiSeisSel( uppgrp_, outputctxt_,
 	    			uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, possubsel_ );
@@ -70,13 +69,13 @@ VolProc::uiBatchSetup::~uiBatchSetup()
 
 bool VolProc::uiBatchSetup::prepareProcessing()
 {
-    if ( !setupsel_->commitInput(true) )
+    if ( !setupsel_->commitInput() )
     {
 	uiMSG().error("Please select a setup");
 	return false;
     }
 
-    if ( !outputsel_->commitInput(true) )
+    if ( !outputsel_->commitInput() )
     {
 	uiMSG().error("Please enter an output name");
 	return false;
@@ -132,7 +131,7 @@ void VolProc::uiBatchSetup::outTypChg( CallBacker* )
 
 void VolProc::uiBatchSetup::outSel( CallBacker* )
 {
-    if ( !outputsel_->commitInput(true) || !outputctxt_.ioobj ) return;
+    if ( !outputsel_->commitInput() || !outputctxt_.ioobj ) return;
     VelocityDesc vd;
     const bool isvel = vd.usePar( outputctxt_.ioobj->pars() );
     uiveldesc_->set( vd );

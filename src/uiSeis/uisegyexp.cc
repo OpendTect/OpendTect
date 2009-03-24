@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.13 2009-03-16 12:54:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.14 2009-03-24 12:33:51 cvsbert Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -356,7 +356,7 @@ bool doExp( const FilePath& fp )
 
 bool uiSEGYExp::acceptOK( CallBacker* )
 {
-    if ( !seissel_->commitInput(false) )
+    if ( !seissel_->commitInput() )
     {
 	uiMSG().error( "Please select the data to export" );
 	return false;
