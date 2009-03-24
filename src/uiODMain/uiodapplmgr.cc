@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.313 2009-03-24 15:51:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.314 2009-03-24 16:28:02 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -15,30 +15,27 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.313 2009-03-24 15:51:31 cvsb
 #include "uiodmenumgr.h"
 #include "uiodtreeitem.h"
 
-#include "uibatchprestackproc.h"
 #include "uiconvpos.h"
 #include "uicolortable.h"
 #include "mousecursor.h"
+#include "uiimphorizon2d.h"
+#include "vishorizondisplay.h"
+#include "vispicksetdisplay.h"
+#include "vispolylinedisplay.h"
+#include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
+
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
 #include "uimpepartserv.h"
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
-#include "uiimphorizon2d.h"
 #include "uinlapartserv.h"
-#include "uiprestackimpmute.h"
-#include "uiprestackexpmute.h"
 #include "uiseispartserv.h"
 #include "uitaskrunner.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
-#include "vishorizondisplay.h"
-#include "vispicksetdisplay.h"
-#include "vispolylinedisplay.h"
-#include "visrandomtrackdisplay.h"
-#include "visseis2ddisplay.h"
-#include "uivelocityfunctionimp.h"
 
 #include "attribdescset.h"
 #include "attribdatacubes.h"
@@ -50,7 +47,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.313 2009-03-24 15:51:31 cvsb
 #include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emseedpicker.h"
-#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "errh.h"
 #include "externalattrib.h"
@@ -79,7 +75,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.313 2009-03-24 15:51:31 cvsb
 #include "uipluginman.h"
 #include "uishortcuts.h"
 #include "uistereodlg.h"
-#include "uistrattreewin.h"
 #include "uisurvey.h"
 #include "uitoolbar.h"
 #include "uiodemsurftreeitem.h"
@@ -95,6 +90,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
 	, convertposdlg_( 0 )				
+	, dispatcher_(*new uiODApplMgrBasicDispatcher(*this,&appl_))
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
@@ -127,6 +123,7 @@ uiODApplMgr::~uiODApplMgr()
     delete wellserv_;
     delete wellattrserv_;
     delete &applservice_;
+    delete &dispatcher_;
 }
 
 
@@ -199,154 +196,13 @@ bool uiODApplMgr::editNLA( bool is2d )
 
 void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 {
-    switch ( ot )
-    {
-    case Seis:
-	switch ( at )
-	{
-	case Imp:	seisserv_->importSeis( opt );	break;
-	case Exp:	seisserv_->exportSeis( opt );	break;
-	case Man:	seisserv_->manageSeismics();	break;
-	}
-    break;
-    case Hor:
-	switch ( at )
-	{
-	case Imp:	
-	    if ( opt == 0 )
-		emserv_->import3DHorizon( true );
-	    else if ( opt == 1 )
-		emserv_->import3DHorizon( false );
-	    else if ( opt == 2 )
-		emattrserv_->import2DHorizon();
-	    break;
-	case Exp:
-	    if ( opt == 0 )
-		emserv_->export3DHorizon();
-	    else if ( opt == 1 )
-		emserv_->export2DHorizon();
-	    break;
-	case Man:
-	    if ( opt == 0 )
-		emserv_->manageSurfaces(
-				 EMAnyHorizonTranslatorGroup::keyword() );
-	    else if ( opt == 1 )
-		emserv_->manageSurfaces( EMHorizon2DTranslatorGroup::keyword());
-	    else if ( opt == 2 )
-		emserv_->manageSurfaces( EMHorizon3DTranslatorGroup::keyword());
-	    break;
-	}
-    break;
-    case Flt:
-	switch( at )
-	{
-	case Imp:
-	    if ( opt == 0 )
-		emserv_->importFault( EMFault3DTranslatorGroup::keyword() );
-	    else if ( opt == 1 )
-		emserv_->importFault(EMFaultStickSetTranslatorGroup
-				     ::keyword() );
-	    else if ( opt == 2 )
-		emattrserv_->import2DFaultStickset(
-			     EMFaultStickSetTranslatorGroup::keyword() );
-	    break;
-	case Exp:
-	    if ( opt == 0 )
-		emserv_->exportFault( EMFault3DTranslatorGroup::keyword() );
-	    else if ( opt == 1 )
-		emserv_->exportFault(EMFaultStickSetTranslatorGroup::keyword());
-	    break;
-	case Man:
-	    if ( opt == 0 ) opt = SI().has3D() ? 2 : 1;
-	    if ( opt == 1 )
-		emserv_->manageSurfaces(
-				    EMFaultStickSetTranslatorGroup::keyword() );
-	    else if ( opt == 2 )
-		emserv_->manageSurfaces( EMFault3DTranslatorGroup::keyword() );
-	    break;
-	}
-    break;
-    case Wll:
-	switch ( at )
-	{
-	case Imp:
-	    if ( opt == 0 )
-		wellserv_->importTrack();
-	    else if ( opt == 1 )
-		wellserv_->importLogs();
-	    else if ( opt == 2 )
-		wellserv_->importMarkers();
-	    else if ( opt == 3 )
-		wellattrserv_->importSEGYVSP();
-
-	break;
-	case Man:	wellserv_->manageWells();	break;
-	}
-    break;
-    case Attr:
-	if ( at == Man ) attrserv_->manageAttribSets();
-    break;
-    case Pick:
-	switch ( at )
-	{
-	case Imp:	pickserv_->impexpSet( true );	break;
-	case Exp:	pickserv_->impexpSet( false );	break;
-	case Man:	pickserv_->managePickSets();	break;
-	}
-    break;
-    case Wvlt:
-	switch ( at )
-	{
-	case Imp:	seisserv_->importWavelets();	break;
-	default:	seisserv_->manageWavelets();	break;
-	}
-    break;
-    case MDef:
-        if ( at == Imp )
-	{
-	    PreStack:: uiImportMute dlgimp( &appl_ );
-	    dlgimp.go();
-	}
-
-	if ( at == Exp )
-	{
-	    PreStack::uiExportMute dlgexp( &appl_ );
-	    dlgexp.go();
-	}
-    break;
-    case Vel:
-        if ( at == Imp)
-	{
-	    Vel::uiImportVelFunc dlgvimp( &appl_ );
-	    dlgvimp.go();
-	}
-    break;
-    case Strat:
-	switch ( at )
-	{
-	default:	manStrat();	break;
-	}
-    break;
-    }
-}
-
-
-void uiODApplMgr::manStrat()
-{
-    StratTWin().popUp();
+    dispatcher_.doOperation( (int)ot, (int)at, opt );
 }
 
 
 void uiODApplMgr::manPreLoad( ObjType ot )
 {
-    switch ( ot )
-    {
-    case Seis:
-	seisserv_->managePreLoad();
-    break;
-    default:
-    break;
-    }
+    dispatcher_.manPreLoad( (int)ot );
 }
 
 
@@ -439,8 +295,7 @@ void uiODApplMgr::processTime2Depth( CallBacker* )
 
 void uiODApplMgr::processPreStack( CallBacker* )
 {
-    PreStack::uiBatchProcSetup dlg( &appl_, false );
-    dlg.go();
+    dispatcher_.processPreStack();
 }
 
 
