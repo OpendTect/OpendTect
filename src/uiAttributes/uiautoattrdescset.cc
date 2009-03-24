@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.5 2008-11-25 15:35:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiautoattrdescset.cc,v 1.6 2009-03-24 04:46:13 cvsraman Exp $";
 
 #include "uiautoattrdescset.h"
 
@@ -88,7 +88,7 @@ bool uiAutoAttrSelDlg::useAuto()
 
 bool uiAutoAttrSelDlg::loadAuto()
 {
-    return loadbutton_->isChecked();
+    return useAuto() && loadbutton_->isChecked();
 }
 
 
@@ -97,6 +97,7 @@ void uiAutoAttrSelDlg::useChg( CallBacker* )
     const bool douse = usefld_->getBoolValue();
     selgrp_->display( douse );
     lbl_->display( douse );
+    loadbutton_->display( douse );
 }
 
 
