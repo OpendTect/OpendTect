@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.2 2009-03-23 11:02:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocvolreader.cc,v 1.3 2009-03-24 13:20:29 cvsbert Exp $";
 
 #include "uivolprocvolreader.h"
 #include "uimsg.h"
@@ -57,7 +57,7 @@ void uiVolumeReader::volSel( CallBacker* )
     if ( !*namefld_->text() )
     {
 	seissel_->processInput();
-	const IOObj* ioobj = seissel_->ctxtIOObj().ioobj;
+	const IOObj* ioobj = seissel_->ctxtIOObj(true).ioobj;
 	if ( ioobj )
 	    namefld_->setText( ioobj->name() );
     }
@@ -79,13 +79,13 @@ bool uiVolumeReader::acceptOK( CallBacker* cb )
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    if ( !seissel_->existingTyped() )
+    if ( !seissel_->commitInput() )
     {
-	uiMSG().error("Non-existing volume selected");
+	uiMSG().error("Please selectthe input velocity volume");
 	return false;
     }
 
-    if ( !volumereader_->setVolumeID( seissel_->ctxtIOObj().ioobj->key() ) )
+    if ( !volumereader_->setVolumeID( ctio_->ioobj->key() ) )
     {
 	uiMSG().error("Cannot use selected volume" );
 	return false;
