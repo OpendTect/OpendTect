@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.101 2009-03-06 16:09:51 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.102 2009-03-24 14:44:33 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -162,6 +162,8 @@ public:
     virtual bool		swapAttribs(int a0,int a1) { return false; }
     virtual void		setAttribTransparency(int,unsigned char) {}	
     virtual unsigned char	getAttribTransparency(int) const { return 0; }
+    virtual const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
+	    						     int version) const;
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
     virtual void		setColTabMapperSetup(int,
 						 const ColTab::MapperSetup&);

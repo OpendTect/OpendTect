@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.311 2009-03-19 13:27:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.312 2009-03-24 14:44:34 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
@@ -1595,7 +1595,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int attrnr =
 	    visserv_->getSelAttribNr()==-1 ? 0 : visserv_->getSelAttribNr();
 	visserv_->selectTexture( visid, attrnr, sliceidx );
-	modifyColorTable( visid, attrnr );
+	const int nrslices = attrserv_->getTargetSelSpecs().size();
+
+	modifyColorTable( visid, attrnr, nrslices/2 );
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evEvalStoreSlices() )
@@ -1660,7 +1662,7 @@ void uiODApplMgr::pageUpDownPressed( bool pageup )
 }
 
 
-void uiODApplMgr::modifyColorTable( int visid, int attrib )
+void uiODApplMgr::modifyColorTable( int visid, int attrib, int coltabrefattrib )
 {
     if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	return;
@@ -1669,7 +1671,7 @@ void uiODApplMgr::modifyColorTable( int visid, int attrib )
     coltabattribnr_ = attrib;
 
     appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	true, visserv_->getColTabMapperSetup(visid,attrib),
+	true, visserv_->getColTabMapperSetup(visid,attrib,coltabrefattrib),
 	visserv_->canHandleColTabSeqTrans(visid,attrib));
 
     setHistogram( visid, attrib );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.21 2009-02-17 14:21:03 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.22 2009-03-24 14:44:33 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -76,6 +76,8 @@ public:
     const TypeSet<float>*	getHistogram(int) const;
     int				getColTabID(int) const;
 
+    const ColTab::MapperSetup*	getColTabMapperSetup(int attrib,
+	    					     int version) const;
     const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
     void			setColTabMapperSetup(int,
 	    				const ColTab::MapperSetup&);

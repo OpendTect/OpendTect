@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.409 2009-03-06 16:09:51 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.410 2009-03-24 14:44:34 cvshelene Exp $";
 
 #include "uivispartserv.h"
 
@@ -758,10 +758,11 @@ void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
 
 
 const ColTab::MapperSetup*
-    uiVisPartServer::getColTabMapperSetup( int id, int attrib ) const
+    uiVisPartServer::getColTabMapperSetup( int id, int attrib, 
+	    				   int version ) const
 {
     mDynamicCastGet( const visSurvey::SurveyObject*,so,getObject(id));
-    return so ? so->getColTabMapperSetup( attrib ) : 0;
+    return so ? so->getColTabMapperSetup( attrib, version ) : 0;
 }
 
 

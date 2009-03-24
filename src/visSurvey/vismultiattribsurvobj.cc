@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.28 2009-02-17 14:21:03 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.29 2009-03-24 14:44:34 cvshelene Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -451,17 +451,28 @@ void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
 const ColTab::MapperSetup*
 MultiTextureSurveyObject::getColTabMapperSetup( int attrib ) const
 {
+    return getColTabMapperSetup( attrib, mUdf(int) );
+}
+
+
+const ColTab::MapperSetup*
+MultiTextureSurveyObject::getColTabMapperSetup( int attrib, int version ) const
+{
     if ( attrib<0 || attrib>=nrAttribs() )
 	return 0;
 
     if ( texture_ )
     {
+	//TODO: could it be handy to use other version than the current one?
 	const visBase::VisColorTab& vt = texture_->getColorTab( attrib );
 	return &vt.colorMapper().setup_;
     }
 
-    return &channels_->getColTabMapperSetup( attrib,
-	    channels_->currentVersion( attrib ) );
+    if ( mIsUdf(version) || version<0
+	    		 || version >= channels_->nrVersions(attrib) )
+	version = channels_->currentVersion( attrib );
+
+    return &channels_->getColTabMapperSetup( attrib, version );
 }
 
 
