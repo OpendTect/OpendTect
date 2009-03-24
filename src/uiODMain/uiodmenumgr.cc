@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.162 2009-03-24 12:11:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.163 2009-03-24 15:51:31 cvsbert Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -425,11 +425,9 @@ void uiODMenuMgr::updateSceneMenu()
 			  mSceneSelMnuItm+idx );    
     }
 
-    BufferString timedepth( "New " );
-    timedepth += SI().zIsTime() ? "depth" : "time";
-    timedepth += " scene";
-
-    addtimedepthsceneitm_->setText( timedepth.buf() );
+    BufferString itmtxt( "New [" );
+    itmtxt += SI().zIsTime() ? "&Depth]" : "T&ime]";
+    addtimedepthsceneitm_->setText( itmtxt );
 }
 
 

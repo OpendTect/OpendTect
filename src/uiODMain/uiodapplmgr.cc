@@ -2,14 +2,15 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        A.H. Bril
+ Author:        Bert
  Date:          Feb 2002
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.312 2009-03-24 14:44:34 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.313 2009-03-24 15:51:31 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
+#include "uiodapplmgraux.h"
 #include "uiodscenemgr.h"
 #include "uiodmenumgr.h"
 #include "uiodtreeitem.h"
@@ -30,7 +31,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.312 2009-03-24 14:44:34 cvsh
 #include "uiprestackexpmute.h"
 #include "uiseispartserv.h"
 #include "uitaskrunner.h"
-#include "uivelocityfunctionimp.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vishorizondisplay.h"
@@ -38,6 +38,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.312 2009-03-24 14:44:34 cvsh
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
+#include "uivelocityfunctionimp.h"
 
 #include "attribdescset.h"
 #include "attribdatacubes.h"
@@ -68,7 +69,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.312 2009-03-24 14:44:34 cvsh
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "survinfo.h"
-#include "timedepthconv.h"
 
 #include "uiattribcrossplot.h"
 #include "uibatchlaunch.h"
@@ -84,28 +84,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.312 2009-03-24 14:44:34 cvsh
 #include "uitoolbar.h"
 #include "uiodemsurftreeitem.h"
 #include "uiviscoltabed.h"
-#include "uiveldesc.h"
-#include "veldesc.h"
 
-#include <iostream>
-
-static BufferString retstr;
-
-class uiODApplService : public uiApplService
-{
-public:
-			uiODApplService( uiParent* p, uiODApplMgr& am )
-			: par_(p), applman_(am)	{}
-    uiParent*		parent() const		{ return par_; }
-    bool		eventOccurred( const uiApplPartServer* ps, int evid )
-			{ return applman_.handleEvent( ps, evid ); }
-    void*		getObject( const uiApplPartServer* ps, int evid )
-			{ return applman_.deliverObject( ps, evid ); }
-
-    uiODApplMgr&	applman_;
-    uiParent*		par_;
-
-};
 
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
@@ -519,87 +498,16 @@ void uiODApplMgr::setStereoOffset()
 
 void uiODApplMgr::addTimeDepthScene()
 {
-    CtxtIOObj ctxt( uiVelSel::ioContext() );
-    ctxt.ctxt.forread = true;
+    uiODApplMgrVelSel dlg( &appl_ );
+    if ( !dlg.go() ) return;
 
-    const char* txt = "Select velocity model";
-    uiDialog::Setup dlgsetup( txt, txt, "base: 0.4.7" );
-    uiDialog dlg( &appl_, dlgsetup );
-    
-    uiSeisSel::Setup selsetup( false, false );
-    selsetup.seltxt("Velocity model");
-    uiVelSel* velsel = new uiVelSel( &dlg, ctxt, selsetup );
-
-    while ( dlg.go() )
+    const BufferString snm( "Converted using '", dlg.ctio_.ioobj->name(), "'" );
+    const int sceneid = sceneMgr().addScene( false, dlg.transform(), snm );
+    if ( sceneid != -1 )
     {
-	if ( !velsel->ctxtIOObj().ioobj )
-	{
-	    uiMSG().error("No model selected");
-	    continue;
-	}
-
-	VelocityDesc desc;
-
-	if ( !desc.usePar( velsel->ctxtIOObj().ioobj->pars() ) )
-	{
-	    uiMSG().error("Cannot read velocity information for "
-		    	  "selected model");
-	    continue;
-	}
-
-	RefMan<VelocityStretcher> trans = 0;
-	float zscale;
-	if ( SI().zIsTime() ) 
-	    // TODO: Should really depend on z-domain of model, not
-	    // the survey.
-	{
-	    if ( desc.type_!=VelocityDesc::Interval &&
-		 desc.type_!=VelocityDesc::RMS )
-	    {
-		uiMSG().error("Only RMS and Interval velocity are allowed for "
-			      "time based models");
-		continue;
-	    }
-
-	    trans = new Time2DepthStretcher();
-	    zscale = SurveyInfo::defaultXYtoZScale( SurveyInfo::Meter,
-		    				    SI().xyUnit() );
-	}
-	else
-	{
-	    if ( desc.type_!=VelocityDesc::Interval )
-	    {
-		uiMSG().error("Only Interval velocity are allowed for "
-			      "depth based models");
-		continue;
-	    }
-
-	    trans = new Depth2TimeStretcher();
-	    zscale = SurveyInfo::defaultXYtoZScale( SurveyInfo::Second,
-		    				    SI().xyUnit() );
-	}
-
-	if ( !trans->setVelData( velsel->ctxtIOObj().ioobj->key() ) || 
-	     !trans->isOK() )
-	{
-	    uiMSG().error("Internal: Could not initialize transform");
-	    continue;
-	}
-
-	BufferString scenename = "Converted with ";
-	scenename += velsel->ctxtIOObj().ioobj->name();
-
-	const int sceneid = sceneMgr().addScene(false,trans,scenename.buf());
-	if ( sceneid!=-1 )
-	{
-	    mDynamicCastGet( visSurvey::Scene*, scene,
-		    	     visserv_->getObject(sceneid) );
-	    scene->setZScale( zscale );
-	    sceneMgr().viewAll( 0 );
-	    sceneMgr().tile();
-	}
-
-	return;
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneid) );
+	scene->setZScale( dlg.zScale() );
+	sceneMgr().viewAll( 0 ); sceneMgr().tile();
     }
 }
 
