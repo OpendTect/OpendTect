@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrsel.cc,v 1.40 2009-03-04 11:11:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrsel.cc,v 1.41 2009-03-25 08:25:24 cvsnanne Exp $";
 
 #include "uiattrsel.h"
 #include "attribdescset.h"
@@ -128,7 +128,8 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 		attrcur = attrinf_->attrnms.indexOf( desc->userRef() );
 	    else if ( storoutfld_ )
 	    {
-		storcur = attrinf_->ioobjnms.indexOf( desc->userRef() );
+		LineKey lk( desc->userRef() );
+		storcur = attrinf_->ioobjnms.indexOf( lk.lineName() );
 		//2D attrib is set in cubeSel, called from doFinalize
 	    }
 	}
