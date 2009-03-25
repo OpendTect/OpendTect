@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.19 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.20 2009-03-25 07:01:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,9 +79,11 @@ protected:
 mClass uiCopySurface : public uiDialog
 {
 public:
-    			uiCopySurface(uiParent*,const IOObj&);
+    			uiCopySurface(uiParent*,const IOObj&,
+				      bool withattr = true);
 			~uiCopySurface();
 
+    void		setInputKey(const char* key);
 protected:
     uiSurfaceRead*	inpfld;
     uiIOObjSel*		outfld;

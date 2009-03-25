@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.37 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.38 2009-03-25 07:01:23 cvssatyaki Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -150,12 +150,12 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 
 
-uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj )
+uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj, bool wattr )
     : uiDialog(p,Setup("Copy surface",mNoDlgTitle,"104.0.0"))
     , ctio_(*mkCtxtIOObj(ioobj))
 {
     inpfld = new uiSurfaceRead( this,
-	    uiSurfaceRead::Setup(ioobj.group()).withattribfld(true)
+	    uiSurfaceRead::Setup(ioobj.group()).withattribfld(wattr)
 	   				       .withsubsel(true) );
     inpfld->setIOObj( ioobj.key() );
 
@@ -183,6 +183,12 @@ CtxtIOObj* uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
     if ( !strcmp(ioobj.group(),EM::Fault3D::typeStr()) )
 	return mMkCtxtIOObj( EMFault3D );
     return 0;
+}
+
+
+void uiCopySurface::setInputKey( const char* key )
+{
+    inpfld->getObjSel()->ctxtIOObj().ctxt.trglobexpr = key;
 }
 
 

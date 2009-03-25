@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.9 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.10 2009-03-25 07:01:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ public:
     BufferStringSet	sections;
 
     BufferStringSet	linenames;		// 2D only
-    TypeSet<Interval<int> >	trcranges;	// 2D only
+    BufferStringSet	linesets;		// 2D only
+    TypeSet<StepInterval<int> >	trcranges;	// 2D only
 };
 
 
@@ -59,7 +60,7 @@ public:
     TypeSet<int>		selsections; // Indexes in sd.sections
 
     BufferStringSet		sellinenames;
-    TypeSet<Interval<int> >	seltrcranges;
+    TypeSet<StepInterval<int> >	seltrcranges;
 
     void			setDefault(); // selects all
 };

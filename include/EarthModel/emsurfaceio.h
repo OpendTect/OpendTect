@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.31 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.32 2009-03-25 07:01:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -94,8 +94,13 @@ public:
     void			setColInterval(const StepInterval<int>&);
     void			setReadOnlyZ(bool yn=true);
     void 			setLineNames(const BufferStringSet&);
-    void			setLinesTrcRngs(const TypeSet<Interval<int> >&);
+    void			setLinesTrcRngs(
+	    				const TypeSet<StepInterval<int> >&);
 
+    int				nrLines() const;
+    BufferString		lineName(int) const;
+    BufferString		lineSet(int) const;
+    StepInterval<int>		lineTrcRanges( int idx ) const;
     const IOPar*		pars() const;
 
     virtual od_int64		nrDone() const;
@@ -121,6 +126,9 @@ public:
     static const char*		sKeyFloatDataChar();
     static const char*		sKeyDBInfo();
     static const char*		sKeyVersion();
+    static const char*		sKeyLineSets();
+    static const char*		sKeyLineIDs();
+    static const char*		sKeyTraceRange();
 
     static const char*		sMsgParseError();
     static const char*		sMsgReadError();
@@ -148,6 +156,8 @@ protected:
     StreamConn*			conn_;
 
     BufferStringSet		sectionnames_;
+    BufferStringSet		linenames_;
+    BufferStringSet		linesets_;
     TypeSet<EM::SectionID>	sectionids_;
     TypeSet<EM::SectionID>	sectionsel_;
     bool			fullyread_;
@@ -208,8 +218,8 @@ protected:
     double			conv11, conv12, conv13, conv21, conv22, conv23;
 
 // for loading horizon based on Lines trace range
-   const BufferStringSet*	linenames_;
-   const TypeSet< Interval<int> >*    linestrcrgs_; 
+   const BufferStringSet*	readlinenames_;
+   const TypeSet< StepInterval<int> >* linestrcrgs_; 
    static const char*         	linenamesstr_;  
 };
 

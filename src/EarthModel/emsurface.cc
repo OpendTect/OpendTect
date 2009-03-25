@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurface.cc,v 1.90 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.91 2009-03-25 07:01:23 cvssatyaki Exp $";
 
 #include "emsurface.h"
 
 #include "cubesampling.h"
+#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
@@ -20,6 +21,7 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.90 2008-11-25 15:35:22 cvsbert
 #include "emsurfaceauxdata.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "iopar.h"
 
 
@@ -38,6 +40,9 @@ void SurfaceIOData::clear()
     dbinfo = "";
     deepErase(valnames);
     deepErase(sections);
+    deepErase(linenames);
+    deepErase(linesets);
+    trcranges.erase();
 }
 
 
@@ -65,6 +70,23 @@ void SurfaceIOData::use( const Surface& surf )
 	for ( int idx=0; idx<horizon->auxdata.nrAuxData(); idx++ )
 	    valnames += new BufferString( horizon->auxdata.auxDataName(idx) );
     }
+   
+    linenames.erase();
+    linesets.erase();
+    trcranges.erase();
+    mDynamicCastGet(const Horizon2D*,horizon2d,&surf);
+    if ( horizon2d )
+    {
+	for ( int idx=0; idx<horizon2d->geometry().nrLines(); idx++ )
+	{
+	    linenames.add( horizon2d->geometry().lineName(idx) );
+	    linesets.add( horizon2d->geometry().lineSet(idx) );
+	    const Geometry::Horizon2DLine* geom =
+		horizon2d->geometry().sectionGeometry(
+			horizon2d->geometry().sectionID(0) );
+	    trcranges += geom->colRange( horizon2d->geometry().lineID(idx) );
+	}
+    }
 }
 
 
@@ -83,6 +105,20 @@ void SurfaceIOData::fillPar( IOPar& iopar ) const
     IOPar sectionpar;
     sections.fillPar( sectionpar );
     iopar.mergeComp( sectionpar, sSections );
+    
+    IOPar linenamespar;
+    linenames.fillPar( linenamespar );
+    iopar.mergeComp( linenamespar, Horizon2DGeometry::sKeyLineNames() );
+
+    for ( int idx=0; idx<linesets.size(); idx++ )
+    {
+	BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
+	BufferString trcrangekey = Horizon2DGeometry::sKeyTraceRange();
+	linesetkey += idx;
+	trcrangekey += idx;
+	iopar.set( linesetkey, linesets.get(idx) );
+	iopar.set( trcrangekey, trcranges[idx] );
+    }
 }
 
 
@@ -98,12 +134,37 @@ void SurfaceIOData::usePar( const IOPar& iopar )
 
     IOPar* sectionpar = iopar.subselect(sSections);
     if ( sectionpar ) sections.usePar( *sectionpar );
+
+    IOPar* linenamespar = iopar.subselect( Horizon2DGeometry::sKeyLineNames() );
+    if ( linenamespar ) linenames.usePar( *linenamespar );
+
+    TypeSet<int> lineids;
+    if ( iopar.get( Horizon2DGeometry::sKeyLineIDs(), lineids) )
+    {
+	for ( int idx=0; idx<lineids.size(); idx++ )
+	{
+	    BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
+	    BufferString trcrangekey = Horizon2DGeometry::sKeyTraceRange();
+	    linesetkey += idx;
+	    trcrangekey += idx;
+	    StepInterval<int> trcrange;
+	    if ( iopar.get(trcrangekey,trcrange) )
+		trcranges += trcrange;
+	    MultiID linesetid;
+	    if ( iopar.get(linesetkey,linesetid) )
+	    {
+		IOObj* ioobj = IOM().get( linesetid );
+		linesets.add( ioobj->name() );
+	    }
+	}
+    }
 }
 
 
 void SurfaceIODataSelection::setDefault()
 {
     rg = sd.rg;
+    seltrcranges = sd.trcranges;
     selvalues.erase(); selsections.erase();
     for ( int idx=0; idx<sd.valnames.size(); idx++ )
 	selvalues += idx;

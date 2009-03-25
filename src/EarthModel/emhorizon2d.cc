@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.25 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.26 2009-03-25 07:01:23 cvssatyaki Exp $";
 
 #include "emhorizon2d.h"
 
@@ -24,11 +24,6 @@ static const char* rcsID = "$Id: emhorizon2d.cc,v 1.25 2009-01-27 11:45:01 cvsra
 namespace EM
 {
 
-const char* Horizon2DGeometry::lineidsstr_	 = "Line IDs";
-const char* Horizon2DGeometry::linenamesstr_	 = "Line names";
-const char* Horizon2DGeometry::linesetprefixstr_ = "Set ID of line ";
-
-    
 Horizon2DGeometry::Horizon2DGeometry( Surface& surface )
     : HorizonGeometry( surface )
     , synclineid_(-1)
@@ -256,28 +251,32 @@ Geometry::Horizon2DLine* Horizon2DGeometry::createSectionGeometry() const
 
 void Horizon2DGeometry::fillPar( IOPar& par ) const
 {
-    par.set( lineidsstr_, lineids_ );
-    par.set( linenamesstr_, linenames_ );
+    par.set( sKeyLineIDs(), lineids_ );
+    par.set( sKeyLineNames(), linenames_ );
 
     for ( int idx=0; idx<linesets_.size(); idx++ )
     {
-	BufferString linesetkey = linesetprefixstr_;
+	BufferString linesetkey = sKeyLineSets();
 	linesetkey += idx;
 	par.set( linesetkey.buf(), linesets_[idx] );
+	const Geometry::Horizon2DLine* geom = sectionGeometry( sectionID(0) );
+	BufferString trcrangekey = sKeyTraceRange();
+	trcrangekey += idx;
+	par.set( trcrangekey, geom->colRange(lineID(idx)) );
     }
 }
 
 
 bool Horizon2DGeometry::usePar( const IOPar& par )
 {
-    if ( !par.get(lineidsstr_,lineids_) )
+    if ( !par.get(sKeyLineIDs(),lineids_) )
 	return false;
-    if ( !par.get(linenamesstr_,linenames_)  )
+    if ( !par.get(sKeyLineNames(),linenames_)  )
      	return false;	
 
     for ( int idx=0; idx<lineids_.size(); idx++ )
     {
-	BufferString linesetkey = linesetprefixstr_;
+	BufferString linesetkey = sKeyLineSets();
 	linesetkey += idx;
 
 	MultiID mid;

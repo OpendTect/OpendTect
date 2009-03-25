@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.60 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.61 2009-03-25 07:01:23 cvssatyaki Exp $";
 
 
 #include "uisurfaceman.h"
@@ -36,6 +36,7 @@ static const char* rcsID = "$Id: uisurfaceman.cc,v 1.60 2009-01-27 11:45:01 cvsr
 #include "uiiosurfacedlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uisplitter.h"
 #include "uistratlvlsel.h"
 #include "uistrattreewin.h"
 #include "uitable.h"
@@ -77,6 +78,11 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
 
     manipgrp->addButton( ioPixmap("copyobj.png"), mCB(this,uiSurfaceMan,copyCB),
 			 mGetCopyStr(typ) );
+
+    man2dbut_ = manipgrp->addButton( ioPixmap("man2d.png"),
+				     mCB(this,uiSurfaceMan,man2d),
+				     "Manage 2D Horizons" );
+    man2dbut_->setSensitive( false );
 
     if ( mGet(typ,true,true,true,false,false) )
     {
@@ -135,6 +141,15 @@ void uiSurfaceMan::copyCB( CallBacker* )
     uiCopySurface dlg( this, *ioobj );
     if ( dlg.go() )
 	selgrp->fullUpdate( ioobj->key() );
+}
+
+
+void uiSurfaceMan::man2d( CallBacker* )
+{
+    EM::SurfaceIOData sd;
+    EMM().getSurfaceData( curioobj_->key(), sd );
+    uiSurface2DMan dlg( this, sd );
+    dlg.go();
 }
 
 
@@ -273,6 +288,9 @@ void uiSurfaceMan::mkFileInfo()
 	const bool haverg = sd.rg.start.inl < mUdf(int);
 	if ( isCur2D() || isCurFault() )
 	{
+	    if ( isCur2D() )
+		man2dbut_->setSensitive( true );
+
 	    txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
 	    if ( haverg )
 		txt += sd.rg.stop.inl - sd.rg.start.inl + 1; 
@@ -282,6 +300,7 @@ void uiSurfaceMan::mkFileInfo()
 	}
 	else
 	{
+	    man2dbut_->setSensitive( false );
 	    txt = "Inline range: "; mAddRangeTxt(inl)
 	    txt += "Crossline range: "; mAddRangeTxt(crl)
 	    if ( !sd.zrg.isUdf() )
@@ -421,3 +440,55 @@ void uiSurfaceMan::stratSel( CallBacker* )
     uiSurfaceStratDlg dlg( this, ids );
     dlg.go();
 }
+
+
+uiSurface2DMan::uiSurface2DMan( uiParent* p, const SurfaceIOData& sd )
+    :uiDialog(p,uiDialog::Setup("Surface file management","Manage 2D horizons",
+				mTODOHelpID))
+    , sd_(sd)
+{
+    setCtrlStyle( LeaveOnly );
+
+    uiGroup* topgrp = new uiGroup( this, "Top" );
+    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines", false,
+						   uiLabeledListBox::AboveMid );
+    linelist_ = lllb->box();
+    linelist_->addItems( sd.linenames );
+    linelist_->selectionChanged.notify( mCB(this,uiSurface2DMan,lineSel) );
+
+    uiGroup* botgrp = new uiGroup( this, "Bottom" );
+    infofld_ = new uiTextEdit( botgrp, "File Info", true );
+    infofld_->setPrefHeightInChar( 8 );
+    infofld_->setPrefWidthInChar( 50 );
+
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    splitter->addGroup( topgrp );
+    splitter->addGroup( botgrp );
+
+    lineSel( 0 );
+}
+
+
+void uiSurface2DMan::lineSel( CallBacker* )
+{
+    const int curitm = linelist_->currentItem();
+    if ( !sd_.linesets.validIdx(curitm) )
+    {
+	infofld_->setText( "" );
+	return;
+    }
+
+    BufferString txt( "LineSet name: ", sd_.linesets.get(curitm), "\n" );
+    if ( sd_.trcranges.validIdx(curitm) )
+    {
+	StepInterval<int> trcrg = sd_.trcranges[ curitm ];
+	txt += BufferString( sKey::FirstTrc, ": " ); txt += trcrg.start;
+	txt += "\n";
+	txt += BufferString( sKey::LastTrc, ": " ); txt += trcrg.stop;
+	txt += "\n";
+	txt += BufferString( "Trace Step: " ); txt += trcrg.step;
+    }
+
+    infofld_->setText( txt );
+}
+

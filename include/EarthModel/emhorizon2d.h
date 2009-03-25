@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.16 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.17 2009-03-25 07:01:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,12 @@ public:
 					   it return the id of the undef
 					   neighbor. */
 					   
+    static const char*		sKeyLineIDs()	{ return "Line IDs"; }
+    static const char*		sKeyLineNames()	{ return "Line names"; }
+    static const char*		sKeyLineSets()	{ return "Set ID of line "; }
+    static const char*		sKeyTraceRange()
+    				{ return "Trace Range of line "; }
+
     int				getConnectedPos(const PosID& posid,
 						TypeSet<PosID>* res) const;
 
@@ -73,10 +79,6 @@ protected:
     BufferStringSet		linenames_;
     TypeSet<MultiID>		linesets_;
     TypeSet<int>		lineids_;
-
-    static const char*		lineidsstr_;
-    static const char*		linenamesstr_;
-    static const char*		linesetprefixstr_;
 
     int				synclineid_;
 };

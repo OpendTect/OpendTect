@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.115 2008-12-23 11:08:31 cvsdgb Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.116 2009-03-25 07:01:23 cvssatyaki Exp $";
 
 #include "emsurfaceio.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: emsurfaceio.cc,v 1.115 2008-12-23 11:08:31 cvsd
 #include "filegen.h"
 #include "parametricsurface.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "ptrman.h"
 #include "streamconn.h"
@@ -61,8 +62,6 @@ const char* dgbSurfaceReader::sKeyTransformY() 	{ return "Y transform"; }
 const char* dgbSurfaceReader::sMsgParseError()  { return "Cannot parse file"; }
 const char* dgbSurfaceReader::sMsgReadError()
 { return "Unexpected end of file"; }
-
-const char* dgbSurfaceReader::linenamesstr_	= "Line names";
 
 BufferString dgbSurfaceReader::sSectionIDKey( int idx )
 { BufferString res = "Patch "; res += idx; return res;  }
@@ -98,10 +97,11 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , isinited_( false )
     , fullyread_( true )
     , version_( 1 )
-    , linenames_( 0 )
+    , readlinenames_( 0 )
     , linestrcrgs_( 0 )		       
 {
     sectionnames_.allowNull();
+    linenames_.allowNull();
 
     BufferString exnm = "Reading surface '"; exnm += ioobj.name().buf();
     exnm += "'";
@@ -226,6 +226,33 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     par_->get( sKeyRowRange(), rowrange_ );
     par_->get( sKeyColRange(), colrange_ );
     par_->get( sKeyZRange(), zrange_ );
+    par_->get( Horizon2DGeometry::sKeyLineNames(), linenames_ );
+
+    TypeSet<int> lineids;
+    TypeSet< StepInterval<int> > trcranges;
+    if ( par_->get(Horizon2DGeometry::sKeyLineIDs(),lineids) )
+    {
+	for ( int idx=0; idx<lineids.size(); idx++ )
+	{
+	    BufferString linesetkey = Horizon2DGeometry::sKeyLineSets();
+	    BufferString trcrangekey = Horizon2DGeometry::sKeyTraceRange();
+	    linesetkey += idx;
+	    trcrangekey += idx;
+
+	    StepInterval<int> trcrange;
+	    if ( par_->get(trcrangekey.buf(),trcrange) )
+		trcranges += trcrange;
+
+	    MultiID mid;
+	    if ( par_->get(linesetkey.buf(),mid) )
+	    {
+		IOObj* ioobj = IOM().get( mid );
+		linesets_.add( ioobj->name() );
+	    }
+	}
+    }
+
+    setLinesTrcRngs( trcranges );
 
     for ( int idx=0; idx<nrSections(); idx++ )
 	sectionsel_ += sectionID(idx);
@@ -278,6 +305,7 @@ const char* dgbSurfaceReader::dbInfo() const
 dgbSurfaceReader::~dgbSurfaceReader()
 {
     deepErase( sectionnames_ );
+    deepErase( linenames_ );
     deepErase( auxdatanames_ );
     deepErase( auxdataexecs_ );
 
@@ -285,7 +313,7 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete conn_;
     delete readrowrange_;
     delete readcolrange_;
-    delete linenames_;
+    delete readlinenames_;
     delete linestrcrgs_;
 
     delete int16interpreter_;
@@ -330,6 +358,18 @@ BufferString dgbSurfaceReader::sectionName( int idx ) const
 
     return *sectionnames_[idx];
 }
+
+
+int dgbSurfaceReader::nrLines() const
+{ return linenames_.size(); }
+
+
+BufferString dgbSurfaceReader::lineName( int idx ) const
+{ return linenames_.get( idx ); }
+
+
+BufferString dgbSurfaceReader::lineSet( int idx ) const
+{ return linesets_.get( idx ); }
 
 
 void dgbSurfaceReader::selSections(const TypeSet<SectionID>& sel)
@@ -390,15 +430,23 @@ void dgbSurfaceReader::setColInterval( const StepInterval<int>& rg )
 
 void dgbSurfaceReader::setLineNames( const BufferStringSet& lns )
 {
-    if ( linenames_ ) delete linenames_;
-    linenames_ = new BufferStringSet( lns );
+    if ( readlinenames_ ) delete readlinenames_;
+    readlinenames_ = new BufferStringSet( lns );
 }
 
 
-void dgbSurfaceReader::setLinesTrcRngs( const TypeSet<Interval<int> >& lnstrcs )
+StepInterval<int> dgbSurfaceReader::lineTrcRanges( int idx ) const
+{
+    return linestrcrgs_->validIdx(idx)
+		    ? (*linestrcrgs_)[idx]
+		    : StepInterval<int>(mUdf(int),mUdf(int),mUdf(int));
+}
+
+
+void dgbSurfaceReader::setLinesTrcRngs( const TypeSet<StepInterval<int> >& rgs )
 {
     if ( linestrcrgs_ ) delete linestrcrgs_;
-    linestrcrgs_ = new TypeSet<Interval<int> >( lnstrcs );
+    linestrcrgs_ = new TypeSet<StepInterval<int> >( rgs );
 }
 
 
@@ -613,10 +661,13 @@ int dgbSurfaceReader::nextStep()
     int noofcoltoskip = 0;
     
     BufferStringSet lines;
-    if( linenames_ && linestrcrgs_ && par_->hasKey(linenamesstr_) &&
-	par_->get(linenamesstr_,lines) && !lines.isEmpty() )
+    if( readlinenames_ && linestrcrgs_ &&
+	par_->hasKey(Horizon2DGeometry::sKeyLineNames()) &&
+	par_->get( Horizon2DGeometry::sKeyLineNames(),lines ) &&
+	!lines.isEmpty() )
     {
-	const int trcrgidx = linenames_->indexOf( lines.get(rowindex_).buf() );
+	const int trcrgidx =
+	    readlinenames_->indexOf( lines.get(rowindex_).buf() );
 	int callastcols = ( firstcol - 1 ) + nrcols;
 
 	if ( firstcol < (*linestrcrgs_)[trcrgidx].start )

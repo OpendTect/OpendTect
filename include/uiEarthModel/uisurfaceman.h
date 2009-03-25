@@ -6,14 +6,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.18 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.19 2009-03-25 07:01:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uidialog.h"
 #include "uiobjfileman.h"
-class uiListBox;
 class BufferStringSet;
+namespace EM { class SurfaceIOData; }
+
+class uiListBox;
+class uiTextEdit;
+class uiToolButton;
 
 
 mClass uiSurfaceMan : public uiObjFileMan
@@ -29,7 +34,9 @@ protected:
     bool		isCur2D() const;
     bool		isCurFault() const;
 
+    uiToolButton*	man2dbut_;
     void		copyCB(CallBacker*);
+    void		man2d(CallBacker*);
     void		setRelations(CallBacker*);
     void		stratSel(CallBacker*);
 
@@ -39,6 +46,19 @@ protected:
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
     double		getFileSize(const char*,int&) const;
+};
+
+
+class uiSurface2DMan : public uiDialog
+{
+public:
+    			uiSurface2DMan(uiParent*,const EM::SurfaceIOData&);
+protected:
+    void		lineSel(CallBacker*);
+
+    uiListBox*		linelist_;
+    uiTextEdit*		infofld_;
+    const EM::SurfaceIOData& sd_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfacetr.cc,v 1.30 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: emsurfacetr.cc,v 1.31 2009-03-25 07:01:23 cvssatyaki Exp $";
 
 #include "emsurfacetr.h"
 
@@ -258,10 +258,19 @@ bool dgbEMSurfaceTranslator::prepRead()
     }
 
     for ( int idx=0; idx<reader_->nrSections(); idx++ )
-	sd_.sections += new BufferString( reader_->sectionName(idx) );
+	sd_.sections.add( reader_->sectionName(idx) );
     
     for ( int idx=0; idx<reader_->nrAuxVals(); idx++ )
-	sd_.valnames += new BufferString( reader_->auxDataName(idx) );
+	sd_.valnames.add( reader_->auxDataName(idx) );
+
+    for ( int idx=0; idx<reader_->nrLines(); idx++ )
+    {
+	sd_.linenames.add( reader_->lineName(idx) );
+	sd_.linesets.add( reader_->lineSet(idx) );
+	StepInterval<int> trcrange = reader_->lineTrcRanges(idx);
+	if ( !mIsUdf(trcrange.start) && !mIsUdf(trcrange.stop) )
+	    sd_.trcranges += reader_->lineTrcRanges(idx);
+    }
 
     const int version = reader_->version();
     if ( version==1 )
