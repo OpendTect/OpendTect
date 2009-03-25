@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.163 2009-03-24 15:51:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.164 2009-03-25 07:03:20 cvsranojay Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -628,7 +628,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddMnuItm( vwmnu, "View Crossline", handleViewClick, "cube_crl.png", 1 );
     mAddMnuItm( vwmnu, "View Z", handleViewClick, "cube_z.png", 2 );
     mAddMnuItm( vwmnu, "View North", handleViewClick, "view_N.png", 3 );
-    mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "View_NZ.png", 4 );
+    mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "view_NZ.png", 4 );
     cointb_->setButtonMenu( viewselectid_, *vwmnu );
 
 
