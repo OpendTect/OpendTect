@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.34 2009-02-23 16:06:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.35 2009-03-25 16:39:47 cvsbert Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -39,6 +39,7 @@ const char* Well::IO::sExtTrack()	{ return ".track"; }
 const char* Well::IO::sExtLog()		{ return ".wll"; }
 const char* Well::IO::sExtMarkers()	{ return ".wlm"; }
 const char* Well::IO::sExtD2T()		{ return ".wlt"; }
+const char* Well::IO::sExtCSMdl()	{ return ".csmdl"; }
 const char* Well::IO::sExtDispProps()	{ return ".disp"; }
 
 
@@ -131,6 +132,7 @@ Well::Reader::Reader( const char* f, Well::Data& w )
 bool Well::Reader::get() const
 {
     wd.setD2TModel( 0 );
+    wd.setCheckShotModel( 0 );
     if ( !getInfo() )
 	return false;
     else if ( wd.d2TModel() )
@@ -140,6 +142,7 @@ bool Well::Reader::get() const
     getLogs();
     getMarkers();
     getD2T();
+    getCSMdl();
     getDispProps();
     return true;
 }
@@ -456,18 +459,24 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 }
 
 
-bool Well::Reader::getD2T() const
+bool Well::Reader::getD2T() const	{ return doGetD2T( false ); }
+bool Well::Reader::getCSMdl() const	{ return doGetD2T( true ); }
+bool Well::Reader::doGetD2T( bool csmdl ) const
 {
-    StreamData sd = mkSD( sExtD2T() );
+    StreamData sd = mkSD( csmdl ? sExtCSMdl() : sExtD2T() );
     if ( !sd.usable() ) return false;
 
-    const bool isok = getD2T( *sd.istrm );
+    const bool isok = doGetD2T( *sd.istrm, csmdl );
     sd.close();
     return isok;
 }
 
 
 bool Well::Reader::getD2T( std::istream& strm ) const
+{ return doGetD2T(strm,false); }
+bool Well::Reader::getCSMdl( std::istream& strm ) const
+{ return doGetD2T(strm,true); }
+bool Well::Reader::doGetD2T( std::istream& strm, bool csmdl ) const
 {
     if ( !rdHdr(strm,sKeyD2T()) )
 	return false;
@@ -491,10 +500,13 @@ bool Well::Reader::getD2T( std::istream& strm ) const
 	if ( !strm ) break;
 	d2t->add( dah, val );
     }
-    if ( d2t->size() < 2 )
+    if ( d2t->size() < (csmdl ? 1 : 2) )
 	{ delete d2t; d2t = 0; }
 
-    wd.setD2TModel( d2t );
+    if ( csmdl )
+	wd.setCheckShotModel( d2t );
+    else
+	wd.setD2TModel( d2t );
     return d2t ? true : false;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellwriter.h,v 1.8 2009-02-23 16:06:42 cvsbruno Exp $
+ RCS:		$Id: wellwriter.h,v 1.9 2009-03-25 16:39:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -34,12 +34,14 @@ public:
     bool		putLogs() const;	//!< Write logs only
     bool		putMarkers() const;	//!< Write Markers only
     bool		putD2T() const;		//!< Write D2T model only
+    bool		putCSMdl() const;	//!< Write Check shot model only
     bool		putDispProps() const;	//!< Write display pars only
 
     bool		putInfo(std::ostream&) const;
     bool		putLog(std::ostream&,const Log&) const;
     bool		putMarkers(std::ostream&) const;
     bool		putD2T(std::ostream&) const;
+    bool		putCSMdl(std::ostream&) const;
     bool		putDispProps(std::ostream&) const;
 
     void		setBinaryWriteLogs( bool yn )	{ binwrlogs_ = yn; }
@@ -51,6 +53,8 @@ protected:
 
     bool		wrHdr(std::ostream&,const char*) const;
     bool		putTrack(std::ostream&) const;
+    bool		doPutD2T(bool) const;
+    bool		doPutD2T(std::ostream&,bool) const;
 
 };
 

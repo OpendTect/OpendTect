@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.17 2009-02-23 16:06:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.18 2009-03-25 16:39:47 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -52,6 +52,7 @@ bool Well::Writer::put() const
 	&& putLogs()
 	&& putMarkers()
 	&& putD2T()
+	&& putCSMdl()
 	&& putDispProps();
 }
 
@@ -219,25 +220,32 @@ bool Well::Writer::putMarkers( std::ostream& strm ) const
 }
 
 
-bool Well::Writer::putD2T() const
+bool Well::Writer::putD2T() const	{ return doPutD2T( false ); }
+bool Well::Writer::putCSMdl() const	{ return doPutD2T( true ); }
+bool Well::Writer::doPutD2T( bool csmdl ) const
 {
-    if ( !wd.d2TModel() ) return true;
+    if ( (csmdl && !wd.checkShotModel()) || (!csmdl && !wd.d2TModel()) )
+	return true;
 
-    StreamData sd = mkSD( sExtD2T() );
+    StreamData sd = mkSD( csmdl ? sExtCSMdl() : sExtD2T() );
     if ( !sd.usable() ) return false;
 
-    const bool isok = putD2T( *sd.ostrm );
+    const bool isok = doPutD2T( *sd.ostrm, csmdl );
     sd.close();
     return isok;
 }
 
 
 bool Well::Writer::putD2T( std::ostream& strm ) const
+{ return doPutD2T( strm, false ); }
+bool Well::Writer::putCSMdl( std::ostream& strm ) const
+{ return doPutD2T( strm, true ); }
+bool Well::Writer::doPutD2T( std::ostream& strm, bool csmdl ) const
 {
     if ( !wrHdr(strm,sKeyD2T()) ) return false;
 
     ascostream astrm( strm );
-    const Well::D2TModel& d2t = *wd.d2TModel();
+    const Well::D2TModel& d2t = *(csmdl ? wd.checkShotModel(): wd.d2TModel());
     astrm.put( sKey::Name, d2t.name() );
     astrm.put( sKey::Desc, d2t.desc );
     astrm.put( D2TModel::sKeyDataSrc(), d2t.datasource );

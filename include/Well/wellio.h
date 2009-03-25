@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellio.h,v 1.10 2009-02-23 16:06:42 cvsbruno Exp $
+ RCS:		$Id: wellio.h,v 1.11 2009-03-25 16:39:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
     static const char*	sExtLog();
     static const char*	sExtMarkers();
     static const char*	sExtD2T();
+    static const char*	sExtCSMdl();
     static const char*	sExtDispProps();
 
     static const char*	getMainFileName(const IOObj&);
