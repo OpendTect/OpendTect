@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.52 2009-02-23 16:06:42 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.53 2009-03-25 15:32:14 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -105,7 +105,9 @@ Well::Data::Data( const char* nm )
     , logs_(*new Well::LogSet)
     , disp_(*new Well::DisplayProperties)
     , d2tmodel_(0)
+    , csmodel_(0)
     , d2tchanged(this)
+    , csmdlchanged(this)
     , markerschanged(this)
     , trackchanged(this)
     , dispparschanged(this)
@@ -119,6 +121,7 @@ Well::Data::~Data()
     delete &logs_;
     delete &disp_;
     delete d2tmodel_;
+    delete csmodel_;
 }
 
 
@@ -126,6 +129,13 @@ void Well::Data::setD2TModel( D2TModel* d )
 {
     delete d2tmodel_;
     d2tmodel_ = d;
+}
+
+
+void Well::Data::setCheckShotModel( D2TModel* d )
+{
+    delete csmodel_;
+    csmodel_ = d;
 }
 
 
