@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.22 2009-03-16 12:03:30 cvsranojay Exp $
+ RCS:		$Id: commondefs.h,v 1.23 2009-03-25 07:05:32 cvsranojay Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -94,6 +94,7 @@ ________________________________________________________________________
 #define mStruct		struct dll_export
 #define mGlobal		dll_export 
 #define mExtern		extern dll_export
+#define mExternC	extern "C" dll_export
 
 #ifdef BASIC_EXPORTS
 # define mBasicGlobal	dll_export
