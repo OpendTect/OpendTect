@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.314 2009-03-24 16:28:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.315 2009-03-25 14:30:07 cvsbert Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.314 2009-03-24 16:28:02 cvsb
 #include "uiodtreeitem.h"
 
 #include "uiconvpos.h"
-#include "uicolortable.h"
 #include "mousecursor.h"
 #include "uiimphorizon2d.h"
 #include "vishorizondisplay.h"
@@ -40,9 +39,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.314 2009-03-24 16:28:02 cvsb
 #include "attribdescset.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
-#include "bidvsetarrayadapter.h"
-#include "coltabmapper.h"
-#include "coltabsequence.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
@@ -67,19 +63,12 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.314 2009-03-24 16:28:02 cvsb
 #include "survinfo.h"
 
 #include "uiattribcrossplot.h"
-#include "uibatchlaunch.h"
-#include "uibatchprogs.h"
 #include "uifiledlg.h"
-#include "uifontsel.h"
 #include "uimsg.h"
-#include "uipluginman.h"
-#include "uishortcuts.h"
 #include "uistereodlg.h"
 #include "uisurvey.h"
 #include "uitoolbar.h"
 #include "uiodemsurftreeitem.h"
-#include "uiviscoltabed.h"
-
 
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
@@ -89,8 +78,8 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	, getOtherFormatData(this)
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
-	, convertposdlg_( 0 )				
-	, dispatcher_(*new uiODApplMgrBasicDispatcher(*this,&appl_))
+	, dispatcher_(*new uiODApplMgrDispatcher(*this,&appl_))
+	, attrvishandler_(*new uiODApplMgrAttrVisHandler(*this,&appl_))
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
@@ -117,7 +106,6 @@ uiODApplMgr::~uiODApplMgr()
     delete seisserv_;
     delete visserv_;
 
-    delete convertposdlg_;
     delete emserv_;
     delete emattrserv_;
     delete wellserv_;
@@ -153,11 +141,7 @@ int uiODApplMgr::manageSurvey()
 
 void uiODApplMgr::surveyToBeChanged( CallBacker* )
 {
-    if ( convertposdlg_ )
-    {
-	delete convertposdlg_;
-	convertposdlg_ = 0;
-    }
+    dispatcher_.survChg(true); attrvishandler_.survChg(true);
 
     bool anythingasked = false;
     appl_.askStore( anythingasked );
@@ -172,6 +156,7 @@ void uiODApplMgr::surveyToBeChanged( CallBacker* )
 
 void uiODApplMgr::surveyChanged( CallBacker* )
 {
+    dispatcher_.survChg(false); attrvishandler_.survChg(false);
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
     if ( !douse || id == "" )
@@ -180,17 +165,6 @@ void uiODApplMgr::surveyChanged( CallBacker* )
     attrserv_ = new uiAttribPartServer( applservice_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
     MPE::engine().init();
-}
-
-
-bool uiODApplMgr::editNLA( bool is2d )
-{
-    if ( !nlaserv_ ) return false;
-
-    nlaserv_->set2DEvent( is2d );
-    bool res = nlaserv_->go();
-    if ( !res ) attrserv_->setNLAName( nlaserv_->modelName() );
-    return res;
 }
 
 
@@ -204,7 +178,6 @@ void uiODApplMgr::manPreLoad( ObjType ot )
 {
     dispatcher_.manPreLoad( (int)ot );
 }
-
 
 
 void uiODApplMgr::enableMenusAndToolBars( bool yn )
@@ -233,112 +206,17 @@ void uiODApplMgr::enableSceneManipulation( bool yn )
 
 
 void uiODApplMgr::editAttribSet()
-{
-    editAttribSet( SI().has2D() );
-}
-
-
+{ editAttribSet( SI().has2D() ); }
 void uiODApplMgr::editAttribSet( bool is2d )
 {
     enableMenusAndToolBars( false );
     enableSceneManipulation( false );
-
     attrserv_->editSet( is2d ); 
 }
 
-
-void uiODApplMgr::doVolProc( CallBacker* )
-{ attrserv_->doVolProc(); }
-
-
-void uiODApplMgr::createVolProcOutput(CallBacker*)
-{
-    attrserv_->createVolProcOutput();
-}
-
-
-void uiODApplMgr::createHorOutput( int tp, bool is2d )
-{
-    emattrserv_->setDescSet( attrserv_->curDescSet(is2d) );
-    MultiID nlaid; const NLAModel* nlamdl = 0;
-    if ( nlaserv_ )
-    {
-	nlaserv_->set2DEvent( is2d );
-	nlaid = nlaserv_->modelId();
-	nlamdl = &nlaserv_->getModel();
-    }
-    emattrserv_->setNLA( nlamdl, nlaid );
-
-    uiEMAttribPartServer::HorOutType type =
-	  tp==0 ? uiEMAttribPartServer::OnHor :
-	( tp==1 ? uiEMAttribPartServer::AroundHor : 
-		  uiEMAttribPartServer::BetweenHors );
-    emattrserv_->createHorizonOutput( type );
-}
-
-
-void uiODApplMgr::createVol( bool is2d )
-{
-    MultiID nlaid;
-    if ( nlaserv_ )
-    {
-	nlaserv_->set2DEvent( is2d );
-	nlaid = nlaserv_->modelId();
-    }
-    attrserv_->outputVol( nlaid, is2d );
-}
-
-
 void uiODApplMgr::processTime2Depth( CallBacker* )
-{ seisserv_->processTime2Depth(); }
-
-
-void uiODApplMgr::processPreStack( CallBacker* )
 {
-    dispatcher_.processPreStack();
-}
-
-
-void uiODApplMgr::doXPlot()
-{
-    Attrib::DescSet* ads = attrserv_->getUserPrefDescSet();
-    if ( !ads ) return;
-
-    wellattrserv_->setAttribSet( *ads );
-    wellattrserv_->doXPlot();
-}
-
-
-void uiODApplMgr::crossPlot()
-{
-    Attrib::DescSet* ads = attrserv_->getUserPrefDescSet();
-    if ( !ads ) return;
-
-    attrserv_->set2DEvent( ads->is2D() );
-    attrserv_->showXPlot(0);
-}
-
-
-void uiODApplMgr::reStartProc() {uiRestartBatchDialog dlg( &appl_ ); dlg.go();}
-void uiODApplMgr::batchProgs() { uiBatchProgLaunch dlg( &appl_ ); dlg.go(); }
-void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl_ ); dlg.go(); }
-
-void uiODApplMgr::posConversion()
-{
-   if ( !convertposdlg_ ) 
-       convertposdlg_ = new uiConvertPos( &appl_, SI(), false );
-
-   convertposdlg_->go(); 
-}
-
-void uiODApplMgr::manageShortcuts()
-{ uiShortcutsDlg dlg(&appl_,"ODScene"); dlg.go(); }
-
-
-void uiODApplMgr::setFonts()
-{
-    uiSetFonts dlg( &appl_, "Set font types" );
-    dlg.go();
+    seisserv_->processTime2Depth();
 }
 
 
@@ -374,30 +252,6 @@ void uiODApplMgr::setWorkingArea()
 }
 
 
-void uiODApplMgr::setZStretch()
-{
-    visserv_->setZStretch();
-}
-
-
-bool uiODApplMgr::selectAttrib( int id, int attrib )
-{
-    if ( appl_.isRestoringSession() ) return false;
-
-    if ( id < 0 ) return false;
-    const Attrib::SelSpec* as = visserv_->getSelSpec( id, attrib );
-    if ( !as ) return false;
-
-    const char* key = visserv_->getZDomainKey( visserv_->getSceneID(id) );
-    Attrib::SelSpec myas( *as );
-    const bool selok = attrserv_->selectAttrib( myas, key, myas.is2D() );
-    if ( selok )
-	visserv_->setSelSpec( id, attrib, myas );
-
-    return selok;
-}
-
-
 void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv_->selectWells( wellids ); }
 
@@ -415,93 +269,6 @@ bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 
 bool uiODApplMgr::pickSetsStored() const
 { return pickserv_->pickSetsStored(); }
-
-
-// TODO: Remove in v3.5
-static bool useOldDefColTab( const IOPar& par, ColTab::MapperSetup& ms,
-			     ColTab::Sequence& seq )
-{
-    BufferString seqnm;
-    bool autoscale = false;
-    float symmidval = mUdf(float);
-    float cliprate = mUdf(float);
-    Interval<float> coltabrange;
-    if ( !par.get("ColorSeq Name",seqnm) || seqnm.isEmpty() )
-	return false;
-    seq = ColTab::Sequence( seqnm.buf() );
-    par.getYN( "Auto scale", autoscale );
-    ms.type_ = autoscale ? ColTab::MapperSetup::Auto
-			 : ColTab::MapperSetup::Fixed;
-    if ( autoscale )
-    {
-	if ( par.get("Cliprate",cliprate) )
-	    ms.cliprate_ = cliprate;
-	if ( par.get("Symmetry Midvalue",symmidval) )
-	    ms.symmidval_ = symmidval;
-    }
-    else if ( par.get("Scale Factor",coltabrange) )
-    {
-	ms.start_ = coltabrange.start;
-	ms.width_ = coltabrange.width();
-    }
-
-    return true;
-}
-
-
-void uiODApplMgr::useDefColTab( int visid, int attrib )
-{
-    if ( appl_.isRestoringSession() ) return;
-
-    const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
-    if ( !as ) return;
-
-    PtrMan<IOObj> ioobj = attrserv_->getIOObj( *as );
-    if ( !ioobj ) return;
-
-    ColTab::MapperSetup mapper;
-    ColTab::Sequence seq( 0 );
-    FilePath fp( ioobj->fullUserExpr(true) );
-    fp.setExtension( "par" );
-    BufferString fnm = fp.fullPath();
-    IOPar iop;
-    if ( iop.read(fnm,sKey::Pars) && !iop.isEmpty() )
-    {
-	if ( !useOldDefColTab(iop,mapper,seq) )
-	{
-	    const char* ctname = iop.find( sKey::Name );
-	    seq = ColTab::Sequence( ctname );
-	    mapper.usePar( iop );
-	}
-    }
-
-    visserv_->setColTabMapperSetup( visid, attrib, mapper );
-    visserv_->setColTabSequence( visid, attrib, seq );
-    appl_.colTabEd().colTab()->setMapperSetup( &mapper );
-    appl_.colTabEd().colTab()->setSequence( &seq, true );
-    modifyColorTable( visid, attrib );
-}
-
-
-void uiODApplMgr::saveDefColTab( int visid, int attrib )
-{
-    const Attrib::SelSpec* as = visserv_->getSelSpec(visid,attrib);
-    IOObj* ioobj = attrserv_->getIOObj( *as );
-    if ( !ioobj ) return;
-
-    FilePath fp( ioobj->fullUserExpr(true) );
-    fp.setExtension( "par" );
-    BufferString fnm = fp.fullPath();
-    IOPar iop;
-    const ColTab::Sequence& ctseq = *visserv_->getColTabSequence(
-	    visid, attrib );
-    const ColTab::MapperSetup& mapper = *visserv_->getColTabMapperSetup(
-	    visid, attrib );
-    iop.set( sKey::Name, ctseq.name() );
-    mapper.fillPar( iop );
-    iop.write( fnm, sKey::Pars );
-    delete ioobj;
-}
 
 
 bool uiODApplMgr::getNewData( int visid, int attrib )
@@ -538,7 +305,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( !cs.isDefined() )
 		return false;
 
-	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
+	    if ( myas.id() == Attrib::SelSpec::cOtherAttrib() )
 	    {
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc = 
@@ -1406,82 +1173,6 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 }
 
 
-void uiODApplMgr::pageUpDownPressed( bool pageup )
-{
-    const int visid = visserv_->getEventObjId();
-    const int attrib = visserv_->getSelAttribNr();
-    if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
-	return;
-
-    int texture = visserv_->selectedTexture( visid, attrib );
-    if ( texture<visserv_->nrTextures(visid,attrib)-1 && !pageup )
-	texture++;
-    else if ( texture && pageup )
-	texture--;
-
-    visserv_->selectTexture( visid, attrib, texture );
-    modifyColorTable( visid, attrib );
-    sceneMgr().updateTrees();
-}
-
-
-void uiODApplMgr::modifyColorTable( int visid, int attrib, int coltabrefattrib )
-{
-    if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
-	return;
-
-    coltabvisid_ = visid;
-    coltabattribnr_ = attrib;
-
-    appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	true, visserv_->getColTabMapperSetup(visid,attrib,coltabrefattrib),
-	visserv_->canHandleColTabSeqTrans(visid,attrib));
-
-    setHistogram( visid, attrib );
-}
-
-
-void uiODApplMgr::colSeqChg( CallBacker* )
-{
-    const int visid = visserv_->getSelObjectId();
-    int attrib = visserv_->getSelAttribNr();
-    if ( attrib == -1 ) attrib = 0;
-    setHistogram( visid, attrib );
-
-    visserv_->setColTabSequence( visid, attrib,
-	    appl_.colTabEd().getColTabSequence() );
-
-    sceneMgr().updateSelectedTreeItem();
-}
-
-
-void uiODApplMgr::colMapperChg( CallBacker* )
-{
-    const int visid = visserv_->getSelObjectId();
-    int attrib = visserv_->getSelAttribNr();
-    if ( attrib == -1 ) attrib = 0;
-
-    visserv_->setColTabMapperSetup( visid, attrib,
-	    appl_.colTabEd().getColTabMapperSetup() );
-    setHistogram( visid, attrib );
-
-    //Autoscale may have changed ranges, so update.
-    appl_.colTabEd().setColTab( visserv_->getColTabSequence( visid, attrib ),
-	true, visserv_->getColTabMapperSetup(visid,attrib),
-	visserv_->canHandleColTabSeqTrans(visid,attrib) );
-}
-
-
-NotifierAccess* uiODApplMgr::colorTableSeqChange()
-{
-    return &appl_.colTabEd().seqChange();
-}
-
-
-void uiODApplMgr::setHistogram( int visid, int attrib )
-{ appl_.colTabEd().setHistogram( visserv_->getHistogram(visid,attrib) ); }
-
-
 void uiODApplMgr::setupRdmLinePreview(const TypeSet<Coord>& coords)
 {
     if ( wellserv_->getPreviewIds().size()>0 )
@@ -1516,30 +1207,57 @@ void uiODApplMgr::cleanPreview()
 }
 
 
+void uiODApplMgr::doVolProc( CallBacker* )
+{ attrserv_->doVolProc(); }
+void uiODApplMgr::createVolProcOutput(CallBacker*)
+{ attrserv_->createVolProcOutput(); }
+bool uiODApplMgr::editNLA( bool is2d )
+{ return attrvishandler_.editNLA( is2d ); }
+void uiODApplMgr::createHorOutput( int tp, bool is2d )
+{ attrvishandler_.createHorOutput( tp, is2d ); }
+void uiODApplMgr::createVol( bool is2d )
+{ attrvishandler_.createVol( is2d ); }
+void uiODApplMgr::doXPlot()
+{ attrvishandler_.doXPlot(); }
+void uiODApplMgr::crossPlot()
+{ attrvishandler_.crossPlot(); }
+void uiODApplMgr::setZStretch()
+{ attrvishandler_.setZStretch(); }
+bool uiODApplMgr::selectAttrib( int id, int attrib )
+{ return attrvishandler_.selectAttrib( id, attrib ); }
+void uiODApplMgr::setHistogram( int visid, int attrib )
+{ attrvishandler_.setHistogram(visid,attrib); }
+void uiODApplMgr::colMapperChg( CallBacker* )
+{ attrvishandler_.colMapperChg(); }
 void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
 					   const DataPointSet& data, int colnr )
-{
-    DataPack::ID cacheid = visserv_->getDataPackID( visid, attrib );
-    if ( cacheid == -1 )
-	useDefColTab( visid, attrib );
-    const int dpid = createMapDataPack( data, colnr );
-    visserv_->setDataPackID( visid, attrib, dpid );
-    visserv_->setRandomPosData( visid, attrib, &data );
-}
+{ attrvishandler_.createAndSetMapDataPack(visid,attrib,data,colnr); }
+void uiODApplMgr::pageUpDownPressed( bool pageup )
+{ attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
+void uiODApplMgr::modifyColorTable( int visid, int attrib, int coltabrefattrib )
+{ attrvishandler_.modifyColorTable( visid, attrib, coltabrefattrib ); }
+void uiODApplMgr::colSeqChg( CallBacker* )
+{ attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem(); }
+NotifierAccess* uiODApplMgr::colorTableSeqChange()
+{ return attrvishandler_.colorTableSeqChange(); }
+void uiODApplMgr::useDefColTab( int visid, int attrib )
+{ attrvishandler_.useDefColTab(visid,attrib); }
+void uiODApplMgr::saveDefColTab( int visid, int attrib )
+{ attrvishandler_.saveDefColTab(visid,attrib); }
 
-
+void uiODApplMgr::processPreStack( CallBacker* )
+{ dispatcher_.processPreStack(); }
+void uiODApplMgr::reStartProc()
+{ dispatcher_.reStartProc(); }
+void uiODApplMgr::batchProgs()
+{ dispatcher_.batchProgs(); }
+void uiODApplMgr::pluginMan()
+{ dispatcher_.pluginMan(); }
+void uiODApplMgr::posConversion()
+{ dispatcher_.posConversion(); }
+void uiODApplMgr::manageShortcuts()
+{ dispatcher_.manageShortcuts(); }
+void uiODApplMgr::setFonts()
+{ dispatcher_.setFonts(); }
 int uiODApplMgr::createMapDataPack( const DataPointSet& data, int colnr )
-{
-    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(data.bivSet(), colnr);
-    MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
-    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop, 
-	    			SI().inlStep() );
-    StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
-	    			SI().crlStep() );
-    BufferStringSet dimnames;
-    dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
-    newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    dpman.add( newpack );
-    return newpack->id();
-}
+{ return dispatcher_.createMapDataPack( data, colnr ); }

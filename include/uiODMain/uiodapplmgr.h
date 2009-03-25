@@ -6,14 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.79 2009-03-24 16:28:02 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.80 2009-03-25 14:30:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
 
-class uiConvertPos;
 class uidTectMan;
 class uiApplPartServer;
 class uiApplService;
@@ -31,7 +30,8 @@ class uiStratTreeWin;
 class uiVisPartServer;
 class uiWellAttribPartServer;
 class uiWellPartServer;
-class uiODApplMgrBasicDispatcher;
+class uiODApplMgrDispatcher;
+class uiODApplMgrAttrVisHandler;
 
 class Color;
 class Coord;
@@ -178,7 +178,6 @@ protected:
 
     uiODMain&			appl_;
     uiODApplService&		applservice_;
-    uiConvertPos*		convertposdlg_;		
 
     uiPickPartServer*		pickserv_;
     uiVisPartServer*		visserv_;
@@ -190,7 +189,8 @@ protected:
     uiWellPartServer*		wellserv_;
     uiWellAttribPartServer*	wellattrserv_;
     uiMPEPartServer*		mpeserv_;
-    uiODApplMgrBasicDispatcher&	dispatcher_;
+    uiODApplMgrDispatcher&	dispatcher_;
+    uiODApplMgrAttrVisHandler&	attrvishandler_;
 
     bool			handleEvent(const uiApplPartServer*,int);
     void*			deliverObject(const uiApplPartServer*,int);
@@ -227,11 +227,9 @@ protected:
     int				otherformatvisid_;
     int				otherformatattrib_;
 
-    int				coltabvisid_;
-    int				coltabattribnr_;
-
     friend class		uiODMain;
-    friend class		uiODApplMgrBasicDispatcher;
+    friend class		uiODApplMgrDispatcher;
+    friend class		uiODApplMgrAttrVisHandler;
 };
 
 

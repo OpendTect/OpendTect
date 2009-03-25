@@ -6,18 +6,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.2 2009-03-24 16:28:02 cvsbert Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.3 2009-03-25 14:30:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "uiapplserv.h"
-class uiODApplMgr;
-class CtxtIOObj;
 class uiVelSel;
-class VelocityStretcher;
+class CtxtIOObj;
+class uiODApplMgr;
+class DataPointSet;
+class uiConvertPos;
 class ZAxisTransform;
+class VelocityStretcher;
 
 
 /*!\brief uiApplService for OD */
@@ -37,17 +39,62 @@ public:
 
 
 /*!\brief Dispatches work for Appl Mgr */
-mClass uiODApplMgrBasicDispatcher
+
+mClass uiODApplMgrDispatcher : public CallBacker
 {
     friend class	uiODApplMgr;
 
-    			uiODApplMgrBasicDispatcher( uiODApplMgr& a, uiParent* p)
-			    : am_(a), par_(p)		{}
+    			uiODApplMgrDispatcher( uiODApplMgr& a, uiParent* p )
+			    : am_(a), par_(p), convposdlg_(0)	{}
+    void		survChg(bool);
 
     void		doOperation(int,int,int);
     void		manPreLoad(int);
+    void		posConversion();
+    int			createMapDataPack(const DataPointSet&,int);
 
     void		processPreStack();
+    void		reStartProc();
+    void		batchProgs();
+    void		pluginMan();
+    void		manageShortcuts();
+    void		setFonts();
+
+    void		posDlgClose(CallBacker*);
+
+    uiConvertPos*	convposdlg_;
+    uiODApplMgr&	am_;
+    uiParent*		par_;
+};
+
+
+/*!\brief Does visualisation-related work for uiODApplMgr */
+
+mClass uiODApplMgrAttrVisHandler : public CallBacker
+{
+    friend class	uiODApplMgr;
+
+    			uiODApplMgrAttrVisHandler( uiODApplMgr& a, uiParent* p )
+			    : am_(a), par_(p)		{}
+    void		survChg(bool);
+
+    bool		editNLA(bool);
+    void		createHorOutput(int,bool);
+    void		createVol(bool);
+    void		doXPlot();
+    void		crossPlot();
+    void		setZStretch();
+    bool		selectAttrib(int,int);
+    void		setHistogram(int,int);
+    void		colMapperChg();
+    void		createAndSetMapDataPack(int,int,
+	    					const DataPointSet&,int);
+    void		pageUpDownPressed(bool);
+    void		modifyColorTable(int,int,int ra=mUdf(int));
+    void		colSeqChg();
+    NotifierAccess*	colorTableSeqChange();
+    void		useDefColTab(int,int);
+    void		saveDefColTab(int,int);
 
     uiODApplMgr&	am_;
     uiParent*		par_;

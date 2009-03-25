@@ -7,36 +7,43 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.2 2009-03-24 16:28:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.3 2009-03-25 14:30:07 cvsbert Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
 
-#include "veldesc.h"
-#include "ctxtioobj.h"
 #include "ioobj.h"
+#include "veldesc.h"
 #include "survinfo.h"
-#include "timedepthconv.h"
+#include "ctxtioobj.h"
 #include "emsurfacetr.h"
+#include "datapointset.h"
+#include "datapackbase.h"
+#include "attribdescset.h"
+#include "timedepthconv.h"
+#include "bidvsetarrayadapter.h"
 
-#include "uiveldesc.h"
 #include "uimsg.h"
+#include "uiconvpos.h"
+#include "uiveldesc.h"
+#include "uifontsel.h"
+#include "uipluginman.h"
+#include "uishortcuts.h"
+#include "uibatchprogs.h"
+#include "uibatchlaunch.h"
 #include "uistrattreewin.h"
 #include "uiprestackimpmute.h"
 #include "uiprestackexpmute.h"
 #include "uibatchprestackproc.h"
 #include "uivelocityfunctionimp.h"
 
-#include "uipickpartserv.h"
-#include "uivispartserv.h"
-#include "uimpepartserv.h"
-#include "uiattribpartserv.h"
-#include "uiemattribpartserv.h"
 #include "uiempartserv.h"
 #include "uinlapartserv.h"
 #include "uiseispartserv.h"
-#include "uitaskrunner.h"
 #include "uiwellpartserv.h"
+#include "uipickpartserv.h"
+#include "uiattribpartserv.h"
+#include "uiemattribpartserv.h"
 #include "uiwellattribpartserv.h"
 
 
@@ -112,9 +119,16 @@ ZAxisTransform* uiODApplMgrVelSel::transform()
 }
 
 
+void uiODApplMgrDispatcher::survChg( bool before )
+{
+    if ( before && convposdlg_ )
+	{ delete convposdlg_; convposdlg_ = 0; }
+}
+
+
 #define mCase(val) case uiODApplMgr::val
 
-void uiODApplMgrBasicDispatcher::doOperation( int iot, int iat, int opt )
+void uiODApplMgrDispatcher::doOperation( int iot, int iat, int opt )
 {
     const uiODApplMgr::ObjType ot = (uiODApplMgr::ObjType)iot;
     const uiODApplMgr::ActType at = (uiODApplMgr::ActType)iat;
@@ -257,7 +271,7 @@ void uiODApplMgrBasicDispatcher::doOperation( int iot, int iat, int opt )
 }
 
 
-void uiODApplMgrBasicDispatcher::manPreLoad( int iot )
+void uiODApplMgrDispatcher::manPreLoad( int iot )
 {
     const uiODApplMgr::ObjType ot = (uiODApplMgr::ObjType)iot;
     switch ( ot )
@@ -271,8 +285,52 @@ void uiODApplMgrBasicDispatcher::manPreLoad( int iot )
 }
 
 
-void uiODApplMgrBasicDispatcher::processPreStack()
+void uiODApplMgrDispatcher::posConversion()
 {
-    PreStack::uiBatchProcSetup dlg( par_, false );
-    dlg.go();
+    if ( !convposdlg_ )
+    {
+	convposdlg_ = new uiConvertPos( par_, SI(), false );
+	convposdlg_->windowClosed.notify(
+				mCB(this,uiODApplMgrDispatcher,posDlgClose) );
+	convposdlg_->setDeleteOnClose( true );
+    }
+    convposdlg_->show();
 }
+
+
+void uiODApplMgrDispatcher::posDlgClose( CallBacker* )
+{
+    convposdlg_ = 0;
+}
+
+
+int uiODApplMgrDispatcher::createMapDataPack( const DataPointSet& data,
+						int colnr )
+{
+    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(data.bivSet(), colnr);
+    MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
+    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop, 
+	    			SI().inlStep() );
+    StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
+	    			SI().crlStep() );
+    BufferStringSet dimnames;
+    dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
+    newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
+    dpman.add( newpack );
+    return newpack->id();
+}
+
+
+void uiODApplMgrDispatcher::processPreStack()
+{ PreStack::uiBatchProcSetup dlg( par_, false ); dlg.go(); }
+void uiODApplMgrDispatcher::reStartProc()
+{ uiRestartBatchDialog dlg( par_ ); dlg.go(); }
+void uiODApplMgrDispatcher::batchProgs()
+{ uiBatchProgLaunch dlg( par_ ); dlg.go(); }
+void uiODApplMgrDispatcher::pluginMan()
+{ uiPluginMan dlg( par_ ); dlg.go(); }
+void uiODApplMgrDispatcher::manageShortcuts()
+{ uiShortcutsDlg dlg( par_, "ODScene" ); dlg.go(); }
+void uiODApplMgrDispatcher::setFonts()
+{ uiSetFonts dlg( par_, "Set font types" ); dlg.go(); }
