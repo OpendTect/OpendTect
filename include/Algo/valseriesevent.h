@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.14 2009-03-09 16:09:15 cvsjaap Exp $
+ RCS:		$Id: valseriesevent.h,v 1.15 2009-03-25 06:14:32 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -384,7 +384,7 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
 
     const bool isascending = pg.stop > pg.start;
     posset.erase();
-    while ( isascending == curg.stop>curg.start )
+    while ( isascending == (curg.stop>curg.start) )
     {
 	ValueSeriesEvent<VT,PT> reqev = find( evtype, curg, 1 );
 	if ( mIsUdf(reqev.pos) ) break;
