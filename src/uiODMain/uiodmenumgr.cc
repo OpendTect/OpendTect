@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.164 2009-03-25 07:03:20 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.165 2009-03-25 12:13:35 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -676,7 +676,7 @@ void uiODMenuMgr::handleViewClick( CallBacker* cb )
 		curviewmode_ = uiSoViewer::Z; break;
 	case 3: pm = "view_N.png"; tt = "View North"; 
 		curviewmode_ = uiSoViewer::Y; break;
-	case 4: pm = "View_NZ.png"; tt = "View North Z"; 
+	case 4: pm = "view_NZ.png"; tt = "View North Z"; 
 		curviewmode_ = uiSoViewer::YZ; break; 
     }
 
