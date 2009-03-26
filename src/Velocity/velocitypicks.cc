@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.3 2009-03-18 17:52:57 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.4 2009-03-26 13:35:48 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -29,6 +29,9 @@ static const char* rcsID = "$Id: velocitypicks.cc,v 1.3 2009-03-18 17:52:57 cvsk
 
 namespace Vel
 {
+
+DefineEnumNames( Picks, PickType, 3, "Pick types" )
+{ "RMO", "RMS", 0 };
 
 
 Pick::Pick( float depth, float vel, float offset,
@@ -111,6 +114,13 @@ Picks::~Picks()
     deepUnRef( horizons_ );
 }
 
+
+const char* Picks::zDomain() const
+{ return zit_ ? sKey::Time : sKey::Depth; }
+
+
+Picks::PickType Picks::pickType() const
+{ return zit_ ? RMS : RMO; }
 
 
 Undo& Picks::undo()
@@ -356,8 +366,9 @@ void Picks::fillIOObjPar( IOPar& par ) const
     par.clear();
 
     par.set( sKey::Type, sKeyVelocityPicks() );
-    par.set(sKeyGatherID(),gatherid_);
+    par.set( sKeyGatherID(), gatherid_ );
     par.setYN( sKeyIsVelPick(), true );
+    par.setYN( sKey::ZDomain, zDomain() );
 }
 
 
@@ -908,7 +919,7 @@ const IOObjContext& Picks::getStorageContext()
     if ( !ptr )
     {
 	ptr = new IOObjContext(PickSetTranslatorGroup::ioContext());
-	ptr->setName( "RMO picks" );
+	ptr->setName( "Velocity picks" );
 
 	//Should eventually become sKey::Type, sKeyVelocityPicks
 	ptr->parconstraints.setYN( sKeyIsVelPick(), getYesNoString(true) );

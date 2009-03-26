@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.3 2009-03-19 08:50:30 cvsranojay Exp $
+ RCS:		$Id: velocitypicks.h,v 1.4 2009-03-26 13:35:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "multidimstorage.h"
 #include "callback.h"
 #include "emposid.h"
+#include "enums.h"
 #include "multiid.h"
 #include "ranges.h"
 #include "refcount.h"
@@ -57,6 +58,11 @@ mClass Picks : public CallBacker
 public:
     			Picks();
     			Picks(bool zit);
+
+    enum PickType	{ RMO, RMS };
+     			DeclareEnumUtils(PickType);
+    PickType		pickType() const;
+    const char*		zDomain() const;
 
     Undo&		undo();
 
@@ -196,7 +202,7 @@ protected:
 
 mGlobal PicksMgr& VPM();
 
-const IOObjContext& getRMOPickStorageContext();
+const IOObjContext& getPickStorageContext();
 
 
 }; //namespace
