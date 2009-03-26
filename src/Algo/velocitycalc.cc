@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.12 2009-03-18 17:47:18 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.13 2009-03-26 12:36:56 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -553,13 +553,9 @@ bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
     if ( !Vint_sampled )
 	return false;
 
-    for ( int idx=0; idx<nr_out; idx++ )
-    {
-	const float t = sd_out.atIndex( idx );
-	int layer;
-	IdxAble::findFPPos( t_in, nr_in, t, 0, layer );
-	Vint_sampled[idx] = Vint[layer];
-    }
+    if ( !sampleVint( Vint.arr(), t_in, nr_in, VelocityDesc::Above,
+		      sd_out, Vint_sampled, nr_out ) )
+	return false;
 
     return computeVrms( (const float*)Vint_sampled, sd_out, nr_out,
 	    		VelocityDesc::Above, Vout );
