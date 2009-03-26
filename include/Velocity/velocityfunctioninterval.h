@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		December 2008
- RCS:		$Id: velocityfunctioninterval.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
+ RCS:		$Id: velocityfunctioninterval.h,v 1.3 2009-03-26 12:45:00 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,7 @@ protected:
     bool		computeVelocity(float z0, float dz, int nr,
 					float* res ) const;
 
-    Function*		input_;
+    Function*		inputfunc_;
 };
 
 
@@ -70,7 +70,7 @@ protected:
     IntervalFunction*	createFunction(const BinID&);
     			~IntervalSource();
 
-    FunctionSource*	input_;
+    FunctionSource*	inputsource_;
     VelocityDesc	veldesc_;
 };
 

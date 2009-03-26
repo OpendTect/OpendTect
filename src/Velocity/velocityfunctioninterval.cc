@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.1 2008-12-18 21:39:10 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.2 2009-03-26 12:45:00 cvskris Exp $";
 
 #include "velocityfunctioninterval.h"
 
@@ -17,7 +17,7 @@ namespace Vel
 
 IntervalFunction::IntervalFunction( IntervalSource& source )
     : Function( source )
-    , input_( 0 )
+    , inputfunc_( 0 )
 {}
 
 
@@ -29,9 +29,9 @@ IntervalFunction::~IntervalFunction()
 
 void IntervalFunction::setInput( Function* func )
 {
-    if ( input_ ) input_->unRef();
-    input_ = func;
-    if ( input_ ) input_->ref();
+    if ( inputfunc_ ) inputfunc_->unRef();
+    inputfunc_ = func;
+    if ( inputfunc_ ) inputfunc_->ref();
 }
 
 
@@ -40,12 +40,12 @@ bool IntervalFunction::moveTo( const BinID& bid )
     if ( !Function::moveTo( bid ) )
 	return false;
 
-    return input_->moveTo( bid );
+    return inputfunc_->moveTo( bid );
 }
 
 
 StepInterval<float> IntervalFunction::getAvailableZ() const
-{ return input_->getAvailableZ(); }
+{ return inputfunc_->getAvailableZ(); }
 
 
 bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
@@ -56,10 +56,10 @@ bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
 
     const SamplingData<double> sd( z0, dz );
     
-    for ( int idx; idx<nr; idx++ )
+    for ( int idx=0; idx<nr; idx++ )
     {
 	float z = sd.atIndex( idx );
-	input[idx] = input_->getVelocity( z );
+	input[idx] = inputfunc_->getVelocity( z );
     }
 
     return computeDix( input, sd, nr, source_.getDesc().samplespan_, res );
@@ -67,7 +67,7 @@ bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
 
 
 IntervalSource::IntervalSource()
-    : input_( 0 )
+    : inputsource_( 0 )
     , veldesc_( VelocityDesc::Interval, VelocityDesc::Above  )
 
 {}
@@ -85,64 +85,62 @@ const VelocityDesc& IntervalSource::getDesc() const
 
 void IntervalSource::setInput( FunctionSource* input )
 {
-    if ( !input || input->getDesc().type_!=VelocityDesc::RMS )
-	return;
-
-    if ( input_ )
+    if ( inputsource_ )
     {
-	if ( input_->changeNotifier() )
-	    input_->changeNotifier()->notify(
+	if ( inputsource_->changeNotifier() )
+	    inputsource_->changeNotifier()->notify(
 		mCB( this, IntervalSource, sourceChangeCB ));
-	input_->unRef();
+	inputsource_->unRef();
     }
 
-    input_ = input;
+    inputsource_ = input;
 
-    if ( input_ )
+    if ( inputsource_ )
     {
-	input_->ref();
-	if ( input_->changeNotifier() )
+	inputsource_->ref();
+	if ( inputsource_->changeNotifier() )
 	{
-	    input_->changeNotifier()->notify(
+	    inputsource_->changeNotifier()->notify(
 		mCB( this, IntervalSource, sourceChangeCB ));
 	}
-
-	veldesc_.samplespan_ = input_->getDesc().samplespan_;
     }
 }
 
 
 void IntervalSource::getAvailablePositions( HorSampling& hrg ) const
 {
-    if ( input_ )
-	input_->getAvailablePositions( hrg );
+    if ( inputsource_ )
+	inputsource_->getAvailablePositions( hrg );
 }
 
 
 void IntervalSource::getAvailablePositions( BinIDValueSet& bidset ) const
 {
-    if ( input_ )
-	input_->getAvailablePositions( bidset );
+    if ( inputsource_ )
+	inputsource_->getAvailablePositions( bidset );
 }
 
 
 NotifierAccess* IntervalSource::changeNotifier()
-{ return input_ ? input_->changeNotifier() : 0; }
+{ return inputsource_ ? inputsource_->changeNotifier() : 0; }
 
 
 BinID IntervalSource::changeBinID() const
-{ return input_->changeBinID(); }
+{ return inputsource_->changeBinID(); }
 
 
 IntervalFunction* IntervalSource::createFunction( const BinID& bid )
 {
-    RefMan<Function> input = input_->createFunction( bid );
-    if ( !input )
+    if ( !inputsource_ || inputsource_->getDesc().type_!=VelocityDesc::RMS )
+	return 0;
+
+    RefMan<Function> inputfunc = inputsource_->createFunction( bid );
+    if ( !inputfunc )
 	return 0;
 
     IntervalFunction* res = new IntervalFunction( *this );
     res->ref();
-    res->setInput( input );
+    res->setInput( inputfunc );
 
     res->unRefNoDelete();
     return res;
