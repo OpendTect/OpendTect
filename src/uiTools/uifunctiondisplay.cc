@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.33 2009-03-24 08:53:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.34 2009-03-26 08:26:41 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -22,7 +22,7 @@ static const int cBoundarySz = 10;
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
-    : uiGraphicsView(p,"Function display viewer" )
+    : uiGraphicsView(p,"Function display viewer",true)
     , setup_(su)
     , xax_(0)
     , yax_(0)
@@ -78,7 +78,6 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				mCB(this,uiFunctionDisplay,mouseDClick) );
     }
 
-    scene().setSaveDialog( new uiGraphicsSaveImageDlg(p,&scene()) );
     setToolTip( "Press Ctrl-P to save as image" );
     reSize.notify( mCB(this,uiFunctionDisplay,reSized) );
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
@@ -97,6 +96,7 @@ uiFunctionDisplay::~uiFunctionDisplay()
     if ( ymarkeritems_ ) scene().removeItem( ymarkeritems_ );
     if ( y2markeritems_ ) scene().removeItem( y2markeritems_ );
 }
+
 
 void uiFunctionDisplay::reSized( CallBacker* )
 {

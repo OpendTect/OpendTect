@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.15 2009-03-10 06:33:51 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.16 2009-03-26 08:26:41 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,6 @@ class ioPixmap;
 class MarkerStyle2D;
 
 class uiArrowItem;
-class uiDialog;
 class uiEllipseItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
@@ -93,6 +92,7 @@ public:
     KeyboardEventHandler&	getKeyboardEventHandler()
     				{ return keyboardhandler_; }
 
+    Notifier<uiGraphicsScene>	ctrlPPressed;
     double			width() const;
     double			height() const;
 
@@ -111,9 +111,6 @@ public:
     				{ return (QGraphicsScene*)odgraphicsscene_; }
 
     BufferStringSet		supportedImageFormat();
-    void			save();
-    void			setSaveDialog( uiDialog* dlg )
-				{ savedlg_ = dlg; }
 
 protected:
 
@@ -124,6 +121,5 @@ protected:
     KeyboardEventHandler	keyboardhandler_;
     bool			ismouseeventactive_;
 
-    uiDialog*			savedlg_;
 };
 #endif

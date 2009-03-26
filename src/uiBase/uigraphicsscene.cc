@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.20 2009-03-10 06:58:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.21 2009-03-26 08:26:41 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -80,7 +80,7 @@ void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
     OD::KeyboardKey key = OD::KeyboardKey( qkeyevent->key() );
     OD::ButtonState modifier = OD::ButtonState( (int)qkeyevent->modifiers() );
     if ( key == OD::P && modifier == OD::ControlButton )
-	uiscene_.save();
+	uiscene_.ctrlPPressed.trigger();
 }
 
 
@@ -144,7 +144,7 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
     , keyboardhandler_(KeyboardEventHandler())
     , ismouseeventactive_(true)
     , odgraphicsscene_(new ODGraphicsScene(*this))
-    , savedlg_(0)
+    , ctrlPPressed(this)
 {
     odgraphicsscene_->setObjectName( nm );
     odgraphicsscene_->setBackgroundBrush( Qt::white );
@@ -436,13 +436,6 @@ uiRect uiGraphicsScene::sceneRect()
 {
     QRectF qrect = odgraphicsscene_->sceneRect();
     return uiRect( (int)qrect.x(), (int)qrect.y(), (int)qrect.width(), (int)qrect.height() );
-}
-
-
-void uiGraphicsScene::save()
-{
-    if ( savedlg_ )
-	savedlg_->go();
 }
 
 
