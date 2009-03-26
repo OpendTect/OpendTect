@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.18 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.19 2009-03-26 12:51:32 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -44,7 +44,10 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
 void uiVelocityDesc::velTypeChange( CallBacker* )
 {
     if ( samplefld_ )
-	samplefld_->display( typefld_->getIntValue() );
+    {
+	VelocityDesc::Type type = (VelocityDesc::Type) typefld_->getIntValue();
+	samplefld_->display( type==VelocityDesc::Interval );
+    }
 }
 
 
