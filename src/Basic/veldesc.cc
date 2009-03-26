@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.7 2009-01-09 04:35:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.8 2009-03-26 13:26:24 cvskris Exp $";
 
 
 #include "veldesc.h"
@@ -41,7 +41,8 @@ BufferString VelocityDesc::toString() const
 {
     SeparString res ( 0, '`' );
     res.add( TypeNames()[(int)type_] );
-    res.add( SampleSpanNames()[(int)samplespan_] );
+    if ( type_==Interval )
+	res.add( SampleSpanNames()[(int)samplespan_] );
 
     return BufferString( res );
 }
@@ -50,17 +51,26 @@ BufferString VelocityDesc::toString() const
 bool VelocityDesc::fromString( const char* str )
 {
     SeparString sepstr( str, '`' );
-    if ( sepstr.size()!=2 )
+    if ( sepstr.size()<1 )
 	return false;
 
     const int type = TypeDef().convert( sepstr[0] );
     if ( type==-1 ) return false;
 
-    const int samplespan = SampleSpanDef().convert( sepstr[1] );
-    if ( samplespan==-1 ) return false;
+    const Type typeenum = (Type) type;
+    if ( typeenum==Interval )
+    {
+	if ( sepstr.size()<2 )
+	    return false;
 
-    type_ = (Type) type;
-    samplespan_ = (SampleSpan) samplespan;
+	const int samplespan = SampleSpanDef().convert( sepstr[1] );
+	if ( samplespan==-1 ) return false;
+	samplespan_ = (SampleSpan) samplespan;
+    }
+    else
+	samplespan_ = Centered;
+
+    type_ = typeenum;
 
     return true;
 }

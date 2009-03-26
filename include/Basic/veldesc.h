@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.6 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: veldesc.h,v 1.7 2009-03-26 13:26:24 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -16,7 +16,8 @@ ________________________________________________________________________
 
 class IOPar;
 
-//!Specifies velocity type and which z-interval a velocity sample belongs to
+/*!Specifies velocity type and which z-interval a velocity sample belongs to
+   The SampleSpan is only relevent at Interval Veloicty. */
 
 mClass VelocityDesc
 {
