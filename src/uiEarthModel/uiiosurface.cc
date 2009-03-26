@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.66 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.67 2009-03-26 09:33:44 cvsjaap Exp $";
 
 #include "uiiosurface.h"
 
@@ -102,7 +102,7 @@ void uiIOSurface::mkObjFld( const char* lbl )
 }
 
 
-void uiIOSurface::fillFields( const MultiID& id )
+bool uiIOSurface::fillFields( const MultiID& id, bool showerrmsg )
 {
     EM::SurfaceIOData sd;
 
@@ -110,7 +110,11 @@ void uiIOSurface::fillFields( const MultiID& id )
     {
 	const char* res = EM::EMM().getSurfaceData( id, sd );
 	if ( res )
-	    { uiMSG().error( res ); return; }
+	{
+	    if ( showerrmsg )
+		uiMSG().error( res );
+	    return false;
+	}
     }
     else
     {
@@ -120,14 +124,16 @@ void uiIOSurface::fillFields( const MultiID& id )
 	    sd.use(*emsurf);
 	else
 	{
-	    uiMSG().error( "Surface not loaded" );
-	    return;
+	    if ( showerrmsg )
+		uiMSG().error( "Surface not loaded" );
+	    return false;
 	}
     }
 
     fillAttribFld( sd.valnames );
     fillSectionFld( sd.sections );
     fillRangeFld( sd.rg );
+    return true;
 }
 
 

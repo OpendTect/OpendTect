@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.30 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uiiosurface.h,v 1.31 2009-03-26 09:33:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ protected:
 			uiIOSurface(uiParent*,bool forread,
 				    const char* type);
 
-    void		fillFields(const MultiID&);
+    bool		fillFields(const MultiID&,bool showerrmsg=true);
     void		fillSectionFld(const BufferStringSet&);
     void		fillAttribFld(const BufferStringSet&);
     void		fillRangeFld(const HorSampling&);

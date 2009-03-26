@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.20 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimultisurfaceread.cc,v 1.21 2009-03-26 09:33:44 cvsjaap Exp $";
 
 #include "uimultisurfaceread.h"
 
@@ -118,12 +118,15 @@ void uiMultiSurfaceRead::selCB( CallBacker* cb )
 	return;
     }
 
-    const int size = ioobjselgrp_->getListField()->size();
-    for ( int idx=0; idx<size; idx++ )
+    if ( processInput() ) 
     {
-	if ( !processInput() ) continue;
-	fillFields( ioobjselgrp_->selected( idx ) );
-	break;
+	if ( !cb )
+	{
+	    if ( !fillFields(ioobjselgrp_->selected(0), false) )
+		ioobjselgrp_->getListField()->clear();
+	}
+	else
+	    fillFields( ioobjselgrp_->selected(0) );
     }
 }
 
