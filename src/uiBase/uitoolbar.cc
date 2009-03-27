@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitoolbar.cc,v 1.50 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitoolbar.cc,v 1.51 2009-03-27 12:27:48 cvsnanne Exp $";
 
 #include "uitoolbar.h"
 
@@ -112,7 +112,9 @@ int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
     addObject( toolbarbut );
     pmsrcs_.add( pm.source() );
 
-    return butindex_.size()-1;
+    const int butid = butindex_.size()-1;
+    toolbarbut->setID( butid );
+    return butid;
 }
 
 
