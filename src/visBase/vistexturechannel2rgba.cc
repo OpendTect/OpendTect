@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.19 2009-03-23 20:12:15 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.20 2009-03-27 17:03:11 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -148,7 +148,10 @@ void TextureChannel2RGBA::allowShading( bool yn )
 
 
 bool TextureChannel2RGBA::canUseShading() const
-{ return shadingallowed_ && SoOD::supportsFragShading()==1; }
+{
+    return shadingallowed_ && SoOD::supportsFragShading()==1 &&
+	   SoOD::supportsVertexShading()==1;
+}
 
 
 ColTabTextureChannel2RGBA::ColTabTextureChannel2RGBA()
