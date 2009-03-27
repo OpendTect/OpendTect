@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.28 2009-01-30 05:06:31 cvssatyaki Exp $
+ RCS:           $Id: uibutton.h,v 1.29 2009-03-27 12:25:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,8 +150,10 @@ public:
     void			setArrowType(ArrowType);
 
     void			setShortcut(const char*);
-
     void			setMenu(const uiPopupMenu&);
+
+    void			setID( int i )		{ id_ = i; }
+    int				id() const		{ return id_; }
     
     void			click();
 
@@ -159,6 +161,8 @@ private:
 
     uiToolButtonBody*		body_;
     uiToolButtonBody&		mkbody(uiParent*,const ioPixmap*, const char*); 
+
+    int				id_; // Used by toolbar
 
 };
 

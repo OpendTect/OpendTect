@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.58 2009-03-10 06:57:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.59 2009-03-27 12:25:48 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -380,6 +380,7 @@ static int preftbsz = -1;
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
     : uiButton( parnt, nm, 0, mkbody(parnt,0,nm) )
+    , id_(-1)
 {
     mSetDefPrefSzs();
 }
@@ -387,6 +388,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm )
 
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
     : uiButton( parnt, nm, &cb, mkbody(parnt,0,nm) )
+    , id_(-1)
 {
     mSetDefPrefSzs();
 }
@@ -395,6 +397,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm, const CallBack& cb)
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm )
     : uiButton( parnt, nm, 0, mkbody(parnt,&pm,nm) )
+    , id_(-1)
 {
     mSetDefPrefSzs();
 }
@@ -403,6 +406,7 @@ uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 uiToolButton::uiToolButton( uiParent* parnt, const char* nm,
 			    const ioPixmap& pm, const CallBack& cb )
     : uiButton( parnt, nm, &cb, mkbody(parnt,&pm,nm) )
+    , id_(-1)
 {
     mSetDefPrefSzs();
 }
