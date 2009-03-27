@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.90 2009-03-27 09:41:04 cvsranojay Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.91 2009-03-27 12:40:14 cvsnanne Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -906,7 +906,7 @@ bool StreamProvider::executeCommand( bool inbg ) const
 
 void StreamProvider::mkBatchCmd( BufferString& comm ) const
 {
-    FilePath batfp = FilePath::getTempDir();
+    FilePath batfp( FilePath::getTempDir() );
     batfp.add( "odtmp.bat" );
    
     FILE *fp;
