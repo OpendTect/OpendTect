@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.7 2009-02-13 10:47:31 cvsnanne Exp $
+ RCS:		$Id: SoOD.h,v 1.8 2009-03-27 17:04:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,11 @@ class SoOD
 {
 public:
 mGlobal static int	supportsFragShading();
+    			/*!<\retval -1 not supported
+			    \retval  0 don't know
+			    \retval  1 supported
+			*/
+mGlobal static int	supportsVertexShading();
     			/*!<\retval -1 not supported
 			    \retval  0 don't know
 			    \retval  1 supported
