@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.53 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.54 2009-03-27 15:37:35 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -116,6 +116,7 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , hidelblitm_("Line&names")
     , removeitm_("&Remove")
     , storeditm_("Stored &2D data")
+    , steeringitm_("Steer&ing 2D data")
     , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
 {
     storeditm_.checkable = true;
@@ -168,7 +169,7 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
     Attrib::SelSpec as;
     applMgr()->attrServer()->resetMenuItems();
     MenuItem* dummy =
-	applMgr()->attrServer()->storedAttribMenuItem( as, true );
+	applMgr()->attrServer()->storedAttribMenuItem( as, true, false );
     dummy->removeItems();
 
     BufferStringSet allstored;
@@ -185,6 +186,12 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 			    nlaAttribMenuItem( as, true, false );
     if ( nla && nla->nrItems() )
 	mAddMenuItem( &addattritm_, nla, true, false );
+
+    BufferStringSet allsteering;
+    Attrib::SelInfo::getAttrNames( setid_, allsteering, true );
+    allsteering.sort();
+    steeringitm_.createItems( allsteering );
+    mAddMenuItem( &addattritm_, &steeringitm_, steeringitm_.nrItems(), false );
 
     mAddMenuItem( menu, &addattritm_, true, false );
 

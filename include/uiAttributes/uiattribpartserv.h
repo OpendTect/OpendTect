@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.48 2009-03-19 13:27:11 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.49 2009-03-27 15:37:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,7 @@ public:
     void		setNLAName( const char* nm )	{ nlaname_ = nm; }
 
     void		resetMenuItems();
-    MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool);
+    MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool,bool);
     MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool,bool);
     MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool,bool);
     MenuItem*         	zDomainAttribMenuItem(const Attrib::SelSpec&,
@@ -178,6 +178,8 @@ protected:
     MenuItem            nla3dmnuitem_;
     MenuItem            zdomain2dmnuitem_;
     MenuItem            zdomain3dmnuitem_;
+    MenuItem            steering2dmnuitem_;
+    MenuItem            steering3dmnuitem_;
     ObjectSet<MenuItem> linesets2dmnuitem_;
 
     Attrib::DescSetMan*	adsman2d_;
@@ -209,12 +211,13 @@ protected:
     Attrib::DescID	targetID(bool is2d,int nr=0) const;
 
     BufferStringSet	get2DStoredLSets(const Attrib::SelInfo&) const;
-    BufferStringSet	get2DStoredItems(const MultiID&) const;
+    BufferStringSet	get2DStoredItems(const MultiID&,bool) const;
     void		insert2DStoredItems(const BufferStringSet&,int,int,
 	    				    bool,MenuItem*,
-					    const Attrib::SelSpec&,bool);
+					    const Attrib::SelSpec&,bool,bool);
     void		insertNumerousItems(const BufferStringSet&,
-	    				    const Attrib::SelSpec&,bool,bool);
+	    				    const Attrib::SelSpec&,
+					    bool,bool,bool);
 
     static const char*	attridstr();
     BufferString	nlaname_;

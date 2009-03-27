@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.24 2009-01-16 05:48:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.25 2009-03-27 15:37:35 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -85,13 +85,15 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 
 #define mCreateItemsList( is2d, needext ) \
 { \
-    subitem = attrserv->storedAttribMenuItem( *as, is2d ); \
+    subitem = attrserv->storedAttribMenuItem( *as, is2d, false ); \
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
     subitem = attrserv->calcAttribMenuItem( *as, is2d, needext ); \
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
     subitem = attrserv->nlaAttribMenuItem( *as, is2d, needext ); \
     if ( subitem && subitem->nrItems() ) \
 	mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
+    subitem = attrserv->storedAttribMenuItem( *as, is2d, true ); \
+    mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
     mCreateDepthDomMnuItemIfNeeded( is2d, needext ); \
 }
 

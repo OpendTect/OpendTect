@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.18 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribsel.h,v 1.19 2009-03-27 15:37:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,7 +138,7 @@ public:
 			SelInfo(const DescSet*,const NLAModel* n=0,
 				bool is2d=false,
 				const DescID& ignoreid=DescID::undef(),
-				bool usesteering=false);
+				bool usesteering=false,bool onlysteering=false);
 			SelInfo(const SelInfo&);
     SelInfo&		operator=(const SelInfo&);
 
@@ -149,7 +149,8 @@ public:
     BufferStringSet	nlaoutnms;
 
     static bool		is2D(const char* defstr_or_ioobjid);
-    static void		getAttrNames(const char* defstr_or_,BufferStringSet&);
+    static void		getAttrNames(const char* defstr_or_ioobjid,
+	    			     BufferStringSet&,bool issteer=false);
     			//!< 2D only
     void		fillStored(const char* filter=0);
     static void		getSpecialItems(const char* key,BufferStringSet&);
@@ -159,6 +160,7 @@ protected:
 
     bool		is2d_;
     bool		usesteering_;
+    bool		onlysteering_;
 
 };
 

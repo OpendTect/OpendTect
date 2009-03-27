@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.33 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.34 2009-03-27 15:37:35 cvshelene Exp $";
 
 #include "attribsel.h"
 #include "attribdesc.h"
@@ -200,10 +200,12 @@ bool SelSpec::usePar( const IOPar& par )
 
 
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
-		  bool is2d, const DescID& ignoreid, bool usesteering )
+		  bool is2d, const DescID& ignoreid, bool usesteering,
+       		  bool onlysteering )
+    : is2d_( is2d )
+    , usesteering_( usesteering )
+    , onlysteering_( onlysteering )
 {
-    is2d_ = is2d;
-    usesteering_ = usesteering;
     fillStored();
 
     if ( attrset )
@@ -257,7 +259,11 @@ void SelInfo::fillStored( const char* filter )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
-	if ( !usesteering_ && res && !strcmp(res,sKey::Steering) ) continue;
+	if ( res && ( (!usesteering_ && !strcmp(res,sKey::Steering) )
+	         || ( onlysteering_ && strcmp(res,sKey::Steering) ) ) )
+	    continue;
+
+	if ( !res && onlysteering_ ) continue;
 
 	const char* ioobjnm = ioobj.name().buf();
 	if ( ge && !ge->matches(ioobjnm) )
@@ -288,6 +294,7 @@ SelInfo::SelInfo( const SelInfo& asi )
 	, nlaoutnms(asi.nlaoutnms)
 	, is2d_(asi.is2d_)
 	, usesteering_(asi.usesteering_)
+	, onlysteering_(asi.onlysteering_)
 {
 }
 
@@ -301,6 +308,7 @@ SelInfo& SelInfo::operator=( const SelInfo& asi )
     nlaoutnms = asi.nlaoutnms;
     is2d_ = asi.is2d_;
     usesteering_ = asi.usesteering_;
+    onlysteering_ = asi.onlysteering_;
     return *this;
 }
 
@@ -312,7 +320,8 @@ bool SelInfo::is2D( const char* defstr )
 }
 
 
-void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms )
+void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms, 
+			    bool issteer )
 {
     nms.erase();
     PtrMan<IOObj> ioobj = IOM().get( MultiID(LineKey(defstr).lineName().buf()));
@@ -320,7 +329,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms )
 	return;
 
     Seis2DLineSet ls( ioobj->fullUserExpr(true) );
-    ls.getAvailableAttributes( nms, sKey::Steering, true, false );
+    ls.getAvailableAttributes( nms, sKey::Steering, !issteer, issteer );
 }
 
 
