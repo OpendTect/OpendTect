@@ -7,13 +7,39 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.11 2009-01-09 10:49:30 cvsnanne Exp $
+ RCS:		$Id: factory.h,v 1.12 2009-03-27 03:11:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
 #include "errh.h"
+
+//!Helper class for Factories, Factories are defined later in this file
+mClass FactoryBase
+{
+public:
+    virtual			~FactoryBase();
+    const BufferStringSet&	getNames(bool username=false) const;
+    void			setDefaultName(int idx);
+    				//!<idx refers to names in names_,
+				//!<or -1 for none
+    const char*			getDefaultName() const;
+    static char			cSeparator()	{ return ','; }
+protected:
+    int				indexOf(const char*) const;
+    void			addNames(const char*,const char*);
+    void			setNames(int,const char*,const char*);
+
+private:
+    BufferStringSet		names_;
+    BufferStringSet		usernames_;
+    BufferStringSet		aliases_;
+    BufferString		defaultname_;
+
+};
+
+
 
 /*!
 Generalized static factory that can deliver instances of T, when no
@@ -61,27 +87,24 @@ mImplFactory( ClassName, FunctionName );
 
 
 template <class T>
-class Factory
+mClass Factory : public FactoryBase
 {
 public:
     typedef			T* (*Creator)();
     inline void			addCreator(Creator,const char* nm,
 	    				   const char* username = 0);
-    				//!<Name may be not be null
-				//!<If nm is found, old creator is replaced.
+    				/*!<Name may be not be null
+				   If nm is found, old creator is replaced.
+				   nm can be a SeparString, separated by
+				   cSeparator(), allowing multiple names,
+				   where the first name will be the main
+				   name that is returned in getNames. */
+
     inline T*			create(const char* nm) const;
     				//!<Name may be not be null
-    const BufferStringSet&	getNames(bool username=false) const;
-    void			setDefaultName(int idx);
-    				//!<idx refers to names in names_,
-				//!<or -1 for none
-    const char*			getDefaultName() const;
 protected:
 
-    BufferStringSet		names_;
-    BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
-    BufferString		defaultname_;
 };
 
 
@@ -127,193 +150,116 @@ mImplFactory1Param( ClassName, ParamClass, FunctionName );
 
 
 template <class T, class P>
-class Factory1Param
+mClass Factory1Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm=0,
 	    				   const char* usernm = 0);
-    				//!<Name may be be null
-				//!<If nm is found, old creator is replaced.
+    				/*!<Name may be be null
+				   If nm is found, old creator is replaced.
+				   nm can be a SeparString, separated by
+				   cSeparator(), allowing multiple names,
+				   where the first name will be the main
+				   name that is returned in getNames. */
     inline T*			create(const char* nm, P, bool chknm=true)const;
     				//!<Name may be be null, if null name is given
 				//!<chknm will be forced to false
-    const BufferStringSet&	getNames(bool username=false) const;
-
-    void			setDefaultName(int idx);
-    				//!<idx refers to names in names_,
-				//!<or -1 for none
-    const char*			getDefaultName() const;
-
 protected:
 
-    BufferStringSet		names_;
-    BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
-    BufferString		defaultname_;
 };
 
 
 template <class T, class P0, class P1>
-class Factory2Param
+mClass Factory2Param : public FactoryBase
 {
 public:
     typedef			T* (*Creator)(P0,P1);
     inline void			addCreator(Creator,const char* nm=0,
 	    				   const char* usernm = 0);
-    				//!<Name may be be null
-				//!<If nm is found, old creator is replaced.
+    				/*!<Name may be be null
+				   If nm is found, old creator is replaced.
+				   nm can be a SeparString, separated by
+				   cSeparator(), allowing multiple names,
+				   where the first name will be the main
+				   name that is returned in getNames. */
     inline T*			create(const char* nm, P0, P1,
 	    			       bool chknm=true)const;
     				//!<Name may be be null, if null name is given
 				//!<chknm will be forced to false
-    const BufferStringSet&	getNames(bool username=false) const;
-
-    void			setDefaultName(int idx);
-    				//!<idx refers to names in names_,
-				//!<or -1 for none
-    const char*			getDefaultName() const;
-
 protected:
 
-    BufferStringSet		names_;
-    BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
-    BufferString		defaultname_;
 };
 
+
+#define mCreateImpl( donames, createfunc ) \
+    if ( donames ) \
+    { \
+	const int idx = indexOf( name ); \
+	return idx==-1 ? 0 : createfunc; \
+    } \
+ \
+    for ( int idx=0; idx<creators_.size(); idx++ ) \
+    { \
+	T* res = createfunc; \
+	if ( res ) return res; \
+    } \
+ \
+    return 0
+
+
+#define mAddCreator \
+    const int idx = indexOf( name );\
+\
+    if ( idx==-1 )\
+    { \
+	addNames( name, username ); \
+	creators_ += cr; \
+    } \
+    else\
+    {\
+	setNames( idx, name, username ); \
+	creators_[idx] = cr;\
+    }
 
 template <class T> inline
 void Factory<T>::addCreator( Creator cr, const char* name,
 			     const char* username )
 {
-    if ( !name )
-	return;
-
-    const int idx = names_.indexOf( name );
-    if ( idx==-1 )
-    {
-	names_.add( name );
-	usernames_.add( username ? username : name );
-	creators_ += cr;
-    }
-    else
-    {
-	*usernames_[idx] = username ? username : name;
-	creators_[idx] = cr;
-    }
+    if ( !name ) return;\
+    mAddCreator;
 }
 
 
 template <class T> inline
 T* Factory<T>::create( const char* name ) const
 {
-    if ( !name )
-	return 0;
-
-    const int idx = names_.indexOf( name );
-    if ( idx<0 ) return 0;
-
-    return creators_[idx]();
+    mCreateImpl( true, creators_[idx]() );
 }
-
-
-template <class T> inline
-const BufferStringSet& Factory<T>::getNames( bool username ) const
-{ return username ? usernames_ : names_; }
-
-
-template <class T> inline
-void Factory<T>::setDefaultName( int idx )
-{
-    if ( idx<0 || idx>=names_.size() )
-	defaultname_.empty();
-    else
-	defaultname_ = *names_[idx];
-}
-
-
-template <class T> inline
-const char* Factory<T>::getDefaultName() const
-{ return defaultname_.isEmpty() ? 0 : defaultname_.buf(); }
 
 
 template <class T, class P> inline
 void Factory1Param<T,P>::addCreator( Creator cr, const char* name,
 				     const char* username )
 {
-    const int idx = names_.indexOf( name );
-    if ( idx==-1 )
-    {
-	names_.add( name );
-	usernames_.add( username ? username : name );
-	creators_ += cr;
-    }
-    else
-    {
-	*usernames_[idx] = username ? username : name;
-	creators_[idx] = cr;
-    }
+    mAddCreator;
 }
 
 
 template <class T, class P> inline
 T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
 {
-    if ( chk )
-    {
-	const int idx = names_.indexOf( name );
-	if ( idx<0 ) return 0;
-
-	return creators_[idx]( data );
-    }
-
-    for ( int idx=0; idx<creators_.size(); idx++ )
-    {
-	T* res = creators_[idx]( data );
-	if ( res ) return res;
-    }
-
-    return 0;
+    mCreateImpl( chk, creators_[idx]( data ) );
 }
-
-
-template <class T, class P> inline
-const BufferStringSet& Factory1Param<T,P>::getNames( bool username ) const
-{ return username ? usernames_ : names_; }
-
-
-template <class T, class P> inline
-void Factory1Param<T,P>::setDefaultName( int idx )
-{
-    if ( idx<0 || idx>=names_.size() )
-	defaultname_.empty();
-    else
-	defaultname_ = *names_[idx];
-}
-
-
-template <class T, class P> inline
-const char* Factory1Param<T,P>::getDefaultName() const
-{ return defaultname_.isEmpty() ? 0 : defaultname_.buf(); }
 
 
 template <class T, class P0, class P1> inline
 void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
 					 const char* username )
 {
-    const int idx = names_.indexOf( name );
-    if ( idx==-1 )
-    {
-	names_.add( name );
-	usernames_.add( username ? username : name );
-	creators_ += cr;
-    }
-    else
-    {
-	*usernames_[idx] = username ? username : name;
-	creators_[idx] = cr;
-    }
+    mAddCreator;
 }
 
 
@@ -321,42 +267,8 @@ template <class T, class P0, class P1> inline
 T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
 				   bool chk ) const
 {
-    if ( chk )
-    {
-	const int idx = names_.indexOf( name );
-	if ( idx<0 ) return 0;
-
-	return creators_[idx]( p0,p1 );
-    }
-
-    for ( int idx=0; idx<creators_.size(); idx++ )
-    {
-	T* res = creators_[idx]( p0, p1 );
-	if ( res ) return res;
-    }
-
-    return 0;
+    mCreateImpl( chk, creators_[idx]( p0, p1 ) );
 }
-
-
-template <class T, class P0, class P1> inline
-const BufferStringSet& Factory2Param<T,P0,P1>::getNames( bool username ) const
-{ return username ? usernames_ : names_; }
-
-
-template <class T, class P0, class P1> inline
-void Factory2Param<T,P0,P1>::setDefaultName( int idx )
-{
-    if ( idx<0 || idx>=names_.size() )
-	defaultname_.empty();
-    else
-	defaultname_ = *names_[idx];
-}
-
-
-template <class T, class P0, class P1> inline
-const char* Factory2Param<T,P0,P1>::getDefaultName() const
-{ return defaultname_.isEmpty() ? 0 : defaultname_.buf(); }
 
 
 #define mDefineFactory( T, funcname ) \
@@ -406,4 +318,8 @@ static ::Factory2Param<T,P0,P1>& funcname()
 	    new ::Factory2Param<T,P0,P1>; \
     return *inst; \
 } 
+
+#undef mCreateImpl
+#undef mAddCreator
+
 #endif
