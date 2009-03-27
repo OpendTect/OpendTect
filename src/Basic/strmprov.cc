@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.89 2009-02-16 17:13:39 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.90 2009-03-27 09:41:04 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: strmprov.cc,v 1.89 2009-02-16 17:13:39 cvsbert 
 #include "datapack.h"
 #include "keystrs.h"
 #include "iopar.h"
+#include "envvars.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -157,6 +158,9 @@ bool ExecOSCmd( const char* comm, bool inbg )
 
 #endif
 }
+
+
+
 
 
 const char* GetExecCommand( const char* prognm, const char* filenm )
@@ -893,7 +897,26 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 bool StreamProvider::executeCommand( bool inbg ) const
 {
     mkOSCmd( true );
+#ifdef __msvc__
+    mkBatchCmd( oscommand );
+#endif
     return ExecOSCmd( oscommand, inbg );
+}
+
+
+void StreamProvider::mkBatchCmd( BufferString& comm ) const
+{
+    FilePath batfp = FilePath::getTempDir();
+    batfp.add( "odtmp.bat" );
+   
+    FILE *fp;
+    fp = fopen( batfp.fullPath(), "wt" );
+    fprintf( fp, "@echo off\n" );
+    fprintf( fp,"%s\n", comm.buf() );
+    fprintf( fp, "pause\n" );
+    fclose( fp );
+
+    comm = batfp.fullPath();
 }
 
 
@@ -1073,6 +1096,7 @@ void StreamProvider::mkOSCmd( bool forread ) const
 	DBG::message( msg );
     }
 }
+
 
 #define mRemoteTest(act) \
     FILE* fp = popen( oscommand, "r" ); \

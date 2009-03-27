@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.32 2009-02-16 17:13:39 cvsbert Exp $
+ RCS:		$Id: strmprov.h,v 1.33 2009-03-27 09:41:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ public:
     bool	executeCommand(bool inbg=false) const;
     		//!< If type is Command, execute command without opening pipe
     		//!< 'inbg' will execute in background if remote
+    void	mkBatchCmd(BufferString& comm) const;
 
     const char*	fullName() const;
     const char*	hostName() const		{ return hostname_.buf(); }
@@ -130,6 +131,5 @@ mGlobal const char* GetExecCommand(const char* prognm,const char* filenm);
 
 //! Execute command
 mGlobal bool ExecuteScriptCommand(const char* prognm,const char* filenm);
-
 
 #endif

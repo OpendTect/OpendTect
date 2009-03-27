@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.33 2009-02-16 17:13:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.34 2009-03-27 09:40:34 cvsranojay Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -29,6 +29,8 @@ static const char* rcsID = "$Id: uibatchprogs.cc,v 1.33 2009-02-16 17:13:12 cvsb
 #include "dirlist.h"
 #include "errh.h"
 #include <iostream>
+#include <direct.h>
+
 
 
 class BatchProgPar
@@ -297,10 +299,14 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
 
 bool uiBatchProgLaunch::acceptOK( CallBacker* )
 {
-    if ( !progfld ) return true;
+
+
+        if ( !progfld ) return true;
 
     const int selidx = progfld->box()->currentItem();
     const BatchProgInfo& bpi = *pil[selidx];
+    
+#ifndef __msvc__
 
     BufferString comm( "@" );
     comm += mGetExecScript();
@@ -343,6 +349,48 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 	comm += val;
     }
 
+#else
+     
+    BufferString comm("");
+    comm = _getcwd(NULL,0);
+    comm += "\\";
+
+    const char* progtxt = progfld->box()->text();
+    if ( progtxt && *progtxt && *progtxt != '[' )
+    {
+	
+	FilePath progfp( progfld->box()->text() );
+	comm += progfp.fullPath( FilePath::Windows );
+	
+    }
+
+    ObjectSet<uiGenInput>& inplst = *inps[selidx];
+    for ( int iinp=0; iinp<inplst.size(); iinp++ )
+    {
+	uiGenInput* inp = inplst[iinp];
+	mDynamicCastGet(uiFileInput*,finp,inp)
+	BufferString val;
+	if ( finp )
+	{
+	    val = "\"";
+
+	    FilePath argfp( finp->fileName() );
+	    BufferString arg = argfp.fullPath( FilePath::Windows);
+	    val += arg;
+
+	    val += "\"";
+	}
+	else if ( bpi.args[iinp]->type != BatchProgPar::QWord )
+	    val = inp->text();
+	else
+	    { val = "'"; val += inp->text(); val += "'"; }
+
+	comm += " ";
+	comm += val;
+    }
+
+#endif
+    
     StreamProvider sp( comm );
     return sp.executeCommand( true );
 }
