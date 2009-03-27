@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.17 2009-02-17 06:34:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.18 2009-03-27 15:52:11 cvsbert Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -23,13 +23,14 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 			  const char* lbltxt )
 	: uiGroup(p,"Z range selection")
 	, stepfld_(0)
+	, isrel_(isrel)
 {
     StepInterval<float> limitrg( -cUnLim, cUnLim, 1 );
-    if ( !isrel )
+    if ( !isrel_ )
 	limitrg = SI().zRange( false );
 
     makeInpFields( lbltxt, wstep, limitrg );
-    if ( isrel )
+    if ( isrel_ )
 	setRange( StepInterval<float>(0,0,1) );
     else
 	setRange( SI().zRange(true) );
@@ -127,6 +128,8 @@ void uiSelZRange::setRange( const StepInterval<float>& inpzrg )
 
 void uiSelZRange::valChg( CallBacker* cb )
 {
+    if ( isrel_ ) return;
+
     if ( startfld_->getValue() > stopfld_->getValue() )
     {
 	const bool chgstart = cb == stopfld_;

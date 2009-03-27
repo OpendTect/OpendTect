@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.11 2009-02-17 06:34:30 cvsnanne Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.12 2009-03-27 15:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ protected:
     uiSpinBox*		startfld_;
     uiSpinBox*		stopfld_;
     uiSpinBox*		stepfld_;
+    bool		isrel_;
 
     void		valChg(CallBacker*);
     void		makeInpFields(const char*,bool,StepInterval<float>);
