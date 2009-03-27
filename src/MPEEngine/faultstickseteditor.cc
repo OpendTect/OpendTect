@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.1 2008-11-18 13:28:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultstickseteditor.cc,v 1.2 2009-03-27 10:40:10 cvsnanne Exp $";
 
 #include "faultstickseteditor.h"
 
@@ -209,8 +209,6 @@ bool FaultStickSetEditor::getNearestStick( int& sticknr, EM::SectionID& sid,
 		     strcmp(linenm,fssg.lineName(cursid,cursticknr)) )
 		    continue;
 	    }
-
-	    const int selsid = emObject().sectionID( selsectionidx );
 
 	    if ( selsectionidx==-1 || disttoline<minlinedist )
 	    {
