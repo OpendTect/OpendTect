@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.34 2009-03-27 09:40:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.35 2009-03-28 10:07:45 cvsbert Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -29,7 +29,9 @@ static const char* rcsID = "$Id: uibatchprogs.cc,v 1.34 2009-03-27 09:40:34 cvsr
 #include "dirlist.h"
 #include "errh.h"
 #include <iostream>
-#include <direct.h>
+#ifdef __win__
+# include <direct.h>
+#endif
 
 
 
