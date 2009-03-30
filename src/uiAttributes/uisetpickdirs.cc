@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.16 2009-03-03 13:00:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetpickdirs.cc,v 1.17 2009-03-30 13:06:51 cvsbert Exp $";
 
 
 #include "uisetpickdirs.h"
@@ -315,13 +315,13 @@ bool uiSetPickDirs::extractDipOrAngl( DataPointSet& locations )
 
 float uiSetPickDirs::calcPhi( float inldip, float crldip )
 {
-    const float azi = mIsZero(crldip,1e-3) ? M_PI/2 : atan(inldip/crldip);
+    const float azi = atan2( inldip, crldip );
 
     const RCol2Coord& b2c = SI().binID2Coord();
     const float xcrl = b2c.getTransform(true).c;
     float ycrl = b2c.getTransform(false).c;
 
-    const float angN = mIsZero(ycrl,1e-3) ? M_PI/2 : atan(xcrl/ycrl);
+    const float angN = atan2( xcrl, ycrl );
 
     float phi;
     if ( SI().isClockWise() )
