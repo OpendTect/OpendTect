@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.85 2009-01-20 06:19:14 cvsranojay Exp $
+ RCS:		$Id: survinfo.h,v 1.86 2009-03-30 04:31:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,6 +225,7 @@ public:
     const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
     void		setComment( const char* s )	{ comment_ = s; }
     static void		produceWarnings(bool);
+    void		setInvalid() const;
 
     void		setWSProjName( const char* nm ) const
 			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }

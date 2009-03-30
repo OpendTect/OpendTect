@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.114 2009-03-18 14:02:10 cvshelene Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.115 2009-03-30 04:31:06 cvsnanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -71,6 +71,13 @@ void SurveyInfo::deleteInstance()
 {
     delete theinst_;
     theinst_ = 0;
+}
+
+
+void SurveyInfo::setInvalid() const
+{
+    SurveyInfo* myself = const_cast<SurveyInfo*>(this);
+    myself->valid_ = false;
 }
 
 
