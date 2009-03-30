@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.9 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uigridlinesdlg.cc,v 1.10 2009-03-30 09:51:12 cvsnanne Exp $";
 
 #include "uigridlinesdlg.h"
 
@@ -181,8 +181,8 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
 	cs.zrg.scale( 1/SI().zFactor() );
     }
 
-    gl.setGridCubeSampling( cs );
     gl.setPlaneCubeSampling( pdd_->getCubeSampling(true,true) );
+    gl.setGridCubeSampling( cs );
     if ( inlfld_ )
 	gl.showInlines( inlfld_->isChecked() );
     if ( crlfld_ )
