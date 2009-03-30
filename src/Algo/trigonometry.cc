@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.47 2009-02-20 21:10:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.48 2009-03-30 06:53:17 cvsraman Exp $";
 
 #include "trigonometry.h"
 
@@ -209,36 +209,205 @@ Quaternion Quaternion::inverse() const
 }
 
 
-Line2::Line2() {}
 
-Line2::Line2( double x0, double y0, double alpha, double beta )
-    : origin_( x0, y0 )
-    , dir_( alpha, beta )
+Line2::Line2( double slope, double intcpt )
+    : slope_(slope),yintcpt_(intcpt)
+    , start_(mUdf(double),mUdf(double))
+    , stop_(mUdf(double),mUdf(double))
+    , isvertical_(false),xintcpt_(mUdf(double))
 {}
 
 
-Line2::Line2( const Coord& point, const Coord& vector )
-    : origin_( point )
-    , dir_( vector )
-{}
-
-
-double Line2::distanceToPoint( const Coord& point ) const
+Line2::Line2( const Coord& pt, double slope )
+    : slope_(slope)
+    , start_(mUdf(double),mUdf(double))
+    , stop_(mUdf(double),mUdf(double))
 {
-    const double t = closestPoint( point );
-    return (point-getPoint(t)).abs();
+    isvertical_ = mIsUdf(slope_) ? true : false;
+    xintcpt_ = isvertical_ ? pt.x : mUdf(double);
+    yintcpt_ = isvertical_ ? mUdf(double) : pt.y - slope_ * pt.x;
 }
 
 
-double Line2::closestPoint( const Coord& point ) const
+Line2::Line2( const Coord& start, const Coord& stop )
+    : start_(start),stop_(stop)
+    , isvertical_(false),xintcpt_(mUdf(double))
 {
-    const Coord diff = point-origin_;
-    return diff.dot(dir_)/dir_.sqAbs();
+    double xdiff = stop_.x - start_.x;
+    double ydiff = stop_.y - start_.y;
+    if ( mIsZero(xdiff,mDefEps) )
+    {
+	slope_ = mUdf(double);
+	yintcpt_= mUdf(double);
+	isvertical_ = true;
+	xintcpt_ = start_.x;
+    }
+    else
+    {
+	slope_ = ydiff / xdiff;
+	yintcpt_ = start_.y - slope_ * start_.x;
+    }
 }
 
 
-Coord Line2::getPoint( double t ) const
-{ return Coord( origin_.x+dir_.x*t, origin_.y+dir_.y*t ); }
+#define mRetUdf return Coord( mUdf(double), mUdf(double) ) 
+Coord Line2::direction() const
+{
+    if ( mIsUdf(slope_) )
+    {
+	if ( !isvertical_ || mIsUdf(xintcpt_) )
+	    mRetUdf;
+
+	return Coord( 0, 1 );
+    }
+
+    return Coord(1,slope_).normalize();
+}
+
+
+Coord Line2::closestPoint( const Coord& point ) const
+{
+    if ( mIsUdf(slope_) )
+    {
+	if ( !isvertical_ || mIsUdf(xintcpt_) )
+	    mRetUdf;
+
+	return Coord( xintcpt_, point.y );
+    }
+
+    const double x = ( point.x + slope_ * (point.y-yintcpt_) ) /
+		     ( 1 + slope_*slope_ );
+    const double y = slope_ * x + yintcpt_;
+    return Coord( x, y );
+}
+
+
+Coord Line2::intersection( const Line2& line ) const
+{
+    Coord pos( mUdf(double), mUdf(double) );
+    if ( mIsUdf(slope_) )
+    {
+	if ( !isvertical_ || mIsUdf(xintcpt_) )
+	    mRetUdf;
+
+	if ( mIsUdf(line.slope_) || line.isvertical_ )
+	    mRetUdf;
+
+	pos.x = xintcpt_;
+	pos.y = line.slope_ * pos.x + line.yintcpt_;
+    }
+    else
+    {
+	if ( mIsUdf(line.slope_) )
+	{
+	    if ( !line.isvertical_ || mIsUdf(line.xintcpt_) )
+		mRetUdf;
+
+	    pos.x = line.xintcpt_;
+	    pos.y = slope_ * pos.x + yintcpt_;
+	}
+	else
+	{
+	    double slopediff = slope_ - line.slope_;
+	    if ( mIsZero(slopediff,mDefEps) )
+		mRetUdf;
+
+	    pos.x = ( line.yintcpt_ - yintcpt_ ) / slopediff;
+	    pos.y = slope_ * pos.x + yintcpt_;
+	}
+    }
+
+    bool inlimits1 = true;
+    if ( !mIsUdf(start_.x) && !mIsUdf(stop_.x) )
+    {
+	const double xdiff = stop_.x - start_.x;
+	const double ydiff = stop_.y - start_.y;
+	if ( !mIsZero(xdiff,mDefEps) && (pos.x-start_.x) * (stop_.x-pos.x) < 0 )
+	    inlimits1 = false;
+
+	if ( !mIsZero(ydiff,mDefEps) && (pos.y-start_.y) * (stop_.y-pos.y) < 0 )
+	    inlimits1 = false;
+    }
+
+    bool inlimits2 = true;
+    if ( !mIsUdf(line.start_.x) && !mIsUdf(line.stop_.x) )
+    {
+	const double xdiff = line.stop_.x - line.start_.x;
+	const double ydiff = line.stop_.y - line.start_.y;
+	if ( !mIsZero(xdiff,mDefEps)
+		&& (pos.x-line.start_.x) * (line.stop_.x-pos.x) < 0 )
+	    inlimits1 = false;
+
+	if ( !mIsZero(ydiff,mDefEps)
+		&& (pos.y-line.start_.y) * (line.stop_.y-pos.y) < 0 )
+	    inlimits1 = false;
+    }
+
+    if ( !inlimits1 || !inlimits2 )
+	mRetUdf;
+
+    return pos;
+}
+
+
+double Line2::distanceTo( const Line2& line ) const
+{
+    if ( isvertical_ && line.isvertical_ )
+	return fabs( xintcpt_ - line.xintcpt_ );
+
+    if ( !mIsEqual(slope_,line.slope_,mDefEps) )
+	return mUdf(double);
+
+    const double intcptdiff = fabs( yintcpt_ - line.yintcpt_ );
+    return intcptdiff / sqrt( 1 + slope_ * slope_ );
+}
+
+
+bool Line2::getParallelLine( Line2& line, double dist ) const
+{
+    if ( mIsUdf(slope_) )
+    {
+	if ( !isvertical_ || mIsUdf(xintcpt_) )
+	    return false;
+
+	line.isvertical_ = true;
+	line.xintcpt_ = xintcpt_ + dist;
+    }
+    else
+    {
+	double constterm = dist * sqrt( 1 + slope_ * slope_ );
+	line.yintcpt_ = yintcpt_ + constterm;
+    }
+
+    line.slope_ = slope_;
+    return true;
+}
+
+
+bool Line2::getPerpendicularLine( Line2& line, const Coord& point ) const
+{
+    if ( mIsUdf(slope_) )
+    {
+	if ( !isvertical_ || mIsUdf(xintcpt_) )
+	    return false;
+	
+	line.slope_ = 0;
+	line.isvertical_ = false;
+	line.yintcpt_ = point.y;
+    }
+    else if ( mIsZero(slope_,mDefEps) )
+    {
+	line.isvertical_ = true;
+	line.xintcpt_ = point.x;
+    }
+    else
+    {
+	line.slope_ = -1 / slope_;
+	line.yintcpt_ = point.y - line.slope_ * point.x;
+    }
+
+    return true;
+}
 
 
 

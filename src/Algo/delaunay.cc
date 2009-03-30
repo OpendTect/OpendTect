@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.30 2008-12-11 10:25:51 cvsranojay Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.31 2009-03-30 06:53:17 cvsraman Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -650,12 +650,17 @@ char DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
 char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a,	const Coord& b,
        				bool& duponfirst, double& signedsqdist ) const
 {
-    const Line2 line( a, b-a );
-    const double t = line.closestPoint( p );
+    const Coord linevec = b - a;
+    const Coord newvec = p - a;
+    const double sqlen = linevec.sqAbs();
+    if ( mIsZero(sqlen,mDefEps) )
+	return cIsDuplicate();
 
-    const Coord vec = line.getPoint( t )-p;
+    const double t = linevec.dot(newvec) / sqlen;
+    const Coord closestpt = a + linevec * t;
+    const Coord vec = closestpt - p;
     const double sqdist = vec.sqAbs();
-    const bool sign = Coord(line.dir_.y, -line.dir_.x).dot( vec ) > 0;
+    const bool sign = Coord(linevec.y, -linevec.x).dot( vec ) > 0;
     signedsqdist = sign==planedirection_ ? sqdist : -sqdist;
     if ( t<0 || t>1 || sqdist>epsilon_*epsilon_ )
 	return cNotOnEdge();
