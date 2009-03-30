@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.38 2009-02-06 05:23:33 cvsranojay Exp $
+ RCS:		$Id: trigonometry.h,v 1.39 2009-03-30 06:49:52 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -254,29 +254,40 @@ public:
     Vector3		vec_;
 };
 
+
+/*!\brief A Line2 is a line on XY-plane, and it is defined in slope-intercept
+    form y = slope*x + y-intercept; for making operations easier. */
+
 mClass Line2
 {
 public:			
-    			Line2();
-    			Line2( double x0, double y0,
-			       double alpha, double beta );
-    			Line2( const Coord&, const Coord& dir );
+    			Line2(double slope=0,double intcpt=0);
+    			Line2(const Coord&,double slope);
+			Line2(const Coord&,const Coord&);
 
-    Coord		direction( bool normalize = true ) const
-    			{
-			    const Coord res( dir_ );
-			    return normalize ? res.normalize() : res;
-			}
+    Coord		direction() const;	/*!<\Normalized */
 
-    Coord		getPoint(double t) const;
-
-    double		distanceToPoint( const Coord& point ) const;
-    double		closestPoint( const Coord& point ) const;
+    Coord		closestPoint(const Coord& point) const;
     			/*!<\returns the point on the line that is closest to
 			 	     the given point */
 
-    Coord		origin_; 
-    Coord		dir_;
+    Coord		intersection(const Line2&) const;
+
+    double		distanceTo(const Line2&) const;
+    			/*!<\gives diatance to another parallel line */
+    bool		getParallelLine(Line2& line,double dist) const;
+			/*!<\Gives a parallel line at a distance dist */
+    bool		getPerpendicularLine(Line2& line,const Coord& pt) const;
+    			/*!<\Gives a perpendicular line through point pt*/
+
+    double		slope_;
+    double		yintcpt_;
+
+    bool		isvertical_;		/*!<\Parallel to y-axis */
+    double		xintcpt_;		/*!<\only if isvertical_ true */
+
+    Coord		start_;			/*!<\For line-segments only */
+    Coord		stop_;			/*!<\For line-segments only */
 };
 
 /*!\brief
