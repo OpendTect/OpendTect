@@ -8,8 +8,12 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Mar 2009
  Contents:	Angle functions
- RCS:		$Id: angles.h,v 1.1 2009-03-30 12:38:51 cvsbert Exp $
+ RCS:		$Id: angles.h,v 1.2 2009-03-30 12:54:13 cvsbert Exp $
 ________________________________________________________________________
+
+ Converting degrees, radians and user degrees to one another.
+ Users (or rather: geologists) have North=0, and then clockwise to E=90,
+ S=180s and W=270.
 
 */
 
@@ -74,6 +78,7 @@ inline long double rad2deg( long double rad )
 }
 
 
+//! User degrees are from North, clockwise
 template <class T>
 inline T deg2usrdeg( T deg )
 {
@@ -84,10 +89,27 @@ inline T deg2usrdeg( T deg )
 }
 
 
+//! User degrees are from North, clockwise
+template <class T>
+inline T usrdeg2deg( T udeg )
+{
+    T deg = 90 - udeg;
+    if ( deg < 0 ) deg += 360;
+    return deg;
+}
+
+
 template <class T>
 inline T rad2usrdeg( T rad )
 {
     return deg2usrdeg( rad2deg(rad) );
+}
+
+
+template <class T>
+inline T usrdeg2rad( T udeg )
+{
+    return deg2rad( usrdeg2deg(udeg) );
 }
 
 
