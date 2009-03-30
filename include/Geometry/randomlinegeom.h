@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.7 2008-12-25 11:55:38 cvsranojay Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.8 2009-03-30 06:54:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 class IOPar;
+class Line2;
 
 namespace Geometry
 {
@@ -68,6 +69,10 @@ mClass RandomLineSet
 public:
 
     			RandomLineSet();
+			RandomLineSet(const RandomLine&,double dist,
+				      bool parallel);
+			//!< dist in XY units
+
     virtual		~RandomLineSet();
     bool		isEmpty() const		{ return lines_.isEmpty(); }
 
@@ -85,6 +90,7 @@ protected:
     ObjectSet<RandomLine>	lines_;
     IOPar&			pars_;
 
+    void		createParallelLines(const Line2& baseline,double dist);
 };
 
 
