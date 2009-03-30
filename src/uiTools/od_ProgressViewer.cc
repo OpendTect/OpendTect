@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.22 2009-03-17 07:02:45 cvsranojay Exp $";
+static const char* rcsID = "$Id: od_ProgressViewer.cc,v 1.23 2009-03-30 10:44:01 cvsraman Exp $";
 
 #include "uidesktopservices.h"
 #include "uifiledlg.h"
@@ -111,14 +111,6 @@ void uiProgressViewer::appendToText()
 void uiProgressViewer::doWork( CallBacker* )
 {
     bool ateof = strm.eof();
-    if ( !isProcessAlive(ppid) )
-    {
-	txtfld->append( "Program Terminated" );
-	tb_->setToolTip( quitid_, "Close" );
-	ppid = 0;
-	return;
-    }
-
     if ( strm.eof() || strm.fail() )
     {
 	appendToText();
