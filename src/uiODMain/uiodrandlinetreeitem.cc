@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.25 2008-12-30 09:50:26 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.26 2009-03-30 07:06:23 cvsraman Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -16,6 +16,8 @@ static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.25 2008-12-30 09:50
 #include "randomlinetr.h"
 #include "randomlinegeom.h"
 #include "survinfo.h"
+#include "strmprov.h"
+#include "trigonometry.h"
 
 #include "uibinidtable.h"
 #include "uibutton.h"
@@ -196,6 +198,7 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     , usewellsmnuitem_("&Create from wells ...")
     , saveasmnuitem_("&Save ...")
     , saveas2dmnuitem_("Save as &2D ...")
+    , create2dgridmnuitem_("Create 2D &Grid ...")
 { displayid_ = id; } 
 
 
@@ -262,6 +265,8 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &usewellsmnuitem_, !islocked, false );
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
     mAddMenuItem( menu, &saveas2dmnuitem_, true, false );
+    if ( rtd->nrKnots() == 2 )
+	mAddMenuItem( menu, &create2dgridmnuitem_, true, false );
 }
 
 
@@ -317,6 +322,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    rln->setName( rtd->name() );
 	    applMgr()->seisServer()->storeRlnAs2DLine( *rln );
+	    delete rln;
+	}
+	else if ( mnuid == create2dgridmnuitem_.id )
+	{
+	    rln->setName( rtd->name() );
+	    applMgr()->seisServer()->create2DGridFromRln( *rln );
 	    delete rln;
 	}
     }

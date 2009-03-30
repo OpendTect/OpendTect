@@ -7,8 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.7 2009-02-27 08:54:45 cvsraman Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.8 2009-03-30 06:57:52 cvsraman Exp $";
 
+#include "ioman.h"
+#include "iopar.h"
+#include "progressmeter.h"
 #include "seisrandlineto2d.h"
 #include "randomlinegeom.h"
 #include "seisread.h"
@@ -16,6 +19,7 @@ static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.7 2009-02-27 08:54:45 c
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "survinfo.h"
+
 
 SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
 				    const LineKey& lk, const int& trcinit,
@@ -162,3 +166,104 @@ od_int64 SeisRandLineTo2D::nrDone() const
 
 od_int64 SeisRandLineTo2D::totalNr() const
 { return totnr_; }
+
+
+bool SeisRandLineTo2D::execute( std::ostream* strm, bool, bool, int )
+{
+    if ( !strm )
+	return Executor::execute();
+
+    TextStreamProgressMeter progressmeter( *strm );
+    setProgressMeter( &progressmeter );
+    bool res = SequentialTask::execute();
+    if ( !res )
+	*strm << "Error: " << message() << std::endl;
+    else
+	*strm << "\nFinished: " << std::endl;
+
+    setProgressMeter( 0 );
+    return res;
+}
+
+#define mNotOKRet(s) { isok_ = false; strm_ << s << std::endl; return; }
+SeisRandLineTo2DGrid::SeisRandLineTo2DGrid( const IOPar& par, std::ostream& s )
+    : isok_(true),strm_(s)
+    , inpobj_(0),outpobj_(0)
+{
+    MultiID inpid, outpid;
+    if ( !par.get(SeisRandLineTo2DGrid::sKeyInputID(),inpid) )
+	mNotOKRet("Error: Input ID is missing")
+
+    if ( !par.get(SeisRandLineTo2DGrid::sKeyOutputID(),outpid) )
+	mNotOKRet("Error: Output ID is missing")
+
+    inpobj_ = IOM().get( inpid );
+    if ( !inpobj_ )
+	mNotOKRet("Error: Input seismic cube cannot be found")
+
+    outpobj_ = IOM().get( outpid );
+    if ( !outpobj_ )
+	mNotOKRet("Error: Output lineset cannot be found")
+
+    const char* attrnm = par.find( SeisRandLineTo2DGrid::sKeyOutpAttrib() );
+    outpattrib_ = attrnm && *attrnm ? attrnm : LineKey::sKeyDefAttrib();
+    const char* parpref = par.find( SeisRandLineTo2DGrid::sKeyParPrefix() );
+    parprefix_ = parpref && *parpref ? parpref : "Parallel";
+    const char* perpref = par.find( SeisRandLineTo2DGrid::sKeyPerpPrefix() );
+    perprefix_ = perpref && *perpref ? perpref : "Perpendicular";
+
+    if ( !par.get(SeisRandLineTo2DGrid::sKeyGridSpacing(),gridspacing_) )
+	mNotOKRet("Error: Grid spacing not specified")
+
+    PtrMan<IOPar> randlnpar = par.subselect(
+	    			SeisRandLineTo2DGrid::sKeyRandomLine() );
+    if ( !randlnpar )
+	mNotOKRet("Error: Base Random line missing")
+
+    BinID start, stop;
+    if ( !randlnpar->get(SeisRandLineTo2DGrid::sKeyStartBinID(),start)
+	    || !randlnpar->get(SeisRandLineTo2DGrid::sKeyStopBinID(),stop) )
+	mNotOKRet("Error: Base Random line definition incomplete")
+
+    rln_.addNode( start );
+    rln_.addNode( stop );
+}
+
+
+#undef mNotOKRet
+#define mFalseRet(s) { strm_ << s << std::endl; return false; }
+bool SeisRandLineTo2DGrid::createGrid()
+{
+    Geometry::RandomLineSet parset( rln_, gridspacing_, true );
+    Geometry::RandomLineSet perpset( rln_, gridspacing_, false );
+    if ( !parset.size() && !perpset.size() )
+	mFalseRet("Error: failed to generate grid lines")
+
+    return mk2DLines(parset,true) && mk2DLines(perpset,false);
+}
+
+
+bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
+       				      bool parll )
+{
+    int numsuffix = 1;
+    for ( int idx=0; idx<rlset.size(); idx++ )
+    {
+	const Geometry::RandomLine* rln = rlset.lines()[idx];
+	if ( !rln || rln->nrNodes() != 2 )
+	    continue;
+
+	BufferString linenm( parll ? parprefix_ : perprefix_ );
+	linenm += numsuffix++;
+	LineKey lk( linenm, outpattrib_.buf() );
+	SeisRandLineTo2D exec( inpobj_, outpobj_, lk, 1, *rln );
+	strm_ << "Creating 2D line " << linenm << ":" << std::endl;
+	strm_.flush();
+	if ( !exec.execute(&strm_) )
+	    strm_ << "Failedto create line " << linenm << std::endl;
+    }
+
+    return true;
+}
+
+#undef mFalseRet

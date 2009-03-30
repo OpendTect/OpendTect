@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.35 2009-03-10 12:46:51 cvskris Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.36 2009-03-30 06:58:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ public:
 				       CubeSampling&,SeisTrcBuf&);
     void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
     void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
+    void		create2DGridFromRln(const Geometry::RandomLine&) const;
 
     void		processTime2Depth() const;
 
