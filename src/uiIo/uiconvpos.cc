@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvpos.cc,v 1.30 2009-03-31 04:42:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiconvpos.cc,v 1.31 2009-03-31 04:49:43 cvsnanne Exp $";
 
 #include "uiconvpos.h"
 #include "pixmap.h"
@@ -103,8 +103,9 @@ void uiConvertPos::selChg( CallBacker* )
 void uiConvertPos::getCoord( CallBacker* )
 {
     BinID binid( inlfld->getIntValue(), crlfld->getIntValue() );
-    if ( mIsUdf(binid.inl) || mIsUdf(binid.crl) )
+    if ( binid == BinID::udf() )
     {
+	uiMSG().error( "Cannot convert this position" );
 	xfld->setText( "" ); yfld->setText( "" );
 	return;
     }
@@ -120,6 +121,13 @@ void uiConvertPos::getCoord( CallBacker* )
 void uiConvertPos::getBinID( CallBacker* )
 {
     Coord coord( xfld->getdValue(), yfld->getdValue() );
+    if ( coord == Coord::udf() )
+    {
+	uiMSG().error( "Cannot convert this position" );
+	inlfld->setText( "" ); crlfld->setText( "" );
+	return;
+    }
+
     BinID binid( survinfo.transform( coord ) );
     inlfld->setValue( binid.inl );
     crlfld->setValue( binid.crl );
