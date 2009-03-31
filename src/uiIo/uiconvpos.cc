@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvpos.cc,v 1.29 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvpos.cc,v 1.30 2009-03-31 04:42:58 cvsnanne Exp $";
 
 #include "uiconvpos.h"
 #include "pixmap.h"
@@ -35,32 +35,35 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
     ismanfld->valuechanged.notify( mCB(this,uiConvertPos,selChg) );
 
     mangrp = new uiGroup( this, "Manual group" );
-    inlfld = new uiGenInput( mangrp, "In-line", 
+    uiGroup* inlcrlgrp = new uiGroup( mangrp, "InlCrl group" );
+    inlfld = new uiGenInput( inlcrlgrp, "In-line", 
 			     IntInpSpec().setName("Inl-field") );
     inlfld->setElemSzPol( uiObject::Small );
-    crlfld = new uiGenInput( mangrp, "Cross-line", 
+    crlfld = new uiGenInput( inlcrlgrp, "Cross-line", 
 	    		     IntInpSpec().setName("Crl-field") );
     crlfld->setElemSzPol( uiObject::Small );
-    xfld = new uiGenInput( mangrp, "X-coordinate",
+    crlfld->attach( alignedBelow, inlfld );
+
+    uiGroup* xygrp = new uiGroup( mangrp, "XY group" );
+    xfld = new uiGenInput( xygrp, "X-coordinate",
 			   DoubleInpSpec().setName("X-field") );
     xfld->setElemSzPol( uiObject::Small );
-    yfld = new uiGenInput( mangrp, "Y-coordinate", 
+    yfld = new uiGenInput( xygrp, "Y-coordinate", 
 	    		   DoubleInpSpec().setName("Y-field") );
     yfld->setElemSzPol( uiObject::Small );
-    crlfld->attach( alignedBelow, inlfld );
-    xfld->attach( rightTo, inlfld );
     yfld->attach( alignedBelow, xfld );
-    yfld->attach( rightTo, crlfld );
 
+    uiGroup* butgrp = new uiGroup( mangrp, "Buttons" );
     const ioPixmap right( "forward.xpm" ); const ioPixmap left( "back.xpm" );
-    uiToolButton* dobinidbut = new uiToolButton( mangrp, "Left", left );
+    uiToolButton* dobinidbut = new uiToolButton( butgrp, "Left", left );
     dobinidbut->activated.notify( mCB(this,uiConvertPos,getBinID) );
-    dobinidbut->attach( alignedBelow, yfld );
     dobinidbut->setToolTip( "Convert (X,Y) to Inl/Crl" );
-    uiToolButton* docoordbut = new uiToolButton( mangrp, "Right", right );
+    uiToolButton* docoordbut = new uiToolButton( butgrp, "Right", right );
     docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
-    docoordbut->attach( alignedBelow, crlfld );
+    docoordbut->attach( rightTo, dobinidbut );
     docoordbut->setToolTip( "Convert Inl/Crl to (X,Y)" );
+    butgrp->attach( centeredRightOf, inlcrlgrp );
+    xygrp->attach( centeredRightOf, butgrp );
 
     mangrp->setHAlignObj( inlfld );
     mangrp->attach( alignedBelow, ismanfld );
@@ -120,8 +123,8 @@ void uiConvertPos::getBinID( CallBacker* )
     BinID binid( survinfo.transform( coord ) );
     inlfld->setValue( binid.inl );
     crlfld->setValue( binid.crl );
-    if ( mIsZero(coord.x,mDefEps) ) xfld->setValue( 0 );
-    if ( mIsZero(coord.y,mDefEps) ) yfld->setValue( 0 );
+    xfld->setValue( coord.x );
+    yfld->setValue( coord.y );
 }
 
 
