@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Mar 2009
  Contents:	Angle functions
- RCS:		$Id: angles.h,v 1.2 2009-03-30 12:54:13 cvsbert Exp $
+ RCS:		$Id: angles.h,v 1.3 2009-03-31 12:12:34 cvsbert Exp $
 ________________________________________________________________________
 
  Converting degrees, radians and user degrees to one another.
@@ -28,52 +28,67 @@ ________________________________________________________________________
 # define M_PIl          3.1415926535897932384626433832795029L
 #endif
 
+namespace Angle
+{
+
+enum Type { Rad, Deg, UsrDeg };
+// Generic conversion function see bottom: Angle::convert
+
+template <class T>
+T cPI( T ) { return (T)M_PIl; }
+
+template <class T>
+inline void getFullCircle( Type typ, T& t )
+{
+    t = typ == Rad ? 2 * cPI(t) : 360;
+}
+
 
 inline double deg2rad( int deg )
 {
-    static double deg2radconst = M_PI / 180;
+    static double deg2radconst = cPI(deg2radconst) / 180;
     return deg * deg2radconst;
 }
 
 
 inline float deg2rad( float deg )
 {
-    static float deg2radconst = M_PI / 180;
+    static float deg2radconst = cPI(deg) / 180;
     return deg * deg2radconst;
 }
 
 
 inline double deg2rad( double deg )
 {
-    static double deg2radconst = M_PI / 180;
+    static double deg2radconst = cPI(deg) / 180;
     return deg * deg2radconst;
 }
 
 
 inline long double deg2rad( long double deg )
 {
-    static long double deg2radconst = M_PIl / 180;
+    static long double deg2radconst = cPI(deg) / 180;
     return deg * deg2radconst;
 }
 
 
 inline float rad2deg( float rad )
 {
-    static float rad2degconst = 180 / M_PI;
+    static float rad2degconst = 180 / cPI(rad);
     return rad * rad2degconst;
 }
 
 
 inline double rad2deg( double rad )
 {
-    static double rad2degconst = 180 / M_PI;
+    static double rad2degconst = 180 / cPI(rad);
     return rad * rad2degconst;
 }
 
 
 inline long double rad2deg( long double rad )
 {
-    static long double rad2degconst = 180 / M_PIl;
+    static long double rad2degconst = 180 / cPI(rad);
     return rad * rad2degconst;
 }
 
@@ -112,5 +127,26 @@ inline T usrdeg2rad( T udeg )
     return deg2rad( usrdeg2deg(udeg) );
 }
 
+
+template <class T>
+inline T convert( Type inptyp, T val, Type outtyp )
+{
+    if ( inptyp == outtyp )
+	return val;
+
+    switch ( inptyp )
+    {
+    case Rad: return outtyp == Deg ? rad2deg(val) : rad2usrdeg(val);
+    case Deg: return outtyp == Rad ? deg2rad(val) : deg2usrdeg(val);
+    case UsrDeg: return outtyp == Deg ? usrdeg2deg(val) : usrdeg2rad(val);
+    }
+
+    return val; // not reached, keep compiler happy
+}
+
+
+
+
+} // namespace
 
 #endif
