@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.8 2009-03-30 06:57:52 cvsraman Exp $";
+static const char* rcsID = "$Id: seisrandlineto2d.cc,v 1.9 2009-03-31 05:31:07 cvsraman Exp $";
 
 #include "ioman.h"
 #include "iopar.h"
@@ -261,6 +261,13 @@ bool SeisRandLineTo2DGrid::mk2DLines( const Geometry::RandomLineSet& rlset,
 	strm_.flush();
 	if ( !exec.execute(&strm_) )
 	    strm_ << "Failedto create line " << linenm << std::endl;
+    }
+
+    strm_ << "Finished processing." << std::endl;
+    if ( !SI().has2D() )
+    {
+	strm_ << "PLEASE NOTE THAT YOU NEED TO CHANGE SURVEY TYPE" << std::endl;
+	strm_ << " TO 'Both 2D and 3D' TO DISPLAY THE 2D LINES" << std::endl;
     }
 
     return true;
