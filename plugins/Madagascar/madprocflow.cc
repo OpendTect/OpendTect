@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocflow.cc,v 1.3 2009-01-20 10:54:43 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocflow.cc,v 1.4 2009-03-31 06:10:21 cvsraman Exp $";
 
 #include "madprocflow.h"
 #include "madprocflowtr.h"
@@ -67,6 +67,29 @@ void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
 	iop.set( sKey::Type, sKey::None );
 }
 
+#define mRetFalse(s) { errmsg = s; return false; }
+bool ODMad::ProcFlow::isOK( BufferString& errmsg ) const
+{
+    if ( !inpiop_.size() )
+	mRetFalse("Input parameters missing")
+    if ( !outiop_.size() )
+	mRetFalse("Output parameters missing")
+
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( !(*this)[idx] )
+	    mRetFalse("Empty proc found")
+	if ( !(*this)[idx]->isValid() )
+	{
+	    errmsg = "Invalid command: ";
+	    errmsg += (*this)[idx]->getSummary();
+	    return false;
+	}
+    }
+
+    return true;
+}
+#undef mRetFalse
 
 void ODMad::ProcFlow::fillPar( IOPar& iop ) const
 {

@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Dec 2007
- * ID       : $Id: madprocflow.h,v 1.3 2009-01-20 10:54:43 cvsraman Exp $
+ * ID       : $Id: madprocflow.h,v 1.4 2009-03-31 06:10:21 cvsraman Exp $
 -*/
 
 #include "iopar.h"
@@ -36,6 +36,7 @@ public:
     void		setIOType( bool inp, IOType iot )
     			{ setIOType( inp ? inpiop_ : outiop_, iot ); }
 
+    bool		isOK(BufferString&) const;
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
