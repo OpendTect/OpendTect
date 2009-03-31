@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.3 2009-03-30 21:18:46 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.4 2009-03-31 16:42:27 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,7 @@ namespace Geometry { class BinIDSurface; }
 
 
 #define mHorizonSectionNrRes	6
-#define mHorizonSectionSideSize	62
+#define mHorizonSectionSideSize	62 //This is the size of blocks of the tile
 
 namespace visBase
 {

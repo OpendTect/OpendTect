@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.3 2009-03-30 21:18:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.4 2009-03-31 16:42:27 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -193,20 +193,18 @@ void HorizonSection::updateGeometry()
 
     for ( int row=0; row<nrrowtiles; row++ )
     {
-	const int startrow = row*mHorizonSectionSideSize + rrg.start -
-	    		     ( row ? 1 : 0 ); 
+	const int startrow = row*mHorizonSectionSideSize + rrg.start;
 	for ( int col=0; col<nrcoltiles; col++ )
 	{
-	    const int startcol = col*mHorizonSectionSideSize + crg.start -
-				 ( col ? 1 : 0 );
+	    const int startcol = col*mHorizonSectionSideSize + crg.start;
 	    HorizonSectionTile* tile = new HorizonSectionTile();
 	    tile->setTextureComposerSize( mHorizonSectionSideSize+2,
 		    			  mHorizonSectionSideSize+2 );
 	    tile->setTextureComposerOrig( startrow, startcol );
 
-	    for ( int r=0; r<mHorizonSectionSideSize; r++ )
+	    for ( int r=0; r<=mHorizonSectionSideSize; r++ )
 	    {
-		for ( int c=0; c<mHorizonSectionSideSize; c++ )
+		for ( int c=0; c<=mHorizonSectionSideSize; c++ )
 		{
 		    if ( startrow+r<=rrg.stop && startcol+c<=crg.stop )
     			tile->setPos( r, c, geometry_->getKnot(
@@ -431,13 +429,9 @@ void HorizonSectionTile::tesselateResolution( int res )
 {
     if ( res==-1 || !needsretesselation_[res] ) return;
 
-    const int resstep = (int)pow( 2, res );
-    const int resskipsz = mHorizonSectionSideSize*resstep;
-    int nrsideblocks = mHorizonSectionSideSize/resstep+1;
-    if ( resstep==1 )
-	nrsideblocks = mHorizonSectionSideSize-1;
-    else if ( resstep==2 )
-	nrsideblocks--;
+    const int resstep = (int)pow( 2, res ); //Nr of blocks between two points.
+    const int nrsideblocks = mHorizonSectionSideSize/resstep + 
+	(mHorizonSectionSideSize%resstep ? 0 : -1);
 
     triangles_[res]->textureCoordIndex.deleteValues( 0, -1 );
     triangles_[res]->coordIndex.deleteValues( 0, -1 );
@@ -453,22 +447,21 @@ void HorizonSectionTile::tesselateResolution( int res )
     TypeSet<int> stripindices;
     TypeSet<int> stripsizes;
      
-    for ( int tiler=0; tiler<nrsideblocks; tiler++ )
+    for ( int ridx=0; ridx<=nrsideblocks; ridx++ )
     {
 	chainlength = 0; 
 	stripindices.erase();
 	stripsizes.erase();
-	for ( int tilec=0; tilec<nrsideblocks; tilec++ )
+	for ( int cidx=0; cidx<=nrsideblocks; cidx++ )
 	{
-	    const int crdidx0 = tilec*resstep+tiler*resskipsz;
+	    const int crdidx0 = resstep*(cidx+ridx*mHorizonSectionSideSize);
 	    const bool defpos0 = coords_->getPos(crdidx0).isDefined();
-	    const int crdidx1 = crdidx0+resskipsz;
-	    const bool defpre1 = tiler<nrsideblocks-1 ?
-		coords_->getPos(crdidx1-resstep).isDefined() : false;
+	    const int crdidx1 = crdidx0+mHorizonSectionSideSize*resstep;
 
 	    if ( defpos0 )
 	    {
-		if ( tilec && !defpre1 && crdidx0>0 && 
+		if ( cidx && ridx<nrsideblocks && 
+			!coords_->getPos(crdidx1-resstep).isDefined() && 
 			coords_->getPos(crdidx0-resstep).isDefined() )
 		{
 		    stripindices += crdidx0-resstep;
@@ -485,11 +478,12 @@ void HorizonSectionTile::tesselateResolution( int res )
 		chainlength = 0;
 	    }
 	   
-	    if ( tiler==nrsideblocks-1 ) continue;
+	    if ( ridx==nrsideblocks ) continue;
 
 	    if ( coords_->getPos(crdidx1).isDefined() )
 	    {
-		if ( tilec && !defpos0 && defpre1 )
+		if ( cidx && !defpos0 && 
+			coords_->getPos(crdidx1-resstep).isDefined() )
 		{
 		    stripindices += crdidx1-resstep;
 		    chainlength = 1;
@@ -582,7 +576,7 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 	return;
 
     const int res = getActualResolution();  
-    if ( res>-1 && res<mHorizonSectionNrRes && !needsretesselation_[res] )
+    if ( !needsretesselation_[res] && res>-1 && res<mHorizonSectionNrRes )
     {
 	const int resstep = (int)pow( 2, res );
 	if ( (row % resstep) && (col % resstep) )
@@ -613,7 +607,10 @@ void HorizonSectionTile::tesselateGlue()
     //gluepoints_->coordIndex.deleteValues( 0, -1 );
 
     const int resstep = (int)pow( 2, getActualResolution() );
-    const int gluesz = resstep != 1 ?  mHorizonSectionSideSize%resstep : 1;
+    const int skipidxsz = mHorizonSectionSideSize*resstep;
+    const int nrsideblocks = mHorizonSectionSideSize/resstep + 
+	(mHorizonSectionSideSize%resstep ? 0 : -1);
+    const int gluesz = mHorizonSectionSideSize-resstep*nrsideblocks;
 
 
     int knot = 0;
