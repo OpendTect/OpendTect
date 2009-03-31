@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.116 2009-03-25 07:01:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.117 2009-03-31 11:51:13 cvsnanne Exp $";
 
 #include "emsurfaceio.h"
 
@@ -661,20 +661,24 @@ int dgbSurfaceReader::nextStep()
     int noofcoltoskip = 0;
     
     BufferStringSet lines;
-    if( readlinenames_ && linestrcrgs_ &&
-	par_->hasKey(Horizon2DGeometry::sKeyLineNames()) &&
-	par_->get( Horizon2DGeometry::sKeyLineNames(),lines ) &&
-	!lines.isEmpty() )
+    if ( readlinenames_ && linestrcrgs_ &&
+	 par_->hasKey(Horizon2DGeometry::sKeyLineNames()) &&
+	 par_->get( Horizon2DGeometry::sKeyLineNames(),lines ) &&
+	 !lines.isEmpty() )
     {
 	const int trcrgidx =
 	    readlinenames_->indexOf( lines.get(rowindex_).buf() );
 	int callastcols = ( firstcol - 1 ) + nrcols;
 
-	if ( firstcol < (*linestrcrgs_)[trcrgidx].start )
-	    noofcoltoskip = (*linestrcrgs_)[trcrgidx].start - firstcol;
+	StepInterval<int> trcrg = (*linestrcrgs_)[trcrgidx];
+	if ( trcrg.width() > 1 )
+	{
+	    if ( firstcol < trcrg.start )
+		noofcoltoskip = trcrg.start - firstcol;
 
-	if ( (*linestrcrgs_)[trcrgidx].stop < callastcols )
-	    callastcols = (*linestrcrgs_)[trcrgidx].stop;
+	    if ( trcrg.stop < callastcols )
+		callastcols = trcrg.stop;
+	}
 
 	nrcols = callastcols - firstcol - noofcoltoskip + 1;
     }
