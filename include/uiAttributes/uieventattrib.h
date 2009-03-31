@@ -7,7 +7,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2005
- RCS:           $Id: uieventattrib.h,v 1.6 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uieventattrib.h,v 1.7 2009-03-31 10:01:39 cvshelene Exp $
  ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ namespace Attrib { class Desc; }
 
 class uiAttrSel;
 class uiGenInput;
+class uiLabel;
 
 /*! \brief Event Attributes description editor */
 
@@ -35,6 +36,7 @@ protected:
     uiGenInput*		outpfld;
     uiGenInput*		evtypefld;
     uiGenInput*		gatefld;
+    uiLabel*		tonextlblfld;
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

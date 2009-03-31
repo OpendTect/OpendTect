@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uieventattrib.cc,v 1.13 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uieventattrib.cc,v 1.14 2009-03-31 10:01:39 cvshelene Exp $";
 
 #include "uieventattrib.h"
 #include "eventattrib.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uieventattrib.cc,v 1.13 2009-02-24 14:08:23 cvs
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 
 
 static const char* evtypestrs[] =
@@ -62,9 +63,13 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     evtypefld->valuechanged.notify( mCB(this,uiEventAttrib,isGateSel) );
     evtypefld->display(false);
     
-    tonextfld = new uiGenInput( this, "Compute distance to",
-	                BoolInpSpec(true,"Next event","Previous event") );
-    tonextfld->attach( alignedBelow, evtypefld );
+    tonextlblfld = new uiLabel( this,
+	    		"Compute distance between 2 consecutive events" );
+    tonextlblfld->attach( leftAlignedBelow, evtypefld );
+
+    tonextfld = new uiGenInput( this, "starting from",
+	    			BoolInpSpec(true,"Top","Bottom") );
+    tonextfld->attach( centeredBelow, tonextlblfld );
     tonextfld->display(false);
     
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
@@ -85,9 +90,11 @@ void uiEventAttrib::isSingleSel( CallBacker* )
     const bool issingle = issinglefld-> getBoolValue();
     const int val = evtypefld-> getIntValue();
     evtypefld->display( !issingle );
+    tonextlblfld->display( !issingle && val != 6 && val != 7 );
     tonextfld->display( !issingle && val != 6 && val != 7 );
     gatefld->display( !issingle && ( val == 6 || val == 7 ) );
     outpfld->display( issingle );
+    
 }
 
 
@@ -98,6 +105,7 @@ void uiEventAttrib::isGateSel( CallBacker* )
     const bool tgdisplay =  (val == 6 || val == 7 ) ? true : false;
     gatefld->display( tgdisplay && !issingle );
     tonextfld->display( !tgdisplay && !issingle );
+    tonextlblfld->display( !tgdisplay && !issingle );
 }
 
 
