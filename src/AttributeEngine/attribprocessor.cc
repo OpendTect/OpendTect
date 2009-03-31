@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.65 2009-02-25 10:56:01 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.66 2009-03-31 13:16:20 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -381,7 +381,7 @@ bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals,
 	if ( ( taboutp || trc2dvarzoutp ) && is2d_ )		//tmp patch
 	    wantout = true;
 
-	if ( !wantout || curbid == prevbid_ ) 
+	if ( !wantout || (curbid == prevbid_ && !is2d_) ) // !is2d = tmp patch 
 	    continue;
 
 	const float refzstep = provider_->getRefStep();
