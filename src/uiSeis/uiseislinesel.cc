@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.19 2009-02-20 08:47:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.20 2009-03-31 06:58:02 cvsnanne Exp $";
 
 #include "uiseislinesel.h"
 
@@ -88,7 +88,8 @@ BufferString uiSeis2DLineSubSel::getSummary() const
 
 void uiSeis2DLineSubSel::lineSetSel( CallBacker* )
 {
-    if ( !lsctio_.ioobj ) return;
+    if ( !linesetfld_->commitInput() || !lsctio_.ioobj )
+	return;
 
     SeisIOObjInfo oinf( lsctio_.ioobj );
     BufferStringSet lnms;
