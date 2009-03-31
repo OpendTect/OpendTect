@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.25 2009-01-22 15:58:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.26 2009-03-31 06:10:54 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -344,7 +344,12 @@ void uiMadagascarMain::exportFlow( CallBacker* )
 
 bool uiMadagascarMain::fillPar( IOPar& iop )
 {
+    BufferString errmsg;
+    if ( !procflow_.isOK(errmsg) )
+	mErrRet( errmsg.buf() )
+
     procflow_.fillPar( iop );
+
     iop.set( sKeySeisOutIDKey, "Output.ID" );
     return true;
 }
