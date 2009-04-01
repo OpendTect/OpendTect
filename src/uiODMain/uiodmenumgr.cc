@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.165 2009-03-25 12:13:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.166 2009-04-01 05:48:43 cvsranojay Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -499,7 +499,7 @@ void uiODMenuMgr::mkViewIconsMnu()
 }
 
 
-extern const char* logMsgFileName();
+mBasicExtern const char* logMsgFileName();
 
 void uiODMenuMgr::fillUtilMenu()
 {
