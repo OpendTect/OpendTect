@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.91 2009-03-27 12:40:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.92 2009-04-01 04:44:57 cvsnanne Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1102,7 +1102,7 @@ void StreamProvider::mkOSCmd( bool forread ) const
     FILE* fp = popen( oscommand, "r" ); \
     char c; fscanf( fp, "%c", &c ); \
     pclose( fp ); \
-    act c == '1'
+    act (c == '1')
 
 
 bool StreamProvider::exists( int fr ) const
