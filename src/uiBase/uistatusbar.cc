@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistatusbar.cc,v 1.16 2009-03-23 05:08:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistatusbar.cc,v 1.17 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uistatusbar.h"
 #include "uimainwin.h"
@@ -164,7 +164,7 @@ Color uiStatusBar::getBGColor( int fldidx ) const
 
 
 int uiStatusBar::addMsgFld( const char* lbltxt, const char* tooltip,
-			    OD::Alignment al, int stretch )
+			    Alignment::HPos al, int stretch )
 {
     int idx = body_->addMsgFld( lbltxt, stretch );
 
@@ -176,7 +176,7 @@ int uiStatusBar::addMsgFld( const char* lbltxt, const char* tooltip,
 }
 
 int uiStatusBar::addMsgFld( const char* tooltip,
-			    OD::Alignment al, int stretch )
+			    Alignment::HPos al, int stretch )
 {
     int idx = body_->addMsgFld( 0, stretch );
 
@@ -196,11 +196,12 @@ void uiStatusBar::setToolTip( int idx, const char* tooltip )
 }
 
 
-void uiStatusBar::setTxtAlign( int idx, OD::Alignment al )
+void uiStatusBar::setTxtAlign( int idx, Alignment::HPos hal )
 {
     if ( ! body_->msgs.validIdx(idx) ) return;
 
-    body_->msgs[idx]->setAlignment( (Qt::Alignment)al );
+    Alignment al( hal );
+    body_->msgs[idx]->setAlignment( (Qt::Alignment)al.hPos() );
 }
 
 

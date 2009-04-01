@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.36 2009-01-21 15:10:41 cvshelene Exp $
+ RCS:           $Id: uitreeview.h,v 1.37 2009-04-01 14:35:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,8 @@ public:
     void		setColumnWidthMode(int column,WidthMode);
     WidthMode		columnWidthMode(int column) const;
 
-    void		setColumnAlignment(int,OD::Alignment);
-    OD::Alignment	columnAlignment(int) const;
+    void		setColumnAlignment(int,Alignment::HPos);
+    Alignment::HPos	columnAlignment(int) const;
 
     void		ensureItemVisible(const uiListViewItem*);
 

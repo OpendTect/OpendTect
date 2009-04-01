@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.123 2009-02-19 06:38:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.124 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -97,10 +97,10 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 	{ caption += " '"; caption += res; caption += "'"; }
     setCaption( caption );
 
-    statusBar()->addMsgFld( "Message", OD::AlignLeft, 20 );
-    statusBar()->addMsgFld( "DoneTxt", OD::AlignRight, 20 );
-    statusBar()->addMsgFld( "NrDone", OD::AlignLeft, 10 );
-    statusBar()->addMsgFld( "Activity", OD::AlignLeft, 1 );
+    statusBar()->addMsgFld( "Message", Alignment::Left, 20 );
+    statusBar()->addMsgFld( "DoneTxt", Alignment::Right, 20 );
+    statusBar()->addMsgFld( "NrDone", Alignment::Left, 10 );
+    statusBar()->addMsgFld( "Activity", Alignment::Left, 1 );
 
     uiSeparator* sep = 0;
     uiObject* sepattach = 0;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.1 2009-03-31 12:12:49 cvsbert Exp $
+ RCS:           $Id: statdirdata.h,v 1.2 2009-04-01 14:35:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ public:
     bool		operator ==( const SectorPartData& spd ) const
 			{ return pos_ == spd.pos_; }
 
-    float		val_;
     float		pos_;	//!< 0=center 1=on circle = maximum value
+    float		val_;	//!< can be actual angle or another value
 
 };
 
@@ -70,6 +70,8 @@ public:
 			{ return (*((*this)[isect]))[ipart]; }
     const SectorPartData& get( int isect, int ipart ) const
 			{ return (*((*this)[isect]))[ipart]; }
+    inline int		nrSectors() const
+			{ return size(); }
     inline int		nrParts( int isect ) const
 			{ return ((*this)[isect])->size(); }
     inline float	angle(int isect) const;

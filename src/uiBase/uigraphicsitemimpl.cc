@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.14 2009-04-01 11:46:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.15 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -342,7 +342,7 @@ uiTextItem::uiTextItem( QGraphicsTextItem* qtobj )
 {}
 
 
-uiTextItem::uiTextItem( int x, int y, const char* txt, const Alignment& al)
+uiTextItem::uiTextItem( int x, int y, const char* txt, const Alignment& al )
     : uiGraphicsItem(mkQtObj())
 {
     setText( txt );
@@ -396,27 +396,27 @@ void uiTextItem::setAlignment( const Alignment& al )
     const float txtwidth = qfm.width( qtextitem_->toPlainText() );
     const float txtheight = qfm.height();
     float movex = 0, movey = 0;
-    switch ( al.hor_ )
+    switch ( al.hPos() )
     {
-	case OD::AlignRight:
+	case Alignment::Right:
 	    movex = -txtwidth;
 	    break;
-	case OD::AlignHCenter:
+	case Alignment::HCenter:
 	    movex = -txtwidth/2;
 	    break;
-	case OD::AlignLeft:
+	case Alignment::Left:
 	    break;
     }
     
-    switch ( al.ver_ )
+    switch ( al.vPos() )
     {
-	case OD::AlignBottom:
+	case Alignment::Bottom:
 	    movey = -txtheight;
 	    break;
-	case OD::AlignVCenter:
+	case Alignment::VCenter:
 	    movey = -txtheight/2;
 	    break;
-	case OD::AlignTop:
+	case Alignment::Top:
 	    break;
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosel.cc,v 1.55 2009-03-23 16:11:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosel.cc,v 1.56 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uiiosel.h"
 #include "uicombobox.h"
@@ -40,7 +40,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const Setup& su, const CallBack& butcb )
     inp_ = lcb->box(); lbl_ = lcb->label();
     inp_->setReadOnly( false );
     inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
-    lbl_->setAlignment( OD::AlignRight );
+    lbl_->setAlignment( Alignment::Right );
 
     selbut_ = new uiPushButton( this, su.buttontxt_, false );
     selbut_->setName( BufferString( su.buttontxt_, " ", su.seltxt_ ) );

@@ -7,12 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.1 2009-03-31 12:13:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.2 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uifont.h"
 #include "mouseevent.h"
+#include "angles.h"
 #include <iostream>
 
 
@@ -22,8 +24,8 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , setup_(su)
     , selsector_(0)
     , selpart_(0)
-    , equicircles_(0)
-    , sectorlines_(0)
+    , outercircleitm_(0)
+    , sectorlines_(*new uiGraphicsItemGroup)
     , sectorPartSelected(this)
 {
     setZoomOnCtrlScroll( false );
@@ -75,12 +77,102 @@ void uiDirectionalPlot::setVals( const Stats::DirectionalData& dird )
 
 void uiDirectionalPlot::gatherInfo()
 {
+    isempty_ = true;
+    for ( int isect=0; isect<data_.size(); isect++ )
+    {
+	const int nrparts = data_.nrParts(isect);
+	if ( nrparts > 0 )
+	{
+	    if ( isempty_ )
+	    {
+		isempty_ = false;
+		const Stats::SectorPartData& spd = data_.get(isect,0);
+		valrg_.start = valrg_.stop = spd.val_;
+		posrg_.start = posrg_.stop = spd.pos_;
+	    }
+	    const Stats::SectorData& sd = *data_[isect];
+	    for ( int ipart=0; ipart<sd.size(); ipart++ )
+	    {
+		const Stats::SectorPartData& spd = sd[ipart];
+		valrg_.include( spd.val_ );
+		posrg_.include( spd.pos_ );
+	    }
+	}
+    }
 }
 
 
 void uiDirectionalPlot::draw()
 {
-    if ( data_.isEmpty() ) return;
+    if ( isempty_ ) return;
+    const uiSize uitotsz( width(), height() );
+    uiBorder border( font()->height() + 5 );
+    center_ = uiPoint( uitotsz.width() / 2, uitotsz.height() / 2 );
+    const uiRect avrect( border.getRect(uitotsz) );
+    radius_ = avrect.width() > avrect.height()
+		     ? avrect.height() : avrect.width();
+    const uiRect workrect( center_.x - radius_, center_.y - radius_,
+	    		   center_.x + radius_, center_.y + radius_ );
+
+    //TODO plot data here
+
+    drawGrid();
+    drawAnnot();
+}
+
+
+void uiDirectionalPlot::drawGrid()
+{
+    if ( outercircleitm_ )
+    {
+	//TODO resize
+    }
+    else
+    {
+	outercircleitm_ = scene().addCircle( center_, radius_ );
+	outercircleitm_->setPenStyle( setup_.circlels_ );
+	for ( int idx=0; idx<4; idx++ )
+	{
+	    const float rad = (.2 + .2*idx)*radius_ ;
+	    uiEllipseItem* eqc = scene().addCircle( center_, rad );
+	    equicircles_ += eqc;
+	    eqc->setPenStyle( setup_.equils_ );
+	}
+    }
+
+    sectorlines_.removeAll( true );
+    const int nrsectors = data_.nrSectors();
+    for ( int isect=0; isect<nrsectors; isect++ )
+    {
+	const float ang = Angle::usrdeg2rad( isect * 360 / ((float)nrsectors) );
+	uiLineItem* li = scene().addLine( center_, ang, radius_ );
+	sectorlines_.add( li );
+	li->setPenStyle( setup_.sectorls_ );
+    }
+}
+
+
+void uiDirectionalPlot::drawAnnot()
+{
+    if ( dirtxtitms_.isEmpty() )
+    {
+	for ( int idx=0; idx<4; idx++ )
+	{
+	    uiTextItem* ti = scene().addText(
+		    idx == 0 ? "N" : (idx==1 ? "E" : (idx==2 ? "S" : "W")) );
+	    Alignment al( idx%2 ? (idx==1 ? Alignment::Left : Alignment::Right)
+		    			  : Alignment::HCenter,
+		          idx%2 ? Alignment::VCenter
+			  : (idx == 1 ? Alignment::Top : Alignment::Bottom) );
+	    ti->setAlignment( al );
+	    dirtxtitms_ += ti;
+	}
+    }
+
+    dirtxtitms_[0]->setPos( center_.x, center_.y - radius_ - 2 );
+    dirtxtitms_[1]->setPos( center_.x + radius_ + 2, center_.y );
+    dirtxtitms_[2]->setPos( center_.x, center_.y + radius_ + 2 );
+    dirtxtitms_[3]->setPos( center_.x - radius_ - 2, center_.y );
 }
 
 
@@ -99,17 +191,4 @@ void uiDirectionalPlot::draw()
 void uiDirectionalPlot::mouseRelease( CallBacker* )
 {
     mGetMousePos();
-}
-
-
-bool uiDirectionalPlot::isRose() const
-{
-    if ( data_.isEmpty() )
-	return false;
-    for ( int isect=0; isect<data_.size(); isect++ )
-    {
-	if ( data_.nrParts(isect) != 1 )
-	    return false;
-    }
-    return true;
 }

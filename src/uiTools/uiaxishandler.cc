@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.25 2009-04-01 08:42:53 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.26 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -411,18 +411,16 @@ void uiAxisHandler::annotAtEnd( const char* txt )
 	xpix = devsz_ - pixAfter() - 2;
 	ypix = setup_.side_ == uiRect::Top ? edgepix  
 	    				   : height_ - edgepix - 2;
-	al.hor_ = OD::AlignLeft;
-	al.ver_ = setup_.side_ == uiRect::Top ? OD::AlignBottom
-	    				      : OD::AlignTop;
+	al.set( Alignment::Left,
+		setup_.side_==uiRect::Top ? Alignment::Bottom : Alignment::Top);
     }
     else
     {
 	xpix = setup_.side_ == uiRect::Left  ? edgepix + 5 
 	    				     : width_ - edgepix - 5;
 	ypix = pixBefore() + 5;
-	al.hor_ = setup_.side_ == uiRect::Left ? OD::AlignLeft
-	    				       : OD::AlignRight;
-	al.ver_ = OD::AlignVCenter;
+	al.set( setup_.side_==uiRect::Left ? Alignment::Left : Alignment::Right,
+		Alignment::VCenter );
     }
 
 
@@ -450,8 +448,8 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 	annotposlineitm->setLine( pix, y0, pix, y1 );
 	annotposlineitm->setZValue( 3 );
 	annotlineitmgrp_->add( annotposlineitm );
-	Alignment al( OD::AlignHCenter,
-		      istop ? OD::AlignBottom : OD::AlignTop );
+	Alignment al( Alignment::HCenter,
+		      istop ? Alignment::Bottom : Alignment::Top );
 	uiTextItem* annotpostxtitem = new uiTextItem();
 	annotpostxtitem->setText( txt );
 	annotpostxtitem->setZValue( 3 );
@@ -468,8 +466,8 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
 	annotposlineitm->setZValue( 3 );
-	Alignment al( isleft ? OD::AlignRight : OD::AlignLeft,
-		      OD::AlignVCenter );
+	Alignment al( isleft ? Alignment::Right : Alignment::Left,
+		      Alignment::VCenter );
 	uiTextItem* annotpostxtitem = new uiTextItem();
 	annotpostxtitem->setText( txt );
 	annotpostxtitem->setZValue( 3 );
@@ -527,8 +525,8 @@ void uiAxisHandler::drawName()
 	const bool istop = setup_.side_ == uiRect::Top;
 	const int x = pixBefore() + axsz_ / 2;
 	const int y = istop ? 2 : height_- pixBefore()/2;
-	const Alignment al( OD::AlignHCenter,
-			    istop ? OD::AlignBottom : OD::AlignTop );
+	const Alignment al( Alignment::HCenter,
+			    istop ? Alignment::Bottom : Alignment::Top );
 	nameitm_->setPos( x, y );
 	nameitm_->setAlignment( al );
     }
@@ -537,8 +535,8 @@ void uiAxisHandler::drawName()
 	const bool isleft = setup_.side_ == uiRect::Left;
 	const int x = isleft ? pixBefore() - wdthx_ + 5 : width_-3;
 	const int y = height_ / 2;
-	const Alignment al( isleft ? OD::AlignRight : OD::AlignLeft,
-			    OD::AlignVCenter );
+	const Alignment al( isleft ? Alignment::Right : Alignment::Left,
+			    Alignment::VCenter );
 	nameitm_->setAlignment( al );
 	nameitm_->setPos( x, y ); 
 	if ( !ynmtxtvertical_ )

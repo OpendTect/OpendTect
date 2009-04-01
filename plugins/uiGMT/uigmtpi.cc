@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.17 2009-01-27 08:52:23 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.18 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -60,7 +60,7 @@ uiGMTIntro( uiParent* p )
     msg += "the GMT bin directory";
 
     uiLabel* lbl = new uiLabel( this, msg );
-    lbl->setAlignment( OD::AlignHCenter );
+    lbl->setAlignment( Alignment::HCenter );
 
     uiToolButton* gmtbut = new uiToolButton( this, "GMT Home",
 	    				     ioPixmap("gmt_logo.png"),

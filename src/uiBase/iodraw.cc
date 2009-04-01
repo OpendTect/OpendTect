@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: iodraw.cc,v 1.51 2009-01-20 12:09:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: iodraw.cc,v 1.52 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"
@@ -72,13 +72,13 @@ void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al )
 
     uiPoint bl( x, y );
     const uiSize sz( font_->width(txt), font_->ascent() );
-    if ( al.hor_ == OD::AlignHCenter )
+    if ( al.hPos() == Alignment::HCenter )
 	bl.x -= sz.width() / 2;
-    else if ( al.hor_ == OD::AlignRight )
+    else if ( al.hPos() == Alignment::Right )
 	bl.x -= sz.width();
-    if ( al.ver_ == OD::AlignVCenter )
+    if ( al.vPos() == Alignment::VCenter )
 	bl.y += sz.height() / 2;
-    else if ( al.ver_ == OD::AlignBottom )
+    else if ( al.vPos() == Alignment::Bottom )
 	bl.y += sz.height();
 
     qpainter_->drawText( bl.x, bl.y, QString(txt) );

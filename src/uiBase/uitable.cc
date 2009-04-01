@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitable.cc,v 1.82 2009-03-05 09:47:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitable.cc,v 1.83 2009-04-01 14:35:39 cvsbert Exp $";
 
 
 #include "uitable.h"
@@ -954,17 +954,14 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
 }
 
 
-void uiTable::setColumnLabelAlignment( OD::Alignment al )
+void uiTable::setLabelAlignment( Alignment::HPos hal, bool col )
 {
-    QHeaderView* hdr = body_->horizontalHeader();
-    if ( hdr ) hdr->setDefaultAlignment( (Qt::Alignment)al );
-}
-
-
-void uiTable::setRowLabelAlignment( OD::Alignment al )
-{
-    QHeaderView* hdr = body_->verticalHeader();
-    if ( hdr ) hdr->setDefaultAlignment( (Qt::Alignment)al );
+    QHeaderView* hdr = col ? body_->horizontalHeader():body_->verticalHeader();
+    if ( hdr )
+    {
+	Alignment al( hal, Alignment::VCenter );
+	hdr->setDefaultAlignment( (Qt::Alignment)al.uiValue() );
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.17 2008-12-23 11:33:10 cvsdgb Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.18 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "drawaxis2d.h"
 
@@ -177,8 +177,8 @@ void DrawAxis2D::drawXAxis( bool topside )
 	lineitem->setLine( wx, drawarea.top(), wx, drawarea.top()+bias );
 	xaxlineitmgrp_->add( lineitem );
 
-	Alignment al( OD::AlignHCenter, OD::AlignBottom );
-	if ( bias<0 ) al.ver_ = OD::AlignBottom;
+	mDeclAlignment( al, HCenter, Bottom );
+	if ( bias<0 ) al.set( Alignment::Bottom );
 	uiTextItem* textitem = new uiTextItem();
 	textitem->setText( text.buf() );
 	textitem->setTextColor( Color::Black() );
@@ -254,9 +254,9 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	lineitem->setLine( drawarea.left(), wy, drawarea.left() + bias, wy );
 	yaxlineitmgrp_->add( lineitem ); 
 
-	Alignment al( leftside ? OD::AlignRight : OD::AlignLeft,
-		      OD::AlignVCenter );
-	if ( bias < 0 ) al.hor_ = OD::AlignRight;
+	Alignment al( leftside ? Alignment::Right : Alignment::Left,
+		      Alignment::VCenter );
+	if ( bias < 0 ) al.set( Alignment::Right );
 	uiTextItem* textitem = new uiTextItem();
 	textitem->setText( text.buf() );
         textitem->setPos( drawarea.left() + bias, wy );

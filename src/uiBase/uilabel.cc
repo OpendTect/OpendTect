@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilabel.cc,v 1.15 2009-01-09 10:18:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilabel.cc,v 1.16 2009-04-01 14:35:39 cvsbert Exp $";
 
 
 #include "uilabel.h"
@@ -94,20 +94,16 @@ const char* uiLabel::text() const
 }
 
 
-void uiLabel::setAlignment( OD::Alignment al )
+void uiLabel::setAlignment( Alignment::HPos hal )
 {
-    Qt::AlignmentFlag qtal = (Qt::AlignmentFlag)al;
-    body_->setAlignment( qtal | Qt::AlignVCenter );
+    Alignment al( hal, Alignment::VCenter );
+    body_->setAlignment( (Qt::AlignmentFlag)al.uiValue() );
 }
 
 
-OD::Alignment uiLabel::alignment() const
+Alignment::HPos uiLabel::alignment() const
 {
-    Qt::Alignment qtal = body_->alignment();
-    if ( qtal.testFlag(Qt::AlignRight) )
-	return OD::AlignRight;
-    else if ( qtal.testFlag(Qt::AlignHCenter) )
-	return OD::AlignHCenter;
-
-    return OD::AlignLeft;
+    Alignment al;
+    al.setUiValue( (int)body_->alignment() );
+    return al.hPos();
 }

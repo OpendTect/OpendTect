@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.8 2009-03-30 07:02:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.9 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -222,7 +222,6 @@ void uiSeisRandTo2DGridDlg::updatePreview()
 	uiPoint pt = w2ui.transform( uiWorldPoint(mapcnr[idx].x,
 		  				  mapcnr[idx].y) );
 	bool bot = pt.y > cCanvssz/2;
-	const Alignment al( OD::AlignHCenter, OD::AlignVCenter );
         BinID bid = SI().transform( mapcnr[idx] );
         int spacing =  bot ? 10 : -10;
 	BufferString annot;
@@ -232,7 +231,7 @@ void uiSeisRandTo2DGridDlg::updatePreview()
 	textitm1->setPenColor( Color::Black() );
 	textitm1->setFont(
 		FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	textitm1->setAlignment( al );
+	textitm1->setAlignment( mAlignment(HCenter,VCenter) );
 	textitm1->setZValue( 1 );
     }
 

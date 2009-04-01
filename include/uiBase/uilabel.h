@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.12 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uilabel.h,v 1.13 2009-04-01 14:35:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,8 @@ public:
     setting an alignment only makes sense if you reserve space using
     setPrefWidthInChar();
 */
-    void		setAlignment(OD::Alignment);
-    OD::Alignment	alignment() const;
+    void		setAlignment(Alignment::HPos);
+    Alignment::HPos	alignment() const;
 
 private:
 

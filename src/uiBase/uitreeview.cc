@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitreeview.cc,v 1.55 2009-03-06 07:32:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeview.cc,v 1.56 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uilistview.h"
 #include "uiobjbody.h"
@@ -404,12 +404,19 @@ int uiListView::nrColumns() const
 { return body_->columnCount(); }
 
 
-void uiListView::setColumnAlignment( int col, OD::Alignment al )
-{ body_->headerItem()->setTextAlignment( col, al ); }
+void uiListView::setColumnAlignment( int col, Alignment::HPos hal )
+{
+    Alignment al( hal );
+    body_->headerItem()->setTextAlignment( col, al.uiValue() );
+}
 
 
-OD::Alignment uiListView::columnAlignment( int col ) const 
-{ return (OD::Alignment)body_->headerItem()->textAlignment( col ); }
+Alignment::HPos uiListView::columnAlignment( int col ) const 
+{
+    Alignment al;
+    al.setUiValue( body_->headerItem()->textAlignment(col) );
+    return al.hPos();
+}
 
 
 void uiListView::ensureItemVisible( const uiListViewItem* itm )

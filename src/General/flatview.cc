@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.50 2009-02-02 21:55:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.51 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -262,7 +262,7 @@ FlatView::Annotation::AuxData::EditPermissions::EditPermissions()
 FlatView::Annotation::AuxData::AuxData( const char* nm )
     : name_( nm )
     , namepos_( mUdf(int) )
-    , namealignment_( Alignment(OD::AlignHCenter,OD::AlignVCenter) )
+    , namealignment_(mAlignment(Center,Center))
     , linestyle_( LineStyle::None, 1, Color::NoColor() )
     , fillcolor_( Color::NoColor() )
     , close_( false )

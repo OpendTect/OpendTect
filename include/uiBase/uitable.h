@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.52 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.53 2009-04-01 14:35:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,8 +212,7 @@ public:
 			    { setColumnLabel( rc.col, lbl ); }
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
-    void		setColumnLabelAlignment(OD::Alignment);
-    void		setRowLabelAlignment(OD::Alignment);
+    void		setLabelAlignment(Alignment::HPos,bool cols);
 
 
     Setup&		setup() 		{ return setup_; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.130 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.131 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -488,7 +488,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
     const bool ismultisel = multisel && c.ctxt.forread;
     selgrp_ = new uiIOObjSelGrp( this, c, 0, multisel );
     selgrp_->getListField()->setHSzPol( uiObject::Wide );
-    statusBar()->setTxtAlign( 0, OD::AlignRight );
+    statusBar()->setTxtAlign( 0, Alignment::Right );
     selgrp_->newStatusMsg.notify( mCB(this,uiIOObjSelDlg,statusMsgCB));
 
     BufferString nm( seltxt );

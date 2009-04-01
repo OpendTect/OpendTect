@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.24 2009-03-03 19:11:00 cvskris Exp $
+ RCS:           $Id: draw.h,v 1.25 2009-04-01 14:35:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,36 +15,44 @@ ________________________________________________________________________
 #include "color.h"
 #include "geometry.h"
 
-namespace OD
-{
-    enum Alignment
-    {
-	AlignLeft = 0x0001,
-	AlignRight = 0x0002,
-	AlignHCenter = 0x0004,
-	AlignJustify = 0x0008,
-	AlignAbsolute = 0x0010,
-	AlignTop = 0x0020,
-	AlignBottom = 0x0040,
-	AlignVCenter = 0x0080,
-	AlignCenter = AlignVCenter | AlignHCenter
-    };
-}
-
 
 mClass Alignment
 {
 public:
-			Alignment( OD::Alignment h=OD::AlignLeft,
-				   OD::Alignment v=OD::AlignBottom )
-			: hor_(h), ver_(v)	{}
 
-    OD::Alignment	hor_;
-    OD::Alignment	ver_;
+    enum Pos	{ Start, Stop, Center };
+    enum HPos	{ Left, Right, HCenter };
+		DeclareEnumUtils(HPos)
+    enum VPos	{ Top, Bottom, VCenter };
+		DeclareEnumUtils(VPos)
+
+		Alignment( HPos h=Left, VPos v=Top )
+		    : hor_(h), ver_(v)					{}
+		Alignment( Pos h, Pos v )
+		    : hor_(h==Start?Left:(h==Stop?Right:HCenter))
+		    , ver_(v==Start?Top:(v==Stop?Bottom:VCenter))	{}
+
+    HPos	hPos() const		{ return hor_; }
+    VPos	vPos() const		{ return ver_; }
+    Pos		pos(bool hor) const;
+
+    void	set( HPos h, VPos v )	{ hor_ = h; ver_ = v; }
+    void	set( HPos h )		{ hor_ = h; }
+    void	set( VPos v )		{ ver_ = v; }
+    void	set(Pos h,Pos v);
+
+    int		uiValue() const;
+    void	setUiValue(int);
+
+protected:
+
+    HPos	hor_;
+    VPos	ver_;
 };
 
 
-#define mAlign(h,v) Alignment(OD::h,OD::v)
+#define mAlignment(h,v) Alignment(Alignment::h,Alignment::v)
+#define mDeclAlignment(nm,h,v) Alignment nm( Alignment::h, Alignment::v )
 
 
 mClass MarkerStyle2D

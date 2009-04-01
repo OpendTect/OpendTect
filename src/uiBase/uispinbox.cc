@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.35 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.36 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -334,6 +334,6 @@ uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt, int dec,
     sb = new uiSpinBox( this, dec, nm && *nm ? nm : txt );
     BufferString sblbl;
     lbl = new uiLabel( this, txt, sb );
-    lbl->setAlignment( OD::AlignRight );
+    lbl->setAlignment( Alignment::Right );
     setHAlignObj( sb );
 }

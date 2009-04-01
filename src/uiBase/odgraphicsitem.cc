@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.10 2009-02-11 07:18:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.11 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -287,8 +287,7 @@ ODGraphicsTextItem::ODGraphicsTextItem()
 
 void ODGraphicsTextItem::setTextAlignment( Alignment alignment )
 {
-    alignoption_->setAlignment( (Qt::Alignment)int(alignment.hor_ |
-						   alignment.ver_ ) );
+    alignoption_->setAlignment( (Qt::Alignment)alignment.uiValue() );
 }
 
 

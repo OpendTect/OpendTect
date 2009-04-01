@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.cc,v 1.10 2009-02-13 05:35:38 cvsranojay Exp $
+ RCS:		$Id: uimapperrangeeditor.cc,v 1.11 2009-04-01 14:35:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,13 +140,13 @@ void uiMapperRangeEditor::drawText()
 	minlinevaltext_ = histogramdisp_->scene().addText(
 		xax_->getPix(minlinecurpos_),
 		histogramdisp_->height()/3, toString(minlinecurpos_),
-		OD::AlignRight );
+		Alignment::Right );
 
     if ( !maxlinevaltext_ )
 	maxlinevaltext_ = histogramdisp_->scene().addText(
 		xax_->getPix(maxlinecurpos_),
 		histogramdisp_->height()/3, toString(maxlinecurpos_),
-		OD::AlignLeft );
+		Alignment::Left );
 
     fixTextPos();
 }
@@ -161,13 +161,13 @@ void uiMapperRangeEditor::fixTextPos()
     minlinevaltext_->setText( bsleft.buf() );
     minlinevaltext_->setPos( xax_->getPix(minlinecurpos_),
 			     histogramdisp_->height()/3 );
-    minlinevaltext_->setAlignment( OD::AlignRight );
+    minlinevaltext_->setAlignment( Alignment::Right );
 
     BufferString bsright( toString(maxlinecurpos_), " " );
     maxlinevaltext_->setText( bsright );
     maxlinevaltext_->setPos( xax_->getPix(maxlinecurpos_),
 			     histogramdisp_->height()/3 );
-    maxlinevaltext_->setAlignment( OD::AlignLeft );
+    maxlinevaltext_->setAlignment( Alignment::Left );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.22 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.23 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uisurvmap.h"
 
@@ -38,12 +38,13 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     if ( survinfo->sampling(false).hrg.totalNr() < 2 )
     	return;
 
+    const mDeclAlignment( txtalign, HCenter, VCenter );
+
     uiTextItem* textitem = scene().addText( survinfo->name() );
     textitem->setPenColor( Color::Black() );
     textitem->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
     textitem->setPos( width()/2, 10 );
-    Alignment al( OD::AlignHCenter, OD::AlignVCenter );
-    textitem->setAlignment( al );
+    textitem->setAlignment( txtalign );
 
     const CubeSampling& cs = survinfo->sampling( false );
     Coord mapcnr[4];
@@ -101,7 +102,6 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     for ( int idx=0; idx<4; idx++ )
     {
 	bool bot = cpt[idx].y > height()/2;
-	const Alignment al( OD::AlignHCenter, OD::AlignVCenter );
         BinID bid = survinfo->transform( mapcnr[idx] );
         int spacing =  bot ? 10 : -10;
 	BufferString annot;
@@ -111,7 +111,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 	textitm1->setPenColor( Color::Black() );
 	textitm1->setFont(
 		FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	textitm1->setAlignment( al );
+	textitm1->setAlignment( txtalign );
 	textitm1->setZValue( 1 );
 
 	if ( printxy )
@@ -121,12 +121,13 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 	    annot = "("; annot += xcoord; annot += ",";
 	    annot += ycoord; annot += ")";
 	    uiTextItem* textitm2 = scene().addText( annot.buf() );
-	    textitm2->moveBy( (float)(int)al.hor_, (float)(int)al.ver_ );
+	    // ... What on earth is THIS ...???
+	    // textitm2->moveBy( (float)al.hor_, (float)(int)al.ver_ );
 	    textitm2->setPos( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing) );
 	    textitm2->setPenColor( Color::Black() );
 	    textitm2->setFont(
 		    FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	    textitm2->setAlignment( al );
+	    textitm2->setAlignment( txtalign );
 	}
     }
 

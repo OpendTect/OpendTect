@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.72 2009-02-23 05:54:26 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.73 2009-04-01 14:35:39 cvsbert Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -366,8 +366,8 @@ void uiFlatViewer::drawAnnot()
 	titletxtitem_->setZValue(1);
 	titletxtitem_->setPos( canvas_.arrArea().centre().x, 2 );
 	titletxtitem_->setPenColor( color(true) );
-	Alignment al( OD::AlignHCenter, OD::AlignTop );
-	titletxtitem_->setAlignment( al );
+	mDeclAlignment( al, HCenter, Top );
+	titletxtitem_->setAlignment( mAlignment(HCenter,Top) );
     }
     else
     { mRemoveAnnotItem( titletxtitem_ ); }
@@ -470,9 +470,8 @@ void uiFlatViewer::drawGridAnnot( bool isvisble )
 	else
 	    axis1nm_->setText( ad1.name_ );
 	axis1nm_->setZValue(1);
-	Alignment al( OD::AlignRight, OD::AlignTop );
 	axis1nm_->setPos( datarect.right() - 20, ynameannpos );
-	axis1nm_->setAlignment( al );
+	axis1nm_->setAlignment( mAlignment(Right,Top) );
     }
     if ( showanyx2annot && !ad2.name_.isEmpty() )
     {
@@ -490,9 +489,8 @@ void uiFlatViewer::drawGridAnnot( bool isvisble )
 	else
 	    axis2nm_->setText( ad2.name_ );
 	axis2nm_->setZValue(1);
-	Alignment al( OD::AlignLeft, OD::AlignTop );
 	axis2nm_->setPos( left+10, ynameannpos );
-	axis2nm_->setAlignment( al );
+	axis2nm_->setAlignment( mAlignment(Left,Top) );
     }
 }
 
