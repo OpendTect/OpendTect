@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.53 2009-03-25 15:32:14 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.54 2009-04-01 07:01:46 cvsbruno Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -38,6 +38,7 @@ float Well::DahObj::dahStep( bool ismin ) const
     if ( sz < 2 ) return mUdf(float);
 
     float res = dah_[1] - dah_[0];
+    if ( res <0 ) res = 0;
     int nrvals = 1;
     for ( int idx=2; idx<sz; idx++ )
     {
@@ -49,7 +50,7 @@ float Well::DahObj::dahStep( bool ismin ) const
 	    res += val;
 	else
 	{
-	    if ( val < res )
+	    if ( val < res && val >= 0 )
 		res = val;
 	}
 	nrvals++;

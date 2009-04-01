@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.35 2009-03-25 16:39:47 cvsbert Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.36 2009-04-01 07:01:46 cvsbruno Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -138,7 +138,6 @@ bool Well::Reader::get() const
     else if ( wd.d2TModel() )
 	return true;
 
-    getTrack();
     getLogs();
     getMarkers();
     getD2T();

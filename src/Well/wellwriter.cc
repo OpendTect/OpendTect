@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.18 2009-03-25 16:39:47 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.19 2009-04-01 07:01:46 cvsbruno Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -48,7 +48,6 @@ bool Well::Writer::wrHdr( std::ostream& strm, const char* fileky ) const
 bool Well::Writer::put() const
 {
     return putInfo()
-	&& putTrack()
 	&& putLogs()
 	&& putMarkers()
 	&& putD2T()
