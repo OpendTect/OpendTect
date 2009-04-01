@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.11 2009-02-12 06:48:16 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.12 2009-04-01 11:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,18 +43,29 @@ template <class T> class ODPolygon;
 mClass uiEllipseItem : public uiGraphicsItem
 {
 public:
+				uiEllipseItem(const uiPoint& center,
+					      const uiSize&);
+				uiEllipseItem(const uiSize&);
 				uiEllipseItem();
-				uiEllipseItem(const uiRect&);
-				uiEllipseItem(QGraphicsEllipseItem*);
 				~uiEllipseItem();
 
     QGraphicsEllipseItem*	qEllipseItem()	{ return qellipseitem_; }
-    void			setRect(const uiRect&);
+    void			setSize(const uiSize&);
 
 protected:
 
     QGraphicsItem*		mkQtObj();
     QGraphicsEllipseItem*	qellipseitem_;
+};
+
+
+mClass uiCircleItem : public uiEllipseItem
+{
+public:
+    				uiCircleItem(const uiPoint& center,int r);
+				uiCircleItem(int r);
+
+    void			setRadius(int);
 };
 
 

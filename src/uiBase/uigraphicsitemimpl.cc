@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.13 2009-02-12 06:48:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.14 2009-04-01 11:46:22 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -22,22 +22,24 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.13 2009-02-12 06:48:2
 #include <QPen>
 
 
+uiEllipseItem::uiEllipseItem( const uiPoint& center, const uiSize& sz )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPos( center );
+    setSize( sz );
+}
+
+
+uiEllipseItem::uiEllipseItem( const uiSize& size )
+    : uiGraphicsItem(mkQtObj())
+{
+    setSize( size );
+}
+
+
 uiEllipseItem::uiEllipseItem()
     : uiGraphicsItem(mkQtObj())
 {}
-
-
-uiEllipseItem::uiEllipseItem( QGraphicsEllipseItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qellipseitem_(qtobj)
-{}
-
-
-uiEllipseItem::uiEllipseItem( const uiRect& rect )
-    : uiGraphicsItem(mkQtObj())
-{
-    setRect( rect );
-}
 
 
 uiEllipseItem::~uiEllipseItem()
@@ -53,11 +55,23 @@ QGraphicsItem* uiEllipseItem::mkQtObj()
 }
 
 
-void uiEllipseItem::setRect( const uiRect& rect )
+void uiEllipseItem::setSize( const uiSize& size )
 {
-    qellipseitem_->setRect( -rect.width()/2, -rect.height()/2, rect.width(),
-	    		    rect.height() );
+    const int width = size.hNrPics();
+    const int height = size.vNrPics();
+    qellipseitem_->setRect( -width/2, -height/2, width, height );
 }
+
+
+
+uiCircleItem::uiCircleItem( const uiPoint& center, int r )
+    : uiEllipseItem(center,uiSize(r,r))
+{}
+
+
+uiCircleItem::uiCircleItem( int r )
+    : uiEllipseItem(uiSize(r,r))
+{}
 
 
 uiLineItem::uiLineItem()

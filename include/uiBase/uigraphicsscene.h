@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.16 2009-03-26 08:26:41 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.17 2009-04-01 11:46:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,6 @@ class ioPixmap;
 class MarkerStyle2D;
 
 class uiArrowItem;
-class uiEllipseItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
 class uiLineItem;
@@ -61,11 +60,6 @@ public:
 	                                const Alignment&);
     uiPixmapItem*		addPixmap(const ioPixmap&);
     uiRectItem*			addRect(float x,float y,float w,float h);
-    uiEllipseItem*		addEllipse(float x,float y,float w,float h);
-    uiEllipseItem*		addEllipse(const uiPoint& center,
-	    				   const uiSize& sz);
-    uiEllipseItem*		addCircle( const uiPoint& p, int r )
-	                        { return addEllipse( p, uiSize(r,r) ); };
 
     uiLineItem*			addLine(float x1,float y1,float x2,float y2);
     uiLineItem*	                addLine(const uiPoint& pt1,const uiPoint& pt2);

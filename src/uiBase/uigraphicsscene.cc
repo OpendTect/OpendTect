@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.21 2009-03-26 08:26:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.22 2009-04-01 11:46:22 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -230,23 +230,6 @@ uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
     uirectitem->moveBy( -w/2, -h/2 );
     items_ += uirectitem;
     return uirectitem;
-}
-
-
-uiEllipseItem* uiGraphicsScene::addEllipse( float x, float y, float w, float h )
-{
-    uiEllipseItem* uiellipseitem =
-	new uiEllipseItem( odgraphicsscene_->addEllipse(x,y,w,h) );
-    uiellipseitem->moveBy( -w/2, -h/2 );
-    items_ += uiellipseitem;
-    return uiellipseitem;
-}
-
-
-uiEllipseItem* uiGraphicsScene::addEllipse( const uiPoint& center,
-					    const uiSize& sz )
-{
-    return addEllipse( center.x, center.y, sz.hNrPics(), sz.vNrPics() );
 }
 
 
