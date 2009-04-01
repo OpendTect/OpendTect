@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.63 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.64 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 #include "uinlapartserv.h"
 
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: uinlapartserv.cc,v 1.63 2009-02-13 13:31:15 cvs
 #include "posvecdatasettr.h"
 #include "datapointset.h"
 #include "ptrman.h"
-#include "pickset.h"
 #include "linekey.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -53,6 +52,7 @@ const int uiNLAPartServer::evGetData()		{ return 5; }
 const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
 const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
 const int uiNLAPartServer::evShowSelPts()	{ return 8; }
+const int uiNLAPartServer::evRemoveSelPts()	{ return 9; }
 const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
 
 
@@ -60,7 +60,6 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	: uiApplPartServer(a)
 	, uidps_(0)
 	, dps_(0)
-	, selptps_(0)
 	, storepars_(*new IOPar)
 	, is2d_(false)
 {
@@ -71,8 +70,6 @@ uiNLAPartServer::~uiNLAPartServer()
 {
     deepErase( inpnms_ );
     delete dps_;
-    if ( selptps_ )
-	delete selptps_;
     delete &storepars_;
 }
 
@@ -497,7 +494,9 @@ bool uiNLAPartServer::doDPSDlg()
     bss.add( NLACreationDesc::DataTypeNames()[1] );
     uidps_->setGroupNames( bss );
     uidps_->setGroupType( "Data Set" );
-    uidps_->showSelectedPts.notify( mCB(this,uiNLAPartServer,showPickSet) );
+    uidps_->showSelectedPts.notify( mCB(this,uiNLAPartServer,showSelPts) );
+    uidps_->removeSelectedPoints.notify(
+	    mCB(this,uiNLAPartServer,removeSelPts) );
     uidps_->setDeleteOnClose( true );
     return uidps_->go();
 }
@@ -507,23 +506,12 @@ bool uiNLAPartServer::doDPSDlg()
 #define mErrRet(rv) \
 { if ( dps_ ) delete dps_; dps_ = 0; return rv; }
 
-void uiNLAPartServer::showPickSet( CallBacker* )
-{
-    if ( selptps_ )
-	delete selptps_;
-    selptps_ = 0;
-    selptps_ = new Pick::Set( "Selected Points from NN " );
-    selptps_->disp_.color_ = Color::DgbColor();
-    for ( int idx=0; idx<uidps_->selptcoord_.size(); idx++ )
-    {
-	Pick::Location pickloc( uidps_->selptcoord_[idx]->x,
-				uidps_->selptcoord_[idx]->y,
-				uidps_->selptcoord_[idx]->z );
-	*selptps_ += pickloc;
-    }
-    sendEvent( evShowSelPts() );
+void uiNLAPartServer::showSelPts( CallBacker* )
+{ sendEvent( evShowSelPts() ); }
 
-}
+
+void uiNLAPartServer::removeSelPts( CallBacker* )
+{ sendEvent( evRemoveSelPts() ); }
 
 
 DataPointSet& uiNLAPartServer::gtDps() const

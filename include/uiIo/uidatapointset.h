@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.16 2009-01-27 11:44:12 cvsranojay Exp $
+ RCS:           $Id: uidatapointset.h,v 1.17 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ public:
     IOPar&			storePars()	{ return storepars_; }
     Notifier<uiDataPointSet>	valueChanged;
     Notifier<uiDataPointSet>	showSelectedPts;
+    Notifier<uiDataPointSet>	removeSelectedPoints;
     void			getChanges(DataPointSet::DataRow& before,
 	    				   DataPointSet::DataRow& after) const
 				{ before = beforechgdr_; after = afterchgdr_; }
@@ -100,8 +101,11 @@ public:
     void			setGroupType( const char* nm )
 							{ grptype_ = nm; }
     const char*			groupType() const	{ return grptype_; }
-
-    ObjectSet<Coord3>		selptcoord_;
+    
+    DRowID			dRowID(TRowID tid=-99) const;
+    TRowID			tRowID(DRowID did=-99) const;
+    DColID			dColID(TColID tid=-99) const;
+    TColID			tColID(DColID did=-99) const;
 
 protected:
 
@@ -141,10 +145,6 @@ protected:
     void			mkToolBars();
 
     				// default returns current row/col
-    DRowID			dRowID(TRowID tid=-99) const;
-    TRowID			tRowID(DRowID did=-99) const;
-    DColID			dColID(TColID tid=-99) const;
-    TColID			tColID(DColID did=-99) const;
     float			getVal(DColID,DRowID,bool userunits) const;
 
     void			calcIdxs();

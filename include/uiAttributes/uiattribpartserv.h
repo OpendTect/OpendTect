@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.49 2009-03-27 15:37:35 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.50 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,10 @@ public:
     			//!< Display slice
     static const int	evEvalStoreSlices();
     			//!< Store slices
-    static const int	evShowSelPtPickSet();
+    static const int	evShowSelPts();
     			//!< Show Selected Points from CrossPlot in Workspace
+    static const int	evRemoveSelPts();
+    			//!< Remove Selected Points from CrossPlot in Workspace
     static const int	evEvalUpdateName();
     			//!< Update name in tree after evaluation dlg closed
     static const int	objNLAModel2D();
@@ -159,7 +161,6 @@ public:
     			//!< 0 = 2D, 1 = 3D, -1 = user cancel
     Attrib::DescSet*	getUserPrefDescSet() const;
     			//!< For services that can work on 2D or 3D
-    const Pick::Set&	getSelPickSet()			{ return *selptps_; }
     void		showXPlot(CallBacker*);
 
     void		doVolProc();
@@ -185,7 +186,6 @@ protected:
     Attrib::DescSetMan*	adsman2d_;
     Attrib::DescSetMan*	adsman3d_;
     uiAttribCrossPlot*	uiattrxplot_;
-    Pick::Set*		selptps_;
     const Attrib::Desc*	dirshwattrdesc_;
     uiAttribDescSetEd*	attrsetdlg_;
     Timer		attrsetclosetim_;
@@ -197,6 +197,7 @@ protected:
     void		directShowAttr(CallBacker*);
 
     void		sendPickEvent(CallBacker*);
+    void		sendRemoveEvent(CallBacker*);
     void		showEvalDlg(CallBacker*);
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);

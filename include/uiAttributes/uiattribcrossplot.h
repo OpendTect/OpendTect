@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.9 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.10 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ class uiListBox;
 class uiComboBox;
 namespace Attrib { class DescSet; }
 namespace PosInfo { class Line2DData; }
-namespace Pick { class Set; }
 
 
 mClass uiAttribCrossPlot : public uiDialog
@@ -32,9 +31,8 @@ public:
 					~uiAttribCrossPlot();
 
     void				setDescSet(const Attrib::DescSet&);
-    const Pick::Set&			getSelectedPts() const
-					{ return *selptps_; }
     Notifier<uiAttribCrossPlot>		pointsSelected;
+    Notifier<uiAttribCrossPlot>		pointsTobeRemoved;
 
 protected:
 
@@ -47,10 +45,10 @@ protected:
     uiComboBox*				lnmfld_;
     uiDataPointSet*			uidps_;
 
-    Pick::Set*				selptps_;
     void				adsChg();
     void				lnmChg(CallBacker*);
-    void				createPickSet(CallBacker*);
+    void				showSelPts(CallBacker*);
+    void				removeSelPts(CallBacker*);
 
     bool				acceptOK(CallBacker*);
 };

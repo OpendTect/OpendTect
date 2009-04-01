@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.16 2009-02-26 16:47:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.17 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -32,7 +32,8 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.16 2009-02-26 16:47
 #include "welllog.h"
 #include "uimsg.h"
 
-const int uiWellAttribPartServer::evShowPickSet()	{ return 0; }
+const int uiWellAttribPartServer::evShowSelPoints()	{ return 0; }
+const int uiWellAttribPartServer::evRemoveSelPoints()	{ return 1; }
 
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
@@ -41,7 +42,7 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , nlamodel(0)
     , xplotwin2d_(0)
     , xplotwin3d_(0)
-    , selpickset_(0)
+    , dps_(0)
 {
 }
 
@@ -85,16 +86,24 @@ void uiWellAttribPartServer::doXPlot()
 	xplotwin->setDescSet( *attrset );
 
     xplotwin->pointsSelected.notify(
-	    mCB(this,uiWellAttribPartServer,showPickSet) );
+	    mCB(this,uiWellAttribPartServer,showSelPts) );
+    xplotwin->pointsToBeRemoved.notify(
+	    mCB(this,uiWellAttribPartServer,removeSelPts) );
     xplotwin->show();
 }
 
 
-void uiWellAttribPartServer::showPickSet( CallBacker* )
+void uiWellAttribPartServer::removeSelPts( CallBacker* )
 {
-    selpickset_ = attrset->is2D() ? xplotwin2d_->getSelectedPts() :
-			 	    xplotwin3d_->getSelectedPts();
-    sendEvent( evShowPickSet() );
+    sendEvent( evRemoveSelPoints() );
+}
+
+
+void uiWellAttribPartServer::showSelPts( CallBacker* )
+{
+    dps_ = attrset->is2D() ? &xplotwin2d_->getDPS()
+			   : &xplotwin3d_->getDPS();
+    sendEvent( evShowSelPoints() );
 }
 
 

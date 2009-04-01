@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.114 2009-03-27 15:37:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.115 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -41,7 +41,6 @@ static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.114 2009-03-27 15:37:35
 #include "nlacrdesc.h"
 #include "nlamodel.h"
 #include "posvecdataset.h"
-#include "pickset.h"
 #include "datapointset.h"
 #include "ptrman.h"
 #include "seisbuf.h"
@@ -78,7 +77,8 @@ const int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
 const int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
 const int uiAttribPartServer::evEvalStoreSlices()   { return 6; }
 const int uiAttribPartServer::evEvalUpdateName()    { return 7; }
-const int uiAttribPartServer::evShowSelPtPickSet()  { return 8; }
+const int uiAttribPartServer::evShowSelPts()	    { return 8; }
+const int uiAttribPartServer::evRemoveSelPts()	    { return 9; }
 const int uiAttribPartServer::objNLAModel2D()	    { return 100; }
 const int uiAttribPartServer::objNLAModel3D()	    { return 101; }
 
@@ -91,7 +91,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     	, adsman3d_(new DescSetMan(false))
 	, dirshwattrdesc_(0)
         , attrsetdlg_(0)
-        , selptps_(0)
         , is2devsent_(false)
     	, attrsetclosetim_("Attrset dialog close")
 	, stored2dmnuitem_("&Stored 2D Data")
@@ -119,7 +118,6 @@ uiAttribPartServer::~uiAttribPartServer()
     delete adsman2d_;
     delete adsman3d_;
     delete attrsetdlg_;
-    delete selptps_;
     if ( volprocchain_ ) volprocchain_->unRef();
     deepErase( linesets2dmnuitem_ );
 }
@@ -258,10 +256,11 @@ bool uiAttribPartServer::editSet( bool is2d )
 
 
 void uiAttribPartServer::sendPickEvent( CallBacker* )
-{
-    selptps_ = new Pick::Set( uiattrxplot_->getSelectedPts() );
-    sendEvent( evShowSelPtPickSet() );
-}
+{ sendEvent( evShowSelPts() ); }
+
+
+void uiAttribPartServer::sendRemoveEvent( CallBacker* )
+{ sendEvent( evRemoveSelPts() ); }
 
 
 void uiAttribPartServer::showXPlot( CallBacker* cb )

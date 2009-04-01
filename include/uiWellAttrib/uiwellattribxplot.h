@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.6 2009-01-08 09:18:28 cvsranojay Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.7 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,6 @@ class BufferStringSet;
 class uiPosFilterSetSel;
 class uiDataPointSet;
 namespace Attrib { class DescSet; }
-namespace Pick { class Set; }
 
 
 mClass uiWellAttribCrossPlot : public uiDialog
@@ -35,9 +34,9 @@ public:
 
     void				setDescSet(const Attrib::DescSet&);
     Notifier<uiWellAttribCrossPlot>	pointsSelected;
+    Notifier<uiWellAttribCrossPlot>	pointsToBeRemoved;
 
-    const Pick::Set*			getSelectedPts() const	
-    					{ return selptps_; }
+    const DataPointSet&			getDPS() const;
 
 protected:
 
@@ -55,7 +54,6 @@ protected:
     uiGenInput*		logresamplfld_;
     uiPosFilterSetSel*	posfiltfld_;
     uiDataPointSet*	uidps_;
-    Pick::Set*		selptps_;
 
     void		adsChg();
     bool		extractWellData(const BufferStringSet&,
@@ -64,7 +62,8 @@ protected:
     bool		extractAttribData(DataPointSet&,int);
 
     void		initWin(CallBacker*);
-    void		createPickSet(CallBacker*);
+    void		showSelPts(CallBacker*);
+    void		removeSelPts(CallBacker*);
 
     bool		acceptOK(CallBacker*);
 };

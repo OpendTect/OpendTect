@@ -7,20 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.11 2009-02-20 11:34:18 cvsbruno Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.12 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
 
+class DataPointSet;
 class MultiID;
 class NLAModel;
 class uiWellAttribCrossPlot;
 class uiD2TModelGenWin;
 
 namespace Attrib { class DescSet; }
-namespace Pick { class Set; }
 
 /*! \brief Part Server for Wells */
 
@@ -30,7 +30,8 @@ public:
 				uiWellAttribPartServer(uiApplService&);
 				~uiWellAttribPartServer();
 
-    static const int		evShowPickSet();
+    static const int		evShowSelPoints();
+    static const int		evRemoveSelPoints();
 
     void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
@@ -43,7 +44,7 @@ public:
     bool			createAttribLog(const MultiID&,int);
     void			doXPlot();
 
-    const Pick::Set&		getSelPickSet() const	{ return *selpickset_; }
+    const DataPointSet&		getPointSet() const	{ return *dps_; }
     bool                        createD2TModel(const MultiID&);
 
 protected:
@@ -51,11 +52,13 @@ protected:
     Attrib::DescSet*		attrset;
     const NLAModel*		nlamodel;
 
-    void 			showPickSet(CallBacker*);
+    void 			showSelPts(CallBacker*);
+    void 			removeSelPts(CallBacker*);
+
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
     uiD2TModelGenWin*           uid2tmgenwin_;
-    const Pick::Set*		selpickset_;
+    const DataPointSet*		dps_;
 };
 
 /*!\mainpage WellAttrib User Interface

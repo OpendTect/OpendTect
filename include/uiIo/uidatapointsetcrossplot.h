@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.18 2009-02-23 06:02:13 cvsranojay Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.19 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,9 +112,10 @@ public:
 	    				   MarkerStyle2D&);
     void			drawDeSelectedItems();
 
-    const ObjectSet<Coord3>&	getSelCoords() const	{ return selcoords_; }
     void			setSceneSelectable( bool yn )	
 				{ selectable_ = yn; }
+    bool			isSceneSelectable() const	
+    				{ return selectable_; }
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections();
     void			checkSelection(uiGraphicsItem*,bool);
@@ -139,7 +140,7 @@ public:
     LinePars&			userdefy1lp_;
     LinePars&			userdefy2lp_;
     
-    TypeSet<RowCol>		selrowcols_;
+    const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
 
     void			drawY1UserDefLine(const Interval<int>&,bool);
     void			drawY2UserDefLine(const Interval<int>&,bool);
@@ -155,7 +156,7 @@ protected:
 
     uiPoint			selstartpos_;
     uiDataPointSet&		uidps_;
-    const DataPointSet&		dps_;
+    DataPointSet&		dps_;
     Setup			setup_;
     MouseEventHandler&		meh_;
     uiPolygonItem*		selectionpolygonitem_;
@@ -171,6 +172,7 @@ protected:
     LinStats2D&			lsy2_;
     bool			doy2_;
     bool			dobd_;
+    bool			pointstobeselected_;
     bool			selectable_;
     bool			mousepressed_;
     bool                        rectangleselection_;
@@ -180,6 +182,7 @@ protected:
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
     Interval<int>		usedxpixrg_;
+    TypeSet<RowCol>		selrowcols_;
     bool			selrowisy2_;
 
     uiRect&			selectedarea_;
@@ -189,7 +192,6 @@ protected:
     uiRect&			y2selectablerg_;
     bool                        isy1selectable_;
     bool                        isy2selectable_;
-    ObjectSet<Coord3>		selcoords_;
     ODPolygon<int>*		odselectedpolygon_;
  
     void 			initDraw();

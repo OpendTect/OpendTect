@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.36 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.37 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -27,7 +27,6 @@ static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.36 2009-02-26 13:00:53
 #include "posprovider.h"
 #include "posfilterset.h"
 #include "posvecdataset.h"
-#include "pickset.h"
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
 
@@ -50,9 +49,9 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, lnmfld_(0)
     	, l2ddata_(0)
-    	, selptps_(0)
     	, uidps_(0)
     	, pointsSelected(this)
+    	, pointsTobeRemoved(this)
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this,
 	    					  "Attributes to calculate" );
@@ -137,8 +136,6 @@ uiAttribCrossPlot::~uiAttribCrossPlot()
 {
     delete const_cast<Attrib::DescSet*>(&ads_);
     delete l2ddata_;
-    if ( selptps_ )
-	delete selptps_;
 }
 
 
@@ -259,24 +256,16 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     uidps_ = new uiDataPointSet( this, *dps,
 				 uiDataPointSet::Setup("Attribute data") );
     uidps_->showSelectedPts.notify(
-	                mCB(this,uiAttribCrossPlot,createPickSet) );
+	                mCB(this,uiAttribCrossPlot,showSelPts) );
+    uidps_->removeSelectedPoints.notify(
+	                mCB(this,uiAttribCrossPlot,removeSelPts) );
     return uidps_->go() ? true : false;
 }
 
 
-void uiAttribCrossPlot::createPickSet( CallBacker* )
-{
-    if ( selptps_ )
-	delete selptps_;
-    selptps_ = 0;
-    selptps_ = new Pick::Set( "Selected Points from Attribute" );
-    selptps_->disp_.color_ = Color::White();
-    for ( int idx=0; idx<uidps_->selptcoord_.size(); idx++ )
-    {
-	Pick::Location pickloc( uidps_->selptcoord_[idx]->x,
-				uidps_->selptcoord_[idx]->y,
-				uidps_->selptcoord_[idx]->z );
-	*selptps_ += pickloc;
-    }
-    pointsSelected.trigger();
-}
+void uiAttribCrossPlot::removeSelPts( CallBacker* )
+{ pointsTobeRemoved.trigger(); }
+
+
+void uiAttribCrossPlot::showSelPts( CallBacker* )
+{ pointsSelected.trigger(); }

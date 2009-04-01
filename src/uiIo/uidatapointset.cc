@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.36 2009-02-23 04:53:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.37 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -39,7 +39,6 @@ static const char* rcsID = "$Id: uidatapointset.cc,v 1.36 2009-02-23 04:53:00 cv
 #include "uiobjdisposer.h"
 #include "uimsg.h"
 
-#include <iostream>
 static const int cNrPosCols = 3;
 static const char* sKeyGroups = "Groups";
 
@@ -83,10 +82,12 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, fillingtable_(true)
     	, valueChanged(this)
     	, showSelectedPts(this)
+    	, removeSelectedPoints(this)
 	, xplotwin_(0)
 	, statswin_(0)
 	, iotb_(0)
 {
+    mDPM.add( &dps_ );
     mDPM.obtain( dps_.id() );
     setCtrlStyle( LeaveOnly );
     runcalcs_.allowNull( true );
@@ -121,12 +122,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 }
 
 void uiDataPointSet::getSelPts( CallBacker* )
-{
-    if ( selptcoord_.size() > 0 )
-	selptcoord_.erase();
-    selptcoord_ = xplotwin_->plotter().getSelCoords();
-    showSelectedPts.trigger();
-}
+{ showSelectedPts.trigger(); }
 
 
 #define mCleanRunCalcs \
@@ -502,17 +498,14 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 
 void uiDataPointSet::notifySelectedCell( CallBacker* )
 {
-    TypeSet<RowCol> selrcs;
-    TypeSet<RowCol> selectedrowcols( xplotwin_->plotter().selrowcols_ );
-    for ( int idx=0; idx<selectedrowcols.size(); idx++ )
+    TypeSet<RowCol> selectedrowcols( xplotwin_->plotter().getSelectedCells() );
+    if ( selectedrowcols.isEmpty() )
     {
-	if ( mIsUdf(selectedrowcols[idx].r()) ||
-	     mIsUdf(selectedrowcols[idx].c()) )
-	    continue;
-	selrcs += RowCol( tRowID(selectedrowcols[idx].r()),
-			  tColID(selectedrowcols[idx].c()) );
+	tbl_->removeAllSelections();
+	return;
     }
-    tbl_->selectItems( selrcs, true );
+
+    tbl_->selectItems( selectedrowcols, true );
 }
 
 
@@ -843,6 +836,7 @@ bool uiDataPointSet::rejectOK( CallBacker* )
 
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
+    removeSelectedPoints.trigger();
     mDPM.release( dps_.id() );
     delete xplotwin_; delete statswin_;
     return true;

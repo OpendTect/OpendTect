@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.80 2009-03-25 14:30:07 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.81 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,6 +226,8 @@ protected:
 
     int				otherformatvisid_;
     int				otherformatattrib_;
+
+    TypeSet<int>		visptsetids_;
 
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;

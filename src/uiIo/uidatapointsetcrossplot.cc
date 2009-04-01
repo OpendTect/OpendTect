@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.31 2009-03-13 12:18:22 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.32 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.31 2009-03-13 12:18:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.32 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -138,6 +138,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , isy1selectable_(true)
     , isy2selectable_(false)
     , mousepressed_(false)
+    , pointstobeselected_(false)
     , selectedarea_( *new uiRect(0,0,0,0) )
     , yselectablerg_( *new uiRect(0,0,0,0) )
     , y2selectablerg_( *new uiRect(0,0,0,0) )
@@ -241,7 +242,6 @@ void uiDataPointSetCrossPlotter::drawDeSelectedItems()
 void uiDataPointSetCrossPlotter::removeSelections()
 {
     drawDeSelectedItems();
-    selcoords_.erase();
     selrowcols_.erase();
     deepErase( selrectareaset_ );
     deepErase( selpolyareaset_ );
@@ -252,7 +252,10 @@ void uiDataPointSetCrossPlotter::removeSelections()
 	selectionpolygonitem_ = 0;
     }
     
-    pointsSelected.trigger();
+    for ( int idx=0; idx<dps_.size(); idx++ )
+	dps_.setSelected( idx, false );
+
+    pointstobeselected_ = true;
     reDrawNeeded.trigger();
 }
 
@@ -316,7 +319,7 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	selpolyareaset_ += odselectedpolygon_;
     
     getSelectableRanges();
-    pointsSelected.trigger();
+    pointstobeselected_ = true;
     reDrawNeeded.trigger();
 }
 
@@ -590,6 +593,10 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
 	drawData( y2_, true );
     else if ( y2ptitems_ )
 	y2ptitems_->removeAll( true );
+    
+    if ( pointstobeselected_ )
+	pointsSelected.trigger();
+    pointstobeselected_ = false;
 }
 
 
@@ -649,9 +656,11 @@ void uiDataPointSetCrossPlotter::setItem( uiGraphicsItem* item, bool isy2,
     
     if ( item->isVisible() && item->isSelected() )
     {
-	selcoords_ += new Coord3( dps_.coord(rid), dps_.z(rid) );
-	selrowcols_ += RowCol( rid, yad.colid_ );
+	dps_.setSelected( rid, true );
+	selrowcols_ += RowCol( uidps_.tRowID(rid), uidps_.tColID(yad.colid_) );
     }
+    else
+	dps_.setSelected( rid, false );
 }
 
 
@@ -769,7 +778,6 @@ void uiDataPointSetCrossPlotter::drawData(
     const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2 )
 {
     selecteditems_->removeAll( true );
-    selcoords_.erase();
     uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
 
@@ -914,7 +922,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
     showselptswstbid_ = disptb_.addButton( "picks.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showPtsInWorkSpace),
-		  "Show selected points in workSpace", true );
+		  "Show selected points in workSpace", false );
     disptb_.turnOn( setselecttbid_, true );
 
     selmodechgtbid_ = disptb_.addButton( "rectangleselect.png",
@@ -1090,16 +1098,15 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 {
     const bool isoff = !disptb_.isOn(setselecttbid_ );
-    plotter_.setDragMode( isoff ? uiGraphicsView::RubberBandDrag
-			        : uiGraphicsView::ScrollHandDrag );
     plotter_.setSceneSelectable( isoff );
     selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
     disptb_.setSensitive( selmodechgtbid_, isoff );
     disptb_.setSensitive( showselptswstbid_, isoff );
-    if ( plotter_.isRubberBandingOn() )
-    plotter_.setDragMode( plotter_.isRectSelection() ?
-	    			uiGraphicsView::RubberBandDrag :
-	    			uiGraphicsView::ScrollHandDrag );
+    plotter_.setDragMode(  plotter_.isSceneSelectable()
+	    			? ( plotter_.isRectSelection()
+				    ? uiGraphicsView::RubberBandDrag
+				    : uiGraphicsView::NoDrag )
+				: uiGraphicsView::ScrollHandDrag );
 }
 
 
@@ -1131,6 +1138,7 @@ void uiDataPointSetCrossPlotWin::selOption( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 {
+    MouseCursorChanger cursorchanger(MouseCursor::Wait);
     if ( mIsUdf(plotter_.eachrow_) ) return; // window is closing
 
     int neweachrow = eachfld_->getValue();
@@ -1153,7 +1161,8 @@ void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelComboSensitive( bool yn )
 {
     selfld_->setCurrentItem( 0 );
-    selfld_->setSensitive( yn );
+    plotter_.setSelectable( true, false );
+    selfld_->setSensitive( plotter_.isSceneSelectable() ? yn : false );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.25 2009-02-11 10:37:22 cvsranojay Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.26 2009-04-01 07:38:39 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "nlamodel.h"
 #include "bufstringset.h"
-#include "pickset.h"
 class IOPar;
 class DataPointSet;
 class uiDataPointSet;
@@ -73,6 +72,8 @@ public:
     			//!< create attributeset from GDI NN
     static const int	evShowSelPts();
     			//!< create attributeset from GDI NN
+    static const int	evRemoveSelPts();
+    			//!< create attributeset from GDI NN
     static const char*	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
 
@@ -93,19 +94,18 @@ public:
     void		set2DEvent( bool is2d )		{ is2d_ = is2d; }
     bool		is2DEvent()			{ return is2d_; }
 
-    const Pick::Set&	getSelectedPts() const		{ return *selptps_; }
 
 protected:
 
     DataPointSet*	dps_;
     uiDataPointSet*	uidps_;
-    Pick::Set*		selptps_;
     BufferStringSet	inpnms_;
     bool		is2d_;
     IOPar&		storepars_;
 
     void		writeSets(CallBacker*);
-    void		showPickSet(CallBacker*);
+    void		showSelPts(CallBacker*);
+    void		removeSelPts(CallBacker*);
 
     bool		extractDirectData(ObjectSet<DataPointSet>&);
     const char*		convertToClasses(const ObjectSet<DataPointSet>&,int);

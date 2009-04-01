@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.25 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.26 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -27,7 +27,6 @@ static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.25 2009-02-26 13:00:53
 #include "posinfo.h"
 #include "posvecdataset.h"
 #include "posfilterset.h"
-#include "pickset.h"
 #include "seisioobjinfo.h"
 #include "wellextractdata.h"
 #include "wellmarker.h"
@@ -51,8 +50,8 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 	, ads_(*new Attrib::DescSet(d.is2D()))
     	, posfiltfld_(0)
     	, uidps_(0)
-    	, selptps_(0)
     	, pointsSelected(this)
+    	, pointsToBeRemoved(this)
 {
     uiLabeledListBox* llba = new uiLabeledListBox( this, "Attributes", true );
     attrsfld_ = llba->box();
@@ -146,6 +145,10 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
     topmarkfld_->setCurrentItem( 0 );
     botmarkfld_->setCurrentItem( markernms.size() - 1 );
 }
+
+
+const DataPointSet& uiWellAttribCrossPlot::getDPS() const
+{ return uidps_->pointSet(); }
 
 
 void uiWellAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
@@ -331,24 +334,18 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     uidps_->setGroupType( "well" );
     uidps_->setGroupNames( wellnms );
     uidps_->showSelectedPts.notify(
-	    mCB(this,uiWellAttribCrossPlot,createPickSet) );
+	    mCB(this,uiWellAttribCrossPlot,showSelPts) );
+    uidps_->removeSelectedPoints.notify(
+	    mCB(this,uiWellAttribCrossPlot,removeSelPts) );
     return uidps_->go() ? true : false;
 }
 
 
-void uiWellAttribCrossPlot::createPickSet( CallBacker* )
+void uiWellAttribCrossPlot::removeSelPts( CallBacker* )
 {
-    if ( selptps_ )
-	delete selptps_;
-    selptps_ = 0;
-    selptps_ = new Pick::Set( "Selected Points from Well " );
-    selptps_->disp_.color_ = Color(255,120,20);
-    for ( int idx=0; idx<uidps_->selptcoord_.size(); idx++ )
-    {
-	Pick::Location pickloc( uidps_->selptcoord_[idx]->x,
-				uidps_->selptcoord_[idx]->y,
-				uidps_->selptcoord_[idx]->z );
-	*selptps_ += pickloc;
-    }
-    pointsSelected.trigger();
+    pointsToBeRemoved.trigger();
 }
+
+
+void uiWellAttribCrossPlot::showSelPts( CallBacker* )
+{ pointsSelected.trigger(); }

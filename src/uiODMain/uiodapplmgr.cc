@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.315 2009-03-25 14:30:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.316 2009-04-01 07:38:39 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.315 2009-03-25 14:30:07 cvsb
 #include "uiimphorizon2d.h"
 #include "vishorizondisplay.h"
 #include "vispicksetdisplay.h"
+#include "vispointsetdisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
@@ -650,8 +651,46 @@ bool uiODApplMgr::handleWellServEv( int evid )
 
 bool uiODApplMgr::handleWellAttribServEv( int evid )
 {
-    if ( evid == uiWellAttribPartServer::evShowPickSet() )
-	pickserv_->setPickSet( wellattrserv_->getSelPickSet() );
+    if ( evid == uiWellAttribPartServer::evShowSelPoints() )
+    {
+	uiMSG().message( "Visualization part not working yet" );
+	return false;
+	TypeSet<int> sceneids;
+	if ( visptsetids_.size() == 0 )
+	{
+	    visSurvey::PointSetDisplay* ptset =
+		visSurvey::PointSetDisplay::create();
+
+	    mDynamicCastGet(visBase::DataObject*,doobj,ptset);
+	    
+	    ptset->setDataPackID( -1, wellattrserv_->getPointSet().id() );
+	    visserv_->getChildIds( -1, sceneids );
+
+	    for ( int idx=0; idx<sceneids.size(); idx++ )
+	    {
+		visserv_->addObject( doobj, sceneids[idx], true );
+		visptsetids_.addIfNew( doobj->id() );
+	    }
+	}
+	else
+	{
+	    for ( int idx=0; idx<visptsetids_.size(); idx++ )
+	    {
+		visBase::DataObject* visobj =
+		    visserv_->getObject( visptsetids_[idx] );
+		mDynamicCastGet(visSurvey::PointSetDisplay*,ptset,visobj);
+		ptset->setDataPackID( -1, wellattrserv_->getPointSet().id() );
+	    }
+	}
+    }
+    else if ( evid == uiWellAttribPartServer::evRemoveSelPoints() )
+    {
+	return false;
+	TypeSet<int> sceneids;
+	visserv_->getChildIds( -1, sceneids );
+	for ( int idx=0; idx<visptsetids_.size(); idx++ )
+	    visserv_->removeObject( visptsetids_[idx], sceneids[idx] );
+    }
     return true;
 }
 
@@ -1054,7 +1093,12 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
     }
     else if ( evid == uiNLAPartServer::evShowSelPts() )
-	pickserv_->setPickSet( nlaserv_->getSelectedPts() );
+    {
+	uiMSG().message( "Visualization part not working yet" );
+	return false;
+    }
+    else if ( evid == uiNLAPartServer::evRemoveSelPts() )
+	return false;
     else
 	pErrMsg("Unknown event from nlaserv");
 
@@ -1156,8 +1200,13 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
-    else if ( evid == uiAttribPartServer::evShowSelPtPickSet() )
-	pickserv_->setPickSet( attrserv_->getSelPickSet() );
+    else if ( evid == uiAttribPartServer::evShowSelPts() )
+    {
+	uiMSG().message( "Visualization part not working yet" );
+	return false;
+    }
+    else if ( evid == uiAttribPartServer::evRemoveSelPts() )
+	return false;
     else if ( evid==uiAttribPartServer::evEvalUpdateName() )
     {
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(
