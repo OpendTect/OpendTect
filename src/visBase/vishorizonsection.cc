@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.4 2009-03-31 16:42:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.5 2009-04-01 07:41:47 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -429,7 +429,7 @@ void HorizonSectionTile::tesselateResolution( int res )
 {
     if ( res==-1 || !needsretesselation_[res] ) return;
 
-    const int resstep = (int)pow( 2, res ); //Nr of blocks between two points.
+    const int resstep = intpow( 2, res ); //Nr of blocks between two points.
     const int nrsideblocks = mHorizonSectionSideSize/resstep + 
 	(mHorizonSectionSideSize%resstep ? 0 : -1);
 
@@ -578,7 +578,7 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
     const int res = getActualResolution();  
     if ( !needsretesselation_[res] && res>-1 && res<mHorizonSectionNrRes )
     {
-	const int resstep = (int)pow( 2, res );
+	const int resstep = intpow( 2, res );
 	if ( (row % resstep) && (col % resstep) )
     	    needsretesselation_[res] = true;
     }
@@ -606,7 +606,7 @@ void HorizonSectionTile::tesselateGlue()
     //gluepoints_->textureCoordIndex.deleteValues( 0, -1 );
     //gluepoints_->coordIndex.deleteValues( 0, -1 );
 
-    const int resstep = (int)pow( 2, getActualResolution() );
+    const int resstep = intpow( 2, getActualResolution() );
     const int skipidxsz = mHorizonSectionSideSize*resstep;
     const int nrsideblocks = mHorizonSectionSideSize/resstep + 
 	(mHorizonSectionSideSize%resstep ? 0 : -1);
