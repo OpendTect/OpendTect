@@ -7,14 +7,19 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispointset.cc,v 1.2 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vispointset.cc,v 1.3 2009-04-01 07:02:03 cvssatyaki Exp $";
 
+#include "datapointset.h"
+#include "viscoord.h"
 #include "vispointset.h"
+
+#include "SoIndexedPointSet.h"
 
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
 
 mCreateFactoryEntry( visBase::PointSet );
+mCreateFactoryEntry( visBase::IndexedPointSet );
 
 namespace visBase
 {
@@ -24,5 +29,9 @@ PointSet::PointSet()
 { }
 
 
+IndexedPointSet::IndexedPointSet()
+    : IndexedShape( new SoIndexedPointSet )
+{
+}
 
 }; // namespace visBase

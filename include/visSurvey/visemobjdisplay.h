@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.48 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.49 2009-04-01 07:02:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ namespace visBase
 {
     class DataObjectGroup;
     class DrawStyle;
-    class IndexedPolyLine;
+    //class IndexedPolyLine;
     class VisColorTab;
 }
 

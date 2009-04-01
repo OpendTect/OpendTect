@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: vispointset.h,v 1.2 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: vispointset.h,v 1.3 2009-04-01 07:02:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "sets.h"
 #include "visshape.h"
 #include "position.h"
 
 class SoPointSet;
+class Coord3;
 
 namespace visBase
 {
@@ -28,7 +30,12 @@ public:
 			mCreateDataObj(PointSet);
 };
 
-
+mClass IndexedPointSet : public IndexedShape
+{
+public:
+    static IndexedPointSet*	create()
+				mCreateDataObj(IndexedPointSet);
+};
 
 }; // Namespace
 
