@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.31 2009-02-05 11:07:28 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.32 2009-04-01 05:29:28 cvsranojay Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -28,13 +28,14 @@ bool ErrMsgClass::printProgrammerErrs =
 
 static BufferString logmsgfnm;
 
-const char* logMsgFileName()
+mBasicGlobal const char* logMsgFileName()
 {
     return logmsgfnm.buf();
 }
 
 
-int gLogFilesRedirectCode = -1; // Not set. 0 = stderr, 1 = log file
+mBasicGlobal int gLogFilesRedirectCode = -1;
+// Not set. 0 = stderr, 1 = log file
 
 #define mErrRet(s) \
     { \
