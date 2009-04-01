@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.5 2009-03-13 10:20:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisaveimagedlg.cc,v 1.6 2009-04-01 08:55:45 cvssatyaki Exp $";
 
 #include "uisaveimagedlg.h"
 
@@ -63,19 +63,6 @@ uiSaveImageDlg::uiSaveImageDlg( uiParent* p )
 {
     uiParent* fldabove = 0;
 
-    useparsfld_ = new uiGenInput( this, "Get size from",
-				  BoolInpSpec(true,"Settings","Screen") );
-    useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
-
-    if ( dirname_.isEmpty() )
-	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
-    fileinputfld_ = new uiFileInput( this, "Select filename",
-				    uiFileInput::Setup()
-				    .forread(false)
-				    .defseldir(dirname_)
-	   			    .allowallextensions(false) );
-    fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
-
 
     setSaveButtonChecked( true );
     IOM().afterSurveyChange.notify( mCB(this,uiSaveImageDlg,surveyChanged) );
@@ -125,6 +112,11 @@ void uiSaveImageDlg::sInch2Cm( const Geom::Size2D<float>& from,
 
 void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
 {
+    useparsfld_ = new uiGenInput( this, "Get size from",
+				  BoolInpSpec(true,"Settings","Screen") );
+    useparsfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,setFldVals) );
+    mAttachToAbove( useparsfld_ );
+
     widthfld_ = new uiLabeledSpinBox( this, "Width", 2 );
     widthfld_->box()->valueChanging.notify( mCB(this,uiSaveImageDlg,sizeChg) );
     mAttachToAbove( widthfld_ );
@@ -149,6 +141,17 @@ void uiSaveImageDlg::createGeomInpFlds( uiParent* fldabove )
     dpifld_->setElemSzPol( uiObject::Small );
     dpifld_->valuechanging.notify( mCB(this,uiSaveImageDlg,dpiChg) );
     mAttachToAbove( dpifld_ );
+    
+    if ( dirname_.isEmpty() )
+	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
+    fileinputfld_ = new uiFileInput( this, "Select filename",
+				    uiFileInput::Setup()
+				    .forread(false)
+				    .defseldir(dirname_)
+	   			    .allowallextensions(false) );
+    fileinputfld_->valuechanged.notify( mCB(this,uiSaveImageDlg,fileSel) );
+    mAttachToAbove( fileinputfld_ );
+
 }
 
 

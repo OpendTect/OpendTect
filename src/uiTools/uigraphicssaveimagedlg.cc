@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.6 2009-03-13 10:20:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicssaveimagedlg.cc,v 1.7 2009-04-01 08:55:45 cvssatyaki Exp $";
 
 #include "uigraphicssaveimagedlg.h"
 
@@ -29,7 +29,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
     , scene_(scene)
 {
     screendpi_ = scene->getDPI();
-    createGeomInpFlds( useparsfld_ );
+    createGeomInpFlds( 0 );
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
     PtrMan<IOPar> ctiopar;
@@ -40,6 +40,7 @@ uiGraphicsSaveImageDlg::uiGraphicsSaveImageDlg( uiParent* p,
 	{
 	    useparsfld_->setValue( false );
 	    setFldVals( 0 );
+	    updateSizes();
 	}
     }
     else
@@ -88,10 +89,7 @@ const char* uiGraphicsSaveImageDlg::getExtension()
 
 
 void uiGraphicsSaveImageDlg::setAspectRatio( CallBacker* )
-{
-    aspectratio_ = (float) scene_->width() / scene_->height();
-    initaspectratio_ = aspectratio_;
-}
+{ aspectratio_ = (float) scene_->width() / scene_->height(); }
 
 
 bool uiGraphicsSaveImageDlg::acceptOK( CallBacker* )
@@ -142,7 +140,7 @@ void uiGraphicsSaveImageDlg::setFldVals( CallBacker* cb )
     {
 	lockfld_->setChecked( true );
 	lockfld_->setSensitive( false );
-	aspectratio_ = initaspectratio_;
+	aspectratio_ = (float) scene_->width() / scene_->height();
 	setSizeInPix( (int)scene_->width(), (int)scene_->height() );
     }
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.44 2009-03-13 10:20:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.45 2009-04-01 08:55:45 cvssatyaki Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -62,7 +62,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     Settings::common().getYN( IOPar::compKey("dTect","Enable VRML"), showvrml );
     if ( nrfiletypes==0 && !showvrml )
     {
-	new uiLabel( this,
+	uiLabel* label = new uiLabel( this,
 	    "No output file types found.\n"
 	    "Probably, 'libsimage.so' is not installed or invalid." );
 	setCtrlStyle( LeaveOnly );
@@ -101,7 +101,7 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	else if ( scenefld_ )
 	    createGeomInpFlds( scenefld_ );
 	else
-	    createGeomInpFlds( useparsfld_ );
+	    createGeomInpFlds( 0 );
     }
     fileinputfld_->attach( alignedBelow, dpifld_ );
 
@@ -115,7 +115,10 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 	    useparsfld_->setValue( false );
     }
     else
+    {
 	useparsfld_->setValue( false );
+	setFldVals( 0 );
+    }
 
     updateFilter();
     
