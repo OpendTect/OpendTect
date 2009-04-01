@@ -7,7 +7,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_main.cc,v 1.19 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: od_main.cc,v 1.20 2009-04-01 05:30:45 cvsranojay Exp $";
+
 
 
 #include "prog.h"
@@ -17,13 +18,17 @@ static const char* rcsID = "$Id: od_main.cc,v 1.19 2008-11-25 15:35:25 cvsbert E
 #include "odver.h"
 #include <iostream>
 
+
 // TODO : Is there a better way to force linking with attribute factory?
 #ifdef __mac__
 # include "attribfactory.h"
 #endif
 
+
+
+
 extern int ODMain(int,char**);
-extern int gLogFilesRedirectCode;
+mBasicExtern int gLogFilesRedirectCode;
 
 
 inline static bool isPromised( const char* claim )
@@ -37,7 +42,7 @@ int main( int argc, char** argv )
     const bool showversiononly = argv[1]
 	    && (!strcmp(argv[1],"-v") || !strcmp(argv[1],"--version"));
 
-#ifndef __win__
+#if !defined(__win__) || defined(__msvc__)
     gLogFilesRedirectCode = 1;
 	// Only odmain should make log files, not process_attrib and so forth
 	// Didn't fancy putting anything about this in header files
@@ -64,8 +69,10 @@ int main( int argc, char** argv )
 	}
 
 	od_putProgInfo( argc, argv );
+   
 	ret = ODMain( argc, argv );
     }
 
+   
     ExitProgram( ret );
 }
