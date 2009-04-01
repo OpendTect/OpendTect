@@ -4,27 +4,29 @@
  * DATE     : May 2001
 -*/
 
-static const char* rcsID = "$Id: fontdata.cc,v 1.1 2008-11-18 10:52:12 cvsbert Exp $";
+static const char* rcsID = "$Id: fontdata.cc,v 1.2 2009-04-01 05:27:56 cvsranojay Exp $";
 
 #include "fontdata.h"
 #include "separstr.h"
 
 
 DefineEnumNames(FontData,Weight,2,"Font weight")
-    { "Light", "Normal", "Demi-Bold", "Bold", "Black", 0 };
-const char* FontData::universalfamilies[] =
-    { "Helvetica", "Courier", "Times", 0 };
-BufferString		FontData::defaultfamily(FontData::universalfamilies[0]);
-int			FontData::defaultpointsize = 12;
-FontData::Weight	FontData::defaultweight = FontData::Bold;
-bool			FontData::defaultitalic = false;
-const char* FontData::defaultkeys[] =
+{ "Light", "Normal", "Demi-Bold", "Bold", "Black", 0 };
+
+const char* universalfamilies[] =
+{ "Helvetica", "Courier", "Times", 0 };
+
+const char* defaultkeys[] =
 { "Control",
   "Graphics medium", "Graphics small", "Graphics large",
   "Small control", "Large control", "Fixed width", 0 };
-static const int numwghts[] = { 25, 50, 63, 75, 87, 0 };
+
+static const int numwghts[] =
+{ 25, 50, 63, 75, 87, 0 };
+
 int FontData::numWeight( FontData::Weight w )
 { return numwghts[(int)w]; }
+
 FontData::Weight FontData::enumWeight( int w )
 {
     int idx = 0;
@@ -35,6 +37,14 @@ FontData::Weight FontData::enumWeight( int w )
 
 const char* const* FontData::universalFamilies() { return universalfamilies; }
 const char* const* FontData::defaultKeys()	 { return defaultkeys; }
+const char* FontData::key( StdSz ss )		 { return defaultkeys[(int)ss];}
+
+
+// static variables and their access functions
+static BufferString defaultfamily( universalfamilies[0] );
+static int defaultpointsize = 12;
+static FontData::Weight defaultweight = FontData::Bold;
+static bool defaultitalic = false;
 
 const char* FontData::defaultFamily()		{ return defaultfamily; }
 int FontData::defaultPointSize()		{ return defaultpointsize; }
@@ -46,7 +56,6 @@ void FontData::setDefaultPointSize( int ps )	{ defaultpointsize = ps; }
 void FontData::setDefaultWeight( Weight w )	{ defaultweight = w; }
 void FontData::setDefaultItalic( bool yn )      { defaultitalic = yn; }
 
-const char* FontData::key( StdSz ss )		{ return defaultkeys[(int)ss];}
 
 
 void FontData::getFrom( const char* s )

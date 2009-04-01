@@ -6,15 +6,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: fontdata.h,v 1.12 2009-02-13 13:31:14 cvsbert Exp $
-________________________________________________________________________
+
+ RCS:           $Id: fontdata.h,v 1.13 2009-04-01 05:27:56 cvsranojay Exp $
+
+______________________________________________________________________
 
 -*/
 
 #include "enums.h"
 #include "bufstring.h"
 
+//#ifdef BASIC_EXPORTS
+//# define mBasic __declspec(dllexport)
+//#else
+//# define mBasic __declspec(dllimport)
+//#endif
 
+//class mBasic FontData
 mClass FontData
 {			//!< Data needed to make an actual font
 public:    
@@ -24,19 +32,20 @@ public:
     static int		numWeight(Weight);
     static Weight	enumWeight(int);
 
-			FontData( int ptsz=defaultpointsize,
+			FontData( int ptsz=defaultPointSize(),
 				  const char* fam=defaultFamily(),
-				  Weight wght=defaultweight,
-				  bool ital=defaultitalic )
+				  Weight wght=defaultWeight(),
+				  bool ital=defaultItalic() )
                         : family_(fam)
 			, pointsize_(ptsz)
 			, weight_(wght)
 			, italic_(ital)		{}
+
 			FontData( const char* s )
 			: family_(defaultFamily())
-			, pointsize_(defaultpointsize)
-			, weight_(defaultweight)
-			, italic_(defaultitalic)
+			, pointsize_(defaultPointSize())
+			, weight_(defaultWeight())
+			, italic_(defaultItalic())
 			{ getFrom(s); }
 
 			//! Store/retrieve (in FileMultiString format).
@@ -81,13 +90,7 @@ protected:
     Weight		weight_;
     bool		italic_;
 
-    static BufferString	defaultfamily;
-    static int		defaultpointsize;
-    static Weight	defaultweight;
-    static bool		defaultitalic;
-    static const char*	universalfamilies[];
-    static const char*	defaultkeys[];
-
+ 
 };
 
 
