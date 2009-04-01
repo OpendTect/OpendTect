@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.24 2009-03-20 11:45:02 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.25 2009-04-01 08:42:53 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -85,7 +85,7 @@ void uiAxisHandler::reCalc()
     annotrg.start = annotstart_;
 
     const uiFont& font = FontList().get();
-    wdthy_ = font.height();
+    wdthy_ = 2*font.height();
     BufferString str;
 
     const int nrsteps = annotrg.nrSteps();
@@ -100,7 +100,7 @@ void uiAxisHandler::reCalc()
 	    relpos = log( 1 + relpos );
 	pos_ += relpos;
 	const int wdth = font.width( str );
-	if ( idx == 0 )			wdthx_ = font.width( str );
+	if ( idx == 0 )			wdthx_ = font.width( str )+2;
 	else if ( wdthx_ < wdth )	wdthx_ = wdth;
     }
     endpos_ = setup_.islog_ ? logof2 : 1;
@@ -219,9 +219,8 @@ void uiAxisHandler::createAnnotItems()
     if ( setup_.noaxisannot_ ) return;
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
-	LineStyle ls;
 	const float relpos = pos_[idx] / endpos_;
-	annotPos( getRelPosPix(relpos), strs_.get(idx), ls );
+	annotPos( getRelPosPix(relpos), strs_.get(idx), setup_.style_ );
     }
 }
 
@@ -527,7 +526,7 @@ void uiAxisHandler::drawName()
     {
 	const bool istop = setup_.side_ == uiRect::Top;
 	const int x = pixBefore() + axsz_ / 2;
-	const int y = istop ? 2 : height_- pixAfter();
+	const int y = istop ? 2 : height_- pixBefore()/2;
 	const Alignment al( OD::AlignHCenter,
 			    istop ? OD::AlignBottom : OD::AlignTop );
 	nameitm_->setPos( x, y );
@@ -536,7 +535,7 @@ void uiAxisHandler::drawName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int x = isleft ? pixBefore() - 3 : width_-3;
+	const int x = isleft ? pixBefore() - wdthx_ + 5 : width_-3;
 	const int y = height_ / 2;
 	const Alignment al( isleft ? OD::AlignRight : OD::AlignLeft,
 			    OD::AlignVCenter );
