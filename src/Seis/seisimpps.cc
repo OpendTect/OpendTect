@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpps.cc,v 1.4 2008-12-29 11:41:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisimpps.cc,v 1.5 2009-04-01 05:13:33 cvsnanne Exp $";
 
 #include "seisimpps.h"
 #include "seispsioprov.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: seisimpps.cc,v 1.4 2008-12-29 11:41:49 cvsranoj
 #define mDBGmask 0x1110
 
 
-mClass SeisPSImpLineBuf
+class SeisPSImpLineBuf
 {
 public:
 

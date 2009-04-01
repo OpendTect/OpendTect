@@ -4,7 +4,7 @@
  * DATE     : Nov 2008
 -*/
 
-static const char* rcsID = "$Id: segydirecttr.cc,v 1.8 2008-12-29 11:41:49 cvsranojay Exp $";
+static const char* rcsID = "$Id: segydirecttr.cc,v 1.9 2009-04-01 05:13:33 cvsnanne Exp $";
 
 #include "segydirecttr.h"
 #include "segydirectdef.h"
@@ -18,7 +18,7 @@ static const char* rcsID = "$Id: segydirecttr.cc,v 1.8 2008-12-29 11:41:49 cvsra
 #include "dirlist.h"
 
 
-mClass SEGYDirectPSIOProvider : public SeisPSIOProvider
+class SEGYDirectPSIOProvider : public SeisPSIOProvider
 {
 public:
 			SEGYDirectPSIOProvider()

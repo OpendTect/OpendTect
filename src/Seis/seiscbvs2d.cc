@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.45 2009-02-17 13:16:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.46 2009-04-01 05:13:33 cvsnanne Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
@@ -122,7 +122,7 @@ void SeisCBVS2DLineIOProvider::removeImpl( const IOPar& iop ) const
 #undef mErrRet
 #define mErrRet(s) { msg = s; return -1; }
 
-mClass SeisCBVS2DLineGetter : public Executor
+class SeisCBVS2DLineGetter : public Executor
 {
 public:
 
@@ -296,7 +296,7 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 }
 
 
-mClass SeisCBVS2DLinePutter : public Seis2DLinePutter
+class SeisCBVS2DLinePutter : public Seis2DLinePutter
 {
 public:
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.53 2009-01-09 04:35:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.54 2009-04-01 05:13:33 cvsnanne Exp $";
 
 #include "seisinfo.h"
 #include "seispacketinfo.h"
@@ -56,7 +56,7 @@ static BufferString getUsrInfo()
 
 BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
 
-mClass SeisEnum
+class SeisEnum
 {
 public:
     typedef Seis::SelType SelType;
