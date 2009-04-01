@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.24 2009-03-17 22:07:05 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.25 2009-04-01 21:56:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,9 +290,20 @@ bool ArrayValueSeries<RT,AT>::setSize( od_int64 sz )
     if ( cursize_!=-1 && cursize_==sz && ptr_ ) return true;
     if ( !mine_ ) return false;
 
-    delete [] ptr_;
-    mTryAlloc( ptr_, AT[sz] )
+    AT* oldptr = ptr_;
+    if ( sz )
+    {
+	mTryAlloc( ptr_, AT[sz] );
+    }
+    else
+	ptr_ = 0;
+
+    const int copysize = mMIN(sz,cursize_);
     cursize_ = ptr_ ? sz : -1;
+    if ( ptr_ && copysize>0 )
+        memcpy( ptr_, oldptr, copysize*sizeof(AT) );
+    
+    delete [] oldptr;
     return ptr_;
 }
 
