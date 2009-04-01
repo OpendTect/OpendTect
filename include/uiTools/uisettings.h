@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.13 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:		$Id: uisettings.h,v 1.14 2009-04-01 04:39:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class Settings;
 class uiGenInput;
-class LooknFeelSettings;
+struct LooknFeelSettings;
 
 
 mClass uiSettings : public uiDialog
