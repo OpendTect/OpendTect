@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.233 2009-03-24 14:44:33 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.234 2009-04-01 11:41:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,6 +290,9 @@ public:
     bool			isMPEWizardActive() const;
     void			reportMPEWizardActive(bool yn);
 
+    void			reportTrackingNewWay(bool yn);
+    bool 			isTrackingNewWay() const;
+
     bool			isPicking() const;
     				/*!<\returns true if the selected object
 				     is handling left-mouse picks on other
@@ -373,6 +376,7 @@ protected:
     BufferString		mouseposstr_;
 
     bool			mpewizardactive_;
+    bool			trackingnewway_;
     bool			viewmode_;
     bool			issolomode_;
     Threads::Mutex&		eventmutex_;

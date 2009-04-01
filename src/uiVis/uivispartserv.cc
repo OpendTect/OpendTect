@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.410 2009-03-24 14:44:34 cvshelene Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.411 2009-04-01 11:42:21 cvsumesh Exp $";
 
 #include "uivispartserv.h"
 
@@ -88,6 +88,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , resmnuitem_("&Resolution",sResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
     , mpewizardactive_(false)
+    , trackingnewway_(false)
     , viewmode_(false)
     , issolomode_(false)
     , eventobjid_(-1)
@@ -1270,8 +1271,16 @@ void uiVisPartServer::reportMPEWizardActive( bool yn )
 { mpewizardactive_ = yn; }
 
 
+void uiVisPartServer::reportTrackingNewWay( bool yn )
+{ trackingnewway_ = yn; }
+
+
 bool uiVisPartServer::isMPEWizardActive() const
 { return mpewizardactive_; }
+
+
+bool uiVisPartServer::isTrackingNewWay() const
+{ return trackingnewway_; }
 
 
 void uiVisPartServer::turnSeedPickingOn( bool yn )

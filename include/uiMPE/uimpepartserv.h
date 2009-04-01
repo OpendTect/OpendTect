@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.35 2009-02-23 06:01:41 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.36 2009-04-01 11:43:38 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 class BufferStringSet;
 
 namespace Geometry { class Element; }
-namespace MPE { class Wizard; }
+namespace MPE { class Wizard; class uiSetupGroup; }
 namespace Attrib { class DescSet; class DataCubes; class Data2DHolder; }
 
 
@@ -42,6 +42,7 @@ public:
     int				getTrackerID(const EM::ObjectID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
+    void			addTrackerNewWay( const char* trackertype );
     bool			addTracker(const char* trackertype,int sceneid);
     int				addTracker(const EM::ObjectID&,
 	    				   const Coord3& pos);
@@ -154,6 +155,12 @@ protected:
     BufferString		attribname_;
     MultiID			linesetid_;
     Attrib::SelSpec		lineselspec_;
+    
+    				//temp. replacement for wizard
+    MPE::uiSetupGroup*		setupgrp_;
+    void			aboutToAddRemoveSeed(CallBacker*);
+    EM::ObjectID        	trackercurrentobject_;
+    void			trackerWinClodedCB(CallBacker*);
 
     friend class		MPE::Wizard;
 };

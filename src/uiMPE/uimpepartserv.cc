@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.74 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.75 2009-04-01 11:44:13 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -15,7 +15,9 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.74 2009-02-26 13:00:53 cvs
 #include "attribdatacubes.h"
 #include "attribdescset.h"
 #include "attribdesc.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emseedpicker.h"
 #include "emtracker.h"
 #include "emobject.h"
 #include "executor.h"
@@ -23,10 +25,12 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.74 2009-02-26 13:00:53 cvs
 #include "geomelement.h"
 #include "iopar.h"
 #include "mpeengine.h"
+#include "randcolor.h"
 #include "survinfo.h"
 #include "sectiontracker.h"
 #include "sectionadjuster.h"
 #include "mousecursor.h"
+
 #include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
 #include "uimpewizard.h"
@@ -57,6 +61,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , postponedcs_( false )
     , temptrackerid_(-1)
     , cursceneid_(-1)
+    , trackercurrentobject_(-1)
 {
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
     MPE::engine().activevolumechange.notify(
@@ -151,6 +156,101 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
     postponeLoadingCurVol();
 
     return res;
+}
+
+
+void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
+{
+    NotifyStopper notifystopper( MPE::engine().trackeraddremove );
+    // not using trackertype... only for 3D rt. now
+
+    BufferString newname = "<New horizon ";
+    static int horizonno = 1;
+    newname += horizonno++;
+    newname += ">";
+
+    EM::ObjectID objid = EM::EMM().createObject( EM::Horizon3D::typeStr(),
+	    					 newname );
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    const int trackerid = MPE::engine().addTracker( emobj );
+    if ( trackerid==-1 )
+    {
+	pErrMsg( "Could not create tracker" );
+	return;
+    }
+
+    if ( !MPE::engine().getEditor(objid,false) )
+	MPE::engine().getEditor(objid,true);
+
+    activetrackerid_ = trackerid;
+    if ( !sendEvent( ::uiMPEPartServer::evAddTreeObject() ) )
+    {
+	pErrMsg("Could not add treeitem");
+	MPE::engine().removeTracker( trackerid );
+	emobj->ref(); emobj->unRef();
+	return;
+    }
+
+    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+    emobj->setPreferredColor(getRandomColor(false)  );
+    sendEvent( uiMPEPartServer::evUpdateTrees() );
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);    
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    seedpicker->setSeedConnectMode( 0 );
+    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
+    trackercurrentobject_ = objid;
+
+    uiDialog* dlg = new uiDialog( 0 , 
+    			uiDialog::Setup("Tracking Setup",0,"108.0.1") );
+    dlg->setCtrlStyle( uiDialog::LeaveOnly );
+
+    setupgrp_ = MPE::uiMPE().setupgrpfact.create( dlg, emobj->getTypeStr(), 0 );
+    
+    MPE::SectionTracker* sectiontracker = 
+				tracker->getSectionTracker(sectionid, true);
+    setupgrp_->setSectionTracker( sectiontracker );
+    setupgrp_->setAttribSet( getCurAttrDescSet(tracker->is2D()) );
+
+    sendEvent( uiMPEPartServer::evStartSeedPick() );
+    NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
+    if ( addrmseednotifier )
+	addrmseednotifier->notify(
+		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
+
+    dlg->windowClosed.notify( mCB(this,uiMPEPartServer,trackerWinClodedCB) );
+    dlg->go();
+}
+
+
+void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
+{
+    const int trackerid = getTrackerID( trackercurrentobject_ );
+    if ( trackerid == -1 )
+	return;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker )
+	return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker )
+	return;
+
+    bool fieldchange;
+    const bool isvalidsetup = setupgrp_->commitToTracker(fieldchange);
+    seedpicker->blockSeedPick( !isvalidsetup );
+    if ( isvalidsetup && fieldchange )
+	loadAttribData();
+}
+
+
+void uiMPEPartServer::trackerWinClodedCB( CallBacker* cb )
+{
+    mDynamicCastGet(uiDialog*,dlg,cb);
+ // if ( dlg )
+ //   delete dlg;
+    //TODO delete this dlg.
 }
 
 

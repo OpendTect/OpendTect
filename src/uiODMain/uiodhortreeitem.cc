@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.18 2009-03-16 08:51:00 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.19 2009-04-01 11:45:14 cvsumesh Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -79,6 +79,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	if ( !applMgr()->visServer()->
 			 clickablesInScene(EM::Horizon3D::typeStr(),sceneID()) )
 	    return true;
+	/* old way of tracking
 	//Will be restored by event (evWizardClosed) from mpeserv
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
@@ -88,6 +89,13 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mps->setCurrentAttribDescSet( 
 				applMgr()->attrServer()->curDescSet(false) );
 	mps->addTracker( EM::Horizon3D::typeStr(), sceneID() );
+	*/
+	// new way of tracking
+	applMgr()->visServer()->reportTrackingNewWay( true );
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	mps->setCurrentAttribDescSet(
+				applMgr()->attrServer()->curDescSet(false) );
+	mps->addTrackerNewWay( EM::Horizon3D::typeStr() );
 	return true;
     }
     else if ( mnuid == 2 || mnuid == 3 )

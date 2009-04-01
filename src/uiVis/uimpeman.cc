@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.138 2009-02-23 17:05:19 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.139 2009-04-01 11:42:21 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -515,7 +515,8 @@ bool uiMPEMan::isSeedPickingOn() const
 
 bool uiMPEMan::isPickingInWizard() const
 {
-    return isSeedPickingOn() && visserv->isMPEWizardActive();
+    return isSeedPickingOn() && 
+	( visserv->isMPEWizardActive() || visserv->isTrackingNewWay() );
 }
 
 
@@ -747,7 +748,7 @@ void uiMPEMan::treeItemSelCB( CallBacker* )
 
 void uiMPEMan::validateSeedConMode()
 {
-    if ( visserv->isMPEWizardActive() )
+    if ( visserv->isMPEWizardActive() || visserv->isTrackingNewWay() )
 	return;
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker ) 
