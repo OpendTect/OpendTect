@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.11 2009-03-05 08:38:18 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.12 2009-04-02 13:51:26 cvsbert Exp $";
 
 #include "uiexpfault.h"
 
@@ -198,6 +198,8 @@ bool uiExportFault::writeAscii()
 
 bool uiExportFault::acceptOK( CallBacker* )
 {
+    if ( !infld_->commitInput() )
+	mErrRet( "Please select the input fault" );
     if ( !strcmp(outfld_->fileName(),"") )
 	mErrRet( "Please select output file" );
 
