@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.15 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.16 2009-04-02 15:58:56 cvsbert Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -65,13 +65,19 @@ void uiEllipseItem::setSize( const uiSize& size )
 
 
 uiCircleItem::uiCircleItem( const uiPoint& center, int r )
-    : uiEllipseItem(center,uiSize(r,r))
+    : uiEllipseItem(center,uiSize(2*r,2*r))
 {}
 
 
 uiCircleItem::uiCircleItem( int r )
-    : uiEllipseItem(uiSize(r,r))
+    : uiEllipseItem(uiSize(2*r,2*r))
 {}
+
+
+void uiCircleItem::setRadius( int r )
+{
+    setSize( uiSize(2*r,2*r) );
+}
 
 
 uiLineItem::uiLineItem()
