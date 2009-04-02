@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.11 2009-01-23 09:29:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.12 2009-04-02 10:03:55 cvsbert Exp $";
 
 
 #include "uigraphicsitem.h"
+#include "uigraphicsscene.h"
 
 #include "uicursor.h"
 
@@ -96,6 +97,13 @@ void uiGraphicsItem::setSelectable( bool yn )
 void uiGraphicsItem::setParent( uiGraphicsItem* item )
 {
     qgraphicsitem_->setParentItem( item->qgraphicsitem_ );
+}
+
+
+uiGraphicsItem* uiGraphicsItem::addToScene( uiGraphicsScene* sc )
+{
+    if ( sc ) sc->doAddItem( this );
+    return this;
 }
 
 

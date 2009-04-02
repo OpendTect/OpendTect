@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.11 2009-01-23 09:29:39 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.12 2009-04-02 10:03:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class Color;
 class LineStyle;
 class MouseCursor;
+class uiGraphicsScene;
 
 class QGraphicsItem;
 class QGraphicsItemGroup;
@@ -55,6 +56,7 @@ public:
     void		setCursor(const MouseCursor&);
 
     void		setParent(uiGraphicsItem*);
+    uiGraphicsItem*	addToScene(uiGraphicsScene*);
 
 protected:
     			uiGraphicsItem( QGraphicsItem* itm )
@@ -66,6 +68,7 @@ protected:
     virtual QGraphicsItem*	mkQtObj()			= 0;
     bool			selected_; // Remove when things in Qt works
 };
+
 
 
 mClass uiGraphicsItemGroup : public uiGraphicsItem

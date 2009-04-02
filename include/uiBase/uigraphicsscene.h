@@ -7,17 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.17 2009-04-01 11:46:22 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.18 2009-04-02 10:03:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uigraphicsitem.h"
 #include "bufstringset.h"
 #include "color.h"
 #include "keyboardevent.h"
 #include "mouseevent.h"
 #include "namedobj.h"
-#include "uigeom.h"
 
 
 class QGraphicsScene;
@@ -29,8 +29,6 @@ class ioPixmap;
 class MarkerStyle2D;
 
 class uiArrowItem;
-class uiGraphicsItem;
-class uiGraphicsItemGroup;
 class uiLineItem;
 class uiMarkerItem;
 class uiPixmapItem;
@@ -48,10 +46,10 @@ public:
 				~uiGraphicsScene();
 
     void			removeAllItems();
-    void			removeItem(uiGraphicsItem*);
+    uiGraphicsItem*		removeItem(uiGraphicsItem*);
 
-    void			addItem(uiGraphicsItem*);
-    void			addItemGrp(uiGraphicsItemGroup*);
+    template <class T> T*	addItem(T*);
+    uiGraphicsItemGroup*	addItemGrp(uiGraphicsItemGroup*);
     int				nrItems() const;
     int				getDPI() const;
 
@@ -114,6 +112,17 @@ protected:
     MouseEventHandler		mousehandler_;
     KeyboardEventHandler	keyboardhandler_;
     bool			ismouseeventactive_;
+    friend class		uiGraphicsItem;
+    uiGraphicsItem*		doAddItem(uiGraphicsItem*);
 
 };
+
+
+template <class T>
+inline T* uiGraphicsScene::addItem( T* itm )
+{
+    return (T*)(itm ? itm->addToScene( this ) : itm);
+}
+
+
 #endif
