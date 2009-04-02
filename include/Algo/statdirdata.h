@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.2 2009-04-01 14:35:39 cvsbert Exp $
+ RCS:           $Id: statdirdata.h,v 1.3 2009-04-02 15:58:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,13 +22,14 @@ mClass SectorPartData
 {
 public:
 
-    			SectorPartData( float v=0, float p=0.5 )
-			    : val_(v), pos_(p)  {}
+    			SectorPartData( float v=0, float p=0.5, float cnt=0 )
+			    : val_(v), pos_(p), count_(cnt)  {}
     bool		operator ==( const SectorPartData& spd ) const
 			{ return pos_ == spd.pos_; }
 
     float		pos_;	//!< 0=center 1=on circle = maximum value
     float		val_;	//!< can be actual angle or another value
+    int			count_;	//!< nr data pts contributing (for confidence)
 
 };
 
@@ -65,6 +66,7 @@ public:
 
     			DirectionalData()
 			    : ManagedObjectSet<SectorData>(false)	{}
+			DirectionalData(int nrsectors,int nrparts=0);
 
     SectorPartData&	get( int isect, int ipart )
 			{ return (*((*this)[isect]))[ipart]; }
@@ -86,6 +88,19 @@ inline float DirectionalData::angle( int isect ) const
     float fullc; Angle::getFullCircle( setup_.angletype_, fullc );
     const float angstep = fullc / size();
     return setup_.angle0_ + angstep * isect;
+}
+
+
+inline DirectionalData::DirectionalData( int nrsect, int nrparts )
+    : ManagedObjectSet<SectorData>(false)
+{
+    for ( int isect=0; isect<nrsect; isect++ )
+    {
+	SectorData* sd = new SectorData;
+	*this += sd;
+	for ( int ipart=0; ipart<nrparts; ipart++ )
+	    *sd += SectorPartData();
+    }
 }
 
 
