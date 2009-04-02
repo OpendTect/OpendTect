@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.3 2009-04-02 10:04:03 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.4 2009-04-02 15:59:11 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -53,7 +53,7 @@ void uiDirectionalPlot::reSized( CallBacker* )
 }
 
 
-void uiDirectionalPlot::setVals( const float* vals, int sz )
+void uiDirectionalPlot::setData( const float* vals, int sz )
 {
     data_.erase();
     for ( int idx=0; idx<sz; idx++ )
@@ -67,7 +67,7 @@ void uiDirectionalPlot::setVals( const float* vals, int sz )
 }
 
 
-void uiDirectionalPlot::setVals( const Stats::DirectionalData& dird )
+void uiDirectionalPlot::setData( const Stats::DirectionalData& dird )
 {
     data_ = dird;
 
@@ -125,7 +125,14 @@ void uiDirectionalPlot::drawGrid()
 {
     if ( outercircleitm_ )
     {
-	//TODO resize
+	outercircleitm_->setPos( center_ );
+	outercircleitm_->setRadius( radius_ );
+	for ( int idx=0; idx<4; idx++ )
+	{
+	    const float rad = (.2 + .2*idx)*radius_ ;
+	    uiCircleItem& ci = *equicircles_[idx];
+	    ci.setPos( center_ ); ci.setRadius( rad );
+	}
     }
     else
     {
@@ -142,9 +149,10 @@ void uiDirectionalPlot::drawGrid()
 
     sectorlines_.removeAll( true );
     const int nrsectors = data_.nrSectors();
+    const float stepang = 360 / ((float)nrsectors);
     for ( int isect=0; isect<nrsectors; isect++ )
     {
-	const float ang = Angle::usrdeg2rad( isect * 360 / ((float)nrsectors) );
+	const float ang = Angle::usrdeg2rad( getUsrAngle(isect,1) );
 	uiLineItem* li = scene().addLine( center_, ang, radius_ );
 	sectorlines_.add( li );
 	li->setPenStyle( setup_.sectorls_ );
@@ -152,32 +160,47 @@ void uiDirectionalPlot::drawGrid()
 }
 
 
+float uiDirectionalPlot::getUsrAngle( int isect, int side ) const
+{
+    const float stepang = 360 / ((float)data_.nrSectors());
+    return (isect + (side*.5)) * stepang;
+}
+
+
 void uiDirectionalPlot::drawAnnot()
 {
     if ( dirtxtitms_.isEmpty() )
     {
+	const uiPoint pt00( 0, 0 );
 	for ( int idx=0; idx<4; idx++ )
 	{
+	    const bool isew = idx % 2;
 	    const char* txt = idx == 0 ? "N"
 			   : (idx == 1 ? "E"
 			   : (idx==2 ?	 "S"
 			   :		 "W"));
 	    uiTextItem* ti = scene().addText( txt );
-	    Alignment al( idx%2 ? (idx==1 ? Alignment::Left : Alignment::Right)
+	    Alignment al( isew ? (idx==1 ? Alignment::Left : Alignment::Right)
 		    			  : Alignment::HCenter,
-		          idx%2 ? Alignment::VCenter
+		          isew ? Alignment::VCenter
 			  : (idx == 2 ? Alignment::Top : Alignment::Bottom) );
-std::cerr << txt << '=' << eString(Alignment::HPos,al.hPos());
-std::cerr << '/' << eString(Alignment::VPos,al.vPos()) << std::endl;
 	    ti->setAlignment( al );
 	    dirtxtitms_ += ti;
+
+	    uiPoint pt( isew ? (idx==1 ? 2 : -2) : 0,
+		        isew ? 0 : (idx==2 ? 2 : -2) );
+	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt) );
 	}
     }
 
-    dirtxtitms_[0]->setPos( center_.x, center_.y - radius_ - 2 );
-    dirtxtitms_[1]->setPos( center_.x + radius_ + 2, center_.y );
-    dirtxtitms_[2]->setPos( center_.x, center_.y + radius_ + 2 );
-    dirtxtitms_[3]->setPos( center_.x - radius_ - 2, center_.y );
+    const uiPoint npt( center_.x, center_.y - radius_ - 2 );
+    const uiPoint ept( center_.x + radius_ + 2, center_.y );
+    const uiPoint spt( center_.x, center_.y + radius_ + 2 );
+    const uiPoint wpt( center_.x - radius_ - 2, center_.y );
+    dirtxtitms_[0]->setPos( npt ); dirlnitms_[0]->setPos( npt );
+    dirtxtitms_[1]->setPos( ept ); dirlnitms_[1]->setPos( ept );
+    dirtxtitms_[2]->setPos( spt ); dirlnitms_[2]->setPos( spt );
+    dirtxtitms_[3]->setPos( wpt ); dirlnitms_[3]->setPos( wpt );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.2 2009-04-01 14:35:39 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.3 2009-04-02 15:59:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "statdirdata.h"
 #include "draw.h"
 class uiTextItem;
-class uiEllipseItem;
+class uiLineItem;
+class uiCircleItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
 
@@ -41,8 +42,7 @@ public:
 				    : type_(t)
 				    , circlels_(LineStyle::Solid)
 				    , sectorls_(LineStyle::Solid)
-				    , equils_(LineStyle::None)
-				    , drawdirannot_(true)
+				    , equils_(LineStyle::Dot)
 				    , drawposannot_(false)
 				    , prefsize_(400,400)	{}
 
@@ -50,7 +50,6 @@ public:
 	mDefSetupMemb(LineStyle,circlels)
 	mDefSetupMemb(LineStyle,sectorls)
 	mDefSetupMemb(LineStyle,equils)
-	mDefSetupMemb(bool,drawdirannot)
 	mDefSetupMemb(bool,drawposannot)
 	mDefSetupMemb(uiSize,prefsize)
     };
@@ -58,8 +57,8 @@ public:
 				uiDirectionalPlot(uiParent*,const Setup&);
 				~uiDirectionalPlot();
 
-    void			setVals(const Stats::DirectionalData&);
-    void			setVals(const float*,int);	//!< Rose dgrm
+    void			setData(const Stats::DirectionalData&);
+    void			setData(const float*,int);	//!< Rose dgrm
     Stats::DirectionalData::Setup& dataSetup()	{ return data_.setup_; }
 
     Setup&			setup()		{ return setup_; }
@@ -86,10 +85,11 @@ protected:
     mutable int			selsector_;
     mutable int			selpart_;
 
-    uiEllipseItem*		outercircleitm_;
-    ObjectSet<uiEllipseItem>	equicircles_;
-    ObjectSet<uiTextItem>	dirtxtitms_;
     uiGraphicsItemGroup&	sectorlines_;
+    uiCircleItem*		outercircleitm_;
+    ObjectSet<uiCircleItem>	equicircles_;
+    ObjectSet<uiTextItem>	dirtxtitms_;
+    ObjectSet<uiLineItem>	dirlnitms_;
 
     void			mouseRelease(CallBacker*);
     void			reSized(CallBacker*);
@@ -98,6 +98,8 @@ protected:
     void			draw();
     void			drawGrid();
     void			drawAnnot();
+
+    float			getUsrAngle(int sector,int side=0) const;
 
 };
 
