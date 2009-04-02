@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.37 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.38 2009-04-02 14:20:57 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -137,9 +137,6 @@ Similarity::Similarity( Desc& desc_ )
 
     const float maxdist = dosteer_ ? 
 	mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() ) : 0;
-    
-    reqgate_ = Interval<float>( gate_.start-maxdist*mMAXDIP, 
-	    			gate_.stop+maxdist*mMAXDIP );
     
     desgate_ = Interval<float>( gate_.start-maxdist*mMAXDIPSECURE, 
 	    			gate_.stop+maxdist*mMAXDIPSECURE );
@@ -343,13 +340,13 @@ void Similarity::prepPriorToBoundsCalc()
      if ( truestep == 0 )
        	 return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT(reqgate_.start*zFactor()) % truestep ; 
-    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % truestep;
+    bool chgstartr = mNINT(gate_.start*zFactor()) % truestep ; 
+    bool chgstopr = mNINT(gate_.stop*zFactor()) % truestep;
     bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
     bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
 
-    mAdjustGate( chgstartr, reqgate_.start, false )
-    mAdjustGate( chgstopr, reqgate_.stop, true )
+    mAdjustGate( chgstartr, gate_.start, false )
+    mAdjustGate( chgstopr, gate_.stop, true )
     mAdjustGate( chgstartd, desgate_.start, false )
     mAdjustGate( chgstopd, desgate_.stop, true )
 
@@ -359,7 +356,7 @@ void Similarity::prepPriorToBoundsCalc()
 
 const Interval<float>* Similarity::reqZMargin( int inp, int ) const
 {
-    return inp ? 0 : &reqgate_;
+    return inp ? 0 : &gate_;
 }
 
 

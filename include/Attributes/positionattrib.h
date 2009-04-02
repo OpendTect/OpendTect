@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.14 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:           $Id: positionattrib.h,v 1.15 2009-04-02 14:20:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,6 @@ protected:
     bool			dosteer_;
 
     TypeSet<BinID>              positions_;
-    Interval<float>             reqgate_;
     Interval<float>             desgate_;
 
     int				inidx_;

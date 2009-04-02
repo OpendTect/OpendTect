@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.22 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:           $Id: similarityattrib.h,v 1.23 2009-04-02 14:20:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,6 @@ protected:
     int				extension_;
     TypeSet<BinID>		trcpos_;
 
-    Interval<float>             reqgate_;
     Interval<float>             desgate_;
 
     bool			dosteer_;

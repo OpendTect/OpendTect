@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: positionattrib.cc,v 1.27 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: positionattrib.cc,v 1.28 2009-04-02 14:20:57 cvshelene Exp $";
 
 
 #include "positionattrib.h"
@@ -111,8 +111,6 @@ Position::Position( Desc& desc_ )
 						   stepout_.crl*2+1 );
 
     const float maxso = mMAX( stepout_.inl*inldist(), stepout_.crl*crldist() );
-    reqgate_ = Interval<float>( gate_.start-maxso*mMAXDIP, 
-	    			gate_.stop+maxso*mMAXDIP );
     desgate_ = Interval<float>( gate_.start-maxso*mMAXDIPSECURE, 
 	    			gate_.stop+maxso*mMAXDIPSECURE );
 }
@@ -260,13 +258,13 @@ void Position::prepPriorToBoundsCalc()
     if( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT(reqgate_.start*zFactor()) % truestep;
-    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % truestep;
+    bool chgstartr = mNINT(gate_.start*zFactor()) % truestep;
+    bool chgstopr = mNINT(gate_.stop*zFactor()) % truestep;
     bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
     bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
 
-    mAdjustGate( chgstartr, reqgate_.start, false )
-    mAdjustGate( chgstopr, reqgate_.stop, true )
+    mAdjustGate( chgstartr, gate_.start, false )
+    mAdjustGate( chgstopr, gate_.stop, true )
     mAdjustGate( chgstartd, desgate_.start, false )
     mAdjustGate( chgstopd, desgate_.stop, true )
 
@@ -276,7 +274,7 @@ void Position::prepPriorToBoundsCalc()
 
 const Interval<float>* Position::reqZMargin(int input,int output) const
 {
-    return &reqgate_;
+    return &gate_;
 }
 
 
