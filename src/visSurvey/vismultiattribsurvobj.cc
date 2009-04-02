@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.29 2009-03-24 14:44:34 cvshelene Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.30 2009-04-02 17:32:38 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -345,12 +345,11 @@ bool MultiTextureSurveyObject::isAttribEnabled( int attrib ) const
 void MultiTextureSurveyObject::enableAttrib( int attrib, bool yn )
 {
     if ( texture_ )
-    {
 	texture_->enableTexture( attrib, yn );
-	updateMainSwitch();
-    }
     else
 	channels_->getChannels2RGBA()->setEnabled( attrib, yn );
+
+    updateMainSwitch();
 }
 
 
