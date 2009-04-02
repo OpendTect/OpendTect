@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.2 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.3 2009-04-02 10:04:03 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -109,8 +109,8 @@ void uiDirectionalPlot::draw()
     uiBorder border( font()->height() + 5 );
     center_ = uiPoint( uitotsz.width() / 2, uitotsz.height() / 2 );
     const uiRect avrect( border.getRect(uitotsz) );
-    radius_ = avrect.width() > avrect.height()
-		     ? avrect.height() : avrect.width();
+    radius_ = (avrect.width() > avrect.height()
+		     ? avrect.height() : avrect.width()) / 2;
     const uiRect workrect( center_.x - radius_, center_.y - radius_,
 	    		   center_.x + radius_, center_.y + radius_ );
 
@@ -129,14 +129,14 @@ void uiDirectionalPlot::drawGrid()
     }
     else
     {
-	outercircleitm_ = scene().addCircle( center_, radius_ );
+	outercircleitm_ = scene().addItem( new uiCircleItem(center_,radius_) );
 	outercircleitm_->setPenStyle( setup_.circlels_ );
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    const float rad = (.2 + .2*idx)*radius_ ;
-	    uiEllipseItem* eqc = scene().addCircle( center_, rad );
-	    equicircles_ += eqc;
-	    eqc->setPenStyle( setup_.equils_ );
+	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,rad) );
+	    equicircles_ += ci;
+	    ci->setPenStyle( setup_.equils_ );
 	}
     }
 
@@ -158,12 +158,17 @@ void uiDirectionalPlot::drawAnnot()
     {
 	for ( int idx=0; idx<4; idx++ )
 	{
-	    uiTextItem* ti = scene().addText(
-		    idx == 0 ? "N" : (idx==1 ? "E" : (idx==2 ? "S" : "W")) );
+	    const char* txt = idx == 0 ? "N"
+			   : (idx == 1 ? "E"
+			   : (idx==2 ?	 "S"
+			   :		 "W"));
+	    uiTextItem* ti = scene().addText( txt );
 	    Alignment al( idx%2 ? (idx==1 ? Alignment::Left : Alignment::Right)
 		    			  : Alignment::HCenter,
 		          idx%2 ? Alignment::VCenter
-			  : (idx == 1 ? Alignment::Top : Alignment::Bottom) );
+			  : (idx == 2 ? Alignment::Top : Alignment::Bottom) );
+std::cerr << txt << '=' << eString(Alignment::HPos,al.hPos());
+std::cerr << '/' << eString(Alignment::VPos,al.vPos()) << std::endl;
 	    ti->setAlignment( al );
 	    dirtxtitms_ += ti;
 	}
