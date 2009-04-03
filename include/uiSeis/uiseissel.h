@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.36 2009-03-04 11:11:22 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.37 2009-04-03 17:02:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
     };
 
 			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
+			uiSeisSel(uiParent*,IOObjContext&,const Setup&);
 			~uiSeisSel();
 
     virtual bool	fillPar(IOPar&) const;
