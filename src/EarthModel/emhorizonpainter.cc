@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.2 2009-04-03 06:53:18 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.3 2009-04-03 07:21:47 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID oid )
     EM::EMObject* emobj = EM::EMM().getObject( oid );
     if ( !emobj ) return false;
 
-    emobj->ref();
+    //emobj->ref();
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 	if ( !hor3d ) return false;
 
@@ -205,8 +205,8 @@ void HorizonPainter::removePolyLine( int idx )
 void HorizonPainter::removeHorizon( int idx )
 {
     removePolyLine( idx );
-    EM::EMObject* emobj = EM::EMM().getObject( horizonids_[idx] );
-    emobj->unRef();
+    //EM::EMObject* emobj = EM::EMM().getObject( horizonids_[idx] );
+    //emobj->unRef();
     horizonids_.remove( idx );
     viewer_.handleChange( FlatView::Viewer::Annot );
 }
