@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.115 2009-04-01 07:38:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.116 2009-04-03 14:57:35 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -652,14 +652,15 @@ bool uiAttribPartServer::createOutput( ObjectSet<DataPointSet>& dpss,
 
 DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 				const Interval<float>& zrg,
-				TypeSet<BinID>* path )
+				TypeSet<BinID>* path,
+				TypeSet<BinID>* trueknotspos )
 {
     BinIDValueSet bidset( 2, false );
     for ( int idx=0; idx<path->size(); idx++ )
 	bidset.add( (*path)[idx], zrg.start, zrg.stop );
 
     SeisTrcBuf output( true );
-    if ( !createOutput(bidset,output) )
+    if ( !createOutput( bidset, output, trueknotspos, path ) )
 	return -1;
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
@@ -671,15 +672,19 @@ DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
 }
 
 
-bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
-				       SeisTrcBuf& output )
+bool uiAttribPartServer::createOutput( const BinIDValueSet& bidset,
+				       SeisTrcBuf& output,
+				       TypeSet<BinID>* trueknotspos,
+       				       TypeSet<BinID>* snappedpos )
 {
     PtrMan<EngineMan> aem = createEngMan();
     if ( !aem ) return 0;
 
     BufferString errmsg;
-    PtrMan<Processor> process = aem->createTrcSelOutput( errmsg, bidvalset, 
-	    						 output );
+    PtrMan<Processor> process = aem->createTrcSelOutput( errmsg, bidset, 
+	    						 output, 0, 0,
+							 trueknotspos,
+							 snappedpos );
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribengman.cc,v 1.95 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: attribengman.cc,v 1.96 2009-04-03 14:57:35 cvshelene Exp $";
 
 #include "attribengman.h"
 
@@ -949,7 +949,9 @@ Processor* EngineMan::getProcessor( BufferString& errmsg )
 Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 					  const BinIDValueSet& bidvalset,
 					  SeisTrcBuf& output, float outval,
-       					  Interval<float>* cubezbounds )
+       					  Interval<float>* cubezbounds,
+       					  TypeSet<BinID>* trueknotspos,
+       					  TypeSet<BinID>* snappedpos )
 {
     Processor* proc = getProcessor(errmsg);
     if ( !proc )
@@ -961,6 +963,7 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 	attrout->setTrcsBounds( *cubezbounds );
 
     proc->addOutput( attrout );
+    proc->setRdmPaths( trueknotspos, snappedpos );
 
     return proc;
 }

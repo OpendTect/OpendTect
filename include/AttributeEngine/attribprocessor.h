@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.24 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribprocessor.h,v 1.25 2009-04-03 14:57:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,10 @@ public:
     const char*			getAttribUserRef() const; 	
     Provider*			getProvider() 		{ return provider_; }
     ObjectSet<Output>   	outputs_;
+
+    void			setRdmPaths(TypeSet<BinID>* truepath,
+	    				    TypeSet<BinID>* snappedpath);
+				//for directional attributes
 
 protected:
     void		useFullProcess(int&);

@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.113 2009-03-17 12:30:50 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.114 2009-04-03 14:57:35 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1519,6 +1519,17 @@ bool Provider::needStoredInput() const
     }
 
     return needinput;
+}
+
+
+void Provider::setRdmPaths( TypeSet<BinID>* truepath,
+			    TypeSet<BinID>* snappedpath )
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+    {
+	if ( inputs[idx] )
+	    inputs[idx]->setRdmPaths( truepath, snappedpath );
+    }
 }
 
 }; // namespace Attrib

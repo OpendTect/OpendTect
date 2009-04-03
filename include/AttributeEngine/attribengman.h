@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.32 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribengman.h,v 1.33 2009-04-03 14:57:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "attribdescid.h"
 #include "attribsel.h"
 
+class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
@@ -92,7 +93,9 @@ public:
     Processor*		createTrcSelOutput(BufferString& errmsg,
 	    				   const BinIDValueSet& bidvalset,
 	    				   SeisTrcBuf&, float outval=0,
-					   Interval<float>* cubezbounds = 0);
+					   Interval<float>* cubezbounds=0,
+					   TypeSet<BinID>* trueknotspos=0,
+					   TypeSet<BinID>* path=0);
     Processor*		create2DVarZOutput(BufferString& errmsg,
 	    				   const IOPar& pars,
 	    				   DataPointSet* bidvalset,

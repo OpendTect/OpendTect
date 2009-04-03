@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.316 2009-04-01 07:38:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.317 2009-04-03 14:57:35 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -361,13 +361,15 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( cacheid==-1 )
 		useDefColTab( visid, attrib );
 	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
-	    const DataPack::ID newid = 
-		    attrserv_->createRdmTrcsOutput( zrg, trcspath );
+	    TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getKnots() : 0;
+	    const DataPack::ID newid =
+		attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos );
+
 	    res = true;
 	    if ( newid == -1 )
 		res = false;
 	    visserv_->setDataPackID( visid, attrib, newid );
-	    return res;;
+	    return res;
 	}
 	case uiVisPartServer::RandomPos :
 	{
@@ -446,8 +448,9 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 			visserv_->getObject(visid) );
 	TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
+	TypeSet<BinID>* trueknotspos = rdmtdisp ? rdmtdisp->getKnots() : 0;
 	const DataPack::ID dpid =
-	    	attrserv_->createRdmTrcsOutput( zrg, trcspath );
+	    	attrserv_->createRdmTrcsOutput( zrg, trcspath, trueknotspos);
 	visserv_->setDataPackID( visid, attrib, dpid );
     }
     else if ( format==uiVisPartServer::RandomPos )

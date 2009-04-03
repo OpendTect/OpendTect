@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.74 2009-03-18 09:30:36 cvsnanne Exp $
+ RCS:           $Id: attribprovider.h,v 1.75 2009-04-03 14:57:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,10 @@ public:
     				//!< Must be called before getting
     				//!< inputs/outputs etc. from a Desc
     virtual void                fillDataCubesWithTrc(DataCubes*) const	{}
+
+    virtual void		setRdmPaths(TypeSet<BinID>* truepath,
+	    				    TypeSet<BinID>* snappedpath);
+				//!<For directional attributes
 
 protected:
 
