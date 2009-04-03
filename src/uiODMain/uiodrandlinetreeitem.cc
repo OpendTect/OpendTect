@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.26 2009-03-30 07:06:23 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodrandlinetreeitem.cc,v 1.27 2009-04-03 11:57:14 cvsumesh Exp $";
 
 #include "uiodrandlinetreeitem.h"
 
@@ -317,6 +317,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    BufferString bs;
 	    if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
 		uiMSG().error( bs );
+	    else
+	    {
+		applMgr()->visServer()->setObjectName( displayID(),
+						       dlg.ioObj()->name() );
+		updateColumnText( uiODSceneMgr::cNameColumn() );
+	    }
 	}
 	else if ( mnuid == saveas2dmnuitem_.id )
 	{
