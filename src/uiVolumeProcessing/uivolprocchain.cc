@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.12 2009-03-24 13:26:57 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.13 2009-04-03 16:03:50 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -85,9 +85,9 @@ uiChain::uiChain( uiParent* p, Chain& chn )
     ctio_.setObj( IOM().get(chain_.storageID()) );
 
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
-    tb->addButton( "openflow.png", mCB(this,uiChain,readPush),
+    tb->addButton( "open.png", mCB(this,uiChain,readPush),
 	    	   "Read stored setup", false );
-    tb->addButton( "saveflow.png", mCB(this,uiChain,savePush),
+    tb->addButton( "saveas.png", mCB(this,uiChain,savePush),
 	    	   "Save setup now", false );
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
