@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.3 2009-04-02 15:59:11 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.4 2009-04-03 13:55:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiTextItem;
 class uiLineItem;
 class uiCircleItem;
+class uiMarkerItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
 
@@ -43,6 +44,7 @@ public:
 				    , circlels_(LineStyle::Solid)
 				    , sectorls_(LineStyle::Solid)
 				    , equils_(LineStyle::Dot)
+				    , markstyle_(MarkerStyle2D::Circle)
 				    , drawposannot_(false)
 				    , prefsize_(400,400)	{}
 
@@ -50,6 +52,7 @@ public:
 	mDefSetupMemb(LineStyle,circlels)
 	mDefSetupMemb(LineStyle,sectorls)
 	mDefSetupMemb(LineStyle,equils)
+	mDefSetupMemb(MarkerStyle2D,markstyle)
 	mDefSetupMemb(bool,drawposannot)
 	mDefSetupMemb(uiSize,prefsize)
     };
@@ -90,16 +93,19 @@ protected:
     ObjectSet<uiCircleItem>	equicircles_;
     ObjectSet<uiTextItem>	dirtxtitms_;
     ObjectSet<uiLineItem>	dirlnitms_;
+    ObjectSet<uiMarkerItem>	markeritems_;
 
     void			mouseRelease(CallBacker*);
     void			reSized(CallBacker*);
 
     void			gatherInfo();
     void			draw();
+    void			drawData();
     void			drawGrid();
     void			drawAnnot();
 
     float			getUsrAngle(int sector,int side=0) const;
+    uiPoint			getUIPos(float r,float usrang) const;
 
 };
 
