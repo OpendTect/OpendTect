@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.58 2009-02-20 08:43:34 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.59 2009-04-03 19:09:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -147,8 +147,13 @@ public:
     const Color&		getMarkerColor() const;
     void			setMarkerColor( const Color& );
 
-    void			allowShading( bool yn )	{ allowshading_ = yn; }
-    bool			allowsShading() const	{ return allowshading_;}
+    void			allowAppShading(bool yn){ appallowshad_ = yn; }
+    bool			allowsAppShading() const{return appallowshad_;}
+    				/*!<The application may allow or disallow
+				    shading for a scene. Even if app wants 
+				    shading, it's not guaranteed as either the
+				    system cannot do it, or the user has
+				    disabled it. */
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
@@ -182,7 +187,8 @@ protected:
     float			curzstretch_;
     float			zscale_;
     BufferString		zdomainkey_;
-    bool			allowshading_;
+    bool			appallowshad_;	   //from application
+    bool			userwantsshading_; //from settings
     CubeSampling		cs_;
 
     static const char*		sKeyShowAnnot();
@@ -190,7 +196,7 @@ protected:
     static const char*		sKeyShowCube();
     static const char*		sKeyZStretch();
     static const char*		sKeyZDataTransform();
-    static const char*		sKeyAllowShading();
+    static const char*		sKeyAppAllowShading();
 };
 
 }; // namespace visSurvey

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.115 2009-02-20 08:43:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.116 2009-04-03 19:09:48 cvskris Exp $";
 
 #include "vissurvscene.h"
 
@@ -35,12 +35,12 @@ mCreateFactoryEntry( visSurvey::Scene );
 
 namespace visSurvey {
 
-const char* Scene::sKeyShowAnnot()		{ return "Show text"; }
-const char* Scene::sKeyShowScale()		{ return "Show scale"; }
-const char* Scene::sKeyShowCube()		{ return "Show cube"; }
-const char* Scene::sKeyZStretch()		{ return "ZStretch"; }
-const char* Scene::sKeyZDataTransform()		{ return "ZTransform"; }
-const char* Scene::sKeyAllowShading()		{ return "Allow shading"; }
+const char* Scene::sKeyShowAnnot()	{ return "Show text"; }
+const char* Scene::sKeyShowScale()	{ return "Show scale"; }
+const char* Scene::sKeyShowCube()	{ return "Show cube"; }
+const char* Scene::sKeyZStretch()	{ return "ZStretch"; }
+const char* Scene::sKeyZDataTransform()	{ return "ZTransform"; }
+const char* Scene::sKeyAppAllowShading() { return "Application Allows shading";}
 
 Scene::Scene()
     : inlcrl2disptransform_(0)
@@ -54,7 +54,8 @@ Scene::Scene()
     , zstretchchange(this)
     , curzstretch_(-1)
     , datatransform_( 0 )
-    , allowshading_(true)
+    , appallowshad_(true)
+    , userwantsshading_(true)
     , mousecursor_( 0 )
     , polyselector_( 0 )
     , coordselector_( 0 )
@@ -65,13 +66,13 @@ Scene::Scene()
     init();
 
     if ( GetEnvVarYN("DTECT_MULTITEXTURE_NO_SHADING" ) )
-	allowshading_ = false;
+	userwantsshading_ = false;
 
-    if ( allowshading_ )
+    if ( userwantsshading_ )
     {
 	bool noshading = false;
 	Settings::common().getYN( "dTect.No shading", noshading );
-	allowshading_ = !noshading;
+	userwantsshading_ = !noshading;
     }
 }
 
@@ -226,7 +227,7 @@ void Scene::addObject( visBase::DataObject* obj )
 
 	so->setScene( this );
 	STM().setCurrentScene( this );
-	so->allowShading( allowshading_ );
+	so->allowShading( userwantsshading_ && appallowshad_ );
     }
 
     if ( so && so->isInlCrl() )
@@ -603,7 +604,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );
     par.setYN( sKeyShowCube(), isAnnotShown() );
     par.set( sKeyZStretch(), curzstretch_ );
-    par.setYN( sKeyAllowShading(), allowshading_ );
+    par.setYN( sKeyAppAllowShading(), appallowshad_ );
 
     if ( datatransform_ )
     {
@@ -630,7 +631,10 @@ int Scene::usePar( const IOPar& par )
     removeAll();
     init();
 
-    par.getYN( sKeyAllowShading(), allowshading_ );
+    appallowshad_ = true;
+    if ( !par.getYN( sKeyAppAllowShading(), appallowshad_ ) )
+	par.getYN( "Allow shading", appallowshad_ ); //Old key
+
 
     int res = visBase::DataObjectGroup::usePar( par );
     if ( res!=1 ) return res;
