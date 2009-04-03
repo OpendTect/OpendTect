@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.166 2009-04-01 05:48:43 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.167 2009-04-03 16:34:40 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -615,7 +615,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddTB(cointb_,"home.png","To home position",false,toHomePos);
     mAddTB(cointb_,"set_home.png","Save home position",false,saveHomePos);
     mAddTB(cointb_,"view_all.png","View all",false,viewAll);
-    cameraid_ = mAddTB(cointb_,"orthographic.png",
+    cameraid_ = mAddTB(cointb_,"perspective.png",
 	    	       "Switch to orthographic camera",false,switchCameraType);
     
     curviewmode_ = 0;
@@ -725,7 +725,7 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 {
     cointb_->setToolTip(cameraid_,perspective ? "Switch to orthographic camera"
 					      : "Switch to perspective camera");
-    const char* fnm = perspective ? "orthographic.png" : "perspective.png";
+    const char* fnm = perspective ? "perspective.png" : "orthographic.png";
     cointb_->setPixmap( cameraid_, ioPixmap(fnm) );
 }
 
