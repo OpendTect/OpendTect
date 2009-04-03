@@ -7,10 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.166 2009-03-24 04:45:02 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.167 2009-04-03 06:50:30 cvsumesh Exp $";
 
 #include "uiodscenemgr.h"
+#include "attribdatacubes.h"
+#include "attribdatapack.h"
 #include "scene.xpm"
+#include "emmanager.h"
+#include "emhorizonpainter.h"
 
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
@@ -1095,6 +1099,7 @@ uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
     : appl_(appl)
     , visid_(visid)
     , viewwin_(0)
+    , horpainter_(0)
 {
     basetxt_ = "2D Viewer - ";
     BufferString info;
@@ -1109,6 +1114,7 @@ uiODSceneMgr::Viewer2D::~Viewer2D()
     if ( fvdw )
 	appl_.removeDockWindow( fvdw );
 
+    delete horpainter_;
     delete viewwin_;
 }
 
@@ -1119,6 +1125,14 @@ void uiODSceneMgr::Viewer2D::setUpView( DataPack::ID packid,
     const bool isnew = !viewwin_;
     if ( isnew )
 	createViewWin( isvert );
+    
+    Attrib::Flat3DDataPack* dp = 
+		(Attrib::Flat3DDataPack*)DPM(
+			DataPackMgr::FlatID()).obtain( packid, true );
+    if ( dp && ( dp->dataDir()==CubeSampling::Inl ||
+		  dp->dataDir()==CubeSampling::Crl) )
+    horpainter_->setCubeSampling( dp->cube().cubeSampling(), true );
+    drawHorizons();
 
     viewwin_->viewer().setPack( wva, packid, true, !isnew );
     FlatView::DataDispPars& ddp = viewwin_->viewer().appearance().ddpars_;
@@ -1153,7 +1167,17 @@ void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
 	vwr.appearance().setGeoDefaults(isvert);
 	vwr.appearance().annot_.setAxesAnnot(true);
 	if ( ivwr == 0 )
+	{
 	    viewwin_->addControl( new uiFlatViewStdControl( vwr,
-			uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
+		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
+	    horpainter_ = new EM::HorizonPainter( vwr );
+	}
     }
+}
+
+
+void uiODSceneMgr::Viewer2D::drawHorizons()
+{
+    for ( int idx=0; idx<EM::EMM().nrLoadedObjects(); idx++ )
+	horpainter_->addHorizon( EM::EMM().objectID(idx) );
 }
