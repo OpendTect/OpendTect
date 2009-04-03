@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.163 2009-03-10 06:57:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.164 2009-04-03 06:39:45 cvsumesh Exp $";
 
 #include "uiempartserv.h"
 
@@ -396,6 +396,7 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
     {
 	EM::EMObject* obj = em_.getObject( em_.getObjectID(surfaceids[idx]) );
 	obj->ref();
+	obj->setBurstAlert( true );
     }
 
     uiTaskRunner execdlg( parent() );
@@ -418,6 +419,7 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
 	const EM::ObjectID objid = em_.getObjectID( surfaceids[idx] );
 	EM::EMObject* obj = em_.getObject( objid );
 	obj->unRefNoDelete();
+	obj->setBurstAlert( false );
 	objids += objid;
     }
 }
