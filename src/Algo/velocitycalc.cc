@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.13 2009-03-26 12:36:56 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.14 2009-04-03 18:24:26 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -582,25 +582,29 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
 	    Vout[idx] = Vin[nr_in-1];
 	else
 	{
-	    for ( ; compartment<nr_in-1; compartment++ )
+	    bool match = false;
+	    for ( ; compartment<nr_in; compartment++ )
 	    {
-		if ( t_in[compartment]>z )
+		if ( mIsEqual( z, t_in[compartment], eps ) )
+		    match = true;
+		else if ( t_in[compartment]<=z )
 		    continue;
 
 		break;
 	    }
 
-	    if ( inputspan==VelocityDesc::Below ||
-		    mIsEqual( z,t_in[compartment], eps ) )
+	    //compartment is always after pos
+	    if ( match )
 		Vout[idx] = Vin[compartment];
-	    else if ( inputspan==VelocityDesc::Above ||
-		    mIsEqual(z, t_in[compartment+1],eps) )
-	        Vout[idx] = Vin[compartment+1];
+	    else if ( inputspan==VelocityDesc::Below )
+		Vout[idx] = Vin[compartment ? compartment-1 : compartment];
+	    else if ( inputspan==VelocityDesc::Above )
+	        Vout[idx] = Vin[compartment];
 	    else
 	    {
-		const float rel = (z-t_in[compartment]) /
-				  (t_in[compartment+1]-t_in[compartment] );
-		Vout[idx] = rel*Vin[compartment+1]+(1-rel)*Vin[compartment];
+		const float rel = (z-t_in[compartment-1]) /
+				  (t_in[compartment]-t_in[compartment-1] );
+		Vout[idx] = rel*Vin[compartment]+(1-rel)*Vin[compartment-1];
 	    }
 	}
     }
