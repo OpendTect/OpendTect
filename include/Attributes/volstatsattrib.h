@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.18 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.19 2009-04-03 14:59:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,13 +16,16 @@ ________________________________________________________________________
 
 /*!\brief Volume Statistics Attribute
 
-VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse gate=[0,0]
+VolumeStatistics stepout=1,1 shape=Rectangle|Ellipse|OpticalStack gate=[0,0]
 		 steering=
 
 VolumeStatistics collects all samples within the timegate from all traces
 within the stepout.
 
 If steering is enabled, the timegate is taken relative to the steering.
+
+If the OpticalStack shape is chosen, the positions used are defined by a step 
+and a direction: the line direction or its normal.
 
 Inputs:
 0-(nrvolumes-1)         The data
@@ -39,7 +42,6 @@ Outputs:
 7	Most Frequent
 8	RMS
 */
-
 
 namespace Attrib
 {
@@ -58,10 +60,17 @@ public:
     static const char*		absolutegateStr() { return "absolutegate"; }
     static const char*		nrtrcsStr()	  { return "nrtrcs"; }
     static const char*		steeringStr()	  { return "steering"; }
+    static const char*		optstackstepStr() { return "optstackstep"; }
+    static const char*		optstackdirStr()  { return "optstackdir"; }
     static const char*		shapeTypeStr(int);
+    static const char*		optStackDirTypeStr(int);
     void			initSteering();
 
     void			prepPriorToBoundsCalc();
+    void			setRdmPaths( TypeSet<BinID>* truepos,
+	    				     TypeSet<BinID>* snappedpos )
+    						  { linetruepos_ = truepos;
+						    linepath_ = snappedpos; }
 
 protected:
 				~VolStats();
@@ -78,6 +87,12 @@ protected:
 					    int z0,int nrsamples,
 					    int threadid) const;
 
+    void			getStackPositions(TypeSet<BinID>&) const;
+    void			getIdealStackPos(
+	    				const BinID&,const BinID&,const BinID&,
+				  	TypeSet< Geom::Point2D<float> >&) const;
+    void			reInitPosAndSteerIdxes();
+
     const BinID*		desStepout(int input,int output) const;
     const Interval<float>*	reqZMargin(int input,int output) const;
     const Interval<float>*	desZMargin(int input,int output) const;
@@ -88,11 +103,15 @@ protected:
     int				minnrtrcs_;
     bool			dosteer_;
     Interval<float>             desgate_;
-    Interval<float>             reqgate_;
 
     TypeSet<BinID>      	positions_;
     int				dataidx_;
     TypeSet<int>		steerindexes_;
+
+    TypeSet<BinID>*		linepath_;
+    TypeSet<BinID>*		linetruepos_;
+    int				optstackdir_;
+    int				optstackstep_;
 
     ObjectSet<const DataHolder>	inputdata_;
     const DataHolder*		steeringdata_;

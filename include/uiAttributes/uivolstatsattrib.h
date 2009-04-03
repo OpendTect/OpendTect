@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uivolstatsattrib.h,v 1.8 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uivolstatsattrib.h,v 1.9 2009-04-03 14:59:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,15 +34,19 @@ public:
 
 protected:
 
-    uiAttrSel*		inpfld;
-    uiSteeringSel*	steerfld;
-    uiGenInput*		gatefld;
-    uiGenInput*		shapefld;
-    uiStepOutSel*	stepoutfld;
-    uiLabeledSpinBox*	nrtrcsfld;
-    uiGenInput*		outpfld;
+    uiAttrSel*		inpfld_;
+    uiSteeringSel*	steerfld_;
+    uiGenInput*		gatefld_;
+    uiGenInput*		shapefld_;
+    uiStepOutSel*	stepoutfld_;
+    uiLabeledSpinBox*	optstackstepfld_;
+    uiLabeledSpinBox*	nrtrcsfld_;
+    uiGenInput*		outpfld_;
+    uiGenInput*		stackdirfld_;
 
     void		stepoutChg(CallBacker*);
+    void		shapeChg(CallBacker*);
+    void		stackstepChg(CallBacker*);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

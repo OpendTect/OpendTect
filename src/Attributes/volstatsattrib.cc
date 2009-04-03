@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.44 2009-03-27 14:08:57 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.45 2009-04-03 14:59:02 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -17,12 +17,15 @@ static const char* rcsID = "$Id: volstatsattrib.cc,v 1.44 2009-03-27 14:08:57 cv
 #include "statruncalc.h"
 #include "valseriesinterpol.h"
 
-#define mShapeRectangle	 0
-#define mShapeEllipse	 1
+#define mShapeRectangle		0
+#define mShapeEllipse		1
+#define mShapeOpticalStack	2
+
+#define mDirLine		0
+#define mDirNorm		1
 
 namespace Attrib
 {
-
 
 static int outputtypes[] =
 {
@@ -54,6 +57,7 @@ void VolStats::initClass()
     //Note: Ordering must be the same as numbering!
     shape->addEnum( shapeTypeStr(mShapeRectangle) );
     shape->addEnum( shapeTypeStr(mShapeEllipse) );
+    shape->addEnum( shapeTypeStr(mShapeOpticalStack) );
     shape->setDefaultValue( mShapeRectangle );
     desc->addParam( shape );
 
@@ -70,6 +74,18 @@ void VolStats::initClass()
     BoolParam* steering = new BoolParam( steeringStr() );
     steering->setDefaultValue( false );
     desc->addParam( steering );
+
+    IntParam* optstackstep = new IntParam( optstackstepStr() );
+    optstackstep->setDefaultValue( 1 );
+    optstackstep->setRequired( false );
+    desc->addParam( optstackstep );
+
+    EnumParam* osdir = new EnumParam( optstackdirStr() );
+    //Note: Ordering must be the same as numbering!
+    osdir->addEnum( optStackDirTypeStr(mDirLine) );
+    osdir->addEnum( optStackDirTypeStr(mDirNorm) );
+    osdir->setDefaultValue( mDirNorm );
+    desc->addParam( osdir );
 
     desc->addInput( InputSpec("Input data",true) );
 
@@ -88,12 +104,26 @@ void VolStats::initClass()
 void VolStats::updateDesc( Desc& desc )
 {
     desc.inputSpec(1).enabled = desc.getValParam(steeringStr())->getBoolValue();
+
+    BufferString shapestr = desc.getValParam(shapeStr())->getStringValue();
+    const bool isoptstack = shapestr == shapeTypeStr( mShapeOpticalStack );
+    desc.setParamEnabled( stepoutStr(), !isoptstack );
+    desc.setParamEnabled( optstackstepStr(), isoptstack );
+    desc.setParamEnabled( optstackdirStr(), isoptstack );
 }
 
 
 const char* VolStats::shapeTypeStr( int type )
 {
-    return type==mShapeRectangle ? "Rectangle" : "Ellipse";
+    return type==mShapeRectangle ? "Rectangle"
+				 : type==mShapeEllipse ? "Ellipse"
+				 		       : "OpticalStack";
+}
+
+   
+const char* VolStats::optStackDirTypeStr( int type )
+{
+    return type==mDirLine ? "LineDir" : "NormalToLine";
 }
 
    
@@ -101,7 +131,7 @@ VolStats::VolStats( Desc& ds )
     : Provider( ds )
     , positions_(0,BinID(0,0))
     , desgate_(0,0)
-    , reqgate_(0,0)
+    , linepath_(0)
 {
     if ( !isOK() ) return;
 
@@ -113,7 +143,12 @@ VolStats::VolStats( Desc& ds )
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
 
+    mGetInt( optstackstep_, optstackstepStr() );
+    mGetEnum( optstackdir_, optstackdirStr() );
     mGetBool( dosteer_, steeringStr() );
+
+    if ( shape_ == mShapeOpticalStack )
+	stepout_ = BinID( optstackstep_, optstackstep_ );
 
     if ( dosteer_ )
     {
@@ -122,8 +157,6 @@ VolStats::VolStats( Desc& ds )
 				    gate_.stop+maxso*mMAXDIPSECURE );
     }
 	
-    reqgate_ = gate_;
-
     BinID pos;
     for ( pos.inl=-stepout_.inl; pos.inl<=stepout_.inl; pos.inl++ )
     {
@@ -176,6 +209,9 @@ bool VolStats::getInputOutput( int input, TypeSet<int>& res ) const
 bool VolStats::getInputData( const BinID& relpos, int zintv )
 {
     inputdata_.erase();
+    if ( shape_ == mShapeOpticalStack )
+	reInitPosAndSteerIdxes();
+
     while ( inputdata_.size()<positions_.size() )
 	inputdata_ += 0;
 
@@ -244,15 +280,21 @@ void VolStats::prepPriorToBoundsCalc()
     if ( truestep == 0 )
 	return Provider::prepPriorToBoundsCalc();
 
-    bool chgstartr = mNINT(reqgate_.start*zFactor()) % truestep;
-    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % truestep;
+    bool chgstartr = mNINT(gate_.start*zFactor()) % truestep;
+    bool chgstopr = mNINT(gate_.stop*zFactor()) % truestep;
     bool chgstartd = mNINT(desgate_.start*zFactor()) % truestep;
     bool chgstopd = mNINT(desgate_.stop*zFactor()) % truestep;
 
-    mAdjustGate( chgstartr, reqgate_.start, false )
-    mAdjustGate( chgstopr, reqgate_.stop, true )
+    mAdjustGate( chgstartr, gate_.start, false )
+    mAdjustGate( chgstopr, gate_.stop, true )
     mAdjustGate( chgstartd, desgate_.start, false )
     mAdjustGate( chgstopd, desgate_.stop, true )
+
+    if ( shape_ == mShapeOpticalStack && (!linepath_ || !linetruepos_) )
+    {
+	errmsg = "Optical Stack should only be applied on random lines";
+	return;
+    }
 
     Provider::prepPriorToBoundsCalc();
 }
@@ -260,7 +302,7 @@ void VolStats::prepPriorToBoundsCalc()
 
 const Interval<float>* VolStats::reqZMargin( int inp, int ) const
 {
-    return &reqgate_;
+    return &gate_;
 }
 
 
@@ -351,6 +393,110 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
     }
 
     return true;
+}
+
+
+void VolStats::reInitPosAndSteerIdxes()
+{
+    positions_.erase();
+    steerindexes_.erase();
+
+    TypeSet<BinID> truepos;
+    getStackPositions( truepos );
+
+    for ( int idx=0; idx<truepos.size(); idx++ )
+    {
+	const BinID tmpbid = truepos[idx]-currentbid;
+	positions_ += tmpbid;
+	steerindexes_ += getSteeringIndex( tmpbid );
+    }
+}
+
+
+void VolStats::getStackPositions( TypeSet<BinID>& pos ) const
+{
+    int curbididx = linepath_->indexOf( currentbid );
+    if ( curbididx < 0 ) return;
+
+    int trueposidx = -1;
+    for ( int idx=1; idx<linetruepos_->size(); idx++ )
+    {
+	const int prevtrueposidx = linepath_->indexOf( (*linetruepos_)[idx-1] );
+	const int nexttrueposidx = linepath_->indexOf( (*linetruepos_)[idx] );
+	if ( curbididx>=prevtrueposidx && curbididx<=nexttrueposidx )
+	{
+	    trueposidx = idx;
+	    break;
+	}
+    }
+
+    if ( trueposidx < 0 ) return;
+
+    const BinID prevpos = (*linetruepos_)[trueposidx-1];
+    const BinID nextpos = (*linetruepos_)[trueposidx];
+    TypeSet< Geom::Point2D<float> > idealpos;
+    getIdealStackPos( currentbid, prevpos, nextpos, idealpos );
+
+    pos += currentbid;
+
+    //snap the ideal positions to existing BinIDs
+    for ( int idx=0; idx<idealpos.size(); idx++ )
+	pos += BinID( mNINT(idealpos[idx].x), mNINT(idealpos[idx].y) );
+}
+
+
+void VolStats::getIdealStackPos( 
+			const BinID& cpos, const BinID& ppos, const BinID& npos,
+			TypeSet< Geom::Point2D<float> >& idealpos ) const
+{
+    //compute equation (type y=ax+b) of line formed by next and previous pos
+    float coeffa = mIsZero(npos.inl-ppos.inl, 1e-3) 
+		    ? 0
+		    : (float)(npos.crl-ppos.crl) / (float)(npos.inl-ppos.inl);
+
+    if ( optstackdir_ == mDirNorm && !mIsZero(coeffa,1e-6) )
+	coeffa = -1/coeffa;
+
+    const float coeffb = (float)cpos.crl - coeffa * (float)cpos.inl;
+
+    //compute 4 intersections with 'stepout box'
+    const Geom::Point2D<float> inter1( cpos.inl - optstackstep_,
+				    (cpos.inl-optstackstep_)*coeffa + coeffb );
+    const Geom::Point2D<float> inter2( cpos.inl + optstackstep_,
+				    (cpos.inl+optstackstep_)*coeffa + coeffb );
+    const float interx3 = mIsZero(coeffa,1e-6) ? 0
+				: (cpos.crl-optstackstep_-coeffb)/coeffa;
+    const Geom::Point2D<float> inter3( interx3, cpos.crl - optstackstep_);
+    const float interx4 = mIsZero(coeffa,1e-6) ? 0
+				: (cpos.crl+optstackstep_-coeffb)/coeffa;
+    const Geom::Point2D<float> inter4( interx4, cpos.crl + optstackstep_);
+
+    //keep 2 points that cross the 'stepout box'
+    const Geom::Point2D<float> pointa = inter1.x>cpos.inl-optstackstep_
+				     && inter1.x<cpos.inl+optstackstep_
+				     && inter1.y>cpos.crl-optstackstep_
+				     && inter1.y<cpos.crl+optstackstep_
+				     	? inter1 : inter3;
+
+    const Geom::Point2D<float> pointb = inter2.x>cpos.inl-optstackstep_
+				     && inter2.x<cpos.inl+optstackstep_
+				     && inter2.y>cpos.crl-optstackstep_
+				     && inter2.y<cpos.crl+optstackstep_
+				     	? inter2 : inter4;
+
+    //compute intermediate points, number determined by optstackstep_
+    const float incinl = (pointb.x - pointa.x) / (2*optstackstep_);
+    const float inccrl = (pointb.y - pointa.y) / (2*optstackstep_);
+    for ( int idx=1; idx<optstackstep_; idx++ )
+    {
+	idealpos += Geom::Point2D<float>( cpos.inl-incinl*idx,
+					  cpos.crl-inccrl*idx );
+	idealpos += Geom::Point2D<float>( cpos.inl+incinl*idx,
+					  cpos.crl+inccrl*idx );
+    }
+
+    idealpos += pointa;
+    idealpos += pointb;
 }
 
 } // namespace Attrib
