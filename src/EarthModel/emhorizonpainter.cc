@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.1 2009-03-26 09:14:11 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.2 2009-04-03 06:53:18 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,8 +256,9 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::PositionChange:
 	{
-	    if ( !underburstalertinfluence_ )
-		updateDisplay();
+	    //TODO implement in rt. way
+	    //if ( !underburstalertinfluence_ )
+	    //	updateDisplay();
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
