@@ -7,15 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.9 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uiimppickset.h,v 1.10 2009-04-03 13:24:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-
-class CtxtIOObj;
-class IOObj;
 class uiCheckBox;
 class uiColorInput;
 class uiLabeledComboBox;
@@ -32,7 +29,6 @@ mClass uiImpExpPickSet : public uiDialog
 {
 public:
 			uiImpExpPickSet(uiPickPartServer*,bool);
-			~uiImpExpPickSet();
 
 protected:
 
@@ -55,7 +51,6 @@ protected:
     bool		doExport();
 
     bool		import_;
-    CtxtIOObj&		ctio_;
     Table::FormatDesc&  fd_;
 };
 

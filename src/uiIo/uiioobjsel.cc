@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.131 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.132 2009-04-03 13:24:55 cvsbert Exp $";
 
 #include "uiioobjsel.h"
 
@@ -530,17 +530,43 @@ void uiIOObjSelDlg::statusMsgCB( CallBacker* cb )
 }
 
 
-#define mSelTxt(txt) \
+#define mSelTxt(txt,ct) \
     txt ? txt \
-        : (c.ctxt.name().isEmpty() ? c.ctxt.trgroup->userName().buf() \
-				   : c.ctxt.name().buf())
+        : (ct.name().isEmpty() ? ct.trgroup->userName().buf() : ct.name().buf())
+
+uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c, const char* txt )
+    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c)),
+	    	 mCB(this,uiIOObjSel,doObjSel))
+    , inctio_(*new CtxtIOObj(c))
+    , workctio_(*new CtxtIOObj(c))
+    , setup_(mSelTxt(txt,c))
+    , inctiomine_(true)
+{
+    fillDefault();
+    updateInput();
+}
+
+
+uiIOObjSel::uiIOObjSel( uiParent* p, const IOObjContext& c,
+			const uiIOObjSel::Setup& su )
+    : uiIOSelect(p,uiIOSelect::Setup(su.seltxt_),mCB(this,uiIOObjSel,doObjSel))
+    , inctio_(*new CtxtIOObj(c))
+    , workctio_(*new CtxtIOObj(c))
+    , setup_(su)
+    , inctiomine_(true)
+{
+    fillDefault();
+    updateInput();
+}
+
 
 uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt )
-    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt)),
+    : uiIOSelect(p,uiIOSelect::Setup(mSelTxt(txt,c.ctxt)),
 	    	 mCB(this,uiIOObjSel,doObjSel))
     , inctio_(c)
     , workctio_(*new CtxtIOObj(c))
-    , setup_(mSelTxt(txt))
+    , setup_(mSelTxt(txt,c.ctxt))
+    , inctiomine_(false)
 {
     fillDefault();
     updateInput();
@@ -552,6 +578,7 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
     , inctio_(c)
     , workctio_(*new CtxtIOObj(c))
     , setup_(su)
+    , inctiomine_(false)
 {
     fillDefault();
     updateInput();
@@ -560,6 +587,8 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const uiIOObjSel::Setup& su )
 
 uiIOObjSel::~uiIOObjSel()
 {
+    if ( inctiomine_ )
+	{ delete inctio_.ioobj; delete &inctio_; }
     delete workctio_.ioobj; delete &workctio_;
 }
 
@@ -592,14 +621,26 @@ void uiIOObjSel::usePar( const IOPar& iopar, const char* ck )
     if ( res && *res )
     {
 	workctio_.setObj( MultiID(res) );
-	setInput( res );
+	setInput( MultiID(res) );
     }
+}
+
+
+void uiIOObjSel::setInput( const MultiID& mid )
+{
+    uiIOSelect::setInput( mid.buf() );
+}
+
+
+void uiIOObjSel::setInput( const IOObj& ioobj )
+{
+    setInput( ioobj.key() );
 }
 
 
 void uiIOObjSel::updateInput()
 {
-    setInput( workctio_.ioobj ? (const char*)workctio_.ioobj->key() : "" );
+    setInput( workctio_.ioobj ? workctio_.ioobj->key() : MultiID("") );
 }
 
 
@@ -650,9 +691,50 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
     return (*IOM().dirPtr())[nm];
 }
 
+#define mDoCommit() \
+    bool alreadyerr = false; \
+    const_cast<uiIOObjSel*>(this)->doCommitInput(alreadyerr); \
+    if ( setup_.mandatory_ && !noerr && !inctio_.ioobj && !alreadyerr ) \
+    { \
+	BufferString txt( inctio_.ctxt.forread \
+				    ? "Please select the " \
+				    : "Please enter a name for the " ); \
+	txt += setup_.seltxt_; \
+	uiMSG().error( txt ); \
+    }
+
+
+MultiID uiIOObjSel::key( bool noerr ) const
+{
+    mDoCommit();
+    return inctio_.ioobj ? inctio_.ioobj->key() : MultiID("");
+}
+
+
+const IOObj* uiIOObjSel::ioobj( bool noerr ) const
+{
+    mDoCommit();
+    return inctio_.ioobj;
+}
+
+
+IOObj* uiIOObjSel::getIOObj( bool noerr )
+{
+    mDoCommit();
+    IOObj* ret = inctio_.ioobj; inctio_.ioobj = 0;
+    return ret;
+}
+
 
 bool uiIOObjSel::commitInput()
 {
+    bool dum; return doCommitInput( dum );
+}
+
+
+bool uiIOObjSel::doCommitInput( bool& alreadyerr )
+{
+    alreadyerr = false;
     LineKey lk( getInput() );
     const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
@@ -675,6 +757,7 @@ bool uiIOObjSel::commitInput()
 	BufferString msg( "'" ); msg += getInput();
 	msg += "' already exists.\nPlease enter another name.";
 	uiMSG().error( msg );
+	alreadyerr = true;
 	return false;
     }
     if ( workctio_.ctxt.forread ) return false;

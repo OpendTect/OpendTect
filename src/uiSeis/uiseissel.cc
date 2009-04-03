@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.71 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.72 2009-04-03 13:24:55 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -337,7 +337,7 @@ void uiSeisSel::updateInput()
 {
     BufferString ioobjkey;
     if ( workctio_.ioobj ) ioobjkey = workctio_.ioobj->key();
-    setInput( LineKey(ioobjkey,attrnm_) );
+    uiIOSelect::setInput( LineKey(ioobjkey,attrnm_).buf() );
 }
 
 

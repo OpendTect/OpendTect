@@ -7,7 +7,7 @@ ________________________________________________________________________
 
 ________________________________________________________________________
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.54 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.55 2009-04-03 13:24:55 cvsbert Exp $";
 -*/
 
 #include "uifingerprintattrib.h"
@@ -687,7 +687,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
 
     picksetfld_ = new uiIOObjSel( this, ctio_, "Pickset file" );
     picksetfld_->attach( alignedBelow, (uiParent*)rangesgrp_ );
-    picksetfld_->setInput( calcobj_.getRgRefPick() );
+    picksetfld_->setInput( MultiID(calcobj_.getRgRefPick().buf()) );
     picksetfld_->display( true );
     
     uiGroup* attrvalsgrp = new uiGroup( this, "Attrib inputs" );

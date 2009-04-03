@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimppickset.cc,v 1.39 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimppickset.cc,v 1.40 2009-04-03 13:24:55 cvsbert Exp $";
 
 #include "uiimppickset.h"
 #include "uibutton.h"
@@ -49,7 +49,6 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 			: "Export PickSet", "Specify pickset parameters",
 			imp ? "105.0.1" : "105.0.2"))
     , serv_(p)
-    , ctio_(*mMkCtxtIOObj(PickSet))
     , import_(imp)
     , fd_(*PickSetAscIO::getDesc(true))
     , zfld_(0)
@@ -66,10 +65,10 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     filefld_->setDefaultSelectionDir( 
 			    IOObjContext::getDataDirName(IOObjContext::Loc) );
 
-    ctio_.ctxt.forread = !import_;
-    ctio_.ctxt.maychdir = false;
+    IOObjContext ctxt( mIOObjContext(PickSet) );
+    ctxt.forread = !import_; ctxt.maychdir = false;
     label = import_ ? "Output " : "Input "; label += "PickSet";
-    objfld_ = new uiIOObjSel( this, ctio_, label );
+    objfld_ = new uiIOObjSel( this, ctxt, label );
 
     if ( import_ )
     {
@@ -119,12 +118,6 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 }
 
 
-uiImpExpPickSet::~uiImpExpPickSet()
-{
-    delete ctio_.ioobj; delete &ctio_;
-}
-
-
 void uiImpExpPickSet::formatSel( CallBacker* cb )
 {
     const int zchoice = zfld_->box()->currentItem(); 
@@ -164,22 +157,22 @@ bool uiImpExpPickSet::doImport()
 	serv_->fillZValsFrmHor( &ps, horinpfld_->box()->currentItem() );
     }
 
+    PtrMan<IOObj> ioobj = objfld_->ioobj()->clone();
     const bool ispolygon = polyfld_->isChecked();
     if ( ispolygon )
     {
 	ps.disp_.connect_ = Pick::Set::Disp::Close;
-	ctio_.ioobj->pars().set( sKey::Type, sKey::Polygon );
+	ioobj->pars().set( sKey::Type, sKey::Polygon );
     }
     else
     {
 	ps.disp_.connect_ = Pick::Set::Disp::None;
-	ctio_.ioobj->pars().set( sKey::Type,
-		PickSetTranslatorGroup::sKeyPickSet() );
+	ioobj->pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
     }
 
-    IOM().commitChanges( *ctio_.ioobj );
+    IOM().commitChanges( *ioobj );
     BufferString errmsg;
-    if ( !PickSetTranslator::store(ps,ctio_.ioobj,errmsg) )
+    if ( !PickSetTranslator::store(ps,ioobj,errmsg) )
 	mErrRet(errmsg);
 
     return true;
@@ -190,7 +183,8 @@ bool uiImpExpPickSet::doExport()
 {
     Pick::Set ps;
     BufferString errmsg;
-    if ( !PickSetTranslator::retrieve(ps,ctio_.ioobj,true, errmsg) )
+    PtrMan<IOObj> ioobj = objfld_->ioobj()->clone();
+    if ( !PickSetTranslator::retrieve(ps,ioobj,true, errmsg) )
 	mErrRet(errmsg);
 
     const char* fname = filefld_->fileName();
@@ -235,8 +229,8 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( !import_ && filenm.isEmpty() )
 	mErrRet( "Please select output file" );
 
-    if ( !objfld_->commitInput() )
-	mErrRet( "Please select PickSet" );
+    if ( !objfld_->ioobj() )
+	return false;
 
     if ( import_ )
     {

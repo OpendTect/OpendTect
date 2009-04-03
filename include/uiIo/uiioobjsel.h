@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.61 2009-03-24 12:33:51 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.62 2009-04-03 13:24:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,14 +147,12 @@ protected:
 
 /*! \brief UI element for selection of IOObjs
 
-This class may be subclassed to make selection more specific.
+User gets the possibility to select an object of a certain type.
 
-User gets the possibility to select an object of a certain type. On creation,
-the object makes a copy of your CtxtIOObj. When needed, you can do
-commitInput() to get the selection in your input CtxtIOObj;
-
-You *have* to do commitInput() to get any selection! Other functions like
-processInput() are special stuff for special situations.
+If nothing is selected, an error will be generated if setup.mandatory_ is
+true. This is the default. Thus, you can simply do, in acceptOK():
+    const IOObj* theobj = theselfld_->ioobj();
+    if ( !theobj ) return false;
 
 */
 
@@ -168,19 +166,25 @@ public:
 			Setup( const char* seltext=0 )
 			    : uiIOSelect::Setup(seltext)
 			    , confirmoverwr_(true)
+			    , mandatory_(true)
 			    , filldef_(true)		{}
 
 	mDefSetupMemb(bool,confirmoverwr)
+	mDefSetupMemb(bool,mandatory)
 	mDefSetupMemb(bool,filldef)	//!< only if forread and !ctio.ioobj
     };
 
-			uiIOObjSel(uiParent*,CtxtIOObj&,const char* seltxt=0);
-			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
+			uiIOObjSel(uiParent*,const IOObjContext&,
+					const char* seltxt=0);
+			uiIOObjSel(uiParent*,const IOObjContext&,const Setup&);
 			~uiIOObjSel();
 
-    bool		commitInput();
-    CtxtIOObj&		ctxtIOObj( bool work=false )
-    					{ return work ? workctio_ : inctio_; }
+    void		setInput(const IOObj&);
+    void		setInput(const MultiID&);
+
+    MultiID		key(bool noerr=false) const;
+    const IOObj*	ioobj(bool noerr=false) const;
+    IOObj*		getIOObj(bool noerr=false); //!< My IOObj becomes yours
 
     virtual bool	fillPar(IOPar&,const char* compky=0) const;
     virtual void	usePar(const IOPar&,const char* compky=0);
@@ -204,6 +208,7 @@ protected:
     CtxtIOObj&		workctio_;
     Setup		setup_;
     BufferString	helpid_;
+    bool		inctiomine_;
 
     void		doObjSel(CallBacker*);
 
@@ -216,6 +221,28 @@ protected:
     virtual IOObj*	createEntry(const char*);
     void		obtainIOObj();
     bool		existingUsrName(const char*) const;
+
+
+public: // old style
+
+    /* Comments for old style only:
+On creation, the object makes a copy of your CtxtIOObj. When needed, you can do
+commitInput() to get the selection in your input CtxtIOObj;
+
+You *have* to do commitInput() to get any selection! Other functions like
+processInput() are special stuff for special situations.
+
+You have to check commitInput() and issue and error message if necessary. In
+the new style, this is done if the setup.mandatory_ flag is true (this is the
+default).
+*/
+
+			uiIOObjSel(uiParent*,CtxtIOObj&,const char* seltxt=0);
+			uiIOObjSel(uiParent*,CtxtIOObj&,const Setup&);
+    bool		commitInput();
+    bool		doCommitInput(bool&);
+    CtxtIOObj&		ctxtIOObj( bool work=false )
+    					{ return work ? workctio_ : inctio_; }
 
 };
 

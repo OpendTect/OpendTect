@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.8 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uisrchprocfiles.cc,v 1.9 2009-04-03 13:24:55 cvsbert Exp $";
 
 #include "uisrchprocfiles.h"
 
@@ -65,6 +65,7 @@ const char* uiSrchProcFiles::fileName() const
 
 void uiSrchProcFiles::srchDir( CallBacker* )
 {
+    objfld->commitInput();
     const BufferString key( ctio_.ioobj ? ctio_.ioobj->key().buf() : "" );
     if ( key.isEmpty() ) return;
 

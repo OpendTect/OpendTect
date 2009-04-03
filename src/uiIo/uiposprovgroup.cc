@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.21 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.22 2009-04-03 13:24:55 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -292,7 +292,7 @@ void uiTablePosProvGroup::usePar( const IOPar& iop )
     const char* fnmres = iop.find( mGetTableKey(sKey::FileName) );
     const bool isfnm = fnmres && *fnmres;
     selfld_->setValue( !isfnm );
-    if ( idres ) psfld_->setInput( idres );
+    if ( idres ) psfld_->setInput( MultiID(idres) );
     if ( fnmres ) tffld_->setInput( fnmres );
 }
 
