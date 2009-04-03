@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Jan 2008
- RCS:		$Id: uibatchtime2depthsetup.h,v 1.1 2009-03-10 12:46:51 cvskris Exp $
+ RCS:		$Id: uibatchtime2depthsetup.h,v 1.2 2009-04-03 17:19:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ protected:
     bool		fillPar(IOPar&);
     bool		prepareProcessing();
 
-    CtxtIOObj&		velctxt_;
     uiVelSel*		velsel_;
 
     CtxtIOObj&		inputctxt_;

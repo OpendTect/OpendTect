@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.2 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.3 2009-04-03 17:19:23 cvskris Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
@@ -20,16 +20,16 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     : uiFullBatchDialog( p,
 	uiFullBatchDialog::Setup("Time to depth conversion")
 	    .procprognm("process_time2depth" ) )
-    , velctxt_(*new CtxtIOObj(uiVelSel::ioContext() ) )
     , outputctxt_( *mMkCtxtIOObj(SeisTrc) )
     , inputctxt_( *mMkCtxtIOObj(SeisTrc) )
 {
     setTitleText( "Time to depth conversion" );
-    velctxt_.ctxt.forread = true;
+    IOObjContext velctxt = uiVelSel::ioContext();
+    velctxt.forread = true;
     uiSeisSel::Setup velsetup( Seis::Vol );
     velsetup.seltxt( "Velocity Model" );
 
-    velsel_ = new uiVelSel( uppgrp_, velctxt_, velsetup );
+    velsel_ = new uiVelSel( uppgrp_, velctxt, velsetup );
 
     inputctxt_.ctxt.forread = true;
     inputsel_ = new uiSeisSel( uppgrp_, inputctxt_,uiSeisSel::Setup(Seis::Vol));
@@ -51,7 +51,6 @@ uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
 uiBatchTime2DepthSetup::~uiBatchTime2DepthSetup()
 {
     delete inputctxt_.ioobj; delete &inputctxt_;
-    delete velctxt_.ioobj; delete &velctxt_;
     delete outputctxt_.ioobj; delete &outputctxt_;
 }
 
@@ -90,7 +89,7 @@ bool uiBatchTime2DepthSetup::prepareProcessing()
 
 bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
 {
-    if ( !inputctxt_.ioobj || !outputctxt_.ioobj || !velctxt_.ioobj )
+    if ( !inputctxt_.ioobj || !outputctxt_.ioobj || !velsel_->ioobj(false) )
 	return false;
 
     par.set( "Input volume",  inputctxt_.ioobj->key() );
@@ -98,7 +97,7 @@ bool uiBatchTime2DepthSetup::fillPar( IOPar& par )
     par.set( "Output volume", outputctxt_.ioobj->key() );
     //Set depthdomain in output's omf?
 
-    par.set( "Velocity model", velctxt_.ioobj->key() );
+    par.set( "Velocity model", velsel_->ioobj(true)->key() );
 
     return true;
 }

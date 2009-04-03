@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.7 2009-03-19 16:12:28 cvsbert Exp $
+ RCS:           $Id: uiveldesc.h,v 1.8 2009-04-03 17:19:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ protected:
 mClass uiVelSel : public uiSeisSel
 {
 public:
-    				uiVelSel(uiParent*,CtxtIOObj&,
+    				uiVelSel(uiParent*,IOObjContext&,
 					 const uiSeisSel::Setup&);
 
     void			updateInput();

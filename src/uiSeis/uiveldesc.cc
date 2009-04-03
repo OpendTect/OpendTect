@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.19 2009-03-26 12:51:32 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.20 2009-04-03 17:19:23 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -145,7 +145,8 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 }
 
 
-uiVelSel::uiVelSel(uiParent* p, CtxtIOObj& ctxt, const uiSeisSel::Setup& setup )
+uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
+		    const uiSeisSel::Setup& setup )
     : uiSeisSel( p, ctxt, setup )
 {
     editcubebutt_ = new uiPushButton( this, workctio_.ioobj ? "Edit" : "Create",

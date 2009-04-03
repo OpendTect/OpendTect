@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.3 2009-03-25 14:30:07 cvsbert Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.4 2009-04-03 17:19:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,9 @@ public:
     bool		acceptOK(CallBacker*);
     ZAxisTransform*	transform();
     float		zScale() const		{ return zscale_; }
-			
-    CtxtIOObj&		ctio_;
+    const char*		selName() const;
+
+protected:    
     uiVelSel*		velsel_;
     VelocityStretcher*	trans_;
     float		zscale_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.317 2009-04-03 14:57:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.318 2009-04-03 17:19:23 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -235,7 +235,8 @@ void uiODApplMgr::addTimeDepthScene()
     uiODApplMgrVelSel dlg( &appl_ );
     if ( !dlg.go() ) return;
 
-    const BufferString snm( "Converted using '", dlg.ctio_.ioobj->name(), "'" );
+    const BufferString snm( "Converted using '",
+	    		    dlg.selName(), "'" );
     const int sceneid = sceneMgr().addScene( false, dlg.transform(), snm );
     if ( sceneid != -1 )
     {

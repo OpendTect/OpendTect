@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.3 2009-03-25 14:30:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgraux.cc,v 1.4 2009-04-03 17:19:23 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -62,27 +62,31 @@ void* uiODApplService::getObject( const uiApplPartServer* ps, int evid )
 uiODApplMgrVelSel::uiODApplMgrVelSel( uiParent* p )
     : uiDialog(p,Setup("Velocity model",
 		"Select velocity model to base scene on","0.4.7"))
-    , ctio_(*new CtxtIOObj(uiVelSel::ioContext()))
     , trans_(0)
 {
-    ctio_.ctxt.forread = true;
+    IOObjContext ctxt = uiVelSel::ioContext();
+    ctxt.forread = true;
     uiSeisSel::Setup su( false, false ); su.seltxt("Velocity model");
-    velsel_ = new uiVelSel( this, ctio_, su );
+    velsel_ = new uiVelSel( this, ctxt, su );
 }
 
 uiODApplMgrVelSel::~uiODApplMgrVelSel()
 {
-    delete ctio_.ioobj; delete &ctio_;
     if ( trans_ ) trans_->unRef();
 }
+
+
+const char* uiODApplMgrVelSel::selName() const
+{ return velsel_->ioobj( true )->name(); }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 bool uiODApplMgrVelSel::acceptOK( CallBacker* )
 {
-    if ( !velsel_->commitInput() )
-	mErrRet("Please select a velocity model")
+    if ( !velsel_->ioobj( false ) )
+	return false;
+
     VelocityDesc desc;
-    if ( !desc.usePar( ctio_.ioobj->pars() ) )
+    if ( !desc.usePar( velsel_->ioobj(true)->pars() ) )
 	mErrRet("Cannot read velocity information for selected model")
 
     if ( SI().zIsTime() ) 
@@ -106,7 +110,7 @@ bool uiODApplMgrVelSel::acceptOK( CallBacker* )
 						 SI().xyUnit() );
     }
 
-    if ( !trans_->setVelData( ctio_.ioobj->key() ) || !trans_->isOK() )
+    if ( !trans_->setVelData( velsel_->key() ) || !trans_->isOK() )
 	mErrRet("Internal: Could not initialize transform")
 
     return true;
