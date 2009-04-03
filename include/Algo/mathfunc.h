@@ -8,12 +8,13 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.25 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:		$Id: mathfunc.h,v 1.26 2009-04-03 17:00:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
+#include "mathfunc.h"
 #include "position.h"
 #include "ptrman.h"
 #include "samplingdata.h"
@@ -155,6 +156,7 @@ public:
 			    : itype_(t)
 			    , extrapol_(extr)	{}
 
+    void		setEmpty()		{ x_.setSize(0); y_.setSize(0);}
     int			size() const		{ return x_.size(); }
     void		add(float x,float y);
     void		remove(int idx);
