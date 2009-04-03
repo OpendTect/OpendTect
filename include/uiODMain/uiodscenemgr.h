@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.64 2009-03-24 04:41:08 cvsranojay Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.65 2009-04-03 06:57:56 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ class uiWindowGrabber;
 class uiWorkSpace;
 class uiWorkSpaceGroup;
 class ZAxisTransform;
+
+namespace EM { class HorizonPainter; }
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -166,20 +168,22 @@ protected:
     mClass Viewer2D
     {
     public:
-			Viewer2D(uiODMain&,int visid);
-			~Viewer2D();
+				Viewer2D(uiODMain&,int visid);
+				~Viewer2D();
 
-	void		setUpView(DataPack::ID,bool wva,bool isvert);
+	void			setUpView(DataPack::ID,bool wva,bool isvert);
 
-	uiFlatViewWin*	viewwin_;
-	uiODMain&	appl_;
+	uiFlatViewWin*		viewwin_;
+	uiODMain&		appl_;
+	EM::HorizonPainter* 	horpainter_;
 
-	int		visid_;
-	BufferString	basetxt_;
+	int			visid_;
+	BufferString		basetxt_;
 	
     protected:
 
-	void		createViewWin(bool isvert);
+	void			createViewWin(bool isvert);
+	void			drawHorizons();
     };
 
     uiODMain&		appl_;
