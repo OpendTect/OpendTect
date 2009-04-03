@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodplanedatatreeitem.h,v 1.9 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodplanedatatreeitem.h,v 1.10 2009-04-03 17:54:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -22,13 +22,14 @@ class CubeSampling;
 mClass uiODPlaneDataTreeItem : public uiODDisplayTreeItem
 {
 public:
-    			uiODPlaneDataTreeItem(int displayid,int dim,
-					      bool rgba);
+    enum Type		{ Default, Empty, RGBA };
+    enum Orientation	{ Inline, Crossline, ZSlice };
+
+    			uiODPlaneDataTreeItem(int displayid,Orientation,Type);
 			~uiODPlaneDataTreeItem();
     bool		init();
 
 protected:
-    //uiODDataTreeItem*	createAttribItem(const Attrib::SelSpec*) const;
     BufferString	createDisplayName() const;
 
     void		createMenuCB(CallBacker*);
@@ -44,8 +45,8 @@ protected:
     void		posChange(CallBacker*);
     void		movePlaneAndCalcAttribs(const CubeSampling&);
 
-    const int		dim_;
-    const bool		rgba_;
+    const Orientation	orient_;
+    const Type		type_;
     MenuItem		positionmnuitem_;
     MenuItem		gridlinesmnuitem_;
     uiSliceSelDlg*	positiondlg_;
@@ -69,7 +70,7 @@ public:
 mClass uiODInlineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODInlineTreeItem( int displayid, bool rgba );
+    			uiODInlineTreeItem(int displayid,Type);
 
 protected:
     const char*		parentType() const
@@ -93,7 +94,7 @@ public:
 mClass uiODCrosslineTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODCrosslineTreeItem( int displayid, bool rgba );
+    			uiODCrosslineTreeItem(int displayid,Type);
 
 protected:
     const char*		parentType() const
@@ -117,7 +118,7 @@ public:
 mClass uiODTimesliceTreeItem : public uiODPlaneDataTreeItem
 {
 public:
-    			uiODTimesliceTreeItem( int displayid, bool rgba );
+    			uiODTimesliceTreeItem(int displayid,Type);
 
 protected:
     const char*		parentType() const
