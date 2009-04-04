@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.16 2009-04-02 15:58:56 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.17 2009-04-04 09:01:01 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -439,13 +439,16 @@ void uiTextItem::setTextColor( const Color& col )
 uiMarkerItem::uiMarkerItem( ODGraphicsMarkerItem* qtobj )
     : uiGraphicsItem(qtobj)
     , qmarkeritem_(qtobj)
-{}
+{
+    setFill( true );
+}
 
 
 uiMarkerItem::uiMarkerItem( const MarkerStyle2D& mstyle )
     : uiGraphicsItem( mkQtObj() )
 {
     qmarkeritem_->setMarkerStyle( mstyle );
+    setFill( true ); // ToDo: Get fill info from mstyle
 }
 
 
