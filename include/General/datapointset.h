@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.25 2009-04-04 08:55:20 cvskris Exp $
+ RCS:		$Id: datapointset.h,v 1.26 2009-04-04 10:23:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,7 +223,13 @@ protected:
 };
 
 
-/*!Interface for DataPointSet Displays. */
+/*!Interface for DataPointSet Displays. Object must be locked before
+   accessing any of the other functions, and should be unlocked when
+   done.
+
+   The datapointset can be displayed in a number of viewers/scenes, called
+   parent in this context.
+*/
 
 mClass DataPointSetDisplayMgr
 {
