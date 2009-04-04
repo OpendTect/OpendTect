@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.116 2009-03-30 13:06:51 cvsbert Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.117 2009-04-04 16:23:46 cvsnanne Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: survinfo.cc,v 1.116 2009-03-30 13:06:51 cvsbert
 #include "oddirs.h"
 #include "iopar.h"
 #include "errh.h"
+#include "zdomain.h"
 #include <math.h>
 #include <iostream>
 
@@ -479,7 +480,7 @@ SurveyInfo::Unit SurveyInfo::zUnit() const
 
 
 const char* SurveyInfo::getZDomainString() const
-{ return zistime_ ? sKey::TWT : sKey::Depth; }
+{ return zistime_ ? ZDomain::sKeyTWT() : ZDomain::sKeyDepth(); }
 
 
 const char* SIDistUnitString( bool feet, bool wb )
@@ -835,3 +836,6 @@ float SurveyInfo::computeAngleXInl() const
 
 void SurveyInfo::produceWarnings( bool yn )
 { sDoWarnings = yn; }
+
+
+const char* ZDomain::getDefault() { return SI().getZDomainString(); }    
