@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.30 2008-08-12 14:00:22 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.31 2009-04-04 11:10:40 cvsnanne Exp $";
 
 #include "vismultitexture2.h"
 
@@ -742,14 +742,14 @@ MultiTexture::getCurrentTextureIndexData( int texture ) const
 
 void MultiTexture::textureChange( TextureInfo* ti )
 {
-    const int texture = textureinfo_.indexOf( ti );
-    if ( ti<0 )
+    const int textureidx = textureinfo_.indexOf( ti );
+    if ( textureidx<0 )
     {
 	pErrMsg("Hugh");
 	return;
     }
 
-    updateSoTextureInternal( texture );
+    updateSoTextureInternal( textureidx );
 }
 
 
