@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.12 2009-04-01 11:46:22 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.13 2009-04-04 11:13:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,6 +214,7 @@ mClass uiPointItem : public uiGraphicsItem
 {
 public:
     				uiPointItem();
+				uiPointItem(const uiPoint&);
     				uiPointItem(ODGraphicsPointItem*);
 				~uiPointItem();
 
