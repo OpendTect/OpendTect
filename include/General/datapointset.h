@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.24 2009-01-13 06:04:27 cvsnanne Exp $
+ RCS:		$Id: datapointset.h,v 1.25 2009-04-04 08:55:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,6 +221,28 @@ protected:
 
     DataColDef&		gtColDef(ColID) const;
 };
+
+
+/*!Interface for DataPointSet Displays. */
+
+mClass DataPointSetDisplayMgr
+{
+public:
+    virtual			~DataPointSetDisplayMgr()		{}
+    virtual void		lock()					= 0;
+    virtual void		unLock()				= 0;
+
+    virtual int			getNrParents() const			= 0;
+    virtual const char*		getParentName(int) const		= 0;
+
+    virtual int			addDisplay(const TypeSet<int>& parents,
+	    				   const DataPointSet&)		= 0;
+    virtual void		updateDisplay(int id,
+				    const TypeSet<int>& parents,
+				    const DataPointSet&)		= 0;
+    virtual void		removeDisplay(int)			= 0;
+};
+	    				   
 
 
 #endif
