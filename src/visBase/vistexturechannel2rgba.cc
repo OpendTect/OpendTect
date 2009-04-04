@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.20 2009-03-27 17:03:11 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.21 2009-04-04 11:11:09 cvsnanne Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -218,10 +218,8 @@ void ColTabTextureChannel2RGBA::swapChannels( int ch0, int ch1 )
 void ColTabTextureChannel2RGBA::setSequence( int channel,
 	const ColTab::Sequence& seq )
 {
-    while ( coltabs_.size()<=channel )
-    {
-	coltabs_ += ColTab::Sequence( ColTab::defSeqName() );
-    }
+    if ( channel>=coltabs_.size() )
+	adjustNrChannels();
 
     coltabs_[channel] = seq;
 
