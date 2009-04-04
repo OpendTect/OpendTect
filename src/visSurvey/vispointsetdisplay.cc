@@ -4,7 +4,7 @@
  * DATE     : March 2009
 -*/
 
-static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.1 2009-04-01 07:00:24 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointsetdisplay.cc,v 1.2 2009-04-04 10:20:48 cvskris Exp $";
 
 #include "viscoord.h"
 #include "vispointsetdisplay.h"
@@ -34,8 +34,9 @@ PointSetDisplay::~PointSetDisplay()
 }
 
 
-bool PointSetDisplay::setDataPackID( int attrib, const DataPack::ID dpid )
+bool PointSetDisplay::setDataPack( const DataPointSet& dps )
 {
+    /*
     DataPackMgr& dpman = DPM( DataPackMgr::PointID() );
     const DataPack* datapack = dpman.obtain( dpid );
     if ( !datapack ) return false;
@@ -50,6 +51,7 @@ bool PointSetDisplay::setDataPackID( int attrib, const DataPack::ID dpid )
 	    pointset_->getCoordinates()->setPos( idx, Coord3(dps->coord(idx),
 							dps->z(idx)) );
     }
+    */
     return true;
 }
 

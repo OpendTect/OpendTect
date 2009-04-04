@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.1 2009-04-01 07:00:24 cvssatyaki Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.2 2009-04-04 10:20:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ public:
     Color			getColor() const	{ return color_; }
     void			setColor( Color col )	{ color_ = col; }
 
-    bool			setDataPackID(int,DataPack::ID);
+    bool			setDataPack(const DataPointSet&);
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
 protected:
