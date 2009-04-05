@@ -4,9 +4,10 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.1 2009-03-10 12:26:19 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_time2depth.cc,v 1.2 2009-04-05 14:51:45 cvskris Exp $";
 
 #include "batchprog.h"
+#include "process_time2depth.h"
 
 #include "cubesampling.h"
 #include "ioman.h"
@@ -28,7 +29,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     MultiID inputmid;
-    if ( !pars().get("Input volume", inputmid) )
+    if ( !pars().get( ProcessTime2Depth::sKeyInputVolume(), inputmid) )
     {
 	strm << "Cannot read input volume id"; 
 	return false;
@@ -42,7 +43,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     MultiID outputmid;
-    if ( !pars().get("Output volume", outputmid ) )
+    if ( !pars().get( ProcessTime2Depth::sKeyOutputVolume(), outputmid ) )
     {
 	strm << "Cannot read output volume id"; 
 	return false;
@@ -56,13 +57,23 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     MultiID velmid;
-    if ( !pars().get("Velocity model", velmid) )
+    if ( !pars().get( ProcessTime2Depth::sKeyVelocityModel(), velmid) )
     {
 	strm << "Cannot read velocity volume id"; 
 	return false;
     }
 
-    RefMan<Time2DepthStretcher> ztransform = new Time2DepthStretcher;
+    bool istime2depth;
+    if ( !pars().getYN( ProcessTime2Depth::sKeyIsTimeToDepth(), istime2depth ) )
+    {
+	strm << "Cannot read direction";
+	return false;
+    }
+    
+    RefMan<VelocityStretcher> ztransform = istime2depth
+	? (VelocityStretcher*) new Time2DepthStretcher
+	: (VelocityStretcher*) new Depth2TimeStretcher;
+
     if ( !ztransform->setVelData( velmid ) || !ztransform->isOK() )
     {
 	strm << "Velocity model is not usable";
