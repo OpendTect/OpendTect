@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.18 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.19 2009-04-05 12:26:47 cvskris Exp $";
 
 #include "drawaxis2d.h"
 
@@ -177,7 +177,7 @@ void DrawAxis2D::drawXAxis( bool topside )
 	lineitem->setLine( wx, drawarea.top(), wx, drawarea.top()+bias );
 	xaxlineitmgrp_->add( lineitem );
 
-	mDeclAlignment( al, HCenter, Bottom );
+	mDeclAlignment( al, HCenter, Top );
 	if ( bias<0 ) al.set( Alignment::Bottom );
 	uiTextItem* textitem = new uiTextItem();
 	textitem->setText( text.buf() );
