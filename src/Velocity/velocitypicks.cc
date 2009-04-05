@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.4 2009-03-26 13:35:48 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.5 2009-04-05 13:29:02 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: velocitypicks.cc,v 1.4 2009-03-26 13:35:48 cvsk
 #include "smoother1d.h"
 #include "survinfo.h"
 #include "velocitypicksundo.h"
+#include "zdomain.h"
 
 #define mDepthIndex	0
 #define mVelIndex	1
@@ -368,7 +369,7 @@ void Picks::fillIOObjPar( IOPar& par ) const
     par.set( sKey::Type, sKeyVelocityPicks() );
     par.set( sKeyGatherID(), gatherid_ );
     par.setYN( sKeyIsVelPick(), true );
-    par.setYN( sKey::ZDomain, zDomain() );
+    par.setYN( ZDomain::sKey(), zDomain() );
 }
 
 
