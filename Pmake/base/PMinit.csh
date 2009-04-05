@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.10 2008-07-04 07:31:13 cvsdgb Exp $
+# $Id: PMinit.csh,v 1.11 2009-04-05 10:48:41 cvskris Exp $
 #---------------------------------------------------------
 
 if ( ! $?HDIR ) then
@@ -55,6 +55,7 @@ setenv PMAKECOMMAND	'$GNUMAKE -I$WORK/Pmake -I$PMAKE'
 alias make		$PMAKECOMMAND
 
 alias wdir		'setenv WORK `pwd`'
+alias wdir		'setenv WORK `pwd`;setenv PMAKE $WORK/Pmake/base; setenv OD_WORKDIR `$PMAKE/bin/print_od_workdir`'
 alias cdw		'cd $WORK'
 
 set _pmake_dbg_dir_=G

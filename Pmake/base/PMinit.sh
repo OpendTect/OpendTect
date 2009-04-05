@@ -1,7 +1,7 @@
 #---------------------------------------------------------
 # Author: dGB Earth Sciences ( A.H.Bril )
 # Pmake Environment bash initialization shell script
-# $Id: PMinit.sh,v 1.8 2008-05-21 13:42:54 cvsbert Exp $
+# $Id: PMinit.sh,v 1.9 2009-04-05 10:48:41 cvskris Exp $
 #---------------------------------------------------------
 
 if [ "$HDIR" = "" ]; then
@@ -54,7 +54,7 @@ PMAKECOMMAND='$GNUMAKE -I$WORK/Pmake -I$PMAKE'
 export PMAKECOMMAND
 alias make="$PMAKECOMMAND"
 
-alias wdir='export WORK=`pwd`'
+alias wdir='export WORK=`pwd`;export PMAKE=$WORK/Pmake/base; export OD_WORKDIR=`$PMAKE/bin/print_od_workdir`'
 alias cdw='cd $WORK'
 
 _pmake_dbg_dir_=G
