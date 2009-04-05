@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.9 2008-03-14 09:29:39 cvsbert Exp $
+ RCS:		$Id: idxable.h,v 1.10 2009-04-05 12:23:48 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "gendefs.h"
 #include "interpol1d.h"
+#include "mathfunc.h"
 #include "sets.h"
 #include "sorting.h"
 
@@ -319,6 +320,61 @@ inline float interpolateRegWithUdf( const T& idxabl, int sz, float pos,
     float ret = mUdf(float);
     interpolateRegWithUdf( idxabl, sz, pos, ret, extrapolate, snapdist );
     return ret;
+}
+
+
+/*Given an array of values and a number of callibrated values at different
+  positions, compute a n array of values that is callibrated everywhere.
+  Depending on usefactor, the callibration will either be with absolute numbers
+  or with factors. */
+
+
+template <class T> inline
+void callibrateArray( const T* input, int sz,
+	       const T* controlpts, const int* controlsamples, int nrcontrols,
+	       bool usefactor, T* output )
+{
+    int firstsample, lastsample;
+
+    PointBasedMathFunction func( PointBasedMathFunction::Linear );
+    for ( int idx=0; idx<nrcontrols; idx++ )
+    {
+	const int sample = controlsamples[idx];
+	if ( sample>=sz )
+	    continue;
+
+	if ( !idx || sample<firstsample )
+	    firstsample = sample;
+	if ( !idx || sample>=lastsample )
+	    lastsample = sample;
+
+	const float value = usefactor
+	    ? controlpts[idx]/input[sample]
+	    : controlpts[idx]-input[sample];
+
+	func.add( sample, value );
+    }
+
+    if ( !func.size()  )
+    {
+	memcpy( output, input, sizeof(T)*sz );
+	return;
+    }
+
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	float callibration;
+	if ( idx<=firstsample )
+	   callibration = func.yVals()[0];
+	else if ( idx>=lastsample )
+	   callibration = func.yVals()[func.size()-1];
+	else
+	   callibration = func.getValue( idx );
+
+	output[idx] = usefactor
+	    ? input[idx]*callibration 
+	    : input[idx]+callibration;
+    }
 }
 
 
