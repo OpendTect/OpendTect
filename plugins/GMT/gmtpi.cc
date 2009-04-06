@@ -4,18 +4,18 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: gmtpi.cc,v 1.3 2008-08-25 09:59:52 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtpi.cc,v 1.4 2009-04-06 07:19:31 cvsranojay Exp $";
 
 #include "initgmt.h"
 #include "plugins.h"
 
-extern "C" int GetGMTPluginType()
+mExternC int GetGMTPluginType()
 {
     return PI_AUTO_INIT_EARLY;
 }
 
 
-extern "C" PluginInfo* GetGMTPluginInfo()
+mExternC PluginInfo* GetGMTPluginInfo()
 {
     static PluginInfo retpi = {
 	"GMT Base",
@@ -26,7 +26,7 @@ extern "C" PluginInfo* GetGMTPluginInfo()
 }
 
 
-extern "C" const char* InitGMTPlugin( int, char** )
+mExternC const char* InitGMTPlugin( int, char** )
 {
     GMT::initStdClasses();
 

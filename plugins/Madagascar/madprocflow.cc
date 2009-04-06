@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: madprocflow.cc,v 1.4 2009-03-31 06:10:21 cvsraman Exp $";
+static const char* rcsID = "$Id: madprocflow.cc,v 1.5 2009-04-06 07:24:44 cvsranojay Exp $";
 
 #include "madprocflow.h"
 #include "madprocflowtr.h"
@@ -21,7 +21,7 @@ const char* ODMad::ProcFlow::sKeyNrProcs()	{ return "Nr Procs"; }
 defineTranslatorGroup(ODMadProcFlow,"Madagascar process flow");
 defineTranslator(dgb,ODMadProcFlow,mDGBKey);
 mDefSimpleTranslatorioContextWithExtra(ODMadProcFlow,None,
-					ctxt->selkey = ODMad::sKeyMadSelKey)
+					ctxt->selkey = ODMad::sKeyMadSelKey())
 
 
 ODMad::ProcFlow::ProcFlow( const char* nm )
@@ -44,7 +44,7 @@ ODMad::ProcFlow::IOType ODMad::ProcFlow::ioType( const IOPar& iop )
     if ( !res || !*res || *res == *sKey::None )
 	return ODMad::ProcFlow::None;
 
-    if ( *res == *ODMad::sKeyMadagascar || *res == 'm' )
+    if ( *res == *ODMad::sKeyMadagascar() || *res == 'm' )
 	return ODMad::ProcFlow::Madagascar;
 
     if ( *res == 'S' || *res == 's' )
@@ -60,7 +60,7 @@ void ODMad::ProcFlow::setIOType( IOPar& iop, ODMad::ProcFlow::IOType iot )
     if ( iot < ODMad::ProcFlow::Madagascar )
 	iop.set( sKey::Type, Seis::nameOf((Seis::GeomType)iot) );
     else if ( iot == ODMad::ProcFlow::Madagascar )
-	iop.set( sKey::Type, ODMad::sKeyMadagascar );
+	iop.set( sKey::Type, ODMad::sKeyMadagascar() );
     else if ( iot == ODMad::ProcFlow::SU )
 	iop.set( sKey::Type, "SU" );
     else

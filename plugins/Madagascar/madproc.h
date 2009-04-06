@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.h,v 1.1 2009-01-20 12:35:47 cvsraman Exp $
+ * ID       : $Id: madproc.h,v 1.2 2009-04-06 07:24:44 cvsranojay Exp $
 -*/
 
 
@@ -15,7 +15,7 @@ class IOPar;
 namespace ODMad
 {
 
-class Proc
+mClass Proc
 {
 public:
 

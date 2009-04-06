@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: gmtprocflowtr.h,v 1.1 2008-09-12 11:32:25 cvsraman Exp $
+ * ID       : $Id: gmtprocflowtr.h,v 1.2 2009-04-06 07:19:31 cvsranojay Exp $
 -*/
  
 #include "transl.h"
@@ -13,7 +13,7 @@ class BufferString;
 namespace ODGMT { class ProcFlow; }
 
 
-class ODGMTProcFlowTranslatorGroup : public TranslatorGroup
+mClass ODGMTProcFlowTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODGMTProcFlow)
 public:
     			mDefEmptyTranslatorGroupConstructor(ODGMTProcFlow)
@@ -22,7 +22,7 @@ public:
 };
 
 
-class ODGMTProcFlowTranslator : public Translator
+mClass ODGMTProcFlowTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODGMTProcFlow)
@@ -39,7 +39,7 @@ public:
 };
 
 
-class dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
+mClass dgbODGMTProcFlowTranslator : public ODGMTProcFlowTranslator
 {			     isTranslator(dgb,ODGMTProcFlow)
 public:
 

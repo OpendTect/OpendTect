@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horattribpi.cc,v 1.5 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: horattribpi.cc,v 1.6 2009-04-06 07:20:09 cvsranojay Exp $";
 
 
 #include "horizonattrib.h"
@@ -15,13 +15,13 @@ static const char* rcsID = "$Id: horattribpi.cc,v 1.5 2008-11-25 15:35:21 cvsber
 #include "plugins.h"
 
 
-extern "C" int GetHorizonAttribPluginType()
+mExternC int GetHorizonAttribPluginType()
 {
     return PI_AUTO_INIT_EARLY;
 }
 
 
-extern "C" PluginInfo* GetHorizonAttribPluginInfo()
+mExternC PluginInfo* GetHorizonAttribPluginInfo()
 {
     static PluginInfo retpii = {
 	"Horizon-Attribute Base",
@@ -32,7 +32,7 @@ extern "C" PluginInfo* GetHorizonAttribPluginInfo()
 }
 
 
-extern "C" const char* InitHorizonAttribPlugin( int, char** )
+mExternC const char* InitHorizonAttribPlugin( int, char** )
 {
     EarthModel::initStdClasses();
     Attrib::Horizon::initClass();

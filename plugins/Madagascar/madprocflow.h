@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Dec 2007
- * ID       : $Id: madprocflow.h,v 1.4 2009-03-31 06:10:21 cvsraman Exp $
+ * ID       : $Id: madprocflow.h,v 1.5 2009-04-06 07:24:44 cvsranojay Exp $
 -*/
 
 #include "iopar.h"
@@ -16,7 +16,7 @@
 namespace ODMad
 {
 
-class ProcFlow : public ::NamedObject
+mClass ProcFlow : public ::NamedObject
 	       , public ObjectSet<Proc>
 {
 public:

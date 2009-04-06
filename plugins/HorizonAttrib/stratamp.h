@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nageswara Rao
  Date:		March 2008
- RCS:		$Id: stratamp.h,v 1.4 2008-09-22 13:17:03 cvskris Exp $
+ RCS:		$Id: stratamp.h,v 1.5 2009-04-06 07:20:09 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class SeisTrcReader;
 
 namespace EM { class Horizon3D; }
 
-class StratAmpCalc  : public Executor
+mClass StratAmpCalc  : public Executor
 {
 public:
 

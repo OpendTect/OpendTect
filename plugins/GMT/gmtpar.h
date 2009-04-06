@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtpar.h,v 1.4 2008-12-16 06:26:43 cvsraman Exp $
+ RCS:		$Id: gmtpar.h,v 1.5 2009-04-06 07:19:31 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "gmtdef.h"
 
 
-class GMTPar : public IOPar
+mClass GMTPar : public IOPar
 {
 public:
     			GMTPar(const char* nm)
@@ -35,7 +35,7 @@ public:
 
 typedef GMTPar* (*GMTParCreateFunc)(const IOPar&);
 
-class GMTParFactory
+mClass GMTParFactory
 {
 public:
 
@@ -62,10 +62,10 @@ protected:
 
     Entry*		getEntry(const char*) const;
 
-    friend GMTParFactory&	GMTPF();
+    friend mGlobal GMTParFactory&	GMTPF();
 };
 
-GMTParFactory& GMTPF();
+mGlobal GMTParFactory& GMTPF();
 
 
 #define mErrStrmRet(s) { strm << s << std::endl; return false; }

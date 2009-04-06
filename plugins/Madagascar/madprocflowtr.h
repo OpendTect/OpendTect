@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Dec 2007
- * ID       : $Id: madprocflowtr.h,v 1.1 2007-12-20 16:18:54 cvsbert Exp $
+ * ID       : $Id: madprocflowtr.h,v 1.2 2009-04-06 07:24:44 cvsranojay Exp $
 -*/
  
 #include "transl.h"
@@ -13,7 +13,7 @@ class BufferString;
 namespace ODMad { class ProcFlow; }
 
 
-class ODMadProcFlowTranslatorGroup : public TranslatorGroup
+mClass ODMadProcFlowTranslatorGroup : public TranslatorGroup
 {				    isTranslatorGroup(ODMadProcFlow)
 public:
     			mDefEmptyTranslatorGroupConstructor(ODMadProcFlow)
@@ -22,7 +22,7 @@ public:
 };
 
 
-class ODMadProcFlowTranslator : public Translator
+mClass ODMadProcFlowTranslator : public Translator
 {
 public:
     			mDefEmptyTranslatorBaseConstructor(ODMadProcFlow)

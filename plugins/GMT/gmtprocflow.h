@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: gmtprocflow.h,v 1.1 2008-09-12 11:32:25 cvsraman Exp $
+ * ID       : $Id: gmtprocflow.h,v 1.2 2009-04-06 07:19:31 cvsranojay Exp $
 -*/
 
 #include "iopar.h"
@@ -15,7 +15,7 @@
 namespace ODGMT
 {
 
-class ProcFlow : public ::NamedObject
+mClass ProcFlow : public ::NamedObject
 {
 public:
 

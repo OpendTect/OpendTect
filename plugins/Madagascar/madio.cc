@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: madio.cc,v 1.5 2008-05-09 13:08:27 cvsraman Exp $";
+static const char* rcsID = "$Id: madio.cc,v 1.6 2009-04-06 07:24:44 cvsranojay Exp $";
 
 #include "madio.h"
 #include "keystrs.h"
@@ -15,9 +15,9 @@ static const char* rcsID = "$Id: madio.cc,v 1.5 2008-05-09 13:08:27 cvsraman Exp
 #include "oddirs.h"
 #include "iopar.h"
 
-const char* ODMad::FileSpec::sKeyMaskFile = "Mask File Name";
-const char* ODMad::sKeyMadagascar = "Madagascar";
-const char* ODMad::sKeyMadSelKey = "909090";
+const char* ODMad::FileSpec::sKeyMaskFile()	{ return "Mask File Name"; }
+const char* ODMad::sKeyMadagascar()		{ return "Madagascar"; }
+const char* ODMad::sKeyMadSelKey()		{ return "909090"; }
 
 
 ODMad::FileSpec::FileSpec( bool fr )
@@ -57,7 +57,7 @@ bool ODMad::FileSpec::set( const char* fnm, const char* maskfnm )
 	{ errmsg_ = "No file name provided"; return false; }
     FilePath fp( fnm );
     if ( !fp.isAbsolute() )
-	fp.set( GetDataDir() ).add( sKeyMadagascar ).add( fnm );
+	fp.set( GetDataDir() ).add( sKeyMadagascar() ).add( fnm );
     fnm_ = fp.fullPath();
 
     if ( !maskfnm || !*maskfnm )
@@ -66,7 +66,7 @@ bool ODMad::FileSpec::set( const char* fnm, const char* maskfnm )
     {
 	fp.set( maskfnm );
 	if ( !fp.isAbsolute() )
-	    fp.set( GetDataDir() ).add( sKeyMadagascar ).add( maskfnm );
+	    fp.set( GetDataDir() ).add( sKeyMadagascar() ).add( maskfnm );
 	maskfnm_ = fp.fullPath();
     }
 
@@ -78,7 +78,7 @@ void ODMad::FileSpec::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type, forread_ ? "Read" : "Write" );
     iop.set( sKey::FileName, fnm_ );
-    iop.set( sKeyMaskFile, maskfnm_ );
+    iop.set( sKeyMaskFile(), maskfnm_ );
 }
 
 
@@ -89,7 +89,7 @@ bool ODMad::FileSpec::usePar( const IOPar& iop )
 
     BufferString fnm = fnm_, maskfnm = maskfnm_;
     iop.get( sKey::FileName, fnm );
-    iop.get( sKeyMaskFile, maskfnm );
+    iop.get( sKeyMaskFile(), maskfnm );
     return set( fnm, maskfnm );
 }
 
@@ -98,7 +98,7 @@ const char* ODMad::FileSpec::defPath()
 {
     static BufferString ret;
 
-    FilePath fp( GetDataDir() ); fp.add( sKeyMadagascar );
+    FilePath fp( GetDataDir() ); fp.add( sKeyMadagascar() );
     ret = fp.fullPath();
     return ret.buf();
 }
