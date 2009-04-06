@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.11 2009-04-06 12:21:11 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.12 2009-04-06 17:51:35 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -287,7 +287,6 @@ void uiProcessorManager::loadCB( CallBacker* )
 	else
 	{
 	    updateList();
-	    updateButtons();
 	    lastmid_ = dlg.ioObj()->key();
 	}
     }
@@ -339,10 +338,7 @@ void uiProcessorManager::saveCB( CallBacker* )
 {
     PtrMan<IOObj> ioobj = IOM().get( lastmid_ );
     if ( !ioobj )
-    {
-	if ( !doSaveAs() )
-	    uiMSG().error( "Could not save setup");
-    }
+	doSaveAs();
     else
 	doSave( *ioobj );
 }
