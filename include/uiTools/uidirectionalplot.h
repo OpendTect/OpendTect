@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.4 2009-04-03 13:55:42 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.5 2009-04-06 03:40:17 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ mClass uiDirectionalPlot : public uiGraphicsView
 {
 public:
 
-    struct Setup
+    mStruct Setup
     {
 	enum Type		{ Rose, Scatter, Vals };
 				Setup( Type t=Rose )
