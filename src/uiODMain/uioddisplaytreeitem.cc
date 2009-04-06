@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.31 2009-04-06 11:59:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uioddisplaytreeitem.cc,v 1.32 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodattribtreeitem.h"
@@ -61,7 +61,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , visserv_(ODMainWin()->applMgr().visServer())
     , addattribmnuitem_("&Add attribute",sAttribIdx)
     , duplicatemnuitem_("&Duplicate",sDuplicateIdx)
-    , displyhistgram_("&Display Histogram",sHistogramIdx)		   
+    , displyhistgram_("&Show histogram ...",sHistogramIdx)		   
     , linkmnuitem_("&Link ...",sLinkIdx)
     , lockmnuitem_("&Lock",sLockIdx)
     , hidemnuitem_("&Hide",sHideIdx )

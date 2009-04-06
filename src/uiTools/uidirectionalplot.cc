@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.5 2009-04-03 13:55:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.6 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -28,7 +28,7 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup))
     , sectorPartSelected(this)
 {
-    setZoomOnCtrlScroll( false );
+    disableScrollZoom();
     setPrefWidth( setup_.prefsize_.width() );
     setPrefHeight( setup_.prefsize_.height() );
     setStretch( 2, 2 );
@@ -132,9 +132,8 @@ void uiDirectionalPlot::drawData()
 		// const float ang = spd.val_; --> For test now:
 		float usrang = getUsrAngle( isect, 0 );
 		const float r = spd.pos_ * radius_;
-		uiMarkerItem* mi = scene().addMarker( setup_.markstyle_ );
-		markeritems_ += mi;
-		mi->setPos( getUIPos(r,usrang) );
+		markeritems_ += new uiMarkerItem( getUIPos(r,usrang),
+						  setup_.markstyle_ );
 	    }
 	}
     }
@@ -208,17 +207,16 @@ void uiDirectionalPlot::drawAnnot()
 			   : (idx == 1 ? "E"
 			   : (idx==2 ?	 "S"
 			   :		 "W"));
-	    uiTextItem* ti = scene().addText( txt );
 	    Alignment al( isew ? (idx==1 ? Alignment::Left : Alignment::Right)
 		    			  : Alignment::HCenter,
 		          isew ? Alignment::VCenter
 			  : (idx == 2 ? Alignment::Top : Alignment::Bottom) );
-	    ti->setAlignment( al );
+	    uiTextItem* ti = scene().addItem( new uiTextItem(txt,al) );
 	    dirtxtitms_ += ti;
 
 	    uiPoint pt( isew ? (idx==1 ? 2 : -2) : 0,
 		        isew ? 0 : (idx==2 ? 2 : -2) );
-	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt) );
+	    dirlnitms_ += scene().addItem( new uiLineItem(pt00,pt,false) );
 	}
     }
 

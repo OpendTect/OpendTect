@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.18 2009-04-02 10:03:55 cvsbert Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.19 2009-04-06 13:56:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,19 +25,14 @@ class ODGraphicsScene;
 
 class ArrowStyle;
 class Alignment;
-class ioPixmap;
 class MarkerStyle2D;
 
 class uiArrowItem;
 class uiLineItem;
-class uiMarkerItem;
-class uiPixmapItem;
-class uiPointItem;
 class uiPolygonItem;
 class uiPolyLineItem;
 class uiRect;
 class uiRectItem;
-class uiTextItem;
 
 mClass uiGraphicsScene : public NamedObject
 {
@@ -53,10 +48,6 @@ public:
     int				nrItems() const;
     int				getDPI() const;
 
-    uiTextItem*			addText(const char*);
-    uiTextItem*                 addText(int x,int y,const char*,
-	                                const Alignment&);
-    uiPixmapItem*		addPixmap(const ioPixmap&);
     uiRectItem*			addRect(float x,float y,float w,float h);
 
     uiLineItem*			addLine(float x1,float y1,float x2,float y2);
@@ -64,8 +55,6 @@ public:
     uiLineItem*        	        addLine(const uiPoint&,double angle,double len);
     uiPolygonItem*		addPolygon(const TypeSet<uiPoint>&,bool fill);
     uiPolyLineItem*		addPolyLine(const TypeSet<uiPoint>&);
-    uiPointItem*		addPoint(bool);
-    uiMarkerItem*       	addMarker(const MarkerStyle2D&,int side=0);
 
     uiArrowItem*		addArrow(const uiPoint& head,
 	    				 const uiPoint& tail,

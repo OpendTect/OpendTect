@@ -7,22 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.13 2009-04-04 11:13:52 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.14 2009-04-06 13:56:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsitem.h"
 #include "uigeom.h"
+#include "draw.h"
 
-class Alignment;
-class ArrowStyle;
 class Color;
-class LineStyle;
-class MarkerStyle2D;
 class ioPixmap;
 class uiFont;
-class uiRect;
 
 class QGraphicsItem;
 class QGraphicsEllipseItem;
@@ -43,10 +39,10 @@ template <class T> class ODPolygon;
 mClass uiEllipseItem : public uiGraphicsItem
 {
 public:
+				uiEllipseItem();
+				uiEllipseItem(const uiSize&);
 				uiEllipseItem(const uiPoint& center,
 					      const uiSize&);
-				uiEllipseItem(const uiSize&);
-				uiEllipseItem();
 				~uiEllipseItem();
 
     QGraphicsEllipseItem*	qEllipseItem()	{ return qellipseitem_; }
@@ -62,8 +58,9 @@ protected:
 mClass uiCircleItem : public uiEllipseItem
 {
 public:
-    				uiCircleItem(const uiPoint& center,int r);
+				uiCircleItem();
 				uiCircleItem(int r);
+    				uiCircleItem(const uiPoint& center,int r);
 
     void			setRadius(int);
 };
@@ -73,16 +70,20 @@ mClass uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
-    			uiLineItem(const uiPoint&,const uiPoint&);
+    			uiLineItem(const uiPoint& start,const uiPoint& stop,
+				   bool abspos=true);
     			uiLineItem(QGraphicsLineItem*);
 			~uiLineItem();
 
-    QGraphicsLineItem* qLineItem()	{ return qlineitem_; }
+    QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }
     void 		setPenStyle(const LineStyle&);
     void		setPenColor(const Color&);
-    void		setLine(float x1,float y1,float x2,float y2);
-    void		setLine(const uiPoint& x,const uiPoint& y);
-    uiRect*		lineRect();
+    void		setLine(const uiPoint& start,const uiPoint& end,
+	    			bool abspos=true);
+    void		setLine(int x1,int y1,int x2,int y2,bool abspos=true);
+    void		setStartPos(const uiPoint&,bool abspos);
+    void		setEndPos(const uiPoint&,bool abspos);
+    uiRect		lineRect() const;
 
 protected:
 
@@ -96,13 +97,12 @@ mClass uiPixmapItem : public uiGraphicsItem
 public:
     				uiPixmapItem();
     				uiPixmapItem(const ioPixmap&);
-    				uiPixmapItem(ODGraphicsPixmapItem*);
+    				uiPixmapItem(const uiPoint&,const ioPixmap&);
 				~uiPixmapItem();
 
     ODGraphicsPixmapItem*	qPixmapItem()	{ return qpixmapitem_; }
     void			setOffset(int left,int top);
     void			setPixmap(const ioPixmap&);
-    const uiPoint&		transformToScene( float x, float y );
 
 protected:
 
@@ -155,7 +155,7 @@ mClass uiRectItem : public uiGraphicsItem
 {
 public:
     			uiRectItem();
-    			uiRectItem(int x, int y, int width, int height);
+    			uiRectItem(int x,int y,int width,int height);
     			uiRectItem(QGraphicsRectItem*);
 			~uiRectItem();
 
@@ -172,15 +172,19 @@ protected:
 mClass uiTextItem : public uiGraphicsItem
 {
 public:
-    			uiTextItem();
-    			uiTextItem(int x,int y,const char*,const Alignment&);
-    			uiTextItem(QGraphicsTextItem*);
+			uiTextItem();
+    			uiTextItem(const char*,const Alignment& al=Alignment());
+    			uiTextItem(const uiPoint&,const char*,
+				   const Alignment& al=Alignment());
 			~uiTextItem();
+
+    virtual void	setPos(const uiPoint&);
+    virtual void	setPos(int x,int y);
 
     QGraphicsTextItem*  qTextItem()	{ return qtextitem_; }
     void 		setFont(const uiFont&);
-    int			getTextWidth();
-    const uiRect*	getTextRect();
+    int			getTextWidth() const;
+    uiRect		getTextRect() const;
     void 		setAlignment(const Alignment&);
     void 		setText(const char*); 
     void		setTextColor(const Color&);
@@ -189,14 +193,21 @@ protected:
 
     QGraphicsItem*	mkQtObj();
     QGraphicsTextItem*	qtextitem_;
+
+    Alignment		al_;
+    uiPoint		pos_;
+
+    void		updatePos();
 };
 
 
 mClass uiMarkerItem : public uiGraphicsItem
 {
 public:
+    				uiMarkerItem();
 				uiMarkerItem(const MarkerStyle2D&);
-				uiMarkerItem(ODGraphicsMarkerItem*);
+    				uiMarkerItem(const uiPoint&,
+					     const MarkerStyle2D&);
 				~uiMarkerItem();
 
     ODGraphicsMarkerItem*  	qMarkerItem()	{ return qmarkeritem_; }
@@ -215,7 +226,6 @@ mClass uiPointItem : public uiGraphicsItem
 public:
     				uiPointItem();
 				uiPointItem(const uiPoint&);
-    				uiPointItem(ODGraphicsPointItem*);
 				~uiPointItem();
 
     ODGraphicsPointItem*	qPointItem()		{ return qpointitem_; }

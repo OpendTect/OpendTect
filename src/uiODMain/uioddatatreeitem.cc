@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.38 2009-04-06 11:59:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.39 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -108,9 +108,9 @@ bool uiODDataTreeItem::init()
     uiVisPartServer* visserv = applMgr()->visServer();
     if ( visserv->canHaveMultipleAttribs( displayID() ) )
     {
-	getItem()->stateChanged.notify( mCB( this, uiODDataTreeItem, checkCB ) );
+	getItem()->stateChanged.notify( mCB(this,uiODDataTreeItem,checkCB) );
 	uilistviewitem_->setChecked( visserv->isAttribEnabled(displayID(),
-		    		    attribNr() ) );
+		    		     attribNr() ) );
     }
 
     return uiTreeItem::init();

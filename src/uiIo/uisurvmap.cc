@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.23 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.24 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uisurvmap.h"
 
@@ -40,11 +40,10 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 
     const mDeclAlignment( txtalign, HCenter, VCenter );
 
-    uiTextItem* textitem = scene().addText( survinfo->name() );
+    uiTextItem* textitem = scene().addItem(
+	    new uiTextItem(uiPoint(width()/2,10),survinfo->name(),txtalign) );
     textitem->setPenColor( Color::Black() );
     textitem->setFont( FontList().get(FontData::key(FontData::GraphicsLarge)));
-    textitem->setPos( width()/2, 10 );
-    textitem->setAlignment( txtalign );
 
     const CubeSampling& cs = survinfo->sampling( false );
     Coord mapcnr[4];
@@ -79,9 +78,9 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     for ( int idx=0; idx<4; idx++ )
     {
         cpt[idx] = w2ui.transform( uiWorldPoint(mapcnr[idx].x, mapcnr[idx].y) );
-        uiMarkerItem* markeritem =
-	    scene().addMarker( MarkerStyle2D::Square );
-	markeritem->setPos( cpt[idx].x, cpt[idx].y );
+        uiMarkerItem* markeritem = scene().addItem(
+	    new uiMarkerItem(cpt[idx],MarkerStyle2D::Square) );
+	markeritem->setZValue( 1 );
     }
 
     Color red( 255, 0, 0, 0);
@@ -91,27 +90,22 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 	uiLineItem* lineitm =
 	    scene().addLine( cpt[idx], idx!=3 ? cpt[idx+1] : cpt[0] );
 	lineitm->setPenStyle( ls );
-
-	uiPointItem* ptitm = new uiPointItem();
-	ptitm->setPos( cpt[idx].x, cpt[idx].y );
-	ptitm->setZValue( 1 );
-	scene().addItem( ptitm );
     }
 
     bool printxy = false;
     for ( int idx=0; idx<4; idx++ )
     {
-	bool bot = cpt[idx].y > height()/2;
+	const bool bot = cpt[idx].y > height()/2;
         BinID bid = survinfo->transform( mapcnr[idx] );
-        int spacing =  bot ? 10 : -10;
+        const int spacing =  bot ? 10 : -10;
 	BufferString annot;
         annot += bid.inl; annot += "/"; annot += bid.crl;
-        uiTextItem* textitm1 = scene().addText( annot.buf() );
-	textitm1->setPos( cpt[idx].x, cpt[idx].y+spacing );
+	uiPoint txtpos( cpt[idx].x, cpt[idx].y+spacing );
+        uiTextItem* textitm1 = scene().addItem(
+		new uiTextItem(txtpos,annot.buf(),txtalign) );
 	textitm1->setPenColor( Color::Black() );
 	textitm1->setFont(
 		FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	textitm1->setAlignment( txtalign );
 	textitm1->setZValue( 1 );
 
 	if ( printxy )
@@ -120,14 +114,12 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 	    double ycoord = double( int( mapcnr[idx].y*10 + .5 ) ) / 10;
 	    annot = "("; annot += xcoord; annot += ",";
 	    annot += ycoord; annot += ")";
-	    uiTextItem* textitm2 = scene().addText( annot.buf() );
-	    // ... What on earth is THIS ...???
-	    // textitm2->moveBy( (float)al.hor_, (float)(int)al.ver_ );
-	    textitm2->setPos( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing) );
+	    uiPoint txtpos( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing) );
+	    uiTextItem* textitm2 = scene().addItem(
+		new uiTextItem(txtpos,annot.buf(),txtalign) );
 	    textitm2->setPenColor( Color::Black() );
 	    textitm2->setFont(
 		    FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	    textitm2->setAlignment( txtalign );
 	}
     }
 

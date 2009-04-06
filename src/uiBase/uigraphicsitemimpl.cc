@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.18 2009-04-04 11:13:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.19 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -20,6 +20,11 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.18 2009-04-04 11:13:5
 #include <QFont>
 #include <QFontMetrics>
 #include <QPen>
+
+
+uiEllipseItem::uiEllipseItem()
+    : uiGraphicsItem(mkQtObj())
+{}
 
 
 uiEllipseItem::uiEllipseItem( const uiPoint& center, const uiSize& sz )
@@ -35,11 +40,6 @@ uiEllipseItem::uiEllipseItem( const uiSize& size )
 {
     setSize( size );
 }
-
-
-uiEllipseItem::uiEllipseItem()
-    : uiGraphicsItem(mkQtObj())
-{}
 
 
 uiEllipseItem::~uiEllipseItem()
@@ -62,6 +62,10 @@ void uiEllipseItem::setSize( const uiSize& size )
     qellipseitem_->setRect( -width/2, -height/2, width, height );
 }
 
+
+uiCircleItem::uiCircleItem()
+    : uiEllipseItem()
+{}
 
 
 uiCircleItem::uiCircleItem( const uiPoint& center, int r )
@@ -91,10 +95,11 @@ uiLineItem::uiLineItem( QGraphicsLineItem* qtobj )
 {}
 
 
-uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos )
+uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos,
+			bool abspos )
     : uiGraphicsItem(mkQtObj())
 {
-    setLine( startpos, endpos );
+    setLine( startpos, endpos, abspos );
 }
 
 
@@ -111,24 +116,41 @@ QGraphicsItem* uiLineItem::mkQtObj()
 }
 
 
-void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
+void uiLineItem::setLine( const uiPoint& start, const uiPoint& end, bool abs )
 {
-    qlineitem_->setLine( x1, y1, x2, y2 );
+    setLine( start.x, start.y, end.x, end.y, abs );
 }
 
 
-void uiLineItem::setLine( const uiPoint& from, const uiPoint& to )
+void uiLineItem::setLine( int x1, int y1, int x2, int y2, bool abs )
 {
-    setLine( from.x, from.y, to.x, to.y );
+    if ( !abs )
+	qlineitem_->setLine( x1, y1, x2, y2 );
+    else
+    {
+	qlineitem_->setLine( 0, 0, x2-x1, y2-y1 );
+	qlineitem_->setPos( x1, y1 );
+    }
 }
 
 
-uiRect* uiLineItem::lineRect()
+void uiLineItem::setStartPos( const uiPoint& start, bool abspos )
 {
-    return new uiRect( (int)qlineitem_->line().x1(),
-	    	       (int)qlineitem_->line().y1(),
-	    	       (int)qlineitem_->line().x2(),
-		       (int)qlineitem_->line().y2() );
+    QLineF qline = qlineitem_->line();
+}
+
+
+void uiLineItem::setEndPos( const uiPoint& end, bool abspos )
+{
+    QLineF qline = qlineitem_->line();
+}
+
+
+uiRect uiLineItem::lineRect() const
+{
+    QLineF qline = qlineitem_->line();
+    return uiRect( (int)qline.x1(), (int)qline.y1(),
+		   (int)qline.x2(), (int)qline.y2() );
 }
 
 
@@ -147,23 +169,25 @@ void uiLineItem::setPenStyle( const LineStyle& ls )
     qlineitem_->setPen( qpen );
 }
 
-// +++++ uiPixmapItem +++++
+
 
 uiPixmapItem::uiPixmapItem()
     : uiGraphicsItem(mkQtObj())
 {}
 
 
-uiPixmapItem::uiPixmapItem( ODGraphicsPixmapItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qpixmapitem_(qtobj)
-{}
-
-
-uiPixmapItem::uiPixmapItem( const ioPixmap& pixmap )
+uiPixmapItem::uiPixmapItem( const ioPixmap& pm )
     : uiGraphicsItem(mkQtObj())
 {
-    setPixmap( pixmap );
+    setPixmap( pm );
+}
+
+
+uiPixmapItem::uiPixmapItem( const uiPoint& pos, const ioPixmap& pm )
+    : uiGraphicsItem(mkQtObj())
+{
+    setPos( pos );
+    setPixmap( pm );
 }
 
 
@@ -182,7 +206,7 @@ QGraphicsItem* uiPixmapItem::mkQtObj()
 
 void uiPixmapItem::setOffset( int left, int top )
 {
-    qpixmapitem_->setOffset( QPointF (QPoint(left,top)) );
+    qpixmapitem_->setOffset( QPointF(left,top) );
 }
 
 
@@ -191,12 +215,6 @@ void uiPixmapItem::setPixmap( const ioPixmap& pixmap )
     qpixmapitem_->setPixmap( *pixmap.qpixmap());
 }
 
-
-const uiPoint& uiPixmapItem::transformToScene( float x, float y )
-{
-    return *new uiPoint( (int)qpixmapitem_->mapToScene(x,y).x(),
-	    		(int)qpixmapitem_->mapToScene(x,y).y() );
-}
 
 
 uiPolygonItem::uiPolygonItem( QGraphicsPolygonItem* qtobj )
@@ -339,21 +357,30 @@ void uiRectItem::setRect( int x, int y, int width, int height )
 
 uiTextItem::uiTextItem()
     : uiGraphicsItem(mkQtObj())
-{}
+    , pos_(0,0)
+    , al_(Alignment::Left,Alignment::Top)
+{
+}
 
 
-uiTextItem::uiTextItem( QGraphicsTextItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qtextitem_( qtobj )
-{}
-
-
-uiTextItem::uiTextItem( int x, int y, const char* txt, const Alignment& al )
+uiTextItem::uiTextItem( const char* txt, const Alignment& al )
     : uiGraphicsItem(mkQtObj())
+    , pos_(0,0)
+    , al_(al)
 {
     setText( txt );
-    setPos( x, y );
-    setAlignment( al );
+}
+
+
+
+uiTextItem::uiTextItem( const uiPoint& pos, const char* txt,
+			const Alignment& al )
+    : uiGraphicsItem(mkQtObj())
+    , pos_(pos)
+    , al_(al)
+{
+    setText( txt );
+    updatePos();
 }
 
 
@@ -369,12 +396,13 @@ QGraphicsItem* uiTextItem::mkQtObj()
     return qtextitem_;
 }
 
-const uiRect* uiTextItem::getTextRect()
+
+uiRect uiTextItem::getTextRect() const
 {
     QRect rect( qtextitem_->boundingRect().toRect().topLeft(),
 	    	qtextitem_->boundingRect().toRect().bottomRight() );
-    return new uiRect( rect.topLeft().x(), rect.topLeft().y(),
-	    	       rect.bottomRight().x(), rect.bottomRight().y() );
+    return uiRect( rect.topLeft().x(), rect.topLeft().y(),
+	    	   rect.bottomRight().x(), rect.bottomRight().y() );
 }
 
 
@@ -390,7 +418,7 @@ void uiTextItem::setFont( const uiFont& font )
 }
 
 
-int uiTextItem::getTextWidth()
+int uiTextItem::getTextWidth() const
 {
     return (int)qtextitem_->textWidth();
 }
@@ -398,11 +426,31 @@ int uiTextItem::getTextWidth()
 
 void uiTextItem::setAlignment( const Alignment& al )
 {
+    al_ = al;
+    updatePos();
+}
+
+
+void uiTextItem::setPos( const uiPoint& pos )
+{
+    pos_ = pos;
+    updatePos();
+}
+
+
+void uiTextItem::setPos( int x, int y )
+{
+    setPos( uiPoint(x,y) );
+}
+
+
+void uiTextItem::updatePos()
+{
     QFontMetrics qfm( qtextitem_->font() );
     const float txtwidth = qfm.width( qtextitem_->toPlainText() );
     const float txtheight = qfm.height();
     float movex = 0, movey = 0;
-    switch ( al.hPos() )
+    switch ( al_.hPos() )
     {
 	case Alignment::Right:
 	    movex = -txtwidth;
@@ -414,7 +462,7 @@ void uiTextItem::setAlignment( const Alignment& al )
 	    break;
     }
     
-    switch ( al.vPos() )
+    switch ( al_.vPos() )
     {
 	case Alignment::Bottom:
 	    movey = -txtheight;
@@ -426,6 +474,7 @@ void uiTextItem::setAlignment( const Alignment& al )
 	    break;
     }
 
+    qtextitem_->setPos( pos_.x, pos_.y );
     qtextitem_->moveBy( movex, movey );
 }
 
@@ -435,12 +484,19 @@ void uiTextItem::setTextColor( const Color& col )
     qtextitem_->setDefaultTextColor( QColor(QRgb(col.rgb())) );
 }
 
-    
-uiMarkerItem::uiMarkerItem( ODGraphicsMarkerItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qmarkeritem_(qtobj)
+ 
+
+uiMarkerItem::uiMarkerItem()
+    : uiGraphicsItem( mkQtObj() )
+{}
+
+
+uiMarkerItem::uiMarkerItem( const uiPoint& pos, const MarkerStyle2D& mstyle )
+    : uiGraphicsItem( mkQtObj() )
 {
-    setFill( true );
+    setPos( pos );
+    qmarkeritem_->setMarkerStyle( mstyle );
+    setFill( true ); // ToDo: Get fill info from mstyle
 }
 
 
@@ -477,21 +533,16 @@ void uiMarkerItem::setFill( bool fill )
 }
 
 
-uiPointItem::uiPointItem( const uiPoint& pt )
+
+uiPointItem::uiPointItem( const uiPoint& pos )
     : uiGraphicsItem(mkQtObj())
 {
-    setPos( pt );
+    setPos( pos );
 }
 
 
 uiPointItem::uiPointItem()
     : uiGraphicsItem(mkQtObj())
-{}
-
-
-uiPointItem::uiPointItem( ODGraphicsPointItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qpointitem_(qtobj)
 {}
 
 

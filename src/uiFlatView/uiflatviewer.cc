@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.73 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.74 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -359,15 +359,17 @@ void uiFlatViewer::drawAnnot()
 
     if ( !annot.title_.isEmpty() )
     {
+	mDeclAlignment( al, HCenter, Top );
 	if ( !titletxtitem_ )
-	    titletxtitem_ = canvas_.scene().addText( annot.title_ );
+	{
+	    titletxtitem_ =
+		canvas_.scene().addItem( new uiTextItem(annot.title_,al) );
+	    titletxtitem_->setZValue( 1 );
+	    titletxtitem_->setPenColor( color(true) );
+	}
 	else
 	    titletxtitem_->setText( annot.title_ );
-	titletxtitem_->setZValue(1);
-	titletxtitem_->setPos( canvas_.arrArea().centre().x, 2 );
-	titletxtitem_->setPenColor( color(true) );
-	mDeclAlignment( al, HCenter, Top );
-	titletxtitem_->setAlignment( mAlignment(HCenter,Top) );
+	titletxtitem_->setPos( uiPoint(canvas_.arrArea().centre().x,2) );
     }
     else
     { mRemoveAnnotItem( titletxtitem_ ); }
@@ -466,13 +468,17 @@ void uiFlatViewer::drawGridAnnot( bool isvisble )
 	arrowitem1_ = canvas_.scene().addArrow( from, to, arrowstyle );
 	arrowitem1_->setZValue(1);
 	if ( !axis1nm_ )
-	    axis1nm_ = canvas_.scene().addText( ad1.name_ );
+	{
+	    axis1nm_ = canvas_.scene().addItem(
+		    new uiTextItem(ad1.name_,mAlignment(Right,Top)) );
+	    axis1nm_->setZValue(1);
+	}
 	else
 	    axis1nm_->setText( ad1.name_ );
-	axis1nm_->setZValue(1);
-	axis1nm_->setPos( datarect.right() - 20, ynameannpos );
-	axis1nm_->setAlignment( mAlignment(Right,Top) );
+
+	axis1nm_->setPos( uiPoint(datarect.right()-20,ynameannpos) );
     }
+
     if ( showanyx2annot && !ad2.name_.isEmpty() )
     {
 	const int left = datarect.left();
@@ -485,12 +491,14 @@ void uiFlatViewer::drawGridAnnot( bool isvisble )
 		from, to, arrowstyle );
 	arrowitem2_->setZValue(1); 
 	if ( !axis2nm_ )
-	    axis2nm_ = canvas_.scene().addText( ad2.name_ );
+	{
+	    axis2nm_ = canvas_.scene().addItem(
+		    new uiTextItem(ad2.name_,mAlignment(Left,Top)) );
+	    axis2nm_->setZValue( 1 );
+	}
 	else
 	    axis2nm_->setText( ad2.name_ );
-	axis2nm_->setZValue(1);
-	axis2nm_->setPos( left+10, ynameannpos );
-	axis2nm_->setAlignment( mAlignment(Left,Top) );
+	axis2nm_->setPos( uiPoint(left+10,ynameannpos) );
     }
 }
 
@@ -583,7 +591,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 		new uiMarkerItem( ad.markerstyles_[styleidx] );
 	    marketitem->setPenColor( ad.markerstyles_[styleidx].color_ );
 	    marketitem->setFillColor( ad.markerstyles_[styleidx].color_ );
-	    marketitem->setPos( ptlist[idx].x, ptlist[idx].y );
+	    marketitem->setPos( ptlist[idx] );
 	    markeritemgrp_->add( marketitem );
 	}
 	
@@ -597,12 +605,17 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	if ( listpos > nrpoints ) listpos = nrpoints-1;
 
 	if ( !addatanm_ )
-	    addatanm_ = canvas_.scene().addText( ad.name_.buf() );
+	{
+	    addatanm_ = canvas_.scene().addItem(
+		    new uiTextItem(ad.name_,mAlignment(Left,Top)) );
+	    addatanm_->setZValue( 1 );
+	}
 	else
-	    addatanm_->setText( ad.name_.buf() );
-	addatanm_->setZValue(1);
-	addatanm_->setPos( ptlist[listpos].x, ptlist[listpos].y );
+	    addatanm_->setText( ad.name_ );
+
+	addatanm_->setPos( ptlist[listpos] );
     }
+
     canvas_.draw();
 }
 

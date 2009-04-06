@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.12 2009-04-02 10:03:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.13 2009-04-06 13:56:03 cvsnanne Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -34,15 +34,15 @@ void uiGraphicsItem::setVisible( bool yn )
 { qgraphicsitem_->setVisible( yn ); }
 
 
-uiPoint* uiGraphicsItem::getPos() const
+uiPoint uiGraphicsItem::getPos() const
 {
-    return new uiPoint( (int)qgraphicsitem_->pos().x(),
-	    		(int)qgraphicsitem_->pos().y() );
+    return uiPoint( (int)qgraphicsitem_->pos().x(),
+		    (int)qgraphicsitem_->pos().y() );
 }
 
 
-void uiGraphicsItem::setPos( float x, float y )
-{ qgraphicsitem_->setPos( x, y ); }
+void uiGraphicsItem::setPos( int x, int y )
+{ setPos( uiPoint(x,y) ); }
 
 void uiGraphicsItem::setPos( const uiPoint& pt )
 { qgraphicsitem_->setPos( pt.x, pt.y ); }
@@ -64,6 +64,13 @@ void uiGraphicsItem::scaleAroundXY( float sx, float sy, int x, int y )
 
 void uiGraphicsItem::setZValue( int x )
 { qgraphicsitem_->setZValue( x ); }
+
+
+uiPoint uiGraphicsItem::transformToScenePos( const uiPoint& pt ) const
+{
+    QPointF qpt = qgraphicsitem_->mapToScene( pt.x, pt.y );
+    return uiPoint( qpt.x(), qpt.y() );
+}
 
 
 void uiGraphicsItem::setPenColor( const Color& col )

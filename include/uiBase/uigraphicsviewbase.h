@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.1 2009-03-26 08:17:42 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.2 2009-04-06 13:56:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,10 +57,10 @@ public:
     void                        setBackgroundColor(const Color&);
     Color		        backgroundColor() const;
     void			rePaintRect(const uiRect*); 
-    void			setZoomOnCtrlScroll( bool yn )	
-				{ zoomonctrlscroll_ = yn; }
-    bool			zoomOnCtrlScroll()
-    				{ return zoomonctrlscroll_; }
+    void			enableScrollZoom()  { enabscrollzoom_ = true; }
+    void			disableScrollZoom() { enabscrollzoom_ = false; }
+    bool			scrollZoomEnabled()
+    				{ return enabscrollzoom_; }
 
     MouseEventHandler&		getMouseEventHandler();
 
@@ -80,7 +80,7 @@ protected:
     uiRect*			selectedarea_;
     uiGraphicsScene*		scene_;
 
-    bool			zoomonctrlscroll_;
+    bool			enabscrollzoom_;
     void 			rubberBandCB(CallBacker*);
 };
 

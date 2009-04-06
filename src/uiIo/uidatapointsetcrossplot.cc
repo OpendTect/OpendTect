@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.32 2009-04-01 07:38:39 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.33 2009-04-06 13:56:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.32 2009-04-01 07:38:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.33 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 #include "uidpscrossplotpropdlg.h"
@@ -699,14 +699,13 @@ void uiDataPointSetCrossPlotter::checkSelection( uiGraphicsItem* item,
 	if ( rectangleselection_ ? !selarea : !selpolygon )
 	    return;
 
-	const uiPoint* itempos = item->getPos();
-	const bool itmslected =
-		rectangleselection_ ? selarea->contains(*itempos)
-				    : selpolygon->isInside(*itempos,true,0);
+	const uiPoint itempos = item->getPos();
+	const bool itmselected =
+		rectangleselection_ ? selarea->contains(itempos)
+				    : selpolygon->isInside(itempos,true,0);
 	if ( isy1selectable_ && !isy2 )
 	{
-	    const uiPoint* itempos = item->getPos();
-	    if ( itmslected && yselectablerg_.contains(*itempos) )
+	    if ( itmselected && yselectablerg_.contains(itempos) )
 	    {
 		item->setPenColor( Color::DgbColor() );
 		item->setSelected( true );
@@ -714,7 +713,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiGraphicsItem* item,
 	}
 	if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
 	{
-	    if ( itmslected && y2selectablerg_.contains(*itempos) )
+	    if ( itmselected && y2selectablerg_.contains(itempos) )
 	    {
 		item->setPenColor( Color(100,230,220) );
 		item->setSelected( true );

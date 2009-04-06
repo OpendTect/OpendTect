@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.9 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.10 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -226,12 +226,12 @@ void uiSeisRandTo2DGridDlg::updatePreview()
         int spacing =  bot ? 10 : -10;
 	BufferString annot;
         annot += bid.inl; annot += "/"; annot += bid.crl;
-        uiTextItem* textitm1 = scene.addText( annot.buf() );
-	textitm1->setPos( pt.x, pt.y+spacing );
+	uiPoint txtpos( pt.x, pt.y+spacing );
+        uiTextItem* textitm1 = scene.addItem(
+		new uiTextItem(annot.buf(),mAlignment(HCenter,VCenter)) );
 	textitm1->setPenColor( Color::Black() );
 	textitm1->setFont(
 		FontList().get(FontData::key(FontData::GraphicsSmall)) );
-	textitm1->setAlignment( mAlignment(HCenter,VCenter) );
 	textitm1->setZValue( 1 );
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.19 2009-04-05 12:26:47 cvskris Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.20 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "drawaxis2d.h"
 
@@ -179,11 +179,9 @@ void DrawAxis2D::drawXAxis( bool topside )
 
 	mDeclAlignment( al, HCenter, Top );
 	if ( bias<0 ) al.set( Alignment::Bottom );
-	uiTextItem* textitem = new uiTextItem();
-	textitem->setText( text.buf() );
+	uiTextItem* textitem = new uiTextItem( text, al );
 	textitem->setTextColor( Color::Black() );
-	textitem->setPos( wx, drawarea.top()+bias );
-	textitem->setAlignment( al );
+	textitem->setPos( uiPoint(wx,drawarea.top()+bias) );
 	xaxtxtitmgrp_->add( textitem );
     mLoopEnd
 	
@@ -227,8 +225,8 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	    yaxlineitem_ = drawscene_->addLine(	drawarea.left(), drawarea.top(),
 		    				drawarea.left(), drawarea.bottom() );
 	else 
-	    yaxlineitem_->setLine( drawarea.left(), drawarea.top(),
-		    		   drawarea.left(), drawarea.bottom() );
+	    yaxlineitem_->setLine( drawarea.topLeft(), drawarea.bottomLeft(),
+		    		   true );
     }
     
     if ( !yaxlineitmgrp_ )
@@ -257,11 +255,8 @@ void DrawAxis2D::drawYAxis( bool leftside )
 	Alignment al( leftside ? Alignment::Right : Alignment::Left,
 		      Alignment::VCenter );
 	if ( bias < 0 ) al.set( Alignment::Right );
-	uiTextItem* textitem = new uiTextItem();
-	textitem->setText( text.buf() );
-        textitem->setPos( drawarea.left() + bias, wy );
-	textitem->setAlignment( al );
-	yaxtxtitmgrp_->add( textitem );
+	yaxtxtitmgrp_->add(
+	    new uiTextItem( uiPoint(drawarea.left()+bias,wy), text, al ) );
     mLoopEnd
 	
     yaxlineitmgrp_->setZValue( zValue_ );

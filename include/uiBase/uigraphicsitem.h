@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.12 2009-04-02 10:03:55 cvsbert Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.13 2009-04-06 13:56:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,14 +40,15 @@ public:
     bool		isSelectable();
     bool		isSelected() const		{ return selected_; }
 
-    uiPoint*		getPos() const;
-    void		setPos(float x,float y);
-    void		setPos(const uiPoint& pt); 
+    uiPoint		getPos() const;
+    virtual void	setPos(int x,int y);
+    virtual void	setPos(const uiPoint&); 
     void		moveBy(float x,float y);
     void		rotate(float angle);
     void		scale(float sx,float sy);
     void		scaleAroundXY(float sx,float sy,int x,int y);
     void		setZValue(int);
+    uiPoint		transformToScenePos(const uiPoint& itmpos) const;
 
     virtual void	setPenStyle(const LineStyle&);
     virtual void	setPenColor(const Color&);

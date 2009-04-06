@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.16 2008-12-23 11:33:10 cvsdgb Exp $";
+static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.17 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
@@ -30,7 +30,7 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p,
 	, width_( setup.width_ )
 	, height_( setup.height_ )
 {
-    setZoomOnCtrlScroll( false );
+    disableScrollZoom();
     setStretch( 2, 2 );
     setScrollBarPolicy( true, setup.scrollbar_ 
 	    		? uiGraphicsView::ScrollBarAsNeeded 
@@ -133,7 +133,7 @@ void uiRGBArrayCanvas::draw()
 	return;
 
     if ( !pixmapitm_ )
-	pixmapitm_ = scene().addPixmap(*pixmap_);
+	pixmapitm_ = scene().addItem( new uiPixmapItem(*pixmap_) );
     else
 	pixmapitm_->setPixmap( *pixmap_ );
     pixmapitm_->setOffset( arrarea_.left(), arrarea_.top() );

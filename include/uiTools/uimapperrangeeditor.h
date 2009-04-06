@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditor.h,v 1.5 2009-02-13 05:34:03 cvsranojay Exp $
+ RCS:		$Id: uimapperrangeeditor.h,v 1.6 2009-04-06 13:56:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
     void			setColTabMapperSetup(
 	    				const ColTab::MapperSetup&);
     void			setColTabSeq(const ColTab::Sequence&);
-    const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctbmapper_; }
+    const ColTab::MapperSetup&	getColTabMapperSetup()	{ return *ctmapper_; }
     
     Notifier<uiMapperRangeEditor>	rangeChanged;
 
@@ -49,37 +49,30 @@ protected:
     int 			id_;
     uiAxisHandler*		xax_;
 
-    ColTab::MapperSetup*        ctbmapper_;
-    ColTab::Sequence*		ctbseq_;
-
-    uiLineItem*			minline_;
-    uiLineItem*			maxline_;
+    ColTab::MapperSetup*        ctmapper_;
+    ColTab::Sequence*		ctseq_;
 
     uiPixmapItem*		leftcoltab_;
     uiPixmapItem*		centercoltab_;
     uiPixmapItem*		rightcoltab_;
 
-    uiTextItem*			minlinevaltext_;
-    uiTextItem*			maxlinevaltext_;
+    uiLineItem*			minline_;
+    uiLineItem*			maxline_;
+    uiTextItem*			minvaltext_;
+    uiTextItem*			maxvaltext_;
 
-    float			lefttminval_;
-    float			rightmaxval_;
-    float			minlinebasepos_;
-    float			maxlinebasepos_;
-    float			minlinecurpos_;
-    float			maxlinecurpos_;
+    Interval<float>		datarg_;
+    Interval<float>		cliprg_;
+    int				startpix_;
+    int				stoppix_;
 
     bool			mousedown_;
 
-    void 			initSetUp();
-    void			draw();
+    void 			init();
     void			drawAgain();
     void			drawText();
-    void			fixTextPos();
     void			drawLines();
-    void			fixLinesPos();
     void			drawPixmaps();
-    void			fixPixmapsPos();
     bool			changeLinePos(bool pressedonly=false);
 
     void			mousePressed(CallBacker*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.12 2009-01-02 12:51:12 cvsranojay Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.13 2009-04-06 13:56:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,8 +84,8 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 
     if ( withheader_ )
     {
-	header_ = scene().addText( dpman.nameOf( dpid ) );
-	header_->setPos( width()/2, 0 );
+	header_ = scene().addItem(
+		new uiTextItem(uiPoint(width()/2,0),dpman.nameOf(dpid)) );
 	header_->setZValue( 2 );
     }
 
@@ -173,8 +173,9 @@ void uiHistogramDisplay::putN()
     if ( nrinpvals_ < 1 ) return;
 
     BufferString str = "N="; str += nrinpvals_;
-    uiTextItem* textitem = scene().addText( str );
-    textitem->setPos( width()/2, 0 );
+
+    uiTextItem* textitem =
+	scene().addItem( new uiTextItem(uiPoint(width()/2,0),str) );
     textitem->setPenColor( Color::Black() );
     draw();
 }

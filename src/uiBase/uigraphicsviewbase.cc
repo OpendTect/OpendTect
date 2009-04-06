@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.1 2009-03-26 08:17:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.2 2009-04-06 13:56:03 cvsnanne Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -175,7 +175,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 
 void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 {
-    if ( ev->modifiers() == Qt::ControlModifier && handle_.zoomOnCtrlScroll() )
+    if ( ev && handle_.scrollZoomEnabled() )
     {
 	int numsteps = ( ev->delta() / 8 ) / 15;
 
@@ -208,7 +208,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , activatedone(this)
     , scene_(0)
     , selectedarea_(0)
-    , zoomonctrlscroll_(true)
+    , enabscrollzoom_(true)
 {
     setScene( *new uiGraphicsScene(nm) );
     setDragMode( uiGraphicsViewBase::NoDrag );

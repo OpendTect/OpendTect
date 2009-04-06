@@ -7,20 +7,17 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.23 2009-04-02 10:03:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.24 2009-04-06 13:56:03 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
 
 #include "draw.h"
-#include "oddirs.h"
-#include "filepath.h"
-#include "odgraphicsitem.h"
-#include "uidialog.h"
 #include "uigraphicsitemimpl.h"
 
 #include <QList>
 #include <QByteArray>
+#include <QGraphicsItemGroup>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QImage>
@@ -200,32 +197,6 @@ uiGraphicsItem* uiGraphicsScene::removeItem( uiGraphicsItem* itm )
 }
 
 
-uiPixmapItem* uiGraphicsScene::addPixmap( const ioPixmap& pm )
-{
-    uiPixmapItem* uipixitem = new uiPixmapItem( new ODGraphicsPixmapItem(pm) );
-    addItem( uipixitem );
-    return uipixitem;
-}
-
-
-uiTextItem* uiGraphicsScene::addText( const char* txt )
-{ 
-    uiTextItem* uitextitem = new uiTextItem( odgraphicsscene_->addText(txt) );
-    items_ += uitextitem;
-    return uitextitem;
-}
-
-uiTextItem* uiGraphicsScene::addText( int x, int y, const char* text,
-       				      const Alignment& al )
-{
-    uiTextItem* uitextitem = new uiTextItem( odgraphicsscene_->addText(text) );
-    uitextitem->setPos( x, y );
-    uitextitem->setAlignment( al );
-    items_ += uitextitem;
-    return uitextitem;
-}
-
-
 uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
 { 
     uiRectItem* uirectitem =
@@ -298,24 +269,6 @@ uiPolyLineItem* uiGraphicsScene::addPolyLine( const TypeSet<uiPoint>& ptlist )
 }
 
 
-uiPointItem* uiGraphicsScene::addPoint( bool hl )
-{
-    uiPointItem* uiptitem = new uiPointItem();
-    uiptitem->qPointItem()->setHighLight( hl );
-    addItem( uiptitem );
-    return uiptitem;
-}
-
-
-uiMarkerItem* uiGraphicsScene::addMarker( const MarkerStyle2D& mstyl, int side )
-{
-    uiMarkerItem* markeritem = new uiMarkerItem( mstyl );
-    markeritem->qMarkerItem()->setSideLength( side );
-    addItem( markeritem );
-    return markeritem;
-}
-
-
 uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
 					const uiPoint& head,
 					const ArrowStyle& arrstyle )
@@ -325,7 +278,7 @@ uiArrowItem* uiGraphicsScene::addArrow( const uiPoint& tail,
     const int arrsz = (int)sqrt( (float)(head.x - tail.x)*(head.x - tail.x) +
 		      	         (float)(tail.y - head.y)*(tail.y - head.y) );
     arritem->setArrowSize( arrsz );
-    arritem->setPos( head.x, head.y );
+    arritem->setPos( head );
     const uiPoint relvec( head.x - tail.x, tail.y - head.y );
     const float ang = atan2((float)relvec.y,(float)relvec.x) *180/M_PI;
     arritem->rotate( ang );
@@ -421,7 +374,8 @@ void uiGraphicsScene::setSceneRect( float x, float y, float w, float h )
 uiRect uiGraphicsScene::sceneRect()
 {
     QRectF qrect = odgraphicsscene_->sceneRect();
-    return uiRect( (int)qrect.x(), (int)qrect.y(), (int)qrect.width(), (int)qrect.height() );
+    return uiRect( (int)qrect.x(), (int)qrect.y(),
+		   (int)qrect.width(), (int)qrect.height() );
 }
 
 

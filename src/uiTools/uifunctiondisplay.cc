@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.34 2009-03-26 08:26:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.35 2009-04-06 13:56:03 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -42,7 +42,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , pointChanged(this)
     , mousedown_(false)
 {
-    setZoomOnCtrlScroll( false );
+    disableScrollZoom();
     setPrefWidth( setup_.canvaswidth_ );
     setPrefHeight( setup_.canvasheight_ );
     setStretch( 2, 2 );
