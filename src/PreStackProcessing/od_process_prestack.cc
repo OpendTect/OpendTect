@@ -4,7 +4,7 @@
  * DATE     : Dec 2008
 -*/
 
-static const char* rcsID = "$Id: od_process_prestack.cc,v 1.4 2009-03-16 15:52:06 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_prestack.cc,v 1.5 2009-04-06 17:47:11 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -21,17 +21,13 @@ static const char* rcsID = "$Id: od_process_prestack.cc,v 1.4 2009-03-16 15:52:0
 #include "progressmeter.h"
 #include "posinfo.h"
 #include "flatposdata.h"
-//#include "seisjobexecprov.h"
 #include "prestackgather.h"
 #include "seispsread.h"
 #include "seispswrite.h"
 #include "seispsioprov.h"
 #include "seistrc.h"
-//#include "seis2dline.h"
 #include "seistype.h"
-//#include "separstr.h"
 #include "survinfo.h"
-//#include "socket.h"
 #include "timefun.h"
 
 
@@ -319,6 +315,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    return false;
 	}
 
+	int nrfound = 0;
 	for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
 	{
 	    for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl;relbid.crl++)
@@ -336,64 +333,72 @@ bool BatchProgram::go( std::ostream& strm )
 		    continue;
 		}
 
+		nrfound++;
+
 		DPM( DataPackMgr::FlatID() ).addAndObtain( gather );
 		procman->setInput( relbid, gather->id() );
 		DPM( DataPackMgr::FlatID() ).release( gather );
 	    }
 	}
 
-	if ( !procman->process() )
+	if ( nrfound )
 	{
-	    errorMsg("\nCannot process.");
-	    delete procman;
-	    return false;
-	}
-
-	const DataPack* dp =
-	    DPM(DataPackMgr::FlatID()).obtain(procman->getOutput());
-	mDynamicCastGet( const PreStack::Gather*, gather, dp );
-	if ( gather )
-	{
-	    const int nrtraces =
-		gather->size( !PreStack::Gather::offsetDim() );
-	    const int nrsamples =
-		gather->size( PreStack::Gather::offsetDim() );
-	    const StepInterval<double> zrg =
-		gather->posData().range( PreStack::Gather::offsetDim() );
-	    SeisTrc trc( nrsamples );
-	    trc.info().sampling.start = zrg.start;
-	    trc.info().sampling.step = zrg.step;
-
-	    if ( reader2d )
+	    if ( !procman->process() )
 	    {
-		trc.info().nr = curbid.crl;
-		PosInfo::Line2DPos linepos;
-		if ( reader2d->posData().getPos( curbid.crl, linepos ) )
-		    trc.info().coord = linepos.coord_;
-	    }
-	    else
-	    {
-		trc.info().binid = curbid;
-		trc.info().coord = SI().transform( curbid );
+		errorMsg("\nCannot process.");
+		delete procman;
+		return false;
 	    }
 
-	    for ( int idx=0; idx<nrtraces; idx++ )
+	    const DataPack* dp =
+		DPM(DataPackMgr::FlatID()).obtain(procman->getOutput());
+	    mDynamicCastGet( const PreStack::Gather*, gather, dp );
+	    if ( gather )
 	    {
-		trc.info().azimuth = gather->getAzimuth( idx );
-		trc.info().offset = gather->getOffset( idx );
-		for ( int idy=0; idy<nrsamples; idy++ )
-		    trc.set( idy, gather->data().get( idx, idy ), 0 );
+		const int nrtraces =
+		    gather->size( !PreStack::Gather::offsetDim() );
+		const int nrsamples =
+		    gather->size( PreStack::Gather::offsetDim() );
+		const StepInterval<double> zrg =
+		    gather->posData().range( PreStack::Gather::offsetDim() );
+		SeisTrc trc( nrsamples );
+		trc.info().sampling.start = zrg.start;
+		trc.info().sampling.step = zrg.step;
 
-		if ( !writer->put( trc ) )
+		if ( reader2d )
 		{
-		    errorMsg("\nCannot write output");
-		    delete procman;
-		    return false;
+		    trc.info().nr = curbid.crl;
+		    PosInfo::Line2DPos linepos;
+		    if ( reader2d->posData().getPos( curbid.crl, linepos ) )
+			trc.info().coord = linepos.coord_;
 		}
+		else
+		{
+		    trc.info().binid = curbid;
+		    trc.info().coord = SI().transform( curbid );
+		}
+
+		for ( int idx=0; idx<nrtraces; idx++ )
+		{
+		    trc.info().azimuth = gather->getAzimuth( idx );
+		    trc.info().offset = gather->getOffset( idx );
+		    for ( int idy=0; idy<nrsamples; idy++ )
+			trc.set( idy, gather->data().get( idx, idy ), 0 );
+
+		    if ( !writer->put( trc ) )
+		    {
+			errorMsg("\nCannot write output");
+			delete procman;
+			return false;
+		    }
+		}
+
+		DPM(DataPackMgr::FlatID()).release( dp );
 	    }
 
-	    DPM(DataPackMgr::FlatID()).release( dp );
+	    ++progressmeter;
 	}
+
 
 	if ( geomtype==Seis::VolPS )
 	{
@@ -407,7 +412,6 @@ bool BatchProgram::go( std::ostream& strm )
 		break;
 	}
 
-	++progressmeter;
     }
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
