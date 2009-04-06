@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.13 2009-01-27 08:52:43 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.14 2009-04-06 07:31:25 cvsranojay Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -21,13 +21,13 @@ static const char* rcsID = "$Id: uimadpi.cc,v 1.13 2009-01-27 08:52:43 cvsraman 
 #include "plugins.h"
 #include "ioman.h"
 
-extern "C" int GetuiMadagascarPluginType()
+mExternC int GetuiMadagascarPluginType()
 {
     return PI_AUTO_INIT_LATE;
 }
 
 
-extern "C" PluginInfo* GetuiMadagascarPluginInfo()
+mExternC PluginInfo* GetuiMadagascarPluginInfo()
 {
     static PluginInfo retpi = {
 	"Madagascar link",
@@ -117,15 +117,15 @@ void uiMadagascarLink::doMain( CallBacker* )
 }
 
 
-extern "C" const char* InituiMadagascarPlugin( int, char** )
+mExternC const char* InituiMadagascarPlugin( int, char** )
 {
     static uiMadagascarLink* lnk = 0;
     if ( lnk ) return 0;
 
-    IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey, ODMad::sKeyMadagascar,
+    IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey(), ODMad::sKeyMadagascar(),
 	    		      "Madagascar data" );
     MultiID id = IOMan::addCustomDataDir( cdd );
-    if ( id != ODMad::sKeyMadSelKey )
+    if ( id != ODMad::sKeyMadSelKey() )
 	return "Cannot create 'Madagascar' directory in survey";
 
 #ifdef MAD_UIMSG_IF_FAIL

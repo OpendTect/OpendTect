@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.22 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.23 2009-04-06 07:31:25 cvsranojay Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -54,7 +54,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	mAdd( Seis::nameOf(Seis::Line), idx2d_ );
 	mAdd( Seis::nameOf(Seis::LinePS), idxps2d_ );
     }
-    mAdd( ODMad::sKeyMadagascar, idxmad_ );
+    mAdd( ODMad::sKeyMadagascar(), idxmad_ );
     idxsu_ = -1;
     if ( isinp )
 	mAdd( "SU", idxsu_ );
@@ -229,7 +229,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     const Seis::GeomType gt = (Seis::GeomType)iot;
     if ( istypselected )
 	typfld_->setText( iot == ODMad::ProcFlow::Madagascar
-			? ODMad::sKeyMadagascar
+			? ODMad::sKeyMadagascar()
 			: iot == ODMad::ProcFlow::None ? sKey::None
 						       : Seis::nameOf(gt) );
     typSel( this );

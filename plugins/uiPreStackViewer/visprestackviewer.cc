@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.50 2009-02-18 20:48:59 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.51 2009-04-06 07:33:03 cvsranojay Exp $";
 
 #include "visprestackviewer.h"
 
@@ -382,11 +382,12 @@ const StepInterval<int> Viewer3D::getTraceRange( const BinID& bid ) const
 	if ( !nrtraces )
 	     return StepInterval<int>();
 
-	int trcnrs[nrtraces];
+	mAllocVarLenArr( int, trcnrs, nrtraces );
+
 	for ( int idx=0; idx<nrtraces; idx++ )
 	    trcnrs[idx] = posnrs[idx].nr_;
 
-	quickSort( trcnrs, nrtraces );
+	quickSort( mVarLenArr(trcnrs), nrtraces );
 	const int trstep = nrtraces>1 ? trcnrs[1]-trcnrs[0] : 0;
 	return StepInterval<int>( trcnrs[0], trcnrs[nrtraces-1], trstep );
     }
