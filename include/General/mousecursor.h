@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.5 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:           $Id: mousecursor.h,v 1.6 2009-04-06 07:12:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,12 +46,14 @@ public:
 
 			Arrow is the default for widgets in a normal state.
 		    */
-    enum Shape	{ Arrow, UpArrow, Cross, Wait, Ibeam,
-		  SizeVer, SizeHor, SizeBDiag, SizeFDiag, SizeAll,
-		  Blank, SplitV, SplitH, PointingHand, Forbidden,
-		  WhatsThis, Last = WhatsThis, Bitmap = 24, NotSet
-		};
-    			MouseCursor() : shape_( NotSet )		{}
+    enum Shape		{ Arrow, UpArrow, Cross, Wait, Ibeam,
+			  SizeVer, SizeHor, SizeBDiag, SizeFDiag, SizeAll,
+			  Blank, SplitV, SplitH, PointingHand, Forbidden,
+			  WhatsThis, Last = WhatsThis, Bitmap = 24, NotSet
+			};
+
+    			MouseCursor() : shape_(NotSet)			{}
+			MouseCursor( Shape s ) : shape_(s)		{}
     bool		operator==(const MouseCursor&) const;
     bool		operator!=(const MouseCursor&) const;
 
