@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2009
- RCS:           $Id: uiodapplmgraux.h,v 1.4 2009-04-03 17:19:23 cvskris Exp $
+ RCS:           $Id: uiodapplmgraux.h,v 1.5 2009-04-06 11:59:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ mClass uiODApplMgrAttrVisHandler : public CallBacker
     void		createAndSetMapDataPack(int,int,
 	    					const DataPointSet&,int);
     void		pageUpDownPressed(bool);
-    void		modifyColorTable(int,int,int ra=mUdf(int));
+    void		updateColorTable(int,int);
     void		colSeqChg();
     NotifierAccess*	colorTableSeqChange();
     void		useDefColTab(int,int);

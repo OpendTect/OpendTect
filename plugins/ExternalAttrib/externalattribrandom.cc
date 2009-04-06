@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: externalattribrandom.cc,v 1.5 2009-03-17 12:58:07 cvskris Exp $";
+static const char* rcsID = "$Id: externalattribrandom.cc,v 1.6 2009-04-06 11:59:01 cvshelene Exp $";
 
 #include "externalattribrandom.h"
 
@@ -239,7 +239,7 @@ bool uiRandomTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !visserv->getColTabSequence(displayID(),attribNr()) )
 	return false;
 
-    ODMainWin()->applMgr().modifyColorTable( displayID(), attribNr() );
+    ODMainWin()->applMgr().updateColorTable( displayID(), attribNr() );
 
     return true;
 }

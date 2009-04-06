@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.26 2009-04-06 07:25:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.27 2009-04-06 11:59:01 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -65,7 +65,7 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 	 !visserv->getColTabMapperSetup( displayID(), attribNr() ) )
 	return false;
 //  if ( !visserv->isClassification( displayID(), attribNr() ) )
-    applMgr()->modifyColorTable( displayID(), attribNr() );
+    applMgr()->updateColorTable( displayID(), attribNr() );
 
     return true;
 }

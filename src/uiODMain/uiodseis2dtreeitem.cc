@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.54 2009-03-27 15:37:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.55 2009-04-06 11:59:01 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -849,7 +849,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
-    applMgr()->modifyColorTable( displayID(), attribNr() );
+    applMgr()->updateColorTable( displayID(), attribNr() );
 
     return true;
 }
@@ -879,7 +879,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
-    applMgr()->modifyColorTable( displayID(), attribNr() );
+    applMgr()->updateColorTable( displayID(), attribNr() );
 }
 
 
@@ -892,5 +892,5 @@ void uiOD2DLineSetAttribItem::clearAttrib()
 
     s2d->clearTexture( attribNr() );
     updateColumnText(0);
-    applMgr()->modifyColorTable( displayID(), attribNr() );
+    applMgr()->updateColorTable( displayID(), attribNr() );
 }

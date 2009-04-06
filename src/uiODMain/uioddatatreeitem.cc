@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.37 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.38 2009-04-06 11:59:01 cvshelene Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -346,7 +346,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     {
 	const int attribnr = attribNr(); 
 	visserv->removeAttrib( displayID(), attribnr );
-	applMgr()->modifyColorTable( displayID(), attribnr ? attribnr-1 : 0 );
+	applMgr()->updateColorTable( displayID(), attribnr ? attribnr-1 : 0 );
 
 	prepareForShutdown();
 	parent_->removeChild( this );

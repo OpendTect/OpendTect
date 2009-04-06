@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.318 2009-04-03 17:19:23 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.319 2009-04-06 11:59:01 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -15,9 +15,24 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.318 2009-04-03 17:19:23 cvsk
 #include "uiodmenumgr.h"
 #include "uiodtreeitem.h"
 
+#include "uiattribcrossplot.h"
+#include "uiattribpartserv.h"
 #include "uiconvpos.h"
-#include "mousecursor.h"
-#include "uiimphorizon2d.h"
+#include "uiemattribpartserv.h"
+#include "uiempartserv.h"
+#include "uimpepartserv.h"
+#include "uimsg.h"
+#include "uinlapartserv.h"
+#include "uiodemsurftreeitem.h"
+#include "uipickpartserv.h"
+#include "uiseispartserv.h"
+#include "uistereodlg.h"
+#include "uisurvey.h"
+#include "uitaskrunner.h"
+#include "uitoolbar.h"
+#include "uivispartserv.h"
+#include "uiwellpartserv.h"
+#include "uiwellattribpartserv.h"
 #include "vishorizondisplay.h"
 #include "vispicksetdisplay.h"
 #include "vispointsetdisplay.h"
@@ -25,21 +40,10 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.318 2009-04-03 17:19:23 cvsk
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 
-#include "uipickpartserv.h"
-#include "uivispartserv.h"
-#include "uimpepartserv.h"
-#include "uiattribpartserv.h"
-#include "uiemattribpartserv.h"
-#include "uiempartserv.h"
-#include "uinlapartserv.h"
-#include "uiseispartserv.h"
-#include "uitaskrunner.h"
-#include "uiwellpartserv.h"
-#include "uiwellattribpartserv.h"
-
 #include "attribdescset.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
+#include "coltabmapper.h"
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "emhorizon2d.h"
@@ -53,6 +57,7 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.318 2009-04-03 17:19:23 cvsk
 #include "ioobj.h"
 #include "iopar.h"
 #include "linekey.h"
+#include "mousecursor.h"
 #include "mpeengine.h"
 #include "oddirs.h"
 #include "odsession.h"
@@ -62,15 +67,6 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.318 2009-04-03 17:19:23 cvsk
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "survinfo.h"
-
-#include "uiattribcrossplot.h"
-#include "uifiledlg.h"
-#include "uimsg.h"
-#include "uistereodlg.h"
-#include "uisurvey.h"
-#include "uitoolbar.h"
-#include "uiodemsurftreeitem.h"
-
 
 uiODApplMgr::uiODApplMgr( uiODMain& a )
 	: appl_(a)
@@ -424,7 +420,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	}
     }
 
-    modifyColorTable( visid, attrib );
+    updateColorTable( visid, attrib );
     return res;
 }
 
@@ -988,7 +984,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	    tracker->enable( false );
     }
     else if ( evid == uiVisPartServer::evColorTableChange() )
-	modifyColorTable( visserv_->getEventObjId(), 
+	updateColorTable( visserv_->getEventObjId(), 
 			  visserv_->getEventAttrib() );
     else
 	pErrMsg("Unknown event from visserv");
@@ -1165,6 +1161,15 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    uiMSG().error( "Could not evaluate this attribute" );
 	    return false;
 	}
+
+	const ColTab::MapperSetup* ms =
+	    visserv_->getColTabMapperSetup( visid, attrib, tmpset.size()/2 );
+	if ( ms )
+	{
+	    ColTab::MapperSetup myms = *ms;
+	    myms.type_ = ColTab::MapperSetup::Fixed;
+	    visserv_->setColTabMapperSetup( visid, attrib, myms );
+	}
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evEvalShowSlice() )
@@ -1175,7 +1180,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	visserv_->selectTexture( visid, attrnr, sliceidx );
 	const int nrslices = attrserv_->getTargetSelSpecs().size();
 
-	modifyColorTable( visid, attrnr, nrslices/2 );
+	updateColorTable( visid, attrnr );
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evEvalStoreSlices() )
@@ -1287,8 +1292,8 @@ void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
 { attrvishandler_.createAndSetMapDataPack(visid,attrib,data,colnr); }
 void uiODApplMgr::pageUpDownPressed( bool pageup )
 { attrvishandler_.pageUpDownPressed(pageup); sceneMgr().updateTrees(); }
-void uiODApplMgr::modifyColorTable( int visid, int attrib, int coltabrefattrib )
-{ attrvishandler_.modifyColorTable( visid, attrib, coltabrefattrib ); }
+void uiODApplMgr::updateColorTable( int visid, int attrib )
+{ attrvishandler_.updateColorTable( visid, attrib ); }
 void uiODApplMgr::colSeqChg( CallBacker* )
 { attrvishandler_.colSeqChg(); sceneMgr().updateSelectedTreeItem(); }
 NotifierAccess* uiODApplMgr::colorTableSeqChange()

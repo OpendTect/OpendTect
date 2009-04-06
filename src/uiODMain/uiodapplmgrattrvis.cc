@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.2 2009-04-06 07:25:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.3 2009-04-06 11:59:01 cvshelene Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -173,20 +173,19 @@ void uiODApplMgrAttrVisHandler::pageUpDownPressed( bool pageup )
 	texture--;
 
     am_.visserv_->selectTexture( visid, attrib, texture );
-    modifyColorTable( visid, attrib );
+    updateColorTable( visid, attrib );
 }
 
 
-void uiODApplMgrAttrVisHandler::modifyColorTable( int visid, int attrib,
-						  int coltabrefattrib )
+void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
 {
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
 	return;
 
     am_.appl_.colTabEd().setColTab(
 	    	am_.visserv_->getColTabSequence( visid, attrib ),
-	true, am_.visserv_->getColTabMapperSetup(visid,attrib,coltabrefattrib),
-	am_.visserv_->canHandleColTabSeqTrans(visid,attrib));
+		true, am_.visserv_->getColTabMapperSetup(visid,attrib),
+		am_.visserv_->canHandleColTabSeqTrans(visid,attrib));
 
     setHistogram( visid, attrib );
 }
@@ -272,7 +271,7 @@ void uiODApplMgrAttrVisHandler::useDefColTab( int visid, int attrib )
     am_.visserv_->setColTabSequence( visid, attrib, seq );
     am_.appl_.colTabEd().colTab()->setMapperSetup( &mapper );
     am_.appl_.colTabEd().colTab()->setSequence( &seq, true );
-    modifyColorTable( visid, attrib );
+    updateColorTable( visid, attrib );
 }
 
 

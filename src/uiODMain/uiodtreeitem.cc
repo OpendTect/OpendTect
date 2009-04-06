@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.204 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.205 2009-04-06 11:59:01 cvshelene Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -120,7 +120,7 @@ bool uiODTreeItem::anyButtonClick( uiListViewItem* item )
 
     if ( !select() ) return false;
 
-    applMgr()->modifyColorTable( -1, -1 );
+    applMgr()->updateColorTable( -1, -1 );
     return true;
 }
 
