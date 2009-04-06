@@ -9,13 +9,13 @@ static const char* rcsID = "$Id";
 #include "gapdeconattrib.h"
 #include "plugins.h"
 
-extern "C" int GetGapDeconPluginType()
+mExternC int GetGapDeconPluginType()
 {
     return PI_AUTO_INIT_EARLY;
 }
 
 
-extern "C" PluginInfo* GetGapDeconPluginInfo()
+mExternC PluginInfo* GetGapDeconPluginInfo()
 {
     static PluginInfo retpii = {
 	"Gap Decon Base",
@@ -26,7 +26,7 @@ extern "C" PluginInfo* GetGapDeconPluginInfo()
 }
 
 
-extern "C" const char* InitGapDeconPlugin( int, char** )
+mExternC const char* InitGapDeconPlugin( int, char** )
 {
     Attrib::GapDecon::initClass();
 
