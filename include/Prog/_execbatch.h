@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Lammertink
  Date:		30-10-2003
- RCS:		$Id: _execbatch.h,v 1.8 2009-03-16 10:37:08 cvsranojay Exp $
+ RCS:		$Id: _execbatch.h,v 1.9 2009-04-06 05:39:35 cvsraman Exp $
 ________________________________________________________________________
 
  The implementation fo Execute_batch should be in the executable on 
@@ -54,8 +54,9 @@ int Execute_batch( int* pargc, char** argv )
     BatchProgram& bp = BP();
     bool allok = bp.initOutput() && bp.go( *bp.sdout.ostrm );
     bp.stillok = allok;
+    BatchProgram::deleteInstance();
 
-    return allok ? 0 : 1;
+    return allok ? 0 : 1;	// never reached.
 }
 
 #endif

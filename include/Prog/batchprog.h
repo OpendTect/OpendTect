@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.38 2009-03-16 10:36:11 cvsranojay Exp $
+ RCS:		$Id: batchprog.h,v 1.39 2009-04-06 05:39:35 cvsraman Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -78,6 +78,8 @@ public:
     bool		errorMsg( const char* msg, bool cc_stderr=false);
     bool		infoMsg( const char* msg, bool cc_stdout=false);
 
+    static void		deleteInstance();
+
 protected:
 
     friend int		Execute_batch(int*,char**);
@@ -126,7 +128,6 @@ mGlobal BatchProgram& BP();
 # ifdef __win__
 #  include "_execbatch.h"
 # endif
-
     int main( int argc, char** argv )
     {
 	int ret = Execute_batch(&argc,argv);
