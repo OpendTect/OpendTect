@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: maddefs.h,v 1.5 2008-06-10 09:47:01 cvsbert Exp $
+ * ID       : $Id: maddefs.h,v 1.6 2009-04-06 07:22:13 cvsranojay Exp $
 -*/
 
 #include "bufstringset.h"
@@ -29,7 +29,7 @@ public:
 
 /* Scans $RSFROOT/doc/txt directory for program definitions */
 
-class ProgInfo
+mClass ProgInfo
 {
 public:
     			//!< When PI() is first used, a Pre-Scan is done
@@ -64,14 +64,11 @@ protected:
     void		addEntry(const char*);
 
     friend class	ProgInfoScanner;
+    mGlobal friend	ProgInfo& PI();      
 };
 
-inline const ODMad::ProgInfo& PI()
-{
-    static ODMad::ProgInfo* pi = 0;
-    if ( !pi ) pi = new ODMad::ProgInfo;
-    return *pi;
-}
+mGlobal ProgInfo& PI();
+
 
 
 } // namespace ODMad

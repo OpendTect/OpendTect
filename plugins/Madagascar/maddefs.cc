@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.15 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.16 2009-04-06 07:22:13 cvsranojay Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -16,6 +16,12 @@ static const char* rcsID = "$Id: maddefs.cc,v 1.15 2009-02-13 13:31:15 cvsbert E
 #include "globexpr.h"
 #include <iostream>
 
+ODMad::ProgInfo& ODMad::PI()
+{
+    static ODMad::ProgInfo* pi = 0;
+    if ( !pi ) pi = new ODMad::ProgInfo;
+    return *pi;
+}
 
 ODMad::ProgInfo::ProgInfo()
     	: scanned_(false)
