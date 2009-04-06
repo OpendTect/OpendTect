@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.10 2009-04-05 12:23:48 cvskris Exp $
+ RCS:		$Id: idxable.h,v 1.11 2009-04-06 08:29:57 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -326,13 +326,15 @@ inline float interpolateRegWithUdf( const T& idxabl, int sz, float pos,
 /*Given an array of values and a number of callibrated values at different
   positions, compute a n array of values that is callibrated everywhere.
   Depending on usefactor, the callibration will either be with absolute numbers
-  or with factors. */
+  or with factors. The callibration curve can optionally be output, if
+  so, it should have at least sz samples allocated. */
 
 
 template <class T> inline
 void callibrateArray( const T* input, int sz,
 	       const T* controlpts, const int* controlsamples, int nrcontrols,
-	       bool usefactor, T* output )
+	       bool usefactor, T* output,
+	       float* callibrationcurve = 0 )
 {
     int firstsample, lastsample;
 
@@ -374,6 +376,9 @@ void callibrateArray( const T* input, int sz,
 	output[idx] = usefactor
 	    ? input[idx]*callibration 
 	    : input[idx]+callibration;
+
+	if ( callibrationcurve )
+	    callibrationcurve[idx] = callibration;
     }
 }
 
