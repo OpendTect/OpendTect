@@ -5,7 +5,7 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id: GenModDeps.cc,v 1.15 2008-10-28 13:06:43 cvskris Exp $";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.16 2009-04-06 20:28:19 cvsnanne Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -100,7 +100,7 @@ int main( int argc, char** argv )
 	}
 
 
-	BufferStringSet depmods( false );
+	BufferStringSet depmods;
 	for ( int idx=filedeps.size()-1; idx>=0; idx-- )
 	{
 	    const char* filedep = filedeps.get(idx).buf();
