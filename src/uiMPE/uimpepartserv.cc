@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.75 2009-04-01 11:44:13 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.76 2009-04-06 07:15:33 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -164,14 +164,17 @@ void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
     NotifyStopper notifystopper( MPE::engine().trackeraddremove );
     // not using trackertype... only for 3D rt. now
 
+    RefMan<EM::EMObject> emobj = 
+	EM::EMM().createTempObject( EM::Horizon3D::typeStr() );
+    if ( !emobj ) return;
+
     BufferString newname = "<New horizon ";
     static int horizonno = 1;
     newname += horizonno++;
     newname += ">";
+    emobj->setName( newname );
+    emobj->setFullyLoaded( true );
 
-    EM::ObjectID objid = EM::EMM().createObject( EM::Horizon3D::typeStr(),
-	    					 newname );
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
     const int trackerid = MPE::engine().addTracker( emobj );
     if ( trackerid==-1 )
     {
@@ -179,15 +182,14 @@ void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
 	return;
     }
 
-    if ( !MPE::engine().getEditor(objid,false) )
-	MPE::engine().getEditor(objid,true);
+    if ( !MPE::engine().getEditor(emobj->id(),false) )
+	MPE::engine().getEditor(emobj->id(),true);
 
     activetrackerid_ = trackerid;
     if ( !sendEvent( ::uiMPEPartServer::evAddTreeObject() ) )
     {
 	pErrMsg("Could not add treeitem");
 	MPE::engine().removeTracker( trackerid );
-	emobj->ref(); emobj->unRef();
 	return;
     }
 
@@ -199,7 +201,7 @@ void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     seedpicker->setSeedConnectMode( 0 );
     sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
-    trackercurrentobject_ = objid;
+    trackercurrentobject_ = emobj->id();
 
     uiDialog* dlg = new uiDialog( 0 , 
     			uiDialog::Setup("Tracking Setup",0,"108.0.1") );
@@ -218,7 +220,7 @@ void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
 	addrmseednotifier->notify(
 		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
-    dlg->windowClosed.notify( mCB(this,uiMPEPartServer,trackerWinClodedCB) );
+    dlg->windowClosed.notify( mCB(this,uiMPEPartServer,trackerWinClosedCB) );
     dlg->go();
 }
 
@@ -245,7 +247,7 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
 }
 
 
-void uiMPEPartServer::trackerWinClodedCB( CallBacker* cb )
+void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
     mDynamicCastGet(uiDialog*,dlg,cb);
  // if ( dlg )

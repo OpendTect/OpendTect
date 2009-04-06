@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.36 2009-04-01 11:43:38 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.37 2009-04-06 07:15:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,7 @@ protected:
     MPE::uiSetupGroup*		setupgrp_;
     void			aboutToAddRemoveSeed(CallBacker*);
     EM::ObjectID        	trackercurrentobject_;
-    void			trackerWinClodedCB(CallBacker*);
+    void			trackerWinClosedCB(CallBacker*);
 
     friend class		MPE::Wizard;
 };
