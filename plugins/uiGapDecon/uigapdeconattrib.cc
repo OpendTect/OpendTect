@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.41 2009-02-26 13:00:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.42 2009-04-06 12:13:40 cvsranojay Exp $";
 
 #include "uigapdeconattrib.h"
 #include "uigdexamacorr.h"
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uigapdeconattrib.cc,v 1.41 2009-02-26 13:00:52 
 
 using namespace Attrib;
 
-mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp)
+mInitAttribUI(uiGapDeconAttrib,GapDecon,"GapDecon",sKeyFilterGrp())
 
 
 class uiGDPositionDlg: public uiDialog
