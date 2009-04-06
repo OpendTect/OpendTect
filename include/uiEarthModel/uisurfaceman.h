@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.19 2009-03-25 07:01:23 cvssatyaki Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.20 2009-04-06 03:39:28 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ protected:
 };
 
 
-class uiSurface2DMan : public uiDialog
+mClass uiSurface2DMan : public uiDialog
 {
 public:
     			uiSurface2DMan(uiParent*,const EM::SurfaceIOData&);
