@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.18 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.19 2009-04-06 07:29:08 cvsranojay Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -28,13 +28,13 @@ static const char* rcsID = "$Id: uigmtpi.cc,v 1.18 2009-04-01 14:35:39 cvsbert E
 
 #include "plugins.h"
 
-extern "C" int GetuiGMTPluginType()
+mExternC int GetuiGMTPluginType()
 {
     return PI_AUTO_INIT_LATE;
 }
 
 
-extern "C" PluginInfo* GetuiGMTPluginInfo()
+mExternC PluginInfo* GetuiGMTPluginInfo()
 {
     static PluginInfo retpi = {
 	"GMT link",
@@ -158,7 +158,7 @@ void uiGMTMgr::createMap( CallBacker* )
 }
 
 
-extern "C" const char* InituiGMTPlugin( int, char** )
+mExternC const char* InituiGMTPlugin( int, char** )
 {
     static uiGMTMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiGMTMgr( ODMainWin() );

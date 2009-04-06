@@ -15,13 +15,13 @@ static const char* rcsID = "$Id";
 #include "latlong.h"
 #include "plugins.h"
 
-extern "C" int GetuiGoogleIOPluginType()
+mExternC int GetuiGoogleIOPluginType()
 {
     return PI_AUTO_INIT_LATE;
 }
 
 
-extern "C" PluginInfo* GetuiGoogleIOPluginInfo()
+mExternC PluginInfo* GetuiGoogleIOPluginInfo()
 {
     static PluginInfo retpi = {
 	"Google I/O",
@@ -89,7 +89,7 @@ void uiGoogleIOMgr::exportSurv( CallBacker* cb )
 }
 
 
-extern "C" const char* InituiGoogleIOPlugin( int, char** )
+mExternC const char* InituiGoogleIOPlugin( int, char** )
 {
     static uiGoogleIOMgr* mgr = 0;
     if ( !mgr )
