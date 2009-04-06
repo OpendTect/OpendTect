@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.4 2009-03-11 08:18:46 cvsjaap Exp $
+ RCS:		$Id: emfault3d.h,v 1.5 2009-04-06 12:52:22 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -71,6 +71,7 @@ protected:
 mClass Fault3D : public Fault
 { mDefineEMObjFuncs( Fault3D );
 public:
+    void                        removeAll();
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
 

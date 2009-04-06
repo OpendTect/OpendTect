@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.31 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.32 2009-04-06 12:52:22 cvsjaap Exp $";
 
 #include "uiimpfault.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiimpfault.cc,v 1.31 2009-03-24 12:33:51 cvsber
 #include "ctxtioobj.h"
 #include "emfault.h"
 #include "emfault3d.h"
+#include "emfsstofault3d.h"
 #include "emmanager.h"
 #include "filegen.h"
 #include "ioobj.h"
@@ -50,9 +51,16 @@ uiImportFault::uiImportFault( uiParent* p, const char* type )
     , type_(type)
     , typefld_(0)
     , sortsticksfld_(0)
+    , stickselfld_(0)
+    , thresholdfld_(0)
 {
     setCtrlStyle( DoAndStay );
 }
+
+
+const char* uiImportFault::sKeyAutoStickSel()	{ return "Auto"; }
+const char* uiImportFault::sKeyInlCrlSep()	{ return "Inl/Crl separation"; }
+const char* uiImportFault::sKeySlopeThres()	{ return "Slope threshold"; }
 
 
 void uiImportFault::createUI()
@@ -76,9 +84,21 @@ void uiImportFault::createUI()
 		    IOObjContext::getDataDirName(IOObjContext::Surf) );
 	formatfld_->attach( alignedBelow, typefld_ );
 
+	BufferStringSet stickselopt; stickselopt.add( sKeyAutoStickSel() )
+	    					.add( sKeyInlCrlSep() ) 
+						.add( sKeySlopeThres() );
+	stickselfld_ = new uiGenInput( this, "Stick selection",
+				    StringListInpSpec(stickselopt) );
+	stickselfld_->attach( alignedBelow, typefld_ );
+	stickselfld_->valuechanged.notify(mCB(this,uiImportFault,stickSel));
+
+	thresholdfld_ = new uiGenInput(this, "",
+				DoubleInpSpec(1.0).setName("Threshold") );
+	thresholdfld_->attach( rightOf, stickselfld_ );
+
 	sortsticksfld_ = new uiGenInput( this, "Stick order",
 				    BoolInpSpec(true,"sorted","as in file") );
-	sortsticksfld_->attach( alignedBelow, typefld_ );
+	sortsticksfld_->attach( alignedBelow, stickselfld_ );
     }
 
     dataselfld_ = new uiTableImpDataSel( this, *fd_, "104.1.2" );
@@ -93,6 +113,7 @@ void uiImportFault::createUI()
     outfld_ = new uiIOObjSel( this, ctio_, labl );
     outfld_->attach( alignedBelow, dataselfld_ );
     typeSel( 0 );
+    stickSel( 0 );
 }
 
 
@@ -107,9 +128,21 @@ void uiImportFault::typeSel( CallBacker* )
     if ( !typefld_ ) return;
 
     const int tp = typefld_->getIntValue();
-    dataselfld_->display( tp == 0 );
     formatfld_->display( tp == 1 );
+    dataselfld_->display( tp == 0 );
     sortsticksfld_->display( tp == 0 );
+    stickselfld_->display( tp == 0 );
+    stickSel( 0 );
+}
+
+
+void uiImportFault::stickSel( CallBacker* )
+{
+    if ( !stickselfld_ ) return;
+
+    const bool showthresfld = !strcmp( stickselfld_->text(), sKeySlopeThres() );
+    const bool stickseldisplayed = stickselfld_->attachObj()->isDisplayed();
+    thresholdfld_->display( stickseldisplayed && showthresfld );
 }
 
 
@@ -193,7 +226,29 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
     EM::FaultAscIO ascio( *fd_ );
     const bool sortsticks = sortsticksfld_ ? sortsticksfld_->getBoolValue() :
 					     false;
-    return ascio.get( strm, flt, sortsticks, 0, false );
+
+    mDynamicCastGet( EM::Fault3D*, fault3d, &flt );
+    if ( !fault3d )
+	return ascio.get( strm, flt, sortsticks, 0, false );
+
+    EM::FSStoFault3DConverter::Setup setup;
+    setup.sortsticks_ = sortsticks;
+    if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeyInlCrlSep()) )
+	setup.useinlcrlslopesep_ = true;
+    if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeySlopeThres()) )
+	setup.stickslopethres_ = thresholdfld_->getdValue();
+
+    EM::EMObject* emobj = EM::FaultStickSet::create( EM::EMM() );
+    mDynamicCastGet( EM::FaultStickSet*, interfss, emobj );
+    bool res = ascio.get( strm, *interfss, sortsticks, 0, false );
+    if ( res )
+    {
+	EM::FSStoFault3DConverter fsstof3d( setup, *interfss, *fault3d );
+	res = fsstof3d.convert();
+    }
+
+    EM::EMM().removeObject( emobj );
+    return res;
 }
 
 

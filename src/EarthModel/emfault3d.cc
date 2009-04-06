@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.7 2009-03-11 08:18:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.8 2009-04-06 12:52:22 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -168,6 +168,13 @@ Fault3D::Fault3D( EMManager& em )
 
 Fault3D::~Fault3D()
 {}
+
+
+void Fault3D::removeAll()
+{
+    Surface::removeAll();
+    geometry_.removeAll();
+}
 
 
 Fault3DGeometry& Fault3D::geometry()
@@ -447,40 +454,10 @@ struct FaultStick
     BufferString	lnm_;
 
 
-double distTo( const FaultStick& fs, double zscale ) const
-{
-/*  Take distance between the two end points of each stick. Difference
-    of both distances is minimum amount of rope required to connect both
-    sticks when moving freely. Our distance measure equals the amount of
-    extra rope required when both sticks are fixed in space. */
-   
-    if ( crds_.isEmpty() || fs.crds_.isEmpty() )
-	return mUdf(double);
-   
-    Coord3 a0 = crds_[0];
-    Coord3 a1 = crds_[crds_.size()-1];
-    Coord3 b0 = fs.crds_[0];
-    Coord3 b1 = fs.crds_[fs.crds_.size()-1];
-
-    if ( zscale==MAXDOUBLE )
-    {
-	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; 
-    }
-    else 
-    {
-	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale;
-    }
-
-    const double mindist  = fabs( a0.distTo(a1)-b0.distTo(b1) );
-    const double straight = a0.distTo(b0) + a1.distTo(b1) - mindist;
-    const double crossed  = a0.distTo(b1) + a1.distTo(b0) - mindist;
-
-    return mMIN( straight, crossed );
-}
-
-
 Coord3 getNormal() const
 {
+    // TODO: Determine edit normal for sticks picked on 2D lines
+
     int oninl = 0; int oncrl = 0; int ontms = 0;
 
     for ( int idx=0; idx<crds_.size()-1; idx++ )
@@ -498,20 +475,15 @@ Coord3 getNormal() const
 	}
     }
 
-    if ( ontms==oninl && ontms==oncrl )
-	return Coord3::udf();
-
-    if ( ontms>=oncrl && ontms>=oninl )
+    if ( ontms>oncrl && ontms>oninl )
 	return Coord3( 0, 0, 1 );
-
-    if ( oninl==oncrl )
-	return Coord3( Coord::udf(), 0 );
 
     return oncrl>oninl ? Coord3( SI().binID2Coord().colDir(), 0 )
 		       : Coord3( SI().binID2Coord().rowDir(), 0 );
 }
 
 };
+
 
 bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 		      const MultiID* linesetmid, bool is2d ) const
@@ -581,71 +553,6 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	sticks[ sticks.size()-1 ]->lnm_ += lnm;
     }
 
-    // Analyse normals
-    bool sticksontimeslice = false;
-    bool sticksoninlcrl = false;
-
-    TypeSet<Coord3> normals;
-    for ( int idx=0; idx<sticks.size(); idx++ )
-    {
-	normals += sticks[idx]->getNormal();
-	if ( mIsZero(normals[idx].z, mDefEps) )
-	    sticksoninlcrl = true;
-	else if ( normals[idx].isDefined() )
-	    sticksontimeslice = true;
-    }
-
-    double zscale = SI().zScale();
-    if ( sticksoninlcrl && !sticksontimeslice )
-	zscale = 0;
-    if ( !sticksoninlcrl && sticksontimeslice )
-	zscale = MAXDOUBLE;
-
-    // Geometrically based stick sort
-    if ( sortsticks && !hasstickidx && sticks.size()>2 )
-    {
-	double mindist = MAXDOUBLE;
-	int minidx0, minidx1;
-
-	for ( int idx=0; idx<sticks.size()-1; idx++ )
-	{
-	    for ( int idy=idx+1; idy<sticks.size(); idy++ )
-	    {
-		const double dist = sticks[idx]->distTo( *sticks[idy], zscale );
-		if ( dist < mindist )
-		{
-		    mindist = dist;
-		    minidx0 = idx;
-		    minidx1 = idy;
-		}
-	    }
-	}
-	sticks.swap( 0, minidx0 );
-	sticks.swap( 1, minidx1 );
-
-	for ( int tailidx=1; tailidx<sticks.size()-1; tailidx++ )
-	{
-	    mindist = MAXDOUBLE;
-	    bool reverse = false;
-	    for ( int idy=tailidx+1; idy<sticks.size(); idy++ )
-	    {
-		const double dist0 = sticks[0]->distTo( *sticks[idy], zscale );
-		const double dist1 = sticks[tailidx]->distTo( *sticks[idy],
-							      zscale );
-		if ( mMIN(dist0,dist1) < mindist )
-		{
-		    mindist = mMIN( dist0, dist1 );
-		    minidx0 = idy;
-		    reverse = dist0 < dist1;
-		}
-	    }
-	    for ( int idx=0; reverse && idx<tailidx*0.5; idx++ )
-		sticks.swap( idx, tailidx-idx );
-
-	    sticks.swap( tailidx+1, minidx0 );
-	}
-    }
-
     // Index-based stick sort
     if ( sortsticks && hasstickidx )
     {
@@ -659,27 +566,6 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	}
     }
 
-    // Consult neighboring sticks to resolve undefined normals
-    for ( int idx=0; idx<sticks.size(); idx++ )
-    {
-	if ( normals[idx].isDefined() )
-	    continue;
-
-	for ( int idy=(idx ? idx-1 : idx+1); idy<sticks.size(); idy++ )
-	{
-	    if ( !normals[idy].isDefined() )
-		continue;
-	    if ( mIsUdf(normals[idx].z) || normals[idx].z==normals[idy].z )
-	    {
-		normals[idx] = normals[idy];
-		break;
-	    }
-	}
-	if ( !normals[idx].isDefined() )
-	    normals[idx] = Coord3( SI().binID2Coord().rowDir(), 0 );
-    }
-
-    //Create fault
     int sticknr = !sticks.isEmpty() && hasstickidx ? sticks[0]->stickidx_ : 0;
 
     for ( int idx=0; idx<sticks.size(); idx++ )
@@ -692,13 +578,13 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt, bool sortsticks,
 	{
 	    mDynamicCastGet(EM::FaultStickSet*,fss,&flt)
 	    bool res = fss->geometry().insertStick( sid, sticknr, 0,
-					stick->crds_[0], normals[idx],
+					stick->crds_[0], stick->getNormal(),
 					linesetmid, stick->lnm_, false );
 	}
 	else
 	{
 	    bool res = flt.geometry().insertStick( sid, sticknr, 0,
-					stick->crds_[0], normals[idx], false );
+				stick->crds_[0], stick->getNormal(), false );
 	    if ( !res ) continue;
 	}
 

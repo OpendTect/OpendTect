@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.10 2009-03-11 08:18:46 cvsjaap Exp $
+ RCS:           $Id: uiimpfault.h,v 1.11 2009-04-06 12:52:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiTableImpDataSel;
 
-namespace EM { class Fault3D;class Fault; }
+namespace EM { class Fault3D; class Fault; }
 namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for fault import */
@@ -35,6 +35,7 @@ protected:
 
     void		createUI();
     void		typeSel(CallBacker*);
+    void		stickSel(CallBacker*);
     bool		checkInpFlds();
     bool		handleAscii();
     bool		handleLMKAscii();
@@ -47,11 +48,17 @@ protected:
     uiGenInput*		typefld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		sortsticksfld_;
+    uiGenInput*		stickselfld_;
+    uiGenInput*		thresholdfld_;
     CtxtIOObj&		ctio_;
     Table::FormatDesc*	fd_;
     uiTableImpDataSel*	dataselfld_;
     bool		isfss_;
     const char*		type_;
+
+    static const char*	sKeyAutoStickSel();
+    static const char*	sKeyInlCrlSep();
+    static const char*	sKeySlopeThres();
 };
 
 
