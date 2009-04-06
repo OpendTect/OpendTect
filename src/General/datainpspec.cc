@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.28 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.29 2009-04-06 07:16:52 cvsnanne Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -510,7 +510,7 @@ Coord PositionInpSpec::getCoord( double udfval ) const
 
 BinID PositionInpSpec::getBinID( int udfval ) const
 {
-    return mIsUdf(setup_.binid_.inl) ? BinID(udfval,udfval) : setup_.binid_;
+    return mIsUdf(setup_.binid_.crl) ? BinID(udfval,udfval) : setup_.binid_;
 }
 
 
