@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vissurvscene.cc,v 1.116 2009-04-03 19:09:48 cvskris Exp $";
+static const char* rcsID = "$Id: vissurvscene.cc,v 1.117 2009-04-06 07:25:32 cvsnanne Exp $";
 
 #include "vissurvscene.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.116 2009-04-03 19:09:48 cvs
 #include "envvars.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "separstr.h"
 #include "settings.h"
 #include "survinfo.h"
 #include "visannot.h"
@@ -28,6 +29,7 @@ static const char* rcsID = "$Id: vissurvscene.cc,v 1.116 2009-04-03 19:09:48 cvs
 #include "vistransmgr.h"
 #include "vissurvobj.h"
 #include "zaxistransform.h"
+#include "zdomain.h"
 
 
 mCreateFactoryEntry( visSurvey::Scene );
@@ -84,8 +86,7 @@ void Scene::updateAnnotationText()
 
     annot_->setText( 0, "In-line" );
     annot_->setText( 1, "Cross-line" );
-    annot_->setText( 2, datatransform_ ? datatransform_->getZDomainString()
-				       : SI().getZDomainString() );
+    annot_->setText( 2, getZDomainString() );
 }
 
 
@@ -177,6 +178,28 @@ void Scene::createTransforms( const HorSampling& hs )
 bool Scene::isRightHandSystem() const
 {
     return SI().isClockWise();
+}
+
+
+const char* Scene::getZDomainString() const
+{
+    return datatransform_ ? datatransform_->getToZDomainString()
+			  : ZDomain::getDefault();
+}
+
+
+const char* Scene::getZDomainID() const
+{
+    return datatransform_ ? datatransform_->getZDomainID() : 0;
+}
+
+
+void Scene::getAllowedZDomains( BufferString& dms ) const
+{
+    FileMultiString fms( getZDomainString() );
+    if ( datatransform_ )
+	fms.add( datatransform_->getToZDomainString() );
+    dms = fms.buf();
 }
 
 

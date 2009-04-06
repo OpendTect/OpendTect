@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.47 2009-04-01 05:26:57 cvsranojay Exp $
+ RCS:		$Id: keystrs.h,v 1.48 2009-04-06 07:25:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,15 +78,12 @@ namespace sKey
     mExt const char*	Table		mImpl("Table");
     mExt const char*	Target		mImpl("Target");
     mExt const char*	Time		mImpl("Time");
-    mExt const char*	TWT		mImpl("TWT");
     mExt const char*	Title		mImpl("Title");
     mExt const char*    TraceNr		mImpl("Trace number");
     mExt const char*	Type		mImpl("Type");
     mExt const char*	Undef		mImpl("Undefined");
     mExt const char*	Value		mImpl("Value");
-    mExt const char*	Wheeler		mImpl("Wheeler");
     mExt const char*	Yes		mImpl("Yes");
-    mExt const char*	ZDomain		mImpl("ZDomain");
 
     mExt const char*	Average		mImpl("Average");
     mExt const char*	Maximum		mImpl("Maximum");

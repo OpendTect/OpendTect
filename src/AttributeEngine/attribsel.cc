@@ -7,30 +7,32 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.34 2009-03-27 15:37:35 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.35 2009-04-06 07:25:31 cvsnanne Exp $";
 
 #include "attribsel.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribstorprovider.h"
-#include "seistrctr.h"
-#include "seis2dline.h"
+#include "bufstringset.h"
+#include "ctxtioobj.h"
+#include "globexpr.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "ptrman.h"
-#include "ctxtioobj.h"
-#include "nlamodel.h"
-#include "nladesign.h"
-#include "bufstringset.h"
 #include "keystrs.h"
 #include "linekey.h"
-#include "globexpr.h"
+#include "nladesign.h"
+#include "nlamodel.h"
+#include "ptrman.h"
+#include "seistrctr.h"
+#include "seis2dline.h"
+#include "zdomain.h"
 
 namespace Attrib
 {
-#define mDescIDRet(val) static DescID res(val,true); return res
 
+#define mDescIDRet(val) static DescID res(val,true); return res
 
 const DescID& SelSpec::cOtherAttrib()	{ mDescIDRet(-1); }
 const DescID& SelSpec::cNoAttrib()	{ mDescIDRet(-2); }
@@ -67,7 +69,7 @@ void SelSpec::setDepthDomainKey( const Desc& desc )
     PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
     if ( ioobj )
     {
-	if ( !ioobj->pars().get( sKey::ZDomain, zdomainkey_ ) )
+	if ( !ioobj->pars().get( ZDomain::sKey(), zdomainkey_ ) )
 	{
 	    //Legacy. Can be removed in od4
 	    ioobj->pars().get( "Depth Domain", zdomainkey_ );
@@ -177,7 +179,7 @@ void SelSpec::fillPar( IOPar& par ) const
     par.setYN( sKeyIsNLA(), isnla_ );
     par.set( sKeyObjRef(), objref_ );
     par.set( sKeyDefStr(), defstring_ );
-    par.set( sKey::ZDomain, zdomainkey_ );
+    par.set( ZDomain::sKey(), zdomainkey_ );
     par.setYN( sKeyIs2D(), is2d_ );
 }
 
@@ -190,7 +192,7 @@ bool SelSpec::usePar( const IOPar& par )
     				par.getYN( isnnstr, isnla_ );
     objref_ = "";		par.get( sKeyObjRef(), objref_ );
     defstring_ = "";		par.get( sKeyDefStr(), defstring_ );
-    zdomainkey_ = "";		if ( !par.get( sKey::ZDomain, zdomainkey_ ) )
+    zdomainkey_ = "";		if ( !par.get( ZDomain::sKey(), zdomainkey_ ) )
 				    par.get( "Depth Domain", zdomainkey_);
     is2d_ = false;		par.getYN( sKeyIs2D(), is2d_ );
     		
@@ -253,7 +255,7 @@ void SelInfo::fillStored( const char* filter )
 	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
 	const bool isvalid3d = !is2d && ioobj.isReadDefault();
-	const bool isz = ioobj.pars().find(sKey::ZDomain) ||
+	const bool isz = ioobj.pars().find(ZDomain::sKey()) ||
 	    		 ioobj.pars().find( "Depth Domain" );
 	if ( isz || (is2d_ != is2d) || (!is2d && !isvalid3d) )
 	    continue;
@@ -342,7 +344,7 @@ void SelInfo::getSpecialItems( const char* zdomainkey,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	const char* zres = ioobj.pars().find( sKey::ZDomain );
+	const char* zres = ioobj.pars().find( ZDomain::sKey() );
 	if ( zres && !strcmp(zres,zdomainkey) )
 	    nms.add( ioobj.name() );
 	else //Legacy

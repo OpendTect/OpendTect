@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.6 2008-12-10 17:44:36 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.7 2009-04-06 07:25:31 cvsnanne Exp $";
 
 #include "timedepthconv.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: timedepthconv.cc,v 1.6 2008-12-10 17:44:36 cvsk
 #include "seistrctr.h"
 #include "survinfo.h"
 #include "velocitycalc.h"
+#include "zdomain.h"
 
 const char* Time2DepthStretcher::sName() 	{ return "Time2Depth"; }
 
@@ -64,12 +65,12 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
 
     veldesc_.usePar ( velioobj->pars() );
 
-    BufferString depthdomain = SI().zIsTime() ? sKey::Time : sKey::Depth;
-    velioobj->pars().get( sKey::ZDomain, depthdomain );
+    BufferString depthdomain = ZDomain::getDefault();
+    velioobj->pars().get( ZDomain::sKey(), depthdomain );
 
-    if ( depthdomain==sKey::Time )
+    if ( depthdomain==ZDomain::sKeyTWT() )
 	velintime_ = true;
-    else if ( depthdomain==sKey::Depth )
+    else if ( depthdomain==ZDomain::sKeyDepth() )
 	velintime_ = false;
     else
     {
@@ -448,8 +449,16 @@ float Time2DepthStretcher::getGoodZStep() const
 }
 
 
-const char* Time2DepthStretcher::getZDomainString() const
-{ return sKey::Depth; }
+const char* Time2DepthStretcher::getToZDomainString() const
+{ return ZDomain::sKeyDepth(); }
+
+
+const char* Time2DepthStretcher::getFromZDomainString() const
+{ return ZDomain::sKeyTWT(); }
+
+
+const char* Time2DepthStretcher::getZDomainID() const
+{ return velreader_ && velreader_->ioObj() ? velreader_->ioObj()->key() : 0; }
 
 
 void Time2DepthStretcher::releaseData()
@@ -568,5 +577,15 @@ float Depth2TimeStretcher::getGoodZStep() const
 }
 
 
-const char* Depth2TimeStretcher::getZDomainString() const
-{ return sKey::TWT; }
+const char* Depth2TimeStretcher::getToZDomainString() const
+{ return stretcher_->getFromZDomainString(); }
+
+
+const char* Depth2TimeStretcher::getFromZDomainString() const
+{ return stretcher_->getToZDomainString(); }
+
+
+const char* Depth2TimeStretcher::getZDomainID() const
+{ return stretcher_->getZDomainID(); }
+
+

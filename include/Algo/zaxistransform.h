@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.20 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:           $Id: zaxistransform.h,v 1.21 2009-04-06 07:25:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,9 +66,13 @@ public:
 				    implementation gives the same step as in
 				    SI() (i.e. non transformed domain) */
 
-    virtual const char*		getZDomainString() const;
+    virtual const char*		getToZDomainString() const		= 0;
     				/*!\returns a name for the transformed z-domain,
 				    such as "TWT", "Depth" ... */
+    virtual const char*		getFromZDomainString() const;
+    				/*!\returns a name for the untransformed
+				    z-domain, such as "TWT", "Depth" ... */
+    virtual const char*		getZDomainID() const			= 0;
 
     virtual int			lineIndex( const char* linename ) const
 				{ return 0; }

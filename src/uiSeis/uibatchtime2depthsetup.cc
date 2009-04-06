@@ -4,21 +4,22 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.4 2009-04-05 14:52:53 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchtime2depthsetup.cc,v 1.5 2009-04-06 07:25:32 cvsnanne Exp $";
 
 #include "uibatchtime2depthsetup.h"
 
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "keystrs.h"
-#include "seistrctr.h"
 #include "process_time2depth.h"
-#include "uigeninput.h"
-#include "uipossubsel.h"
-#include "uimsg.h"
-#include "uiveldesc.h"
-#include "zdomain.h"
+#include "seistrctr.h"
 #include "survinfo.h"
+#include "zdomain.h"
+
+#include "uigeninput.h"
+#include "uimsg.h"
+#include "uipossubsel.h"
+#include "uiveldesc.h"
 
 uiBatchTime2DepthSetup::uiBatchTime2DepthSetup( uiParent* p )
     : uiFullBatchDialog( p,

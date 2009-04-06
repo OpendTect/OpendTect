@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.10 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.11 2009-04-06 07:25:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,6 +46,8 @@ public:
     Interval<float>	getDepthRange() const		{ return depthrange_; }
 
     int			lineIndex(const char* lnm) const;
+    const char*		getZDomainID() const;
+    const char*		getToZDomainString() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

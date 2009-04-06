@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.8 2008-12-29 11:25:00 cvsranojay Exp $
+ RCS:		$Id: timedepthconv.h,v 1.9 2009-04-06 07:25:31 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -63,7 +63,9 @@ public:
 	    			  int,float*) const;
     Interval<float>	getZInterval(bool from) const;
     float		getGoodZStep() const;
-    const char*		getZDomainString() const;
+    const char*		getToZDomainString() const;
+    const char*		getFromZDomainString() const;
+    const char*		getZDomainID() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -116,7 +118,9 @@ public:
 	    			  int,float*) const;
     Interval<float>	getZInterval(bool from) const;
     float		getGoodZStep() const;
-    const char*		getZDomainString() const;
+    const char*		getToZDomainString() const;
+    const char*		getFromZDomainString() const;
+    const char*		getZDomainID() const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);

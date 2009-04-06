@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.59 2009-04-03 19:09:48 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.60 2009-04-06 07:25:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -128,24 +128,22 @@ public:
     mVisTrans*			getZScaleTransform() const;
     mVisTrans*			getInlCrl2DisplayTransform() const;
     mVisTrans*			getUTM2DisplayTransform() const;
-    void			setDataTransform( ZAxisTransform* );
+    void			setDataTransform(ZAxisTransform*);
     ZAxisTransform*		getDataTransform();
-
 
     bool			isRightHandSystem() const;
 
-    void			setZDomainKey( const char* key )
-				    { zdomainkey_ = key; }
-    const char*			getZDomainKey() const
-				    { return zdomainkey_; }
+    const char*			getZDomainString() const;
+    const char*			getZDomainID() const;
+    void			getAllowedZDomains(BufferString&) const;
 
     void			setAnnotColor(const Color&);
     const Color&		getAnnotColor();
-    void			setMarkerPos( const Coord3& );
-    void			setMarkerSize( float );
+    void			setMarkerPos(const Coord3&);
+    void			setMarkerSize(float );
     float			getMarkerSize() const;
     const Color&		getMarkerColor() const;
-    void			setMarkerColor( const Color& );
+    void			setMarkerColor(const Color&);
 
     void			allowAppShading(bool yn){ appallowshad_ = yn; }
     bool			allowsAppShading() const{return appallowshad_;}
@@ -186,7 +184,10 @@ protected:
     const MouseCursor*		mousecursor_;
     float			curzstretch_;
     float			zscale_;
-    BufferString		zdomainkey_;
+
+    BufferString		zdomain_;
+    BufferString		zdomainid_;
+
     bool			appallowshad_;	   //from application
     bool			userwantsshading_; //from settings
     CubeSampling		cs_;

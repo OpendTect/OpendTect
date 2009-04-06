@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.9 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizonztransform.cc,v 1.10 2009-04-06 07:25:31 cvsnanne Exp $";
 
 #include "emhorizonztransform.h"
 
@@ -41,6 +41,13 @@ HorizonZTransform::HorizonZTransform( const Horizon* hor )
 HorizonZTransform::~HorizonZTransform()
 { if ( horizon_ ) horizon_->unRef(); }
 
+
+const char* HorizonZTransform::getZDomainID() const
+{ return horizon_ ? horizon_->multiID() : 0; }
+
+
+const char* HorizonZTransform::getToZDomainString() const
+{ return getFromZDomainString(); }
 
 
 void HorizonZTransform::setHorizon( const Horizon& hor )

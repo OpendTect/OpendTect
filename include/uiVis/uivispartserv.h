@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.234 2009-04-01 11:41:52 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.235 2009-04-06 07:25:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,8 +182,8 @@ public:
     int			getSelAttribNr() const;
     void		setSelObjectId(int visid,int attrib=-1);
     int			getSceneID(int visid) const;
-    const char*		getZDomainKey(int sceneid) const;
-    			/*!< Returns depthdomain key of scene */
+    const char*		getZDomainString(int sceneid) const;
+    			/*!< Returns Z domain key of scene */
 
     			//Events and their functions
     void		unlockEvent();

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.5 2009-04-05 13:29:02 cvskris Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.6 2009-04-06 07:25:31 cvsnanne Exp $";
 
 #include "velocitypicks.h"
 
@@ -117,7 +117,7 @@ Picks::~Picks()
 
 
 const char* Picks::zDomain() const
-{ return zit_ ? sKey::Time : sKey::Depth; }
+{ return zit_ ? ZDomain::sKeyTWT() : ZDomain::sKeyDepth(); }
 
 
 Picks::PickType Picks::pickType() const

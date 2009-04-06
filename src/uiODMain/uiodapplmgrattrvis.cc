@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.1 2009-03-25 14:30:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.2 2009-04-06 07:25:31 cvsnanne Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -112,12 +112,12 @@ bool uiODApplMgrAttrVisHandler::selectAttrib( int id, int attrib )
     const Attrib::SelSpec* as = am_.visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
 
-    const char* key = am_.visserv_->getZDomainKey(am_.visserv_->getSceneID(id));
+    const char* zdom =
+	am_.visserv_->getZDomainString(am_.visserv_->getSceneID(id));
     Attrib::SelSpec myas( *as );
-    const bool selok = am_.attrserv_->selectAttrib( myas, key, myas.is2D() );
+    const bool selok = am_.attrserv_->selectAttrib( myas, zdom, myas.is2D() );
     if ( selok )
 	am_.visserv_->setSelSpec( id, attrib, myas );
-
     return selok;
 }
 
