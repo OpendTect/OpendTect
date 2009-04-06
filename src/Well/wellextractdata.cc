@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.51 2009-02-11 11:07:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.52 2009-04-06 09:43:25 cvsranojay Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -51,9 +51,9 @@ static const char* sKeyDAHColName()	    { return "<DAH>"; }
 }
 
 DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
-		Well::LogDataExtracter::sKeySamplePol)
+		Well::LogDataExtracter::sKeySamplePol())
 	{ "Average", "Median", "Most frequent", "Nearest sample", 0 };
-const char* Well::LogDataExtracter::sKeySamplePol = "Data sampling";
+const char* Well::LogDataExtracter::sKeySamplePol()	{ return "Data sampling"; }
 
 
 Well::InfoCollector::InfoCollector( bool dologs, bool domarkers )
@@ -352,7 +352,7 @@ Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
 void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
     pars.get( sKeyLogNm(), lognm_ );
-    const char* res = pars.find( sKeySamplePol );
+    const char* res = pars.find( sKeySamplePol() );
     if ( res && *res ) samppol_ = eEnum(SamplePol,res);
 }
 

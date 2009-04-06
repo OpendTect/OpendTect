@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.21 2009-02-11 10:30:00 cvsranojay Exp $
+ RCS:		$Id: wellextractdata.h,v 1.22 2009-04-06 09:41:55 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,7 @@ public:
 
     BufferString	lognm_;
     SamplePol		samppol_;
-    static const char*	sKeySamplePol;
+    static const char*	sKeySamplePol();
     static const char*	sKeyLogNm(); //!< equals address of TrackSampler's
 
     void		usePar(const IOPar&);
