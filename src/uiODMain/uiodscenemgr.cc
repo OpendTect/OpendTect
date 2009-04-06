@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.167 2009-04-03 06:50:30 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.168 2009-04-06 06:33:10 cvsumesh Exp $";
 
 #include "uiodscenemgr.h"
 #include "attribdatacubes.h"
@@ -1131,8 +1131,10 @@ void uiODSceneMgr::Viewer2D::setUpView( DataPack::ID packid,
 			DataPackMgr::FlatID()).obtain( packid, true );
     if ( dp && ( dp->dataDir()==CubeSampling::Inl ||
 		  dp->dataDir()==CubeSampling::Crl) )
-    horpainter_->setCubeSampling( dp->cube().cubeSampling(), true );
-    drawHorizons();
+    {
+	horpainter_->setCubeSampling( dp->cube().cubeSampling(), true );
+	drawHorizons();
+    }
 
     viewwin_->viewer().setPack( wva, packid, true, !isnew );
     FlatView::DataDispPars& ddp = viewwin_->viewer().appearance().ddpars_;
