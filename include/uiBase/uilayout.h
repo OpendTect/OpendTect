@@ -7,10 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uilayout.h,v 1.8 2009-01-09 03:45:14 cvsnanne Exp $
+ RCS:           $Id: uilayout.h,v 1.9 2009-04-06 07:40:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
+
+
+class i_LayoutItem;
 
 enum constraintType 
 { 
@@ -31,8 +34,23 @@ enum constraintType
 };
 
 
-class i_uiLayoutItem;
-class i_uiLayout;
+class uiConstraint
+{
+friend class i_LayoutItem;
+public:
+			uiConstraint(constraintType,i_LayoutItem* o,int marg);
 
+    bool		operator==(const uiConstraint&) const;
+    bool		operator!=(const uiConstraint&) const;
+
+    bool		enabled() const;
+    void		disable(bool yn);
+
+protected:
+    constraintType      type_;
+    i_LayoutItem*       other_;
+    int                 margin_;
+    bool		enabled_;
+};
 
 #endif

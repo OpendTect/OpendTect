@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/06/2001
- RCS:           $Id: i_layoutitem.h,v 1.32 2009-03-18 11:12:53 cvsnanne Exp $
+ RCS:           $Id: i_layoutitem.h,v 1.33 2009-04-06 07:40:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,14 +30,12 @@ mClass i_LayoutItem : public uiBody, public NamedObject
 #endif
 
 public: 
-				i_LayoutItem( i_LayoutMngr& , QLayoutItem& );
-
+				i_LayoutItem(i_LayoutMngr&,QLayoutItem&);
     virtual			~i_LayoutItem();
 
-
-    virtual int			horAlign(layoutMode m ) const
+    virtual int			horAlign(LayoutMode m ) const
 				    { return curpos(m).left(); }
-    virtual int			centre(layoutMode m, bool hor=true) const 
+    virtual int			centre(LayoutMode m, bool hor=true) const 
 				    { 
 					if( hor ) return ( curpos(m).left() 
 					     + curpos(m).right() ) / 2; 
@@ -75,17 +73,17 @@ public:
 				}
 
     virtual void       		invalidate();
-    virtual void       		updatedAlignment(layoutMode)	{}
-    virtual void       		initChildLayout(layoutMode)	{}
+    virtual void       		updatedAlignment(LayoutMode)	{}
+    virtual void       		initChildLayout(LayoutMode)	{}
 
     uiSize			actualsize(bool include_border = true) const;
     				//!< live objs: use uiObject::width() etc
 
     inline const i_LayoutMngr& 	mngr() const 		{ return mngr_; } 
 
-    inline const uiRect& 	curpos(layoutMode m) const
+    inline const uiRect& 	curpos(LayoutMode m) const
 				    { return layoutpos[m];}
-    inline uiRect&		curpos(layoutMode m)	{ return layoutpos[m];}
+    inline uiRect&		curpos(LayoutMode m)	{ return layoutpos[m];}
 
     bool			inited() const 
 				{ 
@@ -103,9 +101,9 @@ protected:
     int 			stretch( bool hor ) const;
     virtual void		commitGeometrySet(bool);
 
-    void			initLayout( layoutMode m, int mngrTop, 
+    void			initLayout( LayoutMode m, int mngrTop, 
 							  int mngrLeft );
-    bool			layout( layoutMode m, const int, bool );
+    bool			layout( LayoutMode m, const int, bool );
 
     void			attach( constraintType, 
 					i_LayoutItem *other, int margin,
@@ -144,9 +142,7 @@ protected:
 
     inline i_LayoutMngr& 	mngr()			{ return mngr_; } 
 
-#ifdef __debug__
     bool			isAligned() const;
-#endif
 
 private:
 

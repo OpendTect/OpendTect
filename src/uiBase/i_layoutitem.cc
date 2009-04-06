@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: i_layoutitem.cc,v 1.12 2009-01-07 05:02:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: i_layoutitem.cc,v 1.13 2009-04-06 07:40:27 cvsnanne Exp $";
 
 #include "i_layoutitem.h"
 #include "i_layout.h"
@@ -22,9 +22,9 @@ static const char* rcsID = "$Id: i_layoutitem.cc,v 1.12 2009-01-07 05:02:28 cvsn
 #include <iostream>
 
 #ifdef __debug__
-#define MAX_ITER	2000
+# define MAX_ITER	2000
 #else
-#define MAX_ITER	10000
+# define MAX_ITER	10000
 #endif
 
 //------------------------------------------------------------------------------
@@ -46,6 +46,7 @@ i_uiLayoutItem::~i_uiLayoutItem()
 {
     uiObjBody_.loitemDeleted();
 }
+
 
 void i_LayoutItem::invalidate() 
 { 
@@ -96,7 +97,7 @@ void i_LayoutItem::commitGeometrySet( bool store2prefpos )
 }
 
 
-void i_LayoutItem::initLayout( layoutMode lom, int mngrTop, int mngrLeft )
+void i_LayoutItem::initLayout( LayoutMode lom, int mngrTop, int mngrLeft )
 {
     uiRect& mPos = curpos( lom );
     int pref_h_nr_pics =0;
@@ -189,61 +190,62 @@ void i_LayoutItem::initLayout( layoutMode lom, int mngrTop, int mngrLeft )
 
 #ifdef __debug__
 
-int i_LayoutItem::isPosOk( uiConstraint* c, int i, bool chkNrIters )
+int i_LayoutItem::isPosOk( uiConstraint* constraint, int iter, bool chknriters )
 {
-    if ( chkNrIters )	{ if ( i < MAX_ITER )	return i; }
-    else		{ if ( i <= 2000 )	return i; }
+    if ( (chknriters && iter<MAX_ITER) || iter <= 2000 )
+	return iter;
 
-    if ( c->enabled() ) 
+    if ( constraint->enabled() ) 
     {
 	BufferString msg;
-	if ( chkNrIters )
+	if ( chknriters )
 	    msg = "\n  Too many iterations with: \"";
 	else
 	    msg = "\n  Layout loop on: \"";
-	msg+= objLayouted() ? (const char*)objLayouted()->name() : "UNKNOWN";
-	msg+= "\"";
+	msg += objLayouted() ? (const char*)objLayouted()->name() : "UNKNOWN";
+	msg += "\"";
 
-	switch ( c->type )
+	switch ( constraint->type_ )
 	{
-	    case leftOf: 		msg+= " leftOf "; break;
-	    case rightOf:		msg+= " rightOf "; break;
-	    case leftTo:		msg+= " leftTo "; break;
-	    case rightTo:		msg+= " rightTo "; break;
-	    case leftAlignedBelow:	msg+= " leftAlignedBelow "; break;
-	    case leftAlignedAbove:	msg+= " leftAlignedAbove "; break;
-	    case rightAlignedBelow:	msg+= " rightAlignedBelow "; break;
-	    case rightAlignedAbove:	msg+= " rightAlignedAbove "; break;
-	    case alignedBelow:		msg+= " alignedBelow "; break;
-	    case alignedAbove:		msg+= " alignedAbove "; break;
-	    case centeredBelow:		msg+= " centeredBelow "; break;
-	    case centeredAbove:		msg+= " centeredAbove "; break;
-	    case ensureLeftOf:		msg+= " ensureLeftOf "; break;
-	    case ensureRightOf:		msg+= " ensureRightOf "; break;
-	    case ensureBelow:		msg+= " ensureBelow "; break;
-	    case leftBorder:		msg+= " leftBorder "; break;
-	    case rightBorder:		msg+= " rightBorder "; break;
-	    case topBorder:		msg+= " topBorder "; break;
-	    case bottomBorder:		msg+= " bottomBorder "; break;
-	    case heightSameAs: 		msg+= " heightSameAs "; break;
-	    case widthSameAs:		msg+= " widthSameAs "; break;
-	    case stretchedBelow:	msg+= " stretchedBelow "; break;
-	    case stretchedAbove:	msg+= " stretchedAbove "; break;
-	    case stretchedLeftTo:	msg+= " stretchedLeftTo "; break;
-	    case stretchedRightTo:	msg+= " stretchedRightTo "; break;
-	    default:		 	msg+= " .. "; break;
+	    case leftOf: 		msg += " leftOf "; break;
+	    case rightOf:		msg += " rightOf "; break;
+	    case leftTo:		msg += " leftTo "; break;
+	    case rightTo:		msg += " rightTo "; break;
+	    case leftAlignedBelow:	msg += " leftAlignedBelow "; break;
+	    case leftAlignedAbove:	msg += " leftAlignedAbove "; break;
+	    case rightAlignedBelow:	msg += " rightAlignedBelow "; break;
+	    case rightAlignedAbove:	msg += " rightAlignedAbove "; break;
+	    case alignedBelow:		msg += " alignedBelow "; break;
+	    case alignedAbove:		msg += " alignedAbove "; break;
+	    case centeredBelow:		msg += " centeredBelow "; break;
+	    case centeredAbove:		msg += " centeredAbove "; break;
+	    case ensureLeftOf:		msg += " ensureLeftOf "; break;
+	    case ensureRightOf:		msg += " ensureRightOf "; break;
+	    case ensureBelow:		msg += " ensureBelow "; break;
+	    case leftBorder:		msg += " leftBorder "; break;
+	    case rightBorder:		msg += " rightBorder "; break;
+	    case topBorder:		msg += " topBorder "; break;
+	    case bottomBorder:		msg += " bottomBorder "; break;
+	    case heightSameAs: 		msg += " heightSameAs "; break;
+	    case widthSameAs:		msg += " widthSameAs "; break;
+	    case stretchedBelow:	msg += " stretchedBelow "; break;
+	    case stretchedAbove:	msg += " stretchedAbove "; break;
+	    case stretchedLeftTo:	msg += " stretchedLeftTo "; break;
+	    case stretchedRightTo:	msg += " stretchedRightTo "; break;
+	    default:		 	msg += " .. "; break;
 	}
 
-	msg+= "\"";
-	msg+= c->other && c->other->objLayouted() ? 
-		    (const char*)c->other->objLayouted()->name() : "UNKNOWN";
-	msg+= "\"";
+	msg += "\"";
+	msg += constraint->other_ && constraint->other_->objLayouted()
+	    ? (const char*)constraint->other_->objLayouted()->name()
+	    : "UNKNOWN";
+	msg += "\"";
 	pErrMsg( msg );
 
-	c->disable();
+	constraint->disable( true );
     }
 
-    return i;
+    return iter;
 }
 
 
@@ -258,14 +260,14 @@ int i_LayoutItem::isPosOk( uiConstraint* c, int i, bool chkNrIters )
 #endif
 
 
-#define mHorSpacing (constr->margin >= 0 ? constr->margin : mngr_.horSpacing())
-#define mVerSpacing (constr->margin >= 0 ? constr->margin : mngr_.verSpacing())
+#define mHorSpacing (constr->margin_ >= 0 ? constr->margin_ : mngr_.horSpacing())
+#define mVerSpacing (constr->margin_ >= 0 ? constr->margin_ : mngr_.verSpacing())
 
-#define mFullStretch() (constr->margin < -1)
-#define mInsideBorder  (constr->margin > mngr_.borderSpace() \
-			 ? constr->margin - mngr_.borderSpace() : 0)
+#define mFullStretch() (constr->margin_ < -1)
+#define mInsideBorder  (constr->margin_ > mngr_.borderSpace() \
+			 ? constr->margin_ - mngr_.borderSpace() : 0)
 
-bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
+bool i_LayoutItem::layout( LayoutMode lom, const int iternr, bool finalloop )
 {
     bool updated = false;
     uiRect& mPos = curpos(lom);
@@ -274,9 +276,9 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
     {
 	uiConstraint* constr = &constrList[idx];
 	const uiRect& otherPos 
-		= constr->other ? constr->other->curpos(lom) : curpos(lom);
+		= constr->other_ ? constr->other_->curpos(lom) : curpos(lom);
 
-	switch ( constr->type )
+	switch ( constr->type_ )
 	{
 	case rightOf:
 	case rightTo:
@@ -344,7 +346,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	case alignedWith:
 	{ 
 	    int malign = horAlign( lom );
-	    int othalign = constr->other->horAlign( lom );
+	    int othalign = constr->other_->horAlign( lom );
 
 	    if ( malign < 0 || othalign < 0 ) break;
 
@@ -360,7 +362,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated();
 
 	    int malign = horAlign( lom );
-	    int othalign = constr->other->horAlign( lom );
+	    int othalign = constr->other_->horAlign( lom );
 
 	    if ( malign < 0 || othalign < 0 ) break;
 
@@ -373,7 +375,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	case alignedAbove:
 	{ 
 	    int malign = horAlign( lom );
-	    int othalign = constr->other->horAlign( lom );
+	    int othalign = constr->other_->horAlign( lom );
 
 	    if ( malign < 0 || othalign < 0 ) break;
 
@@ -388,9 +390,9 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	    if ( mPos.topToAtLeast( mCP(otherPos.bottom() + mVerSpacing)))
 		mUpdated(); 
 
-	    if ( centre(lom) > 0 && constr->other->centre(lom) > 0 &&
+	    if ( centre(lom) > 0 && constr->other_->centre(lom) > 0 &&
 		mPos.leftToAtLeast( mCP(mPos.left() 
-				    + constr->other->centre(lom) 
+				    + constr->other_->centre(lom) 
 				    - centre(lom)) 
 				  )
 	      ) 
@@ -399,9 +401,9 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	}
 	case centeredAbove: 
 	{
-	    if ( centre(lom) > 0 && constr->other->centre(lom) > 0 &&
+	    if ( centre(lom) > 0 && constr->other_->centre(lom) > 0 &&
 		mPos.leftToAtLeast( mCP(mPos.left() 
-				    + constr->other->centre(lom) 
+				    + constr->other_->centre(lom) 
 				    - centre(lom)) 
 				  )
 	      ) 
@@ -415,9 +417,9 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated(); 
 
 	    if ( centre(lom,false) > 0 &&
-		 constr->other->centre(lom,false) > 0 &&
+		 constr->other_->centre(lom,false) > 0 &&
 		 mPos.topToAtLeast( mCP(mPos.top() 
-				    + constr->other->centre(lom,false) 
+				    + constr->other_->centre(lom,false) 
 				    - centre(lom,false)) 
 				  )
 	      ) 
@@ -431,9 +433,9 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 		mUpdated(); 
 
 	    if ( centre(lom,false) > 0 &&
-		 constr->other->centre(lom,false) > 0 &&
+		 constr->other_->centre(lom,false) > 0 &&
 		 mPos.topToAtLeast( mCP(mPos.top() 
-				    + constr->other->centre(lom,false) 
+				    + constr->other_->centre(lom,false) 
 				    - centre(lom,false)) 
 				  )
 	      ) 
@@ -444,7 +446,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 
 	case hCentered: 
 	{
-	    if ( finalLoop )
+	    if ( finalloop )
 	    {
 		int mngrcentre = ( mngr().curpos(lom).left()
 				     + mngr().curpos(lom).right() ) / 2;
@@ -477,7 +479,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	}
 	case leftBorder:
 	{
-	    if ( finalLoop )
+	    if ( finalloop )
 	    {
 		int nwLeft = mngr().curpos(lom).left() + mInsideBorder;
 		if ( mPos.left() != nwLeft )
@@ -490,7 +492,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	}
 	case rightBorder:
 	{
-	    if ( finalLoop )
+	    if ( finalloop )
 	    {
 		int nwRight = mngr().curpos(lom).right() - mInsideBorder;
 		if ( mPos.right() != nwRight )
@@ -503,7 +505,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	}
 	case topBorder:
 	{
-	    if ( finalLoop )
+	    if ( finalloop )
 	    {
 		int nwTop = mngr().curpos(lom).top() + mInsideBorder;
 		if ( mPos.top() != nwTop )
@@ -516,7 +518,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	}
 	case bottomBorder:
 	{
-	    if ( finalLoop )
+	    if ( finalloop )
 	    {
 		int nwBottom = mngr().curpos(lom).bottom()- mInsideBorder;
 		if ( mPos.bottom() != nwBottom )
@@ -550,7 +552,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	    int nwLeft = mFullStretch() ? mngr().winpos(lom).left() 
 					: mngr().curpos(lom).left();
 
-	    if ( finalLoop && mPos.left() != nwLeft )
+	    if ( finalloop && mPos.left() != nwLeft )
 	    {
 		mPos.leftTo( mCP(nwLeft));
 		mUpdated();
@@ -559,7 +561,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	    int nwWidth = mFullStretch() ? mngr().winpos(lom).hNrPics() 
 					: mngr().curpos(lom).hNrPics();
 
-	    if ( finalLoop &&  mPos.hNrPics() < nwWidth )
+	    if ( finalloop &&  mPos.hNrPics() < nwWidth )
 	    {
 		mPos.setHNrPics( nwWidth );
 		mUpdated();
@@ -573,7 +575,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	{
 	    int nwLeft = mFullStretch() ? mngr().winpos(lom).left() 
 					: mngr().curpos(lom).left();
-	    if ( finalLoop && mPos.left() != nwLeft )
+	    if ( finalloop && mPos.left() != nwLeft )
 	    {
 		mPos.leftTo( mCP(nwLeft));
 		mUpdated();
@@ -582,7 +584,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	    int nwWidth = mFullStretch() ? mngr().winpos(lom).hNrPics() 
 					: mngr().curpos(lom).hNrPics();
 
-	    if ( finalLoop &&  mPos.hNrPics() < nwWidth )
+	    if ( finalloop &&  mPos.hNrPics() < nwWidth )
 	    {
 		mPos.setHNrPics( nwWidth );
 		mUpdated();
@@ -594,7 +596,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	{
 	    int nwTop = mFullStretch() ? mngr().winpos(lom).top() 
 					: mngr().curpos(lom).top();
-	    if ( finalLoop && mPos.top() != nwTop )
+	    if ( finalloop && mPos.top() != nwTop )
 	    {
 		mPos.topTo( mCP(nwTop));
 		mUpdated();
@@ -602,7 +604,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 
 	    int nwHeight = mFullStretch() ? mngr().winpos(lom).vNrPics() 
 					  : mngr().curpos(lom).vNrPics();
-	    if ( finalLoop && mPos.vNrPics() < nwHeight )
+	    if ( finalloop && mPos.vNrPics() < nwHeight )
 	    {
 		mPos.setVNrPics( nwHeight );
 		mUpdated();
@@ -614,7 +616,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 	{
 	    int nwTop = mFullStretch() ? mngr().winpos(lom).top() 
 					: mngr().curpos(lom).top();
-	    if ( finalLoop && mPos.top() != nwTop )
+	    if ( finalloop && mPos.top() != nwTop )
 	    {
 		mPos.topTo( mCP(nwTop));
 		mUpdated();
@@ -622,7 +624,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 
 	    int nwHeight = mFullStretch() ? mngr().winpos(lom).vNrPics() 
 					  : mngr().curpos(lom).vNrPics();
-	    if ( finalLoop && mPos.vNrPics() < nwHeight )
+	    if ( finalloop && mPos.vNrPics() < nwHeight )
 	    {
 		mPos.setVNrPics( nwHeight );
 		mUpdated();
@@ -648,7 +650,7 @@ bool i_LayoutItem::layout( layoutMode lom, const int iternr, bool finalLoop )
 }
 
 
-void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other, 
+void i_LayoutItem::attach ( constraintType type, i_LayoutItem* other, 
 			    int margn, bool reciprocal )
 {
     if ( type != ensureLeftOf)
@@ -762,17 +764,14 @@ void i_LayoutItem::attach ( constraintType type, i_LayoutItem *other,
 }
 
 
-#ifdef __debug__
 bool i_LayoutItem::isAligned() const
 {
-    for ( int idx=0; idx < constrList.size(); idx++ )
+    for ( int idx=0; idx<constrList.size(); idx++ )
     { 
-	constraintType tp = constrList[idx].type;
+	constraintType tp = constrList[idx].type_;
 	if ( tp >= alignedWith && tp <= centeredAbove )
 	    return true; 
     }
 
     return false;
 }
-#endif
-

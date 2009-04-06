@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigroup.cc,v 1.62 2009-03-23 05:08:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigroup.cc,v 1.63 2009-04-06 07:40:27 cvsnanne Exp $";
 
 #include "uigroup.h"
 #include "uiobjbody.h"
@@ -33,12 +33,12 @@ public:
 					     uiGroupObjBody& obj, 
 					     uiGroupParentBody& par );
 
-    virtual int		horAlign(layoutMode) const;
-    virtual int		centre(layoutMode, bool hor) const;
+    virtual int		horAlign(LayoutMode) const;
+    virtual int		centre(LayoutMode, bool hor) const;
 
     virtual void	invalidate();
-    virtual void	updatedAlignment(layoutMode);
-    virtual void	initChildLayout(layoutMode);
+    virtual void	updatedAlignment(LayoutMode);
+    virtual void	initChildLayout(LayoutMode);
 
 protected:
 
@@ -124,11 +124,11 @@ public:
     void		setIsMain( bool yn ) 
 			    { if( loMngr ) loMngr->setIsMain( yn ); }
 
-    void		updatedAlignment(layoutMode m )
+    void		updatedAlignment(LayoutMode m )
 			    { if( loMngr ) loMngr->updatedAlignment(m); }
 
 
-    void		layoutChildren(layoutMode m )
+    void		layoutChildren(LayoutMode m )
 			    { if( loMngr ) loMngr->layoutChildren(m); }
 
     uiGroup&		handle_;
@@ -358,14 +358,14 @@ void i_uiGroupLayoutItem::invalidate()
 }
 
 
-void i_uiGroupLayoutItem::updatedAlignment( layoutMode m )
+void i_uiGroupLayoutItem::updatedAlignment( LayoutMode m )
 { 
     horalign[m]=-1;
     grpprntbody.updatedAlignment(m);
 }
 
 
-void i_uiGroupLayoutItem::initChildLayout( layoutMode m )
+void i_uiGroupLayoutItem::initChildLayout( LayoutMode m )
 { 
      if( loMngr() ) loMngr()->initChildLayout(m); 
 }
@@ -374,7 +374,7 @@ void i_uiGroupLayoutItem::initChildLayout( layoutMode m )
 i_LayoutMngr* i_uiGroupLayoutItem::loMngr() 
     { return grpprntbody.loMngr; } 
 
-int i_uiGroupLayoutItem::horAlign( layoutMode m ) const 
+int i_uiGroupLayoutItem::horAlign( LayoutMode m ) const 
 {
     int myleft = curpos(m).left();
 
@@ -404,7 +404,7 @@ int i_uiGroupLayoutItem::horAlign( layoutMode m ) const
 }
 
 
-int i_uiGroupLayoutItem::centre(layoutMode m, bool hor) const 
+int i_uiGroupLayoutItem::centre(LayoutMode m, bool hor) const 
 {
     if( !hor ) return ( curpos(m).top() + curpos(m).bottom() ) / 2; 
 

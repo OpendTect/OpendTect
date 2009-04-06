@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.h,v 1.40 2009-01-09 03:45:14 cvsnanne Exp $
+ RCS:           $Id: i_layout.h,v 1.41 2009-04-06 07:40:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,45 +29,10 @@ enum stretchLimitTp { left=1, right=2, above=4, below=8,
                       rightLimit=16, bottomLimit=32 };
 
 
-class uiConstraint
-{
-friend class i_LayoutItem;
-public:
-
-			uiConstraint ( constraintType t, i_LayoutItem* o,
-				       int marg )
-			: other(o), type(t), margin( marg ), enabled_( true )
-			{
-			    if( !other &&
-				((type < leftBorder)||( type > hCentered))
-			    )
-				{ pErrMsg("No attachment defined!!"); }
-			}
-
-    inline bool		operator ==( const uiConstraint& oth ) const
-			{ return type == oth.type
-				&& other == oth.other
-				&& margin == oth.margin
-				&& enabled_ == oth.enabled_;
-			}
-    inline bool		operator !=( const uiConstraint& oth ) const
-			{ return !(*this == oth); }
-
-    bool		enabled()		{ return enabled_ ; }
-    void		disable(bool yn=true)	{ enabled_ = !yn; }
-
-protected:
-    constraintType      type;
-    i_LayoutItem*       other;
-    int                 margin;
-    bool		enabled_;
-};
-
-
 typedef TypeSet<uiConstraint> constraintList;
 class i_LayoutItem;
 
-enum layoutMode { minimum=0, preferred=1, setGeom=2, all=3 };
+enum LayoutMode { minimum=0, preferred=1, setGeom=2, all=3 };
        // all is used for setting cached positions dirty
 const int nLayoutMode = 3;
 
@@ -108,70 +73,69 @@ class i_LayoutMngr : public QLayout, public NamedObject
     friend class	uiGroupParentBody;
 
 public:
-
-			i_LayoutMngr( QWidget* prnt,
-				      const char* name, uiObjectBody& mngbdy );
+			i_LayoutMngr(QWidget* prnt,
+				     const char* name,uiObjectBody& mngbdy);
 
     virtual		~i_LayoutMngr();
  
-    virtual void 	addItem( QLayoutItem*);
-    void	 	addItem( i_LayoutItem* );
+    virtual void 	addItem(QLayoutItem*);
+    void	 	addItem(i_LayoutItem*);
 
     virtual QSize 	sizeHint() const;
     virtual QSize 	minimumSize() const;
 
-    virtual QLayoutItem* itemAt( int idx ) const;
+    virtual QLayoutItem* itemAt(int idx) const;
     virtual QLayoutItem* takeAt(int idx);
     virtual int		 count() const;
 
     virtual void       	invalidate();
-    virtual void       	updatedAlignment(layoutMode);
-    virtual void       	initChildLayout(layoutMode);
+    virtual void       	updatedAlignment(LayoutMode);
+    virtual void       	initChildLayout(LayoutMode);
 
-    bool 		attach ( constraintType, QWidget&, QWidget*, int,
-				 bool reciprocal=true );
+    bool 		attach(constraintType,QWidget&,QWidget*,int,
+			       bool reciprocal=true);
 
-    const uiRect&	curpos(layoutMode m) const;
-    uiRect&		curpos(layoutMode m);
-    uiRect		winpos(layoutMode m) const;
+    const uiRect&	curpos(LayoutMode) const;
+    uiRect&		curpos(LayoutMode);
+    uiRect		winpos(LayoutMode) const;
 
-    void		forceChildrenRedraw( uiObjectBody*, bool deep );
-    void		childrenClear( uiObject* );
-    bool		isChild( uiObject* );
+    void		forceChildrenRedraw(uiObjectBody*,bool deep);
+    void		childrenClear(uiObject*);
+    bool		isChild(uiObject*);
 
-    int                 childStretch( bool hor ) const;
+    int                 childStretch(bool hor) const;
 
     int			borderSpace() const	{ return borderspc; }
     int			horSpacing() const;
     int			verSpacing() const	{ return vspacing; }
 
-    void		setHSpacing( int s)	{ hspacing = s; }
-    void		setVSpacing( int s)	{ vspacing = s; }
-    void		setBorderSpace( int s)	{ borderspc = s; }
+    void		setHSpacing(int s)	{ hspacing = s; }
+    void		setVSpacing(int s)	{ vspacing = s; }
+    void		setBorderSpace(int s)	{ borderspc = s; }
 
     void		setIsMain( bool yn )	    { ismain = yn; }
-    void 		layoutChildren( layoutMode m, bool finalLoop=false );
+    void 		layoutChildren(LayoutMode,bool finalLoop=false);
 
 private:
 
     void 		setGeometry( const QRect& );
  
-    inline void 	doLayout( layoutMode m, const QRect& r ) const 
+    inline void 	doLayout( LayoutMode m, const QRect& r ) const 
                         { const_cast<i_LayoutMngr*>(this)->doLayout(m,r); }
-    void 		doLayout( layoutMode m, const QRect& );
+    void 		doLayout( LayoutMode m, const QRect& );
 
     void	 	itemDel( CallBacker* );
 
-    void 		moveChildrenTo( int , int, layoutMode );
+    void 		moveChildrenTo( int , int, LayoutMode );
     void 		fillResizeList( ObjectSet<resizeItem>&, bool ); 
     bool		tryToGrowItem( resizeItem&, const int, const int, 
 				       int, int, const QRect&, int);
     void		resizeTo( const QRect& );
     void		childrenCommitGeometrySet(bool);
 
-    uiRect 		childrenRect( layoutMode m );
+    uiRect 		childrenRect(LayoutMode);
 
-    ObjectSet<i_LayoutItem> childrenList;
+    ObjectSet<i_LayoutItem> childrenlist;
 
     uiRect		layoutpos[ nLayoutMode ];
     QRect		prefGeometry;
