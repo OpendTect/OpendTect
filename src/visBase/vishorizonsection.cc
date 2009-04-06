@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.5 2009-04-01 07:41:47 cvsranojay Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.6 2009-04-06 22:22:24 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -176,7 +176,7 @@ void HorizonSection::updateGeometry()
 
     if ( !tiles_.setSize(nrrowtiles,nrcoltiles) )
 	return;
-
+/*
     while ( wireframelines_->size() )
 	wireframelines_->removePoint( 0 );
 
@@ -190,6 +190,7 @@ void HorizonSection::updateGeometry()
 	    geometry_->getKnot(RowCol(rrg.stop,crg.start),false) );
     wireframelines_->addPoint( 
 	    geometry_->getKnot(RowCol(rrg.start,crg.start),false) );
+*/
 
     for ( int row=0; row<nrrowtiles; row++ )
     {
@@ -214,6 +215,9 @@ void HorizonSection::updateGeometry()
 		}
 	    }
 
+	    for ( int idx=0; idx<9; idx++ )
+		tile->setNeighbor( idx, 0 );
+
 	    tile->setResolution( 5 );
 	    tiles_.set( row, col, tile );
 	    addChild( tile->root_ );
@@ -232,19 +236,27 @@ void HorizonSection::updateGeometry()
 		    const int c = col+j;
 		    char pos;
 		    if ( j==-1 )
-			pos = i==-1 ? 0 : (!i ? 1 : 2);
+			pos = i==-1 ? 0 : (!i ? 3 : 6);
 		    else if ( j==0 )
-			pos = i==-1 ? 3 : (!i ? 4 : 5);
+			pos = i==-1 ? 1 : (!i ? 4 : 7);
 		    else
-			pos = i==-1 ? 6 : (!i ? 7 : 8);
+			pos = i==-1 ? 2 : (!i ? 5 : 8);
 
-		    if ( (!r && !c) || (r<0 || r>=nrrowtiles) ||
-		         (c<0 || c>=nrcoltiles) ) 
-			tiles_.get(row,col)->setNeighbor( pos, 0 );
-		    else
-			tiles_.get(row,col)->setNeighbor(pos,tiles_.get(r,c));
+		    if ( ( (!r && !c) || (r<0 || r>=nrrowtiles) ||
+		         (c<0 || c>=nrcoltiles) ) )
+			continue;
+
+		    tiles_.get(row,col)->setNeighbor(pos,tiles_.get(r,c));
 		}
 	    }
+	}
+    }
+    
+    for ( int row=0; row<nrrowtiles; row++ )
+    {
+	for ( int col=0; col<nrcoltiles; col++ )
+	{
+	    tiles_.get(row,col)->updateGlue();
 	}
     }
 }
@@ -267,10 +279,7 @@ void HorizonSection::updateResolution( SoState* state )
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
     {
 	if ( tileptrs[idx] )
-	{
 	    tileptrs[idx]->updateResolution( state );
-    	    tileptrs[idx]->updateGlue(); 
-	}
     }
 }
 
@@ -293,6 +302,11 @@ void HorizonSection::setResolution( char res )
     {
 	if ( tileptrs[idx] ) 
 	    tileptrs[idx]->setResolution( res );
+    }
+    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
+    {
+	if ( tileptrs[idx] ) 
+	    tileptrs[idx]->updateGlue();
     }
 }
 
@@ -375,9 +389,8 @@ void HorizonSectionTile::updateResolution( SoState* st )
     if ( !st ) return;
 
     const int curres = getActualResolution();
-    const int autores = getAutoResolution( st );
     if ( curres==-1 || curres>=mHorizonSectionNrRes )
-    	setActualResolution( autores );
+    	setActualResolution( getAutoResolution(st) );
 }
 
 
@@ -429,7 +442,7 @@ void HorizonSectionTile::tesselateResolution( int res )
 {
     if ( res==-1 || !needsretesselation_[res] ) return;
 
-    const int resstep = intpow( 2, res ); //Nr of blocks between two points.
+    const int resstep = (int)pow( 2, res ); //Nr of blocks between two points.
     const int nrsideblocks = mHorizonSectionSideSize/resstep + 
 	(mHorizonSectionSideSize%resstep ? 0 : -1);
 
@@ -444,19 +457,17 @@ void HorizonSectionTile::tesselateResolution( int res )
     int stripidx = 0;
     int lineidx = 0;
     int pointidx = 0;
-    TypeSet<int> stripindices;
-    TypeSet<int> stripsizes;
      
     for ( int ridx=0; ridx<=nrsideblocks; ridx++ )
     {
 	chainlength = 0; 
-	stripindices.erase();
-	stripsizes.erase();
+    	TypeSet<int> stripindices;
+    	TypeSet<int> stripsizes;
 	for ( int cidx=0; cidx<=nrsideblocks; cidx++ )
 	{
-	    const int crdidx0 = resstep*(cidx+ridx*mHorizonSectionSideSize);
+	    const int crdidx0 = resstep*(cidx+ridx*(1+mHorizonSectionSideSize));
 	    const bool defpos0 = coords_->getPos(crdidx0).isDefined();
-	    const int crdidx1 = crdidx0+mHorizonSectionSideSize*resstep;
+	    const int crdidx1 = crdidx0+(1+mHorizonSectionSideSize)*resstep;
 
 	    if ( defpos0 )
 	    {
@@ -502,51 +513,10 @@ void HorizonSectionTile::tesselateResolution( int res )
 	if ( !stripsizes.size() )
 	    stripsizes += chainlength;
 
-	int sum = 0;
-	for ( int idx=0; idx<stripsizes.size(); idx++ )
-	{
-	    if ( stripsizes[idx]>2 )
-	    {
-		for ( int s=0; s<stripsizes[idx]; s++ )
-		{
-		    triangles_[res]->textureCoordIndex.set1Value(
-			    stripidx, stripidx ); 
-	    	    triangles_[res]->coordIndex.set1Value( 
-			    stripidx, stripindices[sum+s]  ); 
-		    stripidx++;
-		}
-		
-		triangles_[res]->textureCoordIndex.set1Value( stripidx, -1 ); 
-		triangles_[res]->coordIndex.set1Value( stripidx, -1 ); 
-		stripidx++;
-	    }	
-	    else if ( stripsizes[idx]==2 )
-	    {
-		lines_[res]->textureCoordIndex.set1Value( lineidx, lineidx );
-		lines_[res]->coordIndex.set1Value(lineidx,stripindices[sum]);
-		lineidx++;
-
-		lines_[res]->textureCoordIndex.set1Value( lineidx, lineidx );
-		lines_[res]->coordIndex.set1Value(lineidx,stripindices[sum+1]);
-		lineidx++;
-	    
-		lines_[res]->textureCoordIndex.set1Value( lineidx, -1 );
-    		lines_[res]->coordIndex.set1Value( lineidx, -1 );
-    		lineidx++;
-	    }
-	    else
-	    {
-		/*
-		points_[res]->textureCoordIndex.set1Value(pointidx,pointidx);
-		points_[res]->coordIndex.set1Value(pointidx,stripindices[sum]);
-		pointidx++;
-		*/
-	    }
-	    
-	    sum += stripsizes[idx];
-	}
+	setCoordIndices( *triangles_[res], *lines_[res], *points_[res],
+		stripidx, lineidx, pointidx, stripsizes, stripindices );
     }
-
+    
     triangles_[res]->textureCoordIndex.deleteValues( stripidx, -1 );
     triangles_[res]->coordIndex.deleteValues( stripidx, -1 ); 
     lines_[res]->textureCoordIndex.deleteValues( lineidx, -1 );
@@ -555,7 +525,58 @@ void HorizonSectionTile::tesselateResolution( int res )
    // points_[res]->coordIndex.set1Value( pointidx, -1 );
     
     needsretesselation_[res] = false;
-    tesselateGlue();	
+    glueneedsretesselation_ = true;
+}
+
+
+void HorizonSectionTile::setCoordIndices( SoIndexedTriangleStripSet& triangles,
+	SoIndexedLineSet& lines, SoIndexedPointSet& points, 
+	int& stripidx, int& lineidx, int& pointidx, 
+	const TypeSet<int>& stripsizes, const TypeSet<int>& stripindices )
+{
+    int sum = 0;
+    for ( int idx=0; idx<stripsizes.size(); idx++ )
+    {
+	if ( stripsizes[idx]>2 )
+	{
+	    for ( int s=0; s<stripsizes[idx]; s++ )
+	    {
+		triangles.textureCoordIndex.set1Value( stripidx, stripidx ); 
+		triangles.coordIndex.set1Value( stripidx,stripindices[sum+s] ); 
+		stripidx++;
+	    }
+	    
+	    triangles.textureCoordIndex.set1Value( stripidx, -1 ); 
+	    triangles.coordIndex.set1Value( stripidx, -1 ); 
+	    stripidx++;
+	}	
+	else if ( stripsizes[idx]==2 )
+	{
+	    /*
+	    lines.textureCoordIndex.set1Value( lineidx, lineidx );
+	    lines.coordIndex.set1Value( lineidx, stripindices[sum] );
+	    lineidx++;
+
+	    lines.textureCoordIndex.set1Value( lineidx, lineidx );
+	    lines.coordIndex.set1Value( lineidx, stripindices[sum+1] );
+	    lineidx++;
+	
+	    lines.textureCoordIndex.set1Value( lineidx, -1 );
+	    lines.coordIndex.set1Value( lineidx, -1 );
+	    lineidx++;
+	    */
+	}
+	else
+	{
+	    /*
+	    points.textureCoordIndex.set1Value( pointidx, pointidx );
+	    points.coordIndex.set1Value( pointidx, stripindices[sum] );
+	    pointidx++;
+	    */
+	}
+	
+	sum += stripsizes[idx];
+    }
 }
 
 
@@ -565,34 +586,207 @@ void HorizonSectionTile::setNeighbor( int nbidx, HorizonSectionTile* nb )
 	return;
 
     neighbors_[nbidx] = nb;
-    neighborresolutions_[nbidx] = nb ? nb->getActualResolution() : -1;
 }
 
 
 void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 {
-    if ( row<0 || row>=mHorizonSectionSideSize || 
-	 col<0 || col>=mHorizonSectionSideSize )
+    if ( row<0 || row>mHorizonSectionSideSize || 
+	 col<0 || col>mHorizonSectionSideSize )
 	return;
 
     const int res = getActualResolution();  
     if ( !needsretesselation_[res] && res>-1 && res<mHorizonSectionNrRes )
     {
-	const int resstep = intpow( 2, res );
+	const int resstep = (int)pow( 2, res );
 	if ( (row % resstep) && (col % resstep) )
     	    needsretesselation_[res] = true;
     }
 
-    coords_->setPos( row*mHorizonSectionSideSize+col, pos );
+    coords_->setPos( row*(mHorizonSectionSideSize+1)+col, pos );
 }
 
 
 void HorizonSectionTile::updateGlue()
 {
-    if ( glueneedsretesselation_ )
+    //if ( glueneedsretesselation_ )
 	tesselateGlue();
 }
 
+
+#define mMakeDefaultConnection( startidx, stopidx ) \
+{ \
+    for ( int idx=startidx; idx<=stopidx; idx++ ) \
+    { \
+	const bool def0 = coords_->getPos(edgeindices[idx]).isDefined(); \
+	const int shift = \
+	(idx<=nrsideblocks ? gluesz : (1+mHorizonSectionSideSize)*gluesz); \
+	if ( def0 ) \
+	{ \
+	    if ( ( (idx<=nrsideblocks && idx) || idx>nrsideblocks+1 ) && \
+		    !coords_->getPos(edgeindices[idx-1]+shift).isDefined() && \
+		    coords_->getPos(edgeindices[idx-1]).isDefined() ) \
+	    { \
+		stripindices += edgeindices[idx-1]; \
+		chainlength = 1; \
+	    } \
+	    stripindices += edgeindices[idx]; \
+	    chainlength++; \
+	} \
+	else if ( chainlength )  \
+	{ \
+	    stripsizes += chainlength; \
+	    chainlength = 0; \
+	} \
+	if ( coords_->getPos(shift+edgeindices[idx]).isDefined() ) \
+	{ \
+	    if ( !def0 && ((idx<=nrsideblocks && idx) || idx>nrsideblocks+1) \
+		    && coords_->getPos(edgeindices[idx-1]+shift).isDefined() )\
+	    { \
+		stripindices += edgeindices[idx-1]+shift; \
+		chainlength = 1; \
+	    } \
+	    stripindices += edgeindices[idx]+shift; \
+	    chainlength++; \
+	} \
+	else if ( chainlength ) \
+	{ \
+	    stripsizes += chainlength; \
+	    chainlength = 0; \
+	} \
+	if ( idx==nrsideblocks && chainlength && idx>startidx ) \
+	{ \
+	    stripsizes += chainlength; \
+	    chainlength = 0; \
+	} \
+    } \
+    if ( chainlength ) \
+    { \
+	stripsizes += chainlength; \
+	chainlength = 0; \
+    } \
+}
+
+
+#define mSetConnection( nbnr ) \
+{ \
+    const int startidx = nbnr==5 ? 0 : nrsideblocks+1; \
+    const int diff = nrsideblocks - nrsideblocks##nbnr; \
+    if ( firstdfidx##nbnr==-1 ) \
+    { \
+	mMakeDefaultConnection( startidx, startidx+nrsideblocks ); \
+    } \
+    else \
+    { \
+	int nrconnected = 0; \
+	int lastdefidx = -1; \
+	for ( int idx=startidx; idx<=startidx+nrsideblocks; idx++ ) \
+	{ \
+	    if ( coords_->getPos(edgeindices[idx]).isDefined() ) \
+	    { \
+		stripindices += edgeindices[idx]; \
+		nrconnected++; \
+		chainlength++; \
+		lastdefidx = edgeindices[idx]; \
+		if ( nrconnected%2 ) \
+		{ \
+		    stripindices += nbindices##nbnr[firstdfidx##nbnr]; \
+		    chainlength++; \
+		} \
+	    } \
+	    else if ( chainlength )  \
+	    { \
+		stripsizes += chainlength; \
+		chainlength = 0; \
+		nrconnected = 0; \
+	    } \
+	} \
+	if ( chainlength ) \
+	{ \
+	    stripsizes += chainlength; \
+	    chainlength = 0; \
+	} \
+	nrconnected = 0; \
+	for ( int idx=firstdfidx##nbnr; idx<nbindices##nbnr.size(); idx++ ) \
+	{ \
+	    if ( coords_->getPos(nbindices##nbnr[idx]).isDefined() ) \
+	    { \
+		stripindices += nbindices##nbnr[idx]; \
+		nrconnected++; \
+		chainlength++; \
+		if ( nrconnected%2 ) \
+		{ \
+		    stripindices += lastdefidx; \
+		    chainlength++; \
+		} \
+	    } \
+	    else if ( chainlength )  \
+	    { \
+		stripsizes += chainlength; \
+		chainlength = 0; \
+		nrconnected = 0; \
+	    } \
+	} \
+    } \
+}
+
+
+#define mMakeConnection( nb ) \
+{ \
+    const bool finer = nrsideblocks > nrsideblocks##nb; \
+    const int nrconns = finer ? (nrsideblocks+1)/(nrsideblocks##nb+1) \
+    			      : (nrsideblocks##nb+1)/(nrsideblocks+1); \
+    const int startidx = finer ? (nb==5 ? 0 : nrsideblocks+1) : 0; \
+    const int stopidx = finer ? (nb==5 ? nrsideblocks : 2*nrsideblocks+1) \
+    			      : nrsideblocks##nb; \
+    const int coarsesz = finer ? nbindices##nb.size() : edgeindices.size();\
+    int curidx = finer ? 0 : (nb==5 ? 0 : nrsideblocks+1); \
+    int skipped = 0; \
+    int i0, i1, i2; \
+    bool c0, c1, c2; \
+    for ( int idx=startidx; idx<stopidx; idx++ ) \
+    { \
+	i0 = finer ? edgeindices[idx] : edgeindices[curidx]; \
+	i1 = finer ? nbindices##nb[curidx] : nbindices##nb[idx]; \
+	i2 = finer ? edgeindices[idx+1] : nbindices##nb[idx+1]; \
+	c0 = coords_->getPos( i0 ).isDefined(); \
+	c1 = coords_->getPos( i1 ).isDefined(); \
+	c2 = coords_->getPos( i2 ).isDefined(); \
+	if ( c0 ) stripindices += i0; \
+	if ( c1 ) stripindices += i1; \
+	if ( c2 ) stripindices += i2; \
+	if ( c0 || c1 || c2 ) stripsizes += (c0 + c1 + c2); \
+	skipped++; \
+	if ( !(skipped%nrconns) ) \
+	{ \
+	    if ( curidx+1<coarsesz ) \
+	    { \
+		curidx++; \
+		i0 = finer ? edgeindices[idx+1] : edgeindices[curidx-1]; \
+		i1 = finer ? nbindices##nb[curidx-1] : nbindices##nb[idx+1]; \
+		i2 = finer ? nbindices##nb[curidx] : edgeindices[curidx]; \
+		c0 = coords_->getPos( i0 ).isDefined(); \
+		c1 = coords_->getPos( i1 ).isDefined(); \
+		c2 = coords_->getPos( i2 ).isDefined(); \
+		if ( c0 ) stripindices += i0; \
+		if ( c1 ) stripindices += i1; \
+		if ( c2 ) stripindices += i2; \
+		if ( c0 || c1 || c2 ) stripsizes += (c0 + c1 + c2); \
+	    } \
+	    skipped = 0; \
+	} \
+    } \
+    i0 = finer ? edgeindices[stopidx] : nbindices##nb[stopidx]; \
+    i1 = finer ? nbindices##nb[curidx] : edgeindices[curidx]; \
+    i2 = skipnr+nrsideblocks*resstep; \
+    c0 = coords_->getPos( i0 ).isDefined(); \
+    c1 = coords_->getPos( i1 ).isDefined(); \
+    c2 = coords_->getPos( i2 ).isDefined(); \
+    if ( c0 ) stripindices += i0; \
+    if ( c1 ) stripindices += i1; \
+    if ( c2 ) stripindices += i2; \
+    if ( c0 || c1 || c2 ) stripsizes += (c0 + c1 + c2); \
+}
 
 void HorizonSectionTile::tesselateGlue()
 {
@@ -606,22 +800,175 @@ void HorizonSectionTile::tesselateGlue()
     //gluepoints_->textureCoordIndex.deleteValues( 0, -1 );
     //gluepoints_->coordIndex.deleteValues( 0, -1 );
 
-    const int resstep = intpow( 2, getActualResolution() );
-    const int skipidxsz = mHorizonSectionSideSize*resstep;
+    const int resstep = (int)pow( 2, getActualResolution() );
     const int nrsideblocks = mHorizonSectionSideSize/resstep + 
 	(mHorizonSectionSideSize%resstep ? 0 : -1);
-    const int gluesz = mHorizonSectionSideSize-resstep*nrsideblocks;
+    const int gluesz = mHorizonSectionSideSize - resstep*nrsideblocks;
+    
+    //Get all knots to be connected.
+    /*	       !---------->My knot indices	
+      	*......0.....
+	.      1    nb5	
+	.      2    .
+	4.5.6..3.....
+	.      .    .	
+	.      .    .  --Last col: Neighbor 5 indices
+	...nb7.......  --Last row: Neighbor 7 indices
+     */
 
+    TypeSet<int> edgeindices; 
+    const int startcolidx = resstep*nrsideblocks;
+    for ( int ridx=0; ridx<=nrsideblocks; ridx++ )
+	edgeindices += startcolidx+ridx*(mHorizonSectionSideSize+1)*resstep;
 
-    int knot = 0;
-    for ( int nbidx=0; nbidx<9; nbidx++ )
+    const int startrowidx = (mHorizonSectionSideSize+1)*resstep*nrsideblocks;
+    for ( int cidx=0; cidx<=nrsideblocks; cidx++ )
+	edgeindices += startrowidx+cidx*resstep;
+
+    const int nbstep5 = 
+	(int)pow(2, neighbors_[5] ? neighbors_[5]->getActualResolution() : -1);
+    const int nrsideblocks5 = (!neighbors_[5] || !nbstep5) ? -1 : 
+    mHorizonSectionSideSize/nbstep5+(mHorizonSectionSideSize%nbstep5 ? 0 : -1);
+    TypeSet<int> nbindices5;
+    int firstdfidx5 = -1;
+    for ( int idx=0; idx<=nrsideblocks5; idx++ )
     {
-	if ( nbidx==4 || !neighbors_[nbidx] )
-	    continue;
+	nbindices5 += (1+idx*nbstep5)*mHorizonSectionSideSize+idx*nbstep5; 
+	if ( firstdfidx5==-1 && coords_->getPos(nbindices5[idx]).isDefined() )
+	    firstdfidx5 = idx;
+    }
+
+    const int nbstep7 = 
+	(int)pow(2, neighbors_[7] ? neighbors_[7]->getActualResolution() : -1);
+    const int nrsideblocks7 = (!neighbors_[7] || !nbstep7) ? -1 :
+    mHorizonSectionSideSize/nbstep7+(mHorizonSectionSideSize%nbstep7 ? 0 : -1);
+    const int skipnr = (mHorizonSectionSideSize+1)*mHorizonSectionSideSize;
+    int firstdfidx7 = -1;
+    TypeSet<int> nbindices7;
+    for ( int idx=0; idx<=nrsideblocks7; idx++ )
+    {
+	nbindices7 += skipnr + idx*nbstep7;
+	if ( firstdfidx7==-1 && coords_->getPos(nbindices7[idx]).isDefined() )
+	    firstdfidx7 = idx;
+    }
+
+    int chainlength = 0;
+    int stripidx = 0;
+    int lineidx = 0;
+    int pointidx = 0;
+    TypeSet<int> stripindices;
+    TypeSet<int> stripsizes;
+
+    /*Get strip indices chain for the glue. */
+    if ( !neighbors_[5] && !neighbors_[7] || 
+	 (resstep==nbstep5 && resstep==nbstep7) ||
+         (!neighbors_[5] && (resstep==nbstep7 || firstdfidx7==-1)) ||
+         (!neighbors_[7] && (resstep==nbstep5 || firstdfidx5==-1)) ||
+	 (firstdfidx7==-1 && firstdfidx5==-1) )
+    {
+	mMakeDefaultConnection( 0, 2*nrsideblocks+1 );
+    }
+    else if ( !neighbors_[5] )
+    {
+	mMakeDefaultConnection( 0, nrsideblocks );
+	mMakeConnection( 7 );
+	/*
+	const bool finer = nrsideblocks > nrsideblocks7;
+    	const int nrconns = finer ? (nrsideblocks+1)/(nrsideblocks7+1) 
+	    			   : (nrsideblocks7+1)/(nrsideblocks+1);
+	const int startidx = finer ? nrsideblocks+1 : 0;
+	const int stopidx = finer ? 2*nrsideblocks+1 : nrsideblocks7;
+	const int coarsesz = finer ? nbindices7.size() : edgeindices.size();
+
+	int curidx = finer ? 0 : nrsideblocks+1;
+	int skipped = 0;
+	for ( int idx=startidx; idx<stopidx; idx++ )
+	{
+	    int i0 = finer ? edgeindices[idx] : edgeindices[curidx];
+	    int i1 = finer ? nbindices7[curidx] : nbindices7[idx];
+	    int i2 = finer ? edgeindices[idx+1] : nbindices7[idx+1];
+
+	    bool c0 = coords_->getPos( i0 ).isDefined();
+	    bool c1 = coords_->getPos( i1 ).isDefined();
+	    bool c2 = coords_->getPos( i2 ).isDefined();
+
+	    if ( c0 )
+		stripindices += i0;
+	    
+	    if ( c1 )
+		stripindices += i1;
+
+	    if ( c2 )
+		stripindices += i2;
+
+	    char nrdefined = c0 + c1 + c2;
+	    if ( nrdefined )
+		stripsizes += nrdefined;
+
+	    skipped++;
+	    if ( !(skipped%nrconns) )
+	    {
+		if ( curidx+1<coarsesz )
+		{
+		    curidx++;
+
+		    int j0 = finer ? edgeindices[idx+1] : edgeindices[curidx-1];
+		    int j1 = finer ? nbindices7[curidx-1] : nbindices7[idx+1];
+		    int j2 = finer ?  nbindices7[curidx] : edgeindices[curidx];
+		    bool d0 = coords_->getPos( j0 ).isDefined();
+		    bool d1 = coords_->getPos( j1 ).isDefined();
+		    bool d2 = coords_->getPos( j2 ).isDefined();
+		    if ( d0 )
+			stripindices += j0;
+		    
+		    if ( d1 )
+			stripindices += j1;
+
+		    if ( d2 )
+			stripindices += j2;
+
+		    char nrdefined = d0 + d1 + d2;
+		    if ( nrdefined )
+			stripsizes += nrdefined;
+		}
+
+		skipped = 0;
+	    }
+	}
+
+	int n0 = finer ? edgeindices[stopidx] : nbindices7[stopidx];
+	int n1 = finer ? nbindices7[curidx] : edgeindices[curidx];
+	bool cn0 = coords_->getPos( n0 ).isDefined();
+	bool cn1 = coords_->getPos( n1 ).isDefined();
+	bool cn2 = coords_->getPos(skipnr+nrsideblocks*resstep).isDefined();
+	if ( cn0 )
+	    stripindices += n0;
+	if ( cn1 )
+	    stripindices += n1;
+	if ( cn2 )
+	    stripindices += skipnr+nrsideblocks*resstep;
+	if ( cn0 || cn1 || cn2 )
+	    stripsizes += cn0 + cn1 + cn2;*/
+    }
+    else if ( !neighbors_[7] )
+    {
+	mMakeDefaultConnection( nrsideblocks+1, 2*nrsideblocks+1 );
+	mMakeConnection( 5 );
+    }
+    else
+    {
+	mMakeConnection( 5 );
+	mMakeConnection( 7 );
     }
     
-    gluetriangles_->textureCoordIndex.deleteValues( knot, -1 );
-    gluetriangles_->coordIndex.deleteValues( knot, -1 );
+    setCoordIndices( *gluetriangles_, *gluelines_, *gluepoints_,
+	    stripidx, lineidx, pointidx, stripsizes, stripindices );
+    gluetriangles_->textureCoordIndex.deleteValues( stripidx, -1 );
+    gluetriangles_->coordIndex.deleteValues( stripidx, -1 );
+    gluelines_->textureCoordIndex.deleteValues( lineidx, -1 );
+    gluelines_->coordIndex.deleteValues( lineidx, -1 );
+    //gluepoints_->textureCoordIndex.deleteValues( pointidx, -1 );
+    //gluepoints_->coordIndex.deleteValues( pointidx, -1 );
 }
 
 

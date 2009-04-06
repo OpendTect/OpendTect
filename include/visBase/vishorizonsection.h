@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.4 2009-03-31 16:42:27 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.5 2009-04-06 22:22:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -102,9 +102,14 @@ protected:
     int				getAutoResolution(SoState*);
     void			tesselateGlue();
     void			tesselateResolution(int);
+    void			setCoordIndices(SoIndexedTriangleStripSet& tri,
+	    					SoIndexedLineSet& lines, 
+						SoIndexedPointSet& points,
+			    			int& idx0,int& idx1,int& idx2,
+	    					const TypeSet<int>& stripsizes,
+						const TypeSet<int>& indices);
 
     HorizonSectionTile*		neighbors_[9];
-    int				neighborresolutions_[9];
 
     SoLockableSeparator*	root_;
     visBase::Coordinates*	coords_;
