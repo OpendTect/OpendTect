@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.10 2009-02-04 16:48:00 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.11 2009-04-06 12:21:11 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.10 2009-02-04 16:48:
 #include "prestackprocessortransl.h"
 #include "uibutton.h"
 #include "uiioobjsel.h"
+#include "uiicons.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -72,16 +73,15 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 	    mCB(this,uiProcessorManager,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
-    loadbutton_ = new uiPushButton( this, "Load",
+    loadbutton_ = new uiPushButton( this, "Load", Icons::openObject(),
 	    mCB(this, uiProcessorManager,loadCB), false );
     loadbutton_->attach( alignedBelow, factorylist_ );
     
-    savebutton_ = new uiPushButton( this, "Save", 
+    savebutton_ = new uiPushButton( this, "Save", Icons::save(),
 	    mCB(this, uiProcessorManager,saveCB), true );
     savebutton_->attach( rightOf, loadbutton_ );
-    savebutton_->setSensitive( false );
 
-    saveasbutton_ = new uiPushButton( this, "Save as",
+    saveasbutton_ = new uiPushButton( this, "Save as", Icons::saveAs(),
 	    mCB(this, uiProcessorManager,saveAsCB), false );
     saveasbutton_->attach( rightOf, savebutton_ );
 
@@ -99,8 +99,6 @@ bool uiProcessorManager::restore()
 void uiProcessorManager::setLastMid( const MultiID& mid )
 {
     lastmid_ = mid;
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-    savebutton_->setSensitive( ioobj );
 }
 
 
@@ -141,6 +139,7 @@ void uiProcessorManager::updateButtons()
 	    hasPropDialog(processorsel) );
 
     saveasbutton_->setSensitive( manager_.nrProcessors() );
+    savebutton_->setSensitive( changed_ );
 }
 
 
@@ -167,6 +166,7 @@ void uiProcessorManager::showPropDialog( int idx )
 	change.trigger();
 	manager_.notifyChange();
 	changed_ = true;
+	updateButtons();
     }
 	
 }
@@ -213,9 +213,9 @@ void uiProcessorManager::addProcessorCB( CallBacker* )
     manager_.addProcessor( proc );
     updateList();
     processorlist_->selectAll(false);
-    updateButtons();
     change.trigger();
     changed_ = true;
+    updateButtons();
 }
 
 
@@ -228,9 +228,9 @@ void uiProcessorManager::removeProcessorCB( CallBacker* )
     updateList();
     processorlist_->selectAll(false);
 
-    updateButtons();
     change.trigger();
     changed_ = true;
+    updateButtons();
 }
 
 
@@ -243,9 +243,9 @@ void uiProcessorManager::moveUpCB( CallBacker* )
     updateList();
     processorlist_->setSelected( idx-1, true );
 
-    updateButtons();
     change.trigger();
     changed_ = true;
+    updateButtons();
 }
 
 
@@ -258,9 +258,9 @@ void uiProcessorManager::moveDownCB( CallBacker* )
     manager_.swapProcessors( idx, idx+1 );
     updateList();
     processorlist_->setSelected( idx+1, true );
-    updateButtons();
     change.trigger();
     changed_ = true;
+    updateButtons();
 }
 
 
@@ -289,12 +289,12 @@ void uiProcessorManager::loadCB( CallBacker* )
 	    updateList();
 	    updateButtons();
 	    lastmid_ = dlg.ioObj()->key();
-	    savebutton_->setSensitive( true );
 	}
     }
 
     delete selcontext.ioobj;
     changed_ = false;
+    updateButtons();
 }
 
 
@@ -319,7 +319,6 @@ bool uiProcessorManager::doSaveAs()
 	if ( doSave( *dlg.ioObj() ) )
 	{
 	    lastmid_ = dlg.ioObj()->key();
-	    savebutton_->setSensitive( true );
 	    delete selcontext.ioobj;
 	    return true;
 	}
@@ -341,11 +340,11 @@ void uiProcessorManager::saveCB( CallBacker* )
     PtrMan<IOObj> ioobj = IOM().get( lastmid_ );
     if ( !ioobj )
     {
-	uiMSG().error("No name selected");
-	return;
+	if ( !doSaveAs() )
+	    uiMSG().error( "Could not save setup");
     }
-
-    doSave( *ioobj );
+    else
+	doSave( *ioobj );
 }
 
 
@@ -359,6 +358,7 @@ bool uiProcessorManager::doSave( const IOObj& ioobj )
     }
 
     changed_ = false;
+    updateButtons();
     return true;
 }
 
