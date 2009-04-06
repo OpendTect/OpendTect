@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.94 2009-03-16 10:39:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.95 2009-04-06 05:40:58 cvsraman Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -48,6 +48,12 @@ BatchProgram& BP()
     if ( !BatchProgram::inst_ )
 	BatchProgram::inst_ = new BatchProgram;
     return *BatchProgram::inst_;
+}
+
+
+void BatchProgram::deleteInstance()
+{
+    delete BatchProgram::inst_;
 }
 
 
@@ -221,7 +227,7 @@ BatchProgram::~BatchProgram()
     // Do an explicit exitProgram() here, so we are sure the program
     // is indeed ended and we won't get stuck while cleaning up things
     // that we don't care about.
-    ExitProgram( stillok );
+    ExitProgram( stillok ? 0 : 1 );
 
     // These will never be reached...
     delete iopar;
