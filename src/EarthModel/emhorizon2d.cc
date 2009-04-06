@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon2d.cc,v 1.26 2009-03-25 07:01:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emhorizon2d.cc,v 1.27 2009-04-06 08:14:11 cvssatyaki Exp $";
 
 #include "emhorizon2d.h"
 
@@ -259,10 +259,11 @@ void Horizon2DGeometry::fillPar( IOPar& par ) const
 	BufferString linesetkey = sKeyLineSets();
 	linesetkey += idx;
 	par.set( linesetkey.buf(), linesets_[idx] );
-	const Geometry::Horizon2DLine* geom = sectionGeometry( sectionID(0) );
+	Geometry::Horizon2DLine geom = *sectionGeometry( sectionID(0) );
+	geom.trimUndefParts();
 	BufferString trcrangekey = sKeyTraceRange();
 	trcrangekey += idx;
-	par.set( trcrangekey, geom->colRange(lineID(idx)) );
+	par.set( trcrangekey, geom.colRange(lineID(idx)) );
     }
 }
 
