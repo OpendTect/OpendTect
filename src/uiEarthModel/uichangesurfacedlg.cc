@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.28 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.29 2009-04-06 08:16:47 cvsnanne Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -52,18 +52,15 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
 	inputfld_ = new uiIOObjSel( this, *ctioin_, "Input Horizon" );
     }
 
-    if ( !horizon_ )
-    {
-	savefld_ = new uiGenInput( this, "Save interpolated horizon",
-				   BoolInpSpec(false,"As new","Overwrite") );
-	savefld_->valuechanged.notify( mCB(this,uiChangeSurfaceDlg,saveCB) );
+    savefld_ = new uiGenInput( this, "Save interpolated horizon",
+			       BoolInpSpec(true,"As new","Overwrite") );
+    savefld_->valuechanged.notify( mCB(this,uiChangeSurfaceDlg,saveCB) );
 
-	ctioout_ = mMkCtxtIOObj( EMHorizon3D );
-	ctioout_->ctxt.forread = false;
-	outputfld_ = new uiIOObjSel( this, *ctioout_, "Output Horizon" );
-	outputfld_->attach( alignedBelow, savefld_ );
-	saveCB(0);
-    }
+    ctioout_ = mMkCtxtIOObj( EMHorizon3D );
+    ctioout_->ctxt.forread = false;
+    outputfld_ = new uiIOObjSel( this, *ctioout_, "Output Horizon" );
+    outputfld_->attach( alignedBelow, savefld_ );
+    saveCB(0);
 
     if ( horizon_ ) horizon_->ref();
 }
