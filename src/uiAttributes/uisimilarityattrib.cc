@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.23 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uisimilarityattrib.cc,v 1.24 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uisimilarityattrib.h"
 #include "similarityattrib.h"
@@ -57,7 +59,7 @@ static const char* outpstrsext[] =
 	0
 };
 
-mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp)
+mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp())
 
 
 uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
@@ -207,10 +209,10 @@ bool uiSimilarityAttrib::getOutput( Attrib::Desc& desc )
 
 void uiSimilarityAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr, Similarity::gateStr() );
+    params += EvalParam( timegatestr(), Similarity::gateStr() );
 
     if ( !strcmp(extstrs3d[3],extfld->text()) )
-	params += EvalParam( stepoutstr, Similarity::stepoutStr() );
+	params += EvalParam( stepoutstr(), Similarity::stepoutStr() );
     else
 	params += EvalParam( "Trace positions", Similarity::pos0Str(),
 			     Similarity::pos1Str() );

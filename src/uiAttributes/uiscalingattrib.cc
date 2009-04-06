@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.22 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uiscalingattrib.cc,v 1.23 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uiscalingattrib.h"
 #include "scalingattrib.h"
@@ -47,7 +49,7 @@ static const char* scalingtypestr[] =
     0
 };
 
-mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp)
+mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp())
 
 
 uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )

@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitutorialattrib.cc,v 1.9 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uitutorialattrib.cc,v 1.10 2009-04-06 09:33:26 cvsranojay Exp $";
+
 
 #include "uitutorialattrib.h"
 #include "tutorialattrib.h"
@@ -34,7 +36,7 @@ static const char* actionstr[] =
 };
 
 
-mInitAttribUI(uiTutorialAttrib,Tutorial,"Tutorial",sKeyBasicGrp)
+mInitAttribUI(uiTutorialAttrib,Tutorial,"Tutorial",sKeyBasicGrp())
 
 
 uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )

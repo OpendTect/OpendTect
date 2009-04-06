@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.14 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.15 2009-04-06 09:34:09 cvsranojay Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -31,7 +31,7 @@ using namespace Attrib;
 static const char* sDefHorOut[] = { "Z", "Surface Data", 0 };
 static const char* sDefHorNoSurfdtOut[] = { "Z", 0 };
 
-mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp)
+mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
 
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )

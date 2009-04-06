@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipositionattrib.cc,v 1.14 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uipositionattrib.cc,v 1.15 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uipositionattrib.h"
 #include "positionattrib.h"
@@ -30,7 +32,7 @@ static const char* opstrs[] =
 	0
 };
 
-mInitAttribUI(uiPositionAttrib,Position,"Position",sKeyPositionGrp)
+mInitAttribUI(uiPositionAttrib,Position,"Position",sKeyPositionGrp())
 
 
 uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
@@ -111,6 +113,6 @@ bool uiPositionAttrib::getInput( Desc& desc )
 
 void uiPositionAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr, Position::gateStr() );
-    params += EvalParam( stepoutstr, Position::stepoutStr() );
+    params += EvalParam( timegatestr(), Position::gateStr() );
+    params += EvalParam( stepoutstr(), Position::stepoutStr() );
 }

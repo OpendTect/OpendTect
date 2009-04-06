@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.17 2009-02-25 10:56:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.18 2009-04-06 09:32:24 cvsranojay Exp $";
 
 
 #include "uiprestackattrib.h"
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: uiprestackattrib.cc,v 1.17 2009-02-25 10:56:01 
 #include "uilabel.h"
 
 
-mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp)
+mInitAttribUI(uiPreStackAttrib,Attrib::PSAttrib,"PreStack",sKeyBasicGrp())
 
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )

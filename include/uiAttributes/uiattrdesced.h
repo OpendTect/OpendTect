@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.27 2009-03-20 08:35:00 cvssatyaki Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.28 2009-04-06 09:30:10 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,10 +107,10 @@ public:
 
     static const char*	getInputAttribName(uiAttrSel*,const Desc&);
 
-    static const char*	timegatestr;
-    static const char*	frequencystr;
-    static const char*	stepoutstr;
-    static const char*	filterszstr;
+    static const char*	timegatestr();
+    static const char*	frequencystr();
+    static const char*	stepoutstr();
+    static const char*	filterszstr();
 
 protected:
 
@@ -153,13 +153,17 @@ protected:
     DescSet*		ads_;
     bool		is2d_;
 
-    static const char*	sKeyOtherGrp;
-    static const char*	sKeyBasicGrp;
-    static const char*	sKeyFilterGrp;
-    static const char*	sKeyFreqGrp;
-    static const char*	sKeyPatternGrp;
-    static const char*	sKeyStatsGrp;
-    static const char*	sKeyPositionGrp;
+
+    static const char*	sKeyOtherGrp();
+    static const char*	sKeyBasicGrp();
+    static const char*	sKeyFilterGrp();
+    static const char*	sKeyFreqGrp();
+    static const char*	sKeyPatternGrp();
+    static const char*	sKeyStatsGrp();
+    static const char*	sKeyPositionGrp();
+    static const char*	sKeyDipGrp();
+
+  
 
 private:
 

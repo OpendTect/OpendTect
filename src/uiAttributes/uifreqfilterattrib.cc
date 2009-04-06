@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uifreqfilterattrib.cc,v 1.21 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uifreqfilterattrib.h"
 #include "freqfilterattrib.h"
@@ -32,7 +34,7 @@ static const char* typestrs[] =
 };
 
 
-mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp)
+mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp())
 
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )

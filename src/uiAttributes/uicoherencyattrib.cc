@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoherencyattrib.cc,v 1.21 2009-04-06 09:32:24 cvsranojay Exp $";
 
 #include "uicoherencyattrib.h"
 #include "coherencyattrib.h"
@@ -25,7 +25,7 @@ static const char* sKeyDeltaDip = "Delta dip";
 static const char* sKeyMaxDip = "Maximum dip";
 
 
-mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp)
+mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp())
 
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
@@ -136,7 +136,7 @@ bool uiCoherencyAttrib::getInput( Desc& desc )
 
 void uiCoherencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr, Coherency::sKeyGate() );
+    params += EvalParam( timegatestr(), Coherency::sKeyGate() );
     params += EvalParam( sKeyMaxDip, Coherency::sKeyMaxDip() );
     params += EvalParam( sKeyDeltaDip, Coherency::sKeyDDip() );
 }

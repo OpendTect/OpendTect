@@ -7,7 +7,10 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uieventattrib.cc,v 1.14 2009-03-31 10:01:39 cvshelene Exp $";
+
+static const char* rcsID = "$Id: uieventattrib.cc,v 1.15 2009-04-06 09:32:24 cvsranojay Exp $";
+
+
 
 #include "uieventattrib.h"
 #include "eventattrib.h"
@@ -43,7 +46,7 @@ static const char* outpstrs[] =
 };
 
 
-mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp)
+mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp())
 
 
 uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )

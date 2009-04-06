@@ -7,7 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.22 2009-04-03 14:59:02 cvshelene Exp $";
+
+static const char* rcsID = "$Id: uivolstatsattrib.cc,v 1.23 2009-04-06 09:32:24 cvsranojay Exp $";
+
+
 
 #include "uivolstatsattrib.h"
 #include "volstatsattrib.h"
@@ -46,7 +49,7 @@ static const char* shapestrs[] =
 };
 
 mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
-	      sKeyStatsGrp)
+	      sKeyStatsGrp())
 
 
 uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
@@ -186,8 +189,8 @@ bool uiVolumeStatisticsAttrib::getOutput( Desc& desc )
 
 void uiVolumeStatisticsAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr, VolStats::gateStr() );
-    params += EvalParam( stepoutstr, VolStats::stepoutStr() );
+    params += EvalParam( timegatestr(), VolStats::gateStr() );
+    params += EvalParam( stepoutstr(), VolStats::stepoutStr() );
 }
 
 

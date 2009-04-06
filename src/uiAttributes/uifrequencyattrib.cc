@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifrequencyattrib.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uifrequencyattrib.cc,v 1.21 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uifrequencyattrib.h"
 #include "frequencyattrib.h"
@@ -35,7 +37,7 @@ static const char* outpstrs[] =
 };
 
 
-mInitAttribUI(uiFrequencyAttrib,Frequency,"Frequency",sKeyFreqGrp)
+mInitAttribUI(uiFrequencyAttrib,Frequency,"Frequency",sKeyFreqGrp())
 
 
 uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
@@ -127,7 +129,7 @@ bool uiFrequencyAttrib::getOutput( Attrib::Desc& desc )
 
 void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( timegatestr, Frequency::gateStr() );
+    params += EvalParam( timegatestr(), Frequency::gateStr() );
 }
 
 

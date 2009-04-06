@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uishiftattrib.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uishiftattrib.cc,v 1.21 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uishiftattrib.h"
 #include "shiftattrib.h"
@@ -23,7 +25,7 @@ static const char* rcsID = "$Id: uishiftattrib.cc,v 1.20 2009-02-24 14:08:23 cvs
 using namespace Attrib;
 
 
-mInitAttribUI(uiShiftAttrib,Shift,"Reference shift",sKeyPositionGrp)
+mInitAttribUI(uiShiftAttrib,Shift,"Reference shift",sKeyPositionGrp())
 
 uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.13")
@@ -109,5 +111,5 @@ void uiShiftAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     BufferString str = zIsTime() ? "Time" : "Depth"; str += " shift";
     params += EvalParam( str, Shift::timeStr() );
-    params += EvalParam( stepoutstr, Shift::posStr() );
+    params += EvalParam( stepoutstr(), Shift::posStr() );
 }

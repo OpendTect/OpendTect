@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorattribpi.cc,v 1.14 2009-02-26 11:27:07 cvsraman Exp $";
+static const char* rcsID = "$Id: uihorattribpi.cc,v 1.15 2009-04-06 09:34:09 cvsranojay Exp $";
 
 #include "uihorizonattrib.h"
 #include "uicontourtreeitem.h"
@@ -30,13 +30,13 @@ static const char* rcsID = "$Id: uihorattribpi.cc,v 1.14 2009-02-26 11:27:07 cvs
 
 static const char* sKeyContours = "Contours";
 
-extern "C" int GetuiHorizonAttribPluginType()
+mExternC int GetuiHorizonAttribPluginType()
 {
     return PI_AUTO_INIT_LATE;
 }
 
 
-extern "C" PluginInfo* GetuiHorizonAttribPluginInfo()
+mExternC PluginInfo* GetuiHorizonAttribPluginInfo()
 {
     static PluginInfo retpi = {
 	"Horizon-Attribute",
@@ -186,7 +186,7 @@ void uiHorAttribPIMgr::doContours( CallBacker* cb )
 }
 
 
-extern "C" const char* InituiHorizonAttribPlugin( int, char** )
+mExternC const char* InituiHorizonAttribPlugin( int, char** )
 {
     uiHorizonAttrib::initClass();
     static uiHorAttribPIMgr* mgr = 0; if ( mgr ) return 0;

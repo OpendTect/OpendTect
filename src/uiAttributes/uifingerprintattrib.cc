@@ -7,7 +7,9 @@ ________________________________________________________________________
 
 ________________________________________________________________________
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.55 2009-04-03 13:24:55 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.56 2009-04-06 09:32:24 cvsranojay Exp $";
+
 -*/
 
 #include "uifingerprintattrib.h"
@@ -71,7 +73,7 @@ static const char* statstrs[] =
 	0
 };
 
-mInitAttribUI(uiFingerPrintAttrib,FingerPrint,"FingerPrint",sKeyPatternGrp)
+mInitAttribUI(uiFingerPrintAttrib,FingerPrint,"FingerPrint",sKeyPatternGrp())
 
 
 class uiFPAdvancedDlg: public uiDialog

@@ -7,7 +7,8 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimathattrib.cc,v 1.27 2009-03-03 13:00:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uimathattrib.cc,v 1.28 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uimathattrib.h"
 #include "mathattrib.h"
@@ -26,7 +27,7 @@ static const char* rcsID = "$Id: uimathattrib.cc,v 1.27 2009-03-03 13:00:50 cvsb
 
 using namespace Attrib;
 
-mInitAttribUI(uiMathAttrib,Attrib::Math,"Mathematics",sKeyBasicGrp)
+mInitAttribUI(uiMathAttrib,Attrib::Math,"Mathematics",sKeyBasicGrp())
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.9")

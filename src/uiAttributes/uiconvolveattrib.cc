@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.15 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiconvolveattrib.cc,v 1.16 2009-04-06 09:32:24 cvsranojay Exp $";
 
 #include "uiconvolveattrib.h"
 #include "convolveattrib.h"
@@ -61,7 +61,7 @@ static const char* outpstrs2d[] =
 };
 
 
-mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp)
+mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp())
 
 
 uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
@@ -202,5 +202,5 @@ bool uiConvolveAttrib::getOutput( Desc& desc )
 void uiConvolveAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     if ( kernelfld_->getIntValue() < 2 )
-	params += EvalParam( filterszstr, Convolve::sizeStr() );
+	params += EvalParam( filterszstr(), Convolve::sizeStr() );
 }

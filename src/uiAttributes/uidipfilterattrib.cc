@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.20 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uidipfilterattrib.cc,v 1.21 2009-04-06 09:32:24 cvsranojay Exp $";
 
 #include "uidipfilterattrib.h"
 #include "dipfilterattrib.h"
@@ -34,7 +34,7 @@ static const char* fltrstrs[] =
 	0
 };
 
-mInitAttribUI(uiDipFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp)
+mInitAttribUI(uiDipFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp())
 
 
 uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
@@ -159,5 +159,5 @@ bool uiDipFilterAttrib::getInput( Desc& desc )
 
 void uiDipFilterAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    params += EvalParam( filterszstr, DipFilter::sizeStr() );
+    params += EvalParam( filterszstr(), DipFilter::sizeStr() );
 }

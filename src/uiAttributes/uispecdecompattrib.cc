@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.22 2009-02-24 14:08:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uispecdecompattrib.cc,v 1.23 2009-04-06 09:32:24 cvsranojay Exp $";
 
 #include "uispecdecompattrib.h"
 #include "specdecompattrib.h"
@@ -28,7 +28,7 @@ using namespace Attrib;
 
 static float sDefaultFreqStep = 5;
 
-mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp)
+mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp())
 
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
@@ -209,7 +209,7 @@ void uiSpecDecompAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
     EvalParam ep( "Frequency" ); ep.evaloutput_ = true;
     params += ep;
     if ( typefld_->getBoolValue() )
-	params += EvalParam( timegatestr, SpecDecomp::gateStr() );
+	params += EvalParam( timegatestr(), SpecDecomp::gateStr() );
 }
 
 

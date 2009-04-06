@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.12 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uireferenceattrib.cc,v 1.13 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 
 #include "uireferenceattrib.h"
@@ -48,7 +50,7 @@ static const char* outpstrs2d[] =
 };
 
 
-mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp)
+mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp())
 
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )

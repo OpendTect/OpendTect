@@ -7,7 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.9 2009-02-24 14:08:23 cvsbert Exp $";
+
+static const char* rcsID = "$Id: uiinstantattrib.cc,v 1.10 2009-04-06 09:32:24 cvsranojay Exp $";
+
 
 #include "uiinstantattrib.h"
 #include "instantattrib.h"
@@ -38,7 +40,7 @@ const char* uiInstantaneousAttrib::outstrs[] =
 };
 
 
-mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",sKeyBasicGrp)
+mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",sKeyBasicGrp())
 
 
 uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )

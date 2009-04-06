@@ -7,7 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdesced.cc,v 1.30 2009-03-20 08:35:00 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattrdesced.cc,v 1.31 2009-04-06 09:32:24 cvsranojay Exp $";
+
+
+
 
 #include "uiattrdesced.h"
 #include "uiattribfactory.h"
@@ -25,18 +28,21 @@ static const char* rcsID = "$Id: uiattrdesced.cc,v 1.30 2009-03-20 08:35:00 cvss
 
 using namespace Attrib;
 
-const char* uiAttrDescEd::timegatestr = "Time gate";
-const char* uiAttrDescEd::stepoutstr = "Stepout";
-const char* uiAttrDescEd::frequencystr = "Frequency";
-const char* uiAttrDescEd::filterszstr = "Filter size";
 
-const char* uiAttrDescEd::sKeyOtherGrp = "Other";
-const char* uiAttrDescEd::sKeyBasicGrp = "Basic";
-const char* uiAttrDescEd::sKeyFilterGrp = "Filters";
-const char* uiAttrDescEd::sKeyFreqGrp = "Frequency";
-const char* uiAttrDescEd::sKeyPatternGrp = "Patterns";
-const char* uiAttrDescEd::sKeyStatsGrp = "Statistics";
-const char* uiAttrDescEd::sKeyPositionGrp = "Positions";
+const char* uiAttrDescEd::timegatestr()	    { return "Time gate"; }
+const char* uiAttrDescEd::stepoutstr()	    { return "Stepout"; }
+const char* uiAttrDescEd::frequencystr()    { return "Frequency"; }
+const char* uiAttrDescEd::filterszstr()	    { return "Filter size"; }
+
+const char* uiAttrDescEd::sKeyOtherGrp()	{ return "Other"; }
+const char* uiAttrDescEd::sKeyBasicGrp()	{ return "Basic"; }
+const char* uiAttrDescEd::sKeyFilterGrp()	{ return "Filters"; }
+const char* uiAttrDescEd::sKeyFreqGrp()		{ return "Frequency"; }
+const char* uiAttrDescEd::sKeyPatternGrp()	{ return "Patterns"; }
+const char* uiAttrDescEd::sKeyStatsGrp()	{ return "Statistics"; }
+const char* uiAttrDescEd::sKeyPositionGrp()	{ return "Positions"; }
+const char* uiAttrDescEd::sKeyDipGrp()		{ return "Dip"; }
+
 
 
 const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
