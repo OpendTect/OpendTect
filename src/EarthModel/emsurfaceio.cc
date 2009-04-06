@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.117 2009-03-31 11:51:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.118 2009-04-06 12:36:02 cvsjaap Exp $";
 
 #include "emsurfaceio.h"
 
@@ -703,6 +703,8 @@ int dgbSurfaceReader::nextStep()
     mDynamicCastGet(Fault3D*,flt3d,surface_);
     if ( flt3d )
     {
+	if ( !flt3d->sectionGeometry(sectionid) )
+	    createSection( sectionid );
 	flt3d->geometry().sectionGeometry( sectionid )->
 	    addUdfRow( currentRow(), firstcol, nrcols );
     }
@@ -710,6 +712,8 @@ int dgbSurfaceReader::nextStep()
     mDynamicCastGet(FaultStickSet*,emfss,surface_);
     if ( emfss )
     {
+	if ( !emfss->sectionGeometry(sectionid) )
+	    createSection( sectionid );
 	emfss->geometry().sectionGeometry( sectionid )->
 	    addUdfRow( currentRow(), firstcol, nrcols );
     }
@@ -717,6 +721,8 @@ int dgbSurfaceReader::nextStep()
     mDynamicCastGet(PolygonBody*,polygon,surface_);
     if ( polygon )
     {
+	if ( !polygon->sectionGeometry(sectionid) )
+	    createSection( sectionid );
 	polygon->geometry().sectionGeometry( sectionid )->
 	    addUdfPolygon( currentRow(), firstcol, nrcols );
     }
