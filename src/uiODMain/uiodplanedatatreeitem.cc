@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.28 2009-04-03 17:54:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.29 2009-04-06 13:32:49 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.28 2009-04-03 17:5
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
@@ -118,15 +119,20 @@ bool uiODPlaneDataTreeItem::init()
 
 	if ( type_ == Default )
 	{
+	    uiAttribPartServer* attrserv = applMgr()->attrServer();
 	    const char* keystr = SI().pars().find( sKey::DefCube );
-	    if ( keystr && *keystr )
+	    Attrib::DescID descid = attrserv->getStoredID( keystr, false );
+	    if ( descid.isValid() )
 	    {
-		uiAttribPartServer* attrserv = applMgr()->attrServer();
-		Attrib::DescID descid = attrserv->getStoredID( keystr, false );
 		Attrib::SelSpec as( 0, descid, false, "" );
 		as.setRefFromID( *attrserv->curDescSet(false) );
 		visserv_->setSelSpec( displayid_, 0, as );
 		visserv_->calculateAttrib( displayid_, 0, false );
+	    }
+	    else
+	    {
+		uiMSG().error( "No or no valid default volume found\n"
+				"An empty plane will be added" );
 	    }
 	}
     }
