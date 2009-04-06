@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsview.cc,v 1.1 2009-03-26 08:17:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsview.cc,v 1.2 2009-04-06 17:59:45 cvsnanne Exp $";
 
 
 #include "uigraphicsview.h"
@@ -16,18 +16,19 @@ static const char* rcsID = "$Id: uigraphicsview.cc,v 1.1 2009-03-26 08:17:42 cvs
 
 uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm, bool cansaveimage )
     : uiGraphicsViewBase(p,nm)
+    , enableimagesave_(cansaveimage)
 {
-    if ( cansaveimage )
-	scene_->ctrlPPressed.notify( mCB(this,uiGraphicsView,showSaveDialog) );
+    scene_->ctrlPPressed.notify( mCB(this,uiGraphicsView,saveImageCB) );
 }
 
 
-uiGraphicsView::~uiGraphicsView()
-{}
+void uiGraphicsView::enableImageSave()	{ enableimagesave_ = true; }
+void uiGraphicsView::disableImageSave()	{ enableimagesave_ = false; }
 
-
-void uiGraphicsView::showSaveDialog( CallBacker* )
+void uiGraphicsView::saveImageCB( CallBacker* )
 {
+    if ( !enableimagesave_ ) return;
+
     uiGraphicsSaveImageDlg dlg( parent(), scene_ );
     dlg.go();
 }
