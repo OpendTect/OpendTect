@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.35 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.36 2009-04-07 07:12:48 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -363,7 +363,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 
     uiGraphicsItemGroup* curitmgrp = isy2 ? y2markeritems_ : ymarkeritems_;
     curitmgrp->setVisible( true );
-    const MarkerStyle2D mst( MarkerStyle2D::Square, 1,
+    const MarkerStyle2D mst( MarkerStyle2D::Square, 3,
 			     isy2 ? setup_.y2col_ : setup_.ycol_ );
     for ( int idx=0; idx<ptlist.size(); idx++ )
     {
@@ -375,7 +375,7 @@ void uiFunctionDisplay::drawMarker( const TypeSet<uiPoint>& ptlist, bool isy2 )
 	}
 	else
 	{
-	    uiMarkerItem* markeritem = new uiMarkerItem( mst );
+	    uiMarkerItem* markeritem = new uiMarkerItem( mst, false );
 	    markeritem->setPos( ptlist[idx].x, ptlist[idx].y );
 	    markeritem->setPenColor( isy2 ? setup_.y2col_ : setup_.ycol_ );
 	    curitmgrp->add( markeritem );
