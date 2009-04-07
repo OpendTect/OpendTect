@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.6 2009-04-06 22:22:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.7 2009-04-07 06:10:46 cvsraman Exp $";
 
 #include "vishorizonsection.h"
 
@@ -860,7 +860,7 @@ void HorizonSectionTile::tesselateGlue()
     TypeSet<int> stripsizes;
 
     /*Get strip indices chain for the glue. */
-    if ( !neighbors_[5] && !neighbors_[7] || 
+    if ( (!neighbors_[5] && !neighbors_[7]) || 
 	 (resstep==nbstep5 && resstep==nbstep7) ||
          (!neighbors_[5] && (resstep==nbstep7 || firstdfidx7==-1)) ||
          (!neighbors_[7] && (resstep==nbstep5 || firstdfidx5==-1)) ||
