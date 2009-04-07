@@ -7,21 +7,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiicons.h,v 1.1 2009-04-04 10:57:29 cvskris Exp $
+ RCS:           $Id: uiicons.h,v 1.2 2009-04-07 06:27:13 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
 
 /*! Commonly used icons. */
+#include "commondefs.h"
 
 class ioPixmap;
 
 namespace Icons
 {
-    const ioPixmap&	save();
-    const ioPixmap&	saveAs();
-    const ioPixmap&	openObject();
-    const ioPixmap&	newObject();
+    mGlobal const ioPixmap&	save();
+    mGlobal const ioPixmap&	saveAs();
+    mGlobal const ioPixmap&	openObject();
+    mGlobal const ioPixmap&	newObject();
 };
 
 

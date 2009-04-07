@@ -7,11 +7,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uilayout.h,v 1.9 2009-04-06 07:40:28 cvsnanne Exp $
+ RCS:           $Id: uilayout.h,v 1.10 2009-04-07 06:27:13 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
-
+#include "commondefs.h"
 
 class i_LayoutItem;
 
@@ -34,7 +34,7 @@ enum constraintType
 };
 
 
-class uiConstraint
+mClass uiConstraint
 {
 friend class i_LayoutItem;
 public:
