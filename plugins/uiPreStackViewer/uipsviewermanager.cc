@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.44 2009-02-12 15:01:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uipsviewermanager.cc,v 1.45 2009-04-07 16:26:20 cvsdgb Exp $";
 
 #include "uipsviewermanager.h"
 
@@ -136,13 +136,13 @@ void uiViewer3DMgr::createMenuCB( CallBacker* cb )
 }
 
 
-static void setDlgPos( uiMainWin* win, int idx )
+static void setDlgPos( uiMainWin* mw, int idx )
 {
-    if ( !win ) return;
+    if ( !mw ) return;
     static uiMainWin::PopupArea puas[] =
 	{ uiMainWin::BottomRight, uiMainWin::BottomLeft,
 	     uiMainWin::TopRight, uiMainWin::TopLeft };
-    win->setPopupArea( puas[ idx % 4 ] );
+    mw->setPopupArea( puas[ idx % 4 ] );
 }
 
 
