@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.88 2009-04-07 08:36:16 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.89 2009-04-07 11:28:57 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -221,6 +221,7 @@ void EMObject::setBurstAlert( bool yn )
     if ( !burstalertcount_ )
     {
 	EMObjectCallbackData cbdata;
+	cbdata.flagfor2dviewer = !yn;
 	cbdata.event = EMObjectCallbackData::BurstAlert;
 	change.trigger( cbdata );
     }
