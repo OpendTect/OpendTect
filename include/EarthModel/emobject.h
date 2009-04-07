@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.82 2009-04-07 11:27:45 cvsumesh Exp $
+ RCS:		$Id: emobject.h,v 1.83 2009-04-07 16:14:15 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -125,6 +125,7 @@ public:
     const Color&		preferredColor() const;
     void			setPreferredColor(const Color&);
     void			setBurstAlert(bool yn);
+    bool			hasBurstAlert() const;
 
     virtual Coord3		getPos(const EM::PosID&) const;
     virtual Coord3		getPos(const EM::SectionID&,

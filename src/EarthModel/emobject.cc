@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.89 2009-04-07 11:28:57 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.90 2009-04-07 16:14:15 cvsjaap Exp $";
 
 #include "emobject.h"
 
@@ -227,6 +227,10 @@ void EMObject::setBurstAlert( bool yn )
     }
     if ( yn ) burstalertcount_++;
 }
+
+
+bool EMObject::hasBurstAlert() const
+{ return burstalertcount_>0; }
 
 
 bool EMObject::unSetPos(const PosID& pid, bool addtoundo )
