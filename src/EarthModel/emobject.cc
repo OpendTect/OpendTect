@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.86 2009-03-16 08:47:17 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.87 2009-04-07 06:17:20 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -178,10 +178,13 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 	EMM().undo().addEvent( undo, 0 );
     }
 
-    EMObjectCallbackData cbdata;
-    cbdata.event = EMObjectCallbackData::PositionChange;
-    cbdata.pid0 = pid;
-    change.trigger( cbdata );
+    if ( burstalertcount_ )
+    {
+	EMObjectCallbackData cbdata;
+	cbdata.event = EMObjectCallbackData::PositionChange;
+	cbdata.pid0 = pid;
+	change.trigger( cbdata );
+    }
 
     changed_ = true;
     return true;
