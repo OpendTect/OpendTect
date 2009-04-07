@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.4 2009-04-03 07:36:15 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.5 2009-04-07 04:21:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ HorizonPainter::~HorizonPainter()
 		mCB(this,HorizonPainter,horChangeCB) );
 	removeHorizon( 0 );
     }
+
+    EM::EMM().addRemove.remove( mCB(this,HorizonPainter,nrHorChangeCB) );
 }
 
 
