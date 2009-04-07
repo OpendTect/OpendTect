@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.14 2009-04-06 13:56:03 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.15 2009-04-07 07:04:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,10 +204,12 @@ protected:
 mClass uiMarkerItem : public uiGraphicsItem
 {
 public:
-    				uiMarkerItem();
-				uiMarkerItem(const MarkerStyle2D&);
+    				uiMarkerItem(bool fill=true);
+				uiMarkerItem(const MarkerStyle2D&,
+					     bool fill=true);
     				uiMarkerItem(const uiPoint&,
-					     const MarkerStyle2D&);
+					     const MarkerStyle2D&,
+					     bool fill=true);
 				~uiMarkerItem();
 
     ODGraphicsMarkerItem*  	qMarkerItem()	{ return qmarkeritem_; }
