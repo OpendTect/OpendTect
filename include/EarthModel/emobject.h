@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.81 2009-03-16 08:46:42 cvsumesh Exp $
+ RCS:		$Id: emobject.h,v 1.82 2009-04-07 11:27:45 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,7 @@ public:
 		    : pid0( 0, 0, 0 )
 		    , pid1( 0, 0, 0 )
 		    , attrib( -1 )
+		    , flagfor2dviewer(false)
 		    , event( EMObjectCallbackData::Undef )
 		{}
 
@@ -51,6 +52,7 @@ public:
     EM::PosID	pid0;
     EM::PosID	pid1;	//Only used in PosIDChange
     int		attrib; //Used only with AttribChange
+    bool	flagfor2dviewer; //Used only with BurstAlert for 2DViewer
 };
 
 
