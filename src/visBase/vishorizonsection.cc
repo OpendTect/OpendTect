@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.7 2009-04-07 06:10:46 cvsraman Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.8 2009-04-07 06:31:23 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -442,7 +442,7 @@ void HorizonSectionTile::tesselateResolution( int res )
 {
     if ( res==-1 || !needsretesselation_[res] ) return;
 
-    const int resstep = (int)pow( 2, res ); //Nr of blocks between two points.
+	const int resstep = (int)pow( 2.0, res ); //Nr of blocks between two points.
     const int nrsideblocks = mHorizonSectionSideSize/resstep + 
 	(mHorizonSectionSideSize%resstep ? 0 : -1);
 
@@ -598,7 +598,7 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
     const int res = getActualResolution();  
     if ( !needsretesselation_[res] && res>-1 && res<mHorizonSectionNrRes )
     {
-	const int resstep = (int)pow( 2, res );
+	const int resstep = (int)pow( 2.0, res );
 	if ( (row % resstep) && (col % resstep) )
     	    needsretesselation_[res] = true;
     }
@@ -800,7 +800,7 @@ void HorizonSectionTile::tesselateGlue()
     //gluepoints_->textureCoordIndex.deleteValues( 0, -1 );
     //gluepoints_->coordIndex.deleteValues( 0, -1 );
 
-    const int resstep = (int)pow( 2, getActualResolution() );
+    const int resstep = (int)pow( 2.0, getActualResolution() );
     const int nrsideblocks = mHorizonSectionSideSize/resstep + 
 	(mHorizonSectionSideSize%resstep ? 0 : -1);
     const int gluesz = mHorizonSectionSideSize - resstep*nrsideblocks;
@@ -826,7 +826,7 @@ void HorizonSectionTile::tesselateGlue()
 	edgeindices += startrowidx+cidx*resstep;
 
     const int nbstep5 = 
-	(int)pow(2, neighbors_[5] ? neighbors_[5]->getActualResolution() : -1);
+	(int)pow(2.0, neighbors_[5] ? neighbors_[5]->getActualResolution() : -1);
     const int nrsideblocks5 = (!neighbors_[5] || !nbstep5) ? -1 : 
     mHorizonSectionSideSize/nbstep5+(mHorizonSectionSideSize%nbstep5 ? 0 : -1);
     TypeSet<int> nbindices5;
@@ -839,7 +839,7 @@ void HorizonSectionTile::tesselateGlue()
     }
 
     const int nbstep7 = 
-	(int)pow(2, neighbors_[7] ? neighbors_[7]->getActualResolution() : -1);
+	(int)pow(2.0, neighbors_[7] ? neighbors_[7]->getActualResolution() : -1);
     const int nrsideblocks7 = (!neighbors_[7] || !nbstep7) ? -1 :
     mHorizonSectionSideSize/nbstep7+(mHorizonSectionSideSize%nbstep7 ? 0 : -1);
     const int skipnr = (mHorizonSectionSideSize+1)*mHorizonSectionSideSize;
