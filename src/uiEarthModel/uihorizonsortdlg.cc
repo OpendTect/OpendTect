@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.14 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.15 2009-04-07 07:12:20 cvssatyaki Exp $";
 
 #include "uihorizonsortdlg.h"
 
-#include "uiioobjsel.h"
+#include "uisurfacesel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
@@ -31,37 +31,33 @@ static const char* rcsID = "$Id: uihorizonsortdlg.cc,v 1.14 2009-03-24 12:33:51 
 
 uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup("Horizon sorter","Select horizons",""))
-    , ctio_(is2d ? *mMkCtxtIOObj(EMHorizon2D) : *mMkCtxtIOObj(EMHorizon3D))
+    , is2d_( is2d )
 {
-    ioobjselgrp_ = new uiIOObjSelGrp( this, ctio_, "Select horizons", true );
-    if ( ioobjselgrp_->getListField() )
-	ioobjselgrp_->getListField()->setHSzPol( uiObject::WideVar );
+    if ( is2d )
+	horsel_ = new uiHorizon2DSel( this );
+    else
+	horsel_ = new uiHorizon3DSel( this );
+
 }
 
 
 uiHorizonSortDlg::~uiHorizonSortDlg()
-{
-    deepUnRef( horizons_ );
-    delete &ctio_; delete ctio_.ioobj;
-}
+{ deepUnRef( horizons_ ); }
 
 
-void uiHorizonSortDlg::setParConstraints( const IOPar& parconstraints,
-					  bool includeconstraints,
-					  bool allowcnstrsabsent )
+void uiHorizonSortDlg::setLineID( const MultiID& mid )
 {
-    IOObjContext ctxt = ioobjselgrp_->getCtxtIOObj().ctxt;
-    ctxt.parconstraints = parconstraints;
-    ctxt.includeconstraints = includeconstraints;
-    ctxt.allowcnstrsabsent = allowcnstrsabsent;
-    ioobjselgrp_->setContext( ctxt );
+    if ( is2d_ )
+    {
+	mDynamicCastGet( uiSurface2DSel*, s2dsel, horsel_ ); 
+	s2dsel->setLineSetID( mid );
+    }
 }
 
 
 void uiHorizonSortDlg::getSelectedHorizons( TypeSet<MultiID>& horids ) const
 {
-    for ( int idx=0; idx<ioobjselgrp_->nrSel(); idx++ )
-	horids += ioobjselgrp_->selected( idx );
+    horsel_->getSelSurfaceIds( horids );
 }
 
 
@@ -73,13 +69,7 @@ void uiHorizonSortDlg::getSortedHorizons( ObjectSet<EM::Horizon>& hors ) const
 
 bool uiHorizonSortDlg::acceptOK( CallBacker* )
 {
-    if ( !ioobjselgrp_->processInput() )
-    {
-	uiMSG().error( "Invalid objects selected" );
-	return false;
-    }
-
-    if ( ioobjselgrp_->nrSel() < 2 )
+    if ( horsel_->getSelItems() < 2 )
     {
 	uiMSG().error( "Please select at least two horizons" );
 	return false;

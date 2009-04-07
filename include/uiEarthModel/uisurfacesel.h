@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: uisurfacesel.h,v 1.1 2009-04-01 11:55:32 cvsnanne Exp $
+ RCS:           $Id: uisurfacesel.h,v 1.2 2009-04-07 07:12:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "multiid.h"
 
 class IOObjContext;
-class uiLabeledListBox;
+class uiListBox;
 
 mClass uiSurfaceSel : public uiGroup
 {
@@ -26,13 +26,14 @@ public:
 			~uiSurfaceSel();
 
     virtual void	getSelSurfaceIds(TypeSet<MultiID>&) const;
+    int 		getSelItems() const;
 
 protected:
     			uiSurfaceSel(uiParent*,const IOObjContext&);
 
     void		getFullList();
 
-    uiLabeledListBox*	listfld_;
+    uiListBox*		listfld_;
     TypeSet<MultiID>	mids_;
     BufferStringSet	names_;
 
@@ -58,7 +59,6 @@ mClass uiSurface2DSel : public uiSurfaceSel
 {
 public:
     void		setLineSetID(const MultiID&);
-    virtual void	getSelSurfaceIds(TypeSet<MultiID>&) const;
 
 protected:
 			uiSurface2DSel(uiParent*,const IOObjContext&);
@@ -76,5 +76,15 @@ public:
 protected:
 
 };
+
+
+mClass uiHorizon3DSel : public uiSurface3DSel
+{
+public:
+    			uiHorizon3DSel(uiParent*);
+protected:
+
+};
+
 
 #endif
