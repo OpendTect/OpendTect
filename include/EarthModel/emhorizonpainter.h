@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.h,v 1.1 2009-03-26 09:14:58 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.h,v 1.2 2009-04-07 11:38:18 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 			~HorizonPainter();
 
     void		addHorizon(const MultiID&);
-    void                addHorizon(const EM::ObjectID);
+    void                addHorizon(const EM::ObjectID&);
     void                setHorizonIDs(const ObjectSet<MultiID>*);
     void                removeHorizon(const MultiID&);
 
@@ -45,8 +45,10 @@ public:
 
 protected:
 
-    bool		addPolyLine(const EM::ObjectID);
-    void		changePolyLineColor(const EM::ObjectID);
+    bool		addPolyLine(const EM::ObjectID&);
+    void		changePolyLineColor(const EM::ObjectID&);
+    void		changePolyLinePosition(const EM::ObjectID&,
+	    				       const EM::PosID&);
     void		removeHorizon(int);
     void		removePolyLine(int);
     void		updateDisplay();
@@ -59,8 +61,7 @@ protected:
     LineStyle           markerlinestyle_;
     FlatView::Viewer&   viewer_;
 
-    bool 		underburstalertinfluence_;
-    int 		burstcount_;
+    int			loadinghorcount_;
 
     TypeSet<EM::ObjectID> horizonids_;
     ObjectSet<ObjectSet<FlatView::Annotation::AuxData> > markerlines_;    

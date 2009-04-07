@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.5 2009-04-07 04:21:15 cvsraman Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.6 2009-04-07 11:39:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,7 @@ HorizonPainter::HorizonPainter( FlatView::Viewer& fv )
     : viewer_(fv)
     , markerlinestyle_(LineStyle::Solid,2,Color(0,255,0))
     , horrg_(0,1)
-    , underburstalertinfluence_(0)
-    , burstcount_(0)
+    , loadinghorcount_(0) 
 {
     EM::EMM().addRemove.notify( mCB(this,HorizonPainter,nrHorChangeCB) );
 }
@@ -53,7 +52,7 @@ void HorizonPainter::addHorizon( const MultiID& mid )
 }
 
 
-void HorizonPainter::addHorizon( const EM::ObjectID oid )
+void HorizonPainter::addHorizon( const EM::ObjectID& oid )
 {
     if ( horizonids_.indexOf(oid)!=-1 )
 	    return;
@@ -86,7 +85,7 @@ void HorizonPainter::setCubeSampling( const CubeSampling& cs, bool update )
 }
 
 
-bool HorizonPainter::addPolyLine( const EM::ObjectID oid )
+bool HorizonPainter::addPolyLine( const EM::ObjectID& oid )
 {
     EM::EMObject* emobj = EM::EMM().getObject( oid );
     if ( !emobj ) return false;
@@ -94,7 +93,7 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID oid )
     mDynamicCastGet(EM::Horizon3D*,hor3d,emobj)
 	if ( !hor3d ) return false;
 
-    if ( !underburstalertinfluence_ )
+    if ( !loadinghorcount_)
 	hor3d->change.notify( mCB(this,HorizonPainter,horChangeCB) );
 
 
@@ -137,10 +136,13 @@ bool HorizonPainter::addPolyLine( const EM::ObjectID oid )
 }
 
 
-void HorizonPainter::changePolyLineColor( const EM::ObjectID oid )
+void HorizonPainter::changePolyLineColor( const EM::ObjectID& oid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject( oid ));
 
+    if ( (horizonids_.indexOf(oid)==-1) || (markerlines_.size() <= 0) || 
+	  !markerlines_[horizonids_.indexOf(oid)] )
+	return;
     ObjectSet<FlatView::Annotation::AuxData>* sectionmarkerlines = 
 					markerlines_[horizonids_.indexOf(oid)];
 
@@ -149,6 +151,63 @@ void HorizonPainter::changePolyLineColor( const EM::ObjectID oid )
 	FlatView::Annotation::AuxData* auxdata = (*sectionmarkerlines)[ids];
 	auxdata->linestyle_.color_ = hor3d->preferredColor();
     }
+    viewer_.handleChange( FlatView::Viewer::Annot );
+}
+
+
+void HorizonPainter::changePolyLinePosition( const EM::ObjectID& oid,
+					     const EM::PosID& pid )
+{
+    mDynamicCastGet(EM::Horizon3D*,hor3d,EM::EMM().getObject( oid ));
+    if ( (horizonids_.indexOf(oid)==-1) || (markerlines_.size() <= 0) 
+	 || !markerlines_[horizonids_.indexOf(oid)] )
+	return;
+    ObjectSet<FlatView::Annotation::AuxData>* sectionmarkerlines =
+					markerlines_[horizonids_.indexOf(oid)];
+
+    BinID binid;
+    binid.setSerialized( pid.subID() );
+
+    for ( int ids=0; ids<hor3d->nrSections(); ids++ )
+    {
+	Coord3 crd = hor3d->getPos( hor3d->sectionID(ids), pid.subID() );
+	FlatView::Annotation::AuxData* auxdata = (*sectionmarkerlines)[ids];
+	for ( int posidx = 0; posidx < auxdata->poly_.size(); posidx ++ )
+	{
+	    if ( cs_.defaultDir() == CubeSampling::Inl )
+	    {
+		if ( binid.crl == auxdata->poly_[posidx].x )
+		{
+		    if ( crd.isDefined() )
+			auxdata->poly_[posidx].y = crd.z;
+		    else
+			auxdata->poly_.remove( posidx );
+
+		    return;
+		}
+	    }
+	    else if ( cs_.defaultDir() == CubeSampling::Crl )
+		{
+		    if ( binid.inl == auxdata->poly_[posidx].x )
+		    {
+			if( crd.isDefined() )
+			    auxdata->poly_[posidx].y = crd.z;
+			else
+			    auxdata->poly_.remove( posidx );
+			return;
+		    }
+		}
+	}
+
+	if ( crd.isDefined() )
+	{
+	    if ( cs_.defaultDir() == CubeSampling::Inl )
+		auxdata->poly_ += FlatView::Point( binid.crl, crd.z );
+	    else if ( cs_.defaultDir() == CubeSampling::Crl )
+		auxdata->poly_ += FlatView::Point( binid.inl, crd.z );
+	}
+    }
+
     viewer_.handleChange( FlatView::Viewer::Annot );
 }
 
@@ -213,6 +272,10 @@ void HorizonPainter::removeHorizon( int idx )
 
 void HorizonPainter::nrHorChangeCB( CallBacker* cb )
 {
+    if ( (cs_.defaultDir() != CubeSampling::Inl) && 
+	 (cs_.defaultDir() != CubeSampling::Crl) )
+	return;
+     	
     for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- )
     {
 	const EM::ObjectID oid = EM::EMM().objectID( idx );
@@ -224,8 +287,7 @@ void HorizonPainter::nrHorChangeCB( CallBacker* cb )
 	    continue;
 
 	hor->change.notify( mCB(this,HorizonPainter,horChangeCB) );
-	underburstalertinfluence_ = true;
-	burstcount_++;
+	loadinghorcount_++;
     }
 
     for ( int idx = horizonids_.size()-1; idx>=0; idx-- )
@@ -248,24 +310,31 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
     switch ( cbdata.event )
     {
 	case EM::EMObjectCallbackData::Undef:
+	    break;
 	case EM::EMObjectCallbackData::PrefColorChange:
 	{
-	    if ( !underburstalertinfluence_ )
+	    if ( !loadinghorcount_ )
 		changePolyLineColor( emobject->id() );
+
+	    break;
 	}
 	case EM::EMObjectCallbackData::PositionChange:
 	{
-	    //TODO implement in rt. way
-	    //if ( !underburstalertinfluence_ )
-	    //	updateDisplay();
+	    BinID bid;
+	    bid.setSerialized( cbdata.pid0.subID() );
+	    if ( cs_.hrg.includes(bid) )
+		changePolyLinePosition( emobject->id(), cbdata.pid0 );
+
+	    break;
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
-	    if ( emobject->isFullyLoaded() )
+	    if ( cbdata.flagfor2dviewer )
 	    {
-	    addHorizon( emobject->id() );
-	    underburstalertinfluence_ = false;
+		addHorizon( emobject->id() );
+		loadinghorcount_--;
 	    }
+	    break;
 	}
 	default:
 	    break;    
