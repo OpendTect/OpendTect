@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.73 2009-04-03 17:02:42 cvskris Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.74 2009-04-07 14:57:26 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -130,8 +130,9 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    else
 		attrlistfld_->attach( ensureBelow, topgrp );
 
-	    attrlistfld_->selectionChanged.notify(
-		    		mCB(this,uiSeisSelDlg,attrNmSel) );
+	    const CallBack cb( mCB(this,uiSeisSelDlg,attrNmSel) );
+	    attrlistfld_->selectionChanged.notify( cb );
+	    attrlistfld_->doubleClicked.notify( cb );
 	    attrfld_->attach( alignedBelow, attrlistfld_ );
 	}
     }
@@ -141,7 +142,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( !selgrp_->getCtxtIOObj().ctxt.forread && Seis::is2D(setup.geom_) )
 	selgrp_->setConfirmOverwrite( false );
     entrySel(0);
-    if ( attrlistfld_ )
+    if ( attrlistfld_ && selgrp_->getCtxtIOObj().ctxt.forread )
 	attrNmSel(0);
 }
 
