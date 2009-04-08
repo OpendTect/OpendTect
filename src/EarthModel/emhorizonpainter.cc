@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.6 2009-04-07 11:39:33 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.7 2009-04-08 11:07:32 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,6 +265,12 @@ void HorizonPainter::removePolyLine( int idx )
 void HorizonPainter::removeHorizon( int idx )
 {
     removePolyLine( idx );
+    if ( EM::EMM().getObject(horizonids_[idx]) )
+    {
+	mDynamicCastGet( EM::Horizon3D*, hor, 
+			 EM::EMM().getObject(horizonids_[idx]) );
+	hor->change.remove( mCB(this,HorizonPainter,horChangeCB) );
+    }
     horizonids_.remove( idx );
     viewer_.handleChange( FlatView::Viewer::Annot );
 }
