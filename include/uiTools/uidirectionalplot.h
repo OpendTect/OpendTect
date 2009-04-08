@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.6 2009-04-08 12:32:40 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.7 2009-04-08 15:16:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiTextItem;
 class uiLineItem;
 class uiCircleItem;
 class uiMarkerItem;
+class uiCurvedItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
 
@@ -45,7 +46,8 @@ public:
 				    , sectorls_(LineStyle::Solid)
 				    , equils_(LineStyle::Dot)
 				    , markstyle_(MarkerStyle2D::Circle)
-				    , drawposannot_(false)
+				    , docount_(false)
+				    , curissel_(true)
 				    , prefsize_(400,400)	{}
 
 	mDefSetupMemb(Type,type)
@@ -53,7 +55,8 @@ public:
 	mDefSetupMemb(LineStyle,sectorls)
 	mDefSetupMemb(LineStyle,equils)
 	mDefSetupMemb(MarkerStyle2D,markstyle)
-	mDefSetupMemb(bool,drawposannot)
+	mDefSetupMemb(bool,curissel)	// Must clicked sector become selected?
+	mDefSetupMemb(bool,docount)	// Show count rather than val_ (Vals)
 	mDefSetupMemb(uiSize,prefsize)
     };
 
@@ -71,9 +74,12 @@ public:
     int				size() const	{ return nrSectors(); }
     float			angle( int s ) const { return data_.angle(s); }
 
-    Notifier<uiDirectionalPlot>	sectorPartSelected;
-    int				selSector() const { return selsector_; }
-    int				selPart() const	{ return selpart_; }
+    Notifier<uiDirectionalPlot>	sectorPicked;
+    int				curSector() const { return cursector_; }
+
+    void			setSelectedSector( int i )
+    						{ selsector_ = i; }
+    int				selSector() const;
 
 protected:
 
@@ -85,24 +91,30 @@ protected:
     Interval<float>		posrg_;
     uiPoint			center_;
     int				radius_;
-    mutable int			selsector_;
-    mutable int			selpart_;
+    int				cursector_;
+    int				selsector_;
 
     uiGraphicsItemGroup&	sectorlines_;
     uiCircleItem*		outercircleitm_;
+    uiCurvedItem*		selsectoritem_;
     ObjectSet<uiCircleItem>	equicircles_;
     ObjectSet<uiTextItem>	dirtxtitms_;
     ObjectSet<uiLineItem>	dirlnitms_;
     ObjectSet<uiMarkerItem>	markeritems_;
+    ObjectSet<uiCurvedItem>	curveitems_;
 
     void			mouseRelease(CallBacker*);
     void			reSized(CallBacker*);
 
     void			gatherInfo();
     void			draw();
-    void			drawData();
     void			drawGrid();
     void			drawAnnot();
+    void			drawData();
+    void			drawScatter();
+    void			drawVals();
+    void			drawRose();
+    void			drawSelection();
 
     uiPoint			getUIPos(float r,float usrang) const;
 

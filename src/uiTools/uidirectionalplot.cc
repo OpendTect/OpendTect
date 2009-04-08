@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.7 2009-04-08 12:32:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.8 2009-04-08 15:16:22 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -22,11 +22,12 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
 				      const uiDirectionalPlot::Setup& su )
     : uiGraphicsView(p,"Function display viewer",true)
     , setup_(su)
-    , selsector_(0)
-    , selpart_(0)
+    , selsector_(-1)
+    , cursector_(-1)
     , outercircleitm_(0)
+    , selsectoritem_(0)
     , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup))
-    , sectorPartSelected(this)
+    , sectorPicked(this)
 {
     disableScrollZoom();
     setPrefWidth( setup_.prefsize_.width() );
@@ -63,6 +64,7 @@ void uiDirectionalPlot::setData( const float* vals, int sz )
 	data_ += sd;
     }
 
+    cursector_ = selsector_ = -1;
     gatherInfo(); draw();
 }
 
@@ -71,6 +73,7 @@ void uiDirectionalPlot::setData( const Stats::DirectionalData& dird )
 {
     data_ = dird;
 
+    cursector_ = selsector_ = -1;
     gatherInfo(); draw();
 }
 
@@ -115,30 +118,7 @@ void uiDirectionalPlot::draw()
     drawData();
     drawGrid();
     drawAnnot();
-}
-
-
-void uiDirectionalPlot::drawData()
-{
-    deepErase( markeritems_ );
-    for ( int isect=0; isect<data_.nrSectors(); isect++ )
-    {
-	const Stats::SectorData& sd = *data_[isect];
-	for ( int ipart=0; ipart<sd.size(); ipart++ )
-	{
-	    const Stats::SectorPartData& spd = sd[ipart];
-	    if ( spd.count_ < 1 ) continue;
-
-	    // if ( setup_.type_ == Setup::Scatter )
-	    {
-		// const float ang = spd.val_; --> For test now:
-		const float ang = data_.angle( isect, 0 );
-		const float r = spd.pos_ * radius_;
-		markeritems_ += new uiMarkerItem( getUIPos(r,ang),
-						  setup_.markstyle_ );
-	    }
-	}
-    }
+    drawSelection();
 }
 
 
@@ -183,17 +163,6 @@ void uiDirectionalPlot::drawGrid()
 }
 
 
-
-uiPoint uiDirectionalPlot::getUIPos( float r, float ang ) const
-{
-    const float angrad =
-		Angle::convert( data_.setup_.angletype_, ang, Angle::Rad );
-    Geom::Point2D<float> fpt( center_.x + r * cos(angrad),
-			      center_.y - r * sin(angrad) );
-    return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
-}
-
-
 void uiDirectionalPlot::drawAnnot()
 {
     if ( dirtxtitms_.isEmpty() )
@@ -230,11 +199,102 @@ void uiDirectionalPlot::drawAnnot()
 }
 
 
+void uiDirectionalPlot::drawData()
+{
+    deepErase( markeritems_ ); deepErase( curveitems_ );
+    switch ( setup_.type_ )
+    {
+    case Setup::Scatter:	drawScatter();	break;
+    case Setup::Vals:		drawVals();	break;
+    case Setup::Rose:		drawRose();	break;
+    }
+}
+
+
+void uiDirectionalPlot::drawScatter()
+{
+    for ( int isect=0; isect<data_.nrSectors(); isect++ )
+    {
+	const Stats::SectorData& sd = *data_[isect];
+	for ( int ipart=0; ipart<sd.size(); ipart++ )
+	{
+	    const Stats::SectorPartData& spd = sd[ipart];
+	    if ( spd.count_ < 1 ) continue;
+
+	    const float r = spd.pos_ * radius_;
+	    markeritems_ += new uiMarkerItem( getUIPos(r,spd.val_),
+					      setup_.markstyle_ );
+	}
+    }
+}
+
+
+void uiDirectionalPlot::drawVals()
+{
+    for ( int isect=0; isect<data_.nrSectors(); isect++ )
+    {
+	const Stats::SectorData& sd = *data_[isect];
+	const Interval<float> angrg( data_.angle(isect,1),
+				     data_.angle(isect,-1) );
+	const Interval<float> radangrg( data_.angle(isect,Angle::Deg,1),
+				        data_.angle(isect,Angle::Rad,-1) );
+	for ( int ipart=0; ipart<sd.size(); ipart++ )
+	{
+	    const Stats::SectorPartData& spd = sd[ipart];
+	    if ( spd.count_ < 1 ) continue;
+
+	    Interval<float> rrg( 0, 1 );
+	    if ( ipart )
+		rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
+	    if ( ipart < sd.size()-1 )
+		rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
+	    uiCurvedItem* ci = new uiCurvedItem(
+		    			getUIPos(rrg.start,angrg.start) );
+	    ci->drawTo( getUIPos(rrg.stop,angrg.start) );
+	    uiCurvedItem::ArcSpec as( center_, rrg.stop, radangrg );
+	    ci->drawTo( as );
+	    ci->drawTo( getUIPos(rrg.start,angrg.stop) );
+	    as.radius_ = rrg.start;
+	    ci->drawTo( as );
+	    curveitems_ += ci;
+	    //TODO set line and fill color to something based on
+	    // spd.val_ (or spd.count_ if setup.docount_)
+	}
+    }
+}
+
+
+void uiDirectionalPlot::drawSelection()
+{
+    delete selsectoritem_; selsectoritem_ = 0;
+    const int selsect = selSector();
+    if ( selsect < 0 ) return;
+
+    const Stats::SectorData& sd = *data_[selsect];
+    const Interval<float> angrg( data_.angle(selsect,1),
+				 data_.angle(selsect,-1) );
+    const Interval<float> radangrg( data_.angle(selsect,Angle::Deg,1),
+				    data_.angle(selsect,Angle::Rad,-1) );
+    selsectoritem_ = new uiCurvedItem( getUIPos(radius_+1,angrg.start) );
+    selsectoritem_->drawTo( getUIPos(radius_+10,angrg.start) );
+    selsectoritem_->drawTo( getUIPos(radius_+1,angrg.start) );
+    uiCurvedItem::ArcSpec as( center_, radius_+1, radangrg );
+    selsectoritem_->drawTo( as );
+    selsectoritem_->drawTo( getUIPos(radius_+10,angrg.stop) );
+}
+
+
+void uiDirectionalPlot::drawRose()
+{
+    scene().addItem( new uiTextItem(center_,"TODO: Rose diagrams") );
+}
+
+
 #define mGetMousePos()  \
     if ( getMouseEventHandler().isHandled() ) \
 	return; \
     const MouseEvent& ev = getMouseEventHandler().event(); \
-    if ( !(ev.buttonState() & OD::RightButton) ) \
+    if ( !(ev.buttonState() & OD::LeftButton) ) \
         return; \
     const bool isctrl = ev.ctrlStatus(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
@@ -245,4 +305,27 @@ void uiDirectionalPlot::drawAnnot()
 void uiDirectionalPlot::mouseRelease( CallBacker* )
 {
     mGetMousePos();
+    uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
+    if ( relpos.x == 0 && relpos.y == 0 ) return;
+
+    const float ang = atan2( -relpos.y, relpos.x );
+    cursector_ = data_.sector( ang, Angle::Rad );
+
+    sectorPicked.trigger();
+}
+
+
+uiPoint uiDirectionalPlot::getUIPos( float r, float ang ) const
+{
+    const float angrad =
+		Angle::convert( data_.setup_.angletype_, ang, Angle::Rad );
+    Geom::Point2D<float> fpt( center_.x + r * cos(angrad),
+			      center_.y - r * sin(angrad) );
+    return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
+}
+
+
+int uiDirectionalPlot::selSector() const
+{
+    return setup_.curissel_ ? cursector_ : selsector_;
 }
