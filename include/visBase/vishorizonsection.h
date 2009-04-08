@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.5 2009-04-06 22:22:24 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.6 2009-04-08 22:11:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -35,9 +35,14 @@ namespace Geometry { class BinIDSurface; }
 
 namespace visBase
 {
+
+class ColTabTextureChannel2RGBA;    
 class Coordinates;
-class PolyLine;
 class HorizonSectionTile;
+class PolyLine;
+class TextureChannels;
+class TileResolutionTesselator;
+
 
 mClass HorizonSection : public VisualObjectImpl
 {
@@ -49,6 +54,7 @@ public:
     void			setZAxisTransform(ZAxisTransform*);
 
     void			setGeometry(Geometry::BinIDSurface*);
+    Geometry::BinIDSurface*	getGeometry() const	{ return geometry_; }
 
     void			useWireframe(bool);
     bool			usesWireframe() const;
@@ -60,13 +66,20 @@ public:
     void			getDataPositions(BinIDValueSet&,float) const;
     void			setDisplayData(const BinIDValueSet*);
 
+    void			replaceChannels(visBase::TextureChannels*);
+    TextureChannels*		getTextureChannels() const { return channels_; }
+    
 protected:
     				~HorizonSection();
+    friend			class HorizonTileCreater;			
     void			updateGeometry();
     void			updateResolution(SoState*);
     static void			updateResolution(void*,SoAction*);
 
     Geometry::BinIDSurface*	geometry_;
+
+    TextureChannels*		channels_;
+    ColTabTextureChannel2RGBA*	channel2rgba_;
 
     SoCallback*			callbacker_;
 
@@ -82,7 +95,7 @@ mClass HorizonSectionTile
 public:
 				HorizonSectionTile();
 				~HorizonSectionTile();
-    friend			class HorizonSection;				
+    friend			class TileResolutionTesselator;    
     void			setResolution(int);
     				/*!<Resolution -1 means it will be vary, it will				    be set when we call updateResolution. */
     int				getActualResolution() const;
@@ -96,6 +109,8 @@ public:
     void			setTextureComposerOrig(int globrow,int globcol);
 
     void			updateGlue();
+    SoLockableSeparator*	getNodeRoot() const	{ return root_; }
+    visBase::Coordinates*	getCoords() const	{ return coords_; }
 
 protected:
 
