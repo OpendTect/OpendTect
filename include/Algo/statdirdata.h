@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.3 2009-04-02 15:58:23 cvsbert Exp $
+ RCS:           $Id: statdirdata.h,v 1.4 2009-04-08 12:31:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
 			{ return pos_ == spd.pos_; }
 
     float		pos_;	//!< 0=center 1=on circle = maximum value
-    float		val_;	//!< can be actual angle or another value
+    float		val_;	//!< actual angle or a value of interest
     int			count_;	//!< nr data pts contributing (for confidence)
 
 };
@@ -76,18 +76,20 @@ public:
 			{ return size(); }
     inline int		nrParts( int isect ) const
 			{ return ((*this)[isect])->size(); }
-    inline float	angle(int isect) const;
+    inline float	angle(int isect,int bound=0) const;
+    			//!< bound: -1=start, 1=stop, 0=center
 
     Setup		setup_;
 
 };
 
 
-inline float DirectionalData::angle( int isect ) const
+inline float DirectionalData::angle( int isect, int bound ) const
 {
     float fullc; Angle::getFullCircle( setup_.angletype_, fullc );
     const float angstep = fullc / size();
-    return setup_.angle0_ + angstep * isect;
+    const float centerang = setup_.angle0_ + angstep * isect;
+    return centerang + bound * angstep * .5;
 }
 
 
