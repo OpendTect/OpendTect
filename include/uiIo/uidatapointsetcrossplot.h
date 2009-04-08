@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.19 2009-04-01 07:38:39 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.20 2009-04-08 10:38:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,9 +103,7 @@ public:
     void			addItemIfNew(int itmidx,MarkerStyle2D&,
 	    				uiGraphicsItemGroup*,uiAxisHandler&,
 					uiDataPointSet::DRowID);
-    void			setItem(uiGraphicsItem*,bool y2,
-	    				uiDataPointSet::DRowID,const uiPoint&,
-					const AxisData&);
+    void			setItem(uiGraphicsItem*,bool y2,const uiPoint&);
     void			setAnnotEndTxt(uiAxisHandler&);
     bool			drawPoints(uiGraphicsItemGroup*,
 	    				   const AxisData&,bool y2,
@@ -118,7 +116,8 @@ public:
     				{ return selectable_; }
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections();
-    void			checkSelection(uiGraphicsItem*,bool);
+    void			checkSelection(uiDataPointSet::DRowID,
+				   uiGraphicsItem*,bool, const AxisData&);
     void			getSelectableRanges();
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
@@ -144,6 +143,9 @@ public:
 
     void			drawY1UserDefLine(const Interval<int>&,bool);
     void			drawY2UserDefLine(const Interval<int>&,bool);
+
+    int				nrYSels() const		{ return selyitems_; }
+    int				nrY2Sels() const	{ return sely2items_; }
 
     void			showY2(bool);
     void 			drawContent( bool withaxis = true );
@@ -179,6 +181,8 @@ protected:
     int				eachrow_;
     int				eachcount_;
     int				curgrp_;
+    int				selyitems_;
+    int				sely2items_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
     Interval<int>		usedxpixrg_;

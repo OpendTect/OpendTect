@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.2 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.3 2009-04-08 10:38:15 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -138,8 +138,7 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
     if ( event->button() == Qt::LeftButton )
     {
 	if ( event->modifiers() == Qt::ControlModifier )
-	    buttonstate_ = (OD::ButtonState) ( OD::LeftButton |
-		    			       OD::ControlButton );
+	    buttonstate_ = OD::ControlButton;
 	MouseEvent me( buttonstate_, event->x(), event->y() );
 	mousehandler_.triggerButtonReleased( me );
 	if ( handle_.isRubberBandingOn() )

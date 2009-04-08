@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.38 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.39 2009-04-08 10:38:15 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -498,6 +498,13 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 
 void uiDataPointSet::notifySelectedCell( CallBacker* )
 {
+    BufferString msg( "Y Selected: ", xplotwin_->plotter().nrYSels() );
+    if ( xplotwin_->plotter().isY2Shown() )
+    {
+	msg += "; Y2 Selected: ";
+	msg += xplotwin_->plotter().nrY2Sels();
+    }
+    xplotwin_->statusBar()->message( msg, 1 );
     TypeSet<RowCol> selectedrowcols( xplotwin_->plotter().getSelectedCells() );
     if ( selectedrowcols.isEmpty() )
     {
