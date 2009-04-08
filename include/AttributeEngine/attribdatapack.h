@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.23 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:		$Id: attribdatapack.h,v 1.24 2009-04-08 14:50:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ mClass Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
     			Flat2DDHDataPack(DescID,const Data2DHolder&,
-					 bool usesingtrc = false);
+					 bool usesingtrc=false,int component=0);
 			~Flat2DDHDataPack();
     virtual const char*	sourceType() const	{ return "2D"; }
 

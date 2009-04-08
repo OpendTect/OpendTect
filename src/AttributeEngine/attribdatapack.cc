@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribdatapack.cc,v 1.28 2008-11-25 15:35:21 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdatapack.cc,v 1.29 2009-04-08 14:50:57 cvshelene Exp $";
 
 #include "attribdatapack.h"
 
@@ -293,7 +293,7 @@ const char* Flat2DDataPack::dimName( bool dim0 ) const
 
 
 Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
-       				    bool usesingtrc )
+       				    bool usesingtrc, int component )
     : Flat2DDataPack( did )
     , dh_( dh )
     , usesingtrc_( usesingtrc )
@@ -303,7 +303,7 @@ Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
     array3d_ = new DataHolderArray( dh_.dataset_, false );
     arr2dsl_ = new Array2DSlice<float>( *array3d_ );
 
-    arr2dsl_->setPos( 0, usesingtrc ? 1 : 0 );
+    arr2dsl_->setPos( usesingtrc ? 1 : 0, usesingtrc ? 0 : component );
     arr2dsl_->setDimMap( 0, usesingtrc ? 0 : 1 );
     arr2dsl_->setDimMap( 1, 2 );
     arr2dsl_->init();

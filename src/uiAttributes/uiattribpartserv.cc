@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.116 2009-04-03 14:57:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.117 2009-04-08 14:50:57 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -711,9 +711,19 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !taskrunner.execute(*process) )
 	return -1;
 
+    int component = 0;
+    Attrib::DescID adid = targetID(true);
+    const Attrib::DescSet* curds = curDescSet( true );
+    if ( curds )
+    {
+	const Attrib::Desc* targetdesc = curds->getDesc( adid );
+	if ( targetdesc )
+	    component = targetdesc->selectedOutput();
+    }
+    
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
-    Flat2DDHDataPack* newpack = new Attrib::Flat2DDHDataPack( targetID(true),
-	    						      *data2d);
+    Flat2DDHDataPack* newpack = new Attrib::Flat2DDHDataPack( adid, *data2d,
+	    						      false, component);
     newpack->setName( linekey.attrName() );
     dpman.add( newpack );
     return newpack->id();
