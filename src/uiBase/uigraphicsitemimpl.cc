@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.21 2009-04-08 12:32:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.22 2009-04-08 15:15:49 cvsbert Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -597,12 +597,16 @@ void uiArrowItem::setArrowSize( int arrowsz )
 
 
 uiCurvedItem::uiCurvedItem( const uiPoint& pt )
-    : uiGraphicsItem(mkQtObj(pt))
+    : uiGraphicsItem(mkQtObj())
 {
+    qppath_->moveTo( QPointF(pt.x,pt.y) );
 }
+
+
 uiCurvedItem::uiCurvedItem( const Geom::Point2D<float>& pt )
-    : uiGraphicsItem(mkQtObj(pt))
+    : uiGraphicsItem(mkQtObj())
 {
+    qppath_->moveTo( QPointF(pt.x,pt.y) );
 }
 
 
@@ -656,13 +660,9 @@ void uiCurvedItem::closeCurve()
 }
 
 
-QGraphicsItem* uiCurvedItem::mkQtObj( const uiPoint& pt )
+QGraphicsItem* uiCurvedItem::mkQtObj()
 {
-    return mkQtObj( Geom::Point2D<float>(pt.x,pt.y) );
-}
-QGraphicsItem* uiCurvedItem::mkQtObj( const Geom::Point2D<float>& pt )
-{
-    qppath_ = new QPainterPath( QPointF(pt.x,pt.y) );
+    qppath_ = new QPainterPath();
     qpathitem_ = new QGraphicsPathItem( *qppath_ );
     return qpathitem_;
 }

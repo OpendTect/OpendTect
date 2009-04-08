@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.16 2009-04-08 12:32:22 cvsbert Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.17 2009-04-08 15:15:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -321,8 +321,7 @@ public:
 
 protected:
 
-    QGraphicsItem*	mkQtObj(const uiPoint&);
-    QGraphicsItem*	mkQtObj(const Geom::Point2D<float>&);
+    QGraphicsItem*	mkQtObj();
     QGraphicsPathItem*	qpathitem_;
     QPainterPath*	qppath_;
 
