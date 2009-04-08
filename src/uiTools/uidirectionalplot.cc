@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.6 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.7 2009-04-08 12:32:40 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -127,12 +127,14 @@ void uiDirectionalPlot::drawData()
 	for ( int ipart=0; ipart<sd.size(); ipart++ )
 	{
 	    const Stats::SectorPartData& spd = sd[ipart];
+	    if ( spd.count_ < 1 ) continue;
+
 	    // if ( setup_.type_ == Setup::Scatter )
 	    {
 		// const float ang = spd.val_; --> For test now:
-		float usrang = getUsrAngle( isect, 0 );
+		const float ang = data_.angle( isect, 0 );
 		const float r = spd.pos_ * radius_;
-		markeritems_ += new uiMarkerItem( getUIPos(r,usrang),
+		markeritems_ += new uiMarkerItem( getUIPos(r,ang),
 						  setup_.markstyle_ );
 	    }
 	}
@@ -171,26 +173,23 @@ void uiDirectionalPlot::drawGrid()
     const float stepang = 360 / ((float)nrsectors);
     for ( int isect=0; isect<nrsectors; isect++ )
     {
-	const float ang = Angle::usrdeg2rad( getUsrAngle(isect,1) );
-	uiLineItem* li = scene().addLine( center_, ang, radius_ );
+	const float ang = data_.angle( isect, 1 );
+	const float mathang = Angle::convert( data_.setup_.angletype_, ang,
+					      Angle::Rad );
+	uiLineItem* li = scene().addLine( center_, mathang, radius_ );
 	sectorlines_.add( li );
 	li->setPenStyle( setup_.sectorls_ );
     }
 }
 
 
-float uiDirectionalPlot::getUsrAngle( int isect, int side ) const
-{
-    const float stepang = 360 / ((float)data_.nrSectors());
-    return (isect + (side*.5)) * stepang;
-}
 
-
-uiPoint uiDirectionalPlot::getUIPos( float r, float usrang ) const
+uiPoint uiDirectionalPlot::getUIPos( float r, float ang ) const
 {
-    float usrangrad = Angle::deg2rad( usrang );
-    Geom::Point2D<float> fpt( center_.x + r * sin(usrangrad),
-			      center_.y - r * cos(usrangrad) );
+    const float angrad =
+		Angle::convert( data_.setup_.angletype_, ang, Angle::Rad );
+    Geom::Point2D<float> fpt( center_.x + r * cos(angrad),
+			      center_.y - r * sin(angrad) );
     return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
 }
 

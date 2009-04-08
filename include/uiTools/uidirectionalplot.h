@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.5 2009-04-06 03:40:17 cvsranojay Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.6 2009-04-08 12:32:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,6 @@ protected:
     void			drawGrid();
     void			drawAnnot();
 
-    float			getUsrAngle(int sector,int side=0) const;
     uiPoint			getUIPos(float r,float usrang) const;
 
 };
