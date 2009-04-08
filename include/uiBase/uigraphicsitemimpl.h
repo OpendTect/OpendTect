@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.15 2009-04-07 07:04:31 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.16 2009-04-08 12:32:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,16 +23,18 @@ class uiFont;
 class QGraphicsItem;
 class QGraphicsEllipseItem;
 class QGraphicsLineItem;
+class QGraphicsPathItem;
 class QGraphicsPixmapItem;
 class QGraphicsPolygonItem;
 class QGraphicsRectItem;
 class QGraphicsTextItem;
-class ODGraphicsPolyLineItem;
+class QPainterPath;
 
 class ODGraphicsArrowItem;
 class ODGraphicsMarkerItem;
 class ODGraphicsPixmapItem;
 class ODGraphicsPointItem;
+class ODGraphicsPolyLineItem;
 template <class T> class ODPolygon;
 
 
@@ -255,6 +257,75 @@ protected:
 
     QGraphicsItem*		mkQtObj();
     ODGraphicsArrowItem*	qarrowitem_;
+};
+
+
+mClass uiCurvedItem : public uiGraphicsItem
+{
+public:
+			uiCurvedItem(const uiPoint& startpt);
+			uiCurvedItem(const Geom::Point2D<float>& startpt);
+			~uiCurvedItem();
+
+    mClass ArcSpec
+    {
+    public:
+			ArcSpec( const uiPoint& c, float r,
+				 const Interval<float>& angs )
+			    : center_(c.x,c.y), radius_(r)
+			    , angles_(angs), yratio_(1)		{}
+			ArcSpec( const Geom::Point2D<float>& c, float r,
+				 const Interval<float>& angs )
+			    : center_(c), radius_(r)
+			    , angles_(angs), yratio_(1)		{}
+
+	Geom::Point2D<float> center_;
+	float		radius_;	//!< X radius. Yrad = radius_ * yratio_
+	Interval<float>	angles_;
+	float		yratio_;	//!< < 1 means: X size > Y size
+    };
+
+    mClass SplineSpec
+    {
+    public:
+			SplineSpec( const uiPoint& endp, const uiPoint& cp )
+			    : end_(endp.x,endp.y), cp1_(cp.x,cp.y)
+			    , cubic_(false)				{}
+			SplineSpec( const Geom::Point2D<float>& endp,
+				    const Geom::Point2D<float>& cp )
+			    : end_(endp), cp1_(cp), cubic_(false)	{}
+			SplineSpec( const uiPoint& endp, const uiPoint& p1,
+				    const uiPoint& p2 )
+			    : end_(endp.x,endp.y), cp1_(p1.x,p1.y)
+			    , cp2_(p2.x,p2.y), cubic_(true)		{}
+			SplineSpec( const Geom::Point2D<float>& endp,
+				    const Geom::Point2D<float>& p1,
+				    const Geom::Point2D<float>& p2 )
+			    : end_(endp), cp1_(p1), cp2_(p2), cubic_(true) {}
+
+	Geom::Point2D<float>	end_;
+	Geom::Point2D<float>	cp1_;
+	Geom::Point2D<float>	cp2_;	//!< only for cubic_
+	bool			cubic_;	//!< otherwise quadratic
+    };
+
+    void		drawTo(const ArcSpec&);
+    void		drawTo(const SplineSpec&);
+    void		drawTo(const Geom::Point2D<float>&);	//!< line
+    void		drawTo(const uiPoint&);
+
+    void		closeCurve();				//!< line
+
+    QGraphicsPathItem*	qGraphicsPathItem()	{ return qpathitem_; }
+    QPainterPath*	qPainterPath()		{ return qppath_; }
+
+protected:
+
+    QGraphicsItem*	mkQtObj(const uiPoint&);
+    QGraphicsItem*	mkQtObj(const Geom::Point2D<float>&);
+    QGraphicsPathItem*	qpathitem_;
+    QPainterPath*	qppath_;
+
 };
 
 

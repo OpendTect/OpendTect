@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.20 2009-04-07 07:04:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.21 2009-04-08 12:32:22 cvsbert Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.20 2009-04-07 07:04:3
 #include "pixmap.h"
 #include "polygon.h"
 #include "uifont.h"
+#include "angles.h"
 
 #include <QBrush>
 #include <QFont>
@@ -82,7 +83,6 @@ void uiCircleItem::setRadius( int r )
 {
     setSize( uiSize(2*r,2*r) );
 }
-
 
 uiLineItem::uiLineItem()
     : uiGraphicsItem(mkQtObj())
@@ -593,4 +593,76 @@ void uiArrowItem::setArrowStyle( const ArrowStyle& arrowstyle )
 void uiArrowItem::setArrowSize( int arrowsz )
 {
     qarrowitem_->setArrowSize( arrowsz );
+}
+
+
+uiCurvedItem::uiCurvedItem( const uiPoint& pt )
+    : uiGraphicsItem(mkQtObj(pt))
+{
+}
+uiCurvedItem::uiCurvedItem( const Geom::Point2D<float>& pt )
+    : uiGraphicsItem(mkQtObj(pt))
+{
+}
+
+
+uiCurvedItem::~uiCurvedItem()
+{
+    delete qpathitem_;
+    delete qppath_;
+}
+
+
+void uiCurvedItem::drawTo( const uiPoint& pt )
+{
+    drawTo( Geom::Point2D<float>(pt.x,pt.y) );
+}
+void uiCurvedItem::drawTo( const Geom::Point2D<float>& pt )
+{
+    qppath_->lineTo( QPointF(pt.x,pt.y) );
+}
+
+
+void uiCurvedItem::drawTo( const ArcSpec& as )
+{
+    Interval<float> angs( Angle::rad2deg(as.angles_.start),
+			  Angle::rad2deg(as.angles_.stop) );
+    if ( angs.start < 0 ) angs.start += 360;
+    if ( angs.stop < 0 ) angs.stop += 360;
+    if ( angs.start > angs.stop ) angs.stop += 360;
+    QRectF qr(	as.center_.x - as.radius_,
+		as.center_.y - as.radius_ * as.yratio_,
+		as.center_.x + as.radius_,
+		as.center_.y + as.radius_ * as.yratio_ );
+    qppath_->arcTo( qr, angs.start, angs.stop - angs.start );
+}
+
+
+void uiCurvedItem::drawTo( const SplineSpec& ss )
+{
+    if ( ss.cubic_ )
+	qppath_->cubicTo( QPointF(ss.cp1_.x,ss.cp1_.y),
+			  QPointF(ss.cp2_.x,ss.cp2_.y),
+			  QPointF(ss.end_.x,ss.end_.y) );
+    else
+	qppath_->quadTo( QPointF(ss.cp1_.x,ss.cp1_.y),
+	       		 QPointF(ss.end_.x,ss.end_.y) );
+}
+
+
+void uiCurvedItem::closeCurve()
+{
+    qppath_->closeSubpath();
+}
+
+
+QGraphicsItem* uiCurvedItem::mkQtObj( const uiPoint& pt )
+{
+    return mkQtObj( Geom::Point2D<float>(pt.x,pt.y) );
+}
+QGraphicsItem* uiCurvedItem::mkQtObj( const Geom::Point2D<float>& pt )
+{
+    qppath_ = new QPainterPath( QPointF(pt.x,pt.y) );
+    qpathitem_ = new QGraphicsPathItem( *qppath_ );
+    return qpathitem_;
 }
