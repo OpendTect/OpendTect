@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.4 2009-04-08 12:31:49 cvsbert Exp $
+ RCS:           $Id: statdirdata.h,v 1.5 2009-04-08 15:14:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,10 @@ public:
     inline int		nrParts( int isect ) const
 			{ return ((*this)[isect])->size(); }
     inline float	angle(int isect,int bound=0) const;
+    inline float	angle(int isect,Angle::Type,int bound=0) const;
     			//!< bound: -1=start, 1=stop, 0=center
+    int			sector(float ang) const;
+    int			sector(float ang,Angle::Type) const;
 
     Setup		setup_;
 
@@ -90,6 +93,30 @@ inline float DirectionalData::angle( int isect, int bound ) const
     const float angstep = fullc / size();
     const float centerang = setup_.angle0_ + angstep * isect;
     return centerang + bound * angstep * .5;
+}
+
+
+inline float DirectionalData::angle( int isect, Angle::Type t, int bound ) const
+{
+    float ang = angle( isect, bound );
+    return Angle::convert( setup_.angletype_, ang, t );
+}
+
+
+inline int DirectionalData::sector( float ang, Angle::Type t ) const
+{
+    return sector( Angle::convert(t,ang,setup_.angletype_) );
+}
+
+
+inline int DirectionalData::sector( float ang ) const
+{
+    ang -= setup_.angle0_;
+    const float usrang = Angle::convert(setup_.angletype_,ang,Angle::UsrDeg);
+    float fsect = size() * (ang / 360);
+    int sect = mNINT(fsect);
+    if ( sect >= size() ) sect = 0;
+    return sect;
 }
 
 
