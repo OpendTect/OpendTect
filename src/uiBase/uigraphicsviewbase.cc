@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.3 2009-04-08 10:38:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.4 2009-04-09 09:45:01 cvsnanne Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -165,9 +165,21 @@ void uiGraphicsViewBody::paintEvent( QPaintEvent* event )
 
 void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 {
+    if ( !event ) return;
+
     if ( handle_.scene_ )
+    {
+#ifdef __win__
+	QSize newsz = event->size();
+	handle_.scene_->setSceneRect( sBorder, sBorder,
+				      newsz.width()-2*sBorder,
+				      newsz.height()-2*sBorder );
+#else
 	handle_.scene_->setSceneRect( sBorder, sBorder,
 				      width()-2*sBorder, height()-2*sBorder );
+#endif
+    }
+
     handle_.reSize.trigger();
 }
 
@@ -201,8 +213,8 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 
 uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     : uiObject( p, nm, mkbody(p,nm) )
+    , reDraw(this)
     , reSize(this)
-    , reDrawNeeded(this)
     , rubberBandUsed(this)
     , activatedone(this)
     , scene_(0)
@@ -227,6 +239,10 @@ uiGraphicsViewBase::~uiGraphicsViewBase()
 {
     delete body_;
 }
+
+
+void uiGraphicsViewBase::update()
+{ reDraw.trigger(); }
 
 
 MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
@@ -278,11 +294,27 @@ bool uiGraphicsViewBase::hasMouseTracking() const
 
 
 int uiGraphicsViewBase::width() const
-{ return body_->width(); }
+{
+#ifdef __win__
+    const int prefwidth = prefHNrPics();
+    const int viewwidth = getViewArea().width();
+    return prefwidth > viewwidth ? prefwidth : viewwidth;
+#else
+    return body_->width();
+#endif
+}
 
 
 int uiGraphicsViewBase::height() const
-{ return body_->height(); }
+{
+#ifdef __win__
+    const int prefheight = prefVNrPics();
+    const int viewheight = getViewArea().height();
+    return prefheight > viewheight ? prefheight : viewheight;
+#else
+    return body_->height();
+#endif
+}
 
 
 void uiGraphicsViewBase::setScrollBarPolicy( bool hor, ScrollBarPolicy sbp )
