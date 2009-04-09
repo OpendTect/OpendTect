@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.79 2009-02-19 07:53:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.80 2009-04-09 01:05:41 cvskris Exp $";
 
 #include "uivisemobj.h"
 
@@ -283,7 +283,13 @@ void uiVisEMObject::connectEditor()
 const char* uiVisEMObject::getObjectType( int id )
 {
     mDynamicCastGet(visSurvey::EMObjectDisplay*,obj,visBase::DM().getObject(id))
-    return obj ? EM::EMM().objectType( obj->getMultiID() ) : 0;
+    if ( !obj ) return 0;
+
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( obj->getObjectID() );
+    if ( !emobj )
+	return 0;
+
+    return emobj->getTypeStr();
 }
 
 
