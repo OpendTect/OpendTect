@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.18 2009-02-13 05:10:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.19 2009-04-09 00:49:10 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -280,7 +280,7 @@ SymmetryCalc( const ValueSeries<float>& vs, od_int64 sz )
     , below0_(0)
 {}
 
-od_int64 totalNr() const { return sz_; }
+od_int64 nrIterations() const { return sz_; }
 
 bool doWork( od_int64 start, od_int64 stop, int )
 {

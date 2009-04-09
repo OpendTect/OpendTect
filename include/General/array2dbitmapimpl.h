@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.12 2009-01-20 06:19:14 cvsranojay Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.13 2009-04-09 00:49:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ public:
     const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }
 
 protected:
-    od_int64			totalNr() const;
+    od_int64			nrIterations() const;
     bool			doWork(od_int64,od_int64,int);
 
     inline VDA2DBitMapGenPars& gtPars() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		January 2007
- RCS:		$Id: viscolortabindexer.h,v 1.5 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: viscolortabindexer.h,v 1.6 2009-04-09 00:58:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,7 +50,7 @@ public:
 protected:
     bool			doWork(od_int64 start,od_int64 stop,
 	    			       int threadid);
-    od_int64			totalNr() const;
+    od_int64			nrIterations() const;
 
     unsigned char*		indexcache_;
     const ValueSeries<float>*	datacache_;

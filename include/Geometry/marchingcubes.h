@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.9 2008-12-25 11:55:38 cvsranojay Exp $
+ RCS:           $Id: marchingcubes.h,v 1.10 2009-04-09 00:51:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,7 +118,7 @@ public:
 				MarchingCubesSurface&);
 		~Implicit2MarchingCubes();
 
-    od_int64	totalNr() const;
+    od_int64	nrIterations() const;
     bool	doWork(od_int64,od_int64,int);
 
 protected:

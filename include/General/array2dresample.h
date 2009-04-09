@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: array2dresample.h,v 1.4 2008-09-22 13:09:19 cvskris Exp $
+ RCS:           $Id: array2dresample.h,v 1.5 2009-04-09 00:49:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ public:
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
 
-    inline od_int64	totalNr() const;
+    inline od_int64	nrIterations() const;
 
 private:
     inline bool		doWork( od_int64 start, od_int64 stop, int );
@@ -99,7 +99,7 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, Array2D<TT>& to,
 
 
 template <class T, class TT> inline
-od_int64 Array2DReSampler<T,TT>::totalNr() const
+od_int64 Array2DReSampler<T,TT>::nrIterations() const
 {
     return to_->info().getSize( mXDim );
 }
@@ -111,7 +111,7 @@ bool Array2DReSampler<T,TT>::doWork( od_int64 start, od_int64 stop, int )
 {
     const int ysize = to_->info().getSize( mYDim );
 
-    for ( int idx=start; idx<=stop; idx++, reportNrDone() )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const float sourcex = xsampling_.atIndex( idx );
 

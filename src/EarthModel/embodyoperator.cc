@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: embodyoperator.cc,v 1.9 2009-04-03 17:03:56 cvskris Exp $";
+static const char* rcsID = "$Id: embodyoperator.cc,v 1.10 2009-04-09 00:57:31 cvskris Exp $";
 
 #include "embodyoperator.h"
 
@@ -45,7 +45,7 @@ BodyOperatorArrayFiller( const ImplicitBody& b0, const ImplicitBody& b1,
     , action_( act )		 
 {}
 
-od_int64 totalNr() const { return arr_.info().getTotalSz(); }
+od_int64 nrIterations() const { return arr_.info().getTotalSz(); }
 		       
 protected:
 
@@ -197,7 +197,7 @@ bool Expl2ImplBodyExtracter::doPrepare( int nrthreads )
 }
 
 
-od_int64 Expl2ImplBodyExtracter::totalNr() const
+od_int64 Expl2ImplBodyExtracter::nrIterations() const
 { return arr_.info().getTotalSz(); }
 
 
@@ -205,7 +205,7 @@ bool Expl2ImplBodyExtracter::doWork( od_int64 start, od_int64 stop, int )
 {
     int p[3]; BinID bid; Coord3 pos;
     const TypeSet<Coord3>& crds = tree_.coordList();
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone() )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
 	arr_.info().getArrayPos( idx, p );
 	bid = BinID( inlrg_.atIndex(p[0]), crlrg_.atIndex(p[1]) );

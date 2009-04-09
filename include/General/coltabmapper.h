@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.14 2009-02-11 15:24:06 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.15 2009-04-09 00:49:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ public:
     				MapperTask(const ColTab::Mapper& map,
 					   od_int64 sz,int nrsteps,
 					   const float* unmapped,T* mapped);
-    od_int64			totalNr() const;
+    od_int64			nrIterations() const;
 private:    
     bool			doWork(od_int64 start,od_int64 stop,int);
 
@@ -135,7 +135,7 @@ MapperTask<T>::MapperTask( const ColTab::Mapper& map, od_int64 sz, int nrsteps,
 
 
 template <class T> inline
-od_int64 MapperTask<T>::totalNr() const
+od_int64 MapperTask<T>::nrIterations() const
 { return totalsz_; }
 
 template <class T> inline
@@ -151,7 +151,7 @@ bool MapperTask<T>::doWork( od_int64 start, od_int64 stop, int )
 	result++; 
 	inp++;
 
-	reportNrDone( 1 );
+	addToNrDone( 1 );
     }
     
     return true;

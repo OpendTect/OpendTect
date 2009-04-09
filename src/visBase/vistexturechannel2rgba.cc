@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.21 2009-04-04 11:11:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: vistexturechannel2rgba.cc,v 1.22 2009-04-09 01:01:56 cvskris Exp $";
 
 #include "vistexturechannel2rgba.h"
 
@@ -60,7 +60,7 @@ ColTabSequenceTransparencyCheck( const unsigned char* cols,
 char getTransparency() const	{ return result_; }
 
 
-od_int64 totalNr() const	{ return totalnr_; }
+od_int64 nrIterations() const	{ return totalnr_; }
 
 private:
 
@@ -95,7 +95,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	if ( idx%10000 )
 	    continue;
 
-	reportNrDone( 10000 );
+	addToNrDone( 10000 );
 
 	if ( !shouldContinue() )
 	    break;

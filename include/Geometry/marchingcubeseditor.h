@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2007
- RCS:           $Id: marchingcubeseditor.h,v 1.8 2008-12-25 11:55:38 cvsranojay Exp $
+ RCS:           $Id: marchingcubeseditor.h,v 1.9 2009-04-09 00:51:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ protected:
     int				zorigin_;
 
 private:
-    od_int64			totalNr() const;
+    od_int64			nrIterations() const;
     bool			doPrepare(int);
     bool			doWork(od_int64,od_int64,int);
     bool			doFinish(bool);

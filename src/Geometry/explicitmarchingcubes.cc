@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.26 2009-04-01 04:47:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.27 2009-04-09 00:51:23 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -66,7 +66,7 @@ public:
 
 protected:
 
-    od_int64	totalNr() const { return totalnr_; }
+    od_int64	nrIterations() const { return totalnr_; }
     bool doWork( od_int64 start, od_int64 stop, int thread )
     {
 	const int* tableidxs = idxstocompute_.arr();
@@ -77,7 +77,7 @@ protected:
 	    surface_.getSurface()->models_;
 
 	for ( int idx=start; idx<=stop && shouldContinue();
-	      idx++, reportNrDone() )
+	      idx++, addToNrDone(1) )
 	{
 	    if ( usetable )
 		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );

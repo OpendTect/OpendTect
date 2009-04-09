@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.61 2009-03-03 08:06:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.62 2009-04-09 01:02:48 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -67,7 +67,7 @@ Seis2DTextureDataArrayFiller( const Seis2DDisplay& s2d,
 {}
 
       	
-od_int64 totalNr() const { return data2dh_.size(); }
+od_int64 nrIterations() const { return data2dh_.size(); }
 
 private:
 bool doWork( od_int64 start, od_int64 stop, int threadid )
@@ -97,7 +97,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const int trcnr = data2dh_.trcinfoset_[idx]->nr;
 	if ( !s2d_.trcnrrg_.includes(trcnr) )
 	{
-	    reportNrDone( 1 );
+	    addToNrDone( 1 );
 	    continue;
 	}
 
@@ -105,7 +105,7 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	const DataHolder* dh = data2dh_.dataset_[idx];
 	if ( !dh )
 	{
-	    reportNrDone( 1 );
+	    addToNrDone( 1 );
 	    continue;
 	}
 	
@@ -119,14 +119,14 @@ bool doWork( od_int64 start, od_int64 stop, int threadid )
 	    const int arrzidx = arraysrg.getIndex( smp );
 	    if ( arrzidx<0 || arrzidx>=arrzsz ) 
 	    {
-		reportNrDone( 1 );
+		addToNrDone( 1 );
 		continue;
 	    }
 	    
 	    arr_.set( trcidx, arrzidx, val );
 	}
 
-	reportNrDone( 1 );
+	addToNrDone( 1 );
     }
 
     return true;

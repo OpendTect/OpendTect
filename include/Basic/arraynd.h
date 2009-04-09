@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.38 2009-02-09 21:01:55 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.39 2009-04-09 00:55:55 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -306,7 +306,7 @@ public:
 		    return true;
 		}
 		    
-    od_int64	totalNr() const { return totalnr_; }
+    od_int64	nrIterations() const { return totalnr_; }
 protected:
 
     od_int64		totalnr_;

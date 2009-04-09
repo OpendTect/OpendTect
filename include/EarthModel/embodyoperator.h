@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		Feb 2009
- RCS:		$Id: embodyoperator.h,v 1.5 2009-03-10 22:10:17 cvsyuancheng Exp $
+ RCS:		$Id: embodyoperator.h,v 1.6 2009-04-09 00:57:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -108,7 +108,7 @@ public:
 						const StepInterval<float>& zrg,
 						Array3D<float>& arr);
     
-    od_int64		totalNr() const;
+    od_int64		nrIterations() const;
 
 private:
 

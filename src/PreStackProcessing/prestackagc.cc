@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.14 2008-12-10 19:06:30 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.15 2009-04-09 00:52:30 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -97,7 +97,7 @@ bool PreStack::AGC::doWork( od_int64 start, od_int64 stop, int )
     agc.setMuteFraction( mutefraction_ );
     agc.setSampleGate( samplewindow_ );
 
-    for ( int offsetidx=start; offsetidx<=stop; offsetidx++, reportNrDone() )
+    for ( int offsetidx=start; offsetidx<=stop; offsetidx++, addToNrDone(1) )
     {
 	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
 	{

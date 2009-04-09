@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.33 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.34 2009-04-09 00:49:10 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -475,7 +475,7 @@ bool VDA2DBitMapGenerator::doWork( od_int64 start, od_int64 stop, int )
 }
 
 
-od_int64 VDA2DBitMapGenerator::totalNr() const
+od_int64 VDA2DBitMapGenerator::nrIterations() const
 { return stripstodraw_.size(); }
 
 

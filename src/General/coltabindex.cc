@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.8 2008-09-22 13:00:45 cvskris Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.9 2009-04-09 00:49:10 cvskris Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
@@ -27,12 +27,12 @@ public:
 
     bool		doWork( od_int64 start, od_int64 stop, int threadid )
     			{
-			    for ( int idx=start; idx<=stop;idx++,reportNrDone())
+			    for ( int idx=start; idx<=stop;idx++,addToNrDone(1))
 				ilut_.cols_[idx] = ilut_.seq_.color( dx_*idx );
 			    return true;
 			}
 
-    od_int64		totalNr() const { return nrcols_; }
+    od_int64		nrIterations() const { return nrcols_; }
 
 protected:
 
