@@ -4,13 +4,13 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.12 2009-04-01 04:47:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.13 2009-04-09 09:13:00 cvsbert Exp $";
 
 #include "parametriccurve.h"
 
 #include "extremefinder.h"
 #include "mathfunc.h"
-#include "sets.h"
+#include "typeset.h"
 #include "trigonometry.h"
 #include "undefval.h"
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.48 2009-03-30 06:53:17 cvsraman Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.49 2009-04-09 09:13:00 cvsbert Exp $";
 
 #include "trigonometry.h"
 
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: trigonometry.cc,v 1.48 2009-03-30 06:53:17 cvsr
 #include "math2.h"
 #include "pca.h"
 #include "position.h"
-#include "sets.h"
+#include "typeset.h"
 
 #include <math.h>
 

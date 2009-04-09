@@ -7,13 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitabstack.cc,v 1.21 2008-12-24 05:55:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitabstack.cc,v 1.22 2009-04-09 09:13:00 cvsbert Exp $";
 
 #include "uitabstack.h"
 #include "uitabbar.h"
-
 #include "uiobjbody.h"
-#include "sets.h"
+#include "objectset.h"
 
 #include <QFrame>
 

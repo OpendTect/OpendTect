@@ -7,11 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: histequalizer.cc,v 1.3 2008-11-25 13:46:17 cvsbert Exp $";
+static const char* rcsID = "$Id: histequalizer.cc,v 1.4 2009-04-09 09:13:00 cvsbert Exp $";
 
 #include "histequalizer.h"
 #include "dataclipper.h"
-#include "sets.h"
+#include "typeset.h"
 #include "statrand.h"
 
 HistEqualizer::HistEqualizer( const int nrseg )

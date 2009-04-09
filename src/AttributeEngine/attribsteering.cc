@@ -4,11 +4,9 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribsteering.cc,v 1.1 2005-02-01 14:05:24 kristofer Exp $";
+static const char* rcsID = "$Id: attribsteering.cc,v 1.2 2009-04-09 09:13:00 cvsbert Exp $";
 
 #include "attribsteering.h"
-
-#include "sets.h"
 
 
 namespace Attrib

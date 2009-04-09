@@ -4,11 +4,11 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.12 2008-03-21 11:15:19 cvshelene Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.13 2009-04-09 09:13:00 cvsbert Exp $";
 
 #include "arrayndinfo.h"
+#include "typeset.h"
 
-#include "sets.h"
 
 bool ArrayNDInfo::setSize(int dim, int sz)
 { return false; }
