@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.5 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.6 2009-04-09 09:27:18 cvsnageswara Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -32,7 +32,8 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     , ctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
     , zfac_(SI().zFactor())
-    , surf1fld_(0)
+    , zstepfld_(0)
+    , extrazfld_(0)
 {
     if ( su.is2d_ )
     {
@@ -50,18 +51,28 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     surf2fld_ = new uiIOObjSel( this, ctio2_, "Bottom surface" );
     surf2fld_->attach( alignedBelow, issingfld_ );
 
-    zstepfld_ = new uiSpinBox( this, 0, "Z step" );
-    zstepfld_->attach( alignedBelow, surf2fld_ );
-    float zstep = SI().zRange(true).step;
-    int v = (int)((zstep * zfac_) + .5);
-    zstepfld_->setValue( v );
-    zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
-    BufferString txt( "Z step " ); txt += SI().getZUnitString();
-    zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
+    BufferString txt;
+    if ( su.withstep_ )
+    {
+	zstepfld_ = new uiSpinBox( this, 0, "Z step" );
+	zstepfld_->attach( alignedBelow, surf2fld_ );
+	float zstep = SI().zRange(true).step;
+	int v = (int)((zstep * zfac_) + .5);
+	zstepfld_->setValue( v );
+	zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
+	txt = "Z step "; txt += SI().getZUnitString();
+	zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
+    }
 
-    txt = "Extra Z "; txt += SI().getZUnitString();
-    extrazfld_ = new uiSelZRange( this, false, true, txt );
-    extrazfld_->attach( alignedBelow, zstepfld_ );
+    if ( su.withz_ )
+    {
+	txt = "Extra Z "; txt += SI().getZUnitString();
+	extrazfld_ = new uiSelZRange( this, false, true, txt );
+	if ( zstepfld_ )
+	    extrazfld_->attach( alignedBelow, zstepfld_ );
+	else
+	    extrazfld_->attach( alignedBelow, surf2fld_ );
+    }
 
     setHAlignObj( surf1fld_ );
     mainwin()->finaliseDone.notify( selcb );
@@ -79,9 +90,14 @@ void uiSurfacePosProvGroup::selChg( CallBacker* )
 {
     const bool isbtwn = !issingfld_->getBoolValue();
     surf2fld_->display( isbtwn );
-    zstepfld_->display( isbtwn );
-    zsteplbl_->display( isbtwn );
-    extrazfld_->display( isbtwn );
+    if ( zstepfld_ )
+    {
+	zstepfld_->display( isbtwn );
+	zsteplbl_->display( isbtwn );
+    }
+
+    if ( extrazfld_ )
+	extrazfld_->display( isbtwn );
 }
 
 
@@ -101,14 +117,20 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 	surf2fld_->setInput( MultiID(res) );
     issingfld_->setValue( issing );
 
-    float zstep = zstepfld_->getValue() / zfac_;
-    iop.get( mGetSurfKey(zstep), zstep );
-    int v = (int)((zstep * zfac_) + .5);
-    zstepfld_->setValue( v );
+    if( zstepfld_ )
+    {
+	float zstep = zstepfld_->getValue() / zfac_;
+	iop.get( mGetSurfKey(zstep), zstep );
+	int v = (int)((zstep * zfac_) + .5);
+	zstepfld_->setValue( v );
+    }
 
-    StepInterval<float> ez = extrazfld_->getRange();
-    iop.get( mGetSurfKey(extraZ), ez );
-    extrazfld_->setRange( ez );
+    if( extrazfld_ )
+    {
+	StepInterval<float> ez = extrazfld_->getRange();
+	iop.get( mGetSurfKey(extraZ), ez );
+	extrazfld_->setRange( ez );
+    }
 
     selChg( 0 );
 }
@@ -130,9 +152,12 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 	    mErrRet("Please select the bottom surface")
 	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
 
-	const float zstep = zstepfld_->getValue() / zfac_;
+	const float zstep = zstepfld_ ? zstepfld_->getValue() / zfac_ 
+	    			      : SI().zStep();
 	iop.set( mGetSurfKey(zstep), zstep );
-	Interval<float> ez; assign( ez, extrazfld_->getRange() );
+
+	Interval<float> ez( 0, 0 );
+	if ( extrazfld_ ) assign( ez, extrazfld_->getRange() );
 	if ( mIsUdf(ez.start) ) ez.start = 0;
 	if ( mIsUdf(ez.stop) ) ez.stop = 0;
 	iop.set( mGetSurfKey(extraZ), ez );
