@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.4 2009-04-09 09:45:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.5 2009-04-09 09:48:47 cvsdgb Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -213,7 +213,7 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 
 uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     : uiObject( p, nm, mkbody(p,nm) )
-    , reDraw(this)
+    , reDrawNeeded(this)
     , reSize(this)
     , rubberBandUsed(this)
     , activatedone(this)
@@ -239,10 +239,6 @@ uiGraphicsViewBase::~uiGraphicsViewBase()
 {
     delete body_;
 }
-
-
-void uiGraphicsViewBase::update()
-{ reDraw.trigger(); }
 
 
 MouseEventHandler& uiGraphicsViewBase::getMouseEventHandler()
