@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctionvolume.h,v 1.3 2009-01-23 23:01:55 cvskris Exp $
+ RCS:		$Id: velocityfunctionvolume.h,v 1.4 2009-04-09 00:45:02 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ public:
     StepInterval<float>	getLoadedZ() const;
 
     void		enableExtrapolation(bool);
-    void		setStatics(float);
+    void		setStatics(float t,float vel);
     			//!<Only used with RMS velocities extrapolation
 
 protected:
@@ -54,6 +54,7 @@ protected:
 
     bool			extrapolate_;
     float			statics_;
+    float			staticsvel_;
 };
 
 

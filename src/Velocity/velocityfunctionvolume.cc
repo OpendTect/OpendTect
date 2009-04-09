@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.5 2009-03-03 20:00:13 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.6 2009-04-09 00:45:02 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -29,7 +29,8 @@ void VolumeFunctionSource::initClass()
 VolumeFunction::VolumeFunction( VolumeFunctionSource& source )
     : Function( source )
     , extrapolate_( false )
-    , statics_( SI().zRange(false).start )
+    , statics_( 0 )
+    , staticsvel_( 0 )
 {}
 
 
@@ -56,9 +57,10 @@ void VolumeFunction::enableExtrapolation( bool yn )
 }
 
 
-void VolumeFunction::setStatics( float statics )
+void VolumeFunction::setStatics( float time, float vel )
 {
-    statics_ = statics;
+    statics_ = time;
+    staticsvel_ = vel;
     removeCache();
 }
 
@@ -148,8 +150,8 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
 	    times += t;
 	}
 
-	return sampleVrms( vel_.arr(), statics_, times.arr(), velsz,
-			   SamplingData<double>( z0, dz ), res, nr );
+	return sampleVrms( vel_.arr(), statics_, staticsvel_, times.arr(),
+			   velsz, SamplingData<double>( z0, dz ), res, nr );
     }
 
     return true;
