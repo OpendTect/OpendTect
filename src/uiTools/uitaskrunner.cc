@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.17 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.18 2009-04-09 01:10:00 cvskris Exp $";
 
 #include "uitaskrunner.h"
 
@@ -88,7 +88,7 @@ void uiTaskRunner::onFinalise( CallBacker* )
 void uiTaskRunner::doWork( CallBacker* )
 {
     task_->enableNrDoneCounting( true );
-    task_->enableWorkContol( true );
+    task_->enableWorkControl( true );
     bool res = task_->execute();
 
     statemutex_.lock();

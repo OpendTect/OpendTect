@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.7 2009-02-02 15:51:11 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.8 2009-04-09 01:10:00 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -32,7 +32,7 @@ public:
 
     bool		isOK() const;
 
-    od_int64		totalNr() const;
+    od_int64		nrIterations() const;
     bool		doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
 
@@ -54,7 +54,7 @@ public:
     			VelGriddingFromVolumeTask( VelGriddingStepTask& );
 			~VelGriddingFromVolumeTask();
 
-    od_int64		totalNr() const;
+    od_int64		nrIterations() const;
     bool		doPrepare(int);
     bool		doWork(od_int64,od_int64,int);
 
@@ -243,7 +243,7 @@ bool VelGriddingFromFuncTask::doPrepare( int nrthreads )
 }
 
 
-od_int64 VelGriddingFromFuncTask::totalNr() const
+od_int64 VelGriddingFromFuncTask::nrIterations() const
 {
     return task_.remainingBids().totalSize();
 }
@@ -303,7 +303,7 @@ VelGriddingFromVolumeTask::~VelGriddingFromVolumeTask()
 }
 
 
-od_int64 VelGriddingFromVolumeTask::totalNr() const
+od_int64 VelGriddingFromVolumeTask::nrIterations() const
 { return task_.remainingBids().totalSize(); }
 
 

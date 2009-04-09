@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.7 2009-02-02 16:05:28 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.8 2009-04-09 01:10:00 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -40,7 +40,7 @@ protected:
 			if ( !step_.computeBinID( curbid, threadid ) )
 			    return false;
 
-			reportNrDone( 1 );
+			addToNrDone( 1 );
 
 			if ( idx>=stop )
 			    break;
@@ -64,7 +64,7 @@ protected:
 		    return true;
 		}
 
-    od_int64	totalNr() const
+    od_int64	nrIterations() const
     		{ 
 		    if ( totalnr_==-1 )
 		    {
@@ -240,7 +240,7 @@ bool ChainExecutor::prepareNewStep()
 
     curtask_->setProgressMeter( progressmeter_ );
     curtask_->enableNrDoneCounting( true );
-    curtask_->enableWorkContol( true );
+    curtask_->enableWorkControl( true );
 
     return true;
 }
