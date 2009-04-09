@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.15 2008-12-23 11:03:30 cvsdgb Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.16 2009-04-09 00:35:58 cvskris Exp $";
 
 #include "task.h"
 
@@ -21,7 +21,7 @@ Task::Task( const char* nm )
 {}
 
 
-void Task::enableWorkContol( bool yn )
+void Task::enableWorkControl( bool yn )
 {
     const bool isenabled = workcontrolcondvar_;
     if ( isenabled==yn )
@@ -43,8 +43,12 @@ void Task::controlWork( Task::Control c )
 	return;
 
     workcontrolcondvar_->lock();
-    control_ = c;
-    workcontrolcondvar_->signal(true);
+    if ( control_!=c )
+    {
+	control_ = c;
+	workcontrolcondvar_->signal(true);
+    }
+
     workcontrolcondvar_->unLock();
 }
 
@@ -146,9 +150,13 @@ public:
 
     int		nextStep()
 		{
-		    return task_->doWork(start_,stop_,threadid_)
-			? SequentialTask::Finished()
-			: SequentialTask::ErrorOccurred();
+		    if ( !task_->doWork(start_,stop_,threadid_) )
+		    {
+			task_->controlWork( Task::Stop );
+			return SequentialTask::ErrorOccurred();
+		    }
+
+		    return SequentialTask::Finished();
 		}
 
 protected:
@@ -206,6 +214,10 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
 
 
 void ParallelTask::reportNrDone( int nr )
+{ addToNrDone( nr ); }
+
+
+void ParallelTask::addToNrDone( int nr )
 {
     if ( nrdonemutex_ )
     {
@@ -253,7 +265,7 @@ Threads::ThreadWorkManager& ParallelTask::twm()
 
 bool ParallelTask::execute( bool parallel )
 {
-    totalnrcache_ = totalNr();
+    totalnrcache_ = nrIterations();
     if ( totalnrcache_<=0 )
 	return true;
 
@@ -306,8 +318,16 @@ bool ParallelTask::execute( bool parallel )
     if ( !doPrepare( tasks.size() ) )
 	return false;
 
-    const bool res = tasks.size()<2
-	? doWork( 0, totalnrcache_-1, 0 ) : twm().addWork( tasks );
+    bool res;
+    if ( tasks.size()<2 )
+	res = doWork( 0, totalnrcache_-1, 0 );
+    else
+    {
+	if ( stopAllOnFailure() )
+	    enableWorkControl( true );
+
+	res = twm().addWork( tasks );
+    }
 
     if ( !doFinish( res ) )
 	return false;

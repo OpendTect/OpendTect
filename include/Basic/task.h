@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.15 2009-02-13 14:18:43 cvsbert Exp $
+ RCS:		$Id: task.h,v 1.16 2009-04-09 00:35:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,13 +35,20 @@ public:
 			    must be called before execute(). */
 
     virtual od_int64	nrDone() const			{ return -1; }
+    			/*!<\note nrDone is only used for displaying progress
+			          and will be compared to totalNr to show
+				  user how large part of the task that is
+				  finished. */
+    			
     virtual od_int64	totalNr() const			{ return -1; }
+    			/*!\note totalNr is only used for displaying
+			         progress. */
     virtual const char*	message() const			{ return "Working"; }
     virtual const char*	nrDoneText() const		{ return "Nr Done"; }
 
     virtual bool	execute()			= 0;
 
-    virtual void	enableWorkContol(bool=true);
+    virtual void	enableWorkControl(bool=true);
     			//!<Must be called before execute()
     enum Control	{ Run, Pause, Stop };
     virtual void	controlWork(Control);
@@ -117,14 +124,14 @@ could be made parallel by adding the class:
 class CalcClass : public ParallelTask
 {
 public:
-    od_int64	totalNr() const { return N; }
+    od_int64	nrIterations() const { return N; }
     int		doWork( od_int64 start, od_int64 stop, int threadid )
     		{
 		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
 		    {
 		    	result[idx] = input1[idx] *
 				      function( idx, other, variables );
-			reportNrDone( 1 );
+			addToNrDone( 1 );
 		    }
 
 		    return true;
@@ -146,16 +153,6 @@ mClass ParallelTask : public Task
 public:
     virtual		~ParallelTask();
 
-    virtual int		maxNrThreads() const		{ return totalNr(); }
-    virtual int		minThreadSize() const		{ return 10; }
-    			/*!<\returns the minimum number of computations that
-			     effectively can be run in a separate thread.
-			     A small number will give a large overhead for when
-			     each step is quick and totalNr is small. */
-
-    virtual od_int64	totalNr() const					= 0;
-    			/*!<\returns the number of times the process should be
-			    run. */
     bool		execute() { return execute(true); }
     			/*!<Runs the process the desired number of times. \note
 			    that the function has static threads (normally the
@@ -178,21 +175,39 @@ public:
     			//!<May be -1, i.e. class does not report nrdone.
     
 protected:
+    virtual od_int64	nrIterations() const				= 0;
+    			/*!<\returns the number of times the process should be
+			    run. */
+    virtual int		maxNrThreads() const	{ return nrIterations(); }
+    virtual int		minThreadSize() const	{ return 1; }
+    			/*!<\returns the minimum number of computations that
+			     effectively can be run in a separate thread.
+			     A small number will give a large overhead for when
+			     each step is quick and nrIterations is small. */
+    virtual bool 	stopAllOnFailure() const	{ return true; }
+    			/*!<If one thread fails, should an attempt be made to
+			    stop the others? If true, enableWorkControl will
+			    be enabled, and threads should call shouldContinue()
+			    regularly. */
+
 			ParallelTask(const char* nm=0);
     od_int64		calculateThreadSize(od_int64 totalnr,int nrthreads,
 	    				    int thread) const;
 
-    void		reportNrDone( int nrdone=1 );
+    void		addToNrDone(int increment);
     			/*!<Call this from within your thread to say
 			    that you have done something. */
 
     static Threads::ThreadWorkManager&	twm();
+
+    void		reportNrDone(int nrdone);
+    			//Legacy, don't use in new code. Use addToNrDone
 private:
 
     virtual bool	doWork(od_int64 start,od_int64 stop,int threadid) = 0;
     			/*!<The functions that does the job. The function
 			    will be called with all intervals from 0 to 
-			    ParallelTask::totalNr()-1. The function must
+			    ParallelTask::nrIterations()-1. The function must
 			    be designed to be able to run in parallel.
 			    \param threadid gives an identifier (between 0 and
 			    	   nr of threads -1) that is unique to each call
