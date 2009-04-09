@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.9 2009-04-08 22:11:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.10 2009-04-09 06:40:04 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -51,7 +51,7 @@ TileResolutionTesselator( HorizonSectionTile& tile, int res, int nrblocks,
     : tile_( tile )
     , nrblocks_( nrblocks ) 
     , res_( res )			    
-    , resstep_( (int)pow(2,res) )
+    , resstep_( (int)pow(2.0,res) )
     , stripidx_( stripidx )
     , lineidx_( lineidx )
     , pointidx_( pointidx )
@@ -648,7 +648,7 @@ void HorizonSectionTile::tesselateResolution( int res )
 {
     if ( res==-1 || !needsretesselation_[res] ) return;
     
-    const int resstep = (int)pow(2, res); 
+    const int resstep = (int)pow(2.0, res); 
     const int nrsideblocks = mHorizonSectionSideSize/resstep + 
 	(mHorizonSectionSideSize%resstep ? 0 : -1);
 
@@ -756,7 +756,7 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
     const int res = getActualResolution();  
     if ( !needsretesselation_[res] && res>-1 && res<mHorizonSectionNrRes )
     {
-	const int resstep = (int)pow( 2, res );
+	const int resstep = (int)pow( 2.0, res );
 	if ( (!row % resstep) && (!col % resstep) )
     	    needsretesselation_[res] = true;
     }
@@ -929,7 +929,7 @@ void HorizonSectionTile::tesselateGlue()
 	edgeindices += startrowidx+cidx*resstep;
 
     const int nbstep5 = 
-	(int)pow(2, neighbors_[5] ? neighbors_[5]->getActualResolution() : -1);
+	(int)pow(2.0, neighbors_[5] ? neighbors_[5]->getActualResolution() : -1);
     const int nrsideblocks5 = (!neighbors_[5] || !nbstep5) ? -1 : 
     mHorizonSectionSideSize/nbstep5+(mHorizonSectionSideSize%nbstep5 ? 0 : -1);
     TypeSet<int> nbindices5;
@@ -945,7 +945,7 @@ void HorizonSectionTile::tesselateGlue()
     }
 
     const int nbstep7 = 
-	(int)pow(2, neighbors_[7] ? neighbors_[7]->getActualResolution() : -1);
+	(int)pow(2.0, neighbors_[7] ? neighbors_[7]->getActualResolution() : -1);
     const int nrsideblocks7 = (!neighbors_[7] || !nbstep7) ? -1 :
     mHorizonSectionSideSize/nbstep7+(mHorizonSectionSideSize%nbstep7 ? 0 : -1);
     const int skipnr = (mHorizonSectionSideSize+1)*mHorizonSectionSideSize;

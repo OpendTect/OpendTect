@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.8 2009-04-08 15:16:22 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.9 2009-04-09 06:40:04 cvsranojay Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -308,7 +308,7 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
     uiPoint relpos( ev.x(), ev.y() ); relpos -= center_;
     if ( relpos.x == 0 && relpos.y == 0 ) return;
 
-    const float ang = atan2( -relpos.y, relpos.x );
+    const float ang = atan2( (float)-relpos.y, (float)relpos.x );
     cursector_ = data_.sector( ang, Angle::Rad );
 
     sectorPicked.trigger();
