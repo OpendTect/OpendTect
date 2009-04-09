@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2008
- RCS:           $Id: sampledextremefindernd.h,v 1.5 2008-12-11 06:32:29 cvsnanne Exp $
+ RCS:           $Id: sampledextremefindernd.h,v 1.6 2009-04-09 00:43:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ public:
 		//!<ptr[0] ... ptr[ndim-1] is one position.
 
 protected:
-    inline od_int64	totalNr() const;
+    inline od_int64	nrIterations() const;
     inline bool		doWork(od_int64,od_int64,int);
     inline bool		findExtreme(int*) const;
     inline int		indexOf(const int*) const;
@@ -52,7 +52,7 @@ protected:
 
 
 template <class T> inline
-od_int64 SampledExtremeFinderND<T>::totalNr() const
+od_int64 SampledExtremeFinderND<T>::nrIterations() const
 { return array_.info().getTotalSz(); }
 
 
@@ -77,7 +77,7 @@ bool SampledExtremeFinderND<T>::doWork( od_int64 start, od_int64 stop, int )
 			    
     mAllocVarLenArr( int, currentextreme, ndim );
     for ( int idx=start; idx<=stop && shouldContinue();
-	  idx++, reportNrDone(1), iter.next() ) 
+	  idx++, addToNrDone(1), iter.next() ) 
     {
 	memcpy( currentextreme, iter.getPos(), ndim*sizeof(int) );
 	if ( !findExtreme( currentextreme ) )

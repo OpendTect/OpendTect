@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.7 2008-09-22 13:05:33 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.8 2009-04-09 00:43:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ protected:
     static const char*		sKeyWinParam() { return "Window parameter"; }
     static const char*		sKeyWinLen() { return "Window length"; }
 
-    inline od_int64		totalNr() const	{ return size_; }
+    inline od_int64		nrIterations() const	{ return size_; }
     inline bool			doPrepare(int);
     inline bool			doWork(od_int64 start,od_int64 stop,int);
 
@@ -195,7 +195,7 @@ bool Smoother1D<T>::doWork(od_int64 start,od_int64 stop,int)
     const int windowsize = window_.size();
     const int hwinsize = windowsize/2;
 
-    for ( int outidx=start; outidx<=stop; outidx++, reportNrDone() )
+    for ( int outidx=start; outidx<=stop; outidx++, addToNrDone(1) )
     {
 	if ( firstdefined_==-1 || outidx<firstdefined_ || outidx>lastdefined_ )
 	{

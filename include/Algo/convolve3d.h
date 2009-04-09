@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.10 2009-01-14 17:20:19 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.11 2009-04-09 00:43:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,7 @@ protected:
 
     bool		doFFT();
     inline bool		doWork( od_int64, od_int64, int );
-    od_int64		totalNr() const { return z_->info().getTotalSz(); }
+    od_int64		nrIterations() const { return z_->info().getTotalSz(); }
     const Array3D<T>*	x_;
     int			xshift0_;
     int			xshift1_;
@@ -219,7 +219,7 @@ bool Convolver3D<T>::doWork( od_int64 start, od_int64 stop, int )
 	    z_->setND( zvar, sum/ysum );
 	else z_->setND( zvar, sum );
 
-	reportNrDone( 1 );
+	addToNrDone( 1 );
 
 	if ( !iterator.next() && idx!=stop )
 	    return false;

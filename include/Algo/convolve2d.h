@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.11 2009-01-14 17:20:19 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.12 2009-04-09 00:43:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ public:
 
 protected:
     inline bool		doWork( od_int64, od_int64, int );
-    od_int64		totalNr() const { return z_->info().getSize( 0 ); }
+    od_int64		nrIterations() const { return z_->info().getSize( 0 ); }
     const Array2D<T>*	x_;
     int			xshift0_;
     int			xshift1_;
@@ -196,7 +196,7 @@ bool Convolver2D<T>::doWork( od_int64 start, od_int64 stop, int )
 	    z_->setND( zvar, sum/ysum );
 	else z_->setND( zvar, sum );
 
-	reportNrDone( 1 );
+	addToNrDone( 1 );
 
 	if ( !iterator.next() && idx!=stop )
 	    return false;

@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.31 2009-03-30 06:53:17 cvsraman Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.32 2009-04-09 00:43:27 cvskris Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -26,13 +26,13 @@ void ParallelDTriangulator::setCalcScope(const Interval<int>& rg)
 }
 
 
-od_int64 ParallelDTriangulator::totalNr() const                
+od_int64 ParallelDTriangulator::nrIterations() const                
 { return calcscope_.width()+1; }
 
 
 bool ParallelDTriangulator::doPrepare( int nrthreads )
 {
-    const int nrcoords = totalNr();
+    const int nrcoords = nrIterations();
     if ( israndom_ )
 	permutation_.erase();
     else
@@ -53,7 +53,7 @@ bool ParallelDTriangulator::doPrepare( int nrthreads )
 
 bool ParallelDTriangulator::doWork( od_int64 start, od_int64 stop,int threadid )
 {
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone(1) )
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
 	const int scopeidx = permutation_.size() ? permutation_[idx] : idx;
 	const int coordid = calcscope_.atIndex( scopeidx, 1 );

@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: zaxistransformer.cc,v 1.5 2008-09-22 13:05:33 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransformer.cc,v 1.6 2009-04-09 00:43:27 cvskris Exp $";
 
 #include "zaxistransformer.h"
 
@@ -95,7 +95,7 @@ bool ZAxisTransformer::getInterpolate() const
 { return interpolate_; }
 
 
-od_int64 ZAxisTransformer::totalNr() const
+od_int64 ZAxisTransformer::nrIterations() const
 {
     return input_
 	? input_->info().getSize(mInl) * input_->info().getSize(mCrl) : 0;
@@ -114,7 +114,7 @@ bool ZAxisTransformer::doWork( od_int64 start, od_int64 stop, int )
 
     const int inlsz = input_->info().getSize(mInl);
     const int crlsz = input_->info().getSize(mCrl);
-    for ( int idx=start; idx<=stop; idx++, reportNrDone() )
+    for ( int idx=start; idx<=stop; idx++, addToNrDone(1) )
     {
 	const int inlidx = idx / crlsz;
 	const int crlidx = idx % crlsz;

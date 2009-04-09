@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2008
- RCS:		$Id: agc.h,v 1.6 2008-09-22 13:02:16 cvskris Exp $
+ RCS:		$Id: agc.h,v 1.7 2009-04-09 00:43:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ protected:
     void		computeEnergyMute();
     bool		doWork(od_int64,od_int64,int);
     int			minThreadSize() const { return 200; }
-    od_int64		totalNr() const { return size_; }
+    od_int64		nrIterations() const { return size_; }
 
     const ValueSeries<T>*	input_;
     od_int64			size_;

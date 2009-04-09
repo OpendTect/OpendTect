@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K.Tingdahl/Y.C.Liu
  Date:          Nov 2008
- RCS:           $Id: array3dfloodfill.h,v 1.7 2009-01-02 11:22:01 cvsranojay Exp $
+ RCS:           $Id: array3dfloodfill.h,v 1.8 2009-04-09 00:43:27 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ public:
     void		addSeed(int,int,int);
     bool		isAboveIsovalue() const { return aboveisovalue_; }
     int			maxNrThreads() 	{ return compartments_.size(); }
-    od_int64		totalNr() const { return input_.info().getTotalSz(); }
+    od_int64		nrIterations() const{return input_.info().getTotalSz();}
    
 
 protected:
@@ -207,7 +207,7 @@ void Array3DFloodfill<T>::setOutput( int x0, int x1, int x2, bool addseed )
     if ( x0<0 || x0>=sz0_ || x1<0 || x1>=sz1_ || x2<0 || x2>=sz2_ )
 	return;
 
-    reportNrDone( 1 );
+    addToNrDone( 1 );
 
     const int cellidx = getWorkCompartment( x0, x1, x2 );
 

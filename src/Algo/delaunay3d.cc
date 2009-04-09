@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.19 2009-02-20 21:12:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.20 2009-04-09 00:43:27 cvskris Exp $";
 
 #include "delaunay3d.h"
 
@@ -19,13 +19,13 @@ ParallelDTetrahedralator::ParallelDTetrahedralator( DAGTetrahedraTree& dagt )
 {}
 
 
-od_int64 ParallelDTetrahedralator::totalNr() const
+od_int64 ParallelDTetrahedralator::nrIterations() const
 { return tree_.coordList().size(); }
 
 
 bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 {
-    const int nrcoords = totalNr();
+    const int nrcoords = nrIterations();
     if ( israndom_ )
 	permutation_.erase();
     else
@@ -54,7 +54,7 @@ bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
 	if ( !tree_.insertPoint(insertptid,dupid) )
 	    delayedpts += insertptid; //If failed, we delay the point.
 	else
-	    reportNrDone(1);
+	    addToNrDone(1);
     }
 
     for ( int idx=0; idx<delayedpts.size() && shouldContinue(); idx++ )
@@ -63,7 +63,7 @@ bool ParallelDTetrahedralator::doWork( od_int64 start, od_int64 stop,
 	if ( !tree_.insertPoint( delayedpts[idx], dupid ) )
 	    pErrMsg("Hmm");
 
-	reportNrDone(1);
+	addToNrDone(1);
     }
     
     return true;

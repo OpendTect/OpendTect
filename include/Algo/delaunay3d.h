@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.12 2009-02-20 21:12:16 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.13 2009-04-09 00:43:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,7 @@ public:
 protected:
 
     int			maxNrThreads() const 	{ return 1; }
-    od_int64		totalNr() const;
+    od_int64		nrIterations() const;
     bool		doWork(od_int64,od_int64,int);
     bool		doPrepare(int);
 

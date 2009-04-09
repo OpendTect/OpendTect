@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.22 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:           $Id: delaunay.h,v 1.23 2009-04-09 00:43:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,7 +157,7 @@ protected:
 #ifdef mDAGTriangleForceSingleThread
     int			maxNrThreads() const { return 1; }
 #endif
-    od_int64		totalNr() const;
+    od_int64		nrIterations() const;
     bool		doWork(od_int64,od_int64, int );
     bool		doPrepare(int);
 
