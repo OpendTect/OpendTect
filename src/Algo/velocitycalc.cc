@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.14 2009-04-03 18:24:26 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.15 2009-04-09 00:39:19 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -408,13 +408,13 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 }
 
 
-#define mComputeDixImpl( first_t, timefetch ) \
+#define mComputeDixImpl( first_t, first_v, timefetch ) \
     if ( !nrvels ) \
 	return true; \
  \
     int idx_prev = -1; \
-    double v2t_prev = 0; \
-    double t_above = first_t; \
+    double t_above = -first_t; \
+    double v2t_prev = t_above*first_v*first_v;; \
  \
     for ( int idx=0; idx<nrvels; idx++ ) \
     { \
@@ -422,7 +422,7 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
 	if ( mIsUdf(v) ) \
 	    continue; \
  \
-	double t_below = timefetch; \
+	double t_below = timefetch-first_t; \
  \
 	const double v2t = t_below*v*v; \
 	const double numerator = v2t-v2t_prev; \
@@ -456,14 +456,14 @@ bool computeDix( const float* Vrms, const SamplingData<double>& sd, int nrvels,
     else if ( span==VelocityDesc::Below )
 	spanadjustment = sd.step;
 
-    mComputeDixImpl( 0, sd.atIndex(idx)+spanadjustment );
+    mComputeDixImpl( 0, 0, (sd.atIndex(idx)+spanadjustment) );
 }
 
 
-bool computeDix( const float* Vrms, float t0, const float* t, int nrvels,
-		 float* Vint )
+bool computeDix( const float* Vrms, float t0, float v0, const float* t,
+		 int nrvels, float* Vint )
 {
-    mComputeDixImpl( t0, t[idx] );
+    mComputeDixImpl( t0, v0, Vrms[idx] );
 }
 
 
@@ -536,8 +536,8 @@ bool computeVrms( const float* Vint, float t0, const float* t, int nrvels,
 }
 
 
-bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
-		const SamplingData<double>& sd_out,float* Vout, int nr_out)
+bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
+	int nr_in,const SamplingData<double>& sd_out,float* Vout, int nr_out)
 {
     if ( nr_out<=0 )
 	return true;
@@ -546,7 +546,7 @@ bool sampleVrms(const float* Vin,float t0_in,const float* t_in,int nr_in,
 	return false;
 
     TypeSet<float> Vint( nr_in, mUdf(float) );
-    if ( !computeDix( Vin, t0_in, t_in, nr_in, Vint.arr() ) )
+    if ( !computeDix( Vin, t0_in, v0_in, t_in, nr_in, Vint.arr() ) )
 	return false;
 
     mAllocVarLenArr( float, Vint_sampled, nr_out );

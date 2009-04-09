@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.11 2009-03-18 17:47:18 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.12 2009-04-09 00:39:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ mGlobal bool computeDix(const float* Vrms,const SamplingData<double>& sd,
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
-mGlobal bool computeDix(const float* Vrms, float t0, const float* t,
+mGlobal bool computeDix(const float* Vrms, float t0, float v0, const float* t,
 			int nrlayers, float* Vint);
 
 
@@ -89,15 +89,16 @@ mGlobal bool computeVrms(const float* Vint,const SamplingData<double>& sd,
    Note that the times in t refers to the bottom of each layer, and t0
    has the start time of the top layer. */
 
-mGlobal bool computeVrms(const float* Vint,float t0,const float* t,int nrlayers,
-		         float* Vrms);
+mGlobal bool computeVrms(const float* Vint,float t0, float v0, const float* t,
+			 int nrlayers, float* Vrms);
 
 /*!Given an irregularly sampled Vrms, create a regularly sampled one. The
    function assumes constant interval velocity before and after the input
    interval.*/
 
-mGlobal bool sampleVrms(const float* Vin,float t0_in,const float* t_in,
-			int nr_in, const SamplingData<double>& sd_out,
+mGlobal bool sampleVrms(const float* Vin,float t0_in,float v0_in,
+			const float* t_in, int nr_in, 
+			const SamplingData<double>& sd_out,
 			float* Vout, int nr_out);
 
 
