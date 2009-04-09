@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.2 2009-02-26 13:00:52 cvsbert Exp $
+ RCS:		$Id: typeset.h,v 1.3 2009-04-09 09:12:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ public:
     inline virtual		~TypeSet();
     inline TypeSet<T>&		operator =(const TypeSet<T>&);
 
-    inline virtual int		size() const	{ return vec_.size(); }
+    inline int			size() const	{ return vec_.size(); }
+    inline virtual int		nrItems() const	{ return size(); }
     inline virtual void		setSize(int,T val=T());
 				/*!<\param val value assigned to new items */
     inline virtual void		setCapacity( int sz );

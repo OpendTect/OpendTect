@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Feb 2009
- RCS:		$Id: odset.h,v 1.1 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: odset.h,v 1.2 2009-04-09 09:12:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,12 @@ public:
 
     virtual		~Set()			{}
 
-    virtual int		size() const				= 0;
-    inline bool		isEmpty() const		{ return size() == 0; }
-    virtual bool	validIdx(int) const			= 0;
-    virtual void	swap(int,int)				= 0;
-    virtual void	erase()					= 0;
-    virtual void	remove(int from,int to)			= 0;
+    virtual int		nrItems() const		= 0;
+    inline bool		isEmpty() const		{ return nrItems() == 0; }
+    virtual bool	validIdx(int) const	= 0;
+    virtual void	swap(int,int)		= 0;
+    virtual void	erase()			= 0;
+    virtual void	remove(int from,int to)	= 0;
 
 };
 

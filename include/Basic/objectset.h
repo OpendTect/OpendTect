@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: objectset.h,v 1.1 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: objectset.h,v 1.2 2009-04-09 09:12:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,8 @@ public:
 
     inline bool			nullAllowed() const	{ return allow0_; }
     inline void			allowNull(bool yn=true);
-    inline virtual int		size() const		{ return vec_.size(); }
+    inline int			size() const		{ return vec_.size(); }
+    inline virtual int		nrItems() const		{ return size(); }
 
     inline virtual bool		validIdx(int) const;
     inline virtual int		indexOf(const T*) const;
