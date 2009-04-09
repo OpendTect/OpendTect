@@ -6,6 +6,10 @@ set dodeps=yes
 set docpdeps=yes
 set doupd=yes
 set dodoc=no
+set flags=""
+if ( $?OD_PMAKE_NR_PROCESSORS ) then
+	set flags="-j$OD_PMAKE_NR_PROCESSORS"
+endif
 
 source $WORK/Pmake/base/PMinit.csh
 
@@ -102,15 +106,16 @@ if ( $doupd == yes ) then
 endif
 
 if ( $dodeps == yes ) then
-    make dep MODS=$mods
-    cd plugins ; make dep
-    cd ../spec ; make dep
+    make $flags dep MODS=$mods
+    cd plugins ; make $flags dep
+    cd ../spec ; make $flags dep
     cd ..
 endif
 
-make lib MODS=$mods
+make $flags lib MODS=$mods
 make MODS=$mods
 cd plugins
+make $flags lib
 make
 cd ../spec
 make
