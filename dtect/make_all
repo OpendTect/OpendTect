@@ -6,9 +6,9 @@ set dodeps=yes
 set docpdeps=yes
 set doupd=yes
 set dodoc=no
-set flags=""
+set nrcpus=1
 if ( $?OD_PMAKE_NR_PROCESSORS ) then
-	set flags="-j$OD_PMAKE_NR_PROCESSORS"
+	set nrcpus=$OD_PMAKE_NR_PROCESSORS
 endif
 
 source $WORK/Pmake/base/PMinit.csh
@@ -27,6 +27,9 @@ else if ( "$1" == "--od" ) then
     set mods=.mods.od
 else if ( "$1" == "--doc" ) then
     set dodoc=yes
+else if ( "$1" == "--nrcpus" ) then
+    set nrcpus=$2
+    shift
 else if ( "$1" == "--help" ) then
     echo "Usage: make_all [option]"
     echo " --shallow, Do not remove libs"
@@ -35,6 +38,7 @@ else if ( "$1" == "--help" ) then
     echo " --noupd, Do not run 'dvs update'"
     echo " --od, Only make OpendTect"
     echo " --doc, Create ClassDoc"
+    echo " --nrcpus number_of_cpus"
     exit 0
 else
     goto do_it
@@ -44,6 +48,9 @@ shift
 goto parse_args
 
 do_it:
+
+set flags=""
+if ( $nrcpus > 1 ) set flags="-j$nrcpus"
 
 set hostnm=`hostname`
 if ( $USER == dgb && ($hostnm == dgb3 || $hostnm == dgbindia10) ) then
