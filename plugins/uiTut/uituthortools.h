@@ -4,18 +4,18 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uituthortools.h,v 1.4 2008-12-23 13:53:37 cvsbert Exp $
+ * ID       : $Id: uituthortools.h,v 1.5 2009-04-09 11:49:08 cvsranojay Exp $
 -*/
 
 #include "uidialog.h"
-#include "tuthortools.h"
-#include "uiioobjsel.h"
-#include "uigeninput.h"
-#include "uicombobox.h"
 
 class uiGenInput;
+class uiIOObjSel;
 class CtxtIOObj;
-namespace Tut { class HorTools; }
+class IOObj;
+
+namespace Tut { class HorSmoother; class ThicknessFinder; }
+namespace EM { class Horizon3D; }
 
 
 class uiTutHorTools : public uiDialog
@@ -47,7 +47,7 @@ protected:
     uiGenInput*		strengthfld_;
     uiGenInput*		attribnamefld_;
 
-    void		choiceSel( CallBacker* );
+    void		choiceSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 
 };

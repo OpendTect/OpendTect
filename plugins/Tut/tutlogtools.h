@@ -4,24 +4,22 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : June 2007
- * ID       : $Id: tutlogtools.h,v 1.1 2007-06-19 09:57:58 cvsraman Exp $
+ * ID       : $Id: tutlogtools.h,v 1.2 2009-04-09 11:49:08 cvsranojay Exp $
 -*/
 
-#include "bufstring.h"
-#include "welllog.h"
-#include "welllogset.h"
+#include "commondefs.h"
+
+namespace Well { class Log; }
 
 namespace Tut
 {
 
-class LogTools
+mClass LogTools
 {
 public:
 
-    			LogTools(const Well::Log& inp,Well::Log& outp)
-			    : inplog_(inp)
-			    , outplog_(outp)
-    			{}			    
+    			LogTools(const Well::Log& input,Well::Log& output);
+			   		    
 
     bool		runSmooth(int gate);
 

@@ -1,16 +1,15 @@
-
 #ifndef tutseistools_h
 #define tutseistools_h
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.6 2008-09-22 13:17:03 cvskris Exp $
+ * ID       : $Id: tutseistools.h,v 1.7 2009-04-09 11:49:08 cvsranojay Exp $
 -*/
 
 #include "executor.h"
-#include "bufstring.h"
-class CubeSampling;
+#include "cubesampling.h"
+
 class IOObj;
 class SeisTrc;
 class SeisTrcReader;
@@ -20,7 +19,7 @@ class SeisTrcWriter;
 namespace Tut
 {
 
-class SeisTools : public Executor
+mClass SeisTools : public Executor
 {
 public:
 
@@ -58,7 +57,7 @@ protected:
 
     IOObj*		inioobj_;
     IOObj*		outioobj_;
-    CubeSampling&	cs_;
+    CubeSampling	cs_;
     Action		action_;
     float		factor_;
     float		shift_;

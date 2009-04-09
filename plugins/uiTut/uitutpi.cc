@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.12 2009-02-05 14:48:23 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.13 2009-04-09 11:49:08 cvsranojay Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -19,22 +19,23 @@ static const char* rcsID = "$Id: uitutpi.cc,v 1.12 2009-02-05 14:48:23 cvsbert E
 #include "uivispartserv.h"
 #include "viswelldisplay.h"
 
-#include "ioman.h"
+#include "ioman.h"  `
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seistype.h"
+#include "survinfo.h"
 
 #include "plugins.h"
 
 static const int sTutIdx = -1100;
 
-extern "C" int GetuiTutPluginType()
+mExternC mGlobal int GetuiTutPluginType()
 {
     return PI_AUTO_INIT_LATE;
 }
 
 
-extern "C" PluginInfo* GetuiTutPluginInfo()
+mExternC mGlobal PluginInfo* GetuiTutPluginInfo()
 {
     static PluginInfo retpi = {
 	"Tutorial plugin development",
@@ -164,7 +165,7 @@ void uiTutMgr::doWells( CallBacker* )
 }
 
 
-extern "C" const char* InituiTutPlugin( int, char** )
+mExternC mGlobal const char* InituiTutPlugin( int, char** )
 {
     static uiTutMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiTutMgr( ODMainWin() );

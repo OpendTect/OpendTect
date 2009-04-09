@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.h,v 1.2 2007-06-08 06:16:34 cvsraman Exp $
+ RCS:           $Id: tutorialattrib.h,v 1.3 2009-04-09 11:49:08 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ Outputs:
 namespace Attrib
 {
 
-class Tutorial : public Provider
+mClass Tutorial : public Provider
 {
 public:
     static void		initClass();

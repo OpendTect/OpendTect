@@ -4,11 +4,17 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: tutlogtools.cc,v 1.1 2007-06-19 09:57:58 cvsraman Exp $";
+static const char* rcsID = "$Id: tutlogtools.cc,v 1.2 2009-04-09 11:49:08 cvsranojay Exp $";
 
 #include "tutlogtools.h"
+#include "welllog.h"
 #include "statruncalc.h"
 
+Tut::LogTools::LogTools( const Well::Log& inp, Well::Log& outp )
+	: inplog_(inp)
+	, outplog_(outp)
+{
+}		
 
 bool Tut::LogTools::runSmooth( const int inpgate )
 {
@@ -31,12 +37,10 @@ bool Tut::LogTools::runSmooth( const int inpgate )
 		outplog_.addValue( inplog_.dah(cpos), wcalc.median() );
 	}
 	else
-	    outplog_.addValue( inplog_.dah(cpos),
-		    				inplog_.value(cpos) );
+	    outplog_.addValue( inplog_.dah(cpos), inplog_.value(cpos) );
 
 	if ( cpos<rad && cpos>=0 )
-	    outplog_.addValue( inplog_.dah(cpos), 
-					    	inplog_.value(cpos) );
+	    outplog_.addValue( inplog_.dah(cpos), inplog_.value(cpos) );
     }
 
     return true;

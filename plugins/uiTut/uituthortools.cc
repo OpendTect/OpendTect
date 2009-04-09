@@ -5,15 +5,22 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uituthortools.cc,v 1.10 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.11 2009-04-09 11:49:08 cvsranojay Exp $";
 
 #include "uituthortools.h"
+#include "tuthortools.h"
+
 #include "ctxtioobj.h"
-#include "transl.h"
+#include "emhorizon3d.h"
+#include "emmanager.h"
+#include "emobject.h"
+#include "emsurfacetr.h"
 #include "ioobj.h"
+#include "transl.h"
+
+#include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
-#include "emsurfacetr.h"
 #include "uitaskrunner.h"
 
 uiTutHorTools::uiTutHorTools( uiParent* p )

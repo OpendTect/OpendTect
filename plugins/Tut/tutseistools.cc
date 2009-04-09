@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.10 2008-12-23 13:53:37 cvsbert Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.11 2009-04-09 11:49:08 cvsranojay Exp $";
 
 #include "cubesampling.h"
 #include "tutseistools.h"
@@ -16,12 +16,14 @@ static const char* rcsID = "$Id: tutseistools.cc,v 1.10 2008-12-23 13:53:37 cvsb
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "ioobj.h"
+#include "bufstring.h"
+
 
 
 Tut::SeisTools::SeisTools()
     : Executor("Tutorial tools: Direct Seismic")
     , inioobj_(0), outioobj_(0)
-    , rdr_(0), wrr_(0), cs_(*new CubeSampling)
+    , rdr_(0), wrr_(0)
     , trcin_(*new SeisTrc)
     , trcout_(*new SeisTrc)
 {

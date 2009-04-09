@@ -1,15 +1,30 @@
-
-
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: tuthortools.cc,v 1.7 2008-12-23 13:53:37 cvsbert Exp $";
+static const char* rcsID = "$Id: tuthortools.cc,v 1.8 2009-04-09 11:49:07 cvsranojay Exp $";
 
 #include "tuthortools.h"
+#include "emhorizon3d.h"
+#include "emsurface.h"
+#include "cubesampling.h"
+#include "survinfo.h"
+#include "emsurfaceauxdata.h"
+
+
+
 #include "ioobj.h"
+
+Tut::HorTools::HorTools(const char* title)
+    : Executor(title)
+    , horizon1_(0)
+    , horizon2_(0)
+    , iter_(0)
+    , nrdone_(0)
+{
+}
 
 
 Tut::HorTools::~HorTools()
@@ -39,8 +54,8 @@ od_int64 Tut::HorTools::totalNr() const
 }
 
 
-void Tut::HorTools::setHorSamp( StepInterval<int> inlrg, 
-				StepInterval<int> crlrg )
+void Tut::HorTools::setHorSamp( const StepInterval<int>& inlrg, 
+				const StepInterval<int>& crlrg )
 {
     hs_.set( inlrg, crlrg );
     iter_ = new HorSamplingIterator( hs_ );
@@ -48,6 +63,12 @@ void Tut::HorTools::setHorSamp( StepInterval<int> inlrg,
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+Tut::ThicknessFinder::ThicknessFinder()
+	: HorTools("Calculating Thickness")
+	, dataidx_(0)
+{
+}
 
 
 void Tut::ThicknessFinder::init( const char* attribname )
@@ -94,7 +115,13 @@ Executor* Tut::ThicknessFinder::dataSaver()
 }
 
 
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+
+Tut::HorSmoother::HorSmoother()
+    : HorTools("Smoothing Horizon")
+    , subid_(0)
+{
+}
 
 
 int Tut::HorSmoother::nextStep()
