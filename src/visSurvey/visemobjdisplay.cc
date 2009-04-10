@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.108 2009-01-09 10:58:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.109 2009-04-10 11:45:11 cvsjaap Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -54,7 +54,6 @@ EMObjectDisplay::EMObjectDisplay()
     , enableedit_( false )
     , restoresessupdate_( false )
     , burstalertison_( false )
-    , postponedposchanges_( 0 )
 {
     parposattrshown_.erase();
 
@@ -461,10 +460,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert)
     {
 	burstalertison_ = !burstalertison_;
-	if ( burstalertison_ )
-	    postponedposchanges_ = 0;
-	
-	if ( postponedposchanges_ )
+	if ( !burstalertison_ )
 	{
 	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
 		updatePosAttrib(posattribs_[idx]); 
@@ -475,9 +471,7 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
-	if ( burstalertison_ )
-	    postponedposchanges_++;
-	else
+	if ( !burstalertison_ )
 	{
 	    for ( int idx=0; idx<posattribs_.size(); idx++ ) 
 	    {
