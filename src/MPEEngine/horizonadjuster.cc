@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.54 2009-03-09 15:49:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.55 2009-04-10 12:21:20 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -136,7 +136,7 @@ float HorizonAdjuster::similarityThreshold() const
 
 int HorizonAdjuster::nextStep()
 {
-    if ( !attrdata_ && attrdata_->nrCubes() )
+    if ( !attrdata_ || !attrdata_->nrCubes() )
 	return ErrorOccurred();
 
     int count = 0;
