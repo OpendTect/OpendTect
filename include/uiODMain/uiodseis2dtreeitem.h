@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.11 2009-03-27 15:37:35 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.12 2009-04-10 14:18:32 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -109,7 +109,7 @@ mClass uiOD2DLineSetAttribItem : public uiODAttribTreeItem
 {
 public:
 				uiOD2DLineSetAttribItem(const char* parenttype);
-    bool			displayStoredData(const char*);
+    bool			displayStoredData(const char*,int component=-1);
     void			setAttrib(const Attrib::SelSpec& );
     void			clearAttrib();
 
@@ -118,6 +118,7 @@ protected:
     void			handleMenuCB(CallBacker*);
 
     MenuItem			storeditm_;
+    MenuItem			steeringitm_;
     MenuItem			attrnoneitm_;
 };
 

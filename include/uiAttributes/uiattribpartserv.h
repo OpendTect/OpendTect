@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.51 2009-04-03 14:57:35 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.52 2009-04-10 14:18:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ public:
 				     angle, i.e. -PI==PI. */
     bool		isDataClassified(const Array3D<float>&) const;
 
-    Attrib::DescID	getStoredID(const LineKey&,bool is2d);
+    Attrib::DescID	getStoredID(const LineKey&,bool is2d,int selout=-1);
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
     bool		extractData(ObjectSet<DataPointSet>&);

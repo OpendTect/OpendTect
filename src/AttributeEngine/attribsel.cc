@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.35 2009-04-06 07:25:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.36 2009-04-10 14:18:32 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -265,7 +265,7 @@ void SelInfo::fillStored( const char* filter )
 	         || ( onlysteering_ && strcmp(res,sKey::Steering) ) ) )
 	    continue;
 
-	if ( !res && onlysteering_ ) continue;
+	if ( !res && onlysteering_ && !is2d ) continue;
 
 	const char* ioobjnm = ioobj.name().buf();
 	if ( ge && !ge->matches(ioobjnm) )

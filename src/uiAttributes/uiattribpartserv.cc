@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.117 2009-04-08 14:50:57 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.118 2009-04-10 14:18:32 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -795,10 +795,11 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
 }
 
 
-Attrib::DescID uiAttribPartServer::getStoredID( const LineKey& lkey, bool is2d )
+Attrib::DescID uiAttribPartServer::getStoredID( const LineKey& lkey, bool is2d,
+       						int selout )
 {
     DescSet* ds = is2d ? adsman2d_->descSet() : adsman3d_->descSet();
-    return ds ? ds->getStoredID( lkey ) : DescID::undef();
+    return ds ? ds->getStoredID( lkey, selout ) : DescID::undef();
 }
 
 
@@ -1059,11 +1060,13 @@ MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 {
     const bool needext = SI().getSurvDataType()==SurveyInfo::Both2DAnd3D;
-    const bool is2d = stored2dmnuitem_.findItem(mnuid) ||
-		      calc2dmnuitem_.findItem(mnuid) ||
-		      nla2dmnuitem_.findItem(mnuid) ||
-		      zdomain2dmnuitem_.findItem(mnuid) ||
-		      steering2dmnuitem_.findItem(mnuid);
+    const bool is3d = stored3dmnuitem_.findItem(mnuid) ||
+		      calc3dmnuitem_.findItem(mnuid) ||
+		      nla3dmnuitem_.findItem(mnuid) ||
+		      zdomain3dmnuitem_.findItem(mnuid) ||
+		      steering3dmnuitem_.findItem(mnuid);
+    //look at 3D =trick: extra menus available in 2D cannot be reached from here
+    const bool is2d = !is3d;
 
     const bool issteering = steering2dmnuitem_.findItem(mnuid) ||
 			    steering3dmnuitem_.findItem(mnuid);

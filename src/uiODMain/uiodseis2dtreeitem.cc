@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.55 2009-04-06 11:59:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.56 2009-04-10 14:18:32 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -120,6 +120,7 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
 {
     storeditm_.checkable = true;
+    steeringitm_.checkable = true;
 }
 
 
@@ -726,6 +727,7 @@ uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     : uiODAttribTreeItem( pt )
     , attrnoneitm_("&None")
     , storeditm_("Stored &2D data")
+    , steeringitm_("Steer&ing 2D data")
 {}
 
 
@@ -775,6 +777,22 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     if ( nla && nla->nrItems() )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 
+    BufferStringSet steerdatanames;
+    seisserv->get2DStoredAttribsPartingDataType( s2d->lineSetID(),
+	    			objnm, steerdatanames, sKey::Steering, true );
+    docheckparent = false;
+    steeringitm_.removeItems();
+    for ( int idx=0; idx<steerdatanames.size(); idx++ )
+    {
+	const char* nm = steerdatanames.get(idx);
+	MenuItem* item = new MenuItem(nm);
+	const bool docheck = isstored && !strcmp(nm,as.userRef());
+	if ( docheck ) docheckparent=true;
+	mAddManagedMenuItem( &steeringitm_,item,true,docheck);
+    }
+
+    mAddMenuItem( &selattrmnuitem_, &steeringitm_, true, docheckparent );
+
     mAddMenuItem( &selattrmnuitem_, &attrnoneitm_, as.id().isValid(), false );
 }
 
@@ -800,6 +818,12 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	displayStoredData( storeditm_.findItem(mnuid)->text );
     }
+    else if ( steeringitm_.itemIndex(mnuid)!=-1 )
+    {
+	MouseCursorChanger cursorchgr( MouseCursor::Wait );
+	menu->setIsHandled(true);
+	displayStoredData( steeringitm_.findItem(mnuid)->text, 1 );
+    }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,myas ) )
     {
 	menu->setIsHandled(true);
@@ -814,7 +838,8 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
+bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
+						 int component )
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
@@ -823,7 +848,11 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
     LineKey lk( s2d->lineSetID(), attribnm );
-    const Attrib::DescID attribid = attrserv->getStoredID( lk, true );
+    //First time to ensure all components are available
+    Attrib::DescID attribid = attrserv->getStoredID( lk, true );
+    if ( component > 0 )
+	attribid = attrserv->getStoredID( lk, true, component );
+
     if ( !attribid.isValid() ) return false;
 
     const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );

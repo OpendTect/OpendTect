@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.27 2009-04-06 11:59:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.28 2009-04-10 14:18:32 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -107,6 +107,7 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
 	mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(visid));
 	if ( !so ) return;
+
 	Pol2D3D p2d3d = so->getAllowedDataType();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
 
@@ -114,10 +115,10 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	attrserv->resetMenuItems();
 	bool need2dlist = SI().has2D() && p2d3d != Only3D;
 	bool need3dlist = SI().has3D() && p2d3d != Only2D;
-	if ( need2dlist )
-	    mCreateItemsList( true, need3dlist );
 	if ( need3dlist )
 	    mCreateItemsList( false, need2dlist );
+	if ( need2dlist && p2d3d != Only2D )
+	    mCreateItemsList( true, need3dlist );
     }
 }
 
@@ -128,10 +129,14 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(uiMenuHandler*,menu,cb);
 
+    bool isonly2d = false;
+    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
+    if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
+
     selattrmnuitem_.removeItems();
     createSelMenu( selattrmnuitem_, displayID(), attribNr(), sceneID() );
 
-    if ( selattrmnuitem_.nrItems() )
+    if ( selattrmnuitem_.nrItems() || Only2D )
 	mAddMenuItem( menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
 

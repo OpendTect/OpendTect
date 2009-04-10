@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseispartserv.cc,v 1.109 2009-03-30 07:02:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseispartserv.cc,v 1.110 2009-04-10 14:18:32 cvshelene Exp $";
 
 #include "uiseispartserv.h"
 
@@ -239,11 +239,12 @@ void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid,
 void uiSeisPartServer::get2DStoredAttribsPartingDataType( const MultiID& mid,
 						          const char* linenm,
 					             BufferStringSet& attribs,
-						     const char* datatypenm )
+						     const char* datatypenm,
+       						     bool isincl )
 {
     uiSeisIOObjInfo objinfo( mid );
     objinfo.getAttribNamesForLine( linenm, attribs, true, datatypenm,
-	   			   true, false );
+	   			   !isincl, isincl );
 }
 
 
