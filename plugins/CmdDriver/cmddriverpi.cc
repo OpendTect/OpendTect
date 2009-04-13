@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.25 2009-03-05 09:04:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.26 2009-04-13 06:39:41 cvsranojay Exp $";
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -33,13 +33,13 @@ namespace CmdDrive
 {
 
 
-extern "C" int GetCmdDriverPluginType()
+mExternC int GetCmdDriverPluginType()
 {
     return PI_AUTO_INIT_LATE;
 }
 
 
-extern "C" PluginInfo* GetCmdDriverPluginInfo()
+mExternC PluginInfo* GetCmdDriverPluginInfo()
 {
     static PluginInfo retpii = {
 	"Command driver",
@@ -336,7 +336,7 @@ void uiCmdDriverMgr::cmdRecordChange( CallBacker* cb )
 }
 
 
-extern "C" const char* InitCmdDriverPlugin( int, char** )
+mExternC const char* InitCmdDriverPlugin( int, char** )
 {
     (void)new uiCmdDriverMgr( *ODMainWin() );
     return 0;
