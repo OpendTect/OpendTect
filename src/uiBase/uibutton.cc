@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibutton.cc,v 1.59 2009-03-27 12:25:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uibutton.cc,v 1.60 2009-04-13 06:44:27 cvsranojay Exp $";
 
 #include "uibutton.h"
 #include "i_qbutton.h"
@@ -233,7 +233,11 @@ void uiButton::setText( const char* txt )
 
 
 const char* uiButton::text()
-    { return mqbut()->text().toAscii().constData(); }
+{
+    static BufferString buttxt;
+    buttxt = mQStringToConstChar( mqbut()->text() );
+    return buttxt.buf();
+}
 
 
 void uiButton::activate()
