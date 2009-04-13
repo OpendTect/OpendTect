@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.5 2009-04-09 09:48:47 cvsdgb Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.6 2009-04-13 10:29:15 cvsranojay Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -169,7 +169,7 @@ void uiGraphicsViewBody::resizeEvent( QResizeEvent* event )
 
     if ( handle_.scene_ )
     {
-#ifdef __win__
+#if defined(__win__) && !defined(__msvc__)
 	QSize newsz = event->size();
 	handle_.scene_->setSceneRect( sBorder, sBorder,
 				      newsz.width()-2*sBorder,
@@ -291,7 +291,7 @@ bool uiGraphicsViewBase::hasMouseTracking() const
 
 int uiGraphicsViewBase::width() const
 {
-#ifdef __win__
+#if defined(__win__) && !defined(__msvc__)
     const int prefwidth = prefHNrPics();
     const int viewwidth = getViewArea().width();
     return prefwidth > viewwidth ? prefwidth : viewwidth;
@@ -303,7 +303,7 @@ int uiGraphicsViewBase::width() const
 
 int uiGraphicsViewBase::height() const
 {
-#ifdef __win__
+#if defined(__win__) && !defined(__msvc__)
     const int prefheight = prefVNrPics();
     const int viewheight = getViewArea().height();
     return prefheight > viewheight ? prefheight : viewheight;
