@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.29 2009-04-06 13:32:49 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.30 2009-04-13 09:30:15 cvsnanne Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -41,8 +41,8 @@ static const int sGridLinesIdx = 980;
 
 static uiODPlaneDataTreeItem::Type getType( int mnuid )
 {
-    return mnuid == 0 ? uiODPlaneDataTreeItem::Default
-		      : (mnuid==1 ? uiODPlaneDataTreeItem::Empty
+    return mnuid == 0 ? uiODPlaneDataTreeItem::Empty
+		      : (mnuid==1 ? uiODPlaneDataTreeItem::Default
 			          : uiODPlaneDataTreeItem::RGBA);
 }
 
@@ -50,7 +50,7 @@ static uiODPlaneDataTreeItem::Type getType( int mnuid )
 #define mParentShowSubMenu( treeitm ) \
     uiPopupMenu mnu( getUiParent(), "Action" ); \
     mnu.insertItem( new uiMenuItem("&Add"), 0 ); \
-    mnu.insertItem( new uiMenuItem("Add &empty"), 1 ); \
+    mnu.insertItem( new uiMenuItem("Add &default data"), 1 ); \
     mnu.insertItem( new uiMenuItem("Add &color blended"), 2 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
