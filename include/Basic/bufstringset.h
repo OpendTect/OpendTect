@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.13 2009-02-17 15:11:47 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.14 2009-04-14 05:06:54 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "manobjectset.h"
 
-mClass IOPar;
+ class IOPar;
 
 /*!\brief Set of BufferString objects */
 
