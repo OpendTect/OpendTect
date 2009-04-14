@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjsel.cc,v 1.132 2009-04-03 13:24:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobjsel.cc,v 1.133 2009-04-14 10:20:28 cvsnanne Exp $";
 
 #include "uiioobjsel.h"
 
@@ -417,7 +417,7 @@ bool uiIOObjSelGrp::processInput()
 	    ret = false;
 	}
 	else if ( confirmoverwrite_ && !asked2overwrite_ )
-	    ret = uiMSG().askGoOn( "Overwrite existing object?" );
+	    ret = uiMSG().askOverwrite( "Overwrite existing object?" );
 
 	if ( !ret )
 	{

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiioobj.cc,v 1.5 2008-11-18 17:25:15 cvsbert Exp $";
+static const char* rcsID = "$Id: uiioobj.cc,v 1.6 2009-04-14 10:20:28 cvsnanne Exp $";
 
 #include "uiioobj.h"
 #include "uimsg.h"
@@ -38,7 +38,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	    mess += FilePath(fullexpr).fileName();
 	    mess += "'\n- and everything in it! - ?";
 	}
-	if ( !uiMSG().askGoOn(mess) )
+	if ( !uiMSG().askRemove(mess) )
 	{
 	    if ( mustrm )
 		return false;
@@ -52,7 +52,7 @@ bool uiIOObj::removeImpl( bool rmentry, bool mustrm )
 	{
 	    BufferString mess = "Could not remove data file(s).\n";
 	    mess += "Remove entry from list anyway?";
-	    if ( !uiMSG().askGoOn(mess) )
+	    if ( !uiMSG().askRemove(mess) )
 		return false;
 	}
     }
@@ -87,7 +87,7 @@ bool uiIOObj::fillCtio( CtxtIOObj& ctio, bool warnifexist )
     {
 	BufferString msg( "Overwrite existing '" );
 	msg += nm; msg += "'?";
-	if ( !uiMSG().askGoOn(msg) )
+	if ( !uiMSG().askOverwrite(msg) )
 	    return false;
     }
 
