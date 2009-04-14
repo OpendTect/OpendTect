@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.19 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: separstr.h,v 1.20 2009-04-14 05:07:52 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,8 @@ private:
 
 };
 
-std::ostream& operator <<(std::ostream&,const SeparString&);
-std::istream& operator >>(std::istream&,SeparString&);
+mGlobal std::ostream& operator <<(std::ostream&,const SeparString&);
+mGlobal std::istream& operator >>(std::istream&,SeparString&);
 
 
 
