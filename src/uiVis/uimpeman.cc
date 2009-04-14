@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.141 2009-04-14 12:01:30 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.142 2009-04-14 12:16:27 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -296,16 +296,16 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
 	DataPack::ID datapackid = clickcatcher->info().getObjDataPackID();
-	const Attrib::SelSpec& as = *clickcatcher->info().getObjDataSelSpec();
+	const Attrib::SelSpec* as = clickcatcher->info().getObjDataSelSpec();
 
-	if ( h2dsp && !h2dsp->canAddSeed(as) )
+	if ( !as || !h2dsp || !h2dsp->canAddSeed(*as) )
 	{
 	    uiMSG().error( "2D tracking requires attribute from setup "
 			   "to be displayed" );
 	    return;
 	}
 	if ( datapackid > DataPack::cNoID() )
-	    engine.setAttribData( as, datapackid );
+	    engine.setAttribData( *as, datapackid );
 
 	h2dsp->setLine( lset, lname );
 	if ( !h2dsp->startSeedPick() )
