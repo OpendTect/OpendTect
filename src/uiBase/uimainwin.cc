@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.173 2009-03-24 13:26:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.174 2009-04-14 14:17:54 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -919,7 +919,12 @@ const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 	{
 	    const QFileDialog* qfd = dynamic_cast<QFileDialog*>( amw );
 
-	    if ( qfd->acceptMode() == QFileDialog::AcceptOpen ) return "Open";
+	    if ( qfd->acceptMode() == QFileDialog::AcceptOpen )
+	    {
+		return qfd->fileMode()==QFileDialog::Directory ||
+		       qfd->fileMode()==QFileDialog::DirectoryOnly
+		       ? "Choose" : "Open";
+	    }
 	    if ( qfd->acceptMode() == QFileDialog::AcceptSave ) return "Save";
 	}
 	return "";
