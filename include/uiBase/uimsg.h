@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.25 2009-03-18 14:25:16 cvsjaap Exp $
+ RCS:           $Id: uimsg.h,v 1.26 2009-04-14 04:43:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
     		//!<\retval 0=Don't save 1=Save -1=Cancel
     bool	askGoOn(const char*,bool withyesno=true);
     		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
+    bool	askGoOn(const char* msg,const char* textyes,const char* textno);
     int		askGoOnAfter(const char*,const char* cnclmsg=0,
 	    		     const char* textyes=0,const char* textno=0);
     		//!< 0=yes, 1=no, 2=cancel

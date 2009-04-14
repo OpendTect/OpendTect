@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.41 2009-03-18 14:25:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.42 2009-04-14 04:43:59 cvsnanne Exp $";
 
 
 #include "uimsg.h"
@@ -203,19 +203,22 @@ void uiMsg::about( const char* text )
 
 bool uiMsg::askGoOn( const char* text, bool yn )
 {
-    mPrepCursor();
-
     const char* oktxt = yn ? "&Yes" : "&Ok";
     const char* canceltxt = yn ? "&No" : "&Cancel";
 
-    beginCmdRecEvent();
-    const int res = QMessageBox::warning( popParnt(),
-				mCapt("Please specify"), QString(text),
-				QString(oktxt),
-				QString(canceltxt),
-				QString::null, 0, 1 );
+    return askGoOn( text, oktxt, canceltxt );
+}
 
-    endCmdRecEvent( res, oktxt,canceltxt );
+
+bool uiMsg::askGoOn( const char* text, const char* textyes, const char* textno )
+{
+    mPrepCursor();
+
+    beginCmdRecEvent();
+    const int res = QMessageBox::warning( popParnt(), mCapt("Please specify"),
+	    				  QString(text), QString(textyes),
+					  QString(textno), QString::null, 0, 1);
+    endCmdRecEvent( res, textyes, textno );
     return !res;
 }
 
