@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.13 2009-01-09 10:58:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.14 2009-04-14 11:33:54 cvsjaap Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -57,6 +57,23 @@ bool Horizon2DSeedPicker::setSectionID( const EM::SectionID& sid )
 
 EM::SectionID Horizon2DSeedPicker::getSectionID() const
 { return sectionid_; }
+
+
+bool Horizon2DSeedPicker::canAddSeed( const Attrib::SelSpec& as )
+{
+    if ( seedconmode_ == DrawBetweenSeeds )
+	return true;
+
+    addrmseed_.trigger();
+    ObjectSet<const Attrib::SelSpec> neededattribs;
+    tracker_.getNeededAttribs( neededattribs );
+    for ( int idx=0; idx<neededattribs.size(); idx++ )
+    {
+	if ( neededattribs[idx]->id() == as.id() )
+	    return true;
+    }
+    return false;
+}
 
 
 #define mGetHorizon(hor,escval) \

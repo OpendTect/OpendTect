@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.139 2009-04-01 11:42:21 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.140 2009-04-14 11:33:55 cvsjaap Exp $";
 
 #include "uimpeman.h"
 
@@ -294,16 +294,22 @@ void uiMPEMan::seedClick( CallBacker* )
 
 	engine.setActive2DLine( lset, lname );
 
+	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
 	DataPack::ID datapackid = clickcatcher->info().getObjDataPackID();
 	if ( datapackid > DataPack::cNoID() )
 	{
-	    engine.setAttribData( *clickcatcher->info().getObjDataSelSpec(),
-				  datapackid );
+	    const Attrib::SelSpec& objdataselspec =
+				*clickcatcher->info().getObjDataSelSpec();
+	    if ( h2dsp && !h2dsp->canAddSeed(objdataselspec) )
+	    {
+		uiMSG().error( "2D tracking requires attribute from setup "
+			       "to be displayed" );
+		return;
+	    }
+	    engine.setAttribData( objdataselspec, datapackid );
 	}
 
-	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
 	h2dsp->setLine( lset, lname );
-
 	if ( !h2dsp->startSeedPick() )
 	    return;
     }
@@ -384,7 +390,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker->removeSeed( pid, true, true );
 	else if ( clickcatcher->info().isShiftClicked() )
 	    seedpicker->removeSeed( pid, true, false );
-	else 
+	else
 	    seedpicker->addSeed( seedpos, false );
     }
     else

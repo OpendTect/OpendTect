@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.6 2009-01-06 10:48:18 cvsranojay Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.7 2009-04-14 11:33:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     bool		startSeedPick();
     bool		addSeed(const Coord3&,bool drop);
     bool		canAddSeed() const		{ return true; }
+    bool		canAddSeed( const Attrib::SelSpec& );
     bool		removeSeed(const EM::PosID&, 
 	    			   bool environment,
 	    			   bool retrack);
