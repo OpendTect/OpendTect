@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.26 2009-04-14 04:43:59 cvsnanne Exp $
+ RCS:           $Id: uimsg.h,v 1.27 2009-04-14 07:30:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,18 @@ public:
     void 	error(const char*,const char* part2=0,const char* part3=0);
 
     // Interaction
-    int 	notSaved(const char*,bool cancelbutt=true);
+    int		question(const char*,const char* textyes=0,const char* textno=0,
+	    		 const char* textcncl=0,const char* caption=0);
+    int 	askSave(const char*,bool cancelbutt=true);
     		//!<\retval 0=Don't save 1=Save -1=Cancel
+    int		notSaved( const char* txt, bool cancelbutt=true )
+		{ return askSave(txt,cancelbutt); } // Remove in v4.0
+    int		askRemove(const char*);
+    		//!<\retval 0=Don't remove 1=Remove
+    int		askContinue(const char*);
+    		//!<\retval 0=Abort 1=Continue
+    int		askOverwrite(const char*);
+
     bool	askGoOn(const char*,bool withyesno=true);
     		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
     bool	askGoOn(const char* msg,const char* textyes,const char* textno);

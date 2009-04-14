@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.42 2009-04-14 04:43:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.43 2009-04-14 07:30:29 cvsnanne Exp $";
 
 
 #include "uimsg.h"
@@ -173,22 +173,59 @@ void uiMsg::error( mDeclArgs )
 }
 
 
-int uiMsg::notSaved( const char* text, bool cancelbutt )
+int uiMsg::askSave( const char* text, bool wcancel )
 {
-    mPrepCursor();
     const char* savetxt = "&Save";
     const char* dontsavetxt = "&Don't save";
     const char* canceltxt = "&Cancel";
+    return question( text, savetxt, dontsavetxt,
+	    	     wcancel ? canceltxt : 0, "Data not saved" );
+}
 
+
+int uiMsg::askRemove( const char* text )
+{
+    const char* yestxt = "&Remove";
+    const char* notxt = "&Cancel";
+    return question( text, yestxt, notxt, 0, "Remove data" );
+}
+
+
+int uiMsg::askContinue( const char* text )
+{
+    const char* yestxt = "&Continue";
+    const char* notxt = "&Abort";
+    return question( text, yestxt, notxt, 0 );
+}
+
+
+int uiMsg::askOverwrite( const char* text )
+{
+    const char* yestxt = "&Overwrite";
+    const char* notxt = "&Cancel";
+    return question( text, yestxt, notxt, 0 );
+}
+
+
+int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
+		     const char* cncltxt, const char* title )
+{
+    mPrepCursor();
     beginCmdRecEvent();
+
+    if ( !yestxt || !*yestxt )
+	yestxt = "Yes";
+    if ( !notxt || !*notxt )
+	notxt = "No";
+
     const int res = QMessageBox::question( popParnt(),
-				mCapt("Data not saved"), QString(text),
-				QString(savetxt),
-				QString(dontsavetxt),
-				cancelbutt ? QString(canceltxt) : QString::null,
+				mCapt(title), QString(text),
+				QString(yestxt),
+				QString(notxt),
+				cncltxt ? QString(cncltxt) : QString::null,
 			       	0, 2 );
 
-    endCmdRecEvent( res, savetxt, dontsavetxt, canceltxt );
+    endCmdRecEvent( res, yestxt, notxt, cncltxt );
     return res == 0 ? 1 : (res == 1 ? 0 : -1);
 }
 
