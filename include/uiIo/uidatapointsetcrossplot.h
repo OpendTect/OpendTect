@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.20 2009-04-08 10:38:15 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.21 2009-04-15 12:10:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,22 @@ public:
 	DataPointSet::ColID	colid_;
     };
 
+    mStruct SelectionArea
+    {
+	enum SelectionType	{ Rectangle, Polygon };
+
+	    			SelectionArea(uiRect*);
+	    			SelectionArea(ODPolygon<int>*);
+				~SelectionArea();
+
+	SelectionType		type_;
+	bool			isInside(const uiPoint&) const;
+	bool			isValid() const;
+
+	uiRect*			rect_;
+	ODPolygon<int>*		poly_;	
+    };
+
     AxisData			x_;
     AxisData			y_;
     AxisData			y2_;
@@ -102,7 +118,7 @@ public:
     void			prepareItems(bool y2);
     void			addItemIfNew(int itmidx,MarkerStyle2D&,
 	    				uiGraphicsItemGroup*,uiAxisHandler&,
-					uiDataPointSet::DRowID);
+					uiDataPointSet::DRowID,bool);
     void			setItem(uiGraphicsItem*,bool y2,const uiPoint&);
     void			setAnnotEndTxt(uiAxisHandler&);
     bool			drawPoints(uiGraphicsItemGroup*,
@@ -116,8 +132,11 @@ public:
     				{ return selectable_; }
     void			setSelectable( bool y1, bool y2 );
     void			removeSelections();
+    void			deleteSelections(bool);
+    void			removePoint(uiDataPointSet::DRowID,
+					    bool isy2,int itmidx);
     void			checkSelection(uiDataPointSet::DRowID,
-				   uiGraphicsItem*,bool, const AxisData&);
+				   uiGraphicsItem*,bool,const AxisData&);
     void			getSelectableRanges();
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
@@ -156,7 +175,6 @@ public:
 				{ rectangleselection_ = yn; }
 protected:
 
-    uiPoint			selstartpos_;
     uiDataPointSet&		uidps_;
     DataPointSet&		dps_;
     Setup			setup_;
@@ -164,12 +182,9 @@ protected:
     uiPolygonItem*		selectionpolygonitem_;
     uiGraphicsItemGroup*	yptitems_;
     uiGraphicsItemGroup*	y2ptitems_;
-    uiGraphicsItemGroup*	selecteditems_;
     uiLineItem*			regrlineitm_;
     uiLineItem*			y1userdeflineitm_;
     uiLineItem*			y2userdeflineitm_;
-    BoolTypeSet*		selectedypts_;
-    BoolTypeSet*		selectedy2pts_;
     LinStats2D&			lsy1_;
     LinStats2D&			lsy2_;
     bool			doy2_;
@@ -183,20 +198,20 @@ protected:
     int				curgrp_;
     int				selyitems_;
     int				sely2items_;
+    int				curselarea_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
     Interval<int>		usedxpixrg_;
     TypeSet<RowCol>		selrowcols_;
+    TypeSet<int>		yrowidxs_;
+    TypeSet<int>		y2rowidxs_;
     bool			selrowisy2_;
 
-    uiRect&			selectedarea_;
-    ObjectSet<uiRect>		selrectareaset_;
-    ObjectSet< ODPolygon<int> > selpolyareaset_;
+    ObjectSet<SelectionArea>	selareaset_;
     uiRect&			yselectablerg_;
     uiRect&			y2selectablerg_;
     bool                        isy1selectable_;
     bool                        isy2selectable_;
-    ODPolygon<int>*		odselectedpolygon_;
  
     void 			initDraw();
     void 			setDraw();

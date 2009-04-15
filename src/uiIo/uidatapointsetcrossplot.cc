@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.34 2009-04-08 10:38:15 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.35 2009-04-15 12:10:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.34 2009-04-08 10:38:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.35 2009-04-15 12:10:48 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
+
+#include "uibutton.h"
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointset.h"
 #include "uidialog.h"
@@ -24,6 +26,8 @@ static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.34 2009-04-08 10
 #include "uispinbox.h"
 #include "uitoolbar.h"
 
+#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "draw.h"
 #include "datapointset.h"
 #include "datainpspec.h"
@@ -37,7 +41,6 @@ static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.34 2009-04-08 10
 #include "statruncalc.h"
 #include "sorting.h"
 #include "settings.h"
-#include <iostream>
 
 static const int cMaxPtsForMarkers = 20000;
 static const int cMaxPtsForDisplay = 100000;
@@ -97,10 +100,48 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
 }
 
 
+uiDataPointSetCrossPlotter::SelectionArea::SelectionArea( uiRect* rect )
+    : type_( uiDataPointSetCrossPlotter::SelectionArea::Rectangle )
+    , rect_(rect)
+    , poly_(0)
+{
+}
+
+
+uiDataPointSetCrossPlotter::SelectionArea::SelectionArea( ODPolygon<int>* poly )
+    : type_( uiDataPointSetCrossPlotter::SelectionArea::Polygon )
+    , rect_(0)
+    , poly_(poly)
+{
+}
+
+
+uiDataPointSetCrossPlotter::SelectionArea::~SelectionArea()
+{
+    delete rect_;
+    delete poly_;
+}
+
+
+bool uiDataPointSetCrossPlotter::SelectionArea::isInside(
+	const uiPoint& pos ) const
+{
+    return type_ == Polygon ? poly_->isInside(pos,true,0)
+			    : rect_->contains( pos );
+}
+
+
+bool uiDataPointSetCrossPlotter::SelectionArea::isValid() const
+{
+    return type_ == Polygon ? !poly_->isSelfIntersecting()
+			    : (rect_->width()>1 && rect_->height()>1);
+}
+
+
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidps,
 			    const uiDataPointSetCrossPlotter::Setup& su )
-    : uiGraphicsView(p,"Data pointset crossplotter" )
+    : uiGraphicsView(p,"Data pointset crossplotter",true )
     , dps_(uidps.pointSet())
     , uidps_(uidps)
     , setup_(su)
@@ -125,10 +166,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , userdefy2lp_(*new LinePars)
     , yptitems_(0)
     , y2ptitems_(0)
-    , selectedypts_(0)
-    , selectedy2pts_(0)
-    , selecteditems_(0)
-    , odselectedpolygon_(0)
     , selectionpolygonitem_(0)
     , regrlineitm_(0)
     , y1userdeflineitm_(0)
@@ -141,7 +178,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , isy2selectable_(false)
     , mousepressed_(false)
     , pointstobeselected_(false)
-    , selectedarea_( *new uiRect(0,0,0,0) )
     , yselectablerg_( *new uiRect(0,0,0,0) )
     , y2selectablerg_( *new uiRect(0,0,0,0) )
 {
@@ -151,8 +187,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     x_.defaxsu_.border_ = setup_.minborder_;
     y_.defaxsu_.border_ = setup_.minborder_;
     y2_.defaxsu_.border_ = setup_.minborder_;
-
-    selecteditems_ = new uiGraphicsItemGroup();
+    
     meh_.buttonPressed.notify( mCB(this,uiDataPointSetCrossPlotter,mouseClick));
     meh_.buttonReleased.notify( mCB(this,uiDataPointSetCrossPlotter,mouseRel));
     initDraw();
@@ -178,8 +213,6 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
     delete &lsy1_;
     delete &lsy2_;
-    if( selectedypts_ ) delete selectedypts_;
-    if( selectedy2pts_ ) delete selectedy2pts_;
 }
 
 #define mHandleAxisAutoScale(axis) \
@@ -241,12 +274,71 @@ void uiDataPointSetCrossPlotter::drawDeSelectedItems()
 }
 
 
+void uiDataPointSetCrossPlotter::removePoint( uiDataPointSet::DRowID rid,
+					      bool isy2, int itmidx )
+{
+    for ( int idx=0; idx<selareaset_.size(); idx++ )
+    {
+	SelectionArea* selarea = selareaset_[idx];
+	if ( !selarea )
+	    continue;
+
+	uiGraphicsItemGroup* curitmgrp = isy2 ? y2ptitems_ : yptitems_ ;
+	if ( !curitmgrp )
+	    return;
+	uiGraphicsItem* item = curitmgrp->getUiItem( itmidx );
+	if ( !item )
+	    continue;
+	uiPoint itempos = item->getPos();
+	const bool itmselected = selarea->isInside( itempos );
+	if ( isy1selectable_ && !isy2 )
+	{
+	    if ( itmselected && yselectablerg_.contains(itempos) )
+	    {
+		curitmgrp->getUiItem( itmidx )->setVisible( false );
+		yrowidxs_[ itmidx ] = -1;
+		BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+		float* vals = dps_.bivSet().getVals( pos );
+		vals[ dps_.nrFixedCols()+y_.colid_ ] = mUdf(float);
+	    }
+	}
+	if ( isy2selectable_ && y2ptitems_ && isY2Shown() && isy2 )
+	{
+	    if ( itmselected && y2selectablerg_.contains(itempos) )
+	    {
+		curitmgrp->getUiItem( itmidx )->setVisible( false );
+		y2rowidxs_[ itmidx ] = -1;
+		BinIDValueSet::Pos pos = dps_.bvsPos(rid);
+		float* vals = dps_.bivSet().getVals( pos );
+		vals[ dps_.nrFixedCols()+y2_.colid_ ] = mUdf(float);
+	    }
+	}
+    }
+}
+
+
+void uiDataPointSetCrossPlotter::deleteSelections( bool isy2 )
+{
+    TypeSet<BinIDValueSet::Pos> removepos;
+    int itmidx = 0;
+    TypeSet<int>& rowidxs = isy2 ? y2rowidxs_ : yrowidxs_;
+    for ( int rid=0; rid<rowidxs.size(); rid++ )
+    {
+	if ( rowidxs[rid] < 0 )
+	    continue;
+	removePoint( rowidxs[rid], isy2, itmidx );
+	itmidx++;
+    }
+    dps_.dataChanged();
+    uidps_.redoAll();
+}
+
+
 void uiDataPointSetCrossPlotter::removeSelections()
 {
     drawDeSelectedItems();
     selrowcols_.erase();
-    deepErase( selrectareaset_ );
-    deepErase( selpolyareaset_ );
+    deepErase( selareaset_ );
     selyitems_ = 0;
     sely2items_ = 0;
     
@@ -264,14 +356,24 @@ void uiDataPointSetCrossPlotter::removeSelections()
 }
 
 
+void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
+{
+    isy1selectable_ = y1;
+    isy2selectable_ = y2;
+}
+
+
 void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 {
+    if ( getMouseEventHandler().event().buttonState() != OD::ControlButton )
+	removeSelections();
+
     mousepressed_ = true;
-    selstartpos_ = getCursorPos();
     if ( !rectangleselection_ )
     {
-	odselectedpolygon_ = new ODPolygon<int>();
-	odselectedpolygon_->add( selstartpos_ );
+	ODPolygon<int>* poly = new ODPolygon<int>;
+	selareaset_ += new SelectionArea( poly );
+	poly->add( getCursorPos() );
 	if ( !selectionpolygonitem_ )
 	{
 	    selectionpolygonitem_ = new uiPolygonItem();
@@ -280,15 +382,12 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 	    scene().addItem( selectionpolygonitem_ );
 	}
 	else
-	    selectionpolygonitem_->setPolygon( *odselectedpolygon_ );
+	    selectionpolygonitem_->setPolygon( *poly );
     }
-}
+    else
+	selareaset_ += new SelectionArea( new uiRect(getCursorPos(),-1) );
 
-
-void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
-{
-    isy1selectable_ = y1;
-    isy2selectable_ = y2;
+    curselarea_ = selareaset_.size() - 1;
 }
 
 
@@ -296,9 +395,12 @@ void uiDataPointSetCrossPlotter::drawPolygon( CallBacker* )
 {
     if ( !selectable_ || rectangleselection_ || !mousepressed_ )
 	return;
-    if ( odselectedpolygon_ )
-	odselectedpolygon_->add( getCursorPos() );
-    selectionpolygonitem_->setPolygon( *odselectedpolygon_ );
+
+    ODPolygon<int>* poly = selareaset_.validIdx(curselarea_) ?
+	selareaset_[curselarea_]->poly_ : 0;
+    if ( poly )
+	poly->add( getCursorPos() );
+    selectionpolygonitem_->setPolygon( *poly );
 }
 
 
@@ -307,26 +409,17 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     mousepressed_ = false;
     if ( !selectable_ )
 	return;
-    if ( !rectangleselection_ && odselectedpolygon_->isSelfIntersecting() )
+
+    if ( !selareaset_[curselarea_]->isValid() )
     {
-	uiMSG().error( "Polygon drawn is not a valid one" );
+	selareaset_.remove( curselarea_ );
+	uiMSG().error( "Selection area is not valid" );
 	return;
     }
+
     uiPoint pt;
     if ( rectangleselection_ )
-    {
-	selectedarea_ = uiRect( rectangleselection_ ? selstartpos_ : pt,
-				rectangleselection_ ? getCursorPos() : pt );
-	if ( getMouseEventHandler().event().buttonState() == OD::ControlButton )
-	    selrectareaset_ += new uiRect( selectedarea_ );
-	else
-	{
-	    removeSelections();
-	    selrectareaset_ += new uiRect( selectedarea_ );
-	}
-    }
-    else
-	selpolyareaset_ += odselectedpolygon_;
+	selareaset_[curselarea_]->rect_->setBottomRight( getCursorPos() );
     
     getSelectableRanges();
     pointstobeselected_ = true;
@@ -602,7 +695,10 @@ void uiDataPointSetCrossPlotter::drawContent( bool withaxis )
     if ( y2_.axis_ && doy2_ )
 	drawData( y2_, true );
     else if ( y2ptitems_ )
+    {
+	y2rowidxs_.erase();
 	y2ptitems_->removeAll( true );
+    }
     
     if ( pointstobeselected_ )
 	pointsSelected.trigger();
@@ -631,7 +727,8 @@ void uiDataPointSetCrossPlotter::prepareItems( bool y2 )
 void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
        					       uiGraphicsItemGroup* curitmgrp,
        					       uiAxisHandler& yah,
-       					       uiDataPointSet::DRowID rid )
+       					       uiDataPointSet::DRowID rid,
+					       bool isy2 )
 {
     if ( itmidx >= curitmgrp->getSize() )
     {
@@ -640,13 +737,16 @@ void uiDataPointSetCrossPlotter::addItemIfNew( int itmidx,MarkerStyle2D& mstyle,
 	    itm = new uiPointItem();
 	else
 	{
-	    mstyle.size_ = dps_.isSelected(rid) ? 4 : 2;
+	    mstyle.size_ = 2;
 	    itm = new uiMarkerItem( mstyle, false );
 	}
 
 	itm->setPenColor( yah.setup().style_.color_ );
 	curitmgrp->add( itm );
+	isy2 ? y2rowidxs_ += rid : yrowidxs_ += rid;
     }
+    else
+	isy2 ? y2rowidxs_[itmidx] = rid : yrowidxs_[itmidx] = rid;
 }
 
 
@@ -691,20 +791,14 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 	     const uiDataPointSetCrossPlotter::AxisData& yad )
 {
     if ( !item ) return;
-    const int selsize = rectangleselection_ ? selrectareaset_.size()
-					    : selpolyareaset_.size();
-    for ( int idx=0; idx<selsize; idx++ )
+    for ( int idx=0; idx<selareaset_.size(); idx++ )
     {
-	uiRect* selarea = selrectareaset_.size() ? selrectareaset_[idx] : 0;
-	ODPolygon<int>* selpolygon =
-		    selpolyareaset_.size() ? selpolyareaset_[idx] : 0;
-	if ( rectangleselection_ ? !selarea : !selpolygon )
-	    return;
+	SelectionArea* selarea = selareaset_.size() ? selareaset_[idx] : 0;
+	if ( !selarea )
+	    continue;
 
 	const uiPoint itempos = item->getPos();
-	const bool itmselected =
-		rectangleselection_ ? selarea->contains(itempos)
-				    : selpolygon->isInside(itempos,true,0);
+	const bool itmselected = selarea->isInside( itempos );
 	if ( isy1selectable_ && !isy2 )
 	{
 	    if ( itmselected && yselectablerg_.contains(itempos) )
@@ -716,7 +810,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		selrowcols_ += RowCol( uidps_.tRowID(rid),
 				       uidps_.tColID(yad.colid_) );
 		
-		isy2 ? sely2items_++ : selyitems_++;
+		selyitems_++;
 	    }
 	    else
 		dps_.setSelected( rid, false );
@@ -732,7 +826,7 @@ void uiDataPointSetCrossPlotter::checkSelection( uiDataPointSet::DRowID rid,
 		selrowcols_ += RowCol( uidps_.tRowID(rid),
 				       uidps_.tColID(yad.colid_) );
 		
-		isy2 ? sely2items_++ : selyitems_++;
+		sely2items_++;
 	    }
 	    else
 		dps_.setSelected( rid, false );
@@ -767,7 +861,7 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 	if ( !xpixrg.includes(pt.x) || !ypixrg.includes(pt.y) )
 	    continue;
 
-	addItemIfNew( itmidx, mstyle, curitmgrp, yah, rid );
+	addItemIfNew( itmidx, mstyle, curitmgrp, yah, rid, isy2 );
 
 	setItem( curitmgrp->getUiItem(itmidx), isy2, pt );
 	checkSelection( rid, curitmgrp->getUiItem(itmidx), isy2, yad );
@@ -783,7 +877,10 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
     if ( itmidx < curitmgrp->getSize() )
     {
 	for ( int idx=itmidx; idx<curitmgrp->getSize(); idx++ )
+	{
+	    isy2 ? y2rowidxs_[ itmidx ] = -1 : yrowidxs_[ itmidx ] = -1;
 	    curitmgrp->getUiItem(idx)->setVisible(false);
+	}
     }
     
     if ( nrptsdisp < 1 )
@@ -795,7 +892,6 @@ bool uiDataPointSetCrossPlotter::drawPoints( uiGraphicsItemGroup* curitmgrp,
 void uiDataPointSetCrossPlotter::drawData(
     const uiDataPointSetCrossPlotter::AxisData& yad, bool isy2 )
 {
-    selecteditems_->removeAll( true );
     uiAxisHandler& xah = *x_.axis_;
     uiAxisHandler& yah = *yad.axis_;
 
@@ -952,9 +1048,19 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections), 
 	    "Remove all selections" );
     
+    disptb_.addButton( "trashcan.png",
+	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections), 
+	    "Delete all selections" );
+
+    disptb_.addButton( "seltable.png",
+	    mCB(this,uiDataPointSetCrossPlotWin,shoeTableSel), 
+	    "Show selections in table" );
+
     disptb_.addButton( "settings.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,setSelectionDomain), 
 	    "Selection settings" );
+
+    disptb_.addObject( plotter_.getSaveImageTB(this) );
 
     maniptb_.addButton( "xplotprop.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,editProps),"Properties",false );
@@ -983,6 +1089,20 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 
 void uiDataPointSetCrossPlotWin::removeSelections( CallBacker* )
 {
+    plotter_.removeSelections();
+}
+
+
+void uiDataPointSetCrossPlotWin::shoeTableSel( CallBacker* )
+{
+    uidps_.notifySelectedCell();
+}
+
+
+void uiDataPointSetCrossPlotWin::deleteSelections( CallBacker* )
+{
+    plotter_.deleteSelections( true );
+    plotter_.deleteSelections( false );
     plotter_.removeSelections();
 }
 

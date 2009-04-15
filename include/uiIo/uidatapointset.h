@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.17 2009-04-01 07:38:39 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.18 2009-04-15 12:10:48 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,8 @@ public:
     TRowID			tRowID(DRowID did=-99) const;
     DColID			dColID(TColID tid=-99) const;
     TColID			tColID(DColID did=-99) const;
+    
+    void			notifySelectedCell();
 
 protected:
 
@@ -174,7 +176,7 @@ protected:
     void			save(CallBacker*);
     void			delSelRows(CallBacker*);
     void			getSelPts(CallBacker*);
-    void			notifySelectedCell(CallBacker*);
+    void			showStatusMsg(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.39 2009-04-08 10:38:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.40 2009-04-15 12:10:48 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -485,7 +485,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 	xpl.selectionChanged.notify( mCB(this,uiDataPointSet,xplotSelChg) );
 	xpl.removeRequest.notify( mCB(this,uiDataPointSet,xplotRemReq) );
 	xplotwin_->plotter().pointsSelected.notify(
-		mCB(this,uiDataPointSet,notifySelectedCell) );
+		mCB(this,uiDataPointSet,showStatusMsg) );
 	xplotwin_->windowClosed.notify( mCB(this,uiDataPointSet,xplotClose) );
     }
 
@@ -496,7 +496,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 }
 
 
-void uiDataPointSet::notifySelectedCell( CallBacker* )
+void uiDataPointSet::showStatusMsg( CallBacker* )
 {
     BufferString msg( "Y Selected: ", xplotwin_->plotter().nrYSels() );
     if ( xplotwin_->plotter().isY2Shown() )
@@ -505,6 +505,11 @@ void uiDataPointSet::notifySelectedCell( CallBacker* )
 	msg += xplotwin_->plotter().nrY2Sels();
     }
     xplotwin_->statusBar()->message( msg, 1 );
+}
+
+
+void uiDataPointSet::notifySelectedCell()
+{
     TypeSet<RowCol> selectedrowcols( xplotwin_->plotter().getSelectedCells() );
     if ( selectedrowcols.isEmpty() )
     {
