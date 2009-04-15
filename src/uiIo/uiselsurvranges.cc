@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.18 2009-03-27 15:52:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.19 2009-04-15 07:48:30 cvsnageswara Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -285,8 +285,6 @@ void uiSelNrRange::setLimitRange( const StepInterval<int>& limitrg )
     startfld_->setInterval( limitrg );
     if ( icstopfld_ )
 	icstopfld_->setInterval( limitrg );
-    if ( stepfld_ )
-	stepfld_->setInterval( limitrg );
 }
 
 
@@ -364,6 +362,13 @@ void uiSelHRange::setSampling( const HorSampling& hs )
 {
     inlfld_->setRange( hs.inlRange() );
     crlfld_->setRange( hs.crlRange() );
+}
+
+
+void uiSelHRange::setLimits( const HorSampling& hs )
+{
+    inlfld_->setLimitRange( hs.inlRange() );
+    crlfld_->setLimitRange( hs.crlRange() );
 }
 
 

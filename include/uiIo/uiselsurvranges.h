@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.12 2009-03-27 15:52:11 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.13 2009-04-15 07:48:30 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,7 @@ public:
 
     HorSampling		getSampling() const;
     void		setSampling(const HorSampling&);
+    void		setLimits(const HorSampling&);
 
     uiSelNrRange*	inlfld_;
     uiSelNrRange*	crlfld_;
