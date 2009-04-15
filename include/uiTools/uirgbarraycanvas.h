@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.8 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.9 2009-04-15 12:13:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,11 @@ public:
     public:
 			Setup( bool sb = true, bool hd = true,int w=0, int h=0 )
 			    : scrollbar_(sb)
+			    , withsaveimage_(false)
 			    , width_(w)
 			    , height_(h)	{}
 	mDefSetupMemb	(bool,scrollbar)
+	mDefSetupMemb	(bool,withsaveimage)
 	mDefSetupMemb	(int,width)
 	mDefSetupMemb	(int,height)
     };
