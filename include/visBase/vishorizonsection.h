@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.6 2009-04-08 22:11:13 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.7 2009-04-15 22:00:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -24,14 +24,16 @@ class SoState;
 class SoIndexedLineSet;
 class SoIndexedPointSet;
 class SoIndexedTriangleStripSet;
+class SoNormal;
 class SoTextureComposer;
 class ZAxisTransform;
 
 namespace Geometry { class BinIDSurface; }
 
 
-#define mHorizonSectionNrRes	6
-#define mHorizonSectionSideSize	62 //This is the size of blocks of the tile
+#define mHorSectNrRes		6
+#define mHorSectSideSize	62 //This is the size of blocks of the tile
+#define mHorSectNrSideKnots	63 
 
 namespace visBase
 {
@@ -108,6 +110,13 @@ public:
     void			setTextureComposerSize(int,int);
     void			setTextureComposerOrig(int globrow,int globcol);
 
+    int				getNormalIdx(int row,int col,int res) const;
+    int				getNormalIdx(int crdidx,int res) const;
+    bool			computeNormal(int r,int c,int spacing,
+	    				      Coord3& normal);
+    void			computeAllNormals();
+    				/*<Should be called when some pos changed.*/
+
     void			updateGlue();
     SoLockableSeparator*	getNodeRoot() const	{ return root_; }
     visBase::Coordinates*	getCoords() const	{ return coords_; }
@@ -117,12 +126,6 @@ protected:
     int				getAutoResolution(SoState*);
     void			tesselateGlue();
     void			tesselateResolution(int);
-    void			setCoordIndices(SoIndexedTriangleStripSet& tri,
-	    					SoIndexedLineSet& lines, 
-						SoIndexedPointSet& points,
-			    			int& idx0,int& idx1,int& idx2,
-	    					const TypeSet<int>& stripsizes,
-						const TypeSet<int>& indices);
 
     HorizonSectionTile*		neighbors_[9];
 
@@ -130,12 +133,15 @@ protected:
     visBase::Coordinates*	coords_;
     SoTextureComposer*		texture_;
     SoSwitch*			resswitch_;
+    SoNormal*			normals_;
+    int				normalstartidx[mHorSectNrRes];
+    int				spacing[mHorSectNrRes];
 
-    bool			needsretesselation_[mHorizonSectionNrRes];
-    SoGroup*			resolutions_[mHorizonSectionNrRes];
-    SoIndexedTriangleStripSet*	triangles_[mHorizonSectionNrRes];
-    SoIndexedLineSet*		lines_[mHorizonSectionNrRes];
-    SoIndexedPointSet*		points_[mHorizonSectionNrRes];
+    bool			needsretesselation_[mHorSectNrRes];
+    SoGroup*			resolutions_[mHorSectNrRes];
+    SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
+    SoIndexedLineSet*		lines_[mHorSectNrRes];
+    SoIndexedPointSet*		points_[mHorSectNrRes];
 
     visBase::Coordinates*	gluecoords_;
     SoIndexedTriangleStripSet*	gluetriangles_;
