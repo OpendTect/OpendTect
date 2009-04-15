@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.142 2009-04-14 12:16:27 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.143 2009-04-15 05:40:09 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -111,7 +111,7 @@ void uiMPEMan::addButtons()
     toolbar->setShortcut(seedidx,"Tab");
     toolbar->addSeparator();
 
-    trackinvolidx = mAddButton( "track_seed.png", trackInVolume,
+    trackinvolidx = mAddButton( "autotrack.png", trackInVolume,
     				"Auto-track", false );
     toolbar->addSeparator();
 
@@ -163,6 +163,8 @@ void uiMPEMan::addButtons()
     nrstepsbox->setMinValue( 1 );
     toolbar->addObject( nrstepsbox );
     toolbar->addSeparator();
+
+    mAddButton( "tracker-settings.png", showSettingsCB, "Settings", false );
 
     undoidx = mAddButton( "undo.png", undoPush, "Undo", false );
     redoidx = mAddButton( "redo.png", redoPush, "Redo", false );
@@ -1157,6 +1159,12 @@ void uiMPEMan::retrackModeCB( CallBacker* )
     const bool ison = toolbar->isOn( retrackidx );
     showTracker( ison );
     engine().setTrackMode( ison ? TrackPlane::ReTrack : TrackPlane::None );
+}
+
+
+void uiMPEMan::showSettingsCB( CallBacker* )
+{
+    // TODO
 }
 
 
