@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.27 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.28 2009-04-15 12:13:41 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -529,10 +529,9 @@ void uiAxisHandler::drawName()
 	const bool isleft = setup_.side_ == uiRect::Left;
 	const int x = isleft ? pixBefore() - wdthx_ + 5 : width_-3;
 	const int y = height_ / 2;
-	const Alignment al( isleft ? Alignment::Right : Alignment::Left,
-			    Alignment::VCenter );
-	nameitm_->setAlignment( al );
+	const Alignment al( Alignment::Left, Alignment::VCenter );
 	nameitm_->setPos( uiPoint(x,y) );
+	nameitm_->setAlignment( al );
 	if ( !ynmtxtvertical_ )
 	    nameitm_->rotate( 90 );
 	ynmtxtvertical_ = true;
