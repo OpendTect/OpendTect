@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Mar 2009
- RCS:		$Id: emhorizonpainter.cc,v 1.7 2009-04-08 11:07:32 cvsumesh Exp $
+ RCS:		$Id: emhorizonpainter.cc,v 1.8 2009-04-15 08:17:48 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -326,6 +326,9 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::PositionChange:
 	{
+	    if (  emobject->hasBurstAlert() )
+		return;
+
 	    BinID bid;
 	    bid.setSerialized( cbdata.pid0.subID() );
 	    if ( cs_.hrg.includes(bid) )
@@ -335,7 +338,7 @@ void HorizonPainter::horChangeCB( CallBacker* cb )
 	}
 	case EM::EMObjectCallbackData::BurstAlert:
 	{
-	    if ( cbdata.flagfor2dviewer )
+	    if ( !emobject->hasBurstAlert() )
 	    {
 		addHorizon( emobject->id() );
 		loadinghorcount_--;
