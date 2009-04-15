@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.167 2009-04-03 16:34:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.168 2009-04-15 12:30:04 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -640,10 +640,8 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     polyselectid_ = cointb_->addButton( "polygonselect.png",
 	mCB(this,uiODMenuMgr,selectionMode), "Polygon Selection mode", true );
     uiPopupMenu* mnu = new uiPopupMenu( &appl_, "Menu" );
-    mnu->insertItem(
-	new uiMenuItem("Polygon",mCB(this,uiODMenuMgr,handleToolClick)), 0 );
-    mnu->insertItem(
-	new uiMenuItem("Rectangle",mCB(this,uiODMenuMgr,handleToolClick)), 1 );
+    mAddMnuItm( mnu, "Polygon", handleToolClick, "polygonselect.png", 0 );
+    mAddMnuItm( mnu, "Rectangle", handleToolClick, "rectangleselect.png", 1 );
     cointb_->setButtonMenu( polyselectid_, *mnu );
 
     soloid_ = mAddTB(cointb_,"solo.png","Display current element only",
