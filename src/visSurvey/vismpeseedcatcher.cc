@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.35 2009-02-23 06:06:56 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.36 2009-04-15 13:22:43 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -334,7 +334,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	while ( attrib )
 	{
 	    attrib--;
-	    datapackid = seis2dclosest->getDataPackID( datapackid );
+	    datapackid = seis2dclosest->getDataPackID( attrib );
 	    if ( (datapackid > DataPack::cNoID()) && 
 		 seis2dclosest->isAttribEnabled(attrib) ) 
 		break;
@@ -426,7 +426,7 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    while ( attrib )
 	    {
 		attrib--;
-		datapackid = plane->getDataPackID( datapackid );
+		datapackid = plane->getDataPackID( attrib );
 		if ( (datapackid > DataPack::cNoID()) && 
 		     plane->isAttribEnabled(attrib) )
 		    break;
