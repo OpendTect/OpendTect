@@ -5,7 +5,7 @@
  * FUNCTION : Stream Provider functions
 -*/
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.92 2009-04-01 04:44:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.93 2009-04-16 10:30:54 cvsranojay Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -180,6 +180,12 @@ const char* GetExecCommand( const char* prognm, const char* filenm )
 bool ExecuteScriptCommand( const char* prognm, const char* filenm )
 {
     static BufferString cmd;
+
+#ifdef __msvc__
+    cmd = BufferString( prognm, " ", filenm );
+    return ExecOSCmd( cmd, true );
+#endif
+    
     cmd = GetExecCommand( prognm, filenm );
     StreamProvider strmprov( cmd );
 #if defined( __win__ ) || defined( __mac__ )
@@ -878,8 +884,8 @@ StreamData StreamProvider::makeOStream( bool binary ) const
     if ( sd.fp_ )
     {
 #ifdef __msvc__
-	// TODO
-	pErrMsg( "Not implemented yet" )
+	std::filebuf* fb = new std::filebuf( sd.fp_ );
+	sd.ostrm = new std::ostream( fb );
 #else
 # if __GNUC__ > 2
 	mStdIOFileBuf* stdiofb = new mStdIOFileBuf( sd.fp_,std::ios_base::out );
@@ -894,11 +900,12 @@ StreamData StreamProvider::makeOStream( bool binary ) const
 }
 
 
-bool StreamProvider::executeCommand( bool inbg ) const
+bool StreamProvider::executeCommand( bool inbg, bool inconsole ) const
 {
     mkOSCmd( true );
 #ifdef __msvc__
-    mkBatchCmd( oscommand );
+    if ( inconsole )
+	mkBatchCmd( oscommand );
 #endif
     return ExecOSCmd( oscommand, inbg );
 }
