@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.9 2009-04-09 06:40:04 cvsranojay Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.10 2009-04-16 08:50:56 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -27,6 +27,8 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , outercircleitm_(0)
     , selsectoritem_(0)
     , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup))
+    , curveitems_(*scene().addItemGrp(new uiGraphicsItemGroup))
+    , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup))
     , sectorPicked(this)
 {
     disableScrollZoom();
@@ -201,7 +203,8 @@ void uiDirectionalPlot::drawAnnot()
 
 void uiDirectionalPlot::drawData()
 {
-    deepErase( markeritems_ ); deepErase( curveitems_ );
+    markeritems_.removeAll( true );
+    curveitems_.removeAll( true );
     switch ( setup_.type_ )
     {
     case Setup::Scatter:	drawScatter();	break;
@@ -222,8 +225,8 @@ void uiDirectionalPlot::drawScatter()
 	    if ( spd.count_ < 1 ) continue;
 
 	    const float r = spd.pos_ * radius_;
-	    markeritems_ += new uiMarkerItem( getUIPos(r,spd.val_),
-					      setup_.markstyle_ );
+	    markeritems_.add( new uiMarkerItem(getUIPos(r,spd.val_),
+					       setup_.markstyle_) );
 	}
     }
 }
@@ -249,14 +252,15 @@ void uiDirectionalPlot::drawVals()
 	    if ( ipart < sd.size()-1 )
 		rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
 	    uiCurvedItem* ci = new uiCurvedItem(
-		    			getUIPos(rrg.start,angrg.start) );
+					getUIPos(rrg.start,angrg.start) );
 	    ci->drawTo( getUIPos(rrg.stop,angrg.start) );
 	    uiCurvedItem::ArcSpec as( center_, rrg.stop, radangrg );
 	    ci->drawTo( as );
 	    ci->drawTo( getUIPos(rrg.start,angrg.stop) );
 	    as.radius_ = rrg.start;
 	    ci->drawTo( as );
-	    curveitems_ += ci;
+	    ci->setFillColor( Color(255,0,0) );
+	    curveitems_.add( ci );
 	    //TODO set line and fill color to something based on
 	    // spd.val_ (or spd.count_ if setup.docount_)
 	}
@@ -266,6 +270,7 @@ void uiDirectionalPlot::drawVals()
 
 void uiDirectionalPlot::drawSelection()
 {
+    scene().removeItem( selsectoritem_ );
     delete selsectoritem_; selsectoritem_ = 0;
     const int selsect = selSector();
     if ( selsect < 0 ) return;
@@ -281,6 +286,7 @@ void uiDirectionalPlot::drawSelection()
     uiCurvedItem::ArcSpec as( center_, radius_+1, radangrg );
     selsectoritem_->drawTo( as );
     selsectoritem_->drawTo( getUIPos(radius_+10,angrg.stop) );
+    scene().addItem( selsectoritem_ );
 }
 
 
