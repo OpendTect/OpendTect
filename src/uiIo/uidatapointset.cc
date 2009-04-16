@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.40 2009-04-15 12:10:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.41 2009-04-16 10:08:46 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -117,7 +117,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 
     setPrefWidth( 800 ); setPrefHeight( 600 );
     eachrow_ = -1; // force refill
-    finaliseDone.notify( mCB(this,uiDataPointSet,eachChg) );
+    finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
     creationCBS().doCall( this );
 }
 
@@ -355,6 +355,12 @@ void uiDataPointSet::handleAxisColChg()
 				      dColID(y2col_) );
     if ( ycol_ >= 0 && statswin_ )
 	showStats( dColID(ycol_) );
+}
+
+
+void uiDataPointSet::initWin( CallBacker* c )
+{
+    setSortedCol( 3 );
 }
 
 
@@ -797,14 +803,18 @@ void uiDataPointSet::eachChg( CallBacker* )
 
 void uiDataPointSet::setSortCol( CallBacker* )
 {
-    TColID tid = tColID();
-    if ( sortcol_ != tid )
-    {
-	sortcol_ = tColID();
-	DRowID drid = dRowID();
-	redoAll();
-	setCurrent( dColID(sortcol_), drid );
-    }
+    setSortedCol( tColID() );
+}
+
+
+void uiDataPointSet::setSortedCol( TColID tid )
+{
+    if ( sortcol_ == tid ) return;
+
+    sortcol_ = tid;
+    DRowID drid = dRowID();
+    redoAll();
+    setCurrent( dColID(sortcol_), drid );
 }
 
 
