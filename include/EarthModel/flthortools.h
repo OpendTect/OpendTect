@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2008
- RCS:		$Id: flthortools.h,v 1.8 2009-02-27 12:05:28 nanne Exp $
+ RCS:		$Id: flthortools.h,v 1.9 2009-04-16 10:55:14 ranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class IOObj;
 namespace SSIS
 {
 
-class FaultStickSubSampler
+mClass FaultStickSubSampler
 {
 public:
     			FaultStickSubSampler(const EM::FaultStickSet&,
@@ -46,7 +46,7 @@ protected:
 };
 
 
-class FaultHorizon2DIntersectionFinder
+mClass FaultHorizon2DIntersectionFinder
 {
 public:
     		FaultHorizon2DIntersectionFinder(const EM::FaultStickSet&,
@@ -64,7 +64,7 @@ protected:
 };
 
 
-class FaultHorizon2DLocationField : public Array2DImpl<char>
+mClass FaultHorizon2DLocationField : public Array2DImpl<char>
 {
 public:
     			FaultHorizon2DLocationField(const EM::FaultStickSet&,
@@ -99,7 +99,7 @@ protected:
 /*! \brief Calculates Throwfield between Fault and two horizons
 */
 
-class FaultStickThrow
+mClass FaultStickThrow
 {
 public:
 			FaultStickThrow(const EM::FaultStickSet&,int sticknr,
