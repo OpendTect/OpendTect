@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.5 2009-04-08 15:14:50 cvsbert Exp $
+ RCS:           $Id: statdirdata.h,v 1.6 2009-04-16 10:35:15 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ mClass SectorPartData
 {
 public:
 
-    			SectorPartData( float v=0, float p=0.5, float cnt=0 )
+    			SectorPartData( float v=0, float p=0.5, int cnt=0 )
 			    : val_(v), pos_(p), count_(cnt)  {}
     bool		operator ==( const SectorPartData& spd ) const
 			{ return pos_ == spd.pos_; }
