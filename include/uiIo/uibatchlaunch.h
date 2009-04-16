@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.22 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.23 2009-04-16 10:07:10 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 #include "bufstringset.h"
 
-#ifndef __win__
+#ifndef __cygwin__
 # define HAVE_OUTPUT_OPTIONS
 #endif
 
