@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.43 2009-04-16 05:24:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.44 2009-04-16 10:32:52 cvsranojay Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -70,7 +70,7 @@ bool ParentTreeItem::rightClick( uiListViewItem* itm )
 int ParentTreeItem::sceneID() const
 {
     int sceneid;
-    if ( !getProperty<int>(uiODTreeTop::sceneidkey,sceneid) )
+    if ( !getProperty<int>(uiODTreeTop::sceneidkey(),sceneid) )
 	return -1;
     return sceneid;
 }

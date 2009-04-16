@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.205 2009-04-06 11:59:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.206 2009-04-16 10:31:27 cvsranojay Exp $";
 
 #include "uioddisplaytreeitem.h"
 #include "uiodscenetreeitem.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: uiodtreeitem.cc,v 1.205 2009-04-06 11:59:01 cvs
 #include "vissurvscene.h"
 
 
-const char* uiODTreeTop::sceneidkey = "Sceneid";
+const char* uiODTreeTop::sceneidkey()		{ return "Sceneid"; }
 const char* uiODTreeTop::viewerptr = "Viewer";
 const char* uiODTreeTop::applmgrstr = "Applmgr";
 const char* uiODTreeTop::scenestr = "Scene";
@@ -36,7 +36,7 @@ uiODTreeTop::uiODTreeTop( uiSoViewer* sovwr, uiListView* lv, uiODApplMgr* am,
     : uiTreeTopItem(lv)
     , tfs(tfs_)
 {
-    setProperty<int>( sceneidkey, sovwr->sceneID() );
+    setProperty<int>( sceneidkey(), sovwr->sceneID() );
     setPropertyPtr( viewerptr, sovwr );
     setPropertyPtr( applmgrstr, am );
 
@@ -55,7 +55,7 @@ uiODTreeTop::~uiODTreeTop()
 int uiODTreeTop::sceneID() const
 {
     int sceneid=-1;
-    getProperty<int>( sceneidkey, sceneid );
+    getProperty<int>( sceneidkey(), sceneid );
     return sceneid;
 }
 
@@ -144,7 +144,7 @@ uiSoViewer* uiODTreeItem::viewer()
 int uiODTreeItem::sceneID() const
 {
     int sceneid=-1;
-    getProperty<int>( uiODTreeTop::sceneidkey, sceneid );
+    getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
     return sceneid;
 }
 

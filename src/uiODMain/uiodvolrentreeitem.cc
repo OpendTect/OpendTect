@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.42 2009-04-06 11:59:02 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.43 2009-04-16 10:31:27 cvsranojay Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -68,7 +68,7 @@ bool uiODVolrenParentTreeItem::showSubMenu()
 int uiODVolrenParentTreeItem::sceneID() const
 {
     int sceneid;
-    if ( !getProperty<int>( uiODTreeTop::sceneidkey, sceneid ) )
+    if ( !getProperty<int>( uiODTreeTop::sceneidkey(), sceneid ) )
 	return -1;
     return sceneid;
 }

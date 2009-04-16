@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.39 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.40 2009-04-16 10:31:27 cvsranojay Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -135,7 +135,7 @@ bool uiODDataTreeItem::shouldSelect( int selid ) const
 int uiODDataTreeItem::sceneID() const
 {
     int sceneid=-1;
-    getProperty<int>( uiODTreeTop::sceneidkey, sceneid );
+    getProperty<int>( uiODTreeTop::sceneidkey(), sceneid );
     return sceneid;
 }
 
