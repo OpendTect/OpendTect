@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.12 2009-04-10 14:18:32 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.13 2009-04-16 08:45:40 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -81,7 +81,7 @@ mClass uiOD2DLineSetSubItem : public uiODDisplayTreeItem
 public:
 			uiOD2DLineSetSubItem(const char* nm,int displayid=-1);
 
-    bool		addStoredData(const char*);
+    bool		addStoredData(const char*,int component=-1);
     void		addAttrib(const Attrib::SelSpec& );
     void		showLineName(bool);
     void		setZRange(const Interval<float>);

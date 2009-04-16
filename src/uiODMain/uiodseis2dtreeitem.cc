@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.56 2009-04-10 14:18:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.57 2009-04-16 08:45:40 cvshelene Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -315,6 +315,17 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	    lineitem->addStoredData( attribnm );
 	}
     }
+    else if ( steeringitm_.itemIndex(mnuid)!=-1 )
+    {
+	menu->setIsHandled( true );
+	const char itmidx = steeringitm_.itemIndex( mnuid );
+	const char* attribnm = steeringitm_.getItem(itmidx)->text;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiOD2DLineSetSubItem*,lineitem,children_[idx]);
+	    lineitem->addStoredData( attribnm, 1 );
+	}
+    }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as) )
     {
 	menu->setIsHandled( true );
@@ -599,7 +610,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiOD2DLineSetSubItem::addStoredData( const char* nm )
+bool uiOD2DLineSetSubItem::addStoredData( const char* nm, int component )
 {
     addAttribItem();
     const int lastattridx = children_.size() - 1;
@@ -608,7 +619,7 @@ bool uiOD2DLineSetSubItem::addStoredData( const char* nm )
     mDynamicCastGet( uiOD2DLineSetAttribItem*, lsai, children_[lastattridx] );
     if ( !lsai ) return false;
 
-    return lsai->displayStoredData(nm);
+    return lsai->displayStoredData( nm, component );
 }
 
 
