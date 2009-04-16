@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.23 2008-12-08 07:41:03 cvsranojay Exp $
+ RCS:		$Id: plfdefs.h,v 1.24 2009-04-16 10:03:39 cvsranojay Exp $
 ________________________________________________________________________
 
 */
@@ -224,6 +224,10 @@ Always defined:
 # ifndef __gnuc__
 #  define __msvc__ 1
 # endif
+#endif
+
+#if defined( __win__ ) && !defined( __msvc__ )
+# define __cygwin__ 1
 #endif
 
 
