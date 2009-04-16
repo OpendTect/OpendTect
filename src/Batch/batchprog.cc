@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.95 2009-04-06 05:40:58 cvsraman Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.96 2009-04-16 10:15:41 cvsranojay Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -25,19 +25,20 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.95 2009-04-06 05:40:58 cvsrama
 #include "debugmasks.h"
 
 #ifndef __msvc__
-#include <unistd.h>
-#include <stdlib.h>
+# include <unistd.h>
+# include <stdlib.h>
 #endif
+
 #include <iostream>
 
 #ifdef __win__
-#include "filegen.h"
+# include "filegen.h"
 #else
-#include "_execbatch.h"
+# include "_execbatch.h"
 #endif
 
-#ifdef __mac__
-#include "oddirs.h"
+#if defined(__mac__) || defined(__msvc__)
+# include "oddirs.h"
 #endif
 
 
@@ -313,21 +314,30 @@ bool BatchProgram::initOutput()
 	exit( 0 );
     }
 
-    const char* res = pars()["Log file"];
+    const char* res = pars()[sKey::LogFile];
     if ( !*res || !strcmp(res,"stdout") ) res = 0;
  
-#ifndef __win__
-    if ( res && !strcmp(res,"window") )
+    bool hasviewprogress = true;
+#ifdef __cygwin__
+    hasviewprogress = false;
+#endif
+
+    if ( hasviewprogress && res && !strcmp(res,"window") )
     {
+	BufferString cmd( "@view_progress " );
 
 #ifdef __mac__ 
         // Mac requires full path in order to support GUI apps
-	BufferString cmd( "@'" );
+	cmd = "@'";
 	cmd += FilePath(GetSoftwareDir()).add("bin").add("mac")
 			    .add("view_progress").fullPath();
 	cmd += "' ";
-#else
-	BufferString cmd( "@view_progress " );
+#endif
+
+#ifdef __msvc__
+	cmd = "@";
+	cmd += FilePath(GetSoftwareDir()).add("bin").add("view_progress").fullPath();
+	cmd += " ";
 #endif
 	cmd += GetPID();
 	StreamProvider sp( cmd );
@@ -339,8 +349,7 @@ bool BatchProgram::initOutput()
 	    res = 0;
 	}
     }
-#endif
- 
+
     if ( !res || strcmp(res,"window") )
     {
 	StreamProvider spout( res );
