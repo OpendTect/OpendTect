@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.87 2009-03-18 09:30:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.88 2009-04-16 08:44:11 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -635,9 +635,10 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 	    if ( outputinterest[idy] )
 	    {
 		compidx++;
+		const int compnr = desc.is2D() ? idy : compidx;
 		const float val = trcrange.includes(curt) ? 
-		   ( isclass[idy] ? trc->get(trc->nearestSample(curt), compidx)
-				  : trc->getValue(curt, compidx) )
+		   ( isclass[idy] ? trc->get(trc->nearestSample(curt), compnr)
+				  : trc->getValue(curt, compnr) )
 		   : mUdf(float);
 
 		const_cast<DataHolder&>(data).series(idy)->setValue(idx,val);
