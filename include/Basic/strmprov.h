@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.33 2009-03-27 09:41:52 cvsranojay Exp $
+ RCS:		$Id: strmprov.h,v 1.34 2009-04-16 10:05:25 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
 		    Use binary=false when explicitly reading txt files. */
     StreamData	makeIStream(bool binary=true,bool allowpreloaded=true) const;
 		//!< see makeOStream remark
-    bool	executeCommand(bool inbg=false) const;
+    bool	executeCommand(bool inbg=false,bool inconsole=false) const;
     		//!< If type is Command, execute command without opening pipe
     		//!< 'inbg' will execute in background if remote
     void	mkBatchCmd(BufferString& comm) const;
