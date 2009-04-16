@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.82 2009-03-25 07:01:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.83 2009-04-16 04:55:10 cvsnanne Exp $";
 
 #include "emmanager.h"
 
@@ -387,6 +387,8 @@ void EMManager::removeSelected( const ObjectID& id,
 				const Selector<Coord3>& selector )
 {
     EM::EMObject* emobj = getObject( id );
+    if ( !emobj ) return;
+
     emobj->ref();
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     emobj->removeSelected( selector );
