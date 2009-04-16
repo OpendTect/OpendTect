@@ -7,11 +7,15 @@ set docpdeps=yes
 set doupd=yes
 set dodoc=no
 set nrcpus=1
-if ( $?OD_PMAKE_NR_PROCESSORS ) then
-	set nrcpus=$OD_PMAKE_NR_PROCESSORS
-endif
 
 source $WORK/Pmake/base/PMinit.csh
+
+if ( $?OD_PMAKE_NR_PROCESSORS ) then
+	set nrcpus=$OD_PMAKE_NR_PROCESSORS
+else
+	if ( -x $WORK/Pmake/base/bin/$HDIR/GetNrProc ) then
+		set nrcpus=`$WORK/Pmake/base/bin/$HDIR/GetNrProc`
+endif
 
 parse_args:
 if ( "$1" == "--shallow" ) then
