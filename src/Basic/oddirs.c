@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.8 2009-01-13 04:27:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.9 2009-04-16 10:09:06 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -17,6 +17,9 @@ static const char* rcsID = "$Id: oddirs.c,v 1.8 2009-01-13 04:27:42 cvsnanne Exp
 
 #include <string.h>
 #include <stdio.h>
+#ifdef __msvc__
+# include <direct.h>
+#endif
 #ifndef __win__
 # define sDirSep	"/"
 static const char* lostinspace = "/tmp";
@@ -276,11 +279,20 @@ const char* GetSoftwareDir()
     if ( ret ) return ret;
     ret = dirnm;
 
-#ifndef __win__
-    dir = GetEnvVar( "DTECT_APPL" );
-#else
+#ifdef __cygwin__
     dir = GetEnvVar( "DTECT_WINAPPL" );
     if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_APPL") );
+#else
+    dir = GetEnvVar( "DTECT_APPL" );
+#endif
+
+#ifdef __msvc__
+    if ( !dir )
+    {
+	strcpy( dirnm, _getcwd(NULL,0) );
+	dirnm[strlen(dirnm)-4] = '\0';
+	dir = dirnm;
+    }
 #endif
 
     if ( !dir )
