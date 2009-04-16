@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.12 2009-04-16 04:16:29 cvsranojay Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.13 2009-04-16 06:26:30 cvsnanne Exp $";
 
 #include "vishorizonsection.h"
 
@@ -964,8 +964,8 @@ void HorizonSectionTile::setPos( int row, int col, const Coord3& pos )
 
     const int posidx = row*mHorSectNrSideKnots+col;
     const Coord3& oldpos = coords_->getPos( posidx );
-    if ( oldpos.isDefined() && !pos.isDefined() || 
-	 !oldpos.isDefined() && pos.isDefined() )
+    if ( (oldpos.isDefined() && !pos.isDefined()) || 
+	 (!oldpos.isDefined() && pos.isDefined()) )
     {
     	const int res = getActualResolution();  
     	if ( !needsretesselation_[res] && res>-1 && res<mHorSectNrRes )
