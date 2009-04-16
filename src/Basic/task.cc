@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.16 2009-04-09 00:35:58 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.17 2009-04-16 18:56:07 cvskris Exp $";
 
 #include "task.h"
 
@@ -258,7 +258,7 @@ od_int64 ParallelTask::nrDone() const
 
 Threads::ThreadWorkManager& ParallelTask::twm()
 {
-    static Threads::ThreadWorkManager twm_;
+    static Threads::ThreadWorkManager twm_( Threads::getNrProcessors()*2 );
     return twm_;
 }
 
@@ -292,7 +292,8 @@ bool ParallelTask::execute( bool parallel )
 	return doFinish( doWork( 0, totalnrcache_-1, 0 ) );
     }
 
-    const int nrthreads = mMIN(twm().nrThreads(),maxnrthreads);
+    //Don't take all threads, as we may want to have spare ones.
+    const int nrthreads = mMIN(Threads::getNrProcessors(),maxnrthreads);
     const od_int64 size = totalnrcache_;
     if ( !size ) return true;
 
