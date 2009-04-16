@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.69 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.70 2009-04-16 10:23:19 cvsranojay Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -107,11 +107,12 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 				.forread(false)
 	   			.filter("*.log;;*.txt") );
     filefld_->attach( alignedBelow, optfld_ );
-
+#ifndef __msvc__
     nicefld_ = new uiLabeledSpinBox( this, "Nice level" );
     nicefld_->attach( alignedBelow, filefld_ );
     nicefld_->box()->setInterval( 0, 19 );
     nicefld_->box()->setValue( nicelvl_ );
+#endif
 }
 
 
@@ -203,8 +204,9 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	comm += rshcomm_;
     }
 
-    const bool inbg=dormt;
-#ifdef __win__ 
+    bool inbg = dormt;
+
+#ifdef __cygwin__ 
 
     comm += " --inbg "; comm += progname_;
     FilePath parfp( parfname_ );
@@ -213,13 +215,23 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     replaceCharacter(_parfnm.buf(),' ','%');
     comm += " \""; comm += _parfnm; comm += "\"";
 
-#else
-
-    nicelvl_ = nicefld_->box()->getValue();
+     nicelvl_ = nicefld_->box()->getValue();
     if ( nicelvl_ != 0 )
 	{ comm += " --nice "; comm += nicelvl_; }
     comm += " "; comm += progname_;
     comm += " -bg "; comm += parfname_;
+
+#endif
+
+#ifdef __msvc__
+
+    comm = "@";
+    comm += FilePath(GetSoftwareDir()).add("bin").
+	    add(progname_).fullPath();
+    comm += " ";
+    comm += parfname_;
+
+    inbg = true;
 
 #endif
 
@@ -394,7 +406,9 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     if ( !writeProcFile(workiop,parfp.fullPath()) )
 	return false;
 
-    const bool dormt = false;
+    bool dormt = false;
+
+#ifndef __msvc__
     BufferString comm( "@" );
     comm += GetExecScript( dormt );
 
@@ -411,6 +425,17 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     comm += " -bg "; comm += parfp.fullPath();
 #endif
 
+#else
+    BufferString comm( "" );
+    comm += FilePath(GetSoftwareDir()).add("bin").fullPath();
+    comm += "\\";   
+    comm += procprognm_;
+    comm += " ";
+    BufferString _parfnm( parfp.fullPath(FilePath::Windows) );
+    comm += " \""; comm += _parfnm; comm += "\"";
+    dormt = true;
+#endif
+    
     const bool inbg=dormt;
     if ( !StreamProvider( comm ).executeCommand(inbg) )
     {

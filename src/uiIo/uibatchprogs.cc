@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.35 2009-03-28 10:07:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.36 2009-04-16 10:23:19 cvsranojay Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -29,9 +29,6 @@ static const char* rcsID = "$Id: uibatchprogs.cc,v 1.35 2009-03-28 10:07:45 cvsb
 #include "dirlist.h"
 #include "errh.h"
 #include <iostream>
-#ifdef __win__
-# include <direct.h>
-#endif
 
 
 
@@ -353,9 +350,9 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 
 #else
      
-    BufferString comm("");
-    comm = _getcwd(NULL,0);
-    comm += "\\";
+   BufferString comm("");
+   comm += FilePath(GetSoftwareDir()).add("bin").fullPath();
+   comm += "\\";
 
     const char* progtxt = progfld->box()->text();
     if ( progtxt && *progtxt && *progtxt != '[' )
@@ -394,7 +391,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 #endif
     
     StreamProvider sp( comm );
-    return sp.executeCommand( true );
+    return sp.executeCommand( true, true );
 }
 
 
