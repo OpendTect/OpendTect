@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.74 2009-04-07 14:57:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.75 2009-04-16 08:20:16 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -44,7 +44,7 @@ static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
     case Seis::Vol:
 	return forread ? "Input Cube" : "Output Cube";
     case Seis::Line:
-	return forread ? "Input Lines" : "Output Lines";
+	return forread ? "Input Line Set" : "Output Line Set";
     default:
 	return forread ? "Input Data Store" : "Output Data Store";
     }
