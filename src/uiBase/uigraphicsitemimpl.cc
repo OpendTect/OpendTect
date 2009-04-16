@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.22 2009-04-08 15:15:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.23 2009-04-16 08:52:42 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -474,8 +474,8 @@ void uiTextItem::updatePos()
 	    break;
     }
 
-    qtextitem_->setPos( pos_.x, pos_.y );
-    qtextitem_->moveBy( movex, movey );
+    uiPoint newpos( pos_.x+movex, pos_.y+movey );
+    qtextitem_->setPos( newpos.x, newpos.y );
 }
 
 
@@ -607,6 +607,7 @@ uiCurvedItem::uiCurvedItem( const Geom::Point2D<float>& pt )
     : uiGraphicsItem(mkQtObj())
 {
     qppath_->moveTo( QPointF(pt.x,pt.y) );
+    qpathitem_->setPath( *qppath_ );
 }
 
 
@@ -624,6 +625,7 @@ void uiCurvedItem::drawTo( const uiPoint& pt )
 void uiCurvedItem::drawTo( const Geom::Point2D<float>& pt )
 {
     qppath_->lineTo( QPointF(pt.x,pt.y) );
+    qpathitem_->setPath( *qppath_ );
 }
 
 
@@ -639,6 +641,7 @@ void uiCurvedItem::drawTo( const ArcSpec& as )
 		as.center_.x + as.radius_,
 		as.center_.y + as.radius_ * as.yratio_ );
     qppath_->arcTo( qr, angs.start, angs.stop - angs.start );
+    qpathitem_->setPath( *qppath_ );
 }
 
 
@@ -651,18 +654,20 @@ void uiCurvedItem::drawTo( const SplineSpec& ss )
     else
 	qppath_->quadTo( QPointF(ss.cp1_.x,ss.cp1_.y),
 	       		 QPointF(ss.end_.x,ss.end_.y) );
+    qpathitem_->setPath( *qppath_ );
 }
 
 
 void uiCurvedItem::closeCurve()
 {
     qppath_->closeSubpath();
+    qpathitem_->setPath( *qppath_ );
 }
 
 
 QGraphicsItem* uiCurvedItem::mkQtObj()
 {
     qppath_ = new QPainterPath();
-    qpathitem_ = new QGraphicsPathItem( *qppath_ );
+    qpathitem_ = new QGraphicsPathItem();
     return qpathitem_;
 }
