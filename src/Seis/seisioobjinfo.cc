@@ -4,11 +4,12 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.21 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.22 2009-04-16 08:44:50 cvshelene Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
 #include "seiscbvs.h"
+#include "seiscbvs2d.h"
 #include "seispsioprov.h"
 #include "seisread.h"
 #include "seisselection.h"
@@ -432,12 +433,9 @@ void SeisIOObjInfo::setDefault( const MultiID& id, const char* typ )
 
 int SeisIOObjInfo::getNrCompAvail( const LineKey& lkey )
 {
-    const MultiID key( lkey );
-    PtrMan<IOObj> ioobj = IOM().get( key );
-    SeisTrcReader rdr( ioobj );
-    SeisTrcTranslator* transl = rdr.prepareWork(Seis::PreScan) ?
-					  rdr.seisTranslator() : 0;
-    return transl ? transl->componentInfo().size() : 0;
+    BufferStringSet bss;
+    SeisIOObjInfo::getCompNames( lkey, bss );
+    return bss.size();
 }
 
 
@@ -448,7 +446,26 @@ void SeisIOObjInfo::getCompNames( const LineKey& lkey, BufferStringSet& bss )
     SeisTrcReader rdr( ioobj );
     SeisTrcTranslator* transl = rdr.prepareWork(Seis::PreScan) ?
 					  rdr.seisTranslator() : 0;
-    if ( transl )
+    if ( !transl ) return;
+
+    const int nrcomp = transl->componentInfo().size();
+    if ( !nrcomp && rdr.is2D() )
+    {
+	BufferStringSet linenames;
+	rdr.lineSet()->getLineNamesWithAttrib( linenames, lkey.attrName() );
+	if ( linenames.size() )
+	{
+	    LineKey tmplkey( linenames.get(0).buf(), lkey.attrName() );
+	    const int lineattridx = rdr.lineSet()->indexOf( tmplkey );
+	    const IOPar& lineattpar = rdr.lineSet()->getInfo( lineattridx );
+	    const char* fnm = SeisCBVS2DLineIOProvider::getFileName(lineattpar);
+	    CBVSSeisTrcTranslator* newtransl =
+				CBVSSeisTrcTranslator::make( fnm, true, true );
+	    newtransl->getComponentNames( bss );
+	    delete newtransl;
+	}
+    }
+    else
 	transl->getComponentNames( bss );
 }
 
