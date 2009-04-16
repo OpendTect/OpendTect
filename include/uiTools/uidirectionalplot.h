@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.8 2009-04-16 08:50:56 cvsnanne Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.9 2009-04-16 14:45:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,11 @@ class uiGraphicsItemGroup;
 
 /*!\brief creates a directional plot: Rose diagrams and more.
 
-  * For Type Rose, the sector part data's val_ will be interpreted as a count;
-    the 'pos_' is ignored.
+  * For Type Rose, the sector part count_ will be used only
   * For Type Scatter, (pos_,val_) are the polar coordinates.
   * For Type Vals, the pos_ will be used as the 'R' of a polar coordinate. The
-    'val_' will be used for a color table lookup.
+    'val_' will be used for a color table lookup. If setup_.docount_ the
+    coloring will be on count_.
 
  */
 
@@ -48,6 +48,7 @@ public:
 				    , markstyle_(MarkerStyle2D::Circle)
 				    , docount_(false)
 				    , curissel_(true)
+				    , valcolor_(true)
 				    , prefsize_(400,400)	{}
 
 	mDefSetupMemb(Type,type)
@@ -57,6 +58,7 @@ public:
 	mDefSetupMemb(MarkerStyle2D,markstyle)
 	mDefSetupMemb(bool,curissel)	// Must clicked sector become selected?
 	mDefSetupMemb(bool,docount)	// Show count rather than val_ (Vals)
+	mDefSetupMemb(bool,valcolor)	// Use val_ to color (Rose)
 	mDefSetupMemb(uiSize,prefsize)
     };
 
@@ -87,8 +89,9 @@ protected:
     Stats::DirectionalData	data_;
 
     bool			isempty_;
-    Interval<float>		valrg_;
     Interval<float>		posrg_;
+    Interval<float>		valrg_;
+    int				maxcount_;
     uiPoint			center_;
     int				radius_;
     int				cursector_;

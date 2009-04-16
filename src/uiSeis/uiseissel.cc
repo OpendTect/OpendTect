@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.75 2009-04-16 08:20:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.76 2009-04-16 14:45:05 cvsbert Exp $";
 
 #include "uiseissel.h"
 
@@ -15,8 +15,6 @@ static const char* rcsID = "$Id: uiseissel.cc,v 1.75 2009-04-16 08:20:16 cvsbert
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uiselsimple.h"
-#include "uimsg.h"
 
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -366,68 +364,4 @@ uiIOObjRetDlg* uiSeisSel::mkDlg()
     uiSeisSelDlg* dlg = new uiSeisSelDlg( this, workctio_, seissetup_ );
     dlg->usePar( dlgiopar_ );
     return dlg;
-}
-
-
-uiSeisLineSel::uiSeisLineSel( uiParent* p, const char* lsnm )
-    : uiCompoundParSel(p,"Line name")
-    , fixedlsname_(lsnm && *lsnm)
-    , lsnm_(lsnm)
-{
-    butPush.notify( mCB(this,uiSeisLineSel,selPush) );
-}
-
-
-BufferString uiSeisLineSel::getSummary() const
-{
-    BufferString ret( lnm_ );
-    if ( !lnm_.isEmpty() )
-	{ ret += " ["; ret += lsnm_; ret += "]"; }
-    return ret;
-}
-
-
-#define mErrRet(s) { uiMSG().error(s); return; }
-
-void uiSeisLineSel::selPush( CallBacker* )
-{
-    BufferString newlsnm( lsnm_ );
-    if ( !fixedlsname_ )
-    {
-	BufferStringSet lsnms;
-	SeisIOObjInfo::get2DLineInfo( lsnms );
-	if ( lsnms.isEmpty() )
-	    mErrRet("No line sets available.\nPlease import 2D data first")
-
-	if ( lsnms.size() == 1 )
-	    newlsnm = lsnm_ = lsnms.get( 0 );
-	else
-	{
-	    uiSelectFromList::Setup su( "Select Line Set", lsnms );
-	    su.current_ = lsnm_.isEmpty() ? 0 : lsnms.indexOf( lsnm_ );
-	    if ( su.current_ < 0 ) su.current_ = 0;
-	    uiSelectFromList dlg( this, su );
-	    if ( !dlg.go() || dlg.selection() < 0 )
-		return;
-	    newlsnm = lsnms.get( dlg.selection() );
-	}
-    }
-
-    BufferStringSet lnms;
-    SeisIOObjInfo ioinf( newlsnm );
-    if ( !ioinf.isOK() )
-	mErrRet("Invalid line set selected")
-    if ( ioinf.isPS() || !ioinf.is2D() )
-	mErrRet("Selected Line Set duplicates name with other object")
-
-    ioinf.getLineNames( lnms );
-    uiSelectFromList::Setup su( "Select 2D line", lnms );
-    su.current_ = lnm_.isEmpty() ? 0 : lnms.indexOf( lnm_ );
-    if ( su.current_ < 0 ) su.current_ = 0;
-    uiSelectFromList dlg( this, su );
-    if ( !dlg.go() || dlg.selection() < 0 )
-	return;
-
-    lsnm_ = newlsnm;
-    lnm_ = lnms.get( dlg.selection() );
 }

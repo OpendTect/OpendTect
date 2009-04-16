@@ -20,6 +20,7 @@ class uiFileInput;
 class uiMultCompSel;
 class uiSeparator;
 class uiSeisSubSel;
+class uiSeis2DLineNameSel;
 
  
 mClass uiSeisIOSimple : public uiDialog
@@ -47,7 +48,6 @@ protected:
     uiGenInput*		stepnrfld_;
     uiGenInput*		offsdeffld_;
     uiGenInput*		remnullfld_;
-    uiGenInput*		lnmfld_;
     uiLabel*		pspposlbl_;
     uiCheckBox*		haveoffsbut_;
     uiCheckBox*		haveazimbut_;
@@ -55,6 +55,7 @@ protected:
     uiSeisSel*		seisfld_;
     uiSeisSubSel*	subselfld_;
     uiMultCompSel*	multcompfld_;
+    uiSeis2DLineNameSel* lnmfld_;
 
     CtxtIOObj&		ctio_;
     Seis::GeomType	geom_;
@@ -62,6 +63,7 @@ protected:
 
     void		isascSel(CallBacker*);
     void		inpSeisSel(CallBacker*);
+    void		lsSel(CallBacker*);
     void		haveposSel(CallBacker*);
     void		havenrSel(CallBacker*);
     void		havesdSel(CallBacker*);

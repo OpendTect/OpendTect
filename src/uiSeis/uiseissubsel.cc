@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.61 2009-03-20 09:30:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.62 2009-04-16 14:45:05 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
+#include "uiseislinesel.h"
 #include "uicompoundparsel.h"
 #include "uipossubsel.h"
 #include "uiposprovider.h"
@@ -152,25 +153,24 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	, singLineSel(this)
     	, curlnms_(*new BufferStringSet)
 {
-    uiGenInput* fld;
     if ( ss.fornewentry_ && !multiln_ )
     {
 	selfld_->display( false );
-	fld = lnmfld_ = new uiGenInput( this, "Line name" );
-	setHAlignObj( fld );
+	lnmfld_ = new uiSeis2DLineNameSel( this, false );
+	setHAlignObj( lnmfld_ );
     }
     else
     {
-	fld = lnmsfld_ = new uiGenInput( this, multiln_ ? "One line only"
+	lnmsfld_ = new uiGenInput( this, multiln_ ? "One line only"
 				: "Line name", StringListInpSpec(emptylnms) );
 	if ( multiln_ )
 	{
 	    lnmsfld_->setWithCheck( true );
 	    lnmsfld_->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
-	    fld->attach( alignedBelow, selfld_ );
+	    lnmsfld_->attach( alignedBelow, selfld_ );
 	}
 	else
-	    selfld_->attach( alignedBelow, fld );
+	    selfld_->attach( alignedBelow, lnmsfld_ );
 
 	lnmsfld_->valuechanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
     }
@@ -188,7 +188,7 @@ void uiSeis2DSubSel::clear()
     uiSeisSubSel::clear();
 
     if ( lnmfld_ )
-	lnmfld_->setText( "" );
+	lnmfld_->setInput( "" );
     else
     {
 	if ( multiln_ )
@@ -263,7 +263,7 @@ void uiSeis2DSubSel::usePar( const IOPar& iopar )
     LineKey lk; lk.usePar( iopar, false );
     BufferString lnm( lk.lineName() );
     if ( lnmfld_ )
-	lnmfld_->setText( lnm );
+	lnmfld_->setInput( lnm );
     else
     {
 	lnmsfld_->setText( lnm );
@@ -281,7 +281,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     if ( lnm.isEmpty() )
     {
 	if ( lnmfld_ )
-	{ uiMSG().error("Please enter a line name"); return false; }
+	    { uiMSG().error("Please enter a line name"); return false; }
 
 	iopar.removeWithKey( sKey::LineKey );
     }
@@ -300,14 +300,16 @@ bool uiSeis2DSubSel::isSingLine() const
 
 const char* uiSeis2DSubSel::selectedLine() const
 {
-    return isSingLine() ? (lnmfld_ ? lnmfld_ : lnmsfld_)->text() : "";
+    if ( !isSingLine() ) return "";
+
+    return lnmfld_ ? lnmfld_->getInput() : lnmsfld_->text();
 }
 
 
 void uiSeis2DSubSel::setSelectedLine( const char* nm )
 {
     if ( lnmfld_ )
-	lnmfld_->setText( nm );
+	lnmfld_->setInput( nm );
     else
 	lnmsfld_->setText( nm );
 }

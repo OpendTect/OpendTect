@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 
-static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.56 2009-04-06 09:32:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.57 2009-04-16 14:45:05 cvsbert Exp $";
 
 -*/
 
@@ -30,7 +30,6 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.56 2009-04-06 09:32:
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uispinbox.h"
-#include "uicombobox.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "ctxtioobj.h"
@@ -44,7 +43,7 @@ static const char* rcsID = "$Id: uifingerprintattrib.cc,v 1.56 2009-04-06 09:32:
 #include "picksettr.h"
 #include "seistrctr.h"
 #include "seisselection.h"
-#include "uiseissel.h"
+#include "uiseislinesel.h"
 #include "uiseisioobjinfo.h"
 #include "seis2dline.h"
 #include "posinfo.h"
@@ -106,10 +105,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.5")
     , ctio_(*mMkCtxtIOObj(PickSet))
     , refposfld_(0)
-    , linesetfld_(0)
     , linefld_(0)
-    , sel2dbut_(0)
-   
 {
     calcobj_ = new calcFingParsObject( this );
 
@@ -140,15 +136,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 
     if ( is2d_ )
     {
-	linesetfld_ = new uiGenInput( this, "LineSet", StringInpSpec() );
-	linesetfld_-> attach( alignedBelow, refposfld_ );
-
-	CallBack sel2dcb = mCB(this,uiFingerPrintAttrib,fillIn2DPos);
-	sel2dbut_ = new uiPushButton( this, "&Select", sel2dcb, false);
-	sel2dbut_->attach( rightOf, linesetfld_ );
-
-	linefld_ = new uiLabeledComboBox( this, "Line name" );
-	linefld_-> attach( alignedBelow, linesetfld_ );
+	linefld_ = new uiSeis2DLineSel( this );
+	linefld_->attach( alignedBelow, refposfld_ );
     }
 
     picksetfld_ = new uiIOObjSel( this, ctio_, "Pickset file" );
@@ -278,9 +267,10 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
 
     if ( is2d_ )
     {
-	mIfGetString( FingerPrint::reflinesetStr(), ls, useLineSetID( ls ) )
-	mIfGetString( FingerPrint::ref2dlineStr(), line, 
-		      linefld_->box()->setCurrentItem(line.buf()) )
+	BufferString lsnm, lnm;
+	mIfGetString( FingerPrint::reflinesetStr(), ls, lsnm = ls )
+	mIfGetString( FingerPrint::ref2dlineStr(), l, lnm = l )
+	linefld_->set( lsnm, lnm );
     }
 
     mIfGetString( FingerPrint::valpicksetStr(), pickidstr, 
@@ -383,8 +373,8 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
 	mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
 	if ( is2d_ )
 	{
-	    mSetString( FingerPrint::reflinesetStr(), lsid_ )
-	    mSetString( FingerPrint::ref2dlineStr(), linefld_->box()->text() )
+	    mSetString( FingerPrint::reflinesetStr(), linefld_->lineSetID() )
+	    mSetString( FingerPrint::ref2dlineStr(), linefld_->lineName() )
 	}
     }
     else if ( refgrpval == 2 )
@@ -451,11 +441,7 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
     refposfld_->display( refbutchecked );
     refposzfld_->display( refbutchecked );
     if ( is2d_ )
-    {
-	linesetfld_->display( refbutchecked );
 	linefld_->display( refbutchecked );
-	sel2dbut_->display( refbutchecked );
-    }
     getposbut_->display( refbutchecked );
     picksetfld_->display( pickbutchecked );
     statsfld_->display( pickbutchecked );
@@ -573,53 +559,22 @@ BinIDValueSet* uiFingerPrintAttrib::createValuesBinIDSet(
 }
 
 
-void uiFingerPrintAttrib::fillIn2DPos(CallBacker*)
-{
-    if ( !is2d_ ) return;
-
-    PtrMan<CtxtIOObj> ctio = uiSeisSel::mkCtxtIOObj( Seis::Line, true );
-    uiSeisSelDlg dlg( this, *ctio,
-	    	      uiSeisSel::Setup(Seis::Line).selattr(false) );
-    if ( !dlg.go() || !dlg.ioObj() ) return;
-
-    lsid_ = dlg.ioObj()->key();
-    BufferString lsname;
-    get2DLineSetName ( lsid_, lsname );
-    linesetfld_->setText( lsname );
-    BufferStringSet linenames;
-    uiSeisIOObjInfo objinfo( lsid_ );
-    objinfo.getLineNames( linenames );
-    linefld_->box()->empty();
-    for  ( int idx=0; idx<linenames.size();idx++ )
-	linefld_->box()->addItem( linenames.get(idx).buf() );
-}
-
-
-#define mGet2DLineSet(mid,retval) \
-    PtrMan<IOObj> ioobj = IOM().get( mid ); \
-    if ( !ioobj ) return retval; \
-    BufferString fnm = ioobj->fullUserExpr(true); \
-    Seis2DLineSet lineset( fnm );
-
-
-void uiFingerPrintAttrib::get2DLineSetName( const MultiID& mid,
-					    BufferString& setname ) const
-{
-    mGet2DLineSet(mid,)
-    setname = lineset.name();
-}
-
 
 BinID uiFingerPrintAttrib::get2DRefPos() const
 {
-    BinID undef( mUdf(int), mUdf(int) );
+    const BinID undef( mUdf(int), mUdf(int) );
     if ( !is2d_ )
 	return undef;
 
-    mGet2DLineSet( lsid_, undef );
+    PtrMan<IOObj> ioobj = IOM().get( linefld_->lineSetID() );
+    if ( !ioobj )
+	return undef;
+
+    BufferString fnm = ioobj->fullUserExpr(true);
+    Seis2DLineSet lineset( fnm );
     for ( int idx=0 ;idx<lineset.nrLines();idx++ )
     {
-	LineKey lkey( linefld_->box()->text(), "Seis" );
+	LineKey lkey( linefld_->lineName(), "Seis" );
 	const int lineindex = lineset.indexOf(lkey);
 	if ( lineindex > -1 )
 	{
@@ -640,23 +595,6 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 }
 
 
-void uiFingerPrintAttrib::useLineSetID( const BufferString& ls )
-{
-    if ( !is2d_ ) return;
-
-    lsid_ = MultiID( ls );
-    BufferString lsname;
-    get2DLineSetName ( lsid_, lsname );
-    linesetfld_->setText( lsname );
-    BufferStringSet linenames;
-    uiSeisIOObjInfo objinfo( lsid_ );
-    objinfo.getLineNames( linenames );
-    linefld_->box()->empty();
-    for  ( int idx=0; idx<linenames.size();idx++ )
-	linefld_->box()->addItem( linenames.get(idx).buf() );
-}
-
-   
 bool uiFingerPrintAttrib::areUIParsOK()
 {
     if ( calcobj_->getValues().isEmpty() || calcobj_->getRanges().isEmpty() )

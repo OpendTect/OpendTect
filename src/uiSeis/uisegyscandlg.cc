@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.22 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyscandlg.cc,v 1.23 2009-04-16 14:45:05 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
 #include "uisegydef.h"
 #include "uiseissel.h"
+#include "uiseislinesel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uibutton.h"
@@ -69,7 +70,7 @@ uiSEGYScanDlg::uiSEGYScanDlg( uiParent* p, const uiSEGYReadDlg::Setup& su,
 	if ( Seis::is2D(setup_.geom_) )
 	{
 	    outfld_->setConfirmOverwrite( false );
-	    lnmfld_ = new uiSeisLineSel( this );
+	    lnmfld_ = new uiSeis2DLineSel( this );
 	    lnmfld_->attach( alignedBelow, outfld_ );
 	}
     }

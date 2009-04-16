@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.10 2009-04-01 07:38:39 cvssatyaki Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.11 2009-04-16 14:45:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,8 @@ ________________________________________________________________________
 class uiDataPointSet;
 class uiPosProvider;
 class uiPosFilterSetSel;
+class uiSeis2DLineNameSel;
 class uiListBox;
-class uiComboBox;
 namespace Attrib { class DescSet; }
 namespace PosInfo { class Line2DData; }
 
@@ -42,7 +42,7 @@ protected:
     uiListBox*				attrsfld_;
     uiPosProvider*			posprovfld_;
     uiPosFilterSetSel*			posfiltfld_;
-    uiComboBox*				lnmfld_;
+    uiSeis2DLineNameSel*		lnmfld_;
     uiDataPointSet*			uidps_;
 
     void				adsChg();

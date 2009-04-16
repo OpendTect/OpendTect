@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.14 2009-02-20 08:47:04 cvsnanne Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.15 2009-04-16 14:45:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,14 +18,66 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "bufstringset.h"
 #include "ranges.h"
+#include "multiid.h"
 
 class uiLabeledSpinBox;
 class uiListBox;
+class uiComboBox;
 class uiSeisSel;
 class uiSelNrRange;
 
 class CtxtIOObj;
 class IOObj;
+
+
+mClass uiSeis2DLineSel : public uiCompoundParSel
+{
+public:
+
+    			uiSeis2DLineSel(uiParent*,const char* lsnm=0);
+
+    const char*		lineName() const	{ return lnm_; }
+    const char*		lineSetName() const	{ return lsnm_; }
+    MultiID		lineSetID() const;
+    void		set(const char* lsnm,const char* lnm=0);
+
+protected:
+
+    BufferString	lnm_;
+    BufferString	lsnm_;
+    bool		fixedlsname_;
+
+    BufferString	getSummary() const;
+
+    void		selPush(CallBacker*);
+};
+
+
+mClass uiSeis2DLineNameSel : public uiGroup
+{
+public:
+
+    			uiSeis2DLineNameSel(uiParent*,bool forread);
+
+    const char*		getInput() const;
+    void		setInput(const char*);
+    void		setLineSet(const MultiID&);
+    			//!< If not used, will use fillWithAll
+    void		fillWithAll();
+
+    Notifier<uiSeis2DLineNameSel>	nameChanged;
+
+protected:
+
+    uiComboBox*		fld_;
+    bool		forread_;
+    MultiID		lsid_;
+
+    void		initFld(CallBacker*);
+    void		addLineNames(const MultiID&);
+    void		selChg( CallBacker* )	{ nameChanged.trigger(); }
+
+};
 
 
 mClass uiSeis2DLineSubSel : public uiDialog

@@ -4,11 +4,12 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.19 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.20 2009-04-16 14:45:05 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
 #include "uiseissubsel.h"
+#include "uiseislinesel.h"
 #include "uiseissel.h"
 #include "uimultcomputils.h"
 #include "uifileinput.h"
@@ -224,9 +225,9 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	seisfld_->attach( alignedBelow, multcompfld_ );
 	if ( is2d )
 	{
-	    lnmfld_ = new uiGenInput( this,
-		    		     isps ? "Line name" : "Line name in Set" );
+	    lnmfld_ = new uiSeis2DLineNameSel( this, false );
 	    lnmfld_->attach( alignedBelow, seisfld_ );
+	    seisfld_->selectiondone.notify( mCB(this,uiSeisIOSimple,lsSel) );
 	}
     }
     else
@@ -313,6 +314,15 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
 }
 
 
+void uiSeisIOSimple::lsSel( CallBacker* )
+{
+    if ( !lnmfld_ ) return;
+    seisfld_->commitInput();
+    if ( ctio_.ioobj )
+	lnmfld_->setLineSet( ctio_.ioobj->key() );
+}
+
+
 
 void uiSeisIOSimple::isascSel( CallBacker* )
 {
@@ -387,7 +397,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	BufferString linenm;
 	if ( lnmfld_ )
 	{
-	    linenm = lnmfld_->text();
+	    linenm = lnmfld_->getInput();
 	    if ( linenm.isEmpty() )
 		mErrRet( "Please enter a line name" )
 	    data().linekey_.setLineName( linenm );

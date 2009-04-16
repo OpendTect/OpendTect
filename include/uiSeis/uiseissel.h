@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.37 2009-04-03 17:02:42 cvskris Exp $
+ RCS:           $Id: uiseissel.h,v 1.38 2009-04-16 14:45:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,27 +103,6 @@ protected:
     void		entrySel(CallBacker*);
     void 		attrNmSel(CallBacker*);
     const char*		getDataType();
-};
-
-
-mClass uiSeisLineSel : public uiCompoundParSel
-{
-public:
-
-    			uiSeisLineSel(uiParent*,const char* lsnm=0);
-
-    const char*		lineName() const	{ return lnm_; }
-    const char*		lineSetName() const	{ return lsnm_; }
-
-protected:
-
-    BufferString	lnm_;
-    BufferString	lsnm_;
-    bool		fixedlsname_;
-
-    BufferString	getSummary() const;
-
-    void		selPush(CallBacker*);
 };
 
 

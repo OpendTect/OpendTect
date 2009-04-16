@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.27 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.28 2009-04-16 14:45:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,12 +26,13 @@ class HorSampling;
 class CubeSampling;
 
 class uiCompoundParSel;
+class uiLineSel;
 class uiListBox;
 class uiPosSubSel;
 class uiSeis2DSubSel;
 class uiSeisSel;
 class uiSelSubline;
-class uiLineSel;
+class uiSeis2DLineNameSel;
 
 
 mClass uiSeisSubSel : public uiGroup
@@ -103,7 +104,7 @@ public:
 
 protected:
 
-    uiGenInput*		lnmfld_;
+    uiSeis2DLineNameSel* lnmfld_;
     uiGenInput*		lnmsfld_;
 
     bool		multiln_;

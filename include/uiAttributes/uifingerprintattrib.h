@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uifingerprintattrib.h,v 1.16 2009-01-08 08:50:11 cvsranojay Exp $
+ RCS:           $Id: uifingerprintattrib.h,v 1.17 2009-04-16 14:45:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiToolButton;
 class uiPushButton;
 class uiButtonGroup;
 class uiSpinBox;
-class uiLabeledComboBox;
+class uiSeis2DLineSel;
 class BinIDValueSet;
 
 class uiFPAdvancedDlg;
@@ -49,18 +49,15 @@ protected:
     uiRadioButton*	refposbut_;
     uiRadioButton*	picksetbut_;
     uiToolButton*	getposbut_;
-    uiPushButton*	sel2dbut_;
     uiGenInput*		statsfld_;
     uiGenInput*		refposfld_;
     uiGenInput*		refpos2dfld_;
     uiGenInput*		refposzfld_;
     uiIOObjSel*		picksetfld_;
     uiLabel*		manlbl_;
-    uiGenInput*		linesetfld_;
-    uiLabeledComboBox*	linefld_;
+    uiSeis2DLineSel*	linefld_;
    
     CtxtIOObj&		ctio_;
-    MultiID		lsid_;
     ObjectSet<uiAttrSel> attribflds_;
 
     uiFPAdvancedDlg*	advanceddlg_;
@@ -77,15 +74,12 @@ protected:
     bool		getInput(Attrib::Desc&);
 
     BinIDValueSet*	createValuesBinIDSet(BufferString&) const;
-    void		get2DLineSetName(const MultiID&,BufferString&) const;
-    void		useLineSetID(const BufferString&);
     BinID		get2DRefPos() const;
-    
+
     void                getPosPush(CallBacker*);
     void                calcPush(CallBacker*);
     void                getAdvancedPush(CallBacker*);
     void		refSel(CallBacker*);
-    void		fillIn2DPos(CallBacker*);
 
     virtual bool	areUIParsOK();
 

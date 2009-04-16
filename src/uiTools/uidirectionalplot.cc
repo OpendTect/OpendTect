@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.10 2009-04-16 08:50:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.11 2009-04-16 14:45:05 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -94,14 +94,18 @@ void uiDirectionalPlot::gatherInfo()
 		const Stats::SectorPartData& spd = data_.get(isect,0);
 		valrg_.start = valrg_.stop = spd.val_;
 		posrg_.start = posrg_.stop = spd.pos_;
+		maxcount_ = spd.count_;
 	    }
 	    const Stats::SectorData& sd = *data_[isect];
+	    int curcount = 0;
 	    for ( int ipart=0; ipart<sd.size(); ipart++ )
 	    {
 		const Stats::SectorPartData& spd = sd[ipart];
 		valrg_.include( spd.val_ );
 		posrg_.include( spd.pos_ );
+		curcount += spd.count_;
 	    }
+	    if ( curcount > maxcount_ ) maxcount_ = curcount;
 	}
     }
 }
@@ -293,6 +297,18 @@ void uiDirectionalPlot::drawSelection()
 void uiDirectionalPlot::drawRose()
 {
     scene().addItem( new uiTextItem(center_,"TODO: Rose diagrams") );
+
+    bool isstacked = false;
+    for ( int isect=0; isect<data_.nrSectors(); isect++ )
+	{ if ( data_[isect]->size() > 1 ) isstacked = true; break; }
+
+    for ( int isect=0; isect<data_.nrSectors(); isect++ )
+    {
+	const Stats::SectorData& sd = *data_[isect];
+	for ( int ipart=0; ipart<sd.size(); ipart++ )
+	{
+	}
+    }
 }
 
 

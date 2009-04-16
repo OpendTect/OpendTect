@@ -7,13 +7,16 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.20 2009-03-31 06:58:02 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.21 2009-04-16 14:45:05 cvsbert Exp $";
 
 #include "uiseislinesel.h"
 
 #include "uiseissel.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
 #include "uiselsurvranges.h"
+#include "uiselsimple.h"
+#include "uimsg.h"
 
 #include "bufstringset.h"
 #include "ctxtioobj.h"
@@ -23,6 +26,179 @@ static const char* rcsID = "$Id: uiseislinesel.cc,v 1.20 2009-03-31 06:58:02 cvs
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "transl.h"
+#include "ioman.h"
+#include "iodir.h"
+
+
+
+uiSeis2DLineSel::uiSeis2DLineSel( uiParent* p, const char* lsnm )
+    : uiCompoundParSel(p,"Line name")
+    , fixedlsname_(lsnm && *lsnm)
+    , lsnm_(lsnm)
+{
+    butPush.notify( mCB(this,uiSeis2DLineSel,selPush) );
+}
+
+
+BufferString uiSeis2DLineSel::getSummary() const
+{
+    BufferString ret( lnm_ );
+    if ( !lnm_.isEmpty() )
+	{ ret += " ["; ret += lsnm_; ret += "]"; }
+    return ret;
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+void uiSeis2DLineSel::selPush( CallBacker* )
+{
+    BufferString newlsnm( lsnm_ );
+    if ( !fixedlsname_ )
+    {
+	BufferStringSet lsnms;
+	SeisIOObjInfo::get2DLineInfo( lsnms );
+	if ( lsnms.isEmpty() )
+	    mErrRet("No line sets available.\nPlease import 2D data first")
+
+	if ( lsnms.size() == 1 )
+	    newlsnm = lsnm_ = lsnms.get( 0 );
+	else
+	{
+	    uiSelectFromList::Setup su( "Select Line Set", lsnms );
+	    su.current_ = lsnm_.isEmpty() ? 0 : lsnms.indexOf( lsnm_ );
+	    if ( su.current_ < 0 ) su.current_ = 0;
+	    uiSelectFromList dlg( this, su );
+	    if ( !dlg.go() || dlg.selection() < 0 )
+		return;
+	    newlsnm = lsnms.get( dlg.selection() );
+	}
+    }
+
+    BufferStringSet lnms;
+    SeisIOObjInfo ioinf( newlsnm );
+    if ( !ioinf.isOK() )
+	mErrRet("Invalid line set selected")
+    if ( ioinf.isPS() || !ioinf.is2D() )
+	mErrRet("Selected Line Set duplicates name with other object")
+
+    ioinf.getLineNames( lnms );
+    uiSelectFromList::Setup su( "Select 2D line", lnms );
+    su.current_ = lnm_.isEmpty() ? 0 : lnms.indexOf( lnm_ );
+    if ( su.current_ < 0 ) su.current_ = 0;
+    uiSelectFromList dlg( this, su );
+    if ( !dlg.go() || dlg.selection() < 0 )
+	return;
+
+    lsnm_ = newlsnm;
+    lnm_ = lnms.get( dlg.selection() );
+}
+
+
+void uiSeis2DLineSel::set( const char* lsnm, const char* lnm )
+{
+    lsnm_ = IOObj::isKey(lsnm) ? IOM().nameOf( MultiID(lsnm) ) : lsnm;
+    lnm_ = lnm;
+    updateSummary();
+}
+
+
+MultiID uiSeis2DLineSel::lineSetID() const
+{
+    TypeSet<MultiID> mids; BufferStringSet lsnms;
+    SeisIOObjInfo::get2DLineInfo( lsnms, &mids );
+    for ( int idx=0; idx<lsnms.size(); idx++ )
+    {
+	const MultiID& key = mids[idx];
+	if ( lsnms.get(idx) == IOM().nameOf(key.buf()) )
+	    return key;
+    }
+    return MultiID("");
+}
+
+
+uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
+    : uiGroup(p,"2D line name sel")
+    , forread_(forread)
+    , nameChanged(this)
+{
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Line name" );
+    fld_ = lcb->box();
+    fld_->setReadOnly( forread_ );
+    if ( !forread_ ) fld_->addItem( "" );
+    finaliseDone.notify( mCB(this,uiSeis2DLineNameSel,initFld) );
+    setHAlignObj( lcb );
+    fld_->selectionChanged.notify( mCB(this,uiSeis2DLineNameSel,selChg) );
+}
+
+
+void uiSeis2DLineNameSel::initFld( CallBacker* )
+{
+    if ( lsid_.isEmpty() )
+	fillWithAll();
+}
+
+
+void uiSeis2DLineNameSel::fillWithAll()
+{
+    IOM().to( mIOObjContext(SeisTrc).getSelKey() );
+    const IODir& iodir = *IOM().dirPtr();
+    const ObjectSet<IOObj>& objs = iodir.getObjs();
+    for ( int idx=0; idx<objs.size(); idx++ )
+	addLineNames( objs[idx]->key() );
+    if ( fld_->size() )
+	fld_->setCurrentItem( 0 );
+}
+
+
+void uiSeis2DLineNameSel::addLineNames( const MultiID& ky )
+{
+    const SeisIOObjInfo oi( ky );
+    if ( !oi.isOK() || !oi.is2D() ) return;
+
+    BufferStringSet lnms; oi.getLineNames( lnms );
+    nameChanged.disable();
+    for ( int idx=0; idx<lnms.size(); idx++ )
+    {
+	const char* lnm = lnms.get( idx );
+	if ( !fld_->isPresent(lnm) )
+	    fld_->addItem( lnm );
+    }
+    nameChanged.enable();
+}
+
+
+const char* uiSeis2DLineNameSel::getInput() const
+{
+    return fld_->text();
+}
+
+
+void uiSeis2DLineNameSel::setInput( const char* nm )
+{
+    if ( fld_->isPresent(nm) )
+	fld_->setCurrentItem( nm );
+
+    if ( !forread_ )
+    {
+	nameChanged.disable();
+	fld_->setCurrentItem( 0 );
+	nameChanged.enable();
+	fld_->setText( nm );
+	nameChanged.trigger();
+    }
+}
+
+
+void uiSeis2DLineNameSel::setLineSet( const MultiID& ky )
+{
+    lsid_ = ky;
+    fld_->empty();
+    if ( !forread_ ) fld_->addItem( "" );
+    addLineNames( ky );
+}
+
+
 
 uiSeis2DLineSubSel::uiSeis2DLineSubSel( uiParent* p, CtxtIOObj& lsctio )
     : uiDialog( p, uiDialog::Setup("Select 2D LineSet/LineName",
