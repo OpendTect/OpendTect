@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvmap.cc,v 1.24 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvmap.cc,v 1.25 2009-04-16 05:25:37 cvsnanne Exp $";
 
 #include "uisurvmap.h"
 
@@ -24,7 +24,7 @@ static const char* rcsID = "$Id: uisurvmap.cc,v 1.24 2009-04-06 13:56:03 cvsnann
 
 
 uiSurveyMap::uiSurveyMap( uiParent* parent )
-    : uiGraphicsView( parent, "Survey map view" )
+    : uiGraphicsView( parent, "Survey map view", true )
 {
     setScrollBarPolicy( true, uiGraphicsView::ScrollBarAlwaysOff );
     setScrollBarPolicy( false, uiGraphicsView::ScrollBarAlwaysOff );
