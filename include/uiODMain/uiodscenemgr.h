@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.65 2009-04-03 06:57:56 cvsumesh Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.66 2009-04-16 10:36:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,14 +155,14 @@ protected:
     mClass Scene
     {
     public:
-			Scene(uiWorkSpace*);
-			~Scene();
+				Scene(uiWorkSpace*);
+				~Scene();
        
-	uiDockWin*	dw_;
-	uiListView*	lv_;
-	uiWorkSpaceGroup* wsgrp_;
-	uiSoViewer*	sovwr_;
-	uiODTreeTop*	itemmanager_;
+	uiDockWin*		dw_;
+	uiListView*		lv_;
+	uiWorkSpaceGroup* 	wsgrp_;
+	uiSoViewer*		sovwr_;
+	uiODTreeTop*		itemmanager_;
     };
 
     mClass Viewer2D
@@ -186,12 +186,13 @@ protected:
 	void			drawHorizons();
     };
 
-    uiODMain&		appl_;
-    uiWorkSpace*	wsp_;
-    ObjectSet<Scene>	scenes_;
-    ObjectSet<Viewer2D>	viewers2d_;
-    Viewer2D&		addViewer2D(int visid);
-    void		wspChanged(CallBacker*);
+    uiODMain&			appl_;
+    uiWorkSpace*		wsp_;
+    ObjectSet<Scene>		scenes_;
+    ObjectSet<Viewer2D>		viewers2d_;
+    Viewer2D&			addViewer2D(int visid);
+    Viewer2D*			find2DViewer(int visid);
+    void			wspChanged(CallBacker*);
 
     int				vwridx_;
     float			lasthrot_, lastvrot_, lastdval_;

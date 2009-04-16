@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.168 2009-04-06 06:33:10 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.169 2009-04-16 10:36:14 cvshelene Exp $";
 
 #include "uiodscenemgr.h"
 #include "attribdatacubes.h"
@@ -1027,14 +1027,7 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items )
 
 void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
-    Viewer2D* curvwr = 0;
-    for ( int idx=0; idx<viewers2d_.size(); idx++ )
-    {
-	if ( viewers2d_[idx]->visid_ != visid )
-	    continue;
-	curvwr = viewers2d_[idx];
-	break;
-    }
+    Viewer2D* curvwr = find2DViewer( visid );
 
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
@@ -1044,6 +1037,21 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     appl_.applMgr().visServer()->fillDispPars( visid, attribid,
 	    curvwr->viewwin_->viewer().appearance().ddpars_ );
     curvwr->viewwin_->viewer().handleChange( FlatView::Viewer::All );
+}
+
+
+uiODSceneMgr::Viewer2D* uiODSceneMgr::find2DViewer( int visid )
+{
+    Viewer2D* curvwr = 0;
+    for ( int idx=0; idx<viewers2d_.size(); idx++ )
+    {
+	if ( viewers2d_[idx]->visid_ != visid )
+	    continue;
+	curvwr = viewers2d_[idx];
+	break;
+    }
+
+    return curvwr;
 }
 
 
