@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.22 2009-04-16 08:44:50 cvshelene Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.23 2009-04-16 12:37:11 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -242,6 +242,9 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
        				const char* datatype,
 				bool allowcnstabsent, bool incl ) const
 {
+    if ( !isOK() )
+	return;
+
     if ( isPS() )
     {
 	SPSIOPF().getLineNames( *ioobj_, bss );
