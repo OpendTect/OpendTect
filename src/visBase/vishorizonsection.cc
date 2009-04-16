@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.11 2009-04-15 22:00:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.12 2009-04-16 04:16:29 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -577,7 +577,7 @@ HorizonSectionTile::HorizonSectionTile()
     int normalsum = 0;
     for ( int res=0; res<mHorSectNrRes; res++ )
     {
-	spacing[res] = (int)pow( 2, res );
+	spacing[res] = (int)pow( 2.0, res );
 	normalstartidx[res] = normalsum;	
 	const int sz = mHorSectSideSize/spacing[res]+1;
 	normalsum += sz*sz;
@@ -1030,7 +1030,7 @@ void HorizonSectionTile::updateGlue()
 	mHorSectSideSize + idx*spacing[nbres]; \
     } \
     const bool finer = nrsideblocks >= nbblocks; \
-    const int nrconns = nbres==-1 ? 1 : (int)pow(2, abs(nbres-res)); \
+    const int nrconns = nbres==-1 ? 1 : (int)pow(2.0, abs(nbres-res)); \
     const int startidx = finer ? (nb==5 ? 0 : nrsideblocks+1) : 0; \
     const int stopidx = finer ? (nb==5 ? nrsideblocks : 2*nrsideblocks+1) \
     			      : nbblocks; \
