@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.71 2009-03-03 08:06:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.72 2009-04-16 06:48:34 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -714,7 +714,7 @@ void HorizonDisplay::createAndDispDataPack( int attrib,
 				SI().crlStep() );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
-    newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
+    newpack->setPropsAndInit( inlrg, crlrg, true, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
     setDataPackID( attrib, newpack->id() );
