@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.37 2009-02-20 11:34:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiodwelltreeitem.cc,v 1.38 2009-04-17 12:18:19 cvsnanne Exp $";
 
 #include "uiodwelltreeitem.h"
 
@@ -439,7 +439,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded()
     {
 	BufferString warnstr = "This well has changed since the last save.\n";
 	warnstr += "Do you want to save it?";
-	int retval = uiMSG().notSaved( warnstr.buf() );
+	int retval = uiMSG().askSave( warnstr.buf() );
 	if ( !retval ) return true;
 	else if ( retval == -1 ) return false;
 	else

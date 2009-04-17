@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.56 2009-03-24 12:09:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.57 2009-04-17 12:18:19 cvsnanne Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -439,7 +439,7 @@ bool uiODPickSetTreeItem::askContinueAndSaveIfNeeded()
 
     BufferString warnstr = "This pickset has changed since the last save.\n"
 			   "Do you want to save it?";
-    const int retval = uiMSG().notSaved( warnstr.buf() );
+    const int retval = uiMSG().askSave( warnstr.buf() );
     if ( retval == 0 )
 	return true;
     else if ( retval == -1 )
