@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uihistogramdisplay.cc,v 1.13 2009-04-06 13:56:03 cvsnanne Exp $
+ RCS:		$Id: uihistogramdisplay.cc,v 1.14 2009-04-17 12:16:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,14 @@ bool uiHistogramDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid)
 void uiHistogramDisplay::setData( const Array2D<float>* array )
 {
     if ( !array ) return;
+
+    if ( array->getData() )
+    {
+	rc_.addValues( array->info().getTotalSz(), array->getData() );
+	updateAndDraw();
+	return;
+    }
+    
     const int sz2d0 = array->info().getSize( 0 );
     const int sz2d1 = array->info().getSize( 1 );
     for ( int idx0=0; idx0<sz2d0; idx0++ )
