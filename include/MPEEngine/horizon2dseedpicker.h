@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.7 2009-04-14 11:33:53 cvsjaap Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.8 2009-04-17 06:50:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,10 +46,6 @@ public:
 
     NotifierAccess*     aboutToAddRmSeedNotifier()      { return &addrmseed_; }
     NotifierAccess*     madeSurfChangeNotifier()        { return &surfchange_; }
-
-    enum SeedModeOrder  { TrackFromSeeds, 
-			  TrackBetweenSeeds, 
-			  DrawBetweenSeeds };
 
     static int		nrSeedConnectModes()		{ return 3; }
     static int		defaultSeedConMode()		{return TrackFromSeeds;}
