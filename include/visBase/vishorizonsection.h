@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.7 2009-04-15 22:00:21 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.8 2009-04-17 20:03:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,11 @@ public:
 
     void			replaceChannels(visBase::TextureChannels*);
     TextureChannels*		getTextureChannels() const { return channels_; }
+
+    void			computeNormal(int r,int c,int spacing,Coord3&);
+    void			setTileNormals(HorizonSectionTile&,
+	    				       int startrow,int startcol);
+    				/*<Start row/col is the tile origin. */
     
 protected:
     				~HorizonSection();
@@ -90,6 +95,11 @@ protected:
 
     Transformation*		transformation_;
     ZAxisTransform*		zaxistransform_;
+
+    double			sinanglexinl_;
+    double			cosanglexinl_;
+    float			rowdistance_;
+    float			coldistance_;    
 };
 
 mClass HorizonSectionTile
@@ -110,12 +120,8 @@ public:
     void			setTextureComposerSize(int,int);
     void			setTextureComposerOrig(int globrow,int globcol);
 
-    int				getNormalIdx(int row,int col,int res) const;
+    void			setNormal(int idx,const Coord3& normal);
     int				getNormalIdx(int crdidx,int res) const;
-    bool			computeNormal(int r,int c,int spacing,
-	    				      Coord3& normal);
-    void			computeAllNormals();
-    				/*<Should be called when some pos changed.*/
 
     void			updateGlue();
     SoLockableSeparator*	getNodeRoot() const	{ return root_; }
@@ -147,8 +153,8 @@ protected:
     SoIndexedTriangleStripSet*	gluetriangles_;
     SoIndexedLineSet*		gluelines_;
     SoIndexedPointSet*		gluepoints_;
-    bool			glueneedsretesselation_;
-};
+	bool			glueneedsretesselation_;
+    };
 
 };
 
