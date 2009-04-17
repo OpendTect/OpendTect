@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.7 2009-01-06 10:48:18 cvsranojay Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.8 2009-04-17 06:52:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
     int			isMinimumNrOfSeeds() const	{ return 2; }
     bool		stopSeedPick(bool iscancel=false);
 
-    enum SeedConnectMode { DrawBetweenSeeds };
+    enum FaultSeedConnectMode { DrawBetweenSeeds };
     static int		nrSeedConnectModes()	{ return 1; }
     static int		defaultSeedConMode()	{ return DrawBetweenSeeds; }
     static const char*	seedConModeText(int mode,bool abbrev=false);
