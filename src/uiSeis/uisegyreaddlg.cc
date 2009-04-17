@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.6 2009-03-04 15:45:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.7 2009-04-17 13:35:19 cvsbert Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -41,7 +41,7 @@ uiSEGYReadDlg::uiSEGYReadDlg( uiParent* p,
     , writeParsReq(this)
     , preScanReq(this)
 {
-    if ( Seis::isPS(setup_.geom_) || setup_.rev_ != uiSEGYRead::Rev1 )
+    if ( setup_.geom_ != Seis::Vol || setup_.rev_ != uiSEGYRead::Rev1 )
     {
 	optsgrp_ = new uiGroup( this, "Opts group" );
 	uiSEGYFileOpts::Setup osu( setup_.geom_, uiSEGYRead::Import,

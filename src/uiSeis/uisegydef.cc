@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.23 2009-02-16 14:14:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.24 2009-04-17 13:35:19 cvsbert Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -370,7 +370,7 @@ static uiGenInput* mkByteSzFld( uiGroup* grp, const char* key,
 static bool setIf( IOPar& iop, bool yn, const char* key, uiGenInput* inp,
 		   bool chkbyte, Seis::GeomType gt )
 {
-    if ( !yn )
+    if ( !yn || !inp )
 	{ iop.removeWithKey( key ); return true; }
 
     if ( !chkbyte )
@@ -432,6 +432,7 @@ static void setToggled( IOPar& iop, const char* key, uiGenInput* inp,
 
 static void setByteNrFld( uiGenInput* inp, const IOPar& iop, const char* key )
 {
+    if ( !inp ) return;
     int bnr = inp->getIntValue();
     if ( iop.get(key,bnr) )
 	inp->setValue( bnr );
@@ -440,6 +441,7 @@ static void setByteNrFld( uiGenInput* inp, const IOPar& iop, const char* key )
 
 static void setByteSzFld( uiGenInput* inp, const IOPar& iop, const char* key )
 {
+    if ( !inp ) return;
     int nr = inp->getBoolValue() ? 4 : 2;
     if ( iop.get(key,nr) )
 	inp->setValue( nr != 2 );
@@ -449,6 +451,7 @@ static void setByteSzFld( uiGenInput* inp, const IOPar& iop, const char* key )
 static void setToggledFld( uiGenInput* inp, const IOPar& iop, const char* key,
 			   bool isz=false )
 {
+    if ( !inp ) return;
     float val = mUdf(float);
     const bool ispresent = iop.get( key, val );
     inp->setChecked( ispresent );
@@ -499,7 +502,7 @@ uiSEGYFileOpts::uiSEGYFileOpts( uiParent* p, const uiSEGYFileOpts::Setup& su,
     int nrtabs = 0;
     const bool mkpsgrp = isps_;
     const bool mkorulegrp = forread_ && setup_.revtype_ != uiSEGYRead::Rev1;
-    const bool mkposgrp = setup_.revtype_ == uiSEGYRead::Rev0;
+    const bool mkposgrp = is2d_ || setup_.revtype_ == uiSEGYRead::Rev0;
     const bool mkcoordgrp = mkposgrp && !is2d_;
     if ( mkpsgrp ) nrtabs++;
     if ( mkorulegrp ) nrtabs++;
@@ -673,8 +676,9 @@ uiGroup* uiSEGYFileOpts::mkPosGrp( const IOPar* iop,
     else
     {
 	mkTrcNrFlds( grp, iop, thdef );
-	mkCoordFlds( grp, iop, thdef );
-	grp->setHAlignObj( xcoordbytefld_ );
+	if ( setup_.revtype_ == uiSEGYRead::Rev0 )
+	    mkCoordFlds( grp, iop, thdef );
+	grp->setHAlignObj( trnrbytefld_ );
     }
 
     if ( ts_ ) ts_->addTab( grp, "Locations" );
