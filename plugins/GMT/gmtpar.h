@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtpar.h,v 1.5 2009-04-06 07:19:31 cvsranojay Exp $
+ RCS:		$Id: gmtpar.h,v 1.6 2009-04-17 07:30:49 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ public:
 
 protected:
 
-    struct Entry
+    mStruct Entry
     {
 				Entry(	const char* nm,
 					GMTParCreateFunc fn )
