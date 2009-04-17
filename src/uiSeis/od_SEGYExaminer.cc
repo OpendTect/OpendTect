@@ -7,14 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.18 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: od_SEGYExaminer.cc,v 1.19 2009-04-17 06:08:51 cvsranojay Exp $";
 
 #include "uisegyexamine.h"
 
 #include "uimain.h"
 #include "prog.h"
-#include <unistd.h>
 #include <iostream>
+
+#ifdef __cygwin__
+# include <unistd.h>
+#endif 
+
 
 #ifdef __win__
 #include "filegen.h"
