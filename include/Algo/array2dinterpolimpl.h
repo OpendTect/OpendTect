@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.1 2009-04-16 20:19:57 cvskris Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.2 2009-04-17 03:45:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,9 @@ ________________________________________________________________________
 
 #include "array2dinterpol.h"
 #include "thread.h"
+
+
+template <class T> class Array2DImpl;
 
 
 /*!Class that interpolates 2D arrays with inverse distance.
@@ -95,6 +98,7 @@ protected:
     bool*			curdefined_;
     bool*			nodestofill_;
     TypeSet<int>		definedidxs_;		//Only when no radius
+    Array2DImpl<float>*		posweights_;		//Only when radius
 
     				//Per support size				
     TypeSet<int>		addedwithcursuport_;

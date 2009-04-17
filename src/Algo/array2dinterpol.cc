@@ -4,10 +4,10 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.1 2009-04-16 20:19:57 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.2 2009-04-17 03:45:31 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
-#include "arraynd.h"
+#include "arrayndimpl.h"
 #include "memsetter.h"
 #include "polygon.h"
 #include "limits.h"
@@ -359,12 +359,14 @@ InverseDistanceArray2DInterpol::InverseDistanceArray2DInterpol()
     , nodestofill_( 0 )
     , nrthreadswaiting_( 0 )
     , waitforall_( false )
+    , posweights_( 0 )
 {}
 
 
 InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 {
     delete [] nodestofill_;
+    delete posweights_;
 }
 
 
@@ -429,6 +431,45 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 	    if ( *ptr ) definedidxs_ += idx;
 	}
     }
+    else
+    {
+	const int rowradius = (int) ceil( searchradius_/rowstep_ );
+	const int colradius = (int) ceil( searchradius_/colstep_ );
+
+	float radius2 = searchradius_*searchradius_;
+
+	if ( !posweights_ )
+	    posweights_ = new Array2DImpl<float>( rowradius+1, colradius+1 );
+	else
+	    posweights_->setSize( rowradius+1, colradius+1 );
+
+	float* posweightptr = posweights_->getData();
+	for ( int relrow=0; relrow<=rowradius; relrow++ )
+	{
+	    const float frelrow = relrow*rowstep_;
+	    const float rowdist2 = frelrow*frelrow;
+
+	    for ( int relcol=0; relcol<=colradius; relcol++, posweightptr++ )
+	    {
+		if ( !relrow && !relcol)
+		{
+		    *posweightptr = -1;
+		    continue;
+	        }
+
+		const float frelcol = relcol*colstep_;
+		const int coldist2 = frelcol*frelcol;
+		const float dist2 = coldist2+rowdist2;
+		if ( dist2>radius2 )
+		{
+		    *posweightptr = -1;
+		    continue;
+		}
+
+		*posweightptr = 1.0/Math::Sqrt( dist2 );
+	    }
+	}
+    }
 
     stepidx_ = -1;
     shouldend_ = false;
@@ -448,7 +489,6 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
     ArrPtrMan<int> sources = 0;
 
     int rowradius,colradius;
-    float radius2;
 
     if ( definedidxs_.size() ) //No search radius, do all pts
     {
@@ -467,7 +507,6 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	mTryAllocPtrMan( sources, int[maxnr] );
 	if ( !weights )
 	    return false;
-	radius2 = searchradius_*searchradius_;
     }
 
     while ( true )
@@ -477,17 +516,16 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	    break;
 
 	int targetrow = idx/nrcols_, targetcol = idx%nrcols_;
-	const float frow = targetrow*rowstep_;
 
 	if ( definedidxs_.size() ) //No search radius, do all pts
 	{
 	    for ( int idy=definedidxs_.size()-1; idy>=0; idy-- )
 	    {
 		const int source = definedidxs_[idy];
-		const int sourcerow = source/nrcols_;
-		const int sourcecol = source%nrcols_;
+		const float sourcerow = source/nrcols_;
+		const float sourcecol = source%nrcols_;
 
-		const float rowdist = (frow-sourcerow)*rowstep_;
+		const float rowdist = (targetrow-sourcerow)*rowstep_;
 		const float rowdist2 = rowdist*rowdist;
 		const float coldist = (targetcol-sourcecol)*colstep_;
 		const int coldist2 = coldist*coldist;
@@ -507,38 +545,46 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 		if ( sourcerow<0 || sourcerow>=nrrows_ )
 		    continue;
 
-		const float frelrow = relrow*rowstep_;
-		const float rowdist2 = frelrow*frelrow;
-
-		for ( int relcol=-colradius; relcol<=colradius; relcol++ )
+		for ( int relcol=0; relcol<=colradius; relcol++ )
 		{
-		    const int sourcecol = targetcol+relcol;
-		    if ( sourcecol<0 || sourcecol>=nrcols_ ||
-			 (!relrow && !relcol) )
+		    if ( !relrow && !relcol)
 			continue;
 
-		    const float frelcol = relcol*colstep_;
-		    const int coldist2 = frelcol*frelcol;
-		    const float dist2 = coldist2+rowdist2;
-		    if ( dist2>radius2 )
+		    const float weight = posweights_->get( abs(relrow),relcol);
+		    if ( weight<0 )
+			break;
+
+		    int sourcecol = targetcol+relcol;
+		    if ( sourcecol<nrcols_ )
+		    {
+			const int sourceidx = mGetOffset(sourcerow,sourcecol);
+			if ( curdefined_[sourceidx] )
+			{
+			    sources[nrsources] = sourceidx;
+			    weights[nrsources] = weight;
+			    nrsources++;
+			}
+		    }
+
+		    if ( !relcol )
 			continue;
 
-		    const int sourceidx = mGetOffset( targetrow+relrow,
-						      targetcol+relcol );
-		    if ( !curdefined_[sourceidx] )
+		    sourcecol = targetcol-relcol;
+		    if ( sourcecol<0 )
 			continue;
 
-		    sources[nrsources] = sourceidx;
-		    weights[nrsources] = 1/Math::Sqrt( dist2 );
-		    nrsources++;
+		    const int sourceidx = mGetOffset( sourcerow, sourcecol );
+		    if ( curdefined_[sourceidx] )
+		    {
+			sources[nrsources] = sourceidx;
+			weights[nrsources] = weight;
+			nrsources++;
+		    }
 		}
 	    }
 
 	    if ( !nrsources )
-	    {
-		int abc = 2*2;
 		continue;
-	    }
 
 	    setFrom( idx, sources, weights, nrsources );
 	}
