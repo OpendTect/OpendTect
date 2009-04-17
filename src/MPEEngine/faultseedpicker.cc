@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.6 2009-01-09 10:58:54 cvsranojay Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.7 2009-04-17 06:53:26 cvsumesh Exp $";
 
 #include "faultseedpicker.h"
 
@@ -267,7 +267,7 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 
 const char* FaultSeedPicker::seedConModeText( int mode, bool abbrev)
 {
-    if ( (SeedConnectMode)mode == DrawBetweenSeeds )
+    if ( (FaultSeedConnectMode)mode == DrawBetweenSeeds )
 	return "Line manual";
     return "Unknown mode";
 }
