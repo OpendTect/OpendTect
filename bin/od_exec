@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_exec,v 1.50 2006-10-25 17:05:48 cvsbert Exp $
+# $Id: od_exec,v 1.51 2009-04-17 11:21:33 cvsbert Exp $
 #
 # module startup script
 #_______________________________________________________________________________
@@ -235,16 +235,17 @@ endif
 
 # Further only UNIX or not in dos box
 
+set allargs=""
+
 more_args:
 
 if ( "$1" != "" ) then
 
     set arg=`echo "$1" | sed 's/ /%/g'`
-
-    if ( $?allargs ) then
-	set allargs="$allargs $arg"
-    else
+    if ( "$allargs" == "" ) then
 	set allargs="$arg"
+    else
+	set allargs="$allargs $arg"
     endif
 
     shift
