@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.38 2009-03-11 14:15:12 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.39 2009-04-17 11:53:44 cvsbert Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -402,25 +402,28 @@ int Threads::getNrProcessors()
 {
     static int nrproc = -1;
     if ( nrproc > 0 ) return nrproc;
-    nrproc = 1;
 
-    const char* envres = GetEnvVar( "DTECT_USE_MULTIPROC" );
-    bool douse = true;
-    if ( envres && (*envres == 'n' || *envres == 'N') )
-	douse = false;
-    if ( envres && (*envres == 'y' || *envres == 'Y') )
-	douse = true;
-    if ( !douse ) return nrproc;
+    nrproc = 0;
 
-    const bool havesett = Settings::common().get( "Nr Processors", nrproc );
-    if ( !havesett )
-	nrproc = getSysNrProc();
+    bool havesett = false;
+    if ( !GetEnvVarYN("OD_NO_MULTIPROC") )
+    {
+	havesett = Settings::common().get( "Nr Processors", nrproc );
+	if ( !havesett )
+	    nrproc = getSysNrProc();
+    }
 
     if ( DBG::isOn( DBG_MT ) ) 
     {
-	BufferString msg = "Number of processors (";
-	msg += havesett ? "User settings" : "System";
-	msg += "): "; msg += nrproc;
+	BufferString msg;
+	if ( nrproc == 0 )
+	    msg = "OD_NO_MULTIPROC set: one processor used";
+	else
+	{
+	    msg = "Number of processors (";
+	    msg += havesett ? "User settings" : "System";
+	    msg += "): "; msg += nrproc;
+	}
 	DBG::message( msg );
     }
 
