@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.62 2009-04-16 14:45:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.63 2009-04-17 13:18:47 cvsbert Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uiseissubsel.cc,v 1.62 2009-04-16 14:45:05 cvsb
 #include "uicompoundparsel.h"
 #include "uipossubsel.h"
 #include "uiposprovider.h"
-#include "uigeninput.h"
+#include "uibutton.h"
 #include "uilistbox.h"
 #include "uiseisioobjinfo.h"
 #include "seistrctr.h"
@@ -141,38 +141,35 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 }
 
 
-static const BufferStringSet emptylnms;
-
-
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	: uiSeisSubSel(p,ss)
-	, lnmsfld_(0)
 	, lnmfld_(0)
+	, onelnbox_(0)
     	, multiln_(ss.multiline_)
 	, lineSel(this)
 	, singLineSel(this)
     	, curlnms_(*new BufferStringSet)
 {
+    lnmfld_ = new uiSeis2DLineNameSel( this, !ss.fornewentry_ );
+    setHAlignObj( lnmfld_ );
+
     if ( ss.fornewentry_ && !multiln_ )
-    {
 	selfld_->display( false );
-	lnmfld_ = new uiSeis2DLineNameSel( this, false );
-	setHAlignObj( lnmfld_ );
-    }
     else
     {
-	lnmsfld_ = new uiGenInput( this, multiln_ ? "One line only"
-				: "Line name", StringListInpSpec(emptylnms) );
+
 	if ( multiln_ )
 	{
-	    lnmsfld_->setWithCheck( true );
-	    lnmsfld_->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
-	    lnmsfld_->attach( alignedBelow, selfld_ );
+	    onelnbox_ = new uiCheckBox( this, "Single line:" );
+	    onelnbox_->activated.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
+	    onelnbox_->attach( leftOf, lnmfld_ );
+	    lnmfld_->attach( alignedBelow, selfld_ );
+	    lnmfld_->setSensitive( false );
 	}
 	else
-	    selfld_->attach( alignedBelow, lnmsfld_ );
+	    selfld_->attach( alignedBelow, lnmfld_ );
 
-	lnmsfld_->valuechanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
+	lnmfld_->nameChanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
     }
 }
 
@@ -187,14 +184,9 @@ void uiSeis2DSubSel::clear()
 {
     uiSeisSubSel::clear();
 
-    if ( lnmfld_ )
-	lnmfld_->setInput( "" );
-    else
-    {
-	if ( multiln_ )
-	    lnmsfld_->setChecked( false );
-	lnmsfld_->newSpec( StringListInpSpec(emptylnms), 0 );
-    }
+    lnmfld_->setInput( "" );
+    if ( multiln_ )
+	onelnbox_->setChecked( false );
 
     trcrgs_.erase();
     zrgs_.erase();
@@ -204,33 +196,17 @@ void uiSeis2DSubSel::clear()
 void uiSeis2DSubSel::setInput( const IOObj& ioobj )
 {
     clear();
-    if ( !lnmsfld_ ) return;
-
-    uiSeisIOObjInfo oinf(ioobj,false);
-    const BufferString prevlnm( selectedLine() );
-    curlnms_.erase();
-
-    oinf.getLineNames( curlnms_ );
-    lnmsfld_->newSpec( StringListInpSpec(curlnms_), 0 );
-    const bool prevok = !prevlnm.isEmpty() && curlnms_.indexOf(prevlnm) >= 0;
-    if ( multiln_ )
-	lnmsfld_->setChecked( prevok );
-
-    if ( prevok )
-	lnmsfld_->setText( prevlnm );
+    lnmfld_->setLineSet( ioobj.key() );
 }
 
 
 void uiSeis2DSubSel::setInputWithAttrib( const IOObj& ioobj,
 					 const char* attribnm )
 {
-    clear();
-    if ( !lnmsfld_ ) return;
+    setInput( ioobj );
 
     SeisIOObjInfo info( ioobj );
-    const BufferString prevlnm( selectedLine() );
     curlnms_.erase();
-
     info.getLineNamesWithAttrib( attribnm, curlnms_ );
     for ( int idx=0; idx<curlnms_.size(); idx++ )
     {
@@ -243,16 +219,6 @@ void uiSeis2DSubSel::setInputWithAttrib( const IOObj& ioobj,
 	trcrgs_ += trcrg;
 	zrgs_ += zrg;
     }
-
-    lnmsfld_->newSpec( StringListInpSpec(curlnms_), 0 );
-    const bool prevok = !prevlnm.isEmpty() && curlnms_.indexOf(prevlnm) >= 0;
-    if ( multiln_ )
-	lnmsfld_->setChecked( prevok );
-
-    if ( prevok )
-	lnmsfld_->setText( prevlnm );
-
-    lineChg( 0 );
 }
 
 
@@ -262,13 +228,8 @@ void uiSeis2DSubSel::usePar( const IOPar& iopar )
 
     LineKey lk; lk.usePar( iopar, false );
     BufferString lnm( lk.lineName() );
-    if ( lnmfld_ )
-	lnmfld_->setInput( lnm );
-    else
-    {
-	lnmsfld_->setText( lnm );
-	if ( multiln_ ) lnmsfld_->setChecked( !lnm.isEmpty() );
-    }
+    lnmfld_->setInput( lnm );
+    if ( multiln_ ) onelnbox_->setChecked( !lnm.isEmpty() );
 }
 
 
@@ -294,24 +255,19 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 
 bool uiSeis2DSubSel::isSingLine() const
 {
-    return lnmfld_ || !multiln_ || lnmsfld_->isChecked();
+    return !multiln_ || onelnbox_->isChecked();
 }
 
 
 const char* uiSeis2DSubSel::selectedLine() const
 {
-    if ( !isSingLine() ) return "";
-
-    return lnmfld_ ? lnmfld_->getInput() : lnmsfld_->text();
+    return isSingLine() ? lnmfld_->getInput() : "";
 }
 
 
 void uiSeis2DSubSel::setSelectedLine( const char* nm )
 {
-    if ( lnmfld_ )
-	lnmfld_->setInput( nm );
-    else
-	lnmsfld_->setText( nm );
+    lnmfld_->setInput( nm );
 }
 
 
@@ -319,7 +275,7 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 {
     if ( isSingLine() )
     {
-	const int lidx = lnmsfld_->getIntValue();
+	const int lidx = lnmfld_->getLineIndex();
 	if ( lidx >= 0 && lidx < trcrgs_.size() && lidx < zrgs_.size() )
 	{
 	    CubeSampling cs;
@@ -336,5 +292,6 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
 
 void uiSeis2DSubSel::singLineChg( CallBacker* )
 {
+    lnmfld_->setSensitive( onelnbox_->isChecked() );
     singLineSel.trigger();
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseislinesel.cc,v 1.21 2009-04-16 14:45:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseislinesel.cc,v 1.22 2009-04-17 13:18:47 cvsbert Exp $";
 
 #include "uiseislinesel.h"
 
@@ -126,13 +126,14 @@ uiSeis2DLineNameSel::uiSeis2DLineNameSel( uiParent* p, bool forread )
     fld_ = lcb->box();
     fld_->setReadOnly( forread_ );
     if ( !forread_ ) fld_->addItem( "" );
-    finaliseDone.notify( mCB(this,uiSeis2DLineNameSel,initFld) );
     setHAlignObj( lcb );
+    if ( !forread_ )
+	finaliseDone.notify( mCB(this,uiSeis2DLineNameSel,fillAll) );
     fld_->selectionChanged.notify( mCB(this,uiSeis2DLineNameSel,selChg) );
 }
 
 
-void uiSeis2DLineNameSel::initFld( CallBacker* )
+void uiSeis2DLineNameSel::fillAll( CallBacker* )
 {
     if ( lsid_.isEmpty() )
 	fillWithAll();
@@ -171,6 +172,12 @@ void uiSeis2DLineNameSel::addLineNames( const MultiID& ky )
 const char* uiSeis2DLineNameSel::getInput() const
 {
     return fld_->text();
+}
+
+
+int uiSeis2DLineNameSel::getLineIndex() const
+{
+    return fld_->currentItem();
 }
 
 

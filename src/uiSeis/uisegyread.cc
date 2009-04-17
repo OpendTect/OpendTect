@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyread.cc,v 1.31 2009-03-17 12:53:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyread.cc,v 1.32 2009-04-17 13:18:47 cvsbert Exp $";
 
 #include "uisegyread.h"
 #include "uisegydef.h"
@@ -336,15 +336,24 @@ class uiSEGYReadRev1Question : public uiDialog
 {
 public:
 
-uiSEGYReadRev1Question( uiParent* p, int pol )
+uiSEGYReadRev1Question( uiParent* p, int pol, bool is2d )
     : uiDialog(p,Setup("Determine SEG-Y revision",rev1info,mNoHelpID)
 	    	.modal(false) )
     , initialpol_(pol)
 {
+    buts_.allowNull( true );
     uiButtonGroup* bgrp = new uiButtonGroup( this, "" );
     for ( int idx=0; rev1txts[idx]; idx++ )
-	buts_ += new uiRadioButton( bgrp, rev1txts[idx] );
+    {
+	if ( !is2d || idx > 1 )
+	    buts_ += new uiRadioButton( bgrp, rev1txts[idx] );
+	else
+	    buts_ += idx
+		  ? new uiRadioButton( bgrp, "Yes - this is REV.1 SEG-Y" ) : 0;
+    }
     bgrp->setExclusive( true );
+    if ( !buts_[pol-1] )
+	initialpol_ = pol = pol+1;
     buts_[pol-1]->setChecked( true );
 
     dontaskfld_ = new uiCheckBox( this, "Don't ask again for this survey" );
@@ -356,7 +365,8 @@ bool acceptOK( CallBacker* )
     pol_ = 3;
     for ( int idx=0; idx<buts_.size(); idx++ )
     {
-	if ( buts_[idx]->isChecked() )
+	uiRadioButton* but = buts_[idx];
+	if ( but && but->isChecked() )
 	    { pol_ = idx + 1; break; }
     }
     int storepol = dontaskfld_->isChecked() ? -pol_ : pol_;
@@ -431,7 +441,8 @@ void uiSEGYRead::basicOptsGot()
 	    revpolnr_ = -revpolnr_;
 	else
 	{
-	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_ );
+	    rev1qdlg_ = new uiSEGYReadRev1Question( parent_, revpolnr_,
+		    				    Seis::is2D(geom_) );
 	    mLaunchDlg(rev1qdlg_,rev1qDlgClose);
 	    mSetState(Wait4Dialog);
 	}

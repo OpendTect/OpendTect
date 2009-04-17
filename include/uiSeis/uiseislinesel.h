@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Nov 2008
- RCS:		$Id: uiseislinesel.h,v 1.15 2009-04-16 14:45:05 cvsbert Exp $
+ RCS:		$Id: uiseislinesel.h,v 1.16 2009-04-17 13:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,8 +62,9 @@ public:
     const char*		getInput() const;
     void		setInput(const char*);
     void		setLineSet(const MultiID&);
-    			//!< If not used, will use fillWithAll
     void		fillWithAll();
+
+    int			getLineIndex() const; //!< Only usable when forread
 
     Notifier<uiSeis2DLineNameSel>	nameChanged;
 
@@ -73,9 +74,9 @@ protected:
     bool		forread_;
     MultiID		lsid_;
 
-    void		initFld(CallBacker*);
     void		addLineNames(const MultiID&);
     void		selChg( CallBacker* )	{ nameChanged.trigger(); }
+    void		fillAll(CallBacker*);
 
 };
 
