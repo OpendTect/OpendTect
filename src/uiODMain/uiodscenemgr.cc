@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.169 2009-04-16 10:36:14 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.170 2009-04-17 12:22:33 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
 #include "attribdatacubes.h"
@@ -790,7 +790,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     BufferString capt( "Tree scene " ); capt += vwridx;
 
     scn.dw_ = new uiDockWin( &appl_, capt );
-    scn.lv_ = new uiListView( scn.dw_, capt );
+    scn.lv_ = new uiListView( scn.dw_->topGroup(), capt );
     BufferStringSet labels;
     labels.add( "Elements" );
     labels.add( "Color" );
