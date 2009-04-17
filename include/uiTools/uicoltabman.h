@@ -6,14 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.10 2009-03-06 16:04:00 cvskris Exp $
+ RCS:           $Id: uicoltabman.h,v 1.11 2009-04-17 12:15:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "coltab.h"
-#include "coltabsequence.h"
 #include "bufstringset.h"
 
 class uiColorTableCanvas;
@@ -29,6 +28,7 @@ class uiPushButton;
 class uiSpinBox;
 class uiWorld2Ui;
 
+namespace ColTab { class Sequence; }
 
 mClass uiColorTableMan : public uiDialog
 {
