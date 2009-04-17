@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetdatadir.cc,v 1.25 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.26 2009-04-17 09:43:31 cvsbert Exp $";
 
 #include "uisetdatadir.h"
 #include "uifileinput.h"
@@ -52,8 +52,8 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	else
 	{
 	    titltxt = 
-		  "OpendTect needs a place to store its data.\n"
-		  "The current OpendTect Data Root is invalid.\n"
+		  "OpendTect needs a place to store your data files.\n"
+		  "\nThe current OpendTect Data Root is invalid.\n"
 		  "* Locate a valid data root directory\n"
 		  "* Or specify a new directory name to create";
 
@@ -65,11 +65,12 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
     else
     {
 	titltxt =
-	"OpendTect needs a place to store its data: the OpendTect Data Root.\n"
+	"OpendTect needs a place to store your data files:"
+	" the OpendTect Data Root.\n\n"
 	"You have not yet specified a location for it,\n"
-	"and there is no 'DTECT_DATA or dGB_DATA' set in your environment.\n\n"
+	"and there is no 'DTECT_DATA' set in your environment.\n\n"
 	"Please specify where the OpendTect Data Root should\n"
-	"be created or select an existing OpendTect Data Root."
+	"be created or select an existing OpendTect Data Root.\n"
 #ifndef __win__
 	"\n\nNote that you can still put surveys and "
 	"individual cubes on other disks;\nbut this is where the "
@@ -113,6 +114,20 @@ bool uiSetDataDir::acceptOK( CallBacker* )
     else if ( datadir == olddatadir )
 	return true;
 
+    FilePath fpdd( datadir ); FilePath fps( GetSoftwareDir() );
+    const int nrslvls = fps.nrLevels();
+    if ( fpdd.nrLevels() >= nrslvls )
+    {
+	const BufferString ddatslvl( fpdd.dirUpTo(nrslvls-1) );
+	if ( ddatslvl == fps.fullPath() )
+	{
+	    uiMSG().error( "The directory you have chosen is\n *INSIDE*\n"
+			   "the software installation directory.\n"
+			   "Please choose another directory" );
+	    return false;
+	}
+    }
+
     return setRootDataDir( datadir );
 }
 
@@ -149,7 +164,8 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 
 	trycpdemosurv = true;
     }
-    else if ( !OD_isValidRootDataDir(datadir) )
+
+    if ( !OD_isValidRootDataDir(datadir) )
     {
 	if ( !File_isDirectory(datadir) )
 	    mErrRet( "A file (not a directory) with this name already exists" )
@@ -209,7 +225,12 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	}
     }
 
-    // Huh?
-    ErrMsg( "Cannot set Root data dir for unknown reasons" );
-    return false;
+    msg = OD_SetRootDataDir( datadir );
+    if ( msg )
+    {
+	uiMSG().error( msg );
+	return false;
+    }
+
+    return true;
 }
