@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Jan 2008
- * ID       : $Id: madprocexec.h,v 1.3 2009-01-20 10:54:43 cvsraman Exp $
+ * ID       : $Id: madprocexec.h,v 1.4 2009-04-17 10:04:11 cvsranojay Exp $
 -*/
 
 #include "enums.h"
@@ -20,7 +20,7 @@ namespace ODMad
 //class ProcFlow;
 class MadStream;
 
-class ProcExec : public ::Executor
+mClass ProcExec : public ::Executor
 {
 public:
 
