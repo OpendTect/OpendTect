@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emseedpicker.h,v 1.23 2009-01-06 10:48:18 cvsranojay Exp $
+ RCS:           $Id: emseedpicker.h,v 1.24 2009-04-17 06:50:15 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,10 @@ public:
     virtual int		defaultSeedConMode(bool gotsetup) const { return -1; }
 
     virtual const char*	errMsg() const				{ return 0; }
+
+    enum SeedModeOrder  { TrackFromSeeds,
+			TrackBetweenSeeds,
+			DrawBetweenSeeds   };
 
 };
 
