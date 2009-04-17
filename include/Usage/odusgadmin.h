@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: odusgadmin.h,v 1.1 2009-03-12 15:51:31 cvsbert Exp $
+ RCS:           $Id: odusgadmin.h,v 1.2 2009-04-17 12:34:40 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,9 @@ class IOPar;
 namespace Usage
 {
 class Info;
+ static std::ostream* logstrm_ = 0;
+
+
 
 mClass Administrator : public ::NamedObject
 {
@@ -46,10 +49,6 @@ protected:
     bool		haveLogging() const	{ return logstrm_; }
     void		toLogFile(const char*) const;
     virtual void	reset()			{}
-
-private:
-
-    static std::ostream* logstrm_;
 
 };
 

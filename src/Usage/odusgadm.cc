@@ -4,14 +4,13 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: odusgadm.cc,v 1.2 2009-03-17 12:53:18 cvsbert Exp $";
+static const char* rcsID = "$Id: odusgadm.cc,v 1.3 2009-04-17 12:39:13 cvsranojay Exp $";
 
 #include "odusgbaseadmin.h"
 #include "odusginfo.h"
 #include "iopar.h"
 #include <iostream>
 
-std::ostream* Usage::Administrator::logstrm_ = 0;
 
 
 static ObjectSet<Usage::Administrator>& ADMS()
