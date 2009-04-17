@@ -7,20 +7,20 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.14 2009-03-10 06:33:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.15 2009-04-17 12:17:31 cvsnanne Exp $";
 
 #include "uicoltabtools.h"
-#include "uicanvas.h"
 #include "uirgbarray.h"
 #include "uigeom.h"
+#include "uigraphicsscene.h"
 #include "uiworld2ui.h"
 
+#include "bufstringset.h"
 #include "coltab.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "coltabindex.h"
 #include "pixmap.h"
-#include "bufstringset.h"
 
 
 uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
@@ -30,7 +30,7 @@ uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
     , ctseq_(ct)
 {
     setDragMode( uiGraphicsView::NoDrag );
-    setBackgroundQpaque( withalpha );
+    scene().useBackgroundPattern( withalpha );
     setRGB();
 }
 
