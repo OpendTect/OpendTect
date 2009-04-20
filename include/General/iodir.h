@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: iodir.h,v 1.16 2008-12-25 11:25:59 cvsranojay Exp $
+ RCS:		$Id: iodir.h,v 1.17 2009-04-20 18:42:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
  
  
 #include "ioobj.h"
-#include "selector.h"
 #include <iosfwd>
 
 
