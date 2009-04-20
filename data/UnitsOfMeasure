@@ -8,6 +8,8 @@ Microseconds: Time`us`1e-6
 Meter: Distance/Depth`m`1
 Feet: Distance/Depth`ft`0.3048
 Inches: Distance/Depth`in`0.0254
+-Meter: Distance/Depth`-m`-1
+-Feet: Distance/Depth`-ft`-0.3048
 Kg/m3: Density`kg/m3`1
 Gram/cm3: Density`g/cc`1000
 Meter/second: Velocity`m/s`1
