@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.45 2009-04-20 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.46 2009-04-20 13:59:38 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -100,8 +100,7 @@ uiWellImportAscOptDlg( uiWellImportAsc* p )
 	.setName("X",0).setName("Y",1) );
 
     elevfld = new uiGenInput( this,
-	    "Elevation difference between MD and earth's surface",
-	    FloatInpSpec() );
+	    "Surface Reference Datum (SRD)", FloatInpSpec(0) );
     elevfld->attach( alignedBelow, coordfld );
     zinftbox = new uiCheckBox( this, "Feet" );
     zinftbox->attach( rightOf, elevfld );
