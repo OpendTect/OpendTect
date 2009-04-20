@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.53 2009-04-20 11:45:17 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.54 2009-04-20 13:29:58 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -32,6 +32,15 @@ inline static StreamData getSD( const char* fnm )
 }
 
 
+Well::AscImporter::D2TModelInfo::D2TModelInfo()
+    : istwt_(true)
+    , istvd_(false)
+    , zinft_(SI().zInFeet())
+    , vel_(4000)
+{
+}
+
+
 Well::AscImporter::~AscImporter()
 {
     unitmeasstrs_.erase();
@@ -44,18 +53,30 @@ Well::AscImporter::~AscImporter()
 	if ( !sd.usable() ) \
 	    return "Cannot open input file"
 
-const char* Well::AscImporter::getD2T( const char* fnm, bool istvd, bool istwt,
-				       bool zinfeet )
+const char* Well::AscImporter::getD2T( const D2TModelInfo& mi )
 {
-    mOpenFile( fnm );
-    std::istream& strm = *sd.istrm;
-
     if ( !wd.d2TModel() )
 	wd.setD2TModel( new Well::D2TModel );
     Well::D2TModel& d2t = *wd.d2TModel();
-    d2t.erase();
 
-    const float zfac = zinfeet ? 0.3048 : 1;
+    if ( mi.fname_.isEmpty() )
+    {
+	if ( wd.track().isEmpty() )
+	    return "Cannot generate D2Time model without track";
+	const float twtvel = mi.vel_ * .5;
+	const float dah0 = wd.track().dah( 0 );
+	const float dah1 = wd.track().dah( wd.track().size()-1 );
+	d2t.erase();
+	d2t.add( dah0, dah0 / twtvel );
+	d2t.add( dah1, dah1 / twtvel );
+	return 0;
+    }
+
+    mOpenFile( mi.fname_ );
+    std::istream& strm = *sd.istrm;
+
+    d2t.erase();
+    const float zfac = mi.zinft_ ? 0.3048 : 1;
     float z, tval, prevdah = mUdf(float);
     bool firstpos = true;
     bool t_in_ms = false;
@@ -67,14 +88,14 @@ const char* Well::AscImporter::getD2T( const char* fnm, bool istvd, bool istwt,
 	if ( mIsUdf(z) ) continue;
 	z *= zfac;
 
-	if ( istvd )
+	if ( mi.istvd_ )
 	{
 	    z = wd.track().getDahForTVD( z, prevdah );
 	    if ( mIsUdf(z) ) continue;
 	    prevdah = z;
 	}
 
-	tms += istwt ? tval : 2*tval;
+	tms += mi.istwt_ ? tval : 2*tval;
 	dahs += z;
     }
     sd.close();

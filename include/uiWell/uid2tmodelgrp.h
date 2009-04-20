@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.h,v 1.5 2009-01-23 09:51:05 cvsbruno Exp $
+ RCS:		$Id: uid2tmodelgrp.h,v 1.6 2009-04-20 13:29:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "wellimpasc.h"
 
 class uiFileInput;
 class uiGenInput;
@@ -22,23 +23,39 @@ class uiLabel;
 mClass uiD2TModelGroup : public uiGroup
 {
 public:
-    			uiD2TModelGroup(uiParent*,bool withunitfld,
-					const char* filefldlbl=0);
 
-    const char*		fileName() const;
-    bool		isTVD() const;
-    bool		isTWT() const;
-    bool		zInFeet() const;
-    void 		modelSel();
+    mClass Setup
+    {
+    public:
+			Setup( bool fopt=true )
+			    : fileoptional_(fopt)
+			    , withunitfld_(true)
+			    , filefldlbl_("Depth to Time model file")	{}
+
+	mDefSetupMemb(bool,fileoptional)
+	mDefSetupMemb(bool,withunitfld)
+	mDefSetupMemb(BufferString,filefldlbl)
+
+    };
+
+    			uiD2TModelGroup(uiParent*,const Setup&);
+
+    const char*		checkInput() const;
+    const Well::AscImporter::D2TModelInfo&	getMI() const	{ return mi_; }
 
 protected:
 
+    Setup		setup_;
+    Well::AscImporter::D2TModelInfo	mi_;
+
     uiFileInput*	filefld_;
+    uiGenInput*		velfld_;
     uiGenInput*		tvdfld_;
-    uiLabel*	        uilbl_;
+    uiLabel*	        tvdsslbl_;
     uiGenInput*		unitfld_;
     uiGenInput*		twtfld_;
-    uiGenInput*         d2tmodelfld_;
+
+    void 		fileFldChecked(CallBacker*);
 };
 
 

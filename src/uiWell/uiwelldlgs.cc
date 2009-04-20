@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.75 2009-03-24 12:33:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.76 2009-04-20 13:29:58 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -272,25 +272,20 @@ uiD2TModelReadDlg( uiParent* p )
     	: uiDialog(p,uiDialog::Setup("Read new Depth/Time model",
 		    		     "Specify new Depth/time model","107.1.6"))
 {
-    d2tgrp = new uiD2TModelGroup( this, true, "File name" );
+    uiD2TModelGroup::Setup su( false );
+    su.filefldlbl( "File name" );
+    d2tgrp = new uiD2TModelGroup( this, su );
 }
 
 bool acceptOK( CallBacker* )
 {
-    fnm = d2tgrp->fileName();
-    if ( File_isEmpty(fnm.buf()) )
-	{ uiMSG().error( "Invalid input file" ); return false; }
-    istvd = d2tgrp->isTVD();
-    istwt = d2tgrp->isTWT();
-    isft = d2tgrp->zInFeet();
+    const char* errmsg = d2tgrp->checkInput();
+    if ( errmsg && *errmsg )
+	{ uiMSG().error( errmsg ); return false; }
     return true;
 }
 
     uiD2TModelGroup*	d2tgrp;
-    BufferString	fnm;
-    bool		istvd;
-    bool		istwt;
-    bool		isft;
 
 };
 
@@ -301,10 +296,9 @@ void uiD2TModelDlg::readNew( CallBacker* )
     if ( !dlg.go() ) return;
 
     Well::AscImporter ascimp( wd );
-    BufferString errmsg = ascimp.getD2T( dlg.fnm, dlg.istvd,
-	    				 dlg.istwt, dlg.isft );
+    const BufferString errmsg = ascimp.getD2T( dlg.d2tgrp->getMI() );
     if ( !errmsg.isEmpty() )
-	uiMSG().error( "Please select a valid file" );
+	uiMSG().error( errmsg );
     else
     {
 	table->clearTable();
@@ -668,34 +662,15 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
     , ctio_(*mMkCtxtIOObj(Well))
     , usemodelfld(0)
     , constvelfld(0)
-    , d2tgrp(0)
 {
     uiGroup* topgrp = 0;
     if ( SI().zIsTime() )
-#ifdef __debug__
-    {
-	topgrp = new uiGroup( this, "time survey group" );
-
-	usemodelfld = new uiGenInput( topgrp, "Provide Depth to Time model", 
-				      BoolInpSpec(true) );
-	usemodelfld->valuechanged.notify( mCB(this,uiStoreWellDlg,modelSel) );
-
-	d2tgrp = new uiD2TModelGroup( topgrp, true );
-	d2tgrp->attach( alignedBelow, usemodelfld );
-
-	constvelfld = 
-	    new uiGenInput( topgrp, "Constant velocity (m/s)", FloatInpSpec() );
-	constvelfld->attach( alignedBelow, usemodelfld );
-	topgrp->setHAlignObj( usemodelfld );
-    }
-#else
     {
 	topgrp = new uiGroup( this, "time survey group" );
 	constvelfld =
 	    new uiGenInput( topgrp, "Constant velocity (m/s)", FloatInpSpec() );
 	topgrp->setHAlignObj( constvelfld );
     }
-#endif
 
     ctio_.ctxt.forread = false;
     uiIOObjSel::Setup su( "Output Well" );
@@ -705,7 +680,6 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
 	outfld->attach( alignedBelow, topgrp );
 
     outfld->setInputText( wellname );
-    modelSel(0);
 }
 
 
@@ -733,13 +707,7 @@ bool uiStoreWellDlg::checkInpFlds()
 {
     if ( SI().zIsTime() )
     {
-	bool usemodel = false;
-#ifdef __debug__
-	usemodel = usemodelfld->getBoolValue();
-#endif
-	if ( usemodel && !*d2tgrp->fileName() )
-	    mErrRet( "Please select 'Depth to Time model' file" )
-	else if ( !usemodel && constvelfld )
+	if ( constvelfld )
 	{
 	    const float vel = constvelfld->getfValue();
 	    if ( mIsUdf(vel) || vel<=0 )
@@ -751,14 +719,6 @@ bool uiStoreWellDlg::checkInpFlds()
 	mErrRet( "Please select an output" )
 
     return true;
-}
-
-
-void uiStoreWellDlg::modelSel( CallBacker* )
-{
-    if ( !usemodelfld ) return;
-    d2tgrp->display( usemodelfld->getBoolValue() );
-    constvelfld->display( !usemodelfld->getBoolValue() );
 }
 
 
@@ -785,33 +745,13 @@ bool uiStoreWellDlg::storeWell()
 bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 {
     TypeSet<float> times;
-    bool usemodel = false;
     if ( SI().zIsTime() )
     {
-#ifdef __debug__
-	usemodel = usemodelfld->getBoolValue();
-#endif
-	if ( usemodel )
+	const float vel = constvelfld->getfValue();
+	for ( int idx=0; idx<wellcoords_.size(); idx++ )
 	{
-	    Well::AscImporter ascimp( *well );
-	    const char* errmsg = ascimp.getD2T( d2tgrp->fileName(),
-						d2tgrp->isTVD(),
-						d2tgrp->isTWT(),
-						d2tgrp->zInFeet() );
-	    if ( errmsg ) mErrRet( errmsg );
-
-	    for ( int idx=0; idx<wellcoords_.size(); idx++ )
-		wellcoords_[idx].z =
-		    well->d2TModel()->getDepth( wellcoords_[idx].z );
-	}
-	else
-	{
-	    const float vel = constvelfld->getfValue();
-	    for ( int idx=0; idx<wellcoords_.size(); idx++ )
-	    {
-		times += wellcoords_[idx].z;
-		wellcoords_[idx].z *= vel; 
-	    }
+	    times += wellcoords_[idx].z;
+	    wellcoords_[idx].z *= vel; 
 	}
     }
 
@@ -819,7 +759,7 @@ bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 	well->track().insertPoint( Coord(wellcoords_[idx].x,wellcoords_[idx].y),
 				   wellcoords_[idx].z );
 
-    if ( SI().zIsTime() && !usemodel )
+    if ( SI().zIsTime() )
     {
 	const float vel = constvelfld->getfValue();
 	Well::D2TModel* d2t = new Well::D2TModel();

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.44 2009-03-24 12:33:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.45 2009-04-20 13:29:58 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -28,15 +28,18 @@ static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.44 2009-03-24 12:33:52 cvsb
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uibutton.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitblimpexpdatasel.h"
 
+static const char* sHelpID = "107.0.0";
+
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
-				 "Specify well parameters","107.0.0"))
+				 "Specify well parameters",sHelpID))
     , ctio( *mMkCtxtIOObj(Well) )
     , fd( *Well::WellAscIO::getDesc() )			       
 {
@@ -56,43 +59,59 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     const bool zistime = SI().zIsTime();
     if ( zistime )
     {
-	d2tgrp = new uiD2TModelGroup( this, false );
+	d2tgrp = new uiD2TModelGroup( this, uiD2TModelGroup::Setup() );
 	d2tgrp->attach( alignedBelow, dataselfld );
 	d2tgrp->attach( ensureBelow, sep );
     }
 
-    coordfld = new uiGenInput( this, "Surface coordinate",
-			PositionInpSpec( PositionInpSpec::Setup(true))
-			   		 .setName("X",0).setName("Y",1) );
-    coordfld->attach( alignedBelow, zistime ? (uiObject*)d2tgrp
-	   				    : (uiObject*)dataselfld );
+    uiButton* but = new uiPushButton( this, "Advanced/Optional",
+	    				mCB(this,uiWellImportAsc,doAdvOpt),
+					false );
+    but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp
+	    			       : (uiObject*)dataselfld );
     if ( !zistime )
-	coordfld->attach( ensureBelow, sep );
-
-    elevfld = new uiGenInput( this, "Elevation above surface", FloatInpSpec() );
-    elevfld->attach( alignedBelow, coordfld );
-
-    BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
-    unitfld = new uiGenInput( this, "Depth unit", mft );
-    unitfld->attach( alignedBelow, elevfld );
+	but->attach( ensureBelow, sep );
 
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Well" );
-    outfld->attach( alignedBelow, unitfld );
+    outfld->attach( alignedBelow, but );
+}
+
+
+uiWellImportAsc::~uiWellImportAsc()
+{
+    delete ctio.ioobj; delete &ctio;
+    delete &fd;
+}
+
+
+class uiWellImportAscOptDlg : public uiDialog
+{
+public:
+
+uiWellImportAscOptDlg( uiWellImportAsc* p )
+    : uiDialog(p,uiDialog::Setup("Import well: Advance/Optional",
+				 "Advanced and Optional",sHelpID))
+    , uwia_(p)
+{
+    coordfld = new uiGenInput( this,
+	"Surface coordinate (if different from first coordinate in track file)",
+	PositionInpSpec( PositionInpSpec::Setup(true))
+	.setName("X",0).setName("Y",1) );
+
+    elevfld = new uiGenInput( this,
+	    "Elevation difference between MD and earth's surface",
+	    FloatInpSpec() );
+    elevfld->attach( alignedBelow, coordfld );
+    zinftbox = new uiCheckBox( this, "Feet" );
+    zinftbox->attach( rightOf, elevfld );
+    zinftbox->setChecked( SI().depthsInFeetByDefault() );
 
     uiSeparator* horsep = new uiSeparator( this );
-    horsep->attach( stretchedBelow, outfld );
-
-    uiLabel* infolbl = new uiLabel( this, "Optional information:" );
-    infolbl->attach( alignedBelow, horsep );
-    uiLabel* RTFMlbl = new uiLabel( this,
-	    			"[Logs and markers: use 'File-Manage-Wells']" );
-    RTFMlbl->attach( ensureBelow, horsep );
-    RTFMlbl->attach( rightBorder );
+    horsep->attach( stretchedBelow, elevfld );
 
     idfld = new uiGenInput( this, "Well ID (UWI)" );
-    idfld->attach( alignedBelow, outfld );
-    idfld->attach( ensureBelow, infolbl );
+    idfld->attach( alignedBelow, elevfld );
     
     operfld = new uiGenInput( this, "Operator" );
     operfld->attach( alignedBelow, idfld );
@@ -105,20 +124,48 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 }
 
 
-uiWellImportAsc::~uiWellImportAsc()
+bool acceptOK( CallBacker* )
 {
-    delete ctio.ioobj; delete &ctio;
-    delete &fd;
+    Well::Info& info = uwia_->wd_.info();
+
+    if ( *coordfld->text() )
+	info.surfacecoord = coordfld->getCoord();
+    if ( *elevfld->text() )
+    {
+	info.surfaceelev = -elevfld->getfValue();
+	if ( zinftbox->isChecked() && !mIsUdf(info.surfaceelev) ) 
+	    info.surfaceelev *= 0.3048;
+    }
+
+    info.uwid = idfld->text();
+    info.oper = operfld->text();
+    info.state = statefld->text();
+    info.county = countyfld->text();
+
+    return true;
+}
+
+    uiWellImportAsc*	uwia_;
+    uiGenInput*		coordfld;
+    uiGenInput*		elevfld;
+    uiGenInput*		idfld;
+    uiGenInput*		operfld;
+    uiGenInput*		statefld;
+    uiGenInput*		countyfld;
+    uiCheckBox*		zinftbox;
+};
+
+
+void uiWellImportAsc::doAdvOpt( CallBacker* )
+{
+    uiWellImportAscOptDlg dlg( this );
+    dlg.go();
 }
 
 
 bool uiWellImportAsc::acceptOK( CallBacker* )
 {
-    bool ret = checkInpFlds() && doWork();
-
-    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), !unitfld->getBoolValue() );
-    SI().savePars();
-    return ret;
+    return checkInpFlds() && doWork();
 }
 
 
@@ -126,45 +173,30 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 
 bool uiWellImportAsc::doWork()
 {
-    PtrMan<Well::Data> well = new Well::Data( outfld->getInput() );
-    const bool zinfeet = !unitfld->getBoolValue();
-
-    Well::Info& info = well->info();
-    info.uwid = idfld->text();
-    info.oper = operfld->text();
-    info.state = statefld->text();
-    info.county = countyfld->text();
-    info.surfacecoord = coordfld->getCoord();
-    info.surfaceelev = -elevfld->getfValue();
-    if ( zinfeet && !mIsUdf(info.surfaceelev) ) 
-	info.surfaceelev *= 0.3048;
+    wd_.info().setName( outfld->getInput() );
 
     BufferString fnm( wtinfld->fileName() );
     if ( !fnm.isEmpty() )
     {
 	StreamData sd = StreamProvider( wtinfld->fileName() ).makeIStream();
 	if ( !sd.usable() )
-	    mErrRet( "Cannot open input file" )
+	    mErrRet( "Cannot open track file" )
 
-	Well::WellAscIO wellascio(fd, *sd.istrm );
+	Well::WellAscIO wellascio( fd, *sd.istrm );
 
-	if ( !wellascio.getData( *well, true ) )
-	    mErrRet( "Failed to convert into compatible data" );
+	if ( !wellascio.getData(wd_,true) )
+	    mErrRet( "The well track file cannot be loaded with given format" );
 
 	sd.close();
     }
 
-    Well::AscImporter ascimp( *well );
-
     if ( SI().zIsTime() )
     {
-	fnm = d2tgrp->fileName();
-	if ( !fnm.isEmpty() )
-	{
-	    const char* errmsg = ascimp.getD2T( fnm, d2tgrp->isTVD(),
-				    d2tgrp->isTWT(), zinfeet );
-	    if ( errmsg ) mErrRet( errmsg );
-	}
+	const char* errmsg = d2tgrp->checkInput();
+	if ( errmsg ) mErrRet( errmsg );
+	Well::AscImporter ascimp( wd_ );
+	errmsg = ascimp.getD2T( d2tgrp->getMI() );
+	if ( errmsg ) mErrRet( errmsg );
     }
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();
@@ -172,7 +204,7 @@ bool uiWellImportAsc::doWork()
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 	    		 "Another type object with this name already exists." );
 
-    if ( !wtr->write(*well,*ctio.ioobj) ) mErrRet( "Cannot write well" );
+    if ( !wtr->write(wd_,*ctio.ioobj) ) mErrRet( "Cannot write well" );
 
     uiMSG().message( "Well successfully created" );
     return false;
@@ -182,19 +214,12 @@ bool uiWellImportAsc::doWork()
 bool uiWellImportAsc::checkInpFlds()
 {
     const bool havetrack = *wtinfld->fileName();
-    const bool haved2t = !SI().zIsTime() || *d2tgrp->fileName();
-    if ( !havetrack || !haved2t )
-    {
-	BufferString msg( "" );
-	msg += havetrack? "Remember ":"";
-        msg +=	"you need to ";
-	msg += havetrack ? "generate a " : "have a ";
-	msg += havetrack ? "Depth/Time model" : "Track";
-	msg += "\nto be able to use and display the new well";
-	msg += havetrack? ".":"\nDo you want to continue ?";
-	if ( !uiMSG().askGoOn(msg) )
-	    return false;
-    }
+    if ( !*wtinfld->fileName() )
+	mErrRet("Please specify a well track file")
+
+    const char* errmsg = SI().zIsTime() ? 0 : d2tgrp->checkInput();
+    if ( errmsg && *errmsg )
+	mErrRet( errmsg )
 
     if ( !outfld->commitInput() )
 	mErrRet( "Please select output" )

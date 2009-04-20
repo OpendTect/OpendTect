@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.20 2009-01-06 10:57:11 cvsranojay Exp $
+ RCS:		$Id: wellimpasc.h,v 1.21 2009-04-20 13:29:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,20 @@ public:
 
 			AscImporter( Data& d ) : wd(d), useconvs_(false) {}
 			~AscImporter();
+    mClass D2TModelInfo
+    {
+    public:
+			D2TModelInfo();
 
-    const char*		getD2T(const char*,bool istvd,bool istwt,
-	    		       bool depthinfeet);
+	BufferString	fname_;
+	bool		istwt_;
+	bool		istvd_;
+	bool		zinft_;
+
+	float		vel_;	// used if fname_.isEmpty()
+    };
+
+    const char*		getD2T(const D2TModelInfo&);
     const char*		getMarkers(const char*,bool istvd,
 	    			   bool depthinfeet);
     Data&		getWellData() 				{ return wd; }
