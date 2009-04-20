@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimain.cc,v 1.50 2009-01-20 11:42:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimain.cc,v 1.51 2009-04-20 04:47:34 cvsnanne Exp $";
 
 #include "uimain.h"
 
@@ -185,7 +185,6 @@ void uiMain::setTopLevel( uiMainWin* obj )
 
     mainobj_ = obj;
     init( mainobj_->body()->qwidget() ); // inits SoQt if uicMain
-    app_->setMainWidget( mainobj_->body()->qwidget() );
 }
 
 
@@ -243,13 +242,6 @@ uiMain& uiMain::theMain()
 
 void uiMain::flushX()        
 { if ( app_ ) app_->flush(); }
-
-
-void uiMain::setTopLevelCaption( const char* txt )
-{
-    QWidget* mw = qApp->mainWidget();
-    if ( mw ) mw->setCaption( QString(txt) );
-}
 
 
 //! waits [msec] milliseconds for new events to occur and processes them.

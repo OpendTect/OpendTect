@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.14 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uimain.h,v 1.15 2009-04-20 04:47:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,6 @@ public:
     const uiFont*	font(); 
 
     static uiMain&	theMain();
-    static void		setTopLevelCaption(const char*);
 
     static void		flushX();
 
