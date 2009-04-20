@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.111 2009-02-11 10:54:37 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.112 2009-04-20 04:46:08 cvsnanne Exp $";
 
 #include "uiodmain.h"
 
@@ -196,7 +196,7 @@ uiODMain::uiODMain( uicMain& a )
     if ( buildUI() )
 	failed_ = false;
 
-    IOM().afterSurveyChange.notify( mCB(this,uiODMain,handleStartupSession) );
+    IOM().afterSurveyChange.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     timer_.tick.notify( mCB(this,uiODMain,timerCB) );
 }
 
@@ -206,7 +206,6 @@ uiODMain::~uiODMain()
     if ( ODMainWin()==this )
 	manODMainWin( 0 );
 
-    delete ctabed_;
     delete ctabwin_;
     delete &lastsession_;
     delete &timer_;
@@ -287,7 +286,7 @@ bool uiODMain::buildUI()
     else
     {
 	uiToolBar* tb = new uiToolBar( this, "Color Table" );
-	ctabed_ = new uiVisColTabEd( 0, false );
+	ctabed_ = new uiVisColTabEd( tb, false );
 	ctabed_->seqChange().notify( mCB(applmgr_,uiODApplMgr,colSeqChg) );
 	ctabed_->mapperChange().notify( mCB(applmgr_,uiODApplMgr,colMapperChg));
 	tb->addObject( ctabed_->colTabGrp()->attachObj() );
@@ -477,7 +476,7 @@ void uiODMain::autoSession()
     if ( dlg.go() )
     {
 	if ( dlg.loadnowfld_->getBoolValue() && dlg.ctio_.ioobj )
-	    handleStartupSession(0);
+	    handleStartupSession();
     }
 }
 
@@ -549,7 +548,7 @@ void uiODMain::doRestoreSession()
 }
 
 
-void uiODMain::handleStartupSession( CallBacker* )
+void uiODMain::handleStartupSession()
 {
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
@@ -574,9 +573,8 @@ bool uiODMain::go()
     if ( failed_ ) return false;
 
     show();
-    uiSurvey::updateViewsGlobal();
     Timer tm( "Handle startup session" );
-    tm.tick.notify( mCB(this,uiODMain,handleStartupSession) );
+    tm.tick.notify( mCB(this,uiODMain,afterSurveyChgCB) );
     tm.start( 200, true );
     int rv = uiapp_.exec();
     delete applmgr_; applmgr_ = 0;
@@ -593,10 +591,10 @@ bool uiODMain::askStore( bool& askedanything )
     if ( doask && hasSessionChanged() )
     {
 	askedanything = true;
-	int res = uiMSG().askGoOnAfter( "Do you want to save this session?" );
-	if ( res == 0 )
+	int res = uiMSG().askSave( "Do you want to save this session?", true );
+	if ( res == 1 )
 	    saveSession();
-	else if ( res == 2 )
+	else if ( res == -1 )
 	    return false;
     }
 
@@ -636,6 +634,34 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 
     return true;
 }
+
+
+void uiODMain::afterSurveyChgCB( CallBacker* )
+{
+    updateCaption();
+    handleStartupSession();
+}
+
+
+void uiODMain::updateCaption()
+{
+    BufferString capt( "OpendTect V" );
+    capt += GetFullODVersion();
+    capt += "/"; capt += __plfsubdir__;
+
+    const char* usr = GetSoftwareUser();
+    if ( usr && *usr )
+    { capt += " ["; capt += usr; capt += "]"; }
+
+    if ( !SI().name().isEmpty() )
+    {
+	capt += ": ";
+	capt += SI().name();
+    }
+
+    setCaption( capt );
+}
+
 
 bool uiODMain::closeOK()
 {

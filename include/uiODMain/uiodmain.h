@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.22 2009-02-13 04:19:08 cvsranojay Exp $
+ RCS:           $Id: uiodmain.h,v 1.23 2009-04-20 04:46:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,9 @@ protected:
     bool		failed_;
 
     virtual bool	closeOK();
-    void		handleStartupSession(CallBacker*);
+    void		updateCaption();
+    void		afterSurveyChgCB(CallBacker*);
+    void		handleStartupSession();
     void		restoreSession(const IOObj*);
 
 private:
