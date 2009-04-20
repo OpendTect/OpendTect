@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.14 2009-04-17 20:03:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.15 2009-04-20 05:12:24 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -544,7 +544,7 @@ void HorizonSection::setTileNormals( HorizonSectionTile& tile,
     int index = 0;
     for ( int res = 0; res<mHorSectNrRes; res++ )
     {
-	const int spacing = (int)pow( 2, res );
+	const int spacing = (int)pow( 2.0, res );
 	for ( int row=0; row<=mHorSectSideSize; row++ )
 	{
 	    if ( row%spacing && row<mHorSectSideSize ) continue;
