@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.103 2009-03-16 12:29:08 cvsranojay Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.104 2009-04-20 03:50:22 cvsnanne Exp $";
 
 #include "uisurvey.h"
 
@@ -615,7 +615,8 @@ bool uiSurvey::rejectOK( CallBacker* )
     }
 
     IOMan::setSurvey( initialsurvey_ );
-    SurveyInfo::theinst_ = SurveyInfo::read(
+    SI().setInvalid();
+    SurveyInfo::read(
 	FilePath(initialdatadir_).add(initialsurvey_).fullPath() );
 
     SurveyInfo::produceWarnings( true );
@@ -642,7 +643,6 @@ bool uiSurvey::acceptOK( CallBacker* )
 	{ SurveyInfo::produceWarnings( false ); return false; }
 
     newSurvey();
-    updateViewsGlobal();
     if ( impiop_ && impsip_
       && uiMSG().askGoOn(impsip_->importAskQuestion()) )
     {
@@ -651,26 +651,6 @@ bool uiSurvey::acceptOK( CallBacker* )
     }
 
     return true;
-}
-
-
-void uiSurvey::updateViewsGlobal()
-{
-    BufferString capt( "OpendTect V" );
-    capt += GetFullODVersion();
-    capt += "/"; capt += __plfsubdir__;
-
-    const char* usr = GetSoftwareUser();
-    if ( usr && *usr )
-	{ capt += " ["; capt += usr; capt += "]"; }
-
-    if ( !SI().name().isEmpty() )
-    {
-	capt += ": ";
-	capt += SI().name();
-    }
-
-    uiMain::setTopLevelCaption( capt );
 }
 
 
@@ -685,8 +665,7 @@ void uiSurvey::getSurvInfo()
 
 void uiSurvey::newSurvey()
 {
-    delete SurveyInfo::theinst_;
-    SurveyInfo::theinst_ = 0;
+    SI().setInvalid();
 }
 
 
