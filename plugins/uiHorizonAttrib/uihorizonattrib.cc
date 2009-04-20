@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.15 2009-04-06 09:34:09 cvsranojay Exp $";
+static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.16 2009-04-20 07:13:38 cvsnanne Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -36,12 +36,13 @@ mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp())
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.100")
-    , horctio_( is2d ? *mMkCtxtIOObj(EMHorizon2D) : *mMkCtxtIOObj(EMHorizon3D) )
     , nrouttypes_( 2 )
 {
     inpfld_ = getInpFld( is2d );
 
-    horfld_ = new uiIOObjSel( this, horctio_, "Horizon" );
+    horfld_ = new uiIOObjSel( this, is2d ? mIOObjContext(EMHorizon2D)
+	    				 : mIOObjContext(EMHorizon3D),
+			      "Horizon" );
     horfld_->selectiondone.notify( mCB(this,uiHorizonAttrib,horSel) );
     horfld_->attach( alignedBelow, inpfld_ );
 
@@ -60,7 +61,6 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
 
 uiHorizonAttrib::~uiHorizonAttrib()
 {
-    delete horctio_.ioobj; delete &horctio_;
 }
 
 
@@ -70,11 +70,10 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 	return false;
 
     mIfGetString( Horizon::sKeyHorID(), horidstr,
-		  IOObj* ioobj = IOM().get( MultiID(horidstr) );
-		  horfld_->ctxtIOObj().setObj( ioobj );
-		  horfld_->updateInput() );
+	    	  if ( horidstr && *horidstr )
+		      horfld_->setInput( MultiID(horidstr) ); );
 
-    if ( horctio_.ioobj )
+    if ( horfld_->ioobj(true) )
 	horSel(0);
     
     mIfGetEnum(Horizon::sKeyType(), typ, typefld_->setValue(typ));
@@ -102,7 +101,7 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 	return false;
 
     mSetString( Horizon::sKeyHorID(),
-	        horctio_.ioobj ? horctio_.ioobj->key().buf() : "" );
+	        horfld_->ioobj() ? horfld_->ioobj()->key().buf() : "" );
     mSetEnum( Horizon::sKeyType(), typefld_->getIntValue() );
     const int typ = typefld_->getIntValue();
     if ( typ==1 )
@@ -129,14 +128,15 @@ bool uiHorizonAttrib::getInput( Desc& desc )
 
 void uiHorizonAttrib::horSel( CallBacker* )
 {
-    if ( !horctio_.ioobj )
+    if ( !horfld_->ioobj() )
     {
 	uiMSG().error( "No valid horizon selected" );
 	return;
     }
 
     EM::SurfaceIOData iodata;
-    const char* err = EM::EMM().getSurfaceData( horctio_.ioobj->key(), iodata );
+    const char* err =
+	EM::EMM().getSurfaceData( horfld_->ioobj()->key(), iodata );
     if ( err && *err )
     {
 	uiMSG().error( err );

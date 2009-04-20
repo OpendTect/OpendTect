@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uihorizonattrib.h,v 1.6 2008-06-05 08:53:07 cvshelene Exp $
+ RCS:           $Id: uihorizonattrib.h,v 1.7 2009-04-20 07:13:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 namespace Attrib { class Desc; };
 
-class CtxtIOObj;
 class uiAttrSel;
 class uiGenInput;
 class uiIOObjSel;
@@ -38,7 +37,6 @@ protected:
     uiGenInput*		typefld_;
     uiGenInput*		surfdatafld_;
 
-    CtxtIOObj&		horctio_;
     BufferStringSet	surfdatanms_;
     int			nrouttypes_;
 
