@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispolygonselection.cc,v 1.5 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vispolygonselection.cc,v 1.6 2009-04-20 18:43:34 cvskris Exp $";
 
 #include "vispolygonselection.h"
 
@@ -149,6 +149,89 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 }
 
 
+char PolygonSelection::includesRange( const Coord3& start, const Coord3& stop,
+				      bool displayspace ) const
+{
+    if ( selector_->mode.getValue() == SoPolygonSelect::OFF )
+	return 0;
+
+    if ( !hasPolygon() )
+	return 0;
+
+    Coord3 coords[8];
+    coords[0] = Coord3( start.x, start.y, start.z );
+    coords[1] = Coord3( start.x, start.y, stop.z );
+    coords[2] = Coord3( start.x, stop.y, start.z );
+    coords[3] = Coord3( start.x, stop.y, stop.z );
+    coords[4] = Coord3( stop.x, start.y, start.z );
+    coords[5] = Coord3( stop.x, start.y, stop.z );
+    coords[6] = Coord3( stop.x, stop.y, start.z );
+    coords[7] = Coord3( stop.x, stop.y, stop.z );
+
+    if ( !displayspace && transformation_ )
+    {
+	for ( int idx=0; idx<8; idx++ )
+	    coords[idx] = transformation_->transform( coords[idx] );
+    }
+
+    Interval<double> xrg, yrg;
+    Coord screenpts[8];
+    for ( int idx=0; idx<8; idx++ )
+    {
+	const SbVec2f pt = selector_->projectPoint(
+	    SbVec3f(coords[idx].x,coords[idx].y,coords[idx].z ) );
+	screenpts[idx] = Coord( pt[0], pt[1] );
+	if ( !idx )
+	{
+	    xrg.start = xrg.stop = pt[0];
+	    yrg.start = yrg.stop = pt[1];
+	}
+	else
+	{
+	    xrg.include( pt[0] );
+	    yrg.include( pt[1] );
+	}
+    }
+
+    polygonlock_.readLock();
+    if ( !polygon_ )
+    {
+	if ( polygonlock_.convReadToWriteLock() || !polygon_ )
+	{
+	    polygon_ = new ODPolygon<double>;
+	    const SbList<SbVec2f> sopolygon = selector_->getPolygon();
+	    for ( int idx=0; idx<sopolygon.getLength(); idx++ )
+		polygon_->add( Coord( sopolygon[idx][0], sopolygon[idx][1] ) );
+	}
+
+	polygonlock_.convWriteToReadLock();
+    }
+
+    if ( !polygon_->windowOverlaps( xrg, yrg, 1e-3 ) )
+    {
+	polygonlock_.readUnLock();
+	return 0;
+    }
+
+    bool allin = true;
+    bool somein = false;
+    for ( int idx=0; idx<8; idx++ )
+    {
+	if ( polygon_->isInside( screenpts[idx], true, 1e-3 ) )
+	    somein = true;
+	else
+	    allin = false;
+    }
+
+    polygonlock_.readUnLock();
+
+    if ( !somein )
+	return 0;
+
+    return allin ? 2 : 1;
+}
+
+
 void PolygonSelection::polygonChangeCB( void* data, SoPolygonSelect* )
 {
     PolygonSelection* myptr = (PolygonSelection*) data;
@@ -204,6 +287,11 @@ bool PolygonCoord3Selector::hasPolygon() const
 
 bool PolygonCoord3Selector::includes( const Coord3& c ) const
 { return vissel_.isInside( c, false ); }
+
+
+char PolygonCoord3Selector::includesRange( const Coord3& start,
+					  const Coord3& stop ) const
+{ return vissel_.includesRange( start, stop, false ); }
 
 
 bool PolygonCoord3Selector::isEq( const Selector<Coord3>& comp ) const

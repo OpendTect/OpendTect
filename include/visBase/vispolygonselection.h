@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.4 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.5 2009-04-20 18:43:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,9 @@ public:
     bool			isSelfIntersecting() const;
     bool			isInside(const Coord3&,
 	    				 bool displayspace=false) const;
+    char			includesRange(const Coord3& start,
+	    				      const Coord3& stop,
+					      bool displayspace ) const;
 
     void			setDisplayTransformation( Transformation* );
     Transformation*		getDisplayTransformation();
@@ -80,6 +83,9 @@ public:
     bool			isOK() const;
     bool			hasPolygon() const;
     bool			includes(const Coord3&) const;
+    bool			canDoRange() const	{ return true; }
+    char			includesRange(const Coord3& start,
+	    				      const Coord3& stop) const;
 
 protected:
     bool			isEq(const Selector<Coord3>&) const;
