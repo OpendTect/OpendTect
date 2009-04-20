@@ -7,7 +7,7 @@ Date:		Aug 2007
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabtools.cc,v 1.15 2009-04-17 12:17:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicoltabtools.cc,v 1.16 2009-04-20 06:20:58 cvsnanne Exp $";
 
 #include "uicoltabtools.h"
 #include "uirgbarray.h"
@@ -25,10 +25,11 @@ static const char* rcsID = "$Id: uicoltabtools.cc,v 1.15 2009-04-17 12:17:31 cvs
 
 uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
        					bool withalpha, bool vert )
-    : uiRGBArrayCanvas(p, uiRGBArrayCanvas::Setup(false), mkRGBArr(withalpha))
+    : uiRGBArrayCanvas(p,mkRGBArr(withalpha))
     , vertical_(vert)
     , ctseq_(ct)
 {
+    disableImageSave();
     setDragMode( uiGraphicsView::NoDrag );
     scene().useBackgroundPattern( withalpha );
     setRGB();

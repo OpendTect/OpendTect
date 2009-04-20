@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.11 2009-04-16 14:45:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.12 2009-04-20 06:20:58 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.11 2009-04-16 14:45:05
 
 uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
 				      const uiDirectionalPlot::Setup& su )
-    : uiGraphicsView(p,"Function display viewer",true)
+    : uiGraphicsView(p,"Function display viewer")
     , setup_(su)
     , selsector_(-1)
     , cursector_(-1)

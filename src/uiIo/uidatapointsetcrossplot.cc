@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.35 2009-04-15 12:10:48 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.36 2009-04-20 06:20:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.35 2009-04-15 12:10:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.36 2009-04-20 06:20:58 cvsnanne Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -141,7 +141,7 @@ bool uiDataPointSetCrossPlotter::SelectionArea::isValid() const
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidps,
 			    const uiDataPointSetCrossPlotter::Setup& su )
-    : uiGraphicsView(p,"Data pointset crossplotter",true )
+    : uiGraphicsView(p,"Data pointset crossplotter")
     , dps_(uidps.pointSet())
     , uidps_(uidps)
     , setup_(su)

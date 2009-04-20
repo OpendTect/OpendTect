@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.36 2009-04-07 07:12:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.37 2009-04-20 06:20:58 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -22,7 +22,7 @@ static const int cBoundarySz = 10;
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
-    : uiGraphicsView(p,"Function display viewer",true)
+    : uiGraphicsView(p,"Function display viewer")
     , setup_(su)
     , xax_(0)
     , yax_(0)

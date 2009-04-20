@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsview.cc,v 1.3 2009-04-15 12:12:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsview.cc,v 1.4 2009-04-20 06:20:58 cvsnanne Exp $";
 
 
 #include "uibutton.h"
@@ -16,9 +16,9 @@ static const char* rcsID = "$Id: uigraphicsview.cc,v 1.3 2009-04-15 12:12:01 cvs
 #include "uigraphicsscene.h"
 #include "uigraphicssaveimagedlg.h"
 
-uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm, bool cansaveimage )
+uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm )
     : uiGraphicsViewBase(p,nm)
-    , enableimagesave_(cansaveimage)
+    , enableimagesave_(true)
 {
     scene_->ctrlPPressed.notify( mCB(this,uiGraphicsView,saveImageCB) );
 }
@@ -26,12 +26,10 @@ uiGraphicsView::uiGraphicsView( uiParent* p, const char* nm, bool cansaveimage )
 
 uiToolButton* uiGraphicsView::getSaveImageTB( uiParent* p )
 {
-    if ( !enableimagesave_ )
-	return 0;
-    uiToolButton* savetb =
-	new uiToolButton( p, "save Image as", ioPixmap("snapshot.png"),
-			  mCB(this,uiGraphicsView,saveImageCB) );
-    return savetb;
+    return enableimagesave_ ? new uiToolButton( p, "Save image",
+					ioPixmap("snapshot.png"),
+					mCB(this,uiGraphicsView,saveImageCB) )
+			    : 0;
 }
 
 

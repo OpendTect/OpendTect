@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.18 2009-04-15 12:13:22 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.19 2009-04-20 06:20:58 cvsnanne Exp $";
 
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
@@ -16,28 +16,16 @@ static const char* rcsID = "$Id: uirgbarraycanvas.cc,v 1.18 2009-04-15 12:13:22 
 #include "iodrawtool.h"
 #include "pixmap.h"
 
-uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p,
-				    const uiRGBArrayCanvas::Setup& setup,
-				    uiRGBArray& a )
-    	: uiGraphicsView( p,"RGB Array view", setup.withsaveimage_ )
-	, pixmapitm_( 0 )
-	, rgbarr_( a ) 
-	, border_( 0,0,0,0 )
-	, bgcolor_( Color::NoColor() ) 
-	, dodraw_( true )
-	, pixmap_( 0 )
-	, arrarea_( uiRect(0,0,0,0) )
-	, width_( setup.width_ )
-	, height_( setup.height_ )
+uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
+    	: uiGraphicsView(p,"RGB Array view")
+	, rgbarr_(a) 
+	, bgcolor_(Color::NoColor()) 
+	, dodraw_(true)
+	, pixmapitm_(0)
+	, pixmap_(0)
 {
     disableScrollZoom();
     setStretch( 2, 2 );
-    setScrollBarPolicy( true, setup.scrollbar_ 
-	    		? uiGraphicsView::ScrollBarAsNeeded 
-			: uiGraphicsView::ScrollBarAlwaysOff );
-    setScrollBarPolicy( false, setup.scrollbar_ 
-	    		? uiGraphicsView::ScrollBarAsNeeded 
-			: uiGraphicsView::ScrollBarAlwaysOff );
 }
 
 
@@ -62,12 +50,6 @@ void uiRGBArrayCanvas::setBGColor( const Color& c )
 	bgcolor_ = c;
 	setBackgroundColor( bgcolor_ );
     }
-}
-
-
-void uiRGBArrayCanvas::setBackgroundQpaque( bool withalpha )
-{
-    scene().useBackgroundPattern( withalpha );
 }
 
 

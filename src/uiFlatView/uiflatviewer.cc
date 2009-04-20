@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.75 2009-04-15 12:13:22 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.76 2009-04-20 06:20:58 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -48,9 +48,7 @@ float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
 uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
     : uiGroup(p,"Flat viewer")
     , mStdInitItem
-    , canvas_(*new uiRGBArrayCanvas(this,
-		uiRGBArrayCanvas::Setup(true,handdrag).withsaveimage(true),
-		*new uiRGBArray(false)) )
+    , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray(false)))
     , axesdrawer_(*new FlatView::AxesDrawer(*this,canvas_))
     , dim0extfac_(0.5)
     , wvabmpmgr_(0)
