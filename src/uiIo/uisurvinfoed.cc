@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.108 2009-03-20 11:11:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurvinfoed.cc,v 1.109 2009-04-20 07:13:27 cvsnanne Exp $";
 
 #include "uisurvinfoed.h"
 #include "uisip.h"
@@ -164,7 +164,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     }
 
     IOMan::setSurvey( orgdirname );
-    SurveyInfo::theinst_ = SurveyInfo::read( fulldirpath );
+    SI().setInvalid();
+    SurveyInfo::read( fulldirpath );
 
     survnmfld = new uiGenInput( this, "Survey name",
 	    			StringInpSpec(si_.name()) );
