@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.23 2009-04-16 08:52:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.24 2009-04-20 03:49:51 cvssatyaki Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -474,7 +474,7 @@ void uiTextItem::updatePos()
 	    break;
     }
 
-    uiPoint newpos( pos_.x+movex, pos_.y+movey );
+    uiPoint newpos( mNINT(pos_.x+movex), mNINT(pos_.y+movey) );
     qtextitem_->setPos( newpos.x, newpos.y );
 }
 
