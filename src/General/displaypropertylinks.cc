@@ -4,7 +4,7 @@
  * DATE     : September 2008
 -*/
 
-static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.4 2009-01-09 09:37:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: displaypropertylinks.cc,v 1.5 2009-04-20 04:48:49 cvsnanne Exp $";
 
 #include "displaypropertylinks.h"
 #include "ptrman.h"
@@ -13,6 +13,7 @@ mImplFactory1Param(DisplayPropertyLink,ObjectSet<DisplayPropertyHolder>&,
 		   DisplayPropertyLink::factory);
 
 
+// ***** DisplayPropertyHolder *****
 DisplayPropertyHolder::DisplayPropertyHolder( bool reg )
     : propertyholderid_( -1 )
 { if ( reg ) DisplayLinkManager::getImpl().addHolder(this); }
@@ -28,6 +29,14 @@ int DisplayPropertyHolder:: propertyHolderID() const
 
 const char* DisplayPropertyHolder::getDisplayPropertyHolderName() const
 { return 0; }
+
+
+// ***** DisplayPropertyLink *****
+DisplayPropertyLink::DisplayPropertyLink( DisplayPropertyHolder* h0,
+					  DisplayPropertyHolder* h1 )
+{
+    holders_ += h0; holders_ += h1;
+}
 
 
 const char* DisplayPropertyLink::userType() const
@@ -66,7 +75,7 @@ int DisplayPropertyLink::nrDisplayPropertyHolders() const
 
 
 const DisplayPropertyHolder*
-DisplayPropertyLink::getDisplayPropertyHolder( int idx ) const
+    DisplayPropertyLink::getDisplayPropertyHolder( int idx ) const
 { return holders_[idx]; }
 
 
@@ -75,17 +84,11 @@ bool DisplayPropertyLink::syncNow( const DisplayPropertyHolder* origin,
 { return true; }
 
 
-bool DisplayPropertyLink::isHolderOK(const DisplayPropertyHolder*)
+bool DisplayPropertyLink::isHolderOK( const DisplayPropertyHolder* )
 { return true; }
 
 
-DisplayPropertyLink::DisplayPropertyLink(
-	DisplayPropertyHolder* h0, DisplayPropertyHolder* h1 )
-{
-    holders_ += h0; holders_ += h1;
-}
-
-
+// ***** DisplayLinkManager *****
 DisplayLinkManager::DisplayLinkManager()
     : freeholderid_( 0 )
     , freelinkid_( 0 )
