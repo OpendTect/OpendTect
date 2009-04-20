@@ -4,13 +4,14 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.2 2009-04-17 03:45:31 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.3 2009-04-20 19:16:53 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
 #include "memsetter.h"
 #include "polygon.h"
 #include "limits.h"
+#include "rowcol.h"
 #include "sorting.h"
 
 DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
@@ -188,7 +189,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
     next = nextvar; \
     if ( next>=0 && next<nrcells_ ) \
     { \
-	if ( !shouldinterpol[next] || !def[next] ) \
+	if ( shouldinterpol[next] && !def[next] ) \
 	{ \
 	    shouldinterpol[next] = false; \
 	    seeds += next; \
@@ -275,7 +276,6 @@ void Array2DInterpol::floodFillArrFrom( int seed, const bool* def,
 {
     shouldinterpol[seed] = false;
 
-    const int col = seed%nrcols_;
     int next;
 
     TypeSet<int> seeds( 1, seed );
@@ -283,16 +283,18 @@ void Array2DInterpol::floodFillArrFrom( int seed, const bool* def,
     {
 	const int curseedidx = seeds.size()-1;
 	const int curseed = seeds[curseedidx];
+	seeds.remove( curseedidx, false );
 
-	mGoToNeighbor( seed-nrcols_ ); //Prev row
-	mGoToNeighbor( seed+nrcols_ ); //Next row
+	mGoToNeighbor( curseed-nrcols_ ); //Prev row
+	mGoToNeighbor( curseed+nrcols_ ); //Next row
+
+	const int col = curseed%nrcols_;
 
 	if ( col )
-	    mGoToNeighbor( seed-1 ); //Prev col
+	    mGoToNeighbor( curseed-1 ); //Prev col
 	if ( col!=nrcols_-1 )
-	    mGoToNeighbor( seed+1 ); //Next col
+	    mGoToNeighbor( curseed+1 ); //Next col
 
-	seeds.remove( curseedidx, false );
     }
 }
 
@@ -355,18 +357,16 @@ InverseDistanceArray2DInterpol::InverseDistanceArray2DInterpol()
     , shouldend_( false )
     , stepsize_( 1 )
     , cornersfirst_( false )
-    , nrinitialundefs_( -1 )
+    , nrinitialdefined_( -1 )
     , nodestofill_( 0 )
     , nrthreadswaiting_( 0 )
     , waitforall_( false )
-    , posweights_( 0 )
 {}
 
 
 InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 {
     delete [] nodestofill_;
-    delete posweights_;
 }
 
 
@@ -390,28 +390,43 @@ bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr )
 
 bool InverseDistanceArray2DInterpol::initFromArray()
 {
-    nrinitialundefs_ = nrcells_;
+    nrinitialdefined_ = 0;
 
-    mTryAlloc( curdefined_, bool[nrinitialundefs_] );
+    mTryAlloc( curdefined_, bool[nrcells_] );
     if ( !curdefined_ )
 	return false;
 
     bool* ptr = curdefined_;
-    const bool* stopptr = ptr+nrinitialundefs_;
+    const bool* stopptr = ptr+nrcells_;
     int idx = 0;
     while ( ptr!=stopptr )
     {
 	const bool isdef = isDefined( idx++ );
 	*ptr = isdef;
-	if ( isdef ) nrinitialundefs_--;
+	if ( isdef ) nrinitialdefined_++;
 	ptr++;
     }
+
+    if ( !nrinitialdefined_ )
+	return false;
 
     mTryAlloc( nodestofill_, bool[nrcells_] );
     if ( !nodestofill_ )
 	return false;
 
     getNodesToFill( curdefined_, nodestofill_ );
+
+    totalnr_ = 0;
+    ptr = curdefined_;
+    const bool* nodestofillptr = nodestofill_;
+    while ( ptr!=stopptr )
+    {
+	if ( *nodestofillptr && !*ptr )
+	    totalnr_++;
+
+	ptr++;
+	nodestofillptr++;
+    }
 
     return true;
 }
@@ -420,7 +435,7 @@ bool InverseDistanceArray2DInterpol::initFromArray()
 bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 {
     nrthreads_ = nrthreads;
-    if ( nrinitialundefs_==nrcells_ )
+    if ( !nrinitialdefined_ )
 	return false; //Nothing defined;
 
     if ( mIsUdf(searchradius_) )
@@ -437,36 +452,38 @@ bool InverseDistanceArray2DInterpol::doPrepare( int nrthreads )
 	const int colradius = (int) ceil( searchradius_/colstep_ );
 
 	float radius2 = searchradius_*searchradius_;
+	neighbors_.erase();
+	neighborweights_.erase();
 
-	if ( !posweights_ )
-	    posweights_ = new Array2DImpl<float>( rowradius+1, colradius+1 );
-	else
-	    posweights_->setSize( rowradius+1, colradius+1 );
-
-	float* posweightptr = posweights_->getData();
 	for ( int relrow=0; relrow<=rowradius; relrow++ )
 	{
 	    const float frelrow = relrow*rowstep_;
 	    const float rowdist2 = frelrow*frelrow;
 
-	    for ( int relcol=0; relcol<=colradius; relcol++, posweightptr++ )
+	    for ( int relcol=0; relcol<=colradius; relcol++ )
 	    {
 		if ( !relrow && !relcol)
-		{
-		    *posweightptr = -1;
 		    continue;
-	        }
 
 		const float frelcol = relcol*colstep_;
 		const int coldist2 = frelcol*frelcol;
 		const float dist2 = coldist2+rowdist2;
 		if ( dist2>radius2 )
-		{
-		    *posweightptr = -1;
 		    continue;
-		}
 
-		*posweightptr = 1.0/Math::Sqrt( dist2 );
+		const float weight = 1.0/Math::Sqrt( dist2 );
+
+		neighbors_ += RowCol(relrow,relcol);
+		neighborweights_ += weight;
+		neighbors_ += RowCol(-relrow,-relcol);
+		neighborweights_ += weight;
+		if ( relrow && relcol )
+		{
+		    neighbors_ += RowCol(-relrow,relcol);
+		    neighborweights_ += weight;
+		    neighbors_ += RowCol(relrow,-relcol);
+		    neighborweights_ += weight;
+		}
 	    }
 	}
     }
@@ -539,47 +556,23 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 	else
 	{
 	    int nrsources = 0;
-	    for ( int relrow=-rowradius; relrow<=rowradius; relrow++ )
+	    for ( int neighbor=neighbors_.size()-1; neighbor>=0; neighbor-- )
 	    {
-		const int sourcerow = targetrow+relrow;
+		const RowCol& rc = neighbors_[neighbor];
+		const int sourcerow = targetrow+rc.row;
 		if ( sourcerow<0 || sourcerow>=nrrows_ )
 		    continue;
 
-		for ( int relcol=0; relcol<=colradius; relcol++ )
+		const int sourcecol = targetcol+rc.col;
+		if ( sourcecol<0 || sourcecol>=nrcols_ )
+		    continue;
+
+		const int sourceidx = mGetOffset(sourcerow,sourcecol);
+		if ( curdefined_[sourceidx] )
 		{
-		    if ( !relrow && !relcol)
-			continue;
-
-		    const float weight = posweights_->get( abs(relrow),relcol);
-		    if ( weight<0 )
-			break;
-
-		    int sourcecol = targetcol+relcol;
-		    if ( sourcecol<nrcols_ )
-		    {
-			const int sourceidx = mGetOffset(sourcerow,sourcecol);
-			if ( curdefined_[sourceidx] )
-			{
-			    sources[nrsources] = sourceidx;
-			    weights[nrsources] = weight;
-			    nrsources++;
-			}
-		    }
-
-		    if ( !relcol )
-			continue;
-
-		    sourcecol = targetcol-relcol;
-		    if ( sourcecol<0 )
-			continue;
-
-		    const int sourceidx = mGetOffset( sourcerow, sourcecol );
-		    if ( curdefined_[sourceidx] )
-		    {
-			sources[nrsources] = sourceidx;
-			weights[nrsources] = weight;
-			nrsources++;
-		    }
+		    sources[nrsources] = sourceidx;
+		    weights[nrsources] = neighborweights_[neighbor];
+		    nrsources++;
 		}
 	    }
 
@@ -602,9 +595,10 @@ bool InverseDistanceArray2DInterpol::doWork( od_int64, od_int64, int)
 class InvDistArr2DGridFindSources : public ParallelTask
 {
 public:
-    InvDistArr2DGridFindSources( const bool* def, int nrrows, int nrcols,
-				     TypeSet<int>& res, TypeSet<int>& nrs,
-				     int stepsize, bool cornersfirst )
+    InvDistArr2DGridFindSources( const bool* def, const bool* nodestofill,
+	    			 int nrrows, int nrcols,
+				 TypeSet<int>& res, TypeSet<int>& nrs,
+				 int stepsize, bool cornersfirst )
 	    : nrcells_( nrrows * nrcols )
 	    , nrrows_( nrrows )
 	    , nrcols_( nrcols )
@@ -614,6 +608,7 @@ public:
 	    , stepsize_( stepsize )
 	    , maxnrsources_( 0 )
 	    , cornersfirst_( cornersfirst )
+	    , nodestofill_( nodestofill )
     {
 	for ( int idx=-stepsize_; idx<=stepsize_; idx++ )
 	{
@@ -632,7 +627,7 @@ public:
 
 	for ( int idx=start; idx<=stop; idx++ )
 	{
-	    if ( curdefined_[idx] )
+	    if ( curdefined_[idx] || !nodestofill_[idx] )
 		continue;
 
 	    const int col = idx%nrcols_;
@@ -734,6 +729,7 @@ protected:
     int				nrrows_;
     int				nrcols_;
     const bool*			curdefined_;
+    const bool*			nodestofill_;
     TypeSet<int>&		res_;
     TypeSet<int>&		nrsourceslist_;
     int				stepsize_;
@@ -799,6 +795,10 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 	    mRet( -1 );
 	}
 
+	//Update defined array
+	for ( int idx=addedwithcursuport_.size()-1; idx>=0; idx-- )
+	    curdefined_[addedwithcursuport_[idx]] = true;
+
 	nraddedthisstep_ = 0;
 	stepidx_++;
 
@@ -808,21 +808,18 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 	    todothisstep_.erase();
 	    for ( int idx=0; idx<nrcells_; idx++ )
 	    {
-		if ( !curdefined_[idx] )
+		if ( !curdefined_[idx] || nodestofill_[idx] )
 		    todothisstep_ += idx;
 	    }
 
 	    continue;
 	}
 
-	//Update defined array
-	for ( int idx=addedwithcursuport_.size()-1; idx>=0; idx-- )
-	    curdefined_[addedwithcursuport_[idx]] = true;
-
 	//find all nodes within stepsize_ from defined nodes, and order 
 	//by nr of defined nrnodes inside -stepsize to stepsize
 	addedwithcursuport_.erase();
-	InvDistArr2DGridFindSources finder( curdefined_, nrrows_, nrcols_,
+	InvDistArr2DGridFindSources finder( curdefined_, nodestofill_,
+				nrrows_, nrcols_,
 				todothisstep_, nrsources_,
 				stepsize_, cornersfirst_ );
 	finder.execute();
@@ -971,7 +968,7 @@ if ( neighboridx>=0 && neighboridx<nrcells_ && state_[neighboridx]>=0 ) \
 #define mPrepareEpochAddSource(  rel ) \
 mAddNeighbor( rel, \
 { \
-    minneigborstate = mMIN(state_[neighboridx],minneigborstate); \
+    minneighborstate = mMIN(state_[neighboridx],minneighborstate); \
     nrneighbors++; \
 } );
 void FillHolesArray2DInterpol::prepareEpoch() 
@@ -989,7 +986,7 @@ void FillHolesArray2DInterpol::prepareEpoch()
 	const int col = idx%nrcols_;
 
 	int neighboridx;
-	short minneigborstate = SHRT_MAX;
+	short minneighborstate = SHRT_MAX;
 
 	mPrepareEpochAddSource( -nrcols_ );
 	mPrepareEpochAddSource( +nrcols_ );
@@ -1010,7 +1007,7 @@ void FillHolesArray2DInterpol::prepareEpoch()
 	if ( nrneighbors )
 	    continue;
 
-	if ( maxnrsteps_>0 && minneigborstate>=maxnrsteps_ )
+	if ( maxnrsteps_>0 && minneighborstate>=maxnrsteps_ )
 	    continue;
 
 	if ( nrneighbors>epochnrneighbors )
@@ -1027,7 +1024,7 @@ void FillHolesArray2DInterpol::prepareEpoch()
 #define mAddSource(  rel, wt ) \
 mAddNeighbor( rel, \
 { \
-    minneigborstate = mMIN(state_[neighboridx],minneigborstate); \
+    minneighborstate = mMIN(state_[neighboridx],minneighborstate); \
     weights[nrneighbors] = wt; \
     sources[nrneighbors]=neighboridx; \
     nrneighbors++; \
@@ -1051,7 +1048,7 @@ bool FillHolesArray2DInterpol::doWork( od_int64 start, od_int64 stop, int )
 
 	unsigned char nrneighbors = 0;
 	int neighboridx;
-	short minneigborstate = SHRT_MAX;
+	short minneighborstate = SHRT_MAX;
 	mAddSource( -nrcols_, rowfactor_ ); 
 	mAddSource( +nrcols_, rowfactor_ );
 
@@ -1069,7 +1066,7 @@ bool FillHolesArray2DInterpol::doWork( od_int64 start, od_int64 stop, int )
 	}
 
 	arr_->setPosFrom( idx, sources, weights, nrneighbors );
-	reportDone( idx, minneigborstate+1 );
+	reportDone( idx, minneighborstate+1 );
 
 	nrleft--;
     }

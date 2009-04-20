@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.2 2009-04-17 03:45:31 cvskris Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.3 2009-04-20 19:16:53 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 
 template <class T> class Array2DImpl;
+class RowCol;
 
 
 /*!Class that interpolates 2D arrays with inverse distance.
@@ -69,7 +70,7 @@ public:
 
 protected:
     bool	doWork(od_int64,od_int64,int);
-    od_int64	nrIterations() const		{ return nrinitialundefs_; }
+    od_int64	nrIterations() const		{ return totalnr_; }
     const char*	nrDoneText() const		{ return "Nodes gridded"; }
 
     bool	doPrepare(int);
@@ -92,13 +93,16 @@ protected:
     bool			shouldend_;
     int				stepidx_;
 
-    int				nrinitialundefs_; //for totalnr
+    int				nrinitialdefined_;
+    int				totalnr_;	
 
     				//Working arrays
     bool*			curdefined_;
     bool*			nodestofill_;
     TypeSet<int>		definedidxs_;		//Only when no radius
-    Array2DImpl<float>*		posweights_;		//Only when radius
+    TypeSet<RowCol>		neighbors_;		//Only when radius
+    TypeSet<float>		neighborweights_;	//Only when radius
+
 
     				//Per support size				
     TypeSet<int>		addedwithcursuport_;
