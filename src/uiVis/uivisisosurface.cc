@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.20 2008-12-30 09:12:55 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.21 2009-04-20 19:18:58 cvskris Exp $";
 
 #include "uivisisosurface.h"
 
@@ -107,7 +107,7 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
     const bool fullmode = modefld_->getBoolValue();
     const bool max = aboveisovaluefld_->getBoolValue();
     MultiID mid( 0 );
-    if ( ioobjselfld_->ctxtIOObj().ioobj )
+    if ( ioobjselfld_->commitInput() && ioobjselfld_->ctxtIOObj().ioobj )
 	mid = ioobjselfld_->ctxtIOObj().ioobj->key();
     else 
 	mid.setEmpty();
@@ -121,11 +121,15 @@ bool uiVisIsoSurfaceThresholdDlg::acceptOK()
     vd_->setFullMode( isosurfacedisplay_, fullmode );
     if ( !fullmode )
     {
+	if ( mid.isEmpty() )
+	{
+	    uiMSG().error("Cannot find input picks");
+	    return false;
+	}
+
 	vd_->setSeedAboveIsovalue( isosurfacedisplay_, max );
 	if ( ioobjselfld_->ctxtIOObj().ioobj )
     	    vd_->setSeedsID( isosurfacedisplay_, mid );
-	else if ( vd_->getSeedsID(isosurfacedisplay_).isEmpty() )
-	    return false;
     }
     
     updateIsoDisplay( fldvalue );
