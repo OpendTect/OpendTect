@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurfaceio.cc,v 1.118 2009-04-06 12:36:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: emsurfaceio.cc,v 1.119 2009-04-20 13:01:00 cvsjaap Exp $";
 
 #include "emsurfaceio.h"
 
@@ -1299,7 +1299,7 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
 	{
 	    const int idxcolstep = geometry_.colRange(idx).step;
-	    if ( idxcolstep != colrange_.step )
+	    if ( idxcolstep && idxcolstep!=colrange_.step )
 		par_.set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep );
 	}
 
