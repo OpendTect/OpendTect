@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.13 2009-04-21 06:16:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.14 2009-04-21 09:53:30 cvsumesh Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -138,7 +138,7 @@ void uiDirectionalPlot::drawGrid()
 	{
 	    const float rad = (.2 + .2*idx)*radius_ ;
 	    uiCircleItem& ci = *equicircles_[idx];
-	    ci.setPos( center_ ); ci.setRadius( rad );
+	    ci.setPos( center_ ); ci.setRadius( mNINT(rad) );
 	}
     }
     else
@@ -148,7 +148,8 @@ void uiDirectionalPlot::drawGrid()
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    const float rad = (.2 + .2*idx)*radius_ ;
-	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,rad) );
+	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,
+								 mNINT(rad)) );
 	    equicircles_ += ci;
 	    ci->setPenStyle( setup_.equils_ );
 	}
