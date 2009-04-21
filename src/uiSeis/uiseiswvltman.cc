@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.34 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.35 2009-04-21 13:55:59 cvsbruno Exp $";
 
 
 #include "uiseiswvltman.h"
 #include "uiseiswvltimp.h"
+#include "uiseiswvltgen.h"
 #include "wavelet.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -99,91 +100,11 @@ void uiSeisWvltMan::impPush( CallBacker* )
 }
 
 
-class uiSeisWvltManCrWvlt : public uiDialog
-{
-public:
-
-uiSeisWvltManCrWvlt( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Create Wavelet",
-				 "Specify wavelet creation parameters",
-				 "103.3.2"))
-    , ctio_(*mMkCtxtIOObj(Wavelet))
-{
-    isrickfld = new uiGenInput( this, "Wavelet type",
-				BoolInpSpec(true,"Ricker","Sinc") );
-
-    const float sisr = SI().zStep();
-    float deffrq = 0.1 / sisr; int ideffr = mNINT(deffrq);
-    if ( ideffr > 0 && mIsZero(deffrq-ideffr,1e-4) )
-	deffrq = ideffr; // avoid awkward 99.999 display
-    BufferString txt( "Central " );
-    txt += SI().zIsTime() ? "Frequency" : "Wavenumber";
-    freqfld = new uiGenInput( this, txt, FloatInpSpec(deffrq) );
-    freqfld->attach( alignedBelow, isrickfld );
-
-    const float usrsr = sisr * SI().zFactor();
-    txt = "Sample interval "; txt += SI().getZUnitString();
-    srfld = new uiGenInput( this, txt, FloatInpSpec(usrsr) );
-    srfld->attach( alignedBelow, freqfld );
-
-    peakamplfld = new uiGenInput( this, "Peak amplitude", FloatInpSpec(1) );
-    peakamplfld->attach( alignedBelow, srfld );
-
-    ctio_.ctxt.forread = false;
-    wvltfld = new uiIOObjSel( this, ctio_ );
-    wvltfld->attach( alignedBelow, peakamplfld );
-}
-
-~uiSeisWvltManCrWvlt()
-{
-    delete ctio_.ioobj; delete &ctio_;
-}
-
-#define mErrRet(s) { uiMSG().error(s); return false; }
-
-bool acceptOK( CallBacker* )
-{
-    if ( !wvltfld->commitInput() )
-	mErrRet( "Please enter a name for the new Wavelet" );
-
-    const float sr = srfld->getfValue();
-    const float peakampl = peakamplfld->getfValue();
-    const float freq = freqfld->getfValue();
-
-    if ( mIsUdf(sr) || sr <= 0 )
-	mErrRet( "The sample interval is not valid" )
-    else if ( peakampl == 0 )
-	mErrRet( "The peak amplitude must be non-zero" )
-    else if ( mIsUdf(freq) || freq <= 0 )
-	mErrRet( "The frequency must be positive" )
-
-    const float realsr = sr / SI().zFactor();
-    Wavelet wvlt( isrickfld->getBoolValue(), freq, realsr, peakampl );
-    if ( !wvlt.put(ctio_.ioobj) )
-    {
-	mErrRet( "Cannot write wavelet" )
-	return false;
-    }
-
-    return true;
-}
-
-    CtxtIOObj&		ctio_;
-    uiGenInput*		isrickfld;
-    uiGenInput*		freqfld;
-    uiGenInput*		srfld;
-    uiGenInput*		peakamplfld;
-    uiIOObjSel*		wvltfld;
-
-};
-
-
 void uiSeisWvltMan::crPush( CallBacker* )
 {
-    uiSeisWvltManCrWvlt dlg( this );
-    if ( !dlg.go() ) return;
-
-    selgrp->fullUpdate( dlg.ctio_.ioobj->key() );
+    uiSeisWvltGen dlg( this );
+    if ( dlg.go() )
+	selgrp->fullUpdate( dlg.storeKey() );
 }
 
 

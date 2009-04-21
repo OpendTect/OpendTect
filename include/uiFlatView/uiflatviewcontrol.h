@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.25 2009-01-08 07:14:05 cvsranojay Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.26 2009-04-21 13:55:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,7 +87,7 @@ protected:
     virtual void	dataChangeCB(CallBacker*);
     virtual void	rubBandCB(CallBacker*);
     virtual void	mouseMoveCB(CallBacker*);
-    void		usrClickCB(CallBacker*);
+    virtual void	usrClickCB(CallBacker*);
     virtual bool	handleUserClick()		{ return false; }
     
     void		doPropertiesDialog(int vieweridx=0, bool dowva=true);

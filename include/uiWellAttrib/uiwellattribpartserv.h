@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.12 2009-04-01 07:38:39 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.13 2009-04-21 13:55:59 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ class DataPointSet;
 class MultiID;
 class NLAModel;
 class uiWellAttribCrossPlot;
-class uiD2TModelGenWin;
 
 namespace Attrib { class DescSet; }
 
@@ -57,7 +56,6 @@ protected:
 
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
-    uiD2TModelGenWin*           uid2tmgenwin_;
     const DataPointSet*		dps_;
 };
 

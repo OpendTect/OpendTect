@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.17 2009-04-01 07:38:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.18 2009-04-21 13:55:59 cvsbruno Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -17,8 +17,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.17 2009-04-01 07:38
 #include "uicreateattriblogdlg.h"
 #include "uiwellattribxplot.h"
 #include "uiwellimpsegyvsp.h"
-#include "uid2tmodelgenwin.h"
-#include "uid2tmlogseldlg.h"
+#include "uiwelltiemgrdlg.h"
 
 #include "ptrman.h"
 #include "ioobj.h"
@@ -30,6 +29,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.17 2009-04-01 07:38
 #include "welldata.h"
 #include "welllogset.h"
 #include "welllog.h"
+#include "welltiesetup.h"
 #include "uimsg.h"
 
 const int uiWellAttribPartServer::evShowSelPoints()	{ return 0; }
@@ -152,27 +152,12 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
 
 bool uiWellAttribPartServer::createD2TModel( const MultiID& wid )
 {
-    uiD2TMLogSelDlg dlg( parent(), wid, *attrset );
-    if ( !dlg.go() )
-	return false;
-
-    const Attrib::DescID& attrid = dlg.attrid_;
-    const BufferString& vellognm = dlg.vellognm_;
-    const BufferString& denlognm = dlg.denlognm_;
-    const MultiID& selwellid = dlg.wellid_;
-    const MultiID& selwvltid = dlg.wvltid_;
-    const bool vellogissonic = dlg.issonic_;
-
-    /*
-    uiD2TModelGenWin* newwin = new uiD2TModelGenWin(
-		    parent(), selwellid, *attrset, attrid, vellognm,
-		    denlognm, vellogissonic );
-    new uiD2TModelGenWin( parent(), twtssetup, true );
-
-    newwin->setDeleteOnClose();
-    */
+    WellTieSetup wtsetup;
+    wtsetup.wellid_ = wid;
+    
+    uiWellTieMGRDlg dlg( parent(), wtsetup, *attrset );
+    dlg.go();
 
     return true;
 }
-
 

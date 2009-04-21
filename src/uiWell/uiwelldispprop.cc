@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.24 2009-04-16 05:46:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelldispprop.cc,v 1.25 2009-04-21 13:55:59 cvsbruno Exp $";
 
 #include "uiwelldispprop.h"
 
@@ -294,7 +294,7 @@ uiWellLogDispProperties::uiWellLogDispProperties( uiParent* p,
     fillcolorfld_->colorchanged.notify( mCB(this,uiWellLogDispProperties,
 								propChg) );
 
-    lblr_ = new uiLabeledSpinBox( this, "Logs number" );
+    lblr_ = new uiLabeledSpinBox( this, "Repeat" );
     repeatfld_ = lblr_ ->box();
     repeatfld_->setInterval( 1, 20, 1 );
     repeatfld_->valueChanging.notify( mCB(this,uiWellLogDispProperties,
