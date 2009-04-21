@@ -1,59 +1,40 @@
-#ifndef uislicepos_h
-#define uislicepos_h
+#ifndef uivisslicepos3d_h
+#define uivisslicepos3d_h
 
 /*+
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Nanne Hemstra
- Date:          July 2006
- RCS:           $Id: uivisslicepos3d.h,v 1.4 2009-01-08 10:37:54 cvsranojay Exp $
+ Author:        Helene Huck
+ Date:          April 2009
+ RCS:           $Id: uivisslicepos3d.h,v 1.5 2009-04-21 09:55:20 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiparent.h"
-#include "cubesampling.h"
+#include "uislicepos.h"
 
 namespace visSurvey { class PlaneDataDisplay; }
 
-class uiLabeledSpinBox;
-class uiToolBar;
-class uiVisPartServer;
 
-/*! \brief Toolbar for setting slice position
-*/
+/*! \brief Toolbar for setting slice position _ 3D visualization display */
 
-mClass uiSlicePos : public CallBacker
+mClass uiSlicePos3DDisp : public uiSlicePos
 {
 public:		
-			uiSlicePos(uiParent*);
-			~uiSlicePos();
+			uiSlicePos3DDisp(uiParent*);
 
-    uiToolBar*		getToolBar() const		{ return toolbar_; }
     void		setDisplay(visSurvey::PlaneDataDisplay*);
     int			getDisplayID() const;
-    CubeSampling	getCubeSampling() const		{ return curcs_; }
-
-    Notifier<uiSlicePos> positionChg;
 
 protected:
 
-    uiToolBar*		toolbar_;
-    uiLabeledSpinBox*	sliceposbox_;
-    uiLabeledSpinBox*	slicestepbox_;
     visSurvey::PlaneDataDisplay* curpdd_;
-    int			laststeps_[3];
-    CubeSampling	curcs_;
-
-    void		setBoxLabel();
-    void		setBoxRanges();
-    void		setPosBoxValue();
-    void		setStepBoxValue();
-    void		slicePosChg(CallBacker*);
-    void		sliceStepChg(CallBacker*);
-    void		updatePos(CallBacker*);
-    void		initSteps(CallBacker* cb=0);
+    void			slicePosChg(CallBacker*);
+    void			sliceStepChg(CallBacker*);
+    void			setBoxRanges();
+    void			setPosBoxValue();
+    void			setStepBoxValue();
 };
 
 #endif

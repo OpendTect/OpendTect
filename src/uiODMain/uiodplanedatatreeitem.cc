@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.30 2009-04-13 09:30:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.31 2009-04-21 09:55:20 cvshelene Exp $";
 
 #include "uiodplanedatatreeitem.h"
 
@@ -20,13 +20,13 @@ static const char* rcsID = "$Id: uiodplanedatatreeitem.cc,v 1.30 2009-04-13 09:3
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
-#include "uislicesel.h"
-#include "uislicepos.h"
-#include "uivispartserv.h"
 #include "uishortcutsmgr.h"
+#include "uislicesel.h"
+#include "uivispartserv.h"
+#include "uivisslicepos3d.h"
 #include "visplanedatadisplay.h"
-#include "vissurvscene.h"
 #include "visrgbatexturechannel2rgba.h"
+#include "vissurvscene.h"
 
 #include "attribsel.h"
 #include "keystrs.h"
@@ -155,7 +155,7 @@ bool uiODPlaneDataTreeItem::init()
 
 void uiODPlaneDataTreeItem::posChange( CallBacker* )
 {
-    uiSlicePos* slicepos = visserv_->getUiSlicePos();
+    uiSlicePos3DDisp* slicepos = visserv_->getUiSlicePos();
     if ( slicepos->getDisplayID() != displayid_ )
 	return;
 
