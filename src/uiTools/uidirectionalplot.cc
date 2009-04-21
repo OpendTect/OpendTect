@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.12 2009-04-20 06:20:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.13 2009-04-21 06:16:35 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -162,7 +162,8 @@ void uiDirectionalPlot::drawGrid()
 	const float ang = data_.angle( isect, 1 );
 	const float mathang = Angle::convert( data_.setup_.angletype_, ang,
 					      Angle::Rad );
-	uiLineItem* li = scene().addLine( center_, mathang, radius_ );
+	uiLineItem* li = scene().addItem(
+		new uiLineItem(center_,mathang,radius_,true) );
 	sectorlines_.add( li );
 	li->setPenStyle( setup_.sectorls_ );
     }

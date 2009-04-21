@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.28 2009-04-15 12:13:41 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.29 2009-04-21 06:16:35 cvsnanne Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -302,9 +302,10 @@ void uiAxisHandler::drawAxisLine()
 	const int pixpos = setup_.side_ == uiRect::Top
 	    		 ? edgepix : height_ - edgepix;
 	if ( !axislineitm_ )
-	    axislineitm_ = scene_->addLine( startpix, pixpos, endpix, pixpos );
+	    axislineitm_ = scene_->addItem(
+		    new uiLineItem(startpix,pixpos,endpix,pixpos,true) );
 	else
-	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos );
+	    axislineitm_->setLine( startpix, pixpos, endpix, pixpos, true );
 	axislineitm_->setPenStyle( ls );
 	axislineitm_->setZValue( 3 );
     }
@@ -316,9 +317,10 @@ void uiAxisHandler::drawAxisLine()
 	    		 ? edgepix : width_ - edgepix;
 
 	if ( !axislineitm_ )
-	    axislineitm_ = scene_->addLine( pixpos, startpix, pixpos, endpix );
+	    axislineitm_ = scene_->addItem(
+		    new uiLineItem(pixpos,startpix,pixpos,endpix,true) );
 	else
-	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix );
+	    axislineitm_->setLine( pixpos, startpix, pixpos, endpix, true );
 	axislineitm_->setPenStyle( ls );
 	axislineitm_->setZValue( 3 );
     }

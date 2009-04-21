@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.24 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.25 2009-04-21 06:16:35 cvsnanne Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -15,7 +15,6 @@ static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.24 2009-04-06 13:56:03 c
 #include "draw.h"
 #include "uigraphicsitemimpl.h"
 
-#include <QList>
 #include <QByteArray>
 #include <QGraphicsItemGroup>
 #include <QGraphicsScene>
@@ -23,6 +22,7 @@ static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.24 2009-04-06 13:56:03 c
 #include <QImage>
 #include <QImageWriter>
 #include <QKeyEvent>
+#include <QList>
 #include <QPainter>
 #include <QPoint>
 #include <QPrinter>
@@ -204,41 +204,6 @@ uiRectItem* uiGraphicsScene::addRect( float x, float y, float w, float h )
     uirectitem->moveBy( -w/2, -h/2 );
     items_ += uirectitem;
     return uirectitem;
-}
-
-
-static uiPoint getEndPoint( const uiPoint& pt, double angle, double len )
-{
-    uiPoint endpt( pt );
-    double delta = len * cos( angle );
-    endpt.x += mNINT(delta);
-    // In UI, Y is positive downward
-    delta = -len * sin( angle );
-    endpt.y += mNINT(delta);
-    return endpt;
-}
-
-
-uiLineItem* uiGraphicsScene::addLine( float x, float y, float w, float h )
-{
-    uiLineItem* uilineitem =
-	new uiLineItem( odgraphicsscene_->addLine(x,y,w,h) );
-    items_ += uilineitem;
-    return uilineitem;
-}    
-
-
-uiLineItem* uiGraphicsScene::addLine( const uiPoint& p1,
-				      const uiPoint& p2 )
-{
-    return addLine( p1.x, p1.y, p2.x, p2.y );
-}
-
-
-uiLineItem* uiGraphicsScene::addLine( const uiPoint& pt, double angle,
-				      double len )
-{
-    return addLine( pt, getEndPoint(pt,angle,len) );
 }
 
 

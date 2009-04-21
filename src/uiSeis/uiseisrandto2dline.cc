@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.10 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisrandto2dline.cc,v 1.11 2009-04-21 06:16:35 cvsnanne Exp $";
 
 #include "uiseisrandto2dline.h"
 
@@ -213,7 +213,7 @@ void uiSeisRandTo2DGridDlg::updatePreview()
 		    				   mapcnr[idx].y) );
 	uiPoint pt2 = w2ui.transform( uiWorldPoint(mapcnr[idx2].x,
 		    				   mapcnr[idx2].y) );
-	uiLineItem* lineitm = scene.addLine( pt1, pt2 );
+	uiLineItem* lineitm = scene.addItem( new uiLineItem(pt1,pt2,true) );
 	lineitm->setPenStyle( ls );
     }
 
@@ -228,7 +228,7 @@ void uiSeisRandTo2DGridDlg::updatePreview()
         annot += bid.inl; annot += "/"; annot += bid.crl;
 	uiPoint txtpos( pt.x, pt.y+spacing );
         uiTextItem* textitm1 = scene.addItem(
-		new uiTextItem(annot.buf(),mAlignment(HCenter,VCenter)) );
+	    new uiTextItem(txtpos,annot.buf(),mAlignment(HCenter,VCenter)) );
 	textitm1->setPenColor( Color::Black() );
 	textitm1->setFont(
 		FontList().get(FontData::key(FontData::GraphicsSmall)) );
@@ -246,7 +246,7 @@ void uiSeisRandTo2DGridDlg::updatePreview()
     const Coord c2 = SI().transform( basegrp_->randln_.nodePosition(1) );
     const uiPoint start = w2ui.transform( uiWorldPoint(c1.x,c1.y) );
     const uiPoint stop = w2ui.transform( uiWorldPoint(c2.x,c2.y) );
-    uiLineItem* lineitm = scene.addLine( start, stop );
+    uiLineItem* lineitm = scene.addItem( new uiLineItem(start,stop,true) );
     lineitm->setPenStyle( lsbase );
     lineitm->setZValue( 22 );
 }
@@ -269,7 +269,7 @@ void uiSeisRandTo2DGridDlg::drawLines( const uiWorld2Ui& w2ui, bool parll )
 	const Coord c2 = SI().transform( rlset[idx]->nodePosition(1) );
 	const uiPoint start = w2ui.transform( uiWorldPoint(c1.x,c1.y) );
 	const uiPoint stop = w2ui.transform( uiWorldPoint(c2.x,c2.y) );
-	uiLineItem* lineitm = scene.addLine( start, stop );
+	uiLineItem* lineitm = scene.addItem( new uiLineItem(start,stop,true) );
 	lineitm->setPenStyle( ls );
     }
 }

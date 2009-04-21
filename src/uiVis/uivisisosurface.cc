@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.21 2009-04-20 19:18:58 cvskris Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.22 2009-04-21 06:16:35 cvsnanne Exp $";
 
 #include "uivisisosurface.h"
 
@@ -78,7 +78,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,mousePressed) );
     funcDisp().scene().getMouseEventHandler().doubleClick.notify(
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,doubleClick) );
-    funcDisp().reDrawNeeded.notify(
+    funcDisp().reSize.notify(
 	    mCB( this,uiVisIsoSurfaceThresholdDlg,reDrawCB) );
 
     thresholdfld_ = new uiGenInput( this, "Iso value",
@@ -86,7 +86,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     thresholdfld_->setValue( vd->isoValue(isosurface) );
     thresholdfld_->attach( leftAlignedBelow, statsdisplay_ );
     updatebutton_ = new uiPushButton( this, "Update",
-	    mCB(this,uiVisIsoSurfaceThresholdDlg,updatePressed), false );
+	    mCB(this,uiVisIsoSurfaceThresholdDlg,updatePressed), true );
     updatebutton_->attach( rightOf, thresholdfld_ );
 }
 
@@ -242,16 +242,16 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	const int valx = xAxis().getPix(initialvalue_);
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )
-	    return;	    
+	    return;
+
 	if ( !initiallineitem_ )
 	{
-	    initiallineitem_ =
-		funcDisp().scene().addLine( valx, valytop, valx, valybottom );
+	    initiallineitem_ = funcDisp().scene().addItem( new uiLineItem() );
 	    initiallineitem_->setPenStyle( ls );
 	    initiallineitem_->setZValue( 3 );
 	}
-	else
-	    initiallineitem_->setLine( valx, valytop, valx, valybottom );
+
+	initiallineitem_->setLine( valx, valytop, valx, valybottom, true );
     }
 
     if ( !mIsUdf(thresholdfld_->getfValue()) )
@@ -260,16 +260,16 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	const int valx = xAxis().getPix(thresholdfld_->getfValue());
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )
-	    return;	    
+	    return;
+
 	if ( !thresholdlineitem_ )
 	{
-	    thresholdlineitem_ =
-		funcDisp().scene().addLine( valx, valytop, valx, valybottom );
+	    thresholdlineitem_ = funcDisp().scene().addItem( new uiLineItem() );
 	    thresholdlineitem_->setPenStyle( ls );
 	    thresholdlineitem_->setZValue( 3 );
 	}
-	else
-	    thresholdlineitem_->setLine( valx, valytop, valx, valybottom );
+
+	thresholdlineitem_->setLine( valx, valytop, valx, valybottom, true);
     }
 
     if ( !mIsUdf(vd_->isoValue(isosurfacedisplay_) ) )
@@ -278,15 +278,15 @@ void uiVisIsoSurfaceThresholdDlg::drawHistogram()
 	const int valx = xAxis().getPix( vd_->isoValue( isosurfacedisplay_) );
 	if ( valx < xAxis().getPix(xAxis().range().start) ||
 	     valx > xAxis().getPix(xAxis().range().stop) )
-	    return;	    
+	    return;
+
 	if ( !isovallineitem_ )
 	{
-	    isovallineitem_ =
-		funcDisp().scene().addLine( valx, valytop, valx, valybottom );
+	    isovallineitem_ = funcDisp().scene().addItem( new uiLineItem() );
 	    isovallineitem_->setPenStyle( ls );
 	    isovallineitem_->setZValue( 2 );
 	}
-	else
-	    isovallineitem_->setLine( valx, valytop, valx, valybottom );
+
+	isovallineitem_->setLine( valx, valytop, valx, valybottom, true );
     }
 }

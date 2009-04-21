@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.19 2009-04-06 13:56:03 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.20 2009-04-21 06:16:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,10 +28,8 @@ class Alignment;
 class MarkerStyle2D;
 
 class uiArrowItem;
-class uiLineItem;
 class uiPolygonItem;
 class uiPolyLineItem;
-class uiRect;
 class uiRectItem;
 
 mClass uiGraphicsScene : public NamedObject
@@ -50,9 +48,6 @@ public:
 
     uiRectItem*			addRect(float x,float y,float w,float h);
 
-    uiLineItem*			addLine(float x1,float y1,float x2,float y2);
-    uiLineItem*	                addLine(const uiPoint& pt1,const uiPoint& pt2);
-    uiLineItem*        	        addLine(const uiPoint&,double angle,double len);
     uiPolygonItem*		addPolygon(const TypeSet<uiPoint>&,bool fill);
     uiPolyLineItem*		addPolyLine(const TypeSet<uiPoint>&);
 

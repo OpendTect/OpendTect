@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.17 2009-04-08 15:15:49 cvsbert Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.18 2009-04-21 06:16:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,9 +72,12 @@ mClass uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
+			uiLineItem(float x1,float y1,float x2,float y2,
+				   bool abspos);
     			uiLineItem(const uiPoint& start,const uiPoint& stop,
-				   bool abspos=true);
-    			uiLineItem(QGraphicsLineItem*);
+				   bool abspos);
+			uiLineItem(const uiPoint&,double angle,double len,
+				   bool abspos);
 			~uiLineItem();
 
     QGraphicsLineItem*	qLineItem()	{ return qlineitem_; }

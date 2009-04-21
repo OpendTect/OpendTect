@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: drawaxis2d.cc,v 1.20 2009-04-06 13:56:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: drawaxis2d.cc,v 1.21 2009-04-21 06:16:35 cvsnanne Exp $";
 
 #include "drawaxis2d.h"
 
@@ -221,12 +221,12 @@ void DrawAxis2D::drawYAxis( bool leftside )
 
     if ( drawaxisline_ )
     {
+	const uiPoint& pt1 = drawarea.topLeft();
+	const uiPoint& pt2 = drawarea.bottomLeft();
 	if ( !yaxlineitem_ )
-	    yaxlineitem_ = drawscene_->addLine(	drawarea.left(), drawarea.top(),
-		    				drawarea.left(), drawarea.bottom() );
+	    yaxlineitem_ = drawscene_->addItem( new uiLineItem(pt1,pt2,true) );
 	else 
-	    yaxlineitem_->setLine( drawarea.topLeft(), drawarea.bottomLeft(),
-		    		   true );
+	    yaxlineitem_->setLine( pt1, pt2, true );
     }
     
     if ( !yaxlineitmgrp_ )

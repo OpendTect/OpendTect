@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.24 2009-04-20 03:49:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.25 2009-04-21 06:16:35 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -84,14 +84,11 @@ void uiCircleItem::setRadius( int r )
     setSize( uiSize(2*r,2*r) );
 }
 
+
+// ***** uiLineItem *****
+
 uiLineItem::uiLineItem()
     : uiGraphicsItem(mkQtObj())
-{}
-
-
-uiLineItem::uiLineItem( QGraphicsLineItem* qtobj )
-    : uiGraphicsItem(qtobj)
-    , qlineitem_(qtobj)
 {}
 
 
@@ -100,6 +97,27 @@ uiLineItem::uiLineItem( const uiPoint& startpos, const uiPoint& endpos,
     : uiGraphicsItem(mkQtObj())
 {
     setLine( startpos, endpos, abspos );
+}
+
+
+uiLineItem::uiLineItem( float x1, float y1, float x2, float y2, bool abspos )
+    : uiGraphicsItem(mkQtObj())
+{
+    setLine( x1, y1, x2, y2, abspos );
+}
+
+
+uiLineItem::uiLineItem( const uiPoint& pt, double angle, double len,
+			bool abspos )
+    : uiGraphicsItem(mkQtObj())
+{
+    uiPoint endpt( pt );
+    double delta = len * cos( angle );
+    endpt.x += mNINT(delta);
+    delta = -len * sin( angle );
+    endpt.y += mNINT(delta);
+
+    setLine( pt, endpt, abspos );
 }
 
 
