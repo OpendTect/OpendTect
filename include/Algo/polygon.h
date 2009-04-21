@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.16 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: polygon.h,v 1.17 2009-04-21 08:37:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,10 @@ public:
     bool	windowOverlaps(const Interval<T>& xrange,
 			       const Interval<T>& yrange,T eps) const;
 
+    int		isInside(const ODPolygon& otherpoly,T eps) const;
+		/* returns 0 if otherpoly is fully outside, 1 if otherpoly
+		   is partially inside, 2 if otherpoly is fully inside.     */
+
     				// defined for closed polygon
     const Geom::Point2D<T>&	getVertex(int idx) const;
     const Geom::Point2D<T>&	nextVertex(int idx) const; 
@@ -73,6 +77,8 @@ public:
     float	area() const			{ return fabs(sgnArea()); } 	
     bool	clockwise() const		{ return sgnArea()<0; } 
     bool	anticlockwise() const		{ return sgnArea()>0; } 
+
+    void	reverse();
 
 protected:
 
@@ -269,6 +275,24 @@ bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
     const Geom::Point2D<T>& arbitvtx = getVertex( 0 );
 
     return xrange.includes(arbitvtx.x) && yrange.includes(arbitvtx.y);
+}
+
+
+template <class T> inline
+int ODPolygon<T>::isInside( const ODPolygon& otherpoly, T eps ) const
+{
+    for ( int idx=0; idx<otherpoly.size(); idx++ )
+    {
+	const Geom::Point2D<T>& pt1 = otherpoly.getVertex( idx );
+	const Geom::Point2D<T>& pt2 = otherpoly.nextVertex( idx );
+
+	if ( segmentOverlaps(pt1, pt2, eps) ) 
+	    return 1;
+    }
+
+    const Geom::Point2D<T>& arbitvtx = otherpoly.getVertex( 0 );
+
+    return isInside( arbitvtx, true, eps) ? 2 : 0; 
 }
 
 
@@ -501,5 +525,17 @@ void ODPolygon<T>::convexHull()
     poly_ += pivot;
 }
 
+
+template <class T> inline
+void ODPolygon<T>::reverse()
+{
+    const int sz = poly_.size();
+    for ( int idx=0; idx<sz/2-1; idx++ )
+    {
+	Geom::Point2D<T> temp = poly_[idx];
+	poly_[idx] = poly_[sz-1-idx];
+	poly_[sz-1-idx] = temp;
+    }
+}
 
 #endif
