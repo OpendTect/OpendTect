@@ -4,11 +4,18 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: hellopi.cc,v 1.6 2009-04-16 10:33:26 cvsranojay Exp $";
+static const char* rcsID = "$Id: hellopi.cc,v 1.7 2009-04-21 03:32:43 cvsnanne Exp $";
 
 #include <iostream>
 
-extern "C"  __declspec( dllexport ) const char* InitHelloPlugin( int, char** )
+// MSVC macro's 
+#ifdef HELLO_EXPORTS
+# define mExternC extern "C" __declspec( dllexport )
+#else
+# define mExternC extern "C"
+#endif
+
+mExternC const char* InitHelloPlugin( int, char** )
 {
     std::cout << "Hello world" << std::endl;
     return 0; // All OK - no error messages
