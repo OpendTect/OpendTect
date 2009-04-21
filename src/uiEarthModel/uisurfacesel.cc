@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfacesel.cc,v 1.2 2009-04-07 07:12:20 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisurfacesel.cc,v 1.3 2009-04-21 04:18:16 cvsnanne Exp $";
 
 #include "uisurfacesel.h"
 
@@ -30,6 +30,7 @@ uiSurfaceSel::uiSurfaceSel( uiParent* p, const IOObjContext& ct )
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this, "", true );
     listfld_ = llb->box();
+    listfld_->setHSzPol( uiObject::Wide );
 }
 
 
