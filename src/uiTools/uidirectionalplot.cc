@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.14 2009-04-21 09:53:30 cvsumesh Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.15 2009-04-21 14:01:50 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -240,13 +240,20 @@ void uiDirectionalPlot::drawScatter()
 
 void uiDirectionalPlot::drawVals()
 {
-    for ( int isect=0; isect<data_.nrSectors(); isect++ )
+    if ( data_.nrSectors() < 1 ) return;
+
+    const float dang = data_.angle(0,1) - data_.angle(0,-1);
+    const float dangrad = dang * Angle::cPI(dang) / 180;
+
+    // for ( int isect=0; isect<data_.nrSectors(); isect++ )
+    for ( int isect=0; isect<1; isect++ )
     {
 	const Stats::SectorData& sd = *data_[isect];
-	const Interval<float> angrg( data_.angle(isect,1),
-				     data_.angle(isect,-1) );
-	const Interval<float> radangrg( data_.angle(isect,Angle::Deg,1),
-				        data_.angle(isect,Angle::Rad,-1) );
+	Interval<float> angrg( data_.angle(isect,-1), 0 );
+	angrg.stop = angrg.start + dang;
+	Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
+	radangrg.stop = radangrg.start - dangrad;
+
 	for ( int ipart=0; ipart<sd.size(); ipart++ )
 	{
 	    const Stats::SectorPartData& spd = sd[ipart];
@@ -257,6 +264,7 @@ void uiDirectionalPlot::drawVals()
 		rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
 	    if ( ipart < sd.size()-1 )
 		rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
+	    rrg.scale( radius_ );
 	    uiCurvedItem* ci = new uiCurvedItem(
 					getUIPos(rrg.start,angrg.start) );
 	    ci->drawTo( getUIPos(rrg.stop,angrg.start) );
@@ -264,11 +272,14 @@ void uiDirectionalPlot::drawVals()
 	    ci->drawTo( as );
 	    ci->drawTo( getUIPos(rrg.start,angrg.stop) );
 	    as.radius_ = rrg.start;
+	    Swap( as.angles_.start, as.angles_.stop );
 	    ci->drawTo( as );
-	    ci->setFillColor( Color(255,0,0) );
+	    // Grey scales
+	    //TODO use real color bar
+	    float v = 255 * (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
+	    int cval = mNINT(v);
+	    ci->setFillColor( Color(v,v,v) );
 	    curveitems_.add( ci );
-	    //TODO set line and fill color to something based on
-	    // spd.val_ (or spd.count_ if setup.docount_)
 	}
     }
 }
