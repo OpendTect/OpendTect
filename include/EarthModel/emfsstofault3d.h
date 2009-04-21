@@ -5,9 +5,9 @@
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	Bert
+ Author:	J.C. Glas
  Date:		March 2009
- RCS:		$Id: emfsstofault3d.h,v 1.1 2009-04-06 12:52:22 cvsjaap Exp $
+ RCS:		$Id: emfsstofault3d.h,v 1.2 2009-04-21 12:29:51 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -60,8 +60,7 @@ protected:
 	Coord3			normal_;
 	bool			pickedonplane_;
 
-	double 			distTo(const FaultStick&,double zscale,
-				       bool* istwisted=0) const;
+	double 			distTo(const FaultStick&,double zscale) const;
 	void			untwist(const FaultStick& prev,double zscale);
 
 	Coord3			findPlaneNormal() const;

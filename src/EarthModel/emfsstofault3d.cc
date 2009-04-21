@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.1 2009-04-06 12:52:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.2 2009-04-21 12:29:51 cvsjaap Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -27,15 +27,29 @@ FSStoFault3DConverter::FaultStick::FaultStick( int sticknr )
 {}
 
 
-double FSStoFault3DConverter::FaultStick::distTo( const FaultStick& fs,
-						  double zscale,
-						  bool* istwisted ) const
+static double pointToSegmentDist( const Coord3& point,
+				 const Coord3& end1, const Coord3& end2 )
 {
-/*  Take distance between the two end points of each stick. Difference
-    of both distances is minimum amount of rope required to connect both
-    sticks_ when moving freely. Our distance measure equals the amount of
-    extra rope required when both sticks_ are fixed in space. */
-   
+    double d01 = point.distTo( end1 );
+    double d02 = point.distTo( end2 );
+    double d12 = end1.distTo( end2 );
+
+    if ( mIsZero(d12,mDefEps) )
+	return d01;
+    if ( d01<d02 && d01*d01+d12*d12>=d02*d02 )
+	return d01;
+    if ( d01>d02 && d02*d02+d12*d12>=d01*d01 )
+	return d02;
+
+    double sp = 0.5 *( d01+d02+d12 );
+    double area = sqrt( sp*(sp-d01)*(sp-d02)*(sp-d12) );  
+    return 2.0*area/d12;
+}
+
+
+double FSStoFault3DConverter::FaultStick::distTo( const FaultStick& fs,
+						  double zscale ) const
+{
     if ( crds_.isEmpty() || fs.crds_.isEmpty() )
 	return mUdf(double);
    
@@ -53,27 +67,40 @@ double FSStoFault3DConverter::FaultStick::distTo( const FaultStick& fs,
 	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale;
     }
 
-    const double mindist  = fabs( a0.distTo(a1)-b0.distTo(b1) );
-    const double straight = a0.distTo(b0) + a1.distTo(b1) - mindist;
-    const double crossed  = a0.distTo(b1) + a1.distTo(b0) - mindist;
+    const double dista0 = pointToSegmentDist( a0, b0, b1 );
+    const double dista1 = pointToSegmentDist( a1, b0, b1 );
+    const double distb0 = pointToSegmentDist( b0, a0, a1 );
+    const double distb1 = pointToSegmentDist( b1, a0, a1 );
 
-    if ( istwisted )
-	*istwisted = straight > crossed;
-
-    return mMIN( straight, crossed );
+    return mMIN( mMIN(dista0,dista1), mMIN(distb0,distb1) );
 }
 
 
 void FSStoFault3DConverter::FaultStick::untwist( const FaultStick& fs,
 						 double zscale )
 {
-    bool istwisted;
-    distTo( fs, zscale, &istwisted );
-    if ( istwisted )
+    if ( crds_.isEmpty() || fs.crds_.isEmpty() )
+	return;
+   
+    Coord3 a0 = crds_[0];
+    Coord3 a1 = crds_[crds_.size()-1];
+    Coord3 b0 = fs.crds_[0];
+    Coord3 b1 = fs.crds_[fs.crds_.size()-1];
+
+    if ( zscale==MAXDOUBLE )
     {
-	for ( int idx=0; idx<crds_.size()/2; idx++ )
-	    crds_.swap( idx, crds_.size()-1-idx );
+	a0.x=0; a0.y=0; a1.x=0; a1.y=0; b0.x=0; b0.y=0; b1.x=0; b1.y=0; 
     }
+    else 
+    {
+	a0.z *= zscale; a1.z *= zscale; b0.z *= zscale; b1.z *= zscale;
+    }
+
+    if ( a0.distTo(b0)+a1.distTo(b1) <= a0.distTo(b1)+a1.distTo(b0) )
+	return;
+
+    for ( int idx=0; idx<crds_.size()/2; idx++ )
+	crds_.swap( idx, crds_.size()-1-idx );
 }
 
 
