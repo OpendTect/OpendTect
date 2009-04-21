@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.54 2009-04-20 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.55 2009-04-21 11:36:01 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -53,16 +53,20 @@ Well::AscImporter::~AscImporter()
 	if ( !sd.usable() ) \
 	    return "Cannot open input file"
 
-const char* Well::AscImporter::getD2T( const D2TModelInfo& mi )
+const char* Well::AscImporter::getD2T( const D2TModelInfo& mi, bool cksh )
 {
-    if ( !wd.d2TModel() )
+    if ( (!cksh && !wd.d2TModel()) )
 	wd.setD2TModel( new Well::D2TModel );
-    Well::D2TModel& d2t = *wd.d2TModel();
+    if ( (cksh && !wd.checkShotModel()) )
+	wd.setCheckShotModel( new Well::D2TModel );
+    Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
 
     if ( mi.fname_.isEmpty() )
     {
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
+	if ( cksh )
+	    return "No file name specified";
 	const float twtvel = mi.vel_ * .5;
 	const float dah0 = wd.track().dah( 0 );
 	const float dah1 = wd.track().dah( wd.track().size()-1 );
@@ -106,7 +110,8 @@ const char* Well::AscImporter::getD2T( const D2TModelInfo& mi )
     for ( int idx=0; idx<tms.size(); idx++ )
 	d2t.add( dahs[idx], t_in_sec ? tms[idx] : tms[idx] * 0.001 );
 
-    d2t.deInterpolate();
+    if ( !cksh )
+	d2t.deInterpolate();
     return 0;
 }
 

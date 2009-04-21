@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.30 2009-02-23 16:06:42 cvsbruno Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.31 2009-04-21 11:36:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,17 +63,18 @@ protected:
 mClass uiD2TModelDlg : public uiDialog
 {
 public:
-				uiD2TModelDlg(uiParent*,Well::Data&);
+				uiD2TModelDlg(uiParent*,Well::Data&,bool chksh);
 				~uiD2TModelDlg();
 
 protected:
 
-    Well::Data&			wd;
-    Well::D2TModel&		d2t;
-    Well::D2TModel*		orgd2t;
+    Well::Data&			wd_;
+    Well::D2TModel&		d2t_;
+    Well::D2TModel*		orgd2t_; // Must be declared *below* d2t_!
+    bool			cksh_;
 
-    uiTable*			table;
-    uiGenInput*			unitfld;
+    uiTable*			tbl_;
+    uiGenInput*			unitfld_;
 
     void			fillTable();
     void			updNow(CallBacker*);

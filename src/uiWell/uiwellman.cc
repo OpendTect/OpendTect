@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.44 2009-03-16 13:17:15 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.45 2009-04-21 11:36:01 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -85,13 +85,16 @@ uiWellMan::uiWellMan( uiParent* p )
     welltrackbut->setToolTip( "Well Track" );
     welltrackbut->attach( rightOf, markerbut );
     
-    uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	d2tbut = new uiToolButton( this, "Depth/Time Model",
+	uiToolButton* d2tbut = new uiToolButton( this, "Depth/Time Model",
 	       		   		 "z2t.png", mCB(this,uiWellMan, edD2T));
 	d2tbut->setToolTip( "Depth/Time Model" );
 	d2tbut->attach( rightOf, welltrackbut );
+	uiToolButton* csbut = new uiToolButton( this, "Checkshot Data",
+			     "checkshot.png", mCB(this,uiWellMan, edChckSh));
+	csbut->setToolTip( "Checkshot Data" );
+	csbut->attach( rightOf, d2tbut );
     }
     
     infofld->attach( ensureBelow, markerbut );
@@ -199,6 +202,18 @@ void uiWellMan::edWellTrack( CallBacker* )
 
 void uiWellMan::edD2T( CallBacker* )
 {
+    defD2T( false );
+}
+
+
+void uiWellMan::edChckSh( CallBacker* )
+{
+    defD2T( true );
+}
+
+
+void uiWellMan::defD2T( bool chkshot )
+{
     if ( !welldata || !wellrdr ) return;
 
     Well::Data* wd;
@@ -206,18 +221,22 @@ void uiWellMan::edD2T( CallBacker* )
 	wd = Well::MGR().get( curioobj_->key() );
     else
     {
-	if ( !welldata->d2TModel() )
+	if ( !chkshot && !welldata->d2TModel() )
 	    wellrdr->getD2T();
+	else if ( chkshot && !welldata->checkShotModel() )
+	    wellrdr->getCSMdl();
 	wd = welldata;
     }
 
-    if ( SI().zIsTime() && !wd->d2TModel() )
+    if ( !chkshot && !wd->d2TModel() )
 	wd->setD2TModel( new Well::D2TModel );
+    if ( chkshot && !wd->checkShotModel() )
+	wd->setCheckShotModel( new Well::D2TModel );
 
-    uiD2TModelDlg dlg( this, *wd );
+    uiD2TModelDlg dlg( this, *wd, chkshot );
     if ( !dlg.go() ) return;
     Well::Writer wtr( fname, *wd );
-    if ( !wtr.putD2T() )
+    if ( (!chkshot && !wtr.putD2T()) || (chkshot && !wtr.putCSMdl()) )
 	uiMSG().error( "Cannot write new model to disk" );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.21 2009-04-20 13:29:58 cvsbert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.22 2009-04-21 11:36:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 	float		vel_;	// used if fname_.isEmpty()
     };
 
-    const char*		getD2T(const D2TModelInfo&);
+    const char*		getD2T(const D2TModelInfo&,bool chksh=false);
     const char*		getMarkers(const char*,bool istvd,
 	    			   bool depthinfeet);
     Data&		getWellData() 				{ return wd; }

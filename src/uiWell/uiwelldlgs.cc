@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.76 2009-04-20 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.77 2009-04-21 11:36:01 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -211,34 +211,37 @@ static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
     SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
     SI().savePars()
 
-uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
+uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d, bool cksh )
 	: uiDialog(p,uiDialog::Setup("Depth/Time Model",
 				     "Edit velocity model",
 				     "107.1.5"))
-	, wd(d)
-    	, d2t(*d.d2TModel())
-    	, orgd2t(new Well::D2TModel(*d.d2TModel()))
+	, wd_(d)
+    	, d2t_(*(cksh ? d.checkShotModel() : d.d2TModel()))
+    	, orgd2t_(new Well::D2TModel(d2t_))
+    	, cksh_(cksh)
 {
-    table = new uiTable( this, uiTable::Setup().rowdesc("Control Pt")
-	    				       .rowgrow(true) 
-					       .defrowlbl(""), "Table" );
-    table->setColumnLabels( t2dcollbls );
-    table->setNrRows( nremptyrows );
+    tbl_ = new uiTable( this, uiTable::Setup()
+	    			.rowdesc(cksh_ ? "Measure point" : "Control Pt")
+				.rowgrow(true).defrowlbl(""), "Table" );
+    tbl_->setColumnLabels( t2dcollbls );
+    tbl_->setNrRows( nremptyrows );
 
     uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
-    uiButton* updnowbut = new uiPushButton( actbutgrp, "&Update display",
-	    				    mCB(this,uiD2TModelDlg,updNow),
-					    true );
+    uiButton* updnowbut = 0;
+    if ( !cksh_ )
+	updnowbut = new uiPushButton( actbutgrp, "&Update display",
+					mCB(this,uiD2TModelDlg,updNow),
+					true );
     uiButton* readbut = new uiPushButton( actbutgrp, "&Read new",
 	    				    mCB(this,uiD2TModelDlg,readNew),
 					    false );
-    readbut->attach( rightOf, updnowbut );
-    actbutgrp->attach( centeredBelow, table );
+    if ( updnowbut ) readbut->attach( rightOf, updnowbut );
+    actbutgrp->attach( centeredBelow, tbl_ );
 
     BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
-    unitfld = new uiGenInput( this, "Depth unit", mft );
-    unitfld->attach( leftAlignedBelow, table );
-    unitfld->attach( ensureBelow, actbutgrp );
+    unitfld_ = new uiGenInput( this, "Depth unit", mft );
+    unitfld_->attach( leftAlignedBelow, tbl_ );
+    unitfld_->attach( ensureBelow, actbutgrp );
 
     fillTable();
 }
@@ -246,31 +249,32 @@ uiD2TModelDlg::uiD2TModelDlg( uiParent* p, Well::Data& d )
 
 void uiD2TModelDlg::fillTable()
 {
-    const int sz = d2t.size();
+    const int sz = d2t_.size();
     if ( !sz ) return;
-    table->setNrRows( sz + nremptyrows );
+    tbl_->setNrRows( sz + nremptyrows );
 
-    const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
+    const float zfac = unitfld_->getBoolValue() ? 1 : 1./mFromFeetFac;
     for ( int idx=0; idx<sz; idx++ )
     {
-	table->setValue( RowCol(idx,0), d2t.dah(idx) * zfac );
-	table->setValue( RowCol(idx,1), d2t.t(idx) * 1000 );
+	tbl_->setValue( RowCol(idx,0), d2t_.dah(idx) * zfac );
+	tbl_->setValue( RowCol(idx,1), d2t_.t(idx) * 1000 );
     }
 }
 
 
 uiD2TModelDlg::~uiD2TModelDlg()
 {
-    delete orgd2t;
+    delete orgd2t_;
 }
 
 class uiD2TModelReadDlg : public uiDialog
 {
 public:
 
-uiD2TModelReadDlg( uiParent* p )
-    	: uiDialog(p,uiDialog::Setup("Read new Depth/Time model",
-		    		     "Specify new Depth/time model","107.1.6"))
+uiD2TModelReadDlg( uiParent* p, bool cksh )
+    	: uiDialog(p,uiDialog::Setup("Read new data",
+		    		     "Specify input file","107.1.6"))
+	, cksh_(cksh)
 {
     uiD2TModelGroup::Setup su( false );
     su.filefldlbl( "File name" );
@@ -286,45 +290,46 @@ bool acceptOK( CallBacker* )
 }
 
     uiD2TModelGroup*	d2tgrp;
+    const bool		cksh_;
 
 };
 
 
 void uiD2TModelDlg::readNew( CallBacker* )
 {
-    uiD2TModelReadDlg dlg( this );
+    uiD2TModelReadDlg dlg( this, cksh_ );
     if ( !dlg.go() ) return;
 
-    Well::AscImporter ascimp( wd );
-    const BufferString errmsg = ascimp.getD2T( dlg.d2tgrp->getMI() );
+    Well::AscImporter ascimp( wd_ );
+    const BufferString errmsg = ascimp.getD2T( dlg.d2tgrp->getMI(), cksh_ );
     if ( !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
     else
     {
-	table->clearTable();
+	tbl_->clearTable();
 	fillTable();
-	wd.d2tchanged.trigger();
+	wd_.d2tchanged.trigger();
     }
 }
 
 
 void uiD2TModelDlg::updNow( CallBacker* )
 {
-    d2t.erase();
-    const float zfac = unitfld->getBoolValue() ? 1 : mFromFeetFac;
-    const int nrrows = table->nrRows();
+    d2t_.erase();
+    const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFac;
+    const int nrrows = tbl_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* sval = table->text( RowCol(idx,0) );
+	const char* sval = tbl_->text( RowCol(idx,0) );
 	if ( !sval || !*sval ) continue;
 	float dah = atof(sval) * zfac;
-	sval = table->text( RowCol(idx,1) );
+	sval = tbl_->text( RowCol(idx,1) );
 	if ( !sval || !*sval ) continue;
 	float tm = atof(sval) * 0.001;
-	d2t.add( dah, tm );
+	d2t_.add( dah, tm );
     }
-    if ( d2t.size() > 1 )
-	wd.d2tchanged.trigger();
+    if ( d2t_.size() > 1 )
+	wd_.d2tchanged.trigger();
     else
 	uiMSG().error( "Please define at least two control points." );
 }
@@ -332,17 +337,17 @@ void uiD2TModelDlg::updNow( CallBacker* )
 
 bool uiD2TModelDlg::rejectOK( CallBacker* )
 {
-    d2t = *orgd2t;
-    wd.d2tchanged.trigger();
+    d2t_ = *orgd2t_;
+    wd_.d2tchanged.trigger();
     return true;
 }
 
 
 bool uiD2TModelDlg::acceptOK( CallBacker* )
 {
-    mSetSIDepthInFeetDef(!unitfld->getBoolValue());
+    mSetSIDepthInFeetDef(!unitfld_->getBoolValue());
     updNow( 0 );
-    return d2t.size() > 1;
+    return d2t_.size() > 1;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.8 2009-04-20 13:29:58 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.9 2009-04-21 11:36:01 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.8 2009-04-20 13:29:58 cvsb
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     : uiGroup(p,"D2TModel group")
     , unitfld_(0)
+    , velfld_(0)
     , setup_(su)
 {
     filefld_ = new uiFileInput( this, setup_.filefldlbl_,
@@ -32,15 +33,14 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     {
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
+	velfld_ = new uiGenInput( this, "Temporary model velocity (m/s)",
+				  FloatInpSpec(mi_.vel_) );
+	velfld_->attach( alignedBelow, filefld_ );
     }
     filefld_->setDefaultSelectionDir(
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
-    velfld_ = new uiGenInput( this, "Temporary model velocity (m/s)",
-	    		      FloatInpSpec(mi_.vel_) );
-    velfld_->attach( alignedBelow, filefld_ );
-
-    tvdfld_ = new uiGenInput( this, "Depth in D2T model file is",
+    tvdfld_ = new uiGenInput( this, "Depth in file is",
 			      BoolInpSpec(true,"TVDSS","MD") );
     tvdfld_->setValue( false );
     tvdfld_->attach( alignedBelow, filefld_ );
@@ -66,13 +66,12 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 
 void uiD2TModelGroup::fileFldChecked( CallBacker* )
 {
-    if ( !setup_.fileoptional_ ) return;
-    const bool doimp = filefld_->isChecked();
-    velfld_->display( !doimp );
+    const bool doimp = setup_.fileoptional_ ? filefld_->isChecked() : true;
     tvdfld_->display( doimp );
     tvdsslbl_->display( doimp );
     twtfld_->display( doimp );
     if ( unitfld_ ) unitfld_->display( doimp );
+    if ( velfld_ ) velfld_->display( !doimp );
 }
 
 
