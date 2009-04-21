@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.46 2009-04-20 13:59:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.47 2009-04-21 12:07:45 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -39,7 +39,7 @@ static const char* sHelpID = "107.0.0";
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
-				 "Specify well parameters",sHelpID))
+				 "Import Well Track",sHelpID))
     , ctio( *mMkCtxtIOObj(Well) )
     , fd( *Well::WellAscIO::getDesc() )			       
 {
@@ -59,18 +59,21 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     const bool zistime = SI().zIsTime();
     if ( zistime )
     {
-	d2tgrp = new uiD2TModelGroup( this, uiD2TModelGroup::Setup() );
+	uiD2TModelGroup::Setup su; su.asksetcsmdl( true );
+	d2tgrp = new uiD2TModelGroup( this, su );
 	d2tgrp->attach( alignedBelow, dataselfld );
 	d2tgrp->attach( ensureBelow, sep );
+	sep = new uiSeparator( this, "H sep 2" );
+	sep->attach( stretchedBelow, d2tgrp );
     }
+
 
     uiButton* but = new uiPushButton( this, "Advanced/Optional",
 	    				mCB(this,uiWellImportAsc,doAdvOpt),
 					false );
     but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp
 	    			       : (uiObject*)dataselfld );
-    if ( !zistime )
-	but->attach( ensureBelow, sep );
+    but->attach( ensureBelow, sep );
 
     ctio.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio, "Output Well" );
@@ -90,7 +93,7 @@ class uiWellImportAscOptDlg : public uiDialog
 public:
 
 uiWellImportAscOptDlg( uiWellImportAsc* p )
-    : uiDialog(p,uiDialog::Setup("Import well: Advance/Optional",
+    : uiDialog(p,uiDialog::Setup("Import well: Advanced/Optional",
 				 "Advanced and Optional",sHelpID))
     , uwia_(p)
 {
@@ -194,8 +197,10 @@ bool uiWellImportAsc::doWork()
 	const char* errmsg = d2tgrp->checkInput();
 	if ( errmsg ) mErrRet( errmsg );
 	Well::AscImporter ascimp( wd_ );
-	errmsg = ascimp.getD2T( d2tgrp->getMI() );
+	errmsg = ascimp.getD2T( d2tgrp->getMI(), false );
 	if ( errmsg ) mErrRet( errmsg );
+	if ( d2tgrp->wantAsCSModel() )
+	    ascimp.getD2T( d2tgrp->getMI(), true );
     }
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();

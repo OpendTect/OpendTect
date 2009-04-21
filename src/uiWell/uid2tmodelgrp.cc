@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.9 2009-04-21 11:36:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.10 2009-04-21 12:07:45 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 
@@ -25,6 +25,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     : uiGroup(p,"D2TModel group")
     , unitfld_(0)
     , velfld_(0)
+    , csfld_(0)
     , setup_(su)
 {
     filefld_ = new uiFileInput( this, setup_.filefldlbl_,
@@ -60,18 +61,26 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     twtfld_->setValue( true );
     twtfld_->attach( alignedBelow, unitfld_ ? unitfld_ : tvdfld_ );
 
+    if ( setup_.asksetcsmdl_ )
+    {
+	csfld_ = new uiGenInput( this, "Is this checkshot data?",
+				 BoolInpSpec(false) );
+	csfld_->attach( alignedBelow, twtfld_ );
+    }
+
     setHAlignObj( filefld_ );
     finaliseDone.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 }
 
 void uiD2TModelGroup::fileFldChecked( CallBacker* )
 {
-    const bool doimp = setup_.fileoptional_ ? filefld_->isChecked() : true;
-    tvdfld_->display( doimp );
-    tvdsslbl_->display( doimp );
-    twtfld_->display( doimp );
-    if ( unitfld_ ) unitfld_->display( doimp );
-    if ( velfld_ ) velfld_->display( !doimp );
+    const bool havefile = setup_.fileoptional_ ? filefld_->isChecked() : true;
+    tvdfld_->display( havefile );
+    tvdsslbl_->display( havefile );
+    twtfld_->display( havefile );
+    if ( unitfld_ ) unitfld_->display( havefile );
+    if ( csfld_ ) csfld_->display( havefile );
+    if ( velfld_ ) velfld_->display( !havefile );
 }
 
 
@@ -101,4 +110,10 @@ const char* uiD2TModelGroup::checkInput() const
 	SI().savePars();
     }
     return 0;
+}
+
+
+bool uiD2TModelGroup::wantAsCSModel() const
+{
+    return csfld_ && csfld_->getBoolValue();
 }

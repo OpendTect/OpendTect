@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.h,v 1.6 2009-04-20 13:29:58 cvsbert Exp $
+ RCS:		$Id: uid2tmodelgrp.h,v 1.7 2009-04-21 12:07:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,12 @@ public:
 			Setup( bool fopt=true )
 			    : fileoptional_(fopt)
 			    , withunitfld_(true)
+			    , asksetcsmdl_(false)
 			    , filefldlbl_("Depth to Time model file")	{}
 
 	mDefSetupMemb(bool,fileoptional)
 	mDefSetupMemb(bool,withunitfld)
+	mDefSetupMemb(bool,asksetcsmdl)
 	mDefSetupMemb(BufferString,filefldlbl)
 
     };
@@ -42,6 +44,8 @@ public:
 
     const char*		checkInput() const;
     const Well::AscImporter::D2TModelInfo&	getMI() const	{ return mi_; }
+
+    bool		wantAsCSModel() const;
 
 protected:
 
@@ -54,6 +58,7 @@ protected:
     uiLabel*	        tvdsslbl_;
     uiGenInput*		unitfld_;
     uiGenInput*		twtfld_;
+    uiGenInput*		csfld_;
 
     void 		fileFldChecked(CallBacker*);
 };
