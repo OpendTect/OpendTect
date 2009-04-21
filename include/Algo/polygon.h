@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.17 2009-04-21 08:37:52 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.18 2009-04-21 16:07:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,14 +44,15 @@ public:
     bool	isInside(const Geom::Point2D<T>&,
 	    		 bool inclborder,T eps) const;
     
+    int		isInside(const ODPolygon& newpoly,
+	    		 bool inclborder,T eps) const;
+		// returns 0 if newpoly is fully outside,
+		// 2 if newpoly fully inside, 1 otherwise.
+
     bool	segmentOverlaps(const Geom::Point2D<T>& pt1,
 				const Geom::Point2D<T>& pt2,T eps) const;
     bool	windowOverlaps(const Interval<T>& xrange,
 			       const Interval<T>& yrange,T eps) const;
-
-    int		isInside(const ODPolygon& otherpoly,T eps) const;
-		/* returns 0 if otherpoly is fully outside, 1 if otherpoly
-		   is partially inside, 2 if otherpoly is fully inside.     */
 
     				// defined for closed polygon
     const Geom::Point2D<T>&	getVertex(int idx) const;
@@ -279,20 +280,44 @@ bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
 
 
 template <class T> inline
-int ODPolygon<T>::isInside( const ODPolygon& otherpoly, T eps ) const
+int ODPolygon<T>::isInside( const ODPolygon& newpoly, bool inclborder,
+			    T eps ) const
 {
-    for ( int idx=0; idx<otherpoly.size(); idx++ )
+    int nrinsideoldpoly = 0;
+    int nroutsideoldpoly = 0;
+    for ( int idx=0; idx<newpoly.size(); idx++ )
     {
-	const Geom::Point2D<T>& pt1 = otherpoly.getVertex( idx );
-	const Geom::Point2D<T>& pt2 = otherpoly.nextVertex( idx );
-
-	if ( segmentOverlaps(pt1, pt2, eps) ) 
-	    return 1;
+	if ( isInside(newpoly.getVertex(idx), false, eps) )
+	    nrinsideoldpoly++;
+	else if ( !isInside(newpoly.getVertex(idx), true, eps) )
+	    nroutsideoldpoly++;
     }
 
-    const Geom::Point2D<T>& arbitvtx = otherpoly.getVertex( 0 );
+    int nrinsidenewpoly = 0;
+    int nroutsidenewpoly = 0;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( newpoly.isInside(getVertex(idx), false, eps) )
+	    nrinsidenewpoly++;
+	else if ( !newpoly.isInside(getVertex(idx), true, eps) )
+	    nroutsidenewpoly++;
+    }
 
-    return isInside( arbitvtx, true, eps) ? 2 : 0; 
+    if ( inclborder )
+    {
+	if ( nroutsideoldpoly==size() && nroutsidenewpoly==newpoly.size() )
+	    return 0;
+	if ( !nroutsideoldpoly && !nrinsidenewpoly )
+	    return 2;
+    }
+    else
+    {
+	if ( !nrinsideoldpoly && !nrinsidenewpoly )
+	    return 0;
+	if ( nrinsideoldpoly==size() && nroutsidenewpoly==newpoly.size() )
+	    return 2;
+    }
+    return 1;
 }
 
 
