@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.11 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: odgraphicsitem.cc,v 1.12 2009-04-22 10:59:53 cvssatyaki Exp $";
 
 #include "odgraphicsitem.h"
 
@@ -39,7 +39,6 @@ void ODGraphicsPointItem::paint( QPainter* painter,
 				 const QStyleOptionGraphicsItem* option,
 				 QWidget *widget )
 {
-    painter->setClipRect( option->exposedRect );
     painter->setPen( pen() );
     drawPoint( painter );
 
