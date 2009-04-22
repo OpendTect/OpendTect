@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.1 2009-04-16 20:21:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.2 2009-04-22 21:55:20 cvskris Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -38,8 +38,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
     if ( maxholesz )
     {
-	maxholeszfld_ = new uiGenInput( this, "Keep holes larger than",
-				IntInpSpec() );
+	maxholeszfld_ = new uiGenInput( this, 0, FloatInpSpec() );
 	maxholeszfld_->setWithCheck( true );
 	if ( filltypefld_ )
 	    maxholeszfld_->attach( alignedBelow, filltypefld_ );
@@ -84,6 +83,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     setHAlignObj( methodsel_ );
 
     selChangeCB( 0 );
+    setDistanceUnit( 0 );
 }
 
 
@@ -93,6 +93,18 @@ uiArray2DInterpolSel::~uiArray2DInterpolSel()
 
 void uiArray2DInterpolSel::setDistanceUnit( const char* du )
 {
+    if ( maxholeszfld_ )
+    {
+	BufferString res = "Keep holes larger than";
+	if ( du )
+	{
+	    res += " ";
+	    res += du;
+	}
+
+	maxholeszfld_->setTitleText( res.buf() );
+    }
+
     for ( int idx=0; idx<params_.size(); idx++ )
     {
 	if ( params_[idx] )
@@ -125,10 +137,10 @@ void uiArray2DInterpolSel::selChangeCB( CallBacker* )
 bool uiArray2DInterpolSel::acceptOK()
 {
     if ( maxholeszfld_ && maxholeszfld_->isChecked() &&
-	 (mIsUdf( maxholeszfld_->getIntValue() ) ||
-	  maxholeszfld_->getIntValue()<1 ) )
+	 (mIsUdf( maxholeszfld_->getfValue() ) ||
+	  maxholeszfld_->getfValue()<=0 ) )
     {
-	uiMSG().error("Maximum hole size not set or is less than one");
+	uiMSG().error("Maximum hole size not set or is less or equal to zero");
 	return false;
     }
 
@@ -207,7 +219,6 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     searchradiusfld_->setChecked( true );
     searchradiusfld_->checked.notify(
 	    mCB(this,uiInverseDistanceArray2DInterpol,useRadiusCB));
-    setDistanceUnit( 0 );
 
     cornersfirstfld_ = new  uiGenInput( this, "Compute corners first",
 					BoolInpSpec(false) );
@@ -221,6 +232,7 @@ uiInverseDistanceArray2DInterpol::uiInverseDistanceArray2DInterpol(uiParent* p)
     nrstepsfld_->attach( alignedBelow, stepsizefld_ );
     setHAlignObj( nrstepsfld_ );
 
+    setDistanceUnit( 0 );
     useRadiusCB( 0 );
 }
 
