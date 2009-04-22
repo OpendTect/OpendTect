@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.3 2009-04-22 09:22:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.4 2009-04-22 13:37:11 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -68,15 +68,12 @@ void uiWellTieView::setUpTimeAxis()
 
 void uiWellTieView::fullRedraw( uiGroup* vwrgrp )
 {
-    //for (int vwridx=0; vwridx<vwrs_.size(); vwridx++)
-//	vwrs_.remove(vwridx);
-    
+    drawWellMarkers();
     drawVelLog();
     drawDensLog();
     drawSynthetics();
     drawSeismic();
     drawCShot();
-    drawWellMarkers();
 }
 
 
@@ -209,12 +206,9 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
    
     if ( col == Color::NoColor() || col.rgb() == 16777215 )
 	col = Color::LightGrey();
-    auxdata->linestyle_.color_ = col;
-    auxdata->linestyle_.type_  = LineStyle::Solid;
 
     auxdata->poly_.erase();
-
-    auxdata ->poly_ += FlatView::Point(
+    auxdata->poly_ += FlatView::Point(
 	    vwrs_[vwridx]->boundingBox().left(), zpos );
     auxdata->poly_ += FlatView::Point(
 	    vwrs_[vwridx]->boundingBox().right(), zpos );
@@ -224,13 +218,11 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 void uiWellTieView::drawWellMarkers()
 {
     bool ismarkergrdline = true;
-    //createVarDataPack( "Well Markers", 0, 1, 0 );
   
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return; 
 
     int vwrsz = ismarkergrdline ? vwrs_.size() : 1;
-
     for ( int midx=0; midx<wd_.markers().size(); midx++ )
     {
 	const Well::Marker* marker = wd_.markers()[midx];
@@ -238,13 +230,16 @@ void uiWellTieView::drawWellMarkers()
 	
 	float zpos = d2tm->getTime( marker->dah() ); 
 	
-	FlatView::Annotation::AuxData* auxdata =
-	    new FlatView::Annotation::AuxData(marker->name());
+	FlatView::Annotation::AuxData* auxdata = new FlatView::Annotation::AuxData( 0 );
     
 	for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
-	    drawMarker( auxdata, vwridx, zpos, marker->color() );
+	{
+	    FlatView::Annotation::AuxData* a = 
+			new FlatView::Annotation::AuxData(*auxdata);
+	    drawMarker( a, vwridx, zpos, marker->color() );
+	}
+	delete auxdata;
     }
-
     for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
 	vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );
 }	
@@ -258,8 +253,8 @@ void uiWellTieView::drawUserPicks( const UserPicks* userpicks )
     if ( vwridx<0 || vwridx>vwrs_.size() )return;
     
   
-    FlatView::Annotation::AuxData* auxdata =
-	new FlatView::Annotation::AuxData("");
+    FlatView::Annotation::AuxData* auxdata = 0;
+    mTryAlloc( auxdata, FlatView::Annotation::AuxData( 0 ) );
     
     const float zpos = userpicks->zpos_[userpicks->zpos_.size()-1];
 
@@ -272,9 +267,9 @@ void uiWellTieView::drawUserPicks( const UserPicks* userpicks )
 
 void uiWellTieView::drawCShot()
 {
-    WellTieGeoCalculator geocalc (wtsetup_,wd_);
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
+    WellTieGeoCalculator geocalc (wtsetup_,wd_);
 
     TypeSet<float> csvals, cstolog, dpt;
     for ( int idx=0; idx< cs->size(); idx++ )
@@ -292,9 +287,9 @@ void uiWellTieView::drawCShot()
     for ( int idx=0; idx<app.annot_.auxdata_.size(); idx++)    
 	delete ( app.annot_.auxdata_.remove(idx) );
 
-    FlatView::Annotation::AuxData* auxdata =
-	new FlatView::Annotation::AuxData("");
-	app.annot_.auxdata_ +=  auxdata;
+    FlatView::Annotation::AuxData* auxdata = 0;
+    mTryAlloc( auxdata, FlatView::Annotation::AuxData( 0 ) );
+    app.annot_.auxdata_ +=  auxdata;
    
     for ( int midx=0; midx< cs->size(); midx++ )
     {
@@ -303,7 +298,7 @@ void uiWellTieView::drawCShot()
 	auxdata->linestyle_.color_ = Color::DgbColor();
 	auxdata->linestyle_.type_  = LineStyle::Solid;
 	float zpos = d2tm->getTime( cs->dah(midx) ); 
-	auxdata ->poly_ += FlatView::Point( cstolog[midx], zpos );
+	auxdata->poly_ += FlatView::Point( cstolog[midx], zpos );
 	auxdata->poly_ += FlatView::Point(  cstolog[midx], zpos );
     }
 

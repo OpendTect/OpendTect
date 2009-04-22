@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.3 2009-04-22 13:37:11 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -86,7 +86,7 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
     return d2tnew;
 }
 
-
+//Small TWT/ Interval Velocity translator
 void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 				     const TypeSet<float>& dpt,	
 				     TypeSet<float>& outp, bool t2vel  )
@@ -98,14 +98,6 @@ void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 	for ( int idx=1; idx<timevel.size(); idx++ )
 	    outp +=  1000000000*( timevel[idx]-timevel[idx-1] )
 		    /( (dpt[idx]-dpt[idx-1])/velfactor*2 );
-    
-//To Remove, test
-outp[0] += 150;
-outp[1] += 50;
-outp[2] -= 50;
-outp[3] += 50;
-outp[4] -= 50;
-
     }
     else 
     {
@@ -172,7 +164,8 @@ void WellTieGeoCalculator::interpolateData( TypeSet<float>& data,
 }
 
 
-
+//low pass filter similar as this of the freqfilter attribute
+//TODO put in algo
 #define mDoTransform(tf,isstraight,inp,outp,sz) \
 {   \
     tf.setInputInfo(Array1DInfoImpl(sz));\
@@ -292,22 +285,26 @@ void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 }
 
 
-#define mStep = 10 
+//Compute reflectivity values at a the display sample step (Survey step)
+#define mStep 20 
 void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 					       Array1DImpl<float>& reflvals )
 {
     int size = aivals.info().getSize(0);
-    size = int (size/20)+1;
+    size = int (size/mStep)+1;
+    float ai1, ai2;
+
     for ( int idx=0; idx<size-2; idx++ )
     {
-	if ( (aivals.get(idx+30) + aivals.get((idx+10)) ) != 0 )
+	ai2 = aivals.get( mStep*(idx+1) );
+	ai1 = aivals.get( mStep*idx );	    
+	if ( (ai1 + ai2 ) == 0 )
+	    reflvals.setValue( idx,idx>0? reflvals.get(idx-1):reflvals.get(0) );
+	else
 	{
-	    float rval = ( aivals.get(20*idx+30) - aivals.get((20*idx+10)) )
-			/( aivals.get(20*idx+30) + aivals.get((20*idx+10)) );
+	    float rval =  ( ai2 - ai1 ) / ( ai2 + ai1 );     
 	     reflvals.setValue( idx, rval ); 
 	}
-	else
-	    reflvals.setValue(idx,idx>0? reflvals.get(idx-1):reflvals.get(idx));
     }
 }
 

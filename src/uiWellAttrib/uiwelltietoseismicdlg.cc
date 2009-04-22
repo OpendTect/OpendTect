@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.3 2009-04-22 13:37:11 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -58,6 +58,7 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, dataviewer_(0)
     	, controlview_(0)	  
 {
+    wtsetup_.iscsavailable_ = wd_->checkShotModel();			  
     setWinTitle( ads );
     vwrgrp_ = new uiGroup( this, "viewers group" );
     dps_ = new DataPointSet( false, false );
@@ -210,7 +211,7 @@ void uiWellTieToSeismicDlg::wvltChg( CallBacker* )
 
 void uiWellTieToSeismicDlg::updateButtons()
 {
-    if ( !wd_->checkShotModel() )
+    if ( wtsetup_.iscsavailable_ )
 	cscorrfld_->display(false);
 }
 
@@ -225,8 +226,7 @@ void uiWellTieToSeismicDlg::checkShotChg( CallBacker* )
 
 bool uiWellTieToSeismicDlg::editD2TPushed( CallBacker* )
 {
-    uiD2TModelDlg* d2tmdlg = new uiD2TModelDlg( this, *wd_, 
-	    					wd_->checkShotModel() );
+    uiD2TModelDlg* d2tmdlg = new uiD2TModelDlg( this, *wd_, false );
     if ( d2tmdlg->go() )
     {
 	if ( !wts_->updateD2TModel()) return false;

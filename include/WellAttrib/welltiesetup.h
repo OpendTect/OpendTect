@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.2 2009-04-22 13:37:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 			    , wvltid_(*new MultiID())
 			    , issonic_(true)
 			    , iscscorr_(true)		    
+			    , iscsavailable_(false)		    
 			    , factors_(this)		    
 			    , corrvellognm_("Corrected ")
 			    {}
@@ -46,8 +47,8 @@ public:
 			    , issonic_(setup.issonic_)
 			    , vellognm_(setup.vellognm_)
 			    , denlognm_(setup.denlognm_)
-			    , attrnm_(setup.attrnm_)				
-			    , corrvellognm_(setup.corrvellognm_)		
+			    , corrvellognm_(setup.corrvellognm_)
+			    , iscsavailable_(setup.iscsavailable_)		
 			    , iscscorr_(setup.iscscorr_)		    
 			    , factors_(WellTieUnitFactors(&setup))		
 			    {}	
@@ -61,6 +62,7 @@ public:
     MultiID               	wvltid_;
     bool                	issonic_;
     bool			iscscorr_;
+    bool			iscsavailable_;
     WellTieUnitFactors		factors_; 	
     
     void    	      		usePar(const IOPar&);
