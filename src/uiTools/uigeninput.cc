@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigeninput.cc,v 1.89 2009-02-26 04:58:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigeninput.cc,v 1.90 2009-04-22 21:45:10 cvskris Exp $";
 
 #include "uigeninput.h"
 #include "uilineedit.h"
@@ -1087,6 +1087,7 @@ const char* uiGenInput::titleText()
 
 void uiGenInput::setTitleText( const char* txt )
 { 
+    setName( txt );	//If object is not finalized
     if ( labl ) labl->setText( txt );
     if ( cbox ) cbox->setText( txt ); 
 }
