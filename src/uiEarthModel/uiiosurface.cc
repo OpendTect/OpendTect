@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.68 2009-04-02 13:51:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.69 2009-04-22 22:17:17 cvskris Exp $";
 
 #include "uiiosurface.h"
 
@@ -222,6 +222,7 @@ IOObj* uiIOSurface::selIOObj() const
 
 void uiIOSurface::objSel( CallBacker* )
 {
+    objfld_->commitInput();
     IOObj* ioobj = objfld_->ctxtIOObj().ioobj;
     if ( !ioobj ) return;
 
