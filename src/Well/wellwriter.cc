@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.19 2009-04-01 07:01:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.20 2009-04-22 13:09:45 cvsbert Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -178,7 +178,7 @@ bool Well::Writer::putLog( std::ostream& strm, const Well::Log& wl ) const
 	else
 	{
 	    if ( mIsUdf(v[1]) )
-		strm << dah << '\t' << sKey::FloatUdf << '\n';
+		strm << v[0] << '\t' << sKey::FloatUdf << '\n';
 	    else
 		strm << v[0] << '\t' << v[1] << '\n';
 	}
