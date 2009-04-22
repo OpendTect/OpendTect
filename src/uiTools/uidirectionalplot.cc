@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.15 2009-04-21 14:01:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.16 2009-04-22 12:37:20 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -245,8 +245,8 @@ void uiDirectionalPlot::drawVals()
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
     const float dangrad = dang * Angle::cPI(dang) / 180;
 
-    // for ( int isect=0; isect<data_.nrSectors(); isect++ )
-    for ( int isect=0; isect<1; isect++ )
+    const int nrsectors = data_.nrSectors();
+    for ( int isect=0; isect<nrsectors; isect++ )
     {
 	const Stats::SectorData& sd = *data_[isect];
 	Interval<float> angrg( data_.angle(isect,-1), 0 );
@@ -254,22 +254,35 @@ void uiDirectionalPlot::drawVals()
 	Interval<float> radangrg( data_.angle(isect,Angle::Rad,-1), 0 );
 	radangrg.stop = radangrg.start - dangrad;
 
+	const bool reversepos = sd.first().pos_ > sd.last().pos_;
 	for ( int ipart=0; ipart<sd.size(); ipart++ )
 	{
 	    const Stats::SectorPartData& spd = sd[ipart];
 	    if ( spd.count_ < 1 ) continue;
 
 	    Interval<float> rrg( 0, 1 );
-	    if ( ipart )
-		rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
-	    if ( ipart < sd.size()-1 )
-		rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
+	    if ( reversepos )
+	    {
+		if ( ipart < sd.size()-1 )
+		    rrg.start = (spd.pos_ + sd[ipart+1].pos_) * .5;
+		if ( ipart > 0 )
+		    rrg.stop = (spd.pos_ + sd[ipart-1].pos_) * .5;
+	    }
+	    else
+	    {
+		if ( ipart )
+		    rrg.start = (spd.pos_ + sd[ipart-1].pos_) * .5;
+		if ( ipart < sd.size()-1 )
+		    rrg.stop = (spd.pos_ + sd[ipart+1].pos_) * .5;
+	    }
+
 	    rrg.scale( radius_ );
 	    uiCurvedItem* ci = new uiCurvedItem(
 					getUIPos(rrg.start,angrg.start) );
 	    ci->drawTo( getUIPos(rrg.stop,angrg.start) );
 	    uiCurvedItem::ArcSpec as( center_, rrg.stop, radangrg );
 	    ci->drawTo( as );
+
 	    ci->drawTo( getUIPos(rrg.start,angrg.stop) );
 	    as.radius_ = rrg.start;
 	    Swap( as.angles_.start, as.angles_.stop );
@@ -279,6 +292,8 @@ void uiDirectionalPlot::drawVals()
 	    float v = 255 * (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
 	    int cval = mNINT(v);
 	    ci->setFillColor( Color(v,v,v) );
+
+	    ci->closeCurve();
 	    curveitems_.add( ci );
 	}
     }
