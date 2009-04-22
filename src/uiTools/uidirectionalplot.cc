@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.16 2009-04-22 12:37:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.17 2009-04-22 13:47:02 cvsyuancheng Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -291,7 +291,7 @@ void uiDirectionalPlot::drawVals()
 	    //TODO use real color bar
 	    float v = 255 * (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
 	    int cval = mNINT(v);
-	    ci->setFillColor( Color(v,v,v) );
+	    ci->setFillColor( Color(cval,cval,cval) );
 
 	    ci->closeCurve();
 	    curveitems_.add( ci );
