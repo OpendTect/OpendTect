@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.3 2009-04-20 19:16:53 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.4 2009-04-22 21:54:23 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
@@ -21,11 +21,12 @@ mImplFactory( Array2DInterpol, Array2DInterpol::factory );
 
 Array2DInterpol::Array2DInterpol()
     : arr_( 0 )
+    , arrsetter_( 0 )
     , nrcells_( -1 )
     , nrrows_( -1 )
     , nrcols_( -1 )
     , filltype_( Full )
-    , maxholesize_( 0 )
+    , maxholesize_( mUdf(float) )
     , rowstep_( 1 )
     , colstep_( 1 )
 {}
@@ -39,11 +40,11 @@ Array2DInterpol::FillType Array2DInterpol::getFillType() const
 { return filltype_; }
 
 
-void Array2DInterpol::setMaxHoleSize( int maxholesize )
+void Array2DInterpol::setMaxHoleSize( float maxholesize )
 { maxholesize_ = maxholesize; }
 
 
-int Array2DInterpol::getMaxHoleSize() const
+float Array2DInterpol::getMaxHoleSize() const
 { return maxholesize_; }
 
 
@@ -71,6 +72,20 @@ bool Array2DInterpol::setArray( ArrayAccess& arr )
     nrcells_ = nrrows_*nrcols_;
 
     return true;
+}
+
+
+#define mUpdateRange( r, c ) \
+if ( !rgset ) \
+{ \
+    rgset = true; \
+    rowrg.start = rowrg.stop = r; \
+    colrg.start = colrg.stop = c; \
+} \
+else \
+{ \
+    rowrg.include( r ); \
+    colrg.include( c ); \
 }
 
 
@@ -107,6 +122,8 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
 	ODPolygon<float> poly;
 	TypeSet<int> inside( nrcols_, -1 );
+	Interval<int> rowrg, colrg;
+	bool rgset = false;
 
 	for ( int icol=0; icol<nrcols_; icol++ )
 	{
@@ -117,6 +134,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 		{
 		    poly.add( Geom::Point2D<float>(irow,icol) );
 		    inside[icol] = irow;
+		    mUpdateRange( irow, icol );
 
 		    idx = (nrrows_-1)*nrcols_+icol;
 		    for ( int jrow=nrrows_-1; jrow>irow; jrow--, idx-= nrcols_ )
@@ -124,6 +142,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 			if ( def[idx] )
 			{
 			    poly.add( Geom::Point2D<float>(jrow,icol) );
+			    mUpdateRange( jrow, icol );
 			    break;
 			}
 		    }
@@ -132,16 +151,32 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	    }
 	}
 
+	if ( !rgset )
+	    return;
+
 	poly.convexHull();
 
-	for ( int icol=0; icol<nrcols_; icol++ )
+	for ( int icol=colrg.start; icol<=colrg.stop; icol++ )
 	{
 	    if ( inside[icol] < 0 )
-		continue;
+	    {
+		for ( int irow=rowrg.start; irow<=rowrg.stop; irow++ )
+		{
+		    if ( poly.isInside( Geom::Point2D<float>(irow,icol),
+					 true, 0 ) )
+		    {
+			inside[icol] = irow;
+			break;
+		    }
+		}
+
+		if ( inside[icol] < 0 )
+		    continue;
+	    }
 
 	    for ( int dir=-1; dir<=1; dir+=2 )
 	    {
-		for ( int irow=inside[icol]; irow>=0 && irow<nrrows_; irow+=dir)
+		for ( int irow=inside[icol]; rowrg.includes(irow); irow+=dir)
 		{
 		    const int idx = icol+irow*nrcols_;
 		    if ( def[idx] ) 
@@ -302,8 +337,11 @@ void Array2DInterpol::floodFillArrFrom( int seed, const bool* def,
 void Array2DInterpol::excludeBigHoles( const bool* def,
 				       bool* shouldinterpol ) const
 {
-    if ( maxholesize_<1 )
+    if ( mIsUdf(maxholesize_) )
 	return;
+
+    const int maxrowsize = (int) ceil( maxholesize_/rowstep_ );
+    const int maxcolsize = (int) ceil( maxholesize_/colstep_ );
 
     for ( int irow=0; irow<nrrows_; irow++ )
     {
@@ -314,7 +352,7 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 	    if ( !def[idx] && shouldinterpol[idx] )
 		nrtobeinterp++;
 
-	    if ( nrtobeinterp>maxholesize_ )
+	    if ( nrtobeinterp>maxcolsize )
 	    {
 		floodFillArrFrom( idx, def, shouldinterpol );
 		nrtobeinterp = 0;
@@ -330,7 +368,7 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 	    if ( !def[idx] && shouldinterpol[idx] )
 		nrtobeinterp++;
 
-	    if ( nrtobeinterp>maxholesize_ )
+	    if ( nrtobeinterp>maxrowsize )
 	    {
 		floodFillArrFrom( idx, def, shouldinterpol );
 		nrtobeinterp = 0;
@@ -390,6 +428,9 @@ bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr )
 
 bool InverseDistanceArray2DInterpol::initFromArray()
 {
+    if ( !arr_ && !arrsetter_ )
+	return false;
+
     nrinitialdefined_ = 0;
 
     mTryAlloc( curdefined_, bool[nrcells_] );
