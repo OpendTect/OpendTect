@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.26 2009-04-21 09:52:15 cvsumesh Exp $";
+static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.27 2009-04-22 12:32:19 cvsnanne Exp $";
 
 #include "uigraphicsitemimpl.h"
 
@@ -21,7 +21,6 @@ static const char* rcsID = "$Id: uigraphicsitemimpl.cc,v 1.26 2009-04-21 09:52:1
 #include <QFont>
 #include <QFontMetrics>
 #include <QPen>
-
 
 uiEllipseItem::uiEllipseItem()
     : uiGraphicsItem(mkQtObj())
@@ -614,6 +613,7 @@ void uiArrowItem::setArrowSize( int arrowsz )
 }
 
 
+
 uiCurvedItem::uiCurvedItem( const uiPoint& pt )
     : uiGraphicsItem(mkQtObj())
 {
@@ -651,13 +651,8 @@ void uiCurvedItem::drawTo( const ArcSpec& as )
 {
     Interval<float> angs( Angle::rad2deg(as.angles_.start),
 			  Angle::rad2deg(as.angles_.stop) );
-    if ( angs.start < 0 ) angs.start += 360;
-    if ( angs.stop < 0 ) angs.stop += 360;
-    if ( angs.start > angs.stop ) angs.stop += 360;
-    QRectF qr(	as.center_.x - as.radius_,
-		as.center_.y - as.radius_ * as.yratio_,
-		as.center_.x + as.radius_,
-		as.center_.y + as.radius_ * as.yratio_ );
+    QRectF qr( as.center_.x - as.radius_, as.center_.y - as.radius_,
+	       2*as.radius_, 2*as.radius_ );
     qppath_->arcTo( qr, angs.start, angs.stop - angs.start );
     qpathitem_->setPath( *qppath_ );
 }
