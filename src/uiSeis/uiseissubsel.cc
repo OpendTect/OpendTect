@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissubsel.cc,v 1.63 2009-04-17 13:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissubsel.cc,v 1.64 2009-04-22 06:12:16 cvsnanne Exp $";
 
 #include "uiseissubsel.h"
 #include "uiseissel.h"
@@ -143,7 +143,6 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 
 uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	: uiSeisSubSel(p,ss)
-	, lnmfld_(0)
 	, onelnbox_(0)
     	, multiln_(ss.multiline_)
 	, lineSel(this)
@@ -241,7 +240,7 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
     BufferString lnm( selectedLine() );
     if ( lnm.isEmpty() )
     {
-	if ( lnmfld_ )
+	if ( !multiln_ )
 	    { uiMSG().error("Please enter a line name"); return false; }
 
 	iopar.removeWithKey( sKey::LineKey );
