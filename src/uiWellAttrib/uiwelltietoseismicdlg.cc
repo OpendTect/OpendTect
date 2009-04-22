@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.1 2009-04-21 13:55
 #include "uiseparator.h"
 #include "uitaskrunner.h"
 
+#include "arrayndimpl.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "ctxtioobj.h"
@@ -74,14 +75,15 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 
 uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 {
+    
+    for ( int idx=0; idx<dispdata_.size(); idx++ )
+	delete ( dispdata_.remove(idx) );
     if (dps_) delete dps_;
     if ( wvltdraw_  )
-    {
 	wvltdraw_->wvltChanged.remove(mCB(this,uiWellTieToSeismicDlg,wvltChg));
-//	delete wvltdraw_;
-    }
     if ( dataviewer_ ) delete dataviewer_;
-    if (wd_) delete wd_;	    
+    if (wd_) delete wd_;	   
+    
 }
 
 
@@ -119,7 +121,7 @@ void uiWellTieToSeismicDlg::doWork()
 
 void uiWellTieToSeismicDlg::drawData()
 {
-    wvltdraw_->initWavelets( wts_->estimateWavelet() );
+    wvltdraw_->initWavelets( 0 );
     dataviewer_->setUpTimeAxis();
     dataviewer_->fullRedraw( vwrgrp_ );
 }
@@ -133,8 +135,8 @@ void uiWellTieToSeismicDlg::addToolBarTools()
     toolbar_->addSeparator();
     mAddButton( "z2t.png", editD2TPushed, "View/Edit Model" );
     mAddButton( "saveflow.png",saveD2TPushed, "Save Model" );
-    toolbar_->addSeparator();
-    mAddButton( "xplot.png", viewDataPushed, "View/Plot Data" );
+    //toolbar_->addSeparator();
+    //mAddButton( "xplot.png", viewDataPushed, "View/Plot Data" );
 }    
 
 

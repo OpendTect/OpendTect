@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.2 2009-04-22 06:43:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.3 2009-04-22 09:22:06 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -56,7 +56,7 @@ WellTieToSeismic::WellTieToSeismic(const WellTieSetup& wts,
     if ( !createDPSCols() ) return;
     if ( !setLogsParams() ) return;
     checkShotCorr();
-    geocalc_ = new WellTieGeoCalculator( wts );
+    geocalc_ = new WellTieGeoCalculator( wts, wd_ );
     d2tmgr_  = new WellTieD2TModelManager( wd_, *geocalc_ );
 } 
 
@@ -181,23 +181,18 @@ bool WellTieToSeismic::extractSeismics()
 
 void WellTieToSeismic::fillDispData()
 {
+    int sz = dispdata_[0]->info().getSize(0);
     for ( int colidx=0; colidx<5; colidx++)
     {
-	for ( int idx=0; idx<dps_.size(); idx++)
-	    dispdata_[colidx]->setValue( idx,workdata_[colidx]->get(mStep*idx)); 
+	for ( int idx=0; idx<sz ; idx++)
+	    dispdata_[colidx]->setValue(idx,workdata_[colidx]->get(mStep*idx));
     }
 
-    sortDPSDataAlongZ();
-    for ( int colidx=0; colidx<dps_.nrCols(); colidx++ )
-    {
-	for ( int idx=0; idx<dps_.size(); idx++ )
-	    dispdata_[dispdata_.size()-1]->setValue( idx, 
-					     dps_.getValues(idx)[colidx] );
-    }
+    getSortedDPSDataAlongZ(*dispdata_[dispdata_.size()-1]);
 }
 
 
-void WellTieToSeismic::sortDPSDataAlongZ()
+void WellTieToSeismic::getSortedDPSDataAlongZ( Array1DImpl<float>& vals)
 {
     TypeSet<float> zvals;
     for ( int idx=0; idx<dps_.size(); idx++ )
@@ -212,30 +207,12 @@ void WellTieToSeismic::sortDPSDataAlongZ()
 
     sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
 
-    TypeSet<float> data;
-    for ( int colidx=1; colidx<dps_.nrCols(); colidx++ )
+    for ( int colidx=0; colidx<dps_.nrCols(); colidx++ )
     {
 	for ( int idx=0; idx<sz; idx++ )
-	    data += dps_.getValues(idx)[colidx];
-	for ( int idx=0; idx<sz; idx++ )
-	    dps_.getValues(idx)[colidx] = data[zidxs[idx]];
-	data.erase();
+	vals.setValue( idx, dps_.getValues(zidxs[idx])[colidx] );
     }
 }
-
-
-/*
-for ( int idx=0; idx<dps_.size(); idx++  )
-{
-if  ( dps_.z(idx ) == workdata_[0]->get( mStep*idx ) )
-{
-for ( int colidx=0; colidx<dps_.nrCols()-2; colidx++  )
-	       dps_.getValues(idx)[colidx] = workdata_[colidx]->get(mStep*idx);
-
-	    for ( int dps_.nrCols()-2; colidx<dps_.nrCols(); colidx++  )
-		dps_.getValues(idx)[colidx] = workdata_[colidx]->get(idx);
-	}
-    }*/
 
 
 #define mAddCol(nm)  \

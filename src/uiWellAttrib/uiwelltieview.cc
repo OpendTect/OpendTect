@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.2 2009-04-22 06:43:11 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.3 2009-04-22 09:22:06 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -16,9 +16,6 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.2 2009-04-22 06:43:11 cvsr
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
-#include "datapointset.h"
-#include "datacoldef.h"
-#include "datapointset.h"
 #include "flatposdata.h"
 #include "iostrm.h"
 #include "unitofmeasure.h"
@@ -26,7 +23,6 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.2 2009-04-22 06:43:11 cvsr
 #include "position.h"
 #include "posvecdataset.h"
 #include "seisioobjinfo.h"
-#include "sorting.h"
 #include "survinfo.h"
 
 #include "welldata.h"
@@ -34,6 +30,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.2 2009-04-22 06:43:11 cvsr
 #include "wellman.h"
 #include "wellmarker.h"
 #include "welltiesetup.h"
+#include "welltiegeocalculator.h"
 #include "welltrack.h"
 
 #include "uiflatviewer.h"
@@ -63,10 +60,8 @@ uiWellTieView::~uiWellTieView()
 
 void uiWellTieView::setUpTimeAxis()
 {
-    //peSet<float> zvals;
-    //rtDPSDataAlongZ(zvals);
     timeintv_.start = dispdata_[0]->get(0);
-    timeintv_.step =  dispdata_[0]->get(0)-dispdata_[0]->get(1);
+    timeintv_.step =  SI().zStep();
     timeintv_.stop =  dispdata_[0]->get( dispdata_[0]->info().getSize(0)-1 );
 }
 
@@ -80,25 +75,24 @@ void uiWellTieView::fullRedraw( uiGroup* vwrgrp )
     drawDensLog();
     drawSynthetics();
     drawSeismic();
-    //drawCShot();
+    drawCShot();
     drawWellMarkers();
 }
 
 
 void uiWellTieView::createViewers( uiGroup* vwrgrp )
 {
-    for (int vwridx=0; vwridx<5; vwridx++)
+    for (int vwridx=0; vwridx<4; vwridx++)
     {
 	vwrs_ += new uiFlatViewer( vwrgrp, true);
 	if ( vwridx>0 )
 	    vwrs_[vwridx]->attach( rightOf, vwrs_[vwridx-1] );
     }
 
-    initFlatViewer( "Markers", 0, 150, 550, true, Color::Black() );
-    initFlatViewer( wtsetup_.vellognm_, 1, 200, 550, false, Color::Black() );
-    initFlatViewer( wtsetup_.denlognm_, 2, 200, 550, false, Color::Black() );
-    initFlatViewer( "Synthetics", 3, 200, 550, true, Color::Black() );
-    initFlatViewer( "Seismics", 4, 200, 550, true, Color::Black() );
+    initFlatViewer( wtsetup_.vellognm_, 0, 200, 550, false, Color::Black() );
+    initFlatViewer( wtsetup_.denlognm_, 1, 200, 550, false, Color::Black() );
+    initFlatViewer( "Synthetics", 2, 200, 550, true, Color::Black() );
+    initFlatViewer( "Seismics", 3, 200, 550, true, Color::Black() );
 }
 
 
@@ -127,22 +121,22 @@ void uiWellTieView::initFlatViewer( const char* nm, int nr, int xsize,
 void uiWellTieView::drawVelLog()
 {
     if ( wd_.checkShotModel() && wtsetup_.iscscorr_ ) 
-	createVarDataPack( wtsetup_.corrvellognm_, 1, 1, 1 );
+	createVarDataPack( wtsetup_.corrvellognm_, 0, 1, 1 );
     else
-	createVarDataPack( wtsetup_.vellognm_, 1, 1, 2 );
+	createVarDataPack( wtsetup_.vellognm_, 0, 1, 2 );
 }
 
 
 void uiWellTieView::drawDensLog()
 {
-    createVarDataPack( wtsetup_.denlognm_, 2, 1, 3 );
+    createVarDataPack( wtsetup_.denlognm_, 1, 1, 3 );
 }
 
 
 void uiWellTieView::drawSynthetics()
 {
     BufferString synlbl = "Synthetics";
-    createVarDataPack( synlbl, 3, 4, 6 );
+    createVarDataPack( synlbl, 2, 4, 6 );
 }
 
 
@@ -158,7 +152,7 @@ void uiWellTieView::drawSeismic()
     BufferString attrnm = ad->userRef();
     BufferString attr2cube = SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 
-    createVarDataPack( attr2cube, 4, 4, 7 );
+    createVarDataPack( attr2cube, 3, 4, 7 );
 }
 
 
@@ -166,49 +160,41 @@ void uiWellTieView::createVarDataPack( const char* varname, int vwrnr,
 					int nrtraces, int colidx )
 {
     nrtraces = 1;
-    TypeSet<float> zvals;
-    float maxval =0; float minval = 0;
-    //DataPointSet::ColID dpscolidx = dps_.indexOf( varname );
-   // if ( dpscolidx >= 0 )
-    //{
-//	dps_.bivSet().getColumn( dpscolidx+4, data, true ) ;
-	maxval = dispdata_[colidx]->get(0); minval = maxval;
-  //  }
-   
+    float maxval, minval = 0;
+    maxval = dispdata_[colidx]->get(0); minval = maxval;
 
     const int varsz = dispdata_[colidx]->info().getSize(0);
     Array2DImpl<float>*  arr2d = new Array2DImpl<float>( nrtraces, varsz );
-    
+
     for ( int idz=0; idz< varsz; idz++)
     {
-	if ( colidx < 0 ) return;
-	if ( maxval <= dispdata_[colidx]->get(idz) 
-		&& !mIsUdf(dispdata_[colidx]->get(idz)) )
-	    maxval = dispdata_[colidx]->get(idz);
-	if ( maxval >= dispdata_[colidx]->get(idz) 
-		&& !mIsUdf(dispdata_[colidx]->get(idz)) )
-	    minval = dispdata_[colidx]->get(idz);
+	float dataval =  dispdata_[colidx]->get(idz);
+	if ( maxval < dataval && !mIsUdf(dataval) )
+	    maxval = dataval;
+	if ( minval > dataval && !mIsUdf(dataval) )
+	    minval = dataval;
 	for ( int idx=0; idx<nrtraces; idx++)
-	    arr2d->set( idx, idz, dispdata_[colidx]->get(idz) );
+	    arr2d->set( idx, idz, dataval );
     }
     FlatView::Appearance& app = vwrs_[vwrnr]->appearance();
-    app.ddpars_.wva_.overlap_ = nrtraces > 1 ? 4: maxval-minval-1;
+    app.ddpars_.wva_.overlap_ = nrtraces > 1 ? 3: maxval-minval-1;
     const float shift =  minval + ( maxval - minval )/2;
     StepInterval<double> xrange( shift, shift, maxval-minval);
     StepInterval<double> zrange( timeintv_.start, timeintv_.stop,
-	    			 timeintv_.step );
+				 timeintv_.step );
     vwrs_[vwrnr]->removePack(0);
     FlatDataPack* dp = new FlatDataPack( "", arr2d );
     DPM(DataPackMgr::FlatID()).add( dp );
-    if ( nrtraces < 2 && colidx >= 0 )
+    if ( nrtraces < 2 )
 	dp->posData().setRange(true, xrange);
     dp->posData().setRange(false, zrange);
     dp->setName( varname );
     vwrs_[vwrnr]->setPack( true, dp->id(), false, true );
     const UnitOfMeasure* uom = 0;
-    const char* units =  ""; //uom ? uom->symbol() : "";  
+    const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  units;
     app.annot_.x2_.name_ = "TWT (ms)";
+
 }
 
 
@@ -286,38 +272,22 @@ void uiWellTieView::drawUserPicks( const UserPicks* userpicks )
 
 void uiWellTieView::drawCShot()
 {
+    WellTieGeoCalculator geocalc (wtsetup_,wd_);
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
-    
-    float velfactor = wtsetup_.factors_.velFactor();
-   
-    TypeSet<float> cstolog, dpt;
-    dpt += cs->dah(0);
-    cstolog += cs->value(0);
-    for ( int idx=1; idx< cs->size(); idx++ )
-    {
-	dpt[idx] = cs->dah(idx);
-	cstolog += (cs->value(idx) - cs->value(idx-1))*1000;
-    }
 
-    cstolog[0] = cs->value(0)/(velfactor*dpt[0]); 
-    for ( int idx=1; idx<cs->size(); idx++)
-	cstolog[idx] = cstolog[idx]/(2*( dpt[idx]-dpt[idx-1] )*velfactor);
+    TypeSet<float> csvals, cstolog, dpt;
+    for ( int idx=0; idx< cs->size(); idx++ )
+    {
+	dpt     += cs->dah(idx);
+	csvals +=  cs->value(idx);
+    }
+    geocalc.TWT2Vel( csvals, dpt, cstolog, true );
 
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return; 
 
-//To Remove
-cstolog[0] += 150;
-cstolog[1] += 50;
-cstolog[2] -= 50;
-cstolog[3] += 50;
-cstolog[4] -= 50;
-
-    int dpscolidx = 1;
-    if ( dpscolidx<0 || dpscolidx>vwrs_.size() )return;
- 
-    FlatView::Appearance& app = vwrs_[dpscolidx]->appearance();
+    FlatView::Appearance& app = vwrs_[0]->appearance();
     
     for ( int idx=0; idx<app.annot_.auxdata_.size(); idx++)    
 	delete ( app.annot_.auxdata_.remove(idx) );
@@ -337,33 +307,7 @@ cstolog[4] -= 50;
 	auxdata->poly_ += FlatView::Point(  cstolog[midx], zpos );
     }
 
-    vwrs_[dpscolidx]->handleChange( FlatView::Viewer::Annot );
+    vwrs_[0]->handleChange( FlatView::Viewer::Annot );
 }
 
-
-//TODO to remove since no dps any more
-void uiWellTieView::sortDPSDataAlongZ( TypeSet<float>& zvals )
-{
-    for ( int idx=0; idx<dps_.size(); idx++ )
-	zvals += dps_.z(idx);
-
-    int sz = zvals.size();
-    if ( !sz )  return;
-    
-    mAllocVarLenArr( int, zidxs, sz );
-    for ( int idx=0; idx<sz; idx++ )
-	zidxs[idx] = idx;
-
-    sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
-
-    TypeSet<float> data; 
-    for ( int colidx=1; colidx<dps_.nrCols(); colidx++ )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	    data += dps_.getValues(idx)[colidx];
-	for ( int idx=0; idx<sz; idx++ )
-	    dps_.getValues(idx)[colidx] = data[zidxs[idx]];
-	data.erase();
-    }
-}
 

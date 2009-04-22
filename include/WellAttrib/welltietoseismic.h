@@ -88,7 +88,7 @@ protected:
     bool 	      		createDPSCols();
     void	 	   	fillDispData();
     void			checkShotCorr();
-    void 			sortDPSDataAlongZ();
+    void 			getSortedDPSDataAlongZ(Array1DImpl<float>&);
     bool 	      		setLogsParams();
 };
 

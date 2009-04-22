@@ -71,14 +71,12 @@ protected:
     const WellTieSetup& 	wtsetup_;
     const Attrib::DescSet& 	ads_;
     ObjectSet<uiFlatViewer> 	vwrs_;
-    ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     StepInterval<float>         timeintv_;
+    ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
 
     void        		initFlatViewer(const char*,int,int,int,bool,
 						const Color&);
     void        		createVarDataPack(const char*,int,int,int);
-
-    void 			sortDPSDataAlongZ(TypeSet<float>&);
 };
 
 #endif

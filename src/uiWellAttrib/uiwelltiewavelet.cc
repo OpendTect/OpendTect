@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 #include "welltiesynthetics.h"
@@ -90,15 +90,9 @@ void uiWellTieWavelet::initWavelets( Wavelet* wvltest )
 {
     IOObj* ioobj = IOM().get( MultiID(twtss_.wvltid_) );
     Wavelet* wvlt = Wavelet::get( ioobj );
-/*
-    wvltest_ = new Wavelet(*wavelet);
-    wvltest_->reSize(wavelet->size());
-    wtsynth->estimateWvlt( *wvltest_, geocalc );
-    wvltest_->setName( "Estimated Wavelet" );
-*/
     ObjectSet<Wavelet> wvlts;
     wvlts += wvlt;
-    wvlts += wvltest;
+    wvlts += wvlt;
     for ( int idx=0; idx<2; idx++ )
 	drawWavelet( wvlts[idx], idx );
 }

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class WellTieSetup;
+class WellTieGeoCalculator;
 class DataPointSet;
 namespace Well
 {
@@ -44,38 +45,9 @@ protected:
     Well::Log* 			log_;
     Well::D2TModel* 		cs_;
 
-    void 			setCSToLogScale(TypeSet<float>&,double);
+    void 			setCSToLogScale(TypeSet<float>&,double, 
+						WellTieGeoCalculator&);
     void 			fitCS( const TypeSet<float>& csvals);
 };
 
-
-
-/*
-mClass uiWellTieCShotImpDlg : public uiDialog
-{
-public:
-		    uiWellTieCShotImpDlg(uiParent*,WellTieSetup&);
-		    ~uiWellTieCShotImpDlg();			
-
-    
-    const Well::D2TModel& getCheckShot() const 	{ return *checkshot_; }
-
-
-protected:
-
-    WellTieSetup&	twtss_;
-    Well::D2TModel*     checkshot_;
-    uiFileInput*        filefld_;
-    uiGenInput*         tvdfld_;
-    uiLabel*            uilbl_;
-    uiGenInput*         unitfld_;
-    uiGenInput*         twtfld_;
-
-    BufferString        fnm_;
-
-    bool 		acceptOK(CallBacker*);
-};
-*/
 #endif
-
-

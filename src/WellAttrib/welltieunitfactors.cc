@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.1 2009-04-21 13:56:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -29,8 +29,7 @@ WellTieUnitFactors::WellTieUnitFactors( const WellTieSetup* wtsetup )
     if ( !wtsetup ) return; 
 
     Well::Data* wd = Well::MGR().get( wtsetup->wellid_ ); 
-    if ( !wd ) 
-	{ pErrMsg("Unable to access well data"); return; }
+    if ( !wd ) return;; 
 
     const Well::Log* vellog =  wd->logs().getLog( wtsetup->vellognm_ );
     const Well::Log* denlog =  wd->logs().getLog( wtsetup->denlognm_ );

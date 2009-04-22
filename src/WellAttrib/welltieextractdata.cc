@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 
@@ -50,9 +50,7 @@ int WellTieExtractTrack::nextStep()
        	return Executor::MoreToDo();
     }
     const int d2tsz = wd_.d2TModel()->size();
-    if ( pos.z >= wd_.d2TModel()->value(d2tsz-1) 
-		|| time >=  wd_.d2TModel()->value(d2tsz-1)
-	 	|| time>timeintv_.stop )
+    if ( time>timeintv_.stop )
 	return Executor::Finished();
     DataPointSet::DataRow dr;
     mAddRow( bid, pos );

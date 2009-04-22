@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.1 2009-04-21 13:56:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -29,9 +29,10 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.1 2009-04-21 13:56:
 #include <complex>
 
 
-WellTieGeoCalculator::WellTieGeoCalculator(const WellTieSetup& wts)
+WellTieGeoCalculator::WellTieGeoCalculator( const WellTieSetup& wts,
+					    const Well::Data& wd )
 		: wtsetup_(wts)
-		, wd_(*Well::MGR().get(wts.wellid_ )) 
+		, wd_(wd) 
 		, denfactor_(wtsetup_.factors_.denFactor())
 		, velfactor_(wtsetup_.factors_.velFactor())
 {
@@ -67,12 +68,7 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
     }
     else
     {
-	d2t +=  2*dpt[0]*vals[0]/velfactor_;
-	for ( int idx=1; idx<vals.size(); idx++ )
-	    d2t +=  2*( dpt[idx]-dpt[idx-1] )*vals[idx]/velfactor_;
-
-	for ( int idx=1;  idx<vals.size(); idx++ )
-	    d2t[idx] += d2t[idx-1];
+	TWT2Vel( vals, dpt, d2t, false );
 
 	int idx=0;
 	while ( idx < d2t.size() )
@@ -90,7 +86,40 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
     return d2tnew;
 }
 
-/*
+
+void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
+				     const TypeSet<float>& dpt,	
+				     TypeSet<float>& outp, bool t2vel  )
+{
+    float velfactor = wtsetup_.factors_.velFactor();
+    if ( t2vel )
+    {
+	outp += timevel[0] / (velfactor*dpt[0]);
+	for ( int idx=1; idx<timevel.size(); idx++ )
+	    outp +=  1000000000*( timevel[idx]-timevel[idx-1] )
+		    /( (dpt[idx]-dpt[idx-1])/velfactor*2 );
+    
+//To Remove, test
+outp[0] += 150;
+outp[1] += 50;
+outp[2] -= 50;
+outp[3] += 50;
+outp[4] -= 50;
+
+    }
+    else 
+    {
+	outp +=  2*dpt[0]*timevel[0]/velfactor_;
+	for ( int idx=1; idx<timevel.size(); idx++ )
+	    outp +=  2*( dpt[idx]-dpt[idx-1] )*timevel[idx]/velfactor_;
+
+	for ( int idx=1;  idx<timevel.size(); idx++ )
+	    outp[idx] += outp[idx-1];
+    }
+}
+
+
+    /*
 bool WellTieD2TModelManager::shiftModel( const float shift)
 {
     TypeSet<float> dah, time;
