@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.3 2009-04-22 09:22:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.4 2009-04-22 16:20:59 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -84,7 +84,7 @@ bool WellTieToSeismic::setLogsParams()
     timeintv_.step  =  mComputeStepFactor;
 
     float samplenr = ( timeintv_.stop - timeintv_.start) /  timeintv_.step;
-    for ( int idx=0; idx<8; idx++)
+    for ( int idx=0; idx<9; idx++)
     {
 	workdata_ += new Array1DImpl<float>( (int)samplenr+1 );
 	dispdata_ += new Array1DImpl<float>( (int)(samplenr/mStep)+1 );	
@@ -188,7 +188,7 @@ void WellTieToSeismic::fillDispData()
 	    dispdata_[colidx]->setValue(idx,workdata_[colidx]->get(mStep*idx));
     }
 
-    getSortedDPSDataAlongZ(*dispdata_[dispdata_.size()-1]);
+    getSortedDPSDataAlongZ(*dispdata_[dispdata_.size()-2]);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.3 2009-04-22 13:37:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.4 2009-04-22 16:20:59 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -27,7 +27,7 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.3 2009-04-22 13:37:
 #include "survinfo.h"
 
 #include <complex>
-
+#include <algorithm>
 
 WellTieGeoCalculator::WellTieGeoCalculator( const WellTieSetup& wts,
 					    const Well::Data& wd )
@@ -291,21 +291,23 @@ void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 					       Array1DImpl<float>& reflvals )
 {
     int size = aivals.info().getSize(0);
-    size = int (size/mStep)+1;
-    float ai1, ai2;
+    float ai1, ai2, rval;
 
-    for ( int idx=0; idx<size-2; idx++ )
+    reflvals.setValue( 0, 0 );
+    for ( int idx=1; idx<reflvals.info().getSize(0)-2; idx++ )
     {
-	ai2 = aivals.get( mStep*(idx+1) );
-	ai1 = aivals.get( mStep*idx );	    
+	ai2 = aivals.get( mStep*(idx+1) + 10);
+	ai1 = aivals.get( mStep*idx - 10 );	    
 	if ( (ai1 + ai2 ) == 0 )
 	    reflvals.setValue( idx,idx>0? reflvals.get(idx-1):reflvals.get(0) );
 	else
 	{
-	    float rval =  ( ai2 - ai1 ) / ( ai2 + ai1 );     
-	     reflvals.setValue( idx, rval ); 
+	    rval =  ( ai2 - ai1 ) / ( ai2 + ai1 );     
+	    reflvals.setValue( idx, rval ); 
 	}
     }
+    reflvals.setValue( reflvals.info().getSize(0)-2, rval ); 
+    reflvals.setValue( reflvals.info().getSize(0)-1, rval ); 
 }
 
 
@@ -349,7 +351,7 @@ void WellTieGeoCalculator::stackWavelets( const TypeSet<float>& seisvals,
     }
 }
 
-
+#define mNoise 0.05
 void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 				    const Array1DImpl<float>& filtervals,
 				    Array1DImpl<float>& deconvals )
@@ -364,48 +366,61 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
     Array1DImpl<float_complex> ctimefiltervals( filtersz );
     Array1DImpl<float_complex> cfreqinputvals( sz );
     Array1DImpl<float_complex> cfreqfiltervals( filtersz );
+    Array1DImpl<float_complex> cspecfiltervals( filtersz );
     Array1DImpl<float_complex> cfreqdeconvvals( filtersz );
     Array1DImpl<float_complex> ctimedeconvvals( filtersz );
+    Array1DImpl<float_complex> ctimenoisevals( filtersz );
+    Array1DImpl<float_complex> cfreqnoisevals( filtersz );
+    Array1DImpl<float_complex> cfreqdeconswappedvals( filtersz );
 
     memcpy(timeinputvals.getData(), inputvals.arr(), filtersz*sizeof(float)); 
     memcpy(timefiltervals.getData(), filtervals.arr(), filtersz*sizeof(float)); 
 
-
-    ArrayNDWindow window( Array1DInfoImpl(filtersz),
-			 false, "CosTaper", 0.95 );
-    window.apply( &timefiltervals );
-    window.apply( &timeinputvals );
     removeBias( &timeinputvals );
     removeBias( &timefiltervals );
 
     HilbertTransform hil;
-    hil.setCalcRange(0,filtersz,0);
+    hil.setCalcRange(0, filtersz, 0);
     mDoTransform( hil, true, timeinputvals, ctimeinputvals, filtersz );
-    hil.setCalcRange(0,filtersz,0);
+    hil.setCalcRange(0, filtersz, 0);
     mDoTransform( hil, true, timefiltervals, ctimefiltervals, filtersz );
-
+    
     FFT fft(false);
     mDoTransform( fft, true, ctimeinputvals, cfreqinputvals, filtersz );
     mDoTransform( fft, true, ctimefiltervals, cfreqfiltervals, filtersz );
+/*
+    Spectrogram spec;
+    mDoTransform( spec, true, ctimefiltervals, cspecfiltervals, filtersz );
 
-    for ( int idx=1; idx<filtersz; idx++ )
+    float_complex wholespec = 0;
+    float_complex noise = mNoise/filtersz;
+    for ( int idx=0; idx<filtersz; idx++ )
+	wholespec += cspecfiltervals.get(idx);  
+    float_complex cnoiseshift = noise*wholespec;*/
+    
+    for ( int idx=0; idx<filtersz; idx++ )
     {
 	float_complex inputval = cfreqinputvals.get(idx);
 	float_complex filterval = cfreqfiltervals.get(idx);
-	float_complex res = inputval/filterval;
+	//float_complex filtervalconj = filterval.real()+filterval.imag();
+	float_complex num = inputval*filterval;
+	float_complex denom = filterval*filterval;
+	float_complex res = num/denom;
 
 	cfreqdeconvvals.setValue( idx, res );
     }
-    
-    mDoTransform( fft, false, cfreqdeconvvals, ctimedeconvvals, filtersz );
-
-    float max = 0;
-    for ( int idx=0; idx<filtersz; idx++ )
+    for ( int idx=0; idx<filtersz/2; idx++ )
     {
-	deconvals.setValue( idx, ctimedeconvvals.value(idx).real() );
-	if ( deconvals[idx] > max)
-	max = deconvals[idx];
+	cfreqdeconswappedvals.set( idx, 
+				cfreqdeconvvals.get(filtersz/2-idx-1 ) );
+	cfreqdeconswappedvals.set( idx+filtersz/2, 
+				cfreqdeconvvals.get(filtersz-idx-1 ));
     }
+    
+    mDoTransform( fft, false, cfreqdeconswappedvals, ctimedeconvvals, filtersz );
+
+    for ( int idx=0; idx<filtersz; idx++ )
+	deconvals.setValue( idx, ctimedeconvvals.get(idx).real() );
 }
 
 

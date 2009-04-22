@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.4 2009-04-22 13:37:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.5 2009-04-22 16:20:59 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -149,7 +149,7 @@ void uiWellTieView::drawSeismic()
     BufferString attrnm = ad->userRef();
     BufferString attr2cube = SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 
-    createVarDataPack( attr2cube, 3, 4, 7 );
+    createVarDataPack( attr2cube, 3, 4, 8 );
 }
 
 
@@ -229,9 +229,10 @@ void uiWellTieView::drawWellMarkers()
 	if ( !marker  ) continue;
 	
 	float zpos = d2tm->getTime( marker->dah() ); 
+
+	FlatView::Annotation::AuxData* auxdata = 0;
+	mTryAlloc( auxdata, FlatView::Annotation::AuxData( 0 ) );
 	
-	FlatView::Annotation::AuxData* auxdata = new FlatView::Annotation::AuxData( 0 );
-    
 	for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
 	{
 	    FlatView::Annotation::AuxData* a = 
