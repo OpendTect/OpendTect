@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Mar 2009
- RCS:           $Id: statdirdata.h,v 1.6 2009-04-16 10:35:15 cvsnageswara Exp $
+ RCS:           $Id: statdirdata.h,v 1.7 2009-04-22 13:10:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,7 @@ inline DirectionalData::DirectionalData( int nrsect, int nrparts )
 	SectorData* sd = new SectorData;
 	*this += sd;
 	for ( int ipart=0; ipart<nrparts; ipart++ )
-	    *sd += SectorPartData();
+	    *sd += SectorPartData( 0, (ipart + .5) / nrparts, 0 );
     }
 }
 
