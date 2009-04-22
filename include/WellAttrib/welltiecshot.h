@@ -33,7 +33,7 @@ class uiLabel;
 mClass WellTieCSCorr  
 {
 public:
-		    WellTieCSCorr(Well::Data&,const WellTieSetup&),
+		    WellTieCSCorr(Well::Data&,const WellTieSetup&);
 		    ~WellTieCSCorr() {};			
 
     const Well::Log& 		corrLog()              { return *log_; }
