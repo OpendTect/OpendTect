@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.17 2009-04-16 18:58:09 cvskris Exp $
+ RCS:		$Id: task.h,v 1.18 2009-04-22 21:50:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,8 +174,9 @@ public:
     od_int64		nrDone() const;
     			//!<May be -1, i.e. class does not report nrdone.
     
-protected:
     od_int64		totalNr() const	{ return nrIterations(); }
+
+protected:
     virtual od_int64	nrIterations() const				= 0;
     			/*!<\returns the number of times the process should be
 			    run. */
