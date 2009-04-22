@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.72 2009-04-16 06:48:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.73 2009-04-22 05:01:04 cvsumesh Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -65,7 +65,7 @@ HorizonDisplay::HorizonDisplay()
     : parrowrg_( -1, -1, -1 )
     , parcolrg_( -1, -1, -1 )
     , curtextureidx_( 0 )
-    , usestexture_( true )
+    , usestexture_( false )
     , useswireframe_( false )
     , translation_( 0 )
     , edgelineradius_( 3.5 )
@@ -769,8 +769,6 @@ void HorizonDisplay::updateSingleColor()
 
 void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 {
-    validtexture_ = true;
-
     if ( !data || !data->size() )
     {
 	validtexture_ = false;
@@ -793,6 +791,8 @@ void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 	if ( psurf ) psurf->setTextureData( 0, attrib );
     }
 
+    validtexture_ = true;
+    usestexture_ = true;
     updateSingleColor();
 }
 
