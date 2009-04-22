@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.1 2009-04-21 13:56:00 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.2 2009-04-22 06:43:11 cvsranojay Exp $";
 
 #include "welltietoseismic.h"
 
@@ -206,11 +206,11 @@ void WellTieToSeismic::sortDPSDataAlongZ()
     int sz = zvals.size();
     if ( !sz )  return;
 
-    int zidxs[sz];
+    mAllocVarLenArr( int, zidxs, sz );
     for ( int idx=0; idx<sz; idx++ )
 	zidxs[idx] = idx;
 
-    sort_coupled( zvals.arr(), zidxs, sz );
+    sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
 
     TypeSet<float> data;
     for ( int colidx=1; colidx<dps_.nrCols(); colidx++ )
