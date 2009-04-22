@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flthortools.cc,v 1.14 2009-03-09 11:59:51 nanne Exp $";
+static const char* rcsID = "$Id: flthortools.cc,v 1.15 2009-04-22 12:38:20 nanne Exp $";
 
 #include "flthortools.h"
 
@@ -139,7 +139,7 @@ bool FaultHorizon2DIntersectionFinder::find( float& trcnr, float& zval )
 
     Seis2DLineSet ls( *lsioobj );
     const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
-    const int lineidx = ls.indexOf( lnm );
+    const int lineidx = ls.indexOfFirstOccurrence( lnm );
     PosInfo::Line2DData lineposinfo;
     if ( !ls.getGeometry(lineidx,lineposinfo) )
 	return false;
@@ -223,7 +223,7 @@ bool FaultHorizon2DLocationField::calculate()
 
     Seis2DLineSet ls( *lsioobj );
     const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
-    const int lineidx = ls.indexOf( lnm );
+    const int lineidx = ls.indexOfFirstOccurrence( lnm );
     PosInfo::Line2DData lineposinfo;
     if ( !ls.getGeometry(lineidx,lineposinfo) )
 	return false;
@@ -296,6 +296,9 @@ bool FaultHorizon2DLocationField::calculate()
 
 const char FaultHorizon2DLocationField::getPos( int trcnr, float z ) const
 {
+    if ( !cs_.zrg.includes(z,false) )
+	return sOutside();
+
     const int idx0 = cs_.crlIdx( trcnr );
     const int idx1 = cs_.zIdx( z );
     return get( idx0, idx1 );
@@ -349,7 +352,7 @@ bool FaultStickThrow::init()
 
     const char* lnm = flt_.geometry().lineName( sid, sticknr_ );
     Seis2DLineSet ls( *lsioobj );
-    const int lineidx = ls.indexOf( lnm );
+    const int lineidx = ls.indexOfFirstOccurrence( lnm );
     PosInfo::Line2DData lineposinfo;
     if ( !ls.getGeometry(lineidx,lineposinfo) )
 	return false;
