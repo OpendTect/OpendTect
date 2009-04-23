@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.24 2009-02-02 15:17:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.25 2009-04-23 17:03:10 cvskris Exp $";
 
 #include "visflatviewer.h"
 
@@ -117,13 +117,13 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 			{
 			    dparr.getAll( ptr );
 			    channels_->setUnMappedData( 0, 0, ptr,
-						    TextureChannels::TakeOver );
+							OD::TakeOverPtr );
 			}
 		    }
 		    else 
 		    {
 			channels_->setUnMappedData( 0, 0, dparr.getData(),
-						    TextureChannels::Cache );
+						    OD::UsePtr );
 		    }
 
 		    appearance().ddpars_.vd_.ctab_ =

@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.15 2009-04-20 05:12:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.16 2009-04-23 17:03:10 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -383,13 +383,12 @@ void HorizonSection::updateGeometry()
 	    else
 	    {
 		arr.getAll( ptr );
-		channels_->setUnMappedData(0,0,ptr,TextureChannels::TakeOver);
+		channels_->setUnMappedData(0,0,ptr,OD::TakeOverPtr );
 	    }
 	}
 	else
 	{
-   	    channels_->setUnMappedData( 0, 0, arr.getData(),
-		    			TextureChannels::Cache );
+   	    channels_->setUnMappedData( 0, 0, arr.getData(), OD::UsePtr );
 	}
 
 	channels_->turnOn( true );
