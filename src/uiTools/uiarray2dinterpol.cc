@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.2 2009-04-22 21:55:20 cvskris Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.3 2009-04-23 13:35:13 cvskris Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -27,13 +27,16 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     , result_( 0 )
     , filltypefld_( 0 )
     , maxholeszfld_( 0 )
+    , methodsel_( 0 )
 {
     params_.allowNull( true );
+    uiGroup* prevfld = 0;
     if ( filltype )
     {
 	filltypefld_ = new uiGenInput( this, "Scope",
 		StringListInpSpec( Array2DInterpol::FillTypeNames() ));
 	if ( oldvals ) filltypefld_->setValue( (int) oldvals->getFillType() );
+	prevfld = filltypefld_;
     }
 
     if ( maxholesz )
@@ -52,18 +55,28 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 		maxholeszfld_->setValue( oldvals->getMaxHoleSize() );
 	    }
 	}
+
+	prevfld = maxholeszfld_;
     }
 
-    methodsel_ = new uiGenInput( this, "Algorithm",
+    const BufferStringSet& methods = Array2DInterpol::factory().getNames(false);
+    int methodidx;
+    if ( methods.size()>1 )
+    {
+	methodsel_ = new uiGenInput( this, "Algorithm",
 	    StringListInpSpec(Array2DInterpol::factory().getNames(true) ) );
-    if ( maxholeszfld_ || filltypefld_ )
-	methodsel_->attach( alignedBelow,
+	if ( maxholeszfld_ || filltypefld_ )
+	    methodsel_->attach( alignedBelow,
 		maxholeszfld_ ? maxholeszfld_ : filltypefld_ );
 
-    const BufferStringSet& methods = Array2DInterpol::factory().getNames(false);
-    const int methodidx = oldvals ? methods.indexOf( oldvals->type() ) : 0;
-    if ( oldvals )
-	methodsel_->setValue( methodidx );
+	methodidx = oldvals ? methods.indexOf( oldvals->type() ) : 0;
+	if ( oldvals )
+	    methodsel_->setValue( methodidx );
+
+	prevfld = methodsel_;
+    }
+    else
+	methodidx = 0;
 
     for ( int idx=0; idx<methods.size(); idx++ )
     {
@@ -74,13 +87,24 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	{
 	    if ( oldvals && idx==methodidx)
 		paramfld->setValuesFrom( *oldvals );
-	    paramfld->attach( alignedBelow, methodsel_ );
+
+	    if ( prevfld )
+		paramfld->attach( alignedBelow, prevfld );
 	}
 
 	params_ += paramfld;
     }
 
-    setHAlignObj( methodsel_ );
+    if ( prevfld )
+	setHAlignObj( prevfld );
+    else
+    {
+	for ( int idx=0; idx<params_.size(); idx++ )
+	{
+	    if ( params_[idx] )
+		setHAlignObj( params_[idx] );
+	}
+    }
 
     selChangeCB( 0 );
     setDistanceUnit( 0 );
@@ -123,7 +147,7 @@ uiParent* uiArray2DInterpolSel::getTopObject()
 
 void uiArray2DInterpolSel::selChangeCB( CallBacker* )
 {
-    const int sel = methodsel_->getIntValue( 0 );
+    const int sel = methodsel_ ? methodsel_->getIntValue( 0 ) : 0;
     for ( int idx=0; idx<params_.size(); idx++ )
     {
 	if ( !params_[idx] )
@@ -144,8 +168,14 @@ bool uiArray2DInterpolSel::acceptOK()
 	return false;
     }
 
-    const int methodidx = methodsel_->getIntValue();
     const BufferStringSet& methods = Array2DInterpol::factory().getNames(false);
+    const int methodidx = methodsel_ ? methodsel_->getIntValue() : 0;
+    
+    if ( methodidx>=methods.size() )
+    {
+	pErrMsg("Invalid method selected");
+	return false;
+    }
 
     if ( result_ )
 	delete result_;
