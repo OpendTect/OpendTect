@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.25 2009-04-01 21:56:33 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.26 2009-04-23 16:27:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 #include "errh.h"
-#include "memsetter.h"
+#include "odmemory.h"
 
 #ifdef __debug__
 #include "debug.h"

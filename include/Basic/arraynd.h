@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.39 2009-04-09 00:55:55 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.40 2009-04-23 16:27:16 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -22,7 +22,7 @@ to the constructor.
 #include "valseries.h"
 #include "arrayndinfo.h"
 #include "varlenarray.h"
-#include "memsetter.h"
+#include "odmemory.h"
 #include "ptrman.h"
 #include <string.h>
 
