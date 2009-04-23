@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.24 2009-01-09 04:35:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiseisfmtscale.cc,v 1.25 2009-04-23 15:15:20 cvsbert Exp $";
 
 #include "uiseisfmtscale.h"
 #include "uicompoundparsel.h"
@@ -57,10 +57,11 @@ class uiSeisFmtScaleDlg : public uiDialog
 public:
 
 uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
-		   bool fixedfmtscl )
+		   bool fixedfmtscl, bool withext )
     : uiDialog(p,uiDialog::Setup("Format / Scaling","Format and scaling",
 				 "103.0.10"))
     , optimfld_(0)
+    , trcgrowfld_(0)
     , data_(d)
     , gt_(gt)
 {
@@ -77,16 +78,22 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
     if ( fixedfmtscl )
 	scalefld_->setSensitive( false );
 
-    trcgrowfld_ = new uiGenInput( this, "Adjust Z range to survey range",
-	    			  BoolInpSpec(false) );
-    trcgrowfld_->attach( alignedBelow, scalefld_ );
+    if ( withext )
+    {
+	trcgrowfld_ = new uiGenInput( this, "Adjust Z range to survey range",
+				      BoolInpSpec(false) );
+	trcgrowfld_->attach( alignedBelow, scalefld_ );
+    }
 
     if ( !Seis::isPS(gt_) )
     {
 	optimfld_ = new uiGenInput( this, "Optimize horizontal slice access",
 				   BoolInpSpec(true) );
 	optimfld_->setValue( data_.optim_ );
-	optimfld_->attach( alignedBelow, trcgrowfld_ );
+	if ( trcgrowfld_ )
+	    optimfld_->attach( alignedBelow, trcgrowfld_ );
+	else
+	    optimfld_->attach( alignedBelow, scalefld_ );
     }
 }
 
@@ -95,7 +102,7 @@ bool acceptOK( CallBacker* )
     data_.stor_ = stortypfld_->getIntValue();
     data_.sclr_ = scalefld_->getScaler();
     data_.optim_ = optimfld_ && optimfld_->getBoolValue();
-    data_.trcgrow_ = trcgrowfld_->getBoolValue();
+    data_.trcgrow_ = trcgrowfld_ && trcgrowfld_->getBoolValue();
     return true;
 }
 
@@ -113,17 +120,18 @@ class uiSeisFmtScaleComp : public uiCompoundParSel
 {
 public:
 
-uiSeisFmtScaleComp( uiSeisFmtScale* p, Seis::GeomType gt, const bool& ffs )
+uiSeisFmtScaleComp( uiSeisFmtScale* p, Seis::GeomType gt, bool ffs, bool we )
     : uiCompoundParSel(p,"Format / Scaling","Sp&ecify")
     , gt_(gt)
     , fixfmtscl_(ffs)
+    , withext_(we)
 {
     butPush.notify( mCB(this,uiSeisFmtScaleComp,doDlg) );
 }
 
 void doDlg( CallBacker* )
 {
-    uiSeisFmtScaleDlg dlg( this, gt_, data_, fixfmtscl_ );
+    uiSeisFmtScaleDlg dlg( this, gt_, data_, fixfmtscl_, withext_ );
     dlg.go();
 }
 
@@ -144,12 +152,14 @@ BufferString getSummary() const
 
     uiSeisFmtScaleData	data_;
     Seis::GeomType	gt_;
-    const bool&		fixfmtscl_;
+    bool		fixfmtscl_;
+    bool		withext_;
 
 };
 
 
-uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp )
+uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp,
+       				bool withext )
 	: uiGroup(p,"Seis format and scale")
 	, gt_(gt)
 	, issteer_(false)
@@ -157,7 +167,7 @@ uiSeisFmtScale::uiSeisFmtScale( uiParent* p, Seis::GeomType gt, bool forexp )
 	, scalefld_(0)
 {
     if ( !forexp && !Seis::is2D(gt_) )
-	compfld_ = new uiSeisFmtScaleComp( this, gt, issteer_ );
+	compfld_ = new uiSeisFmtScaleComp( this, gt, issteer_, withext );
     else
 	scalefld_ = new uiScaler( this, 0, true );
 

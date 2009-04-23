@@ -7,14 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.17 2009-04-22 13:47:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.18 2009-04-23 15:15:20 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
 #include "uifont.h"
-#include "mouseevent.h"
 #include "angles.h"
+#include "mouseevent.h"
+#include "coltabsequence.h"
 #include <iostream>
 
 
@@ -30,6 +31,7 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , curveitems_(*scene().addItemGrp(new uiGraphicsItemGroup))
     , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup))
     , sectorPicked(this)
+    , colseq_(0)
 {
     disableScrollZoom();
     setPrefWidth( setup_.prefsize_.width() );
@@ -47,6 +49,7 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
 
 uiDirectionalPlot::~uiDirectionalPlot()
 {
+    delete colseq_;
 }
 
 
@@ -241,6 +244,16 @@ void uiDirectionalPlot::drawScatter()
 void uiDirectionalPlot::drawVals()
 {
     if ( data_.nrSectors() < 1 ) return;
+    if ( !colseq_ )
+    {
+	colseq_ = new ColTab::Sequence;
+	if ( !ColTab::SM().get("Directional Plot",*colseq_)
+	  && !ColTab::SM().get("Rainbow",*colseq_) )
+	{
+	    colseq_->setColor( 0, 255, 255, 0 );
+	    colseq_->setColor( 1, 0, 0, 255 );
+	}
+    }
 
     const float dang = data_.angle(0,1) - data_.angle(0,-1);
     const float dangrad = dang * Angle::cPI(dang) / 180;
@@ -289,9 +302,14 @@ void uiDirectionalPlot::drawVals()
 	    ci->drawTo( as );
 	    // Grey scales
 	    //TODO use real color bar
+<<<<<<< uidirectionalplot.cc
+	    float relpos = (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
+	    ci->setFillColor( colseq_->color(relpos) );
+=======
 	    float v = 255 * (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
 	    int cval = mNINT(v);
 	    ci->setFillColor( Color(cval,cval,cval) );
+>>>>>>> 1.17
 
 	    ci->closeCurve();
 	    curveitems_.add( ci );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.9 2009-04-16 14:45:05 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.10 2009-04-23 15:15:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiMarkerItem;
 class uiCurvedItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
+namespace ColTab { class Sequence; }
 
 /*!\brief creates a directional plot: Rose diagrams and more.
 
@@ -96,6 +97,7 @@ protected:
     int				radius_;
     int				cursector_;
     int				selsector_;
+    ColTab::Sequence*		colseq_;
 
     uiGraphicsItemGroup&	sectorlines_;
     uiCircleItem*		outercircleitm_;

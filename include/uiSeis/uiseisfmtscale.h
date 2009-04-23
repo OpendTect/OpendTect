@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uiseisfmtscale.h,v 1.15 2009-01-08 08:31:03 cvsranojay Exp $
+ RCS:           $Id: uiseisfmtscale.h,v 1.16 2009-04-23 15:15:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ mClass uiSeisFmtScale : public uiGroup
 public:
 
 			uiSeisFmtScale(uiParent*,Seis::GeomType,
-				       bool forexport=true);
+				       bool forexport=true,bool withext=true);
     void		updateFrom(const IOObj&);
 
     Scaler*		getScaler() const;
