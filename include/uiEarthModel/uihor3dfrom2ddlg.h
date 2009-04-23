@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.h,v 1.6 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.h,v 1.7 2009-04-23 18:08:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,12 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
+class uiArray2DInterpolSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiCheckBox;
-class CtxtIOObj;
 class uiEMPartServer;
-namespace EM { class Horizon2D; };
+namespace EM { class Horizon2D; class Horizon3D; };
 
 
 /*! \brief Dialog to expand a 2D horizon to create a 3D horizon */
@@ -34,27 +34,27 @@ public:
 						 uiEMPartServer*);
 				~uiHor3DFrom2DDlg();
 
-     bool			doDisplay() const;
-     MultiID			getSelID() const;
+    bool			doDisplay() const;
+    MultiID			getSelID() const;
+    EM::Horizon3D* 		getHor3D() { return hor3d_; }
 
 protected:
 
     bool			acceptOK(CallBacker*);
 
-    CtxtIOObj&			ctio_;
+
     const EM::Horizon2D& 	hor2d_;
+    EM::Horizon3D* 		hor3d_;
     uiEMPartServer*		emserv_;
 
-    uiGenInput*			grdtypfld_;
-    uiGenInput*			nriterfld_;
-    uiGenInput*			srchradfld_;
+    uiArray2DInterpolSel*	interpolsel_;
+
     uiIOObjSel*			outfld_;
     uiCheckBox*			displayfld_;
 
     MultiID			selid_;
 
     void			typChg(CallBacker*);
-
 };
 
 #endif

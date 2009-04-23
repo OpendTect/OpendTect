@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.115 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.116 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "uiimphorizon.h"
-#include "uiarray2dchg.h"
+#include "uiarray2dinterpol.h"
+#include "array2dinterpol.h"
 #include "uipossubsel.h"
 
 #include "uicombobox.h"
@@ -33,7 +34,6 @@ static const char* rcsID = "$Id: uiimphorizon.cc,v 1.115 2009-03-24 12:33:51 cvs
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
-#include "uicompoundparsel.h"
 #include "horizonscanner.h"
 #include "ioobj.h"
 #include "pickset.h"
@@ -50,57 +50,6 @@ static const char* rcsID = "$Id: uiimphorizon.cc,v 1.115 2009-03-24 12:33:51 cvs
 
 static const char* sZVals = "Z values";
 
-
-class uiImpHorArr2DInterpPars : public uiCompoundParSel
-{
-public:
-
-uiImpHorArr2DInterpPars( uiParent* p, const Array2DInterpolatorPars* ps=0 )
-    : uiCompoundParSel( p, "Parameters for fill", "Set" )
-{
-    if ( ps ) pars_ = *ps;
-    butPush.notify( mCB(this,uiImpHorArr2DInterpPars,selChg) );
-}
-
-BufferString getSummary() const
-{
-    BufferString ret;
-    const bool havemaxsz = pars_.maxholesize_ > 0;
-    const bool havemaxsteps = pars_.maxnrsteps_ > 0;
-
-    if ( !havemaxsz && !havemaxsteps )
-	ret = pars_.filltype_ == Array2DInterpolatorPars::FullOutward
-	    ? "Fill all"
-	    : (pars_.filltype_ == Array2DInterpolatorPars::HolesOnly ?
-		   "No extrapolation" : "Within convex hull");
-    else
-    {
-	if ( havemaxsz )
-	    { ret = "Holes < "; ret += pars_.maxholesize_; ret += "; "; }
-	if ( havemaxsteps )
-	{
-	    ret += pars_.maxnrsteps_; ret += " iteration";
-	    if ( pars_.maxnrsteps_ > 1 ) ret += "s"; ret += "; ";
-	}
-	ret += pars_.filltype_ == Array2DInterpolatorPars::FullOutward
-	    	? "everywhere" : "inside";
-	if ( pars_.filltype_ == Array2DInterpolatorPars::ConvexHull )
-	    ret += " convex hull";
-    }
-    return ret;
-}
-
-
-void selChg( CallBacker* )
-{
-    uiArr2DInterpolParsDlg dlg( this, &pars_ );
-    if ( dlg.go() )
-	pars_ = dlg.getInput();
-}
-
-    Array2DInterpolatorPars	pars_;
-
-};
 
 
 uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
@@ -172,8 +121,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	filludffld_->setSensitive( false );
 	filludffld_->attach( alignedBelow, subselfld_ );
 
-	arr2dinterpfld_ = new uiImpHorArr2DInterpPars( this );
+	arr2dinterpfld_ = new uiArray2DInterpolSel( this, true, true );
 	arr2dinterpfld_->attach( alignedBelow, filludffld_ );
+	arr2dinterpfld_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
 	
 	outputfld_->attach( alignedBelow, arr2dinterpfld_ );
 
@@ -342,7 +292,12 @@ bool uiImportHorizon::doImport()
 
     const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
+    {
+	if ( !arr2dinterpfld_->acceptOK() )
+	    return false;
+
 	fillUdfs( sections );
+    }
 
     HorSampling hs = subselfld_->envelope().hrg;
     ExecutorGroup importer( "Importing horizon" );
@@ -440,11 +395,23 @@ bool uiImportHorizon::checkInpFlds()
 bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
     HorSampling hs = subselfld_->envelope().hrg;
+    PtrMan<Array2DInterpol> interpolator = arr2dinterpfld_->getResult();
+    if ( !interpolator )
+	return false;
+
+    const float inldist = SI().inlDistance();
+    const float crldist = SI().crlDistance();
+    interpolator->setRowStep( inldist*hs.step.inl );
+    interpolator->setColStep( crldist*hs.step.crl);
+    uiTaskRunner taskrunner( this );
+    Array2DImpl<float> arr( hs.nrInl(), hs.nrCrl() );
+    if ( !arr.isOK() )
+	return false;
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {
+	arr.setAll( mUdf(float) );
 	BinIDValueSet& data = *sections[idx];
-	Array2DImpl<float>* arr = new Array2DImpl<float>(hs.nrInl(),hs.nrCrl());
 	BinID bid;
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
 	{
@@ -453,22 +420,19 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    {
 		bid.crl = hs.start.crl + crl*hs.step.crl;
 		BinIDValueSet::Pos pos = data.findFirst( bid );
-		if ( pos.j < 0 )
-		    arr->set( inl, crl, mUdf(float) );
-		else
+		if ( pos.j >= 0 )
 		{
 		    const float* vals = data.getVals( pos );
-		    arr->set( inl, crl, vals ? vals[0] : mUdf(float) );
+		    if ( vals )
+			arr.set( inl, crl, vals[0] );
 		}
 	    }
 	}
 
-	Array2DInterpolator<float> interpolator( *arr );
-	interpolator.pars() = arr2dinterpfld_->pars_;
-	interpolator.setDist( true, SI().crlDistance()*hs.step.crl );
-	interpolator.setDist( false, hs.step.inl*SI().inlDistance() );
-	uiTaskRunner taskrunner( this );
-	if ( !taskrunner.execute(interpolator) )
+	if ( !interpolator->setArray( arr ) )
+	    return false;
+
+	if ( !taskrunner.execute(*interpolator) )
 	    return false;
 
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
@@ -481,12 +445,10 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 		if ( pos.j >= 0 ) continue;
 
 		TypeSet<float> vals( data.nrVals(), mUdf(float) );
-		vals[0] = arr->get( inl, crl );
+		vals[0] = arr.get( inl, crl );
 		data.add( bid, vals.arr() );
 	    }
 	}
-
-	delete arr;
     }
 
     return true;

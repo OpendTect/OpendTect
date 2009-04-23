@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.1 2009-04-16 20:22:32 cvskris Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.2 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "uihorinterpol.h"
 
@@ -52,6 +52,8 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
     if ( !interpolator )
 	return false;
 
+    MouseCursorChanger mcc( MouseCursor::Wait );
+
     Array2DInterpol::FillType filltype;
     switch ( geometrysel_->getIntValue() )
     {
@@ -71,13 +73,13 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	    break;
 	default:
 	    filltype = Array2DInterpol::HolesOnly;
-    };
-
+    }
 
     interpolator->setFillType( filltype );
 
-    const float inldist = SI().inlRange(true).step*SI().inlDistance();
-    const float crldist = SI().crlRange(true).step*SI().crlDistance();
+
+    const float inldist = SI().inlDistance();
+    const float crldist = SI().crlDistance();
     uiTaskRunner tr( this );
 
     for ( int idx=0; idx<horizon_.geometry().nrSections(); idx++ )
@@ -92,6 +94,12 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	    ErrMsg( msg ); continue;
 	}
 
+	const int inlstepoutstep =  horizon_.geometry().rowRange( sid ).step;
+	const int crlstepoutstep =  horizon_.geometry().colRange( sid ).step;
+
+	interpolator->setRowStep( inlstepoutstep*inldist );
+	interpolator->setColStep( crlstepoutstep*crldist );
+
 	if ( !interpolator->setArray( *arr ) )
 	{
 	    BufferString msg( "Cannot setup interpolation on section " );
@@ -99,11 +107,6 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	    ErrMsg( msg ); continue;
 	}
 
-	const int inlstepoutstep =  horizon_.geometry().rowRange( sid ).step;
-	const int crlstepoutstep =  horizon_.geometry().colRange( sid ).step;
-
-	interpolator->setRowStep( inlstepoutstep*inldist );
-	interpolator->setColStep( crlstepoutstep*crldist );
 	if ( !tr.execute( *interpolator ) )
 	{
 	    BufferString msg( "Cannot interpolate section " );
@@ -125,7 +128,45 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 
 bool uiHorizon3DInterpolDlg::expandArraysToSurvey()
 {
-    MouseCursorChanger chgr( MouseCursor::Wait );
-    //TODO
+    for ( int idx=0; idx<horizon_.geometry().nrSections(); idx++ ) 
+    {
+	const EM::SectionID sid = horizon_.geometry().sectionID( idx );
+	StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
+	StepInterval<int> colrg = horizon_.geometry().colRange( sid );
+
+	mDynamicCastGet( Geometry::ParametricSurface*, surf,
+			 horizon_.sectionGeometry( sid ) );
+
+	const StepInterval<int> survcrlrg = SI().crlRange(true);
+	while ( colrg.start-colrg.step>=survcrlrg.start )
+	{
+	    const int newcol = colrg.start-colrg.step;
+	    surf->insertCol( newcol );
+											    colrg.start = newcol;
+	}
+
+	while ( colrg.stop+colrg.step<=survcrlrg.stop )
+	{
+	    const int newcol = colrg.stop+colrg.step;
+	    surf->insertCol( newcol );
+	    colrg.stop = newcol;
+	}
+
+	const StepInterval<int> survinlrg = SI().inlRange(true);
+	while ( rowrg.start-rowrg.step>=survinlrg.start )
+	{
+	    const int newrow = rowrg.start-rowrg.step;
+	    surf->insertRow( newrow );
+	    rowrg.start = newrow;
+	}
+
+	while ( rowrg.stop+rowrg.step<=survinlrg.stop )
+	{
+	    const int newrow = rowrg.stop+rowrg.step;
+	    surf->insertRow( newrow );
+	    rowrg.stop = newrow;
+	}
+    }
+
     return true;
 }

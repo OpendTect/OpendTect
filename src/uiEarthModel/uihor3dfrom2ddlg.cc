@@ -7,10 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.16 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uihor3dfrom2ddlg.cc,v 1.17 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "uihor3dfrom2ddlg.h"
 
+#include "array2dinterpol.h"
+#include "uiarray2dinterpol.h"
 #include "uiempartserv.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -33,46 +35,27 @@ static float srchrad = -1;
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
-    : uiDialog( p, Setup("Create 3D Horizon","Specify parameters","104.0.5") )
+    : uiDialog( p, Setup("Derive 3D Horizon","Specify parameters","104.0.5") )
     , hor2d_( h2d )
     , emserv_( ems )
-    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
-    , selid_( -1 )
+    , hor3d_( 0 )
 {
-    ctio_.ctxt.forread = false;
-    if ( srchrad < 0 )
-	srchrad = SI().inlDistance() * 40;
+    interpolsel_ = new uiArray2DInterpolSel( this, false, false );
+    interpolsel_->setDistanceUnit( SI().xyInFeet() ? "[ft]" : "[m]" );
 
-    grdtypfld_ = new uiGenInput( this, "Gridding type",
-	    		BoolInpSpec(true,"Inverse distance","Extension") );
-    const CallBack tchgcb( mCB(this,uiHor3DFrom2DDlg,typChg) );
-    grdtypfld_->valuechanged.notify( tchgcb );
-    nriterfld_ = new uiGenInput( this, "Maximum extension steps",
-	    			IntInpSpec(nrsteps) );
-    nriterfld_->attach( alignedBelow, grdtypfld_ );
-    srchradfld_ = new uiGenInput( this, "Search radius", FloatInpSpec(srchrad));
-    srchradfld_->attach( alignedBelow, grdtypfld_ );
+    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();
+    ctxt.forread = false;
 
-    outfld_ = new uiIOObjSel( this, ctio_, "Output Horizon" );
-    outfld_->attach( alignedBelow, nriterfld_ );
+    outfld_ = new uiIOObjSel( this, ctxt, "Output Horizon" );
+    outfld_->attach( alignedBelow, interpolsel_ );
     displayfld_ = new uiCheckBox( this, "Display after generation" );
     displayfld_->attach( alignedBelow, outfld_ );
-
-    finaliseDone.notify( tchgcb );
 }
 
 
 uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 {
-    delete ctio_.ioobj; delete &ctio_;
-}
-
-
-void uiHor3DFrom2DDlg::typChg( CallBacker* )
-{
-    const bool isgrd = grdtypfld_->getBoolValue();
-    nriterfld_->display( !isgrd );
-    srchradfld_->display( isgrd );
+    if ( hor3d_ ) hor3d_->unRef();
 }
 
 
@@ -84,66 +67,55 @@ bool uiHor3DFrom2DDlg::doDisplay() const
 { return displayfld_->isChecked(); } 
 
 
-#define mAskGoOnStr(nameandtypeexist) \
-    ( nameandtypeexist ? \
-	"An object with this name exists. Overwrite?" : \
-	"An object of different type owns the name chosen.\n" \
-	"Extend the chosen name to make it unique?" )
-
 bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 {
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-    outfld_->processInput();
-    const char* nm = outfld_->getInput();
+    if ( !interpolsel_->acceptOK() )
+	return false;
+
+    PtrMan<IOObj> ioobj = outfld_->getIOObj( false );
+    if ( !ioobj )
+	return false;
+
     const BufferString typ = EM::Horizon3D::typeStr();
 
-    PtrMan<IOObj> ioobj = IOM().getLocal( nm );
-    const bool implexists = ioobj && ioobj->implExists( false );
     const bool nameandtypeexist = ioobj && typ==ioobj->group();
-    if ( implexists && !uiMSG().askGoOn(mAskGoOnStr(nameandtypeexist),true) )
-	return false;
     
     EM::EMManager& em = EM::EMM();
 
     if ( nameandtypeexist )
 	emserv_->removeTreeObject( em.getObjectID(ioobj->key()) );
     
-    const EM::ObjectID emobjid = em.createObject( typ, nm );
+    const EM::ObjectID emobjid = em.createObject( typ, ioobj->name() );
     mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
     if ( !hor3d )
 	mErrRet( "Cannot create 3D horizon" );
 
-    hor3d->ref();
-    hor3d->setPreferredColor( hor2d_.preferredColor() );
+    if ( hor3d_ )
+	hor3d_->unRef();
 
-    EM::Hor2DTo3D::Setup setup( grdtypfld_->getBoolValue() );
-    setup.srchrad( srchradfld_->getfValue() )
-	 .nrsteps( nriterfld_->getIntValue() );
-    Executor* exec = new EM::Hor2DTo3D( hor2d_, setup, *hor3d );
-    uiTaskRunner* taskrunner = new uiTaskRunner( this );
-    bool rv = taskrunner->execute( *exec );
+    hor3d_ = hor3d;
 
-    delete exec; exec = 0;
-    delete taskrunner;
+    hor3d_->ref();
+    hor3d_->setPreferredColor( hor2d_.preferredColor() );
+
+    Array2DInterpol* interpolator = interpolsel_->getResult();
+    if ( !interpolator )
+	mErrRet( "Cannot create interpolator" );
+
+    //Takes over interpolator
+    EM::Hor2DTo3D converter( hor2d_, interpolator, *hor3d_ );
+
+    uiTaskRunner taskrunner( this );
+    bool rv = taskrunner.execute( converter );
+
 #undef mErrRet
-#define mErrRet() { hor3d->unRef(); delete exec; return false; }
-    if ( !rv ) mErrRet()
+    if ( !rv ) return false;
 
-    exec = hor3d->saver();
-    if ( !exec ) mErrRet()
+    PtrMan<Executor> exec = hor3d->saver();
+    if ( !exec )
+	return false;
 
-    uiTaskRunner savedlg( this );
-    rv = savedlg.execute( *exec );
-    delete exec;
-
-    if ( !rv || !doDisplay() )
-	hor3d->unRef();
-    else
-    {
-	selid_ = hor3d->multiID();
-	hor3d->unRefNoDelete();
-    }
-
-    return rv;
+    return taskrunner.execute( *exec );
 }

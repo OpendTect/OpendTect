@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.29 2009-04-06 08:16:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: uichangesurfacedlg.cc,v 1.30 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "uichangesurfacedlg.h"
 
@@ -258,63 +258,6 @@ bool uiChangeSurfaceDlg::acceptOK( CallBacker* )
 	return false;
 
     return true;
-}
-
-
-//---- uiInterpolHorizonDlg
-
-uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp()
-{
-    return (uiArr2DInterpolPars*)parsgrp_;
-}
-
-
-const uiArr2DInterpolPars* uiInterpolHorizonDlg::a2dInterp() const
-{
-    return (uiArr2DInterpolPars*)parsgrp_;
-}
-
-
-uiInterpolHorizonDlg::uiInterpolHorizonDlg( uiParent* p, EM::Horizon3D* hor )
-    : uiChangeSurfaceDlg(p,hor,"Horizon interpolation")
-{
-    Array2DInterpolatorPars pars( false );
-    parsgrp_ = new uiArr2DInterpolPars( this, &pars );
-    attachPars();
-}
-
-
-bool uiInterpolHorizonDlg::needsFullSurveyArray() const
-{
-    return a2dInterp()->getInput().filltype_==
-	Array2DInterpolatorPars::FullOutward;
-}
-
-
-Executor* uiInterpolHorizonDlg::getWorker( Array2D<float>& a2d,
-					   const StepInterval<int>& rowrg,
-					   const StepInterval<int>& colrg )
-{
-    Array2DInterpolator<float>* ret = new Array2DInterpolator<float>( a2d );
-    ret->pars() = a2dInterp()->getInput();
-    if ( !ret->pars().useextension_ && ret->pars().srchrad_ < 0 )
-    {
-	if ( !uiMSG().askGoOn("Setting no search radius is only recommended if"
-		    " you have no more than a few defined points.\n"
-		    "Are you sure you want to continue?" ) )
-		return 0;
-    }
-    ret->setDist( true, SI().crlDistance()*colrg.step );
-    ret->setDist( false, SI().inlDistance()*rowrg.step );
-    return ret;
-}
-
-
-const char* uiInterpolHorizonDlg::infoMsg( const Executor* ex ) const
-{
-    mDynamicCastGet(const Array2DInterpolator<float>*,interp,ex)
-    if ( !interp ) { pErrMsg("Huh?"); return 0; }
-    return interp->infoMsg();
 }
 
 

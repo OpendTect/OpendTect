@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.25 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.26 2009-04-23 18:08:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ class uiColorInput;
 class uiLabeledListBox;
 class uiFileInput;
 class uiGenInput;
-class uiImpHorArr2DInterpPars;
+class uiArray2DInterpolSel;
 class uiIOObjSel;
 class uiPushButton;
 class uiPosSubSel;
@@ -49,17 +49,17 @@ public:
 protected:
 
     uiFileInput*	inpfld_;
-    uiPushButton*       scanbut_;
+    uiPushButton*      	scanbut_;
     uiLabeledListBox*	attrlistfld_;
     uiPushButton*	addbut_;
     uiPosSubSel*	subselfld_;
     uiGenInput*		filludffld_;
-    uiImpHorArr2DInterpPars*	arr2dinterpfld_;
-    uiTableImpDataSel*  dataselfld_;
-    uiColorInput*       colbut_;
-    uiStratLevelSel*    stratlvlfld_;
+    uiArray2DInterpolSel*	arr2dinterpfld_;
+    uiTableImpDataSel* 	dataselfld_;
+    uiColorInput*      	colbut_;
+    uiStratLevelSel*   	stratlvlfld_;
     uiIOObjSel*		outputfld_;
-    uiCheckBox*         displayfld_;
+    uiCheckBox*        	displayfld_;
 
     virtual bool	acceptOK(CallBacker*);
     void                descChg(CallBacker*);

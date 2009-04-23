@@ -7,10 +7,11 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.11 2008-12-23 11:08:30 cvsdgb Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.12 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "emhor2dto3d.h"
 
+#include "array2dinterpolimpl.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emrowcoliterator.h"
@@ -21,15 +22,6 @@ static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.11 2008-12-23 11:08:30 cvsdg
 
 namespace EM
 {
-
-Hor2DTo3D::Setup::Setup( bool b )
-    : dogrid_(b)
-    , hs_(SI().sampling(true).hrg)
-    , nrsteps_(0)
-    , srchrad_(10*SI().inlDistance())
-{
-}
-
 
 struct Hor2DTo3DSectionData
 {
@@ -101,31 +93,32 @@ void add( const BinID& bid, float z )
 };
 
 
-Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, const Setup& setup, Horizon3D& h3d )
-    : Executor( "Converting 2D horizon to 3D" )
+Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
+		     Horizon3D& h3d )
+    : Executor( "Deriving 3D horizon from 2D" )
     , hor2d_(h2d)
     , hor3d_(h3d)
     , cursectnr_(0)
-    , curinterp_(0)
-    , setup_(setup)
+    , curinterp_( interp )
 {
-    addSections( setup_.hs_ );
+    const HorSampling hrg = SI().sampling(true).hrg;
+    addSections( hrg );
     fillSections();
 
     if ( sd_.isEmpty() )
 	msg_ = "No data in selected area";
     else
     {
-	curinterp_ = new Array2DInterpolator<float>( sd_[cursectnr_]->arr_ );
-	curinterp_->setDist( true, SI().crlDistance() );
-	curinterp_->setDist( false, SI().inlDistance() );
-	curinterp_->pars().useextension_ = !setup_.dogrid_;
-	curinterp_->pars().filltype_ = Array2DInterpolatorPars::ConvexHull;
-	curinterp_->pars().maxholesize_ = -1;
-	curinterp_->pars().srchrad_ = setup_.srchrad_;
-	if ( mIsUdf(setup_.nrsteps_) || setup_.nrsteps_ < 1 )
-	    setup_.nrsteps_ = -1;
-	curinterp_->pars().maxnrsteps_ = setup_.nrsteps_;
+	const float inldist = hrg.step.inl*SI().inlDistance();
+	const float crldist = hrg.step.crl*SI().crlDistance();
+
+	curinterp_->setRowStep( inldist );
+	curinterp_->setColStep( crldist );
+
+	curinterp_->setMaxHoleSize(mUdf(int));
+	curinterp_->setFillType( Array2DInterpol::ConvexHull );
+	curinterp_->setArray( sd_[cursectnr_]->arr_ );
+
 	msg_ = curinterp_->message();
     }
 
@@ -205,6 +198,12 @@ od_int64 Hor2DTo3D::nrDone() const
 }
 
 
+od_int64 Hor2DTo3D::totalNr() const
+{
+    return curinterp_ ? curinterp_->totalNr() : -1;
+}
+
+
 int Hor2DTo3D::nextStep()
 {
     if ( sd_.isEmpty() )
@@ -212,10 +211,8 @@ int Hor2DTo3D::nextStep()
     else if ( !curinterp_ )
 	return Executor::Finished();
 
-    int ret = curinterp_->doStep();
-    msg_ = curinterp_->message();
-    if ( ret != Executor::Finished() )
-	return ret;
+    curinterp_->enableNrDoneCounting( true );
+    bool ret = curinterp_->execute();
 
     const Hor2DTo3DSectionData& sd = *sd_[cursectnr_];
 
@@ -246,10 +243,7 @@ int Hor2DTo3D::nextStep()
 	return Executor::Finished();
     else
     {
-	Array2DInterpolator<float>* newinterp =
-		    new Array2DInterpolator<float>( sd_[cursectnr_]->arr_ );
-	newinterp->pars() = curinterp_->pars();
-	delete curinterp_; curinterp_ = newinterp;
+	curinterp_->setArray( sd_[cursectnr_]->arr_ );
     }
 
     return Executor::MoreToDo();

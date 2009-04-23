@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.164 2009-04-03 06:39:45 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.165 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "uiempartserv.h"
 
-#include "arraynd.h"
+#include "arrayndimpl.h"
+#include "array2dinterpol.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "datainpspec.h"
@@ -45,11 +46,13 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.164 2009-04-03 06:39:45 cvs
 #include "varlenarray.h"
 
 #include "uiarray2dchg.h"
+#include "uiarray2dinterpol.h"
 #include "uichangesurfacedlg.h"
 #include "uiexpfault.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
 #include "uihor3dfrom2ddlg.h"
+#include "uihorinterpol.h"
 #include "uiimpfault.h"
 #include "uiimphorizon.h"
 #include "uiexport2dhorizon.h"
@@ -62,6 +65,7 @@ static const char* rcsID = "$Id: uiempartserv.cc,v 1.164 2009-04-03 06:39:45 cvs
 #include "uiselsimple.h"
 #include "uisurfaceman.h"
 #include "uitaskrunner.h"
+#include "uidlggroup.h"
 
 #include <math.h>
 
@@ -235,8 +239,8 @@ bool uiEMPartServer::isShifted( const EM::ObjectID& emid ) const
 
 void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 {
-    mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
-    uiInterpolHorizonDlg dlg( parent(), hor3d );
+    mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid));
+    uiHorizon3DInterpolDlg dlg( parent(), *hor3d );
     dlg.go();
 }
 
@@ -275,8 +279,8 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 
     if ( dlg.go() && dlg.doDisplay() )
     {
-	const MultiID mid = dlg.getSelID();
-	selemid_ = em_.getObjectID(mid);
+	RefMan<EM::Horizon3D> hor = dlg.getHor3D();
+	selemid_ = hor->id();
 	sendEvent( evDisplayHorizon() );
     }
 }
@@ -757,18 +761,56 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
     PtrMan< Array2D<float> > arr2d =
 	hor3d->auxdata.createArray2D( auxidx, sid );
 
-    PtrMan<Executor> changer;
+    PtrMan<Task> changer;
     if ( interpolate )
     {
-	uiArr2DInterpolParsDlg dlg( parent() );
+	uiSingleGroupDlg dlg( parent(),
+		uiDialog::Setup::Setup( "Interpolate horizon data",
+					"Interpolation parameters",
+					(const char*) 0 ) );
+
+	uiArray2DInterpolSel* settings =
+	    new uiArray2DInterpolSel( &dlg, false, false );
+
+	dlg.setGroup( settings );
 	if ( !dlg.go() ) return 0;
 
-	Array2DInterpolator<float>* interp =
-	    new Array2DInterpolator<float>( *arr2d );
-	interp->pars() = dlg.getInput();
-	interp->setDist( true, SI().crlDistance()*colrg.step );
-	interp->setDist( false, SI().inlDistance()*rowrg.step );
+	Array2DInterpol* interp = settings->getResult();
+	if ( !interp )
+	    return 0;
+
 	changer = interp;
+
+	interp->setFillType( Array2DInterpol::Full );
+
+	const float inldist = SI().inlDistance();
+	const float crldist = SI().crlDistance();
+
+	interp->setRowStep( rowrg.step*inldist );
+	interp->setColStep( colrg.step*crldist );
+
+
+	PtrMan< Array2D<float> > arr = hor3d->createArray2D( sid );
+	const float* arrptr = arr ? arr->getData() : 0;
+	if ( arrptr )
+	{
+	    Array2D<bool>* mask = new Array2DImpl<bool>( arr->info() );
+	    bool* maskptr = mask->getData();
+	    if ( maskptr )
+	    {
+		for ( int idx=mask->info().getTotalSz()-1; idx>=0; idx-- )
+		{
+		    *maskptr = !mIsUdf(*arrptr);
+		    maskptr++;
+		    arrptr++;
+		}
+	    }
+
+	    interp->setMask( mask, OD::TakeOverPtr );
+	}
+
+	if ( !interp->setArray( *arr2d ) )
+	    return 0;
     }
     else
     {
@@ -795,7 +837,7 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	}
     }
 
-    mDynamicCastGet(const Array2DInterpolator<float>*,interp,changer.ptr())
+    mDynamicCastGet(const Array2DInterpol*,interp,changer.ptr())
     const char* infomsg = interp ? interp->infoMsg() : 0;
     if ( infomsg && *infomsg )
 	uiMSG().message( infomsg );

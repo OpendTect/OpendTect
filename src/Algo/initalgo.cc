@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: initalgo.cc,v 1.14 2009-01-26 17:49:47 cvskris Exp $";
+static const char* rcsID = "$Id: initalgo.cc,v 1.15 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "initalgo.h"
 
 #include "fft.h"
 #include "gridder2d.h"
+#include "array2dinterpolimpl.h"
 #include "posfilterstd.h"
 #include "windowfunction.h"
 
@@ -35,4 +36,8 @@ void Algo::initStdClasses()
     Pos::RandomFilter2D::initClass();
     Pos::SubsampFilter3D::initClass();
     Pos::SubsampFilter2D::initClass();
+
+    InverseDistanceArray2DInterpol::initClass();
+
+
 }

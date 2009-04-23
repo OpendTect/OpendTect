@@ -4,11 +4,10 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.4 2009-04-22 21:54:23 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.5 2009-04-23 18:08:50 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
-#include "memsetter.h"
 #include "polygon.h"
 #include "limits.h"
 #include "rowcol.h"
@@ -29,11 +28,27 @@ Array2DInterpol::Array2DInterpol()
     , maxholesize_( mUdf(float) )
     , rowstep_( 1 )
     , colstep_( 1 )
+    , mask_( 0 )
+    , maskismine_( false )
 {}
 
 
+Array2DInterpol::~Array2DInterpol()
+{
+    if ( maskismine_ ) delete mask_;
+}
+
+
 void Array2DInterpol::setFillType( FillType ft )
-{ filltype_ = ft; }
+{ filltype_ = ft; arr_ = 0; arrsetter_=0; }
+
+
+void Array2DInterpol::setRowStep( float rs )
+{ rowstep_ = rs; arr_ = 0; arrsetter_ = 0; }
+
+
+void Array2DInterpol::setColStep( float cs )
+{ colstep_ = cs; arr_ = 0; arrsetter_ = 0; }
 
 
 Array2DInterpol::FillType Array2DInterpol::getFillType() const
@@ -41,11 +56,31 @@ Array2DInterpol::FillType Array2DInterpol::getFillType() const
 
 
 void Array2DInterpol::setMaxHoleSize( float maxholesize )
-{ maxholesize_ = maxholesize; }
+{ maxholesize_ = maxholesize; arr_ = 0; arrsetter_=0; }
 
 
 float Array2DInterpol::getMaxHoleSize() const
 { return maxholesize_; }
+
+
+void Array2DInterpol::setMask( const Array2D<bool>* mask, OD::PtrPolicy policy )
+{
+    if ( maskismine_ )
+	delete mask_;
+
+    arr_ = 0; arrsetter_=0; mask_ = 0;
+
+    if ( policy==OD::CopyPtr )
+    {
+	if ( mask ) mask_ = new Array2DImpl<bool>( *mask );
+	maskismine_ = true;
+    }
+    else 
+    {
+	mask_ = mask;
+	maskismine_ = policy==OD::TakeOverPtr;
+    }
+}
 
 
 bool Array2DInterpol::setArray( Array2D<float>& arr )
@@ -217,6 +252,47 @@ void Array2DInterpol::getNodesToFill( const bool* def,
     }
 
     excludeBigHoles( def, shouldinterpol );
+
+    if ( !mask_ )
+	return;
+
+    if ( mask_->info().getSize(0)==nrrows_ &&
+	 mask_->info().getSize(1)==nrcols_ &&
+	 (mask_->getData() || mask_->getStorage() ) )
+    {
+	const bool* maskptr = mask_->getData();
+	if ( maskptr )
+	{
+	    for ( int idx=0; idx<nrcells_; idx++ )
+	    {
+		if ( !shouldinterpol[idx] ) continue;
+		shouldinterpol[idx] = maskptr[idx];
+	    }
+	}
+	else
+	{
+	    const ValueSeries<bool>* stor = mask_->getStorage();
+	    for ( int idx=0; idx<nrcells_; idx++ )
+	    {
+		if ( !shouldinterpol[idx] ) continue;
+		shouldinterpol[idx] = stor->value(idx);
+	    }
+	}
+    }
+    else
+    {
+	const int masknrrows = mMIN(nrrows_,mask_->info().getSize(0) );
+	const int masknrcols = mMIN(nrcols_,mask_->info().getSize(1) );
+	for ( int irow=0; irow<masknrrows; irow++ )
+	{
+	    int offset = irow * nrcols_;
+	    for ( int icol=0; icol<masknrcols; icol++, offset++ )
+	    {
+		if ( !shouldinterpol[offset] ) continue;
+		shouldinterpol[offset] = mask_->get( irow, icol );
+	    }
+	}
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.7 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.8 2009-04-23 18:08:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,8 +18,7 @@ ________________________________________________________________________
 #include "horsampling.h"
 
 class HorSampling;
-class Array2DInterpolatorPars;
-template <class T> class Array2DInterpolator;
+class Array2DInterpol;
 
 namespace EM
 {
@@ -31,26 +30,17 @@ mClass Hor2DTo3D : public Executor
 {
 public:
 
-    mClass Setup
-    {
-    public:
-				Setup(bool do_gridding);
-
-	mDefSetupMemb(bool,dogrid);
-	mDefSetupMemb(HorSampling,hs);	// default from SI()
-	mDefSetupMemb(int,nrsteps);	// default 0 => unlimited
-	mDefSetupMemb(float,srchrad);	// default 10 * inline distance
-    };
-
-				Hor2DTo3D(const Horizon2D&,const Setup&,
+				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
 					  Horizon3D&);  
-					  // current 3d-hor content is removed
+				// current 3d-hor content is removed
+				// Interpol is taken over
 				~Hor2DTo3D();
 
     int				nextStep();
     const char*			message() const		{ return msg_.buf(); }
     const char*			nrDoneText() const;
     od_int64			nrDone() const;
+    od_int64			totalNr() const;
 
 protected:
 
@@ -58,10 +48,9 @@ protected:
     Horizon3D&			hor3d_;
     BufferString		msg_;
     int				cursectnr_;
-    Setup			setup_;
 
     ObjectSet<Hor2DTo3DSectionData>	sd_;
-    Array2DInterpolator<float>*		curinterp_;
+    Array2DInterpol*			curinterp_;
 
     void			addSections(const HorSampling&);
     void			fillSections();

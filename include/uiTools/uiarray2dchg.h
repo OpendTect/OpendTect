@@ -6,54 +6,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.h,v 1.4 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:		$Id: uiarray2dchg.h,v 1.5 2009-04-23 18:08:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "array2dinterpol.h"
 #include "array2dfilter.h"
 #include "uigroup.h"
 #include "uidialog.h"
 
 class uiGenInput;
 class uiStepOutSel;
-
-
-mClass uiArr2DInterpolPars : public uiGroup
-{
-public:
-
-				uiArr2DInterpolPars(uiParent*,
-					const Array2DInterpolatorPars* p=0);
-
-    Array2DInterpolatorPars	getInput() const;
-
-protected:
-
-    uiGenInput*	extrapolatefld_;
-    uiGenInput*	maxholefld_;
-    uiGenInput*	doextendfld_;
-    uiGenInput*	maxstepsfld_;
-    uiGenInput*	srchradfld_;
-
-    void	doExtChg(CallBacker*);
-};
-
-
-mClass uiArr2DInterpolParsDlg : public uiDialog
-{
-public:
-
-				uiArr2DInterpolParsDlg(uiParent*,
-					const Array2DInterpolatorPars* p=0);
-
-    Array2DInterpolatorPars	getInput() const
-				{ return fld->getInput(); }
-
-    uiArr2DInterpolPars*	fld;
-
-};
 
 
 mClass uiArr2DFilterPars : public uiGroup
