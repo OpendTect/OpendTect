@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.19 2009-04-16 10:08:46 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.20 2009-04-23 06:32:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,8 @@ protected:
     TypeSet<TRowID>		trowids_;	//!< often -1
     TypeSet<TRowID>		sortidxs_;
     TypeSet<TRowID>		revsortidxs_;
-    int				eachrow_;
+    float			eachrow_;
+    int				percentage_;
     TColID			xcol_;
     TColID			ycol_;
     TColID			y2col_;
@@ -139,7 +140,7 @@ protected:
     uiToolBar*			iotb_;
     uiToolBar*			disptb_;
     uiToolBar*			maniptb_;
-    uiSpinBox*			eachfld_;
+    uiSpinBox*			percfld_;
     int				xplottbid_;
     int				dispxytbid_;
     int				dispztbid_;

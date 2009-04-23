@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.11 2009-04-15 12:10:48 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.12 2009-04-23 06:32:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ protected:
     uiDataPointSet&		uidps_;
     uiDataPointSetCrossPlotter&	plotter_;
     uiToolBar&			disptb_;
+    uiToolBar&			seltb_;
     uiToolBar&			maniptb_;
     uiSpinBox*			eachfld_;
     uiComboBox*			grpfld_;
@@ -50,9 +51,10 @@ protected:
     int				showselptswstbid_;
     int				selmodechgtbid_;
     int				setselecttbid_;
+    int				selsettingstbid_;
 
     void			closeNotif(CallBacker*);
-    void			shoeTableSel(CallBacker*);
+    void			showTableSel(CallBacker*);
     void			showY2(CallBacker*);
     void			showPtsInWorkSpace(CallBacker*);
     void			setSelectable(CallBacker*);

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.26 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.27 2009-04-23 06:32:37 cvssatyaki Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: datapointset.cc,v 1.26 2009-01-02 11:34:46 cvsr
 #include "idxable.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include <iostream>
 
 static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;

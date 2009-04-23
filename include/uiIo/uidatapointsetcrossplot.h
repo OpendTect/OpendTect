@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.21 2009-04-15 12:10:48 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.22 2009-04-23 06:32:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class RowCol;
 class ioDrawTool;
 class uiComboBox;
 class uiParent;
+class MathExpression;
 class MouseEvent;
 class LinStats2D;
 class uiDataPointSet;
@@ -137,7 +138,6 @@ public:
 					    bool isy2,int itmidx);
     void			checkSelection(uiDataPointSet::DRowID,
 				   uiGraphicsItem*,bool,const AxisData&);
-    void			getSelectableRanges();
     AxisData::AutoScalePars&	autoScalePars( int ax )	//!< 0=x 1=y 2=y2
 				{ return axisData(ax).autoscalepars_; }
     uiAxisHandler*		axisHandler( int ax )	//!< 0=x 1=y 2=y2
@@ -151,13 +151,20 @@ public:
     friend class		uiDataPointSetCrossPlotWin;
     friend class		AxisData;
     
-    Interval<float>		desiredxrg_;
-    Interval<float>		desiredyrg_;
-    Interval<float>		desiredy2rg_;
-    
     LinePars&			userdefy1lp_;
     LinePars&			userdefy2lp_;
     
+    void			setMathObj(MathExpression*);
+    void			setMathObjStr(const BufferString& str )
+				{ mathobjstr_ = str; }
+    const BufferString&		mathObjStr() const	{ return mathobjstr_; }
+    MathExpression*		mathObj() const		{ return mathobj_; }
+    void			setModifiedColIds(
+				    const TypeSet<uiDataPointSet::DColID>& ids )
+				{ modcolidxs_ = ids; }
+    const TypeSet<int>&		modifiedColIds() const 	{ return modcolidxs_; }
+
+    const DataPointSet&		dps() const 		{ return dps_; }
     const TypeSet<RowCol>&	getSelectedCells()	{ return selrowcols_; }
 
     void			drawY1UserDefLine(const Interval<int>&,bool);
@@ -173,12 +180,16 @@ public:
     				{ return rectangleselection_; }
     void			setRectSelection( bool yn )
 				{ rectangleselection_ = yn; }
+    void			setSelectionAreas(
+				    const ObjectSet<SelectionArea>&);
 protected:
 
     uiDataPointSet&		uidps_;
     DataPointSet&		dps_;
     Setup			setup_;
     MouseEventHandler&		meh_;
+    MathExpression*		mathobj_;
+    BufferString		mathobjstr_;
     uiPolygonItem*		selectionpolygonitem_;
     uiGraphicsItemGroup*	yptitems_;
     uiGraphicsItemGroup*	y2ptitems_;
@@ -205,11 +216,10 @@ protected:
     TypeSet<RowCol>		selrowcols_;
     TypeSet<int>		yrowidxs_;
     TypeSet<int>		y2rowidxs_;
+    TypeSet<uiDataPointSet::DColID> modcolidxs_;
     bool			selrowisy2_;
 
     ObjectSet<SelectionArea>	selareaset_;
-    uiRect&			yselectablerg_;
-    uiRect&			y2selectablerg_;
     bool                        isy1selectable_;
     bool                        isy2selectable_;
  
@@ -217,6 +227,7 @@ protected:
     void 			setDraw();
     virtual void		mkNewFill();
     void 			calcStats();
+    bool 			isSelectionValid(uiDataPointSet::DRowID);
 
     bool			selNearest(const MouseEvent&);
     void 			reDraw(CallBacker*);

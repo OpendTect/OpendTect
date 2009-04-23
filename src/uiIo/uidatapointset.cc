@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.41 2009-04-16 10:08:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.42 2009-04-23 06:32:37 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -116,7 +116,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->setLabelAlignment( Alignment::Left, true );
 
     setPrefWidth( 800 ); setPrefHeight( 600 );
-    eachrow_ = -1; // force refill
     finaliseDone.notify( mCB(this,uiDataPointSet,initWin) );
     creationCBS().doCall( this );
 }
@@ -140,7 +139,8 @@ int uiDataPointSet::initVars()
     mCleanRunCalcs;
 
     eachrow_ = dps_.size() / setup_.initialmaxnrlines_;
-    if ( eachrow_ < 1 ) eachrow_ = 1;
+    if ( eachrow_ < 1.0 ) eachrow_ = 1.0;
+    percentage_ = mNINT( (float)100/eachrow_ );
 
     calcIdxs();
     if ( tbl_ )
@@ -182,11 +182,11 @@ void uiDataPointSet::mkToolBars()
     disptb_ = new uiToolBar( this, "Display Tool bar" );
 
     uiGroup* grp = new uiGroup( disptb_, "Each grp" );
-    eachfld_ = new uiSpinBox( grp, 0, "Each" );
-    eachfld_->setValue( eachrow_ );
-    eachfld_->setInterval( 1, mUdf(int), 1 );
-    eachfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
-    new uiLabel( grp, "Display each", eachfld_ );
+    percfld_ = new uiSpinBox( grp, 0, "Each" );
+    percfld_->setValue( percentage_ );
+    percfld_->setInterval( 1, mUdf(int), 1 );
+    percfld_->valueChanged.notify( mCB(this,uiDataPointSet,eachChg) );
+    new uiLabel( grp, "% Data Displayed", percfld_ );
     disptb_->addObject( grp->attachObj() );
 
 #define mAddButton(fnm,func,tip,istogg) \
@@ -237,12 +237,15 @@ void uiDataPointSet::calcIdxs()
     drowids_.erase(); trowids_.erase(); sortidxs_.erase();
 
     const int dpssz = dps_.size();
+    int calcidx = 0;
     for ( int did=0; did<dpssz; did++ )
     {
 	const bool inact = dps_.isInactive(did);
-	const bool hidden = did % eachrow_;
-	if ( inact || hidden )
+	if ( inact || (did != mNINT(calcidx * eachrow_)) )
+	{
 	    trowids_ += -1;
+	    continue;
+	}
 	else
 	{
 	    const TRowID tid = drowids_.size();
@@ -250,6 +253,7 @@ void uiDataPointSet::calcIdxs()
 	    trowids_ += tid;
 	    drowids_ += did;
 	}
+	calcidx++;
     }
 
     revsortidxs_ = sortidxs_;
@@ -789,9 +793,15 @@ void uiDataPointSet::valChg( CallBacker* )
 
 void uiDataPointSet::eachChg( CallBacker* )
 {
-    int neweachrow = eachfld_->getValue();
-    if ( neweachrow < 1 ) neweachrow = 1;
-    if ( neweachrow != eachrow_ )
+    int newpercentage = percfld_->getValue();
+    if ( newpercentage < 1 ) newpercentage = 1;
+    if ( newpercentage == percentage_ )
+	return;
+    percentage_ = newpercentage;
+
+    float neweachrow = (float)100/(float)percentage_;
+    if ( neweachrow < 1.0 ) neweachrow = 1.0;
+    if ( !mIsEqual(neweachrow,eachrow_,mDefEps) )
     {
 	eachrow_ = neweachrow;
 	redoAll();
@@ -897,7 +907,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     const int nrcols = initVars();
     tbl_->setNrRows( size() );
     tbl_->setNrCols( nrcols );
-    eachfld_->setValue( eachrow_ );
+    percfld_->setValue( percentage_ );
 
     redoAll();
     MouseCursorManager::restoreOverride();
