@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.214 2009-03-03 08:06:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.215 2009-04-23 16:47:47 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -582,8 +582,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
     if ( texture_ )
 	texture_->setData( attrib, 0, 0 );
     else
-	channels_->setUnMappedData( attrib, 0, 0,
-				    visBase::TextureChannels::None );
+	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr );
 }
 
 
@@ -890,8 +889,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	}
 	else
 	{
-	    channels_->setUnMappedData( attrib, 0, 0,
-		    visBase::TextureChannels::None );
+	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr );
 	    channels_->turnOn( false );
 	}
 	return;
@@ -933,8 +931,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	else
 	{
 	    const float* arr = dparr.getData();
-	    visBase::TextureChannels::CachePolicy cp =
-		visBase::TextureChannels::Cache;
+	    OD::PtrPolicy cp = OD::UsePtr;
 
 	    if ( !arr )
 	    {
@@ -950,7 +947,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 
 		dparr.getAll( tmparr );
 		arr = tmparr;
-		cp = visBase::TextureChannels::TakeOver;
+		cp = OD::TakeOverPtr;
 	    }
 
 	    channels_->setSize( 1, dparr.info().getSize(0),
