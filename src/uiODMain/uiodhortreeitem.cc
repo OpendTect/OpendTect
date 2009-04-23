@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.19 2009-04-01 11:45:14 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.20 2009-04-23 18:20:06 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -149,7 +149,7 @@ void uiODHorizonTreeItem::initMenuItems()
 {
     shiftmnuitem_.text = "&Shift ..";
     algomnuitem_.text = "&Algorithms";
-    fillholesmnuitem_.text = "Fill &holes ...";
+    fillholesmnuitem_.text = "&Grid ...";
     filterhormnuitem_.text = "&Filter ...";
     snapeventmnuitem_.text = "Snap to &event ...";
     removeselectionmnuitem_.text = "&Remove selection";

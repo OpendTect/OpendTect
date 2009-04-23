@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.46 2009-03-10 06:57:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.47 2009-04-23 18:20:06 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -140,7 +140,7 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , savesurfacedatamnuitem_("Save attribute ...")
     , loadsurfacedatamnuitem_("Surface data ...")
     , algomnuitem_("&Algorithms")
-    , fillholesmnuitem_("Fill &holes ...")
+    , fillholesmnuitem_("&Grid ...")
     , filtermnuitem_("&Filter ...")
     , changed_(false)
     , emid_(objid)
