@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.8 2009-02-06 05:48:58 cvsranojay Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.9 2009-04-23 16:37:00 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
+#include "odmemory.h"
 
 class SoTextureChannelSet;
 class SoSwitch;
@@ -60,12 +61,10 @@ public:
     int				currentVersion(int channel) const;
     void			setCurrentVersion(int channel,int version);
 
-    enum			CachePolicy { None, CacheCopy, Cache, TakeOver};
-
     bool			setUnMappedData(int channel,int version,
-	    				        const float*, CachePolicy);
+	    				        const float*, OD::PtrPolicy);
     bool			setMappedData(int channel,int version,
-	    				      unsigned char*, CachePolicy);
+	    				      unsigned char*, OD::PtrPolicy);
 
     bool			setChannels2RGBA(TextureChannel2RGBA*);
     TextureChannel2RGBA*	getChannels2RGBA();

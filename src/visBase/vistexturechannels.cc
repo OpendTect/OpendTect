@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.14 2009-02-10 21:51:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.15 2009-04-23 16:37:00 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -44,9 +44,9 @@ public:
     void		removeCaches();
 
     bool		setUnMappedData(int version,const float*,
-	    				 TextureChannels::CachePolicy);
+	    				OD::PtrPolicy);
     bool		setMappedData(int version,unsigned char*,
-	    			       TextureChannels::CachePolicy);
+	    			      OD::PtrPolicy);
 
     void		clipData(int version);
     			//!<If version==-1, all versions will be clipped
@@ -194,11 +194,11 @@ int ChannelInfo::nrVersions() const
 
 
 bool ChannelInfo::setUnMappedData(int version, const float* data,
-	    			   TextureChannels::CachePolicy policy )
+	    			  OD::PtrPolicy policy)
 {
     if ( version<0 || version>=nrVersions() )
     {
-	if ( policy==TextureChannels::TakeOver ) delete [] data;
+	if ( policy==OD::TakeOverPtr ) delete [] data;
 	return false;
     }
 
@@ -215,12 +215,12 @@ bool ChannelInfo::setUnMappedData(int version, const float* data,
 	unmappeddata_.replace( version, 0 );
     }
 
-    if ( policy==TextureChannels::Cache || policy==TextureChannels::TakeOver )
+    if ( policy==OD::UsePtr || policy==OD::TakeOverPtr )
     {
 	unmappeddata_.replace( version, data );
-	ownsunmappeddata_[version] = policy==TextureChannels::TakeOver;
+	ownsunmappeddata_[version] = policy==OD::TakeOverPtr;
     }
-    else if ( policy==TextureChannels::CacheCopy )
+    else if ( policy==OD::CopyPtr )
     {
 	mDeclareAndTryAlloc(float*, newdata, float[sz] );
 	if ( !newdata ) return false;
@@ -280,7 +280,7 @@ bool ChannelInfo::mapData( int version )
 
 
 bool ChannelInfo::setMappedData( int version, unsigned char* data,
-	    			  TextureChannels::CachePolicy policy )
+	    			  OD::PtrPolicy policy )
 {
     if ( mappeddata_.size()<version )
     {
@@ -295,12 +295,12 @@ bool ChannelInfo::setMappedData( int version, unsigned char* data,
 	mappeddata_.replace( version, 0 );
     }
 
-    if ( policy==TextureChannels::Cache || policy==TextureChannels::TakeOver )
+    if ( policy==OD::UsePtr || policy==OD::TakeOverPtr )
     {
 	mappeddata_.replace( version, data );
-	ownsmappeddata_[version] = policy==TextureChannels::TakeOver;
+	ownsmappeddata_[version] = policy==OD::TakeOverPtr;
     }
-    else if ( policy==TextureChannels::CacheCopy )
+    else if ( policy==OD::CopyPtr )
     {
 	od_int64 sz = owner_.size_[0];
 	sz *= owner_.size_[1];
@@ -523,11 +523,11 @@ void TextureChannels::setCurrentVersion( int idx, int version )
 }
 
 bool TextureChannels::setUnMappedData( int channel, int version,
-	const float* data, CachePolicy cp )
+	const float* data, OD::PtrPolicy cp )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
     {
-	if ( cp==TakeOver ) delete [] data;
+	if ( cp==OD::TakeOverPtr ) delete [] data;
 	return false;
     }
 
@@ -537,11 +537,11 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 
 bool TextureChannels::setMappedData( int channel, int version,
 				     unsigned char* data, 
-				     CachePolicy cp )
+				     OD::PtrPolicy cp )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
     {
-	if ( cp==TakeOver ) delete [] data;
+	if ( cp==OD::TakeOverPtr ) delete [] data;
 	return false;
     }
 
