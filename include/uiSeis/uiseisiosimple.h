@@ -17,7 +17,6 @@ class uiSeisSel;
 class uiCheckBox;
 class uiGenInput;
 class uiFileInput;
-class uiMultCompSel;
 class uiSeparator;
 class uiSeisSubSel;
 class uiSeis2DLineNameSel;
@@ -48,13 +47,13 @@ protected:
     uiGenInput*		stepnrfld_;
     uiGenInput*		offsdeffld_;
     uiGenInput*		remnullfld_;
+    uiGenInput*		multcompfld_;
     uiLabel*		pspposlbl_;
     uiCheckBox*		haveoffsbut_;
     uiCheckBox*		haveazimbut_;
     uiScaler*		scalefld_;
     uiSeisSel*		seisfld_;
     uiSeisSubSel*	subselfld_;
-    uiMultCompSel*	multcompfld_;
     uiSeis2DLineNameSel* lnmfld_;
 
     CtxtIOObj&		ctio_;

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.11 2009-04-01 05:13:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.12 2009-04-23 15:09:50 cvshelene Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -41,6 +41,7 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
 	, subselpars_(*new IOPar("subsel"))
 	, linekey_(*new LineKey)
 	, geom_(gt)
+	, compidx_(0)
 {
     clear(true);
     isasc_ = havepos_ = true;
@@ -80,6 +81,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     setResampler( d.resampler_ );
     linekey_ = d.linekey_;
     subselpars_ = d.subselpars_;
+    compidx_ = d.compidx_;
 
     return *this;
 }
@@ -134,6 +136,7 @@ void SeisIOSimple::Data::clear( bool survchg )
     steppos_.x = fabs( nextpos.x - startpos_.x );
     steppos_.y = fabs( nextpos.y - startpos_.y );
     offsdef_.start = 0; offsdef_.step = SI().crlDistance();
+    compidx_ = 0;
 }
 
 
@@ -521,9 +524,12 @@ int SeisIOSimple::writeExpTrc()
     }
 
     float val;
+    int comptoextract = data_.compidx_;
+    if ( comptoextract>= trc_.nrComponents() )
+	comptoextract = 0;
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {
-	val = trc_.get( idx, 0 );
+	val = trc_.get( idx, comptoextract );
 	if ( data_.scaler_ ) val = data_.scaler_->scale( val );
 	if ( data_.isasc_ )
 	    *sd_.ostrm << '\t' << val;

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.21 2009-04-17 13:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.22 2009-04-23 15:09:50 cvshelene Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.21 2009-04-17 13:18:47 cv
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uibutton.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seispsioprov.h"
 #include "seisselection.h"
@@ -222,7 +223,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	sdfld_->attach( alignedBelow, havesdfld_ );
 	sep = mkDataManipFlds();
 	seisfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(geom_));
-	seisfld_->attach( alignedBelow, multcompfld_ );
+	seisfld_->attach( alignedBelow, remnullfld_ );
 	if ( is2d )
 	{
 	    lnmfld_ = new uiSeis2DLineNameSel( this, false );
@@ -275,12 +276,15 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 				 BoolInpSpec(true,"Discard","Pass") );
     remnullfld_->attach( alignedBelow, scalefld_ );
 
-    multcompfld_ = new uiMultCompSel( this );
-    multcompfld_->attach( alignedBelow, remnullfld_ );
-    multcompfld_->setSensitive( false );
+    multcompfld_ = new uiGenInput( this, "Component to export",
+	    			   StringListInpSpec() );
+    multcompfld_->display( false );
 
     if ( !isimp_ )
+    {
+	multcompfld_->attach( alignedBelow, remnullfld_ );
 	sep->attach( stretchedBelow, multcompfld_ );
+    }
 
     return sep;
 }
@@ -309,8 +313,10 @@ void uiSeisIOSimple::inpSeisSel( CallBacker* )
     {
 	subselfld_->setInput( *ctio_.ioobj );
 	LineKey lkey( ctio_.ioobj->key() );
-	multcompfld_->setUpList( lkey );
-	multcompfld_->setSensitive( multcompfld_->allowChoice() );
+	BufferStringSet compnms;
+	SeisIOObjInfo::getCompNames( lkey, compnms );
+	multcompfld_->newSpec( StringListInpSpec(compnms), 0 );
+	multcompfld_->display( compnms.size()>1 );
     }
 }
 
@@ -411,6 +417,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 
     data().setScaler( scalefld_->getScaler() );
     data().remnull_ = remnullfld_->getBoolValue();
+    data().compidx_ = multcompfld_->getIntValue();
 
     data().isasc_ = isascfld_->getBoolValue();
     data().havesd_ = havesdfld_->getBoolValue();

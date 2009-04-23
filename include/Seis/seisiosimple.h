@@ -54,6 +54,7 @@ public:
 	bool		havesd_;
 	SamplingData<float> sd_;
 	int		nrsamples_;
+	int		compidx_;
 
 			// PS only
 	bool		haveoffs_;
