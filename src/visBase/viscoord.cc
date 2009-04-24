@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscoord.cc,v 1.32 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: viscoord.cc,v 1.33 2009-04-24 21:23:44 cvsyuancheng Exp $";
 
 #include "viscoord.h"
 
@@ -216,6 +216,18 @@ Coord3 Coordinates::getPos( int idx, bool scenespace ) const
     }
 
     return res;
+}
+
+
+bool Coordinates::isDefined( int idx ) const
+{
+    Threads::MutexLocker lock( mutex_ );
+    if ( idx<0 || idx>=coords_->point.getNum() ||
+	 unusedcoords_.indexOf( idx )!=-1 )
+	return false;
+
+    const SbVec3f coord = coords_->point[idx];
+    return !mIsUdf(coord[2]) && !mIsUdf(coord[1]) && !mIsUdf(coord[0]);
 }
 
 
