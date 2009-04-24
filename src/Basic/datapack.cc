@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: datapack.cc,v 1.2 2009-02-10 16:32:57 cvsbert Exp $";
+static const char* rcsID = "$Id: datapack.cc,v 1.3 2009-04-24 13:44:35 cvsbert Exp $";
 
 #include "datapack.h"
 #include "ascstream.h"
@@ -80,6 +80,12 @@ DataPackMgr::DataPackMgr( DataPackMgr::ID dpid )
 DataPackMgr::~DataPackMgr()
 {
     deepErase( packs_ );
+}
+
+
+bool DataPackMgr::haveID( DataPack::ID dpid ) const
+{
+    return indexOf( dpid ) >= 0;
 }
 
 

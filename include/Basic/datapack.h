@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2007
- RCS:		$Id: datapack.h,v 1.3 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: datapack.h,v 1.4 2009-04-24 13:44:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,8 @@ public:
 			// a manager. In general, leave it to DPM() - see below.
 
     typedef int		ID;		//!< Each Mgr has its own ID
+
+    bool		haveID(DataPack::ID) const;
 
     void		add(DataPack*);
     			//!< The pack becomes mine
