@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.18 2009-04-21 16:07:58 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.19 2009-04-24 13:32:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,13 +44,13 @@ public:
     bool	isInside(const Geom::Point2D<T>&,
 	    		 bool inclborder,T eps) const;
     
-    int		isInside(const ODPolygon& newpoly,
-	    		 bool inclborder,T eps) const;
-		// returns 0 if newpoly is fully outside,
-		// 2 if newpoly fully inside, 1 otherwise.
+    int		isInside(const ODPolygon& testpoly,T eps=0) const;
+    		/*  0: testpoly fully outside (borders don't touch)
+		    2: testpoly fully  inside (borders don't touch)
+		    1: all intermediate cases */
 
-    bool	segmentOverlaps(const Geom::Point2D<T>& pt1,
-				const Geom::Point2D<T>& pt2,T eps) const;
+    bool	segmentMeetsBorder(const Geom::Point2D<T>& pt1,
+				   const Geom::Point2D<T>& pt2,T eps) const;
     bool	windowOverlaps(const Interval<T>& xrange,
 			       const Interval<T>& yrange,T eps) const;
 
@@ -82,6 +82,12 @@ public:
     void	reverse();
 
 protected:
+ 
+    static int doSegmentsMeet( const Geom::Point2D<T>& p1,
+			       const Geom::Point2D<T>& p2,
+			       const Geom::Point2D<T>& q1,
+			       const Geom::Point2D<T>& q2,
+			       T eps );
 
     static bool	isOnSegment( const Geom::Point2D<T>& pt,
 	    		     const Geom::Point2D<T>& pt0,
@@ -232,29 +238,19 @@ bool ODPolygon<T>::isInside( const Geom::Point2D<T>& point,
 
 
 template <class T> inline
-bool ODPolygon<T>::segmentOverlaps( const Geom::Point2D<T>& pt1,
-				    const Geom::Point2D<T>& pt2,
-				    T eps ) const
+bool ODPolygon<T>::segmentMeetsBorder( const Geom::Point2D<T>& pt1,
+				       const Geom::Point2D<T>& pt2,
+				       T eps ) const
 {
-    if ( pt1 == pt2 )
-	return isInside( pt1, true, eps );
-
-    if ( isInside(pt1, true, eps) || isInside(pt2, true, eps) )
-	return true;
-
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Geom::Point2D<T>& vtxcurr = getVertex( idx );
 	const Geom::Point2D<T>& vtxnext = nextVertex( idx );
 
-	if ( isOnSegment(vtxcurr, pt1, pt2, eps) || 
-	     isOnSegment(vtxnext, pt1, pt2, eps) )
-	    return true;
-
-	if ( isEdgeCrossing(pt2-pt1, pt1, vtxcurr, vtxnext) &&
-	     isEdgeCrossing(pt1-pt2, pt2, vtxcurr, vtxnext) )
+	if ( doSegmentsMeet(pt1, pt2, vtxcurr, vtxnext, eps) )
 	    return true;
     }
+
     return false;
 }
 
@@ -264,60 +260,35 @@ bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
 				   const Interval<T>& yrange,
 				   T eps ) const
 {
-    const Geom::Point2D<T> pt1( xrange.start, yrange.start );
-    const Geom::Point2D<T> pt2( xrange.stop,  yrange.start );
-    const Geom::Point2D<T> pt3( xrange.stop,  yrange.stop );
-    const Geom::Point2D<T> pt4( xrange.start, yrange.stop );
+    ODPolygon window;
+    window.add( Geom::Point2D<T>(xrange.start, yrange.start) );
+    window.add( Geom::Point2D<T>(xrange.stop, yrange.start) );
+    window.add( Geom::Point2D<T>(xrange.stop,  yrange.stop) );
+    window.add( Geom::Point2D<T>( xrange.start, yrange.stop) );
 
-    if ( segmentOverlaps(pt1, pt2, eps) || segmentOverlaps(pt2, pt3, eps) ||
-	 segmentOverlaps(pt3, pt4, eps) || segmentOverlaps(pt4, pt1, eps) )
-	return true;
-    
-    const Geom::Point2D<T>& arbitvtx = getVertex( 0 );
-
-    return xrange.includes(arbitvtx.x) && yrange.includes(arbitvtx.y);
+    return isInside( window );
 }
 
 
 template <class T> inline
-int ODPolygon<T>::isInside( const ODPolygon& newpoly, bool inclborder,
-			    T eps ) const
+int ODPolygon<T>::isInside( const ODPolygon& testpoly, T eps ) const
 {
-    int nrinsideoldpoly = 0;
-    int nroutsideoldpoly = 0;
-    for ( int idx=0; idx<newpoly.size(); idx++ )
-    {
-	if ( isInside(newpoly.getVertex(idx), false, eps) )
-	    nrinsideoldpoly++;
-	else if ( !isInside(newpoly.getVertex(idx), true, eps) )
-	    nroutsideoldpoly++;
-    }
+    if ( isEmpty() || testpoly.isEmpty() )
+	return 0;
 
-    int nrinsidenewpoly = 0;
-    int nroutsidenewpoly = 0;
     for ( int idx=0; idx<size(); idx++ )
     {
-	if ( newpoly.isInside(getVertex(idx), false, eps) )
-	    nrinsidenewpoly++;
-	else if ( !newpoly.isInside(getVertex(idx), true, eps) )
-	    nroutsidenewpoly++;
+	const Geom::Point2D<T>& vtxcurr = getVertex( idx );
+	const Geom::Point2D<T>& vtxnext = nextVertex( idx );
+
+	if ( testpoly.segmentMeetsBorder(vtxcurr, vtxnext, eps) )
+	    return 1;
     }
 
-    if ( inclborder )
-    {
-	if ( nroutsideoldpoly==size() && nroutsidenewpoly==newpoly.size() )
-	    return 0;
-	if ( !nroutsideoldpoly && !nrinsidenewpoly )
-	    return 2;
-    }
-    else
-    {
-	if ( !nrinsideoldpoly && !nrinsidenewpoly )
-	    return 0;
-	if ( nrinsideoldpoly==size() && nroutsidenewpoly==newpoly.size() )
-	    return 2;
-    }
-    return 1;
+    if ( isInside(testpoly.getVertex(0), false, eps) )
+	return 2;
+
+    return testpoly.isInside(getVertex(0), false, eps) ? 1 : 0; 
 }
 
 
@@ -379,6 +350,25 @@ bool ODPolygon<T>::isSelfIntersecting() const
 	}
     }
     return false;
+}
+
+
+template <class T> inline
+int ODPolygon<T>::doSegmentsMeet( const Geom::Point2D<T>& p1,
+				  const Geom::Point2D<T>& p2,
+				  const Geom::Point2D<T>& q1,
+				  const Geom::Point2D<T>& q2,
+				  T eps )
+{
+    if ( isOnSegment(p1, q1, q2, eps) || isOnSegment(p2, q1, q2, eps) ||
+	 isOnSegment(q1, p1, p2, eps) || isOnSegment(q2, p1, p2, eps) )
+	return 1;
+
+    if ( p1==p2 || q1==q2 || !isEdgeCrossing(p2-p1, p1, q1, q2) ||
+	 !isEdgeCrossing(p1-p2, p2, q1, q2) )
+	return 0;
+
+    return 2;
 }
 
 
