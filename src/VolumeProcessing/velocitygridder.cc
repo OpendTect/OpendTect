@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.8 2009-04-09 01:10:00 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.9 2009-04-24 21:43:02 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -85,7 +85,7 @@ public:
     const BinIDValueSet&	remainingBids() const { return remainingbids_; }
     const BinIDValueSet&	definedBids() const   { return definedbids_; }
     const TypeSet<Coord>&	definedPts() const    { return definedpts_; }
-    const TypeSet<BinIDValueSet::Pos> definedPos() const { return definedpos_; }
+    const TypeSet<BinIDValueSet::Pos>& definedPos() const { return definedpos_;}
 
 protected:
     int				nrdone_;
