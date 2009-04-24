@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.5 2009-04-23 18:08:50 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.6 2009-04-24 04:58:28 cvsraman Exp $";
 
 #include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
@@ -894,7 +894,7 @@ od_int64 InverseDistanceArray2DInterpol::getNextIdx()
 
 	//If all steps are used or there is no searchradius and one step is used
 	if ( (!mIsUdf(nrsteps_) && stepidx_==nrsteps_-1 ) ||
-	      definedidxs_.size() && !stepidx_ )
+	      ( definedidxs_.size() && !stepidx_ ) )
 	{
 	    shouldend_ = true;
 	    mRet(-1);
