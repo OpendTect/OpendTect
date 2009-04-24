@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.18 2009-04-23 15:15:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.19 2009-04-24 04:45:30 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -300,17 +300,8 @@ void uiDirectionalPlot::drawVals()
 	    as.radius_ = rrg.start;
 	    Swap( as.angles_.start, as.angles_.stop );
 	    ci->drawTo( as );
-	    // Grey scales
-	    //TODO use real color bar
-<<<<<<< uidirectionalplot.cc
 	    float relpos = (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
 	    ci->setFillColor( colseq_->color(relpos) );
-=======
-	    float v = 255 * (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
-	    int cval = mNINT(v);
-	    ci->setFillColor( Color(cval,cval,cval) );
->>>>>>> 1.17
-
 	    ci->closeCurve();
 	    curveitems_.add( ci );
 	}
