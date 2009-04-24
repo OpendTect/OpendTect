@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.64 2009-04-01 07:38:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.65 2009-04-24 13:54:10 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -502,9 +502,11 @@ bool uiNLAPartServer::doDPSDlg()
 }
 
 
+#define mDPM DPM(DataPackMgr::PointID())
+
 #undef mErrRet
 #define mErrRet(rv) \
-{ if ( dps_ ) delete dps_; dps_ = 0; return rv; }
+{ if ( dps_ ) { mDPM.release( dps_->id() ); dps_ = 0; } return rv; }
 
 void uiNLAPartServer::showSelPts( CallBacker* )
 { sendEvent( evShowSelPts() ); }
@@ -516,14 +518,15 @@ void uiNLAPartServer::removeSelPts( CallBacker* )
 
 DataPointSet& uiNLAPartServer::gtDps() const
 {
-    uiNLAPartServer& self = *const_cast<uiNLAPartServer*>( this );
     if ( dps_ && dps_->is2D() != is2d_ )
-	{ delete self.dps_; self.dps_ = 0; }
+	mDPM.release( dps_->id() );
 
     if ( !dps_ )
     {
+	uiNLAPartServer& self = *const_cast<uiNLAPartServer*>( this );
 	self.dps_ = new DataPointSet( is2d_ );
 	self.dps_->setName( "<NLA train/test data>" );
+	mDPM.add( dps_ );
     }
 
     return *dps_;
