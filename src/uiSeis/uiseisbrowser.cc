@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.42 2009-03-10 08:35:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.43 2009-04-24 10:28:11 cvsbert Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -76,6 +76,19 @@ protected:
 
 };
 
+
+uiSeisBrowser::Setup::Setup( const MultiID& ky, Seis::GeomType gt )
+    : uiDialog::Setup("",mNoDlgTitle,"103.1.5")
+    , id_(ky)
+    , geom_(gt)
+    , startpos_(mUdf(int),mUdf(int))
+    , startz_(mUdf(float))
+    , readonly_(true)
+{
+    wintitle_ = "Browse ";
+    wintitle_ += Seis::nameOf( gt );
+    wintitle_ += " '"; wintitle_ += IOM().nameOf( ky ); wintitle_ += "'";
+}
 
 
 

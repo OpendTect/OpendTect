@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.17 2009-03-05 15:04:07 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.18 2009-04-24 10:28:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,19 +36,13 @@ public :
     mClass Setup : public uiDialog::Setup
     {
     public:
-    			Setup( const MultiID& mid, Seis::GeomType gt )
-			    : uiDialog::Setup("Browse seismic data",
-				    	      "", "103.1.5")
-			    , id_(mid)
-			    , geom_(gt)
-			    , startpos_(mUdf(int),mUdf(int))
-			    , startz_(mUdf(float))	{}
+    			Setup(const MultiID&,Seis::GeomType);
 	mDefSetupMemb(MultiID,id)
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(BinID,startpos)
 	mDefSetupMemb(float,startz)
 	mDefSetupMemb(LineKey,linekey)
-	mDefSetupMemb(bool,readonly)
+	mDefSetupMemb(bool,readonly)	//!< def: true
 
     };
 			uiSeisBrowser(uiParent*,const Setup&,bool);
