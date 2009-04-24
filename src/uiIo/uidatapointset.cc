@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.42 2009-04-23 06:32:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.43 2009-04-24 13:53:48 cvsbert Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -87,8 +87,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 	, statswin_(0)
 	, iotb_(0)
 {
-    mDPM.add( &dps_ );
-    mDPM.obtain( dps_.id() );
+    if ( mDPM.haveID(dps_.id()) )
+	mDPM.obtain( dps_.id() );
     setCtrlStyle( LeaveOnly );
     runcalcs_.allowNull( true );
 
