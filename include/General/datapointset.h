@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.26 2009-04-04 10:23:38 cvskris Exp $
+ RCS:		$Id: datapointset.h,v 1.27 2009-04-27 11:54:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,6 +247,11 @@ public:
 				    const TypeSet<int>& parents,
 				    const DataPointSet&)		= 0;
     virtual void		removeDisplay(int)			= 0;
+    const TypeSet<int>&		availableParents() const
+    				{ return availableparents_; }
+protected:
+
+    TypeSet<int>		availableparents_;
 };
 	    				   
 

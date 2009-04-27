@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.82 2009-04-06 11:59:01 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.83 2009-04-27 11:54:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ class uiWellAttribPartServer;
 class uiWellPartServer;
 class uiODApplMgrDispatcher;
 class uiODApplMgrAttrVisHandler;
+class uiVisDataPointSetDisplayMgr;
 
 class Color;
 class Coord;
@@ -129,6 +130,8 @@ public:
     bool			pickSetsStored() const;
 
     // Work. Don't use unless expert.
+    uiVisDataPointSetDisplayMgr* visDPSDispMgr()
+    				{ return visdpsdispmgr_; }
     bool			getNewData(int visid,int attrib);
     bool			evaluateAttribute(int visid,int attrib);
     bool			evaluate2DAttribute(int visid, int attrib);
@@ -226,7 +229,7 @@ protected:
     int				otherformatvisid_;
     int				otherformatattrib_;
 
-    TypeSet<int>		visptsetids_;
+    uiVisDataPointSetDisplayMgr* visdpsdispmgr_;
 
     friend class		uiODMain;
     friend class		uiODApplMgrDispatcher;

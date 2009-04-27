@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.1 2009-04-04 10:20:48 cvskris Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.2 2009-04-27 11:54:57 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -58,6 +58,7 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
     if ( !parents.size() )
 	return -1;
 
+    availableparents_ = parents;
     DisplayInfo* displayinfo = new DisplayInfo;
     if ( !displayinfo )
 	return -1;
@@ -108,6 +109,7 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
     if ( idx<0 )
 	return;
 
+    availableparents_ = parents;
     DisplayInfo& displayinfo = *displayinfos_[idx];
     TypeSet<int> wantedscenes;
     for ( int idy=0; idy<parents.size(); idy++ )

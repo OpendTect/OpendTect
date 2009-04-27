@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.18 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.19 2009-04-27 11:54:57 cvssatyaki Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.18 2009-04-21 13:55
 #include "uiwellimpsegyvsp.h"
 #include "uiwelltiemgrdlg.h"
 
+#include "datapointset.h"
 #include "ptrman.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -32,8 +33,7 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.18 2009-04-21 13:55
 #include "welltiesetup.h"
 #include "uimsg.h"
 
-const int uiWellAttribPartServer::evShowSelPoints()	{ return 0; }
-const int uiWellAttribPartServer::evRemoveSelPoints()	{ return 1; }
+const int uiWellAttribPartServer::evGetDPSDispMgr()	{ return 0; }
 
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
@@ -43,6 +43,8 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , xplotwin2d_(0)
     , xplotwin3d_(0)
     , dps_(0)
+    , visdpsid_(-1)
+    , dpsdispmgr_(0)
 {
 }
 
@@ -95,7 +97,8 @@ void uiWellAttribPartServer::doXPlot()
 
 void uiWellAttribPartServer::removeSelPts( CallBacker* )
 {
-    sendEvent( evRemoveSelPoints() );
+    if ( dpsdispmgr_ )
+	dpsdispmgr_->removeDisplay( visdpsid_ );
 }
 
 
@@ -103,7 +106,11 @@ void uiWellAttribPartServer::showSelPts( CallBacker* )
 {
     dps_ = attrset->is2D() ? &xplotwin2d_->getDPS()
 			   : &xplotwin3d_->getDPS();
-    sendEvent( evShowSelPoints() );
+    if ( !dpsdispmgr_ )
+	sendEvent( evGetDPSDispMgr() );
+    else
+	dpsdispmgr_->updateDisplay( visdpsid_, dpsdispmgr_->availableParents(),
+				    dps_ );
 }
 
 

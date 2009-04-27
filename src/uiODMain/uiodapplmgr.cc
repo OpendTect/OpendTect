@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.319 2009-04-06 11:59:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.320 2009-04-27 11:54:57 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -31,11 +31,11 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.319 2009-04-06 11:59:01 cvsh
 #include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
+#include "uivisdatapointsetdisplaymgr.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vishorizondisplay.h"
 #include "vispicksetdisplay.h"
-#include "vispointsetdisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
@@ -75,6 +75,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 	, getOtherFormatData(this)
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
+	, visdpsdispmgr_(0)
 	, dispatcher_(*new uiODApplMgrDispatcher(*this,&appl_))
 	, attrvishandler_(*new uiODApplMgrAttrVisHandler(*this,&appl_))
 {
@@ -109,6 +110,7 @@ uiODApplMgr::~uiODApplMgr()
     delete wellattrserv_;
     delete &applservice_;
     delete &dispatcher_;
+    delete visdpsdispmgr_;
 }
 
 
@@ -651,45 +653,16 @@ bool uiODApplMgr::handleWellServEv( int evid )
 
 bool uiODApplMgr::handleWellAttribServEv( int evid )
 {
-    if ( evid == uiWellAttribPartServer::evShowSelPoints() )
+    if ( evid == uiWellAttribPartServer::evGetDPSDispMgr() )
     {
-	uiMSG().message( "Visualization part not working yet" );
-	return false;
-	TypeSet<int> sceneids;
-	if ( visptsetids_.size() == 0 )
-	{
-	    visSurvey::PointSetDisplay* ptset =
-		visSurvey::PointSetDisplay::create();
-
-	    mDynamicCastGet(visBase::DataObject*,doobj,ptset);
-	    
-	    ptset->setDataPackID( -1, wellattrserv_->getPointSet().id() );
-	    visserv_->getChildIds( -1, sceneids );
-
-	    for ( int idx=0; idx<sceneids.size(); idx++ )
-	    {
-		visserv_->addObject( doobj, sceneids[idx], true );
-		visptsetids_.addIfNew( doobj->id() );
-	    }
-	}
-	else
-	{
-	    for ( int idx=0; idx<visptsetids_.size(); idx++ )
-	    {
-		visBase::DataObject* visobj =
-		    visserv_->getObject( visptsetids_[idx] );
-		mDynamicCastGet(visSurvey::PointSetDisplay*,ptset,visobj);
-		ptset->setDataPackID( -1, wellattrserv_->getPointSet().id() );
-	    }
-	}
-    }
-    else if ( evid == uiWellAttribPartServer::evRemoveSelPoints() )
-    {
-	return false;
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
-	for ( int idx=0; idx<visptsetids_.size(); idx++ )
-	    visserv_->removeObject( visptsetids_[idx], sceneids[idx] );
+	visdpsdispmgr_ = new uiVisDataPointSetDisplayMgr( *visserv_ );
+	visdpsdispmgr_->lock();
+	const int dispid =
+	    visdpsdispmgr_->addDisplay( sceneids, wellattrserv_->getPointSet());
+	wellattrserv_->setVisDpsId( dispid );
+	visdpsdispmgr_->unLock();
     }
     return true;
 }
