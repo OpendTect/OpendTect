@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.17 2009-04-24 21:24:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.18 2009-04-27 04:36:07 cvsranojay Exp $";
 
 #include "vishorizonsection.h"
 
@@ -555,7 +555,7 @@ void HorizonSection::setResolution( char res )
 void HorizonSection::updateWireFrame( char res )
 {
     return;
-    const int spacing = (int)pow( 2, res );
+    const int spacing = (int)pow( 2.0, res );
     int coordidx = 0, ciidx = 0;
     visBase::Coordinates* coords = wireframelines_->getCoordinates();
     
