@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurfaceman.cc,v 1.61 2009-03-25 07:01:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uisurfaceman.cc,v 1.62 2009-04-27 04:40:31 cvsranojay Exp $";
 
 
 #include "uisurfaceman.h"
@@ -173,7 +173,7 @@ void uiSurfaceMan::removeAttribCB( CallBacker* )
     BufferStringSet attrnms;
     attribfld->getSelectedItems( attrnms );
     if ( attrnms.isEmpty() || 
-	    !uiMSG().askGoOn("All selected attributes will be removed.\n"
+	    !uiMSG().askRemove("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
 

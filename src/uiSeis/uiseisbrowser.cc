@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.43 2009-04-24 10:28:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisbrowser.cc,v 1.44 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uiseisbrowser.h"
 
@@ -567,7 +567,7 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
     if ( tbufchgdtrcs_.isEmpty() )
 	return true;
 
-    if ( uiMSG(). askGoOn(" Do you want to save the changes permanently? ",
+    if ( uiMSG().askSave(" Do you want to save the changes permanently? ",
 	          	   true));
 	storeChgdData();
     //TODO store traces if user wants to

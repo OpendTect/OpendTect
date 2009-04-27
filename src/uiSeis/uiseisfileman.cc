@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisfileman.cc,v 1.83 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisfileman.cc,v 1.84 2009-04-27 04:40:31 cvsranojay Exp $";
 
 
 #include "uiseisfileman.h"
@@ -428,7 +428,7 @@ void removeAttrib( CallBacker* )
     BufferStringSet attribnms;
     attriblist->getSelectedItems( attribnms );
     if ( attribnms.isEmpty()
-      || !uiMSG().askGoOn("All selected attributes will be removed.\n"
+      || !uiMSG().askRemove("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
 

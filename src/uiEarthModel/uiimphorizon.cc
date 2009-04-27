@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.116 2009-04-23 18:08:50 cvskris Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.117 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -385,7 +385,7 @@ bool uiImportHorizon::checkInpFlds()
 	return false;
 
     if ( isgeom_ && ctio_.ioobj->implExists(false)
-	   	 && !uiMSG().askGoOn("Output horizon exists. Overwrite?") )
+	   	 && !uiMSG().askOverwrite("Output horizon exists. Overwrite?") )
        return false;
 
     return true;

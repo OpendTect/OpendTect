@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.19 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.20 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uiseisioobjinfo.h"
 #include "uimsg.h"
@@ -95,7 +95,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
 	    msg += " MB";
 	}
 	msg += "\nDo you want to continue?";
-	if ( !uiMSG().askGoOn( msg ) )
+	if ( !uiMSG().askContinue( msg ) )
 	    return false;
     }
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.7 2009-04-17 13:35:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyreaddlg.cc,v 1.8 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uisegyscandlg.h"
 
@@ -115,7 +115,7 @@ bool uiSEGYReadDlg::displayWarnings( const BufferStringSet& warns,
 	{ uiMSG().warning( msg ); return true; }
 
     msg += "\n\nContinue?";
-    return uiMSG().askGoOn( msg );
+    return uiMSG().askContinue( msg );
 }
 
 

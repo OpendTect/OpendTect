@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegydef.cc,v 1.24 2009-04-17 13:35:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegydef.cc,v 1.25 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uisegydef.h"
 #include "segythdef.h"
@@ -405,7 +405,7 @@ static bool setIf( IOPar& iop, bool yn, const char* key, uiGenInput* inp,
 	    msg += fld;
 	    msg += " may not be applied:\nIt clashes with standard SEG-Y "
 		   "revision 1 contents\nContinue?";
-	    if ( !uiMSG().askGoOn(msg) )
+	    if ( !uiMSG().askContinue(msg) )
 		return false;
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexpfault.cc,v 1.12 2009-04-02 13:51:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiexpfault.cc,v 1.13 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uiexpfault.h"
 
@@ -204,7 +204,7 @@ bool uiExportFault::acceptOK( CallBacker* )
 	mErrRet( "Please select output file" );
 
     if ( File_exists(outfld_->fileName()) && 
-			!uiMSG().askGoOn("Output file exists. Continue?") )
+			!uiMSG().askOverwrite("Output file exists. Overwrite?") )
 	return false;
 
     return writeAscii();

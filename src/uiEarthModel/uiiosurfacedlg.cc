@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.38 2009-03-25 07:01:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.39 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -117,7 +117,7 @@ bool uiStoreAuxData::acceptOK( CallBacker* )
     {
 	BufferString msg( "This surface already has an attribute called:\n" );
 	msg += attrnm; msg += "\nDo you wish to overwrite this data?";
-	if ( !uiMSG().askGoOn(msg) )
+	if ( !uiMSG().askOverwrite(msg) )
 	    return false;
 	dooverwrite_ = true;
     }

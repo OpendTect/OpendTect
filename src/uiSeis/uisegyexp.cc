@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisegyexp.cc,v 1.15 2009-04-17 13:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uisegyexp.cc,v 1.16 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uisegyexp.h"
 #include "uisegydef.h"
@@ -306,7 +306,7 @@ bool doWork( IOObj* newioobj, const char* lnm, bool islast, bool& nofails )
     if ( !res )
     {
 	nofails = false;
-	if ( !islast && !uiMSG().askGoOn("Continue with next?") )
+	if ( !islast && !uiMSG().askContinue("Continue with next?") )
 	    return false;
     }
     return true;

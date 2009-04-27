@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.14 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.15 2009-04-27 04:40:31 cvsranojay Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -223,7 +223,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	return false;
     }
     else if ( outctio_.ioobj->implExists(false)
-	      && !uiMSG().askGoOn("Output data set exists. Overwrite?") )
+	      && !uiMSG().askOverwrite("Output data set exists. Overwrite?") )
 	return false;
 
     outctio_.ioobj->pars().set( storagekey, storage );
@@ -339,7 +339,7 @@ bool uiPreStackCopyDlg::acceptOK( CallBacker* cb )
     }
 
     if ( outctio_.ioobj->implExists(false)
-	      && !uiMSG().askGoOn("Output data set exists. Overwrite?") )
+	      && !uiMSG().askOverwrite("Output data set exists. Overwrite?") )
 	return false;
 
     PtrMan<Seis::SelData> sd = 0;
