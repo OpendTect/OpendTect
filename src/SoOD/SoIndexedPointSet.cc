@@ -21,7 +21,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoIndexedPointSet.cc,v 1.1 2009-03-04 13:15:46 cvskris Exp $";
+static const char* rcsID = "$Id: SoIndexedPointSet.cc,v 1.2 2009-04-27 21:22:19 cvskris Exp $";
 
 SO_NODE_SOURCE(SoIndexedPointSet);
 
@@ -170,8 +170,11 @@ void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
     	int32_t v1 = *viptr++;
 	if ( mbind==PER_VERTEX )
 	    mb.send( matnr++, true );
-	else
-	    mb.send( mindices[matnr++], true );
+	else if ( mbind==PER_VERTEX_INDEXED )
+	{
+	    const int mindex = mindices ? mindices[matnr++] : 0;
+	    mb.send( mindex, true );
+	}
 
 	if ( nbind==PER_VERTEX )
 	    glNormal3fv( normals[normnr++].getValue() );
