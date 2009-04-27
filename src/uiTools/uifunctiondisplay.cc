@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.37 2009-04-20 06:20:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.38 2009-04-27 10:38:28 cvssatyaki Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -460,7 +460,7 @@ void uiFunctionDisplay::draw()
 	  (ev.buttonState() & OD::MidButton ) || \
 	  (ev.buttonState() & OD::RightButton ) ) \
         return; \
-    const bool isctrl = ev.ctrlStatus(); \
+    const bool isctrl = isCtrlPressed(); \
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
     const bool isnorm = !isctrl && !isoth
 

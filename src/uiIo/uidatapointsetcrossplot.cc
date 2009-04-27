@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.37 2009-04-23 06:32:37 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.38 2009-04-27 10:38:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.37 2009-04-23 06:32:37 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.38 2009-04-27 10:38:28 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -381,7 +381,9 @@ void uiDataPointSetCrossPlotter::setSelectable( bool y1, bool y2 )
 
 void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 {
-    if ( getMouseEventHandler().event().buttonState() != OD::ControlButton )
+    if ( !selectable_ )
+	return;
+    if ( !isCtrlPressed() && selareaset_.size() )
 	removeSelections();
 
     mousepressed_ = true;
@@ -1028,8 +1030,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	    		mCB(this,uiDataPointSetCrossPlotWin,eachChg) );
     plotter_.eachrow_ = eachrow;
     
-    uiLabel* eachlabel = new uiLabel( dispgrp, "Plot each", dispgrp );
-    eachfld_->attach( rightOf, eachlabel );
+    uiLabel* eachlabel = new uiLabel( dispgrp, "Plot each", eachfld_ );
     disptb_.addObject( dispgrp->attachObj() );
     
     showy2tbid_ = disptb_.addButton( "showy2.png",
