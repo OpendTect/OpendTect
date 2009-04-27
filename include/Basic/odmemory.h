@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: odmemory.h,v 1.1 2009-04-23 16:16:16 cvskris Exp $
+ RCS:		$Id: odmemory.h,v 1.2 2009-04-27 19:37:11 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -160,16 +160,48 @@ bool MemSetter<bool>::setPtr( od_int64 start, od_int64 size )
 }
 
 
+#define mSetterFullImpl(Type) \
+    Type* ptr = ptr_ + start; \
+    const Type* stopptr = ptr + size; \
+    while ( ptr != stopptr ) \
+	{ *ptr = val_; ptr++; } \
+ \
+    return true
+
+
+#define mSpecialImpl( Type ) \
+template <> inline \
+bool MemSetter<Type>::setPtr( od_int64 start, od_int64 size ) \
+{ \
+    if ( val_==0 ) \
+    { \
+	memset( ptr_+start, 0, size*sizeof(Type) ); \
+	return true; \
+    } \
+ \
+    mSetterFullImpl(Type); \
+}
+
+
+mSpecialImpl( float );
+mSpecialImpl( double );
+mSpecialImpl( int );
+mSpecialImpl( unsigned int );
+mSpecialImpl( short );
+mSpecialImpl( unsigned short );
+mSpecialImpl( od_int64 );
+mSpecialImpl( od_uint64 );
+
+
+
 template <class T> inline
 bool MemSetter<T>::setPtr( od_int64 start, od_int64 size )
 {
-    T* ptr = ptr_ + start;
-    const T* stopptr = ptr + size;
-    while ( ptr != stopptr )
-	{ *ptr = val_; ptr++; }
-
-    return true;
+    mSetterFullImpl(T);
 }
+
+#undef mSpecialImpl
+#undef mSetterFullImpl
 
 
 template <class T> inline
