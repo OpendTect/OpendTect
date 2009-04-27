@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.6 2009-04-13 10:29:15 cvsranojay Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.7 2009-04-27 10:37:11 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -99,6 +99,8 @@ void uiGraphicsViewBody::mousePressEvent( QMouseEvent* event )
 {
     if ( !event ) return;
 
+    if ( event->modifiers() == Qt::ControlModifier )
+	handle_.setCtrlPressed( true );
     MouseEvent me;
     if ( event->button() == Qt::RightButton )
     {
@@ -137,8 +139,7 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
     if ( !event ) return;
     if ( event->button() == Qt::LeftButton )
     {
-	if ( event->modifiers() == Qt::ControlModifier )
-	    buttonstate_ = OD::ControlButton;
+	buttonstate_ = OD::LeftButton;
 	MouseEvent me( buttonstate_, event->x(), event->y() );
 	mousehandler_.triggerButtonReleased( me );
 	if ( handle_.isRubberBandingOn() )
@@ -149,8 +150,7 @@ void uiGraphicsViewBody::mouseReleaseEvent( QMouseEvent* event )
 	}
     }
 
-    QList<QGraphicsItem*> items = scene()->selectedItems();
-    const int sz = items.size();
+    handle_.setCtrlPressed( false );
 
     QGraphicsView::mouseReleaseEvent( event );
 }
@@ -220,6 +220,7 @@ uiGraphicsViewBase::uiGraphicsViewBase( uiParent* p, const char* nm )
     , scene_(0)
     , selectedarea_(0)
     , enabscrollzoom_(true)
+    , isctrlpressed_(false)
 {
     setScene( *new uiGraphicsScene(nm) );
     setDragMode( uiGraphicsViewBase::NoDrag );

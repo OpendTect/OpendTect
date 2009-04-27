@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.20 2009-04-21 06:16:35 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.21 2009-04-27 10:37:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,6 @@ public:
 
     MouseEventHandler&		getMouseEventHandler()	
     				{ return mousehandler_; }
-    KeyboardEventHandler&	getKeyboardEventHandler()
-    				{ return keyboardhandler_; }
 
     Notifier<uiGraphicsScene>	ctrlPPressed;
     double			width() const;
@@ -94,7 +92,6 @@ protected:
     ODGraphicsScene*		odgraphicsscene_;
 
     MouseEventHandler		mousehandler_;
-    KeyboardEventHandler	keyboardhandler_;
     bool			ismouseeventactive_;
     friend class		uiGraphicsItem;
     uiGraphicsItem*		doAddItem(uiGraphicsItem*);

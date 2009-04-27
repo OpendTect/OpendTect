@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.25 2009-04-21 06:16:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.26 2009-04-27 10:37:11 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -41,8 +41,7 @@ public:
     			ODGraphicsScene( uiGraphicsScene& scene )
 			    : uiscene_(scene)
 			    , bgopaque_(false)
-			    , mousepressedbs_(OD::NoButton)
-			    , startpos_( *new QPoint() )	{}
+			    , mousepressedbs_(OD::NoButton) {}
 
     void		setBackgroundOpaque( bool yn )	{ bgopaque_ = yn; }
 protected:
@@ -59,7 +58,6 @@ private:
 
     bool		bgopaque_;
 
-    QPoint&		startpos_;
     uiGraphicsScene&	uiscene_;
 };
 
@@ -94,8 +92,6 @@ void ODGraphicsScene::mouseMoveEvent( QGraphicsSceneMouseEvent* qev )
 void ODGraphicsScene::mousePressEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
-    if ( bs == OD::LeftButton )
-	startpos_ = QPoint( (int)qev->scenePos().x(),(int)qev->scenePos().y() );
     mousepressedbs_ = bs;
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
@@ -108,15 +104,6 @@ void ODGraphicsScene::mouseReleaseEvent( QGraphicsSceneMouseEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->modifiers() | qev->button() );
     mousepressedbs_ = OD::NoButton;
-    if ( bs == OD::LeftButton )
-    {
-	const QPoint& stoppos = QPoint( (int)qev->scenePos().x(),
-					(int)qev->scenePos().y() );
-	const QRectF selrect( startpos_, stoppos );
-	QPainterPath selareapath;
-	selareapath.addRect( selrect );
-	setSelectionArea( selareapath );
-    }
     MouseEvent mev( bs, (int)qev->scenePos().x(), (int)qev->scenePos().y() );
     if ( uiscene_.isMouseEventActive() )
 	uiscene_.getMouseEventHandler().triggerButtonReleased( mev );
@@ -138,7 +125,6 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
     , mousehandler_(MouseEventHandler())
-    , keyboardhandler_(KeyboardEventHandler())
     , ismouseeventactive_(true)
     , odgraphicsscene_(new ODGraphicsScene(*this))
     , ctrlPPressed(this)

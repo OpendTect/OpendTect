@@ -7,18 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: uigraphicsviewbase.h,v 1.2 2009-04-06 13:56:03 cvsnanne Exp $
+ RCS:		$Id: uigraphicsviewbase.h,v 1.3 2009-04-27 10:37:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
-#include "uigeom.h"
-#include "mouseevent.h"
 
 class Color;
 class uiGraphicsScene;
 class uiGraphicsViewBody;
+class KeyboardEventHandler;
+class MouseEventHandler;
 class uiRect;
 
 
@@ -61,6 +61,9 @@ public:
     void			disableScrollZoom() { enabscrollzoom_ = false; }
     bool			scrollZoomEnabled()
     				{ return enabscrollzoom_; }
+    bool			isCtrlPressed() const	{return isctrlpressed_;}
+    void			setCtrlPressed( bool yn )
+    				{ isctrlpressed_ = yn; }
 
     MouseEventHandler&		getMouseEventHandler();
 
@@ -80,6 +83,7 @@ protected:
     uiRect*			selectedarea_;
     uiGraphicsScene*		scene_;
 
+    bool			isctrlpressed_;
     bool			enabscrollzoom_;
     void 			rubberBandCB(CallBacker*);
 };
