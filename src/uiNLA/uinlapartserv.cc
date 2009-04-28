@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.65 2009-04-24 13:54:10 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.66 2009-04-28 13:17:01 cvsbert Exp $";
 
 #include "uinlapartserv.h"
 
@@ -518,15 +518,19 @@ void uiNLAPartServer::removeSelPts( CallBacker* )
 
 DataPointSet& uiNLAPartServer::gtDps() const
 {
+    uiNLAPartServer& self = *const_cast<uiNLAPartServer*>( this );
     if ( dps_ && dps_->is2D() != is2d_ )
+    {
 	mDPM.release( dps_->id() );
+	self.dps_ = 0;
+    }
 
     if ( !dps_ )
     {
-	uiNLAPartServer& self = *const_cast<uiNLAPartServer*>( this );
 	self.dps_ = new DataPointSet( is2d_ );
 	self.dps_->setName( "<NLA train/test data>" );
 	mDPM.add( dps_ );
+	mDPM.obtain( dps_->id() );
     }
 
     return *dps_;
