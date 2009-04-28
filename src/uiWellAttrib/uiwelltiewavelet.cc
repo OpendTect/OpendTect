@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.3 2009-04-28 14:30:26 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
 #include "welltiesynthetics.h"
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.2 2009-04-22 09:22:06 c
 
 #include "uiflatviewer.h"
 #include "uiioobjsel.h"
-#include "uitextedit.h"
+#include "uilabel.h"
 
 
 uiWellTieWavelet::uiWellTieWavelet( uiParent* p, WellTieSetup& twtss)
@@ -76,13 +76,20 @@ void uiWellTieWavelet::initWaveletViewer( const int vwridx )
 
 void uiWellTieWavelet::createWaveletFields( uiGroup* grp )
 {
+    grp->setHSpacing(80);
     wvltfld_ = new uiIOObjSel( grp, wvltctio_ );
     wvltfld_->setInput( twtss_.wvltid_ );
     wvltfld_->selectiondone.notify( mCB(this, uiWellTieWavelet, wvtSel));
 
-    viewer_[0]->attach( alignedBelow, wvltfld_ );
-    viewer_[1]->attach( ensureBelow, wvltfld_ );
-    viewer_[1]->attach( ensureRightOf, wvltfld_ );
+    ObjectSet<uiLabel> wvltlbl;
+    wvltlbl += new uiLabel( grp,  "Initial Wavelet" );
+    wvltlbl += new uiLabel( grp, "Estimated Wavelet"); 
+    wvltlbl[0]->attach( alignedBelow, wvltfld_);
+    wvltlbl[0]->attach( ensureBelow, wvltfld_ );
+    wvltlbl[1]->attach( rightOf, wvltlbl[0] );
+    
+    viewer_[0]->attach( alignedBelow, wvltlbl[0] );
+    viewer_[1]->attach( alignedBelow, wvltlbl[1] );
 }
 
 
@@ -92,7 +99,7 @@ void uiWellTieWavelet::initWavelets( Wavelet* wvltest )
     Wavelet* wvlt = Wavelet::get( ioobj );
     ObjectSet<Wavelet> wvlts;
     wvlts += wvlt;
-    wvlts += wvlt;
+    wvlts += wvltest;
     for ( int idx=0; idx<2; idx++ )
 	drawWavelet( wvlts[idx], idx );
 }

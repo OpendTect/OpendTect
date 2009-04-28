@@ -9,15 +9,14 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.2 2009-04-28 14:30:25 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
-#include "keyenum.h"
 #include "pixmap.h"
 #include "flatviewzoommgr.h"
-#include "mousecursor.h"
 #include "welltiedisp.h"
+#include "welltiepickset.h"
 
 #include "uibutton.h"
 #include "uiflatviewer.h"
@@ -34,18 +33,14 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.1 2009-04-21 13:55:
     toolbar_->addObject( but );
 
 
-uiWellTieControlView::uiWellTieControlView( uiParent* p,  
-			    uiToolBar* toolbar, ObjectSet<uiFlatViewer>& viewer )
+uiWellTieControlView::uiWellTieControlView( uiParent* p, 
+			    uiToolBar* toolbar, ObjectSet<uiFlatViewer>& viewer, 			    WellTiePickSetManager& picksetmgr)
     : uiFlatViewControl(*viewer[0], p, true, false)
     , toolbar_(toolbar )
     , manipdrawbut_(0)
-    , seisPickPosAdded(this)		      
-    , synthPickPosAdded(this)
     , propdlg_(0)   			    
-    , dprops_(0)					    
-    , synthpicks_(0)
-    , seispicks_(0)
-		
+    , dprops_(0)					   
+    , picksetmgr_(picksetmgr)						 
 {
     for ( int vwridx=1; vwridx<viewer.size(); vwridx++ )
 	addViewer( *viewer[vwridx] );
@@ -73,8 +68,6 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p,
 
 uiWellTieControlView::~uiWellTieControlView()
 {
-    if ( synthpicks_ ) delete synthpicks_;
-    if ( seispicks_ ) delete seispicks_;
     delete ( dprops_ );
     if ( propdlg_ ) delete propdlg_;
 }
@@ -169,59 +162,50 @@ void uiWellTieControlView::usrClickCB( CallBacker* cb )
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
 	if ( !mouseEventHandler( idx ).hasEvent() )
-	continue;
+	    continue;
 
 	if ( mouseEventHandler(idx).isHandled() )
-	return;
+	    return;
 
 	mouseEventHandler(idx).setHandled( this->handleUserClick( idx) );
     }
 }
 
 
-bool uiWellTieControlView::handleUserClick( const int vwridx )
+void uiWellTieControlView::mouseMoveCB( CallBacker* )
 {
-
+    if ( picksetmgr_.pickSetSize() >= 1 )
+    {
+	for ( int vwridx=0; vwridx<1; vwridx++ )
+	{
+	    if ( !mouseEventHandler( vwridx ).hasEvent() )
+		            continue;
 	    const MouseEvent& ev = mouseEventHandler(vwridx).event();
 	    uiWorld2Ui w2u;
 	    vwrs_[vwridx]->getWorld2Ui(w2u);
 	    const uiWorldPoint wp = w2u.transform( ev.pos() );
 	    vwrs_[vwridx]->getAuxInfo( wp, infopars_ );
-	    if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
-		!ev.altStatus() )
-	    {
-		addPickPos( vwridx,  wp.y );
-		return true;
-	    }
-    
-	    return false;
+	    picksetmgr_.updateShift( vwridx,  wp.y );
+	}
+    }
 }
 
 
-void uiWellTieControlView::setUserPicks( UserPicks* synp, UserPicks* seisp )
+bool uiWellTieControlView::handleUserClick(  int vwridx )
 {
-    synthpicks_ = synp;
-    seispicks_  = seisp;
-}
-
-
-void uiWellTieControlView::addPickPos( const int vwridx, const float zpos )
-{
-    if ( !synthpicks_ && !seispicks_ ) return;
-    if ( !strcmp( vwrs_[vwridx]->pack(true)->name(), "Synthetics" ) )
+    const MouseEvent& ev = mouseEventHandler(vwridx).event();
+    uiWorld2Ui w2u;
+    vwrs_[vwridx]->getWorld2Ui(w2u);
+    const uiWorldPoint wp = w2u.transform( ev.pos() );
+    vwrs_[vwridx]->getAuxInfo( wp, infopars_ );
+    if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
+	!ev.altStatus() )
     {
+	picksetmgr_.addPick( vwridx,  wp.y );
+	return true;
+    }
 
-	synthpicks_->color_ = Color::DgbColor(); 
-	synthpicks_->vieweridx_ = vwridx; 
-	synthpicks_->zpos_ += zpos; 
-	synthPickPosAdded.trigger();
-    }
-    else
-    {
-	seispicks_->vieweridx_ = vwridx; 
-	seispicks_->zpos_ += zpos;
-	seisPickPosAdded.trigger();
-    }
+    return false;
 }
 
 

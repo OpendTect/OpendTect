@@ -22,15 +22,15 @@ class uiWellTieView;
 class uiWellTieControlView;
 class uiWellTieWavelet;
 class uiTable;
+class UserPicks;
+class WellTieToSeismic;
+class WellTiePickSetManager;
 
 class uiGroup;
 class uiToolBar;
 class uiPushButton;
 class uiCheckBox;
 
-class UserPicks;
-
-class WellTieToSeismic;
 
 namespace Attrib { class DescSet; }
 namespace Well
@@ -56,9 +56,9 @@ protected:
     WellTieToSeismic*   wts_;
 
     ObjectSet< Array1DImpl<float> >  dispdata_;   
+    ObjectSet< Array1DImpl<float> >  orgdispdata_;   
     DataPointSet*	dps_;
-    uiWellTieView*	dataviewer_;
-    uiWellTieControlView* controlview_;
+    WellTiePickSetManager* picksetmgr_;
 
     uiToolBar*          toolbar_;
     uiGroup*            vwrgrp_;
@@ -66,6 +66,8 @@ protected:
     uiPushButton*	undobut_;
     uiCheckBox* 	cscorrfld_;
     uiWellTieWavelet*	wvltdraw_; 
+    uiWellTieView*	dataviewer_;
+    uiWellTieControlView* controlview_;
 
     void		addControl();
     void 		addToolBarTools();
@@ -73,6 +75,7 @@ protected:
     void		createTaskFields(uiGroup*);
     void 		dispParPushed(CallBacker*);
     void 		drawData();
+    void 		updateCurve(CallBacker*);
     void 		drawFields(uiGroup*);
     void 		initAll();
     void 		updateButtons();
@@ -81,6 +84,7 @@ protected:
     void 		applyPushed(CallBacker*);
     void 		applyShiftPushed(CallBacker*);
     void		checkShotChg(CallBacker*);
+    void		drawUserPick(CallBacker*);
     void 		viewDataPushed(CallBacker*);
     void 		setView(CallBacker*);
     void 		wvltChg(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.4 2009-04-22 16:20:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.5 2009-04-28 14:30:26 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -67,7 +67,7 @@ WellTieToSeismic::~WellTieToSeismic()
     if ( cscorr_ ) delete cscorr_;
     if ( geocalc_ ) delete geocalc_;
     if ( tr_ ) delete tr_;
-    for (int idx=0; idx< workdata_.size(); idx++)
+    for ( int idx=workdata_.size()-1; idx>=0; idx-- )
 	delete ( workdata_.remove(idx) );
 }
 
@@ -76,18 +76,23 @@ WellTieToSeismic::~WellTieToSeismic()
 #define mComputeStepFactor SI().zStep()/mStep
 bool WellTieToSeismic::setLogsParams()
 {
-    const Well::Log& vellog = *wd_.logs().getLog( wtsetup_.denlognm_ );
-    const Well::Track& track = wd_.track();
+    const Well::Log& vellog = *wd_.logs().getLog( wtsetup_.vellognm_ );
+    const Well::Log& denlog = *wd_.logs().getLog( wtsetup_.denlognm_ );
 
-    timeintv_.start = wd_.d2TModel()->getTime( vellog.dah(0) );
-    timeintv_.stop  = wd_.d2TModel()->getTime( vellog.dah(vellog.size()-1) );
-    timeintv_.step  =  mComputeStepFactor;
+    float velt0  = wd_.d2TModel()->getTime( vellog.dah(0) );
+    float dent0  = wd_.d2TModel()->getTime( denlog.dah(0) );
+    float veltend  = wd_.d2TModel()->getTime( vellog.dah(vellog.size()-1) );
+    float dentend  = wd_.d2TModel()->getTime( denlog.dah(denlog.size()-1) );
+
+    timeintv_.start = mMAX( velt0, dent0  );
+    timeintv_.stop  = mMIN( veltend, dentend );
+    timeintv_.step  = mComputeStepFactor;
 
     float samplenr = ( timeintv_.stop - timeintv_.start) /  timeintv_.step;
     for ( int idx=0; idx<9; idx++)
     {
 	workdata_ += new Array1DImpl<float>( (int)samplenr+1 );
-	dispdata_ += new Array1DImpl<float>( (int)(samplenr/mStep)+1 );	
+	dispdata_ += new Array1DImpl<float>( (int)(samplenr/mStep)-1 );	
     }
     return true;
 }
@@ -133,6 +138,7 @@ bool WellTieToSeismic::resampleLogs()
     MouseCursorManager::setOverride( MouseCursor::Wait );
 
     resLogExecutor( wtsetup_.corrvellognm_, 1 );
+    //resLogExecutor( "P-Impedance", 1 );
     resLogExecutor( wtsetup_.vellognm_, 2  );
     resLogExecutor( wtsetup_.denlognm_, 3  );
 
@@ -184,17 +190,21 @@ void WellTieToSeismic::fillDispData()
     int sz = dispdata_[0]->info().getSize(0);
     for ( int colidx=0; colidx<5; colidx++)
     {
-	for ( int idx=0; idx<sz ; idx++)
-	    dispdata_[colidx]->setValue(idx,workdata_[colidx]->get(mStep*idx));
+	for ( int idx=0; idx<sz; idx++)
+	    dispdata_[colidx]->setValue(idx, 
+			workdata_[colidx]->get((mStep)*idx+1));
     }
 
     getSortedDPSDataAlongZ(*dispdata_[dispdata_.size()-2]);
+
+    for ( int idx = 0; idx < 5; idx ++  )
+	orgdispdata_ += new Array1DImpl<float>( *dispdata_[idx] );
 }
 
 
 void WellTieToSeismic::getSortedDPSDataAlongZ( Array1DImpl<float>& vals)
 {
-    TypeSet<float> zvals;
+    TypeSet<float> zvals, tmpvals;
     for ( int idx=0; idx<dps_.size(); idx++ )
 	zvals += dps_.z(idx);
 
@@ -210,8 +220,10 @@ void WellTieToSeismic::getSortedDPSDataAlongZ( Array1DImpl<float>& vals)
     for ( int colidx=0; colidx<dps_.nrCols(); colidx++ )
     {
 	for ( int idx=0; idx<sz; idx++ )
-	vals.setValue( idx, dps_.getValues(zidxs[idx])[colidx] );
+	    tmpvals += dps_.getValues(zidxs[idx])[colidx];
     }
+    for ( int idx=0; idx<vals.info().getSize(0); idx++ )
+	vals.setValue( idx, tmpvals[idx+1] );
 }
 
 
@@ -238,6 +250,27 @@ bool WellTieToSeismic::createDPSCols()
     mAddCol( attr2cube );
 
     return true;
+}
+
+
+void WellTieToSeismic::stretchData( float startpos, float stoppos,
+				    float lastpickedpos, int dataidx )
+{
+    const int datasz = dispdata_[0]->info().getSize(0);
+    const float step = SI().zStep();
+   
+    const int startidx = (int) ( startpos / step  );
+    const int pickidx  = (int) ( lastpickedpos / step );
+    const int stopidx  = (int) ( stoppos / step  );
+
+    Array1DImpl<float> vals( datasz );
+
+    WellTieGeoCalculator geocalc( wtsetup_, wd_);
+
+    geocalc.stretchArr( *orgdispdata_[2], vals, startidx, stopidx, pickidx );
+
+    for ( int idx=0; idx<datasz; idx++ )
+	dispdata_[2]->setValue( idx, vals.get(idx) );
 }
 
 

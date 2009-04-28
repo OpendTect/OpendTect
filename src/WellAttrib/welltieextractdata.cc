@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.3 2009-04-28 14:30:26 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 
@@ -76,6 +76,7 @@ WellTieResampleLog::WellTieResampleLog( ObjectSet< Array1DImpl<float> >& arr,
 	, workdata_(arr)
 	, wd_(wd)	   
 	, nrdone_(0)
+	, curlogsample_(0)	    
 	, logname_(l.name())
 
 {
@@ -102,10 +103,10 @@ bool WellTieResampleLog::isValidLogData( const TypeSet<float>& logdata )
 
 void WellTieResampleLog::fillProcLog( const Well::Log& log )
 {
-    for ( int logidx=0; logidx<log.size(); logidx++ )
+    for ( int idx=0; idx<log.size(); idx++ )
     {
-	val_ += log.valArr()[logidx];
-	dah_ += log.dah(logidx);
+	val_ += log.valArr()[idx];
+	dah_ += log.dah(idx);
     }
 }
 
@@ -155,31 +156,39 @@ int WellTieResampleLog::nextStep()
 {
     float curtime = timeintv_.atIndex( nrdone_ );
     float curdah = wd_.d2TModel()->getDepth( curtime );
-    if ( curtime > timeintv_.stop )
+    float curval = 0;
+    int tmpidx = curlogsample_;
+    updateLogIdx( curdah, tmpidx  );
+    curlogsample_ = tmpidx;
+    
+    if ( curtime > timeintv_.stop || curlogsample_ >= dah_.size() )
 	return Executor::Finished();
+   
+    if ( tmpidx>6 && tmpidx<dah_.size()-9 )
+    {
+	for ( int idx = tmpidx-7; idx<tmpidx+8; idx++ )
+	    curval += val_[idx] / 15;
+    }
+    else
+	curval = val_[curlogsample_];
 
-    float curval =  findNearestLogSample( curdah );
-    //TODO change nearest sample to better algorithm type? Average, median...
-
-    workdata_[colnr_]->setValue( nrdone_, curval );
-    workdata_[0]->setValue( nrdone_, curtime );
+    if (  curlogsample_ < dah_.size()  )
+    {
+	workdata_[colnr_]->setValue( nrdone_, curval );
+	workdata_[0]->setValue( nrdone_, curtime );
+    }
 
     nrdone_++;
     return Executor::MoreToDo();
 }
 
 
-float WellTieResampleLog::findNearestLogSample( const float curdah )
+void WellTieResampleLog::updateLogIdx( float curdah, int& logidx  )
 {
-    float curval; int logidx=0;
-    if ( curdah >= dah_[dah_.size()-1] )
-	curval = val_[val_.size()-1];
-    else
-    {
-	while ( curdah >= dah_[logidx] )
-	    logidx++;
-	curval = val_[logidx];
-    }
-    return curval;
+    int tmpidx = logidx;
+    while ( curdah >= dah_[tmpidx] && tmpidx < val_.size() )
+	tmpidx++;
+    
+    logidx = tmpidx;
 }
 

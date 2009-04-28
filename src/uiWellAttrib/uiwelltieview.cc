@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.5 2009-04-22 16:20:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.6 2009-04-28 14:30:26 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.5 2009-04-22 16:20:59 cvsb
 #include "attribengman.h"
 #include "flatposdata.h"
 #include "iostrm.h"
+#include "geometry.h"
 #include "unitofmeasure.h"
 #include "posinfo.h"
 #include "position.h"
@@ -34,7 +35,7 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.5 2009-04-22 16:20:59 cvsb
 #include "welltrack.h"
 
 #include "uiflatviewer.h"
-#include "uiwelltiecontrolview.h"
+#include "welltiepickset.h"
 
 uiWellTieView::uiWellTieView( uiParent* p, DataPointSet& dps, 
 			      ObjectSet< Array1DImpl<float> >& dispdata, 
@@ -68,12 +69,12 @@ void uiWellTieView::setUpTimeAxis()
 
 void uiWellTieView::fullRedraw( uiGroup* vwrgrp )
 {
-    drawWellMarkers();
     drawVelLog();
     drawDensLog();
     drawSynthetics();
     drawSeismic();
     drawCShot();
+    drawWellMarkers();
 }
 
 
@@ -149,7 +150,7 @@ void uiWellTieView::drawSeismic()
     BufferString attrnm = ad->userRef();
     BufferString attr2cube = SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 
-    createVarDataPack( attr2cube, 3, 4, 8 );
+    createVarDataPack( attr2cube, 3, 4, 7 );
 }
 
 
@@ -196,22 +197,36 @@ void uiWellTieView::createVarDataPack( const char* varname, int vwrnr,
 
 
 void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
-       				const int vwridx, const float zpos, Color col)
+       				int vwridx, float xpos,  float zpos,
+			       	Color col, bool ispick )
 {
+    if ( zpos < timeintv_.start || zpos > timeintv_.stop ||
+	    	col == Color::NoColor() || col.rgb() == 16777215 )
+    {
+	delete auxdata;
+	return;
+    }
+
     FlatView::Appearance& app = vwrs_[vwridx]->appearance();
     app.annot_.auxdata_ +=  auxdata;
     auxdata->namepos_ = 0;
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.type_  = LineStyle::Solid;
-   
-    if ( col == Color::NoColor() || col.rgb() == 16777215 )
-	col = Color::LightGrey();
 
-    auxdata->poly_.erase();
-    auxdata->poly_ += FlatView::Point(
-	    vwrs_[vwridx]->boundingBox().left(), zpos );
-    auxdata->poly_ += FlatView::Point(
-	    vwrs_[vwridx]->boundingBox().right(), zpos );
+
+    if ( ispick )
+    {
+	auxdata->markerstyles_ += MarkerStyle2D( MarkerStyle2D::Cross,5,col );
+	Geom::PosRectangle<double> boundingdata( xpos, 0, xpos, 0  );
+	auxdata->poly_ += FlatView::Point( boundingdata.left(), zpos);
+    }
+    else
+    {
+	auxdata->poly_ += FlatView::Point(
+		vwrs_[vwridx]->boundingBox().left(), zpos );
+	auxdata->poly_ += FlatView::Point(
+		vwrs_[vwridx]->boundingBox().right(), zpos );
+    }
 }
 
 
@@ -237,7 +252,7 @@ void uiWellTieView::drawWellMarkers()
 	{
 	    FlatView::Annotation::AuxData* a = 
 			new FlatView::Annotation::AuxData(*auxdata);
-	    drawMarker( a, vwridx, zpos, marker->color() );
+	    drawMarker( a, vwridx, 0,  zpos, marker->color(), false );
 	}
 	delete auxdata;
     }
@@ -246,20 +261,21 @@ void uiWellTieView::drawWellMarkers()
 }	
 
 
-void uiWellTieView::drawUserPicks( const UserPicks* userpicks )
+void uiWellTieView::drawUserPick( const UserPick* userpick )
 {
-    if ( !userpicks  ) return;
-    
-    const int vwridx = userpicks->vieweridx_;
+    if ( !userpick  ) return;
+
+    const int vwridx = userpick->vidx_;
     if ( vwridx<0 || vwridx>vwrs_.size() )return;
-    
   
     FlatView::Annotation::AuxData* auxdata = 0;
     mTryAlloc( auxdata, FlatView::Annotation::AuxData( 0 ) );
     
-    const float zpos = userpicks->zpos_[userpicks->zpos_.size()-1];
+    const float zpos = userpick->zpos_;
+    const int idxatdah = (int) ( (zpos-timeintv_.start) / timeintv_.step );
+    const float xpos = dispdata_[2]->get( idxatdah );
 
-    drawMarker( auxdata, vwridx, zpos, userpicks->color_ );
+    drawMarker( auxdata, vwridx, xpos, zpos, userpick->color_, true );
     userpickauxdatas_ += auxdata;
 
     vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );

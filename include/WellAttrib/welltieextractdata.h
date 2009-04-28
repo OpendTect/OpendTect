@@ -76,8 +76,9 @@ protected:
     TypeSet<float> 	dah_;
     const Well::Data& 	wd_;
     int                 nrdone_;
+    int                 curlogsample_;
 
-    float      	 	findNearestLogSample(const float);
+    void      	 	updateLogIdx(float,int&);
     void        	fillProcLog(const Well::Log&);
     int         	getFirstDefIdx(const TypeSet<float>&);
     int         	getLastDefIdx(const TypeSet<float>&);

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.4 2009-04-22 16:20:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.5 2009-04-28 14:30:26 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -31,6 +31,7 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.4 2009-04-22 16:20
 #include "attribdescset.h"
 #include "ctxtioobj.h"
 #include "datapointset.h"
+#include "survinfo.h"
 
 #include "welldata.h"
 #include "wellimpasc.h"
@@ -40,7 +41,9 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.4 2009-04-22 16:20
 
 #include "welltiecshot.h"
 #include "welltiesetup.h"
+#include "welltiegeocalculator.h"
 #include "welltietoseismic.h"
+#include "welltiepickset.h"
 
 
 #define mErrRet(msg) \
@@ -57,9 +60,12 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 	, wts_(0)
 	, dataviewer_(0)
     	, controlview_(0)	  
+    	, picksetmgr_(0)	  
 {
+
     wtsetup_.iscsavailable_ = wd_->checkShotModel();			  
     setWinTitle( ads );
+    
     vwrgrp_ = new uiGroup( this, "viewers group" );
     dps_ = new DataPointSet( false, false );
     uiTaskRunner* tr = new uiTaskRunner( p );
@@ -67,6 +73,10 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
     toolbar_ = new uiToolBar( this, "Well Tie Control" );
     dataviewer_ = new uiWellTieView( vwrgrp_, *dps_, dispdata_,
 				     *wd_, wtsetup_, ads );
+    picksetmgr_ = new WellTiePickSetManager();
+    picksetmgr_->pickadded.notify(mCB(this,uiWellTieToSeismicDlg,drawUserPick));
+    picksetmgr_->mousemoving.notify(
+				  mCB(this,uiWellTieToSeismicDlg,updateCurve)); 
     drawFields( vwrgrp_ );
     initAll();
 
@@ -77,14 +87,13 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 {
     
-    for ( int idx=0; idx<dispdata_.size(); idx++ )
+    for ( int idx=dispdata_.size()-1; idx>=0; idx-- )
 	delete ( dispdata_.remove(idx) );
     if (dps_) delete dps_;
     if ( wvltdraw_  )
 	wvltdraw_->wvltChanged.remove(mCB(this,uiWellTieToSeismicDlg,wvltChg));
     if ( dataviewer_ ) delete dataviewer_;
-    if (wd_) delete wd_;	   
-    
+    if (wd_) delete wd_;	  
 }
 
 
@@ -147,7 +156,8 @@ void uiWellTieToSeismicDlg::addControl()
     for (int vwridx=0; vwridx<dataviewer_->viewerSize(); vwridx++)
 	viewer += dataviewer_->getViewer( vwridx );
 
-    controlview_ = new uiWellTieControlView( this, toolbar_, viewer );
+    controlview_ = new uiWellTieControlView( this, toolbar_, 
+	    				viewer, *picksetmgr_ );
 }
 
 
@@ -166,6 +176,7 @@ void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
     wvltdraw_ = new uiWellTieWavelet( wvltgrp, wtsetup_ );
     wvltdraw_->wvltChanged.notify( mCB(this,uiWellTieToSeismicDlg,wvltChg) );
 }
+
 
 //TODO some of them will have to be placed in toolbar
 void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
@@ -211,7 +222,7 @@ void uiWellTieToSeismicDlg::wvltChg( CallBacker* )
 
 void uiWellTieToSeismicDlg::updateButtons()
 {
-    if ( wtsetup_.iscsavailable_ )
+    if ( !wtsetup_.iscsavailable_ )
 	cscorrfld_->display(false);
 }
 
@@ -221,6 +232,33 @@ void uiWellTieToSeismicDlg::checkShotChg( CallBacker* )
     wtsetup_.iscscorr_ = cscorrfld_->isChecked();
     dataviewer_->drawVelLog();
     applybut_->setSensitive(true);
+}
+
+
+void uiWellTieToSeismicDlg::drawUserPick( CallBacker* )
+{
+    dataviewer_->drawUserPick( picksetmgr_->getLastPick() );
+}
+
+
+void uiWellTieToSeismicDlg::updateCurve( CallBacker* )
+{
+    const int datasz =  dispdata_[0]->info().getSize(0);
+    const int picksetsz =  picksetmgr_->pickSetSize();
+    const float startposdata = dispdata_[0]->get(0);
+
+    float startpos;
+    if ( picksetsz > 1 )
+	startpos = picksetmgr_->getPickPos( picksetsz-2 ) - startposdata; 
+    else
+	startpos = 0;
+
+    const float lastpickedpos = picksetmgr_->getLastPickPos()-startposdata;
+    const float stoppos  = picksetmgr_->getMousePos()-startposdata;
+    const int   vwridx 	 = picksetmgr_->getLastPickVwrIdx();
+    wts_->stretchData( startpos, stoppos, lastpickedpos, vwridx );
+
+    dataviewer_->drawVelLog();
 }
 
 

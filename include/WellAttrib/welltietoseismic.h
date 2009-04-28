@@ -48,6 +48,8 @@ public:
     
     bool 			computeAll();
     bool			computeSynthetics();
+    
+    void	 	      	stretchData(float,float,float,int);
     Wavelet*  			estimateWavelet();
    
     //D2TModelmanager 
@@ -75,6 +77,7 @@ protected:
     DataPointSet& 		dps_;
     ObjectSet< Array1DImpl<float> >   workdata_;	
     ObjectSet< Array1DImpl<float> >&  dispdata_;	
+    ObjectSet< Array1DImpl<float> >   orgdispdata_;	
 
     WellTieD2TModelManager*	d2tmgr_;
     WellTieGeoCalculator*	geocalc_;

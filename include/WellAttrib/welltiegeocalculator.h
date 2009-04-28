@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.3 2009-04-28 14:30:25 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,10 @@ public:
     void 		TWT2Vel(const TypeSet<float>&,const TypeSet<float>&,
 				TypeSet<float>&,bool);
     void 		lowPassFilter(Array1DImpl<float>&,float);
+    void		stretchArr(const Array1DImpl<float>&,
+				     Array1DImpl<float>&,int,int,int);
+    void 		interpolAtIdx(const Array1DImpl<float>&,
+					float,float&);
     void		resampleData(const Array1DImpl<float>&,
 				     Array1DImpl<float>&,float);
     void                computeAI(const Array1DImpl<float>&,
@@ -56,11 +60,8 @@ public:
     void 		deconvolve( const Array1DImpl<float>&,
 				    const Array1DImpl<float>&,
 				    Array1DImpl<float>&);
-    void 		stackWavelets(const TypeSet<float>&,
-				      const TypeSet<float>&,
-				      TypeSet<float>&);
 
-    protected:
+protected:
 
     const Well::Data&	wd_;
     const WellTieSetup& wtsetup_;

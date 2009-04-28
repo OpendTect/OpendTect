@@ -20,7 +20,7 @@ ________________________________________________________________________
 template <class T> class Array1DImpl;
 class DataPointSet;
 class WellTieSetup; 
-class UserPicks;
+class UserPick;
 
 class uiFlatViewer;
 namespace Attrib
@@ -55,10 +55,10 @@ public:
     void        		drawVelLog();
     void        		drawDensLog();
     void        		drawMarker(FlatView::Annotation::AuxData*,
-				    const int,const float,Color);
+					    int,float,float,Color,bool);
     void        		drawSynthetics();
     void        		drawSeismic();
-    void        		drawUserPicks(const UserPicks*);
+    void        		drawUserPick(const UserPick*);
     void        		drawWellMarkers();
     void        		drawCShot();
     void        		setUpTimeAxis();
