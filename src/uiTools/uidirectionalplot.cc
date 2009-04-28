@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.20 2009-04-28 12:48:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.21 2009-04-28 15:20:06 cvsjaap Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -172,6 +172,16 @@ void uiDirectionalPlot::drawGrid()
 	li->setPenStyle( setup_.sectorls_ );
     }
 }
+
+
+void uiDirectionalPlot::drawScale()
+{}
+
+void uiDirectionalPlot::drawHeader()
+{}
+
+void uiDirectionalPlot::drawColTab()
+{}
 
 
 void uiDirectionalPlot::drawAnnot()
