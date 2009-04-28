@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiicons.h,v 1.2 2009-04-07 06:27:13 cvsranojay Exp $
+ RCS:           $Id: uiicons.h,v 1.3 2009-04-28 17:38:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ namespace Icons
     mGlobal const ioPixmap&	saveAs();
     mGlobal const ioPixmap&	openObject();
     mGlobal const ioPixmap&	newObject();
+    mGlobal const ioPixmap&	removeObject();
 };
 
 
