@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.39 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.40 2009-04-28 12:51:08 cvsbert Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -24,11 +24,13 @@ static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.39 2009-04-27 04:40:31 cv
 #include "executor.h"
 #include "filegen.h"
 #include "ioobj.h"
+#include "posprovider.h"
 
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "uipossubsel.h"
 
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
@@ -154,12 +156,13 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj, bool wattr )
     : uiDialog(p,Setup("Copy surface",mNoDlgTitle,"104.0.0"))
     , ctio_(*mkCtxtIOObj(ioobj))
 {
-    inpfld = new uiSurfaceRead( this,
-	    uiSurfaceRead::Setup(ioobj.group()).withattribfld(wattr)
-	   				       .withsubsel(true) );
+    uiSurfaceRead::Setup su( ioobj.group() );
+    su.withattribfld(wattr).withsubsel(true).multisubsel(true);
+    inpfld = new uiSurfaceRead( this, su );
     inpfld->setIOObj( ioobj.key() );
 
     ctio_.ctxt.forread = false;
+    ctio_.setObj( 0 );
     outfld = new uiIOObjSel( this, ctio_, "Output Horizon" );
     outfld->attach( alignedBelow, inpfld );
 }
@@ -217,6 +220,19 @@ bool uiCopySurface::acceptOK( CallBacker* )
 
     uiTaskRunner loaddlg( this );
     if ( !loaddlg.execute(*loader) ) return false;
+
+    uiPosSubSel* pss = inpfld->getPosSubSel();
+    if ( pss )
+    {
+	Pos::Provider* pp = pss->curProvider();
+	if ( pp && strcmp(pp->type(),sKey::Range) )
+	{
+	    //TODO remove all points read that are not selected, like:
+	    // for ( each node )
+	    //   if ( pp->includes( binid ) )
+	    //     killNode( binid );
+	}
+    }
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;
     const MultiID& mid = newioobj->key();

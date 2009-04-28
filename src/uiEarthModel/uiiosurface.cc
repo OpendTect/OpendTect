@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurface.cc,v 1.69 2009-04-22 22:17:17 cvskris Exp $";
+static const char* rcsID = "$Id: uiiosurface.cc,v 1.70 2009-04-28 12:51:07 cvsbert Exp $";
 
 #include "uiiosurface.h"
 
@@ -85,9 +85,12 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 }
 
 
-void uiIOSurface::mkRangeFld()
+void uiIOSurface::mkRangeFld( bool multisubsel )
 {
-    rgfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
+    uiPosSubSel::Setup su( false, false );
+    if ( multisubsel )
+	su.choicetype( uiPosSubSel::Setup::OnlySeisTypes );
+    rgfld_ = new uiPosSubSel( this, su );
     rgfld_->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
     if ( sectionfld_ ) rgfld_->attach( ensureBelow, sectionfld_ );
 }
@@ -182,11 +185,7 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
     if ( !rgfld_ || rgfld_->isAll() )
 	sels.rg.init( false );
     else
-    {
-	IOPar par;
-	rgfld_->fillPar( par );
-	sels.rg.usePar( par );
-    }
+	sels.rg = rgfld_->envelope().hrg;
 
     if ( SI().sampling(true) != SI().sampling(false) )
     {
@@ -443,7 +442,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 
     if ( setup.withsubsel_ )
     {
-	mkRangeFld();
+	mkRangeFld( setup.multisubsel_ );
 	rgfld_->attach( alignedBelow, attachobj );
     }
 
@@ -453,8 +452,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 
 void uiSurfaceRead::setIOObj( const MultiID& mid )
 {
-    ctio_->setObj( mid );
-    objfld_->updateInput();
+    objfld_->setInput( mid );
     objSel( 0 );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.31 2009-03-26 09:33:44 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.h,v 1.32 2009-04-28 12:51:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     Notifier<uiIOSurface> attrSelChange;
     bool		haveAttrSel() const;
     uiIOObjSel*		getObjSel()		{ return objfld_; }
+    uiPosSubSel*	getPosSubSel()		{ return rgfld_; }
 
 protected:
 			uiIOSurface(uiParent*,bool forread,
@@ -60,7 +61,7 @@ protected:
 
     void		mkAttribFld();
     void		mkSectionFld(bool);
-    void		mkRangeFld();
+    void		mkRangeFld(bool multiss=false);
     void		mkObjFld(const char*);
 
     void		objSel(CallBacker*);
@@ -130,15 +131,17 @@ public:
     public:
 			Setup( const char* surftyp )
 			    : typ_(surftyp)
-			    , withsubsel_(false)
 			    , withattribfld_(true)
 			    , withsectionfld_(true)
+			    , withsubsel_(false)
+			    , multisubsel_(false)
 			{}
 
 	mDefSetupMemb(BufferString,typ)
-	mDefSetupMemb(bool,withsubsel)
 	mDefSetupMemb(bool,withattribfld)
 	mDefSetupMemb(bool,withsectionfld)
+	mDefSetupMemb(bool,withsubsel)
+	mDefSetupMemb(bool,multisubsel)
     };
 
     			uiSurfaceRead(uiParent*,const Setup&);
