@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.9 2009-04-24 21:24:35 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.10 2009-04-28 19:39:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "visobject.h"
 #include "arrayndimpl.h"
+#include "position.h"
+#include "visobject.h"
 
 class BinIDValueSet;
 class SbVec2f;
@@ -34,7 +35,6 @@ namespace Geometry { class BinIDSurface; }
 namespace ColTab { class Sequence; struct MapperSetup; }
 
 #define mHorSectNrRes		6
-#define mHorSectSideSize	64 //the size of blocks of the tile is 63
 
 namespace visBase
 {
@@ -82,7 +82,7 @@ public:
     
     char			nrResolutions() const { return mHorSectNrRes; }
     char			currentResolution() const;
-    void			setResolution(char);
+    void			setResolution(int);
 
     void			setColTabSequence(int channel,
 	    					  const ColTab::Sequence&);
@@ -110,7 +110,8 @@ protected:
     void			updateTexture(int channel);
     void			updateResolution(SoState*);
     static void			updateResolution(void*,SoAction*);
-    void			updateWireFrame(char res);
+    void			updateWireFrame(int res);
+    void			turnOnWireFrame(int res);
 
     Geometry::BinIDSurface*	geometry_;
     ObjectSet<BinIDValueSet>	cache_;
@@ -122,7 +123,7 @@ protected:
     SoCallback*			callbacker_;
 
     Array2DImpl<HorizonSectionTile*> tiles_;
-    visBase::IndexedPolyLine*	wireframelines_;
+    visBase::IndexedPolyLine*	wireframelines_[mHorSectNrRes];
 
     Transformation*		transformation_;
     ZAxisTransform*		zaxistransform_;
@@ -140,11 +141,12 @@ public:
 				HorizonSectionTile();
 				~HorizonSectionTile();
     void			setResolution(int);
-    				/*!<Resolution -1 means it will be vary, it will				    be set when we call updateResolution. */
+    				/*!<Resolution -1 means it is automatic. */
     void			updateResolution(SoState*);
     				/*<Update only when the resolutionis -1. */
     void			setNeighbor(int,HorizonSectionTile*);
     void			setPos(int row,int col,const Coord3&);
+    void			setDisplayTransformation(Transformation*);
 
 //    void			setMaxSpacing();
     void			setTextureSize(int rowsz,int colsz);
@@ -153,22 +155,27 @@ public:
     void			setNormal(int idx,const Coord3& normal);
     int				getNormalIdx(int crdidx,int res) const;
 
+    void			turnOffLines(bool);
     void			resetResolutionChangeFlag();
 
     void			tesselateActualResolution();
     void			updateGlue();
     SoLockableSeparator*	getNodeRoot() const	{ return root_; }
-    visBase::Coordinates*	getCoords() const	{ return coords_; }
 
 protected:
 
     int				getActualResolution() const;
     void			setActualResolution(int);
-    int				getAutoResolution(SoState*) const;
+    int				getAutoResolution(SoState*);
     void			tesselateGlue();
     void			tesselateResolution(int);
+    void			updateBBox();
 
     HorizonSectionTile*		neighbors_[9];
+
+    Coord3			bboxstart_;	//Display space
+    Coord3			bboxstop_;	//Display space
+    bool			needsupdatebbox_;
 
     SoLockableSeparator*	root_;
     visBase::Coordinates*	coords_;
@@ -176,7 +183,8 @@ protected:
     SoSwitch*			resswitch_;
     SoNormal*			normals_;
     int				normalstartidx[mHorSectNrRes];
-    int				spacing[mHorSectNrRes];
+    static int			spacing_[mHorSectNrRes];
+    static int			nrcells_[mHorSectNrRes];
     int				desiredresolution_;
     bool			resolutionhaschanged_;
 
