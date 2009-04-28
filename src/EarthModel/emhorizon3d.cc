@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhorizon3d.cc,v 1.114 2009-02-10 11:34:30 cvsbert Exp $";
+static const char* rcsID = "$Id: emhorizon3d.cc,v 1.115 2009-04-28 13:23:48 cvskris Exp $";
 
 #include "emhorizon3d.h"
 
@@ -331,6 +331,9 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 
     Array2D<float>* oldarr = undodesc ? createArray2D( sid, 0 ) : 0;
 
+    const int arrnrrows = arr.info().getSize( 0 );
+    const int arrnrcols = arr.info().getSize( 1 );
+
     for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
@@ -340,8 +343,15 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
 	    if ( pos.isDefined() && onlyfillundefs )
 		continue;
 
-	    const double val = arr.get(rowrg.getIndex(row),colrg.getIndex(col));
-	    if ( pos.z == val )
+	    const int rowidx = rowrg.nearestIndex(row);
+	    const int colidx = colrg.nearestIndex(col);
+
+	    const double val = rowidx>=0 && rowidx<arrnrrows &&
+			       colidx>=0 && colidx<arrnrcols
+		   ? arr.get(rowrg.getIndex(row),colrg.getIndex(col))
+		   : mUdf(float);
+
+	    if ( pos.z == val || (mIsUdf(pos.z) && mIsUdf(val)) )
 		continue;
 
 	    pos.z = val;
