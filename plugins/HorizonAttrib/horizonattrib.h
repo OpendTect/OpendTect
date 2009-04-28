@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: horizonattrib.h,v 1.8 2009-03-06 05:04:25 cvsnanne Exp $
+ RCS:           $Id: horizonattrib.h,v 1.9 2009-04-28 11:26:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     static const char*	sKeyHorID()	{ return "horid"; }
     static const char*	sKeySurfDataName(){ return "surfdatanm"; }
     static const char*	sKeyType()	{ return "type"; }
+    static const char*	sKeyRelZ()	{ return "relz"; }
     static const char*	outTypeNamesStr(int);
 
     bool                isOK() const;
@@ -55,6 +56,7 @@ protected:
     MultiID		horid_;
     BufferString	surfdatanm_;
     int			outtype_;
+    bool		relz_;
 
     EM::Horizon*	horizon_;
     const DataHolder*	inputdata_;

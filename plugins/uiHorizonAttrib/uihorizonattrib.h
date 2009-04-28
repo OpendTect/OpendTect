@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uihorizonattrib.h,v 1.7 2009-04-20 07:13:38 cvsnanne Exp $
+ RCS:           $Id: uihorizonattrib.h,v 1.8 2009-04-28 11:26:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ namespace Attrib { class Desc; };
 class uiAttrSel;
 class uiGenInput;
 class uiIOObjSel;
+class uiCheckBox;
 
 
 /*! \brief Horizon attribute description editor */
@@ -36,6 +37,7 @@ protected:
     uiIOObjSel*		horfld_;
     uiGenInput*		typefld_;
     uiGenInput*		surfdatafld_;
+    uiCheckBox*		isrelbox_;
 
     BufferStringSet	surfdatanms_;
     int			nrouttypes_;

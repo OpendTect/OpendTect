@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.16 2009-04-20 07:13:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.17 2009-04-28 11:26:07 cvsbert Exp $";
 
 #include "uihorizonattrib.h"
 #include "horizonattrib.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uihorizonattrib.cc,v 1.16 2009-04-20 07:13:38 c
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uibutton.h"
 #include "uimsg.h"
 
 using namespace Attrib;
@@ -49,6 +50,9 @@ uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     typefld_ = new uiGenInput( this, "Output", StringListInpSpec(sDefHorOut) );
     typefld_->valuechanged.notify( mCB(this,uiHorizonAttrib,typeSel) );
     typefld_->attach( alignedBelow, horfld_ );
+
+    isrelbox_ = new uiCheckBox( this, "Relative" );
+    isrelbox_->attach( rightOf, typefld_ );
 
     surfdatafld_ = new uiGenInput( this, "Select surface data",
 	    			   StringListInpSpec() );
@@ -82,6 +86,8 @@ bool uiHorizonAttrib::setParameters( const Attrib::Desc& desc )
 		  surfdatafld_->setValue(surfdatanms_.indexOf( surfdtnm )<0 
 		      ? 0 : surfdatanms_.indexOf(surfdtnm) ) );
 
+    mIfGetBool(Horizon::sKeyRelZ(), isrel, isrelbox_->setChecked(isrel));
+
     typeSel(0);
 
     return true;
@@ -102,9 +108,13 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
 
     mSetString( Horizon::sKeyHorID(),
 	        horfld_->ioobj() ? horfld_->ioobj()->key().buf() : "" );
-    mSetEnum( Horizon::sKeyType(), typefld_->getIntValue() );
     const int typ = typefld_->getIntValue();
-    if ( typ==1 )
+    mSetEnum( Horizon::sKeyType(), typ );
+    if ( typ==0 )
+    {
+	mSetBool( Horizon::sKeyRelZ(), isrelbox_->isChecked() )
+    }
+    else if ( typ==1 )
     {
 	int surfdataidx = surfdatafld_->getIntValue();
 	if ( surfdatanms_.size() )
@@ -162,6 +172,8 @@ void uiHorizonAttrib::horSel( CallBacker* )
 
 void uiHorizonAttrib::typeSel(CallBacker*)
 {
-    surfdatafld_->display( typefld_->getIntValue() == 1 );
+    const bool isz = typefld_->getIntValue() == 0;
+    isrelbox_->display( isz );
+    surfdatafld_->display( !isz );
 }
 

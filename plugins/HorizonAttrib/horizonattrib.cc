@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonattrib.cc,v 1.14 2009-03-06 05:04:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizonattrib.cc,v 1.15 2009-04-28 11:26:07 cvsbert Exp $";
 
 #include "horizonattrib.h"
 
@@ -43,6 +43,8 @@ void Horizon::initClass()
     type->addEnum( outTypeNamesStr(mOutTypeZ) );
     type->addEnum( outTypeNamesStr(mOutTypeSurfData) );
     desc->addParam( type );
+
+    desc->addParam( new BoolParam( sKeyRelZ(), false, false ) );
     
     StringParam* surfidpar = new StringParam( sKeySurfDataName() );
     surfidpar->setEnabled( false );
@@ -60,6 +62,7 @@ void Horizon::updateDesc( Desc& desc )
     BufferString type = desc.getValParam(sKeyType())->getStringValue();
     const bool issurfdata = type==outTypeNamesStr( mOutTypeSurfData );
     desc.setParamEnabled( sKeySurfDataName(), issurfdata );
+    desc.setParamEnabled( sKeyRelZ(), !issurfdata );
 }
 
 
@@ -68,13 +71,16 @@ Horizon::Horizon( Desc& dsc )
     , inputdata_(0)
     , horizon_(0)
     , horizon2dlineid_( mUdf(int) )
+    , relz_(false)
 { 
     BufferString idstr = desc.getValParam( sKeyHorID() )->getStringValue();
     horid_ = MultiID( idstr.buf() );
 
     mGetEnum( outtype_, sKeyType() );
     if ( outtype_ == mOutTypeSurfData )
-	mGetString( surfdatanm_, sKeySurfDataName() );
+	{ mGetString( surfdatanm_, sKeySurfDataName() ); }
+    else
+	{ mGetBool( relz_, sKeyRelZ() ); }
 
     if ( !isOK() )
     {
@@ -104,10 +110,9 @@ bool Horizon::isOK() const
 }
 
 
-const char* Horizon::outTypeNamesStr(int type)
+const char* Horizon::outTypeNamesStr( int type )
 {
-    if ( type == mOutTypeZ ) return "Z";
-    return "Surface Data";
+    return type == mOutTypeZ ? "Z" : "Surface Data";
 }
 
 
@@ -220,21 +225,32 @@ bool Horizon::computeData( const DataHolder& output, const BinID& relpos,
 	    		   rc.getSerialized() );
     const float zval = horizon_->getPos( posid ).z;
 
-    float outputvalue = mUdf(float);
-    if ( outtype_ == mOutTypeZ )
-	outputvalue = zval;
-    else if ( !desc.is2D() )
+    const bool isz = outtype_ == mOutTypeZ;
+    if ( relz_ && isz )
     {
-	mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
-	if ( hor3d )
+	for ( int iz=0; iz<nrsamples; iz++ )
 	{
-	    int auxindex = hor3d->auxdata.auxDataIndex( surfdatanm_ );
-	    outputvalue = hor3d->auxdata.getAuxDataVal( auxindex, posid );
+	    const float ziz = (z0 + iz) * refstep;
+	    setOutputValue( output, 0, iz, z0, ziz - zval );
 	}
     }
-    
-    for ( int idx=0; idx<nrsamples; idx++ )
-	setOutputValue( output, 0, idx, z0, outputvalue );
+    else
+    {
+	float outputvalue = mUdf(float);
+	if ( isz )
+	    outputvalue = zval;
+	else if ( !desc.is2D() )
+	{
+	    mDynamicCastGet(EM::Horizon3D*,hor3d,horizon_)
+	    if ( hor3d )
+	    {
+		int auxindex = hor3d->auxdata.auxDataIndex( surfdatanm_ );
+		outputvalue = hor3d->auxdata.getAuxDataVal( auxindex, posid );
+	    }
+	}
+	for ( int iz=0; iz<nrsamples; iz++ )
+	    setOutputValue( output, 0, iz, z0, outputvalue );
+    }
 
     return true;
 }
