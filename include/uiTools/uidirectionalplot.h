@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.10 2009-04-23 15:15:20 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.11 2009-04-28 12:48:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,14 +114,20 @@ protected:
     void			gatherInfo();
     void			draw();
     void			drawGrid();
-    void			drawAnnot();
     void			drawData();
     void			drawScatter();
     void			drawVals();
     void			drawRose();
     void			drawSelection();
 
-    uiPoint			getUIPos(float r,float usrang) const;
+    void			drawAnnot();
+    void			drawDirAnnot();
+    void			drawHeader();
+    void			drawScale();
+    void			drawColTab();
+
+    uiPoint			dataUIPos(float r,float ang) const;
+    uiPoint			usrUIPos(float r,float ang) const;
 
 };
 

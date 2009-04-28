@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.19 2009-04-24 04:45:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.20 2009-04-28 12:48:33 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -176,6 +176,16 @@ void uiDirectionalPlot::drawGrid()
 
 void uiDirectionalPlot::drawAnnot()
 {
+    drawDirAnnot();
+    drawHeader();
+    drawScale();
+    if ( setup_.type_ == Setup::Vals )
+	drawColTab();
+}
+
+
+void uiDirectionalPlot::drawDirAnnot()
+{
     if ( dirtxtitms_.isEmpty() )
     {
 	const uiPoint pt00( 0, 0 );
@@ -214,6 +224,7 @@ void uiDirectionalPlot::drawData()
 {
     markeritems_.removeAll( true );
     curveitems_.removeAll( true );
+
     switch ( setup_.type_ )
     {
     case Setup::Scatter:	drawScatter();	break;
@@ -234,7 +245,7 @@ void uiDirectionalPlot::drawScatter()
 	    if ( spd.count_ < 1 ) continue;
 
 	    const float r = spd.pos_ * radius_;
-	    markeritems_.add( new uiMarkerItem(getUIPos(r,spd.val_),
+	    markeritems_.add( new uiMarkerItem(dataUIPos(r,spd.val_),
 					       setup_.markstyle_) );
 	}
     }
@@ -291,17 +302,20 @@ void uiDirectionalPlot::drawVals()
 
 	    rrg.scale( radius_ );
 	    uiCurvedItem* ci = new uiCurvedItem(
-					getUIPos(rrg.start,angrg.start) );
-	    ci->drawTo( getUIPos(rrg.stop,angrg.start) );
+					dataUIPos(rrg.start,angrg.start) );
+	    ci->drawTo( dataUIPos(rrg.stop,angrg.start) );
 	    uiCurvedItem::ArcSpec as( center_, rrg.stop, radangrg );
 	    ci->drawTo( as );
 
-	    ci->drawTo( getUIPos(rrg.start,angrg.stop) );
+	    ci->drawTo( dataUIPos(rrg.start,angrg.stop) );
 	    as.radius_ = rrg.start;
 	    Swap( as.angles_.start, as.angles_.stop );
 	    ci->drawTo( as );
+	    // Grey scales
+	    //TODO use real color bar
 	    float relpos = (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
 	    ci->setFillColor( colseq_->color(relpos) );
+
 	    ci->closeCurve();
 	    curveitems_.add( ci );
 	}
@@ -321,12 +335,12 @@ void uiDirectionalPlot::drawSelection()
 				 data_.angle(selsect,-1) );
     const Interval<float> radangrg( data_.angle(selsect,Angle::Deg,1),
 				    data_.angle(selsect,Angle::Rad,-1) );
-    selsectoritem_ = new uiCurvedItem( getUIPos(radius_+1,angrg.start) );
-    selsectoritem_->drawTo( getUIPos(radius_+10,angrg.start) );
-    selsectoritem_->drawTo( getUIPos(radius_+1,angrg.start) );
+    selsectoritem_ = new uiCurvedItem( dataUIPos(radius_+1,angrg.start) );
+    selsectoritem_->drawTo( dataUIPos(radius_+10,angrg.start) );
+    selsectoritem_->drawTo( dataUIPos(radius_+1,angrg.start) );
     uiCurvedItem::ArcSpec as( center_, radius_+1, radangrg );
     selsectoritem_->drawTo( as );
-    selsectoritem_->drawTo( getUIPos(radius_+10,angrg.stop) );
+    selsectoritem_->drawTo( dataUIPos(radius_+10,angrg.stop) );
     scene().addItem( selsectoritem_ );
 }
 
@@ -374,10 +388,19 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
 }
 
 
-uiPoint uiDirectionalPlot::getUIPos( float r, float ang ) const
+uiPoint uiDirectionalPlot::dataUIPos( float r, float ang ) const
 {
     const float angrad =
 		Angle::convert( data_.setup_.angletype_, ang, Angle::Rad );
+    Geom::Point2D<float> fpt( center_.x + r * cos(angrad),
+			      center_.y - r * sin(angrad) );
+    return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
+}
+
+
+uiPoint uiDirectionalPlot::usrUIPos( float r, float ang ) const
+{
+    const float angrad = Angle::usrdeg2rad( ang );
     Geom::Point2D<float> fpt( center_.x + r * cos(angrad),
 			      center_.y - r * sin(angrad) );
     return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
