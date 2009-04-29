@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.13 2009-04-03 16:03:50 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.14 2009-04-29 22:00:34 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uivolprocchain.cc,v 1.13 2009-04-03 16:03:50 cv
 #include "uibutton.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
+#include "uiicons.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -85,9 +86,9 @@ uiChain::uiChain( uiParent* p, Chain& chn )
     ctio_.setObj( IOM().get(chain_.storageID()) );
 
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
-    tb->addButton( "open.png", mCB(this,uiChain,readPush),
+    tb->addButton( Icons::openObject(), mCB(this,uiChain,readPush),
 	    	   "Read stored setup", false );
-    tb->addButton( "saveas.png", mCB(this,uiChain,savePush),
+    tb->addButton( Icons::saveAs(), mCB(this,uiChain,savePush),
 	    	   "Save setup now", false );
 
     uiGroup* flowgrp = new uiGroup( this, "Flow group" );
@@ -133,7 +134,7 @@ uiChain::uiChain( uiParent* p, Chain& chn )
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
     removestepbutton_ = new uiToolButton( flowgrp, "Remove",
-	    				  ioPixmap("trashcan.png"),
+	    				  Icons::removeObject(), 
 					  mCB(this,uiChain,removeStepPush) );
     movedownbutton_->setToolTip( "Remove step from flow" );
     removestepbutton_->attach( alignedBelow, propertiesbutton_ );
