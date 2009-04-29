@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.11 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uipicksetmgr.cc,v 1.12 2009-04-29 05:29:18 cvsraman Exp $";
 
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
@@ -37,11 +37,6 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
     if ( uiIOObj::fillCtio(*ctio,true) )
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj;
-	if ( ps->disp_.connect_ != Pick::Set::Disp::None )
-	{
-	    ioobj->pars().set( sKey::Type, sKey::Polygon );
-	    IOM().commitChanges( *ioobj );
-	}
 	if ( !doStore( *ps, *ioobj ) )
 	    { delete ps; ps = 0; return false; }
 
@@ -136,9 +131,13 @@ bool uiPickSetMgr::storeSetAs( const Pick::Set& ps )
 
 bool uiPickSetMgr::doStore( const Pick::Set& ps, const IOObj& ioobj ) const
 {
-    BufferString bs;
-    ioobj.pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
+    if ( ps.disp_.connect_ == Pick::Set::Disp::None )
+	ioobj.pars().set( sKey::Type, PickSetTranslatorGroup::sKeyPickSet() );
+    else
+	ioobj.pars().set( sKey::Type, sKey::Polygon );
+
     IOM().commitChanges( ioobj );
+    BufferString bs;
     if ( !PickSetTranslator::store( ps, &ioobj, bs ) )
 	{ uiMSG().error(bs); return false; }
 
