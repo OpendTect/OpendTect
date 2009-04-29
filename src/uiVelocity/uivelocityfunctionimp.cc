@@ -8,16 +8,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.8 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.9 2009-04-29 16:25:05 cvskris Exp $";
 
 #include "uivelocityfunctionimp.h"
 
+#include "filegen.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitblimpexpdatasel.h"
 #include "uicombobox.h"
+#include "uitaskrunner.h"
 
 #include "binidvalset.h"
 #include "ctxtioobj.h"
@@ -94,11 +96,23 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 
     StreamData sd = StreamProvider( inpfld_->fileName() ).makeIStream();
     if ( !sd.usable() )
-	 mErrRet( "Cannot open input file" )
+	 mErrRet( "Cannot open input file" );
 
-    FunctionAscIO velascio( fd_, *sd.istrm );
+    const int filesize = File_getKbSize( inpfld_->fileName() );
+    FunctionAscIO velascio( fd_, *sd.istrm, filesize ? filesize : -1 );
 
-    if ( !velascio.getVelocityData(bidvalset) )    
+    velascio.setOutput( bidvalset );
+    bool success;
+    if ( filesize>2 )
+    {
+    	uiTaskRunner tr( this );
+	success = tr.execute( velascio );
+    }
+    else
+        success = velascio.execute();
+
+    
+    if ( !success )
 	mErrRet( "Failed to convert into compatible data" );
 
     sd.close();

@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.1 2009-03-18 18:45:26 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.2 2009-04-29 16:25:05 cvskris Exp $";
 
 #include "velocityfunctionascio.h"
 
@@ -20,6 +20,19 @@ static const char* rcsID = "$Id: velocityfunctionascio.cc,v 1.1 2009-03-18 18:45
 
 namespace Vel
 {
+
+
+FunctionAscIO::FunctionAscIO( const Table::FormatDesc& fd,
+			      std::istream& stm,
+       			      int nrbytes )
+    : Table::AscIO(fd)
+    , strm_(stm)
+    , nrdone_( 0 )
+    , nrbytes_( nrbytes )
+    , output_( 0 )
+    , first_( true )
+{}
+
 
 Table::FormatDesc* FunctionAscIO::getDesc()
 {
@@ -74,46 +87,45 @@ bool FunctionAscIO::isXY() const
 }
 
 
-bool FunctionAscIO::getVelocityData( BinIDValueSet& bidvalset )
+int FunctionAscIO::nextStep()
 {
     bool isxy = isXY();
     float farr[3];
-    bool first = true;
-    bool hasanisotropy;
 
-    while ( true )
+    const int oldpos = strm_.tellg();
+    const int ret = getNextBodyVals( strm_ );
+    if ( ret < 0 ) return ErrorOccurred();
+    if ( ret == 0) return Finished();
+
+    const int newpos = strm_.tellg();
+    nrdone_ += newpos-oldpos;
+
+    if ( first_ )
     {
-	const int ret = getNextBodyVals( strm_ );
-	if ( ret < 0 ) return false;
-	if ( ret == 0) break;
-
-	if ( first )
-	{
-	    first = false;
-	    hasanisotropy = cnvrtr_->selcols_.size()>4;
-	    bidvalset.empty();
-	    bidvalset.setNrVals( hasanisotropy ? 2 : 3, false );
-	}
-
-	 BinID binid;
-	 if ( isxy )
-	      binid = SI().transform( Coord(getfValue(0),getfValue(1)) );
-	 else
-	 {
-	     binid.inl = getIntValue(0);
-	     binid.crl = getIntValue(1);
-	 }
-
-	 farr[0] = getfValue(2);
-	 farr[1] = getfValue(3);
-
-	 if ( hasanisotropy )
-	     farr[2] = getfValue( 4 );
-
-	 bidvalset.add( binid, farr );
+	first_ = false;
+	bool hasanisotropy = cnvrtr_->selcols_.size()>4;
+	output_->empty();
+	output_->setNrVals( hasanisotropy ? 2 : 3, false );
     }
 
-    return true;
+    BinID binid;
+    if ( isxy )
+	binid = SI().transform( Coord(getfValue(0),getfValue(1)) );
+    else
+    {
+	binid.inl = getIntValue(0);
+	binid.crl = getIntValue(1);
+    }
+
+    farr[0] = getfValue(2);
+    farr[1] = getfValue(3);
+
+    if ( output_->nrVals()==3 )
+	farr[2] = getfValue( 4 );
+
+    output_->add( binid, farr );
+
+    return MoreToDo();
 }
 
 } //namespace Vel
