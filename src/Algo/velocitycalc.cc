@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.15 2009-04-09 00:39:19 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.16 2009-04-29 21:47:27 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -375,6 +375,9 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
     const double t0_2 = t0*t0;
     const double v2 = Vrms*Vrms;
 
+    if ( mIsUdf(effectiveanisotropy) )
+	effectiveanisotropy = 0;
+
     const bool hasanisotropy = !mIsZero(effectiveanisotropy, 1e-3);
 
     for ( int idx=nroffsets-1; idx>=0; idx-- )
@@ -491,6 +494,9 @@ bool computeVrms( const float* Vint, const SamplingData<double>& sd, int nrvels,
 	double dt = t_below - t_above;
 	double numerator = v2t_prev+V_interval*V_interval*dt;
 	float res = Math::Sqrt( numerator/t_below );
+
+	if ( !Math::IsNormalNumber(res) ) //looks for division by zero above
+	    continue;
 
 	for ( int idy=idx_prev+1; idy<=idx; idy++ )
 	    Vrms[idy] = res;
