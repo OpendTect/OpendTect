@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.18 2009-04-22 21:50:53 cvskris Exp $
+ RCS:		$Id: task.h,v 1.19 2009-04-29 16:27:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,9 +76,9 @@ public:
     virtual	~SequentialTask() 			{}
     void	setProgressMeter(ProgressMeter*);
     virtual int	doStep();
-    		/*!<\retval cMoreToDo()		Not finished. Call me again.
-		    \retval cFinished()		Nothing more to do.
-		    \retval cErrorOccurred()	Something went wrong.
+    		/*!<\retval MoreToDo()		Not finished. Call me again.
+		    \retval Finished()		Nothing more to do.
+		    \retval ErrorOccurred()	Something went wrong.
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
