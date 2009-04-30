@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert / many others
  Date:		Apr 1995 / Feb 2009
- RCS:		$Id: typeset.h,v 1.3 2009-04-09 09:12:33 cvsbert Exp $
+ RCS:		$Id: typeset.h,v 1.4 2009-04-30 14:10:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ public:
     inline virtual void		setCapacity( int sz );
 				/*!<Allocates mem only, no size() change */
 
-    inline virtual T&		operator[](int);
-    inline virtual const T&	operator[](int) const;
+    inline T&			operator[](int);
+    inline const T&		operator[](int) const;
     inline T&			first();
     inline const T&		first() const;
     inline T&			last();
