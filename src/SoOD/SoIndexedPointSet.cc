@@ -21,7 +21,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoIndexedPointSet.cc,v 1.2 2009-04-27 21:22:19 cvskris Exp $";
+static const char* rcsID = "$Id: SoIndexedPointSet.cc,v 1.3 2009-04-30 20:25:26 cvsyuancheng Exp $";
 
 SO_NODE_SOURCE(SoIndexedPointSet);
 
@@ -85,8 +85,11 @@ SoIndexedPointSet::findMaterialBinding(SoState* state) const
 
 void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
 {
-    if ( !coordIndex.getNum() || !shouldGLRender(action) )
+    if ( !shouldGLRender(action) )
 	return;
+
+    //if ( !coordIndex.getNum() || (coordIndex.getNum()==1 && coordIndex[0]==-1) )
+	//return;
 
     SoState* state = action->getState();
 
@@ -108,7 +111,10 @@ void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
     const SoCoordinateElement* coords;
     const SbVec3f* normals;
     int numindices;
-    const int32_t* cindices, *nindices, *tindices, *mindices;
+    const int32_t* cindices;
+    const int32_t* nindices;
+    const int32_t* tindices;
+    const int32_t* mindices;
     SbBool normalcacheused;
 
     getVertexData(state, coords, normals, cindices,
@@ -157,8 +163,8 @@ void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
     SbVec3f point;
 
     int texidx = 0;
-    int matnr = 0;
-    int normnr = 0;
+    int matidx = 0;
+    int normidx = 0;
 
     glBegin( GL_POINTS );
 
@@ -168,30 +174,29 @@ void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
     while ( viptr<viendptr )
     {
     	int32_t v1 = *viptr++;
-	if ( mbind==PER_VERTEX )
-	    mb.send( matnr++, true );
-	else if ( mbind==PER_VERTEX_INDEXED )
-	{
-	    const int mindex = mindices ? mindices[matnr++] : 0;
-	    mb.send( mindex, true );
-	}
+	int32_t t1 = tindices ? *tindices++ : texidx++;
+	int32_t n1 = nindices ? *nindices++ : normidx++;
+	int32_t m1 = mindices ? *mindices++ : matidx++;
 
-	if ( nbind==PER_VERTEX )
-	    glNormal3fv( normals[normnr++].getValue() );
-	else if ( nbind==PER_VERTEX_INDEXED )
-	    glNormal3fv(normals[*nindices++].getValue());
+	if ( v1<0 )
+	    continue;
+
+	if ( mbind==PER_VERTEX || mbind==PER_VERTEX_INDEXED )
+	    mb.send( m1, true );
+
+	if ( nbind==PER_VERTEX || nbind==PER_VERTEX_INDEXED )
+	    glNormal3fv(normals[n1].getValue());
 
 	if ( dotextures )
 	{
 	    if ( tb.isFunction() )
 	    {
 		SbVec3f texturecoord;
-		tb.get(coords->get3(v1), texturecoord);
+		tb.get(coords->get3(v1), texturecoord );
 		glTexCoord2fv( texturecoord.getValue() );
 	    }
 	    else
 	    {
-		int32_t t1 = tindices ? *tindices++ : texidx++;
 		glTexCoord2fv( tb.get(t1).getValue() );
 	    }
 	}
@@ -206,51 +211,10 @@ void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
 }
 
 
-#define mSendVertex(vertexindex, materialcond, indexedmaterialcond, \
-			normalcond, indexednormalcond) \
-	if ( materialcond ) \
-	{ \
-	    pointdetail.setMaterialIndex(matnr); \
-	    vertex.setMaterialIndex(matnr++); \
-	} \
-	else if ( indexedmaterialcond ) \
-	{ \
-	    pointdetail.setMaterialIndex(*mindices); \
-	    vertex.setMaterialIndex(*mindices++); \
-	} \
- \
-	if ( normalcond ) \
-	{ \
-	    pointdetail.setNormalIndex(normnr); \
-	    currnormal = &normals[normnr++]; \
-	    vertex.setNormal(*currnormal); \
-	} \
-	else if ( indexednormalcond ) \
-	{ \
-	    pointdetail.setNormalIndex(*nindices); \
-	    currnormal = &normals[*nindices++]; \
-	    vertex.setNormal(*currnormal); \
-	} \
- \
-	if ( dotextures ) \
-	{ \
-	    if ( tb.isFunction() ) \
-		vertex.setTextureCoords(tb.get(coords->get3(vertexindex), \
-			    			*currnormal)); \
-	    else \
-	    { \
-		pointdetail.setTextureCoordIndex(tindices?*tindices:texidx); \
-		vertex.setTextureCoords(tb.get(tindices?*tindices++:texidx++)); \
-	    } \
-	} \
-	pointdetail.setCoordinateIndex(vertexindex); \
-	vertex.setPoint(coords->get3(vertexindex)); \
-	shapeVertex(&vertex)
-
 void SoIndexedPointSet::generatePrimitives(SoAction* action)
 {
-    if ( !coordIndex.getNum() )
-	return;
+    //if ( !coordIndex.getNum() || (coordIndex.getNum()==1 && coordIndex[0]==-1) )
+	//return;
 
     SoState* state = action->getState();
 
@@ -298,10 +262,10 @@ void SoIndexedPointSet::generatePrimitives(SoAction* action)
     if ( nbind==PER_VERTEX_INDEXED && !nindices )
 	nindices = cindices;
 
-    if (mbind == PER_VERTEX_INDEXED && !mindices )
+    if ( mbind == PER_VERTEX_INDEXED && !mindices )
 	mindices = cindices;
 
-    SbVec3f dummynormal(0.0f, 0.0f, 1.0f);
+    static const SbVec3f dummynormal(0.0f, 0.0f, 1.0f);
     const SbVec3f* currnormal = &dummynormal;
     if ( nbind==OVERALL )
     {
@@ -310,8 +274,8 @@ void SoIndexedPointSet::generatePrimitives(SoAction* action)
     }
 
     int texidx = 0;
-    int matnr = 0;
-    int normnr = 0;
+    int matidx = 0;
+    int normidx = 0;
 
     const int32_t* viptr = cindices;
     const int32_t* viendptr = viptr + numindices;
@@ -326,28 +290,24 @@ void SoIndexedPointSet::generatePrimitives(SoAction* action)
     while ( viptr<viendptr )
     {
     	int32_t v1 = *viptr++;
-	if ( nbind==PER_VERTEX )
+    	int32_t n1 = nindices ? *nindices++ : normidx++;
+    	int32_t m1 = mindices ? *mindices++ : matidx++;
+    	int32_t t1 = tindices ? *tindices++ : texidx++;
+
+	if ( v1<0 )
+	    continue;
+
+	if ( nbind==PER_VERTEX || nbind==PER_VERTEX_INDEXED )
 	{
-	    pointdetail.setNormalIndex( normnr );
-	    currnormal = &normals[normnr++];
-	    vertex.setNormal( *currnormal );
-	}
-	else if ( nbind==PER_VERTEX_INDEXED )
-	{
-	    pointdetail.setNormalIndex( nindices[normnr] );
-	    currnormal = &normals[nindices[normnr++]];
+	    pointdetail.setNormalIndex( n1 );
+	    currnormal = &normals[n1];
 	    vertex.setNormal( *currnormal );
 	}
 
-	if ( mbind==PER_VERTEX )
+	if ( mbind==PER_VERTEX || mbind==PER_VERTEX_INDEXED )
 	{
-	    pointdetail.setMaterialIndex( matnr );
-	    vertex.setMaterialIndex( matnr++ );
-	}
-	else if ( mbind==PER_VERTEX_INDEXED )
-	{
-	    pointdetail.setMaterialIndex( mindices[matnr] );
-	    vertex.setMaterialIndex( mindices[matnr++] );
+	    pointdetail.setMaterialIndex( m1 );
+	    vertex.setMaterialIndex( m1 );
 	}
 
 	if ( dotextures )
@@ -356,8 +316,6 @@ void SoIndexedPointSet::generatePrimitives(SoAction* action)
 		vertex.setTextureCoords(tb.get(coords->get3(v1), *currnormal));
 	    else 
 	    {
-		int32_t t1 = tindices ? *tindices++ : texidx++;
-		glTexCoord2fv( tb.get(t1).getValue() );
 		pointdetail.setTextureCoordIndex( t1 );
 		vertex.setTextureCoords( tb.get(t1) );
 	    }
