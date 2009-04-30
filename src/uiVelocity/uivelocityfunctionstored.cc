@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.2 2009-04-30 14:22:59 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.3 2009-04-30 14:54:41 cvskris Exp $";
 
 #include "uivelocityfunctionstored.h"
 
@@ -42,7 +42,6 @@ uiFunctionSettings* uiStoredFunction::create( uiParent* p, FunctionSource* vs )
 uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
     : uiFunctionSettings( p, "Stored" )
     , source_( s )
-    , ctxtioobj_( new CtxtIOObj( StoredFunctionSource::ioContext() ) )
 {
     IOObjContext context = StoredFunctionSource::ioContext();
     if ( SI().zIsTime() )
