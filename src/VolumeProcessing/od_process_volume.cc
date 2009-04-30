@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.13 2009-02-02 15:53:01 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.14 2009-04-30 19:19:34 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: od_process_volume.cc,v 1.13 2009-02-02 15:53:01
 #include "initgeometry.h"
 #include "initearthmodel.h"
 #include "initvolumeprocessing.h"
+#include "initvelocity.h"
 
 bool BatchProgram::go( std::ostream& strm )
 { 
@@ -24,6 +25,7 @@ bool BatchProgram::go( std::ostream& strm )
     VolumeProcessing::initStdClasses();
     Geometry::initStdClasses();
     EarthModel::initStdClasses();
+    Velocity::initStdClasses();
     
     MultiID chainid;
     pars().get( VolProcessingTranslatorGroup::sKeyChainID(), chainid );
@@ -35,7 +37,7 @@ bool BatchProgram::go( std::ostream& strm )
     {
    	 chain = 0;
 	 strm << "Could not open volume processing: \"" << ioobj->name() <<
-	     "\". Error description: ";
+	     "\". Error description: " << errmsg.buf();
 
 	 return false;
     }
