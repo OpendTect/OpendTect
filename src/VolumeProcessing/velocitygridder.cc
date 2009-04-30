@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.9 2009-04-24 21:43:02 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.10 2009-04-30 19:09:14 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -330,6 +330,11 @@ bool VelGriddingFromVolumeTask::doPrepare( int nrthreads )
 bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int thread )
 {
     Attrib::DataCubes& output = *task_.getStep().getOutput();
+    Array3D<float>& array = output.getCube(0);
+    ValueSeries<float>* storage = array.getStorage();
+    if ( !storage )
+	return false;
+
     const int zsz = output.getZSz();
     const SamplingData<double>& zsd = task_.getStep().getChain().getZSampling();
     const StepInterval<float> zrg( zsd.start, zsd.atIndex(zsz-1), zsd.step );
@@ -351,8 +356,8 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int threa
 	if ( !usedvals.size() )
 	    continue;
 
-	const TypeSet<BinID> bids;
-	ObjectSet<const float> sources;
+	ObjectSet<const float> sourceptrs;
+	TypeSet<od_int64> srcoffsets;
 	for ( int idy=0; idy<usedvals.size(); idy++ )
 	{
 	    const BinID sourcebid =
@@ -361,27 +366,29 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int threa
 	    const int inlidx = output.inlsampling.nearestIndex( sourcebid.inl );
 	    const int crlidx = output.crlsampling.nearestIndex( sourcebid.crl );
 
-	    const od_int64 offset =
-		output.getCube(0).info().getOffset( inlidx, crlidx, 0 );
+	    const od_int64 offset = array.info().getOffset( inlidx, crlidx, 0 );
 
-	    const float* sourceptr = output.getCube(0).getData() + offset;
-	    sources += sourceptr;
+	    if ( storage->arr() )
+		sourceptrs += storage->arr() + offset;
+	    else
+		srcoffsets += offset;
 	}
 
 	const int inlidx = output.inlsampling.nearestIndex( bid.inl );
 	const int crlidx = output.crlsampling.nearestIndex( bid.crl );
-	const od_int64 offset =
-	    output.getCube(0).info().getOffset( inlidx, crlidx, 0 );
-	float* dstptr = output.getCube(0).getData() + offset;
+	const od_int64 targetoffset = array.info().getOffset(inlidx,crlidx,0);
+	float* dstptr = output.getCube(0).getData();
 
-	for ( int idy=0; idy<zsz; idy++ )
+	for ( od_int64 idy=0; idy<zsz; idy++ )
 	{
 	    int nrvals = 0;
 	    float wsum = 0;
 	    float sum = 0;
 	    for ( int idz=weights.size()-1; idz>=0; idz-- )
 	    {
-		const float val = sources[idz][idy];
+		const float val = dstptr
+		    ? sourceptrs[idz][idy]
+		    : storage->value( idy+srcoffsets[idz] );
 		if ( mIsUdf(val) )
 		    continue;
 
@@ -390,9 +397,14 @@ bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int threa
 		wsum += weights[idz];
 	    }
 
-	    dstptr[idy] = !nrvals || mIsZero(wsum,1e-5)
+	    const float val = !nrvals || mIsZero(wsum,1e-5)
 		? mUdf(float)
 		: sum/wsum;
+
+	    if ( dstptr )
+		dstptr[idy+targetoffset] = val;
+	    else
+		storage->setValue( idy+targetoffset, val );
 	}
 
 	Threads::MutexLocker lock( lock_ );
