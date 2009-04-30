@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hostdata.cc,v 1.41 2009-02-18 07:06:03 cvsraman Exp $";
+static const char* rcsID = "$Id: hostdata.cc,v 1.42 2009-04-30 14:07:30 cvskris Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -427,11 +427,10 @@ void HostDataList::handleLocal()
 
 	if ( hd->isKnownAs(hnm) )
 	{
-	    *this -= hd;
 	    lochd.addAlias( hd->name() );
 	    for ( int idy=0; idy<hd->aliases_.size(); idy++ )
 		lochd.addAlias( *hd->aliases_[idy] );
-	    delete hd;
+	    *this -= hd;
 	}
     }
 }
