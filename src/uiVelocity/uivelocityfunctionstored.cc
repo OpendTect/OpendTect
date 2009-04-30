@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.1 2009-03-18 18:45:26 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionstored.cc,v 1.2 2009-04-30 14:22:59 cvskris Exp $";
 
 #include "uivelocityfunctionstored.h"
 
@@ -44,26 +44,31 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
     , source_( s )
     , ctxtioobj_( new CtxtIOObj( StoredFunctionSource::ioContext() ) )
 {
+    IOObjContext context = StoredFunctionSource::ioContext();
     if ( SI().zIsTime() )
     {
-	ctxtioobj_->ctxt.parconstraints.set(
+	context.parconstraints.set(
 	    StoredFunctionSource::sKeyVelocityType(),
 	    VelocityDesc::TypeNames()[(int)VelocityDesc::Interval],
 	    VelocityDesc::TypeNames()[(int)VelocityDesc::RMS] );
     }
     else
     {
-	ctxtioobj_->ctxt.parconstraints.set(
+	context.parconstraints.set(
 	    StoredFunctionSource::sKeyVelocityType(),
 	    VelocityDesc::TypeNames()[(int)VelocityDesc::Interval] );
     }
 
-    if ( source_ ) source_->ref();
+    context.forread = true;
 
-    if ( source_ ) ctxtioobj_->setObj( source_->multiID() );
-    ctxtioobj_->ctxt.forread = true;
+    funcsel_ = new uiIOObjSel( this, context, "Input" );
 
-    funcsel_ = new uiIOObjSel( this, *ctxtioobj_, "Input" );
+    if ( source_ )
+    {
+	source_->ref();
+	funcsel_->setInput( source_->multiID() );
+    }
+
     setHAlignObj( funcsel_ );
 }
 
@@ -71,14 +76,13 @@ uiStoredFunction::uiStoredFunction( uiParent* p, StoredFunctionSource* s )
 uiStoredFunction::~uiStoredFunction()
 {
     if ( source_ ) source_->unRef();
-    delete ctxtioobj_->ioobj;
-    delete ctxtioobj_;
 }
 
 
 bool uiStoredFunction::acceptOK()
 {
-    if ( !ctxtioobj_->ioobj )
+    const IOObj* ioobj = funcsel_->ioobj( false );
+    if ( !ioobj )
 	return false;
 
     if ( !source_ )
@@ -87,10 +91,10 @@ bool uiStoredFunction::acceptOK()
 	source_->ref();
     }
 
-    if ( !source_->load( ctxtioobj_->ioobj->key() ) )
+    if ( !source_->load( ioobj->key() ) )
     {
 	BufferString errmsg = "Cannot load ";
-	errmsg += ctxtioobj_->ioobj->name();
+	errmsg += ioobj->name();
 	uiMSG().error( errmsg.buf() );
 	return false;
     }

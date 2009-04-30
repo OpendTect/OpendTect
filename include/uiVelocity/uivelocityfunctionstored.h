@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocityfunctionstored.h,v 1.1 2009-03-18 18:45:26 cvskris Exp $
+ RCS:		$Id: uivelocityfunctionstored.h,v 1.2 2009-04-30 14:22:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "uiselectvelocityfunction.h"
 
-class CtxtIOObj;
 class uiIOObjSel;
 class uiGenInput;
 
@@ -39,8 +38,6 @@ protected:
 				create(uiParent*,FunctionSource*);
 
     uiIOObjSel*			funcsel_;
-    CtxtIOObj*			ctxtioobj_;
-
     StoredFunctionSource*	source_;
 };
 
