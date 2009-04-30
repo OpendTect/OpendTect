@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunction.h,v 1.3 2009-02-10 21:42:48 cvskris Exp $
+ RCS:		$Id: velocityfunction.h,v 1.4 2009-04-30 19:06:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -89,8 +89,8 @@ public:
     virtual void		getAvailablePositions(BinIDValueSet&) const {}
     virtual void		getAvailablePositions(HorSampling&) const {}
 
-    const Function*	getFunction(const BinID&);
-    virtual Function*	createFunction(const BinID&)		= 0;
+    RefMan<const Function>	getFunction(const BinID&);
+    virtual Function*		createFunction(const BinID&)		= 0;
 
     const MultiID&		multiID() const		{ return mid_; }
 
@@ -104,14 +104,18 @@ public:
 
 protected:
 
-    int				findFunction(const BinID&) const;
     friend			class Function;
     void			removeFunction(Function* v);
     				/*!<Called by function when they are deleted. */
 
-    ObjectSet<Function>	functions_;
-    MultiID			mid_;
-    BufferString		errmsg_;
+    int				findFunction(const BinID&) const;
+    				//!<Caller must readlock before calling
+
+
+    mutable Threads::ReadWriteLock	functionslock_;
+    MultiID				mid_;
+    BufferString			errmsg_;
+    ObjectSet<Function>			functions_;
 };
 
 }; //namespace

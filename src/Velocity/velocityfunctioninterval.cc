@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.2 2009-03-26 12:45:00 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.3 2009-04-30 19:06:49 cvskris Exp $";
 
 #include "velocityfunctioninterval.h"
 
@@ -152,6 +152,8 @@ void IntervalSource::sourceChangeCB( CallBacker* cb )
     mDynamicCastGet( FunctionSource*, src, cb );
     const BinID bid = src->changeBinID();
 
+    functionslock_.readLock();
+
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( IntervalFunction*, func, functions_[idx] );
@@ -160,6 +162,8 @@ void IntervalSource::sourceChangeCB( CallBacker* cb )
 
 	func->removeCache();
     }
+
+    functionslock_.readUnLock();
 }
 
 

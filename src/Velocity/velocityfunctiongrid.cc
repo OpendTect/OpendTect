@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.2 2008-08-21 19:59:12 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.3 2009-04-30 19:06:49 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -77,8 +77,7 @@ bool GriddedFunction::fetchSources()
 	    if ( !gridder_ && curbid!=bid_ )
 		continue;
 
-	    RefMan<const Function> velfunc =
-		getOldFunction( curbid, idx );
+	    RefMan<const Function> velfunc = getOldFunction( curbid, idx );
 
 	    if ( !velfunc )
 		velfunc = velfuncsources[idx]->getFunction( curbid );
@@ -248,11 +247,15 @@ void GriddedSource::setGridder( Gridder2D* ng )
 
     initGridder( gridder_ );
 
+    functionslock_.readLock();
+
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
 	func->setGridder( *gridder_ );
     }
+
+    functionslock_.readUnLock();
 }
 
 
@@ -357,6 +360,7 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
     mDynamicCastGet( FunctionSource*, src, cb );
     const BinID bid = src->changeBinID();
 
+    functionslock_.readLock();
     for ( int idx=functions_.size()-1; idx>=0; idx-- )
     {
 	mDynamicCastGet( GriddedFunction*, func, functions_[idx] );
@@ -366,6 +370,7 @@ void GriddedSource::sourceChangeCB( CallBacker* cb )
 	func->removeCache();
 	func->fetchSources();
     }
+    functionslock_.readUnLock();
 
     changebid_ = BinID(-1,-1);
     notifier_.trigger();

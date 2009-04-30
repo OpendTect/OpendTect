@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.1 2008-07-22 17:39:21 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.2 2009-04-30 19:06:49 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -205,26 +205,52 @@ int FunctionSource::findFunction( const BinID& bid ) const
 }
 
 
-const Function* FunctionSource::getFunction( const BinID& bid )
+RefMan<const Function> FunctionSource::getFunction( const BinID& bid )
 {
     if ( mIsUdf(bid.inl) || mIsUdf(bid.crl) )
 	return 0;
 
-    const int idx = findFunction( bid );
+    RefMan<const Function> res = 0;
+
+    functionslock_.readLock();
+    int idx = findFunction( bid );
+    bool iswritelock = false;
+    if ( idx==-1 )
+    {
+	if ( !functionslock_.convReadToWriteLock() )
+	    idx = findFunction( bid );
+
+	iswritelock = true;
+
+	if ( idx==-1 )
+	{
+	    Function* func = createFunction(bid);
+	    if ( func )
+	    {
+		idx = functions_.size();
+		functions_ += func;
+	    }
+	}
+    }
+
     if ( idx!=-1 )
-	return functions_[idx];
+	res = functions_[idx];
 
-    Function* func = createFunction(bid);
-    if ( !func )
-	return 0;
+    if ( iswritelock )
+	functionslock_.writeUnLock();
+    else
+	functionslock_.readUnLock();
 
-    functions_ += func;
-    return func;
+    return res;
 }
 
 
 void FunctionSource::removeFunction(Function* v)
-{ functions_ -= v; }
+{
+    functionslock_.writeLock();
+    functions_ -= v;
+    functionslock_.writeUnLock();
+}
 
 
 }; //namespace
