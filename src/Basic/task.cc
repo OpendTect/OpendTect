@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.17 2009-04-16 18:56:07 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.18 2009-05-01 19:24:34 cvskris Exp $";
 
 #include "task.h"
 
@@ -101,6 +101,8 @@ void SequentialTask::setProgressMeter( ProgressMeter* pm )
 
 int SequentialTask::doStep()
 {
+    if ( progressmeter_ ) progressmeter_->setStarted();
+
     const int res = nextStep();
     if ( progressmeter_ )
     {
@@ -274,6 +276,7 @@ bool ParallelTask::execute( bool parallel )
 	progressmeter_->setName( name() );
 	progressmeter_->setMessage( message() );
 	progressmeter_->setTotalNr( totalnrcache_ );
+	progressmeter_->setStarted();
     }
 
     if ( nrdonemutex_ ) nrdonemutex_->lock();
@@ -289,7 +292,9 @@ bool ParallelTask::execute( bool parallel )
     if ( Threads::getNrProcessors()==1 || maxnrthreads==1 )
     {
 	if ( !doPrepare( 1 ) ) return false;
-	return doFinish( doWork( 0, totalnrcache_-1, 0 ) );
+	bool res = doFinish( doWork( 0, totalnrcache_-1, 0 ) );
+	if ( progressmeter_ ) progressmeter_->setFinished();
+	return res;
     }
 
     //Don't take all threads, as we may want to have spare ones.
@@ -330,9 +335,8 @@ bool ParallelTask::execute( bool parallel )
 	res = twm().addWork( tasks );
     }
 
-    if ( !doFinish( res ) )
-	return false;
-
+    res = doFinish( res );
+    if ( progressmeter_ ) progressmeter_->setFinished();
     return res;
 }
 
