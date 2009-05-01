@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.8 2009-04-09 01:10:00 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.9 2009-05-01 13:47:54 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -396,7 +396,7 @@ bool Chain::usePar( const IOPar& par )
 	    errmsg_ = "Cannot parse Volume Processing's parameters: ";
 	    errmsg_ += step->errMsg();
 	    delete step;
-	    continue;
+	    return false;
 	}
 
 	addStep( step );
