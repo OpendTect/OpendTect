@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.11 2009-04-29 22:10:08 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.12 2009-05-01 21:01:26 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,6 @@ class SoAction;
 class SoCallback;
 class SoGroup;
 class SoState;
-class SoIndexedTriangleFanSet;
 class SoIndexedLineSet;
 class SoIndexedPointSet;
 class SoIndexedTriangleStripSet;
@@ -101,9 +100,6 @@ public:
     const BinIDValueSet*	getCache(int channel) const;
     void			inValidateCache(int channel);
 
-    void			computeNormal(int r,int c,int spacing,Coord3&);
-    void			setTileNormals(HorizonSectionTile&,
-	    				       int startrow,int startcol);
 protected:
     				~HorizonSection();
     static ArrPtrMan<SbVec2f>	texturecoordptr_;				
@@ -129,10 +125,6 @@ protected:
     Transformation*		transformation_;
     ZAxisTransform*		zaxistransform_;
 
-    double			sinanglexinl_;
-    double			cosanglexinl_;
-    float			rowdistance_;
-    float			coldistance_;    
     int				desiredresolution_;
 };
 
@@ -149,14 +141,17 @@ public:
     void			setPos(int row,int col,const Coord3&);
     void			setDisplayTransformation(Transformation*);
 
-//    void			setMaxSpacing();
+    void			setMaxSpacing(int); 
+				//Based on defined nrcells in the biginning
+    int				getMaxSpacing() const	{ return maxspacing_; }
+
     void			setTextureSize(int rowsz,int colsz);
-    void			setTextureOrigion(int globrow,int globcol);
+    void			setTextureOrigin(int globrow,int globcol);
 
     void			setNormal(int idx,const Coord3& normal);
     int				getNormalIdx(int crdidx,int res) const;
 
-    void			turnOffLines(bool);
+    void			turnOnLines(bool);
     void			resetResolutionChangeFlag();
 
     void			tesselateActualResolution();
@@ -177,12 +172,14 @@ protected:
     Coord3			bboxstart_;	//Display space
     Coord3			bboxstop_;	//Display space
     bool			needsupdatebbox_;
+    bool			lineison_;
 
     SoLockableSeparator*	root_;
     visBase::Coordinates*	coords_;
     SoTextureComposer*		texture_;
     SoSwitch*			resswitch_;
     SoNormal*			normals_;
+    int				maxspacing_;
     static int			normalstartidx_[mHorSectNrRes];
     static int			spacing_[mHorSectNrRes];
     static int			nrcells_[mHorSectNrRes];
@@ -197,7 +194,6 @@ protected:
 
     visBase::Coordinates*	gluecoords_;
     SoIndexedTriangleStripSet*	gluetriangles_;
-    SoIndexedTriangleFanSet*	gluefanset_;
     SoIndexedLineSet*		gluelines_;
     SoIndexedPointSet*		gluepoints_;
     bool			glueneedsretesselation_;
