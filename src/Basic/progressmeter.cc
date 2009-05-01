@@ -67,7 +67,7 @@ void TextStreamProgressMeter::reset()
 }
 
 
-void TextStreamProgressMeter::addProgress( int nr )
+void TextStreamProgressMeter::setStarted()
 {
     if ( !inited_ )
     {
@@ -75,8 +75,17 @@ void TextStreamProgressMeter::addProgress( int nr )
 	strm_ << "Started: " << Time_getFullDateString() << "\n\n";
 	if ( !message_.isEmpty() ) strm_ << '\t' << message_.buf() << '\n';
         oldtime_ = Time_getMilliSeconds();
+	strm_.flush();
 	inited_ = true;
     }
+}
+
+
+
+void TextStreamProgressMeter::addProgress( int nr )
+{
+    if ( !inited_ )
+	setStarted();
 
     for ( int idx=0; idx<nr; idx++ )
     {

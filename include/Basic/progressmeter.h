@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.13 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:           $Id: progressmeter.h,v 1.14 2009-05-01 19:23:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ mClass ProgressMeter
 {
 public:
     virtual		~ProgressMeter()		{}
+    virtual void	setStarted()			{}
     virtual void	setFinished()			{}
 
     virtual od_int64	nrDone() const			{ return -1; }
@@ -43,6 +44,7 @@ public:
 		TextStreamProgressMeter(std::ostream&,unsigned short rowlen=50);
     		~TextStreamProgressMeter();
     void	setName(const char*);
+    void	setStarted();
     void	setFinished();
     void	setNrDone(od_int64);
     void	setMessage(const char*);
