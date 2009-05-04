@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabimport.cc,v 1.3 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uicoltabimport.cc,v 1.4 2009-05-04 11:15:25 cvsranojay Exp $";
 
 #include "uicoltabimport.h"
 
@@ -119,7 +119,7 @@ bool uiColTabImport::acceptOK( CallBacker* )
 	    BufferString msg( "User colortable '" );
 	    msg += seq.name();
 	    msg += "' will replace the existing.\nOverwrite?";
-	    doset = uiMSG().askGoOn( msg );
+	    doset = uiMSG().askOverwrite( msg );
 	}
 
 	if ( doset )

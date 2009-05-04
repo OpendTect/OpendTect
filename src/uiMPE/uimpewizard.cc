@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.94 2009-02-13 14:18:29 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.95 2009-05-04 11:15:24 cvsranojay Exp $";
 
 
 #include "uimpewizard.h"
@@ -325,7 +325,7 @@ bool Wizard::leaveNamePage( bool process )
 		    	   "Please give another name." );
 	    return false;
 	}
-	else if ( !uiMSG().askGoOn("An object with this name exists. "
+	else if ( !uiMSG().askOverwrite("An object with this name exists. "
 		    		   "Overwrite?") )
 	    return false;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.45 2009-04-21 11:36:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.46 2009-05-04 11:15:25 cvsranojay Exp $";
 
 #include "uiwellman.h"
 
@@ -289,7 +289,7 @@ void uiWellMan::removeLogPush( CallBacker* )
     BufferString msg;
     msg = logsfld->nrSelected() == 1 ? "This log " : "These logs ";
     msg += "will be removed from disk.\nDo you wish to continue?";
-    if ( !uiMSG().askGoOn(msg) )
+    if ( !uiMSG().askRemove(msg) )
 	return;
 
     wellrdr->getLogs();

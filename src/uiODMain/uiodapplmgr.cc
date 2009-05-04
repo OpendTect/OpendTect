@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.320 2009-04-27 11:54:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.321 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -985,7 +985,7 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     {
 	bool saved = attrserv_->setSaved(nlaserv_->is2DEvent());
         const char* msg = "Current attribute set is not saved.\nSave now?";
-        if ( !saved && uiMSG().askGoOn( msg ) )
+        if ( !saved && uiMSG().askSave( msg ) )
 	    attrserv_->saveSet(nlaserv_->is2DEvent());
     }
     else if ( evid == uiNLAPartServer::evReadFinished() )

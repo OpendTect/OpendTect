@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.47 2009-04-23 18:20:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.48 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -388,7 +388,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
 	{
-	    const bool res = uiMSG().askGoOn(
+	    const bool res = uiMSG().askSave(
 		    "Geometry has been changed. Saved 'Surface Data' is\n"
 		    "not valid anymore and will be removed now.\n"
 		    "Continue saving?" );

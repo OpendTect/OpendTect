@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrvolout.cc,v 1.62 2009-04-17 13:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattrvolout.cc,v 1.63 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uiattrvolout.h"
 #include "attribdesc.h"
@@ -161,7 +161,7 @@ bool uiAttrVolOut::prepareProcessing()
 	BufferString attrnm = LineKey( outputnm ).attrName();
 	if ( attrnm.isEmpty() || attrnm == LineKey::sKeyDefAttrib() )
 	{
-	    const bool res = uiMSG().askGoOn(
+	    const bool res = uiMSG().askContinue(
 		"No attribute name given. Do you want to continue? "
 		"Click on 'Yes' if you want 'Seis' as attribute name. "
 		"Click on 'No' to provide another name." );

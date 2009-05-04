@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.85 2009-03-10 06:52:00 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiattrdescseted.cc,v 1.86 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uiattrdescseted.h"
 
@@ -643,7 +643,7 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
 	msg += "'.\nThis will remove previous definition of the attribute.\n";
 	msg +="If you want to avoid this please use 'Cancel' and 'Add as new'.";
 	msg += "\nAre you sure you want to change the attribute type?";
-	int res = uiMSG().askGoOn( msg, false );
+	int res = uiMSG().askRemove( msg );
 	if ( res == 1 )
 	{
 	    checkusrref = false;
@@ -1080,7 +1080,7 @@ bool uiAttribDescSetEd::offerSetSave()
     doCommit( true );
     bool saved = adsman_->isSaved();
     BufferString msg( "Attribute set is not saved.\nSave now?" );
-    if ( !saved && uiMSG().askGoOn( msg ) )
+    if ( !saved && uiMSG().askSave( msg ) )
 	return doSave(false);
     return true;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.12 2009-04-21 14:44:45 cvshelene Exp $";
+static const char* rcsID = "$Id: uicreateattriblogdlg.cc,v 1.13 2009-05-04 11:15:25 cvsranojay Exp $";
 
 #include "uicreateattriblogdlg.h"
 
@@ -183,7 +183,7 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     {
 	BufferString msg( "Log: '" ); msg += lognm;
 	msg += "' is already present.\nDo you wish to overwrite this log?";
-	if ( !uiMSG().askGoOn(msg) ) return false;
+	if ( !uiMSG().askOverwrite(msg) ) return false;
     }
 
     return true;

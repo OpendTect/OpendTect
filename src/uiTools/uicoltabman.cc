@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.31 2009-04-27 10:38:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.32 2009-05-04 11:15:25 cvsranojay Exp $";
 
 #include "uicoltabman.h"
 
@@ -256,7 +256,7 @@ void uiColorTableMan::removeCB( CallBacker* )
     if ( selstatus_ == sKeyEdited )
 	msg += "\nand replaced by the default";
     msg += ".\n"; msg += "Do you wish to continue?";
-    if ( !uiMSG().askGoOn( msg ) )
+    if ( !uiMSG().askContinue( msg ) )
 	return;
 
     BufferStringSet allctnms;

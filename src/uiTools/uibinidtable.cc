@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibinidtable.cc,v 1.16 2008-12-10 18:24:14 cvskris Exp $";
+static const char* rcsID = "$Id: uibinidtable.cc,v 1.17 2009-05-04 11:15:25 cvsranojay Exp $";
 
 #include "uibinidtable.h"
 #include "uigeninput.h"

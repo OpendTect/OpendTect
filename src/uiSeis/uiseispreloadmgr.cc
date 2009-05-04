@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.13 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.14 2009-05-04 11:15:25 cvsranojay Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -471,7 +471,7 @@ void uiSeisPreLoadMgr::unloadPush( CallBacker* )
     BufferString msg( "Unload '" );
     msg += listfld_->textOfItem( selidx );
     msg += "'?\n(This will not delete the object from disk)";
-    if ( !uiMSG().askGoOn( msg ) )
+    if ( !uiMSG().askRemove( msg ) )
 	return;
 
     Seis::PreLoader spl( MultiID(ids_.get(selidx)) );

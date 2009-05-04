@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.43 2009-04-24 13:53:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.44 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -847,7 +847,7 @@ bool uiDataPointSet::saveOK()
     if ( !unsavedchgs_ )
 	return true;
 
-    int res = uiMSG().askGoOnAfter( "There are unsaved changes.\n"
+    int res = uiMSG().askSave( "There are unsaved changes.\n"
 				    "Do you want to save the data?" );
     if ( res == 2 )
 	return false;

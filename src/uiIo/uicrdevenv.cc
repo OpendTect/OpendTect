@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.27 2008-11-25 15:35:25 cvsbert Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.28 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uicrdevenv.h"
 
@@ -112,7 +112,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	    "you can safely continue."
 	    "\n\nDo you want to continue anyway?";
 
-	if ( !uiMSG().askGoOn(msg) )
+	if ( !uiMSG().askContinue(msg) )
 	{
 	    const char* closemsg = 
 		"Please run the Cygwin (bash) shell "
@@ -182,7 +182,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 		"Then use this utility again.\n"
 		"\nDo you still wish to continue?";
 
-		if ( !uiMSG().askGoOn(msg) )
+		if ( !uiMSG().askContinue(msg) )
 		    return;
 
 		basedirnm = GetPersonalDir();
@@ -226,7 +226,7 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
 	msg + isdir ?  "directory\n" : "file\n" ;
 	msg += "and create a new work directory there?";   
 
-	if ( !uiMSG().askGoOn(msg) )
+	if ( !uiMSG().askRemove(msg) )
 	    return;
 
 	File_remove( workdirnm, mFile_Recursive );

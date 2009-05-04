@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.2 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.3 2009-05-04 11:15:25 cvsranojay Exp $";
 
 #include "uiprestackprocessorsel.h"
 
@@ -95,7 +95,7 @@ void uiProcSel::editPushCB( CallBacker* )
 	    }
 	    else
 	    {
-		if ( uiMSG().askGoOn("Current settings are not saved.\n"
+		if ( uiMSG().askSave("Current settings are not saved.\n"
 				"Do you want to discard them?") )
 		    break;
 

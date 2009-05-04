@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.43 2009-04-16 10:31:27 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.44 2009-05-04 11:15:25 cvsranojay Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -303,7 +303,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	static bool isshown = false;
 	if ( !isshown )
 	{
-	    if ( !uiMSG().askGoOn("The iso surface generation is experimental\n"
+	    if ( !uiMSG().askContinue("The iso surface generation is experimental\n"
 		    "and may generate large amounts of display data\n"
 		    "that could destabilize OpendTect.\n"
 		    "Do you want to continue?") )

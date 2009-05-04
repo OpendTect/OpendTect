@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.38 2009-02-13 05:46:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiioobjmanip.cc,v 1.39 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uiioobjmanip.h"
 #include "iodirentry.h"
@@ -212,7 +212,7 @@ void uiIOObjManipGroup::tbPush( CallBacker* c )
 				: ioobj->implShouldRemove();
 	if ( exists && readonly && shldrm )
 	{
-	    if ( !uiMSG().askGoOn(
+	    if ( !uiMSG().askContinue(
 	    "This entry is not writable; the actual data will not be removed.\n"
 	    "The entry will only disappear from the list.\nContinue?") )
 		return;

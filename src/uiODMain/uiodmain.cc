@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmain.cc,v 1.112 2009-04-20 04:46:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmain.cc,v 1.113 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uiodmain.h"
 
@@ -603,7 +603,7 @@ bool uiODMain::askStore( bool& askedanything )
     if ( doask && !applmgr_->pickSetsStored() )
     {
 	askedanything = true;
-	int res = uiMSG().askGoOnAfter( "Pick sets have changed.\n"
+	int res = uiMSG().askSave( "Pick sets have changed.\n"
 					"Store the changes now?");
 	if ( res == 0 )
 	    applmgr_->storePickSets();
@@ -624,7 +624,7 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
     if ( doask && !applmgr_->attrServer()->setSaved( is2d ) )
     {
 	askedanything = true;
-	int res = uiMSG().askGoOnAfter( "Current attribute set has changed.\n"
+	int res = uiMSG().askSave( "Current attribute set has changed.\n"
 					"Store the changes now?" );
 	if ( res == 0 )
 	    applmgr_->attrServer()->saveSet( is2d );

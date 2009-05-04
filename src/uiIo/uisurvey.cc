@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisurvey.cc,v 1.104 2009-04-20 03:50:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uisurvey.cc,v 1.105 2009-05-04 11:15:24 cvsranojay Exp $";
 
 #include "uisurvey.h"
 
@@ -115,7 +115,7 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
     msg += " of data needs to be copied.\nDuring the copy, OpendTect will "
 	    "freeze.\nDepending on the data transfer rate, this can take "
 	    "a long time!\n\nDo you wish to continue?";
-    if ( !uiMSG().askGoOn( msg ) )
+    if ( !uiMSG().askContinue( msg ) )
 	return false;
 
     const BufferString fromdir = getTrueDir( FilePath(from).fullPath() );
@@ -417,7 +417,7 @@ void uiSurvey::rmButPushed( CallBacker* )
     msg += selnm;
     msg += "\nFull path: "; msg += truedirnm;
     msg += "\nAre you sure you wish to continue?";
-    if ( !uiMSG().askGoOn( msg ) ) return;
+    if ( !uiMSG().askContinue( msg ) ) return;
 
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
@@ -701,5 +701,5 @@ bool uiSurvey::survTypeOKForUser( bool is2d )
     warnmsg += " data\nyou will have to change the survey setup.";
     warnmsg += "\n\nDo you wish to continue?";
 
-    return uiMSG().askGoOn( warnmsg );
+    return uiMSG().askContinue( warnmsg );
 }
