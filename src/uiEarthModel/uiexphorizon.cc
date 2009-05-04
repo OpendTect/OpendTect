@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiexphorizon.cc,v 1.58 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiexphorizon.cc,v 1.59 2009-05-04 11:31:59 cvsranojay Exp $";
 
 #include "uiexphorizon.h"
 
@@ -161,7 +161,7 @@ bool uiExportHorizon::writeAscii()
 
     infld->getSelection( sels );
     if ( dogf && sels.selvalues.size() > 1 &&
-	    !uiMSG().askGoOn("Only the first selected attribute will be used\n"
+	    !uiMSG().askContinue("Only the first selected attribute will be used\n"
 			     "Do you wish to continue?") )
 	return false;
 

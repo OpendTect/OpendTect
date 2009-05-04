@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.165 2009-04-23 18:08:50 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.166 2009-05-04 11:31:59 cvsranojay Exp $";
 
 #include "uiempartserv.h"
 
@@ -299,7 +299,7 @@ void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
     if ( !isChanged(emid) )
 	return;
     mMkMsg( "has changed" );
-    if ( !uiMSG().askGoOn(msg) )
+    if ( !uiMSG().askSave( msg ) )
 	return;
 
     storeObject( emid, !isFullyLoaded(emid) );
