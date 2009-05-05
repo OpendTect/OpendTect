@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.168 2009-04-15 12:30:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.169 2009-05-05 21:01:17 cvskris Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -550,7 +550,6 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,"attributes.png","Edit attributes",false,editAttr3DCB);
 	mAddTB( dtecttb_,"out_vol.png","Create seismic output",false,
 		seisOut3DCB);
-	mAddTB( dtecttb_,"volproc.png","Volume Builder",false,doVolProc);
     }
     else
     {
@@ -562,6 +561,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	       seisOut2DCB);
 	mAddTB(dtecttb_,"out_vol.png","Create 3D seismic output",false,
 	       seisOut3DCB);
+	mAddTB( dtecttb_,"volproc.png","Volume Builder",false,doVolProc);
     }
     mAddTB(dtecttb_,"xplot.png","Crossplot Attribute vs Well data",false,xPlot);
 
