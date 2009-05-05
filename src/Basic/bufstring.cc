@@ -4,10 +4,11 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.15 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.16 2009-05-05 01:10:14 cvskris Exp $";
 
 #include "bufstring.h"
 #include "bufstringset.h"
+#include "fixedstring.h"
 #include "iopar.h"
 #include "general.h"
 
@@ -453,4 +454,23 @@ void BufferStringSet::usePar( const IOPar& iopar )
 	if ( !iopar.find(key) ) return;
 	add( iopar[key] );
     }
+}
+
+
+bool FixedString::operator==( const char* s ) const
+{
+    if ( ptr_==s )
+	return true;
+
+    if ( !ptr_ || !s )
+	return false;
+
+    return !strcmp(ptr_,s);
+}
+
+
+int FixedString::size() const
+{
+    if ( !ptr_ ) return 0;
+    return strlen( ptr_ );
 }
