@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.23 2009-04-06 07:31:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.24 2009-05-05 03:44:37 cvskris Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -230,7 +230,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     if ( istypselected )
 	typfld_->setText( iot == ODMad::ProcFlow::Madagascar
 			? ODMad::sKeyMadagascar()
-			: iot == ODMad::ProcFlow::None ? sKey::None
+			: iot == ODMad::ProcFlow::None ? sKey::None.buf()
 						       : Seis::nameOf(gt) );
     typSel( this );
     if ( iot == ODMad::ProcFlow::None ) return;
