@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Dec 2007
- RCS:		$Id: velocitycalc.h,v 1.12 2009-04-09 00:39:19 cvskris Exp $
+ RCS:		$Id: velocitycalc.h,v 1.13 2009-05-05 16:48:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,11 +43,9 @@ public:
 	    			   const SamplingData<double>& depthsamp) const;
 
     static bool		calcDepths(const ValueSeries<float>& vels, int velsz,
-	    			   const SamplingData<double>&,
-				   VelocityDesc::SampleSpan, float* depths );
+	    			   const SamplingData<double>&, float* depths );
     static bool		calcTimes(const ValueSeries<float>& vels, int velsz,
-	    			   const SamplingData<double>&,
-				   VelocityDesc::SampleSpan, float* depths );
+	    			   const SamplingData<double>&, float* depths );
 protected:
 
     float			firstvel_;
@@ -72,7 +70,7 @@ mGlobal bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
    long as at least one is define. */
 
 mGlobal bool computeDix(const float* Vrms,const SamplingData<double>& sd,
-			int nrvels,VelocityDesc::SampleSpan,float* Vint);
+			int nrvels,float* Vint);
 
 /*!Converts a number of layers with Vrms to interval velocities.
    Note that the times in t refers to the bottom of each layer, and t0
@@ -83,7 +81,7 @@ mGlobal bool computeDix(const float* Vrms, float t0, float v0, const float* t,
 
 
 mGlobal bool computeVrms(const float* Vint,const SamplingData<double>& sd,
-			 int nrvels, VelocityDesc::SampleSpan,float* Vrms);
+			 int nrvels, float* Vrms);
 
 /*!Converts a number of layers with Vint to rms velocities.
    Note that the times in t refers to the bottom of each layer, and t0
@@ -107,7 +105,6 @@ mGlobal bool sampleVrms(const float* Vin,float t0_in,float v0_in,
    interval.*/
 
 mGlobal bool sampleVint(const float* Vint,const float* t_in, int nr_in,
-			VelocityDesc::SampleSpan inputspan,
 			const SamplingData<double>& sd_out, float* Vout,
 			int nr_out);
 /*!Given a residual moveout at a reference offset, comput the residual moveout

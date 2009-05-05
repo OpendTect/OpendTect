@@ -7,80 +7,60 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.8 2009-03-26 13:26:24 cvskris Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.9 2009-05-05 16:48:33 cvskris Exp $";
 
 
 #include "veldesc.h"
 
 #include "iopar.h"
 #include "separstr.h"
+#include "fixedstring.h"
 
-const char* VelocityDesc::sKeyVelocityDesc()	{ return "Velocity Desc"; }
+const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
+const char* VelocityDesc::sKeyStaticsHorizon()	{ return "Statics Horizon"; }
+const char* VelocityDesc::sKeyStaticsVelocity()	{ return "Statics Velocity"; }
+const char* VelocityDesc::sKeyStaticsVelocityAttrib()	
+{ return "Statics Velocity Attrib"; }
+
+
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 
 DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
 { "Unknown", "Vint", "Vrms", "Vavg", 0 };
 
-DefineEnumNames(VelocityDesc,SampleSpan,0,"Sample Spans")
-{ "Centered", "Above", "Below", 0 };
-
 VelocityDesc::VelocityDesc()
     : type_( Unknown )
-    , samplespan_( Centered )
+    , staticsvel_( mUdf(float) )
 {}
 
 
-VelocityDesc::VelocityDesc( Type t, SampleSpan sr )
+VelocityDesc::VelocityDesc( Type t )
     : type_( t )
-    , samplespan_( sr )
+    , staticsvel_( mUdf(float) )
 {}
-
-
-
-BufferString VelocityDesc::toString() const
-{
-    SeparString res ( 0, '`' );
-    res.add( TypeNames()[(int)type_] );
-    if ( type_==Interval )
-	res.add( SampleSpanNames()[(int)samplespan_] );
-
-    return BufferString( res );
-}
-
-
-bool VelocityDesc::fromString( const char* str )
-{
-    SeparString sepstr( str, '`' );
-    if ( sepstr.size()<1 )
-	return false;
-
-    const int type = TypeDef().convert( sepstr[0] );
-    if ( type==-1 ) return false;
-
-    const Type typeenum = (Type) type;
-    if ( typeenum==Interval )
-    {
-	if ( sepstr.size()<2 )
-	    return false;
-
-	const int samplespan = SampleSpanDef().convert( sepstr[1] );
-	if ( samplespan==-1 ) return false;
-	samplespan_ = (SampleSpan) samplespan;
-    }
-    else
-	samplespan_ = Centered;
-
-    type_ = typeenum;
-
-    return true;
-}
 
 
 void VelocityDesc::fillPar( IOPar& par ) const
 {
-    BufferString str = toString();
-    par.set( sKeyVelocityDesc(), str.buf() );
+    par.set( sKeyVelocityType(), TypeNames()[(int)type_] );
+    if ( type_==RMS )
+    {
+	par.set( sKeyStaticsHorizon(), staticshorizon_ );
+	par.set( sKeyStaticsVelocity(), staticsvel_ );
+	par.set( sKeyStaticsVelocityAttrib(), staticsvelattrib_ );
+    }
+
     par.setYN( sKeyIsVelocity(), true );
+}
+
+
+void VelocityDesc::removePars( IOPar& par )
+{
+    par.remove( sKeyVelocityType() );
+    par.remove( sKeyStaticsHorizon() );
+    par.remove( sKeyStaticsVelocity() );
+    par.remove( sKeyStaticsVelocityAttrib() );
+    par.remove( sKeyIsVelocity() );
 }
 
 
@@ -90,6 +70,20 @@ bool VelocityDesc::usePar( const IOPar& par )
     if ( !par.getYN( sKeyIsVelocity(), isvel ) || !isvel )
 	return false;
 
-    BufferString str;
-    return par.get( sKeyVelocityDesc(), str ) && fromString( str.buf() );
+    const FixedString typestr = par.find( sKeyVelocityType() );
+    const int type = TypeDef().convert( typestr );
+    if ( type==-1 ) return false;
+
+    type_ = (Type) type;
+
+    if ( type_==RMS )
+    {
+	if  ( !par.get( sKeyStaticsHorizon(), staticshorizon_ ) )
+	    return false;
+
+	par.get( sKeyStaticsVelocityAttrib(), staticsvelattrib_ );
+	par.get( sKeyStaticsVelocity(), staticsvel_ );
+    }
+
+    return true;
 }

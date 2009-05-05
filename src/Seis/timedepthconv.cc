@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.7 2009-04-06 07:25:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.8 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "timedepthconv.h"
 
@@ -61,8 +61,6 @@ bool Time2DepthStretcher::setVelData( const MultiID& mid )
     }
 
     veldesc_.type_ = VelocityDesc::Interval;
-    veldesc_.samplespan_ = VelocityDesc::Centered;
-
     veldesc_.usePar ( velioobj->pars() );
 
     BufferString depthdomain = ZDomain::getDefault();

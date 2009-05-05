@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.9 2009-04-29 16:25:05 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocityfunctionimp.cc,v 1.10 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "uivelocityfunctionimp.h"
 
@@ -48,7 +48,6 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 
     uiVelocityDesc::Setup su;
     su.desc_.type_ = VelocityDesc::Interval;
-    su.desc_.samplespan_ = VelocityDesc::Above;
     typefld_ = new uiVelocityDesc( this, &su );
     typefld_->attach( alignedBelow, inpfld_ );
 
@@ -89,7 +88,9 @@ void uiImportVelFunc::formatSel( CallBacker* )
 bool uiImportVelFunc::acceptOK( CallBacker* )
 {
     BinIDValueSet bidvalset( 0, true);
-    const VelocityDesc desc = typefld_->get();
+    VelocityDesc desc;
+    if ( !typefld_->get( desc, true ) )
+	return false;
 
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select the input file" );

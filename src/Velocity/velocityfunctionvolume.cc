@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.6 2009-04-09 00:45:02 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.7 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -142,11 +142,6 @@ bool VolumeFunction::computeVelocity( float z0, float dz, int nr,
 	for ( int idx=0; idx<velsz; idx++ )
 	{
 	    float t = velsampling_.atIndex( idx );
-	    if ( source.getDesc().samplespan_==VelocityDesc::Below )
-		t += velsampling_.step;
-	    else if ( source.getDesc().samplespan_==VelocityDesc::Centered )
-		t += velsampling_.step/2;
-
 	    times += t;
 	}
 

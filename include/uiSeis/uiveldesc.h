@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.8 2009-04-03 17:19:23 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.9 2009-05-05 16:48:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiSeisSel;
-class CtxtIOObj;
+class uiLabeledComboBox;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
@@ -27,26 +27,28 @@ public:
     mClass Setup
     {
     public:
-				Setup( const VelocityDesc* vd=0, bool ws=true )
-				    : withspan_(ws)
+				Setup( const VelocityDesc* vd=0 )
 				{ if ( vd ) desc_ = *vd; }
 
 	mDefSetupMemb(VelocityDesc,desc)
-	mDefSetupMemb(bool,withspan)
     };
 
     				uiVelocityDesc(uiParent*,const Setup* s=0);
 
-    VelocityDesc		get() const;
+    bool			get(VelocityDesc&,bool displayerrors) const;
     void			set(const VelocityDesc&);
-    bool			updateAndCommit(IOObj&);
+    bool			updateAndCommit(IOObj&,bool displayerrors);
 
 protected:
 
-    void			velTypeChange(CallBacker*);
+    void			updateFlds(CallBacker*);
 
     uiGenInput*			typefld_;
-    uiGenInput*			samplefld_;
+    uiGenInput*			hasstaticsfld_;
+    uiIOObjSel*			staticshorfld_;
+    uiGenInput*			useconstantvelfld_;
+    uiGenInput*			constantvelfld_;
+    uiLabeledComboBox*		horattribfld_;
 };
 
 
@@ -68,8 +70,6 @@ protected:
 
    uiSeisSel*		volsel_;
    uiVelocityDesc*	veldesc_;
-   CtxtIOObj&		ctxt_;
-
 };
 
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.3 2009-04-30 19:06:49 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctioninterval.cc,v 1.4 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "velocityfunctioninterval.h"
 
@@ -62,13 +62,13 @@ bool IntervalFunction::computeVelocity( float z0, float dz, int nr,
 	input[idx] = inputfunc_->getVelocity( z );
     }
 
-    return computeDix( input, sd, nr, source_.getDesc().samplespan_, res );
+    return computeDix( input, sd, nr, res );
 }
 
 
 IntervalSource::IntervalSource()
     : inputsource_( 0 )
-    , veldesc_( VelocityDesc::Interval, VelocityDesc::Above  )
+    , veldesc_( VelocityDesc::Interval )
 
 {}
 

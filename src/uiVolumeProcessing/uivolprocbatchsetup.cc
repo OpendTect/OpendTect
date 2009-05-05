@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.5 2009-03-24 12:33:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.6 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -106,7 +106,7 @@ bool VolProc::uiBatchSetup::fillPar( IOPar& par )
     }
     if ( outisvelfld_->getBoolValue() )
     {
-	commitfailed = !uiveldesc_->updateAndCommit( *outputctxt_.ioobj );
+	commitfailed = !uiveldesc_->updateAndCommit( *outputctxt_.ioobj, true );
 	needcommit = false;
     }
 

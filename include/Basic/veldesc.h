@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.7 2009-03-26 13:26:24 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.8 2009-05-05 16:48:33 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "enums.h"
+#include "multiid.h"
 
 class IOPar;
 
@@ -24,20 +25,26 @@ mClass VelocityDesc
 public:
     enum Type		{ Unknown, Interval, RMS, Avg };
     			DeclareEnumUtils(Type);
-    enum SampleSpan	{ Centered, Above, Below };
-    			DeclareEnumUtils(SampleSpan);
     
 			VelocityDesc();
-			VelocityDesc(Type,SampleSpan);
+			VelocityDesc(Type);
 
     Type		type_;
-    SampleSpan		samplespan_;
 
-    BufferString	toString() const;
-    bool		fromString(const char*);
+    MultiID		staticshorizon_;
+    float		staticsvel_;
+    BufferString	staticsvelattrib_;	//attrib on statichorizon_
+    						//if empty, use vel
+
+    static void		removePars(IOPar&);
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
-    static const char*	sKeyVelocityDesc();
+
+    static const char*	sKeyVelocityType();
+    static const char*	sKeyStaticsHorizon();
+    static const char*	sKeyStaticsVelocity();
+    static const char*	sKeyStaticsVelocityAttrib();
+
     static const char*	sKeyIsVelocity();
 };
 

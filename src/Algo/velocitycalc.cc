@@ -4,7 +4,7 @@
  * DATE     : Dec 2007
 -*/
 
-static const char* rcsID = "$Id: velocitycalc.cc,v 1.16 2009-04-29 21:47:27 cvskris Exp $";
+static const char* rcsID = "$Id: velocitycalc.cc,v 1.17 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "velocitycalc.h"
 
@@ -83,7 +83,7 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 		break;
 	    }
 
-	    if ( !computeDix( vrms, sd, sz, vd.samplespan_, ownvint->arr() ) )
+	    if ( !computeDix( vrms, sd, sz, ownvint->arr() ) )
 		break;
 
 	    //Don't break, go into Vint
@@ -94,13 +94,13 @@ bool TimeDepthConverter::setVelocityModel( const ValueSeries<float>& vel,
 	    {
 		mTryAlloc( depths_, float[sz] );
 		if ( !depths_ ||
-		     !calcDepths(*vint,sz,sd,vd.samplespan_,depths_) )
+		     !calcDepths(*vint,sz,sd,depths_) )
 		{ delete [] depths_; depths_ = 0; break; }
 	    }
 	    else
 	    {
 		mTryAlloc( times_, float[sz] );
-		if ( !times_ || !calcTimes(*vint,sz,sd,vd.samplespan_,times_) )
+		if ( !times_ || !calcTimes(*vint,sz,sd,times_) )
 		{ delete [] times_; times_ = 0; break; }
 	    }
 
@@ -253,33 +253,20 @@ bool TimeDepthConverter::calcTimes( ValueSeries<float>& res, int sz,
 
 
 /*!For every time in the velocity model, calculate the depth. The velocity is
-   is assumed to be constant at vel[0] above the first time. The sample span
-   works as follows:
-
+   is assumed to be constant at vel[0] above the first time.   The velocity is
+   specified as Interval velocity, and the sample span is above. That means
+   the velocity at a certain sample is the velocity of the layer above the
+   corresponding time:
 \code
-for sr==above
 Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
 20	 1000	  16-20			0.020*1000 = 20			
 24	 1500	  20-24			20+0.004*1500 = 26
 28	 2000	  24-28			26+0.004*2000 = 34
-
-for sr==center
-Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
-20	 1000	  18-22			0.020*1000 = 20			
-24	 1500	  22-26			20+0.002*1000+0.002*1500 = 25
-28	 2000	  26-30			25+0.002*1500+0.002*2000 = 32
-
-for sr==below
-Time(ms) Vel(m/s) Samplespan (ms)	Depth (m)
-20	 1000	  20-24			0.020*1000 = 20			
-24	 1500	  24-28			20+0.004*1000 = 24
-28	 2000	  28-32			24+0.004*1500 = 30
 \endcode
 */
 
 bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 				    const SamplingData<double>& sd,
-				    VelocityDesc::SampleSpan ss,
 				    float* depths )
 {
     if ( !velsz ) return true;
@@ -291,16 +278,7 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
     for ( int idx=1; idx<velsz; idx++ )
     {
 	const float curvel = vels.value( idx );
-
-	if ( ss==VelocityDesc::Above )
-	    depth += sd.step*curvel/2; //time is TWT
-	else if ( ss==VelocityDesc::Centered )
-	{
-	    depth += sd.step * prevvel/4; //time is TWT
-	    depth += sd.step * curvel/4; //time is TWT
-	}
-	else
-	    depth += sd.step * prevvel/2; //time is TWT
+	depth += sd.step*curvel/2; //time is TWT
 
 	depths[idx] = depth;
 	prevvel = curvel;
@@ -311,33 +289,22 @@ bool TimeDepthConverter::calcDepths(const ValueSeries<float>& vels, int velsz,
 
 
 /*!For every depth in the velocity model, calculate the time. The velocity is
-   is assumed to be constant at vel[0] above the depth time. The sample span
-   works as follows:
+   is assumed to be constant at vel[0] above the depth time. The velocity is
+   specified as Interval velocity, and the sample span is above. That means
+   the velocity at a certain sample is the velocity of the layer above the
+   corresponding depth:
 
 \code
-for sr==above
 Depth(m) Vel(m/s) Samplespan (m)	Time (s)
 200	 1000	  160-200		200/1000 = 0.2
 240	 1500	  200-240		0.2+40/1500 = 0.23
 280	 2000	  240-280		0.23+40/2000 = 0.25
 
-for sr==center
-Time(ms) Vel(m/s) Samplespan (m)	Time(s)
-200	 1000	  180-220		200/1000 = 0.2
-240	 1500	  220-260		0.2+20/1000+20/1500=0.23
-280	 2000	  260-300		0.23+20/1500+20/2000=0.26
-
-for sr==below
-Time(ms) Vel(m/s) Samplespan (m)	Time(s)
-200	 1000	  200-240		200/1000 = 0.2
-240	 1500	  240-280		0.2+40/1000=0.24
-280	 2000	  280-320		0.24+40/1500 = 0.27
 \endcode
 */
 
 bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
 				    const SamplingData<double>& sd,
-				    VelocityDesc::SampleSpan ss,
 				    float* times )
 {
     if ( !velsz ) return true;
@@ -351,15 +318,7 @@ bool TimeDepthConverter::calcTimes( const ValueSeries<float>& vels, int velsz,
     {
 	const float curvel = vels.value( idx );
 
-	if ( ss==VelocityDesc::Above )
-	    time += sd.step*2/curvel; //time is TWT
-	else if ( ss==VelocityDesc::Centered )
-	{
-	    time += sd.step / prevvel; //time is TWT
-	    time += sd.step / curvel; //time is TWT
-	}
-	else
-	    time += sd.step*2 / prevvel; //time is TWT
+	time += sd.step*2/curvel; //time is TWT
 
 	times[idx] = time;
 	prevvel = curvel;
@@ -451,15 +410,9 @@ bool computeMoveout( float t0, float Vrms, float effectiveanisotropy,
     return true;
 
 bool computeDix( const float* Vrms, const SamplingData<double>& sd, int nrvels,
-		 VelocityDesc::SampleSpan span, float* Vint )
+		 float* Vint )
 {
-    double spanadjustment = 0;
-    if ( span==VelocityDesc::Centered )
-	spanadjustment = sd.step/2;
-    else if ( span==VelocityDesc::Below )
-	spanadjustment = sd.step;
-
-    mComputeDixImpl( 0, 0, (sd.atIndex(idx)+spanadjustment) );
+    mComputeDixImpl( 0, 0, sd.atIndex(idx) );
 }
 
 
@@ -471,14 +424,8 @@ bool computeDix( const float* Vrms, float t0, float v0, const float* t,
 
 
 bool computeVrms( const float* Vint, const SamplingData<double>& sd, int nrvels,
-		  VelocityDesc::SampleSpan span, float* Vrms )
+		  float* Vrms )
 {
-    double spanadjustment = 0;
-    if ( span==VelocityDesc::Centered )
-	spanadjustment = sd.step/2;
-    else if ( span==VelocityDesc::Below )
-	spanadjustment = sd.step;
-
     double t_above = 0;
     int idx_prev = -1;
     double v2t_prev = 0;
@@ -489,7 +436,7 @@ bool computeVrms( const float* Vint, const SamplingData<double>& sd, int nrvels,
 	if ( mIsUdf(V_interval) )
 	    continue;
 
-	double t_below = sd.atIndex(idx) + spanadjustment;
+	double t_below = sd.atIndex(idx);
 
 	double dt = t_below - t_above;
 	double numerator = v2t_prev+V_interval*V_interval*dt;
@@ -559,17 +506,14 @@ bool sampleVrms(const float* Vin,float t0_in,float v0_in,const float* t_in,
     if ( !Vint_sampled )
 	return false;
 
-    if ( !sampleVint( Vint.arr(), t_in, nr_in, VelocityDesc::Above,
-		      sd_out, Vint_sampled, nr_out ) )
+    if ( !sampleVint( Vint.arr(), t_in, nr_in, sd_out, Vint_sampled, nr_out ) )
 	return false;
 
-    return computeVrms( (const float*)Vint_sampled, sd_out, nr_out,
-	    		VelocityDesc::Above, Vout );
+    return computeVrms( (const float*)Vint_sampled, sd_out, nr_out, Vout );
 }
 
 
 bool sampleVint( const float* Vin,const float* t_in, int nr_in,
-		 VelocityDesc::SampleSpan inputspan,
 		 const SamplingData<double>& sd_out, float* Vout, int nr_out)
 {
     if ( !nr_in )
@@ -602,15 +546,12 @@ bool sampleVint( const float* Vin,const float* t_in, int nr_in,
 	    //compartment is always after pos
 	    if ( match )
 		Vout[idx] = Vin[compartment];
-	    else if ( inputspan==VelocityDesc::Below )
-		Vout[idx] = Vin[compartment ? compartment-1 : compartment];
-	    else if ( inputspan==VelocityDesc::Above )
-	        Vout[idx] = Vin[compartment];
 	    else
 	    {
 		const float rel = (z-t_in[compartment-1]) /
 				  (t_in[compartment]-t_in[compartment-1] );
-		Vout[idx] = rel*Vin[compartment]+(1-rel)*Vin[compartment-1];
+		Vout[idx] = Interpolate::linearReg1D( Vin[compartment-1],
+						      Vin[compartment], rel );
 	    }
 	}
     }

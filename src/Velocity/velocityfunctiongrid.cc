@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.3 2009-04-30 19:06:49 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.4 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -205,8 +205,7 @@ const VelocityDesc& GriddedSource::getDesc() const
     if ( datasources_.size() )
 	return datasources_[0]->getDesc();
 
-    static const VelocityDesc defdesc( VelocityDesc::Unknown,
-				       VelocityDesc::Below  );
+    static const VelocityDesc defdesc( VelocityDesc::Unknown );
 
     return defdesc;
 }

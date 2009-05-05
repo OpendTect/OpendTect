@@ -8,7 +8,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.3 2009-04-09 00:45:02 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionstored.cc,v 1.4 2009-05-05 16:48:33 cvskris Exp $";
 
 #include "velocityfunctionstored.h"
 
@@ -291,8 +291,7 @@ bool StoredFunction::computeVelocity( float z0, float dz, int nr,
     if ( getDesc().type_==VelocityDesc::Interval )
     {
 	return sampleVint( vel_.arr(), zval_.arr(), zval_.size(),
-		    getDesc().samplespan_, SamplingData<double>( z0, dz ),
-		    res, nr );
+		    SamplingData<double>( z0, dz ), res, nr );
     }
     else if ( getDesc().type_==VelocityDesc::RMS && source.zIsTime() )
     {
