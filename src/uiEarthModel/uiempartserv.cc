@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.166 2009-05-04 11:31:59 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.167 2009-05-05 16:43:47 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -200,8 +200,8 @@ int uiEMPartServer::nrAttributes( const EM::ObjectID& emid ) const
     if ( !emobj ) return 0;
 
     EM::SurfaceIOData sd;
-    const char* err = EM::EMM().getSurfaceData( emobj->multiID(), sd );
-    return err && *err ? 0 : sd.valnames.size();
+    FixedString err = EM::EMM().getSurfaceData( emobj->multiID(), sd );
+    return err.isEmpty() ? sd.valnames.size() : 0;
 }
 
 
