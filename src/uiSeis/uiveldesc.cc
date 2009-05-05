@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.22 2009-05-05 18:33:02 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.23 2009-05-05 20:16:39 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.22 2009-05-05 18:33:02 cvskris
 #include "ioman.h"
 #include "seistrctr.h"
 #include "seisselection.h"
+#include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uicombobox.h"
@@ -48,7 +49,9 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
 	    mCB(this,uiVelocityDesc,updateFlds));
     useconstantvelfld_->attach( alignedBelow, staticshorfld_ );
 
-    constantvelfld_ = new uiGenInput( this, "Statics velocity", FloatInpSpec());
+    BufferString label = "Statics velocity ";
+    label += SI().xyInFeet() ? "[ft/s]" : "[m/s]";
+    constantvelfld_ = new uiGenInput( this, label.buf(), FloatInpSpec());
     constantvelfld_->attach( alignedBelow, useconstantvelfld_ );
 
     horattribfld_ = new uiLabeledComboBox( this, "Velocity attribute" );
@@ -72,6 +75,8 @@ void uiVelocityDesc::updateFlds( CallBacker* )
 	return;
     }
 
+    hasstaticsfld_->display( true );
+
     if ( !hasstaticsfld_->getBoolValue() )
     {
 	staticshorfld_->display( false );
@@ -81,8 +86,18 @@ void uiVelocityDesc::updateFlds( CallBacker* )
 	return;
     }
 
+    EM::SurfaceIOData sd;
+    const FixedString err =
+	EM::EMM().getSurfaceData( staticshorfld_->key(true), sd );
+
+    const bool horizonhasattribs = err.isEmpty() && sd.valnames.size();
+
     staticshorfld_->display( true );
     useconstantvelfld_->display( true );
+    useconstantvelfld_->setSensitive( horizonhasattribs );
+
+    if ( !horizonhasattribs )
+	useconstantvelfld_->setValue( true );
 
     if ( useconstantvelfld_->getBoolValue() )
     {
@@ -95,11 +110,7 @@ void uiVelocityDesc::updateFlds( CallBacker* )
 	horattribfld_->display( true );
 
 	horattribfld_->box()->empty();
-	EM::SurfaceIOData sd;
-	const FixedString err =
-	    EM::EMM().getSurfaceData( staticshorfld_->key(true), sd );
-	if ( !err.isEmpty() )
-	    horattribfld_->box()->addItems( sd.valnames );
+	horattribfld_->box()->addItems( sd.valnames );
     }
 }
 
@@ -111,7 +122,6 @@ void uiVelocityDesc::set( const VelocityDesc& desc )
     staticshorfld_->setInput( desc.staticshorizon_ );
     useconstantvelfld_->setValue( desc.staticsvelattrib_.isEmpty() );
     constantvelfld_->setValue( desc.staticsvel_ );
-
    
     updateFlds( 0 ); 
 
@@ -132,6 +142,8 @@ bool uiVelocityDesc::get( VelocityDesc& res, bool disperr ) const
     {
 	const IOObj* ioobj = staticshorfld_->ioobj( !disperr );
 	if ( !ioobj ) return false;
+
+	res.staticshorizon_ = ioobj->key();
 
 	if ( useconstantvelfld_->getBoolValue() )
 	{
