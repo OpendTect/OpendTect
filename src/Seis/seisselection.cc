@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.22 2008-11-24 12:06:09 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.23 2009-05-05 02:24:06 cvskris Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -115,7 +115,7 @@ Interval<float> Seis::SelData::zRange() const
 void Seis::SelData::fillPar( IOPar& iop ) const
 {
     const char* typstr = Seis::nameOf(type());
-    iop.set( sKey::Type, isall_ ? sKey::None : typstr );
+    iop.set( sKey::Type, isall_ ? (const char*) sKey::None : typstr );
     if ( linekey_.isEmpty() )
 	iop.removeWithKey( sKey::LineKey );
     else
