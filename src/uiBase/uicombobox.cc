@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicombobox.cc,v 1.48 2008-12-24 05:55:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uicombobox.cc,v 1.49 2009-05-05 14:25:41 cvskris Exp $";
 
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -121,6 +121,19 @@ uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )
 
 int uiComboBox::currentItem() const
 { return body_->currentIndex(); }
+
+
+int uiComboBox::indexOf( const char* str ) const
+{
+    const FixedString inputstr( str );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	if ( textOfItem(idx)==inputstr )
+	    return idx;
+    }
+
+    return -1;
+}
 
 
 void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )

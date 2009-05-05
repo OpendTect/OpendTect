@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.25 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uicombobox.h,v 1.26 2009-05-05 14:25:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ public:
     void		setCurrentItem(const char*); //!< First match
     const char*		textOfItem(int) const;
     void		setItemText(int,const char*);
+    int			indexOf(const char*) const;
 
 			//! Triggered when selection has changed.
     Notifier<uiComboBox> selectionChanged;
