@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.1 2009-05-05 01:10:14 cvskris Exp $
+ RCS:		$Id: fixedstring.h,v 1.2 2009-05-05 03:32:09 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -31,6 +31,8 @@ public:
     int		size() const;
 
 		operator const char*() const    	{ return ptr_; }
+
+    const char*	buf() const 				{ return ptr_; }
 
 protected:
 
