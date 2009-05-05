@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.10 2009-05-05 18:31:24 cvskris Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.11 2009-05-05 21:00:00 cvskris Exp $";
 
 
 #include "veldesc.h"
@@ -15,14 +15,9 @@ static const char* rcsID = "$Id: veldesc.cc,v 1.10 2009-05-05 18:31:24 cvskris E
 #include "iopar.h"
 #include "separstr.h"
 #include "fixedstring.h"
+#include "staticsdesc.h"
 
 const char* VelocityDesc::sKeyVelocityType()	{ return "Velocity Type"; }
-const char* VelocityDesc::sKeyStaticsHorizon()	{ return "Statics Horizon"; }
-const char* VelocityDesc::sKeyStaticsVelocity()	{ return "Statics Velocity"; }
-const char* VelocityDesc::sKeyStaticsVelocityAttrib()	
-{ return "Statics Velocity Attrib"; }
-
-
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 
 DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
@@ -30,13 +25,11 @@ DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
 
 VelocityDesc::VelocityDesc()
     : type_( Unknown )
-    , staticsvel_( mUdf(float) )
 {}
 
 
 VelocityDesc::VelocityDesc( Type t )
     : type_( t )
-    , staticsvel_( mUdf(float) )
 {}
 
 
@@ -44,11 +37,9 @@ void VelocityDesc::fillPar( IOPar& par ) const
 {
     par.set( sKeyVelocityType(), TypeNames()[(int)type_] );
     if ( type_==RMS )
-    {
-	par.set( sKeyStaticsHorizon(), staticshorizon_ );
-	par.set( sKeyStaticsVelocity(), staticsvel_ );
-	par.set( sKeyStaticsVelocityAttrib(), staticsvelattrib_ );
-    }
+	statics_.fillPar( par );
+    else
+	StaticsDesc::removePars( par );
 
     par.setYN( sKeyIsVelocity(), true );
 }
@@ -57,10 +48,8 @@ void VelocityDesc::fillPar( IOPar& par ) const
 void VelocityDesc::removePars( IOPar& par )
 {
     par.remove( sKeyVelocityType() );
-    par.remove( sKeyStaticsHorizon() );
-    par.remove( sKeyStaticsVelocity() );
-    par.remove( sKeyStaticsVelocityAttrib() );
     par.remove( sKeyIsVelocity() );
+    StaticsDesc::removePars( par );
 }
 
 
@@ -87,8 +76,8 @@ bool VelocityDesc::usePar( const IOPar& par )
 
 	type_ = (Type) idx;
 
-	staticsvelattrib_.setEmpty();
-	staticsvel_ = mUdf(float);
+	statics_.velattrib_.setEmpty();
+	statics_.vel_ = mUdf(float);
 
 	return true;
     }
@@ -98,14 +87,8 @@ bool VelocityDesc::usePar( const IOPar& par )
 
     type_ = (Type) type;
 
-    if ( type_==RMS )
-    {
-	if  ( !par.get( sKeyStaticsHorizon(), staticshorizon_ ) )
-	    return false;
-
-	par.get( sKeyStaticsVelocityAttrib(), staticsvelattrib_ );
-	par.get( sKeyStaticsVelocity(), staticsvel_ );
-    }
+    if ( type_==RMS && !statics_.usePar( par ) )
+	return false;
 
     return true;
 }

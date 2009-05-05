@@ -7,18 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.8 2009-05-05 16:48:33 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.9 2009-05-05 21:00:00 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "enums.h"
 #include "multiid.h"
+#include "staticsdesc.h"
 
-class IOPar;
 
-/*!Specifies velocity type and which z-interval a velocity sample belongs to
-   The SampleSpan is only relevent at Interval Veloicty. */
+/*!Specifies velocity type and statics for a velocity.   */
+
 
 mClass VelocityDesc
 {
@@ -30,21 +30,13 @@ public:
 			VelocityDesc(Type);
 
     Type		type_;
-
-    MultiID		staticshorizon_;
-    float		staticsvel_;
-    BufferString	staticsvelattrib_;	//attrib on statichorizon_
-    						//if empty, use vel
+    StaticsDesc		statics_;
 
     static void		removePars(IOPar&);
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
     static const char*	sKeyVelocityType();
-    static const char*	sKeyStaticsHorizon();
-    static const char*	sKeyStaticsVelocity();
-    static const char*	sKeyStaticsVelocityAttrib();
-
     static const char*	sKeyIsVelocity();
 };
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.23 2009-05-05 20:16:39 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.24 2009-05-05 21:00:00 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiveldesc.cc,v 1.23 2009-05-05 20:16:39 cvskris
 #include "uigeninput.h"
 #include "uicombobox.h"
 #include "uimsg.h"
+#include "uistaticsdesc.h"
 
 
 
@@ -37,25 +38,9 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const uiVelocityDesc::Setup* vsu )
     hasstaticsfld_->valuechanged.notify(mCB(this,uiVelocityDesc,updateFlds));
     hasstaticsfld_->attach( alignedBelow, typefld_ );
 
-    IOObjContext ctxt = EMHorizon3DTranslatorGroup::ioContext();    
-    ctxt.forread = true;
-    staticshorfld_ = new uiIOObjSel( this, ctxt, "Statics elevation" );
-    staticshorfld_->attach( alignedBelow, hasstaticsfld_ );
-    staticshorfld_->selectiondone.notify( mCB(this,uiVelocityDesc,updateFlds));
+    staticsfld_ = new uiStaticsDesc( this, 0 );
+    staticsfld_->attach( alignedBelow, hasstaticsfld_ );
 
-    useconstantvelfld_ = new uiGenInput( this, "Use constant velocity",
-	    BoolInpSpec(true) );
-    useconstantvelfld_->valuechanged.notify(
-	    mCB(this,uiVelocityDesc,updateFlds));
-    useconstantvelfld_->attach( alignedBelow, staticshorfld_ );
-
-    BufferString label = "Statics velocity ";
-    label += SI().xyInFeet() ? "[ft/s]" : "[m/s]";
-    constantvelfld_ = new uiGenInput( this, label.buf(), FloatInpSpec());
-    constantvelfld_->attach( alignedBelow, useconstantvelfld_ );
-
-    horattribfld_ = new uiLabeledComboBox( this, "Velocity attribute" );
-    horattribfld_->attach( alignedBelow, useconstantvelfld_ );
     setHAlignObj( typefld_ );
 
     set( vsu ? vsu->desc_ : VelocityDesc() );
@@ -68,64 +53,21 @@ void uiVelocityDesc::updateFlds( CallBacker* )
     if ( type!=VelocityDesc::RMS )
     {
 	hasstaticsfld_->display( false );
-	staticshorfld_->display( false );
-	useconstantvelfld_->display( false );
-	constantvelfld_->display( false );
-	horattribfld_->display( false );
+	staticsfld_->display( false );
 	return;
     }
 
     hasstaticsfld_->display( true );
-
-    if ( !hasstaticsfld_->getBoolValue() )
-    {
-	staticshorfld_->display( false );
-	useconstantvelfld_->display( false );
-	constantvelfld_->display( false );
-	horattribfld_->display( false );
-	return;
-    }
-
-    EM::SurfaceIOData sd;
-    const FixedString err =
-	EM::EMM().getSurfaceData( staticshorfld_->key(true), sd );
-
-    const bool horizonhasattribs = err.isEmpty() && sd.valnames.size();
-
-    staticshorfld_->display( true );
-    useconstantvelfld_->display( true );
-    useconstantvelfld_->setSensitive( horizonhasattribs );
-
-    if ( !horizonhasattribs )
-	useconstantvelfld_->setValue( true );
-
-    if ( useconstantvelfld_->getBoolValue() )
-    {
-	constantvelfld_->display( true );
-	horattribfld_->display( false );
-    }
-    else
-    {
-	constantvelfld_->display( false );
-	horattribfld_->display( true );
-
-	horattribfld_->box()->empty();
-	horattribfld_->box()->addItems( sd.valnames );
-    }
+    staticsfld_->display( hasstaticsfld_->getBoolValue() );
 }
 
 
 void uiVelocityDesc::set( const VelocityDesc& desc )
 {
     typefld_->setValue( desc.type_ );
-    hasstaticsfld_->setValue( !desc.staticshorizon_.isEmpty() );
-    staticshorfld_->setInput( desc.staticshorizon_ );
-    useconstantvelfld_->setValue( desc.staticsvelattrib_.isEmpty() );
-    constantvelfld_->setValue( desc.staticsvel_ );
-   
+    hasstaticsfld_->setValue( !desc.statics_.horizon_.isEmpty() );
+    staticsfld_->set( desc.statics_ );
     updateFlds( 0 ); 
-
-    horattribfld_->box()->setText( desc.staticsvelattrib_ );
 }
 
 
@@ -134,33 +76,14 @@ bool uiVelocityDesc::get( VelocityDesc& res, bool disperr ) const
     res.type_ = (VelocityDesc::Type) typefld_->getIntValue();
     if ( res.type_!=VelocityDesc::RMS || !hasstaticsfld_->getBoolValue() )
     {
-	res.staticshorizon_.setEmpty();
-	res.staticsvel_ = mUdf(float);
-	res.staticsvelattrib_.setEmpty();
+	res.statics_.horizon_.setEmpty();
+	res.statics_.vel_ = mUdf(float);
+	res.statics_.velattrib_.setEmpty();
     }
     else
     {
-	const IOObj* ioobj = staticshorfld_->ioobj( !disperr );
-	if ( !ioobj ) return false;
-
-	res.staticshorizon_ = ioobj->key();
-
-	if ( useconstantvelfld_->getBoolValue() )
-	{
-	    if ( mIsUdf(constantvelfld_->getfValue() ) )
-	    {
-		if ( disperr )
-		    uiMSG().error("Statics Velocity not specified");
-		return false;
-	    }
-		
-	    res.staticsvel_ = constantvelfld_->getfValue();
-	}
-	else
-	{
-	    res.staticsvel_ = mUdf(float);
-	    res.staticsvelattrib_ = horattribfld_->box()->text();
-	}
+	if ( !staticsfld_->get( res.statics_, disperr ) )
+	    return false;
     }
 
     return true;

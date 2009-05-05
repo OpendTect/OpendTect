@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.10 2009-05-05 18:33:02 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.11 2009-05-05 21:00:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 class uiGenInput;
 class uiSeisSel;
-class uiLabeledComboBox;
+class uiStaticsDesc;
 
 /*!Group that allows the user to edit VelocityDesc information. */
 
@@ -45,10 +45,7 @@ protected:
 
     uiGenInput*			typefld_;
     uiGenInput*			hasstaticsfld_;
-    uiIOObjSel*			staticshorfld_;
-    uiGenInput*			useconstantvelfld_;
-    uiGenInput*			constantvelfld_;
-    uiLabeledComboBox*		horattribfld_;
+    uiStaticsDesc*		staticsfld_;
 };
 
 
