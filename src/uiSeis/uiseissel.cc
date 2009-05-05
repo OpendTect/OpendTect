@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.76 2009-04-16 14:45:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.77 2009-05-05 16:45:10 cvskris Exp $";
 
 #include "uiseissel.h"
 
@@ -288,6 +288,27 @@ CtxtIOObj* uiSeisSel::mkCtxtIOObj( Seis::GeomType gt, bool forread )
 
     ret->ctxt.forread = forread;
     return ret;
+}
+
+
+void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
+			     IOObjContext& ctxt )
+{
+    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( geom, forread );
+
+    if ( ctxt.deftransl.isEmpty() )
+	ctxt.deftransl = geom==Seis::Line ? "2D" : "CBVS";
+    else if ( !forread )
+	ctxt.trglobexpr = ctxt.deftransl;
+    else
+    {
+	FileMultiString fms( ctxt.trglobexpr );
+	if ( fms.indexOf(ctxt.deftransl.buf()) < 0 )
+	{
+	    fms += ctxt.deftransl;
+	    ctxt.trglobexpr = fms;
+	}
+    }
 }
 
 

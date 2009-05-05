@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.38 2009-04-16 14:45:05 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.39 2009-05-05 16:45:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ public:
 
     static CtxtIOObj*	mkCtxtIOObj(Seis::GeomType,bool forread);
     				//!< returns new default CtxtIOObj
+    static void		fillContext(Seis::GeomType,bool forread,IOObjContext&);
 
 protected:
 
