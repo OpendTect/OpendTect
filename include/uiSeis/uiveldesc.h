@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.9 2009-05-05 16:48:33 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.10 2009-05-05 18:33:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,11 +82,12 @@ public:
     				uiVelSel(uiParent*,IOObjContext&,
 					 const uiSeisSel::Setup&);
 
-    void			updateInput();
+    void			setInput(const MultiID&);
     static const IOObjContext&	ioContext();
 
 protected:
 
+    void			updateEditButton(CallBacker*);
     void			editCB(CallBacker*);
     uiPushButton*		editcubebutt_;
 };

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiveldesc.cc,v 1.21 2009-05-05 16:48:33 cvskris Exp $";
+static const char* rcsID = "$Id: uiveldesc.cc,v 1.22 2009-05-05 18:33:02 cvskris Exp $";
 
 #include "uiveldesc.h"
 
@@ -231,9 +231,11 @@ uiVelSel::uiVelSel( uiParent* p, IOObjContext& ctxt,
 		    const uiSeisSel::Setup& setup )
     : uiSeisSel( p, ctxt, setup )
 {
-    editcubebutt_ = new uiPushButton( this, workctio_.ioobj ? "Edit" : "Create",
-				      mCB(this,uiVelSel,editCB), false );
+    editcubebutt_ = new uiPushButton( this, "",
+	    mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, selbut_ );
+    updateEditButton( 0 );
+    selectiondone.notify( mCB(this,uiVelSel,updateEditButton) );
 }
 
 
@@ -259,12 +261,18 @@ void uiVelSel::editCB(CallBacker*)
     if ( dlg.go() )
 	workctio_.setObj( dlg.getSelection() );
 
-    updateInput();
+    updateEditButton( 0 );
 }
 
 
-void uiVelSel::updateInput()
+void uiVelSel::setInput( const MultiID& mid )
 {
-    uiSeisSel::updateInput();
-    editcubebutt_->setText( workctio_.ioobj ? "Edit ..." : "Create ..." );
+    uiIOObjSel::setInput( mid );
+    updateEditButton( 0 );
+}
+
+
+void uiVelSel::updateEditButton(CallBacker*)
+{
+    editcubebutt_->setText( ioobj(true) ? "Edit ..." : "Create ..." );
 }
