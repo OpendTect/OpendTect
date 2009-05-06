@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          October 2008
- RCS:           $Id: SoLockableSeparator.h,v 1.4 2009-02-13 10:47:31 cvsnanne Exp $
+ RCS:           $Id: SoLockableSeparator.h,v 1.5 2009-05-06 22:05:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,12 +19,14 @@ ________________________________________________________________________
 
 #include "soodbasic.h"
 
-#define mImplFunc( func, action )	\
-func( action* a )			\
-{					\
-    lock.readLock();			\
-    inherited::func( a );		\
-    lock.readUnlock();			\
+#define mImplFunc( func, action )		\
+func( action* a )				\
+{						\
+    if ( !lock.tryReadLock() )			\
+	return;					\
+    						\
+    inherited::func( a );			\
+    lock.readUnlock();				\
 }		
 
 
