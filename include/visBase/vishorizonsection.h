@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.12 2009-05-01 21:01:26 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.13 2009-05-06 21:58:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "position.h"
+#include "rowcol.h"
 #include "visobject.h"
 
 class BinIDValueSet;
@@ -74,7 +75,7 @@ public:
     int                         activeVersion(int channel) const;
     void                        selectActiveVersion(int channel,int);
 
-    void			setSurface(Geometry::BinIDSurface*);
+    void			setSurface(Geometry::BinIDSurface*,bool conn);
     Geometry::BinIDSurface*	getSurface() const	{ return geometry_; }
 
     void			useWireframe(bool);
@@ -103,14 +104,20 @@ public:
 protected:
     				~HorizonSection();
     static ArrPtrMan<SbVec2f>	texturecoordptr_;				
-    void			updateGeometry();
+    void			surfaceChangeCB(CallBacker*);
+    void			removeZTransform();
+    void			updateZAxisVOI(const Geometry::BinIDSurface*);
+
     void			updateTexture(int channel);
-    void			updateResolution(SoState*);
-    static void			updateResolution(void*,SoAction*);
+    void			updateAutoResolution(SoState*);
+    static void			updateAutoResolution(void*,SoAction*);
     void			updateWireFrame(int res);
     void			turnOnWireFrame(int res);
+    void			updateTileNeighbors(int nrrows,int nrcols);
+    void			insertRowColTilesArray(bool row,bool bef,int);
 
     Geometry::BinIDSurface*	geometry_;
+    Threads::Mutex		geometrylock_;
     ObjectSet<BinIDValueSet>	cache_;
 
     TextureChannels*		channels_;
@@ -121,11 +128,17 @@ protected:
 
     Array2DImpl<HorizonSectionTile*> tiles_;
     visBase::IndexedPolyLine*	wireframelines_[mHorSectNrRes];
+    bool			usewireframe_;
 
     Transformation*		transformation_;
     ZAxisTransform*		zaxistransform_;
-
+    int				zaxistransformvoi_; 
+    				//-1 not needed by zaxistransform, -2 not set
+				
     int				desiredresolution_;
+
+    RowCol			origin_;
+    RowCol			step_;
 };
 
 mClass HorizonSectionTile
@@ -135,7 +148,7 @@ public:
 				~HorizonSectionTile();
     void			setResolution(int);
     				/*!<Resolution -1 means it is automatic. */
-    void			updateResolution(SoState*);
+    void			updateAutoResolution(SoState*);
     				/*<Update only when the resolutionis -1. */
     void			setNeighbor(int,HorizonSectionTile*);
     void			setPos(int row,int col,const Coord3&);
@@ -160,6 +173,7 @@ public:
 
 protected:
 
+    friend			class HorSectTileResolutionTesselator;
     int				getActualResolution() const;
     void			setActualResolution(int);
     int				getAutoResolution(SoState*);
