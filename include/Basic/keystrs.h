@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.49 2009-05-05 02:21:07 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.50 2009-05-06 07:45:46 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,16 @@ ________________________________________________________________________
 
 #ifdef KEYSTRS_IMPL
 # define mImpl(s) = s
-#define mExt 
 #else
 # define mImpl(s) /* empty */
-#define mExt mBasicExtern
 #endif
+
+#ifdef __msvc__
+# define mExt mBasicExtern
+#else
+# define mExt 
+#endif
+
 
 
 /*!\brief is used for defining key strings that are 'global'.
