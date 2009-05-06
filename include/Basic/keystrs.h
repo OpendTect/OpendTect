@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
 
- RCS:		$Id: keystrs.h,v 1.50 2009-05-06 07:45:46 cvsranojay Exp $
+ RCS:		$Id: keystrs.h,v 1.51 2009-05-06 09:31:42 cvsranojay Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,16 +19,17 @@ ________________________________________________________________________
 
 #undef mImpl
 
+
 #ifdef KEYSTRS_IMPL
 # define mImpl(s) = s
+#ifdef __msvc__
+#define mExt mBasicExtern
+#else 
+# define mExt
+#endif
 #else
 # define mImpl(s) /* empty */
-#endif
-
-#ifdef __msvc__
 # define mExt mBasicExtern
-#else
-# define mExt 
 #endif
 
 
