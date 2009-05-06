@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.19 2009-04-29 16:27:07 cvskris Exp $
+ RCS:		$Id: task.h,v 1.20 2009-05-06 21:57:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,6 +176,7 @@ public:
     
     od_int64		totalNr() const	{ return nrIterations(); }
 
+    static Threads::ThreadWorkManager&	twm();
 protected:
     virtual od_int64	nrIterations() const				= 0;
     			/*!<\returns the number of times the process should be
@@ -200,7 +201,6 @@ protected:
     			/*!<Call this from within your thread to say
 			    that you have done something. */
 
-    static Threads::ThreadWorkManager&	twm();
 
     void		reportNrDone(int nrdone);
     			//Legacy, don't use in new code. Use addToNrDone
