@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisisosurface.cc,v 1.22 2009-04-21 06:16:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivisisosurface.cc,v 1.23 2009-05-07 16:41:32 cvskris Exp $";
 
 #include "uivisisosurface.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uivisisosurface.cc,v 1.22 2009-04-21 06:16:35 c
 #include "uihistogramdisplay.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -223,8 +224,8 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 
 void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 {
-    MouseCursorChanger changer( MouseCursor::Wait );
-    vd_->setIsoValue( isosurfacedisplay_, nv );
+    uiTaskRunner tr( this );
+    vd_->setIsoValue( isosurfacedisplay_, nv, &tr );
     drawHistogram();
 }
 
