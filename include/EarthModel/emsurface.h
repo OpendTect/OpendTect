@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.68 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emsurface.h,v 1.69 2009-05-07 08:16:38 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,8 @@ class BinID;
 class IOObj;
 class RowCol;
 template <class T, class AT> class TopList;
+
+namespace Pos { class Filter; }
 
 namespace EM
 {
@@ -71,6 +73,8 @@ public:
 
     static BufferString		getParFileName(const IOObj&);
     static BufferString		getSetupFileName(const IOObj&);
+
+    virtual void		apply(const Pos::Filter&);
 
 protected:
     friend class		SurfaceGeometry;

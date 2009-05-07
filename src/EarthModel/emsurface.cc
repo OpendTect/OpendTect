@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emsurface.cc,v 1.91 2009-03-25 07:01:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emsurface.cc,v 1.92 2009-05-07 08:16:38 cvsjaap Exp $";
 
 #include "emsurface.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: emsurface.cc,v 1.91 2009-03-25 07:01:23 cvssaty
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "posfilter.h"
 
 
 static const char* sDbInfo = "DB Info";
@@ -226,6 +227,22 @@ bool Surface::isGeometryChecksEnabled() const
 
 const SurfaceGeometry& Surface::geometry() const
 { return const_cast<Surface*>(this)->geometry(); }
+
+
+void Surface::apply( const Pos::Filter& pf )
+{
+    PtrMan<EM::EMObjectIterator>iterator = createIterator( -1 );
+    while ( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	const Coord3 pos = getPos( pid ); 
+	if ( !pf.includes( (Coord) pos, pos.z) )
+	   unSetPos( pid, false );
+    }
+}
 
 
 BufferString Surface::getParFileName( const IOObj& ioobj )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfaultstickset.cc,v 1.4 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: emfaultstickset.cc,v 1.5 2009-05-07 08:16:38 cvsjaap Exp $";
 
 #include "emfaultstickset.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: emfaultstickset.cc,v 1.4 2009-01-27 11:45:01 cv
 #include "emrowcoliterator.h"
 #include "emsurfacetr.h"
 #include "iopar.h"
+#include "posfilter.h"
 
 
 namespace EM {
@@ -31,6 +32,36 @@ FaultStickSet::FaultStickSet( EMManager& em )
 
 FaultStickSet::~FaultStickSet()
 {}
+
+
+void FaultStickSet::apply( const Pos::Filter& pf )
+{
+    for ( int idx=0; idx<nrSections(); idx++ )
+    {
+	mDynamicCastGet( Geometry::FaultStickSet*, fssg,
+			 sectionGeometry(sectionID(idx)) );
+	if ( !fssg ) continue;
+
+	const StepInterval<int> rowrg = fssg->rowRange();
+	if ( rowrg.isUdf() ) continue;
+
+	RowCol rc;
+	for ( rc.row=rowrg.stop; rc.row>=rowrg.start; rc.row-=rowrg.step )
+	{
+	    const StepInterval<int> colrg = fssg->colRange( rc.row );
+	    if ( colrg.isUdf() ) continue;
+
+	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
+	    {
+		const Coord3 pos = fssg->getKnot( rc );
+		if ( !pf.includes( (Coord) pos, pos.z) )
+		    fssg->removeKnot( rc );
+	    }
+	}
+    }
+
+    // TODO: Handle case in which fault sticks become fragmented.
+}
 
 
 FaultStickSetGeometry& FaultStickSet::geometry()

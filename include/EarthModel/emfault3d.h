@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault3d.h,v 1.5 2009-04-06 12:52:22 cvsjaap Exp $
+ RCS:		$Id: emfault3d.h,v 1.6 2009-05-07 08:16:38 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ namespace Table { class FormatDesc; }
 
 namespace Geometry { class FaultStickSurface; }
 namespace Geometry { class FaultStickSet; }
+namespace Pos { class Filter; }
 
 namespace EM
 {
@@ -74,6 +75,8 @@ public:
     void                        removeAll();
     Fault3DGeometry&		geometry();
     const Fault3DGeometry&	geometry() const;
+    void			apply(const Pos::Filter&);
+
 
 protected:
     const IOObjContext&		getIOObjContext() const;

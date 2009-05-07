@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C Glas
  Date:		November 2008
- RCS:		$Id: emfaultstickset.h,v 1.2 2008-12-31 09:08:40 cvsranojay Exp $
+ RCS:		$Id: emfaultstickset.h,v 1.3 2009-05-07 08:16:38 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emfault.h"
 
 namespace Geometry { class FaultStickSet; }
+namespace Pos { class Filter; }
 
 namespace EM
 {
@@ -88,6 +89,7 @@ mClass FaultStickSet: public Fault
 public:
     FaultStickSetGeometry&		geometry();
     const FaultStickSetGeometry&	geometry() const;
+    void				apply(const Pos::Filter&);
 
 protected:
     const IOObjContext&			getIOObjContext() const;

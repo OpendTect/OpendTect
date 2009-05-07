@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.40 2009-04-28 12:51:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiiosurfacedlg.cc,v 1.41 2009-05-07 08:16:38 cvsjaap Exp $";
 
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
@@ -163,7 +163,12 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj, bool wattr )
 
     ctio_.ctxt.forread = false;
     ctio_.setObj( 0 );
-    outfld = new uiIOObjSel( this, ctio_, "Output Horizon" );
+
+    if ( strcmp(ioobj.group(),EM::FaultStickSet::typeStr()) )
+	outfld = new uiIOObjSel( this, ctio_, "Output Surface" );
+    else
+	outfld = new uiIOObjSel( this, ctio_, "Output Stickset" );
+
     outfld->attach( alignedBelow, inpfld );
 }
 
@@ -224,14 +229,9 @@ bool uiCopySurface::acceptOK( CallBacker* )
     uiPosSubSel* pss = inpfld->getPosSubSel();
     if ( pss )
     {
-	Pos::Provider* pp = pss->curProvider();
-	if ( pp && strcmp(pp->type(),sKey::Range) )
-	{
-	    //TODO remove all points read that are not selected, like:
-	    // for ( each node )
-	    //   if ( pp->includes( binid ) )
-	    //     killNode( binid );
-	}
+	Pos::Filter* pf = pss->curProvider();
+	if ( pf )
+	    surface->apply( *pf );
     }
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;

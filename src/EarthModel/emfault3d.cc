@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.8 2009-04-06 12:52:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.9 2009-05-07 08:16:38 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: emfault3d.cc,v 1.8 2009-04-06 12:52:22 cvsjaap 
 #include "emrowcoliterator.h"
 #include "undo.h"
 #include "errh.h"
+#include "posfilter.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "unitofmeasure.h"
@@ -187,6 +188,36 @@ const Fault3DGeometry& Fault3D::geometry() const
 
 const IOObjContext& Fault3D::getIOObjContext() const
 { return EMFault3DTranslatorGroup::ioContext(); }
+
+
+void Fault3D::apply( const Pos::Filter& pf )
+{
+    for ( int idx=0; idx<nrSections(); idx++ )
+    {
+	mDynamicCastGet( Geometry::FaultStickSurface*, fssg,
+			 sectionGeometry(sectionID(idx)) );
+	if ( !fssg ) continue;
+
+	const StepInterval<int> rowrg = fssg->rowRange();
+	if ( rowrg.isUdf() ) continue;
+
+	RowCol rc;
+	for ( rc.row=rowrg.stop; rc.row>=rowrg.start; rc.row-=rowrg.step )
+	{
+	    const StepInterval<int> colrg = fssg->colRange( rc.row );
+	    if ( colrg.isUdf() ) continue;
+
+	    for ( rc.col=colrg.stop; rc.col>=colrg.start; rc.col-=colrg.step )
+	    {
+		const Coord3 pos = fssg->getKnot( rc );
+		if ( !pf.includes( (Coord) pos, pos.z) )
+		    fssg->removeKnot( rc );
+	    }
+	}
+    }
+
+    // TODO: Handle cases in which fault becomes fragmented.
+}
 
 
 Fault3DGeometry::Fault3DGeometry( Surface& surf )
