@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.42 2009-02-23 05:57:36 cvsumesh Exp $
+ RCS:           $Id: mpeengine.h,v 1.43 2009-05-07 07:28:44 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ class MultiID;
 namespace Attrib { class SelSpec; class DataCubes; }
 namespace EM { class EMObject; };
 namespace Geometry { class Element; };
+template <class T> class Selector;
 
 namespace MPE
 {
@@ -75,7 +76,9 @@ public:
     MultiID		midtoload;
 
     bool		trackAtCurrentPlane();
+    void		updateSeedOnlyPropagation(bool);
     Executor*		trackInVolume();
+    void		removeSelectionInPolygon(const Selector<Coord3>&);
 
     void		getAvailableTrackerTypes(BufferStringSet&)const;
 
