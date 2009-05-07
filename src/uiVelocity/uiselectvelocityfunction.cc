@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.4 2009-03-18 18:45:26 cvskris Exp $";
+static const char* rcsID = "$Id: uiselectvelocityfunction.cc,v 1.5 2009-05-07 17:07:09 cvskris Exp $";
 
 #include "uiselectvelocityfunction.h"
 
@@ -219,9 +219,8 @@ bool uiAddFunction::acceptOK(CallBacker*)
 }
 
 
-uiEditFunction::uiEditFunction( uiParent* p,
-					    FunctionSource* vfs )
-    : uiDialog( p, uiDialog::Setup("Edit velocity function source",0,
+uiEditFunction::uiEditFunction( uiParent* p, FunctionSource* vfs )
+    : uiDialog( p, uiDialog::Setup("Edit velocity functions",0,
 				   "dgb:104.1.1") )
     , dlggrp_( 0 )
 {
