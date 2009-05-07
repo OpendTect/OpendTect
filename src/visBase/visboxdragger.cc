@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visboxdragger.cc,v 1.16 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: visboxdragger.cc,v 1.17 2009-05-07 17:52:09 cvskris Exp $";
 
 #include "visboxdragger.h"
 #include "ranges.h"
@@ -42,7 +42,9 @@ BoxDragger::BoxDragger()
     , yinterval_( 0 )
     , zinterval_( 0 )
     , selectable_( false )
+    , boxmaterial_ ( new SoMaterial )
 {
+    boxmaterial_->ref();
     onoff_->addChild( boxdragger_ );
     onoff_->ref();
     boxdragger_->addStartCallback(
@@ -60,8 +62,7 @@ BoxDragger::BoxDragger()
     SoSeparator* boxsep = new SoSeparator;
     boxsep->ref();
 
-    SoMaterial* boxmaterial = new SoMaterial;
-    boxsep->addChild( boxmaterial );
+    boxsep->addChild( boxmaterial_ );
     
     SoPickStyle* boxstyle = new SoPickStyle;
     boxsep->addChild( boxstyle );
@@ -123,9 +124,16 @@ BoxDragger::~BoxDragger()
 	    BoxDragger::finishCB, this );
 
     onoff_->unref();
+    boxmaterial_->unref();
     delete xinterval_;
     delete yinterval_;
     delete zinterval_;
+}
+
+
+void BoxDragger::setBoxTransparency( float f )
+{
+    boxmaterial_->transparency.setValue( f );
 }
 
 

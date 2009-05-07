@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.12 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: visboxdragger.h,v 1.13 2009-05-07 17:52:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 
 class SoTabBoxDragger;
+class SoMaterial;
 class SoDragger;
 class SoSwitch;
 
@@ -36,6 +37,9 @@ public:
     
     void			setWidth(const Coord3&);
     Coord3			width() const;
+
+    void			setBoxTransparency(float);
+    				//!<Between 0 and 1
 
     void			setSpaceLimits( const Interval<float>&,
 	    					const Interval<float>&,
@@ -66,6 +70,7 @@ protected:
 
     SoSwitch*			onoff_;
     SoTabBoxDragger*		boxdragger_;
+    SoMaterial*			boxmaterial_;
 
     Interval<float>*		xinterval_;
     Interval<float>*		yinterval_;
