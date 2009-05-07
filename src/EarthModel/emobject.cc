@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.91 2009-04-15 08:17:48 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.92 2009-05-07 07:26:34 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: emobject.cc,v 1.91 2009-04-15 08:17:48 cvsumesh
 #include "iopar.h"
 #include "ptrman.h"
 #include "selector.h"
+#include "survinfo.h"
 
 using namespace EM;
 
@@ -49,6 +50,8 @@ EMObject::EMObject( EMManager& emm )
 {
     static EM::ObjectID oid = 0;
     id_ = oid++;
+
+    removebypolyposbox_.setEmpty();
 
     change.notify( mCB(this,EMObject,posIDChangeCB) );
 }
@@ -440,6 +443,8 @@ void EMObject::removeSelected( const Selector<Coord3>& selector )
     if ( !selector.isOK() )
 	return;
 
+    removebypolyposbox_.setEmpty();
+
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
     while ( true )
     {
@@ -447,9 +452,42 @@ void EMObject::removeSelected( const Selector<Coord3>& selector )
 	if ( pid.objectID()==-1 )
 	    break;
 
-	if ( selector.includes(getPos(pid)) )
+	const Coord3 pos = getPos(pid);
+	if ( selector.includes(pos) )
+	{
 	    unSetPos( pid, true );
+
+	    if ( !pos.isDefined() ||
+		 isPosAttrib(pid, EM::EMObject::sSeedNode()) )
+		continue;
+
+	    const BinID bid = SI().transform(pos);
+	    if ( removebypolyposbox_.isEmpty() )
+	    {
+		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
+		    			      = bid;
+		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
+		    			      = pos.z;
+	    }
+	    else
+	    {
+		removebypolyposbox_.hrg.include(bid);
+		removebypolyposbox_.zrg.include(pos.z);
+	    }
+	}
     }
+}
+
+
+const CubeSampling EMObject::getRemovedPolySelectedPosBox()
+{
+    return removebypolyposbox_;
+}
+
+
+void EMObject::emptyRemovedPolySelectedPosBox()
+{
+    removebypolyposbox_.setEmpty();
 }
 
 
