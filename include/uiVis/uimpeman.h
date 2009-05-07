@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.47 2009-04-15 05:40:09 cvsnanne Exp $
+ RCS:           $Id: uimpeman.h,v 1.48 2009-05-07 07:35:58 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
 #include "cubesampling.h"
-#include  "trackplane.h"
+#include "trackplane.h"
 
 namespace MPE { class EMTracker; };
 namespace visSurvey { class MPEDisplay; class MPEClickCatcher; }
@@ -79,7 +79,10 @@ protected:
     void			updateSelectedAttrib();
     void			trackBackward(CallBacker*);
     void			trackForward(CallBacker*);
+    void			trackFromSeedsOnly(CallBacker*);
+    void			trackFromSeedsAndEdges(CallBacker*);
     void			trackInVolume(CallBacker*);
+    void 			removeInPolygon(CallBacker*);
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
     void			showSettingsCB(CallBacker*);
@@ -92,11 +95,13 @@ protected:
     void			setColorbarCB(CallBacker*);
     void                        onColTabClosing(CallBacker*);
     void			movePlaneCB(CallBacker*);
-    void			extendModeCB(CallBacker*);
-    void			retrackModeCB(CallBacker*);
-    void			eraseModeCB(CallBacker*);
+    void			handleOrientationClick(CallBacker*);
+   // void			extendModeCB(CallBacker*);
+   // void			retrackModeCB(CallBacker*);
+   // void			eraseModeCB(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
     void			showTracker(bool yn);
+    void			changeTrackerOrientation(int orient);
 
     bool			isPickingInWizard() const;
     void			restoreActiveVol();
@@ -113,12 +118,15 @@ protected:
 
     int				seedidx;
     int				clrtabidx;
-    int				moveplaneidx, extendidx, retrackidx, eraseidx;
+    int				moveplaneidx;//,extendidx, retrackidx, eraseidx;
     int				showcubeidx, displayidx;
     int				mouseeraseridx;
     int				undoidx, redoidx;
     int				trackforwardidx, trackbackwardidx;
+    int				trackwithseedonlyidx;
     int				trackinvolidx;
+    int				removeinpolygon;
+    int				trackinpolygonidx;
     bool			trackerwasonbeforemouseerase;
 
     bool			seedpickwason;

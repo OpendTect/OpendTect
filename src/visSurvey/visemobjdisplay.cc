@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.109 2009-04-10 11:45:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.110 2009-05-07 07:33:47 cvsumesh Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -403,6 +403,8 @@ MPEEditor* EMObjectDisplay::getEditor() { return editor_; }
 
 void EMObjectDisplay::enableEditing( bool yn )
 {
+    return;
+
     if ( yn && !editor_ )
     {
 	MPE::ObjectEditor* mpeeditor = 
@@ -645,6 +647,12 @@ EM::PosID EMObjectDisplay::getPosAttribPosID( int attrib,
     }
 
     return res;
+}
+
+
+void EMObjectDisplay::removeSelection( const Selector<Coord3>& selector )
+{
+    em_.removeSelected( emobject_->id(), selector );
 }
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.64 2009-02-11 11:07:09 cvsranojay Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.65 2009-05-07 07:33:47 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -35,11 +35,6 @@ static const char* rcsID = "$Id: vismpe.cc,v 1.64 2009-02-11 11:07:09 cvsranojay
 mCreateFactoryEntry( visSurvey::MPEDisplay );
 
 namespace visSurvey {
-
-const Color MPEDisplay::movingColor = Color(130,130,255);
-const Color MPEDisplay::extendColor = Color::White();
-const Color MPEDisplay::reTrackColor = Color(130,255,130);
-const Color MPEDisplay::eraseColor = Color(255,130,130);
 
 MPEDisplay::MPEDisplay()
     : VisualObjectImpl(true)
@@ -89,6 +84,7 @@ MPEDisplay::MPEDisplay()
     rectangle_->setTextureCoordIndex( 2, 2 );
     rectangle_->setTextureCoordIndex( 3, 3 );
     rectangle_->setTextureCoordIndex( 4, -1 );
+    rectangle_->getMaterial()->setColor( Color::White() );
     draggerrect_->addObject( rectangle_ );
 
     visBase::IndexedPolyLine* polyline = visBase::IndexedPolyLine::create();
@@ -104,10 +100,8 @@ MPEDisplay::MPEDisplay()
     setDragger( visBase::DepthTabPlaneDragger::create() );
 
     engine_.activevolumechange.notify( mCB(this,MPEDisplay,updateBoxPosition) );
-    engine_.trackplanechange.notify( mCB(this,MPEDisplay,updatePlaneColor) );
     setDraggerCenter( true );
     updateBoxPosition(0);
-    updatePlaneColor(0);
     turnOn( true );
 }
 
@@ -115,7 +109,6 @@ MPEDisplay::MPEDisplay()
 MPEDisplay::~MPEDisplay()
 {
     engine_.activevolumechange.remove( mCB(this,MPEDisplay,updateBoxPosition) );
-    engine_.trackplanechange.remove( mCB(this,MPEDisplay,updatePlaneColor) );
 
     setSceneEventCatcher( 0 );
     setDragger(0);
@@ -149,20 +142,6 @@ void MPEDisplay::setDragger( visBase::DepthTabPlaneDragger* dr )
     dragger_->changed.notify( mCB(this,MPEDisplay,rectangleMovedCB) );
     dragger_->started.notify( mCB(this,MPEDisplay,rectangleStartCB) );
     dragger_->finished.notify( mCB(this,MPEDisplay,rectangleStopCB) );
-}
-
-
-void MPEDisplay::updatePlaneColor( CallBacker* )
-{
-    const MPE::TrackPlane::TrackMode tm = engine_.trackPlane().getTrackMode();
-    if ( tm==MPE::TrackPlane::ReTrack )
-	rectangle_->getMaterial()->setColor( reTrackColor );
-    else if ( tm==MPE::TrackPlane::Erase )
-	rectangle_->getMaterial()->setColor( eraseColor );
-    else if ( tm==MPE::TrackPlane::Move )
-	rectangle_->getMaterial()->setColor( movingColor );
-    else
-	rectangle_->getMaterial()->setColor( extendColor );
 }
 
 
@@ -422,6 +401,12 @@ void MPEDisplay::showBoxDragger( bool yn )
 }
 
 
+void MPEDisplay::updateSeedOnlyPropagation( bool yn )
+{
+    engine_.updateSeedOnlyPropagation( yn );
+}
+
+
 void MPEDisplay::updateMPEActiveVolume()
 {
     if ( manipulated_ )
@@ -430,6 +415,12 @@ void MPEDisplay::updateMPEActiveVolume()
 	engine_.setActiveVolume( newcube );
 	manipulated_ = false;
     }
+}
+
+
+void MPEDisplay::removeSelectionInPolygon( const Selector<Coord3>& selector )
+{
+    engine_.removeSelectionInPolygon( selector );
 }
 
 
@@ -544,6 +535,17 @@ void MPEDisplay::rectangleStopCB( CallBacker* )
     const int currentevent = undo.currentEventID();
     if ( currentevent!=lasteventnr_ )
 	undo.setUserInteractionEnd(currentevent);
+}
+
+
+void MPEDisplay::setPlaneOrientation( int orient )
+{
+    dragger_->setDim( orient );
+    
+    if ( !isOn() ) return;
+
+    updateTextureCoords();
+    movement.trigger();
 }
 
 

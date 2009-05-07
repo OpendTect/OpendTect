@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.37 2009-01-08 10:25:45 cvsranojay Exp $
+ RCS:		$Id: vismpe.h,v 1.38 2009-05-07 07:32:58 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 namespace Attrib { class SelSpec; }
 template <class T> class Array3D;
+template <class T> class Selector;
 
 namespace visBase
 {
@@ -50,12 +51,17 @@ public:
     bool			isInlCrl() const	{ return true; }
 
     bool			isOn() const;
+    void			updateSeedOnlyPropagation(bool);
     void			updateMPEActiveVolume();
+    void			removeSelectionInPolygon(
+	    					const Selector<Coord3>&);
+	    
     void			showBoxDragger(bool);
     bool			isBoxDraggerShown() const;
     void			setDraggerTransparency(float);
     float			getDraggerTransparency() const;
     void			showDragger(bool yn);
+    void			setPlaneOrientation(int orient);
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
     visBase::Texture3*		getTexture() { return texture_; }
@@ -96,7 +102,6 @@ protected:
     void			updateTextureCoords();
     void			setDraggerCenter(bool alldims);
     void			setDragger(visBase::DepthTabPlaneDragger*);
-    void			updatePlaneColor( CallBacker* );
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
