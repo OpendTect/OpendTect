@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.15 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiprestkmergedlg.cc,v 1.16 2009-05-07 07:13:55 cvsranojay Exp $";
 
 #include "uiprestkmergedlg.h"
 
@@ -209,7 +209,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	else if ( !altstormsgdone && storage != ioobj->pars().find(storagekey) )
 	{
 	    altstormsgdone = true;
-	    if ( !uiMSG().askGoOn( "Not all stores have the same storage type."
+	    if ( !uiMSG().askContinue( "Not all stores have the same storage type."
 				   "\nContinue?" ) )
 		return false;
 	}

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicoltabman.cc,v 1.32 2009-05-04 11:15:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicoltabman.cc,v 1.33 2009-05-07 07:13:56 cvsranojay Exp $";
 
 #include "uicoltabman.h"
 
@@ -328,7 +328,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 	}
     }
 
-    if ( !msg.isEmpty() && !uiMSG().askGoOn( msg ) ) 
+    if ( !msg.isEmpty() && !uiMSG().askContinue( msg ) ) 
 	return false;
 
     newctab.setUndefColor( undefcolfld_->color() );

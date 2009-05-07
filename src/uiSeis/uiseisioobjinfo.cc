@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.20 2009-04-27 04:40:31 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseisioobjinfo.cc,v 1.21 2009-05-07 07:13:55 cvsranojay Exp $";
 
 #include "uiseisioobjinfo.h"
 #include "uimsg.h"
@@ -77,7 +77,7 @@ bool uiSeisIOObjInfo::checkSpaceLeft( const SeisIOObjInfo::SpaceInfo& si ) const
     if ( avszmb == 0 )
     {
 	if ( !doerrs ) return false;
-	if ( !uiMSG().askGoOn( "The output disk seems to be full.\n"
+	if ( !uiMSG().askContinue( "The output disk seems to be full.\n"
 		    		"Do you want to continue?" ) )
 	    return false;
     }

@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.14 2009-05-04 11:15:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseispreloadmgr.cc,v 1.15 2009-05-07 07:13:56 cvsranojay Exp $";
 
 #include "uiseispreloadmgr.h"
 #include "seisioobjinfo.h"
@@ -240,7 +240,7 @@ void uiSeisPreLoadMgr::cubeLoadPush( CallBacker* )
     const char* id = spl.id().buf();
     if ( StreamProvider::isPreLoaded(id,true) )
     {
-	if ( !uiMSG().askGoOn("This cube is already pre-loaded.\n"
+	if ( !uiMSG().askContinue("This cube is already pre-loaded.\n"
 		    	      "Do you want to re-load?") )
 	    return;
 	spl.unLoad();

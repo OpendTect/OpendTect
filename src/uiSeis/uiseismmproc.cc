@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.124 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.125 2009-05-07 07:13:56 cvsranojay Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -786,7 +786,7 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
 	else
 	{
 	    msg += "\n\nDo you want to remove already processed data?";
-	    res = uiMSG().askGoOnAfter( msg );
+	    res = uiMSG().askRemove( msg );
 	}
     }
     if ( res == 2 ) return false;

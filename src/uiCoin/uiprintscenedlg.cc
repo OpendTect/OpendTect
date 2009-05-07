@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.45 2009-04-01 08:55:45 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiprintscenedlg.cc,v 1.46 2009-05-07 07:13:55 cvsranojay Exp $";
 
 #include "uiprintscenedlg.h"
 
@@ -214,7 +214,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
     if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
     {
-	if ( !uiMSG().askGoOn("The VRML output in in pre apha testing "
+	if ( !uiMSG().askContinue("The VRML output in in pre apha testing "
 		    	      "status,\nis not officially supported and is \n"
 			      "known to be very unstable.\n\n"
 			      "Do you want to continue?") )

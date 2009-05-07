@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.23 2009-02-25 05:15:13 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.24 2009-05-07 07:13:56 cvsranojay Exp $";
 
 #include "uiwellattribsel.h"
 
@@ -144,7 +144,7 @@ bool uiWellAttribSel::inputsOK()
     {
 	BufferString msg( "Log: '" ); msg += lognm;
 	msg += "' is already present.\nDo you wish to overwrite this log?";
-	if ( !uiMSG().askGoOn(msg) ) return false;
+	if ( !uiMSG().askOverwrite(msg) ) return false;
     }
 
     return true;

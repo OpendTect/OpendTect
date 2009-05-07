@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uistrattreewin.cc,v 1.32 2009-02-03 16:31:41 cvshelene Exp $";
+static const char* rcsID = "$Id: uistrattreewin.cc,v 1.33 2009-05-07 07:13:56 cvsranojay Exp $";
 
 #include "uistrattreewin.h"
 
@@ -363,7 +363,7 @@ bool uiStratTreeWin::closeOK()
 {
     if ( needsave_ || uistratmgr_->needSave() )
     {
-	int res = uiMSG().askGoOnAfter( 
+	int res = uiMSG().askSave( 
 			"Do you want to save this stratigraphic framework?" );
 	if ( res == 0 )
 	    uistratmgr_->save();

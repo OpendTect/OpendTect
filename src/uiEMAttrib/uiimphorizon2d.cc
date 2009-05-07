@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.14 2009-01-29 06:03:34 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiimphorizon2d.cc,v 1.15 2009-05-07 07:13:55 cvsranojay Exp $";
 
 #include "uiimphorizon2d.h"
 
@@ -375,7 +375,7 @@ bool uiImportHorizon2D::doImport()
 	    msg += " already exists for line ";
 	    msg += linenm;
 	    msg += ". Overwrite?";
-	    if ( !uiMSG().askGoOn(msg) )
+	    if ( !uiMSG().askOverwrite(msg) )
 		return false;
 	}
 
