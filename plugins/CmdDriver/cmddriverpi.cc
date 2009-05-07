@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: cmddriverpi.cc,v 1.26 2009-04-13 06:39:41 cvsranojay Exp $";
+static const char* rcsID = "$Id: cmddriverpi.cc,v 1.27 2009-05-07 04:39:46 cvsranojay Exp $";
 
 #include "cmddriver.h"
 #include "cmdrecorder.h"
@@ -169,7 +169,7 @@ bool acceptOK( CallBacker* )
     }
     if ( File_exists(fp.fullPath()) )
     {
-	if ( !uiMSG().askGoOn("Overwrite existing command file?") )
+	if ( !uiMSG().askOverwrite("Overwrite existing command file?") )
 	    return false;
     }
 

@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.27 2009-04-06 07:31:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.28 2009-05-07 04:39:46 cvsranojay Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -272,7 +272,7 @@ void uiMadagascarMain::openFlow( CallBacker* )
 {
     if ( needsave_ )
     {
-	if ( !uiMSG().askGoOn("Current flow has not been saved, continue?") )
+	if ( !uiMSG().askContinue("Current flow has not been saved, continue?") )
 	    return;
     }
 
@@ -359,7 +359,7 @@ bool uiMadagascarMain::rejectOK( CallBacker* )
 {
     if ( needsave_ )
     {
-	if ( !uiMSG().askGoOn("Current flow has not been saved, quit anyway?") )
+	if ( !uiMSG().askSave("Current flow has not been saved, quit anyway?") )
 	    return false;
     }
 

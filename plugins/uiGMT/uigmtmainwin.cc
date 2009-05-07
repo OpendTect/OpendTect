@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.15 2008-11-27 16:08:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uigmtmainwin.cc,v 1.16 2009-05-07 04:39:46 cvsranojay Exp $";
 
 #include "uigmtmainwin.h"
 
@@ -166,7 +166,7 @@ void uiGMTMainWin::newFlow( CallBacker* )
 {
     if ( needsave_ )
     {
-	if ( !uiMSG().askGoOn("Current flow has not been saved, continue?") )
+	if ( !uiMSG().askContinue("Current flow has not been saved, continue?") )
 	    return;
     }
 
@@ -185,7 +185,7 @@ void uiGMTMainWin::openFlow( CallBacker* )
 {
     if ( needsave_ )
     {
-	if ( !uiMSG().askGoOn("Current flow has not been saved, continue?") )
+	if ( !uiMSG().askContinue("Current flow has not been saved, continue?") )
 	    return;
     }
 

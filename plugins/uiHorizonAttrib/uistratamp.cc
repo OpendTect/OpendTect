@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.8 2009-03-24 12:33:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.9 2009-05-07 04:39:46 cvsranojay Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -177,7 +177,7 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
 	errmsg += attribnm;
 	errmsg += " already exists, Overwrite?";
         
-	if ( !uiMSG().askGoOn(errmsg) )
+	if ( !uiMSG().askOverwrite(errmsg) )
 	    return false;
 	else overwrite = true;
     }

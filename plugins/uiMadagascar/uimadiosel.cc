@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.24 2009-05-05 03:44:37 cvskris Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.25 2009-05-07 04:39:46 cvsranojay Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -301,7 +301,7 @@ bool uiMadIOSelDlg::getInp()
 	{
 	    mErrRet(Seis::isPS(gt) ? "data store" : "seismics")
 	    if ( !isinp_ && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)
-	       && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
+	       && !uiMSG().askOverwrite("Output cube exists. Overwrite?") )
 		return false;
 	}
     }

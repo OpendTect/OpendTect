@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: treeitem.cc,v 1.44 2009-04-16 10:32:52 cvsranojay Exp $";
+static const char* rcsID = "$Id: treeitem.cc,v 1.45 2009-05-07 04:39:45 cvsranojay Exp $";
 
 #include "treeitem.h"
 #include "randcolor.h"
@@ -247,7 +247,7 @@ bool AnnotTreeItem::showSubMenu()
 	    if ( !txt || !*txt ) continue;
 
 	    if ( SubItem::doesNameExist( txt ) &&
-	         !uiMSG().askGoOn("An object with that name already"
+	         !uiMSG().askOverwrite("An object with that name already"
 			" exists.\nDo you wish to overwrite it?" ) )
 		continue;
 

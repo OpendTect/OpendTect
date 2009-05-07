@@ -7,7 +7,7 @@ _______________________________________________________________________________
 _______________________________________________________________________________
 
  -*/
-static const char* rcsID = "$Id: visprestackviewer.cc,v 1.51 2009-04-06 07:33:03 cvsranojay Exp $";
+static const char* rcsID = "$Id: visprestackviewer.cc,v 1.52 2009-05-07 04:39:46 cvsranojay Exp $";
 
 #include "visprestackviewer.h"
 
@@ -250,7 +250,7 @@ bool Viewer3D::setPosition( const BinID& nb )
 	if ( !shown3d )
 	{
 	    resetpos = 
-		uiMSG().askGoOn("There is no data at the selected location.\n"
+		uiMSG().askContinue("There is no data at the selected location.\n"
     			"Do you want to find a nearby location to continue?");
 	    shown3d = true;
 	}
@@ -674,7 +674,7 @@ void Viewer3D::setTraceNr( int trcnr )
     	    static bool resettrace = true;
     	    if ( !show2d )
     	    {
-		resettrace = uiMSG().askGoOn(
+		resettrace = uiMSG().askContinue(
 			"There is no data at the selected location.\n"
 			"Do you want to find a nearby location to continue?" );
     		show2d = true;
