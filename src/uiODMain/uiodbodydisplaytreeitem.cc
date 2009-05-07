@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.16 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.17 2009-05-07 21:16:55 cvskris Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -48,7 +48,7 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
     mnu.insertItem( new uiMenuItem("&New polygon body..."), 1 );
-    mnu.insertItem( new uiMenuItem("&New body combination..."), 2 );
+    //mnu.insertItem( new uiMenuItem("&New body combination..."), 2 );
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
