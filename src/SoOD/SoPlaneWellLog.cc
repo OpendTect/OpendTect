@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.27 2009-02-20 11:34:18 cvsbruno Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.28 2009-05-07 06:58:34 cvsbruno Exp $";
 
 #include "SoPlaneWellLog.h"
 #include "SoCameraInfoElement.h"
@@ -157,7 +157,7 @@ SoPlaneWellLog::SoPlaneWellLog()
     valchanged = true;
     currentres = 1;
     lognr = 0;
-    }
+}
 
 
 SoPlaneWellLog::~SoPlaneWellLog()
@@ -165,6 +165,7 @@ SoPlaneWellLog::~SoPlaneWellLog()
     if (valuesensor) 
 	delete valuesensor;
 }
+
 
 void SoPlaneWellLog::resetLogData( int lognr )
 {
@@ -445,6 +446,7 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 
     float minvalF = minval.getValue();
     float maxvalF = maxval.getValue();
+    float meanvalF = 0;
     float shiftprct; 
     shiftprct = (minvalF - maxvalF) * ( shift.getValue() / 100.0 );
     float meanlogval = ( maxvalF - minvalF ) / 2;
@@ -463,18 +465,27 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 
     int* coloridx = new int [2*nrsamp+1];  
     int* indices = new int [2*nrsamp+1];
-
-    for ( int i=0; i<2*nrsamp+1; i++ )
+    
+    for ( int idx=0; idx<nrsamp; idx++ )
     {
-	indices[i] = i;
-	coloridx[i] = 1;
+	int index = int(idx*step+.5);
+	float logval = log[index];
+	if ( lognr == 2 ) logval = maxval.getValue() - logval;
+	meanvalF += logval/nrsamp;
+    }
+    meanlogval = meanvalF;
+
+    for ( int idx=0; idx<2*nrsamp+1; idx++ )
+    {
+	indices[idx] = idx;
+	coloridx[idx] = 1;
     }
 
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int index = int(idx*step+.5);
 	float logval = log[index];
-	if ( revscale ) logval = maxval.getValue() - logval;
+	if ( lognr == 2 ) logval = maxval.getValue() - logval;
 	if ( logval < 0 ) logval = 0;
 	if ( logval > 100 ) logval = prevval;
 	
@@ -494,11 +505,20 @@ void SoPlaneWellLog::buildSeismicLog(int lognr, const SbVec3f& projdir, int res)
 	SbVec3f seisfillcrd  = newcrd + normal - shiftcrd;
 	
 	coordtri->point.set1Value( 2*idx, seisfillcrd  );
-	if ( logval< meanlogval )
-	    coordtri->point.set1Value( 2*idx+1, linecrd );
-	else
-	    coordtri->point.set1Value( 2*idx+1, seisfillcrd );
-
+	if ( lognr == 1 )
+	{
+	    if ( logval < meanlogval )
+		coordtri->point.set1Value( 2*idx+1, linecrd );
+	    else
+		coordtri->point.set1Value( 2*idx+1, seisfillcrd );
+	}
+	if ( lognr == 2 )
+	{
+	    if ( logval > meanlogval )
+		coordtri->point.set1Value( 2*idx+1, linecrd );
+	    else
+		coordtri->point.set1Value( 2*idx+1, seisfillcrd );
+	}
 	lineset->coordIndex.set1Value( idx, idx );
 	lineset->materialIndex.set1Value( idx, 0 );
 	prevval = logval;
