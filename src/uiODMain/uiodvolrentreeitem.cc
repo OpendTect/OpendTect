@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.44 2009-05-04 11:15:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.45 2009-05-07 17:19:56 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -300,18 +300,6 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==addisosurfacemnuitem_.id )
     {
 	menu->setIsHandled( true );
-	static bool isshown = false;
-	if ( !isshown )
-	{
-	    if ( !uiMSG().askContinue("The iso surface generation is experimental\n"
-		    "and may generate large amounts of display data\n"
-		    "that could destabilize OpendTect.\n"
-		    "Do you want to continue?") )
-	    return;
-	}
-
-	isshown = true;
-	
 	const int surfobjid = vd->addIsoSurface( 0, false );
 	const int surfidx = vd->getNrIsoSurfaces()-1;
 	visBase::MarchingCubesSurface* mcs = vd->getIsoSurface(surfidx);
