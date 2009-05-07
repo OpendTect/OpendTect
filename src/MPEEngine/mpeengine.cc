@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.86 2009-02-23 05:59:51 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.87 2009-05-07 07:29:23 cvsumesh Exp $";
 
 #include "mpeengine.h"
 
@@ -164,6 +164,26 @@ bool Engine::trackAtCurrentPlane()
 }
 
 
+void Engine::updateSeedOnlyPropagation( bool yn )
+{
+    for ( int idx=0; idx<trackers_.size(); idx++ )
+    {
+	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
+	    continue;
+
+	EM::ObjectID oid = trackers_[idx]->objectID();
+	EM::EMObject* emobj = EM::EMM().getObject( oid );
+
+	for ( int stidx=0; stidx<emobj->nrSections(); stidx++ )
+	{
+	    SectionTracker* sectiontracker = 
+			trackers_[idx]->getSectionTracker( stidx, true );
+	    sectiontracker->setSeedOnlyPropagation( yn );
+	}
+    }
+}
+
+
 Executor* Engine::trackInVolume()
 {
     ExecutorGroup* res = 0;
@@ -182,6 +202,26 @@ Executor* Engine::trackInVolume()
     }
 
     return res;
+}
+
+
+void Engine::removeSelectionInPolygon( const Selector<Coord3>& selector )
+{
+    for ( int idx=0; idx<trackers_.size(); idx++ )
+    {
+	if ( !trackers_[idx] || !trackers_[idx]->isEnabled() )
+	    continue;
+
+	EM::ObjectID oid = trackers_[idx]->objectID();
+	EM::EMM().removeSelected( oid, selector );
+
+	EM::EMObject* emobj = EM::EMM().getObject( oid );
+	if ( !emobj->getRemovedPolySelectedPosBox().isEmpty() )
+	{
+	    setActiveVolume( emobj->getRemovedPolySelectedPosBox() );
+	    emobj->emptyRemovedPolySelectedPosBox();
+	}
+    }
 }
 
 
