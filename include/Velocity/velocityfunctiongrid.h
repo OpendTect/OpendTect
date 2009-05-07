@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocityfunctiongrid.h,v 1.2 2009-01-06 10:04:36 cvsranojay Exp $
+ RCS:		$Id: velocityfunctiongrid.h,v 1.3 2009-05-07 17:07:54 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ protected:
 
     ObjectSet<const Function>		velocityfunctions_;
     TypeSet<int>			sources_;
+    TypeSet<Coord>			points_;
 
     Gridder2D*				gridder_;
 };

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.4 2009-05-05 16:48:33 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctiongrid.cc,v 1.5 2009-05-07 17:07:54 cvskris Exp $";
 
 #include "velocityfunctiongrid.h"
 
@@ -48,69 +48,78 @@ bool GriddedFunction::fetchSources()
     mDynamicCastGet( GriddedSource&, gvs, source_ );
     ObjectSet<FunctionSource>& velfuncsources = gvs.datasources_;
 
-    ObjectSet<const Function> velfuncs;
-    TypeSet<int> velfuncsource;
-    TypeSet<Coord> points;
-    bool perfectfound = false;
-
     const Coord workpos = SI().transform( bid_ );
     if ( gridder_ && !gridder_->setGridPoint( workpos ) ) 
 	return false;
 
-    for ( int idx=0; idx<velfuncsources.size() && !perfectfound; idx++ )
+    const bool wantsall = gridder_ && gridder_->wantsAllPoints();
+
+    if ( !wantsall || !sources_.size() )
     {
-	BinIDValueSet bids( 0, false );
-	velfuncsources[idx]->getSurroundingPositions( bid_, bids );
+	ObjectSet<const Function> velfuncs;
+	TypeSet<int> velfuncsource;
+	TypeSet<Coord> points;
+	bool perfectfound = false;
 
-	if ( bids.isEmpty() )
-	    continue;
-
-	BinIDValueSet::Pos pos;
-
-	while ( bids.next( pos ) )
+	for ( int idx=0; idx<velfuncsources.size() && !perfectfound; idx++ )
 	{
-	    const BinID curbid = bids.getBinID(pos);
-	    const Coord curpos = SI().transform( curbid );
-	    if ( gridder_ && !gridder_->isPointUsable(workpos,curpos) )
+	    BinIDValueSet bids( 0, false );
+	    velfuncsources[idx]->getSurroundingPositions( bid_, bids );
+
+	    if ( bids.isEmpty() )
 		continue;
 
-	    if ( !gridder_ && curbid!=bid_ )
-		continue;
+	    BinIDValueSet::Pos pos;
 
-	    RefMan<const Function> velfunc = getOldFunction( curbid, idx );
-
-	    if ( !velfunc )
-		velfunc = velfuncsources[idx]->getFunction( curbid );
-
-	    if ( !velfunc )
-		continue;
-
-	    if ( curbid==bid_ )
+	    while ( bids.next( pos ) )
 	    {
-		perfectfound = true;
-		deepUnRef(velfuncs);
-		velfuncsource.erase();
-		points.erase();
-	    }
-		    
-	    velfunc->ref();
-	    velfuncs += velfunc;
-	    points += curpos;
-	    velfuncsource += idx;
+		const BinID curbid = bids.getBinID(pos);
+		const Coord curpos = SI().transform( curbid );
+		if ( gridder_ && !gridder_->isPointUsable(workpos,curpos) )
+		    continue;
 
-	    if ( perfectfound )
-		break;
+		if ( !gridder_ && curbid!=bid_ )
+		    continue;
+
+		RefMan<const Function> velfunc = getOldFunction( curbid, idx );
+
+		if ( !velfunc )
+		    velfunc = velfuncsources[idx]->getFunction( curbid );
+
+		if ( !velfunc )
+		    continue;
+
+		if ( curbid==bid_ )
+		{
+		    perfectfound = true;
+		    deepUnRef(velfuncs);
+		    velfuncsource.erase();
+		    points.erase();
+		}
+			
+		velfunc->ref();
+		velfuncs += velfunc;
+		points += curpos;
+		velfuncsource += idx;
+
+		if ( perfectfound )
+		    break;
+	    }
 	}
+
+	deepUnRef( velocityfunctions_ );
+	velocityfunctions_ = velfuncs;
+	sources_ = velfuncsource;
+	points_ = points;
+
+	if ( !gridder_ )
+	    return perfectfound;
+
+	if ( !points_.size() || !gridder_->setPoints(points_) )
+	    return false;
     }
 
-    deepUnRef( velocityfunctions_ );
-    velocityfunctions_ = velfuncs;
-    sources_ = velfuncsource;
-
-    if ( !gridder_ )
-	return perfectfound;
-
-    return points.size() && gridder_->setPoints(points) && gridder_->init();
+    return gridder_->init();
 }
 
 
@@ -158,13 +167,24 @@ StepInterval<float> GriddedFunction::getAvailableZ() const
 bool GriddedFunction::computeVelocity( float z0, float dz, int nr,
 				       float* res ) const
 {
-    TypeSet<float> values;
+    TypeSet<float> values( velocityfunctions_.size(), mUdf(float) );
+    TypeSet<int> usedpts;
+    for ( int idy=0; idy<velocityfunctions_.size(); idy++ )
+    {
+	if ( gridder_ && !gridder_->isPointUsed( idy ) )
+	    continue;
+
+	usedpts += idy;
+    }
+
     for ( int idx=0; idx<nr; idx++ )
     {
-	values.erase();
 	const float z = z0+idx*dz;
-	for ( int idy=0; idy<velocityfunctions_.size(); idy++ )
-	    values += velocityfunctions_[idy]->getVelocity( z );
+	for ( int idy=0; idy<usedpts.size(); idy++ )
+	{
+	    values[usedpts[idy]] =
+		velocityfunctions_[usedpts[idy]]->getVelocity( z );
+	}
 
 	if ( gridder_ )	
 	{
