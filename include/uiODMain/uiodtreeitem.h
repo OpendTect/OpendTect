@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodtreeitem.h,v 1.32 2009-04-16 10:30:07 cvsranojay Exp $
+ RCS:		$Id: uiodtreeitem.h,v 1.33 2009-05-07 18:00:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ public:
 #define mShowMenu		bool showSubMenu();
 #define mMenuOnAnyButton	bool anyButtonClick(uiListViewItem* lv) \
 { \
-    if ( lv==uilistviewitem_ ) { showSubMenu(); return true; } \
+    if ( lv==uilistviewitem_ ) { select(); showSubMenu(); return true; } \
     return inheritedClass::anyButtonClick( lv ); \
 }
     
