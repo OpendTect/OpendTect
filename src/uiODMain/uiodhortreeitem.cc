@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.20 2009-04-23 18:20:06 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.21 2009-05-07 07:39:38 cvsumesh Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.20 2009-04-23 18:20:06 c
 #include "emobject.h"
 #include "emmanager.h"
 #include "datapointset.h"
+#include "mpeengine.h"
 #include "selector.h"
 #include "survinfo.h"
 
@@ -95,7 +96,32 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
-	mps->addTrackerNewWay( EM::Horizon3D::typeStr() );
+//	RefMan<EM::EMObject> emobj =
+//	    EM::EMM().createTempObject( EM::Horizon3D::typeStr() );
+//	if ( !emobj ) 
+//	    return true;
+//	emobj->ref();
+
+//	BufferString newname = "<New horizon ";
+//	static int horizonno = 1;
+//	newname += horizonno++;
+//	newname += ">";
+//	emobj->setName( newname );
+//	emobj->setFullyLoaded( true );
+
+//	const int trackerid = MPE::engine().addTracker( emobj );
+//	if ( trackerid==-1 )
+//	{
+//	    pErrMsg( "Could not create tracker" );
+//	    return true;
+//	}
+
+//	if ( !MPE::engine().getEditor(emobj->id(),false) )
+//	    MPE::engine().getEditor(emobj->id(),true);
+
+//	addChild( new uiODHorizonTreeItem(emobj->id()),false );
+	mps->addTracker( -1, EM::Horizon3D::typeStr(), sceneID() );
+//	emobj->unRef();
 	return true;
     }
     else if ( mnuid == 2 || mnuid == 3 )
@@ -316,6 +342,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	    return true; 
 
 	//Will be restored by event (evWizardClosed) from mpeserv
+	/*
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
 	applMgr()->visServer()->reportMPEWizardActive( true );
@@ -323,6 +350,39 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->setCurrentAttribDescSet(applMgr()->attrServer()->curDescSet(true));
 	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
+	*/// old way
+	// new way
+	applMgr()->visServer()->reportTrackingNewWay( true );
+	uiMPEPartServer* mps = applMgr()->mpeServer();
+	mps->setCurrentAttribDescSet(
+			applMgr()->attrServer()->curDescSet(true) );
+	//RefMan<EM::EMObject> emobj =
+	//    EM::EMM().createTempObject( EM::Horizon2D::typeStr() );
+	//if ( !emobj )
+	//    return true;
+	//emobj->ref();
+
+	//BufferString newname = "<New  2d-horizon ";
+	//static int horizon2dno = 1;
+	//newname += horizon2dno++;
+	//newname += ">";
+	//emobj->setName( newname );
+	//emobj->setFullyLoaded( true );
+
+//	const int trackerid = MPE::engine().addTracker( emobj );
+//	if ( trackerid==-1 )
+//	{
+//	    pErrMsg( "Could not create tracker" );
+//	    return true;
+//	}
+
+//	if ( !MPE::engine().getEditor(emobj->id(),false) )
+//	    MPE::engine().getEditor(emobj->id(),true);
+
+//	addChild( new uiODHorizon2DTreeItem(emobj->id()),false );
+
+	mps->addTracker( -1, EM::Horizon2D::typeStr(), sceneID() );
+	//emobj->unRef();
 	return true;
     }
     else if ( mnuid == 2 )

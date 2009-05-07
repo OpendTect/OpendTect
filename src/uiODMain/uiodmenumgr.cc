@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.169 2009-05-05 21:01:17 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.170 2009-05-07 07:39:38 cvsumesh Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -37,6 +37,8 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.169 2009-05-05 21:01:17 cvsk
 #include "strmprov.h"
 #include "survinfo.h"
 #include "thread.h"
+
+#include "visemobjdisplay.h"
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
@@ -707,8 +709,18 @@ void uiODMenuMgr::selectionMode( CallBacker* )
     if ( !ison )
 	visserv.setSelectionMode( uiVisPartServer::Off );
     else
+    {
 	visserv.setSelectionMode( sIsPolySelect ? uiVisPartServer::Polygon
 						: uiVisPartServer::Rectangle );
+	visserv.turnSeedPickingOn( false );
+    }
+    /*
+    int objectid = visserv.getSelObjectId();
+    mDynamicCastGet(visSurvey::EMObjectDisplay*,
+	    	    emd,visserv.getObject(objectid));
+    if ( emd )
+	emd->enableEditing( false );
+	*/
 }
 
 

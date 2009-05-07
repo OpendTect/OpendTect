@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		July 2005
- RCS:		$Id: uimpe.h,v 1.11 2009-02-02 10:22:38 cvsranojay Exp $
+ RCS:		$Id: uimpe.h,v 1.12 2009-05-07 07:37:43 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,12 @@ MPE::uiMPE(). */
 
 #include "bufstring.h"
 #include "callback.h"
+#include "color.h"
+#include "draw.h"
 #include "emposid.h"
+#include "emseedpicker.h"
+#include "randcolor.h"
+
 #include "uigroup.h"
 
 class uiParent;
@@ -100,6 +105,16 @@ public:
 			uiSetupGroup(uiParent*,const char* helpref);
     virtual void	setSectionTracker(SectionTracker*)	{}
     virtual void	setAttribSet(const Attrib::DescSet*)	{}
+    virtual void	setMode(const EMSeedPicker::SeedModeOrder) {}
+    virtual const int	getMode()				=0;
+    virtual void	setColor(const Color&)			{}
+    virtual const Color& getColor()				=0;
+    virtual void	setMarkerStyle(const MarkerStyle3D&)	{}
+    virtual const MarkerStyle3D& getMarkerStyle()		=0;
+
+    virtual NotifierAccess*	modeChangeNotifier()		{ return 0; }
+    virtual NotifierAccess*	propertyChangeNotifier()	{ return 0; }
+
     virtual bool	commitToTracker(bool& fieldchg) const   { return true; }
     virtual bool	commitToTracker() const; 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.37 2009-04-06 07:15:33 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.38 2009-05-07 07:37:43 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "emtracker.h"
 
 class BufferStringSet;
+class uiDialog;
 
 namespace Geometry { class Element; }
 namespace MPE { class Wizard; class uiSetupGroup; }
@@ -42,7 +43,8 @@ public:
     int				getTrackerID(const EM::ObjectID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
-    void			addTrackerNewWay( const char* trackertype );
+    bool			addTracker(const EM::ObjectID&,
+	    				   const char* trackertype,int sceneid);
     bool			addTracker(const char* trackertype,int sceneid);
     int				addTracker(const EM::ObjectID&,
 	    				   const Coord3& pos);
@@ -123,6 +125,7 @@ public:
     bool 			saveSetupAs(const MultiID&);
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
+    bool                        fireAddTreeObjectEvent();
 	
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -157,10 +160,24 @@ protected:
     Attrib::SelSpec		lineselspec_;
     
     				//temp. replacement for wizard
-    MPE::uiSetupGroup*		setupgrp_;
     void			aboutToAddRemoveSeed(CallBacker*);
     EM::ObjectID        	trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
+    CubeSampling		trackerseedbox_;
+    int				initialundoid_;
+    bool			seedhasbeenpicked_;
+    bool			setupbeingupdated_;
+
+    void			modeChangedCB(CallBacker*);
+    void			propertyChangedCB(CallBacker*);
+
+    void			adjustSeedBox();
+    void			noTrackingRemoval();
+    void			retrack( const EM::ObjectID& );
+
+    void			deleteSetupGrp();
+
+    MPE::uiSetupGroup*          setupgrp_;
 
     friend class		MPE::Wizard;
 };

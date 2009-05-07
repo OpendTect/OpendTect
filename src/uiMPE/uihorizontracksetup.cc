@@ -7,22 +7,32 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.23 2009-02-26 13:00:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.24 2009-05-07 07:38:34 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
 #include "attribdescset.h"
 #include "attribsel.h"
+#include "draw.h"
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
+#include "emsurfacetr.h"
 #include "horizonadjuster.h"
+#include "horizon2dseedpicker.h"
+#include "horizon3dseedpicker.h"
+#include "randcolor.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
+
 #include "uiattrsel.h"
 #include "uibutton.h"
+#include "uibuttongroup.h"
+#include "uicolor.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uislider.h"
 #include "uitabstack.h"
 
 
@@ -44,7 +54,7 @@ uiSetupGroup* uiHorizonSetupGroup::create( uiParent* p, const char* typestr,
 	 strcmp(typestr,EM::Horizon2D::typeStr()) )
 	return 0;
 
-    return new uiHorizonSetupGroup( p, ads );
+    return new uiHorizonSetupGroup( p, ads, typestr );
 }
 
 
@@ -65,13 +75,20 @@ const VSEvent::Type* uiHorizonSetupGroup::cEventTypes()
 
 
 uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
-					  const Attrib::DescSet* ads )
+					  const Attrib::DescSet* ads,
+       					  const char* typestr )
     : uiSetupGroup(p,"")
     , sectiontracker_(0)
     , attrset_(ads)
     , inpfld(0)
+    , typestr_(typestr)
+    , modechanged_(this)
+    , propertychanged_(this)
 {
     tabgrp_ = new uiTabStack( this, "TabStack" );
+    uiGroup* modegrp = createModeGroup();
+    tabgrp_->addTab( modegrp, "Mode" );
+
     uiGroup* eventgrp = createEventGroup();
     tabgrp_->addTab( eventgrp, "Event" );
 
@@ -80,7 +97,51 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 
     autogrp_ = createAutoGroup();
     tabgrp_->addTab( autogrp_, "Autotrack" );
+
+    uiGroup* propertiesgrp = createPropertyGroup();
+    tabgrp_->addTab( propertiesgrp, "Properties" );
     inwizard_ = p && !strncmp(p->name(),"Page",4);
+}
+
+
+uiGroup* uiHorizonSetupGroup::createModeGroup()
+{
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Mode" );
+
+    modeselgrp_ = new uiButtonGroup( grp, "ModeSel" );
+    modeselgrp_->setExclusive( true );
+    grp->setHAlignObj( modeselgrp_ );
+
+    if ( typestr_ == EMHorizon3DTranslatorGroup::keyword() &&
+	 Horizon3DSeedPicker::nrSeedConnectModes()>0 )
+    {
+	for ( int idx=0; idx<Horizon3DSeedPicker::nrSeedConnectModes(); idx++ )
+	{
+	    uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
+			Horizon3DSeedPicker::seedConModeText(idx,false) );
+	    butptr->activated.notify( 
+		    	mCB(this,uiHorizonSetupGroup,seedModeChange) );
+
+	    mode_ = (EMSeedPicker::SeedModeOrder)
+				Horizon3DSeedPicker::defaultSeedConMode();
+	}
+    }
+    else if ( typestr_ == EMHorizon2DTranslatorGroup::keyword() &&
+	      Horizon2DSeedPicker::nrSeedConnectModes()>0 )
+    {
+	for ( int idx=0; idx<Horizon2DSeedPicker::nrSeedConnectModes(); idx++ )
+	{
+	    uiRadioButton* butptr = new uiRadioButton( modeselgrp_,
+		    	Horizon2DSeedPicker::seedConModeText(idx,false) );
+	    butptr->activated.notify(
+		    	mCB(this,uiHorizonSetupGroup,seedModeChange) );
+
+	    mode_ = (EMSeedPicker::SeedModeOrder)
+				Horizon2DSeedPicker::defaultSeedConMode();
+	}
+    }
+
+    return grp;
 }
 
 
@@ -153,6 +214,46 @@ uiGroup* uiHorizonSetupGroup::createAutoGroup()
 }
 
 
+uiGroup* uiHorizonSetupGroup::createPropertyGroup()
+{
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Properties" );
+    colorfld_ = new uiColorInput( grp, 
+	    			  uiColorInput::Setup(getRandStdDrawColor() ).
+				  lbltxt("Horizon color") );
+    colorfld_->colorchanged.notify( 
+	    		mCB(this,uiHorizonSetupGroup,colorChangeCB) );
+    grp->setHAlignObj( colorfld_ );
+
+    uiSeparator* sep = new uiSeparator( grp );
+    sep->attach( stretchedBelow, colorfld_, -2 );
+
+    seedtypefld_ = new uiGenInput( grp, "Seed Shape",
+	    		StringListInpSpec(MarkerStyle3D::TypeNames()) );
+    seedtypefld_->valuechanged.notify( 
+	    		mCB(this,uiHorizonSetupGroup,seedTypeSel) );
+    seedtypefld_->attach( alignedBelow, colorfld_ );
+    seedtypefld_->attach( ensureBelow, sep );
+
+    seedsliderfld_ = new uiSliderExtra( grp,
+	    			uiSliderExtra::Setup("Seed Size").
+				withedit(true),	"Slider Size" );
+    seedsliderfld_->sldr()->setMinValue( 1 );
+    seedsliderfld_->sldr()->setMaxValue( 15 );
+    seedsliderfld_->sldr()->valueChanged.notify(
+	    		mCB(this,uiHorizonSetupGroup,seedSliderMove));
+    seedsliderfld_->attach( alignedBelow, seedtypefld_ );
+
+    seedcolselfld_ = new uiColorInput( grp,
+	    			       uiColorInput::Setup(Color::White()).
+				       lbltxt("Seed Color") );
+    seedcolselfld_->attach( alignedBelow, seedsliderfld_ );
+    seedcolselfld_->colorchanged.notify( 
+	    			mCB(this,uiHorizonSetupGroup,seedColSel) );
+
+    return grp;
+}
+
+
 uiHorizonSetupGroup::~uiHorizonSetupGroup()
 {
 }
@@ -183,6 +284,51 @@ void uiHorizonSetupGroup::selEventType( CallBacker* )
     thresholdtypefld->setSensitive( thresholdneeded );
     ampthresholdfld->setSensitive( thresholdneeded );
 }
+
+
+void uiHorizonSetupGroup::seedModeChange( CallBacker* )
+{
+    mode_ = (EMSeedPicker::SeedModeOrder) modeselgrp_->selectedId();
+    modechanged_.trigger();
+}
+
+
+void uiHorizonSetupGroup::colorChangeCB( CallBacker* )
+{
+    propertychanged_.trigger();
+}
+
+
+void uiHorizonSetupGroup::seedTypeSel( CallBacker* )
+{
+    const MarkerStyle3D::Type newtype =
+	(MarkerStyle3D::Type) (MarkerStyle3D::None+seedtypefld_->getIntValue());
+    if ( markerstyle_.type_ == newtype )
+	return;
+    markerstyle_.type_ = newtype;
+    propertychanged_.trigger();
+}
+
+
+void uiHorizonSetupGroup::seedSliderMove( CallBacker* )
+{
+    const float sldrval = seedsliderfld_->sldr()->getValue();
+    const int newsize = mNINT(sldrval);
+    if ( markerstyle_.size_ == newsize )
+	return;
+    markerstyle_.size_ = newsize;
+    propertychanged_.trigger();
+}
+
+
+void uiHorizonSetupGroup::seedColSel( CallBacker* )
+{
+    const Color newcolor = seedcolselfld_->color();
+    if ( markerstyle_.color_ == newcolor )
+	return;
+    markerstyle_.color_ = newcolor;
+    propertychanged_.trigger();
+}
     
 
 void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
@@ -192,12 +338,14 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     horadj_ = horadj;
     if ( !horadj_ ) return;
 
+    initModeGroup();
     initEventGroup();
     selEventType(0);
     selAmpThresholdType(0);
     initSimiGroup();
     selUseSimilarity(0);
     initAutoGroup();
+    initPropertyGroup();
 }
 
 
@@ -207,6 +355,19 @@ void uiHorizonSetupGroup::setAttribSet( const Attrib::DescSet* ads )
     if ( inpfld )
 	inpfld->setDescSet( ads );
 }
+
+
+void uiHorizonSetupGroup::initModeGroup()
+{
+    if ( typestr_ == EMHorizon3DTranslatorGroup::keyword() &&
+	    Horizon3DSeedPicker::nrSeedConnectModes()>0 )
+	modeselgrp_->selectButton( mode_ );
+    
+    else if ( typestr_ == EMHorizon2DTranslatorGroup::keyword() &&
+	    Horizon2DSeedPicker::nrSeedConnectModes()>0 )
+	modeselgrp_->selectButton( mode_ );
+}
+
 
 
 void uiHorizonSetupGroup::initEventGroup()
@@ -256,6 +417,51 @@ void uiHorizonSetupGroup::initAutoGroup()
     const bool is2d = sectiontracker_ && sectiontracker_->adjuster() &&
 		      sectiontracker_->adjuster()->is2D();
     tabgrp_->setTabEnabled( autogrp_, !is2d && !inwizard_ ); 
+}
+
+
+void uiHorizonSetupGroup::initPropertyGroup()
+{
+    seedsliderfld_->sldr()->setValue( markerstyle_.size_ );
+    seedcolselfld_->setColor( markerstyle_.color_ );
+    seedtypefld_->setValue( markerstyle_.type_ - MarkerStyle3D::None );
+}
+
+
+void uiHorizonSetupGroup::setMode(EMSeedPicker::SeedModeOrder mode)
+{
+    mode_ = mode;
+    modeselgrp_->selectButton( mode_ );
+}
+
+
+const int uiHorizonSetupGroup::getMode()
+{
+    return modeselgrp_ ? modeselgrp_->selectedId() : -1;
+}
+
+
+void uiHorizonSetupGroup::setColor( const Color& col)
+{
+    colorfld_->setColor( col );
+}
+
+const Color& uiHorizonSetupGroup::getColor()
+{
+    return colorfld_->color();
+}
+
+
+void uiHorizonSetupGroup::setMarkerStyle( const MarkerStyle3D& markerstyle )
+{
+    markerstyle_ = markerstyle;
+    initPropertyGroup();
+}
+
+
+const MarkerStyle3D& uiHorizonSetupGroup::getMarkerStyle()
+{
+    return markerstyle_;
 }
 
 

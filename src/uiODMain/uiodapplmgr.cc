@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.321 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.322 2009-05-07 07:39:38 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -593,6 +593,7 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	enableMenusAndToolBars( true );
 	enableTree( true );
 	visserv_->reportMPEWizardActive( false );
+	visserv_->reportTrackingNewWay( false );
     }
     else if ( evid==uiMPEPartServer::evGetAttribData() )
     {

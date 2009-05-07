@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.76 2009-04-06 07:15:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.77 2009-05-07 07:38:34 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -16,8 +16,10 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.76 2009-04-06 07:15:33 cvs
 #include "attribdescset.h"
 #include "attribdesc.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "emseedpicker.h"
+#include "emsurfacetr.h"
 #include "emtracker.h"
 #include "emobject.h"
 #include "executor.h"
@@ -30,6 +32,7 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.76 2009-04-06 07:15:33 cvs
 #include "sectiontracker.h"
 #include "sectionadjuster.h"
 #include "mousecursor.h"
+#include "undo.h"
 
 #include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
@@ -62,6 +65,9 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , temptrackerid_(-1)
     , cursceneid_(-1)
     , trackercurrentobject_(-1)
+    , initialundoid_(mUdf(int))
+    , seedhasbeenpicked_(false)
+    , setupbeingupdated_(false)
 {
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
     MPE::engine().activevolumechange.notify(
@@ -70,6 +76,7 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
 	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
     MPE::engine().trackeraddremove.notify(
 	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
+    trackerseedbox_.setEmpty();
 }
 
 
@@ -159,40 +166,42 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 }
 
 
-void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
+bool uiMPEPartServer::addTracker( const EM::ObjectID& oid, 
+				  const char* trackertype, int addedtosceneid )
 {
+////    if ( trackercurrentobject_ != -1 )
+////	return false;
+    cursceneid_ = addedtosceneid;
     NotifyStopper notifystopper( MPE::engine().trackeraddremove );
-    // not using trackertype... only for 3D rt. now
 
-    RefMan<EM::EMObject> emobj = 
-	EM::EMM().createTempObject( EM::Horizon3D::typeStr() );
-    if ( !emobj ) return;
-
+    // under test
     BufferString newname = "<New horizon ";
     static int horizonno = 1;
     newname += horizonno++;
     newname += ">";
-    emobj->setName( newname );
-    emobj->setFullyLoaded( true );
+
+    EM::ObjectID objid = EM::EMM().createObject( trackertype, newname );
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
 
     const int trackerid = MPE::engine().addTracker( emobj );
-    if ( trackerid==-1 )
-    {
-	pErrMsg( "Could not create tracker" );
-	return;
-    }
+    //
 
-    if ( !MPE::engine().getEditor(emobj->id(),false) )
-	MPE::engine().getEditor(emobj->id(),true);
-
+    ////const int trackerid = getTrackerID( objid );
+    if ( trackerid == -1 ) return false;
+//
+    if ( !MPE::engine().getEditor(objid,false) )
+	MPE::engine().getEditor(objid,true);
+//
     activetrackerid_ = trackerid;
-    if ( !sendEvent( ::uiMPEPartServer::evAddTreeObject() ) )
+    ////EM::EMObject* emobj = EM::EMM().getObject( objid );
+    //
+    if ( !sendEvent(::uiMPEPartServer::evAddTreeObject()) )
     {
-	pErrMsg("Could not add treeitem");
+	pErrMsg("Could not create tracker" );
 	MPE::engine().removeTracker( trackerid );
-	return;
+	emobj->ref(); emobj->unRef();
     }
-
+    //
     const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
     emobj->setPreferredColor(getRandomColor(false)  );
     sendEvent( uiMPEPartServer::evUpdateTrees() );
@@ -202,17 +211,35 @@ void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
     seedpicker->setSeedConnectMode( 0 );
     sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
     trackercurrentobject_ = emobj->id();
+    
+    uiDialog* setupdlg  = new uiDialog( 0 , 
+	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1") );
+    setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
 
-    uiDialog* dlg = new uiDialog( 0 , 
-    			uiDialog::Setup("Tracking Setup",0,"108.0.1") );
-    dlg->setCtrlStyle( uiDialog::LeaveOnly );
-
-    setupgrp_ = MPE::uiMPE().setupgrpfact.create( dlg, emobj->getTypeStr(), 0 );
+    setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, 
+	    					  emobj->getTypeStr(), 0 );
+	      					//EM::Horizon2D::typeStr(), 0 );
+//	      			EMHorizon2DTranslatorGroup::keyword(), 0 );
     
     MPE::SectionTracker* sectiontracker = 
 				tracker->getSectionTracker(sectionid, true);
+    setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
+	    				seedpicker->getSeedConnectMode() );
+    setupgrp_->setColor( emobj->preferredColor() );
+    setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
+						EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectiontracker );
     setupgrp_->setAttribSet( getCurAttrDescSet(tracker->is2D()) );
+
+    NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
+    if ( modechangenotifier )
+	modechangenotifier->notify( mCB(this,uiMPEPartServer,modeChangedCB) );
+
+    NotifierAccess* propertychangenotifier = 
+					setupgrp_->propertyChangeNotifier();
+    if ( propertychangenotifier )
+	propertychangenotifier->notify( 
+		mCB(this,uiMPEPartServer,propertyChangedCB) );
 
     sendEvent( uiMPEPartServer::evStartSeedPick() );
     NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
@@ -220,8 +247,13 @@ void uiMPEPartServer::addTrackerNewWay( const char* trackertype )
 	addrmseednotifier->notify(
 		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
-    dlg->windowClosed.notify( mCB(this,uiMPEPartServer,trackerWinClosedCB) );
-    dlg->go();
+    initialundoid_ = EM::EMM().undo().currentEventID();
+
+    setupdlg->windowClosed.notify( 
+	    	mCB(this,uiMPEPartServer,trackerWinClosedCB) );
+    setupdlg->go();
+
+    return true;
 }
 
 
@@ -244,15 +276,226 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( isvalidsetup && fieldchange )
 	loadAttribData();
+
+    seedhasbeenpicked_ = true;
+}
+
+
+void uiMPEPartServer::modeChangedCB( CallBacker* )
+{
+    const int trackerid = getTrackerID( trackercurrentobject_ );
+    if ( trackerid == -1 ) return;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker) return;
+
+    seedpicker->setSeedConnectMode( setupgrp_->getMode() );
+    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
+}
+
+
+void uiMPEPartServer::propertyChangedCB( CallBacker* )
+{
+    if ( trackercurrentobject_!=-1 )
+    {
+	EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
+	emobj->setPreferredColor( setupgrp_->getColor() );
+	sendEvent( uiMPEPartServer::evUpdateTrees() );
+	emobj->setPosAttrMarkerStyle( EM::EMObject::sSeedNode(), 
+				      setupgrp_->getMarkerStyle() );	
+    }
 }
 
 
 void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
-    mDynamicCastGet(uiDialog*,dlg,cb);
- // if ( dlg )
- //   delete dlg;
-    //TODO delete this dlg.
+    if ( setupbeingupdated_ )
+    {
+	deleteSetupGrp();
+	trackercurrentobject_ = -1;
+	return;
+    }
+
+    if ( !setupgrp_->commitToTracker() )
+	return;
+
+    const int trackerid = getTrackerID( trackercurrentobject_ );
+    if ( trackerid == -1 ) return;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return;
+
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker) return;
+
+    NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
+    if ( addrmseednotifier )
+	addrmseednotifier->remove( 
+		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
+
+    if( !seedhasbeenpicked_ )
+    {
+	noTrackingRemoval();
+	deleteSetupGrp();
+	return;
+    }
+
+    adjustSeedBox();
+    //TODO check if object is created first... under if condition
+    EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
+    PtrMan<Executor> saver = emobj->saver();
+    if ( saver ) saver->execute();
+
+    // finishing time
+    blockDataLoading( true );
+    sendEvent( uiMPEPartServer::evEndSeedPick() );
+    blockDataLoading( false );
+
+    blockDataLoading( true );
+    if ( seedpicker->doesModeUseVolume() && !trackerseedbox_.isEmpty() )
+	expandActiveVolume( trackerseedbox_ );
+
+    if ( !seedpicker->doesModeUseVolume() )
+	sendEvent( uiMPEPartServer::evStartSeedPick() );
+    blockDataLoading( false );
+
+    blockDataLoading( false );
+    postponeLoadingCurVol();
+    sendEvent( uiMPEPartServer::evMPEDispIntro() );
+    sendEvent( uiMPEPartServer::evShowToolbar() );
+    if ( seedpicker->doesModeUseSetup() )
+	saveSetup( EM::EMM().getMultiID( trackercurrentobject_) );
+    sendEvent( ::uiMPEPartServer::evWizardClosed() );
+
+    trackercurrentobject_ = -1;
+    activetrackerid_ = -1;
+    initialundoid_ = mUdf(int);
+    seedhasbeenpicked_ = false;
+    deleteSetupGrp();
+}
+
+
+void uiMPEPartServer::adjustSeedBox()
+{
+    const int trackerid = getTrackerID( trackercurrentobject_ );
+    const MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    const EM::ObjectID objid = tracker->objectID();
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
+
+    const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+    PtrMan<EM::EMObjectIterator> iterator = emobj->createIterator(sectionid);
+
+    while( true )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID() == -1 )
+	    break;
+
+	const Coord3 pos = emobj->getPos(pid);
+	if ( !pos.isDefined() ||
+	     !emobj->isPosAttrib(pid, EM::EMObject::sSeedNode()) )
+	    continue;
+
+	const BinID bid = SI().transform(pos);
+	if ( trackerseedbox_.isEmpty() )
+	{
+	    trackerseedbox_.hrg.start = trackerseedbox_.hrg.stop = bid;
+	    trackerseedbox_.zrg.start = trackerseedbox_.zrg.stop = pos.z;
+
+	}
+	else
+	{
+	    trackerseedbox_.hrg.include(bid);
+	    trackerseedbox_.zrg.include(pos.z);
+	}
+    }
+} 
+
+
+void uiMPEPartServer::noTrackingRemoval()
+{
+    sendEvent( uiMPEPartServer::evEndSeedPick() );
+    if( !mIsUdf(initialundoid_) )
+    {
+	EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
+	emobj->setBurstAlert( true );
+
+	EM::EMM().undo().unDo(
+			EM::EMM().undo().currentEventID()-initialundoid_);
+	EM::EMM().undo().removeAllAfterCurrentEvent();
+
+	emobj->setBurstAlert( false );
+    }
+
+    NotifyStopper notifystopper( MPE::engine().trackeraddremove );
+
+    if ( trackercurrentobject_ != -1 )
+	sendEvent( ::uiMPEPartServer::evRemoveTreeObject() );
+
+    const int trackerid = getTrackerID( trackercurrentobject_ );
+    if ( trackerid != -1 )
+	MPE::engine().removeTracker( trackerid );
+
+    trackercurrentobject_ = -1;
+    activetrackerid_ = -1;
+    initialundoid_ = mUdf(int);
+    seedhasbeenpicked_ = false;
+
+    MPE::engine().trackeraddremove.trigger();
+    sendEvent( ::uiMPEPartServer::evWizardClosed() );
+}
+
+
+void uiMPEPartServer::retrack( const EM::ObjectID& oid )
+{
+    bool fieldchange;
+    if ( !setupgrp_->commitToTracker(fieldchange) )
+	return;
+
+    const int trackerid = getTrackerID( oid );
+    if ( trackerid == -1 ) return;
+
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( !tracker ) return;
+    
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    if ( !seedpicker) return;
+
+    const CubeSampling curvol =  MPE::engine().activeVolume();
+    if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
+	loadAttribData();
+
+    Undo& undo = EM::EMM().undo();
+    int cureventnr = undo.currentEventID();
+    undo.setUserInteractionEnd( cureventnr, false );
+
+    EM::EMObject* emobj = EM::EMM().getObject( oid );
+    emobj->setBurstAlert( true );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    seedpicker->reTrack();
+    MouseCursorManager::restoreOverride();
+    emobj->setBurstAlert( false );
+
+    undo.setUserInteractionEnd( undo.currentEventID() );
+}
+
+
+void uiMPEPartServer::deleteSetupGrp()
+{
+    NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
+    if ( modechangenotifier )
+	modechangenotifier->remove( mCB(this,uiMPEPartServer,modeChangedCB) );
+    
+    NotifierAccess* propertychangenotifier = 
+				setupgrp_->propertyChangeNotifier();
+    if ( propertychangenotifier )
+	propertychangenotifier->remove(
+		mCB(this,uiMPEPartServer,propertyChangedCB) );
+
+    setupbeingupdated_ = false; 
 }
 
 
@@ -328,29 +571,56 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 				    const EM::SectionID& sid,
 				    bool showcancelbutton )
 {
+    if ( trackercurrentobject_ != -1 )
+	return false;
+
     const int trackerid = getTrackerID( emid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     MPE::SectionTracker* sectracker = tracker->getSectionTracker( sid, true );
     if ( !sectracker ) return false;
+
+    trackercurrentobject_ = emid;
 
     uiDialog dlg( appserv().parent(),
 	          uiDialog::Setup("Tracking Setup",0,"108.0.1") );
     if ( !showcancelbutton ) 
 	dlg.setCtrlStyle( uiDialog::LeaveOnly );
 
+    dlg.windowClosed.notify( mCB(this,uiMPEPartServer,trackerWinClosedCB) );
+
+    setupbeingupdated_ = true;
 
     EM::EMObject* emobj = EM::EMM().getObject( emid );
     const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
-    MPE::uiSetupGroup* grp = 
-	MPE::uiMPE().setupgrpfact.create(&dlg, emobj->getTypeStr(), attrset );
 
-    grp->setSectionTracker( sectracker );
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
+    
+    setupgrp_ = MPE::uiMPE().setupgrpfact.create(&dlg, 
+	    					 emobj->getTypeStr(), attrset );
+
+    setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
+	    	   		seedpicker->getSeedConnectMode() );
+    setupgrp_->setColor( emobj->preferredColor() );
+    setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
+					EM::EMObject::sSeedNode()) );
+
+    setupgrp_->setSectionTracker( sectracker );
+
+    NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
+    if ( modechangenotifier )
+	modechangenotifier->notify( mCB(this,uiMPEPartServer,modeChangedCB) );
+    
+    NotifierAccess* propertychangenotifier = 
+				setupgrp_->propertyChangeNotifier();
+    if ( propertychangenotifier )
+	propertychangenotifier->notify(
+		mCB(this,uiMPEPartServer,propertyChangedCB) );
     do
     {
 	if ( !dlg.go() && showcancelbutton )
 	    return false;
     }
-    while ( !grp->commitToTracker() );
+    while ( !setupgrp_->commitToTracker() );
 
     tracker->applySetupAsDefault( sid );
     loadAttribData();
@@ -616,9 +886,11 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
     const int trackerid = getTrackerID( emid );
     if ( trackerid<0 ) return false;
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     const Attrib::DescSet* attrset = getCurAttrDescSet( tracker->is2D() );
 
     IOPar iopar;
+    iopar.set( "Seed Connection mode", seedpicker->getSeedConnectMode() );
     tracker->fillPar( iopar );
     ObjectSet<const Attrib::SelSpec> usedattribs;
     MPE::engine().getNeededAttribs( usedattribs );
@@ -670,8 +942,12 @@ bool uiMPEPartServer::readSetup( const MultiID& mid )
     if ( trackerid<0 ) return false;
 
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     IOPar iopar;
     iopar.read( setupfilenm, "Tracking Setup", true );
+    int connectmode = 0;
+    iopar.get( "Seed Connection mode", connectmode );
+    seedpicker->setSeedConnectMode( connectmode );
     tracker->usePar( iopar );
     PtrMan<IOPar> attrpar = iopar.subselect( "Attribs" );
     if ( !attrpar ) return true;
@@ -729,6 +1005,12 @@ void uiMPEPartServer::mergeAttribSets( const Attrib::DescSet& newads,
 	    st->adjuster()->setAttributeSel( asidx, newas );
 	}
     }
+}
+
+
+bool uiMPEPartServer::fireAddTreeObjectEvent()
+{
+    return sendEvent( ::uiMPEPartServer::evAddTreeObject() );
 }
 
 
