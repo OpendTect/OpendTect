@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.9 2009-04-16 10:09:06 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.10 2009-05-07 14:42:28 cvsranojay Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -289,7 +289,7 @@ const char* GetSoftwareDir()
 #ifdef __msvc__
     if ( !dir )
     {
-	strcpy( dirnm, _getcwd(NULL,0) );
+	GetShortPathName(_getcwd(NULL,0),dirnm,strlen(_getcwd(NULL,0)));
 	dirnm[strlen(dirnm)-4] = '\0';
 	dir = dirnm;
     }
