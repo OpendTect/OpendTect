@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.83 2009-04-07 16:14:15 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.84 2009-05-07 07:26:10 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "bufstring.h"
 #include "callback.h"
+#include "cubesampling.h"
 #include "draw.h"
 #include "emposid.h"
 #include "multiid.h"
@@ -186,6 +187,8 @@ public:
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
     void			removeSelected(const Selector<Coord3>&);
+    const CubeSampling		getRemovedPolySelectedPosBox();
+    void			emptyRemovedPolySelectedPosBox();
 
     CNotifier<EMObject,const EMObjectCallbackData&>	change;
 
@@ -233,6 +236,8 @@ protected:
 
     ObjectSet<PosAttrib>	posattribs_;
     TypeSet<int>		attribs_;
+
+    CubeSampling		removebypolyposbox_;
 
     bool			changed_;
     bool			fullyloaded_;
