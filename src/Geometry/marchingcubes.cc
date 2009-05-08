@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.23 2009-05-08 15:06:37 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.24 2009-05-08 21:43:15 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -386,18 +386,27 @@ MarchingCubesSurface::~MarchingCubesSurface()
 bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 		const Array3D<float>& arr, float threshold, TaskRunner* tr )
 {
+    const bool wasempty = models_.isEmpty();
+
     Implicit2MarchingCubes converter( xorigin, yorigin, zorigin, arr, threshold,
 	    			      *this );
     const bool res = tr ? tr->execute( converter ) : converter.execute();
-    changepos_[mX].start = xorigin;
-    changepos_[mX].stop = xorigin+arr.info().getSize(mX)-1;
 
-    changepos_[mY].start = yorigin;
-    changepos_[mY].stop = yorigin+arr.info().getSize(mY)-1;
+    if ( wasempty )
+	allchanged_ = true;
+    else
+    {
+	changepos_[mX].start = xorigin;
+	changepos_[mX].stop = xorigin+arr.info().getSize(mX)-1;
 
-    changepos_[mZ].start = zorigin;
-    changepos_[mZ].stop = zorigin+arr.info().getSize(mZ)-1;
-    allchanged_ = false;
+	changepos_[mY].start = yorigin;
+	changepos_[mY].stop = yorigin+arr.info().getSize(mY)-1;
+
+	changepos_[mZ].start = zorigin;
+	changepos_[mZ].stop = zorigin+arr.info().getSize(mZ)-1;
+	allchanged_ = false;
+    }
+
     change.trigger();
 
     return res;

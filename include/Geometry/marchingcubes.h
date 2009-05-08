@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.10 2009-04-09 00:51:23 cvskris Exp $
+ RCS:           $Id: marchingcubes.h,v 1.11 2009-05-08 21:43:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,8 @@ public:
 
     od_int64	nrIterations() const;
     bool	doWork(od_int64,od_int64,int);
+    const char*	message() const { return "Contouring"; }
+
 
 protected:
     MarchingCubesSurface&	surface_;

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.27 2009-04-09 00:51:23 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.28 2009-05-08 21:43:15 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -67,6 +67,7 @@ public:
 protected:
 
     od_int64	nrIterations() const { return totalnr_; }
+    const char* message() const { return "Triangulating"; }
     bool doWork( od_int64 start, od_int64 stop, int thread )
     {
 	const int* tableidxs = idxstocompute_.arr();
@@ -151,6 +152,13 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
     if ( surface_ ) surface_->ref();
 }
 
+#define mRemoveBucketRanges \
+    delete changedbucketranges_[mX]; \
+    delete changedbucketranges_[mY]; \
+    delete changedbucketranges_[mZ]; \
+    changedbucketranges_[mX] = 0; \
+    changedbucketranges_[mY] = 0; \
+    changedbucketranges_[mZ] = 0
 
 ExplicitMarchingCubesSurface::~ExplicitMarchingCubesSurface()
 {
@@ -158,9 +166,7 @@ ExplicitMarchingCubesSurface::~ExplicitMarchingCubesSurface()
     delete scale0_;
     delete scale1_;
     delete scale2_;
-    delete changedbucketranges_[mX];
-    delete changedbucketranges_[mY];
-    delete changedbucketranges_[mZ];
+    mRemoveBucketRanges;
 }
 
 
@@ -220,20 +226,34 @@ void ExplicitMarchingCubesSurface::removeAll()
 }
 
 
+bool ExplicitMarchingCubesSurface::allBucketsHaveChanged() const
+{
+    for ( int idx=0; idx<3; idx++ )
+    {
+	Interval<int> range;
+	if ( !surface_->models_.getRange( idx, range ) )
+	    return false;
+
+	range.start = getBucketPos( range.start );
+	range.stop = getBucketPos( range.stop );
+
+	if ( range!=*changedbucketranges_[idx] )
+	    return false;
+    }
+
+    return true;
+}
+
+
 bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 {
-    if ( !forceall && changedbucketranges_[mX] )
+    if ( !forceall && changedbucketranges_[mX] && !allBucketsHaveChanged() )
     {
 	if ( update( *changedbucketranges_[mX],
 		     *changedbucketranges_[mY],
 		     *changedbucketranges_[mZ], tr ) )
 	{
-	    delete changedbucketranges_[mX];
-	    delete changedbucketranges_[mY];
-	    delete changedbucketranges_[mZ];
-	    changedbucketranges_[mX] = 0;
-	    changedbucketranges_[mY] = 0;
-	    changedbucketranges_[mZ] = 0;
+	    mRemoveBucketRanges;
 	    return true;
 	}
     }
@@ -255,12 +275,7 @@ bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 
     if ( tr ? tr->execute( updater ) : updater.execute() )
     {
-	delete changedbucketranges_[mX];
-	delete changedbucketranges_[mY];
-	delete changedbucketranges_[mZ];
-	changedbucketranges_[mX] = 0;
-	changedbucketranges_[mY] = 0;
-	changedbucketranges_[mZ] = 0;
+	mRemoveBucketRanges;
 	return true;
     }
 
@@ -573,11 +588,11 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
 
     //convert to bucket-ranges
     ranges[mX] = Interval<int>( getBucketPos( ranges[mX].start),
-	getBucketPos( ranges[mX].stop ) );
+				getBucketPos( ranges[mX].stop ) );
     ranges[mY] = Interval<int>( getBucketPos( ranges[mY].start),
-	getBucketPos( ranges[mY].stop ) );
+				getBucketPos( ranges[mY].stop ) );
     ranges[mZ] = Interval<int>( getBucketPos( ranges[mZ].start),
-	getBucketPos( ranges[mZ].stop ) );
+				getBucketPos( ranges[mZ].stop ) );
 
     if ( !changedbucketranges_[mX] )
     {
@@ -596,7 +611,7 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
 }
 
 
-int ExplicitMarchingCubesSurface::getBucketPos( int pos )
+int ExplicitMarchingCubesSurface::getBucketPos( int pos ) const
 {
     return ( pos<0 ? (pos+1)/mBucketSize-1 : pos/mBucketSize );
 }
