@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.22 2009-05-06 21:58:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.23 2009-05-08 21:45:09 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -28,7 +28,7 @@ static const char* rcsID = "$Id: vishorizonsection.cc,v 1.22 2009-05-06 21:58:04
 
 #include "SoCameraInfo.h"
 #include "SoCameraInfoElement.h"
-#include "SoIndexedPointSet.h"
+#include "SoDGBIndexedPointSet.h"
 #include "SoLockableSeparator.h"
 #include "SoTextureComposer.h"
 #include <Inventor/actions/SoAction.h>
@@ -1197,7 +1197,7 @@ HorizonSectionTile::HorizonSectionTile()
     , gluetriangles_( new SoIndexedTriangleStripSet )
     , gluelines_( new SoIndexedLineSet )
     , glueneedsretesselation_( false )
-    , gluepoints_( new SoIndexedPointSet )
+    , gluepoints_( new SoDGBIndexedPointSet )
     , desiredresolution_( -1 )
     , resolutionhaschanged_( false )
     , bboxstart_( Coord3::udf() )				    
@@ -1236,7 +1236,7 @@ HorizonSectionTile::HorizonSectionTile()
 	resolutions_[idx]->addChild( lines_[idx] );
 	lines_[idx]->coordIndex.deleteValues( 0, -1 );
 
-	points_[idx] = new SoIndexedPointSet;
+	points_[idx] = new SoDGBIndexedPointSet;
 	resolutions_[idx]->addChild( points_[idx] );
 	points_[idx]->coordIndex.deleteValues( 0, -1 );
     }

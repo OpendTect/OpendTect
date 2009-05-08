@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.13 2009-05-06 21:58:04 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.14 2009-05-08 21:45:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class SoCallback;
 class SoGroup;
 class SoState;
 class SoIndexedLineSet;
-class SoIndexedPointSet;
+class SoDGBIndexedPointSet;
 class SoIndexedTriangleStripSet;
 class SoNormal;
 class SoTextureComposer;
@@ -204,12 +204,12 @@ protected:
     SoGroup*			resolutions_[mHorSectNrRes];
     SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
     SoIndexedLineSet*		lines_[mHorSectNrRes];
-    SoIndexedPointSet*		points_[mHorSectNrRes];
+    SoDGBIndexedPointSet*	points_[mHorSectNrRes];
 
     visBase::Coordinates*	gluecoords_;
     SoIndexedTriangleStripSet*	gluetriangles_;
     SoIndexedLineSet*		gluelines_;
-    SoIndexedPointSet*		gluepoints_;
+    SoDGBIndexedPointSet*	gluepoints_;
     bool			glueneedsretesselation_;
 };
 

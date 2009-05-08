@@ -1,5 +1,5 @@
-#ifndef SoIndexedPointSet_h
-#define SoIndexedPointSet_h
+#ifndef SoDGBIndexedPointSet_h
+#define SoDGBIndexedPointSet_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: SoIndexedPointSet.h,v 1.1 2009-03-04 13:15:46 cvskris Exp $
+ RCS:		$Id: SoDGBIndexedPointSet.h,v 1.1 2009-05-08 21:45:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,15 +20,18 @@ ________________________________________________________________________
 
 /*!\brief
 A shape class that is similar to PointSet, but takes indexes.
+
+UPDATE: Coin has a SoIndexedPointSet class, which should be used when
+it comes to the stable repository.
 */
 
-mClass SoIndexedPointSet : public SoIndexedShape
+mClass SoDGBIndexedPointSet : public SoIndexedShape
 {
-    SO_NODE_HEADER(SoIndexedPointSet);
+    SO_NODE_HEADER(SoDGBIndexedPointSet);
 public:
 
     static void			initClass();
-    				SoIndexedPointSet();
+    				SoDGBIndexedPointSet();
 
 protected:
     void			generatePrimitives(SoAction*);

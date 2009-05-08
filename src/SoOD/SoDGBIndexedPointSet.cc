@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-#include "SoIndexedPointSet.h"
+#include "SoDGBIndexedPointSet.h"
 
 #include <Inventor/SoPrimitiveVertex.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -21,20 +21,20 @@ ___________________________________________________________________
 #include <Inventor/elements/SoMaterialBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoIndexedPointSet.cc,v 1.3 2009-04-30 20:25:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: SoDGBIndexedPointSet.cc,v 1.1 2009-05-08 21:45:09 cvskris Exp $";
 
-SO_NODE_SOURCE(SoIndexedPointSet);
+SO_NODE_SOURCE(SoDGBIndexedPointSet);
 
 
-void SoIndexedPointSet::initClass()
+void SoDGBIndexedPointSet::initClass()
 {
-    SO_NODE_INIT_CLASS(SoIndexedPointSet, SoIndexedShape, "IndexedShape");
+    SO_NODE_INIT_CLASS(SoDGBIndexedPointSet, SoIndexedShape, "IndexedShape");
 }
 
 
-SoIndexedPointSet::SoIndexedPointSet()
+SoDGBIndexedPointSet::SoDGBIndexedPointSet()
 {
-    SO_NODE_CONSTRUCTOR(SoIndexedPointSet);
+    SO_NODE_CONSTRUCTOR(SoDGBIndexedPointSet);
 }
 
 
@@ -69,21 +69,21 @@ SoIndexedPointSet::SoIndexedPointSet()
  \
     return binding
 
-SoIndexedPointSet::Binding
-SoIndexedPointSet::findNormalBinding(SoState* state) const
+SoDGBIndexedPointSet::Binding
+SoDGBIndexedPointSet::findNormalBinding(SoState* state) const
 {
     mGetBindingImpl( SoNormalBindingElement );
 }
 
 
-SoIndexedPointSet::Binding
-SoIndexedPointSet::findMaterialBinding(SoState* state) const
+SoDGBIndexedPointSet::Binding
+SoDGBIndexedPointSet::findMaterialBinding(SoState* state) const
 {
     mGetBindingImpl( SoMaterialBindingElement );
 }
 
 
-void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
+void SoDGBIndexedPointSet::GLRender(SoGLRenderAction* action)
 {
     if ( !shouldGLRender(action) )
 	return;
@@ -211,7 +211,7 @@ void SoIndexedPointSet::GLRender(SoGLRenderAction* action)
 }
 
 
-void SoIndexedPointSet::generatePrimitives(SoAction* action)
+void SoDGBIndexedPointSet::generatePrimitives(SoAction* action)
 {
     //if ( !coordIndex.getNum() || (coordIndex.getNum()==1 && coordIndex[0]==-1) )
 	//return;
@@ -336,7 +336,7 @@ void SoIndexedPointSet::generatePrimitives(SoAction* action)
 }
 
 
-SbBool SoIndexedPointSet::generateDefaultNormals( SoState* state,
+SbBool SoDGBIndexedPointSet::generateDefaultNormals( SoState* state,
 						  SoNormalCache* nc)
 {
     nc->set( 0, 0 );
