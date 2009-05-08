@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.21 2009-02-27 10:26:27 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.22 2009-05-08 05:26:06 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,6 @@ public:
     Attrib::DescSet*	getSet()		{ return attrset_; }
     const MultiID&	curSetID() const	{ return setid_; }
 
-    void		autoSet(CallBacker*);
     uiAttrDescEd*	curDescEd();
     			//!< Use during operation only!
     Attrib::Desc*		curDesc() const;
@@ -107,6 +106,7 @@ protected:
     void                	sortPush(CallBacker*);
     void                	helpButPush(CallBacker*);
 
+    void			autoSet(CallBacker*);
     void			newSet(CallBacker*);
     void			openSet(CallBacker*);
     void                	openAttribSet(const IOObj*);
