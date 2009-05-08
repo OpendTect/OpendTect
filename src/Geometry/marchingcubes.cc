@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.22 2009-04-01 04:47:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.23 2009-05-08 15:06:37 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -460,7 +460,7 @@ Implicit2MarchingCubes:: Implicit2MarchingCubes( int posx, int posy, int posz,
 Implicit2MarchingCubes::~Implicit2MarchingCubes() {}
 
 
-od_int64 Implicit2MarchingCubes::totalNr() const
+od_int64 Implicit2MarchingCubes::nrIterations() const
 {
     return array_.info().getTotalSz();
 }   
@@ -476,7 +476,7 @@ bool Implicit2MarchingCubes::doWork( od_int64 start, od_int64 stop, int )
 
     const int nriters = stop-start+1;
     for ( int idx=0; idx<nriters && shouldContinue();
-	  idx++, iterator.next(), reportNrDone() )
+	  idx++, iterator.next(), addToNrDone(1) )
     {
 	const int pos[] = { iterator[mX]+xorigin_, iterator[mY]+yorigin_,
 			    iterator[mZ]+zorigin_ };
@@ -525,7 +525,7 @@ public:
 	mc2i_.result_.setAll( mUdf(int) );
     }
 
-    od_int64	totalNr() const { return totalnr_; }
+    od_int64	nrIterations() const { return totalnr_; }
 
 protected:
     bool doWork( od_int64 start, od_int64 stop, int )
@@ -538,7 +538,7 @@ protected:
 	if ( !mc2i_.surface_.models_.isValidPos( surfaceidxs ) )
 	    return false;
 
-	for ( int idx=0; idx<nrtimes; idx++, reportNrDone() )
+	for ( int idx=0; idx<nrtimes; idx++, addToNrDone(1) )
 	{
 	    int modelpos[3];
 	    if ( !mc2i_.surface_.models_.getPos( surfaceidxs, modelpos ) )
