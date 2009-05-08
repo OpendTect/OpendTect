@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.13 2009-04-15 07:48:30 cvsnageswara Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.14 2009-05-08 10:08:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ public:
 
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
+    void		setRangeLimits(const StepInterval<float>&);
 
 protected:
 

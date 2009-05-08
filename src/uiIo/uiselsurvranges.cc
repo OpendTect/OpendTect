@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.19 2009-04-15 07:48:30 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiselsurvranges.cc,v 1.20 2009-05-08 10:08:21 cvsnageswara Exp $";
 
 #include "uiselsurvranges.h"
 #include "survinfo.h"
@@ -138,6 +138,14 @@ void uiSelZRange::valChg( CallBacker* cb )
 	else
 	    stopfld_->setValue( startfld_->getValue() );
     }
+}
+
+void uiSelZRange::setRangeLimits( const StepInterval<float>& zlimits )
+{
+    StepInterval<float> zrg( zlimits );
+    zrg.scale( SI().zFactor() );
+    startfld_->setInterval( zrg );
+    stopfld_->setInterval( zrg );
 }
 
 
