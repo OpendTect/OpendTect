@@ -7,12 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.35 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.36 2009-05-08 10:22:36 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltgen.h"
+#include "uiwaveletextraction.h"
 #include "wavelet.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -58,6 +59,10 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     crbut->activated.notify( mCB(this,uiSeisWvltMan,crPush) );
     crbut->attach( rightOf, impbut );
     crbut->setPrefWidthInChar( 15 );
+    uiPushButton* extractbut = new uiPushButton( butgrp, "&Extract", false );
+    extractbut->activated.notify( mCB(this,uiSeisWvltMan,extractPush) );
+    extractbut->attach( rightOf, crbut );
+    extractbut->setPrefWidthInChar( 15 );
     butgrp->attach( centeredBelow, selgrp );
 
     wvltfld = new uiFlatViewer( this );
@@ -105,6 +110,13 @@ void uiSeisWvltMan::crPush( CallBacker* )
     uiSeisWvltGen dlg( this );
     if ( dlg.go() )
 	selgrp->fullUpdate( dlg.storeKey() );
+}
+
+
+void uiSeisWvltMan::extractPush( CallBacker* )
+{
+    uiWaveletExtraction wedlg( this );
+    wedlg.go();
 }
 
 
