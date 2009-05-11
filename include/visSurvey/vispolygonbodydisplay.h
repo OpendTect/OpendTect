@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolygonbodydisplay.h,v 1.2 2009-02-13 22:23:20 cvsyuancheng Exp $
+ RCS:		$Id: vispolygonbodydisplay.h,v 1.3 2009-05-11 06:41:19 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -84,6 +84,7 @@ public:
     void			touchAll(bool,bool updatemarker=false);
     EM::PolygonBody*		getEMPolygonBody() const 
     				{ return empolygonsurf_; }
+    bool			canRemoveSelecion()	{ return true; }
     void			removeSelection(const Selector<Coord3>&);
 
 protected:

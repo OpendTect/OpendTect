@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.23 2009-02-09 19:16:29 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.24 2009-05-11 06:41:19 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -85,7 +85,8 @@ public:
 
     const SurveyObject*		getPickedSurveyObject() const;
 
-    void			removeSelected(const Selector<Coord3>&);
+    bool			canRemoveSelecion()	{ return true; }
+    void			removeSelection(const Selector<Coord3>&);
 
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;

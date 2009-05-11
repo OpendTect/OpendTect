@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.51 2009-05-07 07:32:58 cvsumesh Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.52 2009-05-11 06:41:19 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
     EM::PosID			getPosAttribPosID(int attrib,
 					   const TypeSet<int>& path ) const;
 
+    bool			canRemoveSelecion()	{ return true; }
     void                        removeSelection(const Selector<Coord3>&);
 
     void			fillPar(IOPar&,TypeSet<int>&) const;

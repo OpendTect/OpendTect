@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.15 2009-03-03 08:06:33 cvsnanne Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.16 2009-05-11 06:41:19 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -92,6 +92,7 @@ public:
     EM::ObjectID		getEMID() const;
 
     void			removeSelection(const Selector<Coord3>&);
+    bool			canRemoveSelecion()		{ return true; }
 
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
