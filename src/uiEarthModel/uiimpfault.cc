@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimpfault.cc,v 1.32 2009-04-06 12:52:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiimpfault.cc,v 1.33 2009-05-11 08:26:54 cvsjaap Exp $";
 
 #include "uiimpfault.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: uiimpfault.cc,v 1.32 2009-04-06 12:52:22 cvsjaa
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "tabledef.h"
 
 #include "uifileinput.h"
 #include "uigeninput.h"
@@ -232,7 +233,8 @@ bool uiImportFault::getFromAscIO( std::istream& strm, EM::Fault& flt )
 	return ascio.get( strm, flt, sortsticks, 0, false );
 
     EM::FSStoFault3DConverter::Setup setup;
-    setup.sortsticks_ = sortsticks;
+    setup.sortsticks_ = sortsticks &&
+			!fd_->bodyinfos_[2]->selection_.isFilled();
     if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeyInlCrlSep()) )
 	setup.useinlcrlslopesep_ = true;
     if ( stickselfld_ && !strcmp(stickselfld_->text(), sKeySlopeThres()) )
