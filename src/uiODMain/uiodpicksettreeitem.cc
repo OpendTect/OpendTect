@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.57 2009-04-17 12:18:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodpicksettreeitem.cc,v 1.58 2009-05-11 06:47:14 cvsumesh Exp $";
 
 #include "uiodpicksettreeitem.h"
 
@@ -381,7 +381,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
 	if ( sel->isOK() )
-	    psd->removeSelected( *sel );
+	    psd->removeSelection( *sel );
 	else
 	    uiMSG().error("Invalid selection : self-intersecting polygon");
     }

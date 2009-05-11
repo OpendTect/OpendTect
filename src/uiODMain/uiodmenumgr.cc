@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.170 2009-05-07 07:39:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.171 2009-05-11 06:47:14 cvsumesh Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -646,6 +646,9 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddMnuItm( mnu, "Rectangle", handleToolClick, "rectangleselect.png", 1 );
     cointb_->setButtonMenu( polyselectid_, *mnu );
 
+    removeselectionid_ = cointb_->addButton( "trashcan.png",
+	mCB(this,uiODMenuMgr,removeSelection), "Remove selection", false );
+
     soloid_ = mAddTB(cointb_,"solo.png","Display current element only",
 		     true,soloMode);
 }
@@ -714,13 +717,13 @@ void uiODMenuMgr::selectionMode( CallBacker* )
 						: uiVisPartServer::Rectangle );
 	visserv.turnSeedPickingOn( false );
     }
-    /*
-    int objectid = visserv.getSelObjectId();
-    mDynamicCastGet(visSurvey::EMObjectDisplay*,
-	    	    emd,visserv.getObject(objectid));
-    if ( emd )
-	emd->enableEditing( false );
-	*/
+}
+
+
+void uiODMenuMgr::removeSelection( CallBacker* )
+{
+    uiVisPartServer& visserv = *appl_.applMgr().visServer();
+    visserv.removeSelection();
 }
 
 
