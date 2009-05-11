@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.236 2009-04-21 09:55:20 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.237 2009-05-11 06:44:43 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,8 @@ public:
     void		removeObject(int id,int sceneid);
     void		setObjectName(int,const char*);
     const char*		getObjectName(int) const;
+
+    void		removeSelection();
 
     int			addScene(visSurvey::Scene* =0);
     			/*!<Adds a scene. The argument is only used internally.
