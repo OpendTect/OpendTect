@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.102 2009-03-24 14:44:33 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.103 2009-05-11 06:40:20 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -180,7 +180,10 @@ public:
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
     
     virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
-    
+
+    virtual void		removeSelection(const Selector<Coord3>&) {}
+    virtual bool		canRemoveSelecion()		{ return false;}
+
     virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
     virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }
 
