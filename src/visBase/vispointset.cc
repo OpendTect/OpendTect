@@ -7,13 +7,13 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vispointset.cc,v 1.3 2009-04-01 07:02:03 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vispointset.cc,v 1.4 2009-05-11 04:46:21 cvsraman Exp $";
 
 #include "datapointset.h"
 #include "viscoord.h"
 #include "vispointset.h"
 
-#include "SoIndexedPointSet.h"
+#include "SoDGBIndexedPointSet.h"
 
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
@@ -30,7 +30,7 @@ PointSet::PointSet()
 
 
 IndexedPointSet::IndexedPointSet()
-    : IndexedShape( new SoIndexedPointSet )
+    : IndexedShape( new SoDGBIndexedPointSet )
 {
 }
 
