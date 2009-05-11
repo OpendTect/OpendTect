@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.46 2009-03-24 04:41:08 cvsranojay Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.47 2009-05-11 06:46:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,6 +125,7 @@ protected:
     void		handleToolClick(CallBacker*);
     void		handleViewClick(CallBacker*);
     void		handleClick(CallBacker*);
+    void		removeSelection(CallBacker*);
     void		dispColorBar(CallBacker*);
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);
@@ -145,6 +146,7 @@ protected:
     uiMenuItem*		addtimedepthsceneitm_;
     int			axisid_, actviewid_, cameraid_, soloid_;
     int			coltabid_, polyselectid_,viewselectid_,curviewmode_ ;
+    int			removeselectionid_;
     bool		inviewmode_;
 
     inline uiODApplMgr&	applMgr()	{ return appl_.applMgr(); }
