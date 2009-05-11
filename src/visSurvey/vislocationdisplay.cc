@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.54 2009-04-20 18:37:49 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.55 2009-05-11 06:42:26 cvsumesh Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -853,7 +853,7 @@ const SurveyObject* LocationDisplay::getPickedSurveyObject() const
 }
 
 
-void LocationDisplay::removeSelected( const Selector<Coord3>& selector )
+void LocationDisplay::removeSelection( const Selector<Coord3>& selector )
 {
     if ( !selector.isOK() )
 	return;
