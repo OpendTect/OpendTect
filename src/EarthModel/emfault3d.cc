@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfault3d.cc,v 1.9 2009-05-07 08:16:38 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfault3d.cc,v 1.10 2009-05-11 08:33:04 cvsjaap Exp $";
 
 #include "emfault3d.h"
 
@@ -489,6 +489,7 @@ Coord3 getNormal() const
 {
     // TODO: Determine edit normal for sticks picked on 2D lines
 
+    const int maxdist = 5;
     int oninl = 0; int oncrl = 0; int ontms = 0;
 
     for ( int idx=0; idx<crds_.size()-1; idx++ )
@@ -497,12 +498,16 @@ Coord3 getNormal() const
 	for ( int idy=idx+1; idy<crds_.size(); idy++ )
 	{
 	    const BinID bid1 = SI().transform( crds_[idy] );
-	    if ( bid0.inl == bid1.inl )
-		oninl++;
-	    if ( bid0.crl == bid1.crl )
-		oncrl++;
-	    if ( fabs(crds_[idx].z-crds_[idy].z) < fabs(0.5*SI().zStep()) )
-		ontms++;
+	    const int inldist = abs( bid0.inl-bid1.inl );
+	    if ( inldist < maxdist )
+		oninl += maxdist - inldist;
+	    const int crldist = abs( bid0.crl-bid1.crl );
+	    if ( crldist < maxdist )
+		oncrl += maxdist - crldist;
+	    const int zdist = fabs( crds_[idx].z-crds_[idy].z ) /
+			      fabs( SI().zStep() );
+	    if ( zdist < maxdist )
+		ontms += maxdist - zdist;
 	}
     }
 

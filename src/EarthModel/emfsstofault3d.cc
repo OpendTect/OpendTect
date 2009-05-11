@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.2 2009-04-21 12:29:51 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.3 2009-05-11 08:33:04 cvsjaap Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -36,9 +36,9 @@ static double pointToSegmentDist( const Coord3& point,
 
     if ( mIsZero(d12,mDefEps) )
 	return d01;
-    if ( d01<d02 && d01*d01+d12*d12>=d02*d02 )
+    if ( d01<d02 && d01*d01+d12*d12<=d02*d02 )
 	return d01;
-    if ( d01>d02 && d02*d02+d12*d12>=d01*d01 )
+    if ( d01>d02 && d02*d02+d12*d12<=d01*d01 )
 	return d02;
 
     double sp = 0.5 *( d01+d02+d12 );
@@ -119,6 +119,7 @@ double FSStoFault3DConverter::FaultStick::slope( double zscale ) const
 
 Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
 {
+    const int maxdist = 5;
     int oninl = 0; int oncrl = 0; int ontms = 0;
 
     for ( int idx=0; idx<crds_.size()-1; idx++ )
@@ -127,12 +128,16 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
 	for ( int idy=idx+1; idy<crds_.size(); idy++ )
 	{
 	    const BinID bid1 = SI().transform( crds_[idy] );
-	    if ( bid0.inl == bid1.inl )
-		oninl++;
-	    if ( bid0.crl == bid1.crl )
-		oncrl++;
-	    if ( fabs(crds_[idx].z-crds_[idy].z) < fabs(0.5*SI().zStep()) )
-		ontms++;
+	    const int inldist = abs( bid0.inl-bid1.inl );
+	    if ( inldist < maxdist )
+		oninl += maxdist - inldist;
+	    const int crldist = abs( bid0.crl-bid1.crl );
+	    if ( crldist < maxdist )
+		oncrl += maxdist - crldist;
+	    const int zdist = fabs( crds_[idx].z-crds_[idy].z ) /
+			      fabs( SI().zStep() );
+	    if ( zdist < maxdist )
+		ontms += maxdist - zdist;
 	}
     }
 
@@ -204,7 +209,7 @@ bool FSStoFault3DConverter::convert()
 	selectSticks( selhorpicked );
 		
 	if ( setup_.sortsticks_ )
-	    geometricSort( selhorpicked ? MAXDOUBLE : 0.0  );
+	    geometricSort( selhorpicked ? MAXDOUBLE : 0.0 );
 
 	for ( int idx=1; idx<sticks_.size(); idx++ )
 	    sticks_[idx]->untwist( *sticks_[idx-1], setup_.zscale_ );
