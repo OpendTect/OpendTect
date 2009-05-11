@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.20 2009-02-06 05:45:44 cvsranojay Exp $
+ RCS:		$Id: visdataman.h,v 1.21 2009-05-11 17:43:08 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 class IOPar;
 
 class SoPath;
+class SoNode;
 
 namespace visBase
 {
@@ -47,18 +48,20 @@ public:
     bool		removeAll(int nriterations=1000);
     			/*!< Will remove everything.  */
 
-    void		fillPar( IOPar&, TypeSet<int> & ) const;
-    bool		usePar( const IOPar& );
+    void		fillPar(IOPar&,TypeSet<int>&) const;
+    bool		usePar(const IOPar&);
 
-    void		getIds( const SoPath*, TypeSet<int>& ) const;
+    void		getIds(const SoPath*,TypeSet<int>&) const;
     			/*!< Gets the ids from lowest level to highest
 			     (i.e. scene ) */
 
-    void		getIds( const std::type_info&, TypeSet<int>& ) const;
+    void		getIds(const std::type_info&,TypeSet<int>&) const;
     int			highestID() const;
 
-    DataObject*		getObject( int id );
-    const DataObject*	getObject( int id ) const;
+    DataObject*		getObject(int id);
+    const DataObject*	getObject(int id) const;
+    DataObject*		getObject(const SoNode*);
+    const DataObject*	getObject(const SoNode*) const;
 
     SelectionManager&	selMan() { return selman_; }
 

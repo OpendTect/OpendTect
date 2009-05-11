@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.42 2008-11-21 14:58:20 cvsbert Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.43 2009-05-11 17:43:08 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -251,6 +251,23 @@ DataObject* DataManager::getObject( int id )
 
 const DataObject* DataManager::getObject( int id ) const
 { return const_cast<DataManager*>(this)->getObject(id); }
+
+
+DataObject* DataManager::getObject( const SoNode* node )
+{
+    if ( !node ) return 0;
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+    {
+	if ( objects_[idx]->getInventorNode()==node ) return objects_[idx];
+    }
+
+    return 0;
+}
+
+
+const DataObject* DataManager::getObject( const SoNode* node ) const
+{ return const_cast<DataManager*>(this)->getObject(node); }
 
 
 void DataManager::addObject( DataObject* obj )
