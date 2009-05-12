@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.110 2009-05-07 07:33:47 cvsumesh Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.111 2009-05-12 11:14:28 cvsjaap Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -490,7 +490,11 @@ void EMObjectDisplay::emChangeCB( CallBacker* cb )
     else if ( cbdata.event==EM::EMObjectCallbackData::AttribChange )
     {
 	if ( posattribs_.indexOf(cbdata.attrib)!=-1 )
+	{
 	    updatePosAttrib(cbdata.attrib);
+	    if ( displayonlyatsections_ )
+		triggermovement = true;
+	}
     }
 
     if ( triggermovement )
