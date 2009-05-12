@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.3 2009-05-11 08:33:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: emfsstofault3d.cc,v 1.4 2009-05-12 04:59:32 cvsumesh Exp $";
 
 #include "emfsstofault3d.h"
 
@@ -134,8 +134,8 @@ Coord3 FSStoFault3DConverter::FaultStick::findPlaneNormal() const
 	    const int crldist = abs( bid0.crl-bid1.crl );
 	    if ( crldist < maxdist )
 		oncrl += maxdist - crldist;
-	    const int zdist = fabs( crds_[idx].z-crds_[idy].z ) /
-			      fabs( SI().zStep() );
+	    const int zdist = mNINT( fabs(crds_[idx].z-crds_[idy].z) /
+			              fabs(SI().zStep()) );
 	    if ( zdist < maxdist )
 		ontms += maxdist - zdist;
 	}
