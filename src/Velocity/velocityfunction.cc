@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunction.cc,v 1.2 2009-04-30 19:06:49 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunction.cc,v 1.3 2009-05-12 16:08:42 cvskris Exp $";
 
 #include "velocityfunction.h"
 
@@ -211,25 +211,27 @@ RefMan<const Function> FunctionSource::getFunction( const BinID& bid )
 	return 0;
 
     RefMan<const Function> res = 0;
+    RefMan<Function> tmpfunc = 0;
 
     functionslock_.readLock();
-    int idx = findFunction( bid );
     bool iswritelock = false;
+    int idx = findFunction( bid );
     if ( idx==-1 )
     {
-	if ( !functionslock_.convReadToWriteLock() )
-	    idx = findFunction( bid );
+	functionslock_.readUnLock();
 
+	tmpfunc = createFunction(bid);
+	if ( !tmpfunc )
+	    return 0;
+
+	functionslock_.writeLock();
 	iswritelock = true;
+	idx = findFunction( bid );
 
 	if ( idx==-1 )
 	{
-	    Function* func = createFunction(bid);
-	    if ( func )
-	    {
-		idx = functions_.size();
-		functions_ += func;
-	    }
+	    idx = functions_.size();
+	    functions_ += tmpfunc;
 	}
     }
 
