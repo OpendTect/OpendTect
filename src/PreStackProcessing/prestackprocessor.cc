@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.20 2009-01-02 11:34:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.21 2009-05-12 02:14:25 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -324,6 +324,13 @@ void ProcessManager::swapProcessors( int i0, int i1 )
 }
 
 
+void ProcessManager::removeAllProcessors()
+{
+    deepErase( processors_ );
+    setupChange.trigger();
+}
+
+
 Processor* ProcessManager::getProcessor( int idx )
 { return processors_[idx]; }
 
@@ -352,7 +359,7 @@ bool ProcessManager::usePar( const IOPar& par )
 {
     NotifyStopper stopper( setupChange );
 
-    deepErase( processors_ );
+    removeAllProcessors();
 
     int nrprocessors;
     if ( !par.get( sKeyNrProcessors(), nrprocessors ) )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.22 2009-04-09 00:52:30 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.23 2009-05-12 02:14:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -148,10 +148,12 @@ public:
     Processor*			getProcessor(int);
     const Processor*		getProcessor(int) const;
 
+
     void			addProcessor(Processor*);
     void			removeProcessor(int);
     void			swapProcessors(int,int);
 
+    void			removeAllProcessors();
 
     void			notifyChange()	{ setupChange.trigger(); }
 
