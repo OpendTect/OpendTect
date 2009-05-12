@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.h,v 1.5 2009-01-28 09:09:21 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.h,v 1.6 2009-05-12 09:08:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 #include "datapack.h"
 
+class uiPushButton;
 class uiMapperRangeEditor;
 namespace ColTab { struct MapperSetup; class Sequence; };
 
@@ -41,6 +42,7 @@ public:
 
 protected:
 
+    uiPushButton*			statbut_;
     ObjectSet<uiMapperRangeEditor>	mapperrgeditors_;
     int					activeattrbid_;
     const ColTab::MapperSetup*        	activectbmapper_;
@@ -48,6 +50,7 @@ protected:
     TypeSet<DataPack::ID>   		datapackids_;
     
     void				rangeChanged(CallBacker*);   
+    void				showStatDlg(CallBacker*);   
     void				dataPackDeleted(CallBacker*); 
 };
 
