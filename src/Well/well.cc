@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.54 2009-04-01 07:01:46 cvsbruno Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.55 2009-05-12 08:46:47 cvssatyaki Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: well.cc,v 1.54 2009-04-01 07:01:46 cvsbruno Exp
 #include "stratunitrepos.h"
 #include "idxable.h"
 #include "iopar.h"
+#include "tabledef.h"
 
 const char* Well::Info::sKeyuwid()	{ return "Unique Well ID"; }
 const char* Well::Info::sKeyoper()	{ return "Operator"; }
@@ -720,6 +721,72 @@ float Well::D2TModel::getVelocity( float dh ) const
     return (dah_[idx1] - dah_[idx0]) / (t_[idx1] - t_[idx0]);
 }
 
+
+Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Horizon3D" );
+    fd->headerinfos_ +=
+	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf),
+				Table::Required );
+    createDescBody( fd, withunitfld );
+    return fd;
+}
+
+
+void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
+					  bool withunitfld )
+{
+    Table::TargetInfo* depthinfo = 0;
+
+    if ( withunitfld )
+	depthinfo = new Table::TargetInfo( "", FloatInpSpec(), Table::Required,
+					    PropertyRef::Dist );
+    else
+	depthinfo = new Table::TargetInfo( "", FloatInpSpec(), Table::Required);
+
+    Table::TargetInfo::Form* depthform = 
+	new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() );
+    depthinfo->form(0).setName( "MD" );
+    depthinfo->add( depthform );
+    fd->bodyinfos_ += depthinfo;
+
+    Table::TargetInfo* timeinfo =
+		new Table::TargetInfo( "", FloatInpSpec(), Table::Required,
+				       PropertyRef::Time );
+
+    Table::TargetInfo::Form* timeform =
+    new Table::TargetInfo::Form( "TWT", FloatInpSpec() );
+    timeinfo->form(0).setName( "One-way traveltime" );
+    timeinfo->add( timeform );
+    fd->bodyinfos_ += timeinfo;
+}
+
+
+void Well::D2TModelAscIO::updateDesc( Table::FormatDesc& fd, bool withunitfld )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, withunitfld );
+}
+
+
+bool Well::D2TModelAscIO::get( std::istream& strm, Well::D2TModel& d2t ) const
+{
+    d2t.erase();
+
+    while ( true )
+    {
+	int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) return false;
+	if ( ret == 0 ) break;
+
+	const float dah = getfValue( 0 );
+	const float time = getfValue( 1 );
+	if ( mIsUdf(dah) || mIsUdf(time) ) continue;
+	d2t.add( dah, time );
+    }
+
+    return true;
+}
 
 #define mName "Well name"
 

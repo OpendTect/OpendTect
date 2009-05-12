@@ -7,26 +7,28 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.10 2009-04-21 12:07:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.11 2009-05-12 08:46:47 cvssatyaki Exp $";
 
 #include "uid2tmodelgrp.h"
+#include "uitblimpexpdatasel.h"
 
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 
 #include "ctxtioobj.h"
-#include "survinfo.h"
-#include "filegen.h"
-
+#include "welld2tmodel.h"
+#include "welldata.h"
+#include "welltrack.h"
+#include "strmprov.h"
 
 
 uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     : uiGroup(p,"D2TModel group")
-    , unitfld_(0)
     , velfld_(0)
     , csfld_(0)
+    , dataselfld_(0)
     , setup_(su)
+    , fd_( *Well::D2TModelAscIO::getDesc(setup_.withunitfld_) )
 {
     filefld_ = new uiFileInput( this, setup_.filefldlbl_,
 				uiFileInput::Setup().withexamine(true) );
@@ -35,81 +37,89 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
 	filefld_->setWithCheck( true ); filefld_->setChecked( true );
 	filefld_->checked.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 	velfld_ = new uiGenInput( this, "Temporary model velocity (m/s)",
-				  FloatInpSpec(mi_.vel_) );
+				  FloatInpSpec(4000) );
 	velfld_->attach( alignedBelow, filefld_ );
     }
     filefld_->setDefaultSelectionDir(
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
-    tvdfld_ = new uiGenInput( this, "Depth in file is",
-			      BoolInpSpec(true,"TVDSS","MD") );
-    tvdfld_->setValue( false );
-    tvdfld_->attach( alignedBelow, filefld_ );
-    tvdsslbl_ = new uiLabel( this,
-			    "(TVDSS won't work with horizontal sections)" );
-    tvdsslbl_->attach( rightOf, tvdfld_ );
-
-    if ( setup_.withunitfld_ )
-    {
-	unitfld_ = new uiGenInput( this, "Depth in",
-		BoolInpSpec(!SI().depthsInFeetByDefault(),"Meter","Feet") );
-	unitfld_->attach( alignedBelow, tvdfld_ );
-    }
-
-    twtfld_ = new uiGenInput( this, "Time is",
-		BoolInpSpec(true,"TWT","One-way traveltime") );
-    twtfld_->setValue( true );
-    twtfld_->attach( alignedBelow, unitfld_ ? unitfld_ : tvdfld_ );
-
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "105.0.5" );
+    dataselfld_->attach( alignedBelow, setup_.fileoptional_ ? velfld_
+	    						    : filefld_ );
+    
     if ( setup_.asksetcsmdl_ )
     {
 	csfld_ = new uiGenInput( this, "Is this checkshot data?",
 				 BoolInpSpec(false) );
-	csfld_->attach( alignedBelow, twtfld_ );
+	csfld_->attach( alignedBelow, dataselfld_ );
     }
 
     setHAlignObj( filefld_ );
     finaliseDone.notify( mCB(this,uiD2TModelGroup,fileFldChecked) );
 }
 
+
 void uiD2TModelGroup::fileFldChecked( CallBacker* )
 {
     const bool havefile = setup_.fileoptional_ ? filefld_->isChecked() : true;
-    tvdfld_->display( havefile );
-    tvdsslbl_->display( havefile );
-    twtfld_->display( havefile );
-    if ( unitfld_ ) unitfld_->display( havefile );
     if ( csfld_ ) csfld_->display( havefile );
     if ( velfld_ ) velfld_->display( !havefile );
+    dataselfld_->display( havefile );
+    dataselfld_->updateSummary();
 }
 
 
-const char* uiD2TModelGroup::checkInput() const
+const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 {
-    uiD2TModelGroup& self = *const_cast<uiD2TModelGroup*>(this);
     if ( setup_.fileoptional_ && !filefld_->isChecked() )
     {
 	if ( velfld_->isUndef() )
 	    return "Please enter the velocity for generating the D2T model";
-	self.mi_.fname_.setEmpty();
-	self.mi_.vel_ = velfld_->getfValue();
+    }
+    
+    if ( cksh || wantAsCSModel() )
+	wd.setD2TModel( new Well::D2TModel );
+    else
+	wd.setD2TModel( new Well::D2TModel );
+
+    Well::D2TModel& d2t = *(cksh ? wd.checkShotModel() : wd.d2TModel());
+    if ( !&d2t )
+	return "D2Time model not set properly";
+
+    if ( filefld_->isCheckable() && !filefld_->isChecked() )
+    {
+	if ( wd.track().isEmpty() )
+	    return "Cannot generate D2Time model without track";
+	if ( wantAsCSModel() )
+	    return "No file name specified";
+	
+	const float twtvel = velfld_->getfValue() * .5;
+	const float dah0 = wd.track().dah( 0 );
+	const float dah1 = wd.track().dah( wd.track().size()-1 );
+	d2t.erase();
+	d2t.add( dah0, dah0 / twtvel );
+	d2t.add( dah1, dah1 / twtvel );
 	return 0;
     }
-
-    self.mi_.fname_ = filefld_->fileName();
-    if ( File_isEmpty(self.mi_.fname_) )
-	return "D2T model file is not usable";
-    self.mi_.istvd_ = tvdfld_->getBoolValue();
-    self.mi_.istwt_ = twtfld_->getBoolValue();
-    self.mi_.zinft_ = unitfld_ ? !unitfld_->getBoolValue()
-			       : SI().depthsInFeetByDefault();
-
-    if ( unitfld_ && self.mi_.zinft_ != SI().depthsInFeetByDefault() )
+    else
     {
-	SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), self.mi_.zinft_ );
-	SI().savePars();
+	const char* fname = filefld_->fileName();
+	StreamData sdi = StreamProvider( fname ).makeIStream();
+	if ( !sdi.usable() )
+	{
+	    sdi.close();
+	    return "Could not open input file";
+	}
+
+	BufferString errmsg;
+	if ( !dataselfld_->commit() )
+	    return "Please specify data format";
+
+	d2t.setName( fname );
+	Well::D2TModelAscIO aio( fd_ );
+	aio.get( *sdi.istrm, d2t );
+	return 0;
     }
-    return 0;
 }
 
 

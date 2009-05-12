@@ -7,18 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.h,v 1.7 2009-04-21 12:07:45 cvsbert Exp $
+ RCS:		$Id: uid2tmodelgrp.h,v 1.8 2009-05-12 08:46:47 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-#include "wellimpasc.h"
 
 class uiFileInput;
 class uiGenInput;
-class uiCheckBox;
-class uiLabel;
+class uiTableImpDataSel;
+namespace Table { class FormatDesc; }
+namespace Well { class Data; }
 
 mClass uiD2TModelGroup : public uiGroup
 {
@@ -42,23 +42,20 @@ public:
 
     			uiD2TModelGroup(uiParent*,const Setup&);
 
-    const char*		checkInput() const;
-    const Well::AscImporter::D2TModelInfo&	getMI() const	{ return mi_; }
+    const char*		getD2T(Well::Data&,bool cksh = true) const;
 
     bool		wantAsCSModel() const;
 
 protected:
 
     Setup		setup_;
-    Well::AscImporter::D2TModelInfo	mi_;
+    Table::FormatDesc&  fd_;
+
 
     uiFileInput*	filefld_;
     uiGenInput*		velfld_;
-    uiGenInput*		tvdfld_;
-    uiLabel*	        tvdsslbl_;
-    uiGenInput*		unitfld_;
-    uiGenInput*		twtfld_;
     uiGenInput*		csfld_;
+    uiTableImpDataSel*  dataselfld_;
 
     void 		fileFldChecked(CallBacker*);
 };

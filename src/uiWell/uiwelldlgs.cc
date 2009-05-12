@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.77 2009-04-21 11:36:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.78 2009-05-12 08:46:47 cvssatyaki Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -271,25 +271,28 @@ class uiD2TModelReadDlg : public uiDialog
 {
 public:
 
-uiD2TModelReadDlg( uiParent* p, bool cksh )
+uiD2TModelReadDlg( uiParent* p, Well::Data& wd, bool cksh )
     	: uiDialog(p,uiDialog::Setup("Read new data",
 		    		     "Specify input file","107.1.6"))
 	, cksh_(cksh)
+	, wd_(wd)
 {
     uiD2TModelGroup::Setup su( false );
     su.filefldlbl( "File name" );
     d2tgrp = new uiD2TModelGroup( this, su );
 }
 
+
 bool acceptOK( CallBacker* )
 {
-    const char* errmsg = d2tgrp->checkInput();
+    const char* errmsg = d2tgrp->getD2T( wd_, cksh_ );
     if ( errmsg && *errmsg )
 	{ uiMSG().error( errmsg ); return false; }
     return true;
 }
 
     uiD2TModelGroup*	d2tgrp;
+    Well::Data&		wd_;
     const bool		cksh_;
 
 };
@@ -297,11 +300,10 @@ bool acceptOK( CallBacker* )
 
 void uiD2TModelDlg::readNew( CallBacker* )
 {
-    uiD2TModelReadDlg dlg( this, cksh_ );
+    uiD2TModelReadDlg dlg( this, wd_, cksh_ );
     if ( !dlg.go() ) return;
 
-    Well::AscImporter ascimp( wd_ );
-    const BufferString errmsg = ascimp.getD2T( dlg.d2tgrp->getMI(), cksh_ );
+    const BufferString errmsg = dlg.d2tgrp->getD2T( wd_, cksh_ );
     if ( !errmsg.isEmpty() )
 	uiMSG().error( errmsg );
     else

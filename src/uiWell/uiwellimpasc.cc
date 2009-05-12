@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.47 2009-04-21 12:07:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.48 2009-05-12 08:46:47 cvssatyaki Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -194,13 +194,10 @@ bool uiWellImportAsc::doWork()
 
     if ( SI().zIsTime() )
     {
-	const char* errmsg = d2tgrp->checkInput();
-	if ( errmsg ) mErrRet( errmsg );
-	Well::AscImporter ascimp( wd_ );
-	errmsg = ascimp.getD2T( d2tgrp->getMI(), false );
+	const char* errmsg = d2tgrp->getD2T( wd_, false );
 	if ( errmsg ) mErrRet( errmsg );
 	if ( d2tgrp->wantAsCSModel() )
-	    ascimp.getD2T( d2tgrp->getMI(), true );
+	    d2tgrp->getD2T( wd_, true );
     }
 
     PtrMan<Translator> t = ctio.ioobj->getTranslator();
@@ -221,7 +218,7 @@ bool uiWellImportAsc::checkInpFlds()
     if ( !*wtinfld->fileName() )
 	mErrRet("Please specify a well track file")
 
-    const char* errmsg = SI().zIsTime() ? 0 : d2tgrp->checkInput();
+    const char* errmsg = SI().zIsTime() ? 0 : d2tgrp->getD2T( wd_);
     if ( errmsg && *errmsg )
 	mErrRet( errmsg )
 
