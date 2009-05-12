@@ -4,17 +4,21 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Dec 2008
- RCS:		$Id: uimapperrangeeditordlg.cc,v 1.9 2009-01-28 11:41:37 cvsumesh Exp $
+ RCS:		$Id: uimapperrangeeditordlg.cc,v 1.10 2009-05-12 08:26:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimapperrangeeditordlg.h"
 
+#include "uibutton.h"
 #include "uicoltabtools.h"
 #include "uimapperrangeeditor.h"
+#include "uimenu.h"
 #include "uiseparator.h"
+#include "uistatsdisplaywin.h"
 
+#include "bufstringset.h"
 #include "coltabmapper.h"
 #include "coltabsequence.h"
 #include "datapackbase.h"
@@ -22,7 +26,8 @@ ________________________________________________________________________
 uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
        						DataPackMgr::ID dmid )
     : uiDialog( p,uiDialog::Setup("Histogram",
-				   mNoDlgTitle,mTODOHelpID).modal(false) )
+				  mNoDlgTitle,mTODOHelpID).modal(false)
+	    						  .menubar(true) )
     , activeattrbid_(-1)
     , activectbmapper_(0)	      
     , rangeChange(this)
@@ -32,6 +37,11 @@ uiMultiMapperRangeEditWin::uiMultiMapperRangeEditWin( uiParent* p, int nr,
 
     datapackids_.setSize( nr );
     uiSeparator* sephor = 0;
+
+    uiPopupMenu* menu = new uiPopupMenu( this, "Stat" );
+    menu->insertItem( new uiMenuItem("Show Stat..",
+		mCB(this,uiMultiMapperRangeEditWin,showStatDlg)) );
+    menuBar()->insertItem( menu );
 
     for ( int idx=0; idx<nr; idx++ )
     {
@@ -64,6 +74,24 @@ uiMultiMapperRangeEditWin::~uiMultiMapperRangeEditWin()
 {
     dpm_.packToBeRemoved.remove(
 			mCB(this,uiMultiMapperRangeEditWin,dataPackDeleted) );
+}
+
+
+void uiMultiMapperRangeEditWin::showStatDlg( CallBacker* )
+{
+    uiStatsDisplayWin statswin( this,
+	    uiStatsDisplay::Setup().withplot(false).withname(false),
+	    datapackids_.size()/2 );
+    BufferStringSet datanms;
+    for ( int idx=0; idx<datapackids_.size()/2; idx++ )
+    {
+	statswin.statsDisplay( idx )->setDataPackID( datapackids_[idx],
+						      dpm_.id() );
+	datanms.add(  DPM(dpm_.id()).nameOf(datapackids_[idx]) );
+    }
+
+    statswin.addDataNames( datanms );
+    statswin.show();
 }
 
 

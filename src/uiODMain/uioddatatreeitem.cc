@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.40 2009-04-16 10:31:27 cvsranojay Exp $";
+static const char* rcsID = "$Id: uioddatatreeitem.cc,v 1.41 2009-05-12 08:26:28 cvssatyaki Exp $";
 
 #include "uioddatatreeitem.h"
 
@@ -317,9 +317,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
 	uiStatsDisplay::Setup su; su.countinplot( false );
-	uiStatsDisplayWin* dwin = new uiStatsDisplayWin(
-				  applMgr()->applService().parent(), su, false);
-	dwin->statsDisplay().setDataPackID( dpid, dmid );
+	uiStatsDisplayWin* dwin =
+	    new uiStatsDisplayWin( applMgr()->applService().parent(), su,
+		    		   1, false );
+	dwin->statsDisplay()->setDataPackID( dpid, dmid );
 	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
 	dwin->setDeleteOnClose( true );
 	dwin->show();

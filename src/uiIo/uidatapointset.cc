@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.44 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.45 2009-05-12 08:26:28 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -698,7 +698,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
     const Stats::RunCalc<float>& rc = getRunCalc( dcid );
     if ( !statswin_ )
     {
-	statswin_ = new uiStatsDisplayWin( this, uiStatsDisplay::Setup() );
+	statswin_ = new uiStatsDisplayWin( this, uiStatsDisplay::Setup(), 1, false );
 	statswin_->windowClosed.notify( mCB(this,uiDataPointSet,statsClose) );
     }
     statswin_->setData( rc );

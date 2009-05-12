@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.11 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.12 2009-05-12 08:26:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "datapack.h"
 class uiHistogramDisplay;
 class uiGenInput;
+class uiLabel;
 template <class T> class Array2D;
 namespace Stats { template <class T> class RunCalc; }
 
@@ -28,11 +29,13 @@ public:
     {
 				Setup()
 				    : withplot_(true)
+				    , withname_(true)
 				    , withtext_(true)
 				    , vertaxis_(true)
 				    , countinplot_(false)	{}
 
 	mDefSetupMemb(bool,withplot)
+	mDefSetupMemb(bool,withname)
 	mDefSetupMemb(bool,withtext)
 	mDefSetupMemb(bool,vertaxis)
 	mDefSetupMemb(bool,countinplot)
@@ -42,6 +45,7 @@ public:
     bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
     void			setData(const float*,int sz);
     void			setData(const Array2D<float>*);
+    void			setDataName(const char*);
 
     uiHistogramDisplay*         funcDisp()        { return histgramdisp_; }
     void			setMarkValue(float,bool forx);
@@ -51,6 +55,7 @@ public:
 protected:
 
     uiHistogramDisplay*		histgramdisp_;
+    uiLabel*			namefld_;
     uiGenInput*			countfld_;
     uiGenInput*			minmaxfld_;
     uiGenInput*			avgstdfld_;

@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplaywin.h,v 1.5 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uistatsdisplaywin.h,v 1.6 2009-05-12 08:26:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
 #include "uistatsdisplay.h"
+class BufferStringSet;
+class uiComboBox;
 class uiStatsDisplay;
 namespace Stats { template <class T> class RunCalc; }
 
@@ -22,19 +24,23 @@ namespace Stats { template <class T> class RunCalc; }
 mClass uiStatsDisplayWin : public uiMainWin
 {
 public:
-
     				uiStatsDisplayWin(uiParent*,
-						  const uiStatsDisplay::Setup&,
-						  bool ismodal=false);
-
-    uiStatsDisplay&		statsDisplay()		{ return disp_; }
-    void                        setData(const Stats::RunCalc<float>&);
-    void			setDataName(const char*);
-    void			setMarkValue(float,bool forx);
+					const uiStatsDisplay::Setup&,int nr=1,
+					bool ismodal=true);
+    
+    uiStatsDisplay*		statsDisplay(int nr=0)	{ return disps_[nr]; }
+    void                        setData(const Stats::RunCalc<float>&,int nr=0);
+    void			addDataNames(const BufferStringSet&);
+    void			setDataName(const char*,int nr=0);
+    void			setMarkValue(float,bool forx,int nr=0);
+    void			showStat(int);
 
 protected:
 
-    uiStatsDisplay&		disp_;
+    ObjectSet<uiStatsDisplay>	disps_;
+    uiComboBox*			statnmcb_;
+
+    void			dataChanged(CallBacker*);
 };
 
 
