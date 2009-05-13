@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: visemobjdisplay.h,v 1.52 2009-05-11 06:41:19 cvsumesh Exp $
+ RCS:           $Id: visemobjdisplay.h,v 1.53 2009-05-13 14:08:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
     Color			getColor() const;
 
     bool			allowPicks() const	{ return true; }
-    void			getMousePosInfo(const visBase::EventInfo& pos,
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
 	    					BufferString& val,
 						BufferString& info) const;

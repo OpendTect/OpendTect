@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.10 2009-02-19 07:01:04 cvsnanne Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.11 2009-05-13 14:08:53 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,11 @@ public:
     static Horizon2DDisplay*	create()
 				mCreateDataObj(Horizon2DDisplay);
     void			setDisplayTransformation(mVisTrans*);
+
+    virtual void		getMousePosInfo(const visBase::EventInfo&,
+						const Coord3&,
+						BufferString& val,
+					       	BufferString& info) const;
 
     EM::SectionID		getSectionID(int visid) const;
 

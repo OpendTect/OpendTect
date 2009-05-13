@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.17 2009-02-19 07:01:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.18 2009-05-13 14:08:53 cvsjaap Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.17 2009-02-19 07:01:
 #include "keystrs.h"
 #include "rowcolsurface.h"
 #include "visdrawstyle.h"
+#include "visevent.h"
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
@@ -59,6 +60,39 @@ void Horizon2DDisplay::setDisplayTransformation( mVisTrans* nt )
     {
 	if( points_[idx] )
 	    points_[idx]->setDisplayTransformation(transformation_);
+    }
+}
+
+
+void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
+				       const Coord3& mousepos,
+				       BufferString& val,
+				       BufferString& info) const
+{
+    EMObjectDisplay::getMousePosInfo( eventinfo, mousepos, val, info );
+    const EM::SectionID sid =
+		    EMObjectDisplay::getSectionID( &eventinfo.pickedobjids );
+
+    mDynamicCastGet( const Geometry::RowColSurface*, rcs,
+		     emobject_->sectionGeometry(sid));
+
+    const StepInterval<int> rowrg = rcs->rowRange();
+    RowCol rc;
+    for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
+    {
+	const StepInterval<int> colrg = rcs->colRange( rc.row );
+	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col+=colrg.step )
+	{
+	    const Coord3 pos = emobject_->getPos( sid, rc.getSerialized() );
+	    if ( pos.sqDistTo(mousepos) < mDefEps )
+	    {
+		mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+		info += ", Linename: ";
+		info += h2d->geometry().lineName( rc.row );
+		return;
+	    }
+
+	}
     }
 }
 
