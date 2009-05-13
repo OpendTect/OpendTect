@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.10 2009-04-30 19:09:14 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.11 2009-05-13 20:00:11 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -482,6 +482,9 @@ bool VelGriddingStep::needsInput(const HorSampling&) const
 
 Task* VelGriddingStep::createTask()
 {
+    if ( !gridder_ )
+	return 0;
+
     return new VelGriddingStepTask( *this );
 }
 
@@ -574,12 +577,14 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	sources_ += source;
     }
 
+    Gridder2D* gridder = 0;
+
     PtrMan<IOPar> velgridpar = par.subselect( sKeyGridder() );
     if ( velgridpar )
     {
 	BufferString nm;
 	velgridpar->get( sKey::Name, nm );
-	Gridder2D* gridder = Gridder2D::factory().create( nm.buf() );
+	gridder = Gridder2D::factory().create( nm.buf() );
 	if ( !gridder )
 	    return false;
 	
@@ -588,9 +593,17 @@ bool VelGriddingStep::usePar( const IOPar& par )
 	    delete gridder;
 	    return false;
 	}
-
-	setGridder( gridder );
     }
+    else //Old format
+    {
+	float searchradius = mUdf(float);
+	par.get( "Searchradius", searchradius );
+	InverseDistanceGridder2D* newgridder = new InverseDistanceGridder2D;
+	newgridder->setSearchRadius( searchradius );
+	gridder = newgridder;
+    }
+
+    setGridder( gridder );
 
     return true;
 }
