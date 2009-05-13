@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.49 2009-03-23 05:08:44 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.50 2009-05-13 21:27:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,10 @@ template<class> friend class	uiMenuItemContainerBodyImpl;
 public:
 				uiMenuItem(const char* nm);
 				uiMenuItem(const char* nm,const CallBack& cb);
+				uiMenuItem(const char* nm,const CallBack& cb,
+					   const ioPixmap&);
+				//!<pixmap must be alive in memory until
+				//!<item is added to parent
 				~uiMenuItem();
 
     const QAction*		qAction() const		{ return qaction_; }
@@ -148,6 +152,7 @@ private:
     bool			checkable_;
     bool			checked_;
     bool			enabled_;
+    const ioPixmap*		pixmap_;
 
     static CallBack*		cmdrecorder_;
 };

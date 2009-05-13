@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.56 2009-03-23 05:08:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.57 2009-05-13 21:27:31 cvskris Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -124,6 +124,7 @@ void init( uiMenuItem* it, QAction* action, int id, int idx )
     it->setId( id );
     it->setMenu( this );
     it->setAction( action );
+    if ( it->pixmap_ ) { it->setPixmap( *it->pixmap_ ); it->pixmap_ = 0; }
     if ( it->isChecked() )
 	action->setChecked( it->isChecked() );
     action->setEnabled( it->isEnabled() );
@@ -164,33 +165,36 @@ private:
 
 //-----------------------------------------------------------------------
 
-uiMenuItem::uiMenuItem( const char* nm )
-    : NamedObject(nm)
-    , activated(this)
-    , activatedone(this)
-    , messenger_( *new i_MenuMessenger(this) ) 
-    , id_(-1)
-    , menu_(0)
-    , qaction_(0)
-    , enabled_(true)
-    , checked_(false)
+#define mInitMembers \
+    : NamedObject(nm) \
+    , activated(this) \
+    , activatedone(this) \
+    , messenger_( *new i_MenuMessenger(this) )  \
+    , id_(-1) \
+    , menu_(0) \
+    , qaction_(0) \
+    , enabled_(true) \
+    , checked_(false) \
+    , pixmap_(0) \
     , checkable_(false)
+
+uiMenuItem::uiMenuItem( const char* nm )
+    mInitMembers
 {}
 
 
 uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
-    : NamedObject(nm )
-    , activated(this)
-    , activatedone(this)
-    , messenger_( *new i_MenuMessenger(this) )
-    , id_(-1)
-    , menu_(0)
-    , qaction_(0)
-    , enabled_(true)
-    , checked_(false)
-    , checkable_(false)
+    mInitMembers
 { 
     activated.notify( cb ); 
+}
+
+
+uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb, const ioPixmap& p )
+    mInitMembers
+{ 
+    activated.notify( cb ); 
+    pixmap_ = &p;
 }
 
 
