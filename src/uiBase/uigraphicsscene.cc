@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.26 2009-04-27 10:37:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsscene.cc,v 1.27 2009-05-13 05:55:29 cvssatyaki Exp $";
 
 
 #include "uigraphicsscene.h"
@@ -45,6 +45,7 @@ public:
 
     void		setBackgroundOpaque( bool yn )	{ bgopaque_ = yn; }
 protected:
+    virtual void	wheelEvent(QGraphicsSceneWheelEvent* qevent);
     virtual void	keyPressEvent(QKeyEvent* qkeyevent);
     virtual void	mouseMoveEvent(QGraphicsSceneMouseEvent*);
     virtual void	mousePressEvent(QGraphicsSceneMouseEvent*);
@@ -76,6 +77,14 @@ void ODGraphicsScene::keyPressEvent( QKeyEvent* qkeyevent )
     OD::ButtonState modifier = OD::ButtonState( (int)qkeyevent->modifiers() );
     if ( key == OD::P && modifier == OD::ControlButton )
 	uiscene_.ctrlPPressed.trigger();
+}
+
+
+void ODGraphicsScene::wheelEvent( QGraphicsSceneWheelEvent* ev )
+{
+    MouseEvent me( OD::NoButton, (int)ev->pos().x(), (int)ev->pos().y(),
+	    	   ev->delta() );
+    uiscene_.getMouseEventHandler().triggerWheel( me );
 }
 
 
