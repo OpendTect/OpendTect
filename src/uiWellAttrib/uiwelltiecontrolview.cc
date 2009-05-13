@@ -9,12 +9,13 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.2 2009-04-28 14:30:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.3 2009-05-13 07:48:49 cvshelene Exp $";
 
 #include "uiwelltiecontrolview.h"
 
 #include "pixmap.h"
 #include "flatviewzoommgr.h"
+#include "mouseevent.h"
 #include "welltiedisp.h"
 #include "welltiepickset.h"
 
