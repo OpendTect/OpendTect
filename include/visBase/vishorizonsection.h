@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.14 2009-05-08 21:45:09 cvskris Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.15 2009-05-13 19:00:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -19,9 +19,11 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class BinIDValueSet;
+class SbBox3f;
 class SbVec2f;
 class SoAction;
 class SoCallback;
+class SoGetBoundingBoxAction;
 class SoGroup;
 class SoState;
 class SoIndexedLineSet;
@@ -44,7 +46,6 @@ class VisColorTab;
 class ColTabTextureChannel2RGBA;    
 class Coordinates;
 class HorizonSectionTile;
-class IndexedPolyLine;
 class TextureChannels;
 class TileResolutionTesselator;
 
@@ -111,10 +112,10 @@ protected:
     void			updateTexture(int channel);
     void			updateAutoResolution(SoState*);
     static void			updateAutoResolution(void*,SoAction*);
-    void			updateWireFrame(int res);
     void			turnOnWireFrame(int res);
     void			updateTileNeighbors(int nrrows,int nrcols);
     void			insertRowColTilesArray(bool row,bool bef,int);
+    void			updateBBox(SoGetBoundingBoxAction* action);
 
     Geometry::BinIDSurface*	geometry_;
     Threads::Mutex		geometrylock_;
@@ -127,7 +128,6 @@ protected:
     SoCallback*			callbacker_;
 
     Array2DImpl<HorizonSectionTile*> tiles_;
-    visBase::IndexedPolyLine*	wireframelines_[mHorSectNrRes];
     bool			usewireframe_;
 
     Transformation*		transformation_;
@@ -164,11 +164,15 @@ public:
     void			setNormal(int idx,const Coord3& normal);
     int				getNormalIdx(int crdidx,int res) const;
 
-    void			turnOnLines(bool);
     void			resetResolutionChangeFlag();
 
     void			tesselateActualResolution();
     void			updateGlue();
+
+    void			useWireframe(bool);
+    void			turnOnWireFrame(int res);
+    
+    SbBox3f			getBBox() const; 
     SoLockableSeparator*	getNodeRoot() const	{ return root_; }
 
 protected:
@@ -180,13 +184,14 @@ protected:
     void			tesselateGlue();
     void			tesselateResolution(int);
     void			updateBBox();
+    void			setWireFrame(int res);
 
+    bool			usewireframe_;
     HorizonSectionTile*		neighbors_[9];
 
     Coord3			bboxstart_;	//Display space
     Coord3			bboxstop_;	//Display space
     bool			needsupdatebbox_;
-    bool			lineison_;
 
     SoLockableSeparator*	root_;
     visBase::Coordinates*	coords_;
@@ -204,10 +209,13 @@ protected:
     SoGroup*			resolutions_[mHorSectNrRes];
     SoIndexedTriangleStripSet*	triangles_[mHorSectNrRes];
     SoIndexedLineSet*		lines_[mHorSectNrRes];
+    SoIndexedLineSet*		wireframes_[mHorSectNrRes];
     SoDGBIndexedPointSet*	points_[mHorSectNrRes];
+    SoSwitch*			wireframeswitch_[mHorSectNrRes];
 
     visBase::Coordinates*	gluecoords_;
     SoIndexedTriangleStripSet*	gluetriangles_;
+    SoSwitch*			gluelowdimswitch_;
     SoIndexedLineSet*		gluelines_;
     SoDGBIndexedPointSet*	gluepoints_;
     bool			glueneedsretesselation_;
