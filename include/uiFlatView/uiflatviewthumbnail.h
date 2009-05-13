@@ -6,19 +6,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.h,v 1.3 2009-01-08 07:14:05 cvsranojay Exp $
+ RCS:           $Id: uiflatviewthumbnail.h,v 1.4 2009-05-13 06:36:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uicanvas.h"
+#include "uigraphicsview.h"
 class uiFlatViewer;
+class uiRectItem;
 class MouseEventHandler;
 
 
 /*!\brief Shows a thumbnail with current position of a uiFlatViewer. */
 
-mClass uiFlatViewThumbnail : public uiCanvas
+mClass uiFlatViewThumbnail : public uiGraphicsView
 {
 public:
     			uiFlatViewThumbnail(uiParent*,uiFlatViewer&);
@@ -26,6 +27,7 @@ public:
 
     void		setColors(Color fg,Color bg);
 
+    void		draw();
     const uiFlatViewer&	viewer()		{ return viewer_; }
 
 protected:
@@ -37,6 +39,9 @@ protected:
     MouseEventHandler&	mousehandler_;
     Color		fgcolor_;
     Color		bgcolor_;
+
+    uiRectItem*		bgrectitem_;
+    uiRectItem*		fgrectitem_;
 
     void		reDrawHandler(uiRect);
     void		vwChg(CallBacker*);

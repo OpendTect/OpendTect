@@ -7,16 +7,21 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.11 2008-12-23 11:34:47 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiflatviewthumbnail.cc,v 1.12 2009-05-13 06:36:38 cvssatyaki Exp $";
 
+#include "uigraphicsscene.h"
+#include "uigraphicsitemimpl.h"
+#include "uirgbarraycanvas.h"
 #include "uiflatviewthumbnail.h"
 #include "uiflatviewcontrol.h"
 #include "uiflatviewer.h"
 #include "uiworld2ui.h"
 
 uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
-    	: uiCanvas(p,Color::White(),"Flatview thumbnail canvas")
+    	: uiGraphicsView(p,"Flatview thumbnail canvas")
 	, viewer_(fv)
+	, bgrectitem_(0)
+	, fgrectitem_(0)
 	, mousehandler_(getMouseEventHandler())
 	, feedbackwr_( 0 )
 {
@@ -59,21 +64,28 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 	{ double tmp = br.left(); br.setLeft(br.right()); br.setRight(tmp); } \
     if ( wr.bottom() > wr.top() ) \
 	{ double tmp = br.top(); br.setTop(br.bottom()); br.setBottom(tmp); } \
-    uiWorld2Ui w2u( br, uiSize(width(),height()) )
+    uiWorld2Ui w2u( br, uiSize(width(),height()) );
 
-void uiFlatViewThumbnail::reDrawHandler( uiRect updarea )
+void uiFlatViewThumbnail::draw()
 {
-    ioDrawTool& dt = drawTool();
-
     mDeclW2UVars( viewer_.curView() );
-    dt.setPenColor( Color::Black() );
     const uiRect uibr( w2u.transform(br) );
-    dt.drawRect( uibr );
+    if ( !bgrectitem_ )
+	bgrectitem_ = scene().addRect( uibr.left(), uibr.top(), uibr.width(),
+				     uibr.height() );
+    else
+	bgrectitem_->setRect( uibr.left(),uibr.top(),uibr.width(),uibr.height() );
 
     uiRect uiwr;
     getUiRect( feedbackwr_ ? *feedbackwr_ : wr , uiwr );
-    dt.setPenColor( fgcolor_ );
-    dt.drawRect( uiwr );
+    if ( !fgrectitem_ )
+	fgrectitem_ = scene().addRect( uiwr.left(), uiwr.top(), uiwr.width(),
+				     uiwr.height() );
+    else
+	fgrectitem_->setRect( uiwr.left(), uiwr.top(),
+			      uiwr.width(), uiwr.height() );
+    fgrectitem_->setPenColor( fgcolor_ );
+    fgrectitem_->setZValue( 1 );
 }
 
 
@@ -110,7 +122,7 @@ void uiFlatViewThumbnail::getUiRect( const uiWorldRect& inputwr,
 
 void uiFlatViewThumbnail::vwChg( CallBacker* )
 {
-    update();
+    draw();
 }
 
 
@@ -141,7 +153,7 @@ void uiFlatViewThumbnail::mouseMoveCB( CallBacker* )
     *feedbackwr_ = viewer_.control()->getNewWorldRect(wpt,wsz,br);
 
     mousehandler_.setHandled( true );
-    update();
+    draw();
 }
 
 
