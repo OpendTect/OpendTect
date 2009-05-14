@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.174 2009-04-14 14:17:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.175 2009-05-14 21:15:23 cvskris Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -1078,6 +1078,7 @@ public:
     void		setTitleText( const char* txt );
 
     bool		saveButtonChecked() const;
+    bool		hasSaveButton() const;
     uiButton*		button( uiDialog::Button but ) 
 			    { 
 				switch ( but )
@@ -1232,6 +1233,12 @@ void uiDialogBody::setCancelText( const char* txt )
 { 
     setup.canceltext_ = txt; 
     if ( cnclbut ) cnclbut->setText(txt);
+}
+
+
+bool uiDialogBody::hasSaveButton() const
+{
+    return savebut_cb;
 }
 
 
@@ -1533,5 +1540,7 @@ void uiDialog::setSaveButtonChecked(bool b)
     { mBody->setSaveButtonChecked(b); }
 bool uiDialog::saveButtonChecked() const
     { return mBody->saveButtonChecked(); }
+bool uiDialog::hasSaveButton() const
+    { return mBody->hasSaveButton(); }
 void uiDialog::setModal( bool yn )		{ mBody->setModal( yn ); }
 bool uiDialog::isModal() const			{ return mBody->isModal(); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.49 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uidialog.h,v 1.50 2009-05-14 21:15:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,6 +140,7 @@ public:
     void		setButtonSensitive(Button,bool);
     void		setSaveButtonChecked(bool);
     void		setTitleText(const char* txt);
+    bool		hasSaveButton() const;
     bool		saveButtonChecked() const;
 
     void		setSeparator(bool yn);
