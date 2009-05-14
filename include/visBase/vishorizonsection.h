@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.15 2009-05-13 19:00:02 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.16 2009-05-14 20:28:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class BinIDValueSet;
+class Color;
 class SbBox3f;
 class SbVec2f;
 class SoAction;
@@ -47,8 +48,14 @@ class ColTabTextureChannel2RGBA;
 class Coordinates;
 class HorizonSectionTile;
 class TextureChannels;
+class Texture2;
 class TileResolutionTesselator;
 
+/*!Horizon geometry is divided into 64*64 pixel tiles. Each tile has it's own 
+  glue edge to merge into it's neighbors in case of different resolutions. Each
+  tile has it's own coordinates and normals, but they all share the same texture  coordinates since the have the same size. Each tile holds its wireframe. It 
+  would only turn on wireframe or lines and points depends if you use wireframe
+  or not. */
 
 mClass HorizonSection : public VisualObjectImpl
 {
@@ -86,6 +93,7 @@ public:
     char			currentResolution() const;
     void			setResolution(int);
 
+    void			setWireframeColor(Color col);
     void			setColTabSequence(int channel,
 	    					  const ColTab::Sequence&);
     const ColTab::Sequence*	getColTabSequence(int channel) const;
@@ -112,7 +120,7 @@ protected:
     void			updateTexture(int channel);
     void			updateAutoResolution(SoState*);
     static void			updateAutoResolution(void*,SoAction*);
-    void			turnOnWireFrame(int res);
+    void			turnOnWireframe(int res);
     void			updateTileNeighbors(int nrrows,int nrcols);
     void			insertRowColTilesArray(bool row,bool bef,int);
     void			updateBBox(SoGetBoundingBoxAction* action);
@@ -157,6 +165,7 @@ public:
     void			setMaxSpacing(int); 
 				//Based on defined nrcells in the biginning
     int				getMaxSpacing() const	{ return maxspacing_; }
+    				//Not used yet
 
     void			setTextureSize(int rowsz,int colsz);
     void			setTextureOrigin(int globrow,int globcol);
@@ -169,8 +178,11 @@ public:
     void			tesselateActualResolution();
     void			updateGlue();
 
+    void			useShading(bool);
     void			useWireframe(bool);
-    void			turnOnWireFrame(int res);
+    void			turnOnWireframe(int res);
+    void			setWireframeMaterial(Material*);
+    void			setWireframeColor(Color col);
     
     SbBox3f			getBBox() const; 
     SoLockableSeparator*	getNodeRoot() const	{ return root_; }
@@ -184,9 +196,12 @@ protected:
     void			tesselateGlue();
     void			tesselateResolution(int);
     void			updateBBox();
-    void			setWireFrame(int res);
+    void			setWireframe(int res);
 
     bool			usewireframe_;
+    Material*			wireframematerial_;
+    bool			useshading_;
+
     HorizonSectionTile*		neighbors_[9];
 
     Coord3			bboxstart_;	//Display space
@@ -212,6 +227,8 @@ protected:
     SoIndexedLineSet*		wireframes_[mHorSectNrRes];
     SoDGBIndexedPointSet*	points_[mHorSectNrRes];
     SoSwitch*			wireframeswitch_[mHorSectNrRes];
+    SoSeparator*		wireframeseparator_[mHorSectNrRes];
+    Texture2*			wireframetexture_;
 
     visBase::Coordinates*	gluecoords_;
     SoIndexedTriangleStripSet*	gluetriangles_;
