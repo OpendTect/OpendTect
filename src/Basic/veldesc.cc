@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: veldesc.cc,v 1.11 2009-05-05 21:00:00 cvskris Exp $";
+static const char* rcsID = "$Id: veldesc.cc,v 1.12 2009-05-14 18:32:03 cvskris Exp $";
 
 
 #include "veldesc.h"
@@ -31,6 +31,18 @@ VelocityDesc::VelocityDesc()
 VelocityDesc::VelocityDesc( Type t )
     : type_( t )
 {}
+
+
+bool VelocityDesc::operator==( const VelocityDesc& b ) const
+{
+    return type_==b.type_ && statics_==b.statics_;
+}
+
+
+bool VelocityDesc::operator!=( const VelocityDesc& b ) const
+{
+    return !(*this==b);
+}
 
 
 void VelocityDesc::fillPar( IOPar& par ) const

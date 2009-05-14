@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2009
- RCS:		$Id: staticsdesc.h,v 1.1 2009-05-05 21:00:00 cvskris Exp $
+ RCS:		$Id: staticsdesc.h,v 1.2 2009-05-14 18:32:03 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -28,6 +28,9 @@ public:
     float		vel_;
     BufferString	velattrib_;	//attrib on statichorizon_
     					//if empty, use vel
+
+    bool		operator==(const StaticsDesc&) const;
+    bool		operator!=(const StaticsDesc&) const;
 
     static void		removePars(IOPar&);
     void		fillPar(IOPar&) const;

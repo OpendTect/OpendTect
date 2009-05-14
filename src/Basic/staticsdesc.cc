@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: staticsdesc.cc,v 1.1 2009-05-05 21:00:00 cvskris Exp $";
+static const char* rcsID = "$Id: staticsdesc.cc,v 1.2 2009-05-14 18:32:03 cvskris Exp $";
 
 
 #include "staticsdesc.h"
@@ -37,6 +37,25 @@ void StaticsDesc::fillPar( IOPar& par ) const
 	par.set( sKeyVelocityAttrib(), velattrib_ );
     }
 }
+
+
+bool StaticsDesc::operator==( const StaticsDesc& b ) const
+{
+    if ( horizon_!=b.horizon_ )
+	return false;
+
+    if ( velattrib_!=b.velattrib_ )
+	return false;
+
+    if ( velattrib_.isEmpty() )
+	return mIsEqual( vel_, b.vel_, 1e-3 );
+
+    return true;
+}
+
+
+bool StaticsDesc::operator!=( const StaticsDesc& b ) const
+{ return !(*this==b); }
 
 
 void StaticsDesc::removePars( IOPar& par )

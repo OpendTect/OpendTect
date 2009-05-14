@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.9 2009-05-05 21:00:00 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.10 2009-05-14 18:32:03 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -31,6 +31,9 @@ public:
 
     Type		type_;
     StaticsDesc		statics_;
+
+    bool		operator==(const VelocityDesc&) const;
+    bool		operator!=(const VelocityDesc&) const;
 
     static void		removePars(IOPar&);
     void		fillPar(IOPar&) const;
