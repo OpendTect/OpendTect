@@ -7,7 +7,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Umesh Sinha
 Date:          Sep 2008
-RCS:           $Id: velocityfunctionstored.h,v 1.1 2009-03-18 18:45:26 cvskris Exp $
+RCS:           $Id: velocityfunctionstored.h,v 1.2 2009-05-14 15:28:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,7 @@ mClass StoredFunctionSource : public FunctionSource
 public:
     static void                 initClass();
     				StoredFunctionSource();
-    static const char*          sType() { return "Velocity picks"; }
+    static const char*          sType() { return "StoredVelFunc"; }
     const char*                 type() const            { return sType(); }
     static IOObjContext&	ioContext();
 
