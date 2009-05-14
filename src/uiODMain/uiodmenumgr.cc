@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.171 2009-05-11 06:47:14 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.172 2009-05-14 02:25:07 cvskris Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.171 2009-05-11 06:47:14 cvsu
 #include "uifiledlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uivolprocchain.h"
 #include "uiodapplmgr.h"
 #include "uiodhelpmenumgr.h"
 #include "uiodscenemgr.h"
@@ -150,6 +151,10 @@ void uiODMenuMgr::enableActButton( bool yn )
 #define mInsertItem(menu,txt,id) \
     menu->insertItem( \
 	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick)), id )
+
+#define mInsertPixmapItem(menu,txt,id,pixmap) \
+    menu->insertItem( \
+	new uiMenuItem(txt,mCB(this,uiODMenuMgr,handleClick), pixmap), id )
 
 #define mCleanUpImpExpSets(set) \
 { \
@@ -361,22 +366,34 @@ void uiODMenuMgr::fillProcMenu()
 void uiODMenuMgr::fillAnalMenu()
 {
     analmnu_->clear();
-    if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
+    SurveyInfo::Pol2D survtype = SI().getSurvDataType();
+    if ( survtype == SurveyInfo::Both2DAnd3D )
     {
 	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "&Attributes" );
-	mInsertItem( aitm, "&2D ...", mEdit2DAttrMnuItm );
-	mInsertItem( aitm, "&3D ...", mEdit3DAttrMnuItm );
+	ioPixmap attr2d("attributes_2d.png");
+	ioPixmap attr3d("attributes_3d.png");
+	mInsertPixmapItem( aitm, "&2D ...", mEdit2DAttrMnuItm, &attr2d );
+	mInsertPixmapItem( aitm, "&3D ...", mEdit3DAttrMnuItm, &attr3d );
 
 	analmnu_->insertItem( aitm );
 	analmnu_->insertSeparator();
     }
     else
     {
-       	mInsertItem( analmnu_, "&Attributes ...", mEditAttrMnuItm );
+	ioPixmap attr("attributes.png");
+       	mInsertPixmapItem( analmnu_, "&Attributes ...", mEditAttrMnuItm,&attr );
 	analmnu_->insertSeparator();
     }
 
-    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot" );
+    if ( survtype!=SurveyInfo::Only2D )
+    {
+	analmnu_->insertItem( new uiMenuItem( "Volume Builder ...",
+		    mCB(&applMgr(),uiODApplMgr,doVolProc),
+		    &VolProc::uiChain::getPixmap() ) );
+    }
+
+    const ioPixmap xplotpixmap( "xplot.png" );
+    uiPopupMenu* crsplot = new uiPopupMenu( &appl_, "&Cross-plot",&xplotpixmap);
     mInsertItem( crsplot, "&Well logs <--> Attributes ...", mXplotMnuItm );
     mInsertItem( crsplot, "&Attributes <--> Attributes ...", mAXplotMnuItm );
     analmnu_->insertItem( crsplot );
@@ -552,6 +569,8 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB( dtecttb_,"attributes.png","Edit attributes",false,editAttr3DCB);
 	mAddTB( dtecttb_,"out_vol.png","Create seismic output",false,
 		seisOut3DCB);
+	mAddTB( dtecttb_,VolProc::uiChain::getPixmap(),
+		"Volume Builder",false,doVolProc);
     }
     else
     {
@@ -563,7 +582,8 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	       seisOut2DCB);
 	mAddTB(dtecttb_,"out_vol.png","Create 3D seismic output",false,
 	       seisOut3DCB);
-	mAddTB( dtecttb_,"volproc.png","Volume Builder",false,doVolProc);
+	mAddTB( dtecttb_,VolProc::uiChain::getPixmap(),
+		"Volume Builder",false,doVolProc);
     }
     mAddTB(dtecttb_,"xplot.png","Crossplot Attribute vs Well data",false,xPlot);
 
