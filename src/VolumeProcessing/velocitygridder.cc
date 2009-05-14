@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.11 2009-05-13 20:00:11 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.12 2009-05-14 19:58:42 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -327,7 +327,8 @@ bool VelGriddingFromVolumeTask::doPrepare( int nrthreads )
 }
 
 
-bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop, int thread )
+bool VelGriddingFromVolumeTask::doWork( od_int64 start, od_int64 stop,
+					int thread )
 {
     Attrib::DataCubes& output = *task_.getStep().getOutput();
     Array3D<float>& array = output.getCube(0);
@@ -446,12 +447,6 @@ VelGriddingStep::~VelGriddingStep()
 }
 
 
-const VelocityDesc& VelGriddingStep::outputVelocityType() const
-{
-    return sources_[0]->getDesc();
-}
-
-
 void VelGriddingStep::setSources( ObjectSet<Vel::FunctionSource>& nvfs )
 {
     deepUnRef( sources_ );
@@ -477,6 +472,24 @@ const ObjectSet<Vel::FunctionSource>& VelGriddingStep::getSources() const
 
 bool VelGriddingStep::needsInput(const HorSampling&) const
 { return false; }
+
+
+const VelocityDesc* VelGriddingStep::getVelDesc() const
+{
+    const int nrsources = sources_.size();
+    if ( !nrsources )
+	return 0;
+
+    const VelocityDesc& res = sources_[0]->getDesc();
+
+    for ( int idx=1; idx<nrsources; idx++ )
+    {
+	if ( res!=sources_[idx]->getDesc() )
+	    return 0;
+    }
+
+    return &res;
+}
 
 
 

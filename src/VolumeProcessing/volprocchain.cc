@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.9 2009-05-01 13:47:54 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.10 2009-05-14 19:58:42 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -335,6 +335,18 @@ void Chain::swapSteps( int o1, int o2 )
 void Chain::removeStep( int idx )
 {
     delete steps_.remove( idx );
+}
+
+
+const VelocityDesc* Chain::getVelDesc() const
+{
+    for ( int idx=steps_.size(); idx>=0; idx-- )
+    {
+	if ( steps_[idx]->getVelDesc() )
+	    return steps_[idx]->getVelDesc();
+    }
+
+    return 0;
 }
 
 

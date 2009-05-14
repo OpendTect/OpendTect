@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.14 2009-04-30 19:19:34 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.15 2009-05-14 19:58:42 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: od_process_volume.cc,v 1.14 2009-04-30 19:19:34
 #include "ioman.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
+#include "veldesc.h"
 
 #include "initalgo.h"
 #include "initgeometry.h"
@@ -78,6 +79,34 @@ bool BatchProgram::go( std::ostream& strm )
 	strm << "Could not find output ID!";
 	return false;
     }	
+
+    bool docommit = false;
+
+    VelocityDesc omfdesc;
+    const bool hasveldesc = omfdesc.usePar( outputobj->pars() );
+    const VelocityDesc* veldesc = chain->getVelDesc();
+    if ( veldesc )
+    {
+	if ( !hasveldesc || omfdesc!=*veldesc )
+	{
+	    veldesc->fillPar( outputobj->pars() );
+	    docommit = true;
+	}
+    }
+    else if ( hasveldesc )
+    {
+	VelocityDesc::removePars( outputobj->pars() );
+	docommit = true;
+    }
+
+    if ( docommit )
+    {
+	if ( !IOM().commitChanges( *outputobj ) )
+	{
+	    strm << "Warning: Could not write velocity information to database"
+	            " for " << outputobj->name() << "\n\n";
+	}
+    }
 
     const TypeSet<int> indices( 1, 0 );
     Attrib::DataCubesWriter writer( outputid, *cube, indices );

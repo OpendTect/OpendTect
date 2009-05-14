@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: volproctrans.cc,v 1.3 2008-11-25 15:35:23 cvsbert Exp $";
+static const char* rcsID = "$Id: volproctrans.cc,v 1.4 2009-05-14 19:58:42 cvskris Exp $";
 
 #include "volproctrans.h"
 
@@ -43,8 +43,13 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
 
     bs = tr->read( vr, *conn );
+    if ( bs.isEmpty() )
+    {
+	vr.setStorageID( ioobj->key() );
+	return true;
+    }
 
-    return bs.isEmpty();
+    return false;
 }
 
 
@@ -72,7 +77,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
 
 
 const char* dgbVolProcessingTranslator::read( VolProc::Chain& tr,
-					  Conn& conn )
+					      Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
 	return "Internal error: bad connection";
