@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.57 2009-05-13 21:27:31 cvskris Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.58 2009-05-14 02:23:56 cvskris Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -178,23 +178,18 @@ private:
     , pixmap_(0) \
     , checkable_(false)
 
-uiMenuItem::uiMenuItem( const char* nm )
+uiMenuItem::uiMenuItem( const char* nm, const ioPixmap* p )
     mInitMembers
-{}
-
-
-uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
-    mInitMembers
-{ 
-    activated.notify( cb ); 
+{
+    pixmap_ = p;
 }
 
 
-uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb, const ioPixmap& p )
+uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb, const ioPixmap* p )
     mInitMembers
 { 
     activated.notify( cb ); 
-    pixmap_ = &p;
+    pixmap_ = p;
 }
 
 
@@ -249,7 +244,15 @@ void uiMenuItem::setText( const char* txt )
 { if ( qaction_ ) qaction_->setText( txt ); }
 
 void uiMenuItem::setPixmap( const ioPixmap& pm )
-{ if ( qaction_ && pm.qpixmap() ) qaction_->setIcon( *pm.qpixmap() ); }
+{
+    if ( qaction_ )
+    {
+	if ( pm.qpixmap() ) qaction_->setIcon( *pm.qpixmap() );
+    }
+    else
+	pixmap_ = &pm;
+}
+
 
 void uiMenuItem::setShortcut( const char* sctxt )
 {
@@ -466,9 +469,10 @@ bool uiMenuBar::isSensitive() const
 
 CallBack* uiPopupMenu::interceptor_ = 0;
 
-uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
+uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm,
+			  const ioPixmap* pixmap )
     : uiMenuItemContainer( nm, 0, 0 )
-    , item_( *new uiPopupItem( *this, nm ) )
+    , item_( *new uiPopupItem( *this, nm, pixmap ) )
 {
     uiMenuItemContainerBodyImpl<QMenu>* bd =
 		    new uiMenuItemContainerBodyImpl<QMenu>( *this, parnt, 

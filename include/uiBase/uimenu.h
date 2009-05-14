@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.50 2009-05-13 21:27:31 cvskris Exp $
+ RCS:           $Id: uimenu.h,v 1.51 2009-05-14 02:23:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,10 +88,11 @@ mClass uiMenuItem : public NamedObject
 template<class> friend class	uiMenuItemContainerBodyImpl;
 
 public:
-				uiMenuItem(const char* nm);
-				uiMenuItem(const char* nm,const CallBack& cb);
+				uiMenuItem(const char* nm,const ioPixmap* = 0);
+				//!<pixmap must be alive in memory until
+				//!<item is added to parent
 				uiMenuItem(const char* nm,const CallBack& cb,
-					   const ioPixmap&);
+					   const ioPixmap* = 0);
 				//!<pixmap must be alive in memory until
 				//!<item is added to parent
 				~uiMenuItem();
@@ -162,9 +163,12 @@ mClass uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
-                                uiPopupItem( uiPopupMenu& pm, const char* nm )
-				    : uiMenuItem(nm)
+                                uiPopupItem( uiPopupMenu& pm, const char* nm,
+				       	     const ioPixmap* p = 0 )
+				    : uiMenuItem(nm,p)
 				    , popmenu_(&pm)	{}
+				//!<pixmap must be alive in memory until
+				//!<item is added to parent
 public:
 
     uiPopupMenu&		menu()		{ return *popmenu_; }
@@ -206,7 +210,10 @@ mClass uiPopupMenu : public uiMenuItemContainer
 
 public:                        
 				uiPopupMenu(uiParent*,
-					    const char* nm="uiPopupMenu");
+					    const char* nm="uiPopupMenu",
+					    const ioPixmap* = 0);
+				//!<pixmap must be alive in memory until
+				//!<item is added to parent
 
 				~uiPopupMenu();
 
@@ -242,6 +249,7 @@ private:
 
     static CallBack*		interceptor_;
     uiMenuItem*			interceptitem_;
+    ioPixmap*			pixmap_;
 };
 
 #endif
