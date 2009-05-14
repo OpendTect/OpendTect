@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.7 2009-05-14 02:24:39 cvskris Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.8 2009-05-14 21:18:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,8 +16,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "factory.h"
 #include "uivolprocstepdlg.h"
+
 class IOObj;
-class CtxtIOObj;
 class uiListBox;
 class uiButton;
 class uiMenuItem;
@@ -38,7 +38,7 @@ public:
 
     mDefineFactory2ParamInClass(uiStepDialog,uiParent*,Step*,factory);
 
-				uiChain(uiParent*,Chain&);
+				uiChain(uiParent*,Chain&, bool withprocessnow);
 				~uiChain();
 
     const MultiID&		storageID() const;
@@ -46,6 +46,8 @@ public:
     static const ioPixmap&	getPixmap();
 
 protected:
+
+    static const char*		sKeySettingKey();
 
     bool			acceptOK(CallBacker*);
     bool			doSave();
@@ -69,12 +71,6 @@ protected:
 
     IOPar			restorepar_;
     Chain&			chain_;
-    CtxtIOObj&			ctio_;
-
-    uiMenuItem*			newmenu_;
-    uiMenuItem*			loadmenu_;
-    uiMenuItem*			savemenu_;
-    uiMenuItem*			saveasmenu_;
 
     uiListBox*			factorylist_;
     uiButton*			addstepbutton_;
@@ -84,7 +80,6 @@ protected:
     uiButton*			movedownbutton_;
     uiButton*			propertiesbutton_;
     uiIOObjSel*			objfld_;
-
 };
 
 

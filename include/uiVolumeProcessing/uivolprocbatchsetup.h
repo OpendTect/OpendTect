@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uivolprocbatchsetup.h,v 1.4 2009-03-19 16:12:28 cvsbert Exp $
+ RCS:           $Id: uivolprocbatchsetup.h,v 1.5 2009-05-14 21:18:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,12 +25,13 @@ class uiVelocityDesc;
 namespace VolProc 
 {
 
+class Chain;
+
 mClass uiBatchSetup : public uiFullBatchDialog
 {
 
 public:
-                        uiBatchSetup(uiParent*,const IOPar* extraomf,
-				     const IOObj* initial=0);
+                        uiBatchSetup(uiParent*, const IOObj* setupsel = 0 );
                         ~uiBatchSetup();
 
 protected:
@@ -38,19 +39,14 @@ protected:
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
 
-    const IOPar*	extraomf_;
-    CtxtIOObj&		setupctxt_;
-    CtxtIOObj&		outputctxt_;
-
     uiIOObjSel*		setupsel_;
+    uiPushButton*	editsetup_;
     uiPosSubSel*	possubsel_;
     uiIOObjSel*		outputsel_;
-    uiGenInput*		outisvelfld_;
-    uiVelocityDesc*	uiveldesc_;
+    Chain*		chain_;
 
-    void		outTypChg(CallBacker*);
-    void		outSel(CallBacker*);
-
+    void		setupSelCB(CallBacker*);
+    void		editPushCB(CallBacker*);
 };
 
 }; //namespace

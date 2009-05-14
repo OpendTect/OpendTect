@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.15 2009-05-14 02:24:39 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.16 2009-05-14 21:18:16 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: uivolprocchain.cc,v 1.15 2009-05-14 02:24:39 cv
 #include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "settings.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
 #include "uibutton.h"
@@ -27,6 +28,10 @@ static const char* rcsID = "$Id: uivolprocchain.cc,v 1.15 2009-05-14 02:24:39 cv
 
 namespace VolProc
 {
+
+
+const char* uiChain::sKeySettingKey()
+{ return "dTect.ProcessVolumeBuilderOnOK"; }   
 
 mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiChain::factory );
 
@@ -84,15 +89,11 @@ const ioPixmap& uiChain::getPixmap()
 }
 
 
-uiChain::uiChain( uiParent* p, Chain& chn )
+uiChain::uiChain( uiParent* p, Chain& chn, bool withprocessnow )
     : uiDialog( p, uiDialog::Setup("Volume Builder: Setup",0,mTODOHelpID)
 	    .menubar(true) )
     , chain_(chn)
-    , ctio_(*mMkCtxtIOObj(VolProcessing))
 {
-    ctio_.ctxt.forread = false;
-    ctio_.setObj( IOM().get(chain_.storageID()) );
-
     uiToolBar* tb = new uiToolBar( this, "Load/Save toolbar", uiToolBar::Right);
     tb->addButton( Icons::openObject(), mCB(this,uiChain,readPush),
 	    	   "Read stored setup", false );
@@ -149,9 +150,21 @@ uiChain::uiChain( uiParent* p, Chain& chn )
 
     flowgrp->setHAlignObj( steplist_ );
 
-    objfld_ = new uiIOObjSel( this, ctio_, "On OK, store As" );
+    IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
+    ctxt.forread = false;
+
+    objfld_ = new uiIOObjSel( this, ctxt, "On OK, store As" );
+    objfld_->setInput( chain_.storageID() );
     objfld_->setConfirmOverwrite( false );
     objfld_->attach( alignedBelow, flowgrp );
+
+    if ( withprocessnow )
+    {
+	enableSaveButton( "Process on OK" );
+	bool enabled = false;
+	Settings::common().getYN( sKeySettingKey(), enabled );
+	setSaveButtonChecked( enabled );
+    }
 
     updateList();
     updateButtons();
@@ -160,15 +173,13 @@ uiChain::uiChain( uiParent* p, Chain& chn )
 
 uiChain::~uiChain()
 {
-    delete ctio_.ioobj; delete &ctio_;
 }
 
 
 void uiChain::updObj( const IOObj& ioobj )
 {
     chain_.setStorageID( ioobj.key() );
-    ctio_.setObj( ioobj.clone() );
-    objfld_->updateInput();
+    objfld_->setInput( ioobj.key() );
 }
 
 
@@ -180,24 +191,32 @@ const MultiID& uiChain::storageID() const
 
 bool uiChain::acceptOK(CallBacker*)
 {
-    if ( !objfld_->commitInput() )
+    const IOObj* ioobj = objfld_->ioobj( true );
+    if ( !ioobj )
     {
-	uiMSG().error( "Please enter a name for this builder setup" );
+	uiMSG().error("Please enter a name for the setup");
 	return false;
     }
 
-    chain_.setStorageID( ctio_.ioobj->key() );
+    chain_.setStorageID( ioobj->key() );
+    if ( hasSaveButton() )
+    {
+	Settings::common().setYN( sKeySettingKey(), saveButtonChecked() );
+	Settings::common().write();
+    }
+
     return doSave();
 }
 
 
 bool uiChain::doSave()
 {
-    if ( !ctio_.ioobj )
+    const IOObj* ioobj = objfld_->ioobj( true );
+    if ( !ioobj )
 	return doSaveAs();
 
     BufferString errmsg;
-    if ( VolProcessingTranslator::store( chain_, ctio_.ioobj, errmsg ) )
+    if ( VolProcessingTranslator::store( chain_, ioobj, errmsg ) )
 	return true;
 
      uiMSG().error( errmsg );
@@ -207,8 +226,9 @@ bool uiChain::doSave()
 
 bool uiChain::doSaveAs()
 {
-     uiIOObjSelDlg dlg( this, ctio_, "Volume Builder Setup" );
-     if ( !dlg.go() || !dlg.nrSel() )
+    IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
+    uiIOObjSelDlg dlg( this, ctxt, "Volume Builder Setup" );
+    if ( !dlg.go() || !dlg.nrSel() )
 	 return false;
 
      BufferString errmsg;
@@ -218,7 +238,6 @@ bool uiChain::doSaveAs()
 	 return true;
      }
 
-     ctio_.setObj( IOM().get(chain_.storageID()) );
      uiMSG().error( errmsg );
      return false;
 }
@@ -286,11 +305,9 @@ bool uiChain::showPropDialog( int idx )
 
 void uiChain::readPush( CallBacker* )
 {
-     IOPar* par = new IOPar;
-     par->setYN( VolProcessingTranslatorGroup::sKeyIsVolProcSetup(),
-	         toString(true));
-     ctio_.setPar( par );
-     uiIOObjSelDlg dlg( this, ctio_ );
+    IOObjContext ctxt = VolProcessingTranslatorGroup::ioContext();
+    ctxt.forread = true;
+    uiIOObjSelDlg dlg( this, ctxt );
      dlg.selGrp()->setConfirmOverwrite( false );
      if ( !dlg.go() || !dlg.nrSel() )
 	 return;

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.6 2009-05-05 16:48:33 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.7 2009-05-14 21:18:16 cvskris Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -13,73 +13,95 @@ static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.6 2009-05-05 16:48:3
 #include "seistrctr.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "volprocchain.h"
 
+#include "uibutton.h"
 #include "uipossubsel.h"
 #include "uiioobjsel.h"
 #include "uiseissel.h"
 #include "uigeninput.h"
 #include "uiveldesc.h"
+#include "uivolprocchain.h"
 #include "uimsg.h"
 
 
 
-VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf,
-			    const IOObj* initialioobj )
+VolProc::uiBatchSetup::uiBatchSetup( uiParent* p, const IOObj* initialsetup )
     : uiFullBatchDialog( p,
-	    uiFullBatchDialog::Setup("Volume Processing output")
+	    uiFullBatchDialog::Setup("Volume Builder: Create output")
 	    .procprognm("process_volume" ) )
-    , extraomf_( extraomf )
-    , setupctxt_(*mMkCtxtIOObj(VolProcessing))
-    , outputctxt_(*uiSeisSel::mkCtxtIOObj(Seis::Vol,false))
+    , chain_( 0 )
 {
     setCtrlStyle( DoAndStay );
-    if ( initialioobj )
-	setupctxt_.setObj( initialioobj->clone() );
-    setTitleText( "Build output volume" );
-    setupctxt_.ctxt.forread = true;
-    setupsel_ = new uiIOObjSel( uppgrp_, setupctxt_ );
+    setTitleText( 0 );
+
+    IOObjContext setupcontext = VolProcessingTranslatorGroup::ioContext();
+    setupcontext.forread = true;
+    setupsel_ = new uiIOObjSel( uppgrp_, setupcontext,
+	   			"Volume Builder setup" );
+    if ( initialsetup )
+	setupsel_->setInput( *initialsetup );
+    setupsel_->selectiondone.notify( mCB(this,uiBatchSetup,setupSelCB) );
+
+    editsetup_ = new uiPushButton( uppgrp_, "Create",
+	    VolProc::uiChain::getPixmap(),
+	    mCB(this, uiBatchSetup, editPushCB), false );
+    editsetup_->attach( rightOf, setupsel_ );
 
     possubsel_ = new uiPosSubSel( uppgrp_, uiPosSubSel::Setup(false,true) );
     possubsel_->attach( alignedBelow, setupsel_ );
 
-    outputsel_ = new uiSeisSel( uppgrp_, outputctxt_,
+    IOObjContext outputcontext = SeisTrcTranslatorGroup::ioContext();
+    uiSeisSel::fillContext( Seis::Vol, false, outputcontext );
+    outputsel_ = new uiSeisSel( uppgrp_, outputcontext, 
 	    			uiSeisSel::Setup(Seis::Vol) );
     outputsel_->attach( alignedBelow, possubsel_ );
-    outputsel_->selectiondone.notify( mCB(this,uiBatchSetup,outSel) );
-
-    static const char* typnms[] = { "Velocity", "Density", "Impedance", 0 };
-    outisvelfld_ = new uiGenInput( uppgrp_, "Output type",
-				     BoolInpSpec(true,"Velocity","Other") );
-    outisvelfld_->attach( alignedBelow, outputsel_ );
-    outisvelfld_->valuechanged.notify( mCB(this,uiBatchSetup,outTypChg) );
-    uiveldesc_ = new uiVelocityDesc( uppgrp_ );
-    uiveldesc_->attach( alignedBelow, outisvelfld_ );
 
     uppgrp_->setHAlignObj( setupsel_ );
 
+    setParFileNmDef( "volume_builder" );
+
     addStdFields( false, true );
+    setupSelCB( 0 );
 }
+
 
 VolProc::uiBatchSetup::~uiBatchSetup()
 {
-    delete setupctxt_.ioobj; delete &setupctxt_;
-    delete outputctxt_.ioobj; delete &outputctxt_;
+    if ( chain_ ) chain_->unRef();
 }
+
+
+void VolProc::uiBatchSetup::editPushCB( CallBacker* )
+{
+    const IOObj* setupioobj = setupsel_->ioobj(true);
+
+    if ( !chain_ )
+    {
+	chain_ = new VolProc::Chain;
+	chain_->ref();
+    }
+
+    if ( setupioobj && chain_->storageID()!=setupioobj->key() )
+    {
+	BufferString errmsg;
+	MouseCursorChanger mcc( MouseCursor::Wait );
+	VolProcessingTranslator::retrieve( *chain_, setupioobj, errmsg );
+    }
+
+    VolProc::uiChain dlg( this, *chain_, false );
+
+    if ( dlg.go() )
+    {
+	setupsel_->setInput( dlg.storageID() );
+    }
+} 
 
 
 bool VolProc::uiBatchSetup::prepareProcessing()
 {
-    if ( !setupsel_->commitInput() )
-    {
-	uiMSG().error("Please select a setup");
+    if ( !setupsel_->ioobj() || !outputsel_->ioobj() )
 	return false;
-    }
-
-    if ( !outputsel_->commitInput() )
-    {
-	uiMSG().error("Please enter an output name");
-	return false;
-    }
 
     return true;
 }
@@ -87,53 +109,21 @@ bool VolProc::uiBatchSetup::prepareProcessing()
 
 bool VolProc::uiBatchSetup::fillPar( IOPar& par )
 {
-    if ( !setupctxt_.ioobj || !outputctxt_.ioobj )
+    const IOObj* setupioobj = setupsel_->ioobj(true);
+    PtrMan<IOObj> outputioobj = outputsel_->getIOObj(true);
+    if ( !setupioobj || !outputioobj )
 	return false; 
 
-    par.set( VolProcessingTranslatorGroup::sKeyChainID(),
-	    setupctxt_.ioobj->key() );
-
+    par.set( VolProcessingTranslatorGroup::sKeyChainID(), setupioobj->key() );
     possubsel_->fillPar( par );
 
-    par.set( VolProcessingTranslatorGroup::sKeyOutputID(),
-	     outputctxt_.ioobj->key() );
-
-    bool needcommit = false; bool commitfailed = false;
-    if ( extraomf_ )
-    {
-	outputctxt_.ioobj->pars().merge( *extraomf_ );
-	needcommit = true;
-    }
-    if ( outisvelfld_->getBoolValue() )
-    {
-	commitfailed = !uiveldesc_->updateAndCommit( *outputctxt_.ioobj, true );
-	needcommit = false;
-    }
-
-    if ( commitfailed || needcommit )
-    {
-	if ( commitfailed || !IOM().commitChanges( *outputctxt_.ioobj ) )
-	{
-	    uiMSG().error("Cannot write .omf file, check file permissions");
-	    return false;
-	}
-    }
-
+    par.set( VolProcessingTranslatorGroup::sKeyOutputID(), outputioobj->key() );
     return true;
 }
 
 
-void VolProc::uiBatchSetup::outTypChg( CallBacker* )
+void VolProc::uiBatchSetup::setupSelCB( CallBacker* )
 {
-    uiveldesc_->display( outisvelfld_->getBoolValue() );
-}
-
-
-void VolProc::uiBatchSetup::outSel( CallBacker* )
-{
-    if ( !outputsel_->commitInput() || !outputctxt_.ioobj ) return;
-    VelocityDesc vd;
-    const bool isvel = vd.usePar( outputctxt_.ioobj->pars() );
-    uiveldesc_->set( vd );
-    outisvelfld_->setValue( isvel );
+    const IOObj* outputioobj = setupsel_->ioobj(true);
+    editsetup_->setText( outputioobj ? "Edit ..." : "Create ..." );
 }
