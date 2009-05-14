@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.6 2009-01-06 10:16:09 cvsranojay Exp $
+ RCS:		$Id: volprocchain.h,v 1.7 2009-05-14 19:59:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 namespace Attrib { class DataCubes; }
 
+class VelocityDesc;
 class Executor;
 class HorSampling;
 template <class T> class StepInterval;
@@ -55,6 +56,8 @@ public:
     void			insertStep(int,Step*);
     void			swapSteps(int,int);
     void			removeStep(int);
+
+    const VelocityDesc*		getVelDesc() const;
 
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -107,6 +110,8 @@ public:
     virtual void		setOutput(Attrib::DataCubes*);
     const Attrib::DataCubes*	getOutput() const	{ return output_; }
     Attrib::DataCubes*		getOutput()		{ return output_; }
+
+    virtual const VelocityDesc*	getVelDesc() const	{ return 0; }
 
     virtual bool		areSamplesIndependent() const { return true; }
     				//!<\returns wether samples int the output

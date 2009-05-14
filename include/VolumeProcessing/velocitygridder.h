@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.5 2009-02-02 15:51:11 cvskris Exp $
+ RCS:		$Id: velocitygridder.h,v 1.6 2009-05-14 19:59:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,7 +38,7 @@ public:
     			~VelGriddingStep();
 
     const char*		type() const			{ return sType(); }
-    const VelocityDesc& outputVelocityType() const;
+    const VelocityDesc* getVelDesc() const;
 
     void		setSources(ObjectSet<Vel::FunctionSource>&);
     const ObjectSet<Vel::FunctionSource>&	getSources() const;
