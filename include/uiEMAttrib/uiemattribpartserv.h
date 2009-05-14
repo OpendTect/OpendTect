@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.8 2009-03-13 08:45:47 cvssatyaki Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.9 2009-05-14 09:05:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 namespace Attrib { class DescSet; }
+template <class T> class TypeSet;
 class BufferStringSet;
 class DataPointSet;
 class NLAModel;
@@ -39,6 +40,7 @@ public:
     static const int		evStoreShiftHorizons()	{ return 2; }
     static const int		evShiftDlgOpened()	{ return 3; }
     static const int		evShiftDlgClosed()	{ return 4; }
+    static const int		evShiftDlgFinalised()	{ return 5; }
 
     enum HorOutType		{ OnHor, AroundHor, BetweenHors };
     void			createHorizonOutput(HorOutType);
@@ -50,7 +52,8 @@ public:
     void			setDescSet( const Attrib::DescSet* ads )
 				{ descset_ = ads; }
 
-    void			showHorShiftDlg(uiParent*,const EM::ObjectID&);
+    void			showHorShiftDlg(uiParent*,const EM::ObjectID&,
+	    					const TypeSet<int>&);
     void			getDataPointSet(const EM::ObjectID&,
 					const EM::SectionID&, DataPointSet&,
 					float shift); 
@@ -59,8 +62,9 @@ public:
     float			getShift() const;
     void			setAttribID( Attrib::DescID id )
     				{ attribid_ = id; }
-    void			setAttribIdx( int idx ) { attribidx_ = idx; }
+    void			setAttribIdx(int);
     Attrib::DescID		attribID() const	{ return attribid_; }
+    const TypeSet<int>&		attribIds() const;
     int				attribIdx() const	{ return attribidx_; }
 					//Works only in case of Shift Dlg
     int				textureIdx() const;

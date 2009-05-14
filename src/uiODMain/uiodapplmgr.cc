@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.322 2009-05-07 07:39:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.323 2009-05-14 09:05:51 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -427,6 +427,56 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 }
 
 
+void uiODApplMgr::calShiftAtribute( int attrib, const Attrib::SelSpec& as,
+				    bool additem )
+{
+    uiTreeItem* parent = sceneMgr().findItem( visserv_->getEventObjId() );
+    ObjectSet<DataPointSet> dpsset;
+    EMAttribServer()->fillHorShiftDPS( dpsset );
+    if ( !parent ) return;
+
+    if ( attrib < 0 && additem )
+    {
+	uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
+		    visserv_->getEventObjId(), 0, typeid(*parent).name() );
+	parent->addChild( itm, false );
+	attrib = visserv_->addAttrib( visserv_->getEventObjId() );
+	emattrserv_->setAttribIdx( attrib );
+    }
+
+    attrserv_->setTargetSelSpec( as );
+    attrserv_->createOutput( dpsset );
+
+    TypeSet<DataPointSet::DataRow> drset;
+    BufferStringSet nmset;
+    DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
+    dps->bivSet().setNrVals( dpsset.size()+1 );
+
+    BinIDValueSet::Pos bvspos;
+    while ( dpsset[0]->bivSet().next(bvspos) )
+    {
+	TypeSet<float> attribvals;
+	attribvals += 0.0;
+	BinID binid;
+	for ( int idx=0; idx<dpsset.size(); idx++ )
+	{
+	    float zval=0;
+	    float attribval=0;
+	    dpsset[idx]->bivSet().get( bvspos, binid, zval, attribval );
+	    attribvals += attribval;
+	}
+	dps->bivSet().add( binid, attribvals.arr() );
+    }
+    dps->dataChanged();
+    visServer()->setRandomPosData( visServer()->getEventObjId(),
+				   attrib, dps );
+    visserv_->setSelSpec( visserv_->getEventObjId(), attrib, as );
+    visServer()->selectTexture( visServer()->getEventObjId(), attrib,
+				EMAttribServer()->textureIdx() );
+    parent->updateColumnText( uiODSceneMgr::cNameColumn() );
+}
+
+
 bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 {
     /* Perhaps better to merge this with uiODApplMgr::getNewData(), 
@@ -662,6 +712,7 @@ bool uiODApplMgr::handleWellAttribServEv( int evid )
 	visdpsdispmgr_->lock();
 	const int dispid =
 	    visdpsdispmgr_->addDisplay( sceneids, wellattrserv_->getPointSet());
+	wellattrserv_->setDPSDispMgr( visdpsdispmgr_ );
 	wellattrserv_->setVisDpsId( dispid );
 	visdpsdispmgr_->unLock();
     }
@@ -730,54 +781,9 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 {
     if ( evid == uiEMAttribPartServer::evCalcShiftAttribute() )
     {
-	ObjectSet<DataPointSet> dpsset;
-	EMAttribServer()->fillHorShiftDPS( dpsset );
-	uiTreeItem* parent = sceneMgr().findItem( visserv_->getEventObjId() );
-	if ( !parent ) return false;
-
-	if ( emattrserv_->attribIdx() < 0 )
-	{
-	    uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
-			visserv_->getEventObjId(), 0, typeid(*parent).name() );
-	    parent->addChild( itm, false );
-	    emattrserv_->setAttribIdx(
-		    visserv_->addAttrib(visserv_->getEventObjId()) );
-	}
-
 	const Attrib::SelSpec as( emattrserv_->getAttribBaseNm(),
 				  emattrserv_->attribID() );
-	attrserv_->setTargetSelSpec( as );
-	attrserv_->createOutput( dpsset );
-
-	TypeSet<DataPointSet::DataRow> drset;
-	BufferStringSet nmset;
-	DataPointSet* dps = new DataPointSet( drset, nmset, false, true );
-	dps->bivSet().setNrVals( dpsset.size()+1 );
-
-	BinIDValueSet::Pos bvspos;
-	while ( dpsset[0]->bivSet().next(bvspos) )
-	{
-	    TypeSet<float> attribvals;
-	    attribvals += 0.0;
-	    BinID binid;
-	    for ( int idx=0; idx<dpsset.size(); idx++ )
-	    {
-		float zval=0;
-		float attribval=0;
-		dpsset[idx]->bivSet().get( bvspos, binid, zval, attribval );
-		attribvals += attribval;
-	    }
-	    dps->bivSet().add( binid, attribvals.arr() );
-	}
-	dps->dataChanged();
-	visServer()->setRandomPosData( visServer()->getEventObjId(),
-				       EMAttribServer()->attribIdx(), dps );
-	visserv_->setSelSpec( visserv_->getEventObjId(),
-			      EMAttribServer()->attribIdx(), as );
-	visServer()->selectTexture( visServer()->getEventObjId(),
-				    EMAttribServer()->attribIdx(),
-				    EMAttribServer()->textureIdx() );
-	parent->updateColumnText( uiODSceneMgr::cNameColumn() );
+	calShiftAtribute( EMAttribServer()->attribIdx(), as, true );
     }
     else if ( evid == uiEMAttribPartServer::evHorizonShift() )
     {
@@ -841,6 +847,21 @@ bool uiODApplMgr::handleEMAttribServEv( int evid )
 	curshift += emattrserv_->getShift();
 	visserv_->setRandomPosData( visid, emattrserv_->attribIdx(), &data );
 	visserv_->setAttribShift( visid, emattrserv_->attribIdx(), curshift );
+    }
+    else if ( evid == uiEMAttribPartServer::evShiftDlgFinalised() )
+    {
+	const TypeSet<int>& attrids = emattrserv_->attribIds();
+	for ( int idx=0; idx<attrids.size(); idx++ )
+	{
+	    const int attribidx = attrids[idx];
+	    const Attrib::SelSpec* as = visserv_->getSelSpec(
+		    visserv_->getEventObjId(), attribidx );
+	    calShiftAtribute( attribidx, *as, false );
+	    TypeSet<float> curshift;
+	    curshift += emattrserv_->getShift();
+	    visserv_->setAttribShift( visserv_->getEventObjId(), attribidx,
+		    		      curshift );
+	}
     }
     else
 	pErrMsg("Unknown event from emattrserv");

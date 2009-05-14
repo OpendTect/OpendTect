@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.83 2009-04-27 11:54:57 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.84 2009-05-14 09:05:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ class uiPickPartServer;
 class uiSeisPartServer;
 class uiSoViewer;
 class uiStratTreeWin;
+class uiTreeItem;
 class uiVisPartServer;
 class uiWellAttribPartServer;
 class uiWellPartServer;
@@ -39,6 +40,7 @@ class Coord;
 class DataPointSet;
 class MultiID;
 class ODSession;
+namespace Attrib{ class SelSpec; }
 namespace Pick { class Set; }
 
 /*!\brief Application level manager - ties part servers together
@@ -139,6 +141,9 @@ public:
     void			resetServers();
     void			updateColorTable(int visid,int attrib);
     void			saveDefColTab(int visid,int attrib);
+    void			calShiftAtribute(int attrib,
+	                                        const Attrib::SelSpec& as,
+						bool additem );
     NotifierAccess*		colorTableSeqChange();
     void			manSurvCB(CallBacker*)	  { manageSurvey(); }
     void			seisOut2DCB(CallBacker*)  { createVol(true); }

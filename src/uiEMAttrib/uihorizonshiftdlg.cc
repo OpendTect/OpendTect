@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.2 2009-03-13 08:45:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uihorizonshiftdlg.cc,v 1.3 2009-05-14 09:05:51 cvssatyaki Exp $";
 
 #include "uihorizonshiftdlg.h"
 
@@ -169,6 +169,9 @@ void uiHorizonShiftDialog::shiftCB( CallBacker* )
 
 bool uiHorizonShiftDialog::acceptOK( CallBacker* )
 {
-    slider_->processInput();
+    const float shiftval = slider_->sldr()->getValue();
+    shiftrg_ = StepInterval<float>( shiftval, 0, shiftval );
+    shiftrg_.sort();
+    shiftCB( 0 );
     return true;
 }

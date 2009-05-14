@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          Feb 2009
- RCS:           $Id: uihorizonshiftdlg.h,v 1.2 2009-03-13 08:45:47 cvssatyaki Exp $
+ RCS:           $Id: uihorizonshiftdlg.h,v 1.3 2009-05-14 09:05:51 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,15 @@ public:
     const StepInterval<float>&  shiftIntv()		{ return shiftrg_; }
     void			setShiftIntv( const StepInterval<float>& rg )
 							{ shiftrg_ = rg; }
+    TypeSet<int>&		attribIds()		{ return attribids_; }
+    const TypeSet<int>&		attribIds() const	{ return attribids_; }
     Attrib::DescID		attribID() const	{ return attrid_; }
     float			curShift() const	{ return curshift_; }
     int				curShiftIdx() const	{ return curshiftidx_; }
     void			setShiftIdx( int idx )
 							{ curshiftidx_ = idx; }
+    void			setAttribIds( const TypeSet<int>& ids )
+							{ attribids_ = ids; }
     bool			doStore() const;
     const EM::ObjectID&		emID() const		{ return emid_; }
     const char*			getAttribName() const
@@ -74,6 +78,7 @@ protected:
     BufferString		attribnm_;
     StepInterval<float>		shiftrg_;
     StepInterval<float>		calcshiftrg_;
+    TypeSet<int>		attribids_;
     EM::Horizon3D*		emhor3d_;
     EM::ObjectID		emid_;
 };

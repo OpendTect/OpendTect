@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.21 2009-05-07 07:39:38 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.22 2009-05-14 09:05:51 cvssatyaki Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -277,8 +277,17 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==shiftmnuitem_.id )
     {
+	TypeSet<int> attribids;
+	const int nrattrib = visserv_->getNrAttribs( displayID());
+	for ( int idx=0; idx<nrattrib; idx++ )
+	{
+	    const Attrib::SelSpec* as = visserv_->getSelSpec(
+		    displayID(), idx );
+	    if ( as->id().isValid() )
+		attribids += idx;
+	}
 	emattrserv->setDescSet( attrserv->curDescSet(false) );
-	emattrserv->showHorShiftDlg( getUiParent(), emid_ );
+	emattrserv->showHorShiftDlg( getUiParent(), emid_, attribids );
     }
     else if ( mnuid==removeselectionmnuitem_.id )
     {
