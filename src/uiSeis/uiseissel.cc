@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseissel.cc,v 1.77 2009-05-05 16:45:10 cvskris Exp $";
+static const char* rcsID = "$Id: uiseissel.cc,v 1.78 2009-05-14 21:17:12 cvskris Exp $";
 
 #include "uiseissel.h"
 
@@ -295,6 +295,7 @@ void uiSeisSel::fillContext( Seis::GeomType geom, bool forread,
 			     IOObjContext& ctxt )
 {
     ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( geom, forread );
+    ctxt.forread = forread;
 
     if ( ctxt.deftransl.isEmpty() )
 	ctxt.deftransl = geom==Seis::Line ? "2D" : "CBVS";
