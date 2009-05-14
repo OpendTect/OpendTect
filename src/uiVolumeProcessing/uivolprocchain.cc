@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.14 2009-04-29 22:00:34 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.15 2009-05-14 02:24:39 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -70,9 +70,17 @@ bool uiStepDialog::acceptOK( CallBacker* )
 	uiMSG().error( "Please enter a name for this step" );
 	return false;
     }
+
     step_->setUserName( nm.buf() );
 
     return true;
+}
+
+
+const ioPixmap& uiChain::getPixmap()
+{
+    static ioPixmap res("volproc.png");
+    return res;
 }
 
 

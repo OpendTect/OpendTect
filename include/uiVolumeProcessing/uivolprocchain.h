@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.6 2009-03-23 11:02:00 cvsbert Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.7 2009-05-14 02:24:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,8 @@ public:
 				~uiChain();
 
     const MultiID&		storageID() const;
+
+    static const ioPixmap&	getPixmap();
 
 protected:
 
