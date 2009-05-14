@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.52 2009-04-10 14:18:32 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.53 2009-05-14 21:19:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -166,10 +166,7 @@ public:
     void		showXPlot(CallBacker*);
 
     void		doVolProc();
-    void		createVolProcOutput(const char* dlgcaption=0,
-	    				    const IOPar* extrapar=0,
-					    const IOObj* ioobj=0);
-    			//!<extrapar will be added to created volume's IOObj
+    void		createVolProcOutput( const IOObj* setupsel = 0);
 
 protected:
 

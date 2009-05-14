@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.118 2009-04-10 14:18:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.119 2009-05-14 21:19:08 cvskris Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -131,23 +131,18 @@ void uiAttribPartServer::doVolProc()
 	volprocchain_->ref();
     }
 
-    VolProc::uiChain dlg( parent(), *volprocchain_ );
-    if ( dlg.go() )
+    VolProc::uiChain dlg( parent(), *volprocchain_, true );
+    if ( dlg.go() && dlg.saveButtonChecked() )
     {
 	PtrMan<IOObj> ioobj = IOM().get( volprocchain_->storageID() );
-	createVolProcOutput(0,0,ioobj);
+	createVolProcOutput( ioobj );
     }
 }
 
 
-void uiAttribPartServer::createVolProcOutput( const char* caption,
-					    const IOPar* extrapar,
-   					    const IOObj* ioobj )
+void uiAttribPartServer::createVolProcOutput( const IOObj* sel )
 {
-    if ( !caption ) caption = "Create Volume Builder output";
-    VolProc::uiBatchSetup dlg( parent(), extrapar, ioobj );
-    dlg.setCaption( caption );
-    dlg.setTitleText( caption );
+    VolProc::uiBatchSetup dlg( parent(), sel );
     dlg.go();
 }
 
