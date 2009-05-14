@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.3 2009-05-04 11:15:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiprestackprocessorsel.cc,v 1.4 2009-05-14 21:27:55 cvskris Exp $";
 
 #include "uiprestackprocessorsel.h"
 
@@ -20,14 +20,15 @@ namespace PreStack
 {
 
 uiProcSel::uiProcSel( uiParent* p, const char* lbl,
-				      const MultiID* mid ) 
+				   const MultiID* mid ) 
     : uiGroup( p )
-    , ctio_( *new CtxtIOObj(PreStackProcTranslatorGroup::ioContext() ) )
 {
-    if ( mid ) ctio_.ioobj = IOM().get( *mid );
-    selfld_ = new uiIOObjSel( this, ctio_, lbl );
+    const IOObjContext ctxt = PreStackProcTranslatorGroup::ioContext();
+    selfld_ = new uiIOObjSel( this, ctxt, lbl );
+    PtrMan<const IOObj> ioobj = mid ? IOM().get(*mid) : 0;
+    if ( ioobj ) selfld_->setInput( *ioobj );
     selfld_->selectiondone.notify( mCB(this,uiProcSel,selDoneCB));
-    editbut_ = new uiPushButton( this, ctio_.ioobj ? "Edit" : "Add",
+    editbut_ = new uiPushButton( this, ioobj ? "Edit" : "Create",
 	    			mCB(this,uiProcSel,editPushCB), false );
     editbut_->attach( rightOf, selfld_ );
 
@@ -37,8 +38,6 @@ uiProcSel::uiProcSel( uiParent* p, const char* lbl,
 
 uiProcSel::~uiProcSel()
 {
-    delete ctio_.ioobj;
-    delete &ctio_;
 }
 
 
@@ -51,27 +50,25 @@ void uiProcSel::setSel( const MultiID& mid )
 
 bool uiProcSel::getSel( MultiID& mid ) const
 {
-    if ( !selfld_->commitInput() )
+    const IOObj* ioobj = selfld_->ioobj();
+    if ( !ioobj )
 	return false;
 
-    mid = ctio_.ioobj->key();
+    mid = ioobj->key();
     return true;
 }
 
 
 void uiProcSel::selDoneCB( CallBacker* cb )
 {
-    if ( selfld_->commitInput() )
-	editbut_->setText( ctio_.ioobj ? "Edit ..." : "Add ..." );
+    const IOObj* ioobj = selfld_->ioobj( true );
+    editbut_->setText( ioobj ? "Edit ..." : "Add ..." );
 }
 
 
 void uiProcSel::editPushCB( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("Edit prestack processing",
-					0, "od:Todo") );
-    dlg.enableSaveButton("Save on OK");
-    dlg.setSaveButtonChecked( true );
+    BufferString title;
     ProcessManager man;
     MultiID mid;
     if ( getSel(mid) )
@@ -79,8 +76,16 @@ void uiProcSel::editPushCB( CallBacker* )
 	BufferString errmsg;
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	PreStackProcTranslator::retrieve( man, ioobj, errmsg );
+	title = "Edit";
     }
+    else
+	title = "Create";
 
+    title += " prestack processing";
+
+    uiDialog dlg( this, uiDialog::Setup( title.buf(), 0, "od:Todo") );
+    dlg.enableSaveButton("Save on OK");
+    dlg.setSaveButtonChecked( true );
     PreStack::uiProcessorManager* grp = new uiProcessorManager( &dlg, man );
     grp->setLastMid( mid );
 

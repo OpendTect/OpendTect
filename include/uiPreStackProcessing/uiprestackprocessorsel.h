@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Jan 2009
- RCS:		$Id: uiprestackprocessorsel.h,v 1.1 2009-02-04 16:48:00 cvskris Exp $
+ RCS:		$Id: uiprestackprocessorsel.h,v 1.2 2009-05-14 21:27:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "uigroup.h"
 
-class CtxtIOObj;
 class uiIOObjSel;
 class uiPushButton;
 class MultiID;
@@ -37,7 +36,6 @@ protected:
     void		editPushCB(CallBacker*);
     void		selDoneCB(CallBacker*);
 
-    CtxtIOObj&		ctio_;
     uiIOObjSel*		selfld_;
     uiPushButton*	editbut_;
 };
