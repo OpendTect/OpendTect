@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer
  Date:          Mar 2009
- RCS:           $Id: factory.cc,v 1.1 2009-03-27 03:11:18 cvskris Exp $
+ RCS:           $Id: factory.cc,v 1.2 2009-05-14 15:26:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: factory.cc,v 1.1 2009-03-27 03:11:18 cvskris Exp $";
+static const char* rcsID = "$Id: factory.cc,v 1.2 2009-05-14 15:26:09 cvskris Exp $";
 
 #include "factory.h"
 
@@ -68,9 +68,9 @@ int FactoryBase::indexOf( const char* name ) const
     SeparString sep( 0, cSeparator() );
     for ( int idx=0; idx<names_.size(); idx++ )
     {
-	if ( !names_[idx] )
+	if ( !aliases_[idx] )
 	    continue;
-	sep = names_[idx]->buf();
+	sep = aliases_[idx]->buf();
 	if ( sep.indexOf( name )!=-1 )
 	    return idx;
     }
