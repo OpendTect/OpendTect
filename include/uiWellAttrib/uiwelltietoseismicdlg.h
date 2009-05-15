@@ -15,22 +15,23 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 #include "welltiesetup.h"
+#include "bufstringset.h"
 
-template <class T> class Array1DImpl;
-class DataPointSet;
-class uiWellTieView;
-class uiWellTieControlView;
-class uiWellTieWavelet;
-class uiTable;
-class UserPicks;
+class WellTieDataMGR;
+class WellTieParams;
 class WellTieToSeismic;
 class WellTiePickSetManager;
 
 class uiGroup;
 class uiToolBar;
+class uiGenInput;
 class uiPushButton;
 class uiCheckBox;
 
+class uiWellTieStretch;
+class uiWellTieView;
+class uiWellTieControlView;
+class uiWellTieWavelet;
 
 namespace Attrib { class DescSet; }
 namespace Well
@@ -47,35 +48,39 @@ public:
 	    ~uiWellTieToSeismicDlg();
 
 
-    const WellTieSetup&	tieSetup()	{ return wtsetup_; }    
+    const WellTieSetup&	Setup()		{ return setup_; }    
 	
 protected:
 
+    BufferStringSet     markernames_;
     Well::Data*		wd_;
-    WellTieSetup	wtsetup_;
-    WellTieToSeismic*   wts_;
-
-    ObjectSet< Array1DImpl<float> >  dispdata_;   
-    ObjectSet< Array1DImpl<float> >  orgdispdata_;   
-    DataPointSet*	dps_;
-    WellTiePickSetManager* picksetmgr_;
+    WellTieSetup	setup_;
+    WellTieParams*	params_;
+    WellTieToSeismic*   dataplayer_;
+    WellTieDataMGR* 	datamgr_;
 
     uiToolBar*          toolbar_;
     uiGroup*            vwrgrp_;
     uiPushButton*	applybut_;
     uiPushButton*	undobut_;
     uiCheckBox* 	cscorrfld_;
+    uiGenInput*		corrtopmrkfld_;
+    uiGenInput*		corrbotmrkfld_;
+    uiGenInput*		corrcoefffld_;
     uiWellTieWavelet*	wvltdraw_; 
-    uiWellTieView*	dataviewer_;
+    uiWellTieView*	datadrawer_;
     uiWellTieControlView* controlview_;
+    uiWellTieStretch* 	stretcher_;
 
     void		addControl();
     void 		addToolBarTools();
-    void 		doWork();
+    void 		doWholeWork();
+    void 		doLogWork(bool);
     void		createTaskFields(uiGroup*);
     void 		dispParPushed(CallBacker*);
     void 		drawData();
-    void 		updateCurve(CallBacker*);
+    void 		dispDataChanged(CallBacker*);
+    void 		dispDataChanging(CallBacker*);
     void 		drawFields(uiGroup*);
     void 		initAll();
     void 		updateButtons();
@@ -94,14 +99,8 @@ protected:
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);
     bool 		undoPushed(CallBacker*);
-
 };
 
 
 #endif
-
-
-
-
-
 

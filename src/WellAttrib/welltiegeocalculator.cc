@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.5 2009-04-28 14:30:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.6 2009-05-15 12:42:48 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -15,13 +15,17 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.5 2009-04-28 14:30:
 #include "arrayndimpl.h"
 
 #include "fft.h"
+#include "wavelet.h"
 #include "hilberttransform.h"
 #include "genericnumer.h"
 #include "welltiegeocalculator.h"
+#include "welltieunitfactors.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "wellman.h"
+#include "welltrack.h"
 #include "welltiesetup.h"
 #include "welld2tmodel.h"
 #include "survinfo.h"
@@ -29,27 +33,28 @@ static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.5 2009-04-28 14:30:
 #include <complex>
 #include <algorithm>
 
-WellTieGeoCalculator::WellTieGeoCalculator( const WellTieSetup& wts,
-					    const Well::Data& wd )
-		: wtsetup_(wts)
-		, wd_(wd) 
-		, denfactor_(wtsetup_.factors_.denFactor())
-		, velfactor_(wtsetup_.factors_.velFactor())
+WellTieGeoCalculator::WellTieGeoCalculator( const WellTieParams* p,
+					    const Well::Data* wd )
+		: params_(*p)
+		, wtsetup_(p->getSetup())	
+		, wd_(*wd) 
+		, denfactor_(params_.getUnits().denFactor())
+		, velfactor_(params_.getUnits().velFactor())
 {
 }    
 
 //each sample is converted to a time using the travel time log
 //the correspondance between samples and depth values provides a first
 //TWT approx.
-#define mMsFact 0.001
 Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
 {
-    const BufferString lognm( wd_.checkShotModel() && wtsetup_.iscscorr_
-			    ? wtsetup_.corrvellognm_ : wtsetup_.vellognm_ );
+    const BufferString lognm( params_.currvellognm_ );
 
     const Well::Log& log = *wd_.logs().getLog( lognm );
     TypeSet<float> vals, d2t, dpt, time, depth;
 
+    dpt += -wd_.track().value(0);
+    vals += 0;
     for ( int validx=0; validx<log.size(); validx++ )
     {
 	vals += log.valArr()[validx];
@@ -58,8 +63,8 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
 
     if ( doclean )
     {
-	interpolateData( dpt, true, log.dahStep(true) );
-	interpolateData( vals, false, log.dahStep(true) );
+	interpolateLogData( dpt, log.dahStep(true), true );
+	interpolateLogData( vals, log.dahStep(true), false );
     }
     if ( !wtsetup_.issonic_ )
     {
@@ -81,10 +86,61 @@ Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
 
     Well::D2TModel* d2tnew = new Well::D2TModel;
     for ( int dahidx=0; dahidx<depth.size(); dahidx++ )
-	d2tnew->add( depth[dahidx], time[dahidx]*mMsFact );
+	d2tnew->add( depth[dahidx], time[dahidx] );
 
     return d2tnew;
 }
+
+
+void WellTieGeoCalculator::setVelLogDataFromModel(
+				          const Array1DImpl<float>& depthvals,  					  const Array1DImpl<float>& velvals, 
+					  Array1DImpl<float>& outp	) 
+{
+    const Well::D2TModel* d2t = wd_.d2TModel();
+    TypeSet<float> time, depth, veldata;
+    
+    for ( int idx=0; idx<depthvals.info().getSize(0); idx++ )
+    {
+	depth += depthvals.get(idx);
+ 	time  += d2t->getTime(depthvals.get(idx));
+    }
+    TWT2Vel( time, depth, veldata, true );
+
+    for ( int idx=0; idx<depthvals.info().getSize(0); idx++ )
+	outp.setValue( idx, veldata[idx] );
+}
+
+
+Well::D2TModel* WellTieGeoCalculator::getModelFromVelLogData(
+					    const Array1DImpl<float>& velvals, 
+					    const Array1DImpl<float>& dptvals )
+{/*
+    TypeSet<float> vals, d2t, dpt, time, depth;
+
+    dpt += -wd_.track().value(0);
+    vals += 0;
+    for ( int idx=0; idx<velvals.info().getSize(0); idx++ )
+    {
+	vals += velvals.get(idx);
+	dpt  += dptvals.get(idx);
+    }
+
+    TWT2Vel( vals, dpt, d2t, false );
+    int idx=0;
+    while ( idx < d2t.size() )
+    {
+	time += d2t[idx];
+	depth += dpt[idx];
+	idx++;
+    }
+*/
+    Well::D2TModel* d2tnew = new Well::D2TModel;
+    for ( int dahidx=0; dahidx<dptvals.info().getSize(0); dahidx++ )
+	d2tnew->add( dptvals.get(dahidx), velvals.get(dahidx) );
+
+    return d2tnew;
+}
+
 
 //Small TWT/ Interval Velocity converter
 #define mFactor 1000000000
@@ -92,21 +148,17 @@ void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 				     const TypeSet<float>& dpt,	
 				     TypeSet<float>& outp, bool t2vel  )
 {
-    float velfactor = wtsetup_.factors_.velFactor();
     if ( t2vel )
     {
-	outp += timevel[0] / (velfactor*dpt[0]);
+	outp += 0;
 	for ( int idx=1; idx<timevel.size(); idx++ )
 	    outp +=  mFactor*( timevel[idx]-timevel[idx-1] )
-		    /( (dpt[idx]-dpt[idx-1])/velfactor*2 );
+		    /( (dpt[idx]-dpt[idx-1])/velfactor_*2 );
 	outp[0] = outp[1];
-	outp[0] += 150;
-	outp[1] -= 50;
-	outp[2] += 50;
     }
     else 
     {
-	outp +=  2*dpt[0]*timevel[0]/velfactor_/mFactor;
+	outp += 0;
 	for ( int idx=1; idx<timevel.size(); idx++ )
 	    outp +=  2*( dpt[idx]-dpt[idx-1] )*timevel[idx]/velfactor_/mFactor;
 
@@ -117,34 +169,35 @@ void WellTieGeoCalculator::TWT2Vel( const TypeSet<float>& timevel,
 
 
 void WellTieGeoCalculator::stretchArr( const Array1DImpl<float>& inp,
-					Array1DImpl<float>& outp, 
-					int idxstart, int idxstop,
-					int idxpick )
+				       Array1DImpl<float>& outp, int idxstart,
+				       int idxstop, int idxpick, int idxlast )
 {
     const int datasz = inp.info().getSize(0);
     const float stretchfac = ( idxpick-idxstart ) / (float) (idxstop-idxstart); 
-    const float squeezefac = ( datasz-idxpick ) / (float) (datasz - idxstop);
+    const float squeezefac = ( idxlast-idxpick ) / (float) (idxlast - idxstop);
    
     float val;
     for ( int idx=idxstart; idx<idxstop; idx++ )
     {
-	interpolAtIdx( inp, ( idx - idxstart )*stretchfac + idxstart, val );
+	float curval = ( idx - idxstart )*stretchfac + idxstart;
+	int curidx = (int)curval;
+	interpolAtIdx( inp.get( curidx ), inp.get( curidx +1), curval, val );
 	outp.setValue( idx, val );
     }
     for ( int idx=idxstop; idx<datasz-1; idx++ )
     {
-	interpolAtIdx( inp, ( idx - datasz )*squeezefac + datasz, val );
+	float curval = ( idx - datasz )*squeezefac + datasz;
+	int curidx = (int)curval;
+	interpolAtIdx( inp.get( curidx ), inp.get( curidx +1), curval, val );
 	outp.setValue( idx , val );
     }
 }
 
 
-void WellTieGeoCalculator::interpolAtIdx( const Array1DImpl<float>& inp,
+void WellTieGeoCalculator::interpolAtIdx( float prevval, float postval,
 				 	float curval, float& outval )
 {
     int curidx = (int)curval;
-    float prevval = inp.get( curidx );
-    float postval = inp.get( curidx+1 );
     outval = ( curval - curidx ) * ( postval - prevval ) + prevval;
 }
 
@@ -179,29 +232,56 @@ return true;
 //Small Data Interpolator, specially designed for log (dah) data
 //assumes no possible negative values in dens or vel log
 //will replace them by interpolated values if so. 
-void WellTieGeoCalculator::interpolateData( TypeSet<float>& data,
-					      float dahstep,
-					      bool isdah )
+void WellTieGeoCalculator::interpolateLogData( TypeSet<float>& data,
+					       float dahstep, bool isdah )
 {
-    const int sz = data.size();
-    for ( int idx=1; idx<sz; idx++ )
+    int startidx = getFirstDefIdx( data );
+    int lastidx = getLastDefIdx( data );
+
+    for ( int idx=startidx; idx<lastidx; idx++)
     {
-	if ( isdah )
-	{
-	    if ( (mIsUdf(data[idx]) || data[idx] < data[idx-1]
-				    || data[idx] >= data[sz-1]) )
-		data[idx] = data[idx-1] + dahstep;
-	}
-	else
-	{
-	    if  ( ( mIsUdf(data[idx]) || data[idx] < 0 ) )
-		data[idx] = data[idx-1];
-	}
+	//no negative values in dens or vel log assumed
+	if  ( !isdah && ( mIsUdf(data[idx]) || data[idx] <0 ) )
+	    data[idx] = data[idx-1];
+	if ( isdah && (mIsUdf(data[idx]) || data[idx] < data[idx-1]
+	|| data[idx] >= data[lastidx])  )
+	    data[idx] = data[idx-1] + dahstep;
     }
+    for ( int idx=0; idx<startidx; idx++ )
+	data[idx] = data[startidx];
+    for ( int idx=lastidx; idx<data.size(); idx++ )
+	data[idx] = data[lastidx];
 }
 
 
-//low pass filter similar as this of the freqfilter attribute
+int WellTieGeoCalculator::getFirstDefIdx( const TypeSet<float>& logdata )
+{
+    int idx = 0;
+    while ( mIsUdf(logdata[idx]) )
+	idx++;
+    return idx;
+}
+
+
+int WellTieGeoCalculator::getLastDefIdx( const TypeSet<float>& logdata )
+{
+    int idx = logdata.size()-1;
+    while ( mIsUdf( logdata[idx] ) )
+	idx--;
+    return idx;
+}
+
+
+bool WellTieGeoCalculator::isValidLogData( const TypeSet<float>& logdata )
+{
+    if ( logdata.size() == 0 || getFirstDefIdx(logdata) > logdata.size() )
+	return false;
+    return true;
+}
+
+
+
+//low pass filter, almost similar as this of the freqfilter attribute
 //TODO put in algo
 #define mDoTransform(tf,isstraight,inp,outp,sz) \
 {   \
@@ -212,29 +292,17 @@ void WellTieGeoCalculator::interpolateData( TypeSet<float>& data,
 }
 void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals,
 					  float cutfreq )
-{/*
-    //construct filter window
-    TypeSet<float> filterborders(51,0);
-    int idt = 0;
-    for ( float idx= 0.95; idx<=1; idx+=0.001 )
-    {
-	float rx = idx;
-	rx -= 0.95;
-	rx *= 20;
-	filterborders[idt]= (1 + cos( M_PI * rx )) * .5;
-	idt++;
-    }*/
-
+{
     int filtersz = vals.info().getSize(0);
     float df = 1/( filtersz * SI().zStep() );
-    TypeSet<float> freq, fwin;
+    TypeSet<float> freq, fwin, backwin; 
 
-    for ( int idx=0; idx< filtersz; idx++ )
+    for ( int idx=0; idx<filtersz; idx++ )
     {
+	backwin += vals.get(idx);
 	freq += df*idx; 
 	fwin += 0;
     }
-    int idborder = 0;
     for ( int idx=0; idx<(int)filtersz/2; idx++ )
     {
 	if ( freq[idx] <= cutfreq )
@@ -247,25 +315,17 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals,
 	    fwin[idx] += 0;
 	    fwin[filtersz-idx] += 0;
 	}
-	else
-	{
-	    //fwin[idx] = filterborders[idborder];
-	    //fwin[filtersz-idx] += filterborders[idborder];
-	    idborder++;
-	}
     }
 
     Array1DImpl<float> timevals ( filtersz );
-    Array1DImpl<float_complex> ctimevals ( filtersz );
-    Array1DImpl<float_complex> cfreqvals ( filtersz );
-    Array1DImpl<float_complex> filtervals( filtersz );
-    Array1DImpl<float_complex> coutvals  ( filtersz );
-    
+    Array1DImpl<float_complex> ctimevals ( filtersz ), cfreqvals ( filtersz ),
+    			       filtervals( filtersz ), coutvals  ( filtersz );
     //init data
     memcpy( timevals.getData(), vals.getData(), filtersz*sizeof(float) ); 
     ArrayNDWindow window( Array1DInfoImpl(filtersz),
 			 false, "CosTaper", 0.95 );
     //window.apply( &timevals );
+    float avg = computeAvg( &timevals );
     removeBias( &timevals );
 
     //compute complex numbers
@@ -283,7 +343,12 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals,
     mDoTransform( fft, false, cfreqvals, coutvals, filtersz );
     
     for ( int idx=0; idx<filtersz; idx++ )
-	vals.set( idx, coutvals.get( idx ).real() );
+    {
+	if ( idx<filtersz/400 || idx>filtersz-filtersz/400 )
+	    vals.set( idx, backwin[idx] );
+	else
+	    vals.set( idx, coutvals.get( idx ).real() + avg );
+    }
 }
 
 
@@ -313,41 +378,41 @@ void WellTieGeoCalculator::resampleData( const Array1DImpl<float>& invals,
 
 void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 				   const Array1DImpl<float>& denvals,
-				   Array1DImpl<float>& aivals, bool dofilter )
+				   Array1DImpl<float>& aivals )
 {
-    const int datasz = velvals.info().getSize(0);
-    for ( int idx = 0; idx < datasz; idx++ )
+    for ( int idx = 0; idx < velvals.info().getSize(0); idx++ )
     {
-	aivals.setValue( idx,  denvals.get(idx)*mFactor*denfactor_*velfactor_
-			     / velvals.get(idx) );
-	if ( mIsUdf(aivals.get(idx)) && idx>0 ) 
-	    aivals.setValue( idx, aivals.get(idx-1) );
+	float velval = velvals.get(idx);
+	float denval = denvals.get(idx);
+	aivals.setValue( idx, denval/velval *mFactor*denfactor_*velfactor_ );
     }
 }
 
 
 //Compute reflectivity values at a the display sample step (Survey step)
-#define mStep 20 
 void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
-					       Array1DImpl<float>& reflvals )
+					       Array1DImpl<float>& reflvals,
+					       int shiftstep )
 {
     float ai1, ai2, rval;
     float prevval = 0;
+    int sz = reflvals.info().getSize(0);
 
-    for ( int idx=0; idx<reflvals.info().getSize(0); idx++ )
+    for ( int idx=0; idx<sz-1; idx++ )
     {
-	ai2 = aivals.get( mStep*(idx+1) + mStep/2 );
-	ai1 = aivals.get( mStep*(idx+1) - mStep/2 );	   
+	ai2 = aivals.get( shiftstep*(idx+1));
+	ai1 = aivals.get( shiftstep*(idx)  );	   
 
 	if ( (ai1 + ai2 ) == 0 )
-	    reflvals.setValue( idx, prevval );
+	    rval = prevval;
 	else
-	{
 	    rval =  ( ai2 - ai1 ) / ( ai2 + ai1 );     
-	    reflvals.setValue( idx, rval ); 
-	}
-	prevval = reflvals.get(idx);
+	
+	reflvals.setValue( idx, rval ); 
+	prevval = rval;
     }
+	reflvals.setValue( 0, reflvals.get(1) ); 
+	reflvals.setValue( sz-1, reflvals.get(sz-2) ); 
 }
 
 
@@ -363,20 +428,20 @@ void WellTieGeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
 		     reflsz, 0  	 , reflvals,
 		     reflsz, 0  	 , outp );
 
-    for ( int idx=0; idx<reflsz; idx++ )
-	synvals.setValue( idx, outp[idx] );
-
+    memcpy( synvals.getData(), outp, reflsz*sizeof(float));
     delete outp;
 }
 
 
-#define mNoise 0.05
+#define mNoise 0.005
 void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
-				    const Array1DImpl<float>& filtervals,
-				    Array1DImpl<float>& deconvals )
+				       const Array1DImpl<float>& filtervals,
+				       Array1DImpl<float>& deconvals, 
+				       int wvltsz )
 {
     const int sz = inputvals.info().getSize(0);
     const int filtersz = filtervals.info().getSize(0);
+    int border = wvltsz/2;
 
     Array1DImpl<float> timeinputvals( sz ), timefiltervals(filtersz );
 
@@ -384,13 +449,17 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 		ctimefiltervals( filtersz ), cfreqfiltervals( filtersz ),
 		ctimedeconvvals( filtersz ), cfreqdeconvvals( filtersz ),
 		ctimenoisevals ( filtersz ), cfreqnoisevals ( filtersz ),
-	       	cspecfiltervals( filtersz ), cfreqdeconswappedvals( filtersz );
+	       	cspecfiltervals( filtersz );
 
     memcpy(timeinputvals.getData(), inputvals.arr(), filtersz*sizeof(float)); 
     memcpy(timefiltervals.getData(), filtervals.arr(), filtersz*sizeof(float)); 
 
-    removeBias( &timeinputvals );
-    removeBias( &timefiltervals );
+    ArrayNDWindow window( Array1DInfoImpl(filtersz),
+			 false, "CosTaper", 0.95 );
+    window.apply( &timefiltervals );
+    window.apply( &timeinputvals );
+    //removeBias( &timefiltervals );
+    //removeBias( &timeinputvals );
 
     HilbertTransform hil;
     hil.setCalcRange(0, filtersz, 0);
@@ -412,7 +481,7 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 	wholespec += cspecfiltervals.get(idx);  
     float_complex cnoiseshift = noise*wholespec;
     
-    for ( int idx=0; idx<filtersz; idx++ )
+    for ( int idx=border; idx<filtersz-border; idx++ )
     {
 	float_complex inputval = cfreqinputvals.get(idx);
 	float_complex filterval = cfreqfiltervals.get(idx);
@@ -422,28 +491,46 @@ void WellTieGeoCalculator::deconvolve( const Array1DImpl<float>& inputvals,
 	float_complex conjfilterval = float_complex( rfilterval ,-ifilterval ); 
 
 	float_complex numer = inputval * conjfilterval;
-	float_complex denom = filterval* conjfilterval + cnoiseshift;
+	float_complex denom = filterval* conjfilterval;// + cnoiseshift;
 	float_complex res = numer / denom;
 
 	cfreqdeconvvals.setValue( idx, res );
+    }
+    for ( int idx=0; idx<border; idx++ )
+    {
+	cfreqdeconvvals.setValue( idx, 0 );
+	cfreqdeconvvals.setValue( idx+filtersz-border, 0 );
     }
     
     float avg = 0;
     for ( int idx=0; idx<filtersz; idx++ )
 	avg += abs( cfreqdeconvvals.get(idx) )/filtersz;
 
-    for ( int idx=0; idx<sz; idx++ )
+    for ( int idx=0; idx<filtersz; idx++ )
     {
 	if ( abs (cfreqdeconvvals.get(idx) ) < avg/4 )
 	    cfreqdeconvvals.set( idx, 0 );
     }
-
+   
     mDoTransform( fft, false, cfreqdeconvvals, ctimedeconvvals, filtersz );
 
-    int mid = (int)filtersz/2;
-    for ( int idx=0; idx<mid; idx++ )
+    int mid = (int)(filtersz)/2;
+    for ( int idx=0; idx<=mid; idx++ )
+	deconvals.set( idx, ctimedeconvvals.get( mid-idx ).real() );
+    for ( int idx=mid+1; idx<filtersz; idx++ )
+	deconvals.set( idx, ctimedeconvvals.get( filtersz-idx+mid ).real() );
+}
+
+
+void WellTieGeoCalculator::reverseWavelet( Wavelet& wvlt )
+{
+    const int wvltsz = wvlt.size();
+    Array1DImpl<float> wvltvals (wvltsz);
+    memcpy( wvltvals.getData(), wvlt.samples(), wvltsz*sizeof(float) );
+
+    for ( int idx=0; idx<wvltsz/2; idx++ )
     {
-	deconvals.set( idx, ctimedeconvvals.get( mid-idx-1 ).real() );
-	deconvals.set( filtersz-idx-1, ctimedeconvvals.get( idx+mid ).real() );
+	wvlt.samples()[idx] = wvltvals.get(wvltsz-idx-1);
+	wvlt.samples()[wvltsz-idx-1] = wvltvals.get( idx );
     }
 }

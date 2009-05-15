@@ -7,25 +7,28 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.3 2009-04-28 14:30:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.4 2009-05-15 12:42:48 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
+#include "welltiegeocalculator.h"
 
 #include "arrayndimpl.h"
+#include "interpol1d.h"
 #include "datapointset.h"
 #include "survinfo.h"
 
 #include "welldata.h"
+#include "welltiedata.h"
 #include "welllog.h"
 #include "welld2tmodel.h"
 #include "wellextractdata.h"
 #include "welltrack.h"
 
 WellTieExtractTrack::WellTieExtractTrack(  DataPointSet& dps,
-					   const Well::Data& d)
+					   const Well::Data* d)
     	: Executor("Extracting Well track positions") 
 	, dps_(dps) 
-	, wd_(d)	    
+	, wd_(*d)	    
 	, nrdone_(0)
 	, timeintv_(0,0,0)
 {
@@ -34,15 +37,13 @@ WellTieExtractTrack::WellTieExtractTrack(  DataPointSet& dps,
 
 #define mAddRow(bv,pos) \
     dr.pos_.z_ = pos.z; dr.pos_.set( bid, pos ); dps_.addRow( dr )
-
 int WellTieExtractTrack::nextStep()
 {
     float time = timeintv_.atIndex( nrdone_ );
 
     Coord3 pos = wd_.track().getPos( wd_.d2TModel()->getDepth(time) );
-    pos.z = time;
+    pos.z = time; // wd_.d2TModel()->getTime( pos.z );
 
-    //pos.z = wd_.d2TModel()->getTime( md );
     const BinID bid = SI().transform( pos );
     if ( !bid.inl && !bid.crl )
     {
@@ -57,24 +58,18 @@ int WellTieExtractTrack::nextStep()
     
     dps_.dataChanged();
 
-//    DataPointSet::ColID dpsdahcolidx = dps_.indexOf( "Time" );
-  //  dps_.getValues(nrdone_)[dpsdahcolidx] = time; 
-    //wd_.d2TModel()->getDepth(time);
-    
     nrdone_ ++;
     return Executor::MoreToDo();
 }
 
 
-
-
 #define mErrRet(s) { errmsg = s; return; }
-WellTieResampleLog::WellTieResampleLog( ObjectSet< Array1DImpl<float> >& arr, 
-					const Well::Log& l,
-					const Well::Data& wd )
+WellTieResampleLog::WellTieResampleLog( WellTieDataSet& arr, 
+					const Well::Log& l, const Well::Data* d,
+					WellTieGeoCalculator& geocalc )
     	: Executor("Processing log data") 
 	, workdata_(arr)
-	, wd_(wd)	   
+	, wd_(*d)	   
 	, nrdone_(0)
 	, curlogsample_(0)	    
 	, logname_(l.name())
@@ -86,18 +81,10 @@ WellTieResampleLog::WellTieResampleLog( ObjectSet< Array1DImpl<float> >& arr,
 
     BufferString errmsg;
     errmsg += "no valid "; errmsg += l.name();  errmsg += " log selected";
-    if ( !isValidLogData( val_ ) ) mErrRet(errmsg);
+    if ( !geocalc.isValidLogData( val_ ) ) mErrRet(errmsg);
 
-    interpolateData( dah_, l.dahStep(true),  true );
-    interpolateData( val_, l.dahStep(true), false );
-}
-
-
-bool WellTieResampleLog::isValidLogData( const TypeSet<float>& logdata )
-{
-    if ( logdata.size() == 0 || getFirstDefIdx(logdata) > logdata.size() )
-	return false;
-    return true;
+    geocalc.interpolateLogData( dah_, l.dahStep(true),  true );
+    geocalc.interpolateLogData( val_, l.dahStep(true), false );
 }
 
 
@@ -110,47 +97,6 @@ void WellTieResampleLog::fillProcLog( const Well::Log& log )
     }
 }
 
-//TODO put in nextStep()
-void WellTieResampleLog::interpolateData( TypeSet<float>& data,
-					const float dahstep,	
-       					const bool isdah )
-{
-    int startidx = getFirstDefIdx( data );
-    int lastidx = getLastDefIdx( data );
-
-    for ( int idx=startidx; idx<lastidx; idx++)
-    {
-	//no negative values in dens or vel log assumed
-	if  ( !isdah && ( mIsUdf(data[idx]) || data[idx] <0 ) )
-	    data[idx] = data[idx-1];
-	if ( isdah && (mIsUdf(data[idx]) || data[idx] < data[idx-1]
-					 || data[idx] >= data[lastidx])  )
-		data[idx] = data[idx-1] + dahstep;
-    }
-    for ( int idx=0; idx<startidx; idx++ )
-	data[idx] = data[startidx];
-    for ( int idx=lastidx; idx<data.size(); idx++ )
-	data[idx] = data[lastidx];
-}
-
-
-int WellTieResampleLog::getFirstDefIdx( const TypeSet<float>& logdata )
-{
-    int idx = 0;
-    while ( mIsUdf(logdata[idx]) )
-	idx++;
-    return idx;
-}
-
-
-int WellTieResampleLog::getLastDefIdx( const TypeSet<float>& logdata )
-{
-    int idx = logdata.size()-1;
-    while ( mIsUdf( logdata[idx] ) )
-	idx--;
-    return idx;
-}
-
 
 int WellTieResampleLog::nextStep()
 {
@@ -161,21 +107,28 @@ int WellTieResampleLog::nextStep()
     updateLogIdx( curdah, tmpidx  );
     curlogsample_ = tmpidx;
     
-    if ( curtime > timeintv_.stop || curlogsample_ >= dah_.size() )
+    if ( curtime > timeintv_.stop || curlogsample_ >= dah_.size() 
+	    			  || nrdone_ >= workdata_.getLength() )
 	return Executor::Finished();
    
-    if ( tmpidx>6 && tmpidx<dah_.size()-9 )
+    if ( tmpidx>1 && tmpidx<dah_.size()-2 )
     {
-	for ( int idx = tmpidx-7; idx<tmpidx+8; idx++ )
-	    curval += val_[idx] / 15;
+//	Interpolate::PolyReg1DWithUdf<float> pr;
+//	pr.set( val_[tmpidx], val_[tmpidx], val_[tmpidx+1], val_[tmpidx+1]);
+//	curval += pr.apply( ( curdah - dah_[tmpidx] )
+//			  / ( dah_[tmpidx+1] - dah_[tmpidx] ) );
+
+	//3 points avg seems to work better than the polynomial interpolation
+	curval += ( ( val_[tmpidx+1] + val_[tmpidx-1] + val_[tmpidx] )* 1/3 );
     }
     else
 	curval = val_[curlogsample_];
 
     if (  curlogsample_ < dah_.size()  )
     {
-	workdata_[colnr_]->setValue( nrdone_, curval );
-	workdata_[0]->setValue( nrdone_, curtime );
+	workdata_.get(logname_)->setValue( nrdone_, curval );
+	workdata_.get(dptnm_)->setValue( nrdone_, curdah );
+	workdata_.get(timenm_) ->setValue( nrdone_, curtime );
     }
 
     nrdone_++;

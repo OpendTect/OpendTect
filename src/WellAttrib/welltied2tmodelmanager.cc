@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.2 2009-05-15 12:42:48 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -26,20 +26,22 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.1 2009-04-21 13:5
 #include "welltiegeocalculator.h"
 
 WellTieD2TModelManager::WellTieD2TModelManager( Well::Data& d, 
+						const  WellTieSetup& s, 
 					        WellTieGeoCalculator& gc )
 	: wd_(d)
 	, geocalc_(gc)
 	, prvd2t_(0)
 	, emptyoninit_(false)
+	, wtsetup_(s)		     
 {
-    if ( !wd_.d2TModel() )
+    if ( !wd_.d2TModel() || wd_.d2TModel()->size()<=2 )
     {
 	emptyoninit_ = true;
 	wd_.setD2TModel( new Well::D2TModel );
     }
     orgd2t_ = new Well::D2TModel( *wd_.d2TModel() );
 
-    if ( wd_.checkShotModel() || wd_.d2TModel()->size()<1 )
+    if ( wd_.checkShotModel() || wd_.d2TModel()->size()<=2 )
 	setFromVelLog();
 } 
 
@@ -53,7 +55,7 @@ WellTieD2TModelManager::~WellTieD2TModelManager()
 
 Well::D2TModel& WellTieD2TModelManager::d2T()
 {
-        return *wd_.d2TModel();
+    return *wd_.d2TModel();
 }
 
 
@@ -61,20 +63,51 @@ void WellTieD2TModelManager::setFromVelLog( bool docln )
 {setAsCurrent( geocalc_.getModelFromVelLog(docln) );}
 
 
+void WellTieD2TModelManager::setFromData( const Array1DImpl<float>& time,
+					   const Array1DImpl<float>& dpt )
+{setAsCurrent( geocalc_.getModelFromVelLogData( time, dpt) );}
+
+
+
+void WellTieD2TModelManager::shiftModel( float shift)
+{
+    TypeSet<float> dah, time;
+
+    Well::D2TModel& d2t = d2T();
+    //copy old d2t
+    for (int idx = 0; idx<d2t.size(); idx++)
+    {
+	time += d2t.value( idx );
+	dah  += d2t.dah( idx );
+    }
+
+    //replace by shifted one
+    d2t.erase();
+    for ( int dahidx=0; dahidx<dah.size(); dahidx++ )
+	d2t.add( dah[dahidx], time[dahidx] + shift );
+
+    if ( d2t.size() > 1 )
+    wd_.d2tchanged.trigger();
+}
+
+
+
 void WellTieD2TModelManager::setAsCurrent( Well::D2TModel* d2t )
 {
     if ( !d2t || d2t->size() < 1 )
-	{ pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
+    { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
 
-    delete prvd2t_;
-   // prevd2t_ = wd_.replaceD2TModel( d2t );//TODO
+    if ( prvd2t_ )
+	delete prvd2t_;
+    prvd2t_ =  new Well::D2TModel( d2T() );
+    wd_.setD2TModel( d2t );
 }
 
 
 bool WellTieD2TModelManager::undo()
 {
     if ( !prvd2t_ ) return false; 
-    setAsCurrent( prvd2t_ );
+	setAsCurrent( prvd2t_ );
     return true;
 }
 
@@ -103,12 +136,12 @@ bool WellTieD2TModelManager::updateFromWD()
 
 bool WellTieD2TModelManager::commitToWD()
 {
-    BufferString fname;
-    mDynamicCastGet( const IOStream*,iostrm, IOM().get( wd_.name() ) );
-    if ( !iostrm ) return false;
+    mDynamicCastGet(const IOStream*,iostrm,IOM().get(wtsetup_.wellid_))
+    if ( !iostrm ) 
+	return false;
     StreamProvider sp( iostrm->fileName() );
     sp.addPathIfNecessary( iostrm->dirName() );
-    fname = sp.fileName();
+    BufferString fname = sp.fileName();
 
     Well::Writer wtr( fname, wd_ );
     if ( !wtr.putD2T() ) 

@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "executor.h"
 #include "geometry.h"
 
-template <class T> class Array1DImpl;
 class DataPointSet;
+class WellTieGeoCalculator;
+class WellTieDataSet;
 namespace Well 
 {
     class Data;
@@ -27,7 +28,7 @@ namespace Well
 mClass WellTieExtractTrack : public Executor
 {
 public:
-			WellTieExtractTrack(DataPointSet&,const Well::Data&);
+			WellTieExtractTrack(DataPointSet&,const Well::Data*);
 			~WellTieExtractTrack() {};
 
 
@@ -38,7 +39,6 @@ public:
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
-
 
 protected:
 
@@ -52,9 +52,8 @@ protected:
 mClass WellTieResampleLog : public Executor
 {
 public:
-			WellTieResampleLog(ObjectSet< Array1DImpl<float> >&,
-					   const Well::Log&,
-					   const Well::Data&);
+			WellTieResampleLog(WellTieDataSet&,const Well::Log&,
+					const Well::Data*,WellTieGeoCalculator&);
 			~WellTieResampleLog() {};
 
 
@@ -66,11 +65,13 @@ public:
     od_int64            nrDone() const          { return nrdone_; }
     const char*         message() const         { return "Computing..."; }
     const char*         nrDoneText() const      { return "Points done"; }
+    const char* 	dptnm_;
+    const char* 	timenm_;
 
 
 protected:
 
-    ObjectSet< Array1DImpl<float> >  workdata_;		
+    WellTieDataSet&     workdata_;		
     const char* 	logname_;
     TypeSet<float> 	val_;
     TypeSet<float> 	dah_;
@@ -80,10 +81,6 @@ protected:
 
     void      	 	updateLogIdx(float,int&);
     void        	fillProcLog(const Well::Log&);
-    int         	getFirstDefIdx(const TypeSet<float>&);
-    int         	getLastDefIdx(const TypeSet<float>&);
-    void        	interpolateData(TypeSet<float>&,const float,const bool);
-    bool        	isValidLogData(const TypeSet<float>&);
 };
 
 

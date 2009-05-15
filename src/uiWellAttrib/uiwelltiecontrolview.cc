@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.3 2009-05-13 07:48:49 cvshelene Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.4 2009-05-15 12:42:48 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -34,14 +34,13 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.3 2009-05-13 07:48:
     toolbar_->addObject( but );
 
 
-uiWellTieControlView::uiWellTieControlView( uiParent* p, 
-			    uiToolBar* toolbar, ObjectSet<uiFlatViewer>& viewer, 			    WellTiePickSetManager& picksetmgr)
+uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
+       				ObjectSet<uiFlatViewer>& viewer)
     : uiFlatViewControl(*viewer[0], p, true, false)
-    , toolbar_(toolbar )
+    , toolbar_(toolbar)
     , manipdrawbut_(0)
-    , propdlg_(0)   			    
-    , dprops_(0)					   
-    , picksetmgr_(picksetmgr)						 
+    , dprops_(0)	
+    , manip_(false)			
 {
     for ( int vwridx=1; vwridx<viewer.size(); vwridx++ )
 	addViewer( *viewer[vwridx] );
@@ -52,7 +51,7 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p,
 
     mDefBut(zoominbut_,"zoomforward.png",zoomInCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomOutCB,"Zoom out");
-    //mDefBut(disppropbut_,"2ddisppars.png",doPropDlg,"Set display properties");
+    mDefBut(disppropbut_,"2ddisppars.png",doPropDlg,"Set display properties");
 
     for (int vwridx=0; vwridx<vwrs_.size(); vwridx++)
 	vwrs_[vwridx]->viewChanged.notify(
@@ -70,7 +69,6 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p,
 uiWellTieControlView::~uiWellTieControlView()
 {
     delete ( dprops_ );
-    if ( propdlg_ ) delete propdlg_;
 }
 
 
@@ -142,18 +140,16 @@ void uiWellTieControlView::setView()
 
 void uiWellTieControlView::doPropDlg( CallBacker* )
 {
-    if ( propdlg_ ) delete propdlg_;
-    propdlg_ = new uiWellTieViewPropDlg( this, *dprops_, vwrs_ );
-    propdlg_->windowClosed.notify( 
+    uiWellTieViewPropDlg propdlg( this, *dprops_, vwrs_ );
+    propdlg.windowClosed.notify( 
 	mCB(this,uiWellTieControlView,propDlgClosed) );
-    propdlg_->go();
+    propdlg.go();
 }
 
 
 void uiWellTieControlView::propDlgClosed( CallBacker* )
 {
-    if ( propdlg_ )
-	applyProperties(0);
+    applyProperties(0);
     setView();
 }
 
@@ -175,7 +171,7 @@ void uiWellTieControlView::usrClickCB( CallBacker* cb )
 
 void uiWellTieControlView::mouseMoveCB( CallBacker* )
 {
-    if ( picksetmgr_.pickSetSize() >= 1 )
+    if ( picksetmgr_->pickSetSize() >= 1 )
     {
 	for ( int vwridx=0; vwridx<1; vwridx++ )
 	{
@@ -186,7 +182,7 @@ void uiWellTieControlView::mouseMoveCB( CallBacker* )
 	    vwrs_[vwridx]->getWorld2Ui(w2u);
 	    const uiWorldPoint wp = w2u.transform( ev.pos() );
 	    vwrs_[vwridx]->getAuxInfo( wp, infopars_ );
-	    picksetmgr_.updateShift( vwridx,  wp.y );
+	    picksetmgr_->updateShift( vwridx,  wp.y );
 	}
     }
 }
@@ -194,6 +190,7 @@ void uiWellTieControlView::mouseMoveCB( CallBacker* )
 
 bool uiWellTieControlView::handleUserClick(  int vwridx )
 {
+    if ( vwridx ) return false;
     const MouseEvent& ev = mouseEventHandler(vwridx).event();
     uiWorld2Ui w2u;
     vwrs_[vwridx]->getWorld2Ui(w2u);
@@ -202,7 +199,7 @@ bool uiWellTieControlView::handleUserClick(  int vwridx )
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	!ev.altStatus() )
     {
-	picksetmgr_.addPick( vwridx,  wp.y );
+	picksetmgr_->addPick( vwridx,  wp.y );
 	return true;
     }
 

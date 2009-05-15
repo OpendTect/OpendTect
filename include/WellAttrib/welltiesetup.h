@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.2 2009-04-22 13:37:11 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.3 2009-05-15 12:42:48 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include "attribdescid.h"
 #include "multiid.h"
-#include "welltieunitfactors.h"
 
 #include "wellio.h"
 #include <iosfwd>
@@ -33,9 +32,6 @@ public:
 			    , attrid_(*new Attrib::DescID())
 			    , wvltid_(*new MultiID())
 			    , issonic_(true)
-			    , iscscorr_(true)		    
-			    , iscsavailable_(false)		    
-			    , factors_(this)		    
 			    , corrvellognm_("Corrected ")
 			    {}
 
@@ -48,9 +44,6 @@ public:
 			    , vellognm_(setup.vellognm_)
 			    , denlognm_(setup.denlognm_)
 			    , corrvellognm_(setup.corrvellognm_)
-			    , iscsavailable_(setup.iscsavailable_)		
-			    , iscscorr_(setup.iscscorr_)		    
-			    , factors_(WellTieUnitFactors(&setup))		
 			    {}	
 	
     MultiID			wellid_;
@@ -58,12 +51,8 @@ public:
     BufferString        	vellognm_;
     BufferString          	denlognm_;
     BufferString          	corrvellognm_;
-    BufferString          	attrnm_;
     MultiID               	wvltid_;
     bool                	issonic_;
-    bool			iscscorr_;
-    bool			iscsavailable_;
-    WellTieUnitFactors		factors_; 	
     
     void    	      		usePar(const IOPar&);
     void          	 	fillPar(IOPar&) const;

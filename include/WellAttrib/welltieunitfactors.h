@@ -15,9 +15,13 @@ ________________________________________________________________________
 
 
 #include "namedobj.h"
+#include "ranges.h"
+#include "bufstringset.h"
+#include "welltiesetup.h"
+
 
 class UnitOfMeasure;
-class WellTieSetup;
+namespace Attrib { class DescSet; }
 namespace Well
 {
     class Data;
@@ -50,5 +54,47 @@ protected:
     void  	 	calcDensFactor(const char*);
 };
 
+
+
+/*!\collects the parameters used for TWTS. */
+mClass WellTieParams
+{
+public :
+				WellTieParams(const WellTieSetup&,
+					      Well::Data*,
+					      const Attrib::DescSet&);
+				~WellTieParams(){};
+
+    const WellTieSetup& 	getSetup() const   { return wtsetup_; }	 
+    const WellTieUnitFactors& 	getUnits() const   { return factors_; }
+    const StepInterval<float>&  getTimeScale() const  { return timeintv_; } 	
+
+    BufferStringSet		colnms_;
+    const int 			nrdatacols_;				    
+    StepInterval<float> 	timeintv_;
+    int 			step_;
+    int           		worksize_;
+    int           		dispsize_;
+    const char*			currvellognm_;
+    const char*			ainm_;
+    const char*			refnm_;
+    const char*			timenm_;
+    const char*			dptnm_;
+    const char*			synthnm_;
+    bool 			iscsavailable_;
+    bool                        iscscorr_;
+    const Attrib::DescSet& 	ads_;
+
+    bool			resetTimeParams(CallBacker*);
+    const char*	 		getAttrName(const Attrib::DescSet&) const;
+
+protected :
+
+    Well::Data&			wd_;
+    WellTieSetup		wtsetup_;
+    const WellTieUnitFactors    factors_;
+    
+    void	 		createColNames();
+};
 
 #endif

@@ -7,16 +7,15 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.6 2009-04-28 14:30:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.7 2009-05-15 12:42:48 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
+#include "flatposdata.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
-#include "attribengman.h"
-#include "flatposdata.h"
 #include "iostrm.h"
 #include "geometry.h"
 #include "unitofmeasure.h"
@@ -27,27 +26,30 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.6 2009-04-28 14:30:26 cvsb
 #include "survinfo.h"
 
 #include "welldata.h"
+#include "welllog.h"
+#include "welllogset.h"
 #include "welld2tmodel.h"
 #include "wellman.h"
 #include "wellmarker.h"
 #include "welltiesetup.h"
+#include "welltiedata.h"
+#include "welltieunitfactors.h"
 #include "welltiegeocalculator.h"
 #include "welltrack.h"
 
 #include "uiflatviewer.h"
 #include "welltiepickset.h"
 
-uiWellTieView::uiWellTieView( uiParent* p, DataPointSet& dps, 
-			      ObjectSet< Array1DImpl<float> >& dispdata, 
-			      const Well::Data& d, const WellTieSetup& wts,
+uiWellTieView::uiWellTieView( uiParent* p, WellTieDataMGR& mgr,  
+			      const Well::Data* d, const  WellTieParams* pm,
 			      const Attrib::DescSet& ads )
-	: dps_(dps)
-	, dispdata_(dispdata)  
-	, wd_(d)  
-	, wtsetup_(wts)	
-	, ads_(ads)	  
+	: wd_(*d)  
+	, params_(*pm)     	
+	, ads_(ads)		 	
+	, wtsetup_(pm->getSetup())	
+	, datamgr_(mgr)
+    	, data_(*mgr.getDispData())
 {
-    if ( !wd_.d2TModel() ) return;
     createViewers( (uiGroup*)p );
 } 
 
@@ -59,18 +61,11 @@ uiWellTieView::~uiWellTieView()
 }
 
 
-void uiWellTieView::setUpTimeAxis()
-{
-    timeintv_.start = dispdata_[0]->get(0);
-    timeintv_.step =  SI().zStep();
-    timeintv_.stop =  dispdata_[0]->get( dispdata_[0]->info().getSize(0)-1 );
-}
-
-
-void uiWellTieView::fullRedraw( uiGroup* vwrgrp )
+void uiWellTieView::fullRedraw()
 {
     drawVelLog();
-    drawDensLog();
+    drawDenLog();
+    drawReflectivity();
     drawSynthetics();
     drawSeismic();
     drawCShot();
@@ -80,7 +75,7 @@ void uiWellTieView::fullRedraw( uiGroup* vwrgrp )
 
 void uiWellTieView::createViewers( uiGroup* vwrgrp )
 {
-    for (int vwridx=0; vwridx<4; vwridx++)
+    for (int vwridx=0; vwridx<5; vwridx++)
     {
 	vwrs_ += new uiFlatViewer( vwrgrp, true);
 	if ( vwridx>0 )
@@ -89,8 +84,9 @@ void uiWellTieView::createViewers( uiGroup* vwrgrp )
 
     initFlatViewer( wtsetup_.vellognm_, 0, 200, 550, false, Color::Black() );
     initFlatViewer( wtsetup_.denlognm_, 1, 200, 550, false, Color::Black() );
-    initFlatViewer( "Synthetics", 2, 200, 550, true, Color::Black() );
-    initFlatViewer( "Seismics", 3, 200, 550, true, Color::Black() );
+    initFlatViewer( params_.refnm_, 2, 200, 550, false, Color::Black() );
+    initFlatViewer( params_.synthnm_, 3, 200, 550, true, Color::Black() );
+    initFlatViewer( "Seismics", 4, 200, 550, true, Color::Black() );
 }
 
 
@@ -118,81 +114,70 @@ void uiWellTieView::initFlatViewer( const char* nm, int nr, int xsize,
 
 void uiWellTieView::drawVelLog()
 {
-    if ( wd_.checkShotModel() && wtsetup_.iscscorr_ ) 
-	createVarDataPack( wtsetup_.corrvellognm_, 0, 1, 1 );
-    else
-	createVarDataPack( wtsetup_.vellognm_, 0, 1, 2 );
+    createVarDataPack( params_.currvellognm_, 0, 1);
 }
 
 
-void uiWellTieView::drawDensLog()
+void uiWellTieView::drawDenLog()
 {
-    createVarDataPack( wtsetup_.denlognm_, 1, 1, 3 );
+    createVarDataPack( wtsetup_.denlognm_, 1, 1 );
+}
+
+
+void uiWellTieView::drawReflectivity()
+{
+    createVarDataPack( params_.refnm_, 2, 1 );
 }
 
 
 void uiWellTieView::drawSynthetics()
 {
-    BufferString synlbl = "Synthetics";
-    createVarDataPack( synlbl, 2, 4, 6 );
+    createVarDataPack( params_.synthnm_, 3, 1 );
 }
 
 
 void uiWellTieView::drawSeismic()
 {
-    const Attrib::Desc* ad = ads_.getDesc( wtsetup_.attrid_ );
-    if ( !ad ) return;
-    Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
-    BufferStringSet bss;
-    SeisIOObjInfo sii( MultiID( attrinf.ioobjids.get(0) ) );
-    sii.getDefKeys( bss, true );
-    const char* defkey = bss.get(0).buf();
-    BufferString attrnm = ad->userRef();
-    BufferString attr2cube = SeisIOObjInfo::defKey2DispName(defkey,attrnm);
-
-    createVarDataPack( attr2cube, 3, 4, 7 );
+    createVarDataPack( params_.getAttrName(ads_), 4, 1 );
 }
 
 
 void uiWellTieView::createVarDataPack( const char* varname, int vwrnr, 
-					int nrtraces, int colidx )
+					int nrtraces )
 {
-    nrtraces = 1;
-    float maxval, minval = 0;
-    maxval = dispdata_[colidx]->get(0); minval = maxval;
-
-    const int varsz = dispdata_[colidx]->info().getSize(0);
+    const int varsz = data_.getLength();
+    float maxval = data_.getExtremVal( varname, true );
+    float minval = data_.getExtremVal( varname, false );
+    
     Array2DImpl<float>*  arr2d = new Array2DImpl<float>( nrtraces, varsz );
 
-    for ( int idz=0; idz< varsz; idz++)
+    for ( int idz=0; idz<varsz; idz++)
     {
-	float dataval =  dispdata_[colidx]->get(idz);
-	if ( maxval < dataval && !mIsUdf(dataval) )
-	    maxval = dataval;
-	if ( minval > dataval && !mIsUdf(dataval) )
-	    minval = dataval;
+	float val =  data_.get( varname, idz );
 	for ( int idx=0; idx<nrtraces; idx++)
-	    arr2d->set( idx, idz, dataval );
+	    arr2d->set( idx, idz, val );
     }
+    vwrs_[vwrnr]->removePack(0);
     FlatView::Appearance& app = vwrs_[vwrnr]->appearance();
     app.ddpars_.wva_.overlap_ = nrtraces > 1 ? 3: maxval-minval-1;
+    
     const float shift =  minval + ( maxval - minval )/2;
     StepInterval<double> xrange( shift, shift, maxval-minval);
-    StepInterval<double> zrange( timeintv_.start, timeintv_.stop,
-				 timeintv_.step );
-    vwrs_[vwrnr]->removePack(0);
+    StepInterval<double> zrange( params_.timeintv_.start, 
+	    			 params_.timeintv_.stop,
+				 params_.timeintv_.step*params_.step_ );
     FlatDataPack* dp = new FlatDataPack( "", arr2d );
     DPM(DataPackMgr::FlatID()).add( dp );
     if ( nrtraces < 2 )
-	dp->posData().setRange(true, xrange);
-    dp->posData().setRange(false, zrange);
+	dp->posData().setRange( true, xrange );
+    dp->posData().setRange( false, zrange );
     dp->setName( varname );
     vwrs_[vwrnr]->setPack( true, dp->id(), false, true );
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  units;
     app.annot_.x2_.name_ = "TWT (ms)";
-
+    vwrs_[vwrnr]->handleChange( FlatView::Viewer::Annot );
 }
 
 
@@ -200,7 +185,7 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
        				int vwridx, float xpos,  float zpos,
 			       	Color col, bool ispick )
 {
-    if ( zpos < timeintv_.start || zpos > timeintv_.stop ||
+    if ( zpos < params_.timeintv_.start || zpos > params_.timeintv_.stop ||
 	    	col == Color::NoColor() || col.rgb() == 16777215 )
     {
 	delete auxdata;
@@ -209,10 +194,8 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 
     FlatView::Appearance& app = vwrs_[vwridx]->appearance();
     app.annot_.auxdata_ +=  auxdata;
-    auxdata->namepos_ = 0;
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.type_  = LineStyle::Solid;
-
 
     if ( ispick )
     {
@@ -230,14 +213,36 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 }
 
 
+void uiWellTieView::deleteMarkerAuxDatas( const char* auxname  )
+{
+    for ( int vwridx=0; vwridx<vwrs_.size(); vwridx++ ) 
+    {
+	FlatView::Appearance& app = vwrs_[vwridx]->appearance();
+	for ( int idx=0; idx<app.annot_.auxdata_.size(); idx++)
+	{
+	    if ( !strcmp(app.annot_.auxdata_[idx]->name_, auxname) );
+		delete ( app.annot_.auxdata_.remove(idx) );
+	}
+    }
+}
+
+
 void uiWellTieView::drawWellMarkers()
 {
     bool ismarkergrdline = true;
+    int vwrsz = ismarkergrdline ? vwrs_.size() : 1;
   
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return; 
 
-    int vwrsz = ismarkergrdline ? vwrs_.size() : 1;
+    for ( int midx=0; midx<wd_.markers().size(); midx++)
+    {
+	const Well::Marker* marker = wd_.markers()[midx];
+	if ( !marker  ) continue;
+
+	deleteMarkerAuxDatas( marker->name() );
+    }
+
     for ( int midx=0; midx<wd_.markers().size(); midx++ )
     {
 	const Well::Marker* marker = wd_.markers()[midx];
@@ -246,7 +251,7 @@ void uiWellTieView::drawWellMarkers()
 	float zpos = d2tm->getTime( marker->dah() ); 
 
 	FlatView::Annotation::AuxData* auxdata = 0;
-	mTryAlloc( auxdata, FlatView::Annotation::AuxData( 0 ) );
+	mTryAlloc( auxdata, FlatView::Annotation::AuxData( marker->name() ) );
 	
 	for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
 	{
@@ -261,32 +266,44 @@ void uiWellTieView::drawWellMarkers()
 }	
 
 
-void uiWellTieView::drawUserPick( const UserPick* userpick )
+void uiWellTieView::drawUserPicks( const ObjectSet<UserPick>& pickset )
 {
-    if ( !userpick  ) return;
+    FlatView::Appearance& app = vwrs_[0]->appearance();
+    for ( int idx=0; idx<pickset.size(); idx++)
+    {
+	BufferString picnm = "UserPick";
+ 	picnm += idx;
+	
+	deleteMarkerAuxDatas( picnm  );
+    }
 
-    const int vwridx = userpick->vidx_;
-    if ( vwridx<0 || vwridx>vwrs_.size() )return;
-  
-    FlatView::Annotation::AuxData* auxdata = 0;
-    mTryAlloc( auxdata, FlatView::Annotation::AuxData( 0 ) );
-    
-    const float zpos = userpick->zpos_;
-    const int idxatdah = (int) ( (zpos-timeintv_.start) / timeintv_.step );
-    const float xpos = dispdata_[2]->get( idxatdah );
+    for ( int idx=0; idx<pickset.size(); idx++ )
+    {
+	const UserPick* userpick = pickset[idx];
+	if ( !userpick  ) continue;
 
-    drawMarker( auxdata, vwridx, xpos, zpos, userpick->color_, true );
-    userpickauxdatas_ += auxdata;
+	BufferString picnm = "UserPick";
+ 	picnm += idx;
 
-    vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );
-}	 
+	FlatView::Annotation::AuxData* auxdata = 0;
+	mTryAlloc( auxdata, FlatView::Annotation::AuxData(picnm) );
+	
+	const float zpos = userpick->zpos_;
+	const float xpos = data_.get( params_.currvellognm_,
+		 		      data_.getIdx( zpos ) );
 
+	drawMarker( auxdata, 0, xpos, zpos, userpick->color_, true );
+	userpickauxdatas_ += auxdata;
+
+	vwrs_[0]->handleChange( FlatView::Viewer::Annot );
+    }	
+}
 
 void uiWellTieView::drawCShot()
 {
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
-    WellTieGeoCalculator geocalc (wtsetup_,wd_);
+    WellTieGeoCalculator geocalc( &params_, &wd_ );
 
     TypeSet<float> csvals, cstolog, dpt;
     for ( int idx=0; idx< cs->size(); idx++ )

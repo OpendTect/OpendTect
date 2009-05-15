@@ -7,21 +7,20 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.5 2009-04-28 14:30:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.6 2009-05-15 12:42:49 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
 #include "arrayndimpl.h"
+#include "arrayndutils.h"
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "datacoldef.h"
 #include "datapointset.h"
+#include "ioman.h"
 #include "mousecursor.h"
 #include "posvecdataset.h"
-#include "sorting.h"
-#include "survinfo.h"
-#include "seisioobjinfo.h"
 #include "task.h"
 #include "unitofmeasure.h"
 #include "wavelet.h"
@@ -30,34 +29,35 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.5 2009-04-28 14:30:26 c
 #include "welllog.h"
 #include "welllogset.h"
 #include "welldata.h"
-#include "welld2tmodel.h"
-#include "wellextractdata.h"
 #include "welltrack.h"
 #include "welltiecshot.h"
 #include "welltiegeocalculator.h"
+#include "welltieunitfactors.h"
+#include "welltiedata.h"
 #include "welltied2tmodelmanager.h"
 #include "welltiesetup.h"
 #include "welltieextractdata.h"
-#include "welltiesynthetics.h"
 
-WellTieToSeismic::WellTieToSeismic(const WellTieSetup& wts,
-       				const Attrib::DescSet& ads,
-				DataPointSet& dps,
-			       	ObjectSet< Array1DImpl<float> >& data,
-       				Well::Data& d,TaskRunner* tr)
-    	: wtsetup_(wts)
-	, ads_(ads)
-	, dps_(dps)	   
-	, dispdata_(data)		   
-	, wd_(d)	   
-      	, d2tmgr_(0)
+WellTieToSeismic::WellTieToSeismic( Well::Data* wd, 
+				    const Attrib::DescSet& ads,
+				    const WellTieParams* p,
+			       	    WellTieDataMGR& mgr,
+       				    TaskRunner* tr )
+    	: wtsetup_(p->getSetup())
+	, params_(*p)  
+	, ads_(ads)	       
+	, wd_(*wd)  
+	, datamgr_(mgr)	   
+	, dispdata_(*mgr.getDispData())		   
+	, workdata_(*mgr.getWorkData())		   
 	, tr_(tr)		  
+      	, d2tmgr_(0)
+	, dps_(new DataPointSet(false, false))	    
 {
-    if ( !createDPSCols() ) return;
-    if ( !setLogsParams() ) return;
     checkShotCorr();
-    geocalc_ = new WellTieGeoCalculator( wts, wd_ );
-    d2tmgr_  = new WellTieD2TModelManager( wd_, *geocalc_ );
+    dps_->dataSet().add( new DataColDef( params_.getAttrName(ads_) ) );
+    geocalc_ = new WellTieGeoCalculator( p, wd );
+    d2tmgr_  = new WellTieD2TModelManager( wd_, wtsetup_, *geocalc_ );
 } 
 
 
@@ -67,44 +67,21 @@ WellTieToSeismic::~WellTieToSeismic()
     if ( cscorr_ ) delete cscorr_;
     if ( geocalc_ ) delete geocalc_;
     if ( tr_ ) delete tr_;
-    for ( int idx=workdata_.size()-1; idx>=0; idx-- )
-	delete ( workdata_.remove(idx) );
-}
-
-
-#define mStep 20
-#define mComputeStepFactor SI().zStep()/mStep
-bool WellTieToSeismic::setLogsParams()
-{
-    const Well::Log& vellog = *wd_.logs().getLog( wtsetup_.vellognm_ );
-    const Well::Log& denlog = *wd_.logs().getLog( wtsetup_.denlognm_ );
-
-    float velt0  = wd_.d2TModel()->getTime( vellog.dah(0) );
-    float dent0  = wd_.d2TModel()->getTime( denlog.dah(0) );
-    float veltend  = wd_.d2TModel()->getTime( vellog.dah(vellog.size()-1) );
-    float dentend  = wd_.d2TModel()->getTime( denlog.dah(denlog.size()-1) );
-
-    timeintv_.start = mMAX( velt0, dent0  );
-    timeintv_.stop  = mMIN( veltend, dentend );
-    timeintv_.step  = mComputeStepFactor;
-
-    float samplenr = ( timeintv_.stop - timeintv_.start) /  timeintv_.step;
-    for ( int idx=0; idx<9; idx++)
-    {
-	workdata_ += new Array1DImpl<float>( (int)samplenr+1 );
-	dispdata_ += new Array1DImpl<float>( (int)(samplenr/mStep)-1 );	
-    }
-    return true;
+    delete dps_;
 }
 
 
 bool WellTieToSeismic::computeAll()
 {
-    if ( !extractWellTrack() )  return false;
-    if ( !resampleLogs() ) 	return false;
-    if ( !computeSynthetics() ) return false;
-    if ( !extractSeismics() ) 	return false;
-    fillDispData();
+    datamgr_.resetData();
+
+    if ( !resampleLogs() ) 	    return false;
+    if ( !computeSynthetics() )     return false;
+    if ( !extractWellTrack() )      return false;
+    if ( !extractSeismics() ) 	    return false;
+   
+    //resample WorkData and put in DispData
+    datamgr_.setWork2DispData();
     
     return true;	
 }
@@ -113,21 +90,23 @@ bool WellTieToSeismic::computeAll()
 void WellTieToSeismic::checkShotCorr()
 {
     if ( wd_.checkShotModel() )
-	cscorr_ = new WellTieCSCorr( wd_, wtsetup_ );
+	cscorr_ = new WellTieCSCorr( wd_, params_ );
 }
-
 
 bool WellTieToSeismic::extractWellTrack()
 {
+    dps_->bivSet().empty();
+    dps_->dataChanged();
+
     MouseCursorManager::setOverride( MouseCursor::Wait );
     
-    WellTieExtractTrack wtextr( dps_, wd_ );
-    wtextr.timeintv_ = timeintv_;
-    wtextr.timeintv_.step = timeintv_.step*mStep;
+    WellTieExtractTrack wtextr( *dps_, &wd_ );
+    wtextr.timeintv_ = params_.getTimeScale();
+    wtextr.timeintv_.step = params_.timeintv_.step*params_.step_;
     if ( !tr_->execute( wtextr ) ) return false;
 
     MouseCursorManager::restoreOverride();
-    dps_.dataChanged();
+    dps_->dataChanged();
 
     return true;
 }
@@ -137,37 +116,42 @@ bool WellTieToSeismic::resampleLogs()
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
 
-    resLogExecutor( wtsetup_.corrvellognm_, 1 );
-    //resLogExecutor( "P-Impedance", 1 );
-    resLogExecutor( wtsetup_.vellognm_, 2  );
-    resLogExecutor( wtsetup_.denlognm_, 3  );
+    resLogExecutor( wtsetup_.corrvellognm_ );
+    resLogExecutor( wtsetup_.vellognm_ );
+    resLogExecutor( wtsetup_.denlognm_ );
 
     MouseCursorManager::restoreOverride();
-    dps_.dataChanged();
 
     return true;
 }
 
 
-bool WellTieToSeismic::resLogExecutor( const char* logname, int colnr )
+bool WellTieToSeismic::resLogExecutor( const char* logname )
 {
     const Well::Log* log =  wd_.logs().getLog( logname );
     if ( !log  ) return false;
 
-    WellTieResampleLog reslog( workdata_, *log, wd_ );
-    reslog.colnr_ = colnr;
-    reslog.timeintv_ = timeintv_;
+    WellTieResampleLog reslog( workdata_, *log, &wd_, *geocalc_ );
+    reslog.timenm_ = params_.timenm_; reslog.dptnm_ = params_.dptnm_;
+    reslog.timeintv_ = params_.getTimeScale();
     return tr_->execute( reslog );
 }
 
 
 bool WellTieToSeismic::computeSynthetics()
-{
-    wtsynth_ = new WellTieSynthetics( wtsetup_, workdata_, dispdata_ );
-    if ( !wtsynth_->computeSyntheticsData( *geocalc_) )  
-	return false;
-
-    return true;    
+{ 
+    geocalc_->computeAI( *workdata_.get(params_.currvellognm_),
+	      		 *workdata_.get(wtsetup_.denlognm_),
+	      	 	 *workdata_.get(params_.ainm_) );
+    
+    geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 125/params_.step_ );
+    
+    geocalc_->computeReflectivity( *workdata_.get(params_.ainm_),
+       				   *dispdata_.get(params_.refnm_), 
+				   params_.step_ );
+    convolveWavelet();
+    
+    return true;
 }
 
 
@@ -175,108 +159,59 @@ bool WellTieToSeismic::extractSeismics()
 {
     MouseCursorManager::setOverride( MouseCursor::Wait );
     Attrib::EngineMan aem; BufferString errmsg;
-    PtrMan<Executor> tabextr = aem.getTableExtractor( dps_, ads_, errmsg,
-						     dps_.nrCols()-1);
+    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps_, ads_, errmsg,
+						       dps_->nrCols()-1 );
     MouseCursorManager::restoreOverride();
     if (!tr_->execute( *tabextr )) return false;
-    dps_.dataChanged();
+    dps_->dataChanged();
+
+    //retrieve data from DPS    
+    datamgr_.getSortedDPSDataAlongZ( *dps_,
+	    *dispdata_.get(params_.getAttrName(ads_)) );
 
     return true;
 }
 
 
-void WellTieToSeismic::fillDispData()
+void WellTieToSeismic::convolveWavelet()
 {
-    int sz = dispdata_[0]->info().getSize(0);
-    for ( int colidx=0; colidx<5; colidx++)
-    {
-	for ( int idx=0; idx<sz; idx++)
-	    dispdata_[colidx]->setValue(idx, 
-			workdata_[colidx]->get((mStep)*idx+1));
-    }
+    IOObj* ioobj = IOM().get( wtsetup_.wvltid_ );
+    Wavelet* wvlt = new Wavelet( *Wavelet::get( ioobj ) );
+    Array1DImpl<float> wvltvals( wvlt->size() );
+    memcpy( wvltvals.getData(), wvlt->samples(), wvlt->size()*sizeof(float) );
 
-    getSortedDPSDataAlongZ(*dispdata_[dispdata_.size()-2]);
-
-    for ( int idx = 0; idx < 5; idx ++  )
-	orgdispdata_ += new Array1DImpl<float>( *dispdata_[idx] );
-}
-
-
-void WellTieToSeismic::getSortedDPSDataAlongZ( Array1DImpl<float>& vals)
-{
-    TypeSet<float> zvals, tmpvals;
-    for ( int idx=0; idx<dps_.size(); idx++ )
-	zvals += dps_.z(idx);
-
-    int sz = zvals.size();
-    if ( !sz )  return;
-
-    mAllocVarLenArr( int, zidxs, sz );
-    for ( int idx=0; idx<sz; idx++ )
-	zidxs[idx] = idx;
-
-    sort_coupled( zvals.arr(), mVarLenArr(zidxs), sz );
-
-    for ( int colidx=0; colidx<dps_.nrCols(); colidx++ )
-    {
-	for ( int idx=0; idx<sz; idx++ )
-	    tmpvals += dps_.getValues(zidxs[idx])[colidx];
-    }
-    for ( int idx=0; idx<vals.info().getSize(0); idx++ )
-	vals.setValue( idx, tmpvals[idx+1] );
-}
-
-
-#define mAddCol(nm)  \
-     dps_.dataSet().add( new DataColDef( nm ) );
-bool WellTieToSeismic::createDPSCols()
-{
-   // mAddCol( wtsetup_.denlognm_ );
-   // mAddCol( wtsetup_.vellognm_ );
-   // mAddCol( wtsetup_.corrvellognm_ );
-   // mAddCol( "Computed AI" );
-   // mAddCol( "Computed Reflectivity" );
-   // mAddCol( "Synthetics" );
+    int wvltidx = wvlt->centerSample();
+    geocalc_->convolveWavelet( wvltvals, *dispdata_.get(params_.refnm_),
+	    			*dispdata_.get(params_.synthnm_), wvltidx );
     
-    const Attrib::Desc* ad = ads_.getDesc( wtsetup_.attrid_ );
-    if ( !ad ) return false;
-    Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
-    BufferStringSet bss;
-    SeisIOObjInfo sii( MultiID( attrinf.ioobjids.get(0) ) );
-    sii.getDefKeys( bss, true );
-    const char* defkey = bss.get(0).buf();
-    BufferString attrnm = ad->userRef();
-    BufferString attr2cube = SeisIOObjInfo::defKey2DispName(defkey,attrnm);
-    mAddCol( attr2cube );
-
-    return true;
-}
-
-
-void WellTieToSeismic::stretchData( float startpos, float stoppos,
-				    float lastpickedpos, int dataidx )
-{
-    const int datasz = dispdata_[0]->info().getSize(0);
-    const float step = SI().zStep();
-   
-    const int startidx = (int) ( startpos / step  );
-    const int pickidx  = (int) ( lastpickedpos / step );
-    const int stopidx  = (int) ( stoppos / step  );
-
-    Array1DImpl<float> vals( datasz );
-
-    WellTieGeoCalculator geocalc( wtsetup_, wd_);
-
-    geocalc.stretchArr( *orgdispdata_[2], vals, startidx, stopidx, pickidx );
-
-    for ( int idx=0; idx<datasz; idx++ )
-	dispdata_[2]->setValue( idx, vals.get(idx) );
+    delete wvlt;
 }
 
 
 Wavelet* WellTieToSeismic::estimateWavelet()
-{ 
-    return  wtsynth_->estimateWvlt( *geocalc_);
+{
+    //copy initial wavelet
+    Wavelet* wvlt = new Wavelet( *Wavelet::get(IOM().get(wtsetup_.wvltid_)) );
+    const int datasz = params_.dispsize_;
+    const int wvltsz = wvlt->size();
+    const bool iswvltodd = wvltsz%2;
+    if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
+    Array1DImpl<float> wvltdata( datasz ), wvltvals( wvltsz );
+
+    geocalc_->deconvolve( *dispdata_.get(params_.getAttrName(ads_)),
+	   		  *dispdata_.get(params_.refnm_), wvltdata, wvltsz );
+    
+    for ( int idx=0; idx<wvltsz; idx++ )
+	wvlt->samples()[idx] = wvltdata.get( datasz/2 + idx - wvltsz/2 );
+    
+    memcpy( wvltvals.getData(),wvlt->samples(), wvltsz*sizeof(float) );
+    ArrayNDWindow window( Array1DInfoImpl(wvltsz),
+			  false, "CosTaper", 0.15 );
+    window.apply( &wvltvals );
+    memcpy( wvlt->samples(), wvltvals.getData(), wvltsz*sizeof(float) );
+    geocalc_->reverseWavelet( *wvlt );
+
+    return wvlt;
 }
 
 

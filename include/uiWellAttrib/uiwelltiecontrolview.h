@@ -12,6 +12,7 @@ ________________________________________________________________________
 -*/
 
 #include "uiflatviewcontrol.h"
+#include "welltiepickset.h"
 
 class WellTieDisplayProperties;
 
@@ -25,10 +26,12 @@ mClass uiWellTieControlView : public uiFlatViewControl
 {
 public:
 			uiWellTieControlView(uiParent*,uiToolBar*,
-			    ObjectSet<uiFlatViewer>&,WellTiePickSetManager&);
+			    ObjectSet<uiFlatViewer>&);
 			~uiWellTieControlView();
    
     void 		setView();
+    void		setPickSetMGR(WellTiePickSetManager* pmgr)
+    			{ picksetmgr_ = pmgr; }
     
 protected:
     
@@ -39,10 +42,10 @@ protected:
     uiToolButton*       zoomoutbut_;
     uiToolButton*       manipdrawbut_;
     uiToolButton*       disppropbut_;
-    uiWellTieViewPropDlg* propdlg_;
-
+    //uiWellTieViewPropDlg propdlg_;
+    
     WellTieDisplayProperties* dprops_;
-    WellTiePickSetManager& picksetmgr_;
+    WellTiePickSetManager*    picksetmgr_;
     
     void		doPropDlg(CallBacker*);
     bool 		handleUserClick(const int);
@@ -56,7 +59,6 @@ protected:
     void 		vwChgCB(CallBacker*);
     void		zoomOutCB(CallBacker*);
     void		zoomInCB(CallBacker*);
-
 };
 
 #endif

@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class WellTieSetup;
+class WellTieParams;
 class WellTieGeoCalculator;
 class DataPointSet;
 namespace Well
@@ -34,7 +35,7 @@ class uiLabel;
 mClass WellTieCSCorr  
 {
 public:
-		    WellTieCSCorr(Well::Data&,const WellTieSetup&);
+		    WellTieCSCorr(Well::Data&,const WellTieParams&);
 		    ~WellTieCSCorr() {};			
 
     const Well::Log& 		corrLog()              { return *log_; }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.2 2009-05-15 12:42:48 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -193,7 +193,7 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
 
     for ( int idx=0; idx<welltiedlgset_.size(); idx++ )
     {
-	if ( welltiedlgset_[idx]->tieSetup().wellid_ == wtsetup_.wellid_  )
+	if ( welltiedlgset_[idx]->Setup().wellid_ == wtsetup_.wellid_  )
 	{
 	    BufferString errmsg = "The Window is already opened for the Well\n";
 	    errmsg += wellfld_->ctxtIOObj().ioobj->name();

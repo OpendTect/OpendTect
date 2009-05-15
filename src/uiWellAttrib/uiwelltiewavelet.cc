@@ -7,10 +7,9 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.3 2009-04-28 14:30:26 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.4 2009-05-15 12:42:48 cvsbruno Exp $";
 
 #include "uiwelltiewavelet.h"
-#include "welltiesynthetics.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
@@ -40,8 +39,6 @@ uiWellTieWavelet::uiWellTieWavelet( uiParent* p, WellTieSetup& twtss)
     for ( int idx=0; idx<2; idx++ )
     {
 	viewer_ += new uiFlatViewer( this, true );
-	if ( idx>1 ) 
-	    viewer_[idx]->attach( rightOf, viewer_[idx-1] );
 	initWaveletViewer( idx );
     }
     createWaveletFields( this );
@@ -85,11 +82,12 @@ void uiWellTieWavelet::createWaveletFields( uiGroup* grp )
     wvltlbl += new uiLabel( grp,  "Initial Wavelet" );
     wvltlbl += new uiLabel( grp, "Estimated Wavelet"); 
     wvltlbl[0]->attach( alignedBelow, wvltfld_);
-    wvltlbl[0]->attach( ensureBelow, wvltfld_ );
-    wvltlbl[1]->attach( rightOf, wvltlbl[0] );
+    wvltlbl[1]->attach( ensureBelow, wvltfld_ );
+    wvltlbl[1]->attach( alignedAbove, viewer_[1] );
     
     viewer_[0]->attach( alignedBelow, wvltlbl[0] );
-    viewer_[1]->attach( alignedBelow, wvltlbl[1] );
+    viewer_[1]->attach( rightOf, viewer_[0] );
+    viewer_[1]->attach( ensureRightOf, viewer_[0] );
 }
 
 
@@ -97,6 +95,7 @@ void uiWellTieWavelet::initWavelets( Wavelet* wvltest )
 {
     IOObj* ioobj = IOM().get( MultiID(twtss_.wvltid_) );
     Wavelet* wvlt = Wavelet::get( ioobj );
+    if ( !wvlt ) return;
     ObjectSet<Wavelet> wvlts;
     wvlts += wvlt;
     wvlts += wvltest;

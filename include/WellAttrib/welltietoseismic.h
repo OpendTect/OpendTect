@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "ranges.h"
 
 #include "welltied2tmodelmanager.h"
+#include "welltiedata.h"
+#include "welltieunitfactors.h"
 
 template <class T> class Array1DImpl;
 class BufferStringSet;
@@ -27,6 +29,7 @@ class WellTieSetup;
 class WellTieD2TModelManager;
 class WellTieCSCorr;
 class WellTieSynthetics;
+class WellTieParams;
 
 namespace Attrib { class DescSet; }
 namespace Well 
@@ -38,61 +41,62 @@ namespace Well
 mClass WellTieToSeismic
 {
 public:
-			WellTieToSeismic(const WellTieSetup&,
-					 const Attrib::DescSet&,DataPointSet&,
-					 ObjectSet< Array1DImpl<float> >&,
-					 Well::Data&,TaskRunner*);
+			WellTieToSeismic( Well::Data*,
+				          const Attrib::DescSet& ads,
+					  const WellTieParams*,
+					  WellTieDataMGR&,					 			  TaskRunner*);
 			~WellTieToSeismic();
 
-
+    //TODO put back as private
+    bool 		computeAll();
+    bool		computeSynthetics();
+    bool		extractSeismics();
+    bool		extractWellTrack();
+    void 	      	setWorkData();
+    bool 	      	resampleLogs();
+    void		setWork2DispData();
     
-    bool 			computeAll();
-    bool			computeSynthetics();
-    
-    void	 	      	stretchData(float,float,float,int);
-    Wavelet*  			estimateWavelet();
+    Wavelet*  		estimateWavelet();
    
-    //D2TModelmanager 
-    void 			computeD2TModel()
-				{ d2tmgr_->setFromVelLog(); }
-    bool 			saveD2TModel(const char* fname)
-    				{ return d2tmgr_->save( fname ); }
-    bool 			undoD2TModel()
-				{ return d2tmgr_->undo(); }
-    bool 			cancelD2TModel()
-				{ return d2tmgr_->commitToWD(); }
-    bool			updateD2TModel()
-				{ return d2tmgr_->updateFromWD(); }
-    bool			commitD2TModel()
-				{ return d2tmgr_->commitToWD(); }
+    //D2TModelmanager operation
+    void 		setd2TModelFromData()
+    			{ d2tmgr_->setFromData(*dispdata_.get(params_.timenm_),
+				              *dispdata_.get(params_.dptnm_)); }
+    void 		computeD2TModel()
+			{ d2tmgr_->setFromVelLog(); }
+    bool 		saveD2TModel(const char* fname)
+    			{ return d2tmgr_->save( fname ); }
+    bool 		undoD2TModel()
+			{ return d2tmgr_->undo(); }
+    bool 		cancelD2TModel()
+			{ return d2tmgr_->cancel(); }
+    bool		updateD2TModel()
+			{ return d2tmgr_->updateFromWD(); }
+    bool		commitD2TModel()
+			{ return d2tmgr_->commitToWD(); }
     
 protected:
 
     TaskRunner*			tr_;      //becomes mine  
 
     const Attrib::DescSet& 	ads_;
-    const WellTieSetup&		wtsetup_;	
+    DataPointSet* 		dps_;
     Well::Data& 		wd_;	 
-    StepInterval<float>   	timeintv_;
-    DataPointSet& 		dps_;
-    ObjectSet< Array1DImpl<float> >   workdata_;	
-    ObjectSet< Array1DImpl<float> >&  dispdata_;	
-    ObjectSet< Array1DImpl<float> >   orgdispdata_;	
+    WellTieDataMGR& 		datamgr_;     
+    WellTieDataSet& 		workdata_;
+    WellTieDataSet& 		dispdata_;
+    const WellTieParams&	params_;	
+    const WellTieSetup&		wtsetup_;	
 
     WellTieD2TModelManager*	d2tmgr_;
     WellTieGeoCalculator*	geocalc_;
     WellTieCSCorr*		cscorr_;
     WellTieSynthetics*		wtsynth_;
     
-    bool			extractSeismics();
-    bool			extractWellTrack();
-    bool 	      		resampleLogs();
-    bool 	      		resLogExecutor(const char*,int);
-    bool 	      		createDPSCols();
-    void	 	   	fillDispData();
     void			checkShotCorr();
-    void 			getSortedDPSDataAlongZ(Array1DImpl<float>&);
-    bool 	      		setLogsParams();
+    void  			convolveWavelet();
+    void 			reverseWavelet(Wavelet&);
+    bool 	      		resLogExecutor(const char*);
 };
 
 #endif

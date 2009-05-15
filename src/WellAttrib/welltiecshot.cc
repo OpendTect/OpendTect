@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.2 2009-04-22 09:22:06 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.3 2009-05-15 12:42:48 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -17,11 +17,12 @@ static const char* rcsID = "$Id: welltiecshot.cc,v 1.2 2009-04-22 09:22:06 cvsbr
 #include "welllog.h"
 #include "welld2tmodel.h"
 #include "welltiesetup.h"
+#include "welltieunitfactors.h"
 #include "welltiegeocalculator.h"
 
 
-WellTieCSCorr::WellTieCSCorr(Well::Data& d, const WellTieSetup& s )
-	: log_(new Well::Log(*d.logs().getLog(s.vellognm_)))
+WellTieCSCorr::WellTieCSCorr( Well::Data& d, const WellTieParams& pms )
+	: log_(new Well::Log(*d.logs().getLog(pms.getSetup().vellognm_)))
 	, cs_(d.checkShotModel())
 {
     if ( !cs_ )
@@ -31,12 +32,12 @@ WellTieCSCorr::WellTieCSCorr(Well::Data& d, const WellTieSetup& s )
     
     TypeSet<float> newcsvals; 
 
-    WellTieGeoCalculator geocalc( s, d );
-    setCSToLogScale( newcsvals, s.factors_.velFactor(), geocalc );
+    WellTieGeoCalculator geocalc( &pms, &d );
+    setCSToLogScale( newcsvals, pms.getUnits().velFactor(), geocalc );
     fitCS( newcsvals );
     BufferString corr = "Corrected ";
     corr += log_->name();
-    log_->setName( s.corrvellognm_ );
+    log_->setName( pms.getSetup().corrvellognm_ );
     d.logs().add( log_ );
 }
 
