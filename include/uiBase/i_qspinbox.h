@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qspinbox.h,v 1.7 2008-01-31 07:34:00 cvsnanne Exp $
+ RCS:           $Id: i_qspinbox.h,v 1.8 2009-05-15 16:27:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,9 @@ private:
 private slots:
 
     void		editingFinished()
-			{ receiver_->valueChanged.trigger(*receiver_); }
+			{ receiver_->notifyHandler( true ); }
     void 		valueChanged(double)
-			{ receiver_->valueChanging.trigger(*receiver_); }
+			{ receiver_->notifyHandler( false ); }
 };
 
 #endif

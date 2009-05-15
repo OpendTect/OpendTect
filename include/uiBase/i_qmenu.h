@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.9 2009-03-04 10:43:27 cvsjaap Exp $
+ RCS:           $Id: i_qmenu.h,v 1.10 2009-05-15 16:27:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,11 +46,11 @@ private slots:
 
     void			activated()
     				{
-				    _receiver->markCmdRecEvent( true );
+				    const int refnr =
+						_receiver->beginCmdRecEvent();
 				    _receiver->activated.trigger( *_receiver );
-				    _receiver->markCmdRecEvent( false );
+				    _receiver->endCmdRecEvent( refnr );
 			       	}
-
 };
 
 #endif

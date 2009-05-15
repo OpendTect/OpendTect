@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibaseobject.h,v 1.2 2009-03-23 05:03:33 cvsnanne Exp $
+ RCS:           $Id: uibaseobject.h,v 1.3 2009-05-15 16:27:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ public:
 				    : NamedObject(nm)
 				    , finaliseStart(this)
 				    , finaliseDone(this)
+				    , cmdrecrefnr_(0)
 				    , body_(b)			{}
     virtual			~uiBaseObject()			{}
 
@@ -36,9 +37,14 @@ public:
 
     static void			setCmdRecorder(const CallBack&);
     static void			unsetCmdRecorder();
-    void			markCmdRecEvent(bool start,const char* msg=0);
-    void			markCmdRecEvent(od_uint64 id,bool start,
-	    					const char* msg=0);
+
+    int	 /* refnr */		beginCmdRecEvent(const char* msg=0);
+    void			endCmdRecEvent(int refnr,const char* msg=0);
+
+    int	 /* refnr */		beginCmdRecEvent(od_uint64 id,
+	    					 const char* msg=0);
+    void			endCmdRecEvent(od_uint64 id,int refnr,
+					       const char* msg=0);
 
     Notifier<uiBaseObject>	finaliseStart;
 				//!< triggered when about to start finalising
@@ -51,6 +57,7 @@ protected:
 
 private:
     static CallBack*		cmdrecorder_;
+    int				cmdrecrefnr_;
     uiBody*			body_;
 };
 

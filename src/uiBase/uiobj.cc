@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiobj.cc,v 1.84 2009-03-23 05:08:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiobj.cc,v 1.85 2009-05-15 16:28:43 cvsjaap Exp $";
 
 #include "uiobj.h"
 #include "uiobjbody.h"
@@ -43,11 +43,34 @@ bool uiBaseObject::finalised() const
 CallBack* uiBaseObject::cmdrecorder_ = 0;
 
 
-void uiBaseObject::markCmdRecEvent( bool begin, const char* msg )
-{ markCmdRecEvent( (od_uint64) 0, begin, msg ); }
+int uiBaseObject::beginCmdRecEvent( const char* msg )
+{ return beginCmdRecEvent( (od_uint64) 0, msg ); }
 
 
-void uiBaseObject::markCmdRecEvent( od_uint64 id, bool begin, const char* msg )
+int uiBaseObject::beginCmdRecEvent( od_uint64 id, const char* msg )
+{
+    if ( !cmdrecorder_ )
+	return -1;
+
+    cmdrecrefnr_ = cmdrecrefnr_==INT_MAX ? 1 : cmdrecrefnr_+1;
+
+    BufferString actstr;
+    if ( id )
+	actstr += toString( id );
+
+    actstr += " Begin "; actstr += cmdrecrefnr_;
+    actstr += " "; actstr += msg;
+    CBCapsule<const char*> caps( actstr, this );
+    cmdrecorder_->doCall( &caps );
+    return cmdrecrefnr_;
+}
+
+
+void uiBaseObject::endCmdRecEvent( int refnr, const char* msg )
+{ endCmdRecEvent( (od_uint64) 0, refnr, msg ); }
+
+
+void uiBaseObject::endCmdRecEvent( od_uint64 id, int refnr, const char* msg )
 {
     if ( cmdrecorder_ )
     {
@@ -55,8 +78,8 @@ void uiBaseObject::markCmdRecEvent( od_uint64 id, bool begin, const char* msg )
 	if ( id )
 	    actstr += toString( id );
 
-	actstr += begin ? " Begin " : " End ";
-	actstr += msg;
+	actstr += " End "; actstr += refnr;
+	actstr += " "; actstr += msg;
 	CBCapsule<const char*> caps( actstr, this );
 	cmdrecorder_->doCall( &caps );
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.175 2009-05-14 21:15:23 cvskris Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.176 2009-05-15 16:28:43 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -92,7 +92,7 @@ public:
 
     virtual void	show() 
 			{
-			    handle_.markCmdRecEvent( true, "WinPopUp" );
+			    handle_.beginCmdRecEvent( "WinPopUp" );
 			    QMainWindow::show();
 
 			    if( poptimer.isActive() )
@@ -344,7 +344,7 @@ void uiMainWinBody::finalise( bool trigger_finalise_start_stop )
 
 void uiMainWinBody::closeEvent( QCloseEvent* ce )
 {
-    handle_.markCmdRecEvent( true, "Close" );
+    const int refnr = handle_.beginCmdRecEvent( "Close" );
 
     if ( handle_.closeOK() )
     {
@@ -354,7 +354,7 @@ void uiMainWinBody::closeEvent( QCloseEvent* ce )
     else
 	ce->ignore();
 
-     handle_.markCmdRecEvent( false );
+     handle_.endCmdRecEvent( refnr );
 }
 
 
@@ -1258,7 +1258,7 @@ void uiDialogBody::done_( int v )
 
 void uiDialogBody::closeEvent( QCloseEvent* ce )
 {
-    handle_.markCmdRecEvent( true, "Close" );
+    const int refnr = handle_.beginCmdRecEvent( "Close" );
 
     reject(0);
     if ( reslt == -1 )
@@ -1266,7 +1266,7 @@ void uiDialogBody::closeEvent( QCloseEvent* ce )
     else
 	ce->accept();
 
-    handle_.markCmdRecEvent( false );
+    handle_.endCmdRecEvent( refnr );
 }
 
 

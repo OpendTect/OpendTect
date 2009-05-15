@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.58 2009-05-14 02:23:56 cvskris Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.59 2009-05-15 16:28:43 cvsjaap Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uimenu.cc,v 1.58 2009-05-14 02:23:56 cvskris Ex
 #include "uiobjbody.h"
 #include "uibody.h"
 #include "pixmap.h"
+#include <climits>
 
 #include <QApplication>
 #include <QCursor>
@@ -176,7 +177,8 @@ private:
     , enabled_(true) \
     , checked_(false) \
     , pixmap_(0) \
-    , checkable_(false)
+    , checkable_(false) \
+    , cmdrecrefnr_(0)
 
 uiMenuItem::uiMenuItem( const char* nm, const ioPixmap* p )
     mInitMembers
@@ -285,17 +287,32 @@ void uiMenuItem::activate()
 
 CallBack* uiMenuItem::cmdrecorder_ = 0;
 
+int uiMenuItem::beginCmdRecEvent( const char* msg )
+{
+    if ( !cmdrecorder_ )
+	return -1;
 
-void uiMenuItem::markCmdRecEvent( bool begin, const char* msg )
+    cmdrecrefnr_ = cmdrecrefnr_==INT_MAX ? 1 : cmdrecrefnr_+1;
+
+    BufferString actstr( "Begin " );
+    actstr += cmdrecrefnr_; actstr += " "; actstr += msg;
+    CBCapsule<const char*> caps( actstr, this );
+    cmdrecorder_->doCall( &caps );
+    return cmdrecrefnr_;
+}
+
+
+void uiMenuItem::endCmdRecEvent( int refnr, const char* msg )
 {
     if ( cmdrecorder_ )
     {
-	BufferString actstr( begin ? "Begin " : "End " );
-	actstr += msg;
+	BufferString actstr( "End " );
+	actstr += refnr; actstr += " "; actstr += msg;
 	CBCapsule<const char*> caps( actstr, this );
 	cmdrecorder_->doCall( &caps );
     }
 }
+
 
 void uiMenuItem::unsetCmdRecorder()
 {

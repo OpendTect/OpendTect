@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uispinbox.cc,v 1.36 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uispinbox.cc,v 1.37 2009-05-15 16:28:43 cvsjaap Exp $";
 
 #include "uispinbox.h"
 #include "uilabel.h"
@@ -152,6 +152,7 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     setNrDecimals( dec );
     setKeyboardTracking( false );
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
+    oldvalue_ = getFValue();
 }
 
 
@@ -324,6 +325,23 @@ bool uiSpinBox::keyboardTracking() const
     return body_->keyboardTracking();
 #endif
 }
+
+
+void uiSpinBox::notifyHandler( bool editingfinished )
+{
+    BufferString msg = toString( oldvalue_ );
+    oldvalue_ = getFValue();
+    msg += editingfinished ? " valueChanged" : " valueChanging";
+    const int refnr = beginCmdRecEvent( msg );
+
+    if ( editingfinished )
+	valueChanged.trigger( this );
+    else
+	valueChanging.trigger( this );
+
+    endCmdRecEvent( refnr, msg );
+}
+
 
 //------------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qlineedit.h,v 1.4 2008-01-08 03:45:00 cvsnanne Exp $
+ RCS:           $Id: i_qlineedit.h,v 1.5 2009-05-15 16:27:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,12 +47,17 @@ private:
 
 private slots:
 
-    void 		returnPressed() 
-			{ receiver_->returnPressed.trigger(*receiver_); }
-    void 		editingFinished() 
-			{ receiver_->editingFinished.trigger(*receiver_); }
+#define mTrigger( notifier ) \
+    const int refnr = receiver_->beginCmdRecEvent( #notifier ); \
+    receiver_->notifier.trigger(*receiver_); \
+    receiver_->endCmdRecEvent( refnr, #notifier );
+
+    void 		returnPressed()
+			{ mTrigger( returnPressed ); }
+    void 		editingFinished()
+			{ mTrigger( editingFinished ); }
     void 		textChanged(const QString&)
-			{ receiver_->textChanged.trigger(*receiver_); }
+			{ mTrigger( textChanged ); }
 };
 
 #endif

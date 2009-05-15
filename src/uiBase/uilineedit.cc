@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilineedit.cc,v 1.32 2008-12-24 11:26:15 cvsraman Exp $";
+static const char* rcsID = "$Id: uilineedit.cc,v 1.33 2009-05-15 16:28:43 cvsjaap Exp $";
 
 #include "uilineedit.h"
 #include "i_qlineedit.h"
@@ -77,10 +77,9 @@ bool uiLineEditBody::event( QEvent* ev )
     if ( activatetxt_ )
 	handle_.setvalue_( activatetxt_ );
     if ( activateenter_ )
-    {
-	handle_.editingFinished.trigger();
 	handle_.returnPressed.trigger();
-    }
+    if ( activatetxt_ || activateenter_ )
+	handle_.editingFinished.trigger();
     
     handle_.activatedone.trigger();
     return true;

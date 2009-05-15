@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.43 2009-04-14 07:30:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.44 2009-05-15 16:28:43 cvsjaap Exp $";
 
 
 #include "uimsg.h"
@@ -118,14 +118,16 @@ static const char* getCaptn( const char* s )
 }
 
 
-void uiMsg::beginCmdRecEvent()
+int uiMsg::beginCmdRecEvent()
 {
     uiMainWin* carrier = uiMain::theMain().topLevel();
-    if ( carrier )
-	carrier->markCmdRecEvent( (od_uint64) this, true, "QMsgBoxBut" );
+    if ( !carrier )
+	return -1;
+
+    return carrier->beginCmdRecEvent( (od_uint64) this, "QMsgBoxBut" );
 }
 
-void uiMsg::endCmdRecEvent( int retval, const char* buttxt0,
+void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
 			    const char* buttxt1, const char* buttxt2 )
 {
     BufferString msg( "QMsgBoxBut " );
@@ -133,7 +135,7 @@ void uiMsg::endCmdRecEvent( int retval, const char* buttxt0,
 
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( carrier )
-	carrier->markCmdRecEvent( (od_uint64) this, false, msg );
+	carrier->endCmdRecEvent( (od_uint64) this, refnr, msg );
 }
 
 
@@ -144,10 +146,10 @@ void uiMsg::message( mDeclArgs )
     mPrepTxt();
     const char* oktxt = "&Ok";
 
-    beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent();
     QMessageBox::information( popParnt(), mCapt("Information"), mTxt,
 	    		      QString(oktxt) );
-    endCmdRecEvent( 0, oktxt );
+    endCmdRecEvent( refnr, 0, oktxt );
 }
 
 
@@ -156,9 +158,9 @@ void uiMsg::warning( mDeclArgs )
     mPrepTxt();
     const char* oktxt = "&Ok";
 
-    beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent();
     QMessageBox::warning( popParnt(), mCapt("Warning"), mTxt, QString(oktxt) );
-    endCmdRecEvent( 0, oktxt );
+    endCmdRecEvent( refnr, 0, oktxt );
 }
 
 
@@ -167,9 +169,9 @@ void uiMsg::error( mDeclArgs )
     mPrepTxt();
     const char* oktxt = "&Ok";
 
-    beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent();
     QMessageBox::critical( popParnt(), mCapt("Error"), mTxt, QString(oktxt) );
-    endCmdRecEvent( 0, oktxt );
+    endCmdRecEvent(  refnr, 0, oktxt );
 }
 
 
@@ -211,7 +213,7 @@ int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
 		     const char* cncltxt, const char* title )
 {
     mPrepCursor();
-    beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent();
 
     if ( !yestxt || !*yestxt )
 	yestxt = "Yes";
@@ -225,7 +227,7 @@ int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
 				cncltxt ? QString(cncltxt) : QString::null,
 			       	0, 2 );
 
-    endCmdRecEvent( res, yestxt, notxt, cncltxt );
+    endCmdRecEvent( refnr, res, yestxt, notxt, cncltxt );
     return res == 0 ? 1 : (res == 1 ? 0 : -1);
 }
 
@@ -233,8 +235,9 @@ int uiMsg::question( const char* text, const char* yestxt, const char* notxt,
 void uiMsg::about( const char* text )
 {
     mPrepCursor();
+    const int refnr = beginCmdRecEvent();
     QMessageBox::about( popParnt(), mCapt("About"), QString(text) );
-    endCmdRecEvent( 0, "OK" );
+    endCmdRecEvent( refnr, 0, "OK" );
 }
 
 
@@ -251,11 +254,11 @@ bool uiMsg::askGoOn( const char* text, const char* textyes, const char* textno )
 {
     mPrepCursor();
 
-    beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent();
     const int res = QMessageBox::warning( popParnt(), mCapt("Please specify"),
 	    				  QString(text), QString(textyes),
 					  QString(textno), QString::null, 0, 1);
-    endCmdRecEvent( res, textyes, textno );
+    endCmdRecEvent( refnr, res, textyes, textno );
     return !res;
 }
 
@@ -271,14 +274,14 @@ int uiMsg::askGoOnAfter( const char* text, const char* cnclmsg ,
     if ( !textno || !*textno )
 	textno = "&No";
 
-    beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent();
     const int res = QMessageBox::warning( popParnt(),
 				mCapt("Please specify"), QString(text),
 				QString(textyes),
 				QString(textno),
 				QString(cnclmsg), 0, 2 );
 
-    endCmdRecEvent( res, textyes, textno, cnclmsg );
+    endCmdRecEvent( refnr, res, textyes, textno, cnclmsg );
     return res;
 }
 
@@ -290,13 +293,13 @@ bool uiMsg::showMsgNextTime( const char* text, const char* ntmsg )
     if ( !ntmsg || !*ntmsg )
 	ntmsg = "&Don't show this message again";
 
-    beginCmdRecEvent();
+    const int refnr = beginCmdRecEvent();
     const int res = QMessageBox::warning( popParnt(),
 				mCapt("Information"), QString(text),
 				QString(oktxt),
 				QString(ntmsg),
 				QString::null, 0, 1 );
 
-    endCmdRecEvent( res, oktxt, ntmsg );
+    endCmdRecEvent( refnr, res, oktxt, ntmsg );
     return !res;
 }
