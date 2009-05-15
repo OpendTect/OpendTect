@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.38 2009-04-27 10:38:28 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.39 2009-05-15 09:49:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.38 2009-04-27 10:38:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.39 2009-05-15 09:49:28 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -1064,15 +1064,15 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 	   "Selection mode" ); 
     seltb_.turnOn( selmodechgtbid_, plotter_.isRubberBandingOn() );
 
-    seltb_.addButton( "clearselection.png",
+    clearseltbid_ = seltb_.addButton( "clearselection.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,removeSelections), 
 	    "Remove all selections" );
     
-    seltb_.addButton( "trashcan.png",
+    seldeltbid_ = seltb_.addButton( "trashcan.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,deleteSelections), 
 	    "Delete all selections" );
 
-    seltb_.addButton( "seltable.png",
+    seltabletbid_ = seltb_.addButton( "seltable.png",
 	    mCB(this,uiDataPointSetCrossPlotWin,showTableSel), 
 	    "Show selections in table" );
 
@@ -1103,6 +1103,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     seltb_.setSensitive( selmodechgtbid_, false );
     seltb_.setSensitive( showselptswstbid_, false );
     seltb_.setSensitive( selsettingstbid_, false );
+    seltb_.setSensitive( seldeltbid_, false );
+    seltb_.setSensitive( seltabletbid_, false );
+    seltb_.setSensitive( clearseltbid_, false );
     plotter_.setPrefWidth( 600 );
     plotter_.setPrefHeight( 500 );
 }
@@ -1317,6 +1320,9 @@ void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
     seltb_.setSensitive( selmodechgtbid_, isoff );
     seltb_.setSensitive( showselptswstbid_, isoff );
     seltb_.setSensitive( selsettingstbid_, isoff );
+    seltb_.setSensitive( seltabletbid_, isoff );
+    seltb_.setSensitive( seldeltbid_, isoff );
+    seltb_.setSensitive( clearseltbid_, isoff );
     plotter_.setDragMode(  plotter_.isSceneSelectable()
 	    			? ( plotter_.isRectSelection()
 				    ? uiGraphicsView::RubberBandDrag

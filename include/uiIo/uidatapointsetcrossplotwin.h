@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.12 2009-04-23 06:32:37 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.13 2009-05-15 09:49:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,9 @@ protected:
     int				showy2tbid_;
     int				showselptswstbid_;
     int				selmodechgtbid_;
+    int				seldeltbid_;
+    int				clearseltbid_;
+    int				seltabletbid_;
     int				setselecttbid_;
     int				selsettingstbid_;
 
