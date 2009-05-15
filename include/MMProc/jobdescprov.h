@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Apr 2002
- RCS:		$Id: jobdescprov.h,v 1.6 2008-12-25 11:44:29 cvsranojay Exp $
+ RCS:		$Id: jobdescprov.h,v 1.7 2009-05-15 10:39:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,9 @@ public:
     virtual void	dump(std::ostream&) const;
 
     void		getRange(StepInterval<int>&) const;
+    void		setNrInlsPerJob(const int nr)	{ ninlperjob_ = nr; }
+    int			getNrInlsPerJob()		{ return ninlperjob_; }
+
     static const char*	sKeyMaxInlRg; //!< absolute limit - will override
     static const char*	sKeyMaxCrlRg; //!< absolute limit - will override
 
