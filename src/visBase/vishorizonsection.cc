@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.25 2009-05-14 20:28:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.26 2009-05-15 21:42:27 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -655,7 +655,8 @@ unsigned char HorizonSection::getTransparency( int ch ) const
 
 
 void HorizonSection::enableChannel( int channel, bool yn )
-{ 
+{
+    channels_->turnOn( yn ); 
     channel2rgba_->setEnabled( channel, yn ); 
 }
 
