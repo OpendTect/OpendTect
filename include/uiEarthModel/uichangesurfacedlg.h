@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2006
- RCS:           $Id: uichangesurfacedlg.h,v 1.8 2009-01-08 07:32:45 cvsranojay Exp $
+ RCS:           $Id: uichangesurfacedlg.h,v 1.9 2009-05-15 17:58:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,32 +61,6 @@ protected:
 };
 
 
-
-mClass uiArr2DInterpolPars;
-
-
-mClass uiInterpolHorizonDlg : public uiChangeSurfaceDlg
-{
-public:
-				uiInterpolHorizonDlg(uiParent*,EM::Horizon3D*);
-
-protected:
-
-    mutable BufferString	infomsg_;
-
-    uiArr2DInterpolPars*	a2dInterp();
-    const uiArr2DInterpolPars*	a2dInterp() const;
-
-    const char*			infoMsg(const Executor*) const;
-    Executor*			getWorker(Array2D<float>&,
-	    				  const StepInterval<int>&,
-					  const StepInterval<int>&);
-
-    virtual bool		fillUdfsOnly() const	{ return true; }
-    virtual bool		needsFullSurveyArray() const;
-    virtual const char*		undoText() const { return "interpolation"; }
-
-};
 
 
 class uiStepOutSel;

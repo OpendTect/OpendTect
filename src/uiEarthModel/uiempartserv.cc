@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.167 2009-05-05 16:43:47 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.168 2009-05-15 17:58:54 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -240,7 +240,12 @@ bool uiEMPartServer::isShifted( const EM::ObjectID& emid ) const
 void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid));
-    uiHorizon3DInterpolDlg dlg( parent(), *hor3d );
+    if ( !hor3d )
+    {
+	pErrMsg("No horizon!");
+	return;
+    }
+    uiHorizon3DInterpolDlg dlg( parent(), hor3d );
     dlg.go();
 }
 
