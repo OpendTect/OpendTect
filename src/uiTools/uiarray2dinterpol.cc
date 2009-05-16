@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.3 2009-04-23 13:35:13 cvskris Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.4 2009-05-16 04:22:37 cvskris Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -113,6 +113,13 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 
 uiArray2DInterpolSel::~uiArray2DInterpolSel()
 { delete result_; }
+
+
+const char* uiArray2DInterpolSel::helpID() const
+{
+    const int sel = methodsel_ ? methodsel_->getIntValue( 0 ) : 0;
+    return params_[sel] ? params_[sel]->helpID() : 0;
+}
 
 
 void uiArray2DInterpolSel::setDistanceUnit( const char* du )

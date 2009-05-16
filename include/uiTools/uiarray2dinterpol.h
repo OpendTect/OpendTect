@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2009
- RCS:           $Id: uiarray2dinterpol.h,v 1.3 2009-04-16 20:21:22 cvskris Exp $
+ RCS:           $Id: uiarray2dinterpol.h,v 1.4 2009-05-16 04:22:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,8 @@ public:
     void			setDistanceUnit(const char*);
     				//!<A unitstring in [] that tells what the
 				//!<unit is for going from one cell to another
+    
+    const char*			helpID() const;
 
 protected:
 					~uiArray2DInterpolSel();
@@ -83,6 +85,8 @@ public:
     void			setValuesFrom(const Array2DInterpol&);
     bool			acceptOK();
     void			setDistanceUnit(const char*);
+
+    const char*			helpID() const { return "od: 104.0.13"; }
 
 protected:
 
