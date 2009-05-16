@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.19 2009-04-24 13:32:30 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.20 2009-05-16 03:08:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ void ODPolygon<T>::getData( bool forx, TypeSet<T>& ts ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Geom::Point2D<T>& vtx = getVertex( idx );
+	const Geom::Point2D<T>& vtx = poly_[idx];
 	ts += forx ? vtx.x : vtx.y;
     }
 }
@@ -201,12 +201,12 @@ template <class T> inline
 Interval<T> ODPolygon<T>::getRange( bool forx ) const
 {
     if ( poly_.isEmpty() ) return Interval<T>( udf_.x, udf_.y );
-    Geom::Point2D<T> vtx0 = getVertex( 0 );
+    Geom::Point2D<T> vtx0 = poly_[0];
     Interval<float> ret;
     ret.start = ret.stop = forx ? vtx0.x : vtx0.y;
     for ( int idx=1; idx<size(); idx++ )
     {
-	const Geom::Point2D<T>& vtx = getVertex( idx );
+	const Geom::Point2D<T>& vtx = poly_[idx];
 	const T val = forx ? vtx.x : vtx.y;
 	if ( val < ret.start )		ret.start = val;
 	else if ( val > ret.stop )	ret.stop = val;
@@ -224,7 +224,7 @@ bool ODPolygon<T>::isInside( const Geom::Point2D<T>& point,
     bool nrcrossingsodd = false;
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Geom::Point2D<T>& vtxcurr = getVertex( idx );
+	const Geom::Point2D<T>& vtxcurr = poly_[idx];
 	const Geom::Point2D<T>& vtxnext = nextVertex( idx );
 
 	if ( isOnSegment(point, vtxcurr, vtxnext, eps) )
@@ -244,7 +244,7 @@ bool ODPolygon<T>::segmentMeetsBorder( const Geom::Point2D<T>& pt1,
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Geom::Point2D<T>& vtxcurr = getVertex( idx );
+	const Geom::Point2D<T>& vtxcurr = poly_[idx];
 	const Geom::Point2D<T>& vtxnext = nextVertex( idx );
 
 	if ( doSegmentsMeet(pt1, pt2, vtxcurr, vtxnext, eps) )
@@ -278,17 +278,17 @@ int ODPolygon<T>::isInside( const ODPolygon& testpoly, T eps ) const
 
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Geom::Point2D<T>& vtxcurr = getVertex( idx );
+	const Geom::Point2D<T>& vtxcurr = poly_[idx];
 	const Geom::Point2D<T>& vtxnext = nextVertex( idx );
 
 	if ( testpoly.segmentMeetsBorder(vtxcurr, vtxnext, eps) )
 	    return 1;
     }
 
-    if ( isInside(testpoly.getVertex(0), false, eps) )
+    if ( isInside(testpoly.poly_[0], false, eps) )
 	return 2;
 
-    return testpoly.isInside(getVertex(0), false, eps) ? 1 : 0; 
+    return testpoly.isInside(poly_[0], false, eps) ? 1 : 0; 
 }
 
 
@@ -298,7 +298,7 @@ void ODPolygon<T>::removeZeroLengths()
     const int startidx = isClosed() ? size()-1 : size()-2;
     for ( int idx=startidx; idx>=0; idx-- )
     {
-	if ( getVertex(idx)==nextVertex(idx) && size()>1 )
+	if ( poly_[idx]==nextVertex(idx) && size()>1 )
 	    remove(idx);
     }
 }
@@ -310,8 +310,8 @@ bool ODPolygon<T>::isUTurn( int idx ) const
     if ( !validIdx(idx) || ( !isClosed() && (idx==0 || idx==size()-1) ) )
 	return false;
 
-    const Geom::Point2D<T>& vec1 = prevVertex(idx) - getVertex(idx);
-    const Geom::Point2D<T>& vec2 = nextVertex(idx) - getVertex(idx);
+    const Geom::Point2D<T>& vec1 = prevVertex(idx) - poly_[idx];
+    const Geom::Point2D<T>& vec2 = nextVertex(idx) - poly_[idx];
 
     return vec1.x*vec2.y-vec1.y*vec2.x==0 && vec1.x*vec2.x+vec1.y*vec2.y>0;
 }
@@ -329,7 +329,7 @@ bool ODPolygon<T>::isSelfIntersecting() const
 	if ( plg.isUTurn(idx) )
 	    return true;
 
-	const Geom::Point2D<T>& vtxcurr = plg.getVertex( idx );
+	const Geom::Point2D<T>& vtxcurr = plg.poly_[idx];
 	const Geom::Point2D<T>& vtxnext = plg.nextVertex( idx );
 
 	for ( int idy=0; idy<stopidx; idy++ )
@@ -338,7 +338,7 @@ bool ODPolygon<T>::isSelfIntersecting() const
 	    if ( dif<=1 || dif>=plg.size()-1 )
 		continue;
 
-	    const Geom::Point2D<T>& pt1 = plg.getVertex( idy );
+	    const Geom::Point2D<T>& pt1 = plg.poly_[idy];
 	    const Geom::Point2D<T>& pt2 = plg.nextVertex( idy );
 
 	    if ( vtxcurr==pt1 || vtxcurr==pt2 )
@@ -464,10 +464,10 @@ float ODPolygon<T>::sgnArea() const
 {
     float area2 = 0.0;
 
+    const Geom::Point2D<T>& pt0 = poly_[0];
     for ( int idx=1; idx<size()-1; idx++ )
     {
-	const Geom::Point2D<T>& pt0 = getVertex( 0 );
-	const Geom::Point2D<T>& pt1 = getVertex( idx );
+	const Geom::Point2D<T>& pt1 = poly_[idx];
 	const Geom::Point2D<T>& pt2 = nextVertex( idx );
 	area2 += (pt1.x-pt0.x) * (pt2.y-pt0.y) - (pt2.x-pt0.x) * (pt1.y-pt0.y);
     }
@@ -486,10 +486,10 @@ void ODPolygon<T>::convexHull()
 	return;
 
     // Find guaranteed vertex of the convex hull to become pivot
-    Geom::Point2D<T> pivot = getVertex( 0 );
+    Geom::Point2D<T> pivot = poly_[0];
     for ( int idx=1; idx<size(); idx++ )
     {
-	const Geom::Point2D<T>& vtx = getVertex( idx );
+	const Geom::Point2D<T>& vtx = poly_[idx];
 	if ( vtx.x<pivot.x || (vtx.x==pivot.x && vtx.y<pivot.y) )
 	    pivot = vtx;
     }	
@@ -497,17 +497,17 @@ void ODPolygon<T>::convexHull()
     // Remove all pivot copies
     for ( int idx=size()-1; idx>=0; idx-- )
     {
-	if ( pivot == getVertex(idx) )
+	if ( pivot == poly_[idx] )
 	    poly_.remove( idx, false );
     }
 
     // Angular sort of all pivot-to-point segments
     for ( int idx=size()-2; idx>=0; idx-- )
     {
-	const Geom::Point2D<T>& vtx = getVertex( idx );
+	const Geom::Point2D<T>& vtx = poly_[idx];
 	for ( int idy=size()-1; idy>idx; idy-- )
 	{
-	    const Geom::Point2D<T>& vty = getVertex( idy );
+	    const Geom::Point2D<T>& vty = poly_[idy];
 	    const double dist = sgnDistToLine( vty, vtx-pivot, pivot );
 
 	    if ( dist > 0 )
@@ -526,17 +526,18 @@ void ODPolygon<T>::convexHull()
     // Expand convex hull incrementally by backward removal of inner points
     for ( int idx=size()-3; idx>=0; idx-- )
     {
-	const Geom::Point2D<T>& vtx = getVertex( idx );
+	const Geom::Point2D<T>& vtx = poly_[idx];
 	while ( idx<size()-2 )
 	{
-	    const Geom::Point2D<T>& vty = getVertex( idx+1 );
-	    const Geom::Point2D<T>& vtz = getVertex( idx+2 );
+	    const Geom::Point2D<T>& vty = poly_[idx+1];
+	    const Geom::Point2D<T>& vtz = poly_[idx+2];
 	    if ( isRightOfLine(vtz, vty-vtx, vtx) )
 		break;
 
 	    poly_.remove( idx+1 );
 	}
     }
+
     poly_ += pivot;
 }
 
