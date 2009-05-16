@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.3 2009-05-15 17:58:54 cvskris Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.4 2009-05-16 03:45:32 cvskris Exp $";
 
 #include "uihorinterpol.h"
 
@@ -74,6 +74,12 @@ uiHorizon3DInterpolDlg::uiHorizon3DInterpolDlg( uiParent* p,
 
 uiHorizon3DInterpolDlg::~uiHorizon3DInterpolDlg()
 { if ( horizon_ ) horizon_->unRef(); }
+
+
+const char* uiHorizon3DInterpolDlg::helpID() const
+{
+    return interpolsel_->helpID();
+}
 
 
 void uiHorizon3DInterpolDlg::saveChangeCB( CallBacker* )

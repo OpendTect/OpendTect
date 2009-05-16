@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2009
- RCS:		$Id: uihorinterpol.h,v 1.2 2009-05-15 17:58:54 cvskris Exp $
+ RCS:		$Id: uihorinterpol.h,v 1.3 2009-05-16 03:45:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     			uiHorizon3DInterpolDlg(uiParent*,EM::Horizon3D*);
 			~uiHorizon3DInterpolDlg();
 
-    const char*		helpID() const		{ return 0; }
+    const char*		helpID() const;
 
 protected:
     void			saveChangeCB(CallBacker*);
