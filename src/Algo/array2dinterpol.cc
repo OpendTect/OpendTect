@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.7 2009-04-24 05:03:35 cvsumesh Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.8 2009-05-16 03:05:28 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
@@ -154,9 +154,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
     if ( filltype_==ConvexHull )
     {
-
 	ODPolygon<float> poly;
-	TypeSet<int> inside( nrcols_, -1 );
 	Interval<int> rowrg, colrg;
 	bool rgset = false;
 
@@ -168,7 +166,6 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 		if ( def[idx] ) 
 		{
 		    poly.add( Geom::Point2D<float>(irow,icol) );
-		    inside[icol] = irow;
 		    mUpdateRange( irow, icol );
 
 		    idx = (nrrows_-1)*nrcols_+icol;
@@ -191,38 +188,86 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
 	poly.convexHull();
 
+	//For each col, figure out start/stop row for convex hull
+	Geom::Point2D<float> pt;
+	int prevstart=rowrg.start, prevstop=rowrg.stop;
 	for ( int icol=colrg.start; icol<=colrg.stop; icol++ )
 	{
-	    if ( inside[icol] < 0 )
+	    pt.y = icol;
+	    int irow = prevstart;
+	    pt.x = irow;
+	    bool hadaninside = false;
+	    bool isinside;
+	    while ( true )
 	    {
-		for ( int irow=rowrg.start; irow<=rowrg.stop; irow++ )
-		{
-		    if ( poly.isInside( Geom::Point2D<float>(irow,icol),
-					 true, 0 ) )
-		    {
-			inside[icol] = irow;
-			break;
-		    }
-		}
+		isinside = poly.isInside( pt, true, 0 );
+		if ( !isinside )
+		    break;
 
-		if ( inside[icol] < 0 )
-		    continue;
+		hadaninside = true;
+
+		if ( !rowrg.includes(irow) ) break;
+
+		irow--;
+		pt.x = irow;
 	    }
 
-	    for ( int dir=-1; dir<=1; dir+=2 )
+	    if ( !hadaninside || !isinside )
+		irow++;
+
+	    if ( !hadaninside )
 	    {
-		for ( int irow=inside[icol]; rowrg.includes(irow); irow+=dir)
+		pt.x = irow;
+		while ( !poly.isInside( pt, true, 0 ) )
 		{
-		    const int idx = icol+irow*nrcols_;
-		    if ( def[idx] ) 
-			continue;
-
-		    if ( !poly.isInside( Geom::Point2D<float>(irow,icol),
-					 true, 0 ) )
-			break;
-
-		    shouldinterpol[idx] = true;
+		    irow++;
+		    pt.x = irow;
 		}
+	    }
+
+	    Interval<int> thisrowrg;
+	    thisrowrg.start = prevstart = irow;
+	    irow = prevstop;
+	    pt.x = irow;
+	    hadaninside = false;
+
+	    while ( true )
+	    {
+		isinside = poly.isInside( pt, true, 0 );
+		if ( !isinside )
+		    break;
+
+		hadaninside = true;
+
+		if ( !rowrg.includes(irow) ) break;
+
+		irow++;
+		pt.x = irow;
+	    }
+
+	    if ( !hadaninside || !isinside )
+		irow--;
+
+	    if ( !hadaninside )
+	    {
+		pt.x = irow;
+		while ( !poly.isInside( pt, true, 0 ) )
+		{
+		    irow--;
+		    pt.x = irow;
+		}
+	    }
+
+	    thisrowrg.stop = prevstop = irow;
+
+	    int idx = icol+thisrowrg.start*nrcols_;
+	    for ( irow=thisrowrg.start; irow<=thisrowrg.stop;
+		    irow++, idx+= nrcols_ )
+	    {
+		if ( def[idx] ) 
+		    continue;
+
+		shouldinterpol[idx] = true;
 	    }
 	}
     }
