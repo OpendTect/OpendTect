@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.8 2009-05-16 03:05:28 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.9 2009-05-16 03:12:10 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 #include "arrayndimpl.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: array2dinterpol.cc,v 1.8 2009-05-16 03:05:28 cv
 #include "limits.h"
 #include "rowcol.h"
 #include "sorting.h"
+
+#define mPolygonType int
 
 DefineEnumNames( Array2DInterpol, FillType, 1, "Filltypes" )
 { "Only Holes", "Convex Hull", "Full", 0 };
@@ -154,7 +156,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 
     if ( filltype_==ConvexHull )
     {
-	ODPolygon<float> poly;
+	ODPolygon<mPolygonType> poly;
 	Interval<int> rowrg, colrg;
 	bool rgset = false;
 
@@ -165,7 +167,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	    {
 		if ( def[idx] ) 
 		{
-		    poly.add( Geom::Point2D<float>(irow,icol) );
+		    poly.add( Geom::Point2D<mPolygonType>(irow,icol) );
 		    mUpdateRange( irow, icol );
 
 		    idx = (nrrows_-1)*nrcols_+icol;
@@ -173,7 +175,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 		    {
 			if ( def[idx] )
 			{
-			    poly.add( Geom::Point2D<float>(jrow,icol) );
+			    poly.add( Geom::Point2D<mPolygonType>(jrow,icol) );
 			    mUpdateRange( jrow, icol );
 			    break;
 			}
@@ -189,7 +191,7 @@ void Array2DInterpol::getNodesToFill( const bool* def,
 	poly.convexHull();
 
 	//For each col, figure out start/stop row for convex hull
-	Geom::Point2D<float> pt;
+	Geom::Point2D<mPolygonType> pt;
 	int prevstart=rowrg.start, prevstop=rowrg.stop;
 	for ( int icol=colrg.start; icol<=colrg.stop; icol++ )
 	{
