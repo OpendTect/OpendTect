@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.43 2009-03-16 08:46:42 cvsumesh Exp $
+ RCS:		$Id: emmanager.h,v 1.44 2009-05-18 21:24:56 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,8 +63,8 @@ public:
     EMObject*		loadIfNotFullyLoaded(const MultiID&,TaskRunner* =0);
 			/*!<If fully loaded, the loaded instance
 			    will be returned. Otherwise, it will be loaded.
-			    Returned object must be reffed by caller (and eventually
-			    unreffed). */
+			    Returned object must be reffed by caller
+			    (and eventually unreffed). */
     EM::ObjectID	createObject(const char* type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
 			     mem.
