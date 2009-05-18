@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.4 2009-05-16 04:22:37 cvskris Exp $";
+static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.5 2009-05-18 18:33:34 cvskris Exp $";
 
 #include "uiarray2dinterpol.h"
 
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: uiarray2dinterpol.cc,v 1.4 2009-05-16 04:22:37 
 #include "datainpspec.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uiseparator.h"
 
 mImplFactory1Param( uiArray2DInterpol, uiParent*,uiArray2DInterpolSel::factory);
 
@@ -30,13 +31,14 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     , methodsel_( 0 )
 {
     params_.allowNull( true );
-    uiGroup* prevfld = 0;
+    uiObject* prevfld = 0;
+    uiObject* halignobj = 0;
     if ( filltype )
     {
 	filltypefld_ = new uiGenInput( this, "Scope",
 		StringListInpSpec( Array2DInterpol::FillTypeNames() ));
 	if ( oldvals ) filltypefld_->setValue( (int) oldvals->getFillType() );
-	prevfld = filltypefld_;
+	prevfld = filltypefld_->attachObj();
     }
 
     if ( maxholesz )
@@ -56,7 +58,7 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	    }
 	}
 
-	prevfld = maxholeszfld_;
+	prevfld = maxholeszfld_->attachObj();
     }
 
     const BufferStringSet& methods = Array2DInterpol::factory().getNames(false);
@@ -65,15 +67,19 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
     {
 	methodsel_ = new uiGenInput( this, "Algorithm",
 	    StringListInpSpec(Array2DInterpol::factory().getNames(true) ) );
-	if ( maxholeszfld_ || filltypefld_ )
-	    methodsel_->attach( alignedBelow,
-		maxholeszfld_ ? maxholeszfld_ : filltypefld_ );
+
+	if ( prevfld )
+	    methodsel_->attach( alignedBelow, prevfld );
+
+	methodsel_->valuechanged.notify(
+		mCB( this, uiArray2DInterpolSel, selChangeCB ) );
 
 	methodidx = oldvals ? methods.indexOf( oldvals->type() ) : 0;
 	if ( oldvals )
 	    methodsel_->setValue( methodidx );
 
-	prevfld = methodsel_;
+	prevfld = methodsel_->attachObj();
+	halignobj = prevfld;
     }
     else
 	methodidx = 0;
@@ -95,14 +101,17 @@ uiArray2DInterpolSel::uiArray2DInterpolSel( uiParent* p, bool filltype,
 	params_ += paramfld;
     }
 
-    if ( prevfld )
-	setHAlignObj( prevfld );
+    if ( halignobj )
+	setHAlignObj( halignobj );
     else
     {
 	for ( int idx=0; idx<params_.size(); idx++ )
 	{
 	    if ( params_[idx] )
+	    {
 		setHAlignObj( params_[idx] );
+		break;
+	    }
 	}
     }
 
