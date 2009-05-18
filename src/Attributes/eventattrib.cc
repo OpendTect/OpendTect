@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: eventattrib.cc,v 1.30 2009-05-18 10:33:38 cvshelene Exp $";
+static const char* rcsID = "$Id: eventattrib.cc,v 1.31 2009-05-18 11:44:56 cvsumesh Exp $";
 
 #include "eventattrib.h"
 #include "survinfo.h"
@@ -371,7 +371,7 @@ void Event::multipleEvents( const DataHolder& output,
 		    ev = nextev;
 		    nextev = findNextEvent( nextev, 1, eventtype,
 			    		    inputdata->nrsamples_,
-					    firstsample+extrasamp);
+					    mNINT(firstsample+extrasamp));
 		}
 		if ( cursample+extrasamp > ev.pos
 			&& cursample+extrasamp < nextev.pos)
@@ -398,7 +398,7 @@ void Event::multipleEvents( const DataHolder& output,
 		    ev = nextev;
 		    nextev = findNextEvent( nextev, -1, eventtype,
 			    		    inputdata->nrsamples_,
-					    firstsample+extrasamp);
+					    mNINT(firstsample+extrasamp));
 		}
 		if ( cursample+extrasamp < ev.pos
 			&& cursample+extrasamp > nextev.pos)
