@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.94 2009-03-04 13:14:36 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.95 2009-05-18 10:31:40 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -16,7 +16,6 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.94 2009-03-04 13:14:36 cvsh
 #include "binidvalset.h"
 #include "convmemvalseries.h"
 #include "datapointset.h"
-#include "interpol1d.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -30,7 +29,6 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.94 2009-03-04 13:14:36 cvsh
 #include "seistrctr.h"
 #include "seistype.h"
 #include "seiswrite.h"
-#include "simpnumer.h"
 #include "separstr.h"
 #include "survinfo.h"
 
@@ -652,7 +650,6 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 
 LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
-    , classstatus_(-1)
 {
     ensureSelType( Seis::Table );
     seldata_->setIsAll( false );
@@ -673,23 +670,14 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     if ( bidvalset_.nrVals() < desnrvals )
 	bidvalset_.setNrVals( desnrvals );
 
-    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     if ( !arebiddupl_ )
     {
 	float* vals = bidvalset_.getVals( pos );
-	//Do not use mNINT: we want to get previous sample
-	//0.05 to deal with float precision pb
-	const int prevz = (int)( (vals[0]/refstep)+0.05 );
-	if ( !datarg.includes( prevz ) && !datarg.includes( prevz + 1 ) )
-	    return;
-	
-	for ( int comp=0; comp<desoutputs_.size(); comp++ )
-	    vals[comp+1] = data.series(desoutputs_[comp])->value(0);
+	computeAndSetVals( data, refstep, vals );
 	return;
     }
 
-    bool isfirstz = true;
-    float firstz;
+    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     while ( true )
     {
 	float* vals = bidvalset_.getVals( pos );
@@ -701,7 +689,7 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
 			      && datarg.includes(highz);
 	if ( isfulldataok || canusepartdata )
-	    computeAndSetVals( data, refstep, vals, firstz, isfirstz );
+	    computeAndSetVals( data, refstep, vals );
 
 	bidvalset_.next( pos );
 	if ( info.binid != bidvalset_.getBinID(pos) )
@@ -711,43 +699,13 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
 
 
 void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
-					float* vals, float& firstz,
-					bool& isfirstz )
+					float* vals )
 {
-    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
-    //Do not use mNINT: we want to get previous sample
-    //0.05 to deal with float precision pb
-    const int lowz = (int)( vals[0]/refstep + 0.05 );
-    const int highz = lowz + 1;
-    if ( isfirstz )
-	firstz = vals[0];
     for ( int comp=0; comp<desoutputs_.size(); comp++ )
     {
 	int serieidx = desoutputs_[comp];
-	float p0 = lowz-1 < data.z0_ ? mUdf(float)
-		      : data.series(serieidx)->value(lowz-1-data.z0_);
-	float p1 = data.series(serieidx)->value(lowz-data.z0_);
-	float p2 = data.series(serieidx)->value(highz-data.z0_);
-	float p3 = !datarg.includes(highz+1) ? mUdf(float)
-		      : data.series(serieidx)->value(highz+1-data.z0_);
-	if ( classstatus_ ==-1 || classstatus_ == 1 )
-	{
-	    TypeSet<float> tset;
-	    tset += p0; tset += p1; tset += p2; tset += p3;
-	    classstatus_ = holdsClassValues( tset.arr(), 4 ) ? 1 : 0;
-	}
-
-	float val;
-	if ( classstatus_ == 0 )
-	{
-	    float disttop1 = isfirstz ? 0 : vals[0]/refstep - firstz/refstep;
-	    val = Interpolate::polyReg1DWithUdf( p0, p1, p2, p3, disttop1 );
-	}
-	else 
-	    val = mNINT( (vals[0]/refstep) )==lowz ? p1 : p2;
-	vals[comp+1] = val;
+	vals[comp+1] = data.getValue( serieidx, vals[0], refstep );
     }
-    if ( isfirstz ) isfirstz = false;
 }
 
 
@@ -1127,7 +1085,6 @@ bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 
 TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     : datapointset_(datapointset)
-    , classstatus_(-1)
     , firstattrcol_(firstcol)
 {
     ensureSelType( Seis::Table );
@@ -1170,23 +1127,14 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     if ( datapointset_.nrCols() < desnrvals )
 	datapointset_.bivSet().setNrVals(desnrvals+datapointset_.nrFixedCols());
 
-    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     if ( !arebiddupl_ )
     {
 	float* vals = datapointset_.getValues( rid );
-	//Do not use mNINT: we want to get previous sample
-	//0.05 to deal with float precision pb
-	const int prevz = (int)( (datapointset_.z(rid)/refstep)+0.05 );
-	if ( !datarg.includes( prevz ) && !datarg.includes( prevz + 1 ) )
-	    return;
-	
-	for ( int comp=0; comp<desoutputs_.size(); comp++ )
-	    vals[comp+firstattrcol_] = data.series(desoutputs_[comp])->value(0);
+	computeAndSetVals( data, refstep, datapointset_.z(rid), vals );
 	return;
     }
 
-    bool isfirstz = true;
-    float firstz;
+    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
 	if ( info.binid != datapointset_.binID(idx) ) break;
@@ -1201,49 +1149,19 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
 			      && datarg.includes(highz);
 	if ( isfulldataok || canusepartdata )
-	    computeAndSetVals( data, refstep, zval, vals, firstz, isfirstz );
+	    computeAndSetVals( data, refstep, zval, vals );
     }
 }
 
 
 void TableOutput::computeAndSetVals( const DataHolder& data, float refstep,
-					float zval, float* vals, float& firstz,
-					bool& isfirstz )
+				     float zval, float* vals )
 {
-    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
-    //Do not use mNINT: we want to get previous sample
-    //0.05 to deal with float precision pb
-    const int lowz = (int)( (zval/refstep)+0.05 );
-    const int highz = lowz + 1;
-    if ( isfirstz )
-	firstz = zval;
     for ( int comp=0; comp<desoutputs_.size(); comp++ )
     {
 	int serieidx = desoutputs_[comp];
-	float p0 = lowz-1 < data.z0_ ? mUdf(float)
-		      : data.series(serieidx)->value(lowz-1-data.z0_);
-	float p1 = data.series(serieidx)->value(lowz-data.z0_);
-	float p2 = data.series(serieidx)->value(highz-data.z0_);
-	float p3 = !datarg.includes(highz+1) ? mUdf(float)
-		      : data.series(serieidx)->value(highz+1-data.z0_);
-	if ( classstatus_ ==-1 || classstatus_ == 1 )
-	{
-	    TypeSet<float> tset;
-	    tset += p0; tset += p1; tset += p2; tset += p3;
-	    classstatus_ = holdsClassValues( tset.arr(), 4 ) ? 1 : 0;
-	}
-
-	float val;
-	if ( classstatus_ == 0 )
-	{
-	    float disttop1 = isfirstz ? 0 : zval/refstep - firstz/refstep;
-	    val = Interpolate::polyReg1DWithUdf( p0, p1, p2, p3, disttop1 );
-	}
-	else 
-	    val = mNINT( (zval/refstep) )==lowz ? p1 : p2;
-	vals[comp+firstattrcol_] = val;
+	vals[comp+firstattrcol_] = data.getValue( serieidx, zval, refstep );
     }
-    if ( isfirstz ) isfirstz = false;
 }
 
 
@@ -1349,11 +1267,11 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
     //0.05 to deal with float precision pb
     const int zidx = (int)( (zval/zstep)+0.05 );
     Interval<int> interval( zidx, zidx );
-    if ( arebiddupl_ )
-    {
-	interval.start = zidx - 1;
-	interval.stop =  zidx + 2;
-    }
+
+    //Necessary if bid are duplicated and for a chain of attribs with stepout
+    interval.start = zidx - 1;
+    interval.stop =  zidx + 2;
+
     bool intvadded = sampintv.addIfNew( interval );
     if ( intvadded )
 	exactz += zval;

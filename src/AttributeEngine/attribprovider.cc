@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.115 2009-04-09 01:00:39 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.116 2009-05-18 10:31:40 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -933,6 +933,13 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
     }
 
     const int z0 = outdata->z0_;
+    if ( needinterp )
+    {
+	int intvidx = localcomputezintervals.indexOf(
+					Interval<int>( z0, z0+nrsamples-1 ) );
+	const float exacttime = exactz_[intvidx];
+	outdata->extrazfromsamppos_ = getExtraZFromSampPos( exacttime );
+    }
 
     bool success = false;
     if ( !allowParallelComputation() )
@@ -1417,7 +1424,8 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 				       float zval ) const
 {
     ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
-    const float samplepos = (zval/getRefStep()) - input.z0_;
+    const float samplepos = (zval/getRefStep()) - input.z0_
+			    - input.extrazfromsamppos_;
     return interp.value( *input.series(inputidx), samplepos );
 }
 
@@ -1426,7 +1434,8 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 				       float sampleidx, int z0 ) const
 {
     ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
-    const float samplepos = float(z0-input.z0_) + sampleidx;
+    const float samplepos = float(z0-input.z0_) - input.extrazfromsamppos_
+			    + sampleidx;
     return interp.value( *input.series(inputidx), samplepos );
 }
 
@@ -1434,9 +1443,26 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 float Provider::getInputValue( const DataHolder& input, int inputidx,
 			       int sampleidx, int z0 ) const
 {
-    const int sidx = z0 - input.z0_ + sampleidx;
-    return input.series(inputidx) && sidx>=0 && sidx<input.nrsamples_
-		? input.series(inputidx)->value( sidx ) : mUdf(float);
+    float extraz = 0;
+    if ( needinterp )
+    {
+	int intvidx = 0;
+	for ( int idx=0; idx<localcomputezintervals.size(); idx++ )
+	    if ( localcomputezintervals[idx].includes(z0) )
+		intvidx = idx;
+
+	float exacttime = exactz_[intvidx];
+	extraz = getExtraZFromSampPos( exacttime );
+    }
+
+    if ( needinterp && !mIsEqual(extraz,input.extrazfromsamppos_,mDefEps) )
+	return getInterpolInputValue( input, inputidx, extraz );
+    else
+    {
+	const int sidx = z0 - input.z0_ + sampleidx;
+	return input.series(inputidx) && sidx>=0 && sidx<input.nrsamples_
+		    ? input.series(inputidx)->value( sidx ) : mUdf(float);
+    }
 }
 
 
@@ -1530,6 +1556,20 @@ void Provider::setRdmPaths( TypeSet<BinID>* truepath,
 	if ( inputs[idx] )
 	    inputs[idx]->setRdmPaths( truepath, snappedpath );
     }
+}
+
+
+float Provider::getExtraZFromSampPos( float exacttime ) const
+{
+    //Workaround to avoid conversion problems, 1e7 to get 1e6 precision
+    const int extrazem7 = (int)(exacttime*1e7)%(int)(getRefStep()*1e7);
+    const int extrazem7noprec = (int)(getRefStep()*1e7) - 5;
+    const int leftem3 = (int)(exacttime*1e7) - extrazem7;
+    const int extrazem3 = (int)(leftem3*1e-3)%(int)(getRefStep()*1e3);
+    if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
+       return extrazem3*1e-3 + extrazem7*1e-7;
+
+    return 0;
 }
 
 }; // namespace Attrib

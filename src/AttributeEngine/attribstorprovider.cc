@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.88 2009-04-16 08:44:11 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.89 2009-05-18 10:31:40 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -615,13 +615,8 @@ bool StorageProvider::fillDataHolderWithTrc( const SeisTrc* trc,
 				    Interval<int>( z0, z0+data.nrsamples_-1) );
 	exacttime = exactz_[intvidx];
 	checkClassType( trc, isclass );
-	//Workaround to avoid conversion problems, 1e7 to get 1e6 precision
-	const int extrazem7 = (int)(exacttime*1e7)%(int)(refstep*1e7);
-	const int extrazem7noprec = (int)(refstep*1e7) - 5;
-	const int leftem3 = (int)(exacttime*1e7) - extrazem7;
-	const int extrazem3 = (int)(leftem3*1e-3)%(int)(refstep*1e3);
-	if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
-	    extrazfromsamppos = extrazem3*1e-3 + extrazem7*1e-7;
+	extrazfromsamppos = getExtraZFromSampPos( exacttime );
+	const_cast<DataHolder&>(data).extrazfromsamppos_ = extrazfromsamppos;
     }
     
     Interval<float> trcrange = trc->info().sampling.interval(trc->size());

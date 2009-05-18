@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.75 2009-04-03 14:57:35 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.76 2009-05-18 10:31:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -314,6 +314,7 @@ protected:
     void			setOutputValue(const DataHolder& output,
 	    				       int outputidx,int sampleidx,
 					       int z0,float val) const;
+    float			getExtraZFromSampPos(float) const;
 
     bool                        zIsTime() const;
     float			zFactor() const   {return zIsTime() ? 1000 : 1;}

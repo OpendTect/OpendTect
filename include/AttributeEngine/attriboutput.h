@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.44 2009-02-24 11:55:15 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.45 2009-05-18 10:31:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,14 +257,11 @@ public:
 
 protected:
     BinIDValueSet&		bidvalset_;
-    int				classstatus_; 	// -1 Unknow 
-    					      	//  0 Interpolate
-    					      	//  1 Classification
 
     bool			arebiddupl_;	
 
     void			computeAndSetVals(const DataHolder&,
-	    					  float,float*,float&,bool&);
+	    					  float,float*);
     bool			areBIDDuplicated() const;
 };
 
@@ -317,9 +314,6 @@ public:
 						{ maxdisttrcs_ = maxdist; }
 protected:
     DataPointSet&		datapointset_;
-    int				classstatus_; 	// -1 Unknow 
-    					      	//  0 Interpolate
-    					      	//  1 Classification
 
     bool			arebiddupl_;	
     int				firstattrcol_;
@@ -327,7 +321,7 @@ protected:
     TypeSet<float>		distpicktrc_;
 
     void			computeAndSetVals(const DataHolder&,float,
-	    					  float,float*,float&,bool&);
+	    					  float,float*);
     bool			areBIDDuplicated() const;
     void			addLocalInterval(TypeSet<Interval<int> >&,
 	    				         TypeSet<float>&,

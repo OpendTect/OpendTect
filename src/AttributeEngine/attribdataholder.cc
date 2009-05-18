@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.10 2008-09-16 10:03:20 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.11 2009-05-18 10:31:39 cvshelene Exp $";
 
 #include "attribdataholder.h"
 
@@ -13,14 +13,16 @@ static const char* rcsID = "$Id: attribdataholder.cc,v 1.10 2008-09-16 10:03:20 
 #include "attribdatacubes.h"
 #include "cubesampling.h"
 #include "genericnumer.h"
+#include "interpol1d.h"
 #include "seisinfo.h"
+#include "simpnumer.h"
 
 namespace Attrib
 {
 
 
 DataHolder::DataHolder( int z0, int nrsamples )
-    : z0_(z0), nrsamples_(nrsamples)
+    : z0_(z0), nrsamples_(nrsamples), extrazfromsamppos_(0)
 { data_.allowNull(true); }
 
 
@@ -49,8 +51,10 @@ DataHolder* DataHolder::clone() const
 	    memcpy( dh->data_[idx]->arr(), data_[idx]->arr(),
 		    nrsamples_*sizeof(float) );
 	}
+	dh->classstatus_ += classstatus_[idx];
     }
 
+    dh->extrazfromsamppos_ = extrazfromsamppos_;
     return dh;
 }
 
@@ -60,6 +64,7 @@ ValueSeries<float>* DataHolder::add( bool addnull )
     ValueSeries<float>* res = addnull ? 0
 	: new ArrayValueSeries<float,float>( new float[nrsamples_], true );
     data_ += res;
+    classstatus_ += -1;
     return res;
 }
 
@@ -90,6 +95,46 @@ void DataHolder::replace( int idx, ValueSeries<float>* valseries )
 {
     ValueSeries<float>* ptr = data_.replace( idx, valseries );
     if ( ptr ) delete ptr;
+}
+
+
+float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
+{
+    if ( !series( serieidx ) ) return mUdf(float);
+
+    //Do not use mNINT: we want to get previous sample
+    //0.05 to deal with float precision pb
+    const int lowz = (int)( (exactz/refstep)+0.05 );
+    float disttosamppos = exactz - lowz*refstep;
+    if ( mIsZero( disttosamppos - extrazfromsamppos_, 1e-6 ) )
+	return series( serieidx )->value( lowz-z0_ );
+
+    //Remark: do not use ValueSeriesInterpolator because of classstatus
+    const Interval<int> datarg( z0_, z0_+nrsamples_-1 );
+    const int highz = lowz + 1;
+    float p0 = lowz-1 < z0_ ? mUdf(float) : series(serieidx)->value(lowz-1-z0_);
+    float p1 = series(serieidx)->value(lowz-z0_);
+    float p2 = series(serieidx)->value(highz-z0_);
+    float p3 = !datarg.includes(highz+1) ? mUdf(float)
+					 : series(serieidx)->value(highz+1-z0_);
+    if ( classstatus_[serieidx] ==-1 || classstatus_[serieidx] == 1 )
+    {
+	TypeSet<float> tset;
+	tset += p0; tset += p1; tset += p2; tset += p3;
+	const_cast<DataHolder*>(this)->classstatus_[serieidx] =
+	    			holdsClassValues( tset.arr(), 4 ) ? 1 : 0;
+    }
+
+    float val;
+    if ( classstatus_[serieidx] == 0 )
+    {
+	float disttop1 = disttosamppos - extrazfromsamppos_;
+	val = Interpolate::polyReg1DWithUdf( p0, p1, p2, p3, disttop1 );
+    }
+    else
+	val = mNINT( (exactz/refstep) )==lowz ? p1 : p2;
+
+    return val;
 }
 
 

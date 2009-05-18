@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.19 2009-01-05 09:49:43 cvsranojay Exp $
+ RCS:           $Id: attribdataholder.h,v 1.20 2009-05-18 10:31:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,10 @@ class DataCubes;
       The AE will work with any type of ValueSeries<float>. Internally,
       ArrayValueSeries<float,float> objects are always allocated.
 
+      The class variable extrazfromsamppos_ is to keep track of an eventual 
+      exact position which would not be exactly on a sample ( in the case of 
+      horizons, picksets... )
+
       */
 
 mClass DataHolder
@@ -50,11 +54,17 @@ public:
     void		replace(int idx,ValueSeries<float>*);
     bool                dataPresent(int samplenr) const;
     TypeSet<int>	validSeriesIdx() const;
+    float		getValue(int serieidx,float exactz,float refstep) const;
 
     inline bool		isEmpty() const		{ return nrSeries() == 0; }
 
     int			z0_;	//!< See class comments
     int			nrsamples_;
+    float		extrazfromsamppos_;	//!< See class comments
+    TypeSet<int>	classstatus_;	//each serie can have a different status
+	    			 	// -1 Unknown
+    					//  0 Interpolate
+    					//  1 Classification
 
 protected:
 
