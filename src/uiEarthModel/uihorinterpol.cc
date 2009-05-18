@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.4 2009-05-16 03:45:32 cvskris Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.5 2009-05-18 21:26:08 cvskris Exp $";
 
 #include "uihorinterpol.h"
 
@@ -90,7 +90,6 @@ void uiHorizon3DInterpolDlg::saveChangeCB( CallBacker* )
 
 bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 {
-    uiTaskRunner tr( this );
     if ( !interpolsel_->acceptOK() )
 	return false;
 
@@ -106,6 +105,8 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	if ( !outputioobj )
 	    return false;
     }
+
+    uiTaskRunner tr( this );
 
     if ( inputhorsel_ )
     {
@@ -182,7 +183,7 @@ bool uiHorizon3DInterpolDlg::acceptOK( CallBacker* )
 	interpolator->setRowStep( inlstepoutstep*inldist );
 	interpolator->setColStep( crlstepoutstep*crldist );
 
-	if ( !interpolator->setArray( *arr ) )
+	if ( !interpolator->setArray( *arr, &tr ) )
 	{
 	    BufferString msg( "Cannot setup interpolation on section " );
 	    msg += sid;

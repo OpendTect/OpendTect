@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiimphorizon.cc,v 1.118 2009-04-28 10:54:18 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiimphorizon.cc,v 1.119 2009-05-18 21:26:08 cvskris Exp $";
 
 #include "uiimphorizon.h"
 #include "uiarray2dinterpol.h"
@@ -429,7 +429,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	    }
 	}
 
-	if ( !interpolator->setArray( arr ) )
+	if ( !interpolator->setArray( arr, &taskrunner ) )
 	    return false;
 
 	if ( !taskrunner.execute(*interpolator) )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.168 2009-05-15 17:58:54 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.169 2009-05-18 21:26:08 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -767,6 +767,7 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	hor3d->auxdata.createArray2D( auxidx, sid );
 
     PtrMan<Task> changer;
+    uiTaskRunner execdlg( parent() );
     if ( interpolate )
     {
 	uiSingleGroupDlg dlg( parent(),
@@ -814,7 +815,7 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	    interp->setMask( mask, OD::TakeOverPtr );
 	}
 
-	if ( !interp->setArray( *arr2d ) )
+	if ( !interp->setArray( *arr2d, &execdlg ) )
 	    return 0;
     }
     else
@@ -827,7 +828,6 @@ BinIDValueSet* uiEMPartServer::changeAuxData( const EM::ObjectID& oid,
 	changer = filter;
     }
 
-    uiTaskRunner execdlg( parent() );
     if ( !execdlg.execute(*changer) )
 	return 0;
 
