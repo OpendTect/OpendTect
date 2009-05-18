@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.8 2009-04-23 18:08:50 cvskris Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.9 2009-05-18 21:24:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,9 +31,10 @@ mClass Hor2DTo3D : public Executor
 public:
 
 				Hor2DTo3D(const Horizon2D&,Array2DInterpol*,
-					  Horizon3D&);  
+					  Horizon3D&, TaskRunner* = 0);  
 				// current 3d-hor content is removed
 				// Interpol is taken over
+				// TaskRunner is only used in constructor
 				~Hor2DTo3D();
 
     int				nextStep();

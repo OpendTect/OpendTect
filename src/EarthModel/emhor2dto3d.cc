@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.12 2009-04-23 18:08:50 cvskris Exp $";
+static const char* rcsID = "$Id: emhor2dto3d.cc,v 1.13 2009-05-18 21:24:17 cvskris Exp $";
 
 #include "emhor2dto3d.h"
 
@@ -94,7 +94,7 @@ void add( const BinID& bid, float z )
 
 
 Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
-		     Horizon3D& h3d )
+		     Horizon3D& h3d, TaskRunner* tr )
     : Executor( "Deriving 3D horizon from 2D" )
     , hor2d_(h2d)
     , hor3d_(h3d)
@@ -117,7 +117,7 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, Array2DInterpol* interp,
 
 	curinterp_->setMaxHoleSize(mUdf(int));
 	curinterp_->setFillType( Array2DInterpol::ConvexHull );
-	curinterp_->setArray( sd_[cursectnr_]->arr_ );
+	curinterp_->setArray( sd_[cursectnr_]->arr_, tr );
 
 	msg_ = curinterp_->message();
     }
