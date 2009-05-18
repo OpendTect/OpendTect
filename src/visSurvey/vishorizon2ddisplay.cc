@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.18 2009-05-13 14:08:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.19 2009-05-18 12:02:41 cvsumesh Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -72,9 +72,11 @@ void Horizon2DDisplay::getMousePosInfo(const visBase::EventInfo& eventinfo,
     EMObjectDisplay::getMousePosInfo( eventinfo, mousepos, val, info );
     const EM::SectionID sid =
 		    EMObjectDisplay::getSectionID( &eventinfo.pickedobjids );
+    if ( sid<0 ) return;
 
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
 		     emobject_->sectionGeometry(sid));
+    if ( !rcs ) return;
 
     const StepInterval<int> rowrg = rcs->rowRange();
     RowCol rc;
