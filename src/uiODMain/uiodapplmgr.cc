@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.323 2009-05-14 09:05:51 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.324 2009-05-18 10:56:35 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -638,12 +638,11 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	visserv_->turnSeedPickingOn( false );
     }
-    else if ( evid==uiMPEPartServer::evWizardClosed() )
+    else if ( evid==uiMPEPartServer::evSetupClosed() )
     {
 	enableMenusAndToolBars( true );
 	enableTree( true );
-	visserv_->reportMPEWizardActive( false );
-	visserv_->reportTrackingNewWay( false );
+	visserv_->reportTrackingSetupActive( false );
     }
     else if ( evid==uiMPEPartServer::evGetAttribData() )
     {
@@ -665,7 +664,12 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	mpeserv_->set2DSelSpec( as );
     }
     else if ( evid==uiMPEPartServer::evShowToolbar() )
+    {
+	visserv_->disabToolBars( false );
 	visserv_->showMPEToolbar();
+    }
+    else if ( evid==uiMPEPartServer::evHideToolBar() )
+	visserv_->disabToolBars( true );
     else if ( evid==uiMPEPartServer::evMPEDispIntro() )
 	visserv_->introduceMPEDisplay();
     else if ( evid==uiMPEPartServer::evInitFromSession() )
@@ -674,6 +678,23 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	sceneMgr().updateTrees();
     else if ( evid==uiMPEPartServer::evUpdateSeedConMode() )
 	visserv_->updateSeedConnectMode();
+    else if ( evid==uiMPEPartServer::evMPEStoreEMObject() )
+    {
+	const int trackerid = mpeserv_->activeTrackerID();
+	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
+	emserv_->storeObject( emid, true );
+	const MultiID mid = emserv_->getStorageID(emid);
+	TypeSet<int> ids;
+	visserv_->findObject( mid, ids );
+
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    visserv_->setObjectName( ids[idx], 
+		    		     (const char*) emserv_->getName(emid) );
+	}
+	mpeserv_->saveSetup( mid );
+	sceneMgr().updateTrees();
+    }
     else
 	pErrMsg("Unknown event from mpeserv");
 

@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.48 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.49 2009-05-18 10:56:35 cvsumesh Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -15,6 +15,8 @@ static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.48 2009-05-04 11:15:2
 #include "emhorizon.h"
 #include "emhorizonztransform.h"
 #include "emmanager.h"
+#include "ioman.h"
+#include "ioobj.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
@@ -396,9 +398,18 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 		return;
 	}
 
-	applMgr()->EMServer()->storeObject( emid_, false );
+	bool savewithname = EM::EMM().getMultiID( emid_ ).isEmpty();
+	if ( !savewithname )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( EM::EMM().getMultiID(emid_) );
+	    savewithname = !ioobj;
+	}
+	applMgr()->EMServer()->storeObject( emid_, savewithname );
+	applMgr()->visServer()->setObjectName( displayid_,
+		(const char*) ems->getName(emid_) );
 	const MultiID mid = ems->getStorageID(emid_);
 	mps->saveSetup( mid );
+	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( mnuid==saveasmnuitem_.id )
     {

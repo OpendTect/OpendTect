@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.172 2009-05-14 02:25:07 cvskris Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.173 2009-05-18 10:56:35 cvsumesh Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -735,7 +735,6 @@ void uiODMenuMgr::selectionMode( CallBacker* )
     {
 	visserv.setSelectionMode( sIsPolySelect ? uiVisPartServer::Polygon
 						: uiVisPartServer::Rectangle );
-	visserv.turnSeedPickingOn( false );
     }
 }
 
