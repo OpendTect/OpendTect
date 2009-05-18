@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.144 2009-05-07 07:36:26 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.145 2009-05-18 10:53:55 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -127,12 +127,18 @@ void uiMPEMan::addButtons()
 	    			       "Track From Seeds Only", false );
     toolbar->addSeparator();
 
-    removeinpolygon = mAddButton( "removeinpolygon.png", removeInPolygon,
-	    			  " Remove PolySelection", false );
+    polyselectidx =  mAddButton( "polygonselect.png", selectionMode,
+	    			 "Polygon Selection mode", true );
+    uiPopupMenu* polymnu = new uiPopupMenu( toolbar, "PolyMenu" );
+    mAddMnuItm( polymnu, "Polygon", handleToolClick, "polygonselect.png", 0 );
+    mAddMnuItm( polymnu, "Rectangle", handleToolClick, "rectangleselect.png",1);
+    toolbar->setButtonMenu( polyselectidx, *polymnu );
+
     toolbar->addSeparator();
 
-    trackinpolygonidx = mAddButton( "trackinpolygon.png", 
-	    		trackFromSeedsAndEdges, "Track In Polygon", false );
+    removeinpolygon = mAddButton( "trashcan.png", removeInPolygon,
+	    			  " Remove PolySelection", false );
+    toolbar->addSeparator();
 
     showcubeidx = mAddButton( "trackcube.png", showCubeCB,
 	    		      "Show track area", true );
@@ -148,19 +154,8 @@ void uiMPEMan::addButtons()
     mAddMnuItm( mnu, "Z", handleOrientationClick, "QCplane-z.png", 2 );
     toolbar->setButtonMenu( moveplaneidx, *mnu );
 
-    //extendidx = mAddButton( "trackplane.png", extendModeCB,
-//	    		    "Extend mode", true );
-    //retrackidx = mAddButton( "retrackplane.png", retrackModeCB, 
-//	    		     "Retrack mode", true );
-//    eraseidx = mAddButton( "erasingplane.png", eraseModeCB, 
-//	    		   "Erase mode", true );
     toolbar->addSeparator();
-/*
-    mouseeraseridx = mAddButton( "eraser.png", mouseEraseModeCB, 
-	    			 "Erase with mouse", true );
-    toolbar->addSeparator();
-*/
-
+    
     attribfld = new uiComboBox( toolbar, "QC Attribute" );
     attribfld->setToolTip( "QC Attribute" );
     attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
@@ -317,8 +312,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	const bool lineswitch = lset!=engine.active2DLineSetID() ||
 			        lname!=engine.active2DLineName(); 
 
-	// Not allowed to pick on more than one line in wizard stage
-	if ( lineswitch && isPickingInWizard() && seedpicker->nrSeeds() )
+	// Not allowed to pick on more than one line in setup stage
+	if ( lineswitch && isPickingWhileSetupUp() && seedpicker->nrSeeds() )
 	    return;
 
 	engine.setActive2DLine( lset, lname );
@@ -360,8 +355,8 @@ void uiMPEMan::seedClick( CallBacker* )
 	
 	if ( newvolume != engine.activeVolume() )
 	{
-	    // Not allowed to pick on more than one plane in wizard stage
-	    if ( isPickingInWizard() && seedpicker->nrSeeds() )
+	    // Not allowed to pick on more than one plane in setup stage
+	    if ( isPickingWhileSetupUp() && seedpicker->nrSeeds() )
 		return;
 
 	    if ( oldactivevol.isEmpty() )
@@ -427,7 +422,7 @@ void uiMPEMan::seedClick( CallBacker* )
     MouseCursorManager::restoreOverride();
     setUndoLevel(currentevent);
     
-    if ( !isPickingInWizard() )
+    if ( !isPickingWhileSetupUp() )
 	restoreActiveVol();
 }
 
@@ -484,7 +479,7 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
     visserv->addObject( mpedisplay, scene->id(), false );
     mpedisplay->setDraggerTransparency( transfld->getValue() );
-    //mpedisplay->showDragger( toolbar->isOn(extendidx) );
+    mpedisplay->showDragger( toolbar->isOn(moveplaneidx) );
 
     mpedisplay->boxDraggerStatusChange.notify(
 	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
@@ -546,10 +541,10 @@ bool uiMPEMan::isSeedPickingOn() const
 }
 
 
-bool uiMPEMan::isPickingInWizard() const
+bool uiMPEMan::isPickingWhileSetupUp() const
 {
     return isSeedPickingOn() && 
-	( visserv->isMPEWizardActive() || visserv->isTrackingNewWay() );
+	( visserv->isTrackingSetupActive() );
 }
 
 
@@ -781,7 +776,7 @@ void uiMPEMan::treeItemSelCB( CallBacker* )
 
 void uiMPEMan::validateSeedConMode()
 {
-    if ( visserv->isMPEWizardActive() || visserv->isTrackingNewWay() )
+    if ( visserv->isTrackingSetupActive() )
 	return;
     MPE::EMTracker* tracker = getSelectedTracker();
     if ( !tracker ) 
@@ -934,9 +929,6 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool is2d = !SI().has3D();
     const bool isseedpicking = toolbar->isOn(seedidx);
     
-    //toolbar->setSensitive( extendidx, !is2d );
-    //toolbar->setSensitive( retrackidx, !is2d );
-    //toolbar->setSensitive( eraseidx, !is2d );
     toolbar->setSensitive( moveplaneidx, !is2d );
     toolbar->setSensitive( showcubeidx, !is2d); 
 
@@ -946,7 +938,6 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     toolbar->setSensitive( trackinvolidx, !is2d && isinvolumemode );
     toolbar->setSensitive( trackwithseedonlyidx, !is2d && isinvolumemode );
     toolbar->setSensitive ( removeinpolygon, !is2d && isinvolumemode );
-    toolbar->setSensitive( trackinpolygonidx, !is2d && isinvolumemode );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
@@ -964,11 +955,7 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
 			   attribfld->currentItem()>0 );
 
 
-    //trackmode buttons
     const TrackPlane::TrackMode tm = engine().trackPlane().getTrackMode();
-    //toolbar->turnOn( extendidx, trackerisshown && tm==TrackPlane::Extend );
-    //toolbar->turnOn( retrackidx, trackerisshown && tm==TrackPlane::ReTrack );
-    //toolbar->turnOn( eraseidx, trackerisshown && tm==TrackPlane::Erase );
     toolbar->turnOn( moveplaneidx, trackerisshown && tm==TrackPlane::Move );
 }
 
@@ -1010,7 +997,7 @@ void uiMPEMan::updateSeedPickState()
     {
 	seedpickwason = false;
 	turnSeedPickingOn( true );
-	if ( isPickingInWizard() )
+	if ( isPickingWhileSetupUp() )
 	    turnSeedPickingOn( false );
     }
 
@@ -1126,7 +1113,39 @@ void uiMPEMan::trackInVolume( CallBacker* )
 }
 
 
-void uiMPEMan::removeInPolygon( CallBacker* )
+static bool sIsPolySelect = true;
+
+void uiMPEMan::selectionMode( CallBacker* cb )
+{
+    const bool ison = toolbar->isOn( polyselectidx );
+    if ( !ison )
+	visserv->setSelectionMode( uiVisPartServer::Off );
+    else
+    {
+	visserv->setSelectionMode( sIsPolySelect ? uiVisPartServer::Polygon
+						 : uiVisPartServer::Rectangle );
+	visserv->turnSeedPickingOn( false );
+    }
+}
+
+
+void uiMPEMan::handleToolClick( CallBacker* cb )
+{
+    mDynamicCastGet(uiMenuItem*,itm,cb)
+    if ( !itm ) return;
+
+    const bool ispoly = itm->id() == 0;
+
+    toolbar->setPixmap( polyselectidx, ispoly ? "polygonselect.png"
+	    				      : "rectangleselect.png" );
+    toolbar->setToolTip( polyselectidx, ispoly ? "Polygon Selection mode"
+	    				       : "Rectangle Selection mode" );
+    sIsPolySelect = ispoly;
+    selectionMode( cb );
+}
+
+
+void uiMPEMan::removeInPolygon( CallBacker* cb )
 {
     const Selector<Coord3>* sel = visserv->getCoordSelector( clickablesceneid);
 
@@ -1135,6 +1154,12 @@ void uiMPEMan::removeInPolygon( CallBacker* )
 	mGetDisplays(false);
 	for ( int idx=0; idx<displays.size(); idx++ )
 	    displays[idx]->removeSelectionInPolygon( *sel );
+
+	toolbar->turnOn( polyselectidx, false );
+	selectionMode( cb );
+
+	toolbar->turnOn( seedidx, true );
+	addSeedCB( cb );
     }
 }
 
@@ -1245,34 +1270,10 @@ void uiMPEMan::handleOrientationClick( CallBacker* cb )
 }
 
 
-//void uiMPEMan::extendModeCB( CallBacker* )
-//{
-    //const bool ison = toolbar->isOn( extendidx );
-    //showTracker( ison );
-    //engine().setTrackMode( ison ? TrackPlane::Extend : TrackPlane::None );
-//}
-
-
-//void uiMPEMan::retrackModeCB( CallBacker* )
-//{
-//    const bool ison = toolbar->isOn( retrackidx );
-//    showTracker( ison );
-//    engine().setTrackMode( ison ? TrackPlane::ReTrack : TrackPlane::None );
-//}
-
-
 void uiMPEMan::showSettingsCB( CallBacker* )
 {
     // TODO
 }
-
-
-//void uiMPEMan::eraseModeCB( CallBacker* )
-//{
-//    const bool ison = toolbar->isOn( eraseidx );
-//    showTracker( ison );
-//    engine().setTrackMode( ison ? TrackPlane::Erase : TrackPlane::None );
-//}
 
 
 void uiMPEMan::initFromDisplay()
