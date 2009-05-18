@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.58 2009-05-18 04:50:24 cvsnageswara Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.59 2009-05-18 07:48:12 cvsnageswara Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -167,22 +167,22 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
     else
     {
 	outpid = objidstr.buf();
-	BufferString basehorstr = sKey::Geometry.buf(); basehorstr += "."; 
-	basehorstr += LocationOutput::surfidkey(); 
-	BufferString hor1str = basehorstr; hor1str += ".0";
+	BufferString basehorstr(
+	    IOPar::compKey(sKey::Geometry,LocationOutput::surfidkey()) );
+	BufferString hor1str = IOPar::compKey(basehorstr,0);
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) ) 
 	    return false;
 
-	MultiID* mid = new MultiID(objidstr.buf());
+	MultiID* mid = new MultiID( objidstr.buf() );
 	midset += mid;
 
-	BufferString hor2str = basehorstr; hor2str += ".1";
+	BufferString hor2str = IOPar::compKey(basehorstr,1);
 	if( !getObjectID( iopar, hor2str, false, errmsg, objidstr ) )
 	    return false;
 
 	if ( objidstr.size() )
 	{
-	    MultiID* mid2 = new MultiID(objidstr.buf());
+	    MultiID* mid2 = new MultiID( objidstr.buf() );
 	    midset += mid2;
 	}
     }
