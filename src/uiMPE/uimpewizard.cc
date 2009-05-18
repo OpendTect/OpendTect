@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpewizard.cc,v 1.95 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uimpewizard.cc,v 1.96 2009-05-18 10:55:16 cvsumesh Exp $";
 
 
 #include "uimpewizard.h"
@@ -612,7 +612,7 @@ bool Wizard::isClosing( bool iscancel )
 	if ( seedpicker->doesModeUseSetup() )
 	    mpeserv->saveSetup( EM::EMM().getMultiID(currentobject) );
     }
-    mpeserv->sendEvent( ::uiMPEPartServer::evWizardClosed() );
+    mpeserv->sendEvent( ::uiMPEPartServer::evSetupClosed() );
     return true;
 }
 

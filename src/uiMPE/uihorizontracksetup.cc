@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.24 2009-05-07 07:38:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: uihorizontracksetup.cc,v 1.25 2009-05-18 10:55:15 cvsumesh Exp $";
 
 #include "uihorizontracksetup.h"
 
@@ -94,9 +94,6 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 
     uiGroup* simigrp = createSimiGroup();
     tabgrp_->addTab( simigrp, "Similarity" );
-
-    autogrp_ = createAutoGroup();
-    tabgrp_->addTab( autogrp_, "Autotrack" );
 
     uiGroup* propertiesgrp = createPropertyGroup();
     tabgrp_->addTab( propertiesgrp, "Properties" );
@@ -200,16 +197,6 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 				       FloatInpSpec() );
     simithresholdfld->attach( alignedBelow, compwinfld );
     grp->setHAlignObj( usesimifld );
-    return grp;
-}
-
-
-uiGroup* uiHorizonSetupGroup::createAutoGroup()
-{
-    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Autotrack" );
-    
-    startpropfld = new uiGenInput( grp, "Start propagation from",
-		   BoolInpSpec(true,"all boundary nodes","seed nodes only") );
     return grp;
 }
 
@@ -344,7 +331,6 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     selAmpThresholdType(0);
     initSimiGroup();
     selUseSimilarity(0);
-    initAutoGroup();
     initPropertyGroup();
 }
 
@@ -407,16 +393,6 @@ void uiHorizonSetupGroup::initSimiGroup()
     compwinfld->setText( getStringFromFloat("%.5f",simiintv.stop), 1 );
 
     simithresholdfld->setValue( horadj_->similarityThreshold() );
-}
-
-
-void uiHorizonSetupGroup::initAutoGroup()
-{
-    startpropfld->setValue( !sectiontracker_->propagatingFromSeedOnly() );
-    
-    const bool is2d = sectiontracker_ && sectiontracker_->adjuster() &&
-		      sectiontracker_->adjuster()->is2D();
-    tabgrp_->setTabEnabled( autogrp_, !is2d && !inwizard_ ); 
 }
 
 
@@ -570,13 +546,6 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {
 	fieldchange = true;
 	horadj_->removeOnFailure( rmonfail );
-    }
-
-    const bool seedonlyprop = !startpropfld->getBoolValue();
-    if ( sectiontracker_->propagatingFromSeedOnly() != seedonlyprop )    
-    {
-	fieldchange = true;
-	sectiontracker_->setSeedOnlyPropagation( seedonlyprop );
     }
 
     return true;

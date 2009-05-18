@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.38 2009-05-07 07:37:43 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.39 2009-05-18 10:54:45 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,8 +112,10 @@ public:
     static const int		evUpdateSeedConMode();
     static const int		evShowToolbar();
     static const int		evMPEDispIntro();
-    static const int		evWizardClosed();
+    static const int		evMPEStoreEMObject();
+    static const int		evSetupClosed();
     static const int		evInitFromSession();
+    static const int		evHideToolBar();
 
     bool			isDataLoadingBlocked() const;
     void			blockDataLoading(bool);
@@ -159,10 +161,11 @@ protected:
     MultiID			linesetid_;
     Attrib::SelSpec		lineselspec_;
     
-    				//temp. replacement for wizard
+    				//replacement for wizard
     void			aboutToAddRemoveSeed(CallBacker*);
     EM::ObjectID        	trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
+
     CubeSampling		trackerseedbox_;
     int				initialundoid_;
     bool			seedhasbeenpicked_;
@@ -170,6 +173,8 @@ protected:
 
     void			modeChangedCB(CallBacker*);
     void			propertyChangedCB(CallBacker*);
+
+    void			nrHorChangeCB(CallBacker*);
 
     void			adjustSeedBox();
     void			noTrackingRemoval();
