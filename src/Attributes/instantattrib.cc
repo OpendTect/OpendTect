@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: instantattrib.cc,v 1.17 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: instantattrib.cc,v 1.18 2009-05-18 10:33:38 cvshelene Exp $";
 
 #include "instantattrib.h"
 
@@ -63,8 +63,8 @@ bool Instantaneous::getInputData( const BinID& relpos, int zintv )
 }
 
 
-#define mGetRVal(sidx) realdata_->series(realidx_)->value(sidx-realdata_->z0_)
-#define mGetIVal(sidx) -imagdata_->series(imagidx_)->value(sidx-imagdata_->z0_)
+#define mGetRVal(sidx) getInputValue( *realdata_, realidx_, sidx, z0 )
+#define mGetIVal(sidx) - getInputValue( *imagdata_, imagidx_, sidx, z0 )
 
 
 bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos, 
@@ -74,41 +74,40 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int cursample = z0 + idx;
 	const int outidx = z0 - output.z0_ + idx;
 	if ( isOutputEnabled(0) )
-	    setOutputValue( output, 0, idx, z0, calcAmplitude(cursample) );
+	    setOutputValue( output, 0, idx, z0, calcAmplitude(idx,z0) );
 	if ( isOutputEnabled(1) )
-	    setOutputValue( output, 1, idx, z0, calcPhase(cursample) );
+	    setOutputValue( output, 1, idx, z0, calcPhase(idx,z0) );
 	if ( isOutputEnabled(2) )
-	    setOutputValue( output, 2, idx, z0, calcFrequency(cursample) );
+	    setOutputValue( output, 2, idx, z0, calcFrequency(idx,z0) );
 	if ( isOutputEnabled(3) )
-	    setOutputValue( output, 3, idx, z0, mGetIVal(cursample) );
+	    setOutputValue( output, 3, idx, z0, mGetIVal(idx) );
 	if ( isOutputEnabled(4) )
-	    setOutputValue( output, 4, idx, z0, calcAmplitude1Der(cursample) );
+	    setOutputValue( output, 4, idx, z0, calcAmplitude1Der(idx,z0) );
 	if ( isOutputEnabled(5) )
-	    setOutputValue( output, 5, idx, z0, calcAmplitude2Der(cursample) );
+	    setOutputValue( output, 5, idx, z0, calcAmplitude2Der(idx,z0) );
 	if ( isOutputEnabled(6) )
-	    setOutputValue( output, 6, idx, z0, cos(calcPhase(cursample)) );
+	    setOutputValue( output, 6, idx, z0, cos(calcPhase(idx,z0)) );
 	if ( isOutputEnabled(7) )
-	    setOutputValue( output, 7, idx, z0, calcEnvWPhase(cursample) );
+	    setOutputValue( output, 7, idx, z0, calcEnvWPhase(idx,z0) );
 	if ( isOutputEnabled(8) )
-	    setOutputValue( output, 8, idx, z0, calcEnvWFreq(cursample) );
+	    setOutputValue( output, 8, idx, z0, calcEnvWFreq(idx,z0) );
 	if ( isOutputEnabled(9) )
-	    setOutputValue( output, 9, idx, z0, calcPhaseAccel(cursample) );
+	    setOutputValue( output, 9, idx, z0, calcPhaseAccel(idx,z0) );
 	if ( isOutputEnabled(10) )
-	    setOutputValue( output, 10, idx, z0, calcThinBed(cursample) );
+	    setOutputValue( output, 10, idx, z0, calcThinBed(idx,z0) );
 	if ( isOutputEnabled(11) )
-	    setOutputValue( output, 11, idx, z0, calcBandWidth(cursample) );
+	    setOutputValue( output, 11, idx, z0, calcBandWidth(idx,z0) );
 	if ( isOutputEnabled(12) )
-	    setOutputValue( output, 12, idx, z0, calcQFactor(cursample) );
+	    setOutputValue( output, 12, idx, z0, calcQFactor(idx,z0) );
     }
 
     return true;
 }
 
 
-float Instantaneous::calcAmplitude( int cursample ) const
+float Instantaneous::calcAmplitude( int cursample, int z0 ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
@@ -116,24 +115,24 @@ float Instantaneous::calcAmplitude( int cursample ) const
 }
 
 
-float Instantaneous::calcAmplitude1Der( int cursample ) const
+float Instantaneous::calcAmplitude1Der( int cursample, int z0 ) const
 {
     const int step = 1;
-    const float prev = calcAmplitude( cursample-1 );
-    const float next = calcAmplitude( cursample+1 );
+    const float prev = calcAmplitude( cursample-1, z0 );
+    const float next = calcAmplitude( cursample+1, z0 );
     return (next-prev) / (2*refstep);
 }
 
 
-float Instantaneous::calcAmplitude2Der( int cursample ) const
+float Instantaneous::calcAmplitude2Der( int cursample, int z0 ) const
 {
-    const float prev = calcAmplitude1Der( cursample-1 );
-    const float next = calcAmplitude1Der( cursample+1 );
+    const float prev = calcAmplitude1Der( cursample-1, z0 );
+    const float next = calcAmplitude1Der( cursample+1, z0 );
     return (next-prev) / (2*refstep);
 }
 
 
-float Instantaneous::calcPhase( int cursample ) const
+float Instantaneous::calcPhase( int cursample, int z0 ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
@@ -142,7 +141,7 @@ float Instantaneous::calcPhase( int cursample ) const
 }
 
 
-float Instantaneous::calcFrequency( int cursample ) const
+float Instantaneous::calcFrequency( int cursample, int z0 ) const
 {
     const float real = mGetRVal( cursample );
     const float prevreal = mGetRVal( cursample-1 );
@@ -160,38 +159,38 @@ float Instantaneous::calcFrequency( int cursample ) const
 }
 
 
-float Instantaneous::calcPhaseAccel( int cursample ) const
+float Instantaneous::calcPhaseAccel( int cursample, int z0 ) const
 {
-    const float prev = calcFrequency( cursample-1 );
-    const float next = calcFrequency( cursample+1 );
+    const float prev = calcFrequency( cursample-1, z0 );
+    const float next = calcFrequency( cursample+1, z0 );
     return (next-prev) / (2*refstep);
 }
 
 
-float Instantaneous::calcBandWidth( int cursample ) const
+float Instantaneous::calcBandWidth( int cursample, int z0 ) const
 {
-    const float denv_dt = calcAmplitude1Der( cursample );
-    const float env = calcAmplitude( cursample );
+    const float denv_dt = calcAmplitude1Der( cursample, z0 );
+    const float env = calcAmplitude( cursample, z0 );
     return fabs(denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env ) ));
 }
 
 
-float Instantaneous::calcQFactor( int cursample ) const
+float Instantaneous::calcQFactor( int cursample, int z0 ) const
 {
-    const float ifq = calcFrequency( cursample );
-    const float bandwth = calcBandWidth( cursample );
+    const float ifq = calcFrequency( cursample, z0 );
+    const float bandwth = calcBandWidth( cursample, z0 );
     return (-0.5 * ifq / ( mIsZero(bandwth,1e-6) ? 1e-6 : bandwth ) );
 }
 
 
-float Instantaneous::calcRMSAmplitude( int cursample ) const
+float Instantaneous::calcRMSAmplitude( int cursample, int z0 ) const
 {
     Interval<int> sg( -1, 1 );
     int nrsamples = 0;
     float sumia2 = 0;
     for ( int ids=sg.start; ids<=sg.stop; ids++ )
     {
-	const float ia = calcAmplitude( cursample+ids );
+	const float ia = calcAmplitude( cursample+ids, z0 );
 	sumia2 += ia*ia;
 	nrsamples++;
     }
@@ -202,9 +201,9 @@ float Instantaneous::calcRMSAmplitude( int cursample ) const
 }
 
 
-float Instantaneous::calcEnvWPhase( int cursample ) const
+float Instantaneous::calcEnvWPhase( int cursample, int z0 ) const
 {
-    const float rmsia = calcRMSAmplitude( cursample );
+    const float rmsia = calcRMSAmplitude( cursample, z0 );
     if ( mIsZero(rmsia,mDefEps) ) return 0;
 
     float sumia = 0;
@@ -212,8 +211,8 @@ float Instantaneous::calcEnvWPhase( int cursample ) const
     Interval<int> sg( -1, 1 );
     for ( int ids=sg.start; ids<=sg.stop; ids++ )
     {
-	const float ia = calcAmplitude( cursample+ids );
-	const float iph = calcPhase( cursample+ids );
+	const float ia = calcAmplitude( cursample+ids, z0 );
+	const float iph = calcPhase( cursample+ids, z0 );
 	sumia += ia/rmsia;
 	sumiaiph += ia*iph/rmsia;
     }
@@ -222,9 +221,9 @@ float Instantaneous::calcEnvWPhase( int cursample ) const
 }
 
 
-float Instantaneous::calcEnvWFreq( int cursample ) const
+float Instantaneous::calcEnvWFreq( int cursample, int z0 ) const
 {
-    const float rmsia = calcRMSAmplitude( cursample );
+    const float rmsia = calcRMSAmplitude( cursample, z0 );
     if ( mIsZero(rmsia,mDefEps) ) return 0;
 
     float sumia = 0;
@@ -232,8 +231,8 @@ float Instantaneous::calcEnvWFreq( int cursample ) const
     Interval<int> sg( -1, 1 );
     for ( int ids=sg.start; ids<=sg.stop; ids++ )
     {
-	const float ia = calcAmplitude( cursample+ids );
-	const float ifq = calcFrequency( cursample+ids );
+	const float ia = calcAmplitude( cursample+ids, z0 );
+	const float ifq = calcFrequency( cursample+ids, z0 );
 	sumia += ia/rmsia;
 	sumiaifq += ia*ifq/rmsia;
     }
@@ -242,9 +241,9 @@ float Instantaneous::calcEnvWFreq( int cursample ) const
 }
 
 
-float Instantaneous::calcThinBed( int cursample ) const
+float Instantaneous::calcThinBed( int cursample, int z0 ) const
 {
-    return calcFrequency( cursample ) - calcEnvWFreq( cursample );
+    return calcFrequency( cursample, z0 ) - calcEnvWFreq( cursample, z0 );
 }
 
 

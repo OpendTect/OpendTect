@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.h,v 1.9 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:           $Id: instantattrib.h,v 1.10 2009-05-18 10:33:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,18 +56,18 @@ protected:
     int				imagidx_;
 
 private:
-    float			calcAmplitude(int) const;
-    float			calcPhase(int) const;
-    float			calcFrequency(int) const;
-    float			calcAmplitude1Der(int) const;
-    float			calcAmplitude2Der(int) const;
-    float			calcEnvWPhase(int) const;
-    float			calcEnvWFreq(int) const;
-    float			calcPhaseAccel(int) const;
-    float			calcThinBed(int) const;
-    float			calcBandWidth(int) const;
-    float			calcQFactor(int) const;
-    float			calcRMSAmplitude(int) const;
+    float			calcAmplitude(int,int) const;
+    float			calcPhase(int,int) const;
+    float			calcFrequency(int,int) const;
+    float			calcAmplitude1Der(int,int) const;
+    float			calcAmplitude2Der(int,int) const;
+    float			calcEnvWPhase(int,int) const;
+    float			calcEnvWFreq(int,int) const;
+    float			calcPhaseAccel(int,int) const;
+    float			calcThinBed(int,int) const;
+    float			calcBandWidth(int,int) const;
+    float			calcQFactor(int,int) const;
+    float			calcRMSAmplitude(int,int) const;
 };
 
 }; // namespace Attrib

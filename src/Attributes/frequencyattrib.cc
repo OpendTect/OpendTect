@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.24 2009-03-20 14:53:35 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.25 2009-05-18 10:33:38 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -208,17 +208,15 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int cursample = z0 + idx;
-	int tempsamp = cursample + samplegate_.start;
+	int tempsamp = idx + samplegate_.start;
 	for ( int idy=0; idy<sz; idy ++ )
 	{
-	    float real = redata_->series(realidx_)->
-					value(tempsamp-redata_->z0_);
+	    float real = getInputValue( *redata_, realidx_, tempsamp, z0 );
 
 	    if ( mIsUdf(real) )
 		real = idx>0 ? myself->signal_->get(idx-1).real() : 0;
 
-	    const float imag = -imdata_->series(imagidx_)->
-					value(tempsamp-imdata_->z0_);
+	    const float imag = -getInputValue(*imdata_, imagidx_, tempsamp, z0);
 
 	    myself->signal_->set( idy, float_complex(real,imag) );
 	    tempsamp++;

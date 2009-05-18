@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.24 2008-09-23 06:19:31 cvsnageswara Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.25 2009-05-18 10:33:38 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -115,10 +115,18 @@ float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
     float sum1 = 0;
     float sum2 = 0;
 
+    ValueSeriesInterpolator<float> interp1(dh1.nrsamples_-1);
+    ValueSeriesInterpolator<float> interp2(dh2.nrsamples_-1);
+    if ( needinterp )
+    {
+	//We can afford using extrapolation with polyReg1DWithUdf because 
+	//even if extrapolation is needed, position will be anyway close to v0
+	interp1.extrapol_ = true;
+	interp2.extrapol_ = true;
+    }
+
     for ( int s = sg.start; s <= sg.stop; s++ )
     {
-	ValueSeriesInterpolator<float> interp1(dh1.nrsamples_-1);
-	ValueSeriesInterpolator<float> interp2(dh2.nrsamples_-1);
 	float val1 = interp1.value( *(dh1.series(realidx_)), s1-dh1.z0_ + s );
 	float val2 = interp2.value( *(dh2.series(realidx_)), s2-dh2.z0_ + s );
 	xsum += val1 * val2;
@@ -153,6 +161,14 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 	    {
 		ValueSeriesInterpolator<float> 
 		    	interp( re.get(idy,idz)->nrsamples_-1 );
+		if ( needinterp )
+		{
+		    //We can afford using extrapolation with polyReg1DWithUdf
+		    //because even if extrapolation is needed,
+		    //position will be anyway close to v0
+		    interp.extrapol_ = true;
+		}
+
 		float crlpos = (idz - (crlsz/2)) * distcrl_;
 		float place = s - re.get(idy,idz)->z0_ + idx + 
 		    	     (inlpos*inldip)/refstep + (crlpos*crldip)/refstep;
@@ -232,9 +248,25 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	float curdip = -maxdip_;
 	const bool is2d = desc.is2D();
 
+	float extras0 = 0;
+	float extras1 = 0;
+	float extras2 = 0;
+	//make sure the data extracted from input DataHolders is at exact z pos
+	if ( needinterp )
+	{
+	    int intvidx = localcomputezintervals.indexOf(
+					Interval<int>( z0, z0+nrsamples-1) );
+	    float exacttime = intvidx >=0 ? exactz_[intvidx] : 0;
+	    float extrazfspos = getExtraZFromSampPos( exacttime );
+	    extras0 = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep;
+	    extras1 = (extrazfspos - inputdata_[1]->extrazfromsamppos_)/refstep;
+	    extras2 = (extrazfspos - inputdata_[2]->extrazfromsamppos_)/refstep;
+	}
+
 	while ( curdip <= maxdip_ && !is2d )
 	{
-	    float coh = calc1( cursamp, cursamp + (curdip * distinl_)/refstep,
+	    float coh = calc1( cursamp + extras0,
+		    		cursamp + extras1 + (curdip * distinl_)/refstep,
 				samplegate, *inputdata_[0], *inputdata_[1] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
@@ -250,7 +282,8 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 
 	while ( curdip <= maxdip_ )
 	{
-	    float coh = calc1( cursamp, cursamp + (curdip * distcrl_)/refstep,
+	    float coh = calc1( cursamp + extras0,
+		    		cursamp + extras2 + (curdip * distcrl_)/refstep,
 				samplegate, *inputdata_[0], *inputdata_[2] );
 
 	    if ( coh > maxcoh ) { maxcoh = coh; dipatmax = curdip; }
@@ -278,6 +311,17 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
     const bool is2d = desc.is2D();
     Interval<int> samplegate( mNINT(gate_.start/refstep),
 				mNINT(gate_.stop/refstep) );
+
+    float extras = 0;
+    //make sure the data extracted from input DataHolders is at exact z pos
+    if ( needinterp )
+    {
+	int intvidx = localcomputezintervals.indexOf(
+				    Interval<int>( z0, z0+nrsamples-1) );
+	float exacttime = intvidx >=0 ? exactz_[intvidx] : 0;
+	float extrazfspos = getExtraZFromSampPos( exacttime );
+	extras = (extrazfspos - inputdata_[0]->extrazfromsamppos_)/refstep;
+    }
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float cursample = z0 + idx;
@@ -294,7 +338,7 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 
 	    while ( crldip <= maxdip_ )
 	    {
-		float coh = calc2( cursample, samplegate, inldip, 
+		float coh = calc2( cursample+extras, samplegate, inldip, 
 				crldip, *realdataholder_, *imagdataholder_ );
 
 		if ( coh > maxcoh )

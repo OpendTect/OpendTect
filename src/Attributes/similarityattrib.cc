@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: similarityattrib.cc,v 1.38 2009-04-02 14:20:57 cvshelene Exp $";
+static const char* rcsID = "$Id: similarityattrib.cc,v 1.39 2009-05-18 10:33:38 cvshelene Exp $";
 
 #include "similarityattrib.h"
 
@@ -256,6 +256,15 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
     if ( outputinterest[4] ) rcsetup.require( Stats::Max );
     Stats::RunCalc<float> stats( rcsetup );
 
+    float extrazfspos = mUdf(float);
+    if ( needinterp )
+    {
+	int intvidx = localcomputezintervals.indexOf(
+					Interval<int>( z0, z0+nrsamples-1) );
+	float exacttime = exactz_[intvidx];
+	extrazfspos = getExtraZFromSampPos( exacttime );
+    }
+
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	stats.clear();
@@ -281,6 +290,11 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 		if ( serie1 ) s1 += serie1->value( z0+idx-steeringdata_->z0_ );
 	    }
 
+	    //make sure data extracted from input DataHolders is at exact z pos
+	    float extras0 = mIsUdf(extrazfspos) ? 0 :
+		(extrazfspos - inputdata_[idx0]->extrazfromsamppos_)/refstep;
+	    float extras1 = mIsUdf(extrazfspos) ? 0 :
+		(extrazfspos - inputdata_[idx1]->extrazfromsamppos_)/refstep;
 	    SimiFunc vals0( *(inputdata_[idx0]->series(dataidx_)), 
 			    inputdata_[idx0]->nrsamples_-1 );
 	    SimiFunc vals1( *(inputdata_[idx1]->series(dataidx_)), 
@@ -293,7 +307,8 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 				 (s1+gatesz)<=inputdata_[idx1]->nrsamples_;
 	    if ( !valids1 ) s1 = firstsample + idx + samplegate.start;
 
-	    stats += similarity( vals0, vals1, s0, s1, 1, gatesz, donormalize_);
+	    stats += similarity( vals0, vals1, s0+extras0, s1+extras1, 1,
+		    		 gatesz, donormalize_ );
 	}
 
 	if ( stats.size() < 1 )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.23 2009-04-02 14:20:57 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.24 2009-05-18 10:33:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,12 @@ protected:
 	float           	getValue( float x ) const
 				{ 
 				    ValueSeriesInterpolator<float> interp(sz_);
+    //We can afford using extrapolation with polyReg1DWithUdf because even if
+    //extrapolation is needed,position will always be close to v0;
+    //it is only supposed to be used for extraz compensation
+    //in case needinterp==true, DO NOT REMOVE checks on s0&s1 in .cc file!
+				    if ( (-1<x && x<0) || (sz_<x && x<sz_+1) )
+					interp.extrapol_ = true;
 				    return interp.value(func_,x);
 				}
 
