@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.3 2009-04-20 19:16:53 cvskris Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.4 2009-05-18 07:31:53 cvsranojay Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "array2dinterpol.h"
 #include "thread.h"
-
+#include "rowcol.h"
 
 template <class T> class Array2DImpl;
 class RowCol;
@@ -114,7 +114,7 @@ protected:
     TypeSet<int>		nrsources_;	//linked to todothisstep or zero
 };
 
-
+/*
 mClass FillHolesArray2DInterpol : public Array2DInterpol
 {
 public:
@@ -148,6 +148,6 @@ protected:
     int				nrthreadswaiting_;
     int				nrthreads_;
 };
-
+*/
 
 #endif
