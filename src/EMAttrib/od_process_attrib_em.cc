@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.57 2009-03-02 05:47:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib_em.cc,v 1.58 2009-05-18 04:50:24 cvsnageswara Exp $";
 
 #include "attribdesc.h"
 #include "attribdescid.h"
@@ -167,7 +167,7 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
     else
     {
 	outpid = objidstr.buf();
-	BufferString basehorstr = sKey::Geometry; basehorstr += "."; 
+	BufferString basehorstr = sKey::Geometry.buf(); basehorstr += "."; 
 	basehorstr += LocationOutput::surfidkey(); 
 	BufferString hor1str = basehorstr; hor1str += ".0";
 	if( !getObjectID( iopar, hor1str, true, errmsg, objidstr ) ) 
