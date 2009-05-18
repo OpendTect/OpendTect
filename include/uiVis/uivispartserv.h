@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.237 2009-05-11 06:44:43 cvsumesh Exp $
+ RCS:           $Id: uivispartserv.h,v 1.238 2009-05-18 10:52:05 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -289,11 +289,8 @@ public:
     static const int		evDisableSelTracker();
     bool			sendDisableSelTrackerEvent(); 
 
-    bool			isMPEWizardActive() const;
-    void			reportMPEWizardActive(bool yn);
-
-    void			reportTrackingNewWay(bool yn);
-    bool 			isTrackingNewWay() const;
+    void			reportTrackingSetupActive(bool yn);
+    bool 			isTrackingSetupActive() const;
 
     bool			isPicking() const;
     				/*!<\returns true if the selected object
@@ -377,8 +374,7 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
 
-    bool			mpewizardactive_;
-    bool			trackingnewway_;
+    bool			tracksetupactive_;
     bool			viewmode_;
     bool			issolomode_;
     Threads::Mutex&		eventmutex_;

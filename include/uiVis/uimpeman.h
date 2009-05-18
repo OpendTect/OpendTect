@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.48 2009-05-07 07:35:58 cvsumesh Exp $
+ RCS:           $Id: uimpeman.h,v 1.49 2009-05-18 10:52:05 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,8 @@ protected:
     void			trackFromSeedsOnly(CallBacker*);
     void			trackFromSeedsAndEdges(CallBacker*);
     void			trackInVolume(CallBacker*);
+    void			selectionMode(CallBacker*);
+    void			handleToolClick(CallBacker*);
     void 			removeInPolygon(CallBacker*);
     void			treeItemSelCB(CallBacker*);
     void			workAreaChgCB(CallBacker*);
@@ -96,14 +98,11 @@ protected:
     void                        onColTabClosing(CallBacker*);
     void			movePlaneCB(CallBacker*);
     void			handleOrientationClick(CallBacker*);
-   // void			extendModeCB(CallBacker*);
-   // void			retrackModeCB(CallBacker*);
-   // void			eraseModeCB(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
     void			showTracker(bool yn);
     void			changeTrackerOrientation(int orient);
 
-    bool			isPickingInWizard() const;
+    bool			isPickingWhileSetupUp() const;
     void			restoreActiveVol();
     
     MPE::EMTracker*		getSelectedTracker(); 
@@ -118,15 +117,15 @@ protected:
 
     int				seedidx;
     int				clrtabidx;
-    int				moveplaneidx;//,extendidx, retrackidx, eraseidx;
+    int				moveplaneidx;
     int				showcubeidx, displayidx;
     int				mouseeraseridx;
     int				undoidx, redoidx;
     int				trackforwardidx, trackbackwardidx;
     int				trackwithseedonlyidx;
     int				trackinvolidx;
+    int 			polyselectidx;
     int				removeinpolygon;
-    int				trackinpolygonidx;
     bool			trackerwasonbeforemouseerase;
 
     bool			seedpickwason;
