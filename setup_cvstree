@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.13 2009-01-06 04:57:37 cvsdgb Exp $
+# $Id: setup_cvstree,v 1.14 2009-05-18 06:00:45 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -120,7 +120,6 @@ if ( ${missingpkgnms} != "" ) then
 endif
 if ( $binsubdir == mac ) then
     if ( $qtdir != "" ) then
-	ln -s $qtdir/lib/libQt3Support.4.dylib .
 	ln -s $qtdir/lib/libQtCore.4.dylib .
 	ln -s $qtdir/lib/libQtGui.4.dylib .
 	ln -s $qtdir/lib/libQtNetwork.4.dylib .
@@ -129,7 +128,7 @@ if ( $binsubdir == mac ) then
 	ln -s $qtdir/lib/libQtXml.4.dylib .
     endif
     if ( $coindir != "" ) then
-	ln -s $coindir/lib/libCoin.40.dylib .
+	ln -s $coindir/lib/libCoin.60.dylib .
 	ln -s $coindir/lib/libSoQt.20.dylib .
 	ln -s $coindir/lib/libsimage.20.dylib .
 	ln -s libsimage.20.dylib libsimage.dylib
@@ -141,7 +140,6 @@ if ( $binsubdir == mac ) then
     endif
 else
     if ( $qtdir != "" ) then
-	ln -s $qtdir/lib/libQt3Support.so.4 .
 	ln -s $qtdir/lib/libQtCore.so.4 .
 	ln -s $qtdir/lib/libQtGui.so.4 .
 	ln -s $qtdir/lib/libQtNetwork.so.4 .
@@ -150,7 +148,7 @@ else
 	ln -s $qtdir/lib/libQtXml.so.4 .
     endif
     if ( $coindir != "" ) then
-	ln -s $coindir/lib/libCoin.so.40 .
+	ln -s $coindir/lib/libCoin.so.60 .
 	ln -s $coindir/lib/libSoQt.so.20 .
 	ln -s $coindir/lib/libsimage.so.20 .
 	ln -s libsimage.so.20 libsimage.so
