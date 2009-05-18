@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.4 2009-05-18 07:31:53 cvsranojay Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.5 2009-05-18 21:21:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,9 +16,11 @@ ________________________________________________________________________
 #include "array2dinterpol.h"
 #include "thread.h"
 #include "rowcol.h"
+#include "position.h"
 
 template <class T> class Array2DImpl;
 class RowCol;
+class DAGTriangleTree;
 
 
 /*!Class that interpolates 2D arrays with inverse distance.
@@ -52,9 +54,9 @@ public:
 
 		InverseDistanceArray2DInterpol();
 		~InverseDistanceArray2DInterpol();
-    bool	setArray(Array2D<float>&);
+    bool	setArray(Array2D<float>&,TaskRunner*);
     bool	canUseArrayAccess() const	{ return true; }
-    bool	setArray(ArrayAccess&);
+    bool	setArray(ArrayAccess&,TaskRunner*);
 
     float	getSearchRadius() const		{ return searchradius_; }
     void	setSearchRadius(float r)	{ searchradius_ = r; }
@@ -75,7 +77,7 @@ protected:
 
     bool	doPrepare(int);
 
-    bool	initFromArray();
+    bool	initFromArray(TaskRunner*);
     od_int64	getNextIdx();
     void	reportDone(od_int64);
 
@@ -114,40 +116,52 @@ protected:
     TypeSet<int>		nrsources_;	//linked to todothisstep or zero
 };
 
-/*
-mClass FillHolesArray2DInterpol : public Array2DInterpol
+
+mClass TriangulationArray2DInterpol : public Array2DInterpol
 {
 public:
+
+    static const char*		sType()		{ return "Triangulation"; }
+    const char*			type() const	{ return sType(); }
     static void			initClass();
-    static const char*		sType()			{ return "Fill holes"; }
-    const char*			type() const 		{ return sType(); }
     static Array2DInterpol*	create();
 
-    			FillHolesArray2DInterpol();
-			~FillHolesArray2DInterpol();
+    		TriangulationArray2DInterpol();
+    		~TriangulationArray2DInterpol();
 
-    int			maxNrSteps() const	{ return maxnrsteps_; }
-    void		setMaxNrSteps(int n)	{ maxnrsteps_ = n; }
+    bool	setArray(Array2D<float>&,TaskRunner*);
+    bool	canUseArrayAccess() const	{ return true; }
+    bool	setArray(ArrayAccess&,TaskRunner*);
 
 protected:
-    bool		doPrepare(int);
-    void		prepareEpoch();
-    bool		doWork(od_int64,od_int64,int);
-    od_int64		nrIterations() const 	{ return totalnr_; }
-    od_int64		getNextIdx();
-    void		reportDone( od_int64, short state );
+    bool	doWork(od_int64,od_int64,int);
+    od_int64	nrIterations() const		{ return totalnr_; }
+    const char*	nrDoneText() const		{ return "Nodes gridded"; }
 
-    int				maxnrsteps_;
-    short*			state_;
-    int				totalnr_;
+    bool	doPrepare(int);
 
-    TypeSet<int>		epochtargets_;
-    TypeSet<short>		epochstates_;
-    int 			curtarget_;
-    Threads::ConditionVar	condvar_;
-    int				nrthreadswaiting_;
-    int				nrthreads_;
+    bool	initFromArray(TaskRunner*);
+
+    				//triangulation stuff
+    DAGTriangleTree*		triangulation_;
+    TypeSet<Coord>		coordlist_;
+    TypeSet<int>		coordlistindices_;
+    int				firstthreadtestpos_;
+    TypeSet<int>		corner2conns_;
+    TypeSet<double>		corner2weights_;
+    TypeSet<int>		corner3conns_;
+    TypeSet<double>		corner3weights_;
+    TypeSet<int>		corner4conns_;
+    TypeSet<double>		corner4weights_;
+
+    				//Working arrays
+    bool*			curdefined_;
+    bool*			nodestofill_;
+
+    				//Work control
+    od_int64			totalnr_;
 };
-*/
+
+
 
 #endif

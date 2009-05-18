@@ -4,14 +4,17 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.9 2009-05-16 03:12:10 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.10 2009-05-18 21:21:49 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
+
 #include "arrayndimpl.h"
+#include "delaunay.h"
 #include "polygon.h"
 #include "limits.h"
 #include "rowcol.h"
 #include "sorting.h"
+
 
 #define mPolygonType int
 
@@ -85,7 +88,7 @@ void Array2DInterpol::setMask( const Array2D<bool>* mask, OD::PtrPolicy policy )
 }
 
 
-bool Array2DInterpol::setArray( Array2D<float>& arr )
+bool Array2DInterpol::setArray( Array2D<float>& arr, TaskRunner* )
 {
     arr_ = &arr;
     arrsetter_ = 0;
@@ -97,7 +100,7 @@ bool Array2DInterpol::setArray( Array2D<float>& arr )
 }
 
 
-bool Array2DInterpol::setArray( ArrayAccess& arr )
+bool Array2DInterpol::setArray( ArrayAccess& arr, TaskRunner* )
 {
     if ( !canUseArrayAccess() )
 	return false;
@@ -127,7 +130,8 @@ else \
 
 
 void Array2DInterpol::getNodesToFill( const bool* def,
-				      bool* shouldinterpol ) const
+				      bool* shouldinterpol,
+				      TaskRunner* tr ) const
 {
     ArrPtrMan<bool> owndef;
     if ( !def )
@@ -501,6 +505,8 @@ void Array2DInterpol::excludeBigHoles( const bool* def,
 }
 
 
+
+//InverseDistance
 void InverseDistanceArray2DInterpol::initClass()
 { Array2DInterpol::factory().addCreator( create, sType() ); }
 
@@ -522,40 +528,49 @@ InverseDistanceArray2DInterpol::InverseDistanceArray2DInterpol()
     , nodestofill_( 0 )
     , nrthreadswaiting_( 0 )
     , waitforall_( false )
+    , curdefined_( 0 )
+    , totalnr_( -1 )
+    , nrthreads_( mUdf(int) )
+    , nraddedthisstep_( mUdf(int) )
+    , prevsupportsize_( mUdf(int) )
 {}
 
 
 InverseDistanceArray2DInterpol::~InverseDistanceArray2DInterpol()
 {
     delete [] nodestofill_;
+    delete [] curdefined_;
 }
 
 
-bool InverseDistanceArray2DInterpol::setArray( Array2D<float>& arr )
+bool InverseDistanceArray2DInterpol::setArray( Array2D<float>& arr,
+					       TaskRunner* tr )
 {
-    if ( !Array2DInterpol::setArray(arr) )
+    if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray();
+    return initFromArray( tr );
 }
 
 
-bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr )
+bool InverseDistanceArray2DInterpol::setArray( ArrayAccess& arr,
+					       TaskRunner* tr )
 {
-    if ( !Array2DInterpol::setArray(arr) )
+    if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    return initFromArray();
+    return initFromArray( tr );
 }
 
 
-bool InverseDistanceArray2DInterpol::initFromArray()
+bool InverseDistanceArray2DInterpol::initFromArray( TaskRunner* tr )
 {
     if ( !arr_ && !arrsetter_ )
 	return false;
 
     nrinitialdefined_ = 0;
 
+    delete [] curdefined_;
     mTryAlloc( curdefined_, bool[nrcells_] );
     if ( !curdefined_ )
 	return false;
@@ -574,11 +589,12 @@ bool InverseDistanceArray2DInterpol::initFromArray()
     if ( !nrinitialdefined_ )
 	return false;
 
+    delete [] nodestofill_;
     mTryAlloc( nodestofill_, bool[nrcells_] );
     if ( !nodestofill_ )
 	return false;
 
-    getNodesToFill( curdefined_, nodestofill_ );
+    getNodesToFill( curdefined_, nodestofill_, tr );
 
     totalnr_ = 0;
     ptr = curdefined_;
@@ -1035,266 +1051,274 @@ void InverseDistanceArray2DInterpol::reportDone( od_int64 idx )
 }
 
 
-//FillHolesArray2DInterpol
-/*
-#define cA2DStateDefined		0
-#define cA2DStateNeedInterp		-1
-#define cA2DStateMarkedForKeepUdf       -3
-
-
-void FillHolesArray2DInterpol::initClass()
+// Triangulation
+void TriangulationArray2DInterpol::initClass()
 { Array2DInterpol::factory().addCreator( create, sType() ); }
 
 
-Array2DInterpol* FillHolesArray2DInterpol::create()
+Array2DInterpol* TriangulationArray2DInterpol::create()
 {
-    return new FillHolesArray2DInterpol;
+    return new TriangulationArray2DInterpol;
 }
 
 
-FillHolesArray2DInterpol::FillHolesArray2DInterpol()
-    : maxnrsteps_( -1 )
-    , state_( 0 )
-    , nrthreadswaiting_( 0 )
+TriangulationArray2DInterpol::TriangulationArray2DInterpol()
+    : triangulation_( 0 )
+    , curdefined_( 0 )
+    , nodestofill_( 0 )
+    , totalnr_( -1 )
+{}
+
+
+TriangulationArray2DInterpol::~TriangulationArray2DInterpol()
 {
+    delete [] nodestofill_;
+    delete [] curdefined_;
 }
 
 
-FillHolesArray2DInterpol::~FillHolesArray2DInterpol()
+bool TriangulationArray2DInterpol::setArray( Array2D<float>& arr,
+					       TaskRunner* tr )
 {
-    delete [] state_;
-}
-
-
-bool FillHolesArray2DInterpol::setArray( Array2DInterpolAccess& arr )
-{
-    if ( !Array2DInterpol::setArray( arr ) )
+    if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    mTryAlloc( state_, short[nrcells_] );
-    if ( !state_ )
+    return initFromArray( tr );
+}
+
+
+bool TriangulationArray2DInterpol::setArray( ArrayAccess& arr,
+					       TaskRunner* tr )
+{
+    if ( !Array2DInterpol::setArray(arr, tr ) )
 	return false;
 
-    mDeclareAndTryAlloc( ArrPtrMan<bool>, isdef, bool[nrcells_] );
-    for ( int idx=0; idx<nrcells_; idx++ )
-	isdef[idx] = !arr_->isDefined( idx );
+    return initFromArray( tr );
+}
 
-    mDeclareAndTryAlloc( ArrPtrMan<bool>, nodestofill, bool[nrcells_] );
-    if ( !nodestofill )
+
+#define mSetRange \
+if ( !rgset ) \
+{ \
+    rgset = true; \
+    xrg.start = xrg.stop = row; \
+    yrg.start = yrg.stop = col; \
+} \
+else \
+{ \
+    xrg.include( row ); \
+    yrg.include( col ); \
+}
+
+
+bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
+{
+    if ( !arr_ && !arrsetter_ )
+	return false;
+
+    delete [] curdefined_;
+    mTryAlloc( curdefined_, bool[nrcells_] );
+    if ( !curdefined_ )
+	return false;
+
+    bool* ptr = curdefined_;
+    const bool* stopptr = ptr+nrcells_;
+    int idx = 0;
+    while ( ptr!=stopptr )
     {
-	delete [] state_; state_ = 0;
+	const bool isdef = isDefined( idx++ );
+	*ptr = isdef;
+	ptr++;
+    }
+
+    delete [] nodestofill_;
+    mTryAlloc( nodestofill_, bool[nrcells_] );
+    if ( !nodestofill_ )
+	return false;
+
+    getNodesToFill( curdefined_, nodestofill_, tr );
+
+    totalnr_ = 0;
+    ptr = curdefined_;
+    idx = 0;
+    const bool* nodestofillptr = nodestofill_;
+    Interval<int> xrg, yrg;
+    bool rgset = false;
+    while ( ptr!=stopptr )
+    {
+	if ( *nodestofillptr && !*ptr )
+	{
+	    const int row = idx/nrcols_;
+	    const int col = idx%nrcols_;
+	    totalnr_++;
+
+	    mSetRange;
+	}
+
+	ptr++;
+	nodestofillptr++;
+	idx++;
+    }
+
+    //Get defined nodes to triangulate
+    coordlist_.erase();
+    coordlistindices_.erase();
+    ptr = curdefined_;
+    idx = 0;
+    while ( ptr!=stopptr )
+    {
+	if ( *ptr )
+	{
+	    bool dotriangulate = false;
+	    const int row = idx/nrcols_;
+	    const int col = idx%nrcols_;
+	    const bool isnotlastcol = col!=nrcols_-1;
+
+	    if ( row )
+	    {
+		if ( col && !curdefined_[idx-nrcols_-1] ||
+		     !curdefined_[idx-nrcols_] ||
+		     isnotlastcol && !curdefined_[idx-nrcols_+1] )
+		    dotriangulate = true;
+	    }
+
+	    if ( !dotriangulate && row!=nrrows_-1 )
+	    {
+		if ( col && !curdefined_[idx+nrcols_-1] ||
+		     !curdefined_[idx+nrcols_] ||
+		     isnotlastcol && !curdefined_[idx+nrcols_+1] )
+		    dotriangulate = true;
+	    }
+
+	    if ( !dotriangulate )
+	    {
+		if ( col && !curdefined_[idx-1] ||
+		     isnotlastcol && !curdefined_[idx+1] )
+		    dotriangulate = true;
+	    }
+
+	    if ( dotriangulate )
+	    {
+		mSetRange;
+		const Coord crd(rowstep_*row, colstep_*col);
+		coordlist_ += crd;
+		coordlistindices_ += idx;
+	    }
+	}
+
+	idx++;
+	ptr++;
+    }
+
+    if ( coordlist_.isEmpty() )
+	return false;
+
+    if ( triangulation_ )
+	delete triangulation_;
+
+    triangulation_ = new DAGTriangleTree;
+    if ( !triangulation_ ||
+	 !triangulation_->setCoordList( &coordlist_, OD::UsePtr ) )
+	return false;
+
+    if ( !triangulation_->setBBox(
+		Interval<double>( xrg.start*rowstep_, xrg.stop*rowstep_ ),
+		Interval<double>( yrg.start*colstep_, yrg.stop*colstep_ ) ) )
+	return false;
+
+    ParallelDTriangulator triangulator( *triangulation_ );
+    triangulator.dataIsRandom( false );
+    triangulator.setCalcScope( Interval<int>( 0, coordlist_.size()-1 ) );
+
+    if ( tr && !tr->execute( triangulator ) || !triangulator.execute() )
+	return false;
+
+    if ( !triangulation_->getConnections(-2,corner2conns_) ||
+	 !triangulation_->getWeights( -2, corner2conns_, corner2weights_) ||
+	 !triangulation_->getConnections(-3,corner3conns_) ||
+	 !triangulation_->getWeights( -3, corner3conns_, corner3weights_) ||
+	 !triangulation_->getConnections(-4,corner4conns_) ||
+	 !triangulation_->getWeights( -4, corner4conns_, corner4weights_) )
+    {
 	return false;
     }
 
-    getNodesToFill( nodestofill, isdef );
+    return true;
+}
 
-    totalnr_ = 0;
-    for ( int idx=0; idx<nrcells_; idx++ )
+
+bool TriangulationArray2DInterpol::doPrepare( int nrthreads )
+{
+    firstthreadtestpos_ = coordlist_.size();
+
+    for ( int idx=0; idx<nrthreads; idx++ )
+	coordlist_ += Coord::udf();
+
+    return true;
+}
+
+
+bool TriangulationArray2DInterpol::doWork( od_int64 start, od_int64 stop,
+					   int thread )
+{
+    TypeSet<int> neighbors;
+    int dupid;
+    const int testidx = firstthreadtestpos_+thread;
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
     {
-	if ( isdef[idx] )
-	    state_[idx] = cA2DStateDefined;
-	else
+	const int row = idx/nrcols_;
+	const int col = idx%nrcols_;
+	const Coord crd(rowstep_*row, colstep_*col);
+
+	coordlist_[testidx] = crd;
+
+	if ( !triangulation_->getTriangle( testidx, dupid, neighbors ) )
+	    return false;
+
+	if ( !neighbors.size() )
+	    return false;
+
+	TypeSet<double> neighborweights;
+	if ( !triangulation_->getWeights( testidx, neighbors,neighborweights) )
+	    return false;
+
+	TypeSet<int> usedneigbors;
+	TypeSet<float> usedneigborsweight_;
+	for ( int idy=0; idy<neighbors.size(); idy++ )
 	{
-	    if ( nodestofill[idx] )
+	    const double weight = neighborweights[idy];
+
+	    if ( neighbors[idy]>=0 )
 	    {
-		state_[idx] = cA2DStateNeedInterp;
-		totalnr_ = 0;
+		usedneigbors += coordlistindices_[neighbors[idy]];
+		usedneigborsweight_ += weight;
 	    }
 	    else
 	    {
-		state_[idx] = cA2DStateMarkedForKeepUdf;
+		TypeSet<int>* conns;
+		TypeSet<double>* weights;
+
+		if ( neighbors[idy]==-2 )
+		    { conns = &corner2conns_; weights=&corner2weights_; }
+		else if ( neighbors[idy]==-3 )
+		    { conns = &corner3conns_; weights=&corner3weights_; }
+		else
+		    { conns = &corner4conns_; weights=&corner4weights_; }
+
+		for ( int idz=0; idz<conns->size(); idz++ )
+		{
+		    usedneigbors += coordlistindices_[(*conns)[idz]];
+		    usedneigborsweight_ += (*weights)[idz] * weight;
+		}
 	    }
 	}
+
+	if ( !usedneigbors.size() )
+	    return false;
+
+	setFrom( idx, usedneigbors.arr(), usedneigborsweight_.arr(),
+		 usedneigborsweight_.size() );
     }
 
     return true;
 }
-
-
-bool FillHolesArray2DInterpol::doPrepare( int nrthreads )
-{
-    if ( !state_ )
-	return false;
-
-    prepareEpoch();
-
-    nrthreads_ = nrthreads;
-    return true;
-}
-
-
-#define mAddNeighbor( rel, dowhat ) \
-neighboridx = idx rel; \
-if ( neighboridx>=0 && neighboridx<nrcells_ && state_[neighboridx]>=0 ) \
-    dowhat
-
-
-#define mPrepareEpochAddSource(  rel ) \
-mAddNeighbor( rel, \
-{ \
-    minneighborstate = mMIN(state_[neighboridx],minneighborstate); \
-    nrneighbors++; \
-} );
-void FillHolesArray2DInterpol::prepareEpoch() 
-{
-    curtarget_ = 0;
-    epochtargets_.erase();
-    unsigned char epochnrneighbors = 0;
-
-    for ( int idx=0; idx<nrcells_; idx++ )
-    {
-	if ( state_[idx]!=cA2DStateNeedInterp )
-	    continue;
-
-	unsigned char nrneighbors = 0;
-	const int col = idx%nrcols_;
-
-	int neighboridx;
-	short minneighborstate = SHRT_MAX;
-
-	mPrepareEpochAddSource( -nrcols_ );
-	mPrepareEpochAddSource( +nrcols_ );
-
-	if ( col>0 )
-	{
-	    mPrepareEpochAddSource( -nrcols_-1 );
-	    mPrepareEpochAddSource( -1 );
-	    mPrepareEpochAddSource( +nrcols_-1 );
-	}
-	if ( col<nrcols_-1 )
-	{
-	    mPrepareEpochAddSource( -nrcols_+1 );
-	    mPrepareEpochAddSource( +1 );
-	    mPrepareEpochAddSource( +nrcols_+1 );
-	}
-
-	if ( nrneighbors )
-	    continue;
-
-	if ( maxnrsteps_>0 && minneighborstate>=maxnrsteps_ )
-	    continue;
-
-	if ( nrneighbors>epochnrneighbors )
-	{
-	    epochnrneighbors = nrneighbors;
-	    epochtargets_.erase();
-	}
-
-	epochtargets_ += idx;
-    }
-}
-
-
-#define mAddSource(  rel, wt ) \
-mAddNeighbor( rel, \
-{ \
-    minneighborstate = mMIN(state_[neighboridx],minneighborstate); \
-    weights[nrneighbors] = wt; \
-    sources[nrneighbors]=neighboridx; \
-    nrneighbors++; \
-} );
-bool FillHolesArray2DInterpol::doWork( od_int64 start, od_int64 stop, int )
-{
-    od_int64 nrleft = stop-start+1;
-    float weights[8];
-    int sources[8];
-
-    const float rowfactor_ = arr_->rowFactor();
-    const float diagweight = 1/Math::Sqrt( 1+rowfactor_ );
-
-    while ( nrleft )
-    {
-	const od_int64 idx = getNextIdx();
-	if ( idx<0 )
-	    break;
-
-	const int col = idx%nrcols_;
-
-	unsigned char nrneighbors = 0;
-	int neighboridx;
-	short minneighborstate = SHRT_MAX;
-	mAddSource( -nrcols_, rowfactor_ ); 
-	mAddSource( +nrcols_, rowfactor_ );
-
-	if ( col>0 )
-	{
-	    mAddSource( -nrcols_-1, diagweight );
-	    mAddSource( -1, 1 );
-	    mAddSource( +nrcols_-1, diagweight )
-	}
-	if ( col<nrcols_-1 )
-	{
-	    mAddSource( -nrcols_+1, diagweight );
-	    mAddSource( +1, 1 );
-	    mAddSource( +nrcols_+1, diagweight );
-	}
-
-	arr_->setPosFrom( idx, sources, weights, nrneighbors );
-	reportDone( idx, minneighborstate+1 );
-
-	nrleft--;
-    }
-
-    return true;
-}
-
-
-void FillHolesArray2DInterpol::reportDone( od_int64 target, short state )
-{
-    const int idx=epochtargets_.indexOf( target );
-    if ( idx<0 )
-    {
-	pErrMsg( "Something fishy is happening" );
-	return;
-    }
-
-    epochstates_[idx] = state;
-}
-
-
-od_int64 FillHolesArray2DInterpol::getNextIdx()
-{
-    Threads::MutexLocker lock( condvar_ );
-
-    //Is someone else updating the epoch? If so, wait
-    if ( nrthreadswaiting_ )
-    {
-	nrthreadswaiting_++;
-	condvar_.signal( true ); //Tell epoch-updating thread that I'm here.
-	while ( nrthreadswaiting_ )
-	    condvar_.wait();
-
-	if ( !epochtargets_.size() )	//There's nothing left to do
-	    return -1;
-    }
-
-    if ( curtarget_<epochtargets_.size() )
-    {
-	const od_int64 res = epochtargets_[curtarget_];
-	curtarget_++;
-	return res;
-    }
-
-    //We need to wait here for every trace to finish old epoch
-    nrthreadswaiting_ = 1; //Inicate that I will wait for everyone else
-    while ( nrthreadswaiting_<nrthreads_ )
-	condvar_.wait();
-
-    for ( int idx=epochtargets_.size()-1; idx>=0; idx++ )
-	state_[epochtargets_[idx]] = epochstates_[idx];
-
-    prepareEpoch();
-
-    od_int64 res = -1;
-    if ( epochtargets_.size() )
-    {
-	res = epochtargets_[curtarget_];
-	curtarget_++;
-    }
-
-    nrthreadswaiting_ = 0;
-    condvar_.signal( true );
-
-    return res;
-}
-*/

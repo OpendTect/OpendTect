@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          April 2009
- RCS:           $Id: array2dinterpol.h,v 1.1 2009-04-23 18:08:50 cvskris Exp $
+ RCS:           $Id: array2dinterpol.h,v 1.2 2009-05-18 21:21:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,15 +63,16 @@ public:
 	virtual int		getSize(char dim) const			= 0;
     };
 
-    virtual bool		setArray(Array2D<float>&);
+    virtual bool		setArray(Array2D<float>&,TaskRunner* =0);
     				//!<Set AFTER all settings 
     virtual bool		canUseArrayAccess() const { return false; }
-    virtual bool		setArray(ArrayAccess&);
+    virtual bool		setArray(ArrayAccess&,TaskRunner* =0);
     				//!<Set AFTER all settings 
 
 protected:
 		Array2DInterpol();
-    void	getNodesToFill(const bool* isdef, bool* shouldinterpol) const;
+    void	getNodesToFill(const bool* isdef, bool* shouldinterpol,
+	    		       TaskRunner*) const;
     		/*!<Fills shouldinterpol with true or false depending on if a
 		    certain node should be interpolated or not, based on
 		    filltype and maxholesize. If isdef is zero, the information
