@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocitypicks.cc,v 1.6 2009-04-06 07:25:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: velocitypicks.cc,v 1.7 2009-05-18 13:11:58 cvskris Exp $";
 
 #include "velocitypicks.h"
 
@@ -111,6 +111,18 @@ Picks::~Picks()
     VPM().velpicks_ -= this;
     delete smoother_;
     delete undo_;
+
+    removeHorizons();
+}
+
+
+void Picks::removeHorizons()
+{
+    for ( int idx=0; idx<horizons_.size(); idx++ )
+    {
+	if ( horizons_[idx] )
+	    horizons_[idx]->change.remove( mCB(this,Picks,horizonChangeCB) );
+    }
 
     deepUnRef( horizons_ );
 }
@@ -318,7 +330,10 @@ bool Picks::store( const IOObj* ioobjarg )
 
     TypeSet<EM::ObjectID> emids;
     for ( int idx=0; idx<horizons_.size(); idx++ )
-	emids += horizons_[idx]->id();
+    {
+	if ( horizons_[idx] )
+	    emids += horizons_[idx]->id();
+    }
     
     ::Pick::Set ps( ioobj->name() );
     RowCol arrpos( 0, 0 );
@@ -389,6 +404,9 @@ void Picks::fillPar( IOPar& par ) const
     par.set( sKeyNrHorizons(), horizons_.size() );
     for ( int idx=0; idx<horizons_.size(); idx++ )
     {
+	if ( !horizons_[idx] )
+	    continue;
+
 	BufferString key = sKeyHorizonPrefix();
 	key += idx;
 
@@ -418,7 +436,7 @@ bool Picks::usePar( const IOPar& par )
     }
 
 
-    deepUnRef( horizons_ );
+    removeHorizons();
 
     int nrhorizons = 0;
     par.get( sKeyNrHorizons(), nrhorizons );
@@ -428,7 +446,8 @@ bool Picks::usePar( const IOPar& par )
 	key += idx;
 
 	MultiID mid;
-	par.get( key.buf(), mid );
+	if ( !par.get( key.buf(), mid ) )
+	    continue;
 
 	addHorizon( mid, true );
     }

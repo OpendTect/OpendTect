@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: velocitypicks.h,v 1.4 2009-03-26 13:35:48 cvskris Exp $
+ RCS:		$Id: velocitypicks.h,v 1.5 2009-05-18 13:11:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -149,6 +149,7 @@ public:
     static const char*		sKeyHorizonPrefix();
 
 protected:
+    void			removeHorizons();
     friend			class PicksMgr;
     void			fillIOObjPar(IOPar&) const;
     bool			useIOObjPar(const IOPar&);
