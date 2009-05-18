@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.15 2008-08-21 19:59:12 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.16 2009-05-18 21:22:23 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -333,7 +333,7 @@ bool TriangulatedNeighborhoodGridder2D::init()
 	    return false;
 	}
 
-	if ( !triangles_->setCoordList( mycoords_, false ) )
+	if ( !triangles_->setCoordList( &mycoords_, OD::UsePtr ) )
 	{
 	    delete triangles_;
 	    triangles_ = 0;
@@ -488,9 +488,9 @@ bool TriangulatedGridder2D::init()
 	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
 	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
 
-	TypeSet<Coord> pts;
+	TypeSet<Coord>* pts = new TypeSet<Coord>;
 	for ( int idx=0; idx<points_->size(); idx++ )
-	    pts += (*points_)[idx];
+	    (*pts) += (*points_)[idx];
 
 	const float radius = Math::Sqrt( xrg.width()*xrg.width() + 
 				   yrg.width()*yrg.width() )/2*1.05;
@@ -500,16 +500,16 @@ bool TriangulatedGridder2D::init()
 	    const double length = radius*((float)idx*4/(nrptsinsert-2)-1);
 	    const double x = xrg.center()+length;
 	    const double y = Math::Sqrt( radius*radius-length*length ); 
-	    pts += Coord( x, yrg.center()+y );
+	    (*pts) += Coord( x, yrg.center()+y );
 	    if ( idx && idx<nrptsinsert/2-1 )
-		pts += Coord( x, yrg.center()-y );
+		(*pts) += Coord( x, yrg.center()-y );
 	}
 
 	addedindices_.erase();
-    	for ( int idx=pts.size()-1; idx>=points_->size(); idx-- )
+    	for ( int idx=pts->size()-1; idx>=points_->size(); idx-- )
     	    addedindices_ += idx;
 
-	if ( !triangles_->setCoordList( pts, true ) )
+	if ( !triangles_->setCoordList( pts, OD::TakeOverPtr ) )
 	{
 	    delete triangles_;
 	    triangles_ = 0;
@@ -567,7 +567,21 @@ bool TriangulatedGridder2D::init()
     	{
 	    TypeSet<int> conns;
 	    TypeSet<double> ws;
-	    triangles_->getConnExceptPts(vertices[idx],conns,ws,addedindices_);
+	    triangles_->getConnectionAndWeights(vertices[idx],conns,ws,false);
+
+	    double weightsum = 0;
+    	    for ( int idy=0; idy<ws.size(); idy++ )
+    	    {
+		if ( addedindices_.indexOf(conns[idy])!=-1 )
+		{
+		    ws.remove( idy );
+		    conns.remove( idy );
+		    idy--;
+		    continue;
+		}
+
+		weightsum += ws[idy];
+	    }
 
     	    for ( int idy=0; idy<ws.size(); idy++ )
     	    {
@@ -575,10 +589,12 @@ bool TriangulatedGridder2D::init()
 		if ( ptidx==-1 )
 		{
     		    usedvalues_ += conns[idy];
-    		    weights_ += weight[idx]*ws[idy];
+    		    weights_ += weight[idx]*ws[idy]/weightsum;
 		}
 		else
-		    weights_[ptidx] += weight[idx]*ws[idy];
+		{
+		    weights_[ptidx] += weight[idx]*ws[idy]/weightsum;
+		}
     	    }
     	}
     	else
