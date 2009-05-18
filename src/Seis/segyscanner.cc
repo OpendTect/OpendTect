@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.21 2009-01-27 11:45:01 cvsranojay Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.22 2009-05-18 13:59:09 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.21 2009-01-27 11:45:01 cvsra
 #include "posinfodetector.h"
 #include "strmprov.h"
 #include "dirlist.h"
+#include "dataclipper.h"
 #include "filepath.h"
 #include "executor.h"
 #include "iopar.h"
@@ -27,6 +28,7 @@ static const char* rcsID = "$Id: segyscanner.cc,v 1.21 2009-01-27 11:45:01 cvsra
     , dtctor_(*new PosInfo::Detector( PosInfo::Detector::Setup(Seis::is2D(gt)) \
 			.isps(Seis::isPS(gt)).reqsorting(true) ) ) \
     , tr_(0) \
+    , clipsmplr_(*new DataClipSampler) \
     , geom_(gt) \
     , forcerev0_(false) \
     , curfidx_(-1) \
@@ -63,6 +65,7 @@ SEGY::Scanner::~Scanner()
     closeTr();
     delete &fds_;
     delete &trc_;
+    delete &clipsmplr_;
     delete const_cast<IOPar*>(&pars_);
 }
 
@@ -95,6 +98,11 @@ void SEGY::Scanner::getReport( IOPar& iop ) const
 
     iop.add( IOPar::sKeyHdr(), "Position scanning results" );
     dtctor_.report( iop );
+    if ( richinfo_ )
+    {
+	iop.add( IOPar::sKeyHdr(), "Clipping data" );
+	clipsmplr_.report( iop );
+    }
     addErrReport( iop );
 
     for ( int idx=0; idx<fds_.size(); idx++ )
@@ -182,6 +190,8 @@ int SEGY::Scanner::readNext()
 	rti->null_ = trc_.isNull();
 	if ( Seis::isPS(geom_) )
 	    rti->azimuth_ = ti.azimuth;
+	for ( int idx=0; idx<trc_.size(); idx++ )
+	    clipsmplr_.add( trc_.get(idx,0) );
     }
     fd += sgyti;
 
@@ -230,6 +240,7 @@ int SEGY::Scanner::openNext()
 int SEGY::Scanner::finish( bool allok )
 {
     dtctor_.finish();
+    clipsmplr_.finish();
     return allok ? Executor::Finished() : Executor::ErrorOccurred();
 }
 

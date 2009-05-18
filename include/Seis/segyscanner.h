@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jul 2008
- RCS:		$Id: segyscanner.h,v 1.15 2009-01-20 12:50:19 cvsbert Exp $
+ RCS:		$Id: segyscanner.h,v 1.16 2009-05-18 13:59:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 class IOPar;
 class SeisTrc;
 class DataPointSet;
+class DataClipSampler;
 class SEGYSeisTrcTranslator;
 namespace PosInfo { class Detector; }
 
@@ -71,6 +72,7 @@ protected:
     const IOPar&	pars_;
     FileDataSet&	fds_;
     SEGYSeisTrcTranslator* tr_;
+    DataClipSampler&	clipsmplr_;
     int			nrtrcs_;
     bool		forcerev0_;
     bool		richinfo_;

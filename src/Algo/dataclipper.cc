@@ -4,19 +4,20 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.23 2008-12-11 06:32:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.24 2009-05-18 13:59:09 cvsbert Exp $";
 
 
 #include "dataclipper.h"
 
 #include "arraynd.h"
-#include "math.h"
 #include "math2.h"
+#include "iopar.h"
 #include "sorting.h"
 #include "statrand.h"
 #include "undefval.h"
 #include "valseries.h"
 #include "varlenarray.h"
+#include <math.h>
 
 
 DataClipper::DataClipper()
@@ -261,4 +262,70 @@ void DataClipper::reset()
     samples_.erase();
     subselect_ = false;
     sampleprob_ = 1;
+}
+
+
+DataClipSampler::DataClipSampler( int ns )
+    : maxnrvals_(ns)
+    , vals_(new float [ns])
+    , count_(0)
+{
+}
+
+
+void DataClipSampler::add( float val )
+{
+    if ( !Math::IsNormalNumber(val) || val > 1e30 || val < -1e30 )
+	return;
+
+    if ( count_ <= maxnrvals_ )
+	vals_[count_] = val;
+    else
+    {
+	float prob = maxnrvals_; prob /= count_;
+	if ( Stats::RandGen::get() < prob )
+	    vals_[ Stats::RandGen::getIndex( maxnrvals_ ) ] = val;
+    }
+
+    count_++;
+}
+
+
+void DataClipSampler::finish()
+{
+    sort_array( vals_, nrVals() );
+}
+
+
+const char* DataClipSampler::getClipRgStr( float pct ) const
+{
+    const int nv = nrVals();
+    const float ratio = nv * .005 * pct;
+    int idx0 = mNINT(ratio);
+    int idx1 = nv - idx0 - 1;
+    if ( idx0 > idx1 ) Swap( idx0, idx1 );
+
+    static BufferString ret;
+    ret = vals_[idx0]; ret += " - "; ret += vals_[idx1];
+    return ret.buf();
+}
+
+
+void DataClipSampler::report( IOPar& iop ) const
+{
+    if ( nrVals() < 3 )
+	iop.add( "Not enough values collected", nrVals() );
+    else
+    {
+	iop.add( "Value range", getClipRgStr(0) );
+	iop.add( "0.1% clipping range", getClipRgStr(0.1) );
+	iop.add( "0.25% clipping range", getClipRgStr(0.25) );
+	iop.add( "0.5% clipping range", getClipRgStr(0.5) );
+	iop.add( "1% clipping range", getClipRgStr(1) );
+	iop.add( "2.5% clipping range", getClipRgStr(2.5) );
+	iop.add( "5% clipping range", getClipRgStr(5) );
+	iop.add( "10% clipping range", getClipRgStr(10) );
+	iop.add( "25% clipping range", getClipRgStr(25) );
+	iop.add( "Median value", vals_[nrVals()/2] );
+    }
 }

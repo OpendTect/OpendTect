@@ -4,7 +4,7 @@
  * DATE     : Feb 2004
 -*/
 
-static const char* rcsID = "$Id: seisscanner.cc,v 1.40 2008-12-29 11:22:05 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisscanner.cc,v 1.41 2009-05-18 13:59:09 cvsbert Exp $";
 
 #include "seisscanner.h"
 #include "seisinfo.h"
@@ -35,7 +35,6 @@ SeisScanner::SeisScanner( const IOObj& ioobj, Seis::GeomType gt, int mtr )
     	, totalnr_(mtr < 0 ? -2 : mtr)
     	, maxnrtrcs_(mtr)
 	, nrnulltraces_(0)
-	, nrdistribvals_(0)
 	, invalidsamplenr_(-1)
 {
     dtctor_.reInit();
@@ -146,9 +145,11 @@ void SeisScanner::report( IOPar& iopar ) const
 	iopar.add( IOPar::sKeyHdr(), "Data values" );
 	iopar.set( "Minimum value", valrg_.start );
 	iopar.set( "Maximum value", valrg_.stop );
-	iopar.set( "Median value", distribvals_[nrdistribvals_/2] );
-	iopar.set( "1/4 value", distribvals_[nrdistribvals_/4] );
-	iopar.set( "3/4 value", distribvals_[3*nrdistribvals_/4] );
+	const float* vals = clipsampler_.vals();
+	const int nrvals = clipsampler_.nrVals();
+	iopar.set( "Median value", vals[nrvals/2] );
+	iopar.set( "1/4 value", vals[nrvals/4] );
+	iopar.set( "3/4 value", vals[3*nrvals/4] );
 	if ( !mIsUdf(invalidsamplebid_.inl) )
 	{
 	    iopar.set( "First invalid value at", invalidsamplebid_ );
@@ -174,13 +175,15 @@ void SeisScanner::report( IOPar& iopar ) const
 
 const char* SeisScanner::getClipRgStr( float pct ) const
 {
-    const float ratio = nrdistribvals_ * .005 * pct;
+    const float* vals = clipsampler_.vals();
+    const int nrvals = clipsampler_.nrVals();
+    const float ratio = nrvals * .005 * pct;
     int idx0 = mNINT(ratio);
-    int idx1 = nrdistribvals_ - idx0 - 1;
+    int idx1 = nrvals - idx0 - 1;
     if ( idx0 > idx1 ) Swap( idx0, idx1 );
 
     static BufferString ret;
-    ret = distribvals_[idx0]; ret += " - "; ret += distribvals_[idx1];
+    ret = vals[idx0]; ret += " - "; ret += vals[idx1];
     return ret.buf();
 }
 
@@ -254,20 +257,12 @@ void SeisScanner::wrapUp()
 {
     dtctor_.finish();
     rdr_.close();
-    sort_array( distribvals_, nrdistribvals_ );
+    clipsampler_.finish();
 }
 
 
 bool SeisScanner::doValueWork()
 {
-    const bool adddistribvals = nrdistribvals_ < mSeisScanMaxNrDistribVals;
-    const int nrpos = dtctor_.nrPositions( false );
-    float thresh = 1. / (1. + 0.01 * nrpos);
-    const bool selected_trc = !adddistribvals && Stats::RandGen::get() < 0.01;
-    unsigned int selsieve = (unsigned int)(1. + 0.01 * nrpos);
-    if ( selsieve > 10 ) selsieve = 10;
-    float sievethresh = 1. / selsieve;
-
     bool nonnull_seen = false;
     int nullstart = trc_.size();
     for ( int idx=nullstart-1; idx!=-1; idx-- )
@@ -310,13 +305,7 @@ bool SeisScanner::doValueWork()
 	    needinitvalrg = false;
 	}
 
-	if ( nrdistribvals_ < mSeisScanMaxNrDistribVals )
-	    distribvals_[nrdistribvals_++] = val;
-	else if ( selected_trc && Stats::RandGen::get() < sievethresh )
-	{
-	    int arrnr = Stats::RandGen::getIndex(nrdistribvals_);
-	    distribvals_[ arrnr ] = val;
-	}
+	clipsampler_.add( val );
     }
 
     if ( !nonnull_seen )

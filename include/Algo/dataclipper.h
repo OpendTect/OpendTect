@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.12 2008-12-22 04:13:28 cvsranojay Exp $
+ RCS:		$Id: dataclipper.h,v 1.13 2009-05-18 13:59:09 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "sets.h"
 #include "ranges.h"
-
+class IOPar;
 template <class T> class ValueSeries;
 template <class T> class ArrayND;
 
@@ -127,6 +127,31 @@ protected:
     bool			subselect_;
     TypeSet<float>		samples_;
 
+};
+
+
+mClass DataClipSampler
+{
+public:
+			DataClipSampler(int bufsz=10000);
+
+    const float*	vals() const		{ return vals_; }
+    int			nrVals() const
+    			{ return count_ > maxnrvals_ ? maxnrvals_ : count_; }
+
+    void		add(float);
+    void		finish();
+    void		reset()			{ count_ = 0; }
+
+    void		report(IOPar&) const;
+
+protected:
+
+    float*		vals_;
+    const int		maxnrvals_;
+    int			count_;
+
+    const char*		getClipRgStr(float) const;
 };
 
 

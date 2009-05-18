@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.14 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seisscanner.h,v 1.15 2009-05-18 13:59:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "executor.h"
 #include "seistype.h"
+#include "dataclipper.h"
 class IOPar;
 class IOObj;
 class SeisTrc;
@@ -45,8 +46,6 @@ public:
     bool		getSurvInfo(CubeSampling&,Coord crd[3]) const;
     			//!< Z range will be exclusive start/end null samples
 
-    const float*	distribVals() const	{ return distribvals_; }
-    int			nrDistribVals() const	{ return nrdistribvals_; }
     Interval<float>	zRange() const		{ return Interval<float>
 			( sampling_.start, sampling_.atIndex(nrsamples_-1) ); }
     Interval<float>	valRange() const	{ return valrg_; }
@@ -68,12 +67,11 @@ protected:
     SamplingData<float>	sampling_;
     int			nrsamples_;
     int			nrnulltraces_;
-    int			nrdistribvals_;
-    float		distribvals_[mSeisScanMaxNrDistribVals];
     Interval<int>	nonnullsamplerg_;
     Interval<float>	valrg_;
     BinID		invalidsamplebid_;
     int			invalidsamplenr_;
+    DataClipSampler	clipsampler_;
 
     void		wrapUp();
     bool		doValueWork();
