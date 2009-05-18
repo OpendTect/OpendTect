@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.23 2009-04-09 00:43:27 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.24 2009-05-18 21:23:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "position.h"
+#include "odmemory.h"
 #include "sets.h"
 #include "task.h"
 #include "thread.h"
@@ -20,7 +21,8 @@ ________________________________________________________________________
 /*!Reference: "Parallel Incremental Delaunay Triangulation", by Kohout J.2005.
    For the triangulation, it will skip undefined or duplicated points, all the 
    points should be in random order. We use Kohout's pessimistic method to
-   triangulate. The problem is that the pessimistic method only give a 10% speed   increase, while the locks slows it down. The paralell code is thus
+   triangulate. The problem is that the pessimistic method only give a 10% speed
+   increase, while the locks slows it down. The paralell code is thus
    disabled with a macro.
 */
 
@@ -36,7 +38,9 @@ public:
     static bool		computeCoordRanges(const TypeSet<Coord>&,
 	    		    Interval<double>&,Interval<double>&);
 
-    bool		setCoordList(const TypeSet<Coord>&,bool copy);
+    bool		setCoordList(const TypeSet<Coord>*
+	    			     OD);
+    bool		setCoordList(TypeSet<Coord>*,OD::PtrPolicy);
     const TypeSet<Coord>& coordList() const { return *coordlist_; }
 
     bool		setBBox(const Interval<double>& xrg,
@@ -53,17 +57,19 @@ public:
     bool		getTriangle(const Coord&,int& dupid,
 	    			    TypeSet<int>& vertexindices) const;
     			/*!<search triangle contains the point.return crds. */
+    bool		getTriangle(int crdidx,int& dupid,
+	    			    TypeSet<int>& vertexindices) const;
+    			/*!<search triangle contains the point.return crds. */
     bool		getCoordIndices(TypeSet<int>&) const;
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
     bool		getConnections(int pointidx,TypeSet<int>&) const;
-    bool		getConnExceptPts(int pointidx,TypeSet<int>& conns,
-	    				 TypeSet<double>& weights, 
-					 const TypeSet<int>& exceptions) const
-			{ return true; }
-    bool		getConnectionWeights(int pointidx,TypeSet<int>& conns,
-	    				     TypeSet<double>& weights) const;
+    bool		getConnectionAndWeights(int pointidx,TypeSet<int>& conns,
+	    				     TypeSet<double>& weights,
+					     bool normailze=true) const;
+    bool		getWeights(int pointidx, const TypeSet<int>& conns,
+				   TypeSet<double>& weights, bool normailze=true) const;
     			/*!Calculate inverse distance weight for each conns.*/
     void		setEpsilon(double err)	{ epsilon_ = err; }
 

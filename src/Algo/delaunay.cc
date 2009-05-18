@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.32 2009-04-09 00:43:27 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.33 2009-05-18 21:23:00 cvskris Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -134,7 +134,8 @@ bool DAGTriangleTree::computeCoordRanges( const TypeSet<Coord>& coordlist,
 }
 
 
-bool DAGTriangleTree::setCoordList( const TypeSet<Coord>& coordlist, bool copy )
+bool DAGTriangleTree::setCoordList( TypeSet<Coord>* coordlist,
+				    OD::PtrPolicy policy )
 {
 #ifndef mDAGTriangleForceSingleThread
     coordlock_.writeLock();
@@ -147,25 +148,25 @@ bool DAGTriangleTree::setCoordList( const TypeSet<Coord>& coordlist, bool copy )
     coordlock_.writeUnLock();
 #endif
 
-    if ( coordlist.size()<3 )
+    if ( !coordlist || coordlist->size()<3 )
 	return false;
 
     Interval<double> xrg, yrg;
-    computeCoordRanges( coordlist, xrg, yrg );
+    computeCoordRanges( *coordlist, xrg, yrg );
 
 #ifndef mDAGTriangleForceSingleThread
     coordlock_.writeLock();
 #endif
 
-    if ( copy )
+    if ( policy==OD::CopyPtr )
     {
-	coordlist_ = new TypeSet<Coord>( coordlist );
+	coordlist_ = new TypeSet<Coord>( *coordlist );
 	ownscoordlist_ = true;
     }
     else
     {
-	coordlist_ = const_cast<TypeSet<Coord>* >( &coordlist );
-	ownscoordlist_ = false;
+	coordlist_ = coordlist;
+	ownscoordlist_ = policy==OD::TakeOverPtr;
     }
 
 #ifndef mDAGTriangleForceSingleThread
@@ -241,9 +242,6 @@ bool DAGTriangleTree::init()
 
 int DAGTriangleTree::insertPoint( const Coord& coord, int& dupid )
 {
-    if ( !ownscoordlist_ )
-	return cNoVertex();
-
 #ifndef mDAGTriangleForceSingleThread
     coordlock_.writeLock();
 #endif
@@ -276,8 +274,6 @@ bool DAGTriangleTree::getTriangle( const Coord& coord, int& dupid,
 {
     dupid = cNoVertex();
     vertices.erase();
-    if ( !ownscoordlist_ )
-	return false;
 
 #ifndef mDAGTriangleForceSingleThread
     coordlock_.writeLock();
@@ -288,6 +284,27 @@ bool DAGTriangleTree::getTriangle( const Coord& coord, int& dupid,
     coordlock_.writeUnLock();
 #endif
 
+    bool res = getTriangle( ci, dupid, vertices );
+
+#ifndef mDAGTriangleForceSingleThread
+    coordlock_.writeLock();
+#endif
+    if ( ci==coordlist_->size()-1 )
+	coordlist_->remove( ci );
+
+#ifndef mDAGTriangleForceSingleThread
+    coordlock_.writeUnLock();
+#endif
+
+    return res;
+}
+
+
+bool DAGTriangleTree::getTriangle( int ci, int& dupid,
+				   TypeSet<int>& vertices ) const
+{
+    dupid = cNoVertex();
+    vertices.erase();
     int ti0, ti1;
     const char res = searchTriangle( ci, 0, ti0, ti1, dupid );
     if ( dupid!=cNoVertex() )
@@ -1205,21 +1222,32 @@ bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
 }
 
 
-bool DAGTriangleTree::getConnectionWeights( int vertex, TypeSet<int>& conns,
-					    TypeSet<double>& weights) const
+bool DAGTriangleTree::getConnectionAndWeights( int vertex, TypeSet<int>& conns,
+			       TypeSet<double>& weights, bool normalize ) const
 {
     if ( !getConnections( vertex, conns ) )
 	return false;
 
-    for ( int knot=0; knot<conns.size(); knot++ )
-    {
-	const Coord diff = mCrd(vertex)-mCrd(conns[knot]);
-	weights += 1/(diff.x*diff.x+diff.y*diff.y);
-    }
+    return getWeights( vertex, conns, weights, normalize );
+}
+
+
+bool DAGTriangleTree::getWeights( int vertexidx, const TypeSet<int>& conns,
+			      TypeSet<double>& weights, bool normalize) const
+{
+    weights.erase();
 
     double sum = 0;
-    for ( int knot=0; knot<weights.size(); knot++ )
-	sum += weights[knot];
+    const Coord& vertex = mCrd(vertexidx);
+    for ( int knot=0; knot<conns.size(); knot++ )
+    {
+	const double weight = 1/vertex.distTo(conns[knot]);
+	weights += weight;
+	if ( normalize ) sum += weight;
+    }
+
+    if ( !normalize )
+	return true;
 
     for ( int knot=0; knot<weights.size(); knot++ )
 	weights[knot] /= sum;
