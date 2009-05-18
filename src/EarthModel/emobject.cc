@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.92 2009-05-07 07:26:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.93 2009-05-18 10:49:52 cvsumesh Exp $";
 
 #include "emobject.h"
 
@@ -12,11 +12,13 @@ static const char* rcsID = "$Id: emobject.cc,v 1.92 2009-05-07 07:26:34 cvsumesh
 #include "emundo.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
+#include "emobjectselremoval.h"
 #include "errh.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "parametricsurface.h"
 #include "ptrman.h"
 #include "selector.h"
 #include "survinfo.h"
@@ -444,7 +446,47 @@ void EMObject::removeSelected( const Selector<Coord3>& selector )
 	return;
 
     removebypolyposbox_.setEmpty();
+/* //TODO multithreded part... need to make it work this way. 
+    for ( int idx=0; idx<nrSections(); idx++ )
+    {
+	const Geometry::Element* ge = sectionGeometry( sectionID(idx) );
+	if ( !ge ) continue;
 
+	mDynamicCastGet(const Geometry::ParametricSurface*,surface,ge);
+	if ( !surface ) continue;
+
+	int startrow = surface->rowRange().start;
+	int nrrows = surface->rowRange().nrSteps();
+	int startcol = surface->colRange().start;
+	int nrcols = surface->colRange().nrSteps();
+
+	EMObjectSelectionRemoval selremoval( *this, sectionID(idx), selector,
+					     nrrows, nrcols, 
+					     startrow, startcol );
+	selremoval.execute();
+
+	TypeSet<EM::SubID> removallist = selremoval.getRemovelList();
+	for ( int sididx = 0; sididx < removallist.size(); sididx++ )
+	{
+	    unSetPos( sectionID(idx), removallist[sididx], true );
+	    BinID bid;
+	    bid.setSerialized( removallist[sididx] );
+	    const Coord3 pos = getPos( sectionID(idx), removallist[sididx] );
+	    if ( removebypolyposbox_.isEmpty() )
+	    {
+		removebypolyposbox_.hrg.start = removebypolyposbox_.hrg.stop
+		    			      = bid;
+		removebypolyposbox_.zrg.start = removebypolyposbox_.zrg.stop
+		    			      = pos.z;
+	    }
+	    else
+	    {
+		removebypolyposbox_.hrg.include(bid);
+		removebypolyposbox_.zrg.include(pos.z);
+	    }
+	} 
+    }
+*/    
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
     while ( true )
     {
