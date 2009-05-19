@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.11 2009-05-19 03:42:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.12 2009-05-19 21:57:57 cvskris Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: array2dinterpol.cc,v 1.11 2009-05-19 03:42:45 c
 #include "limits.h"
 #include "rowcol.h"
 #include "sorting.h"
+#include "trigonometry.h"
 
 
 #define mPolygonType int
@@ -1249,6 +1250,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 
 bool TriangulationArray2DInterpol::doPrepare( int nrthreads )
 {
+    curnode_ = 0;
     firstthreadtestpos_ = coordlist_.size();
 
     for ( int idx=0; idx<nrthreads; idx++ )
@@ -1258,66 +1260,105 @@ bool TriangulationArray2DInterpol::doPrepare( int nrthreads )
 }
 
 
-bool TriangulationArray2DInterpol::doWork( od_int64 start, od_int64 stop,
-					   int thread )
+#define mBatchSize 1000
+
+
+void TriangulationArray2DInterpol::getNextNodes( TypeSet<od_int64>& res )
+{
+    Threads::MutexLocker lock( curnodelock_ );
+    res.erase();
+
+    while ( curnode_<nrcells_ && res.size()<mBatchSize )
+    {
+	if ( nodestofill_[curnode_] && !curdefined_[curnode_] )
+	    res += curnode_;
+
+	curnode_++;
+    }
+}
+
+
+bool TriangulationArray2DInterpol::doWork( od_int64, od_int64, int thread )
 {
     TypeSet<int> neighbors;
     int dupid;
     const int testidx = firstthreadtestpos_+thread;
-    for ( int idx=start; idx<=stop && shouldContinue(); idx++, addToNrDone(1) )
+    TypeSet<od_int64> currenttask;
+    while ( shouldContinue() )
     {
-	const int row = idx/nrcols_;
-	const int col = idx%nrcols_;
-	const Coord crd(rowstep_*row, colstep_*col);
+	getNextNodes( currenttask );
+	if ( !currenttask.size() )
+	    break;
 
-	coordlist_[testidx] = crd;
-
-	if ( !triangulation_->getTriangle( testidx, dupid, neighbors ) )
-	    return false;
-
-	if ( !neighbors.size() )
-	    return false;
-
-	TypeSet<double> neighborweights;
-	if ( !triangulation_->getWeights( testidx, neighbors,neighborweights) )
-	    return false;
-
-	TypeSet<int> usedneigbors;
-	TypeSet<float> usedneigborsweight_;
-	for ( int idy=0; idy<neighbors.size(); idy++ )
+	for ( int idx=0; idx<currenttask.size(); idx++, addToNrDone(1) )
 	{
-	    const double weight = neighborweights[idy];
+	    const od_int64 curnode = currenttask[idx];
+	    const int row = curnode/nrcols_;
+	    const int col = curnode%nrcols_;
+	    const Coord crd(rowstep_*row, colstep_*col);
 
-	    if ( neighbors[idy]>=0 )
+	    coordlist_[testidx] = crd;
+
+	    if ( !triangulation_->getTriangle( testidx, dupid, neighbors ) )
+		return false;
+
+	    if ( !neighbors.size() )
+		return false;
+
+	    TypeSet<double> neighborweights;
+	    if ( neighbors.size()==3 )
 	    {
-		usedneigbors += coordlistindices_[neighbors[idy]];
-		usedneigborsweight_ += weight;
+		float weights[3];
+		interpolateOnTriangle2D( coordlist_[testidx],
+		    coordlist_[neighbors[0]],
+		    coordlist_[neighbors[1]],
+		    coordlist_[neighbors[2]],
+		    weights[0], weights[1], weights[2] );
+		neighborweights += weights[0];
+		neighborweights += weights[1];
+		neighborweights += weights[2];
 	    }
-	    else
+	    else if ( !triangulation_->getWeights( testidx, neighbors,
+						   neighborweights) )
+		return false;
+
+	    TypeSet<int> usedneigbors;
+	    TypeSet<float> usedneigborsweight_;
+	    for ( int idy=0; idy<neighbors.size(); idy++ )
 	    {
-		TypeSet<int>* conns;
-		TypeSet<double>* weights;
+		const double weight = neighborweights[idy];
 
-		if ( neighbors[idy]==-2 )
-		    { conns = &corner2conns_; weights=&corner2weights_; }
-		else if ( neighbors[idy]==-3 )
-		    { conns = &corner3conns_; weights=&corner3weights_; }
-		else
-		    { conns = &corner4conns_; weights=&corner4weights_; }
-
-		for ( int idz=0; idz<conns->size(); idz++ )
+		if ( neighbors[idy]>=0 )
 		{
-		    usedneigbors += coordlistindices_[(*conns)[idz]];
-		    usedneigborsweight_ += (*weights)[idz] * weight;
+		    usedneigbors += coordlistindices_[neighbors[idy]];
+		    usedneigborsweight_ += weight;
+		}
+		else
+		{
+		    TypeSet<int>* conns;
+		    TypeSet<double>* weights;
+
+		    if ( neighbors[idy]==-2 )
+			{ conns = &corner2conns_; weights=&corner2weights_; }
+		    else if ( neighbors[idy]==-3 )
+			{ conns = &corner3conns_; weights=&corner3weights_; }
+		    else
+			{ conns = &corner4conns_; weights=&corner4weights_; }
+
+		    for ( int idz=0; idz<conns->size(); idz++ )
+		    {
+			usedneigbors += coordlistindices_[(*conns)[idz]];
+			usedneigborsweight_ += (*weights)[idz] * weight;
+		    }
 		}
 	    }
+
+	    if ( !usedneigbors.size() )
+		return false;
+
+	    setFrom( curnode, usedneigbors.arr(), usedneigborsweight_.arr(),
+		     usedneigborsweight_.size() );
 	}
-
-	if ( !usedneigbors.size() )
-	    return false;
-
-	setFrom( idx, usedneigbors.arr(), usedneigborsweight_.arr(),
-		 usedneigborsweight_.size() );
     }
 
     return true;

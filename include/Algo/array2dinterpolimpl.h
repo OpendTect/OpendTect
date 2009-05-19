@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2009
- RCS:           $Id: array2dinterpolimpl.h,v 1.5 2009-05-18 21:21:49 cvskris Exp $
+ RCS:           $Id: array2dinterpolimpl.h,v 1.6 2009-05-19 21:57:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -134,6 +134,7 @@ public:
     bool	setArray(ArrayAccess&,TaskRunner*);
 
 protected:
+    int		minThreadSize() const		{ return 10000; }
     bool	doWork(od_int64,od_int64,int);
     od_int64	nrIterations() const		{ return totalnr_; }
     const char*	nrDoneText() const		{ return "Nodes gridded"; }
@@ -141,6 +142,7 @@ protected:
     bool	doPrepare(int);
 
     bool	initFromArray(TaskRunner*);
+    void	getNextNodes(TypeSet<od_int64>&);
 
     				//triangulation stuff
     DAGTriangleTree*		triangulation_;
@@ -157,6 +159,8 @@ protected:
     				//Working arrays
     bool*			curdefined_;
     bool*			nodestofill_;
+    od_int64			curnode_;
+    Threads::Mutex		curnodelock_;
 
     				//Work control
     od_int64			totalnr_;
