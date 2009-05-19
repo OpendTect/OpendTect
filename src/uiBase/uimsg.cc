@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.44 2009-05-15 16:28:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.45 2009-05-19 22:01:50 cvskris Exp $";
 
 
 #include "uimsg.h"
@@ -124,7 +124,12 @@ int uiMsg::beginCmdRecEvent()
     if ( !carrier )
 	return -1;
 
+#ifdef __lux32__
+    return carrier->beginCmdRecEvent( (od_uint32) this, "QMsgBoxBut" );
+#else
     return carrier->beginCmdRecEvent( (od_uint64) this, "QMsgBoxBut" );
+#endif
+
 }
 
 void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
@@ -135,7 +140,11 @@ void uiMsg::endCmdRecEvent( int refnr, int retval, const char* buttxt0,
 
     uiMainWin* carrier = uiMain::theMain().topLevel();
     if ( carrier )
+#ifdef __lux32__
+	carrier->endCmdRecEvent( (od_uint32) this, refnr, msg );
+#else
 	carrier->endCmdRecEvent( (od_uint64) this, refnr, msg );
+#endif
 }
 
 
