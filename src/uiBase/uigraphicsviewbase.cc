@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.7 2009-04-27 10:37:11 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsviewbase.cc,v 1.8 2009-05-19 09:44:17 cvssatyaki Exp $";
 
 
 #include "uigraphicsviewbase.h"
@@ -207,7 +207,12 @@ void uiGraphicsViewBody::wheelEvent( QWheelEvent* ev )
 	ev->accept();
     }
     else
+    {
+	MouseEvent me( OD::NoButton, (int)ev->pos().x(), (int)ev->pos().y(),
+		                   ev->delta() );
+	mousehandler_.triggerWheel( me );
 	QGraphicsView::wheelEvent( ev );
+    }
 }
 
 
