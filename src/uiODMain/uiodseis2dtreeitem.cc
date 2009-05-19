@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.58 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.59 2009-05-19 14:08:41 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -772,9 +772,9 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     storeditm_.removeItems();
     for ( int idx=0; idx<attribnames.size(); idx++ )
     {
-	const char* nm = attribnames.get(idx);
+	FixedString nm = attribnames.get(idx);
 	MenuItem* item = new MenuItem(nm);
-	const bool docheck = isstored && !strcmp(nm,as.userRef());
+	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &storeditm_,item,true,docheck);
     }
@@ -795,9 +795,9 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
     {
-	const char* nm = steerdatanames.get(idx);
+	FixedString nm = steerdatanames.get(idx);
 	MenuItem* item = new MenuItem(nm);
-	const bool docheck = isstored && !strcmp(nm,as.userRef());
+	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
 	mAddManagedMenuItem( &steeringitm_,item,true,docheck);
     }

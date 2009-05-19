@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.171 2009-04-27 11:54:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.172 2009-05-19 14:08:41 cvskris Exp $";
 
 #include "uiodscenemgr.h"
 #include "attribdatacubes.h"
@@ -975,18 +975,18 @@ void uiODSceneMgr::disabTrees( bool yn )
 
 int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 {
-    const char* type = applMgr().EMServer()->getType(emid);
+    FixedString type = applMgr().EMServer()->getType(emid);
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
 	if ( sceneid>=0 && sceneid!=scene.sovwr_->sceneID() ) continue;
 
 	uiODDisplayTreeItem* itm;
-	if ( !strcmp( type, "Horizon" ) ) 
+	if ( type=="Horizon" ) 
 	    itm = new uiODHorizonTreeItem(emid);
-	else if ( !strcmp( type, "2D Horizon" ) ) 
+	else if ( type=="2D Horizon" )
 	    itm = new uiODHorizon2DTreeItem(emid);
-	else if ( !strcmp(type,"Fault" ) ) 
+	else if ( type=="Fault" )
 	    itm = new uiODFaultTreeItem(emid);
 
 	scene.itemmanager_->addChild( itm, false );

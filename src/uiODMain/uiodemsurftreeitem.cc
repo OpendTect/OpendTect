@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.51 2009-05-19 09:39:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.52 2009-05-19 14:08:41 cvskris Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -295,9 +295,6 @@ BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
     return uiODAttribTreeItem::createDisplayName();
 }
 
-
-#define mIsObject(typestr) \
-	!strcmp(uivisemobj_->getObjectType(displayid_),typestr)
 
 void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
