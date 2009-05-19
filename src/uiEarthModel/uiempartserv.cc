@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.170 2009-05-19 09:39:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.171 2009-05-19 10:39:40 cvsraman Exp $";
 
 #include "uiempartserv.h"
 
@@ -1114,6 +1114,10 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 
     EM::EMObject* obj = em_.getObject( id );
     mDynamicCastGet(EM::Horizon3D*,hor,obj)
+    if ( !hor )
+	return;
+
+    hor->ref();
     int idx = 0;
     while ( idx < ps.size() )
     {
@@ -1136,5 +1140,7 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 	ps[idx].pos.z = z;
 	idx++;
     }
+
+    hor->unRef();
 }
 
