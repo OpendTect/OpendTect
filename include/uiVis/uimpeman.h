@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.49 2009-05-18 10:52:05 cvsumesh Exp $
+ RCS:           $Id: uimpeman.h,v 1.50 2009-05-19 05:47:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,8 +77,8 @@ protected:
     void			redoPush(CallBacker*);
     void			updateButtonSensitivity(CallBacker* = 0);
     void			updateSelectedAttrib();
-    void			trackBackward(CallBacker*);
-    void			trackForward(CallBacker*);
+    void			moveBackward(CallBacker*);
+    void			moveForward(CallBacker*);
     void			trackFromSeedsOnly(CallBacker*);
     void			trackFromSeedsAndEdges(CallBacker*);
     void			trackInVolume(CallBacker*);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.39 2009-05-18 10:54:45 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.40 2009-05-19 05:47:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,8 +66,7 @@ public:
     bool			isTrackingEnabled(int trackerid) const;
 
     bool			showSetupDlg( const EM::ObjectID&,
-	    				      const EM::SectionID&,
-					      bool showcancelbutton=false);
+	    				      const EM::SectionID&);
     				/*!<\returns false if cancel was pressed. */
     void			useSavedSetupDlg(const EM::ObjectID&,
 	    					 const EM::SectionID&);

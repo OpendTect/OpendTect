@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.145 2009-05-18 10:53:55 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.146 2009-05-19 05:47:08 cvsnanne Exp $";
 
 #include "uimpeman.h"
 
@@ -173,11 +173,11 @@ void uiMPEMan::addButtons()
     toolbar->addObject( transfld );
     toolbar->addSeparator();
 
-    trackforwardidx = mAddButton( "leftarrow.png", trackBackward,
-	    			  "Track backward ( key: '[' )", false );
+    trackforwardidx = mAddButton( "leftarrow.png", moveBackward,
+	    			  "Move plane backward ( key: '[' )", false );
     toolbar->setShortcut(trackforwardidx,"[");
-    trackbackwardidx = mAddButton( "rightarrow.png", trackForward,
-	    			   "Track forward ( key: ']' )", false );
+    trackbackwardidx = mAddButton( "rightarrow.png", moveForward,
+	    			   "Move plane forward ( key: ']' )", false );
     toolbar->setShortcut(trackbackwardidx,"]");
 
     nrstepsbox = new uiSpinBox( toolbar, 0, "Nr of track steps" );
@@ -714,12 +714,6 @@ void uiMPEMan::transpChg( CallBacker* )
 }
 
 
-void uiMPEMan::mouseEraseModeCB( CallBacker* )
-{
-    mGetDisplays(false)
-}
-
-
 void uiMPEMan::addSeedCB( CallBacker* )
 {
     turnSeedPickingOn( toolbar->isOn(seedidx) );
@@ -1037,7 +1031,7 @@ void uiMPEMan::visObjectLockedCB()
 }
 
 
-void uiMPEMan::trackForward( CallBacker* )
+void uiMPEMan::moveForward( CallBacker* )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
@@ -1049,7 +1043,7 @@ void uiMPEMan::trackForward( CallBacker* )
 }
 
 
-void uiMPEMan::trackBackward( CallBacker* )
+void uiMPEMan::moveBackward( CallBacker* )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
@@ -1272,7 +1266,7 @@ void uiMPEMan::handleOrientationClick( CallBacker* cb )
 
 void uiMPEMan::showSettingsCB( CallBacker* )
 {
-    // TODO
+    visserv->sendShowSetupDlgEvent();
 }
 
 

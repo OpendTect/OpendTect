@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.78 2009-05-18 10:55:16 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.79 2009-05-19 05:47:08 cvsnanne Exp $";
 
 #include "uimpepartserv.h"
 
@@ -372,24 +372,6 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
 
     adjustSeedBox();
-    //ckeck whether object is already stored.
-    bool needtosave = EM::EMM().getMultiID( trackercurrentobject_ ).isEmpty();
-    if ( !needtosave )
-    {
-	PtrMan<IOObj> ioobj = 
-	    	IOM().get( EM::EMM().getMultiID(trackercurrentobject_) );
-	needtosave = !ioobj;
-    }
-
-    if ( needtosave )
-	sendEvent( uiMPEPartServer::evMPEStoreEMObject() );
-    else
-	saveSetup( EM::EMM().getMultiID(trackercurrentobject_) );
-
-    //TODO check if object is created first... under if condition
-    ////EM::EMObject* emobj = EM::EMM().getObject( trackercurrentobject_ );
-    ////PtrMan<Executor> saver = emobj->saver();
-    ////if ( saver ) saver->execute();
 
     // finishing time
     blockDataLoading( true );
@@ -619,10 +601,9 @@ const Attrib::SelSpec* uiMPEPartServer::getAttribSelSpec() const
 
 
 bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
-				    const EM::SectionID& sid,
-				    bool showcancelbutton )
+				    const EM::SectionID& sid )
 {
-    if ( trackercurrentobject_ != -1 )
+    if ( trackercurrentobject_!=-1 || emid<0 || sid<0 )
 	return false;
 
     const int trackerid = getTrackerID( emid );
@@ -632,12 +613,11 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 
     trackercurrentobject_ = emid;
 
-    uiDialog dlg( appserv().parent(),
-	          uiDialog::Setup("Tracking Setup",0,"108.0.1") );
-    if ( !showcancelbutton ) 
-	dlg.setCtrlStyle( uiDialog::LeaveOnly );
-
-    dlg.windowClosed.notify( mCB(this,uiMPEPartServer,trackerWinClosedCB) );
+    uiDialog* setupdlg  = new uiDialog( 0 , 
+	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1") );
+    setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
+    setupdlg->windowClosed.notify(
+	    mCB(this,uiMPEPartServer,trackerWinClosedCB) );
 
     setupbeingupdated_ = true;
 
@@ -646,17 +626,14 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
 
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
     
-    setupgrp_ = MPE::uiMPE().setupgrpfact.create(&dlg, 
-	    					 emobj->getTypeStr(), attrset );
-
+    setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, emobj->getTypeStr(),
+						  attrset );
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
 	    	   		seedpicker->getSeedConnectMode() );
     setupgrp_->setColor( emobj->preferredColor() );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 					EM::EMObject::sSeedNode()) );
     setupgrp_->setSectionTracker( sectracker );
-
-    sendEvent( uiMPEPartServer::evHideToolBar() );
 
     NotifierAccess* modechangenotifier = setupgrp_->modeChangeNotifier();
     if ( modechangenotifier )
@@ -667,12 +644,8 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( propertychangenotifier )
 	propertychangenotifier->notify(
 		mCB(this,uiMPEPartServer,propertyChangedCB) );
-    do
-    {
-	if ( !dlg.go() && showcancelbutton )
-	    return false;
-    }
-    while ( !setupgrp_->commitToTracker() );
+    setupgrp_->commitToTracker();
+    setupdlg->go();
 
     tracker->applySetupAsDefault( sid );
     loadAttribData();
@@ -699,7 +672,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 				sectiontracker->hasInitializedSetup();
 
     if ( uiMSG().askGoOn(mAskGoOnStr(setupavailable)) )
-	    showSetupDlg( emid, sid, true );
+	    showSetupDlg( emid, sid );
 }
 
 

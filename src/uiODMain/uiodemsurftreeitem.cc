@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.49 2009-05-18 10:56:35 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodemsurftreeitem.cc,v 1.50 2009-05-19 05:47:08 cvsnanne Exp $";
 
 #include "uiodemsurftreeitem.h"
 
@@ -452,7 +452,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesetupmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	mps->showSetupDlg( emid_, sectionid, true );
+	mps->showSetupDlg( emid_, sectionid );
 	applMgr()->visServer()->updateMPEToolbar();
     }
     else if ( mnuid==reloadmnuitem_.id )

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.324 2009-05-18 10:56:35 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.325 2009-05-19 05:47:08 cvsnanne Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -81,6 +81,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
+    visdpsdispmgr_ = new uiVisDataPointSetDisplayMgr( *visserv_ );
     attrserv_ = new uiAttribPartServer( applservice_ );
     seisserv_ = new uiSeisPartServer( applservice_ );
     emserv_ = new uiEMPartServer( applservice_ );
@@ -729,7 +730,6 @@ bool uiODApplMgr::handleWellAttribServEv( int evid )
     {
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
-	visdpsdispmgr_ = new uiVisDataPointSetDisplayMgr( *visserv_ );
 	visdpsdispmgr_->lock();
 	const int dispid =
 	    visdpsdispmgr_->addDisplay( sceneids, wellattrserv_->getPointSet());
@@ -737,6 +737,7 @@ bool uiODApplMgr::handleWellAttribServEv( int evid )
 	wellattrserv_->setVisDpsId( dispid );
 	visdpsdispmgr_->unLock();
     }
+
     return true;
 }
 
@@ -986,7 +987,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	const MPE::EMSeedPicker* seedpicker = tracker ? 
 					      tracker->getSeedPicker(false) : 0;
 	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
-	mpeserv_->showSetupDlg( emid, sid, true );
+	mpeserv_->showSetupDlg( emid, sid );
 	visserv_->updateMPEToolbar();
     }
     else if ( evid == uiVisPartServer::evLoadPostponedData() )
