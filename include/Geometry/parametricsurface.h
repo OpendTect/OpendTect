@@ -5,7 +5,7 @@
 ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
-RCS:           $Id: parametricsurface.h,v 1.16 2008-12-25 11:55:38 cvsranojay Exp $
+RCS:           $Id: parametricsurface.h,v 1.17 2009-05-19 16:19:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ public:
     virtual Coord3 	computePosition(const Coord&) const;
     virtual Coord3 	computeNormal(const Coord&) const;
 
-    virtual bool	insertRow(int row) 			= 0;
-    virtual bool	insertCol(int col) 			= 0;
+    virtual bool	insertRow(int row,int nrnew=1) 			= 0;
+    virtual bool	insertCol(int col,int nrnew=1) 			= 0;
     virtual bool	removeRow(int startrow,int stoprow)  { return false; }
     virtual bool	removeCol(int startcol,int stoprcol) { return false; }
 

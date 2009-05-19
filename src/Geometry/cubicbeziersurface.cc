@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.24 2008-05-29 18:59:05 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.25 2009-05-19 16:19:58 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -349,7 +349,7 @@ Coord3 CubicBezierSurface::getBezierVertex( const RCol& knot,
 }
 
 
-bool CubicBezierSurface::insertRow(int row)
+bool CubicBezierSurface::insertRow(int row, int nrtoinsert )
 {
     mInsertStart( rowidx, row, nrRows() );
 
@@ -381,7 +381,7 @@ bool CubicBezierSurface::insertRow(int row)
 }
 
 
-bool CubicBezierSurface::insertCol(int col)
+bool CubicBezierSurface::insertCol(int col, int nrtoinsert )
 {
     mInsertStart( colidx, col, nrCols() );
     TypeSet<GeomPosID> movedpos;

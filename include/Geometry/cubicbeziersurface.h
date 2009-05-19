@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.9 2008-12-25 11:55:38 cvsranojay Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.10 2009-05-19 16:19:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,8 @@ public:
 
     Coord3	getBezierVertex( const RCol& knot, const RCol& relpos ) const;
 
-    bool	insertRow(int row);
-    bool	insertCol(int col);
+    bool	insertRow(int row,int nrnew=1);
+    bool	insertCol(int col,int nrnew=1);
     bool	removeRow(int row);
     bool	removeCol(int col);
     Coord3	getKnot( const RCol&, bool estimateifundef=false ) const;
