@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		March 2009
- RCS:		$Id: vispointsetdisplay.h,v 1.2 2009-04-04 10:20:48 cvskris Exp $
+ RCS:		$Id: vispointsetdisplay.h,v 1.3 2009-05-19 11:09:37 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -20,7 +20,7 @@ ________________________________________________________________________
 
 class DataPointSet;
 
-namespace visBase { class IndexedPointSet; }
+namespace visBase { class PointSet; }
 
 namespace visSurvey
 {
@@ -43,7 +43,7 @@ public:
 protected:
 
     Color			color_;
-    visBase::IndexedPointSet*	pointset_;
+    visBase::PointSet*		pointset_;
 };
 
 };
