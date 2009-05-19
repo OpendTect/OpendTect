@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.2 2009-05-05 03:32:09 cvskris Exp $
+ RCS:		$Id: fixedstring.h,v 1.3 2009-05-19 13:46:08 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -26,6 +26,7 @@ public:
     bool	operator!=(const char* s) const		{ return !(*this==s); }
     bool	operator==(const FixedString& f) const	{ return *this==f.ptr_;}
     bool	operator!=(const FixedString& f) const	{ return *this!=f.ptr_;}
+    bool	operator!() const			{ return !ptr_; }
 
     bool	isEmpty() const { return !ptr_ || !*ptr_; }
     int		size() const;
