@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.18 2009-04-15 12:13:22 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.19 2009-05-19 09:45:05 cvssatyaki Exp $";
 
 #include "uiflatviewstdcontrol.h"
 
@@ -15,11 +15,13 @@ static const char* rcsID = "$Id: uiflatviewstdcontrol.cc,v 1.18 2009-04-15 12:13
 #include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
 #include "uiflatviewthumbnail.h"
+#include "uigraphicsscene.h"
 #include "uibutton.h"
 #include "uimainwin.h"
 #include "uimenuhandler.h"
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
+#include "uiworld2ui.h"
 #include "mouseevent.h"
 #include "pixmap.h"
 
@@ -92,7 +94,8 @@ void uiFlatViewStdControl::finalPrepare()
     updatePosButtonStates();
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	MouseEventHandler& mevh = mouseEventHandler( idx );
+	MouseEventHandler& mevh =
+	            vwrs_[vwrs_.size()-1]->rgbCanvas().getMouseEventHandler();
 	mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
     }
 }
@@ -113,7 +116,8 @@ void uiFlatViewStdControl::dispChgCB( CallBacker* )
 
 void uiFlatViewStdControl::vwrAdded( CallBacker* )
 {
-    MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1 );
+    MouseEventHandler& mevh =
+	vwrs_[vwrs_.size()-1]->rgbCanvas().getMouseEventHandler();
     mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
 }
 
@@ -128,10 +132,11 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
     {
-	if ( !mouseEventHandler( idx ).hasEvent() )
+	if ( !vwrs_[idx]->rgbCanvas().getMouseEventHandler().hasEvent() )
 	    continue;
 
-	const MouseEvent& ev = mouseEventHandler(idx).event();
+	const MouseEvent& ev =
+	    vwrs_[idx]->rgbCanvas().getMouseEventHandler().event();
 	if ( mIsZero(ev.angle(),0.01) )
 	    continue;
 
@@ -143,13 +148,50 @@ void uiFlatViewStdControl::wheelMoveCB( CallBacker* )
 void uiFlatViewStdControl::zoomCB( CallBacker* but )
 {
     const bool zoomin = but == zoominbut_;
+    uiSize newrectsz( vwrs_[0]->rgbCanvas().arrArea().size() );
     if ( but == zoominbut_ )
-	zoommgr_.forward();
+    {
+	if ( !vwrs_[0]->rgbCanvas().getMouseEventHandler().hasEvent() )
+	    zoommgr_.forward();
+	else
+	{
+	    newrectsz.setWidth( mNINT(newrectsz.width()*zoommgr_.fwdFac()) );
+	    newrectsz.setHeight( mNINT(newrectsz.height()*zoommgr_.fwdFac()) );
+	}
+    }
     else
-	zoommgr_.back();
+    {
+	if ( !vwrs_[0]->rgbCanvas().getMouseEventHandler().hasEvent() )
+	    zoommgr_.back();
+	else
+	{
+	    newrectsz.setWidth( mNINT(newrectsz.width()/zoommgr_.fwdFac()) );
+	    newrectsz.setHeight( mNINT(newrectsz.height()/zoommgr_.fwdFac()) );
+	}
+    }
 
-    Geom::Size2D<double> newsz = zoommgr_.current();
-    Geom::Point2D<double> centre( vwrs_[0]->curView().centre() );
+    Geom::Point2D<double> centre;
+    Geom::Size2D<double> newsz;
+    if ( !vwrs_[0]->rgbCanvas().getMouseEventHandler().hasEvent() )
+    {
+	newsz = zoommgr_.current();
+	centre = vwrs_[0]->curView().centre();
+    }
+    else
+    {
+	uiWorld2Ui w2ui;
+	vwrs_[0]->getWorld2Ui( w2ui );
+	const Geom::Point2D<int> viewevpos =
+	    vwrs_[0]->rgbCanvas().getMouseEventHandler().event().pos();
+	uiRect selarea( viewevpos.x-(newrectsz.width()/2),
+			viewevpos.y-(newrectsz.height()/2),
+			viewevpos.x+(newrectsz.width()/2),
+			viewevpos.y+(newrectsz.height()/2) );
+	uiWorldRect wr = w2ui.transform(selarea);
+	centre = wr.centre();
+	newsz = wr.size();
+    }
+
     if ( zoommgr_.atStart() )
 	centre = zoommgr_.initialCenter();
 

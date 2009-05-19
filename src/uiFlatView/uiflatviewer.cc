@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.76 2009-04-20 06:20:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.77 2009-05-19 09:45:05 cvssatyaki Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.76 2009-04-20 06:20:58 cvsn
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
 #include "flatviewaxesdrawer.h"
+#include "mousecursor.h"
 #include "pixmap.h"
 #include "datapackbase.h"
 #include "bufstringset.h"
@@ -217,6 +218,7 @@ void uiFlatViewer::reset()
 
 void uiFlatViewer::drawBitMaps()
 {
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     canvas_.beforeDraw();
     if ( !anysetviewdone_ )
 	setView( boundingBox() );
