@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.7 2009-03-16 08:50:00 cvsumesh Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.8 2009-05-19 09:39:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,8 @@ protected:
 
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
+
+    bool		askContinueAndSaveIfNeeded();
 
     uEMHorizonShiftDialog* horshiftdlg_;
     MenuItem		algomnuitem_;
@@ -85,6 +87,8 @@ protected:
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
     
+    bool		askContinueAndSaveIfNeeded();
+
     MenuItem		derive3dhormnuitem_;
 };
 

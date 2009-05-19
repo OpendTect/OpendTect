@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.23 2009-01-20 04:33:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.24 2009-05-19 09:39:22 cvsnanne Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -181,9 +181,14 @@ void uiODFaultTreeItem::colorChCB( CallBacker* )
 }
 
 
+bool uiODFaultTreeItem::askContinueAndSaveIfNeeded()
+{
+    return applMgr()->EMServer()->askUserToSave( emid_ );
+}
+
+
 void uiODFaultTreeItem::prepareForShutdown()
 {
-    applMgr()->EMServer()->askUserToSave(emid_);
     if ( faultdisplay_ )
     {
 	faultdisplay_->materialChange()->remove(
@@ -437,9 +442,14 @@ void uiODFaultStickSetTreeItem::colorChCB( CallBacker* )
 }
 
 
+bool uiODFaultStickSetTreeItem::askContinueAndSaveIfNeeded()
+{
+    return applMgr()->EMServer()->askUserToSave( emid_ );
+}
+
+
 void uiODFaultStickSetTreeItem::prepareForShutdown()
 {
-    applMgr()->EMServer()->askUserToSave(emid_);
     if ( faultsticksetdisplay_ )
     {
 	faultsticksetdisplay_->materialChange()->remove(

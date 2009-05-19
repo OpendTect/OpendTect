@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.9 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.10 2009-05-19 09:39:22 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,7 @@ public:
     			~uiODFaultTreeItem();
 
 protected:
+    bool		askContinueAndSaveIfNeeded();
     void		prepareForShutdown();
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);
@@ -85,6 +86,7 @@ public:
     			~uiODFaultStickSetTreeItem();
 
 protected:
+    bool		askContinueAndSaveIfNeeded();
     void		prepareForShutdown();
     void		createMenuCB(CallBacker*);
     void		handleMenuCB(CallBacker*);

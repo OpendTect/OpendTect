@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.169 2009-05-18 21:26:08 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.170 2009-05-19 09:39:22 cvsnanne Exp $";
 
 #include "uiempartserv.h"
 
@@ -296,18 +296,24 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 	msg += " '"; msg += emobj->name(); msg += "' "; msg += s; \
 	msg += ".\nDo you want to save it?"
 
-void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
+bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 {
     EM::EMObject* emobj = em_.getObject(emid);
-    if ( !emobj || emobj->isEmpty() ) return;
+    if ( !emobj || emobj->isEmpty() ) return true;
 
     if ( !isChanged(emid) )
-	return;
-    mMkMsg( "has changed" );
-    if ( !uiMSG().askSave( msg ) )
-	return;
+	return true;
 
-    storeObject( emid, !isFullyLoaded(emid) );
+    mMkMsg( "has changed" );
+    const int ret = uiMSG().askSave( msg );
+    if ( ret == 1 )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( getStorageID(emid) );
+	const bool saveas = !ioobj || !isFullyLoaded(emid);
+	return storeObject( emid, saveas );
+    }
+
+    return ret == 0;
 }
 
 

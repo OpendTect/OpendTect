@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.23 2009-05-18 10:56:35 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.24 2009-05-19 09:39:22 cvsnanne Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -178,6 +178,12 @@ BufferString uiODHorizonTreeItem::createDisplayName() const
 void uiODHorizonTreeItem::dispChangeCB(CallBacker*)
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+bool uiODHorizonTreeItem::askContinueAndSaveIfNeeded()
+{
+    return applMgr()->EMServer()->askUserToSave( emid_ );
 }
 
 
@@ -392,6 +398,12 @@ void uiODHorizon2DTreeItem::initNotify()
 void uiODHorizon2DTreeItem::dispChangeCB(CallBacker*)
 {
     updateColumnText( uiODSceneMgr::cColorColumn() );
+}
+
+
+bool uiODHorizon2DTreeItem::askContinueAndSaveIfNeeded()
+{
+    return applMgr()->EMServer()->askUserToSave( emid_ );
 }
 
 

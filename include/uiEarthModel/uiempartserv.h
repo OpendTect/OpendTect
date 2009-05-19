@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.84 2009-03-10 06:57:05 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.85 2009-05-19 09:39:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,9 +69,10 @@ public:
     void		filterSurface(const EM::ObjectID&);
     void		fillPickSet(Pick::Set&,MultiID);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
-    void		askUserToSave(const EM::ObjectID&) const;
+    bool		askUserToSave(const EM::ObjectID&) const;
     			/*!< If object has changed, user is asked whether
-			    to save it or not, and if so, the object is saved */
+			    to save it or not, and if so, the object is saved.
+			    Returns false when save option is cancelled. */
 
     void		selectHorizons(TypeSet<EM::ObjectID>&,bool is2d);
     void		selectFaults(TypeSet<EM::ObjectID>&,bool is2d);
