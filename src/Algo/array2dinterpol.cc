@@ -4,7 +4,7 @@
  * DATE     : Feb 2009
 -*/
 
-static const char* rcsID = "$Id: array2dinterpol.cc,v 1.10 2009-05-18 21:21:49 cvskris Exp $";
+static const char* rcsID = "$Id: array2dinterpol.cc,v 1.11 2009-05-19 03:42:45 cvsnanne Exp $";
 
 #include "array2dinterpolimpl.h"
 
@@ -1176,24 +1176,24 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
 
 	    if ( row )
 	    {
-		if ( col && !curdefined_[idx-nrcols_-1] ||
+		if ( (col && !curdefined_[idx-nrcols_-1]) ||
 		     !curdefined_[idx-nrcols_] ||
-		     isnotlastcol && !curdefined_[idx-nrcols_+1] )
+		     (isnotlastcol && !curdefined_[idx-nrcols_+1]) )
 		    dotriangulate = true;
 	    }
 
 	    if ( !dotriangulate && row!=nrrows_-1 )
 	    {
-		if ( col && !curdefined_[idx+nrcols_-1] ||
+		if ( (col && !curdefined_[idx+nrcols_-1]) ||
 		     !curdefined_[idx+nrcols_] ||
-		     isnotlastcol && !curdefined_[idx+nrcols_+1] )
+		     (isnotlastcol && !curdefined_[idx+nrcols_+1]) )
 		    dotriangulate = true;
 	    }
 
 	    if ( !dotriangulate )
 	    {
-		if ( col && !curdefined_[idx-1] ||
-		     isnotlastcol && !curdefined_[idx+1] )
+		if ( (col && !curdefined_[idx-1]) ||
+		     (isnotlastcol && !curdefined_[idx+1]) )
 		    dotriangulate = true;
 	    }
 
@@ -1230,7 +1230,7 @@ bool TriangulationArray2DInterpol::initFromArray( TaskRunner* tr )
     triangulator.dataIsRandom( false );
     triangulator.setCalcScope( Interval<int>( 0, coordlist_.size()-1 ) );
 
-    if ( tr && !tr->execute( triangulator ) || !triangulator.execute() )
+    if ( (tr && !tr->execute(triangulator)) || !triangulator.execute() )
 	return false;
 
     if ( !triangulation_->getConnections(-2,corner2conns_) ||
