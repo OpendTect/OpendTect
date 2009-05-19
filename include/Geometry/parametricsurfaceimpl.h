@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: parametricsurfaceimpl.h,v 1.9 2009-05-19 16:19:58 cvskris Exp $
+RCS:           $Id: parametricsurfaceimpl.h,v 1.10 2009-05-19 21:55:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,10 +71,10 @@ mReplaceVariable( variable )
 
 #define mCloneColVariable( type, variable, interpolfunc, udf ) \
     Array2D<type>* new##variable = variable \
-        ?  new Array2DImpl<type>(curnrrows,curnrcols+1) : 0; \
+        ?  new Array2DImpl<type>(curnrrows,curnrcols+nrtoinsert) : 0; \
 for ( int idx=0; new##variable && idx<curnrrows; idx++ ) \
 { \
-    for ( int idy=0; idy<=curnrcols; idy++ ) \
+    for ( int idy=0; idy<curnrcols+nrtoinsert; idy++ ) \
     { \
 	if ( idy>=colidx && idy<colidx+nrtoinsert ) \
 	{ \
