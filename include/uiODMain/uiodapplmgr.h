@@ -6,14 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.84 2009-05-14 09:05:51 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.85 2009-05-19 07:25:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
 
-class uidTectMan;
 class uiApplPartServer;
 class uiApplService;
 class uiAttribPartServer;
@@ -40,7 +39,7 @@ class Coord;
 class DataPointSet;
 class MultiID;
 class ODSession;
-namespace Attrib{ class SelSpec; }
+namespace Attrib { class SelSpec; }
 namespace Pick { class Set; }
 
 /*!\brief Application level manager - ties part servers together
