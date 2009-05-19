@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisemobj.cc,v 1.81 2009-05-19 13:49:02 cvskris Exp $";
+static const char* rcsID = "$Id: uivisemobj.cc,v 1.82 2009-05-19 14:27:06 cvsyuancheng Exp $";
 
 #include "uivisemobj.h"
 
@@ -389,19 +389,24 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( &trackmenuitem_, &editmnuitem_, enabmenu,
 	    	  emod->isEditingEnabled() );
+
+    const bool canhavewireframe =  hordisp && hordisp->getResolution()>0;
+    const bool haswireframe = canhavewireframe && hordisp->usesWireframe();
     if ( hordisp )
-	mAddMenuItem( &trackmenuitem_, &wireframemnuitem_, true,
-		      hordisp->usesWireframe() );
+	mAddMenuItem( &trackmenuitem_, &wireframemnuitem_, true, haswireframe );
+    wireframemnuitem_.enabled = canhavewireframe;
+    if ( !wireframemnuitem_.enabled ) wireframemnuitem_.checked = false;
    
     const TypeSet<EM::PosID>* seeds =
-			      emobj->getPosAttribList(EM::EMObject::sSeedNode());
+	emobj->getPosAttribList(EM::EMObject::sSeedNode());
     showseedsmnuitem_.text = emod->showsPosAttrib(EM::EMObject::sSeedNode()) ?
 			    "&Hide" : "S&how" ;	
     mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_, seeds && seeds->size(),
 	    	  false );
     mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
-    lockseedsmnuitem_.text = emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ?
-			    "Un&lock" : "&Lock" ;	
+    lockseedsmnuitem_.text = 
+	emobj->isPosAttribLocked(EM::EMObject::sSeedNode()) ? 
+	"Un&lock" : "&Lock" ;	
     mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
     mAddMenuItem( &trackmenuitem_, &seedsmenuitem_, seedsmenuitem_.nrItems(),
 		  false );
