@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uihorinterpol.cc,v 1.5 2009-05-18 21:26:08 cvskris Exp $";
+static const char* rcsID = "$Id: uihorinterpol.cc,v 1.6 2009-05-19 21:56:19 cvskris Exp $";
 
 #include "uihorinterpol.h"
 
@@ -232,33 +232,34 @@ bool uiHorizon3DInterpolDlg::expandArraysToSurvey()
 			 horizon_->sectionGeometry( sid ) );
 
 	const StepInterval<int> survcrlrg = SI().crlRange(true);
-	while ( colrg.start-colrg.step>=survcrlrg.start )
+	int nrcolstoinsert = -colrg.nearestIndex(survcrlrg.start);
+	if ( nrcolstoinsert>0 )
 	{
-	    const int newcol = colrg.start-colrg.step;
-	    surf->insertCol( newcol );
-											    colrg.start = newcol;
+	    surf->insertCol( survcrlrg.start, nrcolstoinsert );
+	    colrg.start = survcrlrg.start;
 	}
 
-	while ( colrg.stop+colrg.step<=survcrlrg.stop )
+	nrcolstoinsert = (survcrlrg.stop-colrg.stop)/colrg.step;
+	if ( nrcolstoinsert>0 )
 	{
-	    const int newcol = colrg.stop+colrg.step;
-	    surf->insertCol( newcol );
-	    colrg.stop = newcol;
+	    surf->insertCol( colrg.stop+colrg.step, nrcolstoinsert );
+	    colrg.stop += nrcolstoinsert*colrg.step;
 	}
 
 	const StepInterval<int> survinlrg = SI().inlRange(true);
-	while ( rowrg.start-rowrg.step>=survinlrg.start )
+
+	int nrrowstoinsert = -rowrg.nearestIndex(survinlrg.start);
+	if ( nrrowstoinsert>0 )
 	{
-	    const int newrow = rowrg.start-rowrg.step;
-	    surf->insertRow( newrow );
-	    rowrg.start = newrow;
+	    surf->insertRow( survinlrg.start, nrrowstoinsert );
+	    rowrg.start = survinlrg.start;
 	}
 
-	while ( rowrg.stop+rowrg.step<=survinlrg.stop )
+	nrrowstoinsert = (survinlrg.stop-rowrg.stop)/rowrg.step;
+	if ( nrrowstoinsert>0 )
 	{
-	    const int newrow = rowrg.stop+rowrg.step;
-	    surf->insertRow( newrow );
-	    rowrg.stop = newrow;
+	    surf->insertRow( rowrg.stop+rowrg.step, nrrowstoinsert );
+	    rowrg.stop += nrrowstoinsert*rowrg.step;
 	}
     }
 
