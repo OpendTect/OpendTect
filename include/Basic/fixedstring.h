@@ -6,10 +6,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.3 2009-05-19 13:46:08 cvskris Exp $
+ RCS:		$Id: fixedstring.h,v 1.4 2009-05-19 14:09:33 cvskris Exp $
 ________________________________________________________________________
 
 */
+
+#include "bufstring.h"
 
 
 /*! Class that holds a text string, and provides basic services around it. The string is assumed to be owned by someone else or be static. In any case, it is
@@ -19,8 +21,10 @@ mClass FixedString
 {
 public:
 		FixedString(const char* p) : ptr_(p) {}
+		FixedString(const BufferString& b) : ptr_( b.buf() )	{}
     FixedString& operator=(const FixedString& f) { return *this = f.ptr_; }
     FixedString& operator=(const char* p)	{ ptr_ = p; return *this; }
+    FixedString& operator=(const BufferString& b){ptr_=b.buf();return *this;}
 
     bool	operator==(const char*) const;
     bool	operator!=(const char* s) const		{ return !(*this==s); }
