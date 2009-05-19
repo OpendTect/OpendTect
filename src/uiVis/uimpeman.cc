@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.146 2009-05-19 05:47:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.147 2009-05-19 09:16:48 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -312,10 +312,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	const bool lineswitch = lset!=engine.active2DLineSetID() ||
 			        lname!=engine.active2DLineName(); 
 
-	// Not allowed to pick on more than one line in setup stage
-	if ( lineswitch && isPickingWhileSetupUp() && seedpicker->nrSeeds() )
-	    return;
-
 	engine.setActive2DLine( lset, lname );
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
@@ -355,10 +351,6 @@ void uiMPEMan::seedClick( CallBacker* )
 	
 	if ( newvolume != engine.activeVolume() )
 	{
-	    // Not allowed to pick on more than one plane in setup stage
-	    if ( isPickingWhileSetupUp() && seedpicker->nrSeeds() )
-		return;
-
 	    if ( oldactivevol.isEmpty() )
 	    {
 		if ( newvolume == trkplanecs )
