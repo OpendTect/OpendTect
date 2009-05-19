@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.66 2009-05-19 12:18:18 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.67 2009-05-19 12:25:50 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -55,7 +55,7 @@ MPEDisplay::MPEDisplay()
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->ref();
     boxdragger_->finished.notify( mCB(this,MPEDisplay,boxDraggerFinishCB) );
-    boxdragger_->setBoxTransparency( 0.8 );
+    boxdragger_->setBoxTransparency( 0.7 );
     boxdragger_->turnOn( false );
     updateBoxSpace();
 
