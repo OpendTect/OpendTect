@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.12 2009-05-20 09:52:52 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.13 2009-05-20 12:12:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,12 @@ protected:
     ObjectSet<uiLineItem>	dirlnitms_;
     uiGraphicsItemGroup&	markeritems_;
     uiGraphicsItemGroup&	curveitems_;
+    uiLineItem*			scalelineitm_;
+    uiMarkerItem*		scalestartptitem_;
+    uiCurvedItem*		scalearcitm_;
+    uiTextItem*			scaleannotitm_;
+    uiTextItem*			scalestartitm_;
+    uiTextItem*			scalestopitm_;
 
     void			mouseRelease(CallBacker*);
     void			reSized(CallBacker*);

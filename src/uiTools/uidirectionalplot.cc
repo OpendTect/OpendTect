@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.22 2009-05-20 09:52:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.23 2009-05-20 12:12:06 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -18,6 +18,13 @@ static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.22 2009-05-20 09:52:52
 #include "dataclipper.h"
 #include "coltabsequence.h"
 #include <iostream>
+
+
+static uiPoint uiPointFromPolar( const uiPoint& c, float r, float angrad )
+{
+    Geom::Point2D<float> fpt( c.x + r * cos(angrad), c.y - r * sin(angrad) );
+    return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
+}
 
 
 uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
@@ -33,6 +40,9 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup))
     , hdrannotitm1_(0)
     , hdrannotitm2_(0)
+    , scalelineitm_(0)
+    , scalearcitm_(0)
+    , scaleannotitm_(0)
     , sectorPicked(this)
     , colseq_(0)
 {
@@ -183,7 +193,46 @@ void uiDirectionalPlot::drawGrid()
 
 void uiDirectionalPlot::drawScale()
 {
-    if ( setup_.nameforpos_.isEmpty() ) return;
+    static const float sqrt2 = sqrt( 2 );
+    const uiPoint startpt( usrUIPos(radius_*1.02,135) );
+    const uiPoint endpt( usrUIPos(radius_*sqrt2,135) );
+    if ( !scalelineitm_ )
+    {
+	scalelineitm_ = new uiLineItem( startpt, endpt, true );
+	scalestartptitem_ = new uiMarkerItem( startpt,
+				MarkerStyle2D(MarkerStyle2D::Circle,3) );
+    }
+    else
+    {
+	scalelineitm_->setLine( startpt, endpt, true );
+	scalestartptitem_->setPos( startpt );
+    }
+
+    delete scalearcitm_;
+    const Interval<float> angs( Angle::usrdeg2rad(120.F),
+	    			Angle::usrdeg2rad(150.F) );
+    const float r = (float)startpt.distTo( endpt );
+    scalearcitm_ = new uiCurvedItem( uiPointFromPolar(startpt,r,angs.start) );
+    scalearcitm_->drawTo( uiCurvedItem::ArcSpec(startpt,r,angs) );
+
+    const char* nm = setup_.nameforpos_;
+    if ( !*nm ) nm = "Values";
+    uiPoint midpt( startpt ); midpt += endpt; midpt /= 2;
+    const Alignment al( mAlignment(Left,VCenter) );
+    if ( !scaleannotitm_ )
+    {
+	scaleannotitm_ = new uiTextItem( midpt, nm, al );
+	BufferString str; str += data_.setup_.usrposrg_.start;
+	scalestartitm_ = new uiTextItem( startpt, str, al );
+	str.setEmpty(); str += data_.setup_.usrposrg_.stop;
+	scalestopitm_ = new uiTextItem( endpt, str, al );
+    }
+    else
+    {
+	scaleannotitm_->setPos( midpt );
+	scalestartitm_->setPos( startpt );
+	scalestopitm_->setPos( endpt );
+    }
 }
 
 void uiDirectionalPlot::drawHeader()
@@ -431,20 +480,14 @@ void uiDirectionalPlot::mouseRelease( CallBacker* )
 
 uiPoint uiDirectionalPlot::dataUIPos( float r, float ang ) const
 {
-    const float angrad =
-		Angle::convert( data_.setup_.angletype_, ang, Angle::Rad );
-    Geom::Point2D<float> fpt( center_.x + r * cos(angrad),
-			      center_.y - r * sin(angrad) );
-    return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
+    return uiPointFromPolar( center_, r,
+	    	Angle::convert( data_.setup_.angletype_, ang, Angle::Rad ) );
 }
 
 
 uiPoint uiDirectionalPlot::usrUIPos( float r, float ang ) const
 {
-    const float angrad = Angle::usrdeg2rad( ang );
-    Geom::Point2D<float> fpt( center_.x + r * cos(angrad),
-			      center_.y - r * sin(angrad) );
-    return uiPoint( mNINT(fpt.x), mNINT(fpt.y) );
+    return uiPointFromPolar( center_, r, Angle::usrdeg2rad(ang) );
 }
 
 
