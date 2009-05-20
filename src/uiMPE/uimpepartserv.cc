@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.80 2009-05-20 10:16:09 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.81 2009-05-20 11:04:35 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -37,7 +37,6 @@ static const char* rcsID = "$Id: uimpepartserv.cc,v 1.80 2009-05-20 10:16:09 cvs
 
 #include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
-#include "uimpewizard.h"
 #include "uimsg.h"
 
 const int uiMPEPartServer::evGetAttribData()	    { return 0; }
@@ -60,7 +59,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , attrset3d_( 0 )
     , attrset2d_( 0 )
-    , wizard_( 0 )
     , activetrackerid_(-1)
     , eventattrselspec_( 0 )
     , blockdataloading_( false )
@@ -91,7 +89,6 @@ uiMPEPartServer::~uiMPEPartServer()
 	    mCB(this, uiMPEPartServer, loadEMObjectCB) );
     MPE::engine().trackeraddremove.remove(
 	    mCB(this, uiMPEPartServer, loadTrackSetupCB) );
-    delete wizard_;
 }
 
 
@@ -169,8 +166,7 @@ int uiMPEPartServer::addTracker( const EM::ObjectID& emid,
 }
 
 
-bool uiMPEPartServer::addTracker( const EM::ObjectID& oid, 
-				  const char* trackertype, int addedtosceneid )
+bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
     if ( trackercurrentobject_ != -1 )
 	return false;
@@ -548,21 +544,6 @@ void uiMPEPartServer::deleteSetupGrp()
 }
 
 
-bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
-{
-    cursceneid_ = addedtosceneid;
-
-    if ( !wizard_ ) wizard_ = new MPE::Wizard( appserv().parent(), this );
-    else wizard_->reset();
-
-    wizard_->setTrackingType( trackertype );
-//  wizard_->setRotateMode(true);
-    wizard_->go();
-
-    return true;
-}
-
-
 EM::ObjectID uiMPEPartServer::getEMObjectID( int trackerid ) const
 {
     const MPE::EMTracker* emt = MPE::engine().getTracker(trackerid);
@@ -574,28 +555,6 @@ bool uiMPEPartServer::canAddSeed( int trackerid ) const
 {
     pErrMsg("Not impl");
     return false;
-}
-
-
-void uiMPEPartServer::addSeed( int trackerid )
-{
-    if ( !wizard_ ) wizard_ = new MPE::Wizard( appserv().parent(), this );
-    else wizard_->reset();
-
-    const MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);
-    if ( !tracker ) return;
-
-    EM::EMObject* object = EM::EMM().getObject( tracker->objectID() );
-    if ( !object ) return;
-
-    //TODO Find a mechanism to get this work on multi-section objects
-    wizard_->setObject( object->id(), object->sectionID(0) );
-
-    wizard_->displayPage(MPE::Wizard::sNamePage, false );
-    wizard_->displayPage(MPE::Wizard::sFinalizePage, false );
-    wizard_->setRotateMode( false );
-    
-    wizard_->go();
 }
 
 
@@ -1064,7 +1023,7 @@ void uiMPEPartServer::fillPar( IOPar& par ) const
 
 bool uiMPEPartServer::usePar( const IOPar& par )
 {
-    delete wizard_; wizard_ = 0;
+    //delete wizard_; wizard_ = 0;
     bool res = MPE::engine().usePar( par );
     if ( res )
     {

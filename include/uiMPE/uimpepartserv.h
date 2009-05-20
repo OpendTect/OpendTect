@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.40 2009-05-19 05:47:08 cvsnanne Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.41 2009-05-20 11:03:58 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ class BufferStringSet;
 class uiDialog;
 
 namespace Geometry { class Element; }
-namespace MPE { class Wizard; class uiSetupGroup; }
+namespace MPE { class uiSetupGroup; }
 namespace Attrib { class DescSet; class DataCubes; class Data2DHolder; }
 
 
@@ -43,8 +43,6 @@ public:
     int				getTrackerID(const EM::ObjectID&) const;
     int				getTrackerID(const char* name) const;
     void			getTrackerTypes(BufferStringSet&) const;
-    bool			addTracker(const EM::ObjectID&,
-	    				   const char* trackertype,int sceneid);
     bool			addTracker(const char* trackertype,int sceneid);
     int				addTracker(const EM::ObjectID&,
 	    				   const Coord3& pos);
@@ -60,7 +58,6 @@ public:
     int				getCurSceneID() const { return cursceneid_; }
 
     bool			canAddSeed(int trackerid) const;
-    void			addSeed(int trackerid);
 
     void			enableTracking(int trackerid,bool yn);
     bool			isTrackingEnabled(int trackerid) const;
@@ -142,7 +139,6 @@ protected:
 
     const Attrib::DescSet*	attrset3d_;
     const Attrib::DescSet*	attrset2d_;
-    MPE::Wizard*		wizard_;
     bool			blockdataloading_;
     				/*!<Is checked when cb is issued from the
 				    MPE::Engine about changed active volume */
@@ -160,7 +156,6 @@ protected:
     MultiID			linesetid_;
     Attrib::SelSpec		lineselspec_;
     
-    				//replacement for wizard
     void			aboutToAddRemoveSeed(CallBacker*);
     EM::ObjectID        	trackercurrentobject_;
     void			trackerWinClosedCB(CallBacker*);
@@ -182,8 +177,6 @@ protected:
     void			deleteSetupGrp();
 
     MPE::uiSetupGroup*          setupgrp_;
-
-    friend class		MPE::Wizard;
 };
 
 
