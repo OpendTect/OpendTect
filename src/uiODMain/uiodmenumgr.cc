@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.173 2009-05-18 10:56:35 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodmenumgr.cc,v 1.174 2009-05-20 07:15:33 cvsnanne Exp $";
 
 #include "uibutton.h"
 #include "uiodmenumgr.h"
@@ -653,8 +653,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddMnuItm( vwmnu, "View North - Z", handleViewClick, "view_NZ.png", 4 );
     cointb_->setButtonMenu( viewselectid_, *vwmnu );
 
-
-    axisid_ = mAddTB(cointb_,"axis.png","Display rotation axis",
+    axisid_ = mAddTB(cointb_,"axis.png","Display orientation axis",
 	    	     true,showRotAxis);
     coltabid_ = cointb_->addButton( "colorbar.png",
 	    mCB(this,uiODMenuMgr,dispColorBar), "Display color bar", true );
