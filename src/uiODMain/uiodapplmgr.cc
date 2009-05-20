@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.327 2009-05-20 14:56:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.328 2009-05-20 22:04:22 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1081,8 +1081,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		iop.setName( "Attributes" );
 	}
 
-	const char* res = nlaserv_->prepareInputData( dpss );
-	if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel()) )
+	const FixedString res = nlaserv_->prepareInputData( dpss );
+	if ( res!=uiNLAPartServer::sKeyUsrCancel() )
 	    uiMSG().warning( res );
 	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
 	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D() );
