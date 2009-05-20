@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.326 2009-05-20 10:17:05 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.327 2009-05-20 14:56:07 cvshelene Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -1158,25 +1158,18 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     else if ( evid==uiAttribPartServer::evEvalCalcAttr() )
     {
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
-
-	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
-	BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
-	as.setObjectRef( savedusrref );
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
 	    uiMSG().error( "Please select an attribute element in the tree" );
 	    return false;
 	}
-	as.set2DFlag( attrserv_->is2DEvent() );
-	visserv_->setSelSpec( visid, attrib, as );
-	const bool success = as.is2D() ? evaluate2DAttribute(visid,attrib)
-	    			       : evaluateAttribute(visid,attrib);
-	if ( !success )
+	if ( !calcMultipleAttribs( as ) )
 	{
 	    uiMSG().error( "Could not evaluate this attribute" );
 	    return false;
 	}
 
+	const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
 	const ColTab::MapperSetup* ms =
 	    visserv_->getColTabMapperSetup( visid, attrib, tmpset.size()/2 );
 	if ( ms )
@@ -1243,6 +1236,20 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	pErrMsg("Unknown event from attrserv");
 
     return true;
+}
+
+
+bool uiODApplMgr::calcMultipleAttribs( Attrib::SelSpec& as )
+{
+    const int visid = visserv_->getEventObjId();
+    const int attrib = visserv_->getSelAttribNr();
+    const TypeSet<Attrib::SelSpec>& tmpset = attrserv_->getTargetSelSpecs();
+    BufferString savedusrref = tmpset.size() ? tmpset[0].objectRef() : "";
+    as.setObjectRef( savedusrref );
+    as.set2DFlag( attrserv_->is2DEvent() );
+    visserv_->setSelSpec( visid, attrib, as );
+    return as.is2D() ? evaluate2DAttribute(visid,attrib)
+		     : evaluateAttribute(visid,attrib);
 }
 
 

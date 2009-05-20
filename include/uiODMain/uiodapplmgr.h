@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.85 2009-05-19 07:25:41 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.86 2009-05-20 14:56:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,6 +224,7 @@ protected:
 
     void			createAndSetMapDataPack(int visid,int attrib,
 	    					const DataPointSet&,int colnr);
+    bool			calcMultipleAttribs(Attrib::SelSpec&);
 
     friend class		uiODApplService;
 

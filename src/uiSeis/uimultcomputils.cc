@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimultcomputils.cc,v 1.5 2009-03-18 11:04:03 cvshelene Exp $";
+static const char* rcsID = "$Id: uimultcomputils.cc,v 1.6 2009-05-20 14:56:07 cvshelene Exp $";
 
 #include "uimultcomputils.h"
 #include "bufstringset.h"
@@ -18,24 +18,31 @@ static const char* rcsID = "$Id: uimultcomputils.cc,v 1.5 2009-03-18 11:04:03 cv
 
 
 uiMultCompDlg::uiMultCompDlg( uiParent* p, LineKey lkey )
-    	: uiDialog(p,uiDialog::Setup("Component dialog",
-		    		     "Choose the component to display","") )
-	, needdisplay_(true)
+    	: uiDialog(p,uiDialog::Setup("Component dialog","","") )
 	, compfld_(0)
 {
+    BufferString instructions = "After loading, use 'Page Up' \n";
+    instructions += "and 'Page Down' buttons to scroll.\n";
+    instructions += "Make sure the attribute treeitem is selected\n";
+    instructions += "and that the mouse pointer is in the scene.";
+    setTitleText( instructions );
     BufferStringSet complist;
     SeisIOObjInfo::getCompNames( lkey, complist );
 
-    if ( complist.size()>1 )
-	compfld_ = new uiListBox( this, complist, "Component nr" );
-    else
-	needdisplay_ = false;
+    compfld_ = new uiListBox( this, complist, "" );
+    compfld_->setMultiSelect();
 }
 
 
-int uiMultCompDlg::getCompNr() const
+void uiMultCompDlg::getCompNrs( TypeSet<int>& selitems ) const
 {
-    return compfld_->indexOf( compfld_->getText() );
+    compfld_->getSelectedItems( selitems );
+}
+
+
+const char* uiMultCompDlg::getCompName( int idx ) const
+{
+    return compfld_->textOfItem( idx );
 }
 
 

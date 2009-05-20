@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.28 2009-04-10 14:18:32 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.29 2009-05-20 14:56:07 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -38,6 +38,10 @@ const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
 { return "Select &Attribute"; }
 
 
+const char* uiODAttribTreeItem::sKeyMultCompMenuTxt()
+{ return "Display &Multi-components stored data"; }
+
+
 const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
 { return "Save &Color Settings"; }
 
@@ -45,6 +49,7 @@ const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , selattrmnuitem_( sKeySelAttribMenuTxt() )
+    , multcompmnuitem_( sKeyMultCompMenuTxt() )
     , colsettingsmnuitem_( sKeyColSettingsMenuTxt() )
 {}
 
@@ -97,8 +102,9 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
     mCreateDepthDomMnuItemIfNeeded( is2d, needext ); \
 }
 
+
 void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
-					int sceneid)
+					int sceneid, bool ismulticomp )
 {
     const uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( visid, attrib );
@@ -111,10 +117,23 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 	Pol2D3D p2d3d = so->getAllowedDataType();
 	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneid))
 
-	MenuItem* subitem;
-	attrserv->resetMenuItems();
 	bool need2dlist = SI().has2D() && p2d3d != Only3D;
 	bool need3dlist = SI().has3D() && p2d3d != Only2D;
+
+	if ( ismulticomp )
+	{
+	    if ( need3dlist )
+		attrserv->fillInStoredAttribMenuItem(
+				&mnu, false, false, *as, true, need2dlist );
+	    if ( need2dlist )
+		attrserv->fillInStoredAttribMenuItem(
+				&mnu, true, false, *as, true, !need2dlist );
+
+	    return;
+	}
+
+	MenuItem* subitem;
+	attrserv->resetMenuItems();
 	if ( need3dlist )
 	    mCreateItemsList( false, need2dlist );
 	if ( need2dlist && p2d3d != Only2D )
@@ -140,6 +159,12 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &selattrmnuitem_,
 		      !visserv->isLocked(displayID()), false );
 
+    multcompmnuitem_.removeItems();
+    createSelMenu( multcompmnuitem_, displayID(), attribNr(), sceneID(), true );
+    if ( multcompmnuitem_.nrItems() )
+	mAddMenuItem( menu, &multcompmnuitem_,
+		      !visserv->isLocked(displayID()), false );
+
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     if ( as && attrserv->getIOObj(*as) )
@@ -162,6 +187,11 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	applMgr()->saveDefColTab( displayID(), attribNr() );
+    }
+    else if( handleMultCompSelMenu( mnuid, displayID(), attribNr() ) )
+    {
+	menu->setIsHandled(true);
+	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {
@@ -191,6 +221,30 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
     }
 
     return false;
+}
+
+
+bool uiODAttribTreeItem::handleMultCompSelMenu( int mnuid, int visid,
+						int attrib ) const
+{
+    if ( !multcompmnuitem_.findItem(mnuid) ) return false;
+    uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    if ( mnuid==-1 || visserv->isLocked(visid) )
+	return false;
+
+    bool isonly2d = false;
+    mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
+    if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
+
+    TypeSet<Attrib::SelSpec> asset;
+    const MenuItem* item = multcompmnuitem_.findItem( mnuid );
+    uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
+    if ( attrserv->handleMultiCompSubMenu( mnuid, isonly2d, item->text, asset ))
+    {
+	//TODO:ask for extraction
+    }
+
+    return true;
 }
 
 

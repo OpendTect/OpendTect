@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.4 2009-01-08 10:47:25 cvsranojay Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.5 2009-05-20 14:56:06 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -27,9 +27,10 @@ public:
 			~uiODAttribTreeItem();
     static BufferString	createDisplayName( int visid, int attrib );
     static void		createSelMenu(MenuItem&,int visid,int attrib,
-	    			      int sceneid);
+	    			      int sceneid,bool ismulticomp=false);
     static bool		handleSelMenu(int mnuid,int visid,int attrib);
     static const char*	sKeySelAttribMenuTxt();
+    static const char*	sKeyMultCompMenuTxt();
     static const char*	sKeyColSettingsMenuTxt();
 protected:
 
@@ -39,8 +40,10 @@ protected:
     void		handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
     BufferString	createDisplayName() const;
-
+    bool		handleMultCompSelMenu(int,int,int) const;
+    
     MenuItem		selattrmnuitem_;
+    MenuItem		multcompmnuitem_;
     MenuItem		colsettingsmnuitem_;
 };
 

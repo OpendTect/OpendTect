@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          August 2008
- RCS:           $Id: uimultcomputils.h,v 1.5 2009-03-18 11:04:03 cvshelene Exp $
+ RCS:           $Id: uimultcomputils.h,v 1.6 2009-05-20 14:56:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,21 +21,19 @@ class uiLabeledListBox;
 class uiListBox;
 
 
-/*!\brief dialog to select a component of stored data,
-  will not require display if the number of components available is equal to 1*/
+/*!\brief dialog to select (multiple) component(s) of stored data */
 
 mClass uiMultCompDlg : public uiDialog
 {
 public:
 			uiMultCompDlg(uiParent*,LineKey);
 
-    int			getCompNr() const;
-    bool		needDisplay() const		{ return needdisplay_; }
+    void		getCompNrs(TypeSet<int>&) const;
+    const char*		getCompName(int) const;
 
 protected:
 
     uiListBox*		compfld_;
-    bool		needdisplay_;
 };
 
 

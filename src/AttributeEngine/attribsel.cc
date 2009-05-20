@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: attribsel.cc,v 1.36 2009-04-10 14:18:32 cvshelene Exp $";
+static const char* rcsID = "$Id: attribsel.cc,v 1.37 2009-05-20 14:56:06 cvshelene Exp $";
 
 #include "attribsel.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: attribsel.cc,v 1.36 2009-04-10 14:18:32 cvshele
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "ptrman.h"
+#include "seisioobjinfo.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "zdomain.h"
@@ -203,10 +204,11 @@ bool SelSpec::usePar( const IOPar& par )
 
 SelInfo::SelInfo( const DescSet* attrset, const NLAModel* nlamod, 
 		  bool is2d, const DescID& ignoreid, bool usesteering,
-       		  bool onlysteering )
+       		  bool onlysteering, bool onlymulticomp )
     : is2d_( is2d )
     , usesteering_( usesteering )
     , onlysteering_( onlysteering )
+    , onlymulticomp_( onlymulticomp )
 {
     fillStored();
 
@@ -271,6 +273,13 @@ void SelInfo::fillStored( const char* filter )
 	if ( ge && !ge->matches(ioobjnm) )
 	    continue;
 
+	if ( onlymulticomp_ && !is2d )
+	{
+	    LineKey tmpkey( ioobj.key().buf(), 0 );
+	    if ( SeisIOObjInfo::getNrCompAvail( tmpkey ) < 2 )
+		continue;
+	}
+
 	ioobjnms.add( ioobjnm );
 	ioobjids.add( (const char*)ioobj.key() );
 	if ( ioobjnms.size() > 1 )
@@ -323,7 +332,7 @@ bool SelInfo::is2D( const char* defstr )
 
 
 void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms, 
-			    bool issteer )
+			    bool issteer, bool onlymulticomp )
 {
     nms.erase();
     PtrMan<IOObj> ioobj = IOM().get( MultiID(LineKey(defstr).lineName().buf()));
@@ -332,6 +341,16 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms,
 
     Seis2DLineSet ls( ioobj->fullUserExpr(true) );
     ls.getAvailableAttributes( nms, sKey::Steering, !issteer, issteer );
+
+    if ( onlymulticomp )
+    {
+	for ( int idx=nms.size()-1; idx>=0; idx-- )
+	{
+	    LineKey tmpkey( ioobj->key(),nms.get(idx).buf() );
+	    if ( SeisIOObjInfo::getNrCompAvail( tmpkey ) < 2 )
+		nms.remove( idx );
+	}
+    }
 }
 
 
