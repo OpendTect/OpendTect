@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.103 2009-03-18 17:52:58 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.104 2009-05-20 22:09:09 cvsyuancheng Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -592,7 +592,7 @@ void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
     else
     {
 	isosurfaces_[idx]->getSurface()->removeAll(); 
-	isosurfaces_[idx]->setBoxBoudary(
+	isosurfaces_[idx]->setBoxBoundary(
 		cache_->cubeSampling().hrg.inlRange().stop,
 		cache_->cubeSampling().hrg.crlRange().stop,
 		cache_->cubeSampling().zrg.stop );
