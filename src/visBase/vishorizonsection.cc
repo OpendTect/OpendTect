@@ -4,20 +4,17 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.26 2009-05-15 21:42:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.27 2009-05-20 19:55:06 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
 #include "binidsurface.h"
 #include "binidvalset.h"
-#include "coltabmapper.h"
 #include "cubesampling.h"
 #include "mousecursor.h"
 #include "simpnumer.h"
 #include "survinfo.h"
-#include "task.h"
 #include "threadwork.h"
-#include "viscolortab.h"
 #include "viscoord.h"
 #include "vismaterial.h"
 #include "vistexture2.h"
@@ -33,14 +30,11 @@ static const char* rcsID = "$Id: vishorizonsection.cc,v 1.26 2009-05-15 21:42:27
 #include "SoTextureComposer.h"
 #include <Inventor/actions/SoAction.h>
 #include <Inventor/actions/SoGetBoundingBoxAction.h>
-#include <Inventor/elements/SoViewportRegionElement.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoCullElement.h>
 #include <Inventor/elements/SoComplexityElement.h>
 #include <Inventor/nodes/SoCallback.h>
-#include <Inventor/nodes/SoCoordinate3.h>
-#include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
 #include <Inventor/nodes/SoNormal.h>
