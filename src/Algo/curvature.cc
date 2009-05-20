@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: curvature.cc,v 1.1 2009-05-15 15:17:09 cvskris Exp $";
+static const char* rcsID = "$Id: curvature.cc,v 1.2 2009-05-20 21:32:14 cvskris Exp $";
 
 
 #include "curvature.h"
@@ -58,8 +58,8 @@ bool Curvature::set( double z1, double z2, double z3,
     const double dist0_2 = dist0*dist0;
     const double dist1_2 = dist1*dist1;
 
-    const double a = ((z1+z3+z4+z6+z7+z9)/2-(z2+z5+z8)) / (6*dist0_2);
-    const double b = ((z1+z2+z3+z7+z8+z9)/2-(z4+z5+z6)) / (6*dist1_2);
+    const double a = ((z1+z3+z4+z6+z7+z9)/2-(z2+z5+z8)) / (3*dist0_2);
+    const double b = ((z1+z2+z3+z7+z8+z9)/2-(z4+z5+z6)) / (3*dist1_2);
     const double c = (z3+z7-z1-z9) / (4*dist0*dist1);
     const double d = (z3+z6+z9-z1-z4-z7) / (6*dist0);
     const double e = (z1+z2+z3-z7-z8-z9) / (6*dist1);

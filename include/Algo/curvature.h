@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2009
- RCS:		$Id: curvature.h,v 1.1 2009-05-15 15:17:09 cvskris Exp $
+ RCS:		$Id: curvature.h,v 1.2 2009-05-20 21:32:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,10 @@ ________________________________________________________________________
 #include "general.h"
 
 /*!Class to calculate curvature from 9 regularly sampled points. Equations are
-   derived from Roberts 2001 in First Break. */
+   derived from "Wood, J.D. (1996) The geomorphological characterisation of
+   digital elevation models PhD Thesis, University of Leicester, UK,
+   http://www.soi.city.ac.uk/~jwo/phd"
+*/
 
 mClass Curvature
 {
