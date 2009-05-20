@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.25 2009-05-19 14:08:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.26 2009-05-20 11:05:23 cvsumesh Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -86,8 +86,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	mps->setCurrentAttribDescSet(
 				applMgr()->attrServer()->curDescSet(false) );
 
-	//-1 will go the moment whole Wizard stuff will go...
-	mps->addTracker( -1, EM::Horizon3D::typeStr(), sceneID() );
+	mps->addTracker( EM::Horizon3D::typeStr(), sceneID() );
 	return true;
     }
     else if ( mnuid == 2 || mnuid == 3 )
@@ -327,8 +326,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	mps->setCurrentAttribDescSet(
 			applMgr()->attrServer()->curDescSet(true) );
 	
-	// -1 will go as soon as we remove all Wizard Stuff
-	mps->addTracker( -1, EM::Horizon2D::typeStr(), sceneID() );
+	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
 	return true;
     }
     else if ( mnuid == 2 )
