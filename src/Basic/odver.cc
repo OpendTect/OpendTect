@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: odver.cc,v 1.2 2008-09-29 13:23:48 cvsbert Exp $
+ RCS:           $Id: odver.cc,v 1.3 2009-05-20 20:42:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: odver.cc,v 1.2 2008-09-29 13:23:48 cvsbert Exp $";
+static const char* rcsID = "$Id: odver.cc,v 1.3 2009-05-20 20:42:56 cvskris Exp $";
 
 #include "odver.h"
 #include "oddirs.h"
@@ -46,7 +46,7 @@ void GetSpecificODVersion( const char* typ, BufferString& res )
 {
     if ( !typ ) typ = GetPlfSubDir();
 
-    const char* swdir = GetSoftwareDir();
+    const char* swdir = GetSoftwareDir(0);
     BufferString fnm = FilePath( swdir ).add( ".rel.od" ).fullPath();
     fnm += "."; fnm += typ;
     if ( !File_exists(fnm) )

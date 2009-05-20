@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.10 2009-05-14 18:32:03 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.11 2009-05-20 20:42:56 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -40,6 +40,7 @@ public:
     bool		usePar(const IOPar&);
 
     static const char*	sKeyVelocityType();
+    static const char*	sKeyIsFeetPerSecond();
     static const char*	sKeyIsVelocity();
 };
 

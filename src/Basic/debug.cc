@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.27 2009-01-22 13:30:23 cvsbert Exp $
+ RCS:           $Id: debug.cc,v 1.28 2009-05-20 20:42:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.27 2009-01-22 13:30:23 cvsbert Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.28 2009-05-20 20:42:56 cvskris Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: debug.cc,v 1.27 2009-01-22 13:30:23 cvsbert Exp
 #include "timefun.h"
 #include "filepath.h"
 #include "envvars.h"
+#include "oddirs.h"
 #include "sighndl.h"
 #include "undefval.h"
 #include "math2.h"
@@ -90,6 +91,9 @@ static int getMask()
 
 bool isOn( int flag )
 {
+    if ( !GetSoftwareDir(1) )	//Check if we are in an od environment at all
+	return false;
+
     const int mask = getMask();
     return flag & mask;
 }

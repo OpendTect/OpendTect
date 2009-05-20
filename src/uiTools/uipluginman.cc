@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uipluginman.cc,v 1.22 2009-02-11 10:57:46 cvsranojay Exp $";
+static const char* rcsID = "$Id: uipluginman.cc,v 1.23 2009-05-20 20:42:56 cvskris Exp $";
 
 #include "uipluginman.h"
 #include "uipluginsel.h"
@@ -106,7 +106,7 @@ void uiPluginMan::selChg( CallBacker* )
 	    txt += piinf.version;
 	else
 	{
-	    FilePath fp( GetSoftwareDir() );
+	    FilePath fp( GetSoftwareDir(0) );
 	    BufferString fnm = ".rel.";
 	    fnm += piinf.version+1; fnm += "."; fnm += GetPlfSubDir();
 	    fp.add( fnm );

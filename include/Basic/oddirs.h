@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.14 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.15 2009-05-20 20:42:56 cvskris Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -38,13 +38,14 @@ mGlobal const char* GetProcFileName(const char*);
 
     /* Functions delivering files/directies in the 'sytem' scope */
 
-mGlobal const char* GetSoftwareDir(void);
+mGlobal const char* GetSoftwareDir(int acceptnone);
 /*!< Directory of the installed software = $DTECT_[WIN]APPL 
 
  GetSoftwareDir returns the full path of the root of the release.
  If no DTECT_[WIN]APPL set, the location will be determined from argv[0] or
  the 'bundle' location (Mac only).
 
+ If acceptnone is false, program will terminate if none is found.
 */
 
 mGlobal const char* GetApplSetupDir(void);

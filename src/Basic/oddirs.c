@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.10 2009-05-07 14:42:28 cvsranojay Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.11 2009-05-20 20:42:56 cvskris Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -270,7 +270,7 @@ static int getBundleLocation( char* dirnm )
 #endif
 
 
-const char* GetSoftwareDir()
+const char* GetSoftwareDir( int acceptnone )
 {
     static FileNameString dirnm;
     char* chptr1; char* chptr2;
@@ -305,7 +305,10 @@ const char* GetSoftwareDir()
 	    dir = dirnm;
 	if ( !dir )
 	{
-	    fprintf( stderr, "Cannot determine OpendTect location" );
+	    fprintf( stderr, "Cannot determine OpendTect location\n" );
+	    if ( acceptnone )
+		return 0;
+
 	    ExitProgram( 1 );
 	}
     }
@@ -358,7 +361,7 @@ const char* GetSetupDataFileDir( ODSetupLocType lt )
     static FileNameString dirnm;
     const char* appldir;
     if ( lt > ODSetupLoc_ApplSetupPref )
-	strcpy( dirnm, mkFullPath(GetSoftwareDir(),"data") );
+	strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"data") );
     else
     {
 	appldir = GetApplSetupDir();
@@ -408,7 +411,7 @@ const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm )
 const char* GetDocFileDir( const char* filedir )
 {
     static FileNameString dirnm;
-    strcpy( dirnm, mkFullPath(GetSoftwareDir(),"doc") );
+    strcpy( dirnm, mkFullPath(GetSoftwareDir(0),"doc") );
     strcpy( dirnm, mkFullPath(dirnm,filedir) );
     return dirnm;
 }
@@ -445,7 +448,7 @@ const char* GetExecScript( int remote )
 	fnm = gtExecScript( basedir, remote );
 
     if ( !fnm || !File_exists(fnm) )
-	fnm = gtExecScript( GetSoftwareDir(), remote );
+	fnm = gtExecScript( GetSoftwareDir(0), remote );
 
     strcpy( progname, "'" ); strcat( progname, fnm ); strcat( progname, "' " );
     return progname;
@@ -643,11 +646,11 @@ const char* SearchODFile( const char* fname )
     if ( !nm ) nm = checkFile( GetSettingsDir(), "", fname );
     if ( !nm ) nm = checkFile( GetBaseDataDir(), "", fname );
     if ( !nm ) nm = checkFile( GetApplSetupDir(), "data", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(0), "data", fname );
     if ( !nm ) nm = checkFile( GetApplSetupDir(), "bin", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(), "bin", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(0), "bin", fname );
     if ( !nm ) nm = checkFile( GetApplSetupDir(), "", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(), "", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(0), "", fname );
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {

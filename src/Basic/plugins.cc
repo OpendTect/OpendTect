@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: plugins.cc,v 1.60 2009-03-17 09:13:12 cvsbert Exp $";
+static const char* rcsID = "$Id: plugins.cc,v 1.61 2009-05-20 20:42:56 cvskris Exp $";
 
 
 #include "plugins.h"
@@ -178,7 +178,7 @@ void PluginManager::getDefDirs()
     bool fromenv = false;
     BufferString dnm = GetEnvVar( "OD_APPL_PLUGIN_DIR" );
     if ( dnm.isEmpty() )
-	dnm = GetSoftwareDir();
+	dnm = GetSoftwareDir(0);
     else
 	fromenv = true;
 
