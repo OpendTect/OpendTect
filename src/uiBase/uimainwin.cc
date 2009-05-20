@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimainwin.cc,v 1.176 2009-05-15 16:28:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimainwin.cc,v 1.177 2009-05-20 16:40:36 cvsjaap Exp $";
 
 #include "uimainwin.h"
 #include "uidialog.h"
@@ -54,6 +54,14 @@ static const char* rcsID = "$Id: uimainwin.cc,v 1.176 2009-05-15 16:28:43 cvsjaa
 #include <QWidget>
 
 
+static const QEvent::Type sQEventActClose   = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActShow    = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActQDlg    = (QEvent::Type) (QEvent::User+2);
+static const QEvent::Type sQEventActGrab    = (QEvent::Type) (QEvent::User+3);
+static const QEvent::Type sQEventActCursor  = (QEvent::Type) (QEvent::User+4);
+static const QEvent::Type sQEventPopUpReady = (QEvent::Type) (QEvent::User+5);
+
+
 class uiMainWinBody : public uiParentBody
 		    , public QMainWindow
 {
@@ -92,7 +100,7 @@ public:
 
     virtual void	show() 
 			{
-			    handle_.beginCmdRecEvent( "WinPopUp" );
+			    eventrefnr_ = handle_.beginCmdRecEvent("WinPopUp");
 			    QMainWindow::show();
 
 			    if( poptimer.isActive() )
@@ -103,6 +111,9 @@ public:
 
 			    if ( modal_ )
 				eventloop_.exec();
+
+			    QEvent* ev = new QEvent( sQEventPopUpReady );
+			    QApplication::postEvent( this, ev );
 			}
 
     void		move(uiMainWin::PopupArea);
@@ -175,6 +186,7 @@ protected:
     static QCursor*	actqcursor_;
 
     int			actminnormmax_;
+    int			eventrefnr_;
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
@@ -406,11 +418,6 @@ bool uiMainWinBody::grabAndSave( const char* filenm, int zoom,
 
 QCursor* uiMainWinBody::actqcursor_ = 0;
 
-static const QEvent::Type sQEventActClose  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActShow   = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActQDlg   = (QEvent::Type) (QEvent::User+2);
-static const QEvent::Type sQEventActGrab   = (QEvent::Type) (QEvent::User+3);
-static const QEvent::Type sQEventActCursor = (QEvent::Type) (QEvent::User+4);
 
 bool uiMainWinBody::event( QEvent* ev )
 {
@@ -464,6 +471,11 @@ bool uiMainWinBody::event( QEvent* ev )
 	    deepErase( stacktopstore );
 	    actqcursor_ = 0;
 	}
+    }
+    else if ( ev->type() == sQEventPopUpReady )
+    {
+	handle_.endCmdRecEvent( eventrefnr_, "WinPopUp" );
+	return true;
     }
     else
 	return QMainWindow::event( ev );
