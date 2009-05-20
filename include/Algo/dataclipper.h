@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.13 2009-05-18 13:59:09 cvsbert Exp $
+ RCS:		$Id: dataclipper.h,v 1.14 2009-05-20 09:51:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -135,23 +135,29 @@ mClass DataClipSampler
 public:
 			DataClipSampler(int bufsz=10000);
 
-    const float*	vals() const		{ return vals_; }
-    int			nrVals() const
-    			{ return count_ > maxnrvals_ ? maxnrvals_ : count_; }
-
     void		add(float);
-    void		finish();
+    void		add(const float*,int);
     void		reset()			{ count_ = 0; }
 
+    int			nrVals() const
+    			{ return count_ > maxnrvals_ ? maxnrvals_ : count_; }
     void		report(IOPar&) const;
+    Interval<float>	getRange(float clipratio) const;
 
 protected:
 
     float*		vals_;
     const int		maxnrvals_;
     int			count_;
+    bool		finished_;
 
     const char*		getClipRgStr(float) const;
+
+public:
+
+    void		finish() const;
+    const float*	vals() const		{ return vals_; }
+
 };
 
 

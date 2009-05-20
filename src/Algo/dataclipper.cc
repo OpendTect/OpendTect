@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.25 2009-05-19 10:56:59 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.26 2009-05-20 09:51:52 cvsbert Exp $";
 
 
 #include "dataclipper.h"
@@ -269,7 +269,15 @@ DataClipSampler::DataClipSampler( int ns )
     : maxnrvals_(ns)
     , vals_(new float [ns])
     , count_(0)
+    , finished_(false)
 {
+}
+
+
+void DataClipSampler::add( const float* v, int sz )
+{
+    for ( int idx=0; idx<sz; idx++ )
+	add( v[idx] );
 }
 
 
@@ -277,6 +285,8 @@ void DataClipSampler::add( float val )
 {
     if ( !Math::IsNormalNumber(val) || val > 1e30 || val < -1e30 )
 	return;
+    if ( finished_ )
+	finished_ = false;
 
     if ( count_ < maxnrvals_ )
 	vals_[count_] = val;
@@ -292,22 +302,35 @@ void DataClipSampler::add( float val )
 }
 
 
-void DataClipSampler::finish()
+void DataClipSampler::finish() const
 {
-    sort_array( vals_, nrVals() );
+    DataClipSampler& self = *const_cast<DataClipSampler*>(this);
+    sort_array( self.vals_, nrVals() );
+    self.finished_ = true;
+}
+
+
+Interval<float> DataClipSampler::getRange( float clip ) const
+{
+    if ( !finished_ ) finish();
+
+    const int nv = nrVals();
+    if ( nv == 0 ) return Interval<float>(0,0);
+
+    const float fidx = nv * .5 * clip;
+    int idx0 = mNINT(fidx);
+    int idx1 = nv - idx0 - 1;
+    if ( idx0 > idx1 ) Swap( idx0, idx1 );
+
+    return Interval<float>( vals_[idx0], vals_[idx1] );
 }
 
 
 const char* DataClipSampler::getClipRgStr( float pct ) const
 {
-    const int nv = nrVals();
-    const float ratio = nv * .005 * pct;
-    int idx0 = mNINT(ratio);
-    int idx1 = nv - idx0 - 1;
-    if ( idx0 > idx1 ) Swap( idx0, idx1 );
-
+    Interval<float> rg( getRange(pct * 0.01) );
     static BufferString ret;
-    ret = vals_[idx0]; ret += " - "; ret += vals_[idx1];
+    ret = rg.start; ret += " - "; ret += rg.stop;
     return ret.buf();
 }
 
