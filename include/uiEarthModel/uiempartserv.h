@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.85 2009-05-19 09:39:22 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.86 2009-05-20 10:12:34 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,8 @@ public:
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
     EM::EMObject*	selEMObject();
 
+    const EM::ObjectID	saveUnsavedEMObject();
+    void		removeUnsavedEMObjectFromTree();
     void		removeTreeObject(const EM::ObjectID&);  
 
 protected:
