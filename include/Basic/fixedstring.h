@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.4 2009-05-19 14:09:33 cvskris Exp $
+ RCS:		$Id: fixedstring.h,v 1.5 2009-05-20 03:41:30 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -21,7 +21,6 @@ mClass FixedString
 {
 public:
 		FixedString(const char* p) : ptr_(p) {}
-		FixedString(const BufferString& b) : ptr_( b.buf() )	{}
     FixedString& operator=(const FixedString& f) { return *this = f.ptr_; }
     FixedString& operator=(const char* p)	{ ptr_ = p; return *this; }
     FixedString& operator=(const BufferString& b){ptr_=b.buf();return *this;}
@@ -44,11 +43,10 @@ protected:
     const char*	ptr_;
 };
 
-
 inline bool operator==(const char* a, const FixedString& b)
 { return b==a; }
-
-
+ 
+ 
 inline bool operator!=(const char* a, const FixedString& b)
 { return b!=a; }
 
