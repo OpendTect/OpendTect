@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.147 2009-05-19 09:16:48 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.148 2009-05-20 08:07:52 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -41,7 +41,7 @@ static const char* rcsID = "$Id: uimpeman.cc,v 1.147 2009-05-19 09:16:48 cvsumes
 #include "uivispartserv.h"
 #include "viscolortab.h"
 #include "visdataman.h"
-#include "visdataman.h"
+#include "visemobjdisplay.h"
 #include "visplanedatadisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "vismpe.h"
@@ -880,8 +880,11 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
     const TypeSet<int>& selectedids = visBase::DM().selMan().selected();
     if ( selectedids.size()!=1 || visserv->isLocked(selectedids[0]) )
 	return 0;
-    const MultiID mid = visserv->getMultiID( selectedids[0] );
-    const EM::ObjectID oid = EM::EMM().getObjectID( mid );
+
+    mDynamicCastGet( visSurvey::EMObjectDisplay*, 
+	    			surface, visserv->getObject(selectedids[0]) );
+    if ( !surface ) return 0;
+    const EM::ObjectID oid = surface->getObjectID();
     const int trackerid = MPE::engine().getTrackerByObject( oid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
     if ( tracker  && tracker->isEnabled() )
