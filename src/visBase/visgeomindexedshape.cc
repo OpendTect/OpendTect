@@ -7,12 +7,14 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.17 2009-02-13 19:01:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.18 2009-05-20 21:45:22 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
+#include "datapointset.h"
+#include "datacoldef.h"
+#include "posvecdataset.h"
 #include "indexedshape.h"
-
 #include "viscoord.h"
 #include "visnormals.h"
 #include "vistexturecoords.h"
@@ -21,10 +23,15 @@ static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.17 2009-02-13 19:01:
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <SoIndexedTriangleFanSet.h>
+#include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/SoDB.h>
 
 #include "SoIndexedLineSet3D.h"
+
+#define mNrMaterials		256
+#define mNrMaterialSteps	255
+#define mUndefMaterial		255
 
 mCreateFactoryEntry( visBase::GeomIndexedShape );
 
@@ -41,6 +48,7 @@ GeomIndexedShape::GeomIndexedShape()
     , lineconstantonscreen_( false )
     , linemaxsize_( -1 )
     , hints_( new SoShapeHints )			
+    , ctab_( 0 )
 {
     addChild( hints_ );
 
@@ -61,6 +69,21 @@ GeomIndexedShape::~GeomIndexedShape()
     coords_->unRef();
     normals_->unRef();
     texturecoords_->unRef();
+    delete ctab_;
+}
+
+
+GeomIndexedShape::ColTabMaterial::ColTabMaterial()
+    : coltab_( new SoMaterial )
+    , cache_( 0 )
+{
+    coltab_->ref();
+}
+
+
+GeomIndexedShape::ColTabMaterial::~ColTabMaterial()
+{
+    coltab_->unref();
 }
 
 
@@ -81,6 +104,68 @@ void GeomIndexedShape::renderOneSide( int side )
 	hints_->shapeType = SoShapeHints::SOLID;
     }
 }
+
+
+void GeomIndexedShape::createColTab()
+{
+    if ( !ctab_ )
+	ctab_ = new ColTabMaterial;
+}
+
+
+void GeomIndexedShape::enableColTab( bool yn )
+{
+    if ( yn )
+	createColTab();
+
+    if ( yn )
+	insertChild( childIndex(coords_->getInventorNode()), ctab_->coltab_ );
+    else if ( ctab_ )
+	removeChild( ctab_->coltab_ );
+}
+
+
+void GeomIndexedShape::setDataMapper( const ColTab::MapperSetup& setup )
+{
+    createColTab();
+    if ( setup!=ctab_->mapper_.setup_ )
+    {
+	ctab_->mapper_.setup_ = setup;
+	if ( setup.type_!=ColTab::MapperSetup::Fixed )
+	    reClip();
+	else
+	    reMap();
+    }
+}
+
+
+const ColTab::MapperSetup* GeomIndexedShape::getDataMapper() const
+{ return ctab_ ? &ctab_->mapper_.setup_ : 0; }
+
+
+void GeomIndexedShape::setDataSequence( const ColTab::Sequence& seq )
+{
+    createColTab();
+    if ( seq!=ctab_->sequence_ )
+    {
+	ctab_->sequence_ = seq;
+	for ( int idx=0; idx<mNrMaterialSteps; idx++ )
+	{
+	    const float val = ((float) idx)/(mNrMaterialSteps-1);
+	    const Color col = seq.color( val );
+	    ctab_->coltab_->diffuseColor.set1Value( idx,
+		    col.r(), col.g(), col.b() );
+	}
+
+	const Color col = seq.undefColor();
+	ctab_->coltab_->diffuseColor.set1Value( mUndefMaterial,
+		    col.r(), col.g(), col.b() );
+    }
+}
+
+
+const ColTab::Sequence* GeomIndexedShape::getDataSequence() const
+{ return ctab_ ? &ctab_->sequence_ : 0; }
 
 
 void GeomIndexedShape::setDisplayTransformation( mVisTrans* nt )
@@ -163,8 +248,7 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
 
 void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 {
-    const bool didlock = tryWriteLock();
-    if ( !didlock )
+    if ( !tryWriteLock() )
     {
 	pErrMsg("Could not lock");
 	return;
@@ -187,7 +271,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 	mRemoveOld( strip );
 	mRemoveOld( fan );
 	mRemoveOld( line );
-	
+
 	writeUnLock();
 	return;
     }
@@ -292,5 +376,121 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 
     writeUnLock();
 }
+
+
+void GeomIndexedShape::getAttribPositions( DataPointSet& set ) const
+{
+    const DataColDef coordindex( sKeyCoordIndex() );
+    if ( set.dataSet().findColDef(coordindex,PosVecDataSet::NameExact)==-1 )
+	set.dataSet().add( new DataColDef(coordindex) );
+
+    const int col =
+	set.dataSet().findColDef(coordindex,PosVecDataSet::NameExact);
+
+    int coordid = -1;
+    while ( true )
+    {
+	coordid = coords_->nextID( coordid );
+	if ( coordid==-1 )
+	    break;
+
+	DataPointSet::Pos dpsetpos( coords_->getPos( coordid ) );
+	DataPointSet::DataRow datarow( dpsetpos, 1 );
+	datarow.data_.setSize( set.nrCols(), mUdf(float) );
+	datarow.data_[col-set.nrFixedCols()] =  coordid;
+	set.addRow( datarow );
+    }
+}
+    
+
+void GeomIndexedShape::setAttribData( const DataPointSet& set )
+{
+    createColTab();
+
+    const DataColDef coordindex( sKeyCoordIndex() );
+    const int col =
+	set.dataSet().findColDef(coordindex,PosVecDataSet::NameExact);
+
+    if ( col==-1 )
+	return;
+
+    const BinIDValueSet& vals = set.bivSet();
+    if ( vals.nrVals()<col+2 )
+	return;
+
+    ArrayValueSeries<float,float>& cache = ctab_->cache_;
+    cache.setSize( vals.totalSize() );
+    cache.setAll( mUdf(float) );
+
+    BinIDValueSet::Pos pos;
+    while ( vals.next( pos ) )
+    {
+	const float* ptr = vals.getVals( pos );
+	const int coordidx = mNINT(ptr[col]);
+	const float val = ptr[col+1];
+
+	if ( coordidx>=cache.size() )
+	{
+	    int oldsz = cache.size();
+	    cache.setSize( coordidx+1 );
+	    if ( !cache.arr() )
+		return;
+
+	    const float udf = mUdf(float);
+	    for ( int idx=oldsz; idx<=coordidx; idx++ )
+		cache.setValue( idx, udf );
+	}
+
+	cache.setValue( coordidx, val );
+    }
+
+    if ( ctab_->mapper_.setup_.type_!=ColTab::MapperSetup::Fixed )
+	reClip(); //Will also reMap
+    else
+	reMap();
+}
+
+
+void GeomIndexedShape::reMap()
+{ 
+    createColTab();
+
+    TypeSet<int> material( ctab_->cache_.size(), -1 );
+    if ( !material.arr() )
+	return;
+
+    for ( int idx=0; idx<material.size(); idx++ )
+    {
+	material[idx] = ColTab::Mapper::snappedPosition( &ctab_->mapper_,
+		ctab_->cache_[idx], mNrMaterialSteps, mUndefMaterial );
+    }
+
+    for ( int idx=strips_.size()-1; idx>=0; idx-- )
+    {
+	const int numvals = strips_[idx]->coordIndex.getNum();
+	const int* ciptr = strips_[idx]->coordIndex.getValues( 0 );
+	const int* stopptr = ciptr+numvals;
+	strips_[idx]->materialIndex.setNum( numvals );
+	int* miptr = strips_[idx]->materialIndex.startEditing();
+
+	while ( ciptr!=stopptr )
+	{
+	    const int ci = *ciptr;
+	    *miptr =  ci==-1 ? -1 : material[ci];
+	    miptr++;
+	    ciptr++;
+	}
+
+	strips_[idx]->materialIndex.finishEditing();
+    }
+}
+
+
+void GeomIndexedShape::reClip()
+{
+    createColTab();
+    ctab_->mapper_.setData( &ctab_->cache_, ctab_->cache_.size() );
+}
+
 
 }; // namespace visBase

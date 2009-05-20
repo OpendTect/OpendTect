@@ -7,18 +7,23 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.8 2009-02-13 19:01:34 cvsyuancheng Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.9 2009-05-20 21:45:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "valseries.h"
 #include "visobject.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
 
 namespace Geometry { class IndexedShape; class IndexedGeometry; }
 
+class SoMaterial;
 class SoShapeHints;
 class SoIndexedShape;
 class TaskRunner;
+class DataPointSet;
 
 namespace visBase
 {
@@ -55,8 +60,37 @@ public:
     				/*!< 0 = visisble from both sides.
 				     1 = visisble from positive side
 				     -1 = visisble from negative side. */
+
+    void			createColTab();
+    void			enableColTab(bool);
+    void			setDataMapper(const ColTab::MapperSetup&);
+    const ColTab::MapperSetup*	getDataMapper() const;
+    void			setDataSequence(const ColTab::Sequence&);
+    const ColTab::Sequence*	getDataSequence() const;
+
+    void			getAttribPositions(DataPointSet&) const;
+    void			setAttribData(const DataPointSet&);
+
 protected:
-						~GeomIndexedShape();
+				~GeomIndexedShape();
+    void			reClip();
+    void			reMap();
+
+    mClass			ColTabMaterial
+    {
+    public:
+					ColTabMaterial();
+					~ColTabMaterial();
+	ColTab::Mapper			mapper_;
+	ColTab::Sequence                sequence_;
+
+	SoMaterial*                     coltab_;
+	ArrayValueSeries<float,float>	cache_;
+    };
+
+    static const char*			sKeyCoordIndex() { return "CoordIndex";}
+
+    ColTabMaterial*				ctab_;
 
     SoShapeHints*				hints_;
     Coordinates*				coords_;

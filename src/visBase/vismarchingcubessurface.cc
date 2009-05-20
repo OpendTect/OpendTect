@@ -7,16 +7,18 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.14 2008-11-25 15:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurface.cc,v 1.15 2009-05-20 21:45:22 cvskris Exp $";
 
 #include "vismarchingcubessurface.h"
 
 #include "explicitmarchingcubes.h"
 #include "marchingcubes.h"
 #include "samplingdata.h"
+#include "viscoord.h"
 #include "visgeomindexedshape.h"
 
 #include <Inventor/nodes/SoShapeHints.h>
+#include <Inventor/nodes/SoMaterial.h>
 
 mCreateFactoryEntry( visBase::MarchingCubesSurface );
 
@@ -25,8 +27,6 @@ namespace visBase
 
 MarchingCubesSurface::MarchingCubesSurface()
     : VisualObjectImpl( true )
-    , hints_( new SoShapeHints )
-    , side_( 0 )
     , surface_( new ExplicitMarchingCubesSurface( 0 ) )
     , shape_( GeomIndexedShape::create() )
     , displaysection_( -1 )
@@ -35,8 +35,6 @@ MarchingCubesSurface::MarchingCubesSurface()
     , yrg_( mUdf(float), mUdf(float), 0 )
     , zrg_( mUdf(float), mUdf(float), 0 )
 {
-    addChild( hints_ );
-
     shape_->ref();
     shape_->removeSwitch();
     addChild( shape_->getInventorNode() );
@@ -61,27 +59,7 @@ void MarchingCubesSurface::setRightHandSystem( bool yn )
 
 void MarchingCubesSurface::renderOneSide( int side )
 {
-    side_ = side;
-    updateHints();
-}
-
-
-void MarchingCubesSurface::updateHints() 
-{
-    hints_->vertexOrdering = SoShapeHints::COUNTERCLOCKWISE;
-
-    if ( side_==0 )
-    {
-	hints_->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
-    }
-    else if ( side_==1 )
-    {
-	hints_->shapeType = SoShapeHints::SOLID;
-    }
-    else
-    {
-	hints_->shapeType = SoShapeHints::SOLID;
-    }
+    shape_->renderOneSide( side );
 }
 
 
@@ -146,7 +124,7 @@ float MarchingCubesSurface::getSectionPosition()
 }
 
 
-void MarchingCubesSurface::setBoxBoudary( float maxx, float maxy, float maxz )
+void MarchingCubesSurface::setBoxBoundary( float maxx, float maxy, float maxz )
 {
     if ( xrg_.stop==maxx && yrg_.stop==maxy && zrg_.stop==maxz )
 	return;
@@ -210,6 +188,6 @@ const SamplingData<float>& MarchingCubesSurface::getScale( int dim ) const
 {
     return surface_->getAxisScale( dim );
 }
-    
+
 
 }; // namespace visBase

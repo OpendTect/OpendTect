@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.13 2009-01-08 10:15:41 cvsranojay Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.14 2009-05-20 21:45:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,6 @@ ________________________________________________________________________
 template <class T> class SamplingData;
 class MarchingCubesSurface;
 class ExplicitMarchingCubesSurface;
-class SoShapeHints;
 class TaskRunner;
 
 namespace visBase
@@ -46,27 +45,30 @@ public:
 						  const SamplingData<float>&);
     const SamplingData<float>&		getScale(int dim) const;
 
-    void				touch(bool forall,TaskRunner* =0);
-    void				renderOneSide( int side );
-    					/*!< 0 = visisble from both sides.
-					     1 = visisble from positive side
-					    -1 = visisble from negative side. */
+    void			touch(bool forall,TaskRunner* =0);
+    void			renderOneSide( int side );
+    				/*!< 0 = visisble from both sides.
+				     1 = visisble from positive side
+				    -1 = visisble from negative side. */
 					
-    					//For body section display only. 
-    char				enabledSection() const;
-    void				enableSection(char);
-    					/*!< -1: display the whole isosurface.
-					      0: display section along inline.
-					      1: display section along crline.
-					      2: display section along z. */
-    void				setSectionPosition(float);
-    float				getSectionPosition();
-    void				setBoxBoudary(float x,float y,float z);
+    				//For body section display only. 
+    char			enabledSection() const;
+    void			enableSection(char);
+    				/*!< -1: display the whole isosurface.
+				      0: display section along inline.
+				      1: display section along crline.
+				      2: display section along z. */
+    void			setSectionPosition(float);
+    float			getSectionPosition();
+    void			setBoxBoundary(float x,float y,float z);
+
+    GeomIndexedShape*		getShape()		{ return shape_; }
 
 protected:
     					~MarchingCubesSurface();
     void				updateHints();
     void				updateDisplayRange();
+    static const char*			sKeyCoordIndex() { return "CoordIndex";}
 
     char				displaysection_;
     float				sectionlocation_;
@@ -74,11 +76,9 @@ protected:
     StepInterval<float>			yrg_;
     StepInterval<float>			zrg_;
 
-    SoShapeHints*			hints_;
     GeomIndexedShape*			shape_;
 
     ExplicitMarchingCubesSurface*	surface_;
-    char				side_;
 };
 
 };
