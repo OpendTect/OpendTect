@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: welltiesetup.h,v 1.3 2009-05-15 12:42:48 cvsbruno Exp $
+ RCS:           $Id: welltiesetup.h,v 1.4 2009-05-20 14:27:29 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 			    , attrid_(*new Attrib::DescID())
 			    , wvltid_(*new MultiID())
 			    , issonic_(true)
-			    , corrvellognm_("Corrected ")
+			    , corrvellognm_("CS Corrected ")
 			    {}
 
 

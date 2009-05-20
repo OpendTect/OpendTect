@@ -26,8 +26,7 @@ class DataPointSet;
 class TaskRunner;
 class Wavelet;
 class WellTieSetup;
-class WellTieD2TModelManager;
-class WellTieCSCorr;
+class WellTieD2TModelMGR;
 class WellTieSynthetics;
 class WellTieParams;
 
@@ -41,10 +40,9 @@ namespace Well
 mClass WellTieToSeismic
 {
 public:
-			WellTieToSeismic( Well::Data*,
-				          const Attrib::DescSet& ads,
-					  const WellTieParams*,
-					  WellTieDataMGR&,					 			  TaskRunner*);
+			WellTieToSeismic( Well::Data*,WellTieParams*,
+					  const Attrib::DescSet& ads, 
+					  WellTieDataMGR&,TaskRunner*);
 			~WellTieToSeismic();
 
     //TODO put back as private
@@ -85,12 +83,11 @@ protected:
     WellTieDataMGR& 		datamgr_;     
     WellTieDataSet& 		workdata_;
     WellTieDataSet& 		dispdata_;
-    const WellTieParams&	params_;	
+    WellTieParams&		params_;	
     const WellTieSetup&		wtsetup_;	
 
-    WellTieD2TModelManager*	d2tmgr_;
+    WellTieD2TModelMGR*		d2tmgr_;
     WellTieGeoCalculator*	geocalc_;
-    WellTieCSCorr*		cscorr_;
     WellTieSynthetics*		wtsynth_;
     
     void			checkShotCorr();

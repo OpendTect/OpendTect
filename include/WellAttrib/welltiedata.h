@@ -47,11 +47,11 @@ public:
     void                clearData();
     void                createDataArrays();
     const float 	getExtremVal(const char*, bool);
-    const float         getDah(int);
     const int           getIdx(float);
     const float         get(const char*,int);
     const float         get(int,int);
     const int           getColIdx(const char*);
+    const int 		findTimeIdx(float);
 
 
 protected:
@@ -84,7 +84,6 @@ public:
 	    				int,int);
     void 		getSortedDPSDataAlongZ( const DataPointSet&,
 	   				        Array1DImpl<float>& );
-    void                replaceData(const WellTieDataSet&,WellTieDataSet&);
     
 protected:
 

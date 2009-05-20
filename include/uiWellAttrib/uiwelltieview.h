@@ -21,6 +21,7 @@ class WellTieSetup;
 class WellTieParams; 
 class WellTieDataSet; 
 class WellTieDataMGR; 
+class WellTiePickSet; 
 class UserPick;
 namespace Attrib { class DescSet; }
 
@@ -33,8 +34,7 @@ mClass uiWellTieView
 {
 public:
 			    	uiWellTieView(uiParent*, WellTieDataMGR&,
-				    const Well::Data*, const WellTieParams*,
-				    const Attrib::DescSet& ads );
+				    const Well::Data*, const WellTieParams*);
 				~uiWellTieView();
 
 
@@ -44,7 +44,11 @@ public:
 
     void        		fullRedraw();
     void        		createViewers(uiGroup*);
-    void			deleteMarkerAuxDatas(const char*);
+    void 			deleteUserPicks();
+    void			deleteWellMarkers();
+    void			deleteCheckShot();
+
+
     void        		drawVelLog();
     void        		drawDenLog();
     void        		drawMarker(FlatView::Annotation::AuxData*,
@@ -52,7 +56,7 @@ public:
     void        		drawReflectivity();
     void        		drawSynthetics();
     void        		drawSeismic();
-    void        		drawUserPicks(const ObjectSet<UserPick>&);
+    void        		drawUserPicks(const WellTiePickSet&);
     void        		drawWellMarkers();
     void        		drawCShot();
 
@@ -63,13 +67,17 @@ protected:
     const Well::Data& 		wd_;		
     const WellTieSetup& 	wtsetup_;
     const WellTieParams& 	params_;
-    const Attrib::DescSet& 	ads_;
     ObjectSet<uiFlatViewer> 	vwrs_;
+
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
+    ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
+    ObjectSet<FlatView::Annotation::AuxData> csauxdatas_;
 
     void        		initFlatViewer(const char*,int,int,int,bool,
 						const Color&);
     void        		createVarDataPack(const char*,int,int);
+    void			deleteMarkerAuxDatas(
+				    ObjectSet<FlatView::Annotation::AuxData>&);
 };
 
 #endif

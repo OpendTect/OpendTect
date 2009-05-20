@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.2 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.3 2009-05-20 14:27:30 cvsbruno Exp $";
 
 #include "welltied2tmodelmanager.h"
 
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: welltied2tmodelmanager.cc,v 1.2 2009-05-15 12:4
 #include "welltiesetup.h"
 #include "welltiegeocalculator.h"
 
-WellTieD2TModelManager::WellTieD2TModelManager( Well::Data& d, 
+WellTieD2TModelMGR::WellTieD2TModelMGR( Well::Data& d, 
 						const  WellTieSetup& s, 
 					        WellTieGeoCalculator& gc )
 	: wd_(d)
@@ -46,30 +46,30 @@ WellTieD2TModelManager::WellTieD2TModelManager( Well::Data& d,
 } 
 
 
-WellTieD2TModelManager::~WellTieD2TModelManager()
+WellTieD2TModelMGR::~WellTieD2TModelMGR()
 {
     delete prvd2t_;
     delete orgd2t_;
 }
 
 
-Well::D2TModel& WellTieD2TModelManager::d2T()
+Well::D2TModel& WellTieD2TModelMGR::d2T()
 {
     return *wd_.d2TModel();
 }
 
 
-void WellTieD2TModelManager::setFromVelLog( bool docln )
+void WellTieD2TModelMGR::setFromVelLog( bool docln )
 {setAsCurrent( geocalc_.getModelFromVelLog(docln) );}
 
 
-void WellTieD2TModelManager::setFromData( const Array1DImpl<float>& time,
+void WellTieD2TModelMGR::setFromData( const Array1DImpl<float>& time,
 					   const Array1DImpl<float>& dpt )
 {setAsCurrent( geocalc_.getModelFromVelLogData( time, dpt) );}
 
 
 
-void WellTieD2TModelManager::shiftModel( float shift)
+void WellTieD2TModelMGR::shiftModel( float shift)
 {
     TypeSet<float> dah, time;
 
@@ -92,7 +92,7 @@ void WellTieD2TModelManager::shiftModel( float shift)
 
 
 
-void WellTieD2TModelManager::setAsCurrent( Well::D2TModel* d2t )
+void WellTieD2TModelMGR::setAsCurrent( Well::D2TModel* d2t )
 {
     if ( !d2t || d2t->size() < 1 )
     { pErrMsg("Bad D2TMdl: ignoring"); delete d2t; return; }
@@ -104,7 +104,7 @@ void WellTieD2TModelManager::setAsCurrent( Well::D2TModel* d2t )
 }
 
 
-bool WellTieD2TModelManager::undo()
+bool WellTieD2TModelMGR::undo()
 {
     if ( !prvd2t_ ) return false; 
 	setAsCurrent( prvd2t_ );
@@ -112,7 +112,7 @@ bool WellTieD2TModelManager::undo()
 }
 
 
-bool WellTieD2TModelManager::cancel()
+bool WellTieD2TModelMGR::cancel()
 {
     if ( emptyoninit_ )
     {
@@ -125,7 +125,7 @@ bool WellTieD2TModelManager::cancel()
 }
 
 
-bool WellTieD2TModelManager::updateFromWD()
+bool WellTieD2TModelMGR::updateFromWD()
 {
     if ( !wd_.d2TModel() || wd_.d2TModel()->size()<1 )
        return false;	
@@ -134,7 +134,7 @@ bool WellTieD2TModelManager::updateFromWD()
 }
 
 
-bool WellTieD2TModelManager::commitToWD()
+bool WellTieD2TModelMGR::commitToWD()
 {
     mDynamicCastGet(const IOStream*,iostrm,IOM().get(wtsetup_.wellid_))
     if ( !iostrm ) 
@@ -153,7 +153,7 @@ bool WellTieD2TModelManager::commitToWD()
 }
 
 
-bool WellTieD2TModelManager::save( const char* filename )
+bool WellTieD2TModelMGR::save( const char* filename )
 {
     StreamData sdo = StreamProvider( filename ).makeOStream();
     if ( !sdo.usable() )

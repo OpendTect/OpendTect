@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieextractdata.cc,v 1.4 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieextractdata.cc,v 1.5 2009-05-20 14:27:30 cvsbruno Exp $";
 
 #include "welltieextractdata.h"
 #include "welltiegeocalculator.h"
@@ -42,7 +42,7 @@ int WellTieExtractTrack::nextStep()
     float time = timeintv_.atIndex( nrdone_ );
 
     Coord3 pos = wd_.track().getPos( wd_.d2TModel()->getDepth(time) );
-    pos.z = time; // wd_.d2TModel()->getTime( pos.z );
+    pos.z = time;
 
     const BinID bid = SI().transform( pos );
     if ( !bid.inl && !bid.crl )
@@ -83,7 +83,7 @@ WellTieResampleLog::WellTieResampleLog( WellTieDataSet& arr,
     errmsg += "no valid "; errmsg += l.name();  errmsg += " log selected";
     if ( !geocalc.isValidLogData( val_ ) ) mErrRet(errmsg);
 
-    geocalc.interpolateLogData( dah_, l.dahStep(true),  true );
+    geocalc.interpolateLogData( dah_, l.dahStep(true), true );
     geocalc.interpolateLogData( val_, l.dahStep(true), false );
 }
 
@@ -111,24 +111,32 @@ int WellTieResampleLog::nextStep()
 	    			  || nrdone_ >= workdata_.getLength() )
 	return Executor::Finished();
    
-    if ( tmpidx>1 && tmpidx<dah_.size()-2 )
-    {
-//	Interpolate::PolyReg1DWithUdf<float> pr;
-//	pr.set( val_[tmpidx], val_[tmpidx], val_[tmpidx+1], val_[tmpidx+1]);
-//	curval += pr.apply( ( curdah - dah_[tmpidx] )
-//			  / ( dah_[tmpidx+1] - dah_[tmpidx] ) );
+    if ( curdah < dah_[0] )
+	curval = val_[0];
+    else if ( curdah > dah_[dah_.size()-1])
+	curval = val_[val_.size()-1];
 
-	//3 points avg seems to work better than the polynomial interpolation
-	curval += ( ( val_[tmpidx+1] + val_[tmpidx-1] + val_[tmpidx] )* 1/3 );
-    }
     else
-	curval = val_[curlogsample_];
+    {
+	if ( tmpidx>1 && tmpidx<dah_.size()-2 )
+	{
+    //	Interpolate::PolyReg1DWithUdf<float> pr;
+    //	pr.set( val_[tmpidx], val_[tmpidx], val_[tmpidx+1], val_[tmpidx+1]);
+    //	curval += pr.apply( ( curdah - dah_[tmpidx] )
+    //			  / ( dah_[tmpidx+1] - dah_[tmpidx] ) );
+
+    //3 points avg seems to work better than the polynomial interpolation
+	    curval += ( (val_[tmpidx+1]+val_[tmpidx-1]+val_[tmpidx])*1/3 );
+	}
+	else
+	    curval = val_[curlogsample_];
+    }
 
     if (  curlogsample_ < dah_.size()  )
     {
 	workdata_.get(logname_)->setValue( nrdone_, curval );
 	workdata_.get(dptnm_)->setValue( nrdone_, curdah );
-	workdata_.get(timenm_) ->setValue( nrdone_, curtime );
+	workdata_.get(timenm_)->setValue( nrdone_, curtime );
     }
 
     nrdone_++;

@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.4 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.5 2009-05-20 14:27:29 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -57,7 +57,7 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
 	vwrs_[vwridx]->viewChanged.notify(
 				mCB(this,uiWellTieControlView,vwChgCB) );
 
-    new uiFlatViewThumbnail( this, *vwrs_[0] );
+    //new uiFlatViewThumbnail( this, *vwrs_[0] );
     
     dprops_ = new WellTieDisplayProperties();
     if (!dprops_) return;
@@ -171,7 +171,7 @@ void uiWellTieControlView::usrClickCB( CallBacker* cb )
 
 void uiWellTieControlView::mouseMoveCB( CallBacker* )
 {
-    if ( picksetmgr_->pickSetSize() >= 1 )
+    if ( picksetmgr_->getLogPickSet()->getSize() >= 1 )
     {
 	for ( int vwridx=0; vwridx<1; vwridx++ )
 	{
@@ -190,7 +190,7 @@ void uiWellTieControlView::mouseMoveCB( CallBacker* )
 
 bool uiWellTieControlView::handleUserClick(  int vwridx )
 {
-    if ( vwridx ) return false;
+    if ( vwridx == 1 || vwridx == 2 ) return false;
     const MouseEvent& ev = mouseEventHandler(vwridx).event();
     uiWorld2Ui w2u;
     vwrs_[vwridx]->getWorld2Ui(w2u);
@@ -199,7 +199,7 @@ bool uiWellTieControlView::handleUserClick(  int vwridx )
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	!ev.altStatus() )
     {
-	picksetmgr_->addPick( vwridx,  wp.y );
+	picksetmgr_->addPick( vwridx, wp.y );
 	return true;
     }
 

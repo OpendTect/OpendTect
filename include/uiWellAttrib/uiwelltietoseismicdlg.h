@@ -20,7 +20,9 @@ ________________________________________________________________________
 class WellTieDataMGR;
 class WellTieParams;
 class WellTieToSeismic;
-class WellTiePickSetManager;
+class WellTiePickSetMGR;
+class WellTieCSCorr;
+
 
 class uiGroup;
 class uiToolBar;
@@ -28,10 +30,11 @@ class uiGenInput;
 class uiPushButton;
 class uiCheckBox;
 
-class uiWellTieStretch;
 class uiWellTieView;
 class uiWellTieControlView;
 class uiWellTieWavelet;
+class uiWellTieEventStretch;
+class uiWellTieLogStretch;
 
 namespace Attrib { class DescSet; }
 namespace Well
@@ -57,20 +60,25 @@ protected:
     WellTieSetup	setup_;
     WellTieParams*	params_;
     WellTieToSeismic*   dataplayer_;
+    WellTiePickSetMGR*  picksetmgr_;
     WellTieDataMGR* 	datamgr_;
+    WellTieCSCorr*	cscorr_;	
 
     uiToolBar*          toolbar_;
     uiGroup*            vwrgrp_;
     uiPushButton*	applybut_;
+    uiPushButton*	applymrkbut_;
     uiPushButton*	undobut_;
     uiCheckBox* 	cscorrfld_;
-    uiGenInput*		corrtopmrkfld_;
-    uiGenInput*		corrbotmrkfld_;
+    uiCheckBox* 	csdispfld_;
+    uiGenInput*		topmrkfld_;
+    uiGenInput*		botmrkfld_;
     uiGenInput*		corrcoefffld_;
     uiWellTieWavelet*	wvltdraw_; 
     uiWellTieView*	datadrawer_;
     uiWellTieControlView* controlview_;
-    uiWellTieStretch* 	stretcher_;
+    uiWellTieLogStretch* logstretcher_;
+    uiWellTieEventStretch* eventstretcher_;
 
     void		addControl();
     void 		addToolBarTools();
@@ -80,21 +88,25 @@ protected:
     void 		dispParPushed(CallBacker*);
     void 		drawData();
     void 		dispDataChanged(CallBacker*);
-    void 		dispDataChanging(CallBacker*);
     void 		drawFields(uiGroup*);
     void 		initAll();
     void 		updateButtons();
     void 		setWinTitle(const Attrib::DescSet& ads);
+    bool 		setUserDepths();
 
     void 		applyPushed(CallBacker*);
+    void 		applyReady(CallBacker*);
+    void 		applyMarkerPushed(CallBacker*);
     void 		applyShiftPushed(CallBacker*);
     void		checkShotChg(CallBacker*);
+    void		checkShotDisp(CallBacker*);
     void		drawUserPick(CallBacker*);
     void 		viewDataPushed(CallBacker*);
     void 		setView(CallBacker*);
     void 		wvltChg(CallBacker*);
     bool		saveD2TPushed(CallBacker*);
     bool 		editD2TPushed(CallBacker*);
+    void		userDepthsChanged(CallBacker*);
     
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);

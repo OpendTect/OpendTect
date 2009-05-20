@@ -48,7 +48,8 @@ protected:
 
     void 			setCSToLogScale(TypeSet<float>&,double, 
 						WellTieGeoCalculator&);
-    void 			fitCS( const TypeSet<float>& csvals);
+    void 			fitCS(const TypeSet<float>&,
+	    				WellTieGeoCalculator&);
 };
 
 #endif

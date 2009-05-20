@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.3 2009-05-15 12:42:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.4 2009-05-20 14:27:30 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -20,8 +20,8 @@ static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.3 2009-05-15 12:42:49
 #include "survinfo.h"
 #include "welllog.h"
 #include "welld2tmodel.h"
-#include "welltrack.h"
 #include "welldata.h"
+#include "welltrack.h"
 #include "welllogset.h"
 #include "wellman.h"
 
@@ -143,33 +143,30 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
 		, nrdatacols_(9)
 		, factors_(WellTieUnitFactors(&wts))
 		, iscscorr_(iscsavailable_)
-		, currvellognm_(wts.vellognm_)			   
+		, iscsdisp_(true)
+		, currvellognm_(wts.vellognm_)
 {
+    attrnm_ = getAttrName(ads);
+    startdah_ = wd_.track().dah(0);
+    stopdah_  = wd_.track().dah(wd_.track().size()-1);
     createColNames();
 }
 
 
 #define mStep 20
 #define mComputeStepFactor SI().zStep()/mStep
-#define mGetTime(dah)\
-{\
-    wd_.d2TModel()->getTime( dah )\
-}
 bool WellTieParams::resetTimeParams( CallBacker* )
 {
-    const Well::Log* vellog = wd_.logs().getLog( wtsetup_.vellognm_ );
-    const Well::Log* denlog = wd_.logs().getLog( wtsetup_.denlognm_ );
-    if ( !vellog || !denlog )
-    return false;
-
-    float veltfirst = mGetTime( vellog->dah(0) );
-    float dentfirst = mGetTime( denlog->dah(0) );
-    float veltlast  = mGetTime( wd_.track().value(wd_.track().size()-1) );
-    float dentlast  = mGetTime( wd_.track().value(wd_.track().size()-1) );
-
-    timeintv_.start = mMIN( veltfirst, dentfirst  );
-    timeintv_.stop  = mMAX( veltlast, dentlast );
+    timeintv_.start = wd_.d2TModel()->getTime( startdah_ );
+    timeintv_.stop  = wd_.d2TModel()->getTime( stopdah_ );
     timeintv_.step  = mComputeStepFactor;
+
+    if ( timeintv_.step < 1e-6 )
+	return false;
+
+    if ( timeintv_.start > timeintv_.stop )
+	return false;
+
     worksize_ = (int) ((timeintv_.stop-timeintv_.start)/timeintv_.step);
     dispsize_ = (int) (worksize_/mStep)-1;
 
@@ -177,7 +174,7 @@ bool WellTieParams::resetTimeParams( CallBacker* )
 }
 
 
-const char*  WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
+BufferString WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
 {
     const Attrib::Desc* ad = ads.getDesc( wtsetup_.attrid_ );
     if ( !ad ) return 0;
@@ -188,9 +185,7 @@ const char*  WellTieParams::getAttrName( const Attrib::DescSet& ads ) const
     sii.getDefKeys( bss, true );
     const char* defkey = bss.get(0).buf();
     BufferString attrnm = ad->userRef();
-    const char* attr2cube = SeisIOObjInfo::defKey2DispName(defkey,attrnm);
-
-    return attr2cube;
+    return SeisIOObjInfo::defKey2DispName(defkey,attrnm);
 }
 
 
@@ -204,5 +199,5 @@ void WellTieParams::createColNames()
     ainm_ = "Computed AI";	         colnms_.add( ainm_ );     
     refnm_ ="Computed Reflectivity";     colnms_.add( refnm_ );
     synthnm_ = "Synthetics";         	 colnms_.add( synthnm_ );
-             				 colnms_.add( getAttrName(ads_) );
+             				 colnms_.add( attrnm_ );
 }

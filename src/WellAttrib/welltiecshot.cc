@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiecshot.cc,v 1.3 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiecshot.cc,v 1.4 2009-05-20 14:27:30 cvsbruno Exp $";
 
 #include "welltiecshot.h"
 
@@ -34,9 +34,8 @@ WellTieCSCorr::WellTieCSCorr( Well::Data& d, const WellTieParams& pms )
 
     WellTieGeoCalculator geocalc( &pms, &d );
     setCSToLogScale( newcsvals, pms.getUnits().velFactor(), geocalc );
-    fitCS( newcsvals );
-    BufferString corr = "Corrected ";
-    corr += log_->name();
+    fitCS( newcsvals, geocalc );
+    
     log_->setName( pms.getSetup().corrvellognm_ );
     d.logs().add( log_ );
 }
@@ -55,7 +54,8 @@ void WellTieCSCorr::setCSToLogScale( TypeSet<float>& cstolog, double velfactor,
 }
 
 
-void WellTieCSCorr::fitCS( const TypeSet<float>& csvals ) 
+void WellTieCSCorr::fitCS( const TypeSet<float>& csvals, 
+			   WellTieGeoCalculator& geocalc )
 {
     TypeSet<float> logvaldah, coeffs, logshifts, csshifts;
    
@@ -84,9 +84,14 @@ void WellTieCSCorr::fitCS( const TypeSet<float>& csvals )
 
     for ( int idx=0; idx<cs_->size(); idx++)
     {
-	logvaldah += log_->getValue(cs_->dah(idx)); 
-	csshifts += csvals[idx]-logvaldah[idx];
+	float val = log_->getValue(cs_->dah(idx));
+	logvaldah += val; 
     }
+    
+    geocalc.interpolateLogData ( logvaldah, log_->dahStep(true),  false );
+
+    for ( int idx=0; idx<cs_->size(); idx++)
+	csshifts += csvals[idx]-logvaldah[idx];
 
     for ( int idx=0; idx<cs_->size()-1; idx++)
 	coeffs +=  (csshifts[idx+1]-csshifts[idx])

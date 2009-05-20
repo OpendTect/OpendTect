@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.6 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.7 2009-05-20 14:27:30 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -48,9 +48,7 @@ WellTieGeoCalculator::WellTieGeoCalculator( const WellTieParams* p,
 //TWT approx.
 Well::D2TModel* WellTieGeoCalculator::getModelFromVelLog( bool doclean )
 {
-    const BufferString lognm( params_.currvellognm_ );
-
-    const Well::Log& log = *wd_.logs().getLog( lognm );
+    const Well::Log& log = *wd_.logs().getLog( params_.currvellognm_ );
     TypeSet<float> vals, d2t, dpt, time, depth;
 
     dpt += -wd_.track().value(0);
@@ -241,10 +239,10 @@ void WellTieGeoCalculator::interpolateLogData( TypeSet<float>& data,
     for ( int idx=startidx; idx<lastidx; idx++)
     {
 	//no negative values in dens or vel log assumed
-	if  ( !isdah && ( mIsUdf(data[idx]) || data[idx] <0 ) )
+	if ( !isdah && ( mIsUdf(data[idx]) || data[idx]<0 ) )
 	    data[idx] = data[idx-1];
-	if ( isdah && (mIsUdf(data[idx]) || data[idx] < data[idx-1]
-	|| data[idx] >= data[lastidx])  )
+	if ( isdah && (mIsUdf(data[idx]) || data[idx]<data[idx-1]
+	     || data[idx] >= data[lastidx])  )
 	    data[idx] = data[idx-1] + dahstep;
     }
     for ( int idx=0; idx<startidx; idx++ )
@@ -294,6 +292,9 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals,
 					  float cutfreq )
 {
     int filtersz = vals.info().getSize(0);
+    if ( !filtersz )
+       	return;
+
     float df = 1/( filtersz * SI().zStep() );
     TypeSet<float> freq, fwin, backwin; 
 
@@ -326,7 +327,8 @@ void WellTieGeoCalculator::lowPassFilter( Array1DImpl<float>& vals,
 			 false, "CosTaper", 0.95 );
     //window.apply( &timevals );
     float avg = computeAvg( &timevals );
-    removeBias( &timevals );
+    if ( mIsZero(avg,1e-4) )
+	removeBias( &timevals );
 
     //compute complex numbers
     HilbertTransform hil;

@@ -20,7 +20,6 @@ class uiFlatViewer;
 class uiToolBar;
 class uiToolButton;
 class uiWellTieViewPropDlg;
-class WellTiePickSetManager;
 
 mClass uiWellTieControlView : public uiFlatViewControl
 {
@@ -30,7 +29,7 @@ public:
 			~uiWellTieControlView();
    
     void 		setView();
-    void		setPickSetMGR(WellTiePickSetManager* pmgr)
+    void		setPickSetMGR(WellTiePickSetMGR* pmgr)
     			{ picksetmgr_ = pmgr; }
     
 protected:
@@ -44,8 +43,8 @@ protected:
     uiToolButton*       disppropbut_;
     //uiWellTieViewPropDlg propdlg_;
     
+    WellTiePickSetMGR*  picksetmgr_;
     WellTieDisplayProperties* dprops_;
-    WellTiePickSetManager*    picksetmgr_;
     
     void		doPropDlg(CallBacker*);
     bool 		handleUserClick(const int);

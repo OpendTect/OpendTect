@@ -67,10 +67,12 @@ public :
 
     const WellTieSetup& 	getSetup() const   { return wtsetup_; }	 
     const WellTieUnitFactors& 	getUnits() const   { return factors_; }
-    const StepInterval<float>&  getTimeScale() const  { return timeintv_; } 	
+    const StepInterval<float>&  getTimeScale() const  { return timeintv_; } 
 
     BufferStringSet		colnms_;
     const int 			nrdatacols_;				    
+    float 			startdah_;				    
+    float 			stopdah_;				    
     StepInterval<float> 	timeintv_;
     int 			step_;
     int           		worksize_;
@@ -78,15 +80,17 @@ public :
     const char*			currvellognm_;
     const char*			ainm_;
     const char*			refnm_;
+    BufferString		attrnm_;
     const char*			timenm_;
     const char*			dptnm_;
     const char*			synthnm_;
     bool 			iscsavailable_;
     bool                        iscscorr_;
+    bool                        iscsdisp_;
     const Attrib::DescSet& 	ads_;
 
     bool			resetTimeParams(CallBacker*);
-    const char*	 		getAttrName(const Attrib::DescSet&) const;
+    BufferString	 	getAttrName(const Attrib::DescSet&) const;
 
 protected :
 

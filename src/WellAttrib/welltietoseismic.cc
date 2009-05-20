@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.6 2009-05-15 12:42:49 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.7 2009-05-20 14:27:30 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -29,8 +29,8 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.6 2009-05-15 12:42:49 c
 #include "welllog.h"
 #include "welllogset.h"
 #include "welldata.h"
-#include "welltrack.h"
 #include "welltiecshot.h"
+#include "welltrack.h"
 #include "welltiegeocalculator.h"
 #include "welltieunitfactors.h"
 #include "welltiedata.h"
@@ -39,8 +39,8 @@ static const char* rcsID = "$Id: welltietoseismic.cc,v 1.6 2009-05-15 12:42:49 c
 #include "welltieextractdata.h"
 
 WellTieToSeismic::WellTieToSeismic( Well::Data* wd, 
+				    WellTieParams* p,
 				    const Attrib::DescSet& ads,
-				    const WellTieParams* p,
 			       	    WellTieDataMGR& mgr,
        				    TaskRunner* tr )
     	: wtsetup_(p->getSetup())
@@ -54,44 +54,43 @@ WellTieToSeismic::WellTieToSeismic( Well::Data* wd,
       	, d2tmgr_(0)
 	, dps_(new DataPointSet(false, false))	    
 {
-    checkShotCorr();
-    dps_->dataSet().add( new DataColDef( params_.getAttrName(ads_) ) );
+    dps_->dataSet().add( new DataColDef( params_.attrnm_ ) );
+    if ( wd_.checkShotModel() )
+    {
+	params_.currvellognm_ = wtsetup_.corrvellognm_;
+	WellTieCSCorr cscorr( wd_, params_ );
+    }
     geocalc_ = new WellTieGeoCalculator( p, wd );
-    d2tmgr_  = new WellTieD2TModelManager( wd_, wtsetup_, *geocalc_ );
+    d2tmgr_  = new WellTieD2TModelMGR( wd_, wtsetup_, *geocalc_ );
 } 
 
 
 WellTieToSeismic::~WellTieToSeismic()
 {
-    if ( d2tmgr_ ) delete d2tmgr_;
-    if ( cscorr_ ) delete cscorr_;
+    if ( d2tmgr_ )  delete d2tmgr_;
     if ( geocalc_ ) delete geocalc_;
-    if ( tr_ ) delete tr_;
-    delete dps_;
+    if ( tr_ ) 	    delete tr_;
+    if ( dps_ )	    delete dps_;
 }
 
 
 bool WellTieToSeismic::computeAll()
 {
+    params_.resetTimeParams(0);
     datamgr_.resetData();
 
     if ( !resampleLogs() ) 	    return false;
     if ( !computeSynthetics() )     return false;
+
+    //resamples WorkData and put in DispData
+    datamgr_.setWork2DispData();
+
     if ( !extractWellTrack() )      return false;
     if ( !extractSeismics() ) 	    return false;
-   
-    //resample WorkData and put in DispData
-    datamgr_.setWork2DispData();
     
     return true;	
 }
 
-
-void WellTieToSeismic::checkShotCorr()
-{
-    if ( wd_.checkShotModel() )
-	cscorr_ = new WellTieCSCorr( wd_, params_ );
-}
 
 bool WellTieToSeismic::extractWellTrack()
 {
@@ -144,7 +143,7 @@ bool WellTieToSeismic::computeSynthetics()
 	      		 *workdata_.get(wtsetup_.denlognm_),
 	      	 	 *workdata_.get(params_.ainm_) );
     
-    geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 125/params_.step_ );
+    //geocalc_->lowPassFilter( *workdata_.get(params_.ainm_), 125/params_.step_ );
     
     geocalc_->computeReflectivity( *workdata_.get(params_.ainm_),
        				   *dispdata_.get(params_.refnm_), 
@@ -167,7 +166,7 @@ bool WellTieToSeismic::extractSeismics()
 
     //retrieve data from DPS    
     datamgr_.getSortedDPSDataAlongZ( *dps_,
-	    *dispdata_.get(params_.getAttrName(ads_)) );
+	    *dispdata_.get( params_.attrnm_ ));
 
     return true;
 }
@@ -198,7 +197,7 @@ Wavelet* WellTieToSeismic::estimateWavelet()
     if ( iswvltodd ) wvlt->reSize( wvltsz+1 );
     Array1DImpl<float> wvltdata( datasz ), wvltvals( wvltsz );
 
-    geocalc_->deconvolve( *dispdata_.get(params_.getAttrName(ads_)),
+    geocalc_->deconvolve( *dispdata_.get(params_.attrnm_),
 	   		  *dispdata_.get(params_.refnm_), wvltdata, wvltsz );
     
     for ( int idx=0; idx<wvltsz; idx++ )
@@ -215,4 +214,11 @@ Wavelet* WellTieToSeismic::estimateWavelet()
 }
 
 
+/*
+bool WellTieToSeismic::computeCorrelCoeff()
+{
+    genericCrossCorrelation(
+    
+}
+*/
 

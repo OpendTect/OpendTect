@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiedata.cc,v 1.1 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiedata.cc,v 1.2 2009-05-20 14:27:30 cvsbruno Exp $";
 
 #include "welltiedata.h"
 #include "welltieunitfactors.h"
@@ -56,19 +56,6 @@ void WellTieDataMGR::setWork2DispData()
 }
 
 
-void WellTieDataMGR::replaceData( const WellTieDataSet& newdata, 
-				  WellTieDataSet& olddata )
-{
-    if ( olddata.getSet().size() )
-    {
-	for ( int idx=olddata.getSet().size()-1; idx>=0; idx-- )
-	    delete ( olddata.getSet().remove(idx) );
-    }
-    for ( int idx=0; idx<params_.nrdatacols_; idx ++  )
-	olddata.getSet() += new Array1DImpl<float>( *newdata.get(idx) );
-}
-
-
 void WellTieDataMGR::rescaleData( const WellTieDataSet& olddata,
 				  WellTieDataSet& newdata,	
 				  int colnr, int step  )
@@ -109,6 +96,16 @@ void WellTieDataMGR::getSortedDPSDataAlongZ( const DataPointSet& dps,
 
 
 
+
+const int WellTieDataSet::findTimeIdx( float dah )
+{
+    int idx=0;
+    while ( get(0,idx)<dah )
+	idx++;
+    return idx;	
+}
+
+
 void WellTieDataSet::clearData()
 {
     for ( int idx=data_.size()-1; idx>=0; idx-- )
@@ -124,10 +121,10 @@ void WellTieDataSet::createDataArrays()
 
 
 
-const int WellTieDataSet::getIdx( float dah )
+const int WellTieDataSet::getIdx( float time )
 {
     const float step = SI().zStep();
-    const int idx = int ( ( dah - data_[1]->get(0) )/ step  );
+    const int idx = int ( (time-data_[1]->get(0))/step );
     return idx;
 }
 
@@ -150,7 +147,7 @@ const float WellTieDataSet::get( int colidx, int validx )
 
 const float WellTieDataSet::getExtremVal( const char* colnm, bool ismax )
 {
-    float maxval,                     minval;
+    float maxval,             minval;
     maxval = get(colnm, 0);   minval = maxval;
 
     for ( int idz=0; idz<datasz_; idz++)
@@ -162,14 +159,6 @@ const float WellTieDataSet::getExtremVal( const char* colnm, bool ismax )
 	    minval = val;
     }
     return ismax? maxval:minval;
-}
-
-
-const float WellTieDataSet::getDah( int idx )
-{
-    const float step = SI().zStep();
-    const float dah =   idx*step + data_[1]->get(0);
-    return dah;
 }
 
 

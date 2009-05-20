@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.7 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.8 2009-05-20 14:27:30 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -41,11 +41,9 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.7 2009-05-15 12:42:48 cvsb
 #include "welltiepickset.h"
 
 uiWellTieView::uiWellTieView( uiParent* p, WellTieDataMGR& mgr,  
-			      const Well::Data* d, const  WellTieParams* pm,
-			      const Attrib::DescSet& ads )
+			      const Well::Data* d, const  WellTieParams* pm )
 	: wd_(*d)  
 	, params_(*pm)     	
-	, ads_(ads)		 	
 	, wtsetup_(pm->getSetup())	
 	, datamgr_(mgr)
     	, data_(*mgr.getDispData())
@@ -68,8 +66,8 @@ void uiWellTieView::fullRedraw()
     drawReflectivity();
     drawSynthetics();
     drawSeismic();
-    drawCShot();
     drawWellMarkers();
+    drawCShot();
 }
 
 
@@ -138,7 +136,7 @@ void uiWellTieView::drawSynthetics()
 
 void uiWellTieView::drawSeismic()
 {
-    createVarDataPack( params_.getAttrName(ads_), 4, 1 );
+    createVarDataPack( params_.attrnm_, 4, 1 );
 }
 
 
@@ -187,10 +185,7 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 {
     if ( zpos < params_.timeintv_.start || zpos > params_.timeintv_.stop ||
 	    	col == Color::NoColor() || col.rgb() == 16777215 )
-    {
-	delete auxdata;
 	return;
-    }
 
     FlatView::Appearance& app = vwrs_[vwridx]->appearance();
     app.annot_.auxdata_ +=  auxdata;
@@ -213,20 +208,6 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 }
 
 
-void uiWellTieView::deleteMarkerAuxDatas( const char* auxname  )
-{
-    for ( int vwridx=0; vwridx<vwrs_.size(); vwridx++ ) 
-    {
-	FlatView::Appearance& app = vwrs_[vwridx]->appearance();
-	for ( int idx=0; idx<app.annot_.auxdata_.size(); idx++)
-	{
-	    if ( !strcmp(app.annot_.auxdata_[idx]->name_, auxname) );
-		delete ( app.annot_.auxdata_.remove(idx) );
-	}
-    }
-}
-
-
 void uiWellTieView::drawWellMarkers()
 {
     bool ismarkergrdline = true;
@@ -234,14 +215,8 @@ void uiWellTieView::drawWellMarkers()
   
     const Well::D2TModel* d2tm = wd_.d2TModel();
     if ( !d2tm ) return; 
-
-    for ( int midx=0; midx<wd_.markers().size(); midx++)
-    {
-	const Well::Marker* marker = wd_.markers()[midx];
-	if ( !marker  ) continue;
-
-	deleteMarkerAuxDatas( marker->name() );
-    }
+    
+    deleteWellMarkers();
 
     for ( int midx=0; midx<wd_.markers().size(); midx++ )
     {
@@ -251,62 +226,54 @@ void uiWellTieView::drawWellMarkers()
 	float zpos = d2tm->getTime( marker->dah() ); 
 
 	FlatView::Annotation::AuxData* auxdata = 0;
-	mTryAlloc( auxdata, FlatView::Annotation::AuxData( marker->name() ) );
+	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
+	wellmarkerauxdatas_ += auxdata;
 	
 	for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
-	{
-	    FlatView::Annotation::AuxData* a = 
-			new FlatView::Annotation::AuxData(*auxdata);
-	    drawMarker( a, vwridx, 0,  zpos, marker->color(), false );
-	}
-	delete auxdata;
+	    drawMarker( auxdata, vwridx, 0,  zpos, marker->color(), false );
     }
     for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
 	vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );
 }	
 
 
-void uiWellTieView::drawUserPicks( const ObjectSet<UserPick>& pickset )
+void uiWellTieView::drawUserPicks( const WellTiePickSet& pickset )
 {
-    FlatView::Appearance& app = vwrs_[0]->appearance();
-    for ( int idx=0; idx<pickset.size(); idx++)
+    const int vwridx = pickset.get(0)->vidx_;
+    
+    for ( int idx=0; idx<pickset.getSize(); idx++ )
     {
-	BufferString picnm = "UserPick";
- 	picnm += idx;
-	
-	deleteMarkerAuxDatas( picnm  );
-    }
-
-    for ( int idx=0; idx<pickset.size(); idx++ )
-    {
-	const UserPick* userpick = pickset[idx];
+	const UserPick* userpick = pickset.get(idx);
 	if ( !userpick  ) continue;
 
-	BufferString picnm = "UserPick";
- 	picnm += idx;
-
 	FlatView::Annotation::AuxData* auxdata = 0;
-	mTryAlloc( auxdata, FlatView::Annotation::AuxData(picnm) );
+	mTryAlloc( auxdata, FlatView::Annotation::AuxData(0) );
+	userpickauxdatas_ += auxdata;
 	
-	const float zpos = userpick->zpos_;
+	float zpos = userpick->zpos_;
 	const float xpos = data_.get( params_.currvellognm_,
 		 		      data_.getIdx( zpos ) );
 
-	drawMarker( auxdata, 0, xpos, zpos, userpick->color_, true );
-	userpickauxdatas_ += auxdata;
-
-	vwrs_[0]->handleChange( FlatView::Viewer::Annot );
+	bool isxpick = vwridx? false : true;
+	drawMarker( auxdata, vwridx, xpos, zpos, userpick->color_, isxpick );
     }	
+    vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );
 }
+
 
 void uiWellTieView::drawCShot()
 {
+    if ( !params_.iscsdisp_ )
+	return;
+    
+    deleteCheckShot();
+
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
     WellTieGeoCalculator geocalc( &params_, &wd_ );
 
     TypeSet<float> csvals, cstolog, dpt;
-    for ( int idx=0; idx< cs->size(); idx++ )
+    for ( int idx=0; idx<cs->size(); idx++ )
     {
 	dpt     += cs->dah(idx);
 	csvals +=  cs->value(idx);
@@ -318,25 +285,53 @@ void uiWellTieView::drawCShot()
 
     FlatView::Appearance& app = vwrs_[0]->appearance();
     
-    for ( int idx=0; idx<app.annot_.auxdata_.size(); idx++)    
-	delete ( app.annot_.auxdata_.remove(idx) );
-
     FlatView::Annotation::AuxData* auxdata = 0;
-    mTryAlloc( auxdata, FlatView::Annotation::AuxData( 0 ) );
+    mTryAlloc( auxdata, FlatView::Annotation::AuxData(0) );
     app.annot_.auxdata_ +=  auxdata;
+    csauxdatas_ += auxdata;
    
-    for ( int midx=0; midx< cs->size(); midx++ )
+    for ( int idx=0; idx<cs->size(); idx++ )
     {
-	auxdata->namepos_ = 0;
-	auxdata->name_ = "checkshot";
 	auxdata->linestyle_.color_ = Color::DgbColor();
 	auxdata->linestyle_.type_  = LineStyle::Solid;
-	float zpos = d2tm->getTime( cs->dah(midx) ); 
-	auxdata->poly_ += FlatView::Point( cstolog[midx], zpos );
-	auxdata->poly_ += FlatView::Point(  cstolog[midx], zpos );
+	float zpos = d2tm->getTime( cs->dah(idx) ); 
+	auxdata->poly_ += FlatView::Point( cstolog[idx], zpos );
     }
-
     vwrs_[0]->handleChange( FlatView::Viewer::Annot );
+}
+
+
+void uiWellTieView::deleteWellMarkers()
+{
+    deleteMarkerAuxDatas( wellmarkerauxdatas_  );
+}
+
+
+void uiWellTieView::deleteUserPicks()
+{
+    deleteMarkerAuxDatas( userpickauxdatas_  );
+}
+
+
+void uiWellTieView::deleteCheckShot()
+{
+    deleteMarkerAuxDatas( csauxdatas_ );
+}
+
+
+void uiWellTieView::deleteMarkerAuxDatas(   
+			    ObjectSet<FlatView::Annotation::AuxData>& auxset )
+{
+    for (int midx=auxset.size()-1; midx>=0; midx--)
+    {
+	for (int idx=0; idx<vwrs_.size(); idx++)
+	{
+	    FlatView::Appearance& app = vwrs_[idx]->appearance();
+	    app.annot_.auxdata_.remove(
+		app.annot_.auxdata_.indexOf(auxset[midx]));
+	}
+	delete auxset.remove(midx);
+    }
 }
 
 

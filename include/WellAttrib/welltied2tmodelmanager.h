@@ -27,13 +27,13 @@ namespace Well
 
 /*!\brief Manages the D2T models used during TWTS. */
 
-mClass WellTieD2TModelManager
+mClass WellTieD2TModelMGR
 {
 public:
-				WellTieD2TModelManager(Well::Data&,
+				WellTieD2TModelMGR(Well::Data&,
 						       const WellTieSetup&,
 						       WellTieGeoCalculator&);
-				~WellTieD2TModelManager();
+				~WellTieD2TModelMGR();
 
     bool 		save(const char* filenm);
 
@@ -49,7 +49,6 @@ public:
     void		setFromVelLog(bool docln=true);
     void		setFromData(const Array1DImpl<float>&,
 				    const Array1DImpl<float>&);
-			//{setAsCurrent( geocalc_.getModelFromVelLog(docln) );}
 
 protected:
 
