@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.11 2009-04-28 12:48:33 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.12 2009-05-20 09:52:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
 				    , docount_(false)
 				    , curissel_(true)
 				    , valcolor_(true)
+				    , clipratio_(0.02)
 				    , prefsize_(400,400)	{}
 
 	mDefSetupMemb(Type,type)
@@ -60,6 +61,10 @@ public:
 	mDefSetupMemb(bool,curissel)	// Must clicked sector become selected?
 	mDefSetupMemb(bool,docount)	// Show count rather than val_ (Vals)
 	mDefSetupMemb(bool,valcolor)	// Use val_ to color (Rose)
+	mDefSetupMemb(float,clipratio)	// Vals
+	mDefSetupMemb(BufferString,hdrannot)
+	mDefSetupMemb(BufferString,nameforpos)
+	mDefSetupMemb(BufferString,nameforval)
 	mDefSetupMemb(uiSize,prefsize)
     };
 
@@ -102,6 +107,8 @@ protected:
     uiGraphicsItemGroup&	sectorlines_;
     uiCircleItem*		outercircleitm_;
     uiCurvedItem*		selsectoritem_;
+    uiTextItem*			hdrannotitm1_;
+    uiTextItem*			hdrannotitm2_;
     ObjectSet<uiCircleItem>	equicircles_;
     ObjectSet<uiTextItem>	dirtxtitms_;
     ObjectSet<uiLineItem>	dirlnitms_;

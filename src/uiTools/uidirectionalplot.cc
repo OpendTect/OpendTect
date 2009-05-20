@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.21 2009-04-28 15:20:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.22 2009-05-20 09:52:52 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.21 2009-04-28 15:20:06
 #include "uifont.h"
 #include "angles.h"
 #include "mouseevent.h"
+#include "dataclipper.h"
 #include "coltabsequence.h"
 #include <iostream>
 
@@ -30,6 +31,8 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , sectorlines_(*scene().addItemGrp(new uiGraphicsItemGroup))
     , curveitems_(*scene().addItemGrp(new uiGraphicsItemGroup))
     , markeritems_(*scene().addItemGrp(new uiGraphicsItemGroup))
+    , hdrannotitm1_(0)
+    , hdrannotitm2_(0)
     , sectorPicked(this)
     , colseq_(0)
 {
@@ -86,6 +89,7 @@ void uiDirectionalPlot::setData( const Stats::DirectionalData& dird )
 void uiDirectionalPlot::gatherInfo()
 {
     isempty_ = true;
+    TypeSet<float> vals;
     for ( int isect=0; isect<data_.size(); isect++ )
     {
 	const int nrparts = data_.nrParts(isect);
@@ -95,7 +99,6 @@ void uiDirectionalPlot::gatherInfo()
 	    {
 		isempty_ = false;
 		const Stats::SectorPartData& spd = data_.get(isect,0);
-		valrg_.start = valrg_.stop = spd.val_;
 		posrg_.start = posrg_.stop = spd.pos_;
 		maxcount_ = spd.count_;
 	    }
@@ -104,13 +107,17 @@ void uiDirectionalPlot::gatherInfo()
 	    for ( int ipart=0; ipart<sd.size(); ipart++ )
 	    {
 		const Stats::SectorPartData& spd = sd[ipart];
-		valrg_.include( spd.val_ );
+		vals += spd.val_;
 		posrg_.include( spd.pos_ );
 		curcount += spd.count_;
 	    }
 	    if ( curcount > maxcount_ ) maxcount_ = curcount;
 	}
     }
+
+    DataClipSampler dcs( vals.size() );
+    dcs.add( vals.arr(), vals.size() );
+    valrg_ = dcs.getRange( setup_.clipratio_ );
 }
 
 
@@ -175,13 +182,36 @@ void uiDirectionalPlot::drawGrid()
 
 
 void uiDirectionalPlot::drawScale()
-{}
+{
+    if ( setup_.nameforpos_.isEmpty() ) return;
+}
 
 void uiDirectionalPlot::drawHeader()
-{}
+{
+    Alignment al( Alignment::Left, Alignment::Top );
+    if ( setup_.nameforval_.isEmpty() )
+	{ delete hdrannotitm1_; hdrannotitm1_ = 0; }
+    else if ( !hdrannotitm1_ )
+    {
+	hdrannotitm1_ = scene().addItem( new uiTextItem(setup_.nameforval_,al));
+	hdrannotitm1_->setPos( uiPoint(0,0) );
+    }
+
+    if ( setup_.hdrannot_.isEmpty() )
+	{ delete hdrannotitm2_; hdrannotitm2_ = 0; }
+    else if ( !hdrannotitm2_ )
+    {
+	al.set( Alignment::Right );
+	hdrannotitm2_ = scene().addItem( new uiTextItem(setup_.hdrannot_,al) );
+    }
+
+    if ( hdrannotitm2_ )
+	hdrannotitm2_->setPos( uiPoint(width()-1,0) );
+}
 
 void uiDirectionalPlot::drawColTab()
-{}
+{
+}
 
 
 void uiDirectionalPlot::drawAnnot()
@@ -321,9 +351,10 @@ void uiDirectionalPlot::drawVals()
 	    as.radius_ = rrg.start;
 	    Swap( as.angles_.start, as.angles_.stop );
 	    ci->drawTo( as );
-	    // Grey scales
-	    //TODO use real color bar
+
 	    float relpos = (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
+	    if ( relpos < 0 ) relpos = 0;
+	    if ( relpos > 1 ) relpos = 1;
 	    ci->setFillColor( colseq_->color(relpos) );
 
 	    ci->closeCurve();
