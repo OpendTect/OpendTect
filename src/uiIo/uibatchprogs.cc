@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchprogs.cc,v 1.36 2009-04-16 10:23:19 cvsranojay Exp $";
+static const char* rcsID = "$Id: uibatchprogs.cc,v 1.37 2009-05-20 20:46:50 cvskris Exp $";
 
 #include "uibatchprogs.h"
 #include "uifileinput.h"
@@ -351,7 +351,7 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
 #else
      
    BufferString comm("");
-   comm += FilePath(GetSoftwareDir()).add("bin").fullPath();
+   comm += FilePath(GetSoftwareDir(0)).add("bin").fullPath();
    comm += "\\";
 
     const char* progtxt = progfld->box()->text();

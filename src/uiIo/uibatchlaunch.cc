@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.71 2009-04-17 11:21:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.72 2009-05-20 20:46:50 cvskris Exp $";
 
 #include "uibatchlaunch.h"
 
@@ -227,7 +227,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     inbg = true;
 
     comm = "@";
-    comm += FilePath(GetSoftwareDir()).add("bin").
+    comm += FilePath(GetSoftwareDir(0)).add("bin").
 	    add(progname_).fullPath();
     comm += " ";
     comm += parfname_;
@@ -432,7 +432,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 
 #else
     BufferString comm( "" );
-    comm += FilePath(GetSoftwareDir()).add("bin").fullPath();
+    comm += FilePath(GetSoftwareDir(0)).add("bin").fullPath();
     comm += "\\";   
     comm += procprognm_;
     comm += " ";

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicrdevenv.cc,v 1.28 2009-05-04 11:15:24 cvsranojay Exp $";
+static const char* rcsID = "$Id: uicrdevenv.cc,v 1.29 2009-05-20 20:46:50 cvskris Exp $";
 
 #include "uicrdevenv.h"
 
@@ -248,10 +248,10 @@ void uiCrDevEnv::crDevEnv( uiParent* appl )
     showProgrDoc();
 
     BufferString cmd( "@'" );
-    FilePath fp( GetSoftwareDir() );
+    FilePath fp( GetSoftwareDir(0) );
     fp.add( "bin" ).add( "od_cr_dev_env" );
     cmd += fp.fullPath();
-    cmd += "' '"; cmd += GetSoftwareDir();
+    cmd += "' '"; cmd += GetSoftwareDir(0);
     cmd += "' '"; cmd += workdirnm; cmd += "'";
 
     StreamProvider( cmd ).executeCommand( false );

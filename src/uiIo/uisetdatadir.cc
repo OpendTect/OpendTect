@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uisetdatadir.cc,v 1.26 2009-04-17 09:43:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uisetdatadir.cc,v 1.27 2009-05-20 20:46:50 cvskris Exp $";
 
 #include "uisetdatadir.h"
 #include "uifileinput.h"
@@ -114,7 +114,7 @@ bool uiSetDataDir::acceptOK( CallBacker* )
     else if ( datadir == olddatadir )
 	return true;
 
-    FilePath fpdd( datadir ); FilePath fps( GetSoftwareDir() );
+    FilePath fpdd( datadir ); FilePath fps( GetSoftwareDir(0) );
     const int nrslvls = fps.nrLevels();
     if ( fpdd.nrLevels() >= nrslvls )
     {
@@ -207,7 +207,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 
     if ( trycpdemosurv && GetEnvVar( "DTECT_DEMO_SURVEY" ) )
     {
-	FilePath demosurvnm( GetSoftwareDir() );
+	FilePath demosurvnm( GetSoftwareDir(0) );
 	demosurvnm.add( GetEnvVar("DTECT_DEMO_SURVEY") );
 
 	if ( File_isDirectory(demosurvnm.fullPath()) )

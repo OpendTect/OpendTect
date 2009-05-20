@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.28 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.29 2009-05-20 20:46:50 cvskris Exp $";
 
 #include "jobiomgr.h"
 #include "filepath.h"
@@ -492,7 +492,7 @@ void JobIOMgr::mkCommand( CommandString& cmd, const HostData& machine,
 	if ( machine.isWin()  ) cmd.add( "--iswin" );
 
 	cmd.addFilePathFlag( "--with-dtect-appl", 
-			     machine.convPath(HostData::Appl, GetSoftwareDir()),
+			     machine.convPath(HostData::Appl,GetSoftwareDir(0)),
 			     FilePath::Unix );
 
 	cmd.addFilePathFlag( "--with-dtect-data", 
