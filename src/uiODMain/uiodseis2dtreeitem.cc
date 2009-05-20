@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.59 2009-05-19 14:08:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.60 2009-05-20 03:43:47 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -772,7 +772,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     storeditm_.removeItems();
     for ( int idx=0; idx<attribnames.size(); idx++ )
     {
-	FixedString nm = attribnames.get(idx);
+	FixedString nm = attribnames.get(idx).buf();
 	MenuItem* item = new MenuItem(nm);
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
@@ -795,7 +795,7 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     steeringitm_.removeItems();
     for ( int idx=0; idx<steerdatanames.size(); idx++ )
     {
-	FixedString nm = steerdatanames.get(idx);
+	FixedString nm = steerdatanames.get(idx).buf();
 	MenuItem* item = new MenuItem(nm);
 	const bool docheck = isstored && nm==as.userRef();
 	if ( docheck ) docheckparent=true;
