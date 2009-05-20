@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.18 2009-03-24 14:08:36 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.19 2009-05-20 21:51:25 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.18 2009-0
 #include "visdragger.h"
 #include "visellipsoid.h"
 #include "visevent.h"
+#include "visgeomindexedshape.h"
 #include "vismarchingcubessurface.h"
 #include "visinvisiblelinedragger.h"
 #include "vismaterial.h"
@@ -119,6 +120,88 @@ bool MarchingCubesDisplay::setVisSurface(
 
 EM::ObjectID MarchingCubesDisplay::getEMID() const
 { return emsurface_ ? emsurface_->id() : -1; }
+
+
+SurveyObject::AttribFormat MarchingCubesDisplay::getAttributeFormat(int) const
+{ return SurveyObject::RandomPos; }
+
+
+int MarchingCubesDisplay::nrAttribs() const
+{ return 1; }
+
+
+bool MarchingCubesDisplay::canAddAttrib(int) const
+{ return false; }
+
+
+bool MarchingCubesDisplay::canRemoveAttrib() const
+{ return false; }
+
+
+bool MarchingCubesDisplay::canHandleColTabSeqTrans(int) const
+{ return false; }
+
+
+const ColTab::MapperSetup*
+MarchingCubesDisplay::getColTabMapperSetup( int attrib, int version ) const
+{
+    return !attrib && !version
+	? displaysurface_->getShape()->getDataMapper()
+	: 0;
+}
+
+
+void MarchingCubesDisplay::setColTabMapperSetup( int attrib,
+	const ColTab::MapperSetup& setup )
+{
+    if ( !attrib )
+	displaysurface_->getShape()->setDataMapper( setup );
+}
+
+
+const ColTab::Sequence*
+MarchingCubesDisplay::getColTabSequence( int attrib ) const
+{
+    return !attrib ? displaysurface_->getShape()->getDataSequence() : 0;
+}
+
+
+void MarchingCubesDisplay::setColTabSequence( int attrib,
+					      const ColTab::Sequence& seq )
+{
+    if ( !attrib )
+	displaysurface_->getShape()->setDataSequence( seq );
+}
+
+
+bool MarchingCubesDisplay::canSetColTabSequence() const
+{ return true; }
+
+
+void MarchingCubesDisplay::setSelSpec( int attrib, const Attrib::SelSpec& spec )
+{
+    if ( !attrib )
+	selspec_ = spec;
+}
+
+
+const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
+{
+    return attrib ? 0 : &selspec_;
+}
+
+
+void MarchingCubesDisplay::getRandomPos( DataPointSet& dps ) const
+{ displaysurface_->getShape()->getAttribPositions( dps ); }
+
+
+void MarchingCubesDisplay::setRandomPosData( int attrib,
+					     const DataPointSet* dps )
+{
+    if ( !attrib && dps )
+	displaysurface_->getShape()->setAttribData( *dps );
+}
+
 
 
 #define mErrRet(s) { errmsg = s; return false; }
