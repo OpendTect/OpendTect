@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: dirlist.cc,v 1.14 2009-02-13 13:31:15 cvsbert Exp $";
+static const char* rcsID = "$Id: dirlist.cc,v 1.15 2009-05-20 09:43:57 cvsraman Exp $";
 
 #include "dirlist.h"
 #include "globexpr.h"
@@ -78,9 +78,12 @@ void DirList::update()
         if ( (dp->d_name)[0] == '.' && (dp->d_name)[1] == '.'
 	  && (dp->d_name)[2] == '\0' ) continue;
 
+	fp.setFileName( dp->d_name );
+	if ( !File_exists(fp.fullPath()) )
+	    continue;
+
 	if ( type_ != AllEntries )
 	{
-	    fp.setFileName( dp->d_name );
 	    if ( (type_ == FilesOnly) == (bool)File_isDirectory(fp.fullPath()) )
 		continue;
 	}
