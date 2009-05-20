@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		3-5-1994
  Contents:	File utitlities
- RCS:		$Id: filegen.h,v 1.23 2009-02-13 13:31:14 cvsbert Exp $
+ RCS:		$Id: filegen.h,v 1.24 2009-05-20 04:40:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ mGlobal int File_createLink(const char* from,const char* to);
 mGlobal int File_copy(const char* from,const char* to,int recursive_downward);
 mGlobal int File_remove(const char*,int recursive_downward);
 mGlobal int File_makeWritable(const char*,int recursive,int yesno);
+mGlobal int File_setPermissions(const char*,const char* perms,int recursive);
+						// Not for Windows
 #define mFile_NotRecursive 0
 #define mFile_Recursive 1
 

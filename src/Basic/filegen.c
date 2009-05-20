@@ -5,7 +5,7 @@
  * FUNCTION : file utilities
 -*/
 
-static const char* rcsID = "$Id: filegen.c,v 1.78 2009-02-19 07:14:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: filegen.c,v 1.79 2009-05-20 04:39:45 cvsraman Exp $";
 
 #include "filegen.h"
 #include "string2.h"
@@ -477,6 +477,23 @@ int File_remove( const char* fname, int recursive )
     mRet( retval )
 
 #endif
+}
+
+
+int File_setPermissions( const char* fname, const char* perms, int recursive )
+{
+#ifndef __win__
+
+    FileNameString cmd;
+    strcpy( cmd, "chmod " );
+    if ( recursive ) strcat( cmd, "-R ");
+    strcat( cmd, perms );
+    if ( system(cmd) != -1 )
+	return mC_True;
+
+#endif
+
+    return mC_False;
 }
 
 
