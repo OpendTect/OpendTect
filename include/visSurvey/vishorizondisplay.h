@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.34 2009-03-03 08:06:33 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.35 2009-05-20 21:47:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "visemobjdisplay.h"
 
 class Executor;
+namespace ColTab{ class Sequence; class MapperSetup; }
 namespace EM { class Horizon3D; }
-namespace visBase { class ParametricSurface; class IndexedShape; }
+namespace visBase { class HorizonSection; class IndexedShape; }
 
 namespace visSurvey
 {
@@ -33,7 +34,6 @@ public:
 
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
-
 
     bool			setEMObject(const EM::ObjectID&);
     bool			updateFromEM();
@@ -69,8 +69,7 @@ public:
     unsigned char		getAttribTransparency(int) const;
     void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
-    void			setAngleFlag(int attrib,bool yn);
-    bool			isAngle(int attrib) const;
+    
     void			allowShading(bool);
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
@@ -82,7 +81,7 @@ public:
 				{ return DataPackMgr::FlatID(); }
 
     bool			allowMaterialEdit() const 	{ return true; }
-    bool			hasColor() const;
+    bool			hasColor() const		{ return true; }
 
     EM::SectionID		getSectionID(int visid) const;
 
@@ -109,7 +108,6 @@ public:
     float			calcDist(const Coord3&) const;
     float			maxDist() const;
 
-    int				getColTabID(int) const;
     const ColTab::Sequence*	getColTabSequence(int attr) const;
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int attr,
@@ -158,11 +156,12 @@ protected:
 				    int whichobj );
     void			updateSingleColor();
 
+    bool				allowshading_;
     mVisTrans*				translation_;
 
     ObjectSet<EdgeLineSetDisplay>	edgelinedisplays_;
 
-    ObjectSet<visBase::ParametricSurface> sections_;
+    ObjectSet<visBase::HorizonSection> sections_;
     TypeSet<EM::SectionID>		sids_;
 
     ObjectSet<visBase::IndexedShape>	intersectionlines_;
@@ -175,6 +174,8 @@ protected:
     StepInterval<int>			parrowrg_;
     StepInterval<int>			parcolrg_;
 
+    TypeSet<ColTab::MapperSetup>	coltabmappersetups_;//for each channel
+    TypeSet<ColTab::Sequence>		coltabsequences_;  //for each channel
 
     bool				usestexture_;
     bool				useswireframe_;
@@ -184,7 +185,6 @@ protected:
 
     ObjectSet<Attrib::SelSpec>		as_;
     TypeSet<DataPack::ID>		datapackids_;
-    ObjectSet<visBase::VisColorTab>	coltabs_;
     BoolTypeSet				enabled_;
     TypeSet<int>			curshiftidx_;
     TypeSet< TypeSet<float> >		shifts_;
@@ -192,7 +192,6 @@ protected:
     bool				validtexture_;
 
     static const char*			sKeyTexture();
-    static const char*			sKeyColorTableID();
     static const char*			sKeyShift();
     static const char*			sKeyWireFrame();
     static const char*			sKeyResolution();

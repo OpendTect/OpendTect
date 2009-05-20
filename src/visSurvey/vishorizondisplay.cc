@@ -7,43 +7,38 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.73 2009-04-22 05:01:04 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.74 2009-05-20 21:47:03 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
-#include "attribdatapack.h"
 #include "attribsel.h"
 #include "bidvsetarrayadapter.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
-#include "flatposdata.h"
-#include "iopar.h"
 #include "isocontourtracer.h"
 #include "survinfo.h"
 #include "mpeengine.h"
 
 #include "viscolortab.h"
 #include "viscoord.h"
-#include "visdataman.h"
 #include "visdrawstyle.h"
 #include "visevent.h"
 #include "vishingeline.h"
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vismpe.h"
-#include "visparametricsurface.h"
+#include "vishorizonsection.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
-
-#include <math.h>
-
 
 
 mCreateFactoryEntry( visSurvey::HorizonDisplay );
@@ -52,7 +47,6 @@ namespace visSurvey
 {
 
 const char* HorizonDisplay::sKeyTexture()	{ return "Use texture"; }
-const char* HorizonDisplay::sKeyColorTableID()	{ return "ColorTable ID"; }
 const char* HorizonDisplay::sKeyShift()		{ return "Shift"; }
 const char* HorizonDisplay::sKeyWireFrame()	{ return "WireFrame on"; }
 const char* HorizonDisplay::sKeyResolution()	{ return "Resolution"; }
@@ -73,10 +67,12 @@ HorizonDisplay::HorizonDisplay()
     , resolution_( 0 )
     , zaxistransform_( 0 )
     , maxintersectionlinethickness_( 40 )
+    , allowshading_( true )					 
 {
     as_ += new Attrib::SelSpec;
-    coltabs_ += visBase::VisColorTab::create();
-    coltabs_[0]->ref();
+    coltabmappersetups_ += ColTab::MapperSetup();
+    coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
+    
     TypeSet<float> shift;
     shift += 0.0;
     shifts_ += shift;
@@ -93,8 +89,10 @@ HorizonDisplay::~HorizonDisplay()
 {
     deepErase(as_);
 
+    coltabmappersetups_.erase();
+    coltabsequences_.erase();
+
     setSceneEventCatcher( 0 );
-    deepUnRef( coltabs_ );
     shifts_.erase();
     curshiftidx_.erase();
     deepErase( userrefs_ );
@@ -139,13 +137,12 @@ void HorizonDisplay::setDisplayTransformation( mVisTrans* nt )
 bool HorizonDisplay::setDataTransform( ZAxisTransform* nz )
 {
     if ( zaxistransform_ ) zaxistransform_->unRef();
+
     zaxistransform_ = nz;
     if ( zaxistransform_ ) zaxistransform_->ref();
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
 	sections_[idx]->setZAxisTransform( nz );
-    }
 
     return true;
 }
@@ -261,8 +258,9 @@ bool HorizonDisplay::setEMObject( const EM::ObjectID& newid )
 	return false;
 
     mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
-    if ( emhorizon ) emhorizon->edgelinesets.addremovenotify.notify(
-			    mCB(this,HorizonDisplay,emEdgeLineChangeCB ));
+    if ( emhorizon ) 
+	emhorizon->edgelinesets.addremovenotify.notify(
+		mCB(this,HorizonDisplay,emEdgeLineChangeCB) );
 
     return true;
 }
@@ -319,7 +317,7 @@ void HorizonDisplay::updateFromMPE()
 bool HorizonDisplay::addEdgeLineDisplay( const EM::SectionID& sid )
 {
     mDynamicCastGet( EM::Horizon3D*, emhorizon, emobject_ );
-    EM::EdgeLineSet* els = emhorizon
+    EM::EdgeLineSet* els = emhorizon 
 	? emhorizon->edgelinesets.getEdgeLineSet(sid,false) : 0;
 
     if ( els )
@@ -386,10 +384,6 @@ bool HorizonDisplay::showingTexture() const
 { return validtexture_ && usestexture_; }
 
 
-bool HorizonDisplay::hasColor() const
-{ return true; }
-
-
 bool HorizonDisplay::getOnlyAtSectionsDisplay() const
 { return displayonlyatsections_; }
 
@@ -398,60 +392,54 @@ bool HorizonDisplay::canHaveMultipleAttribs() const
 { return true; }
 
 
-int HorizonDisplay::nrTextures( int attrib ) const
+int HorizonDisplay::nrTextures( int channel ) const
 {
-    if ( attrib<0 || attrib>=nrAttribs() || sections_.isEmpty() ) return 0;
+    if ( channel<0 || channel>=nrAttribs() || !sections_.size() ) 
+	return 0;
 
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf ? psurf->nrVersions( attrib ) : 0;
+    return sections_[0]->nrVersions( channel );
 }
 
 
-void HorizonDisplay::selectTexture( int attrib, int textureidx )
+void HorizonDisplay::selectTexture( int channel, int textureidx )
 {
     curtextureidx_ = textureidx;
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    psurf->selectActiveVersion( attrib, textureidx );
-    }
+	sections_[idx]->selectActiveVersion( channel, textureidx );
 
     mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_)
     if ( !emsurf || emsurf->auxdata.nrAuxData() == 0 ) return;
 
     if ( textureidx >= emsurf->auxdata.nrAuxData() )
-	setSelSpec( attrib,
+	setSelSpec( channel,
 		    Attrib::SelSpec(0,Attrib::SelSpec::cAttribNotSel()) );
     else
     {
-	BufferString attrnm = userrefs_[attrib]->get( textureidx );
-	const float shift = (shifts_[attrib])[ textureidx ];
-	curshiftidx_[attrib] = textureidx;
+	BufferString attrnm = userrefs_[channel]->get( textureidx );
+	const float shift = (shifts_[channel])[ textureidx ];
+	curshiftidx_[channel] = textureidx;
 	emsurf->geometry().setShift( shift );
 	Coord3 tranl = getTranslation();
 	tranl.z = shift;
 	setTranslation( tranl );
-	setSelSpec( attrib,
+	setSelSpec( channel,
 		    Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
     }
 }
 
 
-int HorizonDisplay::selectedTexture( int attrib ) const
+int HorizonDisplay::selectedTexture( int channel ) const
 {
-    if ( attrib<0 || attrib>=nrAttribs() || sections_.isEmpty() ) return 0;
+    if ( channel<0 || channel>=nrAttribs() || !sections_.size() ) 
+	return 0;
 
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf ? psurf->activeVersion( attrib ) : 0;
+    return sections_[0]->activeVersion( channel );
 }
 
 
 SurveyObject::AttribFormat HorizonDisplay::getAttributeFormat( int ) const
 {
-    if ( sections_.isEmpty() ) return SurveyObject::None;
-    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
-    return ps ? SurveyObject::RandomPos : SurveyObject::None;
+    return sections_.size() ? SurveyObject::RandomPos : SurveyObject::None;
 }
 
 
@@ -461,8 +449,10 @@ int HorizonDisplay::nrAttribs() const
 
 bool HorizonDisplay::canAddAttrib( int nr ) const
 {
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    const int maxnr = psurf ? psurf->maxNrTextures() : 0;
+    if ( !sections_.size() )
+	return false;
+
+    const int maxnr =  sections_[0]->maxNrChannels();
     if ( !maxnr ) return true;
 
     return nrAttribs()+nr<=maxnr;
@@ -472,12 +462,6 @@ bool HorizonDisplay::canAddAttrib( int nr ) const
 bool HorizonDisplay::addAttrib()
 {
     as_ += new Attrib::SelSpec;
-    coltabs_ += visBase::VisColorTab::create();
-    const int curattrib = coltabs_.size()-1;
-    coltabs_[curattrib]->ref();
-    coltabs_[curattrib]->setAutoScale( true );
-    coltabs_[curattrib]->setClipRate( 0.025 );
-    coltabs_[curattrib]->setSymMidval( mUdf(float) );
     TypeSet<float> shift;
     shift += 0.0;
     shifts_ += shift;
@@ -487,41 +471,43 @@ bool HorizonDisplay::addAttrib()
     userrefs_ += aatrnms;
     enabled_ += true;
     datapackids_ += -1;
+    coltabmappersetups_ += ColTab::MapperSetup();
+    coltabsequences_ += ColTab::Sequence(ColTab::defSeqName());
 
+    const int curchannel = coltabmappersetups_.size()-1;
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	{
-	    psurf->addTexture();
-	    psurf->setColorTab( curattrib, *coltabs_[curattrib] );
-	}
+	sections_[idx]->addChannel();
+    	sections_[idx]->setColTabSequence( curchannel,
+		coltabsequences_[curchannel] );
+
+	sections_[idx]->setColTabMapperSetup( curchannel,
+		coltabmappersetups_[curchannel] );
     }
 
     return true;
 }
 
 
-bool HorizonDisplay::removeAttrib( int attrib )
+bool HorizonDisplay::removeAttrib( int channel )
 {
+    if ( channel<0 || channel>=nrAttribs() )
+       return true;
+
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    psurf->removeTexture( attrib );
-    }
+	sections_[idx]->removeChannel( channel );
 
-    coltabs_[attrib]->unRef();
-    coltabs_.remove( attrib );
-    shifts_.remove( attrib );
-    curshiftidx_.remove( attrib );
-    userrefs_.remove( attrib );
-    enabled_.remove( attrib );
-    DPM( DataPackMgr::FlatID() ).release( datapackids_[attrib] );
-    datapackids_.remove( attrib );
+    shifts_.remove( channel );
+    curshiftidx_.remove( channel );
+    userrefs_.remove( channel );
+    enabled_.remove( channel );
+    DPM( DataPackMgr::FlatID() ).release( datapackids_[channel] );
+    datapackids_.remove( channel );
+    coltabmappersetups_.remove( channel );
+    coltabsequences_.remove( channel );
 
-    delete as_[attrib];
-    as_.remove( attrib );
+    delete as_[channel];
+    as_.remove( channel );
     return true;
 }
 
@@ -529,14 +515,12 @@ bool HorizonDisplay::removeAttrib( int attrib )
 bool HorizonDisplay::swapAttribs( int a0, int a1 )
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    psurf->swapTextures( a0, a1 );
-    }
+	sections_[idx]->swapChannels( a0, a1 );
+
+    coltabmappersetups_.swap( a0, a1 );
+    coltabsequences_.swap( a0, a1 );
 
     as_.swap( a0, a1 );
-    coltabs_.swap( a0, a1 );
     enabled_.swap( a0, a1 );
     shifts_.swap( a0, a1 );
     curshiftidx_.swap( a0, a1 );
@@ -546,48 +530,39 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
 }
 
 
-void HorizonDisplay::setAttribTransparency( int attrib, unsigned char nt )
+void HorizonDisplay::setAttribTransparency( int channel, unsigned char nt )
 {
+    if ( channel<0 || channel>=nrAttribs() )
+       return;
+
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    psurf->setTextureTransparency( attrib, nt );
-    }
+	sections_[idx]->setTransparency( channel, nt );
 }
 
 
-unsigned char HorizonDisplay::getAttribTransparency( int attrib ) const
-{
-    for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    return psurf->getTextureTransparency( attrib );
-    }
+unsigned char HorizonDisplay::getAttribTransparency( int channel ) const
+{  
+    if ( channel<0 || channel>=nrAttribs() )
+       return 0;
 
-    return 0;
+    return sections_.size() ? sections_[0]->getTransparency(channel) : 0;
 }
 
 
-void HorizonDisplay::enableAttrib( int attribnr, bool yn )
+void HorizonDisplay::enableAttrib( int channelnr, bool yn )
 {
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    psurf->enableTexture( attribnr, yn );
-    }
+	sections_[idx]->enableChannel( channelnr, yn );
     
     mDynamicCastGet(EM::Horizon3D*,emsurf,emobject_);
-    int attribidx = shifts_.size()-1;
-    if ( attribnr != 0 )
+    int channelidx = shifts_.size()-1;
+    if ( channelnr != 0 )
     {
-	while ( !isAttribEnabled(attribidx) && attribidx >= 0 )
-	    attribidx--;
+	while ( !isAttribEnabled(channelidx) && channelidx >= 0 )
+	    channelidx--;
 	
-	const float zshift = attribidx < 0 ? 0
-	    : shifts_[attribidx][(curshiftidx_[attribidx])];
+	const float zshift = channelidx < 0 ? 0
+	    : shifts_[channelidx][(curshiftidx_[channelidx])];
 	emsurf->geometry().setShift( zshift );
 	Coord3 transl = getTranslation();
 	transl.z = zshift;
@@ -596,75 +571,48 @@ void HorizonDisplay::enableAttrib( int attribnr, bool yn )
 }
 
 
-bool HorizonDisplay::isAttribEnabled( int attribnr ) const
+bool HorizonDisplay::isAttribEnabled( int channel ) const
 {
-    if ( sections_.isEmpty() )
-	return true;
+    if ( channel<0 || channel>=nrAttribs() )
+       return false;
 
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf ? psurf->isTextureEnabled(attribnr) : true;
+    return sections_.size() ? sections_[0]->isChannelEnabled(channel) : false;
 }
 
 
-void HorizonDisplay::setAttribShift( int attribnr, const TypeSet<float>& shifts)
+void HorizonDisplay::setAttribShift( int channel, const TypeSet<float>& shifts )
 {
-    if ( shifts_.size()-1 < attribnr )
+    if ( shifts_.size()-1 < channel )
     {
 	TypeSet<float> shft;
 	shft += 0.0;
-	shifts_.setSize( attribnr+1, shft );
-	curshiftidx_.setSize( attribnr+1, 0 );
+	shifts_.setSize( channel+1, shft );
+	curshiftidx_.setSize( channel+1, 0 );
     }
-    shifts_[ attribnr ] = shifts;
-}
 
-
-bool HorizonDisplay::isAngle( int attribnr ) const
-{
-    if ( sections_.isEmpty() )
-	return false;
-
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf ? psurf->isTextureAngle(attribnr) : false;
-}
-    
-
-void HorizonDisplay::setAngleFlag( int attribnr, bool yn )
-{
-    for ( int idx=sections_.size()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf ) psurf->setTextureAngleFlag( attribnr, yn );
-    }
+    shifts_[channel] = shifts;
 }
 
 
 void HorizonDisplay::allowShading( bool yn )
 {
+    allowshading_ = yn;
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf ) psurf->allowShading( yn );
-    }
+	sections_[idx]->allowShading( yn );
 }
 
 
-const Attrib::SelSpec* HorizonDisplay::getSelSpec( int attrib ) const
-{ return as_[attrib]; }
+const Attrib::SelSpec* HorizonDisplay::getSelSpec( int channel ) const
+{ return as_[channel]; }
 
 
-void HorizonDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
+void HorizonDisplay::setSelSpec( int channel, const Attrib::SelSpec& as )
+{ (*as_[channel]) = as; }
+
+
+void HorizonDisplay::setDepthAsAttrib( int channel )
 {
-    (*as_[attrib]) = as;
-}
-
-
-void HorizonDisplay::setDepthAsAttrib( int attrib )
-{
-    as_[attrib]->set( "Depth", Attrib::SelSpec::cNoAttrib(), false, "" );
-    coltabs_[attrib]->setAutoScale( true );
-    coltabs_[attrib]->setClipRate( 0 );
-    coltabs_[attrib]->setSymMidval( mUdf(float) );
+    as_[channel]->set( "Depth", Attrib::SelSpec::cNoAttrib(), false, "" );
 
     TypeSet<DataPointSet::DataRow> pts;
     BufferStringSet nms;
@@ -691,17 +639,17 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 	    vals[1] = vals[0];
     }
 
-    createAndDispDataPack( attrib, &positions );
+    createAndDispDataPack( channel, &positions );
 }
 
 
-void HorizonDisplay::createAndDispDataPack( int attrib,
+void HorizonDisplay::createAndDispDataPack( int channel,
 					    const DataPointSet* positions )
 {
     BufferStringSet* attrnms = new BufferStringSet();
     for ( int idx=0; idx<positions->nrCols(); idx++ )
 	attrnms->add( positions->colDef( idx ).name_ );
-    userrefs_.replace( attrib, attrnms );
+    userrefs_.replace( channel, attrnms );
     bool isz = ( attrnms->size()==1 && !strcmp(attrnms->get(0).buf(),"Depth") );
     mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
 	    		 BIDValSetArrAdapter(positions->bivSet(), isz? 0 : 1) );
@@ -714,61 +662,57 @@ void HorizonDisplay::createAndDispDataPack( int attrib,
 				SI().crlStep() );
     BufferStringSet dimnames;
     dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
-    newpack->setPropsAndInit( inlrg, crlrg, true, &dimnames );
+    newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
-    setDataPackID( attrib, newpack->id() );
-    setRandomPosData( attrib, positions );
+    setDataPackID( channel, newpack->id() );
+    setRandomPosData( channel, positions );
 }
 
 
 void HorizonDisplay::getRandomPos( DataPointSet& data ) const
 {
-    //put all sections in the same DataPointSet: anyway we are not -yet?- able 
-    //to display attributes on horizon with different value for each section
+    const float zf = scene_ ? scene_->getZScale() : SI().zScale();
+    
     data.bivSet().allowDuplicateBids(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( !psurf ) return;
-
-	const float zfactor = scene_ ? scene_->getZScale() : SI().zScale();
-	psurf->getDataPositions( data.bivSet(), getTranslation().z/zfactor  );
-    }
+	sections_[idx]->getDataPositions(data.bivSet(),getTranslation().z/zf);
+    
     data.dataChanged();
 }
 
 
-void HorizonDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
+void HorizonDisplay::getRandomPosCache( int channel, DataPointSet& data ) const
 {
-    if ( attrib < 0 ) return;
-    for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( !psurf ) continue;
+    if ( channel<0 || channel>=nrAttribs() )
+       return;
 
-	data.bivSet() = *psurf->getCache( attrib );
-    }
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	data.bivSet() = *sections_[idx]->getCache( channel );
+
     data.dataChanged();
 }
 
 
 void HorizonDisplay::updateSingleColor()
 {
-    const bool usesinglecolor = !showingTexture();
-    getMaterial()->setColor( usesinglecolor ? nontexturecol_ : Color::White() );
+    const bool usesinglecol = !showingTexture();
+    getMaterial()->setColor( usesinglecol  ? nontexturecol_ : Color::White() );
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    psurf->useTexture( !usesinglecolor );
+	sections_[idx]->useChannel( !usesinglecol );
+	sections_[idx]->setWireframeColor( 
+		!usesinglecol  ? nontexturecol_ : Color::White() );
     }
 }
 
 
-void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
+void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data )
 {
+    if ( channel<0 || channel>=nrAttribs() )
+       return;
+
     if ( !data || !data->size() )
     {
 	validtexture_ = false;
@@ -776,20 +720,8 @@ void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 	return;
     }
 
-    //TODO make it compatible with multiple sections which all contain data
-    //when (if) we are able to display all this info
-    if ( sections_.size() )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[0]);
-	if ( psurf )
-	    psurf->setTextureData( &data->bivSet(), attrib );
-    }
-
-    for ( int idx=1; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf ) psurf->setTextureData( 0, attrib );
-    }
+    for ( int idx=0; idx<sections_.size(); idx++ )
+	sections_[idx]->setTextureData( channel, !idx ? &data->bivSet() : 0 );
 
     validtexture_ = true;
     usestexture_ = true;
@@ -797,18 +729,16 @@ void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 }
 
 
-bool HorizonDisplay::hasStoredAttrib( int attrib ) const
+bool HorizonDisplay::hasStoredAttrib( int channel ) const
 {
-    const char* userref = as_[attrib]->userRef();
-    return as_[attrib]->id()==Attrib::SelSpec::cOtherAttrib() &&
+    const char* userref = as_[channel]->userRef();
+    return as_[channel]->id()==Attrib::SelSpec::cOtherAttrib() &&
 	   userref && *userref;
 }
 
 
-bool HorizonDisplay::hasDepth( int attrib ) const
-{
-    return as_[attrib]->id()==Attrib::SelSpec::cNoAttrib();
-}
+bool HorizonDisplay::hasDepth( int channel ) const
+{ return as_[channel]->id()==Attrib::SelSpec::cNoAttrib(); }
 
 
 Coord3 HorizonDisplay::getTranslation() const
@@ -846,10 +776,7 @@ void HorizonDisplay::useWireframe( bool yn )
     useswireframe_ = yn;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
-	if ( ps ) ps->useWireframe( yn );
-    }
+	sections_[idx]->useWireframe( yn );
 }
 
 
@@ -879,24 +806,25 @@ void HorizonDisplay::removeSectionDisplay( const EM::SectionID& sid )
 
 bool HorizonDisplay::addSection( const EM::SectionID& sid )
 {
-    visBase::ParametricSurface* surf = visBase::ParametricSurface::create();
-
+    visBase::HorizonSection* surf = visBase::HorizonSection::create();
     mDynamicCastGet( EM::Horizon3D*, horizon, emobject_ );
-    surf->setSurface(horizon->geometry().sectionGeometry(sid), true );
+    surf->setSurface( horizon->geometry().sectionGeometry(sid), true );
 
-    while ( surf->nrTextures()<nrAttribs() ) surf->addTexture();
+    while ( surf->nrChannels()<nrAttribs() ) surf->addChannel();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	surf->setColorTab( idx, *coltabs_[idx] );
-	surf->enableTexture( idx, enabled_[idx] );
+	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx] );
+	surf->setColTabSequence( idx, coltabsequences_[idx] );
+	surf->enableChannel( idx, enabled_[idx] );
     }
 
+    surf->allowShading( allowshading_ );
     surf->useWireframe( useswireframe_ );
     surf->setResolution( resolution_-1 );
 
     surf->ref();
-    surf->setMaterial( 0 );
+    surf->setMaterial( material_ );
     surf->setDisplayTransformation( transformation_ );
     surf->setZAxisTransform( zaxistransform_ );
     const int index = childIndex(drawstyle_->getInventorNode());
@@ -905,7 +833,6 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
 
     sections_ += surf;
     sids_ += sid;
-
     hasmoved.trigger();
 
     return addEdgeLineDisplay( sid );
@@ -930,22 +857,15 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	validtexture_ = false;
-	updateSingleColor();
-
 	const EM::SectionID sid = cbdata.pid0.sectionID();
 	const int idx = sids_.indexOf( sid );
-	if ( idx>=0 )
-	{
-	    mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
-	    if ( ps ) ps->inValidateCache(-1);
-	}
+	if ( idx>=0 && idx<sections_.size() )
+	    sections_[idx]->inValidateCache(-1);
     }
     else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
-    {
 	nontexturecol_ = emobject_->preferredColor();
-	if ( !usestexture_ )
-	    getMaterial()->setColor( nontexturecol_ );
-    }
+	
+    updateSingleColor();
 }
 
 
@@ -978,11 +898,8 @@ void HorizonDisplay::emEdgeLineChangeCB(CallBacker* cb)
 
 
 int HorizonDisplay::nrResolutions() const
-{
-    if ( sections_.isEmpty() ) return 1;
-
-    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
-    return ps ? ps->nrResolutions()+1 : 1;
+{ 
+    return sections_.size() ? sections_[0]->nrResolutions()+1 : 1; 
 }
 
 
@@ -992,7 +909,6 @@ BufferString HorizonDisplay::getResolutionName( int res ) const
     if ( !res ) str = "Automatic";
     else
     {
-	res = nrResolutions() - res;
 	res--;
 	int val = 1;
 	for ( int idx=0; idx<res; idx++ )
@@ -1009,10 +925,7 @@ BufferString HorizonDisplay::getResolutionName( int res ) const
 
 int HorizonDisplay::getResolution() const
 {
-    if ( sections_.isEmpty() ) return 0;
-
-    mDynamicCastGet(const visBase::ParametricSurface*,ps,sections_[0]);
-    return ps ? ps->currentResolution()+1 : 0;
+    return sections_.size() ? sections_[0]->currentResolution()+1 : 0;
 }
 
 
@@ -1020,30 +933,18 @@ void HorizonDisplay::setResolution( int res )
 {
     resolution_ = res;
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
-	if ( ps ) ps->setResolution( res-1 );
-    }
+	sections_[idx]->setResolution( res-1 );
 }
 
 
-int HorizonDisplay::getColTabID(int attrib) const
+const ColTab::Sequence* HorizonDisplay::getColTabSequence( int channel ) const
 {
-    if ( !usesTexture() || sections_.isEmpty() )
-	return -1;
+    if ( channel<0 || channel>=nrAttribs() )
+       return 0;
 
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf->getColTabID( attrib );
-}
-
-
-const ColTab::Sequence* HorizonDisplay::getColTabSequence( int attrib ) const
-{
-    if ( !usesTexture() || sections_.isEmpty() )
-	return 0;
-
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf ? psurf->getColTabSequence( attrib ) : 0;
+    return sections_.size()
+	? sections_[0]->getColTabSequence( channel )
+	: &coltabsequences_[channel];
 }
 
 
@@ -1051,40 +952,37 @@ bool HorizonDisplay::canSetColTabSequence() const
 { return usesTexture(); }
 
 
-void HorizonDisplay::setColTabSequence( int attr, const ColTab::Sequence& seq )
+void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq )
 {
-    if ( !usesTexture() || sections_.isEmpty() )
-	return;
+    if ( chan<0 || chan>=nrAttribs() )
+       return;
+
+    coltabsequences_[chan] = seq;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf ) psurf->setColTabSequence( attr, seq );
-    }
+	sections_[idx]->setColTabSequence( chan, seq );
 }
 
 
-void HorizonDisplay::setColTabMapperSetup( int attr,
+void HorizonDisplay::setColTabMapperSetup( int chan,
 					   const ColTab::MapperSetup& ms )
 {
-    if ( !usesTexture() || sections_.isEmpty() )
-	return;
+    if ( chan<0 || chan>=nrAttribs() )
+       return;
+
+    coltabmappersetups_[chan] = ms;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf ) psurf->setColTabMapperSetup( attr, ms );
-    }
+	sections_[idx]->setColTabMapperSetup( chan, ms );
 }
 
 
-const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int attr) const
+const ColTab::MapperSetup* HorizonDisplay::getColTabMapperSetup( int ch ) const
 {
-    if ( !usesTexture() || sections_.isEmpty() )
-	return 0;
+    if ( ch<0 || ch>=nrAttribs() )
+       return 0;
 
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
-    return psurf ? psurf->getColTabMapperSetup( attr ) : 0;
+    return &coltabmappersetups_[ch];
 }
 
 
@@ -1153,11 +1051,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	EMObjectDisplay::getSectionID(&eventinfo.pickedobjids);
 
     const int sectionidx = sids_.indexOf( sid );
-    if ( sectionidx<0 ) return;
-
-    mDynamicCastGet(const visBase::ParametricSurface*,psurf,
-	    	    sections_[sectionidx]);
-    if ( !psurf ) return;
+    if ( sectionidx<0 || sectionidx>=sections_.size() ) 
+	return;
 
     const BinID bid( SI().transform(pos) );
 
@@ -1166,11 +1061,11 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	if ( as_[idx]->id().isUnselInvalid() )
 	    return;
 
-	if ( !psurf->isTextureEnabled(idx) ||
-	       psurf->getTextureTransparency(idx)==255 )
+	if ( !sections_[sectionidx]->isChannelEnabled(idx) || 
+	      sections_[sectionidx]->getTransparency(idx)==255 )
 	    continue;
 
-	const BinIDValueSet* bidvalset = psurf->getCache( idx );
+	const BinIDValueSet* bidvalset = sections_[sectionidx]->getCache( idx );
 	if ( !bidvalset || bidvalset->nrVals()<2 ) continue;
 
 	const BinIDValueSet::Pos setpos = bidvalset->findFirst( bid );
@@ -1184,8 +1079,9 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	bool islowest = true;
 	for ( int idy=idx-1; idy>=0; idy-- )
 	{
-	    if ( !psurf->getCache(idy) || !isAttribEnabled(idy) ||
-		  psurf->getTextureTransparency(idy)==255 )
+	    if ( !sections_[sectionidx]->getCache(idy) || 
+		 !isAttribEnabled(idy) ||
+		 sections_[sectionidx]->getTransparency(idy)==255 )
 		continue;
 							                 
 		islowest = false;
@@ -1194,7 +1090,8 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 	if ( !islowest )
 	{
-	    const Color col = coltabs_[idx]->color(fval);
+	    const Color col = getColTabSequence(idx) ? 
+		getColTabSequence(idx)->color(fval) : Color();
 	    if ( col.t()==255 )
 		continue;
 	}
@@ -1204,10 +1101,10 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	    val = fval;
 	    if ( as_.size() > 1 )
 	    {
-		BufferString attribstr = "(";
-		attribstr += as_[idx]->userRef();
-		attribstr += ")";
-		val.replaceAt( cValNameOffset(), attribstr );
+		BufferString channelstr = "(";
+		channelstr += as_[idx]->userRef();
+		channelstr += ")";
+		val.replaceAt( cValNameOffset(), channelstr );
 	    }
 	}
 
@@ -1750,19 +1647,20 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyShift(), getTranslation().z );
     par.set( sKeyResolution(), getResolution() );
 
-    for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
+    for ( int channel=as_.size()-1; channel>=0; channel-- )
     {
-	IOPar attribpar;
-	as_[attrib]->fillPar( attribpar );
-	const int coltabid = coltabs_[attrib]->id();
-	attribpar.set( sKeyColTabID(), coltabid );
-	if ( saveids.indexOf( coltabid )==-1 ) saveids += coltabid;
+	IOPar channelpar;
+	as_[channel]->fillPar( channelpar );
 
-	attribpar.setYN( sKeyIsOn(), isAttribEnabled(attrib) );
+	getColTabMapperSetup(channel)->fillPar( channelpar );
+	if ( getColTabSequence(channel) )
+	    getColTabSequence(channel)->fillPar( channelpar );
+
+	channelpar.setYN( sKeyIsOn(), isAttribEnabled(channel) );
 
 	BufferString key = sKeyAttribs();
-	key += attrib;
-	par.mergeComp( attribpar, key );
+	key += channel;
+	par.mergeComp( channelpar, key );
     }
 
     par.set( sKeyNrAttribs(), as_.size() );
@@ -1776,7 +1674,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 
     res = EMObjectDisplay::usePar( par );
     if ( res!=1 ) return res;
-
+    
     if ( scene_ )
 	setDisplayTransformation( scene_->getUTM2DisplayTransform() );
 
@@ -1792,7 +1690,7 @@ int HorizonDisplay::usePar( const IOPar& par )
     bool usewireframe = false;
     par.getYN( sKeyWireFrame(), usewireframe );
     useWireframe( usewireframe );
-
+    
     int resolution = 0;
     par.get( sKeyResolution(), resolution );
     setResolution( resolution );
@@ -1801,11 +1699,13 @@ int HorizonDisplay::usePar( const IOPar& par )
     par.get( sKeyShift(), shift.z );
     setTranslation( shift );
 
-    int nrattribs;
-    if ( par.get(sKeyNrAttribs(),nrattribs) ) //Current format
+    int nrchannels;
+    if ( par.get(sKeyNrAttribs(),nrchannels) ) //Current format
     {
-	TypeSet<int> coltabids( nrattribs, -1 );
-	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	//This portion is for 3.2-pars. Can be removed in version 3.6 or later
+	ObjectSet<visBase::VisColorTab> ctabs;
+	ctabs.allowNull( true );
+	for ( int attrib=0; attrib<nrchannels; attrib++ )
 	{
 	    BufferString key = sKeyAttribs();
 	    key += attrib;
@@ -1813,72 +1713,81 @@ int HorizonDisplay::usePar( const IOPar& par )
 	    if ( !attribpar )
 		continue;
 
-	    if ( attribpar->get(sKeyColTabID(),coltabids[attrib]) )
+	    int coltabid;
+	    if ( attribpar->get(sKeyColTabID(),coltabid) )
 	    {
-		visBase::DataObject* dataobj =
-		    visBase::DM().getObject( coltabids[attrib] );
-		if ( !dataobj ) return 0;
-		mDynamicCastGet(const visBase::VisColorTab*,coltab,dataobj);
-		if ( !coltab ) coltabids[attrib] = -1;
+		RefMan<visBase::DataObject> dataobj =
+			visBase::DM().getObject( coltabid );
+		if ( !dataobj )
+		{
+		    deepUnRef( ctabs );
+		    return 0;
+		}
+
+		mDynamicCastGet(visBase::VisColorTab*,coltab,dataobj.ptr());
+		if ( coltab ) coltab->ref();
+		ctabs += coltab;
 	    }
+	    else
+		ctabs += 0;
 	}
 
-	bool firstattrib = true;
-	for ( int attrib=0; attrib<nrattribs; attrib++ )
+	//End of 3.2 code
+
+	ColTab::MapperSetup mappersetup;
+	ColTab::Sequence coltabsequence( ColTab::defSeqName() );
+
+	bool firstchannel = true;
+	for ( int channel=0; channel<nrchannels; channel++ )
 	{
 	    BufferString key = sKeyAttribs();
-	    key += attrib;
-	    PtrMan<const IOPar> attribpar = par.subselect( key );
-	    if ( !attribpar )
+	    key += channel;
+	    PtrMan<const IOPar> channelpar = par.subselect( key );
+	    if ( !channelpar )
 		continue;
 
-	    if ( !firstattrib )
+	    if ( !firstchannel )
 		addAttrib();
 	    else
-		firstattrib = false;
-
-	    const int attribnr = as_.size()-1;
+		firstchannel = false;
 
 	    bool ison = true;
-	    attribpar->getYN( sKeyIsOn(), ison );
-	    enabled_[attribnr] = ison;
+	    channelpar->getYN( sKeyIsOn(), ison );
+	    const int channelnr = as_.size()-1;
+	    enabled_[channelnr] = ison;
+	    as_[channelnr]->usePar( *channelpar );
 
-	    visBase::VisColorTab* coltab = 0;
-	    const int coltabid = coltabids[attribnr];
-	    if ( coltabid!=-1 )
+	    if ( !mappersetup.usePar( *channelpar ) ||
+		 !coltabsequence.usePar( *channelpar ) )
 	    {
-		mDynamicCastGet(visBase::VisColorTab*,ct,
-				visBase::DM().getObject(coltabid))
-		coltabs_[attribnr]->unRef();
-		coltabs_.replace( attribnr, ct );
-		coltabs_[attribnr]->ref();
-		coltab = ct;
+		if ( ctabs[channel] )
+		{
+		    mappersetup = ctabs[channel]->colorMapper().setup_;
+		    coltabsequence = ctabs[channel]->colorSeq().colors();
+		}
 	    }
 
-	    as_[attribnr]->usePar( *attribpar );
+	    setColTabMapperSetup( channel, mappersetup );
+	    setColTabSequence( channel, coltabsequence );
 	}
+
+	deepUnRef( ctabs );
     }
     else //old format
     {
 	as_[0]->usePar( par );
 	int coltabid = -1;
-	par.get( sKeyColorTableID(), coltabid );
+	par.get( sKeyColTabID(), coltabid );
 	if ( coltabid>-1 )
 	{
 	    DataObject* dataobj = visBase::DM().getObject( coltabid );
 	    if ( !dataobj ) return 0;
-
+	    
 	    mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
 	    if ( !coltab ) return -1;
-	    if ( coltabs_[0] ) coltabs_[0]->unRef();
-	    coltabs_.replace( 0, coltab );
-	    coltab->ref();
-	    for ( int idx=0; idx<sections_.size(); idx++ )
-	    {
-		mDynamicCastGet( visBase::ParametricSurface*,psurf,
-				 sections_[idx]);
-		if ( psurf ) psurf->setColorTab( 0, *coltab);
-	    }
+	
+	    setColTabSequence( 0, coltab->colorSeq().colors() );
+    	    setColTabMapperSetup( 0, coltab->colorMapper().setup_ );
 	}
     }
 
@@ -1886,22 +1795,22 @@ int HorizonDisplay::usePar( const IOPar& par )
 }
 
 
-bool HorizonDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+bool HorizonDisplay::setDataPackID( int channel, DataPack::ID dpid )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
     if ( !datapack ) return false;
 
-    DataPack::ID oldid = datapackids_[attrib];
-    datapackids_[attrib] = dpid;
+    DataPack::ID oldid = datapackids_[channel];
+    datapackids_[channel] = dpid;
     dpman.release( oldid );
     return true;
 }
 
 
-DataPack::ID HorizonDisplay::getDataPackID( int attrib ) const
+DataPack::ID HorizonDisplay::getDataPackID( int channel ) const
 {
-    return datapackids_[attrib];
+    return datapackids_[channel];
 }
 
 }; // namespace visSurvey
