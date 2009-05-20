@@ -3,7 +3,7 @@
  * AUTHOR   : A.H. Bril
  * DATE     : Oct 2008
 -*/
-static const char* rcsID = "$Id: segyscanner.cc,v 1.22 2009-05-18 13:59:09 cvsbert Exp $";
+static const char* rcsID = "$Id: segyscanner.cc,v 1.23 2009-05-20 09:52:25 cvsbert Exp $";
 
 #include "segyscanner.h"
 #include "segyfiledata.h"
@@ -240,7 +240,6 @@ int SEGY::Scanner::openNext()
 int SEGY::Scanner::finish( bool allok )
 {
     dtctor_.finish();
-    clipsmplr_.finish();
     return allok ? Executor::Finished() : Executor::ErrorOccurred();
 }
 
