@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.7 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.8 2009-05-20 16:48:25 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -67,7 +67,7 @@ WellTieToSeismic::WellTieToSeismic( Well::Data* wd,
 
 WellTieToSeismic::~WellTieToSeismic()
 {
-    if ( d2tmgr_ )  delete d2tmgr_;
+    //if ( d2tmgr_ )  delete d2tmgr_;
     if ( geocalc_ ) delete geocalc_;
     if ( tr_ ) 	    delete tr_;
     if ( dps_ )	    delete dps_;

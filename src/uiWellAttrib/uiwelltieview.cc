@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.8 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.9 2009-05-20 16:48:25 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
@@ -54,7 +54,10 @@ uiWellTieView::uiWellTieView( uiParent* p, WellTieDataMGR& mgr,
 
 uiWellTieView::~uiWellTieView()
 {
-    for (int vwridx=0; vwridx<vwrs_.size(); vwridx++)
+    deleteCheckShot();
+    deleteWellMarkers();
+    deleteCheckShot();
+    for (int vwridx=vwrs_.size()-1; vwridx>=0; vwridx--)
 	vwrs_.remove(vwridx);
 }
 
@@ -188,7 +191,7 @@ void uiWellTieView::drawMarker( FlatView::Annotation::AuxData* auxdata,
 	return;
 
     FlatView::Appearance& app = vwrs_[vwridx]->appearance();
-    app.annot_.auxdata_ +=  auxdata;
+    //app.annot_.auxdata_ +=  auxdata;
     auxdata->linestyle_.color_ = col;
     auxdata->linestyle_.type_  = LineStyle::Solid;
 
@@ -263,11 +266,11 @@ void uiWellTieView::drawUserPicks( const WellTiePickSet& pickset )
 
 void uiWellTieView::drawCShot()
 {
+    deleteCheckShot();
+
     if ( !params_.iscsdisp_ )
 	return;
     
-    deleteCheckShot();
-
     const Well::D2TModel* cs = wd_.checkShotModel();
     if ( !cs  ) return;
     WellTieGeoCalculator geocalc( &params_, &wd_ );
@@ -327,8 +330,10 @@ void uiWellTieView::deleteMarkerAuxDatas(
 	for (int idx=0; idx<vwrs_.size(); idx++)
 	{
 	    FlatView::Appearance& app = vwrs_[idx]->appearance();
-	    app.annot_.auxdata_.remove(
-		app.annot_.auxdata_.indexOf(auxset[midx]));
+	    if (!app.annot_.auxdata_.size())
+		return;
+	    app.annot_.auxdata_.remove(app.annot_.auxdata_
+		    				 .indexOf(auxset[midx]));
 	}
 	delete auxset.remove(midx);
     }

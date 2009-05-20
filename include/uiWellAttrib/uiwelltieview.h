@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "flatview.h"
 
-template <class T> class Array1DImpl;
 class WellTieSetup; 
 class WellTieParams; 
 class WellTieDataSet; 

@@ -83,7 +83,7 @@ protected:
     void		addControl();
     void 		addToolBarTools();
     void 		doWholeWork();
-    void 		doLogWork(bool);
+    void 		doLogWork();
     void		createTaskFields(uiGroup*);
     void 		dispParPushed(CallBacker*);
     void 		drawData();

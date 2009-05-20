@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.7 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.8 2009-05-20 16:48:25 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -98,16 +98,27 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
 
 uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 {
+    if ( wvltdraw_  )
+	wvltdraw_->wvltChanged.remove(mCB(this,uiWellTieToSeismicDlg,wvltChg));
+    if ( logstretcher_ )
+    {
+	eventstretcher_->readyforwork.remove(
+				mCB(this,uiWellTieToSeismicDlg,applyReady) );
+	eventstretcher_->dispdataChanged.remove(
+			    mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
+    }
+    if ( logstretcher_ )
+	logstretcher_->dispdataChanged.remove(
+			    mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
+
     if ( params_ )	   delete params_;
     if ( datamgr_ ) 	   delete datamgr_;
     if ( datadrawer_ )     delete datadrawer_;
     if ( wd_ ) 		   delete wd_;	 
     if ( logstretcher_ )   delete logstretcher_;
     if ( eventstretcher_ ) delete eventstretcher_;
-
-    //TODO remove the other ones ...
-    if ( wvltdraw_  )
-	wvltdraw_->wvltChanged.remove(mCB(this,uiWellTieToSeismicDlg,wvltChg));
+    if ( picksetmgr_ ) 	   delete picksetmgr_;	
+    if ( dataplayer_ )     delete dataplayer_;
 }
 
 
@@ -144,7 +155,7 @@ void uiWellTieToSeismicDlg::doWholeWork()
 }
 
 
-void uiWellTieToSeismicDlg::doLogWork( bool ishighres )
+void uiWellTieToSeismicDlg::doLogWork()
 {
     wvltdraw_->initWavelets( dataplayer_->estimateWavelet() );
     datadrawer_->drawDenLog();
@@ -249,12 +260,12 @@ void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
     undobut_->setSensitive( false );
 
     cscorrfld_ = new uiCheckBox( taskgrp, "use checkshot corrections" );
-    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,checkShotChg));
     cscorrfld_->attach( rightOf, undobut_ );
     cscorrfld_->setChecked(params_->iscscorr_);
+    cscorrfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,checkShotChg));
 
     csdispfld_ = new uiCheckBox( taskgrp, "display checkshot related curve" );
-    //csdispfld_->setChecked(true);
+    csdispfld_->setChecked(params_->iscsdisp_);
     csdispfld_->activated.notify(mCB(this,uiWellTieToSeismicDlg,checkShotDisp));
     csdispfld_->attach( rightOf, cscorrfld_ );
     
@@ -318,7 +329,7 @@ void uiWellTieToSeismicDlg::viewDataPushed( CallBacker* )
 
 void uiWellTieToSeismicDlg::wvltChg( CallBacker* )
 {
-    doLogWork( true );
+    doLogWork();
 }
 
 
