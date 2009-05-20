@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.27 2009-05-20 19:55:06 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.28 2009-05-20 21:46:02 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1646,9 +1646,6 @@ void HorizonSectionTile::tesselateResolution( int res )
 
 void HorizonSectionTile::useWireframe( bool yn )
 {
-    if ( usewireframe_==yn )
-	return;
-
     usewireframe_ = yn;
     turnOnWireframe( yn ? desiredresolution_ : -1 );
     for ( int idx=0; idx<mHorSectNrRes; idx++ )
@@ -1670,10 +1667,8 @@ void HorizonSectionTile::turnOnWireframe( int res )
 	if ( idx==res && wireframes_[idx]->coordIndex.getNum()<2 )
 	    setWireframe( res );
 
-	if ( idx==res )
-    	    wireframeswitch_[idx]->whichChild = usewireframe_ ? 0 : 1; 
-	else
-	    wireframeswitch_[idx]->whichChild = SO_SWITCH_NONE;
+	bool dousewireframe = usewireframe_ && idx==res;
+	wireframeswitch_[idx]->whichChild = dousewireframe ? 0 : 1;
     }
 
     if ( usewireframe_ && res != -1 )
