@@ -50,7 +50,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p )
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , wvltctio_(*mMkCtxtIOObj(Wavelet))
     , seistrcbuf_(0)
-    , wvletsize_(0)
+    , wvltsize_(0)
     , zrangefld_(0)
 {
     seisctio_.ctxt.forread = true;
@@ -143,7 +143,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 	return false;
     }
 
-    wvletsize_ = mNINT( wtlengthfld_->getfValue() /
+    wvltsize_ = mNINT( wtlengthfld_->getfValue() /
 	    		      (SI().zStep() * SI().zFactor()) );
 
     // TODO: Move this to another class
@@ -153,9 +153,11 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 
 bool uiWaveletExtraction::doProcess( const IOPar& iopar )
 {
-    Array1DImpl<float> wavelet( wvletsize_ );
-    bool res = readInputData(iopar) && doFFT(*seistrcbuf_, wavelet.arr());
-    storeWavelet( iopar, wavelet.arr() );
+    Array1DImpl<float> waveletfd( wvltsize_ );
+    Array1DImpl<float> wavelet( wvltsize_ );
+    bool res = readInputData(iopar) && doFFT(*seistrcbuf_,waveletfd.arr()) &&
+	       doIFFT(waveletfd.arr(),wavelet.arr());
+    storeWavelet( wavelet.arr() );
     return res;
 }
 
@@ -198,6 +200,10 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
     if ( !firsttrc ) return false;
 
     FFT fft;
+    fft.setInputInfo( Array1DInfoImpl(wvltsize_) );
+    fft.setDir( true );
+    fft.init();
+
     const int signalsz = firsttrc->size();
     Array1DImpl<float> signal( signalsz );
     ArrayNDWindow window( Array1DInfoImpl(signalsz), true, 
@@ -224,8 +230,8 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
 	//Cos Taper
 	window.apply( &signal );
 
-	Array1DImpl<float> acarr( wvletsize_ );
-	if ( wvletsize_>signalsz )
+	Array1DImpl<float> acarr( wvltsize_ );
+	if ( wvltsize_>signalsz )
 	{
 	    uiMSG().warning("Signal length should be more than wavelet length");
 	    return false;
@@ -235,26 +241,49 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
 
 	genericCrossCorrelation( signalsz, 0, signal.arr(),
 				 signalsz, 0, signal.arr(),
-				 wvletsize_, -wvletsize_/2, acarrptr );
+				 wvltsize_, -wvltsize_/2, acarrptr );
 	removeBias( &acarr );
 	detrend( acarr );
 
-	Array1DImpl<float_complex> freqdomsignal( wvletsize_ );
-	fft.transform( acarr, freqdomsignal );
-	for ( int idx=0; idx<wvletsize_; idx++ )
-	{
-	    if ( idx>=wvletsize_/2 )
-    		stackedwvlt[idx] += 
-		    	std::abs( freqdomsignal.get(idx-wvletsize_/2) );
-	    else
-		stackedwvlt[idx] +=
-		    	std::abs( freqdomsignal.get(wvletsize_/2-idx) );
-	}
+	Array1DImpl<float_complex> timedomsignal( wvltsize_ );
+	for ( int idx=0; idx<wvltsize_; idx++ )
+	    timedomsignal.set( idx, acarr.arr()[idx] );
+
+	Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
+	fft.transform( timedomsignal, freqdomsignal );
+	for ( int idx=0; idx<wvltsize_; idx++ )
+	    stackedwvlt[idx] += std::abs( freqdomsignal.get(idx) );
     }
 
-    for ( int idx=0; idx<wvletsize_; idx++ )
+    stackedwvlt[0] = 0;
+    for ( int idx=0; idx<wvltsize_; idx++ )
 	stackedwvlt[idx] = stackedwvlt[idx] / nrtrcs;
 
+    return true;
+}
+
+
+bool uiWaveletExtraction::doIFFT( const float* in, float* out )
+{
+    FFT ifft;
+    ifft.setInputInfo( Array1DInfoImpl(wvltsize_) );
+    ifft.setDir( false );
+    ifft.init();
+
+    Array1DImpl<float_complex> complexsig( wvltsize_ );
+    Array1DImpl<float_complex> ifftsig( wvltsize_ );
+    
+    for ( int idx=0; idx<wvltsize_; idx++ )
+	complexsig.set( idx, in[idx] );
+    ifft.transform( complexsig, ifftsig );
+
+    for ( int idx=0; idx<wvltsize_; idx++ )
+    {
+	if ( idx>=wvltsize_/2 )
+    	    out[idx] = ifftsig.get( idx - wvltsize_/2 ).real();
+	else
+	    out[idx] = ifftsig.get( wvltsize_/2 - idx ).real();
+    }
     return true;
 }
 
@@ -263,18 +292,18 @@ void uiWaveletExtraction::detrend( Array1DImpl<float>& normalisation )
 {
 
     float maxval = *(std::max_element(normalisation.arr(), 
-		     normalisation.arr()+wvletsize_-1) );
+		     normalisation.arr()+wvltsize_-1) );
 
-    for( int idx=0; idx<wvletsize_; idx++ )
+    for( int idx=0; idx<wvltsize_; idx++ )
 	normalisation.arr()[idx] = fabs(normalisation.arr()[idx])/fabs(maxval);
 }
 
 
-void uiWaveletExtraction::storeWavelet( const IOPar& iopar, float* vals )
+void uiWaveletExtraction::storeWavelet( const float* vals )
 {
-    Wavelet wvlt( outputwvltfld_->getInput(), -wvletsize_/2, SI().zStep() );
-    wvlt.reSize( wvletsize_ );
-    for( int idx=0; idx<wvletsize_; idx++ )
+    Wavelet wvlt( outputwvltfld_->getInput(), -wvltsize_/2, SI().zStep() );
+    wvlt.reSize( wvltsize_ );
+    for( int idx=0; idx<wvltsize_; idx++ )
 	wvlt.samples()[idx] = vals[idx];
     wvlt.put( wvltctio_.ioobj );
 }

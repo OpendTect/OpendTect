@@ -35,8 +35,9 @@ protected:
     bool			doProcess(const IOPar&);
     bool                        readInputData(const IOPar&);
     bool			doFFT(const SeisTrcBuf&,float*);
+    bool			doIFFT(const float*,float*);
     void			detrend(Array1DImpl<float>&);
-    void			storeWavelet(const IOPar&,float*);
+    void			storeWavelet(const float*);
 
     CtxtIOObj&			seisctio_;
     CtxtIOObj&			wvltctio_;
@@ -49,5 +50,5 @@ protected:
     uiSeis3DSubSel*		subselfld_;
     uiPosProvGroup* 		surfacesel_;
     int				zextractval_;
-    int				wvletsize_;
+    int				wvltsize_;
 };
