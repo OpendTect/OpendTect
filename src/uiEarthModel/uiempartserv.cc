@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.171 2009-05-19 10:39:40 cvsraman Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.172 2009-05-20 10:14:08 cvsumesh Exp $";
 
 #include "uiempartserv.h"
 
@@ -170,13 +170,17 @@ bool uiEMPartServer::exportFault( const char* type )
 
 BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const
 {
-    return em_.objectName( em_.getMultiID(id) );
+    if ( !em_.getObject( id )->name().isEmpty() )
+	return em_.getObject( id )->name();
+    
+    BufferString bs;
+    return bs;
 }
 
 
 const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
 {
-    return em_.objectType( em_.getMultiID(emid) );
+    return em_.getObject( emid )->getTypeStr();
 }
 
 
@@ -262,6 +266,35 @@ void uiEMPartServer::removeTreeObject( const EM::ObjectID& emid )
 {
     selemid_ = emid;
     sendEvent( evRemoveTreeObject() );
+}
+
+
+void uiEMPartServer::removeUnsavedEMObjectFromTree()
+{
+    for ( int idx=em_.nrLoadedObjects()-1; idx>=0; idx-- )
+    {
+	const EM::ObjectID objid = em_.objectID( idx );
+	
+	if ( em_.getMultiID(objid).isEmpty() )
+	{ removeTreeObject( objid ); return; }
+    }
+}
+
+
+const EM::ObjectID uiEMPartServer::saveUnsavedEMObject()
+{
+    for ( int idx=em_.nrLoadedObjects()-1; idx>=0; idx-- )
+    {
+	const EM::ObjectID objid = em_.objectID( idx );
+
+	if ( em_.getMultiID(objid).isEmpty() )
+	{
+	    storeObject( objid, true );
+	    return objid;
+	}
+    }
+
+    return -1;
 }
 
 
