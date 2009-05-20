@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.11 2009-05-13 14:08:53 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.12 2009-05-20 21:40:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "visemobjdisplay.h"
 
-namespace visBase { class DrawStyle; class IndexedPolyLine; class PointSet; }
+namespace visBase { class IndexedPolyLine3D; class PointSet; }
 namespace EM { class Horizon2D; }
 class ZAxisTransform;
 
@@ -38,6 +38,7 @@ public:
 						const Coord3&,
 						BufferString& val,
 					       	BufferString& info) const;
+    void			setLineStyle(const LineStyle&);
 
     EM::SectionID		getSectionID(int visid) const;
 
@@ -76,9 +77,9 @@ protected:
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
-    ObjectSet<visBase::IndexedPolyLine>	lines_;
-    ObjectSet<visBase::PointSet>	points_;
-    TypeSet<EM::SectionID>		sids_;
+    ObjectSet<visBase::IndexedPolyLine3D>	lines_;
+    ObjectSet<visBase::PointSet>		points_;
+    TypeSet<EM::SectionID>			sids_;
 };
 
 

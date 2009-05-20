@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.19 2009-05-18 12:02:41 cvsumesh Exp $";
+static const char* rcsID = "$Id: vishorizon2ddisplay.cc,v 1.20 2009-05-20 21:40:42 cvskris Exp $";
 
 #include "vishorizon2ddisplay.h"
 
@@ -37,6 +37,7 @@ Horizon2DDisplay::Horizon2DDisplay()
     : zaxistransform_(0)
 {
     points_.allowNull(true);
+    EMObjectDisplay::setLineStyle( LineStyle(LineStyle::Solid,2 ) );
 }
 
 
@@ -112,12 +113,21 @@ EM::SectionID Horizon2DDisplay::getSectionID(int visid) const
 }
 
 
+void Horizon2DDisplay::setLineStyle( const LineStyle& lst )
+{
+    EMObjectDisplay::setLineStyle( lst );
+    for ( int idx=0; idx<lines_.size(); idx++ )
+	lines_[idx]->setRadius( lst.width_/2 );
+}
+
+
 bool Horizon2DDisplay::addSection( const EM::SectionID& sid )
 {
-    visBase::IndexedPolyLine* pl = visBase::IndexedPolyLine::create();
+    visBase::IndexedPolyLine3D* pl = visBase::IndexedPolyLine3D::create();
     pl->ref();
     pl->setDisplayTransformation( transformation_ );
     pl->setMaterial( 0 );
+    pl->setRadius( drawstyle_->lineStyle().width_/2 );
     addChild( pl->getInventorNode() );
     lines_ += pl;
     points_ += 0;
@@ -171,7 +181,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
     mDynamicCastGet(const Geometry::RowColSurface*,rcs,
 	    	    emobject_->sectionGeometry(sid));
 
-    visBase::IndexedPolyLine* pl = lines_[idx];
+    visBase::IndexedPolyLine3D* pl = lines_[idx];
     visBase::PointSet* ps = points_[idx];
     
     const StepInterval<int> rowrg = rcs->rowRange();
