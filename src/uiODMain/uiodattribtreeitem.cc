@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.29 2009-05-20 14:56:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodattribtreeitem.cc,v 1.30 2009-05-20 16:10:36 cvshelene Exp $";
 
 #include "uiodattribtreeitem.h"
 
@@ -225,7 +225,7 @@ bool uiODAttribTreeItem::handleSelMenu( int mnuid, int visid, int attrib )
 
 
 bool uiODAttribTreeItem::handleMultCompSelMenu( int mnuid, int visid,
-						int attrib ) const
+						int attrib )
 {
     if ( !multcompmnuitem_.findItem(mnuid) ) return false;
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
@@ -236,12 +236,13 @@ bool uiODAttribTreeItem::handleMultCompSelMenu( int mnuid, int visid,
     mDynamicCastGet(visSurvey::SurveyObject*,so,visserv->getObject(sceneID()));
     if ( so ) isonly2d = so->getAllowedDataType() == Only2D;
 
-    TypeSet<Attrib::SelSpec> asset;
     const MenuItem* item = multcompmnuitem_.findItem( mnuid );
     uiAttribPartServer* attrserv = ODMainWin()->applMgr().attrServer();
-    if ( attrserv->handleMultiCompSubMenu( mnuid, isonly2d, item->text, asset ))
+    if ( attrserv->handleMultiCompSubMenu( mnuid, isonly2d, item->text ) )
     {
-	//TODO:ask for extraction
+	Attrib::SelSpec as( "Multi-Textures", Attrib::SelSpec::cOtherAttrib() );
+	if ( !applMgr()->calcMultipleAttribs( as ) )
+	    return false;
     }
 
     return true;

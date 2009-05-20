@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.5 2009-05-20 14:56:06 cvshelene Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.6 2009-05-20 16:10:36 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -40,7 +40,7 @@ protected:
     void		handleMenuCB( CallBacker* );
     void		updateColumnText( int col );
     BufferString	createDisplayName() const;
-    bool		handleMultCompSelMenu(int,int,int) const;
+    bool		handleMultCompSelMenu(int,int,int);
     
     MenuItem		selattrmnuitem_;
     MenuItem		multcompmnuitem_;

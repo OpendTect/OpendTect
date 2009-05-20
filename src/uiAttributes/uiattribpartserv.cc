@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.120 2009-05-20 14:56:07 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.121 2009-05-20 16:10:36 cvshelene Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -1206,8 +1206,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 
 
 bool uiAttribPartServer::handleMultiCompSubMenu( int mnuid, bool is2donly,
-						 const char* itemtext,
-						 TypeSet<SelSpec>& asset ) const
+						 const char* itemtext )
 {
     const bool needext = SI().getSurvDataType()==SurveyInfo::Both2DAnd3D;
     const bool is2d = is2donly || needext ? (bool) multcomp2d_.findItem(mnuid)
@@ -1250,6 +1249,7 @@ bool uiAttribPartServer::handleMultiCompSubMenu( int mnuid, bool is2donly,
 	compdlg.getCompNrs( selectedcomps );
 	for ( int idx=0; idx<selectedcomps.size(); idx++ )
 	{
+	    targetspecs_.erase();
 	    DescID did = adsman->descSet()->getStoredID( 
 		    			idlkey, selectedcomps[idx], true );
 	    SelSpec as( 0, did );
@@ -1260,7 +1260,7 @@ bool uiAttribPartServer::handleMultiCompSubMenu( int mnuid, bool is2donly,
 	    desc->getDefStr(bfs);
 	    as.setDefString(bfs.buf());
 	    as.setRefFromID( *adsman->descSet() );
-	    asset += as;
+	    targetspecs_ += as;
 	}
 	return true;
     }

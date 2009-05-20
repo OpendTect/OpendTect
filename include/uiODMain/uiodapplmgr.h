@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.86 2009-05-20 14:56:06 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.87 2009-05-20 16:10:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,7 @@ public:
     void			calShiftAtribute(int attrib,
 	                                        const Attrib::SelSpec& as,
 						bool additem );
+    bool			calcMultipleAttribs(Attrib::SelSpec&);
     NotifierAccess*		colorTableSeqChange();
     void			manSurvCB(CallBacker*)	  { manageSurvey(); }
     void			seisOut2DCB(CallBacker*)  { createVol(true); }
@@ -224,7 +225,6 @@ protected:
 
     void			createAndSetMapDataPack(int visid,int attrib,
 	    					const DataPointSet&,int colnr);
-    bool			calcMultipleAttribs(Attrib::SelSpec&);
 
     friend class		uiODApplService;
 

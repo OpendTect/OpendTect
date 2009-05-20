@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.54 2009-05-20 14:56:06 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.55 2009-05-20 16:10:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,8 +152,7 @@ public:
 						   bool needext=false);
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&) const;
-    bool		handleMultiCompSubMenu(int,bool,const char*,
-	    				       TypeSet<Attrib::SelSpec>&) const;
+    bool		handleMultiCompSubMenu(int,bool,const char*);
 
     void		setEvaluateInfo(bool ae,bool as)
 			{ alloweval_=ae; allowevalstor_=as; }
