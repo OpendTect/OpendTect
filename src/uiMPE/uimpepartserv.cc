@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.79 2009-05-19 05:47:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.80 2009-05-20 10:16:09 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -214,7 +214,8 @@ bool uiMPEPartServer::addTracker( const EM::ObjectID& oid,
     trackercurrentobject_ = emobj->id();
     
     uiDialog* setupdlg  = new uiDialog( 0 , 
-	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1") );
+	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
+	   		       .savebutton(true).savetext("Save on Close  ") );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
 
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, 
@@ -337,6 +338,7 @@ void uiMPEPartServer::nrHorChangeCB( CallBacker* cb )
 
 void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 {
+
     deleteSetupGrp();
     if ( trackercurrentobject_ == -1 ) return;
     if ( setupbeingupdated_ )
@@ -352,7 +354,21 @@ void uiMPEPartServer::trackerWinClosedCB( CallBacker* cb )
 	noTrackingRemoval();
 	return;
     }
-     
+
+    mDynamicCastGet( uiDialog*, dlg, cb );
+    if ( dlg && dlg->saveButtonChecked() )
+    {
+	bool proceedsaving = 
+	    	EM::EMM().getMultiID( trackercurrentobject_ ).isEmpty();
+       if ( !proceedsaving )
+       {
+	   PtrMan<IOObj> ioobj = IOM().get( EM::EMM()
+		   			.getMultiID(trackercurrentobject_) );
+	   proceedsaving = !ioobj;
+       }	   
+       if ( proceedsaving )
+	   sendEvent( uiMPEPartServer::evMPEStoreEMObject() );
+    }
 
     if ( !setupgrp_->commitToTracker() )
 	return;
@@ -614,7 +630,8 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     trackercurrentobject_ = emid;
 
     uiDialog* setupdlg  = new uiDialog( 0 , 
-	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1") );
+	    		       uiDialog::Setup("Tracking Setup",0,"108.0.1")
+			       .savebutton(true).savetext("Save on Close  ") );
     setupdlg->setCtrlStyle( uiDialog::LeaveOnly );
     setupdlg->windowClosed.notify(
 	    mCB(this,uiMPEPartServer,trackerWinClosedCB) );
