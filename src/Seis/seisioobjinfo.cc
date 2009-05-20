@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.23 2009-04-16 12:37:11 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.24 2009-05-20 14:57:41 cvshelene Exp $";
 
 #include "seisioobjinfo.h"
 #include "seis2dline.h"
@@ -464,6 +464,7 @@ void SeisIOObjInfo::getCompNames( const LineKey& lkey, BufferStringSet& bss )
 	    const char* fnm = SeisCBVS2DLineIOProvider::getFileName(lineattpar);
 	    CBVSSeisTrcTranslator* newtransl =
 				CBVSSeisTrcTranslator::make( fnm, true, true );
+	    if ( !newtransl ) return;
 	    newtransl->getComponentNames( bss );
 	    delete newtransl;
 	}
