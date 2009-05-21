@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.82 2009-05-21 08:16:19 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.83 2009-05-21 09:14:25 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -1051,10 +1051,10 @@ void uiMPEPartServer::saveUnsaveEMObject()
 
 	if ( EM::EMM().getMultiID(objid).isEmpty() )
 	{
-	    BufferString msg = "Surface with name ";
+	    BufferString msg = "Surface ";
 	    msg += EM::EMM().getObject( objid )->name();
-	    msg += " is temporary one.\n Click Save to make ";
-	    msg += " valid one or\n click Remove to remove from tree. ";
+	    msg += " is not saved.\n Click Save to save ";
+	    msg += " to disk or\n click Remove to remove permanently. ";
 
 	    if ( uiMSG().askGoOn(msg, "Save", "Remove") )
 		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
