@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.4 2008-12-23 11:10:34 cvsdgb Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.5 2009-05-21 07:09:35 cvsraman Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -13,8 +13,11 @@ static const char* rcsID = "$Id: seismerge.cc,v 1.4 2008-12-23 11:10:34 cvsdgb E
 #include "seistrctr.h"
 #include "seisbuf.h"
 #include "seistrcprop.h"
+#include "dirlist.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "survinfo.h"
 #include "cubesampling.h"
@@ -64,6 +67,56 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     currdridx_ = 0;
     if ( !is2d_ )
 	totnrpos_ = SI().sampling(false).hrg.totalNr();
+}
+
+
+SeisMerger::SeisMerger( const IOPar& iop )
+    	: Executor("Merging cubes")
+    	, is2d_(false)
+    	, wrr_(0)
+    	, currdridx_(-1)
+    	, nrpos_(0)
+    	, totnrpos_(-1)
+	, curbid_(SI().sampling(false).hrg.start)
+    	, trcbuf_(*new SeisTrcBuf(false))
+    	, stacktrcs_(true)
+    	, nrsamps_(-1)
+{
+    if ( iop.isEmpty() )
+	{ errmsg_ = "Nothing to merge"; return; }
+
+    FilePath fp( iop.find(sKey::TmpStor) );
+    DirList dlist( fp.fullPath(), DirList::FilesOnly );
+    for ( int idx=0; idx<dlist.size(); idx++ )
+    {
+	SeisTrcReader* newrdr = new SeisTrcReader( dlist.fullPath(idx) );
+	if ( !newrdr->prepareWork() )
+	{
+	    errmsg_ = newrdr->errMsg();
+	    delete newrdr;
+	    continue;
+	}
+
+	rdrs_ += newrdr;
+    }
+
+    PtrMan<IOPar> outiop = iop.subselect( sKey::Output );
+    if ( !outiop )
+	return;
+
+    wrr_ = new SeisTrcWriter( 0 );
+    wrr_->usePar( *outiop );
+    if ( wrr_->errMsg() && *wrr_->errMsg() )
+    {
+	errmsg_ = wrr_->errMsg();
+	deepErase( rdrs_ );
+	delete wrr_;
+	wrr_ = 0;
+	return;
+    }
+
+    currdridx_ = 0;
+    totnrpos_ = SI().sampling(false).hrg.totalNr();
 }
 
 
@@ -165,8 +218,12 @@ void SeisMerger::get3DTraces()
 	if ( rdr.seisTranslator()->goTo(curbid_) )
 	{
 	    SeisTrc* newtrc = getTrcFrom( rdr );
-	    if ( newtrc )
-		trcbuf_.add( newtrc );
+	    if ( !newtrc )
+		continue;
+	    
+	    trcbuf_.add( newtrc );
+	    if ( !stacktrcs_ )
+		break;
 	}
     }
 }
@@ -194,8 +251,7 @@ SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 
 bool SeisMerger::toNextPos()
 {
-    const HorSampling& hs( SI().sampling(false).hrg );
-
+    HorSampling hs = SI().sampling(false).hrg;
     curbid_.crl += hs.step.crl;
     if ( curbid_.crl > hs.stop.crl )
     {

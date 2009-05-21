@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2008
- RCS:		$Id: seismerge.h,v 1.4 2008-12-29 11:24:59 cvsranojay Exp $
+ RCS:		$Id: seismerge.h,v 1.5 2009-05-21 07:09:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "executor.h"
 #include "position.h"
 #include "samplingdata.h"
+
 class IOPar;
 class SeisTrc;
 class SeisTrcBuf;
@@ -29,7 +30,8 @@ mClass SeisMerger : public Executor
 public:
 
     			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,
-				  bool is2d);
+				   bool is2d);
+			SeisMerger(const IOPar&);	//For post-processing
     virtual		~SeisMerger();
 
     const char*		message() const;
