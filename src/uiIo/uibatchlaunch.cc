@@ -7,22 +7,26 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.72 2009-05-20 20:46:50 cvskris Exp $";
+static const char* rcsID = "$Id: uibatchlaunch.cc,v 1.73 2009-05-21 07:14:17 cvsraman Exp $";
 
 #include "uibatchlaunch.h"
 
 #include "uibutton.h"
+#include "uiclusterjobprov.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uispinbox.h"
 
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "hostdata.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "jobdescprov.h"
 #include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
@@ -262,12 +266,14 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
     , redo_(false)
     , parfnamefld_(0)
     , singmachfld_( 0 )
+    , hascluster_(false)
 {
     setParFileNmDef( 0 );
 }
 
 
-void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine )
+void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine,
+       				      bool clusterproc )
 {
     uiGroup* dogrp = new uiGroup( this, "Proc details" );
     if ( !redo_ )
@@ -278,12 +284,31 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine )
 	dogrp->attach( ensureBelow, sep );
     }
 
+#ifndef __win__ 
+    hascluster_ = !onlysinglemachine && clusterproc
+				    && GetEnvVarYN("DTECT_CLUSTER_PROC");
+#endif
+
     if ( !onlysinglemachine )
     {
-	singmachfld_ = new uiGenInput( dogrp, "Submit to",
-		    BoolInpSpec(true,"Single machine","Multiple machines") );
-	singmachfld_->valuechanged.notify(
-		mCB(this,uiFullBatchDialog,singTogg) );
+	BufferStringSet opts;
+	opts.add( "Single machine" );
+	opts.add( "Multiple machines" );
+	opts.add( "Cluster" );
+	if ( hascluster_ )
+	{
+	    singmachfld_ = new uiGenInput( dogrp, "Submit to",
+		    			   StringListInpSpec(opts) );
+	    singmachfld_->valuechanged.notify( 
+		    mCB(this,uiFullBatchDialog,singTogg) );
+	}
+	else
+	{
+	    singmachfld_ = new uiGenInput( dogrp, "Submit to",
+		    BoolInpSpec(true,opts.get(0),opts.get(1)) );
+	    singmachfld_->valuechanged.notify( 
+		    mCB(this,uiFullBatchDialog,singTogg) );
+	}
     }
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
@@ -311,18 +336,36 @@ void uiFullBatchDialog::setParFileNmDef( const char* nm )
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
     const BufferString inpfnm = parfnamefld_->fileName();
-    const bool issing = !singmachfld_ || singmachfld_->getBoolValue();
+    const bool issing = !singmachfld_ ||
+			( hascluster_ ? !singmachfld_->getIntValue()
+			  	     : singmachfld_->getBoolValue() );
     if ( issing && inpfnm == multiparfname_ )
 	parfnamefld_->setFileName( singparfname_ );
     else if ( !issing && inpfnm == singparfname_ )
 	parfnamefld_->setFileName( multiparfname_ );
+
+    parfnamefld_->display( !hascluster_ || singmachfld_->getIntValue()<2 );
 }
 
 
 bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 {
     if ( !prepareProcessing() ) return false;
-    const bool issing = !singmachfld_ || singmachfld_->getBoolValue();
+    PtrMan<IOPar> iop = 0;
+    if ( hascluster_ && singmachfld_->getIntValue()==2 )
+    {
+	iop = new IOPar( "Processing" );
+	if ( !fillPar(*iop) )
+	    return false;
+
+	uiClusterJobProv dlg( this, *iop, procprognm_.buf(),
+			      multiparfname_.buf() );
+	return dlg.go();
+    }
+
+    const bool issing = !singmachfld_ ||
+			( hascluster_ ? !singmachfld_->getIntValue()
+			  	     : singmachfld_->getBoolValue() );
 
     BufferString fnm = parfnamefld_ ? parfnamefld_->fileName()
 				    : ( issing ? singparfname_.buf()
@@ -351,7 +394,6 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	}
     }
 
-    PtrMan<IOPar> iop = 0;
     if ( redo_ )
     {
 	if ( issing )
@@ -479,3 +521,6 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
     setCtrlStyle( DoAndLeave );
     addStdFields( true );
 }
+
+
+

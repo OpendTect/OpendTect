@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.23 2009-04-16 10:07:10 cvsranojay Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.24 2009-05-21 07:12:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,12 @@ ________________________________________________________________________
 # define HAVE_OUTPUT_OPTIONS
 #endif
 
+class InlineSplitJobDescProv;
 class IOPar;
 class uiGenInput;
 class uiFileInput;
 class uiPushButton;
+class uiLabel;
 class uiLabeledComboBox;
 class uiLabeledSpinBox;
 
@@ -93,7 +95,9 @@ protected:
 
     virtual bool	prepareProcessing()	= 0;
     virtual bool	fillPar(IOPar&)		= 0;
-    void		addStdFields(bool forread=false,bool onlysinglemachine=false);
+    void		addStdFields(bool forread=false,
+	    			     bool onlysinglemachine=false,
+				     bool clusterproc=true);
     			//!< Needs to be called at end of constructor
     void		setParFileNmDef(const char*);
 
@@ -103,13 +107,14 @@ protected:
 
     bool		singLaunch(const IOPar&,const char*);
     bool		multiLaunch(const char*);
-    bool		distrLaunch(CallBacker*,const char*);
+    bool		clusterLaunch(const char*);
     bool		acceptOK(CallBacker*);
 
     uiGenInput*		singmachfld_;
     uiFileInput*	parfnamefld_;
 
     bool		redo_; //!< set to true only for re-start
+    bool		hascluster_;
 
 };
 
@@ -128,5 +133,6 @@ protected:
     virtual bool	parBaseName() const	{ return 0; }
 
 };
+
 
 #endif
