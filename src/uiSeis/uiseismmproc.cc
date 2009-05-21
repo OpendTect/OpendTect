@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.125 2009-05-07 07:13:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.126 2009-05-21 05:08:56 cvsraman Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: uiseismmproc.cc,v 1.125 2009-05-07 07:13:56 cvs
 #include "iopar.h"
 #include "ioman.h"
 #include "iostrm.h"
+#include "oddirs.h"
 #include "timer.h"
 #include "timefun.h"
 #include "filegen.h"
@@ -512,6 +513,46 @@ int uiSeisMMProc::runnerHostIdx( const char* mach ) const
 }
 
 
+static bool isHostOK( const HostData& hd, const char* rshcomm,
+		      BufferString& errmsg )
+{	
+    BufferString remotecmd( rshcomm );
+    remotecmd += " "; remotecmd += hd.name();
+    BufferString checkcmd( remotecmd ); checkcmd += " whoami";
+    if ( system(checkcmd.buf()) )
+    {
+	errmsg = "Cannot establish a ";
+	errmsg += rshcomm; errmsg += " connection with ";
+	errmsg += hd.name();
+	return false;
+    }
+
+    checkcmd = remotecmd; checkcmd += " cd ";
+    checkcmd += hd.convPath( HostData::Appl, GetSoftwareDir() ).fullPath();
+    if ( system(checkcmd.buf()) )
+    {
+	errmsg = "Cannot find application directory ";
+	errmsg += hd.name(); errmsg += ":";
+	errmsg += hd.convPath(HostData::Appl, GetSoftwareDir()).fullPath();
+	errmsg += "\nMake sure the filesystem is mounted on remote host ";
+	return false;
+    }
+
+    checkcmd = remotecmd; checkcmd += " cd ";
+    checkcmd += hd.convPath( HostData::Data, GetBaseDataDir() ).fullPath();
+    if ( system(checkcmd.buf()) )
+    {
+	errmsg = "Cannot find data directory ";
+	errmsg += hd.name(); errmsg += ":";
+	errmsg += hd.convPath(HostData::Data, GetBaseDataDir()).fullPath();
+	errmsg += "\nMake sure the filesystem is mounted on remote host";
+	return false;
+    }
+
+    return true;
+}
+
+
 void uiSeisMMProc::addPush( CallBacker* )
 {
     uiListBox* lb = avmachfld ? avmachfld->box() : 0;
@@ -536,6 +577,15 @@ void uiSeisMMProc::addPush( CallBacker* )
 
 	const HostData* hd = hdl.find( hnm.buf() );
 	if ( !hd ) { pErrMsg("Huh"); continue; }
+
+	BufferString errmsg;
+	if ( !hd->isKnownAs(HostData::localHostName())
+		&& !isHostOK(*hd,hdl.rshComm(),errmsg) )
+	{
+	    progrfld->append( errmsg.buf() );
+	    continue;
+	}
+
 	if ( !jobrunner->addHost(*hd) && jobrunner->jobsLeft() > 0 )
 	{
 	    BufferString msg = "Could not start job";
