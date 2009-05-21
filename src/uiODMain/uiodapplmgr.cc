@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.329 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.330 2009-05-21 09:10:04 cvsumesh Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -34,7 +34,10 @@ static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.329 2009-05-21 09:05:10 cvss
 #include "uivisdatapointsetdisplaymgr.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
+#include "visfaultdisplay.h"
+#include "visfaultsticksetdisplay.h"
 #include "vishorizondisplay.h"
+#include "vishorizon2ddisplay.h"
 #include "vispicksetdisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
@@ -620,21 +623,33 @@ bool uiODApplMgr::handleMPEServEv( int evid )
     {
 	const int trackerid = mpeserv_->activeTrackerID();
 	const EM::ObjectID emid = mpeserv_->getEMObjectID(trackerid);
-	const MultiID mid = emserv_->getStorageID(emid);
+
+	//const MultiID mid = emserv_->getStorageID(emid);
 
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
 
-	TypeSet<int> ids;
-	visserv_->findObject( mid, ids );
+	TypeSet<int> hordisplayids;
+	visserv_->findObject( typeid(visSurvey::HorizonDisplay), 
+			      hordisplayids );
 
-	for ( int idx=0; idx<ids.size(); idx++ )
+	TypeSet<int> hor2ddisplayids;
+	visserv_->findObject( typeid(visSurvey::Horizon2DDisplay),
+			      hor2ddisplayids );
+
+	hordisplayids.append( hor2ddisplayids );	
+
+	for ( int idx=0; idx<hordisplayids.size(); idx++ )
 	{
-	    for ( int idy=0; idy<sceneids.size(); idy++ )
-		visserv_->removeObject( ids[idx], sceneids[idy] );
-	    sceneMgr().removeTreeItem(ids[idx] );
+	    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+		    visserv_->getObject(hordisplayids[idx]));
+	    if ( emod && emod->getObjectID()==emid )
+	    {
+		for ( int idy=0; idy<sceneids.size(); idy++ )
+		    visserv_->removeObject( hordisplayids[idx], sceneids[idy] );
+		sceneMgr().removeTreeItem(hordisplayids[idx] );
+	    }
 	}
-
 
 	sceneMgr().updateTrees();
 	return true;
@@ -705,6 +720,29 @@ bool uiODApplMgr::handleMPEServEv( int evid )
 	mpeserv_->saveSetup( mid );
 	sceneMgr().updateTrees();
     }
+    else if ( evid==uiMPEPartServer::evSaveUnsavedEMObject() )
+    {
+	const EM::ObjectID emid = emserv_->saveUnsavedEMObject();
+	const MultiID mid = emserv_->getStorageID(emid);
+	TypeSet<int> ids;
+	visserv_->findObject( mid, ids );
+
+	for ( int idx=0; idx<ids.size(); idx++ )
+	{
+	    visserv_->setObjectName( ids[idx],
+		    		     (const char*) emserv_->getName(emid) );
+	}
+
+	if ( emserv_->getType(emid)=="Horizon" || 
+		emserv_->getType(emid)=="2D Horizon" )
+	    mpeserv_->saveSetup( mid );
+
+	sceneMgr().updateTrees();
+    }
+    else if ( evid==uiMPEPartServer::evRemoveUnsavedEMObject() )
+    {
+	emserv_->removeUnsavedEMObjectFromTree();
+    }
     else
 	pErrMsg("Unknown event from mpeserv");
 
@@ -755,19 +793,56 @@ bool uiODApplMgr::handleEMServEv( int evid )
     else if ( evid == uiEMPartServer::evRemoveTreeObject() )
     {
 	const EM::ObjectID emid = emserv_->selEMID();
-	const MultiID mid = emserv_->getStorageID(emid);
+	//const MultiID mid = emserv_->getStorageID(emid);
 
 	TypeSet<int> sceneids;
 	visserv_->getChildIds( -1, sceneids );
 
-	TypeSet<int> ids;
-	visserv_->findObject( mid, ids );
+	TypeSet<int> emdisplayids;
 
-	for ( int idx=0; idx<ids.size(); idx++ )
+	TypeSet<int> hordisplayids;
+	visserv_->findObject( typeid(visSurvey::HorizonDisplay),
+			      hordisplayids );
+	emdisplayids.append( hordisplayids );
+
+	TypeSet<int> hor2ddisplayids;
+	visserv_->findObject( typeid(visSurvey::Horizon2DDisplay),
+			      hor2ddisplayids );
+	emdisplayids.append( hor2ddisplayids );
+
+	TypeSet<int> faultdisplayids;
+	visserv_->findObject( typeid(visSurvey::FaultDisplay),
+			      faultdisplayids );
+	emdisplayids.append( faultdisplayids );
+
+	TypeSet<int> faultstickdisplay;
+	visserv_->findObject( typeid(visSurvey::FaultStickSetDisplay),
+			      faultstickdisplay );
+	emdisplayids.append( faultstickdisplay );
+
+	for ( int idx=0; idx<emdisplayids.size(); idx++ )
 	{
+	    bool remove = false;
+	    mDynamicCastGet(visSurvey::EMObjectDisplay*,emod,
+		    visserv_->getObject(emdisplayids[idx]));
+	    if ( emod && emod->getObjectID()==emid )
+		remove = true;
+
+	    mDynamicCastGet(visSurvey::FaultDisplay*,fd,
+		    visserv_->getObject(emdisplayids[idx]));
+	    if ( fd && fd->getEMID()==emid )
+		remove = true;
+
+	    mDynamicCastGet(visSurvey::FaultStickSetDisplay*,fsd,
+		    visserv_->getObject(emdisplayids[idx]));
+	    if ( fsd && fsd->getEMID()==emid )
+		remove = true;
+
+	    if ( !remove ) continue;
+
 	    for ( int idy=0; idy<sceneids.size(); idy++ )
-		visserv_->removeObject( ids[idx], sceneids[idy] );
-	    sceneMgr().removeTreeItem(ids[idx] );
+		visserv_->removeObject( emdisplayids[idx], sceneids[idy] );
+	    sceneMgr().removeTreeItem(emdisplayids[idx] );
 	}
 
 
