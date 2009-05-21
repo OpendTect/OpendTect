@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.81 2009-05-20 11:04:35 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.82 2009-05-21 08:16:19 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -53,6 +53,8 @@ const int uiMPEPartServer::evUpdateTrees()	    { return 10; }
 const int uiMPEPartServer::evUpdateSeedConMode()    { return 11; }
 const int uiMPEPartServer::evMPEStoreEMObject()	    { return 12; }
 const int uiMPEPartServer::evHideToolBar()	    { return 13; }
+const int uiMPEPartServer::evSaveUnsavedEMObject()  { return 14; }
+const int uiMPEPartServer::evRemoveUnsavedEMObject(){ return 15; }
 
 
 uiMPEPartServer::uiMPEPartServer( uiApplService& a )
@@ -170,7 +172,9 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
 {
     if ( trackercurrentobject_ != -1 )
 	return false;
-    
+
+    saveUnsaveEMObject();
+
     cursceneid_ = addedtosceneid;
     NotifyStopper notifystopper( MPE::engine().trackeraddremove );
 
@@ -1036,4 +1040,26 @@ bool uiMPEPartServer::usePar( const IOPar& par )
 	loadAttribData();
     }
     return res;
+}
+
+
+void uiMPEPartServer::saveUnsaveEMObject()
+{
+    for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- )
+    {
+	const EM::ObjectID objid = EM::EMM().objectID( idx );
+
+	if ( EM::EMM().getMultiID(objid).isEmpty() )
+	{
+	    BufferString msg = "Surface with name ";
+	    msg += EM::EMM().getObject( objid )->name();
+	    msg += " is temporary one.\n Click Save to make ";
+	    msg += " valid one or\n click Remove to remove from tree. ";
+
+	    if ( uiMSG().askGoOn(msg, "Save", "Remove") )
+		sendEvent( uiMPEPartServer::evSaveUnsavedEMObject() );
+	    else
+		sendEvent( uiMPEPartServer::evRemoveUnsavedEMObject() );
+	}
+    }
 }
