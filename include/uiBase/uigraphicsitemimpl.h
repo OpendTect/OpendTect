@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.18 2009-04-21 06:16:35 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.19 2009-05-21 07:09:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,6 +192,7 @@ public:
     uiRect		getTextRect() const;
     void 		setAlignment(const Alignment&);
     void 		setText(const char*); 
+    void		setHtmlText(const char*);
     void		setTextColor(const Color&);
 
 protected:
