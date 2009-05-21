@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.46 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.47 2009-05-21 09:18:29 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -253,7 +253,6 @@ void uiDataPointSet::calcIdxs()
 	else
 	{
 	    const TRowID tid = drowids_.size();
-	    std::cout<<"Rows added :"<<did<<std::endl;
 	    sortidxs_ += tid;
 	    trowids_ += tid;
 	    drowids_ += did;
@@ -1039,7 +1038,6 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	if ( tbl_->isRowSelected(irow) )
 	{
 	    nrrem++;
-	    std::cout<<"Row removed :"<<dRowID(irow)<<std::endl;
 	    dps_.setInactive( dRowID(irow), true );
 	}
     }
