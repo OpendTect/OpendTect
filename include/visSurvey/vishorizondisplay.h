@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.35 2009-05-20 21:47:03 cvsyuancheng Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.36 2009-05-21 04:30:27 cvsranojay Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visemobjdisplay.h"
+#include "coltabmapper.h"
+#include "coltabsequence.h"
 
 class Executor;
-namespace ColTab{ class Sequence; class MapperSetup; }
+namespace ColTab{ class Sequence; struct MapperSetup; }
 namespace EM { class Horizon3D; }
 namespace visBase { class HorizonSection; class IndexedShape; }
 
