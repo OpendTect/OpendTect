@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.66 2009-04-28 13:17:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.67 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uinlapartserv.h"
 
@@ -51,8 +51,6 @@ const int uiNLAPartServer::evGetStoredInput()	{ return 4; }
 const int uiNLAPartServer::evGetData()		{ return 5; }
 const int uiNLAPartServer::evSaveMisclass()	{ return 6; }
 const int uiNLAPartServer::evCreateAttrSet()	{ return 7; }
-const int uiNLAPartServer::evShowSelPts()	{ return 8; }
-const int uiNLAPartServer::evRemoveSelPts()	{ return 9; }
 const char* uiNLAPartServer::sKeyUsrCancel()	{ return "User cancel";  }
 
 
@@ -62,6 +60,8 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	, dps_(0)
 	, storepars_(*new IOPar)
 	, is2d_(false)
+	, dpsid_(-1)
+	, dpsdispmgr_(0)
 {
 }
 
@@ -509,11 +509,22 @@ bool uiNLAPartServer::doDPSDlg()
 { if ( dps_ ) { mDPM.release( dps_->id() ); dps_ = 0; } return rv; }
 
 void uiNLAPartServer::showSelPts( CallBacker* )
-{ sendEvent( evShowSelPts() ); }
+{
+    if ( !dpsdispmgr_ ) return;
+
+    dpsdispmgr_->lock();
+    if ( dpsid_ < 0 )
+	dpsid_ = dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(),
+					  dps() );
+    else
+	dpsdispmgr_->updateDisplay( dpsid_, dpsdispmgr_->availableParents(),
+				    dps() );
+    dpsdispmgr_->unLock();
+}
 
 
 void uiNLAPartServer::removeSelPts( CallBacker* )
-{ sendEvent( evRemoveSelPts() ); }
+{ if ( dpsdispmgr_ ) dpsdispmgr_->removeDisplay( dpsid_ ); }
 
 
 DataPointSet& uiNLAPartServer::gtDps() const

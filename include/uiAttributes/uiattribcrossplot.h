@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.11 2009-04-16 14:45:05 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.12 2009-05-21 09:05:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
+class DataPointSet;
 class uiDataPointSet;
 class uiPosProvider;
 class uiPosFilterSetSel;
@@ -31,6 +32,8 @@ public:
 					~uiAttribCrossPlot();
 
     void				setDescSet(const Attrib::DescSet&);
+
+    const DataPointSet&			getDPS() const;
     Notifier<uiAttribCrossPlot>		pointsSelected;
     Notifier<uiAttribCrossPlot>		pointsTobeRemoved;
 

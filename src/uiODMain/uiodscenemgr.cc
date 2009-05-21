@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.172 2009-05-19 14:08:41 cvskris Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.173 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uiodscenemgr.h"
 #include "attribdatacubes.h"
@@ -22,7 +22,6 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.172 2009-05-19 14:08:41 cvs
 #include "uiempartserv.h"
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
-#include "uivisdatapointsetdisplaymgr.h"
 #include "uiwellattribpartserv.h"
 #include "vissurvscene.h"
 
@@ -208,15 +207,6 @@ int uiODSceneMgr::addScene( bool maximized, ZAxisTransform* zt,
     Scene& scn = mkNewScene();
     const int sceneid = visServ().addScene();
     
-    if ( applMgr().visDPSDispMgr() )
-    {
-	TypeSet<int> sceneids;
-	visServ().getChildIds( -1, sceneids );
-	applMgr().visDPSDispMgr()->updateDisplay(
-		applMgr().wellAttribServer()->visDpsId(), sceneids,
-		applMgr().wellAttribServer()->getPointSet() );
-    }
-
     scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx_;
@@ -295,15 +285,6 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     scene->itemmanager_->prepareForShutdown();
     visServ().removeScene( scene->itemmanager_->sceneID() );
     
-    if ( applMgr().visDPSDispMgr() )
-    {
-	TypeSet<int> sceneids;
-	visServ().getChildIds( -1, sceneids );
-	applMgr().visDPSDispMgr()->updateDisplay(
-		applMgr().wellAttribServer()->visDpsId(),
-		sceneids, applMgr().wellAttribServer()->getPointSet() );
-    }
-
     appl_.removeDockWindow( scene->dw_ );
 
     scene->wsgrp_->closed().remove( mWSMCB(removeScene) );

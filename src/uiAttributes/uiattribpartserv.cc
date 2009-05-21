@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.121 2009-05-20 16:10:36 cvshelene Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.122 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -78,8 +78,6 @@ const int uiAttribPartServer::evEvalCalcAttr()	    { return 4; }
 const int uiAttribPartServer::evEvalShowSlice()	    { return 5; }
 const int uiAttribPartServer::evEvalStoreSlices()   { return 6; }
 const int uiAttribPartServer::evEvalUpdateName()    { return 7; }
-const int uiAttribPartServer::evShowSelPts()	    { return 8; }
-const int uiAttribPartServer::evRemoveSelPts()	    { return 9; }
 const int uiAttribPartServer::objNLAModel2D()	    { return 100; }
 const int uiAttribPartServer::objNLAModel3D()	    { return 101; }
 
@@ -101,6 +99,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, multcomp3d_("3D")
 	, multcomp2d_("2D")
 	, volprocchain_( 0 )
+	, dpsdispmgr_( 0 )
+	, dpsid_( -1 )
 {
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -255,12 +255,23 @@ bool uiAttribPartServer::editSet( bool is2d )
 }
 
 
-void uiAttribPartServer::sendPickEvent( CallBacker* )
-{ sendEvent( evShowSelPts() ); }
+void uiAttribPartServer::showSelPts( CallBacker* )
+{
+    const DataPointSet& dps = uiattrxplot_->getDPS();
+    if ( !dpsdispmgr_ ) return;
+
+    dpsdispmgr_->lock();
+    if ( dpsid_ < 0 )
+	dpsid_ = dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(), dps);
+    else
+	dpsdispmgr_->updateDisplay( dpsid_, dpsdispmgr_->availableParents(),
+				                                    dps );
+    dpsdispmgr_->unLock();
+}
 
 
-void uiAttribPartServer::sendRemoveEvent( CallBacker* )
-{ sendEvent( evRemoveSelPts() ); }
+void uiAttribPartServer::removeSelPts( CallBacker* )
+{ if ( dpsdispmgr_ ) dpsdispmgr_->removeDisplay( dpsid_ ); }
 
 
 void uiAttribPartServer::showXPlot( CallBacker* cb )
@@ -274,7 +285,9 @@ void uiAttribPartServer::showXPlot( CallBacker* cb )
     uiattrxplot_ = new uiAttribCrossPlot( 0, *curDescSet(is2d) );
     uiattrxplot_->setDeleteOnClose( true );
     uiattrxplot_->pointsSelected.notify(
-	    mCB(this,uiAttribPartServer,sendPickEvent) );
+	    mCB(this,uiAttribPartServer,showSelPts) );
+    uiattrxplot_->pointsTobeRemoved.notify(
+	    mCB(this,uiAttribPartServer,removeSelPts) );
     uiattrxplot_->show();
 }
 

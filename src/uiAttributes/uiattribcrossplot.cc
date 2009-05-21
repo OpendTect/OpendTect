@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.38 2009-04-16 14:45:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiattribcrossplot.cc,v 1.39 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uiattribcrossplot.h"
 
@@ -253,6 +253,10 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	                mCB(this,uiAttribCrossPlot,removeSelPts) );
     return uidps_->go() ? true : false;
 }
+
+
+const DataPointSet& uiAttribCrossPlot::getDPS() const
+{ return uidps_->pointSet(); }
 
 
 void uiAttribCrossPlot::removeSelPts( CallBacker* )

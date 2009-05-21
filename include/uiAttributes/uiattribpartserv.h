@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.55 2009-05-20 16:10:36 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.56 2009-05-21 09:05:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
+class DataPointSetDisplayMgr;
 class Executor;
 class IOObj;
 class IOPar;
@@ -79,10 +80,6 @@ public:
     			//!< Display slice
     static const int	evEvalStoreSlices();
     			//!< Store slices
-    static const int	evShowSelPts();
-    			//!< Show Selected Points from CrossPlot in Workspace
-    static const int	evRemoveSelPts();
-    			//!< Remove Selected Points from CrossPlot in Workspace
     static const int	evEvalUpdateName();
     			//!< Update name in tree after evaluation dlg closed
     static const int	objNLAModel2D();
@@ -160,6 +157,9 @@ public:
     void		fillPar(IOPar&,bool) const;
     void		usePar(const IOPar&,bool);
 
+    void		setDPSDispMgr( DataPointSetDisplayMgr* dispmgr )
+    			{ dpsdispmgr_ = dispmgr; }
+
     void                set2DEvent( bool is2d )		{ is2devsent_ = is2d; }
     bool                is2DEvent()                     { return is2devsent_; }
     int			use3DMode() const;
@@ -201,8 +201,8 @@ protected:
 
     void		directShowAttr(CallBacker*);
 
-    void		sendPickEvent(CallBacker*);
-    void		sendRemoveEvent(CallBacker*);
+    void		showSelPts(CallBacker*);
+    void		removeSelPts(CallBacker*);
     void		showEvalDlg(CallBacker*);
     void		calcEvalAttrs(CallBacker*);
     void		showSliceCB(CallBacker*);
@@ -235,6 +235,8 @@ protected:
     Attrib::DescSet*	evalset;
     TypeSet<Attrib::SelSpec> targetspecs_;
 
+    DataPointSetDisplayMgr* dpsdispmgr_;
+    int			dpsid_;
     VolProc::Chain*	volprocchain_;
 };
 

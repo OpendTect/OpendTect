@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.328 2009-05-20 22:04:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.329 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -81,7 +81,6 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
-    visdpsdispmgr_ = new uiVisDataPointSetDisplayMgr( *visserv_ );
     attrserv_ = new uiAttribPartServer( applservice_ );
     seisserv_ = new uiSeisPartServer( applservice_ );
     emserv_ = new uiEMPartServer( applservice_ );
@@ -89,6 +88,10 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     wellserv_ = new uiWellPartServer( applservice_ );
     wellattrserv_ = new uiWellAttribPartServer( applservice_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
+
+    visdpsdispmgr_ = new uiVisDataPointSetDisplayMgr( *visserv_ );
+    wellattrserv_->setDPSDispMgr( visdpsdispmgr_ );
+    attrserv_->setDPSDispMgr( visdpsdispmgr_ );
 
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
@@ -123,6 +126,14 @@ void uiODApplMgr::resetServers()
     mpeserv_ = new uiMPEPartServer( applservice_ );
     visserv_->deleteAllObjects();
     emserv_->removeUndo();
+}
+
+
+void uiODApplMgr::setNlaServer( uiNLAPartServer* s )
+{
+    nlaserv_ = s;
+    if ( nlaserv_ )
+	nlaserv_->setDPSDispMgr( visdpsdispmgr_ );
 }
 
 
@@ -724,18 +735,6 @@ bool uiODApplMgr::handleWellServEv( int evid )
 
 bool uiODApplMgr::handleWellAttribServEv( int evid )
 {
-    if ( evid == uiWellAttribPartServer::evGetDPSDispMgr() )
-    {
-	TypeSet<int> sceneids;
-	visserv_->getChildIds( -1, sceneids );
-	visdpsdispmgr_->lock();
-	const int dispid =
-	    visdpsdispmgr_->addDisplay( sceneids, wellattrserv_->getPointSet());
-	wellattrserv_->setDPSDispMgr( visdpsdispmgr_ );
-	wellattrserv_->setVisDpsId( dispid );
-	visdpsdispmgr_->unLock();
-    }
-
     return true;
 }
 
@@ -1107,13 +1106,6 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	attrset.fillPar( nlaserv_->modelPars() );
 	attrserv_->replaceSet( nlaserv_->modelPars(), nlaserv_->is2DEvent() );
     }
-    else if ( evid == uiNLAPartServer::evShowSelPts() )
-    {
-	uiMSG().message( "Visualization part not working yet" );
-	return false;
-    }
-    else if ( evid == uiNLAPartServer::evRemoveSelPts() )
-	return false;
     else
 	pErrMsg("Unknown event from nlaserv");
 
@@ -1217,13 +1209,6 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
-    else if ( evid == uiAttribPartServer::evShowSelPts() )
-    {
-	uiMSG().message( "Visualization part not working yet" );
-	return false;
-    }
-    else if ( evid == uiAttribPartServer::evRemoveSelPts() )
-	return false;
     else if ( evid==uiAttribPartServer::evEvalUpdateName() )
     {
 	Attrib::SelSpec* as = const_cast<Attrib::SelSpec*>(

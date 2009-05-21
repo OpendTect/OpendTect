@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.14 2009-04-27 11:54:57 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.15 2009-05-21 09:05:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,6 @@ public:
 				uiWellAttribPartServer(uiApplService&);
 				~uiWellAttribPartServer();
 
-    static const int		evGetDPSDispMgr();
-
     void			setAttribSet(const Attrib::DescSet&);
     void			setNLAModel(const NLAModel*);
     const NLAModel*		getNLAModel()		{ return nlamodel;}
@@ -43,10 +41,7 @@ public:
     bool			createAttribLog(const MultiID&,int);
     void			doXPlot();
 
-    void			setVisDpsId( int id )	{ visdpsid_ = id; }
-    int				visDpsId() const	{ return visdpsid_; }
-    const DataPointSet&		getPointSet() const	{ return *dps_; }
-    void 			setDPSDispMgr( DataPointSetDisplayMgr* dispmgr )
+    void 			setDPSDispMgr(DataPointSetDisplayMgr* dispmgr )
 				{ dpsdispmgr_ = dispmgr; }
     bool                        createD2TModel(const MultiID&);
 
@@ -58,11 +53,10 @@ protected:
     void 			showSelPts(CallBacker*);
     void 			removeSelPts(CallBacker*);
 
-    int				visdpsid_;
     uiWellAttribCrossPlot*	xplotwin2d_;
     uiWellAttribCrossPlot*	xplotwin3d_;
-    const DataPointSet*		dps_;
     DataPointSetDisplayMgr*	dpsdispmgr_;
+    int				dpsid_;
 };
 
 /*!\mainpage WellAttrib User Interface

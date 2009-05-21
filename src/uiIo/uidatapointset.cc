@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.45 2009-05-12 08:26:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.46 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -238,22 +238,28 @@ void uiDataPointSet::calcIdxs()
 
     const int dpssz = dps_.size();
     int calcidx = 0;
+    int dcountidx = 0;
     for ( int did=0; did<dpssz; did++ )
     {
+	const int eachcount = 0;
 	const bool inact = dps_.isInactive(did);
-	if ( inact || (did != mNINT(calcidx * eachrow_)) )
+	if ( inact || (dcountidx < mNINT(calcidx * eachrow_)) )
 	{
 	    trowids_ += -1;
+	    if ( !inact )
+		dcountidx++;
 	    continue;
 	}
 	else
 	{
 	    const TRowID tid = drowids_.size();
+	    std::cout<<"Rows added :"<<did<<std::endl;
 	    sortidxs_ += tid;
 	    trowids_ += tid;
 	    drowids_ += did;
 	}
 	calcidx++;
+	dcountidx++;
     }
 
     revsortidxs_ = sortidxs_;
@@ -848,10 +854,10 @@ bool uiDataPointSet::saveOK()
 	return true;
 
     int res = uiMSG().askSave( "There are unsaved changes.\n"
-				    "Do you want to save the data?" );
-    if ( res == 2 )
+			       "Do you want to save the data?" );
+    if ( res == -1 )
 	return false;
-    else if ( res == 1 )
+    else if ( res == 0 )
 	return true;
 
     return doSave();
@@ -1033,6 +1039,7 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	if ( tbl_->isRowSelected(irow) )
 	{
 	    nrrem++;
+	    std::cout<<"Row removed :"<<dRowID(irow)<<std::endl;
 	    dps_.setInactive( dRowID(irow), true );
 	}
     }

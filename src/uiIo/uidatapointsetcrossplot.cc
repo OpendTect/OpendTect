@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.39 2009-05-15 09:49:28 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.40 2009-05-21 09:05:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.39 2009-05-15 09:49:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.40 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -286,7 +286,7 @@ void uiDataPointSetCrossPlotter::removePoint( uiDataPointSet::DRowID rid,
 {
     for ( int idx=0; idx<selareaset_.size(); idx++ )
     {
-	SelectionArea* selarea = selareaset_[idx];
+	const SelectionArea* selarea = selareaset_[idx];
 	if ( !selarea )
 	    continue;
 
@@ -383,8 +383,6 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 {
     if ( !selectable_ )
 	return;
-    if ( !isCtrlPressed() && selareaset_.size() )
-	removeSelections();
 
     mousepressed_ = true;
     if ( !rectangleselection_ )
@@ -425,7 +423,7 @@ void uiDataPointSetCrossPlotter::drawPolygon( CallBacker* )
 void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 {
     mousepressed_ = false;
-    if ( !selectable_ )
+    if ( !selectable_ || !selareaset_.validIdx(curselarea_) )
 	return;
 
     if ( !selareaset_[curselarea_]->isValid() )
@@ -435,12 +433,25 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	return;
     }
 
-    uiPoint pt;
-    if ( rectangleselection_ )
-	selareaset_[curselarea_]->rect_->setBottomRight( getCursorPos() );
+    if ( !isCtrlPressed() && selareaset_.size()>1 )
+    {
+	SelectionArea* curselarea = selareaset_[curselarea_];
+	selareaset_ -= curselarea;
+	removeSelections();
+
+	if ( rectangleselection_ )
+	    curselarea->rect_->setBottomRight( getCursorPos() );
+	selareaset_ += curselarea;
+    }
+    else
+    {
+	if ( rectangleselection_ )
+	    selareaset_[curselarea_]->rect_->setBottomRight( getCursorPos() );
+    }
     
     pointstobeselected_ = true;
     reDrawNeeded.trigger();
+ 
 }
 
 
@@ -1048,7 +1059,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     selfld_->setSensitive( false );
     seltb_.addObject( selgrp->attachObj() );
 
-    setselecttbid_ = seltb_.addButton( "view.png",
+    setselecttbid_ = seltb_.addButton( "altview.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,setSelectable),
 		  "Set selectable", true );
     seltb_.turnOn( setselecttbid_, true );
@@ -1100,12 +1111,8 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
     }
 
-    seltb_.setSensitive( selmodechgtbid_, false );
-    seltb_.setSensitive( showselptswstbid_, false );
-    seltb_.setSensitive( selsettingstbid_, false );
-    seltb_.setSensitive( seldeltbid_, false );
-    seltb_.setSensitive( seltabletbid_, false );
-    seltb_.setSensitive( clearseltbid_, false );
+    seltb_.turnOn( setselecttbid_, false );
+    setSelectable( 0 );
     plotter_.setPrefWidth( 600 );
     plotter_.setPrefHeight( 500 );
 }
@@ -1315,6 +1322,7 @@ void uiDataPointSetCrossPlotWin::setSelectionDomain( CallBacker* )
 void uiDataPointSetCrossPlotWin::setSelectable( CallBacker* cb )
 {
     const bool isoff = !seltb_.isOn(setselecttbid_ );
+    seltb_.setPixmap( setselecttbid_, !isoff ? "altview.png" : "altpick.png");
     plotter_.setSceneSelectable( isoff );
     selfld_->setSensitive( plotter_.isY2Shown() ? isoff : false );
     seltb_.setSensitive( selmodechgtbid_, isoff );

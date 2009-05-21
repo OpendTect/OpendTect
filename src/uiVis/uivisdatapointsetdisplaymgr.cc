@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.2 2009-04-27 11:54:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uivisdatapointsetdisplaymgr.cc,v 1.3 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 #include "uivisdatapointsetdisplaymgr.h"
 
@@ -31,6 +31,7 @@ void uiVisDataPointSetDisplayMgr::lock()
 {
     lock_.lock();
     visserv_.getChildIds( -1, allsceneids_ );
+    availableparents_ = allsceneids_;
 }
 
 
@@ -55,10 +56,10 @@ const char* uiVisDataPointSetDisplayMgr::getParentName( int parentidx ) const
 int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 					    const DataPointSet& dps )
 {
+    // TODO: Check situation where parents != allsceneids_
     if ( !parents.size() )
 	return -1;
 
-    availableparents_ = parents;
     DisplayInfo* displayinfo = new DisplayInfo;
     if ( !displayinfo )
 	return -1;
@@ -103,17 +104,19 @@ int uiVisDataPointSetDisplayMgr::addDisplay(const TypeSet<int>& parents,
 
 
 void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
-    const TypeSet<int>& parents, const DataPointSet& dps )
+						 const TypeSet<int>& parents,
+						 const DataPointSet& dps )
 {
+    // TODO: Check situation where parents != allsceneids_
+
     const int idx = ids_.indexOf( id );
     if ( idx<0 )
 	return;
 
-    availableparents_ = parents;
     DisplayInfo& displayinfo = *displayinfos_[idx];
     TypeSet<int> wantedscenes;
     for ( int idy=0; idy<parents.size(); idy++ )
-	wantedscenes += allsceneids_[parents[idy]];
+	wantedscenes += parents[idy];
 
     TypeSet<int> scenestoremove = displayinfo.sceneids_;
     scenestoremove.createDifference( wantedscenes );
@@ -134,7 +137,9 @@ void uiVisDataPointSetDisplayMgr::updateDisplay( int id,
 	if ( !scene )
 	    continue;
 
-	scene->removeObject( scene->getFirstIdx(displayinfo.visids_[index]) );
+	const int objid = scene->getFirstIdx( displayinfo.visids_[index] );
+	if ( objid >= 0 )
+	    scene->removeObject( objid );
 
 	displayinfo.sceneids_.remove( index );
 	displayinfo.visids_.remove( index );

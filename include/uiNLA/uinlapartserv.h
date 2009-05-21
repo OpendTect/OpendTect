@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.26 2009-04-01 07:38:39 cvssatyaki Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.27 2009-05-21 09:05:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 class IOPar;
 class DataPointSet;
+class DataPointSetDisplayMgr;
 class uiDataPointSet;
 class PosVecDataSet;
 class NLACreationDesc;
@@ -70,10 +71,6 @@ public:
     			//!< use misclass analysis VDS; user wants it.
     static const int	evCreateAttrSet();
     			//!< create attributeset from GDI NN
-    static const int	evShowSelPts();
-    			//!< create attributeset from GDI NN
-    static const int	evRemoveSelPts();
-    			//!< create attributeset from GDI NN
     static const char*	sKeyUsrCancel();
     			//!< Returned when operation must stop without error
 
@@ -84,6 +81,9 @@ public:
     const DataPointSet&	dps() const			{ return gtDps(); }
     IOPar&		storePars()			{ return storepars_; }
     const IOPar&	storePars() const		{ return storepars_; }
+
+    void		setDPSDispMgr( DataPointSetDisplayMgr* dispmgr )
+			{ dpsdispmgr_ = dispmgr; }
 
     virtual bool	fillPar(IOPar&) const		= 0;
     virtual void	usePar(const IOPar&)		= 0;
@@ -103,6 +103,8 @@ protected:
     bool		is2d_;
     IOPar&		storepars_;
 
+    DataPointSetDisplayMgr* dpsdispmgr_;
+    int			dpsid_;
     void		writeSets(CallBacker*);
     void		showSelPts(CallBacker*);
     void		removeSelPts(CallBacker*);

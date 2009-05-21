@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.19 2009-04-27 11:54:57 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.20 2009-05-21 09:05:10 cvssatyaki Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -33,8 +33,6 @@ static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.19 2009-04-27 11:54
 #include "welltiesetup.h"
 #include "uimsg.h"
 
-const int uiWellAttribPartServer::evGetDPSDispMgr()	{ return 0; }
-
 
 uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -42,8 +40,7 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     , nlamodel(0)
     , xplotwin2d_(0)
     , xplotwin3d_(0)
-    , dps_(0)
-    , visdpsid_(-1)
+    , dpsid_(-1)
     , dpsdispmgr_(0)
 {
 }
@@ -98,19 +95,23 @@ void uiWellAttribPartServer::doXPlot()
 void uiWellAttribPartServer::removeSelPts( CallBacker* )
 {
     if ( dpsdispmgr_ )
-	dpsdispmgr_->removeDisplay( visdpsid_ );
+	dpsdispmgr_->removeDisplay( dpsid_ );
 }
 
 
 void uiWellAttribPartServer::showSelPts( CallBacker* )
 {
-    dps_ = attrset->is2D() ? &xplotwin2d_->getDPS()
-			   : &xplotwin3d_->getDPS();
-    if ( !dpsdispmgr_ )
-	sendEvent( evGetDPSDispMgr() );
+    const DataPointSet& dps = attrset->is2D() ? xplotwin2d_->getDPS()
+					      : xplotwin3d_->getDPS();
+    if ( !dpsdispmgr_ ) return;
+
+    dpsdispmgr_->lock();
+    if ( dpsid_ < 0 )
+	dpsid_ = dpsdispmgr_->addDisplay( dpsdispmgr_->availableParents(), dps);
     else
-	dpsdispmgr_->updateDisplay( visdpsid_, dpsdispmgr_->availableParents(),
-				    dps_ );
+	dpsdispmgr_->updateDisplay( dpsid_, dpsdispmgr_->availableParents(),
+				    dps );
+    dpsdispmgr_->unLock();
 }
 
 
