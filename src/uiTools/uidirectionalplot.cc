@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.23 2009-05-20 12:12:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.24 2009-05-21 04:26:19 cvsranojay Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -193,7 +193,7 @@ void uiDirectionalPlot::drawGrid()
 
 void uiDirectionalPlot::drawScale()
 {
-    static const float sqrt2 = sqrt( 2 );
+    static const float sqrt2 = sqrt( 2.0 );
     const uiPoint startpt( usrUIPos(radius_*1.02,135) );
     const uiPoint endpt( usrUIPos(radius_*sqrt2,135) );
     if ( !scalelineitm_ )
