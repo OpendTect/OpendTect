@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.126 2009-05-21 05:08:56 cvsraman Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.127 2009-05-21 07:48:11 cvsdgb Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -528,12 +528,12 @@ static bool isHostOK( const HostData& hd, const char* rshcomm,
     }
 
     checkcmd = remotecmd; checkcmd += " cd ";
-    checkcmd += hd.convPath( HostData::Appl, GetSoftwareDir() ).fullPath();
+    checkcmd += hd.convPath( HostData::Appl, GetSoftwareDir(0) ).fullPath();
     if ( system(checkcmd.buf()) )
     {
 	errmsg = "Cannot find application directory ";
 	errmsg += hd.name(); errmsg += ":";
-	errmsg += hd.convPath(HostData::Appl, GetSoftwareDir()).fullPath();
+	errmsg += hd.convPath(HostData::Appl, GetSoftwareDir(0)).fullPath();
 	errmsg += "\nMake sure the filesystem is mounted on remote host ";
 	return false;
     }
