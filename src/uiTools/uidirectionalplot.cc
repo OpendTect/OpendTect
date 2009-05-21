@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.24 2009-05-21 04:26:19 cvsranojay Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.25 2009-05-21 07:37:01 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -170,6 +170,7 @@ void uiDirectionalPlot::drawGrid()
 	    const float rad = (.2 + .2*idx)*radius_ ;
 	    uiCircleItem* ci = scene().addItem( new uiCircleItem(center_,
 								 mNINT(rad)) );
+	    ci->setZValue( 1 );
 	    equicircles_ += ci;
 	    ci->setPenStyle( setup_.equils_ );
 	}
@@ -198,9 +199,9 @@ void uiDirectionalPlot::drawScale()
     const uiPoint endpt( usrUIPos(radius_*sqrt2,135) );
     if ( !scalelineitm_ )
     {
-	scalelineitm_ = new uiLineItem( startpt, endpt, true );
-	scalestartptitem_ = new uiMarkerItem( startpt,
-				MarkerStyle2D(MarkerStyle2D::Circle,3) );
+	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt,true) );
+	scalestartptitem_ = scene().addItem(
+	    new uiMarkerItem(startpt,MarkerStyle2D(MarkerStyle2D::Circle,3)) );
     }
     else
     {
@@ -208,11 +209,12 @@ void uiDirectionalPlot::drawScale()
 	scalestartptitem_->setPos( startpt );
     }
 
-    delete scalearcitm_;
+    delete scene().removeItem( scalearcitm_ );
     const Interval<float> angs( Angle::usrdeg2rad(120.F),
 	    			Angle::usrdeg2rad(150.F) );
     const float r = (float)startpt.distTo( endpt );
-    scalearcitm_ = new uiCurvedItem( uiPointFromPolar(startpt,r,angs.start) );
+    scalearcitm_ = scene().addItem(
+	    new uiCurvedItem(uiPointFromPolar(startpt,r,angs.start)) );
     scalearcitm_->drawTo( uiCurvedItem::ArcSpec(startpt,r,angs) );
 
     const char* nm = setup_.nameforpos_;
@@ -221,11 +223,11 @@ void uiDirectionalPlot::drawScale()
     const Alignment al( mAlignment(Left,VCenter) );
     if ( !scaleannotitm_ )
     {
-	scaleannotitm_ = new uiTextItem( midpt, nm, al );
+	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,nm,al) );
 	BufferString str; str += data_.setup_.usrposrg_.start;
-	scalestartitm_ = new uiTextItem( startpt, str, al );
+	scalestartitm_ = scene().addItem( new uiTextItem(startpt,str,al) );
 	str.setEmpty(); str += data_.setup_.usrposrg_.stop;
-	scalestopitm_ = new uiTextItem( endpt, str, al );
+	scalestopitm_ = scene().addItem( new uiTextItem(endpt,str,al) );
     }
     else
     {
@@ -234,6 +236,7 @@ void uiDirectionalPlot::drawScale()
 	scalestopitm_->setPos( endpt );
     }
 }
+
 
 void uiDirectionalPlot::drawHeader()
 {
