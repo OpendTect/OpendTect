@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.41 2009-05-20 11:03:58 cvsumesh Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.42 2009-05-21 08:14:38 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,8 @@ public:
     static const int		evSetupClosed();
     static const int		evInitFromSession();
     static const int		evHideToolBar();
+    static const int		evSaveUnsavedEMObject();
+    static const int		evRemoveUnsavedEMObject();
 
     bool			isDataLoadingBlocked() const;
     void			blockDataLoading(bool);
@@ -124,6 +126,8 @@ public:
     bool 			saveSetup(const MultiID&);
     bool 			readSetup(const MultiID&);
     bool                        fireAddTreeObjectEvent();
+
+    void                        saveUnsaveEMObject();
 	
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
