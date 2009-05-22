@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.12 2008-11-26 07:02:01 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwindowfuncseldlg.cc,v 1.13 2009-05-22 04:35:46 cvssatyaki Exp $";
 
 
 #include "uiwindowfuncseldlg.h"
@@ -33,6 +33,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     , transform_(new uiWorld2Ui())
     , variable_(variable)
     , polyitemgrp_(0)
+    , borderrectitem_(0)
 {
     setCtrlStyle( LeaveOnly );
     
@@ -68,7 +69,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
     transform_->set( uiRect( 35, 5, mTransWidth-5 , mTransHeight-25 ),
 		     uiWorldRect(-1.2,1,1.2,0) );
 
-    uiBorder border(5,5,5,5);
+    uiBorder border(10,10,10,10);
     
     uiAxisHandler::Setup asu( uiRect::Bottom, view_->width(), view_->height() );
     asu.style( LineStyle::None );
@@ -100,6 +101,9 @@ void uiWindowFuncSelDlg::createLine(const WindowFunction& winfunc,bool replace)
 {
     TypeSet<uiPoint> pointlist;
 
+    uiRect borderrect( xax_->pixBefore(), 10, mTransWidth - 10,
+	    	       mTransHeight - yax_->pixBefore() );
+    transform_->resetUiRect( borderrect );
     const StepInterval<float> xrg( -1.2, 1.2, 0.01 );
     for ( int idx=0; idx<xrg.nrSteps(); idx++ )
     {
@@ -126,10 +130,20 @@ void uiWindowFuncSelDlg::createLine(const WindowFunction& winfunc,bool replace)
 
 void uiWindowFuncSelDlg::draw()
 {
-    xax_->setNewDevSize( mTransWidth, mTransHeight + 7 );
-    yax_->setNewDevSize( mTransHeight + 7, mTransWidth );
+    xax_->setNewDevSize( mTransWidth, mTransHeight );
+    yax_->setNewDevSize( mTransHeight , mTransWidth );
     xax_->plotAxis();
     yax_->plotAxis();
+    uiRect borderrect( xax_->pixBefore(), 5, mTransWidth - 5,
+	    	       mTransHeight - yax_->pixBefore() );
+    if ( !borderrectitem_ )
+	borderrectitem_ = view_->scene().addRect(
+		borderrect.left(), borderrect.top(), borderrect.width(),
+		borderrect.height() );
+    else
+	borderrectitem_->setRect( borderrect.left(), borderrect.top(),
+				  borderrect.width(), borderrect.height() );
+    borderrectitem_->setPenStyle( LineStyle() );
     const int selsz = pointlistset_.size();
     TypeSet<int> selecteditems;
     if ( !polyitemgrp_ )

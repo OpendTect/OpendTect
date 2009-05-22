@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.6 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.7 2009-05-22 04:35:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiGraphicsItemGroup;
 class uiGraphicsView;
 class uiGenInput;
 class uiListBox;
+class uiRectItem;
 class uiWorld2Ui;
 class WindowFunction;
 
@@ -54,6 +55,7 @@ protected:
     uiWorld2Ui*		transform_;
     uiAxisHandler*	xax_;
     uiAxisHandler*	yax_;
+    uiRectItem*		borderrectitem_;
     float		variable_;
     TypeSet< TypeSet<uiPoint> >	pointlistset_;
     TypeSet<Color>		linesetcolor_;
