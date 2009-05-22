@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.26 2009-05-20 11:05:23 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodhortreeitem.cc,v 1.27 2009-05-22 01:04:15 cvskris Exp $";
 
 #include "uiodhortreeitem.h"
 
@@ -67,13 +67,12 @@ bool uiODHorizonParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
-	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->selectHorizons( emids, false );
-	for ( int idx=0; idx<emids.size(); idx++ )
-	{
-	    if ( emids[idx] < 0 ) continue;
-	    addChild( new uiODHorizonTreeItem(emids[idx]), false );
-	}
+	ObjectSet<EM::EMObject> objs;
+	applMgr()->EMServer()->selectHorizons( objs, false ); 
+	for ( int idx=0; idx<objs.size(); idx++ )
+	    addChild( new uiODHorizonTreeItem(objs[idx]->id()), false );
+
+	deepUnRef( objs );
     }
     else if ( mnuid == 1 )
     {
@@ -307,13 +306,12 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
     {
-	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->selectHorizons( emids, true ); 
-	for ( int idx=0; idx<emids.size(); idx++ )
-	{
-	    if ( emids[idx] < 0 ) continue;
-	    addChild( new uiODHorizon2DTreeItem(emids[idx]), false );
-	}
+	ObjectSet<EM::EMObject> objs;
+	applMgr()->EMServer()->selectHorizons( objs, true ); 
+	for ( int idx=0; idx<objs.size(); idx++ )
+	    addChild( new uiODHorizon2DTreeItem(objs[idx]->id()), false );
+
+	deepUnRef( objs );
     }
     else if ( mnuid == 1 )
     {

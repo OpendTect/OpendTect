@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.17 2009-05-07 21:16:55 cvskris Exp $";
+static const char* rcsID = "$Id: uiodbodydisplaytreeitem.cc,v 1.18 2009-05-22 01:04:15 cvskris Exp $";
 
 #include "uiodbodydisplaytreeitem.h"
 
@@ -54,14 +54,12 @@ bool uiODBodyDisplayParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==0 )
     {
-	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->selectBodies( emids );
+	ObjectSet<EM::EMObject> objs;
+	applMgr()->EMServer()->selectBodies( objs );
 	MouseCursorChanger uics( MouseCursor::Wait );
-	for ( int idx=0; idx<emids.size(); idx++ )
-	{
-	    if ( emids[idx]<0 ) continue;
-	    addChild( new uiODBodyDisplayTreeItem(emids[idx]), false );
-	}
+	for ( int idx=0; idx<objs.size(); idx++ )
+	    addChild( new uiODBodyDisplayTreeItem(objs[idx]->id()), false );
+	deepUnRef( objs );
     }
     else if ( mnuid == 1 )
     {

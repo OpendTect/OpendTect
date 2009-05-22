@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.25 2009-05-21 09:10:04 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodfaulttreeitem.cc,v 1.26 2009-05-22 01:04:15 cvskris Exp $";
 
 #include "uiodfaulttreeitem.h"
 
@@ -50,14 +50,13 @@ bool uiODFaultParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mLoadMnuID )
     {
-	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->selectFaults( emids, false );
+	ObjectSet<EM::EMObject> objs;
+	applMgr()->EMServer()->selectFaults( objs, false );
 	MouseCursorChanger uics( MouseCursor::Wait );
-	for ( int idx=0; idx<emids.size(); idx++ )
-	{
-	    if ( emids[idx]<0 ) continue;
-	    addChild( new uiODFaultTreeItem(emids[idx]), false );
-	}
+	for ( int idx=0; idx<objs.size(); idx++ )
+	    addChild( new uiODFaultTreeItem(objs[idx]->id()), false );
+
+	deepUnRef( objs );
     }
     else if ( mnuid == mNewMnuID )
     {
@@ -322,14 +321,12 @@ bool uiODFaultStickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid==mLoadMnuID )
     {
-	TypeSet<EM::ObjectID> emids;
-	applMgr()->EMServer()->selectFaultStickSets( emids );
+	ObjectSet<EM::EMObject> objs;
+	applMgr()->EMServer()->selectFaultStickSets( objs );
 	MouseCursorChanger uics( MouseCursor::Wait );
-	for ( int idx=0; idx<emids.size(); idx++ )
-	{
-	    if ( emids[idx]<0 ) continue;
-	    addChild( new uiODFaultStickSetTreeItem(emids[idx]), false );
-	}
+	for ( int idx=0; idx<objs.size(); idx++ )
+	    addChild( new uiODFaultStickSetTreeItem(objs[idx]->id()), false );
+	deepUnRef( objs );
     }
     else if ( mnuid == mNewMnuID )
     {

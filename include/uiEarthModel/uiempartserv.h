@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.86 2009-05-20 10:12:34 cvsumesh Exp $
+ RCS:           $Id: uiempartserv.h,v 1.87 2009-05-22 01:04:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,10 +74,14 @@ public:
 			    to save it or not, and if so, the object is saved.
 			    Returns false when save option is cancelled. */
 
-    void		selectHorizons(TypeSet<EM::ObjectID>&,bool is2d);
-    void		selectFaults(TypeSet<EM::ObjectID>&,bool is2d);
-    void		selectFaultStickSets(TypeSet<EM::ObjectID>&);
-    void		selectBodies(TypeSet<EM::ObjectID>&);
+    void		selectHorizons(ObjectSet<EM::EMObject>&,bool is2d);
+    			//!<Returned set is reffed and must be unrefed by caller
+    void		selectFaults(ObjectSet<EM::EMObject>&,bool is2d);
+    			//!<Returned set is reffed and must be unrefed by caller
+    void		selectFaultStickSets(ObjectSet<EM::EMObject>&);
+    			//!<Returned set is reffed and must be unrefed by caller
+    void		selectBodies(ObjectSet<EM::EMObject>&);
+    			//!<Returned set is reffed and must be unrefed by caller
     bool		showLoadAuxDataDlg(const EM::ObjectID&);
     int			loadAuxData(const EM::ObjectID&,const char*);
     			/*!<Loads the specified data into memory and returns
@@ -132,7 +136,8 @@ public:
 
 protected:
 
-    void		selectSurfaces(TypeSet<EM::ObjectID>&,const char* type);
+    void		selectSurfaces(ObjectSet<EM::EMObject>&,
+	    			       const char* type);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&);
     void		syncGeometry(CallBacker*);
     BinIDValueSet*	changeAuxData(const EM::ObjectID&,const char* nm,

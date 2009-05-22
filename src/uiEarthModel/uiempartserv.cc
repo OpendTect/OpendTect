@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.172 2009-05-20 10:14:08 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.173 2009-05-22 01:04:15 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -350,25 +350,25 @@ bool uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 }
 
 
-void uiEMPartServer::selectHorizons( TypeSet<EM::ObjectID>& ids, bool is2d )
+void uiEMPartServer::selectHorizons( ObjectSet<EM::EMObject>& objs, bool is2d )
 {
-    selectSurfaces( ids, is2d ? EMHorizon2DTranslatorGroup::keyword()
+    selectSurfaces( objs, is2d ? EMHorizon2DTranslatorGroup::keyword()
 	    		      : EMHorizon3DTranslatorGroup::keyword() );
 }
 
 
-void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids, bool is2d )
+void uiEMPartServer::selectFaults( ObjectSet<EM::EMObject>& objs, bool is2d )
 {
     if ( !is2d )
-	selectSurfaces( ids, EMFault3DTranslatorGroup::keyword() );
+	selectSurfaces( objs, EMFault3DTranslatorGroup::keyword() );
 }
 
 
-void uiEMPartServer::selectFaultStickSets( TypeSet<EM::ObjectID>& ids )
-{  selectSurfaces( ids, EMFaultStickSetTranslatorGroup::keyword() ); } 
+void uiEMPartServer::selectFaultStickSets( ObjectSet<EM::EMObject>& objs )
+{  selectSurfaces( objs, EMFaultStickSetTranslatorGroup::keyword() ); } 
 
 
-void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )
+void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 {
     CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
     context.ctxt.forread = true;
@@ -404,6 +404,7 @@ void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )
     
     if ( !object ) return;
     object->ref();
+    objs += object;
 
     object->setMultiID( dlg.ioObj()->key() );
     Executor* exec = object->loader();
@@ -411,20 +412,16 @@ void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )
     uiTaskRunner execdlg( parent() );
     if ( !execdlg.execute(*exec) )
     {
-	object->unRef();
+	deepUnRef( objs );
 	delete exec;
 	return;
     }
 
     delete exec;
-
-    ids += object->id();
-
-    object->unRefNoDelete();
 }
 
 
-void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
+void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 				     const char* typ )
 {
     uiMultiSurfaceReadDlg dlg( parent(), typ );
@@ -445,31 +442,16 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
 	EM::EMObject* obj = em_.getObject( em_.getObjectID(surfaceids[idx]) );
 	obj->ref();
 	obj->setBurstAlert( true );
+	objs += obj;
     }
 
     uiTaskRunner execdlg( parent() );
     if ( !execdlg.execute(*exec) )
     {
-	for ( int idx=0; idx<surfaceids.size(); idx++ )
-	{
-	    EM::EMObject* obj =
-			em_.getObject( em_.getObjectID(surfaceids[idx]) );
-	    obj->unRef();
-	}
-
-	return;
+	deepUnRef( objs );
     }
 
     exec.erase(); //We don't want executor to unref objs at end of function
-
-    for ( int idx=0; idx<surfaceids.size(); idx++ )
-    {
-	const EM::ObjectID objid = em_.getObjectID( surfaceids[idx] );
-	EM::EMObject* obj = em_.getObject( objid );
-	obj->unRefNoDelete();
-	obj->setBurstAlert( false );
-	objids += objid;
-    }
 }
 
 
