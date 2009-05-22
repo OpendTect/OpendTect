@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.24 2009-03-03 06:03:24 cvsnanne Exp $
+ RCS:		$Id: viscolortab.h,v 1.25 2009-05-22 05:29:34 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -86,8 +86,6 @@ protected:
     ColTab::Mapper*		ctmapper_;
     ColTab::IndexedLookUpTable*	indextable_;
     ColorSequence*		viscolseq_;
-
-    bool			autoscale_;
 
     static const char*		sKeyColorSeqID();
     static const char*		sKeyScaleFactor();

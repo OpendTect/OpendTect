@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: viscolortab.cc,v 1.49 2009-03-03 06:03:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: viscolortab.cc,v 1.50 2009-05-22 05:29:34 cvsnanne Exp $";
 
 #include "viscolortab.h"
 
@@ -43,7 +43,6 @@ VisColorTab::VisColorTab()
     , viscolseq_(0)
     , indextable_(0)
     , ctmapper_( new ColTab::Mapper )
-    , autoscale_(true)
 {
     setColorSeq( ColorSequence::create() );
 }
@@ -63,15 +62,16 @@ VisColorTab::~VisColorTab()
 
 
 bool VisColorTab::autoScale() const
-{ return autoscale_; }
+{ return ctmapper_->setup_.type_ == ColTab::MapperSetup::Auto; }
 
 
 void VisColorTab::setAutoScale( bool yn )
 {
-    if ( yn==autoscale_ ) return;
+    if ( yn == autoScale() ) return;
 
-    autoscale_ = yn;
-    if ( autoscale_ ) autoscalechange.trigger();
+    ctmapper_->setup_.type_ = yn ? ColTab::MapperSetup::Auto
+				 : ColTab::MapperSetup::Fixed;
+    autoscalechange.trigger();
 }
 
 
@@ -274,7 +274,7 @@ void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     if ( saveids.indexOf(viscolseq_->id())==-1 ) saveids += viscolseq_->id();
     par.set( sKeyRange(), ctmapper_->range() );
     par.set( sKeyClipRate(), ctmapper_->setup_.cliprate_ );
-    par.setYN( sKeyAutoScale(), autoscale_ );
+    par.setYN( sKeyAutoScale(), autoScale() );
     par.set( sKeySymMidval(), ctmapper_->setup_.symmidval_ );
 }
 
