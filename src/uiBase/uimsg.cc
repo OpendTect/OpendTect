@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimsg.cc,v 1.45 2009-05-19 22:01:50 cvskris Exp $";
+static const char* rcsID = "$Id: uimsg.cc,v 1.46 2009-05-22 04:36:43 cvsnanne Exp $";
 
 
 #include "uimsg.h"
@@ -194,11 +194,13 @@ int uiMsg::askSave( const char* text, bool wcancel )
 }
 
 
-int uiMsg::askRemove( const char* text )
+int uiMsg::askRemove( const char* text, bool wcancel )
 {
     const char* yestxt = "&Remove";
-    const char* notxt = "&Cancel";
-    return question( text, yestxt, notxt, 0, "Remove data" );
+    const char* notxt = wcancel ? "&Don't remove" : "&Cancel";
+    const char* canceltxt = "&Cancel";
+    return question( text, yestxt, notxt,
+	    	     wcancel ? canceltxt : 0, "Remove data" );
 }
 
 

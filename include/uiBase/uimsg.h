@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.28 2009-05-15 16:27:46 cvsjaap Exp $
+ RCS:           $Id: uimsg.h,v 1.29 2009-05-22 04:36:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,8 @@ public:
     		//!<\retval 0=Don't save 1=Save -1=Cancel
     int		notSaved( const char* txt, bool cancelbutt=true )
 		{ return askSave(txt,cancelbutt); } // Remove in v4.0
-    int		askRemove(const char*);
-    		//!<\retval 0=Don't remove 1=Remove
+    int		askRemove(const char*,bool cancelbutt=false);
+    		//!<\retval 0=Don't remove 1=Remove -1=Cancel
     int		askContinue(const char*);
     		//!<\retval 0=Abort 1=Continue
     int		askOverwrite(const char*);

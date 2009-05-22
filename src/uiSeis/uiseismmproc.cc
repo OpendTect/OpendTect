@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseismmproc.cc,v 1.127 2009-05-21 07:48:11 cvsdgb Exp $";
+static const char* rcsID = "$Id: uiseismmproc.cc,v 1.128 2009-05-22 04:36:43 cvsnanne Exp $";
 
 #include "uiseismmproc.h"
 #include "uiseisioobjinfo.h"
@@ -831,18 +831,18 @@ bool uiSeisMMProc::rejectOK( CallBacker* )
 	if ( is2d )
 	{
 	    msg += "\n\nDo you want to do this?";
-	    res = uiMSG().askGoOn( msg ) ? 1 : 2;
+	    res = uiMSG().askGoOn( msg ) ? 0 : -1;
 	}
 	else
 	{
 	    msg += "\n\nDo you want to remove already processed data?";
-	    res = uiMSG().askRemove( msg );
+	    res = uiMSG().askRemove( msg, true );
 	}
     }
-    if ( res == 2 ) return false;
+    if ( res == -1 ) return false;
 
     jobrunner->stopAll();
-    if ( res == 0 )
+    if ( res == 1 )
 	rmTmpSeis( jobprov );
 
     return true;
