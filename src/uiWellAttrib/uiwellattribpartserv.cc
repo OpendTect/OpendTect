@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.20 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribpartserv.cc,v 1.21 2009-05-22 04:34:09 cvssatyaki Exp $";
 
 
 #include "uiwellattribpartserv.h"
@@ -96,6 +96,7 @@ void uiWellAttribPartServer::removeSelPts( CallBacker* )
 {
     if ( dpsdispmgr_ )
 	dpsdispmgr_->removeDisplay( dpsid_ );
+    dpsid_ = -1;
 }
 
 

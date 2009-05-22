@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.122 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiattribpartserv.cc,v 1.123 2009-05-22 04:34:08 cvssatyaki Exp $";
 
 #include "uiattribpartserv.h"
 
@@ -271,7 +271,11 @@ void uiAttribPartServer::showSelPts( CallBacker* )
 
 
 void uiAttribPartServer::removeSelPts( CallBacker* )
-{ if ( dpsdispmgr_ ) dpsdispmgr_->removeDisplay( dpsid_ ); }
+{
+    if ( dpsdispmgr_ )
+	dpsdispmgr_->removeDisplay( dpsid_ );
+    dpsid_ = -1;
+}
 
 
 void uiAttribPartServer::showXPlot( CallBacker* cb )

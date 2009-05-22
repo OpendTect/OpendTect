@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uinlapartserv.cc,v 1.67 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uinlapartserv.cc,v 1.68 2009-05-22 04:34:09 cvssatyaki Exp $";
 
 #include "uinlapartserv.h"
 
@@ -524,7 +524,11 @@ void uiNLAPartServer::showSelPts( CallBacker* )
 
 
 void uiNLAPartServer::removeSelPts( CallBacker* )
-{ if ( dpsdispmgr_ ) dpsdispmgr_->removeDisplay( dpsid_ ); }
+{
+    if ( dpsdispmgr_ )
+	dpsdispmgr_->removeDisplay( dpsid_ );
+    dpsid_ = -1;
+}
 
 
 DataPointSet& uiNLAPartServer::gtDps() const
