@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: pixmap.cc,v 1.33 2009-01-27 11:21:10 cvsnanne Exp $";
+static const char* rcsID = "$Id: pixmap.cc,v 1.34 2009-05-22 08:32:41 cvsnanne Exp $";
 
 #include "pixmap.h"
 
@@ -112,14 +112,27 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height )
 	return;
     }
 
-    ColTab::IndexedLookUpTable table( ctabin, width );
     uiRGBArray rgbarr( false );
     rgbarr.setSize( width, height );
-    for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
+    if ( width > height ) // horizontal colorbar
     {
-	const Color color = table.colorForIndex( idx1 );
-	for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
-	    rgbarr.set( idx1, idx2, color );
+	ColTab::IndexedLookUpTable table( ctabin, width );
+	for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
+	{
+	    const Color color = table.colorForIndex( idx1 );
+	    for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
+		rgbarr.set( idx1, idx2, color );
+	}
+    }
+    else // vertical colorbar
+    {
+	ColTab::IndexedLookUpTable table( ctabin, height );
+	for ( int idx1=0; idx1<rgbarr.getSize(false); idx1++ )
+	{
+	    const Color color = table.colorForIndex( idx1 );
+	    for ( int idx2=0; idx2<rgbarr.getSize(true); idx2++ )
+		rgbarr.set( idx2, idx1, color );
+	}
     }
 
     qpixmap_ = new QPixmap;
