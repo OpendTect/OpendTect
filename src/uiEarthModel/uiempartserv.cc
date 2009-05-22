@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.173 2009-05-22 01:04:15 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.174 2009-05-22 01:19:44 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -447,11 +447,10 @@ void uiEMPartServer::selectSurfaces( ObjectSet<EM::EMObject>& objs,
 
     uiTaskRunner execdlg( parent() );
     if ( !execdlg.execute(*exec) )
-    {
 	deepUnRef( objs );
-    }
 
-    exec.erase(); //We don't want executor to unref objs at end of function
+    for ( int idx=0; idx<objs.size(); idx++ )
+	objs[idx]->setBurstAlert( false );
 }
 
 
