@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiaxishandler.cc,v 1.29 2009-04-21 06:16:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiaxishandler.cc,v 1.30 2009-05-22 04:34:49 cvssatyaki Exp $";
 
 #include "uiaxishandler.h"
 #include "uigraphicsscene.h"
@@ -447,6 +447,7 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( pix, y0, pix, y1 );
 	annotposlineitm->setZValue( 3 );
+	annotposlineitm->setPenColor( ls.color_ );
 	annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( Alignment::HCenter,
 		      istop ? Alignment::Bottom : Alignment::Top );
@@ -464,6 +465,8 @@ void uiAxisHandler::annotPos( int pix, const char* txt, const LineStyle& ls )
 	uiLineItem* annotposlineitm = new uiLineItem();
 	annotposlineitm->setLine( x0, pix, x1, pix );
 	annotposlineitm->setZValue( 3 );
+	annotposlineitm->setPenColor( ls.color_ );
+	annotlineitmgrp_->add( annotposlineitm );
 	Alignment al( isleft ? Alignment::Right : Alignment::Left,
 		      Alignment::VCenter );
 	uiTextItem* annotpostxtitem =
@@ -529,13 +532,16 @@ void uiAxisHandler::drawName()
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int x = isleft ? pixBefore() - wdthx_ + 5 : width_-3;
+	const int x = isleft ? pixBefore() - wdthx_+ 5 : width_-3;
 	const int y = height_ / 2;
-	const Alignment al( Alignment::Left, Alignment::VCenter );
+	const Alignment al( isleft ? Alignment::HCenter : Alignment::Left,
+			    Alignment::VCenter );
 	nameitm_->setPos( uiPoint(x,y) );
 	nameitm_->setAlignment( al );
 	if ( !ynmtxtvertical_ )
-	    nameitm_->rotate( 90 );
+	    nameitm_->rotate( isleft ? -90 : 90 );
+	if ( nameitm_->getPos().x < 1 )
+	    nameitm_->moveBy( -nameitm_->getPos().x, 0 );
 	ynmtxtvertical_ = true;
     }
 }
