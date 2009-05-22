@@ -7,11 +7,12 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.25 2009-05-21 07:37:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.26 2009-05-22 08:31:45 cvsnanne Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
 #include "uigraphicsitemimpl.h"
+#include "uigraphicscoltab.h"
 #include "uifont.h"
 #include "angles.h"
 #include "mouseevent.h"
@@ -43,6 +44,7 @@ uiDirectionalPlot::uiDirectionalPlot( uiParent* p,
     , scalelineitm_(0)
     , scalearcitm_(0)
     , scaleannotitm_(0)
+    , coltabitm_(0)
     , sectorPicked(this)
     , colseq_(0)
 {
@@ -261,8 +263,18 @@ void uiDirectionalPlot::drawHeader()
 	hdrannotitm2_->setPos( uiPoint(width()-1,0) );
 }
 
+
 void uiDirectionalPlot::drawColTab()
 {
+    // TODO: Set correct position, set min/max values
+    if ( !coltabitm_ )
+	coltabitm_ = scene().addItem( new uiColTabItem() );
+
+    if ( colseq_ )
+	coltabitm_->setColTabSequence( *colseq_ );
+
+    const int posy = height()-coltabitm_->size().vNrPics()-25;
+    coltabitm_->setPos( uiPoint(10,posy) );
 }
 
 

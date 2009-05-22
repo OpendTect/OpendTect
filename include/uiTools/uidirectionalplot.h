@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2009
- RCS:           $Id: uidirectionalplot.h,v 1.13 2009-05-20 12:12:06 cvsbert Exp $
+ RCS:           $Id: uidirectionalplot.h,v 1.14 2009-05-22 08:31:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,13 @@ ________________________________________________________________________
 #include "uigraphicsview.h"
 #include "statdirdata.h"
 #include "draw.h"
+
 class uiTextItem;
 class uiLineItem;
 class uiCircleItem;
-class uiMarkerItem;
+class uiColTabItem;
 class uiCurvedItem;
+class uiMarkerItem;
 class uiGraphicsItem;
 class uiGraphicsItemGroup;
 namespace ColTab { class Sequence; }
@@ -120,6 +122,7 @@ protected:
     uiTextItem*			scaleannotitm_;
     uiTextItem*			scalestartitm_;
     uiTextItem*			scalestopitm_;
+    uiColTabItem*		coltabitm_;
 
     void			mouseRelease(CallBacker*);
     void			reSized(CallBacker*);
