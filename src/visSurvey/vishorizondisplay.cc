@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.74 2009-05-20 21:47:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.75 2009-05-22 21:43:52 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -305,10 +305,7 @@ void HorizonDisplay::updateFromMPE()
     //}
 
     if ( displayedRowRange().nrSteps()<=1 || displayedColRange().nrSteps()<=1 )
-    {
-	useWireframe( true );
-	setResolution( nrResolutions()-1 );
-    }
+	setResolution( 1 ); //highest resolution
 
     EMObjectDisplay::updateFromMPE();
 }
@@ -1693,7 +1690,6 @@ int HorizonDisplay::usePar( const IOPar& par )
     
     int resolution = 0;
     par.get( sKeyResolution(), resolution );
-    setResolution( resolution );
 
     Coord3 shift( 0, 0, 0 );
     par.get( sKeyShift(), shift.z );
@@ -1705,6 +1701,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 	//This portion is for 3.2-pars. Can be removed in version 3.6 or later
 	ObjectSet<visBase::VisColorTab> ctabs;
 	ctabs.allowNull( true );
+	bool isversion32 = false;
 	for ( int attrib=0; attrib<nrchannels; attrib++ )
 	{
 	    BufferString key = sKeyAttribs();
@@ -1716,6 +1713,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 	    int coltabid;
 	    if ( attribpar->get(sKeyColTabID(),coltabid) )
 	    {
+		isversion32 = true;
 		RefMan<visBase::DataObject> dataobj =
 			visBase::DM().getObject( coltabid );
 		if ( !dataobj )
@@ -1730,6 +1728,12 @@ int HorizonDisplay::usePar( const IOPar& par )
 	    }
 	    else
 		ctabs += 0;
+	}
+
+	if ( isversion32 )
+	{
+	    if ( !resolution )
+		resolution = 7-resolution;
 	}
 
 	//End of 3.2 code
@@ -1790,6 +1794,8 @@ int HorizonDisplay::usePar( const IOPar& par )
     	    setColTabMapperSetup( 0, coltab->colorMapper().setup_ );
 	}
     }
+
+    setResolution( resolution );
 
     return 1;
 }

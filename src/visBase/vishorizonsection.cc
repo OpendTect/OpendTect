@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.28 2009-05-20 21:46:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.29 2009-05-22 21:43:52 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -315,6 +315,9 @@ HorizonSection::~HorizonSection()
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
     {
+	if ( !tileptrs[idx] )
+	    continue;
+
 	removeChild( tileptrs[idx]->getNodeRoot() );
 	delete tileptrs[idx];
     }
@@ -723,6 +726,12 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
     
     const StepInterval<int> rrg = changedsurface->rowRange();
     const StepInterval<int> crg = changedsurface->colRange();
+    if ( rrg.width(false)<0 || !crg.width(false)<0 )
+    {
+	geometrylock_.unLock();
+	return;
+    }
+
     int startni[] = { 0, 4096, 5185, 5474, 5555, 5580 };
     int nrrows = tiles_.info().getSize( 0 );
     int nrcols = tiles_.info().getSize( 1 );
@@ -730,7 +739,7 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 	origin_ = RowCol( rrg.start, crg.start );
    
     bool neighborchanged = false; 
-    if ( !gpids )
+    if ( !gpids || !nrrows || !nrcols )
     {
 	origin_ = RowCol( rrg.start, crg.start );
 	nrrows = nrBlocks( rrg.width()+1, mTileSideSize, 1 );
@@ -748,25 +757,13 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 	    for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
 	    {
 		const int startcol = tilecolidx*mTileLastIdx + origin_.col;
-		HorizonSectionTile* tile = new HorizonSectionTile();
-		tile->setTextureOrigin( tilerowidx*mTileLastIdx, 
-					tilecolidx*mTileLastIdx );
-	       
-		for ( int res = 0; res<mHorSectNrRes; res++ )
+		HorizonSectionTile* tile = createTile(tilerowidx, tilecolidx);
+		for ( int res=0; res<mHorSectNrRes; res++ )
 		{
 		    HorizonSectionTilePosSetup tsp( *tile, *changedsurface, res,
 			   startni[res], startrow, startcol, RowCol(-1,-1) );
 		    tsp.execute();
 		}
-
-		const int defrowsz = mMIN( rrg.stop-startrow, mTileLastIdx );
-		const int defcolsz = mMIN( crg.stop-startcol, mTileLastIdx );
-		tile->setMaxSpacing( mMIN(defrowsz,defcolsz) );
-		tile->setWireframeMaterial( material_ );
-		tile->useShading( channel2rgba_->usesShading() );
-	
-		tiles_.set( tilerowidx, tilecolidx, tile );
-		addChild( tile->getNodeRoot() );
 	    }
 	}
 
@@ -831,22 +828,16 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
 	    if ( !tile )
 	    {
 		newtile = true;
-		tile =  new HorizonSectionTile();
-		tile->setTextureOrigin( tilerowidx*mTileLastIdx, 
-					tilecolidx*mTileLastIdx );
-		const int defrowsz = mMIN( rrg.stop-startrow, mTileLastIdx );
-		const int defcolsz = mMIN( crg.stop-startcol, mTileLastIdx );
-		tile->setMaxSpacing( mMIN(defrowsz,defcolsz) );
-		
-		tiles_.set( tilerowidx, tilecolidx, tile );
-		addChild( tile->getNodeRoot() );
+		tile =  createTile( tilerowidx, tilecolidx );
 		neighborchanged = true;
 	    }
 
-	    const Coord3 pos = changedsurface->getPosition( (*gpids)[idx] );
 	    if ( !newtile )
-    		tile->setPos( rc.row%mTileSideSize+tilerowidx, 
+	    {
+		const Coord3 pos = changedsurface->getPosition((*gpids)[idx]);
+		tile->setPos( rc.row%mTileSideSize+tilerowidx, 
 			      rc.col%mTileSideSize+tilecolidx, pos );
+	    }
 	    
 	    //Update normals
 	    for ( int res = 0; res<mHorSectNrRes; res++ )
@@ -901,9 +892,36 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
     }
 
     if ( neighborchanged )
-    	updateTileNeighbors( nrrows, nrcols );
+    {
+	updateTileNeighbors( nrrows, nrcols );
+	for ( int tilerowidx=0; tilerowidx<nrrows; tilerowidx++ )
+	{
+	    for ( int tilecolidx=0; tilecolidx<nrcols; tilecolidx++ )
+	    {
+		if ( tiles_.get(tilerowidx,tilecolidx) )
+		    tiles_.get(tilerowidx,tilecolidx)->setTextureOrigin( 
+			    tilerowidx*mTileLastIdx, tilecolidx*mTileLastIdx );
+	    }
+	}
+    }
 
     geometrylock_.unLock();
+}
+
+
+HorizonSectionTile* HorizonSection::createTile( int tilerowidx, int tilecolidx )
+{
+    HorizonSectionTile* tile =  new HorizonSectionTile();
+    tile->setDisplayTransformation( transformation_ );
+    tile->setResolution( desiredresolution_ );
+    tile->useShading( channel2rgba_->usesShading() );
+    tile->useWireframe( usewireframe_ );
+    tile->setWireframeMaterial( material_ );
+    
+    tiles_.set( tilerowidx, tilecolidx, tile );
+    addChild( tile->getNodeRoot() );
+
+    return tile;
 }
 
 
@@ -920,30 +938,20 @@ void HorizonSection::insertRowColTilesArray( bool torow, bool before, int nr )
 	for ( int col=0; col<colsz; col++ )
 	{
 	    HorizonSectionTile* tile = 0;
-	    if ( torow && before )
-		tile = row<nr ? 0 : tiles_.get(row-1,col);
-	    else if ( torow && !before )
-		tile = row>=rowsz-nr ? 0 : tiles_.get(row,col);
-	    else if ( !torow && before )
-		tile = col<nr ? 0 : tiles_.get(row,col-1);
-	    else 
-		tile = col>=colsz-nr ? 0 : tiles_.get(row,col);
+	    if ( torow && before && row>=nr )
+		tile = tiles_.get(row-1,col);
+	    else if ( torow && !before && row<rowsz-nr )
+		tile = tiles_.get(row,col);
+	    else if ( !torow && before && col>=nr )
+		tile = tiles_.get(row,col-1);
+	    else if ( !torow && !before && col<colsz-nr )
+		tile = tiles_.get(row,col);
 
 	    temp.set( row, col, tile );
 	}
     }
 
-    HorizonSectionTile** tileptrs = tiles_.getData();
-    for ( int idx=0; idx<tiles_.info().getTotalSz(); idx++ )
-    {
-	removeChild( tileptrs[idx]->getNodeRoot() );
-	delete tileptrs[idx];
-    }
-
     tiles_.copyFrom( temp );
-    HorizonSectionTile** tileptrs0 = tiles_.getData();
-    for ( int idx=0; idx<rowsz*colsz; idx++ )
-	if ( tileptrs0[idx] ) addChild( tileptrs0[idx]->getNodeRoot() );
 }
 
 void HorizonSection::updateTileNeighbors( int nrrowtiles, int nrcoltiles )
@@ -1029,12 +1037,12 @@ void HorizonSection::updateBBox( SoGetBoundingBoxAction* action )
 
 void HorizonSection::updateAutoResolution( SoState* state )
 {
-    if ( desiredresolution_!=-1 )
-	return;
-
     HorizonSectionTile** tileptrs = tiles_.getData();
     const int tilesz = tiles_.info().getTotalSz();
+    if ( !tilesz ) return;
     
+    //if ( desiredresolution_!=-1 ) return;
+
     for ( int idx=0; idx<tilesz; idx++ )
     {
 	if ( !tileptrs[idx] ) continue;
@@ -1065,16 +1073,17 @@ char HorizonSection::currentResolution() const
 
 void HorizonSection::setResolution( int res )
 {
-    if ( desiredresolution_==res && res!=-1 ) return;
-
-    if ( usewireframe_ ) turnOnWireframe( res );
+    //if ( desiredresolution_==res && res!=-1 ) return;
 
     desiredresolution_ = res;
+    const int tilesz = tiles_.info().getTotalSz();
+    if ( !tilesz ) return;
+    
+    if ( usewireframe_ ) turnOnWireframe( res );
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     HorizonSectionTile** tileptrs = tiles_.getData();
-    const int tilesz = tiles_.info().getTotalSz();
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->setResolution( res );
 
@@ -1274,7 +1283,7 @@ void HorizonSectionTile::setWireframeMaterial( Material* nm )
 
 
 void HorizonSectionTile::setWireframeColor( Color col )
-{ wireframematerial_->setColor( col ); }
+{ if ( wireframematerial_ ) wireframematerial_->setColor( col ); }
 
 
 void HorizonSectionTile::setDisplayTransformation( Transformation* nt )

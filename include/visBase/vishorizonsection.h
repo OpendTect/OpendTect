@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		March 2009
- RCS:		$Id: vishorizonsection.h,v 1.16 2009-05-14 20:28:24 cvsyuancheng Exp $
+ RCS:		$Id: vishorizonsection.h,v 1.17 2009-05-22 21:43:52 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,7 @@ protected:
     void			updateTileNeighbors(int nrrows,int nrcols);
     void			insertRowColTilesArray(bool row,bool bef,int);
     void			updateBBox(SoGetBoundingBoxAction* action);
+    HorizonSectionTile*		createTile(int rowidx,int colidx);
 
     Geometry::BinIDSurface*	geometry_;
     Threads::Mutex		geometrylock_;
