@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.26 2009-05-22 08:31:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.27 2009-05-25 15:46:49 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.26 2009-05-22 08:31:45
 #include "mouseevent.h"
 #include "dataclipper.h"
 #include "coltabsequence.h"
+#include "coltabmapper.h"
 #include <iostream>
 
 
@@ -167,6 +168,7 @@ void uiDirectionalPlot::drawGrid()
     {
 	outercircleitm_ = scene().addItem( new uiCircleItem(center_,radius_) );
 	outercircleitm_->setPenStyle( setup_.circlels_ );
+	outercircleitm_->setZValue( 1 );
 	for ( int idx=0; idx<4; idx++ )
 	{
 	    const float rad = (.2 + .2*idx)*radius_ ;
@@ -197,8 +199,8 @@ void uiDirectionalPlot::drawGrid()
 void uiDirectionalPlot::drawScale()
 {
     static const float sqrt2 = sqrt( 2.0 );
-    const uiPoint startpt( usrUIPos(radius_*1.02,135) );
-    const uiPoint endpt( usrUIPos(radius_*sqrt2,135) );
+    const uiPoint startpt( usrUIPos(radius_*1.1,135) );
+    const uiPoint endpt( usrUIPos(radius_*(sqrt2-0.1),135) );
     if ( !scalelineitm_ )
     {
 	scalelineitm_ = scene().addItem( new uiLineItem(startpt,endpt,true) );
@@ -222,12 +224,14 @@ void uiDirectionalPlot::drawScale()
     const char* nm = setup_.nameforpos_;
     if ( !*nm ) nm = "Values";
     uiPoint midpt( startpt ); midpt += endpt; midpt /= 2;
-    const Alignment al( mAlignment(Left,VCenter) );
     if ( !scaleannotitm_ )
     {
+	Alignment al( mAlignment(HCenter,VCenter) );
 	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,nm,al) );
+	al.set( Alignment::Left );
 	BufferString str; str += data_.setup_.usrposrg_.start;
 	scalestartitm_ = scene().addItem( new uiTextItem(startpt,str,al) );
+	al.set( Alignment::Right );
 	str.setEmpty(); str += data_.setup_.usrposrg_.stop;
 	scalestopitm_ = scene().addItem( new uiTextItem(endpt,str,al) );
     }
@@ -266,15 +270,24 @@ void uiDirectionalPlot::drawHeader()
 
 void uiDirectionalPlot::drawColTab()
 {
-    // TODO: Set correct position, set min/max values
     if ( !coltabitm_ )
-	coltabitm_ = scene().addItem( new uiColTabItem() );
+    {
+	uiColTabItem::Setup su( true );
+	su.startalong( true ); su.startal_.set( Alignment::Top );
+	coltabitm_ = scene().addItem( new uiColTabItem(su) );
+    }
+    ColTab::MapperSetup ctms;
+    ctms.type( ColTab::MapperSetup::Fixed );
+    ctms.start( valrg_.start );
+    ctms.width( valrg_.width() );
+    coltabitm_->setColTabMapperSetup( ctms );
 
     if ( colseq_ )
 	coltabitm_->setColTabSequence( *colseq_ );
 
-    const int posy = height()-coltabitm_->size().vNrPics()-25;
-    coltabitm_->setPos( uiPoint(10,posy) );
+    const uiRect br( coltabitm_->boundingRect() );
+    uiPoint targettl( 10, height() - br.height() - 10 );
+    coltabitm_->setPos( uiPoint(10,height()-br.height()-10) );
 }
 
 
