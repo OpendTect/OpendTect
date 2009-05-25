@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.34 2009-05-25 10:32:50 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.35 2009-05-25 15:27:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,6 @@ protected:
     bool		doStart();
     bool		ensureCurLineAttribOK(const BufferString&);
 
-    bool		binidInConn(int) const;
     bool		isMultiConn() const;
     void		startWork();
 
