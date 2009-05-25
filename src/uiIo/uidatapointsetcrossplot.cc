@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.40 2009-05-21 09:05:10 cvssatyaki Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.41 2009-05-25 15:30:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.40 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.41 2009-05-25 15:30:20 cvsbert Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -385,7 +385,10 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 	return;
 
     mousepressed_ = true;
-    if ( !rectangleselection_ )
+    if ( rectangleselection_ )
+	selareaset_ += new SelectionArea(
+		new uiRect(getCursorPos(),uiSize(0,0)) );
+    else
     {
 	ODPolygon<int>* poly = new ODPolygon<int>;
 	selareaset_ += new SelectionArea( poly );
@@ -400,8 +403,6 @@ void uiDataPointSetCrossPlotter::getSelStarPos( CallBacker* )
 	else
 	    selectionpolygonitem_->setPolygon( *poly );
     }
-    else
-	selareaset_ += new SelectionArea( new uiRect(getCursorPos(),-1) );
 
     curselarea_ = selareaset_.size() - 1;
 }
