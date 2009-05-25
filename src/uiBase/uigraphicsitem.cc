@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.14 2009-04-07 07:04:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uigraphicsitem.cc,v 1.15 2009-05-25 15:29:19 cvsbert Exp $";
 
 
 #include "uigraphicsitem.h"
@@ -38,6 +38,14 @@ uiPoint uiGraphicsItem::getPos() const
 {
     return uiPoint( mNINT(qgraphicsitem_->pos().x()),
 		    mNINT(qgraphicsitem_->pos().y()) );
+}
+
+
+uiRect uiGraphicsItem::boundingRect() const
+{
+    QRectF qr( qgraphicsitem_->sceneBoundingRect() );
+    return uiRect( mNINT(qr.left()), mNINT(qr.top()),
+	    	   mNINT(qr.right()), mNINT(qr.bottom()) );
 }
 
 
@@ -216,4 +224,14 @@ void uiGraphicsItemGroup::setVisible( bool yn )
 bool uiGraphicsItemGroup::isVisible() const
 {
     return isvisible_;
+}
+
+
+uiRect uiGraphicsItemGroup::boundingRect() const
+{
+    if ( getSize() < 1 ) return uiRect();
+    uiRect ret( getUiItem(0)->boundingRect() );
+    for ( int idx=1; idx<getSize(); idx++ )
+	ret.include( getUiItem(idx)->boundingRect() );
+    return ret;
 }

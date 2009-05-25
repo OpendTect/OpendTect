@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.13 2009-04-06 13:56:03 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.14 2009-05-25 15:29:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
     void		scaleAroundXY(float sx,float sy,int x,int y);
     void		setZValue(int);
     uiPoint		transformToScenePos(const uiPoint& itmpos) const;
+    virtual uiRect	boundingRect() const;
 
     virtual void	setPenStyle(const LineStyle&);
     virtual void	setPenColor(const Color&);
@@ -83,13 +84,14 @@ public:
     void		add(uiGraphicsItem*);
     void		remove(uiGraphicsItem*,bool);
     void		removeAll(bool);
-    int			getSize()	{ return items_.size(); }
-    uiGraphicsItem* 	getUiItem( int idx )	
-			{ if ( items_.validIdx(idx) ) return items_[idx];
-		          else return 0; }
+    bool		isEmpty() const		{ return items_.isEmpty(); }
+    int			getSize() const		{ return items_.size(); }
+    uiGraphicsItem* 	getUiItem( int idx )	{ return gtItm(idx); }
+    const uiGraphicsItem* getUiItem( int idx ) const	{ return gtItm(idx); }
 
     virtual bool	isVisible() const;
     virtual void	setVisible(bool);
+    virtual uiRect	boundingRect() const;
     QGraphicsItemGroup*	qGraphicsItemGroup()	{ return qgraphicsitemgrp_; }
 
 protected:
@@ -99,6 +101,10 @@ protected:
     bool		isvisible_;
     QGraphicsItemGroup*	qgraphicsitemgrp_;
     ObjectSet<uiGraphicsItem>	items_;
+
+    uiGraphicsItem*	gtItm( int idx ) const
+			{ return !items_.validIdx(idx) ? 0
+			: const_cast<uiGraphicsItemGroup*>(this)->items_[idx]; }
 };
 
 
