@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.27 2009-01-14 10:56:02 cvsnanne Exp $
+ RCS:           $Id: uigeom.h,v 1.28 2009-05-25 15:27:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
 
     inline		uiRect( int l = 0 , int t = 0, int r = 0 , int b = 0 );
     inline		uiRect( const uiPoint& tl, const uiPoint& br );
+    inline		uiRect( const uiPoint& tl, const uiSize& sz );
     inline		uiRect( const Geom::PixRectangle<int>& );
     inline uiSize	getPixelSize() const;
 
@@ -111,6 +112,11 @@ inline uiRect::uiRect( int l, int t, int r, int b )
 
 inline uiRect::uiRect( const uiPoint& tl, const uiPoint& br )
     : Geom::PixRectangle<int>( tl, br )
+{}
+
+
+inline uiRect::uiRect( const uiPoint& tl, const uiSize& sz )
+    : Geom::PixRectangle<int>( tl, sz )
 {}
 
 
