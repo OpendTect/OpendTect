@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.37 2009-01-28 05:45:18 cvsranojay Exp $
+ RCS:           $Id: geometry.h,v 1.38 2009-05-25 15:25:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ class Rectangle
 public:
 			Rectangle(T l=0,T t=0,T r=0,T b=0) ;
 			Rectangle(const Point2D<T>& tl,const Point2D<T>& br);
+			Rectangle(const Point2D<T>& tl,const Size2D<T>& sz);
 
     inline bool		operator==(const Rectangle<T>&) const;
     inline bool		operator!=(const Rectangle<T>&) const;
@@ -126,7 +127,8 @@ public:
 
     inline Point2D<T>	moveInside(const Point2D<T>&) const;
 
-    inline void		fitIn(const Rectangle<T>&);
+    inline void		include(const Rectangle<T>&);
+    inline void		limitTo(const Rectangle<T>&);
 
     inline bool		operator >(const Rectangle<T>&) const;
 
@@ -146,8 +148,10 @@ public:
     inline Size2D<T>	size() const;
     inline void 	zero();
 
-    inline Rectangle<T>& operator+=(const Point2D<T>&);
+    inline Rectangle<T>& operator+=(const Point2D<T>&); // shifts
     inline Rectangle<T>& operator-=(const Point2D<T>&);
+    inline Rectangle<T>& operator+=(const Size2D<T>&); // keeps topleft in place
+    inline Rectangle<T>& operator-=(const Size2D<T>&);
 
     inline void		swapHor();
     inline void		swapVer();
@@ -177,7 +181,8 @@ class PixRectangle : public Rectangle<T>
 {
 public:
 			PixRectangle(T l=0 , T t=0, T r=0 , T b=0 ) ;
-			PixRectangle(Point2D<T> tl,Point2D<T> br) ;
+			PixRectangle(const Point2D<T>& tl,const Point2D<T>& br);
+			PixRectangle(const Point2D<T>& tl,const Size2D<T>& sz);
 			PixRectangle(const Rectangle<T>&);
 
     inline bool		isInside(const Point2D<T>&) const;
@@ -433,7 +438,13 @@ Rectangle<T>::Rectangle( T l, T t, T r, T b )
 template <class T> inline
 Rectangle<T>::Rectangle( const Point2D<T>& tl, const Point2D<T>& br ) 
     : topleft_( tl ) , bottomright_( br )
-{} 
+{}
+
+
+template <class T> inline
+Rectangle<T>::Rectangle( const Point2D<T>& tl, const Size2D<T>& sz ) 
+    : topleft_( tl ) , bottomright_( tl.x+sz.width(), tl.y+sz.height() )
+{}
 
 
 template <class T> inline
@@ -597,6 +608,16 @@ Rectangle<T>& Rectangle<T>::operator -=( const Point2D<T>& p )
 
 
 template <class T> inline
+Rectangle<T>& Rectangle<T>::operator +=( const Size2D<T>& sz )
+{ bottomright_.x += sz.width(); bottomright_.y += sz.height(); return *this; }
+
+
+template <class T> inline
+Rectangle<T>& Rectangle<T>::operator -=( const Size2D<T>& sz )
+{ bottomright_.x -= sz.width(); bottomright_.y -= sz.height(); return *this; }
+
+
+template <class T> inline
 void Rectangle<T>::swapHor() 
 { 
     T t = topleft_.x; 
@@ -700,8 +721,14 @@ PixRectangle<T>::PixRectangle( T l , T t, T r, T b )
 
 
 template <class T>
-PixRectangle<T>::PixRectangle( Point2D<T> tl, Point2D<T> br ) 
+PixRectangle<T>::PixRectangle( const Point2D<T>& tl, const Point2D<T>& br ) 
     : Rectangle<T>(tl,br)
+{}
+
+
+template <class T>
+PixRectangle<T>::PixRectangle( const Point2D<T>& tl, const Size2D<T>& sz ) 
+    : Rectangle<T>(tl,sz)
 {}
 
 
@@ -778,7 +805,7 @@ inline bool Rectangle<T>::operator >( const Rectangle<T>& r ) const
 
 
 template <class T>
-inline void Rectangle<T>::fitIn( const Rectangle<T>& r )
+inline void Rectangle<T>::limitTo( const Rectangle<T>& r )
 {
     if ( revX() )
     {
@@ -799,6 +826,32 @@ inline void Rectangle<T>::fitIn( const Rectangle<T>& r )
     {
 	if ( r.bottom() > bottom() ) bottomright_.y = r.bottom();
 	if ( r.top() < top() ) topleft_.y = r.top();
+    }
+}
+
+
+template <class T>
+inline void Rectangle<T>::include( const Rectangle<T>& r )
+{
+    if ( revX() )
+    {
+	if ( r.left() > left() ) topleft_.x = r.left();
+	if ( r.right() < right() ) bottomright_.x = r.right();
+    }
+    else
+    {
+	if ( r.left() < left() ) topleft_.x = r.left();
+	if ( r.right() > right() ) bottomright_.x = r.right();
+    }
+    if ( revY() )
+    {
+	if ( r.bottom() > bottom() ) bottomright_.y = r.bottom();
+	if ( r.top() < top() ) topleft_.y = r.top();
+    }
+    else
+    {
+	if ( r.bottom() < bottom() ) bottomright_.y = r.bottom();
+	if ( r.top() > top() ) topleft_.y = r.top();
     }
 }
 
