@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.20 2009-04-23 06:32:37 cvssatyaki Exp $
+ RCS:           $Id: uidatapointset.h,v 1.21 2009-05-25 05:58:09 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,7 @@ protected:
     void			fillPos(TRowID);
     void			fillData(TRowID);
     void			handleAxisColChg();
+    void			removeHiddenRows();
     bool			saveOK();
     bool			doSave();
     void			setSortedCol(TColID);

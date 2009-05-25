@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointset.cc,v 1.47 2009-05-21 09:18:29 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uidatapointset.cc,v 1.48 2009-05-25 05:58:09 cvssatyaki Exp $";
 
 #include "uidatapointset.h"
 #include "uistatsdisplaywin.h"
@@ -1032,6 +1032,35 @@ bool uiDataPointSet::doSave()
 
 void uiDataPointSet::delSelRows( CallBacker* )
 {
+    if ( eachrow_ > 1 )
+    {
+	ObjectSet<uiTable::SelectionRange> tablerange =
+	    tbl_->selectedRanges();
+	if ( tablerange.size()>1 )
+	{
+	     if ( !uiMSG().askGoOn( "Only selected rows will be removed"
+		     	      "\nThose rows falling in the same range"
+			      "\nbut not displayed as only certain"
+			      "\npercentage of data is displayed will not"
+			      "\nbe removed."
+			      "\nDo you want to go ahead with removal?" ) )
+		 return;
+	}
+	else
+	{
+	    const int rep = uiMSG().askGoOnAfter("Do you want to remove rows"
+				 "\nwhich fall in the same range but are not"
+				 "\nselected or displayed as only certain"
+				 "\npercentage of data is displayed or only the"
+				 "\nselected & displayed ones ?", "Cancel",
+				 "Delete all", "Delete only selected" );
+	    if ( rep == 0 )
+		removeHiddenRows();
+	    if ( rep != 1 )
+		return;
+	}
+    }
+
     int nrrem = 0;
     for ( int irow=0; irow<tbl_->nrRows(); irow++ )
     {
@@ -1053,4 +1082,41 @@ void uiDataPointSet::delSelRows( CallBacker* )
     mCleanRunCalcs;
     unsavedchgs_ = true;
     redoAll();
+}
+
+
+void uiDataPointSet::removeHiddenRows()
+{
+    const uiTable::SelectionRange* selrange =
+	tbl_->selectedRanges()[0];
+    Interval<float> valrange;
+    valrange.start = tbl_->getValue(
+	    RowCol(selrange->firstrow_,sortcol_) );
+    valrange.stop = tbl_->getValue(
+	    RowCol(selrange->lastrow_,sortcol_) );
+    for ( int drowid=0; drowid<dps_.size(); drowid++ )
+    {
+	const Coord poscoord = dps_.coord( drowid );
+	float val;
+	
+	if ( sortcol_ == 2 )
+	    val = dps_.z( drowid );
+	else if ( sortcol_ == 1 )
+	    val = poscoord.y;
+	else if ( sortcol_ == 0 )
+	    val = poscoord.x;
+	else
+	    val = dps_.value( dColID(sortcol_), drowid );
+	
+	if ( valrange.includes(val) || (valrange.start==val)
+				    || (valrange.stop==val) )
+	    dps_.setInactive( drowid, true );
+	continue;
+	
+    }
+
+    mCleanRunCalcs;
+    unsavedchgs_ = true;
+    redoAll();
+    return;
 }
