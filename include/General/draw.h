@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.25 2009-04-01 14:35:39 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.26 2009-05-25 15:26:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,11 @@ public:
 
     int		uiValue() const;
     void	setUiValue(int);
+
+    static HPos	opposite( HPos p )
+    		{ return p == Left ? Right : (p == Right ? Left : HCenter); }
+    static VPos	opposite( VPos p )
+    		{ return p == Top ? Bottom : (p == Bottom ? Top : VCenter); }
 
 protected:
 
