@@ -3,7 +3,7 @@
 * AUTHOR   : A.H. Bril
 * DATE     : 28-1-1998
 -*/
-static const char* rcsID = "$Id: seiswrite.cc,v 1.50 2009-03-06 14:35:50 cvsbert Exp $";
+static const char* rcsID = "$Id: seiswrite.cc,v 1.51 2009-05-25 10:32:50 cvsbert Exp $";
 
 #include "seiswrite.h"
 #include "keystrs.h"
@@ -140,10 +140,7 @@ Conn* SeisTrcWriter::crConn( int inl, bool first )
     if ( isMultiConn() )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj)
-	if ( iostrm->directNumberMultiConn() )
-	    iostrm->setConnNr( inl );
-	else if ( !first )
-	    iostrm->toNextConnNr();
+	iostrm->setConnNr( inl );
     }
 
     return ioobj->getConn( Conn::Write );
@@ -180,7 +177,7 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
     {
 	mDynamicCastGet(IOStream*,iostrm,ioobj)
 	neednewconn = trc.info().new_packet
-		   || (iostrm->directNumberMultiConn() &&
+		   || (iostrm->isMulti() &&
 			iostrm->connNr() != trc.info().binid.inl);
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.24 2008-12-25 11:25:59 cvsranojay Exp $
+ RCS:		$Id: iostrm.h,v 1.25 2009-05-25 10:32:50 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -51,7 +51,6 @@ public:
 
     bool		multiConn() const
 			{ return isMulti() && curfnr <= fnrs.stop; }
-    bool		directNumberMultiConn() const;
     int			connNr() const
 			{ return curfnr; }
     bool		toNextConnNr()

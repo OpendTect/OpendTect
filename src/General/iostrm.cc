@@ -4,7 +4,7 @@
  * DATE     : 25-10-1994
 -*/
 
-static const char* rcsID = "$Id: iostrm.cc,v 1.29 2008-12-23 11:05:50 cvsdgb Exp $";
+static const char* rcsID = "$Id: iostrm.cc,v 1.30 2009-05-25 10:32:50 cvsbert Exp $";
 
 #include "iostrm.h"
 #include "iolink.h"
@@ -313,13 +313,6 @@ bool IOStream::getFrom( ascistream& stream )
 }
 
 
-bool IOStream::directNumberMultiConn() const
-{
-    if ( !isMulti() ) return false;
-    return strchr(fname,'*') || (writecmd && strchr(*writecmd,'*'));
-}
-
-
 void IOStream::getDev( ascistream& stream )
 {
     const char* kw = stream.keyWord() + 1;
@@ -395,8 +388,8 @@ StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
     FileNameString nm( type_ == StreamConn::Command && !fr
 			? writer() : (const char*)fname );
 
-    const bool doins = fillwc && isMulti()
-	&& (strchr(nm,'*') || strchr(nm,'%'));
+    const bool hasast = strchr( nm, '*' );
+    const bool doins = fillwc && isMulti() && (hasast || strchr(nm,'%'));
     if ( doins )
     {
 	char numb[80], numbstr[80]; numbstr[0] = '\0';
@@ -408,9 +401,7 @@ StreamProvider* IOStream::streamProvider( bool fr, bool fillwc ) const
 		strcat( numbstr, "0" );
 	}
 	strcat( numbstr, numb );
-
-	const char* tok = directNumberMultiConn() ? "*" : "%";
-	replaceString( nm.buf(), tok, numbstr );
+	replaceString( nm.buf(), hasast ? "*" : "%", numbstr );
     }
 
     StreamProvider* sp = new StreamProvider( hostname, nm, type_ );

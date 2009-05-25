@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.92 2009-05-11 06:38:30 cvsranojay Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.93 2009-05-25 10:32:50 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -184,8 +184,6 @@ Conn* SeisTrcReader::openFirst()
     if ( iostrm )
 	iostrm->setConnNr( iostrm->fileNumbers().start );
 
-    trySkipConns();
-
     Conn* conn = ioobj->getConn( Conn::Read );
     if ( !conn || conn->bad() )
     {
@@ -321,7 +319,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 	    if ( neednewinl )
 	    {
 		mDynamicCastGet(IOStream*,iostrm,ioobj)
-		if ( iostrm && iostrm->directNumberMultiConn() )
+		if ( iostrm && iostrm->isMulti() )
 		    return nextConn(ti);
 	    }
 	}
@@ -618,7 +616,6 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     if ( !iostrm->toNextConnNr() )
 	return 0;
 
-    trySkipConns();
     Conn* conn = iostrm->getConn( Conn::Read );
 
     while ( !conn || conn->bad() )
@@ -626,7 +623,6 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	delete conn; conn = 0;
 	if ( !iostrm->toNextConnNr() ) return 0;
 
-	trySkipConns();
 	conn = iostrm->getConn( Conn::Read );
     }
 
@@ -638,7 +634,7 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     int rv = get(ti);
     if ( rv < 1 ) return rv;
 
-    if ( seldata && iostrm->directNumberMultiConn() )
+    if ( seldata && iostrm->isMulti() )
     {
 	if ( !binidInConn(seldata->selRes(ti.binid)) )
 	    return nextConn( ti );
@@ -648,35 +644,6 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
     else		ti.new_packet = true;
 
     return rv;
-}
-
-
-void SeisTrcReader::trySkipConns()
-{
-    if ( !isMultiConn() || isEmpty(seldata) )
-	return;
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( !iostrm || !iostrm->directNumberMultiConn() ) return;
-
-    BinID binid;
-
-    if ( seldata->type() == Seis::Range )
-	binid.crl = seldata->crlRange().start;
-    else if ( seldata->type() == Seis::Table )
-    {
-	mDynamicCastGet(Seis::TableSelData*,tsd,seldata)
-	if ( tsd->binidValueSet().isEmpty() )
-	    return;
-	binid.crl = tsd->binidValueSet().firstPos().crl;
-    }
-
-    do
-    {
-	binid.inl = iostrm->connNr();
-	if ( binidInConn(seldata->selRes(binid)) )
-	    return;
-
-    } while ( iostrm->toNextConnNr() );
 }
 
 
