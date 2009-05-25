@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.1 2009-05-22 08:31:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uigraphicscoltab.cc,v 1.2 2009-05-25 09:16:00 cvsdgb Exp $";
 
 
 #include "uigraphicscoltab.h"
@@ -23,10 +23,8 @@ uiColTabItem::uiColTabItem()
     , ctbarsz_(25,100)
 {
     ctseqitm_ = new uiPixmapItem();
-    minvalitm_ = new uiTextItem( "0",
-			mAlignment(Alignment::HCenter,Alignment::Top) );
-    maxvalitm_ = new uiTextItem( "1",
-			mAlignment(Alignment::HCenter,Alignment::Bottom) );
+    minvalitm_ = new uiTextItem( "0", mAlignment(HCenter,Top) );
+    maxvalitm_ = new uiTextItem( "1", mAlignment(HCenter,Bottom) );
 
     add( ctseqitm_ ); add( minvalitm_ ); add( maxvalitm_ );
 }
