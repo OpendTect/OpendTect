@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.93 2009-05-25 10:32:50 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.94 2009-05-25 11:14:53 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -631,26 +631,14 @@ int SeisTrcReader::nextConn( SeisTrcInfo& ti )
 	errmsg = strl()->errMsg();
 	return -1;
     }
-    int rv = get(ti);
-    if ( rv < 1 ) return rv;
 
-    if ( seldata && iostrm->isMulti() )
-    {
-	if ( !binidInConn(seldata->selRes(ti.binid)) )
-	    return nextConn( ti );
-    }
-
-    if ( rv == 2 )	new_packet = true;
+    const int rv = get( ti );
+    if ( rv < 1 )	return rv;
+    else if ( rv == 2 )	new_packet = true;
     else		ti.new_packet = true;
-
     return rv;
 }
 
-
-bool SeisTrcReader::binidInConn( int r ) const
-{
-    return r == 0 || !strl()->inlCrlSorted() || r%256 != 2;
-}
 
 
 void SeisTrcReader::fillPar( IOPar& iopar ) const
