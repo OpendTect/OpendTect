@@ -7,19 +7,22 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.1 2009-05-25 09:10:47 cvsraman Exp $";
+static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.2 2009-05-25 10:16:06 cvsraman Exp $";
 
 #include "uiclusterproc.h"
 #include "uimain.h"
-#include "plugins.h"
 
 #include "envvars.h"
+#include "filepath.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "plugins.h"
 #include "prog.h"
 #include "strmprov.h"
 #include "strmdata.h"
-#include "iopar.h"
-#include "filepath.h"
-#include "keystrs.h"
+#include "survinfo.h"
+
 #include <iostream>
 #ifndef __msvc__
 # include <unistd.h>
@@ -28,16 +31,16 @@ static const char* rcsID = "$Id: od_ClusterProc.cc,v 1.1 2009-05-25 09:10:47 cvs
 
 int main( int argc, char ** argv )
 {
-/*    od_putProgInfo( argc, argv );
+    od_putProgInfo( argc, argv );
 
     const int bgadd = argc > 1 && !strcmp(argv[1],"-bg") ? 1 : 0;
-    if ( argc+bgadd < 3 )
+    if ( argc+bgadd < 2 )
     {
-	std::cerr << "Usage: " << argv[0] << " program parfile" << std::endl;
+	std::cerr << "Usage: " << argv[0] << " parfile" << std::endl;
 	ExitProgram( 1 );
     }
 
-    FilePath fp( argv[ 2 + bgadd ] );
+    FilePath fp( argv[ 1 + bgadd ] );
     const BufferString parfnm( fp.fullPath() );
     StreamProvider spin( parfnm );
     StreamData sdin = spin.makeIStream();
@@ -52,22 +55,8 @@ int main( int argc, char ** argv )
 	std::cerr << argv[0] << ": Invalid parameter file" << std::endl;
 	ExitProgram( 1 );
     }
-    sdin.close();
 
-#if !defined( __mac__ ) && !defined( __win__ )
-    if ( bgadd )
-    {
-	switch ( fork() )
-	{
-	case -1:
-	    std::cerr << argv[0] << ": cannot fork: "
-		      << errno_message() << std::endl;
-	    ExitProgram( 1 );
-	case 0:		break;
-	default:	return 0;
-	}
-    }
-#endif
+    sdin.close();
 
     const char* res = iop.find( sKey::Survey );
     if ( res && *res && SI().getDirName() != res )
@@ -75,17 +64,14 @@ int main( int argc, char ** argv )
 
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
-*/
+
     uiMain app( argc, argv );
-    IOPar iop;
-    iop.read( argv[1], sKey::Pars );
     uiClusterProc* cp = new uiClusterProc( 0, iop );
 
     app.setTopLevel( cp );
     cp->show();
 
-    int res = app.exec();
-std::cerr << "Application executed. Exiting now ..." << std::endl;
-    ExitProgram( res );
-    return 0;
+    int ret = app.exec();
+    ExitProgram( ret );
+    return ret;
 }
