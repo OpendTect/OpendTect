@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.29 2009-05-22 21:43:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.30 2009-05-26 15:21:11 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -771,42 +771,53 @@ void HorizonSection::surfaceChangeCB( CallBacker* cb )
     }
     else
     {
-	int insertnr = 0;
+	RowCol oldorigin = origin_;
+	int nrinsertbef = 0, nrinsertaft = 0;
+	const int rowsteps =  mTileLastIdx*step_.row;
+
 	while ( rrg.start<origin_.row )
 	{
-	    insertnr++;
-	    neighborchanged = true;
-	    origin_.row -= mTileSideSize*step_.row;
+	    nrinsertbef++;
+	    origin_.row -= rowsteps;
 	}
 
-	if ( insertnr ) insertRowColTilesArray( true, true, insertnr );
-
-	int newadded = 0;
-	while ( origin_.row+(insertnr+nrrows)*step_.row*mTileLastIdx<rrg.stop )
+	if ( nrinsertbef ) 
 	{
-	    insertnr++; newadded++;
+	    insertRowColTilesArray( true, true, nrinsertbef );
 	    neighborchanged = true;
 	}
 
-	if ( newadded ) insertRowColTilesArray( true, false, newadded );
+	while ( oldorigin.row+(nrrows+nrinsertaft)*rowsteps<rrg.stop )
+	    nrinsertaft++;
 
-	insertnr = 0; newadded = 0;
+	if ( nrinsertaft ) 
+	{
+	    insertRowColTilesArray( true, false, nrinsertaft );
+	    neighborchanged = true;
+	}
+
+	nrinsertbef = 0; nrinsertaft = 0;
+	const int colsteps = mTileLastIdx*step_.col;
         while ( crg.start<origin_.col )
 	{
-	    insertnr++;
-	    origin_.col -= mTileSideSize*step_.col;
-	    neighborchanged = true;
+	    nrinsertbef++;
+	    origin_.col -= colsteps;
 	}
 
-	if ( insertnr ) insertRowColTilesArray( false, true, insertnr );
-
-        while ( origin_.col+(insertnr+nrcols)*step_.col*mTileLastIdx<crg.stop )
+	if ( nrinsertbef ) 
 	{
-	    insertnr++; newadded++;
+	    insertRowColTilesArray( false, true, nrinsertbef );
 	    neighborchanged = true;
 	}
+
+        while ( oldorigin.col+(nrcols+nrinsertaft)*colsteps<crg.stop )
+	    nrinsertaft++; 
     
-	if ( newadded ) insertRowColTilesArray( false, false, newadded );
+	if ( nrinsertaft ) 
+	{
+	    insertRowColTilesArray( false, false, nrinsertaft );
+	    neighborchanged = true;
+	}
     
 	nrrows = tiles_.info().getSize( 0 );
 	nrcols = tiles_.info().getSize( 1 );
@@ -939,11 +950,11 @@ void HorizonSection::insertRowColTilesArray( bool torow, bool before, int nr )
 	{
 	    HorizonSectionTile* tile = 0;
 	    if ( torow && before && row>=nr )
-		tile = tiles_.get(row-1,col);
+		tile = tiles_.get(row-nr,col);
 	    else if ( torow && !before && row<rowsz-nr )
 		tile = tiles_.get(row,col);
 	    else if ( !torow && before && col>=nr )
-		tile = tiles_.get(row,col-1);
+		tile = tiles_.get(row,col-nr);
 	    else if ( !torow && !before && col<colsz-nr )
 		tile = tiles_.get(row,col);
 
