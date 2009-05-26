@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Raman Singh
  * DATE     : Sept 2008
- * ID       : $Id: madproc.cc,v 1.1 2009-01-20 12:35:47 cvsraman Exp $
+ * ID       : $Id: madproc.cc,v 1.2 2009-05-26 10:34:31 cvsraman Exp $
 -*/
 
 
@@ -22,6 +22,11 @@ bool ODMad::Proc::progExists( const char* prog )
     FilePath fp( rsfroot );
     fp.add ( "bin" );
     fp.add( prog );
+
+#if __win__
+    fp.setExtension( "exe" );
+#endif
+
     return File_exists( fp.fullPath() );
 }
 
