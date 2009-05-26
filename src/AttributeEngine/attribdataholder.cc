@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.11 2009-05-18 10:31:39 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.12 2009-05-26 10:22:11 cvshelene Exp $";
 
 #include "attribdataholder.h"
 
@@ -102,10 +102,10 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 {
     if ( !series( serieidx ) ) return mUdf(float);
 
+    float disttosamppos = getExtraZFromSampPos( exactz, refstep );
     //Do not use mNINT: we want to get previous sample
     //0.05 to deal with float precision pb
     const int lowz = (int)( (exactz/refstep)+0.05 );
-    float disttosamppos = exactz - lowz*refstep;
     if ( mIsZero( disttosamppos - extrazfromsamppos_, 1e-6 ) )
 	return series( serieidx )->value( lowz-z0_ );
 
@@ -135,6 +135,20 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 	val = mNINT( (exactz/refstep) )==lowz ? p1 : p2;
 
     return val;
+}
+
+
+float DataHolder::getExtraZFromSampPos( float exacttime, float refzstep )
+{
+    //Workaround to avoid conversion problems, 1e7 to get 1e6 precision
+    const int extrazem7 = (int)(exacttime*1e7)%(int)(refzstep*1e7);
+    const int extrazem7noprec = (int)(refzstep*1e7) - 5;
+    const int leftem3 = (int)(exacttime*1e7) - extrazem7;
+    const int extrazem3 = (int)(leftem3*1e-3)%(int)(refzstep*1e3);
+    if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
+	return extrazem3*1e-3 + extrazem7*1e-7;
+
+    return 0;
 }
 
 

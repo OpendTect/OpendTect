@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.h,v 1.16 2009-01-06 10:29:52 cvsranojay Exp $
+ RCS:           $Id: scalingattrib.h,v 1.17 2009-05-26 10:22:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ protected:
     void		scaleAGC(const DataHolder&,int z0,int nrsamples) const;
     void		getScaleFactorsFromStats(
 	    			const TypeSet<Interval<int> >& gates,
-				TypeSet<float>& factors) const;
+				TypeSet<float>& factors,int) const;
     const Interval<int>* desZSampMargin( int inp, int ) const;
 
     int			scalingtype_;

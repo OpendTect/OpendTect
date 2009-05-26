@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: positionattrib.cc,v 1.28 2009-04-02 14:20:57 cvshelene Exp $";
+static const char* rcsID = "$Id: positionattrib.cc,v 1.29 2009-05-26 10:22:11 cvshelene Exp $";
 
 
 #include "positionattrib.h"
@@ -191,10 +191,10 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 				: (oper_ == 1 ? Stats::Max
 					      : Stats::Min );
     Stats::RunCalc<float> stats( Stats::RunCalcSetup().require(statstype) );
+    const float extrasamp = output.extrazfromsamppos_/refstep;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int cursample = z0 + idx;
 	TypeSet<BinIDValue> bidv;
 	stats.clear();
 
@@ -204,19 +204,18 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    if ( !dh || dh->isEmpty() || !dh->series(inidx_) ) 
 		continue;
 
-	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 	    int ds = samplegate.start;
 
-	    float sample = cursample;
+	    float sample = idx + extrasamp;
 	    const int steeridx = dosteer_ ? steerindexes_[idp] : -1;
 	    if ( dosteer_ && steerdata_->series(steeridx) )
 		sample += getInputValue( *steerdata_, steeridx, idx, z0 );
 		
 	    for ( int ids=0; ids<samplegate.width()+1; ids++ )
 	    {
-		float place = sample + ds - dh->z0_;
-		stats += interp.value( *(dh->series(inidx_)), place );
-		bidv += BinIDValue( positions_[idp], sample+ds );
+		float place = sample + ds;
+		stats += getInterpolInputValue( *dh, inidx_, place, z0 );
+		bidv += BinIDValue( positions_[idp], place );
 		ds++;
 	    }
 	}
@@ -224,16 +223,13 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 
 	const int posidx = stats.getIndex( statstype );
 	BinID bid = bidv[posidx].binid;
-	float sample = bidv[posidx].value;
 	const DataHolder* odata = outdata_->get( bid.inl+stepout_.inl, 
 						bid.crl+stepout_.crl );
 
 	float val = 0;
 	if ( odata && !odata->isEmpty() && odata->series(outidx_) )
-	{
-	    ValueSeriesInterpolator<float> intp( odata->nrsamples_-1 );
-	    val = intp.value( *(odata->series(outidx_)), sample-odata->z0_ );
-	}
+	    val = getInterpolInputValue( *odata, outidx_,
+		    			 bidv[posidx].value, z0 );
 
 	setOutputValue( output, 0, idx, z0, val );
     }

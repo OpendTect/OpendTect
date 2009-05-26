@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: scalingattrib.cc,v 1.29 2008-12-05 06:38:52 cvsnageswara Exp $";
+static const char* rcsID = "$Id: scalingattrib.cc,v 1.30 2009-05-26 10:22:11 cvshelene Exp $";
 
 #include "scalingattrib.h"
 
@@ -208,7 +208,8 @@ bool Scaling::getInputData( const BinID& relpos, int zintv )
 
 
 void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
-					TypeSet<float>& scalefactors ) const
+					TypeSet<float>& scalefactors,
+       					int z0 ) const
 {
     Stats::Type statstype = Stats::Max;
     if ( statstype_ == mStatsTypeRMS )
@@ -228,10 +229,7 @@ void Scaling::getScaleFactorsFromStats( const TypeSet<Interval<int> >& sgates,
 	}
 
 	for ( int idx=sg.start; idx<=sg.stop; idx++ )
-	{
-	    const ValueSeries<float>* series = inputdata_->series(dataidx_);
-	    stats += fabs( series->value(idx-inputdata_->z0_) );
-	}
+	    stats += getInputValue( *inputdata_, dataidx_, idx-z0, z0 );
 
 	float val = (float)stats.getValue( statstype );
 	scalefactors += !mIsZero(val,mDefEps) ? 1/val : 1;
@@ -260,7 +258,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 
     TypeSet<float> scalefactors;
     if ( statstype_ != mStatsTypeUser )
-	getScaleFactorsFromStats( samplegates, scalefactors );
+	getScaleFactorsFromStats( samplegates, scalefactors, z0 );
     else
 	scalefactors = factors_;
 

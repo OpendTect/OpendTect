@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.116 2009-05-18 10:31:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.117 2009-05-26 10:22:11 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1425,7 +1425,7 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 {
     ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
     const float samplepos = (zval/getRefStep()) - input.z0_
-			    - input.extrazfromsamppos_;
+			    - input.extrazfromsamppos_/getRefStep();
     return interp.value( *input.series(inputidx), samplepos );
 }
 
@@ -1434,8 +1434,8 @@ float Provider::getInterpolInputValue( const DataHolder& input, int inputidx,
 				       float sampleidx, int z0 ) const
 {
     ValueSeriesInterpolator<float> interp( input.nrsamples_-1 );
-    const float samplepos = float(z0-input.z0_) - input.extrazfromsamppos_
-			    + sampleidx;
+    const float samplepos = float(z0-input.z0_) + sampleidx
+			    - input.extrazfromsamppos_/getRefStep();
     return interp.value( *input.series(inputidx), samplepos );
 }
 
@@ -1456,7 +1456,8 @@ float Provider::getInputValue( const DataHolder& input, int inputidx,
     }
 
     if ( needinterp && !mIsEqual(extraz,input.extrazfromsamppos_,mDefEps) )
-	return getInterpolInputValue( input, inputidx, extraz );
+	return getInterpolInputValue( input, inputidx,
+				   (float)sampleidx + extraz/getRefStep(), z0 );
     else
     {
 	const int sidx = z0 - input.z0_ + sampleidx;
@@ -1561,15 +1562,7 @@ void Provider::setRdmPaths( TypeSet<BinID>* truepath,
 
 float Provider::getExtraZFromSampPos( float exacttime ) const
 {
-    //Workaround to avoid conversion problems, 1e7 to get 1e6 precision
-    const int extrazem7 = (int)(exacttime*1e7)%(int)(getRefStep()*1e7);
-    const int extrazem7noprec = (int)(getRefStep()*1e7) - 5;
-    const int leftem3 = (int)(exacttime*1e7) - extrazem7;
-    const int extrazem3 = (int)(leftem3*1e-3)%(int)(getRefStep()*1e3);
-    if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
-       return extrazem3*1e-3 + extrazem7*1e-7;
-
-    return 0;
+    return DataHolder::getExtraZFromSampPos( exacttime, getRefStep() );
 }
 
 }; // namespace Attrib
