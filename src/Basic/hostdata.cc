@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: hostdata.cc,v 1.42 2009-04-30 14:07:30 cvskris Exp $";
+static const char* rcsID = "$Id: hostdata.cc,v 1.43 2009-05-26 14:31:20 cvskris Exp $";
 
 #include "hostdata.h"
 #include "strmdata.h"
@@ -412,10 +412,7 @@ void HostDataList::handleLocal()
 	{
 	    BufferString* al = lochd.aliases_[idx];
 	    if ( *al == hnm )
-	    {
 		lochd.aliases_ -= al;
-		delete al;
-	    }
 	}
     }
 
