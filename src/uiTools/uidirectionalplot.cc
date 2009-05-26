@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.27 2009-05-25 15:46:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.28 2009-05-26 13:29:13 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -120,9 +120,12 @@ void uiDirectionalPlot::gatherInfo()
 	    for ( int ipart=0; ipart<sd.size(); ipart++ )
 	    {
 		const Stats::SectorPartData& spd = sd[ipart];
-		vals += spd.val_;
-		posrg_.include( spd.pos_ );
-		curcount += spd.count_;
+		if ( spd.count_ )
+		{
+		    vals += spd.val_;
+		    posrg_.include( spd.pos_ );
+		    curcount += spd.count_;
+		}
 	    }
 	    if ( curcount > maxcount_ ) maxcount_ = curcount;
 	}
@@ -229,18 +232,15 @@ void uiDirectionalPlot::drawScale()
 	Alignment al( mAlignment(HCenter,VCenter) );
 	scaleannotitm_ = scene().addItem( new uiTextItem(midpt,nm,al) );
 	al.set( Alignment::Left );
-	BufferString str; str += data_.setup_.usrposrg_.start;
-	scalestartitm_ = scene().addItem( new uiTextItem(startpt,str,al) );
+	scalestartitm_ = scene().addItem( new uiTextItem(startpt,"",al) );
 	al.set( Alignment::Right );
-	str.setEmpty(); str += data_.setup_.usrposrg_.stop;
-	scalestopitm_ = scene().addItem( new uiTextItem(endpt,str,al) );
+	scalestopitm_ = scene().addItem( new uiTextItem(endpt,"",al) );
     }
-    else
-    {
-	scaleannotitm_->setPos( midpt );
-	scalestartitm_->setPos( startpt );
-	scalestopitm_->setPos( endpt );
-    }
+    scalestartitm_->setPos( startpt );
+    scaleannotitm_->setPos( midpt );
+    scalestopitm_->setPos( endpt );
+    scalestartitm_->setText( toString(data_.setup_.usrposrg_.start) );
+    scalestopitm_->setText( toString(data_.setup_.usrposrg_.stop) );
 }
 
 
