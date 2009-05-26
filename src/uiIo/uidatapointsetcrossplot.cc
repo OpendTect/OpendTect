@@ -4,11 +4,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.41 2009-05-25 15:30:20 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.42 2009-05-26 11:25:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.41 2009-05-25 15:30:20 cvsbert Exp $";
+static const char* rcsID = "$Id: uidatapointsetcrossplot.cc,v 1.42 2009-05-26 11:25:46 cvssatyaki Exp $";
 
 #include "uidatapointsetcrossplotwin.h"
 
@@ -427,13 +427,6 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
     if ( !selectable_ || !selareaset_.validIdx(curselarea_) )
 	return;
 
-    if ( !selareaset_[curselarea_]->isValid() )
-    {
-	selareaset_.remove( curselarea_ );
-	uiMSG().error( "Selection area is not valid" );
-	return;
-    }
-
     if ( !isCtrlPressed() && selareaset_.size()>1 )
     {
 	SelectionArea* curselarea = selareaset_[curselarea_];
@@ -450,6 +443,13 @@ void uiDataPointSetCrossPlotter::itemsSelected( CallBacker* )
 	    selareaset_[curselarea_]->rect_->setBottomRight( getCursorPos() );
     }
     
+    if ( !selareaset_[curselarea_]->isValid() )
+    {
+	selareaset_.remove( curselarea_ );
+	uiMSG().error( "Selection area is not valid" );
+	return;
+    }
+
     pointstobeselected_ = true;
     reDrawNeeded.trigger();
  
