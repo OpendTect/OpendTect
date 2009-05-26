@@ -20,6 +20,7 @@ class WellTieParams;
 class WellTieDataSet;
 class WellTieParams;
 class WellTieDataMGR;
+class WellTieD2TModelMGR;
 class WellTiePickSetMGR;
 class WellTiePickSet;
 
@@ -34,7 +35,7 @@ mClass uiWellTieEventStretch : public uiWellTieStretch
 {
 public:
 			uiWellTieEventStretch(uiParent*,const WellTieParams*,
-			    		 const Well::Data* wd,WellTieDataMGR&,
+			    		 Well::Data* wd,WellTieDataMGR&,
 					 uiWellTieView&,WellTiePickSetMGR&);
 			~uiWellTieEventStretch();
 
@@ -44,11 +45,13 @@ public:
     
 protected:
 
+    WellTieD2TModelMGR*			d2tmgr_;
     WellTiePickSet& 			seispickset_;
     WellTiePickSet& 			synthpickset_;
 
     void 				addUserPick(CallBacker*);
     void 				drawLogsData();
+    void 				doStretchWork(); 
     void				updatePos(float&);
 };
 

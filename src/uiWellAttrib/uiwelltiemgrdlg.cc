@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.2 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiemgrdlg.cc,v 1.3 2009-05-26 07:06:53 cvsbruno Exp $";
 
 #include "uiwelltiemgrdlg.h"
 
@@ -88,7 +88,7 @@ uiWellTieMGRDlg::uiWellTieMGRDlg( uiParent* p, WellTieSetup& wtsetup,
 
 uiWellTieMGRDlg::~uiWellTieMGRDlg()
 {
-    deepErase( welltiedlgset_ );
+    deepErase( welltiedlgsetcpy_ );
     delete wllctio_.ioobj; delete &wllctio_;
     delete wvltctio_.ioobj; delete &wvltctio_;
 }
@@ -202,6 +202,7 @@ bool uiWellTieMGRDlg::acceptOK( CallBacker* )
     }
 
     welltiedlgset_ += new uiWellTieToSeismicDlg(this, wtsetup_, attrset_, true);
+    welltiedlgsetcpy_ += welltiedlgset_[welltiedlgset_.size()-1];
     welltiedlgset_[welltiedlgset_.size()-1]->windowClosed.notify(
 	    			mCB(this,uiWellTieMGRDlg,wellTieDlgClosed));
     welltiedlgset_[welltiedlgset_.size()-1]->go();
@@ -219,6 +220,5 @@ void uiWellTieMGRDlg::wellTieDlgClosed( CallBacker* cb )
     {
 	if ( welltiedlgset_[idx] == dlg )
 	    welltiedlgset_.remove(idx); 
-	//doesn't need to delete, since delonclose!
     }
 }

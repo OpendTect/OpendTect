@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.1 2009-05-20 14:27:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.2 2009-05-26 07:06:53 cvsbruno Exp $";
 
 #include "arrayndimpl.h"
 #include "uiwelltieeventstretch.h"
@@ -19,9 +19,10 @@ static const char* rcsID = "$Id: uiwelltieeventstretch.cc,v 1.1 2009-05-20 14:27
 #include "welltiepickset.h"
 #include "welltiesetup.h"
 #include "welltiegeocalculator.h"
+#include "welltied2tmodelmanager.h"
 
 uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p,
-			    const WellTieParams* pms, const Well::Data* wd,
+			    const WellTieParams* pms, Well::Data* wd,
 			    WellTieDataMGR& mgr, uiWellTieView& v,
 			    WellTiePickSetMGR& pmgr )
         : uiWellTieStretch(p,pms,wd,mgr,v,pmgr)
@@ -29,12 +30,14 @@ uiWellTieEventStretch::uiWellTieEventStretch( uiParent* p,
 	, seispickset_(*pmgr.getSeisPickSet())
 	, readyforwork(this)				
 {
+    d2tmgr_  = new WellTieD2TModelMGR( *wd, pms->getSetup(), *geocalc_ );
     pmgr.pickadded.notify(mCB(this,uiWellTieEventStretch,addUserPick));
 } 
 
 
 uiWellTieEventStretch::~uiWellTieEventStretch()
 {
+    delete d2tmgr_;
 }
 
 
@@ -42,19 +45,28 @@ void uiWellTieEventStretch::addUserPick( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,vwridx,cb);
 	
-    if ( vwridx == 3 )
-	dataviewer_.drawUserPicks( synthpickset_ );
-    else if ( vwridx == 4)
-	dataviewer_.drawUserPicks( seispickset_ );
+    if ( vwridx == 4 )
+	dataviewer_.drawUserPicks( &synthpickset_ );
+    else if ( vwridx == 5 )
+	dataviewer_.drawUserPicks( &seispickset_ );
     else return;
 
-    if ( seispickset_.getSize() && synthpickset_.getSize() 
-      		&& seispickset_.getSize() == synthpickset_.getSize() )
+    if ( seispickset_.getSize() && synthpickset_.getSize() )
 	readyforwork.trigger();
 }
 
 
 void uiWellTieEventStretch::doWork(CallBacker*)
+{
+    if ( synthpickset_.getSize() == 1 )
+	d2tmgr_->shiftModel( seispickset_.getLastPos()
+			    	- synthpickset_.getLastPos() );
+    else
+	doStretchWork();	
+}
+
+
+void uiWellTieEventStretch::doStretchWork()
 {
     for (int idx=0; idx<seispickset_.getSize(); idx++)
     {
@@ -73,7 +85,7 @@ void uiWellTieEventStretch::doWork(CallBacker*)
 	
 	delete prevdispdata_;
 	prevdispdata_ = new WellTieDataSet ( dispdata_ );
-	doStretchData(params_.dptnm_);
+	doStretchData( params_.dptnm_ );
     }
     dispdataChanged.trigger();
 }

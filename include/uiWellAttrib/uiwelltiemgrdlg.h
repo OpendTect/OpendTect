@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Jan 2009
- RCS:           $Id: uiwelltiemgrdlg.h,v 1.1 2009-04-21 13:55:59 cvsbruno Exp $
+ RCS:           $Id: uiwelltiemgrdlg.h,v 1.2 2009-05-26 07:06:52 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ protected:
     bool		savedefaut_;
     const Attrib::DescSet& attrset_;
     ObjectSet<uiWellTieToSeismicDlg> welltiedlgset_;
+    ObjectSet<uiWellTieToSeismicDlg> welltiedlgsetcpy_;
 
     uiIOObjSel*         wellfld_;
     uiIOObjSel*         wvltfld_;

@@ -87,6 +87,7 @@ public:
 
     void           addPick(int,float);
     void           updateShift(int,float);
+    void           clearAllPicks();
 
 protected:
 

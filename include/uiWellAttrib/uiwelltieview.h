@@ -48,6 +48,7 @@ public:
     void			deleteCheckShot();
 
 
+    void        		drawAI();
     void        		drawVelLog();
     void        		drawDenLog();
     void        		drawMarker(FlatView::Annotation::AuxData*,
@@ -55,7 +56,7 @@ public:
     void        		drawReflectivity();
     void        		drawSynthetics();
     void        		drawSeismic();
-    void        		drawUserPicks(const WellTiePickSet&);
+    void        		drawUserPicks(const WellTiePickSet*);
     void        		drawWellMarkers();
     void        		drawCShot();
 

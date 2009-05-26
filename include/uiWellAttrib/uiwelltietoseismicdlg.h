@@ -80,6 +80,8 @@ protected:
     uiWellTieLogStretch* logstretcher_;
     uiWellTieEventStretch* eventstretcher_;
 
+    bool		manip_;
+
     void		addControl();
     void 		addToolBarTools();
     void 		doWholeWork();

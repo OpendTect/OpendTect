@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.7 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.8 2009-05-26 07:06:53 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -179,14 +179,16 @@ void WellTieGeoCalculator::stretchArr( const Array1DImpl<float>& inp,
     {
 	float curval = ( idx - idxstart )*stretchfac + idxstart;
 	int curidx = (int)curval;
-	interpolAtIdx( inp.get( curidx ), inp.get( curidx +1), curval, val );
+	if ( curidx >= datasz-1 ) return;
+	interpolAtIdx( inp.get( curidx ), inp.get( curidx+1), curval, val );
 	outp.setValue( idx, val );
     }
     for ( int idx=idxstop; idx<datasz-1; idx++ )
     {
 	float curval = ( idx - datasz )*squeezefac + datasz;
 	int curidx = (int)curval;
-	interpolAtIdx( inp.get( curidx ), inp.get( curidx +1), curval, val );
+	if ( curidx >= datasz-1 ) return;
+	interpolAtIdx( inp.get( curidx ), inp.get( curidx+1), curval, val );
 	outp.setValue( idx , val );
     }
 }
@@ -198,33 +200,6 @@ void WellTieGeoCalculator::interpolAtIdx( float prevval, float postval,
     int curidx = (int)curval;
     outval = ( curval - curidx ) * ( postval - prevval ) + prevval;
 }
-
-    /*
-bool WellTieD2TModelManager::shiftModel( const float shift)
-{
-    TypeSet<float> dah, time;
-
-    const Well::D2TModel& d2t = d2T();
-    //copy old d2t
-    for (int idx = 0; idx<d2t_.size(); idx++)
-    {
-    time += d2t.value( idx );
-    dah  += d2t.dah( idx );
-    }
-
-    //replace by shifted one
-    d2t.erase();
-    for ( int dahidx=0; dahidx<dah.size(); dahidx++ )
-    d2t.add( dah[dahidx], time[dahidx] + shift );
-
-    if ( d2t.size() > 1 )
-    wd_.d2tchanged.trigger();
-    else
-    return false;
-
-return true;
-}
-*/
 
 
 //Small Data Interpolator, specially designed for log (dah) data
@@ -427,7 +402,7 @@ void WellTieGeoCalculator::convolveWavelet( const Array1DImpl<float>& wvltvals,
     float* outp = new float[reflsz];
 
     GenericConvolve( wvltsz, -widx, wvltvals.getData(),
-		     reflsz, 0  	 , reflvals,
+		     reflsz, 0  	 , reflvals.getData(),
 		     reflsz, 0  	 , outp );
 
     memcpy( synvals.getData(), outp, reflsz*sizeof(float));
@@ -535,4 +510,18 @@ void WellTieGeoCalculator::reverseWavelet( Wavelet& wvlt )
 	wvlt.samples()[idx] = wvltvals.get(wvltsz-idx-1);
 	wvlt.samples()[wvltsz-idx-1] = wvltvals.get( idx );
     }
+}
+
+
+void WellTieGeoCalculator::autocorr( const Array1DImpl<float>& seisvals, 
+				     const Array1DImpl<float>& synthvals,
+       				     Array1DImpl<float>& outpvals	)
+{
+    const int datasz = seisvals.info().getSize(0);
+    float* outp = new float[datasz];
+    genericCrossCorrelation( datasz, 0, seisvals,
+			     datasz, 0, synthvals,
+			     datasz, 0, outp);
+    memcpy( outpvals.getData(), outp, datasz*sizeof(float));
+    delete outp;
 }

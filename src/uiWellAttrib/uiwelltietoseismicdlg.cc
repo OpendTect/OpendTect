@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.8 2009-05-20 16:48:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.9 2009-05-26 07:06:53 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -64,9 +64,11 @@ uiWellTieToSeismicDlg::uiWellTieToSeismicDlg( uiParent* p,
     	, setup_(WellTieSetup(wts))
 	, wd_(Well::MGR().get(wts.wellid_))
 	, dataplayer_(0)
+	, wvltdraw_(0)
 	, datadrawer_(0)
     	, controlview_(0)
 	, params_(0)       		 
+	, manip_(0)				 
 {
     uiTaskRunner* tr = new uiTaskRunner( p );
     toolbar_ = new uiToolBar( this, "Well Tie Control" );
@@ -100,7 +102,7 @@ uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 {
     if ( wvltdraw_  )
 	wvltdraw_->wvltChanged.remove(mCB(this,uiWellTieToSeismicDlg,wvltChg));
-    if ( logstretcher_ )
+    if ( eventstretcher_ )
     {
 	eventstretcher_->readyforwork.remove(
 				mCB(this,uiWellTieToSeismicDlg,applyReady) );
@@ -111,9 +113,9 @@ uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
 	logstretcher_->dispdataChanged.remove(
 			    mCB(this,uiWellTieToSeismicDlg,dispDataChanged) );
 
+    if ( datadrawer_ )     delete datadrawer_;
     if ( params_ )	   delete params_;
     if ( datamgr_ ) 	   delete datamgr_;
-    if ( datadrawer_ )     delete datadrawer_;
     if ( wd_ ) 		   delete wd_;	 
     if ( logstretcher_ )   delete logstretcher_;
     if ( eventstretcher_ ) delete eventstretcher_;
@@ -251,7 +253,7 @@ void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
 void uiWellTieToSeismicDlg::createTaskFields( uiGroup* taskgrp )
 {
     applybut_ = new uiPushButton( taskgrp, "Apply Changes",
-	   mCB(this,uiWellTieToSeismicDlg,applyPushed),false );
+       mCB(this,uiWellTieToSeismicDlg,applyPushed),false );
     applybut_->setSensitive( false );
 
     undobut_ = new uiPushButton( taskgrp, "Undo",
@@ -309,7 +311,11 @@ void uiWellTieToSeismicDlg::userDepthsChanged( CallBacker* )
 
 void uiWellTieToSeismicDlg::applyReady( CallBacker* )
 {
-    applybut_->setSensitive(true);
+    if ( manip_ )
+	manip_ = 0;
+    else
+	manip_ = 1;
+    applybut_->setSensitive( manip_ ? true : false );
 }
 
 
@@ -409,10 +415,12 @@ bool uiWellTieToSeismicDlg::saveD2TPushed( CallBacker* )
 void uiWellTieToSeismicDlg::applyPushed( CallBacker* )
 {
     eventstretcher_->doWork(0);
+    picksetmgr_->clearAllPicks();
     setUserDepths();
     doWholeWork();
     applybut_->setSensitive( false );
     undobut_->setSensitive( true );
+    manip_ = 0;
 }
 
 
