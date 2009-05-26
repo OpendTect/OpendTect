@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: flatview.cc,v 1.51 2009-04-01 14:35:39 cvsbert Exp $";
+static const char* rcsID = "$Id: flatview.cc,v 1.52 2009-05-26 08:24:20 cvsbruno Exp $";
 
 #include "flatview.h"
 #include "flatposdata.h"
@@ -444,7 +444,9 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     const FlatPosData& pd = dp->posData();
     const IndexInfo ix = pd.indexInfo( true, pt.x );
     const IndexInfo iy = pd.indexInfo( false, pt.y );
-    if ( !ix.inundef_ && !iy.inundef_ )
+    const int sizx = info.getSize(0);
+    const int sizy = info.getSize(1);
+    if ( !ix.inundef_ && !iy.inundef_ && ix.nearest_<sizx && iy.nearest_<sizy )
     {
 	const float val = arr.get( ix.nearest_, iy.nearest_ );
 	iop.set( iswva ? "WVA Value" : "VD Value", val );
