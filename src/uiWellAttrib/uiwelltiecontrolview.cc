@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.5 2009-05-20 14:27:29 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.6 2009-05-26 07:42:01 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -40,7 +40,8 @@ uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
     , toolbar_(toolbar)
     , manipdrawbut_(0)
     , dprops_(0)	
-    , manip_(false)			
+    , manip_(false)
+    , propdlg_(0) 		   
 {
     for ( int vwridx=1; vwridx<viewer.size(); vwridx++ )
 	addViewer( *viewer[vwridx] );
@@ -140,10 +141,13 @@ void uiWellTieControlView::setView()
 
 void uiWellTieControlView::doPropDlg( CallBacker* )
 {
-    uiWellTieViewPropDlg propdlg( this, *dprops_, vwrs_ );
-    propdlg.windowClosed.notify( 
-	mCB(this,uiWellTieControlView,propDlgClosed) );
-    propdlg.go();
+    if ( !propdlg_ )
+    {
+	propdlg_ = new uiWellTieViewPropDlg( this, *dprops_, vwrs_ );
+	propdlg_->windowClosed.notify( 
+	    mCB(this,uiWellTieControlView,propDlgClosed) );
+    }
+    propdlg_->go();
 }
 
 

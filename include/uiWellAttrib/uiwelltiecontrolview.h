@@ -41,7 +41,7 @@ protected:
     uiToolButton*       zoomoutbut_;
     uiToolButton*       manipdrawbut_;
     uiToolButton*       disppropbut_;
-    //uiWellTieViewPropDlg propdlg_;
+    uiWellTieViewPropDlg* propdlg_;
     
     WellTiePickSetMGR*  picksetmgr_;
     WellTieDisplayProperties* dprops_;
