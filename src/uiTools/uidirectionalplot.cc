@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.28 2009-05-26 13:29:13 cvsbert Exp $";
+static const char* rcsID = "$Id: uidirectionalplot.cc,v 1.29 2009-05-26 14:49:51 cvsbert Exp $";
 
 #include "uidirectionalplot.h"
 #include "uigraphicsscene.h"
@@ -429,7 +429,7 @@ void uiDirectionalPlot::drawVals()
 	    Swap( as.angles_.start, as.angles_.stop );
 	    ci->drawTo( as );
 
-	    float relpos = (valrg_.stop - spd.val_)/(valrg_.stop-valrg_.start);
+	    float relpos = (spd.val_-valrg_.start)/(valrg_.stop-valrg_.start);
 	    if ( relpos < 0 ) relpos = 0;
 	    if ( relpos > 1 ) relpos = 1;
 	    ci->setFillColor( colseq_->color(relpos) );
