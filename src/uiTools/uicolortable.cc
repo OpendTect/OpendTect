@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uicolortable.cc,v 1.32 2009-03-06 16:04:00 cvskris Exp $";
+static const char* rcsID = "$Id: uicolortable.cc,v 1.33 2009-05-26 07:02:35 cvsnanne Exp $";
 
 #include "uicolortable.h"
 
@@ -344,9 +344,7 @@ void clipPush( CallBacker* )
     const bool doclip = doclipfld->getBoolValue();
     clipfld->display( doclip );
     autosymfld->display( doclip );
-    symfld->display( doclip );
-    midvalfld->display( symfld->getBoolValue() && doclip );
-    storfld->display( doclip );
+    autoSymPush( 0 );
 }
 
 void symPush( CallBacker* )
