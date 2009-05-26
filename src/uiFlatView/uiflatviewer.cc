@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.77 2009-05-19 09:45:05 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.78 2009-05-26 13:29:00 cvsbert Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -267,7 +267,6 @@ void uiFlatViewer::drawBitMaps()
 	if ( !mkBitmaps(offs) )
 	{
 	    delete wvabmpmgr_; wvabmpmgr_ = 0; delete vdbmpmgr_; vdbmpmgr_ = 0;
-	    uiMSG().error( "No memory for bitmaps" );
 	    return;
 	}
 	if ( vdbmpmgr_->bitMapGen() )
