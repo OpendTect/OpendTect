@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.46 2009-05-04 11:15:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.47 2009-05-27 07:54:35 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: uiwellman.cc,v 1.46 2009-05-04 11:15:25 cvsrano
 #include "strmprov.h"
 #include "survinfo.h"
 #include "welldata.h"
+#include "welltrack.h"
 #include "welllog.h"
 #include "welllogset.h"
 #include "welld2tmodel.h"
@@ -380,16 +381,31 @@ void uiWellMan::mkFileInfo()
     BufferString txt;
 
 #define mAddWellInfo(key,str) \
-    if ( str.size() ) \
+    if ( !str.isEmpty() ) \
     { txt += key; txt += ": "; txt += str; txt += "\n"; }
 
-    Well::Info& info = welldata->info();
+    const Well::Info& info = welldata->info();
+    const Well::Track& track = welldata->track();
+
     BufferString crdstr; info.surfacecoord.fill( crdstr.buf() );
     BufferString bidstr; SI().transform(info.surfacecoord).fill( bidstr.buf() );
     BufferString posstr( bidstr ); posstr += " "; posstr += crdstr;
-    const BufferString elevstr( toString(info.surfaceelev) );
     mAddWellInfo(Well::Info::sKeycoord(),posstr)
-    mAddWellInfo(Well::Info::sKeyelev(),elevstr)
+
+    if ( !track.isEmpty() )
+    {
+	float rdelev = track.dah( 0 ) - track.value( 0 );
+	if ( !mIsZero(rdelev,1e-4) )
+	{
+	    txt += "Reference Datum Elevation"; txt += ": ";
+	    const char* unstr = " m";
+	    if ( SI().zInFeet() )
+		{ rdelev *= mToFeetFactor; unstr = " ft"; }
+	    txt += rdelev; txt += unstr;
+	    txt += "\n";
+	}
+    }
+
     mAddWellInfo(Well::Info::sKeyuwid(),info.uwid)
     mAddWellInfo(Well::Info::sKeyoper(),info.oper)
     mAddWellInfo(Well::Info::sKeystate(),info.state)
