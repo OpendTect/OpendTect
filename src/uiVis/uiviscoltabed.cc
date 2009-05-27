@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.38 2009-03-06 16:09:51 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.39 2009-05-27 02:07:19 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -19,6 +19,8 @@ static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.38 2009-03-06 16:09:51 cvs
 #include "settings.h"
 #include "viscolortab.h"
 #include "visdataman.h"
+#include "visdata.h"
+#include "vissurvobj.h"
 #include "uicolortable.h"
 #include "mousecursor.h"
 
@@ -33,15 +35,32 @@ const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
 const char* uiVisColTabEd::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
+    : survobj_( 0 )
 {
     const ColTab::Sequence colseq("");
     uicoltab_ = new uiColorTable( p, colseq, vert );
     if ( !vert ) uicoltab_->setStretch( 0, 0 );
+
+    visBase::DM().removeallnotify.notify(
+	    mCB(this,uiVisColTabEd,removeAllVisCB) );
 }
 
 
+#define mImplNotification( refop, notify) \
+    if ( survobj_ ) \
+    { \
+	survobj_->getColTabMapperSetup( channel_, version_ )-> \
+	    rangeChange.notify( mCB(this,uiVisColTabEd, mapperChangeCB ) ); \
+	mDynamicCastGet( visBase::DataObject*, dataobj, survobj_ ); \
+	if ( dataobj ) \
+	    dataobj->refop(); \
+    }
+
 uiVisColTabEd::~uiVisColTabEd()
 {
+    mImplNotification( unRef, remove );
+    visBase::DM().removeallnotify.remove(
+	    mCB(this,uiVisColTabEd,removeAllVisCB) );
     delete uicoltab_;
 }
 
@@ -53,35 +72,42 @@ void uiVisColTabEd::setColTab( const ColTab::Sequence* seq, bool editseq,
     uicoltab_->setSequence( seq, editseq, true );
     uicoltab_->setMapperSetup( setup, true );
     uicoltab_->enableTransparencyEdit( enabletrans );
-
-    /*TODO trigger something
-
-    if ( viscoltab_&& viscoltab_->id()==id ) return;
-
-    visBase::DataObject* obj = id>=0 ? visBase::DM().getObject( id ) : 0;
-    mDynamicCastGet(visBase::VisColorTab*,nct,obj);
-
-    if ( viscoltab_ )
-    {
-	disableCallBacks();
-	viscoltab_->unRef();
-    }
-
-    viscoltab_ = nct;
-    if ( viscoltab_ )
-    {
-	viscoltab_->ref();
-	enableCallBacks();
-	updateEditor();
-    }
-
-    if ( id > 0 )
-    {
-	uicoltab_->setTable( viscoltab_->colorSeq().colors() );
-        uicoltab_->setInterval( viscoltab_->getInterval() );
-    }
-    */
 }
+
+
+void uiVisColTabEd::setColTab( visSurvey::SurveyObject* so, int channel,
+			       int version )
+{
+    mImplNotification( unRef, remove );
+
+    survobj_ = so;
+    channel_ = channel;
+    version_ = version;
+
+    mImplNotification( ref, notify );
+
+    uicoltab_->setSequence( so ? so->getColTabSequence(channel_) : 0,
+			    true, true );
+    uicoltab_->setMapperSetup(
+	    so ? so->getColTabMapperSetup(channel_,version_) : 0, true );
+    uicoltab_->enableTransparencyEdit(
+	    so && so->canHandleColTabSeqTrans(channel_) );
+}
+
+
+void uiVisColTabEd::mapperChangeCB( CallBacker* )
+{
+    uicoltab_->setMapperSetup(
+	    survobj_->getColTabMapperSetup( channel_, version_ ), true );
+}
+
+
+void uiVisColTabEd::removeAllVisCB( CallBacker* )
+{
+    mImplNotification( unRef, remove);
+    survobj_ = 0;
+}
+
 
 
 const ColTab::Sequence& uiVisColTabEd::getColTabSequence() const

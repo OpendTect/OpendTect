@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.22 2009-03-06 16:09:51 cvskris Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.23 2009-05-27 02:07:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-namespace visBase { class VisColorTab; }
+namespace visSurvey { class SurveyObject; }
 namespace ColTab { class Sequence; struct MapperSetup; }
 class uiColorTable;
 class uiGroup;
@@ -32,6 +32,8 @@ public:
 	    				  bool editseq,
 	    				  const ColTab::MapperSetup*,
 					  bool edittrans);
+    void			setColTab(visSurvey::SurveyObject*,int ch,
+	    				  int version);
     const ColTab::Sequence&	getColTabSequence() const;
     const ColTab::MapperSetup&	getColTabMapperSetup() const;
 
@@ -60,7 +62,14 @@ public:
 
 protected:
 
+    void			mapperChangeCB(CallBacker*);
+    void			removeAllVisCB(CallBacker*);
+
+
     uiColorTable*		uicoltab_;
+    int				channel_;
+    int				version_;
+    visSurvey::SurveyObject*	survobj_;
 };
 
 

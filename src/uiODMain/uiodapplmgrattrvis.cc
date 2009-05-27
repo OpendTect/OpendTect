@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.3 2009-04-06 11:59:01 cvshelene Exp $";
+static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.4 2009-05-27 02:07:19 cvskris Exp $";
 
 #include "uiodapplmgraux.h"
 #include "uiodapplmgr.h"
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiodapplmgrattrvis.cc,v 1.3 2009-04-06 11:59:01
 
 #include "uicolortable.h"
 #include "uiviscoltabed.h"
+#include "vissurvobj.h"
 
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
@@ -140,10 +141,17 @@ void uiODApplMgrAttrVisHandler::colMapperChg()
     setHistogram( visid, attrib );
 
     //Autoscale may have changed ranges, so update.
-    am_.appl_.colTabEd().setColTab(
+    mDynamicCastGet( visSurvey::SurveyObject*, so,
+	am_.visserv_->getObject( visid ) );
+    if ( so )
+	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
+    else
+    {
+ 	am_.appl_.colTabEd().setColTab(
 	    am_.visserv_->getColTabSequence( visid, attrib ),
 	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
 	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
+    }
 }
 
 
@@ -182,10 +190,17 @@ void uiODApplMgrAttrVisHandler::updateColorTable( int visid, int attrib  )
     if ( attrib<0 || attrib>=am_.visserv_->getNrAttribs(visid) )
 	return;
 
-    am_.appl_.colTabEd().setColTab(
-	    	am_.visserv_->getColTabSequence( visid, attrib ),
-		true, am_.visserv_->getColTabMapperSetup(visid,attrib),
-		am_.visserv_->canHandleColTabSeqTrans(visid,attrib));
+    mDynamicCastGet( visSurvey::SurveyObject*, so,
+	am_.visserv_->getObject( visid ) );
+    if ( so )
+	am_.appl_.colTabEd().setColTab( so, attrib, mUdf(int) );
+    else
+    {
+ 	am_.appl_.colTabEd().setColTab(
+	    am_.visserv_->getColTabSequence( visid, attrib ),
+	    true, am_.visserv_->getColTabMapperSetup(visid,attrib),
+	    am_.visserv_->canHandleColTabSeqTrans(visid,attrib) );
+    }
 
     setHistogram( visid, attrib );
 }
