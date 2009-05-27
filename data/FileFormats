@@ -179,3 +179,75 @@ Body.Selection.Z: P`-1/2
 Body.MD.Unit: Feet
 Group: WellTrack
 !
+MD (m) Msec One-way
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: One-way TT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
+TVD (m) Msec One-way
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: One-way TT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
+MD (ft) Msec One-way
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: One-way TT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
+TVD (ft) Msec One-way
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: One-way TT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
+MD (m) Msec TWT
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: TWT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
+TVD (m) Msec TWT
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: TWT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
+MD (ft) Msec TWT
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: TWT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
+TVD (ft) Msec TWT
+Header.Size: 0
+Header.Token: -1` 
+Header.Selection.Undefined Value: R`1e30
+Body.Form: TWT
+Body.Unit: Milliseconds
+Body.Selection: P`-1/1
+Group: DepthTimeModel
+!
