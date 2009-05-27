@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.13 2009-02-17 17:41:22 cvsyuancheng Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.14 2009-05-27 08:06:06 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -64,12 +64,13 @@ public:
 				/*!<\returns the visual id of the line, or -1
 				     if it does not exist. */
 
-    void			mouseClick( const EM::PosID&, bool shift,
+    bool			mouseClick( const EM::PosID&, bool shift,
 					    bool alt, bool ctrl );
     				/*!<Notify the object that someone
 				    has clicked on the object that's being
 				    edited. Clicks on the editor's draggers
-				    themselves are handled by clickCB. */
+				    themselves are handled by clickCB.
+				    Returns true when click is handled. */
 
     bool			clickCB( CallBacker* );
     				/*!<Since the event should be handled

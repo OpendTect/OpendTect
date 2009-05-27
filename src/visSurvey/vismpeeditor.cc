@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.33 2009-02-17 17:41:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.34 2009-05-27 08:06:06 cvsnanne Exp $";
 
 #include "vismpeeditor.h"
 
@@ -146,10 +146,10 @@ EM::PosID MPEEditor::getNodePosID(int idx) const
 { return idx>=0&&idx<posids.size() ? posids[idx] : EM::PosID::udf(); }
 
 
-void MPEEditor::mouseClick( const EM::PosID& pid,
+bool MPEEditor::mouseClick( const EM::PosID& pid,
 			    bool shift, bool alt, bool ctrl )
 {
-    if ( !shift && !alt && !ctrl && emeditor )
+    if ( !shift && !alt && ctrl && emeditor )
     {
 	TypeSet<EM::PosID> pids;
 	emeditor->getEditIDs(pids);
@@ -158,9 +158,10 @@ void MPEEditor::mouseClick( const EM::PosID& pid,
 
 	if ( emeditor->addEditID(pid) )
 	    setActiveDragger( pid );
+	return true;
     }
-    else if ( shift && !alt && !ctrl && activedragger.objectID()!=-1 )
-	extendInteractionLine( pid );
+
+    return false;
 }
 
 
@@ -367,16 +368,6 @@ bool MPEEditor::clickCB( CallBacker* cb )
 
     if ( !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return true;
-
-    if ( activedragger!=-1 &&
-	    OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
-	    !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	    !OD::altKeyboardButton(eventinfo.buttonstate_) )
-    {
-	extendInteractionLine( posids[nodeidx] );
-	eventcatcher->setHandled();
-	return false;
-    }
 
     return false;
 }

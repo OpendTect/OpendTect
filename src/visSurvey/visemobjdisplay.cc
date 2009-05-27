@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.113 2009-05-27 03:24:58 cvskris Exp $";
+static const char* rcsID = "$Id: visemobjdisplay.cc,v 1.114 2009-05-27 08:06:06 cvsnanne Exp $";
 
 #include "visemobjdisplay.h"
 
@@ -157,11 +157,12 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     EM::PosID closestnode = findClosestNode( eventinfo.displaypickedpos );
     if ( mousecb && editor_ )
     {
-	editor_->mouseClick( closestnode,
+	bool handled = editor_->mouseClick( closestnode,
 	    OD::shiftKeyboardButton( eventinfo.buttonstate_ ),
 	    OD::altKeyboardButton( eventinfo.buttonstate_ ),
 	    OD::ctrlKeyboardButton( eventinfo.buttonstate_ ) );
-	eventcatcher_->setHandled();
+	if ( handled )
+	    eventcatcher_->setHandled();
     }
     else if ( keycb )
     {
@@ -403,8 +404,6 @@ MPEEditor* EMObjectDisplay::getEditor() { return editor_; }
 
 void EMObjectDisplay::enableEditing( bool yn )
 {
-    return;
-
     if ( yn && !editor_ )
     {
 	MPE::ObjectEditor* mpeeditor = 
