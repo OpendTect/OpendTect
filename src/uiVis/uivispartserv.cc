@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.417 2009-05-27 04:00:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.418 2009-05-27 21:58:47 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -397,6 +397,7 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     eventmutex_.lock();
     eventobjid_ = id;
     sendEvent( evSelection() );
+    eventmutex_.lock();
     sendEvent( evPickingStatusChange() );
 
     mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id));
@@ -931,7 +932,10 @@ void uiVisPartServer::setViewMode( bool yn, bool notify)
     viewmode_ = yn;
     toggleDraggers();
     if ( notify )
+    {
+	eventmutex_.lock();
 	sendEvent(evViewModeChange());
+    }
 }
 
 
@@ -1253,18 +1257,21 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
 
 bool uiVisPartServer::sendShowSetupDlgEvent()
 {
+    eventmutex_.lock();
     return sendEvent( evShowSetupDlg() );
 }
 
 
 bool uiVisPartServer::sendPickingStatusChangeEvent()
 {
+   eventmutex_.lock();
    return sendEvent( evPickingStatusChange() );
 }
 
 
 bool uiVisPartServer::sendDisableSelTrackerEvent()
 {
+   eventmutex_.lock();
    return sendEvent( evDisableSelTracker() );
 }
 
@@ -1314,12 +1321,14 @@ void uiVisPartServer::getPickingMessage( BufferString& str ) const
 
 void uiVisPartServer::loadPostponedData() const
 {
+    eventmutex_.lock();
     sendEvent( evLoadPostponedData() );
 }
 
 
 void uiVisPartServer::toggleBlockDataLoad() const
 {
+    eventmutex_.lock();
     sendEvent( evToggleBlockDataLoad() );
 }
 
@@ -1485,6 +1494,7 @@ bool uiVisPartServer::resetManipulation( int id )
     eventmutex_.lock();
     eventobjid_ = id;
     sendEvent( evInteraction() );
+    eventmutex_.lock();
     sendEvent( evUpdateTree() );
 
     return so;
@@ -1876,6 +1886,7 @@ void uiVisPartServer::mapperRangeEditChanged( CallBacker* cb )
     mDynamicCastGet(uiMultiMapperRangeEditWin*,obj,cb);
     setColTabMapperSetup( mapperrgeditordisplayid_, obj->activeAttrbID(), 
 	    		  obj->activeMapperSetup() );
+    eventmutex_.lock();
     eventobjid_ = mapperrgeditordisplayid_;
     eventattrib_ = obj->activeAttrbID();
     sendEvent( evColorTableChange() );
