@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.31 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: freqfilterattrib.cc,v 1.32 2009-05-27 09:40:50 cvshelene Exp $";
 
 
 #include "freqfilterattrib.h"
@@ -384,12 +384,13 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
 
     for ( int idx=0; idx<nrsamp; idx++ )
     {
-	int reidx = idx + csamp - redata->z0_;
+	int reidx = idx + csamp - z0;
+	int checkidx = idx + csamp - redata->z0_;
 	int maxidx = redata->nrsamples_-1;
-	data[idx] = reidx<0 ? redata->series(realidx_)->value(0)
-			    : reidx>maxidx 
-			    	? redata->series(realidx_)->value(maxidx) 
-				: redata->series(realidx_)->value(reidx);
+	data[idx] = checkidx<0 ? getInputValue( *redata, realidx_, 0, z0 )
+			    : checkidx>maxidx 
+			    	? getInputValue( *redata, realidx_, maxidx, z0 )
+			        : getInputValue( *redata, realidx_, reidx, z0 );
     }
 
     if ( filtertype == mFilterLowPass )
@@ -465,21 +466,24 @@ void FreqFilter::fftFilter( const DataHolder& output,
     for ( int idx=0; idx<nrsamp; idx++ )
     {
 	int csamp = idx + z0safe;
-	int reidx = csamp - redata->z0_;
+	int cidx = csamp - z0;
 	int remaxidx = redata->nrsamples_-1;
-        float real = reidx<0 ? redata->series(realidx_)->value(0)
-	    		     : reidx>remaxidx
-				     ? redata->series(realidx_)->value(remaxidx)
-				     : redata->series(realidx_)->value(reidx);
+	int checkridx = csamp - redata->z0_;
+	float real = checkridx<0 
+			 ? getInputValue( *redata, realidx_, 0, z0 )
+			 : checkridx>remaxidx 
+			    ? getInputValue( *redata, realidx_, remaxidx, z0 )
+			    : getInputValue( *redata, realidx_, cidx, z0 );
 	if ( mIsUdf(real) )
 	    real = idx>0 ? signal.get(idx-1).real() : 0;
-	int imidx = csamp - imdata->z0_;
 	int immaxidx = imdata->nrsamples_-1;
-	const float imag = imidx<0 ? -imdata->series(imagidx_)->value(0)
-				   : imidx>immaxidx
-				     ?-imdata->series(imagidx_)->value(immaxidx)
-				     : -imdata->series(imagidx_)->value(imidx);
-        signal.set( idx, float_complex(real,imag) );
+	int checkiidx = csamp - imdata->z0_;
+	const float imag = checkiidx<0 
+	    		? -getInputValue( *imdata, imagidx_, 0, z0 )
+			: checkiidx>immaxidx
+			    ? -getInputValue( *imdata, imagidx_, immaxidx, z0 )
+			    : -getInputValue( *imdata, imagidx_, cidx, z0 );
+	signal.set( idx, float_complex(real,imag) );
     }
 
     if ( window_ ) window_->apply( &signal );

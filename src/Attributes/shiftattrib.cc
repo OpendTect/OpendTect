@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.28 2009-04-02 14:20:57 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.29 2009-05-27 09:40:50 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -134,21 +134,21 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 
     float sampleshift = time_/(zFactor()*refstep);
     const int sampleidx = mNINT(sampleshift);
+    const float extrasamp = output.extrazfromsamppos_/refstep;
     const bool dointerpolate = dosteer_ || 
 			       !mIsEqual(sampleshift,sampleidx,0.001);
-    ValueSeriesInterpolator<float> interp( inputdata_->nrsamples_-1 );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	float tmpsampshift = sampleshift;
+	float tmpsampshift = sampleshift + extrasamp;
 	if ( dosteer_ && steeringdata_->series(steeridx_) )
 	    tmpsampshift += getInputValue( *steeringdata_, steeridx_, idx, z0 );
 
-	const ValueSeries<float>* curdata = inputdata_->series( dataidx_ );
-	const int cursample = z0 - inputdata_->z0_ + idx;
 	const float val = dointerpolate 
-			    ? interp.value( *curdata, cursample+tmpsampshift ) 
-			    : curdata->value( cursample+sampleidx );
+			    ? getInterpolInputValue( *inputdata_, dataidx_,
+				    		     idx+tmpsampshift,z0 )
+			    : getInputValue( *inputdata_, dataidx_,
+				    	     idx+sampleidx, z0 );
 
 	setOutputValue( output, 0, idx, z0, val );
     }

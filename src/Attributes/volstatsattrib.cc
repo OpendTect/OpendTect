@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.45 2009-04-03 14:59:02 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.46 2009-05-27 09:40:50 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -321,6 +321,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
     const Interval<int> samplegate( mNINT(gate_.start/refstep), 
 				    mNINT(gate_.stop/refstep) );
     const int gatesz = samplegate.width() + 1;
+    const float extrasamp = output.extrazfromsamppos_/refstep;
 
     Stats::RunCalcSetup rcsetup;
     for ( int outidx=0; outidx<outputinterest.size(); outidx++ )
@@ -344,22 +345,17 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    const DataHolder* dh = inputdata_[posidx];
 	    if ( !dh ) continue;
 
-	    float shift = 0;
+	    float shift = extrasamp;
 	    if ( dosteer_ )
-		shift = getInputValue( *steeringdata_, steerindexes_[posidx],
+		shift += getInputValue( *steeringdata_, steerindexes_[posidx],
 					idz, z0 );
 
-	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
-
-	    const float samplepos = z0 + shift + idz;
-	    wcalc += interp.value( *dh->series(dataidx_),
-				   samplepos-dh->z0_ );
+	    wcalc += getInterpolInputValue( *dh, dataidx_, shift + idz, z0 );
 	}
     }
 
     for ( int isamp=0; isamp<nrsamples; isamp++ )
     {
-	const int cursample = z0 + isamp;
 	if ( isamp )
 	{
 	    for ( int posidx=0; posidx<nrpos; posidx++ )
@@ -367,16 +363,13 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 		const DataHolder* dh = inputdata_[posidx];
 		if ( !dh ) continue;
 
-		float shift = 0;
+		float shift = extrasamp;
 		if ( dosteer_ )
-		    shift = getInputValue( *steeringdata_,steerindexes_[posidx],
+		    shift += getInputValue(*steeringdata_,steerindexes_[posidx],
 					    isamp+samplegate.stop, z0 );
 
-		ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
-
-		const float samplepos = cursample + shift + samplegate.stop;
-		wcalc += interp.value( *dh->series(dataidx_),
-					samplepos-dh->z0_ );
+		const float samplepos = isamp + shift + samplegate.stop;
+		wcalc += getInterpolInputValue( *dh, dataidx_, samplepos, z0 );
 	    }
 	}
 
