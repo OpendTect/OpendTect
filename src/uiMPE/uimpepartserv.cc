@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.83 2009-05-21 09:14:25 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.84 2009-05-27 12:39:18 cvsumesh Exp $";
 
 #include "uimpepartserv.h"
 
@@ -280,6 +280,9 @@ void uiMPEPartServer::aboutToAddRemoveSeed( CallBacker* )
     seedpicker->blockSeedPick( !isvalidsetup );
     if ( isvalidsetup && fieldchange )
 	loadAttribData();
+
+    if ( !seedhasbeenpicked_ )
+	sendEvent( uiMPEPartServer::evShowToolbar() );
 
     seedhasbeenpicked_ = true;
 }
@@ -608,8 +611,16 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     
     setupgrp_ = MPE::uiMPE().setupgrpfact.create( setupdlg, emobj->getTypeStr(),
 						  attrset );
+
+    const bool setupavailable = sectracker && sectracker->hasInitializedSetup();
+    if ( !setupavailable ) 
+    {
+	const int defaultmode = seedpicker->defaultSeedConMode( false );
+	seedpicker->setSeedConnectMode( defaultmode );
+    }
     setupgrp_->setMode( (MPE::EMSeedPicker::SeedModeOrder)
 	    	   		seedpicker->getSeedConnectMode() );
+    sendEvent( uiMPEPartServer::evUpdateSeedConMode() );
     setupgrp_->setColor( emobj->preferredColor() );
     setupgrp_->setMarkerStyle( emobj->getPosAttrMarkerStyle(
 					EM::EMObject::sSeedNode()) );
@@ -624,7 +635,13 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     if ( propertychangenotifier )
 	propertychangenotifier->notify(
 		mCB(this,uiMPEPartServer,propertyChangedCB) );
-    setupgrp_->commitToTracker();
+
+    sendEvent( uiMPEPartServer::evStartSeedPick() );
+    NotifierAccess* addrmseednotifier = seedpicker->aboutToAddRmSeedNotifier();
+    if ( addrmseednotifier )
+	addrmseednotifier->notify(
+		mCB(this,uiMPEPartServer,aboutToAddRemoveSeed) );
+
     setupdlg->go();
 
     tracker->applySetupAsDefault( sid );
@@ -652,7 +669,7 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 				sectiontracker->hasInitializedSetup();
 
     if ( uiMSG().askGoOn(mAskGoOnStr(setupavailable)) )
-	    showSetupDlg( emid, sid );
+	showSetupDlg( emid, sid );
 }
 
 
