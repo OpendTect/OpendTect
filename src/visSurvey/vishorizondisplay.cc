@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.76 2009-05-27 01:35:07 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.77 2009-05-27 03:24:59 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -615,7 +615,7 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
     BufferStringSet nms;
     nms.add( "Depth" );
     DataPointSet positions( pts, nms, false, true );
-    getRandomPos( positions );
+    getRandomPos( positions, 0 );
 
     if ( !positions.size() ) return;
 
@@ -636,12 +636,13 @@ void HorizonDisplay::setDepthAsAttrib( int channel )
 	    vals[1] = vals[0];
     }
 
-    createAndDispDataPack( channel, &positions );
+    createAndDispDataPack( channel, &positions, 0 );
 }
 
 
 void HorizonDisplay::createAndDispDataPack( int channel,
-					    const DataPointSet* positions )
+					    const DataPointSet* positions,
+					    TaskRunner* tr )
 {
     BufferStringSet* attrnms = new BufferStringSet();
     for ( int idx=0; idx<positions->nrCols(); idx++ )
@@ -662,12 +663,12 @@ void HorizonDisplay::createAndDispDataPack( int channel,
     newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     dpman.add( newpack );
-    setDataPackID( channel, newpack->id() );
-    setRandomPosData( channel, positions );
+    setDataPackID( channel, newpack->id(), tr );
+    setRandomPosData( channel, positions, tr );
 }
 
 
-void HorizonDisplay::getRandomPos( DataPointSet& data ) const
+void HorizonDisplay::getRandomPos( DataPointSet& data, TaskRunner* tr ) const
 {
     const float zf = scene_ ? scene_->getZScale() : SI().zScale();
     
@@ -705,7 +706,8 @@ void HorizonDisplay::updateSingleColor()
 }
 
 
-void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data )
+void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
+				       TaskRunner* tr )
 {
     if ( channel<0 || channel>=nrAttribs() )
        return;
@@ -724,8 +726,8 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data )
     //works for single sections though.
     if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
     {
-    	coltabmappersetups_[channel] =
-    	    *sections_[0]->getColTabMapperSetup( channel );
+	coltabmappersetups_[channel] =
+	    *sections_[0]->getColTabMapperSetup( channel );
 	coltabmappersetups_[channel].triggerRangeChange();
     }
 
@@ -958,7 +960,8 @@ bool HorizonDisplay::canSetColTabSequence() const
 { return usesTexture(); }
 
 
-void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq )
+void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
+       					TaskRunner* )
 {
     if ( chan<0 || chan>=nrAttribs() )
        return;
@@ -971,7 +974,7 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq )
 
 
 void HorizonDisplay::setColTabMapperSetup( int channel,
-					   const ColTab::MapperSetup& ms )
+			   const ColTab::MapperSetup& ms, TaskRunner* )
 {
     if ( channel<0 || channel>=nrAttribs() )
        return;
@@ -984,7 +987,7 @@ void HorizonDisplay::setColTabMapperSetup( int channel,
     if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
     {
 	coltabmappersetups_[channel] =
-		    *sections_[0]->getColTabMapperSetup( channel );
+	    *sections_[0]->getColTabMapperSetup( channel );
     }
 }
 
@@ -1786,8 +1789,8 @@ int HorizonDisplay::usePar( const IOPar& par )
 		}
 	    }
 
-	    setColTabMapperSetup( channel, mappersetup );
-	    setColTabSequence( channel, coltabsequence );
+	    setColTabMapperSetup( channel, mappersetup, 0 );
+	    setColTabSequence( channel, coltabsequence, 0 );
 	}
 
 	deepUnRef( ctabs );
@@ -1805,8 +1808,8 @@ int HorizonDisplay::usePar( const IOPar& par )
 	    mDynamicCastGet( visBase::VisColorTab*, coltab, dataobj );
 	    if ( !coltab ) return -1;
 	
-	    setColTabSequence( 0, coltab->colorSeq().colors() );
-    	    setColTabMapperSetup( 0, coltab->colorMapper().setup_ );
+	    setColTabSequence( 0, coltab->colorSeq().colors(), 0 );
+    	    setColTabMapperSetup( 0, coltab->colorMapper().setup_, 0 );
 	}
     }
 
@@ -1816,7 +1819,8 @@ int HorizonDisplay::usePar( const IOPar& par )
 }
 
 
-bool HorizonDisplay::setDataPackID( int channel, DataPack::ID dpid )
+bool HorizonDisplay::setDataPackID( int channel, DataPack::ID dpid,
+				    TaskRunner* tr)
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );

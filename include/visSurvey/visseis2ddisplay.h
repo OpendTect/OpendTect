@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.29 2009-03-03 08:06:33 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.30 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -55,13 +55,15 @@ public:
     const Interval<int>&	getTraceNrRange() const;
     const Interval<int>&	getMaxTraceNrRange() const;
 
-    bool			setDataPackID(int attrib,DataPack::ID);
+    bool			setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
 
     void			setTraceData(int attrib,
-	    				     const Attrib::Data2DHolder&);
+	    				     const Attrib::Data2DHolder&,
+					     TaskRunner*);
     const Attrib::Data2DHolder*	getCache(int attrib) const;
     void			updateDataFromCache();
 
@@ -72,7 +74,7 @@ public:
     bool			lineNameShown() const;
 
     bool			canDuplicate() const		{ return true; }
-    SurveyObject*		duplicate() const;
+    SurveyObject*		duplicate(TaskRunner*) const;
 
     void			setDisplayTransformation(
 	    					visBase::Transformation*);

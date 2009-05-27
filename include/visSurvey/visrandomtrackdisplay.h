@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.66 2009-04-03 14:57:35 cvshelene Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.67 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ public:
     BufferString		getManipulationString() const;
 
     bool			canDuplicate() const		{ return true; }
-    SurveyObject*		duplicate() const;
+    SurveyObject*		duplicate(TaskRunner*) const;
 
     bool			allowMaterialEdit() const { return true; }
 
@@ -77,9 +77,10 @@ public:
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
-    void			setTraceData(int,SeisTrcBuf&);
+    void			setTraceData(int,SeisTrcBuf&,TaskRunner*);
 
-    bool                        setDataPackID(int attrib,DataPack::ID);
+    bool                        setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*);
     DataPack::ID                getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }

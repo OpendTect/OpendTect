@@ -7,7 +7,7 @@
  ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.108 2009-03-03 08:06:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: visrandomtrackdisplay.cc,v 1.109 2009-05-27 03:24:59 cvskris Exp $";
 
 
 #include "visrandomtrackdisplay.h"
@@ -347,7 +347,8 @@ void RandomTrackDisplay::getDataTraceBids( TypeSet<BinID>& bids,
 }
 
 
-bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+       			TaskRunner* tr )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
@@ -356,12 +357,12 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid )
     {
 	dpman.release( dpid );
 	SeisTrcBuf trcbuf( false );
-	setTraceData( attrib, trcbuf );
+	setTraceData( attrib, trcbuf, tr );
 	return false;
     }
 
     SeisTrcBuf tmpbuf( dprdm->seisBuf() );
-    setTraceData( attrib, tmpbuf );
+    setTraceData( attrib, tmpbuf, tr );
 
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
@@ -376,7 +377,8 @@ DataPack::ID RandomTrackDisplay::getDataPackID( int attrib ) const
 }
 
 
-void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf )
+void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf,
+       					TaskRunner* )
 {
     setData( attrib, trcbuf );
 
@@ -727,7 +729,7 @@ bool RandomTrackDisplay::isGeometryLocked() const
 { return lockgeometry_; }
 
 
-SurveyObject* RandomTrackDisplay::duplicate() const
+SurveyObject* RandomTrackDisplay::duplicate( TaskRunner* tr ) const
 {
     RandomTrackDisplay* rtd = create();
 

@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.62 2009-04-09 01:02:48 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.63 2009-05-27 03:24:59 cvskris Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -293,7 +293,8 @@ const Interval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
 
 
-bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+				   TaskRunner* tr )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID() );
     const DataPack* datapack = dpman.obtain( dpid );
@@ -304,7 +305,7 @@ bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 	return false;
     }
 
-    setTraceData( attrib, dp2d->dataholder() );
+    setTraceData( attrib, dp2d->dataholder(), tr );
 
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;
@@ -320,7 +321,8 @@ DataPack::ID Seis2DDisplay::getDataPackID( int attrib ) const
 
 
 void Seis2DDisplay::setTraceData( int attrib,
-				  const Attrib::Data2DHolder& dataset )
+				  const Attrib::Data2DHolder& dataset,
+				  TaskRunner*)
 {
     setData( attrib, dataset );
     if ( cache_[attrib] ) cache_[attrib]->unRef();
@@ -459,7 +461,7 @@ void Seis2DDisplay::updateLineNamePos()
 }
 
 
-SurveyObject* Seis2DDisplay::duplicate() const
+SurveyObject* Seis2DDisplay::duplicate( TaskRunner* tr ) const
 {
     Seis2DDisplay* s2dd = create();
     s2dd->setGeometry( geometry_ );

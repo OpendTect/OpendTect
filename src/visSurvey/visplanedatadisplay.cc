@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.215 2009-04-23 16:47:47 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.216 2009-05-27 03:24:59 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -359,7 +359,7 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 	else if ( rposcache_[idx] )
 	{
 	    BinIDValueSet set(*rposcache_[idx]);
-	    setRandomPosDataNoCache( idx, &set );
+	    setRandomPosDataNoCache( idx, &set, 0 );
 	}
     }
 }
@@ -612,7 +612,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
 }
 
 
-void PlaneDataDisplay::getRandomPos( DataPointSet& pos ) const
+void PlaneDataDisplay::getRandomPos( DataPointSet& pos, TaskRunner* ) const
 {
     if ( !datatransform_ ) return;
 
@@ -644,12 +644,13 @@ void PlaneDataDisplay::getRandomPos( DataPointSet& pos ) const
 }
 
 
-void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data )
+void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data,
+					 TaskRunner* tr )
 {
     if ( attrib>=nrAttribs() )
 	return;
 
-    setRandomPosDataNoCache( attrib, &data->bivSet() );
+    setRandomPosDataNoCache( attrib, &data->bivSet(), tr );
 
     if ( rposcache_[attrib] ) 
 	delete rposcache_[attrib];
@@ -738,7 +739,8 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 }
 
 
-bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+				      TaskRunner* )
 {
     if ( attrib>=nrAttribs() )
 	return false;
@@ -825,7 +827,7 @@ DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 
 
 void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
-						const BinIDValueSet* bivset )
+			const BinIDValueSet* bivset, TaskRunner* )
 {
     if ( !bivset ) return;
 
@@ -1184,7 +1186,7 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
 }
 
 
-SurveyObject* PlaneDataDisplay::duplicate() const
+SurveyObject* PlaneDataDisplay::duplicate( TaskRunner* tr ) const
 {
     PlaneDataDisplay* pdd = create();
     pdd->setOrientation( orientation_ );
@@ -1198,7 +1200,7 @@ SurveyObject* PlaneDataDisplay::duplicate() const
 	if ( !getSelSpec(idx) ) continue;
 
 	pdd->setSelSpec( idx, *getSelSpec(idx) );
-	pdd->setDataPackID( idx, getDataPackID(idx) );
+	pdd->setDataPackID( idx, getDataPackID(idx), tr );
 
 	const int ctid = pdd->getColTabID( idx );
 	visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;

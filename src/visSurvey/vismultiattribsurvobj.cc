@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.31 2009-04-23 16:47:47 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.32 2009-05-27 03:24:59 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -368,7 +368,7 @@ int MultiTextureSurveyObject::getColTabID( int attrib ) const
 
 
 void MultiTextureSurveyObject::setColTabSequence( int attrib,
-						  ColTab::Sequence const& seq )
+			      ColTab::Sequence const& seq, TaskRunner* )
 {
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
@@ -414,7 +414,7 @@ MultiTextureSurveyObject::getColTabSequence( int attrib ) const
 
 
 void MultiTextureSurveyObject::setColTabMapperSetup( int attrib,
-					  const ColTab::MapperSetup& mapper )
+			      const ColTab::MapperSetup& mapper, TaskRunner* )
 {
     if ( attrib<0 || attrib>=nrAttribs() )
 	return;
@@ -639,7 +639,7 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 			    ColTab::SM().get( seqname.buf(), seq );
 		    }
 
-		    setColTabSequence( attribnr, seq );
+		    setColTabSequence( attribnr, seq, 0 );
 		}
 
 		PtrMan<IOPar> mappar = attribpar->subselect( sKeyMapper() );
@@ -647,7 +647,7 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 		{
 		    ColTab::MapperSetup mapper;
 		    mapper.usePar( *mappar );
-		    setColTabMapperSetup( attribnr, mapper );
+		    setColTabMapperSetup( attribnr, mapper, 0 );
 		}
 	    }
 

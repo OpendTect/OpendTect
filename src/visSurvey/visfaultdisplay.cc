@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.36 2009-01-20 09:46:04 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.37 2009-05-27 03:24:59 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -367,11 +367,11 @@ void FaultDisplay::setDepthAsAttrib( int attrib )
     TypeSet<DataPointSet::DataRow> pts; 
     BufferStringSet nms; 
     DataPointSet positions( pts, nms, false, true ); 
-    getRandomPos( positions ); 
+    getRandomPos( positions, 0 ); 
 
     if ( !positions.size() ) return;
 
-    setRandomPosData( attrib, &positions );
+    setRandomPosData( attrib, &positions, 0 );
 }
 
 
@@ -725,7 +725,7 @@ int FaultDisplay::nrResolutions() const
 { return 1; }
 
 
-void FaultDisplay::getRandomPos( DataPointSet& dpset ) const
+void FaultDisplay::getRandomPos( DataPointSet& dpset, TaskRunner* ) const
 {
     if ( explicitpanels_ )
     {
@@ -735,18 +735,19 @@ void FaultDisplay::getRandomPos( DataPointSet& dpset ) const
 }
 
 
-void FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset )
+void FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset,
+				     TaskRunner* )
 {
     const DataColDef texturej(Geometry::ExplFaultStickSurface::sKeyTextureJ());
     const int columnj =
 	dpset->dataSet().findColDef(texturej,PosVecDataSet::NameExact);
 
-    setRandomPosDataInternal( attrib, dpset, columnj+1 );
+    setRandomPosDataInternal( attrib, dpset, columnj+1, 0 );
 }
 
 
 void FaultDisplay::setRandomPosDataInternal( int attrib,
-    const DataPointSet* dpset, int column )
+    const DataPointSet* dpset, int column, TaskRunner* )
 {
     if ( attrib>=nrAttribs() || !dpset || dpset->nrCols()<3 ||
 	 !explicitpanels_ )

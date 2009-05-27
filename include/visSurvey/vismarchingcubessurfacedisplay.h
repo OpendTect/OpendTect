@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.16 2009-05-20 21:51:25 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.17 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -82,16 +82,17 @@ public:
     const ColTab::MapperSetup*	getColTabMapperSetup(int,int) const;
 
     void			setColTabMapperSetup(int,
-	    				const ColTab::MapperSetup&);
+	    				const ColTab::MapperSetup&,TaskRunner*);
     const ColTab::Sequence*	getColTabSequence(int) const;
     bool			canSetColTabSequence() const;
-    void                	setColTabSequence(int,const ColTab::Sequence&);
+    void                	setColTabSequence(int,const ColTab::Sequence&,
+	    					  TaskRunner*);
     void                   	setSelSpec(int,const Attrib::SelSpec&);
     const Attrib::SelSpec*	getSelSpec(int attrib) const;
 
-    void			getRandomPos(DataPointSet&) const;
+    void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData( int attrib,
-	    					  const DataPointSet*);
+					    const DataPointSet*, TaskRunner*);
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.103 2009-05-11 06:40:20 cvsumesh Exp $
+ RCS:		$Id: vissurvobj.h,v 1.104 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ class LineStyle;
 class NotifierAccess;
 class SeisTrcBuf;
 class ZAxisTransform;
+class TaskRunner;
 
 namespace ColTab  { struct MapperSetup; class Sequence; }
 
@@ -98,7 +99,7 @@ public:
     virtual void		getChildren( TypeSet<int>& ) const	{}
 
     virtual bool		canDuplicate() const	{ return false;}
-    virtual SurveyObject*	duplicate() const	{ return 0; }
+    virtual SurveyObject*	duplicate(TaskRunner*) const	{ return 0; }
 
     virtual MultiID		getMultiID() const	{ return MultiID(-1); }
 
@@ -166,10 +167,11 @@ public:
 	    						     int version) const;
     virtual const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
     virtual void		setColTabMapperSetup(int,
-						 const ColTab::MapperSetup&);
+				     const ColTab::MapperSetup&,TaskRunner*);
     virtual const ColTab::Sequence* getColTabSequence(int) const { return 0; }
     virtual bool		canSetColTabSequence() const	{ return false;}
-    virtual void		setColTabSequence(int,const ColTab::Sequence&);
+    virtual void		setColTabSequence(int,const ColTab::Sequence&,
+	    					  TaskRunner*);
     virtual bool		canHandleColTabSeqTrans(int) const;
     virtual bool 		isClassification(int attr) const {return false;}
     virtual void		setClassification(int attrib,bool yn)	{}
@@ -208,12 +210,13 @@ public:
     virtual void		getObjectInfo(BufferString&) const	{}
 
     				// Data via DataPacks
-    virtual bool		setDataPackID(int attrib,DataPack::ID)
+    virtual bool		setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*)
     				{ return false; }
     virtual DataPack::ID	getDataPackID(int attrib) const { return -1; }
     virtual DataPackMgr::ID	getDataPackMgrID() const	{ return -1; }
-    virtual void		createAndDispDataPack(int,
-	    					      const DataPointSet*){}
+    virtual void		createAndDispDataPack(int, const DataPointSet*,
+	    					      TaskRunner*){}
    
    				//Volume data 
     virtual CubeSampling	getCubeSampling( int attrib ) const
@@ -221,7 +224,8 @@ public:
     				/*!<\returns the volume in world survey
 				     coordinates. */
     virtual bool		setDataVolume(int attrib,
-	    				      const Attrib::DataCubes*)
+	    				      const Attrib::DataCubes*,
+					      TaskRunner*)
 				{ return false; }
     virtual const Attrib::DataCubes* getCacheVolume(int attr) const {return 0;}
 
@@ -229,18 +233,20 @@ public:
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
     virtual Interval<float>	getDataTraceRange() const
     				{ return Interval<float>(0,0); }
-    virtual void		setTraceData(int attrib,SeisTrcBuf&);
+    virtual void		setTraceData(int attrib,SeisTrcBuf&,
+	    				     TaskRunner*);
     virtual void		setAttribShift(int attr,const TypeSet<float>&)
 				{}
 
 				// Random pos
 				/*!< Every position is put in the DataPointSet
 				  no matter which original patch it belongs to*/
-    virtual void		getRandomPos(DataPointSet&) const	{}
+    virtual void		getRandomPos(DataPointSet&,TaskRunner*) const {}
     virtual void		getRandomPosCache(int attrib,
 	    					  DataPointSet&) const	{}
     virtual void		setRandomPosData( int attrib,
-	    					  const DataPointSet*)	{}
+	    					  const DataPointSet*,
+						  TaskRunner*)	{}
     virtual void		readAuxData()				{}
 
     virtual void		setScene( Scene* scn )	{ scene_ = scn; }

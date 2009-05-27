@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.112 2009-03-03 08:06:33 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.113 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -84,12 +84,14 @@ public:
     CubeSampling		getCubeSampling(bool manippos,
 	    					bool displayspace,
 						int attrib=-1) const;
-    void			getRandomPos(DataPointSet&) const;
+    void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			setRandomPosData(int attrib,
-	    					 const DataPointSet*);
+	    					 const DataPointSet*,
+						 TaskRunner*);
     void			setCubeSampling(CubeSampling);
 
-    bool			setDataPackID(int attrib,DataPack::ID);
+    bool			setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
     				{ return DataPackMgr::FlatID(); }
@@ -127,7 +129,7 @@ public:
     bool                	isVerticalPlane() const;
 
     virtual bool		canDuplicate() const	{ return true; }
-    virtual SurveyObject*	duplicate() const;
+    virtual SurveyObject*	duplicate(TaskRunner*) const;
    
     const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib);
 
@@ -145,7 +147,8 @@ protected:
     void			setVolumeDataPackNoCache(int attrib,
 	    				const Attrib::Flat3DDataPack*);
     void			setRandomPosDataNoCache(int attrib,
-	    						const BinIDValueSet*);
+	    						const BinIDValueSet*,
+							TaskRunner*);
     void			setDisplayDataPackIDs(int attrib,
 	    				const TypeSet<DataPack::ID>& dpids);
     void			updateFromDisplayIDs(int attrib);

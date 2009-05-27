@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.16 2009-05-11 06:41:19 cvsumesh Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.17 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,8 +58,9 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat(int) const
 				{ return SurveyObject::RandomPos; }
-    void			getRandomPos(DataPointSet&) const;
-    void			setRandomPosData(int,const DataPointSet*); 
+    void			getRandomPos(DataPointSet&,TaskRunner*) const;
+    void			setRandomPosData(int,const DataPointSet*,
+	    					 TaskRunner*); 
 
     bool			hasColor() const		{ return true; }
     Color			getColor() const;
@@ -107,7 +108,8 @@ protected:
 				    int whichobj);
     void			setRandomPosDataInternal(int attrib,
 	    						 const DataPointSet*,
-							 int column); 
+							 int column,
+							 TaskRunner*); 
 
     void			updateStickDisplay();
     void			updateSingleColor();

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.48 2009-03-24 14:44:34 cvshelene Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.49 2009-05-27 03:24:59 cvskris Exp $";
 
 #include "vissurvobj.h"
 
@@ -29,7 +29,8 @@ bool SurveyObject::canRemoveAttrib() const
 { return canHaveMultipleAttribs() && nrAttribs()>1; }
 
 
-void SurveyObject::setColTabMapperSetup( int, const ColTab::MapperSetup& )
+void SurveyObject::setColTabMapperSetup( int, const ColTab::MapperSetup&,
+					 TaskRunner*)
 {}
 
 
@@ -46,11 +47,11 @@ const ColTab::MapperSetup* SurveyObject::getColTabMapperSetup( int attrib,
 { return getColTabMapperSetup( attrib ); }
 
 
-void SurveyObject::setColTabSequence( int, const ColTab::Sequence& )
+void SurveyObject::setColTabSequence( int, const ColTab::Sequence&, TaskRunner*)
 {}
 
 
-void SurveyObject::setTraceData( int, SeisTrcBuf& trcs )
+void SurveyObject::setTraceData( int, SeisTrcBuf& trcs, TaskRunner* )
 { trcs.deepErase(); }
 
 

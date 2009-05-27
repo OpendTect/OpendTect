@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.19 2009-05-20 21:51:25 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.20 2009-05-27 03:24:59 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -152,7 +152,7 @@ MarchingCubesDisplay::getColTabMapperSetup( int attrib, int version ) const
 
 
 void MarchingCubesDisplay::setColTabMapperSetup( int attrib,
-	const ColTab::MapperSetup& setup )
+	const ColTab::MapperSetup& setup, TaskRunner* )
 {
     if ( !attrib )
 	displaysurface_->getShape()->setDataMapper( setup );
@@ -167,7 +167,7 @@ MarchingCubesDisplay::getColTabSequence( int attrib ) const
 
 
 void MarchingCubesDisplay::setColTabSequence( int attrib,
-					      const ColTab::Sequence& seq )
+			      const ColTab::Sequence& seq, TaskRunner* )
 {
     if ( !attrib )
 	displaysurface_->getShape()->setDataSequence( seq );
@@ -191,15 +191,16 @@ const Attrib::SelSpec* MarchingCubesDisplay::getSelSpec( int attrib ) const
 }
 
 
-void MarchingCubesDisplay::getRandomPos( DataPointSet& dps ) const
-{ displaysurface_->getShape()->getAttribPositions( dps ); }
+void MarchingCubesDisplay::getRandomPos( DataPointSet& dps,
+					 TaskRunner* tr ) const
+{ displaysurface_->getShape()->getAttribPositions( dps, tr ); }
 
 
 void MarchingCubesDisplay::setRandomPosData( int attrib,
-					     const DataPointSet* dps )
+				 const DataPointSet* dps, TaskRunner* tr )
 {
     if ( !attrib && dps )
-	displaysurface_->getShape()->setAttribData( *dps );
+	displaysurface_->getShape()->setAttribData( *dps, tr );
 }
 
 

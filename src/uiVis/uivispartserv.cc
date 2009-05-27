@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.415 2009-05-18 10:53:55 cvsumesh Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.416 2009-05-27 03:24:58 cvskris Exp $";
 
 #include "uivispartserv.h"
 
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uivispartserv.cc,v 1.415 2009-05-18 10:53:55 cv
 #include "uimpeman.h"
 #include "uimapperrangeeditordlg.h"
 #include "uiselsurvranges.h"
+#include "uitaskrunner.h"
 #include "uivisslicepos3d.h"
 #include "uiwellpropdlg.h"
 #include "uitoolbar.h"
@@ -597,7 +598,7 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
 	return false;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    return so->setDataPackID( attrib, dpid );
+    return so->setDataPackID( attrib, dpid, 0 );
 }
 
 
@@ -617,7 +618,7 @@ bool uiVisPartServer::setCubeData( int id, int attrib,
 	return false;
 
     MouseCursorChanger cursorlock( MouseCursor::Wait );
-    return so->setDataVolume( attrib, attribdata );
+    return so->setDataVolume( attrib, attribdata, 0 );
 }
 
 
@@ -668,7 +669,7 @@ void uiVisPartServer::getRandomPos( int id, DataPointSet& dtps ) const
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->getRandomPos( dtps );
+    if ( so ) so->getRandomPos( dtps, 0 );
 }
 
 
@@ -687,7 +688,7 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setRandomPosData( attrib, dtps );
+    if ( so ) so->setRandomPosData( attrib, dtps, 0 );
 }
 
 
@@ -696,7 +697,7 @@ void uiVisPartServer::createAndDispDataPack( int id, int attrib,
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->createAndDispDataPack( attrib, dtps );
+    if ( so ) so->createAndDispDataPack( attrib, dtps, 0 );
 }
 
 
@@ -729,7 +730,7 @@ void uiVisPartServer::setTraceData( int id, int attrib, SeisTrcBuf& data )
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
-	so->setTraceData( attrib, data );
+	so->setTraceData( attrib, data, 0 );
     else
 	data.deepErase();
 }
@@ -772,7 +773,7 @@ void uiVisPartServer::setColTabMapperSetup( int id, int attrib,
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so ) return;
 
-    so->setColTabMapperSetup( attrib, ms );
+    so->setColTabMapperSetup( attrib, ms, 0 );
     if ( so->getScene() )
 	so->getScene()->getSceneColTab()->setColTabMapperSetup( ms );
 
@@ -817,7 +818,7 @@ void uiVisPartServer::setColTabSequence( int id, int attrib,
     mDynamicCastGet( visSurvey::SurveyObject*, so, getObject(id) );
     if ( !so ) return;
 
-    so->setColTabSequence( attrib, seq );
+    so->setColTabSequence( attrib, seq, 0 );
     if ( so->getScene() )
 	so->getScene()->getSceneColTab()->setColTabSequence( seq );
 
@@ -1238,7 +1239,9 @@ int uiVisPartServer::duplicateObject( int id, int sceneid )
     mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
     if ( !so ) return -1;
 
-    visSurvey::SurveyObject* newso = so->duplicate();
+    uiTaskRunner taskrunner( appserv().parent() );
+
+    visSurvey::SurveyObject* newso = so->duplicate( &taskrunner );
     if ( !newso ) return -1;
 
     mDynamicCastGet(visBase::DataObject*,doobj,newso)

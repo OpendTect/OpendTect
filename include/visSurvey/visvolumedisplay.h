@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.65 2009-03-03 08:06:33 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.66 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -121,9 +121,11 @@ public:
     CubeSampling		getCubeSampling(int attrib) const;
     void			setCubeSampling(const CubeSampling&);
     bool			setDataVolume(int attrib,
-	    				      const Attrib::DataCubes*);
+	    				      const Attrib::DataCubes*,
+					      TaskRunner*);
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
-    bool			setDataPackID(int attrib,DataPack::ID);
+    bool			setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*);
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
 	                                { return DataPackMgr::CubeID(); }
@@ -137,16 +139,17 @@ public:
 
     const ColTab::MapperSetup*	getColTabMapperSetup(int) const;
     void			setColTabMapperSetup(int,
-					const ColTab::MapperSetup&);
+					const ColTab::MapperSetup&,TaskRunner*);
     const ColTab::Sequence*	getColTabSequence(int) const;
-    void			setColTabSequence(int,const ColTab::Sequence&);
+    void			setColTabSequence(int,const ColTab::Sequence&,
+	    				TaskRunner*);
     bool			canSetColTabSequence() const;
 
     void			setMaterial(visBase::Material*);
     bool			allowMaterialEdit() const	{ return true; }
     virtual bool		allowPicks() const;
     bool			canDuplicate() const		{ return true; }
-    visSurvey::SurveyObject*	duplicate() const;
+    visSurvey::SurveyObject*	duplicate(TaskRunner*) const;
 
     void			allowShading(bool yn ) { allowshading_ = yn; }
 

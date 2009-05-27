@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.36 2009-05-21 04:30:27 cvsranojay Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.37 2009-05-27 03:24:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -76,8 +76,10 @@ public:
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
-    void			createAndDispDataPack(int,const DataPointSet*);
-    bool                        setDataPackID(int attrib,DataPack::ID);
+    void			createAndDispDataPack(int,const DataPointSet*,
+	    					TaskRunner*);
+    bool                        setDataPackID(int attrib,DataPack::ID,
+	    				      TaskRunner*);
     DataPack::ID                getDataPackID(int attrib) const;
     virtual DataPackMgr::ID     getDataPackMgrID() const
 				{ return DataPackMgr::FlatID(); }
@@ -87,9 +89,10 @@ public:
 
     EM::SectionID		getSectionID(int visid) const;
 
-    void			getRandomPos(DataPointSet&) const;
+    void			getRandomPos(DataPointSet&,TaskRunner*) const;
     void			getRandomPosCache(int,DataPointSet&) const;
-    void			setRandomPosData( int,const DataPointSet*);
+    void			setRandomPosData( int,const DataPointSet*,
+	    					 TaskRunner*);
 
     void			setLineStyle(const LineStyle&);
     				/*!<If ls is solid, a 3d shape will be used, otherwise 'flat' lines. */
@@ -113,10 +116,10 @@ public:
     const ColTab::Sequence*	getColTabSequence(int attr) const;
     bool			canSetColTabSequence() const;
     void			setColTabSequence(int attr,
-						  const ColTab::Sequence&);
+				    const ColTab::Sequence&,TaskRunner*);
     const ColTab::MapperSetup*	getColTabMapperSetup(int attr) const;
     void			setColTabMapperSetup(int attr,
-	    					const ColTab::MapperSetup&);
+				    const ColTab::MapperSetup&,TaskRunner*);
 
     Coord3			getTranslation() const;
     void			setTranslation(const Coord3&);

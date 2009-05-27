@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.104 2009-05-20 22:09:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.105 2009-05-27 03:24:59 cvskris Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -216,7 +216,7 @@ void VolumeDisplay::setRightHandSystem( bool yn )
 void VolumeDisplay::dataTransformCB( CallBacker* )
 {
     updateRanges( false, true );
-    if ( cache_ ) setDataVolume( 0, cache_ );
+    if ( cache_ ) setDataVolume( 0, cache_, 0 );
 }
 
 
@@ -772,14 +772,15 @@ CubeSampling VolumeDisplay::getCubeSampling( int attrib ) const
 { return getCubeSampling(true,false,attrib); }
 
 
-bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid,
+				   TaskRunner* tr )
 {
     if ( attrib>0 ) return false;
 
     DataPackMgr& dpman = DPM( DataPackMgr::CubeID() );
     const DataPack* datapack = dpman.obtain( dpid );
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0 );
+    const bool res = setDataVolume( attrib, cdp ? &cdp->cube() : 0, tr );
     if ( !res )
     {
 	dpman.release( dpid );
@@ -795,7 +796,8 @@ bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 
 
 bool VolumeDisplay::setDataVolume( int attrib,
-				   const Attrib::DataCubes* attribdata )
+				   const Attrib::DataCubes* attribdata,
+       				   TaskRunner* tr )
 {
     if ( attrib || !attribdata )
 	return false;
@@ -815,7 +817,8 @@ bool VolumeDisplay::setDataVolume( int attrib,
 				    attribdata->cubeSampling() );
 	datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
 
-	if ( !datatransformer_->execute() )
+	if ( tr && tr->execute( *datatransformer_) ||
+             !datatransformer_->execute() )
 	{
 	    pErrMsg( "Transform failed" );
 	    return false;
@@ -929,7 +932,7 @@ bool VolumeDisplay::allowPicks() const
 }
 
 
-visSurvey::SurveyObject* VolumeDisplay::duplicate() const
+visSurvey::SurveyObject* VolumeDisplay::duplicate( TaskRunner* tr ) const
 {
     VolumeDisplay* vd = create();
 
@@ -961,7 +964,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
     vd->setCubeSampling( getCubeSampling(false,true,0) );
 
     vd->setSelSpec( 0, as_ );
-    vd->setDataVolume( 0, cache_ );
+    vd->setDataVolume( 0, cache_, tr );
     return vd;
 }
 
@@ -1088,7 +1091,8 @@ bool VolumeDisplay::canSetColTabSequence() const
 { return true; }
 
 
-void VolumeDisplay::setColTabSequence( int attr, const ColTab::Sequence& seq )
+void VolumeDisplay::setColTabSequence( int attr, const ColTab::Sequence& seq,
+       					TaskRunner* )
 {
     if ( !scalarfield_ ) return;
 
@@ -1108,7 +1112,8 @@ const ColTab::Sequence* VolumeDisplay::getColTabSequence( int attrib ) const
 
 
 void VolumeDisplay::setColTabMapperSetup( int attrib,
-					  const ColTab::MapperSetup& ms )
+					  const ColTab::MapperSetup& ms,
+       					  TaskRunner* )
 {
     if ( !scalarfield_ ) return;
 
