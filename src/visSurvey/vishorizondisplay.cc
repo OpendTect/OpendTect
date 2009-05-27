@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.78 2009-05-27 15:59:49 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.79 2009-05-27 16:09:27 cvsyuancheng Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -1751,7 +1751,7 @@ int HorizonDisplay::usePar( const IOPar& par )
 	if ( isversion32 )
 	{
 	    if ( !resolution )
-		resolution = 7-resolution;
+		resolution = 6-resolution;
 	}
 
 	//End of 3.2 code
