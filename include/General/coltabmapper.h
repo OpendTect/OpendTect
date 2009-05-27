@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.15 2009-04-09 00:49:10 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.16 2009-05-27 01:41:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,8 +62,8 @@ mStruct MapperSetup : public CallBacker
 
     void			triggerRangeChange();
     void			triggerAutoscaleChange();
-    Notifier<MapperSetup>	rangeChange;
-    Notifier<MapperSetup>	autoscaleChange;
+    mutable Notifier<MapperSetup>	rangeChange;
+    mutable Notifier<MapperSetup>	autoscaleChange;
 };
 
 
