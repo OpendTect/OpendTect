@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.9 2009-05-20 21:45:21 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.10 2009-05-27 02:45:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,8 +68,10 @@ public:
     void			setDataSequence(const ColTab::Sequence&);
     const ColTab::Sequence*	getDataSequence() const;
 
-    void			getAttribPositions(DataPointSet&) const;
-    void			setAttribData(const DataPointSet&);
+    void			getAttribPositions(DataPointSet&,
+	    				TaskRunner*) const;
+    void			setAttribData(const DataPointSet&,
+	    				TaskRunner*);
 
 protected:
 				~GeomIndexedShape();

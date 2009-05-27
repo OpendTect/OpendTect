@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.18 2009-05-20 21:45:22 cvskris Exp $";
+static const char* rcsID = "$Id: visgeomindexedshape.cc,v 1.19 2009-05-27 02:45:44 cvskris Exp $";
 
 #include "visgeomindexedshape.h"
 
@@ -378,7 +378,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 }
 
 
-void GeomIndexedShape::getAttribPositions( DataPointSet& set ) const
+void GeomIndexedShape::getAttribPositions( DataPointSet& set,TaskRunner*) const
 {
     const DataColDef coordindex( sKeyCoordIndex() );
     if ( set.dataSet().findColDef(coordindex,PosVecDataSet::NameExact)==-1 )
@@ -403,7 +403,7 @@ void GeomIndexedShape::getAttribPositions( DataPointSet& set ) const
 }
     
 
-void GeomIndexedShape::setAttribData( const DataPointSet& set )
+void GeomIndexedShape::setAttribData( const DataPointSet& set,TaskRunner*)
 {
     createColTab();
 
