@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.105 2009-05-27 03:24:59 cvskris Exp $";
+static const char* rcsID = "$Id: visvolumedisplay.cc,v 1.106 2009-05-27 08:06:53 cvsnanne Exp $";
 
 
 #include "visvolumedisplay.h"
@@ -817,7 +817,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
 				    attribdata->cubeSampling() );
 	datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
 
-	if ( tr && tr->execute( *datatransformer_) ||
+	if ( (tr && tr->execute(*datatransformer_)) ||
              !datatransformer_->execute() )
 	{
 	    pErrMsg( "Transform failed" );
