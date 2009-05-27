@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.29 2009-01-08 07:14:05 cvsranojay Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.30 2009-05-27 04:35:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ mClass uiFlatViewer : public uiGroup
 		   , public FlatView::Viewer
 {
 public:
-    			uiFlatViewer( uiParent*, bool cnvshanddrag = true );
+    			uiFlatViewer(uiParent*);
 			~uiFlatViewer();
 
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);

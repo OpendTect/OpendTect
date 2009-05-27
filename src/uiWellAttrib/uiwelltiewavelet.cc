@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.4 2009-05-15 12:42:48 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.5 2009-05-27 04:35:19 cvsnanne Exp $";
 
 #include "uiwelltiewavelet.h"
 
@@ -30,7 +30,7 @@ static const char* rcsID = "$Id: uiwelltiewavelet.cc,v 1.4 2009-05-15 12:42:48 c
 #include "uilabel.h"
 
 
-uiWellTieWavelet::uiWellTieWavelet( uiParent* p, WellTieSetup& twtss)
+uiWellTieWavelet::uiWellTieWavelet( uiParent* p, WellTieSetup& twtss )
 	: uiGroup(p)
 	, twtss_(twtss)
 	, wvltctio_(*mMkCtxtIOObj(Wavelet))
@@ -38,7 +38,7 @@ uiWellTieWavelet::uiWellTieWavelet( uiParent* p, WellTieSetup& twtss)
 {
     for ( int idx=0; idx<2; idx++ )
     {
-	viewer_ += new uiFlatViewer( this, true );
+	viewer_ += new uiFlatViewer( this );
 	initWaveletViewer( idx );
     }
     createWaveletFields( this );

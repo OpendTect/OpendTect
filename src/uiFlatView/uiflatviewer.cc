@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiflatviewer.cc,v 1.78 2009-05-26 13:29:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflatviewer.cc,v 1.79 2009-05-27 04:35:19 cvsnanne Exp $";
 
 #include "uiflatviewer.h"
 #include "uiflatviewcontrol.h"
@@ -46,7 +46,7 @@ static const char* rcsID = "$Id: uiflatviewer.cc,v 1.78 2009-05-26 13:29:00 cvsb
 
 float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
 
-uiFlatViewer::uiFlatViewer( uiParent* p, bool handdrag )
+uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
     , mStdInitItem
     , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray(false)))

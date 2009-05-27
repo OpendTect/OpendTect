@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.10 2009-05-26 07:06:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.11 2009-05-27 04:35:19 cvsnanne Exp $";
 
 #include "uiwelltieview.h"
 
@@ -76,7 +76,7 @@ void uiWellTieView::createViewers( uiGroup* vwrgrp )
 {
     for (int vwridx=0; vwridx<6; vwridx++)
     {
-	vwrs_ += new uiFlatViewer( vwrgrp, true);
+	vwrs_ += new uiFlatViewer( vwrgrp );
 	if ( vwridx>0 )
 	    vwrs_[vwridx]->attach( rightOf, vwrs_[vwridx-1] );
     }
