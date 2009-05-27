@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.47 2009-05-27 07:54:35 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.48 2009-05-27 08:15:17 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -75,28 +75,30 @@ uiWellMan::uiWellMan( uiParent* p )
 	    	       "Export log" );
     butgrp->attach( rightOf, logsfld );
 
-    uiToolButton* markerbut = new uiToolButton( this, "Markers",
-	   	 "edmarkers.png", mCB(this,uiWellMan, edMarkers) );
-    markerbut->setToolTip( "Markers" );
-    markerbut->attach( alignedBelow, selgrp );
-    markerbut->attach( ensureBelow, selgrp );
-    markerbut->attach( ensureBelow, logsgrp );
     uiToolButton* welltrackbut = new uiToolButton( this, "Well Track",
 	   	 "edwelltrack.png", mCB(this,uiWellMan, edWellTrack) );
     welltrackbut->setToolTip( "Well Track" );
-    welltrackbut->attach( rightOf, markerbut );
+    welltrackbut->attach( alignedBelow, selgrp );
+    welltrackbut->attach( ensureBelow, selgrp );
+    welltrackbut->attach( ensureBelow, logsgrp );
     
+    uiToolButton* d2tbut = 0;
     if ( SI().zIsTime() )
     {
-	uiToolButton* d2tbut = new uiToolButton( this, "Depth/Time Model",
-	       		   		 "z2t.png", mCB(this,uiWellMan, edD2T));
-	d2tbut->setToolTip( "Depth/Time Model" );
-	d2tbut->attach( rightOf, welltrackbut );
 	uiToolButton* csbut = new uiToolButton( this, "Checkshot Data",
 			     "checkshot.png", mCB(this,uiWellMan, edChckSh));
 	csbut->setToolTip( "Checkshot Data" );
-	csbut->attach( rightOf, d2tbut );
+	csbut->attach( rightOf, welltrackbut );
+	d2tbut = new uiToolButton( this, "Depth/Time Model",
+				   "z2t.png", mCB(this,uiWellMan, edD2T));
+	d2tbut->setToolTip( "Depth/Time Model" );
+	d2tbut->attach( rightOf, csbut );
     }
+
+    uiToolButton* markerbut = new uiToolButton( this, "Markers",
+	   	 "edmarkers.png", mCB(this,uiWellMan, edMarkers) );
+    markerbut->setToolTip( "Markers" );
+    markerbut->attach( rightOf, d2tbut ? d2tbut : welltrackbut );
     
     infofld->attach( ensureBelow, markerbut );
     selChg( this );
