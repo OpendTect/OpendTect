@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.148 2009-05-20 08:07:52 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.149 2009-05-27 12:19:05 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -926,7 +926,6 @@ void uiMPEMan::updateButtonSensitivity( CallBacker* )
     const bool isinvolumemode = !seedpicker || seedpicker->doesModeUseVolume();
     toolbar->setSensitive( trackinvolidx, !is2d && isinvolumemode );
     toolbar->setSensitive( trackwithseedonlyidx, !is2d && isinvolumemode );
-    toolbar->setSensitive ( removeinpolygon, !is2d && isinvolumemode );
     
     //Track forward, backward, attrib, trans, nrstep
     mGetDisplays(false);
