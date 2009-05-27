@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2009
- RCS:           $Id: qfilesystemcomm.h,v 1.1 2009-04-20 08:14:36 cvsnanne Exp $
+ RCS:           $Id: qfilesystemcomm.h,v 1.2 2009-05-27 03:48:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,14 +41,14 @@ private slots:
 
 void directoryChanged( const QString& path )
 {
-    fswatcher_->directoryChanged.trigger( *fswatcher_ );
     fswatcher_->chgddir_ = path.toAscii().constData();
+    fswatcher_->directoryChanged.trigger( *fswatcher_ );
 }
 
 void fileChanged( const QString& fnm )
 {
-    fswatcher_->fileChanged.trigger( *fswatcher_ );
     fswatcher_->chgdfile_ = fnm.toAscii().constData();
+    fswatcher_->fileChanged.trigger( *fswatcher_ );
 }
 
 private:
