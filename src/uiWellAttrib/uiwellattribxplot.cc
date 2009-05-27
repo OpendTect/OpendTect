@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.26 2009-04-01 07:38:39 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellattribxplot.cc,v 1.27 2009-05-27 09:28:00 cvsbert Exp $";
 
 #include "uiwellattribxplot.h"
 
@@ -252,7 +252,7 @@ bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps, int c1 )
 bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 {
     ObjectSet<DataColDef> dcds;
-    dcds += new DataColDef( "DAH" );
+    dcds += new DataColDef( "MD" );
     BufferStringSet lognms; addDCDs( logsfld_, dcds, lognms );
     BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
     if ( lognms.isEmpty() )

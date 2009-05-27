@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.52 2009-04-06 09:43:25 cvsranojay Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.53 2009-05-27 09:29:25 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -45,9 +45,9 @@ const char* TrackSampler::sKeyDataStart()   { return "<Start of data>"; }
 const char* TrackSampler::sKeyDataEnd()	    { return "<End of data>"; }
 const char* TrackSampler::sKeyLogNm()	    { return "Log name"; }
 const char* TrackSampler::sKeyFor2D()	    { return "For 2D"; }
-const char* TrackSampler::sKeyDahCol()	    { return "Create DAH column"; }
+const char* TrackSampler::sKeyDahCol()	    { return "Create MD column"; }
 const char* LogDataExtracter::sKeyLogNm()   { return Well::TrackSampler::sKeyLogNm(); }
-static const char* sKeyDAHColName()	    { return "<DAH>"; }
+static const char* sKeyDAHColName()	    { return "<MD>"; }
 }
 
 DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
