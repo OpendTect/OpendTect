@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.15 2009-04-23 16:37:00 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.16 2009-05-27 01:37:29 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -128,6 +128,7 @@ void ChannelInfo::clipData( int version )
 	const ArrayValueSeries<float,float> valseries(
 		(float*) unmappeddata_[idx], false, sz );
 	mappers_[idx]->setData( &valseries, sz );
+	mappers_[idx]->setup_.triggerRangeChange();
     }
 }
 
