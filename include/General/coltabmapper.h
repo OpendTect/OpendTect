@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.16 2009-05-27 01:41:11 cvskris Exp $
+ RCS:		$Id: coltabmapper.h,v 1.17 2009-05-27 14:54:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 
 class DataClipper;
 class IOPar;
+class TaskRunner;
 
 namespace ColTab
 {
@@ -85,10 +86,11 @@ public:
 			{ return vssz_; }
 
     void		setRange( const Interval<float>& rg );
-    void		setData(const ValueSeries<float>*,od_int64 sz);
+    void		setData(const ValueSeries<float>*,od_int64 sz,
+	    			TaskRunner* = 0);
     			//!< If data changes, call update()
 
-    void		update(bool full=true);
+    void		update(bool full=true, TaskRunner* = 0);
     			//!< If !full, will assume data is unchanged
 			//
     MapperSetup		setup_;

@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.19 2009-04-09 00:49:10 cvskris Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.20 2009-05-27 14:54:02 cvskris Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -264,10 +264,11 @@ void ColTab::Mapper::setRange( const Interval<float>& rg )
 }
 
 
-void ColTab::Mapper::setData( const ValueSeries<float>* vs, od_int64 sz )
+void ColTab::Mapper::setData( const ValueSeries<float>* vs, od_int64 sz,
+			      TaskRunner* tr )
 {
     vs_ = vs; vssz_ = sz;
-    update( true );
+    update( true, tr );
 }
 
 
@@ -309,7 +310,7 @@ bool isSymmAroundZero() const
 };
 
 
-void ColTab::Mapper::update( bool full )
+void ColTab::Mapper::update( bool full, TaskRunner* tr )
 {
     if ( setup_.type_ == MapperSetup::Fixed || !vs_ || vssz_ < 1 )
 	return;
@@ -328,7 +329,11 @@ void ColTab::Mapper::update( bool full )
 	if ( setup_.autosym0_ )
 	{
 	    SymmetryCalc symmcalc( *vs_, vssz_ );
-	    symmcalc.execute();
+	    if ( tr )
+		tr->execute( symmcalc );
+	    else
+		symmcalc.execute();
+
 	    setup_.symmidval_ = symmcalc.isSymmAroundZero() ? 0 : mUdf(float);
 	}
     }
