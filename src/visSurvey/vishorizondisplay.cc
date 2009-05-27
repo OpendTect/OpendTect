@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.75 2009-05-22 21:43:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.76 2009-05-27 01:35:07 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -720,6 +720,15 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data )
     for ( int idx=0; idx<sections_.size(); idx++ )
 	sections_[idx]->setTextureData( channel, !idx ? &data->bivSet() : 0 );
 
+    //We should really scale here, and then update sections. This
+    //works for single sections though.
+    if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
+    {
+    	coltabmappersetups_[channel] =
+    	    *sections_[0]->getColTabMapperSetup( channel );
+	coltabmappersetups_[channel].triggerRangeChange();
+    }
+
     validtexture_ = true;
     usestexture_ = true;
     updateSingleColor();
@@ -961,16 +970,22 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq )
 }
 
 
-void HorizonDisplay::setColTabMapperSetup( int chan,
+void HorizonDisplay::setColTabMapperSetup( int channel,
 					   const ColTab::MapperSetup& ms )
 {
-    if ( chan<0 || chan>=nrAttribs() )
+    if ( channel<0 || channel>=nrAttribs() )
        return;
 
-    coltabmappersetups_[chan] = ms;
-
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setColTabMapperSetup( chan, ms );
+	sections_[idx]->setColTabMapperSetup( channel, ms );
+
+    //We should really scale here, and then update sections. This
+    //works for single sections though.
+    if ( sections_.size() && sections_[0]->getColTabMapperSetup( channel ) )
+    {
+	coltabmappersetups_[channel] =
+		    *sections_[0]->getColTabMapperSetup( channel );
+    }
 }
 
 
