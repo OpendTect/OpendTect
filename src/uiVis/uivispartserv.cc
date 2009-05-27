@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uivispartserv.cc,v 1.416 2009-05-27 03:24:58 cvskris Exp $";
+static const char* rcsID = "$Id: uivispartserv.cc,v 1.417 2009-05-27 04:00:52 cvsnanne Exp $";
 
 #include "uivispartserv.h"
 
@@ -1800,14 +1800,16 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
 void uiVisPartServer::displayMapperRangeEditForAttrbs( int displayid )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
+    mapperrgeditordisplayid_ = displayid;
     if ( multirgeditwin_ )
     {
 	multirgeditwin_->close();
-	delete multirgeditwin_; multirgeditwin_ = 0;
+	delete multirgeditwin_;
     }
-    mapperrgeditordisplayid_ = displayid;
+
     multirgeditwin_ = new uiMultiMapperRangeEditWin( 0, getNrAttribs(displayid),
 	   					 getDataPackMgrID(displayid) );
+    multirgeditwin_->setDeleteOnClose( false );
     multirgeditwin_->rangeChange.notify( 
 	    mCB(this,uiVisPartServer,mapperRangeEditChanged) );
 
