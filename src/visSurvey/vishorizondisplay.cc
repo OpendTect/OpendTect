@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.77 2009-05-27 03:24:59 cvskris Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.78 2009-05-27 15:59:49 cvskris Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -479,7 +479,7 @@ bool HorizonDisplay::addAttrib()
 		coltabsequences_[curchannel] );
 
 	sections_[idx]->setColTabMapperSetup( curchannel,
-		coltabmappersetups_[curchannel] );
+		coltabmappersetups_[curchannel], 0 );
     }
 
     return true;
@@ -822,7 +822,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx] );
+	surf->setColTabMapperSetup( idx, coltabmappersetups_[idx], 0 );
 	surf->setColTabSequence( idx, coltabsequences_[idx] );
 	surf->enableChannel( idx, enabled_[idx] );
     }
@@ -974,13 +974,13 @@ void HorizonDisplay::setColTabSequence( int chan, const ColTab::Sequence& seq,
 
 
 void HorizonDisplay::setColTabMapperSetup( int channel,
-			   const ColTab::MapperSetup& ms, TaskRunner* )
+			   const ColTab::MapperSetup& ms, TaskRunner* tr )
 {
     if ( channel<0 || channel>=nrAttribs() )
        return;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
-	sections_[idx]->setColTabMapperSetup( channel, ms );
+	sections_[idx]->setColTabMapperSetup( channel, ms, tr );
 
     //We should really scale here, and then update sections. This
     //works for single sections though.

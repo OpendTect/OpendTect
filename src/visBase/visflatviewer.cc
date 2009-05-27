@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: visflatviewer.cc,v 1.25 2009-04-23 17:03:10 cvskris Exp $";
+static const char* rcsID = "$Id: visflatviewer.cc,v 1.26 2009-05-27 15:59:49 cvskris Exp $";
 
 #include "visflatviewer.h"
 
@@ -117,13 +117,13 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 			{
 			    dparr.getAll( ptr );
 			    channels_->setUnMappedData( 0, 0, ptr,
-							OD::TakeOverPtr );
+							OD::TakeOverPtr, 0 );
 			}
 		    }
 		    else 
 		    {
 			channels_->setUnMappedData( 0, 0, dparr.getData(),
-						    OD::UsePtr );
+						    OD::UsePtr, 0 );
 		    }
 
 		    appearance().ddpars_.vd_.ctab_ =
@@ -144,7 +144,10 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt, bool dofill)
 	    	ColTab::MapperSetup mappersetup;
 		vd.fill( mappersetup );
 		if ( channels_->getColTabMapperSetup( 0,0 )!=mappersetup )
+		{
 		    channels_->setColTabMapperSetup( 0, mappersetup );
+		    channels_->reMapData( 0, 0 );
+		}
 
 		ColTab::Sequence sequence = *channel2rgba_->getSequence( 0 );
 		if ( vd.ctab_!=sequence.name() )

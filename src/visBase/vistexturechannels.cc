@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.16 2009-05-27 01:37:29 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.17 2009-05-27 15:59:49 cvskris Exp $";
 
 #include "vistexturechannels.h"
 
@@ -36,7 +36,7 @@ public:
     void		setColTabMapperSetup(const ColTab::MapperSetup&);
     const ColTab::MapperSetup& getColTabMapperSetup(int version) const;
     const ColTab::Mapper& getColTabMapper(int version) const;
-    bool		reMapData();
+    bool		reMapData(TaskRunner*);
 
     void		setNrVersions(int);
     int			nrVersions() const;
@@ -44,13 +44,13 @@ public:
     void		removeCaches();
 
     bool		setUnMappedData(int version,const float*,
-	    				OD::PtrPolicy);
+	    				OD::PtrPolicy, TaskRunner*);
     bool		setMappedData(int version,unsigned char*,
 	    			      OD::PtrPolicy);
 
-    void		clipData(int version);
+    void		clipData(int version,TaskRunner*);
     			//!<If version==-1, all versions will be clipped
-    bool		mapData(int version);
+    bool		mapData(int version,TaskRunner*);
     int			getCurrentVersion() const;
     void		setCurrentVersion( int );
 
@@ -98,20 +98,16 @@ void ChannelInfo::setColTabMapperSetup( const ColTab::MapperSetup& setup )
     for ( int idx=0; idx<mappers_.size(); idx++ )
 	mappers_[idx]->setup_ = setup;
 
-    if ( setup.type_!=ColTab::MapperSetup::Fixed )
-	clipData( -1 );
-
-    reMapData();
 }
 
 
-const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup( int channel ) const
+const ColTab::MapperSetup& ChannelInfo::getColTabMapperSetup(int channel) const
 {
     return mappers_[channel]->setup_;
 }
 
 
-void ChannelInfo::clipData( int version )
+void ChannelInfo::clipData( int version, TaskRunner* tr )
 {
     od_int64 sz = owner_.size_[0];
     sz *= owner_.size_[1];
@@ -127,17 +123,20 @@ void ChannelInfo::clipData( int version )
 
 	const ArrayValueSeries<float,float> valseries(
 		(float*) unmappeddata_[idx], false, sz );
-	mappers_[idx]->setData( &valseries, sz );
+	mappers_[idx]->setData( &valseries, sz, tr );
 	mappers_[idx]->setup_.triggerRangeChange();
     }
 }
 
 
-bool ChannelInfo::reMapData() 
+bool ChannelInfo::reMapData( TaskRunner* tr ) 
 {
     for ( int idx=nrVersions()-1; idx>=0; idx-- )
     {
-	if ( !mapData( idx ) )
+	if ( mappers_[idx]->setup_.type_!=ColTab::MapperSetup::Fixed )
+	    clipData( idx, tr );
+
+	if ( !mapData( idx, tr ) )
 	    return false;
     }
 
@@ -195,7 +194,7 @@ int ChannelInfo::nrVersions() const
 
 
 bool ChannelInfo::setUnMappedData(int version, const float* data,
-	    			  OD::PtrPolicy policy)
+	    			  OD::PtrPolicy policy, TaskRunner* tr )
 {
     if ( version<0 || version>=nrVersions() )
     {
@@ -231,13 +230,13 @@ bool ChannelInfo::setUnMappedData(int version, const float* data,
     }
 
     if ( mappers_[version]->setup_.type_!=ColTab::MapperSetup::Fixed )
-	clipData( version );
+	clipData( version, tr );
 
-    return mapData( version );
+    return mapData( version, tr );
 }
 
 
-bool ChannelInfo::mapData( int version )
+bool ChannelInfo::mapData( int version, TaskRunner* tr )
 {
     if ( version<0 || version>=unmappeddata_.size() )
 	return true;
@@ -268,9 +267,9 @@ bool ChannelInfo::mapData( int version )
 	ownsmappeddata_[version] = true;
     }
 
-    ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], sz, mNrColors, 
-	    unmappeddata_[version], mappeddata_[version] );
-    if ( maptask.execute() )
+    ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], sz,
+	    mNrColors, unmappeddata_[version], mappeddata_[version] );
+    if ( tr && tr->execute( maptask ) || maptask.execute() )
     {
 	owner_.update( this, true );
 	return true;
@@ -476,6 +475,15 @@ void TextureChannels::setColTabMapperSetup( int channel,
 }
 
 
+void TextureChannels::reMapData( int channel, TaskRunner* tr )
+{
+    if ( channel<0 || channel>=channelinfo_.size() )
+	pErrMsg("Index out of bounds");
+
+    channelinfo_[channel]->reMapData( tr );
+}
+
+
 const ColTab::MapperSetup&
 TextureChannels::getColTabMapperSetup( int channel, int version ) const
 { return channelinfo_[channel]->getColTabMapperSetup( version ); }
@@ -524,7 +532,7 @@ void TextureChannels::setCurrentVersion( int idx, int version )
 }
 
 bool TextureChannels::setUnMappedData( int channel, int version,
-	const float* data, OD::PtrPolicy cp )
+	const float* data, OD::PtrPolicy cp, TaskRunner* tr )
 {
     if ( channel<0 || channel>=channelinfo_.size() )
     {
@@ -532,7 +540,7 @@ bool TextureChannels::setUnMappedData( int channel, int version,
 	return false;
     }
 
-    return channelinfo_[channel]->setUnMappedData( version, data, cp );
+    return channelinfo_[channel]->setUnMappedData( version, data, cp, tr );
 }
 
 

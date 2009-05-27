@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Jun 2008
- RCS:		$Id: vistexturechannels.h,v 1.9 2009-04-23 16:37:00 cvskris Exp $
+ RCS:		$Id: vistexturechannels.h,v 1.10 2009-05-27 15:59:48 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class SoTextureChannelSet;
 class SoSwitch;
 class SbImage;
+class TaskRunner;
 
 template <class T> class Array2D;
 
@@ -54,7 +55,7 @@ public:
     const ColTab::MapperSetup&	getColTabMapperSetup(int channel,
 	    					     int version) const;
     const ColTab::Mapper&	getColTabMapper(int channel,int version) const;
-    void			reMapData(int channel);
+    void			reMapData(int channel,TaskRunner*);
 
     void			setNrVersions(int channel,int nrvers);
     int				nrVersions(int channel) const;
@@ -62,7 +63,8 @@ public:
     void			setCurrentVersion(int channel,int version);
 
     bool			setUnMappedData(int channel,int version,
-	    				        const float*, OD::PtrPolicy);
+	    				        const float*, OD::PtrPolicy,
+						TaskRunner*);
     bool			setMappedData(int channel,int version,
 	    				      unsigned char*, OD::PtrPolicy);
 

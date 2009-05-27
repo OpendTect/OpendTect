@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.216 2009-05-27 03:24:59 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.217 2009-05-27 15:59:49 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -582,7 +582,7 @@ void PlaneDataDisplay::emptyCache( int attrib )
     if ( texture_ )
 	texture_->setData( attrib, 0, 0 );
     else
-	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr );
+	channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 }
 
 
@@ -891,7 +891,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	}
 	else
 	{
-	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr );
+	    channels_->setUnMappedData( attrib, 0, 0, OD::UsePtr, 0 );
 	    channels_->turnOn( false );
 	}
 	return;
@@ -954,7 +954,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 
 	    channels_->setSize( 1, dparr.info().getSize(0),
 				   dparr.info().getSize(1) );
-	    channels_->setUnMappedData( attrib, idx, arr, cp );
+	    channels_->setUnMappedData( attrib, idx, arr, cp, 0 );
 	}
 
 	rectangle_->setOriginalTextureSize( dparr.info().getSize(0),

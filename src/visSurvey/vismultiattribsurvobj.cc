@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.32 2009-05-27 03:24:59 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.33 2009-05-27 15:59:49 cvskris Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -235,7 +235,7 @@ void MultiTextureSurveyObject::clearTextures()
 		texture_->setData( idx, idy, 0, false );
 	    else
 	    {
-		channels_->setUnMappedData( idx, idy, 0, OD::UsePtr );
+		channels_->setUnMappedData( idx, idy, 0, OD::UsePtr, 0 );
 	    }
 	}
     }
@@ -624,6 +624,7 @@ int MultiTextureSurveyObject::usePar( const IOPar& par )
 			        coltab->colorMapper().setup_ );
 		    channels_->getChannels2RGBA()->setSequence( attribnr,
 			    coltab->colorSeq().colors() );
+		    channels_->reMapData( attribnr, 0 );
 		}
 	    }
 	    else

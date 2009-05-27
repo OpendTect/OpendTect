@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.31 2009-05-26 22:28:32 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.32 2009-05-27 15:59:49 cvskris Exp $";
 
 #include "vishorizonsection.h"
 
@@ -603,7 +603,7 @@ void HorizonSection::updateTexture( int channel )
 
     for ( int idx=0; idx<nrversions; idx++ )
 	channels_->setUnMappedData( channel, idx, versiondata[idx],
-				    OD::TakeOverPtr );
+				    OD::TakeOverPtr, 0 );
 }
 
 
@@ -639,9 +639,14 @@ const ColTab::Sequence* HorizonSection::getColTabSequence( int channel ) const
 
 
 void HorizonSection::setColTabMapperSetup( int channel, 
-					   const ColTab::MapperSetup& mapper )
+					   const ColTab::MapperSetup& mapper,
+       					   TaskRunner* tr )
 {
-    if ( channel>=0 ) channels_->setColTabMapperSetup( channel, mapper );
+    if ( channel>=0 )
+    {
+	channels_->setColTabMapperSetup( channel, mapper );
+	channels_->reMapData( channel, tr );
+    }
 }
 
 
