@@ -7,7 +7,7 @@ ___________________________________________________________________
 ___________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.60 2009-05-20 03:43:47 cvskris Exp $";
+static const char* rcsID = "$Id: uiodseis2dtreeitem.cc,v 1.61 2009-05-27 03:22:56 cvskris Exp $";
 
 #include "uiodseis2dtreeitem.h"
 
@@ -682,7 +682,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 
     if ( dpid < 0 )
 	return;
-    s2d->setDataPackID( attribnr, dpid );
+    s2d->setDataPackID( attribnr, dpid, 0 );
 }
 
 
@@ -885,7 +885,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm,
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     s2d->setSelSpec( attribNr(), myas );
-    s2d->setDataPackID( attribNr(), dpid );
+    s2d->setDataPackID( attribNr(), dpid, 0 );
 
     updateColumnText(0);
     setChecked( s2d->isOn() );
@@ -915,7 +915,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
 	return;
 
     s2d->setSelSpec( attribNr(), myas );
-    s2d->setDataPackID( attribNr(), dpid );
+    s2d->setDataPackID( attribNr(), dpid, 0 );
 
     updateColumnText(0);
     setChecked( s2d->isOn() );

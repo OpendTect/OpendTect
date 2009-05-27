@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.330 2009-05-21 09:10:04 cvsumesh Exp $";
+static const char* rcsID = "$Id: uiodapplmgr.cc,v 1.331 2009-05-27 03:22:56 cvskris Exp $";
 
 #include "uiodapplmgr.h"
 #include "uiodapplmgraux.h"
@@ -553,7 +553,7 @@ bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
     if ( dpid < 0 )
 	return false;
 
-    s2d->setDataPackID( attrib, dpid );
+    s2d->setDataPackID( attrib, dpid, 0 );
     return true;
 }
 
