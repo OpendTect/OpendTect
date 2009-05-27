@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.24 2009-04-21 04:52:34 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.25 2009-05-27 07:45:04 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -60,7 +60,10 @@ ________________________________________________________________________
 #endif
 
 
-#define mMaxUserIDLength 127
+#define mMaxUserIDLength	127
+#define mFromFeetFactor		0.3048
+#define mToFeetFactor		3.2808399
+#define mToFeetFactorD		3.28083989501312336
 
 #ifdef __msvc__
 # include "msvcdefs.h"
