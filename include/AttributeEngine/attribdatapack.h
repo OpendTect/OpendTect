@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.24 2009-04-08 14:50:57 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.25 2009-05-27 12:13:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,8 @@ public:
     virtual const char*	sourceType() const	{ return "2D"; }
 
     const Data2DHolder&	dataholder() const	{ return dh_; }
+    void		getPosDataTable(TypeSet<int>& trcnrs,
+	    				TypeSet<float>& dist);
     Array2D<float>&	data();
 
     Coord3		getCoord(int,int) const;
