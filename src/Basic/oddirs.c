@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.11 2009-05-20 20:42:56 cvskris Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.12 2009-05-28 04:43:28 cvsraman Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -441,6 +441,11 @@ static const char* gtExecScript( const char* basedir, int remote )
 
 const char* GetExecScript( int remote )
 {
+
+#ifdef __msvc__
+    return "";
+#endif
+
     static FileNameString progname;
     const char* fnm = 0;
     const char* basedir = GetApplSetupDir();
