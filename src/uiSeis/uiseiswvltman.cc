@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.36 2009-05-08 10:22:36 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseiswvltman.cc,v 1.37 2009-05-28 09:44:24 cvsnageswara Exp $";
 
 
 #include "uiseiswvltman.h"
@@ -116,7 +116,8 @@ void uiSeisWvltMan::crPush( CallBacker* )
 void uiSeisWvltMan::extractPush( CallBacker* )
 {
     uiWaveletExtraction wedlg( this );
-    wedlg.go();
+    if ( wedlg.go() )
+	selgrp->fullUpdate( wedlg.storeKey() );
 }
 
 
