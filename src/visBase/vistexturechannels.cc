@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexturechannels.cc,v 1.17 2009-05-27 15:59:49 cvskris Exp $";
+static const char* rcsID = "$Id: vistexturechannels.cc,v 1.18 2009-05-28 05:08:47 cvsraman Exp $";
 
 #include "vistexturechannels.h"
 
@@ -269,7 +269,7 @@ bool ChannelInfo::mapData( int version, TaskRunner* tr )
 
     ColTab::MapperTask< unsigned char> 	maptask( *mappers_[version], sz,
 	    mNrColors, unmappeddata_[version], mappeddata_[version] );
-    if ( tr && tr->execute( maptask ) || maptask.execute() )
+    if ( ( tr && tr->execute(maptask) ) || maptask.execute() )
     {
 	owner_.update( this, true );
 	return true;
