@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.21 2009-05-26 10:22:11 cvshelene Exp $
+ RCS:           $Id: attribdataholder.h,v 1.22 2009-05-28 15:00:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
 
     inline bool		isEmpty() const		{ return nrSeries() == 0; }
     static float	getExtraZFromSampPos(float,float);
+    static float	getExtraZAndSampIdxFromExactZ(float,float,int&);
 
     int			z0_;	//!< See class comments
     int			nrsamples_;

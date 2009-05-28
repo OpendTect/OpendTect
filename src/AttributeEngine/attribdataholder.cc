@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.12 2009-05-26 10:22:11 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.13 2009-05-28 15:00:38 cvshelene Exp $";
 
 #include "attribdataholder.h"
 
@@ -102,10 +102,8 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 {
     if ( !series( serieidx ) ) return mUdf(float);
 
-    float disttosamppos = getExtraZFromSampPos( exactz, refstep );
-    //Do not use mNINT: we want to get previous sample
-    //0.05 to deal with float precision pb
-    const int lowz = (int)( (exactz/refstep)+0.05 );
+    int lowz;
+    float disttosamppos = getExtraZAndSampIdxFromExactZ( exactz, refstep, lowz);
     if ( mIsZero( disttosamppos - extrazfromsamppos_, 1e-6 ) )
 	return series( serieidx )->value( lowz-z0_ );
 
@@ -128,7 +126,7 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
     float val;
     if ( classstatus_[serieidx] == 0 )
     {
-	float disttop1 = disttosamppos - extrazfromsamppos_;
+	float disttop1 = (disttosamppos - extrazfromsamppos_)/refstep;
 	val = Interpolate::polyReg1DWithUdf( p0, p1, p2, p3, disttop1 );
     }
     else
@@ -138,17 +136,34 @@ float DataHolder::getValue( int serieidx, float exactz, float refstep ) const
 }
 
 
-float DataHolder::getExtraZFromSampPos( float exacttime, float refzstep )
+float DataHolder::getExtraZFromSampPos( float exactz, float refzstep )
 {
     //Workaround to avoid conversion problems, 1e7 to get 1e6 precision
-    const int extrazem7 = (int)(exacttime*1e7)%(int)(refzstep*1e7);
+    const int extrazem7 = (int)(exactz*1e7)%(int)(refzstep*1e7);
     const int extrazem7noprec = (int)(refzstep*1e7) - 5;
-    const int leftem3 = (int)(exacttime*1e7) - extrazem7;
+    const int leftem3 = (int)(exactz*1e7) - extrazem7;
     const int extrazem3 = (int)(leftem3*1e-3)%(int)(refzstep*1e3);
     if ( extrazem7 <= extrazem7noprec || extrazem3 != 0 ) //below precision
 	return extrazem3*1e-3 + extrazem7*1e-7;
 
     return 0;
+}
+
+
+float DataHolder::getExtraZAndSampIdxFromExactZ( float exactz,
+						 float refzstep, int& idx )
+{
+    float extraz = getExtraZFromSampPos( exactz, refzstep );
+    //Do not use mNINT: we want to get previous sample
+    //0.05 to deal with float precision pb
+    int lowidx = (int)( (exactz/refzstep));
+    int highidx = (int)( (exactz/refzstep)+0.05 );
+    if ( lowidx != highidx )
+	idx = extraz > 0.00005 ? lowidx : highidx;
+    else
+	idx = highidx;
+
+    return extraz;
 }
 
 

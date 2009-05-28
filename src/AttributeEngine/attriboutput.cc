@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.95 2009-05-18 10:31:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.96 2009-05-28 15:00:38 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -681,9 +681,8 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     while ( true )
     {
 	float* vals = bidvalset_.getVals( pos );
-	//Do not use mNINT: we want to get previous sample
-	//0.05 to deal with float precision pb
-	const int lowz = (int)( vals[0]/refstep + 0.05 );
+	int lowz;
+	DataHolder::getExtraZAndSampIdxFromExactZ( vals[0], refstep, lowz );
 	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
@@ -727,9 +726,8 @@ TypeSet< Interval<int> > LocationOutput::getLocalZRanges(
     while ( pos.valid() )
     {
 	const float* vals = bidvalset_.getVals( pos );
-	//Do not use mNINT: we want to get previous sample
-	//0.05 to deal with float precision pb
-	const int zidx = (int)( vals[0]/zstep + 0.05 );
+	int zidx;
+	DataHolder::getExtraZAndSampIdxFromExactZ( vals[0], zstep, zidx );
 	Interval<int> interval( zidx, zidx );
 	if ( arebiddupl_ )
 	{
@@ -1141,9 +1139,8 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	
 	const float zval = datapointset_.z(idx);
 	float* vals = datapointset_.getValues( idx );
-	//Do not use mNINT: we want to get previous sample
-	//0.05 to deal with float precision pb
-	const int lowz = (int)( (zval/refstep)+0.05 );
+	int lowz;
+	DataHolder::getExtraZAndSampIdxFromExactZ( zval, refstep, lowz );
 	const int highz = lowz + 1;
 	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
 	bool canusepartdata = data.nrsamples_<4 && datarg.includes(lowz) 
@@ -1263,9 +1260,8 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
 				    int rid, float zstep ) const
 {
     const float zval = datapointset_.z(rid);
-    //Do not use mNINT: we want to get previous sample
-    //0.05 to deal with float precision pb
-    const int zidx = (int)( (zval/zstep)+0.05 );
+    int zidx;
+    DataHolder::getExtraZAndSampIdxFromExactZ( zval, zstep, zidx );
     Interval<int> interval( zidx, zidx );
 
     //Necessary if bid are duplicated and for a chain of attribs with stepout
