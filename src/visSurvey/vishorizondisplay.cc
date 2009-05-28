@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.79 2009-05-27 16:09:27 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.80 2009-05-28 07:05:15 cvsnanne Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -832,7 +832,7 @@ bool HorizonDisplay::addSection( const EM::SectionID& sid )
     surf->setResolution( resolution_-1 );
 
     surf->ref();
-    surf->setMaterial( material_ );
+    surf->setMaterial( 0 );
     surf->setDisplayTransformation( transformation_ );
     surf->setZAxisTransform( zaxistransform_ );
     const int index = childIndex(drawstyle_->getInventorNode());
