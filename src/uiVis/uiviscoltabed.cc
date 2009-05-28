@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.39 2009-05-27 02:07:19 cvskris Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.40 2009-05-28 11:41:01 cvsumesh Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -49,8 +49,9 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
 #define mImplNotification( refop, notify) \
     if ( survobj_ ) \
     { \
-	survobj_->getColTabMapperSetup( channel_, version_ )-> \
-	    rangeChange.notify( mCB(this,uiVisColTabEd, mapperChangeCB ) ); \
+	if ( survobj_->getColTabMapperSetup(channel_,version_) ) \
+	    survobj_->getColTabMapperSetup( channel_, version_ )-> \
+		rangeChange.notify( mCB(this,uiVisColTabEd,mapperChangeCB) ); \
 	mDynamicCastGet( visBase::DataObject*, dataobj, survobj_ ); \
 	if ( dataobj ) \
 	    dataobj->refop(); \
