@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.80 2009-05-28 07:05:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: vishorizondisplay.cc,v 1.81 2009-05-28 08:31:37 cvsumesh Exp $";
 
 #include "vishorizondisplay.h"
 
@@ -715,6 +715,7 @@ void HorizonDisplay::setRandomPosData( int channel, const DataPointSet* data,
     if ( !data || !data->size() )
     {
 	validtexture_ = false;
+	usestexture_ = false;
 	updateSingleColor();
 	return;
     }
