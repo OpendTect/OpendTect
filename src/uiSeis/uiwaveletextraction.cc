@@ -7,6 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiwaveletextraction.cc,v 1.3 2009-05-28 09:42:50 cvsnageswara Exp $
 
 #include "uiwaveletextraction.h"
 
@@ -30,6 +31,7 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "multiid.h"
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "seisioobjinfo.h"
@@ -84,7 +86,7 @@ uiWaveletExtraction::uiWaveletExtraction( uiParent* p )
 
     BufferString lbl = "Wavelet Length ";
     lbl += SI().getZUnitString();
-    wtlengthfld_ = new uiGenInput( this, lbl, IntInpSpec(60) );
+    wtlengthfld_ = new uiGenInput( this, lbl, IntInpSpec(120) );
     wtlengthfld_->attach( alignedBelow, surfacesel_ );
 
     wvltctio_.ctxt.forread = false;
@@ -144,7 +146,7 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
     }
 
     wvltsize_ = mNINT( wtlengthfld_->getfValue() /
-	    		      (SI().zStep() * SI().zFactor()) );
+	    		      (SI().zStep() * SI().zFactor()) ) + 1 ;
 
     // TODO: Move this to another class
     return doProcess( inputpars );
@@ -154,7 +156,11 @@ bool uiWaveletExtraction::acceptOK( CallBacker* )
 bool uiWaveletExtraction::doProcess( const IOPar& iopar )
 {
     Array1DImpl<float> waveletfd( wvltsize_ );
+    for ( int idx=0; idx<wvltsize_; idx++ )
+	waveletfd.set( idx, 0 );
+
     Array1DImpl<float> wavelet( wvltsize_ );
+    
     bool res = readInputData(iopar) && doFFT(*seistrcbuf_,waveletfd.arr()) &&
 	       doIFFT(waveletfd.arr(),wavelet.arr());
     storeWavelet( wavelet.arr() );
@@ -199,15 +205,21 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
     const SeisTrc* firsttrc = buf.size()>0 ? buf.get(0) : 0;
     if ( !firsttrc ) return false;
 
+    const int signalsz = firsttrc->size();
+    if ( wvltsize_>signalsz )
+    {
+	uiMSG().warning("Signal length should be more than wavelet length");
+	return false;
+    }
+
     FFT fft;
     fft.setInputInfo( Array1DInfoImpl(wvltsize_) );
     fft.setDir( true );
     fft.init();
 
-    const int signalsz = firsttrc->size();
     Array1DImpl<float> signal( signalsz );
-    ArrayNDWindow window( Array1DInfoImpl(signalsz), true, 
-			  ArrayNDWindow::CosTaper5 );
+    ArrayNDWindow window( signal.info(), true, ArrayNDWindow::CosTaper5 );
+
     const int nrtrcs = buf.size();
     for ( int trcidx=0; trcidx<nrtrcs; trcidx++ )
     {
@@ -229,35 +241,41 @@ bool uiWaveletExtraction::doFFT( const SeisTrcBuf& buf, float* stackedwvlt )
 
 	//Cos Taper
 	window.apply( &signal );
-
 	Array1DImpl<float> acarr( wvltsize_ );
-	if ( wvltsize_>signalsz )
-	{
-	    uiMSG().warning("Signal length should be more than wavelet length");
-	    return false;
-	}
-
 	float* acarrptr = acarr.arr();
-
 	genericCrossCorrelation( signalsz, 0, signal.arr(),
 				 signalsz, 0, signal.arr(),
-				 wvltsize_, -wvltsize_/2, acarrptr );
-	removeBias( &acarr );
-	detrend( acarr );
+				 wvltsize_, wvltsize_/2, acarrptr );
+
+	Array1DImpl<float> temp( wvltsize_ );
+	for ( int idx=0; idx<wvltsize_; idx++ )
+	{
+	    if ( idx>=wvltsize_/2 )
+		temp.arr()[idx] = acarr.get( idx - wvltsize_/2 );
+	    else
+		temp.arr()[idx] = acarr.get( wvltsize_/2 - idx );
+	}
+
+	removeBias( &temp );
+	normalisation( temp );
 
 	Array1DImpl<float_complex> timedomsignal( wvltsize_ );
-	for ( int idx=0; idx<wvltsize_; idx++ )
-	    timedomsignal.set( idx, acarr.arr()[idx] );
-
 	Array1DImpl<float_complex> freqdomsignal( wvltsize_ );
-	fft.transform( timedomsignal, freqdomsignal );
 	for ( int idx=0; idx<wvltsize_; idx++ )
-	    stackedwvlt[idx] += std::abs( freqdomsignal.get(idx) );
+	    timedomsignal.set( idx, temp.arr()[idx] );
+
+	fft.transform( timedomsignal, freqdomsignal );
+
+    	for ( int idx=0; idx<wvltsize_; idx++ )
+	{
+	    const float val = std::abs( freqdomsignal.arr()[idx] );
+	    stackedwvlt[idx] += val;
+	}
     }
 
     stackedwvlt[0] = 0;
-    for ( int idx=0; idx<wvltsize_; idx++ )
-	stackedwvlt[idx] = stackedwvlt[idx] / nrtrcs;
+    for ( int idx=1; idx<wvltsize_; idx++ )
+	stackedwvlt[idx] = sqrt( stackedwvlt[idx] / nrtrcs );
 
     return true;
 }
@@ -275,6 +293,7 @@ bool uiWaveletExtraction::doIFFT( const float* in, float* out )
     
     for ( int idx=0; idx<wvltsize_; idx++ )
 	complexsig.set( idx, in[idx] );
+
     ifft.transform( complexsig, ifftsig );
 
     for ( int idx=0; idx<wvltsize_; idx++ )
@@ -284,13 +303,13 @@ bool uiWaveletExtraction::doIFFT( const float* in, float* out )
 	else
 	    out[idx] = ifftsig.get( wvltsize_/2 - idx ).real();
     }
+
     return true;
 }
 
 
-void uiWaveletExtraction::detrend( Array1DImpl<float>& normalisation )
+void uiWaveletExtraction::normalisation( Array1DImpl<float>& normalisation )
 {
-
     float maxval = *(std::max_element(normalisation.arr(), 
 		     normalisation.arr()+wvltsize_-1) );
 
@@ -306,4 +325,10 @@ void uiWaveletExtraction::storeWavelet( const float* vals )
     for( int idx=0; idx<wvltsize_; idx++ )
 	wvlt.samples()[idx] = vals[idx];
     wvlt.put( wvltctio_.ioobj );
+}
+
+
+MultiID uiWaveletExtraction::storeKey() const
+{
+    return wvltctio_.ioobj ? wvltctio_.ioobj->key() : MultiID("");
 }

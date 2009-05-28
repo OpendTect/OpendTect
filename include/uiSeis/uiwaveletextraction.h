@@ -7,6 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
+static const char* rcsID = "$Id: uiwaveletextraction.h,v 1.3 2009-05-28 09:42:50 cvsnageswara Exp $
 
 #include "uidialog.h"
 #include <complex>
@@ -22,11 +23,13 @@ template <class T> class Array1DImpl;
 class CtxtIOObj;
 class IOPar;
 class SeisTrcBuf;
+class MultiID;
 
 class uiWaveletExtraction : public uiDialog
 {
 public:
 				uiWaveletExtraction(uiParent*);
+    MultiID			storeKey() const;
 protected:
 
     void			choiceSel(CallBacker*);
@@ -36,7 +39,7 @@ protected:
     bool                        readInputData(const IOPar&);
     bool			doFFT(const SeisTrcBuf&,float*);
     bool			doIFFT(const float*,float*);
-    void			detrend(Array1DImpl<float>&);
+    void			normalisation(Array1DImpl<float>&);
     void			storeWavelet(const float*);
 
     CtxtIOObj&			seisctio_;
