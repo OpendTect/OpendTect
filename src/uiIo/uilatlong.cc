@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilatlong.cc,v 1.1 2009-05-28 11:57:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uilatlong.cc,v 1.2 2009-05-28 14:03:03 cvsbert Exp $";
 
 #include "uilatlong2coord.h"
 #include "uilatlonginp.h"
@@ -37,6 +37,7 @@ protected:
     uiSpinBox*	degfld_;
     uiSpinBox*	minfld_;
     uiLineEdit*	secfld_;
+    uiCheckBox*	swfld_;
 
 };
 
@@ -48,9 +49,9 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     const char* nm = islat_ ? "Latitude" : "Longitude";
     degfld_ = new uiSpinBox( this, 0, BufferString("DMS ",nm," deg") );
     if ( islat_ )
-	degfld_->setInterval( -90, 90, 1 );
+	degfld_->setInterval( 0, 90, 1 );
     else
-	degfld_->setInterval( -179, 180, 1 );
+	degfld_->setInterval( 0, 180, 1 );
     degfld_->setValue( 0 );
     minfld_ = new uiSpinBox( this, 0, BufferString("DMS ",nm," min") );
     minfld_->setInterval( 0, 59, 1 );
@@ -58,17 +59,22 @@ uiLatLongDMSInp::uiLatLongDMSInp( uiParent* p, bool lat )
     minfld_->attach( rightOf, degfld_ );
     secfld_ = new uiLineEdit( this, FloatInpSpec(),
 	    		      BufferString("DMS ",nm," sec") );
-    secfld_->setHSzPol( uiObject::MedVar );
+    secfld_->setHSzPol( uiObject::Small );
     secfld_->attach( rightOf, minfld_ );
     secfld_->setValue( 0 );
+
+    swfld_ = new uiCheckBox( this, islat_ ? "S" : "W" );
+    swfld_->attach( rightOf, secfld_ );
+    swfld_->setHSzPol( uiObject::Small );
 }
 
 
 double uiLatLongDMSInp::value() const
 {
-    const int d = degfld_->getValue();
-    const int m = minfld_->getValue();
-    const float s = secfld_->getfValue();
+    int sign = swfld_->isChecked() ? -1 : 1;
+    const int d = sign * degfld_->getValue();
+    const int m = sign * minfld_->getValue();
+    const float s = sign * secfld_->getfValue();
     LatLong ll; ll.setDMS( islat_, d, m, s );
     return islat_ ? ll.lat_ : ll.lng_;
 }
@@ -80,9 +86,12 @@ void uiLatLongDMSInp::set( double val )
     (islat_ ? ll.lat_ : ll.lng_) = val;
     int d, m; float s; 
     ll.getDMS( islat_, d, m, s );
-    degfld_->setValue( d );
-    minfld_->setValue( m );
-    secfld_->setValue( s );
+    const bool issw = val < 0;
+    swfld_->setChecked( issw );
+    const int sign = issw ? -1 : 1;
+    degfld_->setValue( sign * d );
+    minfld_->setValue( sign * m );
+    secfld_->setValue( sign * s );
 }
 
 
@@ -106,12 +115,9 @@ uiLatLongInp::uiLatLongInp( uiParent* p )
 
     uiGroup* inpgrp = new uiGroup( this, "Lat/Long inp grp" );
     latdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Latitude" );
-    latdecfld_->attach( rightOf, latlbl );
     lngdecfld_ = new uiLineEdit( inpgrp, DoubleInpSpec(0), "Dec Longitude" );
     lngdecfld_->attach( alignedBelow, latdecfld_ );
-    lnglbl->attach( leftOf, lngdecfld_ );
     latdmsfld_ = new uiLatLongDMSInp( inpgrp, true );
-    latdmsfld_->attach( rightOf, latlbl );
     lngdmsfld_ = new uiLatLongDMSInp( inpgrp, false );
     lngdmsfld_->attach( alignedBelow, latdmsfld_ );
     inpgrp->setHAlignObj( latdecfld_ );
