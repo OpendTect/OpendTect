@@ -1,7 +1,6 @@
 #ifndef SoAxes_h
 #define SoAxes_h
 
-
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include "soodbasic.h"
