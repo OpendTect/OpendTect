@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.174 2009-05-22 01:19:44 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.175 2009-05-28 18:55:00 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -692,7 +692,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 		break;
 
 	    bid.setSerialized( pid.subID() );
-	    DataPointSet::Pos newpos( bid, 0 );
+	    DataPointSet::Pos newpos( bid, hor3d->getPos( pid ).z );
 	    DataPointSet::DataRow dtrow( newpos );
 	    dtrow.data_ += hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
 	    auxdata.addRow( dtrow );
