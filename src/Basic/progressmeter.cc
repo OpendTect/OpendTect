@@ -51,6 +51,8 @@ void TextStreamProgressMeter::setFinished()
     finished_ = true;
 
     strm_ << "\nFinished: "  << Time_getFullDateString() << std::endl;
+    lock.unLock();
+    reset();
 }
 
 
