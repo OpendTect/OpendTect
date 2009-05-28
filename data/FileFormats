@@ -179,75 +179,99 @@ Body.Selection.Z: P`-1/2
 Body.MD.Unit: Feet
 Group: WellTrack
 !
-MD (m) Msec One-way
+TVDSS(m) TWT(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: One-way TT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: TVDSS
+Body.Depth.Unit: Meter
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: TWT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
-TVD (m) Msec One-way
+TVDSS(ft) TWT(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: One-way TT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: TVDSS
+Body.Depth.Unit: Feet
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: TWT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
-MD (ft) Msec One-way
+MD(m) TWT(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: One-way TT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: MD
+Body.Depth.Unit: Meter
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: TWT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
-TVD (ft) Msec One-way
+MD(ft) TWT(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: One-way TT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: MD
+Body.Depth.Unit: Feet
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: TWT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
-MD (m) Msec TWT
+TVDSS(m) One-way(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: TWT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: TVDSS
+Body.Depth.Unit: Meter
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: One-way TT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
-TVD (m) Msec TWT
+TVDSS(ft) One-way(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: TWT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: TVDSS
+Body.Depth.Unit: Feet
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: One-way TT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
-MD (ft) Msec TWT
+MD(m) One-way(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: TWT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: MD
+Body.Depth.Unit: Meter
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: One-way TT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
-TVD (ft) Msec TWT
+MD(ft) One-way(ms)
 Header.Size: 0
 Header.Token: -1` 
 Header.Selection.Undefined Value: R`1e30
-Body.Form: TWT
-Body.Unit: Milliseconds
-Body.Selection: P`-1/1
+Body.Depth.Form: MD
+Body.Depth.Unit: Feet
+Body.Selection.Depth: P`-1/0
+Body.Time.Form: One-way TT
+Body.Time.Unit: Milliseconds
+Body.Selection.Time: P`-1/1
 Group: DepthTimeModel
 !
