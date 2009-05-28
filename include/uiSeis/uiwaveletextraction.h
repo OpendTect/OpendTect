@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nageswara
  Date:          April 2009
+ RCS:		$Id: uiwaveletextraction.h,v 1.4 2009-05-28 09:54:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwaveletextraction.h,v 1.3 2009-05-28 09:42:50 cvsnageswara Exp $
 
 #include "uidialog.h"
 #include <complex>
