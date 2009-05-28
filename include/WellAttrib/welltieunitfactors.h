@@ -84,6 +84,7 @@ public :
     const char*			timenm_;
     const char*			dptnm_;
     const char*			synthnm_;
+    const char*			crosscorrnm_;
     bool 			iscsavailable_;
     bool                        iscscorr_;
     bool                        iscsdisp_;

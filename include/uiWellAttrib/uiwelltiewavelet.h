@@ -13,47 +13,69 @@ ________________________________________________________________________
 
 -*/
 
+#include "uidialog.h"
 #include "uigroup.h"
 
+template <class T> class Array1DImpl;
 class CtxtIOObj;
 class WellTieSetup;
 class Wavelet;
 
 class uiFlatViewer;
+class uiFunctionDisplay;
+class uiPushButton;
 class uiIOObjSel;
 class uiTextEdit;
 
-mClass uiWellTieWavelet : public uiGroup
+mClass uiWellTieWaveletView : public uiGroup
 {
 public:
 
-	    uiWellTieWavelet(uiParent*,WellTieSetup&); 
-	    ~uiWellTieWavelet();
+	    uiWellTieWaveletView(uiParent*,WellTieSetup&); 
+	    ~uiWellTieWaveletView();
 
     void 		initWavelets(Wavelet*);
-    Notifier<uiWellTieWavelet>      wvltChanged;
+    Notifier<uiWellTieWaveletView>      wvltChanged;
 
 protected:
 
     WellTieSetup&	twtss_;
     CtxtIOObj&          wvltctio_;
 
+    ObjectSet<uiPushButton> wvltbuts_;
     ObjectSet<uiFlatViewer> viewer_;	   
     uiIOObjSel*		wvltfld_;
     uiTextEdit*		infofld_;
+    ObjectSet<Wavelet>  wvlts_;
 
     void		initWaveletViewer(const int);
     void 		createWaveletFields(uiGroup*);	   
     void		drawWavelet(Wavelet*,const int);
     
     void 		wvtSel(CallBacker*);
+    void 		viewInitWvltPropPushed(CallBacker*);
+    void 		viewEstWvltPropPushed(CallBacker*);
 };
 
 
+
+class uiWellTieWaveletDispDlg : public uiDialog
+{
+public:
+			    uiWellTieWaveletDispDlg(uiParent*,const Wavelet*);
+			    ~uiWellTieWaveletDispDlg();
+
+protected:
+
+    int                                 wvltsz_;
+    CtxtIOObj&                          wvltctio_;
+    ObjectSet<uiFunctionDisplay>        wvltdisps_;
+    ObjectSet< Array1DImpl<float> >     wvltvalsarr_;
+
+    void                                setDispCurves();
+    void                                setFrequency();
+    void                                setPhase();
+};
+
 #endif
-
-
-
-
-
 

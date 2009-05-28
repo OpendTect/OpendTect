@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bruno
  Date:          Apr 2009
- RCS:           $Id: welltiegeocalculator.h,v 1.5 2009-05-26 07:06:52 cvsbruno Exp $
+ RCS:           $Id: welltiegeocalculator.h,v 1.6 2009-05-28 14:38:11 cvsbruno Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ public:
     void 		deconvolve( const Array1DImpl<float>&,
 				    const Array1DImpl<float>&,
 				    Array1DImpl<float>&,int);
-    void 		autocorr( const Array1DImpl<float>&,
+    void 		crosscorr( const Array1DImpl<float>&,
 				  const Array1DImpl<float>&,
 				  Array1DImpl<float>&);
 

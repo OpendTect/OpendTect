@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "flatview.h"
 
+template <class T> class Array1DImpl;
 class WellTieSetup; 
 class WellTieParams; 
 class WellTieDataSet; 
@@ -25,6 +26,8 @@ class UserPick;
 namespace Attrib { class DescSet; }
 
 class uiFlatViewer;
+class uiFunctionDisplay;
+class uiLabel;
 namespace Well
 {
     class Data;
@@ -47,7 +50,6 @@ public:
     void			deleteWellMarkers();
     void			deleteCheckShot();
 
-
     void        		drawAI();
     void        		drawVelLog();
     void        		drawDenLog();
@@ -69,6 +71,10 @@ protected:
     const WellTieParams& 	params_;
     ObjectSet<uiFlatViewer> 	vwrs_;
 
+    bool 			isoriginalscale_;
+    float			maxtraceval_;
+    float			mintraceval_;
+
     ObjectSet<FlatView::Annotation::AuxData> userpickauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> wellmarkerauxdatas_;
     ObjectSet<FlatView::Annotation::AuxData> csauxdatas_;
@@ -77,7 +83,27 @@ protected:
 						const Color&);
     void        		createVarDataPack(const char*,int,int);
     void			deleteMarkerAuxDatas(
-				    ObjectSet<FlatView::Annotation::AuxData>&);
+				  ObjectSet<FlatView::Annotation::AuxData>&);
+};
+
+
+
+mClass uiWellTieCorrView : uiGroup
+{
+public:
+
+				uiWellTieCorrView(uiParent*,WellTieDataMGR&,
+						  const WellTieParams*);
+				~uiWellTieCorrView(){};
+
+    void                	setCrossCorrelation();
+
+protected:
+
+    uiLabel* 			corrlbl_;
+    WellTieDataSet& 		data_;
+    const WellTieParams& 	params_;
+    ObjectSet<uiFunctionDisplay>  corrflds_;
 };
 
 #endif

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.9 2009-05-26 07:06:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.10 2009-05-28 14:38:11 cvsbruno Exp $";
 
 #include "uiwelltietoseismicdlg.h"
 #include "uiwelltiecontrolview.h"
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.9 2009-05-26 07:06
 
 #include "uigroup.h"
 #include "uibutton.h"
-#include "uidatapointset.h"
 #include "uifiledlg.h"
 #include "uimsg.h"
 #include "uiwelldlgs.h"
@@ -33,19 +32,14 @@ static const char* rcsID = "$Id: uiwelltietoseismicdlg.cc,v 1.9 2009-05-26 07:06
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "ctxtioobj.h"
-#include "datapointset.h"
 #include "survinfo.h"
 
 #include "welldata.h"
 #include "welltrack.h"
 #include "wellextractdata.h"
-#include "wellimpasc.h"
-#include "welllogset.h"
-#include "welllog.h"
 #include "wellman.h"
 #include "wellmarker.h"
 
-#include "welltiecshot.h"
 #include "welltiedata.h"
 #include "welltiesetup.h"
 #include "welltieunitfactors.h"
@@ -121,6 +115,7 @@ uiWellTieToSeismicDlg::~uiWellTieToSeismicDlg()
     if ( eventstretcher_ ) delete eventstretcher_;
     if ( picksetmgr_ ) 	   delete picksetmgr_;	
     if ( dataplayer_ )     delete dataplayer_;
+    if ( crosscorr_ )      delete crosscorr_;
 }
 
 
@@ -153,16 +148,8 @@ void uiWellTieToSeismicDlg::doWholeWork()
     dataplayer_->computeAll();
     logstretcher_->resetData();
     eventstretcher_->resetData();
+    crosscorr_->setCrossCorrelation();
     drawData();
-}
-
-
-void uiWellTieToSeismicDlg::doLogWork()
-{
-    wvltdraw_->initWavelets( dataplayer_->estimateWavelet() );
-    datadrawer_->drawDenLog();
-    datadrawer_->drawVelLog();
-    datadrawer_->drawSynthetics();
 }
 
 
@@ -209,7 +196,7 @@ void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
     uiGroup* wvltgrp = new uiGroup( this, "wavelet group" );
     wvltgrp->attach( alignedBelow, spl );
     wvltgrp->attach( ensureBelow, spl );
-    wvltdraw_ = new uiWellTieWavelet( wvltgrp, setup_ );
+    wvltdraw_ = new uiWellTieWaveletView( wvltgrp, setup_ );
     wvltdraw_->wvltChanged.notify( mCB(this,uiWellTieToSeismicDlg,wvltChg) );
 
     uiGroup* markergrp =  new uiGroup( this, "User Position Group" );
@@ -228,7 +215,6 @@ void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
     topmrkfld_->valuechanged.notify(
 			mCB(this, uiWellTieToSeismicDlg, userDepthsChanged));
     
-
     botmrkfld_ = new uiGenInput( markergrp, "", slis.setName("Bottom Marker") );
     botmrkfld_->attach( rightOf, topmrkfld_ );
     botmrkfld_->setValue( markernames_.size()-1 );
@@ -241,11 +227,13 @@ void uiWellTieToSeismicDlg::drawFields( uiGroup* vwrgrp_ )
     applymrkbut_->setSensitive( false );
     applymrkbut_->attach( rightOf, botmrkfld_ );
 
-   /* 
-    corrcoefffld_ = new uiGenInput( markergrp, "Correlation coefficient", 
-	    				FloatInpSpec(0));
-    corrcoefffld_->attach( alignedBelow, wvltgrp );
-    corrcoefffld_->attach( ensureBelow, wvltgrp );*/
+    uiSeparator* wvltcorrspl = new uiSeparator( this, "sep", false, true );
+    wvltcorrspl->attach( rightOf, wvltgrp ) ;
+    
+    uiGroup* corrgrp = new uiGroup( this, "CrossCorrelation group" );
+    corrgrp->attach( rightOf, wvltcorrspl );
+    wvltgrp->attach( ensureBelow, spl );
+    crosscorr_ = new uiWellTieCorrView( corrgrp, *datamgr_, params_ );
 }
 
 
@@ -293,7 +281,7 @@ bool uiWellTieToSeismicDlg::setUserDepths()
     else
 	stopdah = wd_->track().dah( wd_->track().size()-1 );
 
-    if ( startdah > stopdah )
+    if ( startdah >= stopdah )
 	mErrRet("Please choose the Markers correctly");
     
     params_->startdah_ = startdah;
@@ -335,7 +323,7 @@ void uiWellTieToSeismicDlg::viewDataPushed( CallBacker* )
 
 void uiWellTieToSeismicDlg::wvltChg( CallBacker* )
 {
-    doLogWork();
+    doWholeWork();
 }
 
 
@@ -389,8 +377,7 @@ bool uiWellTieToSeismicDlg::editD2TPushed( CallBacker* )
 	undobut_->setSensitive( true );
 	return true;
     }
-    else
-	return false;
+    return false;
 }
 
 
@@ -458,7 +445,7 @@ bool uiWellTieToSeismicDlg::acceptOK( CallBacker* )
 	mErrRet("Cannot write new depth/time model")
     else
     {
-	BufferString msg ("This will overwrite your depth/time model, do you want to continue?");
+	BufferString msg("This will overwrite your depth/time model, do you want to continue?");
 	return uiMSG().askOverwrite(msg);
     }
 }

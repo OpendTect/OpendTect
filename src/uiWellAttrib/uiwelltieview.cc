@@ -7,28 +7,30 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelltieview.cc,v 1.11 2009-05-27 04:35:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiwelltieview.cc,v 1.12 2009-05-28 14:38:11 cvsbruno Exp $";
 
 #include "uiwelltieview.h"
 
+#include "uiaxishandler.h"
 #include "uiflatviewer.h"
+#include "uitabstack.h"
+#include "uilabel.h"
+#include "uifunctiondisplay.h"
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
+#include "linear.h"
 #include "flatposdata.h"
-#include "attribdesc.h"
-#include "attribdescset.h"
 #include "iostrm.h"
 #include "geometry.h"
 #include "unitofmeasure.h"
 #include "posinfo.h"
 #include "position.h"
 #include "posvecdataset.h"
-#include "seisioobjinfo.h"
-#include "survinfo.h"
 #include "welldata.h"
 #include "welld2tmodel.h"
 #include "wellmarker.h"
+
 #include "welltiesetup.h"
 #include "welltiedata.h"
 #include "welltieunitfactors.h"
@@ -36,12 +38,15 @@ static const char* rcsID = "$Id: uiwelltieview.cc,v 1.11 2009-05-27 04:35:19 cvs
 #include "welltiepickset.h"
 
 uiWellTieView::uiWellTieView( uiParent* p, WellTieDataMGR& mgr,  
-			      const Well::Data* d, const  WellTieParams* pm )
+			      const Well::Data* d, const WellTieParams* pm )
 	: wd_(*d)  
 	, params_(*pm)     	
 	, wtsetup_(pm->getSetup())	
 	, datamgr_(mgr)
     	, data_(*mgr.getDispData())
+    	, isoriginalscale_(true)
+	, maxtraceval_(0)			
+	, mintraceval_(0)		
 {
     createViewers( (uiGroup*)p );
 } 
@@ -81,9 +86,9 @@ void uiWellTieView::createViewers( uiGroup* vwrgrp )
 	    vwrs_[vwridx]->attach( rightOf, vwrs_[vwridx-1] );
     }
 
-    initFlatViewer( wtsetup_.vellognm_, 0, 200, 550, false, Color::Black() );
-    initFlatViewer( wtsetup_.denlognm_, 1, 200, 550, false, Color::Black() );
-    initFlatViewer( params_.ainm_, 2, 200, 550, false, Color::Black() );
+    initFlatViewer( wtsetup_.vellognm_, 0, 200, 550, false, Color(255,0,0) );
+    initFlatViewer( wtsetup_.denlognm_, 1, 200, 550, false, Color(0,0,255) );
+    initFlatViewer( params_.ainm_, 2, 200, 550, false, Color(150,100,0) );
     initFlatViewer( params_.refnm_, 3, 200, 550, false, Color::Black() );
     initFlatViewer( params_.synthnm_, 4, 200, 550, true, Color(0,0,255) );
     initFlatViewer( "Seismics", 5, 200, 550, true, Color(255,0,0) );
@@ -102,6 +107,7 @@ void uiWellTieView::initFlatViewer( const char* nm, int nr, int xsize,
     app.annot_.setAxesAnnot( true );
     app.annot_.showaux_ = true ;
     app.annot_.x1_.showannot_ = true;
+    app.annot_.x1_.showgridlines_ = false;
     app.annot_.x2_.showannot_ = true;
     app.annot_.x2_.sampling_ = 0.2;
     app.annot_.title_ = nm;
@@ -109,6 +115,7 @@ void uiWellTieView::initFlatViewer( const char* nm, int nr, int xsize,
     app.ddpars_.wva_.right_= iswigg? col : Color::NoColor() ;
     app.ddpars_.wva_.clipperc_.set(0,0);
     app.ddpars_.wva_.wigg_ = col;
+    app.ddpars_.wva_.overlap_ = 1;
 }
 
 
@@ -138,13 +145,13 @@ void uiWellTieView::drawReflectivity()
 
 void uiWellTieView::drawSynthetics()
 {
-    createVarDataPack( params_.synthnm_, 4, 3 );
+    createVarDataPack( params_.synthnm_, 4, 6 );
 }
 
 
 void uiWellTieView::drawSeismic()
 {
-    createVarDataPack( params_.attrnm_, 5, 3 );
+    createVarDataPack( params_.attrnm_, 5, 6 );
 }
 
 
@@ -152,37 +159,47 @@ void uiWellTieView::createVarDataPack( const char* varname, int vwrnr,
 					int nrtraces )
 {
     const int varsz = data_.getLength();
-    float maxval = data_.getExtremVal( varname, true );
-    float minval = data_.getExtremVal( varname, false );
-    
     Array2DImpl<float>*  arr2d = new Array2DImpl<float>( nrtraces, varsz );
-
     for ( int idz=0; idz<varsz; idz++)
     {
 	float val =  data_.get( varname, idz );
 	for ( int idx=0; idx<nrtraces; idx++)
-	    arr2d->set( idx, idz, val );
+	{
+	    if ( nrtraces<2 )
+		arr2d->set( idx, idz, val );
+	    else if ( idx && idx < nrtraces-1 )
+		arr2d->set( idx, idz, val );
+	    else
+		arr2d->set( idx, idz, mUdf(float) );
+	}
     }
+
     vwrs_[vwrnr]->removePack(0);
-    FlatView::Appearance& app = vwrs_[vwrnr]->appearance();
-    app.ddpars_.wva_.overlap_ = nrtraces > 1 ? 3: maxval-minval-1;
-    
-    const float shift =  minval + ( maxval - minval )/2;
-    StepInterval<double> xrange( shift, shift, maxval-minval);
+    FlatDataPack* dp = new FlatDataPack( "", arr2d );
+    DPM(DataPackMgr::FlatID()).add( dp );
     StepInterval<double> zrange( params_.timeintv_.start, 
 	    			 params_.timeintv_.stop,
 				 params_.timeintv_.step*params_.step_ );
-    FlatDataPack* dp = new FlatDataPack( "", arr2d );
-    DPM(DataPackMgr::FlatID()).add( dp );
-    if ( nrtraces < 2 )
-	dp->posData().setRange( true, xrange );
     dp->posData().setRange( false, zrange );
     dp->setName( varname );
+    
+    FlatView::Appearance& app = vwrs_[vwrnr]->appearance();
+    if ( nrtraces<2 )
+    {
+	float maxval = data_.getExtremVal( varname, true );
+	float minval = data_.getExtremVal( varname, false );
+	const float shift =  minval + ( maxval - minval )/2;
+	StepInterval<double> xrange( shift, shift, maxval-minval);
+	app.ddpars_.wva_.overlap_ = maxval-minval-1;
+	dp->posData().setRange( true, xrange );
+	app.annot_.x1_.showgridlines_ = true;
+    }
+
     vwrs_[vwrnr]->setPack( true, dp->id(), false, true );
     const UnitOfMeasure* uom = 0;
     const char* units =  ""; //uom ? uom->symbol() : "";
     app.annot_.x1_.name_ =  units;
-    app.annot_.x2_.name_ = "TWT (ms)";
+    app.annot_.x2_.name_ = "TWT (s)";
     vwrs_[vwrnr]->handleChange( FlatView::Viewer::Annot );
 }
 
@@ -232,14 +249,14 @@ void uiWellTieView::drawWellMarkers()
 	
 	if ( zpos < params_.timeintv_.start || zpos > params_.timeintv_.stop ||
 		    col == Color::NoColor() || col.rgb() == 16777215 )
-	return;
+	    continue;
 
 	FlatView::Annotation::AuxData* auxdata = 0;
 	mTryAlloc( auxdata, FlatView::Annotation::AuxData(marker->name()) );
 	wellmarkerauxdatas_ += auxdata;
 	
 	for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
-	    drawMarker( auxdata, vwridx, 0,  zpos, col, false );
+	    drawMarker( auxdata, vwridx, 0, zpos, col, false );
     }
     for ( int vwridx=0; vwridx<vwrsz; vwridx++ ) 
 	vwrs_[vwridx]->handleChange( FlatView::Viewer::Annot );
@@ -264,9 +281,10 @@ void uiWellTieView::drawUserPicks( const WellTiePickSet* pickset )
 	userpickauxdatas_ += auxdata;
 	
 	float zpos = userpick->zpos_;
-	const float xpos = data_.get( params_.currvellognm_,
-		 		      data_.getIdx( zpos ) );
-
+	const int idxatzpos = data_.getIdx( zpos );
+	float xpos = 0;
+	if ( vwridx == 0 )
+	    xpos = data_.get( params_.currvellognm_, idxatzpos );
 	bool isxpick = vwridx? false : true;
 	drawMarker( auxdata, vwridx, xpos, zpos, userpick->color_, isxpick );
     }	
@@ -349,3 +367,61 @@ void uiWellTieView::deleteMarkerAuxDatas(
 	delete auxset.remove(midx);
     }
 }
+
+
+
+
+uiWellTieCorrView::uiWellTieCorrView( uiParent* p, WellTieDataMGR& mgr,
+				      const WellTieParams* pms )
+	: uiGroup(p)
+    	, params_(*pms)  
+	, data_(*mgr.getDispData())
+{
+    static const char* propdispnms[] = { "Amplitude", "Phase", 0 };
+    //uiTabStack* ts = 
+//	new uiTabStack( p, "Cross-Correlation display properties tab stack" );
+    ObjectSet<uiGroup> tgs;
+    uiFunctionDisplay::Setup fdsu; fdsu.border_.setRight( 0 );
+
+    for (int idx=0; idx<1; idx++)
+    {
+	tgs += new uiGroup( this, propdispnms[idx] );
+	//ts->addTab( tgs[idx], propdispnms[idx] );
+	corrflds_ += new uiFunctionDisplay( tgs[idx], fdsu );
+	corrflds_[idx]->xAxis()->setName( "Lags (ms)" );
+	corrflds_[idx]->yAxis(false)->setName( "Coefficient" );
+    }
+    	
+    corrlbl_ = new uiLabel( this,"" );
+    corrlbl_->attach( centeredBelow, this );
+}
+
+
+void uiWellTieCorrView::setCrossCorrelation()
+{
+    const int datasz = data_.get(0)->info().getSize(0);
+    
+    LinStats2D ls2d;
+    ls2d.use( data_.get(params_.synthnm_)->getData(),
+	      data_.get(params_.attrnm_)->getData(), 
+	      datasz );
+
+    const float corrcoeff = ls2d.corrcoeff; 
+    float scalefactor = corrcoeff/data_.get(params_.crosscorrnm_,datasz/2);
+    TypeSet<float> xvals,corrvals;
+    for ( int idx=-datasz/2; idx<datasz/2; idx++)
+    {
+	xvals += idx*params_.timeintv_.step*params_.step_*1000;
+	corrvals += data_.get(params_.crosscorrnm_, idx+datasz/2)*scalefactor;
+    }
+
+
+    for (int idx=0; idx<corrflds_.size(); idx++)
+	corrflds_[idx]->setVals( xvals.arr(), corrvals.arr(), xvals.size() );
+    
+    BufferString corrbuf = "Cross-Correlation Coefficient: ";
+    corrbuf += corrcoeff;
+    corrlbl_->setPrefWidthInChar(50);
+    corrlbl_->setText( corrbuf );
+}
+

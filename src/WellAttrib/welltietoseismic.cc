@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltietoseismic.cc,v 1.8 2009-05-20 16:48:25 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltietoseismic.cc,v 1.9 2009-05-28 14:38:11 cvsbruno Exp $";
 
 #include "welltietoseismic.h"
 
@@ -87,6 +87,7 @@ bool WellTieToSeismic::computeAll()
 
     if ( !extractWellTrack() )      return false;
     if ( !extractSeismics() ) 	    return false;
+    if ( !computeCrossCorrel() )    return false;
     
     return true;	
 }
@@ -214,11 +215,11 @@ Wavelet* WellTieToSeismic::estimateWavelet()
 }
 
 
-/*
-bool WellTieToSeismic::computeCorrelCoeff()
+bool WellTieToSeismic::computeCrossCorrel()
 {
-    genericCrossCorrelation(
-    
+    geocalc_->crosscorr(*dispdata_.get(params_.synthnm_),
+	    		*dispdata_.get(params_.attrnm_),
+			*dispdata_.get(params_.crosscorrnm_));
+    return true;
 }
-*/
 

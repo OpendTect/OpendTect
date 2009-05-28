@@ -32,7 +32,8 @@ class uiCheckBox;
 
 class uiWellTieView;
 class uiWellTieControlView;
-class uiWellTieWavelet;
+class uiWellTieCorrView;
+class uiWellTieWaveletView;
 class uiWellTieEventStretch;
 class uiWellTieLogStretch;
 
@@ -74,18 +75,18 @@ protected:
     uiGenInput*		topmrkfld_;
     uiGenInput*		botmrkfld_;
     uiGenInput*		corrcoefffld_;
-    uiWellTieWavelet*	wvltdraw_; 
+    uiWellTieWaveletView* wvltdraw_; 
     uiWellTieView*	datadrawer_;
     uiWellTieControlView* controlview_;
     uiWellTieLogStretch* logstretcher_;
     uiWellTieEventStretch* eventstretcher_;
+    uiWellTieCorrView*  crosscorr_;
 
     bool		manip_;
 
     void		addControl();
     void 		addToolBarTools();
     void 		doWholeWork();
-    void 		doLogWork();
     void		createTaskFields(uiGroup*);
     void 		dispParPushed(CallBacker*);
     void 		drawData();

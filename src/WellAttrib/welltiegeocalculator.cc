@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.8 2009-05-26 07:06:53 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltiegeocalculator.cc,v 1.9 2009-05-28 14:38:11 cvsbruno Exp $";
 
 
 #include "arraynd.h"
@@ -179,7 +179,7 @@ void WellTieGeoCalculator::stretchArr( const Array1DImpl<float>& inp,
     {
 	float curval = ( idx - idxstart )*stretchfac + idxstart;
 	int curidx = (int)curval;
-	if ( curidx >= datasz-1 ) return;
+	if ( curidx >= datasz-1 || curidx < 0) return;
 	interpolAtIdx( inp.get( curidx ), inp.get( curidx+1), curval, val );
 	outp.setValue( idx, val );
     }
@@ -187,7 +187,7 @@ void WellTieGeoCalculator::stretchArr( const Array1DImpl<float>& inp,
     {
 	float curval = ( idx - datasz )*squeezefac + datasz;
 	int curidx = (int)curval;
-	if ( curidx >= datasz-1 ) return;
+	if ( curidx >= datasz-1 || curidx < 0 ) return;
 	interpolAtIdx( inp.get( curidx ), inp.get( curidx+1), curval, val );
 	outp.setValue( idx , val );
     }
@@ -366,7 +366,7 @@ void WellTieGeoCalculator::computeAI( const Array1DImpl<float>& velvals,
 }
 
 
-//Compute reflectivity values at a the display sample step (Survey step)
+//Compute reflectivity values at display sample step (Survey step)
 void WellTieGeoCalculator::computeReflectivity(const Array1DImpl<float>& aivals,
 					       Array1DImpl<float>& reflvals,
 					       int shiftstep )
@@ -513,7 +513,7 @@ void WellTieGeoCalculator::reverseWavelet( Wavelet& wvlt )
 }
 
 
-void WellTieGeoCalculator::autocorr( const Array1DImpl<float>& seisvals, 
+void WellTieGeoCalculator::crosscorr( const Array1DImpl<float>& seisvals, 
 				     const Array1DImpl<float>& synthvals,
        				     Array1DImpl<float>& outpvals	)
 {
@@ -521,7 +521,7 @@ void WellTieGeoCalculator::autocorr( const Array1DImpl<float>& seisvals,
     float* outp = new float[datasz];
     genericCrossCorrelation( datasz, 0, seisvals,
 			     datasz, 0, synthvals,
-			     datasz, 0, outp);
+			     datasz, -datasz/2, outp);
     memcpy( outpvals.getData(), outp, datasz*sizeof(float));
     delete outp;
 }

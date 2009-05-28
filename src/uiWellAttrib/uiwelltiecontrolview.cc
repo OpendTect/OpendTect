@@ -9,7 +9,7 @@ ________________________________________________________________________
 -*/
 
 
-static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.6 2009-05-26 07:42:01 cvsbruno Exp $";
+static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.7 2009-05-28 14:38:11 cvsbruno Exp $";
 
 #include "uiwelltiecontrolview.h"
 
@@ -22,6 +22,7 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.6 2009-05-26 07:42:
 #include "uibutton.h"
 #include "uiflatviewer.h"
 #include "uiflatviewthumbnail.h"
+#include "uimsg.h"
 #include "uirgbarraycanvas.h"
 #include "uitoolbar.h"
 #include "uiworld2ui.h"
@@ -33,7 +34,8 @@ static const char* rcsID = "$Id: uiwelltiecontrolview.cc,v 1.6 2009-05-26 07:42:
     but->setToolTip( tt ); \
     toolbar_->addObject( but );
 
-
+#define mErrRet(msg) \
+{ uiMSG().error(msg); return false; }
 uiWellTieControlView::uiWellTieControlView( uiParent* p, uiToolBar* toolbar,
        				ObjectSet<uiFlatViewer>& viewer)
     : uiFlatViewControl(*viewer[0], p, true, false)
@@ -192,9 +194,9 @@ void uiWellTieControlView::mouseMoveCB( CallBacker* )
 }
 
 
-bool uiWellTieControlView::handleUserClick(  int vwridx )
+bool uiWellTieControlView::handleUserClick( int vwridx )
 {
-    if ( vwridx == 1 || vwridx == 2 ) return false;
+    if ( vwridx == 1 || vwridx == 2 || vwridx == 3 ) return false;
     const MouseEvent& ev = mouseEventHandler(vwridx).event();
     uiWorld2Ui w2u;
     vwrs_[vwridx]->getWorld2Ui(w2u);
@@ -203,11 +205,26 @@ bool uiWellTieControlView::handleUserClick(  int vwridx )
     if ( ev.leftButton() && !ev.ctrlStatus() && !ev.shiftStatus() &&
 	!ev.altStatus() )
     {
+	if ( !checkIfInside( wp.x, wp.y, vwridx ) ) 
+	    return false;
 	picksetmgr_->addPick( vwridx, wp.y );
 	return true;
     }
 
     return false;
+}
+
+
+bool uiWellTieControlView::checkIfInside( double xpos, double zpos, int vwridx )
+{
+    const double sizxleft  = vwrs_[vwridx]->boundingBox().left();
+    const double sizxright = vwrs_[vwridx]->boundingBox().right();
+    const double sizztop   = vwrs_[vwridx]->boundingBox().top();
+    const double sizzbot   = vwrs_[vwridx]->boundingBox().bottom();
+    if ( xpos < sizxleft || xpos > sizxright 
+	    || zpos > sizztop || zpos < sizzbot )
+	mErrRet("Please select your pick inside the work area");
+    return true;
 }
 
 

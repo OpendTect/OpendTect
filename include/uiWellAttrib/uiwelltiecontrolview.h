@@ -45,7 +45,8 @@ protected:
     
     WellTiePickSetMGR*  picksetmgr_;
     WellTieDisplayProperties* dprops_;
-    
+   
+    bool 		checkIfInside(double,double,int);
     void		doPropDlg(CallBacker*);
     bool 		handleUserClick(const int);
     void		updateButtons();

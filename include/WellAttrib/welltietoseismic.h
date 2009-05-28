@@ -52,11 +52,11 @@ public:
     bool		extractWellTrack();
     void 	      	setWorkData();
     bool 	      	resampleLogs();
-    void		setWork2DispData();
+    bool		computeCrossCorrel();
     
     Wavelet*  		estimateWavelet();
    
-    //D2TModelmanager operation
+    //D2TModelmanager operations
     void 		setd2TModelFromData()
     			{ d2tmgr_->setFromData(*dispdata_.get(params_.timenm_),
 				              *dispdata_.get(params_.dptnm_)); }

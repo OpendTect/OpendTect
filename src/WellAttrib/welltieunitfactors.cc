@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.5 2009-05-28 11:59:12 cvsbert Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.6 2009-05-28 14:38:11 cvsbruno Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -140,7 +140,7 @@ WellTieParams::WellTieParams( const WellTieSetup& wts, Well::Data* wd,
 		, worksize_(0)
 		, step_(20)	      
 		, dispsize_(0)
-		, nrdatacols_(9)
+		, nrdatacols_(10)
 		, factors_(WellTieUnitFactors(&wts))
 		, iscscorr_(iscsavailable_)
 		, iscsdisp_(true)
@@ -199,5 +199,6 @@ void WellTieParams::createColNames()
     ainm_ = "Computed AI";	         colnms_.add( ainm_ );     
     refnm_ ="Computed Reflectivity";     colnms_.add( refnm_ );
     synthnm_ = "Synthetics";         	 colnms_.add( synthnm_ );
+    crosscorrnm_ = "Cross Correlation";  colnms_.add( crosscorrnm_ );
              				 colnms_.add( attrnm_ );
 }
