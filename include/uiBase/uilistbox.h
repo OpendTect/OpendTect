@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.45 2009-01-09 04:26:14 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.46 2009-05-28 09:08:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,8 @@ public:
     Notifier<uiListBox> leftButtonClicked;
     Notifier<uiListBox> deleteButtonPressed;
 
+    void		notifyHandler( const char* notifiername );
+
     			//! Force activation in GUI thread
     void		activateClick(int idx,bool leftclick=true,
 				      bool doubleclick=false);
@@ -138,6 +140,9 @@ protected:
     void		menuCB(CallBacker*);
 
 private:
+
+    bool		curitemwaschecked_;
+    int			oldnrselected_;
 
     uiListBoxBody*	body_;
     uiListBoxBody&	mkbody(uiParent*,const char*,bool,int,int);

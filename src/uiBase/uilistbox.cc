@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uilistbox.cc,v 1.97 2009-01-09 04:40:07 cvsnanne Exp $";
+static const char* rcsID = "$Id: uilistbox.cc,v 1.98 2009-05-28 09:08:50 cvsjaap Exp $";
 
 #include "uilistbox.h"
 
@@ -204,7 +204,8 @@ bool uiListBoxBody::event( QEvent* ev )
     {
 	if ( handle_.isItemCheckable(actidx_) )
 	{
-	    handle_.setItemChecked( actidx_, !handle_.isItemChecked(actidx_) );
+	    handle_.setItemChecked( actidx_,
+				    !handle_.isItemChecked(actidx_) );
 	    mSetCurListItem();
 	}
     }
@@ -242,7 +243,9 @@ bool uiListBoxBody::event( QEvent* ev )
     , deleteButtonPressed(this) \
     , activatedone(this) \
     , rightclickmnu_(*new uiPopupMenu(p)) \
-    , itemscheckable_(false)
+    , itemscheckable_(false) \
+    , curitemwaschecked_(false) \
+    , oldnrselected_(0)
 
 
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
@@ -747,6 +750,26 @@ void uiListBox::activateButton( int idx )
 
 void uiListBox::activateSelect( const TypeSet<int>& selection )
 { body_->activateSelect( selection ); }
+
+
+#define mTriggerIf( notifiername, notifier ) \
+    if ( !strcmp(notifiername, #notifier) ) \
+	notifier.trigger( this );
+
+void uiListBox::notifyHandler( const char* notifiername )
+{
+    BufferString msg = notifiername; msg += " "; msg += oldnrselected_;
+    if ( curitemwaschecked_ )
+	msg += " CurItemWasChecked";
+    curitemwaschecked_ = isItemChecked( currentItem() );
+
+    const int refnr = beginCmdRecEvent( msg );
+    mTriggerIf( notifiername, selectionChanged );
+    mTriggerIf( notifiername, doubleClicked );
+    mTriggerIf( notifiername, leftButtonClicked );
+    mTriggerIf( notifiername, rightButtonClicked );
+    endCmdRecEvent( refnr, msg );
+}
 
 
 // -------------- uiLabeledListBox ----------------

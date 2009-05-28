@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.11 2008-02-01 05:22:25 cvsnanne Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.12 2009-05-28 09:08:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,15 +56,15 @@ private:
 private slots:
 
 void itemDoubleClicked( QListWidgetItem* cur )
-{ receiver_->doubleClicked.trigger( *receiver_ ); }
+{ receiver_->notifyHandler( "doubleClicked" ); }
 
 
 void itemClicked( QListWidgetItem* )
 {
     if ( receiver_->buttonstate_ == OD::RightButton )
-	receiver_->rightButtonClicked.trigger( *receiver_ );
+	receiver_->notifyHandler( "rightButtonClicked" );
     else if ( receiver_->buttonstate_ == OD::LeftButton )
-	receiver_->leftButtonClicked.trigger( *receiver_ );
+	receiver_->notifyHandler( "leftButtonClicked" );
 }
 
 void itemSelectionChanged()
@@ -76,7 +76,7 @@ void itemSelectionChanged()
     else if ( selitems.count() == 1 )
 	sender_->setCurrentItem( selitems.first() );
 
-    receiver_->selectionChanged.trigger( *receiver_ );
+    receiver_->notifyHandler( "selectionChanged" );
 }
 
 };

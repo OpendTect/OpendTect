@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: i_qslider.h,v 1.4 2008-07-25 07:08:01 cvsnanne Exp $
+ RCS:           $Id: i_qslider.h,v 1.5 2009-05-28 09:08:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,12 +46,17 @@ private:
     uiSlider* 	receiver_;
     QSlider*  	sender_;
 
+#define mTrigger( notifier ) \
+    const int refnr = receiver_->beginCmdRecEvent( #notifier ); \
+    receiver_->notifier.trigger(*receiver_); \
+    receiver_->endCmdRecEvent( refnr, #notifier );
+
 private slots:
 
-void sliderMoved(int)	{ receiver_->sliderMoved.trigger(receiver_); }
-void sliderPressed()	{ receiver_->sliderPressed.trigger(receiver_); }
-void sliderReleased()	{ receiver_->sliderReleased.trigger(receiver_); }
-void valueChanged(int)	{ receiver_->valueChanged.trigger(receiver_); }
+void sliderMoved(int)	{ mTrigger(sliderMoved); }
+void sliderPressed()	{ mTrigger(sliderPressed); }
+void sliderReleased()	{ mTrigger(sliderReleased); }
+void valueChanged(int)	{ mTrigger(valueChanged); }
 
 };
 

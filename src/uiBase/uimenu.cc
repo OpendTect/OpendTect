@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimenu.cc,v 1.59 2009-05-15 16:28:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: uimenu.cc,v 1.60 2009-05-28 09:08:50 cvsjaap Exp $";
 
 #include "uimenu.h"
 #include "i_qmenu.h"
@@ -547,15 +547,18 @@ int uiPopupMenu::exec()
 
     if ( interceptor_ )
     {
+	dointercept_ = false;
 	interceptitem_ = 0;
 	interceptor_->doCall( this );
-	resetInterceptor();
-	if ( interceptitem_ )
+
+	if ( dointercept_ )
 	{
+	    if ( !interceptitem_ )
+		return -1;
+
 	    interceptitem_->activated.trigger();
 	    return interceptitem_->id();
 	}
-	return -1;
     }
 
     QAction* qaction = body_->popup()->exec( QCursor::pos() );
@@ -563,11 +566,14 @@ int uiPopupMenu::exec()
 }
 
     
-void uiPopupMenu::setInterceptItem( uiMenuItem* interceptitm )
-{ interceptitem_ = interceptitm; }
+void uiPopupMenu::doIntercept( bool yn, uiMenuItem* interceptitm )
+{
+    dointercept_ = yn;
+    interceptitem_ = interceptitm;
+}
 
 
-void uiPopupMenu::resetInterceptor()
+void uiPopupMenu::unsetInterceptor()
 { 
     if ( interceptor_ )
 	delete interceptor_;
@@ -577,7 +583,7 @@ void uiPopupMenu::resetInterceptor()
 
 void uiPopupMenu::setInterceptor( const CallBack& cb )
 { 
-    resetInterceptor();
+    unsetInterceptor();
     interceptor_ = new CallBack( cb );
 }
 

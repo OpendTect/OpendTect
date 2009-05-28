@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qcombobox.h,v 1.4 2006-04-28 15:23:20 cvsnanne Exp $
+ RCS:           $Id: i_qcombobox.h,v 1.5 2009-05-28 09:08:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,11 @@ private slots:
 */
 
     void 		activated( int index ) 
-			{_receiver->selectionChanged.trigger(*_receiver);}
+			{
+			    const int refnr = _receiver->beginCmdRecEvent();
+			    _receiver->selectionChanged.trigger(*_receiver);
+			    _receiver->endCmdRecEvent( refnr );
+			}
 
 };
 

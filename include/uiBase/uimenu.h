@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.52 2009-05-15 16:27:46 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.53 2009-05-28 09:08:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,8 +241,8 @@ public:
     const uiPopupItem&		item() const		{ return item_; }
 
     static void			setInterceptor(const CallBack&);
-    static void			resetInterceptor();
-    void			setInterceptItem(uiMenuItem*);
+    static void			unsetInterceptor();
+    void			doIntercept(bool yn,uiMenuItem* activateitm=0);
 
 private:
 
@@ -251,6 +251,8 @@ private:
 
     static CallBack*		interceptor_;
     uiMenuItem*			interceptitem_;
+    bool			dointercept_;
+
     ioPixmap*			pixmap_;
 };
 
