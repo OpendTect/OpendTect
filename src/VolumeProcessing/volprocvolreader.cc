@@ -4,15 +4,11 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprocvolreader.cc,v 1.1 2008-11-19 15:01:57 cvskris Exp $";
+static const char* rcsID = "$Id: volprocvolreader.cc,v 1.2 2009-05-28 03:02:41 cvskris Exp $";
 
 #include "volprocvolreader.h"
 
 #include "arraynd.h"
-//#include "emhorizon.h"
-//#include "emmanager.h"
-//#include "mousecursor.h"
-//#include "survinfo.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "seisread.h"
