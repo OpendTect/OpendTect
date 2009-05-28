@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpepartserv.cc,v 1.85 2009-05-28 08:27:42 cvsumesh Exp $";
+static const char* rcsID = "$Id: uimpepartserv.cc,v 1.86 2009-05-28 17:25:04 cvsyuancheng Exp $";
 
 #include "uimpepartserv.h"
 
@@ -204,6 +204,7 @@ bool uiMPEPartServer::addTracker( const char* trackertype, int addedtosceneid )
     }
     
     const int sectionid = emobj->sectionID( emobj->nrSections()-1 );
+    emobj->setPreferredColor( getRandomColor(false) );
 
     MPE::EMTracker* tracker = MPE::engine().getTracker(trackerid);    
     MPE::EMSeedPicker* seedpicker = tracker->getSeedPicker( true );
