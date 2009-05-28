@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: i_qthumbwhl.h,v 1.6 2009-01-08 11:28:47 cvsnanne Exp $
+ RCS:           $Id: i_qthumbwhl.h,v 1.7 2009-05-28 08:54:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,17 +54,22 @@ private:
     uiThumbWheel* 	_receiver;
     SoQtThumbWheel*  	_sender;
 
+#define mTrigger( notifier ) \
+    const int refnr = _receiver->beginCmdRecEvent( #notifier ); \
+    _receiver->notifier.trigger(*_receiver); \
+    _receiver->endCmdRecEvent( refnr, #notifier );
+
 private slots:
 
     void 		wheelPressed(void) 
-			{ _receiver->wheelPressed.trigger(*_receiver); }
+			{ mTrigger( wheelPressed ); }
     void 		wheelMoved(float val)
 			{ 
 			    _receiver->lastmv = val;
-			    _receiver->wheelMoved.trigger(*_receiver); 
+			    mTrigger( wheelMoved ); 
 			}
     void 		wheelReleased(void)
-			{ _receiver->wheelReleased.trigger(*_receiver); }
+			{ mTrigger( wheelReleased ); }
 
 };
 
