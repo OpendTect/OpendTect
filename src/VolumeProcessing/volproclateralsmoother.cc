@@ -4,11 +4,12 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.1 2009-05-22 18:41:55 cvskris Exp $";
+static const char* rcsID = "$Id: volproclateralsmoother.cc,v 1.2 2009-05-28 03:27:01 cvskris Exp $";
 
 #include "volproclateralsmoother.h"
 
 #include "arrayndslice.h"
+#include "arrayndimpl.h"
 #include "keystrs.h"
 #include "survinfo.h"
 
@@ -40,11 +41,12 @@ public:
 private:
     bool doWork( od_int64 start, od_int64 stop, int )
     {
-	Array2DSlice<float> input( input_ );
-	input.setDimMap( 0, 0 );
-	input.setDimMap( 1, 1 );
+	Array2DImpl<float> inputslice( input_.info().getSize(0),
+				       input_.info().getSize(1) );
+	if ( !inputslice.isOK() )
+	    return false;
 
-	Array2DSlice<float> output( input_ );
+	Array2DSlice<float> output( output_ );
 	output.setDimMap( 0, 0 );
 	output.setDimMap( 1, 1 );
 
@@ -52,26 +54,33 @@ private:
 	      idx++, addToNrDone( 1 ) )
 	{
 	    const int depthindex = o2_+idx;
-	    input.setPos( 2, depthindex-i2_ );
-	    output.setPos( 2, idx );
+	    const int inputdepth = depthindex-i2_;
 
-	    if ( !input.init() || !output.init() )
-		return false;
-
-	    for ( int idy=input.info().getSize(0)-1; idy>=0; idy-- )
+	    for ( int idy=inputslice.info().getSize(0)-1; idy>=0; idy-- )
 	    {
-		const int input0 = o0_+idy - i0_;
-		for ( int idz=input.info().getSize(1)-1; idz>=0; idz-- )
-		{
-		    const int input1 = o1_+idz - i1_;
-		    output.set( idy, idz, input.get( input0, input0 ) );
-		}
+		for ( int idz=inputslice.info().getSize(1)-1; idz>=0; idz-- )
+		    inputslice.set( idy, idz, input_.get( idy, idz, inputdepth ) );
 	    }
 
 	    PtrMan<Array2DFilterer<float> > filter =
-		new Array2DFilterer<float>( output, pars_ );
+		new Array2DFilterer<float>( inputslice, pars_ );
 	    if ( !filter->execute() )
 		return false;
+
+	    output.setPos( 2, idx );
+
+	    if ( !output.init() )
+		return false;
+
+	    for ( int idy=output.info().getSize(0)-1; idy>=0; idy-- )
+	    {
+		const int input0 = o0_+idy - i0_;
+		for ( int idz=output.info().getSize(1)-1; idz>=0; idz-- )
+		{
+		    const int input1 = o1_+idz - i1_;
+		    output.set( idy, idz, inputslice.get( input0, input1 ) );
+		}
+	    }
 	}
 
 	return true;
