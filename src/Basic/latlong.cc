@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: latlong.cc,v 1.10 2008-11-25 15:35:22 cvsbert Exp $";
+static const char* rcsID = "$Id: latlong.cc,v 1.11 2009-05-28 11:53:09 cvsbert Exp $";
 
 #include "latlong.h"
 #include "survinfo.h"
@@ -59,17 +59,37 @@ bool LatLong::use( const char* s )
 }
 
 
+void LatLong::getDMS( bool lat, int& d, int& m, float& s ) const
+{
+    double v = lat ? lat_ : lng_;
+    d = (int)v;
+    v -= d; v *= 60;
+    m = (int)v;
+    v -= m; v *= 60;
+    s = v;
+}
+
+
+void LatLong::setDMS( bool lat, int d, int m, float s )
+{
+    double& v = lat ? lat_ : lng_;
+    static const double one60th = 1. / 60.;
+    static const double one3600th = one60th * one60th;
+    v = d + one60th * m + one3600th * s;
+}
+
+
 LatLong2Coord::LatLong2Coord()
     : lngdist_(mUdf(float))
     , latdist_(cAvgEarthRadius*cDeg2Rad)
-    , scalefac_(1)
+    , scalefac_(-1)
 {
 }
 
 
 LatLong2Coord::LatLong2Coord( const Coord& c, const LatLong& l )
     : latdist_(cAvgEarthRadius*cDeg2Rad)
-    , scalefac_(1)
+    , scalefac_(-1)
 {
     set( c, l );
 }
@@ -82,9 +102,17 @@ void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 }
 
 
+// We cannot put this in the constructor: that leads to disaster at startup
+#define mPrepScaleFac() \
+    if ( scalefac_ < 0 ) \
+	const_cast<LatLong2Coord*>(this)->scalefac_ \
+		= SI().xyInFeet() ? mFromFeetFactor : 1;
+
+
 LatLong LatLong2Coord::transform( const Coord& c ) const
 {
     if ( !isOK() ) return reflatlng_;
+    mPrepScaleFac();
 
     Coord coorddist( (c.x - refcoord_.x) * scalefac_,
 	    	     (c.y - refcoord_.y) * scalefac_ );
@@ -103,6 +131,7 @@ LatLong LatLong2Coord::transform( const Coord& c ) const
 Coord LatLong2Coord::transform( const LatLong& ll ) const
 {
     if ( !isOK() ) return SI().minCoord(true);
+    mPrepScaleFac();
 
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
 			       ll.lng_ - reflatlng_.lng_ );
@@ -119,9 +148,6 @@ void LatLong2Coord::fill( char* s ) const
     refcoord_.fill( str.buf() );
     str += "=";
     reflatlng_.fill( str.buf() + str.size() );
-    if ( !mIsZero(scalefac_-1,0.01) )
-	str += "`ft";
-
     strcpy( s, str );
 }
 
@@ -142,15 +168,5 @@ bool LatLong2Coord::use( const char* s )
 	return false;
 
     set( l, c );
-
-    FileMultiString fms( ptr );
-    bool isft = false;
-    if ( fms.size() > 1 )
-    {
-	const char* unstr = fms[1];
-	isft = *unstr == 'f' || *unstr == 'F';
-    }
-    setCoordsInFeet( isft );
-
     return true;
 }

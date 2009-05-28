@@ -6,16 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uilatlong2coord.h,v 1.2 2009-01-08 07:23:07 cvsranojay Exp $
+ RCS:           $Id: uilatlong2coord.h,v 1.3 2009-05-28 11:53:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-class LatLong2Coord;
 class SurveyInfo;
+class LatLong2Coord;
 class uiGenInput;
-class uiCheckBox;
+class uiLatLongInp;
+
 
 mClass uiLatLong2CoordDlg : public uiDialog
 {
@@ -26,14 +27,15 @@ public:
 
     const LatLong2Coord& ll2C() const		{ return ll2c_; }
 
+    static bool		ensureLatLongDefined(uiParent*,SurveyInfo* si=0);
+
 protected:
 
     LatLong2Coord&	ll2c_;
     const SurveyInfo*	si_;
 
     uiGenInput*		coordfld_;
-    uiGenInput*		latlongfld_;
-    uiCheckBox*		isftfld_;
+    uiLatLongInp*	latlngfld_;
 
     bool		acceptOK(CallBacker*);
 };

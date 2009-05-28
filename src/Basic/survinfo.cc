@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: survinfo.cc,v 1.117 2009-04-04 16:23:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: survinfo.cc,v 1.118 2009-05-28 11:53:09 cvsbert Exp $";
 
 #include "survinfo.h"
 #include "ascstream.h"
@@ -527,10 +527,10 @@ float SurveyInfo::defaultXYtoZScale( Unit zunit, Unit xyunit )
 	return 3048;
     }
     else if ( zunit==Feet && xyunit==Meter )
-	return 0.3048;
+	return mFromFeetFactor;
 
-//  zunit==Meter && xyunit==Feet
-    return 3.2808;
+    //  zunit==Meter && xyunit==Feet
+    return mToFeetFactor;
 }
 
 

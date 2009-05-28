@@ -5,10 +5,10 @@
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	A.H.Bril
- Date:		9-4-1996
+ Author:	Bert
+ Date:		2008
  Contents:	Geographics lat/long <-> Coord transform (an estimate)
- RCS:		$Id: latlong.h,v 1.7 2008-12-18 05:23:26 cvsranojay Exp $
+ RCS:		$Id: latlong.h,v 1.8 2009-05-28 11:53:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "position.h"
 
 
-/*!\brief geographical coordinates as defined by Google Earth/Maps. */
+/*!\brief geographical coordinates, decimal but with conv to deg, min, sec. */
 
 mClass LatLong
 {
@@ -31,6 +31,9 @@ public:
 
     void		fill(char*) const;
     bool		use(const char*);
+
+    void		getDMS(bool lat,int&,int&,float&) const;
+    void		setDMS(bool lat,int,int,float);
 
     double		lat_;
     double		lng_;
@@ -53,8 +56,6 @@ public:
     bool		isOK() const	{ return !mIsUdf(lngdist_); }
 
     void		set(const LatLong&,const Coord&);
-    void		setCoordsInFeet( bool yn )
-			{ scalefac_ = yn ? 0.3048 : 1; }
 
     LatLong		transform(const Coord&) const;
     Coord		transform(const LatLong&) const;
@@ -64,16 +65,15 @@ public:
 
     Coord		refCoord() const	{ return refcoord_; }
     LatLong		refLatLong() const	{ return reflatlng_; }
-    bool		coordsInFeet() const	{ return scalefac_ < 0.7; }
 
 protected:
 
     Coord		refcoord_;
     LatLong		reflatlng_;
-    double		scalefac_;
 
     double		latdist_;
     double		lngdist_;
+    double		scalefac_;
 };
 
 
