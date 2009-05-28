@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.24 2009-05-07 07:13:56 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellattribsel.cc,v 1.25 2009-05-28 11:59:12 cvsbert Exp $";
 
 #include "uiwellattribsel.h"
 
@@ -89,9 +89,9 @@ void uiWellAttribSel::setDefaultRange()
     const bool zinft = SI().depthsInFeetByDefault();
     if ( zinft )
     {
-	dahintv.start /= 0.3048;
-	dahintv.stop /= 0.3048;
-	dahintv.step /= 0.3048;
+	dahintv.start *= mToFeetFactor;
+	dahintv.stop *= mToFeetFactor;
+	dahintv.step *= mToFeetFactor;
     }
 
     dahintv.sort();
@@ -161,7 +161,7 @@ void uiWellAttribSel::getPositions( BinIDValueSet& bidset,
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
-	if ( zinft ) md *= 0.3048;
+	if ( zinft ) md *= mFromFeetFactor;
 	Coord3 pos = wd_.track().getPos( md );
 	const BinID bid = SI().transform( pos );
 	if ( !bid.inl && !bid.crl ) continue;

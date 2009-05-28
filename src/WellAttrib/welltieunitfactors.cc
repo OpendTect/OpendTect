@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.4 2009-05-20 14:27:30 cvsbruno Exp $";
+static const char* rcsID = "$Id: welltieunitfactors.cc,v 1.5 2009-05-28 11:59:12 cvsbert Exp $";
 
 #include "welltieunitfactors.h"
 
@@ -65,13 +65,13 @@ void WellTieUnitFactors::calcSonicVelFactor( const char* velunit )
 {
     double velfactor;
     if ( !strcmp( velunit, "None") )
-	velfactor = 0.001*0.3048;
+	velfactor = 0.001*mFromFeetFactor;
     if ( !strcmp( velunit, "us/ft") )
-	velfactor =  0.001*0.3048;
+	velfactor =  0.001*mFromFeetFactor;
     else if ( !strcmp(velunit, "ms/ft" ) )
-	velfactor =  1*0.3048;
+	velfactor =  1*mFromFeetFactor;
     else if ( !strcmp( velunit, "s/ft" ) )
-	velfactor =  1000*0.3048;
+	velfactor =  1000*mFromFeetFactor;
     else if ( !strcmp( velunit, "us/m") )
 	velfactor =  0.001;
     else if ( !strcmp( velunit, "ms/m") )
@@ -79,7 +79,7 @@ void WellTieUnitFactors::calcSonicVelFactor( const char* velunit )
     else if ( !strcmp( velunit, "s/m") )
 	velfactor =  1000;
     else
-	velfactor = 0.001*0.3048; // us/ft taken if no unit found
+	velfactor = 0.001*mFromFeetFactor; // us/ft taken if no unit found
 
     velfactor_ = velfactor;
 }
@@ -89,13 +89,13 @@ void WellTieUnitFactors::calcVelFactor( const char* velunit )
 {
     double velfactor;
     if ( !strcmp( velunit, "None") )
-	velfactor = 0.001/0.3048;
+	velfactor = 0.001 * mToFeetFactor;
     if ( !strcmp( velunit, "ft/us") )
-	velfactor =  0.001/0.3048;
+	velfactor =  0.001 * mToFeetFactor;
     else if ( velunit, "ft/ms")
-	velfactor =  1/0.3048;
+	velfactor =  1 * mToFeetFactor;
     else if ( !strcmp( velunit, "ft/s" ) )
-	velfactor =  1000/0.3048;
+	velfactor =  1000 * mToFeetFactor;
     else if ( !strcmp( velunit, "m/us") )
 	velfactor =  1/0.001;
     else if ( !strcmp( velunit, "m/ms") )
@@ -103,7 +103,7 @@ void WellTieUnitFactors::calcVelFactor( const char* velunit )
     else if ( !strcmp( velunit, "m/s") )
 	velfactor =  1/1000;
     else
-	velfactor = 0.001/0.3048; // ft/us taken if no unit found
+	velfactor = 0.001 * mToFeetFactor; // ft/us taken if no unit found
 
     velfactor_ = velfactor;
 }

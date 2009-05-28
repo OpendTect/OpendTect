@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.97 2009-03-02 13:58:11 cvsbruno Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.98 2009-05-28 11:59:12 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -65,7 +65,7 @@ const char* WellDisplay::sKeyLog1Clip	       = "Cliprate 1";
 const char* WellDisplay::sKeyLog2Clip	       = "Cliprate 2";
 
 #define mMeter2Feet(val) \
-   val /= 0.3048;
+   val *= mToFeetFactor;
 
 #define dpp(param) wd->displayProperties().param
 

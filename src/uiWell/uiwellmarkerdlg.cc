@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.10 2009-01-20 06:45:55 cvsranojay Exp $";
+static const char* rcsID = "$Id: uiwellmarkerdlg.cc,v 1.11 2009-05-28 11:59:12 cvsbert Exp $";
 
 
 #include "uiwellmarkerdlg.h"
@@ -43,7 +43,6 @@ static const int cDepthCol = 1;
 static const int cNameCol  = 2;
 static const int cColorCol = 3;
 
-#define mFromFeetFac 0.3048
 #define mSetSIDepthInFeetDef(zinft) \
     SI().getPars().setYN( SurveyInfo::sKeyDpthInFt(), zinft ); \
     SI().savePars()
@@ -131,7 +130,7 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
     const int nrnew = markers.size();
     if ( !nrnew ) return;
 
-    const float zfac = unitfld_->getBoolValue() ? 1 : 1./mFromFeetFac;
+    const float zfac = unitfld_->getBoolValue() ? 1 : mToFeetFactor;
     int startrow = add ? getNrRows() : 0;
     const int nrrows = nrnew + cNrEmptyRows + startrow;
     table_->setNrRows( nrrows );
@@ -251,7 +250,7 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 {
     deepErase( markers );
 
-    const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFac;
+    const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFactor;
     const int nrrows = getNrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {

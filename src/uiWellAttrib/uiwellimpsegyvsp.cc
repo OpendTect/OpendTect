@@ -7,7 +7,7 @@ ________________________________________________________________________
 _______________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.8 2009-03-24 12:33:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.9 2009-05-28 11:59:12 cvsbert Exp $";
 
 #include "uiwellimpsegyvsp.h"
 
@@ -40,8 +40,6 @@ static const char* rcsID = "$Id: uiwellimpsegyvsp.cc,v 1.8 2009-03-24 12:33:52 c
 #include "keystrs.h"
 #include "survinfo.h"
 #include "unitofmeasure.h"
-
-#define mFromFeetFac 0.3048
 
 
 class uiSEGYVSPBasicPars : public uiCompoundParSel
@@ -284,15 +282,15 @@ bool uiWellImportSEGYVSP::acceptOK( CallBacker* )
 	if ( !isdpth_ )
 	    { mScaleVal(inpsamp.start,0.001); mScaleVal(inpsamp.step,0.001); }
 	else if ( inpinftfld_->isChecked() )
-	    { mScaleVal(inpsamp.start,mFromFeetFac);
-		mScaleVal(inpsamp.step,mFromFeetFac); }
+	    { mScaleVal(inpsamp.start,mFromFeetFactor);
+		mScaleVal(inpsamp.step,mFromFeetFactor); }
     }
     if ( outzrgfld_->isChecked() )
     {
 	outzrg = outzrgfld_->getFInterval();
 	if ( outinftfld_->isChecked() )
-	    { mScaleVal(outzrg.start,mFromFeetFac);
-		mScaleVal(outzrg.stop,mFromFeetFac); }
+	    { mScaleVal(outzrg.start,mFromFeetFactor);
+		mScaleVal(outzrg.stop,mFromFeetFactor); }
     }
 
     SeisTrc trc;
