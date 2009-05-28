@@ -4,7 +4,7 @@
  * DATE     : Mar 2009
 -*/
 
-static const char* rcsID = "$Id: vishorizonsection.cc,v 1.33 2009-05-28 19:11:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vishorizonsection.cc,v 1.34 2009-05-28 21:42:06 cvsyuancheng Exp $";
 
 #include "vishorizonsection.h"
 
@@ -1084,8 +1084,6 @@ char HorizonSection::currentResolution() const
 
 void HorizonSection::setResolution( int res )
 {
-    //if ( desiredresolution_==res && res!=-1 ) return;
-
     desiredresolution_ = res;
     const int tilesz = tiles_.info().getTotalSz();
     if ( !tilesz ) return;
@@ -1097,8 +1095,6 @@ void HorizonSection::setResolution( int res )
     HorizonSectionTile** tileptrs = tiles_.getData();
     for ( int idx=0; idx<tilesz; idx++ )
 	if ( tileptrs[idx] ) tileptrs[idx]->setResolution( res );
-
-    //if ( res==-1 ) return;
 
     ObjectSet<SequentialTask> tasks;
     for ( int idx=0; idx<tilesz; idx++ )
@@ -1387,7 +1383,7 @@ int HorizonSectionTile::getActualResolution() const
 void HorizonSectionTile::updateAutoResolution( SoState* state )
 {
     int newres = desiredresolution_;
-
+    
     if ( state )
     {
 	updateBBox();
@@ -1397,7 +1393,7 @@ void HorizonSectionTile::updateAutoResolution( SoState* state )
 	else if ( desiredresolution_==-1 )
 	    newres = getAutoResolution( state );
     }
-
+    
     setActualResolution( newres );
 }
 
