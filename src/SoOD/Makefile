@@ -2,33 +2,38 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.38 2009-05-08 21:45:09 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.39 2009-05-28 09:01:00 cvsranojay Exp $
 #_______________________________________________________________________________
 
 
 SRC.cc	:=	initsood.cc \
 		SoOD.cc \
-		SoScale3Dragger.cc \
+		SoArrow.cc \
+		SoAxes.cc \
+		SoCameraFacingZAxisRotation.cc \
 		SoCameraInfo.cc \
 		SoCameraInfoElement.cc \
-		SoCameraFacingZAxisRotation.cc \
-		SoDepthTabPlaneDragger.cc \
-		SoForegroundTranslation.cc \
-		SoDGBIndexedPointSet.cc \
-		SoIndexedTriangleFanSet.cc \
-		SoLODMeshSurface.cc \
-		SoLockableSeparator.cc \
-		SoManLevelOfDetail.cc \
-		SoMFImage.cc \
 		SoColTabMultiTexture2.cc \
 		SoColTabTextureChannel2RGBA.cc \
-		SoRGBATextureChannel2RGBA.cc \
+		SoDepthTabPlaneDragger.cc \
+		SoDGBIndexedPointSet.cc \
+		SoForegroundTranslation.cc \
+		SoGridSurfaceDragger.cc \
+		SoIndexedLineSet3D.cc \
+		SoIndexedTriangleFanSet.cc \
+		SoInvisibleLineDragger.cc \
+		SoLockableSeparator.cc \
+		SoLODMeshSurface.cc \
+		SoManLevelOfDetail.cc \
+		SoMFImage.cc \
 		SoPerspectiveSel.cc \
 		SoPlaneWellLog.cc \
 		SoPolygonSelect.cc \
-		SoInvisibleLineDragger.cc \
-		SoShapeScale.cc \
+		SoRandomTrackLineDragger.cc \
+		SoRGBATextureChannel2RGBA.cc \
+		SoScale3Dragger.cc \
 		SoShaderTexture2.cc \
+		SoShapeScale.cc \
 		SoSplitTexture2.cc \
 		SoSplitTexture2Element.cc \
 		SoText2Set.cc \
@@ -37,10 +42,6 @@ SRC.cc	:=	initsood.cc \
 	 	SoTextureComposer.cc \
 		SoTextureComposerElement.cc \
 		SoTranslateRectangleDragger.cc \
-		SoRandomTrackLineDragger.cc \
-		SoGridSurfaceDragger.cc \
-		SoArrow.cc \
-		SoIndexedLineSet3D.cc \
 		UTMCamera.cc \
 		UTMElement.cc \
 		UTMPosition.cc \
