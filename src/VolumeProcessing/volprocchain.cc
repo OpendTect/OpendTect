@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.10 2009-05-14 19:58:42 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.11 2009-05-28 03:04:59 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -161,6 +161,8 @@ int ChainExecutor::nextStep()
 	return ErrorOccurred();
 
     currentstep_++;
+    if ( curtask_ ) delete curtask_;	//Avoids screwing up progressmeters
+    curtask_ = 0;
     return currentstep_<steps_.size() ? MoreToDo() : Finished();
 }
 
@@ -340,7 +342,7 @@ void Chain::removeStep( int idx )
 
 const VelocityDesc* Chain::getVelDesc() const
 {
-    for ( int idx=steps_.size(); idx>=0; idx-- )
+    for ( int idx=steps_.size()-1; idx>=0; idx-- )
     {
 	if ( steps_[idx]->getVelDesc() )
 	    return steps_[idx]->getVelDesc();
