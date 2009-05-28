@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.11 2009-05-12 08:46:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.12 2009-05-28 12:05:11 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -50,7 +50,7 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, const Setup& su )
     if ( setup_.asksetcsmdl_ )
     {
 	csfld_ = new uiGenInput( this, "Is this checkshot data?",
-				 BoolInpSpec(false) );
+				 BoolInpSpec(true) );
 	csfld_->attach( alignedBelow, dataselfld_ );
     }
 
@@ -77,8 +77,8 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 	    return "Please enter the velocity for generating the D2T model";
     }
     
-    if ( cksh || wantAsCSModel() )
-	wd.setD2TModel( new Well::D2TModel );
+    if ( cksh )
+	wd.setCheckShotModel( new Well::D2TModel );
     else
 	wd.setD2TModel( new Well::D2TModel );
 

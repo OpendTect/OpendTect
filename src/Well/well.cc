@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.55 2009-05-12 08:46:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.56 2009-05-28 12:05:11 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -141,9 +141,12 @@ void Well::Data::setCheckShotModel( D2TModel* d )
 }
 
 
-Well::LogSet::~LogSet()
+void Well::Data::empty()
 {
-    deepErase( logs );
+    setD2TModel( 0 ); setCheckShotModel( 0 );
+    track_.erase();
+    logs_.empty();
+    deepErase( markers_ );
 }
 
 
@@ -202,6 +205,12 @@ Well::Log* Well::LogSet::remove( int logidx )
     for ( int idx=0; idx<tmp.size(); idx++ )
 	add( tmp[idx] );
     return log;
+}
+
+
+void Well::LogSet::empty()
+{
+    deepErase( logs );
 }
 
 
@@ -724,7 +733,7 @@ float Well::D2TModel::getVelocity( float dh ) const
 
 Table::FormatDesc* Well::D2TModelAscIO::getDesc( bool withunitfld )
 {
-    Table::FormatDesc* fd = new Table::FormatDesc( "Horizon3D" );
+    Table::FormatDesc* fd = new Table::FormatDesc( "DepthTimeModel" );
     fd->headerinfos_ +=
 	new Table::TargetInfo( "Undefined Value", StringInpSpec(sKey::FloatUdf),
 				Table::Required );
@@ -739,10 +748,12 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
     Table::TargetInfo* depthinfo = 0;
 
     if ( withunitfld )
-	depthinfo = new Table::TargetInfo( "", FloatInpSpec(), Table::Required,
-					    PropertyRef::Dist );
+	depthinfo = new Table::TargetInfo( "Depth", FloatInpSpec(),
+					   Table::Required,
+					   PropertyRef::Dist );
     else
-	depthinfo = new Table::TargetInfo( "", FloatInpSpec(), Table::Required);
+	depthinfo = new Table::TargetInfo( "Depth", FloatInpSpec(),
+					   Table::Required);
 
     Table::TargetInfo::Form* depthform = 
 	new Table::TargetInfo::Form( "TVDSS", FloatInpSpec() );
@@ -751,12 +762,12 @@ void Well::D2TModelAscIO::createDescBody( Table::FormatDesc* fd,
     fd->bodyinfos_ += depthinfo;
 
     Table::TargetInfo* timeinfo =
-		new Table::TargetInfo( "", FloatInpSpec(), Table::Required,
+		new Table::TargetInfo( "Time", FloatInpSpec(), Table::Required,
 				       PropertyRef::Time );
 
     Table::TargetInfo::Form* timeform =
     new Table::TargetInfo::Form( "TWT", FloatInpSpec() );
-    timeinfo->form(0).setName( "One-way traveltime" );
+    timeinfo->form(0).setName( "One-way TT" );
     timeinfo->add( timeform );
     fd->bodyinfos_ += timeinfo;
 }

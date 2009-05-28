@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welllogset.h,v 1.11 2009-02-27 14:15:52 cvsbert Exp $
+ RCS:		$Id: welllogset.h,v 1.12 2009-05-28 12:05:11 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ mClass LogSet
 public:
 
 			LogSet()		{ init(); }
-    virtual		~LogSet();
+    virtual		~LogSet()		{ empty(); }
 
     int			size() const		{ return logs.size(); }
     Log&		getLog( int idx )	{ return *logs[idx]; }
@@ -45,6 +45,7 @@ public:
     Log*		remove(int);		//!< becomes yours
 
     bool		isEmpty() const		{ return size() == 0; }
+    void		empty();
 
 protected:
 

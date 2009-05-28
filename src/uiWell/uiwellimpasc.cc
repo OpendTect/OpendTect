@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.48 2009-05-12 08:46:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.49 2009-05-28 12:05:11 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -136,7 +136,7 @@ bool acceptOK( CallBacker* )
     {
 	info.surfaceelev = -elevfld->getfValue();
 	if ( zinftbox->isChecked() && !mIsUdf(info.surfaceelev) ) 
-	    info.surfaceelev *= 0.3048;
+	    info.surfaceelev *= mFromFeetFactor;
     }
 
     info.uwid = idfld->text();
@@ -175,6 +175,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 
 bool uiWellImportAsc::doWork()
 {
+    wd_.empty();
     wd_.info().setName( outfld->getInput() );
 
     BufferString fnm( wtinfld->fileName() );

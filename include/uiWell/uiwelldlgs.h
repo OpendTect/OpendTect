@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.31 2009-04-21 11:36:01 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.32 2009-05-28 12:05:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,15 +44,15 @@ public:
 
 protected:
 
-    Well::Data&			wd;
-    Well::Track&		track;
-    Well::Track*		orgtrack;
+    Well::Data&			wd_;
+    Well::Track&		track_;
+    Well::Track*		orgtrack_;
 
-    Table::FormatDesc&		fd;
-    uiTable*			table;
-    uiGenInput*			unitfld;
+    Table::FormatDesc&		fd_;
+    uiTable*			tbl_;
+    uiCheckBox*			zinftfld_;
 
-    void			fillTable();
+    void			fillTable(CallBacker* cb=0);
     void			updNow(CallBacker*);
     void			readNew(CallBacker*);
     bool			rejectOK(CallBacker*);

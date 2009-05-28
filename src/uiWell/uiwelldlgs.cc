@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.78 2009-05-12 08:46:47 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.79 2009-05-28 12:05:11 cvsbert Exp $";
 
 #include "uiwelldlgs.h"
 
@@ -46,24 +46,31 @@ static const char* rcsID = "$Id: uiwelldlgs.cc,v 1.78 2009-05-12 08:46:47 cvssat
 
 
 #define mFromFeetFac 0.3048
-static const char* trackcollbls[] = { "X", "Y", "Z", 0 };
+static const char* trackcollbls[] = { "X", "Y", "Z", "MD", 0 };
 static const int nremptyrows = 5;
 
 uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	: uiDialog(p,uiDialog::Setup("Well Track",
 				     "Edit Well Track",
 				     mTODOHelpID))
-	, wd(d)
-    	, track(d.track())
-    	, orgtrack(new Well::Track(d.track()))
-	, fd( *Well::WellAscIO::getDesc() )
+	, wd_(d)
+    	, track_(d.track())
+    	, orgtrack_(new Well::Track(d.track()))
+	, fd_( *Well::WellAscIO::getDesc() )
 
 {
-    table = new uiTable( this, uiTable::Setup().rowdesc("Point")
+    setPrefWidth( 500 ); setPrefHeight( 400 );
+    tbl_ = new uiTable( this, uiTable::Setup().rowdesc("Point")
 	    				       .rowgrow(true) 
 					       .defrowlbl(""), "Table" );
-    table->setColumnLabels( trackcollbls );
-    table->setNrRows( nremptyrows );
+    tbl_->setColumnLabels( trackcollbls );
+    tbl_->setNrRows( nremptyrows );
+
+    zinftfld_ = new uiCheckBox( this, "Z in Feet" );
+    zinftfld_->setChecked( SI().zInFeet() );
+    zinftfld_->activated.notify( mCB(this,uiWellTrackDlg,fillTable) );
+    zinftfld_->attach( ensureBelow, tbl_ );
+    zinftfld_->attach( rightBorder );
 
     uiGroup* actbutgrp = new uiGroup( this, "Action buttons grp" );
     uiButton* updnowbut = new uiPushButton( actbutgrp, "&Update display",
@@ -73,31 +80,51 @@ uiWellTrackDlg::uiWellTrackDlg( uiParent* p, Well::Data& d )
 	    				    mCB(this,uiWellTrackDlg,readNew),
 					    false );
     readbut->attach( rightOf, updnowbut );
-    actbutgrp->attach( centeredBelow, table );
+    actbutgrp->attach( centeredBelow, tbl_ );
+    zinftfld_->attach( ensureRightOf, actbutgrp );
 
     fillTable();
 }
 
 
-void uiWellTrackDlg::fillTable()
+void uiWellTrackDlg::fillTable( CallBacker* )
 {
-    const int sz = track.nrPoints();
-    if ( !sz ) return;
-    table->setNrRows( sz + nremptyrows );
+    RowCol curcell( tbl_->currentCell() );
 
+    const int sz = track_.nrPoints();
+    int newsz = sz + nremptyrows;
+    if ( newsz < 8 ) newsz = 8;
+    tbl_->setNrRows( newsz );
+    tbl_->clearTable();
+    if ( !sz ) return;
+
+    const bool zinft = zinftfld_->isChecked();
     for ( int idx=0; idx<sz; idx++ )
     {
-	table->setValue( RowCol(idx,0), track.pos(idx).x );
-	table->setValue( RowCol(idx,1), track.pos(idx).y );
-	table->setValue( RowCol(idx,2), track.pos(idx).z );
+	const Coord3& c( track_.pos(idx) );
+	tbl_->setValue( RowCol(idx,0), c.x );
+	tbl_->setValue( RowCol(idx,1), c.y );
+	if ( !zinft )
+	{
+	    tbl_->setValue( RowCol(idx,2), c.z );
+	    tbl_->setValue( RowCol(idx,3), track_.dah(idx) );
+	}
+	else
+	{
+	    tbl_->setValue( RowCol(idx,2), c.z*mToFeetFactor );
+	    tbl_->setValue( RowCol(idx,3), track_.dah(idx)*mToFeetFactor );
+	}
     }
+
+    if ( curcell.row >= newsz ) curcell.row = newsz-1;
+    tbl_->setCurrentCell( curcell );
 }
 
 
 uiWellTrackDlg::~uiWellTrackDlg()
 {
-    delete orgtrack;
-    delete &fd;
+    delete orgtrack_;
+    delete &fd_;
 }
 
 
@@ -108,54 +135,53 @@ public:
 uiWellTrackReadDlg( uiParent* p, Table::FormatDesc& fd, Well::Track& track )
     	: uiDialog(p,uiDialog::Setup("Read new Well Track",
 		    		     "Specify new Well Track",mTODOHelpID))
-	, track(track)							  
+	, track_(track)							  
 {
-    wtinfld = new uiFileInput( this, "Well Track File",
+    wtinfld_ = new uiFileInput( this, "Well Track File",
     uiFileInput::Setup().withexamine(true) );
-    wtinfld->setDefaultSelectionDir(
+    wtinfld_->setDefaultSelectionDir(
 		    IOObjContext::getDataDirName(IOObjContext::WllInf) );
     
     uiTableImpDataSel* dataselfld = new uiTableImpDataSel( this, fd, 0 );
-    dataselfld->attach( alignedBelow, wtinfld );
+    dataselfld->attach( alignedBelow, wtinfld_ );
 }
 
 
 bool acceptOK( CallBacker* )
 {
-    track.erase();
-    fnm = wtinfld->fileName();
-    if ( File_isEmpty(fnm.buf()) )
+    track_.erase();
+    fnm_ = wtinfld_->fileName();
+    if ( File_isEmpty(fnm_.buf()) )
 	{ uiMSG().error( "Invalid input file" ); return false; }
     return true;
 }
 
-    uiFileInput*	wtinfld;
-    BufferString	fnm;
-    Well::Track&        track;
+    uiFileInput*	wtinfld_;
+    BufferString	fnm_;
+    Well::Track&        track_;
 };
 
 
 void uiWellTrackDlg::readNew( CallBacker* )
 {
-    uiWellTrackReadDlg dlg( this, fd, track );
+    uiWellTrackReadDlg dlg( this, fd_, track_ );
     if ( !dlg.go() ) return;
 
-    BufferString fnm( dlg.fnm );
-    if ( !fnm.isEmpty() )
+    if ( !dlg.fnm_.isEmpty() )
     {
-	StreamData sd = StreamProvider( fnm ).makeIStream();
+	StreamData sd = StreamProvider( dlg.fnm_ ).makeIStream();
 	if ( !sd.usable() )
 	uiMSG().error( "Cannot open input file" );
 
-	Well::WellAscIO wellascio(fd, *sd.istrm );
-	if ( !wellascio.getData( wd, true ) )
+	Well::WellAscIO wellascio(fd_, *sd.istrm );
+	if ( !wellascio.getData( wd_, true ) )
 	uiMSG().error( "Failed to convert into compatible data" );
 
 	sd.close();
 	
-	table->clearTable();
+	tbl_->clearTable();
 	fillTable();
-	wd.trackchanged.trigger();
+	wd_.trackchanged.trigger();
     }
     else
 	uiMSG().error( "Please select a file" );
@@ -164,33 +190,49 @@ void uiWellTrackDlg::readNew( CallBacker* )
 
 void uiWellTrackDlg::updNow( CallBacker* )
 {
-    track.erase();
-    const int nrrows = table->nrRows();
+    track_.erase();
+    const int nrrows = tbl_->nrRows();
+    const bool zinft = zinftfld_->isChecked();
+    bool needfill = false;
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* sval = table->text( RowCol(idx,0) );
-	if ( !sval || !*sval ) continue;
-	float xval = atof(sval);
-	sval = table->text( RowCol(idx,1) );
-	if ( !sval || !*sval ) continue;
-	float yval = atof(sval);
-	sval = table->text( RowCol(idx,2) );
-	if ( !sval || !*sval ) continue;
-	float zval = atof(sval);
-	const Coord3& curcoord = Coord3( xval, yval, zval);
-	track.addPoint( curcoord, track.value( idx ) );
+	const char* sval = tbl_->text( RowCol(idx,0) );
+	if ( !*sval ) continue;
+	const float xval = atof(sval);
+	sval = tbl_->text( RowCol(idx,1) );
+	if ( !*sval ) continue;
+	const float yval = atof(sval);
+	sval = tbl_->text( RowCol(idx,2) );
+	if ( !*sval ) continue;
+	float zval = atof(sval); if ( zinft ) zval *= mFromFeetFactor;
+
+	const Coord3 newc( xval, yval, zval );
+	sval = tbl_->text( RowCol(idx,3) );
+	float dahval = 0;
+	if ( *sval )
+	    { dahval = atof(sval); if ( zinft ) dahval *= mFromFeetFactor; }
+	else if ( idx > 0 )
+	{
+	    dahval = track_.dah(idx-1) + track_.pos(idx-1).distTo( newc );
+	    needfill = true;
+	}
+
+	track_.addPoint( newc, newc.z, dahval );
     }
-    if ( track.nrPoints() > 1 )
-	wd.trackchanged.trigger();
+    if ( track_.nrPoints() > 1 )
+	wd_.trackchanged.trigger();
     else
 	uiMSG().error( "Please define at least two points." );
+
+    if ( needfill )
+	fillTable();
 }
 
 
 bool uiWellTrackDlg::rejectOK( CallBacker* )
 {
-    track = *orgtrack;
-    wd.trackchanged.trigger();
+    track_ = *orgtrack_;
+    wd_.trackchanged.trigger();
     return true;
 }
 
@@ -198,7 +240,35 @@ bool uiWellTrackDlg::rejectOK( CallBacker* )
 bool uiWellTrackDlg::acceptOK( CallBacker* )
 {
     updNow( 0 );
-    return track.nrPoints() > 1;
+    const int nrpts = track_.nrPoints();
+    if ( nrpts < 2 ) return false;
+    const int orgnrpts = orgtrack_->nrPoints();
+    bool dahchg = nrpts != orgnrpts;
+    if ( !dahchg )
+    {
+	for ( int idx=0; idx<nrpts; idx++ )
+	{
+	    const float dah = track_.dah(idx);
+	    const float orgdah = orgtrack_->dah(idx);
+	    if ( !mIsEqual(dah,orgdah,0.001) )
+		{ dahchg = true; break; }
+	}
+    }
+
+    if ( dahchg )
+    {
+	BufferString msg( "You have changed at least one MD value.\nMarkers" );
+	if ( SI().zIsTime() )
+	    msg += ", logs, T/D and checkshot models";
+	else
+	    msg += " and logs";
+	msg += " are based on the old MD values.\n"
+	       "They may therefore become invalid.\n\nContinue?";
+	if ( !uiMSG().askGoOn(msg) )
+	    return false;
+    }
+
+    return true;
 }
 
 

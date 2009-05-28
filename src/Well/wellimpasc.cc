@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.55 2009-04-21 11:36:01 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.56 2009-05-28 12:05:11 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -80,7 +80,7 @@ const char* Well::AscImporter::getD2T( const D2TModelInfo& mi, bool cksh )
     std::istream& strm = *sd.istrm;
 
     d2t.erase();
-    const float zfac = mi.zinft_ ? 0.3048 : 1;
+    const float zfac = mi.zinft_ ? mFromFeetFactor : 1;
     float z, tval, prevdah = mUdf(float);
     bool firstpos = true;
     bool t_in_ms = false;
@@ -121,7 +121,7 @@ const char* Well::AscImporter::getMarkers( const char* fnm, bool istvd,
 {
     mOpenFile( fnm );
     std::istream& strm = *sd.istrm;
-    const float zfac = zinfeet ? 0.3048 : 1;
+    const float zfac = zinfeet ? mFromFeetFactor : 1;
     float z, prevdah = mUdf(float);
 #   define mBufSz 128
     char buf[mBufSz];
@@ -498,7 +498,7 @@ bool  Well::WellAscIO::getData( Well::Data& wd, bool tosurf ) const
     Coord3 c, c0, prevc;
     Coord3 surfcoord;
     float dah = 0;
-    const float xyfac = SI().xyInFeet() ? 0.3048 : 1;
+    const float xyfac = SI().xyInFeet() ? mFromFeetFactor : 1;
     
     char buf[1024]; char valbuf[256];
 

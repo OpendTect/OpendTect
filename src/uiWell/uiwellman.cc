@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellman.cc,v 1.48 2009-05-27 08:15:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellman.cc,v 1.49 2009-05-28 12:05:11 cvsbert Exp $";
 
 #include "uiwellman.h"
 
@@ -404,6 +404,16 @@ void uiWellMan::mkFileInfo()
 	    if ( SI().zInFeet() )
 		{ rdelev *= mToFeetFactor; unstr = " ft"; }
 	    txt += rdelev; txt += unstr;
+	    txt += "\n";
+	}
+	float surfelev = -info.surfaceelev;
+	if ( !mIsZero(surfelev,1e-4) )
+	{
+	    txt += "Surface Reference Datum"; txt += ": ";
+	    const char* unstr = " m";
+	    if ( SI().zInFeet() )
+		{ surfelev *= mToFeetFactor; unstr = " ft"; }
+	    txt += surfelev; txt += unstr;
 	    txt += "\n";
 	}
     }
