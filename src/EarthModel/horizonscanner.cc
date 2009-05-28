@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: horizonscanner.cc,v 1.32 2009-01-16 09:48:07 cvsraman Exp $";
+static const char* rcsID = "$Id: horizonscanner.cc,v 1.33 2009-05-28 12:01:40 cvsbert Exp $";
 
 #include "horizonscanner.h"
 #include "binidvalset.h"
@@ -189,12 +189,14 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 }
 
 
+#define mGetZFac SI().zIsTime() ? 0.001 \
+	      : (SI().zInMeter() ? mFromFeetFactor : mToFeetFactor)
+	
 bool HorizonScanner::analyzeData()
 {
     if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
 
-    const float fac = SI().zIsTime() ? 0.001
-				     : (SI().zInMeter() ? .3048 : 3.28084);
+    const float fac = mGetZFac;
     Interval<float> validrg( SI().zRange(false) );
     const float zwidth = validrg.width();
     validrg.sort();
@@ -289,7 +291,7 @@ int HorizonScanner::nextStep()
 
     float fac = 1;
     if ( doscale_ )
-    fac = SI().zIsTime() ? 0.001 : (SI().zInMeter() ? .3048 : 3.28084);
+	fac = mGetZFac;
 
     if ( isxy_ )
     {
