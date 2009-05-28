@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.5 2008-11-25 15:35:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwindowgrabber.cc,v 1.6 2009-05-28 03:53:47 cvskris Exp $";
 
 #include "uiwindowgrabber.h"
 
@@ -198,6 +198,7 @@ uiWindowGrabber::uiWindowGrabber( uiParent* p )
     , desktop_(false)
     , grabwin_(0)
     , quality_(50)
+    , execthr_( 0 )
 {}
 
 
@@ -212,10 +213,20 @@ bool uiWindowGrabber::go()
     quality_ = dlg.getQuality();
 
     execthr_ = new Threads::Thread( mCB(this,uiWindowGrabber,mkThread) );
-    execthr_->detach();
 
     return true;
 }
+
+
+uiWindowGrabber::~uiWindowGrabber()
+{
+    if ( execthr_ )
+    {
+	execthr_->stop();
+	delete execthr_;
+    }
+}
+
 
 
 void uiWindowGrabber::mkThread( CallBacker* )
@@ -225,6 +236,5 @@ void uiWindowGrabber::mkThread( CallBacker* )
 
     const int zoom = desktop_ ? 0 : 1;
     grabwin_->activateGrab( filename_, zoom, 0, quality_ );
-    Threads::Thread::threadExit();
 }
 

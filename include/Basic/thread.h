@@ -7,19 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.35 2009-03-11 14:15:12 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.36 2009-05-28 03:53:46 cvskris Exp $
 ________________________________________________________________________
 
 */
 
 #include "callback.h"
-#ifdef __win__
-# include "pthreadwin.h"
-#else
-# include <pthread.h>
-#endif
 
 
+class QThread;
+class QMutex;
+class QWaitCondition;
 
 /*!\brief interface to threads that should be portable.
 
@@ -27,7 +25,6 @@ As usual, other thread systems are available but they are as far as we know
 simply too big and dependent.
 
 */
-
 
 namespace Threads
 {
@@ -42,12 +39,12 @@ the thread that has locked it will unlock it.
 mClass Mutex
 {
 public:
-			Mutex( bool deadlockdetection=false );
+			Mutex( bool recursive=false );
 			Mutex(const Mutex&);
     virtual		~Mutex();	
 
-    int			lock();
-    int			unLock();
+    void		lock();
+    void		unLock();
 
     bool		tryLock();
     			/*!< Returns true if mutex is locked.
@@ -58,8 +55,7 @@ public:
 
 protected:
 
-    pthread_mutex_t 	mutex_;
-    pthread_mutexattr_t	attr_;
+    QMutex*		qmutex_;
 };
 
 
@@ -136,8 +132,8 @@ public:
 				ConditionVar(const ConditionVar&);
 				~ConditionVar();
 
-    int				wait();
-    int 			signal(bool all);
+    void			wait();
+    void 			signal(bool all);
     				/*!< If all is true, all threads that have
 				     called wait() will be Notified about the
 				     signal. If all is false, only one thread
@@ -146,9 +142,7 @@ public:
 
 protected:
 
-    pthread_cond_t		cond_;
-    pthread_condattr_t		condattr_;
-
+    QWaitCondition*		cond_;
 };
 
 
@@ -200,8 +194,7 @@ protected:
 
 /*!\brief
 is the base class for all threads. Start it by creating it and give it the
-function or CallBack to execute. The function running in the thread must not
-return. Instead it should call threadExit to terminate itself.
+function or CallBack to execute. 
 
 The process that has created the thread must call destroy() or detach().
 
@@ -214,38 +207,15 @@ public:
 
 				Thread(void (*)(void*));
 				Thread(const CallBack&);
-
-    static void			threadExit();
-				/*!< Should only be called by the 
-				     running thread */
+    virtual			~Thread();
 
     void			stop();
-    				/*!< Delete the thread with this function.
-				    Will wait for the thread to call threadExit.
-				*/
-
-    void			detach();
-    				/*!< Will make sure the threads resouces are
-				     released once the thread calls threadExit.
-				     Will return immidiately.
-				*/
-
-    unsigned long int		ID() const
-				{ return (unsigned long int)id_; }
-    				//!< debugging purposes
+    				/*!< Stop the thread with this function.
+				    Will wait for the thread to return.  */
 
 protected:
 
-    pthread_t			id_;
-
-private:
-
-    friend class		Threads::Mutex;
-    				//< Only to avoid a stupid compiler msg
-    
-    virtual			~Thread()	{}
-    CallBack			cb;
-
+    QThread*			thread_;
 };
 
 /*! Fetches number of processors from operating system, unless:

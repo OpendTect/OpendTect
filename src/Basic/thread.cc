@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.39 2009-04-17 11:53:44 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.40 2009-05-28 03:53:47 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -16,58 +16,47 @@ static const char* rcsID = "$Id: thread.cc,v 1.39 2009-04-17 11:53:44 cvsbert Ex
 #include "errh.h"
 #include "errno.h" // for EBUSY
 
+#include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
+
 #ifdef __msvc__
 # include "windows.h"
 #endif
 
 
-Threads::Mutex::Mutex( bool deadlockdetection )
-{
-    pthread_mutexattr_init( &attr_ );
-    if ( deadlockdetection )
-	pthread_mutexattr_settype( &attr_, PTHREAD_MUTEX_ERRORCHECK );
-
-    pthread_mutex_init( &mutex_, &attr_ );
-}
+Threads::Mutex::Mutex( bool recursive )
+    : qmutex_( new QMutex(QMutex::NonRecursive) )
+{}
 
 
 //!Implemented since standard copy constuctor will hang the system
 Threads::Mutex::Mutex( const Mutex& m )
-{
-    pthread_mutexattr_init( &attr_ );
-    pthread_mutex_init( &mutex_, &attr_ );
-}
+    : qmutex_( new QMutex )
+{ }
 
 
 Threads::Mutex::~Mutex()
 {
-    pthread_mutex_destroy( &mutex_ );
-    pthread_mutexattr_destroy( &attr_ );
+    delete qmutex_;
 }
 
 
-int Threads::Mutex::lock()
+void Threads::Mutex::lock()
 { 
-    const int res = pthread_mutex_lock( &mutex_ ); 
-    if ( res==EDEADLK )
-    {
-	pErrMsg( "Deadlock detected" );
-	DBG::forceCrash(true);
-    }
-
-    return res;
+    qmutex_->lock();
 }
 
 
-int Threads::Mutex::unLock()
+void Threads::Mutex::unLock()
 {
-    return pthread_mutex_unlock( &mutex_ );
+    qmutex_->unlock();
 }
 
 
 bool Threads::Mutex::tryLock()
 {
-    return pthread_mutex_trylock( &mutex_ ) != EBUSY;
+    return qmutex_->tryLock();
 }
 
 
@@ -260,80 +249,84 @@ void Threads::ReadWriteLock::convWriteToPermissive()
 
 
 Threads::ConditionVar::ConditionVar()
-{
-    pthread_condattr_init( &condattr_ );
-    pthread_cond_init( &cond_, &condattr_ );
-}
+    : Mutex( false )
+    , cond_( new QWaitCondition )
+{ }
 
 
 //!Implemented since standard copy constuctor will hang the system
 Threads::ConditionVar::ConditionVar( const ConditionVar& )
-{
-    pthread_condattr_init( &condattr_ );
-    pthread_cond_init( &cond_, &condattr_ );
-}
+    : Mutex( false )
+    , cond_( new QWaitCondition )
+{ }
 
 
 Threads::ConditionVar::~ConditionVar()
 {
-    pthread_cond_destroy( &cond_ );
-    pthread_condattr_destroy( &condattr_ );
+    delete cond_;
 }
 
 
-int Threads::ConditionVar::wait()
+void Threads::ConditionVar::wait()
+{ cond_->wait( qmutex_ ); }
+
+
+void Threads::ConditionVar::signal(bool all)
 {
-    return pthread_cond_wait( &cond_, &mutex_ );
+    if ( all ) cond_->wakeAll();
+    else cond_->wakeOne();
 }
 
 
-int Threads::ConditionVar::signal(bool all)
+typedef void (*ThreadFunc)(void*);
+
+class ThreadBody : public QThread
 {
-    return all 	? pthread_cond_broadcast( &cond_ )
-		: pthread_cond_signal( &cond_ );
-}
+public:
+    			ThreadBody( ThreadFunc func )
+			    : func_( func )
+			{}
+
+    			ThreadBody( const CallBack& cb )
+			    : func_( 0 )
+			    , cb_( cb )
+			{}
+
+protected:
+    void		run()
+			{
+			    if ( !cb_.willCall() )
+				func_( 0 );
+			    else
+				cb_.doCall( 0 );
+			}
+
+    ThreadFunc		func_;
+    CallBack		cb_;
+};
+
 
 
 Threads::Thread::Thread( void (func)(void*) )
-    	: id_(0)
-{
-    pthread_create( &id_, 0, (void* (*)(void*)) func, 0 );
-}
+    : thread_( new ThreadBody( func ) )
+{ thread_->start(); }
 
 
-static void* thread_exec_fn( void* obj )
-{
-    CallBack* cbptr = reinterpret_cast<CallBack*>( obj );
-    cbptr->doCall( 0 );
-    return 0;
-}
+Threads::Thread::~Thread()
+{ delete thread_; }
 
 
-Threads::Thread::Thread( const CallBack& cbin )
-    	: id_(0)
-    	, cb(cbin)
+Threads::Thread::Thread( const CallBack& cb )
 {
     if ( !cb.willCall() ) return;
-    pthread_create( &id_, 0, thread_exec_fn, (void*)(&cb) );
+    thread_ = new ThreadBody( cb );
+    thread_->start();
 }
 
 
 void Threads::Thread::stop()
 {
-    pthread_join( id_, 0 );
-    delete this;
-}
-
-
-void Threads::Thread::detach()
-{
-    pthread_detach( id_ );
-}
-
-
-void Threads::Thread::threadExit()
-{
-    pthread_exit( 0 );
+    thread_->wait();
 }
 
 
@@ -351,53 +344,6 @@ void Threads::Thread::threadExit()
 #endif
 
 
-static int getSysNrProc()
-{
-    int ret;
-
-#ifdef __win__
-
-    struct _SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
-    ret = sysinfo.dwNumberOfProcessors; // total number of CPUs
-
-#else
-
-    int maxnrproc = sysconf(_SC_CHILD_MAX);
-
-// also see: www.ks.uiuc.edu/Research/vmd/doxygen/VMDThreads_8C-source.html
-# ifdef mac
-
-    host_basic_info_data_t hostInfo;
-    mach_msg_type_number_t infoCount;
-
-    infoCount = HOST_BASIC_INFO_COUNT;
-    host_info( mach_host_self(), HOST_BASIC_INFO, 
-		(host_info_t)&hostInfo, &infoCount);
-
-    int nrprocessors = hostInfo.avail_cpus;
-
-# else
-
-    int nrprocessors = sysconf(_SC_NPROCESSORS_ONLN);
-
-# endif
-
-    if ( maxnrproc == -1 && nrprocessors == -1 )
-	ret = 2;
-    else if ( maxnrproc == -1 )
-	ret = nrprocessors;
-    else if ( nrprocessors == -1 )
-	ret = maxnrproc;
-    else
-	ret = mMIN(nrprocessors,maxnrproc);
-
-#endif
-
-    return ret;
-}
-
-
 int Threads::getNrProcessors()
 {
     static int nrproc = -1;
@@ -410,7 +356,7 @@ int Threads::getNrProcessors()
     {
 	havesett = Settings::common().get( "Nr Processors", nrproc );
 	if ( !havesett )
-	    nrproc = getSysNrProc();
+	    nrproc = QThread::idealThreadCount();
     }
 
     if ( DBG::isOn( DBG_MT ) ) 

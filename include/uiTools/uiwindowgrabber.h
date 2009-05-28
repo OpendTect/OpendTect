@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.h,v 1.3 2009-01-08 07:07:01 cvsranojay Exp $
+ RCS:           $Id: uiwindowgrabber.h,v 1.4 2009-05-28 03:53:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ mClass uiWindowGrabber: public CallBacker
 {
 public:
 			uiWindowGrabber(uiParent*);
+			~uiWindowGrabber();
 
     void		grabDesktop(bool yn)	{ desktop_ = yn; }
     bool		go();

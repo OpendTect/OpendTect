@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.23 2007-11-15 13:17:32 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.24 2009-05-28 03:53:47 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -97,6 +97,7 @@ Threads::WorkThread::~WorkThread()
 	controlcond_.unLock();
 
 	thread_->stop();
+	delete thread_;
 	thread_ = 0;
     }
 
@@ -126,7 +127,7 @@ void Threads::WorkThread::doWork( CallBacker* )
 	if ( exitflag_ )
 	{
 	    controlcond_.unLock();
-	    thread_->threadExit();
+	    return;
 	}
 
 	while ( task_ && !exitflag_ )
@@ -180,6 +181,7 @@ void Threads::WorkThread::exitWork(CallBacker*)
     controlcond_.unLock();
 
     thread_->stop();
+    delete thread_;
     thread_ = 0;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uitaskrunner.cc,v 1.18 2009-04-09 01:10:00 cvskris Exp $";
+static const char* rcsID = "$Id: uitaskrunner.cc,v 1.19 2009-05-28 03:53:47 cvskris Exp $";
 
 #include "uitaskrunner.h"
 
@@ -48,6 +48,12 @@ uiTaskRunner::uiTaskRunner( uiParent* p, bool dispmsgonerr )
 
 uiTaskRunner::~uiTaskRunner()
 {
+    if ( thread_ )
+    {
+	thread_->stop();
+	delete thread_;
+	thread_ = 0;
+    }
     delete &statemutex_;
     delete &tim_;
 }
@@ -94,8 +100,6 @@ void uiTaskRunner::doWork( CallBacker* )
     statemutex_.lock();
     state_ = res ? 0 : -1;
     statemutex_.unLock();
-
-    thread_->threadExit();
 }
 
 
@@ -224,6 +228,7 @@ BufferString uiTaskRunner::finalizeTask()
     if ( thread_ )
     {
 	thread_->stop();
+	delete thread_;
 	thread_ = 0;
     }
 

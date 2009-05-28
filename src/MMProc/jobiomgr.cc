@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: jobiomgr.cc,v 1.29 2009-05-20 20:46:50 cvskris Exp $";
+static const char* rcsID = "$Id: jobiomgr.cc,v 1.30 2009-05-28 03:53:47 cvskris Exp $";
 
 #include "jobiomgr.h"
 #include "filepath.h"
@@ -134,6 +134,7 @@ public:
 				if( exitreq_ ) *exitreq_ = true;
 				threadmutex.unLock();
 				thread->stop();
+				delete thread;
 			    }
 
     bool		ready()	{ return port() > 0; }
@@ -276,7 +277,6 @@ void JobIOHandler::doDispatch( CallBacker* )
 	{
 	    watchdog.stop();
 	    delete &sockprov;
-	    if ( thread ) thread->threadExit();
 	    return;
 	}
 
