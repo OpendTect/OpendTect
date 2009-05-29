@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.66 2009-04-16 10:36:14 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.67 2009-05-29 04:37:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class uiGroup;
 class uiLabel;
 class uiListView;
 class uiODTreeTop;
+class uiODViewer2D;
 class uiSliderExtra;
 class uiSoViewer;
 class uiThumbWheel;
@@ -165,33 +166,12 @@ protected:
 	uiODTreeTop*		itemmanager_;
     };
 
-    mClass Viewer2D
-    {
-    public:
-				Viewer2D(uiODMain&,int visid);
-				~Viewer2D();
-
-	void			setUpView(DataPack::ID,bool wva,bool isvert);
-
-	uiFlatViewWin*		viewwin_;
-	uiODMain&		appl_;
-	EM::HorizonPainter* 	horpainter_;
-
-	int			visid_;
-	BufferString		basetxt_;
-	
-    protected:
-
-	void			createViewWin(bool isvert);
-	void			drawHorizons();
-    };
-
     uiODMain&			appl_;
     uiWorkSpace*		wsp_;
     ObjectSet<Scene>		scenes_;
-    ObjectSet<Viewer2D>		viewers2d_;
-    Viewer2D&			addViewer2D(int visid);
-    Viewer2D*			find2DViewer(int visid);
+    ObjectSet<uiODViewer2D>	viewers2d_;
+    uiODViewer2D&		addViewer2D(int visid);
+    uiODViewer2D*		find2DViewer(int visid);
     void			wspChanged(CallBacker*);
 
     int				vwridx_;

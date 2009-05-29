@@ -7,14 +7,10 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.173 2009-05-21 09:05:10 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.174 2009-05-29 04:37:13 cvsnanne Exp $";
 
 #include "uiodscenemgr.h"
-#include "attribdatacubes.h"
-#include "attribdatapack.h"
 #include "scene.xpm"
-#include "emmanager.h"
-#include "emhorizonpainter.h"
 
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
@@ -38,12 +34,11 @@ static const char* rcsID = "$Id: uiodscenemgr.cc,v 1.173 2009-05-21 09:05:10 cvs
 #include "uiflatviewer.h"
 #include "uigeninputdlg.h"
 #include "uiprintscenedlg.h"
-#include "uiflatviewstdcontrol.h"
-#include "uiflatviewdockwin.h"
 #include "uiflatviewmainwin.h"
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
 #include "uiwindowgrabber.h"
+#include "uiodviewer2d.h"
 
 #include "ptrman.h"
 #include "pickset.h"
@@ -1030,7 +1025,7 @@ void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items )
 
 void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 {
-    Viewer2D* curvwr = find2DViewer( visid );
+    uiODViewer2D* curvwr = find2DViewer( visid );
 
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
@@ -1043,9 +1038,9 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
 }
 
 
-uiODSceneMgr::Viewer2D* uiODSceneMgr::find2DViewer( int visid )
+uiODViewer2D* uiODSceneMgr::find2DViewer( int visid )
 {
-    Viewer2D* curvwr = 0;
+    uiODViewer2D* curvwr = 0;
     for ( int idx=0; idx<viewers2d_.size(); idx++ )
     {
 	if ( viewers2d_[idx]->visid_ != visid )
@@ -1071,9 +1066,9 @@ void uiODSceneMgr::remove2DViewer( int visid )
 }
 
 
-uiODSceneMgr::Viewer2D& uiODSceneMgr::addViewer2D( int visid )
+uiODViewer2D& uiODSceneMgr::addViewer2D( int visid )
 {
-    Viewer2D* vwr = new Viewer2D( appl_, visid );
+    uiODViewer2D* vwr = new uiODViewer2D( appl_, visid );
     viewers2d_ += vwr;
     return *vwr;
 }
@@ -1102,95 +1097,4 @@ uiODSceneMgr::Scene::~Scene()
     delete sovwr_;
     delete itemmanager_;
     delete dw_;
-}
-
-
-
-uiODSceneMgr::Viewer2D::Viewer2D( uiODMain& appl, int visid )
-    : appl_(appl)
-    , visid_(visid)
-    , viewwin_(0)
-    , horpainter_(0)
-{
-    basetxt_ = "2D Viewer - ";
-    BufferString info;
-    appl.applMgr().visServer()->getObjectInfo( visid, info );
-    basetxt_ += info;
-}
-
-
-uiODSceneMgr::Viewer2D::~Viewer2D()
-{
-    mDynamicCastGet(uiFlatViewDockWin*,fvdw,viewwin_)
-    if ( fvdw )
-	appl_.removeDockWindow( fvdw );
-
-    delete horpainter_;
-    delete viewwin_;
-}
-
-
-void uiODSceneMgr::Viewer2D::setUpView( DataPack::ID packid,
-					bool wva, bool isvert )
-{
-    const bool isnew = !viewwin_;
-    if ( isnew )
-	createViewWin( isvert );
-    
-    Attrib::Flat3DDataPack* dp = 
-		(Attrib::Flat3DDataPack*)DPM(
-			DataPackMgr::FlatID()).obtain( packid, true );
-    if ( dp && ( dp->dataDir()==CubeSampling::Inl ||
-		  dp->dataDir()==CubeSampling::Crl) )
-    {
-	horpainter_->setCubeSampling( dp->cube().cubeSampling(), true );
-	drawHorizons();
-    }
-
-    viewwin_->viewer().setPack( wva, packid, true, !isnew );
-    FlatView::DataDispPars& ddp = viewwin_->viewer().appearance().ddpars_;
-    (wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
-    viewwin_->start();
-}
-
-
-void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
-{    
-    bool wantdock = false;
-    Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
-    uiParent* controlparent = 0;
-    if ( !wantdock )
-	viewwin_ = new uiFlatViewMainWin( 0,
-		uiFlatViewMainWin::Setup(basetxt_).deleteonclose(false) );
-    else
-    {
-	uiFlatViewDockWin* dwin = new uiFlatViewDockWin( &appl_,
-				   uiFlatViewDockWin::Setup(basetxt_) );
-	appl_.addDockWindow( *dwin, uiMainWin::Top );
-	dwin->setFloating( true );
-	viewwin_ = dwin;
-	controlparent = &appl_;
-    }
-
-    viewwin_->setInitialSize( 600, 400 );
-    for ( int ivwr=0; ivwr<viewwin_->nrViewers(); ivwr++ )
-    {
-	uiFlatViewer& vwr = viewwin_->viewer( ivwr );
-	vwr.appearance().setDarkBG( wantdock );
-	vwr.appearance().setGeoDefaults(isvert);
-	vwr.appearance().annot_.setAxesAnnot(true);
-	if ( ivwr == 0 )
-	{
-	    viewwin_->addControl( new uiFlatViewStdControl( vwr,
-		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
-	    horpainter_ = new EM::HorizonPainter( vwr );
-	}
-    }
-}
-
-
-void uiODSceneMgr::Viewer2D::drawHorizons()
-{
-    for ( int idx=0; idx<EM::EMM().nrLoadedObjects(); idx++ )
-	horpainter_->addHorizon( EM::EMM().objectID(idx) );
 }
