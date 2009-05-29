@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer
  Date:		April 2009
- RCS:		$Id: fixedstring.h,v 1.5 2009-05-20 03:41:30 cvskris Exp $
+ RCS:		$Id: fixedstring.h,v 1.6 2009-05-29 16:58:21 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -20,7 +20,7 @@ assumed be be alive and well for the lifetime of the FixedString. */
 mClass FixedString
 {
 public:
-		FixedString(const char* p) : ptr_(p) {}
+		FixedString(const char* p = 0 ) : ptr_(p) {}
     FixedString& operator=(const FixedString& f) { return *this = f.ptr_; }
     FixedString& operator=(const char* p)	{ ptr_ = p; return *this; }
     FixedString& operator=(const BufferString& b){ptr_=b.buf();return *this;}
