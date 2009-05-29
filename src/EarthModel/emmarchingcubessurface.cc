@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.16 2009-05-29 00:46:26 cvskris Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.17 2009-05-29 17:15:19 cvskris Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -57,7 +57,8 @@ public:
 
 	std::istream& strm = ((StreamConn*)conn_)->iStream();
 	ascistream astream( strm );
-	if ( !astream.isOfFileType( sFileType() ) )
+	if ( !astream.isOfFileType( sFileType() ) &&
+	     !astream.isOfFileType( sOldFileType() ) )
 	{
 	    errmsg_ = "Invalid filetype";
 	    return;
@@ -101,6 +102,8 @@ public:
     static const char* sFileType()
     { return EM::MarchingCubesSurface::typeStr(); }
 
+    static const char* sOldFileType() { return "MarchingCubesSurface"; }
+
     int	nextStep()
     {
 	if ( !exec_ ) return ErrorOccurred();
@@ -116,13 +119,20 @@ public:
     od_int64	totalNr() const { return exec_ ? exec_->totalNr() : -1; }
     od_int64	nrDone() const { return exec_ ? exec_->nrDone() : -1; }
     const char*	nrDoneText() const { return exec_ ? exec_->nrDoneText() : 0; }
+    const char*	message() const
+    {
+	return errmsg_.isEmpty()
+	    ? "Loading body"
+	    : errmsg_.buf();
+     }
+
 protected:
 
     EM::MarchingCubesSurface&	surface_;
     Executor*			exec_;
     DataInterpreter<od_int32>*	int32interpreter_;
     Conn*			conn_;
-    BufferString		errmsg_;
+    FixedString			errmsg_;
 };
 
 
@@ -190,12 +200,19 @@ int nextStep()
 od_int64 totalNr() const { return exec_ ? exec_->totalNr() : -1; }
 od_int64 nrDone() const { return exec_ ? exec_->nrDone() : -1; }
 const char* nrDoneText() const { return exec_ ? exec_->nrDoneText() : 0; }
+const char*       message() const
+{
+    return errmsg_.isEmpty()
+	? "Loading body"
+	: errmsg_.buf();
+}
+
 
 protected:
 
     Executor*			exec_;
     Conn*			conn_;
-    BufferString		errmsg_;
+    FixedString			errmsg_;
     EM::MarchingCubesSurface&	surface_;
 };
 
@@ -204,7 +221,7 @@ void EM::MarchingCubesSurface::initClass()
 {
     SeparString sep( 0, FactoryBase::cSeparator() );
     sep += typeStr();
-    sep += "MarchingCubesSurface";
+    sep += MarchingCubesSurfaceReader::sOldFileType();
     EMOF().addCreator( create, sep.buf() );
 }
 
@@ -296,7 +313,7 @@ Executor* EM::MarchingCubesSurface::saver( IOObj* inpioobj )
     if ( !conn )
 	return 0;
 
-    return new MarchingCubesSurfaceWriter( *this, conn, false );
+    return new MarchingCubesSurfaceWriter( *this, conn, true );
 }
 
 
