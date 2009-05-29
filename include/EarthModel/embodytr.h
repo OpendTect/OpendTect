@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.7 2009-02-02 21:52:02 cvsyuancheng Exp $
+ RCS:		$Id: embodytr.h,v 1.8 2009-05-29 02:44:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,9 +35,7 @@ public:
 mClass mcEMBodyTranslator : public Translator
 {			    isTranslator(mc,EMBody)
 public:
-			mcEMBodyTranslator(const char* unm,const char* nm)
-			    : Translator( unm, nm )			{}
-			~mcEMBodyTranslator()				{}
+    			mDefEmptyTranslatorBaseConstructor( mcEMBody );
     const char*		defExtension() const	{ return "mc"; }
     static const char*  sKeyUserName()		{ return "MCBody"; }
 };
@@ -67,13 +65,20 @@ protected:
 mClass randposEMBodyTranslator : public Translator
 {                                isTranslator(randpos,EMBody)
 public:
-			randposEMBodyTranslator(const char* unm,const char* nm)
-    			    : Translator( unm, nm )			{}
-			~randposEMBodyTranslator()			{}
-
+    			mDefEmptyTranslatorBaseConstructor( randposEMBody );
     const char*		defExtension() const	{ return "rdpos"; }
     static const char*	sKeyUserName()		{ return "RandomPosBody"; }
 };
+
+
+//For selection of old (3.2) mc bodies.
+mClass dGBEMBodyTranslator : public Translator
+{			    isTranslator(dGB,EMBody)
+public:
+ 			mDefEmptyTranslatorBaseConstructor( dGBEMBody );
+   static const char*	sKeyUserName()		{ return "dGB"; }
+};
+
 
 
 #endif
