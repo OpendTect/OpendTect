@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.49 2009-05-28 12:05:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.50 2009-05-29 11:08:55 cvsbert Exp $";
 
 #include "uiwellimpasc.h"
 
@@ -29,9 +29,10 @@ static const char* rcsID = "$Id: uiwellimpasc.cc,v 1.49 2009-05-28 12:05:11 cvsb
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uibutton.h"
-#include "uilabel.h"
 #include "uimsg.h"
+#include "uilabel.h"
 #include "uiseparator.h"
+#include "uiselsurvranges.h"
 #include "uitblimpexpdatasel.h"
 
 static const char* sHelpID = "107.0.0";
@@ -40,51 +41,98 @@ static const char* sHelpID = "107.0.0";
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
 				 "Import Well Track",sHelpID))
-    , ctio( *mMkCtxtIOObj(Well) )
-    , fd( *Well::WellAscIO::getDesc() )			       
+    , ctio_( *mMkCtxtIOObj(Well) )
+    , fd_( *Well::WellAscIO::getDesc() )			       
+    , trckinpfld_(0)
+    , zrgfld_(0)
+    , tmzrgfld_(0)
 {
     setCtrlStyle( DoAndStay );
 
-    wtinfld = new uiFileInput( this, "Well Track File",
+    havetrckbox_ = new uiCheckBox( this, "" );
+    havetrckbox_->activated.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
+    havetrckbox_->setChecked( true );
+    trckinpfld_ = new uiFileInput( this, "Well Track File",
 	    			   uiFileInput::Setup().withexamine(true) );
-    wtinfld->setDefaultSelectionDir(
+    trckinpfld_->setDefaultSelectionDir(
 	    	  IOObjContext::getDataDirName(IOObjContext::WllInf) );
+    trckinpfld_->attach( rightOf, havetrckbox_ );
+    vertwelllbl_ = new uiLabel( this, "-> Vertical well" );
+    vertwelllbl_->attach( rightTo, havetrckbox_ );
+    vertwelllbl_->attach( alignedWith, trckinpfld_ );
 
-    dataselfld = new uiTableImpDataSel( this, fd, 0 );
-    dataselfld->attach( alignedBelow, wtinfld );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, 0 );
+    dataselfld_->attach( alignedBelow, trckinpfld_ );
+
+    coordfld_ = new uiGenInput( this, "Coordinate",
+	    			PositionInpSpec(PositionInpSpec::Setup(true)) );
+    coordfld_->attach( alignedBelow, trckinpfld_ );
+    if ( !SI().zIsTime() )
+    {
+	zrgfld_ = new uiSelZRange( this, false );
+	zrgfld_->attach( alignedBelow, coordfld_ );
+    }
+    else
+    {
+	tmzrgfld_ = new uiGenInput( this, "Depth range", FloatInpSpec(0),
+	       						 FloatInpSpec()	);
+	tmzrgfld_->attach( alignedBelow, coordfld_ );
+	tmzrginftbox_ = new uiCheckBox( this, "Feet" );
+	tmzrginftbox_->attach( rightOf, tmzrgfld_ );
+	tmzrginftbox_->setChecked( SI().xyInFeet() );
+    }
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, dataselfld );
+    sep->attach( stretchedBelow, dataselfld_ );
 
     const bool zistime = SI().zIsTime();
     if ( zistime )
     {
 	uiD2TModelGroup::Setup su; su.asksetcsmdl( true );
-	d2tgrp = new uiD2TModelGroup( this, su );
-	d2tgrp->attach( alignedBelow, dataselfld );
-	d2tgrp->attach( ensureBelow, sep );
+	d2tgrp_ = new uiD2TModelGroup( this, su );
+	d2tgrp_->attach( alignedBelow, dataselfld_ );
+	d2tgrp_->attach( ensureBelow, sep );
 	sep = new uiSeparator( this, "H sep 2" );
-	sep->attach( stretchedBelow, d2tgrp );
+	sep->attach( stretchedBelow, d2tgrp_ );
     }
-
 
     uiButton* but = new uiPushButton( this, "Advanced/Optional",
 	    				mCB(this,uiWellImportAsc,doAdvOpt),
 					false );
-    but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp
-	    			       : (uiObject*)dataselfld );
+    but->attach( alignedBelow, zistime ? (uiObject*)d2tgrp_
+	    			       : (uiObject*)dataselfld_ );
     but->attach( ensureBelow, sep );
 
-    ctio.ctxt.forread = false;
-    outfld = new uiIOObjSel( this, ctio, "Output Well" );
-    outfld->attach( alignedBelow, but );
+    ctio_.ctxt.forread = false;
+    outfld_ = new uiIOObjSel( this, ctio_, "Output Well" );
+    outfld_->attach( alignedBelow, but );
+
+    finaliseDone.notify( mCB(this,uiWellImportAsc,haveTrckSel) );
 }
 
 
 uiWellImportAsc::~uiWellImportAsc()
 {
-    delete ctio.ioobj; delete &ctio;
-    delete &fd;
+    delete ctio_.ioobj; delete &ctio_;
+    delete &fd_;
+}
+
+
+void uiWellImportAsc::haveTrckSel( CallBacker* )
+{
+    if ( !trckinpfld_ ) return;
+    const bool havetrck = havetrckbox_->isChecked();
+    trckinpfld_->display( havetrck );
+    dataselfld_->display( havetrck );
+    vertwelllbl_->display( !havetrck );
+    coordfld_->display( !havetrck );
+    if ( zrgfld_ )
+	zrgfld_->display( !havetrck );
+    else
+    {
+	tmzrgfld_->display( !havetrck );
+	tmzrginftbox_->display( !havetrck );
+    }
 }
 
 
@@ -176,37 +224,53 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 bool uiWellImportAsc::doWork()
 {
     wd_.empty();
-    wd_.info().setName( outfld->getInput() );
+    wd_.info().setName( outfld_->getInput() );
 
-    BufferString fnm( wtinfld->fileName() );
-    if ( !fnm.isEmpty() )
+    if ( havetrckbox_->isChecked() )
     {
-	StreamData sd = StreamProvider( wtinfld->fileName() ).makeIStream();
-	if ( !sd.usable() )
-	    mErrRet( "Cannot open track file" )
-
-	Well::WellAscIO wellascio( fd, *sd.istrm );
-
-	if ( !wellascio.getData(wd_,true) )
-	    mErrRet( "The well track file cannot be loaded with given format" );
-
-	sd.close();
+	BufferString fnm( trckinpfld_->fileName() );
+	if ( !fnm.isEmpty() )
+	{
+	    StreamData sd = StreamProvider( trckinpfld_->fileName() )
+					.makeIStream();
+	    if ( !sd.usable() )
+		mErrRet( "Cannot open track file" )
+	    Well::WellAscIO wellascio( fd_, *sd.istrm );
+	    if ( !wellascio.getData(wd_,true) )
+		mErrRet( "The track file cannot be loaded with given format" );
+	    sd.close();
+	}
+    }
+    else
+    {
+	const Coord c( coordfld_->getCoord() );
+	Interval<float> zrg;
+        if ( zrgfld_ )
+	    zrg = zrgfld_->getRange();
+	else
+	{
+	    zrg = tmzrgfld_->getFInterval();
+	    if ( tmzrginftbox_->isChecked() )
+		zrg.scale( mFromFeetFactor );
+	}
+	wd_.track().addPoint( c, zrg.start, 0 );
+	wd_.track().addPoint( c, zrg.stop );
     }
 
     if ( SI().zIsTime() )
     {
-	const char* errmsg = d2tgrp->getD2T( wd_, false );
+	const char* errmsg = d2tgrp_->getD2T( wd_, false );
 	if ( errmsg ) mErrRet( errmsg );
-	if ( d2tgrp->wantAsCSModel() )
-	    d2tgrp->getD2T( wd_, true );
+	if ( d2tgrp_->wantAsCSModel() )
+	    d2tgrp_->getD2T( wd_, true );
     }
 
-    PtrMan<Translator> t = ctio.ioobj->getTranslator();
+    PtrMan<Translator> t = ctio_.ioobj->getTranslator();
     mDynamicCastGet(WellTranslator*,wtr,t.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 	    		 "Another type object with this name already exists." );
 
-    if ( !wtr->write(wd_,*ctio.ioobj) ) mErrRet( "Cannot write well" );
+    if ( !wtr->write(wd_,*ctio_.ioobj) ) mErrRet( "Cannot write well" );
 
     uiMSG().message( "Well successfully created" );
     return false;
@@ -215,15 +279,27 @@ bool uiWellImportAsc::doWork()
 
 bool uiWellImportAsc::checkInpFlds()
 {
-    const bool havetrack = *wtinfld->fileName();
-    if ( !*wtinfld->fileName() )
-	mErrRet("Please specify a well track file")
+    if ( havetrckbox_->isChecked() )
+    {
+	if ( !*trckinpfld_->fileName() )
+	    mErrRet("Please specify a well track file")
+    }
+    else
+    {
+	if ( !SI().isReasonable(coordfld_->getCoord()) )
+	{
+	    if ( !uiMSG().askGoOn(
+			"Well coordinate seems to be far outside the survey."
+		    	"\nIs this correct?") );
+	    return false;
+	}
+    }
 
-    const char* errmsg = SI().zIsTime() ? 0 : d2tgrp->getD2T( wd_);
+    const char* errmsg = SI().zIsTime() ? 0 : d2tgrp_->getD2T( wd_);
     if ( errmsg && *errmsg )
 	mErrRet( errmsg )
 
-    if ( !outfld->commitInput() )
+    if ( !outfld_->commitInput() )
 	mErrRet( "Please select output" )
 
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.12 2009-05-28 12:05:11 cvsbert Exp $";
+static const char* rcsID = "$Id: uid2tmodelgrp.cc,v 1.13 2009-05-29 11:08:55 cvsbert Exp $";
 
 #include "uid2tmodelgrp.h"
 #include "uitblimpexpdatasel.h"
@@ -90,8 +90,6 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
     {
 	if ( wd.track().isEmpty() )
 	    return "Cannot generate D2Time model without track";
-	if ( wantAsCSModel() )
-	    return "No file name specified";
 	
 	const float twtvel = velfld_->getfValue() * .5;
 	const float dah0 = wd.track().dah( 0 );
@@ -125,5 +123,5 @@ const char* uiD2TModelGroup::getD2T( Well::Data& wd, bool cksh ) const
 
 bool uiD2TModelGroup::wantAsCSModel() const
 {
-    return csfld_ && csfld_->getBoolValue();
+    return csfld_ && csfld_->getBoolValue() && filefld_->isChecked();
 }
