@@ -8,6 +8,7 @@
 #include "transl.h"
 #include "streamconn.h"
 #include "ctxtioobj.h"
+#include "fixedstring.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "errh.h"
@@ -15,7 +16,7 @@
 #include "preloads.h"
 #include <iostream>
 
-static const char* rcsID = "$Id: transl.cc,v 1.25 2009-02-18 17:12:19 cvsbert Exp $";
+static const char* rcsID = "$Id: transl.cc,v 1.26 2009-05-29 02:45:24 cvskris Exp $";
 
 mDefSimpleTranslators(PreLoads,"Object Pre-Loads",dgb,Misc)
 
@@ -27,14 +28,10 @@ TranslatorGroup::TranslatorGroup( const char* clssnm, const char* usrnm )
 {}
 
 
-int defaultSelector( const char* mytyp, const char* typ )
+int defaultSelector( const char* m, const char* typ )
 {
-    if ( !mytyp && !typ ) return 2;
-    if ( !mytyp || !typ ) return 0;
-
-    if ( !strcmp(mytyp,typ) ) return 2;
-
-    return 0;
+    FixedString mytyp( m );
+    return mytyp==typ ? mObjSelMatch : mObjSelUnrelated;
 }
 
 
@@ -172,11 +169,12 @@ TranslatorGroup& TranslatorGroup::addGroup( TranslatorGroup* newgrp )
 }
 
 
-bool TranslatorGroup::hasConnType( const char* ct ) const
+bool TranslatorGroup::hasConnType( const char* c ) const
 {
+    FixedString ct( c );
     for ( int idx=0; idx<templs_.size(); idx++ )
     {
-	if ( !strcmp(templs_[idx]->connType(),ct) )
+	if ( templs_[idx]->connType()==ct)
 	    return true;
     }
 
