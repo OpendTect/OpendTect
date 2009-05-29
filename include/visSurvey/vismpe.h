@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.39 2009-05-29 08:48:44 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.40 2009-05-29 11:40:23 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,7 @@ public:
     float			getDraggerTransparency() const;
     void			showDragger(bool yn);
     void			setPlaneOrientation(int orient);
+    const int			getPlaneOrientation() const;
     bool			isDraggerShown() const;
     void			moveMPEPlane(int nrsteps);
     visBase::Texture3*		getTexture() { return texture_; }
@@ -90,6 +91,7 @@ public:
 
     NotifierAccess*		getMovementNotifier() { return &movement; }
     Notifier<MPEDisplay>	boxDraggerStatusChange;
+    Notifier<MPEDisplay>	planeOrientationChange;
     
     virtual float               calcDist(const Coord3&) const;
     virtual float               maxDist() const;

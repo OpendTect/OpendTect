@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.69 2009-05-29 08:48:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.70 2009-05-29 11:40:47 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -52,6 +52,7 @@ MPEDisplay::MPEDisplay()
     , manipulated_(false)
     , movement( this )
     , boxDraggerStatusChange( this )
+    , planeOrientationChange( this )
     , curtexturecs_(false)
     , curtextureas_(*new Attrib::SelSpec())
 {
@@ -598,6 +599,10 @@ void MPEDisplay::setPlaneOrientation( int orient )
 }
 
 
+const int MPEDisplay::getPlaneOrientation() const
+{ return dragger_->getDim(); }
+
+
 void MPEDisplay::mouseClickCB( CallBacker* cb )
 {
     if ( sceneeventcatcher_->isHandled() || !isOn() ) return;
@@ -624,6 +629,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    engine_.setTrackPlane( ntp, false );
 	    updateTextureCoords();
 	    movement.trigger();
+	    planeOrientationChange.trigger();
 	}
 	sceneeventcatcher_->setHandled();
     }
