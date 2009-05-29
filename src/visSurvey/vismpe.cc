@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.67 2009-05-19 12:25:50 cvsumesh Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.68 2009-05-29 06:58:45 cvsumesh Exp $";
 
 #include "vismpe.h"
 
@@ -422,6 +422,7 @@ void MPEDisplay::updateMPEActiveVolume()
 void MPEDisplay::removeSelectionInPolygon( const Selector<Coord3>& selector )
 {
     engine_.removeSelectionInPolygon( selector );
+    manipulated_ = true;
 }
 
 
