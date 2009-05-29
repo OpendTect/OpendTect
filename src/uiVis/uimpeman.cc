@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uimpeman.cc,v 1.151 2009-05-29 08:48:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimpeman.cc,v 1.152 2009-05-29 12:02:06 cvsumesh Exp $";
 
 #include "uimpeman.h"
 
@@ -226,6 +226,8 @@ void uiMPEMan::deleteVisObjects()
 	{
 	    mped->boxDraggerStatusChange.remove(
 		mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
+	    mped->planeOrientationChange.remove(
+		mCB(this,uiMPEMan,planeOrientationChangedCB) );
 	    visserv->removeObject(mped->id(),scenes[idx]);
 	}
     }
@@ -475,6 +477,9 @@ visSurvey::MPEDisplay* uiMPEMan::getDisplay( int sceneid, bool create )
 
     mpedisplay->boxDraggerStatusChange.notify(
 	    mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
+
+    mpedisplay->planeOrientationChange.notify(
+	    mCB(this,uiMPEMan,planeOrientationChangedCB) );
 
     return mpedisplay;
 }
@@ -1280,6 +1285,30 @@ void uiMPEMan::handleOrientationClick( CallBacker* cb )
 }
 
 
+void uiMPEMan::planeOrientationChangedCB( CallBacker* cb )
+{
+    mDynamicCastGet(visSurvey::MPEDisplay*,disp,cb)
+    if ( !disp ) return;
+
+    const int dim = disp->getPlaneOrientation();
+    if ( !dim )
+    {
+	toolbar->setPixmap( moveplaneidx, "QCplane-inline.png" );
+	toolbar->setToolTip( moveplaneidx, "Move track plane Inline" );
+    }
+    else if ( dim == 1 )
+    {
+	toolbar->setPixmap( moveplaneidx, "QCplane-crossline.png" );
+	toolbar->setToolTip( moveplaneidx, "Move track plane Crossline" );
+    }
+    else
+    {
+	toolbar->setPixmap( moveplaneidx, "QCplane-z.png" );
+	toolbar->setToolTip( moveplaneidx, "Move track plane Z-dir" );
+    }
+}
+
+
 void uiMPEMan::showSettingsCB( CallBacker* )
 {
     visserv->sendShowSetupDlgEvent();
@@ -1296,6 +1325,9 @@ void uiMPEMan::initFromDisplay()
     {
 	displays[idx]->boxDraggerStatusChange.notify(
 		mCB(this,uiMPEMan,boxDraggerStatusChangeCB) );
+
+	displays[idx]->planeOrientationChange.notify(
+		mCB(this,uiMPEMan,planeOrientationChangedCB) );
 
 	if ( idx==0 )
 	{

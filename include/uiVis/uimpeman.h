@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.51 2009-05-29 08:48:44 cvsnanne Exp $
+ RCS:           $Id: uimpeman.h,v 1.52 2009-05-29 12:01:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,6 +97,7 @@ protected:
     void			setColorbarCB(CallBacker*);
     void			movePlaneCB(CallBacker*);
     void			handleOrientationClick(CallBacker*);
+    void			planeOrientationChangedCB(CallBacker*);
     void			mouseEraseModeCB(CallBacker*);
     void			showTracker(bool yn);
     void			changeTrackerOrientation(int orient);
