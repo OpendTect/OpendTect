@@ -8,7 +8,7 @@
 
 -*/
 
-static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.63 2009-05-27 03:24:59 cvskris Exp $";
+static const char* rcsID = "$Id: visseis2ddisplay.cc,v 1.64 2009-05-29 05:38:23 cvsnanne Exp $";
 
 #include "visseis2ddisplay.h"
 
@@ -53,7 +53,7 @@ const char* Seis2DDisplay::sKeyZRange()		{ return "Z Range"; }
 const char* Seis2DDisplay::sKeyShowLineName()	{ return "Show linename"; }
 const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
 
-mClass Seis2DTextureDataArrayFiller: public ParallelTask
+class Seis2DTextureDataArrayFiller: public ParallelTask
 {
 public:
 
