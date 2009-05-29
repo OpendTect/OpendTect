@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uiempartserv.cc,v 1.175 2009-05-28 18:55:00 cvskris Exp $";
+static const char* rcsID = "$Id: uiempartserv.cc,v 1.176 2009-05-29 17:31:07 cvskris Exp $";
 
 #include "uiempartserv.h"
 
@@ -381,21 +381,16 @@ void uiEMPartServer::selectBodies( ObjectSet<EM::EMObject>& objs )
 	return;
 
     const IOObj* ioobj = dlg.ioObj();
-    const char* translator = ioobj->translator();
+    FixedString translator = ioobj->translator();
 
     EM::EMObject* object = 0;
-    if ( !strcmp( translator, polygonEMBodyTranslator::sKeyUserName() ) )
-    {
+    if ( translator==polygonEMBodyTranslator::sKeyUserName() )
 	object = EM::EMM().createTempObject(EM::PolygonBody::typeStr());
-    }
-    else if ( !strcmp( translator, randposEMBodyTranslator::sKeyUserName() ) )
-    {
+    else if ( translator==randposEMBodyTranslator::sKeyUserName() ) 
 	object = EM::EMM().createTempObject(EM::RandomPosBody::typeStr());
-    }
-    else if ( !strcmp( translator, mcEMBodyTranslator::sKeyUserName() ) )
-    {
+    else if ( translator==mcEMBodyTranslator::sKeyUserName() ||
+	      translator==dGBEMBodyTranslator::sKeyUserName() )
 	object =EM::EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
-    }
     else
     {
 	pErrMsg("Hmm");
@@ -955,13 +950,13 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 					bool is2d )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    const char* groupstr = is2d ? "2D Horizon" : "Horizon";
+    FixedString groupstr = is2d ? "2D Horizon" : "Horizon";
     ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj* ioobj = ioobjs[idx];
 	if ( strcmp(ioobj->translator(),"dGB") ) continue;
-	if ( !strcmp(ioobj->group(), groupstr ) )
+	if ( groupstr==ioobj->group() )
 	    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
     }
 }
