@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.15 2009-03-06 22:04:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.16 2009-05-29 00:46:26 cvskris Exp $";
 
 #include "emmarchingcubessurface.h"
 
@@ -25,6 +25,7 @@ static const char* rcsID = "$Id: emmarchingcubessurface.cc,v 1.15 2009-03-06 22:
 #include "marchingcubes.h"
 #include "randcolor.h"
 #include "streamconn.h"
+#include "separstr.h"
 
 #include "emmanager.h"
 
@@ -199,9 +200,32 @@ protected:
 };
 
 
+void EM::MarchingCubesSurface::initClass()
+{
+    SeparString sep( 0, FactoryBase::cSeparator() );
+    sep += typeStr();
+    sep += "MarchingCubesSurface";
+    EMOF().addCreator( create, sep.buf() );
+}
 
-mImplementEMObjFuncs( EM::MarchingCubesSurface, 
-		      mcEMBodyTranslator::sKeyUserName() );
+
+EMObject* EM::MarchingCubesSurface::create( EM::EMManager& emm ) \
+{
+    EMObject* obj = new EM::MarchingCubesSurface( emm );
+    if ( !obj ) return 0;
+    obj->ref();
+    emm.addObject( obj );
+    obj->unRefNoDelete();
+    return obj;
+}
+
+
+const char* EM::MarchingCubesSurface::typeStr()
+{ return mcEMBodyTranslator::sKeyUserName(); }
+
+
+const char* EM::MarchingCubesSurface::getTypeStr() const
+{ return typeStr(); }
 
 
 EM::MarchingCubesSurface::MarchingCubesSurface( EM::EMManager& emm )
