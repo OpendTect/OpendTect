@@ -7,7 +7,7 @@ ________________________________________________________________________
 ________________________________________________________________________
 
 -*/
-static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.38 2009-04-27 10:38:28 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uifunctiondisplay.cc,v 1.39 2009-05-29 08:49:39 cvsnanne Exp $";
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
@@ -570,7 +570,7 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
     else if ( yval < yax_->range().start )
 	yval = yax_->range().start;
 
-    if ( xval > xvals_[xvals_.size()-1] )
+    if ( !xvals_.isEmpty() && xval > xvals_.last() )
     {
 	xvals_ += xval; yvals_ += yval;
 	selpt_ = xvals_.size()-1;
