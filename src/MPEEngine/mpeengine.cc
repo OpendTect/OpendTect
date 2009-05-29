@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.87 2009-05-07 07:29:23 cvsumesh Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.88 2009-05-29 05:37:01 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -412,29 +412,25 @@ const Attrib::DataCubes* Engine::getAttribCache( DataPack::ID datapackid )
 
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
     if ( cdp ) return &cdp->cube();
-    else
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
+    if ( fdp ) return &fdp->cube();
+
+    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack);
+    if ( dp2d )
     {
-	mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
-	if ( fdp ) return &fdp->cube();
-	else 
+	const Attrib::Data2DHolder* cache = 0;
+	cache = &dp2d->dataholder();
+	if ( cache )
 	{
-	    mDynamicCastGet(Attrib::Flat2DDHDataPack*,dp2d,datapack);
-	    if ( dp2d )
-	    {
-		const Attrib::Data2DHolder* cache = 0;
-		cache = &dp2d->dataholder();
-		if ( cache )
-		{
-		    Attrib::DataCubes* cube = 0;
-		    mTryAlloc( cube, Attrib::DataCubes );
-		    if ( !cache->fillDataCube(*cube) )
-			return 0;
-		    else
-			return cube;
-		}
-	    }
+	    Attrib::DataCubes* cube = 0;
+	    mTryAlloc( cube, Attrib::DataCubes );
+	    if ( !cache->fillDataCube(*cube) )
+		return 0;
+	    else
+		return cube;
 	}
     }
+
     return 0;
 }
 
@@ -725,8 +721,4 @@ void Engine::init()
     setActiveVolume( getDefaultActiveVolume() );
 }
 
-
-
-}; 
-
-
+} // namespace MPE
